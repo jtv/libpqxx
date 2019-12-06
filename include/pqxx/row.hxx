@@ -37,7 +37,7 @@ namespace pqxx
  * The row itself acts like a (non-modifyable) container, complete with its
  * own const_iterator and const_reverse_iterator.
  */
-class PQXX_LIBEXPORT row
+class row
 {
 public:
   using size_type = row_size_type;
@@ -49,55 +49,55 @@ public:
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  row() =default;
+  PQXX_LIBEXPORT row() =default;
 
   /// @deprecated Do not use this constructor.  It will become private.
-  row(result r, size_t i) noexcept;
+  PQXX_LIBEXPORT row(result r, size_t i) noexcept;
 
   /**
    * @name Comparison
    */
   //@{
-  PQXX_PURE bool operator==(const row &) const noexcept;		//[t75]
+  PQXX_LIBEXPORT PQXX_PURE bool operator==(const row &) const noexcept;		//[t75]
   bool operator!=(const row &rhs) const noexcept			//[t75]
       { return not operator==(rhs); }
   //@}
 
-  const_iterator begin() const noexcept;				//[t82]
-  const_iterator cbegin() const noexcept;
-  const_iterator end() const noexcept;					//[t82]
-  const_iterator cend() const noexcept;
+  PQXX_LIBEXPORT const_iterator begin() const noexcept;				//[t82]
+  PQXX_LIBEXPORT const_iterator cbegin() const noexcept;
+  PQXX_LIBEXPORT const_iterator end() const noexcept;					//[t82]
+  PQXX_LIBEXPORT const_iterator cend() const noexcept;
 
   /**
    * @name Field access
    */
   //@{
-  reference front() const noexcept;					//[t74]
-  reference back() const noexcept;					//[t75]
+  PQXX_LIBEXPORT reference front() const noexcept;					//[t74]
+  PQXX_LIBEXPORT reference back() const noexcept;					//[t75]
 
-  const_reverse_row_iterator rbegin() const;				//[t82]
-  const_reverse_row_iterator crbegin() const;
-  const_reverse_row_iterator rend() const;				//[t82]
-  const_reverse_row_iterator crend() const;
+  PQXX_LIBEXPORT const_reverse_row_iterator rbegin() const;				//[t82]
+  PQXX_LIBEXPORT const_reverse_row_iterator crbegin() const;
+  PQXX_LIBEXPORT const_reverse_row_iterator rend() const;				//[t82]
+  PQXX_LIBEXPORT const_reverse_row_iterator crend() const;
 
-  reference operator[](size_type) const noexcept;			//[t11]
-  reference operator[](int) const noexcept;				//[t02]
+  PQXX_LIBEXPORT reference operator[](size_type) const noexcept;			//[t11]
+  PQXX_LIBEXPORT reference operator[](int) const noexcept;				//[t02]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference operator[](const char[]) const;				//[t11]
+  PQXX_LIBEXPORT reference operator[](const char[]) const;				//[t11]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
   reference operator[](const std::string &s) const			//[t11]
   { return (*this)[s.c_str()]; }
 
-  reference at(size_type) const; 					//[t11]
-  reference at(int) const;						//[t11]
+  PQXX_LIBEXPORT reference at(size_type) const; 					//[t11]
+  PQXX_LIBEXPORT reference at(int) const;						//[t11]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(const char[]) const;					//[t11]
+  PQXX_LIBEXPORT reference at(const char[]) const;					//[t11]
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -108,7 +108,7 @@ public:
   size_type size() const noexcept					//[t11]
 						     { return m_end-m_begin; }
 
-  void swap(row &) noexcept;						//[t11]
+  PQXX_LIBEXPORT void swap(row &) noexcept;						//[t11]
 
   /// Row number, assuming this is a real row and not end()/rend().
   size_t rownumber() const noexcept { return size_t(m_index); }		//[t11]
@@ -122,10 +122,10 @@ public:
       { return column_number(ColName.c_str()); }
 
   /// Number of given column (throws exception if it doesn't exist).
-  size_type column_number(const char[]) const;       			//[t30]
+  PQXX_LIBEXPORT size_type column_number(const char[]) const;       			//[t30]
 
   /// Return a column's type.
-  oid column_type(size_type) const;					//[t07]
+  PQXX_LIBEXPORT oid column_type(size_type) const;					//[t07]
 
   /// Return a column's type.
   oid column_type(int ColNum) const					//[t07]
@@ -137,7 +137,7 @@ public:
       { return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(size_type ColNum) const;				//[t02]
+  PQXX_LIBEXPORT oid column_table(size_type ColNum) const;				//[t02]
 
   /// What table did this column come from?
   oid column_table(int ColNum) const					//[t02]
@@ -155,7 +155,7 @@ public:
    * @param ColNum a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  size_type table_column(size_type) const;				//[t93]
+  PQXX_LIBEXPORT size_type table_column(size_type) const;				//[t93]
 
   /// What column number in its table did this result column come from?
   size_type table_column(int ColNum) const				//[t93]
@@ -181,10 +181,10 @@ public:
    * not be designed with the possibility of empty rows in mind, be sure to
    * test for that case.
    */
-  row slice(size_type Begin, size_type End) const;
+  PQXX_LIBEXPORT row slice(size_type Begin, size_type End) const;
 
   // Is this an empty slice?
-  PQXX_PURE bool empty() const noexcept;
+  PQXX_LIBEXPORT PQXX_PURE bool empty() const noexcept;
 
 protected:
   friend class field;
