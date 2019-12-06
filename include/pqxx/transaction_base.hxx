@@ -34,13 +34,12 @@
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
 
-// Methods tested in eg. test module test01 are marked with "//[t01]".
 
 namespace pqxx::internal
 {
 class sql_cursor;
 
-class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
+class transactionfocus : public virtual namedclass
 {
 public:
   explicit transactionfocus(transaction_base &t) :
@@ -54,9 +53,9 @@ public:
   transactionfocus &operator=(const transactionfocus &) =delete;
 
 protected:
-  void register_me();
-  void unregister_me() noexcept;
-  void reg_pending_error(const std::string &) noexcept;
+  PQXX_LIBEXPORT void register_me();
+  PQXX_LIBEXPORT void unregister_me() noexcept;
+  PQXX_LIBEXPORT void reg_pending_error(const std::string &) noexcept;
   bool registered() const noexcept { return m_registered; }
 
   transaction_base &m_trans;
@@ -97,15 +96,14 @@ namespace pqxx
  *
  * Abstract base class for all transaction types.
  */
-class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
-  public virtual internal::namedclass
+class PQXX_NOVTABLE transaction_base : public virtual internal::namedclass
 {
 public:
   transaction_base() =delete;
   transaction_base(const transaction_base &) =delete;
   transaction_base &operator=(const transaction_base &) =delete;
 
-  virtual ~transaction_base() =0;					//[t01]
+  PQXX_LIBEXPORT virtual ~transaction_base() =0;
 
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
@@ -120,13 +118,13 @@ public:
    * to make this fact known to the caller.  The robusttransaction
    * implementation takes some special precautions to reduce this risk.
    */
-  void commit();							//[t01]
+  PQXX_LIBEXPORT void commit();
 
   /// Abort the transaction
   /** No special effort is required to call this function; it will be called
    * implicitly when the transaction is destructed.
    */
-  void abort();								//[t10]
+  PQXX_LIBEXPORT void abort();
 
   /**
    * @ingroup escaping-functions
@@ -152,10 +150,10 @@ public:
    * that can disrupt their use in SQL queries, they will be replaced with
    * special escape sequences.
    */
-  std::string esc_raw(const unsigned char data[], size_t len) const	//[t62]
+  std::string esc_raw(const unsigned char data[], size_t len) const
                                            { return conn().esc_raw(data, len); }
   /// Escape binary data for use as SQL string literal in this transaction
-  std::string esc_raw(const std::string &) const;			//[t62]
+  PQXX_LIBEXPORT std::string esc_raw(const std::string &) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -180,7 +178,7 @@ public:
   std::string quote_raw(const unsigned char str[], size_t len) const
 					  { return conn().quote_raw(str, len); }
 
-  std::string quote_raw(const std::string &str) const;
+  PQXX_LIBEXPORT std::string quote_raw(const std::string &str) const;
 
   /// Escape an SQL identifier for use in a query.
   std::string quote_name(const std::string &identifier) const
@@ -206,11 +204,11 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(
+  PQXX_LIBEXPORT result exec(
 	const std::string &Query,
-	const std::string &Desc=std::string{});				//[t01]
+	const std::string &Desc=std::string{});
 
-  result exec(
+  PQXX_LIBEXPORT result exec(
 	const std::stringstream &Query,
 	const std::string &Desc=std::string{})
 	{ return exec(Query.str(), Desc); }
@@ -221,7 +219,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(
+  PQXX_LIBEXPORT result exec0(
 	const std::string &Query,
 	const std::string &Desc=std::string{})
 	{ return exec_n(0, Query, Desc); }
@@ -242,7 +240,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec_n(
+  PQXX_LIBEXPORT result exec_n(
         size_t rows,
 	const std::string &Query,
 	const std::string &Desc=std::string{});
@@ -390,15 +388,15 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(const char Msg[]) const				//[t14]
+  void process_notice(const char Msg[]) const
 	{ m_conn.process_notice(Msg); }
   /// Have connection process a warning message.
-  void process_notice(const std::string &Msg) const			//[t14]
+  void process_notice(const std::string &Msg) const
 	{ m_conn.process_notice(Msg); }
   //@}
 
   /// The connection in which this transaction lives.
-  connection &conn() const { return m_conn; }				//[t04]
+  connection &conn() const { return m_conn; }
 
   /// Set session variable using SQL "SET" command.
   /** The new value is typically forgotten if the transaction aborts.
@@ -411,31 +409,32 @@ public:
    * @param var The variable to set.
    * @param value The new value to store in the variable.
    */
-  void set_variable(std::string_view var, std::string_view value);	//[t61]
+  PQXX_LIBEXPORT void set_variable(
+	std::string_view var, std::string_view value);
 
   /// Read session variable using SQL "SHOW" command.
   /** @warning This executes SQL.  Do not try to set or get variables while a
    * pipeline or table stream is active.
    */
-  std::string get_variable(std::string_view);   			//[t61]
+  PQXX_LIBEXPORT std::string get_variable(std::string_view);
 
 protected:
   /// Create a transaction (to be called by implementation classes only)
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
-  explicit transaction_base(connection &c);
+  PQXX_LIBEXPORT explicit transaction_base(connection &c);
 
   /// Register this transaction with the connection.
-  void register_transaction();
+  PQXX_LIBEXPORT void register_transaction();
 
   /// Begin transaction (to be called by implementing class)
   /** Will typically be called from implementing class' constructor.
    */
-  void Begin();
+  PQXX_LIBEXPORT void Begin();
 
   /// End transaction.  To be called by implementing class' destructor
-  void close() noexcept;
+  PQXX_LIBEXPORT void close() noexcept;
 
   /// To be implemented by derived implementation class: commit transaction
   virtual void do_commit() =0;
@@ -445,7 +444,7 @@ protected:
   // For use by implementing class:
 
   /// Execute query on connection directly.
-  result direct_exec(const char C[]);
+  PQXX_LIBEXPORT result direct_exec(const char C[]);
 
 private:
   enum class status
@@ -464,22 +463,22 @@ private:
   template<typename T> bool parm_is_null(T) const noexcept
 	{ return false; }
 
-  result internal_exec_prepared(
+  PQXX_LIBEXPORT result internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args);
 
-  result internal_exec_params(
+  PQXX_LIBEXPORT result internal_exec_params(
 	const std::string &query,
 	const internal::params &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
-  void check_rowcount_prepared(
+  PQXX_LIBEXPORT void check_rowcount_prepared(
 	const std::string &statement,
 	size_t expected_rows,
 	size_t actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
-  void check_rowcount_params(
+  PQXX_LIBEXPORT void check_rowcount_params(
 	size_t expected_rows, size_t actual_rows);
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
@@ -489,14 +488,14 @@ private:
 
   friend class pqxx::internal::gate::transaction_stream_from;
   PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
-  bool read_copy_line(std::string &);
+  PQXX_LIBEXPORT bool read_copy_line(std::string &);
 
   friend class pqxx::internal::gate::transaction_stream_to;
   PQXX_PRIVATE void BeginCopyWrite(
 	const std::string &Table,
 	const std::string &Columns);
-  void write_copy_line(std::string_view);
-  void end_copy_write();
+  PQXX_LIBEXPORT void write_copy_line(std::string_view);
+  PQXX_LIBEXPORT void end_copy_write();
 
   friend class pqxx::internal::gate::transaction_subtransaction;
 

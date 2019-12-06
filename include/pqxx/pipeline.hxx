@@ -23,8 +23,6 @@
 #include "pqxx/transaction_base.hxx"
 
 
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx
 {
 /// Processes several queries in FIFO manner, optimized for high throughput
