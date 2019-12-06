@@ -204,7 +204,7 @@ protected:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-class PQXX_LIBEXPORT const_row_iterator : public field
+class const_row_iterator : public field
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
@@ -230,9 +230,9 @@ public:
    * @name Manipulations
    */
   //@{
-  const_row_iterator operator++(int);					//[t82]
+  PQXX_LIBEXPORT const_row_iterator operator++(int);					//[t82]
   const_row_iterator &operator++() { ++m_col; return *this; }		//[t82]
-  const_row_iterator operator--(int);					//[t82]
+  PQXX_LIBEXPORT const_row_iterator operator--(int);					//[t82]
   const_row_iterator &operator--() { --m_col; return *this; }		//[t82]
 
   const_row_iterator &operator+=(difference_type i)			//[t82]
@@ -276,7 +276,7 @@ public:
 
 
 /// Reverse iterator for a row.  Use as row::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
+class const_reverse_row_iterator : private const_row_iterator
 {
 public:
   using super = const_row_iterator;
@@ -293,7 +293,7 @@ public:
     const_reverse_row_iterator(const super &rhs) noexcept :		//[t82]
       const_row_iterator{rhs} { super::operator--(); }
 
-  PQXX_PURE iterator_type base() const noexcept;			//[t82]
+  PQXX_LIBEXPORT PQXX_PURE iterator_type base() const noexcept;			//[t82]
 
   /**
    * @name Dereferencing operators
