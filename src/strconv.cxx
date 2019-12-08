@@ -136,7 +136,7 @@ integral_traits<T>::to_buf(char *begin, char *end, const T &value)
   static_assert(std::is_integral_v<T>);
   const ptrdiff_t
 	space = end - begin,
-	need = string_traits<T>::buffer_budget;
+	need = string_traits<T>::size_buffer(value);
   if (space < need)
     throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: "
