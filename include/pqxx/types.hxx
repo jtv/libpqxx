@@ -57,7 +57,7 @@ class transaction_base;
 // Export standard types.  Visual C++ more or less insists that we do this. :(
 namespace std
 {
-#if defined(PQXX_SHARED)
+#if !defined(PQXX_SHARED)
     extern
 #endif
 template class PQXX_LIBEXPORT basic_string<char>;
