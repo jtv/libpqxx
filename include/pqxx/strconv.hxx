@@ -25,6 +25,7 @@
 #endif
 
 #include "pqxx/except.hxx"
+#include "pqxx/util.hxx"
 
 
 namespace pqxx::internal
@@ -338,8 +339,15 @@ into_string(const TYPE &obj, std::string &out);
 /// Is @c value null?
 template<typename TYPE> inline bool is_null(const TYPE &value)
 {
-  if constexpr (nullness<TYPE>::has_null) return nullness<TYPE>::is_null(value);
-  else return false;
+  if constexpr (nullness<TYPE>::has_null)
+  {
+    return nullness<TYPE>::is_null(value);
+  }
+  else
+  {
+    ignore_unused(value);
+    return false;
+  }
 }
 //@}
 } // namespace pqxx
