@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(NOT SKIP_BUILD_TEST)
-	option(BUILD_TEST "Build all test cases" ON)
+    option(BUILD_TEST "Build all test cases" ON)
 endif()
 
 include(GNUInstallDirs)
@@ -23,7 +23,7 @@ include(config)
 add_subdirectory(src)
 add_subdirectory(include)
 if (BUILD_TEST)
-  add_subdirectory(test)
+    add_subdirectory(test)
 endif ()
 
 # installation
