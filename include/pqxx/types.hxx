@@ -10,6 +10,7 @@
 #define PQXX_H_TYPES
 
 #include <cstddef>
+#include <string>
 
 namespace pqxx
 {
@@ -50,5 +51,12 @@ class row;
 class stream_from;
 class transaction_base;
 } // namespace pqxx
+
+
+// Export standard types.  Visual C++ more or less insists that we do this. :(
+namespace std
+{
+template class PQXX_LIBEXPORT basic_string<char>;
+}
 
 #endif
