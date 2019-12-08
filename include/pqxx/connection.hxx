@@ -55,9 +55,6 @@
  * https://www.postgresql.org/docs/current/libpq-envars.html
  */
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
- */
-
 namespace pqxx::internal
 {
 class sql_cursor;
@@ -97,7 +94,7 @@ namespace pqxx
  * }
  * @endcode
  */
-std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
+std::string PQXX_LIBEXPORT encrypt_password(
 	const char user[],
 	const char password[]);
 
@@ -200,12 +197,12 @@ public:
    * temptation to check it after opening a connection.  Instead, just use the
    * connection and rely on getting a broken_connection exception if it failed.
    */
-  bool PQXX_PURE is_open() const noexcept;				//[t01]
+  bool PQXX_PURE is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const char[]) noexcept;				//[t14]
+  void process_notice(const char[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &) noexcept;			//[t14]
+  void process_notice(const std::string &) noexcept;
 
   /// Enable tracing to a given output stream, or nullptr to disable.
   void trace(std::FILE *) noexcept;
@@ -221,19 +218,19 @@ public:
    */
   //@{
   /// Name of database we're connected to, if any.
-  const char *dbname() const;						//[t01]
+  const char *dbname() const;
 
   /// Database user ID we're connected under, if any.
-  const char *username() const;						//[t01]
+  const char *username() const;
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
-  const char *hostname() const;						//[t01]
+  const char *hostname() const;
 
   /// Server port number we're connected to.
-  const char *port() const;						//[t01]
+  const char *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
-  int PQXX_PURE backendpid() const noexcept;				//[t01]
+  int PQXX_PURE backendpid() const noexcept;
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -251,13 +248,13 @@ public:
    * socket may change or even go away during any invocation of libpqxx code on
    * the connection.
    */
-  int PQXX_PURE sock() const noexcept;					//[t87]
+  int PQXX_PURE sock() const noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
    * possibly higher values as newer protocol versions come into use.
    */
-  int PQXX_PURE protocol_version() const noexcept;			//[t01]
+  int PQXX_PURE protocol_version() const noexcept;
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -272,7 +269,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const noexcept;			//[t01]
+  int PQXX_PURE server_version() const noexcept;
   //@}
 
   /// @name Text encoding
@@ -310,7 +307,7 @@ public:
   /**
    * @param Encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(const char encoding[]);			//[t07]
+  void set_client_encoding(const char encoding[]);
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   int PQXX_PRIVATE encoding_id() const;
@@ -333,7 +330,7 @@ public:
    * @param value New value for Var: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(							//[t60]
+  void set_variable(
 	std::string_view var,
 	std::string_view value);
 
@@ -341,7 +338,7 @@ public:
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
-  std::string get_variable(std::string_view);   			//[t60]
+  std::string get_variable(std::string_view);
   //@}
 
 
@@ -362,7 +359,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int get_notifs();							//[t04]
+  int get_notifs();
 
 
   /// Wait for a notification to come in.
@@ -374,7 +371,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int await_notification();						//[t78]
+  int await_notification();
 
   /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
@@ -385,7 +382,7 @@ public:
    *
    * @return Number of notifications processed
    */
-  int await_notification(long seconds, long microseconds);		//[t79]
+  int await_notification(long seconds, long microseconds);
   //@}
 
 
