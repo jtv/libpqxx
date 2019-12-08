@@ -312,7 +312,11 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
     bytes = len-written;
     memcpy(buf, &msg[written], bytes);
     // Add trailing nul byte, plus newline unless there already is one
-    strcpy(&buf[bytes], &"\n"[buf[bytes-1] == '\n']);
+    if (buf[bytes - 1] != '\n')
+    {
+      buf[bytes++] = '\n';
+      buf[bytes++] = '\0';
+    }
     process_notice_raw(buf);
   }
 }
