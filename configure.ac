@@ -14,8 +14,12 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE
 
+PQXX_MAJOR=m4_esyscmd_s([./tools/extract_version --major])
+PQXX_MINOR=m4_esyscmd_s([./tools/extract_version --minor])
 PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
 AC_SUBST(PQXXVERSION)
+AC_SUBST(PQXX_MAJOR)
+AC_SUBST(PQXX_MINOR)
 AC_SUBST(PQXX_ABI)
 
 AC_CONFIG_HEADER([include/pqxx/config.h])

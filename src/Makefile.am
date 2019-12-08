@@ -25,7 +25,7 @@ libpqxx_la_SOURCES = \
 	util.cxx \
 	version.cxx
 
-libpqxx_version = -release $(PQXX_ABI)
+libpqxx_version = -version-info $(PQXX_MAJOR):$(PQXX_MINOR):0
 
 libpqxx_la_LDFLAGS = $(libpqxx_version) \
 	-rpath $(libdir) \
