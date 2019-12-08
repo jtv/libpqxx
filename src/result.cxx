@@ -121,13 +121,13 @@ void pqxx::result::swap(result &rhs) noexcept
 }
 
 
-const pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
+pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 {
   return row{*this, i};
 }
 
 
-const pqxx::row pqxx::result::at(pqxx::result::size_type i) const
+pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 {
   if (i >= size()) throw range_error{"Row number out of range."};
   return operator[](i);
