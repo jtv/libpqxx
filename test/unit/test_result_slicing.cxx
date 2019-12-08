@@ -22,7 +22,7 @@ template<> struct string_traits<row::const_iterator>
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
-    std::strcpy(begin, text.c_str());
+    std::memcpy(begin, text.c_str(), text.size() + 1);
     return begin + text.size();
   }
   static constexpr size_t size_buffer(const row::const_iterator &) noexcept
@@ -42,7 +42,7 @@ template<> struct string_traits<row::const_reverse_iterator>
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
-    std::strcpy(begin, text.c_str());
+    std::memcpy(begin, text.c_str(), text.size() + 1);
     return begin + text.size();
   }
   static constexpr size_t

@@ -68,7 +68,7 @@ template<> struct string_traits<TestErrorHandler *>
     std::string text{"TestErrorHandler at " + pqxx::to_string(value)};
     if (static_cast<ptrdiff_t>(text.size()) >= (end - begin))
       throw conversion_overrun{"Not enough buffer for TestErrorHandler."};
-    std::strcpy(begin, text.c_str());
+    std::memcpy(begin, text.c_str(), text.size() + 1);
     return begin + text.size() + 1;
   }
 };
