@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(NOT SKIP_BUILD_TEST)
-	option(BUILD_TEST "Build all test cases" ON)
+    option(BUILD_TEST "Build all test cases" ON)
 endif()
 
 include(GNUInstallDirs)
@@ -22,33 +22,33 @@ include(config)
 
 add_subdirectory(src)
 add_subdirectory(include)
-if (BUILD_TEST)
-  add_subdirectory(test)
-endif ()
+if(BUILD_TEST)
+    add_subdirectory(test)
+endif()
 
 # installation
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
+	"${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY SameMajorVersion
 )
 install(FILES cmake/libpqxx-config.cmake "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
 )
 install(
-  EXPORT libpqxx-targets
-  NAMESPACE libpqxx::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
+	EXPORT libpqxx-targets
+	NAMESPACE libpqxx::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
 )
 # Build tree export
 export(EXPORT libpqxx-targets
-  NAMESPACE libpqxx::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-targets.cmake
+	NAMESPACE libpqxx::
+	FILE ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-targets.cmake
 )
 configure_file(
-  cmake/libpqxx-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config.cmake
-  COPYONLY
+	cmake/libpqxx-config.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config.cmake
+	COPYONLY
 )
 # Package generation
 set(CPACK_GENERATOR TGZ)
