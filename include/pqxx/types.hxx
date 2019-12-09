@@ -52,15 +52,4 @@ class stream_from;
 class transaction_base;
 } // namespace pqxx
 
-
-// XXX: Experimental.
-// Export standard types.  Visual C++ more or less insists that we do this. :(
-namespace std
-{
-#if !defined(PQXX_SHARED)
-    extern
-#endif
-template class PQXX_LIBEXPORT basic_string<char>;
-}
-
 #endif
