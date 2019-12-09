@@ -299,9 +299,9 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
     // (unavoidably, this will break up overly long messages!)
     const char separator[] = "[...]\n";
     char buf[1007];
-    size_t bytes = sizeof(buf)-sizeof(separator)-1;
+    size_t bytes = sizeof(buf) - sizeof(separator) - 1;
     size_t written;
-    strcpy(&buf[bytes], separator);
+    memcpy(&buf[bytes], separator, sizeof(separator));
     // Write all chunks but last.  Each will fill the buffer exactly.
     for (written = 0; (written+bytes) < len; written += bytes)
     {
@@ -312,7 +312,11 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
     bytes = len-written;
     memcpy(buf, &msg[written], bytes);
     // Add trailing nul byte, plus newline unless there already is one
-    strcpy(&buf[bytes], &"\n"[buf[bytes-1] == '\n']);
+    if (buf[bytes - 1] != '\n')
+    {
+      buf[bytes++] = '\n';
+      buf[bytes++] = '\0';
+    }
     process_notice_raw(buf);
   }
 }

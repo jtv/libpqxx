@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_RESULT_ITERATOR
 #define PQXX_H_RESULT_ITERATOR
@@ -32,7 +32,7 @@ namespace pqxx
  * plain iterator type for result.  However its const_iterator type can be
  * used to inspect its rows without changing them.
  */
-class PQXX_LIBEXPORT const_result_iterator : public row
+class const_result_iterator : public row
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
@@ -60,22 +60,22 @@ public:
    * algorithms.  So even if this makes me look foolish, I would seem to be in
    * distinguished company.
    */
-  pointer operator->() const { return this; }				//[t12]
-  reference operator*() const { return row{*this}; }			//[t12]
+  pointer operator->() const { return this; }
+  reference operator*() const { return row{*this}; }
   //@}
 
   /**
    * @name Manipulations
    */
   //@{
-  const_result_iterator operator++(int);				//[t12]
-  const_result_iterator &operator++() { ++m_index; return *this; }	//[t01]
-  const_result_iterator operator--(int);				//[t12]
-  const_result_iterator &operator--() { --m_index; return *this; }	//[t12]
+  PQXX_LIBEXPORT const_result_iterator operator++(int);
+  const_result_iterator &operator++() { ++m_index; return *this; }
+  PQXX_LIBEXPORT const_result_iterator operator--(int);
+  const_result_iterator &operator--() { --m_index; return *this; }
 
-  const_result_iterator &operator+=(difference_type i)			//[t12]
+  const_result_iterator &operator+=(difference_type i)
       { m_index += i; return *this; }
-  const_result_iterator &operator-=(difference_type i)			//[t12]
+  const_result_iterator &operator-=(difference_type i)
       { m_index -= i; return *this; }
   //@}
 
@@ -83,17 +83,17 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(const const_result_iterator &i) const			//[t12]
+  bool operator==(const const_result_iterator &i) const
       {return m_index==i.m_index;}
-  bool operator!=(const const_result_iterator &i) const			//[t12]
+  bool operator!=(const const_result_iterator &i) const
       {return m_index!=i.m_index;}
-  bool operator<(const const_result_iterator &i) const			//[t12]
+  bool operator<(const const_result_iterator &i) const
       {return m_index<i.m_index;}
-  bool operator<=(const const_result_iterator &i) const			//[t12]
+  bool operator<=(const const_result_iterator &i) const
       {return m_index<=i.m_index;}
-  bool operator>(const const_result_iterator &i) const			//[t12]
+  bool operator>(const const_result_iterator &i) const
       {return m_index>i.m_index;}
-  bool operator>=(const const_result_iterator &i) const			//[t12]
+  bool operator>=(const const_result_iterator &i) const
       {return m_index>=i.m_index;}
   //@}
 
@@ -101,12 +101,12 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  inline const_result_iterator operator+(difference_type) const;	//[t12]
-  friend const_result_iterator operator+(				//[t12]
+  inline const_result_iterator operator+(difference_type) const;
+  friend const_result_iterator operator+(
 	difference_type,
 	const_result_iterator);
-  inline const_result_iterator operator-(difference_type) const;	//[t12]
-  inline difference_type operator-(const_result_iterator) const;	//[t12]
+  inline const_result_iterator operator-(difference_type) const;
+  inline difference_type operator-(const_result_iterator) const;
   //@}
 
 private:
@@ -117,7 +117,7 @@ private:
 
 
 /// Reverse iterator for result.  Use as result::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_result_iterator :
+class const_reverse_result_iterator :
   private const_result_iterator
 {
 public:
@@ -129,39 +129,39 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_result_iterator(					//[t75]
+  const_reverse_result_iterator(
 	const const_reverse_result_iterator &rhs) :
     const_result_iterator{rhs} {}
-  explicit const_reverse_result_iterator(				//[t75]
+  explicit const_reverse_result_iterator(
 	const const_result_iterator &rhs) :
     const_result_iterator{rhs} { super::operator--(); }
 
-  PQXX_PURE const_result_iterator base() const noexcept;		//[t75]
+  PQXX_LIBEXPORT PQXX_PURE const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators
    */
   //@{
-  using const_result_iterator::operator->;				//[t75]
-  using const_result_iterator::operator*;				//[t75]
+  using const_result_iterator::operator->;
+  using const_result_iterator::operator*;
   //@}
 
   /**
    * @name Manipulations
    */
   //@{
-  const_reverse_result_iterator &operator=(				//[t75]
+  const_reverse_result_iterator &operator=(
 	const const_reverse_result_iterator &r)
       { iterator_type::operator=(r); return *this; }
-  const_reverse_result_iterator &operator++()				//[t75]
+  const_reverse_result_iterator &operator++()
       { iterator_type::operator--(); return *this; }
-  const_reverse_result_iterator operator++(int);			//[t75]
-  const_reverse_result_iterator &operator--()				//[t75]
+  PQXX_LIBEXPORT const_reverse_result_iterator operator++(int);
+  const_reverse_result_iterator &operator--()
       { iterator_type::operator++(); return *this; }
-  const_reverse_result_iterator operator--(int);			//[t75]
-  const_reverse_result_iterator &operator+=(difference_type i)		//[t75]
+  PQXX_LIBEXPORT const_reverse_result_iterator operator--(int);
+  const_reverse_result_iterator &operator+=(difference_type i)
       { iterator_type::operator-=(i); return *this; }
-  const_reverse_result_iterator &operator-=(difference_type i)		//[t75]
+  const_reverse_result_iterator &operator-=(difference_type i)
       { iterator_type::operator+=(i); return *this; }
   //@}
 
@@ -169,11 +169,11 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  const_reverse_result_iterator operator+(difference_type i) const	//[t75]
+  const_reverse_result_iterator operator+(difference_type i) const
       { return const_reverse_result_iterator(base() - i); }
-  const_reverse_result_iterator operator-(difference_type i)		//[t75]
+  const_reverse_result_iterator operator-(difference_type i)
       { return const_reverse_result_iterator(base() + i); }
-  difference_type operator-(						//[t75]
+  difference_type operator-(
 	const const_reverse_result_iterator &rhs) const
       { return rhs.const_result_iterator::operator-(*this); }
   //@}
@@ -182,20 +182,18 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(							//[t75]
-	const const_reverse_result_iterator &rhs) const noexcept
+  bool operator==(const const_reverse_result_iterator &rhs) const noexcept
       { return iterator_type::operator==(rhs); }
-  bool operator!=(							//[t75]
-	const const_reverse_result_iterator &rhs) const noexcept
+  bool operator!=(const const_reverse_result_iterator &rhs) const noexcept
       { return not operator==(rhs); }
 
-  bool operator<(const const_reverse_result_iterator &rhs) const	//[t75]
+  bool operator<(const const_reverse_result_iterator &rhs) const
       { return iterator_type::operator>(rhs); }
-  bool operator<=(const const_reverse_result_iterator &rhs) const	//[t75]
+  bool operator<=(const const_reverse_result_iterator &rhs) const
       { return iterator_type::operator>=(rhs); }
-  bool operator>(const const_reverse_result_iterator &rhs) const	//[t75]
+  bool operator>(const const_reverse_result_iterator &rhs) const
       { return iterator_type::operator<(rhs); }
-  bool operator>=(const const_reverse_result_iterator &rhs) const	//[t75]
+  bool operator>=(const const_reverse_result_iterator &rhs) const
       { return iterator_type::operator<=(rhs); }
   //@}
 };

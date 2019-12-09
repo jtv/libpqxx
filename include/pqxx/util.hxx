@@ -24,7 +24,7 @@
 #include <typeinfo>
 #include <vector>
 
-#include "pqxx/strconv.hxx"
+#include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
 
 
@@ -116,8 +116,15 @@ PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
 
 /// The "null" oid.
 constexpr oid oid_none = 0;
+} // namespace pqxx
 
 
+// Include this late, so strconv can also include ignore_unused from here.
+#include "pqxx/strconv.hxx"
+
+
+namespace pqxx
+{
 /**
  * @defgroup utility Utility functions
  */

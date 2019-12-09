@@ -45,7 +45,7 @@
 
 // Suppress vtables on abstract classes.
 //#define PQXX_NOVTABLE __declspec(novtable)
-// TODO: Figure out why this seems to result in "unresolved symbol" errors.
+// XXX: Figure out why this seems to result in "unresolved symbol" errors.
 #define PQXX_NOVTABLE
 
 // Automatically link with the appropriate libpq (static or dynamic, debug or

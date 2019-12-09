@@ -1,11 +1,11 @@
 enable_testing()
 
 file(
-    GLOB TEST_SOURCES
+	GLOB TEST_SOURCES
 ###MAKTEMPLATE:FOREACH test/test*.cxx
-    ###BASENAME###.cxx
+	###BASENAME###.cxx
 ###MAKTEMPLATE:ENDFOREACH
-    runner.cxx
+	runner.cxx
 )
 
 add_executable(runner ${TEST_SOURCES})

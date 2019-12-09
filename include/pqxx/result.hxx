@@ -27,8 +27,6 @@
 #include "pqxx/internal/encodings.hxx"
 
 
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx::internal
 {
 PQXX_LIBEXPORT void clear_result(const pq::PGresult *);
@@ -67,7 +65,7 @@ namespace pqxx
  * the same result set--even if it is doing so through a different result
  * object!
  */
-class PQXX_LIBEXPORT result
+class result
 {
 public:
   using size_type = result_size_type;
@@ -84,111 +82,111 @@ public:
       m_query(),
       m_encoding(internal::encoding_group::MONOBYTE)
     {}
-  result(const result &rhs) noexcept =default;				//[t01]
+  result(const result &rhs) noexcept =default;
 
-  result &operator=(const result &rhs) noexcept =default;		//[t10]
+  PQXX_LIBEXPORT result &operator=(const result &rhs) noexcept =default;
 
   /**
    * @name Comparisons
    */
   //@{
-  bool operator==(const result &) const noexcept;			//[t70]
-  bool operator!=(const result &rhs) const noexcept			//[t70]
+  PQXX_LIBEXPORT bool operator==(const result &) const noexcept;
+  bool operator!=(const result &rhs) const noexcept
 	{ return not operator==(rhs); }
   //@}
 
-  const_reverse_iterator rbegin() const;				//[t75]
-  const_reverse_iterator crbegin() const;
-  const_reverse_iterator rend() const;					//[t75]
-  const_reverse_iterator crend() const;
+  PQXX_LIBEXPORT const_reverse_iterator rbegin() const;
+  PQXX_LIBEXPORT const_reverse_iterator crbegin() const;
+  PQXX_LIBEXPORT const_reverse_iterator rend() const;
+  PQXX_LIBEXPORT const_reverse_iterator crend() const;
 
-  const_iterator begin() const noexcept;				//[t01]
-  const_iterator cbegin() const noexcept;
-  inline const_iterator end() const noexcept;				//[t01]
+  PQXX_LIBEXPORT const_iterator begin() const noexcept;
+  PQXX_LIBEXPORT const_iterator cbegin() const noexcept;
+  inline const_iterator end() const noexcept;
   inline const_iterator cend() const noexcept;
 
-  reference front() const noexcept;					//[t74]
-  reference back() const noexcept;					//[t75]
+  PQXX_LIBEXPORT reference front() const noexcept;
+  PQXX_LIBEXPORT reference back() const noexcept;
 
-  PQXX_PURE size_type size() const noexcept;				//[t02]
-  PQXX_PURE bool empty() const noexcept;				//[t11]
-  size_type capacity() const noexcept { return size(); }		//[t20]
+  PQXX_LIBEXPORT PQXX_PURE size_type size() const noexcept;
+  PQXX_LIBEXPORT PQXX_PURE bool empty() const noexcept;
+  size_type capacity() const noexcept { return size(); }
 
-  void swap(result &) noexcept;						//[t77]
+  PQXX_LIBEXPORT void swap(result &) noexcept;
 
-  const row operator[](size_type i) const noexcept;			//[t02]
-  const row at(size_type) const;					//[t10]
+  PQXX_LIBEXPORT row operator[](size_type i) const noexcept;
+  PQXX_LIBEXPORT row at(size_type) const;
 
-  void clear() noexcept { m_data.reset(); m_query = nullptr; }		//[t20]
+  void clear() noexcept { m_data.reset(); m_query = nullptr; }
 
   /**
    * @name Column information
    */
   //@{
   /// Number of columns in result.
-  PQXX_PURE row_size_type columns() const noexcept;			//[t11]
+  PQXX_LIBEXPORT PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const char ColName[]) const;		//[t11]
+  PQXX_LIBEXPORT row_size_type column_number(const char ColName[]) const;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const std::string &Name) const		//[t11]
+  row_size_type column_number(const std::string &Name) const
 	{return column_number(Name.c_str());}
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  const char *column_name(row_size_type Number) const;			//[t11]
+  PQXX_LIBEXPORT const char *column_name(row_size_type Number) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  oid column_type(row_size_type ColNum) const;				//[t07]
+  PQXX_LIBEXPORT oid column_type(row_size_type ColNum) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  oid column_type(int ColNum) const					//[t07]
+  oid column_type(int ColNum) const
 	{ return column_type(row_size_type(ColNum)); }
 
   /// Return column's type, as an OID from the system catalogue.
   template<typename STRING>
-  oid column_type(STRING ColName) const					//[t07]
+  oid column_type(STRING ColName) const
 	{ return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  oid column_table(row_size_type ColNum) const;				//[t02]
+  PQXX_LIBEXPORT oid column_table(row_size_type ColNum) const;
 
   /// What table did this column come from?
-  oid column_table(int ColNum) const					//[t02]
+  oid column_table(int ColNum) const
 	{ return column_table(row_size_type(ColNum)); }
 
   /// What table did this column come from?
   template<typename STRING>
-  oid column_table(STRING ColName) const				//[t02]
+  oid column_table(STRING ColName) const
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
-  row_size_type table_column(row_size_type ColNum) const;		//[t93]
+  PQXX_LIBEXPORT row_size_type table_column(row_size_type ColNum) const;
 
   /// What column in its table did this column come from?
-  row_size_type table_column(int ColNum) const				//[t93]
+  row_size_type table_column(int ColNum) const
 	{ return table_column(row_size_type(ColNum)); }
 
   /// What column in its table did this column come from?
   template<typename STRING>
-  row_size_type table_column(STRING ColName) const			//[t93]
+  row_size_type table_column(STRING ColName) const
 	{ return table_column(column_number(ColName)); }
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  PQXX_PURE const std::string &query() const noexcept;			//[t70]
+  PQXX_LIBEXPORT PQXX_PURE const std::string &query() const noexcept;
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
-  PQXX_PURE oid inserted_oid() const;					//[t13]
+  PQXX_LIBEXPORT PQXX_PURE oid inserted_oid() const;
 
   /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected rows
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
-  PQXX_PURE size_type affected_rows() const;				//[t07]
+  PQXX_LIBEXPORT PQXX_PURE size_type affected_rows() const;
 
 
 private:
@@ -210,14 +208,16 @@ private:
   static const std::string s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
-  PQXX_PURE bool get_is_null(size_type Row, row_size_type Col) const;
-  PQXX_PURE field_size_type get_length(
+  PQXX_LIBEXPORT PQXX_PURE const char *
+  GetValue(size_type Row, row_size_type Col) const;
+  PQXX_LIBEXPORT PQXX_PURE bool
+  get_is_null(size_type Row, row_size_type Col) const;
+  PQXX_LIBEXPORT PQXX_PURE field_size_type get_length(
 	size_type,
 	row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
-  result(
+  PQXX_LIBEXPORT result(
         internal::pq::PGresult *rhs,
         const std::string &Query,
         internal::encoding_group enc);
@@ -236,7 +236,7 @@ private:
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  PQXX_PURE const char *cmd_status() const noexcept;
+  PQXX_LIBEXPORT PQXX_PURE const char *cmd_status() const noexcept;
 };
 } // namespace pqxx
 

@@ -12,7 +12,7 @@
 # Generated from template './src/CMakeLists.txt.template'.
 ################################################################################
 if(NOT PostgreSQL_INCLUDE_DIRS)
-        find_package(PostgreSQL REQUIRED)
+    find_package(PostgreSQL REQUIRED)
 endif()
 
 # When setting up the include paths, mention the binary tree's include
@@ -21,50 +21,50 @@ endif()
 # the ones in the binary tree.
 macro(library_target_setup tgt)
     target_include_directories(${tgt}
-        PUBLIC
-            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        PRIVATE
-            ${PostgreSQL_INCLUDE_DIRS}
+    	PUBLIC
+    		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    	PRIVATE
+    		${PostgreSQL_INCLUDE_DIRS}
     )
     target_link_libraries(${tgt} PRIVATE ${PostgreSQL_LIBRARIES})
     if(WIN32)
         target_link_libraries(${tgt} PUBLIC wsock32 ws2_32)
     endif()
     install(TARGETS ${tgt} EXPORT libpqxx-targets
-      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
 endmacro()
 
 file(
-    GLOB CXX_SOURCES
-    array.cxx
-    binarystring.cxx
-    connection.cxx
-    cursor.cxx
-    encodings.cxx
-    errorhandler.cxx
-    except.cxx
-    field.cxx
-    largeobject.cxx
-    notification.cxx
-    pipeline.cxx
-    result.cxx
-    robusttransaction.cxx
-    row.cxx
-    sql_cursor.cxx
-    statement_parameters.cxx
-    strconv.cxx
-    stream_from.cxx
-    stream_to.cxx
-    subtransaction.cxx
-    transaction.cxx
-    transaction_base.cxx
-    util.cxx
-    version.cxx
+	GLOB CXX_SOURCES
+	array.cxx
+	binarystring.cxx
+	connection.cxx
+	cursor.cxx
+	encodings.cxx
+	errorhandler.cxx
+	except.cxx
+	field.cxx
+	largeobject.cxx
+	notification.cxx
+	pipeline.cxx
+	result.cxx
+	robusttransaction.cxx
+	row.cxx
+	sql_cursor.cxx
+	statement_parameters.cxx
+	strconv.cxx
+	stream_from.cxx
+	stream_to.cxx
+	subtransaction.cxx
+	transaction.cxx
+	transaction_base.cxx
+	util.cxx
+	version.cxx
 )
 
 if(NOT SKIP_PQXX_SHARED)

@@ -55,9 +55,6 @@
  * https://www.postgresql.org/docs/current/libpq-envars.html
  */
 
-/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
- */
-
 namespace pqxx::internal
 {
 class sql_cursor;
@@ -97,7 +94,7 @@ namespace pqxx
  * }
  * @endcode
  */
-std::string PQXX_LIBEXPORT encrypt_password(				//[t00]
+std::string PQXX_LIBEXPORT encrypt_password(
 	const char user[],
 	const char password[]);
 
@@ -149,7 +146,7 @@ enum class error_verbosity : int
  * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
  * if you want your program to continue running after a connection fails.
  */
-class PQXX_LIBEXPORT connection
+class connection
 {
 public:
   connection()
@@ -182,7 +179,7 @@ public:
    * situations, other objects may hold references to the old object which
    * would become invalid and might produce hard-to-diagnose bugs.
    */
-  connection(connection &&rhs);
+  PQXX_LIBEXPORT connection(connection &&rhs);
 
   ~connection() { try { close(); } catch (const std::exception &) {} }
 
@@ -190,7 +187,7 @@ public:
   /** Neither connection can have an open transaction, registered error
    * handlers, or registered notification receivers.
    */
-  connection &operator=(connection &&rhs);
+  PQXX_LIBEXPORT connection &operator=(connection &&rhs);
 
   connection(const connection &) =delete;
   connection &operator=(const connection &) =delete;
@@ -200,15 +197,15 @@ public:
    * temptation to check it after opening a connection.  Instead, just use the
    * connection and rely on getting a broken_connection exception if it failed.
    */
-  bool PQXX_PURE is_open() const noexcept;				//[t01]
+  PQXX_LIBEXPORT bool PQXX_PURE is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const char[]) noexcept;				//[t14]
+  PQXX_LIBEXPORT void process_notice(const char[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &) noexcept;			//[t14]
+  PQXX_LIBEXPORT void process_notice(const std::string &) noexcept;
 
   /// Enable tracing to a given output stream, or nullptr to disable.
-  void trace(std::FILE *) noexcept;
+  PQXX_LIBEXPORT void trace(std::FILE *) noexcept;
 
   /**
    * @name Connection properties
@@ -221,19 +218,19 @@ public:
    */
   //@{
   /// Name of database we're connected to, if any.
-  const char *dbname() const;						//[t01]
+  PQXX_LIBEXPORT const char *dbname() const;
 
   /// Database user ID we're connected under, if any.
-  const char *username() const;						//[t01]
+  PQXX_LIBEXPORT const char *username() const;
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
-  const char *hostname() const;						//[t01]
+  PQXX_LIBEXPORT const char *hostname() const;
 
   /// Server port number we're connected to.
-  const char *port() const;						//[t01]
+  PQXX_LIBEXPORT const char *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
-  int PQXX_PURE backendpid() const noexcept;				//[t01]
+  PQXX_LIBEXPORT int PQXX_PURE backendpid() const noexcept;
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -251,13 +248,13 @@ public:
    * socket may change or even go away during any invocation of libpqxx code on
    * the connection.
    */
-  int PQXX_PURE sock() const noexcept;					//[t87]
+  PQXX_LIBEXPORT int PQXX_PURE sock() const noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
    * possibly higher values as newer protocol versions come into use.
    */
-  int PQXX_PURE protocol_version() const noexcept;			//[t01]
+  PQXX_LIBEXPORT int PQXX_PURE protocol_version() const noexcept;
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -272,7 +269,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const noexcept;			//[t01]
+  PQXX_LIBEXPORT int PQXX_PURE server_version() const noexcept;
   //@}
 
   /// @name Text encoding
@@ -297,7 +294,7 @@ public:
    */
   //@{
   /// Get client-side character encoding, by name.
-  std::string get_client_encoding() const;
+  PQXX_LIBEXPORT std::string get_client_encoding() const;
 
   /// Set client-side character encoding, by name.
   /**
@@ -310,7 +307,7 @@ public:
   /**
    * @param Encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(const char encoding[]);			//[t07]
+  PQXX_LIBEXPORT void set_client_encoding(const char encoding[]);
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   int PQXX_PRIVATE encoding_id() const;
@@ -333,7 +330,7 @@ public:
    * @param value New value for Var: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(							//[t60]
+  PQXX_LIBEXPORT void set_variable(
 	std::string_view var,
 	std::string_view value);
 
@@ -341,7 +338,7 @@ public:
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
-  std::string get_variable(std::string_view);   			//[t60]
+  PQXX_LIBEXPORT std::string get_variable(std::string_view);
   //@}
 
 
@@ -362,7 +359,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int get_notifs();							//[t04]
+  PQXX_LIBEXPORT int get_notifs();
 
 
   /// Wait for a notification to come in.
@@ -374,7 +371,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int await_notification();						//[t78]
+  PQXX_LIBEXPORT int await_notification();
 
   /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
@@ -385,7 +382,7 @@ public:
    *
    * @return Number of notifications processed
    */
-  int await_notification(long seconds, long microseconds);		//[t79]
+  PQXX_LIBEXPORT int await_notification(long seconds, long microseconds);
   //@}
 
 
@@ -439,7 +436,7 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(const char name[], const char definition[]);
+  PQXX_LIBEXPORT void prepare(const char name[], const char definition[]);
 
   void prepare(const std::string &name, const std::string &definition)
   { prepare(name.c_str(), definition.c_str()); }
@@ -451,12 +448,12 @@ public:
    * feature, always keep the definition and the use close together to avoid
    * the nameless statement being redefined unexpectedly by code somewhere else.
    */
-  void prepare(const char definition[]);
+  PQXX_LIBEXPORT void prepare(const char definition[]);
   void prepare(const std::string &definition)
   { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
-  void unprepare(std::string_view name);
+  PQXX_LIBEXPORT void unprepare(std::string_view name);
 
   /**
    * @}
@@ -466,7 +463,7 @@ public:
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
-  std::string adorn_name(std::string_view);				//[90]
+  PQXX_LIBEXPORT std::string adorn_name(std::string_view);
 
   /**
    * @defgroup escaping-functions String-escaping functions
@@ -489,10 +486,11 @@ public:
   /** @warning If the string contains a zero byte, escaping stops there even
    * if it's not at the end of the string!
    */
-  std::string esc(std::string_view str) const;
+  PQXX_LIBEXPORT std::string esc(std::string_view str) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  std::string esc_raw(const unsigned char str[], size_t len) const;
+  PQXX_LIBEXPORT std::string esc_raw(
+	const unsigned char str[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -505,13 +503,14 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const char text[]) const;
+  PQXX_LIBEXPORT std::string unesc_raw(const char text[]) const;
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(const unsigned char str[], size_t len) const;
+  PQXX_LIBEXPORT std::string quote_raw(
+	const unsigned char str[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
-  std::string quote_name(std::string_view identifier) const;
+  PQXX_LIBEXPORT std::string quote_name(std::string_view identifier) const;
 
   /// Represent object as SQL string, including quoting & escaping.
   /**
@@ -524,7 +523,7 @@ public:
     return "'" + this->esc(to_string(t)) + "'";
   }
 
-  std::string quote(const binarystring &) const;
+  PQXX_LIBEXPORT std::string quote(const binarystring &) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
@@ -550,11 +549,12 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  std::string esc_like(std::string_view str, char escape_char='\\') const;
+  PQXX_LIBEXPORT std::string
+  esc_like(std::string_view str, char escape_char='\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
-  void cancel_query();
+  PQXX_LIBEXPORT void cancel_query();
 
   /// Set session verbosity.
   /** Set the verbosity of error messages to "terse", "normal" (the default),
@@ -565,7 +565,7 @@ public:
    *  that include the above plus any detail, hint, or context fields (these
    *  might span multiple lines).  "verbose" includes all available fields.
    */
-  void set_verbosity(error_verbosity verbosity) noexcept;
+  PQXX_LIBEXPORT void set_verbosity(error_verbosity verbosity) noexcept;
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -580,18 +580,19 @@ public:
    * The pointers point to the real errorhandlers.  The container it returns
    * however is a copy of the one internal to the connection, not a reference.
    */
-  std::vector<errorhandler *> get_errorhandlers() const;
+  PQXX_LIBEXPORT std::vector<errorhandler *> get_errorhandlers() const;
 
   /// Close the connection now.
-  void close();
+  PQXX_LIBEXPORT void close();
 
 private:
-  void init(const char options[]);
+  PQXX_LIBEXPORT void init(const char options[]);
 
-  void wait_read() const;
-  void wait_read(long seconds, long microseconds) const;
+  PQXX_LIBEXPORT void wait_read() const;
+  PQXX_LIBEXPORT void wait_read(long seconds, long microseconds) const;
 
-  result make_result(internal::pq::PGresult *rhs, const std::string &query);
+  PQXX_LIBEXPORT result
+  make_result(internal::pq::PGresult *rhs, const std::string &query);
 
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
@@ -599,23 +600,24 @@ private:
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
   friend class internal::gate::const_connection_largeobject;
-  const char * PQXX_PURE err_msg() const noexcept;
+  PQXX_LIBEXPORT const char * PQXX_PURE err_msg() const noexcept;
 
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
-  void read_capabilities();
+  PQXX_LIBEXPORT void read_capabilities();
 
-  result exec_prepared(const std::string &statement, const internal::params &);
+  PQXX_LIBEXPORT result
+  exec_prepared(const std::string &statement, const internal::params &);
 
   /// Set libpq notice processor to call connection's error handlers chain.
-  void set_notice_processor();
+  PQXX_LIBEXPORT void set_notice_processor();
   /// Clear libpq notice processor.
-  void clear_notice_processor();
+  PQXX_LIBEXPORT void clear_notice_processor();
 
   /// Throw @c usage_error if this connection is not in a movable state.
-  void check_movable() const;
+  PQXX_LIBEXPORT void check_movable() const;
   /// Throw @c usage_error if not in a state where it can be move-assigned.
-  void check_overwritable() const;
+  PQXX_LIBEXPORT void check_overwritable() const;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
@@ -633,19 +635,19 @@ private:
   internal::pq::PGconn *raw_connection() const { return m_conn; }
 
   friend class internal::gate::connection_notification_receiver;
-  void add_receiver(notification_receiver *);
-  void remove_receiver(notification_receiver *) noexcept;
+  PQXX_LIBEXPORT void add_receiver(notification_receiver *);
+  PQXX_LIBEXPORT void remove_receiver(notification_receiver *) noexcept;
 
   friend class internal::gate::connection_pipeline;
   void PQXX_PRIVATE start_exec(const char query[]);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;
-  internal::pq::PGresult *get_result();
+  PQXX_LIBEXPORT internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params(
+  PQXX_LIBEXPORT result exec_params(
 	const std::string &query,
 	const internal::params &args);
 
@@ -674,9 +676,10 @@ using connection_base = connection;
 
 namespace pqxx::internal
 {
-void wait_read(const internal::pq::PGconn *);
-void wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
-void wait_write(const internal::pq::PGconn *);
+PQXX_LIBEXPORT void wait_read(const internal::pq::PGconn *);
+PQXX_LIBEXPORT void
+wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
+PQXX_LIBEXPORT void wait_write(const internal::pq::PGconn *);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
