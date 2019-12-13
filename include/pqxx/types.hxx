@@ -10,7 +10,6 @@
 #define PQXX_H_TYPES
 
 #include <cstddef>
-#include <string>
 
 namespace pqxx
 {
