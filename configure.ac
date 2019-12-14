@@ -17,7 +17,7 @@ AM_INIT_AUTOMAKE
 PQXX_MAJOR=m4_esyscmd_s([./tools/extract_version --major])
 PQXX_MINOR=m4_esyscmd_s([./tools/extract_version --minor])
 PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
-AC_SUBST(PQXXVERSION)
+AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_MAJOR)
 AC_SUBST(PQXX_MINOR)
 AC_SUBST(PQXX_ABI)
