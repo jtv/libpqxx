@@ -15,7 +15,7 @@ AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE
 
 PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
-AC_SUBST(PQXXVERSION)
+AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
 AC_CONFIG_HEADER([include/pqxx/config.h])
