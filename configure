@@ -19183,6 +19183,39 @@ occurring in the file.
 fi
 
 
+
+# PQencryptPasswordConn was added in postgres 10.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PQencryptPasswordConn" >&5
+$as_echo_n "checking for PQencryptPasswordConn... " >&6; }
+have_pqencryptpasswordconn=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include<${with_postgres_include}/libpq-fe.h>
+int
+main ()
+{
+
+			extern PGconn *conn;
+			PQencryptPasswordConn(
+				conn, "pwd", "user", "scram-sha-256")
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_PQENCRYPTPASSWORDCONN 1" >>confdefs.h
+
+else
+  have_pqencryptpasswordconn=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_pqencryptpasswordconn" >&5
+$as_echo "$have_pqencryptpasswordconn" >&6; }
+
+
 # Remove redundant occurrances of -lpq
 LIBS=$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')
 

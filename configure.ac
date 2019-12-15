@@ -460,6 +460,27 @@ occurring in the file.
 ])],
 	${with_postgres_libpath})
 
+
+# PQencryptPasswordConn was added in postgres 10.
+AC_MSG_CHECKING([for PQencryptPasswordConn])
+have_pqencryptpasswordconn=yes
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include<${with_postgres_include}/libpq-fe.h>],
+		[
+			extern PGconn *conn;
+			PQencryptPasswordConn(
+				conn, "pwd", "user", "scram-sha-256")
+		]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_PQENCRYPTPASSWORDCONN],
+		1,
+		[Define if libpq has PQencryptPasswordConn (since pg 10).]),
+	[have_pqencryptpasswordconn=no])
+AC_MSG_RESULT($have_pqencryptpasswordconn)
+
+
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 

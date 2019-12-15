@@ -10,6 +10,7 @@ PQXX_HAVE_CXA_DEMANGLE	internal	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	internal	compiler
 PQXX_HAVE_POLL       internal        compiler
+PQXX_HAVE_PQENCRYPTPASSWORDCONN	internal	libpq
 PQXX_HAVE_STRNLEN       public        compiler
 PQXX_HAVE_STRNLEN_S       public        compiler
 VERSION	internal	autotools

@@ -21,6 +21,7 @@
 #include <memory>
 #include <string_view>
 
+#include "pqxx/config-internal-libpq.h"
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/prepared_statement.hxx"
@@ -76,29 +77,12 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
-// TODO: Replace with a new connection method.
-/// Encrypt password for given user.
-/** Use this when setting a new password for the user if password encryption is
- * enabled.  Inputs are the username the password is for, and the plaintext
- * password.
- *
- * @return encrypted version of the password, suitable for encrypted PostgreSQL
- * authentication.
- *
- * Thus the password for a user can be changed with:
- * @code
- * void setpw(transaction_base &t, const string &user, const string &pw)
- * {
- *   t.exec("ALTER USER " + user + " "
- *   	"PASSWORD '" + encrypt_password(user,pw) + "'");
- * }
- * @endcode
- */
+/// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
 std::string PQXX_LIBEXPORT encrypt_password(
 	const char user[],
 	const char password[]);
 
-/// Encrypt password for given user.
+/// Encrypt password.  @deprecated Use connection::encrypt_password instead.
 inline std::string encrypt_password(
 	const std::string &user,
 	const std::string &password)
@@ -385,6 +369,38 @@ public:
   PQXX_LIBEXPORT int await_notification(long seconds, long microseconds);
   //@}
 
+#if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
+  /// Encrypt a password for a given user.  Requires libpq 10 or better.
+  /** Use this when setting a new password for the user if password encryption
+   * is enabled.  Inputs are the SQL name for the user for whom you with to
+   * encrypt a password; the plaintext password; and the hash algorithm.
+   *
+   * The algorithm must be one of "md5", "scram-sha-256" (introduced in
+   * PostgreSQL 10), or @c nullptr.  If the pointer is null, this will query
+   * the @c password_encryption setting from the server, and use the default
+   * algorithm as defined there.
+   *
+   * @return encrypted version of the password, suitable for encrypted
+   * PostgreSQL authentication.
+   *
+   * Thus the password for a user can be changed with:
+   * @code
+   * void setpw(transaction_base &t, const string &user, const string &pw)
+   * {
+   *   t.exec0("ALTER USER " + user + " "
+   *   	"PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
+   * }
+   * @endcode
+   */
+  PQXX_LIBEXPORT std::string encrypt_password(
+	const char user[],
+	const char password[],
+	const char *algorithm=nullptr);
+  std::string encrypt_password(zview user, zview password, zview algorithm)
+  {
+    return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
+  }
+#endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
 
   /**
    * @name Prepared statements

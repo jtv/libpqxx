@@ -616,6 +616,20 @@ pqxx::result pqxx::connection::exec(const char Query[])
 }
 
 
+#if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
+std::string pqxx::connection::encrypt_password(
+	const char user[],
+	const char password[],
+	const char *algorithm)
+{
+  const auto buf = PQencryptPasswordConn(m_conn, user, password, algorithm);
+  std::unique_ptr<const char, std::function<void(const char *)>> ptr{
+          buf, pqxx::internal::freepqmem_templated<const char>};
+  return std::string{ptr.get()};
+}
+#endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
+
+
 void pqxx::connection::prepare(
 	const char name[],
 	const char definition[])

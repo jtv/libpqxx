@@ -57,6 +57,19 @@ void test_move_assign()
 }
 
 
+void test_encrypt_password()
+{
+  pqxx::connection c;
+  std::string pw{c.encrypt_password("user", "password")};
+  PQXX_CHECK(pw.size() != 0, "Encrypted password was empty.");
+  PQXX_CHECK_EQUAL(
+	std::strlen(pw.c_str()),
+	pw.size(),
+	"Encrypted password contains a null byte.");
+}
+
+
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
+PQXX_REGISTER_TEST(test_encrypt_password);
 } // namespace

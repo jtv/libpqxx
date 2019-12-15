@@ -78,6 +78,9 @@
 /* Define if poll() is available. */
 #undef PQXX_HAVE_POLL
 
+/* Define if libpq has PQencryptPasswordConn (since pg 10). */
+#undef PQXX_HAVE_PQENCRYPTPASSWORDCONN
+
 /* Define if compiler provides strnlen */
 #undef PQXX_HAVE_STRNLEN
 
