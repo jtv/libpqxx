@@ -10,17 +10,22 @@ endfunction(detect_code_compiled)
 
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
+include(CheckSymbolExists)
 include(CMakeDetermineCompileFeatures)
 include(CheckCXXSourceCompiles)
+include(CMakeFindDependencyMacro)
+find_dependency(PostgreSQL)
 
 check_function_exists("poll" PQXX_HAVE_POLL)
 
+set(CMAKE_REQUIRED_LIBRARIES pq)
+check_symbol_exists(
+	PQencryptPasswordConn
+	"${PostgreSQL_INCLUDE_DIR}/libpq-fe.h"
+	PQXX_HAVE_PQENCRYPTPASSWORDCONN)
+
 cmake_determine_compile_features(CXX)
 cmake_policy(SET CMP0057 NEW)
-if(cxx_attribute_deprecated IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-    set(PQXX_HAVE_DEPRECATED)
-endif()
-# detect_cxx_feature("cxx_attribute_deprecated" "PQXX_HAVE_DEPRECATED")
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.
@@ -62,7 +67,7 @@ try_compile(
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.
-# Wordaround: Pop CMAKE_REQUIRED_DEFINITIONS
+# Workaround: Pop CMAKE_REQUIRED_DEFINITIONS
 if(def)
     set(CMAKE_REQUIRED_DEFINITIONS ${def})
     unset(def CACHE)
@@ -75,6 +80,7 @@ set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
 set(CM_CONFIG_PUB "${PROJECT_BINARY_DIR}/include/pqxx/config-public-compiler.h")
 set(CM_CONFIG_INT "${PROJECT_BINARY_DIR}/include/pqxx/config-internal-compiler.h")
+set(CM_CONFIG_PQ "${PROJECT_BINARY_DIR}/include/pqxx/config-internal-libpq.h")
 message(STATUS "Generating config.h")
 file(WRITE "${CM_CONFIG_H_IN}" "")
 file(STRINGS "${AC_CONFIG_H_IN}" lines)
@@ -84,4 +90,5 @@ foreach(line ${lines})
 endforeach()
 configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_INT}" @ONLY)
 configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PUB}" @ONLY)
+configure_file("${CM_CONFIG_H_IN}" "${CM_CONFIG_PQ}" @ONLY)
 message(STATUS "Generating config.h - done")

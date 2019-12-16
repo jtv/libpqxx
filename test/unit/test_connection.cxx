@@ -1,5 +1,7 @@
 #include "../test_helpers.hxx"
 
+#include "pqxx/config-internal-libpq.h"
+
 namespace
 {
 void test_move_constructor()
@@ -59,13 +61,15 @@ void test_move_assign()
 
 void test_encrypt_password()
 {
+#if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
   pqxx::connection c;
-  std::string pw{c.encrypt_password("user", "password")};
+  auto pw = c.encrypt_password("user", "password");
   PQXX_CHECK(pw.size() != 0, "Encrypted password was empty.");
   PQXX_CHECK_EQUAL(
 	std::strlen(pw.c_str()),
 	pw.size(),
 	"Encrypted password contains a null byte.");
+#endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
 }
 
 
