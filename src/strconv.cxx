@@ -229,8 +229,7 @@ void throw_null_conversion(const std::string &type)
 }
 
 
-template<typename T1, typename T2>
-std::string state_buffer_overrun(T1 have_bytes, T2 need_bytes)
+std::string state_buffer_overrun(int have_bytes, int need_bytes)
 {
   // We convert these in standard library terms, not for the localisation
   // so much as to avoid "error cycles," if these values in turn should fail
@@ -240,12 +239,6 @@ std::string state_buffer_overrun(T1 have_bytes, T2 need_bytes)
   need << need_bytes;
   return "Have " + have.str() + " bytes, need " + need.str() + ".";
 }
-
-
-template std::string state_buffer_overrun<size_t, size_t>(size_t, size_t);
-template std::string state_buffer_overrun<size_t, ptrdiff_t>(size_t, ptrdiff_t);
-template std::string state_buffer_overrun<ptrdiff_t, size_t>(ptrdiff_t, size_t);
-template std::string state_buffer_overrun<ptrdiff_t, ptrdiff_t>(ptrdiff_t, ptrdiff_t);
 } // namespace pqxx::internal
 
 
