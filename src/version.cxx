@@ -20,4 +20,10 @@ int check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>() noexcept
 {
   return 0;
 }
+
+
+// Now explicitly instantiate the explicit specialisation, just to get
+// Visual Studio to export it when we're building a DLL.
+template
+int check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>() noexcept;
 } // namespace pqxx::internal

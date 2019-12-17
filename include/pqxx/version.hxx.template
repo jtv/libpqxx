@@ -48,7 +48,7 @@ namespace pqxx::internal
  * code, linking will fail with an error: @c check_library_version will not
  * exist for the given version number.
  */
-template<int, int> PQXX_LIBEXPORT int check_library_version() noexcept;
+template<int, int> extern PQXX_LIBEXPORT int check_library_version() noexcept;
 }
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif
