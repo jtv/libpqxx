@@ -23,9 +23,9 @@
 
 #pragma warning (disable: 4511) // Copy constructor could not be generated.
 #pragma warning (disable: 4512) // Assignment operator could not be generated.
+#pragma warning (disable: 4251) // Can't use standard library stuff in library.
 
 // XXX: Resolve this workaround.
-#pragma warning (disable: 4251) // Can't use standard library stuff in library.
 #pragma warning (disable: 4275) // Can't inherit from non-exported class.
 
 #endif // _MSC_VER
