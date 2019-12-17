@@ -35,9 +35,9 @@
  * by the compiler when linking to the dynamic version of the runtime library,
  * according to "gzh"
  */
-#if !defined(PQXX_LIBEXPORT) && defined(PQXX_SHARED)
+#if defined(PQXX_SHARED) && !defined(PQXX_LIBEXPORT)
 #define PQXX_LIBEXPORT __declspec(dllimport)
-#endif	// !PQXX_LIBEXPORT && PQXX_SHARED
+#endif	// PQXX_SHARED && !PQXX_LIBEXPORT
 
 
 // Workarounds for Microsoft Visual C++
