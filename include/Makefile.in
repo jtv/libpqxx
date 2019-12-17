@@ -356,7 +356,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
-	pqxx/internal/compiler-internal.hxx \
 	pqxx/internal/compiler-internal-pre.hxx \
 	pqxx/internal/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx \

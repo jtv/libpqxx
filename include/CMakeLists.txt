@@ -76,7 +76,6 @@ install(
 		PATTERN internal/callgate.hxx
 		PATTERN internal/compiler-internal-post.hxx
 		PATTERN internal/compiler-internal-pre.hxx
-		PATTERN internal/compiler-internal.hxx
 		PATTERN internal/conversions.hxx
 		PATTERN internal/encoding_group.hxx
 		PATTERN internal/encodings.hxx

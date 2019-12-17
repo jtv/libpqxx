@@ -6,7 +6,7 @@
  * COPYING with this source code, please notify the distributor of this mistake,
  * or contact the author.
  */
-#include "pqxx/internal/compiler-internal.hxx"
+#include "pqxx-source.hxx"
 
 #include <cassert>
 #include <cstddef>
