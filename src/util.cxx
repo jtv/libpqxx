@@ -25,7 +25,7 @@ extern "C"
 #include "pqxx/util"
 
 
-pqxx::thread_safety_model pqxx::describe_thread_safety() noexcept
+pqxx::thread_safety_model pqxx::describe_thread_safety()
 {
   thread_safety_model model;
 

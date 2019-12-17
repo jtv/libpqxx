@@ -84,17 +84,8 @@ inline PQXX_PRIVATE void check_version()
  */
 struct PQXX_LIBEXPORT thread_safety_model
 {
-  /// @deprecated Is error reporting thread-safe?  Now always true.
-  bool have_safe_strerror = true;
-
   /// Is the underlying libpq build thread-safe?
   bool safe_libpq;
-
-  /// @deprecated Query cancel is always thread-safe now.
-  bool safe_query_cancel = true;
-
-  /// @deprecated Always thread-safe to copy a 'result' or 'binarystring' now.
-  bool safe_result_copy = true;
 
   /// Is Kerberos thread-safe?
   /** @warning Is currently always @c false.
@@ -111,7 +102,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 
 
 /// Describe thread safety available in this build.
-PQXX_LIBEXPORT thread_safety_model describe_thread_safety() noexcept;
+PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
 /// The "null" oid.
