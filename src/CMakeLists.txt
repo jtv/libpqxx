@@ -28,7 +28,7 @@ macro(library_target_setup tgt)
     	PRIVATE
     		${PostgreSQL_INCLUDE_DIRS}
     )
-    target_link_libraries(${tgt} PRIVATE ${PostgreSQL_LIBRARIES})
+    target_link_libraries(${tgt} PUBLIC ${PostgreSQL_LIBRARIES})
     if(WIN32)
         target_link_libraries(${tgt} PUBLIC wsock32 ws2_32)
     endif()
@@ -76,7 +76,7 @@ if(NOT SKIP_PQXX_SHARED)
 
     # Build a shared library
     add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
-    target_compile_definitions(pqxx_shared PUBLIC -DPQXX_SHARED)
+    target_compile_definitions(pqxx_shared PUBLIC PQXX_SHARED)
     set_target_properties(pqxx_shared PROPERTIES
     	OUTPUT_NAME pqxx
     	VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
@@ -85,9 +85,10 @@ if(NOT SKIP_PQXX_SHARED)
     library_target_setup(pqxx_shared)
 endif()
 
-if(NOT SKIP_PQXX_STATIC)
-    # Build a static libary
-    add_library(pqxx_static STATIC ${CXX_SOURCES})
-    set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
-    library_target_setup(pqxx_static)
-endif()
+# XXX: Experimentally disabled.
+#if(NOT SKIP_PQXX_STATIC)
+#    # Build a static libary
+#    add_library(pqxx_static STATIC ${CXX_SOURCES})
+#    set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
+#    library_target_setup(pqxx_static)
+#endif()
