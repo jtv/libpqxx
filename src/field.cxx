@@ -60,17 +60,17 @@ pqxx::row::size_type pqxx::field::table_column() const
 
 const char *pqxx::field::c_str() const
 {
-  return home().GetValue(idx(), col());
+  return home().GetValue(static_cast<result::size_type>(idx()), col());
 }
 
 
 bool pqxx::field::is_null() const noexcept
 {
-  return home().get_is_null(idx(), col());
+  return home().get_is_null(static_cast<result::size_type>(idx()), col());
 }
 
 
 pqxx::field::size_type pqxx::field::size() const noexcept
 {
-  return home().get_length(idx(), col());
+  return home().get_length(static_cast<result::size_type>(idx()), col());
 }
