@@ -104,8 +104,8 @@ struct float_traits
    * point; the full number of base-10 digits which may be needed; a decimal
    * point if needed; and the terminating zero.
    */
-  static inline constexpr int buffer_budget =
-	1 + 1 + std::numeric_limits<T>::max_digits10 + 1 + 1;
+  static inline constexpr int buffer_budget{
+	1 + 1 + std::numeric_limits<T>::max_digits10 + 1 + 1};
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, const T &value);
@@ -178,7 +178,7 @@ template<typename T> struct nullness<std::optional<T>>
 
 template<typename T> struct string_traits<std::optional<T>>
 {
-  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+  static inline constexpr int buffer_budget{string_traits<T>::buffer_budget};
 
   static char *into_buf(char *begin, char *end, const std::optional<T> &value)
   { return string_traits<T>::into_buf(begin, end, *value); }
@@ -207,7 +207,7 @@ inline T from_string(const std::stringstream &text)
 
 template<> struct string_traits<std::nullptr_t>
 {
-  static inline constexpr int buffer_budget = 0;
+  static inline constexpr int buffer_budget{0};
 
   static constexpr zview to_buf(
 	char *, char *, const std::nullptr_t &
@@ -228,6 +228,8 @@ template<> struct nullness<const char *>
 /// String traits for C-style string ("pointer to const char").
 template<> struct string_traits<const char *>
 {
+  static inline constexpr int buffer_budget{-1};
+
   static const char *from_string(std::string_view text) { return text.data(); }
 
   static zview to_buf(char *begin, char *end, const char * const &value)
@@ -271,6 +273,8 @@ template<> struct nullness<char *>
 /// String traits for non-const C-style string ("pointer to char").
 template<> struct string_traits<char *>
 {
+  static inline constexpr int
+  buffer_budget{string_traits<const char *>::buffer_budget};
   static char *into_buf(char *begin, char *end, char * const &value)
   { return string_traits<const char *>::into_buf(begin, end, value); }
   static zview to_buf(char *begin, char *end, char * const &value)
@@ -288,10 +292,12 @@ template<size_t N> struct nullness<char[N]> : no_null<char[N]> {};
 /// String traits for C-style string constant ("array of char").
 template<size_t N> struct string_traits<char[N]>
 {
+// XXX: Get the terminating zero right.
+  static inline constexpr int buffer_budget{N + 1};
   static char *into_buf(char *begin, char *end, const char (&value)[N])
   { return string_traits<const char *>::into_buf(begin, end, value); }
   static constexpr size_t size_buffer(const char (&)[N]) noexcept
-  { return N + 1; }
+  { return buffer_budget; }
 
   // Don't allow conversion to this type since it breaks const-safety.
 };
@@ -302,6 +308,8 @@ template<> struct nullness<std::string> : no_null<std::string> {};
 
 template<> struct string_traits<std::string>
 {
+  static inline constexpr int buffer_budget{-1};
+
   static std::string from_string(std::string_view text)
 	{ return std::string{text}; }
 
@@ -340,6 +348,7 @@ template<> struct string_traits<std::string_view>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
 
+  static inline constexpr int buffer_budget{-1};
   static constexpr size_t size_buffer(const std::string_view &value) noexcept
   { return value.size() + 1; }
 };
@@ -353,6 +362,7 @@ template<> struct string_traits<zview>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
 
+  static inline constexpr int buffer_budget{-1};
   static constexpr size_t size_buffer(const std::string_view &value) noexcept
   { return value.size() + 1; }
 };
@@ -363,6 +373,7 @@ template<> struct nullness<std::stringstream> : no_null<std::stringstream> {};
 
 template<> struct string_traits<std::stringstream>
 {
+  static inline constexpr int buffer_budget{-1};
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
@@ -392,7 +403,7 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 
 template<typename T> struct string_traits<std::unique_ptr<T>>
 {
-  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+  static inline constexpr int buffer_budget{string_traits<T>::buffer_budget};
 
   static std::unique_ptr<T> from_string(std::string_view text)
   { return std::make_unique<T>(string_traits<T>::from_string(text)); }
@@ -423,7 +434,7 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
-  static inline constexpr int buffer_budget = string_traits<T>::buffer_budget;
+  static inline constexpr int buffer_budget{string_traits<T>::buffer_budget};
 
   static std::shared_ptr<T> from_string(std::string_view text)
   { return std::make_shared<T>(string_traits<T>::from_string(text)); }
@@ -447,7 +458,7 @@ namespace pqxx::internal
  */
 template<
 	typename T,
-	typename = std::enable_if_t<&string_traits<T>::to_buf != nullptr>
+	typename = std::enable_if_t<(string_traits<T>::buffer_budget >= 0)>
 >
 class str_impl
 {
@@ -481,6 +492,24 @@ private:
   std::string m_str;
 };
 
+
+template<typename T>
+class str_impl<
+	T,
+	std::enable_if_t<
+		not std::is_same_v<T, std::string> and
+		(string_traits<T>::buffer_budget < 0)
+	>
+>
+{
+  explicit str_impl(const T &value) : m_str{to_string(value)} {}
+
+  zview view() const noexcept { return zview(m_str); }
+  const char *c_str() const noexcept { return m_str.c_str(); }
+
+private:
+  std::string m_str;
+};
 
 /// Inline char arrays up to this size inside a @c str.
 constexpr std::size_t string_stack_threshold = 100;

@@ -76,7 +76,7 @@ template<> struct nullness<ipv4> : no_null<ipv4> {};
 
 template<> struct string_traits<ipv4>
 {
-  static inline constexpr int buffer_budget = 16;
+  static inline constexpr int buffer_budget{16};
 
   static ipv4 from_string(std::string_view str)
   {
@@ -158,7 +158,7 @@ template<> struct nullness<bytea> : no_null<bytea> {};
 
 template<> struct string_traits<bytea>
 {
-  static inline constexpr int buffer_budget = 1000;
+  static inline constexpr int buffer_budget{1000};
 
   static bytea from_string(std::string_view str)
   {
