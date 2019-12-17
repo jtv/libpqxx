@@ -245,7 +245,7 @@ namespace pqxx
  * This class can create or adopt cursors that live outside any backend
  * transaction, which your backend version may not support.
  */
-class icursorstream
+class PQXX_LIBEXPORT icursorstream
 {
 public:
   using size_type = cursor_base::size_type;
@@ -263,7 +263,7 @@ public:
    * @param sstride Number of rows to fetch per read operation; must be a
    * positive number.
    */
-  PQXX_LIBEXPORT icursorstream(
+  icursorstream(
 	transaction_base &context,
 	const std::string &query,
 	const std::string &basename,
@@ -294,7 +294,7 @@ public:
    * @param op Ownership policy.  Determines whether the cursor underlying this
    * stream will be destroyed when the stream is closed.
    */
-  PQXX_LIBEXPORT icursorstream(
+  icursorstream(
 	transaction_base &context,
 	const field &cname,
 	difference_type sstride=1,
@@ -324,24 +324,24 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.ignore(2).get(r).ignore(4);")
    */
-  PQXX_LIBEXPORT icursorstream &ignore(std::streamsize n=1);
+  icursorstream &ignore(std::streamsize n=1);
 
   /// Change stride, i.e. the number of rows to fetch per read operation
   /**
    * @param stride Must be a positive number
    */
-  PQXX_LIBEXPORT void set_stride(difference_type stride);
+  void set_stride(difference_type stride);
   difference_type stride() const noexcept { return m_stride; }
 
 private:
-  PQXX_LIBEXPORT result fetchblock();
+  result fetchblock();
 
   friend class internal::gate::icursorstream_icursor_iterator;
-  PQXX_LIBEXPORT size_type forward(size_type n=1);
-  PQXX_LIBEXPORT void insert_iterator(icursor_iterator *) noexcept;
-  PQXX_LIBEXPORT void remove_iterator(icursor_iterator *) const noexcept;
+  size_type forward(size_type n=1);
+  void insert_iterator(icursor_iterator *) noexcept;
+  void remove_iterator(icursor_iterator *) const noexcept;
 
-  PQXX_LIBEXPORT void service_iterators(difference_type);
+  void service_iterators(difference_type);
 
   internal::sql_cursor m_cur;
 
