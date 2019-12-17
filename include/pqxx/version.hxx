@@ -42,9 +42,9 @@ namespace pqxx::internal
  *
  * This function's definition is in the libpqxx binary, so it's based on the
  * version as found in the binary.  The headers contain a call to the function,
- * specialised on the libpqxx version as found in the headers.  (The library
- * build process will use its own local headers even if another version of the
- * headers is installed on the system.)
+ * whose name contains the libpqxx version as found in the headers.  (The
+ * library build process will use its own local headers even if another version
+ * of the headers is installed on the system.)
  *
  * If the libpqxx binary was compiled for a different version than the user's
  * code, linking will fail with an error: @c check_library_version will not
