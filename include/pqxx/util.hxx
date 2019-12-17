@@ -74,8 +74,7 @@ inline PQXX_PRIVATE void check_version()
   // often for performance reasons.  A local static variable is initialised
   // only on the definition's first execution.  Compilers will be well
   // optimised for this behaviour, so there's a minimal one-time cost.
-  static const auto version_ok =
-    internal::check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>();
+  static const auto version_ok = internal::PQXX_VERSION_CHECK();
   ignore_unused(version_ok);
 }
 

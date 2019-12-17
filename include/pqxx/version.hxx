@@ -23,6 +23,9 @@
 /// Minor version number.
 #define PQXX_VERSION_MINOR 0
 
+#define PQXX_VERSION_CHECK \
+	check_pqxx_version_##PQXX_VERSION_MAJOR##_##PQXX_VERSION_MINOR
+
 namespace pqxx::internal
 {
 /// Library version check stub.
@@ -37,18 +40,17 @@ namespace pqxx::internal
  * error when the libpqxx binary is not the same version as the libpqxx headers
  * used to compile the code.
  *
- * This is a template declaration, but its only actual definition is a
- * sepcialisation for the current library version.  The definition is in the
- * libpqxx binary, so it's based on the version as found in the binary.  The
- * headers contain a call to the function, specialised on the libpqxx version
- * as found in the headers.  (The library build process will use its own local
- * headers even if another version of the headers is installed on the system.)
+ * This function's definition is in the libpqxx binary, so it's based on the
+ * version as found in the binary.  The headers contain a call to the function,
+ * specialised on the libpqxx version as found in the headers.  (The library
+ * build process will use its own local headers even if another version of the
+ * headers is installed on the system.)
  *
  * If the libpqxx binary was compiled for a different version than the user's
  * code, linking will fail with an error: @c check_library_version will not
  * exist for the given version number.
  */
-template<int, int> PQXX_LIBEXPORT int check_library_version() noexcept;
+PQXX_LIBEXPORT int PQXX_VERSION_CHECK() noexcept;
 }
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

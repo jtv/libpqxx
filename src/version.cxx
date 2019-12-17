@@ -12,14 +12,9 @@
 
 namespace pqxx::internal
 {
-// One, single definition of this function.  If a call fails to link, then the
-// libpqxx binary was built against a different libpqxx version than the code
-// which is being linked against it.
-template<int, int> PQXX_LIBEXPORT int check_library_version() noexcept
+// One, single definition of this function.  If a call fails to link, and
+// (some) other calls do link, then the libpqxx binary was built against a
+// different libpqxx version than the code which is being linked against it.
+PQXX_LIBEXPORT int PQXX_VERSION_CHECK() noexcept
 { return 0; }
-
-
-// Export an explicit instantiation.
-template PQXX_LIBEXPORT int
-check_library_version<PQXX_VERSION_MAJOR, PQXX_VERSION_MINOR>() noexcept;
 } // namespace pqxx::internal
