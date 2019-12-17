@@ -12,6 +12,7 @@
 #define PQXX_H_UTIL
 
 #include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <cstdio>
 #include <cctype>
@@ -353,4 +354,5 @@ PQXX_LIBEXPORT void sleep_seconds(int);
 
 } // namespace pqxx::internal
 
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif
