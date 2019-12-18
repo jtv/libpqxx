@@ -502,6 +502,7 @@ class str_impl<
 	>
 >
 {
+public:
   explicit str_impl(const T &value) : m_str{to_string(value)} {}
 
   zview view() const noexcept { return zview(m_str); }
