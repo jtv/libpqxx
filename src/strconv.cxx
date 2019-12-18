@@ -141,7 +141,8 @@ integral_traits<T>::to_buf(char *begin, char *end, const T &value)
     throw conversion_overrun{
 	"Could not convert " + type_name<T> + " to string: "
         "buffer too small.  " +
-         pqxx::internal::state_buffer_overrun(space, need)
+         pqxx::internal::state_buffer_overrun(
+		static_cast<int>(space), static_cast<int>(need))
 	};
 
   char *pos;
@@ -515,7 +516,7 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
     throw conversion_error{
 	"Could not convert floating-point number to string: "
 	"buffer too small.  " +
-        state_buffer_overrun(have, need)
+        state_buffer_overrun(static_cast<int>(have), static_cast<int>(need))
 	};
   std::memcpy(begin, text.c_str(), need);
   return zview{begin, text.size()};
