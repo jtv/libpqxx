@@ -37,7 +37,7 @@ namespace pqxx
  * first of these, but any fetch in the forward direction will move the cursor
  * off this position and onto the first row before returning anything.
  */
-class cursor_base
+class PQXX_LIBEXPORT cursor_base
 {
 public:
   using size_type = result_size_type;
@@ -103,7 +103,7 @@ public:
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
-  PQXX_LIBEXPORT static difference_type all() noexcept;
+  static difference_type all() noexcept;
 
   /// Special value: read one row only.
   /** @return Unsurprisingly, 1.
@@ -118,7 +118,7 @@ public:
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
-  PQXX_LIBEXPORT static difference_type backward_all() noexcept;
+  static difference_type backward_all() noexcept;
 
   //@}
 
@@ -381,7 +381,7 @@ private:
  * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one, or
  * destroying one affects the stream as a whole.
  */
-class icursor_iterator
+class PQXX_LIBEXPORT icursor_iterator
 {
 public:
   using iterator_category = std::input_iterator_tag;
@@ -392,22 +392,22 @@ public:
   using size_type = istream_type::size_type;
   using difference_type = istream_type::difference_type;
 
-  PQXX_LIBEXPORT icursor_iterator() noexcept;
-  PQXX_LIBEXPORT explicit icursor_iterator(istream_type &) noexcept;
-  PQXX_LIBEXPORT icursor_iterator(const icursor_iterator &) noexcept;
-  PQXX_LIBEXPORT ~icursor_iterator() noexcept;
+  icursor_iterator() noexcept;
+  explicit icursor_iterator(istream_type &) noexcept;
+  icursor_iterator(const icursor_iterator &) noexcept;
+  ~icursor_iterator() noexcept;
 
   const result &operator*() const { refresh(); return m_here; }
   const result *operator->() const { refresh(); return &m_here; }
-  PQXX_LIBEXPORT icursor_iterator &operator++();
-  PQXX_LIBEXPORT icursor_iterator operator++(int);
-  PQXX_LIBEXPORT icursor_iterator &operator+=(difference_type);
-  PQXX_LIBEXPORT icursor_iterator &operator=(const icursor_iterator &) noexcept;
+  icursor_iterator &operator++();
+  icursor_iterator operator++(int);
+  icursor_iterator &operator+=(difference_type);
+  icursor_iterator &operator=(const icursor_iterator &) noexcept;
 
-  PQXX_LIBEXPORT bool operator==(const icursor_iterator &rhs) const;
+  bool operator==(const icursor_iterator &rhs) const;
   bool operator!=(const icursor_iterator &rhs) const noexcept
 	{ return not operator==(rhs); }
-  PQXX_LIBEXPORT bool operator<(const icursor_iterator &rhs) const;
+  bool operator<(const icursor_iterator &rhs) const;
   bool operator>(const icursor_iterator &rhs) const
 	{ return rhs < *this; }
   bool operator<=(const icursor_iterator &rhs) const
@@ -416,11 +416,11 @@ public:
 	{ return not (*this < rhs); }
 
 private:
-  PQXX_LIBEXPORT void refresh() const;
+  void refresh() const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }
-  PQXX_LIBEXPORT void fill(const result &);
+  void fill(const result &);
 
   icursorstream *m_stream = nullptr;
   result m_here;

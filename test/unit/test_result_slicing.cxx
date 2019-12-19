@@ -64,7 +64,7 @@ void test_result_slicing()
   // Empty slice at beginning of row.
   pqxx::row s = r[0].slice(0, 0);
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
-  PQXX_CHECK_EQUAL(s.size(), 0u, "Slicing produces wrong row size.");
+  PQXX_CHECK_EQUAL(s.size(), 0, "Slicing produces wrong row size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
 
@@ -75,7 +75,7 @@ void test_result_slicing()
   // Empty slice at end of row.
   s = r[0].slice(1, 1);
   PQXX_CHECK(s.empty(), "empty() is broken.");
-  PQXX_CHECK_EQUAL(s.size(), 0u, "size() is broken.");
+  PQXX_CHECK_EQUAL(s.size(), 0, "size() is broken.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "rbegin()/rend() are broken.");
 
@@ -84,7 +84,7 @@ void test_result_slicing()
   // Slice that matches the entire row.
   s = r[0].slice(0, 1);
   PQXX_CHECK(not s.empty(), "Nonempty slice shows up as empty.");
-  PQXX_CHECK_EQUAL(s.size(), 1u, "size() breaks for non-empty slice.");
+  PQXX_CHECK_EQUAL(s.size(), 1, "size() breaks for non-empty slice.");
   PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration is broken.");
   PQXX_CHECK_EQUAL(s.rbegin() + 1, s.rend(), "Reverse iteration is broken.");
   PQXX_CHECK_EQUAL(s.at(0).as<int>(), 1, "Accessing a slice is broken.");
@@ -129,7 +129,7 @@ void test_result_slicing()
 	"Can access column name after slice.");
   PQXX_CHECK_EQUAL(
 	s.column_number("Two"),
-	0u,
+	0,
 	"Column name is case sensitive.");
 
   // Identical column names.

@@ -236,7 +236,7 @@ pqxx::result pqxx::transaction_base::exec(
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-	size_t rows,
+	result::size_type rows,
 	const std::string &Query,
 	const std::string &Desc)
 {

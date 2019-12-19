@@ -43,12 +43,12 @@ void test_030()
     return;
   }
 
-  PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 reports wrong number.");
+  PQXX_CHECK_EQUAL(R[0].rownumber(), 0, "Row 0 reports wrong number.");
 
   if (R.size() < 2)
     std::cout << "(Only one row in table.)\n";
   else
-    PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 reports wrong number.");
+    PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 reports wrong number.");
 
   for (pqxx::row::size_type c = 0; c < R[0].size(); ++c)
   {

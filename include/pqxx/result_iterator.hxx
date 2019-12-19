@@ -32,7 +32,7 @@ namespace pqxx
  * plain iterator type for result.  However its const_iterator type can be
  * used to inspect its rows without changing them.
  */
-class const_result_iterator : public row
+class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
@@ -68,9 +68,9 @@ public:
    * @name Manipulations
    */
   //@{
-  PQXX_LIBEXPORT const_result_iterator operator++(int);
+  const_result_iterator operator++(int);
   const_result_iterator &operator++() { ++m_index; return *this; }
-  PQXX_LIBEXPORT const_result_iterator operator--(int);
+  const_result_iterator operator--(int);
   const_result_iterator &operator--() { --m_index; return *this; }
 
   const_result_iterator &operator+=(difference_type i)
@@ -117,7 +117,7 @@ private:
 
 
 /// Reverse iterator for result.  Use as result::const_reverse_iterator.
-class const_reverse_result_iterator :
+class PQXX_LIBEXPORT const_reverse_result_iterator :
   private const_result_iterator
 {
 public:
@@ -136,7 +136,7 @@ public:
 	const const_result_iterator &rhs) :
     const_result_iterator{rhs} { super::operator--(); }
 
-  PQXX_LIBEXPORT PQXX_PURE const_result_iterator base() const noexcept;
+  PQXX_PURE const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators
@@ -155,10 +155,10 @@ public:
       { iterator_type::operator=(r); return *this; }
   const_reverse_result_iterator &operator++()
       { iterator_type::operator--(); return *this; }
-  PQXX_LIBEXPORT const_reverse_result_iterator operator++(int);
+  const_reverse_result_iterator operator++(int);
   const_reverse_result_iterator &operator--()
       { iterator_type::operator++(); return *this; }
-  PQXX_LIBEXPORT const_reverse_result_iterator operator--(int);
+  const_reverse_result_iterator operator--(int);
   const_reverse_result_iterator &operator+=(difference_type i)
       { iterator_type::operator-=(i); return *this; }
   const_reverse_result_iterator &operator-=(difference_type i)

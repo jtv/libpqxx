@@ -35,7 +35,7 @@ namespace pqxx
  * The row itself acts like a (non-modifyable) container, complete with its
  * own const_iterator and const_reverse_iterator.
  */
-class row
+class PQXX_LIBEXPORT row
 {
 public:
   using size_type = row_size_type;
@@ -47,53 +47,53 @@ public:
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  PQXX_LIBEXPORT row() =default;
+  row() =default;
 
   /// @deprecated Do not use this constructor.  It will become private.
-  PQXX_LIBEXPORT row(result r, result_size_type i) noexcept;
+  row(result r, result_size_type i) noexcept;
 
   /**
    * @name Comparison
    */
   //@{
-  PQXX_LIBEXPORT PQXX_PURE bool operator==(const row &) const noexcept;
+  PQXX_PURE bool operator==(const row &) const noexcept;
   bool operator!=(const row &rhs) const noexcept
       { return not operator==(rhs); }
   //@}
 
-  PQXX_LIBEXPORT const_iterator begin() const noexcept;
-  PQXX_LIBEXPORT const_iterator cbegin() const noexcept;
-  PQXX_LIBEXPORT const_iterator end() const noexcept;
-  PQXX_LIBEXPORT const_iterator cend() const noexcept;
+  const_iterator begin() const noexcept;
+  const_iterator cbegin() const noexcept;
+  const_iterator end() const noexcept;
+  const_iterator cend() const noexcept;
 
   /**
    * @name Field access
    */
   //@{
-  PQXX_LIBEXPORT reference front() const noexcept;
-  PQXX_LIBEXPORT reference back() const noexcept;
+  reference front() const noexcept;
+  reference back() const noexcept;
 
-  PQXX_LIBEXPORT const_reverse_row_iterator rbegin() const;
-  PQXX_LIBEXPORT const_reverse_row_iterator crbegin() const;
-  PQXX_LIBEXPORT const_reverse_row_iterator rend() const;
-  PQXX_LIBEXPORT const_reverse_row_iterator crend() const;
+  const_reverse_row_iterator rbegin() const;
+  const_reverse_row_iterator crbegin() const;
+  const_reverse_row_iterator rend() const;
+  const_reverse_row_iterator crend() const;
 
-  PQXX_LIBEXPORT reference operator[](size_type) const noexcept;
+  reference operator[](size_type) const noexcept;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  PQXX_LIBEXPORT reference operator[](const char[]) const;
+  reference operator[](const char[]) const;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
   reference operator[](const std::string &s) const
   { return (*this)[s.c_str()]; }
 
-  PQXX_LIBEXPORT reference at(size_type) const; 
+  reference at(size_type) const; 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  PQXX_LIBEXPORT reference at(const char[]) const;
+  reference at(const char[]) const;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -104,7 +104,7 @@ public:
   size_type size() const noexcept
   { return m_end-m_begin; }
 
-  PQXX_LIBEXPORT void swap(row &) noexcept;
+  void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
   result::size_type rownumber() const noexcept { return m_index; }
@@ -118,10 +118,10 @@ public:
       { return column_number(ColName.c_str()); }
 
   /// Number of given column (throws exception if it doesn't exist).
-  PQXX_LIBEXPORT size_type column_number(const char[]) const;       
+  size_type column_number(const char[]) const;       
 
   /// Return a column's type.
-  PQXX_LIBEXPORT oid column_type(size_type) const;
+  oid column_type(size_type) const;
 
   /// Return a column's type.
   template<typename STRING>
@@ -129,7 +129,7 @@ public:
       { return column_type(column_number(ColName)); }
 
   /// What table did this column come from?
-  PQXX_LIBEXPORT oid column_table(size_type ColNum) const;
+  oid column_table(size_type ColNum) const;
 
   /// What table did this column come from?
   template<typename STRING>
@@ -144,7 +144,7 @@ public:
    * @param ColNum a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  PQXX_LIBEXPORT size_type table_column(size_type) const;
+  size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
   template<typename STRING>
@@ -166,10 +166,10 @@ public:
    * not be designed with the possibility of empty rows in mind, be sure to
    * test for that case.
    */
-  PQXX_LIBEXPORT row slice(size_type Begin, size_type End) const;
+  row slice(size_type Begin, size_type End) const;
 
   // Is this an empty slice?
-  PQXX_LIBEXPORT PQXX_PURE bool empty() const noexcept;
+  PQXX_PURE bool empty() const noexcept;
 
 protected:
   friend class field;
@@ -189,7 +189,7 @@ protected:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-class const_row_iterator : public field
+class PQXX_LIBEXPORT const_row_iterator : public field
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
@@ -215,9 +215,9 @@ public:
    * @name Manipulations
    */
   //@{
-  PQXX_LIBEXPORT const_row_iterator operator++(int);
+  const_row_iterator operator++(int);
   const_row_iterator &operator++() { ++m_col; return *this; }
-  PQXX_LIBEXPORT const_row_iterator operator--(int);
+  const_row_iterator operator--(int);
   const_row_iterator &operator--() { --m_col; return *this; }
 
   const_row_iterator &operator+=(difference_type i)
@@ -259,7 +259,7 @@ public:
 
 
 /// Reverse iterator for a row.  Use as row::const_reverse_iterator.
-class const_reverse_row_iterator : private const_row_iterator
+class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
 {
 public:
   using super = const_row_iterator;
@@ -276,7 +276,7 @@ public:
     const_reverse_row_iterator(const super &rhs) noexcept :
       const_row_iterator{rhs} { super::operator--(); }
 
-  PQXX_LIBEXPORT PQXX_PURE iterator_type base() const noexcept;
+  PQXX_PURE iterator_type base() const noexcept;
 
   /**
    * @name Dereferencing operators
@@ -295,10 +295,10 @@ public:
       { iterator_type::operator=(r); return *this; }
   const_reverse_row_iterator operator++()
       { iterator_type::operator--(); return *this; }
-  PQXX_LIBEXPORT const_reverse_row_iterator operator++(int);
+  const_reverse_row_iterator operator++(int);
   const_reverse_row_iterator &operator--()
       { iterator_type::operator++(); return *this; }
-  PQXX_LIBEXPORT const_reverse_row_iterator operator--(int);
+  const_reverse_row_iterator operator--(int);
   const_reverse_row_iterator &operator+=(difference_type i)
       { iterator_type::operator-=(i); return *this; }
   const_reverse_row_iterator &operator-=(difference_type i)

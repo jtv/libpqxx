@@ -45,6 +45,10 @@ template<typename T> inline void ignore_unused(T &&) {}
 template<typename TO, typename FROM>
 inline TO check_cast(FROM value, const char description[])
 {
+  // Depending on our "if constexpr" conditions, this parameter may not be
+  // needed.  Some compilers will warn.
+  ignore_unused(description);
+
   using from_limits = std::numeric_limits<decltype(value)>;
   using to_limits = std::numeric_limits<TO>;
   if constexpr (std::is_signed_v<FROM>)
@@ -66,12 +70,24 @@ inline TO check_cast(FROM value, const char description[])
 		description);
     }
   }
-
-  if constexpr (from_limits::max() > to_limits::max())
+  else
   {
-    if (value > to_limits::max())
-      throw range_error(std::string{"Cast overflow: "} + description);
+    // No need to check: the value is unsigned so can't fall below the range
+    // of the TO type.
   }
+
+  if constexpr (std::is_signed_v<FROM> == std::is_signed_v<TO>)
+  {
+    if constexpr (from_limits::max() > to_limits::max())
+    {
+      if (value > to_limits::max())
+	throw range_error(std::string{"Cast overflow: "} + description);
+    }
+  }
+//  else if constexpr ()
+//  {
+// XXX: What in the case of differing signedness?
+//  }
   return static_cast<TO>(value);
 }
 

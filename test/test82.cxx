@@ -37,7 +37,7 @@ void test_082()
     PQXX_CHECK(
 	pqxx::row::difference_type(r.size()) + r.begin() == r.end(),
 	"Row iterator addition is not commutative.");
-    PQXX_CHECK_EQUAL(r.begin()->num(), 0u, "Wrong column number at begin().");
+    PQXX_CHECK_EQUAL(r.begin()->num(), 0, "Wrong column number at begin().");
 
     pqxx::row::const_iterator f3(r[r.size()]);
 

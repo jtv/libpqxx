@@ -28,10 +28,10 @@ void test_011()
   // If there are rows in R, compare their metadata to R's.
   if (not R.empty())
   {
-    PQXX_CHECK_EQUAL(R[0].rownumber(), 0u, "Row 0 has wrong number.");
+    PQXX_CHECK_EQUAL(R[0].rownumber(), 0, "Row 0 has wrong number.");
 
     if (R.size() >= 2)
-      PQXX_CHECK_EQUAL(R[1].rownumber(), 1u, "Row 1 has wrong number.");
+      PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
 
     // Test row::swap()
     const pqxx::row T1(R[0]), T2(R[1]);

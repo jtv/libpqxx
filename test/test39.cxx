@@ -23,7 +23,7 @@ void test_039()
 
   PQXX_CHECK_EQUAL(
 	R.size(),
-	0u,
+	0,
 	"Already have a row for " + to_string(BoringYear) + ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
@@ -47,7 +47,7 @@ void test_039()
   nontransaction tx2(conn, "tx2");
   R = tx2.exec("SELECT * FROM " + Table + " "
 		"WHERE year=" + to_string(BoringYear));
-  PQXX_CHECK_EQUAL(R.size(), 1u, "Unexpected result size.");
+  PQXX_CHECK_EQUAL(R.size(), 1, "Unexpected result size.");
 
   PQXX_CHECK(R.capacity() >= R.size(), "Result's capacity is too small.");
 
@@ -66,7 +66,7 @@ void test_039()
   R = tx3.exec("SELECT * FROM " + Table + " "
 	        "WHERE year=" + to_string(BoringYear));
 
-  PQXX_CHECK_EQUAL(R.size(), 0u, "Record is not gone as expected.");
+  PQXX_CHECK_EQUAL(R.size(), 0, "Record is not gone as expected.");
 }
 
 

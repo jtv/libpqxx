@@ -53,7 +53,7 @@ void failed_insert(connection_base &C, std::string table)
 	to_string(BoringYear) + ", "
 	"'yawn')");
 
-  PQXX_CHECK_EQUAL(R.affected_rows(), 1u, "Bad affected_rows().");
+  PQXX_CHECK_EQUAL(R.affected_rows(), 1, "Bad affected_rows().");
   throw deliberate_error();
 }
 

@@ -203,8 +203,8 @@ public:
 
 protected:
   const result &home() const noexcept { return m_home; }
-  size_t idx() const noexcept { return m_row; }
-  row_size_type col() const noexcept { return row_size_type(m_col); }
+  result::size_type idx() const noexcept { return m_row; }
+  row_size_type col() const noexcept { return m_col; }
 
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators

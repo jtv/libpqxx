@@ -94,12 +94,12 @@ void test_basic_args()
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{c};
   auto r = tx.exec_prepared("EchoNum", 7);
-  PQXX_CHECK_EQUAL(r.size(), 1u, "Did not get 1 row from prepared statement.");
-  PQXX_CHECK_EQUAL(r.front().size(), 1u, "Did not get exactly one column.");
+  PQXX_CHECK_EQUAL(r.size(), 1, "Did not get 1 row from prepared statement.");
+  PQXX_CHECK_EQUAL(r.front().size(), 1, "Did not get exactly one column.");
   PQXX_CHECK_EQUAL(r[0][0].as<int>(), 7, "Got wrong result.");
 
   auto rw = tx.exec_prepared1("EchoNum", 8);
-  PQXX_CHECK_EQUAL(rw.size(), 1u, "Did not get 1 column from exec_prepared1.");
+  PQXX_CHECK_EQUAL(rw.size(), 1, "Did not get 1 column from exec_prepared1.");
   PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
 }
 
@@ -110,7 +110,7 @@ void test_multiple_params()
   c.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
   pqxx::work tx{c};
   auto r = tx.exec_prepared_n(4, "CountSeries", 7, 10);
-  PQXX_CHECK_EQUAL(r.size(), 4u, "Wrong number of rows, but no error raised.");
+  PQXX_CHECK_EQUAL(r.size(), 4, "Wrong number of rows, but no error raised.");
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
 

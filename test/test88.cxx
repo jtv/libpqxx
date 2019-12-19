@@ -59,7 +59,7 @@ void test_088()
   for (const auto &i: R)
     std::cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << std::endl;
 
-  PQXX_CHECK_EQUAL(R.size(), 3u, "Wrong number of results.");
+  PQXX_CHECK_EQUAL(R.size(), 3, "Wrong number of results.");
 
   int expected[3] = { 1, 2, 4 };
   for (pqxx::result::size_type n=0; n < R.size(); ++n)
