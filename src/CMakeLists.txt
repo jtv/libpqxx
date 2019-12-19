@@ -69,10 +69,6 @@ file(
 
 if(NOT SKIP_PQXX_SHARED)
     set(CXX_SHARED_EXTRA_SOURCE)
-    if(WIN32)
-        # Add extra source
-        list(APPEND CXX_SHARED_EXTRA_SOURCE "${PROJECT_SOURCE_DIR}/win32/libpqxx.cxx")
-    endif()
 
     # Build a shared library
     add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})

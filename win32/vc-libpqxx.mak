@@ -175,7 +175,6 @@ OBJ_DLLDEBUG=\
        "$(INTDIR_DLLDEBUG)\transaction_base.obj" \
        "$(INTDIR_DLLDEBUG)\util.obj" \
        "$(INTDIR_DLLDEBUG)\version.obj" \
-       "$(INTDIR_DLLDEBUG)\libpqxx.obj" \
 
 OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\array.obj" \
@@ -202,7 +201,7 @@ OBJ_DLLRELEASE=\
        "$(INTDIR_DLLRELEASE)\transaction_base.obj" \
        "$(INTDIR_DLLRELEASE)\util.obj" \
        "$(INTDIR_DLLRELEASE)\version.obj" \
-       "$(INTDIR_DLLRELEASE)\libpqxx.obj" \
+       "$(INTDIR_DLLRELEASE)\win32.obj" \
 
 
 
@@ -640,12 +639,4 @@ $(INTDIR_DLLRELEASE)::
 
 "$(INTDIR_DLLDEBUG)\version.obj": src/version.cxx $(INTDIR_DLLDEBUG)
 	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" src/version.cxx
-
-
-"$(INTDIR_DLLRELEASE)\libpqxx.obj": win32/libpqxx.cxx $(INTDIR_DLLRELEASE)
-	$(CXX) $(CXX_FLAGS_DLLRELEASE) /Fo"$(INTDIR_DLLRELEASE)\\" /Fd"$(INTDIR_DLLRELEASE)\\" win32/libpqxx.cxx
-
-"$(INTDIR_DLLDEBUG)\libpqxx.obj": win32/libpqxx.cxx $(INTDIR_DLLDEBUG)
-	$(CXX) $(CXX_FLAGS_DLLDEBUG) /Fo"$(INTDIR_DLLDEBUG)\\" /Fd"$(INTDIR_DLLDEBUG)\\" win32/libpqxx.cxx
-
 

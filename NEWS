@@ -32,6 +32,7 @@
  - Some `size_type` have changed to different types, to match current libpq.
  - Internal overflows are more consistently caught and reported.
  - Items marked "deprecated" have been removed.
+ - win32/libpqxx.cxx and DllMain did not seem to be needed, so they're gone.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.
