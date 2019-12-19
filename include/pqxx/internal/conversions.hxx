@@ -56,8 +56,7 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 template<typename HAVE, typename NEED> inline std::string
 state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 {
-  return state_buffer_overrun(
-	static_cast<int>(have_bytes), static_cast<int>(need_bytes));
+  return state_buffer_overrun(have_bytes, need_bytes);
 }
 
 
@@ -74,7 +73,8 @@ template<typename T> inline char *
 generic_into_buf(char *begin, char *end, const T &value)
 {
   const zview text{string_traits<T>::to_buf(begin, end, value)};
-  const auto space = static_cast<size_t>(end - begin);
+  const auto space = check_cast<size_t>(
+	end - begin, "floating-point conversion to string");
   // Include the trailing zero.
   const auto len = text.size() + 1;
   if (len > space)
@@ -649,7 +649,7 @@ template<typename T> inline std::string to_string(const T &value)
   buf.resize(string_traits<T>::size_buffer(value) + 1);
   const auto end{
 	string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
-  buf.resize(static_cast<std::string::size_type>(end - buf.data() - 1));
+  buf.resize(static_cast<size_t>(end - buf.data() - 1));
   return buf;
 }
 
@@ -675,6 +675,6 @@ template<typename T> inline void into_string(const T &value, std::string &out)
   out.resize(string_traits<T>::size_buffer(value) + 1);
   const auto end{
 	string_traits<T>::into_buf(out.data(), out.data() + out.size(), value)};
-  out.resize(static_cast<std::string::size_type>(end - out.data() - 1));
+  out.resize(static_cast<size_t>(end - out.data() - 1));
 }
 } // namespace pqxx

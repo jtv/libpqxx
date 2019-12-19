@@ -41,6 +41,41 @@ namespace pqxx
 template<typename T> inline void ignore_unused(T &&) {}
 
 
+/// Cast a numeric value
+template<typename TO, typename FROM>
+inline TO check_cast(FROM value, const char description[])
+{
+  using from_limits = std::numeric_limits<decltype(value)>;
+  using to_limits = std::numeric_limits<TO>;
+  if constexpr (std::is_signed_v<FROM>)
+  {
+    if constexpr (std::is_signed_v<TO>)
+    {
+      if (value < to_limits::min())
+        throw range_error(
+		std::string{"Cast underflow: "} + description);
+    }
+    else
+    {
+      // FROM is signed, but TO is not.  Treat this as a special case, because
+      // there may not be a good broader type in which the compiler can even
+      // perform our check.
+      if (value < 0)
+        throw range_error(
+		std::string{"Casting negative value to unsigned type: "} +
+		description);
+    }
+  }
+
+  if constexpr (from_limits::max() > to_limits::max())
+  {
+    if (value > to_limits::max())
+      throw range_error(std::string{"Cast overflow: "} + description);
+  }
+  return static_cast<TO>(value);
+}
+
+
 /** Check library version at link time.
  *
  * Ensures a failure when linking an application against a radically
@@ -350,7 +385,6 @@ private:
  * a zero or negative sleep time is requested.
  */
 PQXX_LIBEXPORT void sleep_seconds(int);
-
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

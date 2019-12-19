@@ -24,9 +24,9 @@ extern "C"
 #include "pqxx/internal/gates/result-row.hxx"
 
 
-pqxx::row::row(result r, size_t i) noexcept :
+pqxx::row::row(result r, result::size_type i) noexcept :
   m_result{r},
-  m_index{long(i)},
+  m_index{i},
   m_end{internal::gate::result_row(r) ? r.columns() : 0}
 {
 }
@@ -109,21 +109,9 @@ pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 }
 
 
-pqxx::row::reference pqxx::row::operator[](int i) const noexcept
-{
-  return operator[](size_type(i));
-}
-
-
 pqxx::row::reference pqxx::row::operator[](const char f[]) const
 {
   return at(f);
-}
-
-
-pqxx::row::reference pqxx::row::at(int i) const
-{
-  return at(size_type(i));
 }
 
 
@@ -194,7 +182,7 @@ pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 
 pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 {
-  const int N = PQfnumber(
+  const auto N = PQfnumber(
 	const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
   if (N == -1)
     throw argument_error{

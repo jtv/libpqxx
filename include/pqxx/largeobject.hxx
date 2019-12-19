@@ -224,12 +224,14 @@ public:
    */
   void write(const char Buf[], size_type Len);				//[t51]
 
-  /// Write string to large object
+  /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write; no terminating zero is written
    */
   void write(std::string_view Buf)					//[t50]
-	{ write(Buf.data(), static_cast<size_type>(Buf.size())); }
+  {
+    write(Buf.data(), check_cast<size_type>(Buf.size(), "large object write"));
+  }
 
   /// Read data from large object
   /** Throws an exception if an error occurs while reading.
@@ -433,8 +435,8 @@ protected:
   {
     if (this->gptr() == nullptr) return EoF();
     char *const eb = this->eback();
-    const int_type res(static_cast<int_type>(
-	AdjustEOF(m_obj.cread(this->eback(), m_bufsize))));
+    const int_type res{static_cast<int_type>(
+	AdjustEOF(m_obj.cread(this->eback(), m_bufsize)))};
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return ((res == 0) or (res == EoF())) ? EoF() : *eb;
   }

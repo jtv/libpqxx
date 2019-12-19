@@ -18,9 +18,9 @@
 
 
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
-  m_col{static_cast<decltype(m_col)>(C)},
+  m_col{C},
   m_home{R.m_result},
-  m_row{pqxx::result_size_type(R.m_index)}
+  m_row{R.m_index}
 {
 }
 
@@ -60,17 +60,17 @@ pqxx::row::size_type pqxx::field::table_column() const
 
 const char *pqxx::field::c_str() const
 {
-  return home().GetValue(static_cast<result::size_type>(idx()), col());
+  return home().GetValue(idx(), col());
 }
 
 
 bool pqxx::field::is_null() const noexcept
 {
-  return home().get_is_null(static_cast<result::size_type>(idx()), col());
+  return home().get_is_null(idx(), col());
 }
 
 
 pqxx::field::size_type pqxx::field::size() const noexcept
 {
-  return home().get_length(static_cast<result::size_type>(idx()), col());
+  return home().get_length(idx(), col());
 }

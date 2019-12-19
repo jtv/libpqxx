@@ -24,6 +24,12 @@ extern "C"
 }
 
 
+namespace pqxx
+{
+PQXX_DECLARE_ENUM_CONVERSION(pqxx::internal::encoding_group);
+}
+
+
 // Internal helper functions
 namespace
 {
@@ -727,9 +733,8 @@ constexpr inline F *for_encoding(encoding_group enc)
   CASE_GROUP(UHC);
   CASE_GROUP(UTF8);
   }
-  int code = static_cast<int>(enc);
   throw pqxx::usage_error{
-	"Unsupported encoding group code " + to_string(code) + "."};
+	"Unsupported encoding group code " + to_string(enc) + "."};
 
 #undef CASE_GROUP
 }

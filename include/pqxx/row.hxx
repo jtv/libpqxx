@@ -50,7 +50,7 @@ public:
   PQXX_LIBEXPORT row() =default;
 
   /// @deprecated Do not use this constructor.  It will become private.
-  PQXX_LIBEXPORT row(result r, size_t i) noexcept;
+  PQXX_LIBEXPORT row(result r, result_size_type i) noexcept;
 
   /**
    * @name Comparison
@@ -79,7 +79,6 @@ public:
   PQXX_LIBEXPORT const_reverse_row_iterator crend() const;
 
   PQXX_LIBEXPORT reference operator[](size_type) const noexcept;
-  PQXX_LIBEXPORT reference operator[](int) const noexcept;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -91,7 +90,6 @@ public:
   { return (*this)[s.c_str()]; }
 
   PQXX_LIBEXPORT reference at(size_type) const; 
-  PQXX_LIBEXPORT reference at(int) const;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -109,7 +107,7 @@ public:
   PQXX_LIBEXPORT void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
-  size_t rownumber() const noexcept { return size_t(m_index); }
+  result::size_type rownumber() const noexcept { return m_index; }
 
   /**
    * @name Column information
@@ -126,10 +124,6 @@ public:
   PQXX_LIBEXPORT oid column_type(size_type) const;
 
   /// Return a column's type.
-  oid column_type(int ColNum) const
-      { return column_type(size_type(ColNum)); }
-
-  /// Return a column's type.
   template<typename STRING>
   oid column_type(STRING ColName) const
       { return column_type(column_number(ColName)); }
@@ -137,9 +131,6 @@ public:
   /// What table did this column come from?
   PQXX_LIBEXPORT oid column_table(size_type ColNum) const;
 
-  /// What table did this column come from?
-  oid column_table(int ColNum) const
-      { return column_table(size_type(ColNum)); }
   /// What table did this column come from?
   template<typename STRING>
   oid column_table(STRING ColName) const
@@ -156,16 +147,12 @@ public:
   PQXX_LIBEXPORT size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
-  size_type table_column(int ColNum) const
-      { return table_column(size_type(ColNum)); }
-
-  /// What column number in its table did this result column come from?
   template<typename STRING>
   size_type table_column(STRING ColName) const
       { return table_column(column_number(ColName)); }
   //@}
 
-  size_t num() const { return rownumber(); }
+  result::size_type num() const { return rownumber(); }
 
   /** Produce a slice of this row, containing the given range of columns.
    *
@@ -190,10 +177,10 @@ protected:
   result m_result;
   /// Row number.
   /**
-   * You'd expect this to be a size_t, but due to the way reverse iterators
+   * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
-  long m_index = 0;
+  result::size_type m_index = 0;
   /// First column in slice.  This row ignores lower-numbered columns.
   size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.

@@ -207,14 +207,14 @@ protected:
   row_size_type col() const noexcept { return row_size_type(m_col); }
 
   /**
-   * You'd expect this to be a size_t, but due to the way reverse iterators
+   * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
-  long m_col;
+  row_size_type m_col;
 
 private:
   result m_home;
-  size_t m_row;
+  result::size_type m_row;
 };
 
 

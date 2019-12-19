@@ -23,6 +23,11 @@ extern "C"
 #include "pqxx/result"
 
 
+namespace pqxx
+{
+PQXX_DECLARE_ENUM_CONVERSION(ExecStatusType);
+}
+
 const std::string pqxx::result::s_empty_string;
 
 
@@ -261,7 +266,7 @@ std::string pqxx::result::StatusError() const
   default:
     throw internal_error{
 	"pqxx::result: Unrecognized response code " +
-	to_string(static_cast<int>(PQresultStatus(m_data.get())))};
+	to_string(PQresultStatus(m_data.get()))};
   }
   return Err;
 }
@@ -300,7 +305,7 @@ const char *pqxx::result::GetValue(
 	pqxx::result::size_type Row,
 	pqxx::row::size_type Col) const
 {
-  return PQgetvalue(m_data.get(), static_cast<int>(Row), static_cast<int>(Col));
+  return PQgetvalue(m_data.get(), Row, Col);
 }
 
 
@@ -308,8 +313,7 @@ bool pqxx::result::get_is_null(
 	pqxx::result::size_type Row,
 	pqxx::row::size_type Col) const
 {
-  auto res = PQgetisnull(
-	m_data.get(), static_cast<int>(Row), static_cast<int>(Col));
+  auto res = PQgetisnull(m_data.get(), Row, Col);
   return res != 0;
 }
 
@@ -317,14 +321,13 @@ pqxx::field::size_type pqxx::result::get_length(
 	pqxx::result::size_type Row,
         pqxx::row::size_type Col) const noexcept
 {
-  return static_cast<field::size_type>(
-	PQgetlength(m_data.get(), static_cast<int>(Row), static_cast<int>(Col)));
+  return PQgetlength(m_data.get(), Row, Col);
 }
 
 
 pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 {
-  const oid T = PQftype(m_data.get(), static_cast<int>(ColNum));
+  const oid T = PQftype(m_data.get(), ColNum);
   if (T == oid_none)
     throw argument_error{
 	"Attempt to retrieve type of nonexistent column " +
@@ -335,7 +338,7 @@ pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
 
 pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 {
-  const oid T = PQftable(m_data.get(), static_cast<int>(ColNum));
+  const oid T = PQftable(m_data.get(), ColNum);
 
   /* If we get oid_none, it may be because the column is computed, or because we
    * got an invalid row number.
@@ -352,7 +355,7 @@ pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
 pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
 {
   const auto n = row::size_type(
-	PQftablecol(m_data.get(), static_cast<int>(ColNum)));
+	PQftablecol(m_data.get(), ColNum));
   if (n != 0) return n-1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
@@ -386,7 +389,7 @@ int pqxx::result::errorposition() const
 
 const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 {
-  const char *const N = PQfname(m_data.get(), static_cast<int>(Number));
+  const char *const N = PQfname(m_data.get(), Number);
   if (N == nullptr)
   {
     if (m_data.get() == nullptr)

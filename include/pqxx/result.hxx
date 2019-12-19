@@ -140,10 +140,6 @@ public:
   PQXX_LIBEXPORT oid column_type(row_size_type ColNum) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  oid column_type(int ColNum) const
-	{ return column_type(row_size_type(ColNum)); }
-
-  /// Return column's type, as an OID from the system catalogue.
   template<typename STRING>
   oid column_type(STRING ColName) const
 	{ return column_type(column_number(ColName)); }
@@ -152,20 +148,12 @@ public:
   PQXX_LIBEXPORT oid column_table(row_size_type ColNum) const;
 
   /// What table did this column come from?
-  oid column_table(int ColNum) const
-	{ return column_table(row_size_type(ColNum)); }
-
-  /// What table did this column come from?
   template<typename STRING>
   oid column_table(STRING ColName) const
 	{ return column_table(column_number(ColName)); }
 
   /// What column in its table did this column come from?
   PQXX_LIBEXPORT row_size_type table_column(row_size_type ColNum) const;
-
-  /// What column in its table did this column come from?
-  row_size_type table_column(int ColNum) const
-	{ return table_column(row_size_type(ColNum)); }
 
   /// What column in its table did this column come from?
   template<typename STRING>

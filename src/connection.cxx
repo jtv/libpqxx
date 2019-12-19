@@ -86,7 +86,7 @@ void pqxx_notice_processor(void *conn, const char *msg) noexcept
 // There's no way in libpq to disable a connection's notice processor.  So,
 // set an inert one to get the same effect.
 void inert_notice_processor(void *, const char *) noexcept {}
-}
+} // extern "C"
 
 
 std::string pqxx::encrypt_password(
@@ -661,7 +661,7 @@ pqxx::result pqxx::connection::exec_prepared(
   const auto pq_result = PQexecPrepared(
 	m_conn,
 	statement.c_str(),
-	static_cast<int>(args.nonnulls.size()),
+	check_cast<int>(args.nonnulls.size(), "exec_prepared"),
 	pointers.data(),
 	args.lengths.data(),
 	args.binaries.data(),
@@ -776,7 +776,8 @@ bool pqxx::connection::read_copy_line(std::string &Line)
 void pqxx::connection::write_copy_line(std::string_view line)
 {
   static const std::string err_prefix{"Error writing to table: "};
-  if (PQputCopyData(m_conn, line.data(), static_cast<int>(line.size())) <= 0)
+  const auto size{check_cast<int>(line.size(), "write_copy_line()")};
+  if (PQputCopyData(m_conn, line.data(), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
     throw failure{err_prefix + err_msg()};
@@ -909,7 +910,12 @@ namespace
 // Convert a timeval to milliseconds, or -1 if no timeval is given.
 [[maybe_unused]] constexpr int tv_milliseconds(timeval *tv = nullptr)
 {
-  return tv ? static_cast<int>(tv->tv_sec * 1000 + tv->tv_usec / 1000) : -1;
+  if (tv == nullptr)
+    return -1;
+  else
+    return pqxx::check_cast<int>(
+	tv->tv_sec * 1000 + tv->tv_usec / 1000,
+	"milliseconds");
 }
 
 
@@ -965,7 +971,9 @@ void pqxx::internal::wait_read(
   // platforms have that type; some use "long" instead, and some 64-bit
   // systems use 32-bit integers here.  So "int" seems to be the only really
   // safe type to use.
-  timeval tv = { static_cast<time_t>(seconds), static_cast<int>(microseconds) };
+  timeval tv = {
+    check_cast<time_t>(seconds, "read timeout seconds"),
+    check_cast<int>(microseconds, "read timeout microseconds") };
   wait_fd(socket_of(c), false, &tv);
 }
 
@@ -1087,7 +1095,7 @@ pqxx::result pqxx::connection::exec_params(
   const auto pq_result = PQexecParams(
 	m_conn,
 	query.c_str(),
-	static_cast<int>(args.nonnulls.size()),
+	check_cast<int>(args.nonnulls.size(), "exec_params() parameters"),
 	nullptr,
 	pointers.data(),
 	args.lengths.data(),

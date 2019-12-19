@@ -29,6 +29,8 @@
  - Connection objects can now be moved.
  - `connections::options()` is gone.
  - Replaced pqxx-fulltest with `test_all.py`.
+ - Some `size_type` have changed to different types, to match current libpq.
+ - Internal overflows are more consistently caught and reported.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

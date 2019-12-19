@@ -204,7 +204,7 @@ void pqxx::pipeline::issue()
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = m_queries.end();
-  m_num_waiting -= static_cast<int>(num_issued);
+  m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()");
 }
 
 
@@ -302,7 +302,8 @@ void pqxx::pipeline::obtain_dummy()
 
 
   // Reset internal state to forget botched batch attempt
-  m_num_waiting += static_cast<int>(std::distance(m_issuedrange.first, stop));
+  m_num_waiting += check_cast<int>(
+	std::distance(m_issuedrange.first, stop), "pipeline obtain_dummy()");
   m_issuedrange.second = m_issuedrange.first;
 
   // Issue queries in failed batch one at a time.
