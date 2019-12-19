@@ -44,9 +44,21 @@ inline size_t shortcut_strlen(const char text[], [[maybe_unused]] size_t max)
 #endif
 }
 
+
 /// Summarize buffer overrun.
+/** Don't worry about the exact parameter types: the sizes will be reasonably
+ * small, and nonnegative.
+ */
 std::string PQXX_LIBEXPORT state_buffer_overrun(
 	int have_bytes, int need_bytes);
+
+
+template<typename HAVE, typename NEED> inline std::string
+state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
+{
+  return state_buffer_overrun(
+	static_cast<int>(have_bytes), static_cast<int>(need_bytes));
+}
 
 
 /// Throw exception for attempt to convert null to given type.
@@ -68,7 +80,7 @@ generic_into_buf(char *begin, char *end, const T &value)
   if (len > space)
     throw conversion_overrun{
 	"Not enough buffer space to insert " + type_name<T> + ".  " +
-	state_buffer_overrun(static_cast<int>(space), static_cast<int>(len))};
+	state_buffer_overrun(space, len)};
   std::memmove(begin, text.data(), len);
   return begin + len;
 }
@@ -249,10 +261,7 @@ template<> struct string_traits<const char *>
 	) + 1;
     if (space < ptrdiff_t(len)) throw conversion_overrun{
 	"Could not copy string: buffer too small.  " +
-        pqxx::internal::state_buffer_overrun(
-		static_cast<int>(space),
-		static_cast<int>(len))
-	};
+        pqxx::internal::state_buffer_overrun(space, len)};
     std::memmove(begin, value, len);
     return begin + len;
   }
