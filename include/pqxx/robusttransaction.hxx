@@ -18,9 +18,6 @@
 
 #include "pqxx/dbtransaction.hxx"
 
-
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx::internal
 {
 /// Helper base class for the @c robusttransaction class template.
@@ -28,13 +25,13 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
   public dbtransaction
 {
 public:
-  virtual ~basic_robusttransaction() =0;				//[t16]
+  virtual ~basic_robusttransaction() =0;
 
 protected:
   basic_robusttransaction(
 	connection &C,
 	const char begin_command[],
-	const std::string &table_name=std::string{});			//[t16]
+	const std::string &table_name=std::string{});
 
 private:
   using IDType = unsigned long;
@@ -44,8 +41,8 @@ private:
   std::string m_sequence;
   int m_backendpid = -1;
 
-  virtual void do_commit() override;					//[t16]
-  virtual void do_abort() override;					//[t18]
+  virtual void do_commit() override;
+  virtual void do_abort() override;
 
   PQXX_PRIVATE void CreateLogTable();
   PQXX_PRIVATE void CreateTransactionRecord();

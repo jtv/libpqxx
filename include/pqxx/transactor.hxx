@@ -17,9 +17,6 @@
 #include "pqxx/connection.hxx"
 #include "pqxx/transaction.hxx"
 
-
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx
 {
 /**

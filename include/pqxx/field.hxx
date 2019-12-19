@@ -23,9 +23,6 @@
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
 
-
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx
 {
 /// Reference to a field in a result set.
@@ -42,7 +39,7 @@ public:
    * @param R Row that this field is part of.
    * @param C Column number of this field.
    */
-  field(const row &R, row_size_type C) noexcept;			//[t01]
+  field(const row &R, row_size_type C) noexcept;
 
   /**
    * @name Comparison
@@ -65,12 +62,12 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  bool operator==(const field &) const;				//[t75]
+  bool operator==(const field &) const;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  bool operator!=(const field &rhs) const				//[t82]
+  bool operator!=(const field &rhs) const
 						   {return not operator==(rhs);}
   //@}
 
@@ -79,18 +76,18 @@ public:
    */
   //@{
   /// Column name
-  const char *name() const;						//[t11]
+  const char *name() const;
 
   /// Column type
-  oid type() const;							//[t07]
+  oid type() const;
 
   /// What table did this column come from?
-  oid table() const;							//[t02]
+  oid table() const;
 
-  row_size_type num() const { return col(); }				//[t82]
+  row_size_type num() const { return col(); }
 
   /// What column number in its originating table did this column come from?
-  row_size_type table_column() const;					//[t93]
+  row_size_type table_column() const;
   //@}
 
   /**
@@ -106,16 +103,16 @@ public:
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
    */
-  const char *c_str() const;						//[t02]
+  const char *c_str() const;
 
   /// Is this field's value null?
-  bool is_null() const noexcept;					//[t12]
+  bool is_null() const noexcept;
 
   /// Return number of bytes taken up by the field's value.
   /**
    * Includes the terminating zero byte.
    */
-  size_type size() const noexcept;					//[t11]
+  size_type size() const noexcept;
 
   /// Read value into obj; or if null, leave obj untouched and return @c false.
   /** This can be used with optional types (except pointers other than C-style
@@ -134,14 +131,14 @@ public:
   }
 
   /// Read value into obj; or leave obj untouched and return @c false if null.
-  template<typename T> bool operator>>(T &obj) const			//[t07]
+  template<typename T> bool operator>>(T &obj) const
       { return to(obj); }
 
   /// Read value into obj; or if null, use default value and return @c false.
   /** Note this can be used with optional types (except pointers other than
    * C-strings)
    */
-  template<typename T> auto to(T &obj, const T &default_value) const	//[t12]
+  template<typename T> auto to(T &obj, const T &default_value) const
     -> typename std::enable_if<(
       not std::is_pointer<T>::value
       or std::is_same<T, const char*>::value
@@ -156,7 +153,7 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(const T &default_value) const		//[t01]
+  template<typename T> T as(const T &default_value) const
   {
     T obj;
     to(obj, default_value);
@@ -256,7 +253,7 @@ public:
   using openmode = std::ios::openmode;
   using seekdir = std::ios::seekdir;
 
-  explicit field_streambuf(const field &F) :			//[t74]
+  explicit field_streambuf(const field &F) :
     m_field{F}
   {
     initialize();
@@ -342,7 +339,7 @@ using fieldstream = basic_fieldstream<char>;
  */
 template<typename CHAR>
 inline std::basic_ostream<CHAR> &operator<<(
-	std::basic_ostream<CHAR> &S, const field &F)		        //[t46]
+	std::basic_ostream<CHAR> &S, const field &F)
 {
   S.write(F.c_str(), std::streamsize(F.size()));
   return S;
@@ -351,11 +348,11 @@ inline std::basic_ostream<CHAR> &operator<<(
 
 /// Convert a field's string contents to another type.
 template<typename T>
-inline T from_string(const field &f)					//[t46]
+inline T from_string(const field &f)
 	{ return from_string<T>(f.view()); }
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(const field &obj);	//[t74]
+template<> PQXX_LIBEXPORT std::string to_string(const field &obj);
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

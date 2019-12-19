@@ -20,8 +20,6 @@
 #include "pqxx/result.hxx"
 #include "pqxx/transaction.hxx"
 
-// Methods tested in eg. test module test01 are marked with "//[t01]".
-
 namespace pqxx
 {
 /// Simple "transaction" class offering no transactional integrity.
@@ -59,18 +57,18 @@ public:
    * @param Name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  explicit nontransaction(						//[t14]
+  explicit nontransaction(
 	connection &C,
 	const std::string &Name=std::string{}) :
     namedclass{"nontransaction", Name}, transaction_base{C}
   { register_transaction(); }
 
-  virtual ~nontransaction()						//[t14]
+  virtual ~nontransaction()
 	{ close(); }
 
 private:
-  virtual void do_commit() override {}					//[t14]
-  virtual void do_abort() override {}					//[t14]
+  virtual void do_commit() override {}
+  virtual void do_abort() override {}
 };
 } // namespace pqxx
 

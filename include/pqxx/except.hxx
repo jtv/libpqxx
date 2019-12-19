@@ -90,7 +90,7 @@ public:
   virtual ~sql_error() noexcept;
 
   /// The query whose execution triggered the exception
-  PQXX_PURE const std::string &query() const noexcept;			//[t56]
+  PQXX_PURE const std::string &query() const noexcept;
 
   /// SQLSTATE error code if known, or empty string otherwise.
   PQXX_PURE const std::string &sqlstate() const noexcept;

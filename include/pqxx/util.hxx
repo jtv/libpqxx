@@ -182,11 +182,7 @@ namespace pqxx
  * @param access functor defining how to dereference sequence elements
  */
 template<typename ITER, typename ACCESS> inline std::string
-separated_list(								//[t00]
-	std::string_view sep,
-	ITER begin,
-	ITER end,
-	ACCESS access)
+separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
 {
   std::string result;
 // TODO: Can we pre-compute optimal length for result?
@@ -205,13 +201,13 @@ separated_list(								//[t00]
 
 /// Render sequence as a string, using given separator between items.
 template<typename ITER> inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end)		//[t00]
+separated_list(std::string_view sep, ITER begin, ITER end)
 	{ return separated_list(sep, begin, end, [](ITER i){ return *i; }); }
 
 
 /// Render items in a container as a string, using given separator.
 template<typename CONTAINER> inline auto
-separated_list(std::string_view sep, const CONTAINER &c)		//[t10]
+separated_list(std::string_view sep, const CONTAINER &c)
 	/*
 	Always std::string; necessary because SFINAE doesn't work with the
 	contents of function bodies, so the check for iterability has to be in
@@ -338,7 +334,7 @@ public:
   }
 
   /// Object name, or the empty string if no name was given.
-  const std::string &name() const noexcept { return m_name; }		//[t01]
+  const std::string &name() const noexcept { return m_name; }
 
   /// Class name.
   const std::string &classname() const noexcept

@@ -20,10 +20,8 @@
 
 #include "pqxx/result.hxx"
 
-
 namespace pqxx
 {
-
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
  *
@@ -70,7 +68,7 @@ public:
   /** The field will be zero-terminated, even if the original bytea field isn't.
    * @param F the field to read; must be a bytea field
    */
-  explicit binarystring(const field &);					//[t62]
+  explicit binarystring(const field &);
 
   /// Copy binary data from std::string_view.
   explicit binarystring(std::string_view);
@@ -79,50 +77,50 @@ public:
   binarystring(const void *, size_t);
 
   /// Size of converted string in bytes.
-  size_type size() const noexcept { return m_size; }			//[t62]
+  size_type size() const noexcept { return m_size; }
   /// Size of converted string in bytes.
-  size_type length() const noexcept { return size(); }			//[t62]
-  bool empty() const noexcept { return size()==0; }			//[t62]
+  size_type length() const noexcept { return size(); }
+  bool empty() const noexcept { return size()==0; }
 
-  const_iterator begin() const noexcept { return data(); }		//[t62]
+  const_iterator begin() const noexcept { return data(); }
   const_iterator cbegin() const noexcept { return begin(); }
-  const_iterator end() const noexcept { return data()+m_size; }		//[t62]
+  const_iterator end() const noexcept { return data()+m_size; }
   const_iterator cend() const noexcept { return end(); }
 
-  const_reference front() const noexcept { return *begin(); }		//[t62]
-  const_reference back() const noexcept					//[t62]
+  const_reference front() const noexcept { return *begin(); }
+  const_reference back() const noexcept
 	{ return *(data()+m_size-1); }
 
-  const_reverse_iterator rbegin() const					//[t62]
+  const_reverse_iterator rbegin() const
 	{ return const_reverse_iterator{end()}; }
   const_reverse_iterator crbegin() const { return rbegin(); }
-  const_reverse_iterator rend() const					//[t62]
+  const_reverse_iterator rend() const
 	{ return const_reverse_iterator{begin()}; }
   const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents.
-  const value_type *data() const noexcept {return m_buf.get();}		//[t62]
+  const value_type *data() const noexcept {return m_buf.get();}
 
-  const_reference operator[](size_type i) const noexcept		//[t62]
+  const_reference operator[](size_type i) const noexcept
 	{ return data()[i]; }
 
-  PQXX_PURE bool operator==(const binarystring &) const noexcept;	//[t62]
-  bool operator!=(const binarystring &rhs) const noexcept		//[t62]
+  PQXX_PURE bool operator==(const binarystring &) const noexcept;
+  bool operator!=(const binarystring &rhs) const noexcept
 	{ return not operator==(rhs); }
 
   binarystring &operator=(const binarystring &);
 
   /// Index contained string, checking for valid index.
-  const_reference at(size_type) const;					//[t62]
+  const_reference at(size_type) const;
 
   /// Swap contents with other binarystring.
-  void swap(binarystring &);						//[t62]
+  void swap(binarystring &);
 
   /// Raw character buffer (no terminating zero is added).
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *get() const noexcept					//[t62]
+  const char *get() const noexcept
 	{ return reinterpret_cast<const char *>(m_buf.get()); }
 
   /// Read contents as a std::string_view.
@@ -135,7 +133,7 @@ public:
    * Also, do not expect to be able to compare the string's address to that of
    * an earlier invocation.
    */
-  std::string str() const;						//[t62]
+  std::string str() const;
 
 private:
   using smart_pointer_type = std::shared_ptr<value_type>;

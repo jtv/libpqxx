@@ -18,11 +18,6 @@
 
 #include "pqxx/dbtransaction.hxx"
 
-
-/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
- */
-
-
 namespace pqxx
 {
 /**
@@ -77,7 +72,7 @@ class PQXX_LIBEXPORT subtransaction :
 {
 public:
   /// Nest a subtransaction nested in another transaction.
-  explicit subtransaction(						//[t88]
+  explicit subtransaction(
 	dbtransaction &T, const std::string &Name=std::string{});
 
   /// Nest a subtransaction in another subtransaction.
@@ -89,8 +84,8 @@ public:
 
 private:
   std::string quoted_name() const { return quote_name(name()); }
-  virtual void do_commit() override;					//[t88]
-  virtual void do_abort() override;					//[t88]
+  virtual void do_commit() override;
+  virtual void do_abort() override;
 };
 }
 

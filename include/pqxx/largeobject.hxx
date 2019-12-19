@@ -37,40 +37,40 @@ public:
   using size_type = large_object_size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  largeobject() noexcept =default;					//[t48]
+  largeobject() noexcept =default;
 
   /// Create new large object
   /** @param T Backend transaction in which the object is to be created
    */
-  explicit largeobject(dbtransaction &T);				//[t48]
+  explicit largeobject(dbtransaction &T);
 
   /// Wrap object with given oid
   /** Convert combination of a transaction and object identifier into a
    * large object identity.  Does not affect the database.
    * @param O Object identifier for the given object
    */
-  explicit largeobject(oid O) noexcept : m_id{O} {}			//[t48]
+  explicit largeobject(oid O) noexcept : m_id{O} {}
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
    * @param T Backend transaction in which the large object is to be created
    * @param File A filename on the client program's filesystem
    */
-  largeobject(dbtransaction &T, std::string_view File);			//[t53]
+  largeobject(dbtransaction &T, std::string_view File);
 
   /// Take identity of an opened large object
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
    * @param O Already opened large object to copy identity from
    */
-  largeobject(const largeobjectaccess &O) noexcept;			//[t50]
+  largeobject(const largeobjectaccess &O) noexcept;
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
    * database we're connected to (or oid_none is returned if we refer to the
    * null object).
    */
-  oid id() const noexcept { return m_id; }				//[t48]
+  oid id() const noexcept { return m_id; }
 
   /**
    * @name Identity comparisons
@@ -82,27 +82,27 @@ public:
   //@{
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator==(const largeobject &other) const			//[t51]
+  bool operator==(const largeobject &other) const
 	  { return m_id == other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator!=(const largeobject &other) const			//[t51]
+  bool operator!=(const largeobject &other) const
 	  { return m_id != other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<=(const largeobject &other) const			//[t51]
+  bool operator<=(const largeobject &other) const
 	  { return m_id <= other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>=(const largeobject &other) const			//[t51]
+  bool operator>=(const largeobject &other) const
 	  { return m_id >= other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<(const largeobject &other) const			//[t51]
+  bool operator<(const largeobject &other) const
 	  { return m_id < other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>(const largeobject &other) const			//[t51]
+  bool operator>(const largeobject &other) const
 	  { return m_id > other.m_id; }
   //@}
 
@@ -111,14 +111,14 @@ public:
    * @param T Transaction in which the object is to be accessed
    * @param File A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, std::string_view File) const;		//[t52]
+  void to_file(dbtransaction &T, std::string_view File) const;
 
   /// Delete large object from database
   /** Unlike its low-level equivalent cunlink, this will throw an exception if
    * deletion fails.
    * @param T Transaction in which the object is to be deleted
    */
-  void remove(dbtransaction &T) const;					//[t48]
+  void remove(dbtransaction &T) const;
 
 protected:
   PQXX_PURE static internal::pq::PGconn *raw_connection(
@@ -158,7 +158,7 @@ public:
    * @param T Backend transaction in which the object is to be created
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  explicit largeobjectaccess(						//[t51]
+  explicit largeobjectaccess(
 	dbtransaction &T,
 	openmode mode=std::ios::in|std::ios::out);
 
@@ -169,7 +169,7 @@ public:
    * @param O Object identifier for the given object
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(							//[t52]
+  largeobjectaccess(
 	dbtransaction &T,
 	oid O,
 	openmode mode=std::ios::in|std::ios::out);
@@ -180,7 +180,7 @@ public:
    * @param O Identity for the large object to be accessed
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(							//[t50]
+  largeobjectaccess(
 	dbtransaction &T,
 	largeobject O,
 	openmode mode=std::ios::in|std::ios::out);
@@ -191,7 +191,7 @@ public:
    * @param File A filename on the client program's filesystem
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
-  largeobjectaccess(							//[t55]
+  largeobjectaccess(
 	dbtransaction &T,
 	std::string_view File,
 	openmode mode=std::ios::in|std::ios::out);
@@ -208,7 +208,7 @@ public:
   /** Writes the data stored in the large object to the given file.
    * @param File A filename on the client's filesystem
    */
-  void to_file(std::string_view File) const				//[t54]
+  void to_file(std::string_view File) const
 	{ largeobject::to_file(m_trans, File); }
 
   using largeobject::to_file;
@@ -222,13 +222,13 @@ public:
    * @param Buf Data to write
    * @param Len Number of bytes from Buf to write
    */
-  void write(const char Buf[], size_type Len);				//[t51]
+  void write(const char Buf[], size_type Len);
 
   /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write; no terminating zero is written
    */
-  void write(std::string_view Buf)					//[t50]
+  void write(std::string_view Buf)
   {
     write(Buf.data(), check_cast<size_type>(Buf.size(), "large object write"));
   }
@@ -240,19 +240,19 @@ public:
    * @return Number of bytes read, which may be less than the number requested
    * if the end of the large object is reached
    */
-  size_type read(char Buf[], size_type Len);				//[t50]
+  size_type read(char Buf[], size_type Len);
 
   /// Seek in large object's data stream
   /** Throws an exception if an error occurs.
    * @return The new position in the large object
    */
-  size_type seek(size_type dest, seekdir dir);				//[t51]
+  size_type seek(size_type dest, seekdir dir);
 
   /// Report current position in large object's data stream
   /** Throws an exception if an error occurs.
    * @return The current position in the large object
    */
-  size_type tell() const;						//[t50]
+  size_type tell() const;
   //@}
 
   /**
@@ -273,7 +273,7 @@ public:
    *        ios_base;:end (from end of object)
    * @return New position in large object, or -1 if an error occurred.
    */
-  pos_type cseek(off_type dest, seekdir dir) noexcept;			//[t50]
+  pos_type cseek(off_type dest, seekdir dir) noexcept;
 
   /// Write to large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -282,7 +282,7 @@ public:
    * @param Len Number of bytes to write
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(const char Buf[], size_type Len) noexcept;		//[t50]
+  off_type cwrite(const char Buf[], size_type Len) noexcept;
 
   /// Read from large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -291,14 +291,14 @@ public:
    * @param Len Number of bytes to read
    * @return Number of bytes actually read, or -1 if an error occurred.
    */
-  off_type cread(char Buf[], size_type Len) noexcept;			//[t50]
+  off_type cread(char Buf[], size_type Len) noexcept;
 
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
-  pos_type ctell() const noexcept;					//[t50]
+  pos_type ctell() const noexcept;
   //@}
 
   /**
@@ -306,7 +306,7 @@ public:
    */
   //@{
   /// Issue message to transaction's notice processor
-  void process_notice(const std::string &) noexcept;			//[t50]
+  void process_notice(const std::string &) noexcept;
   //@}
 
   using largeobject::remove;
@@ -358,7 +358,7 @@ public:
   using openmode = largeobjectaccess::openmode;
   using seekdir = largeobjectaccess::seekdir;
 
-  largeobject_streambuf(						//[t48]
+  largeobject_streambuf(
 	dbtransaction &T,
 	largeobject O,
 	openmode mode=std::ios::in|std::ios::out,
@@ -369,7 +369,7 @@ public:
     m_p{nullptr}
 	{ initialize(mode); }
 
-  largeobject_streambuf(						//[t48]
+  largeobject_streambuf(
 	dbtransaction &T,
 	oid O,
 	openmode mode=std::ios::in|std::ios::out,
@@ -500,7 +500,7 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(							//[t57]
+  basic_ilostream(
 	dbtransaction &T,
         largeobject O,
 	largeobject::size_type BufSize=512) :
@@ -514,7 +514,7 @@ public:
    * @param O Identifier of a large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_ilostream(							//[t48]
+  basic_ilostream(
 	dbtransaction &T,
         oid O,
 	largeobject::size_type BufSize=512) :
@@ -556,7 +556,7 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(							//[t48]
+  basic_olostream(
 	dbtransaction &T,
         largeobject O,
 	largeobject::size_type BufSize=512) :
@@ -570,7 +570,7 @@ public:
    * @param O a large object to access
    * @param BufSize size of buffer to use internally (optional)
    */
-  basic_olostream(							//[t57]
+  basic_olostream(
 	dbtransaction &T,
 	oid O,
 	largeobject::size_type BufSize=512) :
@@ -625,7 +625,7 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(							//[t59]
+  basic_lostream(
 	dbtransaction &T,
 	largeobject O,
 	largeobject::size_type BufSize=512) :
@@ -639,7 +639,7 @@ public:
    * @param O Large object to access
    * @param BufSize Size of buffer to use internally (optional)
    */
-  basic_lostream(							//[t59]
+  basic_lostream(
 	dbtransaction &T,
 	oid O,
 	largeobject::size_type BufSize=512) :

@@ -17,19 +17,15 @@
 
 #include "pqxx/dbtransaction.hxx"
 
-
-/* Methods tested in eg. self-test program test1 are marked with "//[t01]"
- */
-
 namespace pqxx::internal
 {
 /// Helper base class for the @c transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(connection &C, const char begin_command[]);		//[t01]
+  basic_transaction(connection &C, const char begin_command[]);
 private:
-  virtual void do_commit() override;					//[t01]
+  virtual void do_commit() override;
   virtual void do_abort() override;
 };
 } // namespace pqxx::internal
@@ -75,14 +71,13 @@ public:
    * @param TName Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  explicit transaction(connection &C, const std::string &TName):	//[t01]
+  explicit transaction(connection &C, const std::string &TName):
     namedclass{"transaction", TName},
     internal::basic_transaction(
 	C, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
     {}
 
-  explicit transaction(connection &C) :					//[t01]
-    transaction(C, "") {}
+  explicit transaction(connection &C) : transaction(C, "") {}
 
   virtual ~transaction() noexcept
 	{ close(); }
