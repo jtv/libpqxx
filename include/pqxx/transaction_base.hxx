@@ -373,7 +373,7 @@ public:
    */
   template<typename ...Args>
   result exec_prepared_n(
-	size_t rows,
+	result::size_type rows,
 	const std::string &statement,
 	Args&&... args)
   {
@@ -475,8 +475,8 @@ private:
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(
 	const std::string &statement,
-	size_t expected_rows,
-	size_t actual_rows);
+	result::size_type expected_rows,
+	result::size_type actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
   void check_rowcount_params(size_t expected_rows, size_t actual_rows);

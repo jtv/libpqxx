@@ -35,7 +35,7 @@ void test_075()
 
   for (pqxx::result::size_type i=0; i < R.size(); ++i)
     PQXX_CHECK_EQUAL(
-	contents[i],
+	contents[static_cast<size_t>(i)],
 	R.at(i).at(0).c_str(),
 	"Inconsistent iteration.");
 

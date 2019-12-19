@@ -254,8 +254,8 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 void pqxx::transaction_base::check_rowcount_prepared(
 	const std::string &statement,
-	size_t expected_rows,
-	size_t actual_rows)
+	result::size_type expected_rows,
+	result::size_type actual_rows)
 {
   if (actual_rows != expected_rows)
   {

@@ -20,12 +20,13 @@ void test_012()
 
   result R( tx.exec("SELECT * FROM " + Table) );
 
+  const auto columns{static_cast<size_t>(R.columns())};
   // Map column to no. of null fields.
-  std::vector<int> NullFields(R.columns(), 0);
+  std::vector<int> NullFields(columns, 0);
   // Does column appear to be sorted?
   std::vector<bool>
-	SortedUp(R.columns(), true),
-	SortedDown(R.columns(), true);
+	SortedUp(columns, true),
+	SortedDown(columns, true);
 
   for (auto i = R.begin(); i != R.end(); i++)
   {
@@ -39,7 +40,8 @@ void test_012()
     // Look for null fields
     for (pqxx::row::size_type f=0; f<i->size(); ++f)
     {
-      NullFields[f] += i.at(f).is_null();
+      const auto offset{static_cast<size_t>(f)};
+      NullFields[offset] += i.at(f).is_null();
 
       std::string A, B;
       PQXX_CHECK_EQUAL(
@@ -90,15 +92,16 @@ void test_012()
       // simple strings.
       for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
+        const auto offset{static_cast<size_t>(f)};
         if (not j[f].is_null())
         {
           const bool
-		U = SortedUp[f],
-		D = SortedDown[f];
+		U = SortedUp[offset],
+		D = SortedDown[offset];
 
-          SortedUp[f] = U & (
+          SortedUp[offset] = U & (
 		std::string{j[f].c_str()} <= std::string{i[f].c_str()});
-          SortedDown[f] = D & (
+          SortedDown[offset] = D & (
 		std::string{j[f].c_str()} >= std::string{i[f].c_str()});
         }
       }
@@ -107,7 +110,7 @@ void test_012()
 
   for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
     PQXX_CHECK(
-	NullFields[f] <= int(R.size()),
+	NullFields[static_cast<size_t>(f)] <= int(R.size()),
 	"Found more nulls than there were rows.");
 }
 
