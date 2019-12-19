@@ -25,6 +25,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include "pqxx/except.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
 

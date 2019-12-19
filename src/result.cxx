@@ -321,7 +321,8 @@ pqxx::field::size_type pqxx::result::get_length(
 	pqxx::result::size_type Row,
         pqxx::row::size_type Col) const noexcept
 {
-  return PQgetlength(m_data.get(), Row, Col);
+  return static_cast<pqxx::field::size_type>(
+	PQgetlength(m_data.get(), Row, Col));
 }
 
 
