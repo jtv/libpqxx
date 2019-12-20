@@ -56,7 +56,7 @@ inline TO check_cast(FROM value, const char description[])
   {
     if constexpr (std::is_signed_v<TO>)
     {
-      if (value < to_limits::min())
+      if (value < (to_limits::min)())
         throw range_error(
 		std::string{"Cast underflow: "} + description);
     }
@@ -79,7 +79,7 @@ inline TO check_cast(FROM value, const char description[])
 
   if constexpr (std::is_signed_v<FROM> == std::is_signed_v<TO>)
   {
-    if constexpr (from_limits::max() > to_limits::max())
+    if constexpr ((from_limits::max)() > (to_limits::max)())
     {
       if (value > to_limits::max())
 	throw range_error(std::string{"Cast overflow: "} + description);
