@@ -56,7 +56,9 @@ std::string PQXX_LIBEXPORT state_buffer_overrun(
 template<typename HAVE, typename NEED> inline std::string
 state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 {
-  return state_buffer_overrun(have_bytes, need_bytes);
+  return state_buffer_overrun(
+	static_cast<int>(have_bytes),
+	static_cast<int>(need_bytes));
 }
 
 
