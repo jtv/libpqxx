@@ -30,7 +30,7 @@ macro(library_target_setup tgt)
     )
     target_link_libraries(${tgt} PRIVATE ${PostgreSQL_LIBRARIES})
     if(WIN32)
-        target_link_libraries(${tgt} PRIVATE wsock32 ws2_32)
+        target_link_libraries(${tgt} PUBLIC wsock32 ws2_32)
     endif()
     install(TARGETS ${tgt} EXPORT libpqxx-targets
     	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
