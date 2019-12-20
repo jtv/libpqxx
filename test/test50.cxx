@@ -47,13 +47,13 @@ void test_050()
 
       A.process_notice("Writing to large object #" +
 	to_string(largeobject(A).id()) + "\n");
-      long Bytes = A.cwrite(
-	Contents.c_str(),
-	static_cast<int>(Contents.size()));
+      int Bytes = check_cast<int>(
+	A.cwrite(Contents.c_str(), static_cast<int>(Contents.size())),
+	"test write");
 
       PQXX_CHECK_EQUAL(
 	Bytes,
-	long(Contents.size()),
+	check_cast<int>(Contents.size(), "test cwrite()"),
 	"Wrote wrong number of bytes.");
 
       PQXX_CHECK_EQUAL(
