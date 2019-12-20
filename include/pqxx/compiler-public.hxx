@@ -44,9 +44,7 @@
 #ifdef _MSC_VER
 
 // Suppress vtables on abstract classes.
-//#define PQXX_NOVTABLE __declspec(novtable)
-// XXX: Figure out why this seems to result in "unresolved symbol" errors.
-#define PQXX_NOVTABLE
+#define PQXX_NOVTABLE __declspec(novtable)
 
 // Automatically link with the appropriate libpq (static or dynamic, debug or
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
