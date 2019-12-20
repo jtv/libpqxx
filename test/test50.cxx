@@ -49,7 +49,7 @@ void test_050()
 	to_string(largeobject(A).id()) + "\n");
       long Bytes = A.cwrite(
 	Contents.c_str(),
-	largeobject::size_type(Contents.size()));
+	static_cast<int>(Contents.size()));
 
       PQXX_CHECK_EQUAL(
 	Bytes,

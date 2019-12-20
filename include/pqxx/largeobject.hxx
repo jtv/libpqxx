@@ -136,7 +136,7 @@ class PQXX_LIBEXPORT largeobjectaccess : private largeobject
 {
 public:
   using largeobject::size_type;
-  using off_type = long;
+  using off_type = size_type;
   using pos_type = size_type;
 
   /// Open mode: @c in, @c out (can be combined with the "or" operator)
@@ -214,33 +214,32 @@ public:
   using largeobject::to_file;
 
   /**
-   * @name High-level access to object contents
+   * @name High-level access to object contents.
    */
   //@{
-  /// Write data to large object
-  /** If not all bytes could be written, an exception is thrown.
-   * @param Buf Data to write
-   * @param Len Number of bytes from Buf to write
+  /// Write data to large object.
+  /** @warning The size of a write is currently limited to 2GB.
+   *
+   * @param Buf Data to write.
+   * @param Len Number of bytes from Buf to write.
    */
-  void write(const char Buf[], size_type Len);
+  void write(const char Buf[], size_t Len);
 
   /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
-   * @param Buf Data to write; no terminating zero is written
+   * @param Buf Data to write; no terminating zero is written.
    */
   void write(std::string_view Buf)
-  {
-    write(Buf.data(), check_cast<size_type>(Buf.size(), "large object write"));
-  }
+  { write(Buf.data(), Buf.size()); }
 
-  /// Read data from large object
+  /// Read data from large object.
   /** Throws an exception if an error occurs while reading.
-   * @param Buf Location to store the read data in
-   * @param Len Number of bytes to try and read
+   * @param Buf Location to store the read data in.
+   * @param Len Number of bytes to try and read.
    * @return Number of bytes read, which may be less than the number requested
-   * if the end of the large object is reached
+   * if the end of the large object is reached.
    */
-  size_type read(char Buf[], size_type Len);
+  size_type read(char Buf[], size_t Len);
 
   /// Seek in large object's data stream
   /** Throws an exception if an error occurs.
@@ -248,50 +247,53 @@ public:
    */
   size_type seek(size_type dest, seekdir dir);
 
-  /// Report current position in large object's data stream
+  /// Report current position in large object's data stream.
   /** Throws an exception if an error occurs.
-   * @return The current position in the large object
+   * @return The current position in the large object.
    */
   size_type tell() const;
   //@}
 
   /**
-   * @name Low-level access to object contents
+   * @name Low-level access to object contents.
    *
    * These functions provide a more "C-like" access interface, returning special
    * values instead of throwing exceptions on error.  These functions are
    * generally best avoided in favour of the high-level access functions, which
    * behave more like C++ functions should.
+   *
+   * Due to libpq's underlying API, some operations are limited to "int"
+   * sizes, typically 2 GB, even though a large object can grow much larger.
    */
   //@{
-  /// Seek in large object's data stream
+  /// Seek in large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
-   * @param dest Offset to go to
+   * @param dest Offset to go to.
    * @param dir Origin to which dest is relative: ios_base::beg (from beginning
    *        of the object), ios_base::cur (from current access position), or
-   *        ios_base;:end (from end of object)
+   *        ios_base;:end (from end of object).
    * @return New position in large object, or -1 if an error occurred.
    */
   pos_type cseek(off_type dest, seekdir dir) noexcept;
 
-  /// Write to large object's data stream
+  /// Write to large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
-   * @param Buf Data to write
-   * @param Len Number of bytes to write
+   * @param Buf Data to write.
+   * @param Len Number of bytes to write.
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(const char Buf[], size_type Len) noexcept;
+  off_type cwrite(const char Buf[], size_t Len) noexcept;
 
-  /// Read from large object's data stream
+  /// Read from large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
-   * @param Buf Area where incoming bytes should be stored
-   * @param Len Number of bytes to read
-   * @return Number of bytes actually read, or -1 if an error occurred.
+   * @param Buf Area where incoming bytes should be stored.
+   * @param Len Number of bytes to read.
+   * @return Number of bytes actually read, or -1 if an error occurred..
    */
-  off_type cread(char Buf[], size_type Len) noexcept;
+  off_type cread(char Buf[], size_t Len) noexcept;
 
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -335,20 +337,17 @@ private:
 };
 
 
-/// Streambuf to use large objects in standard I/O streams
+/// Streambuf to use large objects in standard I/O streams.
 /** The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
  * output streams.  This streambuf implementation provides similar access to
  * large objects, so they can be read and written using the same stream classes.
- *
- * @warning This class may not work properly in compiler environments that don't
- * fully support Standard-compliant streambufs, such as g++ 2.95 or older.
  */
 template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
   class largeobject_streambuf :
     public std::basic_streambuf<CHAR, TRAITS>
 {
-  using size_type = long;
+  using size_type = largeobject::size_type;
 public:
   using char_type = CHAR;
   using traits_type = TRAITS;
@@ -400,9 +399,7 @@ protected:
 	seekdir dir,
 	openmode)
 	override
-  {
-    return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
-  }
+  { return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir)); }
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
@@ -419,7 +416,14 @@ protected:
     char *const pb = this->pbase();
     int_type res = 0;
 
-    if (pp > pb) res = int_type(AdjustEOF(m_obj.cwrite(pb, pp-pb)));
+    if (pp > pb)
+    {
+      const auto out = AdjustEOF(m_obj.cwrite(pb, pp-pb));
+      if constexpr (std::is_arithmetic_v<decltype(out)>)
+        res = check_cast<int_type>(out);
+      else
+        res = int_type(out);
+    }
     this->setp(m_p, m_p + m_bufsize);
 
     // Write that one more character, if it's there.
@@ -435,7 +439,7 @@ protected:
   {
     if (this->gptr() == nullptr) return EoF();
     char *const eb = this->eback();
-    const int_type res{static_cast<int_type>(
+    const int_type res{int_type(
 	AdjustEOF(m_obj.cread(this->eback(), m_bufsize)))};
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return ((res == 0) or (res == EoF())) ? EoF() : *eb;
@@ -448,7 +452,19 @@ private:
   /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE>
   static std::streampos AdjustEOF(INTYPE pos)
-	{ return (pos==-1) ? std::streampos(EoF()) : std::streampos(pos); }
+  {
+    const bool eof{pos == -1};
+    if constexpr (std::is_arithmetic_v<std::streampos>)
+    {
+      return check_cast<std::streampos>(
+	(eof ? EoF() : pos),
+	"large object seek");
+    }
+    else
+    {
+      return std::streampos(eof ? EoF() : pos);
+    }
+  }
 
   void initialize(openmode mode)
   {

@@ -10,6 +10,7 @@
 #define PQXX_H_TYPES
 
 #include <cstddef>
+#include <cstdint>
 
 namespace pqxx
 {
@@ -29,7 +30,7 @@ using row_difference_type = int;
 using field_size_type = size_t;
 
 /// Number of bytes in a large object.
-using large_object_size_type = long;
+using large_object_size_type = int64_t;
 
 
 // Forward declarations, to help break compilation dependencies.

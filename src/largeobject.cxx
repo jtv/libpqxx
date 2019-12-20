@@ -201,16 +201,12 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-// XXX: Use lo_lseek64!
-  return lo_lseek(
-	raw_connection(),
-	m_fd, check_cast<int>(dest, "large object seek"),
-	StdDirToPQDir(dir));
+  return lo_lseek64(raw_connection(), m_fd, dest, StdDirToPQDir(dir));
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
+pqxx::largeobjectaccess::cwrite(const char Buf[], size_t Len) noexcept
 {
   return
     std::max(
@@ -220,7 +216,7 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_type Len) noexcept
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) noexcept
+pqxx::largeobjectaccess::cread(char Buf[], size_t Bytes) noexcept
 {
   return std::max(lo_read(raw_connection(), m_fd, Buf, size_t(Bytes)), -1);
 }
@@ -229,14 +225,13 @@ pqxx::largeobjectaccess::cread(char Buf[], size_type Bytes) noexcept
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::ctell() const noexcept
 {
-// XXX: Use lo_tell64!
-  return lo_tell(raw_connection(), m_fd);
+  return lo_tell64(raw_connection(), m_fd);
 }
 
 
-void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
+void pqxx::largeobjectaccess::write(const char Buf[], size_t Len)
 {
-  if (const auto Bytes = cwrite(Buf, Len); Bytes < Len)
+  if (const auto Bytes = cwrite(Buf, Len); Bytes < static_cast<off_type>(Len))
   {
     const int err = errno;
     if (err == ENOMEM) throw std::bad_alloc{};
@@ -257,7 +252,7 @@ void pqxx::largeobjectaccess::write(const char Buf[], size_type Len)
 
 
 pqxx::largeobjectaccess::size_type
-pqxx::largeobjectaccess::read(char Buf[], size_type Len)
+pqxx::largeobjectaccess::read(char Buf[], size_t Len)
 {
   const auto Bytes = cread(Buf, Len);
   if (Bytes < 0)
