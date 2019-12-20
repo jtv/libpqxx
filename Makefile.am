@@ -1,4 +1,4 @@
-SUBDIRS = include src test tools win32 config doc
+SUBDIRS = include src test tools config doc
 EXTRA_DIST = autogen.sh configitems README.md README-UPGRADE VERSION
 
 MAINTAINERCLEANFILES = \

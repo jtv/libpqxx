@@ -19282,7 +19282,7 @@ $as_echo "no" >&6; }
 fi
 
 
-ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile test/Makefile test/unit/Makefile tools/Makefile win32/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
+ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile test/Makefile test/unit/Makefile tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 
 
@@ -20422,7 +20422,6 @@ do
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "test/unit/Makefile") CONFIG_FILES="$CONFIG_FILES test/unit/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
-    "win32/Makefile") CONFIG_FILES="$CONFIG_FILES win32/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "include/pqxx/Makefile") CONFIG_FILES="$CONFIG_FILES include/pqxx/Makefile" ;;
     "libpqxx.pc") CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;

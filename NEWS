@@ -35,6 +35,8 @@
  - win32/libpqxx.cxx and DllMain did not seem to be needed, so they're gone.
  - Large objects now require backend version 9.3 or better.
  - Seeking inside large objects now supports 64-bit sizes.
+ - Visual Studio project files and sample headers are gone.  Use CMake.
+ - MinGW Makefiles are gone.  Use `configure` or CMake.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

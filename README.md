@@ -38,7 +38,7 @@ Apple macOS and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Even on
 Microsoft Windows, a Unix-like environment such as Cygwin or MinGW installed
 should work.
 
-For any Windows builds though, also see win32/INSTALL.txt.
+For any Windows builds though, also see INSTALL-Windows.md.
 
 
 ### Using CMake
@@ -160,7 +160,7 @@ that you wish to build a libpqxx based on the postgres version found in
 /home/me/postgres.
 
 If you're running `configure` on a Windows system, make sure that the linker
-can find `ws2_32.lib`.  See the note in win32/INSTALL.txt.
+can find `ws2_32.lib`.  See the note in INSTALL-Windows.md.
 
 
 #### 2. Make

@@ -31,12 +31,6 @@ expand_templates() {
 	do
 		./tools/template2mak.py "$template" "${template%.template}"
 	done
-
-	# Ensure CR/LF line endings for the Windows files we generate.
-	for template in win32/*.mak.template
-	do
-		sed "${template%.template}" -i -e 's/\r*$/\r/'
-	done
 }
 
 
