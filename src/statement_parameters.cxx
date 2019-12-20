@@ -52,7 +52,7 @@ int pqxx::internal::statement_parameters::marshall(
   // The binaries array is simpler: it maps 1-on-1.
   binaries.resize(array_size);
   for (size_t param = 0; param < elements; ++param)
-    binaries[param] = check_cast<int>(m_binary[param], "statement parameters");
+    binaries[param] = static_cast<int>(m_binary[param]);
   binaries.back() = 0;
 
   return check_cast<int>(elements, "statement parameters");

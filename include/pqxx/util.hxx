@@ -42,10 +42,22 @@ namespace pqxx
 template<typename T> inline void ignore_unused(T &&) {}
 
 
-/// Cast a numeric value
+/// Cast a numeric value to another type, or throw if it underflows/overflows.
+/** Both types must be arithmetic types, and they must either be both integral
+ * or both floating-point types.
+ */
 template<typename TO, typename FROM>
 inline TO check_cast(FROM value, const char description[])
 {
+  static_assert(std::is_arithmetic_v<FROM>);
+  static_assert(std::is_arithmetic_v<TO>);
+  static_assert(std::is_integral_v<FROM> == std::is_integral_v<TO>);
+
+  // The rest of this code won't quite work for bool, but bool is trivially
+  // convertible to other arithmetic types as far as I can see.
+  if constexpr (std::is_same_v<FROM, bool>)
+    return static_cast<TO>(value);
+
   // Depending on our "if constexpr" conditions, this parameter may not be
   // needed.  Some compilers will warn.
   ignore_unused(description);
@@ -77,18 +89,24 @@ inline TO check_cast(FROM value, const char description[])
     // of the TO type.
   }
 
-  if constexpr (std::is_signed_v<FROM> == std::is_signed_v<TO>)
+  if constexpr (std::is_integral_v<FROM>)
   {
-    if constexpr ((from_limits::max)() > (to_limits::max)())
+    using unsigned_from = std::make_unsigned_t<FROM>;
+    using unsigned_to = std::make_unsigned_t<TO>;
+    constexpr auto from_max = static_cast<unsigned_from>((from_limits::max)());
+    constexpr auto to_max = static_cast<unsigned_to>((to_limits::max)());
+    if constexpr (from_max > to_max)
     {
-      if (value > to_limits::max())
-	throw range_error(std::string{"Cast overflow: "} + description);
+      if (static_cast<unsigned_from>(value) > to_max)
+        throw range_error(std::string{"Cast overflow: "} + description);
     }
   }
-//  else if constexpr ()
-//  {
-// XXX: What in the case of differing signedness?
-//  }
+  else if constexpr ((from_limits::max)() > (to_limits::max)())
+  {
+    if (value > to_limits::max())
+      throw range_error(std::string{"Cast overflow: "} + description);
+  }
+
   return static_cast<TO>(value);
 }
 
