@@ -103,7 +103,7 @@ inline TO check_cast(FROM value, const char description[])
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
-    if (value > to_limits::max())
+    if (value > (to_limits::max)())
       throw range_error(std::string{"Cast overflow: "} + description);
   }
 
