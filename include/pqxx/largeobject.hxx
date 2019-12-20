@@ -418,7 +418,7 @@ protected:
 
     if (pp > pb)
     {
-      const auto out = AdjustEOF(m_obj.cwrite(pb, pp-pb));
+      const auto out = AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp-pb)));
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
@@ -440,7 +440,8 @@ protected:
     if (this->gptr() == nullptr) return EoF();
     char *const eb = this->eback();
     const int_type res{int_type(
-	AdjustEOF(m_obj.cread(this->eback(), m_bufsize)))};
+	AdjustEOF(
+		m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
     this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
     return ((res == 0) or (res == EoF())) ? EoF() : *eb;
   }
