@@ -818,16 +818,18 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 }
 
 
-std::string pqxx::connection::esc(std::string_view str) const
+std::string pqxx::connection::esc(std::string_view text) const
 {
-  // TODO: How can we avoid copying through this buffer?
-  std::vector<char> buf(2 * str.size() + 1);
+  std::string buf;
+  buf.resize(2 * text.size() + 1);
   int err = 0;
   // TODO: Can we make a callback-based string_view alternative to this?
   // TODO: If we can, then quote() can wrap PQescapeLiteral()!
-  const auto copied = PQescapeStringConn(m_conn, buf.data(), str.data(), str.size(), &err);
+  const auto copied = PQescapeStringConn(
+    m_conn, buf.data(), text.data(), text.size(), &err);
   if (err) throw argument_error{err_msg()};
-  return std::string{buf.data(), copied};
+  buf.resize(copied);
+  return buf;
 }
 
 
