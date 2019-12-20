@@ -969,11 +969,12 @@ void pqxx::internal::wait_read(
 {
   // These are really supposed to be time_t and suseconds_t.  But not all
   // platforms have that type; some use "long" instead, and some 64-bit
-  // systems use 32-bit integers here.  So "int" seems to be the only really
-  // safe type to use.
-  timeval tv = {
-    check_cast<time_t>(seconds, "read timeout seconds"),
-    check_cast<int>(microseconds, "read timeout microseconds") };
+  // systems use 32-bit integers here.
+  timeval tv{
+    check_cast<decltype(timeval::tv_sec)>(seconds, "read timeout seconds"),
+    check_cast<decltype(timeval::tv_usec)>(
+	microseconds, "read timeout microseconds")
+  };
   wait_fd(socket_of(c), false, &tv);
 }
 
