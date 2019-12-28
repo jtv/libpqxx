@@ -171,7 +171,7 @@ template<> struct string_traits<bool>
   static PQXX_LIBEXPORT bool from_string(std::string_view text);
 
   static constexpr zview to_buf(char *, char *, const bool &value) noexcept
-  { return value ? "true" : "false"; }
+  { return zview{value ? "true" : "false"}; }
 
   static char *into_buf(char *begin, char *end, const bool &value)
   { return pqxx::internal::generic_into_buf(begin, end, value); }

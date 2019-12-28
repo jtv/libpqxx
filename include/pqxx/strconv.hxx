@@ -58,8 +58,7 @@ namespace pqxx
 class zview : public std::string_view
 {
 public:
-// XXX: Construction from string_view should be explicit.
-  template<typename ...Args> constexpr zview(Args &&...args) :
+  template<typename ...Args> explicit constexpr zview(Args &&...args) :
     std::string_view(std::forward<Args>(args)...)
   {}
 
