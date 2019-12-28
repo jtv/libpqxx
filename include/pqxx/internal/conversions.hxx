@@ -301,12 +301,20 @@ template<size_t N> struct nullness<char[N]> : no_null<char[N]> {};
 
 
 /// String traits for C-style string constant ("array of char").
+/** @warning This assumes that every array-of-char is a C-style string.  So,
+ * it must include a trailing zero.
+ */
 template<size_t N> struct string_traits<char[N]>
 {
-// XXX: Get the terminating zero right.
-  static inline constexpr int buffer_budget{N + 1};
+  static inline constexpr int buffer_budget{N};
   static char *into_buf(char *begin, char *end, const char (&value)[N])
-  { return string_traits<const char *>::into_buf(begin, end, value); }
+  {
+    if ((end - begin) < buffer_budget)
+      throw conversion_overrun{
+	"Could not convert char[] to string: too long for buffer."};
+    std::memcpy(begin, value, N);
+    return begin + N;
+  }
   static constexpr size_t size_buffer(const char (&)[N]) noexcept
   { return buffer_budget; }
 
@@ -328,7 +336,7 @@ template<> struct string_traits<std::string>
   {
     if (value.size() >= std::size_t(end - begin))
       throw conversion_overrun{
-  	"Could not convert string to string: too long for buffer."};
+	"Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
     const auto len = value.size() + 1;
     std::memcpy(begin, value.c_str(), len);
