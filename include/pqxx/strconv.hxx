@@ -47,7 +47,9 @@ PQXX_LIBEXPORT std::string demangle_type_name(const char[]);
 namespace pqxx
 {
 /// Marker-type wrapper: zero-terminated @c std::string_view.
-/** This is basically a @c std::string_view, but it adds the guarantee that
+/** @warning Use this only if the underlying string is zero-terminated.
+ *
+ * This is basically a @c std::string_view, but it adds the guarantee that
  * if its data pointer is non-null, there is a terminating zero byte right
  * after the contents.
  *

@@ -532,6 +532,7 @@ public:
   std::string quote(const T &t) const
   {
     if (is_null(t)) return "NULL";
+    // XXX: Eliminate the concatenations!
     return "'" + this->esc(to_string(t)) + "'";
   }
 

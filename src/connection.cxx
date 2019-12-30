@@ -823,8 +823,6 @@ std::string pqxx::connection::esc(std::string_view text) const
   std::string buf;
   buf.resize(2 * text.size() + 1);
   int err = 0;
-  // TODO: Can we make a callback-based string_view alternative to this?
-  // TODO: If we can, then quote() can wrap PQescapeLiteral()!
   const auto copied = PQescapeStringConn(
     m_conn, buf.data(), text.data(), text.size(), &err);
   if (err) throw argument_error{err_msg()};
@@ -864,6 +862,7 @@ std::string pqxx::connection::quote_raw(
         const unsigned char str[],
         size_t len) const
 {
+  // XXX: Avoid the string concatenations.
   return "'" + esc_raw(str, len) + "'::bytea";
 }
 
