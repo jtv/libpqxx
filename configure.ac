@@ -150,6 +150,7 @@ then
 			-Wattribute-alias=2 \
 			-Wextra-semi \
 			-Wlogical-op \
+			-Wnoexcept \
 			-Wrestrict \
 			-Wstringop-overflow \
 			-Wsuggest-override \
