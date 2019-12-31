@@ -562,9 +562,13 @@ float_traits<long double>::into_buf(char *, char *, const long double &);
 template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  char buf[float_traits<T>::size_buffer(value)];
-  return std::string{
-    float_traits<T>::to_buf(std::begin(buf), std::end(buf), value)};
+  constexpr auto space{float_traits<T>::size_buffer(value)};
+  std::string buf;
+  buf.resize(space);
+  const std::string_view view{
+	float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
+  buf.resize(view.end() - view.begin());
+  return buf;
 #else  // PQXX_HAVE_CHARCONV_FLOAT
   // In this rare case, we can convert to std::string but not to a simple
   // buffer.  So, implement to_buf in terms of to_string instead of the other
