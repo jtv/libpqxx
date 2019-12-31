@@ -28,6 +28,36 @@
 
 namespace
 {
+constexpr bool have_charconv_float
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  true
+#else
+  false
+#endif
+};
+
+
+constexpr bool have_charconv_int
+{
+#if defined(PQXX_HAVE_CHARCONV_INT)
+  true
+#else
+  false
+#endif
+};
+
+
+constexpr bool have_cxa_demangle
+{
+#if defined(PQXX_HAVE_CXA_DEMANGLE)
+  true
+#else
+  false
+#endif
+};
+
+
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 {
@@ -103,10 +133,10 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 }
 
 
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
-inline char *wrap_to_chars(char *begin, char *end, const T &value)
+[[maybe_unused]] inline char *
+wrap_to_chars(char *begin, char *end, const T &value)
 {
   auto res = std::to_chars(begin, end - 1, value);
   if (res.ec != std::errc())
@@ -127,7 +157,6 @@ inline char *wrap_to_chars(char *begin, char *end, const T &value)
   *res.ptr++ = '\0';
   return res.ptr;
 }
-#endif
 } // namespace
 
 
@@ -178,13 +207,12 @@ template zview integral_traits<unsigned long long>::to_buf(
 template<typename T>
 char *integral_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
-#if defined(PQXX_HAVE_STRCONV_INT)
-  // This is exactly what to_chars is good at.  Trust standard library
-  // implementers to optimise better than we can.
-  return wrap_to_chars(begin, end, value);
-#else
-  return generic_into_buf(begin, end, value);
-#endif
+  if constexpr (have_charconv_int)
+    // This is exactly what to_chars is good at.  Trust standard library
+    // implementers to optimise better than we can.
+    return wrap_to_chars(begin, end, value);
+  else
+    return generic_into_buf(begin, end, value);
 }
 
 
@@ -208,20 +236,23 @@ namespace pqxx::internal
 {
 std::string demangle_type_name(const char raw[])
 {
-#if defined(PQXX_HAVE_CXA_DEMANGLE)
-  int status = 0;
-  std::unique_ptr<char, std::function<void(char *)>> name{
-    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-    [](char *x) { std::free(x); }};
-  if (status != 0)
-    throw std::runtime_error(
-      std::string{"Could not demangle type name '"} + name.get() +
-      "': "
-      "__cxa_demangle failed.");
-  return std::string{name.get()};
-#else
-  return std::string{raw};
-#endif // PQXX_HAVE_CXA_DEMANGLE
+  if constexpr (have_cxa_demangle)
+  {
+    int status = 0;
+    std::unique_ptr<char, std::function<void(char *)>> name{
+      abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+      [](char *x) { std::free(x); }};
+    if (status != 0)
+      throw std::runtime_error(
+        std::string{"Could not demangle type name '"} + name.get() +
+        "': "
+        "__cxa_demangle failed.");
+    return std::string{name.get()};
+  }
+  else
+  {
+    return std::string{raw};
+  }
 }
 
 void throw_null_conversion(const std::string &type)
@@ -243,10 +274,10 @@ std::string state_buffer_overrun(int have_bytes, int need_bytes)
 } // namespace pqxx::internal
 
 
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
+template<typename TYPE>
+[[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
   const char *end = in.data() + in.size();
   TYPE out;
@@ -277,13 +308,11 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
     throw pqxx::conversion_error{base + ": " + msg};
 }
 } // namespace
-#endif
 
 
-#if !defined(PQXX_HAVE_CHARCONV_INT)
 namespace
 {
-[[noreturn]] void report_overflow()
+[[noreturn, maybe_unused]] void report_overflow()
 {
   throw pqxx::conversion_error{
     "Could not convert string to integer: value out of range."};
@@ -292,7 +321,8 @@ namespace
 
 // TODO: Elide checks at compile time if string is short enough?
 /// Return 10*n, or throw exception if it overflows.
-template<typename T> constexpr inline T safe_multiply_by_ten(T n)
+template<typename T>
+[[maybe_unused]] constexpr inline T safe_multiply_by_ten(T n)
 {
   using limits = std::numeric_limits<T>;
 
@@ -311,7 +341,8 @@ template<typename T> constexpr inline T safe_multiply_by_ten(T n)
 
 
 /// Add digit d to nonnegative n, or throw exception if it overflows.
-template<typename T> constexpr inline T safe_add_digit(T n, T d)
+template<typename T>
+[[maybe_unused]] constexpr inline T safe_add_digit(T n, T d)
 {
   const T high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
   if (n > high_threshold)
@@ -321,7 +352,8 @@ template<typename T> constexpr inline T safe_add_digit(T n, T d)
 
 
 /// Subtract digit d to nonpositive n, or throw exception if it overflows.
-template<typename T> constexpr inline T safe_sub_digit(T n, T d)
+template<typename T>
+[[maybe_unused]] constexpr inline T safe_sub_digit(T n, T d)
 {
   const T low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
   if (n < low_threshold)
@@ -332,7 +364,7 @@ template<typename T> constexpr inline T safe_sub_digit(T n, T d)
 
 /// For use in string parsing: add new numeric digit to intermediate value.
 template<typename L, typename R>
-constexpr inline L absorb_digit_positive(L value, R digit)
+[[maybe_unused]] constexpr inline L absorb_digit_positive(L value, R digit)
 {
   return safe_add_digit(safe_multiply_by_ten(value), L(digit));
 }
@@ -340,20 +372,21 @@ constexpr inline L absorb_digit_positive(L value, R digit)
 
 /// For use in string parsing: subtract digit from intermediate value.
 template<typename L, typename R>
-constexpr inline L absorb_digit_negative(L value, R digit)
+[[maybe_unused]] constexpr inline L absorb_digit_negative(L value, R digit)
 {
   return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
 }
 
 
 /// Compute numeric value of given textual digit (assuming that it is a digit).
-constexpr int digit_to_number(char c) noexcept
+[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
 {
   return c - '0';
 }
 
 
-template<typename T> constexpr T from_string_integer(std::string_view text)
+template<typename T>
+[[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
   if (text.size() == 0)
     throw pqxx::conversion_error{"Attempt to convert empty string to " +
@@ -396,13 +429,12 @@ template<typename T> constexpr T from_string_integer(std::string_view text)
   return result;
 }
 } // namespace
-#endif // !PQXX_HAVE_CHARCONV_INT
 
 
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-constexpr bool valid_infinity_string(std::string_view text) noexcept
+[[maybe_unused]] constexpr bool
+valid_infinity_string(std::string_view text) noexcept
 {
   return equal("infinity", text) or equal("Infinity", text) or
          equal("INFINITY", text) or equal("inf", text);
@@ -410,7 +442,6 @@ constexpr bool valid_infinity_string(std::string_view text) noexcept
   equal("INF", text);
 }
 } // namespace
-#endif
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -501,33 +532,32 @@ namespace pqxx::internal
 template<typename T>
 zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-
-  // Definitely prefer to let the standard library handle this!
-  const auto ptr = wrap_to_chars(begin, end, value);
-  return zview{begin, std::size_t(ptr - begin - 1)};
-
-#else
-
-  // Implement it ourselves.  Weird detail: since this workaround is based on
-  // std::stringstream, which produces a std::string, it's actually easier to
-  // build the to_buf() on top of the to_string() than the other way around.
-  if (std::isnan(value))
-    return zview{"nan"};
-  if (std::isinf(value))
-    return zview{(value > 0) ? "infinity" : "-infinity"};
-  auto text = to_string_float(value);
-  auto have = end - begin;
-  auto need = text.size() + 1;
-  if (need > std::size_t(have))
-    throw conversion_error{
-      "Could not convert floating-point number to string: "
-      "buffer too small.  " +
-      state_buffer_overrun(have, need)};
-  std::memcpy(begin, text.c_str(), need);
-  return zview{begin, text.size()};
-
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
+  if constexpr (have_charconv_float)
+  {
+    // Definitely prefer to let the standard library handle this!
+    const auto ptr = wrap_to_chars(begin, end, value);
+    return zview{begin, std::size_t(ptr - begin - 1)};
+  }
+  else
+  {
+    // Implement it ourselves.  Weird detail: since this workaround is based on
+    // std::stringstream, which produces a std::string, it's actually easier to
+    // build the to_buf() on top of the to_string() than the other way around.
+    if (std::isnan(value))
+      return zview{"nan"};
+    if (std::isinf(value))
+      return zview{(value > 0) ? "infinity" : "-infinity"};
+    auto text = to_string_float(value);
+    auto have = end - begin;
+    auto need = text.size() + 1;
+    if (need > std::size_t(have))
+      throw conversion_error{
+        "Could not convert floating-point number to string: "
+        "buffer too small.  " +
+        state_buffer_overrun(have, need)};
+    std::memcpy(begin, text.c_str(), need);
+    return zview{begin, text.size()};
+  }
 }
 
 
@@ -540,15 +570,10 @@ float_traits<long double>::to_buf(char *, char *, const long double &);
 template<typename T>
 char *float_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-
-  return wrap_to_chars(begin, end, value);
-
-#else
-
-  return generic_into_buf(begin, end, value);
-
-#endif
+  if constexpr (have_charconv_float)
+    return wrap_to_chars(begin, end, value);
+  else
+    return generic_into_buf(begin, end, value);
 }
 
 
@@ -561,23 +586,26 @@ float_traits<long double>::into_buf(char *, char *, const long double &);
 /// Floating-point implementations for @c pqxx::to_string().
 template<typename T> std::string to_string_float(T value)
 {
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  constexpr auto space{float_traits<T>::size_buffer(value)};
-  std::string buf;
-  buf.resize(space);
-  const std::string_view view{
-	float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
-  buf.resize(view.end() - view.begin());
-  return buf;
-#else  // PQXX_HAVE_CHARCONV_FLOAT
-  // In this rare case, we can convert to std::string but not to a simple
-  // buffer.  So, implement to_buf in terms of to_string instead of the other
-  // way around.
-  thread_local dumb_stringstream<T> s;
-  s.str("");
-  s << value;
-  return s.str();
-#endif // !PQXX_HAVE_CHARCONV_FLOAT
+  if constexpr (have_charconv_float)
+  {
+    constexpr auto space{float_traits<T>::size_buffer(value)};
+    std::string buf;
+    buf.resize(space);
+    const std::string_view view{
+      float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
+    buf.resize(view.end() - view.begin());
+    return buf;
+  }
+  else
+  {
+    // In this rare case, we can convert to std::string but not to a simple
+    // buffer.  So, implement to_buf in terms of to_string instead of the other
+    // way around.
+    thread_local dumb_stringstream<T> s;
+    s.str("");
+    s << value;
+    return s.str();
+  }
 }
 } // namespace pqxx::internal
 
@@ -586,11 +614,10 @@ namespace pqxx::internal
 {
 template<typename T> T integral_traits<T>::from_string(std::string_view text)
 {
-#if defined(PQXX_HAVE_CHARCONV_INT)
-  return from_string_arithmetic<T>(text);
-#else
-  return from_string_integer<T>(text);
-#endif
+  if constexpr (have_charconv_int)
+    return from_string_arithmetic<T>(text);
+  else
+    return from_string_integer<T>(text);
 }
 
 template short integral_traits<short>::from_string(std::string_view);
@@ -608,11 +635,10 @@ template unsigned long long
 
 template<typename T> T float_traits<T>::from_string(std::string_view text)
 {
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text);
-#else
-  return from_string_awful_float<T>(text);
-#endif
+  if constexpr (have_charconv_float)
+    return from_string_arithmetic<T>(text);
+  else
+    return from_string_awful_float<T>(text);
 }
 
 
