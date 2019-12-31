@@ -48,16 +48,6 @@ constexpr bool have_charconv_int
 };
 
 
-constexpr bool have_cxa_demangle
-{
-#if defined(PQXX_HAVE_CXA_DEMANGLE)
-  true
-#else
-  false
-#endif
-};
-
-
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 {
@@ -236,23 +226,20 @@ namespace pqxx::internal
 {
 std::string demangle_type_name(const char raw[])
 {
-  if constexpr (have_cxa_demangle)
-  {
-    int status = 0;
-    std::unique_ptr<char, std::function<void(char *)>> name{
-      abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-      [](char *x) { std::free(x); }};
-    if (status != 0)
-      throw std::runtime_error(
-        std::string{"Could not demangle type name '"} + name.get() +
-        "': "
-        "__cxa_demangle failed.");
-    return std::string{name.get()};
-  }
-  else
-  {
-    return std::string{raw};
-  }
+#if defined(PQXX_HAVE_CXA_DEMANGLE)
+  int status = 0;
+  std::unique_ptr<char, std::function<void(char *)>> name{
+    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+    [](char *x) { std::free(x); }};
+  if (status != 0)
+    throw std::runtime_error(
+      std::string{"Could not demangle type name '"} + name.get() +
+      "': "
+      "__cxa_demangle failed.");
+  return std::string{name.get()};
+#else
+  return std::string{raw};
+#endif
 }
 
 void throw_null_conversion(const std::string &type)
