@@ -347,41 +347,41 @@ constexpr int digit_to_number(char c) noexcept
 { return c - '0'; }
 
 
-template<typename T> constexpr T from_string_integer(std::string_view str)
+template<typename T> constexpr T from_string_integer(std::string_view text)
 {
-  if (str.size() == 0)
+  if (text.size() == 0)
     throw pqxx::conversion_error{
 	"Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
-  const char initial{str.data()[0]};
+  const char initial{text.data()[0]};
   std::size_t i{0};
   T result{0};
 
   if (isdigit(initial))
   {
-    for (; isdigit(str.data()[i]); ++i)
-      result = absorb_digit_positive(result, digit_to_number(str.data()[i]));
+    for (; isdigit(text.data()[i]); ++i)
+      result = absorb_digit_positive(result, digit_to_number(text.data()[i]));
   }
-  else if (str.data()[0] == '-')
+  else if (text.data()[0] == '-')
   {
     if constexpr (not std::is_signed_v<T>)
       throw pqxx::conversion_error{
 	"Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
-    for (++i; isdigit(str.data()[i]); ++i)
-      result = absorb_digit_negative(result, digit_to_number(str.data()[i]));
+    for (++i; isdigit(text.data()[i]); ++i)
+      result = absorb_digit_negative(result, digit_to_number(text.data()[i]));
   }
   else
   {
     throw pqxx::conversion_error{
 	"Could not convert string to " + pqxx::type_name<T> + ": "
-	"'" + std::string{str} + "'."};
+	"'" + std::string{text} + "'."};
   }
 
-  if (i < str.size())
+  if (i < text.size())
     throw pqxx::conversion_error{
       "Unexpected text after " + pqxx::type_name<T> + ": "
-	"'" + std::string{str} + "'."};
+	"'" + std::string{text} + "'."};
 
   return result;
 }
@@ -392,15 +392,15 @@ template<typename T> constexpr T from_string_integer(std::string_view str)
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-constexpr bool valid_infinity_string(std::string_view str) noexcept
+constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
   return
-	equal("infinity", str) or
-	equal("Infinity", str) or
-	equal("INFINITY", str) or
-	equal("inf", str);
-	equal("Inf", str);
-	equal("INF", str);
+	equal("infinity", text) or
+	equal("Infinity", text) or
+	equal("INFINITY", text) or
+	equal("inf", text);
+	equal("Inf", text);
+	equal("INF", text);
 }
 } // namespace
 #endif
@@ -435,31 +435,31 @@ public:
 
 
 // These are hard, and popular compilers do not yet implement std::from_chars.
-template<typename T> inline T from_string_awful_float(std::string_view str)
+template<typename T> inline T from_string_awful_float(std::string_view text)
 {
   bool ok = false;
   T result;
 
-  switch (str[0])
+  switch (text[0])
   {
   case 'N':
   case 'n':
     // Accept "NaN," "nan," etc.
     ok = (
-      (str[1] == 'A' or str[1] == 'a') and
-      (str[2] == 'N' or str[2] == 'n') and
-      (str[3] == '\0'));
+      (text[1] == 'A' or text[1] == 'a') and
+      (text[2] == 'N' or text[2] == 'n') and
+      (text[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
 
   case 'I':
   case 'i':
-    ok = valid_infinity_string(str);
+    ok = valid_infinity_string(text);
     result = std::numeric_limits<T>::infinity();
     break;
 
   default:
-    if (str[0] == '-' and valid_infinity_string(&str[1]))
+    if (text[0] == '-' and valid_infinity_string(&text[1]))
     {
       ok = true;
       result = -std::numeric_limits<T>::infinity();
@@ -472,7 +472,7 @@ template<typename T> inline T from_string_awful_float(std::string_view str)
       // and #125.
       S.seekg(0);
       S.clear();
-      S.str(std::string{str});
+      S.str(std::string{text});
       ok = static_cast<bool>(S >> result);
     }
     break;
@@ -481,7 +481,7 @@ template<typename T> inline T from_string_awful_float(std::string_view str)
   if (not ok)
     throw pqxx::conversion_error{
       "Could not convert string to numeric value: '" +
-      std::string{str} + "'."};
+      std::string{text} + "'."};
 
   return result;
 }
@@ -627,11 +627,11 @@ template std::string to_string_float(long double);
 } // namespace pqxx::internal
 
 
-bool pqxx::string_traits<bool>::from_string(std::string_view str)
+bool pqxx::string_traits<bool>::from_string(std::string_view value)
 {
   bool OK, result;
 
-  switch (str.size())
+  switch (value.size())
   {
   case 0:
     result = false;
@@ -639,7 +639,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view str)
     break;
 
   case 1:
-    switch (str[0])
+    switch (value[0])
     {
     case 'f':
     case 'F':
@@ -663,12 +663,12 @@ bool pqxx::string_traits<bool>::from_string(std::string_view str)
 
   case 4:
     result = true;
-    OK = (equal(str, "true") or equal(str, "TRUE"));
+    OK = (equal(value, "true") or equal(value, "TRUE"));
     break;
 
   case 5:
     result = false;
-    OK = (equal(str, "false") or equal(str, "FALSE"));
+    OK = (equal(value, "false") or equal(value, "FALSE"));
     break;
 
   default:
@@ -678,7 +678,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view str)
 
   if (not OK)
     throw conversion_error{
-      "Failed conversion to bool: '" + std::string{str} + "'."};
+      "Failed conversion to bool: '" + std::string{value} + "'."};
 
   return result;
 }

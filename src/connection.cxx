@@ -839,14 +839,16 @@ std::string pqxx::connection::esc(std::string_view text) const
 
 
 std::string pqxx::connection::esc_raw(
-        const unsigned char str[],
+        const unsigned char bin[],
         size_t len) const
 {
   size_t bytes = 0;
 
-  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
-	PQescapeByteaConn(m_conn, str, len, &bytes),
-	pqxx::internal::freepqmem_templated<unsigned char>};
+  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
+  buf{
+	PQescapeByteaConn(m_conn, bin, len, &bytes),
+	pqxx::internal::freepqmem_templated<unsigned char>
+  };
   if (buf.get() == nullptr) throw std::bad_alloc{};
   return std::string{reinterpret_cast<char *>(buf.get())};
 }
@@ -866,10 +868,10 @@ std::string pqxx::connection::unesc_raw(const char text[]) const
 
 
 std::string pqxx::connection::quote_raw(
-        const unsigned char str[],
+        const unsigned char bin[],
         size_t len) const
 {
-  return "'" + esc_raw(str, len) + "'::bytea";
+  return "'" + esc_raw(bin, len) + "'::bytea";
 }
 
 
@@ -892,11 +894,11 @@ pqxx::connection::quote_name(std::string_view identifier)
 
 
 std::string pqxx::connection::esc_like(
-	std::string_view str,
+	std::string_view bin,
 	char escape_char) const
 {
   std::string out;
-  out.reserve(str.size());
+  out.reserve(bin.size());
   internal::for_glyphs(
 	internal::enc_group(encoding_id()),
 	[&out, escape_char](const char *gbegin, const char *gend)
@@ -906,8 +908,8 @@ std::string pqxx::connection::esc_like(
 
           for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
 	},
-	str.data(),
-	str.size());
+	bin.data(),
+	bin.size());
   return out;
 }
 

@@ -489,28 +489,28 @@ public:
    * zero byte.  But if there is a zero byte, escaping stops there even if
    * it's not at the end of the string!
    */
-  std::string esc(const char str[], size_t maxlen) const
-  { return esc(std::string_view(str, maxlen)); }
+  std::string esc(const char text[], size_t maxlen) const
+  { return esc(std::string_view(text, maxlen)); }
 
   /// Escape string for use as SQL string literal on this connection.
-  std::string esc(const char str[]) const
-  { return esc(std::string_view(str)); }
+  std::string esc(const char text[]) const
+  { return esc(std::string_view(text)); }
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning If the string contains a zero byte, escaping stops there even
    * if it's not at the end of the string!
    */
-  std::string esc(std::string_view str) const;
+  std::string esc(std::string_view text) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  std::string esc_raw(const unsigned char str[], size_t len) const;
+  std::string esc_raw(const unsigned char bin[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
   std::string unesc_raw(const std::string &text) const
-					    { return unesc_raw(text.c_str()); }
+  { return unesc_raw(text.c_str()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -519,7 +519,7 @@ public:
   std::string unesc_raw(const char text[]) const;
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(const unsigned char str[], size_t len) const;
+  std::string quote_raw(const unsigned char bin[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
   std::string quote_name(std::string_view identifier) const;
@@ -574,7 +574,7 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  std::string esc_like(std::string_view str, char escape_char='\\') const;
+  std::string esc_like(std::string_view text, char escape_char='\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.

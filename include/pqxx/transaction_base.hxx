@@ -132,18 +132,18 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  std::string esc(const char str[]) const            { return conn().esc(str); }
+  std::string esc(const char text[]) const         { return conn().esc(text); }
   /// Escape string for use as SQL string literal in this transaction
-  std::string esc(const char str[], size_t maxlen) const
-                                             { return conn().esc(str, maxlen); }
+  std::string esc(const char text[], size_t maxlen) const
+  { return conn().esc(text, maxlen); }
   /// Escape string for use as SQL string literal in this transaction
-  std::string esc(const std::string &str) const      { return conn().esc(str); }
+  std::string esc(const std::string &text) const   { return conn().esc(text); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
    * strings are never interpreted as text, so they may safely include byte
-   * values or byte sequences that don't happen to represent valid characters in
-   * the character encoding being used.
+   * values or byte sequences that don't happen to represent valid characters
+   * in the character encoding being used.
    *
    * The binary string does not stop at the first zero byte, as is the case with
    * textual strings.  Instead, they may contain zero bytes anywhere.  If it
@@ -152,7 +152,7 @@ public:
    * special escape sequences.
    */
   std::string esc_raw(const unsigned char data[], size_t len) const
-                                           { return conn().esc_raw(data, len); }
+  { return conn().esc_raw(data, len); }
   /// Escape binary data for use as SQL string literal in this transaction
   std::string esc_raw(const std::string &) const;
 
@@ -161,33 +161,33 @@ public:
    * copy of the original binary data.
    */
   std::string unesc_raw(const std::string &text) const
-					      { return conn().unesc_raw(text); }
+  { return conn().unesc_raw(text); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
   std::string unesc_raw(const char *text) const
-					      { return conn().unesc_raw(text); }
+  { return conn().unesc_raw(text); }
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T> std::string quote(const T &t) const
-                                                     { return conn().quote(t); }
+  { return conn().quote(t); }
 
   /// Binary-escape and quote a binarystring for use as an SQL constant.
-  std::string quote_raw(const unsigned char str[], size_t len) const
-					  { return conn().quote_raw(str, len); }
+  std::string quote_raw(const unsigned char bin[], size_t len) const
+  { return conn().quote_raw(bin, len); }
 
-  std::string quote_raw(const std::string &str) const;
+  std::string quote_raw(const std::string &bin) const;
 
   /// Escape an SQL identifier for use in a query.
   std::string quote_name(const std::string &identifier) const
-				       { return conn().quote_name(identifier); }
+  { return conn().quote_name(identifier); }
 
   /// Escape string for literal LIKE match.
-  std::string esc_like(const std::string &str, char escape_char='\\') const
-				   { return conn().esc_like(str, escape_char); }
+  std::string esc_like(const std::string &bin, char escape_char='\\') const
+  { return conn().esc_like(bin, escape_char); }
   //@}
 
   /// Execute query

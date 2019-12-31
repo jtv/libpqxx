@@ -180,17 +180,17 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string pqxx::transaction_base::esc_raw(const std::string &str) const
+std::string pqxx::transaction_base::esc_raw(const std::string &bin) const
 {
-  const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
-  return conn().esc_raw(p, str.size());
+  const auto p{reinterpret_cast<const unsigned char *>(bin.c_str())};
+  return conn().esc_raw(p, bin.size());
 }
 
 
-std::string pqxx::transaction_base::quote_raw(const std::string &str) const
+std::string pqxx::transaction_base::quote_raw(const std::string &bin) const
 {
-  const unsigned char *p = reinterpret_cast<const unsigned char *>(str.c_str());
-  return conn().quote_raw(p, str.size());
+  const auto p{reinterpret_cast<const unsigned char *>(bin.c_str())};
+  return conn().quote_raw(p, bin.size());
 }
 
 

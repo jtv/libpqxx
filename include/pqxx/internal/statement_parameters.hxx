@@ -197,12 +197,12 @@ struct params
 
 private:
   /// Add a non-null string field.
-  void add_field(std::string str)
+  void add_field(std::string text)
   {
-    lengths.push_back(int(str.size()));
+    lengths.push_back(int(text.size()));
     nonnulls.push_back(1);
     binaries.push_back(0);
-    strings.emplace_back(std::move(str));
+    strings.emplace_back(std::move(text));
   }
 
   /// Compile one argument (specialised for null pointer, a null value).
