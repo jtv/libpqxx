@@ -49,30 +49,41 @@ buffer to_buffer(std::string_view source)
 
 buffer unescape(const unsigned char escaped[])
 {
+  constexpr bool win32{
 #ifdef _WIN32
-  /* On Windows only, the return value from PQunescapeBytea() must be freed
-   * using PQfreemem.  Copy to a buffer allocated by libpqxx, so that the
-   * binarystring's buffer can be freed uniformly,
-   */
-  size_t unescaped_len = 0;
-  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> A(
-    PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
-    pqxx::internal::freepqmem_templated<unsigned char>);
-  void *data = A.get();
-  if (data == nullptr)
-    throw std::bad_alloc{};
-  return to_buffer(data, unescaped_len);
+    true
 #else
-  /* On non-Windows platforms, it's okay to free libpq-allocated memory using
-   * free().  No extra copy needed.
-   */
-  buffer unescaped;
-  unescaped.first =
-    PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped.second);
-  if (unescaped.first == nullptr)
-    throw std::bad_alloc{};
-  return unescaped;
+    false
 #endif
+  };
+
+  if constexpr (win32)
+  {
+    /* On Windows only, the return value from PQunescapeBytea() must be freed
+     * using PQfreemem.  Copy to a buffer allocated by libpqxx, so that the
+     * binarystring's buffer can be freed uniformly,
+     */
+    size_t unescaped_len = 0;
+    std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> A(
+      PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
+      pqxx::internal::freepqmem_templated<unsigned char>);
+    void *data = A.get();
+    if (data == nullptr)
+      throw std::bad_alloc{};
+    return to_buffer(data, unescaped_len);
+  }
+  else
+  {
+    /* On non-Windows platforms, it's okay to free libpq-allocated memory using
+     * free().  No extra copy needed.
+     */
+    buffer unescaped;
+    unescaped.first =
+      PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped.second);
+    if (unescaped.first == nullptr)
+      throw std::bad_alloc{};
+    return unescaped;
+  }
 }
 } // namespace
 
