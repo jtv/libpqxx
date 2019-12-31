@@ -559,7 +559,7 @@ float_traits<long double>::into_buf(char *, char *, const long double &);
 template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  char buf[float_traits<T>::buffer_budget];
+  char buf[float_traits<T>::size_buffer(value)];
   return std::string{
 	float_traits<T>::to_buf(std::begin(buf), std::end(buf), value)};
 #else // PQXX_HAVE_CHARCONV_FLOAT

@@ -76,8 +76,6 @@ template<> struct nullness<ipv4> : no_null<ipv4> {};
 
 template<> struct string_traits<ipv4>
 {
-  static inline constexpr int buffer_budget{16};
-
   static ipv4 from_string(std::string_view text)
   {
     ipv4 ts;
@@ -109,7 +107,7 @@ template<> struct string_traits<ipv4>
 
   static char *into_buf(char *begin, char *end, const ipv4 &value)
   {
-    if (end - begin < buffer_budget)
+    if (static_cast<size_t>(end - begin) < size_buffer(value))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
     for (int i=0; i < 4; ++i)
@@ -128,7 +126,7 @@ template<> struct string_traits<ipv4>
   }
 
   static constexpr size_t size_buffer(const ipv4 &) noexcept
-  { return buffer_budget; }
+  { return 16; }
 };
 
 
@@ -158,8 +156,6 @@ template<> struct nullness<bytea> : no_null<bytea> {};
 
 template<> struct string_traits<bytea>
 {
-  static inline constexpr int buffer_budget{1000};
-
   static bytea from_string(std::string_view text)
   {
     if ((text.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};

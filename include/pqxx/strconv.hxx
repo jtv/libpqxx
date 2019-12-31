@@ -205,9 +205,6 @@ struct enum_traits
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
 
-  static inline constexpr int buffer_budget{
-	string_traits<impl_type>::buffer_budget};
-
   static constexpr zview to_buf(char *begin, char *end, const ENUM &value)
   { return impl_traits::to_buf(begin, end, static_cast<impl_type>(value)); }
 

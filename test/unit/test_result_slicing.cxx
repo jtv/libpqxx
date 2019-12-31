@@ -15,7 +15,6 @@ template<> struct nullness<row::const_reverse_iterator> :
 template<> struct string_traits<row::const_iterator>
 {
   static constexpr zview text{"[row::const_iterator]"};
-  static inline constexpr int buffer_budget = 0;
   static zview to_buf(char *, char *, const row::const_iterator &)
   { return text; }
   static char *into_buf(char *begin, char *end, const row::const_iterator &)
@@ -33,7 +32,6 @@ template<> struct string_traits<row::const_iterator>
 template<> struct string_traits<row::const_reverse_iterator>
 {
   static constexpr zview text{"[row::const_reverse_iterator]"};
-  static inline constexpr int buffer_budget = 0;
   static pqxx::zview to_buf(
 	char *, char *, const row::const_reverse_iterator &)
   { return text; }
