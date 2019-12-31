@@ -42,22 +42,6 @@ template<> struct nullness<TestErrorHandler *>
 };
 
 
-template<> class str<TestErrorHandler *>
-{
-public:
-  explicit str(TestErrorHandler *t) :
-    m_str("TestErrorHandler at " + pqxx::to_string(ptrdiff_t(t)))
-  {}
-
-  operator std::string_view() const noexcept { return m_str; }
-  std::string_view view() const noexcept { return m_str; }
-  const char *c_str() const noexcept { return m_str.c_str(); }
-
-private:
-  std::string m_str;
-};
-
-
 template<> struct string_traits<TestErrorHandler *>
 {
   static constexpr size_t size_buffer(TestErrorHandler *const &) noexcept

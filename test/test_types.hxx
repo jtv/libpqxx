@@ -78,19 +78,19 @@ template<> struct string_traits<ipv4>
 {
   static inline constexpr int buffer_budget{16};
 
-  static ipv4 from_string(std::string_view str)
+  static ipv4 from_string(std::string_view text)
   {
     ipv4 ts;
-    if (str.data() == nullptr)
+    if (text.data() == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
     std::regex ipv4_regex{
       "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})"
     };
     std::smatch match;
     // Need non-temporary for `std::regex_match()`
-    std::string sstr{str};
+    std::string sstr{text};
     if (not std::regex_match(sstr, match, ipv4_regex) or match.size() != 5)
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     try
     {
       for (std::size_t i{0}; i < 4; ++i)
@@ -98,11 +98,11 @@ template<> struct string_traits<ipv4>
     }
     catch (const std::invalid_argument&)
     {
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
     catch (const std::out_of_range&)
     {
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{str}};
+      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
     return ts;
   }
@@ -160,14 +160,14 @@ template<> struct string_traits<bytea>
 {
   static inline constexpr int buffer_budget{1000};
 
-  static bytea from_string(std::string_view str)
+  static bytea from_string(std::string_view text)
   {
-    if ((str.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
+    if ((text.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
     bytea value;
-    value.reserve((str.size() - 2) / 2);
-    for (size_t i = 2; i < str.size(); i += 2)
+    value.reserve((text.size() - 2) / 2);
+    for (size_t i = 2; i < text.size(); i += 2)
     {
-      auto hi = hex_to_digit(str[i]), lo = hex_to_digit(str[i + 1]);
+      auto hi = hex_to_digit(text[i]), lo = hex_to_digit(text[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
     }
     return value;

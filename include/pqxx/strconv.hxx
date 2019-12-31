@@ -30,15 +30,6 @@
 
 namespace pqxx::internal
 {
-/// Implementation classes for @c str.
-/** We can't define these directly as @c str because of the way
- * @c std::enable_if works: to make that work, we need an extra template
- * parameter, which then seems to break template deduction when we define a
- * @c str{value}.
- */
-template<typename T, typename E> class str_impl;
-
-
 /// Attempt to demangle @c std::type_info::name() to something human-readable.
 PQXX_LIBEXPORT std::string demangle_type_name(const char[]);
 } // namespace pqxx::internal
@@ -188,42 +179,6 @@ template<typename TYPE> struct string_traits
 };
 
 
-// XXX: Can we do this more efficiently for arbitrary tuples or param packs?
-/// Value-to-string converter: represent value as a postgres-compatible string.
-/** @warning This feature is experimental.  It may change, or disappear.
- *
- * Turns a value of (more or less) any type into its PostgreSQL string
- * representation.  It keeps the string representation "alive" in memory while
- * the @c str object exists.  After that, accessing the string becomes
- * undefined.
- *
- * @c warning The value cannot be null.
- *
- * In situations where convenience matters more than performance, use the
- * @c to_string functions which create and return a @c std::string.  It's
- * expensive but convenient.  If you need extreme memory efficiency, consider
- * using @c to_buf and allocating your own buffer.  In the space between those
- * two extremes, use @c str.
- */
-template<typename T> class str : internal::str_impl<T, void>
-{
-public:
-  str() =delete;
-  str(const str &) =delete;
-  str(str &&) =delete;
-
-  explicit str(const T &value) : internal::str_impl<T, void>{value} {}
-  explicit str(T &value) : internal::str_impl<T, void>{value} {}
-
-  str &operator=(const str &) =delete;
-  str &operator=(str &&) =delete;
-
-  using internal::str_impl<T, void>::view;
-  using internal::str_impl<T, void>::c_str;
-  operator zview() const { return view(); }
-};
-
-
 /// Nullness: Enums do not have an inherent null value.
 template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
@@ -317,12 +272,7 @@ template<typename T> inline void from_string(std::string_view text, T &obj)
 
 
 /// Convert a value to a readable string that PostgreSQL will understand.
-/** This is the convenient way to represent a value as text.  It's also fairly
- * expensive, since it creates a @c std::string.  The @c pqxx::str class is a
- * more efficient but slightly less convenient alternative.  Probably.
- * Depending on the type of value you're trying to convert.
- *
- * The conversion does no special formatting, and ignores any locale settings.
+/** The conversion does no special formatting, and ignores any locale settings.
  * The resulting string will be human-readable and in a format suitable for use
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.

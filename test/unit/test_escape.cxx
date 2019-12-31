@@ -5,27 +5,27 @@
 namespace
 {
 void compare_esc(
-	pqxx::connection_base &c, pqxx::transaction_base &t, const char str[])
+	pqxx::connection_base &c, pqxx::transaction_base &t, const char text[])
 {
-  const size_t len = std::string{str}.size();
-  PQXX_CHECK_EQUAL(c.esc(str, len),
-	t.esc(str, len),
+  const size_t len = std::string{text}.size();
+  PQXX_CHECK_EQUAL(c.esc(text, len),
+	t.esc(text, len),
 	"Connection & transaction escape differently.");
 
-  PQXX_CHECK_EQUAL(t.esc(str, len),
-	t.esc(str),
+  PQXX_CHECK_EQUAL(t.esc(text, len),
+	t.esc(text),
 	"Length argument to esc() changes result.");
 
-  PQXX_CHECK_EQUAL(t.esc(std::string{str}),
-	t.esc(str),
+  PQXX_CHECK_EQUAL(t.esc(std::string{text}),
+	t.esc(text),
 	"esc(std::string()) differs from esc(const char[]).");
 
-  PQXX_CHECK_EQUAL(str,
-	t.exec1("SELECT '" + t.esc(str, len) + "'")[0].as<std::string>(),
+  PQXX_CHECK_EQUAL(text,
+	t.exec1("SELECT '" + t.esc(text, len) + "'")[0].as<std::string>(),
 	"esc() is not idempotent.");
 
-  PQXX_CHECK_EQUAL(t.esc(str, len),
-	t.esc(str),
+  PQXX_CHECK_EQUAL(t.esc(text, len),
+	t.esc(text),
 	"Oversized buffer affects esc().");
 }
 

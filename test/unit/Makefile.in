@@ -132,13 +132,12 @@ am_runner_OBJECTS = test_array.$(OBJEXT) test_binarystring.$(OBJEXT) \
 	test_result_iteration.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_row.$(OBJEXT) test_simultaneous_transactions.$(OBJEXT) \
 	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
-	test_str.$(OBJEXT) test_strconv.$(OBJEXT) \
-	test_stream_from.$(OBJEXT) test_stream_to.$(OBJEXT) \
-	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
-	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
-	test_transaction.$(OBJEXT) test_transaction_base.$(OBJEXT) \
-	test_transactor.$(OBJEXT) test_type_name.$(OBJEXT) \
-	runner.$(OBJEXT)
+	test_strconv.$(OBJEXT) test_stream_from.$(OBJEXT) \
+	test_stream_to.$(OBJEXT) test_string_conversion.$(OBJEXT) \
+	test_subtransaction.$(OBJEXT) test_test_helpers.$(OBJEXT) \
+	test_thread_safety_model.$(OBJEXT) test_transaction.$(OBJEXT) \
+	test_transaction_base.$(OBJEXT) test_transactor.$(OBJEXT) \
+	test_type_name.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -398,7 +397,6 @@ runner_SOURCES = \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
-  test_str.cxx \
   test_strconv.cxx \
   test_stream_from.cxx \
   test_stream_to.cxx \
@@ -489,7 +487,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_str.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_strconv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_from.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_to.Po@am__quote@

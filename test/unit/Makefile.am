@@ -50,7 +50,6 @@ runner_SOURCES = \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
-  test_str.cxx \
   test_strconv.cxx \
   test_stream_from.cxx \
   test_stream_to.cxx \
