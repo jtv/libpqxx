@@ -1,0 +1,4 @@
+#! /bin/sh
+#
+# Reformat source code using clang-format.
+find -name \*.cxx -o -name \*.hxx | xargs clang-format -i
