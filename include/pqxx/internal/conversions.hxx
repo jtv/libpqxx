@@ -102,7 +102,7 @@ struct integral_traits
      * can reliably represent; the one extra base-10 digit which the type can
      * only partially represent; and the terminating zero.
      */
-   return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1; 
+   return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1;
   }
 };
 

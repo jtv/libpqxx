@@ -89,7 +89,7 @@ public:
   reference operator[](const std::string &s) const
   { return (*this)[s.c_str()]; }
 
-  reference at(size_type) const; 
+  reference at(size_type) const;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -118,7 +118,7 @@ public:
       { return column_number(ColName.c_str()); }
 
   /// Number of given column (throws exception if it doesn't exist).
-  size_type column_number(const char[]) const;       
+  size_type column_number(const char[]) const;
 
   /// Return a column's type.
   oid column_type(size_type) const;

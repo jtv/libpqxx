@@ -18,7 +18,7 @@ enum class encoding_group
 {
   // Handles all single-byte fixed-width encodings
   MONOBYTE,
-  
+
   // Multibyte encodings
   BIG5,
   EUC_CN,
@@ -33,7 +33,7 @@ enum class encoding_group
   SJIS,
   SHIFT_JIS_2004,
   UHC,
-  UTF8
+  UTF8,
 };
 } // namespace pqxx::internal
 

@@ -81,8 +81,8 @@ Select a recent version of postgres and download the corrresponding .tar.gz or
 .tar.bz2 archive for that version.  Unpack the sources to some directory on your
 computer.
 
-Select "Visual Studio Command Prompt" from the Start menu ("Developer Command 
-Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building 
+Select "Visual Studio Command Prompt" from the Start menu ("Developer Command
+Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building
 for x64). Alternatively, open a Command Prompt window and run:
 
     VCVARSALL.BAT amd64
@@ -157,8 +157,8 @@ The rest of the procedure depends on your compiler.
 
 If you're using Visual C++:
 
-1) Select Visual Studio Command Prompt from the Start menu ("Developer Command 
-   Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building 
+1) Select Visual Studio Command Prompt from the Start menu ("Developer Command
+   Prompt" if building for x86 and "x64 Native Tools Command Prompt" if building
    for x64). Alternatively, open a Command Prompt window and run
 
        VCVARSALL.BAT amd64
@@ -219,8 +219,8 @@ users, the following steps should accomplish the same:
     program "runner.exe," as well as any required DLLs.
 
  2) Make sure a PostgreSQL database is running and accessible, and set up the
-    environment variables PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as 
-    described in the libpqxx README.md file so the test program can connect 
+    environment variables PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as
+    described in the libpqxx README.md file so the test program can connect
     without needing to pass a connection string.
 
  3) Run runner.exe from any of the test directories.  When runner.exe runs,
@@ -269,8 +269,8 @@ libpqxx (based on description by Alexandre Hanft, 2006-03-06):
     program.
  7) Your program should now be able to run.  However, you may need to tell it
     how to connect to a database.  If you set the environment variables
-    PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as described in the 
-    libpqxx README.md file, your program should be able to connect without 
+    PGDATABASE, PGHOST, PGPORT, PGUSER and PGPASSWORD as described in the
+    libpqxx README.md file, your program should be able to connect without
     passing further parameters.
  8) Once your program gets to the point where users should be able to configure
     it properly, change it to pass a connection string or URL where it connects

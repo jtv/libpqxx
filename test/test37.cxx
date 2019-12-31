@@ -59,7 +59,7 @@ void test_037()
     quiet_errorhandler d(conn);
     PQXX_CHECK_THROWS(
 	perform(
-          [&conn, &Table](){ 
+          [&conn, &Table](){
                 robusttransaction<> tx{conn};
     		tx.exec0(
 			"INSERT INTO " + Table + " VALUES (" +

@@ -126,7 +126,7 @@ void test_007()
       // others at the same time will not affect us.
       for (const auto &c: conversions)
       {
-        const auto query = 
+        const auto query =
         	"UPDATE pqxxevents "
         	"SET year=" + to_string(c.second) + " "
         	"WHERE year=" + to_string(c.first);

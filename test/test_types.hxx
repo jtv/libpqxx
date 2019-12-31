@@ -1,4 +1,4 @@
-/* 
+/*
  * Custom types for testing & libpqxx support those types
  */
 
