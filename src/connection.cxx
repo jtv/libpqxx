@@ -818,14 +818,21 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 }
 
 
+size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
+{
+  int err = 0;
+  const auto copied = PQescapeStringConn(
+    m_conn, buf, text.data(), text.size(), &err);
+  if (err) throw argument_error{err_msg()};
+  return copied;
+}
+
+
 std::string pqxx::connection::esc(std::string_view text) const
 {
   std::string buf;
   buf.resize(2 * text.size() + 1);
-  int err = 0;
-  const auto copied = PQescapeStringConn(
-    m_conn, buf.data(), text.data(), text.size(), &err);
-  if (err) throw argument_error{err_msg()};
+  const auto copied = esc_to_buf(text, buf.data());
   buf.resize(copied);
   return buf;
 }
