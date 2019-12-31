@@ -869,7 +869,6 @@ std::string pqxx::connection::quote_raw(
         const unsigned char str[],
         size_t len) const
 {
-  // XXX: Avoid the string concatenations.
   return "'" + esc_raw(str, len) + "'::bytea";
 }
 
