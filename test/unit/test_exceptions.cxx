@@ -6,9 +6,8 @@ namespace
 {
 void test_exceptions()
 {
-  const std::string
-    broken_query = "SELECT HORRIBLE ERROR",
-    err = "Error message";
+  const std::string broken_query = "SELECT HORRIBLE ERROR",
+                    err = "Error message";
 
   try
   {
@@ -16,18 +15,13 @@ void test_exceptions()
   }
   catch (const std::exception &e)
   {
-    PQXX_CHECK_EQUAL(
-	e.what(),
-	err,
-	"Exception contains wrong message.");
+    PQXX_CHECK_EQUAL(e.what(), err, "Exception contains wrong message.");
     auto downcast{dynamic_cast<const pqxx::sql_error *>(&e)};
     PQXX_CHECK(
-	downcast != nullptr,
-	"exception-to-sql_error downcast is broken.");
+      downcast != nullptr, "exception-to-sql_error downcast is broken.");
     PQXX_CHECK_EQUAL(
-	downcast->query(),
-	broken_query,
-	"Getting query from pqxx exception is broken.");
+      downcast->query(), broken_query,
+      "Getting query from pqxx exception is broken.");
   }
 
   pqxx::connection conn;
@@ -40,7 +34,7 @@ void test_exceptions()
   {
     // SQL syntax error has sqlstate error 42601.
     PQXX_CHECK_EQUAL(
-	e.sqlstate(), "42601", "Unexpected sqlstate on syntax error.");
+      e.sqlstate(), "42601", "Unexpected sqlstate on syntax error.");
   }
 }
 

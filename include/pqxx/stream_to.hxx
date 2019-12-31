@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_STREAM_TO
 #define PQXX_H_STREAM_TO
@@ -28,17 +28,15 @@ std::string PQXX_LIBEXPORT copy_string_escape(const std::string &);
 
 struct TypedCopyEscaper
 {
-  template<typename T> std::string operator()(const T* t) const
+  template<typename T> std::string operator()(const T *t) const
   {
     // gcc 9 complains when t is used only in one branch of the "if constexpr".
     ignore_unused(t);
     if constexpr (std::is_same_v<T, std::nullptr_t>)
       return "\\N";
     else
-      return
-	(t == nullptr or is_null(*t)) ?
-	"\\N" :
-	copy_string_escape(to_string(*t));
+      return (t == nullptr or is_null(*t)) ? "\\N" :
+                                             copy_string_escape(to_string(*t));
   }
 };
 } // namespace pqxx::internal
@@ -90,19 +88,15 @@ public:
   stream_to(transaction_base &, const std::string &table_name);
 
   /// Create a stream, specifying column names as a container of strings.
-  template<typename Columns> stream_to(
-    transaction_base &,
-    const std::string &table_name,
-    const Columns& columns
-  );
+  template<typename Columns>
+  stream_to(
+    transaction_base &, const std::string &table_name, const Columns &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
-  template<typename Iter> stream_to(
-    transaction_base &,
-    const std::string &table_name,
-    Iter columns_begin,
-    Iter columns_end
-  );
+  template<typename Iter>
+  stream_to(
+    transaction_base &, const std::string &table_name, Iter columns_begin,
+    Iter columns_end);
 
   ~stream_to() noexcept;
 
@@ -126,7 +120,7 @@ public:
    * Each field will be converted into the database's format using
    * @c pqxx::to_string.
    */
-  template<typename Tuple> stream_to & operator<<(const Tuple &);
+  template<typename Tuple> stream_to &operator<<(const Tuple &);
 
   /// Stream a `stream_from` straight into a `stream_to`.
   /** This can be useful when copying between different databases.  If the
@@ -143,46 +137,33 @@ private:
 
   void set_up(transaction_base &, const std::string &table_name);
   void set_up(
-    transaction_base &,
-    const std::string &table_name,
-    const std::string &columns
-  );
+    transaction_base &, const std::string &table_name,
+    const std::string &columns);
 };
 
 
-template<typename Columns> inline stream_to::stream_to(
-  transaction_base &tb,
-  const std::string &table_name,
-  const Columns& columns
-) : stream_to{
-  tb,
-  table_name,
-  std::begin(columns),
-  std::end(columns)
-}
+template<typename Columns>
+inline stream_to::stream_to(
+  transaction_base &tb, const std::string &table_name,
+  const Columns &columns) :
+        stream_to{tb, table_name, std::begin(columns), std::end(columns)}
 {}
 
 
-template<typename Iter> inline stream_to::stream_to(
-  transaction_base &tb,
-  const std::string &table_name,
-  Iter columns_begin,
-  Iter columns_end
-) :
-  namedclass{"stream_to", table_name},
-  internal::transactionfocus{tb}
+template<typename Iter>
+inline stream_to::stream_to(
+  transaction_base &tb, const std::string &table_name, Iter columns_begin,
+  Iter columns_end) :
+        namedclass{"stream_to", table_name},
+        internal::transactionfocus{tb}
 {
-  set_up(
-    tb,
-    table_name,
-    separated_list(",", columns_begin, columns_end)
-  );
+  set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
 }
 
 
-template<typename Tuple> stream_to & stream_to::operator<<(const Tuple &t)
+template<typename Tuple> stream_to &stream_to::operator<<(const Tuple &t)
 {
-// TODO: Probably better to let PQputCopyData() compose the buffer.
+  // TODO: Probably better to let PQputCopyData() compose the buffer.
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper{}));
   return *this;
 }

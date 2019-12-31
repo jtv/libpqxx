@@ -15,8 +15,12 @@ class PQXX_PRIVATE connection_errorhandler : callgate<connection>
   connection_errorhandler(reference x) : super(x) {}
 
   void register_errorhandler(errorhandler *h)
-					    { home().register_errorhandler(h); }
+  {
+    home().register_errorhandler(h);
+  }
   void unregister_errorhandler(errorhandler *h)
-					  { home().unregister_errorhandler(h); }
+  {
+    home().unregister_errorhandler(h);
+  }
 };
 } // namespace pqxx::internal::gate

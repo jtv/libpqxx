@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_ARRAY
 #define PQXX_H_ARRAY
@@ -63,8 +63,8 @@ public:
 
   /// Constructor.  You don't need this; use @c field::as_array instead.
   explicit array_parser(
-	std::string_view input,
-	internal::encoding_group=internal::encoding_group::MONOBYTE);
+    std::string_view input,
+    internal::encoding_group = internal::encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @c string_value, the string
@@ -89,9 +89,8 @@ private:
   std::string parse_unquoted_string(std::string::size_type end) const;
 
   std::string::size_type scan_glyph(std::string::size_type pos) const;
-  std::string::size_type scan_glyph(
-	std::string::size_type pos,
-	std::string::size_type end) const;
+  std::string::size_type
+  scan_glyph(std::string::size_type pos, std::string::size_type end) const;
 };
 } // namespace pqxx
 

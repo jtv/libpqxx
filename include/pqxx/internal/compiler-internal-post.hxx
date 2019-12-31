@@ -6,11 +6,11 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 // NO GUARDS HERE! This code should be executed every time!
 
 #if defined(_MSC_VER)
-#pragma warning (pop) // Restore compiler's warning state
+#  pragma warning(pop) // Restore compiler's warning state
 #endif

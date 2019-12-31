@@ -27,27 +27,27 @@ void test_059()
 
   const std::string Contents = "Testing, testing, 1-2-3";
 
-  largeobject Obj = perform(
-    [&conn, &Contents]()
-    {
-      work tx{conn};
-      auto new_obj = largeobject(tx);
-      lostream S(tx, new_obj.id());
-      S << Contents;
-      S.flush();
-      tx.commit();
-      return new_obj;
-    });
+  largeobject Obj = perform([&conn, &Contents]() {
+    work tx{conn};
+    auto new_obj = largeobject(tx);
+    lostream S(tx, new_obj.id());
+    S << Contents;
+    S.flush();
+    tx.commit();
+    return new_obj;
+  });
 
-  const std::string Readback = perform(
-    [&conn, &Obj]()
-    {
-      work tx{conn};
-      lostream S(tx, Obj, std::ios::in);
-      return UnStream(S);
-    });
+  const std::string Readback = perform([&conn, &Obj]() {
+    work tx{conn};
+    lostream S(tx, Obj, std::ios::in);
+    return UnStream(S);
+  });
 
-  perform([&conn, &Obj](){ work tx{conn}; Obj.remove(tx); tx.commit(); });
+  perform([&conn, &Obj]() {
+    work tx{conn};
+    Obj.remove(tx);
+    tx.commit();
+  });
 
   /* Reconstruct what will happen to our contents string if we put it into a
    * stream and then read it back.  We can compare this with what comes back
@@ -58,9 +58,7 @@ void test_059()
   const std::string StreamedContents = UnStream(TestStream);
 
   PQXX_CHECK_EQUAL(
-	Readback,
-	StreamedContents,
-	"Large object contents were mangled.");
+    Readback, StreamedContents, "Large object contents were mangled.");
 }
 
 

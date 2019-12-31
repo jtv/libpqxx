@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_TRANSACTOR
 #define PQXX_H_TRANSACTOR
@@ -94,12 +94,12 @@ namespace pqxx
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
+inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts = 3)
   -> decltype(callback())
 {
   if (attempts <= 0)
     throw std::invalid_argument{
-	"Zero or negative number of attempts passed to pqxx::perform()."};
+      "Zero or negative number of attempts passed to pqxx::perform()."};
 
   for (; attempts > 0; --attempts)
   {
@@ -123,14 +123,16 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts=3)
     {
       // Connection failed.  May be worth retrying, if the transactor opens its
       // own connection.
-      if (attempts <= 1) throw;
+      if (attempts <= 1)
+        throw;
       continue;
     }
     catch (const transaction_rollback &)
     {
       // Some error that may well be transient, such as serialization failure
       // or deadlock.  Worth retrying.
-      if (attempts <= 1) throw;
+      if (attempts <= 1)
+        throw;
       continue;
     }
   }

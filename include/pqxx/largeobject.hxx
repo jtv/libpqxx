@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_LARGEOBJECT
 #define PQXX_H_LARGEOBJECT
@@ -37,7 +37,7 @@ public:
   using size_type = large_object_size_type;
 
   /// Refer to a nonexistent large object (similar to what a null pointer does)
-  largeobject() noexcept =default;
+  largeobject() noexcept = default;
 
   /// Create new large object
   /** @param T Backend transaction in which the object is to be created
@@ -83,27 +83,33 @@ public:
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator==(const largeobject &other) const
-	  { return m_id == other.m_id; }
+  {
+    return m_id == other.m_id;
+  }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator!=(const largeobject &other) const
-	  { return m_id != other.m_id; }
+  {
+    return m_id != other.m_id;
+  }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator<=(const largeobject &other) const
-	  { return m_id <= other.m_id; }
+  {
+    return m_id <= other.m_id;
+  }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
   bool operator>=(const largeobject &other) const
-	  { return m_id >= other.m_id; }
+  {
+    return m_id >= other.m_id;
+  }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<(const largeobject &other) const
-	  { return m_id < other.m_id; }
+  bool operator<(const largeobject &other) const { return m_id < other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>(const largeobject &other) const
-	  { return m_id > other.m_id; }
+  bool operator>(const largeobject &other) const { return m_id > other.m_id; }
   //@}
 
   /// Export large object's contents to a local file
@@ -121,8 +127,8 @@ public:
   void remove(dbtransaction &T) const;
 
 protected:
-  PQXX_PURE static internal::pq::PGconn *raw_connection(
-	const dbtransaction &T);
+  PQXX_PURE static internal::pq::PGconn *
+  raw_connection(const dbtransaction &T);
 
   PQXX_PRIVATE std::string reason(const connection &, int err) const;
 
@@ -159,8 +165,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   explicit largeobjectaccess(
-	dbtransaction &T,
-	openmode mode=std::ios::in|std::ios::out);
+    dbtransaction &T, openmode mode = std::ios::in | std::ios::out);
 
   /// Open large object with given oid
   /** Convert combination of a transaction and object identifier into a
@@ -170,9 +175,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-	dbtransaction &T,
-	oid O,
-	openmode mode=std::ios::in|std::ios::out);
+    dbtransaction &T, oid O, openmode mode = std::ios::in | std::ios::out);
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
@@ -181,9 +184,8 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-	dbtransaction &T,
-	largeobject O,
-	openmode mode=std::ios::in|std::ios::out);
+    dbtransaction &T, largeobject O,
+    openmode mode = std::ios::in | std::ios::out);
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
@@ -192,9 +194,8 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-	dbtransaction &T,
-	std::string_view File,
-	openmode mode=std::ios::in|std::ios::out);
+    dbtransaction &T, std::string_view File,
+    openmode mode = std::ios::in | std::ios::out);
 
   ~largeobjectaccess() noexcept { close(); }
 
@@ -209,7 +210,9 @@ public:
    * @param File A filename on the client's filesystem
    */
   void to_file(std::string_view File) const
-	{ largeobject::to_file(m_trans, File); }
+  {
+    largeobject::to_file(m_trans, File);
+  }
 
   using largeobject::to_file;
 
@@ -229,8 +232,7 @@ public:
   /** If not all bytes could be written, an exception is thrown.
    * @param Buf Data to write; no terminating zero is written.
    */
-  void write(std::string_view Buf)
-  { write(Buf.data(), Buf.size()); }
+  void write(std::string_view Buf) { write(Buf.data(), Buf.size()); }
 
   /// Read data from large object.
   /** Throws an exception if an error occurs while reading.
@@ -257,10 +259,10 @@ public:
   /**
    * @name Low-level access to object contents.
    *
-   * These functions provide a more "C-like" access interface, returning special
-   * values instead of throwing exceptions on error.  These functions are
-   * generally best avoided in favour of the high-level access functions, which
-   * behave more like C++ functions should.
+   * These functions provide a more "C-like" access interface, returning
+   * special values instead of throwing exceptions on error.  These functions
+   * are generally best avoided in favour of the high-level access functions,
+   * which behave more like C++ functions should.
    *
    * Due to libpq's underlying API, some operations are limited to "int"
    * sizes, typically 2 GB, even though a large object can grow much larger.
@@ -323,7 +325,9 @@ public:
 private:
   PQXX_PRIVATE std::string reason(int err) const;
   internal::pq::PGconn *raw_connection() const
-	{ return largeobject::raw_connection(m_trans); }
+  {
+    return largeobject::raw_connection(m_trans);
+  }
 
   PQXX_PRIVATE void open(openmode mode);
   void close() noexcept;
@@ -331,9 +335,9 @@ private:
   dbtransaction &m_trans;
   int m_fd = -1;
 
-  largeobjectaccess() =delete;
-  largeobjectaccess(const largeobjectaccess &) =delete;
-  largeobjectaccess operator=(const largeobjectaccess &) =delete;
+  largeobjectaccess() = delete;
+  largeobjectaccess(const largeobjectaccess &) = delete;
+  largeobjectaccess operator=(const largeobjectaccess &) = delete;
 };
 
 
@@ -341,13 +345,14 @@ private:
 /** The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
  * output streams.  This streambuf implementation provides similar access to
- * large objects, so they can be read and written using the same stream classes.
+ * large objects, so they can be read and written using the same stream
+ * classes.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class largeobject_streambuf :
-    public std::basic_streambuf<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class largeobject_streambuf : public std::basic_streambuf<CHAR, TRAITS>
 {
   using size_type = largeobject::size_type;
+
 public:
   using char_type = CHAR;
   using traits_type = TRAITS;
@@ -358,29 +363,32 @@ public:
   using seekdir = largeobjectaccess::seekdir;
 
   largeobject_streambuf(
-	dbtransaction &T,
-	largeobject O,
-	openmode mode=std::ios::in|std::ios::out,
-	size_type BufSize=512) :
-    m_bufsize{BufSize},
-    m_obj{T, O, mode},
-    m_g{nullptr},
-    m_p{nullptr}
-	{ initialize(mode); }
+    dbtransaction &T, largeobject O,
+    openmode mode = std::ios::in | std::ios::out, size_type BufSize = 512) :
+          m_bufsize{BufSize},
+          m_obj{T, O, mode},
+          m_g{nullptr},
+          m_p{nullptr}
+  {
+    initialize(mode);
+  }
 
   largeobject_streambuf(
-	dbtransaction &T,
-	oid O,
-	openmode mode=std::ios::in|std::ios::out,
-	size_type BufSize=512) :
-    m_bufsize{BufSize},
-    m_obj{T, O, mode},
-    m_g{nullptr},
-    m_p{nullptr}
-	{ initialize(mode); }
+    dbtransaction &T, oid O, openmode mode = std::ios::in | std::ios::out,
+    size_type BufSize = 512) :
+          m_bufsize{BufSize},
+          m_obj{T, O, mode},
+          m_g{nullptr},
+          m_p{nullptr}
+  {
+    initialize(mode);
+  }
 
   virtual ~largeobject_streambuf() noexcept
-	{ delete [] m_p; delete [] m_g; }
+  {
+    delete[] m_p;
+    delete[] m_g;
+  }
 
 
   /// For use by large object stream classes
@@ -394,31 +402,30 @@ protected:
     return overflow(EoF());
   }
 
-  virtual pos_type seekoff(
-	off_type offset,
-	seekdir dir,
-	openmode)
-	override
-  { return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir)); }
+  virtual pos_type seekoff(off_type offset, seekdir dir, openmode) override
+  {
+    return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
+  }
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
-    const largeobjectaccess::pos_type newpos = m_obj.cseek(
-	largeobjectaccess::off_type(pos),
-	std::ios::beg);
+    const largeobjectaccess::pos_type newpos =
+      m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg);
     return AdjustEOF(newpos);
   }
 
   virtual int_type overflow(int_type ch = EoF()) override
   {
     char *const pp = this->pptr();
-    if (pp == nullptr) return EoF();
+    if (pp == nullptr)
+      return EoF();
     char *const pb = this->pbase();
     int_type res = 0;
 
     if (pp > pb)
     {
-      const auto out = AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp-pb)));
+      const auto out =
+        AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)));
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
@@ -437,12 +444,12 @@ protected:
 
   virtual int_type underflow() override
   {
-    if (this->gptr() == nullptr) return EoF();
+    if (this->gptr() == nullptr)
+      return EoF();
     char *const eb = this->eback();
     const int_type res{int_type(
-	AdjustEOF(
-		m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
-    this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
+      AdjustEOF(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
+    this->setg(eb, eb, eb + ((res == EoF()) ? 0 : res));
     return ((res == 0) or (res == EoF())) ? EoF() : *eb;
   }
 
@@ -451,15 +458,13 @@ private:
   static int_type EoF() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op).
-  template<typename INTYPE>
-  static std::streampos AdjustEOF(INTYPE pos)
+  template<typename INTYPE> static std::streampos AdjustEOF(INTYPE pos)
   {
     const bool eof{pos == -1};
     if constexpr (std::is_arithmetic_v<std::streampos>)
     {
       return check_cast<std::streampos>(
-	(eof ? EoF() : pos),
-	"large object seek");
+        (eof ? EoF() : pos), "large object seek");
     }
     else
     {
@@ -491,16 +496,15 @@ private:
 
 /// Input stream that gets its data from a large object.
 /** Use this class exactly as you would any other istream to read data from a
- * large object.  All formatting and streaming operations of @c std::istream are
- * supported.  What you'll typically want to use, however, is the ilostream
+ * large object.  All formatting and streaming operations of @c std::istream
+ * are supported.  What you'll typically want to use, however, is the ilostream
  * alias (which defines a basic_ilostream for @c char).  This is similar to
  * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
  *
  * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class basic_ilostream :
-    public std::basic_istream<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class basic_ilostream : public std::basic_istream<CHAR, TRAITS>
 {
   using super = std::basic_istream<CHAR, TRAITS>;
 
@@ -518,12 +522,12 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_ilostream(
-	dbtransaction &T,
-        largeobject O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::in, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::in, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
   /// Create a basic_ilostream
   /**
@@ -532,15 +536,15 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_ilostream(
-	dbtransaction &T,
-        oid O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::in, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::in, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_buf;
+  largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
 
 using ilostream = basic_ilostream<char>;
@@ -548,18 +552,18 @@ using ilostream = basic_ilostream<char>;
 
 /// Output stream that writes data back to a large object
 /** Use this class exactly as you would any other ostream to write data to a
- * large object.  All formatting and streaming operations of @c std::ostream are
- * supported.  What you'll typically want to use, however, is the olostream
+ * large object.  All formatting and streaming operations of @c std::ostream
+ * are supported.  What you'll typically want to use, however, is the olostream
  * alias (which defines a basic_olostream for @c char).  This is similar to
  * how e.g. @c std::ofstream is related to @c std::basic_ofstream.
  *
  * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class basic_olostream :
-    public std::basic_ostream<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class basic_olostream : public std::basic_ostream<CHAR, TRAITS>
 {
   using super = std::basic_ostream<CHAR, TRAITS>;
+
 public:
   using char_type = CHAR;
   using traits_type = TRAITS;
@@ -574,12 +578,12 @@ public:
    * @param BufSize size of buffer to use internally (optional)
    */
   basic_olostream(
-	dbtransaction &T,
-        largeobject O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::out, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::out, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
   /// Create a basic_olostream
   /**
@@ -588,18 +592,19 @@ public:
    * @param BufSize size of buffer to use internally (optional)
    */
   basic_olostream(
-	dbtransaction &T,
-	oid O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::out, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::out, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
   ~basic_olostream()
   {
     try
     {
-      m_buf.pubsync(); m_buf.pubsync();
+      m_buf.pubsync();
+      m_buf.pubsync();
     }
     catch (const std::exception &e)
     {
@@ -608,7 +613,7 @@ public:
   }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_buf;
+  largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
 
 using olostream = basic_olostream<char>;
@@ -623,9 +628,8 @@ using olostream = basic_olostream<char>;
  *
  * Currently only works for <tt><char, std::char_traits<char>></tt>.
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class basic_lostream :
-    public std::basic_iostream<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class basic_lostream : public std::basic_iostream<CHAR, TRAITS>
 {
   using super = std::basic_iostream<CHAR, TRAITS>;
 
@@ -643,12 +647,12 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_lostream(
-	dbtransaction &T,
-	largeobject O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::in | std::ios::out, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::in | std::ios::out, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
   /// Create a basic_lostream
   /**
@@ -657,18 +661,19 @@ public:
    * @param BufSize Size of buffer to use internally (optional)
    */
   basic_lostream(
-	dbtransaction &T,
-	oid O,
-	largeobject::size_type BufSize=512) :
-    super{nullptr},
-    m_buf{T, O, std::ios::in | std::ios::out, BufSize}
-	{ super::init(&m_buf); }
+    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+          super{nullptr},
+          m_buf{T, O, std::ios::in | std::ios::out, BufSize}
+  {
+    super::init(&m_buf);
+  }
 
   ~basic_lostream()
   {
     try
     {
-      m_buf.pubsync(); m_buf.pubsync();
+      m_buf.pubsync();
+      m_buf.pubsync();
     }
     catch (const std::exception &e)
     {
@@ -677,7 +682,7 @@ public:
   }
 
 private:
-  largeobject_streambuf<CHAR,TRAITS> m_buf;
+  largeobject_streambuf<CHAR, TRAITS> m_buf;
 };
 
 using lostream = basic_lostream<char>;

@@ -19,8 +19,7 @@ void test_002()
   // connection type, where a failure to connect results in an immediate
   // exception rather than a silent retry.
   PQXX_CHECK_THROWS_EXCEPTION(
-        bad_connect(),
-	"Invalid connection string did not cause exception.");
+    bad_connect(), "Invalid connection string did not cause exception.");
 
   // Set up connection to database
   std::string ConnectString = "";
@@ -30,7 +29,7 @@ void test_002()
   work T{C, "test2"};
 
   // Perform query within transaction
-  result R( T.exec("SELECT * FROM pg_tables") );
+  result R(T.exec("SELECT * FROM pg_tables"));
 
   // Let's keep the database waiting as briefly as possible: commit now,
   // before we start processing results.  We could do this later, or since
@@ -42,16 +41,13 @@ void test_002()
   // result came from.  Let's just test that functionality...
   const oid rtable = R.column_table(0);
   PQXX_CHECK_EQUAL(
-	rtable,
-	R.column_table(pqxx::row::size_type(0)),
-	"Inconsistent answers from column_table()");
+    rtable, R.column_table(pqxx::row::size_type(0)),
+    "Inconsistent answers from column_table()");
 
   const std::string rcol = R.column_name(0);
   const oid crtable = R.column_table(rcol);
   PQXX_CHECK_EQUAL(
-	crtable,
-	rtable,
-	"Field looked up by name gives different origin.");
+    crtable, rtable, "Field looked up by name gives different origin.");
 
   // Now we've got all that settled, let's process our results.
   for (result::size_type i = 0; i < R.size(); ++i)
@@ -62,18 +58,14 @@ void test_002()
     const oid ttable = R[i].column_table(0);
 
     PQXX_CHECK_EQUAL(
-	ttable,
-	R[i].column_table(pqxx::row::size_type(0)),
-	"Inconsistent pqxx::row::column_table().");
+      ttable, R[i].column_table(pqxx::row::size_type(0)),
+      "Inconsistent pqxx::row::column_table().");
 
     PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
 
     const oid cttable = R[i].column_table(rcol);
 
-    PQXX_CHECK_EQUAL(
-	cttable,
-	rtable,
-	"pqxx::row::column_table() is broken.");
+    PQXX_CHECK_EQUAL(cttable, rtable, "pqxx::row::column_table() is broken.");
   }
 }
 

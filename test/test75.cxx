@@ -14,30 +14,27 @@ void test_075()
   pqxx::work tx{conn};
 
   pqxx::test::create_pqxxevents(tx);
-  const auto R( tx.exec("SELECT year FROM pqxxevents") );
+  const auto R(tx.exec("SELECT year FROM pqxxevents"));
   PQXX_CHECK(not R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
-  PQXX_CHECK(not (R[0] != R.at(0)), "result::row::operator!=() is broken.");
+  PQXX_CHECK(not(R[0] != R.at(0)), "result::row::operator!=() is broken.");
 
   PQXX_CHECK_EQUAL(R[0][0], R[0].at(0), "Inconsistent row indexing.");
   PQXX_CHECK(
-	not (R[0][0] != R[0].at(0)),
-	"result::field::operator!=() is broken.");
+    not(R[0][0] != R[0].at(0)), "result::field::operator!=() is broken.");
 
   std::vector<std::string> contents;
-  for (const auto &i: R) contents.push_back(i.at(0).as<std::string>());
+  for (const auto &i : R) contents.push_back(i.at(0).as<std::string>());
 
   PQXX_CHECK_EQUAL(
-	contents.size(),
-	std::vector<std::string>::size_type(R.size()),
-	"Number of values does not match result size.");
+    contents.size(), std::vector<std::string>::size_type(R.size()),
+    "Number of values does not match result size.");
 
-  for (pqxx::result::size_type i=0; i < R.size(); ++i)
+  for (pqxx::result::size_type i = 0; i < R.size(); ++i)
     PQXX_CHECK_EQUAL(
-	contents[static_cast<size_t>(i)],
-	R.at(i).at(0).c_str(),
-	"Inconsistent iteration.");
+      contents[static_cast<size_t>(i)], R.at(i).at(0).c_str(),
+      "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator
   pqxx::result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
@@ -46,13 +43,12 @@ void test_075()
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");
   PQXX_CHECK(ri3 == ri2, "result::end() does not generate rbegin().");
   PQXX_CHECK_EQUAL(
-	ri2 - ri3,
-	0,
-	"const_reverse_iterator is at nonzero distance from its own copy.");
+    ri2 - ri3, 0,
+    "const_reverse_iterator is at nonzero distance from its own copy.");
 
   PQXX_CHECK(ri2 == ri3 + 0, "reverse_iterator+0 gives strange result.");
   PQXX_CHECK(ri2 == ri3 - 0, "reverse_iterator-0 gives strange result.");
-  PQXX_CHECK(not (ri3 < ri2), "operator<() breaks on equal reverse_iterators.");
+  PQXX_CHECK(not(ri3 < ri2), "operator<() breaks on equal reverse_iterators.");
   PQXX_CHECK(ri2 <= ri3, "operator<=() breaks on equal reverse_iterators.");
 
   PQXX_CHECK(ri3++ == ri2, "reverse_iterator post-increment is broken.");
@@ -64,20 +60,18 @@ void test_075()
   PQXX_CHECK(ri2 <= ri3, "reverse_iterator operator<=() is broken.");
   PQXX_CHECK(ri3 == ri2 + 1, "Adding int to reverse_iterator is broken.");
   PQXX_CHECK(
-	ri2 == ri3 - 1,
-	"Subtracting int from reverse_iterator is broken.");
+    ri2 == ri3 - 1, "Subtracting int from reverse_iterator is broken.");
 
   PQXX_CHECK(ri3 == ++ri2, "reverse_iterator pre-increment is broken.");
   PQXX_CHECK(ri3 >= ri2, "operator>=() breaks on equal reverse_iterators.");
   PQXX_CHECK(ri3 >= ri2, "operator<=() breaks on equal reverse_iterators.");
 
   PQXX_CHECK(
-	ri3.base() == R.back(),
-	"reverse_iterator does not arrive at back().");
+    ri3.base() == R.back(), "reverse_iterator does not arrive at back().");
 
   PQXX_CHECK(
-	ri1->at(0) == (*ri1).at(0),
-	"reverse_iterator operator->() is inconsistent with operator*().");
+    ri1->at(0) == (*ri1).at(0),
+    "reverse_iterator operator->() is inconsistent with operator*().");
 
   PQXX_CHECK(ri2-- == ri3, "reverse_iterator post-decrement is broken.");
   PQXX_CHECK(ri2 == --ri3, "reverse_iterator pre-decrement is broken.");
@@ -88,21 +82,17 @@ void test_075()
 
   PQXX_CHECK(ri2 != R.rbegin(), "Adding to reverse_iterator does not work.");
   PQXX_CHECK(
-	ri3 == ri2,
-	"reverse_iterator operator-=() breaks on negative distances.");
+    ri3 == ri2, "reverse_iterator operator-=() breaks on negative distances.");
 
   ri2 -= 1;
   PQXX_CHECK(
-	ri2 == R.rbegin(),
-	"reverse_iterator operator+=() and operator-=() do not cancel out.");
+    ri2 == R.rbegin(),
+    "reverse_iterator operator+=() and operator-=() do not cancel out.");
 
   // Now verify that reverse iterator also sees the same results...
   auto l = contents.rbegin();
   for (auto i = R.rbegin(); i != R.rend(); ++i, ++l)
-    PQXX_CHECK_EQUAL(
-	*l,
-	i->at(0).c_str(),
-	"Inconsistent reverse iteration.");
+    PQXX_CHECK_EQUAL(*l, i->at(0).c_str(), "Inconsistent reverse iteration.");
 
   PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");
 

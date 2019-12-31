@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -18,10 +18,9 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-	connection &C,
-	const char begin_command[]) :
-  namedclass{"transaction"},
-  dbtransaction(C)
+  connection &C, const char begin_command[]) :
+        namedclass{"transaction"},
+        dbtransaction(C)
 {
   register_transaction();
   direct_exec(begin_command);
@@ -40,9 +39,10 @@ void pqxx::internal::basic_transaction::do_commit()
     // resulting state of the database.
     process_notice(e.what() + std::string{"\n"});
     const std::string msg =
-      "WARNING: Commit of transaction '" + name() + "' is unknown. "
-	"There is no way to tell whether the transaction succeeded "
-	"or was aborted except to check manually.";
+      "WARNING: Commit of transaction '" + name() +
+      "' is unknown. "
+      "There is no way to tell whether the transaction succeeded "
+      "or was aborted except to check manually.";
     process_notice(msg + "\n");
     throw in_doubt_error{msg};
   }
@@ -55,10 +55,12 @@ void pqxx::internal::basic_transaction::do_commit()
       process_notice(e.what() + std::string{"\n"});
 
       const std::string Msg =
-	"WARNING: Connection lost while committing transaction "
-	"'" + name() + "'. "
-	"There is no way to tell whether the transaction succeeded "
-	"or was aborted except to check manually.";
+        "WARNING: Connection lost while committing transaction "
+        "'" +
+        name() +
+        "'. "
+        "There is no way to tell whether the transaction succeeded "
+        "or was aborted except to check manually.";
 
       process_notice(Msg + "\n");
       throw in_doubt_error{Msg};

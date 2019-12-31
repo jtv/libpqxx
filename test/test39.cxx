@@ -18,13 +18,15 @@ void test_039()
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  result R( tx1.exec("SELECT * FROM " + Table + " "
-	              "WHERE year=" + to_string(BoringYear)) );
+  result R(tx1.exec(
+    "SELECT * FROM " + Table +
+    " "
+    "WHERE year=" +
+    to_string(BoringYear)));
 
   PQXX_CHECK_EQUAL(
-	R.size(),
-	0,
-	"Already have a row for " + to_string(BoringYear) + ", cannot test.");
+    R.size(), 0,
+    "Already have a row for " + to_string(BoringYear) + ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
   R.clear();
@@ -32,11 +34,13 @@ void test_039()
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   tx1.exec0(
-	"INSERT INTO " + Table + " VALUES"
-        "(" +
-	to_string(BoringYear) + ","
-	"'Yawn'"
-	")");
+    "INSERT INTO " + Table +
+    " VALUES"
+    "(" +
+    to_string(BoringYear) +
+    ","
+    "'Yawn'"
+    ")");
 
   // Abort tx1.  Since tx1 is a nontransaction, which provides only the
   // transaction class interface without providing any form of transactional
@@ -45,8 +49,11 @@ void test_039()
 
   // Verify that our record was added, despite the Abort()
   nontransaction tx2(conn, "tx2");
-  R = tx2.exec("SELECT * FROM " + Table + " "
-		"WHERE year=" + to_string(BoringYear));
+  R = tx2.exec(
+    "SELECT * FROM " + Table +
+    " "
+    "WHERE year=" +
+    to_string(BoringYear));
   PQXX_CHECK_EQUAL(R.size(), 1, "Unexpected result size.");
 
   PQXX_CHECK(R.capacity() >= R.size(), "Result's capacity is too small.");
@@ -55,16 +62,22 @@ void test_039()
   PQXX_CHECK(R.empty(), "result::clear() is broken.");
 
   // Now remove our record again
-  tx2.exec0("DELETE FROM " + Table + " "
-	    "WHERE year=" + to_string(BoringYear));
+  tx2.exec0(
+    "DELETE FROM " + Table +
+    " "
+    "WHERE year=" +
+    to_string(BoringYear));
 
   tx2.commit();
 
   // And again, verify results
   nontransaction tx3(conn, "tx3");
 
-  R = tx3.exec("SELECT * FROM " + Table + " "
-	        "WHERE year=" + to_string(BoringYear));
+  R = tx3.exec(
+    "SELECT * FROM " + Table +
+    " "
+    "WHERE year=" +
+    to_string(BoringYear));
 
   PQXX_CHECK_EQUAL(R.size(), 0, "Record is not gone as expected.");
 }

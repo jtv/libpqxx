@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -22,8 +22,8 @@
 namespace
 {
 /// Is this character a "useless trailing character" in a query?
-/** A character is "useless" at the end of a query if it is either whitespace or
- * a semicolon.
+/** A character is "useless" at the end of a query if it is either whitespace
+ * or a semicolon.
  */
 inline bool useless_trail(char c)
 {
@@ -51,9 +51,8 @@ inline bool useless_trail(char c)
  *
  * The query must be nonempty.
  */
-std::string::size_type find_query_end(
-	const std::string &query,
-	pqxx::internal::encoding_group enc)
+std::string::size_type
+find_query_end(const std::string &query, pqxx::internal::encoding_group enc)
 {
   const auto text = query.c_str();
   const auto size = query.size();
@@ -61,7 +60,8 @@ std::string::size_type find_query_end(
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    for (end = query.size(); end > 0 and useless_trail(text[end-1]); --end);
+    for (end = query.size(); end > 0 and useless_trail(text[end - 1]); --end)
+      ;
   }
   else
   {
@@ -70,13 +70,12 @@ std::string::size_type find_query_end(
     end = 0;
 
     pqxx::internal::for_glyphs(
-        enc,
-        [text, &end](const char *gbegin, const char *gend)
-        {
-          if (gend - gbegin > 1 or not useless_trail(*gbegin))
-            end = std::string::size_type(gend - text);
-        },
-        text, size);
+      enc,
+      [text, &end](const char *gbegin, const char *gend) {
+        if (gend - gbegin > 1 or not useless_trail(*gbegin))
+          end = std::string::size_type(gend - text);
+      },
+      text, size);
   }
 
   return end;
@@ -85,43 +84,46 @@ std::string::size_type find_query_end(
 
 
 pqxx::internal::sql_cursor::sql_cursor(
-	transaction_base &t,
-	const std::string &query,
-	const std::string &cname,
-	cursor_base::access_policy ap,
-	cursor_base::update_policy up,
-	cursor_base::ownership_policy op,
-	bool hold) :
-  cursor_base{t.conn(), cname},
-  m_home{t.conn()},
-  m_adopted{false},
-  m_at_end{-1},
-  m_pos{0}
+  transaction_base &t, const std::string &query, const std::string &cname,
+  cursor_base::access_policy ap, cursor_base::update_policy up,
+  cursor_base::ownership_policy op, bool hold) :
+        cursor_base{t.conn(), cname},
+        m_home{t.conn()},
+        m_adopted{false},
+        m_at_end{-1},
+        m_pos{0}
 {
-  if (&t.conn() != &m_home) throw internal_error{"Cursor in wrong connection"};
+  if (&t.conn() != &m_home)
+    throw internal_error{"Cursor in wrong connection"};
 
-  if (query.empty()) throw usage_error{"Cursor has empty query."};
+  if (query.empty())
+    throw usage_error{"Cursor has empty query."};
   const auto enc = enc_group(t.conn().encoding_id());
   const auto qend = find_query_end(query, enc);
-  if (qend == 0) throw usage_error{"Cursor has effectively empty query."};
+  if (qend == 0)
+    throw usage_error{"Cursor has effectively empty query."};
 
   std::stringstream cq, qn;
 
   cq << "DECLARE " << t.quote_name(name()) << " ";
 
-  if (ap == cursor_base::forward_only) cq << "NO ";
+  if (ap == cursor_base::forward_only)
+    cq << "NO ";
   cq << "SCROLL ";
 
   cq << "CURSOR ";
 
-  if (hold) cq << "WITH HOLD ";
+  if (hold)
+    cq << "WITH HOLD ";
 
   cq << "FOR ";
   cq.write(query.c_str(), std::streamsize(qend));
   cq << ' ';
 
-  if (up != cursor_base::update) cq << "FOR READ ONLY ";
-  else cq << "FOR UPDATE ";
+  if (up != cursor_base::update)
+    cq << "FOR READ ONLY ";
+  else
+    cq << "FOR UPDATE ";
 
   qn << "[DECLARE " << name() << ']';
   t.exec(cq, qn.str());
@@ -137,15 +139,14 @@ pqxx::internal::sql_cursor::sql_cursor(
 
 
 pqxx::internal::sql_cursor::sql_cursor(
-	transaction_base &t,
-	const std::string &cname,
-	cursor_base::ownership_policy op) :
-  cursor_base{t.conn(), cname, false},
-  m_home{t.conn()},
-  m_empty_result{},
-  m_adopted{true},
-  m_at_end{0},
-  m_pos{-1}
+  transaction_base &t, const std::string &cname,
+  cursor_base::ownership_policy op) :
+        cursor_base{t.conn(), cname, false},
+        m_home{t.conn()},
+        m_empty_result{},
+        m_adopted{true},
+        m_at_end{0},
+        m_pos{-1}
 {
   m_adopted = true;
   m_ownership = op;
@@ -159,11 +160,10 @@ void pqxx::internal::sql_cursor::close() noexcept
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-	("CLOSE " + m_home.quote_name(name())).c_str());
+        ("CLOSE " + m_home.quote_name(name())).c_str());
     }
     catch (const std::exception &)
-    {
-    }
+    {}
     m_ownership = cursor_base::loose;
   }
 }
@@ -171,18 +171,20 @@ void pqxx::internal::sql_cursor::close() noexcept
 
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
-  if (pos() != 0) throw internal_error{"init_empty_result() from bad pos()."};
+  if (pos() != 0)
+    throw internal_error{"init_empty_result() from bad pos()."};
   m_empty_result = t.exec("FETCH 0 IN " + m_home.quote_name(name()));
 }
 
 
 /// Compute actual displacement based on requested and reported displacements.
-pqxx::internal::sql_cursor::difference_type
-pqxx::internal::sql_cursor::adjust(difference_type hoped,
-	difference_type actual)
+pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
+  difference_type hoped, difference_type actual)
 {
-  if (actual < 0) throw internal_error{"Negative rows in cursor movement."};
-  if (hoped == 0) return 0;
+  if (actual < 0)
+    throw internal_error{"Negative rows in cursor movement."};
+  if (hoped == 0)
+    return 0;
   const int direction = ((hoped < 0) ? -1 : 1);
   bool hit_end = false;
   if (actual != labs(hoped))
@@ -195,21 +197,31 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
     // position or whether we're already there depends on where we were
     // previously: if our last move was in the same direction and also fell
     // short, we're already at a one-past-end row.
-    if (m_at_end != direction) ++actual;
+    if (m_at_end != direction)
+      ++actual;
 
     // If we hit the beginning, make sure our position calculation ends up
     // at zero (even if we didn't previously know where we were!), and if we
     // hit the other end, register the fact that we now know where the end
     // of the result set is.
-    if (direction > 0) hit_end = true;
-    else if (m_pos == -1) m_pos = actual;
+    if (direction > 0)
+      hit_end = true;
+    else if (m_pos == -1)
+      m_pos = actual;
     else if (m_pos != actual)
       throw internal_error{
-	"Moved back to beginning, but wrong position: "
-        "hoped=" + to_string(hoped) + ", "
-        "actual=" + to_string(actual) + ", "
-        "m_pos=" + to_string(m_pos) + ", "
-        "direction=" + to_string(direction) + "."};
+        "Moved back to beginning, but wrong position: "
+        "hoped=" +
+        to_string(hoped) +
+        ", "
+        "actual=" +
+        to_string(actual) +
+        ", "
+        "m_pos=" +
+        to_string(m_pos) +
+        ", "
+        "direction=" +
+        to_string(direction) + "."};
 
     m_at_end = direction;
   }
@@ -218,21 +230,20 @@ pqxx::internal::sql_cursor::adjust(difference_type hoped,
     m_at_end = 0;
   }
 
-  if (m_pos >= 0) m_pos += direction*actual;
+  if (m_pos >= 0)
+    m_pos += direction * actual;
   if (hit_end)
   {
     if (m_endpos >= 0 and m_pos != m_endpos)
       throw internal_error{"Inconsistent cursor end positions."};
     m_endpos = m_pos;
   }
-  return direction*actual;
+  return direction * actual;
 }
 
 
-pqxx::result
-pqxx::internal::sql_cursor::fetch(
-	difference_type rows,
-	difference_type &displacement)
+pqxx::result pqxx::internal::sql_cursor::fetch(
+  difference_type rows, difference_type &displacement)
 {
   if (rows == 0)
   {
@@ -240,17 +251,15 @@ pqxx::internal::sql_cursor::fetch(
     return m_empty_result;
   }
   const std::string query =
-      "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
+    "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
   const result r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
 
 
-pqxx::cursor_base::difference_type
-pqxx::internal::sql_cursor::move(
-	difference_type rows,
-	difference_type &displacement)
+pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
+  difference_type rows, difference_type &displacement)
 {
   if (rows == 0)
   {
@@ -259,7 +268,7 @@ pqxx::internal::sql_cursor::move(
   }
 
   const std::string query =
-      "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
+    "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
   const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str()));
   difference_type d = difference_type(r.affected_rows());
   displacement = adjust(rows, d);
@@ -271,13 +280,15 @@ std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
 {
   /* Some special-casing for ALL and BACKWARD ALL here.  We used to use numeric
    * "infinities" for difference_type for this (the highest and lowest possible
-   * values for "long"), but for PostgreSQL 8.0 at least, the backend appears to
-   * expect a 32-bit number and fails to parse large 64-bit numbers.
-   * We could change the alias to match this behaviour, but that would break
+   * values for "long"), but for PostgreSQL 8.0 at least, the backend appears
+   * to expect a 32-bit number and fails to parse large 64-bit numbers. We
+   * could change the alias to match this behaviour, but that would break
    * if/when Postgres is changed to accept 64-bit displacements.
    */
   static const std::string All{"ALL"}, BackAll{"BACKWARD ALL"};
-  if (n >= cursor_base::all()) return All;
-  else if (n <= cursor_base::backward_all()) return BackAll;
+  if (n >= cursor_base::all())
+    return All;
+  else if (n <= cursor_base::backward_all())
+    return BackAll;
   return to_string(n);
 }

@@ -19,14 +19,15 @@ std::string SetDatestyle(transaction_base &T, std::string style)
   T.set_variable("DATESTYLE", style);
   const std::string fullname = GetDatestyle(T);
   PQXX_CHECK(
-	not fullname.empty(),
-	"Setting datestyle to " + style + " makes it an empty string.");
+    not fullname.empty(),
+    "Setting datestyle to " + style + " makes it an empty string.");
 
   return fullname;
 }
 
 
-void RedoDatestyle(transaction_base &T, std::string style, std::string expected)
+void RedoDatestyle(
+  transaction_base &T, std::string style, std::string expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
 }
@@ -46,12 +47,11 @@ void test_061()
 
   RedoDatestyle(tx, "SQL", SQLname);
 
-   // Prove that setting an unknown variable causes an error, as expected
+  // Prove that setting an unknown variable causes an error, as expected
   quiet_errorhandler d(tx.conn());
   PQXX_CHECK_THROWS(
-	tx.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"),
-	sql_error,
-	"Setting unknown variable failed to fail.");
+    tx.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"), sql_error,
+    "Setting unknown variable failed to fail.");
 }
 
 

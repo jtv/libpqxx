@@ -2,8 +2,8 @@
 
 #include "test_helpers.hxx"
 
-// Test program for libpqxx.  Attempt to perform nested queries on various types
-// of connections.
+// Test program for libpqxx.  Attempt to perform nested queries on various
+// types of connections.
 namespace
 {
 void test_089()
@@ -24,14 +24,14 @@ void test_089()
   pqxx::work T1(C, "T1");
   std::cout << T1.exec1("SELECT 'T1 starts'")[0].c_str() << std::endl;
   pqxx::subtransaction T1a(T1, "T1a");
-    std::cout << T1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
-    T1a.commit();
+  std::cout << T1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
+  T1a.commit();
   pqxx::subtransaction T1b(T1, "T1b");
-    std::cout << T1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
-    T1b.abort();
+  std::cout << T1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
+  T1b.abort();
   pqxx::subtransaction T1c(T1, "T1c");
-    std::cout << T1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
-    T1c.commit();
+  std::cout << T1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
+  T1c.commit();
   std::cout << T1.exec1("SELECT 'T1 ends'")[0].c_str() << std::endl;
   T1.commit();
 }

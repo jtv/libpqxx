@@ -15,21 +15,18 @@ class TestListener final : public pqxx::notification_receiver
 
 public:
   explicit TestListener(pqxx::connection_base &conn, std::string Name) :
-    pqxx::notification_receiver(conn, Name), m_done(false)
-  {
-  }
+          pqxx::notification_receiver(conn, Name),
+          m_done(false)
+  {}
 
   void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
-	be_pid,
-	conn().backendpid(),
-	"Notification came from wrong backend.");
+      be_pid, conn().backendpid(), "Notification came from wrong backend.");
 
-    std::cout
-	<< "Received notification: " << channel() << " pid=" << be_pid
-	<< std::endl;
+    std::cout << "Received notification: " << channel() << " pid=" << be_pid
+              << std::endl;
   }
 
   bool done() const { return m_done; }
@@ -47,15 +44,13 @@ void test_079()
   int notifs = conn.await_notification(0, 1);
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
-  pqxx::perform(
-    [&conn, &L]()
-    {
-      pqxx::work tx{conn};
-      tx.exec0("NOTIFY " + L.channel());
-      tx.commit();
-    });
+  pqxx::perform([&conn, &L]() {
+    pqxx::work tx{conn};
+    tx.exec0("NOTIFY " + L.channel());
+    tx.commit();
+  });
 
-  for (int i=0; (i < 20) and not L.done(); ++i)
+  for (int i = 0; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
     std::cout << ".";

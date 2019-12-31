@@ -27,33 +27,27 @@ void test_057()
 
   const std::string Contents = "Testing, testing, 1-2-3";
 
-  largeobject Obj = perform(
-    [&conn, &Contents]()
-    {
-      work tx{conn};
-      auto new_obj = largeobject{tx};
-      olostream S(tx, new_obj.id());
-      S << Contents;
-      S.flush();
-      tx.commit();
-      return new_obj;
-    });
+  largeobject Obj = perform([&conn, &Contents]() {
+    work tx{conn};
+    auto new_obj = largeobject{tx};
+    olostream S(tx, new_obj.id());
+    S << Contents;
+    S.flush();
+    tx.commit();
+    return new_obj;
+  });
 
-  const std::string Readback = perform(
-    [&conn, &Obj]()
-    {
-      work tx{conn};
-      ilostream S(tx, Obj);
-      return UnStream(S);
-    });
+  const std::string Readback = perform([&conn, &Obj]() {
+    work tx{conn};
+    ilostream S(tx, Obj);
+    return UnStream(S);
+  });
 
-  perform(
-    [&conn, &Obj]()
-    {
-      work tx{conn};
-      Obj.remove(tx);
-      tx.commit();
-    });
+  perform([&conn, &Obj]() {
+    work tx{conn};
+    Obj.remove(tx);
+    tx.commit();
+  });
 
   /* Reconstruct what will happen to our contents string if we put it into a
    * stream and then read it back.  We can compare this with what comes back

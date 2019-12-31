@@ -36,8 +36,7 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
 
 
 struct deliberate_error : std::exception
-{
-};
+{};
 
 
 void test_032()
@@ -50,37 +49,33 @@ void test_032()
 
   const std::string Table = "pqxxevents";
 
-  const std::pair<int,int> Before = perform(
-	std::bind(count_events, std::ref(conn), Table));
+  const std::pair<int, int> Before =
+    perform(std::bind(count_events, std::ref(conn), Table));
   PQXX_CHECK_EQUAL(
-	Before.second,
-	0,
-	"Already have event for " + to_string(BoringYear) + ", cannot test.");
+    Before.second, 0,
+    "Already have event for " + to_string(BoringYear) + ", cannot test.");
 
   {
     quiet_errorhandler d(conn);
     PQXX_CHECK_THROWS(
-	perform(
-          [&conn, &Table]()
-          {
-            work{conn}.exec0(
-		"INSERT INTO " + Table + " VALUES (" +
-		to_string(BoringYear) + ", "
-		"'yawn')");
-            throw deliberate_error();
-          }),
-	deliberate_error,
-	"Did not get expected exception from failing transactor.");
+      perform([&conn, &Table]() {
+        work{conn}.exec0(
+          "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+          ", "
+          "'yawn')");
+        throw deliberate_error();
+      }),
+      deliberate_error,
+      "Did not get expected exception from failing transactor.");
   }
 
-  const std::pair<int,int> After = perform(
-	std::bind(count_events, std::ref(conn), Table));
+  const std::pair<int, int> After =
+    perform(std::bind(count_events, std::ref(conn), Table));
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
-	After.second,
-	 Before.second,
-	 "Event count for " + to_string(BoringYear) + " changed.");
+    After.second, Before.second,
+    "Event count for " + to_string(BoringYear) + " changed.");
 }
 
 

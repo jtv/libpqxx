@@ -3,8 +3,8 @@
 
 namespace
 {
-pqxx::binarystring make_binarystring(
-	pqxx::transaction_base &T, std::string content)
+pqxx::binarystring
+make_binarystring(pqxx::transaction_base &T, std::string content)
 {
   return pqxx::binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
 }
@@ -23,12 +23,9 @@ void test_binarystring()
   PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin for empty binarystring.");
   PQXX_CHECK(b.rbegin() == b.rend(), "Empty binarystring reverse-iterates.");
   PQXX_CHECK(
-	b.crbegin() == b.rbegin(),
-	"Wrong crbegin for empty binarystring.");
+    b.crbegin() == b.rbegin(), "Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(
-	b.at(0),
-	std::out_of_range,
-	"Empty binarystring accepts at().");
+    b.at(0), std::out_of_range, "Empty binarystring accepts at().");
 
   b = make_binarystring(tx, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
@@ -37,8 +34,7 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(b.length(), 1u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() != b.end(), "Nonempty binarystring does not iterate.");
   PQXX_CHECK(
-	b.rbegin() != b.rend(),
-	 "Nonempty binarystring does not reverse-iterate.");
+    b.rbegin() != b.rend(), "Nonempty binarystring does not reverse-iterate.");
   PQXX_CHECK(b.begin() + 1 == b.end(), "Bad iteration.");
   PQXX_CHECK(b.rbegin() + 1 == b.rend(), "Bad reverse iteration.");
   PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin.");
@@ -48,14 +44,13 @@ void test_binarystring()
   PQXX_CHECK(b.front() == 'z', "Unexpected front().");
   PQXX_CHECK(b.back() == 'z', "Unexpected back().");
   PQXX_CHECK(b.at(0) == 'z', "Unexpected data at index 0.");
-  PQXX_CHECK_THROWS(b.at(1), std::out_of_range, "Failed to catch range error.");
+  PQXX_CHECK_THROWS(
+    b.at(1), std::out_of_range, "Failed to catch range error.");
 
   const std::string simple("ab");
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
-	b.str(),
-	simple,
-	"Binary (un)escaping went wrong somewhere.");
+    b.str(), simple, "Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
   const std::string simple_escaped(tx.esc_raw(simple));
@@ -66,19 +61,14 @@ void test_binarystring()
   }
 
   PQXX_CHECK_EQUAL(
-	tx.quote_raw(
-		reinterpret_cast<const unsigned char *>(simple.c_str()),
-		 simple.size()),
-	tx.quote(b),
-	"quote_raw is broken");
+    tx.quote_raw(
+      reinterpret_cast<const unsigned char *>(simple.c_str()), simple.size()),
+    tx.quote(b), "quote_raw is broken");
   PQXX_CHECK_EQUAL(
-	tx.quote(b),
-	tx.quote_raw(simple),
-	"Binary quoting is broken.");
+    tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-	pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(),
-	simple,
-	"Binary string is not idempotent.");
+    pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(), simple,
+    "Binary string is not idempotent.");
 
   const std::string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(tx, bytes);

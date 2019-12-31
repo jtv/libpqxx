@@ -18,15 +18,12 @@ class ipv4
 {
 public:
   ipv4() : m_as_int{0u} {}
-  ipv4(const ipv4 &) =default;
-  ipv4(ipv4 &&) =default;
+  ipv4(const ipv4 &) = default;
+  ipv4(ipv4 &&) = default;
   explicit ipv4(uint32_t i) : m_as_int{i} {}
   ipv4(
-    unsigned char b1,
-    unsigned char b2,
-    unsigned char b3,
-    unsigned char b4
-  ) : ipv4()
+    unsigned char b1, unsigned char b2, unsigned char b3, unsigned char b4) :
+          ipv4()
   {
     set_byte(0, b1);
     set_byte(1, b2);
@@ -35,13 +32,13 @@ public:
   }
 
   bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
-  ipv4 &operator=(const ipv4 &) =default;
+  ipv4 &operator=(const ipv4 &) = default;
 
   /// Index bytes, from 0 to 3, in network (i.e. Big-Endian) byte order.
   unsigned int operator[](int byte) const
   {
     if (byte < 0 or byte > 3)
-        throw pqxx::usage_error("Byte out of range.");
+      throw pqxx::usage_error("Byte out of range.");
     const auto shift = compute_shift(byte);
     return static_cast<unsigned int>((m_as_int >> shift) & 0xff);
   }
@@ -58,7 +55,7 @@ private:
   static unsigned compute_shift(int byte)
   {
     if (byte < 0 or byte > 3)
-        throw pqxx::usage_error("Byte out of range.");
+      throw pqxx::usage_error("Byte out of range.");
     return static_cast<unsigned>((3 - byte) * 8);
   }
 
@@ -71,7 +68,8 @@ using bytea = std::vector<unsigned char>;
 
 namespace pqxx
 {
-template<> struct nullness<ipv4> : no_null<ipv4> {};
+template<> struct nullness<ipv4> : no_null<ipv4>
+{};
 
 
 template<> struct string_traits<ipv4>
@@ -81,9 +79,7 @@ template<> struct string_traits<ipv4>
     ipv4 ts;
     if (text.data() == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
-    std::regex ipv4_regex{
-      "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})"
-    };
+    std::regex ipv4_regex{"(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})"};
     std::smatch match;
     // Need non-temporary for `std::regex_match()`
     std::string sstr{text};
@@ -92,13 +88,13 @@ template<> struct string_traits<ipv4>
     try
     {
       for (std::size_t i{0}; i < 4; ++i)
-        ts.set_byte(int(i), uint32_t(std::stoi(match[i+1])));
+        ts.set_byte(int(i), uint32_t(std::stoi(match[i + 1])));
     }
-    catch (const std::invalid_argument&)
+    catch (const std::invalid_argument &)
     {
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
-    catch (const std::out_of_range&)
+    catch (const std::out_of_range &)
     {
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
@@ -110,7 +106,7 @@ template<> struct string_traits<ipv4>
     if (static_cast<size_t>(end - begin) < size_buffer(value))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
-    for (int i=0; i < 4; ++i)
+    for (int i = 0; i < 4; ++i)
     {
       here = string_traits<unsigned>::into_buf(here, end, value[i]);
       *(here - 1) = '.';
@@ -122,11 +118,10 @@ template<> struct string_traits<ipv4>
   static zview to_buf(char *begin, char *end, const ipv4 &value)
   {
     return zview{
-	begin, static_cast<std::size_t>(into_buf(begin, end, value) - begin)};
+      begin, static_cast<std::size_t>(into_buf(begin, end, value) - begin)};
   }
 
-  static constexpr size_t size_buffer(const ipv4 &) noexcept
-  { return 16; }
+  static constexpr size_t size_buffer(const ipv4 &) noexcept { return 16; }
 };
 
 
@@ -134,31 +129,40 @@ namespace
 {
 char nibble_to_hex(unsigned nibble)
 {
-  if (nibble < 10) return char('0' + nibble);
-  else if (nibble < 16) return char('a' + (nibble - 10));
-  else throw std::runtime_error{"Invalid digit going into bytea."};
+  if (nibble < 10)
+    return char('0' + nibble);
+  else if (nibble < 16)
+    return char('a' + (nibble - 10));
+  else
+    throw std::runtime_error{"Invalid digit going into bytea."};
 }
 
 
 unsigned hex_to_digit(char hex)
 {
   auto x = static_cast<unsigned char>(hex);
-  if (x >= '0' and x <= '9') return x - '0';
-  else if (x >= 'a' and x <= 'f') return 10 + x - 'a';
-  else if (x >= 'A' and x <= 'F') return 10 + x - 'A';
-  else throw std::runtime_error{"Invalid hex in bytea."};
+  if (x >= '0' and x <= '9')
+    return x - '0';
+  else if (x >= 'a' and x <= 'f')
+    return 10 + x - 'a';
+  else if (x >= 'A' and x <= 'F')
+    return 10 + x - 'A';
+  else
+    throw std::runtime_error{"Invalid hex in bytea."};
 }
 } // namespace
 
 
-template<> struct nullness<bytea> : no_null<bytea> {};
+template<> struct nullness<bytea> : no_null<bytea>
+{};
 
 
 template<> struct string_traits<bytea>
 {
   static bytea from_string(std::string_view text)
   {
-    if ((text.size() & 1) != 0) throw std::runtime_error{"Odd hex size."};
+    if ((text.size() & 1) != 0)
+      throw std::runtime_error{"Odd hex size."};
     bytea value;
     value.reserve((text.size() - 2) / 2);
     for (size_t i = 2; i < text.size(); i += 2)
@@ -188,9 +192,13 @@ template<> struct string_traits<bytea>
   }
 
   static char *into_buf(char *begin, char *end, const bytea &value)
-  { return begin + to_buf(begin, end, value).size() + 1; }
+  {
+    return begin + to_buf(begin, end, value).size() + 1;
+  }
 
   static size_t size_buffer(const bytea &value)
-  { return 2 * value.size() + 1; }
+  {
+    return 2 * value.size() + 1;
+  }
 };
 } // namespace pqxx

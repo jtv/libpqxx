@@ -28,32 +28,28 @@ void test_048()
   largeobject Obj(oid_none);
   const std::string Contents = "Testing, testing, 1-2-3";
 
-  perform(
-    [&conn, &Obj, &Contents]()
-    {
-      work tx{conn};
-      auto new_obj = largeobject(tx);
-      std::cout << "Created large object #" << new_obj.id() << '\n';
+  perform([&conn, &Obj, &Contents]() {
+    work tx{conn};
+    auto new_obj = largeobject(tx);
+    std::cout << "Created large object #" << new_obj.id() << '\n';
 
-      olostream S(tx, new_obj);
-      S << Contents;
-      S.flush();
-      tx.commit();
-      Obj = new_obj;
-    });
+    olostream S(tx, new_obj);
+    S << Contents;
+    S.flush();
+    tx.commit();
+    Obj = new_obj;
+  });
 
-  const std::string Readback = perform(
-    [&conn, &Obj]()
-    {
-      work tx{conn};
-      ilostream S(tx, Obj.id());
-      return UnStream(S);
-    });
+  const std::string Readback = perform([&conn, &Obj]() {
+    work tx{conn};
+    ilostream S(tx, Obj.id());
+    return UnStream(S);
+  });
 
-  perform([&conn, &Obj](){
-      work tx{conn};
-      Obj.remove(tx);
-      tx.commit();
+  perform([&conn, &Obj]() {
+    work tx{conn};
+    Obj.remove(tx);
+    tx.commit();
   });
 
   /* Reconstruct what will happen to our contents string if we put it into a
@@ -65,9 +61,8 @@ void test_048()
   const std::string StreamedContents = UnStream(TestStream);
 
   PQXX_CHECK_EQUAL(
-	Readback,
-	StreamedContents,
-	"Got wrong number of bytes from large object.");
+    Readback, StreamedContents,
+    "Got wrong number of bytes from large object.");
 }
 
 

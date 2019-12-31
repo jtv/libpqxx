@@ -13,7 +13,6 @@ class PQXX_PRIVATE result_row : callgate<result>
 
   result_row(reference x) : super(x) {}
 
-  operator bool()
-	{ return bool(home()); }
+  operator bool() { return bool(home()); }
 };
 } // namespace pqxx::internal::gate

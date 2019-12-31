@@ -26,8 +26,8 @@ namespace pqxx::internal
  * A call gate defines a limited, private interface on the host class that
  * specified client classes can access.
  *
- * The metaphor works as follows: the gate stands in front of a "home," which is
- * really a class, and only lets specific friends in.
+ * The metaphor works as follows: the gate stands in front of a "home," which
+ * is really a class, and only lets specific friends in.
  *
  * To implement a call gate that gives client C access to host H,
  *  - derive a gate class from callgate<H>;
@@ -35,15 +35,15 @@ namespace pqxx::internal
  *  - make C a friend of the gate class; and
  *  - implement "stuff C can do with H" as private members in the gate class.
  *
- * This special kind of "gated" friendship gives C private access to H, but only
- * through an expressly limited interface.  The gate class can access its host
- * object as home().
+ * This special kind of "gated" friendship gives C private access to H, but
+ * only through an expressly limited interface.  The gate class can access its
+ * host object as home().
  *
  * Keep gate classes entirely stateless.  They should be ultra-lightweight
- * wrappers for their host classes, and be optimized away as much as possible by
- * the compiler.  Once you start adding state, you're on a slippery slope away
- * from the pure, clean, limited interface pattern that gate classes are meant
- * to implement.
+ * wrappers for their host classes, and be optimized away as much as possible
+ * by the compiler.  Once you start adding state, you're on a slippery slope
+ * away from the pure, clean, limited interface pattern that gate classes are
+ * meant to implement.
  *
  * Ideally, all member functions of the gate class should be one-liners passing
  * calls straight on to the host class.  It can be useful however to break this

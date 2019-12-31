@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -18,27 +18,23 @@
 
 namespace
 {
-  /// Find first tab character at or after start position in string.
-  /** If not found, returns line.size() rather than string::npos.
-   */
-  std::string::size_type find_tab(
-    pqxx::internal::encoding_group enc,
-    const std::string &line,
-    std::string::size_type start
-  )
-  {
-    auto here = pqxx::internal::find_with_encoding(enc, line, '\t', start);
-    return (here == std::string::npos) ? line.size() : here;
-  }
+/// Find first tab character at or after start position in string.
+/** If not found, returns line.size() rather than string::npos.
+ */
+std::string::size_type find_tab(
+  pqxx::internal::encoding_group enc, const std::string &line,
+  std::string::size_type start)
+{
+  auto here = pqxx::internal::find_with_encoding(enc, line, '\t', start);
+  return (here == std::string::npos) ? line.size() : here;
+}
 } // namespace
 
 
 pqxx::stream_from::stream_from(
-  transaction_base &tb,
-  const std::string &table_name
-) :
-  namedclass{"stream_from", table_name},
-  transactionfocus{tb}
+  transaction_base &tb, const std::string &table_name) :
+        namedclass{"stream_from", table_name},
+        transactionfocus{tb}
 {
   set_up(tb, table_name);
 }
@@ -64,7 +60,8 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
   {
     try
     {
-      if (not gate.read_copy_line(line)) close();
+      if (not gate.read_copy_line(line))
+        close();
     }
     catch (const std::exception &)
     {
@@ -77,19 +74,15 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
 
 
 void pqxx::stream_from::set_up(
-  transaction_base &tb,
-  const std::string &table_name
-)
+  transaction_base &tb, const std::string &table_name)
 {
   set_up(tb, table_name, "");
 }
 
 
 void pqxx::stream_from::set_up(
-  transaction_base &tb,
-  const std::string &table_name,
-  const std::string &columns
-)
+  transaction_base &tb, const std::string &table_name,
+  const std::string &columns)
 {
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
@@ -112,13 +105,15 @@ void pqxx::stream_from::close()
 
 void pqxx::stream_from::complete()
 {
-  if (m_finished) return;
+  if (m_finished)
+    return;
   try
   {
     // Flush any remaining lines - libpq will automatically close the stream
     // when it hits the end.
     std::string s;
-    while (get_raw_line(s));
+    while (get_raw_line(s))
+      ;
   }
   catch (const broken_connection &)
   {
@@ -134,10 +129,7 @@ void pqxx::stream_from::complete()
 
 
 bool pqxx::stream_from::extract_field(
-	const std::string &line,
-	std::string::size_type &i,
-	std::string &s
-) const
+  const std::string &line, std::string::size_type &i, std::string &s) const
 {
   const auto next_seq = get_glyph_scanner(m_copy_encoding);
   s.clear();
@@ -157,43 +149,48 @@ bool pqxx::stream_from::extract_field(
         break;
 
       case '\\':
+      {
+        // Escape sequence.
+        if (glyph_end >= line.size())
+          throw failure{"Row ends in backslash"};
+        char n = line[glyph_end++];
+        switch (n)
         {
-          // Escape sequence.
-          if (glyph_end >= line.size()) throw failure{"Row ends in backslash"};
-          char n = line[glyph_end++];
-          switch (n)
-          {
-          case 'N':
-            // Null value
-            if (not s.empty())
-              throw failure{"Null sequence found in nonempty field"};
-            is_null = true;
-            break;
+        case 'N':
+          // Null value
+          if (not s.empty())
+            throw failure{"Null sequence found in nonempty field"};
+          is_null = true;
+          break;
 
-          case 'b': // Backspace
-            s += '\b'; break;
-          case 'f': // Vertical tab
-            s += '\f'; break;
-          case 'n': // Form feed
-            s += '\n'; break;
-          case 'r': // Newline
-            s += '\r'; break;
-          case 't': // Tab
-            s += '\t'; break;
-          case 'v': // Carriage return
-            s += '\v'; break;
+        case 'b': // Backspace
+          s += '\b';
+          break;
+        case 'f': // Vertical tab
+          s += '\f';
+          break;
+        case 'n': // Form feed
+          s += '\n';
+          break;
+        case 'r': // Newline
+          s += '\r';
+          break;
+        case 't': // Tab
+          s += '\t';
+          break;
+        case 'v': // Carriage return
+          s += '\v';
+          break;
 
-          default:
-            // Self-escaped character
-            s += n;
-            break;
-          }
+        default:
+          // Self-escaped character
+          s += n;
+          break;
         }
-        break;
+      }
+      break;
 
-      default:
-        s += line[i];
-        break;
+      default: s += line[i]; break;
       }
     }
     else
@@ -211,17 +208,12 @@ bool pqxx::stream_from::extract_field(
   return not is_null;
 }
 
-template<> void pqxx::stream_from::extract_value<std::nullptr_t>(
-  const std::string &line,
-  std::nullptr_t&,
-  std::string::size_type &here,
-  std::string &workspace
-) const
+template<>
+void pqxx::stream_from::extract_value<std::nullptr_t>(
+  const std::string &line, std::nullptr_t &, std::string::size_type &here,
+  std::string &workspace) const
 {
   if (extract_field(line, here, workspace))
-    throw pqxx::conversion_error{
-      "Attempt to convert non-null '"
-      + workspace
-      + "' to null"
-    };
+    throw pqxx::conversion_error{"Attempt to convert non-null '" + workspace +
+                                 "' to null"};
 }

@@ -9,9 +9,7 @@ void test_type_name()
   // might call "unsigned const".  And Visual Studio prefixes "class" to class
   // types.
   PQXX_CHECK_EQUAL(
-	pqxx::type_name<int>,
-	"int",
-	"type_name<int> came out weird.");
+    pqxx::type_name<int>, "int", "type_name<int> came out weird.");
 }
 
 

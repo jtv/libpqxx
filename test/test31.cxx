@@ -11,8 +11,7 @@ using namespace pqxx;
 // out whether any fields are lexicographically sorted.
 namespace
 {
-template<typename VEC, typename VAL>
-void InitVector(VEC &V, int s, VAL val)
+template<typename VEC, typename VAL> void InitVector(VEC &V, int s, VAL val)
 {
   V.resize(static_cast<size_t>(s));
   for (auto i = V.begin(); i != V.end(); ++i) *i = val;
@@ -25,12 +24,12 @@ void test_031()
 
   const std::string Table = "pg_tables";
 
-  std::vector<int> NullFields;	// Maps column to no. of null fields
+  std::vector<int> NullFields;            // Maps column to no. of null fields
   std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
 
   work tx(conn, "test31");
 
-  result R( tx.exec("SELECT * FROM " + Table) );
+  result R(tx.exec("SELECT * FROM " + Table));
 
   InitVector(NullFields, R.columns(), 0);
   InitVector(SortedUp, R.columns(), true);
@@ -39,26 +38,23 @@ void test_031()
   for (auto i = R.begin(); i != R.end(); i++)
   {
     PQXX_CHECK_EQUAL(
-	(*i).rownumber(),
-	i->rownumber(),
-	"operator*() is inconsistent with operator->().");
+      (*i).rownumber(), i->rownumber(),
+      "operator*() is inconsistent with operator->().");
 
     PQXX_CHECK_EQUAL(
-	i->size(),
-	R.columns(),
-	"Row size is inconsistent with result::columns().");
+      i->size(), R.columns(),
+      "Row size is inconsistent with result::columns().");
 
     // Look for null fields
-    for (pqxx::row::size_type f=0; f<i->size(); ++f)
+    for (pqxx::row::size_type f = 0; f < i->size(); ++f)
     {
       const auto offset{static_cast<size_t>(f)};
       NullFields[offset] += i.at(f).is_null();
 
       std::string A, B;
       PQXX_CHECK_EQUAL(
-		i[f].to(A),
-		i[f].to(B, std::string{}),
-		"Variants of to() disagree on nullness.");
+        i[f].to(A), i[f].to(B, std::string{}),
+        "Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "Variants of to() produce different values.");
     }
@@ -74,14 +70,14 @@ void test_031()
 
       PQXX_CHECK_NOT_EQUAL(j, i, "Iterator equals successor.");
       PQXX_CHECK(j != i, "Iterator is not different from successor.");
-      PQXX_CHECK(not (j >= i), "Iterator does not precede successor.");
-      PQXX_CHECK(not (j > i), "Iterator follows successor.");
-      PQXX_CHECK(not (i <= j), "operator<=() is asymmetric.");
-      PQXX_CHECK(not (i < j), "operator<() is asymmetric.");
+      PQXX_CHECK(not(j >= i), "Iterator does not precede successor.");
+      PQXX_CHECK(not(j > i), "Iterator follows successor.");
+      PQXX_CHECK(not(i <= j), "operator<=() is asymmetric.");
+      PQXX_CHECK(not(i < j), "operator<() is asymmetric.");
       PQXX_CHECK(j <= i, "operator<=() is inconsistent.");
       PQXX_CHECK(j < i, "operator<() is inconsistent.");
 
-      PQXX_CHECK_EQUAL( 1 + j, i, "Predecessor+1 brings us to wrong place.");
+      PQXX_CHECK_EQUAL(1 + j, i, "Predecessor+1 brings us to wrong place.");
 
       result::const_iterator k(i);
       PQXX_CHECK_EQUAL(k--, i, "Post-decrement returns wrong value.");
@@ -106,13 +102,12 @@ void test_031()
         const auto offset{static_cast<size_t>(f)};
         if (not j[f].is_null())
         {
-          const bool U = SortedUp[offset],
-                     D = SortedDown[offset];
+          const bool U = SortedUp[offset], D = SortedDown[offset];
 
-          SortedUp[offset] = U & (
-		std::string{j[f].c_str()} <= std::string{i[f].c_str()});
-          SortedDown[offset] = D & (
-		std::string{j[f].c_str()} >= std::string{i[f].c_str()});
+          SortedUp[offset] =
+            U & (std::string{j[f].c_str()} <= std::string{i[f].c_str()});
+          SortedDown[offset] =
+            D & (std::string{j[f].c_str()} >= std::string{i[f].c_str()});
         }
       }
     }
@@ -120,10 +115,8 @@ void test_031()
 
   for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
     PQXX_CHECK_BOUNDS(
-	NullFields[static_cast<size_t>(f)],
-	0,
-	int(R.size()) + 1,
-	"Found more nulls than there were rows.");
+      NullFields[static_cast<size_t>(f)], 0, int(R.size()) + 1,
+      "Found more nulls than there were rows.");
 }
 
 

@@ -18,9 +18,8 @@ void test_move_constructor()
   PQXX_CHECK_EQUAL(tx.exec1("SELECT 5")[0].as<int>(), 5, "Weird result!");
 
   PQXX_CHECK_THROWS(
-	pqxx::connection c3{std::move(c2)},
-	pqxx::usage_error,
-	"Moving a connection with a transaction open should be an error.");
+    pqxx::connection c3{std::move(c2)}, pqxx::usage_error,
+    "Moving a connection with a transaction open should be an error.");
 }
 
 
@@ -42,15 +41,13 @@ void test_move_assign()
 
     pqxx::connection c3;
     PQXX_CHECK_THROWS(
-	c3 = std::move(c2),
-	pqxx::usage_error,
-	"Moving a connection with a transaction open should be an error.");
+      c3 = std::move(c2), pqxx::usage_error,
+      "Moving a connection with a transaction open should be an error.");
 
     PQXX_CHECK_THROWS(
-	c2 = std::move(c3),
-	pqxx::usage_error,
-	"Moving a connection onto one with a transaction open should be "
-	"an error.");
+      c2 = std::move(c3), pqxx::usage_error,
+      "Moving a connection onto one with a transaction open should be "
+      "an error.");
   }
 
   // After failed move attempts, the connection is still usable.
@@ -66,9 +63,8 @@ void test_encrypt_password()
   auto pw = c.encrypt_password("user", "password");
   PQXX_CHECK(pw.size() != 0, "Encrypted password was empty.");
   PQXX_CHECK_EQUAL(
-	std::strlen(pw.c_str()),
-	pw.size(),
-	"Encrypted password contains a null byte.");
+    std::strlen(pw.c_str()), pw.size(),
+    "Encrypted password contains a null byte.");
 #endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
 }
 

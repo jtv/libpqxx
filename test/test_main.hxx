@@ -25,14 +25,11 @@ std::string deref_field(const field &f)
 namespace pqxx::test
 {
 test_failure::test_failure(
-	const std::string &ffile,
-	int fline,
-	const std::string &desc) :
-  logic_error(desc),
-  m_file(ffile),
-  m_line(fline)
-{
-}
+  const std::string &ffile, int fline, const std::string &desc) :
+        logic_error(desc),
+        m_file(ffile),
+        m_line(fline)
+{}
 
 test_failure::~test_failure() noexcept {}
 
@@ -44,27 +41,20 @@ void drop_table(transaction_base &t, const std::string &table)
 }
 
 
-[[noreturn]] void check_notreached(
-	const char file[],
-	int line,
-	std::string desc)
+[[noreturn]] void
+check_notreached(const char file[], int line, std::string desc)
 {
   throw test_failure(file, line, desc);
 }
 
 
 void check(
-	const char file[],
-	int line,
-	bool condition,
-	const char text[],
-	std::string desc)
+  const char file[], int line, bool condition, const char text[],
+  std::string desc)
 {
   if (not condition)
     throw test_failure(
-	file,
-	line,
-	desc + " (failed expression: " + text + ")");
+      file, line, desc + " (failed expression: " + text + ")");
 }
 
 
@@ -82,7 +72,8 @@ std::string list_row(row Obj)
 
 std::string list_result(result Obj)
 {
-  if (Obj.empty()) return "<empty>";
+  if (Obj.empty())
+    return "<empty>";
   return "{" + separated_list("}\n{", Obj) + "}";
 }
 
@@ -96,24 +87,26 @@ std::string list_result_iterator(result::const_iterator Obj)
 void create_pqxxevents(transaction_base &t)
 {
   t.exec(
-	"CREATE TEMP TABLE pqxxevents(year integer, event varchar) "
-	"ON COMMIT PRESERVE ROWS");
+    "CREATE TEMP TABLE pqxxevents(year integer, event varchar) "
+    "ON COMMIT PRESERVE ROWS");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (71, 'jtv')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (38, 'time_t overflow')");
   t.exec(
-	"INSERT INTO pqxxevents(year, event) VALUES (1, '''911'' WTC attack')");
+    "INSERT INTO pqxxevents(year, event) VALUES (1, '''911'' WTC attack')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (81, 'C:\\>')");
-  t.exec("INSERT INTO pqxxevents(year, event) VALUES (1978, 'bloody\t\tcold')");
+  t.exec(
+    "INSERT INTO pqxxevents(year, event) VALUES (1978, 'bloody\t\tcold')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (99, '')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (2002, 'libpqxx')");
   t.exec(
-	"INSERT INTO pqxxevents(year, event) "
-	"VALUES (1989, 'Ode an die Freiheit')");
-  t.exec("INSERT INTO pqxxevents(year, event) VALUES (2001, 'New millennium')");
+    "INSERT INTO pqxxevents(year, event) "
+    "VALUES (1989, 'Ode an die Freiheit')");
+  t.exec(
+    "INSERT INTO pqxxevents(year, event) VALUES (2001, 'New millennium')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (1974, '')");
   t.exec("INSERT INTO pqxxevents(year, event) VALUES (97, 'Asian crisis')");
   t.exec(
-	"INSERT INTO pqxxevents(year, event) VALUES (2001, 'A Space Odyssey')");
+    "INSERT INTO pqxxevents(year, event) VALUES (2001, 'A Space Odyssey')");
 }
 } // namespace pqxx::test
 
@@ -147,7 +140,7 @@ int main(int, const char *argv[])
 
   int test_count = 0;
   std::list<std::string> failed;
-  for (const auto &i: *all_tests)
+  for (const auto &i : *all_tests)
     if (test_name == nullptr or std::string{test_name} == std::string{i.first})
     {
       std::cout << std::endl << "Running: " << i.first << std::endl;
@@ -161,7 +154,8 @@ int main(int, const char *argv[])
       catch (const test_failure &e)
       {
         std::cerr << "Test failure in " + e.file() + " line " +
-	    to_string(e.line()) << ": " << e.what() << std::endl;
+                       to_string(e.line())
+                  << ": " << e.what() << std::endl;
       }
       catch (const std::bad_alloc &)
       {
@@ -169,16 +163,15 @@ int main(int, const char *argv[])
       }
       catch (const feature_not_supported &e)
       {
-        std::cerr
-		<< "Not testing unsupported feature: " << e.what() << std::endl;
+        std::cerr << "Not testing unsupported feature: " << e.what()
+                  << std::endl;
         success = true;
         --test_count;
       }
       catch (const sql_error &e)
       {
-        std::cerr
-		<< "SQL error: " << e.what() << std::endl
-		<< "Query was: " << e.query() << std::endl;
+        std::cerr << "SQL error: " << e.what() << std::endl
+                  << "Query was: " << e.query() << std::endl;
       }
       catch (const std::exception &e)
       {
@@ -202,7 +195,7 @@ int main(int, const char *argv[])
   if (not failed.empty())
   {
     std::cerr << "*** " << failed.size() << " test(s) failed: ***\n";
-    for (const auto &i: failed) std::cerr << "\t" << i << '\n';
+    for (const auto &i : failed) std::cerr << "\t" << i << '\n';
   }
 
   return int(failed.size());

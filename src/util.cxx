@@ -3,8 +3,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -42,8 +42,8 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
   model.description +=
-	"Kerberos is not thread-safe.  If your application uses Kerberos, "
-	"protect all calls to Kerberos or libpqxx using a global lock.\n";
+    "Kerberos is not thread-safe.  If your application uses Kerberos, "
+    "protect all calls to Kerberos or libpqxx using a global lock.\n";
 
   return model;
 }
@@ -54,7 +54,8 @@ std::string pqxx::internal::namedclass::description() const
   try
   {
     std::string desc = classname();
-    if (not name().empty()) desc += " '" + name() + "'";
+    if (not name().empty())
+      desc += " '" + name() + "'";
     return desc;
   }
   catch (const std::exception &)
@@ -67,8 +68,7 @@ std::string pqxx::internal::namedclass::description() const
 
 
 void pqxx::internal::check_unique_registration(
-	const namedclass *new_ptr,
-	const namedclass *old_ptr)
+  const namedclass *new_ptr, const namedclass *old_ptr)
 {
   if (new_ptr == nullptr)
     throw internal_error{"null pointer registered."};
@@ -76,28 +76,27 @@ void pqxx::internal::check_unique_registration(
   {
     if (old_ptr == new_ptr)
       throw usage_error{"Started twice: " + new_ptr->description()};
-    throw usage_error{
-	"Started " + new_ptr->description() + " while " +
-	new_ptr->description() + " still active."};
+    throw usage_error{"Started " + new_ptr->description() + " while " +
+                      new_ptr->description() + " still active."};
   }
 }
 
 
 void pqxx::internal::check_unique_unregistration(
-	const namedclass *new_ptr,
-	const namedclass *old_ptr)
+  const namedclass *new_ptr, const namedclass *old_ptr)
 {
   if (new_ptr != old_ptr)
   {
     if (new_ptr == nullptr)
-      throw usage_error{
-	"Expected to close " + old_ptr->description() + ", "
-	"but got null pointer instead."};
+      throw usage_error{"Expected to close " + old_ptr->description() +
+                        ", "
+                        "but got null pointer instead."};
     if (old_ptr == nullptr)
       throw usage_error{"Closed while not open: " + new_ptr->description()};
-    throw usage_error{
-	"Closed " + new_ptr->description() + "; "
-	"expected to close " + old_ptr->description()};
+    throw usage_error{"Closed " + new_ptr->description() +
+                      "; "
+                      "expected to close " +
+                      old_ptr->description()};
   }
 }
 

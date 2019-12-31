@@ -12,48 +12,32 @@ namespace
 std::string truncate_sql_error(const std::string &what)
 {
   auto trunc = what.substr(0, what.find('\n'));
-  if (trunc.size() > 64) trunc = trunc.substr(0, 61) + "...";
+  if (trunc.size() > 64)
+    trunc = trunc.substr(0, 61) + "...";
   return trunc;
 }
 
 
-void test_nonoptionals(pqxx::connection_base& connection)
+void test_nonoptionals(pqxx::connection_base &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter << std::make_tuple(
-    1234,
-    "now",
-    4321,
-    ipv4{8, 8, 8, 8},
-    "hello world",
-    bytea{'\x00', '\x01', '\x02'}
-  );
+    1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+    bytea{'\x00', '\x01', '\x02'});
   inserter << std::make_tuple(
-    5678,
-    "2018-11-17 21:23:00",
-    nullptr,
-    nullptr,
-    "こんにちは",
-    bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}
-  );
-  inserter << std::make_tuple(
-    910,
-    nullptr,
-    nullptr,
-    nullptr,
-    "\\N",
-    bytea{}
-  );
+    5678, "2018-11-17 21:23:00", nullptr, nullptr, "こんにちは",
+    bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
+  inserter << std::make_tuple(910, nullptr, nullptr, nullptr, "\\N", bytea{});
 
   inserter.complete();
   transaction.commit();
 }
 
 
-void test_bad_null(pqxx::connection_base& connection)
+void test_bad_null(pqxx::connection_base &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -62,29 +46,24 @@ void test_bad_null(pqxx::connection_base& connection)
   try
   {
     inserter << std::make_tuple(
-      nullptr,
-      "now",
-      4321,
-      ipv4{8, 8, 8, 8},
-      "hello world",
-      bytea{'\x00', '\x01', '\x02'}
-    );
+      nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+      bytea{'\x00', '\x01', '\x02'});
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error& e)
+  catch (const pqxx::sql_error &e)
   {
     std::string what{e.what()};
-    if (what.find("null value in column") == std::string::npos) throw;
+    if (what.find("null value in column") == std::string::npos)
+      throw;
     pqxx::test::expected_exception(
-      "Could not insert row: " + truncate_sql_error(what)
-    );
+      "Could not insert row: " + truncate_sql_error(what));
   }
 }
 
 
-void test_too_few_fields(pqxx::connection_base& connection)
+void test_too_few_fields(pqxx::connection_base &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -92,28 +71,23 @@ void test_too_few_fields(pqxx::connection_base& connection)
 
   try
   {
-    inserter << std::make_tuple(
-      1234,
-      "now",
-      4321,
-      ipv4{8, 8, 8, 8}
-    );
+    inserter << std::make_tuple(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error& e)
+  catch (const pqxx::sql_error &e)
   {
     std::string what{e.what()};
-    if (what.find("missing data for column") == std::string::npos) throw;
+    if (what.find("missing data for column") == std::string::npos)
+      throw;
     pqxx::test::expected_exception(
-      "Could not insert row: " + truncate_sql_error(what)
-    );
+      "Could not insert row: " + truncate_sql_error(what));
   }
 }
 
 
-void test_too_many_fields(pqxx::connection_base& connection)
+void test_too_many_fields(pqxx::connection_base &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -122,44 +96,34 @@ void test_too_many_fields(pqxx::connection_base& connection)
   try
   {
     inserter << std::make_tuple(
-      1234,
-      "now",
-      4321,
-      ipv4{8, 8, 8, 8},
-      "hello world",
-      bytea{'\x00', '\x01', '\x02'},
-      5678
-    );
+      1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+      bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error& e)
+  catch (const pqxx::sql_error &e)
   {
     std::string what{e.what()};
-    if (what.find("extra data") == std::string::npos) throw;
+    if (what.find("extra data") == std::string::npos)
+      throw;
     pqxx::test::expected_exception(
-      "Could not insert row: " + truncate_sql_error(what)
-    );
+      "Could not insert row: " + truncate_sql_error(what));
   }
 }
 
 
 template<template<typename...> class O>
-void test_optional(pqxx::connection_base& connection)
+void test_optional(pqxx::connection_base &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter << std::make_tuple(
-    910,
-    O<std::string>{pqxx::nullness<O<std::string>>::null()},
+    910, O<std::string>{pqxx::nullness<O<std::string>>::null()},
     O<int>{pqxx::nullness<O<int>>::null()},
-    O<ipv4>{pqxx::nullness<O<ipv4>>::null()},
-    "\\N",
-    bytea{}
-  );
+    O<ipv4>{pqxx::nullness<O<ipv4>>::null()}, "\\N", bytea{});
 
   inserter.complete();
   transaction.commit();
@@ -179,8 +143,7 @@ void test_stream_to()
     "addr3   INET NULL,"
     "txt4    TEXT NULL,"
     "bin5    BYTEA NOT NULL"
-    ")"
-  );
+    ")");
   tx.commit();
 
   test_nonoptionals(conn);

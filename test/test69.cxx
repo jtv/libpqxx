@@ -13,14 +13,13 @@ void TestPipeline(pipeline &P, int numqueries)
 {
   const std::string Q("SELECT 99");
 
-  for (int i=numqueries; i; --i) P.insert(Q);
+  for (int i = numqueries; i; --i) P.insert(Q);
 
   PQXX_CHECK(
-	(numqueries == 0) or not P.empty(),
-	"pipeline::empty() is broken.");
+    (numqueries == 0) or not P.empty(), "pipeline::empty() is broken.");
 
   int res = 0;
-  for (int i=numqueries; i; --i)
+  for (int i = numqueries; i; --i)
   {
     PQXX_CHECK(not P.empty(), "Got wrong number of queries from pipeline.");
 
@@ -28,9 +27,8 @@ void TestPipeline(pipeline &P, int numqueries)
 
     if (res)
       PQXX_CHECK_EQUAL(
-	R.second[0][0].as<int>(),
-	res,
-	"Got unexpected result out of pipeline.");
+        R.second[0][0].as<int>(), res,
+        "Got unexpected result out of pipeline.");
 
     res = R.second[0][0].as<int>();
   }
@@ -45,7 +43,7 @@ void test_069()
   work tx{conn};
   pipeline P(tx);
   PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
-  for (int i=0; i<5; ++i) TestPipeline(P, i);
+  for (int i = 0; i < 5; ++i) TestPipeline(P, i);
 }
 
 

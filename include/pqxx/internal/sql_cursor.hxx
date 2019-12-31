@@ -16,10 +16,10 @@ namespace pqxx::internal
 /// Cursor with SQL positioning semantics.
 /** Thin wrapper around an SQL cursor, with SQL's ideas of positioning.
  *
- * SQL cursors have pre-increment/pre-decrement semantics, with on either end of
- * the result set a special position that does not repesent a row.  This class
- * models SQL cursors for the purpose of implementing more C++-like semantics on
- * top.
+ * SQL cursors have pre-increment/pre-decrement semantics, with on either end
+ * of the result set a special position that does not repesent a row.  This
+ * class models SQL cursors for the purpose of implementing more C++-like
+ * semantics on top.
  *
  * Positions of actual rows are numbered starting at 1.  Position 0 exists but
  * does not refer to a row.  There is a similar non-row position at the end of
@@ -32,27 +32,28 @@ class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
 public:
   sql_cursor(
-	transaction_base &t,
-	const std::string &query,
-	const std::string &cname,
-	cursor_base::access_policy ap,
-	cursor_base::update_policy up,
-	cursor_base::ownership_policy op,
-	bool hold);
+    transaction_base &t, const std::string &query, const std::string &cname,
+    cursor_base::access_policy ap, cursor_base::update_policy up,
+    cursor_base::ownership_policy op, bool hold);
 
   sql_cursor(
-	transaction_base &t,
-	const std::string &cname,
-	cursor_base::ownership_policy op);
+    transaction_base &t, const std::string &cname,
+    cursor_base::ownership_policy op);
 
   ~sql_cursor() noexcept { close(); }
 
   result fetch(difference_type rows, difference_type &displacement);
   result fetch(difference_type rows)
-				{ difference_type d=0; return fetch(rows, d); }
+  {
+    difference_type d = 0;
+    return fetch(rows, d);
+  }
   difference_type move(difference_type rows, difference_type &displacement);
   difference_type move(difference_type rows)
-				{ difference_type d=0; return move(rows, d); }
+  {
+    difference_type d = 0;
+    return move(rows, d);
+  }
 
   /// Current position, or -1 for unknown
   /**
@@ -65,7 +66,7 @@ public:
 
   /// End position, or -1 for unknown
   /**
-   * Returns the final position, just after the last row in the result set.  The
+   * Returns the final position, just after the last row in the result set. The
    * starting position, just before the first row, counts as position zero.
    *
    * End position is unknown until it is encountered during use.
@@ -86,7 +87,8 @@ private:
   /// Connection in which this cursor lives.
   connection &m_home;
 
-  /// Zero-row result from this cursor (or plain empty one if cursor is adopted)
+  /// Zero-row result from this cursor (or plain empty one if cursor is
+  /// adopted)
   result m_empty_result;
 
   result m_cached_current_row;
@@ -110,9 +112,7 @@ private:
 
 PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &);
 PQXX_LIBEXPORT result stateless_cursor_retrieve(
-	sql_cursor &,
-	result::difference_type size,
-	result::difference_type begin_pos,
-	result::difference_type end_pos);
+  sql_cursor &, result::difference_type size,
+  result::difference_type begin_pos, result::difference_type end_pos);
 } // namespace pqxx::internal
 #endif

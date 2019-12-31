@@ -13,7 +13,7 @@
  */
 #if defined(__GNUC__)
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #endif // __GNUC__

@@ -10,7 +10,6 @@ using namespace pqxx;
 
 namespace
 {
-
 int Backend_PID = 0;
 
 
@@ -21,15 +20,15 @@ class TestListener final : public notification_receiver
 
 public:
   explicit TestListener(connection_base &conn) :
-	notification_receiver(conn, "listen"), m_done(false) {}
+          notification_receiver(conn, "listen"),
+          m_done(false)
+  {}
 
   virtual void operator()(const std::string &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
-	be_pid,
-	Backend_PID,
-	"Notification came from wrong backend process.");
+      be_pid, Backend_PID, "Notification came from wrong backend process.");
   }
 
   bool done() const { return m_done; }
@@ -42,17 +41,15 @@ void test_004()
 
   TestListener L{conn};
   // Trigger our notification receiver.
-  perform(
-    [&conn, &L]()
-    {
-      work tx(conn);
-      tx.exec("NOTIFY " + conn.quote_name(L.channel()));
-      Backend_PID = conn.backendpid();
-      tx.commit();
-    });
+  perform([&conn, &L]() {
+    work tx(conn);
+    tx.exec("NOTIFY " + conn.quote_name(L.channel()));
+    Backend_PID = conn.backendpid();
+    tx.commit();
+  });
 
   int notifs = 0;
-  for (int i=0; (i < 20) and not L.done(); ++i)
+  for (int i = 0; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 

@@ -3,8 +3,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_ENCODINGS
 #define PQXX_H_ENCODINGS
@@ -36,11 +36,9 @@ encoding_group enc_group(std::string_view);
  * There are multiple different glyph scnaner implementations, for different
  * kinds of encodings.
  */
-using glyph_scanner_func =
-  std::string::size_type(
-	const char buffer[],
-	std::string::size_type buffer_len,
-	std::string::size_type start);
+using glyph_scanner_func = std::string::size_type(
+  const char buffer[], std::string::size_type buffer_len,
+  std::string::size_type start);
 
 
 /// Look up the glyph scanner function for a given encoding group.
@@ -53,39 +51,27 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 /// Find a single-byte "needle" character in a "haystack" text buffer.
 std::string::size_type find_with_encoding(
-  encoding_group enc,
-  std::string_view haystack,
-  char needle,
-  std::string::size_type start = 0
-);
+  encoding_group enc, std::string_view haystack, char needle,
+  std::string::size_type start = 0);
 
 
 PQXX_LIBEXPORT std::string::size_type find_with_encoding(
-  encoding_group enc,
-  std::string_view haystack,
-  std::string_view needle,
-  std::string::size_type start = 0
-);
+  encoding_group enc, std::string_view haystack, std::string_view needle,
+  std::string::size_type start = 0);
 
 
 /// Iterate over the glyphs in a buffer.
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
  * one-past-end pointers to @c callback.
  */
-template<typename CALLABLE> inline void for_glyphs(
-        encoding_group enc,
-        CALLABLE callback,
-        const char buffer[],
-        std::string::size_type buffer_len,
-        std::string::size_type start = 0
-)
+template<typename CALLABLE>
+inline void for_glyphs(
+  encoding_group enc, CALLABLE callback, const char buffer[],
+  std::string::size_type buffer_len, std::string::size_type start = 0)
 {
   const auto scan = get_glyph_scanner(enc);
-  for (
-        std::string::size_type here = start, next;
-        here < buffer_len;
-        here = next
-  )
+  for (std::string::size_type here = start, next; here < buffer_len;
+       here = next)
   {
     next = scan(buffer, buffer_len, here);
     callback(buffer + here, buffer + next);

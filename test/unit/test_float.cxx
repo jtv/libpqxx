@@ -12,16 +12,13 @@ template<typename T> void infinity_test()
   inf_string = pqxx::to_string(inf);
   pqxx::from_string(inf_string, back_conversion);
   PQXX_CHECK_LESS(
-	T(999999999),
-	back_conversion,
-	"Infinity doesn't convert back to something huge.");
+    T(999999999), back_conversion,
+    "Infinity doesn't convert back to something huge.");
 
   inf_string = pqxx::to_string(-inf);
   pqxx::from_string(inf_string, back_conversion);
   PQXX_CHECK_LESS(
-	back_conversion,
-	-T(999999999),
-	"Negative infinity is broken");
+    back_conversion, -T(999999999), "Negative infinity is broken");
 }
 
 void test_infinities()

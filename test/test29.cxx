@@ -21,15 +21,14 @@ const std::string Table = "pqxxevents";
 
 
 // Count events, and boring events, in table
-std::pair<int,int> CountEvents(transaction_base &T)
+std::pair<int, int> CountEvents(transaction_base &T)
 {
   const std::string EventsQuery = "SELECT count(*) FROM " + Table;
   const std::string BoringQuery =
-	EventsQuery + " WHERE year=" + to_string(BoringYear);
-  int EventsCount = 0,
-      BoringCount = 0;
+    EventsQuery + " WHERE year=" + to_string(BoringYear);
+  int EventsCount = 0, BoringCount = 0;
 
-  row R( T.exec1(EventsQuery) );
+  row R(T.exec1(EventsQuery));
   R.front().to(EventsCount);
 
   R = T.exec1(BoringQuery);
@@ -45,7 +44,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
 {
   std::vector<std::string> BoringRow = {to_string(BoringYear), "yawn"};
 
-  std::pair<int,int> EventCounts;
+  std::pair<int, int> EventCounts;
 
   // First run our doomed transaction.  This will refuse to run if an event
   // exists for our Boring Year.
@@ -58,25 +57,25 @@ void Test(connection_base &conn, bool ExplicitAbort)
     EventCounts = CountEvents(Doomed);
 
     PQXX_CHECK_EQUAL(
-	EventCounts.second,
-	0,
-	"Can't run; " + to_string(BoringYear) + " is already in the table.");
+      EventCounts.second, 0,
+      "Can't run; " + to_string(BoringYear) + " is already in the table.");
 
     // Now let's try to introduce a row for our Boring Year
     Doomed.exec0(
-	"INSERT INTO " + Table + "(year, event) "
-        "VALUES (" + to_string(BoringYear) + ", 'yawn')");
+      "INSERT INTO " + Table +
+      "(year, event) "
+      "VALUES (" +
+      to_string(BoringYear) + ", 'yawn')");
 
     auto Recount = CountEvents(Doomed);
     PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");
     PQXX_CHECK_EQUAL(
-	Recount.first,
-	EventCounts.first+1,
-	"Number of events changed.");
+      Recount.first, EventCounts.first + 1, "Number of events changed.");
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
-    if (ExplicitAbort) Doomed.abort();
+    if (ExplicitAbort)
+      Doomed.abort();
 
     // If now explicit abort requested, Doomed Transaction still ends here
   }
@@ -88,9 +87,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
 
   auto NewEvents = CountEvents(Checkup);
   PQXX_CHECK_EQUAL(
-	NewEvents.first,
-	EventCounts.first,
-	"Wrong number of events.");
+    NewEvents.first, EventCounts.first, "Wrong number of events.");
 
   PQXX_CHECK_EQUAL(NewEvents.second, 0, "Found unexpected events.");
 }

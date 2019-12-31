@@ -69,14 +69,28 @@ public:
    */
   //@{
   const_result_iterator operator++(int);
-  const_result_iterator &operator++() { ++m_index; return *this; }
+  const_result_iterator &operator++()
+  {
+    ++m_index;
+    return *this;
+  }
   const_result_iterator operator--(int);
-  const_result_iterator &operator--() { --m_index; return *this; }
+  const_result_iterator &operator--()
+  {
+    --m_index;
+    return *this;
+  }
 
   const_result_iterator &operator+=(difference_type i)
-      { m_index += i; return *this; }
+  {
+    m_index += i;
+    return *this;
+  }
   const_result_iterator &operator-=(difference_type i)
-      { m_index -= i; return *this; }
+  {
+    m_index -= i;
+    return *this;
+  }
   //@}
 
   /**
@@ -84,17 +98,29 @@ public:
    */
   //@{
   bool operator==(const const_result_iterator &i) const
-      {return m_index==i.m_index;}
+  {
+    return m_index == i.m_index;
+  }
   bool operator!=(const const_result_iterator &i) const
-      {return m_index!=i.m_index;}
+  {
+    return m_index != i.m_index;
+  }
   bool operator<(const const_result_iterator &i) const
-      {return m_index<i.m_index;}
+  {
+    return m_index < i.m_index;
+  }
   bool operator<=(const const_result_iterator &i) const
-      {return m_index<=i.m_index;}
+  {
+    return m_index <= i.m_index;
+  }
   bool operator>(const const_result_iterator &i) const
-      {return m_index>i.m_index;}
+  {
+    return m_index > i.m_index;
+  }
   bool operator>=(const const_result_iterator &i) const
-      {return m_index>=i.m_index;}
+  {
+    return m_index >= i.m_index;
+  }
   //@}
 
   /**
@@ -102,9 +128,8 @@ public:
    */
   //@{
   inline const_result_iterator operator+(difference_type) const;
-  friend const_result_iterator operator+(
-	difference_type,
-	const_result_iterator);
+  friend const_result_iterator
+  operator+(difference_type, const_result_iterator);
   inline const_result_iterator operator-(difference_type) const;
   inline difference_type operator-(const_result_iterator) const;
   //@}
@@ -112,29 +137,32 @@ public:
 private:
   friend class pqxx::result;
   const_result_iterator(const pqxx::result *r, result_size_type i) noexcept :
-    row{*r, i} {}
+          row{*r, i}
+  {}
 };
 
 
 /// Reverse iterator for result.  Use as result::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_result_iterator :
-  private const_result_iterator
+class PQXX_LIBEXPORT const_reverse_result_iterator
+        : private const_result_iterator
 {
 public:
   using super = const_result_iterator;
   using iterator_type = const_result_iterator;
-  using iterator_type::iterator_category;
   using iterator_type::difference_type;
+  using iterator_type::iterator_category;
   using iterator_type::pointer;
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_result_iterator(
-	const const_reverse_result_iterator &rhs) :
-    const_result_iterator{rhs} {}
-  explicit const_reverse_result_iterator(
-	const const_result_iterator &rhs) :
-    const_result_iterator{rhs} { super::operator--(); }
+  const_reverse_result_iterator(const const_reverse_result_iterator &rhs) :
+          const_result_iterator{rhs}
+  {}
+  explicit const_reverse_result_iterator(const const_result_iterator &rhs) :
+          const_result_iterator{rhs}
+  {
+    super::operator--();
+  }
 
   PQXX_PURE const_result_iterator base() const noexcept;
 
@@ -150,19 +178,34 @@ public:
    * @name Manipulations
    */
   //@{
-  const_reverse_result_iterator &operator=(
-	const const_reverse_result_iterator &r)
-      { iterator_type::operator=(r); return *this; }
+  const_reverse_result_iterator &
+  operator=(const const_reverse_result_iterator &r)
+  {
+    iterator_type::operator=(r);
+    return *this;
+  }
   const_reverse_result_iterator &operator++()
-      { iterator_type::operator--(); return *this; }
+  {
+    iterator_type::operator--();
+    return *this;
+  }
   const_reverse_result_iterator operator++(int);
   const_reverse_result_iterator &operator--()
-      { iterator_type::operator++(); return *this; }
+  {
+    iterator_type::operator++();
+    return *this;
+  }
   const_reverse_result_iterator operator--(int);
   const_reverse_result_iterator &operator+=(difference_type i)
-      { iterator_type::operator-=(i); return *this; }
+  {
+    iterator_type::operator-=(i);
+    return *this;
+  }
   const_reverse_result_iterator &operator-=(difference_type i)
-      { iterator_type::operator+=(i); return *this; }
+  {
+    iterator_type::operator+=(i);
+    return *this;
+  }
   //@}
 
   /**
@@ -170,12 +213,17 @@ public:
    */
   //@{
   const_reverse_result_iterator operator+(difference_type i) const
-      { return const_reverse_result_iterator(base() - i); }
+  {
+    return const_reverse_result_iterator(base() - i);
+  }
   const_reverse_result_iterator operator-(difference_type i)
-      { return const_reverse_result_iterator(base() + i); }
-  difference_type operator-(
-	const const_reverse_result_iterator &rhs) const
-      { return rhs.const_result_iterator::operator-(*this); }
+  {
+    return const_reverse_result_iterator(base() + i);
+  }
+  difference_type operator-(const const_reverse_result_iterator &rhs) const
+  {
+    return rhs.const_result_iterator::operator-(*this);
+  }
   //@}
 
   /**
@@ -183,58 +231,77 @@ public:
    */
   //@{
   bool operator==(const const_reverse_result_iterator &rhs) const noexcept
-      { return iterator_type::operator==(rhs); }
+  {
+    return iterator_type::operator==(rhs);
+  }
   bool operator!=(const const_reverse_result_iterator &rhs) const noexcept
-      { return not operator==(rhs); }
+  {
+    return not operator==(rhs);
+  }
 
   bool operator<(const const_reverse_result_iterator &rhs) const
-      { return iterator_type::operator>(rhs); }
+  {
+    return iterator_type::operator>(rhs);
+  }
   bool operator<=(const const_reverse_result_iterator &rhs) const
-      { return iterator_type::operator>=(rhs); }
+  {
+    return iterator_type::operator>=(rhs);
+  }
   bool operator>(const const_reverse_result_iterator &rhs) const
-      { return iterator_type::operator<(rhs); }
+  {
+    return iterator_type::operator<(rhs);
+  }
   bool operator>=(const const_reverse_result_iterator &rhs) const
-      { return iterator_type::operator<=(rhs); }
+  {
+    return iterator_type::operator<=(rhs);
+  }
   //@}
 };
 
 
-inline const_result_iterator
-const_result_iterator::operator+(result::difference_type o) const
+inline const_result_iterator const_result_iterator::
+operator+(result::difference_type o) const
 {
   return const_result_iterator{
-	&m_result, size_type(result::difference_type(m_index) + o)};
+    &m_result, size_type(result::difference_type(m_index) + o)};
 }
 
 inline const_result_iterator
 operator+(result::difference_type o, const_result_iterator i)
-	{ return i + o; }
-
-inline const_result_iterator
-const_result_iterator::operator-(result::difference_type o) const
 {
-  return const_result_iterator{
-	&m_result,
-	result_size_type(result::difference_type(m_index) - o)};
+  return i + o;
 }
 
-inline result::difference_type
-const_result_iterator::operator-(const_result_iterator i) const
-	{ return result::difference_type(num() - i.num()); }
+inline const_result_iterator const_result_iterator::
+operator-(result::difference_type o) const
+{
+  return const_result_iterator{
+    &m_result, result_size_type(result::difference_type(m_index) - o)};
+}
+
+inline result::difference_type const_result_iterator::
+operator-(const_result_iterator i) const
+{
+  return result::difference_type(num() - i.num());
+}
 
 inline const_result_iterator result::end() const noexcept
-	{ return const_result_iterator{this, size()}; }
+{
+  return const_result_iterator{this, size()};
+}
 
 
 inline const_result_iterator result::cend() const noexcept
-	{ return end(); }
+{
+  return end();
+}
 
 
 inline const_reverse_result_iterator
-operator+(
-	result::difference_type n,
-	const const_reverse_result_iterator &i)
-	{ return const_reverse_result_iterator{i.base() - n}; }
+operator+(result::difference_type n, const const_reverse_result_iterator &i)
+{
+  return const_reverse_result_iterator{i.base() - n};
+}
 
 } // namespace pqxx
 

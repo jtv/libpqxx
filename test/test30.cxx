@@ -17,7 +17,7 @@ void test_030()
   connection conn;
   work tx{conn, "test30"};
 
-  result R( tx.exec(("SELECT * FROM " + Table).c_str()) );
+  result R(tx.exec(("SELECT * FROM " + Table).c_str()));
   PQXX_CHECK(not R.empty(), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
@@ -26,14 +26,11 @@ void test_030()
     std::string N = R.column_name(c);
 
     PQXX_CHECK_EQUAL(
-	R[0].column_number(N),
-	R.column_number(N),
-	"row::column_number() is inconsistent with result::column_number().");
+      R[0].column_number(N), R.column_number(N),
+      "row::column_number() is inconsistent with result::column_number().");
 
     PQXX_CHECK_EQUAL(
-	R[0].column_number(N.c_str()),
-	c,
-	"Inconsistent column numbers.");
+      R[0].column_number(N.c_str()), c, "Inconsistent column numbers.");
   }
 
   // If there are rows in R, compare their metadata to R's.
@@ -55,24 +52,18 @@ void test_030()
     std::string N = R.column_name(c);
 
     PQXX_CHECK_EQUAL(
-	std::string{R[0].at(c).c_str()},
-	R[0].at(N).c_str(),
-	"Different field values by name and by number.");
+      std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),
+      "Different field values by name and by number.");
 
     PQXX_CHECK_EQUAL(
-	std::string{R[0][c].c_str()},
-	R[0][N].c_str(),
-	"at() is inconsistent with operator[].");
+      std::string{R[0][c].c_str()}, R[0][N].c_str(),
+      "at() is inconsistent with operator[].");
+
+    PQXX_CHECK_EQUAL(R[0][c].name(), N, "Inconsistent field names.");
 
     PQXX_CHECK_EQUAL(
-	R[0][c].name(),
-	N,
-	"Inconsistent field names.");
-
-    PQXX_CHECK_EQUAL(
-	R[0][c].size(),
-	std::strlen(R[0][c].c_str()),
-	"Inconsistent field lengths.");
+      R[0][c].size(), std::strlen(R[0][c].c_str()),
+      "Inconsistent field lengths.");
   }
 }
 

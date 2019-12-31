@@ -18,36 +18,32 @@ void test_012()
 
   work tx{conn, "test12"};
 
-  result R( tx.exec("SELECT * FROM " + Table) );
+  result R(tx.exec("SELECT * FROM " + Table));
 
   const auto columns{static_cast<size_t>(R.columns())};
   // Map column to no. of null fields.
   std::vector<int> NullFields(columns, 0);
   // Does column appear to be sorted?
-  std::vector<bool>
-	SortedUp(columns, true),
-	SortedDown(columns, true);
+  std::vector<bool> SortedUp(columns, true), SortedDown(columns, true);
 
   for (auto i = R.begin(); i != R.end(); i++)
   {
     PQXX_CHECK_EQUAL(
-	(*i).rownumber(),
-	i->rownumber(),
-	"Inconsistent row numbers for operator*() and operator->().");
+      (*i).rownumber(), i->rownumber(),
+      "Inconsistent row numbers for operator*() and operator->().");
 
     PQXX_CHECK_EQUAL(i->size(), R.columns(), "Inconsistent row size.");
 
     // Look for null fields
-    for (pqxx::row::size_type f=0; f<i->size(); ++f)
+    for (pqxx::row::size_type f = 0; f < i->size(); ++f)
     {
       const auto offset{static_cast<size_t>(f)};
       NullFields[offset] += i.at(f).is_null();
 
       std::string A, B;
       PQXX_CHECK_EQUAL(
-	i[f].to(A),
-	i[f].to(B, std::string{}),
-	"Variants of to() disagree on nullness.");
+        i[f].to(A), i[f].to(B, std::string{}),
+        "Variants of to() disagree on nullness.");
 
       PQXX_CHECK_EQUAL(A, B, "Inconsistent field contents.");
     }
@@ -61,12 +57,12 @@ void test_012()
       // their interrelationship...
       PQXX_CHECK_EQUAL(i - j, 1, "Iterator is wrong distance from successor.");
 
-      PQXX_CHECK(not (j == i), "Iterator equals its successor.");
+      PQXX_CHECK(not(j == i), "Iterator equals its successor.");
       PQXX_CHECK(j != i, "Iterator inequality is inconsistent.");
-      PQXX_CHECK(not (j >= i), "Iterator doesn't come before its successor.");
-      PQXX_CHECK(not (j > i), "Iterator is preceded by its successor.");
-      PQXX_CHECK(not (i <= j), "Iterator doesn't come after its predecessor.");
-      PQXX_CHECK(not (i < j), "Iterator is succeded by its predecessor.");
+      PQXX_CHECK(not(j >= i), "Iterator doesn't come before its successor.");
+      PQXX_CHECK(not(j > i), "Iterator is preceded by its successor.");
+      PQXX_CHECK(not(i <= j), "Iterator doesn't come after its predecessor.");
+      PQXX_CHECK(not(i < j), "Iterator is succeded by its predecessor.");
       PQXX_CHECK(j <= i, "operator<=() doesn't mirror operator>=().");
       PQXX_CHECK(j < i, "operator<() doesn't mirror operator>().");
 
@@ -95,14 +91,12 @@ void test_012()
         const auto offset{static_cast<size_t>(f)};
         if (not j[f].is_null())
         {
-          const bool
-		U = SortedUp[offset],
-		D = SortedDown[offset];
+          const bool U = SortedUp[offset], D = SortedDown[offset];
 
-          SortedUp[offset] = U & (
-		std::string{j[f].c_str()} <= std::string{i[f].c_str()});
-          SortedDown[offset] = D & (
-		std::string{j[f].c_str()} >= std::string{i[f].c_str()});
+          SortedUp[offset] =
+            U & (std::string{j[f].c_str()} <= std::string{i[f].c_str()});
+          SortedDown[offset] =
+            D & (std::string{j[f].c_str()} >= std::string{i[f].c_str()});
         }
       }
     }
@@ -110,8 +104,8 @@ void test_012()
 
   for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
     PQXX_CHECK(
-	NullFields[static_cast<size_t>(f)] <= int(R.size()),
-	"Found more nulls than there were rows.");
+      NullFields[static_cast<size_t>(f)] <= int(R.size()),
+      "Found more nulls than there were rows.");
 }
 
 

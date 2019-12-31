@@ -47,7 +47,7 @@ public:
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  row() =default;
+  row() = default;
 
   /// @deprecated Do not use this constructor.  It will become private.
   row(result r, result_size_type i) noexcept;
@@ -58,7 +58,9 @@ public:
   //@{
   PQXX_PURE bool operator==(const row &) const noexcept;
   bool operator!=(const row &rhs) const noexcept
-      { return not operator==(rhs); }
+  {
+    return not operator==(rhs);
+  }
   //@}
 
   const_iterator begin() const noexcept;
@@ -87,7 +89,9 @@ public:
    * @warning This is much slower than indexing by number, or iterating.
    */
   reference operator[](const std::string &s) const
-  { return (*this)[s.c_str()]; }
+  {
+    return (*this)[s.c_str()];
+  }
 
   reference at(size_type) const;
   /** Address field by name.
@@ -97,12 +101,10 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(const std::string &s) const
-  { return at(s.c_str()); }
+  reference at(const std::string &s) const { return at(s.c_str()); }
   //@}
 
-  size_type size() const noexcept
-  { return m_end-m_begin; }
+  size_type size() const noexcept { return m_end - m_begin; }
 
   void swap(row &) noexcept;
 
@@ -115,7 +117,9 @@ public:
   //@{
   /// Number of given column (throws exception if it doesn't exist).
   size_type column_number(const std::string &ColName) const
-      { return column_number(ColName.c_str()); }
+  {
+    return column_number(ColName.c_str());
+  }
 
   /// Number of given column (throws exception if it doesn't exist).
   size_type column_number(const char[]) const;
@@ -124,17 +128,19 @@ public:
   oid column_type(size_type) const;
 
   /// Return a column's type.
-  template<typename STRING>
-  oid column_type(STRING ColName) const
-      { return column_type(column_number(ColName)); }
+  template<typename STRING> oid column_type(STRING ColName) const
+  {
+    return column_type(column_number(ColName));
+  }
 
   /// What table did this column come from?
   oid column_table(size_type ColNum) const;
 
   /// What table did this column come from?
-  template<typename STRING>
-  oid column_table(STRING ColName) const
-      { return column_table(column_number(ColName)); }
+  template<typename STRING> oid column_table(STRING ColName) const
+  {
+    return column_table(column_number(ColName));
+  }
 
   /// What column number in its table did this result column come from?
   /** A meaningful answer can be given only if the column in question comes
@@ -147,9 +153,10 @@ public:
   size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
-  template<typename STRING>
-  size_type table_column(STRING ColName) const
-      { return table_column(column_number(ColName)); }
+  template<typename STRING> size_type table_column(STRING ColName) const
+  {
+    return table_column(column_number(ColName));
+  }
   //@}
 
   result::size_type num() const { return rownumber(); }
@@ -199,8 +206,7 @@ public:
   using difference_type = row_difference_type;
   using reference = field;
 
-  const_row_iterator(const row &T, row_size_type C) noexcept :
-    field{T, C} {}
+  const_row_iterator(const row &T, row_size_type C) noexcept : field{T, C} {}
   const_row_iterator(const field &F) noexcept : field{F} {}
 
   /**
@@ -216,14 +222,28 @@ public:
    */
   //@{
   const_row_iterator operator++(int);
-  const_row_iterator &operator++() { ++m_col; return *this; }
+  const_row_iterator &operator++()
+  {
+    ++m_col;
+    return *this;
+  }
   const_row_iterator operator--(int);
-  const_row_iterator &operator--() { --m_col; return *this; }
+  const_row_iterator &operator--()
+  {
+    --m_col;
+    return *this;
+  }
 
   const_row_iterator &operator+=(difference_type i)
-      { m_col = size_type(difference_type(m_col) + i); return *this; }
+  {
+    m_col = size_type(difference_type(m_col) + i);
+    return *this;
+  }
   const_row_iterator &operator-=(difference_type i)
-      { m_col = size_type(difference_type(m_col) - i); return *this; }
+  {
+    m_col = size_type(difference_type(m_col) - i);
+    return *this;
+  }
   //@}
 
   /**
@@ -231,17 +251,23 @@ public:
    */
   //@{
   bool operator==(const const_row_iterator &i) const
-      {return col()==i.col();}
+  {
+    return col() == i.col();
+  }
   bool operator!=(const const_row_iterator &i) const
-      {return col()!=i.col();}
-  bool operator<(const const_row_iterator &i) const
-      {return col()<i.col();}
+  {
+    return col() != i.col();
+  }
+  bool operator<(const const_row_iterator &i) const { return col() < i.col(); }
   bool operator<=(const const_row_iterator &i) const
-      {return col()<=i.col();}
-  bool operator>(const const_row_iterator &i) const
-      {return col()>i.col();}
+  {
+    return col() <= i.col();
+  }
+  bool operator>(const const_row_iterator &i) const { return col() > i.col(); }
   bool operator>=(const const_row_iterator &i) const
-      {return col()>=i.col();}
+  {
+    return col() >= i.col();
+  }
   //@}
 
   /**
@@ -250,7 +276,7 @@ public:
   //@{
   inline const_row_iterator operator+(difference_type) const;
 
-  friend const_row_iterator operator+( difference_type, const_row_iterator);
+  friend const_row_iterator operator+(difference_type, const_row_iterator);
 
   inline const_row_iterator operator-(difference_type) const;
   inline difference_type operator-(const_row_iterator) const;
@@ -264,17 +290,20 @@ class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
 public:
   using super = const_row_iterator;
   using iterator_type = const_row_iterator;
-  using iterator_type::iterator_category;
   using iterator_type::difference_type;
+  using iterator_type::iterator_category;
   using iterator_type::pointer;
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
   const_reverse_row_iterator(const const_reverse_row_iterator &r) :
-    const_row_iterator{r} {}
-  explicit
-    const_reverse_row_iterator(const super &rhs) noexcept :
-      const_row_iterator{rhs} { super::operator--(); }
+          const_row_iterator{r}
+  {}
+  explicit const_reverse_row_iterator(const super &rhs) noexcept :
+          const_row_iterator{rhs}
+  {
+    super::operator--();
+  }
 
   PQXX_PURE iterator_type base() const noexcept;
 
@@ -290,19 +319,33 @@ public:
    * @name Manipulations
    */
   //@{
-  const_reverse_row_iterator &
-    operator=(const const_reverse_row_iterator &r)
-      { iterator_type::operator=(r); return *this; }
+  const_reverse_row_iterator &operator=(const const_reverse_row_iterator &r)
+  {
+    iterator_type::operator=(r);
+    return *this;
+  }
   const_reverse_row_iterator operator++()
-      { iterator_type::operator--(); return *this; }
+  {
+    iterator_type::operator--();
+    return *this;
+  }
   const_reverse_row_iterator operator++(int);
   const_reverse_row_iterator &operator--()
-      { iterator_type::operator++(); return *this; }
+  {
+    iterator_type::operator++();
+    return *this;
+  }
   const_reverse_row_iterator operator--(int);
   const_reverse_row_iterator &operator+=(difference_type i)
-      { iterator_type::operator-=(i); return *this; }
+  {
+    iterator_type::operator-=(i);
+    return *this;
+  }
   const_reverse_row_iterator &operator-=(difference_type i)
-      { iterator_type::operator+=(i); return *this; }
+  {
+    iterator_type::operator+=(i);
+    return *this;
+  }
   //@}
 
   /**
@@ -310,12 +353,17 @@ public:
    */
   //@{
   const_reverse_row_iterator operator+(difference_type i) const
-      { return const_reverse_row_iterator{base()-i}; }
+  {
+    return const_reverse_row_iterator{base() - i};
+  }
   const_reverse_row_iterator operator-(difference_type i)
-      { return const_reverse_row_iterator{base()+i}; }
-  difference_type
-    operator-(const const_reverse_row_iterator &rhs) const
-      { return rhs.const_row_iterator::operator-(*this); }
+  {
+    return const_reverse_row_iterator{base() + i};
+  }
+  difference_type operator-(const const_reverse_row_iterator &rhs) const
+  {
+    return rhs.const_row_iterator::operator-(*this);
+  }
   //@}
 
   /**
@@ -323,45 +371,59 @@ public:
    */
   //@{
   bool operator==(const const_reverse_row_iterator &rhs) const noexcept
-      { return iterator_type::operator==(rhs); }
+  {
+    return iterator_type::operator==(rhs);
+  }
   bool operator!=(const const_reverse_row_iterator &rhs) const noexcept
-      { return !operator==(rhs); }
+  {
+    return !operator==(rhs);
+  }
 
   bool operator<(const const_reverse_row_iterator &rhs) const
-      { return iterator_type::operator>(rhs); }
+  {
+    return iterator_type::operator>(rhs);
+  }
   bool operator<=(const const_reverse_row_iterator &rhs) const
-      { return iterator_type::operator>=(rhs); }
+  {
+    return iterator_type::operator>=(rhs);
+  }
   bool operator>(const const_reverse_row_iterator &rhs) const
-      { return iterator_type::operator<(rhs); }
+  {
+    return iterator_type::operator<(rhs);
+  }
   bool operator>=(const const_reverse_row_iterator &rhs) const
-      { return iterator_type::operator<=(rhs); }
+  {
+    return iterator_type::operator<=(rhs);
+  }
   //@}
 };
 
 
-inline const_row_iterator
-const_row_iterator::operator+(difference_type o) const
+inline const_row_iterator const_row_iterator::
+operator+(difference_type o) const
 {
-  return const_row_iterator{
-	row(home(), idx()),
-	size_type(difference_type(col()) + o)};
+  return const_row_iterator{row(home(), idx()),
+                            size_type(difference_type(col()) + o)};
 }
 
 inline const_row_iterator
 operator+(const_row_iterator::difference_type o, const_row_iterator i)
-	{ return i + o; }
-
-inline const_row_iterator
-const_row_iterator::operator-(difference_type o) const
 {
-  return const_row_iterator{
-	row(home(), idx()),
-	size_type(difference_type(col()) - o)};
+  return i + o;
 }
 
-inline const_row_iterator::difference_type
-const_row_iterator::operator-(const_row_iterator i) const
-	{ return difference_type(num() - i.num()); }
+inline const_row_iterator const_row_iterator::
+operator-(difference_type o) const
+{
+  return const_row_iterator{row(home(), idx()),
+                            size_type(difference_type(col()) - o)};
+}
+
+inline const_row_iterator::difference_type const_row_iterator::
+operator-(const_row_iterator i) const
+{
+  return difference_type(num() - i.num());
+}
 
 } // namespace pqxx
 

@@ -16,7 +16,7 @@ void test_011()
   work tx{conn};
   const std::string Table = "pg_tables";
 
-  result R( tx.exec("SELECT * FROM " + Table) );
+  result R(tx.exec("SELECT * FROM " + Table));
 
   // Print column names
   for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
@@ -50,21 +50,18 @@ void test_011()
       std::string N = R.column_name(c);
 
       PQXX_CHECK_EQUAL(
-	std::string{R[0].at(c).c_str()},
-	R[0].at(N).c_str(),
-	"Field by name != field by number.");
+        std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),
+        "Field by name != field by number.");
 
       PQXX_CHECK_EQUAL(
-	std::string{R[0][c].c_str()},
-	R[0][N].c_str(),
-	"at() is inconsistent with operator[].");
+        std::string{R[0][c].c_str()}, R[0][N].c_str(),
+        "at() is inconsistent with operator[].");
 
       PQXX_CHECK_EQUAL(R[0][c].name(), N, "Field names are inconsistent.");
 
       PQXX_CHECK_EQUAL(
-	R[0][c].size(),
-	strlen(R[0][c].c_str()),
-	"Field size is not what we expected.");
+        R[0][c].size(), strlen(R[0][c].c_str()),
+        "Field size is not what we expected.");
     }
   }
 }

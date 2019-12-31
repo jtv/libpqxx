@@ -9,7 +9,9 @@ class PQXX_PRIVATE icursor_iterator_icursorstream : callgate<icursor_iterator>
   icursor_iterator_icursorstream(reference x) : super(x) {}
 
   icursor_iterator::difference_type pos() const noexcept
-	{ return home().pos(); }
+  {
+    return home().pos();
+  }
 
   icursor_iterator *get_prev() { return home().m_prev; }
   void set_prev(icursor_iterator *i) { home().m_prev = i; }

@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_CONNECTION
 #define PQXX_H_CONNECTION
@@ -78,24 +78,24 @@ class const_connection_largeobject;
 namespace pqxx
 {
 /// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-std::string PQXX_LIBEXPORT encrypt_password(
-	const char user[],
-	const char password[]);
+std::string PQXX_LIBEXPORT
+encrypt_password(const char user[], const char password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-inline std::string encrypt_password(
-	const std::string &user,
-	const std::string &password)
-{ return encrypt_password(user.c_str(), password.c_str()); }
+inline std::string
+encrypt_password(const std::string &user, const std::string &password)
+{
+  return encrypt_password(user.c_str(), password.c_str());
+}
 
 
 /// Error verbosity levels.
 enum class error_verbosity : int
 {
-    // These values must match those in libpq's PGVerbosity enum.
-    terse = 0,
-    normal = 1,
-    verbose = 2
+  // These values must match those in libpq's PGVerbosity enum.
+  terse = 0,
+  normal = 1,
+  verbose = 2
 };
 
 
@@ -126,7 +126,7 @@ enum class error_verbosity : int
  * exception.  This can happen at almost any point.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
- * may receive the SIGPIPE signal when the connection to the backend breaks.  By
+ * may receive the SIGPIPE signal when the connection to the backend breaks. By
  * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
  * if you want your program to continue running after a connection fails.
  */
@@ -165,7 +165,15 @@ public:
    */
   connection(connection &&rhs);
 
-  ~connection() { try { close(); } catch (const std::exception &) {} }
+  ~connection()
+  {
+    try
+    {
+      close();
+    }
+    catch (const std::exception &)
+    {}
+  }
 
   /// Move assignment.
   /** Neither connection can have an open transaction, registered error
@@ -173,10 +181,10 @@ public:
    */
   connection &operator=(connection &&rhs);
 
-  connection(const connection &) =delete;
-  connection &operator=(const connection &) =delete;
+  connection(const connection &) = delete;
+  connection &operator=(const connection &) = delete;
 
-   /// Is this connection open at the moment?
+  /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
    * temptation to check it after opening a connection.  Instead, just use the
    * connection and rely on getting a broken_connection exception if it failed.
@@ -222,10 +230,10 @@ public:
    * are watched.
    *
    * Please try to stay away from this function.  It is really only meant for
-   * event loops that need to wait on more than one file descriptor.  If all you
-   * need is to block until a notification arrives, for instance, use
-   * await_notification().  If you want to issue queries and retrieve results in
-   * nonblocking fashion, check out the pipeline class.
+   * event loops that need to wait on more than one file descriptor.  If all
+   * you need is to block until a notification arrives, for instance, use
+   * await_notification().  If you want to issue queries and retrieve results
+   * in nonblocking fashion, check out the pipeline class.
    *
    * @warning Don't store this value anywhere, and always be prepared for the
    * possibility that, at any given time, there may not be a socket!  The
@@ -285,7 +293,9 @@ public:
    * @param Encoding Name of the character set encoding to use.
    */
   void set_client_encoding(const std::string &encoding)
-  { set_client_encoding(encoding.c_str()); }
+  {
+    set_client_encoding(encoding.c_str());
+  }
 
   /// Set client-side character encoding, by name.
   /**
@@ -391,9 +401,7 @@ public:
    * @endcode
    */
   std::string encrypt_password(
-	const char user[],
-	const char password[],
-	const char *algorithm=nullptr);
+    const char user[], const char password[], const char *algorithm = nullptr);
   std::string encrypt_password(zview user, zview password, zview algorithm)
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
@@ -404,14 +412,14 @@ public:
    * @name Prepared statements
    *
    * PostgreSQL supports prepared SQL statements, i.e. statements that can be
-   * registered under a client-provided name, optimized once by the backend, and
-   * executed any number of times under the given name.
+   * registered under a client-provided name, optimized once by the backend,
+   * and executed any number of times under the given name.
    *
-   * Prepared statement definitions are not sensitive to transaction boundaries.
-   * A statement defined inside a transaction will remain defined outside that
-   * transaction, even if the transaction itself is subsequently aborted.  Once
-   * a statement has been prepared, it will only go away if you close the
-   * connection or explicitly "unprepare" the statement.
+   * Prepared statement definitions are not sensitive to transaction
+   * boundaries. A statement defined inside a transaction will remain defined
+   * outside that transaction, even if the transaction itself is subsequently
+   * aborted.  Once a statement has been prepared, it will only go away if you
+   * close the connection or explicitly "unprepare" the statement.
    *
    * Use the @c pqxx::transaction_base::exec_prepared functions to execute a
    * prepared statement.  See \ref prepared for a full discussion.
@@ -453,18 +461,23 @@ public:
   void prepare(const char name[], const char definition[]);
 
   void prepare(const std::string &name, const std::string &definition)
-  { prepare(name.c_str(), definition.c_str()); }
+  {
+    prepare(name.c_str(), definition.c_str());
+  }
 
   /// Define a nameless prepared statement.
   /**
    * This can be useful if you merely want to pass large binary parameters to a
    * statement without otherwise wishing to prepare it.  If you use this
    * feature, always keep the definition and the use close together to avoid
-   * the nameless statement being redefined unexpectedly by code somewhere else.
+   * the nameless statement being redefined unexpectedly by code somewhere
+   * else.
    */
   void prepare(const char definition[]);
   void prepare(const std::string &definition)
-  { return prepare(definition.c_str()); }
+  {
+    return prepare(definition.c_str());
+  }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -490,11 +503,15 @@ public:
    * it's not at the end of the string!
    */
   std::string esc(const char text[], size_t maxlen) const
-  { return esc(std::string_view(text, maxlen)); }
+  {
+    return esc(std::string_view(text, maxlen));
+  }
 
   /// Escape string for use as SQL string literal on this connection.
   std::string esc(const char text[]) const
-  { return esc(std::string_view(text)); }
+  {
+    return esc(std::string_view(text));
+  }
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning If the string contains a zero byte, escaping stops there even
@@ -510,7 +527,9 @@ public:
    * copy of the original binary data.
    */
   std::string unesc_raw(const std::string &text) const
-  { return unesc_raw(text.c_str()); }
+  {
+    return unesc_raw(text.c_str());
+  }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -528,10 +547,10 @@ public:
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T>
-  std::string quote(const T &t) const
+  template<typename T> std::string quote(const T &t) const
   {
-    if (is_null(t)) return "NULL";
+    if (is_null(t))
+      return "NULL";
     const auto text{to_string(t)};
 
     // Okay, there's an easy way to do this and there's a hard way.  The easy
@@ -539,7 +558,7 @@ public:
     // because it's going to save some string manipulation that will probably
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
-    buf.resize(2 + 2*text.size() + 1);
+    buf.resize(2 + 2 * text.size() + 1);
     const auto content_bytes{esc_to_buf(text, buf.data() + 1)};
     const auto closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
@@ -574,7 +593,7 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  std::string esc_like(std::string_view text, char escape_char='\\') const;
+  std::string esc_like(std::string_view text, char escape_char = '\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -584,10 +603,11 @@ public:
   /** Set the verbosity of error messages to "terse", "normal" (the default),
    * or "verbose."
    *
-   *  If "terse", returned messages include severity, primary text, and position
-   *  only; this will normally fit on a single line. "normal" produces messages
-   *  that include the above plus any detail, hint, or context fields (these
-   *  might span multiple lines).  "verbose" includes all available fields.
+   *  If "terse", returned messages include severity, primary text, and
+   * position only; this will normally fit on a single line. "normal" produces
+   * messages that include the above plus any detail, hint, or context fields
+   * (these might span multiple lines).  "verbose" includes all available
+   * fields.
    */
   void set_verbosity(error_verbosity verbosity) noexcept;
 
@@ -630,7 +650,7 @@ private:
   size_t esc_to_buf(std::string_view text, char *buf) const;
 
   friend class internal::gate::const_connection_largeobject;
-  const char * PQXX_PURE err_msg() const noexcept;
+  const char *PQXX_PURE err_msg() const noexcept;
 
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
@@ -676,9 +696,9 @@ private:
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params( const std::string &query, const internal::params &args);
+  result exec_params(const std::string &query, const internal::params &args);
 
- /// Connection handle.
+  /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
 
   /// Active transaction on connection, if any.
@@ -687,7 +707,7 @@ private:
   std::list<errorhandler *> m_errorhandlers;
 
   using receiver_list =
-	std::multimap<std::string, pqxx::notification_receiver *>;
+    std::multimap<std::string, pqxx::notification_receiver *>;
   /// Notification receivers.
   receiver_list m_receivers;
 

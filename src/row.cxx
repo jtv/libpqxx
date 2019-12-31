@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -25,11 +25,10 @@ extern "C"
 
 
 pqxx::row::row(result r, result::size_type i) noexcept :
-  m_result{r},
-  m_index{i},
-  m_end{internal::gate::result_row(r) ? r.columns() : 0}
-{
-}
+        m_result{r},
+        m_index{i},
+        m_end{internal::gate::result_row(r) ? r.columns() : 0}
+{}
 
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
@@ -94,11 +93,15 @@ pqxx::row::const_reverse_iterator pqxx::row::crend() const
 
 bool pqxx::row::operator==(const row &rhs) const noexcept
 {
-  if (&rhs == this) return true;
+  if (&rhs == this)
+    return true;
   const auto s = size();
-  if (rhs.size() != s) return false;
+  if (rhs.size() != s)
+    return false;
   // TODO: Depends on how null is handled!
-  for (size_type i=0; i<s; ++i) if ((*this)[i] != rhs[i]) return false;
+  for (size_type i = 0; i < s; ++i)
+    if ((*this)[i] != rhs[i])
+      return false;
   return true;
 }
 
@@ -182,11 +185,11 @@ pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
 
 pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
 {
-  const auto N = PQfnumber(
-	const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
+  const auto N =
+    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
   if (N == -1)
-    throw argument_error{
-	"Unknown column name: '" + std::string{ColName} + "'."};
+    throw argument_error{"Unknown column name: '" + std::string{ColName} +
+                         "'."};
 
   return row::size_type(N);
 }
@@ -226,16 +229,16 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 }
 
 
-pqxx::const_row_iterator
-pqxx::const_reverse_row_iterator::base() const noexcept
+pqxx::const_row_iterator pqxx::const_reverse_row_iterator::base() const
+  noexcept
 {
   iterator_type tmp{*this};
   return ++tmp;
 }
 
 
-pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator++(int)
+pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
+operator++(int)
 {
   const_reverse_row_iterator tmp{*this};
   operator++();
@@ -243,8 +246,8 @@ pqxx::const_reverse_row_iterator::operator++(int)
 }
 
 
-pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator--(int)
+pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
+operator--(int)
 {
   const_reverse_row_iterator tmp{*this};
   operator--();

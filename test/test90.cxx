@@ -12,9 +12,8 @@ void test_090()
   const std::string nametest = "basename";
 
   PQXX_CHECK_NOT_EQUAL(
-	conn.adorn_name(nametest),
-	conn.adorn_name(nametest),
-	"\"Unique\" names are not unique.");
+    conn.adorn_name(nametest), conn.adorn_name(nametest),
+    "\"Unique\" names are not unique.");
 }
 } // namespace
 

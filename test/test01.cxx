@@ -7,7 +7,6 @@ using namespace pqxx;
 
 namespace
 {
-
 // Simple test program for libpqxx.  Open connection to database, start
 // a transaction, and perform a query inside it.
 void test_001()
@@ -19,7 +18,7 @@ void test_001()
   work tx{conn, "test1"};
 
   // Perform a query on the database, storing result rows in R.
-  result r( tx.exec("SELECT * FROM pg_tables") );
+  result r(tx.exec("SELECT * FROM pg_tables"));
 
   // We're expecting to find some tables...
   PQXX_CHECK(not r.empty(), "No tables found.");

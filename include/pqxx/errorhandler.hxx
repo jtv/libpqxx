@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_ERRORHANDLER
 #define PQXX_H_ERRORHANDLER
@@ -34,7 +34,7 @@ namespace pqxx
 
 /// Base class for error-handler callbacks.
 /** To receive errors and warnings from a connection, subclass this with your
- * own error-handler functor, and instantiate it for the connection.  Destroying
+ * own error-handler functor, and instantiate it for the connection. Destroying
  * the handler un-registers it.
  *
  * A connection can have multiple error handlers at the same time.  When the
@@ -55,12 +55,13 @@ public:
   explicit errorhandler(connection &);
   virtual ~errorhandler();
 
-  /// Define in subclass: receive an error or warning message from the database.
+  /// Define in subclass: receive an error or warning message from the
+  /// database.
   /**
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(const char msg[]) noexcept =0;
+  virtual bool operator()(const char msg[]) noexcept = 0;
 
 private:
   connection *m_home;
@@ -68,9 +69,9 @@ private:
   friend class internal::gate::errorhandler_connection;
   void unregister() noexcept;
 
-  errorhandler() =delete;
-  errorhandler(const errorhandler &) =delete;
-  errorhandler &operator=(const errorhandler &) =delete;
+  errorhandler() = delete;
+  errorhandler(const errorhandler &) = delete;
+  errorhandler &operator=(const errorhandler &) = delete;
 };
 
 

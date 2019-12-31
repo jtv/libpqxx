@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_SUBTRANSACTION
 #define PQXX_H_SUBTRANSACTION
@@ -26,9 +26,9 @@ namespace pqxx
 /// "Transaction" nested within another transaction
 /** A subtransaction can be executed inside a backend transaction, or inside
  * another subtransaction.  This can be useful when, for example, statements in
- * a transaction may harmlessly fail and you don't want them to abort the entire
- * transaction.  Here's an example of how a temporary table may be dropped
- * before re-creating it, without failing if the table did not exist:
+ * a transaction may harmlessly fail and you don't want them to abort the
+ * entire transaction.  Here's an example of how a temporary table may be
+ * dropped before re-creating it, without failing if the table did not exist:
  *
  * @code
  * void do_job(connection &C)
@@ -59,35 +59,33 @@ namespace pqxx
  * }
  * @endcode
  *
- * (This is just an example.  If you really wanted to do drop a table without an
- * error if it doesn't exist, you'd use DROP TABLE IF EXISTS.)
+ * (This is just an example.  If you really wanted to do drop a table without
+ * an error if it doesn't exist, you'd use DROP TABLE IF EXISTS.)
  *
  * There are no isolation levels inside a transaction.  They are not needed
  * because all actions within the same backend transaction are always performed
  * sequentially anyway.
  */
-class PQXX_LIBEXPORT subtransaction :
-  public internal::transactionfocus,
-  public dbtransaction
+class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
+                                      public dbtransaction
 {
 public:
   /// Nest a subtransaction nested in another transaction.
   explicit subtransaction(
-	dbtransaction &T, const std::string &Name=std::string{});
+    dbtransaction &T, const std::string &Name = std::string{});
 
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(
-	subtransaction &T, const std::string &Name=std::string{});
+    subtransaction &T, const std::string &Name = std::string{});
 
-  virtual ~subtransaction() noexcept
-	{ close(); }
+  virtual ~subtransaction() noexcept { close(); }
 
 private:
   std::string quoted_name() const { return quote_name(name()); }
   virtual void do_commit() override;
   virtual void do_abort() override;
 };
-}
+} // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

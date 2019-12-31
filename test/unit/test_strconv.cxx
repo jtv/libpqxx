@@ -5,21 +5,31 @@
 
 namespace
 {
-  enum colour { red, green, blue };
-  enum class weather : short { hot, cold, wet };
-  enum class many : unsigned long long
-  {
-    bottom = 0,
-    top = std::numeric_limits<unsigned long long>::max(),
-  };
-}
+enum colour
+{
+  red,
+  green,
+  blue
+};
+enum class weather : short
+{
+  hot,
+  cold,
+  wet
+};
+enum class many : unsigned long long
+{
+  bottom = 0,
+  top = std::numeric_limits<unsigned long long>::max(),
+};
+} // namespace
 
 namespace pqxx
 {
 PQXX_DECLARE_ENUM_CONVERSION(colour);
 PQXX_DECLARE_ENUM_CONVERSION(weather);
 PQXX_DECLARE_ENUM_CONVERSION(many);
-}
+} // namespace pqxx
 
 
 namespace
@@ -68,76 +78,60 @@ void test_strconv_enum()
 void test_strconv_class_enum()
 {
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(weather::hot),
-	"0",
-	"Class enum value did not convert.");
+    pqxx::to_string(weather::hot), "0", "Class enum value did not convert.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(weather::wet),
-	"2",
-	"Enum value did not convert.");
+    pqxx::to_string(weather::wet), "2", "Enum value did not convert.");
 
   weather w;
   pqxx::from_string("2", w);
   PQXX_CHECK_EQUAL(
-	w,
-	weather::wet,
-	"Could not recover class enum value from string.");
+    w, weather::wet, "Could not recover class enum value from string.");
 
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(many::bottom),
-	"0",
-	"Small wide enum did not convert right.");
+    pqxx::to_string(many::bottom), "0",
+    "Small wide enum did not convert right.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(many::top),
-	pqxx::to_string(std::numeric_limits<unsigned long long>::max()),
-	"Large wide enum did not convert right.");
+    pqxx::to_string(many::top),
+    pqxx::to_string(std::numeric_limits<unsigned long long>::max()),
+    "Large wide enum did not convert right.");
 }
 
 
 void test_strconv_optional()
 {
   PQXX_CHECK_THROWS(
-	pqxx::to_string(std::optional<int>{}),
-	pqxx::conversion_error,
-	"Converting an empty optional did not throw conversion error.");
+    pqxx::to_string(std::optional<int>{}), pqxx::conversion_error,
+    "Converting an empty optional did not throw conversion error.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::optional<int>{std::in_place, 10}),
-	"10",
-	"std::optional<int> does not convert right.");
+    pqxx::to_string(std::optional<int>{std::in_place, 10}), "10",
+    "std::optional<int> does not convert right.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::optional<int>{std::in_place, -10000}),
-	"-10000",
-	"std::optional<int> does not convert right.");
+    pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000",
+    "std::optional<int> does not convert right.");
 }
 
 
 void test_strconv_smart_pointer()
 {
   PQXX_CHECK_THROWS(
-	pqxx::to_string(std::unique_ptr<int>{}),
-	pqxx::conversion_error,
-	"Converting an empty unique_ptr did not throw conversion error.");
+    pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error,
+    "Converting an empty unique_ptr did not throw conversion error.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::make_unique<int>(10)),
-	"10",
-	"std::unique_ptr<int> does not convert right.");
+    pqxx::to_string(std::make_unique<int>(10)), "10",
+    "std::unique_ptr<int> does not convert right.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::make_unique<int>(-10000)),
-	"-10000",
-	"std::unique_ptr<int> does not convert right.");
+    pqxx::to_string(std::make_unique<int>(-10000)), "-10000",
+    "std::unique_ptr<int> does not convert right.");
 
   PQXX_CHECK_THROWS(
-	pqxx::to_string(std::shared_ptr<int>{}),
-	pqxx::conversion_error,
-	"Converting an empty shared_ptr did not throw conversion error.");
+    pqxx::to_string(std::shared_ptr<int>{}), pqxx::conversion_error,
+    "Converting an empty shared_ptr did not throw conversion error.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::make_shared<int>(10)),
-	"10",
-	"std::shared_ptr<int> does not convert right.");
+    pqxx::to_string(std::make_shared<int>(10)), "10",
+    "std::shared_ptr<int> does not convert right.");
   PQXX_CHECK_EQUAL(
-	pqxx::to_string(std::make_shared<int>(-10000)),
-	"-10000",
-	"std::shared_ptr<int> does not convert right.");
+    pqxx::to_string(std::make_shared<int>(-10000)), "-10000",
+    "std::shared_ptr<int> does not convert right.");
 }
 
 

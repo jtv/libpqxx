@@ -3,20 +3,21 @@
 namespace pqxx
 {
 template<> struct nullness<row::const_iterator> : no_null<row::const_iterator>
-{
-};
+{};
 
-template<> struct nullness<row::const_reverse_iterator> :
-	no_null<const_reverse_row_iterator>
-{
-};
+template<>
+struct nullness<row::const_reverse_iterator>
+        : no_null<const_reverse_row_iterator>
+{};
 
 
 template<> struct string_traits<row::const_iterator>
 {
   static constexpr zview text{"[row::const_iterator]"};
   static zview to_buf(char *, char *, const row::const_iterator &)
-  { return text; }
+  {
+    return text;
+  }
   static char *into_buf(char *begin, char *end, const row::const_iterator &)
   {
     if ((end - begin) <= 30)
@@ -25,18 +26,22 @@ template<> struct string_traits<row::const_iterator>
     return begin + text.size();
   }
   static constexpr size_t size_buffer(const row::const_iterator &) noexcept
-  { return text.size() + 1; }
+  {
+    return text.size() + 1;
+  }
 };
 
 
 template<> struct string_traits<row::const_reverse_iterator>
 {
   static constexpr zview text{"[row::const_reverse_iterator]"};
-  static pqxx::zview to_buf(
-	char *, char *, const row::const_reverse_iterator &)
-  { return text; }
-  static char *into_buf(
-	char *begin, char *end, const row::const_reverse_iterator &)
+  static pqxx::zview
+  to_buf(char *, char *, const row::const_reverse_iterator &)
+  {
+    return text;
+  }
+  static char *
+  into_buf(char *begin, char *end, const row::const_reverse_iterator &)
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
@@ -45,7 +50,9 @@ template<> struct string_traits<row::const_reverse_iterator>
   }
   static constexpr size_t
   size_buffer(const row::const_reverse_iterator &) noexcept
-  { return 100; }
+  {
+    return 100;
+  }
 };
 } // namespace pqxx
 
@@ -94,9 +101,7 @@ void test_result_slicing()
   s = r[0].slice(0, 1);
   PQXX_CHECK(not s.empty(), "Slicing confuses empty().");
   PQXX_CHECK_THROWS(
-	s.at(1).as<int>(),
-	pqxx::range_error,
-	"at() does not enforce slice.");
+    s.at(1).as<int>(), pqxx::range_error, "at() does not enforce slice.");
 
   // Meaningful slice that skips an initial column.
   s = r[0].slice(1, 2);
@@ -105,30 +110,22 @@ void test_result_slicing()
   PQXX_CHECK_EQUAL(s.begin()->as<int>(), 2, "Iteration uses wrong offset.");
   PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration has wrong range.");
   PQXX_CHECK_EQUAL(
-	s.rbegin() + 1,
-	s.rend(),
-	"Reverse iteration has wrong range.");
+    s.rbegin() + 1, s.rend(), "Reverse iteration has wrong range.");
   PQXX_CHECK_THROWS(
-	s.at(1).as<int>(),
-	pqxx::range_error,
-	"Offset slicing is broken.");
+    s.at(1).as<int>(), pqxx::range_error, "Offset slicing is broken.");
 
   // Column names in a slice.
   r = tx.exec("SELECT 1 AS one, 2 AS two, 3 AS three");
   s = r[0].slice(1, 2);
   PQXX_CHECK_EQUAL(s["two"].as<int>(), 2, "Column addressing breaks.");
   PQXX_CHECK_THROWS(
-	s.column_number("one"),
-	pqxx::argument_error,
-	"Can access column name before slice.");
+    s.column_number("one"), pqxx::argument_error,
+    "Can access column name before slice.");
   PQXX_CHECK_THROWS(
-	s.column_number("three"),
-	pqxx::argument_error,
-	"Can access column name after slice.");
+    s.column_number("three"), pqxx::argument_error,
+    "Can access column name after slice.");
   PQXX_CHECK_EQUAL(
-	s.column_number("Two"),
-	0,
-	"Column name is case sensitive.");
+    s.column_number("Two"), 0, "Column name is case sensitive.");
 
   // Identical column names.
   r = tx.exec("SELECT 1 AS x, 2 AS x");

@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_FIELD
 #define PQXX_H_FIELD
@@ -67,8 +67,7 @@ public:
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  bool operator!=(const field &rhs) const
-						   {return not operator==(rhs);}
+  bool operator!=(const field &rhs) const { return not operator==(rhs); }
   //@}
 
   /**
@@ -118,34 +117,33 @@ public:
   /** This can be used with optional types (except pointers other than C-style
    * strings).
    */
-  template<typename T> auto to(T &obj) const
-    -> typename std::enable_if<(
-      not std::is_pointer<T>::value
-      or std::is_same<T, const char*>::value
-    ), bool>::type
+  template<typename T>
+  auto to(T &obj) const -> typename std::enable_if<
+    (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
+    bool>::type
   {
     const char *const bytes = c_str();
-    if (bytes[0] == '\0' and is_null()) return false;
+    if (bytes[0] == '\0' and is_null())
+      return false;
     from_string(bytes, obj);
     return true;
   }
 
   /// Read value into obj; or leave obj untouched and return @c false if null.
-  template<typename T> bool operator>>(T &obj) const
-      { return to(obj); }
+  template<typename T> bool operator>>(T &obj) const { return to(obj); }
 
   /// Read value into obj; or if null, use default value and return @c false.
   /** Note this can be used with optional types (except pointers other than
    * C-strings)
    */
-  template<typename T> auto to(T &obj, const T &default_value) const
-    -> typename std::enable_if<(
-      not std::is_pointer<T>::value
-      or std::is_same<T, const char*>::value
-    ), bool>::type
+  template<typename T>
+  auto to(T &obj, const T &default_value) const -> typename std::enable_if<
+    (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
+    bool>::type
   {
     const bool has_value = to(obj);
-    if (not has_value) obj = default_value;
+    if (not has_value)
+      obj = default_value;
     return has_value;
   }
 
@@ -184,7 +182,10 @@ public:
    * container type with `get<int, std::optional>()`
    */
   template<typename T, template<typename> class O = std::optional>
-  constexpr O<T> get() const { return as<O<T>>(); }
+  constexpr O<T> get() const
+  {
+    return as<O<T>>();
+  }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
@@ -194,7 +195,9 @@ public:
    * object alive as well.
    */
   array_parser as_array() const
-        { return array_parser{c_str(), m_home.m_encoding}; }
+  {
+    return array_parser{c_str(), m_home.m_encoding};
+  }
   //@}
 
 
@@ -216,11 +219,11 @@ private:
 
 
 /// Specialization: <tt>to(string &)</tt>.
-template<>
-inline bool field::to<std::string>(std::string &obj) const
+template<> inline bool field::to<std::string>(std::string &obj) const
 {
   const char *const bytes = c_str();
-  if (bytes[0] == '\0' and is_null()) return false;
+  if (bytes[0] == '\0' and is_null())
+    return false;
   obj = std::string{bytes, size()};
   return true;
 }
@@ -231,18 +234,17 @@ inline bool field::to<std::string>(std::string &obj) const
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<>
-inline bool field::to<const char *>(const char *&obj) const
+template<> inline bool field::to<const char *>(const char *&obj) const
 {
-  if (is_null()) return false;
+  if (is_null())
+    return false;
   obj = c_str();
   return true;
 }
 
 
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class field_streambuf :
-  public std::basic_streambuf<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class field_streambuf : public std::basic_streambuf<CHAR, TRAITS>
 {
 public:
   using char_type = CHAR;
@@ -253,24 +255,22 @@ public:
   using openmode = std::ios::openmode;
   using seekdir = std::ios::seekdir;
 
-  explicit field_streambuf(const field &F) :
-    m_field{F}
-  {
-    initialize();
-  }
+  explicit field_streambuf(const field &F) : m_field{F} { initialize(); }
 
 protected:
   virtual int sync() override { return traits_type::eof(); }
 
 protected:
   virtual pos_type seekoff(off_type, seekdir, openmode) override
-	{ return traits_type::eof(); }
+  {
+    return traits_type::eof();
+  }
   virtual pos_type seekpos(pos_type, openmode) override
-	{return traits_type::eof();}
-  virtual int_type overflow(int_type) override
-	{ return traits_type::eof(); }
-  virtual int_type underflow() override
-	{ return traits_type::eof(); }
+  {
+    return traits_type::eof();
+  }
+  virtual int_type overflow(int_type) override { return traits_type::eof(); }
+  virtual int_type underflow() override { return traits_type::eof(); }
 
 private:
   const field &m_field;
@@ -294,9 +294,8 @@ private:
  *
  * This class has only been tested for the char type (and its default traits).
  */
-template<typename CHAR=char, typename TRAITS=std::char_traits<CHAR>>
-  class basic_fieldstream :
-    public std::basic_istream<CHAR, TRAITS>
+template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
+class basic_fieldstream : public std::basic_istream<CHAR, TRAITS>
 {
   using super = std::basic_istream<CHAR, TRAITS>;
 
@@ -308,7 +307,9 @@ public:
   using off_type = typename traits_type::off_type;
 
   basic_fieldstream(const field &F) : super{nullptr}, m_buf{F}
-	{ super::init(&m_buf); }
+  {
+    super::init(&m_buf);
+  }
 
 private:
   field_streambuf<CHAR, TRAITS> m_buf;
@@ -319,8 +320,8 @@ using fieldstream = basic_fieldstream<char>;
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
  * importantly, it lets you write a field to e.g. a @c stringstream which you
- * can then use to read, format and convert the field in ways that to() does not
- * support.
+ * can then use to read, format and convert the field in ways that to() does
+ * not support.
  *
  * Example: parse a field into a variable of the nonstandard
  * "<tt>long long</tt>" type.
@@ -338,8 +339,8 @@ using fieldstream = basic_fieldstream<char>;
  * @endcode
  */
 template<typename CHAR>
-inline std::basic_ostream<CHAR> &operator<<(
-	std::basic_ostream<CHAR> &S, const field &F)
+inline std::basic_ostream<CHAR> &
+operator<<(std::basic_ostream<CHAR> &S, const field &F)
 {
   S.write(F.c_str(), std::streamsize(F.size()));
   return S;
@@ -347,9 +348,10 @@ inline std::basic_ostream<CHAR> &operator<<(
 
 
 /// Convert a field's string contents to another type.
-template<typename T>
-inline T from_string(const field &f)
-	{ return from_string<T>(f.view()); }
+template<typename T> inline T from_string(const field &f)
+{
+  return from_string<T>(f.view());
+}
 
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(const field &obj);

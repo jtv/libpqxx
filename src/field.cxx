@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -18,16 +18,16 @@
 
 
 pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
-  m_col{C},
-  m_home{R.m_result},
-  m_row{R.m_index}
-{
-}
+        m_col{C},
+        m_home{R.m_result},
+        m_row{R.m_index}
+{}
 
 
 bool pqxx::field::operator==(const field &rhs) const
 {
-  if (is_null() != rhs.is_null()) return false;
+  if (is_null() != rhs.is_null())
+    return false;
   // TODO: Verify null handling decision
   const size_type s = size();
   return (s == rhs.size()) and (std::memcmp(c_str(), rhs.c_str(), s) == 0);

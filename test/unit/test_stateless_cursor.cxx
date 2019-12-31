@@ -8,12 +8,8 @@ void test_stateless_cursor()
   pqxx::work tx{conn};
 
   pqxx::stateless_cursor<
-	pqxx::cursor_base::read_only, pqxx::cursor_base::owned
-  > empty(
-	tx,
-	"SELECT generate_series(0, -1)",
-	"empty",
-	false);
+    pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
+    empty(tx, "SELECT generate_series(0, -1)", "empty", false);
 
   auto rows = empty.retrieve(0, 0);
   PQXX_CHECK_EQUAL(rows.empty(), true, "Empty result not empty");
@@ -23,18 +19,11 @@ void test_stateless_cursor()
   PQXX_CHECK_EQUAL(empty.size(), 0, "Empty cursor not empty");
 
   PQXX_CHECK_THROWS(
-    empty.retrieve(1, 0),
-    std::out_of_range,
-    "Empty cursor tries to retrieve");
+    empty.retrieve(1, 0), std::out_of_range, "Empty cursor tries to retrieve");
 
   pqxx::stateless_cursor<
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned
-  > stateless(
-	tx,
-	"SELECT generate_series(0, 9)",
-	"stateless",
-	false);
+    pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
+    stateless(tx, "SELECT generate_series(0, 9)", "stateless", false);
 
   PQXX_CHECK_EQUAL(stateless.size(), 10, "stateless_cursor::size() mismatch");
 

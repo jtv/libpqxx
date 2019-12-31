@@ -15,10 +15,8 @@ void check(std::string ref, std::string val, std::string vdesc)
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }
 
-template<typename T> inline void strconv(
-	std::string type,
-	const T &Obj,
-	std::string expected)
+template<typename T>
+inline void strconv(std::string type, const T &Obj, std::string expected)
 {
   const std::string Objstr{to_string(Obj)};
 
@@ -39,26 +37,27 @@ const double not_a_number = std::numeric_limits<double>::quiet_NaN();
 
 struct intderef
 {
-  intderef(){}	// Silences bogus warning in some gcc versions
-  template<typename ITER>
-    int operator()(ITER i) const noexcept { return int(*i); }
+  intderef() {} // Silences bogus warning in some gcc versions
+  template<typename ITER> int operator()(ITER i) const noexcept
+  {
+    return int(*i);
+  }
 };
 
 
 void test_000()
 {
   PQXX_CHECK_EQUAL(
-	oid_none,
-	0u,
-	"InvalidIod is not zero as it used to be.  This may conceivably "
-	"cause problems in libpqxx.");
+    oid_none, 0u,
+    "InvalidIod is not zero as it used to be.  This may conceivably "
+    "cause problems in libpqxx.");
 
   PQXX_CHECK(
-	cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
-	"cursor_base::difference_type appears to be unsigned.");
+    cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
+    "cursor_base::difference_type appears to be unsigned.");
 
   const char weird[] = "foo\t\n\0bar";
-  const std::string weirdstr(weird, sizeof(weird)-1);
+  const std::string weirdstr(weird, sizeof(weird) - 1);
 
   // Test string conversions
   strconv("const char[]", "", "");
@@ -71,7 +70,7 @@ void test_000()
   const long long_min = LONG_MIN, long_max = LONG_MAX;
 #else
   const long long_min = std::numeric_limits<long>::min(),
-	long_max = std::numeric_limits<long>::max();
+             long_max = std::numeric_limits<long>::max();
 #endif
 
   std::stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
@@ -85,9 +84,8 @@ void test_000()
   lmaxstr << long_max;
 
   const auto ullong_max = std::numeric_limits<unsigned long long>::max();
-  const auto
-	llong_max = std::numeric_limits<long long>::max(),
-	llong_min = std::numeric_limits<long long>::min();
+  const auto llong_max = std::numeric_limits<long long>::max(),
+             llong_min = std::numeric_limits<long long>::min();
 
   llminstr << llong_min;
   llmaxstr << llong_max;
@@ -115,12 +113,10 @@ void test_000()
   const std::string pw = encrypt_password("foo", "bar");
   PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
-	pw,
-	encrypt_password("splat", "blub"),
-	"Password encryption is broken.");
+    pw, encrypt_password("splat", "blub"), "Password encryption is broken.");
   PQXX_CHECK(
-	pw.find("bar") == std::string::npos,
-	"Encrypted password contains original.");
+    pw.find("bar") == std::string::npos,
+    "Encrypted password contains original.");
 }
 
 

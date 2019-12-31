@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -16,20 +16,18 @@
 
 
 void pqxx::internal::statement_parameters::add_checked_param(
-	const std::string &value,
-	bool nonnull,
-	bool binary)
+  const std::string &value, bool nonnull, bool binary)
 {
   m_nonnull.push_back(nonnull);
-  if (nonnull) m_values.push_back(value);
+  if (nonnull)
+    m_values.push_back(value);
   m_binary.push_back(binary);
 }
 
 
 int pqxx::internal::statement_parameters::marshall(
-	std::vector<const char *> &values,
-	std::vector<int> &lengths,
-	std::vector<int> &binaries) const
+  std::vector<const char *> &values, std::vector<int> &lengths,
+  std::vector<int> &binaries) const
 {
   const auto elements = m_nonnull.size();
   const auto array_size = elements + 1;
@@ -44,8 +42,8 @@ int pqxx::internal::statement_parameters::marshall(
     if (m_nonnull[param])
     {
       values[param] = m_values[arg].c_str();
-      lengths[param] = check_cast<int>(
-	m_values[arg].size(), "statement parameters");
+      lengths[param] =
+        check_cast<int>(m_values[arg].size(), "statement parameters");
       ++arg;
     }
 

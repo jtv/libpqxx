@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -17,11 +17,10 @@
 
 
 pqxx::subtransaction::subtransaction(
-	dbtransaction &T,
-	const std::string &Name) :
-  namedclass{"subtransaction", T.conn().adorn_name(Name)},
-  transactionfocus{T},
-  dbtransaction(T.conn())
+  dbtransaction &T, const std::string &Name) :
+        namedclass{"subtransaction", T.conn().adorn_name(Name)},
+        transactionfocus{T},
+        dbtransaction(T.conn())
 {
   direct_exec(("SAVEPOINT " + quoted_name()).c_str());
 }
@@ -34,11 +33,9 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 
 
 pqxx::subtransaction::subtransaction(
-	subtransaction &T,
-	const std::string &Name) :
-  subtransaction(dbtransaction_ref(T), Name)
-{
-}
+  subtransaction &T, const std::string &Name) :
+        subtransaction(dbtransaction_ref(T), Name)
+{}
 
 
 void pqxx::subtransaction::do_commit()

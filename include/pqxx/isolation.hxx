@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_ISOLATION
 #define PQXX_H_ISOLATION
@@ -46,9 +46,9 @@ enum class write_policy
  *
  * Third, "serializable" is only properly supported starting at postgres 9.1.
  * If you request "serializable" isolation on an older backend, you will get
- * the same isolation as in "repeatable read."  It's better than the "repeatable
- * read" defined in the SQL standard, but not a complete implementation of the
- * standard's "serializable" isolation level.
+ * the same isolation as in "repeatable read."  It's better than the
+ * "repeatable read" defined in the SQL standard, but not a complete
+ * implementation of the standard's "serializable" isolation level.
  *
  * In general, a lower isolation level will allow more surprising interactions
  * between ongoing transactions, but improve performance.  A higher level

@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_STATEMENT_PARAMETER
 #define PQXX_H_STATEMENT_PARAMETER
@@ -29,8 +29,9 @@
 
 namespace pqxx::internal
 {
-template<typename ITERATOR> constexpr inline const auto iterator_identity =
-	[](decltype(*std::declval<ITERATOR>()) x){ return x; };
+template<typename ITERATOR>
+constexpr inline const auto iterator_identity =
+  [](decltype(*std::declval<ITERATOR>()) x) { return x; };
 
 
 // TODO: C++20 "ranges" alternative.
@@ -52,13 +53,16 @@ template<typename ITERATOR> constexpr inline const auto iterator_identity =
  * The ACCESSOR is an optional callable (such as a lambda).  If you pass an
  * accessor @c a, then each parameter @c p goes into your statement as @c a(p).
  */
-template<typename IT, typename ACCESSOR=decltype(iterator_identity<IT>)>
+template<typename IT, typename ACCESSOR = decltype(iterator_identity<IT>)>
 class dynamic_params
 {
 public:
   /// Wrap a sequence of pointers or iterators.
   constexpr dynamic_params(IT begin, IT end) :
-	m_begin(begin), m_end(end), m_accessor(iterator_identity<IT>) {}
+          m_begin(begin),
+          m_end(end),
+          m_accessor(iterator_identity<IT>)
+  {}
 
   /// Wrap a sequence of pointers or iterators.
   /** This version takes an accessor callable.  If you pass an accessor @c acc,
@@ -66,12 +70,15 @@ public:
    * @c acc(p).
    */
   constexpr dynamic_params(IT begin, IT end, ACCESSOR &acc) :
-	m_begin(begin), m_end(end), m_accessor(acc) {}
+          m_begin(begin),
+          m_end(end),
+          m_accessor(acc)
+  {}
 
   /// Wrap a container.
-  template<typename C> explicit constexpr
-  dynamic_params(C &container) :
-	dynamic_params(std::begin(container), std::end(container))
+  template<typename C>
+  explicit constexpr dynamic_params(C &container) :
+          dynamic_params(std::begin(container), std::end(container))
   {}
 
   /// Wrap a container.
@@ -79,12 +86,9 @@ public:
    * then any parameter @c p will go into the statement's parameter list as
    * @c acc(p).
    */
-  template<typename C> explicit constexpr
-  dynamic_params(C &container, ACCESSOR &acc) :
-	dynamic_params(
-		std::begin(container),
-		std::end(container),
-		acc)
+  template<typename C>
+  explicit constexpr dynamic_params(C &container, ACCESSOR &acc) :
+          dynamic_params(std::begin(container), std::end(container), acc)
   {}
 
   constexpr IT begin() const { return m_begin; }
@@ -92,7 +96,9 @@ public:
 
   constexpr auto access(decltype(*std::declval<IT>()) value) const
     -> decltype(std::declval<ACCESSOR>()(value))
-	{ return m_accessor(value); }
+  {
+    return m_accessor(value);
+  }
 
 private:
   const IT m_begin, m_end;
@@ -103,26 +109,25 @@ private:
 class PQXX_LIBEXPORT statement_parameters
 {
 protected:
-  statement_parameters() =default;
-  statement_parameters &operator=(const statement_parameters &) =delete;
+  statement_parameters() = default;
+  statement_parameters &operator=(const statement_parameters &) = delete;
 
   void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)
   {
     nonnull = (nonnull && not is_null(v));
     this->add_checked_param(
-	(nonnull ? pqxx::to_string(v) : ""),
-	nonnull,
-	false);
+      (nonnull ? pqxx::to_string(v) : ""), nonnull, false);
   }
   void add_binary_param(const binarystring &b, bool nonnull)
-	{ this->add_checked_param(b.str(), nonnull, true); }
+  {
+    this->add_checked_param(b.str(), nonnull, true);
+  }
 
   /// Marshall parameter values into C-compatible arrays for passing to libpq.
   int marshall(
-	std::vector<const char *> &values,
-	std::vector<int> &lengths,
-	std::vector<int> &binaries) const;
+    std::vector<const char *> &values, std::vector<int> &lengths,
+    std::vector<int> &binaries) const;
 
 private:
   void add_checked_param(const std::string &value, bool nonnull, bool binary);
@@ -145,7 +150,7 @@ struct params
   /// Construct directly from a series of statement arguments.
   /** The arrays all default to zero, null, and empty strings.
    */
-  template<typename ...Args> constexpr params(Args && ... args)
+  template<typename... Args> constexpr params(Args &&... args)
   {
     strings.reserve(sizeof...(args));
     lengths.reserve(sizeof...(args));
@@ -177,7 +182,7 @@ struct params
       }
       else
       {
-         value = nullptr;
+        value = nullptr;
       }
       pointers[index] = value;
     }
@@ -227,15 +232,17 @@ private:
    */
   template<typename Arg> void add_field(const Arg &arg)
   {
-    if (is_null(arg)) add_field(nullptr);
-    else add_field(to_string(arg));
+    if (is_null(arg))
+      add_field(nullptr);
+    else
+      add_field(to_string(arg));
   }
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
   template<typename IT, typename ACCESSOR>
   void add_field(const dynamic_params<IT, ACCESSOR> &parameters)
   {
-    for (auto param: parameters) add_field(parameters.access(param));
+    for (auto param : parameters) add_field(parameters.access(param));
   }
 
   /// Compile argument list.
@@ -246,8 +253,8 @@ private:
    * @param arg Current argument to be compiled.
    * @param args Optional remaining arguments, to be compiled recursively.
    */
-  template<typename Arg, typename ...More>
-  void add_fields(Arg &&arg, More && ... args)
+  template<typename Arg, typename... More>
+  void add_fields(Arg &&arg, More &&... args)
   {
     add_field(std::forward<Arg>(arg));
     // Compile remaining arguments, if any.

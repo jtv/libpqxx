@@ -8,8 +8,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_TRANSACTION_BASE
 #define PQXX_H_TRANSACTION_BASE
@@ -43,14 +43,13 @@ class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
   explicit transactionfocus(transaction_base &t) :
-    namedclass{"transactionfocus"},
-    m_trans{t}
-  {
-  }
+          namedclass{"transactionfocus"},
+          m_trans{t}
+  {}
 
-  transactionfocus() =delete;
-  transactionfocus(const transactionfocus &) =delete;
-  transactionfocus &operator=(const transactionfocus &) =delete;
+  transactionfocus() = delete;
+  transactionfocus(const transactionfocus &) = delete;
+  transactionfocus &operator=(const transactionfocus &) = delete;
 
 protected:
   void register_me();
@@ -85,9 +84,9 @@ namespace pqxx
  * However, not all implementations of this interface need to provide
  * full transactional integrity.
  *
- * Several implementations of this interface are shipped with libpqxx, including
- * the plain transaction class, the entirely unprotected nontransaction, and the
- * more cautious robusttransaction.
+ * Several implementations of this interface are shipped with libpqxx,
+ * including the plain transaction class, the entirely unprotected
+ * nontransaction, and the more cautious robusttransaction.
  */
 
 /// Interface definition (and common code) for "transaction" classes.
@@ -96,15 +95,15 @@ namespace pqxx
  *
  * Abstract base class for all transaction types.
  */
-class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base :
-	public virtual internal::namedclass
+class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base
+        : public virtual internal::namedclass
 {
 public:
-  transaction_base() =delete;
-  transaction_base(const transaction_base &) =delete;
-  transaction_base &operator=(const transaction_base &) =delete;
+  transaction_base() = delete;
+  transaction_base(const transaction_base &) = delete;
+  transaction_base &operator=(const transaction_base &) = delete;
 
-  virtual ~transaction_base() =0;
+  virtual ~transaction_base() = 0;
 
   /// Commit the transaction
   /** Unless this function is called explicitly, the transaction will not be
@@ -132,12 +131,14 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  std::string esc(const char text[]) const         { return conn().esc(text); }
+  std::string esc(const char text[]) const { return conn().esc(text); }
   /// Escape string for use as SQL string literal in this transaction
   std::string esc(const char text[], size_t maxlen) const
-  { return conn().esc(text, maxlen); }
+  {
+    return conn().esc(text, maxlen);
+  }
   /// Escape string for use as SQL string literal in this transaction
-  std::string esc(const std::string &text) const   { return conn().esc(text); }
+  std::string esc(const std::string &text) const { return conn().esc(text); }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -145,14 +146,16 @@ public:
    * values or byte sequences that don't happen to represent valid characters
    * in the character encoding being used.
    *
-   * The binary string does not stop at the first zero byte, as is the case with
-   * textual strings.  Instead, they may contain zero bytes anywhere.  If it
-   * happens to contain bytes that look like quote characters, or other things
-   * that can disrupt their use in SQL queries, they will be replaced with
-   * special escape sequences.
+   * The binary string does not stop at the first zero byte, as is the case
+   * with textual strings.  Instead, they may contain zero bytes anywhere.  If
+   * it happens to contain bytes that look like quote characters, or other
+   * things that can disrupt their use in SQL queries, they will be replaced
+   * with special escape sequences.
    */
   std::string esc_raw(const unsigned char data[], size_t len) const
-  { return conn().esc_raw(data, len); }
+  {
+    return conn().esc_raw(data, len);
+  }
   /// Escape binary data for use as SQL string literal in this transaction
   std::string esc_raw(const std::string &) const;
 
@@ -161,33 +164,45 @@ public:
    * copy of the original binary data.
    */
   std::string unesc_raw(const std::string &text) const
-  { return conn().unesc_raw(text); }
+  {
+    return conn().unesc_raw(text);
+  }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
   std::string unesc_raw(const char *text) const
-  { return conn().unesc_raw(text); }
+  {
+    return conn().unesc_raw(text);
+  }
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T> std::string quote(const T &t) const
-  { return conn().quote(t); }
+  {
+    return conn().quote(t);
+  }
 
   /// Binary-escape and quote a binarystring for use as an SQL constant.
   std::string quote_raw(const unsigned char bin[], size_t len) const
-  { return conn().quote_raw(bin, len); }
+  {
+    return conn().quote_raw(bin, len);
+  }
 
   std::string quote_raw(const std::string &bin) const;
 
   /// Escape an SQL identifier for use in a query.
   std::string quote_name(const std::string &identifier) const
-  { return conn().quote_name(identifier); }
+  {
+    return conn().quote_name(identifier);
+  }
 
   /// Escape string for literal LIKE match.
-  std::string esc_like(const std::string &bin, char escape_char='\\') const
-  { return conn().esc_like(bin, escape_char); }
+  std::string esc_like(const std::string &bin, char escape_char = '\\') const
+  {
+    return conn().esc_like(bin, escape_char);
+  }
   //@}
 
   /// Execute query
@@ -205,14 +220,14 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(
-	const std::string &Query,
-	const std::string &Desc=std::string{});
+  result
+  exec(const std::string &Query, const std::string &Desc = std::string{});
 
-  result exec(
-	const std::stringstream &Query,
-	const std::string &Desc=std::string{})
-	{ return exec(Query.str(), Desc); }
+  result
+  exec(const std::stringstream &Query, const std::string &Desc = std::string{})
+  {
+    return exec(Query.str(), Desc);
+  }
 
   /// Execute query, which should zero rows of data.
   /** Works like exec, but fails if the result contains data.  It still returns
@@ -220,10 +235,11 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(
-	const std::string &Query,
-	const std::string &Desc=std::string{})
-	{ return exec_n(0, Query, Desc); }
+  result
+  exec0(const std::string &Query, const std::string &Desc = std::string{})
+  {
+    return exec_n(0, Query, Desc);
+  }
 
   /// Execute query returning a single row of data.
   /** Works like exec, but requires the result to contain exactly one row.
@@ -232,8 +248,10 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(const std::string &Query, const std::string &Desc=std::string{})
-	{ return exec_n(1, Query, Desc).front(); }
+  row exec1(const std::string &Query, const std::string &Desc = std::string{})
+  {
+    return exec_n(1, Query, Desc).front();
+  }
 
   /// Execute query, expect given number of rows.
   /** Works like exec, but checks that the number of rows is exactly what's
@@ -242,9 +260,8 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   result exec_n(
-        result::size_type rows,
-	const std::string &Query,
-	const std::string &Desc=std::string{});
+    result::size_type rows, const std::string &Query,
+    const std::string &Desc = std::string{});
 
   /**
    * @name Parameterized statements
@@ -276,8 +293,8 @@ public:
    */
   //@{
   /// Execute an SQL statement with parameters.
-  template<typename ...Args>
-  result exec_params(const std::string &query, Args &&...args)
+  template<typename... Args>
+  result exec_params(const std::string &query, Args &&... args)
   {
     return internal_exec_params(
       query, internal::params(std::forward<Args>(args)...));
@@ -286,8 +303,8 @@ public:
   // Execute parameterised statement, expect a single-row result.
   /** @throw unexpected_rows if the result does not consist of exactly one row.
    */
-  template<typename ...Args>
-  row exec_params1(const std::string &query, Args&&... args)
+  template<typename... Args>
+  row exec_params1(const std::string &query, Args &&... args)
   {
     return exec_params_n(1, query, std::forward<Args>(args)...).front();
   }
@@ -295,8 +312,8 @@ public:
   // Execute parameterised statement, expect a result with zero rows.
   /** @throw unexpected_rows if the result contains rows.
    */
-  template<typename ...Args>
-  result exec_params0(const std::string &query, Args &&...args)
+  template<typename... Args>
+  result exec_params0(const std::string &query, Args &&... args)
   {
     return exec_params_n(0, query, std::forward<Args>(args)...);
   }
@@ -304,8 +321,8 @@ public:
   // Execute parameterised statement, expect exactly a given number of rows.
   /** @throw unexpected_rows if the result contains the wrong number of rows.
    */
-  template<typename ...Args>
-  result exec_params_n(size_t rows, const std::string &query, Args &&...args)
+  template<typename... Args>
+  result exec_params_n(size_t rows, const std::string &query, Args &&... args)
   {
     const auto r = exec_params(query, std::forward<Args>(args)...);
     check_rowcount_params(rows, r.size());
@@ -342,8 +359,8 @@ public:
   //@{
 
   /// Execute a prepared statement, with optional arguments.
-  template<typename ...Args>
-  result exec_prepared(const std::string &statement, Args&&... args)
+  template<typename... Args>
+  result exec_prepared(const std::string &statement, Args &&... args)
   {
     return internal_exec_prepared(
       statement, internal::params(std::forward<Args>(args)...));
@@ -352,8 +369,8 @@ public:
   /// Execute a prepared statement, and expect a single-row result.
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
-  template<typename ...Args>
-  row exec_prepared1(const std::string &statement, Args&&... args)
+  template<typename... Args>
+  row exec_prepared1(const std::string &statement, Args &&... args)
   {
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
@@ -361,8 +378,8 @@ public:
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
-  template<typename ...Args>
-  result exec_prepared0(const std::string &statement, Args&&... args)
+  template<typename... Args>
+  result exec_prepared0(const std::string &statement, Args &&... args)
   {
     return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
@@ -371,11 +388,9 @@ public:
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
    *  given number of rows.
    */
-  template<typename ...Args>
+  template<typename... Args>
   result exec_prepared_n(
-	result::size_type rows,
-	const std::string &statement,
-	Args&&... args)
+    result::size_type rows, const std::string &statement, Args &&... args)
   {
     const auto r = exec_prepared(statement, std::forward<Args>(args)...);
     check_rowcount_prepared(statement, rows, r.size());
@@ -389,11 +404,12 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(const char Msg[]) const
-	{ m_conn.process_notice(Msg); }
+  void process_notice(const char Msg[]) const { m_conn.process_notice(Msg); }
   /// Have connection process a warning message.
   void process_notice(const std::string &Msg) const
-	{ m_conn.process_notice(Msg); }
+  {
+    m_conn.process_notice(Msg);
+  }
   //@}
 
   /// The connection in which this transaction lives.
@@ -410,8 +426,7 @@ public:
    * @param var The variable to set.
    * @param value The new value to store in the variable.
    */
-  void set_variable(
-	std::string_view var, std::string_view value);
+  void set_variable(std::string_view var, std::string_view value);
 
   /// Read session variable using SQL "SHOW" command.
   /** @warning This executes SQL.  Do not try to set or get variables while a
@@ -438,9 +453,9 @@ protected:
   void close() noexcept;
 
   /// To be implemented by derived implementation class: commit transaction
-  virtual void do_commit() =0;
+  virtual void do_commit() = 0;
   /// To be implemented by derived implementation class: abort transaction
-  virtual void do_abort() =0;
+  virtual void do_abort() = 0;
 
   // For use by implementing class:
 
@@ -460,23 +475,21 @@ private:
   PQXX_PRIVATE void CheckPendingError();
 
   template<typename T> bool parm_is_null(T *p) const noexcept
-	{ return p == nullptr; }
-  template<typename T> bool parm_is_null(T) const noexcept
-	{ return false; }
+  {
+    return p == nullptr;
+  }
+  template<typename T> bool parm_is_null(T) const noexcept { return false; }
 
   result internal_exec_prepared(
-	const std::string &statement,
-	const internal::params &args);
+    const std::string &statement, const internal::params &args);
 
-  result internal_exec_params(
-	const std::string &query,
-	const internal::params &args);
+  result
+  internal_exec_params(const std::string &query, const internal::params &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(
-	const std::string &statement,
-	result::size_type expected_rows,
-	result::size_type actual_rows);
+    const std::string &statement, result::size_type expected_rows,
+    result::size_type actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
   void check_rowcount_params(size_t expected_rows, size_t actual_rows);
@@ -491,9 +504,8 @@ private:
   bool read_copy_line(std::string &);
 
   friend class pqxx::internal::gate::transaction_stream_to;
-  PQXX_PRIVATE void BeginCopyWrite(
-	const std::string &Table,
-	const std::string &Columns);
+  PQXX_PRIVATE void
+  BeginCopyWrite(const std::string &Table, const std::string &Columns);
   void write_copy_line(std::string_view);
   void end_copy_write();
 
@@ -516,24 +528,24 @@ template<pqxx::isolation_level isolation, pqxx::write_policy rw>
 extern const zview begin_cmd;
 
 // These are not static members, so "constexpr" does not imply "inline".
-template<> inline constexpr zview
-begin_cmd<read_committed, write_policy::read_write>{
-	"BEGIN"};
-template<> inline constexpr zview
-begin_cmd<read_committed, write_policy::read_only>{
-	"BEGIN READ ONLY"};
-template<> inline constexpr zview
-begin_cmd<repeatable_read, write_policy::read_write>{
-	"BEGIN ISOLATION LEVEL REPEATABLE READ"};
-template<> inline constexpr zview
-begin_cmd<repeatable_read, write_policy::read_only>{
-	"BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"};
-template<> inline constexpr zview
-begin_cmd<serializable, write_policy::read_write>{
-	"BEGIN ISOLATION LEVEL SERIALIZABLE"};
-template<> inline constexpr zview
-begin_cmd<serializable, write_policy::read_only>{
-	"BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"};
+template<>
+inline constexpr zview begin_cmd<read_committed, write_policy::read_write>{
+  "BEGIN"};
+template<>
+inline constexpr zview begin_cmd<read_committed, write_policy::read_only>{
+  "BEGIN READ ONLY"};
+template<>
+inline constexpr zview begin_cmd<repeatable_read, write_policy::read_write>{
+  "BEGIN ISOLATION LEVEL REPEATABLE READ"};
+template<>
+inline constexpr zview begin_cmd<repeatable_read, write_policy::read_only>{
+  "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"};
+template<>
+inline constexpr zview begin_cmd<serializable, write_policy::read_write>{
+  "BEGIN ISOLATION LEVEL SERIALIZABLE"};
+template<>
+inline constexpr zview begin_cmd<serializable, write_policy::read_only>{
+  "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"};
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

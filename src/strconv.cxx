@@ -3,23 +3,23 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <limits>
 #include <locale>
-#include <cstdlib>
 #include <string_view>
 #include <system_error>
 
 #if __has_include(<cxxabi.h>)
-#include <cxxabi.h>
+#  include <cxxabi.h>
 #endif
 
 #include "pqxx/except"
@@ -105,20 +105,23 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
-template<typename T> inline char *
-wrap_to_chars(char *begin, char *end, const T &value)
+template<typename T>
+inline char *wrap_to_chars(char *begin, char *end, const T &value)
 {
   auto res = std::to_chars(begin, end - 1, value);
-  if (res.ec != std::errc()) switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    throw pqxx::conversion_overrun{
-	"Could not convert " + pqxx::type_name<T> + " to string: "
-	"buffer too small (" + pqxx::to_string(end - begin) + " bytes)."};
-  default:
-    throw pqxx::conversion_error{
-	"Could not convert " + pqxx::type_name<T> + " to string."};
-  }
+  if (res.ec != std::errc())
+    switch (res.ec)
+    {
+    case std::errc::value_too_large:
+      throw pqxx::conversion_overrun{
+        "Could not convert " + pqxx::type_name<T> +
+        " to string: "
+        "buffer too small (" +
+        pqxx::to_string(end - begin) + " bytes)."};
+    default:
+      throw pqxx::conversion_error{"Could not convert " + pqxx::type_name<T> +
+                                   " to string."};
+    }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
   *res.ptr++ = '\0';
@@ -130,50 +133,50 @@ wrap_to_chars(char *begin, char *end, const T &value)
 
 namespace pqxx::internal
 {
-template<typename T> zview
-integral_traits<T>::to_buf(char *begin, char *end, const T &value)
+template<typename T>
+zview integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
   static_assert(std::is_integral_v<T>);
-  const ptrdiff_t
-	space = end - begin,
-	need = static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value));
+  const ptrdiff_t space = end - begin, need = static_cast<ptrdiff_t>(
+                                         string_traits<T>::size_buffer(value));
   if (space < need)
     throw conversion_overrun{
-	"Could not convert " + type_name<T> + " to string: "
-        "buffer too small.  " +
-         pqxx::internal::state_buffer_overrun(space, need)
-	};
+      "Could not convert " + type_name<T> +
+      " to string: "
+      "buffer too small.  " +
+      pqxx::internal::state_buffer_overrun(space, need)};
 
   char *pos;
-  if constexpr (std::is_unsigned_v<T>) pos = nonneg_to_buf(end, value);
-  else if (value >= 0) pos = nonneg_to_buf(end, value);
-  else if (value > bottom<T>) pos = neg_to_buf(end, -value);
-  else pos = bottom_to_buf<T>(end);
+  if constexpr (std::is_unsigned_v<T>)
+    pos = nonneg_to_buf(end, value);
+  else if (value >= 0)
+    pos = nonneg_to_buf(end, value);
+  else if (value > bottom<T>)
+    pos = neg_to_buf(end, -value);
+  else
+    pos = bottom_to_buf<T>(end);
 
   return zview{pos, std::size_t(end - pos - 1)};
 }
 
 
-template zview integral_traits<short>::to_buf(
-	char *, char *, const short &);
+template zview integral_traits<short>::to_buf(char *, char *, const short &);
 template zview integral_traits<unsigned short>::to_buf(
-	char *, char *, const unsigned short &);
-template zview integral_traits<int>::to_buf(
-	char *, char *, const int &);
-template zview integral_traits<unsigned>::to_buf(
-	char *, char *, const unsigned &);
-template zview integral_traits<long>::to_buf(
-	char *, char *, const long &);
-template zview integral_traits<unsigned long>::to_buf(
-	char *, char *, const unsigned long &);
-template zview integral_traits<long long>::to_buf(
-	char *, char *, const long long &);
+  char *, char *, const unsigned short &);
+template zview integral_traits<int>::to_buf(char *, char *, const int &);
+template zview
+integral_traits<unsigned>::to_buf(char *, char *, const unsigned &);
+template zview integral_traits<long>::to_buf(char *, char *, const long &);
+template zview
+integral_traits<unsigned long>::to_buf(char *, char *, const unsigned long &);
+template zview
+integral_traits<long long>::to_buf(char *, char *, const long long &);
 template zview integral_traits<unsigned long long>::to_buf(
-	char *, char *, const unsigned long long &);
+  char *, char *, const unsigned long long &);
 
 
-template<typename T> char *
-integral_traits<T>::into_buf(char *begin, char *end, const T &value)
+template<typename T>
+char *integral_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
 #if defined(PQXX_HAVE_STRCONV_INT)
   // This is exactly what to_chars is good at.  Trust standard library
@@ -185,22 +188,19 @@ integral_traits<T>::into_buf(char *begin, char *end, const T &value)
 }
 
 
-template char *integral_traits<short>::into_buf(
-	char *, char *, const short &);
+template char *integral_traits<short>::into_buf(char *, char *, const short &);
 template char *integral_traits<unsigned short>::into_buf(
-	char *, char *, const unsigned short &);
-template char *integral_traits<int>::into_buf(
-	char *, char *, const int &);
-template char *integral_traits<unsigned>::into_buf(
-	char *, char *, const unsigned &);
-template char *integral_traits<long>::into_buf(
-	char *, char *, const long &);
+  char *, char *, const unsigned short &);
+template char *integral_traits<int>::into_buf(char *, char *, const int &);
+template char *
+integral_traits<unsigned>::into_buf(char *, char *, const unsigned &);
+template char *integral_traits<long>::into_buf(char *, char *, const long &);
 template char *integral_traits<unsigned long>::into_buf(
-	char *, char *, const unsigned long &);
-template char *integral_traits<long long>::into_buf(
-	char *, char *, const long long &);
+  char *, char *, const unsigned long &);
+template char *
+integral_traits<long long>::into_buf(char *, char *, const long long &);
 template char *integral_traits<unsigned long long>::into_buf(
-	char *, char *, const unsigned long long &);
+  char *, char *, const unsigned long long &);
 } // namespace pqxx::internal
 
 
@@ -211,12 +211,13 @@ std::string demangle_type_name(const char raw[])
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   int status = 0;
   std::unique_ptr<char, std::function<void(char *)>> name{
-	abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-	[](char *x){ std::free(x); }};
+    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+    [](char *x) { std::free(x); }};
   if (status != 0)
     throw std::runtime_error(
-	std::string{"Could not demangle type name '"} + name.get() + "': "
-	"__cxa_demangle failed.");
+      std::string{"Could not demangle type name '"} + name.get() +
+      "': "
+      "__cxa_demangle failed.");
   return std::string{name.get()};
 #else
   return std::string{raw};
@@ -245,36 +246,35 @@ std::string state_buffer_overrun(int have_bytes, int need_bytes)
 #if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-template<typename TYPE> inline
-TYPE from_string_arithmetic(std::string_view in)
+template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
 {
   const char *end = in.data() + in.size();
   TYPE out;
   const auto res = std::from_chars(in.data(), end, out);
-  if (res.ec == std::errc() and res.ptr == end) return out;
+  if (res.ec == std::errc() and res.ptr == end)
+    return out;
 
   std::string msg;
   if (res.ec == std::errc())
   {
     msg = "Could not parse full string.";
   }
-  else switch (res.ec)
-  {
-  case std::errc::result_out_of_range:
-    msg = "Value out of range.";
-    break;
-  case std::errc::invalid_argument:
-    msg = "Invalid argument.";
-    break;
-  default:
-    break;
-  }
+  else
+    switch (res.ec)
+    {
+    case std::errc::result_out_of_range: msg = "Value out of range."; break;
+    case std::errc::invalid_argument: msg = "Invalid argument."; break;
+    default: break;
+    }
 
-  const std::string base =
-	"Could not convert '" + std::string(in) + "' "
-	"to " + pqxx::type_name<TYPE>;
-  if (msg.empty()) throw pqxx::conversion_error{base + "."};
-  else throw pqxx::conversion_error{base + ": " + msg};
+  const std::string base = "Could not convert '" + std::string(in) +
+                           "' "
+                           "to " +
+                           pqxx::type_name<TYPE>;
+  if (msg.empty())
+    throw pqxx::conversion_error{base + "."};
+  else
+    throw pqxx::conversion_error{base + ": " + msg};
 }
 } // namespace
 #endif
@@ -286,7 +286,7 @@ namespace
 [[noreturn]] void report_overflow()
 {
   throw pqxx::conversion_error{
-	"Could not convert string to integer: value out of range."};
+    "Could not convert string to integer: value out of range."};
 }
 
 
@@ -298,11 +298,13 @@ template<typename T> constexpr inline T safe_multiply_by_ten(T n)
 
   constexpr T ten{10};
   constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
-  if (n > high_threshold) report_overflow();
+  if (n > high_threshold)
+    report_overflow();
   if constexpr (limits::is_signed)
   {
     constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
-    if (low_threshold > n) report_overflow();
+    if (low_threshold > n)
+      report_overflow();
   }
   return T(n * ten);
 }
@@ -312,7 +314,8 @@ template<typename T> constexpr inline T safe_multiply_by_ten(T n)
 template<typename T> constexpr inline T safe_add_digit(T n, T d)
 {
   const T high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
-  if (n > high_threshold) report_overflow();
+  if (n > high_threshold)
+    report_overflow();
   return static_cast<T>(n + d);
 }
 
@@ -321,14 +324,15 @@ template<typename T> constexpr inline T safe_add_digit(T n, T d)
 template<typename T> constexpr inline T safe_sub_digit(T n, T d)
 {
   const T low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
-  if (n < low_threshold) report_overflow();
+  if (n < low_threshold)
+    report_overflow();
   return static_cast<T>(n - d);
 }
 
 
 /// For use in string parsing: add new numeric digit to intermediate value.
 template<typename L, typename R>
-  constexpr inline L absorb_digit_positive(L value, R digit)
+constexpr inline L absorb_digit_positive(L value, R digit)
 {
   return safe_add_digit(safe_multiply_by_ten(value), L(digit));
 }
@@ -336,7 +340,7 @@ template<typename L, typename R>
 
 /// For use in string parsing: subtract digit from intermediate value.
 template<typename L, typename R>
-  constexpr inline L absorb_digit_negative(L value, R digit)
+constexpr inline L absorb_digit_negative(L value, R digit)
 {
   return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
 }
@@ -344,14 +348,16 @@ template<typename L, typename R>
 
 /// Compute numeric value of given textual digit (assuming that it is a digit).
 constexpr int digit_to_number(char c) noexcept
-{ return c - '0'; }
+{
+  return c - '0';
+}
 
 
 template<typename T> constexpr T from_string_integer(std::string_view text)
 {
   if (text.size() == 0)
-    throw pqxx::conversion_error{
-	"Attempt to convert empty string to " + pqxx::type_name<T> + "."};
+    throw pqxx::conversion_error{"Attempt to convert empty string to " +
+                                 pqxx::type_name<T> + "."};
 
   const char initial{text.data()[0]};
   std::size_t i{0};
@@ -365,23 +371,27 @@ template<typename T> constexpr T from_string_integer(std::string_view text)
   else if (text.data()[0] == '-')
   {
     if constexpr (not std::is_signed_v<T>)
-      throw pqxx::conversion_error{
-	"Attempt to convert negative value to " + pqxx::type_name<T> + "."};
+      throw pqxx::conversion_error{"Attempt to convert negative value to " +
+                                   pqxx::type_name<T> + "."};
 
     for (++i; isdigit(text.data()[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(text.data()[i]));
   }
   else
   {
-    throw pqxx::conversion_error{
-	"Could not convert string to " + pqxx::type_name<T> + ": "
-	"'" + std::string{text} + "'."};
+    throw pqxx::conversion_error{"Could not convert string to " +
+                                 pqxx::type_name<T> +
+                                 ": "
+                                 "'" +
+                                 std::string{text} + "'."};
   }
 
   if (i < text.size())
-    throw pqxx::conversion_error{
-      "Unexpected text after " + pqxx::type_name<T> + ": "
-	"'" + std::string{text} + "'."};
+    throw pqxx::conversion_error{"Unexpected text after " +
+                                 pqxx::type_name<T> +
+                                 ": "
+                                 "'" +
+                                 std::string{text} + "'."};
 
   return result;
 }
@@ -394,13 +404,10 @@ namespace
 {
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
-  return
-	equal("infinity", text) or
-	equal("Infinity", text) or
-	equal("INFINITY", text) or
-	equal("inf", text);
-	equal("Inf", text);
-	equal("INF", text);
+  return equal("infinity", text) or equal("Infinity", text) or
+         equal("INFINITY", text) or equal("inf", text);
+  equal("Inf", text);
+  equal("INF", text);
 }
 } // namespace
 #endif
@@ -445,10 +452,9 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   case 'N':
   case 'n':
     // Accept "NaN," "nan," etc.
-    ok = (
-      (text[1] == 'A' or text[1] == 'a') and
-      (text[2] == 'N' or text[2] == 'n') and
-      (text[3] == '\0'));
+    ok =
+      ((text[1] == 'A' or text[1] == 'a') and
+       (text[2] == 'N' or text[2] == 'n') and (text[3] == '\0'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
 
@@ -480,8 +486,8 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
 
   if (not ok)
     throw pqxx::conversion_error{
-      "Could not convert string to numeric value: '" +
-      std::string{text} + "'."};
+      "Could not convert string to numeric value: '" + std::string{text} +
+      "'."};
 
   return result;
 }
@@ -506,17 +512,18 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
   // Implement it ourselves.  Weird detail: since this workaround is based on
   // std::stringstream, which produces a std::string, it's actually easier to
   // build the to_buf() on top of the to_string() than the other way around.
-  if (std::isnan(value)) return zview{"nan"};
-  if (std::isinf(value)) return zview{(value > 0) ? "infinity" : "-infinity"};
+  if (std::isnan(value))
+    return zview{"nan"};
+  if (std::isinf(value))
+    return zview{(value > 0) ? "infinity" : "-infinity"};
   auto text = to_string_float(value);
   auto have = end - begin;
   auto need = text.size() + 1;
   if (need > std::size_t(have))
     throw conversion_error{
-	"Could not convert floating-point number to string: "
-	"buffer too small.  " +
-        state_buffer_overrun(have, need)
-	};
+      "Could not convert floating-point number to string: "
+      "buffer too small.  " +
+      state_buffer_overrun(have, need)};
   std::memcpy(begin, text.c_str(), need);
   return zview{begin, text.size()};
 
@@ -524,16 +531,14 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 }
 
 
-template zview
-float_traits<float>::to_buf(char *, char *, const float &);
-template zview
-float_traits<double>::to_buf(char *, char *, const double &);
+template zview float_traits<float>::to_buf(char *, char *, const float &);
+template zview float_traits<double>::to_buf(char *, char *, const double &);
 template zview
 float_traits<long double>::to_buf(char *, char *, const long double &);
 
 
-template<typename T> char *
-float_traits<T>::into_buf(char *begin, char *end, const T &value)
+template<typename T>
+char *float_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
 
@@ -547,10 +552,8 @@ float_traits<T>::into_buf(char *begin, char *end, const T &value)
 }
 
 
-template char *
-float_traits<float>::into_buf(char *, char *, const float &);
-template char *
-float_traits<double>::into_buf(char *, char *, const double &);
+template char *float_traits<float>::into_buf(char *, char *, const float &);
+template char *float_traits<double>::into_buf(char *, char *, const double &);
 template char *
 float_traits<long double>::into_buf(char *, char *, const long double &);
 
@@ -561,8 +564,8 @@ template<typename T> std::string to_string_float(T value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   char buf[float_traits<T>::size_buffer(value)];
   return std::string{
-	float_traits<T>::to_buf(std::begin(buf), std::end(buf), value)};
-#else // PQXX_HAVE_CHARCONV_FLOAT
+    float_traits<T>::to_buf(std::begin(buf), std::end(buf), value)};
+#else  // PQXX_HAVE_CHARCONV_FLOAT
   // In this rare case, we can convert to std::string but not to a simple
   // buffer.  So, implement to_buf in terms of to_string instead of the other
   // way around.
@@ -577,8 +580,7 @@ template<typename T> std::string to_string_float(T value)
 
 namespace pqxx::internal
 {
-template<typename T> T
-integral_traits<T>::from_string(std::string_view text)
+template<typename T> T integral_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_INT)
   return from_string_arithmetic<T>(text);
@@ -587,26 +589,20 @@ integral_traits<T>::from_string(std::string_view text)
 #endif
 }
 
-template short
-integral_traits<short>::from_string(std::string_view);
+template short integral_traits<short>::from_string(std::string_view);
 template unsigned short
-integral_traits<unsigned short>::from_string(std::string_view);
-template int
-integral_traits<int>::from_string(std::string_view);
-template unsigned
-integral_traits<unsigned>::from_string(std::string_view);
-template long
-integral_traits<long>::from_string(std::string_view);
+  integral_traits<unsigned short>::from_string(std::string_view);
+template int integral_traits<int>::from_string(std::string_view);
+template unsigned integral_traits<unsigned>::from_string(std::string_view);
+template long integral_traits<long>::from_string(std::string_view);
 template unsigned long
-integral_traits<unsigned long>::from_string(std::string_view);
-template long long
-integral_traits<long long>::from_string(std::string_view);
+  integral_traits<unsigned long>::from_string(std::string_view);
+template long long integral_traits<long long>::from_string(std::string_view);
 template unsigned long long
-integral_traits<unsigned long long>::from_string(std::string_view);
+  integral_traits<unsigned long long>::from_string(std::string_view);
 
 
-template<typename T> T
-float_traits<T>::from_string(std::string_view text)
+template<typename T> T float_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return from_string_arithmetic<T>(text);
@@ -655,9 +651,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view value)
       OK = true;
       break;
 
-    default:
-      OK = false;
-      break;
+    default: OK = false; break;
     }
     break;
 
@@ -671,14 +665,12 @@ bool pqxx::string_traits<bool>::from_string(std::string_view value)
     OK = (equal(value, "false") or equal(value, "FALSE"));
     break;
 
-  default:
-    OK = false;
-    break;
+  default: OK = false; break;
   }
 
   if (not OK)
-    throw conversion_error{
-      "Failed conversion to bool: '" + std::string{value} + "'."};
+    throw conversion_error{"Failed conversion to bool: '" +
+                           std::string{value} + "'."};
 
   return result;
 }

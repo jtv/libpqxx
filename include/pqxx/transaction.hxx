@@ -6,8 +6,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_TRANSACTION
 #define PQXX_H_TRANSACTION
@@ -24,6 +24,7 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
   basic_transaction(connection &C, const char begin_command[]);
+
 private:
   virtual void do_commit() override;
   virtual void do_abort() override;
@@ -60,8 +61,8 @@ namespace pqxx
  * @endcode
  */
 template<
-	isolation_level ISOLATION=isolation_level::read_committed,
-	write_policy READWRITE=write_policy::read_write>
+  isolation_level ISOLATION = isolation_level::read_committed,
+  write_policy READWRITE = write_policy::read_write>
 class transaction final : public internal::basic_transaction
 {
 public:
@@ -71,16 +72,15 @@ public:
    * @param TName Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  explicit transaction(connection &C, const std::string &TName):
-    namedclass{"transaction", TName},
-    internal::basic_transaction(
-	C, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
-    {}
+  explicit transaction(connection &C, const std::string &TName) :
+          namedclass{"transaction", TName},
+          internal::basic_transaction(
+            C, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
+  {}
 
   explicit transaction(connection &C) : transaction(C, "") {}
 
-  virtual ~transaction() noexcept
-	{ close(); }
+  virtual ~transaction() noexcept { close(); }
 };
 
 
@@ -88,10 +88,8 @@ public:
 using work = transaction<>;
 
 /// Read-only transaction.
-using read_transaction = transaction<
-	isolation_level::read_committed,
-	write_policy::read_only
->;
+using read_transaction =
+  transaction<isolation_level::read_committed, write_policy::read_only>;
 
 //@}
 } // namespace pqxx

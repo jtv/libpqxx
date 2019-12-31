@@ -16,25 +16,21 @@ void test_054()
 {
   connection conn;
 
-  largeobject Obj = perform(
-    [&conn]()
-    {
-      work tx{conn};
-      largeobjectaccess A(tx);
-      auto new_obj = largeobject(A);
-      A.write(Contents);
-      A.to_file("pqxxlo.txt");
-      tx.commit();
-      return new_obj;
-    });
+  largeobject Obj = perform([&conn]() {
+    work tx{conn};
+    largeobjectaccess A(tx);
+    auto new_obj = largeobject(A);
+    A.write(Contents);
+    A.to_file("pqxxlo.txt");
+    tx.commit();
+    return new_obj;
+  });
 
-  perform(
-    [&conn, &Obj]()
-    {
-      work tx{conn};
-      Obj.remove(tx);
-      tx.commit();
-    });
+  perform([&conn, &Obj]() {
+    work tx{conn};
+    Obj.remove(tx);
+    tx.commit();
+  });
 }
 
 

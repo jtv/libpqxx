@@ -9,8 +9,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 // NO GUARD HERE! This code should be included every time this file is.
 
@@ -19,12 +19,14 @@
 // Save compiler's warning state, and set warning level 4.
 // Setting the warning level explicitly ensures that libpqxx
 // headers will compiler at this warning level as well.
-#pragma warning (push,4)
+#  pragma warning(push, 4)
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.
-#pragma warning (disable: 4511) // Copy constructor could not be generated.
-#pragma warning (disable: 4512) // Assignment operator could not be generated.
-#pragma warning (disable: 4251) // Can't use standard library stuff in library.
-#pragma warning (disable: 4275) // Can't inherit from non-exported class.
+#  pragma warning(disable : 4511) // Copy constructor could not be generated.
+#  pragma warning(                                                            \
+    disable : 4512) // Assignment operator could not be generated.
+#  pragma warning(                                                            \
+    disable : 4251) // Can't use standard library stuff in library.
+#  pragma warning(disable : 4275) // Can't inherit from non-exported class.
 
 #endif // _MSC_VER

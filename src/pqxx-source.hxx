@@ -11,8 +11,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_COMPILER_INTERNAL
 #define PQXX_H_COMPILER_INTERNAL
@@ -24,19 +24,19 @@
 // TODO: Check for Visual Studio, not for Windows.
 #ifdef _WIN32
 
-#ifdef PQXX_SHARED
+#  ifdef PQXX_SHARED
 // We're building libpqxx as a shared library.
-#undef  PQXX_LIBEXPORT
-#define PQXX_LIBEXPORT	__declspec(dllexport)
-#define PQXX_PRIVATE	__declspec()
-#endif	// PQXX_SHARED
+#    undef PQXX_LIBEXPORT
+#    define PQXX_LIBEXPORT __declspec(dllexport)
+#    define PQXX_PRIVATE __declspec()
+#  endif // PQXX_SHARED
 
-#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY)	// !_WIN32
+#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
-#define PQXX_LIBEXPORT __attribute__ ((visibility("default")))
-#define PQXX_PRIVATE __attribute__ ((visibility("hidden")))
+#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
+#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
 
-#endif	// __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
+#endif // __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
 #include "pqxx/compiler-public.hxx"
 #endif

@@ -33,18 +33,15 @@ void test_072()
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
-	P.retrieve(id_2).at(0).at(0).as<int>(),
-	std::runtime_error,
-	"Pipeline wrongly resumed after SQL error.");
+      P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
+      "Pipeline wrongly resumed after SQL error.");
   }
 
   // Now see that we get an exception when we touch the failed result
   {
     quiet_errorhandler d{conn};
     PQXX_CHECK_THROWS(
-	P.retrieve(id_f),
-	sql_error,
-	"Pipeline failed to register SQL error.");
+      P.retrieve(id_f), sql_error, "Pipeline failed to register SQL error.");
   }
 }
 } // namespace

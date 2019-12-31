@@ -9,13 +9,9 @@ void test_forward_sql_cursor()
 
   // Plain owned, scoped, forward-only read-only cursor.
   pqxx::internal::sql_cursor forward(
-	tx,
-	"SELECT generate_series(1, 4)",
-	"forward",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx, "SELECT generate_series(1, 4)", "forward",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
 
   PQXX_CHECK_EQUAL(forward.pos(), 0, "Wrong initial position");
   PQXX_CHECK_EQUAL(forward.endpos(), -1, "Wrong initial endpos()");
@@ -69,13 +65,9 @@ void test_forward_sql_cursor()
 
   // Move through entire result set at once.
   pqxx::internal::sql_cursor forward2(
-	tx,
-	"SELECT generate_series(1, 4)",
-	"forward",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx, "SELECT generate_series(1, 4)", "forward",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
 
   // Move through entire result set at once.
   offset = forward2.move(pqxx::cursor_base::all(), displacement);
@@ -85,13 +77,9 @@ void test_forward_sql_cursor()
   PQXX_CHECK_EQUAL(forward2.endpos(), 5, "Bad endpos() after skipping");
 
   pqxx::internal::sql_cursor forward3(
-	tx,
-	"SELECT generate_series(1, 4)",
-	"forward",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx, "SELECT generate_series(1, 4)", "forward",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
 
   // Fetch entire result set at once.
   auto rows = forward3.fetch(pqxx::cursor_base::all(), displacement);
@@ -101,13 +89,9 @@ void test_forward_sql_cursor()
   PQXX_CHECK_EQUAL(forward3.endpos(), 5, "Bad endpos() after fetching");
 
   pqxx::internal::sql_cursor forward_empty(
-	tx,
-	"SELECT generate_series(0, -1)",
-	"forward_empty",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx, "SELECT generate_series(0, -1)", "forward_empty",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
 
   offset = forward_empty.move(3, displacement);
   PQXX_CHECK_EQUAL(forward_empty.pos(), 1, "Bad pos() at end of result");
@@ -121,13 +105,9 @@ void test_scroll_sql_cursor()
   pqxx::connection conn;
   pqxx::work tx{conn};
   pqxx::internal::sql_cursor scroll(
-	tx,
-	"SELECT generate_series(1, 10)",
-	"scroll",
-	pqxx::cursor_base::random_access,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx, "SELECT generate_series(1, 10)", "scroll",
+    pqxx::cursor_base::random_access, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
 
   PQXX_CHECK_EQUAL(scroll.pos(), 0, "Scroll cursor's initial pos() is wrong");
   PQXX_CHECK_EQUAL(scroll.endpos(), -1, "New scroll cursor has endpos() set");
@@ -137,13 +117,14 @@ void test_scroll_sql_cursor()
   PQXX_CHECK_EQUAL(scroll.pos(), 1, "Scroll cursor's pos() is broken");
   PQXX_CHECK_EQUAL(scroll.endpos(), -1, "endpos() set prematurely");
 
-  // Turn cursor around.  This is where we begin to feel SQL cursors' semantics:
-  // we pre-decrement, ending up on the position in front of the first row and
-  // returning no rows.
+  // Turn cursor around.  This is where we begin to feel SQL cursors'
+  // semantics: we pre-decrement, ending up on the position in front of the
+  // first row and returning no rows.
   rows = scroll.fetch(pqxx::cursor_base::prior());
   PQXX_CHECK_EQUAL(rows.empty(), true, "Turning around on fetch() broke");
   PQXX_CHECK_EQUAL(scroll.pos(), 0, "pos() is not back at zero");
-  PQXX_CHECK_EQUAL(scroll.endpos(), -1, "endpos() set on wrong side of result");
+  PQXX_CHECK_EQUAL(
+    scroll.endpos(), -1, "endpos() set on wrong side of result");
 
   // Bounce off the left-hand side of the result set.  Can't move before the
   // starting position.
@@ -188,8 +169,8 @@ void test_adopted_sql_cursor()
   pqxx::work tx{conn};
 
   tx.exec(
-	"DECLARE adopted SCROLL CURSOR FOR "
-	"SELECT generate_series(1, 3)");
+    "DECLARE adopted SCROLL CURSOR FOR "
+    "SELECT generate_series(1, 3)");
   pqxx::internal::sql_cursor adopted(tx, "adopted", pqxx::cursor_base::owned);
   PQXX_CHECK_EQUAL(adopted.pos(), -1, "Adopted cursor has known pos()");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "Adopted cursor has known endpos()");
@@ -200,7 +181,8 @@ void test_adopted_sql_cursor()
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 1, "Wrong result data");
   PQXX_CHECK_EQUAL(rows[2][0].as<int>(), 3, "Wrong result data");
   PQXX_CHECK_EQUAL(displacement, 4, "Wrong displacement");
-  PQXX_CHECK_EQUAL(adopted.pos(), -1, "End-of-result set pos() on adopted cur");
+  PQXX_CHECK_EQUAL(
+    adopted.pos(), -1, "End-of-result set pos() on adopted cur");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "endpos() set too early");
 
   rows = adopted.fetch(pqxx::cursor_base::backward_all(), displacement);
@@ -220,8 +202,8 @@ void test_adopted_sql_cursor()
   pqxx::connection conn2;
   pqxx::work tx2(conn2, "tx2");
   tx2.exec(
-	"DECLARE adopted2 CURSOR FOR "
-	"SELECT generate_series(1, 3)");
+    "DECLARE adopted2 CURSOR FOR "
+    "SELECT generate_series(1, 3)");
   {
     pqxx::internal::sql_cursor(tx2, "adopted2", pqxx::cursor_base::owned);
   }
@@ -229,9 +211,8 @@ void test_adopted_sql_cursor()
   {
     // Modern backends: accessing the cursor now is an error, as you'd expect.
     PQXX_CHECK_THROWS(
-	tx2.exec("FETCH 1 IN adopted2"),
-	 pqxx::sql_error,
-	 "Owned adopted cursor not cleaned up");
+      tx2.exec("FETCH 1 IN adopted2"), pqxx::sql_error,
+      "Owned adopted cursor not cleaned up");
   }
   else
   {
@@ -244,8 +225,8 @@ void test_adopted_sql_cursor()
 
   pqxx::work tx3(conn2, "tx3");
   tx3.exec(
-	"DECLARE adopted3 CURSOR FOR "
-	"SELECT generate_series(1, 3)");
+    "DECLARE adopted3 CURSOR FOR "
+    "SELECT generate_series(1, 3)");
   {
     pqxx::internal::sql_cursor(tx3, "adopted3", pqxx::cursor_base::loose);
   }
@@ -259,13 +240,9 @@ void test_hold_cursor()
 
   // "With hold" cursor is kept after commit.
   pqxx::internal::sql_cursor with_hold(
-	tx,
-	"SELECT generate_series(1, 3)",
-	"hold_cursor",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	true);
+    tx, "SELECT generate_series(1, 3)", "hold_cursor",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, true);
   tx.commit();
   pqxx::work tx2(conn, "tx2");
   auto rows = with_hold.fetch(1);
@@ -273,17 +250,13 @@ void test_hold_cursor()
 
   // Cursor without hold is closed on commit.
   pqxx::internal::sql_cursor no_hold(
-	tx2,
-	"SELECT generate_series(1, 3)",
-	"no_hold_cursor",
-	pqxx::cursor_base::forward_only,
-	pqxx::cursor_base::read_only,
-	pqxx::cursor_base::owned,
-	false);
+    tx2, "SELECT generate_series(1, 3)", "no_hold_cursor",
+    pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
+    pqxx::cursor_base::owned, false);
   tx2.commit();
   pqxx::work tx3(conn, "tx3");
   PQXX_CHECK_THROWS(
-	no_hold.fetch(1), pqxx::sql_error, "Cursor not closed on commit");
+    no_hold.fetch(1), pqxx::sql_error, "Cursor not closed on commit");
 }
 
 

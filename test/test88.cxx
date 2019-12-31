@@ -28,14 +28,14 @@ void test_088()
   pqxx::work tx1{conn, "tx1"};
   std::cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << std::endl;
   pqxx::subtransaction tx1a{tx1, "tx1a"};
-    std::cout << tx1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
-    tx1a.commit();
+  std::cout << tx1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
+  tx1a.commit();
   pqxx::subtransaction tx1b{tx1, "tx1b"};
-    std::cout << tx1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
-    tx1b.abort();
+  std::cout << tx1b.exec1("SELECT '  b'")[0].c_str() << std::endl;
+  tx1b.abort();
   pqxx::subtransaction tx1c{tx1, "tx1c"};
-    std::cout << tx1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
-    tx1c.commit();
+  std::cout << tx1c.exec1("SELECT '  c'")[0].c_str() << std::endl;
+  tx1c.commit();
   std::cout << tx1.exec1("SELECT 'tx1 ends'")[0].c_str() << std::endl;
   tx1.commit();
 
@@ -47,26 +47,24 @@ void test_088()
   tx2.exec0("INSERT INTO " + Table + " VALUES(1,'tx2')");
 
   pqxx::subtransaction tx2a{tx2, "tx2a"};
-    tx2a.exec0("INSERT INTO "+Table+" VALUES(2,'tx2a')");
-    tx2a.commit();
+  tx2a.exec0("INSERT INTO " + Table + " VALUES(2,'tx2a')");
+  tx2a.commit();
   pqxx::subtransaction tx2b{tx2, "tx2b"};
-    tx2b.exec0("INSERT INTO "+Table+" VALUES(3,'tx2b')");
-    tx2b.abort();
+  tx2b.exec0("INSERT INTO " + Table + " VALUES(3,'tx2b')");
+  tx2b.abort();
   pqxx::subtransaction tx2c{tx2, "tx2c"};
-    tx2c.exec0("INSERT INTO "+Table+" VALUES(4,'tx2c')");
-    tx2c.commit();
+  tx2c.exec0("INSERT INTO " + Table + " VALUES(4,'tx2c')");
+  tx2c.commit();
   const auto R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
-  for (const auto &i: R)
+  for (const auto &i : R)
     std::cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << std::endl;
 
   PQXX_CHECK_EQUAL(R.size(), 3, "Wrong number of results.");
 
-  int expected[3] = { 1, 2, 4 };
-  for (pqxx::result::size_type n=0; n < R.size(); ++n)
+  int expected[3] = {1, 2, 4};
+  for (pqxx::result::size_type n = 0; n < R.size(); ++n)
     PQXX_CHECK_EQUAL(
-	R[n][0].as<int>(),
-	expected[n],
-	"Hit unexpected row number.");
+      R[n][0].as<int>(), expected[n], "Hit unexpected row number.");
 
   tx2.abort();
 
@@ -74,9 +72,8 @@ void test_088()
   pqxx::work tx3{conn, "tx3"};
   pqxx::subtransaction tx3a(tx3, "tx3a");
   PQXX_CHECK_THROWS(
-	tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
-	pqxx::sql_error,
-	"Bogus query did not fail.");
+    tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
+    pqxx::sql_error, "Bogus query did not fail.");
 
   // Subtransaction can only be aborted now, because there was an error.
   tx3a.abort();

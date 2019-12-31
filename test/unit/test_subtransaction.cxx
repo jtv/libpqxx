@@ -31,9 +31,7 @@ void test_subtransaction_commits_if_commit_called(pqxx::connection_base &conn)
     sub.commit();
   }
   PQXX_CHECK_EQUAL(
-	count_rows(trans),
-	1,
-	"Work done in committed subtransaction was lost.");
+    count_rows(trans), 1, "Work done in committed subtransaction was lost.");
 }
 
 
@@ -47,9 +45,7 @@ void test_subtransaction_aborts_if_abort_called(pqxx::connection_base &conn)
     sub.abort();
   }
   PQXX_CHECK_EQUAL(
-	count_rows(trans),
-	0,
-	"Aborted subtransaction was not rolled back.");
+    count_rows(trans), 0, "Aborted subtransaction was not rolled back.");
 }
 
 
@@ -62,9 +58,8 @@ void test_subtransaction_aborts_implicitly(pqxx::connection_base &conn)
     insert_row(sub);
   }
   PQXX_CHECK_EQUAL(
-	count_rows(trans),
-	0,
-	"Uncommitted subtransaction was not rolled back uring destruction.");
+    count_rows(trans), 0,
+    "Uncommitted subtransaction was not rolled back uring destruction.");
 }
 
 

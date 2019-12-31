@@ -11,9 +11,7 @@ void test_field()
 
   PQXX_CHECK_EQUAL(f1.as<std::string>(), "9", "as<string>() is broken.");
   PQXX_CHECK_EQUAL(
-	f1.as<std::string>("z"),
-	"9",
-	"as<string>(string) is broken.");
+    f1.as<std::string>("z"), "9", "as<string>(string) is broken.");
 
   PQXX_CHECK_EQUAL(f1.as<int>(), 9, "as<int>() is broken.");
   PQXX_CHECK_EQUAL(f1.as<int>(10), 9, "as<int>(int) is broken.");
@@ -36,9 +34,7 @@ void test_field()
   const auto f2 = r2[0];
   i = 100;
   PQXX_CHECK_THROWS(
-	f2.as<int>(),
-        pqxx::conversion_error,
-	"Null conversion failed to throw.");
+    f2.as<int>(), pqxx::conversion_error, "Null conversion failed to throw.");
   PQXX_CHECK_EQUAL(i, 100, "Null conversion touched its output.");
 
   PQXX_CHECK_EQUAL(f2.as<int>(66), 66, "as<int> default is broken.");

@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_RESULT
 #define PQXX_H_RESULT
@@ -39,7 +39,7 @@ class result_connection;
 class result_creation;
 class result_row;
 class result_sql_cursor;
-} // namespace internal::gate
+} // namespace pqxx::internal::gate
 
 
 namespace pqxx
@@ -78,13 +78,13 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   result() noexcept :
-      m_data(make_data_pointer()),
-      m_query(),
-      m_encoding(internal::encoding_group::MONOBYTE)
-    {}
-  result(const result &rhs) noexcept =default;
+          m_data(make_data_pointer()),
+          m_query(),
+          m_encoding(internal::encoding_group::MONOBYTE)
+  {}
+  result(const result &rhs) noexcept = default;
 
-  result &operator=(const result &rhs) noexcept =default;
+  result &operator=(const result &rhs) noexcept = default;
 
   /**
    * @name Comparisons
@@ -92,7 +92,9 @@ public:
   //@{
   bool operator==(const result &) const noexcept;
   bool operator!=(const result &rhs) const noexcept
-	{ return not operator==(rhs); }
+  {
+    return not operator==(rhs);
+  }
   //@}
 
   const_reverse_iterator rbegin() const;
@@ -117,7 +119,11 @@ public:
   row operator[](size_type i) const noexcept;
   row at(size_type) const;
 
-  void clear() noexcept { m_data.reset(); m_query = nullptr; }
+  void clear() noexcept
+  {
+    m_data.reset();
+    m_query = nullptr;
+  }
 
   /**
    * @name Column information
@@ -131,7 +137,9 @@ public:
 
   /// Number of given column (throws exception if it doesn't exist).
   row_size_type column_number(const std::string &Name) const
-	{return column_number(Name.c_str());}
+  {
+    return column_number(Name.c_str());
+  }
 
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(row_size_type Number) const;
@@ -140,25 +148,28 @@ public:
   oid column_type(row_size_type ColNum) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  template<typename STRING>
-  oid column_type(STRING ColName) const
-	{ return column_type(column_number(ColName)); }
+  template<typename STRING> oid column_type(STRING ColName) const
+  {
+    return column_type(column_number(ColName));
+  }
 
   /// What table did this column come from?
   oid column_table(row_size_type ColNum) const;
 
   /// What table did this column come from?
-  template<typename STRING>
-  oid column_table(STRING ColName) const
-	{ return column_table(column_number(ColName)); }
+  template<typename STRING> oid column_table(STRING ColName) const
+  {
+    return column_table(column_number(ColName));
+  }
 
   /// What column in its table did this column come from?
   row_size_type table_column(row_size_type ColNum) const;
 
   /// What column in its table did this column come from?
-  template<typename STRING>
-  row_size_type table_column(STRING ColName) const
-	{ return table_column(column_number(ColName)); }
+  template<typename STRING> row_size_type table_column(STRING ColName) const
+  {
+    return table_column(column_number(ColName));
+  }
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
@@ -170,7 +181,8 @@ public:
    */
   PQXX_PURE oid inserted_oid() const;
 
-  /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected rows
+  /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected
+  /// rows
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
@@ -181,12 +193,14 @@ private:
   using data_pointer = std::shared_ptr<const internal::pq::PGresult>;
 
   /// Underlying libpq result set.
-   data_pointer m_data;
+  data_pointer m_data;
 
   /// Factory for data_pointer.
-  static data_pointer make_data_pointer(
-	const internal::pq::PGresult *res=nullptr)
-	{ return data_pointer{res, internal::clear_result}; }
+  static data_pointer
+  make_data_pointer(const internal::pq::PGresult *res = nullptr)
+  {
+    return data_pointer{res, internal::clear_result};
+  }
 
   /// Query string.
   std::shared_ptr<std::string> m_query;
@@ -196,17 +210,15 @@ private:
   static const std::string s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE const char * GetValue(size_type Row, row_size_type Col) const;
+  PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
   PQXX_PURE bool get_is_null(size_type Row, row_size_type Col) const;
-  PQXX_PURE field_size_type get_length(
-	size_type,
-	row_size_type) const noexcept;
+  PQXX_PURE field_size_type get_length(size_type, row_size_type) const
+    noexcept;
 
   friend class pqxx::internal::gate::result_creation;
   result(
-        internal::pq::PGresult *rhs,
-        const std::string &Query,
-        internal::encoding_group enc);
+    internal::pq::PGresult *rhs, const std::string &Query,
+    internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status() const;
 
@@ -215,9 +227,8 @@ private:
   bool operator!() const noexcept { return not m_data.get(); }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
-  [[noreturn]] PQXX_PRIVATE void ThrowSQLError(
-	const std::string &Err,
-	const std::string &Query) const;
+  [[noreturn]] PQXX_PRIVATE void
+  ThrowSQLError(const std::string &Err, const std::string &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
   PQXX_PRIVATE std::string StatusError() const;
 

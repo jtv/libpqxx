@@ -14,7 +14,6 @@ using namespace pqxx;
 // coincidence.
 namespace
 {
-
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 const unsigned int BoringYear = 1977;
 
@@ -41,17 +40,16 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
 
 
 struct deliberate_error : std::exception
-{
-};
+{};
 
 
 void failed_insert(connection_base &C, std::string table)
 {
   work tx(C);
   result R = tx.exec0(
-	"INSERT INTO " + table + " VALUES (" +
-	to_string(BoringYear) + ", "
-	"'yawn')");
+    "INSERT INTO " + table + " VALUES (" + to_string(BoringYear) +
+    ", "
+    "'yawn')");
 
   PQXX_CHECK_EQUAL(R.affected_rows(), 1, "Bad affected_rows().");
   throw deliberate_error();
@@ -69,31 +67,26 @@ void test_013()
 
   const std::string Table = "pqxxevents";
 
-  const std::pair<int,int> Before = perform(
-	std::bind(count_events, std::ref(conn), Table));
+  const std::pair<int, int> Before =
+    perform(std::bind(count_events, std::ref(conn), Table));
   PQXX_CHECK_EQUAL(
-	Before.second,
-	0,
-	"Already have event for " + to_string(BoringYear) + "--can't test.");
+    Before.second, 0,
+    "Already have event for " + to_string(BoringYear) + "--can't test.");
 
   quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-	perform(std::bind(failed_insert,  std::ref(conn), Table)),
-	deliberate_error,
-	"Failing transactor failed to throw correct exception.");
+    perform(std::bind(failed_insert, std::ref(conn), Table)), deliberate_error,
+    "Failing transactor failed to throw correct exception.");
 
-  const std::pair<int,int> After = perform(
-	std::bind(count_events, std::ref(conn), Table));
-
-  PQXX_CHECK_EQUAL(
-	After.first,
-	Before.first,
-	"abort() didn't reset event count.");
+  const std::pair<int, int> After =
+    perform(std::bind(count_events, std::ref(conn), Table));
 
   PQXX_CHECK_EQUAL(
-	After.second,
-	Before.second,
-	"abort() didn't reset event count for " + to_string(BoringYear));
+    After.first, Before.first, "abort() didn't reset event count.");
+
+  PQXX_CHECK_EQUAL(
+    After.second, Before.second,
+    "abort() didn't reset event count for " + to_string(BoringYear));
 }
 
 

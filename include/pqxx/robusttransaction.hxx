@@ -7,8 +7,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_ROBUSTTRANSACTION
 #define PQXX_H_ROBUSTTRANSACTION
@@ -21,17 +21,16 @@
 namespace pqxx::internal
 {
 /// Helper base class for the @c robusttransaction class template.
-class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction :
-  public dbtransaction
+class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction
+        : public dbtransaction
 {
 public:
-  virtual ~basic_robusttransaction() =0;
+  virtual ~basic_robusttransaction() = 0;
 
 protected:
   basic_robusttransaction(
-	connection &C,
-	const char begin_command[],
-	const std::string &table_name=std::string{});
+    connection &C, const char begin_command[],
+    const std::string &table_name = std::string{});
 
 private:
   using IDType = unsigned long;
@@ -50,7 +49,7 @@ private:
   PQXX_PRIVATE void DeleteTransactionRecord() noexcept;
   PQXX_PRIVATE bool CheckTransactionRecord();
 };
-} // namespace internal
+} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -78,8 +77,8 @@ namespace pqxx
  * but never modify it, or for noncritical database manipulations.
  *
  * Besides being slower, it's theoretically possible that robusttransaction
- * actually fails more instead of less often than a normal transaction.  This is
- * due to the added work and complexity.  What robusttransaction tries to
+ * actually fails more instead of less often than a normal transaction.  This
+ * is due to the added work and complexity.  What robusttransaction tries to
  * achieve is to be more deterministic, not more successful per se.
  *
  * When a user first uses a robusttransaction in a database, the class will
@@ -106,29 +105,29 @@ namespace pqxx
  * for extended periods of time, this can only be the case if the log record's
  * timestamp (compared to the server's clock) is not very old, provided of
  * course that the server's system clock hasn't just made a radical jump.
- * <li> The client's connection to the server was lost, just when the client was
- * committing the transaction, and the client so far has not been able to
+ * <li> The client's connection to the server was lost, just when the client
+ * was committing the transaction, and the client so far has not been able to
  * re-establish the connection to verify whether the transaction was actually
  * completed or rolled back by the server.  This is a serious (and luckily a
  * rare) condition and requires manual inspection of the database to determine
  * what happened.  The robusttransaction will emit clear and specific warnings
  * to this effect, and will identify the log record describing the transaction
  * in question.
- * <li> The transaction was completed (either by commit or by rollback), but the
- * client's connection was durably lost just as it tried to clean up the log
- * record.  Again, robusttransaction will emit a clear and specific warning to
- * tell you about this and request that the record be deleted as soon as
+ * <li> The transaction was completed (either by commit or by rollback), but
+ * the client's connection was durably lost just as it tried to clean up the
+ * log record.  Again, robusttransaction will emit a clear and specific warning
+ * to tell you about this and request that the record be deleted as soon as
  * possible.
  * <li> The client has gone offline at any time while in one of the preceding
  * states.  This also requires manual intervention, but the client obviously is
  * not able to issue a warning.
  * </ol>
  *
- * It is safe to drop a log table when it is not in use (ie., it is empty or all
- * records in it represent states 2-4 above).  Each robusttransaction will
+ * It is safe to drop a log table when it is not in use (ie., it is empty or
+ * all records in it represent states 2-4 above).  Each robusttransaction will
  * attempt to recreate the table at its next time of use.
  */
-template<isolation_level ISOLATION=read_committed>
+template<isolation_level ISOLATION = read_committed>
 class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
@@ -137,16 +136,14 @@ public:
    * @param Name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
-	connection &C,
-	const std::string &Name=std::string{}) :
-    namedclass{"robusttransaction", Name},
-    internal::basic_robusttransaction{
-	C,
-	pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}
+    connection &C, const std::string &Name = std::string{}) :
+          namedclass{"robusttransaction", Name},
+          internal::basic_robusttransaction{
+            C,
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}
   {}
 
-  virtual ~robusttransaction() noexcept
-	{ close(); }
+  virtual ~robusttransaction() noexcept { close(); }
 };
 
 /**

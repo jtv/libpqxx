@@ -3,8 +3,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #include "pqxx-source.hxx"
 
@@ -33,7 +33,8 @@ using buffer = std::pair<unsigned char *, size_t>;
 buffer to_buffer(const void *data, size_t len)
 {
   void *const output{malloc(len + 1)};
-  if (output == nullptr) throw std::bad_alloc{};
+  if (output == nullptr)
+    throw std::bad_alloc{};
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
   return buffer{static_cast<unsigned char *>(output), len};
@@ -46,7 +47,6 @@ buffer to_buffer(std::string_view source)
 }
 
 
-
 buffer unescape(const unsigned char escaped[])
 {
 #ifdef _WIN32
@@ -56,19 +56,21 @@ buffer unescape(const unsigned char escaped[])
    */
   size_t unescaped_len = 0;
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> A(
-	PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
-	pqxx::internal::freepqmem_templated<unsigned char>);
+    PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
+    pqxx::internal::freepqmem_templated<unsigned char>);
   void *data = A.get();
-  if (data == nullptr) throw std::bad_alloc{};
+  if (data == nullptr)
+    throw std::bad_alloc{};
   return to_buffer(data, unescaped_len);
 #else
   /* On non-Windows platforms, it's okay to free libpq-allocated memory using
    * free().  No extra copy needed.
    */
   buffer unescaped;
-  unescaped.first = PQunescapeBytea(
-	const_cast<unsigned char *>(escaped), &unescaped.second);
-  if (unescaped.first == nullptr) throw std::bad_alloc{};
+  unescaped.first =
+    PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped.second);
+  if (unescaped.first == nullptr)
+    throw std::bad_alloc{};
   return unescaped;
 #endif
 }
@@ -76,8 +78,8 @@ buffer unescape(const unsigned char escaped[])
 
 
 pqxx::binarystring::binarystring(const field &F) :
-  m_buf{make_smart_pointer()},
-  m_size{0}
+        m_buf{make_smart_pointer()},
+        m_size{0}
 {
   buffer unescaped{unescape(reinterpret_cast<const_pointer>(F.c_str()))};
   m_buf = make_smart_pointer(unescaped.first);
@@ -86,16 +88,16 @@ pqxx::binarystring::binarystring(const field &F) :
 
 
 pqxx::binarystring::binarystring(std::string_view s) :
-  m_buf{make_smart_pointer()},
-  m_size{s.size()}
+        m_buf{make_smart_pointer()},
+        m_size{s.size()}
 {
   m_buf = make_smart_pointer(to_buffer(s).first);
 }
 
 
 pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
-  m_buf{make_smart_pointer()},
-  m_size{len}
+        m_buf{make_smart_pointer()},
+        m_size{len}
 {
   m_buf = make_smart_pointer(to_buffer(binary_data, len).first);
 }
@@ -103,9 +105,8 @@ pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
 
 bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
 {
-  return
-        (rhs.size() == size()) and
-        (std::memcmp(data(), rhs.data(), size()) == 0);
+  return (rhs.size() == size()) and
+         (std::memcmp(data(), rhs.data(), size()) == 0);
 }
 
 
@@ -124,8 +125,8 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
     if (m_size == 0)
       throw std::out_of_range{"Accessing empty binarystring"};
     throw std::out_of_range{
-	"binarystring index out of range: " +
-	to_string(n) + " (should be below " + to_string(m_size) + ")"};
+      "binarystring index out of range: " + to_string(n) +
+      " (should be below " + to_string(m_size) + ")"};
   }
   return data()[n];
 }

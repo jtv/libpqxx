@@ -10,17 +10,17 @@ namespace
 void test_error_verbosity()
 {
   PQXX_CHECK_EQUAL(
-	static_cast<int>(pqxx::error_verbosity::terse),
-	static_cast<int>(PQERRORS_TERSE),
-	"error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(pqxx::error_verbosity::terse),
+    static_cast<int>(PQERRORS_TERSE),
+    "error_verbosity enum should match PGVerbosity.");
   PQXX_CHECK_EQUAL(
-	static_cast<int>(pqxx::error_verbosity::normal),
-	static_cast<int>(PQERRORS_DEFAULT),
-	"error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(pqxx::error_verbosity::normal),
+    static_cast<int>(PQERRORS_DEFAULT),
+    "error_verbosity enum should match PGVerbosity.");
   PQXX_CHECK_EQUAL(
-	static_cast<int>(pqxx::error_verbosity::verbose),
-	static_cast<int>(PQERRORS_VERBOSE),
-	"error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(pqxx::error_verbosity::verbose),
+    static_cast<int>(PQERRORS_VERBOSE),
+    "error_verbosity enum should match PGVerbosity.");
 
   pqxx::connection conn;
   pqxx::work tx{conn};

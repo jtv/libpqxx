@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_BINARYSTRING
 #define PQXX_H_BINARYSTRING
@@ -26,16 +26,16 @@ namespace pqxx
 /** @ingroup escaping-functions
  *
  * This class represents a binary string as stored in a field of type bytea.
- * The raw value returned by a bytea field contains escape sequences for certain
- * characters, which are filtered out by binarystring.
+ * The raw value returned by a bytea field contains escape sequences for
+ * certain characters, which are filtered out by binarystring.
  *
  * Internally a binarystring is zero-terminated, but it may also contain null
  * bytes, they're just like any other byte value.  So don't assume that it's
  * safe to treat the contents as a C-style string unless you've made sure of it
  * yourself.
  *
- * The binarystring retains its value even if the result it was obtained from is
- * destroyed, but it cannot be copied or assigned.
+ * The binarystring retains its value even if the result it was obtained from
+ * is destroyed, but it cannot be copied or assigned.
  *
  * \relatesalso transaction_base::esc_raw
  *
@@ -44,11 +44,11 @@ namespace pqxx
  * esc_raw() functions.
  *
  * @warning This class is implemented as a reference-counting smart pointer.
- * Copying, swapping, and destroying binarystring objects that refer to the same
- * underlying data block is <em>not thread-safe</em>.  If you wish to pass
- * binarystrings around between threads, make sure that each of these operations
- * is protected against concurrency with similar operations on the same object,
- * or other objects pointing to the same data block.
+ * Copying, swapping, and destroying binarystring objects that refer to the
+ * same underlying data block is <em>not thread-safe</em>.  If you wish to pass
+ * binarystrings around between threads, make sure that each of these
+ * operations is protected against concurrency with similar operations on the
+ * same object, or other objects pointing to the same data block.
  */
 class PQXX_LIBEXPORT binarystring
 {
@@ -62,10 +62,11 @@ public:
   using const_iterator = const_pointer;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  binarystring(const binarystring &) =default;
+  binarystring(const binarystring &) = default;
 
   /// Read and unescape bytea field.
-  /** The field will be zero-terminated, even if the original bytea field isn't.
+  /** The field will be zero-terminated, even if the original bytea field
+   * isn't.
    * @param F the field to read; must be a bytea field
    */
   explicit binarystring(const field &);
@@ -80,33 +81,37 @@ public:
   size_type size() const noexcept { return m_size; }
   /// Size of converted string in bytes.
   size_type length() const noexcept { return size(); }
-  bool empty() const noexcept { return size()==0; }
+  bool empty() const noexcept { return size() == 0; }
 
   const_iterator begin() const noexcept { return data(); }
   const_iterator cbegin() const noexcept { return begin(); }
-  const_iterator end() const noexcept { return data()+m_size; }
+  const_iterator end() const noexcept { return data() + m_size; }
   const_iterator cend() const noexcept { return end(); }
 
   const_reference front() const noexcept { return *begin(); }
-  const_reference back() const noexcept
-	{ return *(data()+m_size-1); }
+  const_reference back() const noexcept { return *(data() + m_size - 1); }
 
   const_reverse_iterator rbegin() const
-	{ return const_reverse_iterator{end()}; }
+  {
+    return const_reverse_iterator{end()};
+  }
   const_reverse_iterator crbegin() const { return rbegin(); }
   const_reverse_iterator rend() const
-	{ return const_reverse_iterator{begin()}; }
+  {
+    return const_reverse_iterator{begin()};
+  }
   const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents.
-  const value_type *data() const noexcept {return m_buf.get();}
+  const value_type *data() const noexcept { return m_buf.get(); }
 
-  const_reference operator[](size_type i) const noexcept
-	{ return data()[i]; }
+  const_reference operator[](size_type i) const noexcept { return data()[i]; }
 
   PQXX_PURE bool operator==(const binarystring &) const noexcept;
   bool operator!=(const binarystring &rhs) const noexcept
-	{ return not operator==(rhs); }
+  {
+    return not operator==(rhs);
+  }
 
   binarystring &operator=(const binarystring &);
 
@@ -121,11 +126,15 @@ public:
    * a null character, you will not find one here.
    */
   const char *get() const noexcept
-	{ return reinterpret_cast<const char *>(m_buf.get()); }
+  {
+    return reinterpret_cast<const char *>(m_buf.get());
+  }
 
   /// Read contents as a std::string_view.
   std::string_view view() const noexcept
-	{ return std::string_view(get(), size()); }
+  {
+    return std::string_view(get(), size());
+  }
 
   /// Read as regular C++ string (may include null characters).
   /** This creates and returns a new string object.  Don't call this
@@ -139,17 +148,16 @@ private:
   using smart_pointer_type = std::shared_ptr<value_type>;
 
   /// Shorthand: construct a smart_pointer_type.
-  static smart_pointer_type make_smart_pointer(unsigned char *buf=nullptr)
+  static smart_pointer_type make_smart_pointer(unsigned char *buf = nullptr)
   {
     return smart_pointer_type{
-	buf,
-	internal::freemallocmem_templated<unsigned char>};
+      buf, internal::freemallocmem_templated<unsigned char>};
   }
 
   smart_pointer_type m_buf;
   size_type m_size;
 };
-}
+} // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

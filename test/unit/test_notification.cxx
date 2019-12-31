@@ -9,14 +9,13 @@ public:
   int backend_pid;
 
   TestReceiver(pqxx::connection_base &c, const std::string &channel_name) :
-    pqxx::notification_receiver(c, channel_name),
-    payload(),
-    backend_pid(0)
-  {
-  }
+          pqxx::notification_receiver(c, channel_name),
+          payload(),
+          backend_pid(0)
+  {}
 
-  virtual void operator()(const std::string &payload_string, int backend)
-	override
+  virtual void
+  operator()(const std::string &payload_string, int backend) override
   {
     this->payload = payload_string;
     this->backend_pid = backend;
@@ -25,14 +24,14 @@ public:
 
 
 void test_receive(
-	pqxx::transaction_base &t,
-	const std::string &channel,
-	const char payload[] = nullptr)
+  pqxx::transaction_base &t, const std::string &channel,
+  const char payload[] = nullptr)
 {
   pqxx::connection_base &conn(t.conn());
 
   std::string SQL = "NOTIFY \"" + channel + "\"";
-  if (payload) SQL += ", " + t.quote(payload);
+  if (payload)
+    SQL += ", " + t.quote(payload);
 
   TestReceiver receiver{t.conn(), channel};
 
@@ -45,16 +44,16 @@ void test_receive(
   t.commit();
 
   int notifs = 0;
-  for (
-	int i = 0;
-	(i < 10) and (notifs == 0);
-	++i, pqxx::internal::sleep_seconds(1))
+  for (int i = 0; (i < 10) and (notifs == 0);
+       ++i, pqxx::internal::sleep_seconds(1))
     notifs = conn.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
   PQXX_CHECK_EQUAL(receiver.backend_pid, conn.backendpid(), "Bad pid.");
-  if (payload) PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
-  else PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
+  if (payload)
+    PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
+  else
+    PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
 }
 
 

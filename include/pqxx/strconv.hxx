@@ -5,8 +5,8 @@
  * Copyright (c) 2000-2019, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this mistake,
- * or contact the author.
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
  */
 #ifndef PQXX_H_STRINGCONV
 #define PQXX_H_STRINGCONV
@@ -21,7 +21,7 @@
 #include <typeinfo>
 
 #if __has_include(<charconv>)
-#include <charconv>
+#  include <charconv>
 #endif
 
 #include "pqxx/except.hxx"
@@ -51,8 +51,9 @@ namespace pqxx
 class zview : public std::string_view
 {
 public:
-  template<typename ...Args> explicit constexpr zview(Args &&...args) :
-    std::string_view(std::forward<Args>(args)...)
+  template<typename... Args>
+  explicit constexpr zview(Args &&... args) :
+          std::string_view(std::forward<Args>(args)...)
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
@@ -94,8 +95,8 @@ public:
  * warnings from asan, the address sanitizer, possibly from use of
  * @c std::type_info::name.
  */
-template<typename TYPE> const std::string type_name{
-	internal::demangle_type_name(typeid(TYPE).name())};
+template<typename TYPE>
+const std::string type_name{internal::demangle_type_name(typeid(TYPE).name())};
 
 
 /// Traits describing a type's "null value," if any.
@@ -182,8 +183,7 @@ template<typename TYPE> struct string_traits
 /// Nullness: Enums do not have an inherent null value.
 template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
-{
-};
+{};
 } // namespace pqxx
 
 
@@ -199,23 +199,30 @@ namespace pqxx::internal
  * macro.  Use @c enum_traits manually only if you need to customise your
  * traits type in more detail.
  */
-template<typename ENUM>
-struct enum_traits
+template<typename ENUM> struct enum_traits
 {
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
 
   static constexpr zview to_buf(char *begin, char *end, const ENUM &value)
-  { return impl_traits::to_buf(begin, end, static_cast<impl_type>(value)); }
+  {
+    return impl_traits::to_buf(begin, end, static_cast<impl_type>(value));
+  }
 
   static constexpr char *into_buf(char *begin, char *end, const ENUM &value)
-  { return impl_traits::into_buf(begin, end, static_cast<impl_type>(value)); }
+  {
+    return impl_traits::into_buf(begin, end, static_cast<impl_type>(value));
+  }
 
   static ENUM from_string(std::string_view text)
-  { return static_cast<ENUM>(impl_traits::from_string(text)); }
+  {
+    return static_cast<ENUM>(impl_traits::from_string(text));
+  }
 
   static size_t size_buffer(const ENUM &value)
-  { return impl_traits::size_buffer(static_cast<impl_type>(value)); }
+  {
+    return impl_traits::size_buffer(static_cast<impl_type>(value));
+  }
 };
 } // namespace pqxx::internal
 
@@ -232,9 +239,10 @@ struct enum_traits
  *      namespace pqxx { PQXX_DECLARE_ENUM_CONVERSION(x); }
  *      int main() { std::cout << pqxx::to_string(xa) << std::endl; }
  */
-#define PQXX_DECLARE_ENUM_CONVERSION(ENUM) \
-template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM> {}; \
-template<> const std::string type_name<ENUM>{#ENUM}
+#define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
+  template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
+  {};                                                                         \
+  template<> const std::string type_name<ENUM> { #ENUM }
 
 
 namespace pqxx
@@ -243,9 +251,9 @@ namespace pqxx
 /** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
- * C++ type) are also treated as errors.  If in some cases this behaviour should
- * be inappropriate, convert to something bigger such as @c long @c int first
- * and then truncate the resulting value.
+ * C++ type) are also treated as errors.  If in some cases this behaviour
+ * should be inappropriate, convert to something bigger such as @c long @c int
+ * first and then truncate the resulting value.
  *
  * Only the simplest possible conversions are supported.  Fancy features like
  * hexadecimal or octal, spurious signs, or exponent notation won't work.
@@ -253,7 +261,9 @@ namespace pqxx
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename T> inline T from_string(std::string_view text)
-{ return string_traits<T>::from_string(text); }
+{
+  return string_traits<T>::from_string(text);
+}
 
 
 /// Attempt to convert postgres-generated string to given built-in object.
@@ -265,7 +275,9 @@ template<typename T> inline T from_string(std::string_view text)
  * assignment operator, and it may be less efficient.
  */
 template<typename T> inline void from_string(std::string_view text, T &obj)
-{ obj = from_string<T>(text); }
+{
+  obj = from_string<T>(text);
+}
 
 
 /// Convert a value to a readable string that PostgreSQL will understand.
@@ -281,8 +293,8 @@ template<typename TYPE> inline std::string to_string(const TYPE &obj);
 /** This variant of to_string can sometimes save a bit of time in loops, by
  * re-using a std::string for multiple conversions.
  */
-template<typename TYPE> inline void
-into_string(const TYPE &obj, std::string &out);
+template<typename TYPE>
+inline void into_string(const TYPE &obj, std::string &out);
 
 
 /// Is @c value null?

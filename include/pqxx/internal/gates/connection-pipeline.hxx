@@ -1,5 +1,5 @@
-#include <pqxx/internal/callgate.hxx>
 #include "pqxx/internal/libpq-forward.hxx"
+#include <pqxx/internal/callgate.hxx>
 
 namespace pqxx::internal::gate
 {
