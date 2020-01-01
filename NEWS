@@ -18,6 +18,7 @@
  - The `isolation_traits` type is gone.
  - There's no more `pqxx_exception`.  Complicated things too much.
  - `pqxx::string_traits<>::name()` has been replaced with `pqxx::type_name`.
+ - `to_string()` can now handle `std::vector` (to produce an SQL array).
  - All `from_string()` that took a C string now take a `std::string_view`.
  - There are now separate `string_traits` and `null_traits` templates.
  - Enums outside classes are now scoped enums.

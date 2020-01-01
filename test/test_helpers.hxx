@@ -302,10 +302,4 @@ template<> inline std::string to_string(const result::const_iterator &i)
 {
   return pqxx::test::list_result_iterator(i);
 }
-
-
-template<> inline std::string to_string(const std::vector<std::string> &v)
-{
-  return separated_list("; ", v);
-}
 } // namespace pqxx

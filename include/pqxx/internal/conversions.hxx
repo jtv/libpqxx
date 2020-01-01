@@ -2,6 +2,7 @@
 #include <cstring>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <type_traits>
 #include <vector>
@@ -28,7 +29,7 @@ inline constexpr char number_to_digit(int i) noexcept
 inline size_t shortcut_strlen(const char text[], [[maybe_unused]] size_t max)
 {
   // strnlen_s is in C11, but not (yet) in C++'s "std" namespace.
-  // But this may change, so don't qualify explicitly.
+  // This may change, so don't qualify explicitly.
   using namespace std;
 
 #if defined(PQXX_HAVE_STRNLEN_S)
@@ -502,6 +503,124 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return string_traits<T>::size_buffer(*value);
   }
 };
+} // namespace pqxx
+
+
+namespace pqxx::internal
+{
+/// String traits for SQL arrays.
+template<typename Container> struct array_string_traits
+{
+  static zview to_buf(char *begin, char *end, const Container &value)
+  {
+    const auto stop{into_buf(begin, end, value)};
+    return zview{begin, static_cast<size_t>(stop - begin - 1)};
+  }
+
+  static char *into_buf(char *begin, char *end, const Container &value)
+  {
+    const size_t budget{size_buffer(value)};
+    if (static_cast<size_t>(end - begin) < budget)
+      throw conversion_overrun{
+        "Not enough buffer space to convert array to string."};
+
+    char *here = begin;
+    *here++ = '{';
+
+    bool nonempty{false};
+    for (const auto &elt : value)
+    {
+      if (nullness<elt_type>::is_null(elt))
+      {
+        memcpy(here, s_null.data(), s_null.size());
+        here += s_null.size();
+      }
+      else if constexpr (is_sql_array<elt_type>)
+      {
+        // Render nested array in-place.  Then erase the trailing zero.
+        here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
+      }
+      else
+      {
+        *here++ = '"';
+        const auto text{to_string(elt)};
+        for (const char c : text)
+        {
+          if (c == '\\' or c == '"')
+            *here++ = '\\';
+          *here++ = c;
+        }
+        *here++ = '"';
+      }
+      *here++ = array_separator<elt_type>;
+      nonempty = true;
+    }
+
+    // Erase that last comma, if present.
+    if (nonempty)
+      here--;
+
+    *here++ = '}';
+    *here++ = '\0';
+
+    return here;
+  }
+
+  static size_t size_buffer(const Container &value)
+  {
+    using elt_traits = string_traits<elt_type>;
+    return 3 + std::accumulate(
+                 std::begin(value), std::end(value), size_t{},
+                 [](size_t acc, const elt_type &elt) {
+                   // Opening and closing quotes, plus worst-case escaping, but
+                   // don't count the trailing zeroes.
+                   const size_t elt_size{nullness<elt_type>::is_null(elt) ?
+                                           s_null.size() :
+                                           elt_traits::size_buffer(elt) - 1};
+                   return acc + 2 * elt_size + 2;
+                 });
+  }
+
+  // We don't yet support parsing of array types using from_string.  Doing so
+  // would require a reference to the connection.
+
+private:
+  using elt_type = std::remove_const_t<
+    std::remove_reference_t<decltype(*std::declval<Container>().begin())>>;
+
+  static constexpr zview s_null{"NULL"};
+};
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+template<typename T> struct nullness<std::vector<T>> : no_null<std::vector<T>>
+{};
+
+
+template<typename T>
+struct string_traits<std::vector<T>>
+        : internal::array_string_traits<std::vector<T>>
+{};
+
+
+template<typename T> inline constexpr bool is_sql_array<std::vector<T>>{true};
+
+
+template<typename T, size_t N>
+struct nullness<std::array<T, N>> : no_null<std::array<T, N>>
+{};
+
+
+template<typename T, size_t N>
+struct string_traits<std::array<T, N>>
+        : internal::array_string_traits<std::array<T, N>>
+{};
+
+
+template<typename T, size_t N>
+inline constexpr bool is_sql_array<std::array<T, N>>{true};
 } // namespace pqxx
 
 

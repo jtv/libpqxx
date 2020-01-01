@@ -310,6 +310,20 @@ template<typename TYPE> inline bool is_null(const TYPE &value)
     return false;
   }
 }
+
+
+/// Does this type translate to an SQL array?
+/** Specialisations may override this to be true for container types.
+ *
+ * This may not always be a black-and-white choice.  For instance, a
+ * @c std::string is a container, but normally it translates to an SQL string,
+ * not an SQL array.
+ */
+template<typename T> inline constexpr bool is_sql_array{false};
+
+
+/// Element separator between SQL array elements of this type.
+template<typename T> inline constexpr char array_separator{','};
 //@}
 } // namespace pqxx
 

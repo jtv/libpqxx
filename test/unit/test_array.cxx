@@ -410,5 +410,114 @@ void test_array_parse()
 }
 
 
+void test_generate_empty_array()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<int>{}), "{}",
+    "Basic array output is not as expected.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{}), "{}",
+    "String array comes out different.");
+}
+
+
+void test_generate_null_value()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<const char *>{nullptr}), "{NULL}",
+    "Null array value did not come out as expected.");
+}
+
+
+void test_generate_single_item()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<int>{42}), "{\"42\"}",
+    "Numeric conversion came out wrong.");
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<const char *>{"foo"}), "{\"foo\"}",
+    "String array conversion came out wrong.");
+}
+
+
+void test_generate_multiple_items()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{\"5\",\"4\",\"3\",\"2\"}",
+    "Array with multiple values is not correct.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{"foo", "bar"}),
+    "{\"foo\",\"bar\"}", "Array with multiple strings came out wrong.");
+}
+
+
+void test_generate_nested_array()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}),
+    "{{\"1\",\"2\"},{\"3\",\"4\"}}", "Nested arrays don't work right.");
+}
+
+
+void test_generate_escaped_strings()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{"a\\b"}), "{\"a\\\\b\"}",
+    "Backslashes are not escaped properly.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{"x\"y\""}), "{\"x\\\"y\\\"\"}",
+    "Double quotes are not escaped properly.");
+}
+
+
+void test_array_generate()
+{
+  test_generate_empty_array();
+  test_generate_null_value();
+  test_generate_single_item();
+  test_generate_multiple_items();
+  test_generate_nested_array();
+  test_generate_escaped_strings();
+}
+
+
+void test_array_roundtrip()
+{
+  pqxx::connection c;
+  pqxx::work w{c};
+
+  const std::vector<int> in{0, 1, 2, 3, 5};
+  const auto r1{w.exec1("SELECT " + c.quote(in) + "::integer[]")};
+  pqxx::array_parser parser{r1[0].view()};
+  auto item{parser.get_next()};
+  PQXX_CHECK_EQUAL(
+    item.first, pqxx::array_parser::juncture::row_start,
+    "Array did not start with row_start.");
+
+  std::vector<int> out;
+  for (item = parser.get_next();
+       item.first == pqxx::array_parser::juncture::string_value;
+       item = parser.get_next())
+  { out.push_back(pqxx::from_string<int>(item.second)); }
+
+  PQXX_CHECK_EQUAL(
+    item.first, pqxx::array_parser::juncture::row_end,
+    "Array values did not end in row_end.");
+  PQXX_CHECK_EQUAL(
+    out.size(), in.size(), "Array came back with different length.");
+
+  for (size_t i{0}; i < in.size(); ++i)
+    PQXX_CHECK_EQUAL(out[i], in[i], "Array element has changed.");
+
+  item = parser.get_next();
+  PQXX_CHECK_EQUAL(
+    item.first, pqxx::array_parser::juncture::done,
+    "Array did not end in done.");
+}
+
+
 PQXX_REGISTER_TEST(test_array_parse);
+PQXX_REGISTER_TEST(test_array_generate);
+PQXX_REGISTER_TEST(test_array_roundtrip);
 } // namespace
