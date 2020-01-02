@@ -18410,7 +18410,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "visibility" attribute.
 
-struct __attribute__ ((visibility("hidden"))) D
+struct __attribute__((visibility("hidden"))) D
 
 {
 
@@ -18460,7 +18460,13 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Test for gcc-style "pure" attribute.
 
-int __attribute__ ((pure)) f() { return 0; }
+int __attribute__((pure)) f()
+
+{
+
+  return 0;
+
+}
 
 
 
@@ -18560,7 +18566,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #if __has_include(<string.h>)
 
-#include <string.h>
+#  include <string.h>
 
 #endif
 
@@ -18606,7 +18612,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #if __has_include(<string.h>)
 
-#include <string.h>
+#  include <string.h>
 
 #endif
 
@@ -18666,13 +18672,17 @@ int main()
 
   auto rt = std::to_chars(std::begin(z), std::end(z), 9ULL);
 
-  if (rt.ec != std::errc{}) return 1;
+  if (rt.ec != std::errc{})
+
+    return 1;
 
   unsigned long long n;
 
   auto rf = std::from_chars(std::cbegin(z), std::cend(z), n);
 
-  if (rf.ec != std::errc{}) return 2;
+  if (rf.ec != std::errc{})
+
+    return 2;
 
   return (n == 9ULL) ? 0 : 1;
 
@@ -18713,13 +18723,17 @@ int main()
 
   auto rt = std::to_chars(std::begin(z), std::end(z), 3.14159L);
 
-  if (rt.ec != std::errc{}) return 1;
+  if (rt.ec != std::errc{})
+
+    return 1;
 
   long double n;
 
   auto rf = std::from_chars(std::cbegin(z), std::cend(z), n);
 
-  if (rf.ec != std::errc{}) return 2;
+  if (rf.ec != std::errc{})
+
+    return 2;
 
   return (n > 3 and n < 4) ? 0 : 1;
 
