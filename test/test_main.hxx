@@ -26,7 +26,7 @@ namespace pqxx::test
 {
 test_failure::test_failure(
   const std::string &ffile, int fline, const std::string &desc) :
-        logic_error(desc),
+        std::logic_error(desc),
         m_file(ffile),
         m_line(fline)
 {}

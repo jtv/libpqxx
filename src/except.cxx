@@ -77,12 +77,12 @@ pqxx::deadlock_detected::deadlock_detected(const std::string &whatarg) :
 
 
 pqxx::internal_error::internal_error(const std::string &whatarg) :
-        logic_error{"libpqxx internal error: " + whatarg}
+        std::logic_error{"libpqxx internal error: " + whatarg}
 {}
 
 
 pqxx::usage_error::usage_error(const std::string &whatarg) :
-        logic_error{whatarg}
+        std::logic_error{whatarg}
 {}
 
 

@@ -103,6 +103,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 }
 
 
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
 [[maybe_unused]] inline char *
@@ -127,6 +128,7 @@ wrap_to_chars(char *begin, char *end, const T &value)
   *res.ptr++ = '\0';
   return res.ptr;
 }
+#endif
 } // namespace
 
 
@@ -244,6 +246,7 @@ std::string state_buffer_overrun(int have_bytes, int need_bytes)
 
 namespace
 {
+#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
@@ -275,11 +278,13 @@ template<typename TYPE>
   else
     throw pqxx::conversion_error{base + ": " + msg};
 }
+#endif
 } // namespace
 
 
 namespace
 {
+#if !defined(PQXX_HAVE_CHARCONV_INT)
 [[noreturn, maybe_unused]] void report_overflow()
 {
   throw pqxx::conversion_error{
@@ -396,6 +401,7 @@ template<typename T>
 
   return result;
 }
+#endif // !PQXX_HAVE_CHARCONV_INT
 } // namespace
 
 
