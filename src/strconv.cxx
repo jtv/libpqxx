@@ -28,26 +28,6 @@
 
 namespace
 {
-constexpr bool have_charconv_float
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  true
-#else
-  false
-#endif
-};
-
-
-constexpr bool have_charconv_int
-{
-#if defined(PQXX_HAVE_CHARCONV_INT)
-  true
-#else
-  false
-#endif
-};
-
-
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 {
@@ -197,12 +177,13 @@ template zview integral_traits<unsigned long long>::to_buf(
 template<typename T>
 char *integral_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
-  if constexpr (have_charconv_int)
-    // This is exactly what to_chars is good at.  Trust standard library
-    // implementers to optimise better than we can.
-    return wrap_to_chars(begin, end, value);
-  else
-    return generic_into_buf(begin, end, value);
+#if defined(PQXX_HAVE_CHARCONV_INT)
+  // This is exactly what to_chars is good at.  Trust standard library
+  // implementers to optimise better than we can.
+  return wrap_to_chars(begin, end, value);
+#else
+  return generic_into_buf(begin, end, value);
+#endif
 }
 
 
@@ -519,13 +500,13 @@ namespace pqxx::internal
 template<typename T>
 zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
-  if constexpr (have_charconv_float)
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
     const auto ptr = wrap_to_chars(begin, end, value);
     return zview{begin, std::size_t(ptr - begin - 1)};
   }
-  else
+#else
   {
     // Implement it ourselves.  Weird detail: since this workaround is based on
     // std::stringstream, which produces a std::string, it's actually easier to
@@ -545,6 +526,7 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
     std::memcpy(begin, text.c_str(), need);
     return zview{begin, text.size()};
   }
+#endif
 }
 
 
@@ -557,10 +539,11 @@ float_traits<long double>::to_buf(char *, char *, const long double &);
 template<typename T>
 char *float_traits<T>::into_buf(char *begin, char *end, const T &value)
 {
-  if constexpr (have_charconv_float)
-    return wrap_to_chars(begin, end, value);
-  else
-    return generic_into_buf(begin, end, value);
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  return wrap_to_chars(begin, end, value);
+#else
+  return generic_into_buf(begin, end, value);
+#endif
 }
 
 
@@ -573,7 +556,7 @@ float_traits<long double>::into_buf(char *, char *, const long double &);
 /// Floating-point implementations for @c pqxx::to_string().
 template<typename T> std::string to_string_float(T value)
 {
-  if constexpr (have_charconv_float)
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
@@ -583,7 +566,7 @@ template<typename T> std::string to_string_float(T value)
     buf.resize(view.end() - view.begin());
     return buf;
   }
-  else
+#else
   {
     // In this rare case, we can convert to std::string but not to a simple
     // buffer.  So, implement to_buf in terms of to_string instead of the other
@@ -593,6 +576,7 @@ template<typename T> std::string to_string_float(T value)
     s << value;
     return s.str();
   }
+#endif
 }
 } // namespace pqxx::internal
 
@@ -601,10 +585,11 @@ namespace pqxx::internal
 {
 template<typename T> T integral_traits<T>::from_string(std::string_view text)
 {
-  if constexpr (have_charconv_int)
-    return from_string_arithmetic<T>(text);
-  else
-    return from_string_integer<T>(text);
+#if defined(PQXX_HAVE_CHARCONV_INT)
+  return from_string_arithmetic<T>(text);
+#else
+  return from_string_integer<T>(text);
+#endif
 }
 
 template short integral_traits<short>::from_string(std::string_view);
@@ -622,10 +607,11 @@ template unsigned long long
 
 template<typename T> T float_traits<T>::from_string(std::string_view text)
 {
-  if constexpr (have_charconv_float)
-    return from_string_arithmetic<T>(text);
-  else
-    return from_string_awful_float<T>(text);
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  return from_string_arithmetic<T>(text);
+#else
+  return from_string_awful_float<T>(text);
+#endif
 }
 
 
