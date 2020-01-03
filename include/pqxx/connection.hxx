@@ -376,7 +376,7 @@ public:
   int await_notification(long seconds, long microseconds);
   //@}
 
-  /// Encrypt a password for a given user.  Requires libpq 10 or better.
+  /// Encrypt a password for a given user.
   /** Use this when setting a new password for the user if password encryption
    * is enabled.  Inputs are the SQL name for the user for whom you with to
    * encrypt a password; the plaintext password; and the hash algorithm.
@@ -398,9 +398,10 @@ public:
    * }
    * @endcode
    *
-   * This function is not available when building against a libpq older than
-   * version 10. If your libpq is older and you try to call this function, the
-   * linker will complain that the function is not defined.
+   * When building this against a libpq older than version 10, this will use
+   * an older function which only supports md5.  In that case, requesting a
+   * different algorithm than md5 will result in a @c feature_not_supported
+   * exception.
    */
   std::string encrypt_password(
     const char user[], const char password[], const char *algorithm = nullptr);
