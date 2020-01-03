@@ -21,7 +21,6 @@
 #include <memory>
 #include <string_view>
 
-#include "pqxx/config-internal-libpq.h"
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/prepared_statement.hxx"
@@ -377,7 +376,6 @@ public:
   int await_notification(long seconds, long microseconds);
   //@}
 
-#if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
   /// Encrypt a password for a given user.  Requires libpq 10 or better.
   /** Use this when setting a new password for the user if password encryption
    * is enabled.  Inputs are the SQL name for the user for whom you with to
@@ -406,7 +404,6 @@ public:
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
   }
-#endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
 
   /**
    * @name Prepared statements
