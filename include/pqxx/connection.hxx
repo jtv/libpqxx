@@ -397,6 +397,10 @@ public:
    *   	"PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
    * }
    * @endcode
+   *
+   * This function is not available when building against a libpq older than
+   * version 10. If your libpq is older and you try to call this function, the
+   * linker will complain that the function is not defined.
    */
   std::string encrypt_password(
     const char user[], const char password[], const char *algorithm = nullptr);
