@@ -61,6 +61,7 @@ extern "C"
 }
 
 #include "pqxx/binarystring"
+#include "pqxx/config-internal-libpq.h"
 #include "pqxx/nontransaction"
 #include "pqxx/notification"
 #include "pqxx/pipeline"
