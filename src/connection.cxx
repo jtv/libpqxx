@@ -641,8 +641,7 @@ std::string pqxx::connection::encrypt_password(
     if (algorithm != nullptr and std::strcmp(algorithm, "md5") != 0)
       throw feature_not_supported{
         "Could not encrypt password: available libpq version does not support "
-        "algorithms other than md5."
-      };
+        "algorithms other than md5."};
     return pqxx::encrypt_password(user, password);
   }
 #endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
@@ -1106,4 +1105,35 @@ pqxx::result pqxx::connection::exec_params(
   check_result(r);
   get_notifs();
   return r;
+}
+
+
+std::string pqxx::connection::connection_string() const
+{
+  if (m_conn == nullptr)
+    throw usage_error{"Can't get connection string: connection is not open."};
+
+
+  const std::unique_ptr<
+    PQconninfoOption, std::function<void(PQconninfoOption *)>>
+    params{PQconninfo(m_conn), PQconninfoFree};
+  if (params.get() == nullptr)
+    throw std::bad_alloc{};
+
+  std::string buf;
+  for (size_t i{0}; params.get()[i].keyword != nullptr; ++i)
+  {
+    const auto param{params.get()[i]};
+    const auto default_val{param.envvar == nullptr ? param.compiled :
+                                                     param.envvar};
+    if (param.val != nullptr and std::strcmp(param.val, default_val) != 0)
+    {
+      if (not buf.empty())
+        buf.push_back(' ');
+      buf += param.keyword;
+      buf.push_back('=');
+      buf += param.val;
+    }
+  }
+  return buf;
 }

@@ -30,6 +30,7 @@
  - Connection objects can now be moved.
  - `connections::options()` is gone.
  - Replaced pqxx-fulltest with `test_all.py`.
+ - You can now query a connection's connection string.
  - Some `size_type` have changed to different types, to match current libpq.
  - Internal overflows are more consistently caught and reported.
  - Items marked "deprecated" have been removed.

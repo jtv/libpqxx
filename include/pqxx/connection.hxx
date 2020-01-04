@@ -628,7 +628,19 @@ public:
    */
   std::vector<errorhandler *> get_errorhandlers() const;
 
-  /// Close the connection now.
+  /// Return a connection string encapsulating this connection's options.
+  /** The connection must be currently open for this to work.
+   *
+   * Returns a reconstruction of this connection's connection string.  It may
+   * not exactly match the connection string you passed in when creating this
+   * connection.
+   */
+  std::string connection_string() const;
+
+  /// Explicitly close the connection.
+  /** You won't normally need this.  Destroying a connection object will have
+   * the same effect.
+   */
   void close();
 
 private:

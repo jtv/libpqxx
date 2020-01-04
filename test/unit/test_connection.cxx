@@ -65,7 +65,29 @@ void test_encrypt_password()
 }
 
 
+void test_connection_string()
+{
+  pqxx::connection c;
+  const std::string connstr{c.connection_string()};
+
+  if (std::getenv("PGUSER") == nullptr)
+  {
+    PQXX_CHECK(
+      connstr.find("user=" + std::string{c.username()}) != std::string::npos,
+      "Connection string did not specify user name: " + connstr);
+  }
+  else
+  {
+    PQXX_CHECK(
+      connstr.find("user=" + std::string{c.username()}) == std::string::npos,
+      "Connection string specified user name, even when using default: " +
+        connstr);
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
 PQXX_REGISTER_TEST(test_encrypt_password);
+PQXX_REGISTER_TEST(test_connection_string);
 } // namespace
