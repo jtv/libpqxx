@@ -11,9 +11,10 @@
 #include "pqxx-source.hxx"
 
 #include <chrono>
-#include <map>
+#include <cstdint>
 #include <stdexcept>
 #include <thread>
+#include <unordered_map>
 
 #include "pqxx/connection"
 #include "pqxx/nontransaction"
@@ -23,22 +24,37 @@
 
 namespace
 {
+/// Statuses in which we may find our transaction.
+/** There's also "in the future," but it manifests as an error, not as an
+ * actual status.
+ */
 enum tx_stat
 {
   tx_unknown,
   tx_committed,
   tx_aborted,
   tx_in_progress,
-  tx_in_the_future
 };
 
 
-// TODO: Is there a lighter-weight way to do map strings to simple values?
-const std::map<std::string, tx_stat> statuses{
+/* Super-simple string hash function: just use the initial byte.
+ *
+ * Happens to be a perfect hash for this case, and should be cheap to compute.
+ */
+struct initial_hash
+{
+  size_t operator()(const std::string &x) const noexcept
+  {
+    return static_cast<uint8_t>(x[0]);
+  }
+};
+
+
+// TODO: Is there a simple, lightweight, constexpr alternative?
+const std::unordered_map<std::string, tx_stat, initial_hash> statuses{
   {"committed", tx_committed},
   {"aborted", tx_aborted},
   {"in progress", tx_in_progress},
-  {"in_the_future", tx_in_the_future},
 };
 
 
@@ -48,7 +64,10 @@ tx_stat query_status(const std::string &xid, const std::string conn_str)
   const std::string query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
-  const auto status_text{w.exec1(query, name)[0].as<std::string>()};
+  const auto row{w.exec1(query, name)};
+  const auto status_text{row[0].as<std::string>()};
+  if (status_text.empty())
+    throw pqxx::internal_error{"Transaction status string is empty."};
   const auto here{statuses.find(status_text)};
   if (here == statuses.end())
     throw pqxx::internal_error{"Unknown transaction status: " + status_text};
@@ -155,10 +174,6 @@ void pqxx::internal::basic_robusttransaction::do_commit()
       // The transaction is still running.  Stick around until we know what
       // transpires.
       break;
-    case tx_in_the_future:
-      // Can this ever happen?
-      throw pqxx::internal_error{
-        "Robusttransaction has unknown transaction ID."};
     }
   }
 
