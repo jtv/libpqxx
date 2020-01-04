@@ -39,6 +39,8 @@
  - Seeking inside large objects now supports 64-bit sizes.
  - Visual Studio project files and sample headers are gone.  Use CMake.
  - MinGW Makefiles are gone.  Use `configure` or CMake.
+ - Need PostgreSQL 10 to use robusttransaction.
+ - robusttransaction no longer uses a log table.  Feel free to drop it.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.

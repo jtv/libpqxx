@@ -10,51 +10,61 @@
  */
 #include "pqxx-source.hxx"
 
+#include <chrono>
+#include <map>
 #include <stdexcept>
+#include <thread>
 
 #include "pqxx/connection"
+#include "pqxx/nontransaction"
 #include "pqxx/result"
 #include "pqxx/robusttransaction"
 
 
-// TODO: Log username in more places.
+namespace
+{
+enum tx_stat
+{
+  tx_unknown,
+  tx_committed,
+  tx_aborted,
+  tx_in_progress,
+  tx_in_the_future
+};
+
+
+// TODO: Is there a lighter-weight way to do map strings to simple values?
+const std::map<std::string, tx_stat> statuses{
+  {"committed", tx_committed},
+  {"aborted", tx_aborted},
+  {"in progress", tx_in_progress},
+  {"in_the_future", tx_in_the_future},
+};
+
+
+tx_stat query_status(const std::string &xid, const std::string conn_str)
+{
+  const std::string name{"robustx-check-status"};
+  const std::string query{"SELECT txid_status(" + xid + ")"};
+  pqxx::connection c{conn_str};
+  pqxx::nontransaction w{c, name};
+  const auto status_text{w.exec1(query, name)[0].as<std::string>()};
+  const auto here{statuses.find(status_text)};
+  if (here == statuses.end())
+    throw pqxx::internal_error{"Unknown transaction status: " + status_text};
+  return here->second;
+}
+} // namespace
+
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &C, const char begin_command[], const std::string &table_name) :
+  connection &C, const char begin_command[]) :
         namedclass{"robusttransaction"},
         dbtransaction(C),
-        m_log_table{table_name}
+        m_conn_string{C.connection_string()}
 {
-  register_transaction();
-
-  if (table_name.empty())
-    m_log_table = "pqxx_robusttransaction_log";
-  m_sequence = m_log_table + "_seq";
-
-  try
-  {
-    CreateTransactionRecord();
-  }
-  catch (const std::exception &)
-  {
-    // The problem here *may* be that the log table doesn't exist yet.
-    CreateLogTable();
-    m_backendpid = conn().backendpid();
-    CreateTransactionRecord();
-  }
-
-  try
-  {
-    direct_exec(begin_command);
-  }
-  catch (const std::exception &)
-  {
-    DeleteTransactionRecord();
-    throw;
-  }
-
-  // If this transaction commits, the transaction record should also be gone.
-  direct_exec(sql_delete().c_str());
+  m_backendpid = C.backendpid();
+  direct_exec(begin_command);
   direct_exec("SELECT txid_current()")[0][0].to(m_xid);
 }
 
@@ -64,32 +74,32 @@ pqxx::internal::basic_robusttransaction::~basic_robusttransaction() {}
 
 void pqxx::internal::basic_robusttransaction::do_commit()
 {
-  if (m_record_id == 0)
-    throw internal_error{"transaction '" + name() + "' has no ID."};
-
-  // Check constraints before sending the COMMIT to the database to reduce the
-  // work being done inside our in-doubt window.
+  // Check constraints before sending the COMMIT to the database, so as to
+  // minimise our in-doubt window.
   try
   {
     direct_exec("SET CONSTRAINTS ALL IMMEDIATE");
   }
-  catch (...)
+  catch (const std::exception &)
   {
     do_abort();
     throw;
   }
 
-  // Here comes the critical part.  If we lose our connection here, we'll be
-  // left clueless as to whether the backend got the message and is trying to
-  // commit the transaction (let alone whether it will succeed if so).  That
-  // case requires some special handling that makes robusttransaction what it
-  // is.
+  // Here comes the in-doubt window.  If we lose our connection here, we'll be
+  // left clueless as to what happened on the backend.  It may have received
+  // the commit command and completed the transaction, and ended up with a
+  // success it could not report back to us.  Or it may have noticed the broken
+  // connection and aborted the transaction.  It may even still be executing
+  // the commit, only to fail later.
+  //
+  // All this uncertainty requires some special handling, and that s what makes
+  // robusttransaction what it is.
   try
   {
     direct_exec("COMMIT");
 
     // If we make it here, great.  Normal, successful commit.
-    m_record_id = 0;
     return;
   }
   catch (const broken_connection &)
@@ -97,228 +107,76 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     // Oops, lost connection at the crucial moment.  Fall through to in-doubt
     // handling below.
   }
-  catch (...)
+  catch (const std::exception &)
   {
     if (conn().is_open())
     {
-      // Commit failed--probably due to a constraint violation or something
-      // similar.  But we're still connected, so no worries from a consistency
-      // point of view.
+      // Commit failed, for some other reason.
       do_abort();
       throw;
     }
     // Otherwise, fall through to in-doubt handling.
   }
 
-  // If we get here, we're in doubt.  Talk to the backend, figure out what
-  // happened.  If the transaction record still exists, the transaction failed.
-  // If not, it succeeded.
+  // If we get here, we're in doubt.  Figure out what happened.
 
-  bool exists;
-  try
+  // TODO: Make delay and attempts configurable.
+  const auto delay{std::chrono::milliseconds(300)};
+  const int max_attempts{500};
+  static_assert(max_attempts > 0);
+
+  tx_stat stat;
+  for (int attempts{0}; attempts < max_attempts;
+       ++attempts, std::this_thread::sleep_for(delay))
   {
-    exists = CheckTransactionRecord();
-  }
-  catch (const std::exception &f)
-  {
-    // Couldn't check for transaction record.  We're still in doubt as to
-    // whether the transaction was performed.
-    const std::string Msg =
-      "WARNING: Connection lost while committing transaction "
-      "'" +
-      name() + "' (id " + to_string(m_record_id) +
-      ", "
-      "transaction_id " +
-      m_xid +
-      "). "
-      "Please check for this record in the "
-      "'" +
-      m_log_table +
-      "' table.  "
-      "If the record exists, the transaction was executed. "
-      "If not, then it wasn't.\n";
-
-    process_notice(Msg);
-    process_notice(
-      "Could not verify existence of transaction record because of the "
-      "following error:\n");
-    process_notice(std::string{f.what()} + "\n");
-
-    throw in_doubt_error{Msg};
-  }
-
-  // Transaction record is still there, so the transaction failed and all we
-  // have is a "normal" transaction failure.
-  if (exists)
-  {
-    do_abort();
-    throw broken_connection{"Connection lost while committing."};
+    stat = tx_unknown;
+    try
+    {
+      stat = query_status(m_xid, m_conn_string);
+    }
+    catch (const pqxx::broken_connection &)
+    {
+      // Swallow the error.  Pause and retry.
+    }
+    switch (stat)
+    {
+    case tx_unknown:
+      // We were unable to reconnect and query transaction status.
+      // Stay in it for another attempt.
+      return;
+    case tx_committed:
+      // Success!  We're done.
+      return;
+    case tx_aborted:
+      // Aborted.  We're done.
+      do_abort();
+      return;
+    case tx_in_progress:
+      // The transaction is still running.  Stick around until we know what
+      // transpires.
+      break;
+    case tx_in_the_future:
+      // Can this ever happen?
+      throw pqxx::internal_error{
+        "Robusttransaction has unknown transaction ID."};
+    }
   }
 
-  // Otherwise, the transaction succeeded.  Forget there was ever an error.
+  // Okay, this has taken too long.  Give up, report in-doubt state.
+  throw in_doubt_error{
+    "Transaction " + name() + " (with transaction ID " + m_xid +
+    ") "
+    "lost connection while committing.  It's impossible to tell whether "
+    "it committed, or aborted, or is still running.  "
+    "Attempts to find out its outcome have failed.  "
+    "The backend process on the server had process ID " +
+    to_string(m_backendpid) +
+    ".  "
+    "You may be able to check what happened to that process."};
 }
 
 
 void pqxx::internal::basic_robusttransaction::do_abort()
 {
   direct_exec("ROLLBACK");
-  DeleteTransactionRecord();
-}
-
-
-// Create transaction log table if it didn't already exist
-void pqxx::internal::basic_robusttransaction::CreateLogTable()
-{
-  // Create log table in case it doesn't already exist.  This code must only be
-  // executed before the backend transaction has properly started.
-  std::string CrTab = "CREATE TABLE " + quote_name(m_log_table) +
-                      " ("
-                      "id INTEGER NOT NULL, "
-                      "username VARCHAR(256), "
-                      "transaction_id xid, "
-                      "name VARCHAR(256), "
-                      "date TIMESTAMP NOT NULL"
-                      ")";
-
-  try
-  {
-    direct_exec(CrTab.c_str());
-  }
-  catch (const std::exception &e)
-  {
-    conn().process_notice(
-      "Could not create transaction log table: " + std::string{e.what()});
-  }
-
-  try
-  {
-    direct_exec(("CREATE SEQUENCE " + m_sequence).c_str());
-  }
-  catch (const std::exception &e)
-  {
-    conn().process_notice(
-      "Could not create transaction log sequence: " + std::string{e.what()});
-  }
-}
-
-
-void pqxx::internal::basic_robusttransaction::CreateTransactionRecord()
-{
-  // Clean up old transaction records.
-  direct_exec(("DELETE FROM " + m_log_table +
-               " "
-               "WHERE date < CURRENT_TIMESTAMP - '30 days'::interval")
-                .c_str());
-
-  // Allocate id.
-  const std::string sql_get_id{"SELECT nextval(" + quote(m_sequence) + ")"};
-  direct_exec(sql_get_id.c_str())[0][0].to(m_record_id);
-
-  direct_exec(("INSERT INTO " + quote_name(m_log_table) +
-               " (id, username, name, date) "
-               "VALUES "
-               "(" +
-               to_string(m_record_id) + ", " + quote(conn().username()) +
-               ", " + (name().empty() ? "NULL" : quote(name())) +
-               ", "
-               "CURRENT_TIMESTAMP"
-               ")")
-                .c_str());
-}
-
-
-std::string pqxx::internal::basic_robusttransaction::sql_delete() const
-{
-  return "DELETE FROM " + quote_name(m_log_table) +
-         " "
-         "WHERE id = " +
-         to_string(m_record_id);
-}
-
-
-void pqxx::internal::basic_robusttransaction::
-  DeleteTransactionRecord() noexcept
-{
-  if (m_record_id == 0)
-    return;
-
-  try
-  {
-    const std::string Del = sql_delete();
-    // TODO: Reimplement without reactivation!
-    direct_exec(Del.c_str());
-
-    // Now that we've arrived here, we're about as sure as we can be that that
-    // record is quite dead.
-    m_record_id = 0;
-  }
-  catch (const std::exception &)
-  {}
-
-  if (m_record_id != 0)
-    try
-    {
-      process_notice(
-        "WARNING: "
-        "Failed to delete obsolete transaction record with id " +
-        to_string(m_record_id) + " ('" + name() +
-        "'). "
-        "Please delete it manually.  Thank you.\n");
-    }
-    catch (const std::exception &)
-    {}
-}
-
-
-// Attempt to establish whether transaction record with given ID still exists
-bool pqxx::internal::basic_robusttransaction::CheckTransactionRecord()
-{
-  bool hold = true;
-  for (int c = 20; hold and c; internal::sleep_seconds(5), --c)
-  {
-    if (conn().server_version() > 80300)
-    {
-      const std::string query{
-        "SELECT " + m_xid + " >= txid_snapshot_xmin(txid_current_snapshot())"};
-      direct_exec(query.c_str())[0][0].to(hold);
-    }
-    else
-    {
-      /* Wait for the old backend (with the lost connection) to die.
-       *
-       * Actually this is only possible if stats_command_string (or maybe
-       * stats_start_collector?) has been set in postgresql.conf and we're
-       * running as the postgres superuser.
-       *
-       * Starting with 7.4, we could also use pg_locks.  The entry for a
-       * zombied transaction will have a "relation" field of null, a
-       * "transaction" field with the transaction ID, and "pid" set to our
-       * backend pid.  If the relation exists but no such record is found, then
-       * the transaction is no longer running.
-       */
-      const result R{direct_exec(("SELECT current_query "
-                                  "FROM pq_stat_activity "
-                                  "WHERE procpid = " +
-                                  to_string(m_backendpid))
-                                   .c_str())};
-      hold = not R.empty();
-    }
-  }
-
-  if (hold)
-    throw in_doubt_error{
-      "Old backend process stays alive too long to wait for."};
-
-  // Now look for our transaction record
-  const std::string Find = "SELECT id FROM " + quote_name(m_log_table) +
-                           " "
-                           "WHERE "
-                           "id = " +
-                           to_string(m_record_id) +
-                           " AND "
-                           "user = " +
-                           conn().username();
-
-  // TODO: Re-implement without reactivation!
-  return not direct_exec(Find.c_str()).empty();
 }
