@@ -16,7 +16,7 @@
 
 extern "C"
 {
-#include "libpq-fe.h"
+#include <libpq-fe.h>
 }
 
 #include "pqxx/largeobject"
