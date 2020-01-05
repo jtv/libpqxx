@@ -74,8 +74,8 @@ if(NOT SKIP_PQXX_SHARED)
     add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
     target_compile_definitions(pqxx_shared PUBLIC PQXX_SHARED)
     set_target_properties(
-        pqxx_shared PROPERTIES
-        OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    	pqxx_shared PROPERTIES
+    	OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     )
     library_target_setup(pqxx_shared)
 endif()
