@@ -277,7 +277,7 @@ void pqxx::transaction_base::check_rowcount_params(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  const std::string &statement, const internal::params &args)
+  zview statement, const internal::params &args)
 {
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
     statement, args);

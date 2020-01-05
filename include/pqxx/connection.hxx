@@ -649,7 +649,7 @@ private:
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
 
-  result make_result(internal::pq::PGresult *rhs, const std::string &query);
+  result make_result(internal::pq::PGresult *rhs, std::string_view query);
 
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
@@ -670,7 +670,7 @@ private:
 
   void read_capabilities();
 
-  result exec_prepared(const std::string &statement, const internal::params &);
+  result exec_prepared(zview statement, const internal::params &);
 
   /// Set libpq notice processor to call connection's error handlers chain.
   void set_notice_processor();

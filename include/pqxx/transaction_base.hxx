@@ -363,6 +363,14 @@ public:
   result exec_prepared(const std::string &statement, Args &&... args)
   {
     return internal_exec_prepared(
+      zview{statement.c_str(), statement.size()},
+      internal::params(std::forward<Args>(args)...));
+  }
+
+  template<typename... Args>
+  result exec_prepared(zview statement, Args &&... args)
+  {
+    return internal_exec_prepared(
       statement, internal::params(std::forward<Args>(args)...));
   }
 
@@ -371,6 +379,12 @@ public:
    */
   template<typename... Args>
   row exec_prepared1(const std::string &statement, Args &&... args)
+  {
+    return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
+  }
+
+  template<typename... Args>
+  row exec_prepared1(zview statement, Args &&... args)
   {
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
@@ -384,6 +398,12 @@ public:
     return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
 
+  template<typename... Args>
+  result exec_prepared0(zview statement, Args &&... args)
+  {
+    return exec_prepared_n(0, statement, std::forward<Args>(args)...);
+  }
+
   /// Execute a prepared statement, expect a result with given number of rows.
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
    *  given number of rows.
@@ -391,6 +411,15 @@ public:
   template<typename... Args>
   result exec_prepared_n(
     result::size_type rows, const std::string &statement, Args &&... args)
+  {
+    const auto r = exec_prepared(statement, std::forward<Args>(args)...);
+    check_rowcount_prepared(statement, rows, r.size());
+    return r;
+  }
+
+  template<typename... Args>
+  result exec_prepared_n(
+    result::size_type rows, zview statement, Args &&... args)
   {
     const auto r = exec_prepared(statement, std::forward<Args>(args)...);
     check_rowcount_prepared(statement, rows, r.size());
@@ -480,8 +509,7 @@ private:
   }
   template<typename T> bool parm_is_null(T) const noexcept { return false; }
 
-  result internal_exec_prepared(
-    const std::string &statement, const internal::params &args);
+  result internal_exec_prepared(zview statement, const internal::params &args);
 
   result
   internal_exec_params(const std::string &query, const internal::params &args);

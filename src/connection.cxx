@@ -172,8 +172,9 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 }
 
 
+// XXX: Externalise the query storage, so exec(string_view) can use it.
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *rhs, const std::string &query)
+  internal::pq::PGresult *rhs, std::string_view query)
 {
   return pqxx::internal::gate::result_creation::create(
     rhs, query, internal::enc_group(encoding_id()));
@@ -614,6 +615,7 @@ std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 }
 
 
+// XXX: Can we go zview here?
 pqxx::result pqxx::connection::exec(const char Query[])
 {
   auto R = make_result(PQexec(m_conn, Query), Query);
@@ -669,7 +671,7 @@ void pqxx::connection::unprepare(std::string_view name)
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  const std::string &statement, const internal::params &args)
+  zview statement, const internal::params &args)
 {
   const auto pointers = args.get_pointers();
   const auto pq_result = PQexecPrepared(
@@ -740,12 +742,14 @@ void pqxx::connection::unregister_transaction(transaction_base *T) noexcept
 }
 
 
+// XXX: string_view?  zview?
 bool pqxx::connection::read_copy_line(std::string &Line)
 {
   Line.erase();
   bool Result;
 
   char *Buf = nullptr;
+// XXX: string_view?
   const std::string query = "[END COPY]";
   const auto line_len = PQgetCopyData(m_conn, &Buf, false);
   switch (line_len)
@@ -1093,6 +1097,7 @@ int pqxx::connection::encoding_id() const
 }
 
 
+// XXX: zview?
 pqxx::result pqxx::connection::exec_params(
   const std::string &query, const internal::params &args)
 {

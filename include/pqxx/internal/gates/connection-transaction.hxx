@@ -31,7 +31,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   void end_copy_write() { home().end_copy_write(); }
 
   result
-  exec_prepared(const std::string &statement, const internal::params &args)
+  exec_prepared(zview statement, const internal::params &args)
   {
     return home().exec_prepared(statement, args);
   }

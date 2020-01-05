@@ -132,7 +132,6 @@ template<typename TYPE> struct no_null
 };
 
 
-// XXX: Add template parameter for binary support.
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.

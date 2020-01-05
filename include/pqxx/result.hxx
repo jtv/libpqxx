@@ -141,6 +141,12 @@ public:
     return column_number(Name.c_str());
   }
 
+  /// Number of given column (throws exception if it doesn't exist).
+  row_size_type column_number(zview Name) const
+  {
+    return column_number(Name.c_str());
+  }
+
   /// Name of column with this number (throws exception if it doesn't exist)
   const char *column_name(row_size_type Number) const;
 
@@ -217,7 +223,7 @@ private:
 
   friend class pqxx::internal::gate::result_creation;
   result(
-    internal::pq::PGresult *rhs, const std::string &Query,
+    internal::pq::PGresult *rhs, std::string_view Query,
     internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status() const;
