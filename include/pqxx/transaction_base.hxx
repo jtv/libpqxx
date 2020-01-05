@@ -193,7 +193,7 @@ public:
   std::string quote_raw(const std::string &bin) const;
 
   /// Escape an SQL identifier for use in a query.
-  std::string quote_name(const std::string &identifier) const
+  std::string quote_name(std::string_view identifier) const
   {
     return conn().quote_name(identifier);
   }
@@ -221,7 +221,7 @@ public:
    * @return A result set describing the query's or command's result
    */
   result
-  exec(const std::string &Query, const std::string &Desc = std::string{});
+  exec(std::string_view Query, const std::string &Desc = std::string{});
 
   result
   exec(const std::stringstream &Query, const std::string &Desc = std::string{})
@@ -489,7 +489,7 @@ protected:
   // For use by implementing class:
 
   /// Execute query on connection directly.
-  result direct_exec(const char C[]);
+  result direct_exec(std::string_view);
 
 private:
   enum class status

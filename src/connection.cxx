@@ -172,9 +172,8 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 }
 
 
-// XXX: Externalise the query storage, so exec(string_view) can use it.
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *rhs, std::string_view query)
+  internal::pq::PGresult *rhs, std::shared_ptr<std::string> query)
 {
   return pqxx::internal::gate::result_creation::create(
     rhs, query, internal::enc_group(encoding_id()));
@@ -370,8 +369,9 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *T)
   if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const std::string LQ{"LISTEN " + quote_name(T->channel())};
-    check_result(make_result(PQexec(m_conn, LQ.c_str()), LQ));
+    const std::shared_ptr<std::string> LQ{
+      std::make_shared<std::string>("LISTEN " + quote_name(T->channel()))};
+    check_result(make_result(PQexec(m_conn, LQ->c_str()), LQ));
     m_receivers.insert(new_value);
   }
   else
@@ -615,10 +615,10 @@ std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 }
 
 
-// XXX: Can we go zview here?
-pqxx::result pqxx::connection::exec(const char Query[])
+pqxx::result pqxx::connection::exec(std::string_view query)
 {
-  auto R = make_result(PQexec(m_conn, Query), Query);
+  const auto q{std::make_shared<std::string>(query)};
+  auto R = make_result(PQexec(m_conn, q->c_str()), q);
   check_result(R);
 
   get_notifs();
@@ -652,8 +652,8 @@ std::string pqxx::connection::encrypt_password(
 
 void pqxx::connection::prepare(const char name[], const char definition[])
 {
-  auto r =
-    make_result(PQprepare(m_conn, name, definition, 0, nullptr), "[PREPARE]");
+  const auto q{std::make_shared<std::string>("[PREPARE]")};
+  auto r{make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
   check_result(r);
 }
 
@@ -671,14 +671,15 @@ void pqxx::connection::unprepare(std::string_view name)
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  zview statement, const internal::params &args)
+  std::string_view statement, const internal::params &args)
 {
   const auto pointers = args.get_pointers();
+  const auto q{std::make_shared<std::string>(statement)};
   const auto pq_result = PQexecPrepared(
-    m_conn, statement.c_str(),
+    m_conn, q->c_str(),
     check_cast<int>(args.nonnulls.size(), "exec_prepared"), pointers.data(),
     args.lengths.data(), args.binaries.data(), 0);
-  const auto r = make_result(pq_result, statement);
+  const auto r = make_result(pq_result, q);
   check_result(r);
   get_notifs();
   return r;
@@ -749,8 +750,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
   bool Result;
 
   char *Buf = nullptr;
-// XXX: string_view?
-  const std::string query = "[END COPY]";
+  const auto q{std::make_shared<std::string>("[END COPY]")};
   const auto line_len = PQgetCopyData(m_conn, &Buf, false);
   switch (line_len)
   {
@@ -758,9 +758,9 @@ bool pqxx::connection::read_copy_line(std::string &Line)
     throw failure{"Reading of table data failed: " + std::string{err_msg()}};
 
   case -1:
-    for (auto R = make_result(PQgetResult(m_conn), query);
+    for (auto R = make_result(PQgetResult(m_conn), q);
          pqxx::internal::gate::result_connection(R);
-         R = make_result(PQgetResult(m_conn), query))
+         R = make_result(PQgetResult(m_conn), q))
       check_result(R);
     Result = false;
     break;
@@ -808,7 +808,7 @@ void pqxx::connection::end_copy_write()
                          " from PQputCopyEnd()"};
   }
 
-  check_result(make_result(PQgetResult(m_conn), "[END COPY]"));
+  check_result(make_result(PQgetResult(m_conn), std::make_shared<std::string>("[END COPY]")));
 }
 
 
@@ -1097,16 +1097,16 @@ int pqxx::connection::encoding_id() const
 }
 
 
-// XXX: zview?
 pqxx::result pqxx::connection::exec_params(
-  const std::string &query, const internal::params &args)
+  std::string_view query, const internal::params &args)
 {
   const auto pointers = args.get_pointers();
+  const auto q{std::make_shared<std::string>(query)};
   const auto pq_result = PQexecParams(
-    m_conn, query.c_str(),
+    m_conn, q->c_str(),
     check_cast<int>(args.nonnulls.size(), "exec_params() parameters"), nullptr,
     pointers.data(), args.lengths.data(), args.binaries.data(), 0);
-  const auto r = make_result(pq_result, query);
+  const auto r = make_result(pq_result, q);
   check_result(r);
   get_notifs();
   return r;

@@ -649,7 +649,7 @@ private:
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
 
-  result make_result(internal::pq::PGresult *rhs, std::string_view query);
+  result make_result(internal::pq::PGresult *rhs, std::shared_ptr<std::string> query);
 
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);
@@ -670,7 +670,7 @@ private:
 
   void read_capabilities();
 
-  result exec_prepared(zview statement, const internal::params &);
+  result exec_prepared(std::string_view statement, const internal::params &);
 
   /// Set libpq notice processor to call connection's error handlers chain.
   void set_notice_processor();
@@ -687,7 +687,7 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result PQXX_PRIVATE exec(const char[]);
+  result PQXX_PRIVATE exec(std::string_view);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
   bool PQXX_PRIVATE read_copy_line(std::string &);
@@ -710,7 +710,7 @@ private:
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params(const std::string &query, const internal::params &args);
+  result exec_params(std::string_view query, const internal::params &args);
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;

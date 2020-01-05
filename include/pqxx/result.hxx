@@ -37,6 +37,7 @@ namespace pqxx::internal::gate
 {
 class result_connection;
 class result_creation;
+class result_pipeline;
 class result_row;
 class result_sql_cursor;
 } // namespace pqxx::internal::gate
@@ -208,6 +209,9 @@ private:
     return data_pointer{res, internal::clear_result};
   }
 
+  friend class pqxx::internal::gate::result_pipeline;
+  PQXX_PURE std::shared_ptr<std::string> query_ptr() const noexcept { return m_query; }
+
   /// Query string.
   std::shared_ptr<std::string> m_query;
 
@@ -223,7 +227,7 @@ private:
 
   friend class pqxx::internal::gate::result_creation;
   result(
-    internal::pq::PGresult *rhs, std::string_view Query,
+    internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
     internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status() const;

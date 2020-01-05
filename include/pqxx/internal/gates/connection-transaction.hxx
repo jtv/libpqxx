@@ -13,7 +13,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   connection_transaction(reference x) : super(x) {}
 
-  result exec(const char query[]) { return home().exec(query); }
+  result exec(std::string_view query) { return home().exec(query); }
   void register_transaction(transaction_base *t)
   {
     home().register_transaction(t);

@@ -17,6 +17,7 @@
 
 #include "pqxx/internal/gates/connection-pipeline.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
+#include "pqxx/internal/gates/result-pipeline.hxx"
 
 
 namespace
@@ -272,7 +273,7 @@ void pqxx::pipeline::obtain_dummy()
       "Pipeline got no result from backend when it expected one.");
 
   result R = pqxx::internal::gate::result_creation::create(
-    r, "[DUMMY PIPELINE QUERY]",
+    r, std::make_shared<std::string>("[DUMMY PIPELINE QUERY]"),
     internal::enc_group(m_trans.conn().encoding_id()));
 
   bool OK = false;
@@ -322,7 +323,7 @@ void pqxx::pipeline::obtain_dummy()
     do
     {
       m_num_waiting--;
-      const std::string &query = m_issuedrange.first->second.get_query();
+      const auto query{*m_issuedrange.first->second.get_query()};
       const result res{m_trans.exec(query)};
       m_issuedrange.first->second.set_result(res);
       pqxx::internal::gate::result_creation{res}.check_status();

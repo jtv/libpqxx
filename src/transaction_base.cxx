@@ -195,7 +195,7 @@ std::string pqxx::transaction_base::quote_raw(const std::string &bin) const
 
 
 pqxx::result
-pqxx::transaction_base::exec(const std::string &Query, const std::string &Desc)
+pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
 {
   CheckPendingError();
 
@@ -228,7 +228,7 @@ pqxx::transaction_base::exec(const std::string &Query, const std::string &Desc)
   }
 
   // TODO: Pass Desc to direct_exec(), and from there on down
-  return direct_exec(Query.c_str());
+  return direct_exec(Query);
 }
 
 
@@ -374,7 +374,7 @@ void pqxx::transaction_base::unregister_focus(
 }
 
 
-pqxx::result pqxx::transaction_base::direct_exec(const char C[])
+pqxx::result pqxx::transaction_base::direct_exec(std::string_view C)
 {
   CheckPendingError();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(C);

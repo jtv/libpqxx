@@ -136,14 +136,14 @@ private:
   class PQXX_PRIVATE Query
   {
   public:
-    explicit Query(const std::string &q) : m_query{q}, m_res{} {}
+    explicit Query(std::string_view q) : m_query{std::make_shared<std::string>(q)}, m_res{} {}
 
     const result &get_result() const noexcept { return m_res; }
     void set_result(const result &r) noexcept { m_res = r; }
-    const std::string &get_query() const noexcept { return m_query; }
+    std::shared_ptr<std::string> get_query() const noexcept { return m_query; }
 
   private:
-    std::string m_query;
+    std::shared_ptr<std::string> m_query;
     result m_res;
   };
 

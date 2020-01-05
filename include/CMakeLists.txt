@@ -95,6 +95,7 @@ install(
 		PATTERN internal/gates/icursorstream-icursor_iterator.hxx
 		PATTERN internal/gates/result-connection.hxx
 		PATTERN internal/gates/result-creation.hxx
+		PATTERN internal/gates/result-pipeline.hxx
 		PATTERN internal/gates/result-row.hxx
 		PATTERN internal/gates/result-sql_cursor.hxx
 		PATTERN internal/gates/transaction-sql_cursor.hxx
