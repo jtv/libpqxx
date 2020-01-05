@@ -5,26 +5,26 @@
  * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this
- * mistake, or contact the author.
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
  */
 #ifndef PQXX_H_VERSION
 
-#  include "pqxx/compiler-public.hxx"
-#  include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.0.0"
+#define PQXX_VERSION "7.0.0"
 /// Library ABI version.
-#  define PQXX_ABI "7.0"
+#define PQXX_ABI "7.0"
 
 /// Major version number.
-#  define PQXX_VERSION_MAJOR 7
+#define PQXX_VERSION_MAJOR 7
 /// Minor version number.
-#  define PQXX_VERSION_MINOR 0
+#define PQXX_VERSION_MINOR 0
 
-#  define PQXX_VERSION_CHECK                                                  \
-    check_pqxx_version_##PQXX_VERSION_MAJOR##_##PQXX_VERSION_MINOR
+#define PQXX_VERSION_CHECK \
+	check_pqxx_version_##PQXX_VERSION_MAJOR##_##PQXX_VERSION_MINOR
 
 namespace pqxx::internal
 {
@@ -51,6 +51,6 @@ namespace pqxx::internal
  * exist for the given version number.
  */
 PQXX_LIBEXPORT int PQXX_VERSION_CHECK() noexcept;
-} // namespace pqxx::internal
-#  include "pqxx/internal/compiler-internal-post.hxx"
+}
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

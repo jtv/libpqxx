@@ -39,10 +39,9 @@ if(NOT SKIP_PQXX_SHARED)
     # Build a shared library
     add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
     target_compile_definitions(pqxx_shared PUBLIC PQXX_SHARED)
-    set_target_properties(pqxx_shared PROPERTIES
+    set_target_properties(
+        pqxx_shared PROPERTIES
     	OUTPUT_NAME pqxx
-    	VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
-    	SOVERSION ${PROJECT_VERSION_MAJOR}
     )
     library_target_setup(pqxx_shared)
 endif()
