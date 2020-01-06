@@ -133,7 +133,7 @@ public:
 
 protected:
   cursor_base(
-    connection &, const std::string &Name, bool embellish_name = true);
+    connection &, std::string_view Name, bool embellish_name = true);
 
   const std::string m_name;
 };

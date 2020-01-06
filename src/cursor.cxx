@@ -38,7 +38,7 @@ pqxx::cursor_base::difference_type pqxx::cursor_base::backward_all() noexcept
 
 
 pqxx::cursor_base::cursor_base(
-  connection &context, const std::string &Name, bool embellish_name) :
+  connection &context, std::string_view Name, bool embellish_name) :
         m_name{embellish_name ? context.adorn_name(Name) : Name}
 {}
 
