@@ -287,7 +287,7 @@ void pqxx::pipeline::obtain_dummy()
     if (R.size() > 1)
       internal_error("Unexpected result for dummy query in pipeline.");
 
-    if (std::string{R.at(0).at(0).c_str()} != theDummyValue)
+    if (R.at(0).at(0).as<std::string>() != theDummyValue)
       internal_error("Dummy query in pipeline returned unexpected value.");
     return;
   }
