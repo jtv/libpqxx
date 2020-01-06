@@ -32,12 +32,12 @@ class PQXX_LIBEXPORT sql_cursor : public cursor_base
 {
 public:
   sql_cursor(
-    transaction_base &t, const std::string &query, const std::string &cname,
+    transaction_base &t, std::string_view query, std::string_view cname,
     cursor_base::access_policy ap, cursor_base::update_policy up,
     cursor_base::ownership_policy op, bool hold);
 
   sql_cursor(
-    transaction_base &t, const std::string &cname,
+    transaction_base &t, std::string_view cname,
     cursor_base::ownership_policy op);
 
   ~sql_cursor() noexcept { close(); }

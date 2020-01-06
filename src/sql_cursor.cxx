@@ -52,9 +52,9 @@ inline bool useless_trail(char c)
  * The query must be nonempty.
  */
 std::string::size_type
-find_query_end(const std::string &query, pqxx::internal::encoding_group enc)
+find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
-  const auto text = query.c_str();
+  const auto text = query.data();
   const auto size = query.size();
   std::string::size_type end;
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
@@ -84,7 +84,7 @@ find_query_end(const std::string &query, pqxx::internal::encoding_group enc)
 
 
 pqxx::internal::sql_cursor::sql_cursor(
-  transaction_base &t, const std::string &query, const std::string &cname,
+  transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
   cursor_base::ownership_policy op, bool hold) :
         cursor_base{t.conn(), cname},
@@ -117,7 +117,7 @@ pqxx::internal::sql_cursor::sql_cursor(
     cq << "WITH HOLD ";
 
   cq << "FOR ";
-  cq.write(query.c_str(), std::streamsize(qend));
+  cq.write(query.data(), std::streamsize(qend));
   cq << ' ';
 
   if (up != cursor_base::update)
@@ -139,7 +139,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
 
 pqxx::internal::sql_cursor::sql_cursor(
-  transaction_base &t, const std::string &cname,
+  transaction_base &t, std::string_view cname,
   cursor_base::ownership_policy op) :
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},

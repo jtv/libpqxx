@@ -161,13 +161,13 @@ public:
 
   /// Create cursor.
   stateless_cursor(
-    transaction_base &trans, const std::string &query,
-    const std::string &cname, bool hold) :
+    transaction_base &trans, std::string_view query,
+    std::string_view cname, bool hold) :
           m_cur{trans, query, cname, cursor_base::random_access, up, op, hold}
   {}
 
   /// Adopt existing scrolling SQL cursor.
-  stateless_cursor(transaction_base &trans, const std::string adopted_cursor) :
+  stateless_cursor(transaction_base &trans, std::string_view adopted_cursor) :
           m_cur{trans, adopted_cursor, op}
   {
     // Put cursor in known position
@@ -255,8 +255,8 @@ public:
    * positive number.
    */
   icursorstream(
-    transaction_base &context, const std::string &query,
-    const std::string &basename, difference_type sstride = 1);
+    transaction_base &context, std::string_view query,
+    std::string_view basename, difference_type sstride = 1);
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g.
