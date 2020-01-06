@@ -82,7 +82,7 @@ public:
    * @param Name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
-    connection &C, const std::string &Name = std::string{}) :
+    connection &C, std::string_view Name = std::string_view{}) :
           namedclass{"robusttransaction", Name},
           internal::basic_robusttransaction{
             C,
