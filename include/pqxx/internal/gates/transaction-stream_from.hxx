@@ -8,7 +8,7 @@ class PQXX_PRIVATE transaction_stream_from : callgate<transaction_base>
 
   transaction_stream_from(reference x) : super(x) {}
 
-  void BeginCopyRead(const std::string &table, const std::string &columns)
+  void BeginCopyRead(std::string_view table, const std::string &columns)
   {
     home().BeginCopyRead(table, columns);
   }

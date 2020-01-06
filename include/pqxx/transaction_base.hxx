@@ -528,12 +528,12 @@ private:
   PQXX_PRIVATE void register_pending_error(const std::string &) noexcept;
 
   friend class pqxx::internal::gate::transaction_stream_from;
-  PQXX_PRIVATE void BeginCopyRead(const std::string &, const std::string &);
+  PQXX_PRIVATE void BeginCopyRead(std::string_view, const std::string &);
   bool read_copy_line(std::string &);
 
   friend class pqxx::internal::gate::transaction_stream_to;
   PQXX_PRIVATE void
-  BeginCopyWrite(const std::string &Table, const std::string &Columns);
+  BeginCopyWrite(std::string_view Table, const std::string &Columns);
   void write_copy_line(std::string_view);
   void end_copy_write();
 

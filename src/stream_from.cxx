@@ -32,7 +32,7 @@ std::string::size_type find_tab(
 
 
 pqxx::stream_from::stream_from(
-  transaction_base &tb, const std::string &table_name) :
+  transaction_base &tb, std::string_view table_name) :
         namedclass{"stream_from", table_name},
         transactionfocus{tb}
 {
@@ -74,14 +74,14 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
 
 
 void pqxx::stream_from::set_up(
-  transaction_base &tb, const std::string &table_name)
+  transaction_base &tb, std::string_view table_name)
 {
   set_up(tb, table_name, "");
 }
 
 
 void pqxx::stream_from::set_up(
-  transaction_base &tb, const std::string &table_name,
+  transaction_base &tb, std::string_view table_name,
   const std::string &columns)
 {
   // Get the encoding before starting the COPY, otherwise reading the the

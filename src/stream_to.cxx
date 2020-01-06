@@ -57,14 +57,14 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 
 
 void pqxx::stream_to::set_up(
-  transaction_base &tb, const std::string &table_name)
+  transaction_base &tb, std::string_view table_name)
 {
   set_up(tb, table_name, "");
 }
 
 
 void pqxx::stream_to::set_up(
-  transaction_base &tb, const std::string &table_name,
+  transaction_base &tb, std::string_view table_name,
   const std::string &columns)
 {
   internal::gate::transaction_stream_to{tb}.BeginCopyWrite(

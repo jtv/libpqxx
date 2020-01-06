@@ -9,7 +9,7 @@ class PQXX_PRIVATE transaction_stream_to : callgate<transaction_base>
   transaction_stream_to(reference x) : super(x) {}
 
   void BeginCopyWrite(
-    const std::string &table, const std::string &columns = std::string{})
+    std::string_view table, const std::string &columns = std::string{})
   {
     home().BeginCopyWrite(table, columns);
   }

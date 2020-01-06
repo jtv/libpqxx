@@ -135,9 +135,9 @@ private:
   /// Write a row of data, as a line of text.
   void write_raw_line(std::string_view);
 
-  void set_up(transaction_base &, const std::string &table_name);
+  void set_up(transaction_base &, std::string_view table_name);
   void set_up(
-    transaction_base &, const std::string &table_name,
+    transaction_base &, std::string_view table_name,
     const std::string &columns);
 };
 

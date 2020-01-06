@@ -28,13 +28,13 @@ namespace pqxx
 class PQXX_LIBEXPORT stream_from : internal::transactionfocus
 {
 public:
-  stream_from(transaction_base &, const std::string &table_name);
+  stream_from(transaction_base &, std::string_view table_name);
   template<typename Columns>
   stream_from(
-    transaction_base &, const std::string &table_name, const Columns &columns);
+    transaction_base &, std::string_view table_name, const Columns &columns);
   template<typename Iter>
   stream_from(
-    transaction_base &, const std::string &table_name, Iter columns_begin,
+    transaction_base &, std::string_view table_name, Iter columns_begin,
     Iter columns_end);
 
   ~stream_from() noexcept;
@@ -60,9 +60,9 @@ private:
   bool m_finished = false;
   bool m_retry_line = false;
 
-  void set_up(transaction_base &, const std::string &table_name);
+  void set_up(transaction_base &, std::string_view table_name);
   void set_up(
-    transaction_base &, const std::string &table_name,
+    transaction_base &, std::string_view table_name,
     const std::string &columns);
 
   void close();
@@ -88,7 +88,7 @@ private:
 
 template<typename Columns>
 inline stream_from::stream_from(
-  transaction_base &tb, const std::string &table_name,
+  transaction_base &tb, std::string_view table_name,
   const Columns &columns) :
         stream_from{tb, table_name, std::begin(columns), std::end(columns)}
 {}
@@ -96,7 +96,7 @@ inline stream_from::stream_from(
 
 template<typename Iter>
 inline stream_from::stream_from(
-  transaction_base &tb, const std::string &table_name, Iter columns_begin,
+  transaction_base &tb, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
         namedclass{"stream_from", table_name},
         transactionfocus{tb}
