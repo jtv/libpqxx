@@ -51,19 +51,9 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 
 std::string pqxx::internal::namedclass::description() const
 {
-  try
-  {
-    std::string desc = classname();
-    if (not name().empty())
-      desc += " '" + name() + "'";
-    return desc;
-  }
-  catch (const std::exception &)
-  {
-    // Oops, string composition failed!  Probably out of memory.
-    // Let's try something easier.
-  }
-  return name().empty() ? classname() : name();
+  const std::string cname{classname()};
+  if (name().empty()) return cname;
+  else return cname + " '" + name() + "'";
 }
 
 
