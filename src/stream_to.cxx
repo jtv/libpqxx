@@ -17,7 +17,7 @@
 
 
 pqxx::stream_to::stream_to(
-  transaction_base &tb, const std::string &table_name) :
+  transaction_base &tb, std::string_view table_name) :
         namedclass{"stream_to", table_name},
         internal::transactionfocus{tb}
 {

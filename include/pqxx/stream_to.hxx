@@ -85,17 +85,17 @@ public:
    * your data fields and the table is explicit in your code, and not hidden
    * in an "implicit contract" between your code and your schema.
    */
-  stream_to(transaction_base &, const std::string &table_name);
+  stream_to(transaction_base &, std::string_view table_name);
 
   /// Create a stream, specifying column names as a container of strings.
   template<typename Columns>
   stream_to(
-    transaction_base &, const std::string &table_name, const Columns &columns);
+    transaction_base &, std::string_view table_name, const Columns &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
   template<typename Iter>
   stream_to(
-    transaction_base &, const std::string &table_name, Iter columns_begin,
+    transaction_base &, std::string_view table_name, Iter columns_begin,
     Iter columns_end);
 
   ~stream_to() noexcept;
@@ -144,7 +144,7 @@ private:
 
 template<typename Columns>
 inline stream_to::stream_to(
-  transaction_base &tb, const std::string &table_name,
+  transaction_base &tb, std::string_view table_name,
   const Columns &columns) :
         stream_to{tb, table_name, std::begin(columns), std::end(columns)}
 {}
@@ -152,7 +152,7 @@ inline stream_to::stream_to(
 
 template<typename Iter>
 inline stream_to::stream_to(
-  transaction_base &tb, const std::string &table_name, Iter columns_begin,
+  transaction_base &tb, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
         namedclass{"stream_to", table_name},
         internal::transactionfocus{tb}
