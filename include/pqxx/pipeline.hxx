@@ -51,8 +51,10 @@ public:
   pipeline(const pipeline &) = delete;
   pipeline &operator=(const pipeline &) = delete;
 
-  explicit pipeline(
-    transaction_base &, const std::string &Name = std::string{});
+  explicit pipeline(transaction_base &t) : namedclass{"pipeline"}, transactionfocus{t} { init(); }
+  pipeline(transaction_base &t, const char Name[]) : namedclass{"pipeline", Name}, transactionfocus{t} { init(); }
+  pipeline(transaction_base &t, std::string &&Name) : namedclass{"pipeline", std::move(Name)}, transactionfocus{t} { init(); }
+  pipeline(transaction_base &t, std::string_view Name) : namedclass{"pipeline", Name}, transactionfocus{t} { init(); }
 
   ~pipeline() noexcept;
 
@@ -149,6 +151,7 @@ private:
 
   using QueryMap = std::map<query_id, Query>;
 
+  void init();
   void attach();
   void detach();
 

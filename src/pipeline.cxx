@@ -28,9 +28,7 @@ const std::string theDummyQuery{"SELECT " + theDummyValue + theSeparator};
 } // namespace
 
 
-pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
-        namedclass("pipeline", Name),
-        transactionfocus{t}
+void pqxx::pipeline::init()
 {
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
   attach();

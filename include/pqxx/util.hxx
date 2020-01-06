@@ -326,6 +326,9 @@ public:
   namedclass(std::string_view Classname, std::string_view Name) :
     m_classname{Classname}, m_name{Name} {}
 
+   namedclass(std::string_view Classname, const char Name[]) :
+    m_classname{Classname}, m_name{Name} {}
+
   namedclass(std::string_view Classname, std::string &&Name) :
     m_classname{Classname}, m_name{std::move(Name)} {}
 
