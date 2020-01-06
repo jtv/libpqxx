@@ -24,7 +24,7 @@
 
 namespace pqxx::internal
 {
-std::string PQXX_LIBEXPORT copy_string_escape(const std::string &);
+std::string PQXX_LIBEXPORT copy_string_escape(std::string_view);
 
 struct TypedCopyEscaper
 {

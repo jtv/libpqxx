@@ -84,10 +84,10 @@ void pqxx::stream_to::complete()
 }
 
 
-std::string pqxx::internal::copy_string_escape(const std::string &s)
+std::string pqxx::internal::copy_string_escape(std::string_view s)
 {
   if (s.empty())
-    return s;
+    return std::string{};
 
   std::string escaped;
   escaped.reserve(s.size() + 1);
