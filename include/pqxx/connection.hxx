@@ -190,6 +190,7 @@ public:
    */
   bool PQXX_PURE is_open() const noexcept;
 
+// XXX: zview?
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
@@ -467,6 +468,11 @@ public:
     prepare(name.c_str(), definition.c_str());
   }
 
+  void prepare(zview name, zview definition)
+  {
+    prepare(name.c_str(), definition.c_str());
+  }
+
   /// Define a nameless prepared statement.
   /**
    * This can be useful if you merely want to pass large binary parameters to a
@@ -476,7 +482,7 @@ public:
    * else.
    */
   void prepare(const char definition[]);
-  void prepare(const std::string &definition)
+  void prepare(zview definition)
   {
     return prepare(definition.c_str());
   }
@@ -529,6 +535,15 @@ public:
    * copy of the original binary data.
    */
   std::string unesc_raw(const std::string &text) const
+  {
+    return unesc_raw(text.c_str());
+  }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  std::string unesc_raw(zview text) const
   {
     return unesc_raw(text.c_str());
   }
