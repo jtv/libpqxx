@@ -18,7 +18,7 @@
 
 
 pqxx::notification_receiver::notification_receiver(
-  connection &c, const std::string &channel_name) :
+  connection &c, std::string_view channel_name) :
         m_conn{c},
         m_channel{channel_name}
 {

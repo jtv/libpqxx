@@ -29,7 +29,7 @@ const std::string theDummyQuery{"SELECT " + theDummyValue + theSeparator};
 
 
 pqxx::pipeline::pipeline(transaction_base &t, const std::string &Name) :
-        namedclass{"pipeline", Name},
+        namedclass("pipeline", Name),
         transactionfocus{t}
 {
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
@@ -63,7 +63,7 @@ void pqxx::pipeline::detach()
 }
 
 
-pqxx::pipeline::query_id pqxx::pipeline::insert(const std::string &q)
+pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q)
 {
   attach();
   const query_id qid = generate_id();

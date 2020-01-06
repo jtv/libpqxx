@@ -60,7 +60,7 @@ public:
    * @param c Connnection to operate on.
    * @param channel Name of the notification to listen for.
    */
-  notification_receiver(connection &c, const std::string &channel);
+  notification_receiver(connection &c, std::string_view channel);
   notification_receiver(const notification_receiver &) = delete;
   notification_receiver &operator=(const notification_receiver &) = delete;
   virtual ~notification_receiver();

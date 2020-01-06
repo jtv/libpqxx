@@ -63,7 +63,7 @@ public:
    * confused!
    * @return Identifier for this query, unique only within this pipeline
    */
-  query_id insert(const std::string &);
+  query_id insert(std::string_view);
 
   /// Wait for all ongoing or pending operations to complete.
   /** Detaches from the transaction when done. */
