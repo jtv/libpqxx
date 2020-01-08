@@ -6,5 +6,5 @@ includedir=@includedir@
 Name: libpqxx
 Description: C++ client API for the PostgreSQL database management system.
 Version: @VERSION@
-Libs: -L${libdir} -L@with_postgres_lib@ -lpqxx
-Cflags: -I${includedir} -I@with_postgres_include@
+Libs: -L${libdir} -lpqxx
+Cflags: -I${includedir}

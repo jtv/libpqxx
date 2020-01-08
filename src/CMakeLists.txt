@@ -100,3 +100,14 @@ set_target_properties(
 	OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 library_target_setup(pqxx)
+
+# install pkg-config file
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix \${prefix})
+set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(VERSION ${PROJECT_VERSION})
+configure_file(${CMAKE_SOURCE_DIR}/libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
+install(FILES ${CMAKE_BINARY_DIR}/libpqxx.pc
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
