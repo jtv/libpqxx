@@ -54,7 +54,7 @@ file(
 )
 
 add_executable(unit_runner ${UNIT_TEST_SOURCES})
-target_link_libraries(unit_runner PUBLIC pqxx_shared)
+target_link_libraries(unit_runner PUBLIC pqxx)
 target_include_directories(unit_runner PRIVATE ${PostgreSQL_INCLUDE_DIRS})
 add_test(
 	NAME unit_runner
