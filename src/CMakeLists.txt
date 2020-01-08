@@ -37,6 +37,27 @@ macro(library_target_setup tgt)
     	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
+    get_target_property(name ${tgt} NAME)
+    get_target_property(output_name ${tgt} OUTPUT_NAME)
+    if(NOT name STREQUAL output_name)
+        # Create library symlink
+        get_target_property(target_type ${tgt} TYPE)
+        if(target_type STREQUAL "SHARED_LIBRARY")
+            set(library_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
+            set(library_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX})
+        elseif(target_type STREQUAL "STATIC_LIBRARY")
+            set(library_prefix ${CMAKE_STATIC_LIBRARY_PREFIX})
+            set(library_suffix ${CMAKE_STATIC_LIBRARY_SUFFIX})
+        endif()
+        add_custom_target(library_symlink ALL
+        	${CMAKE_COMMAND} -E create_symlink
+        		${library_prefix}${output_name}${library_suffix}
+        		${library_prefix}${name}${library_suffix}
+        )
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
+        	DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
+    endif()
 endmacro()
 
 file(
