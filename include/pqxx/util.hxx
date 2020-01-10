@@ -324,13 +324,19 @@ public:
   explicit namedclass(std::string_view Classname) : m_classname{Classname} {}
 
   namedclass(std::string_view Classname, std::string_view Name) :
-    m_classname{Classname}, m_name{Name} {}
+          m_classname{Classname},
+          m_name{Name}
+  {}
 
-   namedclass(std::string_view Classname, const char Name[]) :
-    m_classname{Classname}, m_name{Name} {}
+  namedclass(std::string_view Classname, const char Name[]) :
+          m_classname{Classname},
+          m_name{Name}
+  {}
 
   namedclass(std::string_view Classname, std::string &&Name) :
-    m_classname{Classname}, m_name{std::move(Name)} {}
+          m_classname{Classname},
+          m_name{std::move(Name)}
+  {}
 
   /// Object name, or the empty string if no name was given.
   const std::string &name() const noexcept { return m_name; }

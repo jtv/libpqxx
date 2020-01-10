@@ -419,8 +419,7 @@ void pqxx::transaction_base::CheckPendingError()
 
 namespace
 {
-std::string
-MakeCopyString(std::string_view Table, const std::string &Columns)
+std::string MakeCopyString(std::string_view Table, const std::string &Columns)
 {
   std::string Q = "COPY " + std::string{Table} + " ";
   if (not Columns.empty())

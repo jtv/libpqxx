@@ -52,8 +52,10 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 std::string pqxx::internal::namedclass::description() const
 {
   const std::string cname{classname()};
-  if (name().empty()) return cname;
-  else return cname + " '" + name() + "'";
+  if (name().empty())
+    return cname;
+  else
+    return cname + " '" + name() + "'";
 }
 
 

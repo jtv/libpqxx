@@ -51,10 +51,30 @@ public:
   pipeline(const pipeline &) = delete;
   pipeline &operator=(const pipeline &) = delete;
 
-  explicit pipeline(transaction_base &t) : namedclass{"pipeline"}, transactionfocus{t} { init(); }
-  pipeline(transaction_base &t, const char Name[]) : namedclass{"pipeline", Name}, transactionfocus{t} { init(); }
-  pipeline(transaction_base &t, std::string &&Name) : namedclass{"pipeline", std::move(Name)}, transactionfocus{t} { init(); }
-  pipeline(transaction_base &t, std::string_view Name) : namedclass{"pipeline", Name}, transactionfocus{t} { init(); }
+  explicit pipeline(transaction_base &t) :
+          namedclass{"pipeline"},
+          transactionfocus{t}
+  {
+    init();
+  }
+  pipeline(transaction_base &t, const char Name[]) :
+          namedclass{"pipeline", Name},
+          transactionfocus{t}
+  {
+    init();
+  }
+  pipeline(transaction_base &t, std::string &&Name) :
+          namedclass{"pipeline", std::move(Name)},
+          transactionfocus{t}
+  {
+    init();
+  }
+  pipeline(transaction_base &t, std::string_view Name) :
+          namedclass{"pipeline", Name},
+          transactionfocus{t}
+  {
+    init();
+  }
 
   ~pipeline() noexcept;
 
@@ -138,7 +158,10 @@ private:
   class PQXX_PRIVATE Query
   {
   public:
-    explicit Query(std::string_view q) : m_query{std::make_shared<std::string>(q)}, m_res{} {}
+    explicit Query(std::string_view q) :
+            m_query{std::make_shared<std::string>(q)},
+            m_res{}
+    {}
 
     const result &get_result() const noexcept { return m_res; }
     void set_result(const result &r) noexcept { m_res = r; }

@@ -194,7 +194,10 @@ public:
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &msg) noexcept { process_notice(zview{msg}); }
+  void process_notice(const std::string &msg) noexcept
+  {
+    process_notice(zview{msg});
+  }
   /// Invoke notice processor function.  Newline at end is recommended.
   /** The zview variant, with a message ending in newline, is the most
    * efficient way to call process_notice.
@@ -487,10 +490,7 @@ public:
    * else.
    */
   void prepare(const char definition[]);
-  void prepare(zview definition)
-  {
-    return prepare(definition.c_str());
-  }
+  void prepare(zview definition) { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -548,10 +548,7 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(zview text) const
-  {
-    return unesc_raw(text.c_str());
-  }
+  std::string unesc_raw(zview text) const { return unesc_raw(text.c_str()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -669,7 +666,8 @@ private:
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
 
-  result make_result(internal::pq::PGresult *rhs, std::shared_ptr<std::string> query);
+  result
+  make_result(internal::pq::PGresult *rhs, std::shared_ptr<std::string> query);
 
   void PQXX_PRIVATE set_up_state();
   void PQXX_PRIVATE check_result(const result &);

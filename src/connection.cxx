@@ -288,8 +288,8 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
   else if (msg[view.size() - 1] == '\n')
     process_notice_raw(msg);
   else
-      // Newline is missing.  Let the zview version of the code add it.
-      process_notice(view);
+    // Newline is missing.  Let the zview version of the code add it.
+    process_notice(view);
 }
 
 
@@ -648,9 +648,8 @@ pqxx::result pqxx::connection::exec_prepared(
   const auto pointers = args.get_pointers();
   const auto q{std::make_shared<std::string>(statement)};
   const auto pq_result = PQexecPrepared(
-    m_conn, q->c_str(),
-    check_cast<int>(args.nonnulls.size(), "exec_prepared"), pointers.data(),
-    args.lengths.data(), args.binaries.data(), 0);
+    m_conn, q->c_str(), check_cast<int>(args.nonnulls.size(), "exec_prepared"),
+    pointers.data(), args.lengths.data(), args.binaries.data(), 0);
   const auto r = make_result(pq_result, q);
   check_result(r);
   get_notifs();
@@ -717,12 +716,12 @@ void pqxx::connection::unregister_transaction(transaction_base *T) noexcept
 
 bool pqxx::connection::read_copy_line(std::string &Line)
 {
-// XXX: Does std::string::erase() preserve existing storage?
+  // XXX: Does std::string::erase() preserve existing storage?
   Line.erase();
   bool Result;
 
   char *Buf = nullptr;
-// XXX: Allocate once, and just issue a fresh shared_ptr.
+  // XXX: Allocate once, and just issue a fresh shared_ptr.
   const auto q{std::make_shared<std::string>("[END COPY]")};
   const auto line_len = PQgetCopyData(m_conn, &Buf, false);
   switch (line_len)
@@ -745,7 +744,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
     {
       std::unique_ptr<char, std::function<void(char *)>> PQA(
         Buf, pqxx::internal::freepqmem_templated<char>);
-// XXX: Does std::string::assign() preserve existing storage?
+      // XXX: Does std::string::assign() preserve existing storage?
       Line.assign(Buf, unsigned(line_len));
     }
     Result = true;
@@ -782,7 +781,8 @@ void pqxx::connection::end_copy_write()
                          " from PQputCopyEnd()"};
   }
 
-  check_result(make_result(PQgetResult(m_conn), std::make_shared<std::string>("[END COPY]")));
+  check_result(make_result(
+    PQgetResult(m_conn), std::make_shared<std::string>("[END COPY]")));
 }
 
 

@@ -220,8 +220,7 @@ public:
    * @param Desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result
-  exec(std::string_view Query, const std::string &Desc = std::string{});
+  result exec(std::string_view Query, const std::string &Desc = std::string{});
 
   result
   exec(const std::stringstream &Query, const std::string &Desc = std::string{})
@@ -418,8 +417,8 @@ public:
   }
 
   template<typename... Args>
-  result exec_prepared_n(
-    result::size_type rows, zview statement, Args &&... args)
+  result
+  exec_prepared_n(result::size_type rows, zview statement, Args &&... args)
   {
     const auto r = exec_prepared(statement, std::forward<Args>(args)...);
     check_rowcount_prepared(statement, rows, r.size());

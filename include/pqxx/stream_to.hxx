@@ -144,8 +144,7 @@ private:
 
 template<typename Columns>
 inline stream_to::stream_to(
-  transaction_base &tb, std::string_view table_name,
-  const Columns &columns) :
+  transaction_base &tb, std::string_view table_name, const Columns &columns) :
         stream_to{tb, table_name, std::begin(columns), std::end(columns)}
 {}
 

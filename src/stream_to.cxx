@@ -16,8 +16,7 @@
 #include "pqxx/internal/gates/transaction-stream_to.hxx"
 
 
-pqxx::stream_to::stream_to(
-  transaction_base &tb, std::string_view table_name) :
+pqxx::stream_to::stream_to(transaction_base &tb, std::string_view table_name) :
         namedclass{"stream_to", table_name},
         internal::transactionfocus{tb}
 {
@@ -56,8 +55,7 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 }
 
 
-void pqxx::stream_to::set_up(
-  transaction_base &tb, std::string_view table_name)
+void pqxx::stream_to::set_up(transaction_base &tb, std::string_view table_name)
 {
   set_up(tb, table_name, "");
 }

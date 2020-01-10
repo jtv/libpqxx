@@ -132,8 +132,7 @@ public:
   const std::string &name() const noexcept { return m_name; }
 
 protected:
-  cursor_base(
-    connection &, std::string_view Name, bool embellish_name = true);
+  cursor_base(connection &, std::string_view Name, bool embellish_name = true);
 
   const std::string m_name;
 };
@@ -161,8 +160,8 @@ public:
 
   /// Create cursor.
   stateless_cursor(
-    transaction_base &trans, std::string_view query,
-    std::string_view cname, bool hold) :
+    transaction_base &trans, std::string_view query, std::string_view cname,
+    bool hold) :
           m_cur{trans, query, cname, cursor_base::random_access, up, op, hold}
   {}
 
