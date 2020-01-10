@@ -270,9 +270,12 @@ void pqxx::pipeline::obtain_dummy()
     internal_error(
       "Pipeline got no result from backend when it expected one.");
 
+  // Allocate once, re-use across invocations.
+  static const auto text{
+    std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
+
   result R = pqxx::internal::gate::result_creation::create(
-    r, std::make_shared<std::string>("[DUMMY PIPELINE QUERY]"),
-    internal::enc_group(m_trans.conn().encoding_id()));
+    r, text, internal::enc_group(m_trans.conn().encoding_id()));
 
   bool OK = false;
   try

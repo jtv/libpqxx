@@ -624,7 +624,9 @@ std::string pqxx::connection::encrypt_password(
 
 void pqxx::connection::prepare(const char name[], const char definition[])
 {
-  const auto q{std::make_shared<std::string>("[PREPARE]")};
+  // Allocate once, re-use across invocations.
+  static const auto q{std::make_shared<std::string>("[PREPARE]")};
+
   auto r{make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
   check_result(r);
 }
@@ -716,13 +718,14 @@ void pqxx::connection::unregister_transaction(transaction_base *T) noexcept
 
 bool pqxx::connection::read_copy_line(std::string &Line)
 {
-  // XXX: Does std::string::erase() preserve existing storage?
   Line.erase();
   bool Result;
 
   char *Buf = nullptr;
-  // XXX: Allocate once, and just issue a fresh shared_ptr.
-  const auto q{std::make_shared<std::string>("[END COPY]")};
+
+  // Allocate once, re-use across invocations.
+  static const auto q{std::make_shared<std::string>("[END COPY]")};
+
   const auto line_len = PQgetCopyData(m_conn, &Buf, false);
   switch (line_len)
   {
@@ -781,8 +784,8 @@ void pqxx::connection::end_copy_write()
                          " from PQputCopyEnd()"};
   }
 
-  check_result(make_result(
-    PQgetResult(m_conn), std::make_shared<std::string>("[END COPY]")));
+  static const auto q{std::make_shared<std::string>("[END COPY]")};
+  check_result(make_result(PQgetResult(m_conn), q));
 }
 
 
