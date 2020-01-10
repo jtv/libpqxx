@@ -26,6 +26,7 @@
 
 #include "pqxx/except.hxx"
 #include "pqxx/util.hxx"
+#include "pqxx/zview.hxx"
 
 
 namespace pqxx::internal
@@ -37,30 +38,6 @@ PQXX_LIBEXPORT std::string demangle_type_name(const char[]);
 
 namespace pqxx
 {
-/// Marker-type wrapper: zero-terminated @c std::string_view.
-/** @warning Use this only if the underlying string is zero-terminated.
- *
- * This is basically a @c std::string_view, but it adds the guarantee that
- * if its data pointer is non-null, there is a terminating zero byte right
- * after the contents.
- *
- * This means that it can also be used as a C-style string, which often matters
- * since libpqxx builds on top of a C library.  Therefore, it also adds a
- * @c c_str method.
- */
-class zview : public std::string_view
-{
-public:
-  template<typename... Args>
-  explicit constexpr zview(Args &&... args) :
-          std::string_view(std::forward<Args>(args)...)
-  {}
-
-  /// Either a null pointer, or a zero-terminated text buffer.
-  constexpr const char *c_str() const noexcept { return data(); }
-};
-
-
 /**
  * @defgroup stringconversion String conversion
  *

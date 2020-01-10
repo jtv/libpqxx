@@ -282,65 +282,37 @@ void pqxx::connection::process_notice(const char msg[]) noexcept
 {
   if (msg == nullptr)
     return;
-  const auto len = strlen(msg);
-  if (len == 0)
+  const zview view{msg};
+  if (view.empty())
     return;
-  if (msg[len - 1] == '\n')
-  {
+  else if (msg[view.size() - 1] == '\n')
     process_notice_raw(msg);
-  }
   else
-    try
-    {
-      // Newline is missing.  Try the C++ string version of this function.
-      process_notice(std::string{msg});
-    }
-    catch (const std::exception &)
-    {
-      // If we can't even do that, use plain old buffer copying instead
-      // (unavoidably, this will break up overly long messages!)
-      const char separator[] = "[...]\n";
-      char buf[1007];
-      size_t bytes = sizeof(buf) - sizeof(separator) - 1;
-      size_t written;
-      memcpy(&buf[bytes], separator, sizeof(separator));
-      // Write all chunks but last.  Each will fill the buffer exactly.
-      for (written = 0; (written + bytes) < len; written += bytes)
-      {
-        memcpy(buf, &msg[written], bytes);
-        process_notice_raw(buf);
-      }
-      // Write any remaining bytes (which won't fill an entire buffer)
-      bytes = len - written;
-      memcpy(buf, &msg[written], bytes);
-      // Add trailing nul byte, plus newline unless there already is one
-      if (buf[bytes - 1] != '\n')
-      {
-        buf[bytes++] = '\n';
-        buf[bytes++] = '\0';
-      }
-      process_notice_raw(buf);
-    }
+      // Newline is missing.  Let the zview version of the code add it.
+      process_notice(view);
 }
 
 
-void pqxx::connection::process_notice(const std::string &msg) noexcept
+void pqxx::connection::process_notice(zview msg) noexcept
 {
-  // Ensure that message passed to errorhandler ends in newline
-  if (msg[msg.size() - 1] == '\n')
+  if (msg.empty())
+    return;
+  else if (msg[msg.size() - 1] == '\n')
     process_notice_raw(msg.c_str());
   else
     try
     {
-      const std::string nl = msg + "\n";
-      process_notice_raw(nl.c_str());
+      // Add newline.
+      std::string buf;
+      buf.reserve(msg.size() + 1);
+      buf.assign(msg);
+      buf.push_back('\n');
+      process_notice_raw(buf.c_str());
     }
     catch (const std::exception &)
     {
-      // If nothing else works, try writing the message without the newline
+      // If nothing else works, try writing the message without the newline.
       process_notice_raw(msg.c_str());
-      // This is ugly.
-      process_notice_raw("\n");
     }
 }
 
@@ -743,13 +715,14 @@ void pqxx::connection::unregister_transaction(transaction_base *T) noexcept
 }
 
 
-// XXX: string_view?  zview?
 bool pqxx::connection::read_copy_line(std::string &Line)
 {
+// XXX: Does std::string::erase() preserve existing storage?
   Line.erase();
   bool Result;
 
   char *Buf = nullptr;
+// XXX: Allocate once, and just issue a fresh shared_ptr.
   const auto q{std::make_shared<std::string>("[END COPY]")};
   const auto line_len = PQgetCopyData(m_conn, &Buf, false);
   switch (line_len)
@@ -772,6 +745,7 @@ bool pqxx::connection::read_copy_line(std::string &Line)
     {
       std::unique_ptr<char, std::function<void(char *)>> PQA(
         Buf, pqxx::internal::freepqmem_templated<char>);
+// XXX: Does std::string::assign() preserve existing storage?
       Line.assign(Buf, unsigned(line_len));
     }
     Result = true;

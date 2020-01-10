@@ -73,6 +73,8 @@ install(
 		PATTERN util
 		PATTERN version.hxx
 		PATTERN version
+		PATTERN zview.hxx
+		PATTERN zview
 		PATTERN internal/callgate.hxx
 		PATTERN internal/compiler-internal-post.hxx
 		PATTERN internal/compiler-internal-pre.hxx

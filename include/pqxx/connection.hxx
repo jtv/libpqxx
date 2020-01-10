@@ -26,6 +26,7 @@
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
+#include "pqxx/zview.hxx"
 
 
 /**
@@ -190,11 +191,15 @@ public:
    */
   bool PQXX_PURE is_open() const noexcept;
 
-// XXX: zview?
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(const char[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &) noexcept;
+  void process_notice(const std::string &msg) noexcept { process_notice(zview{msg}); }
+  /// Invoke notice processor function.  Newline at end is recommended.
+  /** The zview variant, with a message ending in newline, is the most
+   * efficient way to call process_notice.
+   */
+  void process_notice(zview) noexcept;
 
   /// Enable tracing to a given output stream, or nullptr to disable.
   void trace(std::FILE *) noexcept;
