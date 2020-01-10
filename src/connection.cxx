@@ -747,7 +747,6 @@ bool pqxx::connection::read_copy_line(std::string &Line)
     {
       std::unique_ptr<char, std::function<void(char *)>> PQA(
         Buf, pqxx::internal::freepqmem_templated<char>);
-      // XXX: Does std::string::assign() preserve existing storage?
       Line.assign(Buf, unsigned(line_len));
     }
     Result = true;
