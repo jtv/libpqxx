@@ -37,6 +37,27 @@ macro(library_target_setup tgt)
     	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
+    get_target_property(name ${tgt} NAME)
+    get_target_property(output_name ${tgt} OUTPUT_NAME)
+    if(NOT name STREQUAL output_name)
+        # Create library symlink
+        get_target_property(target_type ${tgt} TYPE)
+        if(target_type STREQUAL "SHARED_LIBRARY")
+            set(library_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
+            set(library_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX})
+        elseif(target_type STREQUAL "STATIC_LIBRARY")
+            set(library_prefix ${CMAKE_STATIC_LIBRARY_PREFIX})
+            set(library_suffix ${CMAKE_STATIC_LIBRARY_SUFFIX})
+        endif()
+        add_custom_target(library_symlink ALL
+        	${CMAKE_COMMAND} -E create_symlink
+        		${library_prefix}${output_name}${library_suffix}
+        		${library_prefix}${name}${library_suffix}
+        )
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
+        	DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
+    endif()
 endmacro()
 
 file(
@@ -67,23 +88,26 @@ file(
 	version.cxx
 )
 
-if(NOT SKIP_PQXX_SHARED)
-    set(CXX_SHARED_EXTRA_SOURCE)
+add_library(pqxx ${CXX_SOURCES})
 
-    # Build a shared library
-    add_library(pqxx_shared SHARED ${CXX_SOURCES} ${CXX_SHARED_EXTRA_SOURCE})
-    target_compile_definitions(pqxx_shared PUBLIC PQXX_SHARED)
-    set_target_properties(
-        pqxx_shared PROPERTIES
-        OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    )
-    library_target_setup(pqxx_shared)
+get_target_property(pqxx_target_type pqxx TYPE)
+if(pqxx_target_type STREQUAL "SHARED_LIBRARY")
+    target_compile_definitions(pqxx PUBLIC PQXX_SHARED)
 endif()
 
-# XXX: Experimentally disabled.
-#if(NOT SKIP_PQXX_STATIC)
-#    # Build a static libary
-#    add_library(pqxx_static STATIC ${CXX_SOURCES})
-#    set_target_properties(pqxx_static PROPERTIES OUTPUT_NAME pqxx)
-#    library_target_setup(pqxx_static)
-#endif()
+set_target_properties(
+	pqxx PROPERTIES
+	OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+library_target_setup(pqxx)
+
+# install pkg-config file
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix \${prefix})
+set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(VERSION ${PROJECT_VERSION})
+configure_file(${CMAKE_SOURCE_DIR}/libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
+install(FILES ${CMAKE_BINARY_DIR}/libpqxx.pc
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)

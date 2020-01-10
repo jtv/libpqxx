@@ -74,7 +74,7 @@ file(
 )
 
 add_executable(runner ${TEST_SOURCES})
-target_link_libraries(runner PUBLIC pqxx_shared)
+target_link_libraries(runner PUBLIC pqxx)
 add_test(
 	NAME runner
 	WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
