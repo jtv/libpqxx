@@ -35,7 +35,7 @@ jobs:
           command: createdb root
 #      - run:
 #          name: Build using CMake
-#          command: (SRC="$(pwd)" && mkdir /tmp/build && cd /tmp/build && cmake "$SRC" && make -j4)
+#          command: (SRC="$(pwd)" && mkdir /tmp/build && cd /tmp/build && cmake "$SRC" -DBUILD_SHARED_LIBS=1 && make -j4)
       - run:
           name: Autogen
           command: NOCONFIGURE=1 ./autogen.sh
