@@ -355,7 +355,7 @@ template<> struct string_traits<std::string>
         "Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
     const auto len = value.size() + 1;
-    std::memcpy(begin, value.c_str(), len);
+    value.copy(begin, len);
     return begin + len;
   }
 
@@ -532,7 +532,7 @@ template<typename Container> struct array_string_traits
     {
       if (nullness<elt_type>::is_null(elt))
       {
-        memcpy(here, s_null.data(), s_null.size());
+        s_null.copy(here, s_null.size());
         here += s_null.size();
       }
       else if constexpr (is_sql_array<elt_type>)

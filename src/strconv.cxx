@@ -529,7 +529,7 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
         "Could not convert floating-point number to string: "
         "buffer too small.  " +
         state_buffer_overrun(have, need)};
-    std::memcpy(begin, text.c_str(), need);
+    text.copy(begin, need);
     return zview{begin, text.size()};
   }
 #endif
