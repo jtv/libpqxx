@@ -417,51 +417,6 @@ void pqxx::transaction_base::CheckPendingError()
 }
 
 
-namespace
-{
-std::string MakeCopyString(std::string_view Table, const std::string &Columns)
-{
-  std::string Q = "COPY " + std::string{Table} + " ";
-  if (not Columns.empty())
-    Q += "(" + Columns + ") ";
-  return Q;
-}
-} // namespace
-
-
-void pqxx::transaction_base::BeginCopyRead(
-  std::string_view Table, const std::string &Columns)
-{
-  exec(MakeCopyString(Table, Columns) + "TO STDOUT");
-}
-
-
-void pqxx::transaction_base::BeginCopyWrite(
-  std::string_view Table, const std::string &Columns)
-{
-  exec(MakeCopyString(Table, Columns) + "FROM STDIN");
-}
-
-
-bool pqxx::transaction_base::read_copy_line(std::string &line)
-{
-  return pqxx::internal::gate::connection_transaction{conn()}.read_copy_line(
-    line);
-}
-
-
-void pqxx::transaction_base::write_copy_line(std::string_view line)
-{
-  pqxx::internal::gate::connection_transaction{conn()}.write_copy_line(line);
-}
-
-
-void pqxx::transaction_base::end_copy_write()
-{
-  pqxx::internal::gate::connection_transaction{conn()}.end_copy_write();
-}
-
-
 void pqxx::internal::transactionfocus::register_me()
 {
   pqxx::internal::gate::transaction_transactionfocus{m_trans}.register_focus(

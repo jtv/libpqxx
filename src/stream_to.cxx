@@ -13,7 +13,33 @@
 #include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"
 
-#include "pqxx/internal/gates/transaction-stream_to.hxx"
+#include "pqxx/internal/gates/connection-stream_to.hxx"
+
+
+namespace
+{
+void begin_copy(
+  pqxx::transaction_base &trans, std::string_view table,
+  const std::string &columns)
+{
+  const std::string copy{"COPY "}, from_stdin{" FROM STDIN"};
+  std::string query;
+  query.reserve(
+    copy.size() + table.size() + 2 + columns.size() + from_stdin.size());
+
+  query += copy;
+  query += table;
+  if (not columns.empty())
+  {
+    query.push_back('(');
+    query += columns;
+    query.push_back(')');
+  }
+  query += from_stdin;
+
+  trans.exec0(query);
+}
+} // namespace
 
 
 pqxx::stream_to::stream_to(transaction_base &tb, std::string_view table_name) :
@@ -39,7 +65,7 @@ pqxx::stream_to::~stream_to() noexcept
 
 void pqxx::stream_to::write_raw_line(std::string_view line)
 {
-  internal::gate::transaction_stream_to{m_trans}.write_copy_line(line);
+  internal::gate::connection_stream_to{m_trans.conn()}.write_copy_line(line);
 }
 
 
@@ -65,8 +91,7 @@ void pqxx::stream_to::set_up(
   transaction_base &tb, std::string_view table_name,
   const std::string &columns)
 {
-  internal::gate::transaction_stream_to{tb}.BeginCopyWrite(
-    table_name, columns);
+  begin_copy(tb, table_name, columns);
   register_me();
 }
 
@@ -77,7 +102,7 @@ void pqxx::stream_to::complete()
   {
     m_finished = true;
     unregister_me();
-    internal::gate::transaction_stream_to{m_trans}.end_copy_write();
+    internal::gate::connection_stream_to{m_trans.conn()}.end_copy_write();
   }
 }
 

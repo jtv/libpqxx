@@ -13,7 +13,7 @@
 #include "pqxx/stream_from"
 
 #include "pqxx/internal/encodings.hxx"
-#include "pqxx/internal/gates/transaction-stream_from.hxx"
+#include "pqxx/internal/gates/connection-stream_from.hxx"
 
 
 namespace
@@ -27,6 +27,30 @@ std::string::size_type find_tab(
 {
   auto here = pqxx::internal::find_with_encoding(enc, line, '\t', start);
   return (here == std::string::npos) ? line.size() : here;
+}
+
+
+void begin_copy(
+  pqxx::transaction_base &trans, std::string_view table,
+  const std::string &columns)
+{
+  static const std::string copy{"COPY "}, to_stdout{" TO STDOUT"};
+  std::string query;
+  query.reserve(
+    copy.size() + table.size() + columns.size() + 2 + to_stdout.size());
+  query += copy;
+  query += table;
+
+  if (not columns.empty())
+  {
+    query.push_back('(');
+    query += columns;
+    query.push_back(')');
+  }
+
+  query += to_stdout;
+
+  trans.exec0(query);
 }
 } // namespace
 
@@ -55,7 +79,7 @@ pqxx::stream_from::~stream_from() noexcept
 
 bool pqxx::stream_from::get_raw_line(std::string &line)
 {
-  internal::gate::transaction_stream_from gate{m_trans};
+  internal::gate::connection_stream_from gate{m_trans.conn()};
   if (*this)
   {
     try
@@ -87,8 +111,7 @@ void pqxx::stream_from::set_up(
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
   m_copy_encoding = internal::enc_group(m_trans.conn().encoding_id());
-  internal::gate::transaction_stream_from{tb}.BeginCopyRead(
-    table_name, columns);
+  begin_copy(tb, table_name, columns);
   register_me();
 }
 

@@ -54,8 +54,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/result-row.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
-	pqxx/internal/gates/transaction-stream_from.hxx \
-	pqxx/internal/gates/transaction-stream_to.hxx \
 	pqxx/internal/gates/transaction-transactionfocus.hxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/ignore-deprecated-post.hxx

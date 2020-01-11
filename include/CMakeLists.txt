@@ -91,6 +91,8 @@ install(
 		PATTERN internal/gates/connection-notification_receiver.hxx
 		PATTERN internal/gates/connection-pipeline.hxx
 		PATTERN internal/gates/connection-sql_cursor.hxx
+		PATTERN internal/gates/connection-stream_from.hxx
+		PATTERN internal/gates/connection-stream_to.hxx
 		PATTERN internal/gates/connection-transaction.hxx
 		PATTERN internal/gates/errorhandler-connection.hxx
 		PATTERN internal/gates/icursor_iterator-icursorstream.hxx
@@ -101,8 +103,6 @@ install(
 		PATTERN internal/gates/result-row.hxx
 		PATTERN internal/gates/result-sql_cursor.hxx
 		PATTERN internal/gates/transaction-sql_cursor.hxx
-		PATTERN internal/gates/transaction-stream_from.hxx
-		PATTERN internal/gates/transaction-stream_to.hxx
 		PATTERN internal/gates/transaction-transactionfocus.hxx
 		PATTERN config-public-compiler.h
 		PATTERN pqxx
