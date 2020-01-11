@@ -292,7 +292,6 @@ namespace
 }
 
 
-// TODO: Elide checks at compile time if string is short enough?
 /// Return 10*n, or throw exception if it overflows.
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_multiply_by_ten(T n)
