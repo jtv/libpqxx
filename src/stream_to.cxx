@@ -22,7 +22,7 @@ void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
   const std::string &columns)
 {
-  static const std::string copy{"COPY "}, from_stdin{" FROM STDIN"};
+  constexpr std::string_view copy{"COPY "}, from_stdin{" FROM STDIN"};
   std::string query;
   query.reserve(
     copy.size() + table.size() + 2 + columns.size() + from_stdin.size());

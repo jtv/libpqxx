@@ -34,7 +34,7 @@ void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
   const std::string &columns)
 {
-  static const std::string copy{"COPY "}, to_stdout{" TO STDOUT"};
+  constexpr std::string_view copy{"COPY "}, to_stdout{" TO STDOUT"};
   std::string query;
   query.reserve(
     copy.size() + table.size() + columns.size() + 2 + to_stdout.size());
