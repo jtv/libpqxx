@@ -65,6 +65,7 @@ if(HAVE_DOXYGEN)
     	"${CMAKE_SOURCE_DIR}/include/pqxx/result_iterator.hxx"
     	"${CMAKE_SOURCE_DIR}/include/pqxx/robusttransaction.hxx"
     	"${CMAKE_SOURCE_DIR}/include/pqxx/row.hxx"
+    	"${CMAKE_SOURCE_DIR}/include/pqxx/separated_list.hxx"
     	"${CMAKE_SOURCE_DIR}/include/pqxx/strconv.hxx"
     	"${CMAKE_SOURCE_DIR}/include/pqxx/stream_from.hxx"
     	"${CMAKE_SOURCE_DIR}/include/pqxx/stream_to.hxx"
