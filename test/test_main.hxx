@@ -74,7 +74,7 @@ std::string list_result(result Obj)
 {
   if (Obj.empty())
     return "<empty>";
-  return "{" + separated_list("}\n{", Obj) + "}";
+  return "{" + separated_list("}\n{", Obj.begin(), Obj.end(), [](row r){ return list_row(r); }) + "}";
 }
 
 

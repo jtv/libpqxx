@@ -53,6 +53,8 @@ install(
 		PATTERN robusttransaction
 		PATTERN row.hxx
 		PATTERN row
+		PATTERN separated_list.hxx
+		PATTERN separated_list
 		PATTERN strconv.hxx
 		PATTERN strconv
 		PATTERN stream_from.hxx

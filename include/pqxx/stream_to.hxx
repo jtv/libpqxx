@@ -16,7 +16,9 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
+// XXX: Unneeded?
 #include "pqxx/util.hxx"
 
 #include <string>
@@ -162,7 +164,6 @@ inline stream_to::stream_to(
 
 template<typename Tuple> stream_to &stream_to::operator<<(const Tuple &t)
 {
-  // TODO: Probably better to let PQputCopyData() compose the buffer.
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper{}));
   return *this;
 }

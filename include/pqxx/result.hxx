@@ -23,6 +23,7 @@
 #include "pqxx/except.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/util.hxx"
+#include "pqxx/zview.hxx"
 
 #include "pqxx/internal/encodings.hxx"
 

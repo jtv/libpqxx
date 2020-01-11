@@ -14,6 +14,7 @@
 
 #include "pqxx/dbtransaction"
 #include "pqxx/pipeline"
+#include "pqxx/separated_list"
 
 #include "pqxx/internal/gates/connection-pipeline.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"

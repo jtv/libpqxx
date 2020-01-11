@@ -47,6 +47,7 @@ runner_SOURCES = \
   test_result_iteration.cxx \
   test_result_slicing.cxx \
   test_row.cxx \
+  test_separated_list.cxx \
   test_simultaneous_transactions.cxx \
   test_sql_cursor.cxx \
   test_stateless_cursor.cxx \
