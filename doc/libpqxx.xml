@@ -32,8 +32,7 @@
       Since libpqxx builds on top of the C frontend
       libpq, you will need a working
       libpq library on your system prior to getting
-      started with libpqxx.  This is similar to the
-      situation with the older libpq++ interface.
+      started with libpqxx.
     </para>
 
     <para>
@@ -47,9 +46,9 @@
     <title>Class overview</title>
 
     <para>
-      To work with libpqxx, you need to be aware of
-      at least the following classes.  These are all introduced in a dedicated
-      namespace, <literal>pqxx</literal>:
+      To work with libpqxx, you need to be aware of at least the following
+      classes.  These are all in a dedicated namespace,
+      <literal>pqxx</literal>:
     </para>
 
     <itemizedlist>
@@ -69,29 +68,21 @@
 	  transaction being executed in the context of a
 	  <literal>connection</literal>. This is a unit of work that must be
 	  completed as a whole by the database backend.  If execution fails,
-	  everything done within that <literal>transaction</literal> is undone
-	  by the backend as if it had never happened.
+	  everything you did within that <literal>transaction</literal> is
+          "rolled back" as if it had never happened.
 
 	  <footnote>
 	    <para>
-	      Actually libpqxx provides three classes
-	      doing this at various levels of reliability, called
-	      <literal>nontransaction</literal>, <literal>transaction</literal>,
-	      and <literal>robusttransaction</literal> for no, standard, and
-	      best reliability respectively.  You probably shouldn't mess with
-              <literal>robusttransaction</literal> though, because it comes with
-              complications.
+	      Actually libpqxx provides three classes doing this at various
+              levels of reliability, called <literal>nontransaction</literal>,
+              <literal>transaction</literal>, and
+              <literal>robusttransaction</literal> for different levels of
+              reliability: respectively none, standard, and best.
 	    </para>
 	  </footnote>
 
 	  You may execute any number of transactions on a single
 	  <literal>connection</literal>, but only one at a time.
-	</para>
-
-	<para>
-	  I recommend that you do not set up your own
-	  <literal>transaction</literal>s, but have them managed for you
-	  by a <literal>transactor</literal> instead (see below).
 	</para>
       </listitem>
 
@@ -100,10 +91,10 @@
 	  A <literal>result</literal> is a container holding the resulting data
 	  coming out of a query or command executed in a
 	  <literal>transaction</literal>.  It behaves just like a standard C++
-	  container as found in the STL, although its contents can't be modified
-          in any way.  (You can assign or copy it cheaply though; it's basically
-          a smart pointer).  The rows held in the result in turn behave much
-          like non-modifiable containers themselves.
+	  container as found in the STL, although you can't modify its
+          contents.  (You can assign or copy it cheaply though; it's basically
+          a smart pointer).  The rows in the result in turn behave like
+          non-modifiable containers as well.
 	</para>
       </listitem>
 
@@ -129,64 +120,49 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  <literal>broken_connection</literal> is an exception class that is
-	  thrown if libpqxx loses its connection to
-	  the back-end.  It is derived from the standard C++ exception
-	  <literal>std::runtime_error</literal>, and can generally be treated as
-	  such.
+	  <literal>broken_connection</literal> is an exception type which
+          libpqxx throws if it loses its connection to the back-end.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
-	  <literal>sql_error</literal> is an exception class that is thrown if
-	  a query to the back-end fails.  Like
-	  <literal>broken_connection</literal> it
-	  is derived from <literal>std::runtime_error</literal>, but it also
-	  carries information about the failed query.  This may be useful for
-	  debugging.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <literal>icursorstream</literal> is a way of iterating over a query
-	  result using an SQL cursor.  This can be useful for selectively
-	  retrieving parts of a query, or for retrieving and processing results
-	  in chunks so your program can do useful work on one chunk while the
-	  next is still coming in over a network connection.  Or you may want to
-	  use this to give progress reports to the user between chunk transfers.
+	  <literal>sql_error</literal> is an exception type which indicates
+          that a query did get to the back-end, but returned a failure.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
 	  <literal>in_doubt_error</literal> is an exception class to indicate a
-	  rare and difficult error condition.  Explaining this is a bit painful,
-	  since it invalidates some of what was said above (and is commonly said
-	  in the database world).
+	  rare and difficult error condition.  Explaining this is a bit
+          painful, since it sort of contradicts some of what we said above.
 	</para>
 	<para>
 	  In theory, a "transaction" is an integral, atomic unit of work that
-	  either fails or succeeds.  This is a beautiful idea, but in practice
-	  there is nothing that cannot be broken.  There is a tiny risk that,
-          like Schroedinger's Cat, the transaction can end up in an
-          indeterminate state.  This happens when the connection to the backend
-          is lost just when you were waiting for confirmation after completing
-          your transaction.  Your transaction may have succeeded (in fact it
-          probably has), but if the connection is lost during just this small
-          time window, there is no way to confirm this to your application.
+	  either fails or succeeds.  This is a massively useful and beautiful
+          idea, but in practice there is nothing that cannot be broken.  There
+          is a tiny risk that, like Schroedinger's Cat, the transaction can end
+          up in an indeterminate state.  This happens when the connection to
+          the backend is lost just when you were waiting for confirmation after
+          completing your transaction.  Your transaction may have succeeded, or
+          it may have failed, or it may even still be running.  Without a
+          working connection, there is just no way for the server to tell the
+          client code on your side!
 	</para>
 
 	<para>
-	  When this happens, libpqxx throws an <literal>in_doubt_error</literal>
-	  on the client side, which you may want to <literal>catch</literal> as
-	  a special case.  If you do, make sure all alarm bells go off!
+	  When this happens, libpqxx throws an
+          <literal>in_doubt_error</literal> on the client side, which you may
+          want to <literal>catch</literal> as a special case.  If you do, make
+          sure that all alarm go off.  And whatever you do, do not retry the
+          transaction when this happens, because it may already have completed.
 	</para>
 
 	<para>
 	  See also the description for <literal>robusttransaction</literal>,
-	  which sacrifices some performance to minimize this risk.
+	  which sacrifices some performance to minimize this risk, as well as
+          transactors.
 	</para>
       </listitem>
 
@@ -194,22 +170,33 @@
 	<para>
 	  <literal>nontransaction</literal> is just like a regular
 	  <literal>transaction</literal> as far your code is concerned (except
-	  that it's not a template).  The big difference is that where the
-	  latter opens a back-end transaction to keep your view and
-	  modifications of the database atomic, the former does
-	  <emphasis>nothing</emphasis> to maintain integrity.  It just passes
-	  your queries directly to the database, with no enclosing transaction.
-	  This difference is expressed by the fact that the other transaction
-	  classes are derived from <literal>dbtransaction</literal>, an
-	  abstract class that expresses the presence of a real backend
-	  transaction, whereas <literal>nontransaction</literal> is not.
+	  that it's not a template).  The big difference is that where a
+	  <literal>transaction</literal> opens a back-end transaction to keep
+          your view and modifications of the database atomic, a
+          <literal>nontransaction</literal> does <emphasis>nothing</emphasis>
+          to maintain integrity.  It just passes your queries directly to the
+          database, with no enclosing transaction.
+        </para>
+        <para>
+          The other transaction classes are derived from
+          <literal>dbtransaction</literal>, an abstract class that expresses
+          the presence of a real backend transaction.  But
+          <literal>nontransaction</literal> is not, since it does not open
+          "a transaction on the DB."
 	</para>
 	<para>
-	  This may give you better performance if your transaction does not
-	  modify the database, but if it does, may have unforeseen implications
-	  if you expect certain levels of consistency in the
-	  database--especially if other processes or threads may be modifying
-	  the database at the same time.  You'll probably only want to use this
+	  A <literal>nontransaction</literal> may give you better performance
+          if your transaction does not modify the database.  But if it does
+          make changes in the database, it may have unforeseen implications
+	  if you expect certain levels of consistency in the database --
+          especially if other processes or threads may be modifying the
+          database at the same time.  And, in cases where you do make changes
+          to the database, a regular transaction is often faster because some
+          work on the server needs to be done only once, rather than once per
+          statement.
+        </para>
+        <para>
+          You'll probably only want to use <literal>nontransaction</literal>
 	  in the following cases:
 	</para>
 
@@ -243,16 +230,19 @@
 	<para>
 	  <literal>robusttransaction</literal> (a template just like
 	  <literal>transaction</literal>) is essentially the same as a
-	  <literal>transaction</literal>, ie. an atomic unit of work, except
-	  that it works harder to prevent <literal>in_doubt_error</literal>s
-	  from happening.  This comes at the cost of some performance, which is
-	  one reason why this behaviour isn't the default.  It also creates
-	  some extra tables in your database to keep track of what's happening.
+	  <literal>transaction</literal>, ie. an atomic unit of work.  The
+	  difference is that it works harder to prevent
+          <literal>in_doubt_error</literal>s from happening.  This comes at the
+          cost of some performance, which is one reason why this behaviour
+          isn't the default.  And since it's a little more complicated than a
+          regular transaction, it could actually fail <emphasis>more</emphasis>
+          than a normal transaction.  It just tries to give you more certainty
+          about whether it failed.
 	</para>
 
 	<para>
 	  Use this class instead of plain old <literal>transaction</literal> if
-	  you get <literal>in_doubt_error</literal>s in your application--but
+	  you get <literal>in_doubt_error</literal>s in your application -- but
 	  only <emphasis>after</emphasis> thoroughly inspecting your code for
 	  bugs that might be causing the problem, or you'll only be hiding
 	  glitches that should be fixed instead.
@@ -280,21 +270,36 @@
       <listitem>
 	<para>
 	  <literal>transactor&lt;&gt;</literal> provides a framework that makes
-	  it easier for you to write correct, robust transaction code to be
-	  executed in a transaction.  You should generally try to write your
-	  code as a class derived from <literal>transactor&lt;&gt;</literal>,
-	  but this is not required.
+	  it easier for you to write correct, robust code to be executed in a
+          transaction.  You write your transaction code as something that can
+          be called like a function: a lambda, a regular function, or an object
+          with a <literal>operator()</literal> (also known as a functor).
 	</para>
 
 	<para>
-	  A <literal>transactor</literal>-derived class may select its own
-	  "quality of service" in transactional integrity by choosing a
-	  transaction type as its template argument, e.g.
-	  <literal>transactor&lt;robusttransaction&lt;&gt; &gt;</literal>.  The
-	  default <literal>transactor&lt;&gt;</literal> is equivalent to
-	  <literal>transactor&lt;work&gt;</literal>.  Within your class you can
-	  refer to the transaction type used as
-	  <literal>argument_type</literal>.
+          The code which you put inside your transactor starts a transaction,
+          does what it needs to do, then commits the transaction.  It may also
+          open its own connection first.
+	</para>
+
+	<para>
+          You pass your transactor to a <literal>perform</literal> function,
+          which executes it.  Pretty straightforward, and not much different
+          from just calling your code yourself.  The difference is in what
+          happens if there's an error while executing.  If the error is of a
+          transient kind, e.g. because of a deadlock or a failed connection,
+          the <literal>perform</literal> function calls your transactor again.
+	</para>
+
+	<para>
+          This does mean that you must write your transactor as a transaction
+          "on both sides."  It's not enough to encapsulate its interaction with
+          the database in a transaction.  You must also make sure that it does
+          not change your application's state on the client side until the
+          transaction commits.  It is this structure, not the framework code,
+          which makes transactors useful.  It's what lets libpqxx ensure that
+          your transaction either completes, exactly once, or does nothing at
+          all.
 	</para>
       </listitem>
 
@@ -302,13 +307,14 @@
 	<para>
 	  <literal>notification_receiver</literal> is an instance of the
 	  Observer design pattern.  Any code connected to a backend may flag an
-	  event using the PostgreSQL
-	  <literal>NOTIFY</literal> command.  Frontends connected to that same
-	  backend database may be listening for an event of that name to occur.
-	  A frontend using libpqxx does this by
-	  registering an observer object derived from
-	  <literal>notification_receiver</literal>, which will be invoked by
-	  libpqxx to handle the event when it occurs.
+	  event using the PostgreSQL <literal>NOTIFY</literal> command.
+          Frontends connected to that same backend database may be listening
+          for an event of that name to occur.
+	</para>
+	<para>
+	  A frontend using libpqxx does this by registering an observer object
+          derived from <literal>notification_receiver</literal>, which libpqxx
+          will invoke to handle the event when it occurs.
 	</para>
 
 	<para>
@@ -326,7 +332,8 @@
       <listitem>
 	<para>
 	  <literal>row</literal> refers to a row of data within a
-	  <literal>result</literal> object.
+	  <literal>result</literal> object.  It acts as a container of
+          <literal>field</literal>s.
 	</para>
       </listitem>
 
@@ -340,20 +347,6 @@
 	</para>
       </listitem>
 
-      <listitem>
-	<para>
-	  <literal>result::const_iterator</literal> allows you to enumerate the
-	  <literal>row</literal>s in a <literal>result</literal> in a similar
-	  way to the iterators defined by any standard C++ container.
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  <literal>result::row::const_iterator</literal> similarly iterates
-	  over the <literal>field</literal>s in a <literal>row</literal>.
-	</para>
-      </listitem>
     </itemizedlist>
 
     <para>
@@ -365,11 +358,11 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  <function>esc</function>, found in the transaction classes, is the
-	  canonical way to use strings in your SQL.  This function escapes any
-	  quotes, backslashes, and other characters in your input string that
-	  would otherwise cause syntax errors (or worse, security holes) in your
-	  queries when included directly.
+	  <function>esc</function>, found in the connection and transaction
+          classes, is the canonical way to use strings in your SQL.  This
+          function escapes any quotes, backslashes, and other characters in
+          your input string that would otherwise cause syntax errors (or worse,
+          security holes) in your queries when included directly.
 	</para>
 
 	<para>
@@ -384,18 +377,19 @@
       <listitem>
 	<para>
 	  <function>to_string</function> knows how to render many types of
-	  values as strings.  This is used internally by
-	  <literal>libpqxx</literal> to convert values coming out of or going
-	  into the backend, and doesn't respect locale settings.
+	  values as strings.  The libpqxx code uses this internally to convert
+	  values being sent to the backend.  The function does not localise its
+          output.
 	</para>
       </listitem>
 
       <listitem>
 	<para>
 	  <function>from_string</function> is the inverse of
-	  <function>to_string</function>.  It is used by eg.
-	  <function>field::to()</function> to convert the incoming
-	  field data (which is in text format) to the desired C++ type.
+	  <function>to_string</function>.  Functions such as
+	  <function>field::to()</function> use this to convert the incoming
+	  field data from the postgres text format to a C++ type in your client
+          application.
 	</para>
       </listitem>
     </itemizedlist>
@@ -411,25 +405,25 @@
 	<title>This document</title>
 
 	<para>
-	  This frontend library is built on top of the
-	  <filename>libpq</filename> frontend library, which defines
-	  PostgreSQL's C <acronym>API</acronym>.
-	  Therefore this manual will sometimes refer to the
-	  <filename>libpq</filename> documentation rather than repeat what is
-	  said there.  This was not done to annoy you, but to ensure that the
-	  libpqxx documentation remains up-to-date
-	  with any changes in the C frontend.  Please bear with us.
+	  This frontend library builds on top of the <filename>libpq</filename>
+          frontend library, which defines PostgreSQL's C API.
+	  Therefore this tutorial will sometimes refer to the libpq
+          documentation rather than repeat what is said there.  We did not do
+          it this way to annoy you, but to keep the libpqxx documentation from
+          falling out of date with any changes in the C frontend.  Please bear
+          with us.
 	</para>
 
 	<para>
-	  Furthermore, if you're ever in doubt about how to use the basic
-	  features of libpqxx, take a look at the
-	  example programs provided; they're called
-	  <filename>test000</filename>, <filename>test001</filename> etc.
-	  Those should help give you an idea of how simple the library can be
-	  in practice.  Don't let that keep you from submitting a request for
-	  improved documentation though; your questions define what this
-	  tutorial needs to say!
+	  If you're ever in doubt about how to use the basic features of
+          libpqxx, take a look at the test suite in the <literal>test</literal>
+          directory.  The code there should help give you an idea.
+	</para>
+
+	<para>
+	  Don't let that keep you from submitting a request for improved
+          documentation though.  Your questions define what this tutorial needs
+          to say!
 	</para>
       </section>
 
@@ -437,60 +431,9 @@
 	<title>C++ conventions</title>
 
 	<para>
-	  All definitions made by libpqxx reside
-	  in a namespace <literal>pqxx</literal>.  If you're not familiar
-	  with C++ namespaces, you have two options:
+	  All definitions in libpqxx reside in a namespace called
+          <literal>pqxx</literal>.
 	</para>
-
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Always import the whole of the <literal>pqxx</literal>
-	      namespace in your programs.
-	    </para>
-
-	    <para>
-	      This tells the compiler to always look in the
-	      <literal>pqxx</literal> namespace when trying to resolve a name
-	      that doesn't occur in the global (ie. the "default") namespace).
-	      To do this, include the directive
-	      <programlisting>
-		using namespace pqxx;
-	      </programlisting>
-	      near the top of each source file that uses
-	      libpqxx.  This is typically best for
-	      your source files (you're probably doing it already for the
-	      <literal>std</literal> namespace), though it is not considered
-	      good practice in header files.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      Explicitly qualify each libpqxx name
-	      with the <literal>pqxx</literal> namespace.
-	    </para>
-
-	    <para>
-	      This will tell the compiler exactly which names are supposed to
-	      be in the <literal>pqxx</literal> namespace, avoiding any
-	      confusion over multiple classes or functions used in your
-	      program possibly having the same name.  As long as they're in
-	      different namespaces, the compiler will be able to tell them
-	      apart without trouble.  To do this, write
-	      <literal>pqxx::connection</literal> instead of
-	      <literal>connection</literal>,
-	      <literal>pqxx::result::const_iterator</literal> instead of
-	      <literal>result::const_iterator</literal>, and so on.
-	    </para>
-
-	    <para>
-	      This is the mode of address you will typically want to use in
-	      header files, to avoid polluting the namespaces of the actual
-	      source files with the definitions of the extra namespace.
-	    </para>
-	  </listitem>
-	</itemizedlist>
       </section>
     </section>
 
@@ -498,8 +441,8 @@
       <title>Setting up a connection</title>
 
       <para>
-	The very first thing to do before we can begin working with a
-	database, is actually connect to one.  We do this by creating a
+	The very first thing to do before we can begin working with a database,
+        is actually connect to one.  We do this by creating a
 	<literal>connection</literal> object that will serve as our "handle"
 	on the connection:
       </para>
@@ -514,12 +457,12 @@
 
       <para>
 	The <literal>connection</literal> constructor here takes one argument,
-	the "connect string."  This string may be used to specify which host
-	on the network runs the database backend we wish to connect to, which
-	database we're interested in, which user name we'll be using to log
-	in, etc.  Refer to the libpq <function>connect</function> call for a
-	complete definition of what may go into the connect string.  In this
-	case we're connecting to a database <literal>test</literal> residing
+	the "connect string."  The connection string may specify which host on
+        the network runs the database backend we wish to connect to; which
+        database we're interested in; which user name we'll be using to log in;
+        etc.  Refer to the libpq <function>connect</function> call for a
+	complete definition of what may go into the connect string.  In the
+	example we're connecting to a database <literal>test</literal> residing
 	on the local machine.  By default the client will try to connect to a
         server running on the local machine.
       </para>
@@ -531,8 +474,12 @@
       </para>
 
       <para>
-	Connections cannot be copied or assigned.  Any attempt to do so will
-	be met with a compiler error.
+	You can't copy or assign connections, with the exception of move
+        construction or move assignment.  You can move a connection object, but
+        there are things you can do with the connection that make moving it
+        impossible.  For instance, once you've registered an error handler on
+        your connection, any attempt to move the the connection will produce an
+        exception.
       </para>
 
       <caution>
@@ -556,17 +503,16 @@
 
 	<para>
 	  A transaction demarcates a "unit of work" operating on the database,
-	  ie.  a series of operations that must either complete successfully, or
+	  ie. a series of operations that must either complete successfully, or
 	  if it is aborted at any stage, must not affect the data in the
-	  database at all.  Hence the process of completing a transaction is
-	  called the "commit" operation, and the process of aborting it and
-	  undoing any changes it may have made is called "rollback."
+	  database at all.  The step of completing a transaction is called the
+          "commit" operation, and the process of aborting it and undoing any
+          changes it may have made is called "rollback."
 	</para>
 
 	<para>
-	  All access to the database in libpqxx
-	  must go through a transaction object, so familiarity with this
-	  class family's interface is essential.
+	  All access to the database in libpqxx must go through a transaction
+          object, so it's essential to learn about the transaction classes.
 	</para>
       </section>
 
@@ -574,23 +520,10 @@
 	<title>Creating a transaction object</title>
 
 	<para>
-	  Creating a transaction object is not something you have to do
-          yourself, if you don't want to.  The <literal>transactor</literal>
-          class, discussed below, will take care of that and some other red
-          tape besides.
-	  Still, there are cases where creating the object is unavoidable
-	  (when acting on multiple database connections simultaneously) or
-	  just plain easier to do.  Please consider using a
-	  <literal>transactor</literal> whereever possible.
-	</para>
-
-	<para>
-	  When creating a transaction, pass it the <literal>connection</literal>
-	  object it is to act on, and optionally an identifying name for your
-	  transaction.  The name, which need not be unique but should begin with
-	  a letter and may contain only letters, digits and underscores, can be
-	  used by libpqxx to make some error messages
-	  more specific.
+	  When creating a transaction, pass your <literal>connection</literal>
+	  object to the constructor, and optionally an identifying name for
+          your transaction.  The name need not be unique.  It's just there to
+          make error messages a bit easier to debug.
 
 	  <programlisting>
 	    transaction&lt;&gt; Xaction(Conn, "DemoTransaction");
@@ -612,21 +545,18 @@
 	</para>
 
 	<para>
-	  The transaction class hierarchy is built on the principle of "explicit
-	  commit," ie. the commit operation must always be explicit in the code.
-	  If the transaction is destroyed before a commit was given, the
-	  transaction is implicitly aborted (rolled back).  If your transaction
-	  makes no changes to the database, however, there is nothing to commit
-	  or roll back and the commit may safely be omitted.
+	  The transaction class hierarchy is built on the principle of
+          "explicit commit," ie. the commit operation must always be explicit
+          in the code.  If the transaction is destroyed before there was a
+          commit, that implicitly aborts (or "rolls back") the transaction.
 	</para>
 
 	<para>
-	  Destroying the connection object while the transaction still exists
-	  is an error that may result in a program crash, although the
-	  library will try to log an error message.  Transactions cannot be
-	  copied, nor assigned, nor constructed without a connection
-	  (default-constructed); attempts to do any of these will result in
-	  compile errors.
+	  Destroying the <emphasis>connection</emphasis> object while the
+          <emphasis>transaction</emphasis> still exists is an error that may
+          result in a program crash.  Transactions cannot be copied, nor
+          assigned, nor constructed without a connection (default-constructed).
+          Attempts to do any of these will result in compile errors.
 	</para>
       </section>
     </section>
@@ -642,7 +572,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The transaction may be committed through its
+	    You can commit the transaction by calling its
 	    <literal>commit</literal> member function:
 	  </para>
 	  <programlisting>
@@ -650,29 +580,26 @@
 	  </programlisting>
 
 	  <para>
-	    The commit operation is sent to the backend at the point where
-	    the <function>commit</function> call occurs.  Any exceptions
-	    generated by the database transaction will be thrown from here at
-	    the latest.  The only exceptions that may be generated by
-	    <literal>Xaction</literal> beyond this point are related to
-	    incorrect handling of the transaction object, eg. if an attempt
-	    is made to abort <literal>Xaction</literal> after it has been
-	    committed, or runtime errors such as memory running out.
+	    This sends the commit operation to the backend.  If the transaction
+            throws an error, this is the last point where that can happen.  The
+            only exceptions that may be generated by <literal>Xaction</literal>
+            beyond this point are related to incorrect handling of the
+            transaction object, eg. if you first commit
+            <literal>Xaction</literal> and then abort it; or runtime errors
+            such as memory running out.
 	  </para>
 
 	  <para>
-	    As a consequence, any streams or cursors nested within the
-	    transaction (to be discussed later) must have been closed before
-	    the <literal>commit()</literal>.  To do otherwise could possibly
-	    allow a transaction to be committed before all related actions
-	    had completed.  The library will throw an exception if any
-	    streams are still open when the transaction is ended.
+	    Any streams or cursors nested within the transaction must have been
+            closed before the <literal>commit()</literal>.  To do otherwise
+            could possibly allow a transaction to be committed before all
+            related actions had completed.
 	  </para>
 	</listitem>
 
 	<listitem>
 	  <para>
-	    A transaction is aborted if it is destroyed without having been
+	    A transaction is aborted if it gets destroyed without having been
 	    explicitly committed:
 	  </para>
 	  <itemizedlist>
@@ -720,17 +647,8 @@
 	    No matter where exactly the decision to abort is made, the actual
 	    abort operation is sent to the backend when the transaction's
 	    destructor is called.  If the abort fails, eg. because the
-	    network connection has been lost, no error is reported
-	    <footnote>
-	      <para>
-		Throwing an exception from a destructor to report the error
-		would have serious effects on program correctness.
-		<emphasis>Never throw exceptions from a destructor.</emphasis>
-	      </para>
-	    </footnote>
-	    and the transaction will die of natural causes (either it has been
-	    closed by the backend already, or it soon will be if the connection
-	    is lost).
+	    network connection has been lost, no error is reported and the
+            transaction will die of natural causes.
 	  </para>
 	</listitem>
 
@@ -753,29 +671,14 @@
 	    }
 	    Xaction.commit(); // ERROR: Xaction has already aborted!
 	  </programlisting>
-
-	  <para>
-	    For this reason, it is recommended always to include the "commit"
-	    operation inside the <literal>try</literal> block (if any)
-	    surrounding the transaction code, <emphasis>not</emphasis> after
-	    the <literal>catch</literal> block.
-	  </para>
-
-	  <para>
-	    Think of it as a natural extension of structural programming: the
-	    transaction is "nested" within the connection, and the
-	    transaction code can be "nested" in a
-	    <literal>try</literal>/<literal>catch</literal> block.
-	  </para>
 	</listitem>
 
       </itemizedlist>
       <para>
-	No more queries may be issued to the transaction regardless of how it
-	ended; an exception will be thrown if the application attempts to
-	continue the transaction after that time.  Ending a transaction more
-	than once is an error, except that aborting it multiple times is
-	tolerated to facilitate error handling.
+        After a commit or after an abort, the transaction will no longer accept
+        any queries to execute.  Ending a transaction more than once is also an
+        error, except that aborting it multiple times is tolerated to
+        facilitate error handling.
       </para>
     </section>
 
@@ -783,15 +686,14 @@
       <title>Executing queries</title>
       <para>
 	So let's execute an actual query.  There is no "query class" in
-	libpqxx; we really do try to keep your life
-	simple.
+	libpqxx; we really do try to keep your life simple.
       </para>
 
       <para>
-	A query is executed within a transaction by passing the query string to
-	the transaction object's <function>exec</function> method.  If the query
-	fails to complete successfully, this method will throw the appropriate
-	exception.
+	You execute queries within a transaction, by passing the query string
+	to the transaction object's <function>exec</function> method or one of
+        its variants.  If the query fails to complete successfully, these
+        methods will throw the appropriate exception.
       </para>
 
       <para>
@@ -819,11 +721,9 @@
       <title>Getting query results</title>
 
       <para>
-	Obviously not all queries are commands--the more common kind actually
-	returns useful data.  Result data in
-	libpqxx are encapsulated in a
-	<literal>result</literal> object, which acts as a container similar
-	to the STL's <literal>vector</literal> template.
+	Obviously not all queries are commands -- the more common kind actually
+	returns useful data.  Result data in libpqxx are encapsulated in a
+	<literal>result</literal> object, which acts as a container.
       </para>
 
       <programlisting>
@@ -836,14 +736,13 @@
       </para>
 
       <para>
-	Two ways are provided to get at individual rows in a
-	<literal>result</literal>: first, through indexing with the array
-	index operator <literal>[]</literal> or the <function>at</function>
-	member function, and second, through random-access iterators.  Either
-	will give you a <literal>row</literal> object that in turn can be
-        addressed with the array index operator (or the
-	<function>at</function> member function) or using iterators to get at
-	its individual fields
+        There are several ways to get at the individual rows in a
+	<literal>result</literal>.  You can index the result with the array
+	index operator <literal>[]</literal>, or call the
+        <function>at</function> member function.  There are also random-access
+        iterators, and you can iterate the rows in a result.  Each of these
+	will give you a <literal>row</literal> object.  You again get the same
+        options for accessing the fields in the row.
 
 	<footnote>
 	  <para>
@@ -860,23 +759,7 @@
 
       <para>
 	Thus, <literal>R[0]</literal> will return the first ("zeroth") row
-	in R.  You won't normally want to bother with
-	<literal>row</literal>s though; they don't contain the actual data,
-	but rather serve as placeholders to later tell
-	<literal>result</literal> which fields to fetch when field values
-	from the row are requested.  The class exists mostly for technical
-	reasons related to the array index operators
-	<footnote>
-	  <para>
-	    This is an instance of the <wordasword>Proxy</wordasword>
-	    implementation pattern, needed to allow a <literal>result</literal>
-	    to be indexed as if it were a two-dimensional array.  C++'s array
-	    index operator doesn't allow this usage directly, but the operator
-	    can be applied to the result of a previous use of the same operator.
-	    The "result in the middle" needs to have a type of its own, though,
-	    and that's what <literal>row</literal> is for.
-	  </para>
-	</footnote>.
+	in R.  You can get the same row as <literal>*R.begin()</literal>.
 
 	What you'll usually do is index the row directly to get at the field
 	you want, e.g. <literal>R[0][0]</literal> to get the first field of
@@ -884,68 +767,56 @@
       </para>
 
       <para>
-	Array indexing of rows also works with the fields' names instead of
-	their numbers, eg.:
+        Of course you can also iterate the rows in a result, whether with C++
+        iteration syntax or a classic C-style loop:
       </para>
 
       <programlisting>
-	// Process employees' names one by one.  ProcessNames() doesn't know exactly
-	// what columns are going to be in R, but there must be one called "lastname".
-	void ProcessNames(result R)
+        for (const auto row: my_result) process(row);
+      </programlisting>
+
+      <programlisting>
+        for (auto row = std::begin(my_result); row != my_result.end(); row++)
+          process(*row);
+      </programlisting>
+
+      <para>
+        Once you have a row, you'll want to access its fields.  You can do
+        that in all the same way you accessed rows in a result.  But in
+        addition, you can also index a row by name instead of by number:
+      </para>
+
+      <programlisting>
+	// Process employees' names one by one.  process_names() doesn't know
+        // exactly what columns are going to be in R, but there must be one
+        // called "lastname".
+	void process_names(result R)
 	{
-	for (result::size_type i = 0; i != R.size(); ++i)
-	Process(R[i]["lastname"]);
+	  for (result::size_type i = 0; i != R.size(); ++i)
+	  process(R[i]["lastname"]);
 	}
       </programlisting>
-      <para>
-	As for the alternative, accessing the result rows through an iterator,
-	only <literal>const</literal> iterators are provided so the contents of
-	the result cannot be modified.  Use these iterators as random-access
-	iterators like with any STL-like container:
-      </para>
-      <programlisting>
-	for (result::const_iterator i = R.begin(); i != R.end(); ++i)
-	Process(*i);
-      </programlisting>
 
       <para>
-	Iterators may be incremented or decremented (whether pre- or post-),
-	they may be added to or subtracted from to jump through the result
-	rows; their positions may be compared (provided they point into the
-	same <literal>result</literal>), and they may be dereferenced through
-	the <literal>*</literal> or <literal>-></literal> operators.
-      </para>
-
-      <para>
-	Finally, the iterated rows' fields may be addressed using the array
-	index operator on the iterator directly, eg.
+	There's one more trick for both result iterators and row iterators.
+	You can index them directly using the array index operator, just like
+        C++-native pointers can work a lot like arrays:
 	<literal>R.begin()[0]</literal> gets you the first field of
-	<literal>R</literal>'s first row, just like
-	<literal>R[0][0]</literal> would
-	<footnote>
+	<literal>R</literal>'s first row, just like <literal>R[0][0]</literal>
+        would<footnote>
 	  <para>
 	    Or <literal>(*R.begin())[0]</literal>.  It may seem quirky to
-	    have <literal>R.begin()</literal> and
-	    <literal>*R.begin()</literal> mean the same thing, but it makes
-	    practical use of iterators a lot easier.  In fact it matches how
-	    arrays and pointers work in C and C++.
+	    have <literal>R.begin()</literal> and <literal>*R.begin()</literal>
+            mean the same thing, but it makes practical use of iterators a lot
+            easier.
 	  </para>
 	</footnote>.
       </para>
 
       <para>
-	Either way, once you've indexed the <literal>row</literal>
-	you get a <literal>field</literal>--which is another
-	placeholder, but this time encapsulates an actual field value in our
-	query result.  A <literal>field</literal> <literal>F</literal> also
-	knows its column name, which can be obtained as
-	<literal>F.Name()</literal>.
-      </para>
-
-      <para>
-	Again, there is more than one way to read the field's value.  Let's
-	start out with the easy one, <function>c_str</function>, which reads
-	the value as a C string:
+	There is also more than one way to read a field's value.  Let's start
+        out with the easy one, <function>c_str</function>, which reads the
+        value as a C string:
       </para>
 
       <programlisting>
@@ -962,7 +833,10 @@
 	if (!F.is_null())
 	cout &lt;&lt; "Name: " &lt;&lt; F.c_str() &lt;&lt; endl;
       </programlisting>
+    </section>
 
+    <section id="stringconversion">
+      <title>String conversions</title>
       <para>
 	In practice of course, not all data is going to consist of strings.
 	Many fields will be integer values, or decimals, or Booleans.  To
@@ -991,8 +865,8 @@
 	// Get salary.  If this employee has no salary, skip payment.
 	if (!empl[1].to(salary)) return;
 
-	// Get manager status.  If field is null, variable's original value (false)
-	// will be preserved.
+	// Get manager status.  If field is null, this will leave the
+        // variable's original value unchanged.
 	empl[2].to(is_manager);
 
 	if (is_manager) salary += Bonus;
@@ -1004,8 +878,7 @@
       <para>
 	If conversion fails, e.g. when trying to convert a floating-point
 	value to an integer variable, <function>to</function> will throw a
-	<literal>runtime_error</literal> reporting the problem in its
-	<function>what</function> message.
+	<literal>runtime_error</literal>.
       </para>
     </section>
   </chapter>
