@@ -28,7 +28,7 @@ bool pqxx::field::operator==(const field &rhs) const
 {
   if (is_null() != rhs.is_null())
     return false;
-  // TODO: Verify null handling decision
+  // TODO: Verify null handling decision.
   const size_type s = size();
   return (s == rhs.size()) and (std::memcmp(c_str(), rhs.c_str(), s) == 0);
 }

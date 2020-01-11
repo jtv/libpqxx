@@ -29,9 +29,10 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 void pqxx::internal::basic_transaction::do_commit()
 {
+  static const auto commit{std::make_shared<std::string>("COMMIT")};
   try
   {
-    direct_exec("COMMIT");
+    direct_exec(commit);
   }
   catch (const statement_completion_unknown &e)
   {
@@ -77,5 +78,6 @@ void pqxx::internal::basic_transaction::do_commit()
 
 void pqxx::internal::basic_transaction::do_abort()
 {
-  direct_exec("ROLLBACK");
+  static const auto rollback{std::make_shared<std::string>("ROLLBACK")};
+  direct_exec(rollback);
 }

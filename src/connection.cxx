@@ -589,12 +589,16 @@ std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 
 pqxx::result pqxx::connection::exec(std::string_view query)
 {
-  const auto q{std::make_shared<std::string>(query)};
-  auto R = make_result(PQexec(m_conn, q->c_str()), q);
-  check_result(R);
+  return exec(std::make_shared<std::string>(query));
+}
 
+
+pqxx::result pqxx::connection::exec(std::shared_ptr<std::string> query)
+{
+  auto res{make_result(PQexec(m_conn, query->c_str()), query)};
+  check_result(res);
   get_notifs();
-  return R;
+  return res;
 }
 
 

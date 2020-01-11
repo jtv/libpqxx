@@ -227,7 +227,7 @@ pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
 
-  // TODO: Pass Desc to direct_exec(), and from there on down
+  // TODO: Pass Desc to direct_exec(), and from there on down.
   return direct_exec(Query);
 }
 
@@ -375,6 +375,13 @@ void pqxx::transaction_base::unregister_focus(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(std::string_view C)
+{
+  CheckPendingError();
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(C);
+}
+
+
+pqxx::result pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> C)
 {
   CheckPendingError();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(C);

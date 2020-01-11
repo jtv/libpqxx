@@ -488,6 +488,7 @@ protected:
 
   /// Execute query on connection directly.
   result direct_exec(std::string_view);
+  result direct_exec(std::shared_ptr<std::string>);
 
 private:
   enum class status
