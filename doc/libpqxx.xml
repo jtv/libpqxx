@@ -14,7 +14,7 @@
     </authorgroup>
 
     <copyright>
-      <year>2002—2017</year>
+      <year>2000—2020</year>
       <holder>
         Jeroen T. Vermeulen
       </holder>
@@ -25,16 +25,15 @@
     <title>About libpqxx</title>
 
     <para>
-      <productname>libpqxx</productname> is a C++ API for
-      <productname>PostgreSQL</productname>.
+      libpqxx is the C++ API for PostgreSQL.
     </para>
 
     <para>
-      Since <productname>libpqxx</productname> builds on top of the C frontend
-      <productname>libpq</productname>, you will need a working
-      <productname>libpq</productname> library on your system prior to getting
-      started with <productname>libpqxx</productname>.  This is similar to the
-      situation with the older <productname>libpq++</productname> interface.
+      Since libpqxx builds on top of the C frontend
+      libpq, you will need a working
+      libpq library on your system prior to getting
+      started with libpqxx.  This is similar to the
+      situation with the older libpq++ interface.
     </para>
 
     <para>
@@ -48,7 +47,7 @@
     <title>Class overview</title>
 
     <para>
-      To work with <productname>libpqxx</productname>, you need to be aware of
+      To work with libpqxx, you need to be aware of
       at least the following classes.  These are all introduced in a dedicated
       namespace, <literal>pqxx</literal>:
     </para>
@@ -57,7 +56,7 @@
       <listitem>
 	<para>
 	  <literal>connection</literal> represents a connection from your
-	  program to a <productname>PostgreSQL</productname> back-end server.
+	  program to a PostgreSQL back-end server.
 	  Naturally your program may open multiple connections, simultaneous or
 	  not, to any number of databases.
 	</para>
@@ -75,7 +74,7 @@
 
 	  <footnote>
 	    <para>
-	      Actually <productname>libpqxx</productname> provides three classes
+	      Actually libpqxx provides three classes
 	      doing this at various levels of reliability, called
 	      <literal>nontransaction</literal>, <literal>transaction</literal>,
 	      and <literal>robusttransaction</literal> for no, standard, and
@@ -131,7 +130,7 @@
       <listitem>
 	<para>
 	  <literal>broken_connection</literal> is an exception class that is
-	  thrown if <productname>libpqxx</productname> loses its connection to
+	  thrown if libpqxx loses its connection to
 	  the back-end.  It is derived from the standard C++ exception
 	  <literal>std::runtime_error</literal>, and can generally be treated as
 	  such.
@@ -303,13 +302,13 @@
 	<para>
 	  <literal>notification_receiver</literal> is an instance of the
 	  Observer design pattern.  Any code connected to a backend may flag an
-	  event using the <productname>PostgreSQL</productname>
+	  event using the PostgreSQL
 	  <literal>NOTIFY</literal> command.  Frontends connected to that same
 	  backend database may be listening for an event of that name to occur.
-	  A frontend using <productname>libpqxx</productname> does this by
+	  A frontend using libpqxx does this by
 	  registering an observer object derived from
 	  <literal>notification_receiver</literal>, which will be invoked by
-	  <productname>libpqxx</productname> to handle the event when it occurs.
+	  libpqxx to handle the event when it occurs.
 	</para>
 
 	<para>
@@ -414,17 +413,17 @@
 	<para>
 	  This frontend library is built on top of the
 	  <filename>libpq</filename> frontend library, which defines
-	  <productname>PostgreSQL</productname>'s C <acronym>API</acronym>.
+	  PostgreSQL's C <acronym>API</acronym>.
 	  Therefore this manual will sometimes refer to the
 	  <filename>libpq</filename> documentation rather than repeat what is
 	  said there.  This was not done to annoy you, but to ensure that the
-	  <productname>libpqxx</productname> documentation remains up-to-date
+	  libpqxx documentation remains up-to-date
 	  with any changes in the C frontend.  Please bear with us.
 	</para>
 
 	<para>
 	  Furthermore, if you're ever in doubt about how to use the basic
-	  features of <productname>libpqxx</productname>, take a look at the
+	  features of libpqxx, take a look at the
 	  example programs provided; they're called
 	  <filename>test000</filename>, <filename>test001</filename> etc.
 	  Those should help give you an idea of how simple the library can be
@@ -438,7 +437,7 @@
 	<title>C++ conventions</title>
 
 	<para>
-	  All definitions made by <productname>libpqxx</productname> reside
+	  All definitions made by libpqxx reside
 	  in a namespace <literal>pqxx</literal>.  If you're not familiar
 	  with C++ namespaces, you have two options:
 	</para>
@@ -459,7 +458,7 @@
 		using namespace pqxx;
 	      </programlisting>
 	      near the top of each source file that uses
-	      <productname>libpqxx</productname>.  This is typically best for
+	      libpqxx.  This is typically best for
 	      your source files (you're probably doing it already for the
 	      <literal>std</literal> namespace), though it is not considered
 	      good practice in header files.
@@ -468,7 +467,7 @@
 
 	  <listitem>
 	    <para>
-	      Explicitly qualify each <productname>libpqxx</productname> name
+	      Explicitly qualify each libpqxx name
 	      with the <literal>pqxx</literal> namespace.
 	    </para>
 
@@ -538,7 +537,7 @@
 
       <caution>
 	<para>
-	  As a matter of design, <productname>libpqxx</productname> will not
+	  As a matter of design, libpqxx will not
 	  allow you to perform queries on the <literal>connection</literal>
 	  directly.  You will need to open a transaction instead.
 	</para>
@@ -565,7 +564,7 @@
 	</para>
 
 	<para>
-	  All access to the database in <productname>libpqxx</productname>
+	  All access to the database in libpqxx
 	  must go through a transaction object, so familiarity with this
 	  class family's interface is essential.
 	</para>
@@ -590,7 +589,7 @@
 	  object it is to act on, and optionally an identifying name for your
 	  transaction.  The name, which need not be unique but should begin with
 	  a letter and may contain only letters, digits and underscores, can be
-	  used by <productname>libpqxx</productname> to make some error messages
+	  used by libpqxx to make some error messages
 	  more specific.
 
 	  <programlisting>
@@ -784,7 +783,7 @@
       <title>Executing queries</title>
       <para>
 	So let's execute an actual query.  There is no "query class" in
-	<productname>libpqxx</productname>; we really do try to keep your life
+	libpqxx; we really do try to keep your life
 	simple.
       </para>
 
@@ -822,7 +821,7 @@
       <para>
 	Obviously not all queries are commands--the more common kind actually
 	returns useful data.  Result data in
-	<productname>libpqxx</productname> are encapsulated in a
+	libpqxx are encapsulated in a
 	<literal>result</literal> object, which acts as a container similar
 	to the STL's <literal>vector</literal> template.
       </para>
