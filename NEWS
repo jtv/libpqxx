@@ -10,9 +10,10 @@
  - Reading a variable written from raw SQL, procedures, etc, will now work.
  - Prepared statements are now registered immediately.
  - If you do weird stuff with preparing/unpreparing statements, it may break.
- - Changed exceptions and errors for e.g. overwriting a prepared statement.
+ - Changed exceptions and errors for many error situations.
  - Mishandling prepared statements will now break the connection.
  - Many string references and const char pointers are now `std::string_view`.
+ - New `zview` class wraps `string_view` for string with terminating zero.
  - The `stream_base` abstract base class is gone.
  - Transactions no longer have an `isolation_tag` nested type.
  - The `isolation_traits` type is gone.
@@ -25,22 +26,20 @@
  - `error_verbosity` is no longer nested in connection.
  - `connection::get_verbosity` is gone.
  - Some enums have changed names: `accesspolicy` to `access_policy`, and so on.
- - `dynamic_params` now takes an accessor.
+ - `dynamic_params` now accepts an accessor.
  - Fixed "const" support in arguments to parameterised/prepared statements.
  - Connection objects can now be moved.
- - `connections::options()` is gone.
+ - `connections::options()` has been replaced by `connection_string()`.
  - Replaced pqxx-fulltest with `test_all.py`.
- - Querying a connection's connection string was completely rewritten.
  - Some `size_type` have changed to different types, to match current libpq.
  - Internal overflows are more consistently caught and reported.
- - Items marked "deprecated" have been removed.
- - win32/libpqxx.cxx and DllMain did not seem to be needed, so they're gone.
+ - Deprecated items have been removed.
  - Large objects now require backend version 9.3 or better.
  - Seeking inside large objects now supports 64-bit sizes.
  - Visual Studio project files and sample headers are gone.  Use CMake.
  - MinGW Makefiles are gone.  Use `configure` or CMake.
  - Need PostgreSQL 10 to use robusttransaction.
- - robusttransaction no longer uses a log table.  Feel free to drop it.
+ - `robusttransaction` no longer uses a log table.  Feel free to drop it.
 6.4.4
  - Use pkg-config if pg-config is not available.
  - In CMake build, prefer CMake's config headers over any found in source tree.
