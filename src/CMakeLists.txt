@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template './src/CMakeLists.txt.template'.
+# Generated from template 'src/CMakeLists.txt.template'.
 ################################################################################
 if(NOT PostgreSQL_INCLUDE_DIRS)
     find_package(PostgreSQL REQUIRED)
@@ -107,7 +107,7 @@ set(exec_prefix \${prefix})
 set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(VERSION ${PROJECT_VERSION})
-configure_file(${CMAKE_SOURCE_DIR}/libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/../libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
 install(FILES ${CMAKE_BINARY_DIR}/libpqxx.pc
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
