@@ -399,45 +399,15 @@ bool pqxx::connection::is_busy() const noexcept
 }
 
 
-namespace
-{
-/// Stateful libpq "cancel" operation.
-class cancel_wrapper
-{
-  PGcancel *m_cancel;
-  char m_errbuf[500];
-
-public:
-  explicit cancel_wrapper(PGconn *conn) : m_cancel{nullptr}, m_errbuf{}
-  {
-    if (conn)
-    {
-      m_cancel = PQgetCancel(conn);
-      if (m_cancel == nullptr)
-        throw std::bad_alloc{};
-    }
-  }
-  ~cancel_wrapper()
-  {
-    if (m_cancel)
-      PQfreeCancel(m_cancel);
-  }
-
-  void operator()()
-  {
-    if (not m_cancel)
-      return;
-    if (PQcancel(m_cancel, m_errbuf, int{sizeof(m_errbuf)}) == 0)
-      throw pqxx::sql_error{std::string{m_errbuf}};
-  }
-};
-} // namespace
-
-
 void pqxx::connection::cancel_query()
 {
-  cancel_wrapper cancel{m_conn};
-  cancel();
+  using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel*)>>;
+  char errbuf[500];
+
+  pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
+  if (not cancel) throw std::bad_alloc{};
+  if (PQcancel(cancel.get(), errbuf, int(sizeof(errbuf))) == 0)
+    throw pqxx::sql_error{std::string{errbuf}};
 }
 
 

@@ -618,6 +618,10 @@ public:
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
+  /** You can use this from another thread, and/or while a query is executing
+   * in a pipeline, but it's up to you to ensure that you're not canceling the
+   * wrong query.  This may involve locking.
+   */
   void cancel_query();
 
   /// Set session verbosity.
