@@ -138,7 +138,7 @@ void test_strings()
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), "foo", "Wrong string result.");
 
-  const char nasty_string[] = "'\\\"\\";
+  const char nasty_string[] = R"--('\"\)--";
   rw = tx.exec_prepared1("EchoStr", nasty_string);
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(nasty_string),

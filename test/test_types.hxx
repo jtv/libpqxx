@@ -79,7 +79,7 @@ template<> struct string_traits<ipv4>
     ipv4 ts;
     if (text.data() == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
-    std::regex ipv4_regex{"(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})"};
+    std::regex ipv4_regex{R"--((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))--"};
     std::smatch match;
     // Need non-temporary for `std::regex_match()`
     std::string sstr{text};

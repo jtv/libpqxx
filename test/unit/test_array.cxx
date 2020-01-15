@@ -191,7 +191,7 @@ void test_double_quoted_string()
 void test_double_quoted_escaping()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
-  pqxx::array_parser parser("{\"don''t\\\\ care\"}");
+  pqxx::array_parser parser(R"--({"don''t\\ care"})--");
 
   output = parser.get_next();
   PQXX_CHECK_EQUAL(
