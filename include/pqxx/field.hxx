@@ -277,8 +277,7 @@ private:
 
   int_type initialize()
   {
-    auto G =
-      static_cast<char_type *>(const_cast<char *>(m_field.c_str()));
+    auto G = static_cast<char_type *>(const_cast<char *>(m_field.c_str()));
     this->setg(G, G, G + m_field.size());
     return int_type(m_field.size());
   }
