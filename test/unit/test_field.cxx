@@ -23,7 +23,7 @@ void test_field()
   PQXX_CHECK(f1.to(s, std::string{"7"}), "to(string, string) failed.");
   PQXX_CHECK_EQUAL(s, "9", "to(string, string) is broken.");
 
-  int i;
+  int i{};
   PQXX_CHECK(f1.to(i), "to(int) failed.");
   PQXX_CHECK_EQUAL(i, 9, "to(int) is broken.");
   i = 8;
