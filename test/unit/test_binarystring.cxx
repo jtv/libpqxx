@@ -56,7 +56,7 @@ void test_binarystring()
   const std::string simple_escaped{tx.esc_raw(simple)};
   for (auto c : simple_escaped)
   {
-    const unsigned char uc = static_cast<unsigned char>(c);
+    const auto uc = static_cast<unsigned char>(c);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 

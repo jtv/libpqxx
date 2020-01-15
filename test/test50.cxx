@@ -41,7 +41,7 @@ void test_050()
 
     A.process_notice(
       "Writing to large object #" + to_string(largeobject(A).id()) + "\n");
-    int Bytes = check_cast<int>(
+    auto Bytes = check_cast<int>(
       A.cwrite(Contents.c_str(), Contents.size()), "test write");
 
     PQXX_CHECK_EQUAL(

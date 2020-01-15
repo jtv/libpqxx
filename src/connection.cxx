@@ -814,7 +814,7 @@ pqxx::connection::esc_raw(const unsigned char bin[], size_t len) const
 std::string pqxx::connection::unesc_raw(const char text[]) const
 {
   size_t len;
-  unsigned char *bytes =
+  auto bytes =
     const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(text));
   const std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
     ptr{PQunescapeBytea(bytes, &len),
@@ -891,7 +891,7 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
-  const short events =
+  const auto events =
     short(POLLERR | POLLHUP | POLLNVAL | (forwrite ? POLLOUT : POLLIN));
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));

@@ -91,7 +91,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
   // unsigned_t, the value will overflow, which means behaviour is
   // undefined.  Promotion of a negative value to an unsigned type is
   // well-defined, given a representation, so let's do that:
-  constexpr unsigned_t positive = static_cast<unsigned_t>(bottom<T>);
+  constexpr auto positive = static_cast<unsigned_t>(bottom<T>);
 
   // As luck would have it, in two's complement, this gives us exactly the
   // value we want.

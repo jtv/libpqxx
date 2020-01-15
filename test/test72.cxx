@@ -26,7 +26,7 @@ void test_072()
   P.complete();
 
   // We should be able to get the first result, which preceeds the error
-  const int res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
+  const auto res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
   PQXX_CHECK_EQUAL(res_1, 1, "Got wrong result from pipeline.");
 
   // We should *not* get a result for the query behind the error

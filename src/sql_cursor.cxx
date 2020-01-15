@@ -270,7 +270,7 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
   const std::string query =
     "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
   const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str()));
-  difference_type d = difference_type(r.affected_rows());
+  auto d = static_cast<difference_type>(r.affected_rows());
   displacement = adjust(rows, d);
   return d;
 }

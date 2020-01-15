@@ -10,7 +10,7 @@ void test_076()
   pqxx::nontransaction tx{conn};
 
   auto RFalse = tx.exec1("SELECT 1=0"), RTrue = tx.exec1("SELECT 1=1");
-  bool False = pqxx::from_string<bool>(RFalse[0]),
+  auto False = pqxx::from_string<bool>(RFalse[0]),
        True = pqxx::from_string<bool>(RTrue[0]);
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
@@ -25,7 +25,7 @@ void test_076()
   const short svals[] = {-1, 1, 999, -32767, -32768, 32767, 0};
   for (int i = 0; svals[i]; ++i)
   {
-    short s = pqxx::from_string<short>(pqxx::to_string(svals[i]));
+    auto s = pqxx::from_string<short>(pqxx::to_string(svals[i]));
     PQXX_CHECK_EQUAL(s, svals[i], "short/string conversion not bijective.");
     s = pqxx::from_string<short>(
       tx.exec1("SELECT " + pqxx::to_string(svals[i]))[0].c_str());
@@ -35,7 +35,7 @@ void test_076()
   const unsigned short uvals[] = {1, 999, 32767, 32768, 65535, 0};
   for (int i = 0; uvals[i]; ++i)
   {
-    unsigned short u =
+    auto u =
       pqxx::from_string<unsigned short>(pqxx::to_string(uvals[i]));
     PQXX_CHECK_EQUAL(
       u, uvals[i], "unsigned short/string conversion not bijective.");

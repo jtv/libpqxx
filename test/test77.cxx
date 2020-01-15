@@ -10,8 +10,8 @@ void test_077()
   pqxx::nontransaction tx{conn};
 
   auto RFalse = tx.exec1("SELECT 1=0"), RTrue = tx.exec1("SELECT 1=1");
-  bool f = pqxx::from_string<bool>(RFalse[0]);
-  bool t = pqxx::from_string<bool>(RTrue[0]);
+  auto f = pqxx::from_string<bool>(RFalse[0]);
+  auto t = pqxx::from_string<bool>(RTrue[0]);
   PQXX_CHECK(
     not f and t, "Booleans converted incorrectly; can't trust this test.");
 
