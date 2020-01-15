@@ -155,7 +155,7 @@ inline PQXX_PRIVATE void check_version()
 struct PQXX_LIBEXPORT thread_safety_model
 {
   /// Is the underlying libpq build thread-safe?
-  bool safe_libpq;
+  bool safe_libpq = false;
 
   /// Is Kerberos thread-safe?
   /** @warning Is currently always @c false.
@@ -164,7 +164,7 @@ struct PQXX_LIBEXPORT thread_safety_model
    * must be serialized.  Confine their use to a single thread, or protect it
    * with a global lock.
    */
-  bool safe_kerberos;
+  bool safe_kerberos = false;
 
   /// A human-readable description of any thread-safety issues.
   std::string description;
