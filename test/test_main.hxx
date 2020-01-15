@@ -8,14 +8,9 @@
 
 #include "test_helpers.hxx"
 
-
-using namespace pqxx;
-using namespace pqxx::test;
-
-
 namespace
 {
-std::string deref_field(const field &f)
+std::string deref_field(const pqxx::field &f)
 {
   return f.c_str();
 }
@@ -116,17 +111,17 @@ void create_pqxxevents(transaction_base &t)
 
 namespace
 {
-std::map<const char *, testfunc> *all_tests = nullptr;
+std::map<const char *, pqxx::test::testfunc> *all_tests = nullptr;
 } // namespace
 
 
 namespace pqxx::test
 {
-void register_test(const char name[], testfunc func)
+void register_test(const char name[], pqxx::test::testfunc func)
 {
   if (all_tests == nullptr)
   {
-    all_tests = new std::map<const char *, testfunc>();
+    all_tests = new std::map<const char *, pqxx::test::testfunc>();
   }
   else
   {
@@ -154,24 +149,24 @@ int main(int, const char *argv[])
         i.second();
         success = true;
       }
-      catch (const test_failure &e)
+      catch (const pqxx::test::test_failure &e)
       {
         std::cerr << "Test failure in " + e.file() + " line " +
-                       to_string(e.line())
+                       pqxx::to_string(e.line())
                   << ": " << e.what() << std::endl;
       }
       catch (const std::bad_alloc &)
       {
         std::cerr << "Out of memory!" << std::endl;
       }
-      catch (const feature_not_supported &e)
+      catch (const pqxx::feature_not_supported &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what()
                   << std::endl;
         success = true;
         --test_count;
       }
-      catch (const sql_error &e)
+      catch (const pqxx::sql_error &e)
       {
         std::cerr << "SQL error: " << e.what() << std::endl
                   << "Query was: " << e.query() << std::endl;
