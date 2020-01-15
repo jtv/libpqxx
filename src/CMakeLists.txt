@@ -107,7 +107,7 @@ set(exec_prefix \${prefix})
 set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(VERSION ${PROJECT_VERSION})
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
+configure_file(${PROJECT_SOURCE_DIR}/libpqxx.pc.in ${CMAKE_BINARY_DIR}/libpqxx.pc)
 install(FILES ${CMAKE_BINARY_DIR}/libpqxx.pc
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
