@@ -98,7 +98,6 @@ bool pqxx::row::operator==(const row &rhs) const noexcept
   const auto s = size();
   if (rhs.size() != s)
     return false;
-  // TODO: Depends on how null is handled!
   for (size_type i = 0; i < s; ++i)
     if ((*this)[i] != rhs[i])
       return false;
