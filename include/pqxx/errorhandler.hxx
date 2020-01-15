@@ -63,15 +63,15 @@ public:
    */
   virtual bool operator()(const char msg[]) noexcept = 0;
 
+  errorhandler() = delete;
+  errorhandler(const errorhandler &) = delete;
+  errorhandler &operator=(const errorhandler &) = delete;
+
 private:
   connection *m_home;
 
   friend class internal::gate::errorhandler_connection;
   void unregister() noexcept;
-
-  errorhandler() = delete;
-  errorhandler(const errorhandler &) = delete;
-  errorhandler &operator=(const errorhandler &) = delete;
 };
 
 

@@ -322,6 +322,10 @@ public:
   using largeobject::operator>;
   using largeobject::operator>=;
 
+  largeobjectaccess() = delete;
+  largeobjectaccess(const largeobjectaccess &) = delete;
+  largeobjectaccess operator=(const largeobjectaccess &) = delete;
+
 private:
   PQXX_PRIVATE std::string reason(int err) const;
   internal::pq::PGconn *raw_connection() const
@@ -334,10 +338,6 @@ private:
 
   dbtransaction &m_trans;
   int m_fd = -1;
-
-  largeobjectaccess() = delete;
-  largeobjectaccess(const largeobjectaccess &) = delete;
-  largeobjectaccess operator=(const largeobjectaccess &) = delete;
 };
 
 

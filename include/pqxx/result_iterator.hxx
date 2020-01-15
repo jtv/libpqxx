@@ -155,9 +155,7 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_result_iterator(const const_reverse_result_iterator &rhs) :
-          const_result_iterator{rhs}
-  {}
+  const_reverse_result_iterator(const const_reverse_result_iterator &rhs) =default;
   explicit const_reverse_result_iterator(const const_result_iterator &rhs) :
           const_result_iterator{rhs}
   {
