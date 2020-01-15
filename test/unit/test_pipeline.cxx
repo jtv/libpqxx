@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "../test_helpers.hxx"
 
 namespace
@@ -41,11 +43,19 @@ void test_pipeline()
   // We can cancel while the pipe is empty, and things will still work.
   pipe.cancel();
 
-  // Issue a query and cancel it.
+  // Issue a query and cancel it.  Measure time to see that we don't really
+  // wait.
+  using clock = std::chrono::steady_clock;
+  const auto start{clock::now()};
   pipe.retain(0);
   pipe.insert("pg_sleep(10)");
   pipe.cancel();
-  // TODO: Measure time to ensure we don't really wait.
+  const auto finish{clock::now()};
+  const auto seconds{std::chrono::duration_cast<std::chrono::seconds>(
+		finish - start).count()};
+  PQXX_CHECK_LESS(
+	seconds, 5,
+	"Canceling a sleep took suspiciously long.");
 }
 } // namespace
 
