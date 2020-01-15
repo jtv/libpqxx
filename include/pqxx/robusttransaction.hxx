@@ -25,7 +25,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction
         : public dbtransaction
 {
 public:
-  virtual ~basic_robusttransaction() = 0;
+  virtual ~basic_robusttransaction() override = 0;
 
 protected:
   basic_robusttransaction(connection &C, const char begin_command[]);
@@ -89,7 +89,7 @@ public:
             pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}
   {}
 
-  virtual ~robusttransaction() noexcept { close(); }
+  virtual ~robusttransaction() noexcept override { close(); }
 };
 
 /**

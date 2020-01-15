@@ -86,7 +86,7 @@ public:
   explicit sql_error(
     const std::string &msg = "", const std::string &Q = "",
     const char sqlstate[] = nullptr);
-  virtual ~sql_error() noexcept;
+  virtual ~sql_error() noexcept override;
 
   /// The query whose execution triggered the exception
   PQXX_PURE const std::string &query() const noexcept;

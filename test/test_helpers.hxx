@@ -16,7 +16,7 @@ class test_failure : public std::logic_error
 public:
   test_failure(const std::string &ffile, int fline, const std::string &desc);
 
-  ~test_failure() noexcept;
+  ~test_failure() noexcept override;
 
   const std::string &file() const noexcept { return m_file; }
   int line() const noexcept { return m_line; }

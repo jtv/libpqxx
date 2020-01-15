@@ -80,7 +80,7 @@ public:
 
   explicit transaction(connection &C) : transaction(C, "") {}
 
-  virtual ~transaction() noexcept { close(); }
+  virtual ~transaction() noexcept override { close(); }
 };
 
 

@@ -78,7 +78,7 @@ public:
   explicit subtransaction(
     subtransaction &T, const std::string &Name = std::string{});
 
-  virtual ~subtransaction() noexcept { close(); }
+  virtual ~subtransaction() noexcept override { close(); }
 
 private:
   std::string quoted_name() const { return quote_name(name()); }

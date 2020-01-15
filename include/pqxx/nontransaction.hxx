@@ -66,7 +66,7 @@ public:
     register_transaction();
   }
 
-  virtual ~nontransaction() { close(); }
+  virtual ~nontransaction() override { close(); }
 
 private:
   virtual void do_commit() override {}
