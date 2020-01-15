@@ -185,19 +185,17 @@ pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 
 void pqxx::pipeline::issue()
 {
-  // TODO: Wrap in nested transaction if available, for extra "replayability"
-
-  // Retrieve that null result for the last query, if needed
+  // Retrieve that null result for the last query, if needed.
   obtain_result();
 
-  // Don't issue anything if we've encountered an error
+  // Don't issue anything if we've encountered an error.
   if (m_error < qid_limit())
     return;
 
-  // Start with oldest query (lowest id) not in previous issue range
+  // Start with oldest query (lowest id) not in previous issue range.
   auto oldest = m_issuedrange.second;
 
-  // Construct cumulative query string for entire batch
+  // Construct cumulative query string for entire batch.
   std::string cum = separated_list(
     theSeparator, oldest, m_queries.end(),
     [](QueryMap::const_iterator i) { return i->second.get_query(); });
@@ -210,7 +208,7 @@ void pqxx::pipeline::issue()
   pqxx::internal::gate::connection_pipeline{m_trans.conn()}.start_exec(
     cum.c_str());
 
-  // Since we managed to send out these queries, update state to reflect this
+  // Since we managed to send out these queries, update state to reflect this.
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = m_queries.end();
