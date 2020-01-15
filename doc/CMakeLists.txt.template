@@ -17,7 +17,7 @@ Install it, or configure with -DBUILD_DOC=OFF
 endif()
 
 set(PQXXVERSION "${CMAKE_PROJECT_VERSION}")
-set(top_srcdir "${CMAKE_SOURCE_DIR}")
+set(top_srcdir "${PROJECT_SOURCE_DIR}")
 set(PQXX_ABI "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 set(PQXX_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(PQXX_MINOR "${PROJECT_VERSION_MINOR}")
@@ -34,13 +34,13 @@ configure_file(Doxyfile.in Doxyfile)
 if(HAVE_DOXYGEN)
     set(DOXYGEN_SOURCES
 ###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
-    	"${CMAKE_SOURCE_DIR}/include/pqxx/###BASENAME###.hxx"
+    	"${PROJECT_SOURCE_DIR}/include/pqxx/###BASENAME###.hxx"
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/doc/*.md
-    	"${CMAKE_SOURCE_DIR}/###FILENAME###"
+    	"${PROJECT_SOURCE_DIR}/###FILENAME###"
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH src/*.cxx
-    	"${CMAKE_SOURCE_DIR}/###FILENAME###"
+    	"${PROJECT_SOURCE_DIR}/###FILENAME###"
 ###MAKTEMPLATE:ENDFOREACH
     )
     set(DOXYGEN_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp")
