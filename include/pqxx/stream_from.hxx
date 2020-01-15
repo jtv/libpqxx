@@ -53,7 +53,7 @@ public:
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
 private:
-  internal::encoding_group m_copy_encoding;
+  internal::encoding_group m_copy_encoding = internal::encoding_group::MONOBYTE;
   std::string m_current_line;
   bool m_finished = false;
   bool m_retry_line = false;
