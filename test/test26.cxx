@@ -1,4 +1,3 @@
-#include <functional>
 #include <iostream>
 #include <map>
 
@@ -77,7 +76,7 @@ void test_026()
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  const auto conversions = perform(std::bind(update_years, std::ref(conn)));
+  const auto conversions = perform([&conn](){ return update_years(conn); });
 
   PQXX_CHECK(not conversions.empty(), "No conversions done!");
 }

@@ -1,5 +1,3 @@
-#include <functional>
-
 #include "test_helpers.hxx"
 
 using namespace pqxx;
@@ -49,7 +47,7 @@ void test_018()
   const std::string Table = "pqxxevents";
 
   const std::pair<int, int> Before =
-    perform(std::bind(count_events, std::ref(conn), Table));
+    perform([&conn, &Table](){ return count_events(conn, Table); });
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + ", cannot run.");
@@ -70,7 +68,7 @@ void test_018()
   }
 
   const std::pair<int, int> After =
-    perform(std::bind(count_events, std::ref(conn), Table));
+    perform([&conn, &Table](){ return count_events(conn, Table); });
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

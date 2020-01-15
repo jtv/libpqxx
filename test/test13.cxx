@@ -1,5 +1,3 @@
-#include <functional>
-
 #include "test_helpers.hxx"
 
 using namespace pqxx;
@@ -68,18 +66,18 @@ void test_013()
   const std::string Table = "pqxxevents";
 
   const std::pair<int, int> Before =
-    perform(std::bind(count_events, std::ref(conn), Table));
+    perform([&conn, &Table]{ return count_events(conn, Table); });
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + "--can't test.");
 
   quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-    perform(std::bind(failed_insert, std::ref(conn), Table)), deliberate_error,
+    perform([&conn, &Table]() { failed_insert(conn, Table); }), deliberate_error,
     "Failing transactor failed to throw correct exception.");
 
   const std::pair<int, int> After =
-    perform(std::bind(count_events, std::ref(conn), Table));
+    perform([&conn, &Table](){ return count_events(conn, Table); });
 
   PQXX_CHECK_EQUAL(
     After.first, Before.first, "abort() didn't reset event count.");
