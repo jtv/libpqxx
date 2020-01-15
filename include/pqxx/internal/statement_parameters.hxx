@@ -108,9 +108,11 @@ private:
 
 class PQXX_LIBEXPORT statement_parameters
 {
+public:
+  statement_parameters &operator=(const statement_parameters &) = delete;
+
 protected:
   statement_parameters() = default;
-  statement_parameters &operator=(const statement_parameters &) = delete;
 
   void add_param() { this->add_checked_param("", false, false); }
   template<typename T> void add_param(const T &v, bool nonnull)

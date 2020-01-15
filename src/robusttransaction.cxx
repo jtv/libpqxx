@@ -88,7 +88,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 }
 
 
-pqxx::internal::basic_robusttransaction::~basic_robusttransaction() {}
+pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 
 
 void pqxx::internal::basic_robusttransaction::do_commit()

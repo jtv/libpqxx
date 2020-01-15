@@ -37,7 +37,6 @@ const double not_a_number = std::numeric_limits<double>::quiet_NaN();
 
 struct intderef
 {
-  intderef() {} // Silences bogus warning in some gcc versions
   template<typename ITER> int operator()(ITER i) const noexcept
   {
     return int(*i);

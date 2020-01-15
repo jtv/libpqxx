@@ -121,13 +121,8 @@ bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
 }
 
 
-pqxx::binarystring &pqxx::binarystring::operator=(const binarystring &rhs)
-{
-  m_buf = rhs.m_buf;
-  m_size = rhs.m_size;
-  return *this;
-}
-
+pqxx::binarystring &pqxx::binarystring::
+operator=(const binarystring &rhs) = default;
 
 pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 {

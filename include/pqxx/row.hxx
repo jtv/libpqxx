@@ -296,9 +296,7 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_row_iterator(const const_reverse_row_iterator &r) :
-          const_row_iterator{r}
-  {}
+  const_reverse_row_iterator(const const_reverse_row_iterator &r) = default;
   explicit const_reverse_row_iterator(const super &rhs) noexcept :
           const_row_iterator{rhs}
   {

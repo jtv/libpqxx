@@ -35,8 +35,7 @@ void test_076()
   const unsigned short uvals[] = {1, 999, 32767, 32768, 65535, 0};
   for (int i = 0; uvals[i]; ++i)
   {
-    auto u =
-      pqxx::from_string<unsigned short>(pqxx::to_string(uvals[i]));
+    auto u = pqxx::from_string<unsigned short>(pqxx::to_string(uvals[i]));
     PQXX_CHECK_EQUAL(
       u, uvals[i], "unsigned short/string conversion not bijective.");
 

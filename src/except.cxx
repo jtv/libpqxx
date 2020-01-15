@@ -34,7 +34,7 @@ pqxx::sql_error::sql_error(
 {}
 
 
-pqxx::sql_error::~sql_error() noexcept {}
+pqxx::sql_error::~sql_error() noexcept = default;
 
 
 PQXX_PURE const std::string &pqxx::sql_error::query() const noexcept

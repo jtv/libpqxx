@@ -31,7 +31,7 @@ test_failure::test_failure(
         m_line(fline)
 {}
 
-test_failure::~test_failure() noexcept {}
+test_failure::~test_failure() noexcept = default;
 
 
 /// Drop table, if it exists.
