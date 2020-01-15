@@ -53,10 +53,10 @@ void test_binarystring()
     b.str(), simple, "Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
-  const std::string simple_escaped(tx.esc_raw(simple));
-  for (std::string::size_type i = 0; i < simple_escaped.size(); ++i)
+  const std::string simple_escaped{tx.esc_raw(simple)};
+  for (auto c : simple_escaped)
   {
-    const unsigned char uc = static_cast<unsigned char>(simple_escaped[i]);
+    const unsigned char uc = static_cast<unsigned char>(c);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 

@@ -50,20 +50,20 @@ void test_002()
     crtable, rtable, "Field looked up by name gives different origin.");
 
   // Now we've got all that settled, let's process our results.
-  for (result::size_type i = 0; i < R.size(); ++i)
+  for (const auto &f : R)
   {
-    const oid ftable = R[i][0].table();
+    const oid ftable = f[0].table();
     PQXX_CHECK_EQUAL(ftable, rtable, "field::table() is broken.");
 
-    const oid ttable = R[i].column_table(0);
+    const oid ttable = f.column_table(0);
 
     PQXX_CHECK_EQUAL(
-      ttable, R[i].column_table(pqxx::row::size_type(0)),
+      ttable, f.column_table(pqxx::row::size_type(0)),
       "Inconsistent pqxx::row::column_table().");
 
     PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
 
-    const oid cttable = R[i].column_table(rcol);
+    const oid cttable = f.column_table(rcol);
 
     PQXX_CHECK_EQUAL(cttable, rtable, "pqxx::row::column_table() is broken.");
   }
