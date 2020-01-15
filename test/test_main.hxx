@@ -188,7 +188,7 @@ int main(int, const char *argv[])
       if (not success)
       {
         std::cerr << "FAILED: " << i.first << std::endl;
-        failed.push_back(i.first);
+        failed.emplace_back(i.first);
       }
       ++test_count;
     }
