@@ -234,8 +234,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   else
     switch (m_input[m_pos])
     {
-    case '\0':
-      throw failure{"Unexpected zero byte in array."};
+    case '\0': throw failure{"Unexpected zero byte in array."};
     case '{':
       found = juncture::row_start;
       end = scan_glyph(m_pos);

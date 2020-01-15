@@ -13,8 +13,10 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   connection_transaction(reference x) : super(x) {}
 
-  template<typename STRING>
-  result exec(STRING query) { return home().exec(query); }
+  template<typename STRING> result exec(STRING query)
+  {
+    return home().exec(query);
+  }
 
   void register_transaction(transaction_base *t)
   {

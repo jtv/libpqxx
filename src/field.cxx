@@ -26,7 +26,8 @@ pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
 
 bool pqxx::field::operator==(const field &rhs) const
 {
-  if (is_null() and rhs.is_null()) return true;
+  if (is_null() and rhs.is_null())
+    return true;
   if (is_null() != rhs.is_null())
     return false;
   const size_type s = size();

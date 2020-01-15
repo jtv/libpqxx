@@ -381,7 +381,8 @@ pqxx::result pqxx::transaction_base::direct_exec(std::string_view C)
 }
 
 
-pqxx::result pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> C)
+pqxx::result
+pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> C)
 {
   CheckPendingError();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(C);

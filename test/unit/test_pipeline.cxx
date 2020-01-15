@@ -51,11 +51,9 @@ void test_pipeline()
   pipe.insert("pg_sleep(10)");
   pipe.cancel();
   const auto finish{clock::now()};
-  const auto seconds{std::chrono::duration_cast<std::chrono::seconds>(
-		finish - start).count()};
-  PQXX_CHECK_LESS(
-	seconds, 5,
-	"Canceling a sleep took suspiciously long.");
+  const auto seconds{
+    std::chrono::duration_cast<std::chrono::seconds>(finish - start).count()};
+  PQXX_CHECK_LESS(seconds, 5, "Canceling a sleep took suspiciously long.");
 }
 } // namespace
 

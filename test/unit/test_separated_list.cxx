@@ -7,22 +7,24 @@ namespace
 void test_separated_list()
 {
   PQXX_CHECK_EQUAL(
-	pqxx::separated_list(",", std::vector<int>{}),
-	"",
-	"Empty list came out wrong.");
+    pqxx::separated_list(",", std::vector<int>{}), "",
+    "Empty list came out wrong.");
 
   PQXX_CHECK_EQUAL(
-	pqxx::separated_list(",", std::vector<int>{5}), "5", "Single-element list came out wrong.");
+    pqxx::separated_list(",", std::vector<int>{5}), "5",
+    "Single-element list came out wrong.");
 
   PQXX_CHECK_EQUAL(
-	pqxx::separated_list(",", std::vector<int>{3, 6}), "3,6", "Things go wrong once separators come in.");
+    pqxx::separated_list(",", std::vector<int>{3, 6}), "3,6",
+    "Things go wrong once separators come in.");
 
   const std::vector<int> nums{1, 2, 3};
   PQXX_CHECK_EQUAL(
-	pqxx::separated_list("+", nums.begin(), nums.end(), [](auto elt) { return *elt * 2; }),
-	"2+4+6", "Accessors don't seem to work.");
+    pqxx::separated_list(
+      "+", nums.begin(), nums.end(), [](auto elt) { return *elt * 2; }),
+    "2+4+6", "Accessors don't seem to work.");
 }
 
 
 PQXX_REGISTER_TEST(test_separated_list);
-}
+} // namespace
