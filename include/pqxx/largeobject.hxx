@@ -414,7 +414,7 @@ protected:
     return AdjustEOF(newpos);
   }
 
-  virtual int_type overflow(int_type ch = EoF()) override
+  virtual int_type overflow(int_type ch) override
   {
     char *const pp = this->pptr();
     if (pp == nullptr)
@@ -441,6 +441,8 @@ protected:
     }
     return res;
   }
+
+  virtual int_type overflow() { return overflow(EoF()); }
 
   virtual int_type underflow() override
   {
