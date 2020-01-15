@@ -1,10 +1,5 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx::internal
-{
-class row;
-}
-
 namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE result_row : callgate<result>
