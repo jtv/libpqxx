@@ -172,12 +172,12 @@ struct params
     for (std::size_t index = 0; index < num_fields; index++)
     {
       const char *value;
-      if (binaries[index])
+      if (binaries[index] != 0)
       {
         value = bin_strings[cur_bin_string].get();
         cur_bin_string++;
       }
-      else if (nonnulls[index])
+      else if (nonnulls[index] != 0)
       {
         value = strings[cur_string].c_str();
         cur_string++;

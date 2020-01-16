@@ -30,7 +30,7 @@ void test_receive(
   pqxx::connection_base &conn(t.conn());
 
   std::string SQL = "NOTIFY \"" + channel + "\"";
-  if (payload)
+  if (payload != nullptr)
     SQL += ", " + t.quote(payload);
 
   TestReceiver receiver{t.conn(), channel};
@@ -50,10 +50,10 @@ void test_receive(
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
   PQXX_CHECK_EQUAL(receiver.backend_pid, conn.backendpid(), "Bad pid.");
-  if (payload)
-    PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
-  else
+  if (payload == nullptr)
     PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
+  else
+    PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
 }
 
 

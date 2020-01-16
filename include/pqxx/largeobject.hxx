@@ -476,12 +476,12 @@ private:
 
   void initialize(openmode mode)
   {
-    if (mode & std::ios::in)
+    if ((mode & std::ios::in) != 0)
     {
       m_g = new char_type[unsigned(m_bufsize)];
       this->setg(m_g, m_g, m_g);
     }
-    if (mode & std::ios::out)
+    if ((mode & std::ios::out) != 0)
     {
       m_p = new char_type[unsigned(m_bufsize)];
       this->setp(m_p, m_p + m_bufsize);

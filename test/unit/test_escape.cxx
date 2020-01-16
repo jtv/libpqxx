@@ -33,7 +33,7 @@ void test_esc(pqxx::connection_base &c, pqxx::transaction_base &t)
   PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
   PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
   const char *const escstrings[] = {"x", " ", "", nullptr};
-  for (size_t i = 0; escstrings[i]; ++i) compare_esc(c, t, escstrings[i]);
+  for (size_t i = 0; escstrings[i] != nullptr; ++i) compare_esc(c, t, escstrings[i]);
 }
 
 
@@ -55,7 +55,7 @@ void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
   const char *test_strings[] = {"",   "x",   "\\", "\\\\", "'",
                                 "''", "\\'", "\t", "\n",   nullptr};
 
-  for (size_t i = 0; test_strings[i]; ++i)
+  for (size_t i = 0; test_strings[i] != nullptr; ++i)
   {
     auto r = t.exec1("SELECT " + t.quote(test_strings[i]));
     PQXX_CHECK_EQUAL(

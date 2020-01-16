@@ -173,7 +173,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *rhs, std::shared_ptr<std::string> query)
+  internal::pq::PGresult *rhs, const std::shared_ptr<std::string> &query)
 {
   return pqxx::internal::gate::result_creation::create(
     rhs, query, internal::enc_group(encoding_id()));

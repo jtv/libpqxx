@@ -145,7 +145,7 @@ void pqxx::icursorstream::insert_iterator(icursor_iterator *i) noexcept
 {
   pqxx::internal::gate::icursor_iterator_icursorstream{*i}.set_next(
     m_iterators);
-  if (m_iterators)
+  if (m_iterators != nullptr)
     pqxx::internal::gate::icursor_iterator_icursorstream{*m_iterators}
       .set_prev(i);
   m_iterators = i;
@@ -158,7 +158,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
   if (i == m_iterators)
   {
     m_iterators = igate.get_next();
-    if (m_iterators)
+    if (m_iterators != nullptr)
       pqxx::internal::gate::icursor_iterator_icursorstream{*m_iterators}
         .set_prev(nullptr);
   }
@@ -166,7 +166,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
   {
     auto prev = igate.get_prev(), next = igate.get_next();
     pqxx::internal::gate::icursor_iterator_icursorstream{*prev}.set_next(next);
-    if (next)
+    if (next != nullptr)
       pqxx::internal::gate::icursor_iterator_icursorstream{*next}.set_prev(
         prev);
   }
@@ -182,7 +182,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
   using todolist = std::multimap<difference_type, icursor_iterator *>;
   todolist todo;
-  for (icursor_iterator *i = m_iterators, *next; i; i = next)
+  for (icursor_iterator *i = m_iterators, *next; i != nullptr; i = next)
   {
     pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
     const auto ipos = gate.pos();
@@ -222,7 +222,7 @@ pqxx::icursor_iterator::icursor_iterator(
         m_here{rhs.m_here},
         m_pos{rhs.m_pos}
 {
-  if (m_stream)
+  if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
       .insert_iterator(this);
 }
@@ -230,7 +230,7 @@ pqxx::icursor_iterator::icursor_iterator(
 
 pqxx::icursor_iterator::~icursor_iterator() noexcept
 {
-  if (m_stream)
+  if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
       .remove_iterator(this);
 }
@@ -281,13 +281,13 @@ operator=(const icursor_iterator &rhs) noexcept
   }
   else
   {
-    if (m_stream)
+    if (m_stream != nullptr)
       pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
         .remove_iterator(this);
     m_here = rhs.m_here;
     m_pos = rhs.m_pos;
     m_stream = rhs.m_stream;
-    if (m_stream)
+    if (m_stream != nullptr)
       pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
         .insert_iterator(this);
   }
@@ -299,7 +299,7 @@ bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
 {
   if (m_stream == rhs.m_stream)
     return pos() == rhs.pos();
-  if (m_stream and rhs.m_stream)
+  if (m_stream != nullptr and rhs.m_stream != nullptr)
     return false;
   refresh();
   rhs.refresh();
@@ -319,7 +319,7 @@ bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
 
 void pqxx::icursor_iterator::refresh() const
 {
-  if (m_stream)
+  if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
       .service_iterators(pos());
 }
