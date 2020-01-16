@@ -22,7 +22,7 @@ void test_002()
     bad_connect(), "Invalid connection string did not cause exception.");
 
   // Set up connection to database
-  std::string ConnectString = "";
+  std::string ConnectString;
   connection C{ConnectString};
 
   // Start transaction within context of connection

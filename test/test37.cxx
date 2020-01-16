@@ -21,7 +21,7 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
   int all_years{}, boring_year{};
 
   nontransaction tx{conn};
-  R = tx.exec1(CountQuery.c_str());
+  R = tx.exec1(CountQuery);
   R.front().to(all_years);
 
   R = tx.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
