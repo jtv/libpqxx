@@ -9,7 +9,7 @@
 # The template2mak.py script should be available in the tools directory of the
 # libpqxx source archive.
 #
-# Generated from template 'doc/CMakeLists.txt.template'.
+# Generated from template './doc/CMakeLists.txt.template'.
 ################################################################################
 find_program(HAVE_DOXYGEN doxygen)
 

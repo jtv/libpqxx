@@ -414,7 +414,7 @@ const char *pqxx::result::column_name(pqxx::row::size_type Number) const
 pqxx::row::size_type pqxx::result::columns() const noexcept
 {
   auto ptr = const_cast<internal::pq::PGresult *>(m_data.get());
-  return ptr ? row::size_type(PQnfields(ptr)) : 0;
+  return (ptr == nullptr) ? 0 : row::size_type(PQnfields(ptr));
 }
 
 

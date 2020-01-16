@@ -21,13 +21,11 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/result"
 
-#include "pqxx/internal/gates/result-row.hxx"
 
-
-pqxx::row::row(result r, result::size_type i) noexcept :
+pqxx::row::row(const result &r, result::size_type i) noexcept :
         m_result{r},
         m_index{i},
-        m_end{internal::gate::result_row(r) ? r.columns() : 0}
+        m_end{r.columns()}
 {}
 
 

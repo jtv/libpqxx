@@ -403,7 +403,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/gates/result-connection.hxx \
 	pqxx/internal/gates/result-creation.hxx \
 	pqxx/internal/gates/result-pipeline.hxx \
-	pqxx/internal/gates/result-row.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-transactionfocus.hxx \

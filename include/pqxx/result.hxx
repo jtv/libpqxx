@@ -238,7 +238,7 @@ private:
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
-  bool operator!() const noexcept { return not m_data.get(); }
+  bool operator!() const noexcept { return m_data.get() == nullptr; }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_PRIVATE void

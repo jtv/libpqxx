@@ -49,9 +49,6 @@ public:
 
   row() = default;
 
-  /// @deprecated Do not use this constructor.  It will become private.
-  row(result r, result_size_type i) noexcept;
-
   /**
    * @name Comparison
    */
@@ -179,6 +176,10 @@ public:
   PQXX_PURE bool empty() const noexcept;
 
 protected:
+  friend class const_row_iterator;
+  friend class result;
+  row(const result &r, result_size_type i) noexcept;
+
   friend class field;
   /// Result set of which this is one row.
   result m_result;
@@ -398,11 +399,11 @@ public:
 };
 
 
-inline const_row_iterator const_row_iterator::
+const_row_iterator const_row_iterator::
 operator+(difference_type o) const
 {
-  return const_row_iterator{row(home(), idx()),
-                            size_type(difference_type(col()) + o)};
+  return const_row_iterator{
+	row(home(), idx()), size_type(difference_type(col()) + o)};
 }
 
 inline const_row_iterator
