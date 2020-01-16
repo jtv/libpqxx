@@ -59,7 +59,7 @@ void expected_exception(const std::string &message)
 }
 
 
-inline std::string list_row(row Obj)
+std::string list_row(row Obj)
 {
   return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
 }
