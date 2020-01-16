@@ -131,7 +131,7 @@ public:
   friend const_result_iterator
   operator+(difference_type, const_result_iterator);
   inline const_result_iterator operator-(difference_type) const;
-  inline difference_type operator-(const_result_iterator) const;
+  inline difference_type operator-(const const_result_iterator &) const;
   //@}
 
 private:
@@ -279,7 +279,7 @@ operator-(result::difference_type o) const
 }
 
 inline result::difference_type const_result_iterator::
-operator-(const_result_iterator i) const
+operator-(const const_result_iterator &i) const
 {
   return result::difference_type(num() - i.num());
 }
