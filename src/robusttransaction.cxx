@@ -58,9 +58,9 @@ const std::unordered_map<std::string, tx_stat, initial_hash> statuses{
 };
 
 
-tx_stat query_status(const std::string &xid, const std::string conn_str)
+tx_stat query_status(const std::string &xid, const std::string &conn_str)
 {
-  const std::string name{"robustx-check-status"};
+  static const std::string name{"robusttxck"};
   const std::string query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
