@@ -36,14 +36,14 @@ inline void drop_table(transaction_base &t, const std::string &table)
 }
 
 
-[[noreturn]] inline void
+[[noreturn]] void
 check_notreached(const char file[], int line, std::string desc)
 {
   throw test_failure(file, line, desc);
 }
 
 
-inline void check(
+void check(
   const char file[], int line, bool condition, const char text[],
   std::string desc)
 {
@@ -53,7 +53,7 @@ inline void check(
 }
 
 
-inline void expected_exception(const std::string &message)
+void expected_exception(const std::string &message)
 {
   std::cout << "(Expected) " << message << std::endl;
 }
@@ -65,7 +65,7 @@ inline std::string list_row(row Obj)
 }
 
 
-inline std::string list_result(result Obj)
+std::string list_result(result Obj)
 {
   if (Obj.empty())
     return "<empty>";
@@ -76,13 +76,13 @@ inline std::string list_result(result Obj)
 }
 
 
-inline std::string list_result_iterator(result::const_iterator Obj)
+std::string list_result_iterator(result::const_iterator Obj)
 {
   return "<iterator at " + to_string(Obj.rownumber()) + ">";
 }
 
 
-inline void create_pqxxevents(transaction_base &t)
+void create_pqxxevents(transaction_base &t)
 {
   t.exec(
     "CREATE TEMP TABLE pqxxevents(year integer, event varchar) "
@@ -117,7 +117,7 @@ std::map<const char *, pqxx::test::testfunc> *all_tests = nullptr;
 
 namespace pqxx::test
 {
-inline void register_test(const char name[], pqxx::test::testfunc func)
+void register_test(const char name[], pqxx::test::testfunc func)
 {
   if (all_tests == nullptr)
   {
