@@ -84,7 +84,7 @@ class PQXX_LIBEXPORT sql_error : public failure
 
 public:
   explicit sql_error(
-    const std::string &msg = "", const std::string &Q = "",
+    const std::string &whatarg = "", const std::string &Q = "",
     const char sqlstate[] = nullptr);
   virtual ~sql_error() noexcept override;
 

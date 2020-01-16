@@ -462,7 +462,7 @@ operator--(int)
 }
 
 
-template<> std::string pqxx::to_string(const field &Obj)
+template<> std::string pqxx::to_string(const field &value)
 {
-  return std::string{Obj.c_str(), Obj.size()};
+  return std::string{value.c_str(), value.size()};
 }

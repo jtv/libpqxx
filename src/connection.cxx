@@ -848,10 +848,10 @@ std::string pqxx::connection::quote_name(std::string_view identifier) const
 
 
 std::string
-pqxx::connection::esc_like(std::string_view bin, char escape_char) const
+pqxx::connection::esc_like(std::string_view text, char escape_char) const
 {
   std::string out;
-  out.reserve(bin.size());
+  out.reserve(text.size());
   internal::for_glyphs(
     internal::enc_group(encoding_id()),
     [&out, escape_char](const char *gbegin, const char *gend) {
@@ -860,7 +860,7 @@ pqxx::connection::esc_like(std::string_view bin, char escape_char) const
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
-    bin.data(), bin.size());
+    text.data(), text.size());
   return out;
 }
 
