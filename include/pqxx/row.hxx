@@ -279,7 +279,7 @@ public:
   friend const_row_iterator operator+(difference_type, const_row_iterator);
 
   inline const_row_iterator operator-(difference_type) const;
-  inline difference_type operator-(const_row_iterator) const;
+  inline difference_type operator-(const const_row_iterator &) const;
   //@}
 };
 
@@ -418,7 +418,7 @@ operator-(difference_type o) const
 }
 
 inline const_row_iterator::difference_type const_row_iterator::
-operator-(const_row_iterator i) const
+operator-(const const_row_iterator &i) const
 {
   return difference_type(num() - i.num());
 }
