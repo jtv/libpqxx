@@ -107,12 +107,13 @@ pqxx::icursorstream::icursorstream(
 }
 
 
-void pqxx::icursorstream::set_stride(difference_type n)
+void pqxx::icursorstream::set_stride(difference_type stride)
 {
-  if (n < 1)
-    throw argument_error{"Attempt to set cursor stride to " + to_string(n)};
-  m_stride = n;
+  if (stride < 1)
+    throw argument_error{"Attempt to set cursor stride to " + to_string(stride)};
+  m_stride = stride;
 }
+
 
 pqxx::result pqxx::icursorstream::fetchblock()
 {
