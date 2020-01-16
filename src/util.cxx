@@ -29,14 +29,14 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 {
   thread_safety_model model;
 
-  if (PQisthreadsafe())
-  {
-    model.safe_libpq = true;
-  }
-  else
+  if (PQisthreadsafe() == 0)
   {
     model.safe_libpq = false;
     model.description += "Using a libpq build that is not thread-safe.\n";
+  }
+  else
+  {
+    model.safe_libpq = true;
   }
 
   // Sadly I'm not aware of any way to avoid this just yet.

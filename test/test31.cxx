@@ -49,7 +49,7 @@ void test_031()
     for (pqxx::row::size_type f = 0; f < i->size(); ++f)
     {
       const auto offset{static_cast<size_t>(f)};
-      NullFields[offset] += i.at(f).is_null();
+      NullFields[offset] += int{i.at(f).is_null()};
 
       std::string A, B;
       PQXX_CHECK_EQUAL(

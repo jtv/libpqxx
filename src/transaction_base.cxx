@@ -107,7 +107,7 @@ void pqxx::transaction_base::commit()
   // the commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
-  if (m_focus.get())
+  if (m_focus.get() != nullptr)
     throw failure{"Attempt to commit " + description() + " with " +
                   m_focus.get()->description() + " still open."};
 
@@ -201,7 +201,7 @@ pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
 
   const std::string N = (Desc.empty() ? "" : "'" + Desc + "' ");
 
-  if (m_focus.get())
+  if (m_focus.get() != nullptr)
     throw usage_error{"Attempt to execute query " + N + "on " + description() +
                       " "
                       "with " +
@@ -328,7 +328,7 @@ void pqxx::transaction_base::close() noexcept
     if (m_status != status::active)
       return;
 
-    if (m_focus.get())
+    if (m_focus.get() != nullptr)
       m_conn.process_notice(
         "Closing " + description() + "  with " + m_focus.get()->description() +
         " still open.\n");

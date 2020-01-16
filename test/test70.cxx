@@ -13,7 +13,7 @@ void TestPipeline(pipeline &P, int numqueries)
   PQXX_CHECK(Empty.query().empty(), "Default-constructed result has query");
 
   P.retain();
-  for (int i = numqueries; i; --i) P.insert(Q);
+  for (int i = numqueries; i > 0; --i) P.insert(Q);
   P.resume();
 
   PQXX_CHECK(
@@ -23,7 +23,7 @@ void TestPipeline(pipeline &P, int numqueries)
   result Prev;
   PQXX_CHECK_EQUAL(Prev, Empty, "Default-constructed results are not equal.");
 
-  for (int i = numqueries; i; --i)
+  for (int i = numqueries; i > 0; --i)
   {
     PQXX_CHECK(not P.empty(), "Got no results from pipeline.");
 
@@ -37,7 +37,7 @@ void TestPipeline(pipeline &P, int numqueries)
     PQXX_CHECK_EQUAL(Prev, R.second, "Assignment breaks result equality.");
     PQXX_CHECK_EQUAL(R.second.query(), Q, "Result is for unexpected query.");
 
-    if (res)
+    if (res != 0)
       PQXX_CHECK_EQUAL(Prev[0][0].as<int>(), res, "Bad result from pipeline.");
 
     res = Prev[0][0].as<int>();
