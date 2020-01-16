@@ -286,20 +286,20 @@ void create_pqxxevents(transaction_base &);
 } // namespace test
 
 
-template<> inline std::string to_string(const row &r)
+template<> inline std::string to_string(const row &value)
 {
-  return pqxx::test::list_row(r);
+  return pqxx::test::list_row(value);
 }
 
 
-template<> inline std::string to_string(const result &r)
+template<> inline std::string to_string(const result &value)
 {
-  return pqxx::test::list_result(r);
+  return pqxx::test::list_result(value);
 }
 
 
-template<> inline std::string to_string(const result::const_iterator &i)
+template<> inline std::string to_string(const result::const_iterator &value)
 {
-  return pqxx::test::list_result_iterator(i);
+  return pqxx::test::list_result_iterator(value);
 }
 } // namespace pqxx

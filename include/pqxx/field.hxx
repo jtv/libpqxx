@@ -339,21 +339,21 @@ using fieldstream = basic_fieldstream<char>;
  */
 template<typename CHAR>
 inline std::basic_ostream<CHAR> &
-operator<<(std::basic_ostream<CHAR> &S, const field &F)
+operator<<(std::basic_ostream<CHAR> &S, const field &value)
 {
-  S.write(F.c_str(), std::streamsize(F.size()));
+  S.write(value.c_str(), std::streamsize(value.size()));
   return S;
 }
 
 
 /// Convert a field's string contents to another type.
-template<typename T> inline T from_string(const field &f)
+template<typename T> inline T from_string(const field &value)
 {
-  return from_string<T>(f.view());
+  return from_string<T>(value.view());
 }
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(const field &obj);
+template<> PQXX_LIBEXPORT std::string to_string(const field &value);
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

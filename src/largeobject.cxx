@@ -209,9 +209,9 @@ pqxx::largeobjectaccess::cwrite(const char Buf[], size_t Len) noexcept
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cread(char Buf[], size_t Bytes) noexcept
+pqxx::largeobjectaccess::cread(char Buf[], size_t Len) noexcept
 {
-  return std::max(lo_read(raw_connection(), m_fd, Buf, size_t(Bytes)), -1);
+  return std::max(lo_read(raw_connection(), m_fd, Buf, size_t(Len)), -1);
 }
 
 

@@ -244,15 +244,15 @@ template<typename T> inline T from_string(std::string_view text)
 
 /// Attempt to convert postgres-generated string to given built-in object.
 /** This is like the single-argument form of the function, except instead of
- * returning the value, it sets @c obj to the value.
+ * returning the value, it sets @c value.
  *
  * You may find this more convenient in that it infers the type you want from
  * the argument you pass.  But there are disadvantages: it requires an
  * assignment operator, and it may be less efficient.
  */
-template<typename T> inline void from_string(std::string_view text, T &obj)
+template<typename T> inline void from_string(std::string_view text, T &value)
 {
-  obj = from_string<T>(text);
+  value = from_string<T>(text);
 }
 
 
@@ -262,7 +262,7 @@ template<typename T> inline void from_string(std::string_view text, T &obj)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename TYPE> inline std::string to_string(const TYPE &obj);
+template<typename TYPE> inline std::string to_string(const TYPE &value);
 
 
 /// Convert a value to a readable string that PostgreSQL will understand.
@@ -270,7 +270,7 @@ template<typename TYPE> inline std::string to_string(const TYPE &obj);
  * re-using a std::string for multiple conversions.
  */
 template<typename TYPE>
-inline void into_string(const TYPE &obj, std::string &out);
+inline void into_string(const TYPE &value, std::string &out);
 
 
 /// Is @c value null?
