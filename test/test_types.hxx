@@ -127,7 +127,7 @@ template<> struct string_traits<ipv4>
 
 namespace
 {
-char nibble_to_hex(unsigned nibble)
+inline char nibble_to_hex(unsigned nibble)
 {
   if (nibble < 10)
     return char('0' + nibble);
@@ -138,7 +138,7 @@ char nibble_to_hex(unsigned nibble)
 }
 
 
-unsigned hex_to_digit(char hex)
+inline unsigned hex_to_digit(char hex)
 {
   auto x = static_cast<unsigned char>(hex);
   if (x >= '0' and x <= '9')

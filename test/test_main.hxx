@@ -10,7 +10,7 @@
 
 namespace
 {
-std::string deref_field(const pqxx::field &f)
+inline std::string deref_field(const pqxx::field &f)
 {
   return f.c_str();
 }
@@ -30,20 +30,20 @@ test_failure::~test_failure() noexcept = default;
 
 
 /// Drop table, if it exists.
-void drop_table(transaction_base &t, const std::string &table)
+inline void drop_table(transaction_base &t, const std::string &table)
 {
   t.exec("DROP TABLE IF EXISTS " + table);
 }
 
 
-[[noreturn]] void
+[[noreturn]] inline void
 check_notreached(const char file[], int line, std::string desc)
 {
   throw test_failure(file, line, desc);
 }
 
 
-void check(
+inline void check(
   const char file[], int line, bool condition, const char text[],
   std::string desc)
 {
@@ -53,19 +53,19 @@ void check(
 }
 
 
-void expected_exception(const std::string &message)
+inline void expected_exception(const std::string &message)
 {
   std::cout << "(Expected) " << message << std::endl;
 }
 
 
-std::string list_row(row Obj)
+inline std::string list_row(row Obj)
 {
   return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
 }
 
 
-std::string list_result(result Obj)
+inline std::string list_result(result Obj)
 {
   if (Obj.empty())
     return "<empty>";
@@ -76,13 +76,13 @@ std::string list_result(result Obj)
 }
 
 
-std::string list_result_iterator(result::const_iterator Obj)
+inline std::string list_result_iterator(result::const_iterator Obj)
 {
   return "<iterator at " + to_string(Obj.rownumber()) + ">";
 }
 
 
-void create_pqxxevents(transaction_base &t)
+inline void create_pqxxevents(transaction_base &t)
 {
   t.exec(
     "CREATE TEMP TABLE pqxxevents(year integer, event varchar) "
@@ -117,7 +117,7 @@ std::map<const char *, pqxx::test::testfunc> *all_tests = nullptr;
 
 namespace pqxx::test
 {
-void register_test(const char name[], pqxx::test::testfunc func)
+inline void register_test(const char name[], pqxx::test::testfunc func)
 {
   if (all_tests == nullptr)
   {
