@@ -215,16 +215,16 @@ public:
    * by the C++ standard library may also occur here.  All exceptions will be
    * derived from std::exception.
    *
-   * @param Query Query or command to execute
-   * @param Desc Optional identifier for query, to help pinpoint SQL errors
+   * @param query Query or command to execute
+   * @param desc Optional identifier for query, to help pinpoint SQL errors
    * @return A result set describing the query's or command's result
    */
-  result exec(std::string_view Query, const std::string &Desc = std::string{});
+  result exec(std::string_view query, const std::string &desc = std::string{});
 
   result
-  exec(const std::stringstream &Query, const std::string &Desc = std::string{})
+  exec(const std::stringstream &query, const std::string &desc = std::string{})
   {
-    return exec(Query.str(), Desc);
+    return exec(query.str(), desc);
   }
 
   /// Execute query, which should zero rows of data.
@@ -234,9 +234,9 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   result
-  exec0(const std::string &Query, const std::string &Desc = std::string{})
+  exec0(const std::string &query, const std::string &desc = std::string{})
   {
-    return exec_n(0, Query, Desc);
+    return exec_n(0, query, desc);
   }
 
   /// Execute query returning a single row of data.
@@ -246,9 +246,9 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(const std::string &Query, const std::string &Desc = std::string{})
+  row exec1(const std::string &query, const std::string &desc = std::string{})
   {
-    return exec_n(1, Query, Desc).front();
+    return exec_n(1, query, desc).front();
   }
 
   /// Execute query, expect given number of rows.
@@ -258,8 +258,8 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   result exec_n(
-    result::size_type rows, const std::string &Query,
-    const std::string &Desc = std::string{});
+    result::size_type rows, const std::string &query,
+    const std::string &desc = std::string{});
 
   /**
    * @name Parameterized statements
@@ -322,7 +322,7 @@ public:
   template<typename... Args>
   result exec_params_n(size_t rows, const std::string &query, Args &&... args)
   {
-    const auto r = exec_params(query, std::forward<Args>(args)...);
+    const auto r{exec_params(query, std::forward<Args>(args)...)};
     check_rowcount_params(rows, r.size());
     return r;
   }
@@ -410,7 +410,7 @@ public:
   result exec_prepared_n(
     result::size_type rows, const std::string &statement, Args &&... args)
   {
-    const auto r = exec_prepared(statement, std::forward<Args>(args)...);
+    const auto r{exec_prepared(statement, std::forward<Args>(args)...)};
     check_rowcount_prepared(statement, rows, r.size());
     return r;
   }
@@ -419,7 +419,7 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&... args)
   {
-    const auto r = exec_prepared(statement, std::forward<Args>(args)...);
+    const auto r{exec_prepared(statement, std::forward<Args>(args)...)};
     check_rowcount_prepared(statement, rows, r.size());
     return r;
   }
@@ -431,11 +431,11 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(const char Msg[]) const { m_conn.process_notice(Msg); }
+  void process_notice(const char msg[]) const { m_conn.process_notice(msg); }
   /// Have connection process a warning message.
-  void process_notice(const std::string &Msg) const
+  void process_notice(const std::string &msg) const
   {
-    m_conn.process_notice(Msg);
+    m_conn.process_notice(msg);
   }
   //@}
 
@@ -462,7 +462,7 @@ public:
   std::string get_variable(std::string_view);
 
 protected:
-  /// Create a transaction (to be called by implementation classes only)
+  /// Create a transaction (to be called by implementation classes only).
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
@@ -471,17 +471,12 @@ protected:
   /// Register this transaction with the connection.
   void register_transaction();
 
-  /// Begin transaction (to be called by implementing class)
-  /** Will typically be called from implementing class' constructor.
-   */
-  void Begin();
-
-  /// End transaction.  To be called by implementing class' destructor
+  /// End transaction.  To be called by implementing class' destructor.
   void close() noexcept;
 
-  /// To be implemented by derived implementation class: commit transaction
+  /// To be implemented by derived implementation class: commit transaction.
   virtual void do_commit() = 0;
-  /// To be implemented by derived implementation class: abort transaction
+  /// To be implemented by derived implementation class: abort transaction.
   virtual void do_abort() = 0;
 
   // For use by implementing class:
