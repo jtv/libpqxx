@@ -57,20 +57,20 @@ public:
   {
     init();
   }
-  pipeline(transaction_base &t, const char Name[]) :
-          namedclass{"pipeline", Name},
+  pipeline(transaction_base &t, const char name[]) :
+          namedclass{"pipeline", name},
           transactionfocus{t}
   {
     init();
   }
-  pipeline(transaction_base &t, std::string &&Name) :
-          namedclass{"pipeline", std::move(Name)},
+  pipeline(transaction_base &t, std::string &&name) :
+          namedclass{"pipeline", std::move(name)},
           transactionfocus{t}
   {
     init();
   }
-  pipeline(transaction_base &t, std::string_view Name) :
-          namedclass{"pipeline", Name},
+  pipeline(transaction_base &t, std::string_view name) :
+          namedclass{"pipeline", name},
           transactionfocus{t}
   {
     init();

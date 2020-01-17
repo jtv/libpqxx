@@ -54,14 +54,14 @@ class PQXX_LIBEXPORT nontransaction final : public transaction_base
 public:
   /// Constructor.
   /** Create a "dummy" transaction.
-   * @param C Connection that this "transaction" will operate on.
-   * @param Name Optional name for the transaction, beginning with a letter
+   * @param c Connection that this "transaction" will operate on.
+   * @param name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
   explicit nontransaction(
-    connection &C, const std::string &Name = std::string{}) :
-          namedclass{"nontransaction", Name},
-          transaction_base{C}
+    connection &c, const std::string &name = std::string{}) :
+          namedclass{"nontransaction", name},
+          transaction_base{c}
   {
     register_transaction();
   }
