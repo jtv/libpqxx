@@ -113,9 +113,9 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  size_type column_number(const std::string &ColName) const
+  size_type column_number(const std::string &col_name) const
   {
-    return column_number(ColName.c_str());
+    return column_number(col_name.c_str());
   }
 
   /// Number of given column (throws exception if it doesn't exist).
@@ -125,18 +125,18 @@ public:
   oid column_type(size_type) const;
 
   /// Return a column's type.
-  template<typename STRING> oid column_type(STRING ColName) const
+  template<typename STRING> oid column_type(STRING col_name) const
   {
-    return column_type(column_number(ColName));
+    return column_type(column_number(col_name));
   }
 
   /// What table did this column come from?
-  oid column_table(size_type ColNum) const;
+  oid column_table(size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING> oid column_table(STRING ColName) const
+  template<typename STRING> oid column_table(STRING col_name) const
   {
-    return column_table(column_number(ColName));
+    return column_table(column_number(col_name));
   }
 
   /// What column number in its table did this result column come from?
@@ -144,15 +144,15 @@ public:
    * directly from a column in a table.  If the column is computed in any
    * other way, a logic_error will be thrown.
    *
-   * @param ColNum a zero-based column number in this result set
+   * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
   size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
-  template<typename STRING> size_type table_column(STRING ColName) const
+  template<typename STRING> size_type table_column(STRING col_name) const
   {
-    return table_column(column_number(ColName));
+    return table_column(column_number(col_name));
   }
   //@}
 
@@ -170,7 +170,7 @@ public:
    * not be designed with the possibility of empty rows in mind, be sure to
    * test for that case.
    */
-  row slice(size_type Begin, size_type End) const;
+  row slice(size_type sbegin, size_type send) const;
 
   // Is this an empty slice?
   PQXX_PURE bool empty() const noexcept;

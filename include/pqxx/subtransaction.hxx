@@ -72,11 +72,11 @@ class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
 public:
   /// Nest a subtransaction nested in another transaction.
   explicit subtransaction(
-    dbtransaction &T, const std::string &Name = std::string{});
+    dbtransaction &t, const std::string &name = std::string{});
 
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(
-    subtransaction &T, const std::string &Name = std::string{});
+    subtransaction &t, const std::string &name = std::string{});
 
   virtual ~subtransaction() noexcept override { close(); }
 
