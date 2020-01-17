@@ -425,10 +425,10 @@ private:
   difference_type pos() const noexcept { return m_pos; }
   void fill(const result &);
 
-  icursorstream *m_stream = nullptr;
+  icursorstream *m_stream{nullptr};
   result m_here;
   difference_type m_pos;
-  icursor_iterator *m_prev = nullptr, *m_next = nullptr;
+  icursor_iterator *m_prev{nullptr}, *m_next{nullptr};
 };
 } // namespace pqxx
 

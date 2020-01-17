@@ -52,7 +52,7 @@ namespace pqxx
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
-  explicit dbtransaction(connection &C) : transaction_base{C} {}
+  explicit dbtransaction(connection &c) : transaction_base{c} {}
 };
 } // namespace pqxx
 

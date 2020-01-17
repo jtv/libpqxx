@@ -17,10 +17,10 @@
 #include "pqxx/result"
 
 
-pqxx::field::field(const pqxx::row &R, pqxx::row::size_type C) noexcept :
-        m_col{C},
-        m_home{R.m_result},
-        m_row{R.m_index}
+pqxx::field::field(const pqxx::row &r, pqxx::row::size_type c) noexcept :
+        m_col{c},
+        m_home{r.m_result},
+        m_row{r.m_index}
 {}
 
 

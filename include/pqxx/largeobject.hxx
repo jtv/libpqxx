@@ -40,30 +40,30 @@ public:
   largeobject() noexcept = default;
 
   /// Create new large object
-  /** @param T Backend transaction in which the object is to be created
+  /** @param t Backend transaction in which the object is to be created
    */
-  explicit largeobject(dbtransaction &T);
+  explicit largeobject(dbtransaction &t);
 
   /// Wrap object with given oid
   /** Convert combination of a transaction and object identifier into a
    * large object identity.  Does not affect the database.
-   * @param O Object identifier for the given object
+   * @param o Object identifier for the given object
    */
-  explicit largeobject(oid O) noexcept : m_id{O} {}
+  explicit largeobject(oid o) noexcept : m_id{o} {}
 
   /// Import large object from a local file
   /** Creates a large object containing the data found in the given file.
-   * @param T Backend transaction in which the large object is to be created
-   * @param File A filename on the client program's filesystem
+   * @param t Backend transaction in which the large object is to be created
+   * @param file A filename on the client program's filesystem
    */
-  largeobject(dbtransaction &T, std::string_view File);
+  largeobject(dbtransaction &t, std::string_view file);
 
   /// Take identity of an opened large object
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
-   * @param O Already opened large object to copy identity from
+   * @param o Already opened large object to copy identity from
    */
-  largeobject(const largeobjectaccess &O) noexcept;
+  largeobject(const largeobjectaccess &o) noexcept;
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
@@ -114,17 +114,17 @@ public:
 
   /// Export large object's contents to a local file
   /** Writes the data stored in the large object to the given file.
-   * @param T Transaction in which the object is to be accessed
-   * @param File A filename on the client's filesystem
+   * @param t Transaction in which the object is to be accessed
+   * @param file A filename on the client's filesystem
    */
-  void to_file(dbtransaction &T, std::string_view File) const;
+  void to_file(dbtransaction &t, std::string_view file) const;
 
   /// Delete large object from database
   /** Unlike its low-level equivalent cunlink, this will throw an exception if
    * deletion fails.
-   * @param T Transaction in which the object is to be deleted
+   * @param t Transaction in which the object is to be deleted
    */
-  void remove(dbtransaction &T) const;
+  void remove(dbtransaction &t) const;
 
 protected:
   PQXX_PURE static internal::pq::PGconn *
@@ -161,7 +161,7 @@ public:
 
   /// Create new large object and open it
   /**
-   * @param T Backend transaction in which the object is to be created
+   * @param t Backend transaction in which the object is to be created
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   explicit largeobjectaccess(
@@ -170,31 +170,31 @@ public:
   /// Open large object with given oid
   /** Convert combination of a transaction and object identifier into a
    * large object identity.  Does not affect the database.
-   * @param T Transaction in which the object is to be accessed
-   * @param O Object identifier for the given object
+   * @param t Transaction in which the object is to be accessed
+   * @param o Object identifier for the given object
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-    dbtransaction &T, oid O, openmode mode = std::ios::in | std::ios::out);
+    dbtransaction &t, oid o, openmode mode = std::ios::in | std::ios::out);
 
   /// Open given large object
   /** Open a large object with the given identity for reading and/or writing
-   * @param T Transaction in which the object is to be accessed
-   * @param O Identity for the large object to be accessed
+   * @param t Transaction in which the object is to be accessed
+   * @param o Identity for the large object to be accessed
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-    dbtransaction &T, largeobject O,
+    dbtransaction &t, largeobject o,
     openmode mode = std::ios::in | std::ios::out);
 
   /// Import large object from a local file and open it
   /** Creates a large object containing the data found in the given file.
-   * @param T Backend transaction in which the large object is to be created
-   * @param File A filename on the client program's filesystem
+   * @param t Backend transaction in which the large object is to be created
+   * @param file A filename on the client program's filesystem
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   largeobjectaccess(
-    dbtransaction &T, std::string_view File,
+    dbtransaction &t, std::string_view file,
     openmode mode = std::ios::in | std::ios::out);
 
   ~largeobjectaccess() noexcept { close(); }
@@ -207,11 +207,11 @@ public:
 
   /// Export large object's contents to a local file
   /** Writes the data stored in the large object to the given file.
-   * @param File A filename on the client's filesystem
+   * @param file A filename on the client's filesystem
    */
-  void to_file(std::string_view File) const
+  void to_file(std::string_view file) const
   {
-    largeobject::to_file(m_trans, File);
+    largeobject::to_file(m_trans, file);
   }
 
   using largeobject::to_file;
@@ -223,25 +223,25 @@ public:
   /// Write data to large object.
   /** @warning The size of a write is currently limited to 2GB.
    *
-   * @param Buf Data to write.
-   * @param Len Number of bytes from Buf to write.
+   * @param buf Data to write.
+   * @param len Number of bytes from Buf to write.
    */
-  void write(const char Buf[], size_t Len);
+  void write(const char buf[], size_t len);
 
   /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
-   * @param Buf Data to write; no terminating zero is written.
+   * @param buf Data to write; no terminating zero is written.
    */
-  void write(std::string_view Buf) { write(Buf.data(), Buf.size()); }
+  void write(std::string_view buf) { write(buf.data(), buf.size()); }
 
   /// Read data from large object.
   /** Throws an exception if an error occurs while reading.
-   * @param Buf Location to store the read data in.
-   * @param Len Number of bytes to try and read.
+   * @param buf Location to store the read data in.
+   * @param len Number of bytes to try and read.
    * @return Number of bytes read, which may be less than the number requested
    * if the end of the large object is reached.
    */
-  size_type read(char Buf[], size_t Len);
+  size_type read(char buf[], size_t len);
 
   /// Seek in large object's data stream
   /** Throws an exception if an error occurs.
@@ -282,20 +282,20 @@ public:
   /// Write to large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
-   * @param Buf Data to write.
-   * @param Len Number of bytes to write.
+   * @param buf Data to write.
+   * @param len Number of bytes to write.
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(const char Buf[], size_t Len) noexcept;
+  off_type cwrite(const char buf[], size_t len) noexcept;
 
   /// Read from large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
    * @c errno instead.
-   * @param Buf Area where incoming bytes should be stored.
-   * @param Len Number of bytes to read.
+   * @param buf Area where incoming bytes should be stored.
+   * @param len Number of bytes to read.
    * @return Number of bytes actually read, or -1 if an error occurred..
    */
-  off_type cread(char Buf[], size_t Len) noexcept;
+  off_type cread(char buf[], size_t len) noexcept;
 
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -363,10 +363,10 @@ public:
   using seekdir = largeobjectaccess::seekdir;
 
   largeobject_streambuf(
-    dbtransaction &T, largeobject O,
-    openmode mode = std::ios::in | std::ios::out, size_type BufSize = 512) :
-          m_bufsize{BufSize},
-          m_obj{T, O, mode},
+    dbtransaction &t, largeobject o,
+    openmode mode = std::ios::in | std::ios::out, size_type buf_size = 512) :
+          m_bufsize{buf_size},
+          m_obj{t, o, mode},
           m_g{nullptr},
           m_p{nullptr}
   {
@@ -374,10 +374,10 @@ public:
   }
 
   largeobject_streambuf(
-    dbtransaction &T, oid O, openmode mode = std::ios::in | std::ios::out,
-    size_type BufSize = 512) :
-          m_bufsize{BufSize},
-          m_obj{T, O, mode},
+    dbtransaction &t, oid o, openmode mode = std::ios::in | std::ios::out,
+    size_type buf_size = 512) :
+          m_bufsize{buf_size},
+          m_obj{t, o, mode},
           m_g{nullptr},
           m_p{nullptr}
   {
@@ -409,23 +409,23 @@ protected:
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
-    const largeobjectaccess::pos_type newpos =
-      m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg);
+    const largeobjectaccess::pos_type newpos{
+      m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg)};
     return AdjustEOF(newpos);
   }
 
   virtual int_type overflow(int_type ch) override
   {
-    char *const pp = this->pptr();
+    char *const pp{this->pptr()};
     if (pp == nullptr)
       return EoF();
-    char *const pb = this->pbase();
-    int_type res = 0;
+    char *const pb{this->pbase()};
+    int_type res{0};
 
     if (pp > pb)
     {
-      const auto out =
-        AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)));
+      const auto out{
+        AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)))};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
@@ -448,7 +448,7 @@ protected:
   {
     if (this->gptr() == nullptr)
       return EoF();
-    char *const eb = this->eback();
+    char *const eb{this->eback()};
     const int_type res{int_type(
       AdjustEOF(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
     this->setg(eb, eb, eb + ((res == EoF()) ? 0 : res));
@@ -519,28 +519,28 @@ public:
 
   /// Create a basic_ilostream
   /**
-   * @param T Transaction in which this stream is to exist
-   * @param O Large object to access
-   * @param BufSize Size of buffer to use internally (optional)
+   * @param t Transaction in which this stream is to exist
+   * @param o Large object to access
+   * @param buf_size Size of buffer to use internally (optional)
    */
   basic_ilostream(
-    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::in, BufSize}
+          m_buf{t, o, std::ios::in, buf_size}
   {
     super::init(&m_buf);
   }
 
   /// Create a basic_ilostream
   /**
-   * @param T Transaction in which this stream is to exist
-   * @param O Identifier of a large object to access
-   * @param BufSize Size of buffer to use internally (optional)
+   * @param t Transaction in which this stream is to exist
+   * @param o Identifier of a large object to access
+   * @param buf_size Size of buffer to use internally (optional)
    */
   basic_ilostream(
-    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::in, BufSize}
+          m_buf{t, o, std::ios::in, buf_size}
   {
     super::init(&m_buf);
   }
@@ -575,28 +575,28 @@ public:
 
   /// Create a basic_olostream
   /**
-   * @param T transaction in which this stream is to exist
-   * @param O a large object to access
-   * @param BufSize size of buffer to use internally (optional)
+   * @param t transaction in which this stream is to exist
+   * @param o a large object to access
+   * @param buf_size size of buffer to use internally (optional)
    */
   basic_olostream(
-    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::out, BufSize}
+          m_buf{t, o, std::ios::out, buf_size}
   {
     super::init(&m_buf);
   }
 
   /// Create a basic_olostream
   /**
-   * @param T transaction in which this stream is to exist
-   * @param O a large object to access
-   * @param BufSize size of buffer to use internally (optional)
+   * @param t transaction in which this stream is to exist
+   * @param o a large object to access
+   * @param buf_size size of buffer to use internally (optional)
    */
   basic_olostream(
-    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::out, BufSize}
+          m_buf{t, o, std::ios::out, buf_size}
   {
     super::init(&m_buf);
   }
@@ -644,28 +644,28 @@ public:
 
   /// Create a basic_lostream
   /**
-   * @param T Transaction in which this stream is to exist
-   * @param O Large object to access
-   * @param BufSize Size of buffer to use internally (optional)
+   * @param t Transaction in which this stream is to exist
+   * @param o Large object to access
+   * @param buf_size Size of buffer to use internally (optional)
    */
   basic_lostream(
-    dbtransaction &T, largeobject O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::in | std::ios::out, BufSize}
+          m_buf{t, o, std::ios::in | std::ios::out, buf_size}
   {
     super::init(&m_buf);
   }
 
   /// Create a basic_lostream
   /**
-   * @param T Transaction in which this stream is to exist
-   * @param O Large object to access
-   * @param BufSize Size of buffer to use internally (optional)
+   * @param t Transaction in which this stream is to exist
+   * @param o Large object to access
+   * @param buf_size Size of buffer to use internally (optional)
    */
   basic_lostream(
-    dbtransaction &T, oid O, largeobject::size_type BufSize = 512) :
+    dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{T, O, std::ios::in | std::ios::out, BufSize}
+          m_buf{t, o, std::ios::in | std::ios::out, buf_size}
   {
     super::init(&m_buf);
   }

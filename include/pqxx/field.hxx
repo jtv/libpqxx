@@ -36,10 +36,10 @@ public:
 
   /// Constructor.
   /** Create field as reference to a field in a result set.
-   * @param R Row that this field is part of.
-   * @param C Column number of this field.
+   * @param r Row that this field is part of.
+   * @param c Column number of this field.
    */
-  field(const row &R, row_size_type C) noexcept;
+  field(const row &r, row_size_type c) noexcept;
 
   /**
    * @name Comparison
@@ -122,7 +122,7 @@ public:
     (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
     bool>::type
   {
-    const char *const bytes = c_str();
+    const auto bytes{c_str()};
     if (bytes[0] == '\0' and is_null())
       return false;
     from_string(bytes, obj);
@@ -141,7 +141,7 @@ public:
     (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
     bool>::type
   {
-    const bool has_value = to(obj);
+    const bool has_value{to(obj)};
     if (not has_value)
       obj = default_value;
     return has_value;
@@ -255,7 +255,7 @@ public:
   using openmode = std::ios::openmode;
   using seekdir = std::ios::seekdir;
 
-  explicit field_streambuf(const field &F) : m_field{F} { initialize(); }
+  explicit field_streambuf(const field &f) : m_field{f} { initialize(); }
 
 protected:
   virtual int sync() override { return traits_type::eof(); }
@@ -277,8 +277,8 @@ private:
 
   int_type initialize()
   {
-    auto G = static_cast<char_type *>(const_cast<char *>(m_field.c_str()));
-    this->setg(G, G, G + m_field.size());
+    auto g{static_cast<char_type *>(const_cast<char *>(m_field.c_str()))};
+    this->setg(g, g, g + m_field.size());
     return int_type(m_field.size());
   }
 };
@@ -305,7 +305,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  basic_fieldstream(const field &F) : super{nullptr}, m_buf{F}
+  basic_fieldstream(const field &f) : super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);
   }
@@ -339,10 +339,10 @@ using fieldstream = basic_fieldstream<char>;
  */
 template<typename CHAR>
 inline std::basic_ostream<CHAR> &
-operator<<(std::basic_ostream<CHAR> &S, const field &value)
+operator<<(std::basic_ostream<CHAR> &s, const field &value)
 {
-  S.write(value.c_str(), std::streamsize(value.size()));
-  return S;
+  s.write(value.c_str(), std::streamsize(value.size()));
+  return s;
 }
 
 
