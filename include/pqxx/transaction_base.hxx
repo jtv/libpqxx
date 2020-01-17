@@ -500,7 +500,7 @@ private:
     in_doubt
   };
 
-  PQXX_PRIVATE void CheckPendingError();
+  PQXX_PRIVATE void check_pending_error();
 
   template<typename T> bool parm_is_null(T *p) const noexcept
   {

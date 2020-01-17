@@ -68,7 +68,7 @@ void pqxx::transaction_base::register_transaction()
 
 void pqxx::transaction_base::commit()
 {
-  CheckPendingError();
+  check_pending_error();
 
   // Check previous status code.  Caller should only call this function if
   // we're in "implicit" state, but multiple commits are silently accepted.
@@ -197,7 +197,7 @@ std::string pqxx::transaction_base::quote_raw(const std::string &bin) const
 pqxx::result
 pqxx::transaction_base::exec(std::string_view query, const std::string &desc)
 {
-  CheckPendingError();
+  check_pending_error();
 
   const std::string n{desc.empty() ? "" : "'" + desc + "' "};
 
@@ -311,7 +311,7 @@ void pqxx::transaction_base::close() noexcept
   {
     try
     {
-      CheckPendingError();
+      check_pending_error();
     }
     catch (const std::exception &e)
     {
@@ -376,7 +376,7 @@ void pqxx::transaction_base::unregister_focus(
 
 pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
 {
-  CheckPendingError();
+  check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
@@ -384,7 +384,7 @@ pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
 pqxx::result
 pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 {
-  CheckPendingError();
+  check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
@@ -414,7 +414,7 @@ void pqxx::transaction_base::register_pending_error(
 }
 
 
-void pqxx::transaction_base::CheckPendingError()
+void pqxx::transaction_base::check_pending_error()
 {
   if (not m_pending_error.empty())
   {

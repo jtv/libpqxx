@@ -224,7 +224,7 @@ private:
   static const std::string s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE const char *GetValue(size_type Row, row_size_type Col) const;
+  PQXX_PURE const char *get_value(size_type Row, row_size_type Col) const;
   PQXX_PURE bool get_is_null(size_type Row, row_size_type Col) const;
   PQXX_PURE field_size_type get_length(size_type, row_size_type) const
     noexcept;

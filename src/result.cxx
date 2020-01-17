@@ -313,7 +313,7 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 }
 
 
-const char *pqxx::result::GetValue(
+const char *pqxx::result::get_value(
   pqxx::result::size_type row, pqxx::row::size_type col) const
 {
   return PQgetvalue(m_data.get(), row, col);

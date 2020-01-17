@@ -61,7 +61,7 @@ pqxx::row::size_type pqxx::field::table_column() const
 
 const char *pqxx::field::c_str() const
 {
-  return home().GetValue(idx(), col());
+  return home().get_value(idx(), col());
 }
 
 
