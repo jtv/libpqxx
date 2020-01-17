@@ -93,7 +93,7 @@ void pqxx::internal::check_unique_unregistration(
 }
 
 
-void pqxx::internal::freepqmem(const void *p) noexcept
+void pqxx::internal::pq_freepqmem(const void *p) noexcept
 {
   PQfreemem(const_cast<void *>(p));
 }

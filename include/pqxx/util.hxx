@@ -192,10 +192,10 @@ constexpr oid oid_none = 0;
  */
 namespace pqxx::internal
 {
-PQXX_LIBEXPORT void freepqmem(const void *) noexcept;
-template<typename P> inline void freepqmem_templated(P *p) noexcept
+PQXX_LIBEXPORT void pq_freepqmem(const void *) noexcept;
+template<typename P> inline void freepqmem(P *p) noexcept
 {
-  freepqmem(p);
+  pq_freepqmem(p);
 }
 
 PQXX_LIBEXPORT void freemallocmem(const void *) noexcept;
