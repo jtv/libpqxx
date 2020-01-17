@@ -91,7 +91,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
   // unsigned_t, the value will overflow, which means behaviour is
   // undefined.  Promotion of a negative value to an unsigned type is
   // well-defined, given a representation, so let's do that:
-  constexpr auto positive = static_cast<unsigned_t>(bottom<T>);
+  constexpr auto positive{static_cast<unsigned_t>(bottom<T>)};
 
   // As luck would have it, in two's complement, this gives us exactly the
   // value we want.
@@ -109,7 +109,7 @@ template<typename T>
 [[maybe_unused]] inline char *
 wrap_to_chars(char *begin, char *end, const T &value)
 {
-  auto res = std::to_chars(begin, end - 1, value);
+  auto res{std::to_chars(begin, end - 1, value)};
   if (res.ec != std::errc())
     switch (res.ec)
     {
@@ -138,8 +138,9 @@ template<typename T>
 zview integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
   static_assert(std::is_integral_v<T>);
-  const ptrdiff_t space = end - begin, need = static_cast<ptrdiff_t>(
-                                         string_traits<T>::size_buffer(value));
+  const auto
+	space{end - begin},
+	need{static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value))};
   if (space < need)
     throw conversion_overrun{
       "Could not convert " + type_name<T> +
@@ -210,7 +211,7 @@ namespace pqxx::internal
 std::string demangle_type_name(const char raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
-  int status = 0;
+  int status{0};
   std::unique_ptr<char, std::function<void(char *)>> name{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status),
     [](char *x) { std::free(x); }};
@@ -250,9 +251,9 @@ namespace
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
-  const char *end = in.data() + in.size();
+  const auto end{in.data() + in.size()};
   TYPE out;
-  const auto res = std::from_chars(in.data(), end, out);
+  const auto res{std::from_chars(in.data(), end, out)};
   if (res.ec == std::errc() and res.ptr == end)
     return out;
 
@@ -269,10 +270,10 @@ template<typename TYPE>
     default: break;
     }
 
-  const std::string base = "Could not convert '" + std::string(in) +
+  const auto base{"Could not convert '" + std::string(in) +
                            "' "
                            "to " +
-                           pqxx::type_name<TYPE>;
+                           pqxx::type_name<TYPE>};
   if (msg.empty())
     throw pqxx::conversion_error{base + "."};
   else
@@ -448,7 +449,7 @@ public:
 // These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
-  bool ok = false;
+  bool ok{false};
   T result;
 
   switch (text[0])
@@ -508,7 +509,7 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
-    const auto ptr = wrap_to_chars(begin, end, value);
+    const auto ptr{wrap_to_chars(begin, end, value)};
     return zview{begin, std::size_t(ptr - begin - 1)};
   }
 #else
@@ -520,9 +521,9 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
       return zview{"nan"};
     if (std::isinf(value))
       return zview{(value > 0) ? "infinity" : "-infinity"};
-    auto text = to_string_float(value);
-    auto have = end - begin;
-    auto need = text.size() + 1;
+    auto text{to_string_float(value)};
+    auto have{end - begin};
+    auto need{text.size() + 1};
     if (need > std::size_t(have))
       throw conversion_error{
         "Could not convert floating-point number to string: "
