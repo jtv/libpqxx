@@ -135,48 +135,48 @@ public:
   PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const char ColName[]) const;
+  row_size_type column_number(const char col_name[]) const;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const std::string &Name) const
+  row_size_type column_number(const std::string &name) const
   {
-    return column_number(Name.c_str());
+    return column_number(name.c_str());
   }
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(zview Name) const
+  row_size_type column_number(zview name) const
   {
-    return column_number(Name.c_str());
+    return column_number(name.c_str());
   }
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  const char *column_name(row_size_type Number) const;
+  const char *column_name(row_size_type number) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  oid column_type(row_size_type ColNum) const;
+  oid column_type(row_size_type col_num) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  template<typename STRING> oid column_type(STRING ColName) const
+  template<typename STRING> oid column_type(STRING col_name) const
   {
-    return column_type(column_number(ColName));
+    return column_type(column_number(col_name));
   }
 
   /// What table did this column come from?
-  oid column_table(row_size_type ColNum) const;
+  oid column_table(row_size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING> oid column_table(STRING ColName) const
+  template<typename STRING> oid column_table(STRING col_name) const
   {
-    return column_table(column_number(ColName));
+    return column_table(column_number(col_name));
   }
 
   /// What column in its table did this column come from?
-  row_size_type table_column(row_size_type ColNum) const;
+  row_size_type table_column(row_size_type col_num) const;
 
   /// What column in its table did this column come from?
-  template<typename STRING> row_size_type table_column(STRING ColName) const
+  template<typename STRING> row_size_type table_column(STRING col_name) const
   {
-    return table_column(column_number(ColName));
+    return table_column(column_number(col_name));
   }
   //@}
 
@@ -224,8 +224,8 @@ private:
   static const std::string s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE const char *get_value(size_type Row, row_size_type Col) const;
-  PQXX_PURE bool get_is_null(size_type Row, row_size_type Col) const;
+  PQXX_PURE const char *get_value(size_type row, row_size_type col) const;
+  PQXX_PURE bool get_is_null(size_type row, row_size_type col) const;
   PQXX_PURE field_size_type get_length(size_type, row_size_type) const
     noexcept;
 

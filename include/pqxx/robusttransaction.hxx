@@ -28,7 +28,7 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
-  basic_robusttransaction(connection &C, const char begin_command[]);
+  basic_robusttransaction(connection &c, const char begin_command[]);
 
 private:
   using IDType = unsigned long;
@@ -82,10 +82,10 @@ public:
    * @param Name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
-    connection &C, std::string_view Name = std::string_view{}) :
-          namedclass{"robusttransaction", Name},
+    connection &c, std::string_view name = std::string_view{}) :
+          namedclass{"robusttransaction", name},
           internal::basic_robusttransaction{
-            C,
+            c,
             pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}
   {}
 
