@@ -67,7 +67,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
   if (begin_pos == end_pos)
     return cur.empty_result();
 
-  const int direction = ((begin_pos < end_pos) ? 1 : -1);
+  const int direction{((begin_pos < end_pos) ? 1 : -1)};
   cur.move((begin_pos - direction) - (cur.pos() - 1));
   return cur.fetch(end_pos - begin_pos);
 }
@@ -128,7 +128,7 @@ pqxx::result pqxx::icursorstream::fetchblock()
 
 pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
 {
-  auto offset = m_cur.move(difference_type(n));
+  auto offset{m_cur.move(difference_type(n))};
   m_realpos += offset;
   if (offset < n)
     m_done = true;
@@ -166,7 +166,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
   }
   else
   {
-    auto prev = igate.get_prev(), next = igate.get_next();
+    auto prev{igate.get_prev()}, next{igate.get_next()};
     pqxx::internal::gate::icursor_iterator_icursorstream{*prev}.set_next(next);
     if (next != nullptr)
       pqxx::internal::gate::icursor_iterator_icursorstream{*next}.set_prev(
@@ -184,21 +184,21 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
   using todolist = std::multimap<difference_type, icursor_iterator *>;
   todolist todo;
-  for (icursor_iterator *i = m_iterators, *next; i != nullptr; i = next)
+  for (icursor_iterator *i{m_iterators}, *next; i != nullptr; i = next)
   {
     pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
-    const auto ipos = gate.pos();
+    const auto ipos{gate.pos()};
     if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
     next = gate.get_next();
   }
   const auto todo_end = std::end(todo);
-  for (auto i = std::begin(todo); i != todo_end;)
+  for (auto i{std::begin(todo)}; i != todo_end;)
   {
-    const auto readpos = i->first;
+    const auto readpos{i->first};
     if (readpos > m_realpos)
       ignore(readpos - m_realpos);
-    const result r = fetchblock();
+    const result r{fetchblock()};
     for (; i != todo_end and i->first == readpos; ++i)
       pqxx::internal::gate::icursor_iterator_icursorstream{*i->second}.fill(r);
   }
