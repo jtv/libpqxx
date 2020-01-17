@@ -399,33 +399,33 @@ protected:
   {
     // setg() sets eback, gptr, egptr
     this->setg(this->eback(), this->eback(), this->egptr());
-    return overflow(EoF());
+    return overflow(eof());
   }
 
   virtual pos_type seekoff(off_type offset, seekdir dir, openmode) override
   {
-    return AdjustEOF(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
+    return adjust_eof(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
   }
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
     const largeobjectaccess::pos_type newpos{
       m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg)};
-    return AdjustEOF(newpos);
+    return adjust_eof(newpos);
   }
 
   virtual int_type overflow(int_type ch) override
   {
     char *const pp{this->pptr()};
     if (pp == nullptr)
-      return EoF();
+      return eof();
     char *const pb{this->pbase()};
     int_type res{0};
 
     if (pp > pb)
     {
       const auto out{
-        AdjustEOF(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)))};
+        adjust_eof(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)))};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
@@ -434,7 +434,7 @@ protected:
     this->setp(m_p, m_p + m_bufsize);
 
     // Write that one more character, if it's there.
-    if (ch != EoF())
+    if (ch != eof())
     {
       *this->pptr() = char(ch);
       this->pbump(1);
@@ -442,35 +442,35 @@ protected:
     return res;
   }
 
-  virtual int_type overflow() { return overflow(EoF()); }
+  virtual int_type overflow() { return overflow(eof()); }
 
   virtual int_type underflow() override
   {
     if (this->gptr() == nullptr)
-      return EoF();
+      return eof();
     char *const eb{this->eback()};
-    const int_type res{int_type(
-      AdjustEOF(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
-    this->setg(eb, eb, eb + ((res == EoF()) ? 0 : res));
-    return ((res == 0) or (res == EoF())) ? EoF() : *eb;
+    const auto res{int_type(
+      adjust_eof(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
+    this->setg(eb, eb, eb + ((res == eof()) ? 0 : res));
+    return ((res == 0) or (res == eof())) ? eof() : *eb;
   }
 
 private:
   /// Shortcut for traits_type::eof().
-  static int_type EoF() { return traits_type::eof(); }
+  static int_type eof() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op).
-  template<typename INTYPE> static std::streampos AdjustEOF(INTYPE pos)
+  template<typename INTYPE> static std::streampos adjust_eof(INTYPE pos)
   {
-    const bool eof{pos == -1};
+    const bool at_eof{pos == -1};
     if constexpr (std::is_arithmetic_v<std::streampos>)
     {
       return check_cast<std::streampos>(
-        (eof ? EoF() : pos), "large object seek");
+        (at_eof ? eof() : pos), "large object seek");
     }
     else
     {
-      return std::streampos(eof ? EoF() : pos);
+      return std::streampos(at_eof ? eof() : pos);
     }
   }
 
