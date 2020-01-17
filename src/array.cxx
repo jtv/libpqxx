@@ -42,7 +42,7 @@ std::string::size_type array_parser::scan_glyph(
  */
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
-  auto here = m_pos, next = scan_glyph(here);
+  auto here{m_pos}, next{scan_glyph(here)};
   for (here = next, next = scan_glyph(here); here < m_input.size();
        here = next, next = scan_glyph(here))
   {
@@ -108,8 +108,8 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 /// Find the end of a double-quoted SQL string in an SQL array.
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
-  auto here = m_pos;
-  auto next = scan_glyph(here);
+  auto here{m_pos};
+  auto next{scan_glyph(here)};
   for (here = next, next = scan_glyph(here); here < m_input.size();
        here = next, next = scan_glyph(here))
   {
@@ -141,7 +141,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
   // Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - m_pos - 2));
 
-  for (auto here = scan_glyph(m_pos, end), next = scan_glyph(here, end);
+  for (auto here{scan_glyph(m_pos, end)}, next{scan_glyph(here, end)};
        here < end - 1; here = next, next = scan_glyph(here, end))
   {
     if ((next - here == 1) and (m_input[here] == '\\'))
@@ -163,7 +163,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
  */
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  auto here = m_pos, next = scan_glyph(here);
+  auto here{m_pos}, next{scan_glyph(here)};
 
   while ((next - here) > 1 or (m_input[here] != ',' and
                                m_input[here] != ';' and m_input[here] != '}'))
@@ -255,7 +255,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   // Skip a trailing field separator, if present.
   if (end < m_input.size())
   {
-    auto next = scan_glyph(end);
+    auto next{scan_glyph(end)};
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
       end = next;
   }

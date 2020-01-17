@@ -99,7 +99,7 @@ void pqxx::binarystring::swap(binarystring &rhs)
   m_buf.swap(rhs.m_buf);
 
   // This part very obviously can't go wrong, so do it last
-  const auto s = m_size;
+  const auto s{m_size};
   m_size = rhs.m_size;
   rhs.m_size = s;
 }
