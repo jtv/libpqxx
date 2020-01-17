@@ -54,8 +54,8 @@ inline bool useless_trail(char c)
 std::string::size_type
 find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
-  const auto text = query.data();
-  const auto size = query.size();
+  const auto text{query.data()};
+  const auto size{query.size()};
   std::string::size_type end;
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
@@ -98,8 +98,8 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (query.empty())
     throw usage_error{"Cursor has empty query."};
-  const auto enc = enc_group(t.conn().encoding_id());
-  const auto qend = find_query_end(query, enc);
+  const auto enc{enc_group(t.conn().encoding_id())};
+  const auto qend{find_query_end(query, enc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query."};
 
@@ -185,8 +185,8 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
     throw internal_error{"Negative rows in cursor movement."};
   if (hoped == 0)
     return 0;
-  const int direction = ((hoped < 0) ? -1 : 1);
-  bool hit_end = false;
+  const int direction{((hoped < 0) ? -1 : 1)};
+  bool hit_end{false};
   if (actual != labs(hoped))
   {
     if (actual > labs(hoped))
@@ -250,9 +250,9 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
     displacement = 0;
     return m_empty_result;
   }
-  const std::string query =
-    "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  const auto query{
+    "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name())};
+  const auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
@@ -267,10 +267,10 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
     return 0;
   }
 
-  const std::string query =
-    "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name());
-  const result r(gate::connection_sql_cursor{m_home}.exec(query.c_str()));
-  auto d = static_cast<difference_type>(r.affected_rows());
+  const auto query{
+    "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name())};
+  const auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
   return d;
 }

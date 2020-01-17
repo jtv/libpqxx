@@ -117,9 +117,9 @@ pqxx::row::reference pqxx::row::operator[](const char f[]) const
 
 void pqxx::row::swap(row &rhs) noexcept
 {
-  const auto i = m_index;
-  const auto b = m_begin;
-  const auto e = m_end;
+  const auto i{m_index};
+  const auto b{m_begin};
+  const auto e{m_end};
   m_result.swap(rhs.m_result);
   m_index = rhs.m_index;
   m_begin = rhs.m_begin;
@@ -145,62 +145,62 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 }
 
 
-pqxx::oid pqxx::row::column_type(size_type ColNum) const
+pqxx::oid pqxx::row::column_type(size_type col_num) const
 {
-  return m_result.column_type(m_begin + ColNum);
+  return m_result.column_type(m_begin + col_num);
 }
 
 
-pqxx::oid pqxx::row::column_table(size_type ColNum) const
+pqxx::oid pqxx::row::column_table(size_type col_num) const
 {
-  return m_result.column_table(m_begin + ColNum);
+  return m_result.column_table(m_begin + col_num);
 }
 
 
-pqxx::row::size_type pqxx::row::table_column(size_type ColNum) const
+pqxx::row::size_type pqxx::row::table_column(size_type col_num) const
 {
-  return m_result.table_column(m_begin + ColNum);
+  return m_result.table_column(m_begin + col_num);
 }
 
 
-pqxx::row::size_type pqxx::row::column_number(const char ColName[]) const
+pqxx::row::size_type pqxx::row::column_number(const char col_name[]) const
 {
-  const auto n = m_result.column_number(ColName);
+  const auto n{m_result.column_number(col_name)};
   if (n >= m_end)
-    return result{}.column_number(ColName);
+    return result{}.column_number(col_name);
   if (n >= m_begin)
     return n - m_begin;
 
-  const char *const AdaptedColName = m_result.column_name(n);
-  for (auto i = m_begin; i < m_end; ++i)
-    if (strcmp(AdaptedColName, m_result.column_name(i)) == 0)
+  const char *const adapted_name{m_result.column_name(n)};
+  for (auto i{m_begin}; i < m_end; ++i)
+    if (strcmp(adapted_name, m_result.column_name(i)) == 0)
       return i - m_begin;
 
-  return result{}.column_number(ColName);
+  return result{}.column_number(col_name);
 }
 
 
-pqxx::row::size_type pqxx::result::column_number(const char ColName[]) const
+pqxx::row::size_type pqxx::result::column_number(const char col_name[]) const
 {
-  const auto N =
-    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), ColName);
-  if (N == -1)
-    throw argument_error{"Unknown column name: '" + std::string{ColName} +
+  const auto n{
+    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
+  if (n == -1)
+    throw argument_error{"Unknown column name: '" + std::string{col_name} +
                          "'."};
 
-  return row::size_type(N);
+  return static_cast<row::size_type>(n);
 }
 
 
-pqxx::row pqxx::row::slice(size_type Begin, size_type End) const
+pqxx::row pqxx::row::slice(size_type sbegin, size_type send) const
 {
-  if (Begin > End or End > size())
+  if (sbegin > send or send > size())
     throw range_error{"Invalid field range."};
 
-  row result{*this};
-  result.m_begin = m_begin + Begin;
-  result.m_end = m_begin + End;
-  return result;
+  row res{*this};
+  res.m_begin = m_begin + sbegin;
+  res.m_end = m_begin + send;
+  return res;
 }
 
 
@@ -212,7 +212,7 @@ bool pqxx::row::empty() const noexcept
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 {
-  const_row_iterator old{*this};
+  const auto old{*this};
   m_col++;
   return old;
 }
@@ -220,7 +220,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 {
-  const_row_iterator old{*this};
+  const auto old{*this};
   m_col--;
   return old;
 }
@@ -237,7 +237,7 @@ pqxx::const_row_iterator pqxx::const_reverse_row_iterator::base() const
 pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
 operator++(int)
 {
-  const_reverse_row_iterator tmp{*this};
+  auto tmp{*this};
   operator++();
   return tmp;
 }
@@ -246,7 +246,7 @@ operator++(int)
 pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
 operator--(int)
 {
-  const_reverse_row_iterator tmp{*this};
+  auto tmp{*this};
   operator--();
   return tmp;
 }
