@@ -17,12 +17,12 @@
 
 
 pqxx::subtransaction::subtransaction(
-  dbtransaction &T, const std::string &Name) :
-        namedclass{"subtransaction", T.conn().adorn_name(Name)},
-        transactionfocus{T},
-        dbtransaction(T.conn())
+  dbtransaction &t, const std::string &Name) :
+        namedclass{"subtransaction", t.conn().adorn_name(Name)},
+        transactionfocus{t},
+        dbtransaction(t.conn())
 {
-  direct_exec(("SAVEPOINT " + quoted_name()).c_str());
+  direct_exec("SAVEPOINT " + quoted_name());
 }
 
 
@@ -33,18 +33,18 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 
 
 pqxx::subtransaction::subtransaction(
-  subtransaction &T, const std::string &Name) :
-        subtransaction(dbtransaction_ref(T), Name)
+  subtransaction &t, const std::string &name) :
+        subtransaction(dbtransaction_ref(t), name)
 {}
 
 
 void pqxx::subtransaction::do_commit()
 {
-  direct_exec(("RELEASE SAVEPOINT " + quoted_name()).c_str());
+  direct_exec("RELEASE SAVEPOINT " + quoted_name());
 }
 
 
 void pqxx::subtransaction::do_abort()
 {
-  direct_exec(("ROLLBACK TO SAVEPOINT " + quoted_name()).c_str());
+  direct_exec("ROLLBACK TO SAVEPOINT " + quoted_name());
 }

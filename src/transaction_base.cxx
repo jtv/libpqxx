@@ -195,14 +195,14 @@ std::string pqxx::transaction_base::quote_raw(const std::string &bin) const
 
 
 pqxx::result
-pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
+pqxx::transaction_base::exec(std::string_view query, const std::string &desc)
 {
   CheckPendingError();
 
-  const std::string N = (Desc.empty() ? "" : "'" + Desc + "' ");
+  const std::string n{desc.empty() ? "" : "'" + desc + "' "};
 
   if (m_focus.get() != nullptr)
-    throw usage_error{"Attempt to execute query " + N + "on " + description() +
+    throw usage_error{"Attempt to execute query " + n + "on " + description() +
                       " "
                       "with " +
                       m_focus.get()->description() + " still open."};
@@ -211,7 +211,7 @@ pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
   switch (m_status)
   {
   case status::nascent:
-    throw usage_error{"Could not execute query " + N +
+    throw usage_error{"Could not execute query " + n +
                       ": "
                       "transaction startup failed."};
 
@@ -220,25 +220,25 @@ pqxx::transaction_base::exec(std::string_view Query, const std::string &Desc)
   case status::committed:
   case status::aborted:
   case status::in_doubt:
-    throw usage_error{"Could not execute query " + N +
+    throw usage_error{"Could not execute query " + n +
                       ": "
                       "transaction is already closed."};
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
 
-  // TODO: Pass Desc to direct_exec(), and from there on down.
-  return direct_exec(Query);
+  // TODO: Pass desc to direct_exec(), and from there on down.
+  return direct_exec(query);
 }
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-  result::size_type rows, const std::string &Query, const std::string &Desc)
+  result::size_type rows, const std::string &query, const std::string &desc)
 {
-  const result r = exec(Query, Desc);
+  const result r{exec(query, desc)};
   if (r.size() != rows)
   {
-    const std::string N = (Desc.empty() ? "" : "'" + Desc + "'");
+    const std::string N{desc.empty() ? "" : "'" + desc + "'"};
     throw unexpected_rows{"Expected " + to_string(rows) +
                           " row(s) of data "
                           "from query " +
@@ -354,18 +354,18 @@ void pqxx::transaction_base::close() noexcept
 }
 
 
-void pqxx::transaction_base::register_focus(internal::transactionfocus *S)
+void pqxx::transaction_base::register_focus(internal::transactionfocus *s)
 {
-  m_focus.register_guest(S);
+  m_focus.register_guest(s);
 }
 
 
 void pqxx::transaction_base::unregister_focus(
-  internal::transactionfocus *S) noexcept
+  internal::transactionfocus *s) noexcept
 {
   try
   {
-    m_focus.unregister_guest(S);
+    m_focus.unregister_guest(s);
   }
   catch (const std::exception &e)
   {
@@ -374,29 +374,29 @@ void pqxx::transaction_base::unregister_focus(
 }
 
 
-pqxx::result pqxx::transaction_base::direct_exec(std::string_view C)
+pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
 {
   CheckPendingError();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(C);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
 
 pqxx::result
-pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> C)
+pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 {
   CheckPendingError();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(C);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
 
 void pqxx::transaction_base::register_pending_error(
-  const std::string &Err) noexcept
+  const std::string &err) noexcept
 {
-  if (m_pending_error.empty() and not Err.empty())
+  if (m_pending_error.empty() and not err.empty())
   {
     try
     {
-      m_pending_error = Err;
+      m_pending_error = err;
     }
     catch (const std::exception &e)
     {
@@ -405,7 +405,7 @@ void pqxx::transaction_base::register_pending_error(
         process_notice("UNABLE TO PROCESS ERROR\n");
         process_notice(e.what());
         process_notice("ERROR WAS:");
-        process_notice(Err);
+        process_notice(err);
       }
       catch (...)
       {}
@@ -418,9 +418,9 @@ void pqxx::transaction_base::CheckPendingError()
 {
   if (not m_pending_error.empty())
   {
-    const std::string Err{m_pending_error};
-    m_pending_error.clear();
-    throw failure{Err};
+    std::string err;
+    err.swap(m_pending_error);
+    throw failure{err};
   }
 }
 

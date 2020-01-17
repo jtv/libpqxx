@@ -18,9 +18,9 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &C, const char begin_command[]) :
+  connection &c, const char begin_command[]) :
         namedclass{"transaction"},
-        dbtransaction(C)
+        dbtransaction(c)
 {
   register_transaction();
   direct_exec(begin_command);
@@ -39,11 +39,11 @@ void pqxx::internal::basic_transaction::do_commit()
     // Outcome of "commit" is unknown.  This is a disaster: we don't know the
     // resulting state of the database.
     process_notice(e.what() + std::string{"\n"});
-    const std::string msg =
+    const auto msg{
       "WARNING: Commit of transaction '" + name() +
       "' is unknown. "
       "There is no way to tell whether the transaction succeeded "
-      "or was aborted except to check manually.";
+      "or was aborted except to check manually."};
     process_notice(msg + "\n");
     throw in_doubt_error{msg};
   }
@@ -55,16 +55,16 @@ void pqxx::internal::basic_transaction::do_commit()
       // telling what happened on the other end.  >8-O
       process_notice(e.what() + std::string{"\n"});
 
-      const std::string Msg =
+      const auto msg{
         "WARNING: Connection lost while committing transaction "
         "'" +
         name() +
         "'. "
         "There is no way to tell whether the transaction succeeded "
-        "or was aborted except to check manually.";
+        "or was aborted except to check manually."};
 
-      process_notice(Msg + "\n");
-      throw in_doubt_error{Msg};
+      process_notice(msg + "\n");
+      throw in_doubt_error{msg};
     }
     else
     {
