@@ -61,7 +61,7 @@ const std::unordered_map<std::string, tx_stat, initial_hash> statuses{
 tx_stat query_status(const std::string &xid, const std::string &conn_str)
 {
   static const std::string name{"robusttxck"};
-  const std::string query{"SELECT txid_status(" + xid + ")"};
+  const auto query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
   const auto row{w.exec1(query, name)};
@@ -77,12 +77,12 @@ tx_stat query_status(const std::string &xid, const std::string &conn_str)
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &C, const char begin_command[]) :
+  connection &c, const char begin_command[]) :
         namedclass{"robusttransaction"},
-        dbtransaction(C),
-        m_conn_string{C.connection_string()}
+        dbtransaction(c),
+        m_conn_string{c.connection_string()}
 {
-  m_backendpid = C.backendpid();
+  m_backendpid = c.backendpid();
   direct_exec(begin_command);
   direct_exec("SELECT txid_current()")[0][0].to(m_xid);
 }

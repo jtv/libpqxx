@@ -51,10 +51,10 @@ bool pqxx::result::operator==(const result &rhs) const noexcept
 {
   if (&rhs == this)
     return true;
-  const auto s = size();
+  const auto s{size()};
   if (rhs.size() != s)
     return false;
-  for (size_type i = 0; i < s; ++i)
+  for (size_type i{0}; i < s; ++i)
     if ((*this)[i] != rhs[i])
       return false;
   return true;
@@ -99,7 +99,7 @@ pqxx::result::const_iterator pqxx::result::cbegin() const noexcept
 
 pqxx::result::size_type pqxx::result::size() const noexcept
 {
-  return m_data.get() ? size_type(PQntuples(m_data.get())) : 0;
+  return (m_data.get() == nullptr) ? 0 : static_cast<size_type>(PQntuples(m_data.get()));
 }
 
 
@@ -156,7 +156,7 @@ void pqxx::result::ThrowSQLError(
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
-  const char *const code = PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE);
+  const char *const code{PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE)};
   if (code)
     switch (code[0])
     {
@@ -248,8 +248,8 @@ void pqxx::result::ThrowSQLError(
 
 void pqxx::result::check_status() const
 {
-  if (const std::string Err = StatusError(); not Err.empty())
-    ThrowSQLError(Err, query());
+  if (const auto err{StatusError()}; not err.empty())
+    ThrowSQLError(err, query());
 }
 
 
@@ -258,7 +258,7 @@ std::string pqxx::result::StatusError() const
   if (m_data.get() == nullptr)
     throw failure{"No result set given."};
 
-  std::string Err;
+  std::string err;
 
   switch (PQresultStatus(m_data.get()))
   {
@@ -274,13 +274,13 @@ std::string pqxx::result::StatusError() const
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood
   case PGRES_NONFATAL_ERROR:
-  case PGRES_FATAL_ERROR: Err = PQresultErrorMessage(m_data.get()); break;
+  case PGRES_FATAL_ERROR: err = PQresultErrorMessage(m_data.get()); break;
 
   default:
     throw internal_error{"pqxx::result: Unrecognized response code " +
                          to_string(PQresultStatus(m_data.get()))};
   }
-  return Err;
+  return err;
 }
 
 
@@ -307,89 +307,88 @@ pqxx::oid pqxx::result::inserted_oid() const
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
-  const char *const RowsStr =
-    PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()));
-  return RowsStr[0] ? size_type(atoi(RowsStr)) : 0;
+  const auto rows_str{
+    PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
+  return (rows_str[0] == '\0') ? 0 : size_type(atoi(rows_str));
 }
 
 
 const char *pqxx::result::GetValue(
-  pqxx::result::size_type Row, pqxx::row::size_type Col) const
+  pqxx::result::size_type row, pqxx::row::size_type col) const
 {
-  return PQgetvalue(m_data.get(), Row, Col);
+  return PQgetvalue(m_data.get(), row, col);
 }
 
 
 bool pqxx::result::get_is_null(
-  pqxx::result::size_type Row, pqxx::row::size_type Col) const
+  pqxx::result::size_type row, pqxx::row::size_type col) const
 {
-  auto res = PQgetisnull(m_data.get(), Row, Col);
-  return res != 0;
+  return PQgetisnull(m_data.get(), row, col) != 0;
 }
 
 pqxx::field::size_type pqxx::result::get_length(
-  pqxx::result::size_type Row, pqxx::row::size_type Col) const noexcept
+  pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
   return static_cast<pqxx::field::size_type>(
-    PQgetlength(m_data.get(), Row, Col));
+    PQgetlength(m_data.get(), row, col));
 }
 
 
-pqxx::oid pqxx::result::column_type(row::size_type ColNum) const
+pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 {
-  const oid T = PQftype(m_data.get(), ColNum);
-  if (T == oid_none)
+  const oid t{PQftype(m_data.get(), col_num)};
+  if (t == oid_none)
     throw argument_error{"Attempt to retrieve type of nonexistent column " +
-                         to_string(ColNum) + " of query result."};
-  return T;
+                         to_string(col_num) + " of query result."};
+  return t;
 }
 
 
-pqxx::oid pqxx::result::column_table(row::size_type ColNum) const
+pqxx::oid pqxx::result::column_table(row::size_type col_num) const
 {
-  const oid T = PQftable(m_data.get(), ColNum);
+  const oid t{PQftable(m_data.get(), col_num)};
 
   /* If we get oid_none, it may be because the column is computed, or because
    * we got an invalid row number.
    */
-  if (T == oid_none and ColNum >= columns())
+  if (t == oid_none and col_num >= columns())
     throw argument_error{"Attempt to retrieve table ID for column " +
-                         to_string(ColNum) + " out of " +
+                         to_string(col_num) + " out of " +
                          to_string(columns())};
 
-  return T;
+  return t;
 }
 
 
-pqxx::row::size_type pqxx::result::table_column(row::size_type ColNum) const
+pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
 {
-  const auto n = row::size_type(PQftablecol(m_data.get(), ColNum));
+  const auto n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0)
     return n - 1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
-  const std::string col_num = to_string(ColNum);
-  if (ColNum > columns())
-    throw range_error{"Invalid column index in table_column(): " + col_num};
+  const auto col_str{to_string(col_num)};
+  if (col_num > columns())
+    throw range_error{"Invalid column index in table_column(): " + col_str};
 
   if (m_data.get() == nullptr)
-    throw usage_error{"Can't query origin of column " + col_num +
+    throw usage_error{"Can't query origin of column " + col_str +
                       ": "
                       "result is not initialized."};
 
-  throw usage_error{"Can't query origin of column " + col_num +
+  throw usage_error{"Can't query origin of column " + col_str +
                     ": "
                     "not derived from table column."};
 }
 
 int pqxx::result::errorposition() const
 {
-  int pos = -1;
+  int pos{-1};
   if (m_data.get())
   {
-    const char *p = PQresultErrorField(
+    const auto p{PQresultErrorField(
       const_cast<internal::pq::PGresult *>(m_data.get()),
-      PG_DIAG_STATEMENT_POSITION);
+      PG_DIAG_STATEMENT_POSITION)};
     if (p)
       pos = from_string<decltype(pos)>(p);
   }
@@ -397,23 +396,23 @@ int pqxx::result::errorposition() const
 }
 
 
-const char *pqxx::result::column_name(pqxx::row::size_type Number) const
+const char *pqxx::result::column_name(pqxx::row::size_type number) const
 {
-  const char *const N = PQfname(m_data.get(), Number);
-  if (N == nullptr)
+  const auto n{PQfname(m_data.get(), number)};
+  if (n == nullptr)
   {
     if (m_data.get() == nullptr)
       throw usage_error{"Queried column name on null result."};
-    throw range_error{"Invalid column number: " + to_string(Number) +
+    throw range_error{"Invalid column number: " + to_string(number) +
                       " (maximum is " + to_string(columns() - 1) + ")."};
   }
-  return N;
+  return n;
 }
 
 
 pqxx::row::size_type pqxx::result::columns() const noexcept
 {
-  auto ptr = const_cast<internal::pq::PGresult *>(m_data.get());
+  auto ptr{const_cast<internal::pq::PGresult *>(m_data.get())};
   return (ptr == nullptr) ? 0 : row::size_type(PQnfields(ptr));
 }
 
