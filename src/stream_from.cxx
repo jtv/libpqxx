@@ -25,7 +25,7 @@ std::string::size_type find_tab(
   pqxx::internal::encoding_group enc, const std::string &line,
   std::string::size_type start)
 {
-  auto here = pqxx::internal::find_with_encoding(enc, line, '\t', start);
+  auto here{pqxx::internal::find_with_encoding(enc, line, '\t', start)};
   return (here == std::string::npos) ? line.size() : here;
 }
 
@@ -154,14 +154,14 @@ void pqxx::stream_from::complete()
 bool pqxx::stream_from::extract_field(
   const std::string &line, std::string::size_type &i, std::string &s) const
 {
-  const auto next_seq = get_glyph_scanner(m_copy_encoding);
+  const auto next_seq{get_glyph_scanner(m_copy_encoding)};
   s.clear();
   bool is_null{false};
-  auto stop = find_tab(m_copy_encoding, line, i);
+  auto stop{find_tab(m_copy_encoding, line, i)};
   while (i < stop)
   {
-    auto glyph_end = next_seq(line.c_str(), line.size(), i);
-    if (auto seq_len = glyph_end - i; seq_len == 1)
+    auto glyph_end{next_seq(line.c_str(), line.size(), i)};
+    if (auto seq_len{glyph_end - i}; seq_len == 1)
     {
       switch (line[i])
       {
@@ -176,7 +176,7 @@ bool pqxx::stream_from::extract_field(
         // Escape sequence.
         if (glyph_end >= line.size())
           throw failure{"Row ends in backslash"};
-        char n = line[glyph_end++];
+        char n{line[glyph_end++]};
         switch (n)
         {
         case 'N':
