@@ -26,92 +26,48 @@ extern "C"
 
 namespace
 {
-using unsigned_char = unsigned char;
-using buffer = std::pair<unsigned char *, size_t>;
+void free_uchar(unsigned char *x)
+{
+  std::free(x);
+}
 
 
-buffer to_buffer(const void *data, size_t len)
+/// Copy data to a heap-allocated buffer.
+std::shared_ptr<unsigned char> copy_to_buffer(const void *data, size_t len)
 {
   void *const output{malloc(len + 1)};
   if (output == nullptr)
     throw std::bad_alloc{};
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
-  return buffer{static_cast<unsigned char *>(output), len};
-}
-
-
-buffer to_buffer(std::string_view source)
-{
-  return to_buffer(source.data(), source.size());
-}
-
-
-buffer unescape(const unsigned char escaped[])
-{
-  constexpr bool win32{
-#ifdef _WIN32
-    true
-#else
-    false
-#endif
-  };
-
-  if constexpr (win32)
-  {
-    /* On Windows only, the return value from PQunescapeBytea() must be freed
-     * using PQfreemem.  Copy to a buffer allocated by libpqxx, so that the
-     * binarystring's buffer can be freed uniformly,
-     */
-    size_t unescaped_len = 0;
-    std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> A(
-      PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped_len),
-      pqxx::internal::freepqmem_templated<unsigned char>);
-    void *data = A.get();
-    if (data == nullptr)
-      throw std::bad_alloc{};
-    return to_buffer(data, unescaped_len);
-  }
-  else
-  {
-    /* On non-Windows platforms, it's okay to free libpq-allocated memory using
-     * free().  No extra copy needed.
-     */
-    buffer unescaped;
-    unescaped.first =
-      PQunescapeBytea(const_cast<unsigned char *>(escaped), &unescaped.second);
-    if (unescaped.first == nullptr)
-      throw std::bad_alloc{};
-    return unescaped;
-  }
+  return std::shared_ptr<unsigned char>{static_cast<unsigned char *>(output),
+                                        free_uchar};
 }
 } // namespace
 
 
-pqxx::binarystring::binarystring(const field &F) :
-        m_buf{make_smart_pointer()},
-        m_size{0}
+pqxx::binarystring::binarystring(const field &F)
 {
-  buffer unescaped{unescape(reinterpret_cast<const_pointer>(F.c_str()))};
-  m_buf = make_smart_pointer(unescaped.first);
-  m_size = unescaped.second;
+  const unsigned char *data{
+    reinterpret_cast<const unsigned char *>(F.c_str())};
+  m_buf = std::shared_ptr<unsigned char>{
+    PQunescapeBytea(data, &m_size),
+    pqxx::internal::freepqmem_templated<unsigned char>};
+  if (m_buf == nullptr)
+    throw std::bad_alloc{};
 }
 
 
 pqxx::binarystring::binarystring(std::string_view s) :
-        m_buf{make_smart_pointer()},
+        m_buf{copy_to_buffer(s.data(), s.size())},
         m_size{s.size()}
-{
-  m_buf = make_smart_pointer(to_buffer(s).first);
-}
+{}
 
 
 pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
-        m_buf{make_smart_pointer()},
+        m_buf{copy_to_buffer(binary_data, len)},
         m_size{len}
-{
-  m_buf = make_smart_pointer(to_buffer(binary_data, len).first);
-}
+{}
 
 
 bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept

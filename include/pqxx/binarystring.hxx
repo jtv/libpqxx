@@ -145,17 +145,8 @@ public:
   std::string str() const;
 
 private:
-  using smart_pointer_type = std::shared_ptr<value_type>;
-
-  /// Shorthand: construct a smart_pointer_type.
-  static smart_pointer_type make_smart_pointer(unsigned char *buf = nullptr)
-  {
-    return smart_pointer_type{
-      buf, internal::freemallocmem_templated<unsigned char>};
-  }
-
-  smart_pointer_type m_buf;
-  size_type m_size;
+  std::shared_ptr<value_type> m_buf;
+  size_type m_size{0};
 };
 } // namespace pqxx
 

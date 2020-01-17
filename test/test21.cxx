@@ -13,7 +13,8 @@ void test_021()
 {
   connection conn;
 
-  const std::string HostName = ((conn.hostname() == nullptr) ? "<local>" : conn.hostname());
+  const std::string HostName =
+    ((conn.hostname() == nullptr) ? "<local>" : conn.hostname());
   conn.process_notice(
     std::string{} + "database=" + conn.dbname() +
     ", "

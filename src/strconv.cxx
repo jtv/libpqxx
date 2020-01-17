@@ -677,8 +677,8 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   }
 
   if (not OK)
-    throw conversion_error{"Failed conversion to bool: '" +
-                           std::string{text} + "'."};
+    throw conversion_error{"Failed conversion to bool: '" + std::string{text} +
+                           "'."};
 
   return result;
 }
