@@ -107,6 +107,7 @@ install(
 		PATTERN internal/gates/transaction-transactionfocus.hxx
 		PATTERN config-public-compiler.h
 		PATTERN pqxx
+		PATTERN doc EXCLUDE
 )
 
 install(
