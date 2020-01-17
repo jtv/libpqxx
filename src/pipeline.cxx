@@ -65,8 +65,8 @@ void pqxx::pipeline::detach()
 pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q)
 {
   attach();
-  const query_id qid = generate_id();
-  const auto i = m_queries.insert(std::make_pair(qid, Query(q))).first;
+  const query_id qid{generate_id()};
+  const auto i{m_queries.insert(std::make_pair(qid, Query(q))).first};
 
   if (m_issuedrange.second == m_queries.end())
   {
@@ -121,7 +121,7 @@ void pqxx::pipeline::cancel()
   while (have_pending())
   {
     pqxx::internal::gate::connection_pipeline(m_trans.conn()).cancel_query();
-    auto canceled_query = m_issuedrange.first;
+    auto canceled_query{m_issuedrange.first};
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
   }
@@ -152,7 +152,7 @@ int pqxx::pipeline::retain(int retain_max)
     throw range_error{"Attempt to make pipeline retain " +
                       to_string(retain_max) + " queries"};
 
-  const int oldvalue = m_retain;
+  const int oldvalue{m_retain};
   m_retain = retain_max;
 
   if (m_num_waiting >= m_retain)
@@ -193,15 +193,15 @@ void pqxx::pipeline::issue()
     return;
 
   // Start with oldest query (lowest id) not in previous issue range.
-  auto oldest = m_issuedrange.second;
+  auto oldest{m_issuedrange.second};
 
   // Construct cumulative query string for entire batch.
-  std::string cum = separated_list(
+  auto cum{separated_list(
     theSeparator, oldest, m_queries.end(),
-    [](QueryMap::const_iterator i) { return i->second.get_query(); });
-  const auto num_issued =
-    QueryMap::size_type(std::distance(oldest, m_queries.end()));
-  const bool prepend_dummy = (num_issued > 1);
+    [](QueryMap::const_iterator i) { return i->second.get_query(); })};
+  const auto num_issued{
+    QueryMap::size_type(std::distance(oldest, m_queries.end()))};
+  const bool prepend_dummy{num_issued > 1};
   if (prepend_dummy)
     cum = theDummyQuery + cum;
 
@@ -226,7 +226,7 @@ void pqxx::pipeline::internal_error(const std::string &err)
 bool pqxx::pipeline::obtain_result(bool expect_none)
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
-  const auto r = gate.get_result();
+  const auto r{gate.get_result()};
   if (r == nullptr)
   {
     if (have_pending() and not expect_none)
@@ -237,9 +237,9 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
     return false;
   }
 
-  const result res = pqxx::internal::gate::result_creation::create(
+  const result res{pqxx::internal::gate::result_creation::create(
     r, std::begin(m_queries)->second.get_query(),
-    internal::enc_group(m_trans.conn().encoding_id()));
+    internal::enc_group(m_trans.conn().encoding_id()))};
 
   if (not have_pending())
   {
@@ -262,7 +262,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 void pqxx::pipeline::obtain_dummy()
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
-  const auto r = gate.get_result();
+  const auto r{gate.get_result()};
   m_dummy_pending = false;
 
   if (r == nullptr)
@@ -273,10 +273,10 @@ void pqxx::pipeline::obtain_dummy()
   static const auto text{
     std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
 
-  result R = pqxx::internal::gate::result_creation::create(
-    r, text, internal::enc_group(m_trans.conn().encoding_id()));
+  result R{pqxx::internal::gate::result_creation::create(
+    r, text, internal::enc_group(m_trans.conn().encoding_id()))};
 
-  bool OK = false;
+  bool OK{false};
   try
   {
     pqxx::internal::gate::result_creation{R}.check_status();
@@ -301,11 +301,11 @@ void pqxx::pipeline::obtain_dummy()
    */
   // First, give the whole batch the same syntax error message, in case all
   // else is going to fail.
-  for (auto i = m_issuedrange.first; i != m_issuedrange.second; ++i)
+  for (auto i{m_issuedrange.first}; i != m_issuedrange.second; ++i)
     i->second.set_result(R);
 
   // Remember where the end of this batch was
-  const auto stop = m_issuedrange.second;
+  const auto stop{m_issuedrange.second};
 
   // Retrieve that null result for the last query, if needed
   obtain_result(true);
@@ -332,10 +332,10 @@ void pqxx::pipeline::obtain_dummy()
   }
   catch (const std::exception &)
   {
-    const query_id thud = m_issuedrange.first->first;
+    const auto thud{m_issuedrange.first->first};
     ++m_issuedrange.first;
     m_issuedrange.second = m_issuedrange.first;
-    auto q = m_issuedrange.first;
+    auto q{m_issuedrange.first};
     set_error_at((q == m_queries.end()) ? thud + 1 : q->first);
   }
 }
@@ -367,7 +367,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   {
     if (q->first >= m_issuedrange.first->first)
     {
-      auto suc = q;
+      auto suc{q};
       ++suc;
       receive(suc);
     }
@@ -385,8 +385,8 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
     issue();
 
-  const result R = q->second.get_result();
-  const auto P = std::make_pair(q->first, R);
+  const result R{q->second.get_result()};
+  const auto P{std::make_pair(q->first, R)};
 
   m_queries.erase(q);
 

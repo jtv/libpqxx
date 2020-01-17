@@ -30,7 +30,7 @@ bool pqxx::field::operator==(const field &rhs) const
     return true;
   if (is_null() != rhs.is_null())
     return false;
-  const size_type s = size();
+  const auto s{size()};
   return (s == rhs.size()) and (std::memcmp(c_str(), rhs.c_str(), s) == 0);
 }
 

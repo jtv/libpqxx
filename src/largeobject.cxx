@@ -26,17 +26,17 @@ extern "C"
 
 namespace
 {
-constexpr inline int StdModeToPQMode(std::ios::openmode mode)
+constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 {
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
-  constexpr int INV_WRITE = 0x00020000, INV_READ = 0x00040000;
+  constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 
   return ((mode & std::ios::in) ? INV_READ : 0) |
          ((mode & std::ios::out) ? INV_WRITE : 0);
 }
 
 
-constexpr int StdDirToPQDir(std::ios::seekdir dir) noexcept
+constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 {
   if constexpr (
     static_cast<int>(std::ios::beg) == int(SEEK_SET) and
@@ -61,72 +61,72 @@ constexpr int StdDirToPQDir(std::ios::seekdir dir) noexcept
 } // namespace
 
 
-pqxx::largeobject::largeobject(dbtransaction &T) : m_id{}
+pqxx::largeobject::largeobject(dbtransaction &t) : m_id{}
 {
   // (Mode is ignored as of postgres 8.1.)
-  m_id = lo_creat(raw_connection(T), 0);
+  m_id = lo_creat(raw_connection(t), 0);
   if (m_id == oid_none)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{"Could not create large object: " + reason(T.conn(), err)};
+    throw failure{"Could not create large object: " + reason(t.conn(), err)};
   }
 }
 
 
-pqxx::largeobject::largeobject(dbtransaction &T, std::string_view File) :
+pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
         m_id{}
 {
-  m_id = lo_import(raw_connection(T), File.data());
+  m_id = lo_import(raw_connection(t), file.data());
   if (m_id == oid_none)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{"Could not import file '" + std::string{File} +
-                  "' to large object: " + reason(T.conn(), err)};
+    throw failure{"Could not import file '" + std::string{file} +
+                  "' to large object: " + reason(t.conn(), err)};
   }
 }
 
 
-pqxx::largeobject::largeobject(const largeobjectaccess &O) noexcept :
-        m_id{O.id()}
+pqxx::largeobject::largeobject(const largeobjectaccess &o) noexcept :
+        m_id{o.id()}
 {}
 
 
-void pqxx::largeobject::to_file(dbtransaction &T, std::string_view File) const
+void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
-  if (lo_export(raw_connection(T), id(), File.data()) == -1)
+  if (lo_export(raw_connection(t), id(), file.data()) == -1)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{"Could not export large object " + to_string(m_id) +
                   " "
                   "to file '" +
-                  std::string{File} + "': " + reason(T.conn(), err)};
+                  std::string{file} + "': " + reason(t.conn(), err)};
   }
 }
 
 
-void pqxx::largeobject::remove(dbtransaction &T) const
+void pqxx::largeobject::remove(dbtransaction &t) const
 {
-  if (lo_unlink(raw_connection(T), id()) == -1)
+  if (lo_unlink(raw_connection(t), id()) == -1)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{"Could not delete large object " + to_string(m_id) + ": " +
-                  reason(T.conn(), err)};
+                  reason(t.conn(), err)};
   }
 }
 
 
 pqxx::internal::pq::PGconn *
-pqxx::largeobject::raw_connection(const dbtransaction &T)
+pqxx::largeobject::raw_connection(const dbtransaction &t)
 {
-  return pqxx::internal::gate::connection_largeobject{T.conn()}
+  return pqxx::internal::gate::connection_largeobject{t.conn()}
     .raw_connection();
 }
 
@@ -141,36 +141,36 @@ std::string pqxx::largeobject::reason(const connection &c, int err) const
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &T, openmode mode) :
-        largeobject{T},
-        m_trans{T}
+pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &t, openmode mode) :
+        largeobject{t},
+        m_trans{t}
 {
   open(mode);
 }
 
 
 pqxx::largeobjectaccess::largeobjectaccess(
-  dbtransaction &T, oid O, openmode mode) :
-        largeobject{O},
-        m_trans{T}
+  dbtransaction &t, oid o, openmode mode) :
+        largeobject{o},
+        m_trans{t}
 {
   open(mode);
 }
 
 
 pqxx::largeobjectaccess::largeobjectaccess(
-  dbtransaction &T, largeobject O, openmode mode) :
-        largeobject{O},
-        m_trans{T}
+  dbtransaction &t, largeobject o, openmode mode) :
+        largeobject{o},
+        m_trans{t}
 {
   open(mode);
 }
 
 
 pqxx::largeobjectaccess::largeobjectaccess(
-  dbtransaction &T, std::string_view File, openmode mode) :
-        largeobject{T, File},
-        m_trans{T}
+  dbtransaction &t, std::string_view file, openmode mode) :
+        largeobject{t, file},
+        m_trans{t}
 {
   open(mode);
 }
@@ -179,39 +179,39 @@ pqxx::largeobjectaccess::largeobjectaccess(
 pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
-  const auto Result = cseek(dest, dir);
-  if (Result == -1)
+  const auto res{cseek(dest, dir)};
+  if (res == -1)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{"Error seeking in large object: " + reason(err)};
   }
 
-  return Result;
+  return res;
 }
 
 
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
-  return lo_lseek64(raw_connection(), m_fd, dest, StdDirToPQDir(dir));
+  return lo_lseek64(raw_connection(), m_fd, dest, std_dir_to_pq_dir(dir));
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cwrite(const char Buf[], size_t Len) noexcept
+pqxx::largeobjectaccess::cwrite(const char buf[], size_t len) noexcept
 {
   return std::max(
-    lo_write(raw_connection(), m_fd, const_cast<char *>(Buf), size_t(Len)),
+    lo_write(raw_connection(), m_fd, buf, len),
     -1);
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cread(char Buf[], size_t Len) noexcept
+pqxx::largeobjectaccess::cread(char buf[], size_t len) noexcept
 {
-  return std::max(lo_read(raw_connection(), m_fd, Buf, size_t(Len)), -1);
+  return std::max(lo_read(raw_connection(), m_fd, buf, len), -1);
 }
 
 
@@ -222,51 +222,51 @@ pqxx::largeobjectaccess::pos_type pqxx::largeobjectaccess::ctell() const
 }
 
 
-void pqxx::largeobjectaccess::write(const char Buf[], size_t Len)
+void pqxx::largeobjectaccess::write(const char buf[], size_t len)
 {
-  if (const auto Bytes = cwrite(Buf, Len); Bytes < static_cast<off_type>(Len))
+  if (const auto bytes{cwrite(buf, len)}; bytes < static_cast<off_type>(len))
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    if (Bytes < 0)
+    if (bytes < 0)
       throw failure{"Error writing to large object #" + to_string(id()) +
                     ": " + reason(err)};
-    if (Bytes == 0)
+    if (bytes == 0)
       throw failure{"Could not write to large object #" + to_string(id()) +
                     ": " + reason(err)};
 
-    throw failure{"Wanted to write " + to_string(Len) +
+    throw failure{"Wanted to write " + to_string(len) +
                   " bytes to large object #" + to_string(id()) +
                   "; "
                   "could only write " +
-                  to_string(Bytes)};
+                  to_string(bytes)};
   }
 }
 
 
 pqxx::largeobjectaccess::size_type
-pqxx::largeobjectaccess::read(char Buf[], size_t Len)
+pqxx::largeobjectaccess::read(char buf[], size_t len)
 {
-  const auto Bytes = cread(Buf, Len);
-  if (Bytes < 0)
+  const auto bytes{cread(buf, len)};
+  if (bytes < 0)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{"Error reading from large object #" + to_string(id()) +
                   ": " + reason(err)};
   }
-  return Bytes;
+  return bytes;
 }
 
 
 void pqxx::largeobjectaccess::open(openmode mode)
 {
-  m_fd = lo_open(raw_connection(), id(), StdModeToPQMode(mode));
+  m_fd = lo_open(raw_connection(), id(), std_mode_to_pq_mode(mode));
   if (m_fd < 0)
   {
-    const int err = errno;
+    const int err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{"Could not open large object " + to_string(id()) + ": " +
@@ -284,7 +284,7 @@ void pqxx::largeobjectaccess::close() noexcept
 
 pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 {
-  const size_type res = ctell();
+  const auto res{ctell()};
   if (res == -1)
     throw failure{reason(errno)};
   return res;
