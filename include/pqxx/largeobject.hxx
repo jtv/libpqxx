@@ -165,7 +165,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out
    */
   explicit largeobjectaccess(
-    dbtransaction &T, openmode mode = std::ios::in | std::ios::out);
+    dbtransaction &t, openmode mode = std::ios::in | std::ios::out);
 
   /// Open large object with given oid
   /** Convert combination of a transaction and object identifier into a

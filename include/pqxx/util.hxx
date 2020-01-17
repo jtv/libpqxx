@@ -93,8 +93,8 @@ inline TO check_cast(FROM value, const char description[])
   {
     using unsigned_from = std::make_unsigned_t<FROM>;
     using unsigned_to = std::make_unsigned_t<TO>;
-    constexpr auto from_max = static_cast<unsigned_from>((from_limits::max)());
-    constexpr auto to_max = static_cast<unsigned_to>((to_limits::max)());
+    constexpr auto from_max{static_cast<unsigned_from>((from_limits::max)())};
+    constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
       if (static_cast<unsigned_from>(value) > to_max)
@@ -144,7 +144,7 @@ inline PQXX_PRIVATE void check_version()
   // often for performance reasons.  A local static variable is initialised
   // only on the definition's first execution.  Compilers will be well
   // optimised for this behaviour, so there's a minimal one-time cost.
-  static const auto version_ok = internal::PQXX_VERSION_CHECK();
+  static const auto version_ok{internal::PQXX_VERSION_CHECK()};
   ignore_unused(version_ok);
 }
 
@@ -221,21 +221,21 @@ template<typename P> inline void freemallocmem_templated(P *p) noexcept
 class PQXX_LIBEXPORT namedclass
 {
 public:
-  explicit namedclass(std::string_view Classname) : m_classname{Classname} {}
+  explicit namedclass(std::string_view classname) : m_classname{classname} {}
 
-  namedclass(std::string_view Classname, std::string_view Name) :
-          m_classname{Classname},
-          m_name{Name}
+  namedclass(std::string_view classname, std::string_view name) :
+          m_classname{classname},
+          m_name{name}
   {}
 
-  namedclass(std::string_view Classname, const char Name[]) :
-          m_classname{Classname},
-          m_name{Name}
+  namedclass(std::string_view classname, const char name[]) :
+          m_classname{classname},
+          m_name{name}
   {}
 
-  namedclass(std::string_view Classname, std::string &&Name) :
-          m_classname{Classname},
-          m_name{std::move(Name)}
+  namedclass(std::string_view classname, std::string &&name) :
+          m_classname{classname},
+          m_name{std::move(name)}
   {}
 
   /// Object name, or the empty string if no name was given.

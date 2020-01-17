@@ -300,7 +300,7 @@ public:
 
   /// Set client-side character encoding, by name.
   /**
-   * @param Encoding Name of the character set encoding to use.
+   * @param encoding Name of the character set encoding to use.
    */
   void set_client_encoding(const std::string &encoding)
   {
@@ -309,7 +309,7 @@ public:
 
   /// Set client-side character encoding, by name.
   /**
-   * @param Encoding Name of the character set encoding to use.
+   * @param encoding Name of the character set encoding to use.
    */
   void set_client_encoding(const char encoding[]);
 

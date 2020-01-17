@@ -23,7 +23,7 @@ namespace pqxx::internal
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(connection &C, const char begin_command[]);
+  basic_transaction(connection &c, const char begin_command[]);
 
 private:
   virtual void do_commit() override;
@@ -68,17 +68,17 @@ class transaction final : public internal::basic_transaction
 public:
   /// Create a transaction.
   /**
-   * @param C Connection for this transaction to operate on.
-   * @param TName Optional name for transaction.  Must begin with a letter and
+   * @param c Connection for this transaction to operate on.
+   * @param tname Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  explicit transaction(connection &C, const std::string &TName) :
-          namedclass{"transaction", TName},
+  explicit transaction(connection &c, const std::string &tname) :
+          namedclass{"transaction", tname},
           internal::basic_transaction(
-            C, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
+            c, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
   {}
 
-  explicit transaction(connection &C) : transaction(C, "") {}
+  explicit transaction(connection &c) : transaction(c, "") {}
 
   virtual ~transaction() noexcept override { close(); }
 };

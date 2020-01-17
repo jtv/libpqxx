@@ -78,8 +78,8 @@ class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
   /** Create robusttransaction of given name.
-   * @param C Connection inside which this robusttransaction should live.
-   * @param Name optional human-readable name for this transaction.
+   * @param c Connection inside which this robusttransaction should live.
+   * @param name optional human-readable name for this transaction.
    */
   explicit robusttransaction(
     connection &c, std::string_view name = std::string_view{}) :
