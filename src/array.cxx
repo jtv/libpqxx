@@ -23,7 +23,6 @@ namespace pqxx
 std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos) const
 {
-  assert(pos < m_input.size());
   return m_scan(m_input.data(), m_input.size(), pos);
 }
 
@@ -32,21 +31,18 @@ array_parser::scan_glyph(std::string::size_type pos) const
 std::string::size_type array_parser::scan_glyph(
   std::string::size_type pos, std::string::size_type end) const
 {
-  assert(pos < end);
-  assert(end <= m_input.size());
   return m_scan(m_input.data(), end, pos);
 }
 
 
 /// Find the end of a single-quoted SQL string in an SQL array.
-/** Returns the offset of the first character after the closing quote.
+/** Call this while pointed at the opening quote.
+ *
+ * Returns the offset of the first character after the closing quote.
  */
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
   auto here = m_pos, next = scan_glyph(here);
-  assert(next < m_input.size());
-  assert(next - here == 1);
-  assert(m_input[here] == '\'');
   for (here = next, next = scan_glyph(here); here < m_input.size();
        here = next, next = scan_glyph(here))
   {
@@ -87,11 +83,6 @@ std::string::size_type array_parser::scan_single_quoted_string() const
 std::string
 array_parser::parse_single_quoted_string(std::string::size_type end) const
 {
-  // There have to be at least 2 characters: the opening and closing quotes.
-  assert(m_pos + 1 < end);
-  assert(m_input[m_pos] == '\'');
-  assert(m_input[end - 1] == '\'');
-
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
@@ -118,10 +109,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
   auto here = m_pos;
-  assert(here < m_input.size());
   auto next = scan_glyph(here);
-  assert(next - here == 1);
-  assert(m_input[here] == '"');
   for (here = next, next = scan_glyph(here); here < m_input.size();
        here = next, next = scan_glyph(here))
   {
@@ -147,11 +135,6 @@ std::string::size_type array_parser::scan_double_quoted_string() const
 std::string
 array_parser::parse_double_quoted_string(std::string::size_type end) const
 {
-  // There have to be at least 2 characters: the opening and closing quotes.
-  assert(m_pos + 1 < end);
-  assert(m_input[m_pos] == '"');
-  assert(m_input[end - 1] == '"');
-
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  In the worst case, the real number could be half that.
@@ -181,9 +164,6 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_unquoted_string() const
 {
   auto here = m_pos, next = scan_glyph(here);
-  assert(here < m_input.size());
-  assert((next - here > 1) or (m_input[here] != '\''));
-  assert((next - here > 1) or (m_input[here] != '"'));
 
   while ((next - here) > 1 or (m_input[here] != ',' and
                                m_input[here] != ';' and m_input[here] != '}'))
