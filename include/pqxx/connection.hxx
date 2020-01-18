@@ -557,25 +557,7 @@ public:
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T> std::string quote(const T &t) const
-  {
-    if (is_null(t))
-      return "NULL";
-    const auto text{to_string(t)};
-
-    // Okay, there's an easy way to do this and there's a hard way.  The easy
-    // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
-    // because it's going to save some string manipulation that will probably
-    // incur some unnecessary memory allocations and deallocations.
-    std::string buf{'\''};
-    buf.resize(2 + 2 * text.size() + 1);
-    const auto content_bytes{esc_to_buf(text, buf.data() + 1)};
-    const auto closing_quote{1 + content_bytes};
-    buf[closing_quote] = '\'';
-    const auto end{closing_quote + 1};
-    buf.resize(end);
-    return buf;
-  }
+  template<typename T> inline std::string quote(const T &t) const;
 
   std::string quote(const binarystring &) const;
 
@@ -669,7 +651,6 @@ private:
 
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
-// XXX: Refactor.
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least @c 2*text.size()+1 bytes.
    *
@@ -744,6 +725,27 @@ private:
 
 /// @deprecated Old base class for connection.  They are now the same class.
 using connection_base = connection;
+
+
+  template<typename T> inline std::string connection::quote(const T &t) const
+  {
+    if (is_null(t))
+      return "NULL";
+    const auto text{to_string(t)};
+
+    // Okay, there's an easy way to do this and there's a hard way.  The easy
+    // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
+    // because it's going to save some string manipulation that will probably
+    // incur some unnecessary memory allocations and deallocations.
+    std::string buf{'\''};
+    buf.resize(2 + 2 * text.size() + 1);
+    const auto content_bytes{esc_to_buf(text, buf.data() + 1)};
+    const auto closing_quote{1 + content_bytes};
+    buf[closing_quote] = '\'';
+    const auto end{closing_quote + 1};
+    buf.resize(end);
+    return buf;
+  }
 } // namespace pqxx
 
 
