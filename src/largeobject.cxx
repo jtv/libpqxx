@@ -202,9 +202,7 @@ pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cwrite(const char buf[], size_t len) noexcept
 {
-  return std::max(
-    lo_write(raw_connection(), m_fd, buf, len),
-    -1);
+  return std::max(lo_write(raw_connection(), m_fd, buf, len), -1);
 }
 
 

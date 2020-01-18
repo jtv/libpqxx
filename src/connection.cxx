@@ -93,8 +93,7 @@ extern "C"
 std::string pqxx::encrypt_password(const char user[], const char password[])
 {
   std::unique_ptr<char, std::function<void(char *)>> p{
-    PQencryptPassword(password, user),
-    pqxx::internal::freepqmem<char>};
+    PQencryptPassword(password, user), pqxx::internal::freepqmem<char>};
   return std::string{p.get()};
 }
 
@@ -429,8 +428,7 @@ using notify_ptr = std::unique_ptr<PGnotify, std::function<void(PGnotify *)>>;
 /// Get one notification from a connection, or null.
 notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 {
-  return notify_ptr(
-    PQnotifies(conn), pqxx::internal::freepqmem<PGnotify>);
+  return notify_ptr(PQnotifies(conn), pqxx::internal::freepqmem<PGnotify>);
 }
 } // namespace
 
@@ -510,7 +508,8 @@ const char *pqxx::connection::port() const
 
 const char *pqxx::connection::err_msg() const noexcept
 {
-  return (m_conn == nullptr) ? "No connection to database" : PQerrorMessage(m_conn);
+  return (m_conn == nullptr) ? "No connection to database" :
+                               PQerrorMessage(m_conn);
 }
 
 
@@ -604,7 +603,8 @@ void pqxx::connection::prepare(const char name[], const char definition[])
   // Allocate once, re-use across invocations.
   static const auto q{std::make_shared<std::string>("[PREPARE]")};
 
-  const auto r{make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
+  const auto r{
+    make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
   check_result(r);
 }
 
@@ -811,11 +811,10 @@ pqxx::connection::esc_raw(const unsigned char bin[], size_t len) const
 std::string pqxx::connection::unesc_raw(const char text[]) const
 {
   size_t len;
-  auto bytes{
-    const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(text))};
+  auto bytes{const_cast<unsigned char *>(
+    reinterpret_cast<const unsigned char *>(text))};
   const std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
-    ptr{PQunescapeBytea(bytes, &len),
-        internal::freepqmem<unsigned char>};
+    ptr{PQunescapeBytea(bytes, &len), internal::freepqmem<unsigned char>};
   return std::string{ptr.get(), ptr.get() + len};
 }
 
@@ -888,8 +887,8 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
-  const auto events{
-    static_cast<short>(POLLERR | POLLHUP | POLLNVAL | (forwrite ? POLLOUT : POLLIN))};
+  const auto events{static_cast<short>(
+    POLLERR | POLLHUP | POLLNVAL | (forwrite ? POLLOUT : POLLIN))};
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
   // TODO: Check for errors.
@@ -1050,12 +1049,11 @@ pqxx::result pqxx::connection::exec_params(
 {
   const auto pointers{args.get_pointers()};
   const auto q{std::make_shared<std::string>(query)};
-  const auto nonnulls{check_cast<int>(args.nonnulls.size(), "exec_params() parameters")};
+  const auto nonnulls{
+    check_cast<int>(args.nonnulls.size(), "exec_params() parameters")};
   const auto pq_result{PQexecParams(
-    m_conn, q->c_str(),
-    nonnulls,
-nullptr,
-    pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
+    m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
+    args.lengths.data(), args.binaries.data(), 0)};
   const auto r{make_result(pq_result, q)};
   check_result(r);
   get_notifs();

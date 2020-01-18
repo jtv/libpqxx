@@ -135,17 +135,10 @@ enum class error_verbosity : int
 class PQXX_LIBEXPORT connection
 {
 public:
-  connection()
-  {
-    check_version();
-    init("");
-  }
+  connection() : connection{""} {}
 
-  explicit connection(const std::string &options)
-  {
-    check_version();
-    init(options.c_str());
-  }
+  explicit connection(const std::string &options) : connection{options.c_str()}
+  {}
 
   explicit connection(const char options[])
   {
@@ -153,11 +146,7 @@ public:
     init(options);
   }
 
-  explicit connection(zview options)
-  {
-    check_version();
-    init(options.c_str());
-  }
+  explicit connection(zview options) : connection{options.c_str()} {}
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has

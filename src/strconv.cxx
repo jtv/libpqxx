@@ -138,9 +138,8 @@ template<typename T>
 zview integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 {
   static_assert(std::is_integral_v<T>);
-  const auto
-	space{end - begin},
-	need{static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value))};
+  const auto space{end - begin},
+    need{static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value))};
   if (space < need)
     throw conversion_overrun{
       "Could not convert " + type_name<T> +
@@ -271,9 +270,9 @@ template<typename TYPE>
     }
 
   const auto base{"Could not convert '" + std::string(in) +
-                           "' "
-                           "to " +
-                           pqxx::type_name<TYPE>};
+                  "' "
+                  "to " +
+                  pqxx::type_name<TYPE>};
   if (msg.empty())
     throw pqxx::conversion_error{base + "."};
   else

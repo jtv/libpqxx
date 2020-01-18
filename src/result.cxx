@@ -99,7 +99,9 @@ pqxx::result::const_iterator pqxx::result::cbegin() const noexcept
 
 pqxx::result::size_type pqxx::result::size() const noexcept
 {
-  return (m_data.get() == nullptr) ? 0 : static_cast<size_type>(PQntuples(m_data.get()));
+  return (m_data.get() == nullptr) ?
+           0 :
+           static_cast<size_type>(PQntuples(m_data.get()));
 }
 
 
