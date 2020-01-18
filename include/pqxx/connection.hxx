@@ -669,6 +669,7 @@ private:
 
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
+// XXX: Refactor.
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least @c 2*text.size()+1 bytes.
    *
@@ -681,14 +682,8 @@ private:
 
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
-  void read_capabilities();
-
+// XXX: Could we move this to transaction altogether?
   result exec_prepared(std::string_view statement, const internal::params &);
-
-  /// Set libpq notice processor to call connection's error handlers chain.
-  void set_notice_processor();
-  /// Clear libpq notice processor.
-  void clear_notice_processor();
 
   /// Throw @c usage_error if this connection is not in a movable state.
   void check_movable() const;

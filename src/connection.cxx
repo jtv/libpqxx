@@ -238,7 +238,18 @@ std::string pqxx::connection::get_variable(std::string_view var)
  */
 void pqxx::connection::set_up_state()
 {
-  read_capabilities();
+    if (const auto proto_ver{protocol_version()}; proto_ver < 3)
+  {
+    if (proto_ver == 0)
+      throw broken_connection{"No connection."};
+    else
+      throw feature_not_supported{
+        "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
+  }
+
+  if (server_version() <= 90000)
+    throw feature_not_supported{
+      "Unsupported server version; 9.0 is the minimum."};
 
   // The default notice processor in libpq writes to stderr.  Ours does
   // nothing.
@@ -247,7 +258,7 @@ void pqxx::connection::set_up_state()
   // don't do that by default because there's a danger: libpq may call the
   // notice processor via a result object, even after the connection has been
   // destroyed and the handlers list no longer exists.
-  clear_notice_processor();
+  PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
 }
 
 
@@ -513,18 +524,6 @@ const char *pqxx::connection::err_msg() const noexcept
 }
 
 
-void pqxx::connection::clear_notice_processor()
-{
-  PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
-}
-
-
-void pqxx::connection::set_notice_processor()
-{
-  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, this);
-}
-
-
 void pqxx::connection::register_errorhandler(errorhandler *handler)
 {
   // Set notice processor on demand, i.e. only when the caller actually
@@ -537,7 +536,7 @@ void pqxx::connection::register_errorhandler(errorhandler *handler)
   // By setting the notice processor on demand, we absolve users who never
   // register an error handler from ahving to care about this nasty subtlety.
   if (m_errorhandlers.empty())
-    set_notice_processor();
+    PQsetNoticeProcessor(m_conn, pqxx_notice_processor, this);
   m_errorhandlers.push_back(handler);
 }
 
@@ -548,7 +547,7 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
   // connection.
   m_errorhandlers.remove(handler);
   if (m_errorhandlers.empty())
-    clear_notice_processor();
+    PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
 }
 
 
@@ -973,23 +972,6 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
     return get_notifs();
   }
   return notifs;
-}
-
-
-void pqxx::connection::read_capabilities()
-{
-  if (const auto proto_ver{protocol_version()}; proto_ver < 3)
-  {
-    if (proto_ver == 0)
-      throw broken_connection{"No connection."};
-    else
-      throw feature_not_supported{
-        "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
-  }
-
-  if (server_version() <= 90000)
-    throw feature_not_supported{
-      "Unsupported server version; 9.0 is the minimum."};
 }
 
 
