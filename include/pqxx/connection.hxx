@@ -682,7 +682,6 @@ private:
 
   void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
 
-// XXX: Could we move this to transaction altogether?
   result exec_prepared(std::string_view statement, const internal::params &);
 
   /// Throw @c usage_error if this connection is not in a movable state.
