@@ -16,4 +16,5 @@ target_include_directories(unit_runner PRIVATE ${PostgreSQL_INCLUDE_DIRS})
 add_test(
     NAME unit_runner
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND unit_runner)
+    COMMAND unit_runner
+)

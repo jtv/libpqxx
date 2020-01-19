@@ -14,6 +14,7 @@ target_link_libraries(runner PUBLIC pqxx)
 add_test(
     NAME runner
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND runner)
+    COMMAND runner
+)
 
 add_subdirectory(unit)

@@ -14,7 +14,8 @@ install(
 ###MAKTEMPLATE:ENDFOREACH
     PATTERN config-public-compiler.h
     PATTERN pqxx
-    PATTERN doc EXCLUDE)
+    PATTERN doc EXCLUDE
+)
 
 install(
     DIRECTORY pqxx/doc/

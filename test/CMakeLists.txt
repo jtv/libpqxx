@@ -1,4 +1,4 @@
-# ##############################################################################
+################################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,7 +10,7 @@
 # libpqxx source archive.
 #
 # Generated from template './test/CMakeLists.txt.template'.
-# ##############################################################################
+################################################################################
 enable_testing()
 
 file(
@@ -71,13 +71,15 @@ file(
     test89.cxx
     test90.cxx
     test93.cxx
-    runner.cxx)
+    runner.cxx
+)
 
 add_executable(runner ${TEST_SOURCES})
 target_link_libraries(runner PUBLIC pqxx)
 add_test(
     NAME runner
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND runner)
+    COMMAND runner
+)
 
 add_subdirectory(unit)

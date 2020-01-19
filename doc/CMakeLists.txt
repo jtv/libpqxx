@@ -17,7 +17,8 @@ if(NOT HAVE_DOXYGEN)
     message(FATAL_ERROR "*****************************************************
 Doxygen not found.
 Install it, or configure with -DBUILD_DOC=OFF
-*****************************************************")
+*****************************************************"
+    )
 endif()
 
 find_program(HAVE_XMLTO xmlto)
@@ -26,7 +27,8 @@ if(NOT HAVE_XMLTO)
     message(FATAL_ERROR "*****************************************************
 xmlto not found.
 Install it, or configure with -DBUILD_DOC=OFF
-*****************************************************")
+*****************************************************"
+    )
 endif()
 
 set(PQXXVERSION "${CMAKE_PROJECT_VERSION}")
