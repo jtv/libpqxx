@@ -1,20 +1,20 @@
 install(
-	DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-	FILES_MATCHING
+    DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
 ###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
-		PATTERN ###BASENAME###.hxx
-		PATTERN ###BASENAME###
+    PATTERN ###BASENAME###.hxx
+    PATTERN ###BASENAME###
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/internal/*.hxx
-		PATTERN internal/###BASENAME###.hxx
+    PATTERN internal/###BASENAME###.hxx
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/internal/gates/*.hxx
-		PATTERN internal/gates/###BASENAME###.hxx
+    PATTERN internal/gates/###BASENAME###.hxx
 ###MAKTEMPLATE:ENDFOREACH
-		PATTERN config-public-compiler.h
-		PATTERN pqxx
-		PATTERN doc EXCLUDE
+    PATTERN config-public-compiler.h
+    PATTERN pqxx
+    PATTERN doc EXCLUDE
 )
 
 install(
