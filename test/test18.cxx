@@ -10,7 +10,7 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-const long BoringYear = 1977;
+constexpr long BoringYear = 1977;
 
 
 // Count events and specifically events occurring in Boring Year, leaving the
@@ -18,7 +18,7 @@ const long BoringYear = 1977;
 std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
   nontransaction tx{conn};
-  const std::string CountQuery = "SELECT count(*) FROM " + table;
+  std::string const CountQuery = "SELECT count(*) FROM " + table;
   int all_years = 0, boring_year = 0;
   row R;
 
@@ -44,9 +44,9 @@ void test_018()
     tx.commit();
   }
 
-  const std::string Table = "pqxxevents";
+  std::string const Table = "pqxxevents";
 
-  const std::pair<int, int> Before =
+  std::pair<int, int> const Before =
     perform([&conn, &Table]() { return count_events(conn, Table); });
   PQXX_CHECK_EQUAL(
     Before.second, 0,
@@ -67,7 +67,7 @@ void test_018()
       "Not getting expected exception from failing transactor.");
   }
 
-  const std::pair<int, int> After =
+  std::pair<int, int> const After =
     perform([&conn, &Table]() { return count_events(conn, Table); });
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");

@@ -35,12 +35,12 @@ void test_string_conversion()
     "C char array", pqxx::to_string(text_array),
     "C-style non-const char array does not convert to string properly.");
 
-  const char *text_ptr = "C string pointer";
+  char const *text_ptr = "C string pointer";
   PQXX_CHECK_EQUAL(
     "C string pointer", pqxx::to_string(text_ptr),
     "C-style string pointer does not convert to string properly.");
 
-  const std::string cxx_string = "C++ string";
+  std::string const cxx_string = "C++ string";
   PQXX_CHECK_EQUAL(
     "C++ string", pqxx::to_string(cxx_string),
     "C++-style string object does not convert to string properly.");

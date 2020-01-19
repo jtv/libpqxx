@@ -11,7 +11,7 @@ using namespace pqxx;
 // Simple test program for libpqxx's Large Objects interface.
 namespace
 {
-const std::string Contents = "Large object test contents";
+std::string const Contents = "Large object test contents";
 
 
 void test_050()
@@ -21,7 +21,7 @@ void test_050()
   // Create a large object.
   largeobject Obj = perform([&conn]() {
     work tx{conn};
-    const auto obj = largeobject(tx);
+    auto const obj = largeobject(tx);
     tx.commit();
     return obj;
   });
@@ -31,12 +31,12 @@ void test_050()
     work tx{conn};
     largeobjectaccess A(tx, Obj);
 
-    const auto orgpos = A.ctell(), copyorgpos = A.ctell();
+    auto const orgpos = A.ctell(), copyorgpos = A.ctell();
 
     PQXX_CHECK_EQUAL(orgpos, 0, "Bad initial position in large object.");
     PQXX_CHECK_EQUAL(copyorgpos, orgpos, "ctell() affected positioning.");
 
-    const largeobjectaccess::pos_type cxxorgpos = A.tell();
+    largeobjectaccess::pos_type const cxxorgpos = A.tell();
     PQXX_CHECK_EQUAL(cxxorgpos, orgpos, "tell() reports bad position.");
 
     A.process_notice(
@@ -54,7 +54,7 @@ void test_050()
     PQXX_CHECK_EQUAL(A.tell(), Bytes, "Bad large-object position.");
 
     char Buf[200];
-    const size_t Size = sizeof(Buf) - 1;
+    constexpr size_t Size = sizeof(Buf) - 1;
     PQXX_CHECK_EQUAL(
       A.cread(Buf, Size), 0, "Bad return value from cread() after writing.");
 

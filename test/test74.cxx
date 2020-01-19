@@ -14,7 +14,7 @@ void test_074()
   work tx{conn};
 
   result R = tx.exec("SELECT * FROM pg_tables");
-  const std::string sval = R.at(0).at(1).c_str();
+  std::string const sval = R.at(0).at(1).c_str();
   std::string sval2;
   fieldstream fs1(R.front()[1]);
   fs1 >> sval2;
@@ -33,7 +33,7 @@ void test_074()
     dval, R[0][0].as<double>() - 0.1, R[0][0].as<double>() + 0.1,
     "Got wrong double from fieldstream.");
 
-  const auto roughpi = static_cast<float>(3.1415926435);
+  auto const roughpi = static_cast<float>(3.1415926435);
   R = tx.exec("SELECT " + to_string(roughpi));
   float pival;
   (fieldstream(R.at(0).at(0))) >> pival;
@@ -57,7 +57,7 @@ void test_074()
     double_pi, roughpi - 0.00001, roughpi + 0.00001,
     "Double changed in conversion.");
 
-  const long double ld = roughpi;
+  long double const ld = roughpi;
   long double long_double_pi;
   from_string(to_string(ld), long_double_pi);
   PQXX_CHECK_BOUNDS(

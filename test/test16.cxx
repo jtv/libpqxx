@@ -27,7 +27,7 @@ void test_016()
     c->size(), R.back().size(),
     "Size mismatch between row iterator and back().");
 
-  const std::string nullstr;
+  std::string const nullstr;
   for (pqxx::row::size_type i = 0; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
       c[i].as(nullstr), R.back()[i].as(nullstr), "Value mismatch in back().");

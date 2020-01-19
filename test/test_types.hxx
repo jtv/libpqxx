@@ -18,7 +18,7 @@ class ipv4
 {
 public:
   ipv4() : m_as_int{0u} {}
-  ipv4(const ipv4 &) = default;
+  ipv4(ipv4 const &) = default;
   ipv4(ipv4 &&) = default;
   explicit ipv4(uint32_t i) : m_as_int{i} {}
   ipv4(
@@ -31,23 +31,23 @@ public:
     set_byte(3, b4);
   }
 
-  bool operator==(const ipv4 &o) const { return m_as_int == o.m_as_int; }
-  ipv4 &operator=(const ipv4 &) = default;
+  bool operator==(ipv4 const &o) const { return m_as_int == o.m_as_int; }
+  ipv4 &operator=(ipv4 const &) = default;
 
   /// Index bytes, from 0 to 3, in network (i.e. Big-Endian) byte order.
   unsigned int operator[](int byte) const
   {
     if (byte < 0 or byte > 3)
       throw pqxx::usage_error("Byte out of range.");
-    const auto shift = compute_shift(byte);
+    auto const shift = compute_shift(byte);
     return static_cast<unsigned int>((m_as_int >> shift) & 0xff);
   }
 
   /// Set individual byte, in network byte order.
   void set_byte(int byte, uint32_t value)
   {
-    const auto shift = compute_shift(byte);
-    const auto blanked = (m_as_int & ~uint32_t(0xff << shift));
+    auto const shift = compute_shift(byte);
+    auto const blanked = (m_as_int & ~uint32_t(0xff << shift));
     m_as_int = (blanked | ((value & 0xff) << shift));
   }
 
@@ -90,18 +90,18 @@ template<> struct string_traits<ipv4>
       for (std::size_t i{0}; i < 4; ++i)
         ts.set_byte(int(i), uint32_t(std::stoi(match[i + 1])));
     }
-    catch (const std::invalid_argument &)
+    catch (std::invalid_argument const &)
     {
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
-    catch (const std::out_of_range &)
+    catch (std::out_of_range const &)
     {
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     }
     return ts;
   }
 
-  static char *into_buf(char *begin, char *end, const ipv4 &value)
+  static char *into_buf(char *begin, char *end, ipv4 const &value)
   {
     if (static_cast<size_t>(end - begin) < size_buffer(value))
       throw conversion_error{"Buffer too small for ipv4."};
@@ -115,13 +115,13 @@ template<> struct string_traits<ipv4>
     return here;
   }
 
-  static zview to_buf(char *begin, char *end, const ipv4 &value)
+  static zview to_buf(char *begin, char *end, ipv4 const &value)
   {
     return zview{
       begin, static_cast<std::size_t>(into_buf(begin, end, value) - begin)};
   }
 
-  static constexpr size_t size_buffer(const ipv4 &) noexcept { return 16; }
+  static constexpr size_t size_buffer(ipv4 const &) noexcept { return 16; }
 };
 
 
@@ -173,16 +173,16 @@ template<> struct string_traits<bytea>
     return value;
   }
 
-  static zview to_buf(char *begin, char *end, const bytea &value)
+  static zview to_buf(char *begin, char *end, bytea const &value)
   {
-    const auto need = size_buffer(value);
-    const auto have = end - begin;
+    auto const need = size_buffer(value);
+    auto const have = end - begin;
     if (std::size_t(have) < need)
       throw pqxx::conversion_overrun{"Not enough space in buffer for bytea."};
     char *pos = begin;
     *pos++ = '\\';
     *pos++ = 'x';
-    for (const unsigned char u : value)
+    for (unsigned char const u : value)
     {
       *pos++ = nibble_to_hex(unsigned(u) >> 4);
       *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
@@ -191,12 +191,12 @@ template<> struct string_traits<bytea>
     return zview{begin, std::size_t(pos - begin - 1)};
   }
 
-  static char *into_buf(char *begin, char *end, const bytea &value)
+  static char *into_buf(char *begin, char *end, bytea const &value)
   {
     return begin + to_buf(begin, end, value).size() + 1;
   }
 
-  static size_t size_buffer(const bytea &value)
+  static size_t size_buffer(bytea const &value)
   {
     return 2 * value.size() + 1;
   }

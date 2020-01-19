@@ -68,7 +68,7 @@ an `int`, and prints it out.  It also contains some basic error handling.
         // and print it.
         std::cout << r[0].as<int>() << std::endl;
       }
-      catch (const std::exception &e)
+      catch (std::exception const &e)
       {
         std::cerr << e.what() << std::endl;
         return 1;
@@ -113,7 +113,7 @@ plain C-style string using its `c_str` function.
         // just like std::string::c_str() does.
         std::cout << r[0][0].c_str() << std::endl;
       }
-      catch (const std::exception &e)
+      catch (std::exception const &e)
       {
         std::cerr << e.what() << std::endl;
         return 1;

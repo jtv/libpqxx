@@ -14,7 +14,7 @@ void test_011()
 {
   connection conn;
   work tx{conn};
-  const std::string Table = "pg_tables";
+  std::string const Table{"pg_tables"};
 
   result R(tx.exec("SELECT * FROM " + Table));
 
@@ -34,7 +34,7 @@ void test_011()
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
 
     // Test row::swap()
-    const pqxx::row T1(R[0]), T2(R[1]);
+    pqxx::row const T1(R[0]), T2(R[1]);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
     pqxx::row T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1, "Row copy-construction incorrect.");

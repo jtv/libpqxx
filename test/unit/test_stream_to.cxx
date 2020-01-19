@@ -9,7 +9,7 @@
 
 namespace
 {
-std::string truncate_sql_error(const std::string &what)
+std::string truncate_sql_error(std::string const &what)
 {
   auto trunc = what.substr(0, what.find('\n'));
   if (trunc.size() > 64)
@@ -52,7 +52,7 @@ void test_bad_null(pqxx::connection_base &connection)
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error &e)
+  catch (pqxx::sql_error const &e)
   {
     std::string what{e.what()};
     if (what.find("null value in column") == std::string::npos)
@@ -76,7 +76,7 @@ void test_too_few_fields(pqxx::connection_base &connection)
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error &e)
+  catch (pqxx::sql_error const &e)
   {
     std::string what{e.what()};
     if (what.find("missing data for column") == std::string::npos)
@@ -102,7 +102,7 @@ void test_too_many_fields(pqxx::connection_base &connection)
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
-  catch (const pqxx::sql_error &e)
+  catch (pqxx::sql_error const &e)
   {
     std::string what{e.what()};
     if (what.find("extra data") == std::string::npos)

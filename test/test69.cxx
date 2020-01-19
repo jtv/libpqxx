@@ -11,7 +11,7 @@ namespace
 {
 void TestPipeline(pipeline &P, int numqueries)
 {
-  const std::string Q("SELECT 99");
+  std::string const Q{"SELECT 99"};
 
   for (int i = numqueries; i > 0; --i) P.insert(Q);
 

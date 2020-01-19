@@ -11,14 +11,14 @@ public:
   std::string payload;
   int backend_pid;
 
-  TestReceiver(pqxx::connection_base &c, const std::string &channel_name) :
+  TestReceiver(pqxx::connection_base &c, std::string const &channel_name) :
           pqxx::notification_receiver(c, channel_name),
           payload(),
           backend_pid(0)
   {}
 
   virtual void
-  operator()(const std::string &payload_string, int backend) override
+  operator()(std::string const &payload_string, int backend) override
   {
     this->payload = payload_string;
     this->backend_pid = backend;
@@ -27,8 +27,8 @@ public:
 
 
 void test_receive(
-  pqxx::transaction_base &t, const std::string &channel,
-  const char payload[] = nullptr)
+  pqxx::transaction_base &t, std::string const &channel,
+  char const payload[] = nullptr)
 {
   pqxx::connection_base &conn(t.conn());
 

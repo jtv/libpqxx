@@ -6,8 +6,8 @@ void test_field()
 {
   pqxx::connection c;
   pqxx::work tx{c};
-  const auto r1 = tx.exec1("SELECT 9");
-  const auto &f1 = r1[0];
+  auto const r1 = tx.exec1("SELECT 9");
+  auto const &f1 = r1[0];
 
   PQXX_CHECK_EQUAL(f1.as<std::string>(), "9", "as<string>() is broken.");
   PQXX_CHECK_EQUAL(
@@ -30,8 +30,8 @@ void test_field()
   PQXX_CHECK(f1.to(i, 12), "to(int, int) failed.");
   PQXX_CHECK_EQUAL(i, 9, "to(int, int) is broken.");
 
-  const auto r2 = tx.exec1("SELECT NULL");
-  const auto f2 = r2[0];
+  auto const r2 = tx.exec1("SELECT NULL");
+  auto const f2 = r2[0];
   i = 100;
   PQXX_CHECK_THROWS(
     f2.as<int>(), pqxx::conversion_error, "Null conversion failed to throw.");

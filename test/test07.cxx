@@ -53,28 +53,28 @@ void test_007()
     result R(tx.exec("SELECT year FROM pqxxevents"));
 
     // See if we get reasonable type identifier for this column.
-    const oid rctype = R.column_type(0);
+    oid const rctype = R.column_type(0);
     PQXX_CHECK_EQUAL(
       R.column_type(pqxx::row::size_type(0)), rctype,
       "Inconsistent result::column_type().");
 
-    const std::string rct = to_string(rctype);
+    std::string const rct = to_string(rctype);
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
-    const std::string rcol = R.column_name(0);
+    std::string const rcol = R.column_name(0);
     PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
 
-    const oid rcctype = R.column_type(rcol);
+    oid const rcctype = R.column_type(rcol);
     PQXX_CHECK_EQUAL(
       rcctype, rctype, "Column type is not what it is by name.");
 
-    const oid rawrcctype = R.column_type(rcol.c_str());
+    oid const rawrcctype = R.column_type(rcol.c_str());
     PQXX_CHECK_EQUAL(
       rawrcctype, rctype, "Column type by C-style name is different.");
 
     // Note all different years currently occurring in the table, writing
     // them and their correct mappings to conversions.
-    for (const auto &r : R)
+    for (auto const &r : R)
     {
       int Y = 0;
 
@@ -83,7 +83,7 @@ void test_007()
         conversions[Y] = To4Digits(Y);
 
       // See if type identifiers are consistent
-      const oid tctype = r.column_type(0);
+      oid const tctype = r.column_type(0);
 
       PQXX_CHECK_EQUAL(
         tctype, r.column_type(pqxx::row::size_type(0)),
@@ -94,26 +94,26 @@ void test_007()
         "pqxx::row::column_type() is inconsistent with "
         "result::column_type().");
 
-      const oid ctctype = r.column_type(rcol);
+      oid const ctctype = r.column_type(rcol);
 
       PQXX_CHECK_EQUAL(
         ctctype, rctype, "Column type lookup by column name is broken.");
 
-      const oid rawctctype = r.column_type(rcol.c_str());
+      oid const rawctctype = r.column_type(rcol.c_str());
 
       PQXX_CHECK_EQUAL(
         rawctctype, rctype, "Column type lookup by C-style name is broken.");
 
-      const oid fctype = r[0].type();
+      oid const fctype = r[0].type();
       PQXX_CHECK_EQUAL(fctype, rctype, "Field type lookup is broken.");
     }
 
     // For each occurring year, write converted date back to whereever it may
     // occur in the table.  Since we're in a transaction, any changes made by
     // others at the same time will not affect us.
-    for (const auto &c : conversions)
+    for (auto const &c : conversions)
     {
-      const auto query =
+      auto const query =
         "UPDATE pqxxevents "
         "SET year=" +
         to_string(c.second) +

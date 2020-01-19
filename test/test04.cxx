@@ -26,7 +26,7 @@ public:
           m_done(false)
   {}
 
-  virtual void operator()(const std::string &, int be_pid) override
+  virtual void operator()(std::string const &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(

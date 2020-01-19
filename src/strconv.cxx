@@ -107,7 +107,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
 [[maybe_unused]] inline char *
-wrap_to_chars(char *begin, char *end, const T &value)
+wrap_to_chars(char *begin, char *end, T const &value)
 {
   auto res{std::to_chars(begin, end - 1, value)};
   if (res.ec != std::errc())
@@ -135,10 +135,10 @@ wrap_to_chars(char *begin, char *end, const T &value)
 namespace pqxx::internal
 {
 template<typename T>
-zview integral_traits<T>::to_buf(char *begin, char *end, const T &value)
+zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
-  const auto space{end - begin},
+  auto const space{end - begin},
     need{static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value))};
   if (space < need)
     throw conversion_overrun{
@@ -161,23 +161,23 @@ zview integral_traits<T>::to_buf(char *begin, char *end, const T &value)
 }
 
 
-template zview integral_traits<short>::to_buf(char *, char *, const short &);
+template zview integral_traits<short>::to_buf(char *, char *, short const &);
 template zview integral_traits<unsigned short>::to_buf(
-  char *, char *, const unsigned short &);
-template zview integral_traits<int>::to_buf(char *, char *, const int &);
+  char *, char *, unsigned short const &);
+template zview integral_traits<int>::to_buf(char *, char *, int const &);
 template zview
-integral_traits<unsigned>::to_buf(char *, char *, const unsigned &);
-template zview integral_traits<long>::to_buf(char *, char *, const long &);
+integral_traits<unsigned>::to_buf(char *, char *, unsigned const &);
+template zview integral_traits<long>::to_buf(char *, char *, long const &);
 template zview
-integral_traits<unsigned long>::to_buf(char *, char *, const unsigned long &);
+integral_traits<unsigned long>::to_buf(char *, char *, unsigned long const &);
 template zview
-integral_traits<long long>::to_buf(char *, char *, const long long &);
+integral_traits<long long>::to_buf(char *, char *, long long const &);
 template zview integral_traits<unsigned long long>::to_buf(
-  char *, char *, const unsigned long long &);
+  char *, char *, unsigned long long const &);
 
 
 template<typename T>
-char *integral_traits<T>::into_buf(char *begin, char *end, const T &value)
+char *integral_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_INT)
   // This is exactly what to_chars is good at.  Trust standard library
@@ -189,25 +189,25 @@ char *integral_traits<T>::into_buf(char *begin, char *end, const T &value)
 }
 
 
-template char *integral_traits<short>::into_buf(char *, char *, const short &);
+template char *integral_traits<short>::into_buf(char *, char *, short const &);
 template char *integral_traits<unsigned short>::into_buf(
-  char *, char *, const unsigned short &);
-template char *integral_traits<int>::into_buf(char *, char *, const int &);
+  char *, char *, unsigned short const &);
+template char *integral_traits<int>::into_buf(char *, char *, int const &);
 template char *
-integral_traits<unsigned>::into_buf(char *, char *, const unsigned &);
-template char *integral_traits<long>::into_buf(char *, char *, const long &);
+integral_traits<unsigned>::into_buf(char *, char *, unsigned const &);
+template char *integral_traits<long>::into_buf(char *, char *, long const &);
 template char *integral_traits<unsigned long>::into_buf(
-  char *, char *, const unsigned long &);
+  char *, char *, unsigned long const &);
 template char *
-integral_traits<long long>::into_buf(char *, char *, const long long &);
+integral_traits<long long>::into_buf(char *, char *, long long const &);
 template char *integral_traits<unsigned long long>::into_buf(
-  char *, char *, const unsigned long long &);
+  char *, char *, unsigned long long const &);
 } // namespace pqxx::internal
 
 
 namespace pqxx::internal
 {
-std::string demangle_type_name(const char raw[])
+std::string demangle_type_name(char const raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   int status{0};
@@ -225,7 +225,7 @@ std::string demangle_type_name(const char raw[])
 #endif
 }
 
-void throw_null_conversion(const std::string &type)
+void throw_null_conversion(std::string const &type)
 {
   throw conversion_error{"Attempt to convert null to " + type + "."};
 }
@@ -250,9 +250,9 @@ namespace
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
-  const auto end{in.data() + in.size()};
+  auto const end{in.data() + in.size()};
   TYPE out;
-  const auto res{std::from_chars(in.data(), end, out)};
+  auto const res{std::from_chars(in.data(), end, out)};
   if (res.ec == std::errc() and res.ptr == end)
     return out;
 
@@ -269,7 +269,7 @@ template<typename TYPE>
     default: break;
     }
 
-  const auto base{"Could not convert '" + std::string(in) +
+  auto const base{"Could not convert '" + std::string(in) +
                   "' "
                   "to " +
                   pqxx::type_name<TYPE>};
@@ -316,7 +316,7 @@ template<typename T>
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_add_digit(T n, T d)
 {
-  const T high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
+  T const high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
   if (n > high_threshold)
     report_overflow();
   return static_cast<T>(n + d);
@@ -327,7 +327,7 @@ template<typename T>
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_sub_digit(T n, T d)
 {
-  const T low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
+  T const low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
   if (n < low_threshold)
     report_overflow();
   return static_cast<T>(n - d);
@@ -364,7 +364,7 @@ template<typename T>
     throw pqxx::conversion_error{"Attempt to convert empty string to " +
                                  pqxx::type_name<T> + "."};
 
-  const char initial{text.data()[0]};
+  char const initial{text.data()[0]};
   std::size_t i{0};
   T result{0};
 
@@ -503,12 +503,12 @@ namespace pqxx::internal
 {
 /// Floating-point to_buf implemented in terms of to_string.
 template<typename T>
-zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
+zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
-    const auto ptr{wrap_to_chars(begin, end, value)};
+    auto const ptr{wrap_to_chars(begin, end, value)};
     return zview{begin, std::size_t(ptr - begin - 1)};
   }
 #else
@@ -535,14 +535,14 @@ zview float_traits<T>::to_buf(char *begin, char *end, const T &value)
 }
 
 
-template zview float_traits<float>::to_buf(char *, char *, const float &);
-template zview float_traits<double>::to_buf(char *, char *, const double &);
+template zview float_traits<float>::to_buf(char *, char *, float const &);
+template zview float_traits<double>::to_buf(char *, char *, double const &);
 template zview
-float_traits<long double>::to_buf(char *, char *, const long double &);
+float_traits<long double>::to_buf(char *, char *, long double const &);
 
 
 template<typename T>
-char *float_traits<T>::into_buf(char *begin, char *end, const T &value)
+char *float_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return wrap_to_chars(begin, end, value);
@@ -552,10 +552,10 @@ char *float_traits<T>::into_buf(char *begin, char *end, const T &value)
 }
 
 
-template char *float_traits<float>::into_buf(char *, char *, const float &);
-template char *float_traits<double>::into_buf(char *, char *, const double &);
+template char *float_traits<float>::into_buf(char *, char *, float const &);
+template char *float_traits<double>::into_buf(char *, char *, double const &);
 template char *
-float_traits<long double>::into_buf(char *, char *, const long double &);
+float_traits<long double>::into_buf(char *, char *, long double const &);
 
 
 /// Floating-point implementations for @c pqxx::to_string().
@@ -566,7 +566,7 @@ template<typename T> std::string to_string_float(T value)
     constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
-    const std::string_view view{
+    std::string_view const view{
       float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
     buf.resize(view.end() - view.begin());
     return buf;

@@ -60,7 +60,7 @@ constexpr inline auto make_dynamic_params(IT begin, IT end)
  * @return An object representing the parameters.
  */
 template<typename C>
-constexpr inline auto make_dynamic_params(const C &container)
+constexpr inline auto make_dynamic_params(C const &container)
 {
   using IT = typename C::const_iterator;
   return pqxx::internal::dynamic_params<IT>{container};

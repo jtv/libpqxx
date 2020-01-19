@@ -48,8 +48,8 @@ class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 public:
   using query_id = long;
 
-  pipeline(const pipeline &) = delete;
-  pipeline &operator=(const pipeline &) = delete;
+  pipeline(pipeline const &) = delete;
+  pipeline &operator=(pipeline const &) = delete;
 
   explicit pipeline(transaction_base &t) :
           namedclass{"pipeline"},
@@ -57,7 +57,7 @@ public:
   {
     init();
   }
-  pipeline(transaction_base &t, const char name[]) :
+  pipeline(transaction_base &t, char const name[]) :
           namedclass{"pipeline", name},
           transactionfocus{t}
   {
@@ -163,8 +163,8 @@ private:
             m_res{}
     {}
 
-    const result &get_result() const noexcept { return m_res; }
-    void set_result(const result &r) noexcept { m_res = r; }
+    result const &get_result() const noexcept { return m_res; }
+    void set_result(result const &r) noexcept { m_res = r; }
     std::shared_ptr<std::string> get_query() const noexcept { return m_query; }
 
   private:
@@ -206,7 +206,7 @@ private:
   }
 
   /// Throw pqxx::internal_error.
-  [[noreturn]] PQXX_PRIVATE void internal_error(const std::string &err);
+  [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err);
 
   PQXX_PRIVATE bool obtain_result(bool expect_none = false);
 

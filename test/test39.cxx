@@ -14,7 +14,7 @@ void test_039()
   connection conn;
   nontransaction tx1{conn};
   test::create_pqxxevents(tx1);
-  const std::string Table = "pqxxevents";
+  std::string const Table = "pqxxevents";
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.

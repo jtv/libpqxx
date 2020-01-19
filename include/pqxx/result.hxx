@@ -30,7 +30,7 @@
 
 namespace pqxx::internal
 {
-PQXX_LIBEXPORT void clear_result(const pq::PGresult *);
+PQXX_LIBEXPORT void clear_result(pq::PGresult const *);
 }
 
 
@@ -84,16 +84,16 @@ public:
           m_query(),
           m_encoding(internal::encoding_group::MONOBYTE)
   {}
-  result(const result &rhs) noexcept = default;
+  result(result const &rhs) noexcept = default;
 
-  result &operator=(const result &rhs) noexcept = default;
+  result &operator=(result const &rhs) noexcept = default;
 
   /**
    * @name Comparisons
    */
   //@{
-  bool operator==(const result &) const noexcept;
-  bool operator!=(const result &rhs) const noexcept
+  bool operator==(result const &) const noexcept;
+  bool operator!=(result const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -135,10 +135,10 @@ public:
   PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const char col_name[]) const;
+  row_size_type column_number(char const col_name[]) const;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(const std::string &name) const
+  row_size_type column_number(std::string const &name) const
   {
     return column_number(name.c_str());
   }
@@ -150,7 +150,7 @@ public:
   }
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  const char *column_name(row_size_type number) const;
+  char const *column_name(row_size_type number) const;
 
   /// Return column's type, as an OID from the system catalogue.
   oid column_type(row_size_type col_num) const;
@@ -181,7 +181,7 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  PQXX_PURE const std::string &query() const noexcept;
+  PQXX_PURE std::string const &query() const noexcept;
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
@@ -198,14 +198,14 @@ public:
 
 
 private:
-  using data_pointer = std::shared_ptr<const internal::pq::PGresult>;
+  using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
 
   /// Underlying libpq result set.
   data_pointer m_data;
 
   /// Factory for data_pointer.
   static data_pointer
-  make_data_pointer(const internal::pq::PGresult *res = nullptr)
+  make_data_pointer(internal::pq::PGresult const *res = nullptr)
   {
     return data_pointer{res, internal::clear_result};
   }
@@ -221,10 +221,10 @@ private:
 
   internal::encoding_group m_encoding;
 
-  static const std::string s_empty_string;
+  static std::string const s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE const char *get_value(size_type row, row_size_type col) const;
+  PQXX_PURE char const *get_value(size_type row, row_size_type col) const;
   PQXX_PURE bool get_is_null(size_type row, row_size_type col) const;
   PQXX_PURE field_size_type get_length(size_type, row_size_type) const
     noexcept;
@@ -242,12 +242,12 @@ private:
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_PRIVATE void
-  ThrowSQLError(const std::string &Err, const std::string &Query) const;
+  ThrowSQLError(std::string const &Err, std::string const &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
-  PQXX_PURE const char *cmd_status() const noexcept;
+  PQXX_PURE char const *cmd_status() const noexcept;
 };
 } // namespace pqxx
 

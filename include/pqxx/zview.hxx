@@ -38,7 +38,7 @@ public:
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
-  constexpr const char *c_str() const noexcept { return data(); }
+  constexpr char const *c_str() const noexcept { return data(); }
 };
 } // namespace pqxx
 

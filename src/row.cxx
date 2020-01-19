@@ -22,7 +22,7 @@ extern "C"
 #include "pqxx/result"
 
 
-pqxx::row::row(const result &r, result::size_type i) noexcept :
+pqxx::row::row(result const &r, result::size_type i) noexcept :
         m_result{r},
         m_index{i},
         m_end{r.columns()}
@@ -89,11 +89,11 @@ pqxx::row::const_reverse_iterator pqxx::row::crend() const
 }
 
 
-bool pqxx::row::operator==(const row &rhs) const noexcept
+bool pqxx::row::operator==(row const &rhs) const noexcept
 {
   if (&rhs == this)
     return true;
-  const auto s = size();
+  auto const s = size();
   if (rhs.size() != s)
     return false;
   for (size_type i = 0; i < s; ++i)
@@ -109,7 +109,7 @@ pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 }
 
 
-pqxx::row::reference pqxx::row::operator[](const char f[]) const
+pqxx::row::reference pqxx::row::operator[](char const f[]) const
 {
   return at(f);
 }
@@ -117,9 +117,9 @@ pqxx::row::reference pqxx::row::operator[](const char f[]) const
 
 void pqxx::row::swap(row &rhs) noexcept
 {
-  const auto i{m_index};
-  const auto b{m_begin};
-  const auto e{m_end};
+  auto const i{m_index};
+  auto const b{m_begin};
+  auto const e{m_end};
   m_result.swap(rhs.m_result);
   m_index = rhs.m_index;
   m_begin = rhs.m_begin;
@@ -130,7 +130,7 @@ void pqxx::row::swap(row &rhs) noexcept
 }
 
 
-pqxx::field pqxx::row::at(const char f[]) const
+pqxx::field pqxx::row::at(char const f[]) const
 {
   return field{*this, m_begin + column_number(f)};
 }
@@ -163,15 +163,15 @@ pqxx::row::size_type pqxx::row::table_column(size_type col_num) const
 }
 
 
-pqxx::row::size_type pqxx::row::column_number(const char col_name[]) const
+pqxx::row::size_type pqxx::row::column_number(char const col_name[]) const
 {
-  const auto n{m_result.column_number(col_name)};
+  auto const n{m_result.column_number(col_name)};
   if (n >= m_end)
     return result{}.column_number(col_name);
   if (n >= m_begin)
     return n - m_begin;
 
-  const char *const adapted_name{m_result.column_name(n)};
+  char const *const adapted_name{m_result.column_name(n)};
   for (auto i{m_begin}; i < m_end; ++i)
     if (strcmp(adapted_name, m_result.column_name(i)) == 0)
       return i - m_begin;
@@ -180,9 +180,9 @@ pqxx::row::size_type pqxx::row::column_number(const char col_name[]) const
 }
 
 
-pqxx::row::size_type pqxx::result::column_number(const char col_name[]) const
+pqxx::row::size_type pqxx::result::column_number(char const col_name[]) const
 {
-  const auto n{
+  auto const n{
     PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
   if (n == -1)
     throw argument_error{"Unknown column name: '" + std::string{col_name} +
@@ -212,7 +212,7 @@ bool pqxx::row::empty() const noexcept
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 {
-  const auto old{*this};
+  auto const old{*this};
   m_col++;
   return old;
 }
@@ -220,7 +220,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int)
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 {
-  const auto old{*this};
+  auto const old{*this};
   m_col--;
   return old;
 }

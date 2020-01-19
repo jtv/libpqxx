@@ -10,23 +10,23 @@ Now, how do you access the data inside `r`?
 Result sets act as standard C++ containers of rows.  Rows act as standard
 C++ containers of fields.  So the easiest way to go through them is:
 
-    for (const auto &row: r)
+    for (auto const &row: r)
     {
-       for (const auto &field: row) std::cout << field.c_str() << '\t';
+       for (auto const &field: row) std::cout << field.c_str() << '\t';
        std::cout << std::endl;
     }
 
 But results and rows also support other kinds of access.  Array-style
 indexing, for instance, such as `r[rownum]`:
 
-    const int num_rows = r.size();
+    int const num_rows = r.size();
     for (int rownum=0; rownum < num_rows; ++rownum)
     {
-      const pqxx::row row = r[rownum];
-      const int num_cols = row.size();
+      pqxx::row const row = r[rownum];
+      int const num_cols = row.size();
       for (int colnum=0; colnum < num_cols; ++colnum)
       {
-        const pqxx::field field = row[colnum];
+        pqxx::field const field = row[colnum];
         std::cout << field.c_str() << '\t';
       }
 

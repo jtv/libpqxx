@@ -22,7 +22,7 @@ void test_076()
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
-  const short svals[] = {-1, 1, 999, -32767, -32768, 32767, 0};
+  short const svals[] = {-1, 1, 999, -32767, -32768, 32767, 0};
   for (int i = 0; svals[i] != 0; ++i)
   {
     auto s = pqxx::from_string<short>(pqxx::to_string(svals[i]));
@@ -32,7 +32,7 @@ void test_076()
     PQXX_CHECK_EQUAL(s, svals[i], "Roundtrip through backend changed short.");
   }
 
-  const unsigned short uvals[] = {1, 999, 32767, 32768, 65535, 0};
+  unsigned short const uvals[] = {1, 999, 32767, 32768, 65535, 0};
   for (int i = 0; uvals[i] != 0; ++i)
   {
     auto u = pqxx::from_string<unsigned short>(pqxx::to_string(uvals[i]));

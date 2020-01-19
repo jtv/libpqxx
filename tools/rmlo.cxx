@@ -23,14 +23,14 @@ int main(int, char *argv[])
           w.commit();
         });
       }
-      catch (const std::exception &e)
+      catch (std::exception const &e)
       {
         std::cerr << e.what() << std::endl;
         failures = true;
       }
     }
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     std::cerr << e.what() << std::endl;
     return 2;

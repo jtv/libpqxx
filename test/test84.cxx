@@ -18,7 +18,7 @@ void test_084()
   pqxx::connection conn;
   pqxx::transaction<pqxx::serializable> tx{conn};
 
-  const std::string Table = "pg_tables", Key = "tablename";
+  std::string const Table = "pg_tables", Key = "tablename";
 
   // Count rows.
   pqxx::result R(tx.exec("SELECT count(*) FROM " + Table));
@@ -28,9 +28,9 @@ void test_084()
     "Not enough rows in " + Table + ", cannot test.");
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
-  const std::string CurName = "MYCUR",
+  std::string const CurName = "MYCUR",
                     Query = "SELECT * FROM " + Table + " ORDER BY " + Key;
-  const int InitialSkip = 2, GetRows = 3;
+  constexpr int InitialSkip = 2, GetRows = 3;
 
   tx.exec0("DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query);
   tx.exec0(

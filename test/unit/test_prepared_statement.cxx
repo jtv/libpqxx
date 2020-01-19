@@ -33,9 +33,9 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
   for (ITER arg = patend; i > 0; --i)
   {
     --arg;
-    const std::string marker = "$" + pqxx::to_string(i),
+    std::string const marker = "$" + pqxx::to_string(i),
                       var = stringize(t, *arg);
-    const std::string::size_type msz = marker.size();
+    std::string::size_type const msz = marker.size();
     while (q.find(marker) != std::string::npos)
       q.replace(q.find(marker), msz, var);
   }
@@ -45,7 +45,7 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
 
 template<typename CNTNR>
 std::string
-subst(pqxx::transaction_base &t, std::string q, const CNTNR &patterns)
+subst(pqxx::transaction_base &t, std::string q, CNTNR const &patterns)
 {
   return subst(t, q, patterns.begin(), patterns.end());
 }
@@ -123,7 +123,7 @@ void test_nulls()
   auto rw = tx.exec_prepared1("EchoStr", nullptr);
   PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
 
-  const char *n = nullptr;
+  char const *n = nullptr;
   rw = tx.exec_prepared1("EchoStr", n);
   PQXX_CHECK(rw.front().is_null(), "Null pointer did not translate to null.");
 }
@@ -138,7 +138,7 @@ void test_strings()
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), "foo", "Wrong string result.");
 
-  const char nasty_string[] = R"--('\"\)--";
+  char const nasty_string[] = R"--('\"\)--";
   rw = tx.exec_prepared1("EchoStr", nasty_string);
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(nasty_string),
@@ -162,9 +162,9 @@ void test_binary()
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("EchoBin", "SELECT $1::bytea");
-  const char raw_bytes[] = "Binary\0bytes'\"with\tweird\xff bytes";
-  const std::string input{raw_bytes, sizeof(raw_bytes)};
-  const pqxx::binarystring bin{input};
+  char const raw_bytes[] = "Binary\0bytes'\"with\tweird\xff bytes";
+  std::string const input{raw_bytes, sizeof(raw_bytes)};
+  pqxx::binarystring const bin{input};
 
   auto rw = tx.exec_prepared1("EchoBin", bin);
   PQXX_CHECK_EQUAL(
@@ -179,21 +179,21 @@ void test_dynamic_params()
   pqxx::work tx{c};
   c.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
   std::vector<int> values{3, 9};
-  const auto params = pqxx::prepare::make_dynamic_params(values);
-  const auto rw39 = tx.exec_prepared1("Concat2Numbers", params);
+  auto const params = pqxx::prepare::make_dynamic_params(values);
+  auto const rw39 = tx.exec_prepared1("Concat2Numbers", params);
   PQXX_CHECK_EQUAL(
     rw39.front().as<int>(), 39,
     "Dynamic prepared-statement parameters went wrong.");
 
   c.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
-  const auto rw1396 = tx.exec_prepared1("Concat4Numbers", 1, params, 6);
+  auto const rw1396 = tx.exec_prepared1("Concat4Numbers", 1, params, 6);
   PQXX_CHECK_EQUAL(
     rw1396.front().as<int>(), 1396,
     "Dynamic params did not interleave with static ones properly.");
 
-  const auto doubled = tx.exec_prepared1(
+  auto const doubled = tx.exec_prepared1(
     "Concat2Numbers", pqxx::prepare::make_dynamic_params(
-                        values, [](const int &i) { return 2 * i; }));
+                        values, [](int const &i) { return 2 * i; }));
   PQXX_CHECK_EQUAL(
     doubled.at(0).as<int>(), 2 * 39,
     "Dynamic prepared-statement parameters went wrong.");

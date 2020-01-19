@@ -35,14 +35,14 @@ namespace
 {
 /// Extract byte from buffer, return as unsigned char.
 constexpr unsigned char
-get_byte(const char buffer[], std::string::size_type offset) noexcept
+get_byte(char const buffer[], std::string::size_type offset) noexcept
 {
   return static_cast<unsigned char>(buffer[offset]);
 }
 
 
 [[noreturn]] void throw_for_encoding_error(
-  const char *encoding_name, const char buffer[], std::string::size_type start,
+  char const *encoding_name, char const buffer[], std::string::size_type start,
   std::string::size_type count)
 {
   std::stringstream s;
@@ -72,20 +72,20 @@ the same:
  * http://x0213.org/codetable/index.en.html
 */
 std::string::size_type next_seq_for_euc_jplike(
-  const char buffer[], std::string::size_type buffer_len,
-  std::string::size_type start, const char encoding_name[])
+  char const buffer[], std::string::size_type buffer_len,
+  std::string::size_type start, char const encoding_name[])
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error(encoding_name, buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (byte1 == 0x8e)
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
@@ -104,7 +104,7 @@ std::string::size_type next_seq_for_euc_jplike(
 
   if (byte1 == 0x8f and start + 3 <= buffer_len)
   {
-    const auto byte3{get_byte(buffer, start + 2)};
+    auto const byte3{get_byte(buffer, start + 2)};
     if (
       not between_inc(byte2, 0xa1, 0xfe) or not between_inc(byte3, 0xa1, 0xfe))
       throw_for_encoding_error(encoding_name, buffer, start, 3);
@@ -126,13 +126,13 @@ first byte in 2-byte sequences.
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
 std::string::size_type next_seq_for_sjislike(
-  const char buffer[], std::string::size_type buffer_len,
-  std::string::size_type start, const char *encoding_name)
+  char const buffer[], std::string::size_type buffer_len,
+  std::string::size_type start, char const *encoding_name)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
     return start + 1;
 
@@ -143,7 +143,7 @@ std::string::size_type next_seq_for_sjislike(
   if (start + 2 > buffer_len)
     throw_for_encoding_error(encoding_name, buffer, start, buffer_len - start);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (byte2 == 0x7f)
     throw_for_encoding_error(encoding_name, buffer, start, 2);
 
@@ -161,14 +161,14 @@ namespace pqxx::internal
 template<encoding_group> struct glyph_scanner
 {
   static std::string::size_type call(
-    const char buffer[], std::string::size_type buffer_len,
+    char const buffer[], std::string::size_type buffer_len,
     std::string::size_type start);
 };
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
   static constexpr std::string::size_type call(
-    const char /* buffer */[], std::string::size_type buffer_len,
+    char const /* buffer */[], std::string::size_type buffer_len,
     std::string::size_type start) noexcept
   {
     if (start >= buffer_len)
@@ -181,20 +181,20 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<>
 std::string::size_type glyph_scanner<encoding_group::BIG5>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > buffer_len))
     throw_for_encoding_error("BIG5", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (
     not between_inc(byte2, 0x40, 0x7e) and not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("BIG5", buffer, start, 2);
@@ -216,20 +216,20 @@ depending on the specific extension:
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
 template<>
 std::string::size_type glyph_scanner<encoding_group::EUC_CN>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > buffer_len)
     throw_for_encoding_error("EUC_CN", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("EUC_CN", buffer, start, 2);
 
@@ -238,7 +238,7 @@ std::string::size_type glyph_scanner<encoding_group::EUC_CN>::call(
 
 template<>
 std::string::size_type glyph_scanner<encoding_group::EUC_JP>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
@@ -246,7 +246,7 @@ std::string::size_type glyph_scanner<encoding_group::EUC_JP>::call(
 
 template<>
 std::string::size_type glyph_scanner<encoding_group::EUC_JIS_2004>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JIS_2004");
@@ -255,20 +255,20 @@ std::string::size_type glyph_scanner<encoding_group::EUC_JIS_2004>::call(
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<>
 std::string::size_type glyph_scanner<encoding_group::EUC_KR>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > buffer_len)
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (not between_inc(byte2, 0xa1, 0xfe))
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
@@ -278,20 +278,20 @@ std::string::size_type glyph_scanner<encoding_group::EUC_KR>::call(
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
 template<>
 std::string::size_type glyph_scanner<encoding_group::EUC_TW>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0xa1, 0xfe))
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
@@ -315,20 +315,20 @@ std::string::size_type glyph_scanner<encoding_group::EUC_TW>::call(
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<>
 std::string::size_type glyph_scanner<encoding_group::GB18030>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (between_inc(byte1, 0x80, 0xff))
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte2, 0x40, 0xfe))
   {
     if (byte2 == 0x7f)
@@ -352,20 +352,20 @@ std::string::size_type glyph_scanner<encoding_group::GB18030>::call(
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<>
 std::string::size_type glyph_scanner<encoding_group::GBK>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("GBK", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (
     (between_inc(byte1, 0xa1, 0xa9) and between_inc(byte2, 0xa1, 0xfe)) or
     (between_inc(byte1, 0xb0, 0xf7) and between_inc(byte2, 0xa1, 0xfe)) or
@@ -395,20 +395,20 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 */
 template<>
 std::string::size_type glyph_scanner<encoding_group::JOHAB>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("JOHAB", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start)};
+  auto const byte2{get_byte(buffer, start)};
   if (
     (between_inc(byte1, 0x84, 0xd3) and
      (between_inc(byte2, 0x41, 0x7e) or between_inc(byte2, 0x81, 0xfe))) or
@@ -428,20 +428,20 @@ using PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<>
 std::string::size_type glyph_scanner<encoding_group::MULE_INTERNAL>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xA0)
     return start + 2;
 
@@ -470,7 +470,7 @@ std::string::size_type glyph_scanner<encoding_group::MULE_INTERNAL>::call(
 
 template<>
 std::string::size_type glyph_scanner<encoding_group::SJIS>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   return next_seq_for_sjislike(buffer, buffer_len, start, "SJIS");
@@ -478,7 +478,7 @@ std::string::size_type glyph_scanner<encoding_group::SJIS>::call(
 
 template<>
 std::string::size_type glyph_scanner<encoding_group::SHIFT_JIS_2004>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   return next_seq_for_sjislike(buffer, buffer_len, start, "SHIFT_JIS_2004");
@@ -487,20 +487,20 @@ std::string::size_type glyph_scanner<encoding_group::SHIFT_JIS_2004>::call(
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<>
 std::string::size_type glyph_scanner<encoding_group::UHC>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0x80, 0xc6))
   {
     if (
@@ -525,20 +525,20 @@ std::string::size_type glyph_scanner<encoding_group::UHC>::call(
 // https://en.wikipedia.org/wiki/UTF-8#Description
 template<>
 std::string::size_type glyph_scanner<encoding_group::UTF8>::call(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
   if (start >= buffer_len)
     return std::string::npos;
 
-  const auto byte1{get_byte(buffer, start)};
+  auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
-  const auto byte2{get_byte(buffer, start + 1)};
+  auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0xc0, 0xdf))
   {
     if (not between_inc(byte2, 0x80, 0xbf))
@@ -550,7 +550,7 @@ std::string::size_type glyph_scanner<encoding_group::UTF8>::call(
   if (start + 3 > buffer_len)
     throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
-  const auto byte3{get_byte(buffer, start + 2)};
+  auto const byte3{get_byte(buffer, start + 2)};
   if (between_inc(byte1, 0xe0, 0xef))
   {
     if (between_inc(byte2, 0x80, 0xbf) and between_inc(byte3, 0x80, 0xbf))
@@ -576,7 +576,7 @@ std::string::size_type glyph_scanner<encoding_group::UTF8>::call(
 }
 
 
-const char *name_encoding(int encoding_id)
+char const *name_encoding(int encoding_id)
 {
   return pg_encoding_to_char(encoding_id);
 }
@@ -590,7 +590,7 @@ encoding_group enc_group(int libpq_enc_id)
 
 encoding_group enc_group(std::string_view encoding_name)
 {
-  static const std::map<std::string_view, encoding_group> encoding_map{
+  static std::map<std::string_view, encoding_group> const encoding_map{
     {"BIG5", encoding_group::BIG5},
     {"EUC_CN", encoding_group::EUC_CN},
     {"EUC_JP", encoding_group::EUC_JP},
@@ -635,7 +635,7 @@ encoding_group enc_group(std::string_view encoding_name)
     {"WIN1258", encoding_group::MONOBYTE},
   };
 
-  const auto found_encoding_group{encoding_map.find(encoding_name)};
+  auto const found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == encoding_map.end())
     throw std::invalid_argument{"unrecognized encoding '" +
                                 std::string{encoding_name} + "'"};
@@ -692,8 +692,8 @@ template<encoding_group E> struct char_finder
   constexpr static std::string::size_type
   call(std::string_view haystack, char needle, std::string::size_type start)
   {
-    const auto buffer{haystack.data()};
-    const auto size{haystack.size()};
+    auto const buffer{haystack.data()};
+    auto const size{haystack.size()};
     for (auto here{start}; here + 1 <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
     {
@@ -711,9 +711,9 @@ template<encoding_group E> struct string_finder
     std::string_view haystack, std::string_view needle,
     std::string::size_type start)
   {
-    const auto buffer{haystack.data()};
-    const auto size{haystack.size()};
-    const auto needle_size{needle.size()};
+    auto const buffer{haystack.data()};
+    auto const size{haystack.size()};
+    auto const needle_size{needle.size()};
     for (auto here{start}; here + needle_size <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
     {
@@ -731,7 +731,7 @@ std::string::size_type find_with_encoding(
 {
   using finder_func = std::string::size_type(
     std::string_view haystack, char needle, std::string::size_type start);
-  const auto finder{for_encoding<char_finder, finder_func>(enc)};
+  auto const finder{for_encoding<char_finder, finder_func>(enc)};
   return finder(haystack, needle, start);
 }
 
@@ -743,7 +743,7 @@ std::string::size_type find_with_encoding(
   using finder_func = std::string::size_type(
     std::string_view haystack, std::string_view needle,
     std::string::size_type start);
-  const auto finder{for_encoding<string_finder, finder_func>(enc)};
+  auto const finder{for_encoding<string_finder, finder_func>(enc)};
   return finder(haystack, needle, start);
 }
 

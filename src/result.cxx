@@ -28,11 +28,11 @@ namespace pqxx
 PQXX_DECLARE_ENUM_CONVERSION(ExecStatusType);
 }
 
-const std::string pqxx::result::s_empty_string;
+std::string const pqxx::result::s_empty_string;
 
 
 /// C++ wrapper for libpq's PQclear.
-void pqxx::internal::clear_result(const pq::PGresult *data)
+void pqxx::internal::clear_result(pq::PGresult const *data)
 {
   PQclear(const_cast<pq::PGresult *>(data));
 }
@@ -47,11 +47,11 @@ pqxx::result::result(
 {}
 
 
-bool pqxx::result::operator==(const result &rhs) const noexcept
+bool pqxx::result::operator==(result const &rhs) const noexcept
 {
   if (&rhs == this)
     return true;
-  const auto s{size()};
+  auto const s{size()};
   if (rhs.size() != s)
     return false;
   for (size_type i{0}; i < s; ++i)
@@ -147,18 +147,18 @@ pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 namespace
 {
 /// C string comparison.
-inline bool equal(const char lhs[], const char rhs[])
+inline bool equal(char const lhs[], char const rhs[])
 {
   return strcmp(lhs, rhs) == 0;
 }
 } // namespace
 
 void pqxx::result::ThrowSQLError(
-  const std::string &Err, const std::string &Query) const
+  std::string const &Err, std::string const &Query) const
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
-  const char *const code{PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE)};
+  char const *const code{PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE)};
   if (code)
     switch (code[0])
     {
@@ -250,7 +250,7 @@ void pqxx::result::ThrowSQLError(
 
 void pqxx::result::check_status() const
 {
-  if (const auto err{StatusError()}; not err.empty())
+  if (auto const err{StatusError()}; not err.empty())
     ThrowSQLError(err, query());
 }
 
@@ -286,13 +286,13 @@ std::string pqxx::result::StatusError() const
 }
 
 
-const char *pqxx::result::cmd_status() const noexcept
+char const *pqxx::result::cmd_status() const noexcept
 {
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
 
-const std::string &pqxx::result::query() const noexcept
+std::string const &pqxx::result::query() const noexcept
 {
   return (m_query.get() == nullptr) ? s_empty_string : *m_query;
 }
@@ -309,13 +309,13 @@ pqxx::oid pqxx::result::inserted_oid() const
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
-  const auto rows_str{
+  auto const rows_str{
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
   return (rows_str[0] == '\0') ? 0 : size_type(atoi(rows_str));
 }
 
 
-const char *pqxx::result::get_value(
+char const *pqxx::result::get_value(
   pqxx::result::size_type row, pqxx::row::size_type col) const
 {
   return PQgetvalue(m_data.get(), row, col);
@@ -338,7 +338,7 @@ pqxx::field::size_type pqxx::result::get_length(
 
 pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 {
-  const oid t{PQftype(m_data.get(), col_num)};
+  oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
     throw argument_error{"Attempt to retrieve type of nonexistent column " +
                          to_string(col_num) + " of query result."};
@@ -348,7 +348,7 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 
 pqxx::oid pqxx::result::column_table(row::size_type col_num) const
 {
-  const oid t{PQftable(m_data.get(), col_num)};
+  oid const t{PQftable(m_data.get(), col_num)};
 
   /* If we get oid_none, it may be because the column is computed, or because
    * we got an invalid row number.
@@ -364,12 +364,12 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
 
 pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
 {
-  const auto n{row::size_type(PQftablecol(m_data.get(), col_num))};
+  auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0)
     return n - 1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
-  const auto col_str{to_string(col_num)};
+  auto const col_str{to_string(col_num)};
   if (col_num > columns())
     throw range_error{"Invalid column index in table_column(): " + col_str};
 
@@ -388,7 +388,7 @@ int pqxx::result::errorposition() const
   int pos{-1};
   if (m_data.get())
   {
-    const auto p{PQresultErrorField(
+    auto const p{PQresultErrorField(
       const_cast<internal::pq::PGresult *>(m_data.get()),
       PG_DIAG_STATEMENT_POSITION)};
     if (p)
@@ -398,9 +398,9 @@ int pqxx::result::errorposition() const
 }
 
 
-const char *pqxx::result::column_name(pqxx::row::size_type number) const
+char const *pqxx::result::column_name(pqxx::row::size_type number) const
 {
-  const auto n{PQfname(m_data.get(), number)};
+  auto const n{PQfname(m_data.get(), number)};
   if (n == nullptr)
   {
     if (m_data.get() == nullptr)
@@ -463,7 +463,7 @@ operator--(int)
 }
 
 
-template<> std::string pqxx::to_string(const field &value)
+template<> std::string pqxx::to_string(field const &value)
 {
   return std::string{value.c_str(), value.size()};
 }

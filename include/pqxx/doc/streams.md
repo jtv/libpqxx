@@ -53,7 +53,7 @@ else.  You insert tuple-like objects of your choice:
         tx,
         "score",
         std::vector<std::string>{"name", "points"}};
-    for (const auto &entry: scores)
+    for (auto const &entry: scores)
         stream << entry;
     stream.complete();
 

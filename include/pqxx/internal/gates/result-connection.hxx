@@ -2,7 +2,7 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE result_connection : callgate<const result>
+class PQXX_PRIVATE result_connection : callgate<result const>
 {
   friend class pqxx::connection;
 

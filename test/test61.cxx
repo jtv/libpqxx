@@ -17,7 +17,7 @@ std::string GetDatestyle(transaction_base &T)
 std::string SetDatestyle(transaction_base &T, std::string style)
 {
   T.set_variable("DATESTYLE", style);
-  const std::string fullname = GetDatestyle(T);
+  std::string const fullname = GetDatestyle(T);
   PQXX_CHECK(
     not fullname.empty(),
     "Setting datestyle to " + style + " makes it an empty string.");
@@ -40,8 +40,8 @@ void test_061()
 
   PQXX_CHECK(not GetDatestyle(tx).empty(), "Initial datestyle not set.");
 
-  const std::string ISOname = SetDatestyle(tx, "ISO");
-  const std::string SQLname = SetDatestyle(tx, "SQL");
+  std::string const ISOname = SetDatestyle(tx, "ISO");
+  std::string const SQLname = SetDatestyle(tx, "SQL");
 
   PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 

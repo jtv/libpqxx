@@ -30,8 +30,8 @@
 namespace pqxx::internal
 {
 template<typename ITERATOR>
-constexpr inline const auto iterator_identity =
-  [](decltype(*std::declval<ITERATOR>()) x) { return x; };
+constexpr inline auto const iterator_identity{
+  [](decltype(*std::declval<ITERATOR>()) x) { return x; }};
 
 
 // TODO: C++20 "ranges" alternative.
@@ -101,7 +101,7 @@ public:
   }
 
 private:
-  const IT m_begin, m_end;
+  IT const m_begin, m_end;
   ACCESSOR m_accessor = iterator_identity<IT>;
 };
 
@@ -109,30 +109,30 @@ private:
 class PQXX_LIBEXPORT statement_parameters
 {
 public:
-  statement_parameters &operator=(const statement_parameters &) = delete;
+  statement_parameters &operator=(statement_parameters const &) = delete;
 
 protected:
   statement_parameters() = default;
 
   void add_param() { this->add_checked_param("", false, false); }
-  template<typename T> void add_param(const T &v, bool nonnull)
+  template<typename T> void add_param(T const &v, bool nonnull)
   {
     nonnull = (nonnull && not is_null(v));
     this->add_checked_param(
       (nonnull ? pqxx::to_string(v) : ""), nonnull, false);
   }
-  void add_binary_param(const binarystring &b, bool nonnull)
+  void add_binary_param(binarystring const &b, bool nonnull)
   {
     this->add_checked_param(b.str(), nonnull, true);
   }
 
   /// Marshall parameter values into C-compatible arrays for passing to libpq.
   int marshall(
-    std::vector<const char *> &values, std::vector<int> &lengths,
+    std::vector<char const *> &values, std::vector<int> &lengths,
     std::vector<int> &binaries) const;
 
 private:
-  void add_checked_param(const std::string &value, bool nonnull, bool binary);
+  void add_checked_param(std::string const &value, bool nonnull, bool binary);
 
   std::vector<std::string> m_values;
   std::vector<bool> m_nonnull;
@@ -164,14 +164,14 @@ struct params
   }
 
   /// Compose a vector of pointers to parameter string values.
-  std::vector<const char *> get_pointers() const
+  std::vector<char const *> get_pointers() const
   {
-    const std::size_t num_fields = lengths.size();
-    std::size_t cur_string = 0, cur_bin_string = 0;
-    std::vector<const char *> pointers(num_fields);
-    for (std::size_t index = 0; index < num_fields; index++)
+    std::size_t const num_fields{lengths.size()};
+    std::size_t cur_string{0}, cur_bin_string{0};
+    std::vector<char const *> pointers(num_fields);
+    for (std::size_t index{0}; index < num_fields; index++)
     {
-      const char *value;
+      char const *value;
       if (binaries[index] != 0)
       {
         value = bin_strings[cur_bin_string].get();
@@ -221,7 +221,7 @@ private:
   }
 
   /// Compile one argument (specialised for binarystring).
-  void add_field(const binarystring &arg)
+  void add_field(binarystring const &arg)
   {
     lengths.push_back(int(arg.size()));
     nonnulls.push_back(1);
@@ -232,7 +232,7 @@ private:
   /// Compile one argument (default, generic implementation).
   /** Uses string_traits to represent the argument as a std::string.
    */
-  template<typename Arg> void add_field(const Arg &arg)
+  template<typename Arg> void add_field(Arg const &arg)
   {
     if (is_null(arg))
       add_field(nullptr);
@@ -242,7 +242,7 @@ private:
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
   template<typename IT, typename ACCESSOR>
-  void add_field(const dynamic_params<IT, ACCESSOR> &parameters)
+  void add_field(dynamic_params<IT, ACCESSOR> const &parameters)
   {
     for (auto param : parameters) add_field(parameters.access(param));
   }

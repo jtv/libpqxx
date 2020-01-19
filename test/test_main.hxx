@@ -10,7 +10,7 @@
 
 namespace
 {
-inline std::string deref_field(const pqxx::field &f)
+inline std::string deref_field(pqxx::field const &f)
 {
   return f.c_str();
 }
@@ -20,7 +20,7 @@ inline std::string deref_field(const pqxx::field &f)
 namespace pqxx::test
 {
 test_failure::test_failure(
-  const std::string &ffile, int fline, const std::string &desc) :
+  std::string const &ffile, int fline, std::string const &desc) :
         std::logic_error(desc),
         m_file(ffile),
         m_line(fline)
@@ -30,21 +30,21 @@ test_failure::~test_failure() noexcept = default;
 
 
 /// Drop table, if it exists.
-inline void drop_table(transaction_base &t, const std::string &table)
+inline void drop_table(transaction_base &t, std::string const &table)
 {
   t.exec("DROP TABLE IF EXISTS " + table);
 }
 
 
 [[noreturn]] void
-check_notreached(const char file[], int line, std::string desc)
+check_notreached(char const file[], int line, std::string desc)
 {
   throw test_failure(file, line, desc);
 }
 
 
 void check(
-  const char file[], int line, bool condition, const char text[],
+  char const file[], int line, bool condition, char const text[],
   std::string desc)
 {
   if (not condition)
@@ -53,7 +53,7 @@ void check(
 }
 
 
-void expected_exception(const std::string &message)
+void expected_exception(std::string const &message)
 {
   std::cout << "(Expected) " << message << std::endl;
 }
@@ -111,17 +111,17 @@ void create_pqxxevents(transaction_base &t)
 
 namespace
 {
-std::map<const char *, pqxx::test::testfunc> *all_tests = nullptr;
+std::map<char const *, pqxx::test::testfunc> *all_tests = nullptr;
 } // namespace
 
 
 namespace pqxx::test
 {
-void register_test(const char name[], pqxx::test::testfunc func)
+void register_test(char const name[], pqxx::test::testfunc func)
 {
   if (all_tests == nullptr)
   {
-    all_tests = new std::map<const char *, pqxx::test::testfunc>();
+    all_tests = new std::map<char const *, pqxx::test::testfunc>();
   }
   else
   {
@@ -132,13 +132,13 @@ void register_test(const char name[], pqxx::test::testfunc func)
 } // namespace pqxx::test
 
 
-int main(int, const char *argv[])
+int main(int, char const *argv[])
 {
-  const char *const test_name = argv[1];
+  char const *const test_name = argv[1];
 
   int test_count = 0;
   std::list<std::string> failed;
-  for (const auto &i : *all_tests)
+  for (auto const &i : *all_tests)
     if (test_name == nullptr or std::string{test_name} == std::string{i.first})
     {
       std::cout << std::endl << "Running: " << i.first << std::endl;
@@ -149,29 +149,29 @@ int main(int, const char *argv[])
         i.second();
         success = true;
       }
-      catch (const pqxx::test::test_failure &e)
+      catch (pqxx::test::test_failure const &e)
       {
         std::cerr << "Test failure in " + e.file() + " line " +
                        pqxx::to_string(e.line())
                   << ": " << e.what() << std::endl;
       }
-      catch (const std::bad_alloc &)
+      catch (std::bad_alloc const &)
       {
         std::cerr << "Out of memory!" << std::endl;
       }
-      catch (const pqxx::feature_not_supported &e)
+      catch (pqxx::feature_not_supported const &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what()
                   << std::endl;
         success = true;
         --test_count;
       }
-      catch (const pqxx::sql_error &e)
+      catch (pqxx::sql_error const &e)
       {
         std::cerr << "SQL error: " << e.what() << std::endl
                   << "Query was: " << e.query() << std::endl;
       }
-      catch (const std::exception &e)
+      catch (std::exception const &e)
       {
         std::cerr << "Exception: " << e.what() << std::endl;
       }
@@ -193,7 +193,7 @@ int main(int, const char *argv[])
   if (not failed.empty())
   {
     std::cerr << "*** " << failed.size() << " test(s) failed: ***\n";
-    for (const auto &i : failed) std::cerr << "\t" << i << '\n';
+    for (auto const &i : failed) std::cerr << "\t" << i << '\n';
   }
 
   return int(failed.size());

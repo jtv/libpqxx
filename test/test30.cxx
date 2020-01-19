@@ -12,7 +12,7 @@ namespace
 {
 void test_030()
 {
-  const std::string Table = "pg_tables";
+  std::string const Table = "pg_tables";
 
   connection conn;
   work tx{conn, "test30"};

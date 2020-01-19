@@ -8,7 +8,7 @@ using namespace pqxx;
 // Test program for libpqxx's Large Objects interface.
 namespace
 {
-const std::string Contents = "Large object test contents";
+std::string const Contents = "Large object test contents";
 
 
 void test_051()
@@ -23,7 +23,7 @@ void test_051()
     A.write(Contents);
 
     char Buf[200];
-    const auto Size = sizeof(Buf) - 1;
+    constexpr auto Size = sizeof(Buf) - 1;
 
     auto Offset = A.seek(0, std::ios::beg);
     PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");

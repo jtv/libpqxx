@@ -59,7 +59,7 @@ public:
    * and containing only letters and digits.
    */
   explicit nontransaction(
-    connection &c, const std::string &name = std::string{}) :
+    connection &c, std::string const &name = std::string{}) :
           namedclass{"nontransaction", name},
           transaction_base{c}
   {

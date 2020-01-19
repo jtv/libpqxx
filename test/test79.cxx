@@ -19,7 +19,7 @@ public:
           m_done(false)
   {}
 
-  void operator()(const std::string &, int be_pid) override
+  void operator()(std::string const &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -37,7 +37,7 @@ void test_079()
 {
   pqxx::connection conn;
 
-  const std::string NotifName = "mylistener";
+  std::string const NotifName = "mylistener";
   TestListener L(conn, NotifName);
 
   // First see if the timeout really works: we're not expecting any notifs

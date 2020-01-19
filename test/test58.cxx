@@ -8,7 +8,7 @@ using namespace pqxx;
 
 namespace
 {
-const std::string Contents = "Large object test contents";
+std::string const Contents = "Large object test contents";
 
 
 // Mixed-mode, seeking test program for libpqxx's Large Objects interface.
@@ -22,7 +22,7 @@ void test_058()
     A.write(Contents);
 
     char Buf[200];
-    const size_t Size = sizeof(Buf) - 1;
+    constexpr size_t Size = sizeof(Buf) - 1;
     PQXX_CHECK_EQUAL(
       A.read(Buf, Size), 0,
       "Could read bytes from large object after writing.");

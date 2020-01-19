@@ -39,7 +39,7 @@ public:
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
-  field(const row &r, row_size_type c) noexcept;
+  field(row const &r, row_size_type c) noexcept;
 
   /**
    * @name Comparison
@@ -62,12 +62,12 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  bool operator==(const field &) const;
+  bool operator==(field const &) const;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  bool operator!=(const field &rhs) const { return not operator==(rhs); }
+  bool operator!=(field const &rhs) const { return not operator==(rhs); }
   //@}
 
   /**
@@ -75,7 +75,7 @@ public:
    */
   //@{
   /// Column name
-  const char *name() const;
+  char const *name() const;
 
   /// Column type
   oid type() const;
@@ -102,7 +102,7 @@ public:
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
    */
-  const char *c_str() const;
+  char const *c_str() const;
 
   /// Is this field's value null?
   bool is_null() const noexcept;
@@ -119,10 +119,10 @@ public:
    */
   template<typename T>
   auto to(T &obj) const -> typename std::enable_if<
-    (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
+    (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
     bool>::type
   {
-    const auto bytes{c_str()};
+    auto const bytes{c_str()};
     if (bytes[0] == '\0' and is_null())
       return false;
     from_string(bytes, obj);
@@ -137,11 +137,11 @@ public:
    * C-strings)
    */
   template<typename T>
-  auto to(T &obj, const T &default_value) const -> typename std::enable_if<
-    (not std::is_pointer<T>::value or std::is_same<T, const char *>::value),
+  auto to(T &obj, T const &default_value) const -> typename std::enable_if<
+    (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
     bool>::type
   {
-    const bool has_value{to(obj)};
+    bool const has_value{to(obj)};
     if (not has_value)
       obj = default_value;
     return has_value;
@@ -151,7 +151,7 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(const T &default_value) const
+  template<typename T> T as(T const &default_value) const
   {
     T obj;
     to(obj, default_value);
@@ -202,7 +202,7 @@ public:
 
 
 protected:
-  const result &home() const noexcept { return m_home; }
+  result const &home() const noexcept { return m_home; }
   result::size_type idx() const noexcept { return m_row; }
   row_size_type col() const noexcept { return m_col; }
 
@@ -221,20 +221,20 @@ private:
 /// Specialization: <tt>to(string &)</tt>.
 template<> inline bool field::to<std::string>(std::string &obj) const
 {
-  const char *const bytes = c_str();
+  char const *const bytes = c_str();
   if (bytes[0] == '\0' and is_null())
     return false;
   obj = std::string{bytes, size()};
   return true;
 }
 
-/// Specialization: <tt>to(const char *&)</tt>.
+/// Specialization: <tt>to(char const *&)</tt>.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> inline bool field::to<const char *>(const char *&obj) const
+template<> inline bool field::to<char const *>(char const *&obj) const
 {
   if (is_null())
     return false;
@@ -255,7 +255,7 @@ public:
   using openmode = std::ios::openmode;
   using seekdir = std::ios::seekdir;
 
-  explicit field_streambuf(const field &f) : m_field{f} { initialize(); }
+  explicit field_streambuf(field const &f) : m_field{f} { initialize(); }
 
 protected:
   virtual int sync() override { return traits_type::eof(); }
@@ -273,7 +273,7 @@ protected:
   virtual int_type underflow() override { return traits_type::eof(); }
 
 private:
-  const field &m_field;
+  field const &m_field;
 
   int_type initialize()
   {
@@ -305,7 +305,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  basic_fieldstream(const field &f) : super{nullptr}, m_buf{f}
+  basic_fieldstream(field const &f) : super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);
   }
@@ -339,7 +339,7 @@ using fieldstream = basic_fieldstream<char>;
  */
 template<typename CHAR>
 inline std::basic_ostream<CHAR> &
-operator<<(std::basic_ostream<CHAR> &s, const field &value)
+operator<<(std::basic_ostream<CHAR> &s, field const &value)
 {
   s.write(value.c_str(), std::streamsize(value.size()));
   return s;
@@ -347,13 +347,13 @@ operator<<(std::basic_ostream<CHAR> &s, const field &value)
 
 
 /// Convert a field's string contents to another type.
-template<typename T> inline T from_string(const field &value)
+template<typename T> inline T from_string(field const &value)
 {
   return from_string<T>(value.view());
 }
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(const field &value);
+template<> PQXX_LIBEXPORT std::string to_string(field const &value);
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

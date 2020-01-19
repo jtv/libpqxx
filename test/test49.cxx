@@ -21,7 +21,7 @@ template<typename CONTAINER> struct Add
 
   Add(std::string K, CONTAINER &C) : Container(C), Key(K) {}
 
-  void operator()(const pqxx::row &T) { Container.push_back(T[Key].c_str()); }
+  void operator()(pqxx::row const &T) { Container.push_back(T[Key].c_str()); }
 };
 
 
@@ -42,7 +42,7 @@ struct Cmp
 
   explicit Cmp(std::string K) : Key(K) {}
 
-  bool operator()(const pqxx::row &L, const pqxx::row &R) const
+  bool operator()(pqxx::row const &L, pqxx::row const &R) const
   {
     return std::string{L[Key].c_str()} < std::string{R[Key].c_str()};
   }
@@ -52,16 +52,16 @@ struct Cmp
 struct CountGreaterSmaller
 {
   std::string Key;
-  const result &R;
+  result const &R;
 
-  CountGreaterSmaller(std::string K, const result &X) : Key(K), R(X) {}
+  CountGreaterSmaller(std::string K, result const &X) : Key(K), R(X) {}
 
-  void operator()(const pqxx::row &T) const
+  void operator()(pqxx::row const &T) const
   {
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
     using namespace std::placeholders;
-    const auto Greater =
+    auto const Greater =
                  std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T)),
                Smaller =
                  std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1));

@@ -43,7 +43,7 @@ enum tx_stat
  */
 struct initial_hash
 {
-  size_t operator()(const std::string &x) const noexcept
+  size_t operator()(std::string const &x) const noexcept
   {
     return static_cast<uint8_t>(x[0]);
   }
@@ -51,24 +51,24 @@ struct initial_hash
 
 
 // TODO: Is there a simple, lightweight, constexpr alternative?
-const std::unordered_map<std::string, tx_stat, initial_hash> statuses{
+std::unordered_map<std::string, tx_stat, initial_hash> const statuses{
   {"committed", tx_committed},
   {"aborted", tx_aborted},
   {"in progress", tx_in_progress},
 };
 
 
-tx_stat query_status(const std::string &xid, const std::string &conn_str)
+tx_stat query_status(std::string const &xid, std::string const &conn_str)
 {
-  static const std::string name{"robusttxck"};
-  const auto query{"SELECT txid_status(" + xid + ")"};
+  static std::string const name{"robusttxck"};
+  auto const query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
-  const auto row{w.exec1(query, name)};
-  const auto status_text{row[0].as<std::string>()};
+  auto const row{w.exec1(query, name)};
+  auto const status_text{row[0].as<std::string>()};
   if (status_text.empty())
     throw pqxx::internal_error{"Transaction status string is empty."};
-  const auto here{statuses.find(status_text)};
+  auto const here{statuses.find(status_text)};
   if (here == statuses.end())
     throw pqxx::internal_error{"Unknown transaction status: " + status_text};
   return here->second;
@@ -77,7 +77,7 @@ tx_stat query_status(const std::string &xid, const std::string &conn_str)
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &c, const char begin_command[]) :
+  connection &c, char const begin_command[]) :
         namedclass{"robusttransaction"},
         dbtransaction(c),
         m_conn_string{c.connection_string()}
@@ -99,7 +99,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   {
     direct_exec("SET CONSTRAINTS ALL IMMEDIATE");
   }
-  catch (const std::exception &)
+  catch (std::exception const &)
   {
     do_abort();
     throw;
@@ -121,12 +121,12 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     // If we make it here, great.  Normal, successful commit.
     return;
   }
-  catch (const broken_connection &)
+  catch (broken_connection const &)
   {
     // Oops, lost connection at the crucial moment.  Fall through to in-doubt
     // handling below.
   }
-  catch (const std::exception &)
+  catch (std::exception const &)
   {
     if (conn().is_open())
     {
@@ -139,9 +139,8 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
   // If we get here, we're in doubt.  Figure out what happened.
 
-  // TODO: Make delay and attempts configurable.
-  const auto delay{std::chrono::milliseconds(300)};
-  const int max_attempts{500};
+  auto const delay{std::chrono::milliseconds(300)};
+  int const max_attempts{500};
   static_assert(max_attempts > 0);
 
   tx_stat stat;
@@ -153,7 +152,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     {
       stat = query_status(m_xid, m_conn_string);
     }
-    catch (const pqxx::broken_connection &)
+    catch (pqxx::broken_connection const &)
     {
       // Swallow the error.  Pause and retry.
     }

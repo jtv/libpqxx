@@ -49,7 +49,7 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 
 std::string pqxx::internal::namedclass::description() const
 {
-  const std::string cname{classname()};
+  std::string const cname{classname()};
   if (name().empty())
     return cname;
   else
@@ -58,7 +58,7 @@ std::string pqxx::internal::namedclass::description() const
 
 
 void pqxx::internal::check_unique_registration(
-  const namedclass *new_ptr, const namedclass *old_ptr)
+  namedclass const *new_ptr, namedclass const *old_ptr)
 {
   if (new_ptr == nullptr)
     throw internal_error{"null pointer registered."};
@@ -73,7 +73,7 @@ void pqxx::internal::check_unique_registration(
 
 
 void pqxx::internal::check_unique_unregistration(
-  const namedclass *new_ptr, const namedclass *old_ptr)
+  namedclass const *new_ptr, namedclass const *old_ptr)
 {
   if (new_ptr != old_ptr)
   {

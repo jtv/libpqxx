@@ -9,7 +9,7 @@ using namespace pqxx;
 // Test program for libpqxx: import file to large object
 namespace
 {
-const std::string Contents = "Large object test contents";
+std::string const Contents = "Large object test contents";
 
 
 void test_055()
@@ -21,7 +21,7 @@ void test_055()
     work tx{conn};
     largeobjectaccess A{tx, "pqxxlo.txt", std::ios::in};
     auto new_obj = largeobject(A);
-    const auto len = A.read(Buf, sizeof(Buf) - 1);
+    auto const len = A.read(Buf, sizeof(Buf) - 1);
     PQXX_CHECK_EQUAL(
       std::string(Buf, std::string::size_type(len)), Contents,
       "Large object contents were mangled.");

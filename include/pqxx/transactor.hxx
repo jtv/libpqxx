@@ -94,7 +94,7 @@ namespace pqxx
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts = 3)
+inline auto perform(TRANSACTION_CALLBACK const &callback, int attempts = 3)
   -> decltype(callback())
 {
   if (attempts <= 0)
@@ -107,19 +107,19 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts = 3)
     {
       return callback();
     }
-    catch (const in_doubt_error &)
+    catch (in_doubt_error const &)
     {
       // Not sure whether transaction went through or not.  The last thing in
       // the world that we should do now is try again!
       throw;
     }
-    catch (const statement_completion_unknown &)
+    catch (statement_completion_unknown const &)
     {
       // Not sure whether our last statement succeeded.  Don't risk running it
       // again.
       throw;
     }
-    catch (const broken_connection &)
+    catch (broken_connection const &)
     {
       // Connection failed.  May be worth retrying, if the transactor opens its
       // own connection.
@@ -127,7 +127,7 @@ inline auto perform(const TRANSACTION_CALLBACK &callback, int attempts = 3)
         throw;
       continue;
     }
-    catch (const transaction_rollback &)
+    catch (transaction_rollback const &)
     {
       // Some error that may well be transient, such as serialization failure
       // or deadlock.  Worth retrying.

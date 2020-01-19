@@ -16,7 +16,7 @@ class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>
   {
     home().unregister_focus(focus);
   }
-  void register_pending_error(const std::string &error)
+  void register_pending_error(std::string const &error)
   {
     home().register_pending_error(error);
   }

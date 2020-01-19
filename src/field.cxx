@@ -17,25 +17,25 @@
 #include "pqxx/result"
 
 
-pqxx::field::field(const pqxx::row &r, pqxx::row::size_type c) noexcept :
+pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :
         m_col{c},
         m_home{r.m_result},
         m_row{r.m_index}
 {}
 
 
-bool pqxx::field::operator==(const field &rhs) const
+bool pqxx::field::operator==(field const &rhs) const
 {
   if (is_null() and rhs.is_null())
     return true;
   if (is_null() != rhs.is_null())
     return false;
-  const auto s{size()};
+  auto const s{size()};
   return (s == rhs.size()) and (std::memcmp(c_str(), rhs.c_str(), s) == 0);
 }
 
 
-const char *pqxx::field::name() const
+char const *pqxx::field::name() const
 {
   return home().column_name(col());
 }
@@ -59,7 +59,7 @@ pqxx::row::size_type pqxx::field::table_column() const
 }
 
 
-const char *pqxx::field::c_str() const
+char const *pqxx::field::c_str() const
 {
   return home().get_value(idx(), col());
 }

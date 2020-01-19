@@ -38,7 +38,7 @@ std::map<int, int> update_years(connection_base &C)
 
   // Note all different years currently occurring in the table, writing them
   // and their correct mappings to m_conversions
-  for (const auto &r : R)
+  for (auto const &r : R)
   {
     int Y{};
 
@@ -50,7 +50,7 @@ std::map<int, int> update_years(connection_base &C)
   // For each occurring year, write converted date back to whereever it may
   // occur in the table.  Since we're in a transaction, any changes made by
   // others at the same time will not affect us.
-  for (const auto &c : conversions)
+  for (auto const &c : conversions)
     tx.exec0(
       "UPDATE pqxxevents "
       "SET year=" +
@@ -76,7 +76,7 @@ void test_026()
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  const auto conversions = perform([&conn]() { return update_years(conn); });
+  auto const conversions = perform([&conn]() { return update_years(conn); });
 
   PQXX_CHECK(not conversions.empty(), "No conversions done!");
 }

@@ -68,7 +68,7 @@ void test_encrypt_password()
 void test_connection_string()
 {
   pqxx::connection c;
-  const std::string connstr{c.connection_string()};
+  std::string const connstr{c.connection_string()};
 
   if (std::getenv("PGUSER") == nullptr)
   {

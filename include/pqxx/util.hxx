@@ -48,7 +48,7 @@ template<typename T> inline void ignore_unused(T &&) {}
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, const char description[])
+inline TO check_cast(FROM value, char const description[])
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -144,7 +144,7 @@ inline PQXX_PRIVATE void check_version()
   // often for performance reasons.  A local static variable is initialised
   // only on the definition's first execution.  Compilers will be well
   // optimised for this behaviour, so there's a minimal one-time cost.
-  static const auto version_ok{internal::PQXX_VERSION_CHECK()};
+  static auto const version_ok{internal::PQXX_VERSION_CHECK()};
   ignore_unused(version_ok);
 }
 
@@ -215,7 +215,7 @@ public:
           m_name{name}
   {}
 
-  namedclass(std::string_view classname, const char name[]) :
+  namedclass(std::string_view classname, char const name[]) :
           m_classname{classname},
           m_name{name}
   {}
@@ -226,10 +226,10 @@ public:
   {}
 
   /// Object name, or the empty string if no name was given.
-  const std::string &name() const noexcept { return m_name; }
+  std::string const &name() const noexcept { return m_name; }
 
   /// Class name.
-  const std::string &classname() const noexcept { return m_classname; }
+  std::string const &classname() const noexcept { return m_classname; }
 
   /// Combination of class name and object name; or just class name.
   std::string description() const;
@@ -240,9 +240,9 @@ private:
 
 
 PQXX_PRIVATE void check_unique_registration(
-  const namedclass *new_ptr, const namedclass *old_ptr);
+  namedclass const *new_ptr, namedclass const *old_ptr);
 PQXX_PRIVATE void check_unique_unregistration(
-  const namedclass *new_ptr, const namedclass *old_ptr);
+  namedclass const *new_ptr, namedclass const *old_ptr);
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
@@ -253,12 +253,12 @@ template<typename GUEST> class unique
 {
 public:
   constexpr unique() = default;
-  constexpr unique(const unique &) = delete;
+  constexpr unique(unique const &) = delete;
   constexpr unique(unique &&rhs) : m_guest(rhs.m_guest)
   {
     rhs.m_guest = nullptr;
   }
-  constexpr unique &operator=(const unique &) = delete;
+  constexpr unique &operator=(unique const &) = delete;
   constexpr unique &operator=(unique &&rhs)
   {
     m_guest = rhs.m_guest;

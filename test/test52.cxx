@@ -8,7 +8,7 @@ using namespace pqxx;
 // Test program for libpqxx: write large object to test files.
 namespace
 {
-const std::string Contents = "Large object test contents";
+std::string const Contents = "Large object test contents";
 
 
 void test_052()

@@ -2,7 +2,7 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE result_creation : callgate<const result>
+class PQXX_PRIVATE result_creation : callgate<result const>
 {
   friend class pqxx::connection;
   friend class pqxx::pipeline;
@@ -10,7 +10,7 @@ class PQXX_PRIVATE result_creation : callgate<const result>
   result_creation(reference x) : super(x) {}
 
   static result create(
-    internal::pq::PGresult *rhs, const std::shared_ptr<std::string> &query,
+    internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query,
     encoding_group enc)
   {
     return result(rhs, query, enc);

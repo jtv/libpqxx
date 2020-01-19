@@ -20,7 +20,7 @@ public:
           m_done(false)
   {}
 
-  void operator()(const std::string &, int be_pid) override
+  void operator()(std::string const &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -39,7 +39,7 @@ void test_078()
 {
   pqxx::connection conn;
 
-  const std::string NotifName = "my listener";
+  std::string const NotifName = "my listener";
   TestListener L{conn, NotifName};
 
   pqxx::perform([&conn, &L]() {

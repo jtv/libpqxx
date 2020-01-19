@@ -28,7 +28,7 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
-  basic_robusttransaction(connection &c, const char begin_command[]);
+  basic_robusttransaction(connection &c, char const begin_command[]);
 
 private:
   using IDType = unsigned long;

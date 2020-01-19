@@ -63,7 +63,7 @@ public:
    * as an implicit conversion.
    * @param o Already opened large object to copy identity from
    */
-  largeobject(const largeobjectaccess &o) noexcept;
+  largeobject(largeobjectaccess const &o) noexcept;
 
   /// Object identifier
   /** The number returned by this function identifies the large object in the
@@ -82,34 +82,34 @@ public:
   //@{
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator==(const largeobject &other) const
+  bool operator==(largeobject const &other) const
   {
     return m_id == other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator!=(const largeobject &other) const
+  bool operator!=(largeobject const &other) const
   {
     return m_id != other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<=(const largeobject &other) const
+  bool operator<=(largeobject const &other) const
   {
     return m_id <= other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>=(const largeobject &other) const
+  bool operator>=(largeobject const &other) const
   {
     return m_id >= other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<(const largeobject &other) const { return m_id < other.m_id; }
+  bool operator<(largeobject const &other) const { return m_id < other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>(const largeobject &other) const { return m_id > other.m_id; }
+  bool operator>(largeobject const &other) const { return m_id > other.m_id; }
   //@}
 
   /// Export large object's contents to a local file
@@ -128,9 +128,9 @@ public:
 
 protected:
   PQXX_PURE static internal::pq::PGconn *
-  raw_connection(const dbtransaction &T);
+  raw_connection(dbtransaction const &T);
 
-  PQXX_PRIVATE std::string reason(const connection &, int err) const;
+  PQXX_PRIVATE std::string reason(connection const &, int err) const;
 
 private:
   oid m_id = oid_none;
@@ -226,7 +226,7 @@ public:
    * @param buf Data to write.
    * @param len Number of bytes from Buf to write.
    */
-  void write(const char buf[], size_t len);
+  void write(char const buf[], size_t len);
 
   /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
@@ -286,7 +286,7 @@ public:
    * @param len Number of bytes to write.
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(const char buf[], size_t len) noexcept;
+  off_type cwrite(char const buf[], size_t len) noexcept;
 
   /// Read from large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
@@ -310,7 +310,7 @@ public:
    */
   //@{
   /// Issue message to transaction's notice processor
-  void process_notice(const std::string &) noexcept;
+  void process_notice(std::string const &) noexcept;
   //@}
 
   using largeobject::remove;
@@ -323,8 +323,8 @@ public:
   using largeobject::operator>=;
 
   largeobjectaccess() = delete;
-  largeobjectaccess(const largeobjectaccess &) = delete;
-  largeobjectaccess operator=(const largeobjectaccess &) = delete;
+  largeobjectaccess(largeobjectaccess const &) = delete;
+  largeobjectaccess operator=(largeobjectaccess const &) = delete;
 
 private:
   PQXX_PRIVATE std::string reason(int err) const;
@@ -392,7 +392,7 @@ public:
 
 
   /// For use by large object stream classes
-  void process_notice(const std::string &s) { m_obj.process_notice(s); }
+  void process_notice(std::string const &s) { m_obj.process_notice(s); }
 
 protected:
   virtual int sync() override
@@ -409,7 +409,7 @@ protected:
 
   virtual pos_type seekpos(pos_type pos, openmode) override
   {
-    const largeobjectaccess::pos_type newpos{
+    largeobjectaccess::pos_type const newpos{
       m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg)};
     return adjust_eof(newpos);
   }
@@ -424,7 +424,7 @@ protected:
 
     if (pp > pb)
     {
-      const auto out{
+      auto const out{
         adjust_eof(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)))};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
@@ -449,7 +449,7 @@ protected:
     if (this->gptr() == nullptr)
       return eof();
     char *const eb{this->eback()};
-    const auto res{int_type(
+    auto const res{int_type(
       adjust_eof(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
     this->setg(eb, eb, eb + ((res == eof()) ? 0 : res));
     return ((res == 0) or (res == eof())) ? eof() : *eb;
@@ -462,7 +462,7 @@ private:
   /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE> static std::streampos adjust_eof(INTYPE pos)
   {
-    const bool at_eof{pos == -1};
+    bool const at_eof{pos == -1};
     if constexpr (std::is_arithmetic_v<std::streampos>)
     {
       return check_cast<std::streampos>(
@@ -488,7 +488,7 @@ private:
     }
   }
 
-  const size_type m_bufsize;
+  size_type const m_bufsize;
   largeobjectaccess m_obj;
 
   /// Get & put buffers.
@@ -608,7 +608,7 @@ public:
       m_buf.pubsync();
       m_buf.pubsync();
     }
-    catch (const std::exception &e)
+    catch (std::exception const &e)
     {
       m_buf.process_notice(e.what());
     }
@@ -677,7 +677,7 @@ public:
       m_buf.pubsync();
       m_buf.pubsync();
     }
-    catch (const std::exception &e)
+    catch (std::exception const &e)
     {
       m_buf.process_notice(e.what());
     }

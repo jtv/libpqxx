@@ -81,11 +81,11 @@ namespace pqxx
 {
 /// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
 std::string PQXX_LIBEXPORT
-encrypt_password(const char user[], const char password[]);
+encrypt_password(char const user[], char const password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
 inline std::string
-encrypt_password(const std::string &user, const std::string &password)
+encrypt_password(std::string const &user, std::string const &password)
 {
   return encrypt_password(user.c_str(), password.c_str());
 }
@@ -137,10 +137,10 @@ class PQXX_LIBEXPORT connection
 public:
   connection() : connection{""} {}
 
-  explicit connection(const std::string &options) : connection{options.c_str()}
+  explicit connection(std::string const &options) : connection{options.c_str()}
   {}
 
-  explicit connection(const char options[])
+  explicit connection(char const options[])
   {
     check_version();
     init(options);
@@ -162,7 +162,7 @@ public:
     {
       close();
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {}
   }
 
@@ -172,8 +172,8 @@ public:
    */
   connection &operator=(connection &&rhs);
 
-  connection(const connection &) = delete;
-  connection &operator=(const connection &) = delete;
+  connection(connection const &) = delete;
+  connection &operator=(connection const &) = delete;
 
   /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
@@ -183,9 +183,9 @@ public:
   bool PQXX_PURE is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(const char[]) noexcept;
+  void process_notice(char const[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(const std::string &msg) noexcept
+  void process_notice(std::string const &msg) noexcept
   {
     process_notice(zview{msg});
   }
@@ -209,16 +209,16 @@ public:
    */
   //@{
   /// Name of database we're connected to, if any.
-  const char *dbname() const;
+  char const *dbname() const;
 
   /// Database user ID we're connected under, if any.
-  const char *username() const;
+  char const *username() const;
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
-  const char *hostname() const;
+  char const *hostname() const;
 
   /// Server port number we're connected to.
-  const char *port() const;
+  char const *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
   int PQXX_PURE backendpid() const noexcept;
@@ -291,7 +291,7 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(const std::string &encoding)
+  void set_client_encoding(std::string const &encoding)
   {
     set_client_encoding(encoding.c_str());
   }
@@ -300,7 +300,7 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(const char encoding[]);
+  void set_client_encoding(char const encoding[]);
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   int PQXX_PRIVATE encoding_id() const;
@@ -391,7 +391,7 @@ public:
    *
    * Thus the password for a user can be changed with:
    * @code
-   * void setpw(transaction_base &t, const string &user, const string &pw)
+   * void setpw(transaction_base &t, string const &user, string const &pw)
    * {
    *   t.exec0("ALTER USER " + user + " "
    *   	"PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
@@ -404,7 +404,7 @@ public:
    * exception.
    */
   std::string encrypt_password(
-    const char user[], const char password[], const char *algorithm = nullptr);
+    char const user[], char const password[], char const *algorithm = nullptr);
   std::string encrypt_password(zview user, zview password, zview algorithm)
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
@@ -460,9 +460,9 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(const char name[], const char definition[]);
+  void prepare(char const name[], char const definition[]);
 
-  void prepare(const std::string &name, const std::string &definition)
+  void prepare(std::string const &name, std::string const &definition)
   {
     prepare(name.c_str(), definition.c_str());
   }
@@ -480,7 +480,7 @@ public:
    * the nameless statement being redefined unexpectedly by code somewhere
    * else.
    */
-  void prepare(const char definition[]);
+  void prepare(char const definition[]);
   void prepare(zview definition) { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
@@ -506,13 +506,13 @@ public:
    * zero byte.  But if there is a zero byte, escaping stops there even if
    * it's not at the end of the string!
    */
-  std::string esc(const char text[], size_t maxlen) const
+  std::string esc(char const text[], size_t maxlen) const
   {
     return esc(std::string_view(text, maxlen));
   }
 
   /// Escape string for use as SQL string literal on this connection.
-  std::string esc(const char text[]) const
+  std::string esc(char const text[]) const
   {
     return esc(std::string_view(text));
   }
@@ -524,13 +524,13 @@ public:
   std::string esc(std::string_view text) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  std::string esc_raw(const unsigned char bin[], size_t len) const;
+  std::string esc_raw(unsigned char const bin[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const std::string &text) const
+  std::string unesc_raw(std::string const &text) const
   {
     return unesc_raw(text.c_str());
   }
@@ -545,10 +545,10 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(const char text[]) const;
+  std::string unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(const unsigned char bin[], size_t len) const;
+  std::string quote_raw(unsigned char const bin[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
   std::string quote_name(std::string_view identifier) const;
@@ -557,9 +557,9 @@ public:
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T> inline std::string quote(const T &t) const;
+  template<typename T> inline std::string quote(T const &t) const;
 
-  std::string quote(const binarystring &) const;
+  std::string quote(binarystring const &) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
@@ -638,16 +638,16 @@ public:
   void close();
 
 private:
-  void init(const char options[]);
+  void init(char const options[]);
 
   void wait_read() const;
   void wait_read(long seconds, long microseconds) const;
 
   result make_result(
-    internal::pq::PGresult *rhs, const std::shared_ptr<std::string> &query);
+    internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query);
 
   void PQXX_PRIVATE set_up_state();
-  void PQXX_PRIVATE check_result(const result &);
+  void PQXX_PRIVATE check_result(result const &);
 
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
@@ -659,11 +659,11 @@ private:
   size_t esc_to_buf(std::string_view text, char *buf) const;
 
   friend class internal::gate::const_connection_largeobject;
-  const char *PQXX_PURE err_msg() const noexcept;
+  char const *PQXX_PURE err_msg() const noexcept;
 
-  void PQXX_PRIVATE process_notice_raw(const char msg[]) noexcept;
+  void PQXX_PRIVATE process_notice_raw(char const msg[]) noexcept;
 
-  result exec_prepared(std::string_view statement, const internal::params &);
+  result exec_prepared(std::string_view statement, internal::params const &);
 
   /// Throw @c usage_error if this connection is not in a movable state.
   void check_movable() const;
@@ -695,7 +695,7 @@ private:
   void remove_receiver(notification_receiver *) noexcept;
 
   friend class internal::gate::connection_pipeline;
-  void PQXX_PRIVATE start_exec(const char query[]);
+  void PQXX_PRIVATE start_exec(char const query[]);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;
   internal::pq::PGresult *get_result();
@@ -703,7 +703,7 @@ private:
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params(std::string_view query, const internal::params &args);
+  result exec_params(std::string_view query, internal::params const &args);
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
@@ -727,11 +727,11 @@ private:
 using connection_base = connection;
 
 
-  template<typename T> inline std::string connection::quote(const T &t) const
+  template<typename T> inline std::string connection::quote(T const &t) const
   {
     if (is_null(t))
       return "NULL";
-    const auto text{to_string(t)};
+    auto const text{to_string(t)};
 
     // Okay, there's an easy way to do this and there's a hard way.  The easy
     // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
@@ -739,10 +739,10 @@ using connection_base = connection;
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * text.size() + 1);
-    const auto content_bytes{esc_to_buf(text, buf.data() + 1)};
-    const auto closing_quote{1 + content_bytes};
+    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
+    auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
-    const auto end{closing_quote + 1};
+    auto const end{closing_quote + 1};
     buf.resize(end);
     return buf;
   }
@@ -751,10 +751,10 @@ using connection_base = connection;
 
 namespace pqxx::internal
 {
-PQXX_LIBEXPORT void wait_read(const internal::pq::PGconn *);
+PQXX_LIBEXPORT void wait_read(internal::pq::PGconn const *);
 PQXX_LIBEXPORT void
-wait_read(const internal::pq::PGconn *, long seconds, long microseconds);
-PQXX_LIBEXPORT void wait_write(const internal::pq::PGconn *);
+wait_read(internal::pq::PGconn const *, long seconds, long microseconds);
+PQXX_LIBEXPORT void wait_write(internal::pq::PGconn const *);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

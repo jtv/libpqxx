@@ -39,23 +39,23 @@ void test_002()
 
   // Ah, this version of postgres will tell you which table a column in a
   // result came from.  Let's just test that functionality...
-  const oid rtable = R.column_table(0);
+  oid const rtable{R.column_table(0)};
   PQXX_CHECK_EQUAL(
     rtable, R.column_table(pqxx::row::size_type(0)),
     "Inconsistent answers from column_table()");
 
-  const std::string rcol = R.column_name(0);
-  const oid crtable = R.column_table(rcol);
+  std::string const rcol{R.column_name(0)};
+  oid const crtable{R.column_table(rcol)};
   PQXX_CHECK_EQUAL(
     crtable, rtable, "Field looked up by name gives different origin.");
 
   // Now we've got all that settled, let's process our results.
-  for (const auto &f : R)
+  for (auto const &f : R)
   {
-    const oid ftable = f[0].table();
+    oid const ftable = f[0].table();
     PQXX_CHECK_EQUAL(ftable, rtable, "field::table() is broken.");
 
-    const oid ttable = f.column_table(0);
+    oid const ttable = f.column_table(0);
 
     PQXX_CHECK_EQUAL(
       ttable, f.column_table(pqxx::row::size_type(0)),
@@ -63,7 +63,7 @@ void test_002()
 
     PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
 
-    const oid cttable = f.column_table(rcol);
+    oid const cttable = f.column_table(rcol);
 
     PQXX_CHECK_EQUAL(cttable, rtable, "pqxx::row::column_table() is broken.");
   }

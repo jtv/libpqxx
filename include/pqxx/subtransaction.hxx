@@ -33,7 +33,7 @@ namespace pqxx
  * @code
  * void do_job(connection &C)
  * {
- *   const string temptable = "fleetingtable";
+ *   string const temptable = "fleetingtable";
  *
  *   work W(C, "do_job");
  *   do_firstpart(W);
@@ -45,7 +45,7 @@ namespace pqxx
  *     S.exec0("DROP TABLE " + temptable);
  *     S.commit();
  *   }
- *   catch (const undefined_table &)
+ *   catch (undefined_table const &)
  *   {
  *     // Table did not exist.  Which is what we were hoping to achieve anyway.
  *     // Carry on without regrets.
@@ -72,11 +72,11 @@ class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
 public:
   /// Nest a subtransaction nested in another transaction.
   explicit subtransaction(
-    dbtransaction &t, const std::string &name = std::string{});
+    dbtransaction &t, std::string const &name = std::string{});
 
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(
-    subtransaction &t, const std::string &name = std::string{});
+    subtransaction &t, std::string const &name = std::string{});
 
   virtual ~subtransaction() noexcept override { close(); }
 

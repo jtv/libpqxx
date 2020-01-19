@@ -32,7 +32,7 @@
 namespace pqxx::internal
 {
 /// Attempt to demangle @c std::type_info::name() to something human-readable.
-PQXX_LIBEXPORT std::string demangle_type_name(const char[]);
+PQXX_LIBEXPORT std::string demangle_type_name(char const[]);
 } // namespace pqxx::internal
 
 
@@ -73,7 +73,7 @@ namespace pqxx
  * @c std::type_info::name.
  */
 template<typename TYPE>
-const std::string type_name{internal::demangle_type_name(typeid(TYPE).name())};
+std::string const type_name{internal::demangle_type_name(typeid(TYPE).name())};
 
 
 /// Traits describing a type's "null value," if any.
@@ -89,7 +89,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
   static bool has_null;
 
   /// Is @c value a null?
-  static bool is_null(const TYPE &value);
+  static bool is_null(TYPE const &value);
 
   /// Return a null value.
   /** Don't use this in generic code to compare a value and see whether it is
@@ -105,7 +105,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 template<typename TYPE> struct no_null
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(const TYPE &) noexcept { return false; }
+  static constexpr bool is_null(TYPE const &) noexcept { return false; }
 };
 
 
@@ -133,7 +133,7 @@ template<typename TYPE> struct string_traits
    * complain about a buffer which is actually large enough for your value, if
    * an exact check gets too expensive.
    */
-  static inline zview to_buf(char *begin, char *end, const TYPE &value);
+  static inline zview to_buf(char *begin, char *end, TYPE const &value);
 
   /// Write value's string representation into buffer at @c begin.
   /** Assumes that value is non-null.
@@ -143,7 +143,7 @@ template<typename TYPE> struct string_traits
    * the trailing zero, so the caller could use it as the @c begin for another
    * call to @c into_buf writing a next value.
    */
-  static inline char *into_buf(char *begin, char *end, const TYPE &value);
+  static inline char *into_buf(char *begin, char *end, TYPE const &value);
 
   static inline TYPE from_string(std::string_view text);
 
@@ -152,7 +152,7 @@ template<typename TYPE> struct string_traits
    *
    * The estimate includes the terminating zero.
    */
-  static inline size_t size_buffer(const TYPE &value);
+  static inline size_t size_buffer(TYPE const &value);
 };
 
 
@@ -180,12 +180,12 @@ template<typename ENUM> struct enum_traits
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
 
-  static constexpr zview to_buf(char *begin, char *end, const ENUM &value)
+  static constexpr zview to_buf(char *begin, char *end, ENUM const &value)
   {
     return impl_traits::to_buf(begin, end, static_cast<impl_type>(value));
   }
 
-  static constexpr char *into_buf(char *begin, char *end, const ENUM &value)
+  static constexpr char *into_buf(char *begin, char *end, ENUM const &value)
   {
     return impl_traits::into_buf(begin, end, static_cast<impl_type>(value));
   }
@@ -195,7 +195,7 @@ template<typename ENUM> struct enum_traits
     return static_cast<ENUM>(impl_traits::from_string(text));
   }
 
-  static size_t size_buffer(const ENUM &value)
+  static size_t size_buffer(ENUM const &value)
   {
     return impl_traits::size_buffer(static_cast<impl_type>(value));
   }
@@ -218,7 +218,7 @@ template<typename ENUM> struct enum_traits
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
   {};                                                                         \
-  template<> const std::string type_name<ENUM> { #ENUM }
+  template<> std::string const type_name<ENUM> { #ENUM }
 
 
 namespace pqxx
@@ -262,7 +262,7 @@ template<typename T> inline void from_string(std::string_view text, T &value)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename TYPE> inline std::string to_string(const TYPE &value);
+template<typename TYPE> inline std::string to_string(TYPE const &value);
 
 
 /// Convert a value to a readable string that PostgreSQL will understand.
@@ -270,11 +270,11 @@ template<typename TYPE> inline std::string to_string(const TYPE &value);
  * re-using a std::string for multiple conversions.
  */
 template<typename TYPE>
-inline void into_string(const TYPE &value, std::string &out);
+inline void into_string(TYPE const &value, std::string &out);
 
 
 /// Is @c value null?
-template<typename TYPE> inline bool is_null(const TYPE &value)
+template<typename TYPE> inline bool is_null(TYPE const &value)
 {
   if constexpr (nullness<TYPE>::has_null)
   {

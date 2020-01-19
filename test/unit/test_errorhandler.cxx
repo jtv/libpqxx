@@ -16,7 +16,7 @@ public:
           handler_list(activated_handlers)
   {}
 
-  bool operator()(const char msg[]) noexcept override
+  bool operator()(char const msg[]) noexcept override
   {
     message = std::string{msg};
     handler_list.push_back(this);
@@ -133,19 +133,19 @@ public:
   explicit MinimalErrorHandler(pqxx::connection_base &c) :
           pqxx::errorhandler(c)
   {}
-  bool operator()(const char[]) noexcept override { return true; }
+  bool operator()(char const[]) noexcept override { return true; }
 };
 
 
 void test_get_errorhandlers(pqxx::connection_base &c)
 {
   MinimalErrorHandler *eh3 = nullptr;
-  const auto handlers_before = c.get_errorhandlers();
-  const size_t base_handlers = handlers_before.size();
+  auto const handlers_before = c.get_errorhandlers();
+  size_t const base_handlers = handlers_before.size();
 
   {
     MinimalErrorHandler eh1(c);
-    const auto handlers_with_eh1 = c.get_errorhandlers();
+    auto const handlers_with_eh1 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
       handlers_with_eh1.size(), base_handlers + 1,
       "Registering a handler didn't create exactly one handler.");
@@ -155,7 +155,7 @@ void test_get_errorhandlers(pqxx::connection_base &c)
 
     {
       MinimalErrorHandler eh2(c);
-      const auto handlers_with_eh2 = c.get_errorhandlers();
+      auto const handlers_with_eh2 = c.get_errorhandlers();
       PQXX_CHECK_EQUAL(
         handlers_with_eh2.size(), base_handlers + 2,
         "Adding second handler didn't work.");
@@ -166,7 +166,7 @@ void test_get_errorhandlers(pqxx::connection_base &c)
         size_t(*handlers_with_eh2.rbegin()), size_t(&eh2),
         "Second handler isn't right.");
     }
-    const auto handlers_without_eh2 = c.get_errorhandlers();
+    auto const handlers_without_eh2 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
       handlers_without_eh2.size(), base_handlers + 1,
       "Handler destruction produced wrong-sized handlers list.");
@@ -175,14 +175,14 @@ void test_get_errorhandlers(pqxx::connection_base &c)
       "Destroyed wrong handler.");
 
     eh3 = new MinimalErrorHandler(c);
-    const auto handlers_with_eh3 = c.get_errorhandlers();
+    auto const handlers_with_eh3 = c.get_errorhandlers();
     PQXX_CHECK_EQUAL(
       handlers_with_eh3.size(), base_handlers + 2, "Remove-and-add breaks.");
     PQXX_CHECK_EQUAL(
       size_t(*handlers_with_eh3.rbegin()), size_t(eh3),
       "Added wrong third handler.");
   }
-  const auto handlers_without_eh1 = c.get_errorhandlers();
+  auto const handlers_without_eh1 = c.get_errorhandlers();
   PQXX_CHECK_EQUAL(
     handlers_without_eh1.size(), base_handlers + 1,
     "Destroying oldest handler didn't work as expected.");
@@ -192,7 +192,7 @@ void test_get_errorhandlers(pqxx::connection_base &c)
 
   delete eh3;
 
-  const auto handlers_without_all = c.get_errorhandlers();
+  auto const handlers_without_all = c.get_errorhandlers();
   PQXX_CHECK_EQUAL(
     handlers_without_all.size(), base_handlers,
     "Destroying all custom handlers didn't work as expected.");

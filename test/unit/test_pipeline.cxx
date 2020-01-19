@@ -46,12 +46,12 @@ void test_pipeline()
   // Issue a query and cancel it.  Measure time to see that we don't really
   // wait.
   using clock = std::chrono::steady_clock;
-  const auto start{clock::now()};
+  auto const start{clock::now()};
   pipe.retain(0);
   pipe.insert("pg_sleep(10)");
   pipe.cancel();
-  const auto finish{clock::now()};
-  const auto seconds{
+  auto const finish{clock::now()};
+  auto const seconds{
     std::chrono::duration_cast<std::chrono::seconds>(finish - start).count()};
   PQXX_CHECK_LESS(seconds, 5, "Canceling a sleep took suspiciously long.");
 }

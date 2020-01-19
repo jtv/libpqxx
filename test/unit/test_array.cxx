@@ -9,7 +9,7 @@ struct nullness<array_parser::juncture> : no_null<array_parser::juncture>
 {};
 
 
-inline std::string to_string(const pqxx::array_parser::juncture &j)
+inline std::string to_string(pqxx::array_parser::juncture const &j)
 {
   using junc = pqxx::array_parser::juncture;
   switch (j)
@@ -424,7 +424,7 @@ void test_generate_empty_array()
 void test_generate_null_value()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<const char *>{nullptr}), "{NULL}",
+    pqxx::to_string(std::vector<char const *>{nullptr}), "{NULL}",
     "Null array value did not come out as expected.");
 }
 
@@ -436,7 +436,7 @@ void test_generate_single_item()
     "Numeric conversion came out wrong.");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<const char *>{"foo"}), "{\"foo\"}",
+    pqxx::to_string(std::vector<char const *>{"foo"}), "{\"foo\"}",
     "String array conversion came out wrong.");
 }
 
@@ -487,8 +487,8 @@ void test_array_roundtrip()
   pqxx::connection c;
   pqxx::work w{c};
 
-  const std::vector<int> in{0, 1, 2, 3, 5};
-  const auto r1{w.exec1("SELECT " + c.quote(in) + "::integer[]")};
+  std::vector<int> const in{0, 1, 2, 3, 5};
+  auto const r1{w.exec1("SELECT " + c.quote(in) + "::integer[]")};
   pqxx::array_parser parser{r1[0].view()};
   auto item{parser.get_next()};
   PQXX_CHECK_EQUAL(

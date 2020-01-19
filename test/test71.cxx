@@ -14,8 +14,8 @@ using Exp = std::map<pipeline::query_id, int>;
 
 template<typename PAIR> void checkresult(pipeline &P, PAIR c)
 {
-  const result r = P.retrieve(c.first);
-  const int val = r.at(0).at(0).as(int(0));
+  result const r{P.retrieve(c.first)};
+  int const val{r.at(0).at(0).as(int(0))};
   PQXX_CHECK_EQUAL(val, c.second, "Wrong result from pipeline.");
 }
 

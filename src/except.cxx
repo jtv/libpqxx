@@ -11,7 +11,7 @@
 #include "pqxx/except"
 
 
-pqxx::failure::failure(const std::string &whatarg) :
+pqxx::failure::failure(std::string const &whatarg) :
         std::runtime_error{whatarg}
 {}
 
@@ -21,13 +21,13 @@ pqxx::broken_connection::broken_connection() :
 {}
 
 
-pqxx::broken_connection::broken_connection(const std::string &whatarg) :
+pqxx::broken_connection::broken_connection(std::string const &whatarg) :
         failure{whatarg}
 {}
 
 
 pqxx::sql_error::sql_error(
-  const std::string &whatarg, const std::string &Q, const char sqlstate[]) :
+  std::string const &whatarg, std::string const &Q, char const sqlstate[]) :
         failure{whatarg},
         m_query{Q},
         m_sqlstate{sqlstate ? sqlstate : ""}
@@ -37,70 +37,70 @@ pqxx::sql_error::sql_error(
 pqxx::sql_error::~sql_error() noexcept = default;
 
 
-PQXX_PURE const std::string &pqxx::sql_error::query() const noexcept
+PQXX_PURE std::string const &pqxx::sql_error::query() const noexcept
 {
   return m_query;
 }
 
 
-PQXX_PURE const std::string &pqxx::sql_error::sqlstate() const noexcept
+PQXX_PURE std::string const &pqxx::sql_error::sqlstate() const noexcept
 {
   return m_sqlstate;
 }
 
 
-pqxx::in_doubt_error::in_doubt_error(const std::string &whatarg) :
+pqxx::in_doubt_error::in_doubt_error(std::string const &whatarg) :
         failure{whatarg}
 {}
 
 
-pqxx::transaction_rollback::transaction_rollback(const std::string &whatarg) :
+pqxx::transaction_rollback::transaction_rollback(std::string const &whatarg) :
         failure{whatarg}
 {}
 
 
 pqxx::serialization_failure::serialization_failure(
-  const std::string &whatarg) :
+  std::string const &whatarg) :
         transaction_rollback{whatarg}
 {}
 
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
-  const std::string &whatarg) :
+  std::string const &whatarg) :
         transaction_rollback{whatarg}
 {}
 
 
-pqxx::deadlock_detected::deadlock_detected(const std::string &whatarg) :
+pqxx::deadlock_detected::deadlock_detected(std::string const &whatarg) :
         transaction_rollback{whatarg}
 {}
 
 
-pqxx::internal_error::internal_error(const std::string &whatarg) :
+pqxx::internal_error::internal_error(std::string const &whatarg) :
         std::logic_error{"libpqxx internal error: " + whatarg}
 {}
 
 
-pqxx::usage_error::usage_error(const std::string &whatarg) :
+pqxx::usage_error::usage_error(std::string const &whatarg) :
         std::logic_error{whatarg}
 {}
 
 
-pqxx::argument_error::argument_error(const std::string &whatarg) :
+pqxx::argument_error::argument_error(std::string const &whatarg) :
         invalid_argument{whatarg}
 {}
 
 
-pqxx::conversion_error::conversion_error(const std::string &whatarg) :
+pqxx::conversion_error::conversion_error(std::string const &whatarg) :
         domain_error{whatarg}
 {}
 
 
-pqxx::conversion_overrun::conversion_overrun(const std::string &whatarg) :
+pqxx::conversion_overrun::conversion_overrun(std::string const &whatarg) :
         conversion_error{whatarg}
 {}
 
 
-pqxx::range_error::range_error(const std::string &whatarg) :
+pqxx::range_error::range_error(std::string const &whatarg) :
         out_of_range{whatarg}
 {}

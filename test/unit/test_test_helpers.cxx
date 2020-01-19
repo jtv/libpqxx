@@ -14,7 +14,7 @@ void test_check_notreached()
     PQXX_CHECK_NOTREACHED("(expected)");
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {
     // This is what we expect.
   }
@@ -35,7 +35,7 @@ void test_check()
     PQXX_CHECK(false, "(expected)");
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {}
   if (not failed)
     PQXX_CHECK_NOTREACHED("PQXX_CHECK failed to notice failure.");
@@ -62,7 +62,7 @@ void test_check_throws_exception()
     PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)");
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {}
   PQXX_CHECK(
     failed,
@@ -77,7 +77,7 @@ void test_check_throws_exception()
     // So we shouldn't get to this point.
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {
     // Instead, we go straight here.
   }
@@ -115,7 +115,7 @@ void test_check_throws()
     // So we shouldn't get to this point.
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {
     // Instead, we go straight here.
   }
@@ -130,7 +130,7 @@ void test_check_throws()
       throw std::exception(), pqxx::test::test_failure, "(expected)");
     failed = false;
   }
-  catch (const pqxx::test::test_failure &)
+  catch (pqxx::test::test_failure const &)
   {
     // Instead, we go straight here.
   }

@@ -17,7 +17,7 @@
 
 
 pqxx::subtransaction::subtransaction(
-  dbtransaction &t, const std::string &Name) :
+  dbtransaction &t, std::string const &Name) :
         namedclass{"subtransaction", t.conn().adorn_name(Name)},
         transactionfocus{t},
         dbtransaction(t.conn())
@@ -33,7 +33,7 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 
 
 pqxx::subtransaction::subtransaction(
-  subtransaction &t, const std::string &name) :
+  subtransaction &t, std::string const &name) :
         subtransaction(dbtransaction_ref(t), name)
 {}
 

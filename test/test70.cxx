@@ -7,8 +7,8 @@ namespace
 {
 void TestPipeline(pipeline &P, int numqueries)
 {
-  const std::string Q("SELECT * FROM generate_series(1, 10)");
-  const result Empty;
+  std::string const Q{"SELECT * FROM generate_series(1, 10)"};
+  result const Empty;
   PQXX_CHECK(Empty.empty(), "Default-constructed result is not empty.");
   PQXX_CHECK(Empty.query().empty(), "Default-constructed result has query");
 
@@ -59,7 +59,7 @@ void test_070()
 
   // Try to confuse the pipeline by feeding it a query and flushing
   P.retain();
-  const std::string Q = "SELECT * FROM pg_tables";
+  std::string const Q{"SELECT * FROM pg_tables"};
   P.insert(Q);
   P.flush();
 

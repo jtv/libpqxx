@@ -61,11 +61,11 @@ public:
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(const char msg[]) noexcept = 0;
+  virtual bool operator()(char const msg[]) noexcept = 0;
 
   errorhandler() = delete;
-  errorhandler(const errorhandler &) = delete;
-  errorhandler &operator=(const errorhandler &) = delete;
+  errorhandler(errorhandler const &) = delete;
+  errorhandler &operator=(errorhandler const &) = delete;
 
 private:
   connection *m_home;
@@ -81,7 +81,7 @@ class quiet_errorhandler : public errorhandler
 public:
   quiet_errorhandler(connection &conn) : errorhandler{conn} {}
 
-  virtual bool operator()(const char[]) noexcept override { return false; }
+  virtual bool operator()(char const[]) noexcept override { return false; }
 };
 
 /**

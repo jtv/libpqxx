@@ -57,25 +57,25 @@ public:
   using value_type = std::char_traits<char_type>::char_type;
   using size_type = size_t;
   using difference_type = long;
-  using const_reference = const value_type &;
-  using const_pointer = const value_type *;
+  using const_reference = value_type const &;
+  using const_pointer = value_type const *;
   using const_iterator = const_pointer;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  binarystring(const binarystring &) = default;
+  binarystring(binarystring const &) = default;
 
   /// Read and unescape bytea field.
   /** The field will be zero-terminated, even if the original bytea field
    * isn't.
    * @param F the field to read; must be a bytea field
    */
-  explicit binarystring(const field &);
+  explicit binarystring(field const &);
 
   /// Copy binary data from std::string_view.
   explicit binarystring(std::string_view);
 
   /// Copy binary data of given length straight out of memory.
-  binarystring(const void *, size_t);
+  binarystring(void const *, size_t);
 
   /// Size of converted string in bytes.
   size_type size() const noexcept { return m_size; }
@@ -103,17 +103,17 @@ public:
   const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents.
-  const value_type *data() const noexcept { return m_buf.get(); }
+  value_type const *data() const noexcept { return m_buf.get(); }
 
   const_reference operator[](size_type i) const noexcept { return data()[i]; }
 
-  PQXX_PURE bool operator==(const binarystring &) const noexcept;
-  bool operator!=(const binarystring &rhs) const noexcept
+  PQXX_PURE bool operator==(binarystring const &) const noexcept;
+  bool operator!=(binarystring const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
 
-  binarystring &operator=(const binarystring &);
+  binarystring &operator=(binarystring const &);
 
   /// Index contained string, checking for valid index.
   const_reference at(size_type) const;
@@ -125,9 +125,9 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  const char *get() const noexcept
+  char const *get() const noexcept
   {
-    return reinterpret_cast<const char *>(m_buf.get());
+    return reinterpret_cast<char const *>(m_buf.get());
   }
 
   /// Read contents as a std::string_view.

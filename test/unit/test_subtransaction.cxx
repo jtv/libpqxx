@@ -16,7 +16,7 @@ void insert_row(pqxx::transaction_base &trans)
 
 int count_rows(pqxx::transaction_base &trans)
 {
-  const pqxx::result r = trans.exec("SELECT count(*) FROM foo");
+  pqxx::result const r = trans.exec("SELECT count(*) FROM foo");
   return r[0][0].as<int>();
 }
 

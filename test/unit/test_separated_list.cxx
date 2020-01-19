@@ -18,7 +18,7 @@ void test_separated_list()
     pqxx::separated_list(",", std::vector<int>{3, 6}), "3,6",
     "Things go wrong once separators come in.");
 
-  const std::vector<int> nums{1, 2, 3};
+  std::vector<int> const nums{1, 2, 3};
   PQXX_CHECK_EQUAL(
     pqxx::separated_list(
       "+", nums.begin(), nums.end(), [](auto elt) { return *elt * 2; }),

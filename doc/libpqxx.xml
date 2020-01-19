@@ -698,7 +698,7 @@
 
       <para>
 	The query itself is a standard C string in this case, ie. a
-	<literal>const char *</literal> but you'll frequently want to use a C++
+	<literal>char const *</literal> but you'll frequently want to use a C++
 	<literal>string</literal> to make it easy to include variables:
       </para>
 
@@ -772,7 +772,7 @@
       </para>
 
       <programlisting>
-        for (const auto row: my_result) process(row);
+        for (auto const row: my_result) process(row);
       </programlisting>
 
       <programlisting>

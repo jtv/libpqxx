@@ -16,7 +16,7 @@
 
 
 void pqxx::internal::statement_parameters::add_checked_param(
-  const std::string &value, bool nonnull, bool binary)
+  std::string const &value, bool nonnull, bool binary)
 {
   m_nonnull.push_back(nonnull);
   if (nonnull)
@@ -26,11 +26,11 @@ void pqxx::internal::statement_parameters::add_checked_param(
 
 
 int pqxx::internal::statement_parameters::marshall(
-  std::vector<const char *> &values, std::vector<int> &lengths,
+  std::vector<char const *> &values, std::vector<int> &lengths,
   std::vector<int> &binaries) const
 {
-  const auto elements{m_nonnull.size()};
-  const auto array_size{elements + 1};
+  auto const elements{m_nonnull.size()};
+  auto const array_size{elements + 1};
   values.clear();
   values.resize(array_size, nullptr);
   lengths.clear();

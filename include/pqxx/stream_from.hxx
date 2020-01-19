@@ -29,7 +29,7 @@ public:
   stream_from(transaction_base &, std::string_view table_name);
   template<typename Columns>
   stream_from(
-    transaction_base &, std::string_view table_name, const Columns &columns);
+    transaction_base &, std::string_view table_name, Columns const &columns);
   template<typename Iter>
   stream_from(
     transaction_base &, std::string_view table_name, Iter columns_begin,
@@ -62,32 +62,32 @@ private:
   void set_up(transaction_base &, std::string_view table_name);
   void set_up(
     transaction_base &, std::string_view table_name,
-    const std::string &columns);
+    std::string const &columns);
 
   void close();
 
   bool extract_field(
-    const std::string &, std::string::size_type &, std::string &) const;
+    std::string const &, std::string::size_type &, std::string &) const;
 
   template<typename Tuple, std::size_t I>
   auto tokenize_ith(
-    const std::string &, Tuple &, std::string::size_type, std::string &) const
+    std::string const &, Tuple &, std::string::size_type, std::string &) const
     -> typename std::enable_if<(std::tuple_size<Tuple>::value > I)>::type;
   template<typename Tuple, std::size_t I>
   auto tokenize_ith(
-    const std::string &, Tuple &, std::string::size_type, std::string &) const
+    std::string const &, Tuple &, std::string::size_type, std::string &) const
     -> typename std::enable_if<(std::tuple_size<Tuple>::value <= I)>::type;
 
   template<typename T>
   void extract_value(
-    const std::string &line, T &t, std::string::size_type &here,
+    std::string const &line, T &t, std::string::size_type &here,
     std::string &workspace) const;
 };
 
 
 template<typename Columns>
 inline stream_from::stream_from(
-  transaction_base &tb, std::string_view table_name, const Columns &columns) :
+  transaction_base &tb, std::string_view table_name, Columns const &columns) :
         stream_from{tb, table_name, std::begin(columns), std::end(columns)}
 {}
 
@@ -125,7 +125,7 @@ template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
 
 template<typename Tuple, std::size_t I>
 auto stream_from::tokenize_ith(
-  const std::string &line, Tuple &t, std::string::size_type here,
+  std::string const &line, Tuple &t, std::string::size_type here,
   std::string &workspace) const ->
   typename std::enable_if<(std::tuple_size<Tuple>::value > I)>::type
 {
@@ -139,7 +139,7 @@ auto stream_from::tokenize_ith(
 
 template<typename Tuple, std::size_t I>
 auto stream_from::tokenize_ith(
-  const std::string &line, Tuple & /* t */, std::string::size_type here,
+  std::string const &line, Tuple & /* t */, std::string::size_type here,
   std::string & /* workspace */
   ) const ->
   typename std::enable_if<(std::tuple_size<Tuple>::value <= I)>::type
@@ -153,7 +153,7 @@ auto stream_from::tokenize_ith(
 
 template<typename T>
 void stream_from::extract_value(
-  const std::string &line, T &t, std::string::size_type &here,
+  std::string const &line, T &t, std::string::size_type &here,
   std::string &workspace) const
 {
   if (extract_field(line, here, workspace))
@@ -166,7 +166,7 @@ void stream_from::extract_value(
 
 template<>
 void PQXX_LIBEXPORT stream_from::extract_value<std::nullptr_t>(
-  const std::string &line, std::nullptr_t &, std::string::size_type &here,
+  std::string const &line, std::nullptr_t &, std::string::size_type &here,
   std::string &workspace) const;
 } // namespace pqxx
 

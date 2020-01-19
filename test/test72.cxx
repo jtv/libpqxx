@@ -18,15 +18,15 @@ void test_072()
   P.retain();
 
   // The middle query should fail; the surrounding two should succeed
-  const auto id_1 = P.insert("SELECT 1");
-  const auto id_f = P.insert("SELECT * FROM pg_nonexist");
-  const auto id_2 = P.insert("SELECT 2");
+  auto const id_1 = P.insert("SELECT 1");
+  auto const id_f = P.insert("SELECT * FROM pg_nonexist");
+  auto const id_2 = P.insert("SELECT 2");
 
   // See that we can process the queries without stumbling over the error
   P.complete();
 
   // We should be able to get the first result, which preceeds the error
-  const auto res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
+  auto const res_1 = P.retrieve(id_1).at(0).at(0).as<int>();
   PQXX_CHECK_EQUAL(res_1, 1, "Got wrong result from pipeline.");
 
   // We should *not* get a result for the query behind the error

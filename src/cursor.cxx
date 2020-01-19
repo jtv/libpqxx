@@ -67,7 +67,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
   if (begin_pos == end_pos)
     return cur.empty_result();
 
-  const int direction{((begin_pos < end_pos) ? 1 : -1)};
+  int const direction{((begin_pos < end_pos) ? 1 : -1)};
   cur.move((begin_pos - direction) - (cur.pos() - 1));
   return cur.fetch(end_pos - begin_pos);
 }
@@ -94,7 +94,7 @@ pqxx::icursorstream::icursorstream(
 
 
 pqxx::icursorstream::icursorstream(
-  transaction_base &context, const field &cname, difference_type sstride,
+  transaction_base &context, field const &cname, difference_type sstride,
   cursor_base::ownership_policy op) :
         m_cur{context, cname.c_str(), op},
         m_stride{sstride},
@@ -118,7 +118,7 @@ void pqxx::icursorstream::set_stride(difference_type stride)
 
 pqxx::result pqxx::icursorstream::fetchblock()
 {
-  const result r{m_cur.fetch(m_stride)};
+  result const r{m_cur.fetch(m_stride)};
   m_realpos += r.size();
   if (r.empty())
     m_done = true;
@@ -187,18 +187,18 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
   for (icursor_iterator *i{m_iterators}, *next; i != nullptr; i = next)
   {
     pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
-    const auto ipos{gate.pos()};
+    auto const ipos{gate.pos()};
     if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));
     next = gate.get_next();
   }
-  const auto todo_end = std::end(todo);
+  auto const todo_end = std::end(todo);
   for (auto i{std::begin(todo)}; i != todo_end;)
   {
-    const auto readpos{i->first};
+    auto const readpos{i->first};
     if (readpos > m_realpos)
       ignore(readpos - m_realpos);
-    const result r{fetchblock()};
+    result const r{fetchblock()};
     for (; i != todo_end and i->first == readpos; ++i)
       pqxx::internal::gate::icursor_iterator_icursorstream{*i->second}.fill(r);
   }
@@ -219,7 +219,7 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
 
 
 pqxx::icursor_iterator::icursor_iterator(
-  const icursor_iterator &rhs) noexcept :
+  icursor_iterator const &rhs) noexcept :
         m_stream{rhs.m_stream},
         m_here{rhs.m_here},
         m_pos{rhs.m_pos}
@@ -274,7 +274,7 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 
 
 pqxx::icursor_iterator &pqxx::icursor_iterator::
-operator=(const icursor_iterator &rhs) noexcept
+operator=(icursor_iterator const &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
   {
@@ -297,7 +297,7 @@ operator=(const icursor_iterator &rhs) noexcept
 }
 
 
-bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
+bool pqxx::icursor_iterator::operator==(icursor_iterator const &rhs) const
 {
   if (m_stream == rhs.m_stream)
     return pos() == rhs.pos();
@@ -309,7 +309,7 @@ bool pqxx::icursor_iterator::operator==(const icursor_iterator &rhs) const
 }
 
 
-bool pqxx::icursor_iterator::operator<(const icursor_iterator &rhs) const
+bool pqxx::icursor_iterator::operator<(icursor_iterator const &rhs) const
 {
   if (m_stream == rhs.m_stream)
     return pos() < rhs.pos();
@@ -327,7 +327,7 @@ void pqxx::icursor_iterator::refresh() const
 }
 
 
-void pqxx::icursor_iterator::fill(const result &r)
+void pqxx::icursor_iterator::fill(result const &r)
 {
   m_here = r;
 }

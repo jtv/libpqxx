@@ -22,7 +22,7 @@ void test_031()
 {
   connection conn;
 
-  const std::string Table = "pg_tables";
+  std::string const Table = "pg_tables";
 
   std::vector<int> NullFields;            // Maps column to no. of null fields
   std::vector<bool> SortedUp, SortedDown; // Does column appear to be sorted?
@@ -48,7 +48,7 @@ void test_031()
     // Look for null fields
     for (pqxx::row::size_type f = 0; f < i->size(); ++f)
     {
-      const auto offset{static_cast<size_t>(f)};
+      auto const offset{static_cast<size_t>(f)};
       NullFields[offset] += int{i.at(f).is_null()};
 
       std::string A, B;
@@ -62,7 +62,7 @@ void test_031()
     // Compare fields to those of preceding row
     if (i != R.begin())
     {
-      const auto j = i - 1;
+      auto const j = i - 1;
 
       // First perform some sanity checks on j vs. i and how libpqxx handles
       // their interrelationship...
@@ -99,10 +99,10 @@ void test_031()
       // simple strings.
       for (pqxx::row::size_type f = 0; f < R.columns(); ++f)
       {
-        const auto offset{static_cast<size_t>(f)};
+        auto const offset{static_cast<size_t>(f)};
         if (not j[f].is_null())
         {
-          const bool U = SortedUp[offset], D = SortedDown[offset];
+          bool const U = SortedUp[offset], D = SortedDown[offset];
 
           SortedUp[offset] =
             U & (std::string{j[f].c_str()} <= std::string{i[f].c_str()});

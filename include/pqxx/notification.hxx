@@ -61,12 +61,12 @@ public:
    * @param channel Name of the notification to listen for.
    */
   notification_receiver(connection &c, std::string_view channel);
-  notification_receiver(const notification_receiver &) = delete;
-  notification_receiver &operator=(const notification_receiver &) = delete;
+  notification_receiver(notification_receiver const &) = delete;
+  notification_receiver &operator=(notification_receiver const &) = delete;
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
-  const std::string &channel() const { return m_channel; }
+  std::string const &channel() const { return m_channel; }
 
   /// Overridable: action to invoke when notification arrives.
   /**
@@ -76,7 +76,7 @@ public:
    * our connection when the notification arrived.  The actual process ID
    * behind the connection may have changed by the time this method is called.
    */
-  virtual void operator()(const std::string &payload, int backend_pid) = 0;
+  virtual void operator()(std::string const &payload, int backend_pid) = 0;
 
 protected:
   connection &conn() const noexcept { return m_conn; }

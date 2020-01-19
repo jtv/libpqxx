@@ -16,9 +16,9 @@ void check(std::string ref, std::string val, std::string vdesc)
 }
 
 template<typename T>
-inline void strconv(std::string type, const T &Obj, std::string expected)
+inline void strconv(std::string type, T const &Obj, std::string expected)
 {
-  const std::string Objstr{to_string(Obj)};
+  std::string const Objstr{to_string(Obj)};
 
   check(expected, Objstr, type);
   T NewObj;
@@ -26,14 +26,14 @@ inline void strconv(std::string type, const T &Obj, std::string expected)
   check(expected, to_string(NewObj), "recycled " + type);
 }
 
-// There's no from_string<const char *>()...
-inline void strconv(std::string type, const char Obj[], std::string expected)
+// There's no from_string<char const *>()...
+inline void strconv(std::string type, char const Obj[], std::string expected)
 {
-  const std::string Objstr(to_string(Obj));
+  std::string const Objstr(to_string(Obj));
   check(expected, Objstr, type);
 }
 
-const double not_a_number = std::numeric_limits<double>::quiet_NaN();
+constexpr double not_a_number = std::numeric_limits<double>::quiet_NaN();
 
 struct intderef
 {
@@ -55,20 +55,20 @@ void test_000()
     cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
     "cursor_base::difference_type appears to be unsigned.");
 
-  const char weird[] = "foo\t\n\0bar";
-  const std::string weirdstr(weird, sizeof(weird) - 1);
+  char const weird[] = "foo\t\n\0bar";
+  std::string const weirdstr(weird, sizeof(weird) - 1);
 
   // Test string conversions
-  strconv("const char[]", "", "");
-  strconv("const char[]", "foo", "foo");
+  strconv("char const[]", "", "");
+  strconv("char const[]", "foo", "foo");
   strconv("int", 0, "0");
   strconv("int", 100, "100");
   strconv("int", -1, "-1");
 
 #if defined(_MSC_VER)
-  const long long_min = LONG_MIN, long_max = LONG_MAX;
+  long const long_min = LONG_MIN, long_max = LONG_MAX;
 #else
-  const long long_min = std::numeric_limits<long>::min(),
+  long const long_min = std::numeric_limits<long>::min(),
              long_max = std::numeric_limits<long>::max();
 #endif
 
@@ -82,8 +82,8 @@ void test_000()
   lminstr << long_min;
   lmaxstr << long_max;
 
-  const auto ullong_max = std::numeric_limits<unsigned long long>::max();
-  const auto llong_max = std::numeric_limits<long long>::max(),
+  auto const ullong_max = std::numeric_limits<unsigned long long>::max();
+  auto const llong_max = std::numeric_limits<long long>::max(),
              llong_min = std::numeric_limits<long long>::min();
 
   llminstr << llong_min;
@@ -109,7 +109,7 @@ void test_000()
 
   // TODO: Test binarystring reversibility
 
-  const std::string pw = encrypt_password("foo", "bar");
+  std::string const pw = encrypt_password("foo", "bar");
   PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
     pw, encrypt_password("splat", "blub"), "Password encryption is broken.");

@@ -21,7 +21,7 @@ namespace pqxx::internal::pq
 using PGconn = pg_conn;
 using PGresult = pg_result;
 using PGnotify = pgNotify;
-using PQnoticeProcessor = void (*)(void *, const char *);
+using PQnoticeProcessor = void (*)(void *, char const *);
 } // namespace pqxx::internal::pq
 
 namespace pqxx

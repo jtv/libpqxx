@@ -19,7 +19,8 @@
 
 namespace pqxx::internal
 {
-const char *name_encoding(int encoding_id);
+// XXX: Would a size-aware return type help?
+char const *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum or encoding name to its libpqxx group.
 encoding_group enc_group(int /* libpq encoding ID */);
@@ -37,7 +38,7 @@ encoding_group enc_group(std::string_view);
  * kinds of encodings.
  */
 using glyph_scanner_func = std::string::size_type(
-  const char buffer[], std::string::size_type buffer_len,
+  char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start);
 
 
@@ -66,10 +67,10 @@ PQXX_LIBEXPORT std::string::size_type find_with_encoding(
  */
 template<typename CALLABLE>
 inline void for_glyphs(
-  encoding_group enc, CALLABLE callback, const char buffer[],
+  encoding_group enc, CALLABLE callback, char const buffer[],
   std::string::size_type buffer_len, std::string::size_type start = 0)
 {
-  const auto scan = get_glyph_scanner(enc);
+  auto const scan = get_glyph_scanner(enc);
   for (std::string::size_type here = start, next; here < buffer_len;
        here = next)
   {

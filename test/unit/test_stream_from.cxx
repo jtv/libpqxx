@@ -40,7 +40,7 @@ void test_nonoptionals(pqxx::connection_base &connection)
     extractor >> got_tuple;
     PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
   }
-  catch (const pqxx::conversion_error &e)
+  catch (pqxx::conversion_error const &e)
   {
     std::string what{e.what()},
       expected{"Attempt to convert null to " + pqxx::type_name<int> + "."};
@@ -61,7 +61,7 @@ void test_nonoptionals(pqxx::connection_base &connection)
     extractor >> got_tuple_nulls2;
     PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
   }
-  catch (const pqxx::conversion_error &e)
+  catch (pqxx::conversion_error const &e)
   {
     if (std::string{e.what(), 27} != "Attempt to convert non-null")
       throw;
@@ -95,7 +95,7 @@ void test_bad_tuples(pqxx::connection_base &conn)
     extractor >> got_tuple_too_short;
     PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
   }
-  catch (const pqxx::usage_error &e)
+  catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
     if (what != "Not all fields extracted from stream_from line")
@@ -110,7 +110,7 @@ void test_bad_tuples(pqxx::connection_base &conn)
     extractor >> got_tuple_too_long;
     PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
   }
-  catch (const pqxx::usage_error &e)
+  catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
     if (what != "Too few fields to extract from stream_from line.")

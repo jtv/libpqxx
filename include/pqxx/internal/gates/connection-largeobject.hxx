@@ -21,7 +21,7 @@ class PQXX_PRIVATE connection_largeobject : callgate<connection>
 };
 
 
-class PQXX_PRIVATE const_connection_largeobject : callgate<const connection>
+class PQXX_PRIVATE const_connection_largeobject : callgate<connection const>
 {
   friend class pqxx::largeobject;
 

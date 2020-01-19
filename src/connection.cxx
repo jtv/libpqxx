@@ -78,7 +78,7 @@ extern "C"
 {
   // The PQnoticeProcessor that receives an error or warning from libpq and
   // sends it to the appropriate connection for processing.
-  void pqxx_notice_processor(void *conn, const char *msg) noexcept
+  void pqxx_notice_processor(void *conn, char const *msg) noexcept
   {
     reinterpret_cast<pqxx::connection *>(conn)->process_notice(msg);
   }
@@ -86,11 +86,11 @@ extern "C"
 
   // There's no way in libpq to disable a connection's notice processor.  So,
   // set an inert one to get the same effect.
-  void inert_notice_processor(void *, const char *) noexcept {}
+  void inert_notice_processor(void *, char const *) noexcept {}
 } // extern "C"
 
 
-std::string pqxx::encrypt_password(const char user[], const char password[])
+std::string pqxx::encrypt_password(char const user[], char const password[])
 {
   std::unique_ptr<char, std::function<void(char *)>> p{
     PQencryptPassword(password, user), PQfreemem};
@@ -107,7 +107,7 @@ pqxx::connection::connection(connection &&rhs) :
 }
 
 
-void pqxx::connection::init(const char options[])
+void pqxx::connection::init(char const options[])
 {
   m_conn = PQconnectdb(options);
   if (m_conn == nullptr)
@@ -119,7 +119,7 @@ void pqxx::connection::init(const char options[])
 
     set_up_state();
   }
-  catch (const std::exception &)
+  catch (std::exception const &)
   {
     PQfinish(m_conn);
     throw;
@@ -172,7 +172,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *rhs, const std::shared_ptr<std::string> &query)
+  internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query)
 {
   return pqxx::internal::gate::result_creation::create(
     rhs, query, internal::enc_group(encoding_id()));
@@ -187,7 +187,7 @@ int pqxx::connection::backendpid() const noexcept
 
 namespace
 {
-PQXX_PURE int socket_of(const ::pqxx::internal::pq::PGconn *c) noexcept
+PQXX_PURE int socket_of(::pqxx::internal::pq::PGconn const *c) noexcept
 {
   return (c == nullptr) ? -1 : PQsocket(c);
 }
@@ -238,7 +238,7 @@ std::string pqxx::connection::get_variable(std::string_view var)
  */
 void pqxx::connection::set_up_state()
 {
-    if (const auto proto_ver{protocol_version()}; proto_ver < 3)
+    if (auto const proto_ver{protocol_version()}; proto_ver < 3)
   {
     if (proto_ver == 0)
       throw broken_connection{"No connection."};
@@ -262,7 +262,7 @@ void pqxx::connection::set_up_state()
 }
 
 
-void pqxx::connection::check_result(const result &r)
+void pqxx::connection::check_result(result const &r)
 {
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (not pqxx::internal::gate::result_connection{r})
@@ -277,22 +277,22 @@ bool pqxx::connection::is_open() const noexcept
 }
 
 
-void pqxx::connection::process_notice_raw(const char msg[]) noexcept
+void pqxx::connection::process_notice_raw(char const msg[]) noexcept
 {
   if ((msg == nullptr) or (*msg == '\0'))
     return;
-  const auto rbegin = m_errorhandlers.crbegin(),
+  auto const rbegin = m_errorhandlers.crbegin(),
              rend = m_errorhandlers.crend();
   for (auto i{rbegin}; (i != rend) and (**i)(msg); ++i)
     ;
 }
 
 
-void pqxx::connection::process_notice(const char msg[]) noexcept
+void pqxx::connection::process_notice(char const msg[]) noexcept
 {
   if (msg == nullptr)
     return;
-  const zview view{msg};
+  zview const view{msg};
   if (view.empty())
     return;
   else if (msg[view.size() - 1] == '\n')
@@ -319,7 +319,7 @@ void pqxx::connection::process_notice(zview msg) noexcept
       buf.push_back('\n');
       process_notice_raw(buf.c_str());
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {
       // If nothing else works, try writing the message without the newline.
       process_notice_raw(msg.c_str());
@@ -345,13 +345,13 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
     throw argument_error{"Null receiver registered"};
 
   // Add to receiver list and attempt to start listening.
-  const auto p{m_receivers.find(n->channel())};
-  const auto new_value{receiver_list::value_type{n->channel(), n}};
+  auto const p{m_receivers.find(n->channel())};
+  auto const new_value{receiver_list::value_type{n->channel(), n}};
 
   if (p == m_receivers.end())
   {
     // Not listening on this event yet, start doing so.
-    const auto lq{
+    auto const lq{
       std::make_shared<std::string>("LISTEN " + quote_name(n->channel()))};
     check_result(make_result(PQexec(m_conn, lq->c_str()), lq));
     m_receivers.insert(new_value);
@@ -371,7 +371,7 @@ void pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
   try
   {
     auto needle{
-      std::pair<const std::string, notification_receiver *>{T->channel(), T}};
+      std::pair<std::string const, notification_receiver *>{T->channel(), T}};
     auto R{m_receivers.equal_range(needle.first)};
     auto i{find(R.first, R.second, needle)};
 
@@ -384,13 +384,13 @@ void pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
     {
       // Erase first; otherwise a notification for the same receiver may yet
       // come in and wreak havoc.  Thanks Dragan Milenkovic.
-      const bool gone{R.second == ++R.first};
+      bool const gone{R.second == ++R.first};
       m_receivers.erase(i);
       if (gone)
         exec(("UNLISTEN " + quote_name(needle.first)).c_str());
     }
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     process_notice(e.what());
   }
@@ -418,7 +418,7 @@ void pqxx::connection::cancel_query()
   if (cancel == nullptr)
     throw std::bad_alloc{};
 
-  const auto c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
+  auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
   if (c == 0)
     throw pqxx::sql_error{std::string{errbuf.data(), buf_size}};
 }
@@ -459,12 +459,12 @@ int pqxx::connection::get_notifs()
   {
     notifs++;
 
-    const auto Hit{m_receivers.equal_range(std::string{N->relname})};
+    auto const Hit{m_receivers.equal_range(std::string{N->relname})};
     for (auto i{Hit.first}; i != Hit.second; ++i) try
       {
         (*i->second)(N->extra, N->be_pid);
       }
-      catch (const std::exception &e)
+      catch (std::exception const &e)
       {
         try
         {
@@ -472,14 +472,14 @@ int pqxx::connection::get_notifs()
             "Exception in notification receiver '" + i->first +
             "': " + e.what() + "\n");
         }
-        catch (const std::bad_alloc &)
+        catch (std::bad_alloc const &)
         {
           // Out of memory.  Try to get the message out in a more robust way.
           process_notice(
             "Exception in notification receiver, "
             "and also ran out of memory\n");
         }
-        catch (const std::exception &)
+        catch (std::exception const &)
         {
           process_notice(
             "Exception in notification receiver "
@@ -493,31 +493,31 @@ int pqxx::connection::get_notifs()
 }
 
 
-const char *pqxx::connection::dbname() const
+char const *pqxx::connection::dbname() const
 {
   return PQdb(m_conn);
 }
 
 
-const char *pqxx::connection::username() const
+char const *pqxx::connection::username() const
 {
   return PQuser(m_conn);
 }
 
 
-const char *pqxx::connection::hostname() const
+char const *pqxx::connection::hostname() const
 {
   return PQhost(m_conn);
 }
 
 
-const char *pqxx::connection::port() const
+char const *pqxx::connection::port() const
 {
   return PQport(m_conn);
 }
 
 
-const char *pqxx::connection::err_msg() const noexcept
+char const *pqxx::connection::err_msg() const noexcept
 {
   return (m_conn == nullptr) ? "No connection to database" :
                                PQerrorMessage(m_conn);
@@ -566,7 +566,7 @@ pqxx::result pqxx::connection::exec(std::string_view query)
 
 pqxx::result pqxx::connection::exec(std::shared_ptr<std::string> query)
 {
-  const auto res{make_result(PQexec(m_conn, query->c_str()), query)};
+  auto const res{make_result(PQexec(m_conn, query->c_str()), query)};
   check_result(res);
   get_notifs();
   return res;
@@ -574,13 +574,13 @@ pqxx::result pqxx::connection::exec(std::shared_ptr<std::string> query)
 
 
 std::string pqxx::connection::encrypt_password(
-  const char user[], const char password[], const char *algorithm)
+  char const user[], char const password[], char const *algorithm)
 {
 #if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
   {
-    const auto buf{PQencryptPasswordConn(m_conn, user, password, algorithm)};
-    std::unique_ptr<const char, std::function<void(const char *)>> ptr{
-      buf, [](const char *x){ PQfreemem(const_cast<char *>(x)); }};
+    auto const buf{PQencryptPasswordConn(m_conn, user, password, algorithm)};
+    std::unique_ptr<char const, std::function<void(char const *)>> ptr{
+      buf, [](char const *x){ PQfreemem(const_cast<char *>(x)); }};
     return std::string(ptr.get());
   }
 #else
@@ -597,18 +597,18 @@ std::string pqxx::connection::encrypt_password(
 }
 
 
-void pqxx::connection::prepare(const char name[], const char definition[])
+void pqxx::connection::prepare(char const name[], char const definition[])
 {
   // Allocate once, re-use across invocations.
-  static const auto q{std::make_shared<std::string>("[PREPARE]")};
+  static auto const q{std::make_shared<std::string>("[PREPARE]")};
 
-  const auto r{
+  auto const r{
     make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
   check_result(r);
 }
 
 
-void pqxx::connection::prepare(const char definition[])
+void pqxx::connection::prepare(char const definition[])
 {
   this->prepare("", definition);
 }
@@ -621,14 +621,14 @@ void pqxx::connection::unprepare(std::string_view name)
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  std::string_view statement, const internal::params &args)
+  std::string_view statement, internal::params const &args)
 {
-  const auto pointers{args.get_pointers()};
-  const auto q{std::make_shared<std::string>(statement)};
-  const auto pq_result = PQexecPrepared(
+  auto const pointers{args.get_pointers()};
+  auto const q{std::make_shared<std::string>(statement)};
+  auto const pq_result = PQexecPrepared(
     m_conn, q->c_str(), check_cast<int>(args.nonnulls.size(), "exec_prepared"),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0);
-  const auto r{make_result(pq_result, q)};
+  auto const r{make_result(pq_result, q)};
   check_result(r);
   get_notifs();
   return r;
@@ -652,14 +652,14 @@ void pqxx::connection::close()
 
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    const auto rbegin{old_handlers.crbegin()}, rend{old_handlers.crend()};
+    auto const rbegin{old_handlers.crbegin()}, rend{old_handlers.crend()};
     for (auto i{rbegin}; i != rend; ++i)
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
     PQfinish(m_conn);
     m_conn = nullptr;
   }
-  catch (const std::exception &)
+  catch (std::exception const &)
   {
     m_conn = nullptr;
     throw;
@@ -685,7 +685,7 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
   {
     m_trans.unregister_guest(t);
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     process_notice(e.what());
   }
@@ -698,9 +698,9 @@ bool pqxx::connection::read_copy_line(std::string &line)
   char *buf{nullptr};
 
   // Allocate once, re-use across invocations.
-  static const auto q{std::make_shared<std::string>("[END COPY]")};
+  static auto const q{std::make_shared<std::string>("[END COPY]")};
 
-  const auto line_len{PQgetCopyData(m_conn, &buf, false)};
+  auto const line_len{PQgetCopyData(m_conn, &buf, false)};
   switch (line_len)
   {
   case -2:
@@ -729,8 +729,8 @@ bool pqxx::connection::read_copy_line(std::string &line)
 
 void pqxx::connection::write_copy_line(std::string_view line)
 {
-  static const std::string err_prefix{"Error writing to table: "};
-  const auto size{check_cast<int>(line.size(), "write_copy_line()")};
+  static std::string const err_prefix{"Error writing to table: "};
+  auto const size{check_cast<int>(line.size(), "write_copy_line()")};
   if (PQputCopyData(m_conn, line.data(), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
@@ -754,12 +754,12 @@ void pqxx::connection::end_copy_write()
                          " from PQputCopyEnd()"};
   }
 
-  static const auto q{std::make_shared<std::string>("[END COPY]")};
+  static auto const q{std::make_shared<std::string>("[END COPY]")};
   check_result(make_result(PQgetResult(m_conn), q));
 }
 
 
-void pqxx::connection::start_exec(const char query[])
+void pqxx::connection::start_exec(char const query[])
 {
   if (PQsendQuery(m_conn, query) == 0)
     throw failure{err_msg()};
@@ -775,7 +775,7 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
 {
   int err{0};
-  const auto copied{
+  auto const copied{
     PQescapeStringConn(m_conn, buf, text.data(), text.size(), &err)};
   if (err)
     throw argument_error{err_msg()};
@@ -787,14 +787,14 @@ std::string pqxx::connection::esc(std::string_view text) const
 {
   std::string buf;
   buf.resize(2 * text.size() + 1);
-  const auto copied{esc_to_buf(text, buf.data())};
+  auto const copied{esc_to_buf(text, buf.data())};
   buf.resize(copied);
   return buf;
 }
 
 
 std::string
-pqxx::connection::esc_raw(const unsigned char bin[], size_t len) const
+pqxx::connection::esc_raw(unsigned char const bin[], size_t len) const
 {
   size_t bytes = 0;
 
@@ -807,25 +807,25 @@ pqxx::connection::esc_raw(const unsigned char bin[], size_t len) const
 }
 
 
-std::string pqxx::connection::unesc_raw(const char text[]) const
+std::string pqxx::connection::unesc_raw(char const text[]) const
 {
   size_t len;
   auto bytes{const_cast<unsigned char *>(
-    reinterpret_cast<const unsigned char *>(text))};
-  const std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
+    reinterpret_cast<unsigned char const *>(text))};
+  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> const
     ptr{PQunescapeBytea(bytes, &len), PQfreemem};
   return std::string{ptr.get(), ptr.get() + len};
 }
 
 
 std::string
-pqxx::connection::quote_raw(const unsigned char bin[], size_t len) const
+pqxx::connection::quote_raw(unsigned char const bin[], size_t len) const
 {
   return "'" + esc_raw(bin, len) + "'::bytea";
 }
 
 
-std::string pqxx::connection::quote(const binarystring &b) const
+std::string pqxx::connection::quote(binarystring const &b) const
 {
   return quote_raw(b.data(), b.size());
 }
@@ -849,7 +849,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
   out.reserve(text.size());
   internal::for_glyphs(
     internal::enc_group(encoding_id()),
-    [&out, escape_char](const char *gbegin, const char *gend) {
+    [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         out.push_back(escape_char);
 
@@ -881,12 +881,12 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
 
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
-  const short events{forwrite ? POLLWRNORM : POLLRDNORM};
+  short const events{forwrite ? POLLWRNORM : POLLRDNORM};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
-  const auto events{static_cast<short>(
+  auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (forwrite ? POLLOUT : POLLIN))};
   pollfd pfd{fd, events, 0};
   poll(&pfd, 1, tv_milliseconds(tv));
@@ -913,14 +913,14 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
 }
 } // namespace
 
-void pqxx::internal::wait_read(const internal::pq::PGconn *c)
+void pqxx::internal::wait_read(internal::pq::PGconn const *c)
 {
   wait_fd(socket_of(c));
 }
 
 
 void pqxx::internal::wait_read(
-  const internal::pq::PGconn *c, long seconds, long microseconds)
+  internal::pq::PGconn const *c, long seconds, long microseconds)
 {
   // These are really supposed to be time_t and suseconds_t.  But not all
   // platforms have that type; some use "long" instead, and some 64-bit
@@ -933,7 +933,7 @@ void pqxx::internal::wait_read(
 }
 
 
-void pqxx::internal::wait_write(const internal::pq::PGconn *c)
+void pqxx::internal::wait_write(internal::pq::PGconn const *c)
 {
   wait_fd(socket_of(c), true);
 }
@@ -977,7 +977,7 @@ int pqxx::connection::await_notification(long seconds, long microseconds)
 
 std::string pqxx::connection::adorn_name(std::string_view n)
 {
-  const auto id{to_string(++m_unique_id)};
+  auto const id{to_string(++m_unique_id)};
   if (n.empty())
   {
     return "x" + id;
@@ -1000,9 +1000,9 @@ std::string pqxx::connection::get_client_encoding() const
 }
 
 
-void pqxx::connection::set_client_encoding(const char encoding[])
+void pqxx::connection::set_client_encoding(char const encoding[])
 {
-  switch (const auto retval{PQsetClientEncoding(m_conn, encoding)}; retval)
+  switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)
   {
   case 0:
     // OK.
@@ -1019,7 +1019,7 @@ void pqxx::connection::set_client_encoding(const char encoding[])
 
 int pqxx::connection::encoding_id() const
 {
-  const int enc{PQclientEncoding(m_conn)};
+  int const enc{PQclientEncoding(m_conn)};
   if (enc == -1)
     throw failure{"Could not obtain client encoding."};
   return enc;
@@ -1027,16 +1027,16 @@ int pqxx::connection::encoding_id() const
 
 
 pqxx::result pqxx::connection::exec_params(
-  std::string_view query, const internal::params &args)
+  std::string_view query, internal::params const &args)
 {
-  const auto pointers{args.get_pointers()};
-  const auto q{std::make_shared<std::string>(query)};
-  const auto nonnulls{
+  auto const pointers{args.get_pointers()};
+  auto const q{std::make_shared<std::string>(query)};
+  auto const nonnulls{
     check_cast<int>(args.nonnulls.size(), "exec_params() parameters")};
-  const auto pq_result{PQexecParams(
+  auto const pq_result{PQexecParams(
     m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
     args.lengths.data(), args.binaries.data(), 0)};
-  const auto r{make_result(pq_result, q)};
+  auto const r{make_result(pq_result, q)};
   check_result(r);
   get_notifs();
   return r;
@@ -1048,8 +1048,8 @@ std::string pqxx::connection::connection_string() const
   if (m_conn == nullptr)
     throw usage_error{"Can't get connection string: connection is not open."};
 
-  const std::unique_ptr<
-    PQconninfoOption, std::function<void(PQconninfoOption *)>>
+  std::unique_ptr<
+    PQconninfoOption, std::function<void(PQconninfoOption *)>> const
     params{PQconninfo(m_conn), PQconninfoFree};
   if (params.get() == nullptr)
     throw std::bad_alloc{};
@@ -1057,8 +1057,8 @@ std::string pqxx::connection::connection_string() const
   std::string buf;
   for (size_t i{0}; params.get()[i].keyword != nullptr; ++i)
   {
-    const auto param{params.get()[i]};
-    const auto default_val{param.envvar == nullptr ? param.compiled :
+    auto const param{params.get()[i]};
+    auto const default_val{param.envvar == nullptr ? param.compiled :
                                                      param.envvar};
     if (param.val != nullptr and std::strcmp(param.val, default_val) != 0)
     {

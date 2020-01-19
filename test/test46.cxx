@@ -52,15 +52,15 @@ void test_046()
 
   PQXX_CHECK_EQUAL(
     S2, S,
-    "from_string(const char[], std::string &) "
+    "from_string(char const[], std::string &) "
     "is inconsistent with "
-    "from_string(const std::string &, std::string &).");
+    "from_string(std::string const &, std::string &).");
 
   PQXX_CHECK_EQUAL(
     S3, S2,
-    "from_string(const result::field &, std::string &) "
+    "from_string(result::field const &, std::string &) "
     "is inconsistent with "
-    "from_string(const std::string &, std::string &).");
+    "from_string(std::string const &, std::string &).");
 
   PQXX_CHECK(
     tx.exec1("SELECT 1=1").front().as<bool>(), "1=1 doesn't yield 'true.'");

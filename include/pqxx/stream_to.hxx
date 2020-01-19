@@ -26,7 +26,7 @@ std::string PQXX_LIBEXPORT copy_string_escape(std::string_view);
 
 struct TypedCopyEscaper
 {
-  template<typename T> std::string operator()(const T *t) const
+  template<typename T> std::string operator()(T const *t) const
   {
     // gcc 9 complains when t is used only in one branch of the "if constexpr".
     ignore_unused(t);
@@ -88,7 +88,7 @@ public:
   /// Create a stream, specifying column names as a container of strings.
   template<typename Columns>
   stream_to(
-    transaction_base &, std::string_view table_name, const Columns &columns);
+    transaction_base &, std::string_view table_name, Columns const &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
   template<typename Iter>
@@ -118,7 +118,7 @@ public:
    * Each field will be converted into the database's format using
    * @c pqxx::to_string.
    */
-  template<typename Tuple> stream_to &operator<<(const Tuple &);
+  template<typename Tuple> stream_to &operator<<(Tuple const &);
 
   /// Stream a `stream_from` straight into a `stream_to`.
   /** This can be useful when copying between different databases.  If the
@@ -136,13 +136,13 @@ private:
   void set_up(transaction_base &, std::string_view table_name);
   void set_up(
     transaction_base &, std::string_view table_name,
-    const std::string &columns);
+    std::string const &columns);
 };
 
 
 template<typename Columns>
 inline stream_to::stream_to(
-  transaction_base &tb, std::string_view table_name, const Columns &columns) :
+  transaction_base &tb, std::string_view table_name, Columns const &columns) :
         stream_to{tb, table_name, std::begin(columns), std::end(columns)}
 {}
 
@@ -158,7 +158,7 @@ inline stream_to::stream_to(
 }
 
 
-template<typename Tuple> stream_to &stream_to::operator<<(const Tuple &t)
+template<typename Tuple> stream_to &stream_to::operator<<(Tuple const &t)
 {
   write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper{}));
   return *this;

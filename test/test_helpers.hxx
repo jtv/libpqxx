@@ -10,33 +10,33 @@ namespace test
 {
 class test_failure : public std::logic_error
 {
-  const std::string m_file;
+  std::string const m_file;
   int m_line;
 
 public:
-  test_failure(const std::string &ffile, int fline, const std::string &desc);
+  test_failure(std::string const &ffile, int fline, std::string const &desc);
 
   ~test_failure() noexcept override;
 
-  const std::string &file() const noexcept { return m_file; }
+  std::string const &file() const noexcept { return m_file; }
   int line() const noexcept { return m_line; }
 };
 
 
 /// Drop a table, if it exists.
-void drop_table(transaction_base &, const std::string &table);
+void drop_table(transaction_base &, std::string const &table);
 
 
 using testfunc = void (*)();
 
 
-void register_test(const char name[], testfunc func);
+void register_test(char const name[], testfunc func);
 
 
 /// Register a test while not inside a function.
 struct registrar
 {
-  registrar(const char name[], testfunc func)
+  registrar(char const name[], testfunc func)
   {
     pqxx::test::register_test(name, func);
   }
@@ -52,13 +52,13 @@ struct registrar
 #define PQXX_CHECK_NOTREACHED(desc)                                           \
   pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
 [[noreturn]] void
-check_notreached(const char file[], int line, std::string desc);
+check_notreached(char const file[], int line, std::string desc);
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc)                                           \
   pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
 void check(
-  const char file[], int line, bool condition, const char text[],
+  char const file[], int line, bool condition, char const text[],
   std::string desc);
 
 // Verify that variable has the expected value.
@@ -67,12 +67,12 @@ void check(
     __FILE__, __LINE__, (actual), #actual, (expected), #expected, (desc))
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-  const char file[], int line, ACTUAL actual, const char actual_text[],
-  EXPECTED expected, const char expected_text[], const std::string &desc)
+  char const file[], int line, ACTUAL actual, char const actual_text[],
+  EXPECTED expected, char const expected_text[], std::string const &desc)
 {
   if (expected == actual)
     return;
-  const std::string fulldesc = desc + " (" + actual_text + " <> " +
+  std::string const fulldesc = desc + " (" + actual_text + " <> " +
                                expected_text +
                                ": "
                                "actual=" +
@@ -89,12 +89,12 @@ inline void check_equal(
     __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-  const char file[], int line, VALUE1 value1, const char text1[],
-  VALUE2 value2, const char text2[], const std::string &desc)
+  char const file[], int line, VALUE1 value1, char const text1[],
+  VALUE2 value2, char const text2[], std::string const &desc)
 {
   if (value1 != value2)
     return;
-  const std::string fulldesc = desc + " (" + text1 + " == " + text2 +
+  std::string const fulldesc = desc + " (" + text1 + " == " + text2 +
                                ": "
                                "both are " +
                                to_string(value2) + ")";
@@ -112,12 +112,12 @@ inline void check_not_equal(
     __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
-  const char file[], int line, VALUE1 value1, const char text1[],
-  VALUE2 value2, const char text2[], const std::string &desc)
+  char const file[], int line, VALUE1 value1, char const text1[],
+  VALUE2 value2, char const text2[], std::string const &desc)
 {
   if (value1 < value2)
     return;
-  const std::string fulldesc = desc + " (" + text1 + " >= " + text2 +
+  std::string const fulldesc = desc + " (" + text1 + " >= " + text2 +
                                ": "
                                "\"lower\"=" +
                                to_string(value1) +
@@ -138,12 +138,12 @@ inline void check_less(
     __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
-  const char file[], int line, VALUE1 value1, const char text1[],
-  VALUE2 value2, const char text2[], const std::string &desc)
+  char const file[], int line, VALUE1 value1, char const text1[],
+  VALUE2 value2, char const text2[], std::string const &desc)
 {
   if (value1 <= value2)
     return;
-  const std::string fulldesc = desc + " (" + text1 + " > " + text2 +
+  std::string const fulldesc = desc + " (" + text1 + " > " + text2 +
                                ": "
                                "\"lower\"=" +
                                to_string(value1) +
@@ -172,7 +172,7 @@ inline void end_of_statement() {}
     {                                                                         \
       action;                                                                 \
     }                                                                         \
-    catch (const std::exception &e)                                           \
+    catch (std::exception const &e)                                           \
     {                                                                         \
       PQXX_CHECK_NOTREACHED(                                                  \
         std::string{desc} + " - \"" +                                         \
@@ -194,12 +194,12 @@ inline void end_of_statement() {}
       action;                                                                 \
       throw pqxx::test::failure_to_fail();                                    \
     }                                                                         \
-    catch (const pqxx::test::failure_to_fail &)                               \
+    catch (pqxx::test::failure_to_fail const &)                               \
     {                                                                         \
       PQXX_CHECK_NOTREACHED(                                                  \
         std::string{desc} + " (\"" #action "\" did not throw)");              \
     }                                                                         \
-    catch (const std::exception &)                                            \
+    catch (std::exception const &)                                            \
     {}                                                                        \
     catch (...)                                                               \
     {                                                                         \
@@ -217,15 +217,15 @@ inline void end_of_statement() {}
       action;                                                                 \
       throw pqxx::test::failure_to_fail();                                    \
     }                                                                         \
-    catch (const pqxx::test::failure_to_fail &)                               \
+    catch (pqxx::test::failure_to_fail const &)                               \
     {                                                                         \
       PQXX_CHECK_NOTREACHED(                                                  \
         std::string{desc} + " (\"" #action                                    \
                             "\" did not throw " #exception_type ")");         \
     }                                                                         \
-    catch (const exception_type &)                                            \
+    catch (exception_type const &)                                            \
     {}                                                                        \
-    catch (const std::exception &e)                                           \
+    catch (std::exception const &e)                                           \
     {                                                                         \
       PQXX_CHECK_NOTREACHED(                                                  \
         std::string{desc} +                                                   \
@@ -248,11 +248,11 @@ inline void end_of_statement() {}
     (desc))
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
-  const char file[], int line, VALUE value, const char text[], LOWER lower,
-  const char lower_text[], UPPER upper, const char upper_text[],
-  const std::string &desc)
+  char const file[], int line, VALUE value, char const text[], LOWER lower,
+  char const lower_text[], UPPER upper, char const upper_text[],
+  std::string const &desc)
 {
-  const std::string range_check = std::string{lower_text} + " < " + upper_text,
+  std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =
                       std::string{"!("} + text + " < " + lower_text + ")",
                     upper_check = std::string{text} + " < " + upper_text;
@@ -270,7 +270,7 @@ inline void check_bounds(
 
 
 // Report expected exception
-void expected_exception(const std::string &);
+void expected_exception(std::string const &);
 
 
 // Represent result row as string.
@@ -286,19 +286,19 @@ void create_pqxxevents(transaction_base &);
 } // namespace test
 
 
-template<> inline std::string to_string(const row &value)
+template<> inline std::string to_string(row const &value)
 {
   return pqxx::test::list_row(value);
 }
 
 
-template<> inline std::string to_string(const result &value)
+template<> inline std::string to_string(result const &value)
 {
   return pqxx::test::list_result(value);
 }
 
 
-template<> inline std::string to_string(const result::const_iterator &value)
+template<> inline std::string to_string(result::const_iterator const &value)
 {
   return pqxx::test::list_result_iterator(value);
 }

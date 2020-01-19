@@ -44,13 +44,13 @@ pqxx::transaction_base::~transaction_base()
         .unregister_transaction(this);
     }
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     try
     {
       process_notice(std::string{e.what()} + "\n");
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {
       process_notice(e.what());
     }
@@ -124,12 +124,12 @@ void pqxx::transaction_base::commit()
     do_commit();
     m_status = status::committed;
   }
-  catch (const in_doubt_error &)
+  catch (in_doubt_error const &)
   {
     m_status = status::in_doubt;
     throw;
   }
-  catch (const std::exception &)
+  catch (std::exception const &)
   {
     m_status = status::aborted;
     throw;
@@ -153,7 +153,7 @@ void pqxx::transaction_base::abort()
     {
       do_abort();
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {}
     break;
 
@@ -180,26 +180,26 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string pqxx::transaction_base::esc_raw(const std::string &bin) const
+std::string pqxx::transaction_base::esc_raw(std::string const &bin) const
 {
-  const auto p{reinterpret_cast<const unsigned char *>(bin.c_str())};
+  auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
   return conn().esc_raw(p, bin.size());
 }
 
 
-std::string pqxx::transaction_base::quote_raw(const std::string &bin) const
+std::string pqxx::transaction_base::quote_raw(std::string const &bin) const
 {
-  const auto p{reinterpret_cast<const unsigned char *>(bin.c_str())};
+  auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
   return conn().quote_raw(p, bin.size());
 }
 
 
 pqxx::result
-pqxx::transaction_base::exec(std::string_view query, const std::string &desc)
+pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
 {
   check_pending_error();
 
-  const std::string n{desc.empty() ? "" : "'" + desc + "' "};
+  std::string const n{desc.empty() ? "" : "'" + desc + "' "};
 
   if (m_focus.get() != nullptr)
     throw usage_error{"Attempt to execute query " + n + "on " + description() +
@@ -233,12 +233,12 @@ pqxx::transaction_base::exec(std::string_view query, const std::string &desc)
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-  result::size_type rows, const std::string &query, const std::string &desc)
+  result::size_type rows, std::string const &query, std::string const &desc)
 {
-  const result r{exec(query, desc)};
+  result const r{exec(query, desc)};
   if (r.size() != rows)
   {
-    const std::string N{desc.empty() ? "" : "'" + desc + "'"};
+    std::string const N{desc.empty() ? "" : "'" + desc + "'"};
     throw unexpected_rows{"Expected " + to_string(rows) +
                           " row(s) of data "
                           "from query " +
@@ -249,7 +249,7 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 
 void pqxx::transaction_base::check_rowcount_prepared(
-  const std::string &statement, result::size_type expected_rows,
+  std::string const &statement, result::size_type expected_rows,
   result::size_type actual_rows)
 {
   if (actual_rows != expected_rows)
@@ -277,7 +277,7 @@ void pqxx::transaction_base::check_rowcount_params(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  zview statement, const internal::params &args)
+  zview statement, internal::params const &args)
 {
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
     statement, args);
@@ -285,7 +285,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  const std::string &query, const internal::params &args)
+  std::string const &query, internal::params const &args)
 {
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
     query, args);
@@ -313,7 +313,7 @@ void pqxx::transaction_base::close() noexcept
     {
       check_pending_error();
     }
-    catch (const std::exception &e)
+    catch (std::exception const &e)
     {
       m_conn.process_notice(e.what());
     }
@@ -337,18 +337,18 @@ void pqxx::transaction_base::close() noexcept
     {
       abort();
     }
-    catch (const std::exception &e)
+    catch (std::exception const &e)
     {
       m_conn.process_notice(e.what());
     }
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     try
     {
       m_conn.process_notice(e.what());
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {}
   }
 }
@@ -367,7 +367,7 @@ void pqxx::transaction_base::unregister_focus(
   {
     m_focus.unregister_guest(s);
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     m_conn.process_notice(std::string{e.what()} + "\n");
   }
@@ -390,7 +390,7 @@ pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 
 
 void pqxx::transaction_base::register_pending_error(
-  const std::string &err) noexcept
+  std::string const &err) noexcept
 {
   if (m_pending_error.empty() and not err.empty())
   {
@@ -398,7 +398,7 @@ void pqxx::transaction_base::register_pending_error(
     {
       m_pending_error = err;
     }
-    catch (const std::exception &e)
+    catch (std::exception const &e)
     {
       try
       {
@@ -441,7 +441,7 @@ void pqxx::internal::transactionfocus::unregister_me() noexcept
 }
 
 void pqxx::internal::transactionfocus::reg_pending_error(
-  const std::string &err) noexcept
+  std::string const &err) noexcept
 {
   pqxx::internal::gate::transaction_transactionfocus{m_trans}
     .register_pending_error(err);

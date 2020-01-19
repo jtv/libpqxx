@@ -42,7 +42,7 @@ public:
           m_done(false)
   {}
 
-  void operator()(const std::string &, int be_pid) override
+  void operator()(std::string const &, int be_pid) override
   {
     m_done = true;
     PQXX_CHECK_EQUAL(
@@ -83,7 +83,7 @@ void test_087()
 {
   pqxx::connection conn;
 
-  const std::string NotifName = "my notification";
+  std::string const NotifName = "my notification";
   TestListener L{conn, NotifName};
 
   pqxx::perform([&conn, &L]() {
@@ -98,7 +98,7 @@ void test_087()
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
     std::cout << ".";
-    const int fd = conn.sock();
+    int const fd = conn.sock();
 
     // File descriptor from which we wish to read.
     fd_set read_fds;

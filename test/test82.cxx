@@ -12,17 +12,17 @@ void test_082()
   pqxx::nontransaction tx{conn};
 
   pqxx::test::create_pqxxevents(tx);
-  const std::string Table = "pqxxevents";
+  std::string const Table = "pqxxevents";
   pqxx::result R{tx.exec("SELECT * FROM " + Table)};
 
   PQXX_CHECK(not R.empty(), "Got empty result.");
 
-  const std::string nullstr("[null]");
+  std::string const nullstr("[null]");
 
-  for (const auto &r : R)
+  for (auto const &r : R)
   {
     pqxx::row::const_iterator f2(r[0]);
-    for (const auto &f : r)
+    for (auto const &f : r)
     {
       PQXX_CHECK_EQUAL(
         (*f2).as(nullstr), f.as(nullstr), "Inconsistent iteration result.");

@@ -20,7 +20,7 @@ namespace
 {
 void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
-  const std::string &columns)
+  std::string const &columns)
 {
   constexpr std::string_view copy{"COPY "}, from_stdin{" FROM STDIN"};
   std::string query;
@@ -56,7 +56,7 @@ pqxx::stream_to::~stream_to() noexcept
   {
     complete();
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     reg_pending_error(e.what());
   }
@@ -89,7 +89,7 @@ void pqxx::stream_to::set_up(transaction_base &tb, std::string_view table_name)
 
 void pqxx::stream_to::set_up(
   transaction_base &tb, std::string_view table_name,
-  const std::string &columns)
+  std::string const &columns)
 {
   begin_copy(tb, table_name, columns);
   register_me();

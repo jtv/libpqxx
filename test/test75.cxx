@@ -14,7 +14,7 @@ void test_075()
   pqxx::work tx{conn};
 
   pqxx::test::create_pqxxevents(tx);
-  const auto R(tx.exec("SELECT year FROM pqxxevents"));
+  auto const R(tx.exec("SELECT year FROM pqxxevents"));
   PQXX_CHECK(not R.empty(), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
@@ -25,7 +25,7 @@ void test_075()
     not(R[0][0] != R[0].at(0)), "result::field::operator!=() is broken.");
 
   std::vector<std::string> contents;
-  for (const auto &i : R) contents.push_back(i.at(0).as<std::string>());
+  for (auto const &i : R) contents.push_back(i.at(0).as<std::string>());
 
   PQXX_CHECK_EQUAL(
     contents.size(), std::vector<std::string>::size_type(R.size()),

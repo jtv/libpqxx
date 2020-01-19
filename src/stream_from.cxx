@@ -22,7 +22,7 @@ namespace
 /** If not found, returns line.size() rather than string::npos.
  */
 std::string::size_type find_tab(
-  pqxx::internal::encoding_group enc, const std::string &line,
+  pqxx::internal::encoding_group enc, std::string const &line,
   std::string::size_type start)
 {
   auto here{pqxx::internal::find_with_encoding(enc, line, '\t', start)};
@@ -32,7 +32,7 @@ std::string::size_type find_tab(
 
 void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
-  const std::string &columns)
+  std::string const &columns)
 {
   constexpr std::string_view copy{"COPY "}, to_stdout{" TO STDOUT"};
   std::string query;
@@ -70,7 +70,7 @@ pqxx::stream_from::~stream_from() noexcept
   {
     close();
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     reg_pending_error(e.what());
   }
@@ -87,7 +87,7 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
       if (not gate.read_copy_line(line))
         close();
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {
       close();
       throw;
@@ -106,7 +106,7 @@ void pqxx::stream_from::set_up(
 
 void pqxx::stream_from::set_up(
   transaction_base &tb, std::string_view table_name,
-  const std::string &columns)
+  std::string const &columns)
 {
   // Get the encoding before starting the COPY, otherwise reading the the
   // variable will interrupt it
@@ -138,12 +138,12 @@ void pqxx::stream_from::complete()
     while (get_raw_line(s))
       ;
   }
-  catch (const broken_connection &)
+  catch (broken_connection const &)
   {
     close();
     throw;
   }
-  catch (const std::exception &e)
+  catch (std::exception const &e)
   {
     reg_pending_error(e.what());
   }
@@ -152,9 +152,9 @@ void pqxx::stream_from::complete()
 
 
 bool pqxx::stream_from::extract_field(
-  const std::string &line, std::string::size_type &i, std::string &s) const
+  std::string const &line, std::string::size_type &i, std::string &s) const
 {
-  const auto next_seq{get_glyph_scanner(m_copy_encoding)};
+  auto const next_seq{get_glyph_scanner(m_copy_encoding)};
   s.clear();
   bool is_null{false};
   auto stop{find_tab(m_copy_encoding, line, i)};
@@ -233,7 +233,7 @@ bool pqxx::stream_from::extract_field(
 
 template<>
 void pqxx::stream_from::extract_value<std::nullptr_t>(
-  const std::string &line, std::nullptr_t &, std::string::size_type &here,
+  std::string const &line, std::nullptr_t &, std::string::size_type &here,
   std::string &workspace) const
 {
   if (extract_field(line, here, workspace))

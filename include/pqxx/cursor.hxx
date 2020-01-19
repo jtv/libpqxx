@@ -92,8 +92,8 @@ public:
   };
 
   cursor_base() = delete;
-  cursor_base(const cursor_base &) = delete;
-  cursor_base &operator=(const cursor_base &) = delete;
+  cursor_base(cursor_base const &) = delete;
+  cursor_base &operator=(cursor_base const &) = delete;
 
   /**
    * @name Special movement distances.
@@ -129,12 +129,12 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  const std::string &name() const noexcept { return m_name; }
+  std::string const &name() const noexcept { return m_name; }
 
 protected:
   cursor_base(connection &, std::string_view Name, bool embellish_name = true);
 
-  const std::string m_name;
+  std::string const m_name;
 };
 } // namespace pqxx
 
@@ -199,7 +199,7 @@ public:
       m_cur, result::difference_type(size()), begin_pos, end_pos);
   }
 
-  const std::string &name() const noexcept { return m_cur.name(); }
+  std::string const &name() const noexcept { return m_cur.name(); }
 
 private:
   internal::sql_cursor m_cur;
@@ -283,7 +283,7 @@ public:
    * stream will be destroyed when the stream is closed.
    */
   icursorstream(
-    transaction_base &context, const field &cname, difference_type sstride = 1,
+    transaction_base &context, field const &cname, difference_type sstride = 1,
     cursor_base::ownership_policy op = cursor_base::owned);
 
   operator bool() const noexcept { return not m_done; }
@@ -376,23 +376,23 @@ class PQXX_LIBEXPORT icursor_iterator
 public:
   using iterator_category = std::input_iterator_tag;
   using value_type = result;
-  using pointer = const result *;
-  using reference = const result &;
+  using pointer = result const *;
+  using reference = result const &;
   using istream_type = icursorstream;
   using size_type = istream_type::size_type;
   using difference_type = istream_type::difference_type;
 
   icursor_iterator() noexcept;
   explicit icursor_iterator(istream_type &) noexcept;
-  icursor_iterator(const icursor_iterator &) noexcept;
+  icursor_iterator(icursor_iterator const &) noexcept;
   ~icursor_iterator() noexcept;
 
-  const result &operator*() const
+  result const &operator*() const
   {
     refresh();
     return m_here;
   }
-  const result *operator->() const
+  result const *operator->() const
   {
     refresh();
     return &m_here;
@@ -400,20 +400,20 @@ public:
   icursor_iterator &operator++();
   icursor_iterator operator++(int);
   icursor_iterator &operator+=(difference_type);
-  icursor_iterator &operator=(const icursor_iterator &) noexcept;
+  icursor_iterator &operator=(icursor_iterator const &) noexcept;
 
-  bool operator==(const icursor_iterator &rhs) const;
-  bool operator!=(const icursor_iterator &rhs) const noexcept
+  bool operator==(icursor_iterator const &rhs) const;
+  bool operator!=(icursor_iterator const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
-  bool operator<(const icursor_iterator &rhs) const;
-  bool operator>(const icursor_iterator &rhs) const { return rhs < *this; }
-  bool operator<=(const icursor_iterator &rhs) const
+  bool operator<(icursor_iterator const &rhs) const;
+  bool operator>(icursor_iterator const &rhs) const { return rhs < *this; }
+  bool operator<=(icursor_iterator const &rhs) const
   {
     return not(*this > rhs);
   }
-  bool operator>=(const icursor_iterator &rhs) const
+  bool operator>=(icursor_iterator const &rhs) const
   {
     return not(*this < rhs);
   }
@@ -423,7 +423,7 @@ private:
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }
-  void fill(const result &);
+  void fill(result const &);
 
   icursorstream *m_stream{nullptr};
   result m_here;

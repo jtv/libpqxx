@@ -47,22 +47,22 @@ void test_binarystring()
   PQXX_CHECK_THROWS(
     b.at(1), std::out_of_range, "Failed to catch range error.");
 
-  const std::string simple("ab");
+  std::string const simple("ab");
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
     b.str(), simple, "Binary (un)escaping went wrong somewhere.");
   PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
 
-  const std::string simple_escaped{tx.esc_raw(simple)};
+  std::string const simple_escaped{tx.esc_raw(simple)};
   for (auto c : simple_escaped)
   {
-    const auto uc = static_cast<unsigned char>(c);
+    auto const uc = static_cast<unsigned char>(c);
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 
   PQXX_CHECK_EQUAL(
     tx.quote_raw(
-      reinterpret_cast<const unsigned char *>(simple.c_str()), simple.size()),
+      reinterpret_cast<unsigned char const *>(simple.c_str()), simple.size()),
     tx.quote(b), "quote_raw is broken");
   PQXX_CHECK_EQUAL(
     tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");
@@ -70,11 +70,11 @@ void test_binarystring()
     pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(), simple,
     "Binary string is not idempotent.");
 
-  const std::string bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
+  std::string const bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(tx, bytes);
   PQXX_CHECK_EQUAL(b.str(), bytes, "Binary data breaks (un)escaping.");
 
-  const std::string nully("a\0b", 3);
+  std::string const nully("a\0b", 3);
   b = make_binarystring(tx, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");
   PQXX_CHECK_EQUAL(b.size(), 3u, "Nul byte broke binarystring size.");

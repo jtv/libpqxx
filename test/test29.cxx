@@ -15,16 +15,16 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-const int BoringYear = 1977;
+constexpr int BoringYear = 1977;
 
-const std::string Table = "pqxxevents";
+std::string const Table = "pqxxevents";
 
 
 // Count events, and boring events, in table
 std::pair<int, int> CountEvents(transaction_base &T)
 {
-  const std::string EventsQuery = "SELECT count(*) FROM " + Table;
-  const std::string BoringQuery =
+  std::string const EventsQuery = "SELECT count(*) FROM " + Table;
+  std::string const BoringQuery =
     EventsQuery + " WHERE year=" + to_string(BoringYear);
   int EventsCount = 0, BoringCount = 0;
 

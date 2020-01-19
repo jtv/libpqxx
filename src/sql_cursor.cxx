@@ -54,8 +54,8 @@ inline bool useless_trail(char c)
 std::string::size_type
 find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
-  const auto text{query.data()};
-  const auto size{query.size()};
+  auto const text{query.data()};
+  auto const size{query.size()};
   std::string::size_type end;
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
@@ -71,7 +71,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 
     pqxx::internal::for_glyphs(
       enc,
-      [text, &end](const char *gbegin, const char *gend) {
+      [text, &end](char const *gbegin, char const *gend) {
         if (gend - gbegin > 1 or not useless_trail(*gbegin))
           end = std::string::size_type(gend - text);
       },
@@ -98,8 +98,8 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (query.empty())
     throw usage_error{"Cursor has empty query."};
-  const auto enc{enc_group(t.conn().encoding_id())};
-  const auto qend{find_query_end(query, enc)};
+  auto const enc{enc_group(t.conn().encoding_id())};
+  auto const qend{find_query_end(query, enc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query."};
 
@@ -162,7 +162,7 @@ void pqxx::internal::sql_cursor::close() noexcept
       gate::connection_sql_cursor{m_home}.exec(
         ("CLOSE " + m_home.quote_name(name())).c_str());
     }
-    catch (const std::exception &)
+    catch (std::exception const &)
     {}
     m_ownership = cursor_base::loose;
   }
@@ -185,7 +185,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
     throw internal_error{"Negative rows in cursor movement."};
   if (hoped == 0)
     return 0;
-  const int direction{((hoped < 0) ? -1 : 1)};
+  int const direction{((hoped < 0) ? -1 : 1)};
   bool hit_end{false};
   if (actual != labs(hoped))
   {
@@ -250,9 +250,9 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
     displacement = 0;
     return m_empty_result;
   }
-  const auto query{"FETCH " + stridestring(rows) + " IN " +
+  auto const query{"FETCH " + stridestring(rows) + " IN " +
                    m_home.quote_name(name())};
-  const auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(r.size()));
   return r;
 }
@@ -267,9 +267,9 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
     return 0;
   }
 
-  const auto query{"MOVE " + stridestring(rows) + " IN " +
+  auto const query{"MOVE " + stridestring(rows) + " IN " +
                    m_home.quote_name(name())};
-  const auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
   return d;
@@ -285,7 +285,7 @@ std::string pqxx::internal::sql_cursor::stridestring(difference_type n)
    * could change the alias to match this behaviour, but that would break
    * if/when Postgres is changed to accept 64-bit displacements.
    */
-  static const std::string All{"ALL"}, BackAll{"BACKWARD ALL"};
+  static std::string const All{"ALL"}, BackAll{"BACKWARD ALL"};
   if (n >= cursor_base::all())
     return All;
   else if (n <= cursor_base::backward_all())

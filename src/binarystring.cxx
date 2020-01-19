@@ -27,7 +27,7 @@ extern "C"
 namespace
 {
 /// Copy data to a heap-allocated buffer.
-std::shared_ptr<unsigned char> copy_to_buffer(const void *data, size_t len)
+std::shared_ptr<unsigned char> copy_to_buffer(void const *data, size_t len)
 {
   void *const output{malloc(len + 1)};
   if (output == nullptr)
@@ -40,10 +40,10 @@ std::shared_ptr<unsigned char> copy_to_buffer(const void *data, size_t len)
 } // namespace
 
 
-pqxx::binarystring::binarystring(const field &F)
+pqxx::binarystring::binarystring(field const &F)
 {
-  const unsigned char *data{
-    reinterpret_cast<const unsigned char *>(F.c_str())};
+  unsigned char const *data{
+    reinterpret_cast<unsigned char const *>(F.c_str())};
   m_buf = std::shared_ptr<unsigned char>{
     PQunescapeBytea(data, &m_size), PQfreemem};
   if (m_buf == nullptr)
@@ -57,13 +57,13 @@ pqxx::binarystring::binarystring(std::string_view s) :
 {}
 
 
-pqxx::binarystring::binarystring(const void *binary_data, size_t len) :
+pqxx::binarystring::binarystring(void const *binary_data, size_t len) :
         m_buf{copy_to_buffer(binary_data, len)},
         m_size{len}
 {}
 
 
-bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
+bool pqxx::binarystring::operator==(binarystring const &rhs) const noexcept
 {
   return (rhs.size() == size()) and
          (std::memcmp(data(), rhs.data(), size()) == 0);
@@ -71,7 +71,7 @@ bool pqxx::binarystring::operator==(const binarystring &rhs) const noexcept
 
 
 pqxx::binarystring &pqxx::binarystring::
-operator=(const binarystring &rhs) = default;
+operator=(binarystring const &rhs) = default;
 
 pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 {
@@ -92,7 +92,7 @@ void pqxx::binarystring::swap(binarystring &rhs)
   m_buf.swap(rhs.m_buf);
 
   // This part very obviously can't go wrong, so do it last
-  const auto s{m_size};
+  auto const s{m_size};
   m_size = rhs.m_size;
   rhs.m_size = s;
 }
