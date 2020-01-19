@@ -3,9 +3,9 @@ if(NOT PostgreSQL_INCLUDE_DIRS)
 endif()
 
 file(
-	GLOB UNIT_TEST_SOURCES
+    GLOB UNIT_TEST_SOURCES
 ###MAKTEMPLATE:FOREACH test/unit/*.cxx
-	###BASENAME###.cxx
+    ###BASENAME###.cxx
 ###MAKTEMPLATE:ENDFOREACH
 )
 
@@ -13,6 +13,6 @@ add_executable(unit_runner ${UNIT_TEST_SOURCES})
 target_link_libraries(unit_runner PUBLIC pqxx)
 target_include_directories(unit_runner PRIVATE ${PostgreSQL_INCLUDE_DIRS})
 add_test(
-	NAME unit_runner
-	WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-	COMMAND unit_runner)
+    NAME unit_runner
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND unit_runner)
