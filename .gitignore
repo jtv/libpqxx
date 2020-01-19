@@ -38,6 +38,7 @@ win32/common
 **/*.lo
 **/*.o
 **/.*.swp
+**/.swp
 **/*.tmp
 **/.deps
 **/.libs
