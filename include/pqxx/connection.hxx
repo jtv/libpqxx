@@ -405,7 +405,8 @@ public:
    */
   [[nodiscard]] std::string encrypt_password(
     char const user[], char const password[], char const *algorithm = nullptr);
-  [[nodiscard]] std::string encrypt_password(zview user, zview password, zview algorithm)
+  [[nodiscard]] std::string
+  encrypt_password(zview user, zview password, zview algorithm)
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
   }
@@ -524,7 +525,8 @@ public:
   [[nodiscard]] std::string esc(std::string_view text) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  [[nodiscard]] std::string esc_raw(unsigned char const bin[], size_t len) const;
+  [[nodiscard]] std::string
+  esc_raw(unsigned char const bin[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -539,7 +541,10 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(zview text) const { return unesc_raw(text.c_str()); }
+  [[nodiscard]] std::string unesc_raw(zview text) const
+  {
+    return unesc_raw(text.c_str());
+  }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -548,7 +553,8 @@ public:
   [[nodiscard]] std::string unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
-  [[nodiscard]] std::string quote_raw(unsigned char const bin[], size_t len) const;
+  [[nodiscard]] std::string
+  quote_raw(unsigned char const bin[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const;
@@ -557,7 +563,7 @@ public:
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T> [[nodiscard]] inline std::string quote(T const &t) const;
+  template<typename T>[[nodiscard]] inline std::string quote(T const &t) const;
 
   [[nodiscard]] std::string quote(binarystring const &) const;
 
@@ -585,7 +591,8 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  [[nodiscard]] std::string esc_like(std::string_view text, char escape_char = '\\') const;
+  [[nodiscard]] std::string
+  esc_like(std::string_view text, char escape_char = '\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -727,25 +734,25 @@ private:
 using connection_base = connection;
 
 
-  template<typename T> inline std::string connection::quote(T const &t) const
-  {
-    if (is_null(t))
-      return "NULL";
-    auto const text{to_string(t)};
+template<typename T> inline std::string connection::quote(T const &t) const
+{
+  if (is_null(t))
+    return "NULL";
+  auto const text{to_string(t)};
 
-    // Okay, there's an easy way to do this and there's a hard way.  The easy
-    // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
-    // because it's going to save some string manipulation that will probably
-    // incur some unnecessary memory allocations and deallocations.
-    std::string buf{'\''};
-    buf.resize(2 + 2 * text.size() + 1);
-    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
-    auto const closing_quote{1 + content_bytes};
-    buf[closing_quote] = '\'';
-    auto const end{closing_quote + 1};
-    buf.resize(end);
-    return buf;
-  }
+  // Okay, there's an easy way to do this and there's a hard way.  The easy
+  // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
+  // because it's going to save some string manipulation that will probably
+  // incur some unnecessary memory allocations and deallocations.
+  std::string buf{'\''};
+  buf.resize(2 + 2 * text.size() + 1);
+  auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
+  auto const closing_quote{1 + content_bytes};
+  buf[closing_quote] = '\'';
+  auto const end{closing_quote + 1};
+  buf.resize(end);
+  return buf;
+}
 } // namespace pqxx
 
 

@@ -29,7 +29,7 @@ void test_084()
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
   std::string const CurName{"MYCUR"},
-                    Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
+    Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
   constexpr int InitialSkip{2}, GetRows{3};
 
   tx.exec0("DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query);

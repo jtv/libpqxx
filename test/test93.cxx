@@ -24,7 +24,7 @@ void test_093()
   }
 
   pqxx::row::size_type x{R.table_column(2)}, y{R.table_column(1)},
-                       z{R.table_column(static_cast<int>(0))};
+    z{R.table_column(static_cast<int>(0))};
 
   PQXX_CHECK_EQUAL(x, 0, "Wrong column number.");
   PQXX_CHECK_EQUAL(y, 1, "Wrong column number.");
@@ -39,8 +39,7 @@ void test_093()
   PQXX_CHECK_EQUAL(z, 2, "Wrong number for named column.");
 
   pqxx::row::size_type xx{X[0].table_column(static_cast<int>(0))},
-                       yx{X[0].table_column(pqxx::row::size_type(1))},
-                       zx{X[0].table_column("z")};
+    yx{X[0].table_column(pqxx::row::size_type(1))}, zx{X[0].table_column("z")};
 
   PQXX_CHECK_EQUAL(xx, 0, "Bad result from table_column(int).");
   PQXX_CHECK_EQUAL(yx, 1, "Bad result from table_column(size_type).");

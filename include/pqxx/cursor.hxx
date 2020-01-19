@@ -179,7 +179,10 @@ public:
   /** @note This function is not const; it may need to scroll to find the size
    * of the result set.
    */
-  [[nodiscard]] size_type size() { return internal::obtain_stateless_cursor_size(m_cur); }
+  [[nodiscard]] size_type size()
+  {
+    return internal::obtain_stateless_cursor_size(m_cur);
+  }
 
   /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
   /** Rows are numbered starting from 0 to size()-1.
@@ -199,7 +202,10 @@ public:
       m_cur, result::difference_type(size()), begin_pos, end_pos);
   }
 
-  [[nodiscard]] std::string const &name() const noexcept { return m_cur.name(); }
+  [[nodiscard]] std::string const &name() const noexcept
+  {
+    return m_cur.name();
+  }
 
 private:
   internal::sql_cursor m_cur;
@@ -408,7 +414,10 @@ public:
     return not operator==(rhs);
   }
   [[nodiscard]] bool operator<(icursor_iterator const &rhs) const;
-  [[nodiscard]] bool operator>(icursor_iterator const &rhs) const { return rhs < *this; }
+  [[nodiscard]] bool operator>(icursor_iterator const &rhs) const
+  {
+    return rhs < *this;
+  }
   [[nodiscard]] bool operator<=(icursor_iterator const &rhs) const
   {
     return not(*this > rhs);

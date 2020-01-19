@@ -67,7 +67,10 @@ public:
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  [[nodiscard]] bool operator!=(field const &rhs) const { return not operator==(rhs); }
+  [[nodiscard]] bool operator!=(field const &rhs) const
+  {
+    return not operator==(rhs);
+  }
   //@}
 
   /**
@@ -94,7 +97,10 @@ public:
    */
   //@{
   /// Read as @c string_view.
-  [[nodiscard]] std::string_view view() const { return std::string_view(c_str(), size()); }
+  [[nodiscard]] std::string_view view() const
+  {
+    return std::string_view(c_str(), size());
+  }
 
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a

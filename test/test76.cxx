@@ -11,7 +11,7 @@ void test_076()
 
   auto RFalse{tx.exec1("SELECT 1=0")}, RTrue{tx.exec1("SELECT 1=1")};
   auto False{pqxx::from_string<bool>(RFalse[0])},
-       True{pqxx::from_string<bool>(RTrue[0])};
+    True{pqxx::from_string<bool>(RTrue[0])};
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 

@@ -7,7 +7,7 @@ namespace
 void test_exceptions()
 {
   std::string const broken_query{"SELECT HORRIBLE ERROR"},
-                    err{"Error message"};
+    err{"Error message"};
 
   try
   {

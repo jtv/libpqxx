@@ -54,7 +54,7 @@ void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
     "Connection and transaction quote differently.");
 
   char const *test_strings[]{"",   "x",   "\\", "\\\\", "'",
-                                "''", "\\'", "\t", "\n",   nullptr};
+                             "''", "\\'", "\t", "\n",   nullptr};
 
   for (size_t i{0}; test_strings[i] != nullptr; ++i)
   {

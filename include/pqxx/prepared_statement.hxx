@@ -84,7 +84,8 @@ template<typename C>
  * @return An object representing the parameters.
  */
 template<typename C, typename ACCESSOR>
-[[nodiscard]] constexpr inline auto make_dynamic_params(C &container, ACCESSOR accessor)
+[[nodiscard]] constexpr inline auto
+make_dynamic_params(C &container, ACCESSOR accessor)
 {
   using IT = decltype(std::begin(container));
   return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};

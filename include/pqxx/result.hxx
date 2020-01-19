@@ -156,7 +156,7 @@ public:
   [[nodiscard]] oid column_type(row_size_type col_num) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  template<typename STRING> [[nodiscard]] oid column_type(STRING col_name) const
+  template<typename STRING>[[nodiscard]] oid column_type(STRING col_name) const
   {
     return column_type(column_number(col_name));
   }
@@ -165,7 +165,8 @@ public:
   [[nodiscard]] oid column_table(row_size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING> [[nodiscard]] oid column_table(STRING col_name) const
+  template<typename STRING>
+  [[nodiscard]] oid column_table(STRING col_name) const
   {
     return column_table(column_number(col_name));
   }
@@ -174,7 +175,8 @@ public:
   [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
 
   /// What column in its table did this column come from?
-  template<typename STRING> [[nodiscard]] row_size_type table_column(STRING col_name) const
+  template<typename STRING>
+  [[nodiscard]] row_size_type table_column(STRING col_name) const
   {
     return table_column(column_number(col_name));
   }

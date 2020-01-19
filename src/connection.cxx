@@ -238,7 +238,7 @@ std::string pqxx::connection::get_variable(std::string_view var)
  */
 void pqxx::connection::set_up_state()
 {
-    if (auto const proto_ver{protocol_version()}; proto_ver < 3)
+  if (auto const proto_ver{protocol_version()}; proto_ver < 3)
   {
     if (proto_ver == 0)
       throw broken_connection{"No connection."};
@@ -580,7 +580,7 @@ std::string pqxx::connection::encrypt_password(
   {
     auto const buf{PQencryptPasswordConn(m_conn, user, password, algorithm)};
     std::unique_ptr<char const, std::function<void(char const *)>> ptr{
-      buf, [](char const *x){ PQfreemem(const_cast<char *>(x)); }};
+      buf, [](char const *x) { PQfreemem(const_cast<char *>(x)); }};
     return std::string(ptr.get());
   }
 #else
@@ -718,8 +718,7 @@ bool pqxx::connection::read_copy_line(std::string &line)
   default:
     if (buf)
     {
-      std::unique_ptr<char, std::function<void(char *)>> PQA(
-        buf, PQfreemem);
+      std::unique_ptr<char, std::function<void(char *)>> PQA(buf, PQfreemem);
       line.assign(buf, unsigned(line_len));
     }
     return true;
@@ -799,8 +798,7 @@ pqxx::connection::esc_raw(unsigned char const bin[], size_t len) const
   size_t bytes = 0;
 
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
-    PQescapeByteaConn(m_conn, bin, len, &bytes),
-    PQfreemem};
+    PQescapeByteaConn(m_conn, bin, len, &bytes), PQfreemem};
   if (buf.get() == nullptr)
     throw std::bad_alloc{};
   return std::string{reinterpret_cast<char *>(buf.get())};
@@ -1049,8 +1047,8 @@ std::string pqxx::connection::connection_string() const
     throw usage_error{"Can't get connection string: connection is not open."};
 
   std::unique_ptr<
-    PQconninfoOption, std::function<void(PQconninfoOption *)>> const
-    params{PQconninfo(m_conn), PQconninfoFree};
+    PQconninfoOption, std::function<void(PQconninfoOption *)>> const params{
+    PQconninfo(m_conn), PQconninfoFree};
   if (params.get() == nullptr)
     throw std::bad_alloc{};
 

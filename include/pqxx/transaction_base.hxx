@@ -130,14 +130,20 @@ public:
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction
-  [[nodiscard]] std::string esc(char const text[]) const { return conn().esc(text); }
+  [[nodiscard]] std::string esc(char const text[]) const
+  {
+    return conn().esc(text);
+  }
   /// Escape string for use as SQL string literal in this transaction
   [[nodiscard]] std::string esc(char const text[], size_t maxlen) const
   {
     return conn().esc(text, maxlen);
   }
   /// Escape string for use as SQL string literal in this transaction
-  [[nodiscard]] std::string esc(std::string const &text) const { return conn().esc(text); }
+  [[nodiscard]] std::string esc(std::string const &text) const
+  {
+    return conn().esc(text);
+  }
 
   /// Escape binary data for use as SQL string literal in this transaction
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -151,7 +157,8 @@ public:
    * things that can disrupt their use in SQL queries, they will be replaced
    * with special escape sequences.
    */
-  [[nodiscard]] std::string esc_raw(unsigned char const data[], size_t len) const
+  [[nodiscard]] std::string
+  esc_raw(unsigned char const data[], size_t len) const
   {
     return conn().esc_raw(data, len);
   }
@@ -178,13 +185,14 @@ public:
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
-  template<typename T> [[nodiscard]] std::string quote(T const &t) const
+  template<typename T>[[nodiscard]] std::string quote(T const &t) const
   {
     return conn().quote(t);
   }
 
   /// Binary-escape and quote a binarystring for use as an SQL constant.
-  [[nodiscard]] std::string quote_raw(unsigned char const bin[], size_t len) const
+  [[nodiscard]] std::string
+  quote_raw(unsigned char const bin[], size_t len) const
   {
     return conn().quote_raw(bin, len);
   }
@@ -198,7 +206,8 @@ public:
   }
 
   /// Escape string for literal LIKE match.
-  [[nodiscard]] std::string esc_like(std::string const &bin, char escape_char = '\\') const
+  [[nodiscard]] std::string
+  esc_like(std::string const &bin, char escape_char = '\\') const
   {
     return conn().esc_like(bin, escape_char);
   }

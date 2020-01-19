@@ -41,8 +41,7 @@ void test_071()
 
   // Insert more queries returning various numbers
   P.retain(20);
-  for (int i{100}; i > 90; --i)
-    values[P.insert("SELECT " + to_string(i))] = i;
+  for (int i{100}; i > 90; --i) values[P.insert("SELECT " + to_string(i))] = i;
 
   P.resume();
 

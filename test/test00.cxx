@@ -69,7 +69,7 @@ void test_000()
   long const long_min{LONG_MIN}, long_max{LONG_MAX};
 #else
   long const long_min{std::numeric_limits<long>::min()},
-             long_max{std::numeric_limits<long>::max()};
+    long_max{std::numeric_limits<long>::max()};
 #endif
 
   std::stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
@@ -84,7 +84,7 @@ void test_000()
 
   auto const ullong_max{std::numeric_limits<unsigned long long>::max()};
   auto const llong_max{std::numeric_limits<long long>::max()},
-             llong_min{std::numeric_limits<long long>::min()};
+    llong_min{std::numeric_limits<long long>::min()};
 
   llminstr << llong_min;
   llmaxstr << llong_max;

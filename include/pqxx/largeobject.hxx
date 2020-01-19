@@ -106,10 +106,16 @@ public:
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  [[nodiscard]] bool operator<(largeobject const &other) const { return m_id < other.m_id; }
+  [[nodiscard]] bool operator<(largeobject const &other) const
+  {
+    return m_id < other.m_id;
+  }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  [[nodiscard]] bool operator>(largeobject const &other) const { return m_id > other.m_id; }
+  [[nodiscard]] bool operator>(largeobject const &other) const
+  {
+    return m_id > other.m_id;
+  }
   //@}
 
   /// Export large object's contents to a local file

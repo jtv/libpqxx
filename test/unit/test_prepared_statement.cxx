@@ -34,7 +34,7 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
   {
     --arg;
     std::string const marker{"$" + pqxx::to_string(i)},
-                      var{stringize(t, *arg)};
+      var{stringize(t, *arg)};
     std::string::size_type const msz{marker.size()};
     while (q.find(marker) != std::string::npos)
       q.replace(q.find(marker), msz, var);

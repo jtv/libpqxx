@@ -44,8 +44,8 @@ pqxx::binarystring::binarystring(field const &F)
 {
   unsigned char const *data{
     reinterpret_cast<unsigned char const *>(F.c_str())};
-  m_buf = std::shared_ptr<unsigned char>{
-    PQunescapeBytea(data, &m_size), PQfreemem};
+  m_buf =
+    std::shared_ptr<unsigned char>{PQunescapeBytea(data, &m_size), PQfreemem};
   if (m_buf == nullptr)
     throw std::bad_alloc{};
 }

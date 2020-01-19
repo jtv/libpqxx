@@ -22,8 +22,8 @@ std::string const Table("pqxxevents");
 std::pair<int, int> CountEvents(transaction_base &T)
 {
   std::string const EventsQuery{"SELECT count(*) FROM " + Table};
-  std::string const BoringQuery{
-    EventsQuery + " WHERE year=" + to_string(BoringYear)};
+  std::string const BoringQuery{EventsQuery +
+                                " WHERE year=" + to_string(BoringYear)};
   int EventsCount{0}, BoringCount{0};
 
   row R(T.exec1(EventsQuery));

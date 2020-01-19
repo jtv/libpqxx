@@ -62,9 +62,8 @@ struct CountGreaterSmaller
     // using std::count_if<>()
     using namespace std::placeholders;
     auto const Greater{
-                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T))},
-               Smaller{
-                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1))};
+      std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T))},
+      Smaller{std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1))};
 
     PQXX_CHECK(
       Greater + Smaller < ptrdiff_t(R.size()),

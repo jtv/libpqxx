@@ -106,7 +106,10 @@ public:
   void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] result::size_type rownumber() const noexcept { return m_index; }
+  [[nodiscard]] result::size_type rownumber() const noexcept
+  {
+    return m_index;
+  }
 
   /**
    * @name Column information
@@ -259,12 +262,18 @@ public:
   {
     return col() != i.col();
   }
-  [[nodiscard]] bool operator<(const_row_iterator const &i) const { return col() < i.col(); }
+  [[nodiscard]] bool operator<(const_row_iterator const &i) const
+  {
+    return col() < i.col();
+  }
   [[nodiscard]] bool operator<=(const_row_iterator const &i) const
   {
     return col() <= i.col();
   }
-  [[nodiscard]] bool operator>(const_row_iterator const &i) const { return col() > i.col(); }
+  [[nodiscard]] bool operator>(const_row_iterator const &i) const
+  {
+    return col() > i.col();
+  }
   [[nodiscard]] bool operator>=(const_row_iterator const &i) const
   {
     return col() >= i.col();
@@ -281,7 +290,8 @@ public:
   operator+(difference_type, const_row_iterator const &);
 
   [[nodiscard]] inline const_row_iterator operator-(difference_type) const;
-  [[nodiscard]] inline difference_type operator-(const_row_iterator const &) const;
+  [[nodiscard]] inline difference_type
+  operator-(const_row_iterator const &) const;
   //@}
 };
 
@@ -360,7 +370,8 @@ public:
   {
     return const_reverse_row_iterator{base() + i};
   }
-  [[nodiscard]] difference_type operator-(const_reverse_row_iterator const &rhs) const
+  [[nodiscard]] difference_type
+  operator-(const_reverse_row_iterator const &rhs) const
   {
     return rhs.const_row_iterator::operator-(*this);
   }
@@ -370,11 +381,13 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] bool operator==(const_reverse_row_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator==(const_reverse_row_iterator const &rhs) const
+    noexcept
   {
     return iterator_type::operator==(rhs);
   }
-  [[nodiscard]] bool operator!=(const_reverse_row_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator!=(const_reverse_row_iterator const &rhs) const
+    noexcept
   {
     return !operator==(rhs);
   }

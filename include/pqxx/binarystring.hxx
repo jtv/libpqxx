@@ -89,7 +89,10 @@ public:
   [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
   [[nodiscard]] const_reference front() const noexcept { return *begin(); }
-  [[nodiscard]] const_reference back() const noexcept { return *(data() + m_size - 1); }
+  [[nodiscard]] const_reference back() const noexcept
+  {
+    return *(data() + m_size - 1);
+  }
 
   [[nodiscard]] const_reverse_iterator rbegin() const
   {
@@ -105,7 +108,10 @@ public:
   /// Unescaped field contents.
   [[nodiscard]] value_type const *data() const noexcept { return m_buf.get(); }
 
-  [[nodiscard]] const_reference operator[](size_type i) const noexcept { return data()[i]; }
+  [[nodiscard]] const_reference operator[](size_type i) const noexcept
+  {
+    return data()[i];
+  }
 
   [[nodiscard]] PQXX_PURE bool operator==(binarystring const &) const noexcept;
   [[nodiscard]] bool operator!=(binarystring const &rhs) const noexcept

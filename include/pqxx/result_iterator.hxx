@@ -131,7 +131,8 @@ public:
   friend const_result_iterator
   operator+(difference_type, const_result_iterator const &);
   [[nodiscard]] inline const_result_iterator operator-(difference_type) const;
-  [[nodiscard]] inline difference_type operator-(const_result_iterator const &) const;
+  [[nodiscard]] inline difference_type
+  operator-(const_result_iterator const &) const;
   //@}
 
 private:
@@ -211,7 +212,8 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  [[nodiscard]] const_reverse_result_iterator operator+(difference_type i) const
+  [[nodiscard]] const_reverse_result_iterator
+  operator+(difference_type i) const
   {
     return const_reverse_result_iterator(base() - i);
   }
@@ -219,7 +221,8 @@ public:
   {
     return const_reverse_result_iterator(base() + i);
   }
-  [[nodiscard]] difference_type operator-(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] difference_type
+  operator-(const_reverse_result_iterator const &rhs) const
   {
     return rhs.const_result_iterator::operator-(*this);
   }
@@ -229,11 +232,13 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] bool operator==(const_reverse_result_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator==(const_reverse_result_iterator const &rhs) const
+    noexcept
   {
     return iterator_type::operator==(rhs);
   }
-  [[nodiscard]] bool operator!=(const_reverse_result_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator!=(const_reverse_result_iterator const &rhs) const
+    noexcept
   {
     return not operator==(rhs);
   }
