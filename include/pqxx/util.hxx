@@ -192,13 +192,6 @@ constexpr oid oid_none = 0;
  */
 namespace pqxx::internal
 {
-PQXX_LIBEXPORT void pq_freepqmem(const void *) noexcept;
-template<typename P> inline void freepqmem(P *p) noexcept
-{
-  pq_freepqmem(p);
-}
-
-
 /// Helper base class: object descriptions for error messages and such.
 /**
  * Classes derived from namedclass have a class name (such as "transaction"),

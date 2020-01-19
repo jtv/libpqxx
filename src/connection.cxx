@@ -93,7 +93,7 @@ extern "C"
 std::string pqxx::encrypt_password(const char user[], const char password[])
 {
   std::unique_ptr<char, std::function<void(char *)>> p{
-    PQencryptPassword(password, user), pqxx::internal::freepqmem<char>};
+    PQencryptPassword(password, user), PQfreemem};
   return std::string{p.get()};
 }
 
@@ -439,7 +439,7 @@ using notify_ptr = std::unique_ptr<PGnotify, std::function<void(PGnotify *)>>;
 /// Get one notification from a connection, or null.
 notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 {
-  return notify_ptr(PQnotifies(conn), pqxx::internal::freepqmem<PGnotify>);
+  return notify_ptr(PQnotifies(conn), PQfreemem);
 }
 } // namespace
 
@@ -580,7 +580,7 @@ std::string pqxx::connection::encrypt_password(
   {
     const auto buf{PQencryptPasswordConn(m_conn, user, password, algorithm)};
     std::unique_ptr<const char, std::function<void(const char *)>> ptr{
-      buf, pqxx::internal::freepqmem<const char>};
+      buf, [](const char *x){ PQfreemem(const_cast<char *>(x)); }};
     return std::string(ptr.get());
   }
 #else
@@ -719,7 +719,7 @@ bool pqxx::connection::read_copy_line(std::string &line)
     if (buf)
     {
       std::unique_ptr<char, std::function<void(char *)>> PQA(
-        buf, pqxx::internal::freepqmem<char>);
+        buf, PQfreemem);
       line.assign(buf, unsigned(line_len));
     }
     return true;
@@ -800,7 +800,7 @@ pqxx::connection::esc_raw(const unsigned char bin[], size_t len) const
 
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
     PQescapeByteaConn(m_conn, bin, len, &bytes),
-    pqxx::internal::freepqmem<unsigned char>};
+    PQfreemem};
   if (buf.get() == nullptr)
     throw std::bad_alloc{};
   return std::string{reinterpret_cast<char *>(buf.get())};
@@ -813,7 +813,7 @@ std::string pqxx::connection::unesc_raw(const char text[]) const
   auto bytes{const_cast<unsigned char *>(
     reinterpret_cast<const unsigned char *>(text))};
   const std::unique_ptr<unsigned char, std::function<void(unsigned char *)>>
-    ptr{PQunescapeBytea(bytes, &len), internal::freepqmem<unsigned char>};
+    ptr{PQunescapeBytea(bytes, &len), PQfreemem};
   return std::string{ptr.get(), ptr.get() + len};
 }
 
@@ -835,7 +835,7 @@ std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
   std::unique_ptr<char, std::function<void(char *)>> buf{
     PQescapeIdentifier(m_conn, identifier.data(), identifier.size()),
-    pqxx::internal::freepqmem<char>};
+    PQfreemem};
   if (buf.get() == nullptr)
     throw failure{err_msg()};
   return std::string{buf.get()};

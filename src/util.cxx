@@ -93,12 +93,6 @@ void pqxx::internal::check_unique_unregistration(
 }
 
 
-void pqxx::internal::pq_freepqmem(const void *p) noexcept
-{
-  PQfreemem(const_cast<void *>(p));
-}
-
-
 void pqxx::internal::sleep_seconds(int s)
 {
   std::this_thread::sleep_for(std::chrono::seconds(s));

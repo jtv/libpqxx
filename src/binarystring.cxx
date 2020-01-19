@@ -26,12 +26,6 @@ extern "C"
 
 namespace
 {
-void free_uchar(unsigned char *x)
-{
-  std::free(x);
-}
-
-
 /// Copy data to a heap-allocated buffer.
 std::shared_ptr<unsigned char> copy_to_buffer(const void *data, size_t len)
 {
@@ -41,7 +35,7 @@ std::shared_ptr<unsigned char> copy_to_buffer(const void *data, size_t len)
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
   return std::shared_ptr<unsigned char>{static_cast<unsigned char *>(output),
-                                        free_uchar};
+                                        std::free};
 }
 } // namespace
 
@@ -51,7 +45,7 @@ pqxx::binarystring::binarystring(const field &F)
   const unsigned char *data{
     reinterpret_cast<const unsigned char *>(F.c_str())};
   m_buf = std::shared_ptr<unsigned char>{
-    PQunescapeBytea(data, &m_size), pqxx::internal::freepqmem<unsigned char>};
+    PQunescapeBytea(data, &m_size), PQfreemem};
   if (m_buf == nullptr)
     throw std::bad_alloc{};
 }
