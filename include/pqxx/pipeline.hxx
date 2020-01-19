@@ -115,7 +115,7 @@ public:
   void cancel();
 
   /// Is result for given query available?
-  bool is_finished(query_id) const;
+  [[nodiscard]] bool is_finished(query_id) const;
 
   /// Retrieve result for given query.
   /** If the query failed for whatever reason, this will throw an exception.
@@ -133,7 +133,7 @@ public:
   /** @return The query's identifier and its result set */
   std::pair<query_id, result> retrieve();
 
-  bool empty() const noexcept { return m_queries.empty(); }
+  [[nodiscard]] bool empty() const noexcept { return m_queries.empty(); }
 
   /// Set maximum number of queries to retain before issuing them to the
   /// backend

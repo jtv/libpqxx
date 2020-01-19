@@ -104,22 +104,22 @@ public:
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
-  static difference_type all() noexcept;
+  [[nodiscard]] static difference_type all() noexcept;
 
   /// Special value: read one row only.
   /** @return Unsurprisingly, 1.
    */
-  static difference_type next() noexcept { return 1; }
+  [[nodiscard]] static difference_type next() noexcept { return 1; }
 
   /// Special value: read backwards, one row only.
   /** @return Unsurprisingly, -1.
    */
-  static difference_type prior() noexcept { return -1; }
+  [[nodiscard]] static difference_type prior() noexcept { return -1; }
 
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
-  static difference_type backward_all() noexcept;
+  [[nodiscard]] static difference_type backward_all() noexcept;
 
   //@}
 
@@ -129,7 +129,7 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  std::string const &name() const noexcept { return m_name; }
+  [[nodiscard]] std::string const &name() const noexcept { return m_name; }
 
 protected:
   cursor_base(connection &, std::string_view Name, bool embellish_name = true);
@@ -179,7 +179,7 @@ public:
   /** @note This function is not const; it may need to scroll to find the size
    * of the result set.
    */
-  size_type size() { return internal::obtain_stateless_cursor_size(m_cur); }
+  [[nodiscard]] size_type size() { return internal::obtain_stateless_cursor_size(m_cur); }
 
   /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
   /** Rows are numbered starting from 0 to size()-1.
@@ -199,7 +199,7 @@ public:
       m_cur, result::difference_type(size()), begin_pos, end_pos);
   }
 
-  std::string const &name() const noexcept { return m_cur.name(); }
+  [[nodiscard]] std::string const &name() const noexcept { return m_cur.name(); }
 
 private:
   internal::sql_cursor m_cur;
@@ -321,7 +321,7 @@ public:
    * @param stride Must be a positive number
    */
   void set_stride(difference_type stride);
-  difference_type stride() const noexcept { return m_stride; }
+  [[nodiscard]] difference_type stride() const noexcept { return m_stride; }
 
 private:
   result fetchblock();
@@ -402,18 +402,18 @@ public:
   icursor_iterator &operator+=(difference_type);
   icursor_iterator &operator=(icursor_iterator const &) noexcept;
 
-  bool operator==(icursor_iterator const &rhs) const;
-  bool operator!=(icursor_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator==(icursor_iterator const &rhs) const;
+  [[nodiscard]] bool operator!=(icursor_iterator const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
-  bool operator<(icursor_iterator const &rhs) const;
-  bool operator>(icursor_iterator const &rhs) const { return rhs < *this; }
-  bool operator<=(icursor_iterator const &rhs) const
+  [[nodiscard]] bool operator<(icursor_iterator const &rhs) const;
+  [[nodiscard]] bool operator>(icursor_iterator const &rhs) const { return rhs < *this; }
+  [[nodiscard]] bool operator<=(icursor_iterator const &rhs) const
   {
     return not(*this > rhs);
   }
-  bool operator>=(icursor_iterator const &rhs) const
+  [[nodiscard]] bool operator>=(icursor_iterator const &rhs) const
   {
     return not(*this < rhs);
   }

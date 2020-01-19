@@ -74,8 +74,11 @@ void test_result_slicing()
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
 
   PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() does not throw.");
-  PQXX_CHECK_THROWS(r[0].slice(0, 2), pqxx::range_error, "No range check.");
-  PQXX_CHECK_THROWS(r[0].slice(1, 0), pqxx::range_error, "Can reverse-slice.");
+  pqxx::row slice;
+  PQXX_CHECK_THROWS(slice = r[0].slice(0, 2), pqxx::range_error, "No range check.");
+  pqxx::ignore_unused(slice);
+  PQXX_CHECK_THROWS(slice = r[0].slice(1, 0), pqxx::range_error, "Can reverse-slice.");
+  pqxx::ignore_unused(slice);
 
   // Empty slice at end of row.
   s = r[0].slice(1, 1);

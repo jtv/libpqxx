@@ -62,12 +62,12 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  bool operator==(field const &) const;
+  [[nodiscard]] bool operator==(field const &) const;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  bool operator!=(field const &rhs) const { return not operator==(rhs); }
+  [[nodiscard]] bool operator!=(field const &rhs) const { return not operator==(rhs); }
   //@}
 
   /**
@@ -75,18 +75,18 @@ public:
    */
   //@{
   /// Column name
-  char const *name() const;
+  [[nodiscard]] char const *name() const;
 
   /// Column type
-  oid type() const;
+  [[nodiscard]] oid type() const;
 
   /// What table did this column come from?
-  oid table() const;
+  [[nodiscard]] oid table() const;
 
   row_size_type num() const { return col(); }
 
   /// What column number in its originating table did this column come from?
-  row_size_type table_column() const;
+  [[nodiscard]] row_size_type table_column() const;
   //@}
 
   /**
@@ -94,7 +94,7 @@ public:
    */
   //@{
   /// Read as @c string_view.
-  std::string_view view() const { return std::string_view(c_str(), size()); }
+  [[nodiscard]] std::string_view view() const { return std::string_view(c_str(), size()); }
 
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a
@@ -102,16 +102,16 @@ public:
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
    */
-  char const *c_str() const;
+  [[nodiscard]] char const *c_str() const;
 
   /// Is this field's value null?
-  bool is_null() const noexcept;
+  [[nodiscard]] bool is_null() const noexcept;
 
   /// Return number of bytes taken up by the field's value.
   /**
    * Includes the terminating zero byte.
    */
-  size_type size() const noexcept;
+  [[nodiscard]] size_type size() const noexcept;
 
   /// Read value into obj; or if null, leave obj untouched and return @c false.
   /** This can be used with optional types (except pointers other than C-style
@@ -260,7 +260,6 @@ public:
 protected:
   virtual int sync() override { return traits_type::eof(); }
 
-protected:
   virtual pos_type seekoff(off_type, seekdir, openmode) override
   {
     return traits_type::eof();

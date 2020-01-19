@@ -78,37 +78,37 @@ public:
   binarystring(void const *, size_t);
 
   /// Size of converted string in bytes.
-  size_type size() const noexcept { return m_size; }
+  [[nodiscard]] size_type size() const noexcept { return m_size; }
   /// Size of converted string in bytes.
-  size_type length() const noexcept { return size(); }
-  bool empty() const noexcept { return size() == 0; }
+  [[nodiscard]] size_type length() const noexcept { return size(); }
+  [[nodiscard]] bool empty() const noexcept { return size() == 0; }
 
-  const_iterator begin() const noexcept { return data(); }
-  const_iterator cbegin() const noexcept { return begin(); }
-  const_iterator end() const noexcept { return data() + m_size; }
-  const_iterator cend() const noexcept { return end(); }
+  [[nodiscard]] const_iterator begin() const noexcept { return data(); }
+  [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); }
+  [[nodiscard]] const_iterator end() const noexcept { return data() + m_size; }
+  [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-  const_reference front() const noexcept { return *begin(); }
-  const_reference back() const noexcept { return *(data() + m_size - 1); }
+  [[nodiscard]] const_reference front() const noexcept { return *begin(); }
+  [[nodiscard]] const_reference back() const noexcept { return *(data() + m_size - 1); }
 
-  const_reverse_iterator rbegin() const
+  [[nodiscard]] const_reverse_iterator rbegin() const
   {
     return const_reverse_iterator{end()};
   }
-  const_reverse_iterator crbegin() const { return rbegin(); }
-  const_reverse_iterator rend() const
+  [[nodiscard]] const_reverse_iterator crbegin() const { return rbegin(); }
+  [[nodiscard]] const_reverse_iterator rend() const
   {
     return const_reverse_iterator{begin()};
   }
-  const_reverse_iterator crend() const { return rend(); }
+  [[nodiscard]] const_reverse_iterator crend() const { return rend(); }
 
   /// Unescaped field contents.
-  value_type const *data() const noexcept { return m_buf.get(); }
+  [[nodiscard]] value_type const *data() const noexcept { return m_buf.get(); }
 
-  const_reference operator[](size_type i) const noexcept { return data()[i]; }
+  [[nodiscard]] const_reference operator[](size_type i) const noexcept { return data()[i]; }
 
-  PQXX_PURE bool operator==(binarystring const &) const noexcept;
-  bool operator!=(binarystring const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator==(binarystring const &) const noexcept;
+  [[nodiscard]] bool operator!=(binarystring const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -125,13 +125,13 @@ public:
   /** @warning No terminating zero is added!  If the binary data did not end in
    * a null character, you will not find one here.
    */
-  char const *get() const noexcept
+  [[nodiscard]] char const *get() const noexcept
   {
     return reinterpret_cast<char const *>(m_buf.get());
   }
 
   /// Read contents as a std::string_view.
-  std::string_view view() const noexcept
+  [[nodiscard]] std::string_view view() const noexcept
   {
     return std::string_view(get(), size());
   }
@@ -142,7 +142,7 @@ public:
    * Also, do not expect to be able to compare the string's address to that of
    * an earlier invocation.
    */
-  std::string str() const;
+  [[nodiscard]] std::string str() const;
 
 private:
   std::shared_ptr<value_type> m_buf;

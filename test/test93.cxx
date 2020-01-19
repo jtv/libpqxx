@@ -51,15 +51,19 @@ void test_093()
       R[0][i].table_column(), R.table_column(i),
       "Bad result from column_table().");
 
+  int col;
   PQXX_CHECK_THROWS_EXCEPTION(
-    R.table_column(3), "table_column() with invalid index didn't fail.");
+    col = R.table_column(3), "table_column() with invalid index didn't fail.");
+  pqxx::ignore_unused(col);
 
   PQXX_CHECK_THROWS_EXCEPTION(
-    R.table_column("nonexistent"),
+    col = R.table_column("nonexistent"),
     "table_column() with invalid column name didn't fail.");
+  pqxx::ignore_unused(col);
 
   PQXX_CHECK_THROWS_EXCEPTION(
-    X.table_column(3), "table_column() on non-table didn't fail.");
+    col = X.table_column(3), "table_column() on non-table didn't fail.");
+  pqxx::ignore_unused(col);
 }
 } // namespace
 

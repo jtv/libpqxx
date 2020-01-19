@@ -80,11 +80,11 @@ class const_connection_largeobject;
 namespace pqxx
 {
 /// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-std::string PQXX_LIBEXPORT
+[[nodiscard]] std::string PQXX_LIBEXPORT
 encrypt_password(char const user[], char const password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-inline std::string
+[[nodiscard]] inline std::string
 encrypt_password(std::string const &user, std::string const &password)
 {
   return encrypt_password(user.c_str(), password.c_str());
@@ -180,7 +180,7 @@ public:
    * temptation to check it after opening a connection.  Instead, just use the
    * connection and rely on getting a broken_connection exception if it failed.
    */
-  bool PQXX_PURE is_open() const noexcept;
+  [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(char const[]) noexcept;
@@ -209,19 +209,19 @@ public:
    */
   //@{
   /// Name of database we're connected to, if any.
-  char const *dbname() const;
+  [[nodiscard]] char const *dbname() const;
 
   /// Database user ID we're connected under, if any.
-  char const *username() const;
+  [[nodiscard]] char const *username() const;
 
   /// Address of server, or nullptr if none specified (i.e. default or local)
-  char const *hostname() const;
+  [[nodiscard]] char const *hostname() const;
 
   /// Server port number we're connected to.
-  char const *port() const;
+  [[nodiscard]] char const *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
-  int PQXX_PURE backendpid() const noexcept;
+  [[nodiscard]] int PQXX_PURE backendpid() const noexcept;
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -239,13 +239,13 @@ public:
    * socket may change or even go away during any invocation of libpqxx code on
    * the connection.
    */
-  int PQXX_PURE sock() const noexcept;
+  [[nodiscard]] int PQXX_PURE sock() const noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
    * possibly higher values as newer protocol versions come into use.
    */
-  int PQXX_PURE protocol_version() const noexcept;
+  [[nodiscard]] int PQXX_PURE protocol_version() const noexcept;
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -260,7 +260,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  int PQXX_PURE server_version() const noexcept;
+  [[nodiscard]] int PQXX_PURE server_version() const noexcept;
   //@}
 
   /// @name Text encoding
@@ -285,7 +285,7 @@ public:
    */
   //@{
   /// Get client-side character encoding, by name.
-  std::string get_client_encoding() const;
+  [[nodiscard]] std::string get_client_encoding() const;
 
   /// Set client-side character encoding, by name.
   /**
@@ -303,7 +303,7 @@ public:
   void set_client_encoding(char const encoding[]);
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
-  int PQXX_PRIVATE encoding_id() const;
+  [[nodiscard]] int PQXX_PRIVATE encoding_id() const;
 
   //@}
 
@@ -403,9 +403,9 @@ public:
    * different algorithm than md5 will result in a @c feature_not_supported
    * exception.
    */
-  std::string encrypt_password(
+  [[nodiscard]] std::string encrypt_password(
     char const user[], char const password[], char const *algorithm = nullptr);
-  std::string encrypt_password(zview user, zview password, zview algorithm)
+  [[nodiscard]] std::string encrypt_password(zview user, zview password, zview algorithm)
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
   }
@@ -494,7 +494,7 @@ public:
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
    */
-  std::string adorn_name(std::string_view);
+  [[nodiscard]] std::string adorn_name(std::string_view);
 
   /**
    * @defgroup escaping-functions String-escaping functions
@@ -506,13 +506,13 @@ public:
    * zero byte.  But if there is a zero byte, escaping stops there even if
    * it's not at the end of the string!
    */
-  std::string esc(char const text[], size_t maxlen) const
+  [[nodiscard]] std::string esc(char const text[], size_t maxlen) const
   {
     return esc(std::string_view(text, maxlen));
   }
 
   /// Escape string for use as SQL string literal on this connection.
-  std::string esc(char const text[]) const
+  [[nodiscard]] std::string esc(char const text[]) const
   {
     return esc(std::string_view(text));
   }
@@ -521,16 +521,16 @@ public:
   /** @warning If the string contains a zero byte, escaping stops there even
    * if it's not at the end of the string!
    */
-  std::string esc(std::string_view text) const;
+  [[nodiscard]] std::string esc(std::string_view text) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  std::string esc_raw(unsigned char const bin[], size_t len) const;
+  [[nodiscard]] std::string esc_raw(unsigned char const bin[], size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(std::string const &text) const
+  [[nodiscard]] std::string unesc_raw(std::string const &text) const
   {
     return unesc_raw(text.c_str());
   }
@@ -539,27 +539,27 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(zview text) const { return unesc_raw(text.c_str()); }
+  [[nodiscard]] std::string unesc_raw(zview text) const { return unesc_raw(text.c_str()); }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  std::string unesc_raw(char const text[]) const;
+  [[nodiscard]] std::string unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(unsigned char const bin[], size_t len) const;
+  [[nodiscard]] std::string quote_raw(unsigned char const bin[], size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
-  std::string quote_name(std::string_view identifier) const;
+  [[nodiscard]] std::string quote_name(std::string_view identifier) const;
 
   /// Represent object as SQL string, including quoting & escaping.
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T> inline std::string quote(T const &t) const;
+  template<typename T> [[nodiscard]] inline std::string quote(T const &t) const;
 
-  std::string quote(binarystring const &) const;
+  [[nodiscard]] std::string quote(binarystring const &) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
@@ -585,7 +585,7 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  std::string esc_like(std::string_view text, char escape_char = '\\') const;
+  [[nodiscard]] std::string esc_like(std::string_view text, char escape_char = '\\') const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -620,7 +620,7 @@ public:
    * The pointers point to the real errorhandlers.  The container it returns
    * however is a copy of the one internal to the connection, not a reference.
    */
-  std::vector<errorhandler *> get_errorhandlers() const;
+  [[nodiscard]] std::vector<errorhandler *> get_errorhandlers() const;
 
   /// Return a connection string encapsulating this connection's options.
   /** The connection must be currently open for this to work.
@@ -629,7 +629,7 @@ public:
    * not exactly match the connection string you passed in when creating this
    * connection.
    */
-  std::string connection_string() const;
+  [[nodiscard]] std::string connection_string() const;
 
   /// Explicitly close the connection.
   /** You won't normally need this.  Destroying a connection object will have

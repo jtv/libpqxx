@@ -36,7 +36,7 @@ namespace pqxx
  * @param access functor defining how to dereference sequence elements
  */
 template<typename ITER, typename ACCESS>
-inline std::string
+[[nodiscard]] inline std::string
 separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
 {
   if (end == begin)
@@ -74,7 +74,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
 
 /// Render sequence as a string, using given separator between items.
 template<typename ITER>
-inline std::string separated_list(std::string_view sep, ITER begin, ITER end)
+[[nodiscard]] inline std::string separated_list(std::string_view sep, ITER begin, ITER end)
 {
   return separated_list(sep, begin, end, [](ITER i) { return *i; });
 }
@@ -82,7 +82,7 @@ inline std::string separated_list(std::string_view sep, ITER begin, ITER end)
 
 /// Render items in a container as a string, using given separator.
 template<typename CONTAINER>
-inline auto separated_list(std::string_view sep, CONTAINER const &c)
+[[nodiscard]] inline auto separated_list(std::string_view sep, CONTAINER const &c)
   /*
   Always std::string; necessary because SFINAE doesn't work with the
   contents of function bodies, so the check for iterability has to be in
@@ -102,7 +102,7 @@ template<
   typename TUPLE, std::size_t INDEX = 0, typename ACCESS,
   typename std::enable_if<
     (INDEX == std::tuple_size<TUPLE>::value - 1), int>::type = 0>
-inline std::string separated_list(
+[[nodiscard]] inline std::string separated_list(
   std::string_view /* sep */, TUPLE const &t, ACCESS const &access)
 {
   return to_string(access(&std::get<INDEX>(t)));
@@ -112,7 +112,7 @@ template<
   typename TUPLE, std::size_t INDEX = 0, typename ACCESS,
   typename std::enable_if<
     (INDEX < std::tuple_size<TUPLE>::value - 1), int>::type = 0>
-inline std::string
+[[nodiscard]] inline std::string
 separated_list(std::string_view sep, TUPLE const &t, ACCESS const &access)
 {
   std::string out{to_string(access(&std::get<INDEX>(t)))};
@@ -125,7 +125,7 @@ template<
   typename TUPLE, std::size_t INDEX = 0,
   typename std::enable_if<
     (INDEX <= std::tuple_size<TUPLE>::value), int>::type = 0>
-inline std::string separated_list(std::string_view sep, TUPLE const &t)
+[[nodiscard]] inline std::string separated_list(std::string_view sep, TUPLE const &t)
 {
   return separated_list(sep, t, [](TUPLE const &tup) { return *tup; });
 }

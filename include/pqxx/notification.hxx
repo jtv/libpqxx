@@ -66,7 +66,7 @@ public:
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
-  std::string const &channel() const { return m_channel; }
+  [[nodiscard]] std::string const &channel() const { return m_channel; }
 
   /// Overridable: action to invoke when notification arrives.
   /**

@@ -98,8 +98,8 @@ public:
 
   ~stream_to() noexcept;
 
-  operator bool() const noexcept { return not m_finished; }
-  bool operator!() const noexcept { return m_finished; }
+  [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  [[nodiscard]] bool operator!() const noexcept { return m_finished; }
 
   /// Complete the operation, and check for errors.
   /** Always call this to close the stream in an orderly fashion, even after

@@ -60,8 +60,8 @@ public:
    * algorithms.  So even if this makes me look foolish, I would seem to be in
    * distinguished company.
    */
-  pointer operator->() const { return this; }
-  reference operator*() const { return row{*this}; }
+  [[nodiscard]] pointer operator->() const { return this; }
+  [[nodiscard]] reference operator*() const { return row{*this}; }
   //@}
 
   /**
@@ -97,27 +97,27 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(const_result_iterator const &i) const
+  [[nodiscard]] bool operator==(const_result_iterator const &i) const
   {
     return m_index == i.m_index;
   }
-  bool operator!=(const_result_iterator const &i) const
+  [[nodiscard]] bool operator!=(const_result_iterator const &i) const
   {
     return m_index != i.m_index;
   }
-  bool operator<(const_result_iterator const &i) const
+  [[nodiscard]] bool operator<(const_result_iterator const &i) const
   {
     return m_index < i.m_index;
   }
-  bool operator<=(const_result_iterator const &i) const
+  [[nodiscard]] bool operator<=(const_result_iterator const &i) const
   {
     return m_index <= i.m_index;
   }
-  bool operator>(const_result_iterator const &i) const
+  [[nodiscard]] bool operator>(const_result_iterator const &i) const
   {
     return m_index > i.m_index;
   }
-  bool operator>=(const_result_iterator const &i) const
+  [[nodiscard]] bool operator>=(const_result_iterator const &i) const
   {
     return m_index >= i.m_index;
   }
@@ -127,11 +127,11 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  inline const_result_iterator operator+(difference_type) const;
+  [[nodiscard]] inline const_result_iterator operator+(difference_type) const;
   friend const_result_iterator
   operator+(difference_type, const_result_iterator const &);
-  inline const_result_iterator operator-(difference_type) const;
-  inline difference_type operator-(const_result_iterator const &) const;
+  [[nodiscard]] inline const_result_iterator operator-(difference_type) const;
+  [[nodiscard]] inline difference_type operator-(const_result_iterator const &) const;
   //@}
 
 private:
@@ -163,7 +163,7 @@ public:
     super::operator--();
   }
 
-  PQXX_PURE const_result_iterator base() const noexcept;
+  [[nodiscard]] PQXX_PURE const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators
@@ -211,15 +211,15 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  const_reverse_result_iterator operator+(difference_type i) const
+  [[nodiscard]] const_reverse_result_iterator operator+(difference_type i) const
   {
     return const_reverse_result_iterator(base() - i);
   }
-  const_reverse_result_iterator operator-(difference_type i)
+  [[nodiscard]] const_reverse_result_iterator operator-(difference_type i)
   {
     return const_reverse_result_iterator(base() + i);
   }
-  difference_type operator-(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] difference_type operator-(const_reverse_result_iterator const &rhs) const
   {
     return rhs.const_result_iterator::operator-(*this);
   }
@@ -229,28 +229,28 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(const_reverse_result_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator==(const_reverse_result_iterator const &rhs) const noexcept
   {
     return iterator_type::operator==(rhs);
   }
-  bool operator!=(const_reverse_result_iterator const &rhs) const noexcept
+  [[nodiscard]] bool operator!=(const_reverse_result_iterator const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
 
-  bool operator<(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] bool operator<(const_reverse_result_iterator const &rhs) const
   {
     return iterator_type::operator>(rhs);
   }
-  bool operator<=(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] bool operator<=(const_reverse_result_iterator const &rhs) const
   {
     return iterator_type::operator>=(rhs);
   }
-  bool operator>(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] bool operator>(const_reverse_result_iterator const &rhs) const
   {
     return iterator_type::operator<(rhs);
   }
-  bool operator>=(const_reverse_result_iterator const &rhs) const
+  [[nodiscard]] bool operator>=(const_reverse_result_iterator const &rhs) const
   {
     return iterator_type::operator<=(rhs);
   }

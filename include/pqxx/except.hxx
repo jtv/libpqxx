@@ -89,10 +89,10 @@ public:
   virtual ~sql_error() noexcept override;
 
   /// The query whose execution triggered the exception
-  PQXX_PURE std::string const &query() const noexcept;
+  [[nodiscard]] PQXX_PURE std::string const &query() const noexcept;
 
   /// SQLSTATE error code if known, or empty string otherwise.
-  PQXX_PURE std::string const &sqlstate() const noexcept;
+  [[nodiscard]] PQXX_PURE std::string const &sqlstate() const noexcept;
 };
 
 

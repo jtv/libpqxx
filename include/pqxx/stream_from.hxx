@@ -37,8 +37,8 @@ public:
 
   ~stream_from() noexcept;
 
-  operator bool() const noexcept { return not m_finished; }
-  bool operator!() const noexcept { return m_finished; }
+  [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  [[nodiscard]] bool operator!() const noexcept { return m_finished; }
 
   /// Finish this stream.  Call this before continuing to use the connection.
   /** Consumes all remaining lines, and closes the stream.

@@ -70,7 +70,7 @@ public:
    * database we're connected to (or oid_none is returned if we refer to the
    * null object).
    */
-  oid id() const noexcept { return m_id; }
+  [[nodiscard]] oid id() const noexcept { return m_id; }
 
   /**
    * @name Identity comparisons
@@ -82,34 +82,34 @@ public:
   //@{
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator==(largeobject const &other) const
+  [[nodiscard]] bool operator==(largeobject const &other) const
   {
     return m_id == other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator!=(largeobject const &other) const
+  [[nodiscard]] bool operator!=(largeobject const &other) const
   {
     return m_id != other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<=(largeobject const &other) const
+  [[nodiscard]] bool operator<=(largeobject const &other) const
   {
     return m_id <= other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>=(largeobject const &other) const
+  [[nodiscard]] bool operator>=(largeobject const &other) const
   {
     return m_id >= other.m_id;
   }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator<(largeobject const &other) const { return m_id < other.m_id; }
+  [[nodiscard]] bool operator<(largeobject const &other) const { return m_id < other.m_id; }
   /// Compare object identities
   /** @warning Only valid between large objects in the same database. */
-  bool operator>(largeobject const &other) const { return m_id > other.m_id; }
+  [[nodiscard]] bool operator>(largeobject const &other) const { return m_id > other.m_id; }
   //@}
 
   /// Export large object's contents to a local file
@@ -253,7 +253,7 @@ public:
   /** Throws an exception if an error occurs.
    * @return The current position in the large object.
    */
-  size_type tell() const;
+  [[nodiscard]] size_type tell() const;
   //@}
 
   /**
@@ -302,7 +302,7 @@ public:
    * @c errno instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
-  pos_type ctell() const noexcept;
+  [[nodiscard]] pos_type ctell() const noexcept;
   //@}
 
   /**

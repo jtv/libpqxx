@@ -172,11 +172,11 @@ struct PQXX_LIBEXPORT thread_safety_model
 
 
 /// Describe thread safety available in this build.
-PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
+[[nodiscard]] PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
 /// The "null" oid.
-constexpr oid oid_none = 0;
+constexpr oid oid_none{0};
 } // namespace pqxx
 
 

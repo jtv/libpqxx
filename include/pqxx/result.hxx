@@ -92,33 +92,33 @@ public:
    * @name Comparisons
    */
   //@{
-  bool operator==(result const &) const noexcept;
-  bool operator!=(result const &rhs) const noexcept
+  [[nodiscard]] bool operator==(result const &) const noexcept;
+  [[nodiscard]] bool operator!=(result const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
   //@}
 
-  const_reverse_iterator rbegin() const;
-  const_reverse_iterator crbegin() const;
-  const_reverse_iterator rend() const;
-  const_reverse_iterator crend() const;
+  [[nodiscard]] const_reverse_iterator rbegin() const;
+  [[nodiscard]] const_reverse_iterator crbegin() const;
+  [[nodiscard]] const_reverse_iterator rend() const;
+  [[nodiscard]] const_reverse_iterator crend() const;
 
-  const_iterator begin() const noexcept;
-  const_iterator cbegin() const noexcept;
-  inline const_iterator end() const noexcept;
-  inline const_iterator cend() const noexcept;
+  [[nodiscard]] const_iterator begin() const noexcept;
+  [[nodiscard]] const_iterator cbegin() const noexcept;
+  [[nodiscard]] inline const_iterator end() const noexcept;
+  [[nodiscard]] inline const_iterator cend() const noexcept;
 
-  reference front() const noexcept;
-  reference back() const noexcept;
+  [[nodiscard]] reference front() const noexcept;
+  [[nodiscard]] reference back() const noexcept;
 
-  PQXX_PURE size_type size() const noexcept;
-  PQXX_PURE bool empty() const noexcept;
-  size_type capacity() const noexcept { return size(); }
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept;
+  [[nodiscard]] PQXX_PURE bool empty() const noexcept;
+  [[nodiscard]] size_type capacity() const noexcept { return size(); }
 
   void swap(result &) noexcept;
 
-  row operator[](size_type i) const noexcept;
+  [[nodiscard]] row operator[](size_type i) const noexcept;
   row at(size_type) const;
 
   void clear() noexcept
@@ -132,7 +132,7 @@ public:
    */
   //@{
   /// Number of columns in result.
-  PQXX_PURE row_size_type columns() const noexcept;
+  [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
   row_size_type column_number(char const col_name[]) const;
@@ -150,51 +150,51 @@ public:
   }
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  char const *column_name(row_size_type number) const;
+  [[nodiscard]] char const *column_name(row_size_type number) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  oid column_type(row_size_type col_num) const;
+  [[nodiscard]] oid column_type(row_size_type col_num) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  template<typename STRING> oid column_type(STRING col_name) const
+  template<typename STRING> [[nodiscard]] oid column_type(STRING col_name) const
   {
     return column_type(column_number(col_name));
   }
 
   /// What table did this column come from?
-  oid column_table(row_size_type col_num) const;
+  [[nodiscard]] oid column_table(row_size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING> oid column_table(STRING col_name) const
+  template<typename STRING> [[nodiscard]] oid column_table(STRING col_name) const
   {
     return column_table(column_number(col_name));
   }
 
   /// What column in its table did this column come from?
-  row_size_type table_column(row_size_type col_num) const;
+  [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
 
   /// What column in its table did this column come from?
-  template<typename STRING> row_size_type table_column(STRING col_name) const
+  template<typename STRING> [[nodiscard]] row_size_type table_column(STRING col_name) const
   {
     return table_column(column_number(col_name));
   }
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  PQXX_PURE std::string const &query() const noexcept;
+  [[nodiscard]] PQXX_PURE std::string const &query() const noexcept;
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * oid_none otherwise.
    */
-  PQXX_PURE oid inserted_oid() const;
+  [[nodiscard]] PQXX_PURE oid inserted_oid() const;
 
   /// If command was @c INSERT, @c UPDATE, or @c DELETE: number of affected
   /// rows
   /** @return Number of affected rows if last command was @c INSERT, @c UPDATE,
    * or @c DELETE; zero for all other commands.
    */
-  PQXX_PURE size_type affected_rows() const;
+  [[nodiscard]] PQXX_PURE size_type affected_rows() const;
 
 
 private:

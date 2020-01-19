@@ -97,7 +97,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
    * equal, or may define a null value which is not equal to anything including
    * itself, like in SQL.
    */
-  static TYPE null();
+  [[nodiscard]] static TYPE null();
 };
 
 
@@ -105,7 +105,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 template<typename TYPE> struct no_null
 {
   static constexpr bool has_null = false;
-  static constexpr bool is_null(TYPE const &) noexcept { return false; }
+  [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept { return false; }
 };
 
 
@@ -133,7 +133,7 @@ template<typename TYPE> struct string_traits
    * complain about a buffer which is actually large enough for your value, if
    * an exact check gets too expensive.
    */
-  static inline zview to_buf(char *begin, char *end, TYPE const &value);
+  [[nodiscard]] static inline zview to_buf(char *begin, char *end, TYPE const &value);
 
   /// Write value's string representation into buffer at @c begin.
   /** Assumes that value is non-null.
@@ -145,14 +145,14 @@ template<typename TYPE> struct string_traits
    */
   static inline char *into_buf(char *begin, char *end, TYPE const &value);
 
-  static inline TYPE from_string(std::string_view text);
+  [[nodiscard]] static inline TYPE from_string(std::string_view text);
 
   /// Estimate how much buffer space is needed to represent value.
   /** The estimate may be a little pessimistic, if it saves time.
    *
    * The estimate includes the terminating zero.
    */
-  static inline size_t size_buffer(TYPE const &value);
+  [[nodiscard]] static inline size_t size_buffer(TYPE const &value);
 };
 
 
@@ -180,7 +180,7 @@ template<typename ENUM> struct enum_traits
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
 
-  static constexpr zview to_buf(char *begin, char *end, ENUM const &value)
+  [[nodiscard]] static constexpr zview to_buf(char *begin, char *end, ENUM const &value)
   {
     return impl_traits::to_buf(begin, end, static_cast<impl_type>(value));
   }
@@ -190,12 +190,12 @@ template<typename ENUM> struct enum_traits
     return impl_traits::into_buf(begin, end, static_cast<impl_type>(value));
   }
 
-  static ENUM from_string(std::string_view text)
+  [[nodiscard]] static ENUM from_string(std::string_view text)
   {
     return static_cast<ENUM>(impl_traits::from_string(text));
   }
 
-  static size_t size_buffer(ENUM const &value)
+  [[nodiscard]] static size_t size_buffer(ENUM const &value)
   {
     return impl_traits::size_buffer(static_cast<impl_type>(value));
   }
@@ -236,7 +236,7 @@ namespace pqxx
  * Whitespace is not stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T> inline T from_string(std::string_view text)
+template<typename T> [[nodiscard]] inline T from_string(std::string_view text)
 {
   return string_traits<T>::from_string(text);
 }
@@ -274,7 +274,7 @@ inline void into_string(TYPE const &value, std::string &out);
 
 
 /// Is @c value null?
-template<typename TYPE> inline bool is_null(TYPE const &value)
+template<typename TYPE> [[nodiscard]] inline bool is_null(TYPE const &value)
 {
   if constexpr (nullness<TYPE>::has_null)
   {
