@@ -3,7 +3,8 @@ if(NOT PostgreSQL_INCLUDE_DIRS)
 endif()
 
 file(
-    GLOB UNIT_TEST_SOURCES
+    GLOB
+    UNIT_TEST_SOURCES
 ###MAKTEMPLATE:FOREACH test/unit/*.cxx
     ###BASENAME###.cxx
 ###MAKTEMPLATE:ENDFOREACH

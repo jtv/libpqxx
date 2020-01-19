@@ -1,4 +1,4 @@
-################################################################################
+# ##############################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,13 +10,14 @@
 # libpqxx source archive.
 #
 # Generated from template './test/unit/CMakeLists.txt.template'.
-################################################################################
+# ##############################################################################
 if(NOT PostgreSQL_INCLUDE_DIRS)
     find_package(PostgreSQL REQUIRED)
 endif()
 
 file(
-    GLOB UNIT_TEST_SOURCES
+    GLOB
+    UNIT_TEST_SOURCES
     runner.cxx
     test_array.cxx
     test_binarystring.cxx
@@ -51,8 +52,7 @@ file(
     test_transaction.cxx
     test_transaction_base.cxx
     test_transactor.cxx
-    test_type_name.cxx
-)
+    test_type_name.cxx)
 
 add_executable(unit_runner ${UNIT_TEST_SOURCES})
 target_link_libraries(unit_runner PUBLIC pqxx)

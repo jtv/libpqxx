@@ -1,4 +1,4 @@
-################################################################################
+# ##############################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,7 +10,7 @@
 # libpqxx source archive.
 #
 # Generated from template './include/CMakeLists.txt.template'.
-################################################################################
+# ##############################################################################
 install(
     DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -121,5 +121,4 @@ install(
     PATTERN performance.md
     PATTERN prepared-statement.md
     PATTERN streams.md
-    PATTERN thread-safety.md
-)
+    PATTERN thread-safety.md)
