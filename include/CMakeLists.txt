@@ -107,20 +107,19 @@ install(
     PATTERN internal/gates/transaction-transactionfocus.hxx
     PATTERN config-public-compiler.h
     PATTERN pqxx
-    PATTERN doc EXCLUDE
-)
+    PATTERN doc EXCLUDE)
 
 install(
-	DIRECTORY pqxx/doc/
-	DESTINATION ${CMAKE_INSTALL_DOCDIR}
-	FILES_MATCHING
-		PATTERN README.md
-		PATTERN accessing-results.md
-		PATTERN escaping.md
-		PATTERN getting-started.md
-		PATTERN mainpage.md
-		PATTERN performance.md
-		PATTERN prepared-statement.md
-		PATTERN streams.md
-		PATTERN thread-safety.md
+    DIRECTORY pqxx/doc/
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    FILES_MATCHING
+    PATTERN README.md
+    PATTERN accessing-results.md
+    PATTERN escaping.md
+    PATTERN getting-started.md
+    PATTERN mainpage.md
+    PATTERN performance.md
+    PATTERN prepared-statement.md
+    PATTERN streams.md
+    PATTERN thread-safety.md
 )
