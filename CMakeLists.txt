@@ -6,7 +6,8 @@ string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
 project(
     libpqxx
     VERSION ${VER_FILE_CONTENT}
-    LANGUAGES CXX)
+    LANGUAGES CXX
+)
 
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
@@ -38,21 +39,27 @@ endif()
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
     VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion)
+    COMPATIBILITY SameMajorVersion
+)
 install(FILES cmake/libpqxx-config.cmake
               "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
+)
 install(
     EXPORT libpqxx-targets
     NAMESPACE libpqxx::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libpqxx
+)
 # Build tree export
 export(
     EXPORT libpqxx-targets
     NAMESPACE libpqxx::
-    FILE ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-targets.cmake)
-configure_file(cmake/libpqxx-config.cmake
-               ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config.cmake COPYONLY)
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-targets.cmake
+)
+configure_file(
+    cmake/libpqxx-config.cmake ${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config.cmake
+    COPYONLY
+)
 # Package generation
 set(CPACK_GENERATOR TGZ)
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
