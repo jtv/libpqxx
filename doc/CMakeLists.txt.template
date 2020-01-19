@@ -34,53 +34,53 @@ configure_file(Doxyfile.in Doxyfile)
 if(HAVE_DOXYGEN)
     set(DOXYGEN_SOURCES
 ###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
-    	"${PROJECT_SOURCE_DIR}/include/pqxx/###BASENAME###.hxx"
+        "${PROJECT_SOURCE_DIR}/include/pqxx/###BASENAME###.hxx"
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH include/pqxx/doc/*.md
-    	"${PROJECT_SOURCE_DIR}/###FILENAME###"
+        "${PROJECT_SOURCE_DIR}/###FILENAME###"
 ###MAKTEMPLATE:ENDFOREACH
 ###MAKTEMPLATE:FOREACH src/*.cxx
-    	"${PROJECT_SOURCE_DIR}/###FILENAME###"
+        "${PROJECT_SOURCE_DIR}/###FILENAME###"
 ###MAKTEMPLATE:ENDFOREACH
     )
     set(DOXYGEN_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp")
-    add_custom_command(VERBATIM
-    	OUTPUT ${DOXYGEN_STAMP_FILE}
-    	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
-    	COMMAND doxygen Doxyfile
-    	COMMAND ${CMAKE_COMMAND} -E touch ${DOXYGEN_STAMP_FILE}
-    	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${DOXYGEN_SOURCES}
-    	COMMENT "Generate API documentation"
+    add_custom_command(OUTPUT ${DOXYGEN_STAMP_FILE}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
+        COMMAND doxygen Doxyfile
+        COMMAND ${CMAKE_COMMAND} -E touch ${DOXYGEN_STAMP_FILE}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${DOXYGEN_SOURCES}
+        COMMENT "Generate API documentation"
+        VERBATIM
     )
     add_custom_target(doxygen ALL
-    	DEPENDS ${DOXYGEN_STAMP_FILE}
-    	SOURCES ${DOXYGEN_SOURCES}
+        DEPENDS ${DOXYGEN_STAMP_FILE}
+        SOURCES ${DOXYGEN_SOURCES}
     )
     install(
-    	DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
-    	DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
+        DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
     )
 endif()
 
 if(HAVE_XMLTO)
     set(XMLTO_SOURCES
-    	"${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
     )
     set(XMLTO_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/xmlto.stamp")
-    add_custom_command(VERBATIM
-    	OUTPUT ${XMLTO_STAMP_FILE}
-    	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
-    	COMMAND xmlto -o html/Tutorial xhtml "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
-    	COMMAND ${CMAKE_COMMAND} -E touch ${XMLTO_STAMP_FILE}
-    	DEPENDS ${XMLTO_SOURCES}
-    	COMMENT "Generate tutorial"
+    add_custom_command(OUTPUT ${XMLTO_STAMP_FILE}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
+        COMMAND xmlto -o html/Tutorial xhtml "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
+        COMMAND ${CMAKE_COMMAND} -E touch ${XMLTO_STAMP_FILE}
+        DEPENDS ${XMLTO_SOURCES}
+        COMMENT "Generate tutorial"
+        VERBATIM
     )
     add_custom_target(tutorial ALL
-    	DEPENDS ${XMLTO_STAMP_FILE}
-    	SOURCES ${XMLTO_SOURCES}
+        DEPENDS ${XMLTO_STAMP_FILE}
+        SOURCES ${XMLTO_SOURCES}
     )
     install(
-    	DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
-    	DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
+        DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
     )
 endif()
