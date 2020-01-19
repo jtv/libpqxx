@@ -112,13 +112,13 @@ if(HAVE_DOXYGEN)
     	"${PROJECT_SOURCE_DIR}/src/version.cxx"
     )
     set(DOXYGEN_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp")
-    add_custom_command(VERBATIM
-    	OUTPUT ${DOXYGEN_STAMP_FILE}
+    add_custom_command(OUTPUT ${DOXYGEN_STAMP_FILE}
     	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
     	COMMAND doxygen Doxyfile
     	COMMAND ${CMAKE_COMMAND} -E touch ${DOXYGEN_STAMP_FILE}
     	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${DOXYGEN_SOURCES}
     	COMMENT "Generate API documentation"
+	VERBATIM
     )
     add_custom_target(doxygen ALL
     	DEPENDS ${DOXYGEN_STAMP_FILE}
@@ -135,13 +135,13 @@ if(HAVE_XMLTO)
     	"${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
     )
     set(XMLTO_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/xmlto.stamp")
-    add_custom_command(VERBATIM
-    	OUTPUT ${XMLTO_STAMP_FILE}
+    add_custom_command(OUTPUT ${XMLTO_STAMP_FILE}
     	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
     	COMMAND xmlto -o html/Tutorial xhtml "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
     	COMMAND ${CMAKE_COMMAND} -E touch ${XMLTO_STAMP_FILE}
     	DEPENDS ${XMLTO_SOURCES}
     	COMMENT "Generate tutorial"
+	VERBATIM
     )
     add_custom_target(tutorial ALL
     	DEPENDS ${XMLTO_STAMP_FILE}
