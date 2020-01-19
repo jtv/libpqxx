@@ -9,12 +9,10 @@
 #include "pqxx-source.hxx"
 
 #include <cerrno>
-#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <new>
-#include <thread>
 
 extern "C"
 {
@@ -90,10 +88,4 @@ void pqxx::internal::check_unique_unregistration(
                       "expected to close " +
                       old_ptr->description()};
   }
-}
-
-
-void pqxx::internal::sleep_seconds(int s)
-{
-  std::this_thread::sleep_for(std::chrono::seconds(s));
 }

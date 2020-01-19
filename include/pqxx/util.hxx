@@ -283,13 +283,6 @@ public:
 private:
   GUEST *m_guest = nullptr;
 };
-
-
-/// Sleep for the given number of seconds
-/** May return early, e.g. when interrupted by a signal.  Completes instantly
- * if a zero or negative sleep time is requested.
- */
-PQXX_LIBEXPORT void sleep_seconds(int);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
