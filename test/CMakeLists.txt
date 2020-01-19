@@ -14,7 +14,8 @@
 enable_testing()
 
 file(
-    GLOB TEST_SOURCES
+    GLOB
+    TEST_SOURCES
     test00.cxx
     test01.cxx
     test02.cxx

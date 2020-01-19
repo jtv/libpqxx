@@ -1,7 +1,8 @@
 enable_testing()
 
 file(
-    GLOB TEST_SOURCES
+    GLOB
+    TEST_SOURCES
 ###MAKTEMPLATE:FOREACH test/test*.cxx
     ###BASENAME###.cxx
 ###MAKTEMPLATE:ENDFOREACH
