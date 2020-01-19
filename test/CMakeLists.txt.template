@@ -1,18 +1,18 @@
 enable_testing()
 
 file(
-	GLOB TEST_SOURCES
+    GLOB TEST_SOURCES
 ###MAKTEMPLATE:FOREACH test/test*.cxx
-	###BASENAME###.cxx
+    ###BASENAME###.cxx
 ###MAKTEMPLATE:ENDFOREACH
-	runner.cxx
+    runner.cxx
 )
 
 add_executable(runner ${TEST_SOURCES})
 target_link_libraries(runner PUBLIC pqxx)
 add_test(
-	NAME runner
-	WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-	COMMAND runner)
+    NAME runner
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND runner)
 
 add_subdirectory(unit)
