@@ -198,12 +198,6 @@ template<typename P> inline void freepqmem(P *p) noexcept
   pq_freepqmem(p);
 }
 
-PQXX_LIBEXPORT void freemallocmem(const void *) noexcept;
-template<typename P> inline void freemallocmem_templated(P *p) noexcept
-{
-  freemallocmem(p);
-}
-
 
 /// Helper base class: object descriptions for error messages and such.
 /**

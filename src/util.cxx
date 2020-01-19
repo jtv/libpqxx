@@ -99,12 +99,6 @@ void pqxx::internal::pq_freepqmem(const void *p) noexcept
 }
 
 
-void pqxx::internal::freemallocmem(const void *p) noexcept
-{
-  free(const_cast<void *>(p));
-}
-
-
 void pqxx::internal::sleep_seconds(int s)
 {
   std::this_thread::sleep_for(std::chrono::seconds(s));
