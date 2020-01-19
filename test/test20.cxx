@@ -8,7 +8,7 @@ using namespace pqxx;
 // Test: nontransaction changes are not rolled back on abort.
 namespace
 {
-constexpr unsigned long BoringYear = 1977;
+constexpr unsigned long BoringYear{1977};
 
 
 void test_020()
@@ -17,7 +17,7 @@ void test_020()
   nontransaction t1{conn};
   test::create_pqxxevents(t1);
 
-  std::string const Table = "pqxxevents";
+  std::string const Table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.

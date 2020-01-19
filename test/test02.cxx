@@ -52,10 +52,10 @@ void test_002()
   // Now we've got all that settled, let's process our results.
   for (auto const &f : R)
   {
-    oid const ftable = f[0].table();
+    oid const ftable{f[0].table()};
     PQXX_CHECK_EQUAL(ftable, rtable, "field::table() is broken.");
 
-    oid const ttable = f.column_table(0);
+    oid const ttable{f.column_table(0)};
 
     PQXX_CHECK_EQUAL(
       ttable, f.column_table(pqxx::row::size_type(0)),
@@ -63,7 +63,7 @@ void test_002()
 
     PQXX_CHECK_EQUAL(ttable, rtable, "Inconsistent result::column_table().");
 
-    oid const cttable = f.column_table(rcol);
+    oid const cttable{f.column_table(rcol)};
 
     PQXX_CHECK_EQUAL(cttable, rtable, "pqxx::row::column_table() is broken.");
   }

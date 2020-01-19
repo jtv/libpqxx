@@ -39,7 +39,7 @@ void test_078()
 {
   pqxx::connection conn;
 
-  std::string const NotifName = "my listener";
+  std::string const NotifName{"my listener"};
   TestListener L{conn, NotifName};
 
   pqxx::perform([&conn, &L]() {
@@ -48,8 +48,8 @@ void test_078()
     tx.commit();
   });
 
-  int notifs = 0;
-  for (int i = 0; (i < 20) and not L.done(); ++i)
+  int notifs{0};
+  for (int i{0}; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     std::cout << ".";

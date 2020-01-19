@@ -14,11 +14,11 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear = 1977;
+constexpr int BoringYear{1977};
 
 std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
-  std::string const CountQuery = "SELECT count(*) FROM " + table;
+  std::string const CountQuery{"SELECT count(*) FROM " + table};
   row R;
   int all_years{}, boring_year{};
 
@@ -45,10 +45,10 @@ void test_032()
     test::create_pqxxevents(tx);
   }
 
-  std::string const Table = "pqxxevents";
+  std::string const Table{"pqxxevents"};
 
-  std::pair<int, int> const Before =
-    perform([&conn, &Table]() { return count_events(conn, Table); });
+  std::pair<int, int> const Before{
+    perform([&conn, &Table]() { return count_events(conn, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + ", cannot test.");
@@ -67,8 +67,8 @@ void test_032()
       "Did not get expected exception from failing transactor.");
   }
 
-  std::pair<int, int> const After =
-    perform([&conn, &Table]() { return count_events(conn, Table); });
+  std::pair<int, int> const After{
+    perform([&conn, &Table]() { return count_events(conn, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

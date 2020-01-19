@@ -36,13 +36,13 @@ void test_046()
   R[0].to(F2);
   PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
 
-  auto F3 = from_string<float>(R[0].c_str());
+  auto F3{from_string<float>(R[0].c_str())};
   PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01, "Bad float from from_string.");
 
-  auto D = from_string<double>(R[0].c_str());
+  auto D{from_string<double>(R[0].c_str())};
   PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01, "Bad double from from_string.");
 
-  auto LD = from_string<long double>(R[0].c_str());
+  auto LD{from_string<long double>(R[0].c_str())};
   PQXX_CHECK_BOUNDS(
     LD, F - 0.01, F + 0.01, "Bad long double from from_string.");
 

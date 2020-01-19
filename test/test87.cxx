@@ -83,7 +83,7 @@ void test_087()
 {
   pqxx::connection conn;
 
-  std::string const NotifName = "my notification";
+  std::string const NotifName{"my notification"};
   TestListener L{conn, NotifName};
 
   pqxx::perform([&conn, &L]() {
@@ -92,13 +92,13 @@ void test_087()
     tx.commit();
   });
 
-  int notifs = 0;
-  for (int i = 0; (i < 20) and not L.done(); ++i)
+  int notifs{0};
+  for (int i{0}; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
     std::cout << ".";
-    int const fd = conn.sock();
+    int const fd{conn.sock()};
 
     // File descriptor from which we wish to read.
     fd_set read_fds;
@@ -111,7 +111,7 @@ void test_087()
     FD_ZERO(&except_fds);
     set_fdbit(except_fds, fd);
 
-    timeval timeout = {1, 0};
+    timeval timeout{1, 0};
     select(fd + 1, &read_fds, nullptr, &except_fds, &timeout);
     notifs = conn.get_notifs();
   }

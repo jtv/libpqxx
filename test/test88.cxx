@@ -41,7 +41,7 @@ void test_088()
 
   // Commit/rollback functionality
   pqxx::work tx2{conn, "tx2"};
-  std::string const Table = "test088";
+  std::string const Table{"test088"};
   tx2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
 
   tx2.exec0("INSERT INTO " + Table + " VALUES(1,'tx2')");
@@ -55,14 +55,14 @@ void test_088()
   pqxx::subtransaction tx2c{tx2, "tx2c"};
   tx2c.exec0("INSERT INTO " + Table + " VALUES(4,'tx2c')");
   tx2c.commit();
-  auto const R = tx2.exec("SELECT * FROM " + Table + " ORDER BY no");
+  auto const R{tx2.exec("SELECT * FROM " + Table + " ORDER BY no")};
   for (auto const &i : R)
     std::cout << '\t' << i[0].c_str() << '\t' << i[1].c_str() << std::endl;
 
   PQXX_CHECK_EQUAL(R.size(), 3, "Wrong number of results.");
 
-  int expected[3] = {1, 2, 4};
-  for (pqxx::result::size_type n = 0; n < R.size(); ++n)
+  int expected[3]{1, 2, 4};
+  for (pqxx::result::size_type n{0}; n < R.size(); ++n)
     PQXX_CHECK_EQUAL(
       R[n][0].as<int>(), expected[n], "Hit unexpected row number.");
 

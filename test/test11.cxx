@@ -19,9 +19,9 @@ void test_011()
   result R(tx.exec("SELECT * FROM " + Table));
 
   // Print column names
-  for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
+  for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
   {
-    std::string N = R.column_name(c);
+    std::string N{R.column_name(c)};
     PQXX_CHECK_EQUAL(R.column_number(N), c, "Inconsistent column numbers.");
   }
 
@@ -45,9 +45,9 @@ void test_011()
     PQXX_CHECK_EQUAL(T2s, T1, "Row swap is asymmetric.");
     PQXX_CHECK_EQUAL(T1s, T2, "Row swap is inconsistently asymmetric.");
 
-    for (pqxx::row::size_type c = 0; c < R[0].size(); ++c)
+    for (pqxx::row::size_type c{0}; c < R[0].size(); ++c)
     {
-      std::string N = R.column_name(c);
+      std::string N{R.column_name(c)};
 
       PQXX_CHECK_EQUAL(
         std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),

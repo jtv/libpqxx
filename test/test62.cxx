@@ -15,22 +15,22 @@ void test_062()
   connection conn;
   work tx{conn};
 
-  std::string const TestStr =
+  std::string const TestStr{
     "Nasty\n\030Test\n\t String with \200\277 weird bytes "
-    "\r\0 and Trailer\\\\\0";
+    "\r\0 and Trailer\\\\\0"};
 
   tx.exec0("CREATE TEMP TABLE pqxxbin (binfield bytea)");
 
-  std::string const Esc = tx.esc_raw(TestStr),
-                    Chk = tx.esc_raw(
+  std::string const Esc{tx.esc_raw(TestStr)},
+                    Chk{tx.esc_raw(
                       reinterpret_cast<unsigned char const *>(TestStr.c_str()),
-                      strlen(TestStr.c_str()));
+                      strlen(TestStr.c_str()))};
 
   PQXX_CHECK_EQUAL(Chk, Esc, "Inconsistent results from esc_raw().");
 
   tx.exec0("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
 
-  result R = tx.exec("SELECT * from pqxxbin");
+  result R{tx.exec("SELECT * from pqxxbin")};
   tx.exec0("DELETE FROM pqxxbin");
 
   binarystring B(R.at(0).at(0));
@@ -45,7 +45,7 @@ void test_062()
   {
     PQXX_CHECK(c != B.end(), "Premature end to binary string.");
 
-    char const x = TestStr.at(i), y = char(B.at(i)), z = char(B.data()[i]);
+    char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(B.data()[i])};
 
     PQXX_CHECK_EQUAL(
       std::string(&x, 1), std::string(&y, 1), "Binary string byte changed.");

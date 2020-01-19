@@ -18,7 +18,7 @@ void test_nontransaction_continues_after_error()
 }
 
 
-std::string const table = "pqxx_test_transaction";
+std::string const table{"pqxx_test_transaction"};
 
 
 void delete_temp_table(pqxx::transaction_base &tx)

@@ -6,7 +6,7 @@ using namespace pqxx;
 // Test: nontransaction changes are committed immediately.
 namespace
 {
-int BoringYear = 1977;
+int BoringYear{1977};
 
 
 void test_039()
@@ -14,7 +14,7 @@ void test_039()
   connection conn;
   nontransaction tx1{conn};
   test::create_pqxxevents(tx1);
-  std::string const Table = "pqxxevents";
+  std::string const Table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.

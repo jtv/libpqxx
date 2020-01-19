@@ -61,10 +61,10 @@ struct CountGreaterSmaller
     // Count number of entries with key greater/smaller than first row's key
     // using std::count_if<>()
     using namespace std::placeholders;
-    auto const Greater =
-                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T)),
-               Smaller =
-                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1));
+    auto const Greater{
+                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T))},
+               Smaller{
+                 std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1))};
 
     PQXX_CHECK(
       Greater + Smaller < ptrdiff_t(R.size()),
@@ -77,7 +77,7 @@ void test_049()
 {
   connection conn;
   work tx{conn};
-  std::string Table = "pg_tables", Key = "tablename";
+  std::string Table{"pg_tables"}, Key{"tablename"};
 
   result R(tx.exec("SELECT * FROM " + Table + " ORDER BY " + Key));
   PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");

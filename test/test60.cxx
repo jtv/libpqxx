@@ -17,7 +17,7 @@ std::string GetDatestyle(connection_base &conn)
 std::string SetDatestyle(connection_base &conn, std::string style)
 {
   conn.set_variable("DATESTYLE", style);
-  std::string const fullname = GetDatestyle(conn);
+  std::string const fullname{GetDatestyle(conn)};
   PQXX_CHECK(
     not fullname.empty(),
     "Setting datestyle to " + style + " makes it an empty string.");
@@ -54,8 +54,8 @@ void test_060()
 
   PQXX_CHECK(not GetDatestyle(conn).empty(), "Initial datestyle not set.");
 
-  std::string const ISOname = SetDatestyle(conn, "ISO");
-  std::string const SQLname = SetDatestyle(conn, "SQL");
+  std::string const ISOname{SetDatestyle(conn, "ISO")};
+  std::string const SQLname{SetDatestyle(conn, "SQL")};
 
   PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
 

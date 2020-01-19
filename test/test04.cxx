@@ -12,7 +12,7 @@ using namespace pqxx;
 
 namespace
 {
-int Backend_PID = 0;
+int Backend_PID{0};
 
 
 // Sample implementation of notification receiver.
@@ -50,8 +50,8 @@ void test_004()
     tx.commit();
   });
 
-  int notifs = 0;
-  for (int i = 0; (i < 20) and not L.done(); ++i)
+  int notifs{0};
+  for (int i{0}; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     // Sleep for one second.  I'm not proud of this, but how does one inject

@@ -37,11 +37,11 @@ void test_079()
 {
   pqxx::connection conn;
 
-  std::string const NotifName = "mylistener";
+  std::string const NotifName{"mylistener"};
   TestListener L(conn, NotifName);
 
   // First see if the timeout really works: we're not expecting any notifs
-  int notifs = conn.await_notification(0, 1);
+  int notifs{conn.await_notification(0, 1)};
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
   pqxx::perform([&conn, &L]() {
@@ -50,7 +50,7 @@ void test_079()
     tx.commit();
   });
 
-  for (int i = 0; (i < 20) and not L.done(); ++i)
+  for (int i{0}; (i < 20) and not L.done(); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
     std::cout << ".";

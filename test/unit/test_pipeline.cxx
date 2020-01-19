@@ -17,13 +17,13 @@ void test_pipeline()
 
   // Flushing a pipeline relinquishes transaction focus.
   pipe.flush();
-  auto r = tx.exec("SELECT 2");
+  auto r{tx.exec("SELECT 2")};
   PQXX_CHECK_EQUAL(r.size(), 1, "Wrong query result after flushing pipeline.");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(), 2, "Query returns wrong data after flushing pipeline.");
 
   // Inserting a query makes the pipeline grab transaction focus back.
-  pqxx::pipeline::query_id q = pipe.insert("SELECT 2");
+  auto q{pipe.insert("SELECT 2")};
   PQXX_CHECK_THROWS(
     tx.exec("SELECT 3"), std::logic_error,
     "Pipeline does not block regular queries");

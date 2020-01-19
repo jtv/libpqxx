@@ -11,7 +11,7 @@ using namespace pqxx;
 // Simple test program for libpqxx's Large Objects interface.
 namespace
 {
-std::string const Contents = "Large object test contents";
+std::string const Contents{"Large object test contents"};
 
 
 void test_050()
@@ -19,30 +19,30 @@ void test_050()
   connection conn;
 
   // Create a large object.
-  largeobject Obj = perform([&conn]() {
+  largeobject Obj{perform([&conn]() {
     work tx{conn};
     auto const obj = largeobject(tx);
     tx.commit();
     return obj;
-  });
+  })};
 
   // Write to the large object, and play with it a little.
   perform([&conn, &Obj]() {
     work tx{conn};
     largeobjectaccess A(tx, Obj);
 
-    auto const orgpos = A.ctell(), copyorgpos = A.ctell();
+    auto const orgpos{A.ctell()}, copyorgpos{A.ctell()};
 
     PQXX_CHECK_EQUAL(orgpos, 0, "Bad initial position in large object.");
     PQXX_CHECK_EQUAL(copyorgpos, orgpos, "ctell() affected positioning.");
 
-    largeobjectaccess::pos_type const cxxorgpos = A.tell();
+    largeobjectaccess::pos_type const cxxorgpos{A.tell()};
     PQXX_CHECK_EQUAL(cxxorgpos, orgpos, "tell() reports bad position.");
 
     A.process_notice(
       "Writing to large object #" + to_string(largeobject(A).id()) + "\n");
-    auto Bytes = check_cast<int>(
-      A.cwrite(Contents.c_str(), Contents.size()), "test write");
+    auto Bytes{check_cast<int>(
+      A.cwrite(Contents.c_str(), Contents.size()), "test write")};
 
     PQXX_CHECK_EQUAL(
       Bytes, check_cast<int>(Contents.size(), "test cwrite()"),
@@ -54,7 +54,7 @@ void test_050()
     PQXX_CHECK_EQUAL(A.tell(), Bytes, "Bad large-object position.");
 
     char Buf[200];
-    constexpr size_t Size = sizeof(Buf) - 1;
+    constexpr size_t Size{sizeof(Buf) - 1};
     PQXX_CHECK_EQUAL(
       A.cread(Buf, Size), 0, "Bad return value from cread() after writing.");
 

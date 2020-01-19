@@ -32,7 +32,7 @@ void test_receive(
 {
   pqxx::connection_base &conn(t.conn());
 
-  std::string SQL = "NOTIFY \"" + channel + "\"";
+  std::string SQL{"NOTIFY \"" + channel + "\""};
   if (payload != nullptr)
     SQL += ", " + t.quote(payload);
 
@@ -46,8 +46,8 @@ void test_receive(
   t.exec(SQL);
   t.commit();
 
-  int notifs = 0;
-  for (int i = 0; (i < 10) and (notifs == 0);
+  int notifs{0};
+  for (int i{0}; (i < 10) and (notifs == 0);
        ++i, std::this_thread::sleep_for(std::chrono::seconds(i)))
     notifs = conn.get_notifs();
 

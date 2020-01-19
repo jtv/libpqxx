@@ -22,7 +22,7 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
   int all_years = 0, boring_year = 0;
 
-  std::string const CountQuery = "SELECT count(*) FROM " + table;
+  std::string const CountQuery{"SELECT count(*) FROM " + table};
 
   work tx{conn};
   row R;
@@ -63,10 +63,10 @@ void test_013()
     tx.commit();
   }
 
-  std::string const Table = "pqxxevents";
+  std::string const Table{"pqxxevents"};
 
-  std::pair<int, int> const Before =
-    perform([&conn, &Table] { return count_events(conn, Table); });
+  auto const Before{
+    perform([&conn, &Table] { return count_events(conn, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + "--can't test.");
@@ -76,8 +76,8 @@ void test_013()
     perform([&conn, &Table]() { failed_insert(conn, Table); }),
     deliberate_error, "Failing transactor failed to throw correct exception.");
 
-  std::pair<int, int> const After =
-    perform([&conn, &Table]() { return count_events(conn, Table); });
+  auto const After{
+    perform([&conn, &Table]() { return count_events(conn, Table); })};
 
   PQXX_CHECK_EQUAL(
     After.first, Before.first, "abort() didn't reset event count.");

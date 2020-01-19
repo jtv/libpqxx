@@ -9,7 +9,7 @@ void test_stateless_cursor_provides_random_access(pqxx::connection_base &conn)
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     c{tx, "SELECT * FROM generate_series(0, 3)", "count", false};
 
-  auto r = c.retrieve(1, 2);
+  auto r{c.retrieve(1, 2)};
   PQXX_CHECK_EQUAL(r.size(), 1, "Wrong number of rows from retrieve().");
   PQXX_CHECK_EQUAL(r[0][0].as<int>(), 1, "Cursor retrieved wrong data.");
 
@@ -31,7 +31,7 @@ void test_stateless_cursor_ignores_trailing_semicolon(
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     c{tx, "SELECT * FROM generate_series(0, 3)  ;; ; \n \t  ", "count", false};
 
-  auto r = c.retrieve(1, 2);
+  auto r{c.retrieve(1, 2)};
   PQXX_CHECK_EQUAL(r.size(), 1, "Trailing semicolon confused retrieve().");
 }
 

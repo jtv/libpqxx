@@ -30,7 +30,7 @@ void test_071()
   Exp values;
 
   // Insert queries returning various numbers
-  for (int i = 1; i < 10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
+  for (int i{1}; i < 10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
 
   // Retrieve results in query_id order, and compare to expected values
   for (auto &c : values) checkresult(P, c);
@@ -41,17 +41,17 @@ void test_071()
 
   // Insert more queries returning various numbers
   P.retain(20);
-  for (int i = 100; i > 90; --i)
+  for (int i{100}; i > 90; --i)
     values[P.insert("SELECT " + to_string(i))] = i;
 
   P.resume();
 
   // Retrieve results in reverse order
-  for (auto c = values.rbegin(); c != values.rend(); ++c) checkresult(P, *c);
+  for (auto c{values.rbegin()}; c != values.rend(); ++c) checkresult(P, *c);
 
   values.clear();
   P.retain(10);
-  for (int i = 1010; i > 1000; --i)
+  for (int i{1010}; i > 1000; --i)
     values[P.insert("SELECT " + to_string(i))] = i;
   for (auto &c : values)
   {

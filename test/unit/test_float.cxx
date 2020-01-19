@@ -5,7 +5,7 @@ namespace
 /// Test conversions for some floating-point type.
 template<typename T> void infinity_test()
 {
-  T inf = std::numeric_limits<T>::infinity();
+  T inf{std::numeric_limits<T>::infinity()};
   std::string inf_string;
   T back_conversion;
 

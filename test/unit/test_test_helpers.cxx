@@ -8,7 +8,7 @@ void empty() {}
 void test_check_notreached()
 {
   // At a minimum, PQXX_CHECK_NOTREACHED must work.
-  bool failed = true;
+  bool failed{true};
   try
   {
     PQXX_CHECK_NOTREACHED("(expected)");
@@ -29,7 +29,7 @@ void test_check()
 {
   PQXX_CHECK(true, "PQXX_CHECK is broken.");
 
-  bool failed = true;
+  bool failed{true};
   try
   {
     PQXX_CHECK(false, "(expected)");
@@ -56,7 +56,7 @@ void test_check_throws_exception()
     "PQXX_CHECK_THROWS_EXCEPTION() failed to catch expected exception.");
 
   // Any other type is an error.
-  bool failed = true;
+  bool failed{true};
   try
   {
     PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)");
@@ -107,7 +107,7 @@ void test_check_throws()
   PQXX_CHECK_THROWS(throw 1, int, "(expected)");
 
   // PQXX_CHECK_THROWS means there _must_ be an exception.
-  bool failed = true;
+  bool failed{true};
   try
   {
     // If the test fails to throw, PQXX_CHECK_THROWS throws a failure.

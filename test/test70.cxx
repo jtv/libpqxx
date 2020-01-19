@@ -13,21 +13,21 @@ void TestPipeline(pipeline &P, int numqueries)
   PQXX_CHECK(Empty.query().empty(), "Default-constructed result has query");
 
   P.retain();
-  for (int i = numqueries; i > 0; --i) P.insert(Q);
+  for (int i{numqueries}; i > 0; --i) P.insert(Q);
   P.resume();
 
   PQXX_CHECK(
     (numqueries == 0) || not P.empty(), "pipeline::empty() is broken.");
 
-  int res = 0;
+  int res{0};
   result Prev;
   PQXX_CHECK_EQUAL(Prev, Empty, "Default-constructed results are not equal.");
 
-  for (int i = numqueries; i > 0; --i)
+  for (int i{numqueries}; i > 0; --i)
   {
     PQXX_CHECK(not P.empty(), "Got no results from pipeline.");
 
-    auto R = P.retrieve();
+    auto R{P.retrieve()};
 
     PQXX_CHECK_NOT_EQUAL(R.second, Empty, "Got empty result.");
     if (Prev != Empty)
@@ -84,7 +84,7 @@ void test_070()
     P.retrieve().second.query(), Q, "Got result for wrong query.");
 
   // See if regular retain()/resume() works
-  for (int i = 0; i < 5; ++i) TestPipeline(P, i);
+  for (int i{0}; i < 5; ++i) TestPipeline(P, i);
 
   // See if retrieve() fails on an empty pipeline, as it should
   quiet_errorhandler d(conn);

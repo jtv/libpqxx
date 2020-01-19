@@ -30,17 +30,17 @@ void test_string_conversion()
     "C string array", pqxx::to_string("C string array"),
     "C-style string constant does not convert to string properly.");
 
-  char text_array[] = "C char array";
+  char text_array[]{"C char array"};
   PQXX_CHECK_EQUAL(
     "C char array", pqxx::to_string(text_array),
     "C-style non-const char array does not convert to string properly.");
 
-  char const *text_ptr = "C string pointer";
+  char const *text_ptr{"C string pointer"};
   PQXX_CHECK_EQUAL(
     "C string pointer", pqxx::to_string(text_ptr),
     "C-style string pointer does not convert to string properly.");
 
-  std::string const cxx_string = "C++ string";
+  std::string const cxx_string{"C++ string"};
   PQXX_CHECK_EQUAL(
     "C++ string", pqxx::to_string(cxx_string),
     "C++-style string object does not convert to string properly.");
@@ -78,8 +78,8 @@ void test_string_conversion()
   // We can convert to and from long double.  The implementation may fall
   // back on a thread-local std::stringstream.  Each call does its own
   // cleanup, so the conversion works multiple times.
-  constexpr long double ld1 = 123456789.25, ld2 = 9876543210.5;
-  constexpr char lds1[] = "123456789.25", lds2[] = "9876543210.5";
+  constexpr long double ld1{123456789.25}, ld2{9876543210.5};
+  constexpr char lds1[]{"123456789.25"}, lds2[]{"9876543210.5"};
   PQXX_CHECK_EQUAL(
     pqxx::to_string(ld1).substr(0, 12), lds1,
     "Wrong conversion from long double.");

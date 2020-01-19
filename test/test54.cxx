@@ -9,14 +9,14 @@ using namespace pqxx;
 // Test program for libpqxx: write large object to test files.
 namespace
 {
-std::string const Contents = "Large object test contents";
+std::string const Contents{"Large object test contents"};
 
 
 void test_054()
 {
   connection conn;
 
-  largeobject Obj = perform([&conn]() {
+  largeobject Obj{perform([&conn]() {
     work tx{conn};
     largeobjectaccess A(tx);
     auto new_obj = largeobject(A);
@@ -24,7 +24,7 @@ void test_054()
     A.to_file("pqxxlo.txt");
     tx.commit();
     return new_obj;
-  });
+  })};
 
   perform([&conn, &Obj]() {
     work tx{conn};

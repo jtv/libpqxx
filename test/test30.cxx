@@ -12,7 +12,7 @@ namespace
 {
 void test_030()
 {
-  std::string const Table = "pg_tables";
+  std::string const Table{"pg_tables"};
 
   connection conn;
   work tx{conn, "test30"};
@@ -21,9 +21,9 @@ void test_030()
   PQXX_CHECK(not R.empty(), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
-  for (pqxx::row::size_type c = 0; c < R.columns(); ++c)
+  for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
   {
-    std::string N = R.column_name(c);
+    std::string N{R.column_name(c)};
 
     PQXX_CHECK_EQUAL(
       R[0].column_number(N), R.column_number(N),
@@ -47,9 +47,9 @@ void test_030()
   else
     PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 reports wrong number.");
 
-  for (pqxx::row::size_type c = 0; c < R[0].size(); ++c)
+  for (pqxx::row::size_type c{0}; c < R[0].size(); ++c)
   {
-    std::string N = R.column_name(c);
+    std::string N{R.column_name(c)};
 
     PQXX_CHECK_EQUAL(
       std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),

@@ -16,23 +16,23 @@ void test_forward_sql_cursor()
   PQXX_CHECK_EQUAL(forward.pos(), 0, "Wrong initial position");
   PQXX_CHECK_EQUAL(forward.endpos(), -1, "Wrong initial endpos()");
 
-  auto empty_result = forward.empty_result();
+  auto empty_result{forward.empty_result()};
   PQXX_CHECK_EQUAL(empty_result.size(), 0, "Empty result not empty");
 
-  pqxx::cursor_base::difference_type displacement = 0;
-  auto one = forward.fetch(1, displacement);
+  auto displacement{0};
+  auto one{forward.fetch(1, displacement)};
   PQXX_CHECK_EQUAL(one.size(), 1, "Fetched wrong number of rows");
   PQXX_CHECK_EQUAL(one[0][0].as<std::string>(), "1", "Unexpected result");
   PQXX_CHECK_EQUAL(displacement, 1, "Wrong displacement");
   PQXX_CHECK_EQUAL(forward.pos(), 1, "In wrong position");
 
-  auto offset = forward.move(1, displacement);
+  auto offset{forward.move(1, displacement)};
   PQXX_CHECK_EQUAL(offset, 1, "Unexpected offset from move()");
   PQXX_CHECK_EQUAL(displacement, 1, "Unexpected displacement after move()");
   PQXX_CHECK_EQUAL(forward.pos(), 2, "Wrong position after move()");
   PQXX_CHECK_EQUAL(forward.endpos(), -1, "endpos() unexpectedly set");
 
-  auto row = forward.fetch(0, displacement);
+  auto row{forward.fetch(0, displacement)};
   PQXX_CHECK_EQUAL(row.size(), 0, "fetch(0, displacement) returns rows");
   PQXX_CHECK_EQUAL(displacement, 0, "Unexpected displacement after fetch(0)");
   PQXX_CHECK_EQUAL(forward.pos(), 2, "fetch(0, displacement) affected pos()");
@@ -82,7 +82,7 @@ void test_forward_sql_cursor()
     pqxx::cursor_base::owned, false);
 
   // Fetch entire result set at once.
-  auto rows = forward3.fetch(pqxx::cursor_base::all(), displacement);
+  auto rows{forward3.fetch(pqxx::cursor_base::all(), displacement)};
   PQXX_CHECK_EQUAL(rows.size(), 4, "Unexpected number of rows in result set");
   PQXX_CHECK_EQUAL(displacement, 5, "displacement != rows+1");
   PQXX_CHECK_EQUAL(forward3.pos(), 5, "Bad pos() after fetching all rows");
@@ -112,7 +112,7 @@ void test_scroll_sql_cursor()
   PQXX_CHECK_EQUAL(scroll.pos(), 0, "Scroll cursor's initial pos() is wrong");
   PQXX_CHECK_EQUAL(scroll.endpos(), -1, "New scroll cursor has endpos() set");
 
-  auto rows = scroll.fetch(pqxx::cursor_base::next());
+  auto rows{scroll.fetch(pqxx::cursor_base::next())};
   PQXX_CHECK_EQUAL(rows.size(), 1, "Scroll cursor is broken");
   PQXX_CHECK_EQUAL(scroll.pos(), 1, "Scroll cursor's pos() is broken");
   PQXX_CHECK_EQUAL(scroll.endpos(), -1, "endpos() set prematurely");
@@ -128,7 +128,7 @@ void test_scroll_sql_cursor()
 
   // Bounce off the left-hand side of the result set.  Can't move before the
   // starting position.
-  pqxx::cursor_base::difference_type offset = 0, displacement = 0;
+  auto offset{0}, displacement{0};
   offset = scroll.move(-3, displacement);
   PQXX_CHECK_EQUAL(offset, 0, "Rows found before beginning");
   PQXX_CHECK_EQUAL(displacement, 0, "Failed to bounce off beginning");
@@ -175,8 +175,8 @@ void test_adopted_sql_cursor()
   PQXX_CHECK_EQUAL(adopted.pos(), -1, "Adopted cursor has known pos()");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "Adopted cursor has known endpos()");
 
-  pqxx::cursor_base::difference_type displacement = 0;
-  auto rows = adopted.fetch(pqxx::cursor_base::all(), displacement);
+  auto displacement{0};
+  auto rows{adopted.fetch(pqxx::cursor_base::all(), displacement)};
   PQXX_CHECK_EQUAL(rows.size(), 3, "Wrong number of rows in result");
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 1, "Wrong result data");
   PQXX_CHECK_EQUAL(rows[2][0].as<int>(), 3, "Wrong result data");
@@ -193,7 +193,7 @@ void test_adopted_sql_cursor()
   PQXX_CHECK_EQUAL(adopted.pos(), 0, "Failed to recognize starting position");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "endpos() set too early");
 
-  auto offset = adopted.move(pqxx::cursor_base::all());
+  auto offset{adopted.move(pqxx::cursor_base::all())};
   PQXX_CHECK_EQUAL(offset, 3, "Unexpected move() offset");
   PQXX_CHECK_EQUAL(adopted.pos(), 4, "Bad position on adopted cursor");
   PQXX_CHECK_EQUAL(adopted.endpos(), 4, "endpos() not set properly");
@@ -245,7 +245,7 @@ void test_hold_cursor()
     pqxx::cursor_base::owned, true);
   tx.commit();
   pqxx::work tx2(conn, "tx2");
-  auto rows = with_hold.fetch(1);
+  auto rows{with_hold.fetch(1)};
   PQXX_CHECK_EQUAL(rows.size(), 1, "Did not get 1 row from with-hold cursor");
 
   // Cursor without hold is closed on commit.

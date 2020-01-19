@@ -7,8 +7,8 @@ namespace
 {
 void test_scan_ascii()
 {
-  auto const scan = pqxx::internal::get_glyph_scanner(
-    pqxx::internal::encoding_group::MONOBYTE);
+  auto const scan{pqxx::internal::get_glyph_scanner(
+    pqxx::internal::encoding_group::MONOBYTE)};
   std::string const text{"hello"};
 
   PQXX_CHECK_EQUAL(
@@ -21,8 +21,8 @@ void test_scan_ascii()
 
 void test_scan_utf8()
 {
-  auto const scan =
-    pqxx::internal::get_glyph_scanner(pqxx::internal::encoding_group::UTF8);
+  auto const scan{
+    pqxx::internal::get_glyph_scanner(pqxx::internal::encoding_group::UTF8)};
 
   // Thai: "Khrab".
   std::string const text{"\xe0\xb8\x95\xe0\xb8\xa3\xe0\xb8\xb1\xe0\xb8\x9a"};
@@ -37,7 +37,7 @@ void test_scan_utf8()
 
 void test_for_glyphs_empty()
 {
-  bool iterated = false;
+  bool iterated{false};
   pqxx::internal::for_glyphs(
     pqxx::internal::encoding_group::MONOBYTE,
     [&iterated](char const *, char const *) { iterated = true; }, "", 0);

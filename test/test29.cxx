@@ -15,18 +15,18 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear = 1977;
+constexpr int BoringYear{1977};
 
-std::string const Table = "pqxxevents";
+std::string const Table{"pqxxevents"};
 
 
 // Count events, and boring events, in table
 std::pair<int, int> CountEvents(transaction_base &T)
 {
-  std::string const EventsQuery = "SELECT count(*) FROM " + Table;
-  std::string const BoringQuery =
-    EventsQuery + " WHERE year=" + to_string(BoringYear);
-  int EventsCount = 0, BoringCount = 0;
+  std::string const EventsQuery{"SELECT count(*) FROM " + Table};
+  std::string const BoringQuery{
+    EventsQuery + " WHERE year=" + to_string(BoringYear)};
+  int EventsCount{0}, BoringCount{0};
 
   row R(T.exec1(EventsQuery));
   R.front().to(EventsCount);
@@ -42,7 +42,7 @@ std::pair<int, int> CountEvents(transaction_base &T)
 // performed correctly.
 void Test(connection_base &conn, bool ExplicitAbort)
 {
-  std::vector<std::string> BoringRow = {to_string(BoringYear), "yawn"};
+  std::vector<std::string> BoringRow{to_string(BoringYear), "yawn"};
 
   std::pair<int, int> EventCounts;
 
@@ -67,7 +67,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
       "VALUES (" +
       to_string(BoringYear) + ", 'yawn')");
 
-    auto Recount = CountEvents(Doomed);
+    auto Recount{CountEvents(Doomed)};
     PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");
     PQXX_CHECK_EQUAL(
       Recount.first, EventCounts.first + 1, "Number of events changed.");
@@ -85,7 +85,7 @@ void Test(connection_base &conn, bool ExplicitAbort)
   // transactions.
   work Checkup(conn, "Checkup");
 
-  auto NewEvents = CountEvents(Checkup);
+  auto NewEvents{CountEvents(Checkup)};
   PQXX_CHECK_EQUAL(
     NewEvents.first, EventCounts.first, "Wrong number of events.");
 

@@ -57,7 +57,7 @@ void test_move_assign()
 void test_encrypt_password()
 {
   pqxx::connection c;
-  auto pw = c.encrypt_password("user", "password");
+  auto pw{c.encrypt_password("user", "password")};
   PQXX_CHECK(not pw.empty(), "Encrypted password was empty.");
   PQXX_CHECK_EQUAL(
     std::strlen(pw.c_str()), pw.size(),

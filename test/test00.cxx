@@ -33,7 +33,7 @@ inline void strconv(std::string type, char const Obj[], std::string expected)
   check(expected, Objstr, type);
 }
 
-constexpr double not_a_number = std::numeric_limits<double>::quiet_NaN();
+constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};
 
 struct intderef
 {
@@ -55,7 +55,7 @@ void test_000()
     cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
     "cursor_base::difference_type appears to be unsigned.");
 
-  char const weird[] = "foo\t\n\0bar";
+  char const weird[]{"foo\t\n\0bar"};
   std::string const weirdstr(weird, sizeof(weird) - 1);
 
   // Test string conversions
@@ -66,10 +66,10 @@ void test_000()
   strconv("int", -1, "-1");
 
 #if defined(_MSC_VER)
-  long const long_min = LONG_MIN, long_max = LONG_MAX;
+  long const long_min{LONG_MIN}, long_max{LONG_MAX};
 #else
-  long const long_min = std::numeric_limits<long>::min(),
-             long_max = std::numeric_limits<long>::max();
+  long const long_min{std::numeric_limits<long>::min()},
+             long_max{std::numeric_limits<long>::max()};
 #endif
 
   std::stringstream lminstr, lmaxstr, llminstr, llmaxstr, ullmaxstr;
@@ -82,9 +82,9 @@ void test_000()
   lminstr << long_min;
   lmaxstr << long_max;
 
-  auto const ullong_max = std::numeric_limits<unsigned long long>::max();
-  auto const llong_max = std::numeric_limits<long long>::max(),
-             llong_min = std::numeric_limits<long long>::min();
+  auto const ullong_max{std::numeric_limits<unsigned long long>::max()};
+  auto const llong_max{std::numeric_limits<long long>::max()},
+             llong_min{std::numeric_limits<long long>::min()};
 
   llminstr << llong_min;
   llmaxstr << llong_max;
@@ -109,7 +109,7 @@ void test_000()
 
   // TODO: Test binarystring reversibility
 
-  std::string const pw = encrypt_password("foo", "bar");
+  std::string const pw{encrypt_password("foo", "bar")};
   PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
     pw, encrypt_password("splat", "blub"), "Password encryption is broken.");

@@ -12,7 +12,7 @@ void test_082()
   pqxx::nontransaction tx{conn};
 
   pqxx::test::create_pqxxevents(tx);
-  std::string const Table = "pqxxevents";
+  std::string const Table{"pqxxevents"};
   pqxx::result R{tx.exec("SELECT * FROM " + Table)};
 
   PQXX_CHECK(not R.empty(), "Got empty result.");

@@ -9,7 +9,7 @@ void test_090()
   pqxx::connection conn;
 
   // Test connection's adorn_name() function for uniqueness
-  std::string const nametest = "basename";
+  std::string const nametest{"basename"};
 
   PQXX_CHECK_NOT_EQUAL(
     conn.adorn_name(nametest), conn.adorn_name(nametest),

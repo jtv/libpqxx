@@ -8,14 +8,14 @@ using namespace pqxx;
 // Test program for libpqxx's Large Objects interface.
 namespace
 {
-std::string const Contents = "Large object test contents";
+std::string const Contents{"Large object test contents"};
 
 
 void test_051()
 {
   connection conn;
 
-  largeobject obj = perform([&conn]() {
+  largeobject obj{perform([&conn]() {
     work tx{conn};
     largeobjectaccess A(tx);
     auto new_obj = largeobject(A);
@@ -52,7 +52,7 @@ void test_051()
 
     tx.commit();
     return new_obj;
-  });
+  })};
 
   PQXX_CHECK(
     obj != largeobject{}, "Large objects: false negative on operator!=().");

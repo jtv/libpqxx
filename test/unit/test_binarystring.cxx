@@ -14,7 +14,7 @@ void test_binarystring()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  pqxx::binarystring b = make_binarystring(tx, "");
+  auto b{make_binarystring(tx, "")};
   PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
@@ -47,7 +47,7 @@ void test_binarystring()
   PQXX_CHECK_THROWS(
     b.at(1), std::out_of_range, "Failed to catch range error.");
 
-  std::string const simple("ab");
+  std::string const simple{"ab"};
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
     b.str(), simple, "Binary (un)escaping went wrong somewhere.");
@@ -56,7 +56,7 @@ void test_binarystring()
   std::string const simple_escaped{tx.esc_raw(simple)};
   for (auto c : simple_escaped)
   {
-    auto const uc = static_cast<unsigned char>(c);
+    auto const uc{static_cast<unsigned char>(c)};
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 
@@ -82,7 +82,7 @@ void test_binarystring()
   b = make_binarystring(tx, "foo");
   PQXX_CHECK_EQUAL(std::string(b.get(), 3), "foo", "get() appears broken.");
 
-  auto b1 = make_binarystring(tx, "1"), b2 = make_binarystring(tx, "2");
+  auto b1{make_binarystring(tx, "1")}, b2{make_binarystring(tx, "2")};
   PQXX_CHECK_NOT_EQUAL(b1.get(), b2.get(), "Madness rules.");
   PQXX_CHECK_NOT_EQUAL(b1.str(), b2.str(), "Logic has no more meaning.");
   b1.swap(b2);

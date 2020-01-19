@@ -6,7 +6,7 @@ void test_result_iteration()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  pqxx::result r = tx.exec("SELECT generate_series(1, 3)");
+  pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
 
   PQXX_CHECK(r.end() != r.begin(), "Broken begin/end.");
   PQXX_CHECK(r.rend() != r.rbegin(), "Broken rbegin/rend.");

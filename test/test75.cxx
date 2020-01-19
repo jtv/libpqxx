@@ -31,7 +31,7 @@ void test_075()
     contents.size(), std::vector<std::string>::size_type(R.size()),
     "Number of values does not match result size.");
 
-  for (pqxx::result::size_type i = 0; i < R.size(); ++i)
+  for (pqxx::result::size_type i{0}; i < R.size(); ++i)
     PQXX_CHECK_EQUAL(
       contents[static_cast<size_t>(i)], R.at(i).at(0).c_str(),
       "Inconsistent iteration.");
@@ -90,8 +90,8 @@ void test_075()
     "reverse_iterator operator+=() and operator-=() do not cancel out.");
 
   // Now verify that reverse iterator also sees the same results...
-  auto l = contents.rbegin();
-  for (auto i = R.rbegin(); i != R.rend(); ++i, ++l)
+  auto l{contents.rbegin()};
+  for (auto i{R.rbegin()}; i != R.rend(); ++i, ++l)
     PQXX_CHECK_EQUAL(*l, i->at(0).c_str(), "Inconsistent reverse iteration.");
 
   PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");

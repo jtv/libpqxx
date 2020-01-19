@@ -11,7 +11,7 @@ void test_stateless_cursor()
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     empty(tx, "SELECT generate_series(0, -1)", "empty", false);
 
-  auto rows = empty.retrieve(0, 0);
+  auto rows{empty.retrieve(0, 0)};
   PQXX_CHECK_EQUAL(rows.empty(), true, "Empty result not empty");
   rows = empty.retrieve(0, 1);
   PQXX_CHECK_EQUAL(rows.size(), 0, "Empty result returned rows");

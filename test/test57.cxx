@@ -25,9 +25,9 @@ void test_057()
 {
   connection conn;
 
-  std::string const Contents = "Testing, testing, 1-2-3";
+  std::string const Contents{"Testing, testing, 1-2-3"};
 
-  largeobject Obj = perform([&conn, &Contents]() {
+  largeobject Obj{perform([&conn, &Contents]() {
     work tx{conn};
     auto new_obj = largeobject{tx};
     olostream S(tx, new_obj.id());
@@ -35,13 +35,13 @@ void test_057()
     S.flush();
     tx.commit();
     return new_obj;
-  });
+  })};
 
-  std::string const Readback = perform([&conn, &Obj]() {
+  std::string const Readback{perform([&conn, &Obj]() {
     work tx{conn};
     ilostream S(tx, Obj);
     return UnStream(S);
-  });
+  })};
 
   perform([&conn, &Obj]() {
     work tx{conn};
@@ -55,7 +55,7 @@ void test_057()
    */
   std::stringstream TestStream;
   TestStream << Contents;
-  std::string const StreamedContents = UnStream(TestStream);
+  std::string const StreamedContents{UnStream(TestStream)};
   PQXX_CHECK_EQUAL(Readback, StreamedContents, "Contents were mangled.");
 }
 

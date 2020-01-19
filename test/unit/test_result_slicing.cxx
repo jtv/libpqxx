@@ -62,12 +62,12 @@ void test_result_slicing()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  auto r = tx.exec("SELECT 1");
+  auto r{tx.exec("SELECT 1")};
 
   PQXX_CHECK(not r[0].empty(), "A plain row shows up as empty.");
 
   // Empty slice at beginning of row.
-  pqxx::row s = r[0].slice(0, 0);
+  pqxx::row s{r[0].slice(0, 0)};
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
   PQXX_CHECK_EQUAL(s.size(), 0, "Slicing produces wrong row size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");

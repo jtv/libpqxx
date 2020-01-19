@@ -13,7 +13,7 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear = 1977;
+constexpr int BoringYear{1977};
 
 std::string const Table("pqxxevents");
 
@@ -21,10 +21,10 @@ std::string const Table("pqxxevents");
 // Count events, and boring events, in table
 std::pair<int, int> CountEvents(transaction_base &T)
 {
-  std::string const EventsQuery = "SELECT count(*) FROM " + Table;
-  std::string const BoringQuery =
-    EventsQuery + " WHERE year=" + to_string(BoringYear);
-  int EventsCount = 0, BoringCount = 0;
+  std::string const EventsQuery{"SELECT count(*) FROM " + Table};
+  std::string const BoringQuery{
+    EventsQuery + " WHERE year=" + to_string(BoringYear)};
+  int EventsCount{0}, BoringCount{0};
 
   row R(T.exec1(EventsQuery));
   R.front().to(EventsCount);
@@ -62,7 +62,7 @@ void Test(connection_base &C, bool ExplicitAbort)
       "VALUES (" +
       to_string(BoringYear) + ", 'yawn')");
 
-    auto const Recount = CountEvents(Doomed);
+    auto const Recount{CountEvents(Doomed)};
     PQXX_CHECK_EQUAL(
       Recount.second, 1, "Wrong # events for " + to_string(BoringYear));
 
@@ -82,7 +82,7 @@ void Test(connection_base &C, bool ExplicitAbort)
   // transactions.
   work Checkup(C, "Checkup");
 
-  auto const NewEvents = CountEvents(Checkup);
+  auto const NewEvents{CountEvents(Checkup)};
   PQXX_CHECK_EQUAL(
     NewEvents.first, EventCounts.first,
     "Number of events changed.  This may be due to a bug in libpqxx, "
