@@ -11,7 +11,7 @@ int main(int, char *argv[])
 
   try
   {
-    for (int i = 1; argv[i]; ++i)
+    for (int i{1}; argv[i]; ++i)
     {
       auto O{pqxx::from_string<pqxx::oid>(argv[i])};
       try
