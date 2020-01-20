@@ -21,6 +21,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/result pqxx/result.hxx \
 	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
+	pqxx/separated_list pqxx/separated_list.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
 	pqxx/stream_from pqxx/stream_from.hxx \
 	pqxx/stream_to pqxx/stream_to.hxx \
@@ -31,6 +32,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/row pqxx/row.hxx \
 	pqxx/util pqxx/util.hxx \
 	pqxx/types pqxx/types.hxx \
+	pqxx/zview pqxx/zview.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/conversions.hxx \
