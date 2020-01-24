@@ -167,28 +167,17 @@ pqxx::row::size_type pqxx::row::column_number(char const col_name[]) const
 {
   auto const n{m_result.column_number(col_name)};
   if (n >= m_end)
-    return result{}.column_number(col_name);
+    throw argument_error{"Column '" + std::string{col_name} + "' falls outside slice."};
   if (n >= m_begin)
     return n - m_begin;
 
+// XXX: Why did we do this?
   char const *const adapted_name{m_result.column_name(n)};
   for (auto i{m_begin}; i < m_end; ++i)
     if (strcmp(adapted_name, m_result.column_name(i)) == 0)
       return i - m_begin;
 
   return result{}.column_number(col_name);
-}
-
-
-pqxx::row::size_type pqxx::result::column_number(char const col_name[]) const
-{
-  auto const n{
-    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
-  if (n == -1)
-    throw argument_error{"Unknown column name: '" + std::string{col_name} +
-                         "'."};
-
-  return static_cast<row::size_type>(n);
 }
 
 

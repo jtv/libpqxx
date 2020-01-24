@@ -346,6 +346,18 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 }
 
 
+pqxx::row::size_type pqxx::result::column_number(char const col_name[]) const
+{
+  auto const n{
+    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
+  if (n == -1)
+    throw argument_error{"Unknown column name: '" + std::string{col_name} +
+                         "'."};
+
+  return static_cast<row::size_type>(n);
+}
+
+
 pqxx::oid pqxx::result::column_table(row::size_type col_num) const
 {
   oid const t{PQftable(m_data.get(), col_num)};
