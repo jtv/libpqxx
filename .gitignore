@@ -37,6 +37,7 @@ win32/common
 **/*.la
 **/*.lo
 **/*.o
+**/*.out
 **/.*.swp
 **/.swp
 **/*.tmp
