@@ -28,6 +28,19 @@
 
 namespace
 {
+/// Do we have fully functional thread_local support?
+/** When building with libcxxrt on clang, you can't create thread_local objects
+ * of non-POD types.  Any attempt will result in a link error.
+ */
+constexpr bool have_thread_local
+{
+#if defined(PQXX_HAVE_THREAD_LOCAL)
+  true
+#else
+  false
+#endif
+};
+
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 {
@@ -445,6 +458,15 @@ public:
 };
 
 
+template<typename F> inline
+bool from_dumb_stringstream(
+  dumb_stringstream<F> &s, F &result, std::string_view text)
+{
+  s.str(std::string{text});
+  return static_cast<bool>(s >> result);
+}
+
+
 // These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
@@ -476,14 +498,21 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
     }
     else
     {
-      thread_local dumb_stringstream<T> S;
-      // Visual Studio 2017 seems to fail on repeated conversions if the
-      // clear() is done before the seekg().  Still don't know why!  See #124
-      // and #125.
-      S.seekg(0);
-      S.clear();
-      S.str(std::string{text});
-      ok = static_cast<bool>(S >> result);
+      if (have_thread_local)
+      {
+        thread_local dumb_stringstream<T> S;
+        // Visual Studio 2017 seems to fail on repeated conversions if the
+        // clear() is done before the seekg().  Still don't know why!  See #124
+        // and #125.
+        S.seekg(0);
+        S.clear();
+        ok = from_dumb_stringstream(S, result, text);
+      }
+      else
+      {
+        dumb_stringstream<T> S;
+        ok = from_dumb_stringstream(S, result, text);
+      }
     }
     break;
   }
@@ -558,6 +587,15 @@ template char *
 float_traits<long double>::into_buf(char *, char *, long double const &);
 
 
+template<typename F> inline
+std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
+{
+  s.str("");
+  s << value;
+  return s.str();
+}
+
+
 /// Floating-point implementations for @c pqxx::to_string().
 template<typename T> std::string to_string_float(T value)
 {
@@ -576,10 +614,16 @@ template<typename T> std::string to_string_float(T value)
     // In this rare case, we can convert to std::string but not to a simple
     // buffer.  So, implement to_buf in terms of to_string instead of the other
     // way around.
-    thread_local dumb_stringstream<T> s;
-    s.str("");
-    s << value;
-    return s.str();
+    if (have_thread_local)
+    {
+      thread_local dumb_stringstream<T> s;
+      return to_dumb_stringstream(s, value);
+    }
+    else
+    {
+      dumb_stringstream<T> s;
+      return to_dumb_stringstream(s, value);
+    }
   }
 #endif
 }

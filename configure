@@ -18754,6 +18754,47 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_charconv_float" >&5
 $as_echo "$have_charconv_float" >&6; }
 
+# As per #262, clang with libcxxrt does not support thread_local on non-POD
+# objects.  Luckily we can live without those, it's just less efficient.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for full thread_local support" >&5
+$as_echo_n "checking for full thread_local support... " >&6; }
+have_thread_local=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for std::to_string/std::from_string for floating-point types.
+
+#include <iostream>
+
+#include <sstream>
+
+
+
+int main(int argc, char **)
+
+{
+
+  thread_local std::stringstream s;
+
+  s << argc;
+
+  std::cout << s.str();
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_THREAD_LOCAL 1" >>confdefs.h
+
+else
+  have_thread_local=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_thread_local" >&5
+$as_echo "$have_thread_local" >&6; }
+
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.

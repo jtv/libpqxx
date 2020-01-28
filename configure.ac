@@ -276,6 +276,19 @@ AC_LINK_IFELSE(
 	have_charconv_float=no)
 AC_MSG_RESULT($have_charconv_float)
 
+# As per #262, clang with libcxxrt does not support thread_local on non-POD
+# objects.  Luckily we can live without those, it's just less efficient.
+AC_MSG_CHECKING([for full thread_local support])
+have_thread_local=yes
+AC_LINK_IFELSE(
+	[read_test(thread_local.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_THREAD_LOCAL],
+		1,
+		[Define if thread_local is fully supported.]),
+	have_thread_local=no)
+AC_MSG_RESULT($have_thread_local)
+
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.

@@ -64,6 +64,10 @@ try_compile(
 	PQXX_HAVE_CHARCONV_INT
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_int.cxx)
+try_compile(
+	PQXX_HAVE_THREAD_LOCAL
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/thread_local.cxx)
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.
