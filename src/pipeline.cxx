@@ -248,7 +248,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
       "Got more results from pipeline than there were queries."};
   }
 
-  // Must be the result for the oldest pending query
+  // Must be the result for the oldest pending query.
   if (not m_issuedrange.first->second.get_result().empty())
     internal_error("Multiple results for one query.");
 
@@ -294,6 +294,8 @@ void pqxx::pipeline::obtain_dummy()
     return;
   }
 
+// XXX: Do we actually know that the queries did not execute?
+// XXX: Can we actually re-issue statements after a failure?
   /* Since none of the queries in the batch were actually executed, we can
    * afford to replay them one by one until we find the exact query that
    * caused the error.  This gives us not only a more specific error message
@@ -309,7 +311,6 @@ void pqxx::pipeline::obtain_dummy()
 
   // Retrieve that null result for the last query, if needed
   obtain_result(true);
-
 
   // Reset internal state to forget botched batch attempt
   m_num_waiting += check_cast<int>(
@@ -351,7 +352,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     throw std::runtime_error{
       "Could not complete query in pipeline due to error in earlier query."};
 
-  // If query hasn't issued yet, do it now
+  // If query hasn't issued yet, do it now.
   if (
     m_issuedrange.second != m_queries.end() and
     (q->first >= m_issuedrange.second->first))
@@ -362,7 +363,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
       issue();
   }
 
-  // If result not in yet, get it; else get at least whatever's convenient
+  // If result not in yet, get it; else get at least whatever's convenient.
   if (have_pending())
   {
     if (q->first >= m_issuedrange.first->first)
@@ -381,7 +382,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     throw std::runtime_error{
       "Could not complete query in pipeline due to error in earlier query."};
 
-  // Don't leave the backend idle if there are queries waiting to be issued
+  // Don't leave the backend idle if there are queries waiting to be issued.
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
     issue();
 
@@ -428,7 +429,7 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
          QueryMap::const_iterator{m_issuedrange.first} != stop)
     ;
 
-  // Also haul in any remaining "targets of opportunity"
+  // Also haul in any remaining "targets of opportunity".
   if (QueryMap::const_iterator{m_issuedrange.first} == stop)
     get_further_available_results();
 }
