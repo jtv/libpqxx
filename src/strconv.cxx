@@ -458,8 +458,8 @@ public:
 };
 
 
-template<typename F> inline
-bool from_dumb_stringstream(
+template<typename F>
+inline bool from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
   s.str(std::string{text});
@@ -587,8 +587,8 @@ template char *
 float_traits<long double>::into_buf(char *, char *, long double const &);
 
 
-template<typename F> inline
-std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
+template<typename F>
+inline std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
   s.str("");
   s << value;
