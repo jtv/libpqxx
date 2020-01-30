@@ -294,8 +294,8 @@ void pqxx::pipeline::obtain_dummy()
     return;
   }
 
-// XXX: Do we actually know that the queries did not execute?
-// XXX: Can we actually re-issue statements after a failure?
+  // XXX: Do we actually know that the queries did not execute?
+  // XXX: Can we actually re-issue statements after a failure?
   /* Since none of the queries in the batch were actually executed, we can
    * afford to replay them one by one until we find the exact query that
    * caused the error.  This gives us not only a more specific error message
