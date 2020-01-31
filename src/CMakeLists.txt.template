@@ -36,10 +36,10 @@ macro(library_target_setup tgt)
             set(library_prefix ${CMAKE_STATIC_LIBRARY_PREFIX})
             set(library_suffix ${CMAKE_STATIC_LIBRARY_SUFFIX})
         endif()
-        add_custom_target(library_symlink ALL
-        	${CMAKE_COMMAND} -E create_symlink
-        		${library_prefix}${output_name}${library_suffix}
-        		${library_prefix}${name}${library_suffix}
+        add_custom_command(TARGET ${tgt} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E create_symlink "${library_prefix}${output_name}${library_suffix}" "${library_prefix}${name}${library_suffix}"
+            VERBATIM
+            COMMAND_EXPAND_LISTS
         )
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
         	DESTINATION ${CMAKE_INSTALL_LIBDIR}
