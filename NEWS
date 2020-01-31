@@ -1,3 +1,5 @@
+7.0.1
+ - Fix warning for Visual Studio 2017 (and possibly other compilers).
 7.0.0
  - Bumped minimum required C++ version to C++17.
  - Everything has changed.  If you're porting from older versions, be careful!
