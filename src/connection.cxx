@@ -420,7 +420,7 @@ void pqxx::connection::cancel_query()
 
   auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
   if (c == 0)
-    throw pqxx::sql_error{std::string{errbuf.data(), buf_size}};
+    throw pqxx::sql_error{std::string{errbuf.data(), errbuf.size()}};
 }
 
 
