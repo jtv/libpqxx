@@ -72,11 +72,11 @@ private:
   template<typename Tuple, std::size_t I>
   auto tokenize_ith(
     std::string const &, Tuple &, std::string::size_type, std::string &) const
-    -> typename std::enable_if<(std::tuple_size<Tuple>::value > I)>::type;
+    -> typename std::enable_if_t<(std::tuple_size_v<Tuple> > I)>;
   template<typename Tuple, std::size_t I>
   auto tokenize_ith(
     std::string const &, Tuple &, std::string::size_type, std::string &) const
-    -> typename std::enable_if<(std::tuple_size<Tuple>::value <= I)>::type;
+    -> typename std::enable_if_t<(std::tuple_size_v<Tuple> <= I)>;
 
   template<typename T>
   void extract_value(
@@ -127,7 +127,7 @@ template<typename Tuple, std::size_t I>
 auto stream_from::tokenize_ith(
   std::string const &line, Tuple &t, std::string::size_type here,
   std::string &workspace) const ->
-  typename std::enable_if<(std::tuple_size<Tuple>::value > I)>::type
+  typename std::enable_if_t<(std::tuple_size_v<Tuple> > I)>
 {
   if (here >= line.size())
     throw usage_error{"Too few fields to extract from stream_from line."};
@@ -141,8 +141,7 @@ template<typename Tuple, std::size_t I>
 auto stream_from::tokenize_ith(
   std::string const &line, Tuple & /* t */, std::string::size_type here,
   std::string & /* workspace */
-  ) const ->
-  typename std::enable_if<(std::tuple_size<Tuple>::value <= I)>::type
+  ) const -> typename std::enable_if_t<(std::tuple_size_v<Tuple> <= I)>
 {
   // Zero-column line may still have a trailing newline
   if (
