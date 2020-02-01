@@ -96,8 +96,8 @@ if(pqxx_target_type STREQUAL "SHARED_LIBRARY")
 endif()
 
 set_target_properties(
-	pqxx PROPERTIES
-	OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    pqxx PROPERTIES
+    OUTPUT_NAME $<IF:$<PLATFORM_ID:Windows>,pqxx,pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}>
 )
 library_target_setup(pqxx)
 
