@@ -1,4 +1,4 @@
-# ##############################################################################
+################################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,7 +10,7 @@
 # libpqxx source archive.
 #
 # Generated from template './include/CMakeLists.txt.template'.
-# ##############################################################################
+################################################################################
 install(
     DIRECTORY pqxx "${PROJECT_BINARY_DIR}/include/pqxx"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -114,7 +114,6 @@ install(
     DIRECTORY pqxx/doc/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
     FILES_MATCHING
-    PATTERN README.md
     PATTERN accessing-results.md
     PATTERN datatypes.md
     PATTERN escaping.md
