@@ -149,6 +149,10 @@ template<typename TYPE> struct string_traits
    */
   static inline char *into_buf(char *begin, char *end, TYPE const &value);
 
+  /// Parse a string representation of a @c TYPE value.
+  /** Throws @c conversion_error if @c value does not meet the expected format
+   * for a value of this type.
+   */
   [[nodiscard]] static inline TYPE from_string(std::string_view text);
 
   /// Estimate how much buffer space is needed to represent value.

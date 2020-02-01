@@ -116,6 +116,7 @@ install(
     FILES_MATCHING
     PATTERN README.md
     PATTERN accessing-results.md
+    PATTERN datatypes.md
     PATTERN escaping.md
     PATTERN getting-started.md
     PATTERN mainpage.md

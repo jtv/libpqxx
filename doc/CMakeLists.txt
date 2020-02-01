@@ -81,6 +81,7 @@ if(HAVE_DOXYGEN)
         "${PROJECT_SOURCE_DIR}/include/pqxx/zview.hxx"
         "${PROJECT_SOURCE_DIR}/include/pqxx/doc/README.md"
         "${PROJECT_SOURCE_DIR}/include/pqxx/doc/accessing-results.md"
+        "${PROJECT_SOURCE_DIR}/include/pqxx/doc/datatypes.md"
         "${PROJECT_SOURCE_DIR}/include/pqxx/doc/escaping.md"
         "${PROJECT_SOURCE_DIR}/include/pqxx/doc/getting-started.md"
         "${PROJECT_SOURCE_DIR}/include/pqxx/doc/mainpage.md"

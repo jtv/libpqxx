@@ -1,7 +1,7 @@
-Documentation headers
-=====================
+Why is this documentation _here?_
+=================================
 
-These headers are not meant to be included.  They are documentation, not code.
-Keeping them in this form lets the documentation system process them in the
-same way as in-line documentation, supporting references back and forth between
-the two kinds.
+There may be a better solution for this.  These documents are in this
+directory so that the documentation generator can easily pick them up and
+include them together with the documentation it generates from the header
+files.
