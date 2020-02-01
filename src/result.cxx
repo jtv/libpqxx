@@ -200,13 +200,13 @@ void pqxx::result::ThrowSQLError(
       {
       case '0':
         if (equal(code, "40000"))
-          throw transaction_rollback{Err};
+          throw transaction_rollback{Err, Query, code};
         if (equal(code, "40001"))
-          throw serialization_failure{Err};
+          throw serialization_failure{Err, code};
         if (equal(code, "40003"))
-          throw statement_completion_unknown{Err};
+          throw statement_completion_unknown{Err, code};
         if (equal(code, "40P01"))
-          throw deadlock_detected{Err};
+          throw deadlock_detected{Err, code};
         break;
       case '2':
         if (equal(code, "42501"))

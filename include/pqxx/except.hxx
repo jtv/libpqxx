@@ -38,7 +38,7 @@ namespace pqxx
  * @{
  */
 
-/// Run-time failure encountered by libpqxx, similar to std::runtime_error
+/// Run-time failure encountered by libpqxx, similar to std::runtime_error.
 struct PQXX_LIBEXPORT failure : std::runtime_error
 {
   explicit failure(std::string const &);
@@ -110,9 +110,11 @@ struct PQXX_LIBEXPORT in_doubt_error : failure
 
 
 /// The backend saw itself forced to roll back the ongoing transaction.
-struct PQXX_LIBEXPORT transaction_rollback : failure
+struct PQXX_LIBEXPORT transaction_rollback : sql_error
 {
-  explicit transaction_rollback(std::string const &);
+  explicit transaction_rollback(
+    std::string const &whatarg, std::string const &q = "",
+    char const sqlstate[] = nullptr);
 };
 
 
@@ -127,21 +129,27 @@ struct PQXX_LIBEXPORT transaction_rollback : failure
  */
 struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
 {
-  explicit serialization_failure(std::string const &);
+  explicit serialization_failure(
+    std::string const &whatarg, std::string const &q,
+    char const sqlstate[] = nullptr);
 };
 
 
 /// We can't tell whether our last statement succeeded.
 struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
 {
-  explicit statement_completion_unknown(std::string const &);
+  explicit statement_completion_unknown(
+    std::string const &whatarg, std::string const &q,
+    char const sqlstate[] = nullptr);
 };
 
 
 /// The ongoing transaction has deadlocked.  Retrying it may help.
 struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 {
-  explicit deadlock_detected(std::string const &);
+  explicit deadlock_detected(
+    std::string const &whatarg, std::string const &q,
+    char const sqlstate[] = nullptr);
 };
 
 
@@ -194,7 +202,7 @@ struct PQXX_LIBEXPORT unexpected_rows : public range_error
 };
 
 
-/// Database feature not supported in current setup
+/// Database feature not supported in current setup.
 struct PQXX_LIBEXPORT feature_not_supported : sql_error
 {
   explicit feature_not_supported(
@@ -204,7 +212,7 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
   {}
 };
 
-/// Error in data provided to SQL statement
+/// Error in data provided to SQL statement.
 struct PQXX_LIBEXPORT data_exception : sql_error
 {
   explicit data_exception(

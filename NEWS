@@ -1,6 +1,7 @@
 7.0.1
  - Windows build fixes.
  - Documentation for writing your own string conversions.
+ - `transaction_rollback` and children are now `sql_error`, not just `failure`.
 7.0.0
  - Bumped minimum required C++ version to C++17.
  - Everything has changed.  If you're porting from older versions, be careful!

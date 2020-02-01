@@ -54,25 +54,27 @@ pqxx::in_doubt_error::in_doubt_error(std::string const &whatarg) :
 {}
 
 
-pqxx::transaction_rollback::transaction_rollback(std::string const &whatarg) :
-        failure{whatarg}
+pqxx::transaction_rollback::transaction_rollback(
+  std::string const &whatarg, std::string const &q, char const sqlstate[]) :
+        sql_error{whatarg, q, sqlstate}
 {}
 
 
 pqxx::serialization_failure::serialization_failure(
-  std::string const &whatarg) :
-        transaction_rollback{whatarg}
+  std::string const &whatarg, std::string const &q, char const sqlstate[]) :
+        transaction_rollback{whatarg, q, sqlstate}
 {}
 
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
-  std::string const &whatarg) :
-        transaction_rollback{whatarg}
+  std::string const &whatarg, std::string const &q, char const sqlstate[]) :
+        transaction_rollback{whatarg, q, sqlstate}
 {}
 
 
-pqxx::deadlock_detected::deadlock_detected(std::string const &whatarg) :
-        transaction_rollback{whatarg}
+pqxx::deadlock_detected::deadlock_detected(
+  std::string const &whatarg, std::string const &q, char const sqlstate[]) :
+        transaction_rollback{whatarg, q, sqlstate}
 {}
 
 
