@@ -26,7 +26,7 @@ macro(library_target_setup tgt)
     )
     get_target_property(name ${tgt} NAME)
     get_target_property(output_name ${tgt} OUTPUT_NAME)
-    if(NOT name STREQUAL output_name)
+    if(NOT name STREQUAL output_name AND NOT CMAKE_HOST_WIN32)
         # Create library symlink
         get_target_property(target_type ${tgt} TYPE)
         if(target_type STREQUAL "SHARED_LIBRARY")
@@ -62,8 +62,8 @@ if(pqxx_target_type STREQUAL "SHARED_LIBRARY")
 endif()
 
 set_target_properties(
-	pqxx PROPERTIES
-	OUTPUT_NAME pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    pqxx PROPERTIES
+    OUTPUT_NAME $<IF:$<PLATFORM_ID:Windows>,pqxx,pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}>
 )
 library_target_setup(pqxx)
 
