@@ -18,6 +18,7 @@
 
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
+#include <variant>
 
 
 namespace pqxx
@@ -52,6 +53,10 @@ public:
   bool get_raw_line(std::string &);
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
+  /// Doing this with a variant is going to be horrifically borked
+  template<typename... Vs>
+  stream_from &operator>>(std::variant<Vs...> &) = delete;
+
 private:
   internal::encoding_group m_copy_encoding =
     internal::encoding_group::MONOBYTE;
@@ -69,19 +74,23 @@ private:
   bool extract_field(
     std::string const &, std::string::size_type &, std::string &) const;
 
-  template<typename Tuple, std::size_t I>
-  auto tokenize_ith(
-    std::string const &, Tuple &, std::string::size_type, std::string &) const
-    -> typename std::enable_if_t<(std::tuple_size_v<Tuple> > I)>;
-  template<typename Tuple, std::size_t I>
-  auto tokenize_ith(
-    std::string const &, Tuple &, std::string::size_type, std::string &) const
-    -> typename std::enable_if_t<(std::tuple_size_v<Tuple> <= I)>;
-
   template<typename T>
   void extract_value(
     std::string const &line, T &t, std::string::size_type &here,
     std::string &workspace) const;
+
+  template<typename Tuple, std::size_t... I>
+  void do_extract(
+    const std::string &line, Tuple &t, std::string &workspace,
+    std::index_sequence<I...>)
+  {
+    std::string::size_type here{};
+    (extract_value(line, std::get<I>(t), here, workspace), ...);
+    if (
+      here < line.size() and
+      not(here == line.size() - 1 and line[here] == '\n'))
+      throw usage_error{"Not all fields extracted from stream_from line"};
+  }
 };
 
 
@@ -96,8 +105,7 @@ template<typename Iter>
 inline stream_from::stream_from(
   transaction_base &tb, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
-        namedclass{"stream_from", table_name},
-        transactionfocus{tb}
+        namedclass{"stream_from", table_name}, transactionfocus{tb}
 {
   set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
 }
@@ -110,7 +118,9 @@ template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
     std::string workspace;
     try
     {
-      tokenize_ith<Tuple, 0>(m_current_line, t, 0, workspace);
+      constexpr auto tsize = std::tuple_size_v<Tuple>;
+      using indexes = std::make_index_sequence<tsize>;
+      do_extract(m_current_line, t, workspace, indexes{});
       m_retry_line = false;
     }
     catch (...)
@@ -120,33 +130,6 @@ template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
     }
   }
   return *this;
-}
-
-
-template<typename Tuple, std::size_t I>
-auto stream_from::tokenize_ith(
-  std::string const &line, Tuple &t, std::string::size_type here,
-  std::string &workspace) const ->
-  typename std::enable_if_t<(std::tuple_size_v<Tuple> > I)>
-{
-  if (here >= line.size())
-    throw usage_error{"Too few fields to extract from stream_from line."};
-
-  extract_value(line, std::get<I>(t), here, workspace);
-  tokenize_ith<Tuple, I + 1>(line, t, here, workspace);
-}
-
-
-template<typename Tuple, std::size_t I>
-auto stream_from::tokenize_ith(
-  std::string const &line, Tuple & /* t */, std::string::size_type here,
-  std::string & /* workspace */
-  ) const -> typename std::enable_if_t<(std::tuple_size_v<Tuple> <= I)>
-{
-  // Zero-column line may still have a trailing newline
-  if (
-    here < line.size() and not(here == line.size() - 1 and line[here] == '\n'))
-    throw usage_error{"Not all fields extracted from stream_from line"};
 }
 
 
