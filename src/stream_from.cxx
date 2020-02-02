@@ -108,8 +108,8 @@ void pqxx::stream_from::set_up(
   transaction_base &tb, std::string_view table_name,
   std::string const &columns)
 {
-  // Get the encoding before starting the COPY, otherwise reading the the
-  // variable will interrupt it
+  // Get the encoding before starting the COPY, otherwise reading the
+  // variable will interrupt it.
   m_copy_encoding = internal::enc_group(m_trans.conn().encoding_id());
   begin_copy(tb, table_name, columns);
   register_me();
@@ -220,7 +220,7 @@ bool pqxx::stream_from::extract_field(
     }
     else
     {
-      // Multi-byte sequence; never treated specially, so just append
+      // Multi-byte sequence.  Never treated specially, so just append.
       s.insert(s.size(), line.c_str() + i, seq_len);
     }
 

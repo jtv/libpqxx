@@ -53,7 +53,7 @@ public:
   bool get_raw_line(std::string &);
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
-  /// Doing this with a variant is going to be horrifically borked
+  /// Doing this with a @c std::variant is going to be horrifically borked.
   template<typename... Vs>
   stream_from &operator>>(std::variant<Vs...> &) = delete;
 
@@ -116,6 +116,9 @@ template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_retry_line or get_raw_line(m_current_line))
   {
+    // This is just a scratchpad for functions further down to play with.
+    // We allocate it here so that we can keep re-using its buffer, rather
+    // than always allocating new ones.
     std::string workspace;
     try
     {
