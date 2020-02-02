@@ -272,10 +272,15 @@ public:
 
   /// Execute query, expecting exactly 1 row with 1 field.
   template<typename TYPE>
-  TYPE query_value(std::string const &query, std::string const &desc = std::string{})
-  { row const r{exec1(query, desc)};
-if (r.size() != 1) throw usage_error{"Queried single value from result with " + to_string(r.size()) + " columns."};
-return r[0].as<TYPE>(); }
+  TYPE query_value(
+    std::string const &query, std::string const &desc = std::string{})
+  {
+    row const r{exec1(query, desc)};
+    if (r.size() != 1)
+      throw usage_error{"Queried single value from result with " +
+                        to_string(r.size()) + " columns."};
+    return r[0].as<TYPE>();
+  }
 
   /**
    * @name Parameterized statements

@@ -25,10 +25,10 @@ std::pair<int, int> CountEvents(transaction_base &tx)
 {
   std::string const events_query{"SELECT count(*) FROM " + Table};
   std::string const boring_query{events_query +
-                                " WHERE year=" + to_string(BoringYear)};
+                                 " WHERE year=" + to_string(BoringYear)};
 
   return std::make_pair(
-tx.query_value<int>(events_query), tx.query_value<int>(boring_query));
+    tx.query_value<int>(events_query), tx.query_value<int>(boring_query));
 }
 
 

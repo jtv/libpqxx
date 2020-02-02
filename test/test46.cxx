@@ -62,11 +62,9 @@ void test_046()
     "is inconsistent with "
     "from_string(std::string const &, std::string &).");
 
-  PQXX_CHECK(
-    tx.query_value<bool>("SELECT 1=1"), "1=1 doesn't yield 'true.'");
+  PQXX_CHECK(tx.query_value<bool>("SELECT 1=1"), "1=1 doesn't yield 'true.'");
 
-  PQXX_CHECK(
-    not tx.query_value<bool>("SELECT 2+2=5"), "2+2=5 yields 'true.'");
+  PQXX_CHECK(not tx.query_value<bool>("SELECT 2+2=5"), "2+2=5 yields 'true.'");
 }
 
 

@@ -19,7 +19,8 @@ std::pair<int, int> count_events(connection_base &conn, std::string table)
   std::string const count_query{"SELECT count(*) FROM " + table};
   nontransaction tx{conn};
   return std::make_pair(
-tx.query_value<int>(count_query), tx.query_value<int>(count_query + " WHERE year=" + to_string(BoringYear)));
+    tx.query_value<int>(count_query),
+    tx.query_value<int>(count_query + " WHERE year=" + to_string(BoringYear)));
 }
 
 

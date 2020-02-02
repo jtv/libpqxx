@@ -60,8 +60,7 @@ void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
   {
     auto r{t.query_value<std::string>("SELECT " + t.quote(test_strings[i]))};
     PQXX_CHECK_EQUAL(
-      r, test_strings[i],
-      "Selecting quoted string does not come back equal.");
+      r, test_strings[i], "Selecting quoted string does not come back equal.");
   }
 }
 
