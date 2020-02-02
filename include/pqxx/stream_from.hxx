@@ -105,7 +105,8 @@ template<typename Iter>
 inline stream_from::stream_from(
   transaction_base &tb, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
-        namedclass{"stream_from", table_name}, transactionfocus{tb}
+        namedclass{"stream_from", table_name},
+        transactionfocus{tb}
 {
   set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
 }

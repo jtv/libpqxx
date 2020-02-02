@@ -4,20 +4,19 @@ namespace
 {
 void make_table(pqxx::transaction_base &trans)
 {
-  trans.exec("CREATE TEMP TABLE foo (x INTEGER)");
+  trans.exec0("CREATE TEMP TABLE foo (x INTEGER)");
 }
 
 
 void insert_row(pqxx::transaction_base &trans)
 {
-  trans.exec("INSERT INTO foo(x) VALUES (1)");
+  trans.exec0("INSERT INTO foo(x) VALUES (1)");
 }
 
 
 int count_rows(pqxx::transaction_base &trans)
 {
-  pqxx::result const r{trans.exec("SELECT count(*) FROM foo")};
-  return r[0][0].as<int>();
+  return trans.query_value<int>("SELECT count(*) FROM foo");
 }
 
 

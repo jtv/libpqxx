@@ -53,7 +53,7 @@ namespace pqxx
  *
  *   // S may have gone into a failed state and been destroyed, but the
  *   // upper-level transaction W is still fine.  We can continue to use it.
- *   W.exec("CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)");
+ *   W.exec0("CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)");
  *
  *   do_lastpart(W);
  * }

@@ -6,7 +6,7 @@ namespace
 pqxx::binarystring
 make_binarystring(pqxx::transaction_base &T, std::string content)
 {
-  return pqxx::binarystring(T.exec("SELECT " + T.quote_raw(content))[0][0]);
+  return pqxx::binarystring(T.exec1("SELECT " + T.quote_raw(content))[0]);
 }
 
 

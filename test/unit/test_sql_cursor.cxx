@@ -168,7 +168,7 @@ void test_adopted_sql_cursor()
   pqxx::connection conn;
   pqxx::work tx{conn};
 
-  tx.exec(
+  tx.exec0(
     "DECLARE adopted SCROLL CURSOR FOR "
     "SELECT generate_series(1, 3)");
   pqxx::internal::sql_cursor adopted(tx, "adopted", pqxx::cursor_base::owned);
@@ -201,25 +201,16 @@ void test_adopted_sql_cursor()
   // Owned adopted cursors are cleaned up on destruction.
   pqxx::connection conn2;
   pqxx::work tx2(conn2, "tx2");
-  tx2.exec(
+  tx2.exec0(
     "DECLARE adopted2 CURSOR FOR "
     "SELECT generate_series(1, 3)");
   {
     pqxx::internal::sql_cursor(tx2, "adopted2", pqxx::cursor_base::owned);
   }
-  if (conn2.server_version() >= 80000)
-  {
-    // Modern backends: accessing the cursor now is an error, as you'd expect.
-    PQXX_CHECK_THROWS(
-      tx2.exec("FETCH 1 IN adopted2"), pqxx::sql_error,
-      "Owned adopted cursor not cleaned up");
-  }
-  else
-  {
-    // Old backends: see that we can at least create a new cursor with the same
-    // name.
-    tx2.exec("DECLARE adopted2 CURSOR FOR SELECT TRUE");
-  }
+  // Modern backends: accessing the cursor now is an error, as you'd expect.
+  PQXX_CHECK_THROWS(
+    tx2.exec("FETCH 1 IN adopted2"), pqxx::sql_error,
+    "Owned adopted cursor not cleaned up");
 
   tx2.abort();
 

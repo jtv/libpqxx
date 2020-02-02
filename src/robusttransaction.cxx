@@ -64,8 +64,7 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
   auto const query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
-  auto const row{w.exec1(query, name)};
-  auto const status_text{row[0].as<std::string>()};
+  auto const status_text{w.query_value<std::string>(query)};
   if (status_text.empty())
     throw pqxx::internal_error{"Transaction status string is empty."};
   auto const here{statuses.find(status_text)};

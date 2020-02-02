@@ -50,7 +50,7 @@ namespace pqxx
  * work T(C);
  * try
  * {
- *   T.exec("UPDATE employees SET wage=wage*2");
+ *   T.exec0("UPDATE employees SET wage=wage*2");
  *   T.commit();	// NOTE: do this inside try block
  * }
  * catch (exception const &e)

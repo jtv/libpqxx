@@ -9,12 +9,12 @@ void test_nontransaction_continues_after_error()
   pqxx::nontransaction tx{c};
 
   PQXX_CHECK_EQUAL(
-    tx.exec1("SELECT 9")[0].as<int>(), 9, "Simple query went wrong.");
+    tx.query_value<int>("SELECT 9"), 9, "Simple query went wrong.");
   PQXX_CHECK_THROWS(
     tx.exec("SELECT 1/0"), pqxx::sql_error, "Expected error did not happen.");
 
   PQXX_CHECK_EQUAL(
-    tx.exec1("SELECT 5")[0].as<int>(), 5, "Wrong result after error.");
+    tx.query_value<int>("SELECT 5"), 5, "Wrong result after error.");
 }
 
 
@@ -41,7 +41,7 @@ void insert_temp_table(pqxx::transaction_base &tx, int value)
 
 int count_temp_table(pqxx::transaction_base &tx)
 {
-  return tx.exec1("SELECT count(*) FROM " + table)[0].as<int>();
+  return tx.query_value<int>("SELECT count(*) FROM " + table);
 }
 
 

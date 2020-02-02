@@ -16,18 +16,10 @@ constexpr int BoringYear{1977};
 // former count in the result pair's first member, and the latter in second.
 std::pair<int, int> count_events(connection_base &conn, std::string table)
 {
-  std::string const CountQuery{"SELECT count(*) FROM " + table};
-  row R;
-  int all_years{}, boring_year{};
-
+  std::string const count_query{"SELECT count(*) FROM " + table};
   nontransaction tx{conn};
-  R = tx.exec1(CountQuery);
-  R.front().to(all_years);
-
-  R = tx.exec1(CountQuery + " WHERE year=" + to_string(BoringYear));
-  R.front().to(boring_year);
-
-  return std::make_pair(all_years, boring_year);
+  return std::make_pair(
+tx.query_value<int>(count_query), tx.query_value<int>(count_query + " WHERE year=" + to_string(BoringYear)));
 }
 
 

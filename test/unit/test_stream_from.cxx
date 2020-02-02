@@ -180,7 +180,7 @@ void test_stream_from()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  tx.exec(
+  tx.exec0(
     "CREATE TEMP TABLE stream_from_test ("
     "number0 INT NOT NULL,"
     "ts1     TIMESTAMP NULL,"

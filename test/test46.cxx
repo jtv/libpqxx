@@ -63,10 +63,10 @@ void test_046()
     "from_string(std::string const &, std::string &).");
 
   PQXX_CHECK(
-    tx.exec1("SELECT 1=1").front().as<bool>(), "1=1 doesn't yield 'true.'");
+    tx.query_value<bool>("SELECT 1=1"), "1=1 doesn't yield 'true.'");
 
   PQXX_CHECK(
-    not tx.exec1("SELECT 2+2=5").front().as<bool>(), "2+2=5 yields 'true.'");
+    not tx.query_value<bool>("SELECT 2+2=5"), "2+2=5 yields 'true.'");
 }
 
 

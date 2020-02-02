@@ -1,3 +1,5 @@
+7.0.2
+ - New query function: `query_value`, queries and converts a single value.
 7.0.1
  - Windows build fixes.
  - Documentation for writing your own string conversions.

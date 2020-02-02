@@ -13,7 +13,7 @@ void test_move_constructor()
   PQXX_CHECK(c2.is_open(), "Moved constructor is not open.");
 
   pqxx::work tx{c2};
-  PQXX_CHECK_EQUAL(tx.exec1("SELECT 5")[0].as<int>(), 5, "Weird result!");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 5"), 5, "Weird result!");
 
   PQXX_CHECK_THROWS(
     pqxx::connection c3{std::move(c2)}, pqxx::usage_error,
@@ -35,7 +35,7 @@ void test_move_assign()
 
   {
     pqxx::work tx1{c2};
-    PQXX_CHECK_EQUAL(tx1.exec1("SELECT 8")[0].as<int>(), 8, "What!?");
+    PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8, "What!?");
 
     pqxx::connection c3;
     PQXX_CHECK_THROWS(
@@ -50,7 +50,7 @@ void test_move_assign()
 
   // After failed move attempts, the connection is still usable.
   pqxx::work tx2{c2};
-  PQXX_CHECK_EQUAL(tx2.exec1("SELECT 6")[0].as<int>(), 6, "Huh!?");
+  PQXX_CHECK_EQUAL(tx2.query_value<int>("SELECT 6"), 6, "Huh!?");
 }
 
 
