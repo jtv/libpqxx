@@ -154,6 +154,8 @@ void pqxx::stream_from::complete()
 bool pqxx::stream_from::extract_field(
   std::string const &line, std::string::size_type &i, std::string &s) const
 {
+  if (i >= line.size())
+    throw usage_error{"Too few fields to extract from stream_from line."};
   auto const next_seq{get_glyph_scanner(m_copy_encoding)};
   s.clear();
   bool is_null{false};
