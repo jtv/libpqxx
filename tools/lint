@@ -83,12 +83,12 @@ pylint() {
 	local PYFILES="tools/*.py tools/splitconfig"
 	if which pocketlint >/dev/null
 	then
-    	        pocketlint $PYFILES
+		pocketlint $PYFILES
 	fi
 
 	if which flake8 >/dev/null
 	then
-    	flake8 $PYFILES
+		flake8 $PYFILES
 	fi
 }
 
