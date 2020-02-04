@@ -24,6 +24,11 @@ CXX = (
     'clang++-10',
     )
 
+STDLIB = (
+    '',
+    '-stdlib=libc++',
+    )
+
 OPT = ('-O0', '-O3')
 
 LINK = {
@@ -63,13 +68,16 @@ def build(configure, output):
         output.write("\n\nOK\n")
 
 
-def check_compiler(work_dir, cxx):
+def check_compiler(work_dir, cxx, stdlib):
     """Is the given compiler combo available?"""
     try:
         source = os.path.join(work_dir, 'check.cxx')
-        check_call([cxx, source])
-    except FileNotFoundError:
-        print("Can't find compiler %s.  Skipping." % cxx)
+        command = [cxx, source]
+        if stdlib != '':
+            command += stdlib
+        check_call([cxx, source, stdlib])
+    except (FileNotFoundError, CalledProcessError):
+        print("Can't build with '%s %s'.  Skipping." % (cxx, stdlib))
         return False
     else:
         return True
@@ -108,12 +116,13 @@ def try_build(logs_dir, cxx, opt, link, link_opts, debug, debug_opts):
         build(configure, output)
 
 
-def check_compilers(candidates):
+def check_compilers(compilers, stdlibs):
     work_dir = make_work_dir()
     return [
-        cxx
-        for cxx in candidates
-        if check_compiler(work_dir, cxx)
+        (cxx, stdlib)
+        for stdlib in stdlibs
+        for cxx in compilers
+        if check_compiler(work_dir, cxx, stdlib)
     ]
 
 
@@ -128,6 +137,11 @@ def parse_args():
             "Alternative optimisation options, separated by commas.  "
             "Default is %(default)s."))
     parser.add_argument(
+        '--stdlibs', '-L', default=','.join(STDLIB),
+        help=(
+            "Comma-separated options for choosing standard library.  "
+            "Defaults to %(default)s."))
+    parser.add_argument(
         '--logs', '-l', default='.', metavar="DIRECTORY",
         help="Write build logs to DIRECTORY.")
     return parser.parse_args()
@@ -136,9 +150,10 @@ def parse_args():
 def main(args):
     if not os.path.isdir(args.logs):
         raise Fail("Logs location '%s' is not a directory." % args.logs)
-    compilers = check_compilers(args.compilers.split(','))
+    compilers = check_compilers(
+        args.compilers.split(','), args.stdlibs.split(','))
     for opt in sorted(args.optimize.split(',')):
-        for cxx in sorted(compilers):
+        for cxx, stdlib in compilers:
             for link, link_opts in sorted(LINK.items()):
                 for debug, debug_opts in sorted(DEBUG.items()):
                     try_build(
