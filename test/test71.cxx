@@ -29,7 +29,7 @@ void test_071()
   // Keep expected result for every query we issue
   Exp values;
 
-  // Insert queries returning various numbers
+  // Insert queries returning various numbers.
   for (int i{1}; i < 10; ++i) values[P.insert("SELECT " + to_string(i))] = i;
 
   // Retrieve results in query_id order, and compare to expected values
