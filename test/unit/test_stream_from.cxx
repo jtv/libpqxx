@@ -210,5 +210,20 @@ void test_stream_from()
 }
 
 
+void test_stream_from_escaping()
+{
+  std::string const input{"a\t\n\n\n \\b\nc"};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE badstr (str text)");
+  tx.exec0("INSERT INTO badstr (str) VALUES (" + tx.quote(input) + ")");
+  pqxx::stream_from reader{tx, "badstr"};
+  std::tuple<std::string> out;
+  reader >> out;
+  PQXX_CHECK_EQUAL(std::get<0>(out), input, "stream_from got weird characters wrong.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_from);
+PQXX_REGISTER_TEST(test_stream_from_escaping);
 } // namespace
