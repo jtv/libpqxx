@@ -356,8 +356,6 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
-	pqxx/internal/compiler-internal-pre.hxx \
-	pqxx/internal/compiler-internal-post.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
@@ -387,12 +385,15 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/zview pqxx/zview.hxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/callgate.hxx \
+	pqxx/internal/compiler-internal-pre.hxx \
+	pqxx/internal/compiler-internal-post.hxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
+	pqxx/internal/stream_iterator.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \

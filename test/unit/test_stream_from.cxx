@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -210,7 +211,7 @@ void test_stream_from()
 }
 
 
-void test_stream_from_escaping()
+void test_stream_from__escaping()
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection conn;
@@ -220,10 +221,46 @@ void test_stream_from_escaping()
   pqxx::stream_from reader{tx, "badstr"};
   std::tuple<std::string> out;
   reader >> out;
-  PQXX_CHECK_EQUAL(std::get<0>(out), input, "stream_from got weird characters wrong.");
+  PQXX_CHECK_EQUAL(
+    std::get<0>(out), input, "stream_from got weird characters wrong.");
+}
+
+
+void test_stream_from__iteration()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE str (s text)");
+  tx.exec0("INSERT INTO str (s) VALUES ('foo')");
+  pqxx::stream_from reader{tx, "str"};
+
+  int i{0};
+  std::string out;
+  for (std::tuple<std::string> t : reader.iter<std::string>())
+  {
+    i++;
+    out = std::get<0>(t);
+  }
+  PQXX_CHECK_EQUAL(i, 1, "Wrong number of iterations.");
+  PQXX_CHECK_EQUAL(out, "foo", "Got wrong string.");
+
+  tx.exec0("INSERT INTO str (s) VALUES ('bar')");
+  i = 0;
+  std::set<std::string> strings;
+  pqxx::stream_from reader2{tx, "str"};
+  for (std::tuple<std::string> t : reader2.iter<std::string>())
+  {
+    i++;
+    strings.insert(std::get<0>(t));
+  }
+  PQXX_CHECK_EQUAL(i, 2, "Wrong number of iterations.");
+  PQXX_CHECK_EQUAL(strings.size(), 2u, "Wrong number of strings retrieved.");
+  PQXX_CHECK(strings.find("foo") != strings.end(), "Missing key.");
+  PQXX_CHECK(strings.find("bar") != strings.end(), "Missing key.");
 }
 
 
 PQXX_REGISTER_TEST(test_stream_from);
-PQXX_REGISTER_TEST(test_stream_from_escaping);
+PQXX_REGISTER_TEST(test_stream_from__escaping);
+PQXX_REGISTER_TEST(test_stream_from__iteration);
 } // namespace

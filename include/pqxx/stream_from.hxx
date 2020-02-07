@@ -16,9 +16,12 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include <variant>
+
+#include "pqxx/except.hxx"
+#include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
-#include <variant>
 
 
 namespace pqxx
@@ -56,6 +59,16 @@ public:
   /// Doing this with a @c std::variant is going to be horrifically borked.
   template<typename... Vs>
   stream_from &operator>>(std::variant<Vs...> &) = delete;
+
+  /// Iterate over this stream.  Supports range-based "for" loops.
+  /** Produces an input iterator over the stream.
+   *
+   * Do not call this yourself.  Use it like "for (auto data : stream.iter())".
+   */
+  template<typename... TYPE> [[nodiscard]] auto iter()
+  {
+    return pqxx::internal::stream_input_iteration<TYPE...>{*this};
+  }
 
 private:
   internal::encoding_group m_copy_encoding =

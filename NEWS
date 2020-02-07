@@ -1,5 +1,6 @@
 7.0.2
  - New query function: `query_value`, queries and converts a single value.
+ - A `stream_from` stream can now be iterated.
 7.0.1
  - Windows build fixes.
  - Documentation for writing your own string conversions.
