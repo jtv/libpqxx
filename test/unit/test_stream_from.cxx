@@ -260,7 +260,31 @@ void test_stream_from__iteration()
 }
 
 
+void test_transaction_stream_from()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE sample (id integer, name varchar)");
+  tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
+
+  int items{0};
+  int id;
+  std::string name;
+
+  for (auto item : tx.stream_from<int, std::string>("sample", {"id", "name"}))
+  {
+    items++;
+    id = std::get<0>(item);
+    name = std::get<1>(item);
+  }
+  PQXX_CHECK_EQUAL(items, 1, "Wrong number of iterations.");
+  PQXX_CHECK_EQUAL(id, 321, "Got wrong int.");
+  PQXX_CHECK_EQUAL(name, "something", "Got wrong string.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_from);
 PQXX_REGISTER_TEST(test_stream_from__escaping);
 PQXX_REGISTER_TEST(test_stream_from__iteration);
+PQXX_REGISTER_TEST(test_transaction_stream_from);
 } // namespace

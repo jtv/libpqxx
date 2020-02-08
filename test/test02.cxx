@@ -25,10 +25,10 @@ void test_002()
   std::string ConnectString;
   connection C{ConnectString};
 
-  // Start transaction within context of connection
+  // Start transaction within context of connection.
   work T{C, "test2"};
 
-  // Perform query within transaction
+  // Perform query within transaction.
   result R(T.exec("SELECT * FROM pg_tables"));
 
   // Let's keep the database waiting as briefly as possible: commit now,

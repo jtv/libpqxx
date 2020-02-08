@@ -354,9 +354,9 @@ template<> struct string_traits<std::string>
       throw conversion_overrun{
         "Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
-    auto const len = value.size() + 1;
-    value.copy(begin, len);
-    return begin + len;
+    value.copy(begin, value.size());
+    begin[value.size()] = '\0';
+    return begin + value.size() + 1;
   }
 
   static zview to_buf(char *begin, char *end, std::string const &value)
@@ -389,6 +389,16 @@ template<> struct string_traits<std::string_view>
   static constexpr size_t size_buffer(std::string_view const &value) noexcept
   {
     return value.size() + 1;
+  }
+
+  static char *into_buf(char *begin, char *end, std::string_view const &value)
+  {
+    if (static_cast<size_t>(end - begin) <= size_buffer(value))
+      throw conversion_overrun{
+        "Could not store string_view: too long for buffer."};
+    value.copy(begin, value.size());
+    begin[value.size()] = '\0';
+    return begin + value.size() + 1;
   }
 };
 

@@ -33,37 +33,7 @@
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
-
-
-namespace pqxx::internal
-{
-class sql_cursor;
-
-class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
-{
-public:
-  explicit transactionfocus(transaction_base &t) :
-          namedclass{"transactionfocus"},
-          m_trans{t}
-  {}
-
-  transactionfocus() = delete;
-  transactionfocus(transactionfocus const &) = delete;
-  transactionfocus &operator=(transactionfocus const &) = delete;
-
-protected:
-  void register_me();
-  void unregister_me() noexcept;
-  void reg_pending_error(std::string const &) noexcept;
-  bool registered() const noexcept { return m_registered; }
-
-  transaction_base &m_trans;
-
-private:
-  bool m_registered = false;
-};
-} // namespace pqxx::internal
-
+#include "pqxx/stream_from.hxx"
 
 namespace pqxx::internal::gate
 {
@@ -280,6 +250,24 @@ public:
       throw usage_error{"Queried single value from result with " +
                         to_string(r.size()) + " columns."};
     return r[0].as<TYPE>();
+  }
+
+  /// Loop over a table's contents.
+  /** Use this with a range-based "for" loop.  It queries a series of columns
+   * from table, and maps them directly onto a @c std::tuple of the types you
+   * specify.
+   *
+   * If any of the columns can be null, and the C++ type to which it translates
+   * does not have a null value, wrap the type in @c std::optional (or if
+   * you prefer, @c std::shared_ptr or @c std::unique_ptr).  These templates
+   * do recognise null values, and libpqxx will know how to convert to them.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] auto stream_from(
+    std::string_view table, std::initializer_list<std::string_view> columns)
+  {
+    return pqxx::internal::owning_stream_input_iteration<TYPE...>{
+      std::make_unique<pqxx::stream_from>(*this, table, columns)};
   }
 
   /**

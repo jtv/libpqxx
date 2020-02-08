@@ -19,9 +19,10 @@
 #include <variant>
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
+#include "pqxx/internal/transaction_focus.hxx"
 #include "pqxx/separated_list.hxx"
-#include "pqxx/transaction_base.hxx"
 
 
 namespace pqxx
@@ -65,7 +66,7 @@ public:
    *
    * Do not call this yourself.  Use it like "for (auto data : stream.iter())".
    */
-  template<typename... TYPE> [[nodiscard]] auto iter()
+  template<typename... TYPE>[[nodiscard]] auto iter()
   {
     return pqxx::internal::stream_input_iteration<TYPE...>{*this};
   }

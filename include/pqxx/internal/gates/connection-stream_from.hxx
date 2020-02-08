@@ -1,5 +1,7 @@
 #include <pqxx/internal/callgate.hxx>
 
+#include "pqxx/connection.hxx"
+
 namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_stream_from : callgate<connection>

@@ -33,18 +33,15 @@ std::map<int, int> update_years(connection_base &C)
   std::map<int, int> conversions;
   work tx{C};
 
-  // First select all different years occurring in the table.
-  result R{tx.exec("SELECT year FROM pqxxevents")};
-
   // Note all different years currently occurring in the table, writing them
   // and their correct mappings to m_conversions
-  for (auto const &r : R)
+  for (auto const tup :
+       tx.stream_from<std::optional<int>>("pqxxevents", {"year"}))
   {
-    int Y{};
-
     // Read year, and if it is non-null, note its converted value
-    if (r[0].to(Y))
-      conversions[Y] = To4Digits(Y);
+    const auto y{std::get<0>(tup)};
+    if (bool(y))
+      conversions[y.value()] = To4Digits(y.value());
   }
 
   // For each occurring year, write converted date back to whereever it may

@@ -14,6 +14,7 @@
 
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
+#include "pqxx/transaction_base.hxx"
 
 
 namespace

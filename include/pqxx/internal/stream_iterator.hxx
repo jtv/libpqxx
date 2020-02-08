@@ -12,6 +12,8 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include <memory>
+
 namespace pqxx
 {
 class stream_from;
@@ -22,6 +24,9 @@ namespace pqxx::internal
 {
 // TODO: Replace with C++20 generator.
 /// Input iterator for stream_from.
+/** Just barely enough to support range-based "for" loops.  Don't assume that
+ * any of the usual behaviour works beyond that.
+ */
 template<typename... TYPE> class stream_input_iterator
 {
 public:
@@ -41,20 +46,15 @@ public:
     advance();
     return *this;
   }
-  stream_input_iterator operator++(int)
-  {
-    stream_input_iterator next{*this};
-    return ++next;
-  }
 
   const value_type &operator*() const { return m_value; }
-  const value_type *operator->() const { return &m_value; }
 
+  /// Comparison only works for comparing to end().
   bool operator==(stream_input_iterator const &rhs) const
   {
-    return m_home == rhs.m_home and
-           (m_home == nullptr or m_offset == rhs.m_offset);
+    return m_home == rhs.m_home;
   }
+  /// Comparison only works for comparing to end().
   bool operator!=(stream_input_iterator const &rhs) const
   {
     return not(*this == rhs);
@@ -65,27 +65,44 @@ private:
   {
     if (m_home == nullptr)
       throw usage_error{"Moving stream_from iterator beyond end()."};
-    ++m_offset;
     if (not((*m_home) >> m_value))
       m_home = nullptr;
   }
 
   stream_from *m_home = nullptr;
-  size_t m_offset = 0;
   value_type m_value;
 };
 
 
+// TODO: Replace with C++20 generator.
+/// Iteration over a @c stream_from.
 template<typename... TYPE> class stream_input_iteration
 {
 public:
   using iterator = stream_input_iterator<TYPE...>;
-  explicit stream_input_iteration(stream_from &home) : m_home(home) {}
+  explicit stream_input_iteration(stream_from &home) : m_home{home} {}
   iterator begin() const { return iterator{m_home}; }
   iterator end() const { return iterator{}; }
 
 private:
   stream_from &m_home;
+};
+
+
+// TODO: Replace with C++20 generator.
+/// Iteration over a @c stream_from, deleting it once done.
+template<typename... TYPE> class owning_stream_input_iteration
+{
+public:
+  using iterator = stream_input_iterator<TYPE...>;
+  explicit owning_stream_input_iteration(std::unique_ptr<stream_from> &&home) :
+          m_home{std::move(home)}
+  {}
+  iterator begin() const { return iterator{*m_home.get()}; }
+  iterator end() const { return iterator{}; }
+
+private:
+  std::unique_ptr<stream_from> m_home;
 };
 } // namespace pqxx::internal
 
