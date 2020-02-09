@@ -268,10 +268,10 @@ void test_transaction_stream_from()
   tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
 
   int items{0};
-  int id;
+  int id{0};
   std::string name;
 
-  for (auto item : tx.stream_from<int, std::string>("sample", {"id", "name"}))
+  for (auto item : tx.stream<int, std::string>("SELECT id, name FROM sample"))
   {
     items++;
     id = std::get<0>(item);

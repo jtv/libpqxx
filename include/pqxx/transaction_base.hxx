@@ -252,22 +252,46 @@ public:
     return r[0].as<TYPE>();
   }
 
-  /// Loop over a table's contents.
-  /** Use this with a range-based "for" loop.  It queries a series of columns
-   * from table, and maps them directly onto a @c std::tuple of the types you
+  /// Execute a query, and loop over the results row by row.
+  /** Converts the rows to @c std::tuple, of the column types you specify.
+   *
+   * Use this with a range-based "for" loop.  It executes the query, and
+   * directly maps the resulting rows onto a @c std::tuple of the types you
    * specify.
    *
    * If any of the columns can be null, and the C++ type to which it translates
    * does not have a null value, wrap the type in @c std::optional (or if
    * you prefer, @c std::shared_ptr or @c std::unique_ptr).  These templates
    * do recognise null values, and libpqxx will know how to convert to them.
+   *
+   * The connection is in a special state until the iteration finishes.  So if
+   * it does not finish due to a @c break or a @c return or an exception, then
+   * the entire connection becomes effectively unusable.
+   *
+   * Querying in this way costs a little more overhead than the @c exec
+   * functions, but it may be faster for larger results, and you can start
+   * processing rows before the full result is in.
+   *
+   * Also, @c stream() scales better in terms of memory usage.  Where @c exec()
+   * reads the entire result into memory at once, @c stream_from will read and
+   * process one row at at a time.
+   *
+   * Your query executes as part of a COPY command, not as a stand-alone query,
+   * so there are limitations to what you can do in the query.  It can be
+   * either a SELECT or VALUES query; or an INSERT, UPDATE, or DELETE with a
+   * RETURNING clause.  See the documentation for PostgreSQL's COPY command for
+   * the details:
+   *
+   *     https://www.postgresql.org/docs/current/sql-copy.html
+   *
+   * Iterating in this way does require each of the field types you pass to be
+   * default-constructible and copy-constructible.  This restriction will be
+   * loosened when libpqxx moves on to C++20.
    */
-  template<typename... TYPE>
-  [[nodiscard]] auto stream_from(
-    std::string_view table, std::initializer_list<std::string_view> columns)
+  template<typename... TYPE>[[nodiscard]] auto stream(std::string_view query)
   {
     return pqxx::internal::owning_stream_input_iteration<TYPE...>{
-      std::make_unique<pqxx::stream_from>(*this, table, columns)};
+      std::make_unique<pqxx::stream_from>(*this, from_query, query)};
   }
 
   /**

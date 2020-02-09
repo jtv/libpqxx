@@ -36,7 +36,7 @@ std::map<int, int> update_years(connection_base &C)
   // Note all different years currently occurring in the table, writing them
   // and their correct mappings to m_conversions
   for (auto const tup :
-       tx.stream_from<std::optional<int>>("pqxxevents", {"year"}))
+       tx.stream<std::optional<int>>("SELECT year FROM pqxxevents"))
   {
     // Read year, and if it is non-null, note its converted value
     const auto y{std::get<0>(tup)};

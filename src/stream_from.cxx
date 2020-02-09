@@ -31,37 +31,77 @@ std::string::size_type find_tab(
 }
 
 
-void begin_copy(
-  pqxx::transaction_base &trans, std::string_view table,
+void begin_copy_table(
+  pqxx::transaction_base &tx, std::string_view table,
   std::string const &columns)
 {
   constexpr std::string_view copy{"COPY "}, to_stdout{" TO STDOUT"};
-  std::string query;
-  query.reserve(
-    copy.size() + table.size() + columns.size() + 2 + to_stdout.size());
-  query += copy;
-  query += table;
+  auto const escaped_table{tx.quote_name(table)};
+  std::string command;
+  command.reserve(
+    copy.size() + escaped_table.size() + columns.size() + 2 +
+    to_stdout.size());
+  command += copy;
+  command += escaped_table;
 
   if (not columns.empty())
   {
-    query.push_back('(');
-    query += columns;
-    query.push_back(')');
+    command.push_back('(');
+    command += columns;
+    command.push_back(')');
   }
 
-  query += to_stdout;
+  command += to_stdout;
 
-  trans.exec0(query);
+  tx.exec0(command);
+}
+
+
+pqxx::internal::encoding_group get_encoding(pqxx::transaction_base const &tx)
+{
+  return pqxx::internal::enc_group(tx.conn().encoding_id());
 }
 } // namespace
 
 
 pqxx::stream_from::stream_from(
-  transaction_base &tb, std::string_view table_name) :
-        namedclass{"stream_from", table_name},
-        transactionfocus{tb}
+  transaction_base &tx, from_query_t, std::string_view query) :
+        namedclass{"stream_from"},
+        transactionfocus{tx},
+        m_copy_encoding{get_encoding(tx)}
 {
-  set_up(tb, table_name);
+  constexpr std::string_view copy{"COPY ("}, to_stdout{") TO STDOUT"};
+  std::string command;
+  command.reserve(copy.size() + query.size() + to_stdout.size());
+  command += copy;
+  command += query;
+  command += to_stdout;
+  tx.exec0(command);
+
+  register_me();
+}
+
+
+pqxx::stream_from::stream_from(
+  transaction_base &tx, from_table_t, std::string_view table) :
+        namedclass{"stream_from", table},
+        transactionfocus{tx},
+        m_copy_encoding{get_encoding(tx)}
+{
+  begin_copy_table(tx, table, "");
+  register_me();
+}
+
+
+pqxx::stream_from::stream_from(
+  transaction_base &tx, std::string_view table, std::string &&columns,
+  from_table_t) :
+        namedclass{"stream_from", table},
+        transactionfocus{tx},
+        m_copy_encoding{get_encoding(tx)}
+{
+  begin_copy_table(tx, table, columns);
+  register_me();
 }
 
 
@@ -95,25 +135,6 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
     }
   }
   return *this;
-}
-
-
-void pqxx::stream_from::set_up(
-  transaction_base &tb, std::string_view table_name)
-{
-  set_up(tb, table_name, "");
-}
-
-
-void pqxx::stream_from::set_up(
-  transaction_base &tb, std::string_view table_name,
-  std::string const &columns)
-{
-  // Get the encoding before starting the COPY, otherwise reading the
-  // variable will interrupt it.
-  m_copy_encoding = internal::enc_group(m_trans.conn().encoding_id());
-  begin_copy(tb, table_name, columns);
-  register_me();
 }
 
 
