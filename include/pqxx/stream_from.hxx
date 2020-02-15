@@ -153,7 +153,7 @@ private:
     const std::string &line, Tuple &t, std::string &workspace,
     std::index_sequence<I...>)
   {
-    std::string::size_type here{};
+    std::string::size_type here{0};
     (extract_value(line, std::get<I>(t), here, workspace), ...);
     if (
       here < line.size() and
@@ -181,7 +181,7 @@ inline stream_from::stream_from(
 {}
 
 
-template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
+template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_retry_line or get_raw_line(m_current_line))
   {
@@ -207,7 +207,7 @@ template<typename Tuple> stream_from &stream_from::operator>>(Tuple &t)
 
 
 template<typename T>
-void stream_from::extract_value(
+inline void stream_from::extract_value(
   std::string const &line, T &t, std::string::size_type &here,
   std::string &workspace) const
 {
