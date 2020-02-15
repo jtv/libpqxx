@@ -32,6 +32,8 @@ namespace pqxx
 class zview : public std::string_view
 {
 public:
+  constexpr zview() noexcept =default;
+
   template<typename... Args>
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
