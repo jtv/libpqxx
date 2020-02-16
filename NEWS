@@ -3,6 +3,7 @@
  - Query tuples straight into `std::tuple` using `transaction::stream()`!
  - A `stream_from` stream can now be iterated.
  - And, `stream_from` now supports more or less arbitrary queries.
+ - Streaming data is now more efficient.
  - The table name in `stream_from` is now escaped.
 7.0.1
  - Windows build fixes.

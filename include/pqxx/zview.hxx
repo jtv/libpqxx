@@ -32,7 +32,12 @@ namespace pqxx
 class zview : public std::string_view
 {
 public:
-  constexpr zview() noexcept =default;
+  constexpr zview() noexcept = default;
+
+  /// Convenience overload: construct using pointer and signed length.
+  constexpr zview(const char text[], std::ptrdiff_t len) :
+          std::string_view{text, static_cast<std::size_t>(len)}
+  {}
 
   template<typename... Args>
   explicit constexpr zview(Args &&... args) :

@@ -25,7 +25,8 @@ template<> struct string_traits<row::const_iterator>
     std::memcpy(begin, text.c_str(), text.size() + 1);
     return begin + text.size();
   }
-  static constexpr size_t size_buffer(row::const_iterator const &) noexcept
+  static constexpr std::size_t
+  size_buffer(row::const_iterator const &) noexcept
   {
     return text.size() + 1;
   }
@@ -48,7 +49,7 @@ template<> struct string_traits<row::const_reverse_iterator>
     std::memcpy(begin, text.c_str(), text.size() + 1);
     return begin + text.size();
   }
-  static constexpr size_t
+  static constexpr std::size_t
   size_buffer(row::const_reverse_iterator const &) noexcept
   {
     return 100;

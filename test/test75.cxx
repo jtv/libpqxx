@@ -33,7 +33,7 @@ void test_075()
 
   for (pqxx::result::size_type i{0}; i < R.size(); ++i)
     PQXX_CHECK_EQUAL(
-      contents[static_cast<size_t>(i)], R.at(i).at(0).c_str(),
+      contents[static_cast<std::size_t>(i)], R.at(i).at(0).c_str(),
       "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator

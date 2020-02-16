@@ -29,7 +29,8 @@ void test_051()
     PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
 
     PQXX_CHECK_EQUAL(
-      size_t(A.read(Buf, Size)), Contents.size(), "Unexpected read() result.");
+      std::size_t(A.read(Buf, Size)), Contents.size(),
+      "Unexpected read() result.");
 
     PQXX_CHECK_EQUAL(
       std::string(Buf, Contents.size()), Contents,
@@ -43,7 +44,7 @@ void test_051()
     A.write(Buf, Contents.size());
     A.seek(0, std::ios::beg);
     PQXX_CHECK_EQUAL(
-      size_t(A.read(Buf, Size)), Contents.size(),
+      std::size_t(A.read(Buf, Size)), Contents.size(),
       "Bad length for rewritten large object.");
 
     PQXX_CHECK_EQUAL(

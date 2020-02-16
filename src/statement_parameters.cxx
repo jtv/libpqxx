@@ -37,8 +37,8 @@ int pqxx::internal::statement_parameters::marshall(
   lengths.resize(array_size, 0);
   // "Unpack" from m_values, which skips arguments that are null, to the
   // outputs which represent all parameters including nulls.
-  size_t arg{0};
-  for (size_t param{0}; param < elements; ++param)
+  std::size_t arg{0};
+  for (std::size_t param{0}; param < elements; ++param)
     if (m_nonnull[param])
     {
       values[param] = m_values[arg].c_str();
@@ -49,7 +49,7 @@ int pqxx::internal::statement_parameters::marshall(
 
   // The binaries array is simpler: it maps 1-on-1.
   binaries.resize(array_size);
-  for (size_t param{0}; param < elements; ++param)
+  for (std::size_t param{0}; param < elements; ++param)
     binaries[param] = static_cast<int>(m_binary[param]);
   binaries.back() = 0;
 

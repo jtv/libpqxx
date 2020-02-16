@@ -692,9 +692,11 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 }
 
 
-bool pqxx::connection::read_copy_line(std::string &line)
+std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
+pqxx::connection::read_copy_line()
 {
-  line.erase();
+  using raw_line =
+    std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
   char *buf{nullptr};
 
   // Allocate once, re-use across invocations.
@@ -703,25 +705,25 @@ bool pqxx::connection::read_copy_line(std::string &line)
   auto const line_len{PQgetCopyData(m_conn, &buf, false)};
   switch (line_len)
   {
-  case -2:
+  case -2: // Error.
     throw failure{"Reading of table data failed: " + std::string{err_msg()}};
 
-  case -1:
+  case -1: // End of COPY.
     for (auto R{make_result(PQgetResult(m_conn), q)};
          pqxx::internal::gate::result_connection(R);
          R = make_result(PQgetResult(m_conn), q))
       check_result(R);
-    return false;
+    return raw_line{};
 
-  case 0: throw internal_error{"table read inexplicably went asynchronous"};
+  case 0: // "Come back later."
+    throw internal_error{"table read inexplicably went asynchronous"};
 
-  default:
-    if (buf)
-    {
-      std::unique_ptr<char, std::function<void(char *)>> PQA(buf, PQfreemem);
-      line.assign(buf, unsigned(line_len));
-    }
-    return true;
+  default: // Success, got buffer size.
+    // Line size includes a trailing zero, which we ignore.
+    auto const text_len{static_cast<std::size_t>(line_len) - 1};
+    return std::make_pair(
+      std::unique_ptr<char, std::function<void(char *)>>{buf, PQfreemem},
+      text_len);
   }
 }
 
@@ -793,9 +795,9 @@ std::string pqxx::connection::esc(std::string_view text) const
 
 
 std::string
-pqxx::connection::esc_raw(unsigned char const bin[], size_t len) const
+pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
-  size_t bytes = 0;
+  std::size_t bytes = 0;
 
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
     PQescapeByteaConn(m_conn, bin, len, &bytes), PQfreemem};
@@ -807,7 +809,7 @@ pqxx::connection::esc_raw(unsigned char const bin[], size_t len) const
 
 std::string pqxx::connection::unesc_raw(char const text[]) const
 {
-  size_t len;
+  std::size_t len;
   auto bytes{const_cast<unsigned char *>(
     reinterpret_cast<unsigned char const *>(text))};
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> const
@@ -817,7 +819,7 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
 
 
 std::string
-pqxx::connection::quote_raw(unsigned char const bin[], size_t len) const
+pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 {
   return "'" + esc_raw(bin, len) + "'::bytea";
 }
@@ -1053,7 +1055,7 @@ std::string pqxx::connection::connection_string() const
     throw std::bad_alloc{};
 
   std::string buf;
-  for (size_t i{0}; params.get()[i].keyword != nullptr; ++i)
+  for (std::size_t i{0}; params.get()[i].keyword != nullptr; ++i)
   {
     auto const param{params.get()[i]};
     auto const default_val{param.envvar == nullptr ? param.compiled :

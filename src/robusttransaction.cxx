@@ -43,7 +43,7 @@ enum tx_stat
  */
 struct initial_hash
 {
-  size_t operator()(std::string const &x) const noexcept
+  std::size_t operator()(std::string const &x) const noexcept
   {
     return static_cast<uint8_t>(x[0]);
   }

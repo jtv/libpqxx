@@ -26,7 +26,8 @@ inline constexpr char number_to_digit(int i) noexcept
 
 
 /// Like strlen, but allowed to stop at @c max bytes.
-inline size_t shortcut_strlen(char const text[], [[maybe_unused]] size_t max)
+inline std::size_t
+shortcut_strlen(char const text[], [[maybe_unused]] std::size_t max)
 {
   // strnlen_s is in C11, but not (yet) in C++'s "std" namespace.
   // This may change, so don't qualify explicitly.
@@ -77,8 +78,8 @@ template<typename T>
 inline char *generic_into_buf(char *begin, char *end, T const &value)
 {
   zview const text{string_traits<T>::to_buf(begin, end, value)};
-  auto const space =
-    check_cast<size_t>(end - begin, "floating-point conversion to string");
+  auto const space = check_cast<std::size_t>(
+    end - begin, "floating-point conversion to string");
   // Include the trailing zero.
   auto const len = text.size() + 1;
   if (len > space)
@@ -97,7 +98,7 @@ template<typename T> struct integral_traits
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
-  static constexpr size_t size_buffer(T const &) noexcept
+  static constexpr std::size_t size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type;
      * can reliably represent; the one extra base-10 digit which the type can
@@ -115,7 +116,7 @@ template<typename T> struct float_traits
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
-  static constexpr size_t size_buffer(T const &) noexcept
+  static constexpr std::size_t size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; a possible leading zero before the decimal
      * point; the full number of base-10 digits which may be needed; a decimal
@@ -180,7 +181,7 @@ template<> struct string_traits<bool>
     return pqxx::internal::generic_into_buf(begin, end, value);
   }
 
-  static constexpr size_t size_buffer(bool const &) noexcept { return 6; }
+  static constexpr std::size_t size_buffer(bool const &) noexcept { return 6; }
 };
 
 
@@ -216,7 +217,7 @@ template<typename T> struct string_traits<std::optional<T>>
                             string_traits<T>::from_string(text)};
   }
 
-  static size_t size_buffer(std::optional<T> const &value)
+  static std::size_t size_buffer(std::optional<T> const &value)
   {
     return string_traits<T>::size_buffer(value.value());
   }
@@ -261,7 +262,7 @@ template<> struct string_traits<char const *>
       return zview{};
     char *const next{string_traits<char const *>::into_buf(begin, end, value)};
     // Don't count the trailing zero, even though into_buf does.
-    return zview{begin, static_cast<size_t>(next - begin - 1)};
+    return zview{begin, static_cast<std::size_t>(next - begin - 1)};
   }
 
   static char *into_buf(char *begin, char *end, char const *const &value)
@@ -269,7 +270,8 @@ template<> struct string_traits<char const *>
     auto const space{end - begin};
     // Count the trailing zero, even though std::strlen() and friends don't.
     auto const len{
-      pqxx::internal::shortcut_strlen(value, static_cast<size_t>(space)) + 1};
+      pqxx::internal::shortcut_strlen(value, static_cast<std::size_t>(space)) +
+      1};
     if (space < ptrdiff_t(len))
       throw conversion_overrun{
         "Could not copy string: buffer too small.  " +
@@ -278,7 +280,7 @@ template<> struct string_traits<char const *>
     return begin + len;
   }
 
-  static size_t size_buffer(char const *const &value)
+  static std::size_t size_buffer(char const *const &value)
   {
     return std::strlen(value) + 1;
   }
@@ -304,7 +306,7 @@ template<> struct string_traits<char *>
   {
     return string_traits<char const *>::to_buf(begin, end, value);
   }
-  static size_t size_buffer(char *const &value)
+  static std::size_t size_buffer(char *const &value)
   {
     return string_traits<char const *>::size_buffer(value);
   }
@@ -313,7 +315,7 @@ template<> struct string_traits<char *>
 };
 
 
-template<size_t N> struct nullness<char[N]> : no_null<char[N]>
+template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
 {};
 
 
@@ -321,17 +323,20 @@ template<size_t N> struct nullness<char[N]> : no_null<char[N]>
 /** @warning This assumes that every array-of-char is a C-style string.  So,
  * it must include a trailing zero.
  */
-template<size_t N> struct string_traits<char[N]>
+template<std::size_t N> struct string_traits<char[N]>
 {
   static char *into_buf(char *begin, char *end, char const (&value)[N])
   {
-    if (static_cast<size_t>(end - begin) < size_buffer(value))
+    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
       throw conversion_overrun{
         "Could not convert char[] to string: too long for buffer."};
     std::memcpy(begin, value, N);
     return begin + N;
   }
-  static constexpr size_t size_buffer(char const (&)[N]) noexcept { return N; }
+  static constexpr std::size_t size_buffer(char const (&)[N]) noexcept
+  {
+    return N;
+  }
 
   // Don't allow conversion to this type since it breaks const-safety.
 };
@@ -363,10 +368,10 @@ template<> struct string_traits<std::string>
   {
     char *const next = into_buf(begin, end, value);
     // Don't count the trailing zero, even though into_buf() does.
-    return zview{begin, static_cast<size_t>(next - begin - 1)};
+    return zview{begin, static_cast<std::size_t>(next - begin - 1)};
   }
 
-  static size_t size_buffer(std::string const &value)
+  static std::size_t size_buffer(std::string const &value)
   {
     return value.size() + 1;
   }
@@ -386,14 +391,15 @@ template<> struct string_traits<std::string_view>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
 
-  static constexpr size_t size_buffer(std::string_view const &value) noexcept
+  static constexpr std::size_t
+  size_buffer(std::string_view const &value) noexcept
   {
     return value.size() + 1;
   }
 
   static char *into_buf(char *begin, char *end, std::string_view const &value)
   {
-    if (static_cast<size_t>(end - begin) <= size_buffer(value))
+    if (static_cast<std::size_t>(end - begin) <= size_buffer(value))
       throw conversion_overrun{
         "Could not store string_view: too long for buffer."};
     value.copy(begin, value.size());
@@ -412,7 +418,8 @@ template<> struct string_traits<zview>
 {
   // Don't allow conversion to this type; it has nowhere to store its contents.
 
-  static constexpr size_t size_buffer(std::string_view const &value) noexcept
+  static constexpr std::size_t
+  size_buffer(std::string_view const &value) noexcept
   {
     return value.size() + 1;
   }
@@ -474,7 +481,7 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
       return zview{};
   }
 
-  static size_t size_buffer(std::unique_ptr<T> const &value)
+  static std::size_t size_buffer(std::unique_ptr<T> const &value)
   {
     return string_traits<T>::size_buffer(*value.get());
   }
@@ -508,7 +515,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   {
     return string_traits<T>::into_buf(begin, end, *value);
   }
-  static size_t size_buffer(std::shared_ptr<T> const &value)
+  static std::size_t size_buffer(std::shared_ptr<T> const &value)
   {
     return string_traits<T>::size_buffer(*value);
   }
@@ -524,13 +531,13 @@ template<typename Container> struct array_string_traits
   static zview to_buf(char *begin, char *end, Container const &value)
   {
     auto const stop{into_buf(begin, end, value)};
-    return zview{begin, static_cast<size_t>(stop - begin - 1)};
+    return zview{begin, static_cast<std::size_t>(stop - begin - 1)};
   }
 
   static char *into_buf(char *begin, char *end, Container const &value)
   {
-    size_t const budget{size_buffer(value)};
-    if (static_cast<size_t>(end - begin) < budget)
+    std::size_t const budget{size_buffer(value)};
+    if (static_cast<std::size_t>(end - begin) < budget)
       throw conversion_overrun{
         "Not enough buffer space to convert array to string."};
 
@@ -576,19 +583,20 @@ template<typename Container> struct array_string_traits
     return here;
   }
 
-  static size_t size_buffer(Container const &value)
+  static std::size_t size_buffer(Container const &value)
   {
     using elt_traits = string_traits<elt_type>;
-    return 3 + std::accumulate(
-                 std::begin(value), std::end(value), size_t{},
-                 [](size_t acc, elt_type const &elt) {
-                   // Opening and closing quotes, plus worst-case escaping, but
-                   // don't count the trailing zeroes.
-                   size_t const elt_size{nullness<elt_type>::is_null(elt) ?
-                                           s_null.size() :
-                                           elt_traits::size_buffer(elt) - 1};
-                   return acc + 2 * elt_size + 2;
-                 });
+    return 3 +
+           std::accumulate(
+             std::begin(value), std::end(value), std::size_t{},
+             [](std::size_t acc, elt_type const &elt) {
+               // Opening and closing quotes, plus worst-case escaping, but
+               // don't count the trailing zeroes.
+               std::size_t const elt_size{nullness<elt_type>::is_null(elt) ?
+                                            s_null.size() :
+                                            elt_traits::size_buffer(elt) - 1};
+               return acc + 2 * elt_size + 2;
+             });
   }
 
   // We don't yet support parsing of array types using from_string.  Doing so
@@ -618,18 +626,18 @@ struct string_traits<std::vector<T>>
 template<typename T> inline constexpr bool is_sql_array<std::vector<T>>{true};
 
 
-template<typename T, size_t N>
+template<typename T, std::size_t N>
 struct nullness<std::array<T, N>> : no_null<std::array<T, N>>
 {};
 
 
-template<typename T, size_t N>
+template<typename T, std::size_t N>
 struct string_traits<std::array<T, N>>
         : internal::array_string_traits<std::array<T, N>>
 {};
 
 
-template<typename T, size_t N>
+template<typename T, std::size_t N>
 inline constexpr bool is_sql_array<std::array<T, N>>{true};
 } // namespace pqxx
 
@@ -648,7 +656,7 @@ template<typename T> inline std::string to_string(T const &value)
   buf.resize(string_traits<T>::size_buffer(value) + 1);
   auto const end{
     string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
-  buf.resize(static_cast<size_t>(end - buf.data() - 1));
+  buf.resize(static_cast<std::size_t>(end - buf.data() - 1));
   return buf;
 }
 
@@ -682,6 +690,6 @@ template<typename T> inline void into_string(T const &value, std::string &out)
   out.resize(string_traits<T>::size_buffer(value) + 1);
   auto const end{
     string_traits<T>::into_buf(out.data(), out.data() + out.size(), value)};
-  out.resize(static_cast<size_t>(end - out.data() - 1));
+  out.resize(static_cast<std::size_t>(end - out.data() - 1));
 }
 } // namespace pqxx

@@ -55,7 +55,7 @@ class PQXX_LIBEXPORT binarystring
 public:
   using char_type = unsigned char;
   using value_type = std::char_traits<char_type>::char_type;
-  using size_type = size_t;
+  using size_type = std::size_t;
   using difference_type = long;
   using const_reference = value_type const &;
   using const_pointer = value_type const *;
@@ -75,7 +75,7 @@ public:
   explicit binarystring(std::string_view);
 
   /// Copy binary data of given length straight out of memory.
-  binarystring(void const *, size_t);
+  binarystring(void const *, std::size_t);
 
   /// Size of converted string in bytes.
   [[nodiscard]] size_type size() const noexcept { return m_size; }

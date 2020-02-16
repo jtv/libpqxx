@@ -19,18 +19,6 @@
 
 namespace
 {
-/// Find first tab character at or after start position in string.
-/** If not found, returns line.size() rather than string::npos.
- */
-std::string::size_type find_tab(
-  pqxx::internal::encoding_group enc, std::string const &line,
-  std::string::size_type start)
-{
-  auto here{pqxx::internal::find_with_encoding(enc, line, '\t', start)};
-  return (here == std::string::npos) ? line.size() : here;
-}
-
-
 void begin_copy_table(
   pqxx::transaction_base &tx, std::string_view table,
   std::string const &columns)
@@ -57,6 +45,7 @@ void begin_copy_table(
 }
 
 
+// XXX: Inline this.
 pqxx::internal::encoding_group get_encoding(pqxx::transaction_base const &tx)
 {
   return pqxx::internal::enc_group(tx.conn().encoding_id());
@@ -118,15 +107,17 @@ pqxx::stream_from::~stream_from() noexcept
 }
 
 
-bool pqxx::stream_from::get_raw_line(std::string &line)
+pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
 {
-  internal::gate::connection_stream_from gate{m_trans.conn()};
   if (*this)
   {
+    internal::gate::connection_stream_from gate{m_trans.conn()};
     try
     {
-      if (not gate.read_copy_line(line))
+      raw_line line{gate.read_copy_line()};
+      if (line.first.get() == nullptr)
         close();
+      return line;
     }
     catch (std::exception const &)
     {
@@ -134,13 +125,16 @@ bool pqxx::stream_from::get_raw_line(std::string &line)
       throw;
     }
   }
-  return *this;
+  else
+  {
+    return raw_line{};
+  }
 }
 
 
 void pqxx::stream_from::close()
 {
-  if (!m_finished)
+  if (not m_finished)
   {
     m_finished = true;
     unregister_me();
@@ -156,9 +150,12 @@ void pqxx::stream_from::complete()
   {
     // Flush any remaining lines - libpq will automatically close the stream
     // when it hits the end.
-    std::string s;
-    while (get_raw_line(s))
-      ;
+    bool done{false};
+    while (not done)
+    {
+      auto [line, size] = get_raw_line();
+      done = not line.get();
+    }
   }
   catch (broken_connection const &)
   {
@@ -173,94 +170,129 @@ void pqxx::stream_from::complete()
 }
 
 
-bool pqxx::stream_from::extract_field(
-  std::string const &line, std::string::size_type &i, std::string &s) const
+#include <iostream> // XXX: DEBUG
+void pqxx::stream_from::parse_line()
 {
-  if (i >= line.size())
-    throw usage_error{"Too few fields to extract from stream_from line."};
+  if (m_finished)
+    return;
+  // XXX: Cache glyph scanner in *this.
   auto const next_seq{get_glyph_scanner(m_copy_encoding)};
-  s.clear();
-  bool is_null{false};
-  auto stop{find_tab(m_copy_encoding, line, i)};
-  while (i < stop)
+
+  m_fields.clear();
+
+  auto const [line, line_size] = get_raw_line();
+  if (line.get() == nullptr)
+    m_finished = true;
+
+  // Make room for unescaping the line.  It's a pessimistic size.
+  // Unusually, we're storing terminating zeroes *inside* the string.
+  // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
+  // NOT GET RESIZED while we're working, because we're working with pointers
+  // into its buffer.
+  m_row.resize(line_size + 1);
+
+  char const *line_begin{line.get()};
+  char const *line_end{line_begin + line_size};
+  char const *read{line_begin};
+
+  // Output iterator for unescaped text.
+  char *write{m_row.data()};
+
+  // Beginning of current field in m_row, or nullptr for null fields.
+  char const *field_begin{write};
+
+  while (read < line_end)
   {
-    auto glyph_end{next_seq(line.c_str(), line.size(), i)};
-    if (auto seq_len{glyph_end - i}; seq_len == 1)
+    auto const offset{static_cast<std::size_t>(read - line_begin)};
+    auto const glyph_end{line_begin + next_seq(line_begin, line_size, offset)};
+    if (glyph_end == read + 1)
     {
-      switch (line[i])
+      // Single-byte character.
+      char c{*read++};
+      switch (c)
       {
-      case '\n':
-        // End-of-row; shouldn't happen, but we may get old-style
-        // newline-terminated lines.
-        i = stop;
+      case '\t': // Field separator.
+        // End the field.
+        if (field_begin == nullptr)
+        {
+          m_fields.emplace_back();
+        }
+        else
+        {
+          // Would love to emplace_back() here, but gcc 9.1 warns about the
+          // constructor not throwing.  It suggests adding "noexcept."  Which
+          // we can hardly do, without std::string_view guaranteeing it.
+          m_fields.push_back(zview{field_begin, write - field_begin});
+          *write++ = '\0';
+        }
+        field_begin = write;
         break;
 
       case '\\':
       {
         // Escape sequence.
-        if (glyph_end >= line.size())
+        if (read >= line_end)
           throw failure{"Row ends in backslash"};
-        char n{line[glyph_end++]};
-        switch (n)
+
+        c = *read++;
+        switch (c)
         {
         case 'N':
-          // Null value
-          if (not s.empty())
+          // Null value.
+          if (write != field_begin)
             throw failure{"Null sequence found in nonempty field"};
-          is_null = true;
+          field_begin = nullptr;
+          // (If there's any characters _after_ the null we'll just crash.)
           break;
 
-        case 'b': // Backspace
-          s += '\b';
+        case 'b': // Backspace.
+          *write++ = '\b';
           break;
-        case 'f': // Vertical tab
-          s += '\f';
+        case 'f': // Form feed
+          *write++ = '\f';
           break;
-        case 'n': // Form feed
-          s += '\n';
+        case 'n': // Line feed.
+          *write++ = '\n';
           break;
-        case 'r': // Newline
-          s += '\r';
+        case 'r': // Carriage return.
+          *write++ = '\r';
           break;
-        case 't': // Tab
-          s += '\t';
+        case 't': // Horizontal tab.
+          *write++ = '\t';
           break;
-        case 'v': // Carriage return
-          s += '\v';
+        case 'v': // Vertical tab.
+          *write++ = '\v';
           break;
 
         default:
-          // Self-escaped character
-          s += n;
+          // Regular character ("self-escaped").
+          *write++ = c;
           break;
         }
       }
       break;
 
-      default: s += line[i]; break;
+      default: *write++ = c; break;
       }
     }
     else
     {
       // Multi-byte sequence.  Never treated specially, so just append.
-      s.insert(s.size(), line.c_str() + i, seq_len);
+      while (read < glyph_end) *write++ = *read++;
     }
-
-    i = glyph_end;
   }
 
-  // Skip field separator
-  i += 1;
+  // End the last field here.
+  if (field_begin == nullptr)
+  {
+    m_fields.emplace_back();
+  }
+  else
+  {
+    m_fields.push_back(zview{field_begin, write - field_begin});
+    *write++ = '\0';
+  }
 
-  return not is_null;
-}
-
-template<>
-void pqxx::stream_from::extract_value<std::nullptr_t>(
-  std::string const &line, std::nullptr_t &, std::string::size_type &here,
-  std::string &workspace) const
-{
-  if (extract_field(line, here, workspace))
-    throw pqxx::conversion_error{"Attempt to convert non-null '" + workspace +
-                                 "' to null"};
+  // DO NOT shrink m_rows to fit.  We're carrying string_views pointing into
+  // the buffer.  (Also, how useful would shrinking really be?)
 }

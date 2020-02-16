@@ -507,7 +507,7 @@ public:
    * zero byte.  But if there is a zero byte, escaping stops there even if
    * it's not at the end of the string!
    */
-  [[nodiscard]] std::string esc(char const text[], size_t maxlen) const
+  [[nodiscard]] std::string esc(char const text[], std::size_t maxlen) const
   {
     return esc(std::string_view(text, maxlen));
   }
@@ -526,7 +526,7 @@ public:
 
   /// Escape binary string for use as SQL string literal on this connection.
   [[nodiscard]] std::string
-  esc_raw(unsigned char const bin[], size_t len) const;
+  esc_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -554,7 +554,7 @@ public:
 
   /// Escape and quote a string of binary data.
   [[nodiscard]] std::string
-  quote_raw(unsigned char const bin[], size_t len) const;
+  quote_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape and quote an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const;
@@ -663,7 +663,7 @@ private:
    *
    * Returns the number of bytes written, including the trailing zero.
    */
-  size_t esc_to_buf(std::string_view text, char *buf) const;
+  std::size_t esc_to_buf(std::string_view text, char *buf) const;
 
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
@@ -688,7 +688,8 @@ private:
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
   friend class internal::gate::connection_stream_from;
-  bool PQXX_PRIVATE read_copy_line(std::string &);
+  std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
+    PQXX_PRIVATE read_copy_line();
 
   friend class internal::gate::connection_stream_to;
   void PQXX_PRIVATE write_copy_line(std::string_view);

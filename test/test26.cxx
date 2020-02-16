@@ -39,7 +39,8 @@ std::map<int, int> update_years(connection_base &C)
        tx.stream<std::optional<int>>("SELECT year FROM pqxxevents"))
   {
     // Read year, and if it is non-null, note its converted value
-    if (bool(y)) conversions[y.value()] = To4Digits(y.value());
+    if (bool(y))
+      conversions[y.value()] = To4Digits(y.value());
   }
 
   // For each occurring year, write converted date back to whereever it may

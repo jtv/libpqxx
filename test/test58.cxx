@@ -22,7 +22,7 @@ void test_058()
     A.write(Contents);
 
     char Buf[200];
-    constexpr size_t Size{sizeof(Buf) - 1};
+    constexpr std::size_t Size{sizeof(Buf) - 1};
     PQXX_CHECK_EQUAL(
       A.read(Buf, Size), 0,
       "Could read bytes from large object after writing.");

@@ -507,7 +507,7 @@ void test_array_roundtrip()
   PQXX_CHECK_EQUAL(
     out.size(), in.size(), "Array came back with different length.");
 
-  for (size_t i{0}; i < in.size(); ++i)
+  for (std::size_t i{0}; i < in.size(); ++i)
     PQXX_CHECK_EQUAL(out[i], in[i], "Array element has changed.");
 
   item = parser.get_next();

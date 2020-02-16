@@ -200,14 +200,14 @@ pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cwrite(char const buf[], size_t len) noexcept
+pqxx::largeobjectaccess::cwrite(char const buf[], std::size_t len) noexcept
 {
   return std::max(lo_write(raw_connection(), m_fd, buf, len), -1);
 }
 
 
 pqxx::largeobjectaccess::pos_type
-pqxx::largeobjectaccess::cread(char buf[], size_t len) noexcept
+pqxx::largeobjectaccess::cread(char buf[], std::size_t len) noexcept
 {
   return std::max(lo_read(raw_connection(), m_fd, buf, len), -1);
 }
@@ -220,7 +220,7 @@ pqxx::largeobjectaccess::pos_type pqxx::largeobjectaccess::ctell() const
 }
 
 
-void pqxx::largeobjectaccess::write(char const buf[], size_t len)
+void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 {
   if (auto const bytes{cwrite(buf, len)}; bytes < static_cast<off_type>(len))
   {
@@ -244,7 +244,7 @@ void pqxx::largeobjectaccess::write(char const buf[], size_t len)
 
 
 pqxx::largeobjectaccess::size_type
-pqxx::largeobjectaccess::read(char buf[], size_t len)
+pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 {
   auto const bytes{cread(buf, len)};
   if (bytes < 0)

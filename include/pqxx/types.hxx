@@ -27,7 +27,7 @@ using row_size_type = int;
 using row_difference_type = int;
 
 /// Number of bytes in a field of database data.
-using field_size_type = size_t;
+using field_size_type = std::size_t;
 
 /// Number of bytes in a large object.
 using large_object_size_type = int64_t;

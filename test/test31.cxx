@@ -13,7 +13,7 @@ namespace
 {
 template<typename VEC, typename VAL> void InitVector(VEC &V, int s, VAL val)
 {
-  V.resize(static_cast<size_t>(s));
+  V.resize(static_cast<std::size_t>(s));
   for (auto i{V.begin()}; i != V.end(); ++i) *i = val;
 }
 
@@ -48,7 +48,7 @@ void test_031()
     // Look for null fields
     for (pqxx::row::size_type f{0}; f < i->size(); ++f)
     {
-      auto const offset{static_cast<size_t>(f)};
+      auto const offset{static_cast<std::size_t>(f)};
       NullFields[offset] += int{i.at(f).is_null()};
 
       std::string A, B;
@@ -99,7 +99,7 @@ void test_031()
       // simple strings.
       for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
       {
-        auto const offset{static_cast<size_t>(f)};
+        auto const offset{static_cast<std::size_t>(f)};
         if (not j[f].is_null())
         {
           bool const U{SortedUp[offset]}, D{SortedDown[offset]};
@@ -115,7 +115,7 @@ void test_031()
 
   for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
     PQXX_CHECK_BOUNDS(
-      NullFields[static_cast<size_t>(f)], 0, int(R.size()) + 1,
+      NullFields[static_cast<std::size_t>(f)], 0, int(R.size()) + 1,
       "Found more nulls than there were rows.");
 }
 

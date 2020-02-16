@@ -18,66 +18,83 @@ namespace
 void test_nonoptionals(pqxx::connection_base &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_from extractor{tx, "stream_from_test"};
-  PQXX_CHECK(extractor, "stream_from failed to initialize");
+  pqxx::stream_from extractor{
+    tx, pqxx::from_query, "SELECT * FROM stream_from_test ORDER BY number0"};
+  PQXX_CHECK(extractor, "stream_from failed to initialize.");
 
   std::tuple<int, std::string, int, ipv4, std::string, bytea> got_tuple;
 
-  extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read first row");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "field value mismatch");
-  // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
-  PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "field value mismatch");
-  PQXX_CHECK_EQUAL(
-    std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "field value mismatch");
-  PQXX_CHECK_EQUAL(
-    std::get<4>(got_tuple), "hello world", "field value mismatch");
-  PQXX_CHECK_EQUAL(
-    std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}),
-    "field value mismatch");
-
   try
   {
+    // We can't read the "910" row -- it contains nulls, which our tuple does
+    // not accept.
     extractor >> got_tuple;
-    PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
+    PQXX_CHECK_NOTREACHED(
+      "Failed to fail to stream null values into null-less fields.");
   }
   catch (pqxx::conversion_error const &e)
   {
-    std::string what{e.what()},
-      expected{"Attempt to convert null to " + pqxx::type_name<int> + "."};
-    if (what != expected)
-      throw;
-    pqxx::test::expected_exception("Could not extract row: " + what);
-  }
-
-  std::tuple<
-    int, std::string, std::nullptr_t, std::nullptr_t, std::string, bytea>
-    got_tuple_nulls1;
-  std::tuple<
-    int, std::nullptr_t, std::nullptr_t, std::nullptr_t, std::string, bytea>
-    got_tuple_nulls2;
-
-  try
-  {
-    extractor >> got_tuple_nulls2;
-    PQXX_CHECK_NOTREACHED("stream_from improperly read second row");
-  }
-  catch (pqxx::conversion_error const &e)
-  {
-    if (std::string{e.what(), 27} != "Attempt to convert non-null")
+    std::string const what{e.what()};
+    if (what.find("null") == std::string::npos)
       throw;
     pqxx::test::expected_exception(
-      std::string{"Could not extract row: "} + e.what());
+      "Could not stream nulls into null-less fields: " + what);
   }
 
-  extractor >> got_tuple_nulls1;
-  PQXX_CHECK(extractor, "stream_from failed to reentrantly read second row");
-  extractor >> got_tuple_nulls2;
-  PQXX_CHECK(extractor, "stream_from failed to reentrantly read third row");
+  // The stream is still good though.
+  // The second tuple is fine.
   extractor >> got_tuple;
-  PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
+  PQXX_CHECK(extractor, "Stream ended prematurely.");
 
-  extractor.complete();
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Bad value.");
+  // Don't know much about the timestamp, but let's assume it starts with a
+  // year in the second millennium.
+  PQXX_CHECK(
+    std::get<1>(got_tuple).at(0) == '2', "Bad value.  Expected timestamp.");
+  PQXX_CHECK_EQUAL(std::get<1>(got_tuple).size(), 26u, "Unexpected length.");
+  PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "Bad value.");
+  PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "Bad value.");
+  PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello\n \tworld", "Bad value.");
+  PQXX_CHECK_EQUAL(
+    std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}), "Bad value.");
+
+  // The third tuple contains some nulls. For what it's worth, when we *know*
+  // that we're getting nulls, we can stream them into nullptr_t fields.
+  std::tuple<
+    int, std::string, std::nullptr_t, std::nullptr_t, std::string, bytea>
+    tup_w_nulls;
+
+  extractor >> tup_w_nulls;
+  PQXX_CHECK(extractor, "Stream ended prematurely.");
+
+  PQXX_CHECK_EQUAL(std::get<0>(tup_w_nulls), 5678, "Bad value.");
+  PQXX_CHECK(std::get<2>(tup_w_nulls) == nullptr, "Bad null.");
+  PQXX_CHECK(std::get<3>(tup_w_nulls) == nullptr, "Bad null.");
+
+  // We're at the end of the stream.
+  extractor >> tup_w_nulls;
+  PQXX_CHECK(not extractor, "Stream did not end.");
+
+  // Of course we can't stream a non-null value into a nullptr field.
+  pqxx::stream_from ex2{tx, pqxx::from_query, "SELECT 1"};
+  std::tuple<std::nullptr_t> null_tup;
+  try
+  {
+    ex2 >> null_tup;
+    PQXX_CHECK_NOTREACHED(
+      "stream_from should have refused to convert non-null value to "
+      "nullptr_t.");
+  }
+  catch (pqxx::conversion_error const &e)
+  {
+    std::string const what{e.what()};
+    if (what.find("null") == std::string::npos)
+      throw;
+    pqxx::test::expected_exception(
+      std::string{"Could not extract row: "} + what);
+  }
+  ex2 >> null_tup;
+  PQXX_CHECK(not ex2, "Stream did not end.");
 
   PQXX_CHECK_SUCCEEDS(
     tx.exec1("SELECT 1"), "Could not use transaction after stream_from.");
@@ -99,9 +116,11 @@ void test_bad_tuples(pqxx::connection_base &conn)
   catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
-    if (what != "Not all fields extracted from stream_from line")
+    if (
+      what.find("1") == std::string::npos or
+      what.find("6") == std::string::npos)
       throw;
-    pqxx::test::expected_exception("Could not extract row: " + what);
+    pqxx::test::expected_exception("Tuple is wrong size: " + what);
   }
 
   std::tuple<int, std::string, int, ipv4, std::string, bytea, std::string>
@@ -114,7 +133,9 @@ void test_bad_tuples(pqxx::connection_base &conn)
   catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
-    if (what != "Too few fields to extract from stream_from line.")
+    if (
+      what.find("6") == std::string::npos or
+      what.find("7") == std::string::npos)
       throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
@@ -134,11 +155,21 @@ template<template<typename...> class O>
 void test_optional(pqxx::connection_base &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_from extractor{tx, "stream_from_test"};
+  pqxx::stream_from extractor{
+    tx, pqxx::from_query, "SELECT * FROM stream_from_test ORDER BY number0"};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<int, O<std::string>, O<int>, O<ipv4>, O<std::string>, O<bytea>>
     got_tuple;
+
+  extractor >> got_tuple;
+  PQXX_CHECK(extractor, "stream_from failed to read third row");
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 910, "field value mismatch");
+  ASSERT_FIELD_NULL(std::get<1>(got_tuple));
+  ASSERT_FIELD_NULL(std::get<2>(got_tuple));
+  ASSERT_FIELD_NULL(std::get<3>(got_tuple));
+  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "\\N");
+  ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), bytea{});
 
   extractor >> got_tuple;
   PQXX_CHECK(extractor, "stream_from failed to read first row.");
@@ -148,7 +179,7 @@ void test_optional(pqxx::connection_base &connection)
   // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
   ASSERT_FIELD_EQUAL(std::get<2>(got_tuple), 4321);
   ASSERT_FIELD_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "hello world");
+  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "hello\n \tworld");
   ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}));
 
   extractor >> got_tuple;
@@ -160,15 +191,6 @@ void test_optional(pqxx::connection_base &connection)
   ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "こんにちは");
   ASSERT_FIELD_EQUAL(
     std::get<5>(got_tuple), (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
-
-  extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read third row");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 910, "field value mismatch");
-  ASSERT_FIELD_NULL(std::get<1>(got_tuple));
-  ASSERT_FIELD_NULL(std::get<2>(got_tuple));
-  ASSERT_FIELD_NULL(std::get<3>(got_tuple));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "\\N");
-  ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), bytea{});
 
   extractor >> got_tuple;
   PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
@@ -191,15 +213,15 @@ void test_stream_from()
     "bin5    BYTEA NOT NULL"
     ")");
   tx.exec_params(
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 910, nullptr,
+    nullptr, nullptr, "\\N", bytea{});
+  tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 1234, "now",
-    4321, ipv4{8, 8, 8, 8}, "hello world", bytea{'\x00', '\x01', '\x02'});
+    4321, ipv4{8, 8, 8, 8}, "hello\n \tworld", bytea{'\x00', '\x01', '\x02'});
   tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 5678,
     "2018-11-17 21:23:00", nullptr, nullptr, "こんにちは",
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
-  tx.exec_params(
-    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 910, nullptr,
-    nullptr, nullptr, "\\N", bytea{});
   tx.commit();
 
   test_nonoptionals(conn);
@@ -280,6 +302,10 @@ void test_transaction_stream_from()
   PQXX_CHECK_EQUAL(items, 1, "Wrong number of iterations.");
   PQXX_CHECK_EQUAL(id, 321, "Got wrong int.");
   PQXX_CHECK_EQUAL(name, "something", "Got wrong string.");
+
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>("SELECT 4"), 4,
+    "Loop did not relinquish transaction.");
 }
 
 

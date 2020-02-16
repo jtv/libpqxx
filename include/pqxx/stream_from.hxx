@@ -16,6 +16,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include <cassert>
 #include <variant>
 
 #include "pqxx/except.hxx"
@@ -51,6 +52,9 @@ struct from_query_t
 class PQXX_LIBEXPORT stream_from : internal::transactionfocus
 {
 public:
+  using raw_line =
+    std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
+
   /// Execute query, and stream over the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.
@@ -110,7 +114,7 @@ public:
    */
   void complete();
 
-  bool get_raw_line(std::string &);
+  raw_line get_raw_line();
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
   /// Doing this with a @c std::variant is going to be horrifically borked.
@@ -132,34 +136,31 @@ private:
     transaction_base &tx, std::string_view table, std::string &&columns,
     from_table_t);
 
+  template<typename Tuple, std::size_t... indexes>
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>)
+  {
+    (extract_value<Tuple, indexes>(t), ...);
+  }
+
+
   internal::encoding_group m_copy_encoding =
     internal::encoding_group::MONOBYTE;
-  std::string m_current_line;
+
+  /// Current row's fields' text, combined into one reusable string.
+  std::string m_row;
+
+  /// The current row's fields.
+  std::vector<zview> m_fields;
+
   bool m_finished = false;
-  bool m_retry_line = false;
 
   void close();
 
-  bool extract_field(
-    std::string const &, std::string::size_type &, std::string &) const;
+  template<typename Tuple, std::size_t index>
+  void extract_value(Tuple &) const;
 
-  template<typename T>
-  void extract_value(
-    std::string const &line, T &t, std::string::size_type &here,
-    std::string &workspace) const;
-
-  template<typename Tuple, std::size_t... I>
-  void do_extract(
-    const std::string &line, Tuple &t, std::string &workspace,
-    std::index_sequence<I...>)
-  {
-    std::string::size_type here{0};
-    (extract_value(line, std::get<I>(t), here, workspace), ...);
-    if (
-      here < line.size() and
-      not(here == line.size() - 1 and line[here] == '\n'))
-      throw usage_error{"Not all fields extracted from stream_from line"};
-  }
+  /// Read a line of COPY data, write @c m_row and @c m_fields.
+  void parse_line();
 };
 
 
@@ -183,46 +184,48 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  if (m_retry_line or get_raw_line(m_current_line))
-  {
-    // This is just a scratchpad for functions further down to play with.
-    // We allocate it here so that we can keep re-using its buffer, rather
-    // than always allocating new ones.
-    std::string workspace;
-    try
-    {
-      constexpr auto tsize = std::tuple_size_v<Tuple>;
-      using indexes = std::make_index_sequence<tsize>;
-      do_extract(m_current_line, t, workspace, indexes{});
-      m_retry_line = false;
-    }
-    catch (...)
-    {
-      m_retry_line = true;
-      throw;
-    }
-  }
+  if (m_finished)
+    return *this;
+  constexpr auto tup_size{std::tuple_size_v<Tuple>};
+  m_fields.reserve(tup_size);
+  parse_line();
+  if (m_finished)
+    return *this;
+
+  if (m_fields.size() != tup_size)
+    throw usage_error{"Tried to extract " + to_string(tup_size) +
+                      " field(s) from a stream of " +
+                      to_string(m_fields.size()) + "."};
+
+  using indexes = std::make_index_sequence<tup_size>;
+  extract_fields(t, indexes{});
   return *this;
 }
 
 
-template<typename T>
-inline void stream_from::extract_value(
-  std::string const &line, T &t, std::string::size_type &here,
-  std::string &workspace) const
+template<typename Tuple, std::size_t index>
+inline void stream_from::extract_value(Tuple &t) const
 {
-  if (extract_field(line, here, workspace))
-    t = from_string<T>(workspace);
-  else if constexpr (nullness<T>::has_null)
-    t = nullness<T>::null();
+  using field_type = std::remove_reference_t<decltype(std::get<index>(t))>;
+  assert(index < m_fields.size());
+  if constexpr (std::is_same_v<field_type, std::nullptr_t>)
+  {
+    if (m_fields[index].data() != nullptr)
+      throw conversion_error{"Streaming non-null value into nullptr_t field."};
+  }
+  else if (m_fields[index].data() == nullptr)
+  {
+    if constexpr (nullness<field_type>::has_null)
+      std::get<index>(t) = nullness<field_type>::null();
+    else
+      internal::throw_null_conversion(type_name<field_type>);
+  }
   else
-    internal::throw_null_conversion(type_name<T>);
+  {
+    // Don't ever try to convert a non-null value to nullptr_t!
+    std::get<index>(t) = from_string<field_type>(m_fields[index]);
+  }
 }
-
-template<>
-void PQXX_LIBEXPORT stream_from::extract_value<std::nullptr_t>(
-  std::string const &line, std::nullptr_t &, std::string::size_type &here,
-  std::string &workspace) const;
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

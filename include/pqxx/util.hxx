@@ -40,7 +40,7 @@ namespace pqxx
 namespace pqxx
 {
 /// Suppress compiler warning about an unused item.
-template<typename ...T> inline void ignore_unused(T &&...) {}
+template<typename... T> inline void ignore_unused(T &&...) {}
 
 
 /// Cast a numeric value to another type, or throw if it underflows/overflows.

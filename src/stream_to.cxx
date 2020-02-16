@@ -71,11 +71,12 @@ void pqxx::stream_to::write_raw_line(std::string_view line)
 
 pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 {
-  std::string line;
   while (tr)
   {
-    tr.get_raw_line(line);
-    write_raw_line(line);
+    const auto [line, size] = tr.get_raw_line();
+    if (line.get() == nullptr)
+      break;
+    write_raw_line(std::string_view{line.get(), size});
   }
   return *this;
 }

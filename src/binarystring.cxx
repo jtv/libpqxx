@@ -27,7 +27,8 @@ extern "C"
 namespace
 {
 /// Copy data to a heap-allocated buffer.
-std::shared_ptr<unsigned char> copy_to_buffer(void const *data, size_t len)
+std::shared_ptr<unsigned char>
+copy_to_buffer(void const *data, std::size_t len)
 {
   void *const output{malloc(len + 1)};
   if (output == nullptr)
@@ -57,7 +58,7 @@ pqxx::binarystring::binarystring(std::string_view s) :
 {}
 
 
-pqxx::binarystring::binarystring(void const *binary_data, size_t len) :
+pqxx::binarystring::binarystring(void const *binary_data, std::size_t len) :
         m_buf{copy_to_buffer(binary_data, len)},
         m_size{len}
 {}

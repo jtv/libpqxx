@@ -103,7 +103,7 @@ template<> struct string_traits<ipv4>
 
   static char *into_buf(char *begin, char *end, ipv4 const &value)
   {
-    if (static_cast<size_t>(end - begin) < size_buffer(value))
+    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
     for (int i = 0; i < 4; ++i)
@@ -121,7 +121,10 @@ template<> struct string_traits<ipv4>
       begin, static_cast<std::size_t>(into_buf(begin, end, value) - begin)};
   }
 
-  static constexpr size_t size_buffer(ipv4 const &) noexcept { return 16; }
+  static constexpr std::size_t size_buffer(ipv4 const &) noexcept
+  {
+    return 16;
+  }
 };
 
 
@@ -165,7 +168,7 @@ template<> struct string_traits<bytea>
       throw std::runtime_error{"Odd hex size."};
     bytea value;
     value.reserve((text.size() - 2) / 2);
-    for (size_t i = 2; i < text.size(); i += 2)
+    for (std::size_t i = 2; i < text.size(); i += 2)
     {
       auto hi = hex_to_digit(text[i]), lo = hex_to_digit(text[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
@@ -196,7 +199,7 @@ template<> struct string_traits<bytea>
     return begin + to_buf(begin, end, value).size() + 1;
   }
 
-  static size_t size_buffer(bytea const &value)
+  static std::size_t size_buffer(bytea const &value)
   {
     return 2 * value.size() + 1;
   }

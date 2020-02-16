@@ -179,7 +179,7 @@ This part is more work.  Specialise the `pqxx::string_traits` template:
       static T from_string(std::string_view text);
       static zview to_buf(char *begin, char *end, T const &value);
       static char *into_buf(char *begin, char *end, T const &value);
-      static size_t size_buffer(T const &value) noexcept;
+      static std::size_t size_buffer(T const &value) noexcept;
     };
     }
 

@@ -7,7 +7,7 @@ namespace
 void compare_esc(
   pqxx::connection_base &c, pqxx::transaction_base &t, char const text[])
 {
-  size_t const len{std::string{text}.size()};
+  std::size_t const len{std::string{text}.size()};
   PQXX_CHECK_EQUAL(
     c.esc(text, len), t.esc(text, len),
     "Connection & transaction escape differently.");
@@ -33,7 +33,7 @@ void test_esc(pqxx::connection_base &c, pqxx::transaction_base &t)
   PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
   PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
   char const *const escstrings[]{"x", " ", "", nullptr};
-  for (size_t i{0}; escstrings[i] != nullptr; ++i)
+  for (std::size_t i{0}; escstrings[i] != nullptr; ++i)
     compare_esc(c, t, escstrings[i]);
 }
 
@@ -56,7 +56,7 @@ void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
   char const *test_strings[]{"",   "x",   "\\", "\\\\", "'",
                              "''", "\\'", "\t", "\n",   nullptr};
 
-  for (size_t i{0}; test_strings[i] != nullptr; ++i)
+  for (std::size_t i{0}; test_strings[i] != nullptr; ++i)
   {
     auto r{t.query_value<std::string>("SELECT " + t.quote(test_strings[i]))};
     PQXX_CHECK_EQUAL(

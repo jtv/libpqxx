@@ -51,10 +51,10 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
     std::remove_const_t<std::remove_reference_t<decltype(access(begin))>>;
   using traits = string_traits<elt_type>;
 
-  size_t budget{0};
+  std::size_t budget{0};
   for (ITER cnt{begin}; cnt != end; ++cnt)
     budget += traits::size_buffer(access(cnt));
-  budget += static_cast<size_t>(std::distance(begin, end)) * sep.size();
+  budget += static_cast<std::size_t>(std::distance(begin, end)) * sep.size();
 
   std::string result;
   result.resize(budget);
@@ -67,7 +67,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
     here += sep.copy(here, sep.size());
     here = traits::into_buf(here, stop, access(begin)) - 1;
   }
-  result.resize(static_cast<size_t>(here - result.data()));
+  result.resize(static_cast<std::size_t>(here - result.data()));
   return result;
 }
 

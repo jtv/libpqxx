@@ -54,12 +54,12 @@ void test_050()
     PQXX_CHECK_EQUAL(A.tell(), Bytes, "Bad large-object position.");
 
     char Buf[200];
-    constexpr size_t Size{sizeof(Buf) - 1};
+    constexpr std::size_t Size{sizeof(Buf) - 1};
     PQXX_CHECK_EQUAL(
       A.cread(Buf, Size), 0, "Bad return value from cread() after writing.");
 
     PQXX_CHECK_EQUAL(
-      size_t(A.cseek(0, std::ios::cur)), Contents.size(),
+      std::size_t(A.cseek(0, std::ios::cur)), Contents.size(),
       "Unexpected position after cseek(0, cur).");
 
     PQXX_CHECK_EQUAL(
@@ -70,7 +70,7 @@ void test_050()
       A.cseek(-1, std::ios::cur), 0,
       "Unexpected cseek() result after seeking -1 from position 1.");
 
-    PQXX_CHECK(size_t(A.read(Buf, Size)) <= Size, "Got too many bytes.");
+    PQXX_CHECK(std::size_t(A.read(Buf, Size)) <= Size, "Got too many bytes.");
 
     PQXX_CHECK_EQUAL(
       std::string(Buf, std::string::size_type(Bytes)), Contents,

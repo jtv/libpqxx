@@ -10,9 +10,6 @@ class PQXX_PRIVATE connection_stream_from : callgate<connection>
 
   connection_stream_from(reference x) : super{x} {}
 
-  bool read_copy_line(std::string &line)
-  {
-    return home().read_copy_line(line);
-  }
+  auto read_copy_line() { return home().read_copy_line(); }
 };
 } // namespace pqxx::internal::gate

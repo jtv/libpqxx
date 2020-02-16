@@ -105,7 +105,7 @@ public:
     return conn().esc(text);
   }
   /// Escape string for use as SQL string literal in this transaction
-  [[nodiscard]] std::string esc(char const text[], size_t maxlen) const
+  [[nodiscard]] std::string esc(char const text[], std::size_t maxlen) const
   {
     return conn().esc(text, maxlen);
   }
@@ -128,7 +128,7 @@ public:
    * with special escape sequences.
    */
   [[nodiscard]] std::string
-  esc_raw(unsigned char const data[], size_t len) const
+  esc_raw(unsigned char const data[], std::size_t len) const
   {
     return conn().esc_raw(data, len);
   }
@@ -162,7 +162,7 @@ public:
 
   /// Binary-escape and quote a binarystring for use as an SQL constant.
   [[nodiscard]] std::string
-  quote_raw(unsigned char const bin[], size_t len) const
+  quote_raw(unsigned char const bin[], std::size_t len) const
   {
     return conn().quote_raw(bin, len);
   }
@@ -353,7 +353,8 @@ public:
   /** @throw unexpected_rows if the result contains the wrong number of rows.
    */
   template<typename... Args>
-  result exec_params_n(size_t rows, std::string const &query, Args &&... args)
+  result
+  exec_params_n(std::size_t rows, std::string const &query, Args &&... args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
     check_rowcount_params(rows, r.size());
@@ -547,7 +548,8 @@ private:
     result::size_type actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
-  void check_rowcount_params(size_t expected_rows, size_t actual_rows);
+  void
+  check_rowcount_params(std::size_t expected_rows, std::size_t actual_rows);
 
   friend class pqxx::internal::gate::transaction_transactionfocus;
   PQXX_PRIVATE void register_focus(internal::transactionfocus *);

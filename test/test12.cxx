@@ -20,7 +20,7 @@ void test_012()
 
   result R(tx.exec("SELECT * FROM " + Table));
 
-  auto const columns{static_cast<size_t>(R.columns())};
+  auto const columns{static_cast<std::size_t>(R.columns())};
   // Map column to no. of null fields.
   std::vector<int> NullFields(columns, 0);
   // Does column appear to be sorted?
@@ -37,7 +37,7 @@ void test_012()
     // Look for null fields
     for (pqxx::row::size_type f{0}; f < i->size(); ++f)
     {
-      auto const offset{static_cast<size_t>(f)};
+      auto const offset{static_cast<std::size_t>(f)};
       NullFields[offset] += i.at(f).is_null();
 
       std::string A, B;
@@ -88,7 +88,7 @@ void test_012()
       // simple strings.
       for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
       {
-        auto const offset{static_cast<size_t>(f)};
+        auto const offset{static_cast<std::size_t>(f)};
         if (not j[f].is_null())
         {
           bool const U{SortedUp[offset]}, D{SortedDown[offset]};
@@ -104,7 +104,7 @@ void test_012()
 
   for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
     PQXX_CHECK(
-      NullFields[static_cast<size_t>(f)] <= int(R.size()),
+      NullFields[static_cast<std::size_t>(f)] <= int(R.size()),
       "Found more nulls than there were rows.");
 }
 

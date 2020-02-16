@@ -232,7 +232,7 @@ public:
    * @param buf Data to write.
    * @param len Number of bytes from Buf to write.
    */
-  void write(char const buf[], size_t len);
+  void write(char const buf[], std::size_t len);
 
   /// Write string to large object.
   /** If not all bytes could be written, an exception is thrown.
@@ -247,7 +247,7 @@ public:
    * @return Number of bytes read, which may be less than the number requested
    * if the end of the large object is reached.
    */
-  size_type read(char buf[], size_t len);
+  size_type read(char buf[], std::size_t len);
 
   /// Seek in large object's data stream
   /** Throws an exception if an error occurs.
@@ -292,7 +292,7 @@ public:
    * @param len Number of bytes to write.
    * @return Number of bytes actually written, or -1 if an error occurred.
    */
-  off_type cwrite(char const buf[], size_t len) noexcept;
+  off_type cwrite(char const buf[], std::size_t len) noexcept;
 
   /// Read from large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
@@ -301,7 +301,7 @@ public:
    * @param len Number of bytes to read.
    * @return Number of bytes actually read, or -1 if an error occurred..
    */
-  off_type cread(char buf[], size_t len) noexcept;
+  off_type cread(char buf[], std::size_t len) noexcept;
 
   /// Report current position in large object's data stream
   /** Does not throw exception in case of error; inspect return value and
@@ -431,7 +431,7 @@ protected:
     if (pp > pb)
     {
       auto const out{
-        adjust_eof(m_obj.cwrite(pb, static_cast<size_t>(pp - pb)))};
+        adjust_eof(m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb)))};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
@@ -455,8 +455,8 @@ protected:
     if (this->gptr() == nullptr)
       return eof();
     char *const eb{this->eback()};
-    auto const res{int_type(
-      adjust_eof(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
+    auto const res{int_type(adjust_eof(
+      m_obj.cread(this->eback(), static_cast<std::size_t>(m_bufsize))))};
     this->setg(eb, eb, eb + ((res == eof()) ? 0 : res));
     return ((res == 0) or (res == eof())) ? eof() : *eb;
   }
