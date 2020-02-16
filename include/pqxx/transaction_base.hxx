@@ -259,7 +259,11 @@ public:
    * directly maps the resulting rows onto a @c std::tuple of the types you
    * specify.
    *
-   * If any of the columns can be null, and the C++ type to which it translates
+   * The tuple may contain std::string_view fields, but the strings to which
+   * they point will only remain valid until you extract the next row.  After
+   * that, the memory holding the string may be overwritten or deallocated.
+   *
+   * If any of the columns may be null, and the C++ type to which it translates
    * does not have a null value, wrap the type in @c std::optional (or if
    * you prefer, @c std::shared_ptr or @c std::unique_ptr).  These templates
    * do recognise null values, and libpqxx will know how to convert to them.
