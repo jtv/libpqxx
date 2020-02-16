@@ -5,6 +5,7 @@
  - And, `stream_from` now supports more or less arbitrary queries.
  - Streaming data is now more efficient.
  - The table name in `stream_from` is now escaped.
+ - You can now "convert" strings to `std::string_view`.  Mind your lifetimes!
 7.0.1
  - Windows build fixes.
  - Documentation for writing your own string conversions.

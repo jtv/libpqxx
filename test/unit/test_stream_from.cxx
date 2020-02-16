@@ -51,7 +51,8 @@ void test_nonoptionals(pqxx::connection_base &connection)
   // year in the second millennium.
   PQXX_CHECK(
     std::get<1>(got_tuple).at(0) == '2', "Bad value.  Expected timestamp.");
-  PQXX_CHECK_EQUAL(std::get<1>(got_tuple).size(), 26u, "Unexpected length.");
+  PQXX_CHECK_LESS(std::get<1>(got_tuple).size(), 40u, "Unexpected length.");
+  PQXX_CHECK_GREATER(std::get<1>(got_tuple).size(), 20u, "Unexpected length.");
   PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "Bad value.");
   PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "Bad value.");
   PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello\n \tworld", "Bad value.");
@@ -293,7 +294,7 @@ void test_transaction_stream_from()
   int id{0};
   std::string name;
 
-  for (auto item : tx.stream<int, std::string>("SELECT id, name FROM sample"))
+  for (auto item : tx.stream<int, std::string_view>("SELECT id, name FROM sample"))
   {
     items++;
     id = std::get<0>(item);
@@ -301,7 +302,7 @@ void test_transaction_stream_from()
   }
   PQXX_CHECK_EQUAL(items, 1, "Wrong number of iterations.");
   PQXX_CHECK_EQUAL(id, 321, "Got wrong int.");
-  PQXX_CHECK_EQUAL(name, "something", "Got wrong string.");
+  PQXX_CHECK_EQUAL(name, std::string{"something"}, "Got wrong string.");
 
   PQXX_CHECK_EQUAL(
     tx.query_value<int>("SELECT 4"), 4,

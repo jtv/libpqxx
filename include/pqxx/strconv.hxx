@@ -232,7 +232,7 @@ template<typename ENUM> struct enum_traits
 
 namespace pqxx
 {
-/// Attempt to convert postgres-generated string to given built-in type.
+/// Parse a value in postgres' text format as a TYPE.
 /** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
  * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
@@ -245,10 +245,20 @@ namespace pqxx
  * Whitespace is not stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename T>[[nodiscard]] inline T from_string(std::string_view text)
+template<typename TYPE>[[nodiscard]] inline TYPE from_string(std::string_view text)
 {
-  return string_traits<T>::from_string(text);
+  return string_traits<TYPE>::from_string(text);
 }
+
+
+/// "Convert" a std::string_view to a std::string_view.
+/** Just returns its input.
+ *
+ * @warning Of course the result is only valid for as long as the original
+ * string remains valid!  Never access the string referenced by the return
+ * value after the original has been destroyed.
+ */
+template<> [[nodiscard]] inline std::string_view from_string(std::string_view text) { return text; }
 
 
 /// Attempt to convert postgres-generated string to given built-in object.
