@@ -191,7 +191,7 @@ template<> struct string_traits<bytea>
       *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
     }
     *pos++ = '\0';
-    return zview{begin, std::size_t(pos - begin - 1)};
+    return zview{begin, pos - begin - 1};
   }
 
   static char *into_buf(char *begin, char *end, bytea const &value)

@@ -262,7 +262,7 @@ template<> struct string_traits<char const *>
       return zview{};
     char *const next{string_traits<char const *>::into_buf(begin, end, value)};
     // Don't count the trailing zero, even though into_buf does.
-    return zview{begin, static_cast<std::size_t>(next - begin - 1)};
+    return zview{begin, next - begin - 1};
   }
 
   static char *into_buf(char *begin, char *end, char const *const &value)
@@ -368,7 +368,7 @@ template<> struct string_traits<std::string>
   {
     char *const next = into_buf(begin, end, value);
     // Don't count the trailing zero, even though into_buf() does.
-    return zview{begin, static_cast<std::size_t>(next - begin - 1)};
+    return zview{begin, next - begin - 1};
   }
 
   static std::size_t size_buffer(std::string const &value)
@@ -531,7 +531,7 @@ template<typename Container> struct array_string_traits
   static zview to_buf(char *begin, char *end, Container const &value)
   {
     auto const stop{into_buf(begin, end, value)};
-    return zview{begin, static_cast<std::size_t>(stop - begin - 1)};
+    return zview{begin, stop - begin - 1};
   }
 
   static char *into_buf(char *begin, char *end, Container const &value)
