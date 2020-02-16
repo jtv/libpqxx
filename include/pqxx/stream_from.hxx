@@ -17,6 +17,7 @@
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <cassert>
+#include <functional>
 #include <variant>
 
 #include "pqxx/except.hxx"
