@@ -39,6 +39,11 @@ public:
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
+  /// Convenience overload: construct using pointer and signed length.
+  constexpr zview(char text[], std::ptrdiff_t len) :
+          std::string_view{text, static_cast<std::size_t>(len)}
+  {}
+
   template<typename... Args>
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
