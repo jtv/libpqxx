@@ -25,6 +25,10 @@ Find libpqxx on Github: https://github.com/jtv/libpqxx
 Building libpqxx
 ----------------
 
+(Before you try building, make sure you have libpq installed.  This is the C
+language binding for PostgreSQL.  You'll need not just the library, but its
+headers as well.)
+
 There are two very different ways of building libpqxx:
  1. Using CMake, on any system which supports it.
  2. On Unix-like systems, using a `configure` script.
@@ -74,6 +78,14 @@ CPU cores, you'll probably want to be compiling about 8 files simultaneously:
 ```shell
     make -j8
 ```
+
+If you wish to run the test suite, make sure you have a database set up so that
+you will connect and log in automatically, without a password prompt.  See the
+section on variables such as `PGHOST` and `PGUSER`.  **The tests will create
+and drop tables in that database,** so don't use a database containing any
+valuable data.
+
+To run the tests, run both `test/runner` and `test/unit/unit_runner`.
 
 
 ### On Unix-like systems
