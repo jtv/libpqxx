@@ -45,10 +45,11 @@ void begin_copy_table(
 }
 
 
-// XXX: Inline this.
-pqxx::internal::encoding_group get_encoding(pqxx::transaction_base const &tx)
+pqxx::internal::glyph_scanner_func const *
+get_scanner(pqxx::transaction_base const &tx)
 {
-  return pqxx::internal::enc_group(tx.conn().encoding_id());
+  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
+  return pqxx::internal::get_glyph_scanner(group);
 }
 } // namespace
 
@@ -57,7 +58,7 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
         namedclass{"stream_from"},
         transactionfocus{tx},
-        m_copy_encoding{get_encoding(tx)}
+        m_glyph_scanner{get_scanner(tx)}
 {
   constexpr std::string_view copy{"COPY ("}, to_stdout{") TO STDOUT"};
   std::string command;
@@ -75,7 +76,7 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
         namedclass{"stream_from", table},
         transactionfocus{tx},
-        m_copy_encoding{get_encoding(tx)}
+        m_glyph_scanner{get_scanner(tx)}
 {
   begin_copy_table(tx, table, "");
   register_me();
@@ -87,7 +88,7 @@ pqxx::stream_from::stream_from(
   from_table_t) :
         namedclass{"stream_from", table},
         transactionfocus{tx},
-        m_copy_encoding{get_encoding(tx)}
+        m_glyph_scanner{get_scanner(tx)}
 {
   begin_copy_table(tx, table, columns);
   register_me();
@@ -170,13 +171,11 @@ void pqxx::stream_from::complete()
 }
 
 
-#include <iostream> // XXX: DEBUG
 void pqxx::stream_from::parse_line()
 {
   if (m_finished)
     return;
-  // XXX: Cache glyph scanner in *this.
-  auto const next_seq{get_glyph_scanner(m_copy_encoding)};
+  auto const next_seq{m_glyph_scanner};
 
   m_fields.clear();
 

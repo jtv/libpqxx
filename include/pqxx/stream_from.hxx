@@ -143,9 +143,7 @@ private:
     (extract_value<Tuple, indexes>(t), ...);
   }
 
-
-  internal::encoding_group m_copy_encoding =
-    internal::encoding_group::MONOBYTE;
+  pqxx::internal::glyph_scanner_func const *m_glyph_scanner;
 
   /// Current row's fields' text, combined into one reusable string.
   std::string m_row;

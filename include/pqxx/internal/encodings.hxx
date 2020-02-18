@@ -9,8 +9,6 @@
 #ifndef PQXX_H_ENCODINGS
 #define PQXX_H_ENCODINGS
 
-#include "pqxx/compiler-public.hxx"
-#include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 
 #include <string>
@@ -27,21 +25,6 @@ encoding_group enc_group(int /* libpq encoding ID */);
 encoding_group enc_group(std::string_view);
 
 
-/// Function type: "find the end of the current glyph."
-/** This type of function takes a text buffer, and a location in that buffer,
- * and returns the location one byte past the end of the current glyph.
- *
- * The start offset marks the beginning of the current glyph.  It must fall
- * within the buffer.
- *
- * There are multiple different glyph scnaner implementations, for different
- * kinds of encodings.
- */
-using glyph_scanner_func = std::string::size_type(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start);
-
-
 /// Look up the glyph scanner function for a given encoding group.
 /** To identify the glyph boundaries in a buffer, call this to obtain the
  * scanner function appropriate for the buffer's encoding.  Then, repeatedly
@@ -51,14 +34,14 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
 /// Find a single-byte "needle" character in a "haystack" text buffer.
-std::string::size_type find_with_encoding(
+std::size_t find_with_encoding(
   encoding_group enc, std::string_view haystack, char needle,
-  std::string::size_type start = 0);
+  std::size_t start = 0);
 
 
-PQXX_LIBEXPORT std::string::size_type find_with_encoding(
+PQXX_LIBEXPORT std::size_t find_with_encoding(
   encoding_group enc, std::string_view haystack, std::string_view needle,
-  std::string::size_type start = 0);
+  std::size_t start = 0);
 
 
 /// Iterate over the glyphs in a buffer.
@@ -68,10 +51,10 @@ PQXX_LIBEXPORT std::string::size_type find_with_encoding(
 template<typename CALLABLE>
 inline void for_glyphs(
   encoding_group enc, CALLABLE callback, char const buffer[],
-  std::string::size_type buffer_len, std::string::size_type start = 0)
+  std::size_t buffer_len, std::size_t start = 0)
 {
   auto const scan = get_glyph_scanner(enc);
-  for (std::string::size_type here = start, next; here < buffer_len;
+  for (std::size_t here = start, next; here < buffer_len;
        here = next)
   {
     next = scan(buffer, buffer_len, here);
@@ -79,6 +62,4 @@ inline void for_glyphs(
   }
 }
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif
