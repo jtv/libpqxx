@@ -1,4 +1,4 @@
-7.0.2
+7.1.0
  - New query function: `query_value`, queries and converts a single value.
  - Query tuples straight into `std::tuple` using `transaction::stream()`!
  - A `stream_from` stream can now be iterated.
