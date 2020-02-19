@@ -19,7 +19,7 @@ void test_transactor_newstyle_executes_simple_query()
 void test_transactor_newstyle_can_return_void()
 {
   bool done{false};
-  pqxx::perform([&done] { done = true; });
+  pqxx::perform([&done]() noexcept { done = true; });
   PQXX_CHECK(done, "Callback was not executed.");
 }
 
@@ -27,7 +27,7 @@ void test_transactor_newstyle_can_return_void()
 void test_transactor_newstyle_completes_upon_success()
 {
   int attempts{0};
-  pqxx::perform([&attempts]() { attempts++; });
+  pqxx::perform([&attempts]() noexcept { attempts++; });
   PQXX_CHECK_EQUAL(attempts, 1, "Successful transactor didn't run 1 time.");
 }
 
