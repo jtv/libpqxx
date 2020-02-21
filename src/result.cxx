@@ -265,16 +265,15 @@ std::string pqxx::result::StatusError() const
   switch (PQresultStatus(m_data.get()))
   {
   case PGRES_EMPTY_QUERY: // The string sent to the backend was empty.
-  case PGRES_COMMAND_OK:  // Successful completion of a command returning no
-                          // data
-  case PGRES_TUPLES_OK:   // The query successfully executed
+  case PGRES_COMMAND_OK:  // Successful completion, no result data.
+  case PGRES_TUPLES_OK:   // The query successfully executed.
     break;
 
-  case PGRES_COPY_OUT: // Copy Out (from server) data transfer started
-  case PGRES_COPY_IN:  // Copy In (to server) data transfer started
+  case PGRES_COPY_OUT: // Copy Out (from server) data transfer started.
+  case PGRES_COPY_IN:  // Copy In (to server) data transfer started.
     break;
 
-  case PGRES_BAD_RESPONSE: // The server's response was not understood
+  case PGRES_BAD_RESPONSE: // The server's response was not understood.
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR: err = PQresultErrorMessage(m_data.get()); break;
 
