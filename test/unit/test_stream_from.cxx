@@ -294,7 +294,8 @@ void test_transaction_stream_from()
   int id{0};
   std::string name;
 
-  for (auto item : tx.stream<int, std::string_view>("SELECT id, name FROM sample"))
+  for (auto item :
+       tx.stream<int, std::string_view>("SELECT id, name FROM sample"))
   {
     items++;
     id = std::get<0>(item);

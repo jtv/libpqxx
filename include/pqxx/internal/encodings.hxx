@@ -54,8 +54,7 @@ inline void for_glyphs(
   std::size_t buffer_len, std::size_t start = 0)
 {
   auto const scan = get_glyph_scanner(enc);
-  for (std::size_t here = start, next; here < buffer_len;
-       here = next)
+  for (std::size_t here = start, next; here < buffer_len; here = next)
   {
     next = scan(buffer, buffer_len, here);
     callback(buffer + here, buffer + next);

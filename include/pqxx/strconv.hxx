@@ -245,7 +245,8 @@ namespace pqxx
  * Whitespace is not stripped away.  Only the kinds of strings that come out of
  * PostgreSQL and out of to_string() can be converted.
  */
-template<typename TYPE>[[nodiscard]] inline TYPE from_string(std::string_view text)
+template<typename TYPE>
+[[nodiscard]] inline TYPE from_string(std::string_view text)
 {
   return string_traits<TYPE>::from_string(text);
 }
@@ -258,7 +259,11 @@ template<typename TYPE>[[nodiscard]] inline TYPE from_string(std::string_view te
  * string remains valid!  Never access the string referenced by the return
  * value after the original has been destroyed.
  */
-template<> [[nodiscard]] inline std::string_view from_string(std::string_view text) { return text; }
+template<>
+[[nodiscard]] inline std::string_view from_string(std::string_view text)
+{
+  return text;
+}
 
 
 /// Attempt to convert postgres-generated string to given built-in object.
