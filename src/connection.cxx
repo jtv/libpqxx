@@ -625,9 +625,9 @@ pqxx::result pqxx::connection::exec_prepared(
 {
   auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(statement)};
-  auto const pq_result = PQexecPrepared(
+  auto const pq_result{PQexecPrepared(
     m_conn, q->c_str(), check_cast<int>(args.nonnulls.size(), "exec_prepared"),
-    pointers.data(), args.lengths.data(), args.binaries.data(), 0);
+    pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
   check_result(r);
   get_notifs();
@@ -1006,8 +1006,8 @@ void pqxx::connection::set_client_encoding(char const encoding[])
     // OK.
     break;
   case -1:
-    // TODO: Any helpful information we could give here?
-    throw failure{"Setting client encoding failed."};
+    if (is_open()) throw failure{"Setting client encoding failed."};
+    else throw broken_connection{"Lost connection to the database server."};
   default:
     throw internal_error{"Unexpected result from PQsetClientEncoding: " +
                          to_string(retval)};
@@ -1019,7 +1019,17 @@ int pqxx::connection::encoding_id() const
 {
   int const enc{PQclientEncoding(m_conn)};
   if (enc == -1)
-    throw failure{"Could not obtain client encoding."};
+  {
+    // PQclientEncoding does not query the database, but it does check for
+    // broken connections.  And unfortunately, we check the encoding right
+    // *before* checking a query result for failure.  So, we need to handle
+    // connection failure here and it will apply in lots of places.
+    // TODO: Make pqxx::result::result(...) do all the checking.
+    if (is_open())
+      throw failure{"Could not obtain client encoding."};
+    else
+      throw broken_connection{"Lost connection to the database server."};
+  }
   return enc;
 }
 
