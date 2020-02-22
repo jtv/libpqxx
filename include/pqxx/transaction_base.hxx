@@ -257,7 +257,9 @@ public:
    *
    * Use this with a range-based "for" loop.  It executes the query, and
    * directly maps the resulting rows onto a @c std::tuple of the types you
-   * specify.
+   * specify.  It starts before all the data from the server is in, so if your
+   * network connection to the server breaks while you're iterating, you'll get
+   * an exception partway through.
    *
    * The tuple may contain std::string_view fields, but the strings to which
    * they point will only remain valid until you extract the next row.  After
@@ -272,13 +274,11 @@ public:
    * it does not finish due to a @c break or a @c return or an exception, then
    * the entire connection becomes effectively unusable.
    *
-   * Querying in this way costs a little more overhead than the @c exec
-   * functions, but it may be faster for larger results, and you can start
-   * processing rows before the full result is in.
-   *
-   * Also, @c stream() scales better in terms of memory usage.  Where @c exec()
-   * reads the entire result into memory at once, @c stream_from will read and
-   * process one row at at a time.
+   * Querying in this way seems to be faster than exec() and its friends, at
+   * least for larger results, and you can start processing rows before the
+   * full result is in.  Also, @c stream() scales better in terms of memory
+   * usage.  Where @c exec() reads the entire result into memory at once,
+   * @c stream_from will read and process one row at at a time.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
