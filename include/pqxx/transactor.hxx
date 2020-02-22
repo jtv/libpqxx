@@ -15,6 +15,7 @@
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <functional>
+#include <type_traits>
 
 #include "pqxx/connection.hxx"
 #include "pqxx/transaction.hxx"
@@ -97,7 +98,7 @@ namespace pqxx
  */
 template<typename TRANSACTION_CALLBACK>
 inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
-  -> decltype(std::invoke(callback))
+  -> std::invoke_result_t<TRANSACTION_CALLBACK>
 {
   if (attempts <= 0)
     throw std::invalid_argument{

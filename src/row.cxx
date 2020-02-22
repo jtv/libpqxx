@@ -172,12 +172,14 @@ pqxx::row::size_type pqxx::row::column_number(char const col_name[]) const
   if (n >= m_begin)
     return n - m_begin;
 
-  // XXX: Why did we do this?
+  // This deals with a really nasty possibility: that the column name occurs
+  // twice - once before the beginning of the slice, and once inside the slice.
   char const *const adapted_name{m_result.column_name(n)};
   for (auto i{m_begin}; i < m_end; ++i)
     if (strcmp(adapted_name, m_result.column_name(i)) == 0)
       return i - m_begin;
 
+  // Didn't find any?  Recurse just to produce the same error message.
   return result{}.column_number(col_name);
 }
 
