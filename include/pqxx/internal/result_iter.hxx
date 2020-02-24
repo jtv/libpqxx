@@ -1,0 +1,130 @@
+/** Result loops.
+ *
+ * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
+ *
+ * See COPYING for copyright license.  If you did not receive a file called
+ * COPYING with this source code, please notify the distributor of this
+ * mistake, or contact the author.
+ */
+#ifndef PQXX_H_RESULT_ITER
+#define PQXX_H_RESULT_ITER
+
+#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-internal-pre.hxx"
+
+#include <memory>
+
+#include "pqxx/strconv.hxx"
+
+namespace pqxx
+{
+class result;
+} // namespace pqxx
+
+
+namespace pqxx::internal
+{
+// TODO: Replace with C++20 iterator.
+/// Iterator for looped unpacking of a result.
+template<typename... TYPE> class result_iter
+{
+public:
+  using value_type = std::tuple<TYPE...>;
+
+  /// Construct an "end" iterator.
+  result_iter() = default;
+
+  explicit result_iter(result const &home) : m_home{&home}, m_size{home.size()} { if (not home.empty()) read(); }
+  result_iter(result_iter const &) = default;
+
+  result_iter &operator++()
+  {
+    m_index++;
+    if (m_index >= m_size)
+      m_home = nullptr;
+    else read();
+    return *this;
+  }
+
+  /// Comparison only works for comparing to end().
+  bool operator==(result_iter const &rhs) const
+  {
+    return m_home == rhs.m_home;
+  }
+  bool operator!=(result_iter const &rhs) const { return not(*this == rhs); }
+
+  value_type const &operator*() const
+  {
+    return m_value;
+  }
+
+private:
+  void read()
+  {
+    extract_fields(std::make_index_sequence<sizeof...(TYPE)>{});
+  }
+
+  template<std::size_t... indexes> void extract_fields(std::index_sequence<indexes...>)
+  {
+    (extract_value<indexes>(), ...);
+  }
+
+  template<std::size_t index> void extract_value()
+  {
+    using field_type =
+      std::remove_reference_t<decltype(std::get<index>(m_value))>;
+    auto const f{(*m_home)[m_index][index]};
+    if constexpr (std::is_same_v<field_type, std::nullptr_t>)
+    {
+      if (not f.is_null())
+        throw conversion_error{
+          "Unpacking non-null value into nullptr_t field."};
+    }
+    else if (f.is_null())
+    {
+      if constexpr (nullness<field_type>::has_null)
+        std::get<index>(m_value) = nullness<field_type>::null();
+      else
+        internal::throw_null_conversion(type_name<field_type>);
+    }
+    else
+    {
+      std::get<index>(m_value) = f.as<field_type>();
+    }
+  }
+
+  result const *m_home{nullptr};
+  result::size_type m_index{0};
+  result::size_type m_size;
+  value_type m_value;
+};
+
+
+template<typename... TYPE> class result_iteration
+{
+public:
+  using iterator = result_iter<TYPE...>;
+  explicit result_iteration(result const &home) : m_home{home}
+  {
+    constexpr auto tup_size{sizeof...(TYPE)};
+    if (home.columns() != tup_size)
+      throw usage_error{"Tried to extract " + to_string(tup_size) +
+                        " field(s) from a result with " +
+                        to_string(home.columns()) + " column(s)."};
+  }
+  iterator begin() const { if (m_home.size() == 0) return end(); else return iterator{m_home}; }
+  iterator end() const { return iterator{}; }
+
+private:
+  pqxx::result const &m_home;
+};
+} // namespace pqxx::internal
+
+
+template<typename... TYPE> inline auto pqxx::result::iter() const
+{
+  return pqxx::internal::result_iteration<TYPE...>{*this};
+}
+
+#include "pqxx/internal/compiler-internal-post.hxx"
+#endif
