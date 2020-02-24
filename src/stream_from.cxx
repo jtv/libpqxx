@@ -45,7 +45,7 @@ void begin_copy_table(
 }
 
 
-pqxx::internal::glyph_scanner_func const *
+pqxx::internal::glyph_scanner_func *
 get_scanner(pqxx::transaction_base const &tx)
 {
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
