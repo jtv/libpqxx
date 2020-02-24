@@ -34,7 +34,11 @@ public:
   /// Construct an "end" iterator.
   result_iter() = default;
 
-  explicit result_iter(result const &home) : m_home{&home}, m_size{home.size()} { if (not home.empty()) read(); }
+  explicit result_iter(result const &home) : m_home{&home}, m_size{home.size()}
+  {
+    if (not home.empty())
+      read();
+  }
   result_iter(result_iter const &) = default;
 
   result_iter &operator++()
@@ -42,7 +46,8 @@ public:
     m_index++;
     if (m_index >= m_size)
       m_home = nullptr;
-    else read();
+    else
+      read();
     return *this;
   }
 
@@ -53,18 +58,13 @@ public:
   }
   bool operator!=(result_iter const &rhs) const { return not(*this == rhs); }
 
-  value_type const &operator*() const
-  {
-    return m_value;
-  }
+  value_type const &operator*() const { return m_value; }
 
 private:
-  void read()
-  {
-    extract_fields(std::make_index_sequence<sizeof...(TYPE)>{});
-  }
+  void read() { extract_fields(std::make_index_sequence<sizeof...(TYPE)>{}); }
 
-  template<std::size_t... indexes> void extract_fields(std::index_sequence<indexes...>)
+  template<std::size_t... indexes>
+  void extract_fields(std::index_sequence<indexes...>)
   {
     (extract_value<indexes>(), ...);
   }
@@ -112,7 +112,13 @@ public:
                         " field(s) from a result with " +
                         to_string(home.columns()) + " column(s)."};
   }
-  iterator begin() const { if (m_home.size() == 0) return end(); else return iterator{m_home}; }
+  iterator begin() const
+  {
+    if (m_home.size() == 0)
+      return end();
+    else
+      return iterator{m_home};
+  }
   iterator end() const { return iterator{}; }
 
 private:
