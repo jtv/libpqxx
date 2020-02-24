@@ -21,5 +21,18 @@ void test_result_iteration()
 }
 
 
+void test_result_iter()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
+
+  int total{0};
+  for (auto const [i] : r.iter<int>()) total += i;
+  PQXX_CHECK_EQUAL(total, 6, "iter() loop did not get the right values.");
+}
+
+
 PQXX_REGISTER_TEST(test_result_iteration);
+PQXX_REGISTER_TEST(test_result_iter);
 } // namespace

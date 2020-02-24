@@ -86,9 +86,11 @@ install(
     PATTERN internal/ignore-deprecated-post.hxx
     PATTERN internal/ignore-deprecated-pre.hxx
     PATTERN internal/libpq-forward.hxx
+    PATTERN internal/result_iter.hxx
     PATTERN internal/sql_cursor.hxx
     PATTERN internal/statement_parameters.hxx
     PATTERN internal/stream_iterator.hxx
+    PATTERN internal/transaction_focus.hxx
     PATTERN internal/gates/connection-errorhandler.hxx
     PATTERN internal/gates/connection-largeobject.hxx
     PATTERN internal/gates/connection-notification_receiver.hxx

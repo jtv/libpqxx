@@ -391,6 +391,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \
 	pqxx/internal/libpq-forward.hxx \
+	pqxx/internal/result_iter.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/stream_iterator.hxx \

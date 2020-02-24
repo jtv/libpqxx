@@ -9,3 +9,4 @@
 // expect to see defined after including this header.
 #include "pqxx/result_iterator.hxx"
 #include "pqxx/field.hxx"
+#include "pqxx/internal/result_iter.hxx"

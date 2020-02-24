@@ -14,14 +14,14 @@
 #  include "pqxx/internal/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.0.3"
+#  define PQXX_VERSION "7.1.0"
 /// Library ABI version.
-#  define PQXX_ABI "7.0"
+#  define PQXX_ABI "7.1"
 
 /// Major version number.
 #  define PQXX_VERSION_MAJOR 7
 /// Minor version number.
-#  define PQXX_VERSION_MINOR 0
+#  define PQXX_VERSION_MINOR 1
 
 #  define PQXX_VERSION_CHECK                                                  \
     check_pqxx_version_##PQXX_VERSION_MAJOR##_##PQXX_VERSION_MINOR

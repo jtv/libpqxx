@@ -99,6 +99,16 @@ public:
   }
   //@}
 
+// XXX: Extract row method "extract into tuple."  Re-use it.
+  /// Iterate rows, reading them directly into a tuple of "TYPE...".
+  /** Converts the fields to values of the given respective types.
+   *
+   * Use this only with a ranged "for" loop.  The iteration produces
+   * std::tuple<TYPE...> which you can "unpack" to a series of @c auto
+   * variables.
+   */
+  template<typename... TYPE> auto iter() const;
+
   [[nodiscard]] const_reverse_iterator rbegin() const;
   [[nodiscard]] const_reverse_iterator crbegin() const;
   [[nodiscard]] const_reverse_iterator rend() const;

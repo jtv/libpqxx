@@ -47,7 +47,7 @@ public:
     return *this;
   }
 
-  const value_type &operator*() const { return m_value; }
+  value_type const &operator*() const { return m_value; }
 
   /// Comparison only works for comparing to end().
   bool operator==(stream_input_iterator const &rhs) const
@@ -69,7 +69,7 @@ private:
       m_home = nullptr;
   }
 
-  stream_from *m_home = nullptr;
+  stream_from *m_home{nullptr};
   value_type m_value;
 };
 

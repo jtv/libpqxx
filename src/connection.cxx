@@ -1009,8 +1009,10 @@ void pqxx::connection::set_client_encoding(char const encoding[])
     // OK.
     break;
   case -1:
-    if (is_open()) throw failure{"Setting client encoding failed."};
-    else throw broken_connection{"Lost connection to the database server."};
+    if (is_open())
+      throw failure{"Setting client encoding failed."};
+    else
+      throw broken_connection{"Lost connection to the database server."};
   default:
     throw internal_error{"Unexpected result from PQsetClientEncoding: " +
                          to_string(retval)};
