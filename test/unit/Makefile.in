@@ -126,8 +126,8 @@ am_runner_OBJECTS = test_array.$(OBJEXT) test_binarystring.$(OBJEXT) \
 	test_error_verbosity.$(OBJEXT) test_errorhandler.$(OBJEXT) \
 	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
 	test_field.$(OBJEXT) test_float.$(OBJEXT) \
-	test_notification.$(OBJEXT) test_pipeline.$(OBJEXT) \
-	test_prepared_statement.$(OBJEXT) \
+	test_largeobject.$(OBJEXT) test_notification.$(OBJEXT) \
+	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_read_transaction.$(OBJEXT) \
 	test_result_iteration.$(OBJEXT) test_result_slicing.$(OBJEXT) \
 	test_row.$(OBJEXT) test_separated_list.$(OBJEXT) \
@@ -388,6 +388,7 @@ runner_SOURCES = \
   test_exceptions.cxx \
   test_field.cxx \
   test_float.cxx \
+  test_largeobject.cxx \
   test_notification.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \
@@ -479,6 +480,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_field.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_largeobject.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notification.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pipeline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_prepared_statement.Po@am__quote@
