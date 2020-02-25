@@ -267,8 +267,10 @@ void pqxx::connection::check_result(result const &r)
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (not pqxx::internal::gate::result_connection{r})
   {
-    if (is_open()) throw failure(err_msg());
-    else throw broken_connection{"Lost connection to the database server."};
+    if (is_open())
+      throw failure(err_msg());
+    else
+      throw broken_connection{"Lost connection to the database server."};
   }
   pqxx::internal::gate::result_creation{r}.check_status();
 }
@@ -1009,8 +1011,10 @@ void pqxx::connection::set_client_encoding(char const encoding[])
     // OK.
     break;
   case -1:
-    if (is_open()) throw failure{"Setting client encoding failed."};
-    else throw broken_connection{"Lost connection to the database server."};
+    if (is_open())
+      throw failure{"Setting client encoding failed."};
+    else
+      throw broken_connection{"Lost connection to the database server."};
   default:
     throw internal_error{"Unexpected result from PQsetClientEncoding: " +
                          to_string(retval)};

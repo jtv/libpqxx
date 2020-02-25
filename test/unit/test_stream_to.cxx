@@ -28,7 +28,8 @@ void test_nonoptionals(pqxx::connection_base &connection)
     1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
     bytea{'\x00', '\x01', '\x02'});
   inserter << std::make_tuple(
-    5678, "2018-11-17 21:23:00", nullptr, nullptr, "\u3053\u3093\u306b\u3061\u308f",
+    5678, "2018-11-17 21:23:00", nullptr, nullptr,
+    "\u3053\u3093\u306b\u3061\u308f",
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
   inserter << std::make_tuple(910, nullptr, nullptr, nullptr, "\\N", bytea{});
 
