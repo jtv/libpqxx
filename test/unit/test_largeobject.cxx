@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "test_helpers.hxx"
+#include "../test_helpers.hxx"
 
 
 namespace
