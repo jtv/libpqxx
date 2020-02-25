@@ -29,7 +29,8 @@ void test_stream_large_object()
 
   pqxx::largeobjectaccess check{tx, new_obj, std::ios::in | std::ios::binary};
   std::array<char, 50> buf;
-  std::size_t const len{static_cast<std::size_t>(check.read(buf.data(), buf.size()))};
+  std::size_t const len{
+    static_cast<std::size_t>(check.read(buf.data(), buf.size()))};
   PQXX_CHECK_EQUAL(len, contents.size(), "olostream truncated data.");
   std::string const check_str{buf.data(), len};
   PQXX_CHECK_EQUAL(check_str, contents, "olostream mangled data.");
@@ -41,8 +42,7 @@ void test_stream_large_object()
 
   new_obj.remove(tx);
 
-  PQXX_CHECK_EQUAL(
-    read_back, contents, "Got wrong data from ilostream.");
+  PQXX_CHECK_EQUAL(read_back, contents, "Got wrong data from ilostream.");
   PQXX_CHECK_EQUAL(
     read_back.size(), contents.size(), "ilostream truncated data.");
   PQXX_CHECK_EQUAL(
