@@ -454,11 +454,10 @@ protected:
   {
     if (this->gptr() == nullptr)
       return eof();
-    char *const eb{this->eback()};
-    auto const res{int_type(
-      adjust_eof(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize))))};
-    this->setg(eb, eb, eb + ((res == eof()) ? 0 : res));
-    return ((res == 0) or (res == eof())) ? eof() : *eb;
+    auto *const eb{this->eback()};
+    auto const res = adjust_eof(m_obj.cread(this->eback(), static_cast<size_t>(m_bufsize)));
+    this->setg(eb, eb, eb + (res == eof() ? 0 : static_cast<size_t>(res)));
+    return (res == eof() || res == 0) ? eof() : traits_type::to_int_type(*eb);
   }
 
 private:
