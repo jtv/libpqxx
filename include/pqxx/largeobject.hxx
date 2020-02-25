@@ -434,11 +434,12 @@ protected:
   virtual int_type underflow() override
   {
     if (this->gptr() == nullptr) return EoF();
-    char *const eb = this->eback();
-    const int_type res(static_cast<int_type>(
-	AdjustEOF(m_obj.cread(this->eback(), m_bufsize))));
-    this->setg(eb, eb, eb + ((res==EoF()) ? 0 : res));
-    return ((res == 0) or (res == EoF())) ? EoF() : *eb;
+    auto *const eb{this->eback()};
+    auto const res = AdjustEOF(
+	m_obj.cread(this->eback(), static_cast<std::size_t>(m_bufsize)));
+    this->setg(
+	eb, eb, eb + (res == EoF() ? 0 : static_cast<std::size_t>(res)));
+    return (res == EoF() || res == 0) ? EoF() : traits_type::to_int_type(*eb);
   }
 
 private:
