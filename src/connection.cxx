@@ -266,7 +266,12 @@ void pqxx::connection::check_result(result const &r)
 {
   // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
   if (not pqxx::internal::gate::result_connection{r})
-    throw failure(err_msg());
+  {
+    if (is_open())
+      throw failure(err_msg());
+    else
+      throw broken_connection{"Lost connection to the database server."};
+  }
   pqxx::internal::gate::result_creation{r}.check_status();
 }
 

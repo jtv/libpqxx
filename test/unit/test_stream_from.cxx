@@ -189,7 +189,7 @@ void test_optional(pqxx::connection_base &connection)
   ASSERT_FIELD_EQUAL(std::get<1>(got_tuple), "2018-11-17 21:23:00");
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "こんにちは");
+  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "\u3053\u3093\u306b\u3061\u308f");
   ASSERT_FIELD_EQUAL(
     std::get<5>(got_tuple), (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
 
@@ -221,7 +221,7 @@ void test_stream_from()
     4321, ipv4{8, 8, 8, 8}, "hello\n \tworld", bytea{'\x00', '\x01', '\x02'});
   tx.exec_params(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 5678,
-    "2018-11-17 21:23:00", nullptr, nullptr, "こんにちは",
+    "2018-11-17 21:23:00", nullptr, nullptr, "\u3053\u3093\u306b\u3061\u308f",
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
   tx.commit();
 

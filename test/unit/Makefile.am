@@ -40,6 +40,7 @@ runner_SOURCES = \
   test_exceptions.cxx \
   test_field.cxx \
   test_float.cxx \
+  test_largeobject.cxx \
   test_notification.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \

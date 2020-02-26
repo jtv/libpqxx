@@ -8,6 +8,8 @@
  - Obsolete Windows build docs are gone.
 7.0.3
  - Fixed misreporting of broken connection as `sql_error` (#280).
+ - Replaced non-ASCII test texts with escape codes (#282, #283).
+ - `ilostream` could truncate at `0xff` byte at buffer boundary (#284, #286).
 7.0.2
  - New query function: `query_value`, queries and converts a single value.
  - A `stream_from` stream can now be iterated.
