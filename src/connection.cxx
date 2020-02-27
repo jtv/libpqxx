@@ -1058,6 +1058,32 @@ pqxx::result pqxx::connection::exec_params(
 }
 
 
+namespace
+{
+/// Get the prevailing default value for a connection parameter.
+char const *get_default(PQconninfoOption const &opt) noexcept
+{
+  if (opt.envvar == nullptr)
+  {
+    // There's no environment variable for this setting.  The only default is
+    // the one that was compiled in.
+    return opt.compiled;
+  }
+  // As of C++11, std::getenv() uses thread-local storage, so it should be
+  // thread-safe.  MSVC still warns about it though.
+  char const *var{std::getenv(opt.envvar)};
+  if (var == nullptr)
+  {
+    // There's an environment variable for this setting, but it's not set.
+    return opt.compiled;
+  }
+
+  // The environment variable is the prevailing default.
+  return var;
+}
+} // namespace
+
+
 std::string pqxx::connection::connection_string() const
 {
   if (m_conn == nullptr)
@@ -1073,15 +1099,18 @@ std::string pqxx::connection::connection_string() const
   for (size_t i{0}; params.get()[i].keyword != nullptr; ++i)
   {
     auto const param{params.get()[i]};
-    auto const default_val{param.envvar == nullptr ? param.compiled :
-                                                     param.envvar};
-    if (param.val != nullptr and std::strcmp(param.val, default_val) != 0)
+    if (param.val != nullptr)
     {
-      if (not buf.empty())
-        buf.push_back(' ');
-      buf += param.keyword;
-      buf.push_back('=');
-      buf += param.val;
+      auto const default_val{get_default(param)};
+      if (
+        (default_val == nullptr) or (std::strcmp(param.val, default_val) != 0))
+      {
+        if (not buf.empty())
+          buf.push_back(' ');
+        buf += param.keyword;
+        buf.push_back('=');
+        buf += param.val;
+      }
     }
   }
   return buf;
