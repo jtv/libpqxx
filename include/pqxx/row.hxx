@@ -103,6 +103,7 @@ public:
 
   [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
 
+  /// @deprecated Do this sort of thing on iterators instead.
   void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
