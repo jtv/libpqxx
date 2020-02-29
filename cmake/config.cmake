@@ -14,7 +14,6 @@ include(CheckSymbolExists)
 include(CMakeDetermineCompileFeatures)
 include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
-find_dependency(PostgreSQL)
 
 check_function_exists("poll" PQXX_HAVE_POLL)
 
