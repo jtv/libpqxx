@@ -41,6 +41,8 @@ public:
    */
   field(row const &r, row_size_type c) noexcept;
 
+  field() = default;
+
   /**
    * @name Comparison
    */

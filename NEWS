@@ -6,6 +6,12 @@
  - You can now "convert" strings to `std::string_view`.  Mind your lifetimes!
  - If a `stream_from` row fails to convert, you can no longer retry it.
  - Obsolete Windows build docs are gone.
+7.0.4
+ - Fix possible crash in `connection::connection_string` (#290).
+ - Fix filtering of default values in `connection::connection_string` (#288).
+ - Deprecate `row::swap` and public inheritance of iterators from `row`.
+ - More copy/move/default constructors/assignments on result iterators.
+ - More copy/move/default constructors/assignments on row iterators.
 7.0.3
  - Fixed misreporting of broken connection as `sql_error` (#280).
  - Replaced non-ASCII test texts with escape codes (#282, #283).

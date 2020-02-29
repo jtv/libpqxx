@@ -22,5 +22,36 @@ void test_row()
 }
 
 
+void test_row_iterator()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
+
+  auto i{rows[0].begin()};
+  PQXX_CHECK_EQUAL(i->as<int>(), 1, "Row iterator is wrong.");
+  auto i2{i};
+  PQXX_CHECK_EQUAL(i2->as<int>(), 1, "Row iterator copy is wrong.");
+  i2++;
+  PQXX_CHECK_EQUAL(i2->as<int>(), 2, "Row iterator increment is wrong.");
+  pqxx::row::const_iterator i3;
+  i3 = i2;
+  PQXX_CHECK_EQUAL(i3->as<int>(), 2, "Row iterator assignment is wrong.");
+
+  auto r{rows[0].rbegin()};
+  PQXX_CHECK_EQUAL(r->as<int>(), 3, "Row reverse iterator is wrong.");
+  auto r2{r};
+  PQXX_CHECK_EQUAL(r2->as<int>(), 3, "Row reverse iterator copy is wrong.");
+  r2++;
+  PQXX_CHECK_EQUAL(
+    r2->as<int>(), 2, "Row reverse iterator increment is wrong.");
+  pqxx::row::const_reverse_iterator r3;
+  r3 = r2;
+  PQXX_CHECK_EQUAL(
+    i3->as<int>(), 2, "Row reverse iterator assignment is wrong.");
+}
+
+
 PQXX_REGISTER_TEST(test_row);
+PQXX_REGISTER_TEST(test_row_iterator);
 } // namespace

@@ -33,17 +33,20 @@ void test_011()
     if (R.size() >= 2)
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
 
-    // Test row::swap()
-    pqxx::row const T1(R[0]), T2(R[1]);
+    // Test result::iterator::swap()
+    pqxx::result::const_iterator const T1(R[0]), T2(R[1]);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
-    pqxx::row T1s(T1), T2s(T2);
-    PQXX_CHECK_EQUAL(T1s, T1, "Row copy-construction incorrect.");
-    PQXX_CHECK_EQUAL(T2s, T2, "Row copy-construction inconsistently wrong.");
+    pqxx::result::const_iterator T1s(T1), T2s(T2);
+    PQXX_CHECK_EQUAL(T1s, T1, "Result iterator copy-construction is wrong.");
+    PQXX_CHECK_EQUAL(
+      T2s, T2, "Result iterator copy-construction is inconsistently wrong.");
     T1s.swap(T2s);
-    PQXX_CHECK_NOT_EQUAL(T1s, T1, "Row swap doesn't work.");
-    PQXX_CHECK_NOT_EQUAL(T2s, T2, "Row swap inconsistently wrong.");
-    PQXX_CHECK_EQUAL(T2s, T1, "Row swap is asymmetric.");
-    PQXX_CHECK_EQUAL(T1s, T2, "Row swap is inconsistently asymmetric.");
+    PQXX_CHECK_NOT_EQUAL(T1s, T1, "Result iterator swap doesn't work.");
+    PQXX_CHECK_NOT_EQUAL(
+      T2s, T2, "Result iterator swap inconsistently wrong.");
+    PQXX_CHECK_EQUAL(T2s, T1, "Result iterator swap is asymmetric.");
+    PQXX_CHECK_EQUAL(
+      T1s, T2, "Result iterator swap is inconsistently asymmetric.");
 
     for (pqxx::row::size_type c{0}; c < R[0].size(); ++c)
     {
