@@ -42,7 +42,7 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
-  const_result_iterator() noexcept : row{result(), 0} {}
+  const_result_iterator() noexcept =default;
   const_result_iterator(row const &t) noexcept : row{t} {}
 
   /**
@@ -65,9 +65,22 @@ public:
   //@}
 
   /**
+   * @name Field access
+   */
+  //@{
+  using row::front;
+  using row::back;
+  using row::operator[];
+  using row::at;
+  using row::rownumber;
+  //@}
+
+  /**
    * @name Manipulations
    */
   //@{
+  //const_result_iterator &operator=(const_result_iterator const &rhs) =default;
+
   const_result_iterator operator++(int);
   const_result_iterator &operator++()
   {
@@ -91,6 +104,8 @@ public:
     m_index -= i;
     return *this;
   }
+
+  void swap(const_result_iterator &other) noexcept { row::swap(other); }
   //@}
 
   /**
@@ -156,6 +171,7 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
+  const_reverse_result_iterator() =default;
   const_reverse_result_iterator(const_reverse_result_iterator const &rhs) =
     default;
   explicit const_reverse_result_iterator(const_result_iterator const &rhs) :
@@ -172,6 +188,17 @@ public:
   //@{
   using const_result_iterator::operator->;
   using const_result_iterator::operator*;
+  //@}
+
+  /**
+   * @name Field access
+   */
+  //@{
+  using const_result_iterator::front;
+  using const_result_iterator::back;
+  using const_result_iterator::operator[];
+  using const_result_iterator::at;
+  using const_result_iterator::rownumber;
   //@}
 
   /**
@@ -206,6 +233,8 @@ public:
     iterator_type::operator+=(i);
     return *this;
   }
+
+  void swap(const_reverse_result_iterator &other) noexcept { const_result_iterator::swap(other); }
   //@}
 
   /**
