@@ -215,8 +215,11 @@ public:
   using difference_type = row_difference_type;
   using reference = field;
 
+  const_row_iterator() = default;
   const_row_iterator(row const &T, row_size_type C) noexcept : field{T, C} {}
   const_row_iterator(field const &F) noexcept : field{F} {}
+  const_row_iterator(const_row_iterator const &) = default;
+  const_row_iterator(const_row_iterator &&) = default;
 
   /**
    * @name Dereferencing operators
@@ -230,6 +233,9 @@ public:
    * @name Manipulations
    */
   //@{
+  const_row_iterator &operator=(const_row_iterator const &) = default;
+  const_row_iterator &operator=(const_row_iterator &&) = default;
+
   const_row_iterator operator++(int);
   const_row_iterator &operator++()
   {
@@ -313,7 +319,10 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_row_iterator(const_reverse_row_iterator const &r) = default;
+  const_reverse_row_iterator() = default;
+  const_reverse_row_iterator(const_reverse_row_iterator const &) = default;
+  const_reverse_row_iterator(const_reverse_row_iterator &&) = default;
+
   explicit const_reverse_row_iterator(super const &rhs) noexcept :
           const_row_iterator{rhs}
   {
