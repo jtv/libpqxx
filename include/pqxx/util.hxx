@@ -24,6 +24,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
+#include <limits>
 
 #include "pqxx/except.hxx"
 #include "pqxx/types.hxx"
