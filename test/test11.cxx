@@ -38,12 +38,15 @@ void test_011()
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
     pqxx::result::const_iterator T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1, "Result iterator copy-construction is wrong.");
-    PQXX_CHECK_EQUAL(T2s, T2, "Result iterator copy-construction is inconsistently wrong.");
+    PQXX_CHECK_EQUAL(
+      T2s, T2, "Result iterator copy-construction is inconsistently wrong.");
     T1s.swap(T2s);
     PQXX_CHECK_NOT_EQUAL(T1s, T1, "Result iterator swap doesn't work.");
-    PQXX_CHECK_NOT_EQUAL(T2s, T2, "Result iterator swap inconsistently wrong.");
+    PQXX_CHECK_NOT_EQUAL(
+      T2s, T2, "Result iterator swap inconsistently wrong.");
     PQXX_CHECK_EQUAL(T2s, T1, "Result iterator swap is asymmetric.");
-    PQXX_CHECK_EQUAL(T1s, T2, "Result iterator swap is inconsistently asymmetric.");
+    PQXX_CHECK_EQUAL(
+      T1s, T2, "Result iterator swap is inconsistently asymmetric.");
 
     for (pqxx::row::size_type c{0}; c < R[0].size(); ++c)
     {

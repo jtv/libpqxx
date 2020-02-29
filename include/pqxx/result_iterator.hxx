@@ -42,7 +42,9 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
-  const_result_iterator() noexcept =default;
+  const_result_iterator() noexcept = default;
+  const_result_iterator(const_result_iterator const &) noexcept = default;
+  const_result_iterator(const_result_iterator &&) noexcept = default;
   const_result_iterator(row const &t) noexcept : row{t} {}
 
   /**
@@ -68,8 +70,8 @@ public:
    * @name Field access
    */
   //@{
-  using row::front;
   using row::back;
+  using row::front;
   using row::operator[];
   using row::at;
   using row::rownumber;
@@ -79,7 +81,17 @@ public:
    * @name Manipulations
    */
   //@{
-  //const_result_iterator &operator=(const_result_iterator const &rhs) =default;
+  const_result_iterator &operator=(const_result_iterator const &rhs)
+  {
+    row::operator=(rhs);
+    return *this;
+  }
+
+  const_result_iterator &operator=(const_result_iterator &&rhs)
+  {
+    row::operator=(std::move(rhs));
+    return *this;
+  }
 
   const_result_iterator operator++(int);
   const_result_iterator &operator++()
@@ -171,11 +183,17 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_result_iterator() =default;
+  const_reverse_result_iterator() = default;
   const_reverse_result_iterator(const_reverse_result_iterator const &rhs) =
     default;
   explicit const_reverse_result_iterator(const_result_iterator const &rhs) :
           const_result_iterator{rhs}
+  {
+    super::operator--();
+  }
+
+  explicit const_reverse_result_iterator(const_result_iterator const &&rhs) :
+          const_result_iterator{std::move(rhs)}
   {
     super::operator--();
   }
@@ -194,8 +212,8 @@ public:
    * @name Field access
    */
   //@{
-  using const_result_iterator::front;
   using const_result_iterator::back;
+  using const_result_iterator::front;
   using const_result_iterator::operator[];
   using const_result_iterator::at;
   using const_result_iterator::rownumber;
@@ -209,6 +227,11 @@ public:
   operator=(const_reverse_result_iterator const &r)
   {
     iterator_type::operator=(r);
+    return *this;
+  }
+  const_reverse_result_iterator &operator=(const_reverse_result_iterator &&r)
+  {
+    iterator_type::operator=(std::move(r));
     return *this;
   }
   const_reverse_result_iterator &operator++()
@@ -234,7 +257,10 @@ public:
     return *this;
   }
 
-  void swap(const_reverse_result_iterator &other) noexcept { const_result_iterator::swap(other); }
+  void swap(const_reverse_result_iterator &other) noexcept
+  {
+    const_result_iterator::swap(other);
+  }
   //@}
 
   /**

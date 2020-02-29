@@ -48,6 +48,10 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   row() = default;
+  row(row &&) = default;
+  row(row const &) = default;
+  row &operator=(row const &) = default;
+  row &operator=(row &&) = default;
 
   /**
    * @name Comparison

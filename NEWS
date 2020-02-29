@@ -2,6 +2,7 @@
  - Fix possible crash in `connection::connection_string` (#290).
  - Fix filtering of default values in `connection::connection_string` (#288).
  - Deprecate `row::swap` and public inheritance of iterators from `row`.
+ - More copy/move constructors/assignments on result iterators.
 7.0.3
  - Fixed misreporting of broken connection as `sql_error` (#280).
  - Replaced non-ASCII test texts with escape codes (#282, #283).

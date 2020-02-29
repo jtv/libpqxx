@@ -49,10 +49,14 @@ void test_result_iterator_assignment()
   pqxx::result::const_reverse_iterator rev;
 
   fwd = r.begin();
-  PQXX_CHECK_EQUAL(fwd[0].as<int>(), r.begin()[0].as<int>(), "Result iterator assignment is wrong.");
+  PQXX_CHECK_EQUAL(
+    fwd[0].as<int>(), r.begin()[0].as<int>(),
+    "Result iterator assignment is wrong.");
 
   rev = r.rbegin();
-  PQXX_CHECK_EQUAL(rev[0].as<int>(), r.rbegin()[0].as<int>(), "Reverse iterator assignment is wrong.");
+  PQXX_CHECK_EQUAL(
+    rev[0].as<int>(), r.rbegin()[0].as<int>(),
+    "Reverse iterator assignment is wrong.");
 }
 
 
