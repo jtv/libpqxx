@@ -651,10 +651,9 @@ private:
   void wait_read(long seconds, long microseconds) const;
 
   result make_result(
-    internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query);
+    internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query);
 
   void PQXX_PRIVATE set_up_state();
-  void PQXX_PRIVATE check_result(result const &);
 
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 

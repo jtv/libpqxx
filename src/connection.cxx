@@ -172,10 +172,19 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query)
+  internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query)
 {
-  return pqxx::internal::gate::result_creation::create(
-    rhs, query, internal::enc_group(encoding_id()));
+  if (pgr == nullptr)
+  {
+    if (is_open())
+      throw failure(err_msg());
+    else
+      throw broken_connection{"Lost connection to the database server."};
+  }
+  auto const r{pqxx::internal::gate::result_creation::create(
+    pgr, query, internal::enc_group(encoding_id()))};
+  pqxx::internal::gate::result_creation{r}.check_status();
+  return r;
 }
 
 
@@ -262,20 +271,6 @@ void pqxx::connection::set_up_state()
 }
 
 
-void pqxx::connection::check_result(result const &r)
-{
-  // A shame we can't quite detect out-of-memory to turn this into a bad_alloc!
-  if (not pqxx::internal::gate::result_connection{r})
-  {
-    if (is_open())
-      throw failure(err_msg());
-    else
-      throw broken_connection{"Lost connection to the database server."};
-  }
-  pqxx::internal::gate::result_creation{r}.check_status();
-}
-
-
 bool pqxx::connection::is_open() const noexcept
 {
   return status() == CONNECTION_OK;
@@ -358,7 +353,7 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
     // Not listening on this event yet, start doing so.
     auto const lq{
       std::make_shared<std::string>("LISTEN " + quote_name(n->channel()))};
-    check_result(make_result(PQexec(m_conn, lq->c_str()), lq));
+    make_result(PQexec(m_conn, lq->c_str()), lq);
     m_receivers.insert(new_value);
   }
   else
@@ -572,7 +567,6 @@ pqxx::result pqxx::connection::exec(std::string_view query)
 pqxx::result pqxx::connection::exec(std::shared_ptr<std::string> query)
 {
   auto const res{make_result(PQexec(m_conn, query->c_str()), query)};
-  check_result(res);
   get_notifs();
   return res;
 }
@@ -609,7 +603,6 @@ void pqxx::connection::prepare(char const name[], char const definition[])
 
   auto const r{
     make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
-  check_result(r);
 }
 
 
@@ -634,7 +627,6 @@ pqxx::result pqxx::connection::exec_prepared(
     m_conn, q->c_str(), check_cast<int>(args.nonnulls.size(), "exec_prepared"),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
-  check_result(r);
   get_notifs();
   return r;
 }
@@ -712,10 +704,8 @@ bool pqxx::connection::read_copy_line(std::string &line)
     throw failure{"Reading of table data failed: " + std::string{err_msg()}};
 
   case -1:
-    for (auto R{make_result(PQgetResult(m_conn), q)};
-         pqxx::internal::gate::result_connection(R);
-         R = make_result(PQgetResult(m_conn), q))
-      check_result(R);
+    // Done.
+    make_result(PQgetResult(m_conn), q);
     return false;
 
   case 0: throw internal_error{"table read inexplicably went asynchronous"};
@@ -759,7 +749,7 @@ void pqxx::connection::end_copy_write()
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};
-  check_result(make_result(PQgetResult(m_conn), q));
+  make_result(PQgetResult(m_conn), q);
 }
 
 
@@ -1052,7 +1042,6 @@ pqxx::result pqxx::connection::exec_params(
     m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
     args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
-  check_result(r);
   get_notifs();
   return r;
 }

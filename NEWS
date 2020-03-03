@@ -1,5 +1,6 @@
 7.0.5
  - Compile fix for g++ 10: include `<limits>` (#292).
+ - Cleaned up error-checking of PG results.  (#280).
 7.0.4
  - Fix possible crash in `connection::connection_string` (#290).
  - Fix filtering of default values in `connection::connection_string` (#288).
