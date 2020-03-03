@@ -134,7 +134,7 @@ value built in.  In that case, define your nullness traits from
 
     namespace pqxx
     {
-    template<> struct nullness_traits<T> : pqxx::no_null {};
+    template<> struct nullness_traits<T> : pqxx::no_null<T> {};
     }
 
 (Here again you're defining this in the pqxx namespace.)

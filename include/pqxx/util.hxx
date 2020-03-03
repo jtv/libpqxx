@@ -17,6 +17,7 @@
 #include <cctype>
 #include <cstdio>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
