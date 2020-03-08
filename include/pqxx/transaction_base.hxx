@@ -129,18 +129,23 @@ public:
    * @ingroup escaping-functions
    */
   //@{
-  /// Escape string for use as SQL string literal in this transaction
+  /// Escape string for use as SQL string literal in this transaction.
   [[nodiscard]] std::string esc(char const text[]) const
   {
     return conn().esc(text);
   }
-  /// Escape string for use as SQL string literal in this transaction
+  /// Escape string for use as SQL string literal in this transaction.
   [[nodiscard]] std::string esc(char const text[], size_t maxlen) const
   {
     return conn().esc(text, maxlen);
   }
-  /// Escape string for use as SQL string literal in this transaction
+  /// Escape string for use as SQL string literal in this transaction.
   [[nodiscard]] std::string esc(std::string const &text) const
+  {
+    return conn().esc(text);
+  }
+  /// Escape string for use as SQL string literal in this transaction.
+  [[nodiscard]] std::string esc(std::string_view text) const
   {
     return conn().esc(text);
   }
