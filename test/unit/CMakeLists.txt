@@ -11,7 +11,7 @@
 #
 # Generated from template './test/unit/CMakeLists.txt.template'.
 # ##############################################################################
-if(NOT PostgreSQL_INCLUDE_DIRS)
+if(NOT PostgreSQL_FOUND)
     find_package(PostgreSQL REQUIRED)
 endif()
 
