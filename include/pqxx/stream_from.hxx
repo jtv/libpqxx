@@ -39,11 +39,16 @@ struct from_query_t
 {
 } const from_query;
 
-/// Efficiently pull data directly out of a table.
-/** Retrieving data this way has a bit more startup overhead than executing a
- * regular query does, but given enough rows of data, it's likely to be faster.
+/// Stream data from the database.
+/** Retrieving data this way is likely to be faster than executing a query and
+ * then iterating and converting the rows fields.  You will also be able to
+ * start processing before all of the data has come in.
  *
- * Opening a stream does put the connection in a special state, so you won't be
+ * There are also downsides.  If there's an error, it may leave the entire
+ * connection in an unusable state, so you'll have to give the whole thing up.
+ * Also, your connection to the database may break before you've received all
+ * the data, so you may end up processing only part of the data.  Finally,
+ * opening a stream puts the connection in a special state, so you won't be
  * able to do many other things with the connection or the transaction while
  * the stream is open.
  *
@@ -115,6 +120,14 @@ public:
    */
   void complete();
 
+  /// Read one row into a tuple.
+  /** Converts the row's fields into the fields making up the tuple.
+   *
+   * For a column which can contain nulls, be sure to give the corresponding
+   * tuple field a type which can be null.  For example, to read a field as
+   * @c int when it may contain nulls, read it as @c std::optional<int>.
+   * Using @c std::shared_ptr or @c std::unique_ptr will also work.
+   */
   raw_line get_raw_line();
   template<typename Tuple> stream_from &operator>>(Tuple &);
 

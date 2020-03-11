@@ -52,11 +52,12 @@ namespace pqxx
  * for you.  But if you're inserting large numbers of rows you will want
  * something better.
  *
- * Inserting rows one by one tends to take a lot of time, especially when you
- * are working with a remote database server over the network.  Every single
- * row involves sending the data over the network, and waiting for a reply.
- * Do it "in bulk" using @c stream_to, and you may find that it goes many times
- * faster, sometimes even by orders of magnitude.
+ * Inserting rows one by one involves a lot of pointless overhead, especially
+ * when you are working with a remote database server over the network.  You
+ * may end up sending each row over the network as a separate query, and
+ * waiting for a reply.  Do it "in bulk" using @c stream_to, and you may find
+ * that it goes many times faster.  Sometimes you gain orders of magnitude in
+ * speed.
  *
  * Here's how it works: you create a @c stream_to stream to start writing to
  * your table.  You will probably want to specify the columns.  Then, you
@@ -69,6 +70,9 @@ namespace pqxx
  * @c std::tuple, a @c std::vector, or anything else with a @c begin and
  * @c end.  It could be a class of your own.  Of course the fields have to
  * match the columns you specified when creating the stream.
+ *
+ * To insert a null value, pass a @c nullptr, or an empty @c std::optional,
+ * @c std::shared_ptr, or @c std::unique_ptr.
  *
  * There is also a matching stream_from for reading data in bulk.
  */
