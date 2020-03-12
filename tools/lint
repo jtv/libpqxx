@@ -61,7 +61,7 @@ check_compiler_internal_headers() {
 	then
 		cat <<EOF >&2
 The number of inclusions of compiler-internal.post.hxx does not match the number
-of inclusions of compiler-internal.post.hxx:
+of inclusions of compiler-internal.pre.hxx:
 
 $DIFF
 EOF
