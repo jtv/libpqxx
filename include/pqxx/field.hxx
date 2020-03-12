@@ -126,9 +126,9 @@ public:
    * strings).
    */
   template<typename T>
-  auto to(T &obj) const -> typename std::enable_if<
+  auto to(T &obj) const -> typename std::enable_if_t<
     (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-    bool>::type
+    bool>
   {
     auto const bytes{c_str()};
     if (bytes[0] == '\0' and is_null())
@@ -145,9 +145,9 @@ public:
    * C-strings)
    */
   template<typename T>
-  auto to(T &obj, T const &default_value) const -> typename std::enable_if<
+  auto to(T &obj, T const &default_value) const -> typename std::enable_if_t<
     (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-    bool>::type
+    bool>
   {
     bool const has_value{to(obj)};
     if (not has_value)
