@@ -20,6 +20,11 @@
 #include "pqxx/field.hxx"
 #include "pqxx/result.hxx"
 
+namespace pqxx::internal
+{
+template<typename... T> class result_iter;
+} // namespace pqxx::internal
+
 
 namespace pqxx
 {
@@ -192,14 +197,21 @@ public:
     if (size() != std::tuple_size_v<Tuple>)
       throw usage_error{"Tried to extract " + to_string(tup_size) +
                         " field(s) from a row of " + to_string(size()) + "."};
-
-    extract_fields(t, std::make_index_sequence<tup_size>{});
+    convert(t);
   }
 
 protected:
   friend class const_row_iterator;
   friend class result;
   row(result const &r, result_size_type i) noexcept;
+
+  template<typename... T> friend class pqxx::internal::result_iter;
+  /// Convert entire row to tuple fields, without checking row size.
+  template<typename Tuple> void convert(Tuple &t) const
+  {
+    constexpr auto tup_size{std::tuple_size_v<Tuple>};
+    extract_fields(t, std::make_index_sequence<tup_size>{});
+  }
 
   friend class field;
   /// Result set of which this is one row.

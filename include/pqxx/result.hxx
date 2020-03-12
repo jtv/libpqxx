@@ -99,7 +99,6 @@ public:
   }
   //@}
 
-  // XXX: Extract row method "extract into tuple."  Re-use it.
   /// Iterate rows, reading them directly into a tuple of "TYPE...".
   /** Converts the fields to values of the given respective types.
    *

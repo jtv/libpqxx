@@ -61,7 +61,7 @@ public:
   value_type const &operator*() const { return m_value; }
 
 private:
-  void read() { (*m_home)[m_index].to(m_value); }
+  void read() { (*m_home)[m_index].convert(m_value); }
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
