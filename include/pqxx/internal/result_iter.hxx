@@ -61,37 +61,7 @@ public:
   value_type const &operator*() const { return m_value; }
 
 private:
-  void read() { extract_fields(std::make_index_sequence<sizeof...(TYPE)>{}); }
-
-  template<std::size_t... indexes>
-  void extract_fields(std::index_sequence<indexes...>)
-  {
-    (extract_value<indexes>(), ...);
-  }
-
-  template<std::size_t index> void extract_value()
-  {
-    using field_type =
-      std::remove_reference_t<decltype(std::get<index>(m_value))>;
-    auto const f{(*m_home)[m_index][index]};
-    if constexpr (std::is_same_v<field_type, std::nullptr_t>)
-    {
-      if (not f.is_null())
-        throw conversion_error{
-          "Unpacking non-null value into nullptr_t field."};
-    }
-    else if (f.is_null())
-    {
-      if constexpr (nullness<field_type>::has_null)
-        std::get<index>(m_value) = nullness<field_type>::null();
-      else
-        internal::throw_null_conversion(type_name<field_type>);
-    }
-    else
-    {
-      std::get<index>(m_value) = f.as<field_type>();
-    }
-  }
+  void read() { (*m_home)[m_index].to(m_value); }
 
   result const *m_home{nullptr};
   result::size_type m_index{0};

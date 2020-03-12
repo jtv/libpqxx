@@ -353,11 +353,42 @@ operator<<(std::basic_ostream<CHAR> &s, field const &value)
 }
 
 
-/// Convert a field's string contents to another type.
+/// Convert a field's value to type @c T.
+/** Unlike the "regular" @c from_string, this knows how to deal with null
+ * values.
+ */
 template<typename T> inline T from_string(field const &value)
 {
-  return from_string<T>(value.view());
+  if (value.is_null())
+  {
+    if constexpr (nullness<T>::has_null)
+      return nullness<T>::null();
+    else
+      internal::throw_null_conversion(type_name<T>);
+  }
+  else
+  {
+    return from_string<T>(value.view());
+  }
 }
+
+
+/// Convert a field's value to @c nullptr_t.
+/** Yes, you read that right.  This conversion does nothing useful.  It always
+ * returns @c nullptr.
+ *
+ * Except... what if the field is not null?  In that case, this throws
+ * @c conversion_error.
+ */
+template<>
+inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
+{
+  if (not value.is_null())
+    throw conversion_error{
+      "Extracting non-null field into nullptr_t variable."};
+  return nullptr;
+}
+
 
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(field const &value);

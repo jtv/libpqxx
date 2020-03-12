@@ -151,7 +151,7 @@ private:
     from_table_t);
 
   template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>)
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
   {
     (extract_value<Tuple, indexes>(t), ...);
   }
@@ -209,8 +209,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
                       " field(s) from a stream of " +
                       to_string(m_fields.size()) + "."};
 
-  using indexes = std::make_index_sequence<tup_size>;
-  extract_fields(t, indexes{});
+  extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;
 }
 

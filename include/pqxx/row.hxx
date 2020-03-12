@@ -183,6 +183,19 @@ public:
   // Is this an empty slice?
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;
 
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   */
+  template<typename Tuple> void to(Tuple &t) const
+  {
+    constexpr auto tup_size{std::tuple_size_v<Tuple>};
+    if (size() != std::tuple_size_v<Tuple>)
+      throw usage_error{"Tried to extract " + to_string(tup_size) +
+                        " field(s) from a row of " + to_string(size()) + "."};
+
+    extract_fields(t, std::make_index_sequence<tup_size>{});
+  }
+
 protected:
   friend class const_row_iterator;
   friend class result;
@@ -201,6 +214,16 @@ protected:
   size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.
   size_type m_end = 0;
+
+private:
+  template<typename Tuple, std::size_t... indexes>
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
+  {
+    (extract_value<Tuple, indexes>(t), ...);
+  }
+
+  template<typename Tuple, std::size_t index>
+  void extract_value(Tuple &t) const;
 };
 
 
@@ -451,6 +474,14 @@ operator-(const_row_iterator const &i) const
   return difference_type(num() - i.num());
 }
 
+
+template<typename Tuple, std::size_t index>
+inline void row::extract_value(Tuple &t) const
+{
+  using field_type = std::remove_reference_t<decltype(std::get<index>(t))>;
+  field const f{*this, index};
+  std::get<index>(t) = from_string<field_type>(f);
+}
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
