@@ -52,7 +52,7 @@ check_compiler_internal_headers() {
 	fi
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
-	HEADERS=$(find include/pqxx/* -type f)
+	HEADERS=$(find include/pqxx/* -type f | grep -v '\.swp$')
 	count_includes pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
 	count_includes pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
 	DIFF="$(diff "$PRE" "$POST")" || /bin/true
