@@ -188,6 +188,7 @@ public:
   // Is this an empty slice?
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;
 
+// XXX: Could we take a bunch of references as an alternative?
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
    */
