@@ -194,10 +194,7 @@ public:
    */
   template<typename Tuple> void to(Tuple &t) const
   {
-    constexpr auto tup_size{std::tuple_size_v<Tuple>};
-    if (size() != std::tuple_size_v<Tuple>)
-      throw usage_error{"Tried to extract " + to_string(tup_size) +
-                        " field(s) from a row of " + to_string(size()) + "."};
+    check_size(std::tuple_size_v<Tuple>);
     convert(t);
   }
 
@@ -205,6 +202,14 @@ protected:
   friend class const_row_iterator;
   friend class result;
   row(result const &r, result_size_type i) noexcept;
+
+  /// Throw @c usage_error if row size is not @c expected.
+  void check_size(size_type expected) const
+  {
+    if (size() != expected)
+      throw usage_error{"Tried to extract " + to_string(expected) +
+                        " field(s) from a row of " + to_string(size()) + "."};
+  }
 
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
