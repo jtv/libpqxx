@@ -617,8 +617,8 @@ encoding_group enc_group(std::string_view encoding_name)
     {"LATIN9", encoding_group::MONOBYTE},
     {"LATIN10", encoding_group::MONOBYTE},
     {"MULE_INTERNAL", encoding_group::MULE_INTERNAL},
-    {"SJIS", encoding_group::SJIS},
     {"SHIFT_JIS_2004", encoding_group::SHIFT_JIS_2004},
+    {"SJIS", encoding_group::SJIS},
     {"SQL_ASCII", encoding_group::MONOBYTE},
     {"UHC", encoding_group::UHC},
     {"UTF8", encoding_group::UTF8},
@@ -637,8 +637,8 @@ encoding_group enc_group(std::string_view encoding_name)
 
   auto const found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == encoding_map.end())
-    throw std::invalid_argument{"unrecognized encoding '" +
-                                std::string{encoding_name} + "'"};
+    throw std::invalid_argument{"Unrecognized encoding: '" +
+                                std::string{encoding_name} + "'."};
   return found_encoding_group->second;
 }
 

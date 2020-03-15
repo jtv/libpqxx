@@ -17,7 +17,6 @@
 
 namespace pqxx::internal
 {
-// XXX: Would a size-aware return type help?
 char const *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum or encoding name to its libpqxx group.

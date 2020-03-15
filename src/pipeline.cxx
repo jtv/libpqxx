@@ -31,6 +31,7 @@ std::string const theDummyQuery{"SELECT " + theDummyValue + theSeparator};
 
 void pqxx::pipeline::init()
 {
+  m_encoding = internal::enc_group(m_trans.conn().encoding_id());
   m_issuedrange = make_pair(m_queries.end(), m_queries.end());
   attach();
 }
@@ -198,7 +199,7 @@ void pqxx::pipeline::issue()
   // Construct cumulative query string for entire batch.
   auto cum{separated_list(
     theSeparator, oldest, m_queries.end(),
-    [](QueryMap::const_iterator i) { return i->second.get_query(); })};
+    [](QueryMap::const_iterator i) { return i->second.query; })};
   auto const num_issued{
     QueryMap::size_type(std::distance(oldest, m_queries.end()))};
   bool const prepend_dummy{num_issued > 1};
@@ -238,8 +239,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   result const res{pqxx::internal::gate::result_creation::create(
-    r, std::begin(m_queries)->second.get_query(),
-    internal::enc_group(m_trans.conn().encoding_id()))};
+    r, std::begin(m_queries)->second.query,
+    m_encoding)};
 
   if (not have_pending())
   {
@@ -249,10 +250,10 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   // Must be the result for the oldest pending query.
-  if (not m_issuedrange.first->second.get_result().empty())
+  if (not m_issuedrange.first->second.res.empty())
     internal_error("Multiple results for one query.");
 
-  m_issuedrange.first->second.set_result(res);
+  m_issuedrange.first->second.res = res;
   ++m_issuedrange.first;
 
   return true;
@@ -261,6 +262,10 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
 void pqxx::pipeline::obtain_dummy()
 {
+  // Allocate once, re-use across invocations.
+  static auto const text{
+    std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
+
   pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   auto const r{gate.get_result()};
   m_dummy_pending = false;
@@ -269,12 +274,8 @@ void pqxx::pipeline::obtain_dummy()
     internal_error(
       "Pipeline got no result from backend when it expected one.");
 
-  // Allocate once, re-use across invocations.
-  static auto const text{
-    std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
-
   result R{pqxx::internal::gate::result_creation::create(
-    r, text, internal::enc_group(m_trans.conn().encoding_id()))};
+    r, text, m_encoding)};
 
   bool OK{false};
   try
@@ -304,7 +305,7 @@ void pqxx::pipeline::obtain_dummy()
   // First, give the whole batch the same syntax error message, in case all
   // else is going to fail.
   for (auto i{m_issuedrange.first}; i != m_issuedrange.second; ++i)
-    i->second.set_result(R);
+    i->second.res = R;
 
   // Remember where the end of this batch was
   auto const stop{m_issuedrange.second};
@@ -324,9 +325,9 @@ void pqxx::pipeline::obtain_dummy()
     do
     {
       m_num_waiting--;
-      auto const query{*m_issuedrange.first->second.get_query()};
+      auto const query{*m_issuedrange.first->second.query};
       result const res{m_trans.exec(query)};
-      m_issuedrange.first->second.set_result(res);
+      m_issuedrange.first->second.res = res;
       pqxx::internal::gate::result_creation{res}.check_status();
       ++m_issuedrange.first;
     } while (m_issuedrange.first != stop);
@@ -386,7 +387,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
     issue();
 
-  result const R{q->second.get_result()};
+  result const R{q->second.res};
   auto const P{std::make_pair(q->first, R)};
 
   m_queries.erase(q);

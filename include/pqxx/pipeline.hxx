@@ -156,21 +156,14 @@ public:
   void resume();
 
 private:
-  class PQXX_PRIVATE Query
+  struct PQXX_PRIVATE Query
   {
-  public:
     explicit Query(std::string_view q) :
-            m_query{std::make_shared<std::string>(q)},
-            m_res{}
+            query{std::make_shared<std::string>(q)}
     {}
 
-    result const &get_result() const noexcept { return m_res; }
-    void set_result(result const &r) noexcept { m_res = r; }
-    std::shared_ptr<std::string> get_query() const noexcept { return m_query; }
-
-  private:
-    std::shared_ptr<std::string> m_query;
-    result m_res;
+    std::shared_ptr<std::string> query;
+    result res;
   };
 
   using QueryMap = std::map<query_id, Query>;
@@ -233,6 +226,12 @@ private:
 
   /// Point at which an error occurred; no results beyond it will be available
   query_id m_error = qid_limit();
+
+  /// Encoding.
+  /** We store this in the object to avoid the risk of exceptions at awkward
+   * moments.
+   */
+  internal::encoding_group m_encoding;
 };
 } // namespace pqxx
 
