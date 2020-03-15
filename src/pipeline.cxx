@@ -239,8 +239,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   result const res{pqxx::internal::gate::result_creation::create(
-    r, std::begin(m_queries)->second.query,
-    m_encoding)};
+    r, std::begin(m_queries)->second.query, m_encoding)};
 
   if (not have_pending())
   {
@@ -274,8 +273,7 @@ void pqxx::pipeline::obtain_dummy()
     internal_error(
       "Pipeline got no result from backend when it expected one.");
 
-  result R{pqxx::internal::gate::result_creation::create(
-    r, text, m_encoding)};
+  result R{pqxx::internal::gate::result_creation::create(r, text, m_encoding)};
 
   bool OK{false};
   try
@@ -295,9 +293,13 @@ void pqxx::pipeline::obtain_dummy()
     return;
   }
 
-  // XXX: Do we actually know that the queries did not execute?
   // XXX: Can we actually re-issue statements after a failure?
-  /* Since none of the queries in the batch were actually executed, we can
+  /* Execution of this batch failed.
+   *
+   * When we send multiple statements in one go, the backend treats them as a
+   * single transaction.  So the entire batch was effectively rolled back.
+   *
+   * Since none of the queries in the batch were actually executed, we can
    * afford to replay them one by one until we find the exact query that
    * caused the error.  This gives us not only a more specific error message
    * to report, but also tells us which query to report it for.
