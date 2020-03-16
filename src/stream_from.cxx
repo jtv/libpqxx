@@ -155,6 +155,7 @@ void pqxx::stream_from::complete()
     while (not done)
     {
       auto [line, size] = get_raw_line();
+      ignore_unused(size);
       done = not line.get();
     }
   }
