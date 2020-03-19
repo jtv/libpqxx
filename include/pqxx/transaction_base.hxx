@@ -266,11 +266,11 @@ public:
    * network connection to the server breaks while you're iterating, you'll get
    * an exception partway through.
    *
-   * The tuple may contain std::string_view fields, but the strings to which
+   * The tuple may contain @c std::string_view fields, but the strings to which
    * they point will only remain valid until you extract the next row.  After
    * that, the memory holding the string may be overwritten or deallocated.
    *
-   * If any of the columns may be null, and the C++ type to which it translates
+   * If any of the columns can be null, and the C++ type to which it translates
    * does not have a null value, wrap the type in @c std::optional (or if
    * you prefer, @c std::shared_ptr or @c std::unique_ptr).  These templates
    * do recognise null values, and libpqxx will know how to convert to them.
@@ -279,11 +279,11 @@ public:
    * it does not finish due to a @c break or a @c return or an exception, then
    * the entire connection becomes effectively unusable.
    *
-   * Querying in this way seems to be faster than exec() and its friends, at
-   * least for larger results, and you can start processing rows before the
-   * full result is in.  Also, @c stream() scales better in terms of memory
-   * usage.  Where @c exec() reads the entire result into memory at once,
-   * @c stream_from will read and process one row at at a time.
+   * Querying in this way is faster than the @c exec() methods, at least for
+   * larger results, and you can start processing rows before the full result
+   * is in.  Also, @c stream() scales better in terms of memory usage.  Where
+   * @c exec() reads the entire result into memory at once, @c stream() will
+   * read and process one row at at a time.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
@@ -294,8 +294,8 @@ public:
    *     https://www.postgresql.org/docs/current/sql-copy.html
    *
    * Iterating in this way does require each of the field types you pass to be
-   * default-constructible and copy-constructible.  This restriction will be
-   * loosened when libpqxx moves on to C++20.
+   * default-constructible, copy-constructible, and assignable.  These
+   * requirements may be loosened once libpqxx moves on to C++20.
    */
   template<typename... TYPE>[[nodiscard]] auto stream(std::string_view query)
   {
