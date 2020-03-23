@@ -342,7 +342,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
