@@ -81,15 +81,17 @@ cpplint() {
 
 pylint() {
 	local PYFILES="tools/*.py tools/splitconfig"
-	if which pocketlint >/dev/null
-	then
-		pocketlint $PYFILES
-	fi
+        echo "Skipping pocketlint; it's not up to date with Python3."
+	# if which pocketlint >/dev/null
+	# then
+	# 	pocketlint $PYFILES
+	# fi
 
-	if which flake8 >/dev/null
-	then
-		flake8 $PYFILES
-	fi
+        echo "Skipping flake8; it's not up to date with Python3."
+	# if which flake8 >/dev/null
+	# then
+	# 	flake8 $PYFILES
+	# fi
 }
 
 cpplint
