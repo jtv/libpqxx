@@ -220,9 +220,7 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
 
 pqxx::icursor_iterator::icursor_iterator(
   icursor_iterator const &rhs) noexcept :
-        m_stream{rhs.m_stream},
-        m_here{rhs.m_here},
-        m_pos{rhs.m_pos}
+        m_stream{rhs.m_stream}, m_here{rhs.m_here}, m_pos{rhs.m_pos}
 {
   if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
@@ -273,8 +271,8 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 }
 
 
-pqxx::icursor_iterator &pqxx::icursor_iterator::
-operator=(icursor_iterator const &rhs) noexcept
+pqxx::icursor_iterator &
+pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
   {

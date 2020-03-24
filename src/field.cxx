@@ -18,9 +18,7 @@
 
 
 pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :
-        m_col{c},
-        m_home{r.m_result},
-        m_row{r.m_index}
+        m_col{c}, m_home{r.m_result}, m_row{r.m_index}
 {}
 
 

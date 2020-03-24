@@ -41,9 +41,7 @@ void pqxx::internal::clear_result(pq::PGresult const *data)
 pqxx::result::result(
   pqxx::internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
   internal::encoding_group enc) :
-        m_data{make_data_pointer(rhs)},
-        m_query{query},
-        m_encoding(enc)
+        m_data{make_data_pointer(rhs)}, m_query{query}, m_encoding(enc)
 {}
 
 
@@ -456,8 +454,8 @@ pqxx::result::const_iterator pqxx::result::const_reverse_iterator::base() const
 }
 
 
-pqxx::const_reverse_result_iterator pqxx::const_reverse_result_iterator::
-operator++(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator++(int)
 {
   const_reverse_result_iterator tmp{*this};
   iterator_type::operator--();
@@ -465,8 +463,8 @@ operator++(int)
 }
 
 
-pqxx::const_reverse_result_iterator pqxx::const_reverse_result_iterator::
-operator--(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator--(int)
 {
   const_reverse_result_iterator tmp{*this};
   iterator_type::operator++();

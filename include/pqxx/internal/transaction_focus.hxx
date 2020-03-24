@@ -22,8 +22,7 @@ class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
   explicit transactionfocus(transaction_base &t) :
-          namedclass{"transactionfocus"},
-          m_trans{t}
+          namedclass{"transactionfocus"}, m_trans{t}
   {}
 
   transactionfocus() = delete;

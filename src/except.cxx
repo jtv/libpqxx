@@ -28,9 +28,7 @@ pqxx::broken_connection::broken_connection(std::string const &whatarg) :
 
 pqxx::sql_error::sql_error(
   std::string const &whatarg, std::string const &Q, char const sqlstate[]) :
-        failure{whatarg},
-        m_query{Q},
-        m_sqlstate{sqlstate ? sqlstate : ""}
+        failure{whatarg}, m_query{Q}, m_sqlstate{sqlstate ? sqlstate : ""}
 {}
 
 
