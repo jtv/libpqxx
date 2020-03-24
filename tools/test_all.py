@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """Brute-force test script: test libpqxx against many compilers etc."""
 
-# Without this, pocketlint does not understand the print function.
+# Without this, pocketlint does not yet understand the print function.
 from __future__ import print_function
 
 from argparse import ArgumentParser
@@ -19,17 +19,13 @@ from sys import (
 from tempfile import mkdtemp
 from textwrap import dedent
 
+# TODO: Try at least one CMake build.
 
-CXX = (
-    'g++-7',
-    'g++-8',
-    'g++-9',
-    'clang++-6.0',
-    'clang++-7',
-    'clang++-8',
-    'clang++-9',
-    'clang++-10',
-    )
+GCC_VERSIONS = list(range(7, 12))
+GCC = ['g++-%d' % ver for ver in GCC_VERSIONS]
+CLANG_VERSIONS = list(range(7, 12))
+CLANG = ['clang++-6.0'] + ['clang++-%d' % ver for ver in CLANG_VERSIONS]
+CXX = GCC + CLANG
 
 STDLIB = (
     '',
@@ -56,12 +52,14 @@ class Fail(Exception):
 
 
 def run(cmd, output):
+    """Run a command, write output to file-like object."""
     command_line = ' '.join(cmd)
     output.write("%s\n\n" % command_line)
     check_call(cmd, stdout=output, stderr=output)
 
 
 def build(configure, output):
+    """Perform a full configure-based build."""
     try:
         run(configure, output)
         run(['make', '-j8', 'clean'], output)
@@ -117,6 +115,7 @@ def check_compiler(work_dir, cxx, stdlib, verbose=False):
 
 
 def check_compilers(compilers, stdlibs, verbose=False):
+    """Check which compiler configurations are viable."""
     work_dir = make_work_dir()
     return [
         (cxx, stdlib)
@@ -126,9 +125,12 @@ def check_compilers(compilers, stdlibs, verbose=False):
     ]
 
 
-def try_build(logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
+def try_build(
+        logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts
+    ):
+    """Attempt to build in a given configuration."""
     log = os.path.join(
-         logs_dir, 'build-%s.out' % '_'.join([cxx, opt, stdlib, link, debug]))
+        logs_dir, 'build-%s.out' % '_'.join([cxx, opt, stdlib, link, debug]))
     print("%s... " % log, end='', flush=True)
     configure = [
         "./configure",
@@ -154,11 +156,12 @@ def try_build(logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
 
 
 def parse_args():
+    """Parse command-line arguments."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('--verbose', '-v', action='store_true')
     parser.add_argument(
         '--compilers', '-c', default=','.join(CXX),
-        help="Compilers to use, separated by commas.  Default is %(default)s.")
+        help="Compilers, separated by commas.  Default is %(default)s.")
     parser.add_argument(
         '--optimize', '-O', default=','.join(OPT),
         help=(
@@ -176,11 +179,14 @@ def parse_args():
 
 
 def main(args):
+    """Do it all."""
     if not os.path.isdir(args.logs):
         raise Fail("Logs location '%s' is not a directory." % args.logs)
+    print("\nChecking available compilers.")
     compilers = check_compilers(
         args.compilers.split(','), args.stdlibs.split(','),
         verbose=args.verbose)
+    print("\nStarting builds.")
     for opt in sorted(args.optimize.split(',')):
         for link, link_opts in sorted(LINK.items()):
             for debug, debug_opts in sorted(DEBUG.items()):

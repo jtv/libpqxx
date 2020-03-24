@@ -258,7 +258,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-with_postgres_include = @with_postgres_include@
 with_postgres_lib = @with_postgres_lib@
 EXTRA_DIST = m4/Makefile.am sample-headers
 MAINTAINERCLEANFILES = Makefile.in config.guess config.sub install-sh \

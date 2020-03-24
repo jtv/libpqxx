@@ -8,6 +8,9 @@
  - `from_string(field const &)` now handles null values properly.
  - Obsolete Windows build docs are gone.
  - Added `row::to(std::tuple<...>)`.
+7.0.6
+ - Prefer `pg_config` over `pkg-config` for include path (#291).
+ - Try to plod on if we don't know the PostgreSQL include path.
 7.0.5
  - Compile fix for g++ 10: include `<limits>` (#292).
  - Cleaned up error-checking of PG results.  (#280).

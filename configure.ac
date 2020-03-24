@@ -345,8 +345,8 @@ fi # No poll()
 
 
 # Find PostgreSQL includes and libraries
-AC_PATH_PROGS(PG_CONFIG, pg_config)
 AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+AC_PATH_PROGS(PG_CONFIG, pg_config)
 
 AC_ARG_WITH(
     [postgres-include],
@@ -357,30 +357,50 @@ AC_ARG_WITH(
         [test "x$with_postgres_include" = "xyes"],
         [with_postgres_include=""]))
 
-if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
-AS_IF(
-    [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PKG_CONFIG libpq --cflags | sed 's/^-I//' | sed 's/ *$//')])
-AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
-AC_SUBST(with_postgres_include)
-POSTGRES_INCLUDE="-I${with_postgres_include}"
-AC_SUBST(POSTGRES_INCLUDE)
-elif test -n "$PG_CONFIG" && test -x "$PG_CONFIG"; then
-AS_IF(
-    [test -z "$with_postgres_include"],
-    [with_postgres_include=$($PG_CONFIG --includedir)])
-AC_MSG_NOTICE([using PostgreSQL headers at $with_postgres_include])
-AC_SUBST(with_postgres_include)
-POSTGRES_INCLUDE="-I${with_postgres_include}"
-AC_SUBST(POSTGRES_INCLUDE)
+if test -n "$with_postgres_include"
+then
+    POSTGRES_INCLUDE="-I$with_postgres_include"
 else
-       AC_MSG_ERROR([
-Neither PostgreSQL configuration script pg_config nor pkg-config found.
-Make sure at least one of these is in your command path before configuring.
-Without either of them, the configure script has no way to find the right
-location for the libpq library and its headers.
-])
+    if test -x "$PKG_CONFIG" || test -x "$PG_CONFIG"
+    then
+        # We should prefer pkg-config over pg_config, but there seems to be a
+        # problem in pkg-config 1.6.3.  Until that's been resolved (#291), go
+        # with pg_config if we can.
+        if test -x "$PG_CONFIG"
+        then
+            # From pg_config we can either get the C compiler options used to
+            # compile postgres, which isn't quite what we want; or we can get
+            # the headers directory, without the full option.  That's something
+            # we can work with.  The compiler must support the "-I" option for
+            # that, but both scripts assume that anyway.
+            POSTGRES_INCLUDE="-I$($PG_CONFIG --includedir)"
+        else
+            # From pkg-config we can get the compiler options to extend the
+            # include path.  We use that.
+            POSTGRES_INCLUDE=$($PKG_CONFIG libpq --cflags-only-I)
+        fi
+        AC_MSG_NOTICE([finding PostgreSQL headers using $POSTGRES_INCLUDE])
+    else
+        POSTGRES_INCLUDE=""
+
+        # We have nothing to tell us where the libpq headers are.  That's fine
+        # if the compiler can find it, but if not, fail here.
+        AC_CHECK_HEADER(
+	        [libpq-fe.h],
+	        [],
+	[AC_MSG_ERROR([
+Can't find the main PostgreSQL client header, libpq-fe.h.  Make sure that it
+is installed, and either use the --with-postgres-include option or install
+pkg-config.
+])])
+    fi
 fi
+AC_SUBST(POSTGRES_INCLUDE)
+
+# Add the compiler option so we can compile configure tests which rely on the
+# libpq headers.
+CPPFLAGS="$CPPFLAGS $POSTGRES_INCLUDE"
+
 
 AC_ARG_WITH(
     [postgres-lib],
@@ -412,25 +432,18 @@ fi
 
 
 AC_CHECK_HEADER(
-	[${with_postgres_include}/libpq-fe.h],
+	[libpq-fe.h],
 	[],
 	[AC_MSG_ERROR([
-Can't find libpq-fe.h in ${with_postgres_include}.  Are you sure the libpq
-headers are installed correctly?  They should be in the directory returned by
-"pg_config --includedir" or "pkg-config libpq --cflags".
-
-If you do have libpq (the C-language client library for PostgreSQL) installed,
-make sure you have the related development materials--mainly its header files--
-as well as the library binary.  Some system distributions keep the two in
-seperate packages with names like "alibrary" and "alibrary-dev", respectively.
-In that case, make sure you have the latter installed as well.
+Can't find the main PostgreSQL client header, libpq-fe.h.  Are you sure the
+libpq headers are installed correctly, and that we've got the right path?
 ])])
 
 
 AC_MSG_CHECKING([for ability to compile source files using libpq])
 AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM(
-		[[#include<${with_postgres_include}/libpq-fe.h>]],
+		[[#include<libpq-fe.h>]],
 		[[PQexec(nullptr,"")]]
 	)],
 	[],
@@ -480,7 +493,7 @@ AC_MSG_CHECKING([for PQencryptPasswordConn])
 have_pqencryptpasswordconn=yes
 AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM(
-		[#include<${with_postgres_include}/libpq-fe.h>],
+		[#include<libpq-fe.h>],
 		[
 			extern PGconn *conn;
 			PQencryptPasswordConn(
@@ -503,7 +516,7 @@ AC_MSG_CHECKING([that type of libpq's Oid is as expected])
 AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM(
 		[
-			#include<${with_postgres_include}/libpq-fe.h>
+			#include<libpq-fe.h>
 			#include"${srcdir}/include/pqxx/internal/libpq-forward.hxx"
 			extern void f(pqxx::oid&);
 		],
