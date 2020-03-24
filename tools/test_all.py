@@ -47,6 +47,12 @@ DEBUG = {
 }
 
 
+CMAKE_GENERATORS = {
+    'Ninja': 'ninja',
+    None: 'make',
+}
+
+
 class Fail(Exception):
     """A known, well-handled exception.  Doesn't need a traceback."""
 
@@ -114,6 +120,8 @@ def check_compiler(work_dir, cxx, stdlib, verbose=False):
         return True
 
 
+# TODO: Manage work dirs!
+# TODO: Out-of-tree build.
 def check_compilers(compilers, stdlibs, verbose=False):
     """Check which compiler configurations are viable."""
     work_dir = make_work_dir()
@@ -153,6 +161,42 @@ def try_build(
 
     with open(log, 'w') as output:
         build(configure, output)
+
+
+def prepare_cmake(work_dir, verbose=False):
+    """Set up a CMake build dir, ready to build.
+
+    Returns the directory, and if successful, the command you need to run in
+    order to do the build.
+    """
+    print("\nLooking for CMake generator.")
+    for gen, cmd in CMAKE_GENERATORS.items():
+        name = gen or '<default>'
+        cmake = ['cmake', '-B', work_dir]
+        if gen is not None:
+            cmake += ['-G', gen]
+        try:
+            check_call(cmake)
+        except FileNotFoundError:
+            print("No cmake found.  Skipping.")
+        except CalledProcessError:
+            print("CMake generator %s is not available.  Skipping." % name)
+        else:
+            return cmd
+
+
+def build_with_cmake(verbose=False):
+    """Build using CMake.  Use the first generator that works."""
+    work_dir = mkdtemp()
+    try:
+        generator = prepare_cmake(work_dir, verbose)
+        if generator is None:
+            print("No CMake generators found.  Skipping CMake build.")
+        else:
+            print("Building with CMake and %s." % generator)
+            check_call([generator], cwd=work_dir)
+    finally:
+        rmtree(work_dir)
 
 
 def parse_args():
@@ -195,6 +239,8 @@ def main(args):
                         logs_dir=args.logs, cxx=cxx, opt=opt, stdlib=stdlib,
                         link=link, link_opts=link_opts, debug=debug,
                         debug_opts=debug_opts)
+
+    build_with_cmake(verbose=args.verbose)
 
 
 if __name__ == '__main__':
