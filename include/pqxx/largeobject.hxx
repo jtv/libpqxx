@@ -378,7 +378,10 @@ public:
   largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
+          m_bufsize{buf_size},
+          m_obj{t, o, mode},
+          m_g{nullptr},
+          m_p{nullptr}
   {
     initialize(mode);
   }
@@ -386,7 +389,10 @@ public:
   largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
+          m_bufsize{buf_size},
+          m_obj{t, o, mode},
+          m_g{nullptr},
+          m_p{nullptr}
   {
     initialize(mode);
   }

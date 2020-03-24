@@ -19,7 +19,8 @@
 
 pqxx::internal::basic_transaction::basic_transaction(
   connection &c, char const begin_command[]) :
-        namedclass{"transaction"}, dbtransaction(c)
+        namedclass{"transaction"},
+        dbtransaction(c)
 {
   register_transaction();
   direct_exec(begin_command);

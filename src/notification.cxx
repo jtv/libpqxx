@@ -19,7 +19,8 @@
 
 pqxx::notification_receiver::notification_receiver(
   connection &c, std::string_view channel) :
-        m_conn{c}, m_channel{channel}
+        m_conn{c},
+        m_channel{channel}
 {
   pqxx::internal::gate::connection_notification_receiver{c}.add_receiver(this);
 }

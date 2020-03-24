@@ -99,7 +99,8 @@ std::string pqxx::encrypt_password(char const user[], char const password[])
 
 
 pqxx::connection::connection(connection &&rhs) :
-        m_conn{rhs.m_conn}, m_unique_id{rhs.m_unique_id}
+        m_conn{rhs.m_conn},
+        m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable();
   rhs.m_conn = nullptr;

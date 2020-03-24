@@ -22,7 +22,8 @@ class TestListener final : public notification_receiver
 
 public:
   explicit TestListener(connection_base &conn) :
-          notification_receiver(conn, "listen"), m_done(false)
+          notification_receiver(conn, "listen"),
+          m_done(false)
   {}
 
   virtual void operator()(std::string const &, int be_pid) override

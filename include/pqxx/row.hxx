@@ -478,15 +478,15 @@ operator+(const_row_iterator::difference_type o, const_row_iterator const &i)
   return i + o;
 }
 
-inline const_row_iterator
-const_row_iterator::operator-(difference_type o) const
+inline const_row_iterator const_row_iterator::
+operator-(difference_type o) const
 {
   return const_row_iterator{row(home(), idx()),
                             size_type(difference_type(col()) - o)};
 }
 
-inline const_row_iterator::difference_type
-const_row_iterator::operator-(const_row_iterator const &i) const
+inline const_row_iterator::difference_type const_row_iterator::
+operator-(const_row_iterator const &i) const
 {
   return difference_type(num() - i.num());
 }

@@ -23,7 +23,9 @@ extern "C"
 
 
 pqxx::row::row(result const &r, result::size_type i) noexcept :
-        m_result{r}, m_index{i}, m_end{r.columns()}
+        m_result{r},
+        m_index{i},
+        m_end{r.columns()}
 {}
 
 
@@ -224,8 +226,8 @@ pqxx::const_row_iterator pqxx::const_reverse_row_iterator::base() const
 }
 
 
-pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator++(int)
+pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
+operator++(int)
 {
   auto tmp{*this};
   operator++();
@@ -233,8 +235,8 @@ pqxx::const_reverse_row_iterator::operator++(int)
 }
 
 
-pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator--(int)
+pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
+operator--(int)
 {
   auto tmp{*this};
   operator--();

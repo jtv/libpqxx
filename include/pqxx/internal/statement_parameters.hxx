@@ -59,7 +59,9 @@ class dynamic_params
 public:
   /// Wrap a sequence of pointers or iterators.
   constexpr dynamic_params(IT begin, IT end) :
-          m_begin(begin), m_end(end), m_accessor(iterator_identity<IT>)
+          m_begin(begin),
+          m_end(end),
+          m_accessor(iterator_identity<IT>)
   {}
 
   /// Wrap a sequence of pointers or iterators.
@@ -68,7 +70,9 @@ public:
    * @c acc(p).
    */
   constexpr dynamic_params(IT begin, IT end, ACCESSOR &acc) :
-          m_begin(begin), m_end(end), m_accessor(acc)
+          m_begin(begin),
+          m_end(end),
+          m_accessor(acc)
   {}
 
   /// Wrap a container.
