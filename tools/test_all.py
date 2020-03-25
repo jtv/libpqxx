@@ -19,7 +19,6 @@ from sys import (
 from tempfile import mkdtemp
 from textwrap import dedent
 
-# TODO: Try at least one CMake build.
 
 GCC_VERSIONS = list(range(7, 12))
 GCC = ['g++-%d' % ver for ver in GCC_VERSIONS]
@@ -47,6 +46,11 @@ DEBUG = {
 }
 
 
+# Generators to use with CMake.  I prefer Ninja if available, because it's
+# fast.  But hey, "make" will work.
+#
+# Maps the name of the generator (as used with cmake's -G option) to the
+# actual build command.  Why can't these just be the same!?
 CMAKE_GENERATORS = {
     'Ninja': 'ninja',
     None: 'make',
@@ -175,14 +179,20 @@ def prepare_cmake(work_dir, verbose=False):
         cmake = ['cmake', '-B', work_dir]
         if gen is not None:
             cmake += ['-G', gen]
+        if verbose:
+            print("Trying CMake with %s." % name)
+
         try:
             check_call(cmake)
         except FileNotFoundError:
             print("No cmake found.  Skipping.")
+            return None
         except CalledProcessError:
             print("CMake generator %s is not available.  Skipping." % name)
         else:
             return cmd
+
+    return None
 
 
 def build_with_cmake(verbose=False):
@@ -227,9 +237,15 @@ def main(args):
     if not os.path.isdir(args.logs):
         raise Fail("Logs location '%s' is not a directory." % args.logs)
     print("\nChecking available compilers.")
+    compiler_candidates = args.compilers.split(',')
     compilers = check_compilers(
-        args.compilers.split(','), args.stdlibs.split(','),
+        compiler_candidates, args.stdlibs.split(','),
         verbose=args.verbose)
+    if list(compilers) == []:
+        raise Fail(
+            "Did not find any viable compilers.  Tried: %s."
+            % ', '.join(compiler_candidates))
+
     print("\nStarting builds.")
     for opt in sorted(args.optimize.split(',')):
         for link, link_opts in sorted(LINK.items()):
