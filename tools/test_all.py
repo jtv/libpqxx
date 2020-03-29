@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-"""Brute-force test script: test libpqxx against many compilers etc."""
+"""Brute-force test script: test libpqxx against many compilers etc.
+
+This script makes no changes in the source tree; all builds happen in
+temporary directories.
+
+To make this possible, you may need to run "make distclean" in the
+source tree.  The configure script will refuse to configure otherwise.
+"""
 
 # Without this, pocketlint does not yet understand the print function.
 from __future__ import print_function
@@ -103,6 +110,9 @@ def build(configure, output):
         except CalledProcessError:
             output.flush()
             if file_contains(output.name, "make distclean"):
+                # Looks like that special "configure" error where the source
+                # tree is already configured.  Tell the user about this special
+                # case without requiring them to dig deeper.
                 raise Fail(
                     "Configure failed.  "
                     "Did you remember to 'make distclean' the source tree?")
