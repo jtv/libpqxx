@@ -13,7 +13,10 @@ from __future__ import print_function
 
 from argparse import ArgumentParser
 from contextlib import contextmanager
-from os import getcwd
+from os import (
+    cpu_count,
+    getcwd,
+    )
 import os.path
 from shutil import rmtree
 from subprocess import (
@@ -28,6 +31,8 @@ from sys import (
 from tempfile import mkdtemp
 from textwrap import dedent
 
+
+CPUS = cpu_count()
 
 GCC_VERSIONS = list(range(7, 12))
 GCC = ['g++-%d' % ver for ver in GCC_VERSIONS]
@@ -55,9 +60,11 @@ DEBUG = {
 }
 
 
+# CMake "generators."  Maps a value for cmake's -G option (None for default) to
+# a command line to run.
 CMAKE_GENERATORS = {
-    'Ninja': 'ninja',
-    None: 'make',
+    'Ninja': ['ninja'],
+    None: ['make', '-j%d' % CPUS],
 }
 
 
@@ -101,7 +108,6 @@ def file_contains(path, text):
     return False
 
 
-# TODO: Variable number of CPUs.
 def build(configure, output):
     """Perform a full configure-based build."""
     with tmp_dir() as work_dir:
@@ -119,8 +125,8 @@ def build(configure, output):
             return report_failure("configure failed.")
 
         try:
-            run(['make', '-j8'], output, cwd=work_dir)
-            run(['make', '-j8', 'check'], output, cwd=work_dir)
+            run(['make', '-j%d' % CPUS], output, cwd=work_dir)
+            run(['make', '-j%d' % CPUS, 'check'], output, cwd=work_dir)
         except CalledProcessError as err:
             return report_failure(output, err)
         else:
@@ -171,7 +177,7 @@ def check_compiler(work_dir, cxx, stdlib, check, verbose=False):
         if verbose:
             with open(err_file) as errors:
                 stdout.write(errors.read())
-        print("Can't build with '%s %s'.  Skipping." % (cxx, stdlib))
+            print("Can't build with '%s %s'.  Skipping." % (cxx, stdlib))
         return False
     else:
         return True
@@ -220,13 +226,14 @@ def try_build(
         build(configure, output)
 
 
-def prepare_cmake(work_dir, verbose=False):
+def prepare_cmake(work_dir, output, verbose=False):
     """Set up a CMake build dir, ready to build.
 
     Returns the directory, and if successful, the command you need to run in
     order to do the build.
     """
-    print("\nLooking for CMake generator.")
+    if verbose:
+        print("\nLooking for CMake generator.")
     source_dir = getcwd()
     for gen, cmd in CMAKE_GENERATORS.items():
         name = gen or '<default>'
@@ -234,7 +241,7 @@ def prepare_cmake(work_dir, verbose=False):
         if gen is not None:
             cmake += ['-G', gen]
         try:
-            check_call(cmake, cwd=work_dir)
+            run(cmake, output=output, cwd=work_dir)
         except FileNotFoundError:
             print("No cmake found.  Skipping.")
         except CalledProcessError:
@@ -243,15 +250,27 @@ def prepare_cmake(work_dir, verbose=False):
             return cmd
 
 
-def build_with_cmake(verbose=False):
+def build_with_cmake(logs_dir, verbose=False):
     """Build using CMake.  Use the first generator that works."""
-    with tmp_dir() as work_dir:
-        generator = prepare_cmake(work_dir, verbose)
-        if generator is None:
-            print("No CMake generators found.  Skipping CMake build.")
+    log = os.path.join(logs_dir, "build-cmake.out")
+    print("%s... " % log, end='', flush=True)
+    with tmp_dir() as work_dir, open(log, 'w') as output:
+        try:
+            command = prepare_cmake(work_dir, output, verbose)
+            if command is None:
+                return report_fail(
+                    output,
+                    "No CMake generators found.  Skipping CMake build.")
+            else:
+                if verbose:
+                    print("Building with CMake and '%s'." % ' '.join(command))
+                run(command, output, cwd=work_dir)
+                run(['test/unit/unit_runner'], output, cwd=work_dir)
+                run(['test/runner'], output, cwd=work_dir)
+        except CalledProcessError:
+            return report_fail(output, "CMake build failed.")
         else:
-            print("Building with CMake and %s." % generator)
-            check_call([generator], cwd=work_dir)
+            return report_success(output)
 
 
 def parse_args():
@@ -272,8 +291,16 @@ def parse_args():
             "Comma-separated options for choosing standard library.  "
             "Defaults to %(default)s."))
     parser.add_argument(
-        '--logs', '-l', default='.', metavar="DIRECTORY",
+        '--logs', '-l', default='.', metavar='DIRECTORY',
         help="Write build logs to DIRECTORY.")
+    parser.add_argument(
+        '--jobs', '-j', default=CPUS, metavar='CPUS',
+        help=(
+            "When running 'make', run up to CPUS concurrent processes.  "
+            "Defaults to %(default)s."))
+    parser.add_argument(
+        '--minimal', '-m', action='store_true',
+        help="Make it as short a run as possible.  For testing this script.")
     return parser.parse_args()
 
 
@@ -281,22 +308,36 @@ def main(args):
     """Do it all."""
     if not os.path.isdir(args.logs):
         raise Fail("Logs location '%s' is not a directory." % args.logs)
-    print("\nChecking available compilers.")
+    if args.verbose:
+        print("\nChecking available compilers.")
     compilers = check_compilers(
         args.compilers.split(','), args.stdlibs.split(','),
         verbose=args.verbose)
+
+
+    opt_levels = args.optimize.split(',')
+    link_types = LINK.items()
+    debug_mixes = DEBUG.items()
+
+    if args.minimal:
+        compilers = compilers[:1]
+        opt_levels = opt_levels[:1]
+        link_types = list(link_types)[:1]
+        debug_mixes = list(debug_mixes)[:1]
+
     print("\nStarting builds.")
-    for opt in sorted(args.optimize.split(',')):
-        for link, link_opts in sorted(LINK.items()):
-            for debug, debug_opts in sorted(DEBUG.items()):
+    for opt in sorted(opt_levels):
+        for link, link_opts in sorted(link_types):
+            for debug, debug_opts in sorted(debug_mixes):
                 for cxx, stdlib in compilers:
                     try_build(
                         logs_dir=args.logs, cxx=cxx, opt=opt, stdlib=stdlib,
                         link=link, link_opts=link_opts, debug=debug,
                         debug_opts=debug_opts)
 
-    print("\nBuilding with CMake.")
-    build_with_cmake(verbose=args.verbose)
+    if args.verbose:
+        print("\nBuilding with CMake.")
+    build_with_cmake(args.logs, verbose=args.verbose)
 
 
 if __name__ == '__main__':
