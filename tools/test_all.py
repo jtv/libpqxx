@@ -5,6 +5,8 @@
 from __future__ import print_function
 
 from argparse import ArgumentParser
+from contextlib import contextmanager
+from os import getcwd
 import os.path
 from shutil import rmtree
 from subprocess import (
@@ -19,7 +21,6 @@ from sys import (
 from tempfile import mkdtemp
 from textwrap import dedent
 
-# TODO: Try at least one CMake build.
 
 GCC_VERSIONS = list(range(7, 12))
 GCC = ['g++-%d' % ver for ver in GCC_VERSIONS]
@@ -57,48 +58,94 @@ class Fail(Exception):
     """A known, well-handled exception.  Doesn't need a traceback."""
 
 
-def run(cmd, output):
+def run(cmd, output, cwd=None):
     """Run a command, write output to file-like object."""
     command_line = ' '.join(cmd)
     output.write("%s\n\n" % command_line)
-    check_call(cmd, stdout=output, stderr=output)
+    check_call(cmd, stdout=output, stderr=output, cwd=cwd)
 
 
+def report(output, message):
+    """Report a message to output, and standard output."""
+    print(message)
+    output.write('\n\n')
+    output.write(message)
+    output.write('\n')
+
+
+def report_success(output):
+    """Report a succeeded build."""
+    report(output, "OK")
+    return True
+
+
+def report_failure(output, error):
+    """Report a failed build."""
+    report(output, "FAIL: %s" % error)
+    return False
+
+
+def file_contains(path, text):
+    """Does the file at path contain text?"""
+    with open(path) as stream:
+        for line in stream:
+            if text in line:
+                return True
+    return False
+
+
+# TODO: Variable number of CPUs.
 def build(configure, output):
     """Perform a full configure-based build."""
+    with tmp_dir() as work_dir:
+        try:
+            run(configure, output, cwd=work_dir)
+        except CalledProcessError:
+            output.flush()
+            if file_contains(output.name, "make distclean"):
+                raise Fail(
+                    "Configure failed.  "
+                    "Did you remember to 'make distclean' the source tree?")
+            return report_failure("configure failed.")
+
+        try:
+            run(['make', '-j8'], output, cwd=work_dir)
+            run(['make', '-j8', 'check'], output, cwd=work_dir)
+        except CalledProcessError as err:
+            return report_failure(output, err)
+        else:
+            return report_success(output)
+
+
+@contextmanager
+def tmp_dir():
+    """Create a temporary directory, and clean it up again."""
+    tmp = mkdtemp()
     try:
-        run(configure, output)
-        run(['make', '-j8', 'clean'], output)
-        run(['make', '-j8'], output)
-        run(['make', '-j8', 'check'], output)
-    except CalledProcessError as err:
-        print("FAIL: %s" % err)
-        output.write("\n\nFAIL: %s\n" % err)
-    else:
-        print("OK")
-        output.write("\n\nOK\n")
+        yield tmp
+    finally:
+        rmtree(tmp)
 
 
-def make_work_dir():
-    """Set up a scratch directory where we can test for compiler support."""
-    work_dir = mkdtemp()
-    try:
-        with open(os.path.join(work_dir, 'check.cxx'), 'w') as source:
-            source.write(dedent("""\
-                #include <iostream>
-                int main()
-                {
-                    std::cout << "Hello world." << std::endl;
-                }
-                """))
+def write_check_code(work_dir):
+    """Write a simple C++ program so we can tesst whether we can compile it.
 
-        return work_dir
-    except Exception:
-        rmtree(work_dir)
-        raise
+    Returns the file's full path.
+    """
+    path = os.path.join(work_dir, "check.cxx")
+    with open(path, 'w') as source:
+        source.write(dedent("""\
+            #include <iostream>
+            int main()
+            {
+                std::cout << "Hello world." << std::endl;
+            }
+            """))
+
+    return path
 
 
-def check_compiler(work_dir, cxx, stdlib, verbose=False):
+def check_compiler(work_dir, cxx, stdlib, check, verbose=False):
     """Is the given compiler combo available?"""
     err_file = os.path.join(work_dir, 'stderr.log')
     if verbose:
@@ -120,17 +167,17 @@ def check_compiler(work_dir, cxx, stdlib, verbose=False):
         return True
 
 
-# TODO: Manage work dirs!
-# TODO: Out-of-tree build.
 def check_compilers(compilers, stdlibs, verbose=False):
     """Check which compiler configurations are viable."""
-    work_dir = make_work_dir()
-    return [
-        (cxx, stdlib)
-        for stdlib in stdlibs
-        for cxx in compilers
-        if check_compiler(work_dir, cxx, stdlib, verbose=verbose)
-    ]
+    with tmp_dir() as work_dir:
+        check = write_check_code(work_dir)
+        return [
+            (cxx, stdlib)
+            for stdlib in stdlibs
+            for cxx in compilers
+            if check_compiler(
+                work_dir, cxx, stdlib, check=check, verbose=verbose)
+        ]
 
 
 def try_build(
@@ -141,7 +188,7 @@ def try_build(
         logs_dir, 'build-%s.out' % '_'.join([cxx, opt, stdlib, link, debug]))
     print("%s... " % log, end='', flush=True)
     configure = [
-        "./configure",
+        os.path.join(getcwd(), "configure"),
         "CXX=%s" % cxx,
         ]
 
@@ -170,13 +217,14 @@ def prepare_cmake(work_dir, verbose=False):
     order to do the build.
     """
     print("\nLooking for CMake generator.")
+    source_dir = getcwd()
     for gen, cmd in CMAKE_GENERATORS.items():
         name = gen or '<default>'
-        cmake = ['cmake', '-B', work_dir]
+        cmake = ['cmake', source_dir]
         if gen is not None:
             cmake += ['-G', gen]
         try:
-            check_call(cmake)
+            check_call(cmake, cwd=work_dir)
         except FileNotFoundError:
             print("No cmake found.  Skipping.")
         except CalledProcessError:
@@ -187,16 +235,13 @@ def prepare_cmake(work_dir, verbose=False):
 
 def build_with_cmake(verbose=False):
     """Build using CMake.  Use the first generator that works."""
-    work_dir = mkdtemp()
-    try:
+    with tmp_dir() as work_dir:
         generator = prepare_cmake(work_dir, verbose)
         if generator is None:
             print("No CMake generators found.  Skipping CMake build.")
         else:
             print("Building with CMake and %s." % generator)
             check_call([generator], cwd=work_dir)
-    finally:
-        rmtree(work_dir)
 
 
 def parse_args():
@@ -240,6 +285,7 @@ def main(args):
                         link=link, link_opts=link_opts, debug=debug,
                         debug_opts=debug_opts)
 
+    print("\nBuilding with CMake.")
     build_with_cmake(verbose=args.verbose)
 
 
