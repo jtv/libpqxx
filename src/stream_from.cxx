@@ -19,7 +19,7 @@
 
 namespace
 {
-void begin_copy_table(
+void begin_copy(
   pqxx::transaction_base &tx, std::string_view table,
   std::string const &columns)
 {
@@ -78,7 +78,7 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx},
         m_glyph_scanner{get_scanner(tx)}
 {
-  begin_copy_table(tx, table, "");
+  begin_copy(tx, table, "");
   register_me();
 }
 
@@ -90,7 +90,7 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx},
         m_glyph_scanner{get_scanner(tx)}
 {
-  begin_copy_table(tx, table, columns);
+  begin_copy(tx, table, columns);
   register_me();
 }
 
