@@ -300,7 +300,7 @@ public:
   template<typename... TYPE>[[nodiscard]] auto stream(std::string_view query)
   {
     return pqxx::internal::owning_stream_input_iteration<TYPE...>{
-      std::make_unique<pqxx::stream_from>(*this, from_query, query)};
+      std::make_unique<pqxx::stream_from>(*this, from_query_t{}, query)};
   }
 
   /**

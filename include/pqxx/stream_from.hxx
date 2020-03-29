@@ -25,19 +25,16 @@
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/internal/transaction_focus.hxx"
 #include "pqxx/separated_list.hxx"
+#include "pqxx/transaction_base.hxx"
 
 
 namespace pqxx
 {
-/// Marker: "stream from table."
-struct from_table_t
-{
-} const from_table;
+/// Pass this to a @c stream_from constructor to stream table contents.
+constexpr from_table_t from_table;
+/// Pass this to a @c stream_from constructor to stream query results.
+constexpr from_query_t from_query;
 
-/// Marker: "stream from query."
-struct from_query_t
-{
-} const from_query;
 
 /// Stream data from the database.
 /** Retrieving data this way is likely to be faster than executing a query and
@@ -51,6 +48,11 @@ struct from_query_t
  * opening a stream puts the connection in a special state, so you won't be
  * able to do many other things with the connection or the transaction while
  * the stream is open.
+ *
+ * There are two ways of starting a stream: you stream either all rows in a
+ * table (in which case, use a constructor which accepts @c pqxx::from_table),
+ * or the results of a query (in which case, use a concstructor which accepts
+ * @c pqxx::from_query).
  *
  * Usually you'll want the @c stream convenience wrapper in transaction_base,
  * so you don't need to deal with this class directly.
@@ -155,6 +157,10 @@ private:
   {
     (extract_value<Tuple, indexes>(t), ...);
   }
+
+  static std::string compose_query(
+    transaction_base const &tx, std::string_view table,
+    std::string const &columns);
 
   pqxx::internal::glyph_scanner_func *m_glyph_scanner;
 
