@@ -17,10 +17,8 @@
 #include "pqxx/transaction_base.hxx"
 
 
-namespace
-{
-void begin_copy_table(
-  pqxx::transaction_base &tx, std::string_view table,
+std::string pqxx::stream_from::compose_query(
+  pqxx::transaction_base const &tx, std::string_view table,
   std::string const &columns)
 {
   constexpr std::string_view copy{"COPY "}, to_stdout{" TO STDOUT"};
@@ -40,11 +38,12 @@ void begin_copy_table(
   }
 
   command += to_stdout;
-
-  tx.exec0(command);
+  return command;
 }
 
 
+namespace
+{
 pqxx::internal::glyph_scanner_func *
 get_scanner(pqxx::transaction_base const &tx)
 {
@@ -78,7 +77,8 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx},
         m_glyph_scanner{get_scanner(tx)}
 {
-  begin_copy_table(tx, table, "");
+  auto const command{compose_query(tx, table, "")};
+  tx.exec0(command);
   register_me();
 }
 
@@ -90,7 +90,8 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx},
         m_glyph_scanner{get_scanner(tx)}
 {
-  begin_copy_table(tx, table, columns);
+  auto const command{compose_query(tx, table, columns)};
+  tx.exec0(command);
   register_me();
 }
 

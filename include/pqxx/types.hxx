@@ -50,6 +50,14 @@ class result;
 class row;
 class stream_from;
 class transaction_base;
+
+/// Marker for @c stream_from constructors: "stream from table."
+struct from_table_t
+{};
+
+/// Marker for @c stream_from constructors: "stream from query."
+struct from_query_t
+{};
 } // namespace pqxx
 
 #endif
