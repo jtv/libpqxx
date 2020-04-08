@@ -290,7 +290,7 @@ template<> struct string_traits<char const *>
 template<> struct nullness<char *>
 {
   static constexpr bool has_null = true;
-  static constexpr bool is_null(char const *t) { return t == nullptr; }
+  static constexpr bool is_null(char const *t) noexcept { return t == nullptr; }
   static constexpr char const *null() { return nullptr; }
 };
 
@@ -547,7 +547,7 @@ template<typename Container> struct array_string_traits
     bool nonempty{false};
     for (auto const &elt : value)
     {
-      if (nullness<elt_type>::is_null(elt))
+      if (is_null(elt))
       {
         s_null.copy(here, s_null.size());
         here += s_null.size();
@@ -592,7 +592,7 @@ template<typename Container> struct array_string_traits
              [](std::size_t acc, elt_type const &elt) {
                // Opening and closing quotes, plus worst-case escaping, but
                // don't count the trailing zeroes.
-               std::size_t const elt_size{nullness<elt_type>::is_null(elt) ?
+               std::size_t const elt_size{pqxx::is_null(elt) ?
                                             s_null.size() :
                                             elt_traits::size_buffer(elt) - 1};
                return acc + 2 * elt_size + 2;
