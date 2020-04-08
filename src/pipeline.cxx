@@ -328,9 +328,9 @@ void pqxx::pipeline::obtain_dummy()
     {
       m_num_waiting--;
       auto const query{*m_issuedrange.first->second.query};
-      result const res{m_trans.exec(query)};
-      m_issuedrange.first->second.res = res;
-      pqxx::internal::gate::result_creation{res}.check_status();
+      auto &holder{m_issuedrange.first->second};
+      holder.res = m_trans.exec(query);
+      pqxx::internal::gate::result_creation{holder.res}.check_status();
       ++m_issuedrange.first;
     } while (m_issuedrange.first != stop);
   }
