@@ -14,6 +14,22 @@
 
 @SET_MAKE@
 
+################################################################################
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
+#
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
+#
+# If you modify this file, chances are your modifications will be lost.
+#
+# The template2mak.py script should be available in the tools directory of the
+# libpqxx source archive.
+#
+# Generated from template './test/Makefile.am.template'.
+################################################################################
+# Makefile.am is generated automatically for automake whenever test programs are
+# added to libpqxx.
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -125,7 +141,26 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test77.$(OBJEXT) test78.$(OBJEXT) test79.$(OBJEXT) \
 	test82.$(OBJEXT) test84.$(OBJEXT) test87.$(OBJEXT) \
 	test88.$(OBJEXT) test89.$(OBJEXT) test90.$(OBJEXT) \
-	test93.$(OBJEXT) runner.$(OBJEXT)
+	test93.$(OBJEXT) test_array.$(OBJEXT) \
+	test_binarystring.$(OBJEXT) test_cancel_query.$(OBJEXT) \
+	test_connection.$(OBJEXT) test_cursor.$(OBJEXT) \
+	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
+	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
+	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
+	test_float.$(OBJEXT) test_largeobject.$(OBJEXT) \
+	test_notification.$(OBJEXT) test_pipeline.$(OBJEXT) \
+	test_prepared_statement.$(OBJEXT) \
+	test_read_transaction.$(OBJEXT) \
+	test_result_iteration.$(OBJEXT) test_result_slicing.$(OBJEXT) \
+	test_row.$(OBJEXT) test_separated_list.$(OBJEXT) \
+	test_simultaneous_transactions.$(OBJEXT) \
+	test_sql_cursor.$(OBJEXT) test_stateless_cursor.$(OBJEXT) \
+	test_strconv.$(OBJEXT) test_stream_from.$(OBJEXT) \
+	test_stream_to.$(OBJEXT) test_string_conversion.$(OBJEXT) \
+	test_subtransaction.$(OBJEXT) test_test_helpers.$(OBJEXT) \
+	test_thread_safety_model.$(OBJEXT) test_transaction.$(OBJEXT) \
+	test_transaction_base.$(OBJEXT) test_transactor.$(OBJEXT) \
+	test_type_name.$(OBJEXT) runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 am__DEPENDENCIES_1 =
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
@@ -169,28 +204,12 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(runner_SOURCES)
 DIST_SOURCES = $(runner_SOURCES)
-RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
-	ctags-recursive dvi-recursive html-recursive info-recursive \
-	install-data-recursive install-dvi-recursive \
-	install-exec-recursive install-html-recursive \
-	install-info-recursive install-pdf-recursive \
-	install-ps-recursive install-recursive installcheck-recursive \
-	installdirs-recursive pdf-recursive ps-recursive \
-	tags-recursive uninstall-recursive
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 HEADERS = $(noinst_HEADERS)
-RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
-  distclean-recursive maintainer-clean-recursive
-am__recursive_targets = \
-  $(RECURSIVE_TARGETS) \
-  $(RECURSIVE_CLEAN_TARGETS) \
-  $(am__extra_recursive_targets)
-AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
-	distdir
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -232,35 +251,9 @@ am__tty_colors = { \
     std='[m'; \
   fi; \
 }
-DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/config/depcomp \
 	$(top_srcdir)/config/mkinstalldirs
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-am__relativize = \
-  dir0=`pwd`; \
-  sed_first='s,^\([^/]*\)/.*$$,\1,'; \
-  sed_rest='s,^[^/]*/*,,'; \
-  sed_last='s,^.*/\([^/]*\)$$,\1,'; \
-  sed_butlast='s,/*[^/]*$$,,'; \
-  while test -n "$$dir1"; do \
-    first=`echo "$$dir1" | sed -e "$$sed_first"`; \
-    if test "$$first" != "."; then \
-      if test "$$first" = ".."; then \
-        dir2=`echo "$$dir0" | sed -e "$$sed_last"`/"$$dir2"; \
-        dir0=`echo "$$dir0" | sed -e "$$sed_butlast"`; \
-      else \
-        first2=`echo "$$dir2" | sed -e "$$sed_first"`; \
-        if test "$$first2" = "$$first"; then \
-          dir2=`echo "$$dir2" | sed -e "$$sed_rest"`; \
-        else \
-          dir2="../$$dir2"; \
-        fi; \
-        dir0="$$dir0"/"$$first"; \
-      fi; \
-    fi; \
-    dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
-  done; \
-  reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
@@ -395,23 +388,6 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
-
-################################################################################
-# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
-#
-# This file is generated automatically by libpqxx's template2mak.py script, and
-# will be rewritten from time to time.
-#
-# If you modify this file, chances are your modifications will be lost.
-#
-# The template2mak.py script should be available in the tools directory of the
-# libpqxx source archive.
-#
-# Generated from template './test/Makefile.am.template'.
-################################################################################
-# Makefile.am is generated automatically for automake whenever test programs are
-# added to libpqxx.
-SUBDIRS = unit
 EXTRA_DIST = Makefile.am.template
 
 # Use the serial test runner, so tests don't get run in parallel.  Otherwise,
@@ -485,10 +461,45 @@ runner_SOURCES = \
   test89.cxx \
   test90.cxx \
   test93.cxx \
+  unit/test_array.cxx \
+  unit/test_binarystring.cxx \
+  unit/test_cancel_query.cxx \
+  unit/test_connection.cxx \
+  unit/test_cursor.cxx \
+  unit/test_encodings.cxx \
+  unit/test_error_verbosity.cxx \
+  unit/test_errorhandler.cxx \
+  unit/test_escape.cxx \
+  unit/test_exceptions.cxx \
+  unit/test_field.cxx \
+  unit/test_float.cxx \
+  unit/test_largeobject.cxx \
+  unit/test_notification.cxx \
+  unit/test_pipeline.cxx \
+  unit/test_prepared_statement.cxx \
+  unit/test_read_transaction.cxx \
+  unit/test_result_iteration.cxx \
+  unit/test_result_slicing.cxx \
+  unit/test_row.cxx \
+  unit/test_separated_list.cxx \
+  unit/test_simultaneous_transactions.cxx \
+  unit/test_sql_cursor.cxx \
+  unit/test_stateless_cursor.cxx \
+  unit/test_strconv.cxx \
+  unit/test_stream_from.cxx \
+  unit/test_stream_to.cxx \
+  unit/test_string_conversion.cxx \
+  unit/test_subtransaction.cxx \
+  unit/test_test_helpers.cxx \
+  unit/test_thread_safety_model.cxx \
+  unit/test_transaction.cxx \
+  unit/test_transaction_base.cxx \
+  unit/test_transactor.cxx \
+  unit/test_type_name.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
-all: all-recursive
+all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .cxx .lo .o .obj
@@ -597,6 +608,41 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test89.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test93.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_array.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_binarystring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cursor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_encodings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_errorhandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_escape.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_exceptions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_field.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_largeobject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notification.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pipeline.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_prepared_statement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_read_transaction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_result_iteration.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_result_slicing.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_row.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_separated_list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_strconv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_from.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_to.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string_conversion.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction_base.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transactor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_type_name.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -619,67 +665,510 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
+test_array.o: unit/test_array.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_array.o -MD -MP -MF $(DEPDIR)/test_array.Tpo -c -o test_array.o `test -f 'unit/test_array.cxx' || echo '$(srcdir)/'`unit/test_array.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_array.Tpo $(DEPDIR)/test_array.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_array.cxx' object='test_array.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_array.o `test -f 'unit/test_array.cxx' || echo '$(srcdir)/'`unit/test_array.cxx
+
+test_array.obj: unit/test_array.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_array.obj -MD -MP -MF $(DEPDIR)/test_array.Tpo -c -o test_array.obj `if test -f 'unit/test_array.cxx'; then $(CYGPATH_W) 'unit/test_array.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_array.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_array.Tpo $(DEPDIR)/test_array.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_array.cxx' object='test_array.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_array.obj `if test -f 'unit/test_array.cxx'; then $(CYGPATH_W) 'unit/test_array.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_array.cxx'; fi`
+
+test_binarystring.o: unit/test_binarystring.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_binarystring.o -MD -MP -MF $(DEPDIR)/test_binarystring.Tpo -c -o test_binarystring.o `test -f 'unit/test_binarystring.cxx' || echo '$(srcdir)/'`unit/test_binarystring.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_binarystring.Tpo $(DEPDIR)/test_binarystring.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_binarystring.cxx' object='test_binarystring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_binarystring.o `test -f 'unit/test_binarystring.cxx' || echo '$(srcdir)/'`unit/test_binarystring.cxx
+
+test_binarystring.obj: unit/test_binarystring.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_binarystring.obj -MD -MP -MF $(DEPDIR)/test_binarystring.Tpo -c -o test_binarystring.obj `if test -f 'unit/test_binarystring.cxx'; then $(CYGPATH_W) 'unit/test_binarystring.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_binarystring.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_binarystring.Tpo $(DEPDIR)/test_binarystring.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_binarystring.cxx' object='test_binarystring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_binarystring.obj `if test -f 'unit/test_binarystring.cxx'; then $(CYGPATH_W) 'unit/test_binarystring.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_binarystring.cxx'; fi`
+
+test_cancel_query.o: unit/test_cancel_query.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_cancel_query.o -MD -MP -MF $(DEPDIR)/test_cancel_query.Tpo -c -o test_cancel_query.o `test -f 'unit/test_cancel_query.cxx' || echo '$(srcdir)/'`unit/test_cancel_query.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_cancel_query.Tpo $(DEPDIR)/test_cancel_query.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_cancel_query.cxx' object='test_cancel_query.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_cancel_query.o `test -f 'unit/test_cancel_query.cxx' || echo '$(srcdir)/'`unit/test_cancel_query.cxx
+
+test_cancel_query.obj: unit/test_cancel_query.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_cancel_query.obj -MD -MP -MF $(DEPDIR)/test_cancel_query.Tpo -c -o test_cancel_query.obj `if test -f 'unit/test_cancel_query.cxx'; then $(CYGPATH_W) 'unit/test_cancel_query.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_cancel_query.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_cancel_query.Tpo $(DEPDIR)/test_cancel_query.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_cancel_query.cxx' object='test_cancel_query.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_cancel_query.obj `if test -f 'unit/test_cancel_query.cxx'; then $(CYGPATH_W) 'unit/test_cancel_query.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_cancel_query.cxx'; fi`
+
+test_connection.o: unit/test_connection.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_connection.o -MD -MP -MF $(DEPDIR)/test_connection.Tpo -c -o test_connection.o `test -f 'unit/test_connection.cxx' || echo '$(srcdir)/'`unit/test_connection.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_connection.Tpo $(DEPDIR)/test_connection.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_connection.cxx' object='test_connection.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_connection.o `test -f 'unit/test_connection.cxx' || echo '$(srcdir)/'`unit/test_connection.cxx
+
+test_connection.obj: unit/test_connection.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_connection.obj -MD -MP -MF $(DEPDIR)/test_connection.Tpo -c -o test_connection.obj `if test -f 'unit/test_connection.cxx'; then $(CYGPATH_W) 'unit/test_connection.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_connection.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_connection.Tpo $(DEPDIR)/test_connection.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_connection.cxx' object='test_connection.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_connection.obj `if test -f 'unit/test_connection.cxx'; then $(CYGPATH_W) 'unit/test_connection.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_connection.cxx'; fi`
+
+test_cursor.o: unit/test_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_cursor.o -MD -MP -MF $(DEPDIR)/test_cursor.Tpo -c -o test_cursor.o `test -f 'unit/test_cursor.cxx' || echo '$(srcdir)/'`unit/test_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_cursor.Tpo $(DEPDIR)/test_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_cursor.cxx' object='test_cursor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_cursor.o `test -f 'unit/test_cursor.cxx' || echo '$(srcdir)/'`unit/test_cursor.cxx
+
+test_cursor.obj: unit/test_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_cursor.obj -MD -MP -MF $(DEPDIR)/test_cursor.Tpo -c -o test_cursor.obj `if test -f 'unit/test_cursor.cxx'; then $(CYGPATH_W) 'unit/test_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_cursor.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_cursor.Tpo $(DEPDIR)/test_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_cursor.cxx' object='test_cursor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_cursor.obj `if test -f 'unit/test_cursor.cxx'; then $(CYGPATH_W) 'unit/test_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_cursor.cxx'; fi`
+
+test_encodings.o: unit/test_encodings.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_encodings.o -MD -MP -MF $(DEPDIR)/test_encodings.Tpo -c -o test_encodings.o `test -f 'unit/test_encodings.cxx' || echo '$(srcdir)/'`unit/test_encodings.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_encodings.Tpo $(DEPDIR)/test_encodings.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_encodings.cxx' object='test_encodings.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_encodings.o `test -f 'unit/test_encodings.cxx' || echo '$(srcdir)/'`unit/test_encodings.cxx
+
+test_encodings.obj: unit/test_encodings.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_encodings.obj -MD -MP -MF $(DEPDIR)/test_encodings.Tpo -c -o test_encodings.obj `if test -f 'unit/test_encodings.cxx'; then $(CYGPATH_W) 'unit/test_encodings.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_encodings.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_encodings.Tpo $(DEPDIR)/test_encodings.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_encodings.cxx' object='test_encodings.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_encodings.obj `if test -f 'unit/test_encodings.cxx'; then $(CYGPATH_W) 'unit/test_encodings.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_encodings.cxx'; fi`
+
+test_error_verbosity.o: unit/test_error_verbosity.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_error_verbosity.o -MD -MP -MF $(DEPDIR)/test_error_verbosity.Tpo -c -o test_error_verbosity.o `test -f 'unit/test_error_verbosity.cxx' || echo '$(srcdir)/'`unit/test_error_verbosity.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_error_verbosity.Tpo $(DEPDIR)/test_error_verbosity.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_error_verbosity.cxx' object='test_error_verbosity.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_error_verbosity.o `test -f 'unit/test_error_verbosity.cxx' || echo '$(srcdir)/'`unit/test_error_verbosity.cxx
+
+test_error_verbosity.obj: unit/test_error_verbosity.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_error_verbosity.obj -MD -MP -MF $(DEPDIR)/test_error_verbosity.Tpo -c -o test_error_verbosity.obj `if test -f 'unit/test_error_verbosity.cxx'; then $(CYGPATH_W) 'unit/test_error_verbosity.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_error_verbosity.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_error_verbosity.Tpo $(DEPDIR)/test_error_verbosity.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_error_verbosity.cxx' object='test_error_verbosity.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_error_verbosity.obj `if test -f 'unit/test_error_verbosity.cxx'; then $(CYGPATH_W) 'unit/test_error_verbosity.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_error_verbosity.cxx'; fi`
+
+test_errorhandler.o: unit/test_errorhandler.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_errorhandler.o -MD -MP -MF $(DEPDIR)/test_errorhandler.Tpo -c -o test_errorhandler.o `test -f 'unit/test_errorhandler.cxx' || echo '$(srcdir)/'`unit/test_errorhandler.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_errorhandler.Tpo $(DEPDIR)/test_errorhandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_errorhandler.cxx' object='test_errorhandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_errorhandler.o `test -f 'unit/test_errorhandler.cxx' || echo '$(srcdir)/'`unit/test_errorhandler.cxx
+
+test_errorhandler.obj: unit/test_errorhandler.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_errorhandler.obj -MD -MP -MF $(DEPDIR)/test_errorhandler.Tpo -c -o test_errorhandler.obj `if test -f 'unit/test_errorhandler.cxx'; then $(CYGPATH_W) 'unit/test_errorhandler.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_errorhandler.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_errorhandler.Tpo $(DEPDIR)/test_errorhandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_errorhandler.cxx' object='test_errorhandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_errorhandler.obj `if test -f 'unit/test_errorhandler.cxx'; then $(CYGPATH_W) 'unit/test_errorhandler.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_errorhandler.cxx'; fi`
+
+test_escape.o: unit/test_escape.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_escape.o -MD -MP -MF $(DEPDIR)/test_escape.Tpo -c -o test_escape.o `test -f 'unit/test_escape.cxx' || echo '$(srcdir)/'`unit/test_escape.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_escape.Tpo $(DEPDIR)/test_escape.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_escape.cxx' object='test_escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_escape.o `test -f 'unit/test_escape.cxx' || echo '$(srcdir)/'`unit/test_escape.cxx
+
+test_escape.obj: unit/test_escape.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_escape.obj -MD -MP -MF $(DEPDIR)/test_escape.Tpo -c -o test_escape.obj `if test -f 'unit/test_escape.cxx'; then $(CYGPATH_W) 'unit/test_escape.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_escape.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_escape.Tpo $(DEPDIR)/test_escape.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_escape.cxx' object='test_escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_escape.obj `if test -f 'unit/test_escape.cxx'; then $(CYGPATH_W) 'unit/test_escape.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_escape.cxx'; fi`
+
+test_exceptions.o: unit/test_exceptions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_exceptions.o -MD -MP -MF $(DEPDIR)/test_exceptions.Tpo -c -o test_exceptions.o `test -f 'unit/test_exceptions.cxx' || echo '$(srcdir)/'`unit/test_exceptions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_exceptions.Tpo $(DEPDIR)/test_exceptions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_exceptions.cxx' object='test_exceptions.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_exceptions.o `test -f 'unit/test_exceptions.cxx' || echo '$(srcdir)/'`unit/test_exceptions.cxx
+
+test_exceptions.obj: unit/test_exceptions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_exceptions.obj -MD -MP -MF $(DEPDIR)/test_exceptions.Tpo -c -o test_exceptions.obj `if test -f 'unit/test_exceptions.cxx'; then $(CYGPATH_W) 'unit/test_exceptions.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_exceptions.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_exceptions.Tpo $(DEPDIR)/test_exceptions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_exceptions.cxx' object='test_exceptions.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_exceptions.obj `if test -f 'unit/test_exceptions.cxx'; then $(CYGPATH_W) 'unit/test_exceptions.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_exceptions.cxx'; fi`
+
+test_field.o: unit/test_field.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_field.o -MD -MP -MF $(DEPDIR)/test_field.Tpo -c -o test_field.o `test -f 'unit/test_field.cxx' || echo '$(srcdir)/'`unit/test_field.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_field.Tpo $(DEPDIR)/test_field.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_field.cxx' object='test_field.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_field.o `test -f 'unit/test_field.cxx' || echo '$(srcdir)/'`unit/test_field.cxx
+
+test_field.obj: unit/test_field.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_field.obj -MD -MP -MF $(DEPDIR)/test_field.Tpo -c -o test_field.obj `if test -f 'unit/test_field.cxx'; then $(CYGPATH_W) 'unit/test_field.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_field.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_field.Tpo $(DEPDIR)/test_field.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_field.cxx' object='test_field.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_field.obj `if test -f 'unit/test_field.cxx'; then $(CYGPATH_W) 'unit/test_field.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_field.cxx'; fi`
+
+test_float.o: unit/test_float.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_float.o -MD -MP -MF $(DEPDIR)/test_float.Tpo -c -o test_float.o `test -f 'unit/test_float.cxx' || echo '$(srcdir)/'`unit/test_float.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_float.Tpo $(DEPDIR)/test_float.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_float.cxx' object='test_float.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_float.o `test -f 'unit/test_float.cxx' || echo '$(srcdir)/'`unit/test_float.cxx
+
+test_float.obj: unit/test_float.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_float.obj -MD -MP -MF $(DEPDIR)/test_float.Tpo -c -o test_float.obj `if test -f 'unit/test_float.cxx'; then $(CYGPATH_W) 'unit/test_float.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_float.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_float.Tpo $(DEPDIR)/test_float.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_float.cxx' object='test_float.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_float.obj `if test -f 'unit/test_float.cxx'; then $(CYGPATH_W) 'unit/test_float.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_float.cxx'; fi`
+
+test_largeobject.o: unit/test_largeobject.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_largeobject.o -MD -MP -MF $(DEPDIR)/test_largeobject.Tpo -c -o test_largeobject.o `test -f 'unit/test_largeobject.cxx' || echo '$(srcdir)/'`unit/test_largeobject.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_largeobject.Tpo $(DEPDIR)/test_largeobject.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_largeobject.cxx' object='test_largeobject.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_largeobject.o `test -f 'unit/test_largeobject.cxx' || echo '$(srcdir)/'`unit/test_largeobject.cxx
+
+test_largeobject.obj: unit/test_largeobject.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_largeobject.obj -MD -MP -MF $(DEPDIR)/test_largeobject.Tpo -c -o test_largeobject.obj `if test -f 'unit/test_largeobject.cxx'; then $(CYGPATH_W) 'unit/test_largeobject.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_largeobject.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_largeobject.Tpo $(DEPDIR)/test_largeobject.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_largeobject.cxx' object='test_largeobject.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_largeobject.obj `if test -f 'unit/test_largeobject.cxx'; then $(CYGPATH_W) 'unit/test_largeobject.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_largeobject.cxx'; fi`
+
+test_notification.o: unit/test_notification.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_notification.o -MD -MP -MF $(DEPDIR)/test_notification.Tpo -c -o test_notification.o `test -f 'unit/test_notification.cxx' || echo '$(srcdir)/'`unit/test_notification.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_notification.Tpo $(DEPDIR)/test_notification.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_notification.cxx' object='test_notification.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_notification.o `test -f 'unit/test_notification.cxx' || echo '$(srcdir)/'`unit/test_notification.cxx
+
+test_notification.obj: unit/test_notification.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_notification.obj -MD -MP -MF $(DEPDIR)/test_notification.Tpo -c -o test_notification.obj `if test -f 'unit/test_notification.cxx'; then $(CYGPATH_W) 'unit/test_notification.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_notification.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_notification.Tpo $(DEPDIR)/test_notification.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_notification.cxx' object='test_notification.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_notification.obj `if test -f 'unit/test_notification.cxx'; then $(CYGPATH_W) 'unit/test_notification.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_notification.cxx'; fi`
+
+test_pipeline.o: unit/test_pipeline.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_pipeline.o -MD -MP -MF $(DEPDIR)/test_pipeline.Tpo -c -o test_pipeline.o `test -f 'unit/test_pipeline.cxx' || echo '$(srcdir)/'`unit/test_pipeline.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_pipeline.Tpo $(DEPDIR)/test_pipeline.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_pipeline.cxx' object='test_pipeline.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_pipeline.o `test -f 'unit/test_pipeline.cxx' || echo '$(srcdir)/'`unit/test_pipeline.cxx
+
+test_pipeline.obj: unit/test_pipeline.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_pipeline.obj -MD -MP -MF $(DEPDIR)/test_pipeline.Tpo -c -o test_pipeline.obj `if test -f 'unit/test_pipeline.cxx'; then $(CYGPATH_W) 'unit/test_pipeline.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_pipeline.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_pipeline.Tpo $(DEPDIR)/test_pipeline.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_pipeline.cxx' object='test_pipeline.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_pipeline.obj `if test -f 'unit/test_pipeline.cxx'; then $(CYGPATH_W) 'unit/test_pipeline.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_pipeline.cxx'; fi`
+
+test_prepared_statement.o: unit/test_prepared_statement.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_prepared_statement.o -MD -MP -MF $(DEPDIR)/test_prepared_statement.Tpo -c -o test_prepared_statement.o `test -f 'unit/test_prepared_statement.cxx' || echo '$(srcdir)/'`unit/test_prepared_statement.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_prepared_statement.Tpo $(DEPDIR)/test_prepared_statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_prepared_statement.cxx' object='test_prepared_statement.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_prepared_statement.o `test -f 'unit/test_prepared_statement.cxx' || echo '$(srcdir)/'`unit/test_prepared_statement.cxx
+
+test_prepared_statement.obj: unit/test_prepared_statement.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_prepared_statement.obj -MD -MP -MF $(DEPDIR)/test_prepared_statement.Tpo -c -o test_prepared_statement.obj `if test -f 'unit/test_prepared_statement.cxx'; then $(CYGPATH_W) 'unit/test_prepared_statement.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_prepared_statement.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_prepared_statement.Tpo $(DEPDIR)/test_prepared_statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_prepared_statement.cxx' object='test_prepared_statement.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_prepared_statement.obj `if test -f 'unit/test_prepared_statement.cxx'; then $(CYGPATH_W) 'unit/test_prepared_statement.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_prepared_statement.cxx'; fi`
+
+test_read_transaction.o: unit/test_read_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_read_transaction.o -MD -MP -MF $(DEPDIR)/test_read_transaction.Tpo -c -o test_read_transaction.o `test -f 'unit/test_read_transaction.cxx' || echo '$(srcdir)/'`unit/test_read_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_read_transaction.Tpo $(DEPDIR)/test_read_transaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_read_transaction.cxx' object='test_read_transaction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_read_transaction.o `test -f 'unit/test_read_transaction.cxx' || echo '$(srcdir)/'`unit/test_read_transaction.cxx
+
+test_read_transaction.obj: unit/test_read_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_read_transaction.obj -MD -MP -MF $(DEPDIR)/test_read_transaction.Tpo -c -o test_read_transaction.obj `if test -f 'unit/test_read_transaction.cxx'; then $(CYGPATH_W) 'unit/test_read_transaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_read_transaction.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_read_transaction.Tpo $(DEPDIR)/test_read_transaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_read_transaction.cxx' object='test_read_transaction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_read_transaction.obj `if test -f 'unit/test_read_transaction.cxx'; then $(CYGPATH_W) 'unit/test_read_transaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_read_transaction.cxx'; fi`
+
+test_result_iteration.o: unit/test_result_iteration.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_result_iteration.o -MD -MP -MF $(DEPDIR)/test_result_iteration.Tpo -c -o test_result_iteration.o `test -f 'unit/test_result_iteration.cxx' || echo '$(srcdir)/'`unit/test_result_iteration.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_result_iteration.Tpo $(DEPDIR)/test_result_iteration.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_result_iteration.cxx' object='test_result_iteration.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_result_iteration.o `test -f 'unit/test_result_iteration.cxx' || echo '$(srcdir)/'`unit/test_result_iteration.cxx
+
+test_result_iteration.obj: unit/test_result_iteration.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_result_iteration.obj -MD -MP -MF $(DEPDIR)/test_result_iteration.Tpo -c -o test_result_iteration.obj `if test -f 'unit/test_result_iteration.cxx'; then $(CYGPATH_W) 'unit/test_result_iteration.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_result_iteration.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_result_iteration.Tpo $(DEPDIR)/test_result_iteration.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_result_iteration.cxx' object='test_result_iteration.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_result_iteration.obj `if test -f 'unit/test_result_iteration.cxx'; then $(CYGPATH_W) 'unit/test_result_iteration.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_result_iteration.cxx'; fi`
+
+test_result_slicing.o: unit/test_result_slicing.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_result_slicing.o -MD -MP -MF $(DEPDIR)/test_result_slicing.Tpo -c -o test_result_slicing.o `test -f 'unit/test_result_slicing.cxx' || echo '$(srcdir)/'`unit/test_result_slicing.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_result_slicing.Tpo $(DEPDIR)/test_result_slicing.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_result_slicing.cxx' object='test_result_slicing.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_result_slicing.o `test -f 'unit/test_result_slicing.cxx' || echo '$(srcdir)/'`unit/test_result_slicing.cxx
+
+test_result_slicing.obj: unit/test_result_slicing.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_result_slicing.obj -MD -MP -MF $(DEPDIR)/test_result_slicing.Tpo -c -o test_result_slicing.obj `if test -f 'unit/test_result_slicing.cxx'; then $(CYGPATH_W) 'unit/test_result_slicing.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_result_slicing.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_result_slicing.Tpo $(DEPDIR)/test_result_slicing.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_result_slicing.cxx' object='test_result_slicing.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_result_slicing.obj `if test -f 'unit/test_result_slicing.cxx'; then $(CYGPATH_W) 'unit/test_result_slicing.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_result_slicing.cxx'; fi`
+
+test_row.o: unit/test_row.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_row.o -MD -MP -MF $(DEPDIR)/test_row.Tpo -c -o test_row.o `test -f 'unit/test_row.cxx' || echo '$(srcdir)/'`unit/test_row.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_row.Tpo $(DEPDIR)/test_row.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_row.cxx' object='test_row.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_row.o `test -f 'unit/test_row.cxx' || echo '$(srcdir)/'`unit/test_row.cxx
+
+test_row.obj: unit/test_row.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_row.obj -MD -MP -MF $(DEPDIR)/test_row.Tpo -c -o test_row.obj `if test -f 'unit/test_row.cxx'; then $(CYGPATH_W) 'unit/test_row.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_row.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_row.Tpo $(DEPDIR)/test_row.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_row.cxx' object='test_row.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_row.obj `if test -f 'unit/test_row.cxx'; then $(CYGPATH_W) 'unit/test_row.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_row.cxx'; fi`
+
+test_separated_list.o: unit/test_separated_list.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_separated_list.o -MD -MP -MF $(DEPDIR)/test_separated_list.Tpo -c -o test_separated_list.o `test -f 'unit/test_separated_list.cxx' || echo '$(srcdir)/'`unit/test_separated_list.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_separated_list.Tpo $(DEPDIR)/test_separated_list.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_separated_list.cxx' object='test_separated_list.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_separated_list.o `test -f 'unit/test_separated_list.cxx' || echo '$(srcdir)/'`unit/test_separated_list.cxx
+
+test_separated_list.obj: unit/test_separated_list.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_separated_list.obj -MD -MP -MF $(DEPDIR)/test_separated_list.Tpo -c -o test_separated_list.obj `if test -f 'unit/test_separated_list.cxx'; then $(CYGPATH_W) 'unit/test_separated_list.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_separated_list.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_separated_list.Tpo $(DEPDIR)/test_separated_list.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_separated_list.cxx' object='test_separated_list.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_separated_list.obj `if test -f 'unit/test_separated_list.cxx'; then $(CYGPATH_W) 'unit/test_separated_list.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_separated_list.cxx'; fi`
+
+test_simultaneous_transactions.o: unit/test_simultaneous_transactions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_simultaneous_transactions.o -MD -MP -MF $(DEPDIR)/test_simultaneous_transactions.Tpo -c -o test_simultaneous_transactions.o `test -f 'unit/test_simultaneous_transactions.cxx' || echo '$(srcdir)/'`unit/test_simultaneous_transactions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_simultaneous_transactions.Tpo $(DEPDIR)/test_simultaneous_transactions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_simultaneous_transactions.cxx' object='test_simultaneous_transactions.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_simultaneous_transactions.o `test -f 'unit/test_simultaneous_transactions.cxx' || echo '$(srcdir)/'`unit/test_simultaneous_transactions.cxx
+
+test_simultaneous_transactions.obj: unit/test_simultaneous_transactions.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_simultaneous_transactions.obj -MD -MP -MF $(DEPDIR)/test_simultaneous_transactions.Tpo -c -o test_simultaneous_transactions.obj `if test -f 'unit/test_simultaneous_transactions.cxx'; then $(CYGPATH_W) 'unit/test_simultaneous_transactions.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_simultaneous_transactions.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_simultaneous_transactions.Tpo $(DEPDIR)/test_simultaneous_transactions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_simultaneous_transactions.cxx' object='test_simultaneous_transactions.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_simultaneous_transactions.obj `if test -f 'unit/test_simultaneous_transactions.cxx'; then $(CYGPATH_W) 'unit/test_simultaneous_transactions.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_simultaneous_transactions.cxx'; fi`
+
+test_sql_cursor.o: unit/test_sql_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_sql_cursor.o -MD -MP -MF $(DEPDIR)/test_sql_cursor.Tpo -c -o test_sql_cursor.o `test -f 'unit/test_sql_cursor.cxx' || echo '$(srcdir)/'`unit/test_sql_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_sql_cursor.Tpo $(DEPDIR)/test_sql_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_sql_cursor.cxx' object='test_sql_cursor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_sql_cursor.o `test -f 'unit/test_sql_cursor.cxx' || echo '$(srcdir)/'`unit/test_sql_cursor.cxx
+
+test_sql_cursor.obj: unit/test_sql_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_sql_cursor.obj -MD -MP -MF $(DEPDIR)/test_sql_cursor.Tpo -c -o test_sql_cursor.obj `if test -f 'unit/test_sql_cursor.cxx'; then $(CYGPATH_W) 'unit/test_sql_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_sql_cursor.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_sql_cursor.Tpo $(DEPDIR)/test_sql_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_sql_cursor.cxx' object='test_sql_cursor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_sql_cursor.obj `if test -f 'unit/test_sql_cursor.cxx'; then $(CYGPATH_W) 'unit/test_sql_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_sql_cursor.cxx'; fi`
+
+test_stateless_cursor.o: unit/test_stateless_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stateless_cursor.o -MD -MP -MF $(DEPDIR)/test_stateless_cursor.Tpo -c -o test_stateless_cursor.o `test -f 'unit/test_stateless_cursor.cxx' || echo '$(srcdir)/'`unit/test_stateless_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stateless_cursor.Tpo $(DEPDIR)/test_stateless_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stateless_cursor.cxx' object='test_stateless_cursor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stateless_cursor.o `test -f 'unit/test_stateless_cursor.cxx' || echo '$(srcdir)/'`unit/test_stateless_cursor.cxx
+
+test_stateless_cursor.obj: unit/test_stateless_cursor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stateless_cursor.obj -MD -MP -MF $(DEPDIR)/test_stateless_cursor.Tpo -c -o test_stateless_cursor.obj `if test -f 'unit/test_stateless_cursor.cxx'; then $(CYGPATH_W) 'unit/test_stateless_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stateless_cursor.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stateless_cursor.Tpo $(DEPDIR)/test_stateless_cursor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stateless_cursor.cxx' object='test_stateless_cursor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stateless_cursor.obj `if test -f 'unit/test_stateless_cursor.cxx'; then $(CYGPATH_W) 'unit/test_stateless_cursor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stateless_cursor.cxx'; fi`
+
+test_strconv.o: unit/test_strconv.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_strconv.o -MD -MP -MF $(DEPDIR)/test_strconv.Tpo -c -o test_strconv.o `test -f 'unit/test_strconv.cxx' || echo '$(srcdir)/'`unit/test_strconv.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_strconv.Tpo $(DEPDIR)/test_strconv.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_strconv.cxx' object='test_strconv.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_strconv.o `test -f 'unit/test_strconv.cxx' || echo '$(srcdir)/'`unit/test_strconv.cxx
+
+test_strconv.obj: unit/test_strconv.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_strconv.obj -MD -MP -MF $(DEPDIR)/test_strconv.Tpo -c -o test_strconv.obj `if test -f 'unit/test_strconv.cxx'; then $(CYGPATH_W) 'unit/test_strconv.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_strconv.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_strconv.Tpo $(DEPDIR)/test_strconv.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_strconv.cxx' object='test_strconv.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_strconv.obj `if test -f 'unit/test_strconv.cxx'; then $(CYGPATH_W) 'unit/test_strconv.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_strconv.cxx'; fi`
+
+test_stream_from.o: unit/test_stream_from.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stream_from.o -MD -MP -MF $(DEPDIR)/test_stream_from.Tpo -c -o test_stream_from.o `test -f 'unit/test_stream_from.cxx' || echo '$(srcdir)/'`unit/test_stream_from.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stream_from.Tpo $(DEPDIR)/test_stream_from.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stream_from.cxx' object='test_stream_from.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stream_from.o `test -f 'unit/test_stream_from.cxx' || echo '$(srcdir)/'`unit/test_stream_from.cxx
+
+test_stream_from.obj: unit/test_stream_from.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stream_from.obj -MD -MP -MF $(DEPDIR)/test_stream_from.Tpo -c -o test_stream_from.obj `if test -f 'unit/test_stream_from.cxx'; then $(CYGPATH_W) 'unit/test_stream_from.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stream_from.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stream_from.Tpo $(DEPDIR)/test_stream_from.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stream_from.cxx' object='test_stream_from.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stream_from.obj `if test -f 'unit/test_stream_from.cxx'; then $(CYGPATH_W) 'unit/test_stream_from.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stream_from.cxx'; fi`
+
+test_stream_to.o: unit/test_stream_to.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stream_to.o -MD -MP -MF $(DEPDIR)/test_stream_to.Tpo -c -o test_stream_to.o `test -f 'unit/test_stream_to.cxx' || echo '$(srcdir)/'`unit/test_stream_to.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stream_to.Tpo $(DEPDIR)/test_stream_to.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stream_to.cxx' object='test_stream_to.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stream_to.o `test -f 'unit/test_stream_to.cxx' || echo '$(srcdir)/'`unit/test_stream_to.cxx
+
+test_stream_to.obj: unit/test_stream_to.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_stream_to.obj -MD -MP -MF $(DEPDIR)/test_stream_to.Tpo -c -o test_stream_to.obj `if test -f 'unit/test_stream_to.cxx'; then $(CYGPATH_W) 'unit/test_stream_to.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stream_to.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_stream_to.Tpo $(DEPDIR)/test_stream_to.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_stream_to.cxx' object='test_stream_to.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_stream_to.obj `if test -f 'unit/test_stream_to.cxx'; then $(CYGPATH_W) 'unit/test_stream_to.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_stream_to.cxx'; fi`
+
+test_string_conversion.o: unit/test_string_conversion.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_string_conversion.o -MD -MP -MF $(DEPDIR)/test_string_conversion.Tpo -c -o test_string_conversion.o `test -f 'unit/test_string_conversion.cxx' || echo '$(srcdir)/'`unit/test_string_conversion.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_string_conversion.Tpo $(DEPDIR)/test_string_conversion.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_string_conversion.cxx' object='test_string_conversion.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_string_conversion.o `test -f 'unit/test_string_conversion.cxx' || echo '$(srcdir)/'`unit/test_string_conversion.cxx
+
+test_string_conversion.obj: unit/test_string_conversion.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_string_conversion.obj -MD -MP -MF $(DEPDIR)/test_string_conversion.Tpo -c -o test_string_conversion.obj `if test -f 'unit/test_string_conversion.cxx'; then $(CYGPATH_W) 'unit/test_string_conversion.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_string_conversion.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_string_conversion.Tpo $(DEPDIR)/test_string_conversion.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_string_conversion.cxx' object='test_string_conversion.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_string_conversion.obj `if test -f 'unit/test_string_conversion.cxx'; then $(CYGPATH_W) 'unit/test_string_conversion.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_string_conversion.cxx'; fi`
+
+test_subtransaction.o: unit/test_subtransaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_subtransaction.o -MD -MP -MF $(DEPDIR)/test_subtransaction.Tpo -c -o test_subtransaction.o `test -f 'unit/test_subtransaction.cxx' || echo '$(srcdir)/'`unit/test_subtransaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_subtransaction.Tpo $(DEPDIR)/test_subtransaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_subtransaction.cxx' object='test_subtransaction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_subtransaction.o `test -f 'unit/test_subtransaction.cxx' || echo '$(srcdir)/'`unit/test_subtransaction.cxx
+
+test_subtransaction.obj: unit/test_subtransaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_subtransaction.obj -MD -MP -MF $(DEPDIR)/test_subtransaction.Tpo -c -o test_subtransaction.obj `if test -f 'unit/test_subtransaction.cxx'; then $(CYGPATH_W) 'unit/test_subtransaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_subtransaction.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_subtransaction.Tpo $(DEPDIR)/test_subtransaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_subtransaction.cxx' object='test_subtransaction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_subtransaction.obj `if test -f 'unit/test_subtransaction.cxx'; then $(CYGPATH_W) 'unit/test_subtransaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_subtransaction.cxx'; fi`
+
+test_test_helpers.o: unit/test_test_helpers.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_test_helpers.o -MD -MP -MF $(DEPDIR)/test_test_helpers.Tpo -c -o test_test_helpers.o `test -f 'unit/test_test_helpers.cxx' || echo '$(srcdir)/'`unit/test_test_helpers.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_test_helpers.Tpo $(DEPDIR)/test_test_helpers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_test_helpers.cxx' object='test_test_helpers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_test_helpers.o `test -f 'unit/test_test_helpers.cxx' || echo '$(srcdir)/'`unit/test_test_helpers.cxx
+
+test_test_helpers.obj: unit/test_test_helpers.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_test_helpers.obj -MD -MP -MF $(DEPDIR)/test_test_helpers.Tpo -c -o test_test_helpers.obj `if test -f 'unit/test_test_helpers.cxx'; then $(CYGPATH_W) 'unit/test_test_helpers.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_test_helpers.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_test_helpers.Tpo $(DEPDIR)/test_test_helpers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_test_helpers.cxx' object='test_test_helpers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_test_helpers.obj `if test -f 'unit/test_test_helpers.cxx'; then $(CYGPATH_W) 'unit/test_test_helpers.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_test_helpers.cxx'; fi`
+
+test_thread_safety_model.o: unit/test_thread_safety_model.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_thread_safety_model.o -MD -MP -MF $(DEPDIR)/test_thread_safety_model.Tpo -c -o test_thread_safety_model.o `test -f 'unit/test_thread_safety_model.cxx' || echo '$(srcdir)/'`unit/test_thread_safety_model.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_thread_safety_model.Tpo $(DEPDIR)/test_thread_safety_model.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_thread_safety_model.cxx' object='test_thread_safety_model.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_thread_safety_model.o `test -f 'unit/test_thread_safety_model.cxx' || echo '$(srcdir)/'`unit/test_thread_safety_model.cxx
+
+test_thread_safety_model.obj: unit/test_thread_safety_model.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_thread_safety_model.obj -MD -MP -MF $(DEPDIR)/test_thread_safety_model.Tpo -c -o test_thread_safety_model.obj `if test -f 'unit/test_thread_safety_model.cxx'; then $(CYGPATH_W) 'unit/test_thread_safety_model.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_thread_safety_model.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_thread_safety_model.Tpo $(DEPDIR)/test_thread_safety_model.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_thread_safety_model.cxx' object='test_thread_safety_model.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_thread_safety_model.obj `if test -f 'unit/test_thread_safety_model.cxx'; then $(CYGPATH_W) 'unit/test_thread_safety_model.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_thread_safety_model.cxx'; fi`
+
+test_transaction.o: unit/test_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transaction.o -MD -MP -MF $(DEPDIR)/test_transaction.Tpo -c -o test_transaction.o `test -f 'unit/test_transaction.cxx' || echo '$(srcdir)/'`unit/test_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transaction.Tpo $(DEPDIR)/test_transaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transaction.cxx' object='test_transaction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transaction.o `test -f 'unit/test_transaction.cxx' || echo '$(srcdir)/'`unit/test_transaction.cxx
+
+test_transaction.obj: unit/test_transaction.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transaction.obj -MD -MP -MF $(DEPDIR)/test_transaction.Tpo -c -o test_transaction.obj `if test -f 'unit/test_transaction.cxx'; then $(CYGPATH_W) 'unit/test_transaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transaction.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transaction.Tpo $(DEPDIR)/test_transaction.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transaction.cxx' object='test_transaction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transaction.obj `if test -f 'unit/test_transaction.cxx'; then $(CYGPATH_W) 'unit/test_transaction.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transaction.cxx'; fi`
+
+test_transaction_base.o: unit/test_transaction_base.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transaction_base.o -MD -MP -MF $(DEPDIR)/test_transaction_base.Tpo -c -o test_transaction_base.o `test -f 'unit/test_transaction_base.cxx' || echo '$(srcdir)/'`unit/test_transaction_base.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transaction_base.Tpo $(DEPDIR)/test_transaction_base.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transaction_base.cxx' object='test_transaction_base.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transaction_base.o `test -f 'unit/test_transaction_base.cxx' || echo '$(srcdir)/'`unit/test_transaction_base.cxx
+
+test_transaction_base.obj: unit/test_transaction_base.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transaction_base.obj -MD -MP -MF $(DEPDIR)/test_transaction_base.Tpo -c -o test_transaction_base.obj `if test -f 'unit/test_transaction_base.cxx'; then $(CYGPATH_W) 'unit/test_transaction_base.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transaction_base.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transaction_base.Tpo $(DEPDIR)/test_transaction_base.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transaction_base.cxx' object='test_transaction_base.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transaction_base.obj `if test -f 'unit/test_transaction_base.cxx'; then $(CYGPATH_W) 'unit/test_transaction_base.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transaction_base.cxx'; fi`
+
+test_transactor.o: unit/test_transactor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transactor.o -MD -MP -MF $(DEPDIR)/test_transactor.Tpo -c -o test_transactor.o `test -f 'unit/test_transactor.cxx' || echo '$(srcdir)/'`unit/test_transactor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transactor.Tpo $(DEPDIR)/test_transactor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transactor.cxx' object='test_transactor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transactor.o `test -f 'unit/test_transactor.cxx' || echo '$(srcdir)/'`unit/test_transactor.cxx
+
+test_transactor.obj: unit/test_transactor.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_transactor.obj -MD -MP -MF $(DEPDIR)/test_transactor.Tpo -c -o test_transactor.obj `if test -f 'unit/test_transactor.cxx'; then $(CYGPATH_W) 'unit/test_transactor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transactor.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_transactor.Tpo $(DEPDIR)/test_transactor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_transactor.cxx' object='test_transactor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_transactor.obj `if test -f 'unit/test_transactor.cxx'; then $(CYGPATH_W) 'unit/test_transactor.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_transactor.cxx'; fi`
+
+test_type_name.o: unit/test_type_name.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_type_name.o -MD -MP -MF $(DEPDIR)/test_type_name.Tpo -c -o test_type_name.o `test -f 'unit/test_type_name.cxx' || echo '$(srcdir)/'`unit/test_type_name.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_type_name.Tpo $(DEPDIR)/test_type_name.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_type_name.cxx' object='test_type_name.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_type_name.o `test -f 'unit/test_type_name.cxx' || echo '$(srcdir)/'`unit/test_type_name.cxx
+
+test_type_name.obj: unit/test_type_name.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test_type_name.obj -MD -MP -MF $(DEPDIR)/test_type_name.Tpo -c -o test_type_name.obj `if test -f 'unit/test_type_name.cxx'; then $(CYGPATH_W) 'unit/test_type_name.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_type_name.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_type_name.Tpo $(DEPDIR)/test_type_name.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unit/test_type_name.cxx' object='test_type_name.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test_type_name.obj `if test -f 'unit/test_type_name.cxx'; then $(CYGPATH_W) 'unit/test_type_name.cxx'; else $(CYGPATH_W) '$(srcdir)/unit/test_type_name.cxx'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
 
-# This directory's subdirectories are mostly independent; you can cd
-# into them and run 'make' without going through this Makefile.
-# To change the values of 'make' variables: instead of editing Makefiles,
-# (1) if the variable is set in 'config.status', edit 'config.status'
-#     (which will cause the Makefiles to be regenerated when you run 'make');
-# (2) otherwise, pass the desired values on the 'make' command line.
-$(am__recursive_targets):
-	@fail=; \
-	if $(am__make_keepgoing); then \
-	  failcom='fail=yes'; \
-	else \
-	  failcom='exit 1'; \
-	fi; \
-	dot_seen=no; \
-	target=`echo $@ | sed s/-recursive//`; \
-	case "$@" in \
-	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
-	  *) list='$(SUBDIRS)' ;; \
-	esac; \
-	for subdir in $$list; do \
-	  echo "Making $$target in $$subdir"; \
-	  if test "$$subdir" = "."; then \
-	    dot_seen=yes; \
-	    local_target="$$target-am"; \
-	  else \
-	    local_target="$$target"; \
-	  fi; \
-	  ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
-	  || eval $$failcom; \
-	done; \
-	if test "$$dot_seen" = "no"; then \
-	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
-	fi; test -z "$$fail"
-
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
-tags: tags-recursive
+tags: tags-am
 TAGS: tags
 
 tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	set x; \
 	here=`pwd`; \
-	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
-	  include_option=--etags-include; \
-	  empty_fix=.; \
-	else \
-	  include_option=--include; \
-	  empty_fix=; \
-	fi; \
-	list='$(SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    test ! -f $$subdir/TAGS || \
-	      set "$$@" "$$include_option=$$here/$$subdir/TAGS"; \
-	  fi; \
-	done; \
 	$(am__define_uniq_tagged_files); \
 	shift; \
 	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
@@ -692,7 +1181,7 @@ tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	      $$unique; \
 	  fi; \
 	fi
-ctags: ctags-recursive
+ctags: ctags-am
 
 CTAGS: ctags
 ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
@@ -705,7 +1194,7 @@ GTAGS:
 	here=`$(am__cd) $(top_builddir) && pwd` \
 	  && $(am__cd) $(top_srcdir) \
 	  && gtags -i $(GTAGS_ARGS) "$$here"
-cscopelist: cscopelist-recursive
+cscopelist: cscopelist-am
 
 cscopelist-am: $(am__tagged_files)
 	list='$(am__tagged_files)'; \
@@ -847,47 +1336,21 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	@list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    $(am__make_dryrun) \
-	      || test -d "$(distdir)/$$subdir" \
-	      || $(MKDIR_P) "$(distdir)/$$subdir" \
-	      || exit 1; \
-	    dir1=$$subdir; dir2="$(distdir)/$$subdir"; \
-	    $(am__relativize); \
-	    new_distdir=$$reldir; \
-	    dir1=$$subdir; dir2="$(top_distdir)"; \
-	    $(am__relativize); \
-	    new_top_distdir=$$reldir; \
-	    echo " (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir="$$new_top_distdir" distdir="$$new_distdir" \\"; \
-	    echo "     am__remove_distdir=: am__skip_length_check=: am__skip_mode_fix=: distdir)"; \
-	    ($(am__cd) $$subdir && \
-	      $(MAKE) $(AM_MAKEFLAGS) \
-	        top_distdir="$$new_top_distdir" \
-	        distdir="$$new_distdir" \
-		am__remove_distdir=: \
-		am__skip_length_check=: \
-		am__skip_mode_fix=: \
-	        distdir) \
-	      || exit 1; \
-	  fi; \
-	done
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
-check: check-recursive
+check: check-am
 all-am: Makefile $(HEADERS)
-installdirs: installdirs-recursive
-installdirs-am:
-install: install-recursive
-install-exec: install-exec-recursive
-install-data: install-data-recursive
-uninstall: uninstall-recursive
+installdirs:
+install: install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 
-installcheck: installcheck-recursive
+installcheck: installcheck-am
 install-strip:
 	if test -z '$(STRIP)'; then \
 	  $(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
@@ -911,100 +1374,95 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
-clean: clean-recursive
+clean: clean-am
 
 clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
 	mostlyclean-am
 
-distclean: distclean-recursive
+distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
 
-dvi: dvi-recursive
+dvi: dvi-am
 
 dvi-am:
 
-html: html-recursive
+html: html-am
 
 html-am:
 
-info: info-recursive
+info: info-am
 
 info-am:
 
 install-data-am:
 
-install-dvi: install-dvi-recursive
+install-dvi: install-dvi-am
 
 install-dvi-am:
 
 install-exec-am:
 
-install-html: install-html-recursive
+install-html: install-html-am
 
 install-html-am:
 
-install-info: install-info-recursive
+install-info: install-info-am
 
 install-info-am:
 
 install-man:
 
-install-pdf: install-pdf-recursive
+install-pdf: install-pdf-am
 
 install-pdf-am:
 
-install-ps: install-ps-recursive
+install-ps: install-ps-am
 
 install-ps-am:
 
 installcheck-am:
 
-maintainer-clean: maintainer-clean-recursive
+maintainer-clean: maintainer-clean-am
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
-mostlyclean: mostlyclean-recursive
+mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-pdf: pdf-recursive
+pdf: pdf-am
 
 pdf-am:
 
-ps: ps-recursive
+ps: ps-am
 
 ps-am:
 
 uninstall-am:
 
-.MAKE: $(am__recursive_targets) check-am install-am install-strip
+.MAKE: check-am install-am install-strip
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
-	check-TESTS check-am clean clean-checkPROGRAMS clean-generic \
-	clean-libtool cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am
+.PHONY: CTAGS GTAGS TAGS all all-am check check-TESTS check-am clean \
+	clean-checkPROGRAMS clean-generic clean-libtool cscopelist-am \
+	ctags ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
-
-# ###MAKTEMPLATE:FOREACH test/test*.cxx
-# ###BASENAME###_SOURCES = ###BASENAME###.cxx
-# ###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

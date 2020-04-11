@@ -534,8 +534,8 @@ AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([
 	Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile
-	test/Makefile test/unit/Makefile tools/Makefile include/Makefile
-	include/pqxx/Makefile libpqxx.pc])
+	test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile
+	libpqxx.pc])
 
 
 AC_CONFIG_COMMANDS([configitems], ["${srcdir}/tools/splitconfig" "${srcdir}"])

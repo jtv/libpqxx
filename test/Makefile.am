@@ -13,7 +13,6 @@
 ################################################################################
 # Makefile.am is generated automatically for automake whenever test programs are
 # added to libpqxx.
-SUBDIRS = unit
 
 EXTRA_DIST = Makefile.am.template
 
@@ -93,13 +92,44 @@ runner_SOURCES = \
   test89.cxx \
   test90.cxx \
   test93.cxx \
+  unit/test_array.cxx \
+  unit/test_binarystring.cxx \
+  unit/test_cancel_query.cxx \
+  unit/test_connection.cxx \
+  unit/test_cursor.cxx \
+  unit/test_encodings.cxx \
+  unit/test_error_verbosity.cxx \
+  unit/test_errorhandler.cxx \
+  unit/test_escape.cxx \
+  unit/test_exceptions.cxx \
+  unit/test_field.cxx \
+  unit/test_float.cxx \
+  unit/test_largeobject.cxx \
+  unit/test_notification.cxx \
+  unit/test_pipeline.cxx \
+  unit/test_prepared_statement.cxx \
+  unit/test_read_transaction.cxx \
+  unit/test_result_iteration.cxx \
+  unit/test_result_slicing.cxx \
+  unit/test_row.cxx \
+  unit/test_separated_list.cxx \
+  unit/test_simultaneous_transactions.cxx \
+  unit/test_sql_cursor.cxx \
+  unit/test_stateless_cursor.cxx \
+  unit/test_strconv.cxx \
+  unit/test_stream_from.cxx \
+  unit/test_stream_to.cxx \
+  unit/test_string_conversion.cxx \
+  unit/test_subtransaction.cxx \
+  unit/test_test_helpers.cxx \
+  unit/test_thread_safety_model.cxx \
+  unit/test_transaction.cxx \
+  unit/test_transaction_base.cxx \
+  unit/test_transactor.cxx \
+  unit/test_type_name.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 TESTS = runner
 check_PROGRAMS = ${TESTS}
-
-# ###MAKTEMPLATE:FOREACH test/test*.cxx
-# ###BASENAME###_SOURCES = ###BASENAME###.cxx
-# ###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

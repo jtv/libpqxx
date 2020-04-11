@@ -1,6 +1,5 @@
 # Makefile.am is generated automatically for automake whenever test programs are
 # added to libpqxx.
-SUBDIRS = unit
 
 EXTRA_DIST = Makefile.am.template
 
@@ -28,13 +27,12 @@ runner_SOURCES = \
 ###MAKTEMPLATE:FOREACH test/test*.cxx
   ###BASENAME###.cxx \
 ###MAKTEMPLATE:ENDFOREACH
+###MAKTEMPLATE:FOREACH test/unit/test_*.cxx
+  unit/###BASENAME###.cxx \
+###MAKTEMPLATE:ENDFOREACH
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 TESTS = runner
 check_PROGRAMS = ${TESTS}
-
-# ###MAKTEMPLATE:FOREACH test/test*.cxx
-# ###BASENAME###_SOURCES = ###BASENAME###.cxx
-# ###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

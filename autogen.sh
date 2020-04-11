@@ -40,3 +40,5 @@ libtoolize --force --automake --copy
 aclocal -I . -I config/m4
 automake --add-missing --copy
 autoconf
+
+echo "Done."

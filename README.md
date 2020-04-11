@@ -83,7 +83,7 @@ section on variables such as `PGHOST` and `PGUSER`.  **The tests will create
 and drop tables in that database,** so don't use a database containing any
 valuable data.
 
-To run the tests, run both `test/runner` and `test/unit/unit_runner`.
+To run the tests, execute `test/runner` after building.
 
 
 ### On Unix-like systems

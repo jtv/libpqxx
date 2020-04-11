@@ -290,7 +290,10 @@ template<> struct string_traits<char const *>
 template<> struct nullness<char *>
 {
   static constexpr bool has_null = true;
-  static constexpr bool is_null(char const *t) noexcept { return t == nullptr; }
+  static constexpr bool is_null(char const *t) noexcept
+  {
+    return t == nullptr;
+  }
   static constexpr char const *null() { return nullptr; }
 };
 
@@ -586,17 +589,16 @@ template<typename Container> struct array_string_traits
   static std::size_t size_buffer(Container const &value)
   {
     using elt_traits = string_traits<elt_type>;
-    return 3 +
-           std::accumulate(
-             std::begin(value), std::end(value), std::size_t{},
-             [](std::size_t acc, elt_type const &elt) {
-               // Opening and closing quotes, plus worst-case escaping, but
-               // don't count the trailing zeroes.
-               std::size_t const elt_size{pqxx::is_null(elt) ?
-                                            s_null.size() :
-                                            elt_traits::size_buffer(elt) - 1};
-               return acc + 2 * elt_size + 2;
-             });
+    return 3 + std::accumulate(
+                 std::begin(value), std::end(value), std::size_t{},
+                 [](std::size_t acc, elt_type const &elt) {
+                   // Opening and closing quotes, plus worst-case escaping, but
+                   // don't count the trailing zeroes.
+                   std::size_t const elt_size{
+                     pqxx::is_null(elt) ? s_null.size() :
+                                          elt_traits::size_buffer(elt) - 1};
+                   return acc + 2 * elt_size + 2;
+                 });
   }
 
   // We don't yet support parsing of array types using from_string.  Doing so

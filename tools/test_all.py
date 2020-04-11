@@ -277,7 +277,6 @@ def build_with_cmake(logs_dir, verbose=False):
                 if verbose:
                     print("Building with CMake and '%s'." % ' '.join(command))
                 run(command, output, cwd=work_dir)
-                run(['test/unit/unit_runner'], output, cwd=work_dir)
                 run(['test/runner'], output, cwd=work_dir)
         except CalledProcessError:
             return report_fail(output, "CMake build failed.")
