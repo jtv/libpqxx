@@ -12,7 +12,7 @@ AX_CXX_COMPILE_STDCXX_17([noext])
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)

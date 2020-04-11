@@ -48,6 +48,7 @@ configure_file(Doxyfile.in Doxyfile)
 
 if(HAVE_DOXYGEN)
     set(DOXYGEN_SOURCES
+# TODO: Can we do this with CMake globs?
         "${PROJECT_SOURCE_DIR}/include/pqxx/array.hxx"
         "${PROJECT_SOURCE_DIR}/include/pqxx/binarystring.hxx"
         "${PROJECT_SOURCE_DIR}/include/pqxx/compiler-public.hxx"

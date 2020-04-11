@@ -35,6 +35,7 @@ configure_file(Doxyfile.in Doxyfile)
 
 if(HAVE_DOXYGEN)
     set(DOXYGEN_SOURCES
+# TODO: Can we do this with CMake globs?
 ###MAKTEMPLATE:FOREACH include/pqxx/*.hxx
         "${PROJECT_SOURCE_DIR}/include/pqxx/###BASENAME###.hxx"
 ###MAKTEMPLATE:ENDFOREACH

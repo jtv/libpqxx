@@ -1,16 +1,3 @@
-################################################################################
-# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
-#
-# This file is generated automatically by libpqxx's template2mak.py script, and
-# will be rewritten from time to time.
-#
-# If you modify this file, chances are your modifications will be lost.
-#
-# The template2mak.py script should be available in the tools directory of the
-# libpqxx source archive.
-#
-# Generated from template './src/CMakeLists.txt.template'.
-################################################################################
 if(NOT PostgreSQL_FOUND)
     find_package(PostgreSQL REQUIRED)
 endif()
@@ -62,30 +49,7 @@ endmacro()
 
 file(
 	GLOB CXX_SOURCES
-	array.cxx
-	binarystring.cxx
-	connection.cxx
-	cursor.cxx
-	encodings.cxx
-	errorhandler.cxx
-	except.cxx
-	field.cxx
-	largeobject.cxx
-	notification.cxx
-	pipeline.cxx
-	result.cxx
-	robusttransaction.cxx
-	row.cxx
-	sql_cursor.cxx
-	statement_parameters.cxx
-	strconv.cxx
-	stream_from.cxx
-	stream_to.cxx
-	subtransaction.cxx
-	transaction.cxx
-	transaction_base.cxx
-	util.cxx
-	version.cxx
+        *.cxx
 )
 
 add_library(pqxx ${CXX_SOURCES})
