@@ -243,7 +243,7 @@ private:
     // twice: once to determine how much buffer space we may need, and once to
     // actually write it into the buffer.
     std::size_t budget{0};
-    for (auto const &f : c) budget += estimate_buffer(f);
+    for (auto const &f : c) budget += estimate_buffer(f) + 1;
     m_buffer.reserve(budget);
     for (auto const &f : c) append_to_buffer(f);
   }
