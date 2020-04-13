@@ -35,6 +35,7 @@ namespace pqxx
 template<> struct nullness<TestErrorHandler *>
 {
   static constexpr bool has_null{true};
+  static constexpr bool always_null{false};
   static constexpr bool is_null(TestErrorHandler *e) noexcept
   {
     return e == nullptr;

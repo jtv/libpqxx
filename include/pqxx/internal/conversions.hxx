@@ -188,6 +188,7 @@ template<> struct string_traits<bool>
 template<typename T> struct nullness<std::optional<T>>
 {
   static constexpr bool has_null = true;
+  static constexpr bool always_null = false;
   static constexpr bool is_null(std::optional<T> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
@@ -203,7 +204,7 @@ template<typename T> struct string_traits<std::optional<T>>
     return string_traits<T>::into_buf(begin, end, *value);
   }
 
-  zview to_buf(char *begin, char *end, std::optional<T> const &value)
+  static zview to_buf(char *begin, char *end, std::optional<T> const &value)
   {
     if (value.has_value())
       return to_buf(begin, end, *value);
@@ -243,6 +244,7 @@ template<> struct string_traits<std::nullptr_t>
 template<> struct nullness<char const *>
 {
   static constexpr bool has_null = true;
+  static constexpr bool always_null = false;
   static constexpr bool is_null(char const *t) noexcept
   {
     return t == nullptr;
@@ -290,6 +292,7 @@ template<> struct string_traits<char const *>
 template<> struct nullness<char *>
 {
   static constexpr bool has_null = true;
+  static constexpr bool always_null = false;
   static constexpr bool is_null(char const *t) noexcept
   {
     return t == nullptr;
@@ -447,7 +450,11 @@ template<> struct string_traits<std::stringstream>
 template<> struct nullness<std::nullptr_t>
 {
   static constexpr bool has_null = true;
-  static constexpr bool is_null(std::nullptr_t) noexcept { return true; }
+  static constexpr bool always_null = true;
+  static constexpr bool is_null(std::nullptr_t const &) noexcept
+  {
+    return true;
+  }
   static constexpr std::nullptr_t null() { return nullptr; }
 };
 
@@ -455,6 +462,7 @@ template<> struct nullness<std::nullptr_t>
 template<typename T> struct nullness<std::unique_ptr<T>>
 {
   static constexpr bool has_null = true;
+  static constexpr bool always_null = false;
   static constexpr bool is_null(std::unique_ptr<T> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);
@@ -479,7 +487,7 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
   static zview to_buf(char *begin, char *end, std::unique_ptr<T> const &value)
   {
     if (value)
-      return to_buf(begin, end, *value);
+      return string_traits<T>::to_buf(begin, end, *value);
     else
       return zview{};
   }
@@ -494,6 +502,7 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
 template<typename T> struct nullness<std::shared_ptr<T>>
 {
   static constexpr bool has_null = true;
+  static constexpr bool always_null = false;
   static constexpr bool is_null(std::shared_ptr<T> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);

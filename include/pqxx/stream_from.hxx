@@ -152,6 +152,7 @@ private:
     transaction_base &tx, std::string_view table, std::string &&columns,
     from_table_t);
 
+  // XXX: Can we make template args implicit?
   template<typename Tuple, std::size_t... indexes>
   void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
   {

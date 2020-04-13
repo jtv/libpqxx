@@ -88,6 +88,9 @@ template<typename TYPE, typename ENABLE = void> struct nullness
   /// Does this type have a null value?
   static bool has_null;
 
+  /// Is this type always null?
+  static bool always_null;
+
   /// Is @c value a null?
   static bool is_null(TYPE const &value);
 
@@ -105,6 +108,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 template<typename TYPE> struct no_null
 {
   static constexpr bool has_null = false;
+  static constexpr bool always_null = false;
   [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
   {
     return false;
@@ -300,7 +304,12 @@ inline void into_string(TYPE const &value, std::string &out);
 /// Is @c value null?
 template<typename TYPE>[[nodiscard]] inline bool is_null(TYPE const &value)
 {
-  if constexpr (nullness<TYPE>::has_null)
+  if constexpr (nullness<TYPE>::always_null)
+  {
+    ignore_unused(value);
+    return true;
+  }
+  else if constexpr (nullness<TYPE>::has_null)
   {
     return nullness<TYPE>::is_null(value);
   }

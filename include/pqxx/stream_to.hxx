@@ -20,26 +20,6 @@
 #include "pqxx/transaction_base.hxx"
 
 
-namespace pqxx::internal
-{
-std::string PQXX_LIBEXPORT copy_string_escape(std::string_view);
-
-struct TypedCopyEscaper
-{
-  template<typename T> std::string operator()(T const *t) const
-  {
-    // gcc 9 complains when t is used only in one branch of the "if constexpr".
-    ignore_unused(t);
-    if constexpr (std::is_same_v<T, std::nullptr_t>)
-      return "\\N";
-    else
-      return (t == nullptr or is_null(*t)) ? "\\N" :
-                                             copy_string_escape(to_string(*t));
-  }
-};
-} // namespace pqxx::internal
-
-
 namespace pqxx
 {
 /// Efficiently write data directly to a database table.
@@ -115,14 +95,17 @@ public:
   void complete();
 
   /// Insert a row of data.
-  /** The data can be any type that can be iterated.  Each iterated item
-   * becomes a field in the row, in the same order as the columns you
-   * specified when creating the stream.
+  /** Returns a reference to the stream, so you can chain the calls.
    *
-   * Each field will be converted into the database's format using
-   * @c pqxx::to_string.
+   * The @c row can be a tuple, or any type that can be iterated.  Each
+   * item becomes a field in the row, in the same order as the columns you
+   * specified when creating the stream.
    */
-  template<typename Tuple> stream_to &operator<<(Tuple const &);
+  template<typename Row> stream_to &operator<<(Row const &row)
+  {
+    write_row(row);
+    return *this;
+  }
 
   /// Stream a `stream_from` straight into a `stream_to`.
   /** This can be useful when copying between different databases.  If the
@@ -131,11 +114,161 @@ public:
    */
   stream_to &operator<<(stream_from &);
 
+  /// Insert a row of data.
+  /** The @c row can be a tuple, or any type that can be iterated.  Each
+   * item becomes a field in the row, in the same order as the columns you
+   * specified when creating the stream.
+   */
+  template<typename Row> void write_row(Row const &row)
+  {
+    fill_buffer(row);
+    write_buffer();
+  }
+
 private:
   bool m_finished = false;
 
-  /// Write a row of data, as a line of text.
+  /// Reusable buffer for a row.  Saves doing an allocation for each row.
+  std::string m_buffer;
+
+  /// Reusable buffer for converting/escaping a field.
+  std::string m_field_buf;
+
+  /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view);
+
+  /// Write a row of data from @c m_buffer into the destination table.
+  /** Resets the buffer for the next row.
+   */
+  void write_buffer();
+
+  /// COPY encoding for a null field, plus subsequent separator.
+  static constexpr std::string_view null_field{"\\N\t"};
+
+  /// Estimate buffer space needed for a field which is always null.
+  template<typename T>
+  static std::enable_if_t<nullness<T>::always_null, std::size_t>
+  estimate_buffer(T const &)
+  {
+    return null_field.size();
+  }
+
+  /// Estimate buffer space needed for field f.
+  /** The estimate is not very precise.  We don't actually know how much space
+   * we'll need once the escaping comes in.
+   */
+  template<typename T>
+  static std::enable_if_t<not nullness<T>::always_null, std::size_t>
+  estimate_buffer(T const &field)
+  {
+    return is_null(field) ? null_field.size() :
+                            string_traits<T>::size_buffer(field);
+  }
+
+  /// Append escaped version of @c m_field_buf to @c m_buffer, plus a tab.
+  void escape_field_to_buffer(std::string_view);
+
+  /// Append string representation for @c f to @c m_buffer.
+  /** This is for the general case, where the field may contain a value.
+   *
+   * Also appends a tab.  The tab is meant to be a separator, not a terminator,
+   * so if you write any fields at all, you'll end up with one tab too many
+   * at the end of the buffer.
+   */
+  template<typename Field>
+  std::enable_if_t<not nullness<Field>::always_null>
+  append_to_buffer(Field const &f)
+  {
+    // We append each field, terminated by a tab.  That will leave us with
+    // one tab too many, assuming we write any fields at all; we remove that
+    // at the end.
+    if (is_null(f))
+    {
+      // Easy.  Append null and tab in one go.
+      m_buffer.append(null_field);
+    }
+    else
+    {
+      // Convert f directly into the buffer.
+
+      using traits = string_traits<Field>;
+      auto const budget{estimate_buffer(f)};
+      auto const offset{m_buffer.size()};
+
+      if constexpr (std::is_arithmetic_v<Field>)
+      {
+        // Specially optimised for "safe" types, which never need any
+        // escaping.  Convert straight into m_buffer.
+
+        // The budget we get from size_buffer() includes room for the trailing
+        // zero, which we must remove.  But we're also inserting tabs between
+        // fields, so we re-purpose the extra byte for that.
+        auto const total{offset + budget};
+        m_buffer.resize(total);
+        char *const end{traits::into_buf(
+          m_buffer.data() + offset, m_buffer.data() + total, f)};
+        *(end - 1) = '\t';
+        // Shrink to fit.  Keep the tab though.
+        m_buffer.resize(static_cast<std::size_t>(end - m_buffer.data()));
+      }
+      else
+      {
+        // This field may need escaping.  First convert the value into
+        // m_field_buffer, then escape into its final place.
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(traits::to_buf(
+          m_field_buf.data(), m_field_buf.data() + m_field_buf.size(), f));
+      }
+    }
+  }
+
+  /// Append string representation for a null field to @c m_buffer.
+  /** This special case is for types which are always null.
+   *
+   * Also appends a tab.  The tab is meant to be a separator, not a terminator,
+   * so if you write any fields at all, you'll end up with one tab too many
+   * at the end of the buffer.
+   */
+  template<typename Field>
+  std::enable_if_t<nullness<Field>::always_null>
+  append_to_buffer(Field const &)
+  {
+    m_buffer.append(null_field);
+  }
+
+  /// Write raw COPY line into @c m_buffer, based on a container of fields.
+  template<typename Container> void fill_buffer(Container const &c)
+  {
+    // To avoid unnecessary allocations and deallocations, we run through c
+    // twice: once to determine how much buffer space we may need, and once to
+    // actually write it into the buffer.
+    std::size_t budget{0};
+    for (auto const &f : c) budget += estimate_buffer(f);
+    m_buffer.reserve(budget);
+    for (auto const &f : c) append_to_buffer(f);
+  }
+
+  template<typename Tuple, std::size_t... indexes>
+  static std::size_t
+  budget_tuple(Tuple const &t, std::index_sequence<indexes...>)
+  {
+    return (estimate_buffer(std::get<indexes>(t)) + ... + sizeof...(indexes));
+  }
+
+  template<typename Tuple, std::size_t... indexes>
+  void append_tuple(Tuple const &t, std::index_sequence<indexes...>)
+  {
+    (append_to_buffer(std::get<indexes>(t)), ...);
+  }
+
+  /// Write raw COPY line into @c m_buffer, based on a tuple of fields.
+  template<typename... Elts> void fill_buffer(std::tuple<Elts...> const &t)
+  {
+    using indexes = std::make_index_sequence<sizeof...(Elts)>;
+
+    m_buffer.reserve(budget_tuple(t, indexes{}));
+    append_tuple(t, indexes{});
+  }
 
   void set_up(transaction_base &, std::string_view table_name);
   void set_up(
@@ -159,13 +292,6 @@ inline stream_to::stream_to(
         internal::transactionfocus{tb}
 {
   set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
-}
-
-
-template<typename Tuple> stream_to &stream_to::operator<<(Tuple const &t)
-{
-  write_raw_line(separated_list("\t", t, internal::TypedCopyEscaper{}));
-  return *this;
 }
 } // namespace pqxx
 

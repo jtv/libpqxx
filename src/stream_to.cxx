@@ -63,9 +63,23 @@ pqxx::stream_to::~stream_to() noexcept
 }
 
 
-void pqxx::stream_to::write_raw_line(std::string_view line)
+void pqxx::stream_to::write_raw_line(std::string_view text)
 {
-  internal::gate::connection_stream_to{m_trans.conn()}.write_copy_line(line);
+  internal::gate::connection_stream_to{m_trans.conn()}.write_copy_line(text);
+}
+
+
+void pqxx::stream_to::write_buffer()
+{
+  if (not m_buffer.empty())
+  {
+    // In append_to_buffer() we write a tab after each field.  We only want a
+    // tab _between_ fields.  Remove that last one.
+    assert(m_buffer[m_buffer.size() - 1] == '\t');
+    m_buffer.resize(m_buffer.size() - 1);
+  }
+  write_raw_line(m_buffer);
+  m_buffer.clear();
 }
 
 
@@ -108,34 +122,34 @@ void pqxx::stream_to::complete()
 }
 
 
-std::string pqxx::internal::copy_string_escape(std::string_view s)
+void pqxx::stream_to::escape_field_to_buffer(std::string_view buf)
 {
-  if (s.empty())
-    return std::string{};
-
-  std::string escaped;
-  escaped.reserve(s.size() + 1);
-
-  for (auto c : s) switch (c)
+  for (auto c : buf)
+  {
+    switch (c)
     {
-    case '\b': escaped += "\\b"; break;  // Backspace
-    case '\f': escaped += "\\f"; break;  // Vertical tab
-    case '\n': escaped += "\\n"; break;  // Form feed
-    case '\r': escaped += "\\r"; break;  // Newline
-    case '\t': escaped += "\\t"; break;  // Tab
-    case '\v': escaped += "\\v"; break;  // Carriage return
-    case '\\': escaped += "\\\\"; break; // Backslash
+    case '\b': m_buffer += "\\b"; break;  // Backspace
+    case '\f': m_buffer += "\\f"; break;  // Vertical tab
+    case '\n': m_buffer += "\\n"; break;  // Form feed
+    case '\r': m_buffer += "\\r"; break;  // Newline
+    case '\t': m_buffer += "\\t"; break;  // Tab
+    case '\v': m_buffer += "\\v"; break;  // Carriage return
+    case '\\': m_buffer += "\\\\"; break; // Backslash
     default:
       if (c < ' ' or c > '~')
       {
-        escaped += "\\";
+        // Non-ASCII.  Escape as octal number.
+        m_buffer += "\\";
+        auto u{static_cast<unsigned char>(c)};
         for (auto i = 2; i >= 0; --i)
-          escaped += number_to_digit((c >> (3 * i)) & 0x07);
+          m_buffer += pqxx::internal::number_to_digit((u >> (3 * i)) & 0x07);
       }
       else
-        escaped += c;
+      {
+        m_buffer += c;
+      }
       break;
     }
-
-  return escaped;
+  }
+  m_buffer += '\t';
 }
