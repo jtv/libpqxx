@@ -61,7 +61,7 @@ For a default build, using those two directories, go into `$BUILD` and run:
 
 This sets up the build, in your current directory.
 
-Stay in the `$SOURCE` directory, and run:
+Stay in the `$BUILD` directory, and run:
 
 ```shell
     make
