@@ -11,7 +11,7 @@ public:
   std::string payload;
   int backend_pid;
 
-  TestReceiver(pqxx::connection_base &c, std::string const &channel_name) :
+  TestReceiver(pqxx::connection &c, std::string const &channel_name) :
           pqxx::notification_receiver(c, channel_name),
           payload(),
           backend_pid(0)
@@ -30,7 +30,7 @@ void test_receive(
   pqxx::transaction_base &t, std::string const &channel,
   char const payload[] = nullptr)
 {
-  pqxx::connection_base &conn(t.conn());
+  pqxx::connection &conn(t.conn());
 
   std::string SQL{"NOTIFY \"" + channel + "\""};
   if (payload != nullptr)

@@ -15,7 +15,7 @@
 
 namespace
 {
-void test_nonoptionals(pqxx::connection_base &connection)
+void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   pqxx::stream_from extractor{
@@ -102,7 +102,7 @@ void test_nonoptionals(pqxx::connection_base &connection)
 }
 
 
-void test_bad_tuples(pqxx::connection_base &conn)
+void test_bad_tuples(pqxx::connection &conn)
 {
   pqxx::work tx{conn};
   pqxx::stream_from extractor{tx, "stream_from_test"};
@@ -153,7 +153,7 @@ void test_bad_tuples(pqxx::connection_base &conn)
 
 
 template<template<typename...> class O>
-void test_optional(pqxx::connection_base &connection)
+void test_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   pqxx::stream_from extractor{

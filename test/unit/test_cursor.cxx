@@ -2,7 +2,7 @@
 
 namespace
 {
-void test_stateless_cursor_provides_random_access(pqxx::connection_base &conn)
+void test_stateless_cursor_provides_random_access(pqxx::connection &conn)
 {
   pqxx::work tx{conn};
   pqxx::stateless_cursor<
@@ -23,8 +23,7 @@ void test_stateless_cursor_provides_random_access(pqxx::connection_base &conn)
 }
 
 
-void test_stateless_cursor_ignores_trailing_semicolon(
-  pqxx::connection_base &conn)
+void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &conn)
 {
   pqxx::work tx{conn};
   pqxx::stateless_cursor<

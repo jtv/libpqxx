@@ -8,8 +8,8 @@ class TestErrorHandler final : public pqxx::errorhandler
 {
 public:
   TestErrorHandler(
-    pqxx::connection_base &c,
-    std::vector<TestErrorHandler *> &activated_handlers, bool retval = true) :
+    pqxx::connection &c, std::vector<TestErrorHandler *> &activated_handlers,
+    bool retval = true) :
           pqxx::errorhandler(c),
           return_value(retval),
           message(),
@@ -65,7 +65,7 @@ template<> struct string_traits<TestErrorHandler *>
 
 namespace
 {
-void test_process_notice_calls_errorhandler(pqxx::connection_base &c)
+void test_process_notice_calls_errorhandler(pqxx::connection &c)
 {
   std::vector<TestErrorHandler *> dummy;
   TestErrorHandler handler(c, dummy);
@@ -74,7 +74,7 @@ void test_process_notice_calls_errorhandler(pqxx::connection_base &c)
 }
 
 
-void test_error_handlers_get_called_newest_to_oldest(pqxx::connection_base &c)
+void test_error_handlers_get_called_newest_to_oldest(pqxx::connection &c)
 {
   std::vector<TestErrorHandler *> handlers;
   TestErrorHandler h1(c, handlers);
@@ -90,7 +90,7 @@ void test_error_handlers_get_called_newest_to_oldest(pqxx::connection_base &c)
   PQXX_CHECK_EQUAL(&h1, handlers[2], "Impossible handling order.");
 }
 
-void test_returning_false_stops_error_handling(pqxx::connection_base &c)
+void test_returning_false_stops_error_handling(pqxx::connection &c)
 {
   std::vector<TestErrorHandler *> handlers;
   TestErrorHandler starved(c, handlers);
@@ -102,7 +102,7 @@ void test_returning_false_stops_error_handling(pqxx::connection_base &c)
   PQXX_CHECK_EQUAL(starved.message, "", "Message received; it shouldn't be.");
 }
 
-void test_destroyed_error_handlers_are_not_called(pqxx::connection_base &c)
+void test_destroyed_error_handlers_are_not_called(pqxx::connection &c)
 {
   std::vector<TestErrorHandler *> handlers;
   {
@@ -131,14 +131,12 @@ void test_destroying_connection_unregisters_handlers()
 class MinimalErrorHandler final : public pqxx::errorhandler
 {
 public:
-  explicit MinimalErrorHandler(pqxx::connection_base &c) :
-          pqxx::errorhandler(c)
-  {}
+  explicit MinimalErrorHandler(pqxx::connection &c) : pqxx::errorhandler(c) {}
   bool operator()(char const[]) noexcept override { return true; }
 };
 
 
-void test_get_errorhandlers(pqxx::connection_base &c)
+void test_get_errorhandlers(pqxx::connection &c)
 {
   MinimalErrorHandler *eh3{nullptr};
   auto const handlers_before{c.get_errorhandlers()};

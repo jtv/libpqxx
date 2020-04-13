@@ -1,6 +1,7 @@
 7.1.0
  - Query tuples straight into `std::tuple` using `transaction::stream()`!
  - And, `stream_from` now supports more or less arbitrary queries.
+ - Instead of a tuple of fields, you can pass `stream_to` a container as well.
  - Streaming data is now more efficient.
  - The table name in `stream_from` is now escaped.
  - You can now "convert" strings to `std::string_view`.  Mind your lifetimes!

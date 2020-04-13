@@ -8,13 +8,13 @@ using namespace pqxx;
 // Example program for libpqxx.  Test session variable functionality.
 namespace
 {
-std::string GetDatestyle(connection_base &conn)
+std::string GetDatestyle(connection &conn)
 {
   return nontransaction(conn, "getdatestyle").get_variable("DATESTYLE");
 }
 
 
-std::string SetDatestyle(connection_base &conn, std::string style)
+std::string SetDatestyle(connection &conn, std::string style)
 {
   conn.set_variable("DATESTYLE", style);
   std::string const fullname{GetDatestyle(conn)};
@@ -26,22 +26,20 @@ std::string SetDatestyle(connection_base &conn, std::string style)
 }
 
 
-void CheckDatestyle(connection_base &conn, std::string expected)
+void CheckDatestyle(connection &conn, std::string expected)
 {
   PQXX_CHECK_EQUAL(GetDatestyle(conn), expected, "Got wrong datestyle.");
 }
 
 
-void RedoDatestyle(
-  connection_base &conn, std::string style, std::string expected)
+void RedoDatestyle(connection &conn, std::string style, std::string expected)
 {
   PQXX_CHECK_EQUAL(
     SetDatestyle(conn, style), expected, "Set wrong datestyle.");
 }
 
 
-void ActivationTest(
-  connection_base &conn, std::string style, std::string expected)
+void ActivationTest(connection &conn, std::string style, std::string expected)
 {
   RedoDatestyle(conn, style, expected);
   CheckDatestyle(conn, expected);

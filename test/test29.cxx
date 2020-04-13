@@ -34,7 +34,7 @@ std::pair<int, int> CountEvents(transaction_base &tx)
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
-void Test(connection_base &conn, bool ExplicitAbort)
+void Test(connection &conn, bool ExplicitAbort)
 {
   std::vector<std::string> BoringRow{to_string(BoringYear), "yawn"};
 

@@ -28,7 +28,7 @@ int To4Digits(int Y)
 
 
 // Transaction definition for year-field update.  Returns conversions done.
-std::map<int, int> update_years(connection_base &C)
+std::map<int, int> update_years(connection &C)
 {
   std::map<int, int> conversions;
   work tx{C};

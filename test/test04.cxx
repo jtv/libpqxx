@@ -21,7 +21,7 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection_base &conn) :
+  explicit TestListener(connection &conn) :
           notification_receiver(conn, "listen"),
           m_done(false)
   {}

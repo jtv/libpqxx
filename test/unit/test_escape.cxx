@@ -5,7 +5,7 @@
 namespace
 {
 void compare_esc(
-  pqxx::connection_base &c, pqxx::transaction_base &t, char const text[])
+  pqxx::connection &c, pqxx::transaction_base &t, char const text[])
 {
   std::size_t const len{std::string{text}.size()};
   PQXX_CHECK_EQUAL(
@@ -28,7 +28,7 @@ void compare_esc(
 }
 
 
-void test_esc(pqxx::connection_base &c, pqxx::transaction_base &t)
+void test_esc(pqxx::connection &c, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
   PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
@@ -40,7 +40,7 @@ void test_esc(pqxx::connection_base &c, pqxx::transaction_base &t)
 }
 
 
-void test_quote(pqxx::connection_base &c, pqxx::transaction_base &t)
+void test_quote(pqxx::connection &c, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
   PQXX_CHECK_EQUAL(

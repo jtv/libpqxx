@@ -16,7 +16,7 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 constexpr int BoringYear{1977};
 
-std::pair<int, int> count_events(connection_base &conn, std::string table)
+std::pair<int, int> count_events(connection &conn, std::string table)
 {
   std::string const count_query{"SELECT count(*) FROM " + table};
   work tx{conn};

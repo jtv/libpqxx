@@ -31,7 +31,7 @@ std::pair<int, int> CountEvents(transaction_base &T)
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
-void Test(connection_base &C, bool ExplicitAbort)
+void Test(connection &C, bool ExplicitAbort)
 {
   std::pair<int, int> EventCounts;
 
@@ -93,7 +93,7 @@ void test_abort()
   connection conn;
   nontransaction t{conn};
   test::create_pqxxevents(t);
-  connection_base &c(t.conn());
+  connection &c(t.conn());
   t.commit();
   Test(c, true);
   Test(c, false);

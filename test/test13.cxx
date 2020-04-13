@@ -18,7 +18,7 @@ constexpr unsigned int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(connection_base &conn, std::string table)
+std::pair<int, int> count_events(connection &conn, std::string table)
 {
   work tx{conn};
   std::string const count_query{"SELECT count(*) FROM " + table};
@@ -32,7 +32,7 @@ struct deliberate_error : std::exception
 {};
 
 
-void failed_insert(connection_base &C, std::string table)
+void failed_insert(connection &C, std::string table)
 {
   work tx(C);
   result R = tx.exec0(

@@ -272,8 +272,7 @@ in the include/pqxx/ directory.  The reference documentation is extracted from
 the headers using a program called Doxygen.
 
 When learning about programming with libpqxx, you'll want to start off by
-reading about the `connection_base` class and its children, as well as the
-`transaction_base` class.
+reading about the `connection` and `transaction_base` classes.
 
 For programming examples, take a look at the test programs in the test/
 directory.  If you don't know how a certain function or class is used, try
@@ -283,16 +282,16 @@ searching the test programs for that name.
 Programming with libpqxx
 ------------------------
 
-Your first program will involve the libpqxx classes "connection" (see headers
-`pqxx/connection_base.hxx` and `pqxx/connection.hxx`), and `work` (a
-convenience alias for `transaction<>` which conforms to the interface defined
-in `pqxx/transaction_base.hxx`).
+Your first program will involve the libpqxx classes "connection" (see the
+`pqxx/connection.hxx` header), and `work` (a convenience alias for
+`transaction<>` which conforms to the interface defined in
+`pqxx/transaction_base.hxx`).
 
 These `*.hxx` headers are not the ones you include in your program.  Instead,
-include the versions without filename suffix (e.g. `pqxx/connection_base`).
-Those will include the actual .hxx files for you.  This was done so that
-includes are in standard C++ style (as in `<iostream>` etc.), but an editor
-will still recognize them as files containing C++ code.
+include the versions without filename suffix (e.g. `pqxx/connection`).  Those
+will include the actual .hxx files for you.  This was done so that includes are
+in standard C++ style (as in `<iostream>` etc.), but an editor will still
+recognize them as files containing C++ code.
 
 Continuing the list of classes, you will most likely also need the result class
 (`pqxx/result.hxx`).  In a nutshell, you create a `connection` based on a

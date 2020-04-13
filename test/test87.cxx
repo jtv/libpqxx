@@ -27,8 +27,8 @@
 
 // Test program for libpqxx.  Send notification to self, and select() on socket
 // as returned by the connection to wait for it to come in.  Normally one would
-// use connection_base::await_notification() for this, but the socket may be
-// needed for event loops waiting on multiple sources of events.
+// use connection::await_notification() for this, but the socket may be needed
+// for event loops waiting on multiple sources of events.
 namespace
 {
 // Sample implementation of notification receiver.
@@ -37,7 +37,7 @@ class TestListener final : public pqxx::notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(pqxx::connection_base &conn, std::string Name) :
+  explicit TestListener(pqxx::connection &conn, std::string Name) :
           pqxx::notification_receiver(conn, Name),
           m_done(false)
   {}

@@ -18,7 +18,7 @@ std::string truncate_sql_error(std::string const &what)
 }
 
 
-void test_nonoptionals(pqxx::connection_base &connection)
+void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   pqxx::stream_to inserter{tx, "stream_to_test"};
@@ -53,7 +53,7 @@ void test_nonoptionals(pqxx::connection_base &connection)
 }
 
 
-void test_bad_null(pqxx::connection_base &connection)
+void test_bad_null(pqxx::connection &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -79,7 +79,7 @@ void test_bad_null(pqxx::connection_base &connection)
 }
 
 
-void test_too_few_fields(pqxx::connection_base &connection)
+void test_too_few_fields(pqxx::connection &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -103,7 +103,7 @@ void test_too_few_fields(pqxx::connection_base &connection)
 }
 
 
-void test_too_many_fields(pqxx::connection_base &connection)
+void test_too_many_fields(pqxx::connection &connection)
 {
   pqxx::work transaction{connection};
   pqxx::stream_to inserter{transaction, "stream_to_test"};
@@ -130,7 +130,7 @@ void test_too_many_fields(pqxx::connection_base &connection)
 
 
 template<template<typename...> class O>
-void test_optional(pqxx::connection_base &connection)
+void test_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   pqxx::stream_to inserter{tx, "stream_to_test"};
