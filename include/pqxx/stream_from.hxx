@@ -226,10 +226,10 @@ inline void stream_from::extract_value(Tuple &t) const
 {
   using field_type = std::remove_reference_t<decltype(std::get<index>(t))>;
   assert(index < m_fields.size());
-  if constexpr (std::is_same_v<field_type, std::nullptr_t>)
+  if constexpr (nullness<field_type>::always_null)
   {
     if (m_fields[index].data() != nullptr)
-      throw conversion_error{"Streaming non-null value into nullptr_t field."};
+      throw conversion_error{"Streaming non-null value into null field."};
   }
   else if (m_fields[index].data() == nullptr)
   {
