@@ -10,6 +10,7 @@
  - Obsolete Windows build docs are gone.
  - Added `row::to(std::tuple<...>)`.
  - Unified the test suites.  We no longer need `test/unit/unit_runner`.
+ - New `nullness` member: `always_null`.
 7.0.6
  - Prefer `pg_config` over `pkg-config` for include path (#291).
  - Try to plod on if we don't know the PostgreSQL include path.
