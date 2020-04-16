@@ -212,8 +212,7 @@ class Build:
     def report(self, stage):
         """Print a message saying what we're about to do."""
         print(
-            "%s - %s... " % (self.config.make_log_name(), stage),
-            end='', flush=True)
+            "%s - %s... " % (self.config.name(), stage), end='', flush=True)
 
     def clean_up(self):
         """Delete the build tree."""
