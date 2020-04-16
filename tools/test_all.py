@@ -454,11 +454,9 @@ def main(args):
         to_build = run_step(
             builds, "configure", lambda build: build.configure())
         to_test = run_step(
-            to_build, "build", lambda build: build.build(),
-            verbose=args.verbose)
+            to_build, "build", lambda build: build.build())
         done = run_step(
-            to_test, "test", lambda build: build.test(),
-            verbose=args.verbose)
+            to_test, "test", lambda build: build.test())
     finally:
         for build in builds:
             build.clean_up()
