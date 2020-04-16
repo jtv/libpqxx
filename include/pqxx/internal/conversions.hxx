@@ -100,7 +100,7 @@ template<typename T> struct integral_traits
 
   static constexpr std::size_t size_buffer(T const &) noexcept
   {
-    /** Includes a sign if needed; the number of base-10 digits which the type;
+    /** Includes a sign if needed; the number of base-10 digits which the type
      * can reliably represent; the one extra base-10 digit which the type can
      * only partially represent; and the terminating zero.
      */

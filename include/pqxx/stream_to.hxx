@@ -20,6 +20,7 @@
 #include "pqxx/transaction_base.hxx"
 
 
+#include<iostream>
 namespace pqxx
 {
 /// Efficiently write data directly to a database table.
@@ -189,7 +190,7 @@ private:
     }
     else
     {
-      // Convert f directly into the buffer.
+      // Convert f into m_buffer.
 
       using traits = string_traits<Field>;
       auto const budget{estimate_buffer(f)};
@@ -213,6 +214,7 @@ private:
       }
       else
       {
+// TODO: Specialise string/string_view/zview to skip to_buf()!
         // This field may need escaping.  First convert the value into
         // m_field_buffer, then escape into its final place.
         m_field_buf.resize(budget);
@@ -243,7 +245,7 @@ private:
     // twice: once to determine how much buffer space we may need, and once to
     // actually write it into the buffer.
     std::size_t budget{0};
-    for (auto const &f : c) budget += estimate_buffer(f) + 1;
+    for (auto const &f : c) budget += estimate_buffer(f);
     m_buffer.reserve(budget);
     for (auto const &f : c) append_to_buffer(f);
   }
@@ -252,7 +254,7 @@ private:
   static std::size_t
   budget_tuple(Tuple const &t, std::index_sequence<indexes...>)
   {
-    return (estimate_buffer(std::get<indexes>(t)) + ... + sizeof...(indexes));
+    return (estimate_buffer(std::get<indexes>(t)) + ...);
   }
 
   template<typename Tuple, std::size_t... indexes>
