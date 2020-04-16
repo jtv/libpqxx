@@ -453,8 +453,7 @@ def main(args):
 
     try:
         to_build = run_step(
-            builds, "configure", lambda build: build.configure(),
-            verbose=args.verbose)
+            builds, "configure", lambda build: build.configure())
         to_test = run_step(
             to_build, "build", lambda build: build.build(),
             verbose=args.verbose)
