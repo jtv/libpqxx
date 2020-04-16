@@ -202,31 +202,42 @@ def check_compilers(compilers, stdlibs, verbose=False):
         ]
 
 
-def try_build(
-        logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts
-    ):
+class Config:
+    """A combination of build options."""
+    def __init__(self, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
+        self.cxx = cxx
+        self.opt = opt
+        self.stdlib = stdlib
+        self.link = link
+        self.link_opts = link_opts
+        self.debug = debug
+        self.debug_opts = debug_opts
+
+
+def try_build(logs_dir, config):
     """Attempt to build in a given configuration."""
     log = os.path.join(
-        logs_dir, 'build-%s.out' % '_'.join([cxx, opt, stdlib, link, debug]))
+        logs_dir, 'build-%s.out' % '_'.join([
+            config.cxx, config.opt, config.stdlib, config.link, config.debug]))
     print("%s... " % log, end='', flush=True)
     configure = [
         os.path.join(getcwd(), "configure"),
-        "CXX=%s" % cxx,
+        "CXX=%s" % config.cxx,
         ]
 
-    if stdlib == '':
+    if config.stdlib == '':
         configure += [
-            "CXXFLAGS=%s" % opt,
+            "CXXFLAGS=%s" % config.opt,
             ]
     else:
         configure += [
-            "CXXFLAGS=%s %s" % (opt, stdlib),
-            "LDFLAGS=%s" % stdlib,
+            "CXXFLAGS=%s %s" % (config.opt, config.stdlib),
+            "LDFLAGS=%s" % config.stdlib,
             ]
 
     configure += [
         "--disable-documentation",
-        ] + link_opts + debug_opts
+        ] + config.link_opts + config.debug_opts
 
     with open(log, 'w') as output:
         build(configure, output)
@@ -347,10 +358,10 @@ def main(args):
         for link, link_opts in sorted(link_types):
             for debug, debug_opts in sorted(debug_mixes):
                 for cxx, stdlib in compilers:
-                    try_build(
-                        logs_dir=args.logs, cxx=cxx, opt=opt, stdlib=stdlib,
-                        link=link, link_opts=link_opts, debug=debug,
-                        debug_opts=debug_opts)
+                    config = Config(
+                        opt=opt, link=link, link_opts=link_opts, debug=debug,
+                        debug_opts=debug_opts, cxx=cxx, stdlib=stdlib)
+                    try_build(logs_dir=args.logs, config=config)
 
     if args.verbose:
         print("\nBuilding with CMake.")
