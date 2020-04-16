@@ -11,6 +11,10 @@ source tree.  The configure script will refuse to configure otherwise.
 # Without this, pocketlint does not yet understand the print function.
 from __future__ import print_function
 
+from abc import (
+    ABCMeta,
+    abstractmethod,
+    )
 from argparse import ArgumentParser
 from contextlib import contextmanager
 from os import (
@@ -78,6 +82,10 @@ class Fail(Exception):
     """A known, well-handled exception.  Doesn't need a traceback."""
 
 
+class Skip(Exception):
+    """"We're not doing this build.  It's not an error though."""
+
+
 def run(cmd, output, cwd=None):
     """Run a command, write output to file-like object."""
     command_line = ' '.join(cmd)
@@ -87,7 +95,7 @@ def run(cmd, output, cwd=None):
 
 def report(output, message):
     """Report a message to output, and standard output."""
-    print(message)
+    print(message, flush=True)
     output.write('\n\n')
     output.write(message)
     output.write('\n')
@@ -112,31 +120,6 @@ def file_contains(path, text):
             if text in line:
                 return True
     return False
-
-
-def build(configure, output):
-    """Perform a full configure-based build."""
-    with tmp_dir() as work_dir:
-        try:
-            run(configure, output, cwd=work_dir)
-        except CalledProcessError:
-            output.flush()
-            if file_contains(output.name, "make distclean"):
-                # Looks like that special "configure" error where the source
-                # tree is already configured.  Tell the user about this special
-                # case without requiring them to dig deeper.
-                raise Fail(
-                    "Configure failed.  "
-                    "Did you remember to 'make distclean' the source tree?")
-            return report_failure("configure failed.")
-
-        try:
-            run(['make', '-j%d' % CPUS], output, cwd=work_dir)
-            run(['make', '-j%d' % CPUS, 'check'], output, cwd=work_dir)
-        except CalledProcessError as err:
-            return report_failure(output, err)
-        else:
-            return report_success(output)
 
 
 @contextmanager
@@ -175,7 +158,7 @@ def check_compiler(work_dir, cxx, stdlib, check, verbose=False):
     else:
         err_output = DEVNULL
     try:
-        command = [cxx, 'check.cxx']
+        command = [cxx, check]
         if stdlib != '':
             command.append(stdlib)
         check_call(command, cwd=work_dir, stderr=err_output)
@@ -203,7 +186,66 @@ def check_compilers(compilers, stdlibs, verbose=False):
 
 
 class Config:
-    """A combination of build options."""
+    """Configuration for a build."""
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def name(self):
+        """Return an identifier for this build configuration."""
+
+    def make_log_name(self):
+        """Compose log file name for this build."""
+        return "build-%s.out" % self.name()
+
+
+class Build:
+    """A pending or ondoing build, in its own directory.
+
+    Each step returns True for Success, or False for failure.
+    """
+    def __init__(self, logs_dir, config=None):
+        self.config = config
+        self.log = open(os.path.join(logs_dir, config.make_log_name()), 'w')
+        self.work_dir_context = tmp_dir()
+        self.work_dir = self.work_dir_context.__enter__()
+
+    def report(self, stage):
+        """Print a message saying what we're about to do."""
+        print(
+            "%s - %s... " % (self.config.make_log_name(), stage),
+            end='', flush=True)
+
+    def clean_up(self):
+        """Delete the build tree."""
+        self.work_dir_context.__exit__(None, None, None)
+        self.log.close()
+
+    @abstractmethod
+    def configure(self):
+        """Prepare for a build.
+
+        This step is basically single-threaded.
+        """
+
+    @abstractmethod
+    def build(self):
+        """Build the code, including the tests.  Don't run tests though."""
+
+
+    def test(self):
+        """Run tests."""
+        try:
+            run(
+                [os.path.join(os.path.curdir, 'test', 'runner')], self.log,
+                cwd=self.work_dir)
+        except CalledProcessError:
+            return report_failure(self.log, "Tests failed.")
+        else:
+            return report_success(self.log)
+
+
+class AutotoolsConfig(Config):
+    """A combination of build options for the "configure" script."""
     def __init__(self, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
         self.cxx = cxx
         self.opt = opt
@@ -213,86 +255,125 @@ class Config:
         self.debug = debug
         self.debug_opts = debug_opts
 
+    def name(self):
+        return '_'.join([
+            self.cxx, self.opt, self.stdlib, self.link, self.debug])
 
-def try_build(logs_dir, config):
-    """Attempt to build in a given configuration."""
-    log = os.path.join(
-        logs_dir, 'build-%s.out' % '_'.join([
-            config.cxx, config.opt, config.stdlib, config.link, config.debug]))
-    print("%s... " % log, end='', flush=True)
-    configure = [
-        os.path.join(getcwd(), "configure"),
-        "CXX=%s" % config.cxx,
-        ]
 
-    if config.stdlib == '':
-        configure += [
-            "CXXFLAGS=%s" % config.opt,
-            ]
-    else:
-        configure += [
-            "CXXFLAGS=%s %s" % (config.opt, config.stdlib),
-            "LDFLAGS=%s" % config.stdlib,
+class AutotoolsBuild(Build):
+    """Build using the "configure" script."""
+    __metaclass__ = ABCMeta
+
+    def configure(self):
+        configure = [
+            os.path.join(getcwd(), "configure"),
+            "CXX=%s" % self.config.cxx,
             ]
 
-    configure += [
-        "--disable-documentation",
-        ] + config.link_opts + config.debug_opts
+        if self.config.stdlib == '':
+            configure += [
+                "CXXFLAGS=%s" % self.config.opt,
+            ]
+        else:
+            configure += [
+                "CXXFLAGS=%s %s" % (self.config.opt, self.config.stdlib),
+                "LDFLAGS=%s" % self.config.stdlib,
+                ]
 
-    with open(log, 'w') as output:
-        build(configure, output)
+        configure += [
+            "--disable-documentation",
+            ] + self.config.link_opts + self.config.debug_opts
+
+        try:
+            run(configure, self.log, cwd=self.work_dir)
+        except CalledProcessError:
+            self.log.flush()
+            if file_contains(self.log.name, "make distclean"):
+                # Looks like that special "configure" error where the source
+                # tree is already configured.  Tell the user about this
+                # special case without requiring them to dig deeper.
+                raise Fail(
+                    "Configure failed.  "
+                    "Did you remember to 'make distclean' the source tree?")
+            return report_failure(self.log, "configure failed.")
+        else:
+            return report_success(self.log)
+
+    def build(self):
+        try:
+            run(['make', '-j%d' % CPUS], self.log, cwd=self.work_dir)
+            # Passing "TESTS=" like this will suppress the actual running of
+            # the tests.  We do that in the nest stage.
+            run(
+                ['make', '-j%d' % CPUS, 'check', 'TESTS='],
+                self.log, cwd=self.work_dir)
+        except CalledProcessError as err:
+            return report_failure(self.log, err)
+        else:
+            return report_success(self.log)
 
 
-def prepare_cmake(work_dir, output, verbose=False):
-    """Set up a CMake build dir, ready to build.
+class CMakeConfig(Config):
+    """Configuration for a CMake build."""
+    def __init__(self):
+        # The CMakeBuild figures this out in the configure stage.
+        self.command = None
 
-    Returns the directory, and if successful, the command you need to run in
-    order to do the build.
+    def name(self):
+        return "cmake"
+
+
+class CMakeBuild(Build):
+    """Build using CMake.
+
+    Ignores the config for now.
     """
-    if verbose:
-        print("\nLooking for CMake generator.")
-    source_dir = getcwd()
-    for gen, cmd in CMAKE_GENERATORS.items():
-        name = gen or '<default>'
-        cmake = ['cmake', source_dir]
-        if gen is not None:
-            cmake += ['-G', gen]
-        if verbose:
-            print("Trying CMake with %s." % name)
+    __metaclass__ = ABCMeta
 
-        try:
-            run(cmake, output=output, cwd=work_dir)
-        except FileNotFoundError:
-            print("No cmake found.  Skipping.")
-            return None
-        except CalledProcessError:
-            print("CMake generator %s is not available.  Skipping." % name)
-        else:
-            return cmd
+    def configure(self):
+        source_dir = getcwd()
+        for gen, cmd in CMAKE_GENERATORS.items():
+            name = gen or '<default>'
+            cmake = ['cmake', source_dir]
+            if gen is not None:
+                cmake += ['-G', gen]
 
-    return None
-
-
-def build_with_cmake(logs_dir, verbose=False):
-    """Build using CMake.  Use the first generator that works."""
-    log = os.path.join(logs_dir, "build-cmake.out")
-    print("%s... " % log, end='', flush=True)
-    with tmp_dir() as work_dir, open(log, 'w') as output:
-        try:
-            command = prepare_cmake(work_dir, output, verbose)
-            if command is None:
-                return report_fail(
-                    output,
-                    "No CMake generators found.  Skipping CMake build.")
+            try:
+                run(cmake, output=self.log, cwd=self.work_dir)
+            except FileNotFoundError:
+                raise Skip("No cmake found.")
+            except CalledProcessError:
+                print(
+                    "CMake generator %s is not available.  Skipping." % name)
             else:
-                if verbose:
-                    print("Building with CMake and '%s'." % ' '.join(command))
-                run(command, output, cwd=work_dir)
-                run(['test/runner'], output, cwd=work_dir)
+                self.config.command = cmd
+                return report_success(self.log)
+
+        raise Skip("Did not find any working CMake generators.")
+
+    def build(self):
+        print("%s... " % self.log.name, end='', flush=True)
+        try:
+            run(self.config.command, self.log, cwd=self.work_dir)
+            run(['test/runner'], self.log, cwd=self.work_dir)
+            return report_success(self.log)
         except CalledProcessError:
-            return report_fail(output, "CMake build failed.")
+            return report_failure(self.log, "CMake build failed.")
         else:
-            return report_success(output)
+            return report_success(self.log)
+
+
+def run_step(builds, step_name, step):
+    """Run `build(step) for each build in builds.  Return passing builds."""
+    succeeded = []
+    for build in builds:
+        try:
+            build.report(step_name)
+            if step(build):
+                succeeded.append(build)
+        except Skip as error:
+            print("Skipping: %s" % error)
+    return succeeded
 
 
 def parse_args():
@@ -353,23 +434,42 @@ def main(args):
         link_types = list(link_types)[:1]
         debug_mixes = list(debug_mixes)[:1]
 
-    print("\nStarting builds.")
-    for opt in sorted(opt_levels):
-        for link, link_opts in sorted(link_types):
-            for debug, debug_opts in sorted(debug_mixes):
-                for cxx, stdlib in compilers:
-                    config = Config(
-                        opt=opt, link=link, link_opts=link_opts, debug=debug,
-                        debug_opts=debug_opts, cxx=cxx, stdlib=stdlib)
-                    try_build(logs_dir=args.logs, config=config)
-
     if args.verbose:
-        print("\nBuilding with CMake.")
-    build_with_cmake(args.logs, verbose=args.verbose)
+        print("\nStarting builds.")
+
+    builds = [
+        AutotoolsBuild(
+            args.logs,
+            AutotoolsConfig(
+                opt=opt, link=link, link_opts=link_opts, debug=debug,
+                debug_opts=debug_opts, cxx=cxx, stdlib=stdlib))
+        for opt in sorted(opt_levels)
+        for link, link_opts in sorted(link_types)
+        for debug, debug_opts in sorted(debug_mixes)
+        for cxx, stdlib in compilers
+    ] + [
+        CMakeBuild(args.logs, CMakeConfig())
+    ]
+
+    try:
+        to_build = run_step(
+            builds, "configure", lambda build: build.configure(),
+            verbose=args.verbose)
+        to_test = run_step(
+            to_build, "build", lambda build: build.build(),
+            verbose=args.verbose)
+        done = run_step(
+            to_test, "test", lambda build: build.test(),
+            verbose=args.verbose)
+    finally:
+        for build in builds:
+            build.clean_up()
+
+    print("Passed %d out of %d builds." % (len(done), len(builds)))
 
 
 if __name__ == '__main__':
     try:
         main(parse_args())
-    except Fail as error:
-        stderr.write("%s\n" % error)
+    except Fail as failure:
+        stderr.write("%s\n" % failure)
