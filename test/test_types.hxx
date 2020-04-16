@@ -123,7 +123,7 @@ template<> struct string_traits<ipv4>
 
   static constexpr std::size_t size_buffer(ipv4 const &) noexcept
   {
-    return 16;
+    return 20;
   }
 };
 
