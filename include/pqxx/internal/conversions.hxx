@@ -226,6 +226,7 @@ template<typename T> struct string_traits<std::optional<T>>
 };
 
 
+#if defined(PQXX_HAVE_VARIANT)
 template<typename... T> struct nullness<std::variant<T...>>
 {
   static constexpr bool has_null = (nullness<T>::has_null or ...);
@@ -238,10 +239,13 @@ template<typename... T> struct nullness<std::variant<T...>>
   }
 
   // Can't always have null() for std::variant.  We could have one for the case
-  // where only one of the types has one, but it gets complicated and arbitrary.
+  // where only one of the types has one, but it gets complicated and
+  // arbitrary.
 };
+#endif // PQXX_HAVE_VARIANT
 
 
+#if defined(PQXX_HAVE_VARIANT)
 template<typename... T> struct string_traits<std::variant<T...>>
 {
   static char *
@@ -274,6 +278,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   // like "pick the first type which fits the value," but we'd have to look
   // into how natural that API feels to users.
 };
+#endif // PQXX_HAVE_VARIANT
 
 
 template<typename T> inline T from_string(std::stringstream const &text)

@@ -18794,6 +18794,47 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_thread_local" >&5
 $as_echo "$have_thread_local" >&6; }
 
+# Still getting errors on std::visit() from clang 6, and on one of my systems,
+# on gcc 7 as well.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for full std::variant support" >&5
+$as_echo_n "checking for full std::variant support... " >&6; }
+have_variant=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for sufficient std::variant support.
+
+#include <iostream>
+
+#include <variant>
+
+#include <string>
+
+
+
+int main()
+
+{
+
+  std::variant<int, std::string> v{"Hello"};
+
+  std::visit([](auto const &i){ std::cout << i; }, v);
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_VARIANT 1" >>confdefs.h
+
+else
+  have_variant=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_variant" >&5
+$as_echo "$have_variant" >&6; }
+
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.
