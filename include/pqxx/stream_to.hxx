@@ -20,7 +20,7 @@
 #include "pqxx/transaction_base.hxx"
 
 
-#include<iostream>
+#include <iostream>
 namespace pqxx
 {
 /// Efficiently write data directly to a database table.
@@ -214,7 +214,7 @@ private:
       }
       else
       {
-// TODO: Specialise string/string_view/zview to skip to_buf()!
+        // TODO: Specialise string/string_view/zview to skip to_buf()!
         // This field may need escaping.  First convert the value into
         // m_field_buffer, then escape into its final place.
         m_field_buf.resize(budget);

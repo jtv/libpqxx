@@ -2,15 +2,17 @@
  - Query tuples straight into `std::tuple` using `transaction::stream()`!
  - And, `stream_from` now supports more or less arbitrary queries.
  - Instead of a tuple of fields, you can pass `stream_to` a container as well.
+ - `string_traits::size_buffer()` must now be `noexcept`.
+ - New `nullness` member: `always_null`.
  - Streaming data is now more efficient.
  - The table name in `stream_from` is now escaped.
  - You can now "convert" strings to `std::string_view`.  Mind your lifetimes!
+ - A `std::variant` will now convert to string, if its member types do.
  - If a `stream_from` row fails to convert, you can no longer retry it.
  - `from_string(field const &)` now handles null values properly.
  - Obsolete Windows build docs are gone.
  - Added `row::to(std::tuple<...>)`.
  - Unified the test suites.  We no longer need `test/unit/unit_runner`.
- - New `nullness` member: `always_null`.
 7.0.6
  - Prefer `pg_config` over `pkg-config` for include path (#291).
  - Try to plod on if we don't know the PostgreSQL include path.

@@ -164,7 +164,8 @@ template<typename TYPE> struct string_traits
    *
    * The estimate includes the terminating zero.
    */
-  [[nodiscard]] static inline std::size_t size_buffer(TYPE const &value);
+  [[nodiscard]] static inline std::size_t
+  size_buffer(TYPE const &value) noexcept;
 };
 
 
@@ -208,7 +209,7 @@ template<typename ENUM> struct enum_traits
     return static_cast<ENUM>(impl_traits::from_string(text));
   }
 
-  [[nodiscard]] static std::size_t size_buffer(ENUM const &value)
+  [[nodiscard]] static std::size_t size_buffer(ENUM const &value) noexcept
   {
     return impl_traits::size_buffer(static_cast<impl_type>(value));
   }

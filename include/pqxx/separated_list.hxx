@@ -47,8 +47,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
     return to_string(access(begin));
 
   // From here on, we've got at least 2 elements -- meaning that we need sep.
-  using elt_type =
-    std::remove_const_t<std::remove_reference_t<decltype(access(begin))>>;
+  using elt_type = strip_t<decltype(access(begin))>;
   using traits = string_traits<elt_type>;
 
   std::size_t budget{0};

@@ -5,6 +5,7 @@
 #include <numeric>
 #include <optional>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 #if __has_include(<string.h>)
@@ -218,10 +219,60 @@ template<typename T> struct string_traits<std::optional<T>>
                             string_traits<T>::from_string(text)};
   }
 
-  static std::size_t size_buffer(std::optional<T> const &value)
+  static std::size_t size_buffer(std::optional<T> const &value) noexcept
   {
     return string_traits<T>::size_buffer(value.value());
   }
+};
+
+
+template<typename... T> struct nullness<std::variant<T...>>
+{
+  static constexpr bool has_null = (nullness<T>::has_null or ...);
+  static constexpr bool always_null = (nullness<T>::always_null and ...);
+  static constexpr bool is_null(std::variant<T...> const &value) noexcept
+  {
+    return std::visit(
+      [](auto const &i) { return nullness<strip_t<decltype(i)>>::is_null(i); },
+      value);
+  }
+
+  // Can't always have null() for std::variant.  We could have one for the case
+  // where only one of the types has one, but it gets complicated and arbitrary.
+};
+
+
+template<typename... T> struct string_traits<std::variant<T...>>
+{
+  static char *
+  into_buf(char *begin, char *end, std::variant<T...> const &value)
+  {
+    return std::visit(
+      [begin, end](auto const &i) {
+        return string_traits<strip_t<decltype(i)>>::into_buf(begin, end, i);
+      },
+      value);
+  }
+  static zview to_buf(char *begin, char *end, std::variant<T...> const &value)
+  {
+    return std::visit(
+      [begin, end](auto const &i) {
+        return string_traits<strip_t<decltype(i)>>::to_buf(begin, end, i);
+      },
+      value);
+  }
+  static std::size_t size_buffer(std::variant<T...> const &value) noexcept
+  {
+    return std::visit(
+      [](auto const &i) noexcept {
+        return string_traits<strip_t<decltype(i)>>::size_buffer(i);
+      },
+      value);
+  }
+
+  // There's no from_string for std::variant.  We could have one with a rule
+  // like "pick the first type which fits the value," but we'd have to look
+  // into how natural that API feels to users.
 };
 
 
@@ -282,7 +333,7 @@ template<> struct string_traits<char const *>
     return begin + len;
   }
 
-  static std::size_t size_buffer(char const *const &value)
+  static std::size_t size_buffer(char const *const &value) noexcept
   {
     return std::strlen(value) + 1;
   }
@@ -312,7 +363,7 @@ template<> struct string_traits<char *>
   {
     return string_traits<char const *>::to_buf(begin, end, value);
   }
-  static std::size_t size_buffer(char *const &value)
+  static std::size_t size_buffer(char *const &value) noexcept
   {
     return string_traits<char const *>::size_buffer(value);
   }
@@ -377,7 +428,7 @@ template<> struct string_traits<std::string>
     return zview{begin, next - begin - 1};
   }
 
-  static std::size_t size_buffer(std::string const &value)
+  static std::size_t size_buffer(std::string const &value) noexcept
   {
     return value.size() + 1;
   }
@@ -492,7 +543,7 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
       return zview{};
   }
 
-  static std::size_t size_buffer(std::unique_ptr<T> const &value)
+  static std::size_t size_buffer(std::unique_ptr<T> const &value) noexcept
   {
     return string_traits<T>::size_buffer(*value.get());
   }
@@ -527,7 +578,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   {
     return string_traits<T>::into_buf(begin, end, *value);
   }
-  static std::size_t size_buffer(std::shared_ptr<T> const &value)
+  static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
     return string_traits<T>::size_buffer(*value);
   }
@@ -595,7 +646,7 @@ template<typename Container> struct array_string_traits
     return here;
   }
 
-  static std::size_t size_buffer(Container const &value)
+  static std::size_t size_buffer(Container const &value) noexcept
   {
     using elt_traits = string_traits<elt_type>;
     return 3 + std::accumulate(
@@ -614,8 +665,7 @@ template<typename Container> struct array_string_traits
   // would require a reference to the connection.
 
 private:
-  using elt_type = std::remove_const_t<
-    std::remove_reference_t<decltype(*std::declval<Container>().begin())>>;
+  using elt_type = strip_t<decltype(*std::declval<Container>().begin())>;
 
   static constexpr zview s_null{"NULL"};
 };

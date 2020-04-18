@@ -495,7 +495,7 @@ operator-(const_row_iterator const &i) const
 template<typename Tuple, std::size_t index>
 inline void row::extract_value(Tuple &t) const
 {
-  using field_type = std::remove_reference_t<decltype(std::get<index>(t))>;
+  using field_type = strip_t<decltype(std::get<index>(t))>;
   field const f{*this, index};
   std::get<index>(t) = from_string<field_type>(f);
 }

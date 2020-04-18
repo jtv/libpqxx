@@ -111,5 +111,17 @@ void test_string_conversion()
 }
 
 
+void test_convert_variant_to_string()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::variant<int, std::string>{99}), "99",
+    "First variant field did not convert right.");
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::variant<int, std::string>{"Text"}, "Text", "Second variant field did not convert right.");
+}
+
+
 PQXX_REGISTER_TEST(test_string_conversion);
+PQXX_REGISTER_TEST(test_convert_variant_to_string);
 } // namespace
