@@ -4,6 +4,7 @@
  - Instead of a tuple of fields, you can pass `stream_to` a container as well.
  - `string_traits::size_buffer()` must now be `noexcept`.
  - New `nullness` member: `always_null`.
+ - There is now `to_buf` support for string literals.
  - Streaming data is now more efficient.
  - The table name in `stream_from` is now escaped.
  - You can now "convert" strings to `std::string_view`.  Mind your lifetimes!

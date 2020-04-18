@@ -13,10 +13,10 @@
 #ifndef PQXX_H_STREAM_TO
 #define PQXX_H_STREAM_TO
 
-#include <variant>
-
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+
+#include <variant>
 
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
@@ -34,12 +34,12 @@ namespace pqxx
  * for you.  But if you're inserting large numbers of rows you will want
  * something better.
  *
- * Inserting rows one by one involves a lot of pointless overhead, especially
- * when you are working with a remote database server over the network.  You
- * may end up sending each row over the network as a separate query, and
- * waiting for a reply.  Do it "in bulk" using @c stream_to, and you may find
- * that it goes many times faster.  Sometimes you gain orders of magnitude in
- * speed.
+ * Inserting rows one by one using INSERT statements involves a lot of
+ * pointless overhead, especially when you are working with a remote database
+ * server over the network.  You may end up sending each row over the network
+ * as a separate query, and waiting for a reply.  Do it "in bulk" using
+ * @c stream_to, and you may find that it goes many times faster.  Sometimes
+ * you gain orders of magnitude in speed.
  *
  * Here's how it works: you create a @c stream_to stream to start writing to
  * your table.  You will probably want to specify the columns.  Then, you
@@ -47,16 +47,26 @@ namespace pqxx
  * stream's @c complete() to tell it to finalise the operation, wait for
  * completion, and check for errors.
  *
- * You insert data using the @c << ("shift-left") operator.  Each row must be
- * something that can be iterated in order to get its constituent fields: a
- * @c std::tuple, a @c std::vector, or anything else with a @c begin and
- * @c end.  It could be a class of your own.  Of course the fields have to
- * match the columns you specified when creating the stream.
+ * So how do you feed a row of data into the stream?  There's several ways, but
+ * the preferred one is to call its @c write_values.  Pass the field values as 
+ * arguments.  Doesn't matter what type they are, as long as libpqxx knows how
+ * to convert them to PostgreSQL's text format: @c int, @c std::string or
+ * @c std:string_view, @c float and @c double, @c bool...  lots of basic types
+ * are supported.  If some of the values are null, feel free to use
+ * @c std::optional, @c std::shared_ptr, or @c std::unique_ptr.
  *
- * To insert a null value, pass a @c nullptr, or an empty @c std::optional,
- * @c std::shared_ptr, or @c std::unique_ptr.
+ * The arguments' types don't even have to match the fields' SQL types.  If you
+ * want to insert an @c int into a @c DECIMAL column, that's your choice -- it
+ * will produce a @c DECIMAL value which happens to be integral.  Insert a
+ * @c float into a @c VARCHAR column?  That's fine, you'll get a string whose
+ * contents happen to read like a number.  And so on.  You can even insert
+ * different types of value in the same column on different rows.  If you have
+ * a code path where a particular field is always null, just insert @c nullptr.
  *
- * There is also a matching stream_from for reading data in bulk.
+ * There is another way to insert rows: the @c << ("shift-left") operator.
+ * It's not as fast and it doesn't support variable arguments: each row must be
+ * either a @c std::tuple or something iterable, such as a @c std::vector, or
+ * anything else with a @c begin and @c end.
  */
 class PQXX_LIBEXPORT stream_to : internal::transactionfocus
 {
@@ -102,6 +112,9 @@ public:
    * The @c row can be a tuple, or any type that can be iterated.  Each
    * item becomes a field in the row, in the same order as the columns you
    * specified when creating the stream.
+   *
+   * If you don't already happen to have your fields in the form of a tuple or
+   * container, preffer @c write_values.  It's faster and more convenient.
    */
   template<typename Row> stream_to &operator<<(Row const &row)
   {
@@ -116,10 +129,12 @@ public:
    */
   stream_to &operator<<(stream_from &);
 
-  /// Insert a row of data.
+  /// Insert a row of data, given in the form of a @c std::tuple or container.
   /** The @c row can be a tuple, or any type that can be iterated.  Each
    * item becomes a field in the row, in the same order as the columns you
    * specified when creating the stream.
+   *
+   * The preferred way to insert a row is @c write_values.
    */
   template<typename Row> void write_row(Row const &row)
   {
@@ -127,12 +142,15 @@ public:
     write_buffer();
   }
 
-    template<typename ...Ts>
-    void stream_values(const Ts& ...ts)
-    {
-        fill_buffer(ts...);
-        write_buffer();
-    }
+  /// Insert values as a row.
+  /** This is the recommended way of inserting data.  Pass your field values,
+   * of any convertible type.
+   */
+  template<typename... Ts> void write_values(const Ts &... fields)
+  {
+    fill_buffer(fields...);
+    write_buffer();
+  }
 
 private:
   bool m_finished = false;
@@ -258,6 +276,7 @@ private:
     for (auto const &f : c) append_to_buffer(f);
   }
 
+  /// Estimate how many buffer bytes we need to write tuple.
   template<typename Tuple, std::size_t... indexes>
   static std::size_t
   budget_tuple(Tuple const &t, std::index_sequence<indexes...>)
@@ -265,6 +284,7 @@ private:
     return (estimate_buffer(std::get<indexes>(t)) + ...);
   }
 
+  /// Write tuple of fields to @c m_buffer.
   template<typename Tuple, std::size_t... indexes>
   void append_tuple(Tuple const &t, std::index_sequence<indexes...>)
   {
@@ -285,44 +305,11 @@ private:
     transaction_base &, std::string_view table_name,
     std::string const &columns);
 
-// the code below implements a to stream fields which uses
-// C++17 fold expressions to handle a list of fields of arbitrary length
-// and arbitrary types.
-//
-
-template<typename... Ts>
-void stream_value(const std::variant<Ts...> v)
-{
-    std::visit([this](const auto& arg)
-    {
-        append_to_buffer(arg);
-    }, v);
-}
-template<typename T>
-void stream_value(const T& t)
-{
-    if constexpr(std::is_array_v<T>)
-    {
-        using U = std::remove_all_extents_t<T>;
-
-        if constexpr(std::is_same_v<U, decltype('A')>)
-        {
-            append_to_buffer(&t[0]);
-        }
-    }
-    else
-    {
-        append_to_buffer(t);
-    }
-}
-
-template<typename... Ts>
-void fill_buffer(const Ts& ...ts)
-{
-    ( ... , stream_value(ts) );
-}
-
-
+  /// Write raw COPY line into @c m_buffer, based on varargs fields.
+  template<typename... Ts> void fill_buffer(const Ts &... fields)
+  {
+    (..., append_to_buffer(fields));
+  }
 };
 
 

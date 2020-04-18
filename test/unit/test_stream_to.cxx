@@ -62,9 +62,11 @@ void test_nonoptionals_fold(pqxx::connection &connection)
   bytea const binary{'\x00', '\x01', '\x02'},
     text{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'};
 
-  inserter.stream_values(1234, "now", 4321, ipv4{8, 8, 4, 4}, "hello nonoptional world", binary);
-  inserter.stream_values(5678, "2018-11-17 21:23:00", nullptr, nullptr, nonascii, text);
-  inserter.stream_values(910, nullptr, nullptr, nullptr, "\\N", bytea{});
+  inserter.write_values(
+    1234, "now", 4321, ipv4{8, 8, 4, 4}, "hello nonoptional world", binary);
+  inserter.write_values(
+    5678, "2018-11-17 21:23:00", nullptr, nullptr, nonascii, text);
+  inserter.write_values(910, nullptr, nullptr, nullptr, "\\N", bytea{});
 
   inserter.complete();
 
@@ -118,7 +120,9 @@ void test_bad_null_fold(pqxx::connection &connection)
 
   try
   {
-    inserter.stream_values( nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world", bytea{'\x00', '\x01', '\x02'});
+    inserter.write_values(
+      nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+      bytea{'\x00', '\x01', '\x02'});
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from-fold improperly inserted row");
@@ -165,7 +169,7 @@ void test_too_few_fields_fold(pqxx::connection &connection)
 
   try
   {
-    inserter.stream_values(1234, "now", 4321, ipv4{8, 8, 8, 8});
+    inserter.write_values(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
@@ -214,7 +218,9 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 
   try
   {
-    inserter.stream_values( 1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world", bytea{'\x00', '\x01', '\x02'}, 5678);
+    inserter.write_values(
+      1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+      bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
     transaction.commit();
     PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
@@ -253,7 +259,7 @@ void test_optional_fold(pqxx::connection &connection)
   pqxx::stream_to inserter{tx, "stream_to_test"};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
-  inserter.stream_values(
+  inserter.write_values(
     910, O<std::string>{pqxx::nullness<O<std::string>>::null()},
     O<int>{pqxx::nullness<O<int>>::null()},
     O<ipv4>{pqxx::nullness<O<ipv4>>::null()}, "\\N", bytea{});
@@ -289,9 +295,15 @@ void test_variant_fold(pqxx::connection_base &connection)
   pqxx::stream_to inserter{tx, "stream_to_test"};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
-  inserter.stream_values(std::variant<std::string, int>{1234}, std::variant<float, std::string>{"now"}, 4321, ipv4{8, 8, 8, 8}, "hello world", bytea{'\x00', '\x01', '\x02'});
-  inserter.stream_values( 5678, "2018-11-17 21:23:00", nullptr, nullptr, "\u3053\u3093\u306b\u3061\u308f", bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
-  inserter.stream_values(910, nullptr, nullptr, nullptr, "\\N", bytea{});
+  inserter.write_values(
+    std::variant<std::string, int>{1234},
+    std::variant<float, std::string>{"now"}, 4321, ipv4{8, 8, 8, 8},
+    "hello world", bytea{'\x00', '\x01', '\x02'});
+  inserter.write_values(
+    5678, "2018-11-17 21:23:00", nullptr, nullptr,
+    "\u3053\u3093\u306b\u3061\u308f",
+    bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
+  inserter.write_values(910, nullptr, nullptr, nullptr, "\\N", bytea{});
 
   inserter.complete();
   tx.commit();
