@@ -382,11 +382,16 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
 
 
 /// String traits for C-style string constant ("array of char").
-/** @warning This assumes that every array-of-char is a C-style string.  So,
- * it must include a trailing zero.
+/** @warning This assumes that every array-of-char is a C-style string literal.
+ * So, it must include a trailing zero. and it must have static duration.
  */
 template<std::size_t N> struct string_traits<char[N]>
 {
+  static constexpr zview to_buf(char *, char *, char const(&value)[N]) noexcept
+  {
+    return zview{value, N - 1};
+  }
+
   static char *into_buf(char *begin, char *end, char const (&value)[N])
   {
     if (static_cast<std::size_t>(end - begin) < size_buffer(value))
@@ -400,7 +405,7 @@ template<std::size_t N> struct string_traits<char[N]>
     return N;
   }
 
-  // Don't allow conversion to this type since it breaks const-safety.
+  // Don't allow conversion to this type.
 };
 
 
