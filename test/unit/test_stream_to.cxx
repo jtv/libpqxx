@@ -295,10 +295,12 @@ void test_variant_fold(pqxx::connection_base &connection)
   pqxx::stream_to inserter{tx, "stream_to_test"};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
+#if defined(PQXX_HAVE_VARIANT)
   inserter.write_values(
     std::variant<std::string, int>{1234},
     std::variant<float, std::string>{"now"}, 4321, ipv4{8, 8, 8, 8},
     "hello world", bytea{'\x00', '\x01', '\x02'});
+#endif // PQXX_HAVE_VARIANT
   inserter.write_values(
     5678, "2018-11-17 21:23:00", nullptr, nullptr,
     "\u3053\u3093\u306b\u3061\u308f",
