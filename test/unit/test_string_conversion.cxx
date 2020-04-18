@@ -118,7 +118,7 @@ void test_convert_variant_to_string()
     "First variant field did not convert right.");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::variant<int, std::string>{"Text"}, "Text", "Second variant field did not convert right.");
+    pqxx::to_string(std::variant<int, std::string>{"Text"}), "Text", "Second variant field did not convert right.");
 }
 
 
