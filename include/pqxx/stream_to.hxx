@@ -13,6 +13,8 @@
 #ifndef PQXX_H_STREAM_TO
 #define PQXX_H_STREAM_TO
 
+#include <variant>
+
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
@@ -124,6 +126,13 @@ public:
     fill_buffer(row);
     write_buffer();
   }
+
+    template<typename ...Ts>
+    void stream_values(const Ts& ...ts)
+    {
+        fill_buffer(ts...);
+        write_buffer();
+    }
 
 private:
   bool m_finished = false;
@@ -275,6 +284,45 @@ private:
   void set_up(
     transaction_base &, std::string_view table_name,
     std::string const &columns);
+
+// the code below implements a to stream fields which uses
+// C++17 fold expressions to handle a list of fields of arbitrary length
+// and arbitrary types.
+//
+
+template<typename... Ts>
+void stream_value(const std::variant<Ts...> v)
+{
+    std::visit([this](const auto& arg)
+    {
+        append_to_buffer(arg);
+    }, v);
+}
+template<typename T>
+void stream_value(const T& t)
+{
+    if constexpr(std::is_array_v<T>)
+    {
+        using U = std::remove_all_extents_t<T>;
+
+        if constexpr(std::is_same_v<U, decltype('A')>)
+        {
+            append_to_buffer(&t[0]);
+        }
+    }
+    else
+    {
+        append_to_buffer(t);
+    }
+}
+
+template<typename... Ts>
+void fill_buffer(const Ts& ...ts)
+{
+    ( ... , stream_value(ts) );
+}
+
+
 };
 
 
