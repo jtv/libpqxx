@@ -387,7 +387,8 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
  */
 template<std::size_t N> struct string_traits<char[N]>
 {
-  static constexpr zview to_buf(char *, char *, char const(&value)[N]) noexcept
+  static constexpr zview
+  to_buf(char *, char *, char const (&value)[N]) noexcept
   {
     return zview{value, N - 1};
   }

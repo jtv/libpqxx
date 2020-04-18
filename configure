@@ -18805,9 +18805,9 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <iostream>
 
-#include <variant>
-
 #include <string>
+
+#include <variant>
 
 
 
@@ -18817,7 +18817,7 @@ int main()
 
   std::variant<int, std::string> v{"Hello"};
 
-  std::visit([](auto const &i){ std::cout << i; }, v);
+  std::visit([](auto const &i) { std::cout << i; }, v);
 
 }
 

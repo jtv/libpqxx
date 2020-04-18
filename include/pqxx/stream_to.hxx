@@ -48,7 +48,7 @@ namespace pqxx
  * completion, and check for errors.
  *
  * So how do you feed a row of data into the stream?  There's several ways, but
- * the preferred one is to call its @c write_values.  Pass the field values as 
+ * the preferred one is to call its @c write_values.  Pass the field values as
  * arguments.  Doesn't matter what type they are, as long as libpqxx knows how
  * to convert them to PostgreSQL's text format: @c int, @c std::string or
  * @c std:string_view, @c float and @c double, @c bool...  lots of basic types
