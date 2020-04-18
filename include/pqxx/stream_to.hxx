@@ -20,7 +20,6 @@
 #include "pqxx/transaction_base.hxx"
 
 
-#include <iostream>
 namespace pqxx
 {
 /// Efficiently write data directly to a database table.
