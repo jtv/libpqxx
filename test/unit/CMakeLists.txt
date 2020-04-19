@@ -1,4 +1,4 @@
-################################################################################
+# ##############################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,7 +10,7 @@
 # libpqxx source archive.
 #
 # Generated from template './test/unit/CMakeLists.txt.template'.
-################################################################################
+# ##############################################################################
 if(NOT PostgreSQL_FOUND)
     find_package(PostgreSQL REQUIRED)
 endif()

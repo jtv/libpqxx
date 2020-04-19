@@ -125,9 +125,7 @@ def check_compilers(compilers, stdlibs, verbose=False):
     ]
 
 
-def try_build(
-        logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts
-    ):
+def try_build(logs_dir, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
     """Attempt to build in a given configuration."""
     log = os.path.join(
         logs_dir, 'build-%s.out' % '_'.join([cxx, opt, stdlib, link, debug]))
