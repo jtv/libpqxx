@@ -67,7 +67,7 @@ void pqxx::internal::check_unique_registration(
     if (old_ptr == new_ptr)
       throw usage_error{"Started twice: " + new_ptr->description()};
     throw usage_error{"Started " + new_ptr->description() + " while " +
-                      new_ptr->description() + " still active."};
+                      old_ptr->description() + " still active."};
   }
 }
 
