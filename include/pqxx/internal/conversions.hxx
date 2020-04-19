@@ -12,7 +12,7 @@
 #endif
 
 
-/* Internal helpers for string conversion.
+/* Internal helpers for string conversion, and conversion implementations.
  *
  * Do not include this header directly.  The libpqxx headers do it for you.
  */
