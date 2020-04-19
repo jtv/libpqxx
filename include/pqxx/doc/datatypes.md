@@ -129,7 +129,7 @@ natural "null value" built in.  If so, it also provides member functions for
 producing and recognising null values.
 
 The simplest scenario is also the most common: most types don't have a null
-value built in.  In that case, define your nullness traits from
+value built in.  In that case, derive your nullness traits from
 `pqxx::no_null`:
 
     namespace pqxx
@@ -146,7 +146,8 @@ complex:
     {
     template<> struct nullness_traits<T>
     {
-      static bool has_null{true};
+      static constexpr bool has_null{true};
+      static constexpr bool always_null{false};
 
       static bool is_null(T const &value)
       {
