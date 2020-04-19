@@ -1,3 +1,5 @@
+#include <pqxx/nontransaction>
+
 #include "test_helpers.hxx"
 
 

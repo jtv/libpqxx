@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <pqxx/connection>
+#include <pqxx/transaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

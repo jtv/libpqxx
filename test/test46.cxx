@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <pqxx/transaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

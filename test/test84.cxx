@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <pqxx/cursor>
+#include <pqxx/transaction>
+
 #include "test_helpers.hxx"
 
 

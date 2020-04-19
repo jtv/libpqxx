@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 
+#include <pqxx/nontransaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

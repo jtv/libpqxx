@@ -4,6 +4,10 @@
 #include <ctime>
 #include <thread>
 
+#include <pqxx/notification>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

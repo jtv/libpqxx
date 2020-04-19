@@ -2,6 +2,10 @@
 #include <cstring>
 #include <iostream>
 
+#include <pqxx/notification>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 

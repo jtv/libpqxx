@@ -1,3 +1,6 @@
+#include <pqxx/cursor>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
 namespace

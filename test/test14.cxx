@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <pqxx/nontransaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

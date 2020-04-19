@@ -1,3 +1,5 @@
+#include <pqxx/separated_list>
+
 #include "../test_helpers.hxx"
 
 // Test program for separated_list.

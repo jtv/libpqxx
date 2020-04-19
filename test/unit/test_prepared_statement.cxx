@@ -3,6 +3,8 @@
 #include <iterator>
 #include <list>
 
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
 // Test program for libpqxx.  Define and use prepared statements.

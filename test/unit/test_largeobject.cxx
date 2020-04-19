@@ -1,6 +1,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <pqxx/largeobject>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
 

@@ -1,3 +1,7 @@
+#include <pqxx/nontransaction>
+#include <pqxx/robusttransaction>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

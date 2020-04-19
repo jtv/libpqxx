@@ -1,8 +1,8 @@
 #include <map>
 #include <stdexcept>
 
-#include <pqxx/pqxx>
-
+#include <pqxx/result>
+#include <pqxx/row>
 
 namespace pqxx
 {

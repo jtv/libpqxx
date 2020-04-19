@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <pqxx/transaction>
+#include <pqxx/subtransaction>
+
 #include "test_helpers.hxx"
 
 // Test program for libpqxx.  Attempt to perform nested queries on various

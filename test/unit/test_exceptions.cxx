@@ -1,6 +1,8 @@
+#include <pqxx/except>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
-#include <pqxx/except>
 
 namespace
 {

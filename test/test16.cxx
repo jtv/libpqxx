@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <pqxx/connection>
+#include <pqxx/robusttransaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

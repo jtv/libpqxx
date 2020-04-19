@@ -1,5 +1,9 @@
 #include <iostream>
 
+#include <pqxx/nontransaction>
+#include <pqxx/pipeline>
+#include <pqxx/transaction>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

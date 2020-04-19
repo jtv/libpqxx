@@ -1,7 +1,8 @@
+#include <pqxx/stream_from>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 #include "../test_types.hxx"
-
-#include <pqxx/stream_from>
 
 #include <cstring>
 #include <iostream>

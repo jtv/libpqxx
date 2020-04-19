@@ -3,6 +3,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <pqxx/largeobject>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

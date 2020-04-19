@@ -1,11 +1,11 @@
-#include "../test_helpers.hxx"
-#include "../test_types.hxx"
-
 #include <iostream>
 #include <optional>
 
 #include <pqxx/stream_to>
+#include <pqxx/transaction>
 
+#include "../test_helpers.hxx"
+#include "../test_types.hxx"
 
 namespace
 {

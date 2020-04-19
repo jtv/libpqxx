@@ -1,3 +1,5 @@
+#include <pqxx/connection>
+
 #include "test_helpers.hxx"
 
 // Test program for libpqxx.  Test adorn_name.

@@ -22,6 +22,10 @@
 #  include <winsock2.h>
 #endif
 
+#include <pqxx/notification>
+#include <pqxx/transaction>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 

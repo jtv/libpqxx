@@ -1,5 +1,8 @@
 #include <chrono>
 
+#include <pqxx/pipeline>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
 namespace

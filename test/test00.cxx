@@ -1,5 +1,8 @@
 #include <locale>
 
+#include <pqxx/cursor>
+#include <pqxx/strconv>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;

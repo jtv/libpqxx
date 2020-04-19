@@ -1,6 +1,9 @@
 #include <chrono>
 #include <thread>
 
+#include <pqxx/notification>
+#include <pqxx/nontransaction>
+
 #include "../test_helpers.hxx"
 
 namespace

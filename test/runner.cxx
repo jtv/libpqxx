@@ -6,6 +6,8 @@
 #include <new>
 #include <stdexcept>
 
+#include <pqxx/transaction>
+
 #include "test_helpers.hxx"
 
 namespace

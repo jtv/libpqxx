@@ -1,6 +1,10 @@
 #include <iostream>
 #include <map>
 
+#include <pqxx/transaction>
+#include <pqxx/nontransaction>
+#include <pqxx/transactor>
+
 #include "test_helpers.hxx"
 
 using namespace pqxx;
