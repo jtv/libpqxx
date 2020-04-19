@@ -16,8 +16,6 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
-#include <variant>
-
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
 
