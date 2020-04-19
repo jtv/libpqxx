@@ -91,10 +91,10 @@ runner_SOURCES = \
   test88.cxx \
   test89.cxx \
   test90.cxx \
-  test93.cxx \
   unit/test_array.cxx \
   unit/test_binarystring.cxx \
   unit/test_cancel_query.cxx \
+  unit/test_column.cxx \
   unit/test_connection.cxx \
   unit/test_cursor.cxx \
   unit/test_encodings.cxx \
