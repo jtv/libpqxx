@@ -113,7 +113,7 @@ void create_pqxxevents(transaction_base &t)
 
 namespace
 {
-std::map<char const *, pqxx::test::testfunc> *all_tests = nullptr;
+std::map<char const *, pqxx::test::testfunc> *all_tests{nullptr};
 } // namespace
 
 
@@ -134,9 +134,9 @@ void register_test(char const name[], pqxx::test::testfunc func)
 } // namespace pqxx::test
 
 
-int main(int, char const *argv[])
+int main(int argc, char const *argv[])
 {
-  char const *const test_name = argv[1];
+  char const *const test_name{(argc > 1) ? argv[1] : nullptr};
 
   int test_count = 0;
   std::list<std::string> failed;

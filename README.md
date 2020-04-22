@@ -33,27 +33,22 @@ There are two very different ways of building libpqxx:
  1. Using CMake, on any system which supports it.
  2. On Unix-like systems, using a `configure` script.
 
-The CMake build should work on any system where CMake is supported.  This is a
-recently contributed alternative build, so if you run into problems, your help
-could be crucial in fixing them.
+The CMake build should work on any system where CMake is supported, including
+Unix-like systems.
 
 The "Unix-like" section applies to systems that look like Unix: GNU/Linux,
 Apple macOS and the BSD family, AIX, HP-UX, Irix, Solaris, etc.  Even on
-Microsoft Windows, a Unix-like environment such as Cygwin or MinGW installed
-should work.
+Microsoft Windows, a Unix-like environment such as Cygwin or MinGW should work.
 
 
 ### Using CMake
 
-On CMake the standard way of working is to have the source tree in one
-directory, and build in another.  (The `configure` script supports this as
-well, but that build is enough work that I didn't bother documenting it.)
 Let's say you have the libpqxx source tree in a location `$SOURCE`, and are
 building in a different location `$BUILD`.
 
-CMake also lets you choose whether to run the ultimate build through `make`,
-or some other tool.  The default on Unix-like systems is `make`, but you may
-have to look in the CMake documentation what works well on your system.
+CMake lets you choose whether to run the ultimate build through `make`, or some
+other tool such as `ninja`.  The default on Unix-like systems is `make`, but
+you may have to look in the CMake documentation what works well on your system.
 
 For a default build, using those two directories, go into `$BUILD` and run:
 
@@ -88,9 +83,9 @@ To run the tests, execute `test/runner` after building.
 
 ### On Unix-like systems
 
-For the Unix-like systems the procedure is the standard "configure, make, make
-install" sequence.  In order to run the test suite, you'll also need to set up a
-database for the tests to play with.
+For the Unix-like systems the native build is the standard "configure, make,
+make install" sequence.  In order to run the test suite, you'll also need to
+set up a database for the tests to play with.
 
 Run the "configure" script with the `--help` option to see build and
 installation options.  You need to get these right before you compile.  Then:

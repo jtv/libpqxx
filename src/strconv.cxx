@@ -479,8 +479,9 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok =
-      ((text[1] == 'A' or text[1] == 'a') and
-       (text[2] == 'N' or text[2] == 'n') and (text[3] == '\0'));
+      (text.size() == 3 and
+       (text[1] == 'A' or text[1] == 'a') and
+       (text[2] == 'N' or text[2] == 'n'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
 
