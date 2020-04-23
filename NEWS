@@ -19,7 +19,7 @@
  - Prefer `pg_config` over `pkg-config` for include path (#291).
  - Try to plod on if we don't know the PostgreSQL include path.
  - Fix error message when starting overlapping transactions and such (#303).
- - Fix potential crash when "NaN" isn't 3 bytes long (#307).
+ - Fix potential crashes when converting invalid strings to floats (#307, #308).
 7.0.5
  - Compile fix for g++ 10: include `<limits>` (#292).
  - Cleaned up error-checking of PG results.  (#280).
