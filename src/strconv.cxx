@@ -470,6 +470,10 @@ inline bool from_dumb_stringstream(
 // These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
+  if (text.empty())
+    throw pqxx::conversion_error{"Trying to convert empty string to " +
+                                 pqxx::type_name<T> + "."};
+
   bool ok{false};
   T result;
 
@@ -479,8 +483,7 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok =
-      (text.size() == 3 and
-       (text[1] == 'A' or text[1] == 'a') and
+      (text.size() == 3 and (text[1] == 'A' or text[1] == 'a') and
        (text[2] == 'N' or text[2] == 'n'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
@@ -492,7 +495,7 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
     break;
 
   default:
-    if (text[0] == '-' and valid_infinity_string(&text[1]))
+    if (text[0] == '-' and valid_infinity_string(text.substr(1)))
     {
       ok = true;
       result = -std::numeric_limits<T>::infinity();

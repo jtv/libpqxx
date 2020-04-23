@@ -84,6 +84,28 @@ void test_bug_262()
 }
 
 
+/// Test conversion of malformed floating-point values.
+void test_bad_float()
+{
+  float x [[maybe_unused]];
+  PQXX_CHECK_THROWS(
+    x = pqxx::from_string<float>(""), pqxx::conversion_error,
+    "Conversion of empty string to float was not caught.");
+
+  PQXX_CHECK_THROWS(
+    x = pqxx::from_string<float>("Infancy"), pqxx::conversion_error,
+    "Misleading infinity was not caught.");
+  PQXX_CHECK_THROWS(
+    x = pqxx::from_string<float>("-Infighting"), pqxx::conversion_error,
+    "Misleading negative infinity was not caught.");
+
+  PQXX_CHECK_THROWS(
+    x = pqxx::from_string<float>("Nanny"), pqxx::conversion_error,
+    "Conversion of misleading NaN was not caught.");
+}
+
+
 PQXX_REGISTER_TEST(test_infinities);
 PQXX_REGISTER_TEST(test_bug_262);
+PQXX_REGISTER_TEST(test_bad_float);
 } // namespace
