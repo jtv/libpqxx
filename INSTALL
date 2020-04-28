@@ -58,9 +58,10 @@ CMake build
 -----------
 
 With CMake you can generate a build setup in your choice of build
-system.  The one I'm most familiar with is `make`, but people tell me that
-`ninja` is much faster.  And if you're working with Visual Studio, you may need
-to generate project files.
+system.  CMake calls these build systems "generators."  The one I'm most
+familiar with is `make` (labeled "Unix Makefiles" in CMake), but there's others
+such as `ninja` (labeled "Ninja") which is much faster.  And if you're working
+with Visual Studio, you may need to generate project files.
 
 Like the native build, the CMake build needs the libpq library and headers
 installed.  But in addition, it also needs the `pg_type.h` header installed.
