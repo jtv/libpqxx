@@ -142,8 +142,7 @@ std::string pqxx::largeobject::reason(connection const &c, int err) const
 
 
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &t, openmode mode) :
-        largeobject{t},
-        m_trans{t}
+        largeobject{t}, m_trans{t}
 {
   open(mode);
 }
@@ -151,8 +150,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &t, openmode mode) :
 
 pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, oid o, openmode mode) :
-        largeobject{o},
-        m_trans{t}
+        largeobject{o}, m_trans{t}
 {
   open(mode);
 }
@@ -160,8 +158,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 
 pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, largeobject o, openmode mode) :
-        largeobject{o},
-        m_trans{t}
+        largeobject{o}, m_trans{t}
 {
   open(mode);
 }
@@ -169,8 +166,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 
 pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, std::string_view file, openmode mode) :
-        largeobject{t, file},
-        m_trans{t}
+        largeobject{t, file}, m_trans{t}
 {
   open(mode);
 }

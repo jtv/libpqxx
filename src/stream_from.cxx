@@ -57,8 +57,7 @@ void begin_copy(
 
 pqxx::stream_from::stream_from(
   transaction_base &tb, std::string_view table_name) :
-        namedclass{"stream_from", table_name},
-        transactionfocus{tb}
+        namedclass{"stream_from", table_name}, transactionfocus{tb}
 {
   set_up(tb, table_name);
 }
@@ -173,8 +172,7 @@ bool pqxx::stream_from::extract_field(
         i = stop;
         break;
 
-      case '\\':
-      {
+      case '\\': {
         // Escape sequence.
         if (glyph_end >= line.size())
           throw failure{"Row ends in backslash"};

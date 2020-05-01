@@ -411,24 +411,24 @@ AC_ARG_WITH(
         [test "x$with_postgres_lib" = "xyes"],
         [with_postgres_lib=""]))
 
-if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
-    AS_IF(
-       [test -z "$with_postgres_lib"],
-       [with_postgres_lib=$($PKG_CONFIG libpq --libs-only-L | sed 's/^-L//')])
-    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
-    # configure insists on inserting a library search path, so give him a standard one ...
-    AC_SUBST(with_postgres_lib, "")
-    #POSTGRES_LIB="-R${with_postgres_lib}"
-    AC_SUBST(POSTGRES_LIB)
-elif test -n "$PG_CONFIG" && test -x "$PG_CONFIG"; then
-    AS_IF(
-       [test -z "$with_postgres_lib"],
-       [with_postgres_lib=$($PG_CONFIG --libdir)])
-    AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])
-    AC_SUBST(with_postgres_lib)
-    #POSTGRES_LIB="-R${with_postgres_lib}"
-    AC_SUBST(POSTGRES_LIB)
-fi
+# If no --with-postgres-lib was given, and we have pkg-config, use that.
+AS_IF(
+    [test -z "$with_postgres_lib" -a -x "$PKG_CONFIG"],
+    [with_postgres_lib=$($PKG_CONFIG libpq --libs-only-L | sed 's/^-L//')])
+
+# pg_config is deprecated, but for some users it may still provide the only
+# right answer.  For instance, `pkg-config` may not know where `libpq` is
+# installed.
+AS_IF(
+    [test -z "$with_postgres_lib" -a -x "$PG_CONFIG"],
+    [with_postgres_lib=$($PG_CONFIG --libdir)])
+
+AS_IF(
+    [test -n "$with_postgres_lib"],
+    [AC_MSG_NOTICE([using PostgreSQL libraries at $with_postgres_lib])],
+    [AC_MSG_NOTICE([using PostgreSQL libraries in default location])])
+
+AC_SUBST(with_postgres_lib)
 
 
 AC_CHECK_HEADER(

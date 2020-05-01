@@ -212,18 +212,15 @@ public:
   explicit namedclass(std::string_view classname) : m_classname{classname} {}
 
   namedclass(std::string_view classname, std::string_view name) :
-          m_classname{classname},
-          m_name{name}
+          m_classname{classname}, m_name{name}
   {}
 
   namedclass(std::string_view classname, char const name[]) :
-          m_classname{classname},
-          m_name{name}
+          m_classname{classname}, m_name{name}
   {}
 
   namedclass(std::string_view classname, std::string &&name) :
-          m_classname{classname},
-          m_name{std::move(name)}
+          m_classname{classname}, m_name{std::move(name)}
   {}
 
   /// Object name, or the empty string if no name was given.

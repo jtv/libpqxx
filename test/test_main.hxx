@@ -21,9 +21,7 @@ namespace pqxx::test
 {
 test_failure::test_failure(
   std::string const &ffile, int fline, std::string const &desc) :
-        std::logic_error(desc),
-        m_file(ffile),
-        m_line(fline)
+        std::logic_error(desc), m_file(ffile), m_line(fline)
 {}
 
 test_failure::~test_failure() noexcept = default;

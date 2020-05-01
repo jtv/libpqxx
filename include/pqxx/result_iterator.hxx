@@ -318,8 +318,8 @@ public:
 };
 
 
-inline const_result_iterator const_result_iterator::
-operator+(result::difference_type o) const
+inline const_result_iterator
+const_result_iterator::operator+(result::difference_type o) const
 {
   return const_result_iterator{
     &m_result, size_type(result::difference_type(m_index) + o)};
@@ -331,15 +331,15 @@ operator+(result::difference_type o, const_result_iterator const &i)
   return i + o;
 }
 
-inline const_result_iterator const_result_iterator::
-operator-(result::difference_type o) const
+inline const_result_iterator
+const_result_iterator::operator-(result::difference_type o) const
 {
   return const_result_iterator{
     &m_result, result_size_type(result::difference_type(m_index) - o)};
 }
 
-inline result::difference_type const_result_iterator::
-operator-(const const_result_iterator &i) const
+inline result::difference_type
+const_result_iterator::operator-(const const_result_iterator &i) const
 {
   return result::difference_type(num() - i.num());
 }
