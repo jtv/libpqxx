@@ -60,7 +60,8 @@ public:
    */
   explicit nontransaction(
     connection &c, std::string const &name = std::string{}) :
-          namedclass{"nontransaction", name}, transaction_base{c}
+          namedclass{"nontransaction", name},
+          transaction_base{c}
   {
     register_transaction();
   }

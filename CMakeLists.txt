@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
+if($CMAKE_VERSION VERSION_GREATER_EQUAL "3.12")
+    # Support PostgreSQL_ROOT as a way of setting the location where the build
+    # can find libpq and its headers.
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
 file(READ VERSION VER_FILE_CONTENT)
 string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
 
