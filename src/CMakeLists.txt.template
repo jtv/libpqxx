@@ -60,7 +60,9 @@ endmacro()
 
 file(
 	GLOB CXX_SOURCES
-        *.cxx
+###MAKTEMPLATE:FOREACH src/*.cxx
+	###BASENAME###.cxx
+###MAKTEMPLATE:ENDFOREACH
 )
 
 add_library(pqxx ${CXX_SOURCES})

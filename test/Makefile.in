@@ -170,9 +170,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_transactor.$(OBJEXT) unit/test_type_name.$(OBJEXT) \
 	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
-am__DEPENDENCIES_1 =
-runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
-	$(am__DEPENDENCIES_1)
+runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -331,7 +329,6 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PG_CONFIG = @PG_CONFIG@
 PKG_CONFIG = @PKG_CONFIG@
 POSTGRES_INCLUDE = @POSTGRES_INCLUDE@
-POSTGRES_LIB = @POSTGRES_LIB@
 PQXXVERSION = @PQXXVERSION@
 PQXX_ABI = @PQXX_ABI@
 RANLIB = @RANLIB@

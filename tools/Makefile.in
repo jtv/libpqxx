@@ -107,17 +107,14 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_pqxxthreadsafety_OBJECTS = pqxxthreadsafety.$(OBJEXT)
 pqxxthreadsafety_OBJECTS = $(am_pqxxthreadsafety_OBJECTS)
-am__DEPENDENCIES_1 =
-pqxxthreadsafety_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
-	$(am__DEPENDENCIES_1)
+pqxxthreadsafety_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 am_rmlo_OBJECTS = rmlo.$(OBJEXT)
 rmlo_OBJECTS = $(am_rmlo_OBJECTS)
-rmlo_DEPENDENCIES = $(top_builddir)/src/libpqxx.la \
-	$(am__DEPENDENCIES_1)
+rmlo_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -249,7 +246,6 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PG_CONFIG = @PG_CONFIG@
 PKG_CONFIG = @PKG_CONFIG@
 POSTGRES_INCLUDE = @POSTGRES_INCLUDE@
-POSTGRES_LIB = @POSTGRES_LIB@
 PQXXVERSION = @PQXXVERSION@
 PQXX_ABI = @PQXX_ABI@
 RANLIB = @RANLIB@

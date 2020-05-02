@@ -637,7 +637,6 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-POSTGRES_LIB
 with_postgres_lib
 POSTGRES_INCLUDE
 PG_CONFIG
@@ -19158,27 +19157,27 @@ fi
 fi
 
 
-if test -n "$PKG_CONFIG" && test -x "$PKG_CONFIG"; then
-    if test -z "$with_postgres_lib"; then :
+# If no --with-postgres-lib was given, and we have pkg-config, use that.
+if test -z "$with_postgres_lib" -a -x "$PKG_CONFIG"; then :
   with_postgres_lib=$($PKG_CONFIG libpq --libs-only-L | sed 's/^-L//')
 fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries at $with_postgres_lib" >&5
-$as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
-    # configure insists on inserting a library search path, so give him a standard one ...
-    with_postgres_lib=""
 
-    #POSTGRES_LIB="-R${with_postgres_lib}"
-
-elif test -n "$PG_CONFIG" && test -x "$PG_CONFIG"; then
-    if test -z "$with_postgres_lib"; then :
+# pg_config is deprecated, but for some users it may still provide the only
+# right answer.  For instance, `pkg-config` may not know where `libpq` is
+# installed.
+if test -z "$with_postgres_lib" -a -x "$PG_CONFIG"; then :
   with_postgres_lib=$($PG_CONFIG --libdir)
 fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries at $with_postgres_lib" >&5
+
+if test -n "$with_postgres_lib"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries at $with_postgres_lib" >&5
 $as_echo "$as_me: using PostgreSQL libraries at $with_postgres_lib" >&6;}
-
-    #POSTGRES_LIB="-R${with_postgres_lib}"
-
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: using PostgreSQL libraries in default location" >&5
+$as_echo "$as_me: using PostgreSQL libraries in default location" >&6;}
 fi
+
+
 
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "libpq-fe.h" "ac_cv_header_libpq_fe_h" "$ac_includes_default"

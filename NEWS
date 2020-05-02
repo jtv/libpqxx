@@ -15,6 +15,10 @@
  - Added `row::to(std::tuple<...>)`.
  - Unified the test suites.  We no longer need `test/unit/unit_runner`.
  - New helper: `strip_t<...>` to remove a type's constness and reference.
+7.0.7
+ - Fix broken `--with-postgres-lib` option in `configure` script.
+ - Should now build even if neither `pkg-config` nor `pg_config` is available.
+ - CMake accepts `PostgreSQL_ROOT`, if it's a sufficiently recent version.
 7.0.6
  - Prefer `pg_config` over `pkg-config` for include path (#291).
  - Try to plod on if we don't know the PostgreSQL include path.
