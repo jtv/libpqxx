@@ -1,8 +1,8 @@
 #include <iostream>
 #include <map>
 
-#include <pqxx/transaction>
 #include <pqxx/nontransaction>
+#include <pqxx/transaction>
 #include <pqxx/transactor>
 
 #include "test_helpers.hxx"

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include <pqxx/transaction>
 #include <pqxx/subtransaction>
+#include <pqxx/transaction>
 
 #include "test_helpers.hxx"
 

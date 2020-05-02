@@ -1,7 +1,7 @@
 #include <pqxx/connection>
 #include <pqxx/nontransaction>
-#include <pqxx/transactor>
 #include <pqxx/robusttransaction>
+#include <pqxx/transactor>
 
 #include "test_helpers.hxx"
 

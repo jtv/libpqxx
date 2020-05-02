@@ -1,8 +1,21 @@
+# ##############################################################################
+# AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
+#
+# This file is generated automatically by libpqxx's template2mak.py script, and
+# will be rewritten from time to time.
+#
+# If you modify this file, chances are your modifications will be lost.
+#
+# The template2mak.py script should be available in the tools directory of the
+# libpqxx source archive.
+#
+# Generated from template './test/unit/CMakeLists.txt.template'.
+# ##############################################################################
 if(NOT PostgreSQL_FOUND)
     if(POLICY CMP0074)
         cmake_policy(PUSH)
-        # CMP0074 is `OLD` by `cmake_minimum_required(VERSION 3.7)`,
-        # sets `NEW` to enable support CMake variable `PostgreSQL_ROOT`.
+        # CMP0074 is `OLD` by `cmake_minimum_required(VERSION 3.7)`, sets `NEW`
+        # to enable support CMake variable `PostgreSQL_ROOT`.
         cmake_policy(SET CMP0074 NEW)
     endif()
 
@@ -16,10 +29,10 @@ endif()
 file(
     GLOB
     UNIT_TEST_SOURCES
-    runner.cxx
     test_array.cxx
     test_binarystring.cxx
     test_cancel_query.cxx
+    test_column.cxx
     test_connection.cxx
     test_cursor.cxx
     test_encodings.cxx

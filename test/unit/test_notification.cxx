@@ -1,8 +1,8 @@
 #include <chrono>
 #include <thread>
 
-#include <pqxx/notification>
 #include <pqxx/nontransaction>
+#include <pqxx/notification>
 
 #include "../test_helpers.hxx"
 
