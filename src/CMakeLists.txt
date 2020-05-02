@@ -12,7 +12,18 @@
 # Generated from template './src/CMakeLists.txt.template'.
 ################################################################################
 if(NOT PostgreSQL_FOUND)
+    if(POLICY CMP0074)
+        cmake_policy(PUSH)
+        # CMP0074 is `OLD` by `cmake_minimum_required(VERSION 3.7)`,
+        # sets `NEW` to enable support CMake variable `PostgreSQL_ROOT`.
+        cmake_policy(SET CMP0074 NEW)
+    endif()
+
     find_package(PostgreSQL REQUIRED)
+
+    if(POLICY CMP0074)
+        cmake_policy(POP)
+    endif()
 endif()
 
 # When setting up the include paths, mention the binary tree's include
