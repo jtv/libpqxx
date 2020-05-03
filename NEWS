@@ -1,5 +1,5 @@
 7.0.7
- - Fix broken `--with-postgres-lib` option in `configure` script.
+ - Fix broken `--with-postgres-lib` option in `configure` script (#311)
  - Should now build even if neither `pkg-config` nor `pg_config` is available.
  - CMake accepts `PostgreSQL_ROOT`, if it's a sufficiently recent version.
 7.0.6
