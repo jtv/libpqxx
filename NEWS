@@ -16,6 +16,7 @@
  - Unified the test suites.  We no longer need `test/unit/unit_runner`.
  - New helper: `strip_t<...>` to remove a type's constness and reference.
  - Replace custom templating with CMake glob in `src/CMakeLists.txt`.
+ - Replace custom templating with CMake glob in `doc/CMakeLists.txt`.
 7.0.7
  - Fix broken `--with-postgres-lib` option in `configure` script (#311)
  - Should now build even if neither `pkg-config` nor `pg_config` is available.
