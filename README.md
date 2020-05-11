@@ -21,6 +21,8 @@ Also, **7.0 makes some breaking changes in rarely used APIs:**
 
 Find libpqxx on Github: https://github.com/jtv/libpqxx
 
+Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
+
 
 Building libpqxx
 ----------------
