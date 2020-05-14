@@ -19,6 +19,8 @@ Also, **7.0 makes some breaking changes in rarely used APIs:**
  * Closed connections can no longer be reactivated.
  * The API for defining string conversions has changed.
 
+Home page: https://pqxx.org/development/libpqxx/
+
 Find libpqxx on Github: https://github.com/jtv/libpqxx
 
 Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
