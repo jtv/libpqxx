@@ -303,22 +303,10 @@ inline void into_string(TYPE const &value, std::string &out);
 
 
 /// Is @c value null?
-template<typename TYPE>[[nodiscard]] inline bool is_null(TYPE const &value)
+template<typename TYPE>
+[[nodiscard]] inline bool is_null(TYPE const &value) noexcept
 {
-  if constexpr (nullness<TYPE>::always_null)
-  {
-    ignore_unused(value);
-    return true;
-  }
-  else if constexpr (nullness<TYPE>::has_null)
-  {
-    return nullness<TYPE>::is_null(value);
-  }
-  else
-  {
-    ignore_unused(value);
-    return false;
-  }
+  return nullness<TYPE>::is_null(value);
 }
 
 

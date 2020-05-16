@@ -234,7 +234,9 @@ template<typename... T> struct nullness<std::variant<T...>>
   static constexpr bool is_null(std::variant<T...> const &value) noexcept
   {
     return std::visit(
-      [](auto const &i) { return nullness<strip_t<decltype(i)>>::is_null(i); },
+      [](auto const &i) noexcept {
+        return nullness<strip_t<decltype(i)>>::is_null(i);
+      },
       value);
   }
 
@@ -517,7 +519,7 @@ template<> struct nullness<std::nullptr_t>
   {
     return true;
   }
-  static constexpr std::nullptr_t null() { return nullptr; }
+  static constexpr std::nullptr_t null() noexcept { return nullptr; }
 };
 
 

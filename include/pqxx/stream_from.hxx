@@ -224,16 +224,17 @@ template<typename Tuple, std::size_t index>
 inline void stream_from::extract_value(Tuple &t) const
 {
   using field_type = strip_t<decltype(std::get<index>(t))>;
+  using nullity = nullness<field_type>;
   assert(index < m_fields.size());
-  if constexpr (nullness<field_type>::always_null)
+  if constexpr (nullity::always_null)
   {
     if (m_fields[index].data() != nullptr)
       throw conversion_error{"Streaming non-null value into null field."};
   }
   else if (m_fields[index].data() == nullptr)
   {
-    if constexpr (nullness<field_type>::has_null)
-      std::get<index>(t) = nullness<field_type>::null();
+    if constexpr (nullity::has_null)
+      std::get<index>(t) = nullity::null();
     else
       internal::throw_null_conversion(type_name<field_type>);
   }
