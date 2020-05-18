@@ -9,6 +9,7 @@
 #ifndef PQXX_H_ENCODING_GROUP
 #define PQXX_H_ENCODING_GROUP
 
+#include <cstddef>
 
 namespace pqxx::internal
 {
