@@ -1,5 +1,7 @@
 7.1.1
  - Compile fix for Visual Studio.
+ - Warning fix for clang.
+ - Also install `transaction_focus.hxx`. (#320)
 7.1.0
  - Query tuples straight into `std::tuple` using `transaction::stream()`!
  - And, `stream_from` now supports more or less arbitrary queries.

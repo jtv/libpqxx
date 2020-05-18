@@ -38,11 +38,14 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \
+	pqxx/internal/ignore-deprecated-post.hxx \
+	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/result_iter.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/stream_iterator.hxx \
+	pqxx/internal/transaction_focus.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
