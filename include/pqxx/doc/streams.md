@@ -54,7 +54,7 @@ stream into the tuple:
 
     pqxx::stream_from stream{
         tx, pqxx::from_query,
-        "SELECT name, points FROM score"];
+        "SELECT name, points FROM score"};
     std::tuple<std::string, int> row;
     while (stream >> row)
       process(row);
