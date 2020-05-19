@@ -37,8 +37,8 @@ namespace pqxx
 {
 template<> struct nullness<TestErrorHandler *>
 {
-  [[maybe_unused]] static constexpr bool has_null{true};
-  [[maybe_unused]] static constexpr bool always_null{false};
+  static inline constexpr bool has_null{true};
+  static inline constexpr bool always_null{false};
   static constexpr bool is_null(TestErrorHandler *e) noexcept
   {
     return e == nullptr;
