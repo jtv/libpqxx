@@ -37,8 +37,12 @@ namespace pqxx
 {
 template<> struct nullness<TestErrorHandler *>
 {
-  static inline constexpr bool has_null{true};
-  static inline constexpr bool always_null{false};
+  // clang warns about these being unused.  And clang 6 won't accept a
+  // [[maybe_unused]] attribute on them either!
+
+  // static inline constexpr bool has_null{true};
+  // static inline constexpr bool always_null{false};
+
   static constexpr bool is_null(TestErrorHandler *e) noexcept
   {
     return e == nullptr;
