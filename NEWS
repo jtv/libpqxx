@@ -1,5 +1,6 @@
 7.1.2
  - Work around silly clang warning in `test_errorhandler.cxx`.
+ - Fix install error with some internal headers. (#322)
 7.1.1
  - Compile fix for Visual Studio.
  - Warning fix for clang.

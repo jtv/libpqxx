@@ -410,9 +410,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/gates/result-pipeline.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
-	pqxx/internal/gates/transaction-transactionfocus.hxx \
-	pqxx/internal/ignore-deprecated-pre.hxx \
-	pqxx/internal/ignore-deprecated-post.hxx
+	pqxx/internal/gates/transaction-transactionfocus.hxx
 
 nobase_nodist_include_HEADERS = \
 	pqxx/config-public-compiler.h
