@@ -3,15 +3,28 @@ libpqxx
 
 Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
 
+Home page: https://pqxx.org/development/libpqxx/
+
+Find libpqxx on Github: https://github.com/jtv/libpqxx
+
+Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
+
 Compiling this package requires PostgreSQL to be installed -- including the C
 headers for client development.  The library builds on top of PostgreSQL's
 standard C API, libpq, though this fact is almost completely hidden from
 programmes which use libpqxx.
 
-**Version 7.0 requires C++17.**  However, it's probably not a problem if your
-compiler does not implement C++17 fully.  Initially the 7.x series will only
-require some basic C++17 features such as `std::string_view`.  More advanced
-use may follow later.
+If you're getting the code straight from the Git repo, the `master` branch
+contains the current _development version._  To get a released version, check
+out the revision that's tagged for that version.  For example, to get version
+7.1.1:
+
+    git checkout 7.1.1
+
+**The 7.x versions require C++17.**  However, it's probably not a problem if
+your compiler does not implement C++17 fully.  Initially the 7.x series will
+only require some basic C++17 features such as `std::string_view`.  More
+advanced use may follow later.
 
 Also, **7.0 makes some breaking changes in rarely used APIs:**
  * There is just a single `connection` class.  It connects immediately.
@@ -19,12 +32,8 @@ Also, **7.0 makes some breaking changes in rarely used APIs:**
  * Closed connections can no longer be reactivated.
  * The API for defining string conversions has changed.
 
-Home page: https://pqxx.org/development/libpqxx/
-
-Find libpqxx on Github: https://github.com/jtv/libpqxx
-
-Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
-
+And if you're defining your own type conversions, **7.1 requires one additional
+field in your `nullness` traits.*
 
 Building libpqxx
 ----------------
