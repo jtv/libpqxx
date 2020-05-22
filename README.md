@@ -9,10 +9,9 @@ Find libpqxx on Github: https://github.com/jtv/libpqxx
 
 Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
 
-Compiling this package requires PostgreSQL to be installed -- including the C
-headers for client development.  The library builds on top of PostgreSQL's
-standard C API, libpq, though this fact is almost completely hidden from
-programmes which use libpqxx.
+Compiling this package requires PostgreSQL to be installed -- or at least the C
+headers and library for client development.  The library builds on top of
+PostgreSQL's standard C API, libpq, though your code won't notice.
 
 If you're getting the code straight from the Git repo, the `master` branch
 contains the current _development version._  To get a released version, check
@@ -20,6 +19,9 @@ out the revision that's tagged for that version.  For example, to get version
 7.1.1:
 
     git checkout 7.1.1
+
+
+### Upgrade notes
 
 **The 7.x versions require C++17.**  However, it's probably not a problem if
 your compiler does not implement C++17 fully.  Initially the 7.x series will
@@ -35,12 +37,11 @@ Also, **7.0 makes some breaking changes in rarely used APIs:**
 And if you're defining your own type conversions, **7.1 requires one additional
 field in your `nullness` traits.*
 
+
 Building libpqxx
 ----------------
 
-(Before you try building, make sure you have libpq installed.  This is the C
-language binding for PostgreSQL.  You'll need not just the library, but its
-headers as well.)
+See `INSTALL`.  I'll be merging these instructions into there.
 
 There are two very different ways of building libpqxx:
  1. Using CMake, on any system which supports it.

@@ -1,16 +1,39 @@
 Basic Installation
 ==================
 
+The build requires `libpq`, the C client library for PostgreSQL.  This library
+must be installed.
 
-The native build system for libpqxx is based on `configure` and `make`,
-but there is also a CMake build.
+In Unix-like environments, including Linux and macOS, you can build using
+either `configure` or `CMake`.  In a pure Windows environment, use CMake.
+
+We will describe these in separate sections below.
 
 
-Native build
-------------
+Building with `configure`
+-------------------------
 
-This build works on Unix-like systems only (including Linux and macOS).  For
-Windows systems, use the CMake build.
+### Quick start
+
+If you just want to start compiling quickly, try:
+
+    ./configure
+    ./make
+
+Want more detail?  Read on.
+
+To run the tests, have a database ready where the test suite can log in without
+a password, and create and drop tables.  If you can run `psql` without
+arguments and connect to a database, you should be fine.  Then:
+
+    make check
+
+And to install, run this with superuser privileges:
+
+    make install
+
+
+### What is `configure`?
 
 The `configure` shell script tries to discover the values for various
 system-dependent parameters needed for building libpqxx.  It uses those values
