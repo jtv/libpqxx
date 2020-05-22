@@ -171,7 +171,7 @@ def write_header(stream, template_path=None):
     """
     Write header to stream.
     """
-    hr = ("#" * 80) + "\n"
+    hr = ('# ' + '#' * 78) + "\n"
     script = os.path.basename(argv[0])
 
     outstream.write(hr)
