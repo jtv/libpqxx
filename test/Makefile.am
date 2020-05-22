@@ -1,4 +1,4 @@
-################################################################################
+# ##############################################################################
 # AUTOMATICALLY GENERATED FILE -- DO NOT EDIT.
 #
 # This file is generated automatically by libpqxx's template2mak.py script, and
@@ -10,7 +10,7 @@
 # libpqxx source archive.
 #
 # Generated from template './test/Makefile.am.template'.
-################################################################################
+# ##############################################################################
 # Makefile.am is generated automatically for automake whenever test programs are
 # added to libpqxx.
 
