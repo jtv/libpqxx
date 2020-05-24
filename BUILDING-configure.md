@@ -26,7 +26,7 @@ Want more detail?  Read on.
 Stages
 ------
 
-I'll explain the main build steps in more details below, but here's a quick
+I'll explain the main build steps in more detail below, but here's a quick
 overview:
  1. Configure
  2. Compile
@@ -131,7 +131,7 @@ libpqxx source code is) and the _build tree_ (where you want your build
 artefacts).  Here I will call them `$SRC` and `$BUILD`, but you can call them
 anything you like.
 
-They can be one the same, if you like.  It's convenient, but less clean, as
+They can be one and the same, if you like.  It's convenient, but less clean, as
 source code and build artefacts will exist in the same directory tree.  If
 you're going to delete the source tree after installing, of course it's fine to
 make a mess in there.
