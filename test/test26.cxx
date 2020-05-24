@@ -76,7 +76,7 @@ void test_026()
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  auto const conversions{perform([&conn]{ return update_years(conn); })};
+  auto const conversions{perform([&conn] { return update_years(conn); })};
 
   PQXX_CHECK(not conversions.empty(), "No conversions done!");
 }

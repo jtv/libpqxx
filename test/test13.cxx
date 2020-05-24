@@ -67,11 +67,11 @@ void test_013()
 
   quiet_errorhandler d(conn);
   PQXX_CHECK_THROWS(
-    perform([&conn, &Table]{ failed_insert(conn, Table); }),
-    deliberate_error, "Failing transactor failed to throw correct exception.");
+    perform([&conn, &Table] { failed_insert(conn, Table); }), deliberate_error,
+    "Failing transactor failed to throw correct exception.");
 
   auto const After{
-    perform([&conn, &Table]{ return count_events(conn, Table); })};
+    perform([&conn, &Table] { return count_events(conn, Table); })};
 
   PQXX_CHECK_EQUAL(
     After.first, Before.first, "abort() didn't reset event count.");

@@ -45,7 +45,7 @@ void test_032()
   std::string const Table{"pqxxevents"};
 
   std::pair<int, int> const Before{
-    perform([&conn, &Table]{ return count_events(conn, Table); })};
+    perform([&conn, &Table] { return count_events(conn, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + ", cannot test.");
@@ -53,7 +53,7 @@ void test_032()
   {
     quiet_errorhandler d(conn);
     PQXX_CHECK_THROWS(
-      perform([&conn, &Table]{
+      perform([&conn, &Table] {
         work{conn}.exec0(
           "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
           ", "
@@ -65,7 +65,7 @@ void test_032()
   }
 
   std::pair<int, int> const After{
-    perform([&conn, &Table]{ return count_events(conn, Table); })};
+    perform([&conn, &Table] { return count_events(conn, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

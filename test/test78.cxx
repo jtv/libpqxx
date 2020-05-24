@@ -46,7 +46,7 @@ void test_078()
   std::string const NotifName{"my listener"};
   TestListener L{conn, NotifName};
 
-  pqxx::perform([&conn, &L]{
+  pqxx::perform([&conn, &L] {
     pqxx::work tx{conn};
     tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
     tx.commit();

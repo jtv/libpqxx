@@ -20,7 +20,7 @@ void test_054()
 {
   connection conn;
 
-  largeobject Obj{perform([&conn]{
+  largeobject Obj{perform([&conn] {
     work tx{conn};
     largeobjectaccess A(tx);
     auto new_obj = largeobject(A);
@@ -30,7 +30,7 @@ void test_054()
     return new_obj;
   })};
 
-  perform([&conn, &Obj]{
+  perform([&conn, &Obj] {
     work tx{conn};
     Obj.remove(tx);
     tx.commit();

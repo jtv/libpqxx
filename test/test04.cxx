@@ -47,7 +47,7 @@ void test_004()
 
   TestListener L{conn};
   // Trigger our notification receiver.
-  perform([&conn, &L]{
+  perform([&conn, &L] {
     work tx(conn);
     tx.exec0("NOTIFY " + conn.quote_name(L.channel()));
     Backend_PID = conn.backendpid();
