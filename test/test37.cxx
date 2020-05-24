@@ -43,7 +43,7 @@ void test_037()
   std::string const Table{"pqxxevents"};
 
   auto const Before{
-    perform([&conn, &Table]() { return count_events(conn, Table); })};
+    perform([&conn, &Table]{ return count_events(conn, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + ", cannot test.");
@@ -51,7 +51,7 @@ void test_037()
   {
     quiet_errorhandler d(conn);
     PQXX_CHECK_THROWS(
-      perform([&conn, &Table]() {
+      perform([&conn, &Table]{
         robusttransaction<> tx{conn};
         tx.exec0(
           "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
@@ -65,7 +65,7 @@ void test_037()
   }
 
   auto const After{
-    perform([&conn, &Table]() { return count_events(conn, Table); })};
+    perform([&conn, &Table]{ return count_events(conn, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Number of events changed.");
   PQXX_CHECK_EQUAL(

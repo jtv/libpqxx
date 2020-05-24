@@ -20,7 +20,7 @@ void test_058()
 {
   connection conn;
 
-  perform([&conn]() {
+  perform([&conn]{
     work tx{conn};
     largeobjectaccess A(tx);
     A.write(Contents);

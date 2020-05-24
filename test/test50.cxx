@@ -22,7 +22,7 @@ void test_050()
   connection conn;
 
   // Create a large object.
-  largeobject Obj{perform([&conn]() {
+  largeobject Obj{perform([&conn]{
     work tx{conn};
     auto const obj = largeobject(tx);
     tx.commit();
@@ -30,7 +30,7 @@ void test_050()
   })};
 
   // Write to the large object, and play with it a little.
-  perform([&conn, &Obj]() {
+  perform([&conn, &Obj]{
     work tx{conn};
     largeobjectaccess A(tx, Obj);
 
@@ -82,7 +82,7 @@ void test_050()
     tx.commit();
   });
 
-  perform([&conn, &Obj]() {
+  perform([&conn, &Obj]{
     work tx{conn};
     Obj.remove(tx);
     tx.commit();

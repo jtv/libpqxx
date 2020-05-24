@@ -48,7 +48,7 @@ void test_079()
   int notifs{conn.await_notification(0, 1)};
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
-  pqxx::perform([&conn, &L]() {
+  pqxx::perform([&conn, &L]{
     pqxx::work tx{conn};
     tx.exec0("NOTIFY " + L.channel());
     tx.commit();

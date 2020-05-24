@@ -16,7 +16,7 @@ namespace
 void test_017()
 {
   connection conn;
-  perform([&conn]() {
+  perform([&conn]{
     nontransaction tx{conn};
     auto const r{tx.exec("SELECT * FROM generate_series(1, 4)")};
     PQXX_CHECK_EQUAL(r.size(), 4, "Weird query result.");

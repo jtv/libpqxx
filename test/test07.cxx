@@ -50,7 +50,7 @@ void test_007()
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
   std::map<int, int> conversions;
-  perform([&conversions, &conn]() {
+  perform([&conversions, &conn]{
     work tx{conn};
     // First select all different years occurring in the table.
     result R(tx.exec("SELECT year FROM pqxxevents"));

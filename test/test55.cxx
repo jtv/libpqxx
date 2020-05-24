@@ -20,7 +20,7 @@ void test_055()
 {
   connection conn;
 
-  largeobject Obj{perform([&conn]() {
+  largeobject Obj{perform([&conn]{
     char Buf[200];
     work tx{conn};
     largeobjectaccess A{tx, "pqxxlo.txt", std::ios::in};
@@ -34,7 +34,7 @@ void test_055()
     return new_obj;
   })};
 
-  perform([&conn, &Obj]() {
+  perform([&conn, &Obj]{
     work tx{conn};
     Obj.remove(tx);
     tx.commit();

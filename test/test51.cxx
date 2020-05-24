@@ -19,7 +19,7 @@ void test_051()
 {
   connection conn;
 
-  largeobject obj{perform([&conn]() {
+  largeobject obj{perform([&conn]{
     work tx{conn};
     largeobjectaccess A(tx);
     auto new_obj = largeobject(A);
@@ -76,7 +76,7 @@ void test_051()
   PQXX_CHECK(not(obj < obj), "Large objects: false positive on operator<().");
   PQXX_CHECK(not(obj > obj), "Large objects: false positive on operator>().");
 
-  perform([&conn, &obj]() {
+  perform([&conn, &obj]{
     work tx{conn};
     obj.remove(tx);
     tx.commit();

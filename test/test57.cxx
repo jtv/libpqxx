@@ -31,7 +31,7 @@ void test_057()
 
   std::string const Contents{"Testing, testing, 1-2-3"};
 
-  largeobject Obj{perform([&conn, &Contents]() {
+  largeobject Obj{perform([&conn, &Contents]{
     work tx{conn};
     auto new_obj = largeobject{tx};
     olostream S(tx, new_obj.id());
@@ -41,13 +41,13 @@ void test_057()
     return new_obj;
   })};
 
-  std::string const Readback{perform([&conn, &Obj]() {
+  std::string const Readback{perform([&conn, &Obj]{
     work tx{conn};
     ilostream S(tx, Obj);
     return UnStream(S);
   })};
 
-  perform([&conn, &Obj]() {
+  perform([&conn, &Obj]{
     work tx{conn};
     Obj.remove(tx);
     tx.commit();
