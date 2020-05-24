@@ -1,0 +1,2 @@
+For installation instructions, see `BUILD-configure.md` (for the `configure`
+build) and `BUILD-cmake.md` (for the CMake build).
