@@ -1,4 +1,5 @@
 7.1.2
+ - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
  - Fix install error with some internal headers. (#322)
 7.1.1
