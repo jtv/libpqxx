@@ -1,8 +1,8 @@
 Building using CMake
 ====================
 
-The build requires `libpq`, the C client library for PostgreSQL.  This library
-must be installed before you can build libpqxx.
+The build requires the full PostgreSQL development package.  That package must
+be installed before you can build libpqxx.
 
 The instructions will assume that you're working from a command-line shell.
 If you prefer to work from an IDE, you'll have to know how your IDE likes to
@@ -62,9 +62,14 @@ Here are some popular `cmake` options for libpqxx:
  * `-DSKIP_BUILD_TEST=on` skips compiling libpqxx's tests.
  * `-DBUILD_SHARED_LIBS=on` to build a shared library.
  * `-DBUID_SHARED_LIBS=off` to build a static library.
+ * `-DBUILD_DOC=on` to include documentation in the build.
 
 On Windows, I recommend building libpqxx as a shared library and bundling it
 with your application.  On other platforms I would prefer a static library.
+
+Building the documentation requires some tools to be installed.  These include
+Doxygen and xmlto, but there's no list of requirements.  The way to get this
+set up is to just try it and see what it's missing.
 
 
 ### Generators
