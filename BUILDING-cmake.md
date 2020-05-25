@@ -37,6 +37,7 @@ overview:
  2. Compile
  3. Test
  4. Install
+ 5. Use
 
 The Test step is optional.
 
@@ -207,3 +208,25 @@ Install
 Installing libpqxx will install the library and headers in a location chosen at
 the time you ran `cmake`.  The default will vary from one system environment to
 another.
+
+
+Use
+---
+
+Other projects can include libpqxx in their CMake builds.
+
+`@abrownsword` uses this configuration:
+
+```cmake
+    set(libpqxxdir "libpqxx-${LIBVERSION}")     # LIBVERSION set above
+    set(SKIP_BUILD_TEST on)
+    set(BUILD_SHARED_LIBS OFF)
+
+    # Used this instead of FindLibrary.
+    # Setting PostgresSQL_INCLUDE_DIRS externally.
+    set(PostgreSQL_FOUND true)
+    set(PostgresSQL_INCLUDE_DIR ${PostgresSQL_INCLUDE_DIRS})
+    set(PostgresSQL_TYPE_INCLUDE_DIR ${PostgresSQL_INCLUDE_DIRS})
+
+    add_subdirectory(${libpqxxdir})
+```
