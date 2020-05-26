@@ -56,6 +56,20 @@ the compiler to look for libpq in a non-standard place, or to use a different
 compiler, or pass different compiler flags.  Don't try to specify those while
 doing the actual compile; set them once when running `cmake`.
 
+Let's say `$BUILD` is the directory where you want to build libpqxx, and
+`$SRC` is where its source code is.  So for example, the readme file will be at
+`$SRC/README.md`.
+
+In the simplest case, you just do:
+
+```shell
+    cd $BUILD
+    cmake $SRC
+```
+
+Add CMake options as needed.  There's more about the options below.  I'll also
+explain the two directories.
+
 
 ### Cheat sheet
 
