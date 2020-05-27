@@ -229,8 +229,7 @@ void pqxx::stream_from::parse_line()
         field_begin = write;
         break;
 
-      case '\\':
-      {
+      case '\\': {
         // Escape sequence.
         if (read >= line_end)
           throw failure{"Row ends in backslash"};

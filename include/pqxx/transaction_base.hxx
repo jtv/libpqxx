@@ -252,8 +252,9 @@ public:
   {
     row const r{exec1(query, desc)};
     if (r.size() != 1)
-      throw usage_error{"Queried single value from result with " +
-                        to_string(r.size()) + " columns."};
+      throw usage_error{
+        "Queried single value from result with " + to_string(r.size()) +
+        " columns."};
     return r[0].as<TYPE>();
   }
 

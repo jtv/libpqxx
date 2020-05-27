@@ -66,8 +66,9 @@ void pqxx::internal::check_unique_registration(
   {
     if (old_ptr == new_ptr)
       throw usage_error{"Started twice: " + new_ptr->description()};
-    throw usage_error{"Started " + new_ptr->description() + " while " +
-                      old_ptr->description() + " still active."};
+    throw usage_error{
+      "Started " + new_ptr->description() + " while " +
+      old_ptr->description() + " still active."};
   }
 }
 
@@ -78,14 +79,16 @@ void pqxx::internal::check_unique_unregistration(
   if (new_ptr != old_ptr)
   {
     if (new_ptr == nullptr)
-      throw usage_error{"Expected to close " + old_ptr->description() +
-                        ", "
-                        "but got null pointer instead."};
+      throw usage_error{
+        "Expected to close " + old_ptr->description() +
+        ", "
+        "but got null pointer instead."};
     if (old_ptr == nullptr)
       throw usage_error{"Closed while not open: " + new_ptr->description()};
-    throw usage_error{"Closed " + new_ptr->description() +
-                      "; "
-                      "expected to close " +
-                      old_ptr->description()};
+    throw usage_error{
+      "Closed " + new_ptr->description() +
+      "; "
+      "expected to close " +
+      old_ptr->description()};
   }
 }

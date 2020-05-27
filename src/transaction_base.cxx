@@ -25,8 +25,7 @@
 
 
 pqxx::transaction_base::transaction_base(connection &c) :
-        namedclass{"transaction_base"},
-        m_conn{c}
+        namedclass{"transaction_base"}, m_conn{c}
 {}
 
 
@@ -75,8 +74,8 @@ void pqxx::transaction_base::commit()
   switch (m_status)
   {
   case status::nascent: // We never managed to start the transaction.
-    throw usage_error{"Attempt to commit unserviceable " + description() +
-                      "."};
+    throw usage_error{
+      "Attempt to commit unserviceable " + description() + "."};
     return;
 
   case status::active: // Just fine.  This is what we expect.
@@ -97,8 +96,8 @@ void pqxx::transaction_base::commit()
   case status::in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
-    throw in_doubt_error{description() +
-                         " committed again while in an indeterminate state."};
+    throw in_doubt_error{
+      description() + " committed again while in an indeterminate state."};
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
@@ -108,8 +107,9 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus.get() != nullptr)
-    throw failure{"Attempt to commit " + description() + " with " +
-                  m_focus.get()->description() + " still open."};
+    throw failure{
+      "Attempt to commit " + description() + " with " +
+      m_focus.get()->description() + " still open."};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -160,8 +160,8 @@ void pqxx::transaction_base::abort()
   case status::aborted: return;
 
   case status::committed:
-    throw usage_error{"Attempt to abort previously committed " +
-                      description()};
+    throw usage_error{
+      "Attempt to abort previously committed " + description()};
 
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
@@ -202,27 +202,30 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
   std::string const n{desc.empty() ? "" : "'" + desc + "' "};
 
   if (m_focus.get() != nullptr)
-    throw usage_error{"Attempt to execute query " + n + "on " + description() +
-                      " "
-                      "with " +
-                      m_focus.get()->description() + " still open."};
+    throw usage_error{
+      "Attempt to execute query " + n + "on " + description() +
+      " "
+      "with " +
+      m_focus.get()->description() + " still open."};
 
 
   switch (m_status)
   {
   case status::nascent:
-    throw usage_error{"Could not execute query " + n +
-                      ": "
-                      "transaction startup failed."};
+    throw usage_error{
+      "Could not execute query " + n +
+      ": "
+      "transaction startup failed."};
 
   case status::active: break;
 
   case status::committed:
   case status::aborted:
   case status::in_doubt:
-    throw usage_error{"Could not execute query " + n +
-                      ": "
-                      "transaction is already closed."};
+    throw usage_error{
+      "Could not execute query " + n +
+      ": "
+      "transaction is already closed."};
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
@@ -239,10 +242,11 @@ pqxx::result pqxx::transaction_base::exec_n(
   if (r.size() != rows)
   {
     std::string const N{desc.empty() ? "" : "'" + desc + "'"};
-    throw unexpected_rows{"Expected " + to_string(rows) +
-                          " row(s) of data "
-                          "from query " +
-                          N + ", got " + to_string(r.size()) + "."};
+    throw unexpected_rows{
+      "Expected " + to_string(rows) +
+      " row(s) of data "
+      "from query " +
+      N + ", got " + to_string(r.size()) + "."};
   }
   return r;
 }
@@ -254,11 +258,11 @@ void pqxx::transaction_base::check_rowcount_prepared(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows{"Expected " + to_string(expected_rows) +
-                          " row(s) of data "
-                          "from prepared statement '" +
-                          statement + "', got " + to_string(actual_rows) +
-                          "."};
+    throw unexpected_rows{
+      "Expected " + to_string(expected_rows) +
+      " row(s) of data "
+      "from prepared statement '" +
+      statement + "', got " + to_string(actual_rows) + "."};
   }
 }
 
@@ -268,10 +272,11 @@ void pqxx::transaction_base::check_rowcount_params(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows{"Expected " + to_string(expected_rows) +
-                          " row(s) of data "
-                          "from parameterised query, got " +
-                          to_string(actual_rows) + "."};
+    throw unexpected_rows{
+      "Expected " + to_string(expected_rows) +
+      " row(s) of data "
+      "from parameterised query, got " +
+      to_string(actual_rows) + "."};
   }
 }
 

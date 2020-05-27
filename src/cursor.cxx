@@ -76,13 +76,14 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
 pqxx::icursorstream::icursorstream(
   transaction_base &context, std::string_view query, std::string_view basename,
   difference_type sstride) :
-        m_cur{context,
-              query,
-              basename,
-              cursor_base::forward_only,
-              cursor_base::read_only,
-              cursor_base::owned,
-              false},
+        m_cur{
+          context,
+          query,
+          basename,
+          cursor_base::forward_only,
+          cursor_base::read_only,
+          cursor_base::owned,
+          false},
         m_stride{sstride},
         m_realpos{0},
         m_reqpos{0},
@@ -110,8 +111,8 @@ pqxx::icursorstream::icursorstream(
 void pqxx::icursorstream::set_stride(difference_type stride)
 {
   if (stride < 1)
-    throw argument_error{"Attempt to set cursor stride to " +
-                         to_string(stride)};
+    throw argument_error{
+      "Attempt to set cursor stride to " + to_string(stride)};
   m_stride = stride;
 }
 
@@ -218,11 +219,9 @@ pqxx::icursor_iterator::icursor_iterator(istream_type &s) noexcept :
 }
 
 
-pqxx::icursor_iterator::icursor_iterator(
-  icursor_iterator const &rhs) noexcept :
-        m_stream{rhs.m_stream},
-        m_here{rhs.m_here},
-        m_pos{rhs.m_pos}
+pqxx::icursor_iterator::icursor_iterator(icursor_iterator const &rhs) noexcept
+        :
+        m_stream{rhs.m_stream}, m_here{rhs.m_here}, m_pos{rhs.m_pos}
 {
   if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
@@ -273,8 +272,8 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 }
 
 
-pqxx::icursor_iterator &pqxx::icursor_iterator::
-operator=(icursor_iterator const &rhs) noexcept
+pqxx::icursor_iterator &
+pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
   {

@@ -48,26 +48,22 @@ public:
   pipeline &operator=(pipeline const &) = delete;
 
   explicit pipeline(transaction_base &t) :
-          namedclass{"pipeline"},
-          transactionfocus{t}
+          namedclass{"pipeline"}, transactionfocus{t}
   {
     init();
   }
   pipeline(transaction_base &t, char const name[]) :
-          namedclass{"pipeline", name},
-          transactionfocus{t}
+          namedclass{"pipeline", name}, transactionfocus{t}
   {
     init();
   }
   pipeline(transaction_base &t, std::string &&name) :
-          namedclass{"pipeline", std::move(name)},
-          transactionfocus{t}
+          namedclass{"pipeline", std::move(name)}, transactionfocus{t}
   {
     init();
   }
   pipeline(transaction_base &t, std::string_view name) :
-          namedclass{"pipeline", name},
-          transactionfocus{t}
+          namedclass{"pipeline", name}, transactionfocus{t}
   {
     init();
   }

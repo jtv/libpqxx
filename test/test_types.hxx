@@ -117,8 +117,9 @@ template<> struct string_traits<ipv4>
 
   static zview to_buf(char *begin, char *end, ipv4 const &value)
   {
-    return zview{begin, static_cast<std::size_t>(
-                          into_buf(begin, end, value) - begin - 1)};
+    return zview{
+      begin,
+      static_cast<std::size_t>(into_buf(begin, end, value) - begin - 1)};
   }
 
   static constexpr std::size_t size_buffer(ipv4 const &) noexcept

@@ -78,9 +78,10 @@ public:
   {
     constexpr auto tup_size{sizeof...(TYPE)};
     if (home.columns() != tup_size)
-      throw usage_error{"Tried to extract " + to_string(tup_size) +
-                        " field(s) from a result with " +
-                        to_string(home.columns()) + " column(s)."};
+      throw usage_error{
+        "Tried to extract " + to_string(tup_size) +
+        " field(s) from a result with " + to_string(home.columns()) +
+        " column(s)."};
   }
   iterator begin() const
   {

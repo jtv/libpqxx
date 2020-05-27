@@ -23,9 +23,7 @@ extern "C"
 
 
 pqxx::row::row(result const &r, result::size_type i) noexcept :
-        m_result{r},
-        m_index{i},
-        m_end{r.columns()}
+        m_result{r}, m_index{i}, m_end{r.columns()}
 {}
 
 
@@ -167,8 +165,8 @@ pqxx::row::size_type pqxx::row::column_number(char const col_name[]) const
 {
   auto const n{m_result.column_number(col_name)};
   if (n >= m_end)
-    throw argument_error{"Column '" + std::string{col_name} +
-                         "' falls outside slice."};
+    throw argument_error{
+      "Column '" + std::string{col_name} + "' falls outside slice."};
   if (n >= m_begin)
     return n - m_begin;
 
@@ -218,16 +216,16 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int)
 }
 
 
-pqxx::const_row_iterator pqxx::const_reverse_row_iterator::base() const
-  noexcept
+pqxx::const_row_iterator
+pqxx::const_reverse_row_iterator::base() const noexcept
 {
   iterator_type tmp{*this};
   return ++tmp;
 }
 
 
-pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
-operator++(int)
+pqxx::const_reverse_row_iterator
+pqxx::const_reverse_row_iterator::operator++(int)
 {
   auto tmp{*this};
   operator++();
@@ -235,8 +233,8 @@ operator++(int)
 }
 
 
-pqxx::const_reverse_row_iterator pqxx::const_reverse_row_iterator::
-operator--(int)
+pqxx::const_reverse_row_iterator
+pqxx::const_reverse_row_iterator::operator--(int)
 {
   auto tmp{*this};
   operator--();

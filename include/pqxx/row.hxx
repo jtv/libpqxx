@@ -206,8 +206,9 @@ protected:
   void check_size(size_type expected) const
   {
     if (size() != expected)
-      throw usage_error{"Tried to extract " + to_string(expected) +
-                        " field(s) from a row of " + to_string(size()) + "."};
+      throw usage_error{
+        "Tried to extract " + to_string(expected) +
+        " field(s) from a row of " + to_string(size()) + "."};
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;
@@ -435,13 +436,13 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] bool operator==(const_reverse_row_iterator const &rhs) const
-    noexcept
+  [[nodiscard]] bool
+  operator==(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator==(rhs);
   }
-  [[nodiscard]] bool operator!=(const_reverse_row_iterator const &rhs) const
-    noexcept
+  [[nodiscard]] bool
+  operator!=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return !operator==(rhs);
   }
@@ -468,8 +469,8 @@ public:
 
 const_row_iterator const_row_iterator::operator+(difference_type o) const
 {
-  return const_row_iterator{row(home(), idx()),
-                            size_type(difference_type(col()) + o)};
+  return const_row_iterator{
+    row(home(), idx()), size_type(difference_type(col()) + o)};
 }
 
 inline const_row_iterator
@@ -478,15 +479,15 @@ operator+(const_row_iterator::difference_type o, const_row_iterator const &i)
   return i + o;
 }
 
-inline const_row_iterator const_row_iterator::
-operator-(difference_type o) const
+inline const_row_iterator
+const_row_iterator::operator-(difference_type o) const
 {
-  return const_row_iterator{row(home(), idx()),
-                            size_type(difference_type(col()) - o)};
+  return const_row_iterator{
+    row(home(), idx()), size_type(difference_type(col()) - o)};
 }
 
-inline const_row_iterator::difference_type const_row_iterator::
-operator-(const_row_iterator const &i) const
+inline const_row_iterator::difference_type
+const_row_iterator::operator-(const_row_iterator const &i) const
 {
   return difference_type(num() - i.num());
 }

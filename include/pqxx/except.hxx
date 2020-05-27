@@ -311,8 +311,7 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
   explicit syntax_error(
     std::string const &err, std::string const &Q = "",
     char const sqlstate[] = nullptr, int pos = -1) :
-          sql_error{err, Q, sqlstate},
-          error_position{pos}
+          sql_error{err, Q, sqlstate}, error_position{pos}
   {}
 };
 

@@ -637,8 +637,8 @@ encoding_group enc_group(std::string_view encoding_name)
 
   auto const found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == encoding_map.end())
-    throw std::invalid_argument{"Unrecognized encoding: '" +
-                                std::string{encoding_name} + "'."};
+    throw std::invalid_argument{
+      "Unrecognized encoding: '" + std::string{encoding_name} + "'."};
   return found_encoding_group->second;
 }
 
@@ -674,8 +674,8 @@ constexpr inline F *for_encoding(encoding_group enc)
     CASE_GROUP(UHC);
     CASE_GROUP(UTF8);
   }
-  throw pqxx::usage_error{"Unsupported encoding group code " + to_string(enc) +
-                          "."};
+  throw pqxx::usage_error{
+    "Unsupported encoding group code " + to_string(enc) + "."};
 
 #undef CASE_GROUP
 }

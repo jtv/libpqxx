@@ -84,9 +84,9 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
   // Include the trailing zero.
   auto const len = text.size() + 1;
   if (len > space)
-    throw conversion_overrun{"Not enough buffer space to insert " +
-                             type_name<T> + ".  " +
-                             state_buffer_overrun(space, len)};
+    throw conversion_overrun{
+      "Not enough buffer space to insert " + type_name<T> + ".  " +
+      state_buffer_overrun(space, len)};
   std::memmove(begin, text.data(), len);
   return begin + len;
 }
@@ -215,8 +215,8 @@ template<typename T> struct string_traits<std::optional<T>>
 
   static std::optional<T> from_string(std::string_view text)
   {
-    return std::optional<T>{std::in_place,
-                            string_traits<T>::from_string(text)};
+    return std::optional<T>{
+      std::in_place, string_traits<T>::from_string(text)};
   }
 
   static std::size_t size_buffer(std::optional<T> const &value) noexcept
@@ -721,8 +721,8 @@ namespace pqxx
 template<typename T> inline std::string to_string(T const &value)
 {
   if (is_null(value))
-    throw conversion_error{"Attempt to convert null " + type_name<T> +
-                           " to a string."};
+    throw conversion_error{
+      "Attempt to convert null " + type_name<T> + " to a string."};
 
   std::string buf;
   // We can't just reserve() data; modifying the terminating zero leads to
@@ -756,8 +756,8 @@ template<> inline std::string to_string(std::stringstream const &value)
 template<typename T> inline void into_string(T const &value, std::string &out)
 {
   if (is_null(value))
-    throw conversion_error{"Attempt to convert null " + type_name<T> +
-                           " to a string."};
+    throw conversion_error{
+      "Attempt to convert null " + type_name<T> + " to a string."};
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.

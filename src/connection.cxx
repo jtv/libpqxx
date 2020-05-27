@@ -99,8 +99,7 @@ std::string pqxx::encrypt_password(char const user[], char const password[])
 
 
 pqxx::connection::connection(connection &&rhs) :
-        m_conn{rhs.m_conn},
-        m_unique_id{rhs.m_unique_id}
+        m_conn{rhs.m_conn}, m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable();
   rhs.m_conn = nullptr;
@@ -420,8 +419,8 @@ void pqxx::connection::cancel_query()
 
   auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
   if (c == 0)
-    throw pqxx::sql_error{std::string{errbuf.data(), errbuf.size()},
-                          "[cancel]"};
+    throw pqxx::sql_error{
+      std::string{errbuf.data(), errbuf.size()}, "[cancel]"};
 }
 
 
@@ -554,8 +553,8 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 
 std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 {
-  return std::vector<errorhandler *>{std::begin(m_errorhandlers),
-                                     std::end(m_errorhandlers)};
+  return std::vector<errorhandler *>{
+    std::begin(m_errorhandlers), std::end(m_errorhandlers)};
 }
 
 
@@ -746,8 +745,8 @@ void pqxx::connection::end_copy_write()
     break;
 
   default:
-    throw internal_error{"unexpected result " + to_string(res) +
-                         " from PQputCopyEnd()"};
+    throw internal_error{
+      "unexpected result " + to_string(res) + " from PQputCopyEnd()"};
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};
@@ -1008,8 +1007,8 @@ void pqxx::connection::set_client_encoding(char const encoding[])
     else
       throw broken_connection{"Lost connection to the database server."};
   default:
-    throw internal_error{"Unexpected result from PQsetClientEncoding: " +
-                         to_string(retval)};
+    throw internal_error{
+      "Unexpected result from PQsetClientEncoding: " + to_string(retval)};
   }
 }
 

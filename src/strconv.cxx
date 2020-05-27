@@ -133,8 +133,8 @@ wrap_to_chars(char *begin, char *end, T const &value)
         "buffer too small (" +
         pqxx::to_string(end - begin) + " bytes)."};
     default:
-      throw pqxx::conversion_error{"Could not convert " + pqxx::type_name<T> +
-                                   " to string."};
+      throw pqxx::conversion_error{
+        "Could not convert " + pqxx::type_name<T> + " to string."};
     }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
@@ -282,10 +282,11 @@ template<typename TYPE>
     default: break;
     }
 
-  auto const base{"Could not convert '" + std::string(in) +
-                  "' "
-                  "to " +
-                  pqxx::type_name<TYPE>};
+  auto const base{
+    "Could not convert '" + std::string(in) +
+    "' "
+    "to " +
+    pqxx::type_name<TYPE>};
   if (msg.empty())
     throw pqxx::conversion_error{base + "."};
   else
@@ -374,8 +375,8 @@ template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
   if (text.size() == 0)
-    throw pqxx::conversion_error{"Attempt to convert empty string to " +
-                                 pqxx::type_name<T> + "."};
+    throw pqxx::conversion_error{
+      "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
   char const initial{text.data()[0]};
   std::size_t i{0};
@@ -389,27 +390,27 @@ template<typename T>
   else if (text.data()[0] == '-')
   {
     if constexpr (not std::is_signed_v<T>)
-      throw pqxx::conversion_error{"Attempt to convert negative value to " +
-                                   pqxx::type_name<T> + "."};
+      throw pqxx::conversion_error{
+        "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
     for (++i; isdigit(text.data()[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(text.data()[i]));
   }
   else
   {
-    throw pqxx::conversion_error{"Could not convert string to " +
-                                 pqxx::type_name<T> +
-                                 ": "
-                                 "'" +
-                                 std::string{text} + "'."};
+    throw pqxx::conversion_error{
+      "Could not convert string to " + pqxx::type_name<T> +
+      ": "
+      "'" +
+      std::string{text} + "'."};
   }
 
   if (i < text.size())
-    throw pqxx::conversion_error{"Unexpected text after " +
-                                 pqxx::type_name<T> +
-                                 ": "
-                                 "'" +
-                                 std::string{text} + "'."};
+    throw pqxx::conversion_error{
+      "Unexpected text after " + pqxx::type_name<T> +
+      ": "
+      "'" +
+      std::string{text} + "'."};
 
   return result;
 }
@@ -471,8 +472,8 @@ inline bool from_dumb_stringstream(
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
   if (text.empty())
-    throw pqxx::conversion_error{"Trying to convert empty string to " +
-                                 pqxx::type_name<T> + "."};
+    throw pqxx::conversion_error{
+      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
 
   bool ok{false};
   T result;
@@ -725,8 +726,8 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   }
 
   if (not OK)
-    throw conversion_error{"Failed conversion to bool: '" + std::string{text} +
-                           "'."};
+    throw conversion_error{
+      "Failed conversion to bool: '" + std::string{text} + "'."};
 
   return result;
 }

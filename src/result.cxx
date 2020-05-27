@@ -41,9 +41,7 @@ void pqxx::internal::clear_result(pq::PGresult const *data)
 pqxx::result::result(
   pqxx::internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
   internal::encoding_group enc) :
-        m_data{make_data_pointer(rhs)},
-        m_query{query},
-        m_encoding(enc)
+        m_data{make_data_pointer(rhs)}, m_query{query}, m_encoding(enc)
 {}
 
 
@@ -278,8 +276,9 @@ std::string pqxx::result::StatusError() const
   case PGRES_FATAL_ERROR: err = PQresultErrorMessage(m_data.get()); break;
 
   default:
-    throw internal_error{"pqxx::result: Unrecognized response code " +
-                         to_string(PQresultStatus(m_data.get()))};
+    throw internal_error{
+      "pqxx::result: Unrecognized response code " +
+      to_string(PQresultStatus(m_data.get()))};
   }
   return err;
 }
@@ -339,8 +338,9 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
-    throw argument_error{"Attempt to retrieve type of nonexistent column " +
-                         to_string(col_num) + " of query result."};
+    throw argument_error{
+      "Attempt to retrieve type of nonexistent column " + to_string(col_num) +
+      " of query result."};
   return t;
 }
 
@@ -350,8 +350,8 @@ pqxx::row::size_type pqxx::result::column_number(char const col_name[]) const
   auto const n{
     PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
   if (n == -1)
-    throw argument_error{"Unknown column name: '" + std::string{col_name} +
-                         "'."};
+    throw argument_error{
+      "Unknown column name: '" + std::string{col_name} + "'."};
 
   return static_cast<row::size_type>(n);
 }
@@ -365,9 +365,9 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
    * we got an invalid row number.
    */
   if (t == oid_none and col_num >= columns())
-    throw argument_error{"Attempt to retrieve table ID for column " +
-                         to_string(col_num) + " out of " +
-                         to_string(columns())};
+    throw argument_error{
+      "Attempt to retrieve table ID for column " + to_string(col_num) +
+      " out of " + to_string(columns())};
 
   return t;
 }
@@ -385,13 +385,15 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
     throw range_error{"Invalid column index in table_column(): " + col_str};
 
   if (m_data.get() == nullptr)
-    throw usage_error{"Can't query origin of column " + col_str +
-                      ": "
-                      "result is not initialized."};
+    throw usage_error{
+      "Can't query origin of column " + col_str +
+      ": "
+      "result is not initialized."};
 
-  throw usage_error{"Can't query origin of column " + col_str +
-                    ": "
-                    "not derived from table column."};
+  throw usage_error{
+    "Can't query origin of column " + col_str +
+    ": "
+    "not derived from table column."};
 }
 
 int pqxx::result::errorposition() const
@@ -416,8 +418,9 @@ char const *pqxx::result::column_name(pqxx::row::size_type number) const
   {
     if (m_data.get() == nullptr)
       throw usage_error{"Queried column name on null result."};
-    throw range_error{"Invalid column number: " + to_string(number) +
-                      " (maximum is " + to_string(columns() - 1) + ")."};
+    throw range_error{
+      "Invalid column number: " + to_string(number) + " (maximum is " +
+      to_string(columns() - 1) + ")."};
   }
   return n;
 }
@@ -448,16 +451,16 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
 }
 
 
-pqxx::result::const_iterator pqxx::result::const_reverse_iterator::base() const
-  noexcept
+pqxx::result::const_iterator
+pqxx::result::const_reverse_iterator::base() const noexcept
 {
   iterator_type tmp{*this};
   return ++tmp;
 }
 
 
-pqxx::const_reverse_result_iterator pqxx::const_reverse_result_iterator::
-operator++(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator++(int)
 {
   const_reverse_result_iterator tmp{*this};
   iterator_type::operator--();
@@ -465,8 +468,8 @@ operator++(int)
 }
 
 
-pqxx::const_reverse_result_iterator pqxx::const_reverse_result_iterator::
-operator--(int)
+pqxx::const_reverse_result_iterator
+pqxx::const_reverse_result_iterator::operator--(int)
 {
   const_reverse_result_iterator tmp{*this};
   iterator_type::operator++();

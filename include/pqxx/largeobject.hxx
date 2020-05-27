@@ -163,8 +163,8 @@ public:
   using openmode = std::ios::openmode;
 
   /// Default open mode: @c std::ios::in|std::ios::out|std::ios::binary.
-  static constexpr auto default_mode{std::ios::in | std::ios::out |
-                                     std::ios::binary};
+  static constexpr auto default_mode{
+    std::ios::in | std::ios::out | std::ios::binary};
 
   /// Seek direction: @c beg, @c cur, @c end.
   using seekdir = std::ios::seekdir;
@@ -372,16 +372,13 @@ public:
   using seekdir = largeobjectaccess::seekdir;
 
   /// Default open mode: @c @std::ios::in|std::ios::out|std::ios::binary.
-  static constexpr auto default_mode{std::ios::in | std::ios::out |
-                                     std::ios::binary};
+  static constexpr auto default_mode{
+    std::ios::in | std::ios::out | std::ios::binary};
 
   largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size},
-          m_obj{t, o, mode},
-          m_g{nullptr},
-          m_p{nullptr}
+          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
   {
     initialize(mode);
   }
@@ -389,10 +386,7 @@ public:
   largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
     size_type buf_size = 512) :
-          m_bufsize{buf_size},
-          m_obj{t, o, mode},
-          m_g{nullptr},
-          m_p{nullptr}
+          m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
   {
     initialize(mode);
   }
@@ -664,8 +658,8 @@ public:
   basic_lostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{t, o, std::ios::in | std::ios::out | std::ios::binary,
-                buf_size}
+          m_buf{
+            t, o, std::ios::in | std::ios::out | std::ios::binary, buf_size}
   {
     super::init(&m_buf);
   }
@@ -679,8 +673,8 @@ public:
   basic_lostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
-          m_buf{t, o, std::ios::in | std::ios::out | std::ios::binary,
-                buf_size}
+          m_buf{
+            t, o, std::ios::in | std::ios::out | std::ios::binary, buf_size}
   {
     super::init(&m_buf);
   }

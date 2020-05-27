@@ -186,8 +186,8 @@ template<typename Columns>
 inline stream_from::stream_from(
   transaction_base &tb, from_table_t, std::string_view table_name,
   Columns const &columns) :
-        stream_from{tb, from_table, table_name, std::begin(columns),
-                    std::end(columns)}
+        stream_from{
+          tb, from_table, table_name, std::begin(columns), std::end(columns)}
 {}
 
 
@@ -195,8 +195,9 @@ template<typename Iter>
 inline stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table,
   Iter columns_begin, Iter columns_end) :
-        stream_from{tx, table, separated_list(",", columns_begin, columns_end),
-                    from_table}
+        stream_from{
+          tx, table, separated_list(",", columns_begin, columns_end),
+          from_table}
 {}
 
 
@@ -211,9 +212,9 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
     return *this;
 
   if (m_fields.size() != tup_size)
-    throw usage_error{"Tried to extract " + to_string(tup_size) +
-                      " field(s) from a stream of " +
-                      to_string(m_fields.size()) + "."};
+    throw usage_error{
+      "Tried to extract " + to_string(tup_size) +
+      " field(s) from a stream of " + to_string(m_fields.size()) + "."};
 
   extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;

@@ -42,8 +42,7 @@ class TestListener final : public pqxx::notification_receiver
 
 public:
   explicit TestListener(pqxx::connection &conn, std::string Name) :
-          pqxx::notification_receiver(conn, Name),
-          m_done(false)
+          pqxx::notification_receiver(conn, Name), m_done(false)
   {}
 
   void operator()(std::string const &, int be_pid) override
