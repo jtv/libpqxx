@@ -113,6 +113,8 @@ inline TO check_cast(FROM value, char const description[])
 
 
 /// Remove any constness, volatile, and reference-ness from a type.
+/** @deprecated In C++20 we'll replace this with std::remove_cvref.
+ */
 template<typename TYPE>
 using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
 
