@@ -61,7 +61,7 @@ constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 } // namespace
 
 
-pqxx::largeobject::largeobject(dbtransaction &t) : m_id{}
+pqxx::largeobject::largeobject(dbtransaction &t)
 {
   // (Mode is ignored as of postgres 8.1.)
   m_id = lo_creat(raw_connection(t), 0);
@@ -75,8 +75,7 @@ pqxx::largeobject::largeobject(dbtransaction &t) : m_id{}
 }
 
 
-pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
-        m_id{}
+pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file)
 {
   m_id = lo_import(raw_connection(t), file.data());
   if (m_id == oid_none)
@@ -98,6 +97,8 @@ pqxx::largeobject::largeobject(largeobjectaccess const &o) noexcept :
 
 void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
+  if (id() == oid_none)
+    throw usage_error{"No object selected."};
   if (lo_export(raw_connection(t), id(), file.data()) == -1)
   {
     int const err{errno};
@@ -114,6 +115,8 @@ void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 
 void pqxx::largeobject::remove(dbtransaction &t) const
 {
+  if (id() == oid_none)
+    throw usage_error{"No object selected."};
   if (lo_unlink(raw_connection(t), id()) == -1)
   {
     int const err{errno};
@@ -138,8 +141,6 @@ std::string pqxx::largeobject::reason(connection const &c, int err) const
 {
   if (err == ENOMEM)
     return "Out of memory";
-  if (id() == oid_none)
-    return "No object selected";
   return pqxx::internal::gate::const_connection_largeobject{c}.error_message();
 }
 
@@ -184,6 +185,8 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
+    if (id() == oid_none)
+      throw usage_error{"No object selected."};
     throw failure{"Error seeking in large object: " + reason(err)};
   }
 
@@ -221,6 +224,8 @@ pqxx::largeobjectaccess::ctell() const noexcept
 
 void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 {
+  if (id() == oid_none)
+    throw usage_error{"No object selected."};
   if (auto const bytes{cwrite(buf, len)}; bytes < static_cast<off_type>(len))
   {
     int const err{errno};
@@ -248,6 +253,8 @@ void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 {
+  if (id() == oid_none)
+    throw usage_error{"No object selected."};
   auto const bytes{cread(buf, len)};
   if (bytes < 0)
   {
@@ -264,6 +271,8 @@ pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 
 void pqxx::largeobjectaccess::open(openmode mode)
 {
+  if (id() == oid_none)
+    throw usage_error{"No object selected."};
   m_fd = lo_open(raw_connection(), id(), std_mode_to_pq_mode(mode));
   if (m_fd < 0)
   {
