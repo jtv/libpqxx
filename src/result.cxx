@@ -157,92 +157,110 @@ void pqxx::result::ThrowSQLError(
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
   char const *const code{PQresultErrorField(m_data.get(), PG_DIAG_SQLSTATE)};
-  if (code)
-    switch (code[0])
+  if (code == nullptr)
+  {
+    // No SQLSTATE at all.  Can this even happen?
+    // Let's assume the connection is no longer usable.
+    throw broken_connection{Err};
+  }
+
+  switch (code[0])
+  {
+  case '\0':
+    // SQLSTATE is empty.  We may have seen this happen in one
+    // circumstance: a client-side socket timeout (while using the
+    // tcp_user_timeout connection option).  Unfortunately in that case the
+    // connection was just fine, so we had no real way of detecting the
+    // problem.  (Trying to continue to use the connection does break
+    // though, so I feel justified in panicking.)
+    throw broken_connection{Err};
+
+  case '0':
+    switch (code[1])
+    {
+    case 'A': throw feature_not_supported{Err, Query, code};
+    case '8': throw broken_connection{Err};
+    case 'L':
+    case 'P': throw insufficient_privilege{Err, Query, code};
+    }
+    break;
+  case '2':
+    switch (code[1])
+    {
+    case '2': throw data_exception{Err, Query, code};
+    case '3':
+      if (equal(code, "23001"))
+        throw restrict_violation{Err, Query, code};
+      if (equal(code, "23502"))
+        throw not_null_violation{Err, Query, code};
+      if (equal(code, "23503"))
+        throw foreign_key_violation{Err, Query, code};
+      if (equal(code, "23505"))
+        throw unique_violation{Err, Query, code};
+      if (equal(code, "23514"))
+        throw check_violation{Err, Query, code};
+      throw integrity_constraint_violation{Err, Query, code};
+    case '4': throw invalid_cursor_state{Err, Query, code};
+    case '6': throw invalid_sql_statement_name{Err, Query, code};
+    }
+    break;
+  case '3':
+    switch (code[1])
+    {
+    case '4': throw invalid_cursor_name{Err, Query, code};
+    }
+    break;
+  case '4':
+    switch (code[1])
     {
     case '0':
-      switch (code[1])
-      {
-      case '8': throw broken_connection{Err};
-      case 'A': throw feature_not_supported{Err, Query, code};
-      }
+      if (equal(code, "40000"))
+        throw transaction_rollback{Err, Query, code};
+      if (equal(code, "40001"))
+        throw serialization_failure{Err, code};
+      if (equal(code, "40003"))
+        throw statement_completion_unknown{Err, code};
+      if (equal(code, "40P01"))
+        throw deadlock_detected{Err, code};
       break;
     case '2':
-      switch (code[1])
-      {
-      case '2': throw data_exception{Err, Query, code};
-      case '3':
-        if (equal(code, "23001"))
-          throw restrict_violation{Err, Query, code};
-        if (equal(code, "23502"))
-          throw not_null_violation{Err, Query, code};
-        if (equal(code, "23503"))
-          throw foreign_key_violation{Err, Query, code};
-        if (equal(code, "23505"))
-          throw unique_violation{Err, Query, code};
-        if (equal(code, "23514"))
-          throw check_violation{Err, Query, code};
-        throw integrity_constraint_violation{Err, Query, code};
-      case '4': throw invalid_cursor_state{Err, Query, code};
-      case '6': throw invalid_sql_statement_name{Err, Query, code};
-      }
-      break;
-    case '3':
-      switch (code[1])
-      {
-      case '4': throw invalid_cursor_name{Err, Query, code};
-      }
-      break;
-    case '4':
-      switch (code[1])
-      {
-      case '0':
-        if (equal(code, "40000"))
-          throw transaction_rollback{Err, Query, code};
-        if (equal(code, "40001"))
-          throw serialization_failure{Err, code};
-        if (equal(code, "40003"))
-          throw statement_completion_unknown{Err, code};
-        if (equal(code, "40P01"))
-          throw deadlock_detected{Err, code};
-        break;
-      case '2':
-        if (equal(code, "42501"))
-          throw insufficient_privilege{Err, Query};
-        if (equal(code, "42601"))
-          throw syntax_error{Err, Query, code, errorposition()};
-        if (equal(code, "42703"))
-          throw undefined_column{Err, Query, code};
-        if (equal(code, "42883"))
-          throw undefined_function{Err, Query, code};
-        if (equal(code, "42P01"))
-          throw undefined_table{Err, Query, code};
-      }
-      break;
-    case '5':
-      switch (code[1])
-      {
-      case '3':
-        if (equal(code, "53100"))
-          throw disk_full{Err, Query, code};
-        if (equal(code, "53200"))
-          throw out_of_memory{Err, Query, code};
-        if (equal(code, "53300"))
-          throw too_many_connections{Err};
-        throw insufficient_resources{Err, Query, code};
-      }
-      break;
-
-    case 'P':
-      if (equal(code, "P0001"))
-        throw plpgsql_raise{Err, Query, code};
-      if (equal(code, "P0002"))
-        throw plpgsql_no_data_found{Err, Query, code};
-      if (equal(code, "P0003"))
-        throw plpgsql_too_many_rows{Err, Query, code};
-      throw plpgsql_error{Err, Query, code};
+      if (equal(code, "42501"))
+        throw insufficient_privilege{Err, Query};
+      if (equal(code, "42601"))
+        throw syntax_error{Err, Query, code, errorposition()};
+      if (equal(code, "42703"))
+        throw undefined_column{Err, Query, code};
+      if (equal(code, "42883"))
+        throw undefined_function{Err, Query, code};
+      if (equal(code, "42P01"))
+        throw undefined_table{Err, Query, code};
     }
-  // Fallback: No error code.
+    break;
+  case '5':
+    switch (code[1])
+    {
+    case '3':
+      if (equal(code, "53100"))
+        throw disk_full{Err, Query, code};
+      if (equal(code, "53200"))
+        throw out_of_memory{Err, Query, code};
+      if (equal(code, "53300"))
+        throw too_many_connections{Err};
+      throw insufficient_resources{Err, Query, code};
+    }
+    break;
+
+  case 'P':
+    if (equal(code, "P0001"))
+      throw plpgsql_raise{Err, Query, code};
+    if (equal(code, "P0002"))
+      throw plpgsql_no_data_found{Err, Query, code};
+    if (equal(code, "P0003"))
+      throw plpgsql_too_many_rows{Err, Query, code};
+    throw plpgsql_error{Err, Query, code};
+  }
+
+  // Unknown error code.
   throw sql_error{Err, Query, code};
 }
 
