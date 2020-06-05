@@ -52,23 +52,28 @@ such as WSL, Cygwin, or MinGW should work.
 You'll find detailed build and install instructions in `BUILDING-configure.md`
 and `BUILDING-cmake.md`, respectively.
 
+And if you're working with Microsoft Visual Studio, have a look at Gordon
+Elliott's _Easy-PQXX Build for Windows Visual Studio_ project:
+
+    https://github.com/GordonLElliott/Easy-PQXX-Build-for-Windows-Visual-Studio
+
 
 Documentation
 -------------
 
-The doc/ directory contains API reference documentation and a tutorial, both in
-HTML format.  These are also available online.
+The `doc/` directory contains API reference documentation and a tutorial, both
+in HTML format.  These are also available online.
 
 For more detailed information, look at the header files themselves.  These are
-in the include/pqxx/ directory.  The reference documentation is extracted from
+in the `include/pqxx/` directory.  We extract the reference documentation from
 the headers using a program called Doxygen.
 
 When learning about programming with libpqxx, you'll want to start off by
 reading about the `connection` and `transaction_base` classes.
 
-For programming examples, take a look at the test programs in the test/
+For programming examples, take a look at the test programs in the `test/`
 directory.  If you don't know how a certain function or class is used, try
-searching the test programs for that name.
+searching the tests for that name.
 
 
 Programming with libpqxx
