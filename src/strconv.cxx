@@ -592,6 +592,7 @@ template char *
 float_traits<long double>::into_buf(char *, char *, long double const &);
 
 
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename F>
 inline std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
@@ -599,6 +600,7 @@ inline std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
   s << value;
   return s.str();
 }
+#endif
 
 
 /// Floating-point implementations for @c pqxx::to_string().
