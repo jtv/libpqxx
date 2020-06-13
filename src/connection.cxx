@@ -577,7 +577,7 @@ std::string pqxx::connection::encrypt_password(
 {
 #if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
   {
-    auto const buf{PQencryptPasswordConn(m_conn, user, password, algorithm)};
+    auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
     std::unique_ptr<char const, std::function<void(char const *)>> ptr{
       buf, [](char const *x) { PQfreemem(const_cast<char *>(x)); }};
     return std::string(ptr.get());
