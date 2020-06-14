@@ -111,9 +111,9 @@ void test_bad_float()
 void test_long_float()
 {
   PQXX_CHECK_LESS_EQUAL(
-    pqxx::to_string(0.1).size(), 24, "0.t converted to too long a string.");
+    pqxx::to_string(0.1).size(), 24u, "0.t converted to too long a string.");
   PQXX_CHECK_LESS_EQUAL(
-    pqxx::to_string(-1.3339772437713657e-322).size(), 24,
+    pqxx::to_string(-1.3339772437713657e-322).size(), 24u,
     "-1.3339772437713657e-322 converted to too long a string.");
 }
 
