@@ -117,8 +117,46 @@ template<typename T> struct float_traits
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
+  // Return the 10log of a nonnegative integral value.
+  static constexpr std::size_t log10(std::size_t value) noexcept
+  {
+    if (value < 10)
+      return 1;
+    else
+      return 1 + log10(value / 10);
+  }
+
   static constexpr std::size_t size_buffer(T const &) noexcept
   {
+    using lims = std::numeric_limits<T>;
+    // See #328 for a detailed discussion on the maximum number of digits.
+    //
+    // In a nutshell: for the big cases, the scientific notation is always
+    // the shortest one, and therefore the one that to_chars will pick.
+    //
+    // So... How long can the scientific notation get?  1 (for sign) + 1 (for
+    // decimal point) + 1 (for 'e') + 1 (for exponent sign) + max_digits10 +
+    // max number of digits in the exponent + 1 (terminating zero).
+    //
+    // What's the max number of digits in the exponent?  It's the max number of
+    // digits out of the most negative exponent and the most positive one.
+    //
+    // The longest positive exponent is easy: log10(max_exponent10).
+    //
+    // The longest negative exponent is a bit harder: min_exponent10 gives us
+    // the smallest power of 10 which a normalised version of T can represent.
+    // But the smallest denormalised power of 10 that T can represent is
+    // another max_digits10 powers of 10 below that.  Also, a negative exponent
+    // needs a minus sign.
+    auto const max_pos_exp = 1 + log10(lims::max_exponent10);
+    auto const max_neg_exp =
+      1 + 1 + log10(std::abs(lims::min_exponent10) + lims::max_digits10);
+    auto const max_exponent_chars = std::max(max_pos_exp, max_neg_exp);
+    return 1 +                                    // Sign.
+           std::numeric_limits<T>::max_digits10 + // Mantissa digits.
+           1 +                                    // "e"
+           max_exponent_chars + 1;                // Terminating zero.
+
     /** Includes a sign if needed; a possible leading zero before the decimal
      * point; the full number of base-10 digits which may be needed; a decimal
      * point if needed; and the terminating zero.
@@ -727,7 +765,7 @@ template<typename T> inline std::string to_string(T const &value)
   std::string buf;
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
-  buf.resize(string_traits<T>::size_buffer(value) + 1);
+  buf.resize(string_traits<T>::size_buffer(value));
   auto const end{
     string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
   buf.resize(static_cast<std::size_t>(end - buf.data() - 1));

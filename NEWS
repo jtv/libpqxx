@@ -5,6 +5,7 @@
  - Fix "No object selected" error message in large objects.  (#324)
  - If error has no SQLSTATE, throw `broken_connection`. (#280)
  - Fix argument order in `encrypt_password`. (#333, #334)
+ - Fix underestimate of buffer size for `to_string` for floats. (#328)
 7.1.1
  - Compile fix for Visual Studio.
  - Warning fix for clang.

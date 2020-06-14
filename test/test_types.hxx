@@ -202,7 +202,7 @@ template<> struct string_traits<bytea>
 
   static std::size_t size_buffer(bytea const &value)
   {
-    return 2 * value.size() + 1;
+    return 2 + 2 * value.size() + 1;
   }
 };
 } // namespace pqxx
