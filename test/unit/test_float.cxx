@@ -110,11 +110,20 @@ void test_bad_float()
 /// Test conversion of long float values to strings.
 void test_long_float()
 {
+  auto const dot_one{pqxx::to_string(0.1)};
+  auto const detailed_double{-1.3339772437713657e-322};
+  auto const detailed{pqxx::to_string(detailed_double)};
   PQXX_CHECK_LESS_EQUAL(
-    pqxx::to_string(0.1).size(), 24u, "0.t converted to too long a string.");
+    dot_one.size(), 25u, "0.1 converted to too long a string.");
   PQXX_CHECK_LESS_EQUAL(
-    pqxx::to_string(-1.3339772437713657e-322).size(), 24u,
-    "-1.3339772437713657e-322 converted to too long a string.");
+    pqxx::to_string(detailed).size(), 25u,
+    "Detailed double converted to too long a string.");
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::string_traits<double>::size_buffer(0.1), dot_one.size() + 1,
+    "Not enough buffer space for 0.1.");
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::string_traits<double>::size_buffer(detailed_double), 25u,
+    "Not enough buffer space for -1.3339772437713657e-322.");
 }
 
 
