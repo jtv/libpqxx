@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
@@ -107,23 +109,65 @@ void test_bad_float()
 }
 
 
+template<typename T> void test_float_length(T value)
+{
+  auto const text{pqxx::to_string(value)};
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::string_traits<T>::size_buffer(value), text.size() + 1,
+    "Not enough buffer space for " + text + ".");
+}
+
+
 /// Test conversion of long float values to strings.
 void test_long_float()
 {
-  auto const dot_one{pqxx::to_string(0.1)};
-  auto const detailed_double{-1.3339772437713657e-322};
-  auto const detailed{pqxx::to_string(detailed_double)};
-  PQXX_CHECK_LESS_EQUAL(
-    dot_one.size(), 25u, "0.1 converted to too long a string.");
-  PQXX_CHECK_LESS_EQUAL(
-    pqxx::to_string(detailed).size(), 25u,
-    "Detailed double converted to too long a string.");
-  PQXX_CHECK_GREATER_EQUAL(
-    pqxx::string_traits<double>::size_buffer(0.1), dot_one.size() + 1,
-    "Not enough buffer space for 0.1.");
-  PQXX_CHECK_GREATER_EQUAL(
-    pqxx::string_traits<double>::size_buffer(detailed_double), 25u,
-    "Not enough buffer space for -1.3339772437713657e-322.");
+  test_float_length(0.1f);
+  test_float_length(0.1);
+
+  test_float_length(std::numeric_limits<float>::denorm_min());
+  test_float_length(-std::numeric_limits<float>::denorm_min());
+  test_float_length(std::numeric_limits<float>::max());
+  test_float_length(-std::numeric_limits<double>::max());
+  test_float_length(-std::nextafter(1.0f, 2.0f));
+
+  test_float_length(std::numeric_limits<double>::denorm_min());
+  test_float_length(-std::numeric_limits<double>::denorm_min());
+  test_float_length(std::numeric_limits<double>::max());
+  test_float_length(-std::numeric_limits<double>::max());
+  test_float_length(-std::nextafter(1.0, 2.0));
+
+  test_float_length(std::numeric_limits<long double>::denorm_min());
+  test_float_length(-std::numeric_limits<long double>::denorm_min());
+  test_float_length(std::numeric_limits<long double>::max());
+  test_float_length(-std::numeric_limits<long double>::max());
+  test_float_length(-std::nextafter(1.0L, 2.0L));
+
+  auto constexpr awkward{-2.2250738585072014e-308};
+  test_float_length(-1.3339772437713657e-322);
+  test_float_length(awkward);
+  test_float_length(-1.7976931348623157e+308);
+
+  test_float_length(-1.3339772437713657e-322L);
+  test_float_length(static_cast<long double>(awkward));
+  test_float_length(-1.7976931348623157e+308L);
+
+  // Ahem.  I'm not proud of this.  We really can't assume much about the
+  // floating-point types, but I'd really like to try a few things to see that
+  // buffer sizes are in the right ballpark.  So, if "double" is at least 64
+  // bits, check for some examples of long conversions.
+  if constexpr (sizeof(double) >= 8)
+  {
+    auto const text{pqxx::to_string(awkward)};
+    PQXX_CHECK_LESS_EQUAL(
+      text.size(), 25u, text + " converted to too long a string.");
+  }
+  if constexpr (sizeof(double) <= 8)
+  {
+    auto const text{pqxx::to_string(awkward)};
+    PQXX_CHECK_LESS_EQUAL(
+      pqxx::string_traits<double>::size_buffer(awkward), 25u,
+      text + " converted to too long a string.");
+  }
 }
 
 
