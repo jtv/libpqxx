@@ -793,6 +793,7 @@ pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
   std::size_t bytes = 0;
 
+  // TODO: Hex-escape bin ourselves.  Faster, simpler, clearer.
   std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
     PQescapeByteaConn(m_conn, bin, len, &bytes), PQfreemem};
   if (buf.get() == nullptr)
