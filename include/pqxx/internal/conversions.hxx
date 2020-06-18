@@ -141,7 +141,8 @@ template<typename T> struct float_traits
     // What's the max number of digits in the exponent?  It's the max number of
     // digits out of the most negative exponent and the most positive one.
     //
-    // The longest positive exponent is easy: ceil(log10(max_exponent10)).
+    // The longest positive exponent is easy: 1 + ceil(log10(max_exponent10)).
+    // (The extra 1 is because 10^n takes up 1 + n digits, not n.)
     //
     // The longest negative exponent is a bit harder: min_exponent10 gives us
     // the smallest power of 10 which a normalised version of T can represent.
