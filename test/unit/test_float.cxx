@@ -127,7 +127,7 @@ void test_long_float()
   test_float_length(std::numeric_limits<float>::denorm_min());
   test_float_length(-std::numeric_limits<float>::denorm_min());
   test_float_length(std::numeric_limits<float>::max());
-  test_float_length(-std::numeric_limits<double>::max());
+  test_float_length(-std::numeric_limits<float>::max());
   test_float_length(-std::nextafter(1.0f, 2.0f));
 
   test_float_length(std::numeric_limits<double>::denorm_min());
