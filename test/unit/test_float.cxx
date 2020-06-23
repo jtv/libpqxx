@@ -126,30 +126,27 @@ void test_long_float()
 
   test_float_length(std::numeric_limits<float>::denorm_min());
   test_float_length(-std::numeric_limits<float>::denorm_min());
+  test_float_length(std::numeric_limits<float>::min());
+  test_float_length(-std::numeric_limits<float>::min());
   test_float_length(std::numeric_limits<float>::max());
   test_float_length(-std::numeric_limits<float>::max());
   test_float_length(-std::nextafter(1.0f, 2.0f));
 
   test_float_length(std::numeric_limits<double>::denorm_min());
   test_float_length(-std::numeric_limits<double>::denorm_min());
+  test_float_length(std::numeric_limits<double>::min());
+  test_float_length(-std::numeric_limits<double>::min());
   test_float_length(std::numeric_limits<double>::max());
   test_float_length(-std::numeric_limits<double>::max());
   test_float_length(-std::nextafter(1.0, 2.0));
 
   test_float_length(std::numeric_limits<long double>::denorm_min());
   test_float_length(-std::numeric_limits<long double>::denorm_min());
+  test_float_length(std::numeric_limits<long double>::min());
+  test_float_length(-std::numeric_limits<long double>::min());
   test_float_length(std::numeric_limits<long double>::max());
   test_float_length(-std::numeric_limits<long double>::max());
   test_float_length(-std::nextafter(1.0L, 2.0L));
-
-  auto constexpr awkward{-2.2250738585072014e-308};
-  test_float_length(-1.3339772437713657e-322);
-  test_float_length(awkward);
-  test_float_length(-1.7976931348623157e+308);
-
-  test_float_length(-1.3339772437713657e-322L);
-  test_float_length(static_cast<long double>(awkward));
-  test_float_length(-1.7976931348623157e+308L);
 
   // Ahem.  I'm not proud of this.  We really can't assume much about the
   // floating-point types, but I'd really like to try a few things to see that
@@ -157,15 +154,16 @@ void test_long_float()
   // bits, check for some examples of long conversions.
   if constexpr (sizeof(double) >= 8)
   {
+    auto constexpr awkward{-2.2250738585072014e-308};
     auto const text{pqxx::to_string(awkward)};
     PQXX_CHECK_LESS_EQUAL(
       text.size(), 25u, text + " converted to too long a string.");
   }
   if constexpr (sizeof(double) <= 8)
   {
-    auto const text{pqxx::to_string(awkward)};
+    auto const text{pqxx::to_string(0.99)};
     PQXX_CHECK_LESS_EQUAL(
-      pqxx::string_traits<double>::size_buffer(awkward), 25u,
+      pqxx::string_traits<double>::size_buffer(0.99), 25u,
       text + " converted to too long a string.");
   }
 }
