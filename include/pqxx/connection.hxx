@@ -365,6 +365,7 @@ public:
    */
   int await_notification();
 
+  // TODO: Use time_t instead of long?  See #339.
   /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.
@@ -649,6 +650,7 @@ private:
   void init(char const options[]);
 
   void wait_read() const;
+  // TODO: Use time_t instead of long?  See #339.
   void wait_read(long seconds, long microseconds) const;
 
   result make_result(
