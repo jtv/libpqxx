@@ -1,3 +1,5 @@
+6.4.7
+ - Fix link error: missing `extract_value<nullptr_t>` in `stream_from`. (#340)
 6.4.6
  - `ilostream` could truncate at `0xff` byte at buffer boundary (#284, #286).
 6.4.5

@@ -196,7 +196,7 @@ template<typename T> void stream_from::extract_value(
     t = internal::null_value<T>();
 }
 
-template<> void stream_from::extract_value<std::nullptr_t>(
+template<> void PQXX_LIBEXPORT stream_from::extract_value<std::nullptr_t>(
   const std::string &line,
   std::nullptr_t&,
   std::string::size_type &here,

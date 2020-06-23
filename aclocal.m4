@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.15.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.16.1 -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2018 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -212,19 +212,18 @@ AC_DEFUN([AX_CONFIG_FEATURE_DISABLE],[ dnl
 #   Copyright (c) 2014, 2015 Google Inc.; contributed by Alexey Sokolov <sokolov@google.com>
 #   Copyright (c) 2015 Paul Norman <penorman@mac.com>
 #   Copyright (c) 2015 Moritz Klammler <moritz@klammler.eu>
-#   Copyright (c) 2016 Krzesimir Nowak <qdlacz@gmail.com>
+#   Copyright (c) 2016, 2018 Krzesimir Nowak <qdlacz@gmail.com>
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
 #   and this notice are preserved.  This file is offered as-is, without any
 #   warranty.
 
-#serial 7
+#serial 10
 
 dnl  This macro is based on the code from the AX_CXX_COMPILE_STDCXX_11 macro
 dnl  (serial version number 13).
 
-AX_REQUIRE_DEFINED([AC_MSG_WARN])
 AC_DEFUN([AX_CXX_COMPILE_STDCXX], [dnl
   m4_if([$1], [11], [ax_cxx_compile_alternatives="11 0x"],
         [$1], [14], [ax_cxx_compile_alternatives="14 1y"],
@@ -240,14 +239,6 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX], [dnl
         [m4_fatal([invalid third argument `$3' to AX_CXX_COMPILE_STDCXX])])
   AC_LANG_PUSH([C++])dnl
   ac_success=no
-  AC_CACHE_CHECK(whether $CXX supports C++$1 features by default,
-  ax_cv_cxx_compile_cxx$1,
-  [AC_COMPILE_IFELSE([AC_LANG_SOURCE([_AX_CXX_COMPILE_STDCXX_testbody_$1])],
-    [ax_cv_cxx_compile_cxx$1=yes],
-    [ax_cv_cxx_compile_cxx$1=no])])
-  if test x$ax_cv_cxx_compile_cxx$1 = xyes; then
-    ac_success=yes
-  fi
 
   m4_if([$2], [noext], [], [dnl
   if test x$ac_success = xno; then
@@ -318,7 +309,6 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX], [dnl
               [define if the compiler supports basic C++$1 syntax])
   fi
   AC_SUBST(HAVE_CXX$1)
-  m4_if([$1], [17], [AC_MSG_WARN([C++17 is not yet standardized, so the checks may change in incompatible ways anytime])])
 ])
 
 
@@ -766,19 +756,11 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_17], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus <= 201402L
+#elif __cplusplus < 201703L
 
 #error "This is not a C++17 compiler"
 
 #else
-
-#if defined(__clang__)
-  #define REALLY_CLANG
-#else
-  #if defined(__GNUC__)
-    #define REALLY_GCC
-  #endif
-#endif
 
 #include <initializer_list>
 #include <utility>
@@ -787,16 +769,12 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_17], [[
 namespace cxx17
 {
 
-#if !defined(REALLY_CLANG)
   namespace test_constexpr_lambdas
   {
-
-    // TODO: test it with clang++ from git
 
     constexpr int foo = [](){return 42;}();
 
   }
-#endif // !defined(REALLY_CLANG)
 
   namespace test::nested_namespace::definitions
   {
@@ -1031,11 +1009,8 @@ namespace cxx17
 
   }
 
-#if !defined(REALLY_CLANG)
   namespace test_template_argument_deduction_for_class_templates
   {
-
-    // TODO: test it with clang++ from git
 
     template <typename T1, typename T2>
     struct pair
@@ -1055,7 +1030,6 @@ namespace cxx17
     }
 
   }
-#endif // !defined(REALLY_CLANG)
 
   namespace test_non_type_auto_template_parameters
   {
@@ -1069,11 +1043,8 @@ namespace cxx17
 
   }
 
-#if !defined(REALLY_CLANG)
   namespace test_structured_bindings
   {
-
-    // TODO: test it with clang++ from git
 
     int arr[2] = { 1, 2 };
     std::pair<int, int> pr = { 1, 2 };
@@ -1106,13 +1077,9 @@ namespace cxx17
     const auto [ x3, y3 ] = f3();
 
   }
-#endif // !defined(REALLY_CLANG)
 
-#if !defined(REALLY_CLANG)
   namespace test_exception_spec_type_system
   {
-
-    // TODO: test it with clang++ from git
 
     struct Good {};
     struct Bad {};
@@ -1131,7 +1098,6 @@ namespace cxx17
     static_assert (std::is_same_v<Good, decltype(f(g1, g2))>);
 
   }
-#endif // !defined(REALLY_CLANG)
 
   namespace test_inline_variables
   {
@@ -1156,7 +1122,7 @@ namespace cxx17
 
 }  // namespace cxx17
 
-#endif  // __cplusplus <= 201402L
+#endif  // __cplusplus < 201703L
 
 ]])
 
@@ -1217,42 +1183,21 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [AX_CXX_COMPILE_STDCXX([11], [$1], [$2])])
 #
 #   Copyright (c) 2008 Guido U. Draheim <guidod@gmx.de>
 #
-#   This program is free software; you can redistribute it and/or modify it
-#   under the terms of the GNU General Public License as published by the
-#   Free Software Foundation; either version 3 of the License, or (at your
-#   option) any later version.
-#
-#   This program is distributed in the hope that it will be useful, but
-#   WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-#   Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License along
-#   with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#   As a special exception, the respective Autoconf Macro's copyright owner
-#   gives unlimited permission to copy, distribute and modify the configure
-#   scripts that are the output of Autoconf when processing the Macro. You
-#   need not follow the terms of the GNU General Public License when using
-#   or distributing such scripts, even though portions of the text of the
-#   Macro appear in them. The GNU General Public License (GPL) does govern
-#   all other use of the material that constitutes the Autoconf Macro.
-#
-#   This special exception to the GPL applies to versions of the Autoconf
-#   Macro released by the Autoconf Archive. When you make and distribute a
-#   modified version of the Autoconf Macro, you may extend this special
-#   exception to the GPL to apply to your modified version as well.
+#   Copying and distribution of this file, with or without modification, are
+#   permitted in any medium without royalty provided the copyright notice
+#   and this notice are preserved.  This file is offered as-is, without any
+#   warranty.
 
-#serial 8
+#serial 10
 
 AC_DEFUN([AX_GCC_CONST_CALL],[dnl
 AC_CACHE_CHECK(
  [whether the compiler supports function __attribute__((__const__))],
  ax_cv_gcc_const_call,[
- AC_TRY_COMPILE([__attribute__((__const__))
- int f(int i) { return i; }],
- [],
- ax_cv_gcc_const_call=yes, ax_cv_gcc_const_call=no)])
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[__attribute__((__const__))
+ int f(int i) { return i; }]],
+ [])],
+ [ax_cv_gcc_const_call=yes], [ax_cv_gcc_const_call=no])])
  if test "$ax_cv_gcc_const_call" = yes; then
    AC_DEFINE([GCC_CONST_CALL],[__attribute__((__const__))],
     [most gcc compilers know a function __attribute__((__const__))])
@@ -1332,7 +1277,7 @@ $1],[AC_MSG_RESULT([no])
 $2])
 ])
 
-# Copyright (C) 2002-2017 Free Software Foundation, Inc.
+# Copyright (C) 2002-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1344,10 +1289,10 @@ $2])
 # generated from the m4 files accompanying Automake X.Y.
 # (This private macro should not be called outside this file.)
 AC_DEFUN([AM_AUTOMAKE_VERSION],
-[am__api_version='1.15'
+[am__api_version='1.16'
 dnl Some users find AM_AUTOMAKE_VERSION and mistake it for a way to
 dnl require some minimum version.  Point them to the right macro.
-m4_if([$1], [1.15.1], [],
+m4_if([$1], [1.16.1], [],
       [AC_FATAL([Do not call $0, use AM_INIT_AUTOMAKE([$1]).])])dnl
 ])
 
@@ -1363,14 +1308,14 @@ m4_define([_AM_AUTOCONF_VERSION], [])
 # Call AM_AUTOMAKE_VERSION and AM_AUTOMAKE_VERSION so they can be traced.
 # This function is AC_REQUIREd by AM_INIT_AUTOMAKE.
 AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
-[AM_AUTOMAKE_VERSION([1.15.1])dnl
+[AM_AUTOMAKE_VERSION([1.16.1])dnl
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
 _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
 
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1422,7 +1367,7 @@ am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 # AM_CONDITIONAL                                            -*- Autoconf -*-
 
-# Copyright (C) 1997-2017 Free Software Foundation, Inc.
+# Copyright (C) 1997-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1453,7 +1398,7 @@ AC_CONFIG_COMMANDS_PRE(
 Usually this means the macro was only invoked conditionally.]])
 fi])])
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1644,12 +1589,11 @@ _AM_SUBST_NOTMAKE([am__nodep])dnl
 
 # Generate code to set up dependency tracking.              -*- Autoconf -*-
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
-
 
 # _AM_OUTPUT_DEPENDENCY_COMMANDS
 # ------------------------------
@@ -1658,49 +1602,41 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
   # Older Autoconf quotes --file arguments for eval, but not when files
   # are listed without --file.  Let's play safe and only enable the eval
   # if we detect the quoting.
-  case $CONFIG_FILES in
-  *\'*) eval set x "$CONFIG_FILES" ;;
-  *)   set x $CONFIG_FILES ;;
-  esac
+  # TODO: see whether this extra hack can be removed once we start
+  # requiring Autoconf 2.70 or later.
+  AS_CASE([$CONFIG_FILES],
+          [*\'*], [eval set x "$CONFIG_FILES"],
+          [*], [set x $CONFIG_FILES])
   shift
-  for mf
+  # Used to flag and report bootstrapping failures.
+  am_rc=0
+  for am_mf
   do
     # Strip MF so we end up with the name of the file.
-    mf=`echo "$mf" | sed -e 's/:.*$//'`
-    # Check whether this is an Automake generated Makefile or not.
-    # We used to match only the files named 'Makefile.in', but
-    # some people rename them; so instead we look at the file content.
-    # Grep'ing the first line is not enough: some people post-process
-    # each Makefile.in and add a new line on top of each file to say so.
-    # Grep'ing the whole file is not good either: AIX grep has a line
+    am_mf=`AS_ECHO(["$am_mf"]) | sed -e 's/:.*$//'`
+    # Check whether this is an Automake generated Makefile which includes
+    # dependency-tracking related rules and includes.
+    # Grep'ing the whole file directly is not great: AIX grep has a line
     # limit of 2048, but all sed's we know have understand at least 4000.
-    if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
-      dirpart=`AS_DIRNAME("$mf")`
-    else
-      continue
-    fi
-    # Extract the definition of DEPDIR, am__include, and am__quote
-    # from the Makefile without running 'make'.
-    DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
-    test -z "$DEPDIR" && continue
-    am__include=`sed -n 's/^am__include = //p' < "$mf"`
-    test -z "$am__include" && continue
-    am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
-    # Find all dependency output files, they are included files with
-    # $(DEPDIR) in their names.  We invoke sed twice because it is the
-    # simplest approach to changing $(DEPDIR) to its actual value in the
-    # expansion.
-    for file in `sed -n "
-      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
-	 sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g'`; do
-      # Make sure the directory exists.
-      test -f "$dirpart/$file" && continue
-      fdir=`AS_DIRNAME(["$file"])`
-      AS_MKDIR_P([$dirpart/$fdir])
-      # echo "creating $dirpart/$file"
-      echo '# dummy' > "$dirpart/$file"
-    done
+    sed -n 's,^am--depfiles:.*,X,p' "$am_mf" | grep X >/dev/null 2>&1 \
+      || continue
+    am_dirpart=`AS_DIRNAME(["$am_mf"])`
+    am_filepart=`AS_BASENAME(["$am_mf"])`
+    AM_RUN_LOG([cd "$am_dirpart" \
+      && sed -e '/# am--include-marker/d' "$am_filepart" \
+        | $MAKE -f - am--depfiles]) || am_rc=$?
   done
+  if test $am_rc -ne 0; then
+    AC_MSG_FAILURE([Something went wrong bootstrapping makefile fragments
+    for automatic dependency tracking.  Try re-running configure with the
+    '--disable-dependency-tracking' option to at least be able to build
+    the package (albeit without support for automatic dependency tracking).])
+  fi
+  AS_UNSET([am_dirpart])
+  AS_UNSET([am_filepart])
+  AS_UNSET([am_mf])
+  AS_UNSET([am_rc])
+  rm -f conftest-deps.mk
 }
 ])# _AM_OUTPUT_DEPENDENCY_COMMANDS
 
@@ -1709,18 +1645,17 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
 # -----------------------------
 # This macro should only be invoked once -- use via AC_REQUIRE.
 #
-# This code is only required when automatic dependency tracking
-# is enabled.  FIXME.  This creates each '.P' file that we will
-# need in order to bootstrap the dependency handling code.
+# This code is only required when automatic dependency tracking is enabled.
+# This creates each '.Po' and '.Plo' makefile fragment that we'll need in
+# order to bootstrap the dependency handling code.
 AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 [AC_CONFIG_COMMANDS([depfiles],
      [test x"$AMDEP_TRUE" != x"" || _AM_OUTPUT_DEPENDENCY_COMMANDS],
-     [AMDEP_TRUE="$AMDEP_TRUE" ac_aux_dir="$ac_aux_dir"])
-])
+     [AMDEP_TRUE="$AMDEP_TRUE" MAKE="${MAKE-make}"])])
 
 # Do all the work for Automake.                             -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1807,8 +1742,8 @@ AC_REQUIRE([AM_PROG_INSTALL_STRIP])dnl
 AC_REQUIRE([AC_PROG_MKDIR_P])dnl
 # For better backward compatibility.  To be removed once Automake 1.9.x
 # dies out for good.  For more background, see:
-# <http://lists.gnu.org/archive/html/automake/2012-07/msg00001.html>
-# <http://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
+# <https://lists.gnu.org/archive/html/automake/2012-07/msg00001.html>
+# <https://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
 AC_SUBST([mkdir_p], ['$(MKDIR_P)'])
 # We need awk for the "check" target (and possibly the TAP driver).  The
 # system "awk" is bad on some platforms.
@@ -1875,7 +1810,7 @@ END
 Aborting the configuration process, to ensure you take notice of the issue.
 
 You can download and install GNU coreutils to get an 'rm' implementation
-that behaves properly: <http://www.gnu.org/software/coreutils/>.
+that behaves properly: <https://www.gnu.org/software/coreutils/>.
 
 If you want to complete the configuration process using your problematic
 'rm' anyway, export the environment variable ACCEPT_INFERIOR_RM_PROGRAM
@@ -1917,7 +1852,7 @@ for _am_header in $config_headers :; do
 done
 echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_count])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1938,7 +1873,7 @@ if test x"${install_sh+set}" != xset; then
 fi
 AC_SUBST([install_sh])])
 
-# Copyright (C) 2003-2017 Free Software Foundation, Inc.
+# Copyright (C) 2003-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1960,7 +1895,7 @@ AC_SUBST([am__leading_dot])])
 # Add --enable-maintainer-mode option to configure.         -*- Autoconf -*-
 # From Jim Meyering
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1995,7 +1930,7 @@ AC_MSG_CHECKING([whether to enable maintainer-specific portions of Makefiles])
 
 # Check to see how 'make' treats includes.	            -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2003,49 +1938,42 @@ AC_MSG_CHECKING([whether to enable maintainer-specific portions of Makefiles])
 
 # AM_MAKE_INCLUDE()
 # -----------------
-# Check to see how make treats includes.
+# Check whether make has an 'include' directive that can support all
+# the idioms we need for our automatic dependency tracking code.
 AC_DEFUN([AM_MAKE_INCLUDE],
-[am_make=${MAKE-make}
-cat > confinc << 'END'
+[AC_MSG_CHECKING([whether ${MAKE-make} supports the include directive])
+cat > confinc.mk << 'END'
 am__doit:
-	@echo this is the am__doit target
+	@echo this is the am__doit target >confinc.out
 .PHONY: am__doit
 END
-# If we don't find an include directive, just comment out the code.
-AC_MSG_CHECKING([for style of include used by $am_make])
 am__include="#"
 am__quote=
-_am_result=none
-# First try GNU make style include.
-echo "include confinc" > confmf
-# Ignore all kinds of additional output from 'make'.
-case `$am_make -s -f confmf 2> /dev/null` in #(
-*the\ am__doit\ target*)
-  am__include=include
-  am__quote=
-  _am_result=GNU
-  ;;
-esac
-# Now try BSD make style include.
-if test "$am__include" = "#"; then
-   echo '.include "confinc"' > confmf
-   case `$am_make -s -f confmf 2> /dev/null` in #(
-   *the\ am__doit\ target*)
-     am__include=.include
-     am__quote="\""
-     _am_result=BSD
-     ;;
-   esac
-fi
-AC_SUBST([am__include])
-AC_SUBST([am__quote])
-AC_MSG_RESULT([$_am_result])
-rm -f confinc confmf
-])
+# BSD make does it like this.
+echo '.include "confinc.mk" # ignored' > confmf.BSD
+# Other make implementations (GNU, Solaris 10, AIX) do it like this.
+echo 'include confinc.mk # ignored' > confmf.GNU
+_am_result=no
+for s in GNU BSD; do
+  AM_RUN_LOG([${MAKE-make} -f confmf.$s && cat confinc.out])
+  AS_CASE([$?:`cat confinc.out 2>/dev/null`],
+      ['0:this is the am__doit target'],
+      [AS_CASE([$s],
+          [BSD], [am__include='.include' am__quote='"'],
+          [am__include='include' am__quote=''])])
+  if test "$am__include" != "#"; then
+    _am_result="yes ($s style)"
+    break
+  fi
+done
+rm -f confinc.* confmf.*
+AC_MSG_RESULT([${_am_result}])
+AC_SUBST([am__include])])
+AC_SUBST([am__quote])])
 
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
-# Copyright (C) 1997-2017 Free Software Foundation, Inc.
+# Copyright (C) 1997-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2084,7 +2012,7 @@ fi
 
 # Helper functions for option handling.                     -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2113,7 +2041,7 @@ AC_DEFUN([_AM_SET_OPTIONS],
 AC_DEFUN([_AM_IF_OPTION],
 [m4_ifset(_AM_MANGLE_OPTION([$1]), [$2], [$3])])
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2160,7 +2088,7 @@ AC_LANG_POP([C])])
 # For backward compatibility.
 AC_DEFUN_ONCE([AM_PROG_CC_C_O], [AC_REQUIRE([AC_PROG_CC])])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2179,7 +2107,7 @@ AC_DEFUN([AM_RUN_LOG],
 
 # Check to make sure that the build environment is sane.    -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2260,7 +2188,7 @@ AC_CONFIG_COMMANDS_PRE(
 rm -f conftest.file
 ])
 
-# Copyright (C) 2009-2017 Free Software Foundation, Inc.
+# Copyright (C) 2009-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2320,7 +2248,7 @@ AC_SUBST([AM_BACKSLASH])dnl
 _AM_SUBST_NOTMAKE([AM_BACKSLASH])dnl
 ])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2348,7 +2276,7 @@ fi
 INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 AC_SUBST([INSTALL_STRIP_PROGRAM])])
 
-# Copyright (C) 2006-2017 Free Software Foundation, Inc.
+# Copyright (C) 2006-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -2367,7 +2295,7 @@ AC_DEFUN([AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE($@)])
 
 # Check how to create a tarball.                            -*- Autoconf -*-
 
-# Copyright (C) 2004-2017 Free Software Foundation, Inc.
+# Copyright (C) 2004-2018 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
