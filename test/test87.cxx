@@ -18,9 +18,9 @@
 #  include <unistd.h>
 #endif
 #if defined(_WIN32)
-#if !defined(NOMINMAX)
-#  define NOMINMAX
-#endif
+#  if !defined(NOMINMAX)
+#    define NOMINMAX
+#  endif
 #  include <winsock2.h>
 #endif
 
