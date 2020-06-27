@@ -69,7 +69,7 @@ void test_075()
   PQXX_CHECK(ri3 >= ri2, "operator<=() breaks on equal reverse_iterators.");
 
   PQXX_CHECK(
-    ri3.base() == R.back(), "reverse_iterator does not arrive at back().");
+    *ri3.base() == R.back(), "reverse_iterator does not arrive at back().");
 
   PQXX_CHECK(
     ri1->at(0) == (*ri1).at(0),
