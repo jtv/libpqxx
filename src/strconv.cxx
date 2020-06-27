@@ -236,6 +236,8 @@ std::string demangle_type_name(char const raw[])
       std::string{"Could not demangle type name '"} + raw +
       "': __cxa_demangle failed.");
   }
+  // If this fails, we'll leak `name_ptr`.  Yes, we could handle that more
+  // robustly.  But are there any circumstances where it would really matter?
   std::string const name{name_ptr};
   std::free(name_ptr);
   return name;
