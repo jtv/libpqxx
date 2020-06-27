@@ -224,15 +224,21 @@ std::string demangle_type_name(char const raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   int status{0};
-  std::unique_ptr<char, std::function<void(char *)>> name{
-    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-    [](char *x) { std::free(x); }};
+  char *const name_ptr{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
   if (status != 0)
+  {
+    // Not great C++ style, but turned out a lot easier than std::unique_ptr.
+    // The std::free() can throw an exception, even if C's free() cannot.
+    // This led to noexcept warnings so complex that gcc itself, prior to
+    // version 10, got a little confused.
+    std::free(name_ptr);
     throw std::runtime_error(
-      std::string{"Could not demangle type name '"} + name.get() +
-      "': "
-      "__cxa_demangle failed.");
-  return std::string{name.get()};
+      std::string{"Could not demangle type name '"} + raw +
+      "': __cxa_demangle failed.");
+  }
+  std::string const name{name_ptr};
+  std::free(name_ptr);
+  return name;
 #else
   return std::string{raw};
 #endif
