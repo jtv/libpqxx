@@ -21,6 +21,11 @@
 #include <map>
 #include <memory>
 #include <string_view>
+#include <tuple>
+
+#if __has_include(<ranges>)
+#  include <ranges>
+#endif
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
@@ -60,6 +65,27 @@
 namespace pqxx::internal
 {
 class sql_cursor;
+
+#if defined(PQXX_HAVE_CONCEPTS)
+/// Concept: T is a range of pairs of zero-terminated strings.
+template<typename T>
+concept ZKey_ZValues = std::ranges::input_range<T> and requires()
+{
+  {std::tuple_size<typename std::ranges::iterator_t<T>::value_type>::value};
+}
+and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2 and
+  requires(T t)
+{
+  {
+    std::get<0>(*std::cbegin(t))
+  }
+  ->ZString;
+  {
+    std::get<1>(*std::cbegin(t))
+  }
+  ->ZString;
+};
+#endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
 
@@ -139,7 +165,9 @@ public:
   connection() : connection{""} {}
 
   explicit connection(std::string const &options) : connection{options.c_str()}
-  {}
+  {
+    // (Delegates to other constructor which calls check_version for us.)
+  }
 
   explicit connection(char const options[])
   {
@@ -147,7 +175,10 @@ public:
     init(options);
   }
 
-  explicit connection(zview options) : connection{options.c_str()} {}
+  explicit connection(zview options) : connection{options.c_str()}
+  {
+    // (Delegates to other constructor which calls check_version for us.)
+  }
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -156,6 +187,22 @@ public:
    * would become invalid and might produce hard-to-diagnose bugs.
    */
   connection(connection &&rhs);
+
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Connect, passing options as a range of key/value pairs.
+  /** @warning Experimental.  Requires C++20 "concepts" support.  Define
+   * @c PQXX_HAVE_CONCEPTS to enable it.
+   *
+   * There's no need to escape the parameter values.
+   *
+   * The options can be anything that can be iterated as a series of pairs of
+   * zero-terminated strings: @c std::pair<std::string, std::string>`, or
+   * @c std::tuple<pqxx::zview, char const *>, or
+   * @c std::map<std::string, pqxx::zview>, and so on.
+   */
+  template<internal::ZKey_ZValues MAPPING>
+  inline connection(MAPPING const &params);
+#endif // PQXX_HAVE_CONCEPTS
 
   ~connection()
   {
@@ -647,7 +694,11 @@ public:
   void close();
 
 private:
+  // Initialise based on connection string.
   void init(char const options[]);
+  // Initialise based on parameter names and values.
+  void init(char const *params[], char const *values[]);
+  void complete_init();
 
   void wait_read() const;
   // TODO: Use time_t instead of long?  See #339.
@@ -756,6 +807,31 @@ template<typename T> inline std::string connection::quote(T const &t) const
   buf.resize(end);
   return buf;
 }
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+template<internal::ZKey_ZValues MAPPING>
+inline connection::connection(MAPPING const &params)
+{
+  check_version();
+
+  std::vector<char const *> keys, values;
+  if constexpr (std::ranges::sized_range<MAPPING>)
+  {
+    auto const size{std::ranges::size(params) + 1};
+    keys.reserve(size);
+    values.reserve(size);
+  }
+  for (auto const &[key, value] : params)
+  {
+    keys.push_back(internal::as_c_string(key));
+    values.push_back(internal::as_c_string(value));
+  }
+  keys.push_back(nullptr);
+  values.push_back(nullptr);
+  init(keys.data(), values.data());
+}
+#endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx
 
 

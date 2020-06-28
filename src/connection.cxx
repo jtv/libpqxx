@@ -106,9 +106,8 @@ pqxx::connection::connection(connection &&rhs) :
 }
 
 
-void pqxx::connection::init(char const options[])
+void pqxx::connection::complete_init()
 {
-  m_conn = PQconnectdb(options);
   if (m_conn == nullptr)
     throw std::bad_alloc{};
   try
@@ -123,6 +122,20 @@ void pqxx::connection::init(char const options[])
     PQfinish(m_conn);
     throw;
   }
+}
+
+
+void pqxx::connection::init(char const options[])
+{
+  m_conn = PQconnectdb(options);
+  complete_init();
+}
+
+
+void pqxx::connection::init(char const *params[], char const *values[])
+{
+  m_conn = PQconnectdbParams(params, values, 0);
+  complete_init();
 }
 
 

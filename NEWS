@@ -1,7 +1,9 @@
-7.1.3
+7.2.0
  - gcc10 test build fix: a result iterator is not the same thing as a `row`.
  - Fix error message in `demangle_type_name`: printed result, not raw name.
  - Fix compile warning in `demangle_type_name` on GNU systems.
+ - Start playing with C++20 _concepts._  Define `PQXX_HAVE_CONCEPTS` to use.
+ - Sketch out concepts-based `PQconnectdbParams` support.  (#343)
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.

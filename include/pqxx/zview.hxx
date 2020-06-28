@@ -14,6 +14,8 @@
 #include "pqxx/compiler-public.hxx"
 
 #include <string_view>
+#include <type_traits>
+
 
 namespace pqxx
 {
@@ -44,6 +46,9 @@ public:
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
+  /// Construct from any initialiser you might use for @c std::string_view.
+  /** @warning Only do this if you are sure that the string is zero-terminated.
+   */
   template<typename... Args>
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
@@ -53,5 +58,47 @@ public:
   [[nodiscard]] constexpr char const *c_str() const noexcept { return data(); }
 };
 } // namespace pqxx
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+namespace pqxx::internal
+{
+/// Concept: T is a known zero-terminated string type.
+/** There's no unified API for these string types.  It's just a check for some
+ * known types.  Any code that makes use of the concept will still have to
+ * support each of these individually.
+ */
+template<typename T>
+concept ZString =
+  std::is_convertible_v<T, char const *> or std::is_convertible_v<T, zview> or
+  std::is_convertible_v<T, std::string const &>;
+} // namespace pqxx::internal
+#endif // PQXX_HAVE_CONCEPTS
+
+
+namespace pqxx::internal
+{
+/// Get a raw C string pointer.
+inline constexpr char const *as_c_string(char const str[]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
+template<std::size_t N> inline constexpr char const *as_c_string(char (&str)[N]) noexcept
+{
+  return str;
+}
+/// Get a raw C string pointer.
+inline constexpr char const *as_c_string(pqxx::zview str) noexcept
+{
+  return str.c_str();
+}
+// TODO: constexpr as of C++20.
+/// Get a raw C string pointer.
+inline char const *as_c_string(std::string const &str) noexcept
+{
+  return str.c_str();
+}
+} // namespace pqxx::internal
 
 #endif

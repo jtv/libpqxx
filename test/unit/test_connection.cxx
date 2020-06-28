@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
@@ -88,8 +90,82 @@ void test_connection_string()
 }
 
 
+#if defined(PQXX_HAVE_CONCEPTS)
+template<typename STR> std::size_t length(STR const &str)
+{
+  return str.size();
+}
+
+
+std::size_t length(char const str[])
+{
+  return std::strlen(str);
+}
+#endif // PQXX_HAVE_CONCEPTS
+
+
+template<typename MAP> void test_params_type()
+{
+#if defined(PQXX_HAVE_CONCEPTS)
+  using item_t = typename std::ranges::iterator_t<MAP>::value_type;
+  using key_t = decltype(std::get<0>(std::declval<item_t>()));
+  using value_t = decltype(std::get<1>(std::declval<item_t>()));
+
+  // Set some parameters that are relatively safe to change arbitrarily.
+  MAP const params{{
+    {key_t{"application_name"}, value_t{"pqxx-test"}},
+    {key_t{"connect_timeout"}, value_t{"96"}},
+    {key_t{"keepalives_idle"}, value_t{"771"}},
+  }};
+
+  // Can we create a connection from these parameters?
+  pqxx::connection c{params};
+
+  // Check that the parameters came through in the connection string.
+  // We don't know the exact format, but the parameters have to be in there.
+  auto const min_size{std::accumulate(
+    params.cbegin(), params.cend(), params.size() - 1,
+    [](auto count, auto item) {
+      return count + length(std::get<0>(item)) + 1 + length(std::get<1>(item));
+    })};
+
+  auto const connstr{c.connection_string()};
+  PQXX_CHECK_GREATER_EQUAL(
+    connstr.size(), min_size,
+    "Connection string can't possibly contain the options we gave.");
+  for (auto const &[key, value] : params)
+  {
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find(key), std::string::npos,
+      "Could not find param name '" + std::string{key} +
+        "' in connection string: " + connstr);
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find(value), std::string::npos,
+      "Could not find value for '" + std::string{value} +
+        "' in connection string: " + connstr);
+  }
+#endif // PQXX_HAVE_CONCEPTS
+}
+
+
+void test_connection_params()
+{
+  // Connecting in this way supports a wide variety of formats for the
+  // parameters.
+  test_params_type<std::map<char const *, char const *>>();
+  test_params_type<std::map<pqxx::zview, pqxx::zview>>();
+  test_params_type<std::map<std::string, std::string>>();
+  test_params_type<std::map<std::string, pqxx::zview>>();
+  test_params_type<std::map<pqxx::zview, char const *>>();
+  test_params_type<std::vector<std::tuple<char const *, char const *>>>();
+  test_params_type<std::vector<std::tuple<pqxx::zview, std::string>>>();
+  test_params_type<std::vector<std::pair<std::string, char const *>>>();
+}
+
+
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
 PQXX_REGISTER_TEST(test_encrypt_password);
 PQXX_REGISTER_TEST(test_connection_string);
+PQXX_REGISTER_TEST(test_connection_params);
 } // namespace
