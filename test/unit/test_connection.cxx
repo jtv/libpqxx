@@ -107,7 +107,7 @@ std::size_t length(char const str[])
 template<typename MAP> void test_params_type()
 {
 #if defined(PQXX_HAVE_CONCEPTS)
-  using item_t = typename std::ranges::iterator_t<MAP>::value_type;
+  using item_t = std::remove_reference_t<decltype(*std::declval<std::ranges::iterator_t<MAP>>())>;
   using key_t = decltype(std::get<0>(std::declval<item_t>()));
   using value_t = decltype(std::get<1>(std::declval<item_t>()));
 
@@ -160,6 +160,7 @@ void test_connection_params()
   test_params_type<std::vector<std::tuple<char const *, char const *>>>();
   test_params_type<std::vector<std::tuple<pqxx::zview, std::string>>>();
   test_params_type<std::vector<std::pair<std::string, char const *>>>();
+  test_params_type<std::vector<std::array<std::string, 2>>>();
 }
 
 
