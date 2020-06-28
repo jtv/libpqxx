@@ -112,7 +112,7 @@ public:
    * specified when creating the stream.
    *
    * If you don't already happen to have your fields in the form of a tuple or
-   * container, preffer @c write_values.  It's faster and more convenient.
+   * container, prefer @c write_values.  It's faster and more convenient.
    */
   template<typename Row> stream_to &operator<<(Row const &row)
   {
