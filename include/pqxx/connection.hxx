@@ -16,6 +16,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include <ctime>
 #include <functional>
 #include <list>
 #include <map>
@@ -417,7 +418,6 @@ public:
    */
   int await_notification();
 
-  // TODO: Use time_t instead of long?  See #339.
   /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.
@@ -427,7 +427,7 @@ public:
    *
    * @return Number of notifications processed
    */
-  int await_notification(long seconds, long microseconds);
+  int await_notification(std::time_t seconds, long microseconds);
   //@}
 
   /// Encrypt a password for a given user.
@@ -706,8 +706,7 @@ private:
   void complete_init();
 
   void wait_read() const;
-  // TODO: Use time_t instead of long?  See #339.
-  void wait_read(long seconds, long microseconds) const;
+  void wait_read(std::time_t seconds, long microseconds) const;
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query);
@@ -844,7 +843,7 @@ namespace pqxx::internal
 {
 PQXX_LIBEXPORT void wait_read(internal::pq::PGconn const *);
 PQXX_LIBEXPORT void
-wait_read(internal::pq::PGconn const *, long seconds, long microseconds);
+wait_read(internal::pq::PGconn const *, std::time_t seconds, long microseconds);
 PQXX_LIBEXPORT void wait_write(internal::pq::PGconn const *);
 } // namespace pqxx::internal
 

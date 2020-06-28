@@ -928,10 +928,9 @@ void pqxx::internal::wait_read(internal::pq::PGconn const *c)
 
 
 void pqxx::internal::wait_read(
-  internal::pq::PGconn const *c, long seconds, long microseconds)
+  internal::pq::PGconn const *c, std::time_t seconds, long microseconds)
 {
-  // These are really supposed to be time_t and suseconds_t.  But not all
-  // platforms have that type; some use "long" instead, and some 64-bit
+  // Not all platforms have suseconds_t for the microseconds.  And some 64-bit
   // systems use 32-bit integers here.
   timeval tv{
     check_cast<decltype(timeval::tv_sec)>(seconds, "read timeout seconds"),
@@ -953,7 +952,7 @@ void pqxx::connection::wait_read() const
 }
 
 
-void pqxx::connection::wait_read(long seconds, long microseconds) const
+void pqxx::connection::wait_read(std::time_t seconds, long microseconds) const
 {
   internal::wait_read(m_conn, seconds, microseconds);
 }
@@ -971,7 +970,7 @@ int pqxx::connection::await_notification()
 }
 
 
-int pqxx::connection::await_notification(long seconds, long microseconds)
+int pqxx::connection::await_notification(std::time_t seconds, long microseconds)
 {
   int notifs = get_notifs();
   if (notifs == 0)
