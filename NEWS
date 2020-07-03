@@ -4,6 +4,7 @@
  - Fix compile warning in `demangle_type_name` on GNU systems.
  - Start playing with C++20 _concepts._  Define `PQXX_HAVE_CONCEPTS` to use.
  - Sketch out concepts-based `PQconnectdbParams` support.  (#343)
+ - Add missing link to "datatypes" documentation.  (#346)
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
