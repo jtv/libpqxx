@@ -970,7 +970,8 @@ int pqxx::connection::await_notification()
 }
 
 
-int pqxx::connection::await_notification(std::time_t seconds, long microseconds)
+int pqxx::connection::await_notification(
+  std::time_t seconds, long microseconds)
 {
   int notifs = get_notifs();
   if (notifs == 0)

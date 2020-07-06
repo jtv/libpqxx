@@ -842,8 +842,8 @@ inline connection::connection(MAPPING const &params)
 namespace pqxx::internal
 {
 PQXX_LIBEXPORT void wait_read(internal::pq::PGconn const *);
-PQXX_LIBEXPORT void
-wait_read(internal::pq::PGconn const *, std::time_t seconds, long microseconds);
+PQXX_LIBEXPORT void wait_read(
+  internal::pq::PGconn const *, std::time_t seconds, long microseconds);
 PQXX_LIBEXPORT void wait_write(internal::pq::PGconn const *);
 } // namespace pqxx::internal
 
