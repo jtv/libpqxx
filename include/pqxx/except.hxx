@@ -20,7 +20,6 @@
 #include <string>
 
 
-// TODO: Move vtable to except.cxx, by implementing destructors there.
 namespace pqxx
 {
 /**
