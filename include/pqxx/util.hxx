@@ -305,7 +305,8 @@ constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
  * bytes, and the function will write exactly that number of bytes into the
  * buffer.  This includes a trailing zero.
  */
-void esc_bin(std::string_view binary_data, char buffer[]) noexcept;
+void PQXX_LIBEXPORT
+esc_bin(std::string_view binary_data, char buffer[]) noexcept;
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
