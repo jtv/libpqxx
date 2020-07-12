@@ -26,23 +26,19 @@ namespace pqxx
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
  *
- * This class represents a binary string as stored in a field of type bytea.
- * The raw value returned by a bytea field contains escape sequences for
- * certain characters, which are filtered out by binarystring.
+ * This class represents a binary string as stored in a field of type @c bytea.
  *
  * Internally a binarystring is zero-terminated, but it may also contain null
  * bytes, they're just like any other byte value.  So don't assume that it's
- * safe to treat the contents as a C-style string unless you've made sure of it
- * yourself.
+ * safe to treat the contents as a C-style string.
  *
  * The binarystring retains its value even if the result it was obtained from
  * is destroyed, but it cannot be copied or assigned.
  *
- * \relatesalso transaction_base::esc_raw
+ * \relatesalso transaction_base::quote_raw
  *
- * To convert the other way, i.e. from a raw series of bytes to a string
- * suitable for inclusion as bytea values in your SQL, use the transaction's
- * esc_raw() functions.
+ * To include a @c binarystring value in an SQL query, escape and quote it
+ * using the transaction's @c quote_raw function.
  *
  * @warning This class is implemented as a reference-counting smart pointer.
  * Copying, swapping, and destroying binarystring objects that refer to the
