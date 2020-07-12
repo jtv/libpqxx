@@ -70,7 +70,7 @@ inline TO check_cast(FROM value, char const description[])
   {
     if constexpr (std::is_signed_v<TO>)
     {
-// TODO: std::numeric_limits::min() is not right in floating point!
+      // TODO: std::numeric_limits::min() is not right in floating point!
       if (value < (to_limits::min)())
         throw range_error(std::string{"Cast underflow: "} + description);
     }
@@ -289,6 +289,24 @@ public:
 private:
   GUEST *m_guest = nullptr;
 };
+
+
+/// Compute buffer size needed to escape binary data for use as a BYTEA.
+/** This uses the hex-escaping format.  The return value includes room for the
+ * "\x" prefix and a trailing zero.
+ */
+constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
+{
+  return 2 + (2 * binary_bytes) + 1;
+}
+
+
+/// Hex-escape binary data into a buffer.
+/** The buffer must be able to accommodate @c size_esc_bin(binary_data.size())
+ * bytes, and the function will write exactly that number of bytes into the
+ * buffer.  This includes a trailing zero.
+ */
+void esc_bin(std::string_view binary_data, char buffer[]) noexcept;
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

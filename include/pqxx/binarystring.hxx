@@ -19,6 +19,7 @@
 #include <string_view>
 
 #include "pqxx/result.hxx"
+#include "pqxx/strconv.hxx"
 
 namespace pqxx
 {
@@ -153,6 +154,35 @@ public:
 private:
   std::shared_ptr<value_type> m_buf;
   size_type m_size{0};
+};
+
+
+template<> struct nullness<binarystring> : no_null<binarystring>
+{};
+
+
+template<> struct string_traits<binarystring>
+{
+  static std::size_t size_buffer(binarystring const &value)
+  {
+    return internal::size_esc_bin(value.size());
+  }
+
+  static zview to_buf(char *begin, char *end, binarystring const &value)
+  {
+    auto const value_end{into_buf(begin, end, value)};
+    return zview{begin, value_end - begin - 1};
+  }
+
+  static char *into_buf(char *begin, char *end, binarystring const &value)
+  {
+    auto const budget{size_buffer(value)};
+    if (static_cast<std::size_t>(end - begin) < budget)
+      throw conversion_overrun{
+        "Not enough buffer space to escape binary data."};
+    internal::esc_bin(value.view(), begin);
+    return begin + budget;
+  }
 };
 } // namespace pqxx
 

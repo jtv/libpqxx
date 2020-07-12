@@ -92,3 +92,32 @@ void pqxx::internal::check_unique_unregistration(
       old_ptr->description()};
   }
 }
+
+
+namespace
+{
+constexpr char hex_digit(int c) noexcept
+{
+  constexpr char hex[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+  return hex[c];
+}
+} // namespace
+
+
+void pqxx::internal::esc_bin(
+  std::string_view binary_data, char buffer[]) noexcept
+{
+  auto here{buffer};
+  *here++ = '\\';
+  *here++ = 'x';
+
+  for (auto const byte : binary_data)
+  {
+    auto uc{static_cast<unsigned char>(byte)};
+    *here++ = hex_digit(uc >> 4);
+    *here++ = hex_digit(uc & 0x0f);
+  }
+
+  *here++ = '\0';
+}

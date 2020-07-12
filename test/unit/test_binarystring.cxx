@@ -1,7 +1,9 @@
 #include <pqxx/binarystring>
+#include <pqxx/stream_to>
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
+#include "../test_types.hxx"
 
 
 namespace
@@ -103,5 +105,67 @@ void test_binarystring()
 }
 
 
+void test_binarystring_stream()
+{
+  constexpr std::string_view data{"a\tb\0c"};
+  pqxx::binarystring bin{data};
+
+  pqxx::connection conn;
+  pqxx::transaction tx{conn};
+  tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, bin bytea)");
+
+  pqxx::stream_to to{tx, "pqxxbinstream"};
+  to.write_values(0, bin);
+  to.complete();
+
+  auto ptr{reinterpret_cast<unsigned char const *>(data.data())};
+  auto expect{tx.quote_raw(ptr, data.size())};
+  PQXX_CHECK(
+    tx.query_value<bool>("SELECT bin = " + expect + " FROM pqxxbinstream"),
+    "binarystring did not stream_to properly.");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<std::size_t>("SELECT octet_length(bin) FROM pqxxbinstream"),
+    data.size(), "Did the terminating zero break the bytea?");
+}
+
+
+void test_binarystring_array_stream()
+{
+  pqxx::connection conn;
+  pqxx::transaction tx{conn};
+  tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])");
+
+  constexpr std::string_view data1{"a\tb\0c"}, data2{"1\0.2"};
+  pqxx::binarystring bin1{data1}, bin2{data2};
+  std::vector<pqxx::binarystring> const vec{bin1, bin2};
+
+  pqxx::stream_to to{tx, "pqxxbinstream"};
+  to.write_values(0, vec);
+  to.complete();
+
+  PQXX_CHECK_EQUAL(
+    tx.query_value<std::size_t>(
+      "SELECT array_length(vec, 1) FROM pqxxbinstream"),
+    vec.size(), "Array came out with wrong length.");
+
+  auto ptr1{reinterpret_cast<unsigned char const *>(data1.data())},
+    ptr2{reinterpret_cast<unsigned char const *>(data2.data())};
+  auto expect1{tx.quote_raw(ptr1, data1.size())},
+    expect2{tx.quote_raw(ptr2, data2.size())};
+  PQXX_CHECK(
+    tx.query_value<bool>("SELECT vec[1] = " + expect1 + " FROM pqxxbinstream"),
+    "Bytea in array came out wrong.");
+  PQXX_CHECK(
+    tx.query_value<bool>("SELECT vec[2] = " + expect2 + " FROM pqxxbinstream"),
+    "First bytea in array worked, but second did not.");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<std::size_t>(
+      "SELECT octet_length(vec[1]) FROM pqxxbinstream"),
+    data1.size(), "Bytea length broke inside array.");
+}
+
+
 PQXX_REGISTER_TEST(test_binarystring);
+PQXX_REGISTER_TEST(test_binarystring_stream);
+PQXX_REGISTER_TEST(test_binarystring_array_stream);
 } // namespace
