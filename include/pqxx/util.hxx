@@ -70,8 +70,7 @@ inline TO check_cast(FROM value, char const description[])
   {
     if constexpr (std::is_signed_v<TO>)
     {
-      // TODO: std::numeric_limits::min() is not right in floating point!
-      if (value < (to_limits::min)())
+      if (value < to_limits::lowest())
         throw range_error(std::string{"Cast underflow: "} + description);
     }
     else
