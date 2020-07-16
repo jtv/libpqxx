@@ -183,7 +183,7 @@ template<typename Tuple, std::size_t I> auto stream_from::tokenize_ith(
 }
 
 
-template<typename T> void stream_from::extract_value(
+template<typename T> inline void stream_from::extract_value(
   const std::string &line,
   T& t,
   std::string::size_type &here,
