@@ -105,6 +105,17 @@ void test_binarystring()
 }
 
 
+void test_binarystring_conversion()
+{
+    constexpr std::string_view data{"f\to\0o\n\0"};
+    pqxx::binarystring bin{data};
+    auto const escaped{pqxx::to_string(bin)};
+    PQXX_CHECK_EQUAL(escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
+    auto const restored{pqxx::from_string<pqxx::binarystring>(escaped)};
+    PQXX_CHECK_EQUAL(restored.size(), data.size(), "Unescaping produced wrong length.");
+}
+
+
 void test_binarystring_stream()
 {
   constexpr std::string_view data{"a\tb\0c"};
@@ -166,6 +177,7 @@ void test_binarystring_array_stream()
 
 
 PQXX_REGISTER_TEST(test_binarystring);
+PQXX_REGISTER_TEST(test_binarystring_conversion);
 PQXX_REGISTER_TEST(test_binarystring_stream);
 PQXX_REGISTER_TEST(test_binarystring_array_stream);
 } // namespace

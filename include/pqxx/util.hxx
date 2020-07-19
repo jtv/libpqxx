@@ -292,11 +292,20 @@ private:
 
 /// Compute buffer size needed to escape binary data for use as a BYTEA.
 /** This uses the hex-escaping format.  The return value includes room for the
- * "\x" prefix and a trailing zero.
+ * "\x" prefix.
  */
 constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 {
   return 2 + (2 * binary_bytes) + 1;
+}
+
+
+/// Compute binary size from the size of its escaped version.
+/** Do not include a terminating zero in @c escaped_bytes.
+ */
+constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
+{
+  return (escaped_bytes - 2) / 2;
 }
 
 
@@ -307,6 +316,10 @@ constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
  */
 void PQXX_LIBEXPORT
 esc_bin(std::string_view binary_data, char buffer[]) noexcept;
+
+
+/// Reconstitute binary data from its escaped version.
+void PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

@@ -23,6 +23,10 @@
 
 namespace pqxx
 {
+class binarystring;
+template<> struct string_traits<binarystring>;
+
+
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
  *
@@ -68,11 +72,17 @@ public:
    */
   explicit binarystring(field const &);
 
-  /// Copy binary data from std::string_view.
+  /// Copy binary data from std::string_view on binary data.
+  /** This is inefficient in that it copies the data to a buffer allocated on
+   * the heap.
+   */
   explicit binarystring(std::string_view);
 
   /// Copy binary data of given length straight out of memory.
   binarystring(void const *, std::size_t);
+
+  /// Efficiently wrap a buffer of binary data in a @c binarystring.
+  binarystring(std::shared_ptr<value_type> ptr, size_type size) : m_buf{std::move(ptr)}, m_size{size} {}
 
   /// Size of converted string in bytes.
   [[nodiscard]] size_type size() const noexcept { return m_size; }
@@ -159,7 +169,7 @@ template<> struct nullness<binarystring> : no_null<binarystring>
 
 template<> struct string_traits<binarystring>
 {
-  static std::size_t size_buffer(binarystring const &value)
+  static std::size_t size_buffer(binarystring const &value) noexcept
   {
     return internal::size_esc_bin(value.size());
   }
@@ -178,6 +188,15 @@ template<> struct string_traits<binarystring>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value.view(), begin);
     return begin + budget;
+  }
+
+  // XXX: This is not finished yet.  Do not use it.
+  static binarystring from_string(std::string_view text)
+  {
+      auto const size{pqxx::internal::size_unesc_bin(text.size())};
+      std::shared_ptr<unsigned char> buf{new unsigned char[size], [](unsigned char const *x){ delete[] x; }};
+      pqxx::internal::unesc_bin(text, buf.get());
+      return binarystring{std::move(buf), size};
   }
 };
 } // namespace pqxx
