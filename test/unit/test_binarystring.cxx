@@ -107,7 +107,8 @@ void test_binarystring()
 
 void test_binarystring_conversion()
 {
-    constexpr std::string_view data{"f\to\0o\n\0"};
+    constexpr char bytes[]{"f\to\0o\n\0"};
+    std::string_view const data{bytes, sizeof(bytes) - 1};
     pqxx::binarystring bin{data};
     auto const escaped{pqxx::to_string(bin)};
     PQXX_CHECK_EQUAL(escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
@@ -118,7 +119,8 @@ void test_binarystring_conversion()
 
 void test_binarystring_stream()
 {
-  constexpr std::string_view data{"a\tb\0c"};
+  constexpr char bytes[]{"a\tb\0c"};
+  std::string_view const data{bytes, sizeof(bytes) - 1};
   pqxx::binarystring bin{data};
 
   pqxx::connection conn;
@@ -146,7 +148,8 @@ void test_binarystring_array_stream()
   pqxx::transaction tx{conn};
   tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])");
 
-  constexpr std::string_view data1{"a\tb\0c"}, data2{"1\0.2"};
+  constexpr char bytes1[]{"a\tb\0c"}, bytes2[]{"1\0.2"};
+  std::string_view const data1{bytes1}, data2{bytes2};
   pqxx::binarystring bin1{data1}, bin2{data2};
   std::vector<pqxx::binarystring> const vec{bin1, bin2};
 
