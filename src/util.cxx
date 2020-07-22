@@ -108,10 +108,14 @@ constexpr char hex_digit(int c) noexcept
 /// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
 constexpr int nibble(int c) noexcept
 {
-  if (c >= '0' and c <= '9') return c - '0';
-  else if (c >= 'a' and c <= 'f') return c - 'a';
-  else if (c >= 'A' and c <= 'F') return c - 'A';
-  else return -1;
+  if (c >= '0' and c <= '9')
+    return c - '0';
+  else if (c >= 'a' and c <= 'f')
+    return c - 'a';
+  else if (c >= 'A' and c <= 'F')
+    return c - 'A';
+  else
+    return -1;
 }
 } // namespace
 
@@ -134,21 +138,29 @@ void pqxx::internal::esc_bin(
 }
 
 
-void pqxx::internal::unesc_bin(std::string_view escaped_data, unsigned char buffer[])
+void pqxx::internal::unesc_bin(
+  std::string_view escaped_data, unsigned char buffer[])
 {
   auto const in_size{escaped_data.size()};
-  if (in_size < 2) throw pqxx::failure{"Binary data appears truncated."};
-  if ((in_size % 2) != 0) throw pqxx::failure{"Invalid escaped binary length."};
+  if (in_size < 2)
+    throw pqxx::failure{"Binary data appears truncated."};
+  if ((in_size % 2) != 0)
+    throw pqxx::failure{"Invalid escaped binary length."};
   char const *in{escaped_data.data()};
   char const *const end{in + in_size};
-  if (*in++ != '\\' or *in++ != 'x') throw pqxx::failure("Escaped binary data did not start with '\\x'`.  Is the server or libpq too old?");
+  if (*in++ != '\\' or *in++ != 'x')
+    throw pqxx::failure(
+      "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
+      "too old?");
   auto out{buffer};
   while (in != end)
   {
     int hi{nibble(*in++)};
-    if (hi < 0) throw pqxx::failure{"Invalid hex-escaped data."};
+    if (hi < 0)
+      throw pqxx::failure{"Invalid hex-escaped data."};
     int lo{nibble(*in++)};
-    if (lo < 0) throw pqxx::failure{"Invalid hex-escaped data."};
+    if (lo < 0)
+      throw pqxx::failure{"Invalid hex-escaped data."};
     *out++ = static_cast<unsigned char>((hi << 4) | lo);
   }
 }

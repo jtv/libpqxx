@@ -319,7 +319,8 @@ esc_bin(std::string_view binary_data, char buffer[]) noexcept;
 
 
 /// Reconstitute binary data from its escaped version.
-void PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
+void PQXX_LIBEXPORT
+unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

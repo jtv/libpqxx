@@ -107,13 +107,15 @@ void test_binarystring()
 
 void test_binarystring_conversion()
 {
-    constexpr char bytes[]{"f\to\0o\n\0"};
-    std::string_view const data{bytes, sizeof(bytes) - 1};
-    pqxx::binarystring bin{data};
-    auto const escaped{pqxx::to_string(bin)};
-    PQXX_CHECK_EQUAL(escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
-    auto const restored{pqxx::from_string<pqxx::binarystring>(escaped)};
-    PQXX_CHECK_EQUAL(restored.size(), data.size(), "Unescaping produced wrong length.");
+  constexpr char bytes[]{"f\to\0o\n\0"};
+  std::string_view const data{bytes, sizeof(bytes) - 1};
+  pqxx::binarystring bin{data};
+  auto const escaped{pqxx::to_string(bin)};
+  PQXX_CHECK_EQUAL(
+    escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
+  auto const restored{pqxx::from_string<pqxx::binarystring>(escaped)};
+  PQXX_CHECK_EQUAL(
+    restored.size(), data.size(), "Unescaping produced wrong length.");
 }
 
 
