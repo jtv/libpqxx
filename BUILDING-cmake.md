@@ -19,13 +19,19 @@ Quick start
 If you just wawnt to get it built and installed quickly, run `cmake` from the
 root of the libpqxx source tree.  This configures your build.
 
-The rest depends on your system.  To compile:
- * On Windows with Visual Studio, try: `msbuild libpqxx.sln`
- * On Unix-like systems, including Linux and macOS, try: `make`
- * Your system may use some other command.
+Then compile libpqxx by running:
 
-Installing likewise depends on your system.  On a Unix-like system, try running
-`sudo make install`
+```
+shell
+    cmake --build .
+```
+
+To install in the default location:
+
+```
+shell
+    cmake --install .
+```
 
 
 Stages
@@ -102,9 +108,7 @@ Or if you prefer to build using `ninja` instead:
     cmake -G Ninja
 ```
 
-It's really nice that CMake can do this, but there's one disadvantage: I can't
-tell you what to do after this step, because it all depends on which build tool
-you use!  We'll have to do what we can.
+There are many more options.  You may prefer yet a different build tool.
 
 
 ### Finding libpq
@@ -125,7 +129,7 @@ this option:
  * `-DPostgreSQL_LIBRARY_DIR=$DIR`
 
 The second, easier way requires CMake 3.12 or better.  Here, you specify a path
-to a full PostgreSQL build tree.  You do this (again for some directory `$DIR)
+to a full PostgreSQL build tree.  You do this (again for some directory `$DIR`)
 by simply passing this cmake option: `-DPostgreSQL_ROOT=$DIR`
 
 
@@ -147,21 +151,28 @@ make a mess in there.
 Compile
 -------
 
-How to compile depends on your CMake "generator":
- * With Unix Makefiles, run `make`
- * With Ninja, run `ninja`
- * With Visual Studio, run `msbuild libpqxx.sln`
- * ...or whatever works in your situation.
+To compile, run:
 
-If you're using Unix Makefiles, you'll want to let `make` use multiple
-concurrent build processes, so as to make good use of more CPU cores:
-
-```shell
-    make -j16
+```
+shell
+    cmake --build $BUILD
 ```
 
-This example uses 16 processes, which is probably a decent choice for a system
-with 16 CPU threads.  It's not an exact science.
+(Where `$BUILD` is again the directory where you wish to do the build.)
+
+This command will invoke your build tool.  Other ways to do the same thing
+would be...
+ * With Unix Makefiles: `make`
+ * With Ninja: `ninja`
+ * With Visual Studio: `msbuild libpqxx.sln`
+ * etc.
+
+Depending on your build tool, you may want to speed this up by adding an option
+like `-j 16`, where `16` is an example of how many processes you might want to
+run in parallel.  The optimal number depends on your available CPUs and memory.
+If you have enough memory, usually the number of CPUs will be a good starting
+point for the right number.  Don't use this option with Ninja though.  It
+figures things out for itself.
 
 
 Test
@@ -180,7 +191,7 @@ with "pqxx", so it's probably safe to use a database you already had, but if
 any of the items in your database happen to have names starting with `pqxx`,
 tough luck.  They're fair game.
 
-Enter this in your  shell to build and run the tests:
+Enter this in your shell to build and run the tests:
 
 ```shell
     test/runner
@@ -219,9 +230,28 @@ both more secure and more convenient than passwords.
 Install
 -------
 
-Installing libpqxx will install the library and headers in a location chosen at
-the time you ran `cmake`.  The default will vary from one system environment to
-another.
+Once you've built libpqxx, CMake can also help yuou install the library and
+headers on your system.  The default installation location will vary from one
+operating system to another, but you can set it explicitly.
+
+Let's say you've got your finished build in `$BUILD`, and you want to install
+it to your system's default install location.  The command for this is:
+
+```
+shell
+    cmake --install $BUILD
+```
+
+But you may want to install to some other location.  Let's call it `$DEST`.
+`$DEST` might be something like `/usr/local` on a Unix-like system, or
+something like `D:\Software` on a Windows system.
+
+To install to `$DEST`, run:
+
+```
+shell
+    cmake --install $BUILD --prefix $DEST
+```
 
 
 Use

@@ -7,6 +7,7 @@
  - Add missing link to "datatypes" documentation.  (#346)
  - Supports `to_string`, `stream_to`, etc. for `binarystring`.  (#312)
  - Catch floating-point negative overflow in `check_cast`, not underflow.
+ - Bit more work on CMake build doc. (#318)
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
