@@ -17700,6 +17700,64 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$cxa_demangle" >&6; }
 
 
+# Check for sufficient Concepts support, introduced with C++20.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking concepts" >&5
+$as_echo_n "checking concepts... " >&6; }
+concepts=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for concepts support.  Not just the language feature; also headers.
+
+#include <iostream>
+
+#include <ranges>
+
+#include <vector>
+
+
+
+
+
+template<typename T> concept Foo = std::ranges::input_range<T>;
+
+
+
+
+
+template<Foo F> auto foo(F const &r)
+
+{
+
+  return std::distance(r.begin(), r.end());
+
+}
+
+
+
+int main()
+
+{
+
+  std::vector<int> const v{1, 2, 3};
+
+  std::cout << foo(v) << '\n';
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_CONCEPTS 1" >>confdefs.h
+
+else
+  concepts=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $concepts" >&5
+$as_echo "$concepts" >&6; }
+
+
 # Check for strnlen_s.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking strnlen_s" >&5
 $as_echo_n "checking strnlen_s... " >&6; }

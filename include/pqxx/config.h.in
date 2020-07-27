@@ -66,6 +66,9 @@
 /* Define if <charconv> supports integer conversion. */
 #undef PQXX_HAVE_CHARCONV_INT
 
+/* Define if compiler supports Concepts and <ranges> header. */
+#undef PQXX_HAVE_CONCEPTS
+
 /* Define if compiler supports __cxa_demangle */
 #undef PQXX_HAVE_CXA_DEMANGLE
 

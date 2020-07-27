@@ -2,7 +2,7 @@
  - gcc10 test build fix: a result iterator is not the same thing as a `row`.
  - Fix error message in `demangle_type_name`: printed result, not raw name.
  - Fix compile warning in `demangle_type_name` on GNU systems.
- - Start playing with C++20 _concepts._  Define `PQXX_HAVE_CONCEPTS` to use.
+ - Start playing with C++20 _concepts._
  - Sketch out concepts-based `PQconnectdbParams` support.  (#343)
  - Add missing link to "datatypes" documentation.  (#346)
  - Supports `to_string`, `stream_to`, etc. for `binarystring`.  (#312)

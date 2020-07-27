@@ -221,6 +221,19 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($cxa_demangle)
 
 
+# Check for sufficient Concepts support, introduced with C++20.
+AC_MSG_CHECKING([concepts])
+concepts=yes
+AC_COMPILE_IFELSE(
+	[read_test(concepts.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_CONCEPTS],
+		1,
+		[Define if compiler supports Concepts and <ranges> header.]),
+	concepts=no)
+AC_MSG_RESULT($concepts)
+
+
 # Check for strnlen_s.
 AC_MSG_CHECKING([strnlen_s])
 strnlen_s=yes
