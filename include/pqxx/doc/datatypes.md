@@ -121,12 +121,12 @@ libpqxx to need the name.  That way, the libpqxx code which needs to know the
 type's name can see your definition.
 
 
-Specialise `nullness_traits`
-----------------------------
+Specialise `nullness`
+---------------------
 
-A struct template `pqxx::nullness_traits` defines whether your type has a
-natural "null value" built in.  If so, it also provides member functions for
-producing and recognising null values.
+A struct template `pqxx::nullness` defines whether your type has a natural
+"null value" built in.  If so, it also provides member functions for producing
+and recognising null values.
 
 The simplest scenario is also the most common: most types don't have a null
 value built in.  In that case, derive your nullness traits from
@@ -134,7 +134,7 @@ value built in.  In that case, derive your nullness traits from
 
     namespace pqxx
     {
-    template<> struct nullness_traits<T> : pqxx::no_null<T> {};
+    template<> struct nullness<T> : pqxx::no_null<T> {};
     }
 
 (Here again you're defining this in the pqxx namespace.)
@@ -144,7 +144,7 @@ complex:
 
     namespace pqxx
     {
-    template<> struct nullness_traits<T>
+    template<> struct nullness<T>
     {
       static constexpr bool has_null{true};
       static constexpr bool always_null{false};
