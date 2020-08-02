@@ -3,8 +3,10 @@
 #include <cassert>
 #include <iostream>
 #include <list>
+#include <map>
 #include <new>
 #include <stdexcept>
+#include <string>
 
 #include <pqxx/transaction>
 
