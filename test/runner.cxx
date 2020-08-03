@@ -3,8 +3,10 @@
 #include <cassert>
 #include <iostream>
 #include <list>
+#include <map>
 #include <new>
 #include <stdexcept>
+#include <string>
 
 #include <pqxx/transaction>
 
@@ -111,7 +113,7 @@ void create_pqxxevents(transaction_base &t)
 
 namespace
 {
-std::map<char const *, pqxx::test::testfunc> *all_tests{nullptr};
+std::map<std::string const, pqxx::test::testfunc> *all_tests{nullptr};
 } // namespace
 
 
@@ -121,7 +123,7 @@ void register_test(char const name[], pqxx::test::testfunc func)
 {
   if (all_tests == nullptr)
   {
-    all_tests = new std::map<char const *, pqxx::test::testfunc>();
+    all_tests = new std::map<std::string const, pqxx::test::testfunc>();
   }
   else
   {
