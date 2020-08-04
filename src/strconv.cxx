@@ -271,9 +271,18 @@ namespace
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
+  char const *begin;
+
+  // Skip whitespace.  This is not the proper way to do it, but I see no way
+  // that any of the supported encodings could ever produce a valid character
+  // whose byte sequence would confuse this code.
+  for (begin = in.data();
+       begin < in.end() and (*begin == ' ' or *begin == '\t'); ++begin)
+    ;
+
   auto const end{in.data() + in.size()};
   TYPE out;
-  auto const res{std::from_chars(in.data(), end, out)};
+  auto const res{std::from_chars(begin, end, out)};
   if (res.ec == std::errc() and res.ptr == end)
     return out;
 
@@ -386,8 +395,24 @@ template<typename T>
     throw pqxx::conversion_error{
       "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
-  char const initial{text.data()[0]};
-  std::size_t i{0};
+  char const *const data{view.data()};
+  std::size_t i;
+  // Skip whitespace.  This is not the proper way to do it, but I see no way
+  // that any of the supported encodings could ever produce a valid character
+  // whose byte sequence would confuse this code.
+  //
+  // Why skip whitespace?  Because that's how integral conversions are meant to
+  // work _for composite types._  I see no clean way to support leading
+  // whitespace there without putting the code in here.  A shame about the
+  // overhead, modest as it is, for the normal case.
+  for (i = 0; i < text.size() and (data[i] == ' ' or data[i] == '\t'); ++i)
+    ;
+  if (i == text.size())
+    throw pqxx::conversion_error{
+      "Converting string to " + pqxx::type_name<T> +
+      ", but it contains only whitespace."};
+
+  char const initial{text.data()[i]};
   T result{0};
 
   if (isdigit(initial))
@@ -395,7 +420,7 @@ template<typename T>
     for (; isdigit(text.data()[i]); ++i)
       result = absorb_digit_positive(result, digit_to_number(text.data()[i]));
   }
-  else if (text.data()[0] == '-')
+  else if (initial == '-')
   {
     if constexpr (not std::is_signed_v<T>)
       throw pqxx::conversion_error{

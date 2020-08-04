@@ -10,6 +10,7 @@
  - Bit more work on CMake build doc. (#318)
  - Typo in `datatypes.md`: `nullness`, not `nullness_traits`. (#353)
  - Fixed test names map in `tests/runner.cxx`. (#354)
+ - Integral `from_string` now accept leading whitespace, as in composite types.
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
