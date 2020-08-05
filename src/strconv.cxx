@@ -412,13 +412,13 @@ template<typename T>
       "Converting string to " + pqxx::type_name<T> +
       ", but it contains only whitespace."};
 
-  char const initial{text.data()[i]};
+  char const initial{data[i]};
   T result{0};
 
   if (isdigit(initial))
   {
-    for (; isdigit(text.data()[i]); ++i)
-      result = absorb_digit_positive(result, digit_to_number(text.data()[i]));
+    for (; isdigit(data[i]); ++i)
+      result = absorb_digit_positive(result, digit_to_number(data[i]));
   }
   else if (initial == '-')
   {
@@ -426,8 +426,10 @@ template<typename T>
       throw pqxx::conversion_error{
         "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
-    for (++i; isdigit(text.data()[i]); ++i)
-      result = absorb_digit_negative(result, digit_to_number(text.data()[i]));
+    ++i;
+    if (i >= text.size()) throw pqxx::conversion_error{"Converting string to " + pqxx::type_name<T> + ", but it contains only a sign."};
+    for (; i < text.size() and isdigit(data[i]); ++i)
+      result = absorb_digit_negative(result, digit_to_number(data[i]));
   }
   else
   {
