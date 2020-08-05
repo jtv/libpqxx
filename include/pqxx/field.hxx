@@ -116,9 +116,6 @@ public:
   [[nodiscard]] bool is_null() const noexcept;
 
   /// Return number of bytes taken up by the field's value.
-  /**
-   * Includes the terminating zero byte.
-   */
   [[nodiscard]] size_type size() const noexcept;
 
   /// Read value into obj; or if null, leave obj untouched and return @c false.
