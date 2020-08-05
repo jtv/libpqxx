@@ -395,7 +395,7 @@ template<typename T>
     throw pqxx::conversion_error{
       "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
-  char const *const data{view.data()};
+  char const *const data{text.data()};
   std::size_t i;
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
