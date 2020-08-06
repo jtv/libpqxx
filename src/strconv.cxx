@@ -396,7 +396,8 @@ template<typename T>
       "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
   char const *const data{text.data()};
-  std::size_t i;
+  std::size_t i{0};
+
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
@@ -405,7 +406,7 @@ template<typename T>
   // work _for composite types._  I see no clean way to support leading
   // whitespace there without putting the code in here.  A shame about the
   // overhead, modest as it is, for the normal case.
-  for (i = 0; i < text.size() and (data[i] == ' ' or data[i] == '\t'); ++i)
+  for (; i < text.size() and (data[i] == ' ' or data[i] == '\t'); ++i)
     ;
   if (i == text.size())
     throw pqxx::conversion_error{
