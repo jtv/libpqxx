@@ -130,7 +130,6 @@ public:
    * @c int when it may contain nulls, read it as @c std::optional<int>.
    * Using @c std::shared_ptr or @c std::unique_ptr will also work.
    */
-  raw_line get_raw_line();
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
   /// Doing this with a @c std::variant is going to be horrifically borked.
@@ -146,6 +145,10 @@ public:
   {
     return pqxx::internal::stream_input_iteration<TYPE...>{*this};
   }
+
+  /// Read a raw line of text from the COPY command.
+  /** @warn Do not use this unless you really know what you're doing. */
+  raw_line get_raw_line();
 
 private:
   stream_from(
