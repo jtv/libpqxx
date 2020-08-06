@@ -15,6 +15,7 @@
 
 #include "pqxx/array"
 #include "pqxx/except"
+#include "pqxx/util"
 
 
 namespace pqxx
@@ -108,26 +109,8 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 /// Find the end of a double-quoted SQL string in an SQL array.
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
-  auto here{m_pos};
-  auto next{scan_glyph(here)};
-  for (here = next, next = scan_glyph(here); here < m_input.size();
-       here = next, next = scan_glyph(here))
-  {
-    if (next - here == 1)
-      switch (m_input[here])
-      {
-      case '\\':
-        // Backslash escape.  Skip ahead by one more character.
-        here = next;
-        next = scan_glyph(here);
-        break;
-
-      case '"':
-        // Closing quote.  Return the position right after.
-        return next;
-      }
-  }
-  throw argument_error{"Null byte in SQL string: " + std::string{m_input}};
+  return pqxx::internal::scan_double_quoted_string(
+    m_input.data(), m_input.size(), m_pos, m_scan);
 }
 
 

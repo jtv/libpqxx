@@ -428,7 +428,10 @@ template<typename T>
         "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
     ++i;
-    if (i >= text.size()) throw pqxx::conversion_error{"Converting string to " + pqxx::type_name<T> + ", but it contains only a sign."};
+    if (i >= text.size())
+      throw pqxx::conversion_error{
+        "Converting string to " + pqxx::type_name<T> +
+        ", but it contains only a sign."};
     for (; i < text.size() and isdigit(data[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(data[i]));
   }

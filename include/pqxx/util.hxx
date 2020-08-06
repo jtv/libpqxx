@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/encodings.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
 
@@ -321,6 +322,33 @@ esc_bin(std::string_view binary_data, char buffer[]) noexcept;
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
 unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
+
+
+// Find the end of a double-quoted string.
+inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
+  char const input[], std::size_t size, std::size_t pos,
+  pqxx::internal::glyph_scanner_func *scan)
+{
+  auto next{scan(input, size, pos)};
+  for (pos = next, next = scan(input, size, pos); pos < size;
+       pos = next, next = scan(input, size, pos))
+  {
+    if (next - pos == 1)
+      switch (input[pos])
+      {
+      case '\\':
+        // Backslash escape.  Skip ahead by one more character.
+        pos = next;
+        next = scan(input, size, pos);
+        break;
+
+      case '"':
+        // Closing quote.  Return the position right after.
+        return next;
+      }
+  }
+  throw argument_error{"Null byte in SQL string: " + std::string{input}};
+}
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
