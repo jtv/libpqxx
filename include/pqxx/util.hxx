@@ -349,6 +349,32 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
   }
   throw argument_error{"Null byte in SQL string: " + std::string{input}};
 }
+
+
+/// Un-quote and un-escape a double-quoted SQL string.
+inline std::string PQXX_LIBEXPORT parse_double_quoted_string(
+  char const input[], std::size_t end, std::size_t pos,
+  pqxx::internal::glyph_scanner_func *scan)
+{
+  std::string output;
+  // Maximum output size is same as the input size, minus the opening and
+  // closing quotes.  Or in the extreme opposite case, the real number could be
+  // half that.  Usually it'll be a pretty close estimate.
+  output.reserve(std::size_t(end - pos - 2));
+
+  for (auto here{scan(input, end, pos)}, next{scan(input, end, here)};
+       here < end - 1; here = next, next = scan(input, end, here))
+  {
+    if ((next - here == 1) and (input[here] == '\\'))
+    {
+      // Skip escape.
+      here = next;
+      next = scan(input, end, here);
+    }
+    output.append(input + here, input + next);
+  }
+  return output;
+}
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

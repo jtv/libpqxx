@@ -118,26 +118,8 @@ std::string::size_type array_parser::scan_double_quoted_string() const
 std::string
 array_parser::parse_double_quoted_string(std::string::size_type end) const
 {
-  std::string output;
-  // Maximum output size is same as the input size, minus the opening and
-  // closing quotes.  In the worst case, the real number could be half that.
-  // Usually it'll be a pretty close estimate.
-  output.reserve(std::size_t(end - m_pos - 2));
-
-  for (auto here{scan_glyph(m_pos, end)}, next{scan_glyph(here, end)};
-       here < end - 1; here = next, next = scan_glyph(here, end))
-  {
-    if ((next - here == 1) and (m_input[here] == '\\'))
-    {
-      // Skip escape.
-      here = next;
-      next = scan_glyph(here, end);
-    }
-
-    output.append(m_input.data() + here, m_input.data() + next);
-  }
-
-  return output;
+  return pqxx::internal::parse_double_quoted_string(
+    m_input.data(), end, m_pos, m_scan);
 }
 
 
