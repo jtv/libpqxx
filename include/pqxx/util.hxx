@@ -340,15 +340,15 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
     {
       if (next - pos == 1 and input[pos] == '"')
       {
-	// We just read a pair of double quotes.  Carry on.
-	at_quote = false;
+        // We just read a pair of double quotes.  Carry on.
+        at_quote = false;
       }
       else
       {
         // We just read one double quote, and now we're at a character that's
-	// not a second double quote.  Ergo, that last character was the
-	// closing double quote and this is the position right after it.
-	return pos;
+        // not a second double quote.  Ergo, that last character was the
+        // closing double quote and this is the position right after it.
+        return pos;
       }
     }
     else if (next - pos == 1)
@@ -362,10 +362,10 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
         break;
 
       case '"':
-	// This is either the closing double quote, or the first of a pair of
-	// double quotes.
-	at_quote = true;
-	break;
+        // This is either the closing double quote, or the first of a pair of
+        // double quotes.
+        at_quote = true;
+        break;
       }
     }
     else
@@ -373,7 +373,9 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
       // Multibyte character.  Carry on.
     }
   }
-  if (not at_quote) throw argument_error{"Missing closing double-quote: " + std::string{input}};
+  if (not at_quote)
+    throw argument_error{
+      "Missing closing double-quote: " + std::string{input}};
   return pos;
 }
 
