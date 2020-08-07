@@ -325,15 +325,34 @@ unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
 
 
 // Find the end of a double-quoted string.
+/** @c input[pos] must be the opening double quote.
+ */
 inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
   auto next{scan(input, size, pos)};
+  bool at_quote{false};
   for (pos = next, next = scan(input, size, pos); pos < size;
        pos = next, next = scan(input, size, pos))
   {
-    if (next - pos == 1)
+    if (at_quote)
+    {
+      if (next - pos == 1 and input[pos] == '"')
+      {
+	// We just read a pair of double quotes.  Carry on.
+	at_quote = false;
+      }
+      else
+      {
+        // We just read one double quote, and now we're at a character that's
+	// not a second double quote.  Ergo, that last character was the
+	// closing double quote and this is the position right after it.
+	return pos;
+      }
+    }
+    else if (next - pos == 1)
+    {
       switch (input[pos])
       {
       case '\\':
@@ -343,11 +362,19 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
         break;
 
       case '"':
-        // Closing quote.  Return the position right after.
-        return next;
+	// This is either the closing double quote, or the first of a pair of
+	// double quotes.
+	at_quote = true;
+	break;
       }
+    }
+    else
+    {
+      // Multibyte character.  Carry on.
+    }
   }
-  throw argument_error{"Null byte in SQL string: " + std::string{input}};
+  if (not at_quote) throw argument_error{"Missing closing double-quote: " + std::string{input}};
+  return pos;
 }
 
 
@@ -365,7 +392,11 @@ inline std::string PQXX_LIBEXPORT parse_double_quoted_string(
   for (auto here{scan(input, end, pos)}, next{scan(input, end, here)};
        here < end - 1; here = next, next = scan(input, end, here))
   {
-    if ((next - here == 1) and (input[here] == '\\'))
+    // A backslash here is always an escape.  So is a double-quote, since we're
+    // inside the double-quoted string.  In either case, we can just ignore the
+    // escape character and use the next character.  This is the one redeeming
+    // feature of SQL's escaping system.
+    if ((next - here == 1) and (input[here] == '\\' || input[here] == '"'))
     {
       // Skip escape.
       here = next;

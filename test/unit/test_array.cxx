@@ -220,6 +220,26 @@ void test_double_quoted_escaping()
 }
 
 
+// A pair of double quotes in a double-quoted string is an escaped quote.
+void test_double_double_quoted_string()
+{
+  std::pair<pqxx::array_parser::juncture, std::string> output;
+  pqxx::array_parser parser{R"--({"3"" steel"})--"};
+
+  output = parser.get_next();
+  PQXX_CHECK_EQUAL(
+    output.first, pqxx::array_parser::juncture::row_start,
+    "Array did not start with row_start.");
+
+  output = parser.get_next();
+  PQXX_CHECK_EQUAL(
+    output.first, pqxx::array_parser::juncture::string_value,
+    "Array did not return string_value.");
+
+  PQXX_CHECK_EQUAL(output.second, "3\" steel", "Unexpected string value.");
+}
+
+
 void test_unquoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -405,6 +425,7 @@ void test_array_parse()
   test_single_quoted_escaping();
   test_double_quoted_string();
   test_double_quoted_escaping();
+  test_double_double_quoted_string();
   test_unquoted_string();
   test_multiple_values();
   test_nested_array();

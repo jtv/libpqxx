@@ -1,4 +1,5 @@
 7.2.0
+ - Array parser did not recognise "doubled quote" escaping.
  - gcc10 test build fix: a result iterator is not the same thing as a `row`.
  - Doc fix: field size does _not_ include terminating zero.  (#356)
  - Fix error message in `demangle_type_name`: printed result, not raw name.
