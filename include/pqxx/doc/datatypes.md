@@ -110,7 +110,7 @@ that provides that `T`'s human-readable name:
 
     namespace pqxx
     {
-    template<> std::string const pqxx::type_name<T>{"T"};
+    template<> std::string const type_name<T>{"T"};
     }
 
 (Yes, this means that you need to define something inside the pqxx namespace.
