@@ -128,15 +128,8 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
  */
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  auto here{m_pos}, next{scan_glyph(here)};
-
-  while ((next - here) > 1 or (m_input[here] != ',' and
-                               m_input[here] != ';' and m_input[here] != '}'))
-  {
-    here = next;
-    next = scan_glyph(here);
-  }
-  return here;
+  return pqxx::internal::scan_unquoted_string<',', ';', '}'>(
+    m_input.data(), m_input.size(), m_pos, m_scan);
 }
 
 
@@ -147,7 +140,7 @@ std::string::size_type array_parser::scan_unquoted_string() const
 std::string
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
-  return std::string{m_input.data() + m_pos, m_input.data() + end};
+  return pqxx::internal::parse_unquoted_string(m_input.data(), end, m_pos, m_scan);
 }
 
 

@@ -327,7 +327,7 @@ unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
 // Find the end of a double-quoted string.
 /** @c input[pos] must be the opening double quote.
  */
-inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
+inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
@@ -381,7 +381,7 @@ inline std::size_t PQXX_LIBEXPORT scan_double_quoted_string(
 
 
 /// Un-quote and un-escape a double-quoted SQL string.
-inline std::string PQXX_LIBEXPORT parse_double_quoted_string(
+inline std::string parse_double_quoted_string(
   char const input[], std::size_t end, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
@@ -405,6 +405,52 @@ inline std::string PQXX_LIBEXPORT parse_double_quoted_string(
       next = scan(input, end, here);
     }
     output.append(input + here, input + next);
+  }
+  return output;
+}
+
+
+/// Find the end of an unquoted string in an array or composite-type value.
+/** Stops when it gets to the end of the input; or when it sees any of the
+ * characters in STOP which has not been escaped.
+ *
+ * For array values, STOP is a comma, a semicolon, or a closing brace.  For
+ * a value of a composite type, STOP is a comma or a closing parenthesis.
+ */
+template<char... STOP>
+inline std::size_t scan_unquoted_string(
+  char const input[], std::size_t size, std::size_t pos,
+  pqxx::internal::glyph_scanner_func *scan)
+{
+  bool at_backslash{false};
+  auto next{scan(input, size, pos)};
+  while ((pos < size) and
+         ((next - pos) > 1 or at_backslash or ((input[pos] != STOP) and ...)))
+  {
+    pos = next;
+    next = scan(input, size, pos);
+    at_backslash =
+      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
+  }
+  return pos;
+}
+
+
+/// Parse an unquoted array entry or cfield of a composite-type field.
+inline std::string parse_unquoted_string(
+  char const input[], std::size_t end, std::size_t pos,
+  pqxx::internal::glyph_scanner_func *scan)
+{
+  std::string output;
+  bool at_backslash{false};
+  output.reserve(end - pos);
+  for (auto next{scan(input, end, pos)}; pos < end;
+       pos = next, next = scan(input, end, pos))
+  {
+    at_backslash =
+      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
+    if (not at_backslash)
+      output.append(input + pos, next - pos);
   }
   return output;
 }
