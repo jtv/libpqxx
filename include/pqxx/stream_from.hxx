@@ -165,7 +165,7 @@ private:
     transaction_base const &tx, std::string_view table,
     std::string const &columns);
 
-  pqxx::internal::glyph_scanner_func *m_glyph_scanner;
+  pqxx::internal::glyph_scanner_func const *m_glyph_scanner;
 
   /// Current row's fields' text, combined into one reusable string.
   std::string m_row;

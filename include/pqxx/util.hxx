@@ -329,7 +329,7 @@ unesc_bin(std::string_view escaped_data, unsigned char buffer5[]);
  */
 inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
-  pqxx::internal::glyph_scanner_func *scan)
+  pqxx::internal::glyph_scanner_func const *scan)
 {
   auto next{scan(input, size, pos)};
   bool at_quote{false};
@@ -383,7 +383,7 @@ inline std::size_t scan_double_quoted_string(
 /// Un-quote and un-escape a double-quoted SQL string.
 inline std::string parse_double_quoted_string(
   char const input[], std::size_t end, std::size_t pos,
-  pqxx::internal::glyph_scanner_func *scan)
+  pqxx::internal::glyph_scanner_func const *scan)
 {
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
@@ -420,7 +420,7 @@ inline std::string parse_double_quoted_string(
 template<char... STOP>
 inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos,
-  pqxx::internal::glyph_scanner_func *scan)
+  pqxx::internal::glyph_scanner_func const *scan)
 {
   bool at_backslash{false};
   auto next{scan(input, size, pos)};
@@ -439,7 +439,7 @@ inline std::size_t scan_unquoted_string(
 /// Parse an unquoted array entry or cfield of a composite-type field.
 inline std::string parse_unquoted_string(
   char const input[], std::size_t end, std::size_t pos,
-  pqxx::internal::glyph_scanner_func *scan)
+  pqxx::internal::glyph_scanner_func const *scan)
 {
   std::string output;
   bool at_backslash{false};

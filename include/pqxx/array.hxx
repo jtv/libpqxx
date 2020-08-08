@@ -76,7 +76,7 @@ public:
 
 private:
   std::string_view m_input;
-  internal::glyph_scanner_func *const m_scan;
+  internal::glyph_scanner_func const *const m_scan;
 
   /// Current parsing position in the input.
   std::string::size_type m_pos;
