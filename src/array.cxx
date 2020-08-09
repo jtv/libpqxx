@@ -15,6 +15,7 @@
 
 #include "pqxx/array"
 #include "pqxx/except"
+#include "pqxx/internal/array-composite.hxx"
 #include "pqxx/util"
 
 
@@ -140,7 +141,8 @@ std::string::size_type array_parser::scan_unquoted_string() const
 std::string
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
-  return pqxx::internal::parse_unquoted_string(m_input.data(), end, m_pos, m_scan);
+  return pqxx::internal::parse_unquoted_string(
+    m_input.data(), end, m_pos, m_scan);
 }
 
 

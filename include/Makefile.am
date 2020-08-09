@@ -4,6 +4,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/compiler-public.hxx \
+	pqxx/composite pqxx/composite.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
@@ -32,6 +33,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/types pqxx/types.hxx \
 	pqxx/zview pqxx/zview.hxx \
 	pqxx/version pqxx/version.hxx \
+	pqxx/internal/array-composite.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/compiler-internal-pre.hxx \
 	pqxx/internal/compiler-internal-post.hxx \

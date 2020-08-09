@@ -21,6 +21,7 @@ install(
     PATTERN array
     PATTERN binarystring
     PATTERN compiler-public
+    PATTERN composite
     PATTERN connection
     PATTERN cursor
     PATTERN dbtransaction
