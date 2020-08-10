@@ -312,8 +312,27 @@ void test_transaction_stream_from()
 }
 
 
+void test_stream_from_read_row()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE sample (id integer, name varchar, opt integer)");
+  tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
+
+  pqxx::stream_from stream(tx, pqxx::from_table, "sample");
+  auto fields{stream.read_row()};
+  PQXX_CHECK_EQUAL(fields.size(), 3ul, "Wrong number of fields.");
+  PQXX_CHECK_EQUAL(
+    std::string(fields[0]), "321", "Integer field came out wrong.");
+  PQXX_CHECK_EQUAL(
+    std::string(fields[1]), "something", "Text field came out wrong.");
+  PQXX_CHECK(fields[2].data() == nullptr, "Null field came out wrong.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_from);
 PQXX_REGISTER_TEST(test_stream_from__escaping);
 PQXX_REGISTER_TEST(test_stream_from__iteration);
 PQXX_REGISTER_TEST(test_transaction_stream_from);
+PQXX_REGISTER_TEST(test_stream_from_read_row);
 } // namespace

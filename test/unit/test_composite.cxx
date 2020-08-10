@@ -64,8 +64,8 @@ void test_composite_handles_nulls()
   PQXX_CHECK(not a.has_value(), "Null first integer stored as value.");
   PQXX_CHECK(not b.has_value(), "Null second integer stored as value.");
 }
-} // namespace
 
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
+} // namespace

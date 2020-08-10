@@ -146,6 +146,19 @@ public:
     return pqxx::internal::stream_input_iteration<TYPE...>{*this};
   }
 
+  /// Read a row.  Return fields as views, valid until you read the next row.
+  /** Do not access the vector, or the storage referenced by the views, after
+   * closing or completing the stream, or after reading a next row.
+   *
+   * A @c pqxx::zview is like a @c std::string_view, but with the added
+   * guarantee that if its data pointer is non-null, the string is followed by
+   * a terminating zero (which falls just outside the view itself).
+   *
+   * If any of the views' data pointer is null, that means that the
+   * corresponding SQL field is null.
+   */
+  std::vector<zview> const &read_row();
+
   /// Read a raw line of text from the COPY command.
   /** @warn Do not use this unless you really know what you're doing. */
   raw_line get_raw_line();

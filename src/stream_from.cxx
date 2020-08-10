@@ -293,6 +293,13 @@ void pqxx::stream_from::parse_line()
     *write++ = '\0';
   }
 
-  // DO NOT shrink m_rows to fit.  We're carrying string_views pointing into
+  // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
   // the buffer.  (Also, how useful would shrinking really be?)
+}
+
+
+std::vector<pqxx::zview> const &pqxx::stream_from::read_row()
+{
+  parse_line();
+  return m_fields;
 }
