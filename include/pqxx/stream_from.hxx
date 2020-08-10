@@ -76,15 +76,24 @@ public:
   stream_from(transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
+  /** The table name cannot include a schema name.  If you need to specify a
+   * schema name, stream from a query rather than from a table.
+   */
   stream_from(transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
+  /** The table name cannot include a schema name.  If you need to specify a
+   * schema name, stream from a query rather than from a table.
+   */
   template<typename Iter>
   stream_from(
     transaction_base &, from_table_t, std::string_view table,
     Iter columns_begin, Iter columns_end);
 
   /// Stream given columns from all rows in table.
+  /** The table name cannot include a schema name.  If you need to specify a
+   * schema name, stream from a query rather than from a table.
+   */
   template<typename Columns>
   stream_from(
     transaction_base &tx, from_table_t, std::string_view table,
