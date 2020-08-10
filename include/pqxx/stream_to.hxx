@@ -186,8 +186,7 @@ private:
   static std::enable_if_t<not nullness<T>::always_null, std::size_t>
   estimate_buffer(T const &field)
   {
-    return is_null(field) ? null_field.size() :
-                            string_traits<T>::size_buffer(field);
+    return is_null(field) ? null_field.size() : size_buffer(field);
   }
 
   /// Append escaped version of @c m_field_buf to @c m_buffer, plus a tab.

@@ -267,7 +267,7 @@ template<typename T> struct string_traits<std::optional<T>>
 
   static std::size_t size_buffer(std::optional<T> const &value) noexcept
   {
-    return string_traits<T>::size_buffer(value.value());
+    return pqxx::size_buffer(value.value());
   }
 };
 
@@ -316,10 +316,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   static std::size_t size_buffer(std::variant<T...> const &value) noexcept
   {
     return std::visit(
-      [](auto const &i) noexcept {
-        return string_traits<strip_t<decltype(i)>>::size_buffer(i);
-      },
-      value);
+      [](auto const &i) noexcept { return pqxx::size_buffer(i); }, value);
   }
 
   // There's no from_string for std::variant.  We could have one with a rule
@@ -418,7 +415,7 @@ template<> struct string_traits<char *>
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
-    return string_traits<char const *>::size_buffer(value);
+    return pqxx::size_buffer(value);
   }
 
   // Don't allow conversion to this type since it breaks const-safety.
@@ -604,7 +601,7 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
 
   static std::size_t size_buffer(std::unique_ptr<T> const &value) noexcept
   {
-    return string_traits<T>::size_buffer(*value.get());
+    return pqxx::size_buffer(*value.get());
   }
 };
 
@@ -639,7 +636,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
-    return string_traits<T>::size_buffer(*value);
+    return pqxx::size_buffer(*value);
   }
 };
 } // namespace pqxx
@@ -773,7 +770,7 @@ template<typename T> inline std::string to_string(T const &value)
   std::string buf;
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
-  buf.resize(string_traits<T>::size_buffer(value));
+  buf.resize(size_buffer(value));
   auto const end{
     string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
   buf.resize(static_cast<std::size_t>(end - buf.data() - 1));
@@ -807,7 +804,7 @@ template<typename T> inline void into_string(T const &value, std::string &out)
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
-  out.resize(string_traits<T>::size_buffer(value) + 1);
+  out.resize(size_buffer(value) + 1);
   auto const end{
     string_traits<T>::into_buf(out.data(), out.data() + out.size(), value)};
   out.resize(static_cast<std::size_t>(end - out.data() - 1));

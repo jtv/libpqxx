@@ -310,6 +310,17 @@ template<typename TYPE>
 }
 
 
+/// Estimate how much buffer space is needed to represent value as a string.
+/** The estimate may be a little pessimistic, if it saves time.  It also
+ * includes room for a terminating zero.
+ */
+template<typename TYPE>
+[[nodiscard]] inline std::size_t size_buffer(TYPE const &value) noexcept
+{
+  return string_traits<TYPE>::size_buffer(value);
+}
+
+
 /// Does this type translate to an SQL array?
 /** Specialisations may override this to be true for container types.
  *

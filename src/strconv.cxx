@@ -152,7 +152,7 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
   auto const space{end - begin},
-    need{static_cast<ptrdiff_t>(string_traits<T>::size_buffer(value))};
+    need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
     throw conversion_overrun{
       "Could not convert " + type_name<T> +

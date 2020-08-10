@@ -113,7 +113,7 @@ template<typename T> void test_float_length(T value)
 {
   auto const text{pqxx::to_string(value)};
   PQXX_CHECK_GREATER_EQUAL(
-    pqxx::string_traits<T>::size_buffer(value), text.size() + 1,
+    pqxx::size_buffer(value), text.size() + 1,
     "Not enough buffer space for " + text + ".");
 }
 
@@ -163,7 +163,7 @@ void test_long_float()
   {
     auto const text{pqxx::to_string(0.99)};
     PQXX_CHECK_LESS_EQUAL(
-      pqxx::string_traits<double>::size_buffer(0.99), 25u,
+      pqxx::size_buffer(0.99), 25u,
       text + " converted to too long a string.");
   }
 }
