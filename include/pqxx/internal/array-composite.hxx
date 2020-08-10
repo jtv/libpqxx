@@ -1,6 +1,8 @@
 #if !defined(PQXX_ARRAY_COMPOSITE_HXX)
 #  define PQXX_ARRAY_COMPOSITE_HXX
 
+#  include <cassert>
+
 #  include "pqxx/strconv.hxx"
 
 namespace pqxx::internal
@@ -12,7 +14,7 @@ namespace pqxx::internal
  */
 inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
-  pqxx::internal::glyph_scanner_func const *scan)
+  pqxx::internal::glyph_scanner_func *scan)
 {
   auto next{scan(input, size, pos)};
   bool at_quote{false};
@@ -66,7 +68,7 @@ inline std::size_t scan_double_quoted_string(
 /// Un-quote and un-escape a double-quoted SQL string.
 inline std::string parse_double_quoted_string(
   char const input[], std::size_t end, std::size_t pos,
-  pqxx::internal::glyph_scanner_func const *scan)
+  pqxx::internal::glyph_scanner_func *scan)
 {
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
@@ -103,7 +105,7 @@ inline std::string parse_double_quoted_string(
 template<char... STOP>
 inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos,
-  pqxx::internal::glyph_scanner_func const *scan)
+  pqxx::internal::glyph_scanner_func *scan)
 {
   bool at_backslash{false};
   auto next{scan(input, size, pos)};
@@ -122,7 +124,7 @@ inline std::size_t scan_unquoted_string(
 /// Parse an unquoted array entry or cfield of a composite-type field.
 inline std::string parse_unquoted_string(
   char const input[], std::size_t end, std::size_t pos,
-  pqxx::internal::glyph_scanner_func const *scan)
+  pqxx::internal::glyph_scanner_func *scan)
 {
   std::string output;
   bool at_backslash{false};
@@ -143,6 +145,8 @@ inline std::string parse_unquoted_string(
 /** @c T is the C++ type of the field we're parsing, and @c index is its
  * zero-based number.
  *
+ * @param index Index of the current field, zero-based.  It will increment for
+ *     the next field.
  * @param input Full input text for the entire composite-type value.
  * @param pos Starting position (in @c input) of the field that we're parsing.
  *     After parsing, this will point at the beginning of the next field if
@@ -152,10 +156,10 @@ inline std::string parse_unquoted_string(
  * @param last_field Number of the last field in the value (zero-based).  When
  *     parsing the last field, this will equal @c index.
  */
-template<typename T, std::size_t index>
-inline std::size_t parse_composite_field(
-  std::string_view input, std::size_t &pos, T &field,
-  glyph_scanner_func const *scan, std::size_t last_field)
+template<typename T>
+inline void parse_composite_field(
+  std::size_t &index, std::string_view input, std::size_t &pos, T &field,
+  glyph_scanner_func *scan, std::size_t last_field)
 {
   assert(index <= last_field);
   auto next{scan(input.data(), input.size(), pos)};
@@ -187,7 +191,7 @@ inline std::size_t parse_composite_field(
 
   default: {
     auto const stop{
-      scan_unquoted_string(input.data(), input.size(), pos, scan)};
+      scan_unquoted_string<',', ')'>(input.data(), input.size(), pos, scan)};
     auto const text{parse_unquoted_string(input.data(), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;
@@ -196,7 +200,6 @@ inline std::size_t parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
-  pos = next;
   next = scan(input.data(), input.size(), pos);
 
   if ((next - pos) != 1)
@@ -229,6 +232,7 @@ inline std::size_t parse_composite_field(
   }
 
   pos = next;
+  ++index;
 }
 } // namespace pqxx::internal
 #endif

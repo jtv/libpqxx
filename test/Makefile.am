@@ -95,6 +95,7 @@ runner_SOURCES = \
   unit/test_binarystring.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
+  unit/test_composite.cxx \
   unit/test_connection.cxx \
   unit/test_cursor.cxx \
   unit/test_encodings.cxx \
