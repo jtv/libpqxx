@@ -167,11 +167,17 @@ the result of `null()`?  Because two null values may not be equal.  `T` may
 have several different null values.  Or it may override the comparison
 operator, similar to SQL where NULL is not equal to NULL.
 
+As a third case, your type may be one that _always_ represents a null value.
+This is the case for `std::nullptr_t` and `std::nullopt_t`.  In that case, you
+set `nullness<TYPE>::always_null` to `true` (as well as `has_null` of course),
+and you won't need to define any actual conversions.
+
 
 Specialise `string_traits`
 -------------------------
 
-This part is more work.  Specialise the `pqxx::string_traits` template:
+This part is more work.  (You can skip it for types that are _always_ null,
+but those will be rare.)  Specialise the `pqxx::string_traits` template:
 
     namespace pqxx
     {
