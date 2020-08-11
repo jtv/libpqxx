@@ -163,8 +163,7 @@ void test_long_float()
   {
     auto const text{pqxx::to_string(0.99)};
     PQXX_CHECK_LESS_EQUAL(
-      pqxx::size_buffer(0.99), 25u,
-      text + " converted to too long a string.");
+      pqxx::size_buffer(0.99), 25u, text + " converted to too long a string.");
   }
 }
 

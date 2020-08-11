@@ -794,22 +794,29 @@ using connection_base = connection;
 
 template<typename T> inline std::string connection::quote(T const &t) const
 {
-  if (is_null(t))
+  if constexpr (nullness<T>::always_null)
+  {
     return "NULL";
-  auto const text{to_string(t)};
+  }
+  else
+  {
+    if (is_null(t))
+      return "NULL";
+    auto const text{to_string(t)};
 
-  // Okay, there's an easy way to do this and there's a hard way.  The easy
-  // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
-  // because it's going to save some string manipulation that will probably
-  // incur some unnecessary memory allocations and deallocations.
-  std::string buf{'\''};
-  buf.resize(2 + 2 * text.size() + 1);
-  auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
-  auto const closing_quote{1 + content_bytes};
-  buf[closing_quote] = '\'';
-  auto const end{closing_quote + 1};
-  buf.resize(end);
-  return buf;
+    // Okay, there's an easy way to do this and there's a hard way.  The easy
+    // way was "quote, esc(to_string(t)), quote".  I'm going with the hard way
+    // because it's going to save some string manipulation that will probably
+    // incur some unnecessary memory allocations and deallocations.
+    std::string buf{'\''};
+    buf.resize(2 + 2 * text.size() + 1);
+    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
+    auto const closing_quote{1 + content_bytes};
+    buf[closing_quote] = '\'';
+    auto const end{closing_quote + 1};
+    buf.resize(end);
+    return buf;
+  }
 }
 
 

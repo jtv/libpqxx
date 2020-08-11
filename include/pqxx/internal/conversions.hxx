@@ -566,6 +566,18 @@ template<> struct nullness<std::nullptr_t>
 };
 
 
+template<> struct nullness<std::nullopt_t>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool always_null = true;
+  static constexpr bool is_null(std::nullopt_t const &) noexcept
+  {
+    return true;
+  }
+  static constexpr std::nullopt_t null() noexcept { return std::nullopt; }
+};
+
+
 template<typename T> struct nullness<std::unique_ptr<T>>
 {
   static constexpr bool has_null = true;

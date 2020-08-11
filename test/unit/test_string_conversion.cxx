@@ -1,5 +1,8 @@
 #include <cstdint>
 
+#include <pqxx/connection>
+#include <pqxx/transaction>
+
 #include "../test_helpers.hxx"
 
 // Some enums with string conversions.
@@ -150,7 +153,20 @@ void test_integer_conversion()
 }
 
 
+void test_convert_null()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  PQXX_CHECK_EQUAL(
+    tx.quote(nullptr), "NULL", "Null pointer did not come out as SQL 'null'.");
+  PQXX_CHECK_EQUAL(
+    tx.quote(std::nullopt), "NULL",
+    "std::nullopt did not come out as SQL 'null'.");
+}
+
+
 PQXX_REGISTER_TEST(test_string_conversion);
 PQXX_REGISTER_TEST(test_convert_variant_to_string);
 PQXX_REGISTER_TEST(test_integer_conversion);
+PQXX_REGISTER_TEST(test_convert_null);
 } // namespace

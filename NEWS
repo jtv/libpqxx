@@ -15,6 +15,9 @@
  - Integral `from_string` now accept leading whitespace, as in composite types.
  - Parser prototype for composite types.  (#355)
  - Use `stream_from` without knowing the number of fields.  (#357)
+ - Global `size_buffer` function.
+ - `quote()` now works for always-null types without conversions defined.
+ - `std::nullopt` now converts to an SQL null.
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
