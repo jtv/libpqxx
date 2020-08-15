@@ -512,7 +512,7 @@ template<> struct string_traits<std::string_view>
 
   static char *into_buf(char *begin, char *end, std::string_view const &value)
   {
-    if (static_cast<std::size_t>(end - begin) <= size_buffer(value))
+    if (value.size() >= std::size_t(end - begin))
       throw conversion_overrun{
         "Could not store string_view: too long for buffer."};
     value.copy(begin, value.size());
