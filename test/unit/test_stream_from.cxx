@@ -321,12 +321,12 @@ void test_stream_from_read_row()
 
   pqxx::stream_from stream(tx, pqxx::from_table, "sample");
   auto fields{stream.read_row()};
-  PQXX_CHECK_EQUAL(fields.size(), 3ul, "Wrong number of fields.");
+  PQXX_CHECK_EQUAL(fields->size(), 3ul, "Wrong number of fields.");
   PQXX_CHECK_EQUAL(
-    std::string(fields[0]), "321", "Integer field came out wrong.");
+    std::string((*fields)[0]), "321", "Integer field came out wrong.");
   PQXX_CHECK_EQUAL(
-    std::string(fields[1]), "something", "Text field came out wrong.");
-  PQXX_CHECK(fields[2].data() == nullptr, "Null field came out wrong.");
+    std::string((*fields)[1]), "something", "Text field came out wrong.");
+  PQXX_CHECK((*fields)[2].data() == nullptr, "Null field came out wrong.");
 }
 
 
