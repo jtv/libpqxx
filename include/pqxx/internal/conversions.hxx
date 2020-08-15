@@ -254,7 +254,7 @@ template<typename T> struct string_traits<std::optional<T>>
   static zview to_buf(char *begin, char *end, std::optional<T> const &value)
   {
     if (value.has_value())
-      return to_buf(begin, end, *value);
+      return string_traits<T>::to_buf(begin, end, *value);
     else
       return zview{};
   }
