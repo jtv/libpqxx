@@ -236,6 +236,20 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 }
 
 
+void test_stream_to__nonnull_optional()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE foo(x integer, y text)");
+  pqxx::stream_to inserter{tx, "foo"};
+  inserter.write_values(std::optional<int>{368}, std::optional<std::string>{"Text"});
+  inserter.complete();
+  auto const row{tx.exec1("SELECT x, y FROM foo")};
+  PQXX_CHECK_EQUAL(row[0].as<std::string>(), "368", "Non-null int optional came out wrong.");
+  PQXX_CHECK_EQUAL(row[1].as<std::string>(), "Text", "Non-null string optional came out wrong.");
+}
+
+
 template<template<typename...> class O>
 void test_optional(pqxx::connection &connection)
 {
@@ -365,4 +379,5 @@ void test_stream_to()
 
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
+PQXX_REGISTER_TEST(test_stream_to__nonnull_optional);
 } // namespace

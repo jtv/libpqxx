@@ -8,6 +8,7 @@
  - Sketch out concepts-based `PQconnectdbParams` support.  (#343)
  - Add missing link to "datatypes" documentation.  (#346)
  - Supports `to_string`, `stream_to`, etc. for `binarystring`.  (#312)
+ - Fixed infinite recursion when using `std::optional` in `stream_to`.  (#364)
  - Home-rolled hex-escaping.  Saves an allocation.
  - Catch floating-point negative overflow in `check_cast`, not underflow.
  - Bit more work on CMake build doc. (#318)
