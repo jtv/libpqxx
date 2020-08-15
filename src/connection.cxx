@@ -804,25 +804,29 @@ std::string pqxx::connection::esc(std::string_view text) const
 std::string
 pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
-  std::size_t bytes = 0;
-
-  // TODO: Hex-escape bin ourselves.  Faster, simpler, clearer.
-  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> buf{
-    PQescapeByteaConn(m_conn, bin, len, &bytes), PQfreemem};
-  if (buf.get() == nullptr)
-    throw std::bad_alloc{};
-  return std::string{reinterpret_cast<char *>(buf.get())};
+  return pqxx::internal::esc_bin(
+    std::string_view{reinterpret_cast<char const *>(bin), len});
 }
 
 
 std::string pqxx::connection::unesc_raw(char const text[]) const
 {
-  std::size_t len;
-  auto bytes{const_cast<unsigned char *>(
-    reinterpret_cast<unsigned char const *>(text))};
-  std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> const
-    ptr{PQunescapeBytea(bytes, &len), PQfreemem};
-  return std::string{ptr.get(), ptr.get() + len};
+  if (text[0] == '\\' and text[1] == 'x')
+  {
+    // Hex-escaped format.
+    return pqxx::internal::unesc_bin(std::string_view{text});
+  }
+  else
+  {
+    // Legacy escape format.
+    // TODO: Remove legacy support.
+    std::size_t len;
+    auto bytes{const_cast<unsigned char *>(
+      reinterpret_cast<unsigned char const *>(text))};
+    std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> const
+      ptr{PQunescapeBytea(bytes, &len), PQfreemem};
+    return std::string{ptr.get(), ptr.get() + len};
+  }
 }
 
 

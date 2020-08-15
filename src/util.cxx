@@ -111,9 +111,9 @@ constexpr int nibble(int c) noexcept
   if (c >= '0' and c <= '9')
     return c - '0';
   else if (c >= 'a' and c <= 'f')
-    return c - 'a';
+    return 10 + (c - 'a');
   else if (c >= 'A' and c <= 'F')
-    return c - 'A';
+    return 10 + (c - 'A');
   else
     return -1;
 }
@@ -135,6 +135,18 @@ void pqxx::internal::esc_bin(
   }
 
   *here++ = '\0';
+}
+
+
+std::string pqxx::internal::esc_bin(std::string_view binary_data)
+{
+  auto const bytes{size_esc_bin(binary_data.size())};
+  std::string buf;
+  buf.resize(bytes);
+  esc_bin(binary_data, buf.data());
+  // Strip off the trailing zero.
+  buf.resize(bytes - 1);
+  return buf;
 }
 
 
@@ -163,4 +175,14 @@ void pqxx::internal::unesc_bin(
       throw pqxx::failure{"Invalid hex-escaped data."};
     *out++ = static_cast<unsigned char>((hi << 4) | lo);
   }
+}
+
+
+std::string pqxx::internal::unesc_bin(std::string_view escaped_data)
+{
+  auto const bytes{size_unesc_bin(escaped_data.size())};
+  std::string buf;
+  buf.resize(bytes);
+  unesc_bin(escaped_data, reinterpret_cast<unsigned char *>(buf.data()));
+  return buf;
 }

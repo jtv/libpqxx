@@ -94,6 +94,10 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
       isprint(i), "Unprintable character in escaped data: " + escaped);
 
   PQXX_CHECK_EQUAL(
+    escaped, "\\x3102335c34783500", "Binary data escaped wrong.");
+  PQXX_CHECK_EQUAL(
+    t.unesc_raw(escaped).size(), data.size(), "Wrong size after unescaping.");
+  PQXX_CHECK_EQUAL(
     t.unesc_raw(escaped), data,
     "Unescaping binary data does not undo escaping it.");
 }
