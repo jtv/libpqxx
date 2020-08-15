@@ -156,7 +156,8 @@ public:
   }
 
   /// Read a row.  Return fields as views, valid until you read the next row.
-  /** Returns @c nullptr when there are no more rows to read.
+  /** Returns @c nullptr when there are no more rows to read.  Do not attempt
+   * to read any further rows after that.
    *
    * Do not access the vector, or the storage referenced by the views, after
    * closing or completing the stream, or after attempting to read a next row.
@@ -167,6 +168,9 @@ public:
    *
    * If any of the views' data pointer is null, that means that the
    * corresponding SQL field is null.
+   *
+   * @warning The return type may change in the future, to support C++20
+   * coroutine-based usage.
    */
   std::vector<zview> const *read_row();
 
