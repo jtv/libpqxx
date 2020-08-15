@@ -22,8 +22,10 @@ namespace pqxx
 /// Marker-type wrapper: zero-terminated @c std::string_view.
 /** @warning Use this only if the underlying string is zero-terminated.
  *
- * When you construct a zview, you are promising that the underlying string is
- * zero-terminated.  It otherwise behaves exactly like a std::string_view.
+ * When you construct a zview, you are promising that if the data pointer is
+ * non-null, the underlying string is zero-terminated.  It otherwise behaves
+ * exactly like a std::string_view.
+ *
  * The terminating zero is not "in" the string, so it does not count as part of
  * the view's length.
  *
