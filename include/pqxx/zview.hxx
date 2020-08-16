@@ -55,6 +55,11 @@ public:
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
   {}
+  
+  /* implicit */
+  zview (const std::string& str) :
+  	      std::string_view(str)
+  {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
   [[nodiscard]] constexpr char const *c_str() const noexcept { return data(); }
