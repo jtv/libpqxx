@@ -363,10 +363,10 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 }
 
 
-pqxx::row::size_type pqxx::result::column_number(char const col_name[]) const
+pqxx::row::size_type pqxx::result::column_number(zview col_name) const
 {
   auto const n{
-    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name)};
+    PQfnumber(const_cast<internal::pq::PGresult *>(m_data.get()), col_name.c_str())};
   if (n == -1)
     throw argument_error{
       "Unknown column name: '" + std::string{col_name} + "'."};

@@ -71,7 +71,7 @@ void test_007()
     PQXX_CHECK_EQUAL(
       rcctype, rctype, "Column type is not what it is by name.");
 
-    oid const rawrcctype{R.column_type(rcol.c_str())};
+    oid const rawrcctype{R.column_type(rcol)};
     PQXX_CHECK_EQUAL(
       rawrcctype, rctype, "Column type by C-style name is different.");
 
@@ -102,7 +102,7 @@ void test_007()
       PQXX_CHECK_EQUAL(
         ctctype, rctype, "Column type lookup by column name is broken.");
 
-      oid const rawctctype{r.column_type(rcol.c_str())};
+      oid const rawctctype{r.column_type(rcol)};
 
       PQXX_CHECK_EQUAL(
         rawctctype, rctype, "Column type lookup by C-style name is broken.");
