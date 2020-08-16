@@ -55,10 +55,16 @@ public:
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
   {}
-  
+
   /* implicit */
-  zview (const std::string& str) :
-  	      std::string_view(str)
+  zview(const std::string& str) :
+          std::string_view(str)
+  {}
+
+  /* implicit */
+  template<size_t size>
+  constexpr zview(const char (&literal)[size]) :
+          zview(literal, size - 1)
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
