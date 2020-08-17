@@ -1,6 +1,6 @@
 /* Zero-terminated string view.
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stringconv instead.
+ * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/zview instead.
  *
  * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
  *
