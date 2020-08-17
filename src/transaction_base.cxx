@@ -253,7 +253,7 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 
 void pqxx::transaction_base::check_rowcount_prepared(
-  std::string const &statement, result::size_type expected_rows,
+  zview statement, result::size_type expected_rows,
   result::size_type actual_rows)
 {
   if (actual_rows != expected_rows)
@@ -262,7 +262,7 @@ void pqxx::transaction_base::check_rowcount_prepared(
       "Expected " + to_string(expected_rows) +
       " row(s) of data "
       "from prepared statement '" +
-      statement + "', got " + to_string(actual_rows) + "."};
+      std::string{statement} + "', got " + to_string(actual_rows) + "."};
   }
 }
 
