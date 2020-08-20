@@ -39,7 +39,7 @@ public:
   constexpr zview() noexcept = default;
 
   /// Convenience overload: construct using pointer and signed length.
-  constexpr zview(const char text[], std::ptrdiff_t len) :
+  constexpr zview(char const text[], std::ptrdiff_t len) :
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
@@ -54,6 +54,17 @@ public:
   template<typename... Args>
   explicit constexpr zview(Args &&... args) :
           std::string_view(std::forward<Args>(args)...)
+  {}
+
+  /* implicit */
+  zview(std::string const& str) :
+          std::string_view(str)
+  {}
+
+  /* implicit */
+  template<size_t size>
+  constexpr zview(char const (&literal)[size]) :
+          zview(literal, size - 1)
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.

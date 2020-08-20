@@ -402,14 +402,6 @@ public:
 
   /// Execute a prepared statement, with optional arguments.
   template<typename... Args>
-  result exec_prepared(std::string const &statement, Args &&... args)
-  {
-    return internal_exec_prepared(
-      zview{statement.c_str(), statement.size()},
-      internal::params(std::forward<Args>(args)...));
-  }
-
-  template<typename... Args>
   result exec_prepared(zview statement, Args &&... args)
   {
     return internal_exec_prepared(
@@ -420,12 +412,6 @@ public:
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
   template<typename... Args>
-  row exec_prepared1(std::string const &statement, Args &&... args)
-  {
-    return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
-  }
-
-  template<typename... Args>
   row exec_prepared1(zview statement, Args &&... args)
   {
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
@@ -434,12 +420,6 @@ public:
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
-  template<typename... Args>
-  result exec_prepared0(std::string const &statement, Args &&... args)
-  {
-    return exec_prepared_n(0, statement, std::forward<Args>(args)...);
-  }
-
   template<typename... Args>
   result exec_prepared0(zview statement, Args &&... args)
   {
@@ -450,15 +430,6 @@ public:
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
    *  given number of rows.
    */
-  template<typename... Args>
-  result exec_prepared_n(
-    result::size_type rows, std::string const &statement, Args &&... args)
-  {
-    auto const r{exec_prepared(statement, std::forward<Args>(args)...)};
-    check_rowcount_prepared(statement, rows, r.size());
-    return r;
-  }
-
   template<typename... Args>
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&... args)
@@ -554,7 +525,7 @@ private:
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(
-    std::string const &statement, result::size_type expected_rows,
+    zview statement, result::size_type expected_rows,
     result::size_type actual_rows);
 
   /// Throw unexpected_rows if wrong row count from parameterised statement.
