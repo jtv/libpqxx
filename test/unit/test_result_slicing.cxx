@@ -127,10 +127,10 @@ void test_result_slicing()
   s = r[0].slice(1, 2);
   PQXX_CHECK_EQUAL(s["two"].as<int>(), 2, "Column addressing breaks.");
   PQXX_CHECK_THROWS(
-    s.column_number("one"), pqxx::argument_error,
+    pqxx::ignore_unused(s.column_number("one")), pqxx::argument_error,
     "Can access column name before slice.");
   PQXX_CHECK_THROWS(
-    s.column_number("three"), pqxx::argument_error,
+    pqxx::ignore_unused(s.column_number("three")), pqxx::argument_error,
     "Can access column name after slice.");
   PQXX_CHECK_EQUAL(
     s.column_number("Two"), 0, "Column name is case sensitive.");

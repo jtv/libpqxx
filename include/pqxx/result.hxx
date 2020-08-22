@@ -144,19 +144,7 @@ public:
   [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(char const col_name[]) const;
-
-  /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(std::string const &name) const
-  {
-    return column_number(name.c_str());
-  }
-
-  /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(zview name) const
-  {
-    return column_number(name.c_str());
-  }
+  [[nodiscard]] row_size_type column_number(zview name) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
   [[nodiscard]] char const *column_name(row_size_type number) const;
@@ -165,7 +153,7 @@ public:
   [[nodiscard]] oid column_type(row_size_type col_num) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  template<typename STRING>[[nodiscard]] oid column_type(STRING col_name) const
+  [[nodiscard]] oid column_type(zview col_name) const
   {
     return column_type(column_number(col_name));
   }
@@ -174,8 +162,7 @@ public:
   [[nodiscard]] oid column_table(row_size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING>
-  [[nodiscard]] oid column_table(STRING col_name) const
+  [[nodiscard]] oid column_table(zview col_name) const
   {
     return column_table(column_number(col_name));
   }
@@ -184,8 +171,7 @@ public:
   [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
 
   /// What column in its table did this column come from?
-  template<typename STRING>
-  [[nodiscard]] row_size_type table_column(STRING col_name) const
+  [[nodiscard]] row_size_type table_column(zview col_name) const
   {
     return table_column(column_number(col_name));
   }

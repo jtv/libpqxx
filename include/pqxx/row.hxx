@@ -90,25 +90,13 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] reference operator[](char const[]) const;
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  [[nodiscard]] reference operator[](std::string const &s) const
-  {
-    return (*this)[s.c_str()];
-  }
+  [[nodiscard]] reference operator[](zview col_name) const;
 
   reference at(size_type) const;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(char const[]) const;
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  reference at(std::string const &s) const { return at(s.c_str()); }
-  //@}
+  reference at(zview col_name) const;
 
   [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
 
@@ -126,19 +114,13 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type column_number(std::string const &col_name) const
-  {
-    return column_number(col_name.c_str());
-  }
-
-  /// Number of given column (throws exception if it doesn't exist).
-  size_type column_number(char const[]) const;
+  [[nodiscard]] size_type column_number(zview col_name) const;
 
   /// Return a column's type.
   [[nodiscard]] oid column_type(size_type) const;
 
   /// Return a column's type.
-  template<typename STRING> oid column_type(STRING col_name) const
+  [[nodiscard]] oid column_type(zview col_name) const
   {
     return column_type(column_number(col_name));
   }
@@ -147,7 +129,7 @@ public:
   [[nodiscard]] oid column_table(size_type col_num) const;
 
   /// What table did this column come from?
-  template<typename STRING> oid column_table(STRING col_name) const
+  [[nodiscard]] oid column_table(zview col_name) const
   {
     return column_table(column_number(col_name));
   }
@@ -163,7 +145,7 @@ public:
   [[nodiscard]] size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
-  template<typename STRING> size_type table_column(STRING col_name) const
+  [[nodiscard]] size_type table_column(zview col_name) const
   {
     return table_column(column_number(col_name));
   }

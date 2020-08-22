@@ -107,9 +107,9 @@ pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 }
 
 
-pqxx::row::reference pqxx::row::operator[](char const f[]) const
+pqxx::row::reference pqxx::row::operator[](zview col_name) const
 {
-  return at(f);
+  return at(col_name);
 }
 
 
@@ -128,9 +128,9 @@ void pqxx::row::swap(row &rhs) noexcept
 }
 
 
-pqxx::field pqxx::row::at(char const f[]) const
+pqxx::field pqxx::row::at(zview col_name) const
 {
-  return field{*this, m_begin + column_number(f)};
+  return field{*this, m_begin + column_number(col_name)};
 }
 
 
@@ -161,7 +161,7 @@ pqxx::row::size_type pqxx::row::table_column(size_type col_num) const
 }
 
 
-pqxx::row::size_type pqxx::row::column_number(char const col_name[]) const
+pqxx::row::size_type pqxx::row::column_number(zview col_name) const
 {
   auto const n{m_result.column_number(col_name)};
   if (n >= m_end)
