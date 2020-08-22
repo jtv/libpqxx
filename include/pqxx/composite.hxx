@@ -1,3 +1,6 @@
+#ifndef PQXX_H_COMPOSITE
+#define PQXX_H_COMPOSITE
+
 #include "pqxx/internal/array-composite.hxx"
 #include "pqxx/util.hxx"
 
@@ -135,3 +138,4 @@ inline char *composite_into_buf(char *begin, char *end, T const &... fields)
   return pos;
 }
 } // namespace pqxx
+#endif

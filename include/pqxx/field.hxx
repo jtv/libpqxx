@@ -19,6 +19,7 @@
 #include <optional>
 
 #include "pqxx/array.hxx"
+#include "pqxx/composite.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
@@ -128,10 +129,29 @@ public:
     bool>
   {
     auto const bytes{c_str()};
-    if (bytes[0] == '\0' and is_null())
+    if (is_null())
       return false;
     from_string(bytes, obj);
     return true;
+  }
+
+  /// Read field as a composite value, write its components into @c fields.
+  /** @warning This is still experimental.  It may change or be replaced.
+   *
+   * Returns whether the field was null.  If it was, it will not touch the
+   * values in @c fields.
+   */
+  template<typename... T> bool to_composite(T &... fields) const
+  {
+    if (is_null())
+    {
+      return false;
+    }
+    else
+    {
+      parse_composite(m_home.m_encoding, view(), fields...);
+      return true;
+    }
   }
 
   /// Read value into obj; or leave obj untouched and return @c false if null.

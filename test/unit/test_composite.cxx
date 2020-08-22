@@ -83,8 +83,8 @@ void test_composite_renders_to_string()
 
   int a;
   std::string b, c;
-  pqxx::parse_composite(r[0].view(), a, b, c);
-
+  bool const nonnull{r[0].to_composite(a, b, c)};
+  PQXX_CHECK(nonnull, "Mistaken nullness.");
   PQXX_CHECK_EQUAL(a, 355, "Int came back wrong.");
   PQXX_CHECK_EQUAL(b, "foo", "Simple string came back wrong.");
   PQXX_CHECK_EQUAL(c, "b\na\\r", "Escaping went wrong.");
