@@ -120,7 +120,7 @@ public:
   [[nodiscard]] oid column_type(size_type) const;
 
   /// Return a column's type.
-  oid column_type(zview col_name) const
+  [[nodiscard]] oid column_type(zview col_name) const
   {
     return column_type(column_number(col_name));
   }
@@ -129,7 +129,7 @@ public:
   [[nodiscard]] oid column_table(size_type col_num) const;
 
   /// What table did this column come from?
-  oid column_table(zview col_name) const
+  [[nodiscard]] oid column_table(zview col_name) const
   {
     return column_table(column_number(col_name));
   }
@@ -145,7 +145,7 @@ public:
   [[nodiscard]] size_type table_column(size_type) const;
 
   /// What column number in its table did this result column come from?
-  size_type table_column(zview col_name) const
+  [[nodiscard]] size_type table_column(zview col_name) const
   {
     return table_column(column_number(col_name));
   }

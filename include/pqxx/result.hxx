@@ -144,7 +144,7 @@ public:
   [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  row_size_type column_number(zview name) const;
+  [[nodiscard]] row_size_type column_number(zview name) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
   [[nodiscard]] char const *column_name(row_size_type number) const;
@@ -171,7 +171,7 @@ public:
   [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
 
   /// What column in its table did this column come from?
-  row_size_type table_column(zview col_name) const
+  [[nodiscard]] row_size_type table_column(zview col_name) const
   {
     return table_column(column_number(col_name));
   }
