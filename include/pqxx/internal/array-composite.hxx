@@ -234,5 +234,32 @@ inline void parse_composite_field(
   pos = next;
   ++index;
 }
+
+
+template<typename T>
+inline void write_composite_field(char *&pos, char *end, T const &field)
+{
+  // The field may need escaping, which means we need an intermediate buffer.
+  // But we definitely don't want to allocate that at run time.  So, we use the
+  // end of the buffer that we have.
+  // TODO: Define a trait for "type does not need quoting or escaping".
+  auto const budget{size_buffer(field)};
+  auto buf{end - budget};
+  auto const buf_end{string_traits<T>::into_buf(buf, end, field)};
+
+  *pos++ = '"';
+
+  // Now escape buf into its final position.
+  for (char const c : std::string_view{buf, std::size_t(buf_end - buf - 1)})
+  {
+    if ((c == '"') or (c == '\\'))
+      *pos++ = '\\';
+
+    *pos++ = c;
+  }
+
+  *pos++ = '"';
+  *pos++ = ',';
+}
 } // namespace pqxx::internal
 #endif

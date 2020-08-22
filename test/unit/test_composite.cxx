@@ -65,7 +65,34 @@ void test_composite_handles_nulls()
   PQXX_CHECK(not b.has_value(), "Null second integer stored as value.");
 }
 
+
+void test_composite_renders_to_string()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  char buf[1000];
+
+  pqxx::composite_into_buf(
+    std::begin(buf), std::end(buf), 355, "foo", "b\na\\r");
+  PQXX_CHECK_EQUAL(
+    std::string{buf}, "(\"355\",\"foo\",\"b\na\\\\r\")",
+    "Composite was not rendered as expected.");
+
+  tx.exec0("CREATE TYPE pqxxcomp AS (a integer, b text, c text)");
+  auto const r{tx.exec1("SELECT '" + std::string{buf} + "'::pqxxcomp")};
+
+  int a;
+  std::string b, c;
+  pqxx::parse_composite(r[0].view(), a, b, c);
+
+  PQXX_CHECK_EQUAL(a, 355, "Int came back wrong.");
+  PQXX_CHECK_EQUAL(b, "foo", "Simple string came back wrong.");
+  PQXX_CHECK_EQUAL(c, "b\na\\r", "Escaping went wrong.");
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
+PQXX_REGISTER_TEST(test_composite_renders_to_string);
 } // namespace

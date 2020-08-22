@@ -15,7 +15,7 @@
  - Typo in `datatypes.md`: `nullness`, not `nullness_traits`. (#353)
  - Fixed test names map in `tests/runner.cxx`. (#354)
  - Integral `from_string` now accept leading whitespace, as in composite types.
- - Parser prototype for composite types.  (#355)
+ - Experimental support basics for composite types.  (#355)
  - Use `stream_from` without knowing the number of fields.  (#357)
  - Global `size_buffer` function.
  - `quote()` now works for always-null types without conversions defined.
