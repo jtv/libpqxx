@@ -57,14 +57,11 @@ public:
   {}
 
   /* implicit */
-  zview(std::string const& str) :
-          std::string_view(str)
-  {}
+  zview(std::string const &str) : std::string_view(str) {}
 
   /* implicit */
   template<size_t size>
-  constexpr zview(char const (&literal)[size]) :
-          zview(literal, size - 1)
+  constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
