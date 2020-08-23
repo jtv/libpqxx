@@ -269,25 +269,25 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
   }
   else
   {
-  // The field may need escaping, which means we need an intermediate buffer.
-  // To avoid allocating that at run time, we use the end of the buffer that we
-  // have.
-  auto const budget{size_buffer(field)};
-  auto buf{end - budget};
-  auto const buf_end{string_traits<T>::into_buf(buf, end, field)};
+    // The field may need escaping, which means we need an intermediate buffer.
+    // To avoid allocating that at run time, we use the end of the buffer that
+    // we have.
+    auto const budget{size_buffer(field)};
+    auto buf{end - budget};
+    auto const buf_end{string_traits<T>::into_buf(buf, end, field)};
 
-  *pos++ = '"';
+    *pos++ = '"';
 
-  // Now escape buf into its final position.
-  for (char const c : std::string_view{buf, std::size_t(buf_end - buf - 1)})
-  {
-    if ((c == '"') or (c == '\\'))
-      *pos++ = '\\';
+    // Now escape buf into its final position.
+    for (char const c : std::string_view{buf, std::size_t(buf_end - buf - 1)})
+    {
+      if ((c == '"') or (c == '\\'))
+        *pos++ = '\\';
 
-    *pos++ = c;
-  }
+      *pos++ = c;
+    }
 
-  *pos++ = '"';
+    *pos++ = '"';
   }
 
   *pos++ = ',';

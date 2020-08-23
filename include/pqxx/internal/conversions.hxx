@@ -286,7 +286,8 @@ template<typename T> struct string_traits<std::optional<T>>
 };
 
 
-template<typename T> inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
+template<typename T>
+inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 
 
 #if defined(PQXX_HAVE_VARIANT)
@@ -344,9 +345,9 @@ template<typename... T> struct string_traits<std::variant<T...>>
 
 
 #if defined(PQXX_HAVE_VARIANT)
-template<typename... T> inline constexpr bool is_unquoted_safe<std::variant<T...>>{
-	(is_unquoted_safe<T> and ...)
-};
+template<typename... T>
+inline constexpr bool is_unquoted_safe<std::variant<T...>>{
+  (is_unquoted_safe<T> and ...)};
 #endif // PQXX_HAVE_VARIANT
 
 
@@ -645,7 +646,9 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
 };
 
 
-template<typename T> inline constexpr bool is_unquoted_safe<std::unique_ptr<T>>{is_unquoted_safe<T>};
+template<typename T>
+inline constexpr bool is_unquoted_safe<std::unique_ptr<T>>{
+  is_unquoted_safe<T>};
 
 
 template<typename T> struct nullness<std::shared_ptr<T>>
@@ -683,7 +686,9 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 };
 
 
-template<typename T> inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{is_unquoted_safe<T>};
+template<typename T>
+inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
+  is_unquoted_safe<T>};
 } // namespace pqxx
 
 
@@ -724,13 +729,13 @@ template<typename Container> struct array_string_traits
       else if constexpr (is_unquoted_safe<elt_type>)
       {
         // No need to quote or escape.  Just convert the value straight into
-	// its place in the array, and "backspace" the trailing zero.
+        // its place in the array, and "backspace" the trailing zero.
         here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
       }
       else
       {
         *here++ = '"';
-// XXX: Can we re-use a single buffer?
+        // XXX: Can we re-use a single buffer?
         auto const text{to_string(elt)};
         for (char const c : text)
         {
@@ -759,20 +764,26 @@ template<typename Container> struct array_string_traits
     using elt_traits = string_traits<elt_type>;
 
     if constexpr (is_unquoted_safe<elt_type>)
-    return 3 + std::accumulate(std::begin(value), std::end(value), std::size_t{}, [](std::size_t acc, elt_type const &elt) {
-		    return acc + (pqxx::is_null(elt) ? s_null.size() : elt_traits::size_buffer(elt)) - 1;
-		    });
+      return 3 + std::accumulate(
+                   std::begin(value), std::end(value), std::size_t{},
+                   [](std::size_t acc, elt_type const &elt) {
+                     return acc +
+                            (pqxx::is_null(elt) ?
+                               s_null.size() :
+                               elt_traits::size_buffer(elt)) -
+                            1;
+                   });
     else
-    return 3 + std::accumulate(
-                 std::begin(value), std::end(value), std::size_t{},
-                 [](std::size_t acc, elt_type const &elt) {
-                   // Opening and closing quotes, plus worst-case escaping, but
-                   // don't count the trailing zeroes.
-                   std::size_t const elt_size{
-                     pqxx::is_null(elt) ? s_null.size() :
-                                          elt_traits::size_buffer(elt) - 1};
-                   return acc + 2 * elt_size + 2;
-                 });
+      return 3 + std::accumulate(
+                   std::begin(value), std::end(value), std::size_t{},
+                   [](std::size_t acc, elt_type const &elt) {
+                     // Opening and closing quotes, plus worst-case escaping,
+                     // but don't count the trailing zeroes.
+                     std::size_t const elt_size{
+                       pqxx::is_null(elt) ? s_null.size() :
+                                            elt_traits::size_buffer(elt) - 1};
+                     return acc + 2 * elt_size + 2;
+                   });
   }
 
   // We don't yet support parsing of array types using from_string.  Doing so

@@ -31,8 +31,7 @@ void test_030()
       R[0].column_number(N), R.column_number(N),
       "row::column_number() is inconsistent with result::column_number().");
 
-    PQXX_CHECK_EQUAL(
-      R[0].column_number(N), c, "Inconsistent column numbers.");
+    PQXX_CHECK_EQUAL(R[0].column_number(N), c, "Inconsistent column numbers.");
   }
 
   // If there are rows in R, compare their metadata to R's.
