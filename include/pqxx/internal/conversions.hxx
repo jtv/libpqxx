@@ -757,6 +757,12 @@ template<typename Container> struct array_string_traits
   static std::size_t size_buffer(Container const &value) noexcept
   {
     using elt_traits = string_traits<elt_type>;
+
+    if constexpr (is_unquoted_safe<elt_type>)
+    return 3 + std::accumulate(std::begin(value), std::end(value), std::size_t{}, [](std::size_t acc, elt_type const &elt) {
+		    return acc + (pqxx::is_null(elt) ? s_null.size() : elt_traits::size_buffer(elt)) - 1;
+		    });
+    else
     return 3 + std::accumulate(
                  std::begin(value), std::end(value), std::size_t{},
                  [](std::size_t acc, elt_type const &elt) {
