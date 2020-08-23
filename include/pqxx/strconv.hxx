@@ -328,7 +328,23 @@ template<typename TYPE>
  * @c std::string is a container, but normally it translates to an SQL string,
  * not an SQL array.
  */
-template<typename T> inline constexpr bool is_sql_array{false};
+template<typename TYPE> inline constexpr bool is_sql_array{false};
+
+
+/// Can we use this type in arrays and composite types without quoting them?
+/** Define this as @c true only if values of @c TYPE can never contain any
+ * special characters that might need escaping or confuse the parsing of array
+ * or composite * types, such as commas, quotes, parentheses, braces, newlines,
+ * and so on.
+ *
+ * When converting a value of such a type to a string in an array or a field in
+ * a composite type, we do not need to add quotes, nor escape any special
+ * characters.
+ *
+ * This is just an optimisation, so it defaults to @c false to err on the side
+ * of slow correctness.
+ */
+template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 
 /// Element separator between SQL array elements of this type.

@@ -85,12 +85,7 @@ inline std::size_t composite_size_buffer(T const &... fields) noexcept
 
   // Size for a multi-field composite includes room for...
   //  + opening parenthesis
-  //  + opening quote
-  //  + field budget
-  //  + worst-case one backslash per byte in the field budget
-  //  - field terminating zero
-  //  - escaping for field terminating zero
-  //  + closing quote
+  //  + field budgets
   //  + separating comma per field
   //  - comma after final field
   //  + closing parenthesis
@@ -99,7 +94,7 @@ inline std::size_t composite_size_buffer(T const &... fields) noexcept
   if constexpr (sizeof...(fields) == 0)
     return sizeof(pqxx::internal::empty_composite_str);
   else
-    return 1 + 3 * num + ((2 * size_buffer(fields) - 2) + ...) + 1;
+    return 1 + (pqxx::internal::size_composite_field_buffer(fields) + ...) + num + 1;
 }
 
 
@@ -112,7 +107,6 @@ inline std::size_t composite_size_buffer(T const &... fields) noexcept
 template<typename... T>
 inline char *composite_into_buf(char *begin, char *end, T const &... fields)
 {
-  // TODO: Define a trait for "type does need quoting or escaping."
   if (std::size_t(end - begin) < composite_size_buffer(fields...))
     throw conversion_error{
       "Buffer space may not be enough to represent composite value."};

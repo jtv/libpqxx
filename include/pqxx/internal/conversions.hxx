@@ -185,33 +185,44 @@ struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
 
 template<> struct string_traits<short> : internal::integral_traits<short>
 {};
+template<> inline constexpr bool is_unquoted_safe<short>{true};
 template<>
 struct string_traits<unsigned short>
         : internal::integral_traits<unsigned short>
 {};
+template<> inline constexpr bool is_unquoted_safe<unsigned short>{true};
 template<> struct string_traits<int> : internal::integral_traits<int>
 {};
+template<> inline constexpr bool is_unquoted_safe<int>{true};
 template<> struct string_traits<unsigned> : internal::integral_traits<unsigned>
 {};
+template<> inline constexpr bool is_unquoted_safe<unsigned>{true};
 template<> struct string_traits<long> : internal::integral_traits<long>
 {};
+template<> inline constexpr bool is_unquoted_safe<long>{true};
 template<>
 struct string_traits<unsigned long> : internal::integral_traits<unsigned long>
 {};
+template<> inline constexpr bool is_unquoted_safe<unsigned long>{true};
 template<>
 struct string_traits<long long> : internal::integral_traits<long long>
 {};
+template<> inline constexpr bool is_unquoted_safe<long long>{true};
 template<>
 struct string_traits<unsigned long long>
         : internal::integral_traits<unsigned long long>
 {};
+template<> inline constexpr bool is_unquoted_safe<unsigned long long>{true};
 template<> struct string_traits<float> : internal::float_traits<float>
 {};
+template<> inline constexpr bool is_unquoted_safe<float>{true};
 template<> struct string_traits<double> : internal::float_traits<double>
 {};
+template<> inline constexpr bool is_unquoted_safe<double>{true};
 template<>
 struct string_traits<long double> : internal::float_traits<long double>
 {};
+template<> inline constexpr bool is_unquoted_safe<long double>{true};
 
 
 template<> struct string_traits<bool>
@@ -230,6 +241,9 @@ template<> struct string_traits<bool>
 
   static constexpr std::size_t size_buffer(bool const &) noexcept { return 6; }
 };
+
+
+template<> inline constexpr bool is_unquoted_safe<bool>{true};
 
 
 template<typename T> struct nullness<std::optional<T>>
@@ -270,6 +284,9 @@ template<typename T> struct string_traits<std::optional<T>>
     return pqxx::size_buffer(value.value());
   }
 };
+
+
+template<typename T> inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 
 
 #if defined(PQXX_HAVE_VARIANT)
@@ -326,6 +343,13 @@ template<typename... T> struct string_traits<std::variant<T...>>
 #endif // PQXX_HAVE_VARIANT
 
 
+#if defined(PQXX_HAVE_VARIANT)
+template<typename... T> inline constexpr bool is_unquoted_safe<std::variant<T...>>{
+	(is_unquoted_safe<T> and ...)
+};
+#endif // PQXX_HAVE_VARIANT
+
+
 template<typename T> inline T from_string(std::stringstream const &text)
 {
   return from_string<T>(text.str());
@@ -340,6 +364,9 @@ template<> struct string_traits<std::nullptr_t>
     return zview{};
   }
 };
+
+
+template<> inline constexpr bool is_unquoted_safe<std::nullptr_t>{true};
 
 
 template<> struct nullness<char const *>
@@ -618,6 +645,9 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
 };
 
 
+template<typename T> inline constexpr bool is_unquoted_safe<std::unique_ptr<T>>{is_unquoted_safe<T>};
+
+
 template<typename T> struct nullness<std::shared_ptr<T>>
 {
   static constexpr bool has_null = true;
@@ -651,6 +681,9 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return pqxx::size_buffer(*value);
   }
 };
+
+
+template<typename T> inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{is_unquoted_safe<T>};
 } // namespace pqxx
 
 
@@ -688,9 +721,16 @@ template<typename Container> struct array_string_traits
         // Render nested array in-place.  Then erase the trailing zero.
         here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
       }
+      else if constexpr (is_unquoted_safe<elt_type>)
+      {
+        // No need to quote or escape.  Just convert the value straight into
+	// its place in the array, and "backspace" the trailing zero.
+        here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
+      }
       else
       {
         *here++ = '"';
+// XXX: Can we re-use a single buffer?
         auto const text{to_string(elt)};
         for (char const c : text)
         {

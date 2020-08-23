@@ -284,3 +284,31 @@ space than just what's needed to store the result, include that too.
 
 Make `size_buffer` a `constexpr` function if you can.  It can allow the caller
 to allocate the buffer on the stack, with a size known at compile time.
+
+
+Optional: Specialise `is_unquoted_safe`
+---------------------------------------
+
+When converting arrays or composite values to strings, libpqxx may need to
+quote values and escape any special characters.  This takes time.
+
+Some types though, such as integral or floating-point types, can never have
+any special characters such as quotes, commas, or backslashes in their string
+representations.  In such cases, there's no need to quote or escape such values
+in arrays or composite types.
+
+If your type is like that, you can tell libpqxx about this by defining:
+
+    namespace pqxx
+    {
+    template<> inline constexpr bool is_unquoted_safe<MY_TYPE>{true};
+    }
+
+The code that converts this type of field to strings in an array or a composite
+type can then use a simpler, more efficient variant of the code.  It's always
+safe to leave this out; it's _just_ an optimisation for when you're completely
+sure that it's safe.
+
+Do not do this if a string representation of your type may contain a comma;
+semicolon; parenthesis; brace; quote; backslash; newline; or any other
+character that might need escaping.

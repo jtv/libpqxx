@@ -75,7 +75,7 @@ void test_composite_renders_to_string()
   pqxx::composite_into_buf(
     std::begin(buf), std::end(buf), 355, "foo", "b\na\\r");
   PQXX_CHECK_EQUAL(
-    std::string{buf}, "(\"355\",\"foo\",\"b\na\\\\r\")",
+    std::string{buf}, "(355,\"foo\",\"b\na\\\\r\")",
     "Composite was not rendered as expected.");
 
   tx.exec0("CREATE TYPE pqxxcomp AS (a integer, b text, c text)");

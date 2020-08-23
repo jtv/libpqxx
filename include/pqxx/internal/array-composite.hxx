@@ -236,13 +236,42 @@ inline void parse_composite_field(
 }
 
 
+/// Conservatively estimate buffer size needed for a composite field.
+template<typename T>
+inline std::size_t size_composite_field_buffer(T const &field)
+{
+  if constexpr (is_unquoted_safe<T>)
+  {
+    // Safe to copy, without quotes or escaping.  Drop the terminating zero.
+    return size_buffer(field) - 1;
+  }
+  else
+  {
+    // + Opening quote.
+    // + Field budget.
+    // - Terminating zero.
+    // + Escaping for each byte in the field's string representation.
+    // - Escaping for terminating zero.
+    // + Closing quote.
+    return 1 + 2 * (size_buffer(field) - 1) + 1;
+  }
+}
+
+
 template<typename T>
 inline void write_composite_field(char *&pos, char *end, T const &field)
 {
+  if constexpr (is_unquoted_safe<T>)
+  {
+    // No need for quoting or escaping.  Convert it straight into its final
+    // place in the buffer, and "backspace" the trailing zero.
+    pos = string_traits<T>::into_buf(pos, end, field) - 1;
+  }
+  else
+  {
   // The field may need escaping, which means we need an intermediate buffer.
-  // But we definitely don't want to allocate that at run time.  So, we use the
-  // end of the buffer that we have.
-  // TODO: Define a trait for "type does not need quoting or escaping".
+  // To avoid allocating that at run time, we use the end of the buffer that we
+  // have.
   auto const budget{size_buffer(field)};
   auto buf{end - budget};
   auto const buf_end{string_traits<T>::into_buf(buf, end, field)};
@@ -259,6 +288,8 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
   }
 
   *pos++ = '"';
+  }
+
   *pos++ = ',';
 }
 } // namespace pqxx::internal

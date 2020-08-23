@@ -20,6 +20,8 @@
  - Global `size_buffer` function.
  - `quote()` now works for always-null types without conversions defined.
  - `std::nullopt` now converts to an SQL null.
+ - Skip quoting and escaping array/composite fields of "safe" types.
+ - New type trait: `is_unquoted_safe`.
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.

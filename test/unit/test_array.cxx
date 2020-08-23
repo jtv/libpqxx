@@ -455,7 +455,7 @@ void test_generate_null_value()
 void test_generate_single_item()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{42}), "{\"42\"}",
+    pqxx::to_string(std::vector<int>{42}), "{42}",
     "Numeric conversion came out wrong.");
 
   PQXX_CHECK_EQUAL(
@@ -467,7 +467,7 @@ void test_generate_single_item()
 void test_generate_multiple_items()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{\"5\",\"4\",\"3\",\"2\"}",
+    pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{5,4,3,2}",
     "Array with multiple values is not correct.");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"foo", "bar"}),
@@ -479,7 +479,7 @@ void test_generate_nested_array()
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}),
-    "{{\"1\",\"2\"},{\"3\",\"4\"}}", "Nested arrays don't work right.");
+    "{{1,2},{3,4}}", "Nested arrays don't work right.");
 }
 
 
