@@ -735,9 +735,12 @@ template<typename Container> struct array_string_traits
       else
       {
         *here++ = '"';
-        // XXX: Can we re-use a single buffer?
-        auto const text{to_string(elt)};
-        for (char const c : text)
+
+        // Use the tail end of the destination buffer as an intermediate
+        // buffer.
+        auto const elt_budget{pqxx::size_buffer(elt)};
+        for (char const c :
+             string_traits<elt_type>::to_buf(end - elt_budget, end, elt))
         {
           if (c == '\\' or c == '"')
             *here++ = '\\';
