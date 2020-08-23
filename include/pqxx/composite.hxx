@@ -56,8 +56,8 @@ inline void parse_composite(
 /// Parse a string representation of a value of a composite type.
 /** @warning This version only works for UTF-8 and single-byte encodings.
  *
- * For proper encoding support, pass an @c encoding_group as the first
- * argument.
+ * For proper encoding support, use the composite-type support in the
+ * @c field class.
  */
 template<typename... T>
 inline void parse_composite(std::string_view text, T &... fields)
