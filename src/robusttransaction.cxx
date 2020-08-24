@@ -38,7 +38,7 @@ enum tx_stat
 
 
 /// Parse a nonempty transaction status string.
-constexpr tx_stat parse_status(std::string_view text)
+constexpr tx_stat parse_status(std::string_view text) noexcept
 {
   constexpr std::string_view unknown{}, committed{"committed"},
     aborted{"aborted"}, in_progress{"in progress"};
