@@ -37,25 +37,29 @@ enum tx_stat
 };
 
 
-/* Super-simple string hash function: just use the initial byte.
- *
- * Happens to be a perfect hash for this case, and should be cheap to compute.
- */
-struct initial_hash
+/// Parse a nonempty transaction status string.
+constexpr tx_stat parse_status(std::string_view text)
 {
-  std::size_t operator()(std::string const &x) const noexcept
+  constexpr std::string_view unknown{}, committed{"committed"},
+    aborted{"aborted"}, in_progress{"in progress"};
+
+  switch (text[0])
   {
-    return static_cast<uint8_t>(x[0]);
+  case 'a':
+    if (text == aborted)
+      return tx_aborted;
+    break;
+  case 'c':
+    if (text == committed)
+      return tx_committed;
+    break;
+  case 'i':
+    if (text == in_progress)
+      return tx_in_progress;
+    break;
   }
-};
-
-
-// TODO: Is there a simple, lightweight, constexpr alternative?
-std::unordered_map<std::string, tx_stat, initial_hash> const statuses{
-  {"committed", tx_committed},
-  {"aborted", tx_aborted},
-  {"in progress", tx_in_progress},
-};
+  return tx_unknown;
+}
 
 
 tx_stat query_status(std::string const &xid, std::string const &conn_str)
@@ -64,13 +68,15 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
   auto const query{"SELECT txid_status(" + xid + ")"};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
-  auto const status_text{w.query_value<std::string>(query)};
-  if (status_text.empty())
+  auto const status_row{w.exec1(query)};
+  auto const status_field{status_row[0]};
+  if (status_field.size() == 0)
     throw pqxx::internal_error{"Transaction status string is empty."};
-  auto const here{statuses.find(status_text)};
-  if (here == statuses.end())
-    throw pqxx::internal_error{"Unknown transaction status: " + status_text};
-  return here->second;
+  auto const status{parse_status(status_field.as<std::string_view>())};
+  if (status == tx_unknown)
+    throw pqxx::internal_error{
+      "Unknown transaction status string: " + status_field.as<std::string>()};
+  return status;
 }
 } // namespace
 
