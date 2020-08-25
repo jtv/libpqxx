@@ -151,12 +151,14 @@ complex:
 
       static bool is_null(T const &value)
       {
-        // TODO: Return whether "value" is null.
+        // Return whether "value" is null.
+        return ...;
       }
 
       [[nodiscard]] static T null()
       {
-        // TODO: Return a null value.
+        // Return a null value.
+        return ...;
       }
     };
     }
