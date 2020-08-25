@@ -10,6 +10,7 @@
  */
 #include "pqxx-source.hxx"
 
+#include <memory>
 #include <stdexcept>
 
 #include "pqxx/connection"
@@ -22,7 +23,7 @@ pqxx::subtransaction::subtransaction(
         transactionfocus{t},
         dbtransaction(t.conn())
 {
-  direct_exec("SAVEPOINT " + quoted_name());
+  direct_exec(std::make_shared<std::string>("SAVEPOINT " + quoted_name()));
 }
 
 
@@ -40,11 +41,13 @@ pqxx::subtransaction::subtransaction(
 
 void pqxx::subtransaction::do_commit()
 {
-  direct_exec("RELEASE SAVEPOINT " + quoted_name());
+  direct_exec(
+    std::make_shared<std::string>("RELEASE SAVEPOINT " + quoted_name()));
 }
 
 
 void pqxx::subtransaction::do_abort()
 {
-  direct_exec("ROLLBACK TO SAVEPOINT " + quoted_name());
+  direct_exec(
+    std::make_shared<std::string>("ROLLBACK TO SAVEPOINT " + quoted_name()));
 }

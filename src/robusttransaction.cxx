@@ -87,9 +87,11 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
         dbtransaction(c),
         m_conn_string{c.connection_string()}
 {
+  static auto const txid_q{
+    std::make_shared<std::string>("SELECT txid_current()")};
   m_backendpid = c.backendpid();
   direct_exec(begin_command);
-  direct_exec("SELECT txid_current()")[0][0].to(m_xid);
+  direct_exec(txid_q)[0][0].to(m_xid);
 }
 
 
@@ -98,11 +100,14 @@ pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 
 void pqxx::internal::basic_robusttransaction::do_commit()
 {
+  static auto const check_constraints_q{
+    std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE")},
+    commit_q{std::make_shared<std::string>("COMMIT")};
   // Check constraints before sending the COMMIT to the database, so as to
   // minimise our in-doubt window.
   try
   {
-    direct_exec("SET CONSTRAINTS ALL IMMEDIATE");
+    direct_exec(check_constraints_q);
   }
   catch (std::exception const &)
   {
@@ -121,7 +126,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // robusttransaction what it is.
   try
   {
-    direct_exec("COMMIT");
+    direct_exec(commit_q);
 
     // If we make it here, great.  Normal, successful commit.
     return;
@@ -197,5 +202,6 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
 void pqxx::internal::basic_robusttransaction::do_abort()
 {
-  direct_exec("ROLLBACK");
+  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK")};
+  direct_exec(rollback_q);
 }

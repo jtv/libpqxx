@@ -549,12 +549,12 @@ private:
 // TODO: C++20 "Conversion remains valid after underlying result dies" concept?
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
-  std::string_view transaction_base::query_value<std::string_view>(
-    std::string const &query, std::string const &desc) =delete;
+std::string_view transaction_base::query_value<std::string_view>(
+  std::string const &query, std::string const &desc) = delete;
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
-  zview transaction_base::query_value<zview>(
-    std::string const &query, std::string const &desc) =delete;
+zview transaction_base::query_value<zview>(
+  std::string const &query, std::string const &desc) = delete;
 
 
 } // namespace pqxx
