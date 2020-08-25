@@ -24,6 +24,7 @@
  - `std::nullopt` now converts to an SQL null.
  - Skip quoting and escaping array/composite fields of "safe" types.
  - New type trait: `is_unquoted_safe`.
+ - Forbid invalid specialisations of `query_value`.
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
