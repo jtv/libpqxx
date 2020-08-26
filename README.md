@@ -3,7 +3,7 @@ libpqxx
 
 Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
 
-Home page: https://pqxx.org/development/libpqxx/
+Home page: http://pqxx.org/development/libpqxx/
 
 Find libpqxx on Github: https://github.com/jtv/libpqxx
 
