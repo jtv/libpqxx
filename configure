@@ -17515,9 +17515,9 @@ then
 			-Wredundant-decls \
 			-Wshadow \
 			-Wsign-promo \
-			-Wwrite-strings  \
 			-Wundef \
-			-Wunused
+			-Wunused \
+			-Wwrite-strings
 
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
@@ -17529,11 +17529,18 @@ then
 			-Wnoexcept \
 			-Wrestrict \
 			-Wstringop-overflow \
-			-Wsuggest-override \
 			-Wzero-as-null-pointer-constant \
 			-Warray-bounds=2 \
 			-Wduplicated-branches \
 			-Wduplicated-cond \
+			-Wsuggest-attribute=cold \
+			-Wsuggest-attribute=const \
+			-Wsuggest-attribute=malloc \
+			-Wsuggest-attribute=noreturn \
+			-Wsuggest-attribute=pure \
+			-Wsuggest-final-types \
+			-Wsuggest-final-methods \
+			-Wsuggest-override \
 			-Wtrampolines
 	fi
 
