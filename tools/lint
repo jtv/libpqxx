@@ -44,7 +44,7 @@ count_includes() {
 # compiler-internal-post.hxx, and vice versa.
 check_compiler_internal_headers() {
 	local TEMPDIR PRE POST HEADERS
-	TEMPDIR="$(mktemp --tmpdir -d pqxx-lint.XXXX)"
+	TEMPDIR="$(mktemp -d)"
 	if test -z "$TEMPDIR"
 	then
 		echo >&2 "Could not create temporary directory."
