@@ -206,7 +206,7 @@ template<> struct string_traits<binarystring>
     auto const size{pqxx::internal::size_unesc_bin(text.size())};
     std::shared_ptr<unsigned char> buf{
       new unsigned char[size], [](unsigned char const *x) { delete[] x; }};
-    pqxx::internal::unesc_bin(text, buf.get());
+    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.get()));
     return binarystring{std::move(buf), size};
   }
 };
