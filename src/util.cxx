@@ -151,7 +151,7 @@ std::string pqxx::internal::esc_bin(std::string_view binary_data)
 
 
 void pqxx::internal::unesc_bin(
-  std::string_view escaped_data, unsigned char buffer[])
+  std::string_view escaped_data, std::byte buffer[])
 {
   auto const in_size{escaped_data.size()};
   if (in_size < 2)
@@ -173,16 +173,16 @@ void pqxx::internal::unesc_bin(
     int lo{nibble(*in++)};
     if (lo < 0)
       throw pqxx::failure{"Invalid hex-escaped data."};
-    *out++ = static_cast<unsigned char>((hi << 4) | lo);
+    *out++ = static_cast<std::byte>((hi << 4) | lo);
   }
 }
 
 
-std::string pqxx::internal::unesc_bin(std::string_view escaped_data)
+std::string<std::byte> pqxx::internal::unesc_bin(std::string_view escaped_data)
 {
   auto const bytes{size_unesc_bin(escaped_data.size())};
-  std::string buf;
+  std::string<std::byte> buf;
   buf.resize(bytes);
-  unesc_bin(escaped_data, reinterpret_cast<unsigned char *>(buf.data()));
+  unesc_bin(escaped_data, buf.data());
   return buf;
 }
