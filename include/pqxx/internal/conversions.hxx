@@ -337,9 +337,11 @@ template<typename... T> struct string_traits<std::variant<T...>>
       [](auto const &i) noexcept { return pqxx::size_buffer(i); }, value);
   }
 
-  // There's no from_string for std::variant.  We could have one with a rule
-  // like "pick the first type which fits the value," but we'd have to look
-  // into how natural that API feels to users.
+  /** There's no from_string for std::variant.  We could have one with a rule
+   * like "pick the first type which fits the value," but we'd have to look
+   * into how natural that API feels to users.
+   */
+  static std::variant<T...> from_string(std::string_view) =delete;
 };
 #endif // PQXX_HAVE_VARIANT
 
@@ -359,11 +361,16 @@ template<typename T> inline T from_string(std::stringstream const &text)
 
 template<> struct string_traits<std::nullptr_t>
 {
+	static char *into_buf(char *, char *, std::nullptr_t) =delete;
+
   static constexpr zview
   to_buf(char *, char *, std::nullptr_t const &) noexcept
   {
     return zview{};
   }
+
+  static constexpr std::size_t size_buffer() noexcept { return 0; }
+  static std::nullptr_t from_string(std::string_view) =delete;
 };
 
 
@@ -446,7 +453,8 @@ template<> struct string_traits<char *>
     return pqxx::size_buffer(value);
   }
 
-  // Don't allow conversion to this type since it breaks const-safety.
+  /// Don't allow conversion to this type since it breaks const-safety.
+  static char *from_string(std::string_view) =delete;
 };
 
 
@@ -479,7 +487,8 @@ template<std::size_t N> struct string_traits<char[N]>
     return N;
   }
 
-  // Don't allow conversion to this type.
+  /// Don't allow conversion to this type.
+  static void from_string(std::string_view) =delete;
 };
 
 
@@ -530,8 +539,6 @@ template<> struct nullness<std::string_view> : no_null<std::string_view>
 /// String traits for `string_view`.
 template<> struct string_traits<std::string_view>
 {
-  // Don't allow conversion to this type; it has nowhere to store its contents.
-
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
@@ -547,6 +554,9 @@ template<> struct string_traits<std::string_view>
     begin[value.size()] = '\0';
     return begin + value.size() + 1;
   }
+
+  /// Don't convert to this type; it has nowhere to store its contents.
+  static std::string_view from_string(std::string_view) =delete;
 };
 
 
@@ -557,14 +567,19 @@ template<> struct nullness<zview> : no_null<zview>
 /// String traits for `zview`.
 template<> struct string_traits<zview>
 {
-  // Don't allow conversion to this type; it has nowhere to store its contents.
-
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
     return value.size() + 1;
   }
+
+  static char *into_buf(char *, char *, zview const &) =delete;
+  static std::string_view to_buf(char *, char *, zview const &) =delete;
+
+  /// Don't convert to this type; it has nowhere to store its contents.
+  static zview from_string(std::string_view) =delete;
 };
+
 
 
 template<> struct nullness<std::stringstream> : no_null<std::stringstream>
@@ -573,12 +588,17 @@ template<> struct nullness<std::stringstream> : no_null<std::stringstream>
 
 template<> struct string_traits<std::stringstream>
 {
+static std::size_t size_buffer(std::stringstream const &) =delete;
+
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
     stream.write(text.data(), std::streamsize(text.size()));
     return stream;
   }
+
+  static char *into_buf(char *, char *, std::stringstream const &) =delete;
+  static std::string_view to_buf(char *, char *, std::stringstream const &) =delete;
 };
 
 
@@ -689,6 +709,74 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 template<typename T>
 inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
+
+
+template<> struct nullness<std::basic_string<std::byte>> : no_null<std::basic_string<std::byte>> {};
+
+
+template<> struct string_traits<std::basic_string<std::byte>>
+{
+  static std::size_t size_buffer(std::basic_string<std::byte> const &value) noexcept
+  {
+	  return internal::size_esc_bin(value.size());
+  }
+
+  static zview to_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
+  {
+	  auto const value_end{into_buf(begin, end, value)};
+	  return zview{begin, value_end - begin - 1};
+  }
+
+  static char *into_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
+  {
+	  auto const budget{size_buffer(value)};
+	  if (static_cast<std::size_t>(end - begin) < budget)
+		  throw conversion_overrun{
+			  "Not enough buffer space to escape binary data."};
+	  internal::esc_bin(std::string_view(reinterpret_cast<char const *>(value.data()), value.size()), begin);
+	  return begin + budget;
+  }
+
+  static std::basic_string<std::byte> from_string(std::string_view text) =delete;
+};
+
+
+template<> struct nullness<std::basic_string_view<std::byte>> : no_null<std::basic_string_view<std::byte>> {};
+
+
+template<> struct string_traits<std::basic_string_view<std::byte>>
+{
+  static std::size_t size_buffer(std::basic_string_view<std::byte> const &value) noexcept
+  {
+	  return internal::size_esc_bin(value.size());
+  }
+
+  static zview to_buf(char *begin, char *end, std::basic_string_view<std::byte> const &value)
+  {
+	  auto const value_end{into_buf(begin, end, value)};
+	  return zview{begin, value_end - begin - 1};
+  }
+
+  static char *into_buf(char *begin, char *end, std::basic_string_view<std::byte> const &value)
+  {
+	  auto const budget{size_buffer(value)};
+	  if (static_cast<std::size_t>(end - begin) < budget)
+		  throw conversion_overrun{
+			  "Not enough buffer space to escape binary data."};
+	  internal::esc_bin(std::string_view(reinterpret_cast<char const *>(value.data()), value.size()), begin);
+	  return begin + budget;
+  }
+
+  static std::basic_string<std::byte> from_string(std::string_view text)
+  {
+	  auto const size{pqxx::internal::size_unesc_bin(text.size())};
+	  std::basic_string<std::byte> buf;
+	  buf.resize(size);
+	  pqxx::internal::unesc_bin(text, buf.data());
+	  return buf;
+  }
+};
+
 } // namespace pqxx
 
 
