@@ -16,6 +16,7 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
+#include <cstddef>
 #include <ctime>
 #include <functional>
 #include <list>
@@ -579,8 +580,13 @@ public:
   [[nodiscard]] std::string esc(std::string_view text) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
+  /** @deprecated Use @c std::basic_string_view<std::byte> instead.
+   */
   [[nodiscard]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
+
+  /// Escape binary string for use as SQL string literal on this connection.
+  [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -607,8 +613,13 @@ public:
   [[nodiscard]] std::string unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
+  /** @deprecated Use @c std::basic_string_view<std::byte> instead.
+   */
   [[nodiscard]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
+
+  /// Escape and quote a string of binary data.
+  [[nodiscard]] std::string quote_raw(std::basic_string_view<std::byte>) const;
 
   /// Escape and quote an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const;
@@ -619,7 +630,10 @@ public:
    */
   template<typename T>[[nodiscard]] inline std::string quote(T const &t) const;
 
+  /// @deprecated Use @c basic_string or @c basic_string_view of @c std::byte.
   [[nodiscard]] std::string quote(binarystring const &) const;
+
+  [[nodiscard]] std::string quote(std::basic_string_view<std::byte> const &bytes) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a

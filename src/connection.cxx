@@ -809,6 +809,14 @@ pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 }
 
 
+std::string
+pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
+{
+  return pqxx::internal::esc_bin(
+    std::string_view{reinterpret_cast<char const *>(bin.data()), bin.size()});
+}
+
+
 std::string pqxx::connection::unesc_raw(char const text[]) const
 {
   if (text[0] == '\\' and text[1] == 'x')
@@ -837,9 +845,23 @@ pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 }
 
 
+std::string
+pqxx::connection::quote_raw(std::basic_string_view<std::byte> bytes) const
+{
+  // TODO: Save some allocations by escaping straight into a string's buffer.
+  return "'" + esc_raw(bytes) + "'::bytea";
+}
+
+
 std::string pqxx::connection::quote(binarystring const &b) const
 {
   return quote_raw(b.data(), b.size());
+}
+
+
+std::string pqxx::connection::quote(std::basic_string_view<std::byte> const &b) const
+{
+  return quote_raw(b);
 }
 
 
