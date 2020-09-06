@@ -859,7 +859,8 @@ std::string pqxx::connection::quote(binarystring const &b) const
 }
 
 
-std::string pqxx::connection::quote(std::basic_string_view<std::byte> const &b) const
+std::string
+pqxx::connection::quote(std::basic_string_view<std::byte> const &b) const
 {
   return quote_raw(b);
 }

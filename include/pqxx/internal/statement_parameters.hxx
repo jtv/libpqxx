@@ -102,40 +102,6 @@ private:
 };
 
 
-class PQXX_LIBEXPORT statement_parameters
-{
-public:
-  statement_parameters &operator=(statement_parameters const &) = delete;
-
-protected:
-  statement_parameters() = default;
-
-  void add_param() { this->add_checked_param("", false, false); }
-  template<typename T> void add_param(T const &v, bool nonnull)
-  {
-    nonnull = (nonnull && not is_null(v));
-    this->add_checked_param(
-      (nonnull ? pqxx::to_string(v) : ""), nonnull, false);
-  }
-  void add_binary_param(binarystring const &b, bool nonnull)
-  {
-    this->add_checked_param(b.str(), nonnull, true);
-  }
-
-  /// Marshall parameter values into C-compatible arrays for passing to libpq.
-  int marshall(
-    std::vector<char const *> &values, std::vector<int> &lengths,
-    std::vector<int> &binaries) const;
-
-private:
-  void add_checked_param(std::string const &value, bool nonnull, bool binary);
-
-  std::vector<std::string> m_values;
-  std::vector<bool> m_nonnull;
-  std::vector<bool> m_binary;
-};
-
-
 /// Internal type: encode statement parameters.
 /** Compiles arguments for prepared statements and parameterised queries into
  * a format that can be passed into libpq.

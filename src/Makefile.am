@@ -14,7 +14,6 @@ libpqxx_la_SOURCES = \
 	result.cxx \
 	robusttransaction.cxx \
 	sql_cursor.cxx \
-	statement_parameters.cxx \
 	strconv.cxx \
 	stream_from.cxx \
 	stream_to.cxx \

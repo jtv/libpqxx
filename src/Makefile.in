@@ -136,9 +136,9 @@ libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection.lo \
 	cursor.lo encodings.lo errorhandler.lo except.lo field.lo \
 	largeobject.lo notification.lo pipeline.lo result.lo \
-	robusttransaction.lo sql_cursor.lo statement_parameters.lo \
-	strconv.lo stream_from.lo stream_to.lo subtransaction.lo \
-	transaction.lo transaction_base.lo row.lo util.lo version.lo
+	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
+	stream_to.lo subtransaction.lo transaction.lo \
+	transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -169,11 +169,10 @@ am__depfiles_remade = ./$(DEPDIR)/array.Plo \
 	./$(DEPDIR)/notification.Plo ./$(DEPDIR)/pipeline.Plo \
 	./$(DEPDIR)/result.Plo ./$(DEPDIR)/robusttransaction.Plo \
 	./$(DEPDIR)/row.Plo ./$(DEPDIR)/sql_cursor.Plo \
-	./$(DEPDIR)/statement_parameters.Plo ./$(DEPDIR)/strconv.Plo \
-	./$(DEPDIR)/stream_from.Plo ./$(DEPDIR)/stream_to.Plo \
-	./$(DEPDIR)/subtransaction.Plo ./$(DEPDIR)/transaction.Plo \
-	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/util.Plo \
-	./$(DEPDIR)/version.Plo
+	./$(DEPDIR)/strconv.Plo ./$(DEPDIR)/stream_from.Plo \
+	./$(DEPDIR)/stream_to.Plo ./$(DEPDIR)/subtransaction.Plo \
+	./$(DEPDIR)/transaction.Plo ./$(DEPDIR)/transaction_base.Plo \
+	./$(DEPDIR)/util.Plo ./$(DEPDIR)/version.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -371,7 +370,6 @@ libpqxx_la_SOURCES = \
 	result.cxx \
 	robusttransaction.cxx \
 	sql_cursor.cxx \
-	statement_parameters.cxx \
 	strconv.cxx \
 	stream_from.cxx \
 	stream_to.cxx \
@@ -488,7 +486,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robusttransaction.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/row.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sql_cursor.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_parameters.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strconv.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_from.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_to.Plo@am__quote@ # am--include-marker
@@ -678,7 +675,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/robusttransaction.Plo
 	-rm -f ./$(DEPDIR)/row.Plo
 	-rm -f ./$(DEPDIR)/sql_cursor.Plo
-	-rm -f ./$(DEPDIR)/statement_parameters.Plo
 	-rm -f ./$(DEPDIR)/strconv.Plo
 	-rm -f ./$(DEPDIR)/stream_from.Plo
 	-rm -f ./$(DEPDIR)/stream_to.Plo
@@ -747,7 +743,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/robusttransaction.Plo
 	-rm -f ./$(DEPDIR)/row.Plo
 	-rm -f ./$(DEPDIR)/sql_cursor.Plo
-	-rm -f ./$(DEPDIR)/statement_parameters.Plo
 	-rm -f ./$(DEPDIR)/strconv.Plo
 	-rm -f ./$(DEPDIR)/stream_from.Plo
 	-rm -f ./$(DEPDIR)/stream_to.Plo
