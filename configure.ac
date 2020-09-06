@@ -70,6 +70,12 @@ AC_MSG_CHECKING([audit])
 AC_ARG_ENABLE(audit)
 AC_MSG_RESULT(${enable_audit})
 
+# See if we want "suggestions," such as "this class could be final."
+# (The suggestions are often useful, but can also easily be wrong.)
+AC_MSG_CHECKING([suggest])
+AC_ARG_ENABLE(suggest)
+AC_MSG_RESULT(${enable_suggest})
+
 
 AC_ARG_ENABLE(shared)
 AS_IF(
@@ -157,13 +163,7 @@ then
 			-Warray-bounds=2 \
 			-Wduplicated-branches \
 			-Wduplicated-cond \
-			-Wsuggest-attribute=cold \
-			-Wsuggest-attribute=const \
-			-Wsuggest-attribute=malloc \
 			-Wsuggest-attribute=noreturn \
-			-Wsuggest-attribute=pure \
-			-Wsuggest-final-types \
-			-Wsuggest-final-methods \
 			-Wsuggest-override \
 			-Wtrampolines
 	fi
@@ -179,6 +179,17 @@ then
 			-fstack-protector-all
 	fi
 
+	# In "suggest" mode, enable a bunch of code suggestions.
+	if test "$enable_suggest" = "yes"
+	then
+		add_compiler_opts_if_ok \
+			-Wsuggest-attribute=cold \
+			-Wsuggest-attribute=const \
+			-Wsuggest-attribute=malloc \
+			-Wsuggest-attribute=pure \
+			-Wsuggest-final-types \
+			-Wsuggest-final-methods
+	fi
 
 AC_MSG_CHECKING([g++ visibility attribute])
 gcc_visibility=yes

@@ -792,6 +792,7 @@ enable_libtool_lock
 enable_documentation
 enable_maintainer_mode
 enable_audit
+enable_suggest
 with_postgres_include
 with_postgres_lib
 '
@@ -17427,6 +17428,18 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${enable_audit}" >&5
 $as_echo "${enable_audit}" >&6; }
 
+# See if we want "suggestions," such as "this class could be final."
+# (The suggestions are often useful, but can also easily be wrong.)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking suggest" >&5
+$as_echo_n "checking suggest... " >&6; }
+# Check whether --enable-suggest was given.
+if test "${enable_suggest+set}" = set; then :
+  enableval=$enable_suggest;
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${enable_suggest}" >&5
+$as_echo "${enable_suggest}" >&6; }
+
 
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
@@ -17533,13 +17546,7 @@ then
 			-Warray-bounds=2 \
 			-Wduplicated-branches \
 			-Wduplicated-cond \
-			-Wsuggest-attribute=cold \
-			-Wsuggest-attribute=const \
-			-Wsuggest-attribute=malloc \
 			-Wsuggest-attribute=noreturn \
-			-Wsuggest-attribute=pure \
-			-Wsuggest-final-types \
-			-Wsuggest-final-methods \
 			-Wsuggest-override \
 			-Wtrampolines
 	fi
@@ -17555,6 +17562,17 @@ then
 			-fstack-protector-all
 	fi
 
+	# In "suggest" mode, enable a bunch of code suggestions.
+	if test "$enable_suggest" = "yes"
+	then
+		add_compiler_opts_if_ok \
+			-Wsuggest-attribute=cold \
+			-Wsuggest-attribute=const \
+			-Wsuggest-attribute=malloc \
+			-Wsuggest-attribute=pure \
+			-Wsuggest-final-types \
+			-Wsuggest-final-methods
+	fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking g++ visibility attribute" >&5
 $as_echo_n "checking g++ visibility attribute... " >&6; }
