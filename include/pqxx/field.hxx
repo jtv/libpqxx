@@ -65,12 +65,12 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  [[nodiscard]] bool operator==(field const &) const;
+  [[nodiscard]] PQXX_PURE bool operator==(field const &) const;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  [[nodiscard]] bool operator!=(field const &rhs) const
+  [[nodiscard]] PQXX_PURE bool operator!=(field const &rhs) const
   {
     return not operator==(rhs);
   }
@@ -80,19 +80,19 @@ public:
    * @name Column information
    */
   //@{
-  /// Column name
-  [[nodiscard]] char const *name() const;
+  /// Column name.
+  [[nodiscard]] PQXX_PURE char const *name() const;
 
-  /// Column type
-  [[nodiscard]] oid type() const;
+  /// Column type.
+  [[nodiscard]] oid PQXX_PURE type() const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid table() const;
+  [[nodiscard]] PQXX_PURE oid table() const;
 
-  row_size_type num() const { return col(); }
+  PQXX_PURE row_size_type num() const { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] row_size_type table_column() const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column() const;
   //@}
 
   /**
@@ -100,7 +100,7 @@ public:
    */
   //@{
   /// Read as @c string_view.
-  [[nodiscard]] std::string_view view() const
+  [[nodiscard]] PQXX_PURE std::string_view view() const
   {
     return std::string_view(c_str(), size());
   }
@@ -111,13 +111,13 @@ public:
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
    */
-  [[nodiscard]] char const *c_str() const;
+  [[nodiscard]] PQXX_PURE char const *c_str() const;
 
   /// Is this field's value null?
-  [[nodiscard]] bool is_null() const noexcept;
+  [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
 
   /// Return number of bytes taken up by the field's value.
-  [[nodiscard]] size_type size() const noexcept;
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept;
 
   /// Read value into obj; or if null, leave obj untouched and return @c false.
   /** This can be used with optional types (except pointers other than C-style

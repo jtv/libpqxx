@@ -351,7 +351,9 @@ private:
 
 
 /// Streambuf to use large objects in standard I/O streams.
-/** The standard streambuf classes provide uniform access to data storage such
+/** @warning This class will become @c final.
+ *
+ * The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
  * output streams.  This streambuf implementation provides similar access to
  * large objects, so they can be read and written using the same stream
