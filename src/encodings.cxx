@@ -59,7 +59,8 @@ get_byte(char const buffer[], std::string::size_type offset) noexcept
 
 
 /// Does value lie between bottom and top, inclusive?
-constexpr PQXX_PURE bool between_inc(unsigned char value, unsigned bottom, unsigned top)
+constexpr PQXX_PURE bool
+between_inc(unsigned char value, unsigned bottom, unsigned top)
 {
   return value >= bottom and value <= top;
 }
@@ -245,7 +246,8 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_JP>::call(
 }
 
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_JIS_2004>::call(
+PQXX_PURE std::string::size_type
+glyph_scanner<encoding_group::EUC_JIS_2004>::call(
   char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
@@ -427,7 +429,8 @@ unable to get it to successfully iterate a MULE-encoded test CSV generated
 using PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::MULE_INTERNAL>::call(
+PQXX_PURE std::string::size_type
+glyph_scanner<encoding_group::MULE_INTERNAL>::call(
   char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
@@ -477,7 +480,8 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::SJIS>::call(
 }
 
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::SHIFT_JIS_2004>::call(
+PQXX_PURE std::string::size_type
+glyph_scanner<encoding_group::SHIFT_JIS_2004>::call(
   char const buffer[], std::string::size_type buffer_len,
   std::string::size_type start)
 {
