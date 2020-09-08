@@ -110,8 +110,6 @@ void test_000()
   ss << -3.1415;
   strconv("stringstream", ss, ss.str());
 
-  // TODO: Test binarystring reversibility
-
   std::string const pw{encrypt_password("foo", "bar")};
   PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(

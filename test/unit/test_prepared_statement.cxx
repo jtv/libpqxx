@@ -165,35 +165,54 @@ void test_binary()
   pqxx::work tx{c};
   c.prepare("EchoBin", "SELECT $1::bytea");
   char const raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
-
   std::string const input{raw_bytes, sizeof(raw_bytes)};
-  pqxx::binarystring const bin{input};
-  auto rw{tx.exec_prepared1("EchoBin", bin)};
-  PQXX_CHECK_EQUAL(
-    pqxx::binarystring(rw[0]).str(), input, "Binary string came out damaged.");
 
-  std::basic_string<std::byte> bytes{
-    reinterpret_cast<std::byte const *>(raw_bytes), sizeof(raw_bytes)};
-  auto bp{tx.exec_prepared1("EchoBin", bytes)};
-  auto bval{bp[0].as<std::basic_string<std::byte>>()};
-  PQXX_CHECK_EQUAL(
-    (std::string_view{
-      reinterpret_cast<char const *>(bval.c_str()), bval.size()}),
-    input, "Binary string parameter went wrong.");
+  {
+    pqxx::binarystring const bin{input};
+    auto rw{tx.exec_prepared1("EchoBin", bin)};
+    PQXX_CHECK_EQUAL(
+      pqxx::binarystring(rw[0]).str(), input,
+      "Binary string came out damaged.");
+  }
 
-  // Try it with a complex type that ultimately uses the conversions of
+  {
+    std::basic_string<std::byte> bytes{
+      reinterpret_cast<std::byte const *>(raw_bytes), sizeof(raw_bytes)};
+    auto bp{tx.exec_prepared1("EchoBin", bytes)};
+    auto bval{bp[0].as<std::basic_string<std::byte>>()};
+    PQXX_CHECK_EQUAL(
+      (std::string_view{
+        reinterpret_cast<char const *>(bval.c_str()), bval.size()}),
+      input, "Binary string parameter went wrong.");
+  }
+
+  // Now try it with a complex type that ultimately uses the conversions of
   // std::basic_string<std::byte>, but complex enough that the call may
   // convert the data to a text string on the libpqxx side.  Which would be
   // okay, except of course it's likely to be slower.
-  auto ptr{std::make_shared<std::optional<std::basic_string<std::byte>>>(
-    std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
-    sizeof(raw_bytes))};
-  auto rp{tx.exec_prepared1("EchoBin", ptr)};
-  auto pval{rp[0].as<std::basic_string<std::byte>>()};
-  PQXX_CHECK_EQUAL(
-    (std::string_view{
-      reinterpret_cast<char const *>(pval.c_str()), pval.size()}),
-    input, "Binary string as shared_ptr-to-optional went wrong.");
+
+  {
+    auto ptr{std::make_shared<std::basic_string<std::byte>>(
+      reinterpret_cast<std::byte const *>(raw_bytes), sizeof(raw_bytes))};
+    auto rp{tx.exec_prepared1("EchoBin", ptr)};
+    auto pval{rp[0].as<std::basic_string<std::byte>>()};
+    PQXX_CHECK_EQUAL(
+      (std::string_view{
+        reinterpret_cast<char const *>(pval.c_str()), pval.size()}),
+      input, "Binary string as shared_ptr-to-optional went wrong.");
+  }
+
+  {
+    auto opt{std::optional<std::basic_string<std::byte>>{
+      std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
+      sizeof(raw_bytes)}};
+    auto op{tx.exec_prepared1("EchoBin", opt)};
+    auto oval{op[0].as<std::basic_string<std::byte>>()};
+    PQXX_CHECK_EQUAL(
+      (std::string_view{
+        reinterpret_cast<char const *>(oval.c_str()), oval.size()}),
+      input, "Binary string as shared_ptr-to-optional went wrong.");
+  }
 }
 
 

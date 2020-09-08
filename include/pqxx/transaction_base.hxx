@@ -165,7 +165,7 @@ public:
     return conn().quote(t);
   }
 
-  /// Binary-escape and quote a binarystring for use as an SQL constant.
+  /// Binary-escape and quote a binary string for use as an SQL constant.
   [[nodiscard]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
   {
@@ -396,7 +396,8 @@ public:
    * end at the first char with value zero.  If you pass a @c std::string that
    * contains a zero byte, the last byte in the value will be the one just
    * before the zero.  If you need a zero byte, consider using
-   * pqxx::binarystring and/or SQL's @c bytea type.
+   * @c std::basic_string<std::byte> or @c std::basic_string_view<std::byte>,
+   * and on the SQL side, the @c bytea type.
    */
   //@{
 

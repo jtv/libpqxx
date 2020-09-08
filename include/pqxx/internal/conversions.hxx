@@ -249,7 +249,8 @@ template<> inline constexpr bool is_unquoted_safe<bool>{true};
 template<typename T> struct nullness<std::optional<T>>
 {
   static constexpr bool has_null = true;
-  static constexpr bool always_null = false;
+  /// Technically, you could have an optional of an always-null type.
+  static constexpr bool always_null = nullness<T>::always_null;
   static constexpr bool is_null(std::optional<T> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
@@ -304,9 +305,11 @@ template<typename... T> struct nullness<std::variant<T...>>
       value);
   }
 
-  // Can't always have null() for std::variant.  We could have one for the case
-  // where only one of the types has one, but it gets complicated and
-  // arbitrary.
+  // We don't support @c null() for @c std::variant.
+  /** It would be technically possible to have a @c null in the case where just
+   * one of the types has a null, but it gets complicated and arbitrary.
+   */
+  static constexpr std::variant<T...> null() = delete;
 };
 #endif // PQXX_HAVE_VARIANT
 
@@ -719,8 +722,8 @@ struct nullness<std::basic_string<std::byte>>
 
 template<> struct string_traits<std::basic_string<std::byte>>
 {
-  static constexpr std::size_t
-  size_buffer(std::basic_string_view<std::byte> value) noexcept
+  static std::size_t
+  size_buffer(std::basic_string<std::byte> const &value) noexcept
   {
     return internal::size_esc_bin(value.size());
   }

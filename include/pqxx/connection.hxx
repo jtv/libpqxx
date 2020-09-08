@@ -634,7 +634,7 @@ public:
   [[nodiscard]] std::string quote(binarystring const &) const;
 
   [[nodiscard]] std::string
-  quote(std::basic_string_view<std::byte> const &bytes) const;
+  quote(std::basic_string_view<std::byte> bytes) const;
 
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a

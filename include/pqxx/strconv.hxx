@@ -119,6 +119,9 @@ template<typename TYPE> struct no_null
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
+ *
+ * String conversions are not meant to work for nulls.  Check for null before
+ * converting a value of @c TYPE to a string, or vice versa.
  */
 template<typename TYPE> struct string_traits
 {

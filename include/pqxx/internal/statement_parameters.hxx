@@ -215,8 +215,41 @@ private:
       add_field(to_string(arg));
   }
 
-  // TODO: Overload for shared_ptr, optional, etc.  Avoid binary-to-text
-  // conversions.
+  /// Special treatment for smart pointers, std::optional, etc.
+  /** These overload allow parameters to "see through" some standard wrapper
+   * types into the underlying type.
+   *
+   * It's not strictly needed, but consider what happens when you pass e.g.
+   * @c std::optional<std::basic_string<std::byte>>.  It would otherwise go in
+   * as a normal parameter, meaning libpqxx converts the value to a string and
+   * passes it as a text parameter.  But with these overloads, it will end up
+   * in the @c std::basic_string<std::byte> overload, which gets passed in a
+   * binary format.  This saves us an encoding pass, transfers only half the
+   * number of bytes, and saves the backend a decoding pass.
+   */
+  template<typename Arg> void add_field(std::shared_ptr<Arg> arg)
+  {
+    if (arg)
+      add_field(*arg);
+    else
+      add_field(nullptr);
+  }
+  /// Special treatment for smart pointers, std::optional, etc.
+  template<typename Arg> void add_field(std::unique_ptr<Arg> arg)
+  {
+    if (arg)
+      add_field(*arg);
+    else
+      add_field(nullptr);
+  }
+  /// Special treatment for smart pointers, std::optional, etc.
+  template<typename Arg> void add_field(std::optional<Arg> arg)
+  {
+    if (arg.has_value())
+      add_field(arg.value());
+    else
+      add_field(nullptr);
+  }
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
   template<typename IT, typename ACCESSOR>
