@@ -29,6 +29,8 @@ template<> struct string_traits<binarystring>;
 
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
+ * @deprecated Use @c std::basic_string<std::byte> and
+ * @c std::basic_string_view<std::byte> for binary data.
  *
  * This class represents a binary string as stored in a field of type @c bytea.
  *
