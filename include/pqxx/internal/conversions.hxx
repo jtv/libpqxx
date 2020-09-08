@@ -719,8 +719,8 @@ struct nullness<std::basic_string<std::byte>>
 
 template<> struct string_traits<std::basic_string<std::byte>>
 {
-  static std::size_t
-  size_buffer(std::basic_string<std::byte> const &value) noexcept
+  static constexpr std::size_t
+  size_buffer(std::basic_string_view<std::byte> value) noexcept
   {
     return internal::size_esc_bin(value.size());
   }
@@ -746,8 +746,14 @@ template<> struct string_traits<std::basic_string<std::byte>>
     return begin + budget;
   }
 
-  static std::basic_string<std::byte>
-  from_string(std::string_view text) = delete;
+  static std::basic_string<std::byte> from_string(std::string_view text)
+  {
+    auto const size{pqxx::internal::size_unesc_bin(text.size())};
+    std::basic_string<std::byte> buf;
+    buf.resize(size);
+    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    return buf;
+  }
 };
 
 

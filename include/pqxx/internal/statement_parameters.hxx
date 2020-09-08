@@ -106,8 +106,10 @@ private:
 /** Compiles arguments for prepared statements and parameterised queries into
  * a format that can be passed into libpq.
  *
- * Objects of this type are meant to be short-lived.  If you pass in a non-null
- * pointer as a parameter, it may simply use that pointer as a parameter value.
+ * Objects of this type are meant to be short-lived.  For example, if you pass
+ * in a non-null pointer as a parameter, it may simply use that pointer as a
+ * parameter value.  All values referenced by parameters must remain "live"
+ * until the call is complete.
  */
 struct params
 {
@@ -136,7 +138,8 @@ struct params
       char const *value;
       if (binaries[index] != 0)
       {
-        value = bin_strings[cur_bin_string].get();
+        value =
+          reinterpret_cast<char const *>(bin_strings[cur_bin_string].data());
         cur_bin_string++;
       }
       else if (nonnulls[index] != 0)
@@ -162,7 +165,7 @@ struct params
   /// As used by libpq: boolean "is this parameter in binary format?"
   std::vector<int> binaries;
   /// Binary string values, for binary parameters.
-  std::vector<pqxx::binarystring> bin_strings;
+  std::vector<std::basic_string_view<std::byte>> bin_strings;
 
 private:
   /// Add a non-null string field.
@@ -188,6 +191,16 @@ private:
     lengths.push_back(int(arg.size()));
     nonnulls.push_back(1);
     binaries.push_back(1);
+    bin_strings.push_back(std::basic_string_view<std::byte>{
+      reinterpret_cast<std::byte const *>(arg.data()), arg.size()});
+  }
+
+  /// Compile one binary argument.
+  void add_field(std::basic_string_view<std::byte> arg)
+  {
+    lengths.push_back(int(arg.size()));
+    nonnulls.push_back(1);
+    binaries.push_back(1);
     bin_strings.push_back(arg);
   }
 
@@ -201,6 +214,9 @@ private:
     else
       add_field(to_string(arg));
   }
+
+  // TODO: Overload for shared_ptr, optional, etc.  Avoid binary-to-text
+  // conversions.
 
   /// Compile a dynamic_params object into a dynamic number of parameters.
   template<typename IT, typename ACCESSOR>
