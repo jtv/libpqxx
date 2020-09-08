@@ -1,11 +1,13 @@
 7.2.0
  - You can now implicitly convert a `const std::string &` to `zview`.
  - Replaced some overloads for C strings and C++ strings with `zview`.
+ - Deprecating `binarystring`.  Use `std::basic_string<std::byte>` instead!
  - Array parser did not recognise escaping in unquoted values.
  - gcc10 test build fix: a result iterator is not the same thing as a `row`.
  - Doc fix: field size does _not_ include terminating zero.  (#356)
  - Fix error message in `demangle_type_name`: printed result, not raw name.
  - Fix compile warning in `demangle_type_name` on GNU systems.
+ - Document that string conversions assume non-null values.
  - Start playing with C++20 _concepts._
  - Sketch out concepts-based `PQconnectdbParams` support.  (#343)
  - Add missing link to "datatypes" documentation.  (#346)
@@ -26,6 +28,7 @@
  - New type trait: `is_unquoted_safe`.
  - Forbid invalid specialisations of `query_value`.
  - Fixed `mktemp` invocation that broke on FreeBSD.
+ - Avoid unneeded encode/decode step on more binary data.
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
