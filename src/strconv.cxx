@@ -223,27 +223,21 @@ namespace pqxx::internal
 std::string demangle_type_name(char const raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
+  // We've got __cxa_demangle.  Use it to get a friendlier type name.
   int status{0};
-  char *const name_ptr{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
-  if (status != 0)
-  {
-    // Not great C++ style, but turned out a lot easier than std::unique_ptr.
-    // The std::free() can throw an exception, even if C's free() cannot.
-    // This led to noexcept warnings so complex that gcc itself, prior to
-    // version 10, got a little confused.
-    std::free(name_ptr);
-    throw std::runtime_error(
-      std::string{"Could not demangle type name '"} + raw +
-      "': __cxa_demangle failed.");
-  }
-  // If this fails, we'll leak `name_ptr`.  Yes, we could handle that more
-  // robustly.  But are there any circumstances where it would really matter?
-  std::string const name{name_ptr};
-  std::free(name_ptr);
-  return name;
+
+  // We've seen this fail on FreeBSD 11.3 (see #361).  Trying to throw a
+  // meaningful exception only made things worse.  So in case of error, just
+  // fall back to the raw name.
+  //
+  // When __cxa_demangle fails, it's guaranteed to return null.
+  char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
-  return std::string{raw};
+  constexpr char *demangled{nullptr};
 #endif
+  std::string const name{(demangled == nullptr) ? raw : demangled};
+  std::free(demangled);
+  return name;
 }
 
 void throw_null_conversion(std::string const &type)
