@@ -29,6 +29,7 @@
  - Forbid invalid specialisations of `query_value`.
  - Fixed `mktemp` invocation that broke on FreeBSD.
  - Avoid unneeded encode/decode step on more binary data.
+ - If `__cxa_demangle` fails, fall back on raw type name.  (#361)
 7.1.2
  - Document build in `BUILDING-configure.md` / `BUILDING-cmake.md`.
  - Work around silly clang warning in `test_errorhandler.cxx`.
