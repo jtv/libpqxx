@@ -47,9 +47,9 @@ indexing, for instance, such as `r[rownum]`:
 
 And of course you can use classic "begin/end" loops:
 
-    for (auto row = r.begin(); row != r.end(); row++)
+    for (auto row = std::begin(r); row != std::end(r); row++)
     {
-      for (auto field = row.begin(); field != row.end(); field++)
+      for (auto field = std::begin(row); field != std::end(row); field++)
         std::cout << field->c_str() << '\t';
         std::cout << std::endl;
     }

@@ -49,7 +49,7 @@ void test_071()
   P.resume();
 
   // Retrieve results in reverse order
-  for (auto c{values.rbegin()}; c != values.rend(); ++c) checkresult(P, *c);
+  for (auto c{std::rbegin(values)}; c != std::rend(values); ++c) checkresult(P, *c);
 
   values.clear();
   P.retain(10);

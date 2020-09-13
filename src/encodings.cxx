@@ -640,7 +640,7 @@ encoding_group enc_group(std::string_view encoding_name)
   };
 
   auto const found_encoding_group{encoding_map.find(encoding_name)};
-  if (found_encoding_group == encoding_map.end())
+  if (found_encoding_group == std::end(encoding_map))
     throw std::invalid_argument{
       "Unrecognized encoding: '" + std::string{encoding_name} + "'."};
   return found_encoding_group->second;

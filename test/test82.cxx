@@ -32,23 +32,23 @@ void test_082()
     }
 
     PQXX_CHECK(
-      r.begin() + pqxx::row::difference_type(std::size(r)) == r.end(),
+      std::begin(r) + pqxx::row::difference_type(std::size(r)) == std::end(r),
       "Row end() appears to be in the wrong place.");
     PQXX_CHECK(
-      pqxx::row::difference_type(std::size(r)) + r.begin() == r.end(),
+      pqxx::row::difference_type(std::size(r)) + std::begin(r) == std::end(r),
       "Row iterator addition is not commutative.");
-    PQXX_CHECK_EQUAL(r.begin()->num(), 0, "Wrong column number at begin().");
+    PQXX_CHECK_EQUAL(std::begin(r)->num(), 0, "Wrong column number at begin().");
 
     pqxx::row::const_iterator f3(r[std::size(r)]);
 
-    PQXX_CHECK(f3 == r.end(), "Did not get end() at end of row.");
+    PQXX_CHECK(f3 == std::end(r), "Did not get end() at end of row.");
 
-    PQXX_CHECK(f3 > r.begin(), "Row end() appears to precede its begin().");
+    PQXX_CHECK(f3 > std::begin(r), "Row end() appears to precede its begin().");
 
     PQXX_CHECK(
-      f3 >= r.end() and r.begin() < f3, "Row iterator operator<() is broken.");
+      f3 >= std::end(r) and std::begin(r) < f3, "Row iterator operator<() is broken.");
 
-    PQXX_CHECK(f3 > r.begin(), "Row end() not greater than begin().");
+    PQXX_CHECK(f3 > std::begin(r), "Row end() not greater than begin().");
 
     pqxx::row::const_iterator f4{r, std::size(r)};
     PQXX_CHECK(f4 == f3, "Row iterator constructor with offset is broken.");
@@ -56,26 +56,26 @@ void test_082()
     f3--;
     f4 -= 1;
 
-    PQXX_CHECK(f3 < r.end(), "Last field in row is not before end().");
-    PQXX_CHECK(f3 >= r.begin(), "Last field in row precedes begin().");
-    PQXX_CHECK(f3 == r.end() - 1, "Back from end() doese not yield end()-1.");
+    PQXX_CHECK(f3 < std::end(r), "Last field in row is not before end().");
+    PQXX_CHECK(f3 >= std::begin(r), "Last field in row precedes begin().");
+    PQXX_CHECK(f3 == std::end(r) - 1, "Back from end() doese not yield end()-1.");
     PQXX_CHECK_EQUAL(
-      r.end() - f3, 1, "Wrong distance from last row to end().");
+      std::end(r) - f3, 1, "Wrong distance from last row to end().");
 
     PQXX_CHECK(f4 == f3, "Row iterator operator-=() is broken.");
     f4 += 1;
-    PQXX_CHECK(f4 == r.end(), "Row iterator operator+=() is broken.");
+    PQXX_CHECK(f4 == std::end(r), "Row iterator operator+=() is broken.");
 
-    for (auto fr = r.rbegin(); fr != r.rend(); ++fr, --f3)
+    for (auto fr = std::rbegin(r); fr != std::rend(r); ++fr, --f3)
       PQXX_CHECK_EQUAL(
         *fr, *f3,
         "Reverse traversal is not consistent with forward traversal.");
   }
 
   // Thorough test for row::const_reverse_iterator
-  pqxx::row::const_reverse_iterator ri1(R.front().rbegin()), ri2(ri1),
-    ri3(R.front().end());
-  ri2 = R.front().rbegin();
+  pqxx::row::const_reverse_iterator ri1(std::rbegin(R.front())), ri2(ri1),
+    ri3(std::end(R.front()));
+  ri2 = std::rbegin(R.front());
 
   PQXX_CHECK(
     ri1 == ri2, "Copy-constructed reverse_iterator is not equal to original.");
@@ -126,22 +126,22 @@ void test_082()
   PQXX_CHECK(
     ri2 == --ri3, "reverse_iterator pre-increment returns wrong result.");
   PQXX_CHECK(
-    ri2 == R.front().rbegin(),
+    ri2 == std::rbegin(R.front()),
     "Moving iterator back and forth doesn't get it back to origin.");
 
   ri2 += 1;
   ri3 -= -1;
 
   PQXX_CHECK(
-    ri2 != R.front().rbegin(), "Adding to reverse_iterator doesn't work.");
+    ri2 != std::rbegin(R.front()), "Adding to reverse_iterator doesn't work.");
   PQXX_CHECK(
-    ri2 != R.front().rbegin(), "Adding to reverse_iterator doesn't work.");
+    ri2 != std::rbegin(R.front()), "Adding to reverse_iterator doesn't work.");
   PQXX_CHECK(
     ri3 == ri2, "reverse_iterator operator-=() breaks on negative numbers.");
 
   ri2 -= 1;
   PQXX_CHECK(
-    ri2 == R.front().rbegin(),
+    ri2 == std::rbegin(R.front()),
     "reverse_iterator operator+=() and operator-=() do not cancel out");
 }
 } // namespace

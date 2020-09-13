@@ -271,7 +271,7 @@ template<typename TYPE>
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
   for (begin = in.data();
-       begin < in.end() and (*begin == ' ' or *begin == '\t'); ++begin)
+       begin < std::end(in) and (*begin == ' ' or *begin == '\t'); ++begin)
     ;
 
   auto const end{in.data() + std::size(in)};
@@ -646,7 +646,7 @@ template<typename T> std::string to_string_float(T value)
     buf.resize(space);
     std::string_view const view{
       float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
-    buf.resize(view.end() - view.begin());
+    buf.resize(std::end(view) - std::begin(view));
     return buf;
   }
 #else

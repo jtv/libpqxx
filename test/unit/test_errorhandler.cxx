@@ -156,7 +156,7 @@ void test_get_errorhandlers(pqxx::connection &c)
       std::size(handlers_with_eh1), base_handlers + 1,
       "Registering a handler didn't create exactly one handler.");
     PQXX_CHECK_EQUAL(
-      std::size_t(*handlers_with_eh1.rbegin()), std::size_t(&eh1),
+      std::size_t(*std::rbegin(handlers_with_eh1)), std::size_t(&eh1),
       "Wrong handler or wrong order.");
 
     {
@@ -166,10 +166,10 @@ void test_get_errorhandlers(pqxx::connection &c)
         std::size(handlers_with_eh2), base_handlers + 2,
         "Adding second handler didn't work.");
       PQXX_CHECK_EQUAL(
-        std::size_t(*(handlers_with_eh2.rbegin() + 1)), std::size_t(&eh1),
+        std::size_t(*(std::rbegin(handlers_with_eh2) + 1)), std::size_t(&eh1),
         "Second handler upset order.");
       PQXX_CHECK_EQUAL(
-        std::size_t(*handlers_with_eh2.rbegin()), std::size_t(&eh2),
+        std::size_t(*std::rbegin(handlers_with_eh2)), std::size_t(&eh2),
         "Second handler isn't right.");
     }
     auto const handlers_without_eh2{c.get_errorhandlers()};
@@ -177,7 +177,7 @@ void test_get_errorhandlers(pqxx::connection &c)
       std::size(handlers_without_eh2), base_handlers + 1,
       "Handler destruction produced wrong-sized handlers list.");
     PQXX_CHECK_EQUAL(
-      std::size_t(*handlers_without_eh2.rbegin()), std::size_t(&eh1),
+      std::size_t(*std::rbegin(handlers_without_eh2)), std::size_t(&eh1),
       "Destroyed wrong handler.");
 
     eh3 = new MinimalErrorHandler(c);
@@ -185,7 +185,7 @@ void test_get_errorhandlers(pqxx::connection &c)
     PQXX_CHECK_EQUAL(
       std::size(handlers_with_eh3), base_handlers + 2, "Remove-and-add breaks.");
     PQXX_CHECK_EQUAL(
-      std::size_t(*handlers_with_eh3.rbegin()), std::size_t(eh3),
+      std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3),
       "Added wrong third handler.");
   }
   auto const handlers_without_eh1{c.get_errorhandlers()};
@@ -193,7 +193,7 @@ void test_get_errorhandlers(pqxx::connection &c)
     std::size(handlers_without_eh1), base_handlers + 1,
     "Destroying oldest handler didn't work as expected.");
   PQXX_CHECK_EQUAL(
-    std::size_t(*handlers_without_eh1.rbegin()), std::size_t(eh3),
+    std::size_t(*std::rbegin(handlers_without_eh1)), std::size_t(eh3),
     "Destroyed wrong handler.");
 
   delete eh3;

@@ -32,7 +32,7 @@ std::string const theDummyQuery{"SELECT " + theDummyValue + theSeparator};
 void pqxx::pipeline::init()
 {
   m_encoding = internal::enc_group(m_trans.conn().encoding_id());
-  m_issuedrange = make_pair(m_queries.end(), m_queries.end());
+  m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
   attach();
 }
 
@@ -69,10 +69,10 @@ pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q)
   query_id const qid{generate_id()};
   auto const i{m_queries.insert(std::make_pair(qid, Query(q))).first};
 
-  if (m_issuedrange.second == m_queries.end())
+  if (m_issuedrange.second == std::end(m_queries))
   {
     m_issuedrange.second = i;
-    if (m_issuedrange.first == m_queries.end())
+    if (m_issuedrange.first == std::end(m_queries))
       m_issuedrange.first = i;
   }
   m_num_waiting++;
@@ -96,7 +96,7 @@ void pqxx::pipeline::complete()
   if (m_num_waiting and (m_error == qid_limit()))
   {
     issue();
-    receive(m_queries.end());
+    receive(std::end(m_queries));
   }
   detach();
 }
@@ -108,7 +108,7 @@ void pqxx::pipeline::flush()
   {
     if (have_pending())
       receive(m_issuedrange.second);
-    m_issuedrange.first = m_issuedrange.second = m_queries.end();
+    m_issuedrange.first = m_issuedrange.second = std::end(m_queries);
     m_num_waiting = 0;
     m_dummy_pending = false;
     m_queries.clear();
@@ -131,10 +131,10 @@ void pqxx::pipeline::cancel()
 
 bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
-  if (m_queries.find(q) == m_queries.end())
+  if (m_queries.find(q) == std::end(m_queries))
     throw std::logic_error{
       "Requested status for unknown query '" + to_string(q) + "'."};
-  return (QueryMap::const_iterator(m_issuedrange.first) == m_queries.end()) or
+  return (QueryMap::const_iterator(m_issuedrange.first) == std::end(m_queries)) or
          (q < m_issuedrange.first->first and q < m_error);
 }
 
@@ -198,10 +198,10 @@ void pqxx::pipeline::issue()
 
   // Construct cumulative query string for entire batch.
   auto cum{separated_list(
-    theSeparator, oldest, m_queries.end(),
+    theSeparator, oldest, std::end(m_queries),
     [](QueryMap::const_iterator i) { return i->second.query; })};
   auto const num_issued{
-    QueryMap::size_type(std::distance(oldest, m_queries.end()))};
+    QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
   bool const prepend_dummy{num_issued > 1};
   if (prepend_dummy)
     cum = theDummyQuery + cum;
@@ -212,7 +212,7 @@ void pqxx::pipeline::issue()
   // Since we managed to send out these queries, update state to reflect this.
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
-  m_issuedrange.second = m_queries.end();
+  m_issuedrange.second = std::end(m_queries);
   m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()");
 }
 
@@ -340,7 +340,7 @@ void pqxx::pipeline::obtain_dummy()
     ++m_issuedrange.first;
     m_issuedrange.second = m_issuedrange.first;
     auto q{m_issuedrange.first};
-    set_error_at((q == m_queries.end()) ? thud + 1 : q->first);
+    set_error_at((q == std::end(m_queries)) ? thud + 1 : q->first);
   }
 }
 
@@ -348,7 +348,7 @@ void pqxx::pipeline::obtain_dummy()
 std::pair<pqxx::pipeline::query_id, pqxx::result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
-  if (q == m_queries.end())
+  if (q == std::end(m_queries))
     throw std::logic_error{"Attempt to retrieve result for unknown query."};
 
   if (q->first >= m_error)
@@ -357,7 +357,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 
   // If query hasn't issued yet, do it now.
   if (
-    m_issuedrange.second != m_queries.end() and
+    m_issuedrange.second != std::end(m_queries) and
     (q->first >= m_issuedrange.second->first))
   {
     if (have_pending())

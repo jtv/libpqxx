@@ -12,13 +12,13 @@ void test_row()
   pqxx::row r{rows[0]};
   PQXX_CHECK_EQUAL(std::size(r), 3, "Unexpected row size.");
   PQXX_CHECK_EQUAL(r.at(0).as<int>(), 1, "Wrong value at index 0.");
-  PQXX_CHECK(r.begin() != r.end(), "Broken row iteration.");
-  PQXX_CHECK(r.begin() < r.end(), "Row begin does not precede end.");
-  PQXX_CHECK(r.cbegin() == r.begin(), "Wrong cbegin.");
-  PQXX_CHECK(r.cend() == r.end(), "Wrong cend.");
-  PQXX_CHECK(r.rbegin() != r.rend(), "Broken reverse row iteration.");
-  PQXX_CHECK(r.crbegin() == r.rbegin(), "Wrong crbegin.");
-  PQXX_CHECK(r.crend() == r.rend(), "Wrong crend.");
+  PQXX_CHECK(std::begin(r) != std::end(r), "Broken row iteration.");
+  PQXX_CHECK(std::begin(r) < std::end(r), "Row begin does not precede end.");
+  PQXX_CHECK(std::cbegin(r) == std::begin(r), "Wrong cbegin.");
+  PQXX_CHECK(std::cend(r) == std::end(r), "Wrong cend.");
+  PQXX_CHECK(std::rbegin(r) != std::rend(r), "Broken reverse row iteration.");
+  PQXX_CHECK(std::crbegin(r) == std::rbegin(r), "Wrong crbegin.");
+  PQXX_CHECK(std::crend(r) == std::rend(r), "Wrong crend.");
   PQXX_CHECK_EQUAL(r.front().as<int>(), 1, "Wrong row front().");
   PQXX_CHECK_EQUAL(r.back().as<int>(), 3, "Wrong row back().");
 }
@@ -30,7 +30,7 @@ void test_row_iterator()
   pqxx::work tx{conn};
   pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
 
-  auto i{rows[0].begin()};
+  auto i{std::begin(rows[0])};
   PQXX_CHECK_EQUAL(i->as<int>(), 1, "Row iterator is wrong.");
   auto i2{i};
   PQXX_CHECK_EQUAL(i2->as<int>(), 1, "Row iterator copy is wrong.");
@@ -40,7 +40,7 @@ void test_row_iterator()
   i3 = i2;
   PQXX_CHECK_EQUAL(i3->as<int>(), 2, "Row iterator assignment is wrong.");
 
-  auto r{rows[0].rbegin()};
+  auto r{std::rbegin(rows[0])};
   PQXX_CHECK_EQUAL(r->as<int>(), 3, "Row reverse iterator is wrong.");
   auto r2{r};
   PQXX_CHECK_EQUAL(r2->as<int>(), 3, "Row reverse iterator copy is wrong.");

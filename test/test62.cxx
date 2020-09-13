@@ -43,9 +43,9 @@ void test_062()
 
   std::basic_string<std::byte>::const_iterator c;
   std::basic_string<std::byte>::size_type i;
-  for (i = 0, c = B.begin(); i < std::size(B); ++i, ++c)
+  for (i = 0, c = std::begin(B); i < std::size(B); ++i, ++c)
   {
-    PQXX_CHECK(c != B.end(), "Premature end to binary string.");
+    PQXX_CHECK(c != std::end(B), "Premature end to binary string.");
 
     char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(B.data()[i])};
 

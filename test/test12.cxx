@@ -28,7 +28,7 @@ void test_012()
   // Does column appear to be sorted?
   std::vector<bool> SortedUp(columns, true), SortedDown(columns, true);
 
-  for (auto i{R.begin()}; i != R.end(); i++)
+  for (auto i{std::begin(R)}; i != std::end(R); i++)
   {
     PQXX_CHECK_EQUAL(
       (*i).rownumber(), i->rownumber(),
@@ -51,7 +51,7 @@ void test_012()
     }
 
     // Compare fields to those of preceding row
-    if (i != R.begin())
+    if (i != std::begin(R))
     {
       auto const j{i - 1};
 

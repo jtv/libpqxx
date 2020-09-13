@@ -23,7 +23,7 @@ void test_separated_list()
   std::vector<int> const nums{1, 2, 3};
   PQXX_CHECK_EQUAL(
     pqxx::separated_list(
-      "+", nums.begin(), nums.end(), [](auto elt) { return *elt * 2; }),
+      "+", std::begin(nums), std::end(nums), [](auto elt) { return *elt * 2; }),
     "2+4+6", "Accessors don't seem to work.");
 }
 

@@ -18,7 +18,7 @@ void test_016()
   result R{tx.exec("SELECT * FROM pg_tables")};
 
   result::const_iterator c;
-  for (c = R.begin(); c != R.end(); ++c)
+  for (c = std::begin(R); c != std::end(R); ++c)
     ;
 
   // See if back() and row comparison work properly

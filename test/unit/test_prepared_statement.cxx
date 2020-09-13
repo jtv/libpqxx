@@ -49,7 +49,7 @@ template<typename CNTNR>
 std::string
 subst(pqxx::transaction_base &t, std::string q, CNTNR const &patterns)
 {
-  return subst(t, q, patterns.begin(), patterns.end());
+  return subst(t, q, std::begin(patterns), std::end(patterns));
 }
 
 

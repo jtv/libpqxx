@@ -293,8 +293,8 @@ void pqxx::connection::process_notice_raw(char const msg[]) noexcept
 {
   if ((msg == nullptr) or (*msg == '\0'))
     return;
-  auto const rbegin = m_errorhandlers.crbegin(),
-             rend = m_errorhandlers.crend();
+  auto const rbegin = std::crbegin(m_errorhandlers),
+             rend = std::crend(m_errorhandlers);
   for (auto i{rbegin}; (i != rend) and (**i)(msg); ++i)
     ;
 }
@@ -360,7 +360,7 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
   auto const p{m_receivers.find(n->channel())};
   auto const new_value{receiver_list::value_type{n->channel(), n}};
 
-  if (p == m_receivers.end())
+  if (p == std::end(m_receivers))
   {
     // Not listening on this event yet, start doing so.
     auto const lq{
@@ -662,7 +662,7 @@ void pqxx::connection::close()
 
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    auto const rbegin{old_handlers.crbegin()}, rend{old_handlers.crend()};
+    auto const rbegin{std::crbegin(old_handlers)}, rend{std::crend(old_handlers)};
     for (auto i{rbegin}; i != rend; ++i)
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 

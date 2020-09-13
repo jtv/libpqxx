@@ -39,8 +39,8 @@ void test_075()
       "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator
-  pqxx::result::const_reverse_iterator ri1(R.rbegin()), ri2(ri1), ri3(R.end());
-  ri2 = R.rbegin();
+  pqxx::result::const_reverse_iterator ri1(std::rbegin(R)), ri2(ri1), ri3(std::end(R));
+  ri2 = std::rbegin(R);
 
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");
   PQXX_CHECK(ri3 == ri2, "result::end() does not generate rbegin().");
@@ -77,26 +77,26 @@ void test_075()
 
   PQXX_CHECK(ri2-- == ri3, "reverse_iterator post-decrement is broken.");
   PQXX_CHECK(ri2 == --ri3, "reverse_iterator pre-decrement is broken.");
-  PQXX_CHECK(ri2 == R.rbegin(), "reverse_iterator decrement is broken.");
+  PQXX_CHECK(ri2 == std::rbegin(R), "reverse_iterator decrement is broken.");
 
   ri2 += 1;
   ri3 -= -1;
 
-  PQXX_CHECK(ri2 != R.rbegin(), "Adding to reverse_iterator does not work.");
+  PQXX_CHECK(ri2 != std::rbegin(R), "Adding to reverse_iterator does not work.");
   PQXX_CHECK(
     ri3 == ri2, "reverse_iterator operator-=() breaks on negative distances.");
 
   ri2 -= 1;
   PQXX_CHECK(
-    ri2 == R.rbegin(),
+    ri2 == std::rbegin(R),
     "reverse_iterator operator+=() and operator-=() do not cancel out.");
 
   // Now verify that reverse iterator also sees the same results...
-  auto l{contents.rbegin()};
-  for (auto i{R.rbegin()}; i != R.rend(); ++i, ++l)
+  auto l{std::rbegin(contents)};
+  for (auto i{std::rbegin(R)}; i != std::rend(R); ++i, ++l)
     PQXX_CHECK_EQUAL(*l, i->at(0).c_str(), "Inconsistent reverse iteration.");
 
-  PQXX_CHECK(l == contents.rend(), "Reverse iteration ended too soon.");
+  PQXX_CHECK(l == std::rend(contents), "Reverse iteration ended too soon.");
 
   PQXX_CHECK(not R.empty(), "No events found in table, cannot test.");
 }

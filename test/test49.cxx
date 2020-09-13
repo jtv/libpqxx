@@ -64,8 +64,8 @@ struct CountGreaterSmaller
     // using std::count_if<>()
     using namespace std::placeholders;
     auto const Greater{
-      std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T))},
-      Smaller{std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1))};
+      std::count_if(std::begin(R), std::end(R), std::bind(Cmp(Key), _1, T))},
+      Smaller{std::count_if(std::begin(R), std::end(R), std::bind(Cmp(Key), T, _1))};
 
     // TODO: Use C++20's ssize().
     PQXX_CHECK(
@@ -86,7 +86,7 @@ void test_049()
 
   // Verify that for each key in R, the number of greater and smaller keys
   // are sensible; use std::for_each<>() to iterate over rows in R
-  std::for_each(R.begin(), R.end(), CountGreaterSmaller(Key, R));
+  std::for_each(std::begin(R), std::end(R), CountGreaterSmaller(Key, R));
 }
 
 

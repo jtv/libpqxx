@@ -63,7 +63,7 @@ void expected_exception(std::string const &message)
 
 std::string list_row(row Obj)
 {
-  return separated_list(", ", Obj.begin(), Obj.end(), deref_field);
+  return separated_list(", ", std::begin(Obj), std::end(Obj), deref_field);
 }
 
 
@@ -73,7 +73,7 @@ std::string list_result(result Obj)
     return "<empty>";
   return "{" +
          separated_list(
-           "}\n{", Obj.begin(), Obj.end(), [](row r) { return list_row(r); }) +
+           "}\n{", std::begin(Obj), std::end(Obj), [](row r) { return list_row(r); }) +
          "}";
 }
 

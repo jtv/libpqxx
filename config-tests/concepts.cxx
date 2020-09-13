@@ -9,7 +9,7 @@ template<typename T> concept Foo = std::ranges::input_range<T>;
 
 template<Foo F> auto foo(F const &r)
 {
-  return std::distance(r.begin(), r.end());
+  return std::distance(std::begin(r), std::end(r));
 }
 
 int main()

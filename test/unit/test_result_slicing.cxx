@@ -73,8 +73,8 @@ void test_result_slicing()
   pqxx::row s{r[0].slice(0, 0)};
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
   PQXX_CHECK_EQUAL(std::size(s), 0, "Slicing produces wrong row size.");
-  PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
-  PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
+  PQXX_CHECK_EQUAL(std::begin(s), std::end(s), "Slice begin()/end() are broken.");
+  PQXX_CHECK_EQUAL(std::rbegin(s), std::rend(s), "Slice rbegin()/rend() are broken.");
 
   PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() does not throw.");
   pqxx::row slice;
@@ -89,8 +89,8 @@ void test_result_slicing()
   s = r[0].slice(1, 1);
   PQXX_CHECK(s.empty(), "empty() is broken.");
   PQXX_CHECK_EQUAL(std::size(s), 0, "size() is broken.");
-  PQXX_CHECK_EQUAL(s.begin(), s.end(), "begin()/end() are broken.");
-  PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "rbegin()/rend() are broken.");
+  PQXX_CHECK_EQUAL(std::begin(s), std::end(s), "begin()/end() are broken.");
+  PQXX_CHECK_EQUAL(std::rbegin(s), std::rend(s), "rbegin()/rend() are broken.");
 
   PQXX_CHECK_THROWS(s.at(0), pqxx::range_error, "at() is inconsistent.");
 
@@ -98,8 +98,8 @@ void test_result_slicing()
   s = r[0].slice(0, 1);
   PQXX_CHECK(not s.empty(), "Nonempty slice shows up as empty.");
   PQXX_CHECK_EQUAL(std::size(s), 1, "size() breaks for non-empty slice.");
-  PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration is broken.");
-  PQXX_CHECK_EQUAL(s.rbegin() + 1, s.rend(), "Reverse iteration is broken.");
+  PQXX_CHECK_EQUAL(std::begin(s) + 1, std::end(s), "Iteration is broken.");
+  PQXX_CHECK_EQUAL(std::rbegin(s) + 1, std::rend(s), "Reverse iteration is broken.");
   PQXX_CHECK_EQUAL(s.at(0).as<int>(), 1, "Accessing a slice is broken.");
   PQXX_CHECK_EQUAL(s[0].as<int>(), 1, "operator[] is broken.");
   PQXX_CHECK_THROWS(s.at(1).as<int>(), pqxx::range_error, "at() is off.");
@@ -115,10 +115,10 @@ void test_result_slicing()
   s = r[0].slice(1, 2);
   PQXX_CHECK(not s.empty(), "Slicing away leading columns confuses empty().");
   PQXX_CHECK_EQUAL(s[0].as<int>(), 2, "Slicing offset is broken.");
-  PQXX_CHECK_EQUAL(s.begin()->as<int>(), 2, "Iteration uses wrong offset.");
-  PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration has wrong range.");
+  PQXX_CHECK_EQUAL(std::begin(s)->as<int>(), 2, "Iteration uses wrong offset.");
+  PQXX_CHECK_EQUAL(std::begin(s) + 1, std::end(s), "Iteration has wrong range.");
   PQXX_CHECK_EQUAL(
-    s.rbegin() + 1, s.rend(), "Reverse iteration has wrong range.");
+    std::rbegin(s) + 1, std::rend(s), "Reverse iteration has wrong range.");
   PQXX_CHECK_THROWS(
     s.at(1).as<int>(), pqxx::range_error, "Offset slicing is broken.");
 

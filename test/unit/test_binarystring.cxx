@@ -24,11 +24,11 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(std::size(b), 0u, "Empty binarystring has nonzero size.");
   PQXX_CHECK_EQUAL(b.length(), 0u, "Length/size mismatch.");
-  PQXX_CHECK(b.begin() == b.end(), "Empty binarystring iterates.");
-  PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin for empty binarystring.");
-  PQXX_CHECK(b.rbegin() == b.rend(), "Empty binarystring reverse-iterates.");
+  PQXX_CHECK(std::begin(b) == std::end(b), "Empty binarystring iterates.");
+  PQXX_CHECK(std::cbegin(b) == std::begin(b), "Wrong cbegin for empty binarystring.");
+  PQXX_CHECK(std::rbegin(b) == std::rend(b), "Empty binarystring reverse-iterates.");
   PQXX_CHECK(
-    b.crbegin() == b.rbegin(), "Wrong crbegin for empty binarystring.");
+    std::crbegin(b) == std::rbegin(b), "Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(
     b.at(0), std::out_of_range, "Empty binarystring accepts at().");
 
@@ -37,15 +37,15 @@ void test_binarystring()
   PQXX_CHECK(not b.empty(), "Nonempty binarystring is empty.");
   PQXX_CHECK_EQUAL(std::size(b), 1u, "Bad binarystring size.");
   PQXX_CHECK_EQUAL(b.length(), 1u, "Length/size mismatch.");
-  PQXX_CHECK(b.begin() != b.end(), "Nonempty binarystring does not iterate.");
+  PQXX_CHECK(std::begin(b) != std::end(b), "Nonempty binarystring does not iterate.");
   PQXX_CHECK(
-    b.rbegin() != b.rend(), "Nonempty binarystring does not reverse-iterate.");
-  PQXX_CHECK(b.begin() + 1 == b.end(), "Bad iteration.");
-  PQXX_CHECK(b.rbegin() + 1 == b.rend(), "Bad reverse iteration.");
-  PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin.");
-  PQXX_CHECK(b.cend() == b.end(), "Wrong cend.");
-  PQXX_CHECK(b.crbegin() == b.rbegin(), "Wrong crbegin.");
-  PQXX_CHECK(b.crend() == b.rend(), "Wrong crend.");
+    std::rbegin(b) != std::rend(b), "Nonempty binarystring does not reverse-iterate.");
+  PQXX_CHECK(std::begin(b) + 1 == std::end(b), "Bad iteration.");
+  PQXX_CHECK(std::rbegin(b) + 1 == std::rend(b), "Bad reverse iteration.");
+  PQXX_CHECK(std::cbegin(b) == std::begin(b), "Wrong cbegin.");
+  PQXX_CHECK(std::cend(b) == std::end(b), "Wrong cend.");
+  PQXX_CHECK(std::crbegin(b) == std::rbegin(b), "Wrong crbegin.");
+  PQXX_CHECK(std::crend(b) == std::rend(b), "Wrong crend.");
   PQXX_CHECK(b.front() == 'z', "Unexpected front().");
   PQXX_CHECK(b.back() == 'z', "Unexpected back().");
   PQXX_CHECK(b.at(0) == 'z', "Unexpected data at index 0.");

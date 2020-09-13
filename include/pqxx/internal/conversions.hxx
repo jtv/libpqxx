@@ -909,7 +909,7 @@ template<typename Container> struct array_string_traits
   // would require a reference to the connection.
 
 private:
-  using elt_type = strip_t<decltype(*std::declval<Container>().begin())>;
+  using elt_type = strip_t<decltype(*std::begin(std::declval<Container>()))>;
 
   static constexpr zview s_null{"NULL"};
 };

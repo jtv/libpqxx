@@ -16,7 +16,7 @@ namespace
 template<typename VEC, typename VAL> void InitVector(VEC &V, int s, VAL val)
 {
   V.resize(static_cast<std::size_t>(s));
-  for (auto i{V.begin()}; i != V.end(); ++i) *i = val;
+  for (auto i{std::begin(V)}; i != std::end(V); ++i) *i = val;
 }
 
 
@@ -37,7 +37,7 @@ void test_031()
   InitVector(SortedUp, R.columns(), true);
   InitVector(SortedDown, R.columns(), true);
 
-  for (auto i{R.begin()}; i != R.end(); i++)
+  for (auto i{std::begin(R)}; i != std::end(R); i++)
   {
     PQXX_CHECK_EQUAL(
       (*i).rownumber(), i->rownumber(),
@@ -62,7 +62,7 @@ void test_031()
     }
 
     // Compare fields to those of preceding row
-    if (i != R.begin())
+    if (i != std::begin(R))
     {
       auto const j{i - 1};
 
