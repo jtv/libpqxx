@@ -274,7 +274,7 @@ template<typename TYPE>
        begin < in.end() and (*begin == ' ' or *begin == '\t'); ++begin)
     ;
 
-  auto const end{in.data() + in.size()};
+  auto const end{in.data() + std::size(in)};
   TYPE out;
   auto const res{std::from_chars(begin, end, out)};
   if (res.ec == std::errc() and res.ptr == end)
@@ -385,7 +385,7 @@ template<typename L, typename R>
 template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
-  if (text.size() == 0)
+  if (std::size(text) == 0)
     throw pqxx::conversion_error{
       "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
@@ -400,9 +400,9 @@ template<typename T>
   // work _for composite types._  I see no clean way to support leading
   // whitespace there without putting the code in here.  A shame about the
   // overhead, modest as it is, for the normal case.
-  for (; i < text.size() and (data[i] == ' ' or data[i] == '\t'); ++i)
+  for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i)
     ;
-  if (i == text.size())
+  if (i == std::size(text))
     throw pqxx::conversion_error{
       "Converting string to " + pqxx::type_name<T> +
       ", but it contains only whitespace."};
@@ -422,11 +422,11 @@ template<typename T>
         "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
 
     ++i;
-    if (i >= text.size())
+    if (i >= std::size(text))
       throw pqxx::conversion_error{
         "Converting string to " + pqxx::type_name<T> +
         ", but it contains only a sign."};
-    for (; i < text.size() and isdigit(data[i]); ++i)
+    for (; i < std::size(text) and isdigit(data[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(data[i]));
   }
   else
@@ -438,7 +438,7 @@ template<typename T>
       std::string{text} + "'."};
   }
 
-  if (i < text.size())
+  if (i < std::size(text))
     throw pqxx::conversion_error{
       "Unexpected text after " + pqxx::type_name<T> +
       ": "
@@ -517,7 +517,7 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   case 'n':
     // Accept "NaN," "nan," etc.
     ok =
-      (text.size() == 3 and (text[1] == 'A' or text[1] == 'a') and
+      (std::size(text) == 3 and (text[1] == 'A' or text[1] == 'a') and
        (text[2] == 'N' or text[2] == 'n'));
     result = std::numeric_limits<T>::quiet_NaN();
     break;
@@ -589,14 +589,14 @@ zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
       return zview{(value > 0) ? "infinity" : "-infinity"};
     auto text{to_string_float(value)};
     auto have{end - begin};
-    auto need{text.size() + 1};
+    auto need{std::size(text) + 1};
     if (need > std::size_t(have))
       throw conversion_error{
         "Could not convert floating-point number to string: "
         "buffer too small.  " +
         state_buffer_overrun(have, need)};
     text.copy(begin, need);
-    return zview{begin, text.size()};
+    return zview{begin, std::size(text)};
   }
 #endif
 }
@@ -719,7 +719,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
 {
   bool OK, result;
 
-  switch (text.size())
+  switch (std::size(text))
   {
   case 0:
     result = false;

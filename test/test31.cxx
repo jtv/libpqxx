@@ -115,9 +115,10 @@ void test_031()
     }
   }
 
+  // TODO: Use C++20's std::size().
   for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
     PQXX_CHECK_BOUNDS(
-      NullFields[static_cast<std::size_t>(f)], 0, int(R.size()) + 1,
+      NullFields[static_cast<std::size_t>(f)], 0, int(std::size(R)) + 1,
       "Found more nulls than there were rows.");
 }
 

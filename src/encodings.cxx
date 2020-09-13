@@ -697,7 +697,7 @@ template<encoding_group E> struct char_finder
   call(std::string_view haystack, char needle, std::string::size_type start)
   {
     auto const buffer{haystack.data()};
-    auto const size{haystack.size()};
+    auto const size{std::size(haystack)};
     for (auto here{start}; here + 1 <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
     {
@@ -716,8 +716,8 @@ template<encoding_group E> struct string_finder
     std::string::size_type start)
   {
     auto const buffer{haystack.data()};
-    auto const size{haystack.size()};
-    auto const needle_size{needle.size()};
+    auto const size{std::size(haystack)};
+    auto const needle_size{std::size(needle)};
     for (auto here{start}; here + needle_size <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
     {

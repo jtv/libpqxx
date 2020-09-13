@@ -25,8 +25,8 @@ std::string pqxx::stream_from::compose_query(
   auto const escaped_table{tx.quote_name(table)};
   std::string command;
   command.reserve(
-    copy.size() + escaped_table.size() + columns.size() + 2 +
-    to_stdout.size());
+    std::size(copy) + std::size(escaped_table) + std::size(columns) + 2 +
+    std::size(to_stdout));
   command += copy;
   command += escaped_table;
 
@@ -61,7 +61,7 @@ pqxx::stream_from::stream_from(
 {
   constexpr std::string_view copy{"COPY ("}, to_stdout{") TO STDOUT"};
   std::string command;
-  command.reserve(copy.size() + query.size() + to_stdout.size());
+  command.reserve(std::size(copy) + std::size(query) + std::size(to_stdout));
   command += copy;
   command += query;
   command += to_stdout;

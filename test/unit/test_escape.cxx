@@ -9,7 +9,7 @@ namespace
 void compare_esc(
   pqxx::connection &c, pqxx::transaction_base &t, char const text[])
 {
-  std::size_t const len{std::string{text}.size()};
+  std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(
     c.esc(text, len), t.esc(text, len),
     "Connection & transaction escape differently.");
@@ -82,8 +82,8 @@ void test_quote_name(pqxx::transaction_base &t)
 
 void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
-  char const binary[]{"1\0023\\4x5"};
-  std::string const data(binary, sizeof(binary));
+  constexpr char binary[]{"1\0023\\4x5"};
+  std::string const data(binary, std::size(binary));
   std::string const escaped{t.esc_raw(data)};
 
   for (auto const i : escaped)
@@ -96,7 +96,7 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   PQXX_CHECK_EQUAL(
     escaped, "\\x3102335c34783500", "Binary data escaped wrong.");
   PQXX_CHECK_EQUAL(
-    t.unesc_raw(escaped).size(), data.size(), "Wrong size after unescaping.");
+    std::size(t.unesc_raw(escaped)), std::size(data), "Wrong size after unescaping.");
   PQXX_CHECK_EQUAL(
     t.unesc_raw(escaped), data,
     "Unescaping binary data does not undo escaping it.");

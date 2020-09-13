@@ -130,7 +130,7 @@ struct params
   /// Compose a vector of pointers to parameter string values.
   std::vector<char const *> get_pointers() const
   {
-    std::size_t const num_fields{lengths.size()};
+    std::size_t const num_fields{std::size(lengths)};
     std::size_t cur_string{0}, cur_bin_string{0};
     std::vector<char const *> pointers(num_fields);
     for (std::size_t index{0}; index < num_fields; index++)
@@ -171,7 +171,8 @@ private:
   /// Add a non-null string field.
   void add_field(std::string text)
   {
-    lengths.push_back(int(text.size()));
+	  // TODO: Use C++20's std::ssize().
+    lengths.push_back(int(std::size(text)));
     nonnulls.push_back(1);
     binaries.push_back(0);
     strings.emplace_back(std::move(text));
@@ -188,17 +189,18 @@ private:
   /// Compile one argument (specialised for binarystring).
   void add_field(binarystring const &arg)
   {
-    lengths.push_back(int(arg.size()));
+    lengths.push_back(int(std::size(arg)));
     nonnulls.push_back(1);
     binaries.push_back(1);
     bin_strings.push_back(std::basic_string_view<std::byte>{
-      reinterpret_cast<std::byte const *>(arg.data()), arg.size()});
+      reinterpret_cast<std::byte const *>(arg.data()), std::size(arg)});
   }
 
   /// Compile one binary argument.
   void add_field(std::basic_string_view<std::byte> arg)
   {
-    lengths.push_back(int(arg.size()));
+	  // TODO: Use C++20's std::ssize().
+    lengths.push_back(int(std::size(arg)));
     nonnulls.push_back(1);
     binaries.push_back(1);
     bin_strings.push_back(arg);

@@ -162,7 +162,7 @@ inline void parse_composite_field(
   glyph_scanner_func *scan, std::size_t last_field)
 {
   assert(index <= last_field);
-  auto next{scan(input.data(), input.size(), pos)};
+  auto next{scan(input.data(), std::size(input), pos)};
   if ((next - pos) != 1)
     throw conversion_error{"Non-ASCII character in composite-type syntax."};
 
@@ -182,7 +182,7 @@ inline void parse_composite_field(
 
   case '"': {
     auto const stop{
-      scan_double_quoted_string(input.data(), input.size(), pos, scan)};
+      scan_double_quoted_string(input.data(), std::size(input), pos, scan)};
     auto const text{parse_double_quoted_string(input.data(), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;
@@ -191,7 +191,7 @@ inline void parse_composite_field(
 
   default: {
     auto const stop{
-      scan_unquoted_string<',', ')'>(input.data(), input.size(), pos, scan)};
+      scan_unquoted_string<',', ')'>(input.data(), std::size(input), pos, scan)};
     auto const text{parse_unquoted_string(input.data(), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;
@@ -200,7 +200,7 @@ inline void parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
-  next = scan(input.data(), input.size(), pos);
+  next = scan(input.data(), std::size(input), pos);
 
   if ((next - pos) != 1)
     throw conversion_error{
@@ -225,7 +225,7 @@ inline void parse_composite_field(
         "Composite value has unexpected characters where closing parenthesis "
         "was expected: " +
         std::string{input}};
-    if (next != input.size())
+    if (next != std::size(input))
       throw conversion_error{
         "Composite value has unexpected text after closing parenthesis: " +
         std::string{input}};

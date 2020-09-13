@@ -175,7 +175,7 @@ private:
   static std::enable_if_t<nullness<T>::always_null, std::size_t>
   estimate_buffer(T const &)
   {
-    return null_field.size();
+    return std::size(null_field);
   }
 
   /// Estimate buffer space needed for field f.
@@ -186,7 +186,7 @@ private:
   static std::enable_if_t<not nullness<T>::always_null, std::size_t>
   estimate_buffer(T const &field)
   {
-    return is_null(field) ? null_field.size() : size_buffer(field);
+    return is_null(field) ? std::size(null_field) : size_buffer(field);
   }
 
   /// Append escaped version of @c m_field_buf to @c m_buffer, plus a tab.
@@ -217,7 +217,7 @@ private:
 
       using traits = string_traits<Field>;
       auto const budget{estimate_buffer(f)};
-      auto const offset{m_buffer.size()};
+      auto const offset{std::size(m_buffer)};
 
       if constexpr (std::is_arithmetic_v<Field>)
       {
@@ -242,7 +242,7 @@ private:
         // m_field_buffer, then escape into its final place.
         m_field_buf.resize(budget);
         escape_field_to_buffer(traits::to_buf(
-          m_field_buf.data(), m_field_buf.data() + m_field_buf.size(), f));
+          m_field_buf.data(), m_field_buf.data() + std::size(m_field_buf), f));
       }
     }
   }

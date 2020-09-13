@@ -30,10 +30,10 @@ void test_075()
   for (auto const &i : R) contents.push_back(i.at(0).as<std::string>());
 
   PQXX_CHECK_EQUAL(
-    contents.size(), std::vector<std::string>::size_type(R.size()),
+    std::size(contents), std::vector<std::string>::size_type(std::size(R)),
     "Number of values does not match result size.");
 
-  for (pqxx::result::size_type i{0}; i < R.size(); ++i)
+  for (pqxx::result::size_type i{0}; i < std::size(R); ++i)
     PQXX_CHECK_EQUAL(
       contents[static_cast<std::size_t>(i)], R.at(i).at(0).c_str(),
       "Inconsistent iteration.");

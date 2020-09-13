@@ -45,10 +45,11 @@ void test_050()
     A.process_notice(
       "Writing to large object #" + to_string(largeobject(A).id()) + "\n");
     auto Bytes{check_cast<int>(
-      A.cwrite(Contents.c_str(), Contents.size()), "test write")};
+      A.cwrite(Contents.c_str(), std::size(Contents)), "test write")};
 
+    // TODO: Use C++20's ssize().
     PQXX_CHECK_EQUAL(
-      Bytes, check_cast<int>(Contents.size(), "test cwrite()"),
+      Bytes, check_cast<int>(std::size(Contents), "test cwrite()"),
       "Wrote wrong number of bytes.");
 
     PQXX_CHECK_EQUAL(
@@ -57,12 +58,12 @@ void test_050()
     PQXX_CHECK_EQUAL(A.tell(), Bytes, "Bad large-object position.");
 
     char Buf[200];
-    constexpr std::size_t Size{sizeof(Buf) - 1};
+    constexpr std::size_t Size{std::size(Buf) - 1};
     PQXX_CHECK_EQUAL(
       A.cread(Buf, Size), 0, "Bad return value from cread() after writing.");
 
     PQXX_CHECK_EQUAL(
-      std::size_t(A.cseek(0, std::ios::cur)), Contents.size(),
+      std::size_t(A.cseek(0, std::ios::cur)), std::size(Contents),
       "Unexpected position after cseek(0, cur).");
 
     PQXX_CHECK_EQUAL(

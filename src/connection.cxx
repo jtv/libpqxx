@@ -237,7 +237,7 @@ void pqxx::connection::set_variable(
   std::string_view var, std::string_view value)
 {
   std::string cmd{"SET "};
-  cmd.reserve(cmd.size() + var.size() + 1 + value.size());
+  cmd.reserve(std::size(cmd) + std::size(var) + 1 + std::size(value));
   cmd.append(var);
   cmd.push_back('=');
   cmd.append(value);
@@ -307,7 +307,7 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
   zview const view{msg};
   if (view.empty())
     return;
-  else if (msg[view.size() - 1] == '\n')
+  else if (msg[std::size(view) - 1] == '\n')
     process_notice_raw(msg);
   else
     // Newline is missing.  Let the zview version of the code add it.
@@ -319,14 +319,14 @@ void pqxx::connection::process_notice(zview msg) noexcept
 {
   if (msg.empty())
     return;
-  else if (msg[msg.size() - 1] == '\n')
+  else if (msg[std::size(msg) - 1] == '\n')
     process_notice_raw(msg.c_str());
   else
     try
     {
       // Add newline.
       std::string buf;
-      buf.reserve(msg.size() + 1);
+      buf.reserve(std::size(msg) + 1);
       buf.assign(msg);
       buf.push_back('\n');
       process_notice_raw(buf.c_str());
@@ -433,7 +433,7 @@ void pqxx::connection::cancel_query()
   auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
   if (c == 0)
     throw pqxx::sql_error{
-      std::string{errbuf.data(), errbuf.size()}, "[cancel]"};
+      std::string{errbuf.data(), std::size(errbuf)}, "[cancel]"};
 }
 
 
@@ -637,7 +637,7 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
-    m_conn, q->c_str(), check_cast<int>(args.nonnulls.size(), "exec_prepared"),
+    m_conn, q->c_str(), check_cast<int>(std::size(args.nonnulls), "exec_prepared"),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
   get_notifs();
@@ -738,7 +738,8 @@ pqxx::connection::read_copy_line()
 void pqxx::connection::write_copy_line(std::string_view line)
 {
   static std::string const err_prefix{"Error writing to table: "};
-  auto const size{check_cast<int>(line.size(), "write_copy_line()")};
+  // TODO: Use C++20's ssize().
+  auto const size{check_cast<int>(std::size(line), "write_copy_line()")};
   if (PQputCopyData(m_conn, line.data(), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
@@ -784,7 +785,7 @@ size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
 {
   int err{0};
   auto const copied{
-    PQescapeStringConn(m_conn, buf, text.data(), text.size(), &err)};
+    PQescapeStringConn(m_conn, buf, text.data(), std::size(text), &err)};
   if (err)
     throw argument_error{err_msg()};
   return copied;
@@ -794,7 +795,7 @@ size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
 std::string pqxx::connection::esc(std::string_view text) const
 {
   std::string buf;
-  buf.resize(2 * text.size() + 1);
+  buf.resize(2 * std::size(text) + 1);
   auto const copied{esc_to_buf(text, buf.data())};
   buf.resize(copied);
   return buf;
@@ -813,7 +814,7 @@ std::string
 pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
 {
   return pqxx::internal::esc_bin(
-    std::string_view{reinterpret_cast<char const *>(bin.data()), bin.size()});
+    std::string_view{reinterpret_cast<char const *>(bin.data()), std::size(bin)});
 }
 
 
@@ -855,7 +856,7 @@ pqxx::connection::quote_raw(std::basic_string_view<std::byte> bytes) const
 
 std::string pqxx::connection::quote(binarystring const &b) const
 {
-  return quote_raw(b.data(), b.size());
+  return quote_raw(b.data(), std::size(b));
 }
 
 
@@ -868,7 +869,7 @@ std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
   std::unique_ptr<char, std::function<void(char *)>> buf{
-    PQescapeIdentifier(m_conn, identifier.data(), identifier.size()),
+    PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
     PQfreemem};
   if (buf.get() == nullptr)
     throw failure{err_msg()};
@@ -880,7 +881,7 @@ std::string
 pqxx::connection::esc_like(std::string_view text, char escape_char) const
 {
   std::string out;
-  out.reserve(text.size());
+  out.reserve(std::size(text));
   internal::for_glyphs(
     internal::enc_group(encoding_id()),
     [&out, escape_char](char const *gbegin, char const *gend) {
@@ -889,7 +890,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
-    text.data(), text.size());
+    text.data(), std::size(text));
   return out;
 }
 
@@ -1019,7 +1020,7 @@ std::string pqxx::connection::adorn_name(std::string_view n)
   else
   {
     std::string name;
-    name.reserve(n.size() + 1 + id.size());
+    name.reserve(std::size(n) + 1 + std::size(id));
     name.append(n);
     name.push_back('_');
     name.append(id);
@@ -1078,7 +1079,7 @@ pqxx::result pqxx::connection::exec_params(
   auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(query)};
   auto const nonnulls{
-    check_cast<int>(args.nonnulls.size(), "exec_params() parameters")};
+    check_cast<int>(std::size(args.nonnulls), "exec_params() parameters")};
   auto const pq_result{PQexecParams(
     m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
     args.lengths.data(), args.binaries.data(), 0)};

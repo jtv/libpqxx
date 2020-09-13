@@ -32,7 +32,7 @@ void test_011()
   {
     PQXX_CHECK_EQUAL(R[0].rownumber(), 0, "Row 0 has wrong number.");
 
-    if (R.size() >= 2)
+    if (std::size(R) >= 2)
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
 
     // Test result::iterator::swap()
@@ -50,7 +50,7 @@ void test_011()
     PQXX_CHECK_EQUAL(
       T1s, T2, "Result iterator swap is inconsistently asymmetric.");
 
-    for (pqxx::row::size_type c{0}; c < R[0].size(); ++c)
+    for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
     {
       std::string N{R.column_name(c)};
 
@@ -65,7 +65,7 @@ void test_011()
       PQXX_CHECK_EQUAL(R[0][c].name(), N, "Field names are inconsistent.");
 
       PQXX_CHECK_EQUAL(
-        R[0][c].size(), strlen(R[0][c].c_str()),
+        std::size(R[0][c]), strlen(R[0][c].c_str()),
         "Field size is not what we expected.");
     }
   }

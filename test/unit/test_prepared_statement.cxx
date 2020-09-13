@@ -37,7 +37,7 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
     --arg;
     std::string const marker{"$" + pqxx::to_string(i)},
       var{stringize(t, *arg)};
-    std::string::size_type const msz{marker.size()};
+    std::string::size_type const msz{std::size(marker)};
     while (q.find(marker) != std::string::npos)
       q.replace(q.find(marker), msz, var);
   }
@@ -88,12 +88,12 @@ void test_basic_args()
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{c};
   auto r{tx.exec_prepared("EchoNum", 7)};
-  PQXX_CHECK_EQUAL(r.size(), 1, "Did not get 1 row from prepared statement.");
-  PQXX_CHECK_EQUAL(r.front().size(), 1, "Did not get exactly one column.");
+  PQXX_CHECK_EQUAL(std::size(r), 1, "Did not get 1 row from prepared statement.");
+  PQXX_CHECK_EQUAL(std::size(r.front()), 1, "Did not get exactly one column.");
   PQXX_CHECK_EQUAL(r[0][0].as<int>(), 7, "Got wrong result.");
 
   auto rw{tx.exec_prepared1("EchoNum", 8)};
-  PQXX_CHECK_EQUAL(rw.size(), 1, "Did not get 1 column from exec_prepared1.");
+  PQXX_CHECK_EQUAL(std::size(rw), 1, "Did not get 1 column from exec_prepared1.");
   PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
 }
 
@@ -104,7 +104,7 @@ void test_multiple_params()
   c.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
   pqxx::work tx{c};
   auto r{tx.exec_prepared_n(4, "CountSeries", 7, 10)};
-  PQXX_CHECK_EQUAL(r.size(), 4, "Wrong number of rows, but no error raised.");
+  PQXX_CHECK_EQUAL(std::size(r), 4, "Wrong number of rows, but no error raised.");
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
 
@@ -164,8 +164,8 @@ void test_binary()
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("EchoBin", "SELECT $1::bytea");
-  char const raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
-  std::string const input{raw_bytes, sizeof(raw_bytes)};
+  constexpr char raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
+  std::string const input{raw_bytes, std::size(raw_bytes)};
 
   {
     pqxx::binarystring const bin{input};
@@ -177,12 +177,12 @@ void test_binary()
 
   {
     std::basic_string<std::byte> bytes{
-      reinterpret_cast<std::byte const *>(raw_bytes), sizeof(raw_bytes)};
+      reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes)};
     auto bp{tx.exec_prepared1("EchoBin", bytes)};
     auto bval{bp[0].as<std::basic_string<std::byte>>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(bval.c_str()), bval.size()}),
+        reinterpret_cast<char const *>(bval.c_str()), std::size(bval)}),
       input, "Binary string parameter went wrong.");
   }
 
@@ -193,24 +193,24 @@ void test_binary()
 
   {
     auto ptr{std::make_shared<std::basic_string<std::byte>>(
-      reinterpret_cast<std::byte const *>(raw_bytes), sizeof(raw_bytes))};
+      reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes))};
     auto rp{tx.exec_prepared1("EchoBin", ptr)};
     auto pval{rp[0].as<std::basic_string<std::byte>>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(pval.c_str()), pval.size()}),
+        reinterpret_cast<char const *>(pval.c_str()), std::size(pval)}),
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 
   {
     auto opt{std::optional<std::basic_string<std::byte>>{
       std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
-      sizeof(raw_bytes)}};
+      std::size(raw_bytes)}};
     auto op{tx.exec_prepared1("EchoBin", opt)};
     auto oval{op[0].as<std::basic_string<std::byte>>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(oval.c_str()), oval.size()}),
+        reinterpret_cast<char const *>(oval.c_str()), std::size(oval)}),
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 }

@@ -55,12 +55,12 @@ std::string::size_type
 find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
   auto const text{query.data()};
-  auto const size{query.size()};
+  auto const size{std::size(query)};
   std::string::size_type end;
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    for (end = query.size(); end > 0 and useless_trail(text[end - 1]); --end)
+    for (end = std::size(query); end > 0 and useless_trail(text[end - 1]); --end)
       ;
   }
   else
@@ -253,7 +253,7 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
   auto const query{
     "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name())};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
-  displacement = adjust(rows, difference_type(r.size()));
+  displacement = adjust(rows, difference_type(std::size(r)));
   return r;
 }
 

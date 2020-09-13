@@ -78,7 +78,7 @@ void test_084()
   pqxx::result R2(*i2++);
 
   PQXX_CHECK_EQUAL(
-    R.size(), static_cast<pqxx::result::size_type>(GetRows),
+    std::size(R), static_cast<pqxx::result::size_type>(GetRows),
     "Got unexpected number of rows.");
 
   PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [1]");

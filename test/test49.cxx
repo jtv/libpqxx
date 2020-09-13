@@ -67,8 +67,9 @@ struct CountGreaterSmaller
       std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), _1, T))},
       Smaller{std::count_if(R.begin(), R.end(), std::bind(Cmp(Key), T, _1))};
 
+    // TODO: Use C++20's ssize().
     PQXX_CHECK(
-      Greater + Smaller < ptrdiff_t(R.size()),
+      Greater + Smaller < ptrdiff_t(std::size(R)),
       "More non-equal rows than rows.");
   }
 };

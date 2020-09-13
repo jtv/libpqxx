@@ -58,8 +58,8 @@ void test_000()
     cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
     "cursor_base::difference_type appears to be unsigned.");
 
-  char const weird[]{"foo\t\n\0bar"};
-  std::string const weirdstr(weird, sizeof(weird) - 1);
+  constexpr char weird[]{"foo\t\n\0bar"};
+  std::string const weirdstr(weird, std::size(weird) - 1);
 
   // Test string conversions
   strconv("char const[]", "", "");

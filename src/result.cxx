@@ -50,7 +50,7 @@ bool pqxx::result::operator==(result const &rhs) const noexcept
   if (&rhs == this)
     return true;
   auto const s{size()};
-  if (rhs.size() != s)
+  if (std::size(rhs) != s)
     return false;
   for (size_type i{0}; i < s; ++i)
     if ((*this)[i] != rhs[i])
@@ -497,5 +497,5 @@ pqxx::const_reverse_result_iterator::operator--(int)
 
 template<> std::string pqxx::to_string(field const &value)
 {
-  return std::string{value.c_str(), value.size()};
+  return std::string{value.c_str(), std::size(value)};
 }

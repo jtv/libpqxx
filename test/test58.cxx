@@ -26,7 +26,7 @@ void test_058()
     A.write(Contents);
 
     char Buf[200];
-    constexpr std::size_t Size{sizeof(Buf) - 1};
+    constexpr std::size_t Size{std::size(Buf) - 1};
     PQXX_CHECK_EQUAL(
       A.read(Buf, Size), 0,
       "Could read bytes from large object after writing.");
@@ -34,14 +34,14 @@ void test_058()
     // Overwrite terminating zero.
     auto Here{A.seek(-1, std::ios::cur)};
     PQXX_CHECK_EQUAL(
-      Here, largeobject::size_type(Contents.size() - 1),
+      Here, largeobject::size_type(std::size(Contents) - 1),
       "Ended up in wrong place after moving back 1 byte.");
 
     A.write("!", 1);
 
     // Now check that we really did.
     PQXX_CHECK_EQUAL(
-      A.seek(-1, std::ios::cur), largeobject::size_type(Contents.size() - 1),
+      A.seek(-1, std::ios::cur), largeobject::size_type(std::size(Contents) - 1),
       "Inconsistent seek.");
 
     char Check;

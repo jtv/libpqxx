@@ -20,8 +20,8 @@ void test_stream_large_object()
   // possible conflation between "eof" (-1) and a char which just happens to
   // have the same bit pattern as an 8-bit value of -1.  This conflation can be
   // a problem when it occurs at buffer boundaries.
-  char const bytes[]{"\xff\0end"};
-  std::string const contents{bytes, sizeof(bytes)};
+  constexpr char bytes[]{"\xff\0end"};
+  std::string const contents{bytes, std::size(bytes)};
 
   pqxx::work tx{conn};
   pqxx::largeobject new_obj{tx};
@@ -33,8 +33,8 @@ void test_stream_large_object()
   pqxx::largeobjectaccess check{tx, new_obj, std::ios::in | std::ios::binary};
   std::array<char, 50> buf;
   std::size_t const len{
-    static_cast<std::size_t>(check.read(buf.data(), buf.size()))};
-  PQXX_CHECK_EQUAL(len, contents.size(), "olostream truncated data.");
+    static_cast<std::size_t>(check.read(buf.data(), std::size(buf)))};
+  PQXX_CHECK_EQUAL(len, std::size(contents), "olostream truncated data.");
   std::string const check_str{buf.data(), len};
   PQXX_CHECK_EQUAL(check_str, contents, "olostream mangled data.");
 
@@ -47,9 +47,9 @@ void test_stream_large_object()
 
   PQXX_CHECK_EQUAL(read_back, contents, "Got wrong data from ilostream.");
   PQXX_CHECK_EQUAL(
-    read_back.size(), contents.size(), "ilostream truncated data.");
+    std::size(read_back), std::size(contents), "ilostream truncated data.");
   PQXX_CHECK_EQUAL(
-    read_back.size(), sizeof(bytes), "ilostream truncated data.");
+    std::size(read_back), std::size(bytes), "ilostream truncated data.");
 }
 
 

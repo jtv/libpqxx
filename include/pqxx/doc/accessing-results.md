@@ -31,11 +31,11 @@ C++ containers of fields.  So the easiest way to go through them is:
 But results and rows also support other kinds of access.  Array-style
 indexing, for instance, such as `r[rownum]`:
 
-    int const num_rows = r.size();
+    int const num_rows = std::size(r);
     for (int rownum=0; rownum < num_rows; ++rownum)
     {
       pqxx::row const row = r[rownum];
-      int const num_cols = row.size();
+      int const num_cols = std::size(row);
       for (int colnum=0; colnum < num_cols; ++colnum)
       {
         pqxx::field const field = row[colnum];

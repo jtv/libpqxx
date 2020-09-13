@@ -183,14 +183,14 @@ void pqxx::transaction_base::abort()
 std::string pqxx::transaction_base::esc_raw(std::string const &bin) const
 {
   auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
-  return conn().esc_raw(p, bin.size());
+  return conn().esc_raw(p, std::size(bin));
 }
 
 
 std::string pqxx::transaction_base::quote_raw(std::string const &bin) const
 {
   auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
-  return conn().quote_raw(p, bin.size());
+  return conn().quote_raw(p, std::size(bin));
 }
 
 
@@ -239,14 +239,14 @@ pqxx::result pqxx::transaction_base::exec_n(
   result::size_type rows, std::string const &query, std::string const &desc)
 {
   result const r{exec(query, desc)};
-  if (r.size() != rows)
+  if (std::size(r) != rows)
   {
     std::string const N{desc.empty() ? "" : "'" + desc + "'"};
     throw unexpected_rows{
       "Expected " + to_string(rows) +
       " row(s) of data "
       "from query " +
-      N + ", got " + to_string(r.size()) + "."};
+      N + ", got " + to_string(std::size(r)) + "."};
   }
   return r;
 }

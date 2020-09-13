@@ -120,7 +120,7 @@ void pqxx::icursorstream::set_stride(difference_type stride)
 pqxx::result pqxx::icursorstream::fetchblock()
 {
   result const r{m_cur.fetch(m_stride)};
-  m_realpos += r.size();
+  m_realpos += std::size(r);
   if (r.empty())
     m_done = true;
   return r;

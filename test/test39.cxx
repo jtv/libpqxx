@@ -27,7 +27,7 @@ void test_039()
     to_string(BoringYear)));
 
   PQXX_CHECK_EQUAL(
-    R.size(), 0,
+    std::size(R), 0,
     "Already have a row for " + to_string(BoringYear) + ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
@@ -56,9 +56,9 @@ void test_039()
     " "
     "WHERE year=" +
     to_string(BoringYear));
-  PQXX_CHECK_EQUAL(R.size(), 1, "Unexpected result size.");
+  PQXX_CHECK_EQUAL(std::size(R), 1, "Unexpected result size.");
 
-  PQXX_CHECK(R.capacity() >= R.size(), "Result's capacity is too small.");
+  PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
 
   R.clear();
   PQXX_CHECK(R.empty(), "result::clear() is broken.");
@@ -81,7 +81,7 @@ void test_039()
     "WHERE year=" +
     to_string(BoringYear));
 
-  PQXX_CHECK_EQUAL(R.size(), 0, "Record is not gone as expected.");
+  PQXX_CHECK_EQUAL(std::size(R), 0, "Record is not gone as expected.");
 }
 
 

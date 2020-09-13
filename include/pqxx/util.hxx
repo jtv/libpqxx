@@ -311,9 +311,10 @@ constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 
 
 /// Hex-escape binary data into a buffer.
-/** The buffer must be able to accommodate @c size_esc_bin(binary_data.size())
- * bytes, and the function will write exactly that number of bytes into the
- * buffer.  This includes a trailing zero.
+/** The buffer must be able to accommodate
+ * @c size_esc_bin(std::size(binary_data)) bytes, and the function will write
+ * exactly that number of bytes into the buffer.  This includes a trailing
+ * zero.
  */
 void PQXX_LIBEXPORT
 esc_bin(std::string_view binary_data, char buffer[]) noexcept;

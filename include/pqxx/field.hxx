@@ -302,8 +302,8 @@ private:
   int_type initialize()
   {
     auto g{static_cast<char_type *>(const_cast<char *>(m_field.c_str()))};
-    this->setg(g, g, g + m_field.size());
-    return int_type(m_field.size());
+    this->setg(g, g, g + std::size(m_field));
+    return int_type(std::size(m_field));
   }
 };
 
@@ -365,7 +365,7 @@ template<typename CHAR>
 inline std::basic_ostream<CHAR> &
 operator<<(std::basic_ostream<CHAR> &s, field const &value)
 {
-  s.write(value.c_str(), std::streamsize(value.size()));
+  s.write(value.c_str(), std::streamsize(std::size(value)));
   return s;
 }
 

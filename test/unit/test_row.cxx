@@ -10,7 +10,7 @@ void test_row()
   pqxx::work tx{conn};
   pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
   pqxx::row r{rows[0]};
-  PQXX_CHECK_EQUAL(r.size(), 3, "Unexpected row size.");
+  PQXX_CHECK_EQUAL(std::size(r), 3, "Unexpected row size.");
   PQXX_CHECK_EQUAL(r.at(0).as<int>(), 1, "Wrong value at index 0.");
   PQXX_CHECK(r.begin() != r.end(), "Broken row iteration.");
   PQXX_CHECK(r.begin() < r.end(), "Row begin does not precede end.");

@@ -64,7 +64,7 @@ void test_encrypt_password()
   auto pw{c.encrypt_password("user", "password")};
   PQXX_CHECK(not pw.empty(), "Encrypted password was empty.");
   PQXX_CHECK_EQUAL(
-    std::strlen(pw.c_str()), pw.size(),
+    std::strlen(pw.c_str()), std::size(pw),
     "Encrypted password contains a null byte.");
 }
 
@@ -93,7 +93,7 @@ void test_connection_string()
 #if defined(PQXX_HAVE_CONCEPTS)
 template<typename STR> std::size_t length(STR const &str)
 {
-  return str.size();
+  return std::size(str);
 }
 
 
@@ -125,14 +125,14 @@ template<typename MAP> void test_params_type()
   // Check that the parameters came through in the connection string.
   // We don't know the exact format, but the parameters have to be in there.
   auto const min_size{std::accumulate(
-    params.cbegin(), params.cend(), params.size() - 1,
+    params.cbegin(), params.cend(), std::size(params) - 1,
     [](auto count, auto item) {
       return count + length(std::get<0>(item)) + 1 + length(std::get<1>(item));
     })};
 
   auto const connstr{c.connection_string()};
   PQXX_CHECK_GREATER_EQUAL(
-    connstr.size(), min_size,
+    std::size(connstr), min_size,
     "Connection string can't possibly contain the options we gave.");
   for (auto const &[key, value] : params)
   {

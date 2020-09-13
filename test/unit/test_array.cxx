@@ -528,9 +528,9 @@ void test_array_roundtrip()
     item.first, pqxx::array_parser::juncture::row_end,
     "Array values did not end in row_end.");
   PQXX_CHECK_EQUAL(
-    out.size(), in.size(), "Array came back with different length.");
+    std::size(out), std::size(in), "Array came back with different length.");
 
-  for (std::size_t i{0}; i < in.size(); ++i)
+  for (std::size_t i{0}; i < std::size(in); ++i)
     PQXX_CHECK_EQUAL(out[i], in[i], "Array element has changed.");
 
   item = parser.get_next();

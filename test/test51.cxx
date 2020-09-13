@@ -27,32 +27,33 @@ void test_051()
     A.write(Contents);
 
     char Buf[200];
-    constexpr auto Size = sizeof(Buf) - 1;
+    constexpr auto Size = std::size(Buf) - 1;
 
     auto Offset = A.seek(0, std::ios::beg);
     PQXX_CHECK_EQUAL(Offset, 0, "Wrong position after seek to beginning.");
 
     PQXX_CHECK_EQUAL(
-      std::size_t(A.read(Buf, Size)), Contents.size(),
+      std::size_t(A.read(Buf, Size)), std::size(Contents),
       "Unexpected read() result.");
 
     PQXX_CHECK_EQUAL(
-      std::string(Buf, Contents.size()), Contents,
+      std::string(Buf, std::size(Contents)), Contents,
       "Large object contents were mutilated.");
 
     // Now write contents again, this time as a conn string
+    // TODO: Use C++20's ssize().
     PQXX_CHECK_EQUAL(
-      A.seek(-int(Contents.size()), std::ios::end), 0,
+      A.seek(-int(std::size(Contents)), std::ios::end), 0,
       "Bad position after seeking to beginning of large object.");
 
-    A.write(Buf, Contents.size());
+    A.write(Buf, std::size(Contents));
     A.seek(0, std::ios::beg);
     PQXX_CHECK_EQUAL(
-      std::size_t(A.read(Buf, Size)), Contents.size(),
+      std::size_t(A.read(Buf, Size)), std::size(Contents),
       "Bad length for rewritten large object.");
 
     PQXX_CHECK_EQUAL(
-      std::string(Buf, Contents.size()), Contents,
+      std::string(Buf, std::size(Contents)), Contents,
       "Rewritten large object was mangled.");
 
     tx.commit();

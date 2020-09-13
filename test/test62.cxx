@@ -39,11 +39,11 @@ void test_062()
 
   PQXX_CHECK(not B.empty(), "Binary string became empty in conversion.");
 
-  PQXX_CHECK_EQUAL(B.size(), TestStr.size(), "Binary string was mangled.");
+  PQXX_CHECK_EQUAL(std::size(B), std::size(TestStr), "Binary string was mangled.");
 
   std::basic_string<std::byte>::const_iterator c;
   std::basic_string<std::byte>::size_type i;
-  for (i = 0, c = B.begin(); i < B.size(); ++i, ++c)
+  for (i = 0, c = B.begin(); i < std::size(B); ++i, ++c)
   {
     PQXX_CHECK(c != B.end(), "Premature end to binary string.");
 

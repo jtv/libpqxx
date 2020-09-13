@@ -31,7 +31,7 @@ void test_053()
     char Buf[200];
     work tx{conn};
     largeobjectaccess O{tx, Obj, std::ios::in};
-    auto const len{O.read(Buf, sizeof(Buf) - 1)};
+    auto const len{O.read(Buf, std::size(Buf) - 1)};
     PQXX_CHECK_EQUAL(
       std::string(Buf, std::string::size_type(len)), Contents,
       "Large object contents were mangled.");

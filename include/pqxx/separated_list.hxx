@@ -53,7 +53,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   std::size_t budget{0};
   for (ITER cnt{begin}; cnt != end; ++cnt)
     budget += traits::size_buffer(access(cnt));
-  budget += static_cast<std::size_t>(std::distance(begin, end)) * sep.size();
+  budget += static_cast<std::size_t>(std::distance(begin, end)) * std::size(sep);
 
   std::string result;
   result.resize(budget);
@@ -63,7 +63,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   here = traits::into_buf(here, stop, access(begin)) - 1;
   for (++begin; begin != end; ++begin)
   {
-    here += sep.copy(here, sep.size());
+    here += sep.copy(here, std::size(sep));
     here = traits::into_buf(here, stop, access(begin)) - 1;
   }
   result.resize(static_cast<std::size_t>(here - result.data()));

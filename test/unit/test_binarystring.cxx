@@ -22,7 +22,7 @@ void test_binarystring()
   auto b{make_binarystring(tx, "")};
   PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
-  PQXX_CHECK_EQUAL(b.size(), 0u, "Empty binarystring has nonzero size.");
+  PQXX_CHECK_EQUAL(std::size(b), 0u, "Empty binarystring has nonzero size.");
   PQXX_CHECK_EQUAL(b.length(), 0u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() == b.end(), "Empty binarystring iterates.");
   PQXX_CHECK(b.cbegin() == b.begin(), "Wrong cbegin for empty binarystring.");
@@ -35,7 +35,7 @@ void test_binarystring()
   b = make_binarystring(tx, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
   PQXX_CHECK(not b.empty(), "Nonempty binarystring is empty.");
-  PQXX_CHECK_EQUAL(b.size(), 1u, "Bad binarystring size.");
+  PQXX_CHECK_EQUAL(std::size(b), 1u, "Bad binarystring size.");
   PQXX_CHECK_EQUAL(b.length(), 1u, "Length/size mismatch.");
   PQXX_CHECK(b.begin() != b.end(), "Nonempty binarystring does not iterate.");
   PQXX_CHECK(
@@ -56,7 +56,7 @@ void test_binarystring()
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
     b.str(), simple, "Binary (un)escaping went wrong somewhere.");
-  PQXX_CHECK_EQUAL(b.size(), simple.size(), "Escaping confuses length.");
+  PQXX_CHECK_EQUAL(std::size(b), std::size(simple), "Escaping confuses length.");
 
   std::string const simple_escaped{tx.esc_raw(simple)};
   for (auto c : simple_escaped)
@@ -67,7 +67,7 @@ void test_binarystring()
 
   PQXX_CHECK_EQUAL(
     tx.quote_raw(
-      reinterpret_cast<unsigned char const *>(simple.c_str()), simple.size()),
+      reinterpret_cast<unsigned char const *>(simple.c_str()), std::size(simple)),
     tx.quote(b), "quote_raw is broken");
   PQXX_CHECK_EQUAL(
     tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");
@@ -82,7 +82,7 @@ void test_binarystring()
   std::string const nully("a\0b", 3);
   b = make_binarystring(tx, nully);
   PQXX_CHECK_EQUAL(b.str(), nully, "Nul byte broke binary (un)escaping.");
-  PQXX_CHECK_EQUAL(b.size(), 3u, "Nul byte broke binarystring size.");
+  PQXX_CHECK_EQUAL(std::size(b), 3u, "Nul byte broke binarystring size.");
 
   b = make_binarystring(tx, "foo");
   PQXX_CHECK_EQUAL(std::string(b.get(), 3), "foo", "get() appears broken.");
@@ -108,21 +108,21 @@ void test_binarystring()
 void test_binarystring_conversion()
 {
   constexpr char bytes[]{"f\to\0o\n\0"};
-  std::string_view const data{bytes, sizeof(bytes) - 1};
+  std::string_view const data{bytes, std::size(bytes) - 1};
   pqxx::binarystring bin{data};
   auto const escaped{pqxx::to_string(bin)};
   PQXX_CHECK_EQUAL(
     escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
   auto const restored{pqxx::from_string<pqxx::binarystring>(escaped)};
   PQXX_CHECK_EQUAL(
-    restored.size(), data.size(), "Unescaping produced wrong length.");
+    std::size(restored), std::size(data), "Unescaping produced wrong length.");
 }
 
 
 void test_binarystring_stream()
 {
   constexpr char bytes[]{"a\tb\0c"};
-  std::string_view const data{bytes, sizeof(bytes) - 1};
+  std::string_view const data{bytes, std::size(bytes) - 1};
   pqxx::binarystring bin{data};
 
   pqxx::connection conn;
@@ -134,13 +134,13 @@ void test_binarystring_stream()
   to.complete();
 
   auto ptr{reinterpret_cast<unsigned char const *>(data.data())};
-  auto expect{tx.quote_raw(ptr, data.size())};
+  auto expect{tx.quote_raw(ptr, std::size(data))};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT bin = " + expect + " FROM pqxxbinstream"),
     "binarystring did not stream_to properly.");
   PQXX_CHECK_EQUAL(
     tx.query_value<std::size_t>("SELECT octet_length(bin) FROM pqxxbinstream"),
-    data.size(), "Did the terminating zero break the bytea?");
+    std::size(data), "Did the terminating zero break the bytea?");
 }
 
 
@@ -162,12 +162,12 @@ void test_binarystring_array_stream()
   PQXX_CHECK_EQUAL(
     tx.query_value<std::size_t>(
       "SELECT array_length(vec, 1) FROM pqxxbinstream"),
-    vec.size(), "Array came out with wrong length.");
+    std::size(vec), "Array came out with wrong length.");
 
   auto ptr1{reinterpret_cast<unsigned char const *>(data1.data())},
     ptr2{reinterpret_cast<unsigned char const *>(data2.data())};
-  auto expect1{tx.quote_raw(ptr1, data1.size())},
-    expect2{tx.quote_raw(ptr2, data2.size())};
+  auto expect1{tx.quote_raw(ptr1, std::size(data1))},
+    expect2{tx.quote_raw(ptr2, std::size(data2))};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT vec[1] = " + expect1 + " FROM pqxxbinstream"),
     "Bytea in array came out wrong.");
@@ -177,7 +177,7 @@ void test_binarystring_array_stream()
   PQXX_CHECK_EQUAL(
     tx.query_value<std::size_t>(
       "SELECT octet_length(vec[1]) FROM pqxxbinstream"),
-    data1.size(), "Bytea length broke inside array.");
+    std::size(data1), "Bytea length broke inside array.");
 }
 
 

@@ -70,7 +70,7 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
   pqxx::nontransaction w{c, name};
   auto const status_row{w.exec1(query)};
   auto const status_field{status_row[0]};
-  if (status_field.size() == 0)
+  if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty."};
   auto const status{parse_status(status_field.as<std::string_view>())};
   if (status == tx_unknown)

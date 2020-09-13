@@ -24,13 +24,13 @@ template<> struct string_traits<row::const_iterator>
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
-    std::memcpy(begin, text.c_str(), text.size() + 1);
-    return begin + text.size();
+    std::memcpy(begin, text.c_str(), std::size(text) + 1);
+    return begin + std::size(text);
   }
   static constexpr std::size_t
   size_buffer(row::const_iterator const &) noexcept
   {
-    return text.size() + 1;
+    return std::size(text) + 1;
   }
 };
 
@@ -48,8 +48,8 @@ template<> struct string_traits<row::const_reverse_iterator>
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
-    std::memcpy(begin, text.c_str(), text.size() + 1);
-    return begin + text.size();
+    std::memcpy(begin, text.c_str(), std::size(text) + 1);
+    return begin + std::size(text);
   }
   static constexpr std::size_t
   size_buffer(row::const_reverse_iterator const &) noexcept
@@ -72,7 +72,7 @@ void test_result_slicing()
   // Empty slice at beginning of row.
   pqxx::row s{r[0].slice(0, 0)};
   PQXX_CHECK(s.empty(), "Empty slice does not show up as empty.");
-  PQXX_CHECK_EQUAL(s.size(), 0, "Slicing produces wrong row size.");
+  PQXX_CHECK_EQUAL(std::size(s), 0, "Slicing produces wrong row size.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "Slice begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "Slice rbegin()/rend() are broken.");
 
@@ -88,7 +88,7 @@ void test_result_slicing()
   // Empty slice at end of row.
   s = r[0].slice(1, 1);
   PQXX_CHECK(s.empty(), "empty() is broken.");
-  PQXX_CHECK_EQUAL(s.size(), 0, "size() is broken.");
+  PQXX_CHECK_EQUAL(std::size(s), 0, "size() is broken.");
   PQXX_CHECK_EQUAL(s.begin(), s.end(), "begin()/end() are broken.");
   PQXX_CHECK_EQUAL(s.rbegin(), s.rend(), "rbegin()/rend() are broken.");
 
@@ -97,7 +97,7 @@ void test_result_slicing()
   // Slice that matches the entire row.
   s = r[0].slice(0, 1);
   PQXX_CHECK(not s.empty(), "Nonempty slice shows up as empty.");
-  PQXX_CHECK_EQUAL(s.size(), 1, "size() breaks for non-empty slice.");
+  PQXX_CHECK_EQUAL(std::size(s), 1, "size() breaks for non-empty slice.");
   PQXX_CHECK_EQUAL(s.begin() + 1, s.end(), "Iteration is broken.");
   PQXX_CHECK_EQUAL(s.rbegin() + 1, s.rend(), "Reverse iteration is broken.");
   PQXX_CHECK_EQUAL(s.at(0).as<int>(), 1, "Accessing a slice is broken.");

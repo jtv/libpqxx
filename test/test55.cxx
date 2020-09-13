@@ -25,7 +25,7 @@ void test_055()
     work tx{conn};
     largeobjectaccess A{tx, "pqxxlo.txt", std::ios::in};
     auto new_obj{largeobject(A)};
-    auto const len{A.read(Buf, sizeof(Buf) - 1)};
+    auto const len{A.read(Buf, std::size(Buf) - 1)};
     PQXX_CHECK_EQUAL(
       std::string(Buf, std::string::size_type(len)), Contents,
       "Large object contents were mangled.");

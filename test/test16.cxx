@@ -22,12 +22,12 @@ void test_016()
     ;
 
   // See if back() and row comparison work properly
-  PQXX_CHECK(R.size() >= 2, "Not enough rows in pg_tables to test, sorry!");
+  PQXX_CHECK(std::size(R) >= 2, "Not enough rows in pg_tables to test, sorry!");
 
   --c;
 
   PQXX_CHECK_EQUAL(
-    c->size(), R.back().size(),
+    c->size(), std::size(R.back()),
     "Size mismatch between row iterator and back().");
 
   std::string const nullstr;

@@ -53,7 +53,7 @@ namespace pqxx
  * number:
  *
  * @code
- *	for (result::size_type i=0; i < R.size(); ++i) Process(R[i]);
+ *	for (result::size_type i=0; i < std::size(R); ++i) Process(R[i]);
  * @endcode
  *
  * Result sets in libpqxx are lightweight, reference-counted wrapper objects

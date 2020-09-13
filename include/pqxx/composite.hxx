@@ -34,7 +34,7 @@ inline void parse_composite(
 
   auto const scan{pqxx::internal::get_glyph_scanner(enc)};
   auto const data{text.data()};
-  auto const size{text.size()};
+  auto const size{std::size(text)};
   if (size == 0)
     throw conversion_error{"Cannot parse composite value from empty string."};
 
@@ -69,7 +69,7 @@ inline void parse_composite(std::string_view text, T &... fields)
 
 namespace pqxx::internal
 {
-char const empty_composite_str[]{"()"};
+constexpr char empty_composite_str[]{"()"};
 } // namespace pqxx::internal
 
 
@@ -92,7 +92,7 @@ inline std::size_t composite_size_buffer(T const &... fields) noexcept
   //  + terminating zero
 
   if constexpr (sizeof...(fields) == 0)
-    return sizeof(pqxx::internal::empty_composite_str);
+    return std::size(pqxx::internal::empty_composite_str);
   else
     return 1 + (pqxx::internal::size_composite_field_buffer(fields) + ...) +
            num + 1;
@@ -115,9 +115,9 @@ inline char *composite_into_buf(char *begin, char *end, T const &... fields)
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
-    char const empty[]{"()"};
-    std::memcpy(begin, empty, sizeof(empty));
-    return begin + sizeof(empty);
+    constexpr char empty[]{"()"};
+    std::memcpy(begin, empty, std::size(empty));
+    return begin + std::size(empty);
   }
 
   char *pos{begin};

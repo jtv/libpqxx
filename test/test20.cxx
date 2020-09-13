@@ -30,7 +30,7 @@ void test_020()
                     to_string(BoringYear))
                      .c_str()));
   PQXX_CHECK_EQUAL(
-    R.size(), 0,
+    std::size(R), 0,
     "Already have a row for " + to_string(BoringYear) + ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
@@ -61,10 +61,10 @@ void test_020()
                 .c_str());
 
   PQXX_CHECK_EQUAL(
-    R.size(), 1,
+    std::size(R), 1,
     "Found wrong number of rows for " + to_string(BoringYear) + ".");
 
-  PQXX_CHECK(R.capacity() >= R.size(), "Result's capacity is too small.");
+  PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
 
   R.clear();
   PQXX_CHECK(R.empty(), "result::clear() doesn't work.");
@@ -87,7 +87,7 @@ void test_020()
                to_string(BoringYear))
                 .c_str());
 
-  PQXX_CHECK_EQUAL(R.size(), 0, "Record still found after removal.");
+  PQXX_CHECK_EQUAL(std::size(R), 0, "Record still found after removal.");
 }
 
 

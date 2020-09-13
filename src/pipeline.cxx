@@ -285,7 +285,7 @@ void pqxx::pipeline::obtain_dummy()
   {}
   if (OK)
   {
-    if (R.size() > 1)
+    if (std::size(R) > 1)
       internal_error("Unexpected result for dummy query in pipeline.");
 
     if (R.at(0).at(0).as<std::string>() != theDummyValue)

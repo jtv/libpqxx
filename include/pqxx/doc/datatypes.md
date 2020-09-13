@@ -245,7 +245,7 @@ Expressed in code, this rule must hold:
 
     void invariant(zview z)
     {
-      assert(z[z.size()] == 0);
+      assert(z[std::size(z)] == 0);
     }
 
 Make sure you write your trailing zero _before_ the `end`.  If the trailing

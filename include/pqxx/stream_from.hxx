@@ -242,10 +242,10 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
   if (m_finished)
     return *this;
 
-  if (m_fields.size() != tup_size)
+  if (std::size(m_fields) != tup_size)
     throw usage_error{
       "Tried to extract " + to_string(tup_size) +
-      " field(s) from a stream of " + to_string(m_fields.size()) + "."};
+      " field(s) from a stream of " + to_string(std::size(m_fields)) + "."};
 
   extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;
@@ -257,7 +257,7 @@ inline void stream_from::extract_value(Tuple &t) const
 {
   using field_type = strip_t<decltype(std::get<index>(t))>;
   using nullity = nullness<field_type>;
-  assert(index < m_fields.size());
+  assert(index < std::size(m_fields));
   if constexpr (nullity::always_null)
   {
     if (m_fields[index].data() != nullptr)

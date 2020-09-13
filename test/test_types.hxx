@@ -83,7 +83,7 @@ template<> struct string_traits<ipv4>
     std::smatch match;
     // Need non-temporary for `std::regex_match()`
     std::string sstr{text};
-    if (not std::regex_match(sstr, match, ipv4_regex) or match.size() != 5)
+    if (not std::regex_match(sstr, match, ipv4_regex) or std::size(match) != 5)
       throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
     try
     {
@@ -165,11 +165,11 @@ template<> struct string_traits<bytea>
 {
   static bytea from_string(std::string_view text)
   {
-    if ((text.size() & 1) != 0)
+    if ((std::size(text) & 1) != 0)
       throw std::runtime_error{"Odd hex size."};
     bytea value;
-    value.reserve((text.size() - 2) / 2);
-    for (std::size_t i = 2; i < text.size(); i += 2)
+    value.reserve((std::size(text) - 2) / 2);
+    for (std::size_t i = 2; i < std::size(text); i += 2)
     {
       auto hi = hex_to_digit(text[i]), lo = hex_to_digit(text[i + 1]);
       value.push_back(static_cast<unsigned char>((hi << 4) | lo));
@@ -197,12 +197,12 @@ template<> struct string_traits<bytea>
 
   static char *into_buf(char *begin, char *end, bytea const &value)
   {
-    return begin + to_buf(begin, end, value).size() + 1;
+    return begin + std::size(to_buf(begin, end, value)) + 1;
   }
 
   static std::size_t size_buffer(bytea const &value)
   {
-    return 2 + 2 * value.size() + 1;
+    return 2 + 2 * std::size(value) + 1;
   }
 };
 } // namespace pqxx

@@ -731,7 +731,7 @@ private:
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
-  /** The buffer must have room for at least @c 2*text.size()+1 bytes.
+  /** The buffer must have room for at least @c 2*std::size(text)+1 bytes.
    *
    * Returns the number of bytes written, including the trailing zero.
    */
@@ -824,7 +824,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
     // because it's going to save some string manipulation that will probably
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
-    buf.resize(2 + 2 * text.size() + 1);
+    buf.resize(2 + 2 * std::size(text) + 1);
     auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';

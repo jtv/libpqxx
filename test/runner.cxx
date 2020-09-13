@@ -194,9 +194,9 @@ int main(int argc, char const *argv[])
 
   if (not failed.empty())
   {
-    std::cerr << "*** " << failed.size() << " test(s) failed: ***\n";
+    std::cerr << "*** " << std::size(failed) << " test(s) failed: ***\n";
     for (auto const &i : failed) std::cerr << "\t" << i << '\n';
   }
 
-  return int(failed.size());
+  return int(std::size(failed));
 }

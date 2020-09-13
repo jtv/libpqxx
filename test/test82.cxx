@@ -32,14 +32,14 @@ void test_082()
     }
 
     PQXX_CHECK(
-      r.begin() + pqxx::row::difference_type(r.size()) == r.end(),
+      r.begin() + pqxx::row::difference_type(std::size(r)) == r.end(),
       "Row end() appears to be in the wrong place.");
     PQXX_CHECK(
-      pqxx::row::difference_type(r.size()) + r.begin() == r.end(),
+      pqxx::row::difference_type(std::size(r)) + r.begin() == r.end(),
       "Row iterator addition is not commutative.");
     PQXX_CHECK_EQUAL(r.begin()->num(), 0, "Wrong column number at begin().");
 
-    pqxx::row::const_iterator f3(r[r.size()]);
+    pqxx::row::const_iterator f3(r[std::size(r)]);
 
     PQXX_CHECK(f3 == r.end(), "Did not get end() at end of row.");
 
@@ -50,7 +50,7 @@ void test_082()
 
     PQXX_CHECK(f3 > r.begin(), "Row end() not greater than begin().");
 
-    pqxx::row::const_iterator f4(r, r.size());
+    pqxx::row::const_iterator f4{r, std::size(r)};
     PQXX_CHECK(f4 == f3, "Row iterator constructor with offset is broken.");
 
     f3--;

@@ -251,9 +251,9 @@ public:
     std::string const &query, std::string const &desc = std::string{})
   {
     row const r{exec1(query, desc)};
-    if (r.size() != 1)
+    if (std::size(r) != 1)
       throw usage_error{
-        "Queried single value from result with " + to_string(r.size()) +
+        "Queried single value from result with " + to_string(std::size(r)) +
         " columns."};
     return r[0].as<TYPE>();
   }
@@ -367,7 +367,7 @@ public:
   exec_params_n(std::size_t rows, std::string const &query, Args &&... args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
-    check_rowcount_params(rows, r.size());
+    check_rowcount_params(rows, std::size(r));
     return r;
   }
   //@}
@@ -436,7 +436,7 @@ public:
   exec_prepared_n(result::size_type rows, zview statement, Args &&... args)
   {
     auto const r{exec_prepared(statement, std::forward<Args>(args)...)};
-    check_rowcount_prepared(statement, rows, r.size());
+    check_rowcount_prepared(statement, rows, std::size(r));
     return r;
   }
 

@@ -12,9 +12,9 @@ void test_scan_ascii()
   std::string const text{"hello"};
 
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), text.size(), 0), 1ul, "Monobyte scanner acting up.");
+    scan(text.c_str(), std::size(text), 0), 1ul, "Monobyte scanner acting up.");
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), text.size(), 1), 2ul,
+    scan(text.c_str(), std::size(text), 1), 2ul,
     "Monobyte scanner is inconsistent.");
 }
 
@@ -27,10 +27,10 @@ void test_scan_utf8()
   // Thai: "Khrab".
   std::string const text{"\xe0\xb8\x95\xe0\xb8\xa3\xe0\xb8\xb1\xe0\xb8\x9a"};
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), text.size(), 0), 3ul,
+    scan(text.c_str(), std::size(text), 0), 3ul,
     "UTF-8 scanner mis-scanned Thai khor khwai.");
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), text.size(), 3), 6ul,
+    scan(text.c_str(), std::size(text), 3), 6ul,
     "UTF-8 scanner mis-scanned Thai ror reua.");
 }
 
@@ -55,9 +55,9 @@ void test_for_glyphs_ascii()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    text.c_str(), text.size());
+    text.c_str(), std::size(text));
 
-  PQXX_CHECK_EQUAL(points.size(), 2u, "Wrong number of ASCII iterations.");
+  PQXX_CHECK_EQUAL(std::size(points), 2u, "Wrong number of ASCII iterations.");
   PQXX_CHECK_EQUAL(points[0], 1u, "ASCII iteration started off wrong.");
   PQXX_CHECK_EQUAL(points[1], 1u, "ASCII iteration was inconsistent.");
 }
@@ -74,9 +74,9 @@ void test_for_glyphs_utf8()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    text.c_str(), text.size());
+    text.c_str(), std::size(text));
 
-  PQXX_CHECK_EQUAL(points.size(), 2u, "Wrong number of UTF-8 iterations.");
+  PQXX_CHECK_EQUAL(std::size(points), 2u, "Wrong number of UTF-8 iterations.");
   PQXX_CHECK_EQUAL(points[0], 2u, "UTF-8 iteration started off wrong.");
   PQXX_CHECK_EQUAL(points[1], 2u, "ASCII iteration was inconsistent.");
 
@@ -89,9 +89,9 @@ void test_for_glyphs_utf8()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    mix.c_str(), mix.size());
+    mix.c_str(), std::size(mix));
 
-  PQXX_CHECK_EQUAL(points.size(), 3u, "Mixed UTF-8 iteration is broken.");
+  PQXX_CHECK_EQUAL(std::size(points), 3u, "Mixed UTF-8 iteration is broken.");
   PQXX_CHECK_EQUAL(points[0], 2u, "Mixed UTF-8 iteration started off wrong.");
   PQXX_CHECK_EQUAL(points[1], 1u, "Mixed UTF-8 iteration got ASCII wrong.");
   PQXX_CHECK_EQUAL(

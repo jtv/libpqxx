@@ -25,7 +25,7 @@ namespace pqxx
 std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos) const
 {
-  return m_scan(m_input.data(), m_input.size(), pos);
+  return m_scan(m_input.data(), std::size(m_input), pos);
 }
 
 
@@ -45,7 +45,7 @@ std::string::size_type array_parser::scan_glyph(
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
   auto here{m_pos}, next{scan_glyph(here)};
-  for (here = next, next = scan_glyph(here); here < m_input.size();
+  for (here = next, next = scan_glyph(here); here < std::size(m_input);
        here = next, next = scan_glyph(here))
   {
     if (next - here == 1)
@@ -111,7 +111,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
   return pqxx::internal::scan_double_quoted_string(
-    m_input.data(), m_input.size(), m_pos, m_scan);
+    m_input.data(), std::size(m_input), m_pos, m_scan);
 }
 
 
@@ -130,7 +130,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_unquoted_string() const
 {
   return pqxx::internal::scan_unquoted_string<',', ';', '}'>(
-    m_input.data(), m_input.size(), m_pos, m_scan);
+    m_input.data(), std::size(m_input), m_pos, m_scan);
 }
 
 
@@ -156,7 +156,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
 {
   std::string value;
 
-  if (m_pos >= m_input.size())
+  if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
   juncture found;
@@ -211,7 +211,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
     }
 
   // Skip a trailing field separator, if present.
-  if (end < m_input.size())
+  if (end < std::size(m_input))
   {
     auto next{scan_glyph(end)};
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))

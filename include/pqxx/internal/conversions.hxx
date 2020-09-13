@@ -82,7 +82,7 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
   auto const space = check_cast<std::size_t>(
     end - begin, "floating-point conversion to string");
   // Include the trailing zero.
-  auto const len = text.size() + 1;
+  auto const len = std::size(text) + 1;
   if (len > space)
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
@@ -508,13 +508,13 @@ template<> struct string_traits<std::string>
 
   static char *into_buf(char *begin, char *end, std::string const &value)
   {
-    if (value.size() >= std::size_t(end - begin))
+    if (std::size(value) >= std::size_t(end - begin))
       throw conversion_overrun{
         "Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
-    value.copy(begin, value.size());
-    begin[value.size()] = '\0';
-    return begin + value.size() + 1;
+    value.copy(begin, std::size(value));
+    begin[std::size(value)] = '\0';
+    return begin + std::size(value) + 1;
   }
 
   static zview to_buf(char *begin, char *end, std::string const &value)
@@ -526,7 +526,7 @@ template<> struct string_traits<std::string>
 
   static std::size_t size_buffer(std::string const &value) noexcept
   {
-    return value.size() + 1;
+    return std::size(value) + 1;
   }
 };
 
@@ -545,17 +545,17 @@ template<> struct string_traits<std::string_view>
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
-    return value.size() + 1;
+    return std::size(value) + 1;
   }
 
   static char *into_buf(char *begin, char *end, std::string_view const &value)
   {
-    if (value.size() >= std::size_t(end - begin))
+    if (std::size(value) >= std::size_t(end - begin))
       throw conversion_overrun{
         "Could not store string_view: too long for buffer."};
-    value.copy(begin, value.size());
-    begin[value.size()] = '\0';
-    return begin + value.size() + 1;
+    value.copy(begin, std::size(value));
+    begin[std::size(value)] = '\0';
+    return begin + std::size(value) + 1;
   }
 
   /// Don't convert to this type; it has nowhere to store its contents.
@@ -573,7 +573,7 @@ template<> struct string_traits<zview>
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
-    return value.size() + 1;
+    return std::size(value) + 1;
   }
 
   static char *into_buf(char *, char *, zview const &) = delete;
@@ -595,7 +595,7 @@ template<> struct string_traits<std::stringstream>
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
-    stream.write(text.data(), std::streamsize(text.size()));
+    stream.write(text.data(), std::streamsize(std::size(text)));
     return stream;
   }
 
@@ -725,7 +725,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
   static std::size_t
   size_buffer(std::basic_string<std::byte> const &value) noexcept
   {
-    return internal::size_esc_bin(value.size());
+    return internal::size_esc_bin(std::size(value));
   }
 
   static zview
@@ -744,14 +744,14 @@ template<> struct string_traits<std::basic_string<std::byte>>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(
       std::string_view(
-        reinterpret_cast<char const *>(value.data()), value.size()),
+        reinterpret_cast<char const *>(value.data()), std::size(value)),
       begin);
     return begin + budget;
   }
 
   static std::basic_string<std::byte> from_string(std::string_view text)
   {
-    auto const size{pqxx::internal::size_unesc_bin(text.size())};
+    auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
@@ -771,7 +771,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
   static std::size_t
   size_buffer(std::basic_string_view<std::byte> const &value) noexcept
   {
-    return internal::size_esc_bin(value.size());
+    return internal::size_esc_bin(std::size(value));
   }
 
   static zview to_buf(
@@ -790,14 +790,14 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(
       std::string_view(
-        reinterpret_cast<char const *>(value.data()), value.size()),
+        reinterpret_cast<char const *>(value.data()), std::size(value)),
       begin);
     return begin + budget;
   }
 
   static std::basic_string<std::byte> from_string(std::string_view text)
   {
-    auto const size{pqxx::internal::size_unesc_bin(text.size())};
+    auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(text, buf.data());
@@ -834,8 +834,8 @@ template<typename Container> struct array_string_traits
     {
       if (is_null(elt))
       {
-        s_null.copy(here, s_null.size());
-        here += s_null.size();
+        s_null.copy(here, std::size(s_null));
+        here += std::size(s_null);
       }
       else if constexpr (is_sql_array<elt_type>)
       {
@@ -888,7 +888,7 @@ template<typename Container> struct array_string_traits
                    [](std::size_t acc, elt_type const &elt) {
                      return acc +
                             (pqxx::is_null(elt) ?
-                               s_null.size() :
+                               std::size(s_null) :
                                elt_traits::size_buffer(elt)) -
                             1;
                    });
@@ -899,7 +899,7 @@ template<typename Container> struct array_string_traits
                      // Opening and closing quotes, plus worst-case escaping,
                      // but don't count the trailing zeroes.
                      std::size_t const elt_size{
-                       pqxx::is_null(elt) ? s_null.size() :
+                       pqxx::is_null(elt) ? std::size(s_null) :
                                             elt_traits::size_buffer(elt) - 1};
                      return acc + 2 * elt_size + 2;
                    });
@@ -960,7 +960,7 @@ template<typename T> inline std::string to_string(T const &value)
   // undefined behaviour.
   buf.resize(size_buffer(value));
   auto const end{
-    string_traits<T>::into_buf(buf.data(), buf.data() + buf.size(), value)};
+    string_traits<T>::into_buf(buf.data(), buf.data() + std::size(buf), value)};
   buf.resize(static_cast<std::size_t>(end - buf.data() - 1));
   return buf;
 }
@@ -994,7 +994,7 @@ template<typename T> inline void into_string(T const &value, std::string &out)
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
   auto const end{
-    string_traits<T>::into_buf(out.data(), out.data() + out.size(), value)};
+    string_traits<T>::into_buf(out.data(), out.data() + std::size(out), value)};
   out.resize(static_cast<std::size_t>(end - out.data() - 1));
 }
 } // namespace pqxx

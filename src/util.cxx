@@ -140,7 +140,7 @@ void pqxx::internal::esc_bin(
 
 std::string pqxx::internal::esc_bin(std::string_view binary_data)
 {
-  auto const bytes{size_esc_bin(binary_data.size())};
+  auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;
   buf.resize(bytes);
   esc_bin(binary_data, buf.data());
@@ -153,7 +153,7 @@ std::string pqxx::internal::esc_bin(std::string_view binary_data)
 void pqxx::internal::unesc_bin(
   std::string_view escaped_data, std::byte buffer[])
 {
-  auto const in_size{escaped_data.size()};
+  auto const in_size{std::size(escaped_data)};
   if (in_size < 2)
     throw pqxx::failure{"Binary data appears truncated."};
   if ((in_size % 2) != 0)
@@ -180,7 +180,7 @@ void pqxx::internal::unesc_bin(
 
 std::string pqxx::internal::unesc_bin(std::string_view escaped_data)
 {
-  auto const bytes{size_unesc_bin(escaped_data.size())};
+  auto const bytes{size_unesc_bin(std::size(escaped_data))};
   std::string buf;
   buf.resize(bytes);
   unesc_bin(escaped_data, reinterpret_cast<std::byte *>(buf.data()));

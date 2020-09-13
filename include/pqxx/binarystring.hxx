@@ -184,7 +184,7 @@ template<> struct string_traits<binarystring>
 {
   static std::size_t size_buffer(binarystring const &value) noexcept
   {
-    return internal::size_esc_bin(value.size());
+    return internal::size_esc_bin(std::size(value));
   }
 
   static zview to_buf(char *begin, char *end, binarystring const &value)
@@ -205,7 +205,7 @@ template<> struct string_traits<binarystring>
 
   static binarystring from_string(std::string_view text)
   {
-    auto const size{pqxx::internal::size_unesc_bin(text.size())};
+    auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::shared_ptr<unsigned char> buf{
       new unsigned char[size], [](unsigned char const *x) { delete[] x; }};
     pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.get()));

@@ -25,7 +25,7 @@ void begin_copy(
   constexpr std::string_view copy{"COPY "}, from_stdin{" FROM STDIN"};
   std::string query;
   query.reserve(
-    copy.size() + table.size() + 2 + columns.size() + from_stdin.size());
+    std::size(copy) + std::size(table) + 2 + std::size(columns) + std::size(from_stdin));
 
   query += copy;
   query += table;
@@ -74,8 +74,8 @@ void pqxx::stream_to::write_buffer()
   {
     // In append_to_buffer() we write a tab after each field.  We only want a
     // tab _between_ fields.  Remove that last one.
-    assert(m_buffer[m_buffer.size() - 1] == '\t');
-    m_buffer.resize(m_buffer.size() - 1);
+    assert(m_buffer[std::size(m_buffer) - 1] == '\t');
+    m_buffer.resize(std::size(m_buffer) - 1);
   }
   write_raw_line(m_buffer);
   m_buffer.clear();

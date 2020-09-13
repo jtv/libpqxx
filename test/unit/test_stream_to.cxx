@@ -12,7 +12,7 @@ namespace
 std::string truncate_sql_error(std::string const &what)
 {
   auto trunc{what.substr(0, what.find('\n'))};
-  if (trunc.size() > 64)
+  if (std::size(trunc) > 64)
     trunc = trunc.substr(0, 61) + "...";
   return trunc;
 }
