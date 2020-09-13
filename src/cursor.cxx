@@ -121,7 +121,7 @@ pqxx::result pqxx::icursorstream::fetchblock()
 {
   result const r{m_cur.fetch(m_stride)};
   m_realpos += std::size(r);
-  if (r.empty())
+  if (std::empty(r))
     m_done = true;
   return r;
 }
@@ -304,7 +304,7 @@ bool pqxx::icursor_iterator::operator==(icursor_iterator const &rhs) const
     return false;
   refresh();
   rhs.refresh();
-  return m_here.empty() and rhs.m_here.empty();
+  return std::empty(m_here) and std::empty(rhs.m_here);
 }
 
 
@@ -314,7 +314,7 @@ bool pqxx::icursor_iterator::operator<(icursor_iterator const &rhs) const
     return pos() < rhs.pos();
   refresh();
   rhs.refresh();
-  return not m_here.empty();
+  return not std::empty(m_here);
 }
 
 

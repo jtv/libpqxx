@@ -53,7 +53,8 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   std::size_t budget{0};
   for (ITER cnt{begin}; cnt != end; ++cnt)
     budget += traits::size_buffer(access(cnt));
-  budget += static_cast<std::size_t>(std::distance(begin, end)) * std::size(sep);
+  budget +=
+    static_cast<std::size_t>(std::distance(begin, end)) * std::size(sep);
 
   std::string result;
   result.resize(budget);

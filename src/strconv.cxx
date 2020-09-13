@@ -298,7 +298,7 @@ template<typename TYPE>
     "' "
     "to " +
     pqxx::type_name<TYPE>};
-  if (msg.empty())
+  if (std::empty(msg))
     throw pqxx::conversion_error{base + "."};
   else
     throw pqxx::conversion_error{base + ": " + msg};
@@ -504,7 +504,7 @@ inline bool from_dumb_stringstream(
 // These are hard, and popular compilers do not yet implement std::from_chars.
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
-  if (text.empty())
+  if (std::empty(text))
     throw pqxx::conversion_error{
       "Trying to convert empty string to " + pqxx::type_name<T> + "."};
 

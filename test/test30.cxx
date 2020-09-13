@@ -20,7 +20,7 @@ void test_030()
   work tx{conn, "test30"};
 
   result R(tx.exec(("SELECT * FROM " + Table).c_str()));
-  PQXX_CHECK(not R.empty(), "Table " + Table + " is empty, cannot test.");
+  PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
   for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
@@ -35,7 +35,7 @@ void test_030()
   }
 
   // If there are rows in R, compare their metadata to R's.
-  if (R.empty())
+  if (std::empty(R))
   {
     std::cout << "(Table is empty.)\n";
     return;

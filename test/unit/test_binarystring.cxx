@@ -20,26 +20,31 @@ void test_binarystring()
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto b{make_binarystring(tx, "")};
-  PQXX_CHECK(b.empty(), "Empty binarystring is not empty.");
+  PQXX_CHECK(std::empty(b), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
   PQXX_CHECK_EQUAL(std::size(b), 0u, "Empty binarystring has nonzero size.");
   PQXX_CHECK_EQUAL(b.length(), 0u, "Length/size mismatch.");
   PQXX_CHECK(std::begin(b) == std::end(b), "Empty binarystring iterates.");
-  PQXX_CHECK(std::cbegin(b) == std::begin(b), "Wrong cbegin for empty binarystring.");
-  PQXX_CHECK(std::rbegin(b) == std::rend(b), "Empty binarystring reverse-iterates.");
   PQXX_CHECK(
-    std::crbegin(b) == std::rbegin(b), "Wrong crbegin for empty binarystring.");
+    std::cbegin(b) == std::begin(b), "Wrong cbegin for empty binarystring.");
+  PQXX_CHECK(
+    std::rbegin(b) == std::rend(b), "Empty binarystring reverse-iterates.");
+  PQXX_CHECK(
+    std::crbegin(b) == std::rbegin(b),
+    "Wrong crbegin for empty binarystring.");
   PQXX_CHECK_THROWS(
     b.at(0), std::out_of_range, "Empty binarystring accepts at().");
 
   b = make_binarystring(tx, "z");
   PQXX_CHECK_EQUAL(b.str(), "z", "Basic nonempty binarystring is broken.");
-  PQXX_CHECK(not b.empty(), "Nonempty binarystring is empty.");
+  PQXX_CHECK(not std::empty(b), "Nonempty binarystring is empty.");
   PQXX_CHECK_EQUAL(std::size(b), 1u, "Bad binarystring size.");
   PQXX_CHECK_EQUAL(b.length(), 1u, "Length/size mismatch.");
-  PQXX_CHECK(std::begin(b) != std::end(b), "Nonempty binarystring does not iterate.");
   PQXX_CHECK(
-    std::rbegin(b) != std::rend(b), "Nonempty binarystring does not reverse-iterate.");
+    std::begin(b) != std::end(b), "Nonempty binarystring does not iterate.");
+  PQXX_CHECK(
+    std::rbegin(b) != std::rend(b),
+    "Nonempty binarystring does not reverse-iterate.");
   PQXX_CHECK(std::begin(b) + 1 == std::end(b), "Bad iteration.");
   PQXX_CHECK(std::rbegin(b) + 1 == std::rend(b), "Bad reverse iteration.");
   PQXX_CHECK(std::cbegin(b) == std::begin(b), "Wrong cbegin.");
@@ -56,7 +61,8 @@ void test_binarystring()
   b = make_binarystring(tx, simple);
   PQXX_CHECK_EQUAL(
     b.str(), simple, "Binary (un)escaping went wrong somewhere.");
-  PQXX_CHECK_EQUAL(std::size(b), std::size(simple), "Escaping confuses length.");
+  PQXX_CHECK_EQUAL(
+    std::size(b), std::size(simple), "Escaping confuses length.");
 
   std::string const simple_escaped{tx.esc_raw(simple)};
   for (auto c : simple_escaped)
@@ -67,7 +73,8 @@ void test_binarystring()
 
   PQXX_CHECK_EQUAL(
     tx.quote_raw(
-      reinterpret_cast<unsigned char const *>(simple.c_str()), std::size(simple)),
+      reinterpret_cast<unsigned char const *>(simple.c_str()),
+      std::size(simple)),
     tx.quote(b), "quote_raw is broken");
   PQXX_CHECK_EQUAL(
     tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");

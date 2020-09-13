@@ -28,7 +28,7 @@ void test_011()
   }
 
   // If there are rows in R, compare their metadata to R's.
-  if (not R.empty())
+  if (not std::empty(R))
   {
     PQXX_CHECK_EQUAL(R[0].rownumber(), 0, "Row 0 has wrong number.");
 

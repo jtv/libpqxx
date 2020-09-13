@@ -15,7 +15,7 @@ void test_stateless_cursor()
     empty(tx, "SELECT generate_series(0, -1)", "empty", false);
 
   auto rows{empty.retrieve(0, 0)};
-  PQXX_CHECK_EQUAL(rows.empty(), true, "Empty result not empty");
+  PQXX_CHECK_EQUAL(std::empty(rows), true, "Empty result not empty");
   rows = empty.retrieve(0, 1);
   PQXX_CHECK_EQUAL(std::size(rows), 0, "Empty result returned rows");
 
@@ -58,7 +58,8 @@ void test_stateless_cursor()
 
   // Retrieve entire result set backwards.
   rows = stateless.retrieve(10, -15);
-  PQXX_CHECK_EQUAL(std::size(rows), 10, "Reverse complete retrieval is broken");
+  PQXX_CHECK_EQUAL(
+    std::size(rows), 10, "Reverse complete retrieval is broken");
   PQXX_CHECK_EQUAL(rows[0][0].as<int>(), 9, "Data mismatch");
   PQXX_CHECK_EQUAL(rows[9][0].as<int>(), 0, "Data mismatch");
 

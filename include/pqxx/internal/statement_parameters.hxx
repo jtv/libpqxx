@@ -171,7 +171,7 @@ private:
   /// Add a non-null string field.
   void add_field(std::string text)
   {
-	  // TODO: Use C++20's std::ssize().
+    // TODO: Use C++20's std::ssize().
     lengths.push_back(int(std::size(text)));
     nonnulls.push_back(1);
     binaries.push_back(0);
@@ -199,7 +199,7 @@ private:
   /// Compile one binary argument.
   void add_field(std::basic_string_view<std::byte> arg)
   {
-	  // TODO: Use C++20's std::ssize().
+    // TODO: Use C++20's std::ssize().
     lengths.push_back(int(std::size(arg)));
     nonnulls.push_back(1);
     binaries.push_back(1);

@@ -32,7 +32,7 @@ void test_039()
 
   // (Not needed, but verify that clear() works on empty containers)
   R.clear();
-  PQXX_CHECK(R.empty(), "Result is non-empty after clear().");
+  PQXX_CHECK(std::empty(R), "Result is non-empty after clear().");
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   tx1.exec0(
@@ -61,7 +61,7 @@ void test_039()
   PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
 
   R.clear();
-  PQXX_CHECK(R.empty(), "result::clear() is broken.");
+  PQXX_CHECK(std::empty(R), "result::clear() is broken.");
 
   // Now remove our record again
   tx2.exec0(

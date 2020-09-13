@@ -62,7 +62,7 @@ void test_encrypt_password()
 {
   pqxx::connection c;
   auto pw{c.encrypt_password("user", "password")};
-  PQXX_CHECK(not pw.empty(), "Encrypted password was empty.");
+  PQXX_CHECK(not std::empty(pw), "Encrypted password was empty.");
   PQXX_CHECK_EQUAL(
     std::strlen(pw.c_str()), std::size(pw),
     "Encrypted password contains a null byte.");

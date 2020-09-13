@@ -190,8 +190,8 @@ inline void parse_composite_field(
   break;
 
   default: {
-    auto const stop{
-      scan_unquoted_string<',', ')'>(input.data(), std::size(input), pos, scan)};
+    auto const stop{scan_unquoted_string<',', ')'>(
+      input.data(), std::size(input), pos, scan)};
     auto const text{parse_unquoted_string(input.data(), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;

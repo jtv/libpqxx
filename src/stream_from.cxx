@@ -30,7 +30,7 @@ std::string pqxx::stream_from::compose_query(
   command += copy;
   command += escaped_table;
 
-  if (not columns.empty())
+  if (not std::empty(columns))
   {
     command.push_back('(');
     command += columns;

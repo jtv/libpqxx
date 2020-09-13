@@ -50,7 +50,8 @@ void test_forward_sql_cursor()
   PQXX_CHECK_EQUAL(forward.pos(), 3, "move(1) after fetch(0) broke");
 
   row = forward.fetch(1);
-  PQXX_CHECK_EQUAL(std::size(row), 1, "fetch(1) returned wrong number of rows");
+  PQXX_CHECK_EQUAL(
+    std::size(row), 1, "fetch(1) returned wrong number of rows");
   PQXX_CHECK_EQUAL(forward.pos(), 4, "fetch(1) results in bad pos()");
   PQXX_CHECK_EQUAL(row[0][0].as<std::string>(), "4", "pos() is lying");
 
@@ -86,7 +87,8 @@ void test_forward_sql_cursor()
 
   // Fetch entire result set at once.
   auto rows{forward3.fetch(pqxx::cursor_base::all(), displacement)};
-  PQXX_CHECK_EQUAL(std::size(rows), 4, "Unexpected number of rows in result set");
+  PQXX_CHECK_EQUAL(
+    std::size(rows), 4, "Unexpected number of rows in result set");
   PQXX_CHECK_EQUAL(displacement, 5, "displacement != rows+1");
   PQXX_CHECK_EQUAL(forward3.pos(), 5, "Bad pos() after fetching all rows");
   PQXX_CHECK_EQUAL(forward3.endpos(), 5, "Bad endpos() after fetching");
@@ -124,7 +126,7 @@ void test_scroll_sql_cursor()
   // semantics: we pre-decrement, ending up on the position in front of the
   // first row and returning no rows.
   rows = scroll.fetch(pqxx::cursor_base::prior());
-  PQXX_CHECK_EQUAL(rows.empty(), true, "Turning around on fetch() broke");
+  PQXX_CHECK_EQUAL(std::empty(rows), true, "Turning around on fetch() broke");
   PQXX_CHECK_EQUAL(scroll.pos(), 0, "pos() is not back at zero");
   PQXX_CHECK_EQUAL(
     scroll.endpos(), -1, "endpos() set on wrong side of result");
@@ -240,7 +242,8 @@ void test_hold_cursor()
   tx.commit();
   pqxx::work tx2(conn, "tx2");
   auto rows{with_hold.fetch(1)};
-  PQXX_CHECK_EQUAL(std::size(rows), 1, "Did not get 1 row from with-hold cursor");
+  PQXX_CHECK_EQUAL(
+    std::size(rows), 1, "Did not get 1 row from with-hold cursor");
 
   // Cursor without hold is closed on commit.
   pqxx::internal::sql_cursor no_hold(

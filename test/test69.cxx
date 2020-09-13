@@ -19,12 +19,13 @@ void TestPipeline(pipeline &P, int numqueries)
   for (int i{numqueries}; i > 0; --i) P.insert(Q);
 
   PQXX_CHECK(
-    (numqueries == 0) or not P.empty(), "pipeline::empty() is broken.");
+    (numqueries == 0) or not std::empty(P), "pipeline::empty() is broken.");
 
   int res{0};
   for (int i{numqueries}; i > 0; --i)
   {
-    PQXX_CHECK(not P.empty(), "Got wrong number of queries from pipeline.");
+    PQXX_CHECK(
+      not std::empty(P), "Got wrong number of queries from pipeline.");
 
     auto R{P.retrieve()};
 
@@ -36,7 +37,7 @@ void TestPipeline(pipeline &P, int numqueries)
     res = R.second[0][0].as<int>();
   }
 
-  PQXX_CHECK(P.empty(), "Pipeline not empty after retrieval.");
+  PQXX_CHECK(std::empty(P), "Pipeline not empty after retrieval.");
 }
 
 
@@ -45,7 +46,7 @@ void test_069()
   connection conn;
   work tx{conn};
   pipeline P(tx);
-  PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
+  PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
   for (int i{0}; i < 5; ++i) TestPipeline(P, i);
 }
 

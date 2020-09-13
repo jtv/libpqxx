@@ -52,8 +52,10 @@ void test_nonoptionals(pqxx::connection &connection)
   // year in the second millennium.
   PQXX_CHECK(
     std::get<1>(got_tuple).at(0) == '2', "Bad value.  Expected timestamp.");
-  PQXX_CHECK_LESS(std::size(std::get<1>(got_tuple)), 40u, "Unexpected length.");
-  PQXX_CHECK_GREATER(std::size(std::get<1>(got_tuple)), 20u, "Unexpected length.");
+  PQXX_CHECK_LESS(
+    std::size(std::get<1>(got_tuple)), 40u, "Unexpected length.");
+  PQXX_CHECK_GREATER(
+    std::size(std::get<1>(got_tuple)), 20u, "Unexpected length.");
   PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "Bad value.");
   PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "Bad value.");
   PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello\n \tworld", "Bad value.");
@@ -278,7 +280,8 @@ void test_stream_from__iteration()
     strings.insert(std::get<0>(t));
   }
   PQXX_CHECK_EQUAL(i, 2, "Wrong number of iterations.");
-  PQXX_CHECK_EQUAL(std::size(strings), 2u, "Wrong number of strings retrieved.");
+  PQXX_CHECK_EQUAL(
+    std::size(strings), 2u, "Wrong number of strings retrieved.");
   PQXX_CHECK(strings.find("foo") != std::end(strings), "Missing key.");
   PQXX_CHECK(strings.find("bar") != std::end(strings), "Missing key.");
 }

@@ -41,8 +41,8 @@ void test_058()
 
     // Now check that we really did.
     PQXX_CHECK_EQUAL(
-      A.seek(-1, std::ios::cur), largeobject::size_type(std::size(Contents) - 1),
-      "Inconsistent seek.");
+      A.seek(-1, std::ios::cur),
+      largeobject::size_type(std::size(Contents) - 1), "Inconsistent seek.");
 
     char Check;
     PQXX_CHECK_EQUAL(A.read(&Check, 1), 1, "Unexpected result from read().");

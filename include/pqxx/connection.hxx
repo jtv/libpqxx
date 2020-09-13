@@ -509,7 +509,7 @@ public:
    *   c.prepare("findtable", "select * from pg_tables where name=$1");
    *   work tx{c};
    *   result r = tx.exec_prepared("findtable", "mytable");
-   *   if (r.empty()) throw runtime_error{"mytable not found!"};
+   *   if (std::empty(r)) throw runtime_error{"mytable not found!"};
    * }
    * @endcode
    *

@@ -57,7 +57,7 @@ void test_receive(
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
   PQXX_CHECK_EQUAL(receiver.backend_pid, conn.backendpid(), "Bad pid.");
   if (payload == nullptr)
-    PQXX_CHECK(receiver.payload.empty(), "Unexpected payload.");
+    PQXX_CHECK(std::empty(receiver.payload), "Unexpected payload.");
   else
     PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
 }

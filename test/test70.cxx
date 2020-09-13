@@ -12,15 +12,16 @@ void TestPipeline(pipeline &P, int numqueries)
 {
   std::string const Q{"SELECT * FROM generate_series(1, 10)"};
   result const Empty;
-  PQXX_CHECK(Empty.empty(), "Default-constructed result is not empty.");
-  PQXX_CHECK(Empty.query().empty(), "Default-constructed result has query");
+  PQXX_CHECK(std::empty(Empty), "Default-constructed result is not empty.");
+  PQXX_CHECK(
+    std::empty(Empty.query()), "Default-constructed result has query");
 
   P.retain();
   for (int i{numqueries}; i > 0; --i) P.insert(Q);
   P.resume();
 
   PQXX_CHECK(
-    (numqueries == 0) || not P.empty(), "pipeline::empty() is broken.");
+    (numqueries == 0) || not std::empty(P), "pipeline::empty() is broken.");
 
   int res{0};
   result Prev;
@@ -28,7 +29,7 @@ void TestPipeline(pipeline &P, int numqueries)
 
   for (int i{numqueries}; i > 0; --i)
   {
-    PQXX_CHECK(not P.empty(), "Got no results from pipeline.");
+    PQXX_CHECK(not std::empty(P), "Got no results from pipeline.");
 
     auto R{P.retrieve()};
 
@@ -46,7 +47,7 @@ void TestPipeline(pipeline &P, int numqueries)
     res = Prev[0][0].as<int>();
   }
 
-  PQXX_CHECK(P.empty(), "Pipeline was not empty after retrieval.");
+  PQXX_CHECK(std::empty(P), "Pipeline was not empty after retrieval.");
 }
 
 
@@ -58,7 +59,7 @@ void test_070()
   work tx{conn};
   pipeline P(tx);
 
-  PQXX_CHECK(P.empty(), "Pipeline is not empty initially.");
+  PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
 
   // Try to confuse the pipeline by feeding it a query and flushing
   P.retain();
@@ -66,19 +67,19 @@ void test_070()
   P.insert(Q);
   P.flush();
 
-  PQXX_CHECK(P.empty(), "Pipeline was not empty after flush().");
+  PQXX_CHECK(std::empty(P), "Pipeline was not empty after flush().");
 
   // See if complete() breaks retain() as it should
   P.retain();
   P.insert(Q);
-  PQXX_CHECK(not P.empty(), "Pipeline was empty after insert().");
+  PQXX_CHECK(not std::empty(P), "Pipeline was empty after insert().");
   P.complete();
-  PQXX_CHECK(not P.empty(), "complete() emptied pipeline.");
+  PQXX_CHECK(not std::empty(P), "complete() emptied pipeline.");
 
   PQXX_CHECK_EQUAL(
     P.retrieve().second.query(), Q, "Result is for wrong query.");
 
-  PQXX_CHECK(P.empty(), "Pipeline not empty after retrieve().");
+  PQXX_CHECK(std::empty(P), "Pipeline not empty after retrieve().");
 
   // See if retrieve() breaks retain() when it needs to
   P.retain();

@@ -65,7 +65,8 @@ struct CountGreaterSmaller
     using namespace std::placeholders;
     auto const Greater{
       std::count_if(std::begin(R), std::end(R), std::bind(Cmp(Key), _1, T))},
-      Smaller{std::count_if(std::begin(R), std::end(R), std::bind(Cmp(Key), T, _1))};
+      Smaller{
+        std::count_if(std::begin(R), std::end(R), std::bind(Cmp(Key), T, _1))};
 
     // TODO: Use C++20's ssize().
     PQXX_CHECK(
@@ -82,7 +83,7 @@ void test_049()
   std::string Table{"pg_tables"}, Key{"tablename"};
 
   result R(tx.exec("SELECT * FROM " + Table + " ORDER BY " + Key));
-  PQXX_CHECK(not R.empty(), "No rows in " + Table + ".");
+  PQXX_CHECK(not std::empty(R), "No rows in " + Table + ".");
 
   // Verify that for each key in R, the number of greater and smaller keys
   // are sensible; use std::for_each<>() to iterate over rows in R

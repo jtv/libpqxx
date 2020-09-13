@@ -17,7 +17,7 @@ void test_075()
 
   pqxx::test::create_pqxxevents(tx);
   auto const R(tx.exec("SELECT year FROM pqxxevents"));
-  PQXX_CHECK(not R.empty(), "No events found, cannot test.");
+  PQXX_CHECK(not std::empty(R), "No events found, cannot test.");
 
   PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
   PQXX_CHECK(not(R[0] != R.at(0)), "result::row::operator!=() is broken.");
@@ -39,7 +39,8 @@ void test_075()
       "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator
-  pqxx::result::const_reverse_iterator ri1(std::rbegin(R)), ri2(ri1), ri3(std::end(R));
+  pqxx::result::const_reverse_iterator ri1(std::rbegin(R)), ri2(ri1),
+    ri3(std::end(R));
   ri2 = std::rbegin(R);
 
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");
@@ -82,7 +83,8 @@ void test_075()
   ri2 += 1;
   ri3 -= -1;
 
-  PQXX_CHECK(ri2 != std::rbegin(R), "Adding to reverse_iterator does not work.");
+  PQXX_CHECK(
+    ri2 != std::rbegin(R), "Adding to reverse_iterator does not work.");
   PQXX_CHECK(
     ri3 == ri2, "reverse_iterator operator-=() breaks on negative distances.");
 
@@ -98,7 +100,7 @@ void test_075()
 
   PQXX_CHECK(l == std::rend(contents), "Reverse iteration ended too soon.");
 
-  PQXX_CHECK(not R.empty(), "No events found in table, cannot test.");
+  PQXX_CHECK(not std::empty(R), "No events found in table, cannot test.");
 }
 } // namespace
 

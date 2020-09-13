@@ -33,7 +33,7 @@ pqxx::transaction_base::~transaction_base()
 {
   try
   {
-    if (not m_pending_error.empty())
+    if (not std::empty(m_pending_error))
       process_notice("UNPROCESSED ERROR: " + m_pending_error + "\n");
 
     if (m_registered)
@@ -199,7 +199,7 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
 {
   check_pending_error();
 
-  std::string const n{desc.empty() ? "" : "'" + desc + "' "};
+  std::string const n{std::empty(desc) ? "" : "'" + desc + "' "};
 
   if (m_focus.get() != nullptr)
     throw usage_error{
@@ -241,7 +241,7 @@ pqxx::result pqxx::transaction_base::exec_n(
   result const r{exec(query, desc)};
   if (std::size(r) != rows)
   {
-    std::string const N{desc.empty() ? "" : "'" + desc + "'"};
+    std::string const N{std::empty(desc) ? "" : "'" + desc + "'"};
     throw unexpected_rows{
       "Expected " + to_string(rows) +
       " row(s) of data "
@@ -397,7 +397,7 @@ pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 void pqxx::transaction_base::register_pending_error(
   std::string const &err) noexcept
 {
-  if (m_pending_error.empty() and not err.empty())
+  if (std::empty(m_pending_error) and not std::empty(err))
   {
     try
     {
@@ -421,7 +421,7 @@ void pqxx::transaction_base::register_pending_error(
 
 void pqxx::transaction_base::check_pending_error()
 {
-  if (not m_pending_error.empty())
+  if (not std::empty(m_pending_error))
   {
     std::string err;
     err.swap(m_pending_error);

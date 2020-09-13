@@ -37,9 +37,10 @@ void test_062()
 
   auto const B{R.at(0).at(0).as<std::basic_string<std::byte>>()};
 
-  PQXX_CHECK(not B.empty(), "Binary string became empty in conversion.");
+  PQXX_CHECK(not std::empty(B), "Binary string became empty in conversion.");
 
-  PQXX_CHECK_EQUAL(std::size(B), std::size(TestStr), "Binary string was mangled.");
+  PQXX_CHECK_EQUAL(
+    std::size(B), std::size(TestStr), "Binary string was mangled.");
 
   std::basic_string<std::byte>::const_iterator c;
   std::basic_string<std::byte>::size_type i;

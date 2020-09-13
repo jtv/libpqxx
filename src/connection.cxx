@@ -143,10 +143,10 @@ void pqxx::connection::check_movable() const
 {
   if (m_trans.get() != nullptr)
     throw pqxx::usage_error{"Moving a connection with a transaction open."};
-  if (not m_errorhandlers.empty())
+  if (not std::empty(m_errorhandlers))
     throw pqxx::usage_error{
       "Moving a connection with error handlers registered."};
-  if (not m_receivers.empty())
+  if (not std::empty(m_receivers))
     throw pqxx::usage_error{
       "Moving a connection with notification receivers registered."};
 }
@@ -157,10 +157,10 @@ void pqxx::connection::check_overwritable() const
   if (m_trans.get() != nullptr)
     throw pqxx::usage_error{
       "Moving a connection onto one with a transaction open."};
-  if (not m_errorhandlers.empty())
+  if (not std::empty(m_errorhandlers))
     throw pqxx::usage_error{
       "Moving a connection onto one with error handlers registered."};
-  if (not m_receivers.empty())
+  if (not std::empty(m_receivers))
     throw usage_error{
       "Moving a connection onto one "
       "with notification receivers registered."};
@@ -305,7 +305,7 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
   if (msg == nullptr)
     return;
   zview const view{msg};
-  if (view.empty())
+  if (std::empty(view))
     return;
   else if (msg[std::size(view) - 1] == '\n')
     process_notice_raw(msg);
@@ -317,7 +317,7 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
 
 void pqxx::connection::process_notice(zview msg) noexcept
 {
-  if (msg.empty())
+  if (std::empty(msg))
     return;
   else if (msg[std::size(msg) - 1] == '\n')
     process_notice_raw(msg.c_str());
@@ -548,7 +548,7 @@ void pqxx::connection::register_errorhandler(errorhandler *handler)
   // has already been destroyed though, that list no longer exists.
   // By setting the notice processor on demand, we absolve users who never
   // register an error handler from ahving to care about this nasty subtlety.
-  if (m_errorhandlers.empty())
+  if (std::empty(m_errorhandlers))
     PQsetNoticeProcessor(m_conn, pqxx_notice_processor, this);
   m_errorhandlers.push_back(handler);
 }
@@ -559,7 +559,7 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
   // The errorhandler itself will take care of nulling its pointer to this
   // connection.
   m_errorhandlers.remove(handler);
-  if (m_errorhandlers.empty())
+  if (std::empty(m_errorhandlers))
     PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
 }
 
@@ -637,7 +637,8 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
-    m_conn, q->c_str(), check_cast<int>(std::size(args.nonnulls), "exec_prepared"),
+    m_conn, q->c_str(),
+    check_cast<int>(std::size(args.nonnulls), "exec_prepared"),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
   get_notifs();
@@ -654,7 +655,7 @@ void pqxx::connection::close()
         "Closing connection while " + m_trans.get()->description() +
         " is still open.");
 
-    if (not m_receivers.empty())
+    if (not std::empty(m_receivers))
     {
       process_notice("Closing connection with outstanding receivers.");
       m_receivers.clear();
@@ -662,7 +663,8 @@ void pqxx::connection::close()
 
     std::list<errorhandler *> old_handlers;
     m_errorhandlers.swap(old_handlers);
-    auto const rbegin{std::crbegin(old_handlers)}, rend{std::crend(old_handlers)};
+    auto const rbegin{std::crbegin(old_handlers)},
+      rend{std::crend(old_handlers)};
     for (auto i{rbegin}; i != rend; ++i)
       pqxx::internal::gate::errorhandler_connection{**i}.unregister();
 
@@ -813,8 +815,8 @@ pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 std::string
 pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
 {
-  return pqxx::internal::esc_bin(
-    std::string_view{reinterpret_cast<char const *>(bin.data()), std::size(bin)});
+  return pqxx::internal::esc_bin(std::string_view{
+    reinterpret_cast<char const *>(bin.data()), std::size(bin)});
 }
 
 
@@ -1013,7 +1015,7 @@ int pqxx::connection::await_notification(
 std::string pqxx::connection::adorn_name(std::string_view n)
 {
   auto const id{to_string(++m_unique_id)};
-  if (n.empty())
+  if (std::empty(n))
   {
     return "x" + id;
   }
@@ -1136,7 +1138,7 @@ std::string pqxx::connection::connection_string() const
       if (
         (default_val == nullptr) or (std::strcmp(param.val, default_val) != 0))
       {
-        if (not buf.empty())
+        if (not std::empty(buf))
           buf.push_back(' ');
         buf += param.keyword;
         buf.push_back('=');

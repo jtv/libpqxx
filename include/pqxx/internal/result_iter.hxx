@@ -34,9 +34,10 @@ public:
   /// Construct an "end" iterator.
   result_iter() = default;
 
-  explicit result_iter(result const &home) : m_home{&home}, m_size{std::size(home)}
+  explicit result_iter(result const &home) :
+          m_home{&home}, m_size{std::size(home)}
   {
-    if (not home.empty())
+    if (not std::empty(home))
       read();
   }
   result_iter(result_iter const &) = default;

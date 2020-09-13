@@ -38,7 +38,7 @@ void test_071()
   // Retrieve results in query_id order, and compare to expected values
   for (auto &c : values) checkresult(P, c);
 
-  PQXX_CHECK(P.empty(), "Pipeline was not empty retrieving all results.");
+  PQXX_CHECK(std::empty(P), "Pipeline was not empty retrieving all results.");
 
   values.clear();
 
@@ -49,7 +49,8 @@ void test_071()
   P.resume();
 
   // Retrieve results in reverse order
-  for (auto c{std::rbegin(values)}; c != std::rend(values); ++c) checkresult(P, *c);
+  for (auto c{std::rbegin(values)}; c != std::rend(values); ++c)
+    checkresult(P, *c);
 
   values.clear();
   P.retain(10);

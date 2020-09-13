@@ -78,7 +78,7 @@ void test_026()
   // in the code above.  This is where the work gets done.
   auto const conversions{perform([&conn] { return update_years(conn); })};
 
-  PQXX_CHECK(not conversions.empty(), "No conversions done!");
+  PQXX_CHECK(not std::empty(conversions), "No conversions done!");
 }
 
 

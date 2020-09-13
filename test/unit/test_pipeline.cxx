@@ -21,7 +21,8 @@ void test_pipeline()
   // Flushing a pipeline relinquishes transaction focus.
   pipe.flush();
   auto r{tx.exec("SELECT 2")};
-  PQXX_CHECK_EQUAL(std::size(r), 1, "Wrong query result after flushing pipeline.");
+  PQXX_CHECK_EQUAL(
+    std::size(r), 1, "Wrong query result after flushing pipeline.");
   PQXX_CHECK_EQUAL(
     r[0][0].as<int>(), 2, "Query returns wrong data after flushing pipeline.");
 

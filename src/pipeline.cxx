@@ -104,7 +104,7 @@ void pqxx::pipeline::complete()
 
 void pqxx::pipeline::flush()
 {
-  if (not m_queries.empty())
+  if (not std::empty(m_queries))
   {
     if (have_pending())
       receive(m_issuedrange.second);
@@ -134,14 +134,15 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
   if (m_queries.find(q) == std::end(m_queries))
     throw std::logic_error{
       "Requested status for unknown query '" + to_string(q) + "'."};
-  return (QueryMap::const_iterator(m_issuedrange.first) == std::end(m_queries)) or
+  return (QueryMap::const_iterator(m_issuedrange.first) ==
+          std::end(m_queries)) or
          (q < m_issuedrange.first->first and q < m_error);
 }
 
 
 std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 {
-  if (m_queries.empty())
+  if (std::empty(m_queries))
     throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
   return retrieve(std::begin(m_queries));
 }
@@ -249,7 +250,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   // Must be the result for the oldest pending query.
-  if (not m_issuedrange.first->second.res.empty())
+  if (not std::empty(m_issuedrange.first->second.res))
     internal_error("Multiple results for one query.");
 
   m_issuedrange.first->second.res = res;

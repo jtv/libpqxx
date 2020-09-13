@@ -959,8 +959,8 @@ template<typename T> inline std::string to_string(T const &value)
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
   buf.resize(size_buffer(value));
-  auto const end{
-    string_traits<T>::into_buf(buf.data(), buf.data() + std::size(buf), value)};
+  auto const end{string_traits<T>::into_buf(
+    buf.data(), buf.data() + std::size(buf), value)};
   buf.resize(static_cast<std::size_t>(end - buf.data() - 1));
   return buf;
 }
@@ -993,8 +993,8 @@ template<typename T> inline void into_string(T const &value, std::string &out)
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
-  auto const end{
-    string_traits<T>::into_buf(out.data(), out.data() + std::size(out), value)};
+  auto const end{string_traits<T>::into_buf(
+    out.data(), out.data() + std::size(out), value)};
   out.resize(static_cast<std::size_t>(end - out.data() - 1));
 }
 } // namespace pqxx

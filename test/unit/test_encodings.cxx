@@ -12,7 +12,8 @@ void test_scan_ascii()
   std::string const text{"hello"};
 
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), std::size(text), 0), 1ul, "Monobyte scanner acting up.");
+    scan(text.c_str(), std::size(text), 0), 1ul,
+    "Monobyte scanner acting up.");
   PQXX_CHECK_EQUAL(
     scan(text.c_str(), std::size(text), 1), 2ul,
     "Monobyte scanner is inconsistent.");

@@ -22,7 +22,8 @@ void test_016()
     ;
 
   // See if back() and row comparison work properly
-  PQXX_CHECK(std::size(R) >= 2, "Not enough rows in pg_tables to test, sorry!");
+  PQXX_CHECK(
+    std::size(R) >= 2, "Not enough rows in pg_tables to test, sorry!");
 
   --c;
 

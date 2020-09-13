@@ -69,11 +69,12 @@ std::string list_row(row Obj)
 
 std::string list_result(result Obj)
 {
-  if (Obj.empty())
+  if (std::empty(Obj))
     return "<empty>";
   return "{" +
          separated_list(
-           "}\n{", std::begin(Obj), std::end(Obj), [](row r) { return list_row(r); }) +
+           "}\n{", std::begin(Obj), std::end(Obj),
+           [](row r) { return list_row(r); }) +
          "}";
 }
 
@@ -192,7 +193,7 @@ int main(int argc, char const *argv[])
 
   std::cout << "Ran " << test_count << " test(s).\n";
 
-  if (not failed.empty())
+  if (not std::empty(failed))
   {
     std::cerr << "*** " << std::size(failed) << " test(s) failed: ***\n";
     for (auto const &i : failed) std::cerr << "\t" << i << '\n';

@@ -111,7 +111,7 @@ void test_000()
   strconv("stringstream", ss, ss.str());
 
   std::string const pw{encrypt_password("foo", "bar")};
-  PQXX_CHECK(not pw.empty(), "Encrypting a password returned no data.");
+  PQXX_CHECK(not std::empty(pw), "Encrypting a password returned no data.");
   PQXX_CHECK_NOT_EQUAL(
     pw, encrypt_password("splat", "blub"), "Password encryption is broken.");
   PQXX_CHECK(

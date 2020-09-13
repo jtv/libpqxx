@@ -7,7 +7,7 @@ namespace
 void test_exec0(pqxx::transaction_base &trans)
 {
   pqxx::result E{trans.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
-  PQXX_CHECK(E.empty(), "Nonempty result from exec0.");
+  PQXX_CHECK(std::empty(E), "Nonempty result from exec0.");
 
   PQXX_CHECK_THROWS(
     trans.exec0("SELECT 99"), pqxx::unexpected_rows,

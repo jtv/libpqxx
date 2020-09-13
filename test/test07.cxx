@@ -65,7 +65,7 @@ void test_007()
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
     std::string const rcol{R.column_name(0)};
-    PQXX_CHECK(not rcol.empty(), "Didn't get a name for column.");
+    PQXX_CHECK(not std::empty(rcol), "Didn't get a name for column.");
 
     oid const rcctype{R.column_type(rcol)};
     PQXX_CHECK_EQUAL(

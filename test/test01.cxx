@@ -23,7 +23,7 @@ void test_001()
   result r(tx.exec("SELECT * FROM pg_tables"));
 
   // We're expecting to find some tables...
-  PQXX_CHECK(not r.empty(), "No tables found.");
+  PQXX_CHECK(not std::empty(r), "No tables found.");
 
   tx.commit();
 }

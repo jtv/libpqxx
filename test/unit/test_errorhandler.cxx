@@ -116,7 +116,8 @@ void test_destroyed_error_handlers_are_not_called(pqxx::connection &c)
     TestErrorHandler doomed(c, handlers);
   }
   c.process_notice("Unheard output.");
-  PQXX_CHECK(handlers.empty(), "Message was received on dead errorhandler.");
+  PQXX_CHECK(
+    std::empty(handlers), "Message was received on dead errorhandler.");
 }
 
 void test_destroying_connection_unregisters_handlers()
@@ -183,7 +184,8 @@ void test_get_errorhandlers(pqxx::connection &c)
     eh3 = new MinimalErrorHandler(c);
     auto const handlers_with_eh3{c.get_errorhandlers()};
     PQXX_CHECK_EQUAL(
-      std::size(handlers_with_eh3), base_handlers + 2, "Remove-and-add breaks.");
+      std::size(handlers_with_eh3), base_handlers + 2,
+      "Remove-and-add breaks.");
     PQXX_CHECK_EQUAL(
       std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3),
       "Added wrong third handler.");

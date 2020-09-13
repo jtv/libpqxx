@@ -17,7 +17,7 @@ void test_082()
   std::string const Table{"pqxxevents"};
   pqxx::result R{tx.exec("SELECT * FROM " + Table)};
 
-  PQXX_CHECK(not R.empty(), "Got empty result.");
+  PQXX_CHECK(not std::empty(R), "Got empty result.");
 
   std::string const nullstr("[null]");
 
@@ -37,16 +37,19 @@ void test_082()
     PQXX_CHECK(
       pqxx::row::difference_type(std::size(r)) + std::begin(r) == std::end(r),
       "Row iterator addition is not commutative.");
-    PQXX_CHECK_EQUAL(std::begin(r)->num(), 0, "Wrong column number at begin().");
+    PQXX_CHECK_EQUAL(
+      std::begin(r)->num(), 0, "Wrong column number at begin().");
 
     pqxx::row::const_iterator f3(r[std::size(r)]);
 
     PQXX_CHECK(f3 == std::end(r), "Did not get end() at end of row.");
 
-    PQXX_CHECK(f3 > std::begin(r), "Row end() appears to precede its begin().");
+    PQXX_CHECK(
+      f3 > std::begin(r), "Row end() appears to precede its begin().");
 
     PQXX_CHECK(
-      f3 >= std::end(r) and std::begin(r) < f3, "Row iterator operator<() is broken.");
+      f3 >= std::end(r) and std::begin(r) < f3,
+      "Row iterator operator<() is broken.");
 
     PQXX_CHECK(f3 > std::begin(r), "Row end() not greater than begin().");
 
@@ -58,7 +61,8 @@ void test_082()
 
     PQXX_CHECK(f3 < std::end(r), "Last field in row is not before end().");
     PQXX_CHECK(f3 >= std::begin(r), "Last field in row precedes begin().");
-    PQXX_CHECK(f3 == std::end(r) - 1, "Back from end() doese not yield end()-1.");
+    PQXX_CHECK(
+      f3 == std::end(r) - 1, "Back from end() doese not yield end()-1.");
     PQXX_CHECK_EQUAL(
       std::end(r) - f3, 1, "Wrong distance from last row to end().");
 

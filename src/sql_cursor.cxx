@@ -60,7 +60,8 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    for (end = std::size(query); end > 0 and useless_trail(text[end - 1]); --end)
+    for (end = std::size(query); end > 0 and useless_trail(text[end - 1]);
+         --end)
       ;
   }
   else
@@ -96,7 +97,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   if (&t.conn() != &m_home)
     throw internal_error{"Cursor in wrong connection"};
 
-  if (query.empty())
+  if (std::empty(query))
     throw usage_error{"Cursor has empty query."};
   auto const enc{enc_group(t.conn().encoding_id())};
   auto const qend{find_query_end(query, enc)};

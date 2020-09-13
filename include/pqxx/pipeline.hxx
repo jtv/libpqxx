@@ -130,7 +130,7 @@ public:
   /** @return The query's identifier and its result set. */
   std::pair<query_id, result> retrieve();
 
-  [[nodiscard]] bool empty() const noexcept { return m_queries.empty(); }
+  [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
   /// Set maximum number of queries to retain before issuing them to the
   /// backend.
