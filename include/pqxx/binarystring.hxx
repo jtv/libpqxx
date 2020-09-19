@@ -167,7 +167,6 @@ private:
 };
 
 
-// TODO: Should binarystring have a default-constructed null value?
 template<> struct nullness<binarystring> : no_null<binarystring>
 {};
 
