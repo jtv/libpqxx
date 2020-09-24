@@ -16,8 +16,6 @@
 
 namespace pqxx::internal
 {
-class sql_cursor;
-
 class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
 {
 public:
