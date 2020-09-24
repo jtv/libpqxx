@@ -202,7 +202,8 @@ constexpr oid oid_none{0};
 namespace pqxx::internal
 {
 /// Helper base class: object descriptions for error messages and such.
-/**
+/** @deprecated To be replaced with something simpler, cleaner, and faster.
+ *
  * Classes derived from namedclass have a class name (such as "transaction"),
  * an optional object name (such as "delete-old-logs"), and a description
  * generated from the two names (such as "transaction delete-old-logs").
