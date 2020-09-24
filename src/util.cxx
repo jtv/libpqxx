@@ -49,11 +49,23 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 
 std::string pqxx::internal::namedclass::description() const
 {
-  std::string const cname{classname()};
   if (std::empty(name()))
-    return cname;
+  {
+    return classname();
+  }
   else
-    return cname + " '" + name() + "'";
+  {
+    // Construct "<classname> '<name>'", but avoid reallocations.
+    std::string desc;
+    desc.resize(std::size(classname()) + 2 + std::size(name()) + 1);
+    char *here{desc.data()};
+    here += classname().copy(here, std::string::npos);
+    *here++ = ' ';
+    *here++ = '\'';
+    here += name().copy(here, std::string::npos);
+    *here++ = '\'';
+    return desc;
+  }
 }
 
 
