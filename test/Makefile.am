@@ -128,6 +128,7 @@ runner_SOURCES = \
   unit/test_transaction_base.cxx \
   unit/test_transactor.cxx \
   unit/test_type_name.cxx \
+  unit/test_zview.cxx \
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}

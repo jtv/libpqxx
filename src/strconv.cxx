@@ -584,9 +584,9 @@ zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
     // std::stringstream, which produces a std::string, it's actually easier to
     // build the to_buf() on top of the to_string() than the other way around.
     if (std::isnan(value))
-      return zview{"nan"};
+      return "nan"_zv;
     if (std::isinf(value))
-      return zview{(value > 0) ? "infinity" : "-infinity"};
+      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
     auto text{to_string_float(value)};
     auto have{end - begin};
     auto need{std::size(text) + 1};

@@ -231,7 +231,7 @@ template<> struct string_traits<bool>
 
   static constexpr zview to_buf(char *, char *, bool const &value) noexcept
   {
-    return zview{value ? "true" : "false"};
+    return value ? "true"_zv : "false"_zv;
   }
 
   static char *into_buf(char *begin, char *end, bool const &value)
@@ -576,8 +576,20 @@ template<> struct string_traits<zview>
     return std::size(value) + 1;
   }
 
-  static char *into_buf(char *, char *, zview const &) = delete;
-  static std::string_view to_buf(char *, char *, zview const &) = delete;
+  static char *into_buf(char *begin, char *end, zview const &value)
+  {
+    auto const size{std::size(value)};
+    if (static_cast<std::size_t>(end - begin) <= std::size(value))
+      throw conversion_overrun{"Not enough buffer space to store this zview."};
+    value.copy(begin, size);
+    begin[size] = '\0';
+    return begin + size + 1;
+  }
+
+  static std::string_view to_buf(char *begin, char *end, zview const &value)
+  {
+    return std::string_view{into_buf(begin, end, value), std::size(value)};
+  }
 
   /// Don't convert to this type; it has nowhere to store its contents.
   static zview from_string(std::string_view) = delete;

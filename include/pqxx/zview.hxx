@@ -13,6 +13,7 @@
 
 #include "pqxx/compiler-public.hxx"
 
+#include <string>
 #include <string_view>
 #include <type_traits>
 
@@ -56,10 +57,10 @@ public:
           std::string_view(std::forward<Args>(args)...)
   {}
 
-  /* implicit */
-  zview(std::string const &str) : std::string_view(str) {}
+  /// @warning There's an implicit conversion from @c std::string.
+  zview(std::string const &str) : std::string_view{str.c_str(), std::size(str)}
+  {}
 
-  /* implicit */
   template<size_t size>
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}
@@ -67,6 +68,18 @@ public:
   /// Either a null pointer, or a zero-terminated text buffer.
   [[nodiscard]] constexpr char const *c_str() const noexcept { return data(); }
 };
+
+
+/// Support @c zview literals.
+/** You can "import" this selectively into your namespace, without pulling in
+ * all of the @c pqxx namespace:
+ *
+ * @c using pqxx::operator"" _zv;
+ */
+constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
+{
+  return zview{str, len};
+}
 } // namespace pqxx
 
 
