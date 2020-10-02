@@ -3772,6 +3772,7 @@ $as_echo "#define HAVE_CXX17 1" >>confdefs.h
   fi
 
 
+# We need to store this, so we'll know what to pass to clang-tidy.
 PQXX_CXX_VERSION=-std=c++17
 
 

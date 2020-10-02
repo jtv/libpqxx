@@ -79,7 +79,11 @@ cpplint() {
         else
             cxxflags=""
         fi
-        clang-tidy $(find $SRCDIR/src $SRCDIR/tools $SRCDIR/test -name \*.cxx) -- -I$SRCDIR/include -Iinclude $cxxflags
+        clang-tidy \
+            $(find $SRCDIR/src $SRCDIR/tools $SRCDIR/test -name \*.cxx) \
+            --checks=abseil-* \
+            -- \
+            -I$SRCDIR/include -Iinclude $cxxflags
     fi
 }
 
