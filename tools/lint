@@ -79,8 +79,7 @@ cpplint() {
         else
             cxxflags=""
         fi
-# TODO: Any way we can get rid of the hard-coded "-std=c++17"?
-        clang-tidy $(find $SRCDIR/src $SRCDIR/tools -name \*.cxx) -- -std=c++17 -I$SRCDIR/include -Iinclude $cxxflags
+        clang-tidy $(find $SRCDIR/src $SRCDIR/tools $SRCDIR/test -name \*.cxx) -- -I$SRCDIR/include -Iinclude $cxxflags
     fi
 }
 

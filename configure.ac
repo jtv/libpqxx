@@ -7,8 +7,12 @@ AC_INIT(
 	[m4_esyscmd_s([./tools/extract_version])],
 	[Jeroen T. Vermeulen])
 AC_LANG(C++)
+
 # Require C++17 at minimum.
 AX_CXX_COMPILE_STDCXX_17([noext])
+# We need to store this, so we'll know what to pass to clang-tidy.
+AC_SUBST(PQXX_CXX_VERSION, -std=c++17)
+
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
