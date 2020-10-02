@@ -173,9 +173,33 @@ then
 	then
 		add_compiler_opts_if_ok \
 			-fsanitize=address \
-			-fsanitize=leak \
-			-fsanitize=undefined \
 			-fsanitize-address-use-after-scope \
+			-fsanitize=alignment \
+			-fsanitize=bool \
+			-fsanitize=bounds \
+			-fsanitize=bounds-strict \
+			-fsanitize=builtin \
+			-fsanitize=enum \
+			-fsanitize=float-cast-overflow \
+			-fsanitize=float-divide-by-zero \
+			-fsanitize=integer-divide-by-zero \
+			-fsanitize=leak \
+			-fsanitize=nonnull-attribute \
+			-fsanitize=null \
+			-fsanitize=object-size \
+			-fsanitize=pointer-compare \
+			-fsanitize=pointer-overflow \
+			-fsanitize=pointer-subtract \
+			-fsanitize=return \
+			-fsanitize=returns-nonnull-attribute \
+			-fsanitize=shift \
+			-fsanitize=shift-base \
+			-fsanitize=shift-exponent \
+			-fsanitize=signed-integer-overflow \
+			-fsanitize=undefined \
+			-fsanitize=unreachable \
+			-fsanitize=vla-bound \
+			-fsanitize=vptr \
 			-fstack-protector-all
 	fi
 
