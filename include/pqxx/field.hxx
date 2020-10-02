@@ -110,6 +110,10 @@ public:
    * zero-terminated C string, this is the fastest way to read it.  Use the
    * to() or as() functions to convert the string to other types such as
    * @c int, or to C++ strings.
+   *
+   * Do not use this for BYTEA values, or other binary values.  To read those,
+   * convert the value to your desired type using @c to() or @c as().  For
+   * example: @c f.as<std::basic_string<std::byte>>().
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const;
 
