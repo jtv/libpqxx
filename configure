@@ -18656,6 +18656,8 @@ ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile doc/Doxy
 ac_config_commands="$ac_config_commands configitems"
 
 
+ac_config_files="$ac_config_files compile_flags"
+
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -19792,6 +19794,7 @@ do
     "include/pqxx/Makefile") CONFIG_FILES="$CONFIG_FILES include/pqxx/Makefile" ;;
     "libpqxx.pc") CONFIG_FILES="$CONFIG_FILES libpqxx.pc" ;;
     "configitems") CONFIG_COMMANDS="$CONFIG_COMMANDS configitems" ;;
+    "compile_flags") CONFIG_FILES="$CONFIG_FILES compile_flags" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

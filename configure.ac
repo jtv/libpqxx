@@ -608,4 +608,4 @@ AC_CONFIG_FILES([
 
 AC_CONFIG_COMMANDS([configitems], ["${srcdir}/tools/splitconfig" "${srcdir}"])
 
-AC_OUTPUT
+AC_OUTPUT(compile_flags)

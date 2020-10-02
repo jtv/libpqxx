@@ -2,23 +2,21 @@
 #
 # Routine sanity checks for libpqxx source tree.
 #
-# Usage: lint [srcdir]
-#
-# srcdir is the source directory; it defaults to the current directory but
-# may be set for out-of-tree builds.
+# An environment variable "srcdir" should hold the source directory.  It
+# defaults to the current directory, but it needs to be set for out-of-tree
+# builds.
 
 set -e
 set -u
 
-# Run from source directory.  We don't write any artefacts.  Without this,
-# out-of-tree builds will fail to find the files this script needs to read.
-cd $(dirname "$0")/..
 
-PQXXVERSION="$(./tools/extract_version)"
+SRCDIR="${srcdir:-.}"
+PQXXVERSION="$($SRCDIR/tools/extract_version)"
+
 
 # This version must be at the top of the NEWS file.
 check_news_version() {
-	if ! head -n1 NEWS | grep -q "^$PQXXVERSION\$"
+	if ! head -n1 $srcdir/NEWS | grep -q "^$PQXXVERSION\$"
 	then
 		cat <<EOF >&2
 Version $PQXXVERSION is not at the top of NEWS.
@@ -53,8 +51,8 @@ check_compiler_internal_headers() {
 	PRE="$TEMPDIR/pre"
 	POST="$TEMPDIR/post"
 	HEADERS=$(find include/pqxx/* -type f | grep -v '\.swp$')
-	count_includes pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
-	count_includes pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
+	count_includes $SRCDIR/pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
+	count_includes $SRCDIR/pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
 	DIFF="$(diff "$PRE" "$POST")" || /bin/true
 	rm -r -- "$TEMPDIR"
 	if test -n "$DIFF"
@@ -71,16 +69,24 @@ EOF
 
 
 cpplint() {
-        echo "Skipping cppcheck; it's not up to date with C++17."
-	# if which cppcheck >/dev/null
-	# then
-	# 	cppcheck -q -j$(nproc) -I include src/*.cxx test/*.cxx test/unit/*.cxx
-	# fi
+    local cxxflags
+
+    if which clang-tidy >/dev/null
+    then
+        if test -e compile_flags
+        then
+            cxxflags=$(cat compile_flags)
+        else
+            cxxflags=""
+        fi
+# TODO: Any way we can get rid of the hard-coded "-std=c++17"?
+        clang-tidy $(find $SRCDIR/src $SRCDIR/tools -name \*.cxx) -- -std=c++17 -I$SRCDIR/include -Iinclude $cxxflags
+    fi
 }
 
 
 pylint() {
-	local PYFILES="tools/*.py tools/splitconfig"
+	local PYFILES="$SRCDIR/tools/*.py $SRCDIR/tools/splitconfig"
         echo "Skipping pocketlint; it's not up to date with Python3."
 	# if which pocketlint >/dev/null
 	# then
