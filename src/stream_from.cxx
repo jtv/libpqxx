@@ -10,6 +10,8 @@
  */
 #include "pqxx-source.hxx"
 
+#include <cassert>
+
 #include "pqxx/stream_from"
 
 #include "pqxx/internal/encodings.hxx"
@@ -183,7 +185,13 @@ void pqxx::stream_from::parse_line()
 
   auto const [line, line_size] = get_raw_line();
   if (line.get() == nullptr)
+  {
     m_finished = true;
+    return;
+  }
+
+  if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
+      throw range_error{"Stream produced a ridiculously long line."};
 
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
@@ -198,6 +206,16 @@ void pqxx::stream_from::parse_line()
 
   // Output iterator for unescaped text.
   char *write{m_row.data()};
+
+  // The pointer cannot be null at this point.  But we initialise field_begin
+  // with this value, and carry it around the loop, and it can later become
+  // null.  Static analysis in clang-tidy then likes to assume a case where
+  // field_begin is null, and deduces from this that "write" must have been
+  // null -- and so it marks "*write" as a null pointer dereference.
+  //
+  // This assertion tells clang-tidy just what it needs in order to deduce
+  // that *write never dereferences a null pointer.
+  assert(write != nullptr);
 
   // Beginning of current field in m_row, or nullptr for null fields.
   char const *field_begin{write};
