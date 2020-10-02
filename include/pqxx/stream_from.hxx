@@ -175,7 +175,7 @@ public:
   std::vector<zview> const *read_row();
 
   /// Read a raw line of text from the COPY command.
-  /** @warn Do not use this unless you really know what you're doing. */
+  /** @warning Do not use this unless you really know what you're doing. */
   raw_line get_raw_line();
 
 private:
