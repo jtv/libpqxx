@@ -51,15 +51,17 @@ check_compiler_internal_headers() {
     PRE="$TEMPDIR/pre"
     POST="$TEMPDIR/post"
     HEADERS=$(find include/pqxx/* -type f | grep -v '\.swp$')
-    count_includes $SRCDIR/pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
-    count_includes $SRCDIR/pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
+    count_includes \
+        $SRCDIR/pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
+    count_includes \
+        $SRCDIR/pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
     DIFF="$(diff "$PRE" "$POST")" || /bin/true
     rm -r -- "$TEMPDIR"
     if test -n "$DIFF"
     then
         cat <<EOF >&2
-The number of inclusions of compiler-internal.post.hxx does not match the number
-of inclusions of compiler-internal.pre.hxx:
+The number of inclusions of compiler-internal.post.hxx does not match the
+number of inclusions of compiler-internal.pre.hxx:
 
 $DIFF
 EOF
@@ -79,9 +81,11 @@ cpplint() {
         else
             cxxflags=""
         fi
+
+# TODO: Please, is there any way we can parallelise this?
         clang-tidy \
             $(find $SRCDIR/src $SRCDIR/tools $SRCDIR/test -name \*.cxx) \
-            --checks=abseil-* \
+            --checks=abseil-*,boost-*,cppcoreguidelines-* \
             -- \
             -I$SRCDIR/include -Iinclude $cxxflags
     fi
