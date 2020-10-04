@@ -132,11 +132,16 @@ public:
     (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
     bool>
   {
-    auto const bytes{c_str()};
     if (is_null())
+    {
       return false;
-    from_string(bytes, obj);
-    return true;
+    }
+    else
+    {
+      auto const bytes{c_str()};
+      from_string(bytes, obj);
+      return true;
+    }
   }
 
   /// Read field as a composite value, write its components into @c fields.
@@ -162,18 +167,27 @@ public:
   template<typename T> bool operator>>(T &obj) const { return to(obj); }
 
   /// Read value into obj; or if null, use default value and return @c false.
-  /** Note this can be used with optional types (except pointers other than
-   * C-strings)
+  /** This can be used with @c std::optional, as well as with standard smart
+   * pointer types, but not with raw pointers.  If the conversion from a
+   * PostgreSQL string representation allocates a pointer (e.g. using @c new),
+   * then the object's later deallocation should be baked in as well, right
+   * from the point where the object is created.  So if you want a pointer, use
+   * a smart pointer, not a raw pointer.
+   *
+   * There is one exception, of course: C-style strings.  Those are just
+   * pointers to the field's internal text data.
    */
   template<typename T>
   auto to(T &obj, T const &default_value) const -> typename std::enable_if_t<
     (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
     bool>
   {
-    bool const has_value{to(obj)};
-    if (not has_value)
+    bool const null{is_null()};
+    if (null)
       obj = default_value;
-    return has_value;
+    else
+      obj = from_string<T>(this->view());
+    return not null;
   }
 
   /// Return value as object of given type, or default value if null.
@@ -182,9 +196,10 @@ public:
    */
   template<typename T> T as(T const &default_value) const
   {
-    T obj;
-    to(obj, default_value);
-    return obj;
+    if (is_null())
+      return default_value;
+    else
+      return from_string<T>(this->view());
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -195,15 +210,21 @@ public:
    */
   template<typename T> T as() const
   {
-    T obj;
-    if (not to(obj))
+    if (is_null())
     {
-      if constexpr (nullness<T>::has_null)
-        obj = nullness<T>::null();
-      else
+      if constexpr (not nullness<T>::has_null)
+      {
         internal::throw_null_conversion(type_name<T>);
+      }
+      else
+      {
+        return nullness<T>::null();
+      }
     }
-    return obj;
+    else
+    {
+      return from_string<T>(this->view());
+    }
   }
 
   /// Return value wrapped in some optional type (empty for nulls).
@@ -265,10 +286,10 @@ template<> inline bool field::to<std::string>(std::string &obj) const
  */
 template<> inline bool field::to<char const *>(char const *&obj) const
 {
-  if (is_null())
-    return false;
-  obj = c_str();
-  return true;
+  bool const null{is_null()};
+  if (not null)
+    obj = c_str();
+  return not null;
 }
 
 
