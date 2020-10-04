@@ -268,15 +268,27 @@ private:
 };
 
 
-/// Specialization: <tt>to(string &)</tt>.
 template<> inline bool field::to<std::string>(std::string &obj) const
 {
-  char const *const bytes = c_str();
-  if (bytes[0] == '\0' and is_null())
-    return false;
-  obj = std::string{bytes, size()};
-  return true;
+  bool const null{is_null()};
+  if (not null)
+    obj = std::string{view()};
+  return not null;
 }
+
+
+template<>
+inline bool field::to<std::string>(
+  std::string &obj, std::string const &default_value) const
+{
+  bool const null{is_null()};
+  if (null)
+    obj = default_value;
+  else
+    obj = std::string{view()};
+  return not null;
+}
+
 
 /// Specialization: <tt>to(char const *&)</tt>.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
@@ -290,6 +302,79 @@ template<> inline bool field::to<char const *>(char const *&obj) const
   if (not null)
     obj = c_str();
   return not null;
+}
+
+
+template<> inline bool field::to<std::string_view>(std::string_view &obj) const
+{
+  bool const null{is_null()};
+  if (not null)
+    obj = view();
+  return not null;
+}
+
+
+template<>
+inline bool field::to<std::string_view>(
+  std::string_view &obj, std::string_view const &default_value) const
+{
+  bool const null{is_null()};
+  if (null)
+    obj = default_value;
+  else
+    obj = view();
+  return not null;
+}
+
+
+template<> inline std::string_view field::as<std::string_view>() const
+{
+  if (is_null())
+    internal::throw_null_conversion(type_name<std::string_view>);
+  return view();
+}
+
+
+template<>
+inline std::string_view
+field::as<std::string_view>(std::string_view const &default_value) const
+{
+  return is_null() ? default_value : view();
+}
+
+
+template<> inline bool field::to<zview>(zview &obj) const
+{
+  bool const null{is_null()};
+  if (not null)
+    obj = zview{c_str(), size()};
+  return not null;
+}
+
+
+template<>
+inline bool field::to<zview>(zview &obj, zview const &default_value) const
+{
+  bool const null{is_null()};
+  if (null)
+    obj = default_value;
+  else
+    obj = zview{c_str(), size()};
+  return not null;
+}
+
+
+template<> inline zview field::as<zview>() const
+{
+  if (is_null())
+    internal::throw_null_conversion(type_name<zview>);
+  return zview{c_str(), size()};
+}
+
+
+template<> inline zview field::as<zview>(zview const &default_value) const
+{
+  return is_null() ? default_value : zview{c_str(), size()};
 }
 
 

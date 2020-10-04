@@ -191,7 +191,7 @@ void pqxx::stream_from::parse_line()
   }
 
   if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
-      throw range_error{"Stream produced a ridiculously long line."};
+    throw range_error{"Stream produced a ridiculously long line."};
 
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
