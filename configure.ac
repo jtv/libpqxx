@@ -161,7 +161,9 @@ then
 			-Wattribute-alias=2 \
 			-Wextra-semi \
 			-Wlogical-op \
+			-Wmismatched-tags \
 			-Wnoexcept \
+			-Wredundant-tags \
 			-Wrestrict \
 			-Wstringop-overflow \
 			-Wzero-as-null-pointer-constant \
