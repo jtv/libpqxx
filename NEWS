@@ -1,4 +1,5 @@
 7.2.1
+ - Fix infinite loop in converting `char *` to string. (#377)
  - Deprecated `namedclass`.
  - Internal rework of `field::to()` and `field::as()` functions.
  - Some more warning options in maintainer mode.

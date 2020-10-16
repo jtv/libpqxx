@@ -453,7 +453,7 @@ template<> struct string_traits<char *>
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
-    return pqxx::size_buffer(value);
+    return string_traits<char const *>::size_buffer(value);
   }
 
   /// Don't allow conversion to this type since it breaks const-safety.
