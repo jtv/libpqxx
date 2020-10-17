@@ -15,14 +15,16 @@ They fit together as follows:
   work final.  If you don't call this, the work will be rolled back when the
   transaction object is destroyed.
 
-* Until then, use the transaction's `exec` functions to execute queries, which
-  you pass in as simple strings.
+* Until then, use the transaction's `exec`, `query_value`, and `stream`
+  functions to execute SQL statements.  You pass the statements themselves in
+  as simple strings.
 
 * Most of the `exec` functions return a `pqxx::result` object, which acts
   as a standard container of rows.
 
   Each row in a result, in turn, acts as a container of fields.  You can use
-  array indexing or iterators to access either.
+  array indexing or iterators to access either, and convert rows or single
+  values to native C++ types.
 
 * The field's data is stored internally as a text string.
 
@@ -66,6 +68,10 @@ an `int`, and prints it out.  It also contains some basic error handling.
 
         // Look at the first and only field in the row, parse it as an integer,
         // and print it.
+        //
+        // "r[0]" returns the first field, which has an "as<...>()" member
+        // function template to convert its contents from their string format
+        // to a type of your choice.
         std::cout << r[0].as<int>() << std::endl;
       }
       catch (std::exception const &e)
@@ -82,6 +88,15 @@ interested: you can install your own callbacks for receiving error messages
 from the database, and in that case you'll have to keep the connection object
 alive.  But otherwise, it's nice to be able to "fire and forget" your
 connection and deal with the data.
+
+You can also convert an entire row to a series of C++-side types in one go,
+using the @c as member function on the row:
+
+    pqxx::connection c;
+    pqxx::work w(c);
+    pqxx::row r = w.exec1("SELECT 1, 2, 'Hello'");
+    auto [one, two, hello] = r.as<int, int, std::string>();
+    std::cout << (one + two) << ' ' << std::strlen(hello) << std::endl;
 
 Here's a slightly more complicated example.  It takes an argument from the
 command line and retrieves a string with that value.  The interesting part is

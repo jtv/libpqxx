@@ -54,6 +54,31 @@ void test_row_iterator()
 }
 
 
+void test_row_as()
+{
+  using pqxx::operator"" _zv;
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  pqxx::row const r{tx.exec1("SELECT 1, 2, 3")};
+  auto [one, two, three]{r.as<int, float, pqxx::zview>()};
+  static_assert(std::is_same_v<decltype(one), int>);
+  static_assert(std::is_same_v<decltype(two), float>);
+  static_assert(std::is_same_v<decltype(three), pqxx::zview>);
+  PQXX_CHECK_EQUAL(one, 1, "row::as() did not produce the right int.");
+  PQXX_CHECK_GREATER(two, 1.9, "row::as() did not produce the right float.");
+  PQXX_CHECK_LESS(two, 2.1, "row::as() did not produce the right float.");
+  PQXX_CHECK_EQUAL(
+    three, "3"_zv, "row::as() did not produce the right zview.");
+
+  PQXX_CHECK_EQUAL(
+    std::get<0>(tx.exec1("SELECT 999").as<int>()), 999,
+    "Unary tuple did not extract right.");
+}
+
+
 PQXX_REGISTER_TEST(test_row);
 PQXX_REGISTER_TEST(test_row_iterator);
+PQXX_REGISTER_TEST(test_row_as);
 } // namespace

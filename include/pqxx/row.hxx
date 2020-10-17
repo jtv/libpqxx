@@ -179,6 +179,13 @@ public:
     convert(t);
   }
 
+  template<typename... TYPE> std::tuple<TYPE...> as() const
+  {
+    check_size(sizeof...(TYPE));
+    using seq = std::make_index_sequence<sizeof...(TYPE)>;
+    return get_tuple<std::tuple<TYPE...>>(seq{});
+  }
+
 protected:
   friend class const_row_iterator;
   friend class result;
@@ -224,6 +231,19 @@ private:
 
   template<typename Tuple, std::size_t index>
   void extract_value(Tuple &t) const;
+
+  /// Convert row's values as a new tuple.
+  template<typename TUPLE, std::size_t... indexes>
+  auto get_tuple(std::index_sequence<indexes...>) const
+  {
+    return std::make_tuple(get_field<TUPLE, indexes>()...);
+  }
+
+  /// Extract and convert a field.
+  template<typename TUPLE, std::size_t index> auto get_field() const
+  {
+    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
+  }
 };
 
 
