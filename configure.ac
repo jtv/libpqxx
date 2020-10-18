@@ -54,14 +54,10 @@ AC_PATH_TOOL([DOXYGEN], [doxygen], [nodoxygen])
 AC_ARG_VAR([HAVE_DOT],
 	[Variable used by doxygen to declare availibility of dot])
 AC_CHECK_TOOL([HAVE_DOT], [dot], [YES], [NO])
-AC_ARG_VAR([XMLTO], [Path to xmlto needed to build tutorial documentation])
-AC_PATH_TOOL([XMLTO], [xmlto], [noxmlto])
-AS_IF([test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen" -o "$XMLTO" = "noxmlto"],
-	[AC_MSG_ERROR([could not files tools necessary to build documentation])])
+AS_IF([test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen"],
+      [AC_MSG_ERROR([could not find tools necessary to build documentation])])
 AM_CONDITIONAL([BUILD_REFERENCE],
 	[test "$enable_documentation" != "no" -a "$DOXYGEN" != "nodoxygen"])
-AM_CONDITIONAL([BUILD_TUTORIAL],
-	[test "$enable_documentation" != "no" -a "$XMLTO" != "xmlto"])
 
 AM_MAINTAINER_MODE
 

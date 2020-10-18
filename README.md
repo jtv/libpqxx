@@ -64,19 +64,10 @@ testers and feedback.
 Documentation
 -------------
 
-The `doc/` directory contains API reference documentation and a tutorial, both
-in HTML format.  These are also available online.
-
-For more detailed information, look at the header files themselves.  These are
-in the `include/pqxx/` directory.  We extract the reference documentation from
-the headers using a program called Doxygen.
-
-When learning about programming with libpqxx, you'll want to start off by
-reading about the `connection` and `transaction_base` classes.
-
-For programming examples, take a look at the test programs in the `test/`
-directory.  If you don't know how a certain function or class is used, try
-searching the tests for that name.
+Building the library, if you have the right tools installed, generates HTML
+documentation in the `doc/` directory.  It is based on the headers in
+`include/pqxx/` and text in `include/pqxx/doc/`.  The documentation is also
+available online at readthedocs.org.
 
 
 Programming with libpqxx

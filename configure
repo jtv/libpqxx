@@ -644,11 +644,8 @@ PKG_CONFIG
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
-BUILD_TUTORIAL_FALSE
-BUILD_TUTORIAL_TRUE
 BUILD_REFERENCE_FALSE
 BUILD_REFERENCE_TRUE
-XMLTO
 HAVE_DOT
 DOXYGEN
 MKDIR
@@ -812,8 +809,7 @@ LT_SYS_LIBRARY_PATH
 CPP
 CXXCPP
 DOXYGEN
-HAVE_DOT
-XMLTO'
+HAVE_DOT'
 
 
 # Initialize some variables set by options.
@@ -1494,7 +1490,6 @@ Some influential environment variables:
   CXXCPP      C++ preprocessor
   DOXYGEN     Path to doxygen needed to build reference documentation
   HAVE_DOT    Variable used by doxygen to declare availibility of dot
-  XMLTO       Path to xmlto needed to build tutorial documentation
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -17270,107 +17265,8 @@ else
   HAVE_DOT="$ac_cv_prog_HAVE_DOT"
 fi
 
-
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}xmlto", so it can be a program name with args.
-set dummy ${ac_tool_prefix}xmlto; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_XMLTO+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $XMLTO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XMLTO="$XMLTO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_XMLTO="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-XMLTO=$ac_cv_path_XMLTO
-if test -n "$XMLTO"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XMLTO" >&5
-$as_echo "$XMLTO" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_path_XMLTO"; then
-  ac_pt_XMLTO=$XMLTO
-  # Extract the first word of "xmlto", so it can be a program name with args.
-set dummy xmlto; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_ac_pt_XMLTO+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $ac_pt_XMLTO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_XMLTO="$ac_pt_XMLTO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_XMLTO="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_XMLTO=$ac_cv_path_ac_pt_XMLTO
-if test -n "$ac_pt_XMLTO"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_XMLTO" >&5
-$as_echo "$ac_pt_XMLTO" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_pt_XMLTO" = x; then
-    XMLTO="noxmlto"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    XMLTO=$ac_pt_XMLTO
-  fi
-else
-  XMLTO="$ac_cv_path_XMLTO"
-fi
-
-if test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen" -o "$XMLTO" = "noxmlto"; then :
-  as_fn_error $? "could not files tools necessary to build documentation" "$LINENO" 5
+if test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen"; then :
+  as_fn_error $? "could not find tools necessary to build documentation" "$LINENO" 5
 fi
  if test "$enable_documentation" != "no" -a "$DOXYGEN" != "nodoxygen"; then
   BUILD_REFERENCE_TRUE=
@@ -17378,14 +17274,6 @@ fi
 else
   BUILD_REFERENCE_TRUE='#'
   BUILD_REFERENCE_FALSE=
-fi
-
- if test "$enable_documentation" != "no" -a "$XMLTO" != "xmlto"; then
-  BUILD_TUTORIAL_TRUE=
-  BUILD_TUTORIAL_FALSE='#'
-else
-  BUILD_TUTORIAL_TRUE='#'
-  BUILD_TUTORIAL_FALSE=
 fi
 
 
@@ -18806,10 +18694,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_REFERENCE_TRUE}" && test -z "${BUILD_REFERENCE_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_REFERENCE\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${BUILD_TUTORIAL_TRUE}" && test -z "${BUILD_TUTORIAL_FALSE}"; then
-  as_fn_error $? "conditional \"BUILD_TUTORIAL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then

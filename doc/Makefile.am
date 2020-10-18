@@ -1,24 +1,18 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 maintainer-clean-local:
-	$(RM) -rf html/Reference html/Tutorial
-	$(RM) reference-stamp tutorial-stamp
-	$(MKDIR) html/Reference html/Tutorial
+	$(RM) -rf html/Reference
+	$(RM) reference-stamp
+	$(MKDIR) html/Reference
 
-EXTRA_DIST= Doxyfile.in libpqxx.xml reference-stamp tutorial-stamp
+EXTRA_DIST= Doxyfile.in libpqxx.xml reference-stamp
 
 all-local: docs
 
 if BUILD_REFERENCE
-REFERENCE_DOCS = reference
+DOCS = reference
 else
-REFERENCE_DOCS =
-endif
-
-if BUILD_TUTORIAL
-TUTORIAL_DOCS = tutorial
-else
-TUTORIAL_DOCS =
+DOCS =
 endif
 
 if MAINTAINER_MODE
@@ -26,8 +20,6 @@ REFERENCE_STAMP_DEPENDENCIES = ../src/libpqxx.la
 else
 REFERENCE_STAMP_DEPENDENCIES =
 endif
-
-DOCS = $(REFERENCE_DOCS) $(TUTORIAL_DOCS)
 
 docs: $(DOCS)
 
@@ -52,25 +44,10 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	cd ../src; \
 	$(MAKE) libpqxx.la
 
-tutorial: tutorial-stamp
-tutorial-stamp: libpqxx.xml
-	if test -x "$(XMLTO)"; then \
-	  $(XMLTO) -o html/Tutorial xhtml $<; \
-	  touch $@; \
-	else \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  echo >&2; \
-	  echo >&2 "xmlto not found."; \
-	  echo >&2 "Install it, or configure with --disable-documentation"; \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  exit 1; \
-	fi
 
-DISTHOOKDIRS = html/Reference html/Tutorial
+DISTHOOKDIRS = html/Reference
 
-dist-hook: reference tutorial
+dist-hook: reference
 	mkdir $(distdir)/html
 #	Do a shallow copy of each directory
 	for dir in $(DISTHOOKDIRS); do \

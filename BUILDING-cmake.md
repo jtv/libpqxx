@@ -88,9 +88,9 @@ Here are some popular `cmake` options for libpqxx:
 On Windows, I recommend building libpqxx as a shared library and bundling it
 with your application.  On other platforms I would prefer a static library.
 
-Building the documentation requires some tools to be installed.  These include
-Doxygen and xmlto, but there's no list of requirements.  The way to get this
-set up is to just try it and see what it's missing.
+Building the documentation requires some tools to be installed.  It takes at
+least Doxygen, but there's no list of requirements.  The way to get this set up
+is to just try it and see what it's missing.
 
 
 ### Generators

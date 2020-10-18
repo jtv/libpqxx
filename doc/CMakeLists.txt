@@ -8,16 +8,6 @@ Install it, or configure with -DBUILD_DOC=OFF
     )
 endif()
 
-find_program(HAVE_XMLTO xmlto)
-
-if(NOT HAVE_XMLTO)
-    message(FATAL_ERROR "*****************************************************
-xmlto not found.
-Install it, or configure with -DBUILD_DOC=OFF
-*****************************************************"
-    )
-endif()
-
 set(PQXXVERSION "${CMAKE_PROJECT_VERSION}")
 set(top_srcdir "${PROJECT_SOURCE_DIR}")
 set(PQXX_ABI "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
@@ -55,29 +45,6 @@ if(HAVE_DOXYGEN)
     )
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
-    )
-endif()
-
-if(HAVE_XMLTO)
-    set(XMLTO_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
-    )
-    set(XMLTO_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/xmlto.stamp")
-    add_custom_command(OUTPUT ${XMLTO_STAMP_FILE}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
-        COMMAND xmlto -o html/Tutorial xhtml "${CMAKE_CURRENT_SOURCE_DIR}/libpqxx.xml"
-        COMMAND ${CMAKE_COMMAND} -E touch ${XMLTO_STAMP_FILE}
-        DEPENDS ${XMLTO_SOURCES}
-        COMMENT "Generate tutorial"
-        VERBATIM
-    )
-    add_custom_target(tutorial ALL
-        DEPENDS ${XMLTO_STAMP_FILE}
-        SOURCES ${XMLTO_SOURCES}
-    )
-    install(
-        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Tutorial
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
     )
 endif()
