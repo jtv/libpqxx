@@ -41,8 +41,8 @@ wrappers and smart pointers by copying the implementation patterns from the
 existing smart-pointer support.
 
 
-`stream_from`
--------------
+stream\_from
+------------
 
 Use `stream_from` to read data directly from the database.  It's faster than a
 `SELECT` if the result contains enough rows, but also, you won't need to keep
@@ -65,8 +65,8 @@ goes through your loop body, and then promptly forgets that row's data.  This
 means you can easily process more data than will fit in memory.
 
 
-`stream_to`
------------
+stream\_to
+----------
 
 Use `stream_to` to write data directly to a database table.  This saves you
 having to perform an `INSERT` for every row, and so it can be significantly

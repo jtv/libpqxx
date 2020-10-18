@@ -16,21 +16,19 @@ They fit together as follows:
   transaction object is destroyed.
 
 * Until then, use the transaction's `exec`, `query_value`, and `stream`
-  functions to execute SQL statements.  You pass the statements themselves in
-  as simple strings.
+  functions (and variants) to execute SQL statements.  You pass the statements
+  themselves in as simple strings.  (See @ref streams for more about data
+  streaming).
 
 * Most of the `exec` functions return a `pqxx::result` object, which acts
-  as a standard container of rows.
+  as a standard container of rows: `pqxx::row`.
 
-  Each row in a result, in turn, acts as a container of fields.  You can use
-  array indexing or iterators to access either, and convert rows or single
-  values to native C++ types.
+  Each row in a result, in turn, acts as a container of fields: `pqxx::field`.
+  See @ref accessing-results for more about results, rows, and fields.
 
-* The field's data is stored internally as a text string.
-
-  You can read it as such using its `c_str` function, or convert it to other
-  types using its `as` and `to` member functions.  These are templated on the
-  destination type: `myfield.as<int>();` or `myfield.to(myint);`
+* Each field's data is stored internally as a text string, in a format defined
+  by PostgreSQL.  You can convert field or row values using their `as()` and
+  `to()` member functions.
 
 * After you've closed the transaction, the connection is free to run a next
   transaction.
