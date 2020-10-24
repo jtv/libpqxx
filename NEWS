@@ -5,6 +5,7 @@
  - Internal rework of `field::to()` and `field::as()` functions.
  - Some more warning options in maintainer mode.
  - Removed the old, DocBook-based tutorial.
+ - Fixed wrong `query` and SQLSTATE params to some exceptions. (#378)
 7.2.0
  - You can now implicitly convert a `const std::string &` to `zview`.
  - Replaced some overloads for C strings and C++ strings with `zview`.
