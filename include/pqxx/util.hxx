@@ -201,6 +201,9 @@ constexpr oid oid_none{0};
  */
 namespace pqxx::internal
 {
+using namespace std::literals;
+
+
 /// Helper base class: object descriptions for error messages and such.
 /** @deprecated To be replaced with something simpler, cleaner, and faster.
  *
@@ -246,10 +249,16 @@ private:
 };
 
 
-PQXX_PRIVATE void check_unique_registration(
-  namedclass const *new_ptr, namedclass const *old_ptr);
-PQXX_PRIVATE void check_unique_unregistration(
-  namedclass const *new_ptr, namedclass const *old_ptr);
+/// Append human-readable description of an object to a string.
+/** The object may have an individual name, in which case the description will
+ * look like "<class_name> '<obj_name>'".  Otherwise, the description just
+ * equals @c class_name.
+ *
+ * Optionally, request that the buffer reserve at least @c headroom more bytes.
+ */
+void describe(
+  std::string &buf, std::string_view class_name, std::string_view obj_name,
+  std::size_t headroom = 0);
 
 
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
@@ -275,15 +284,65 @@ public:
 
   constexpr GUEST *get() const noexcept { return m_guest; }
 
-  constexpr void register_guest(GUEST *G)
+  constexpr void register_guest(GUEST *new_guest)
   {
-    check_unique_registration(G, m_guest);
-    m_guest = G;
+    // Not fully optimising the buffer composition here.  This is an error path
+    // so legibility matters more than speed.
+
+    if (new_guest == nullptr)
+      throw internal_error{"Null pointer registered."};
+
+    if (m_guest != nullptr)
+    {
+      if (m_guest == new_guest)
+      {
+        std::string text{"Started twice: "};
+        describe(text, m_guest->classname(), m_guest->name(), 1);
+        auto const here{std::size(text)};
+        text.resize(here + 1);
+        text.data()[here] = '.';
+        throw usage_error{text};
+      }
+      else
+      {
+        constexpr std::string_view pre{"Started "sv}, mid{" while "sv},
+          post{" still active."};
+        std::string text{pre};
+        describe(
+          text, new_guest->classname(), new_guest->name(),
+          std::size(mid) + 40 + std::size(post));
+        auto const mid_start{std::size(text)};
+        text.resize(mid_start + std::size(mid));
+        mid.copy(text.data() + mid_start, std::string::npos);
+        describe(text, m_guest->classname(), m_guest->name(), std::size(post));
+        auto const post_start{std::size(text)};
+        text.resize(post_start + std::size(post));
+        post.copy(text.data() + post_start, std::string::npos);
+        throw usage_error{text};
+      }
+    }
+    m_guest = new_guest;
   }
 
-  constexpr void unregister_guest(GUEST *G)
+  constexpr void unregister_guest(GUEST const *new_guest)
   {
-    check_unique_unregistration(G, m_guest);
+    if (new_guest != m_guest)
+    {
+      if (new_guest == nullptr)
+        throw usage_error{
+          "Expected to close " + m_guest->description() +
+          ", "
+          "but got null pointer instead."};
+      if (m_guest == nullptr)
+        throw usage_error{
+          "Closed while not open: " + new_guest->description()};
+      else
+        throw usage_error{
+          "Closed " + new_guest->description() +
+          "; "
+          "expected to close " +
+          m_guest->description()};
+    }
     m_guest = nullptr;
   }
 

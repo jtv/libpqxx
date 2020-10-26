@@ -47,6 +47,36 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 }
 
 
+void pqxx::internal::describe(
+  std::string &buf, std::string_view class_name, std::string_view obj_name,
+  std::size_t headroom)
+{
+  if (std::empty(obj_name))
+  {
+    auto const start{std::size(buf)}, clen{std::size(class_name)};
+    auto const budget{start + clen};
+    buf.reserve(budget + headroom);
+    buf.resize(budget);
+    class_name.copy(buf.data() + start, clen);
+  }
+  else
+  {
+    // Construct "<classname> '<name>'", but avoid reallocations.
+    auto const start{std::size(buf)}, clen{std::size(class_name)},
+      olen{std::size(obj_name)};
+    auto const budget{start + clen + 2 + olen + 1};
+    buf.reserve(budget + headroom);
+    buf.resize(budget);
+    char *here{buf.data() + start};
+    here += class_name.copy(here, clen);
+    *here++ = ' ';
+    *here++ = '\'';
+    here += obj_name.copy(here, olen);
+    *here++ = '\'';
+  }
+}
+
+
 std::string pqxx::internal::namedclass::description() const
 {
   if (std::empty(name()))
@@ -55,53 +85,9 @@ std::string pqxx::internal::namedclass::description() const
   }
   else
   {
-    // Construct "<classname> '<name>'", but avoid reallocations.
-    std::string desc;
-    desc.resize(std::size(classname()) + 2 + std::size(name()) + 1);
-    char *here{desc.data()};
-    here += classname().copy(here, std::string::npos);
-    *here++ = ' ';
-    *here++ = '\'';
-    here += name().copy(here, std::string::npos);
-    *here++ = '\'';
-    return desc;
-  }
-}
-
-
-void pqxx::internal::check_unique_registration(
-  namedclass const *new_ptr, namedclass const *old_ptr)
-{
-  if (new_ptr == nullptr)
-    throw internal_error{"null pointer registered."};
-  if (old_ptr != nullptr)
-  {
-    if (old_ptr == new_ptr)
-      throw usage_error{"Started twice: " + new_ptr->description()};
-    throw usage_error{
-      "Started " + new_ptr->description() + " while " +
-      old_ptr->description() + " still active."};
-  }
-}
-
-
-void pqxx::internal::check_unique_unregistration(
-  namedclass const *new_ptr, namedclass const *old_ptr)
-{
-  if (new_ptr != old_ptr)
-  {
-    if (new_ptr == nullptr)
-      throw usage_error{
-        "Expected to close " + old_ptr->description() +
-        ", "
-        "but got null pointer instead."};
-    if (old_ptr == nullptr)
-      throw usage_error{"Closed while not open: " + new_ptr->description()};
-    throw usage_error{
-      "Closed " + new_ptr->description() +
-      "; "
-      "expected to close " +
-      old_ptr->description()};
+    std::string text;
+    describe(text, classname(), name());
+    return text;
   }
 }
 
