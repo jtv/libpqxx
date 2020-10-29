@@ -284,7 +284,7 @@ public:
 
   constexpr GUEST *get() const noexcept { return m_guest; }
 
-  constexpr void register_guest(GUEST *new_guest)
+  void register_guest(GUEST *new_guest)
   {
     // Not fully optimising the buffer composition here.  This is an error path
     // so legibility matters more than speed.
