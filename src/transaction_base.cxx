@@ -24,11 +24,6 @@
 #include "pqxx/internal/encodings.hxx"
 
 
-pqxx::transaction_base::transaction_base(connection &c) :
-        namedclass{"transaction_base"}, m_conn{c}
-{}
-
-
 pqxx::transaction_base::~transaction_base()
 {
   try

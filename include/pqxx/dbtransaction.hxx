@@ -53,6 +53,7 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
   explicit dbtransaction(connection &c) : transaction_base{c} {}
+  dbtransaction(connection &c, std::string_view tname) : transaction_base{c, tname} {}
 };
 } // namespace pqxx
 

@@ -28,6 +28,7 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
+  basic_robusttransaction(connection &c, char const begin_command[], std::string_view tname);
   basic_robusttransaction(connection &c, char const begin_command[]);
 
 private:
@@ -36,6 +37,8 @@ private:
   std::string m_conn_string;
   std::string m_xid;
   int m_backendpid = -1;
+
+  void init(char const begin_command[]);
 
   // @warning This function will become @c final.
   virtual void do_commit() override;
@@ -83,9 +86,30 @@ public:
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.
    */
+  robusttransaction(
+    connection &c, std::string_view tname) :
+          internal::basic_robusttransaction{
+            c,
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(), tname}
+  {}
+
+  /** Create robusttransaction of given name.
+   * @param c Connection inside which this robusttransaction should live.
+   * @param name optional human-readable name for this transaction.
+   */
+  robusttransaction(
+    connection &c, std::string &&tname) :
+          internal::basic_robusttransaction{
+            c,
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(), std::move(tname)}
+  {}
+
+  /** Create robusttransaction of given name.
+   * @param c Connection inside which this robusttransaction should live.
+   * @param name optional human-readable name for this transaction.
+   */
   explicit robusttransaction(
-    connection &c, std::string_view name = std::string_view{}) :
-          namedclass{"robusttransaction", name},
+    connection &c) :
           internal::basic_robusttransaction{
             c,
             pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}

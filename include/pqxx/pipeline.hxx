@@ -47,23 +47,12 @@ public:
   pipeline(pipeline const &) = delete;
   pipeline &operator=(pipeline const &) = delete;
 
-  explicit pipeline(transaction_base &t) :
-          namedclass{"pipeline"}, transactionfocus{t}
+  explicit pipeline(transaction_base &t) : transactionfocus{t, s_classname}
   {
     init();
   }
-  pipeline(transaction_base &t, char const name[]) :
-          namedclass{"pipeline", name}, transactionfocus{t}
-  {
-    init();
-  }
-  pipeline(transaction_base &t, std::string &&name) :
-          namedclass{"pipeline", std::move(name)}, transactionfocus{t}
-  {
-    init();
-  }
-  pipeline(transaction_base &t, std::string_view name) :
-          namedclass{"pipeline", name}, transactionfocus{t}
+  pipeline(transaction_base &t, std::string_view tname) :
+          transactionfocus{t, s_classname, tname}
   {
     init();
   }
@@ -228,6 +217,8 @@ private:
    * moments.
    */
   internal::encoding_group m_encoding;
+
+  constexpr static std::string_view s_classname{"pipeline"};
 };
 } // namespace pqxx
 

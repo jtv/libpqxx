@@ -72,17 +72,15 @@ class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
 {
 public:
   /// Nest a subtransaction nested in another transaction.
-  explicit subtransaction(
-    dbtransaction &t, std::string const &name = std::string{});
+  explicit subtransaction(dbtransaction &t, std::string_view tname = ""sv);
 
   /// Nest a subtransaction in another subtransaction.
-  explicit subtransaction(
-    subtransaction &t, std::string const &name = std::string{});
+  explicit subtransaction(subtransaction &t, std::string_view name = ""sv);
 
   virtual ~subtransaction() noexcept override { close(); }
 
 private:
-  std::string quoted_name() const { return quote_name(name()); }
+  std::string quoted_name() const { return quote_name(transactionfocus::name()); }
   virtual void do_commit() override;
   virtual void do_abort() override;
 };

@@ -52,13 +52,15 @@ get_scanner(pqxx::transaction_base const &tx)
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
   return pqxx::internal::get_glyph_scanner(group);
 }
+
+
+constexpr std::string_view class_name{"stream_from"};
 } // namespace
 
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
-        namedclass{"stream_from"},
-        transactionfocus{tx},
+        transactionfocus{tx, class_name},
         m_glyph_scanner{get_scanner(tx)}
 {
   constexpr std::string_view copy{"COPY ("}, to_stdout{") TO STDOUT"};
@@ -75,8 +77,7 @@ pqxx::stream_from::stream_from(
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
-        namedclass{"stream_from", table},
-        transactionfocus{tx},
+        transactionfocus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
   auto const command{compose_query(tx, table, "")};
@@ -88,8 +89,7 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from::stream_from(
   transaction_base &tx, std::string_view table, std::string &&columns,
   from_table_t) :
-        namedclass{"stream_from", table},
-        transactionfocus{tx},
+        transactionfocus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
   auto const command{compose_query(tx, table, columns)};

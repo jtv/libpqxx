@@ -58,12 +58,17 @@ public:
    * @param name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  explicit nontransaction(
-    connection &c, std::string const &name = std::string{}) :
-          namedclass{"nontransaction", name}, transaction_base{c}
-  {
-    register_transaction();
-  }
+  nontransaction(connection &c, std::string_view tname) : transaction_base{c, tname}
+  { register_transaction(); }
+
+  /// Constructor.
+  /** Create a "dummy" transaction.
+   * @param c Connection that this "transaction" will operate on.
+   * @param name Optional name for the transaction, beginning with a letter
+   * and containing only letters and digits.
+   */
+  explicit nontransaction(connection &c) : transaction_base{c}
+  { register_transaction(); }
 
   virtual ~nontransaction() override { close(); }
 

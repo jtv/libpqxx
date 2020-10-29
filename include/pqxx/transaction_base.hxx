@@ -46,6 +46,9 @@ class transaction_transactionfocus;
 
 namespace pqxx
 {
+using namespace std::literals;
+
+
 /**
  * @defgroup transaction Transaction classes
  *
@@ -65,7 +68,7 @@ namespace pqxx
  * Abstract base class for all transaction types.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base
-        : public virtual internal::namedclass
+        : public internal::namedclass
 {
 public:
   transaction_base() = delete;
@@ -483,7 +486,10 @@ protected:
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
-  explicit transaction_base(connection &c);
+  transaction_base(connection &c, std::string_view tname) : namedclass{s_type_name, tname}, m_conn{c} {}
+
+  /// Create a transaction (to be called by implementation classes only).
+  explicit transaction_base(connection &c) : namedclass{s_type_name}, m_conn{c} {}
 
   /// Register this transaction with the connection.
   void register_transaction();
@@ -545,6 +551,8 @@ private:
   status m_status = status::active;
   bool m_registered = false;
   std::string m_pending_error;
+
+  constexpr static std::string_view s_type_name{"transaction"sv};
 };
 
 

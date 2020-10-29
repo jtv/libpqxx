@@ -16,11 +16,19 @@
 
 namespace pqxx::internal
 {
-class PQXX_LIBEXPORT transactionfocus : public virtual namedclass
+class PQXX_LIBEXPORT transactionfocus : public namedclass
 {
 public:
-  explicit transactionfocus(transaction_base &t) :
-          namedclass{"transactionfocus"}, m_trans{t}
+  transactionfocus(transaction_base &t, std::string_view cname, std::string_view oname) :
+          namedclass{cname, oname}, m_trans{t}
+  {}
+
+  transactionfocus(transaction_base &t, std::string_view cname, std::string &&oname) :
+          namedclass{cname, std::move(oname)}, m_trans{t}
+  {}
+
+  transactionfocus(transaction_base &t, std::string_view cname) :
+          namedclass{cname}, m_trans{t}
   {}
 
   transactionfocus() = delete;

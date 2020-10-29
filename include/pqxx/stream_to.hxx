@@ -307,6 +307,8 @@ private:
   {
     (..., append_to_buffer(fields));
   }
+
+  constexpr static std::string_view s_classname{"stream_to"};
 };
 
 
@@ -320,8 +322,7 @@ inline stream_to::stream_to(
 template<typename Iter>
 inline stream_to::stream_to(
   transaction_base &tb, std::string_view table_name, Iter columns_begin,
-  Iter columns_end) :
-        namedclass{"stream_to", table_name}, internal::transactionfocus{tb}
+  Iter columns_end) : internal::transactionfocus{tb, s_classname, table_name}
 {
   set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
 }

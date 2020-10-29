@@ -17,10 +17,16 @@
 #include "pqxx/subtransaction"
 
 
+namespace
+{
+using namespace std::literals;
+constexpr std::string_view class_name{"subtransaction"sv};
+}
+
+
 pqxx::subtransaction::subtransaction(
-  dbtransaction &t, std::string const &Name) :
-        namedclass{"subtransaction", t.conn().adorn_name(Name)},
-        transactionfocus{t},
+  dbtransaction &t, std::string_view tname) :
+        transactionfocus{t, class_name, t.conn().adorn_name(tname)},
         dbtransaction(t.conn())
 {
   direct_exec(std::make_shared<std::string>("SAVEPOINT " + quoted_name()));
@@ -34,8 +40,8 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 
 
 pqxx::subtransaction::subtransaction(
-  subtransaction &t, std::string const &name) :
-        subtransaction(dbtransaction_ref(t), name)
+  subtransaction &t, std::string_view tname) :
+        subtransaction(dbtransaction_ref(t), tname)
 {}
 
 

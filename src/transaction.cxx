@@ -18,8 +18,26 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
+  connection &c, char const begin_command[], std::string_view tname) :
+        dbtransaction(c, tname)
+{
+  register_transaction();
+  direct_exec(begin_command);
+}
+
+
+pqxx::internal::basic_transaction::basic_transaction(
+  connection &c, char const begin_command[], std::string &&tname) :
+        dbtransaction(c, std::move(tname))
+{
+  register_transaction();
+  direct_exec(begin_command);
+}
+
+
+pqxx::internal::basic_transaction::basic_transaction(
   connection &c, char const begin_command[]) :
-        namedclass{"transaction"}, dbtransaction(c)
+        dbtransaction(c)
 {
   register_transaction();
   direct_exec(begin_command);
