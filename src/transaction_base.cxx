@@ -418,6 +418,12 @@ void pqxx::transaction_base::check_pending_error()
 }
 
 
+std::string pqxx::transaction_base::description() const
+{
+  return internal::describe_object("transaction", name());
+}
+
+
 void pqxx::internal::transactionfocus::register_me()
 {
   pqxx::internal::gate::transaction_transactionfocus{m_trans}.register_focus(

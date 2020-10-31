@@ -789,7 +789,7 @@ private:
   internal::pq::PGconn *m_conn = nullptr;
 
   /// Active transaction on connection, if any.
-  internal::unique<transaction_base> m_trans;
+  transaction_base *m_trans = nullptr;
 
   std::list<errorhandler *> m_errorhandlers;
 

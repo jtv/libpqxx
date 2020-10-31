@@ -89,6 +89,7 @@ extern "C"
   void inert_notice_processor(void *, char const *) noexcept {}
 } // extern "C"
 
+using namespace std::literals;
 
 std::string pqxx::encrypt_password(char const user[], char const password[])
 {
@@ -141,7 +142,7 @@ void pqxx::connection::init(char const *params[], char const *values[])
 
 void pqxx::connection::check_movable() const
 {
-  if (m_trans.get() != nullptr)
+  if (m_trans)
     throw pqxx::usage_error{"Moving a connection with a transaction open."};
   if (not std::empty(m_errorhandlers))
     throw pqxx::usage_error{
@@ -154,7 +155,7 @@ void pqxx::connection::check_movable() const
 
 void pqxx::connection::check_overwritable() const
 {
-  if (m_trans.get() != nullptr)
+  if (m_trans)
     throw pqxx::usage_error{
       "Moving a connection onto one with a transaction open."};
   if (not std::empty(m_errorhandlers))
@@ -457,8 +458,7 @@ int pqxx::connection::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_trans.get() != nullptr)
-    return 0;
+  if (m_trans) return 0;
 
   int notifs = 0;
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
@@ -643,9 +643,9 @@ void pqxx::connection::close()
 {
   try
   {
-    if (m_trans.get())
+    if (m_trans)
       process_notice(internal::concat(
-        "Closing connection while ", m_trans.get()->description(),
+        "Closing connection while ", internal::describe_object("transaction"sv, m_trans->name()),
         " is still open."));
 
     if (not std::empty(m_receivers))
@@ -678,9 +678,20 @@ int pqxx::connection::status() const noexcept
 }
 
 
+namespace
+{
+/// Return a name for t, if t is non-null and has a name; or empty string.
+std::string_view get_name(pqxx::transaction_base const *t)
+{
+  return (t == nullptr) ? ""sv : t->name();
+}
+} // namespace
+
+
 void pqxx::connection::register_transaction(transaction_base *t)
 {
-  m_trans.register_guest(t);
+  internal::check_unique_register(m_trans, "transaction", get_name(m_trans), t, "transaction", get_name(t));
+  m_trans = t;
 }
 
 
@@ -688,12 +699,13 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 {
   try
   {
-    m_trans.unregister_guest(t);
+    internal::check_unique_unregister(m_trans, "transaction", get_name(m_trans), t, "transaction", get_name(t));
   }
   catch (std::exception const &e)
   {
     process_notice(e.what());
   }
+  m_trans = nullptr;
 }
 
 

@@ -61,10 +61,10 @@ void test_021()
   result R(tx.exec("SELECT * FROM pg_tables"));
 
   tx.process_notice(
-    to_string(std::size(R)) +
-    " "
-    "result row in transaction " +
-    tx.name() + "\n");
+    pqxx::internal::concat(
+      to_string(std::size(R)),
+    " result row in transaction ",
+    tx.name(), "\n"));
   tx.commit();
 }
 

@@ -16,6 +16,7 @@
 
 #include <cctype>
 #include <cstdio>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -204,6 +205,12 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
+// XXX: Document.
+[[nodiscard]] std::string describe_object(std::string_view class_name, std::string_view name);
+void check_unique_register(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name);
+void check_unique_unregister(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name);
+
+
 /// Helper base class: object descriptions for error messages and such.
 /** @deprecated To be replaced with something simpler, cleaner, and faster.
  *
@@ -236,13 +243,13 @@ public:
   {}
 
   /// Object name, or the empty string if no name was given.
-  std::string const &name() const noexcept { return m_name; }
+  [[nodiscard]] std::string_view name() const noexcept { return m_name; }
 
   /// Class name.
-  std::string const &classname() const noexcept { return m_classname; }
+  [[nodiscard]] std::string_view classname() const noexcept { return m_classname; }
 
   /// Combination of class name and object name; or just class name.
-  std::string description() const;
+  [[nodiscard]] std::string description() const { return describe_object(m_classname, m_name); }
 
 private:
   std::string m_classname, m_name;
@@ -274,45 +281,27 @@ public:
 
   void register_guest(GUEST *new_guest)
   {
-    // Not fully optimising the buffer composition here.  This is an error path
-    // so legibility matters more than speed.
-
-    if (new_guest == nullptr)
-      throw internal_error{"Null pointer registered."};
-
-    if (m_guest != nullptr)
-      throw usage_error{
-        (m_guest == new_guest) ?
-          "Started twice: " + m_guest->description() + "." :
-          "Started new " + new_guest->description() + " while " +
-            m_guest->description() + " was still active."};
-
+    check_unique_register(m_guest, get_classname(m_guest), get_name(m_guest), new_guest, get_classname(new_guest), get_name(new_guest));
     m_guest = new_guest;
   }
 
   constexpr void unregister_guest(GUEST const *new_guest)
   {
-    if (new_guest != m_guest)
-    {
-      if (new_guest == nullptr)
-        throw usage_error{
-          "Expected to close " + m_guest->description() +
-          ", "
-          "but got null pointer instead."};
-      if (m_guest == nullptr)
-        throw usage_error{
-          "Closed while not open: " + new_guest->description()};
-      else
-        throw usage_error{
-          "Closed " + new_guest->description() +
-          "; "
-          "expected to close " +
-          m_guest->description()};
-    }
+    check_unique_unregister(m_guest, get_classname(m_guest), get_name(m_guest), new_guest, get_classname(new_guest), get_name(new_guest));
     m_guest = nullptr;
   }
 
 private:
+  [[nodiscard]] static std::string_view get_classname(GUEST const *g) noexcept
+  {
+    return (g == nullptr) ? ""sv : g->classname();
+  }
+
+  [[nodiscard]] static std::string_view get_name(GUEST const *g) noexcept
+  {
+    return (g == nullptr) ? ""sv : g->name();
+  }
+
   GUEST *m_guest = nullptr;
 };
 

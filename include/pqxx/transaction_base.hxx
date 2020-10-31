@@ -69,7 +69,6 @@ using namespace std::literals;
  * Abstract base class for all transaction types.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base
-        : public internal::namedclass
 {
 public:
   transaction_base() = delete;
@@ -481,18 +480,20 @@ public:
    */
   std::string get_variable(std::string_view);
 
+  /// Transaction name, if you passed one to the constructor; or empty string.
+  [[nodiscard]] std::string_view name() const noexcept { return m_name; }
+
 protected:
   /// Create a transaction (to be called by implementation classes only).
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
   transaction_base(connection &c, std::string_view tname) :
-          namedclass{s_type_name, tname}, m_conn{c}
+          m_conn{c}, m_name{tname}
   {}
 
   /// Create a transaction (to be called by implementation classes only).
-  explicit transaction_base(connection &c) : namedclass{s_type_name}, m_conn{c}
-  {}
+  explicit transaction_base(connection &c) : m_conn{c} {}
 
   /// Register this transaction with the connection.
   void register_transaction();
@@ -543,6 +544,9 @@ private:
   void
   check_rowcount_params(std::size_t expected_rows, std::size_t actual_rows);
 
+  /// Describe this transaction to humans, e.g. "transaction 'foo'".
+  [[nodiscard]] std::string description() const;
+
   friend class pqxx::internal::gate::transaction_transactionfocus;
   PQXX_PRIVATE void register_focus(internal::transactionfocus *);
   PQXX_PRIVATE void unregister_focus(internal::transactionfocus *) noexcept;
@@ -553,6 +557,7 @@ private:
   internal::unique<internal::transactionfocus> m_focus;
   status m_status = status::active;
   bool m_registered = false;
+  std::string m_name;
   std::string m_pending_error;
 
   constexpr static std::string_view s_type_name{"transaction"sv};

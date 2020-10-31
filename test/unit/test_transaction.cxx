@@ -48,26 +48,6 @@ int count_temp_table(pqxx::transaction_base &tx)
 }
 
 
-template<typename TX> void test_db_transaction_rolls_back()
-{
-  pqxx::connection c;
-  pqxx::nontransaction tx1{c};
-  delete_temp_table(tx1);
-  create_temp_table(tx1);
-  tx1.commit();
-
-  TX tx2{c};
-  insert_temp_table(tx2, 32);
-  tx2.abort();
-
-  pqxx::nontransaction tx3{c};
-  PQXX_CHECK_EQUAL(
-    count_temp_table(tx3), 0,
-    "Abort on " + tx3.classname() + " did not roll back.");
-  delete_temp_table(tx3);
-}
-
-
 void test_nontransaction_autocommits()
 {
   pqxx::connection c;
