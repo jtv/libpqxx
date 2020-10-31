@@ -16,13 +16,14 @@
 #include "pqxx/array"
 #include "pqxx/except"
 #include "pqxx/internal/array-composite.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/util"
 
 
 namespace pqxx
 {
 /// Scan to next glyph in the buffer.  Assumes there is one.
-std::string::size_type
+[[nodiscard]] std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos) const
 {
   return m_scan(m_input.data(), std::size(m_input), pos);
@@ -77,7 +78,7 @@ std::string::size_type array_parser::scan_single_quoted_string() const
         break;
       }
   }
-  throw argument_error{"Null byte in SQL string: " + std::string{m_input}};
+  throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
 }
 
 

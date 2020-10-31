@@ -80,7 +80,10 @@ public:
   virtual ~subtransaction() noexcept override { close(); }
 
 private:
-  std::string quoted_name() const { return quote_name(transactionfocus::name()); }
+  std::string quoted_name() const
+  {
+    return quote_name(transactionfocus::name());
+  }
   virtual void do_commit() override;
   virtual void do_abort() override;
 };

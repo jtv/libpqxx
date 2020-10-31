@@ -46,7 +46,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 void pqxx::internal::basic_transaction::do_commit()
 {
-  static auto const commit_q{std::make_shared<std::string>("COMMIT")};
+  static auto const commit_q{std::make_shared<std::string>("COMMIT"sv)};
   try
   {
     direct_exec(commit_q);
@@ -55,14 +55,17 @@ void pqxx::internal::basic_transaction::do_commit()
   {
     // Outcome of "commit" is unknown.  This is a disaster: we don't know the
     // resulting state of the database.
-    process_notice(e.what() + std::string{"\n"});
-    auto const msg{
-      "WARNING: Commit of transaction '" + name() +
+    process_notice(internal::concat(e.what(), "\n"));
+
+    std::string msg{internal::concat(
+      "WARNING: Commit of transaction '", name(),
       "' is unknown. "
       "There is no way to tell whether the transaction succeeded "
-      "or was aborted except to check manually."};
-    process_notice(msg + "\n");
-    throw in_doubt_error{msg};
+      "or was aborted except to check manually.\n")};
+    process_notice(msg);
+    // Strip newline.  It was only needed for process_notice().
+    msg.pop_back();
+    throw in_doubt_error{std::move(msg)};
   }
   catch (std::exception const &e)
   {
@@ -70,18 +73,16 @@ void pqxx::internal::basic_transaction::do_commit()
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O
-      process_notice(e.what() + std::string{"\n"});
+      process_notice(internal::concat(e.what(), "\n"));
 
-      auto const msg{
-        "WARNING: Connection lost while committing transaction "
-        "'" +
-        name() +
-        "'. "
-        "There is no way to tell whether the transaction succeeded "
-        "or was aborted except to check manually."};
-
-      process_notice(msg + "\n");
-      throw in_doubt_error{msg};
+      auto msg{internal::concat(
+        "WARNING: Connection lost while committing transaction '", name(),
+        "'. There is no way to tell whether the transaction succeeded "
+        "or was aborted except to check manually.\n")};
+      process_notice(msg);
+      // Strip newline.  It was only needed for process_notice().
+      msg.pop_back();
+      throw in_doubt_error{std::move(msg)};
     }
     else
     {

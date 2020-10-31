@@ -19,31 +19,6 @@
 #include "pqxx/transaction_base.hxx"
 
 
-std::string pqxx::stream_from::compose_query(
-  pqxx::transaction_base const &tx, std::string_view table,
-  std::string const &columns)
-{
-  constexpr std::string_view copy{"COPY "}, to_stdout{" TO STDOUT"};
-  auto const escaped_table{tx.quote_name(table)};
-  std::string command;
-  command.reserve(
-    std::size(copy) + std::size(escaped_table) + std::size(columns) + 2 +
-    std::size(to_stdout));
-  command += copy;
-  command += escaped_table;
-
-  if (not std::empty(columns))
-  {
-    command.push_back('(');
-    command += columns;
-    command.push_back(')');
-  }
-
-  command += to_stdout;
-  return command;
-}
-
-
 namespace
 {
 pqxx::internal::glyph_scanner_func *
@@ -60,17 +35,9 @@ constexpr std::string_view class_name{"stream_from"};
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
-        transactionfocus{tx, class_name},
-        m_glyph_scanner{get_scanner(tx)}
+        transactionfocus{tx, class_name}, m_glyph_scanner{get_scanner(tx)}
 {
-  constexpr std::string_view copy{"COPY ("}, to_stdout{") TO STDOUT"};
-  std::string command;
-  command.reserve(std::size(copy) + std::size(query) + std::size(to_stdout));
-  command += copy;
-  command += query;
-  command += to_stdout;
-  tx.exec0(command);
-
+  tx.exec0(internal::concat("COPY ("sv, query, ") TO STDOUT"sv));
   register_me();
 }
 
@@ -80,8 +47,7 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
-  auto const command{compose_query(tx, table, "")};
-  tx.exec0(command);
+  tx.exec0(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv));
   register_me();
 }
 
@@ -92,8 +58,8 @@ pqxx::stream_from::stream_from(
         transactionfocus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
-  auto const command{compose_query(tx, table, columns)};
-  tx.exec0(command);
+  tx.exec0(internal::concat(
+    "COPY "sv, tx.quote_name(table), "("sv, columns, ") TO STDOUT"sv));
   register_me();
 }
 

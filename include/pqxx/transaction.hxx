@@ -23,8 +23,10 @@ namespace pqxx::internal
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
-  basic_transaction(connection &c, char const begin_command[], std::string_view tname);
-  basic_transaction(connection &c, char const begin_command[], std::string &&tname);
+  basic_transaction(
+    connection &c, char const begin_command[], std::string_view tname);
+  basic_transaction(
+    connection &c, char const begin_command[], std::string &&tname);
   basic_transaction(connection &c, char const begin_command[]);
 
 private:

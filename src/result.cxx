@@ -22,6 +22,8 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/result"
 
+#include "pqxx/internal/concat.hxx"
+
 
 namespace pqxx
 {
@@ -294,9 +296,9 @@ std::string pqxx::result::StatusError() const
   case PGRES_FATAL_ERROR: err = PQresultErrorMessage(m_data.get()); break;
 
   default:
-    throw internal_error{
-      "pqxx::result: Unrecognized response code " +
-      to_string(PQresultStatus(m_data.get()))};
+    throw internal_error{internal::concat(
+      "pqxx::result: Unrecognized response code ",
+      PQresultStatus(m_data.get()))};
   }
   return err;
 }
@@ -356,9 +358,9 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
-    throw argument_error{
-      "Attempt to retrieve type of nonexistent column " + to_string(col_num) +
-      " of query result."};
+    throw argument_error{internal::concat(
+      "Attempt to retrieve type of nonexistent column ", col_num,
+      " of query result.")};
   return t;
 }
 
@@ -369,7 +371,7 @@ pqxx::row::size_type pqxx::result::column_number(zview col_name) const
     const_cast<internal::pq::PGresult *>(m_data.get()), col_name.c_str())};
   if (n == -1)
     throw argument_error{
-      "Unknown column name: '" + std::string{col_name} + "'."};
+      internal::concat("Unknown column name: '", col_name, "'.")};
 
   return static_cast<row::size_type>(n);
 }
@@ -383,9 +385,9 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
    * we got an invalid row number.
    */
   if (t == oid_none and col_num >= columns())
-    throw argument_error{
-      "Attempt to retrieve table ID for column " + to_string(col_num) +
-      " out of " + to_string(columns())};
+    throw argument_error{internal::concat(
+      "Attempt to retrieve table ID for column ", col_num, " out of ",
+      columns())};
 
   return t;
 }
@@ -400,18 +402,17 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
   // Failed.  Now find out why, so we can throw a sensible exception.
   auto const col_str{to_string(col_num)};
   if (col_num > columns())
-    throw range_error{"Invalid column index in table_column(): " + col_str};
+    throw range_error{
+      internal::concat("Invalid column index in table_column(): ", col_str)};
 
   if (m_data.get() == nullptr)
-    throw usage_error{
-      "Can't query origin of column " + col_str +
-      ": "
-      "result is not initialized."};
+    throw usage_error{internal::concat(
+      "Can't query origin of column ", col_str,
+      ": result is not initialized.")};
 
-  throw usage_error{
-    "Can't query origin of column " + col_str +
-    ": "
-    "not derived from table column."};
+  throw usage_error{internal::concat(
+    "Can't query origin of column ", col_str,
+    ": not derived from table column.")};
 }
 
 int pqxx::result::errorposition() const
@@ -436,9 +437,9 @@ char const *pqxx::result::column_name(pqxx::row::size_type number) const
   {
     if (m_data.get() == nullptr)
       throw usage_error{"Queried column name on null result."};
-    throw range_error{
-      "Invalid column number: " + to_string(number) + " (maximum is " +
-      to_string(columns() - 1) + ")."};
+    throw range_error{internal::concat(
+      "Invalid column number: ", number, " (maximum is ", (columns() - 1),
+      ").")};
   }
   return n;
 }

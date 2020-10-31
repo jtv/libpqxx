@@ -21,6 +21,7 @@
 #include "pqxx/internal/gates/connection-transaction.hxx"
 #include "pqxx/internal/gates/transaction-transactionfocus.hxx"
 
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
 
 
@@ -29,11 +30,13 @@ pqxx::transaction_base::~transaction_base()
   try
   {
     if (not std::empty(m_pending_error))
-      process_notice("UNPROCESSED ERROR: " + m_pending_error + "\n");
+      process_notice(
+        internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
 
     if (m_registered)
     {
-      m_conn.process_notice(description() + " was never closed properly!\n");
+      m_conn.process_notice(
+        internal::concat(description(), " was never closed properly!\n"));
       pqxx::internal::gate::connection_transaction{conn()}
         .unregister_transaction(this);
     }
@@ -69,15 +72,16 @@ void pqxx::transaction_base::commit()
   switch (m_status)
   {
   case status::nascent: // We never managed to start the transaction.
-    throw usage_error{
-      "Attempt to commit unserviceable " + description() + "."};
+    throw usage_error{internal::concat(
+      "Attempt to commit unserviceable ", description(), ".")};
     return;
 
   case status::active: // Just fine.  This is what we expect.
     break;
 
   case status::aborted:
-    throw usage_error{"Attempt to commit previously aborted " + description()};
+    throw usage_error{internal::concat(
+      "Attempt to commit previously aborted ", description())};
 
   case status::committed:
     // Transaction has been committed already.  This is not exactly proper
@@ -85,14 +89,15 @@ void pqxx::transaction_base::commit()
     // that an abort is needed--which would only confuse things further at this
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
-    m_conn.process_notice(description() + " committed more than once.\n");
+    m_conn.process_notice(
+      internal::concat(description(), " committed more than once.\n"));
     return;
 
   case status::in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
-    throw in_doubt_error{
-      description() + " committed again while in an indeterminate state."};
+    throw in_doubt_error{internal::concat(
+      description(), " committed again while in an indeterminate state.")};
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
@@ -102,9 +107,9 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus.get() != nullptr)
-    throw failure{
-      "Attempt to commit " + description() + " with " +
-      m_focus.get()->description() + " still open."};
+    throw failure{internal::concat(
+      "Attempt to commit ", description(), " with ",
+      m_focus.get()->description(), " still open.")};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -155,16 +160,16 @@ void pqxx::transaction_base::abort()
   case status::aborted: return;
 
   case status::committed:
-    throw usage_error{
-      "Attempt to abort previously committed " + description()};
+    throw usage_error{internal::concat(
+      "Attempt to abort previously committed ", description())};
 
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not complain.
-    m_conn.process_notice(
-      "Warning: " + description() +
-      " aborted after going into "
-      "indeterminate state; it may have been executed anyway.\n");
+    m_conn.process_notice(internal::concat(
+      "Warning: ", description(),
+      " aborted after going into indeterminate state; "
+      "it may have been executed anyway.\n"));
     return;
 
   default: throw internal_error{"Invalid transaction status."};
@@ -197,30 +202,24 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
   std::string const n{std::empty(desc) ? "" : "'" + desc + "' "};
 
   if (m_focus.get() != nullptr)
-    throw usage_error{
-      "Attempt to execute query " + n + "on " + description() +
-      " "
-      "with " +
-      m_focus.get()->description() + " still open."};
+    throw usage_error{internal::concat(
+      "Attempt to execute query ", n, "on ", description(), " with ",
+      m_focus.get()->description(), " still open.")};
 
 
   switch (m_status)
   {
   case status::nascent:
-    throw usage_error{
-      "Could not execute query " + n +
-      ": "
-      "transaction startup failed."};
+    throw usage_error{internal::concat(
+      "Could not execute query ", n, ": transaction startup failed.")};
 
   case status::active: break;
 
   case status::committed:
   case status::aborted:
   case status::in_doubt:
-    throw usage_error{
-      "Could not execute query " + n +
-      ": "
-      "transaction is already closed."};
+    throw usage_error{internal::concat(
+      "Could not execute query ", n, ": transaction is already closed.")};
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
@@ -237,11 +236,9 @@ pqxx::result pqxx::transaction_base::exec_n(
   if (std::size(r) != rows)
   {
     std::string const N{std::empty(desc) ? "" : "'" + desc + "'"};
-    throw unexpected_rows{
-      "Expected " + to_string(rows) +
-      " row(s) of data "
-      "from query " +
-      N + ", got " + to_string(std::size(r)) + "."};
+    throw unexpected_rows{internal::concat(
+      "Expected ", rows, " row(s) of data from query ", N, ", got ",
+      std::size(r), ".")};
   }
   return r;
 }
@@ -253,11 +250,9 @@ void pqxx::transaction_base::check_rowcount_prepared(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows{
-      "Expected " + to_string(expected_rows) +
-      " row(s) of data "
-      "from prepared statement '" +
-      std::string{statement} + "', got " + to_string(actual_rows) + "."};
+    throw unexpected_rows{internal::concat(
+      "Expected ", expected_rows, " row(s) of data from prepared statement '",
+      statement, "', got ", actual_rows, ".")};
   }
 }
 
@@ -267,11 +262,9 @@ void pqxx::transaction_base::check_rowcount_params(
 {
   if (actual_rows != expected_rows)
   {
-    throw unexpected_rows{
-      "Expected " + to_string(expected_rows) +
-      " row(s) of data "
-      "from parameterised query, got " +
-      to_string(actual_rows) + "."};
+    throw unexpected_rows{internal::concat(
+      "Expected ", expected_rows,
+      " row(s) of data from parameterised query, got ", actual_rows, ".")};
   }
 }
 
@@ -329,9 +322,9 @@ void pqxx::transaction_base::close() noexcept
       return;
 
     if (m_focus.get() != nullptr)
-      m_conn.process_notice(
-        "Closing " + description() + "  with " + m_focus.get()->description() +
-        " still open.\n");
+      m_conn.process_notice(internal::concat(
+        "Closing ", description(), "  with ", m_focus.get()->description(),
+        " still open.\n"));
 
     try
     {

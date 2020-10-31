@@ -10,6 +10,8 @@
 
 #include "pqxx/except"
 
+#include "pqxx/internal/concat.hxx"
+
 
 pqxx::failure::failure(std::string const &whatarg) :
         std::runtime_error{whatarg}
@@ -77,7 +79,7 @@ pqxx::deadlock_detected::deadlock_detected(
 
 
 pqxx::internal_error::internal_error(std::string const &whatarg) :
-        std::logic_error{"libpqxx internal error: " + whatarg}
+        std::logic_error{internal::concat("libpqxx internal error: ", whatarg)}
 {}
 
 

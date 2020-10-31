@@ -14,6 +14,7 @@
 #include <sstream>
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/strconv.hxx"
 
@@ -642,7 +643,7 @@ encoding_group enc_group(std::string_view encoding_name)
   auto const found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == std::end(encoding_map))
     throw std::invalid_argument{
-      "Unrecognized encoding: '" + std::string{encoding_name} + "'."};
+      internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
   return found_encoding_group->second;
 }
 
@@ -679,7 +680,7 @@ constexpr inline F *for_encoding(encoding_group enc)
     CASE_GROUP(UTF8);
   }
   throw pqxx::usage_error{
-    "Unsupported encoding group code " + to_string(enc) + "."};
+    internal::concat("Unsupported encoding group code ", enc, ".")};
 
 #undef CASE_GROUP
 }

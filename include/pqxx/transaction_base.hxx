@@ -29,6 +29,7 @@
  */
 
 #include "pqxx/connection.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
@@ -255,9 +256,8 @@ public:
   {
     row const r{exec1(query, desc)};
     if (std::size(r) != 1)
-      throw usage_error{
-        "Queried single value from result with " + to_string(std::size(r)) +
-        " columns."};
+      throw usage_error{internal::concat(
+        "Queried single value from result with ", std::size(r), " columns.")};
     return r[0].as<TYPE>();
   }
 
@@ -486,10 +486,13 @@ protected:
   /** The optional name, if nonempty, must begin with a letter and may contain
    * letters and digits only.
    */
-  transaction_base(connection &c, std::string_view tname) : namedclass{s_type_name, tname}, m_conn{c} {}
+  transaction_base(connection &c, std::string_view tname) :
+          namedclass{s_type_name, tname}, m_conn{c}
+  {}
 
   /// Create a transaction (to be called by implementation classes only).
-  explicit transaction_base(connection &c) : namedclass{s_type_name}, m_conn{c} {}
+  explicit transaction_base(connection &c) : namedclass{s_type_name}, m_conn{c}
+  {}
 
   /// Register this transaction with the connection.
   void register_transaction();

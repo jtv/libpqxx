@@ -99,7 +99,7 @@ public:
    * @name Content access
    */
   //@{
-  /// Read as @c string_view.
+  /// Read as @c string_view, or an empty one if null.
   [[nodiscard]] PQXX_PURE std::string_view view() const
   {
     return std::string_view(c_str(), size());

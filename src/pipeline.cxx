@@ -16,6 +16,7 @@
 #include "pqxx/pipeline"
 #include "pqxx/separated_list"
 
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-pipeline.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-pipeline.hxx"
@@ -133,7 +134,7 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (m_queries.find(q) == std::end(m_queries))
     throw std::logic_error{
-      "Requested status for unknown query '" + to_string(q) + "'."};
+      internal::concat("Requested status for unknown query '", q, "'.")};
   return (QueryMap::const_iterator(m_issuedrange.first) ==
           std::end(m_queries)) or
          (q < m_issuedrange.first->first and q < m_error);
@@ -151,8 +152,8 @@ std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 int pqxx::pipeline::retain(int retain_max)
 {
   if (retain_max < 0)
-    throw range_error{
-      "Attempt to make pipeline retain " + to_string(retain_max) + " queries"};
+    throw range_error{internal::concat(
+      "Attempt to make pipeline retain ", retain_max, " queries")};
 
   int const oldvalue{m_retain};
   m_retain = retain_max;

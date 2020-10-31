@@ -13,32 +13,23 @@
 #include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"
 
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-stream_to.hxx"
-
 
 namespace
 {
+using namespace std::literals;
+
 void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
-  std::string const &columns)
+  std::string_view columns)
 {
-  constexpr std::string_view copy{"COPY "}, from_stdin{" FROM STDIN"};
-  std::string query;
-  query.reserve(
-    std::size(copy) + std::size(table) + 2 + std::size(columns) +
-    std::size(from_stdin));
-
-  query += copy;
-  query += table;
-  if (not std::empty(columns))
-  {
-    query.push_back('(');
-    query += columns;
-    query.push_back(')');
-  }
-  query += from_stdin;
-
-  trans.exec0(query);
+  // XXX: Escape/quote table?
+  trans.exec0(
+    std::empty(columns) ?
+      pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
+      pqxx::internal::concat(
+        "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv));
 }
 } // namespace
 

@@ -372,7 +372,10 @@ template<> struct string_traits<std::nullptr_t>
     return zview{};
   }
 
-  static constexpr std::size_t size_buffer() noexcept { return 0; }
+  static constexpr std::size_t size_buffer(std::nullptr_t = nullptr) noexcept
+  {
+    return 0;
+  }
   static std::nullptr_t from_string(std::string_view) = delete;
 };
 

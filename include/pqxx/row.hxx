@@ -20,6 +20,8 @@
 #include "pqxx/field.hxx"
 #include "pqxx/result.hxx"
 
+#include "pqxx/internal/concat.hxx"
+
 namespace pqxx::internal
 {
 template<typename... T> class result_iter;
@@ -195,9 +197,9 @@ protected:
   void check_size(size_type expected) const
   {
     if (size() != expected)
-      throw usage_error{
-        "Tried to extract " + to_string(expected) +
-        " field(s) from a row of " + to_string(size()) + "."};
+      throw usage_error{internal::concat(
+        "Tried to extract ", expected, " field(s) from a row of ", size(),
+        ".")};
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;

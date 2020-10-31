@@ -1,7 +1,10 @@
 #ifndef PQXX_H_COMPOSITE
 #define PQXX_H_COMPOSITE
 
+#include "pqxx/internal/compiler-internal-pre.hxx"
+
 #include "pqxx/internal/array-composite.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
 
 namespace pqxx
@@ -41,7 +44,7 @@ inline void parse_composite(
   std::size_t here{0}, next{scan(data, size, here)};
   if (next != 1 or data[here] != '(')
     throw conversion_error{
-      "Invalid composite value string: " + std::string{data}};
+      internal::concat("Invalid composite value string: ", text)};
 
   here = next;
 
@@ -133,4 +136,5 @@ inline char *composite_into_buf(char *begin, char *end, T const &... fields)
   return pos;
 }
 } // namespace pqxx
+#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

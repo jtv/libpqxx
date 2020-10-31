@@ -37,6 +37,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/compiler-internal-pre.hxx \
 	pqxx/internal/compiler-internal-post.hxx \
+	pqxx/internal/concat.hxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \

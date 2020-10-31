@@ -112,7 +112,7 @@ void pqxx::icursorstream::set_stride(difference_type stride)
 {
   if (stride < 1)
     throw argument_error{
-      "Attempt to set cursor stride to " + to_string(stride)};
+      internal::concat("Attempt to set cursor stride to ", stride)};
   m_stride = stride;
 }
 

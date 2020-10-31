@@ -21,6 +21,7 @@
 #include <variant>
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/internal/transaction_focus.hxx"
@@ -189,10 +190,6 @@ private:
     (extract_value<Tuple, indexes>(t), ...);
   }
 
-  static std::string compose_query(
-    transaction_base const &tx, std::string_view table,
-    std::string const &columns);
-
   pqxx::internal::glyph_scanner_func *m_glyph_scanner;
 
   /// Current row's fields' text, combined into one reusable string.
@@ -243,9 +240,9 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
     return *this;
 
   if (std::size(m_fields) != tup_size)
-    throw usage_error{
-      "Tried to extract " + to_string(tup_size) +
-      " field(s) from a stream of " + to_string(std::size(m_fields)) + "."};
+    throw usage_error{internal::concat(
+      "Tried to extract ", tup_size, " field(s) from a stream of ",
+      std::size(m_fields), ".")};
 
   extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;

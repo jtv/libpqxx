@@ -249,18 +249,6 @@ private:
 };
 
 
-/// Append human-readable description of an object to a string.
-/** The object may have an individual name, in which case the description will
- * look like "<class_name> '<obj_name>'".  Otherwise, the description just
- * equals @c class_name.
- *
- * Optionally, request that the buffer reserve at least @c headroom more bytes.
- */
-void describe(
-  std::string &buf, std::string_view class_name, std::string_view obj_name,
-  std::size_t headroom = 0);
-
-
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
 /** Only a single GUEST may exist for a single host at any given time.  GUEST
  * must be derived from namedclass.
@@ -293,34 +281,12 @@ public:
       throw internal_error{"Null pointer registered."};
 
     if (m_guest != nullptr)
-    {
-      if (m_guest == new_guest)
-      {
-        std::string text{"Started twice: "};
-        describe(text, m_guest->classname(), m_guest->name(), 1);
-        auto const here{std::size(text)};
-        text.resize(here + 1);
-        text.data()[here] = '.';
-        throw usage_error{text};
-      }
-      else
-      {
-        constexpr std::string_view pre{"Started "sv}, mid{" while "sv},
-          post{" still active."};
-        std::string text{pre};
-        describe(
-          text, new_guest->classname(), new_guest->name(),
-          std::size(mid) + 40 + std::size(post));
-        auto const mid_start{std::size(text)};
-        text.resize(mid_start + std::size(mid));
-        mid.copy(text.data() + mid_start, std::string::npos);
-        describe(text, m_guest->classname(), m_guest->name(), std::size(post));
-        auto const post_start{std::size(text)};
-        text.resize(post_start + std::size(post));
-        post.copy(text.data() + post_start, std::string::npos);
-        throw usage_error{text};
-      }
-    }
+      throw usage_error{
+        (m_guest == new_guest) ?
+          "Started twice: " + m_guest->description() + "." :
+          "Started new " + new_guest->description() + " while " +
+            m_guest->description() + " was still active."};
+
     m_guest = new_guest;
   }
 

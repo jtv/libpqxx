@@ -22,73 +22,35 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/util"
 
+#include "pqxx/internal/concat.hxx"
+
+
+using namespace std::literals;
 
 pqxx::thread_safety_model pqxx::describe_thread_safety()
 {
   thread_safety_model model;
-
-  if (PQisthreadsafe() == 0)
-  {
-    model.safe_libpq = false;
-    model.description += "Using a libpq build that is not thread-safe.\n";
-  }
-  else
-  {
-    model.safe_libpq = true;
-  }
-
+  model.safe_libpq = (PQisthreadsafe() != 0);
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
-  model.description +=
-    "Kerberos is not thread-safe.  If your application uses Kerberos, "
-    "protect all calls to Kerberos or libpqxx using a global lock.\n";
 
+  model.description = internal::concat(
+    (model.safe_libpq ? ""sv :
+                        "Using a libpq build that is not thread-safe.\n"sv),
+    (model.safe_kerberos ?
+       ""sv :
+       "Kerberos is not thread-safe.  If your application uses Kerberos, "
+       "protect all calls to Kerberos or libpqxx using a global lock.\n"sv));
   return model;
-}
-
-
-void pqxx::internal::describe(
-  std::string &buf, std::string_view class_name, std::string_view obj_name,
-  std::size_t headroom)
-{
-  if (std::empty(obj_name))
-  {
-    auto const start{std::size(buf)}, clen{std::size(class_name)};
-    auto const budget{start + clen};
-    buf.reserve(budget + headroom);
-    buf.resize(budget);
-    class_name.copy(buf.data() + start, clen);
-  }
-  else
-  {
-    // Construct "<classname> '<name>'", but avoid reallocations.
-    auto const start{std::size(buf)}, clen{std::size(class_name)},
-      olen{std::size(obj_name)};
-    auto const budget{start + clen + 2 + olen + 1};
-    buf.reserve(budget + headroom);
-    buf.resize(budget);
-    char *here{buf.data() + start};
-    here += class_name.copy(here, clen);
-    *here++ = ' ';
-    *here++ = '\'';
-    here += obj_name.copy(here, olen);
-    *here++ = '\'';
-  }
 }
 
 
 std::string pqxx::internal::namedclass::description() const
 {
   if (std::empty(name()))
-  {
     return classname();
-  }
   else
-  {
-    std::string text;
-    describe(text, classname(), name());
-    return text;
-  }
+    return internal::concat(classname(), " '", name(), "'");
 }
 
 

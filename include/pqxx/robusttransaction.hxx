@@ -28,7 +28,8 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
-  basic_robusttransaction(connection &c, char const begin_command[], std::string_view tname);
+  basic_robusttransaction(
+    connection &c, char const begin_command[], std::string_view tname);
   basic_robusttransaction(connection &c, char const begin_command[]);
 
 private:
@@ -86,30 +87,29 @@ public:
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.
    */
-  robusttransaction(
-    connection &c, std::string_view tname) :
+  robusttransaction(connection &c, std::string_view tname) :
           internal::basic_robusttransaction{
             c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(), tname}
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(),
+            tname}
   {}
 
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.
    */
-  robusttransaction(
-    connection &c, std::string &&tname) :
+  robusttransaction(connection &c, std::string &&tname) :
           internal::basic_robusttransaction{
             c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(), std::move(tname)}
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(),
+            std::move(tname)}
   {}
 
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.
    */
-  explicit robusttransaction(
-    connection &c) :
+  explicit robusttransaction(connection &c) :
           internal::basic_robusttransaction{
             c,
             pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}

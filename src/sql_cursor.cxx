@@ -19,6 +19,8 @@
 #include "pqxx/internal/gates/transaction-sql_cursor.hxx"
 
 
+using namespace std::literals;
+
 namespace
 {
 /// Is this character a "useless trailing character" in a query?
@@ -103,31 +105,15 @@ pqxx::internal::sql_cursor::sql_cursor(
   auto const qend{find_query_end(query, enc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query."};
+  query.remove_suffix(std::size(query) - qend);
 
-  std::stringstream cq, qn;
+  std::string const cq{internal::concat(
+    "DECLARE ", t.quote_name(name()), " ",
+    ((ap == cursor_base::forward_only) ? "NO "sv : ""sv), "SCROLL CURSOR ",
+    (hold ? "WITH HOLD "sv : ""sv), "FOR ", query, " ",
+    ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY "sv))};
 
-  cq << "DECLARE " << t.quote_name(name()) << " ";
-
-  if (ap == cursor_base::forward_only)
-    cq << "NO ";
-  cq << "SCROLL ";
-
-  cq << "CURSOR ";
-
-  if (hold)
-    cq << "WITH HOLD ";
-
-  cq << "FOR ";
-  cq.write(query.data(), std::streamsize(qend));
-  cq << ' ';
-
-  if (up != cursor_base::update)
-    cq << "FOR READ ONLY ";
-  else
-    cq << "FOR UPDATE ";
-
-  qn << "[DECLARE " << name() << ']';
-  t.exec(cq, qn.str());
+  t.exec(cq, internal::concat("[DECLARE ", name(), "]"));
 
   // Now that we're here in the starting position, keep a copy of an empty
   // result.  That may come in handy later, because we may not be able to
@@ -161,7 +147,7 @@ void pqxx::internal::sql_cursor::close() noexcept
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-        ("CLOSE " + m_home.quote_name(name())).c_str());
+        internal::concat("CLOSE ", m_home.quote_name(name())).c_str());
     }
     catch (std::exception const &)
     {}
@@ -174,7 +160,8 @@ void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
   if (pos() != 0)
     throw internal_error{"init_empty_result() from bad pos()."};
-  m_empty_result = t.exec("FETCH 0 IN " + m_home.quote_name(name()));
+  m_empty_result =
+    t.exec(internal::concat("FETCH 0 IN ", m_home.quote_name(name())));
 }
 
 
@@ -210,19 +197,10 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
     else if (m_pos == -1)
       m_pos = actual;
     else if (m_pos != actual)
-      throw internal_error{
-        "Moved back to beginning, but wrong position: "
-        "hoped=" +
-        to_string(hoped) +
-        ", "
-        "actual=" +
-        to_string(actual) +
-        ", "
-        "m_pos=" +
-        to_string(m_pos) +
-        ", "
-        "direction=" +
-        to_string(direction) + "."};
+      throw internal_error{internal::concat(
+        "Moved back to beginning, but wrong position: hoped=", hoped,
+        ", actual=", actual, ", m_pos=", m_pos, ", direction=", direction,
+        ".")};
 
     m_at_end = direction;
   }

@@ -1,4 +1,7 @@
 7.3.0
+ - Remove the only case of virtual inheritance, related to `namedclass`.
+ - Internal `concat()` for faster string concatentation.
+ - Fix compile omission in string conversions for `nullptr_t`.
 7.2.1
  - Fix infinite loop in converting `char *` to string. (#377)
  - Deprecated `namedclass`.

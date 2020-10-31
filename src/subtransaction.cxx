@@ -16,12 +16,14 @@
 #include "pqxx/connection"
 #include "pqxx/subtransaction"
 
+#include "pqxx/internal/concat.hxx"
+
 
 namespace
 {
 using namespace std::literals;
 constexpr std::string_view class_name{"subtransaction"sv};
-}
+} // namespace
 
 
 pqxx::subtransaction::subtransaction(
@@ -29,7 +31,8 @@ pqxx::subtransaction::subtransaction(
         transactionfocus{t, class_name, t.conn().adorn_name(tname)},
         dbtransaction(t.conn())
 {
-  direct_exec(std::make_shared<std::string>("SAVEPOINT " + quoted_name()));
+  direct_exec(std::make_shared<std::string>(
+    internal::concat("SAVEPOINT ", quoted_name())));
 }
 
 
@@ -47,13 +50,13 @@ pqxx::subtransaction::subtransaction(
 
 void pqxx::subtransaction::do_commit()
 {
-  direct_exec(
-    std::make_shared<std::string>("RELEASE SAVEPOINT " + quoted_name()));
+  direct_exec(std::make_shared<std::string>(
+    internal::concat("RELEASE SAVEPOINT ", quoted_name())));
 }
 
 
 void pqxx::subtransaction::do_abort()
 {
-  direct_exec(
-    std::make_shared<std::string>("ROLLBACK TO SAVEPOINT " + quoted_name()));
+  direct_exec(std::make_shared<std::string>(
+    internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name())));
 }
