@@ -458,7 +458,8 @@ int pqxx::connection::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_trans) return 0;
+  if (m_trans)
+    return 0;
 
   int notifs = 0;
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
@@ -645,7 +646,8 @@ void pqxx::connection::close()
   {
     if (m_trans)
       process_notice(internal::concat(
-        "Closing connection while ", internal::describe_object("transaction"sv, m_trans->name()),
+        "Closing connection while ",
+        internal::describe_object("transaction"sv, m_trans->name()),
         " is still open."));
 
     if (not std::empty(m_receivers))
@@ -690,7 +692,8 @@ std::string_view get_name(pqxx::transaction_base const *t)
 
 void pqxx::connection::register_transaction(transaction_base *t)
 {
-  internal::check_unique_register(m_trans, "transaction", get_name(m_trans), t, "transaction", get_name(t));
+  internal::check_unique_register(
+    m_trans, "transaction", get_name(m_trans), t, "transaction", get_name(t));
   m_trans = t;
 }
 
@@ -699,7 +702,9 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 {
   try
   {
-    internal::check_unique_unregister(m_trans, "transaction", get_name(m_trans), t, "transaction", get_name(t));
+    internal::check_unique_unregister(
+      m_trans, "transaction", get_name(m_trans), t, "transaction",
+      get_name(t));
   }
   catch (std::exception const &e)
   {

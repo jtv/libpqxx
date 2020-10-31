@@ -45,7 +45,8 @@ pqxx::thread_safety_model pqxx::describe_thread_safety()
 }
 
 
-std::string pqxx::internal::describe_object(std::string_view class_name, std::string_view obj_name)
+std::string pqxx::internal::describe_object(
+  std::string_view class_name, std::string_view obj_name)
 {
   if (std::empty(obj_name))
     return std::string{class_name};
@@ -53,38 +54,42 @@ std::string pqxx::internal::describe_object(std::string_view class_name, std::st
     return pqxx::internal::concat(class_name, " '", obj_name, "'");
 }
 
-void pqxx::internal::check_unique_register(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name)
+
+void pqxx::internal::check_unique_register(
+  void const *old_guest, std::string_view old_class, std::string_view old_name,
+  void const *new_guest, std::string_view new_class, std::string_view new_name)
 {
   if (new_guest == nullptr)
-      throw internal_error{"Null pointer registered."};
+    throw internal_error{"Null pointer registered."};
 
-    if (old_guest != nullptr)
-      throw usage_error{
-        (old_guest == new_guest) ?
-          concat("Started twice: ", describe_object(old_class, old_name), ".") :
-          concat("Started new ", describe_object(new_class, new_name), " while ",
-            describe_object(new_class, new_name), " was still active.")};
+  if (old_guest != nullptr)
+    throw usage_error{
+      (old_guest == new_guest) ?
+        concat("Started twice: ", describe_object(old_class, old_name), ".") :
+        concat(
+          "Started new ", describe_object(new_class, new_name), " while ",
+          describe_object(new_class, new_name), " was still active.")};
 }
 
 
-void pqxx::internal::check_unique_unregister(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name)
+void pqxx::internal::check_unique_unregister(
+  void const *old_guest, std::string_view old_class, std::string_view old_name,
+  void const *new_guest, std::string_view new_class, std::string_view new_name)
 {
   if (new_guest != old_guest)
-    {
-      if (new_guest == nullptr)
-        throw usage_error{
-          concat(
-          "Expected to close ", describe_object(old_class, old_name),
-          ", but got null pointer instead.")};
-      if (old_guest == nullptr)
-        throw usage_error{concat(
-          "Closed while not open: ", describe_object(new_class, new_name))};
-      else
-        throw usage_error{concat(
-          "Closed ", describe_object(new_class, new_name),
-          "; expected to close ",
-          describe_object(old_class, old_name))};
-    }
+  {
+    if (new_guest == nullptr)
+      throw usage_error{concat(
+        "Expected to close ", describe_object(old_class, old_name),
+        ", but got null pointer instead.")};
+    if (old_guest == nullptr)
+      throw usage_error{concat(
+        "Closed while not open: ", describe_object(new_class, new_name))};
+    else
+      throw usage_error{concat(
+        "Closed ", describe_object(new_class, new_name),
+        "; expected to close ", describe_object(old_class, old_name))};
+  }
 }
 
 

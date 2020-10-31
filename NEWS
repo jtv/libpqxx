@@ -1,4 +1,6 @@
 7.3.0
+ - Removed `transaction_base::classname()`.  Did anyone ever use it?
+ - Internal reorg of the `transaction` and `transactionfocus` hierarchies.
  - Remove the only case of virtual inheritance, related to `namedclass`.
  - Internal `concat()` for faster string concatentation.
  - Fix compile omission in string conversions for `nullptr_t`.

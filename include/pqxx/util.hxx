@@ -205,10 +205,39 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
-// XXX: Document.
-[[nodiscard]] std::string describe_object(std::string_view class_name, std::string_view name);
-void check_unique_register(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name);
-void check_unique_unregister(void const *old_guest, std::string_view old_class, std::string_view old_name, void const *new_guest, std::string_view new_class, std::string_view new_name);
+/// Describe an object for humans, based on class name and optional name.
+/** Interprets an empty name as "no name given."
+ */
+[[nodiscard]] std::string
+describe_object(std::string_view class_name, std::string_view name);
+
+
+/// Check validity of registering a new "guest" in a "host."
+/** The host might be e.g. a connection, and the guest a transaction.  The
+ * host can only have one guest at a time, so it is an error to register a new
+ * guest while the host already has a guest.
+ *
+ * If the new registration is an error, this function throws a descriptive
+ * exception.
+ *
+ * Pass the old guest (if any) and the new guest (if any), for both, a type
+ * name (at least if the guest is not null), and optionally an object name
+ * (but which may be omitted if the caller did not assign one).
+ */
+void check_unique_register(
+  void const *old_guest, std::string_view old_class, std::string_view old_name,
+  void const *new_guest, std::string_view new_class,
+  std::string_view new_name);
+
+
+/// Like @c check_unique_register, but for un-registering a guest.
+/** Pass the guest which was registered, as well as the guest which is being
+ * unregistered, so that the function can check that they are the same one.
+ */
+void check_unique_unregister(
+  void const *old_guest, std::string_view old_class, std::string_view old_name,
+  void const *new_guest, std::string_view new_class,
+  std::string_view new_name);
 
 
 /// Helper base class: object descriptions for error messages and such.
@@ -246,10 +275,16 @@ public:
   [[nodiscard]] std::string_view name() const noexcept { return m_name; }
 
   /// Class name.
-  [[nodiscard]] std::string_view classname() const noexcept { return m_classname; }
+  [[nodiscard]] std::string_view classname() const noexcept
+  {
+    return m_classname;
+  }
 
   /// Combination of class name and object name; or just class name.
-  [[nodiscard]] std::string description() const { return describe_object(m_classname, m_name); }
+  [[nodiscard]] std::string description() const
+  {
+    return describe_object(m_classname, m_name);
+  }
 
 private:
   std::string m_classname, m_name;
@@ -281,13 +316,17 @@ public:
 
   void register_guest(GUEST *new_guest)
   {
-    check_unique_register(m_guest, get_classname(m_guest), get_name(m_guest), new_guest, get_classname(new_guest), get_name(new_guest));
+    check_unique_register(
+      m_guest, get_classname(m_guest), get_name(m_guest), new_guest,
+      get_classname(new_guest), get_name(new_guest));
     m_guest = new_guest;
   }
 
   constexpr void unregister_guest(GUEST const *new_guest)
   {
-    check_unique_unregister(m_guest, get_classname(m_guest), get_name(m_guest), new_guest, get_classname(new_guest), get_name(new_guest));
+    check_unique_unregister(
+      m_guest, get_classname(m_guest), get_name(m_guest), new_guest,
+      get_classname(new_guest), get_name(new_guest));
     m_guest = nullptr;
   }
 
