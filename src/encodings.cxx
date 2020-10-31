@@ -36,20 +36,20 @@ namespace
 {
 /// Extract byte from buffer, return as unsigned char.
 constexpr PQXX_PURE unsigned char
-get_byte(char const buffer[], std::string::size_type offset) noexcept
+get_byte(char const buffer[], std::size_t offset) noexcept
 {
   return static_cast<unsigned char>(buffer[offset]);
 }
 
 
 [[noreturn]] void throw_for_encoding_error(
-  char const *encoding_name, char const buffer[], std::string::size_type start,
-  std::string::size_type count)
+  char const *encoding_name, char const buffer[], std::size_t start,
+  std::size_t count)
 {
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
     << start << ": " << std::hex << std::setw(2) << std::setfill('0');
-  for (std::string::size_type i{0}; i < count; ++i)
+  for (std::size_t i{0}; i < count; ++i)
   {
     s << "0x" << static_cast<unsigned int>(get_byte(buffer, start + i));
     if (i + 1 < count)
@@ -73,9 +73,9 @@ the same:
  * https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
  * http://x0213.org/codetable/index.en.html
 */
-PQXX_PURE std::string::size_type next_seq_for_euc_jplike(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start, char const encoding_name[])
+PQXX_PURE std::size_t next_seq_for_euc_jplike(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start, char const encoding_name[])
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -127,9 +127,9 @@ first byte in 2-byte sequences.
 */
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
-PQXX_PURE std::string::size_type next_seq_for_sjislike(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start, char const *encoding_name)
+PQXX_PURE std::size_t next_seq_for_sjislike(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start, char const *encoding_name)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -162,16 +162,16 @@ namespace pqxx::internal
 {
 template<encoding_group> struct glyph_scanner
 {
-  PQXX_PURE static std::string::size_type call(
-    char const buffer[], std::string::size_type buffer_len,
-    std::string::size_type start);
+  PQXX_PURE static std::size_t call(
+    char const buffer[], std::size_t buffer_len,
+    std::size_t start);
 };
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
-  static PQXX_PURE constexpr std::string::size_type call(
-    char const /* buffer */[], std::string::size_type buffer_len,
-    std::string::size_type start) noexcept
+  static PQXX_PURE constexpr std::size_t call(
+    char const /* buffer */[], std::size_t buffer_len,
+    std::size_t start)
   {
     if (start >= buffer_len)
       return std::string::npos;
@@ -182,9 +182,9 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::BIG5>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::BIG5>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -217,9 +217,9 @@ depending on the specific extension:
 
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_CN>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_CN>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -239,27 +239,26 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_CN>::call(
 }
 
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_JP>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_JP>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
 }
 
 template<>
-PQXX_PURE std::string::size_type
-glyph_scanner<encoding_group::EUC_JIS_2004>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_JIS_2004>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JIS_2004");
 }
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_KR>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_KR>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -280,9 +279,9 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_KR>::call(
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_TW>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_TW>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -317,9 +316,9 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::EUC_TW>::call(
 
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::GB18030>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -354,9 +353,9 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::GB18030>::call(
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::GBK>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::GBK>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -397,9 +396,9 @@ CJKV Information Processing by Ken Lunde, pg. 269:
   https://bit.ly/2BEOu5V
 */
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::JOHAB>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::JOHAB>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -430,10 +429,10 @@ unable to get it to successfully iterate a MULE-encoded test CSV generated
 using PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<>
-PQXX_PURE std::string::size_type
+PQXX_PURE std::size_t
 glyph_scanner<encoding_group::MULE_INTERNAL>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -473,27 +472,27 @@ glyph_scanner<encoding_group::MULE_INTERNAL>::call(
 }
 
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::SJIS>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::SJIS>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   return next_seq_for_sjislike(buffer, buffer_len, start, "SJIS");
 }
 
 template<>
-PQXX_PURE std::string::size_type
+PQXX_PURE std::size_t
 glyph_scanner<encoding_group::SHIFT_JIS_2004>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   return next_seq_for_sjislike(buffer, buffer_len, start, "SHIFT_JIS_2004");
 }
 
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::UHC>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::UHC>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -529,9 +528,9 @@ PQXX_PURE std::string::size_type glyph_scanner<encoding_group::UHC>::call(
 
 // https://en.wikipedia.org/wiki/UTF-8#Description
 template<>
-PQXX_PURE std::string::size_type glyph_scanner<encoding_group::UTF8>::call(
-  char const buffer[], std::string::size_type buffer_len,
-  std::string::size_type start)
+PQXX_PURE std::size_t glyph_scanner<encoding_group::UTF8>::call(
+  char const buffer[], std::size_t buffer_len,
+  std::size_t start)
 {
   if (start >= buffer_len)
     return std::string::npos;
@@ -694,8 +693,8 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 
 template<encoding_group E> struct char_finder
 {
-  constexpr static PQXX_PURE std::string::size_type
-  call(std::string_view haystack, char needle, std::string::size_type start)
+  constexpr static PQXX_PURE std::size_t
+  call(std::string_view haystack, char needle, std::size_t start)
   {
     auto const buffer{haystack.data()};
     auto const size{std::size(haystack)};
@@ -712,9 +711,9 @@ template<encoding_group E> struct char_finder
 
 template<encoding_group E> struct string_finder
 {
-  PQXX_PURE constexpr static PQXX_PURE std::string::size_type call(
+  PQXX_PURE constexpr static PQXX_PURE std::size_t call(
     std::string_view haystack, std::string_view needle,
-    std::string::size_type start)
+    std::size_t start)
   {
     auto const buffer{haystack.data()};
     auto const size{std::size(haystack)};
@@ -730,24 +729,24 @@ template<encoding_group E> struct string_finder
 };
 
 
-PQXX_PURE std::string::size_type find_with_encoding(
+PQXX_PURE std::size_t find_with_encoding(
   encoding_group enc, std::string_view haystack, char needle,
-  std::string::size_type start)
+  std::size_t start)
 {
-  using finder_func = std::string::size_type(
-    std::string_view haystack, char needle, std::string::size_type start);
+  using finder_func = std::size_t(
+    std::string_view haystack, char needle, std::size_t start);
   auto const finder{for_encoding<char_finder, finder_func>(enc)};
   return finder(haystack, needle, start);
 }
 
 
-PQXX_PURE std::string::size_type find_with_encoding(
+PQXX_PURE std::size_t find_with_encoding(
   encoding_group enc, std::string_view haystack, std::string_view needle,
-  std::string::size_type start)
+  std::size_t start)
 {
-  using finder_func = std::string::size_type(
+  using finder_func = std::size_t(
     std::string_view haystack, std::string_view needle,
-    std::string::size_type start);
+    std::size_t start);
   auto const finder{for_encoding<string_finder, finder_func>(enc)};
   return finder(haystack, needle, start);
 }
