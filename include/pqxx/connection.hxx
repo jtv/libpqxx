@@ -789,7 +789,14 @@ private:
   internal::pq::PGconn *m_conn = nullptr;
 
   /// Active transaction on connection, if any.
-  transaction_base *m_trans = nullptr;
+  /** We don't use this for anything, except to check for open transactions
+   * when we close the connection or start a new transaction.
+   *
+   * We also don't allow move construction or move assignment while there's a
+   * transaction, since moving the connection in that case would leave one or
+   * more pointers back from the transaction to the connection dangling.
+   */
+  transaction_base const *m_trans = nullptr;
 
   std::list<errorhandler *> m_errorhandlers;
 
