@@ -240,60 +240,9 @@ void check_unique_unregister(
   std::string_view new_name);
 
 
-/// Helper base class: object descriptions for error messages and such.
-/** @deprecated To be replaced with something simpler, cleaner, and faster.
- *
- * Classes derived from namedclass have a class name (such as "transaction"),
- * an optional object name (such as "delete-old-logs"), and a description
- * generated from the two names (such as "transaction delete-old-logs").
- *
- * The class name is dynamic here, in order to support inheritance hierarchies
- * where the exact class name may not be known statically.
- *
- * In inheritance hierarchies, make namedclass a virtual base class so that
- * each class in the hierarchy can specify its own class name in its
- * constructors.
- */
-class PQXX_LIBEXPORT namedclass
-{
-public:
-  explicit namedclass(std::string_view classname) : m_classname{classname} {}
-
-  namedclass(std::string_view classname, std::string_view name) :
-          m_classname{classname}, m_name{name}
-  {}
-
-  namedclass(std::string_view classname, char const name[]) :
-          m_classname{classname}, m_name{name}
-  {}
-
-  namedclass(std::string_view classname, std::string &&name) :
-          m_classname{classname}, m_name{std::move(name)}
-  {}
-
-  /// Object name, or the empty string if no name was given.
-  [[nodiscard]] std::string_view name() const noexcept { return m_name; }
-
-  /// Class name.
-  [[nodiscard]] std::string_view classname() const noexcept
-  {
-    return m_classname;
-  }
-
-  /// Combination of class name and object name; or just class name.
-  [[nodiscard]] std::string description() const
-  {
-    return describe_object(m_classname, m_name);
-  }
-
-private:
-  std::string m_classname, m_name;
-};
-
-
 /// Ensure proper opening/closing of GUEST objects related to a "host" object
 /** Only a single GUEST may exist for a single host at any given time.  GUEST
- * must be derived from namedclass.
+ * must be derived from transactionfocus.
  */
 template<typename GUEST> class unique
 {

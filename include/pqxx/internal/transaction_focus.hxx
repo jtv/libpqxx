@@ -16,26 +16,38 @@
 
 namespace pqxx::internal
 {
-class PQXX_LIBEXPORT transactionfocus : public namedclass
+/// Base class for things that monopolise a transaction.
+class PQXX_LIBEXPORT transactionfocus
 {
 public:
   transactionfocus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
-          namedclass{cname, oname}, m_trans{t}
+	  m_trans{t}, m_classname{cname}, m_name{oname}
   {}
 
   transactionfocus(
     transaction_base &t, std::string_view cname, std::string &&oname) :
-          namedclass{cname, std::move(oname)}, m_trans{t}
+	  m_trans{t}, m_classname{cname}, m_name{std::move(oname)}
   {}
 
   transactionfocus(transaction_base &t, std::string_view cname) :
-          namedclass{cname}, m_trans{t}
+          m_trans{t}, m_classname{cname}
   {}
 
   transactionfocus() = delete;
   transactionfocus(transactionfocus const &) = delete;
   transactionfocus &operator=(transactionfocus const &) = delete;
+
+  /// Class name, for human consumption.
+  [[nodiscard]] std::string_view classname() const noexcept { return m_classname; }
+
+  /// Name for this object, if the caller passed one; empty string otherwise.
+  [[nodiscard]] std::string_view name() const noexcept { return m_name; }
+
+  [[nodiscard]] std::string description() const
+  {
+    return describe_object(m_classname, m_name);
+  }
 
 protected:
   void register_me();
@@ -47,6 +59,8 @@ protected:
 
 private:
   bool m_registered = false;
+  std::string_view m_classname;
+  std::string m_name;
 };
 } // namespace pqxx::internal
 
