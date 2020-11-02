@@ -22,12 +22,12 @@ class PQXX_LIBEXPORT transactionfocus
 public:
   transactionfocus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
-	  m_trans{t}, m_classname{cname}, m_name{oname}
+          m_trans{t}, m_classname{cname}, m_name{oname}
   {}
 
   transactionfocus(
     transaction_base &t, std::string_view cname, std::string &&oname) :
-	  m_trans{t}, m_classname{cname}, m_name{std::move(oname)}
+          m_trans{t}, m_classname{cname}, m_name{std::move(oname)}
   {}
 
   transactionfocus(transaction_base &t, std::string_view cname) :
@@ -39,7 +39,10 @@ public:
   transactionfocus &operator=(transactionfocus const &) = delete;
 
   /// Class name, for human consumption.
-  [[nodiscard]] std::string_view classname() const noexcept { return m_classname; }
+  [[nodiscard]] std::string_view classname() const noexcept
+  {
+    return m_classname;
+  }
 
   /// Name for this object, if the caller passed one; empty string otherwise.
   [[nodiscard]] std::string_view name() const noexcept { return m_name; }
