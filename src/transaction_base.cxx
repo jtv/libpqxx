@@ -111,8 +111,8 @@ void pqxx::transaction_base::commit()
   // the habit from forming.
   if (m_focus != nullptr)
     throw failure{internal::concat(
-      "Attempt to commit ", description(), " with ",
-      m_focus->description(), " still open.")};
+      "Attempt to commit ", description(), " with ", m_focus->description(),
+      " still open.")};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -352,22 +352,27 @@ void pqxx::transaction_base::close() noexcept
 
 namespace
 {
-[[nodiscard]] std::string_view get_classname(pqxx::internal::transactionfocus const *focus)
+[[nodiscard]] std::string_view
+get_classname(pqxx::internal::transactionfocus const *focus)
 {
   return (focus == nullptr) ? ""sv : focus->classname();
 }
 
 
-[[nodiscard]] std::string_view get_obj_name(pqxx::internal::transactionfocus const *focus)
+[[nodiscard]] std::string_view
+get_obj_name(pqxx::internal::transactionfocus const *focus)
 {
   return (focus == nullptr) ? ""sv : focus->name();
 }
 } // namespace
 
 
-void pqxx::transaction_base::register_focus(internal::transactionfocus *new_focus)
+void pqxx::transaction_base::register_focus(
+  internal::transactionfocus *new_focus)
 {
-  internal::check_unique_register(m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus, get_classname(new_focus), get_obj_name(new_focus));
+  internal::check_unique_register(
+    m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus,
+    get_classname(new_focus), get_obj_name(new_focus));
   m_focus = new_focus;
 }
 
@@ -377,7 +382,9 @@ void pqxx::transaction_base::unregister_focus(
 {
   try
   {
-    check_unique_unregister(m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus, get_classname(new_focus), get_obj_name(new_focus));
+    check_unique_unregister(
+      m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus,
+      get_classname(new_focus), get_obj_name(new_focus));
     m_focus = nullptr;
   }
   catch (std::exception const &e)

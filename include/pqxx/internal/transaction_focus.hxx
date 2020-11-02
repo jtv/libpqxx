@@ -56,13 +56,13 @@ public:
   /** Moving the transactionfocus would break the transaction's reference back
    * to the object.
    */
-  transactionfocus(transactionfocus &&) =delete;
+  transactionfocus(transactionfocus &&) = delete;
 
   /// Can't move a transactionfocus.
   /** Moving the transactionfocus would break the transaction's reference back
    * to the object.
    */
-  transactionfocus &operator=(transactionfocus &&) =delete;
+  transactionfocus &operator=(transactionfocus &&) = delete;
 
 protected:
   void register_me();
