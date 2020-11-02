@@ -435,7 +435,7 @@ protected:
       auto const out{
         adjust_eof(m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb)))};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
-        res = check_cast<int_type>(out);
+        res = check_cast<int_type>(out, "largeobject position"sv);
       else
         res = int_type(out);
     }
@@ -475,7 +475,7 @@ private:
     if constexpr (std::is_arithmetic_v<std::streampos>)
     {
       return check_cast<std::streampos>(
-        (at_eof ? eof() : pos), "large object seek");
+        (at_eof ? eof() : pos), "large object seek"sv);
     }
     else
     {

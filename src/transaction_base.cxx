@@ -394,9 +394,25 @@ void pqxx::transaction_base::unregister_focus(
 }
 
 
+namespace
+{
+/// SQL statement.  This is purely internal; users don't need to care.
+/** This is here only as an easy way to check against SQL statements being
+ * issued when a pipeline or similar is active.
+ */
+class PQXX_PRIVATE statement : public pqxx::internal::transactionfocus
+{
+public:
+  statement(pqxx::transaction_base &t, std::string_view query) :
+    transactionfocus{t, "statement"sv, query} {}
+};
+} // namespace
+
+
 pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
 {
   check_pending_error();
+  statement stat{*this, c};
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
@@ -405,6 +421,7 @@ pqxx::result
 pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 {
   check_pending_error();
+  statement stat{*this, *c};
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 

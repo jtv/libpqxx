@@ -40,8 +40,29 @@ namespace pqxx
 #include <pqxx/internal/libpq-forward.hxx>
 
 
+/// Internal items for libpqxx' own use.  Do not use these yourself.
+namespace pqxx::internal
+{
+/// Efficiently concatenate two strings.
+/** This is a special case of concatenate(), needed because dependency
+ * management does not let us use that function here.
+ */
+[[nodiscard]] inline std::string cat2(std::string_view x, std::string_view y)
+{
+  std::string buf;
+  auto const xs{std::size(x)}, ys{std::size(y)};
+  buf.resize(xs + ys);
+  x.copy(buf.data(), xs);
+  y.copy(buf.data() + xs, ys);
+  return buf;
+}
+} // namespace pqxx::internal
+
+
 namespace pqxx
 {
+using namespace std::literals;
+
 /// Suppress compiler warning about an unused item.
 template<typename... T> inline void ignore_unused(T &&...) {}
 
@@ -51,7 +72,7 @@ template<typename... T> inline void ignore_unused(T &&...) {}
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, char const description[])
+inline TO check_cast(FROM value, std::string_view description)
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -73,7 +94,7 @@ inline TO check_cast(FROM value, char const description[])
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error(std::string{"Cast underflow: "} + description);
+        throw range_error{internal::cat2("Cast underflow: "sv, description)};
     }
     else
     {
@@ -81,9 +102,10 @@ inline TO check_cast(FROM value, char const description[])
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-        throw range_error(
-          std::string{"Casting negative value to unsigned type: "} +
-          description);
+      {
+        throw range_error{
+	  internal::cat2("Casting negative value to unsigned type: "sv, description)};
+      }
     }
   }
   else
@@ -101,13 +123,13 @@ inline TO check_cast(FROM value, char const description[])
     if constexpr (from_max > to_max)
     {
       if (static_cast<unsigned_from>(value) > to_max)
-        throw range_error(std::string{"Cast overflow: "} + description);
+        throw range_error{internal::cat2("Cast overflow: "sv, description)};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error(std::string{"Cast overflow: "} + description);
+      throw range_error{internal::cat2("Cast overflow: ", description)};
   }
 
   return static_cast<TO>(value);

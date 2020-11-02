@@ -632,7 +632,7 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
     m_conn, q->c_str(),
-    check_cast<int>(std::size(args.nonnulls), "exec_prepared"),
+    check_cast<int>(std::size(args.nonnulls), "exec_prepared"sv),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
   auto const r{make_result(pq_result, q)};
   get_notifs();
@@ -752,7 +752,7 @@ void pqxx::connection::write_copy_line(std::string_view line)
 {
   static std::string const err_prefix{"Error writing to table: "};
   // TODO: Use C++20's ssize().
-  auto const size{check_cast<int>(std::size(line), "write_copy_line()")};
+  auto const size{check_cast<int>(std::size(line), "write_copy_line()"sv)};
   if (PQputCopyData(m_conn, line.data(), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
@@ -917,7 +917,7 @@ namespace
     return -1;
   else
     return pqxx::check_cast<int>(
-      tv->tv_sec * 1000 + tv->tv_usec / 1000, "milliseconds");
+      tv->tv_sec * 1000 + tv->tv_usec / 1000, "milliseconds"sv);
 }
 
 
@@ -973,9 +973,9 @@ void pqxx::internal::wait_read(
   // Not all platforms have suseconds_t for the microseconds.  And some 64-bit
   // systems use 32-bit integers here.
   timeval tv{
-    check_cast<decltype(timeval::tv_sec)>(seconds, "read timeout seconds"),
+    check_cast<decltype(timeval::tv_sec)>(seconds, "read timeout seconds"sv),
     check_cast<decltype(timeval::tv_usec)>(
-      microseconds, "read timeout microseconds")};
+      microseconds, "read timeout microseconds"sv)};
   wait_fd(socket_of(c), false, &tv);
 }
 
@@ -1092,7 +1092,7 @@ pqxx::result pqxx::connection::exec_params(
   auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(query)};
   auto const nonnulls{
-    check_cast<int>(std::size(args.nonnulls), "exec_params() parameters")};
+    check_cast<int>(std::size(args.nonnulls), "exec_params() parameters"sv)};
   auto const pq_result{PQexecParams(
     m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
     args.lengths.data(), args.binaries.data(), 0)};

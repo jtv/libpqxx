@@ -45,11 +45,11 @@ void test_050()
     A.process_notice(
       "Writing to large object #" + to_string(largeobject(A).id()) + "\n");
     auto Bytes{check_cast<int>(
-      A.cwrite(Contents.c_str(), std::size(Contents)), "test write")};
+      A.cwrite(Contents.c_str(), std::size(Contents)), "test write"sv)};
 
     // TODO: Use C++20's ssize().
     PQXX_CHECK_EQUAL(
-      Bytes, check_cast<int>(std::size(Contents), "test cwrite()"),
+      Bytes, check_cast<int>(std::size(Contents), "test cwrite()"sv),
       "Wrote wrong number of bytes.");
 
     PQXX_CHECK_EQUAL(

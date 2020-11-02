@@ -80,7 +80,7 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
 {
   zview const text{string_traits<T>::to_buf(begin, end, value)};
   auto const space = check_cast<std::size_t>(
-    end - begin, "floating-point conversion to string");
+    end - begin, "floating-point conversion to string"sv);
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
   if (len > space)
