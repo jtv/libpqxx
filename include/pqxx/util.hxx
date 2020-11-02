@@ -240,60 +240,6 @@ void check_unique_unregister(
   std::string_view new_name);
 
 
-/// Ensure proper opening/closing of GUEST objects related to a "host" object
-/** Only a single GUEST may exist for a single host at any given time.  GUEST
- * must be derived from transactionfocus.
- */
-template<typename GUEST> class unique
-{
-public:
-  constexpr unique() = default;
-  constexpr unique(unique const &) = delete;
-  constexpr unique(unique &&rhs) : m_guest(rhs.m_guest)
-  {
-    rhs.m_guest = nullptr;
-  }
-  constexpr unique &operator=(unique const &) = delete;
-  constexpr unique &operator=(unique &&rhs)
-  {
-    m_guest = rhs.m_guest;
-    rhs.m_guest = nullptr;
-    return *this;
-  }
-
-  constexpr GUEST *get() const noexcept { return m_guest; }
-
-  void register_guest(GUEST *new_guest)
-  {
-    check_unique_register(
-      m_guest, get_classname(m_guest), get_name(m_guest), new_guest,
-      get_classname(new_guest), get_name(new_guest));
-    m_guest = new_guest;
-  }
-
-  constexpr void unregister_guest(GUEST const *new_guest)
-  {
-    check_unique_unregister(
-      m_guest, get_classname(m_guest), get_name(m_guest), new_guest,
-      get_classname(new_guest), get_name(new_guest));
-    m_guest = nullptr;
-  }
-
-private:
-  [[nodiscard]] static std::string_view get_classname(GUEST const *g) noexcept
-  {
-    return (g == nullptr) ? ""sv : g->classname();
-  }
-
-  [[nodiscard]] static std::string_view get_name(GUEST const *g) noexcept
-  {
-    return (g == nullptr) ? ""sv : g->name();
-  }
-
-  GUEST *m_guest = nullptr;
-};
-
-
 /// Compute buffer size needed to escape binary data for use as a BYTEA.
 /** This uses the hex-escaping format.  The return value includes room for the
  * "\x" prefix.

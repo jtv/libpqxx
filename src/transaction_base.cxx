@@ -23,7 +23,10 @@
 
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
+#include "pqxx/internal/transaction_focus.hxx"
 
+
+using namespace std::literals;
 
 pqxx::transaction_base::~transaction_base()
 {
@@ -106,10 +109,10 @@ void pqxx::transaction_base::commit()
   // the commit() will come before the stream is closed.  Which means the
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
-  if (m_focus.get() != nullptr)
+  if (m_focus != nullptr)
     throw failure{internal::concat(
       "Attempt to commit ", description(), " with ",
-      m_focus.get()->description(), " still open.")};
+      m_focus->description(), " still open.")};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -201,10 +204,10 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
 
   std::string const n{std::empty(desc) ? "" : "'" + desc + "' "};
 
-  if (m_focus.get() != nullptr)
+  if (m_focus != nullptr)
     throw usage_error{internal::concat(
       "Attempt to execute query ", n, "on ", description(), " with ",
-      m_focus.get()->description(), " still open.")};
+      m_focus->description(), " still open.")};
 
 
   switch (m_status)
@@ -321,9 +324,9 @@ void pqxx::transaction_base::close() noexcept
     if (m_status != status::active)
       return;
 
-    if (m_focus.get() != nullptr)
+    if (m_focus != nullptr)
       m_conn.process_notice(internal::concat(
-        "Closing ", description(), "  with ", m_focus.get()->description(),
+        "Closing ", description(), "  with ", m_focus->description(),
         " still open.\n"));
 
     try
@@ -347,18 +350,35 @@ void pqxx::transaction_base::close() noexcept
 }
 
 
-void pqxx::transaction_base::register_focus(internal::transactionfocus *s)
+namespace
 {
-  m_focus.register_guest(s);
+[[nodiscard]] std::string_view get_classname(pqxx::internal::transactionfocus const *focus)
+{
+  return (focus == nullptr) ? ""sv : focus->classname();
+}
+
+
+[[nodiscard]] std::string_view get_obj_name(pqxx::internal::transactionfocus const *focus)
+{
+  return (focus == nullptr) ? ""sv : focus->name();
+}
+} // namespace
+
+
+void pqxx::transaction_base::register_focus(internal::transactionfocus *new_focus)
+{
+  internal::check_unique_register(m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus, get_classname(new_focus), get_obj_name(new_focus));
+  m_focus = new_focus;
 }
 
 
 void pqxx::transaction_base::unregister_focus(
-  internal::transactionfocus *s) noexcept
+  internal::transactionfocus *new_focus) noexcept
 {
   try
   {
-    m_focus.unregister_guest(s);
+    check_unique_unregister(m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus, get_classname(new_focus), get_obj_name(new_focus));
+    m_focus = nullptr;
   }
   catch (std::exception const &e)
   {

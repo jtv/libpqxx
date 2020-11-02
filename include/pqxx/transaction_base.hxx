@@ -73,7 +73,9 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE transaction_base
 public:
   transaction_base() = delete;
   transaction_base(transaction_base const &) = delete;
+  transaction_base(transaction_base &&) = delete;
   transaction_base &operator=(transaction_base const &) = delete;
+  transaction_base &operator=(transaction_base &&) = delete;
 
   virtual ~transaction_base() = 0;
 
@@ -554,7 +556,12 @@ private:
 
   connection &m_conn;
 
-  internal::unique<internal::transactionfocus> m_focus;
+  /// Current "focus": a pipeline, a nested transaction, a stream...
+  /** This pointer is used for only one purpose: sanity checks against mistakes
+   * such as opening one while another is still active.
+   */
+  internal::transactionfocus const *m_focus = nullptr;
+
   status m_status = status::active;
   bool m_registered = false;
   std::string m_name;
@@ -574,7 +581,6 @@ template<>
 zview transaction_base::query_value<zview>(
   std::string const &query, std::string const &desc) = delete;
 
-
 } // namespace pqxx
 
 
@@ -587,22 +593,22 @@ extern const zview begin_cmd;
 // These are not static members, so "constexpr" does not imply "inline".
 template<>
 inline constexpr zview begin_cmd<read_committed, write_policy::read_write>{
-  "BEGIN"};
+  "BEGIN"_zv};
 template<>
 inline constexpr zview begin_cmd<read_committed, write_policy::read_only>{
-  "BEGIN READ ONLY"};
+  "BEGIN READ ONLY"_zv};
 template<>
 inline constexpr zview begin_cmd<repeatable_read, write_policy::read_write>{
-  "BEGIN ISOLATION LEVEL REPEATABLE READ"};
+  "BEGIN ISOLATION LEVEL REPEATABLE READ"_zv};
 template<>
 inline constexpr zview begin_cmd<repeatable_read, write_policy::read_only>{
-  "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"};
+  "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"_zv};
 template<>
 inline constexpr zview begin_cmd<serializable, write_policy::read_write>{
-  "BEGIN ISOLATION LEVEL SERIALIZABLE"};
+  "BEGIN ISOLATION LEVEL SERIALIZABLE"_zv};
 template<>
 inline constexpr zview begin_cmd<serializable, write_policy::read_only>{
-  "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"};
+  "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"_zv};
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
