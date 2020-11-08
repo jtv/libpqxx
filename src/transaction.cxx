@@ -96,6 +96,6 @@ void pqxx::internal::basic_transaction::do_commit()
 
 void pqxx::internal::basic_transaction::do_abort()
 {
-  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK")};
+  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK"sv)};
   direct_exec(rollback_q);
 }

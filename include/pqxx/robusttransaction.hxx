@@ -57,7 +57,7 @@ namespace pqxx
  * @{
  */
 
-/// Slightly slower, better-fortified version of transaction
+/// Slightly slower, better-fortified version of transaction.
 /** Requires PostgreSQL 10 or better.
  *
  * robusttransaction is similar to transaction, but spends more time and effort
@@ -66,7 +66,7 @@ namespace pqxx
  * know whether the backend (on the other side of the broken connection)
  * managed to commit the transaction.
  *
- * Whe this happens, robusttransaction tries to reconnect to the database and
+ * When this happens, robusttransaction tries to reconnect to the database and
  * figure out what happened.
  *
  * This service level was made optional since you may not want to pay the
@@ -83,6 +83,7 @@ template<isolation_level ISOLATION = read_committed>
 class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
+  // TODO: Can we turn the begin_cmd into a zview?
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.

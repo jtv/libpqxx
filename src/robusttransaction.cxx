@@ -24,6 +24,8 @@
 #include "pqxx/internal/concat.hxx"
 
 
+using namespace std::literals;
+
 namespace
 {
 using pqxx::operator"" _zv;
@@ -68,7 +70,7 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
 
 tx_stat query_status(std::string const &xid, std::string const &conn_str)
 {
-  static std::string const name{"robusttxck"};
+  static std::string const name{"robusttxck"sv};
   auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
   pqxx::connection c{conn_str};
   pqxx::nontransaction w{c, name};
@@ -88,7 +90,7 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
 void pqxx::internal::basic_robusttransaction::init(char const begin_command[])
 {
   static auto const txid_q{
-    std::make_shared<std::string>("SELECT txid_current()")};
+    std::make_shared<std::string>("SELECT txid_current()"sv)};
   m_backendpid = conn().backendpid();
   direct_exec(begin_command);
   direct_exec(txid_q)[0][0].to(m_xid);
@@ -117,8 +119,8 @@ pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 void pqxx::internal::basic_robusttransaction::do_commit()
 {
   static auto const check_constraints_q{
-    std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE")},
-    commit_q{std::make_shared<std::string>("COMMIT")};
+    std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE"sv)},
+    commit_q{std::make_shared<std::string>("COMMIT"sv)};
   // Check constraints before sending the COMMIT to the database, so as to
   // minimise our in-doubt window.
   try
@@ -218,6 +220,6 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
 void pqxx::internal::basic_robusttransaction::do_abort()
 {
-  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK")};
+  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK"sv)};
   direct_exec(rollback_q);
 }
