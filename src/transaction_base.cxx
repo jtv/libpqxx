@@ -404,7 +404,8 @@ class PQXX_PRIVATE statement : public pqxx::internal::transactionfocus
 {
 public:
   statement(pqxx::transaction_base &t, std::string_view query) :
-    transactionfocus{t, "statement"sv, query} {}
+          transactionfocus{t, "statement"sv, query}
+  {}
 };
 } // namespace
 

@@ -144,7 +144,7 @@ public:
   /** This is the recommended way of inserting data.  Pass your field values,
    * of any convertible type.
    */
-  template<typename... Ts> void write_values(const Ts &... fields)
+  template<typename... Ts> void write_values(const Ts &...fields)
   {
     fill_buffer(fields...);
     write_buffer();
@@ -303,7 +303,7 @@ private:
     std::string const &columns);
 
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
-  template<typename... Ts> void fill_buffer(const Ts &... fields)
+  template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
     (..., append_to_buffer(fields));
   }

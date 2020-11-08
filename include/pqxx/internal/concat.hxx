@@ -24,12 +24,13 @@ void render_item(TYPE const &item, char *&here, char *end)
  * This is a simpler, more specialised version of @c separated_list for a
  * statically known series of items, possibly of different types.
  */
-template<typename... TYPE>[[nodiscard]] inline std::string concat(TYPE... item)
+template<typename... TYPE>
+[[nodiscard]] inline std::string concat(TYPE... item)
 {
   std::string buf;
   // Size to accommodate string representations of all inputs, minus their
   // terminating zero bytes.
-  buf.resize((size_buffer(item) + ...));
+  buf.resize(size_buffer(item...));
 
   char *here = buf.data();
   char *end = buf.data() + std::size(buf);

@@ -103,8 +103,8 @@ inline TO check_cast(FROM value, std::string_view description)
       // perform our check.
       if (value < 0)
       {
-        throw range_error{
-	  internal::cat2("Casting negative value to unsigned type: "sv, description)};
+        throw range_error{internal::cat2(
+          "Casting negative value to unsigned type: "sv, description)};
       }
     }
   }

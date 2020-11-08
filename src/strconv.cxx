@@ -63,8 +63,7 @@ template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
 {
   char *pos = end;
   *--pos = '\0';
-  do
-  {
+  do {
     *--pos = pqxx::internal::number_to_digit(int(value % 10));
     value = T(value / 10);
   } while (value > 0);

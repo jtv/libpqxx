@@ -116,7 +116,7 @@ struct params
   /// Construct directly from a series of statement arguments.
   /** The arrays all default to zero, null, and empty strings.
    */
-  template<typename... Args> constexpr params(Args &&... args)
+  template<typename... Args> constexpr params(Args &&...args)
   {
     strings.reserve(sizeof...(args));
     lengths.reserve(sizeof...(args));
@@ -269,7 +269,7 @@ private:
    * @param args Optional remaining arguments, to be compiled recursively.
    */
   template<typename Arg, typename... More>
-  void add_fields(Arg &&arg, More &&... args)
+  void add_fields(Arg &&arg, More &&...args)
   {
     add_field(std::forward<Arg>(arg));
     // Compile remaining arguments, if any.

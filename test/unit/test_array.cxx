@@ -522,7 +522,9 @@ void test_array_roundtrip()
   for (item = parser.get_next();
        item.first == pqxx::array_parser::juncture::string_value;
        item = parser.get_next())
-  { out.push_back(pqxx::from_string<int>(item.second)); }
+  {
+    out.push_back(pqxx::from_string<int>(item.second));
+  }
 
   PQXX_CHECK_EQUAL(
     item.first, pqxx::array_parser::juncture::row_end,

@@ -628,7 +628,8 @@ public:
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
    */
-  template<typename T>[[nodiscard]] inline std::string quote(T const &t) const;
+  template<typename T>
+  [[nodiscard]] inline std::string quote(T const &t) const;
 
   /// @deprecated Use @c basic_string or @c basic_string_view of @c std::byte.
   [[nodiscard]] std::string quote(binarystring const &) const;

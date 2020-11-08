@@ -297,6 +297,27 @@ template<typename T> inline void from_string(std::string_view text, T &value)
 template<typename TYPE> inline std::string to_string(TYPE const &value);
 
 
+/// Convert multiple values to strings inside a single buffer.
+/** There must be enough room for all values, or this will throw
+ * @c conversion_overrun.  You can obtain a conservative estimate of the buffer
+ * space required by calling @c size_buffer() on the values.
+ *
+ * The @c std::string_view results may point into the buffer, so don't assume
+ * that they will remain valid after you destruct or move the buffer.
+ */
+template<typename... TYPE>
+[[nodiscard]] inline std::vector<std::string_view>
+to_buf(char *here, char const *end, TYPE... value)
+{
+  return std::vector<std::string_view>{[&here, end](auto v) {
+    auto begin = here;
+    here = string_traits<TYPE>::into_buf(begin, end, v);
+    // Exclude the trailing zero out of the string_view.
+    auto len{static_cast<std::size_t>(here - begin) - 1};
+    return std::string_view{begin, len};
+  }(value)...};
+}
+
 /// Convert a value to a readable string that PostgreSQL will understand.
 /** This variant of to_string can sometimes save a bit of time in loops, by
  * re-using a std::string for multiple conversions.
@@ -313,14 +334,14 @@ template<typename TYPE>
 }
 
 
-/// Estimate how much buffer space is needed to represent value as a string.
+/// Estimate how much buffer space is needed to represent values as a string.
 /** The estimate may be a little pessimistic, if it saves time.  It also
- * includes room for a terminating zero.
+ * includes room for a terminating zero after each value.
  */
-template<typename TYPE>
-[[nodiscard]] inline std::size_t size_buffer(TYPE const &value) noexcept
+template<typename... TYPE>
+[[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
 {
-  return string_traits<TYPE>::size_buffer(value);
+  return (string_traits<TYPE>::size_buffer(value) + ...);
 }
 
 

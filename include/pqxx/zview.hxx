@@ -53,7 +53,7 @@ public:
   /** @warning Only do this if you are sure that the string is zero-terminated.
    */
   template<typename... Args>
-  explicit constexpr zview(Args &&... args) :
+  explicit constexpr zview(Args &&...args) :
           std::string_view(std::forward<Args>(args)...)
   {}
 
