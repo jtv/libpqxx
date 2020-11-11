@@ -395,6 +395,14 @@ public:
 
   virtual ~largeobject_streambuf() noexcept
   {
+    /// Make sure the object is flushed on destruction
+    /// This will raise an exception in overflow() function if the transaction
+    /// was commited/closed, but the stream was not fully flushed at that time
+    auto *const pp{this->pptr()};
+    if (pp != nullptr) {
+      auto *const pb{this->pbase()};
+      if (pp > pb) overflow(eof());
+    }
     delete[] m_p;
     delete[] m_g;
   }
