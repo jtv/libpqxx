@@ -432,8 +432,15 @@ protected:
 
     if (pp > pb)
     {
+      const auto write_sz = pp - pb;
+      const auto written_sz = m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb));
+      if (written_sz <= static_cast<off_type>(0))
+        throw internal_error("pqxx::largeobject: write failed (is transaction still valid on write or flush?), libpq reports error");
+      else if (write_sz != written_sz)
+        throw internal_error("pqxx::largeobject: write failed (is transaction still valid on write or flush?), " +
+                             std::to_string(written_sz) + "/" + std::to_string(write_sz) + " bytes written");
       auto const out{
-        adjust_eof(m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb)))};
+        adjust_eof(written_sz)};
       if constexpr (std::is_arithmetic_v<decltype(out)>)
         res = check_cast<int_type>(out);
       else
