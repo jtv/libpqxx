@@ -61,6 +61,13 @@ public:
   zview(std::string const &str) : std::string_view{str.c_str(), std::size(str)}
   {}
 
+  /// Construct a @c zview from a C-style string.
+  /** @warning This scans the string to discover its length.  So if you need to
+   * do it many times, it's probably better to create the @c zview once and
+   * re-use it.
+   */
+  constexpr zview(char const str[]) : std::string_view{str} {}
+
   template<size_t size>
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}
