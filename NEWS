@@ -4,7 +4,7 @@
  - Remove the only case of virtual inheritance, related to `namedclass`.
  - Internal `concat()` for faster string concatentation.
  - Fix compile omission in string conversions for `nullptr_t`.
- - `pqxx::size_buffer()` can now size multiple valuse at once.
+ - `pqxx::size_buffer()` can now size multiple values at once.
  - `multi_to_string()` to convert multiple values into one `std::string`.
 7.2.1
  - Fix infinite loop in converting `char *` to string. (#377)
