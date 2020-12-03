@@ -28,12 +28,29 @@
 
 using namespace std::literals;
 
-pqxx::transaction_base::transaction_base(connection &c, std::string_view tname) :
-    m_conn{c}, m_name{tname}
+namespace
 {
-  static auto const abort_q{std::make_shared<std::string>("ROLLBACK")};
-  m_rollback_cmd = abort_q;
+/// Return a query pointer for the command "ROLLBACK".
+/** Concentrates constructions so as to minimise the number of allocations.
+ * This way, the string gets allocated once and then all subsequent invocations
+ * copy shared_ptr instances to the same string.
+ */
+std::shared_ptr<std::string> make_rollback_cmd()
+{
+  static auto const cmd{std::make_shared<std::string>("ROLLBACK")};
+  return cmd;
 }
+} // namespace
+
+pqxx::transaction_base::transaction_base(connection &c) :
+        m_conn{c}, m_rollback_cmd{make_rollback_cmd()}
+{}
+
+
+pqxx::transaction_base::transaction_base(
+  connection &c, std::string_view tname) :
+        m_conn{c}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
+{}
 
 
 pqxx::transaction_base::~transaction_base()
@@ -147,7 +164,8 @@ void pqxx::transaction_base::commit()
 
 void pqxx::transaction_base::do_abort()
 {
-  if (m_rollback_cmd) direct_exec(m_rollback_cmd);
+  if (m_rollback_cmd)
+    direct_exec(m_rollback_cmd);
 }
 
 

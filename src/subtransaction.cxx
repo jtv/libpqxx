@@ -33,7 +33,8 @@ pqxx::subtransaction::subtransaction(
         // have a full object to implement quoted_name().
         dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}}
 {
-  set_rollback_cmd(std::make_shared<std::string>(internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name())));
+  set_rollback_cmd(std::make_shared<std::string>(
+    internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name())));
   direct_exec(std::make_shared<std::string>(
     internal::concat("SAVEPOINT ", quoted_name())));
 }
@@ -49,6 +50,12 @@ pqxx::subtransaction::subtransaction(
   subtransaction &t, std::string_view tname) :
         subtransaction(dbtransaction_ref(t), tname)
 {}
+
+
+pqxx::subtransaction::~subtransaction() noexcept
+{
+  close();
+}
 
 
 void pqxx::subtransaction::do_commit()

@@ -56,7 +56,9 @@ protected:
   dbtransaction(connection &c, std::string_view tname) :
           transaction_base{c, tname}
   {}
-  dbtransaction(connection &c, std::string_view tname, std::shared_ptr<std::string> rollback_cmd) :
+  dbtransaction(
+    connection &c, std::string_view tname,
+    std::shared_ptr<std::string> rollback_cmd) :
           transaction_base{c, tname, rollback_cmd}
   {}
 };

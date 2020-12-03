@@ -44,6 +44,15 @@ pqxx::internal::basic_transaction::basic_transaction(
 }
 
 
+// This should stop the compiler from generating the same vtables and
+// destructor in multiple translation units.  More importantly, if we don't do
+// this, the sanitisers in g++ 7 and clang++ 6 complain about pointers to
+// dbtransaction actually pointing to basic_transaction.  Which is odd, in that
+// any basic_transaction pointer should also be a dbtransaction pointer.  But,
+// apparently the vtable isn't the right one.
+pqxx::internal::basic_transaction::~basic_transaction() = default;
+
+
 void pqxx::internal::basic_transaction::do_commit()
 {
   static auto const commit_q{std::make_shared<std::string>("COMMIT"sv)};

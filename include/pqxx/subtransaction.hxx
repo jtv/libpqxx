@@ -77,7 +77,7 @@ public:
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(subtransaction &t, std::string_view name = ""sv);
 
-  virtual ~subtransaction() noexcept override { close(); }
+  virtual ~subtransaction() noexcept override;
 
 private:
   std::string quoted_name() const

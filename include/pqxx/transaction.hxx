@@ -29,6 +29,8 @@ protected:
     connection &c, char const begin_command[], std::string &&tname);
   basic_transaction(connection &c, char const begin_command[]);
 
+  virtual ~basic_transaction() noexcept override = 0;
+
 private:
   virtual void do_commit() override;
 };
