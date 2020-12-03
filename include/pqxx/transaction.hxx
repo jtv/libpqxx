@@ -24,10 +24,10 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
   basic_transaction(
-    connection &c, char const begin_command[], std::string_view tname);
+    connection &c, zview begin_command, std::string_view tname);
   basic_transaction(
-    connection &c, char const begin_command[], std::string &&tname);
-  basic_transaction(connection &c, char const begin_command[]);
+    connection &c, zview begin_command, std::string &&tname);
+  basic_transaction(connection &c, zview begin_command);
 
   virtual ~basic_transaction() noexcept override = 0;
 
@@ -78,8 +78,8 @@ public:
    * may contain letters and digits only.
    */
   transaction(connection &c, std::string_view tname) :
-          internal::basic_transaction(
-            c, internal::begin_cmd<ISOLATION, READWRITE>.c_str(), tname)
+          internal::basic_transaction{
+            c, internal::begin_cmd<ISOLATION, READWRITE>, tname}
   {}
 
   /// Create a transaction.
@@ -89,8 +89,8 @@ public:
    * may contain letters and digits only.
    */
   explicit transaction(connection &c) :
-          internal::basic_transaction(
-            c, internal::begin_cmd<ISOLATION, READWRITE>.c_str())
+          internal::basic_transaction{
+            c, internal::begin_cmd<ISOLATION, READWRITE>}
   {}
 
   virtual ~transaction() noexcept override { close(); }

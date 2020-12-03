@@ -18,7 +18,7 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &c, char const begin_command[], std::string_view tname) :
+  connection &c, zview begin_command, std::string_view tname) :
         dbtransaction(c, tname)
 {
   register_transaction();
@@ -27,7 +27,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &c, char const begin_command[], std::string &&tname) :
+  connection &c, zview begin_command, std::string &&tname) :
         dbtransaction(c, std::move(tname))
 {
   register_transaction();
@@ -36,7 +36,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &c, char const begin_command[]) :
+  connection &c, zview begin_command) :
         dbtransaction(c)
 {
   register_transaction();

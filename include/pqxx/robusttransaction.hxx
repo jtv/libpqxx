@@ -29,8 +29,8 @@ public:
 
 protected:
   basic_robusttransaction(
-    connection &c, char const begin_command[], std::string_view tname);
-  basic_robusttransaction(connection &c, char const begin_command[]);
+    connection &c, zview begin_command, std::string_view tname);
+  basic_robusttransaction(connection &c, zview begin_command);
 
 private:
   using IDType = unsigned long;
@@ -39,7 +39,7 @@ private:
   std::string m_xid;
   int m_backendpid = -1;
 
-  void init(char const begin_command[]);
+  void init(zview begin_command);
 
   // @warning This function will become @c final.
   virtual void do_commit() override;
@@ -81,7 +81,6 @@ template<isolation_level ISOLATION = read_committed>
 class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
-  // TODO: Can we turn the begin_cmd into a zview?
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
    * @param name optional human-readable name for this transaction.
@@ -89,7 +88,7 @@ public:
   robusttransaction(connection &c, std::string_view tname) :
           internal::basic_robusttransaction{
             c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(),
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             tname}
   {}
 
@@ -100,7 +99,7 @@ public:
   robusttransaction(connection &c, std::string &&tname) :
           internal::basic_robusttransaction{
             c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str(),
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             std::move(tname)}
   {}
 
@@ -111,7 +110,7 @@ public:
   explicit robusttransaction(connection &c) :
           internal::basic_robusttransaction{
             c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>.c_str()}
+            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
   {}
 
   virtual ~robusttransaction() noexcept override { close(); }

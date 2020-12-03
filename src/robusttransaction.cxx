@@ -87,7 +87,7 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
 } // namespace
 
 
-void pqxx::internal::basic_robusttransaction::init(char const begin_command[])
+void pqxx::internal::basic_robusttransaction::init(zview begin_command)
 {
   static auto const txid_q{
     std::make_shared<std::string>("SELECT txid_current()"sv)};
@@ -98,7 +98,7 @@ void pqxx::internal::basic_robusttransaction::init(char const begin_command[])
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &c, char const begin_command[], std::string_view tname) :
+  connection &c, zview begin_command, std::string_view tname) :
         dbtransaction(c, tname), m_conn_string{c.connection_string()}
 {
   init(begin_command);
@@ -106,7 +106,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &c, char const begin_command[]) :
+  connection &c, zview begin_command) :
         dbtransaction(c), m_conn_string{c.connection_string()}
 {
   init(begin_command);
