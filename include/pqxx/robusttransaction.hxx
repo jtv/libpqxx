@@ -43,8 +43,6 @@ private:
 
   // @warning This function will become @c final.
   virtual void do_commit() override;
-  // @warning This function will become @c final.
-  virtual void do_abort() override;
 };
 } // namespace pqxx::internal
 

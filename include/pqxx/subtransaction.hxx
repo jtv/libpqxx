@@ -85,7 +85,6 @@ private:
     return quote_name(transactionfocus::name());
   }
   virtual void do_commit() override;
-  virtual void do_abort() override;
 };
 } // namespace pqxx
 

@@ -28,6 +28,14 @@
 
 using namespace std::literals;
 
+pqxx::transaction_base::transaction_base(connection &c, std::string_view tname) :
+    m_conn{c}, m_name{tname}
+{
+  static auto const abort_q{std::make_shared<std::string>("ROLLBACK")};
+  m_rollback_cmd = abort_q;
+}
+
+
 pqxx::transaction_base::~transaction_base()
 {
   try
@@ -74,11 +82,6 @@ void pqxx::transaction_base::commit()
   // we're in "implicit" state, but multiple commits are silently accepted.
   switch (m_status)
   {
-  case status::nascent: // We never managed to start the transaction.
-    throw usage_error{internal::concat(
-      "Attempt to commit unserviceable ", description(), ".")};
-    return;
-
   case status::active: // Just fine.  This is what we expect.
     break;
 
@@ -142,22 +145,27 @@ void pqxx::transaction_base::commit()
 }
 
 
+void pqxx::transaction_base::do_abort()
+{
+  if (m_rollback_cmd) direct_exec(m_rollback_cmd);
+}
+
+
 void pqxx::transaction_base::abort()
 {
   // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
   switch (m_status)
   {
-  case status::nascent: // Never began transaction.  No need to issue rollback.
-    return;
-
   case status::active:
     try
     {
       do_abort();
     }
-    catch (std::exception const &)
-    {}
+    catch (std::exception const &e)
+    {
+      m_conn.process_notice(internal::concat(e.what(), "\n"));
+    }
     break;
 
   case status::aborted: return;
@@ -168,7 +176,7 @@ void pqxx::transaction_base::abort()
 
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
-    // to an insane situation.  Log it, but do not complain.
+    // to an insane situation.  Log it, but do not fail.
     m_conn.process_notice(internal::concat(
       "Warning: ", description(),
       " aborted after going into indeterminate state; "
@@ -212,10 +220,6 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
 
   switch (m_status)
   {
-  case status::nascent:
-    throw usage_error{internal::concat(
-      "Could not execute query ", n, ": transaction startup failed.")};
-
   case status::active: break;
 
   case status::committed:

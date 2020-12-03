@@ -487,12 +487,20 @@ public:
 
 protected:
   /// Create a transaction (to be called by implementation classes only).
-  /** The optional name, if nonempty, must begin with a letter and may contain
-   * letters and digits only.
+  /** The name, if nonempty, must begin with a letter and may contain letters
+   * and digits only.
    */
-  transaction_base(connection &c, std::string_view tname) :
-          m_conn{c}, m_name{tname}
+  transaction_base(connection &c, std::string_view tname, std::shared_ptr<std::string> rollback_cmd) :
+          m_conn{c}, m_name{tname}, m_rollback_cmd{rollback_cmd}
   {}
+
+  /// Create a transaction (to be called by implementation classes only).
+  /** Its rollback command will be "ROLLBACK".
+   *
+   * The name, if nonempty, must begin with a letter and may contain letters
+   * and digits only.
+   */
+  transaction_base(connection &c, std::string_view tname);
 
   /// Create a transaction (to be called by implementation classes only).
   explicit transaction_base(connection &c) : m_conn{c} {}
@@ -505,8 +513,12 @@ protected:
 
   /// To be implemented by derived implementation class: commit transaction.
   virtual void do_commit() = 0;
-  /// To be implemented by derived implementation class: abort transaction.
-  virtual void do_abort() = 0;
+
+  /// Transaction type-specific way of aborting a transaction.
+  /** @warning This will become "final", since this function can be called
+   * from the implementing class destructor.
+   */
+  virtual void do_abort();
 
   // For use by implementing class:
 
@@ -517,7 +529,6 @@ protected:
 private:
   enum class status
   {
-    nascent,
     active,
     aborted,
     committed,
@@ -566,6 +577,9 @@ private:
   bool m_registered = false;
   std::string m_name;
   std::string m_pending_error;
+
+  /// SQL command for aborting this type of transaction.
+  std::shared_ptr<std::string> m_rollback_cmd;
 
   constexpr static std::string_view s_type_name{"transaction"sv};
 };

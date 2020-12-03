@@ -31,7 +31,6 @@ protected:
 
 private:
   virtual void do_commit() override;
-  virtual void do_abort() override;
 };
 } // namespace pqxx::internal
 

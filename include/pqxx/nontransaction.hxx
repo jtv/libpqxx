@@ -59,7 +59,7 @@ public:
    * and containing only letters and digits.
    */
   nontransaction(connection &c, std::string_view tname) :
-          transaction_base{c, tname}
+          transaction_base{c, tname, std::shared_ptr<std::string>{}}
   {
     register_transaction();
   }
@@ -79,7 +79,6 @@ public:
 
 private:
   virtual void do_commit() override {}
-  virtual void do_abort() override {}
 };
 } // namespace pqxx
 

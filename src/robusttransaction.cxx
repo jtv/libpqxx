@@ -216,10 +216,3 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     ".  "
     "You may be able to check what happened to that process.")};
 }
-
-
-void pqxx::internal::basic_robusttransaction::do_abort()
-{
-  static auto const rollback_q{std::make_shared<std::string>("ROLLBACK"sv)};
-  direct_exec(rollback_q);
-}
