@@ -24,12 +24,11 @@ void begin_copy(
   pqxx::transaction_base &trans, std::string_view table,
   std::string_view columns)
 {
-  // XXX: Escape/quote table?
   trans.exec0(
     std::empty(columns) ?
       pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
       pqxx::internal::concat(
-        "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv));
+        "COPY "sv, trans.quote_name(table), "("sv, columns, ") FROM STDIN"sv));
 }
 } // namespace
 
