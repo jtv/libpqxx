@@ -29,14 +29,11 @@ constexpr std::string_view class_name{"subtransaction"sv};
 pqxx::subtransaction::subtransaction(
   dbtransaction &t, std::string_view tname) :
         transactionfocus{t, class_name, t.conn().adorn_name(tname)},
-        // Initialisation order is crucial here.  We don't get a working
-        // quoted_name() until our transactionfocus base class object is
-        // complete.
-        dbtransaction{
-            t.conn(),
-            tname,
-            std::make_shared<std::string>(internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name()))}
+        // We can't initialise the rollback command here, because we don't yet
+        // have a full object to implement quoted_name().
+        dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}}
 {
+  set_rollback_cmd(std::make_shared<std::string>(internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name())));
   direct_exec(std::make_shared<std::string>(
     internal::concat("SAVEPOINT ", quoted_name())));
 }

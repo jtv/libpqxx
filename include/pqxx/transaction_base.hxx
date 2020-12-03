@@ -520,7 +520,11 @@ protected:
    */
   virtual void do_abort();
 
-  // For use by implementing class:
+  /// Set the rollback command.
+  void set_rollback_cmd(std::shared_ptr<std::string> cmd)
+  {
+    m_rollback_cmd = cmd;
+  }
 
   /// Execute query on connection directly.
   result direct_exec(std::string_view);
