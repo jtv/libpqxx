@@ -50,7 +50,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 // dbtransaction actually pointing to basic_transaction.  Which is odd, in that
 // any basic_transaction pointer should also be a dbtransaction pointer.  But,
 // apparently the vtable isn't the right one.
-pqxx::internal::basic_transaction::~basic_transaction() = default;
+pqxx::internal::basic_transaction::~basic_transaction() noexcept = default;
 
 
 void pqxx::internal::basic_transaction::do_commit()
