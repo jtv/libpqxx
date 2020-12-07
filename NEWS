@@ -7,6 +7,7 @@
  - Fix compile omission in string conversions for `nullptr_t`.
  - `pqxx::size_buffer()` can now size multiple values at once.
  - `multi_to_string()` to convert multiple values into one `std::string`.
+ - Implicit `zview` constructor from `char const *`. (#389)
 7.2.1
  - Fix infinite loop in converting `char *` to string. (#377)
  - Deprecated `namedclass`.
