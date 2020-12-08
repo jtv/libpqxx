@@ -114,7 +114,7 @@ encrypt_password(char const user[], char const password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
 [[nodiscard]] inline std::string
-encrypt_password(std::string const &user, std::string const &password)
+encrypt_password(zview user, zview password)
 {
   return encrypt_password(user.c_str(), password.c_str());
 }
@@ -165,11 +165,6 @@ class PQXX_LIBEXPORT connection
 {
 public:
   connection() : connection{""} {}
-
-  explicit connection(std::string const &options) : connection{options.c_str()}
-  {
-    // (Delegates to other constructor which calls check_version for us.)
-  }
 
   explicit connection(char const options[])
   {
@@ -239,11 +234,6 @@ public:
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(char const[]) noexcept;
-  /// Invoke notice processor function.  Newline at end is recommended.
-  void process_notice(std::string const &msg) noexcept
-  {
-    process_notice(zview{msg});
-  }
   /// Invoke notice processor function.  Newline at end is recommended.
   /** The zview variant, with a message ending in newline, is the most
    * efficient way to call process_notice.
@@ -346,7 +336,7 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(std::string const &encoding)
+  void set_client_encoding(zview encoding)
   {
     set_client_encoding(encoding.c_str());
   }
@@ -518,11 +508,6 @@ public:
    */
   void prepare(char const name[], char const definition[]);
 
-  void prepare(std::string const &name, std::string const &definition)
-  {
-    prepare(name.c_str(), definition.c_str());
-  }
-
   void prepare(zview name, zview definition)
   {
     prepare(name.c_str(), definition.c_str());
@@ -587,15 +572,6 @@ public:
 
   /// Escape binary string for use as SQL string literal on this connection.
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
-
-  /// Unescape binary data, e.g. from a table field or notification payload.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard]] std::string unesc_raw(std::string const &text) const
-  {
-    return unesc_raw(text.c_str());
-  }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored

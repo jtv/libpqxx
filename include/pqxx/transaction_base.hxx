@@ -115,11 +115,6 @@ public:
     return conn().esc(text, maxlen);
   }
   /// Escape string for use as SQL string literal in this transaction.
-  [[nodiscard]] std::string esc(std::string const &text) const
-  {
-    return conn().esc(text);
-  }
-  /// Escape string for use as SQL string literal in this transaction.
   [[nodiscard]] std::string esc(std::string_view text) const
   {
     return conn().esc(text);
@@ -143,13 +138,13 @@ public:
     return conn().esc_raw(data, len);
   }
   /// Escape binary data for use as SQL string literal in this transaction
-  [[nodiscard]] std::string esc_raw(std::string const &) const;
+  [[nodiscard]] std::string esc_raw(zview) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(std::string const &text) const
+  [[nodiscard]] std::string unesc_raw(zview text) const
   {
     return conn().unesc_raw(text);
   }
@@ -177,7 +172,7 @@ public:
     return conn().quote_raw(bin, len);
   }
 
-  [[nodiscard]] std::string quote_raw(std::string const &bin) const;
+  [[nodiscard]] std::string quote_raw(zview bin) const;
 
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const
@@ -187,7 +182,7 @@ public:
 
   /// Escape string for literal LIKE match.
   [[nodiscard]] std::string
-  esc_like(std::string const &bin, char escape_char = '\\') const
+  esc_like(std::string_view bin, char escape_char = '\\') const
   {
     return conn().esc_like(bin, escape_char);
   }
@@ -204,14 +199,14 @@ public:
    * by the C++ standard library may also occur here.  All exceptions will be
    * derived from std::exception.
    *
-   * @param query Query or command to execute
-   * @param desc Optional identifier for query, to help pinpoint SQL errors
-   * @return A result set describing the query's or command's result
+   * @param query Query or command to execute.
+   * @param desc Optional identifier for query, to help pinpoint SQL errors.
+   * @return A result set describing the query's or command's result.
    */
-  result exec(std::string_view query, std::string const &desc = std::string{});
+  result exec(std::string_view query, std::string_view desc = std::string_view{});
 
   result
-  exec(std::stringstream const &query, std::string const &desc = std::string{})
+  exec(std::stringstream const &query, std::string_view desc = std::string_view{})
   {
     return exec(query.str(), desc);
   }
@@ -223,7 +218,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   result
-  exec0(std::string const &query, std::string const &desc = std::string{})
+  exec0(zview query, std::string_view desc = std::string_view{})
   {
     return exec_n(0, query, desc);
   }
@@ -235,7 +230,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(std::string const &query, std::string const &desc = std::string{})
+  row exec1(zview query, std::string_view desc = std::string_view{})
   {
     return exec_n(1, query, desc).front();
   }
@@ -247,13 +242,13 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   result exec_n(
-    result::size_type rows, std::string const &query,
-    std::string const &desc = std::string{});
+    result::size_type rows, zview query,
+    std::string_view desc = std::string_view{});
 
   /// Execute query, expecting exactly 1 row with 1 field.
   template<typename TYPE>
   TYPE query_value(
-    std::string const &query, std::string const &desc = std::string{})
+    zview query, std::string_view desc = std::string_view{})
   {
     row const r{exec1(query, desc)};
     if (std::size(r) != 1)
@@ -333,14 +328,14 @@ public:
    * for @c $2 second, etc.
    *
    * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
-   * end at the first char with value zero.  If you pass a @c std::string that
-   * contains a zero byte, the last byte in the value will be the one just
-   * before the zero.
+   * end at the first char with value zero.  If you pass a string that contains
+   * a zero byte, the last byte in the value will be the one just before the
+   * zero.
    */
   //@{
   /// Execute an SQL statement with parameters.
   template<typename... Args>
-  result exec_params(std::string const &query, Args &&...args)
+  result exec_params(zview query, Args &&...args)
   {
     return internal_exec_params(
       query, internal::params(std::forward<Args>(args)...));
@@ -350,7 +345,7 @@ public:
   /** @throw unexpected_rows if the result does not consist of exactly one row.
    */
   template<typename... Args>
-  row exec_params1(std::string const &query, Args &&...args)
+  row exec_params1(zview query, Args &&...args)
   {
     return exec_params_n(1, query, std::forward<Args>(args)...).front();
   }
@@ -359,7 +354,7 @@ public:
   /** @throw unexpected_rows if the result contains rows.
    */
   template<typename... Args>
-  result exec_params0(std::string const &query, Args &&...args)
+  result exec_params0(zview query, Args &&...args)
   {
     return exec_params_n(0, query, std::forward<Args>(args)...);
   }
@@ -369,7 +364,7 @@ public:
    */
   template<typename... Args>
   result
-  exec_params_n(std::size_t rows, std::string const &query, Args &&...args)
+  exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
     check_rowcount_params(rows, std::size(r));
@@ -398,9 +393,9 @@ public:
    * See \ref prepared for a full discussion.
    *
    * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
-   * end at the first char with value zero.  If you pass a @c std::string that
-   * contains a zero byte, the last byte in the value will be the one just
-   * before the zero.  If you need a zero byte, consider using
+   * end at the first char with value zero.  If you pass a string that contains
+   * a zero byte, the last byte in the value will be the one just before the
+   * zero.  If you need a zero byte, consider using
    * @c std::basic_string<std::byte> or @c std::basic_string_view<std::byte>,
    * and on the SQL side, the @c bytea type.
    */
@@ -454,7 +449,7 @@ public:
   /// Have connection process a warning message.
   void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
   /// Have connection process a warning message.
-  void process_notice(std::string const &msg) const
+  void process_notice(zview msg) const
   {
     m_conn.process_notice(msg);
   }
@@ -552,7 +547,7 @@ private:
   result internal_exec_prepared(zview statement, internal::params const &args);
 
   result
-  internal_exec_params(std::string const &query, internal::params const &args);
+  internal_exec_params(zview query, internal::params const &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(
@@ -595,11 +590,11 @@ private:
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
 std::string_view transaction_base::query_value<std::string_view>(
-  std::string const &query, std::string const &desc) = delete;
+  zview query, std::string_view desc) = delete;
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
 zview transaction_base::query_value<zview>(
-  std::string const &query, std::string const &desc) = delete;
+  zview query, std::string_view desc) = delete;
 
 } // namespace pqxx
 

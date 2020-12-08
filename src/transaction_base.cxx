@@ -73,7 +73,7 @@ pqxx::transaction_base::~transaction_base()
   {
     try
     {
-      process_notice(std::string{e.what()} + "\n");
+      process_notice(internal::concat(e.what(), "\n"));
     }
     catch (std::exception const &)
     {
@@ -209,14 +209,14 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string pqxx::transaction_base::esc_raw(std::string const &bin) const
+std::string pqxx::transaction_base::esc_raw(zview bin) const
 {
   auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
   return conn().esc_raw(p, std::size(bin));
 }
 
 
-std::string pqxx::transaction_base::quote_raw(std::string const &bin) const
+std::string pqxx::transaction_base::quote_raw(zview bin) const
 {
   auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
   return conn().quote_raw(p, std::size(bin));
@@ -224,11 +224,11 @@ std::string pqxx::transaction_base::quote_raw(std::string const &bin) const
 
 
 pqxx::result
-pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
+pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
 
-  std::string const n{std::empty(desc) ? "" : "'" + desc + "' "};
+  std::string const n{std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
 
   if (m_focus != nullptr)
     throw usage_error{internal::concat(
@@ -255,12 +255,12 @@ pqxx::transaction_base::exec(std::string_view query, std::string const &desc)
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-  result::size_type rows, std::string const &query, std::string const &desc)
+  result::size_type rows, zview query, std::string_view desc)
 {
   result const r{exec(query, desc)};
   if (std::size(r) != rows)
   {
-    std::string const N{std::empty(desc) ? "" : "'" + desc + "'"};
+    std::string const N{std::empty(desc) ? "" : internal::concat("'", desc, "'")};
     throw unexpected_rows{internal::concat(
       "Expected ", rows, " row(s) of data from query ", N, ", got ",
       std::size(r), ".")};
@@ -303,7 +303,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  std::string const &query, internal::params const &args)
+  zview query, internal::params const &args)
 {
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
     query, args);

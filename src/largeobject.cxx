@@ -303,7 +303,7 @@ std::string pqxx::largeobjectaccess::reason(int err) const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(std::string const &s) noexcept
+void pqxx::largeobjectaccess::process_notice(zview s) noexcept
 {
   m_trans.process_notice(s);
 }

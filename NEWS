@@ -2,12 +2,13 @@
  - `stream_to` now quotes and escapes its table name.
  - Removed `transaction_base::classname()`.  Did anyone ever use it?
  - Internal reorg of the `transaction` and `transactionfocus` hierarchies.
- - Remove the only case of virtual inheritance, related to `namedclass`.
- - Internal `concat()` for faster string concatentation.
+ - Removed the only case of virtual inheritance, related to `namedclass`.
+ - Internal `concat()` for faster, simpler string concatentation.
  - Fix compile omission in string conversions for `nullptr_t`.
  - `pqxx::size_buffer()` can now size multiple values at once.
  - `multi_to_string()` to convert multiple values into one `std::string`.
  - Implicit `zview` constructor from `char const *`. (#389)
+ - Many `std::string&` parameters are now `zview` or `std::string_view`.
 7.2.1
  - Fix infinite loop in converting `char *` to string. (#377)
  - Deprecated `namedclass`.

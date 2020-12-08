@@ -319,7 +319,7 @@ public:
    */
   //@{
   /// Issue message to transaction's notice processor.
-  void process_notice(std::string const &) noexcept;
+  void process_notice(zview) noexcept;
   //@}
 
   using largeobject::remove;

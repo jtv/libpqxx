@@ -36,7 +36,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
     return home().exec_prepared(statement, args);
   }
 
-  result exec_params(std::string const &query, internal::params const &args)
+  result exec_params(zview query, internal::params const &args)
   {
     return home().exec_params(query, args);
   }

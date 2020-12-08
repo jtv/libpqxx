@@ -124,8 +124,8 @@ Zero bytes
 @warning Beware of "nul" bytes!
 
 Any string you pass as a parameter will end at the _first char with value
-zero._  If you pass a `std::string` that contains a zero byte, the last byte
-in the value will be the one just before the zero.
+zero._  If you pass a string that contains a zero byte, the last byte in the
+value will be the one just before the zero.
 
 So, if you need a zero byte in a string, consider using
 `std::basic_string<std::byte>` or `std::basic_string_view<std::byte>`, and on

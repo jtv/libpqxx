@@ -115,7 +115,7 @@ void test_031()
     }
   }
 
-  // TODO: Use C++20's std::size().
+  // TODO: Use C++20's std::ssize().
   for (pqxx::row::size_type f{0}; f < R.columns(); ++f)
     PQXX_CHECK_BOUNDS(
       NullFields[static_cast<std::size_t>(f)], 0, int(std::size(R)) + 1,
