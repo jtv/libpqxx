@@ -451,14 +451,37 @@ pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 }
 
 
-void pqxx::transaction_base::register_pending_error(
-  std::string const &err) noexcept
+void pqxx::transaction_base::register_pending_error(zview err) noexcept
 {
   if (std::empty(m_pending_error) and not std::empty(err))
   {
     try
     {
       m_pending_error = err;
+    }
+    catch (std::exception const &e)
+    {
+      try
+      {
+        process_notice("UNABLE TO PROCESS ERROR\n");
+        process_notice(e.what());
+        process_notice("ERROR WAS:");
+        process_notice(err);
+      }
+      catch (...)
+      {}
+    }
+  }
+}
+
+
+void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
+{
+  if (std::empty(m_pending_error) and not std::empty(err))
+  {
+    try
+    {
+      m_pending_error = std::move(err);
     }
     catch (std::exception const &e)
     {
