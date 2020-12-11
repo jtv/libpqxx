@@ -25,8 +25,7 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 protected:
   basic_transaction(
     connection &c, zview begin_command, std::string_view tname);
-  basic_transaction(
-    connection &c, zview begin_command, std::string &&tname);
+  basic_transaction(connection &c, zview begin_command, std::string &&tname);
   basic_transaction(connection &c, zview begin_command);
 
   virtual ~basic_transaction() noexcept override = 0;

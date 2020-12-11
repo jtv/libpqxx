@@ -113,8 +113,7 @@ namespace pqxx
 encrypt_password(char const user[], char const password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard]] inline std::string
-encrypt_password(zview user, zview password)
+[[nodiscard]] inline std::string encrypt_password(zview user, zview password)
 {
   return encrypt_password(user.c_str(), password.c_str());
 }

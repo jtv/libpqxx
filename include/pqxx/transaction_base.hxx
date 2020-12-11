@@ -203,10 +203,11 @@ public:
    * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
-  result exec(std::string_view query, std::string_view desc = std::string_view{});
-
   result
-  exec(std::stringstream const &query, std::string_view desc = std::string_view{})
+  exec(std::string_view query, std::string_view desc = std::string_view{});
+
+  result exec(
+    std::stringstream const &query, std::string_view desc = std::string_view{})
   {
     return exec(query.str(), desc);
   }
@@ -217,8 +218,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result
-  exec0(zview query, std::string_view desc = std::string_view{})
+  result exec0(zview query, std::string_view desc = std::string_view{})
   {
     return exec_n(0, query, desc);
   }
@@ -247,8 +247,7 @@ public:
 
   /// Execute query, expecting exactly 1 row with 1 field.
   template<typename TYPE>
-  TYPE query_value(
-    zview query, std::string_view desc = std::string_view{})
+  TYPE query_value(zview query, std::string_view desc = std::string_view{})
   {
     row const r{exec1(query, desc)};
     if (std::size(r) != 1)
@@ -334,8 +333,7 @@ public:
    */
   //@{
   /// Execute an SQL statement with parameters.
-  template<typename... Args>
-  result exec_params(zview query, Args &&...args)
+  template<typename... Args> result exec_params(zview query, Args &&...args)
   {
     return internal_exec_params(
       query, internal::params(std::forward<Args>(args)...));
@@ -344,8 +342,7 @@ public:
   // Execute parameterised statement, expect a single-row result.
   /** @throw unexpected_rows if the result does not consist of exactly one row.
    */
-  template<typename... Args>
-  row exec_params1(zview query, Args &&...args)
+  template<typename... Args> row exec_params1(zview query, Args &&...args)
   {
     return exec_params_n(1, query, std::forward<Args>(args)...).front();
   }
@@ -353,8 +350,7 @@ public:
   // Execute parameterised statement, expect a result with zero rows.
   /** @throw unexpected_rows if the result contains rows.
    */
-  template<typename... Args>
-  result exec_params0(zview query, Args &&...args)
+  template<typename... Args> result exec_params0(zview query, Args &&...args)
   {
     return exec_params_n(0, query, std::forward<Args>(args)...);
   }
@@ -363,8 +359,7 @@ public:
   /** @throw unexpected_rows if the result contains the wrong number of rows.
    */
   template<typename... Args>
-  result
-  exec_params_n(std::size_t rows, zview query, Args &&...args)
+  result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
     check_rowcount_params(rows, std::size(r));
@@ -449,10 +444,7 @@ public:
   /// Have connection process a warning message.
   void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
   /// Have connection process a warning message.
-  void process_notice(zview msg) const
-  {
-    m_conn.process_notice(msg);
-  }
+  void process_notice(zview msg) const { m_conn.process_notice(msg); }
   //@}
 
   /// The connection in which this transaction lives.
@@ -546,8 +538,7 @@ private:
 
   result internal_exec_prepared(zview statement, internal::params const &args);
 
-  result
-  internal_exec_params(zview query, internal::params const &args);
+  result internal_exec_params(zview query, internal::params const &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(

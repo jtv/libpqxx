@@ -228,7 +228,8 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
 
-  std::string const n{std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
+  std::string const n{
+    std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
 
   if (m_focus != nullptr)
     throw usage_error{internal::concat(
@@ -260,7 +261,8 @@ pqxx::result pqxx::transaction_base::exec_n(
   result const r{exec(query, desc)};
   if (std::size(r) != rows)
   {
-    std::string const N{std::empty(desc) ? "" : internal::concat("'", desc, "'")};
+    std::string const N{
+      std::empty(desc) ? "" : internal::concat("'", desc, "'")};
     throw unexpected_rows{internal::concat(
       "Expected ", rows, " row(s) of data from query ", N, ", got ",
       std::size(r), ".")};
@@ -505,6 +507,7 @@ void pqxx::internal::transactionfocus::unregister_me() noexcept
     this);
   m_registered = false;
 }
+
 
 void pqxx::internal::transactionfocus::reg_pending_error(
   std::string const &err) noexcept

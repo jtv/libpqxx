@@ -87,8 +87,7 @@ public:
    */
   robusttransaction(connection &c, std::string_view tname) :
           internal::basic_robusttransaction{
-            c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
+            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             tname}
   {}
 
@@ -98,8 +97,7 @@ public:
    */
   robusttransaction(connection &c, std::string &&tname) :
           internal::basic_robusttransaction{
-            c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
+            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             std::move(tname)}
   {}
 
@@ -109,8 +107,7 @@ public:
    */
   explicit robusttransaction(connection &c) :
           internal::basic_robusttransaction{
-            c,
-            pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
+            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
   {}
 
   virtual ~robusttransaction() noexcept override { close(); }
