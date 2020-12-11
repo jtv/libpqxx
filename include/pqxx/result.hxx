@@ -238,12 +238,10 @@ private:
   bool operator!() const noexcept { return m_data.get() == nullptr; }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
-  // XXX: Replace params with string_view/zview?
   [[noreturn]] PQXX_PRIVATE void
   throw_sql_error(std::string const &Err, std::string const &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
-  // XXX: Modernise name.
-  PQXX_PRIVATE std::string StatusError() const;
+  PQXX_PRIVATE std::string status_error() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
   PQXX_PURE char const *cmd_status() const noexcept;

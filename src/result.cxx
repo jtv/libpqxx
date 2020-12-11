@@ -268,12 +268,12 @@ void pqxx::result::throw_sql_error(
 
 void pqxx::result::check_status() const
 {
-  if (auto const err{StatusError()}; not std::empty(err))
+  if (auto const err{status_error()}; not std::empty(err))
     throw_sql_error(err, query());
 }
 
 
-std::string pqxx::result::StatusError() const
+std::string pqxx::result::status_error() const
 {
   if (m_data.get() == nullptr)
     throw failure{"No result set given."};
