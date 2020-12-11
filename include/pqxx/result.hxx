@@ -238,6 +238,7 @@ private:
   bool operator!() const noexcept { return m_data.get() == nullptr; }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
+  // XXX: Replace params with string_view/zview?
   [[noreturn]] PQXX_PRIVATE void
   ThrowSQLError(std::string const &Err, std::string const &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;

@@ -298,6 +298,7 @@ private:
   }
 
   void set_up(transaction_base &, std::string_view table_name);
+  // XXX: Can we use zview or string_view for columns?
   void set_up(
     transaction_base &, std::string_view table_name,
     std::string const &columns);

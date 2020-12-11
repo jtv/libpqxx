@@ -68,6 +68,7 @@ public:
   /// The channel that this receiver listens on.
   [[nodiscard]] std::string const &channel() const { return m_channel; }
 
+  // TODO: Can we phase this out in favour of zview or string_view?
   /// Overridable: action to invoke when notification arrives.
   /**
    * @param payload An optional string that may have been passed to the NOTIFY

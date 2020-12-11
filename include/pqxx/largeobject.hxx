@@ -400,7 +400,7 @@ public:
   }
 
   /// For use by large object stream classes.
-  void process_notice(std::string const &s) { m_obj.process_notice(s); }
+  void process_notice(zview const &s) { m_obj.process_notice(s); }
 
 protected:
   virtual int sync() override

@@ -555,6 +555,7 @@ private:
   friend class pqxx::internal::gate::transaction_transactionfocus;
   PQXX_PRIVATE void register_focus(internal::transactionfocus *);
   PQXX_PRIVATE void unregister_focus(internal::transactionfocus *) noexcept;
+  /// XXX: Can we use zview or string_view?
   PQXX_PRIVATE void register_pending_error(std::string const &) noexcept;
 
   connection &m_conn;
