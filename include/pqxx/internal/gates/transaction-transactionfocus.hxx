@@ -16,10 +16,13 @@ class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>
   {
     home().unregister_focus(focus);
   }
-  // XXX: Can we make this a view?
-  void register_pending_error(std::string const &error)
+  void register_pending_error(zview error)
   {
     home().register_pending_error(error);
+  }
+  void register_pending_error(std::string &&error)
+  {
+    home().register_pending_error(std::move(error));
   }
 };
 } // namespace pqxx::internal::gate
