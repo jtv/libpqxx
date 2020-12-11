@@ -413,7 +413,7 @@ void pqxx::transaction_base::unregister_focus(
   }
   catch (std::exception const &e)
   {
-    m_conn.process_notice(std::string{e.what()} + "\n");
+    m_conn.process_notice(internal::concat(e.what(), "\n"));
   }
 }
 
