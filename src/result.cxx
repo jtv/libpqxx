@@ -153,7 +153,7 @@ inline bool equal(char const lhs[], char const rhs[])
 }
 } // namespace
 
-void pqxx::result::ThrowSQLError(
+void pqxx::result::throw_sql_error(
   std::string const &Err, std::string const &Query) const
 {
   // Try to establish more precise error type, and throw corresponding
@@ -269,7 +269,7 @@ void pqxx::result::ThrowSQLError(
 void pqxx::result::check_status() const
 {
   if (auto const err{StatusError()}; not std::empty(err))
-    ThrowSQLError(err, query());
+    throw_sql_error(err, query());
 }
 
 

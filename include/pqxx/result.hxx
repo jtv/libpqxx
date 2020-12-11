@@ -240,8 +240,9 @@ private:
 
   // XXX: Replace params with string_view/zview?
   [[noreturn]] PQXX_PRIVATE void
-  ThrowSQLError(std::string const &Err, std::string const &Query) const;
+  throw_sql_error(std::string const &Err, std::string const &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
+  // XXX: Modernise name.
   PQXX_PRIVATE std::string StatusError() const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
