@@ -184,7 +184,6 @@ private:
       m_error = qid;
   }
 
-  // XXX: Replace with string_view or zview?
   /// Throw pqxx::internal_error.
   [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err);
 

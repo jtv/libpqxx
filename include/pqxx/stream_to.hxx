@@ -298,10 +298,9 @@ private:
   }
 
   void set_up(transaction_base &, std::string_view table_name);
-  // XXX: Can we use zview or string_view for columns?
   void set_up(
     transaction_base &, std::string_view table_name,
-    std::string const &columns);
+    std::string_view columns);
 
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
