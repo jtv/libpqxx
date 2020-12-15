@@ -425,7 +425,7 @@ void pqxx::connection::cancel_query()
 {
   using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel *)>>;
   constexpr int buf_size{500};
-  std::array<char, buf_size> errbuf;
+  std::vector<char> errbuf(buf_size);
   pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
   if (cancel == nullptr)
     throw std::bad_alloc{};
