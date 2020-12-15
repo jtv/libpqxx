@@ -11,6 +11,7 @@
 #include "pqxx-source.hxx"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cerrno>
 #include <cstdio>

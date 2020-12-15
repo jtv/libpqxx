@@ -10,6 +10,7 @@
  - Implicit `zview` constructor from `char const *`. (#389)
  - Many `std::string&` parameters are now `zview` or `std::string_view`.
  - Now checking statement parameter lengths for overflow.
+ - Missing `<array>` include in connection.cxx.
 7.2.1
  - Fix infinite loop in converting `char *` to string. (#377)
  - Deprecated `namedclass`.

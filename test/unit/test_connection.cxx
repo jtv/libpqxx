@@ -125,7 +125,7 @@ template<typename MAP> void test_params_type()
   // Check that the parameters came through in the connection string.
   // We don't know the exact format, but the parameters have to be in there.
   auto const min_size{std::accumulate(
-    std::cbegin(params), std::cent(params), std::size(params) - 1,
+    std::cbegin(params), std::cend(params), std::size(params) - 1,
     [](auto count, auto item) {
       return count + length(std::get<0>(item)) + 1 + length(std::get<1>(item));
     })};
