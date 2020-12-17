@@ -11,7 +11,6 @@
 #include "pqxx-source.hxx"
 
 #include <algorithm>
-#include <array>
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
@@ -425,16 +424,18 @@ bool pqxx::connection::is_busy() const noexcept
 void pqxx::connection::cancel_query()
 {
   using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel *)>>;
-  constexpr int buf_size{500};
-  std::array<char, buf_size> errbuf;
   pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
   if (cancel == nullptr)
     throw std::bad_alloc{};
 
-  auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
+  // Would love to use std::array here, but a user trying to build libpq and
+  // libpqxx in one project using CMake reports that in that configuration,
+  // the compiler does not find the definition for std::array.  See #394.
+  char errbuf[500];
+  auto const c{
+    PQcancel(cancel.get(), errbuf, static_cast<int>(std::size(errbuf)))};
   if (c == 0)
-    throw pqxx::sql_error{
-      std::string{errbuf.data(), std::size(errbuf)}, "[cancel]"};
+    throw pqxx::sql_error{std::string{errbuf, std::size(errbuf)}, "[cancel]"};
 }
 
 
