@@ -419,13 +419,13 @@ bool pqxx::connection::is_busy() const noexcept
 void pqxx::connection::cancel_query()
 {
   using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel *)>>;
-  constexpr int buf_size{500};
-  std::array<char, buf_size> errbuf;
   pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
   if (cancel == nullptr)
     throw std::bad_alloc{};
 
-  auto const c{PQcancel(cancel.get(), errbuf.data(), buf_size)};
+  std::array<char, 500u> errbuf;
+  auto const c{PQcancel(
+    cancel.get(), errbuf.data(), static_cast<int>(std::size(errbuf)))};
   if (c == 0)
     throw pqxx::sql_error{
       std::string{errbuf.data(), std::size(errbuf)}, "[cancel]"};
