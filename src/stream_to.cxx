@@ -93,8 +93,7 @@ void pqxx::stream_to::set_up(transaction_base &tb, std::string_view table_name)
 
 
 void pqxx::stream_to::set_up(
-  transaction_base &tb, std::string_view table_name,
-  std::string_view columns)
+  transaction_base &tb, std::string_view table_name, std::string_view columns)
 {
   begin_copy(tb, table_name, columns);
   register_me();

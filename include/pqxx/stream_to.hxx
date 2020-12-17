@@ -299,8 +299,7 @@ private:
 
   void set_up(transaction_base &, std::string_view table_name);
   void set_up(
-    transaction_base &, std::string_view table_name,
-    std::string_view columns);
+    transaction_base &, std::string_view table_name, std::string_view columns);
 
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
