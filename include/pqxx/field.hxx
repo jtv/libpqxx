@@ -150,7 +150,7 @@ public:
    * Returns whether the field was null.  If it was, it will not touch the
    * values in @c fields.
    */
-  template<typename... T> bool composite_to(T &... fields) const
+  template<typename... T> bool composite_to(T &...fields) const
   {
     if (is_null())
     {

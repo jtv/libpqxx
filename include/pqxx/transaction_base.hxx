@@ -160,7 +160,7 @@ public:
 
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
-  template<typename T>[[nodiscard]] std::string quote(T const &t) const
+  template<typename T> [[nodiscard]] std::string quote(T const &t) const
   {
     return conn().quote(t);
   }
@@ -299,7 +299,7 @@ public:
    * default-constructible, copy-constructible, and assignable.  These
    * requirements may be loosened once libpqxx moves on to C++20.
    */
-  template<typename... TYPE>[[nodiscard]] auto stream(std::string_view query)
+  template<typename... TYPE> [[nodiscard]] auto stream(std::string_view query)
   {
     return pqxx::internal::owning_stream_input_iteration<TYPE...>{
       std::make_unique<pqxx::stream_from>(*this, from_query_t{}, query)};
@@ -336,7 +336,7 @@ public:
   //@{
   /// Execute an SQL statement with parameters.
   template<typename... Args>
-  result exec_params(std::string const &query, Args &&... args)
+  result exec_params(std::string const &query, Args &&...args)
   {
     return internal_exec_params(
       query, internal::params(std::forward<Args>(args)...));
@@ -346,7 +346,7 @@ public:
   /** @throw unexpected_rows if the result does not consist of exactly one row.
    */
   template<typename... Args>
-  row exec_params1(std::string const &query, Args &&... args)
+  row exec_params1(std::string const &query, Args &&...args)
   {
     return exec_params_n(1, query, std::forward<Args>(args)...).front();
   }
@@ -355,7 +355,7 @@ public:
   /** @throw unexpected_rows if the result contains rows.
    */
   template<typename... Args>
-  result exec_params0(std::string const &query, Args &&... args)
+  result exec_params0(std::string const &query, Args &&...args)
   {
     return exec_params_n(0, query, std::forward<Args>(args)...);
   }
@@ -365,7 +365,7 @@ public:
    */
   template<typename... Args>
   result
-  exec_params_n(std::size_t rows, std::string const &query, Args &&... args)
+  exec_params_n(std::size_t rows, std::string const &query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
     check_rowcount_params(rows, std::size(r));
@@ -404,7 +404,7 @@ public:
 
   /// Execute a prepared statement, with optional arguments.
   template<typename... Args>
-  result exec_prepared(zview statement, Args &&... args)
+  result exec_prepared(zview statement, Args &&...args)
   {
     return internal_exec_prepared(
       statement, internal::params(std::forward<Args>(args)...));
@@ -414,7 +414,7 @@ public:
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
   template<typename... Args>
-  row exec_prepared1(zview statement, Args &&... args)
+  row exec_prepared1(zview statement, Args &&...args)
   {
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
@@ -423,7 +423,7 @@ public:
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
   template<typename... Args>
-  result exec_prepared0(zview statement, Args &&... args)
+  result exec_prepared0(zview statement, Args &&...args)
   {
     return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
@@ -434,7 +434,7 @@ public:
    */
   template<typename... Args>
   result
-  exec_prepared_n(result::size_type rows, zview statement, Args &&... args)
+  exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
     auto const r{exec_prepared(statement, std::forward<Args>(args)...)};
     check_rowcount_prepared(statement, rows, std::size(r));

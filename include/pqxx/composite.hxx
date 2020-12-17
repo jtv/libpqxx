@@ -28,7 +28,7 @@ namespace pqxx
  */
 template<typename... T>
 inline void parse_composite(
-  pqxx::internal::encoding_group enc, std::string_view text, T &... fields)
+  pqxx::internal::encoding_group enc, std::string_view text, T &...fields)
 {
   static_assert(sizeof...(fields) > 0);
 
@@ -60,7 +60,7 @@ inline void parse_composite(
  * @c field class.
  */
 template<typename... T>
-inline void parse_composite(std::string_view text, T &... fields)
+inline void parse_composite(std::string_view text, T &...fields)
 {
   parse_composite(pqxx::internal::encoding_group::MONOBYTE, text, fields...);
 }
@@ -79,7 +79,7 @@ namespace pqxx
 /** Returns a conservative estimate.
  */
 template<typename... T>
-inline std::size_t composite_size_buffer(T const &... fields) noexcept
+inline std::size_t composite_size_buffer(T const &...fields) noexcept
 {
   constexpr auto num{sizeof...(fields)};
 
@@ -106,7 +106,7 @@ inline std::size_t composite_size_buffer(T const &... fields) noexcept
  * for a composite type.
  */
 template<typename... T>
-inline char *composite_into_buf(char *begin, char *end, T const &... fields)
+inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
   if (std::size_t(end - begin) < composite_size_buffer(fields...))
     throw conversion_error{

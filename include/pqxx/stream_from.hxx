@@ -150,7 +150,7 @@ public:
    *
    * Do not call this yourself.  Use it like "for (auto data : stream.iter())".
    */
-  template<typename... TYPE>[[nodiscard]] auto iter()
+  template<typename... TYPE> [[nodiscard]] auto iter()
   {
     return pqxx::internal::stream_input_iteration<TYPE...>{*this};
   }
