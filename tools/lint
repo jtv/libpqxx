@@ -16,7 +16,7 @@ PQXXVERSION="$($SRCDIR/tools/extract_version)"
 
 # This version must be at the top of the NEWS file.
 check_news_version() {
-    if ! head -n1 $srcdir/NEWS | grep -q "^$PQXXVERSION\$"
+    if ! head -n1 $SRCDIR/NEWS | grep -q "^$PQXXVERSION\$"
     then
         cat <<EOF >&2
 Version $PQXXVERSION is not at the top of NEWS.
