@@ -600,6 +600,7 @@ def main(args):
 
     test_worker.join()
 # TODO: Async reporting for faster feedback.
+# TODO: Collate failures into meaningful output, e.g. "shared library fails."
     test_fail_count = report_failures(test_fails, "TEST FAIL")
     if args.verbose:
         print("Test step done.")
