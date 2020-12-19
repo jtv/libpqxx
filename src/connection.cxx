@@ -468,32 +468,36 @@ int pqxx::connection::get_notifs()
     notifs++;
 
     auto const Hit{m_receivers.equal_range(std::string{N->relname})};
-    for (auto i{Hit.first}; i != Hit.second; ++i) try
-      {
-        (*i->second)(N->extra, N->be_pid);
-      }
-      catch (std::exception const &e)
-      {
-        try
+    if (Hit.second != Hit.first)
+    {
+      std::string payload{N->extra};
+      for (auto i{Hit.first}; i != Hit.second; ++i) try
         {
-          process_notice(internal::concat(
-            "Exception in notification receiver '", i->first, "': ", e.what(),
-            "\n"));
+          (*i->second)(payload, N->be_pid);
         }
-        catch (std::bad_alloc const &)
+        catch (std::exception const &e)
         {
-          // Out of memory.  Try to get the message out in a more robust way.
-          process_notice(
-            "Exception in notification receiver, "
-            "and also ran out of memory\n");
+          try
+          {
+            process_notice(internal::concat(
+              "Exception in notification receiver '", i->first,
+              "': ", e.what(), "\n"));
+          }
+          catch (std::bad_alloc const &)
+          {
+            // Out of memory.  Try to get the message out in a more robust way.
+            process_notice(
+              "Exception in notification receiver, "
+              "and also ran out of memory\n");
+          }
+          catch (std::exception const &)
+          {
+            process_notice(
+              "Exception in notification receiver "
+              "(compounded by other error)\n");
+          }
         }
-        catch (std::exception const &)
-        {
-          process_notice(
-            "Exception in notification receiver "
-            "(compounded by other error)\n");
-        }
-      }
+    }
 
     N.reset();
   }
