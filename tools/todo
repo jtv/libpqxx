@@ -1,0 +1,23 @@
+#! /bin/bash
+#
+# List "TODO" and "XXX" items in the given files, or throughout the source
+# code.
+
+set -e -u -o pipefail
+
+# TODO: Make location-independent?
+find_source() {
+    echo configure.ac
+    find . -name \*.cxx -o -name \*.hxx | sed -e 's|^\./||' | sort
+    for f in $(ls tools)
+    do
+        echo tools/$f
+    done
+}
+
+
+FILES=${*:-$(find_source)}
+
+# Use quotes here so we don't pick these up as todo items in our own script.
+grep 'XXX': $FILES
+grep 'TODO': $FILES
