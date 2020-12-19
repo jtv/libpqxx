@@ -9,9 +9,8 @@ AC_INIT(
 AC_LANG(C++)
 
 # Require C++17 at minimum.
+# We need to specify this twice, so we can also pass it to clang-tidy.
 AX_CXX_COMPILE_STDCXX_17([noext])
-# We need to store this, so we'll know what to pass to clang-tidy.
-# TODO: Is there any way we can pick up a user-supplied option?
 AC_SUBST(PQXX_CXX_VERSION, -std=c++17)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
