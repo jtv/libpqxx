@@ -14,9 +14,6 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_COMPILER_INTERNAL
-#define PQXX_H_COMPILER_INTERNAL
-
 
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
@@ -38,4 +35,3 @@
 #endif // PQXX_HAVE_GCC_VISIBILITY
 
 #include "pqxx/compiler-public.hxx"
-#endif
