@@ -27,11 +27,6 @@
 #    define PQXX_PRIVATE __declspec()
 #  endif // PQXX_SHARED
 
-#elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
-
-#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
-#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
-
-#endif // PQXX_HAVE_GCC_VISIBILITY
+#endif // _WIN32
 
 #include "pqxx/compiler-public.hxx"
