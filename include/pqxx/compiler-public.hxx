@@ -20,7 +20,7 @@
 #include <ciso646>
 
 
-#if defined(__GNUC__) && defined(PQXX_HAVE_GCC_PURE)
+#if defined(PQXX_HAVE_GCC_PURE)
 /// Declare function "pure": no side effects, only reads globals and its args.
 #  define PQXX_PURE __attribute__((pure))
 #else
@@ -92,12 +92,12 @@
 
 #  endif // _MSC_VER
 
-#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
+#elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
 #  define PQXX_LIBEXPORT __attribute__((visibility("default")))
 #  define PQXX_PRIVATE __attribute__((visibility("hidden")))
 
-#endif // __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
+#endif // PQXX_HAVE_GCC_VISIBILITY
 
 
 #ifndef PQXX_LIBEXPORT

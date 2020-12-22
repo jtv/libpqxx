@@ -21,7 +21,6 @@
 // Workarounds & definitions needed to compile libpqxx into a library
 #include "pqxx/config-internal-compiler.h"
 
-// TODO: Check for Visual Studio, not for Windows.
 #ifdef _WIN32
 
 #  ifdef PQXX_SHARED
@@ -31,12 +30,12 @@
 #    define PQXX_PRIVATE __declspec()
 #  endif // PQXX_SHARED
 
-#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
+#elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
 #  define PQXX_LIBEXPORT __attribute__((visibility("default")))
 #  define PQXX_PRIVATE __attribute__((visibility("hidden")))
 
-#endif // __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
+#endif // PQXX_HAVE_GCC_VISIBILITY
 
 #include "pqxx/compiler-public.hxx"
 #endif
