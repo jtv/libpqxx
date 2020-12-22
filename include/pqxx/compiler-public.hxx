@@ -91,7 +91,13 @@
 #    endif
 
 #  endif // _MSC_VER
-#endif   // _WIN32
+
+#elif defined(__GNUC__) && defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
+
+#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
+#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
+
+#endif // __GNUC__ && PQXX_HAVE_GCC_VISIBILITY
 
 
 #ifndef PQXX_LIBEXPORT
