@@ -1,4 +1,3 @@
-#include <pqxx/largeobject>
 #include <pqxx/transaction>
 
 #include "test_helpers.hxx"
