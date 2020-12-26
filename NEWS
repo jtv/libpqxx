@@ -1,6 +1,8 @@
 7.3.1
  - Fix visibility issue on gcc/clang, especially on macOS.  (#395)
  - Use "pure" & "visibility" attributes if they work, regardless of compiler.
+ - New, simpler API for large objects: `blob` ("binary large object").
+ - `largeobject` and friends are now deprecated.
 7.3.0
  - `stream_to` now quotes and escapes its table name.
  - Removed `transaction_base::classname()`.  Did anyone ever use it?

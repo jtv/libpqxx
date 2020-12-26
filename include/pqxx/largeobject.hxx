@@ -1,6 +1,4 @@
-/* Large Objects interface.
- *
- * Allows access to large objects directly, or through I/O streams.
+/* Large Objects interface.  Deprecated; use blob instead.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
@@ -23,10 +21,10 @@
 
 namespace pqxx
 {
-/// Identity of a large object
-/** This class encapsulates the identity of a large object.  To access the
- * contents of the object, create a largeobjectaccess, a largeobject_streambuf,
- * or an ilostream, an olostream or a lostream around the largeobject.
+/// Identity of a large object.
+/** @deprecated Use the @c blob class instead.
+ *
+ * Encapsulates the identity of a large object.
  *
  * A largeobject must be accessed only from within a backend transaction, but
  * the object's identity remains valid as long as the object exists.
@@ -38,33 +36,33 @@ public:
 
   /// Refer to a nonexistent large object (similar to what a null pointer
   /// does).
-  largeobject() noexcept = default;
+  [[deprecated]] largeobject() noexcept = default;
 
   /// Create new large object.
   /** @param t Backend transaction in which the object is to be created.
    */
-  explicit largeobject(dbtransaction &t);
+  [[deprecated]] explicit largeobject(dbtransaction &t);
 
   /// Wrap object with given oid.
   /** Convert combination of a transaction and object identifier into a
    * large object identity.  Does not affect the database.
    * @param o Object identifier for the given object.
    */
-  explicit largeobject(oid o) noexcept : m_id{o} {}
+  [[deprecated]] explicit largeobject(oid o) noexcept : m_id{o} {}
 
   /// Import large object from a local file.
   /** Creates a large object containing the data found in the given file.
    * @param t Backend transaction in which the large object is to be created.
    * @param file A filename on the client program's filesystem.
    */
-  largeobject(dbtransaction &t, std::string_view file);
+  [[deprecated]] largeobject(dbtransaction &t, std::string_view file);
 
   /// Take identity of an opened large object.
   /** Copy identity of already opened large object.  Note that this may be done
    * as an implicit conversion.
    * @param o Already opened large object to copy identity from.
    */
-  largeobject(largeobjectaccess const &o) noexcept;
+  [[deprecated]] largeobject(largeobjectaccess const &o) noexcept;
 
   /// Object identifier.
   /** The number returned by this function identifies the large object in the
@@ -145,6 +143,8 @@ private:
 
 
 /// Accessor for large object's contents.
+/** @deprecated Use the @c blob class instead.
+ */
 class PQXX_LIBEXPORT largeobjectaccess : private largeobject
 {
 public:
@@ -175,7 +175,8 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  explicit largeobjectaccess(dbtransaction &t, openmode mode = default_mode);
+  [[deprecated]] explicit largeobjectaccess(
+    dbtransaction &t, openmode mode = default_mode);
 
   /// Open large object with given oid.
   /** Convert combination of a transaction and object identifier into a
@@ -185,7 +186,8 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  largeobjectaccess(dbtransaction &t, oid o, openmode mode = default_mode);
+  [[deprecated]] largeobjectaccess(
+    dbtransaction &t, oid o, openmode mode = default_mode);
 
   /// Open given large object.
   /** Open a large object with the given identity for reading and/or writing.
@@ -194,7 +196,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  largeobjectaccess(
+  [[deprecated]] largeobjectaccess(
     dbtransaction &t, largeobject o, openmode mode = default_mode);
 
   /// Import large object from a local file and open it.
@@ -203,7 +205,7 @@ public:
    * @param file A filename on the client program's filesystem.
    * @param mode Access mode, defaults to ios_base::in | ios_base::out.
    */
-  largeobjectaccess(
+  [[deprecated]] largeobjectaccess(
     dbtransaction &t, std::string_view file, openmode mode = default_mode);
 
   ~largeobjectaccess() noexcept { close(); }
@@ -351,13 +353,16 @@ private:
 
 
 /// Streambuf to use large objects in standard I/O streams.
-/** @warning This class will become @c final.
+/** @deprecated Access large objects directly using the @c blob class.
  *
  * The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
- * output streams.  This streambuf implementation provides similar access to
- * large objects, so they can be read and written using the same stream
+ * output streams.  This streambuf implementation provided similar access to
+ * large objects, so they could be read and written using the same stream
  * classes.
+ *
+ * This functionality was considered too fragile and complex, so it has been
+ * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
 class largeobject_streambuf : public std::basic_streambuf<CHAR, TRAITS>
@@ -377,7 +382,7 @@ public:
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
-  largeobject_streambuf(
+  [[deprecated]] largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
           m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
@@ -385,7 +390,7 @@ public:
     initialize(mode);
   }
 
-  largeobject_streambuf(
+  [[deprecated]] largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
     size_type buf_size = 512) :
           m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
@@ -520,13 +525,14 @@ private:
 
 
 /// Input stream that gets its data from a large object.
-/** Use this class exactly as you would any other istream to read data from a
- * large object.  All formatting and streaming operations of @c std::istream
- * are supported.  What you'll typically want to use, however, is the ilostream
- * alias (which defines a basic_ilostream for @c char).  This is similar to
- * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
+/** @deprecated Access large objects directly using the @c blob class.
  *
- * Currently only works for <tt><char, std::char_traits<char>></tt>.
+ * This class worked like any other istream, but to read data from a large
+ * object.  It supported all formatting and streaming operations of
+ * @c std::istream.
+ *
+ * This functionality was considered too fragile and complex, so it has been
+ * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
 class basic_ilostream : public std::basic_istream<CHAR, TRAITS>
@@ -546,7 +552,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  basic_ilostream(
+  [[deprecated]] basic_ilostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::in | std::ios::binary, buf_size}
@@ -560,7 +566,7 @@ public:
    * @param o Identifier of a large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  basic_ilostream(
+  [[deprecated]] basic_ilostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::in | std::ios::binary, buf_size}
@@ -575,14 +581,14 @@ private:
 using ilostream = basic_ilostream<char>;
 
 
-/// Output stream that writes data back to a large object
-/** Use this class exactly as you would any other ostream to write data to a
- * large object.  All formatting and streaming operations of @c std::ostream
- * are supported.  What you'll typically want to use, however, is the olostream
- * alias (which defines a basic_olostream for @c char).  This is similar to
- * how e.g. @c std::ofstream is related to @c std::basic_ofstream.
+/// Output stream that writes data back to a large object.
+/** @deprecated Access large objects directly using the @c blob class.
  *
- * Currently only works for <tt><char, std::char_traits<char>></tt>.
+ * This worked like any other ostream, but to write data to a large object.
+ * It supported all formatting and streaming operations of @c std::ostream.
+ *
+ * This functionality was considered too fragile and complex, so it has been
+ * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
 class basic_olostream : public std::basic_ostream<CHAR, TRAITS>
@@ -602,7 +608,7 @@ public:
    * @param o a large object to access.
    * @param buf_size size of buffer to use internally (optional).
    */
-  basic_olostream(
+  [[deprecated]] basic_olostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::out | std::ios::binary, buf_size}
@@ -616,7 +622,7 @@ public:
    * @param o a large object to access.
    * @param buf_size size of buffer to use internally (optional).
    */
-  basic_olostream(
+  [[deprecated]] basic_olostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::out | std::ios::binary, buf_size}
@@ -645,13 +651,14 @@ using olostream = basic_olostream<char>;
 
 
 /// Stream that reads and writes a large object.
-/** Use this class exactly as you would a std::iostream to read data from, or
- * write data to a large object.  All formatting and streaming operations of
- * @c std::iostream are supported.  What you'll typically want to use, however,
- * is the lostream alias (which defines a basic_lostream for @c char).  This
- * is similar to how e.g. @c std::fstream is related to @c std::basic_fstream.
+/** @deprecated Access large objects directly using the @c blob class.
  *
- * Currently only works for <tt><char, std::char_traits<char>></tt>.
+ * This worked like a std::iostream, but to read data from, or write data to, a
+ * large object.  It supported all formatting and streaming operations of
+ * @c std::iostream.
+ *
+ * This functionality was considered too fragile and complex, so it has been
+ * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
 class basic_lostream : public std::basic_iostream<CHAR, TRAITS>
@@ -671,7 +678,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  basic_lostream(
+  [[deprecated]] basic_lostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{
@@ -686,7 +693,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  basic_lostream(
+  [[deprecated]] basic_lostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{

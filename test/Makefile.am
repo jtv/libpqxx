@@ -93,6 +93,7 @@ runner_SOURCES = \
   test90.cxx \
   unit/test_array.cxx \
   unit/test_binarystring.cxx \
+  unit/test_blob.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
   unit/test_composite.cxx \

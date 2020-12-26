@@ -3,6 +3,7 @@ SUBDIRS = pqxx
 nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
+	pqxx/blob pqxx/blob.hxx \
 	pqxx/compiler-public.hxx \
 	pqxx/composite pqxx/composite.hxx \
 	pqxx/connection pqxx/connection.hxx \

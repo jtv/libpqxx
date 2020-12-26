@@ -24,6 +24,7 @@ extern "C"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
 
 namespace
 {
@@ -307,3 +308,5 @@ void pqxx::largeobjectaccess::process_notice(zview s) noexcept
 {
   m_trans.process_notice(s);
 }
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"

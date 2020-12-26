@@ -133,7 +133,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
-am_libpqxx_la_OBJECTS = array.lo binarystring.lo connection.lo \
+am_libpqxx_la_OBJECTS = array.lo binarystring.lo blob.lo connection.lo \
 	cursor.lo encodings.lo errorhandler.lo except.lo field.lo \
 	largeobject.lo notification.lo pipeline.lo result.lo \
 	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
@@ -162,17 +162,18 @@ am__v_at_1 =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/array.Plo \
-	./$(DEPDIR)/binarystring.Plo ./$(DEPDIR)/connection.Plo \
-	./$(DEPDIR)/cursor.Plo ./$(DEPDIR)/encodings.Plo \
-	./$(DEPDIR)/errorhandler.Plo ./$(DEPDIR)/except.Plo \
-	./$(DEPDIR)/field.Plo ./$(DEPDIR)/largeobject.Plo \
-	./$(DEPDIR)/notification.Plo ./$(DEPDIR)/pipeline.Plo \
-	./$(DEPDIR)/result.Plo ./$(DEPDIR)/robusttransaction.Plo \
-	./$(DEPDIR)/row.Plo ./$(DEPDIR)/sql_cursor.Plo \
-	./$(DEPDIR)/strconv.Plo ./$(DEPDIR)/stream_from.Plo \
-	./$(DEPDIR)/stream_to.Plo ./$(DEPDIR)/subtransaction.Plo \
-	./$(DEPDIR)/transaction.Plo ./$(DEPDIR)/transaction_base.Plo \
-	./$(DEPDIR)/util.Plo ./$(DEPDIR)/version.Plo
+	./$(DEPDIR)/binarystring.Plo ./$(DEPDIR)/blob.Plo \
+	./$(DEPDIR)/connection.Plo ./$(DEPDIR)/cursor.Plo \
+	./$(DEPDIR)/encodings.Plo ./$(DEPDIR)/errorhandler.Plo \
+	./$(DEPDIR)/except.Plo ./$(DEPDIR)/field.Plo \
+	./$(DEPDIR)/largeobject.Plo ./$(DEPDIR)/notification.Plo \
+	./$(DEPDIR)/pipeline.Plo ./$(DEPDIR)/result.Plo \
+	./$(DEPDIR)/robusttransaction.Plo ./$(DEPDIR)/row.Plo \
+	./$(DEPDIR)/sql_cursor.Plo ./$(DEPDIR)/strconv.Plo \
+	./$(DEPDIR)/stream_from.Plo ./$(DEPDIR)/stream_to.Plo \
+	./$(DEPDIR)/subtransaction.Plo ./$(DEPDIR)/transaction.Plo \
+	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/util.Plo \
+	./$(DEPDIR)/version.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -358,6 +359,7 @@ lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
 	array.cxx \
 	binarystring.cxx \
+	blob.cxx \
 	connection.cxx \
 	cursor.cxx \
 	encodings.cxx \
@@ -473,6 +475,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/array.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binarystring.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blob.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encodings.Plo@am__quote@ # am--include-marker
@@ -662,6 +665,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/array.Plo
 	-rm -f ./$(DEPDIR)/binarystring.Plo
+	-rm -f ./$(DEPDIR)/blob.Plo
 	-rm -f ./$(DEPDIR)/connection.Plo
 	-rm -f ./$(DEPDIR)/cursor.Plo
 	-rm -f ./$(DEPDIR)/encodings.Plo
@@ -730,6 +734,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/array.Plo
 	-rm -f ./$(DEPDIR)/binarystring.Plo
+	-rm -f ./$(DEPDIR)/blob.Plo
 	-rm -f ./$(DEPDIR)/connection.Plo
 	-rm -f ./$(DEPDIR)/cursor.Plo
 	-rm -f ./$(DEPDIR)/encodings.Plo
