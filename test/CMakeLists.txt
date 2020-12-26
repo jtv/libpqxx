@@ -14,3 +14,7 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND runner
 )
+
+if(INSTALL_TEST)
+	install(PROGRAMS runner TYPE BIN RENAME libpqxx-test-runner)
+endif()
