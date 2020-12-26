@@ -125,13 +125,13 @@ void pqxx::blob::close()
 }
 
 
-void pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t bytes)
+void pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to read from a closed binary large object."};
-  buf.resize(bytes);
+  buf.resize(size);
   auto data{reinterpret_cast<char *>(buf.data())};
-  int received{lo_read(raw_conn(m_conn), m_fd, data, bytes)};
+  int received{lo_read(raw_conn(m_conn), m_fd, data, size)};
   if (received < 0)
     throw failure{
       internal::concat("Could not read from binary large object: ", errmsg())};
@@ -151,11 +151,11 @@ void pqxx::blob::write(std::basic_string_view<std::byte> buf)
 }
 
 
-void pqxx::blob::truncate(std::int64_t size)
+void pqxx::blob::resize(std::int64_t size)
 {
   if (m_conn == nullptr)
-    throw usage_error{"Attempt to truncate a closed binary large object."};
-  if (lo_truncate(raw_conn(m_conn), m_fd, size) < 0)
+    throw usage_error{"Attempt to resize a closed binary large object."};
+  if (lo_truncate64(raw_conn(m_conn), m_fd, size) < 0)
     throw failure{
       internal::concat("Binary large object truncation failed: ", errmsg())};
 }
@@ -203,6 +203,36 @@ std::int64_t pqxx::blob::seek_end(std::int64_t offset)
 }
 
 
+pqxx::oid pqxx::blob::from_buf(
+  dbtransaction &tx, std::basic_string_view<std::byte> data, oid id)
+{
+  oid actual_id{create(tx, id)};
+  try
+  {
+    open_w(tx, actual_id).write(data);
+  }
+  catch (std::exception const &)
+  {
+    try
+    {
+      remove(tx, id);
+    }
+    catch (std::exception const &e)
+    {}
+    throw;
+  }
+  return actual_id;
+}
+
+
+void pqxx::blob::to_buf(
+  dbtransaction &tx, oid id, std::basic_string<std::byte> &buf,
+  std::int64_t max_size)
+{
+  open_r(tx, id).read(buf, max_size);
+}
+
+
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[])
 {
   auto id{lo_import(raw_conn(tx), path)};
@@ -224,7 +254,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[], oid id)
 }
 
 
-void pqxx::blob::to_file(dbtransaction &tx, char const path[], oid id)
+void pqxx::blob::to_file(dbtransaction &tx, oid id, char const path[])
 {
   if (lo_export(raw_conn(tx), id, path) < 0)
     throw failure{internal::concat(

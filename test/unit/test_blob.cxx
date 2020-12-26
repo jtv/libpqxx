@@ -63,10 +63,7 @@ void test_blob_checks_open_mode()
   pqxx::blob b_w{pqxx::blob::open_w(tx, id)};
   pqxx::blob b_rw{pqxx::blob::open_rw(tx, id)};
 
-  std::basic_string<std::byte> buf;
-  buf.push_back(std::byte{3});
-  buf.push_back(std::byte{2});
-  buf.push_back(std::byte{1});
+  std::basic_string<std::byte> buf{std::byte{3}, std::byte{2}, std::byte{1}};
 
   // These are all allowed:
   b_w.write(buf);
@@ -101,14 +98,122 @@ void test_blob_supports_move()
 
   PQXX_CHECK_THROWS(
     b1.read(buf, 1u), pqxx::usage_error,
-    "Blob still works after move-construction.");
+    "Blob still works after move construction.");
 
   b1 = std::move(b2);
   b1.read(buf, 1u);
 
   PQXX_CHECK_THROWS(
     b2.read(buf, 1u), pqxx::usage_error,
-    "Blob still works after mov-assignment.");
+    "Blob still works after move assignment.");
+}
+
+
+void test_blob_read_reads_data()
+{
+  std::basic_string<std::byte> const data{
+    std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+
+  std::basic_string<std::byte> buf;
+  auto b{pqxx::blob::open_rw(tx, id)};
+  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{std::byte{'a'}, std::byte{'b'}}),
+    "Read back the wrong data.");
+  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{std::byte{'c'}}),
+    "Continued read produced wrong data.");
+  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{}), "Read past end produced data.");
+}
+
+
+void test_blob_write_appends_at_insertion_point()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::create(tx)};
+
+  auto b{pqxx::blob::open_rw(tx, id)};
+  b.write(std::basic_string<std::byte>{std::byte{'z'}});
+  b.write(std::basic_string<std::byte>{std::byte{'a'}});
+
+  std::basic_string<std::byte> buf;
+  b.read(buf, 5);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{}), "Found data at the end.");
+  b.seek_abs(0);
+  b.read(buf, 5);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{std::byte{'z'}, std::byte{'a'}}),
+    "Consecutive writes did not append correctly.");
+
+  b.write(std::basic_string<std::byte>{std::byte{'x'}});
+  // Blob now contains "zax".  That's not we wanted...  Rewind and rewrite.
+  b.seek_abs(1);
+  b.write(std::basic_string<std::byte>{std::byte{'y'}});
+  b.seek_abs(0);
+  b.read(buf, 5);
+  PQXX_CHECK_EQUAL(
+    buf,
+    (std::basic_string<std::byte>{
+      std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}),
+    "Rewriting in the middle did not work right.");
+}
+
+
+void test_blob_resize_shortens_to_desired_length()
+{
+  std::basic_string<std::byte> const data{
+    std::byte{'w'}, std::byte{'o'}, std::byte{'r'}, std::byte{'k'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::from_buf(tx, data)};
+
+  pqxx::blob::open_w(tx, id).resize(2);
+  std::basic_string<std::byte> buf;
+  pqxx::blob::to_buf(tx, id, buf, 10);
+  PQXX_CHECK_EQUAL(
+    buf, (std::basic_string<std::byte>{std::byte{'w'}, std::byte{'o'}}),
+    "Truncate did not shorten correctly.");
+}
+
+
+void test_blob_resize_extends_to_desired_length()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{
+    pqxx::blob::from_buf(tx, std::basic_string<std::byte>{std::byte{100}})};
+  pqxx::blob::open_w(tx, id).resize(3);
+  std::basic_string<std::byte> buf;
+  pqxx::blob::to_buf(tx, id, buf, 10);
+  PQXX_CHECK_EQUAL(
+    buf,
+    (std::basic_string<std::byte>{std::byte{100}, std::byte{0}, std::byte{0}}),
+    "Resize did not zero-extend correctly.");
+}
+
+
+void test_blob_tell_tracks_position()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::create(tx)};
+  auto b{pqxx::blob::open_rw(tx, id)};
+
+  PQXX_CHECK_EQUAL(b.tell(), 0, "Empty blob started out in non-zero position.");
+  b.write(std::basic_string<std::byte>{std::byte{'e'}, std::byte{'f'}});
+  PQXX_CHECK_EQUAL(b.tell(), 2, "Empty blob started out in non-zero position.");
+  b.seek_abs(1);
+  PQXX_CHECK_EQUAL(b.tell(), 1, "tell() did not track seek.");
 }
 
 
@@ -118,4 +223,9 @@ PQXX_REGISTER_TEST(test_blob_remove_removes_blob);
 PQXX_REGISTER_TEST(test_blob_remove_is_not_idempotent);
 PQXX_REGISTER_TEST(test_blob_checks_open_mode);
 PQXX_REGISTER_TEST(test_blob_supports_move);
+PQXX_REGISTER_TEST(test_blob_read_reads_data);
+PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
+PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
+PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
+PQXX_REGISTER_TEST(test_blob_tell_tracks_position);
 } // namespace
