@@ -129,6 +129,9 @@ void pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to read from a closed binary large object."};
+  if (size > chunk_limit)
+    throw range_error{
+      "Reads from a binary large object must be less than 2 GB at once."};
   buf.resize(size);
   auto data{reinterpret_cast<char *>(buf.data())};
   int received{lo_read(raw_conn(m_conn), m_fd, data, size)};
@@ -143,8 +146,11 @@ void pqxx::blob::write(std::basic_string_view<std::byte> buf)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to write to a closed binary large object."};
+  if (std::size(buf) > chunk_limit)
+    throw range_error{
+      "Writes to a binary large object must be less than 2 GB at once."};
   auto ptr{reinterpret_cast<char const *>(buf.data())};
-  int written{lo_write(raw_conn(m_conn), m_fd, ptr, buf.size())};
+  int written{lo_write(raw_conn(m_conn), m_fd, ptr, std::size(buf))};
   if (written < 0)
     throw failure{
       internal::concat("Write to binary large object failed: ", errmsg())};
@@ -225,11 +231,47 @@ pqxx::oid pqxx::blob::from_buf(
 }
 
 
+void pqxx::blob::append_from_buf(
+  dbtransaction &tx, std::basic_string_view<std::byte> data, oid id)
+{
+  if (std::size(data) > chunk_limit)
+    throw range_error{
+      "Writes to a binary large object must be less than 2 GB at once."};
+  blob b{open_w(tx, id)};
+  b.seek_end();
+  b.write(data);
+}
+
+
 void pqxx::blob::to_buf(
   dbtransaction &tx, oid id, std::basic_string<std::byte> &buf,
   std::int64_t max_size)
 {
   open_r(tx, id).read(buf, max_size);
+}
+
+
+void pqxx::blob::append_to_buf(
+  dbtransaction &tx, oid id, size_t offset, std::basic_string<std::byte> &buf, std::size_t append_max)
+{
+  if (append_max > chunk_limit)
+    throw range_error{
+      "Reads from a binary large object must be less than 2 GB at once."};
+  auto b{open_r(tx, id)};
+  b.seek_abs(offset);
+  auto const org_size{std::size(buf)};
+  buf.resize(org_size + append_max);
+  try
+  {
+    auto here{reinterpret_cast<char *>(buf.data() + org_size)};
+    auto chunk{lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max)};
+    buf.resize(org_size + chunk);
+  }
+  catch (std::exception const &)
+  {
+    buf.resize(org_size);
+    throw;
+  }
 }
 
 

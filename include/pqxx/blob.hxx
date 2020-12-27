@@ -23,6 +23,7 @@
 
 namespace pqxx
 {
+// XXX: How much code would it save users if we also track id()?
 /** Binary large object.
  *
  * This is how you store data that may be too large for the @c BYTEA type.
@@ -56,23 +57,36 @@ public:
   // Open blob for reading and/or writing.
   [[nodiscard]] static blob open_rw(dbtransaction &, oid);
 
+  /// You can default-construct a blob, but it won't do anything useful.
+  /** Most operations on a default-constructed blob will throw @c usage_error.
+   */
+  blob() = default;
   blob(blob &&);
   blob &operator=(blob &&);
 
-  blob() = delete;
   blob(blob const &) = delete;
   blob &operator=(blob const &) = delete;
   ~blob();
 
-  // XXX: Chunk 64-bit reads.
+  /// Maximum number of bytes that can be read or written at a time.
+  /** The underlying protocol only supports reads and writes up to 2 GB
+   * exclusive.
+   *
+   * If you need to read or write more data to or from a binary large object,
+   * you'll have to break it up into chunks.
+   */
+  static constexpr std::size_t chunk_limit = 0x7fffffff;
+
   /// Read up to @c size bytes of the object into @c buf.  Return bytes read.
   /** Uses a buffer that you provide, so that you can (if this suits you)
    * allocate it once and then re-use it multiple times.  This is more
    * efficient than creating and returning a new buffer every time.
+   *
+   * @warning The underlying protocol only supports reads up to 2GB at a time.
+   * If you need to read more, try making repeated calls to @c append_to_buf.
    */
   void read(std::basic_string<std::byte> &buf, std::size_t size);
 
-  // XXX: Chunk 64-bit writes.
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * @c data to the object's contents and move the writing position so that
@@ -87,6 +101,10 @@ public:
    * data that was already there.  For example, if the object contained binary
    * data "abc", and you write "12" at the starting position, the object will
    * contain "12c".
+   *
+   * @warning The underlying protocol only supports writes up to 2 GB at a
+   * time.  If you need to write more, try making repeated calls to
+   * @c append_from_buf.
    */
   void write(std::basic_string_view<std::byte> data);
 
@@ -103,13 +121,12 @@ public:
   [[nodiscard]] std::int64_t tell() const;
 
   /// Set the current reading/writing position to an absolute offset.
-  std::int64_t seek_abs(std::int64_t offset);
+  std::int64_t seek_abs(std::int64_t offset = 0);
   /// Move the current reading/writing position forwards by an offset.
-  std::int64_t seek_rel(std::int64_t offset);
+  std::int64_t seek_rel(std::int64_t offset = 0);
   /// Set the current position to an offset relative to the end of the blob.
-  std::int64_t seek_end(std::int64_t offset);
+  std::int64_t seek_end(std::int64_t offset = 0);
 
-  // XXX: Test.
   /// Create a binary large object containing given @c data.
   /** You may optionally specify an oid for the new object.  If you do, and an
    * object with that oid already exists, creation will fail.
@@ -117,14 +134,24 @@ public:
   static oid from_buf(
     dbtransaction &tx, std::basic_string_view<std::byte> data, oid id = 0);
 
+  /// Append @c data to binary large object.
+  /** The underlying protocol only supports appending blocks up to 2 GB.
+   */
+  static void append_from_buf(
+    dbtransaction &tx, std::basic_string_view<std::byte> data, oid id);
+
   // XXX: Test.
   static oid from_file(dbtransaction &, char const path[]);
-  // XXX: Test.
+  // XXX: Test
   static oid from_file(dbtransaction &, char const path[], oid);
-  // XXX: Test.
   static void to_buf(
     dbtransaction &, oid, std::basic_string<std::byte> &,
-    std::int64_t max_size);
+    std::int64_t max_size = chunk_limit);
+  // XXX: Test.
+  // XXX: Return something so caller can recognise the end.
+  static void append_to_buf(
+    dbtransaction &tx, oid id, std::size_t offset,
+    std::basic_string<std::byte> &buf, std::size_t append_max = chunk_limit);
   // XXX: Test.
   static void to_file(dbtransaction &, oid, char const path[]);
 
@@ -148,8 +175,8 @@ private:
   PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence);
 
-  connection *m_conn;
-  int m_fd;
+  connection *m_conn = nullptr;
+  int m_fd = -1;
 };
 } // namespace pqxx
 #endif

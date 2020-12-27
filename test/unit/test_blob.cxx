@@ -7,6 +7,19 @@
 
 namespace
 {
+void test_blob_is_useless_by_default()
+{
+  pqxx::blob b{};
+  std::basic_string<std::byte> buf;
+  PQXX_CHECK_THROWS(
+    b.read(buf, 1), pqxx::usage_error,
+    "Read on default-constructed blob did not throw failure.");
+  PQXX_CHECK_THROWS(
+    b.write(buf), pqxx::usage_error,
+    "Write on default-constructed blob did not throw failure.");
+}
+
+
 void test_blob_create_makes_empty_blob()
 {
   pqxx::connection conn;
@@ -249,13 +262,44 @@ void test_blob_seek_sets_positions()
 }
 
 
-void test_from_buf_creates_blob()
+void test_blob_from_buf_interoperates_with_to_buf()
 {
-  // XXX: Test basic scenario.
-  // XXX: Can we test error cleanup?
+  std::basic_string<std::byte> const data{std::byte{'h'}, std::byte{'i'}};
+  std::basic_string<std::byte> buf;
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::blob::to_buf(tx, pqxx::blob::from_buf(tx, data), buf, 10);
+  PQXX_CHECK_EQUAL(buf, data, "from_buf()/to_buf() roundtrip did not work.");
 }
 
 
+void test_blob_append_from_buf_appends()
+{
+  std::basic_string<std::byte> const data{std::byte{'h'}, std::byte{'o'}};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::create(tx)};
+  pqxx::blob::append_from_buf(tx, data, id);
+  pqxx::blob::append_from_buf(tx, data, id);
+  std::basic_string<std::byte> buf;
+  pqxx::blob::to_buf(tx, id, buf, 10);
+  PQXX_CHECK_EQUAL(buf, data + data, "append_from_buf() wrote wrong data?");
+}
+
+
+void test_blob_from_file_creates_blob_from_file_contents()
+{
+  // XXX:
+}
+
+
+void test_blob_from_file_with_oid_writes_blob()
+{
+  // XXX:
+}
+
+
+PQXX_REGISTER_TEST(test_blob_is_useless_by_default);
 PQXX_REGISTER_TEST(test_blob_create_makes_empty_blob);
 PQXX_REGISTER_TEST(test_blobs_are_transactional);
 PQXX_REGISTER_TEST(test_blob_remove_removes_blob);
@@ -268,5 +312,8 @@ PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_tell_tracks_position);
 PQXX_REGISTER_TEST(test_blob_seek_sets_positions);
-PQXX_REGISTER_TEST(test_from_buf_creates_blob);
+PQXX_REGISTER_TEST(test_blob_from_buf_interoperates_with_to_buf);
+PQXX_REGISTER_TEST(test_blob_append_from_buf_appends);
+PQXX_REGISTER_TEST(test_blob_from_file_creates_blob_from_file_contents);
+PQXX_REGISTER_TEST(test_blob_from_file_with_oid_writes_blob);
 } // namespace
