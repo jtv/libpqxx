@@ -23,7 +23,6 @@
 
 namespace pqxx
 {
-// XXX: How much code would it save users if we also track id()?
 /** Binary large object.
  *
  * This is how you store data that may be too large for the @c BYTEA type.
@@ -118,7 +117,7 @@ public:
    * If the blob is less than @c size bytes long, it adds enough zero bytes to
    * make it the desired length.
    */
-  void resize(std::int64_t size = 0);
+  void resize(std::int64_t size);
 
   /// Return the current reading/writing position in the large object.
   [[nodiscard]] std::int64_t tell() const;
