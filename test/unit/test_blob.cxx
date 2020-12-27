@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include <pqxx/blob>
 #include <pqxx/transaction>
 
@@ -28,6 +30,28 @@ void test_blob_create_makes_empty_blob()
   auto b{pqxx::blob::open_r(tx, id)};
   b.seek_end(0);
   PQXX_CHECK_EQUAL(b.tell(), 0, "New blob is not empty.");
+}
+
+
+void test_blob_create_with_oid_requires_oid_be_free()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::create(tx)};
+
+  PQXX_CHECK_THROWS(pqxx::ignore_unused(pqxx::blob::create(tx, id)), pqxx::failure, "Not getting expected error when oid not free.");
+}
+
+
+void test_blob_create_with_oid_obeys_oid()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::create(tx)};
+  pqxx::blob::remove(tx, id);
+
+  auto actual_id{pqxx::blob::create(tx, id)};
+  PQXX_CHECK_EQUAL(actual_id, id, "Create with oid returned different oid.");
 }
 
 
@@ -134,15 +158,15 @@ void test_blob_read_reads_data()
 
   std::basic_string<std::byte> buf;
   auto b{pqxx::blob::open_rw(tx, id)};
-  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(b.read(buf, 2), 2u, "Full read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{std::byte{'a'}, std::byte{'b'}}),
     "Read back the wrong data.");
-  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(b.read(buf, 2), 1u, "Partial read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{std::byte{'c'}}),
     "Continued read produced wrong data.");
-  b.read(buf, 2);
+  PQXX_CHECK_EQUAL(b.read(buf, 2), 0u, "read at end returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{}), "Read past end produced data.");
 }
@@ -287,20 +311,154 @@ void test_blob_append_from_buf_appends()
 }
 
 
+namespace
+{
+void read_file(char const path[], std::size_t len, std::basic_string<std::byte> &buf)
+{
+  buf.resize(len);
+  auto f{std::fopen(path, "rb")};
+  auto bytes{std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f)};
+  if (bytes == 0) throw std::runtime_error{"Error reading test file."};
+  buf.resize(bytes);
+}
+
+
+void write_file(char const path[], std::basic_string_view<std::byte> data)
+{
+  auto f{std::fopen(path, "wb")};
+  try
+  {
+    if (std::fwrite(reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) < std::size(data))
+      std::runtime_error{"File write failed."};
+  }
+  catch (const std::exception &)
+  {
+    std::fclose(f);
+    std::remove(path);
+    throw;
+  }
+  std::fclose(f);
+}
+} // namespace
+
+
 void test_blob_from_file_creates_blob_from_file_contents()
 {
-  // XXX:
+	/*
+  char const temp_file[] = "blob-test-from_file.tmp";
+  std::basic_string<std::byte> const data{std::byte{'4'}, std::byte{'2'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  std::basic_string<std::byte> buf;
+
+  try
+  {
+    write_file(temp_file, data);
+    auto id{pqxx::blob::from_file(tx, temp_file)};
+    std::remove(temp_file);
+    pqxx::blob::to_buf(tx, id, buf);
+  } catch (std::exception const &)
+  {
+    std::remove(temp_file);
+    throw;
+  }
+  PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
+  */
 }
 
 
 void test_blob_from_file_with_oid_writes_blob()
 {
-  // XXX:
+  std::basic_string<std::byte> const data{std::byte{'6'}, std::byte{'9'}};
+  char const temp_file[] = "blob-test-from_file-oid.tmp";
+  std::basic_string<std::byte> buf;
+
+  try
+  {
+    pqxx::connection conn;
+    pqxx::work tx{conn};
+
+    // Guarantee (more or less) that id is not in use.
+    auto id{pqxx::blob::create(tx)};
+    pqxx::blob::remove(tx, id);
+
+    write_file(temp_file, data);
+    pqxx::blob::from_file(tx, temp_file, id);
+    std::remove(temp_file);
+    pqxx::blob::to_buf(tx, id, buf, 10);
+  }
+  catch (std::exception const &)
+  {
+    std::remove(temp_file);
+    throw;
+  }
+  PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
+}
+
+
+void test_blob_append_to_buf_appends()
+{
+  std::basic_string<std::byte> const data{std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::from_buf(tx, data)};
+
+  std::basic_string<std::byte> buf;
+  PQXX_CHECK_EQUAL(pqxx::blob::append_to_buf(tx, id, 0u, buf, 1u), 1u, "append_to_buf() returned unexpected value.");
+  PQXX_CHECK_EQUAL(std::size(buf), 1u, "Appended the wrong number of bytes.");
+  PQXX_CHECK_EQUAL(pqxx::blob::append_to_buf(tx, id, 1u, buf, 5u), 3u, "append_to_buf() returned unexpected value.");
+  PQXX_CHECK_EQUAL(std::size(buf), 4u, "Appended the wrong number of bytes.");
+
+  PQXX_CHECK_EQUAL(buf, data, "Reading using append_to_buf gave us wrong data.");
+}
+
+
+void test_blob_to_file_writes_file()
+{
+  std::basic_string<std::byte> const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
+
+  char const temp_file[] = "blob-test-to_file.tmp";
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::from_buf(tx, data)};
+  std::basic_string<std::byte> buf;
+
+  try
+  {
+    pqxx::blob::to_file(tx, id, temp_file);
+    read_file(temp_file, 10u, buf);
+    std::remove(temp_file);
+  }
+  catch (std::exception const &)
+  {
+    std::remove(temp_file);
+    throw;
+  }
+  PQXX_CHECK_EQUAL(buf, data, "Got wrong data from to_file().");
+}
+
+
+void test_blob_close_leaves_blob_unusable()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{
+    pqxx::blob::from_buf(tx, std::basic_string<std::byte>{std::byte{1}})};
+  auto b{pqxx::blob::open_rw(tx, id)};
+  b.close();
+  std::basic_string<std::byte> buf;
+  PQXX_CHECK_THROWS(
+    b.read(buf, 1), pqxx::usage_error,
+    "Reading from closed blob did not fail right.");
 }
 
 
 PQXX_REGISTER_TEST(test_blob_is_useless_by_default);
 PQXX_REGISTER_TEST(test_blob_create_makes_empty_blob);
+PQXX_REGISTER_TEST(test_blob_create_with_oid_requires_oid_be_free);
+PQXX_REGISTER_TEST(test_blob_create_with_oid_obeys_oid);
 PQXX_REGISTER_TEST(test_blobs_are_transactional);
 PQXX_REGISTER_TEST(test_blob_remove_removes_blob);
 PQXX_REGISTER_TEST(test_blob_remove_is_not_idempotent);
@@ -316,4 +474,7 @@ PQXX_REGISTER_TEST(test_blob_from_buf_interoperates_with_to_buf);
 PQXX_REGISTER_TEST(test_blob_append_from_buf_appends);
 PQXX_REGISTER_TEST(test_blob_from_file_creates_blob_from_file_contents);
 PQXX_REGISTER_TEST(test_blob_from_file_with_oid_writes_blob);
+PQXX_REGISTER_TEST(test_blob_append_to_buf_appends);
+PQXX_REGISTER_TEST(test_blob_to_file_writes_file);
+PQXX_REGISTER_TEST(test_blob_close_leaves_blob_unusable);
 } // namespace

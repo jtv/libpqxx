@@ -61,7 +61,10 @@ public:
   /** Most operations on a default-constructed blob will throw @c usage_error.
    */
   blob() = default;
+
+  /// You can move a blob, but not copy it.  The original is rendered unusable.
   blob(blob &&);
+  /// You can move a blob, but not copy it.  The original is rendered unusable.
   blob &operator=(blob &&);
 
   blob(blob const &) = delete;
@@ -85,7 +88,7 @@ public:
    * @warning The underlying protocol only supports reads up to 2GB at a time.
    * If you need to read more, try making repeated calls to @c append_to_buf.
    */
-  void read(std::basic_string<std::byte> &buf, std::size_t size);
+  std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
 
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
@@ -140,22 +143,45 @@ public:
   static void append_from_buf(
     dbtransaction &tx, std::basic_string_view<std::byte> data, oid id);
 
-  // XXX: Test.
+  /// Read client-side file and store it server-side as a binary large object.
   static oid from_file(dbtransaction &, char const path[]);
-  // XXX: Test
+
+  /// Read client-side file and store it server-side as a binary large object.
+  /** In this version, you specify the binary large object's oid.  If that oid
+   * is already in use, the operation will fail.
+   */
   static oid from_file(dbtransaction &, char const path[], oid);
+
+  /// Convenience function: Read up to @c max_size bytes from blob with @c id.
+  /** You could easily do this yourself using the @c open_r and @c read
+   * functions, but it can save you a bit of code to do it this way.
+   */
   static void to_buf(
     dbtransaction &, oid, std::basic_string<std::byte> &,
-    std::int64_t max_size = chunk_limit);
-  // XXX: Test.
-  // XXX: Return something so caller can recognise the end.
-  static void append_to_buf(
+    std::int64_t max_size);
+
+  /// Read part of the binary large object with @c id, and append it to @c buf.
+  /** Use this to break up a large read from one binary large object into one
+   * massive buffer.  Just keep calling this function until it returns zero.
+   *
+   * The @c offset is how far into the large object your desired chunk is, and
+   * @c append_max says how much to try and read in one go.
+   */
+  static std::size_t append_to_buf(
     dbtransaction &tx, oid id, std::size_t offset,
-    std::basic_string<std::byte> &buf, std::size_t append_max = chunk_limit);
-  // XXX: Test.
+    std::basic_string<std::byte> &buf, std::size_t append_max);
+
+  /// Write a binary large object's contents to a client-side file.
   static void to_file(dbtransaction &, oid, char const path[]);
 
-  // XXX: Test.
+  /// Close this blob (but leave the actual binary large object on the server).
+  /** Resets the blob to a useless state similar to one that was
+   * default-constructed.
+   *
+   * You don't have to call this.  The destructor will do it for you.  However
+   * in the unlikely event that closing the object should fail, the destructor
+   * can't throw an exception.  The @c close() function can.
+   */
   void close();
 
 private:
