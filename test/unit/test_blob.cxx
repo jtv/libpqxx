@@ -2,6 +2,7 @@
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
+#include "../test_types.hxx"
 
 
 namespace
@@ -209,11 +210,42 @@ void test_blob_tell_tracks_position()
   auto id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
 
-  PQXX_CHECK_EQUAL(b.tell(), 0, "Empty blob started out in non-zero position.");
+  PQXX_CHECK_EQUAL(
+    b.tell(), 0, "Empty blob started out in non-zero position.");
   b.write(std::basic_string<std::byte>{std::byte{'e'}, std::byte{'f'}});
-  PQXX_CHECK_EQUAL(b.tell(), 2, "Empty blob started out in non-zero position.");
+  PQXX_CHECK_EQUAL(
+    b.tell(), 2, "Empty blob started out in non-zero position.");
   b.seek_abs(1);
   PQXX_CHECK_EQUAL(b.tell(), 1, "tell() did not track seek.");
+}
+
+
+void test_blob_seek_sets_positions()
+{
+  std::basic_string<std::byte> data{
+    std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4},
+    std::byte{5}, std::byte{6}, std::byte{7}, std::byte{8}, std::byte{9}};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::from_buf(tx, data)};
+  auto b{pqxx::blob::open_r(tx, id)};
+
+  std::basic_string<std::byte> buf;
+  b.seek_rel(3);
+  b.read(buf, 1u);
+  PQXX_CHECK_EQUAL(
+    buf[0], std::byte{3},
+    "seek_rel() from beginning did not take us to the right position.");
+
+  b.seek_abs(2);
+  b.read(buf, 1u);
+  PQXX_CHECK_EQUAL(
+    buf[0], std::byte{2}, "seek_abs() did not take us to the right position.");
+
+  b.seek_end(-2);
+  b.read(buf, 1u);
+  PQXX_CHECK_EQUAL(
+    buf[0], std::byte{8}, "seek_end() did not take us to the right position.");
 }
 
 
@@ -228,4 +260,5 @@ PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
 PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_tell_tracks_position);
+PQXX_REGISTER_TEST(test_blob_seek_sets_positions);
 } // namespace

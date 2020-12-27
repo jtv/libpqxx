@@ -102,13 +102,10 @@ public:
   /// Return the current reading/writing position in the large object.
   [[nodiscard]] std::int64_t tell() const;
 
-  // XXX: Test.
   /// Set the current reading/writing position to an absolute offset.
   std::int64_t seek_abs(std::int64_t offset);
-  // XXX: Test.
   /// Move the current reading/writing position forwards by an offset.
   std::int64_t seek_rel(std::int64_t offset);
-  // XXX: Test.
   /// Set the current position to an offset relative to the end of the blob.
   std::int64_t seek_end(std::int64_t offset);
 
