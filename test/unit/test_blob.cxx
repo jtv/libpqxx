@@ -344,7 +344,6 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
 
 void test_blob_from_file_creates_blob_from_file_contents()
 {
-	/*
   char const temp_file[] = "blob-test-from_file.tmp";
   std::basic_string<std::byte> const data{std::byte{'4'}, std::byte{'2'}};
 
@@ -357,14 +356,13 @@ void test_blob_from_file_creates_blob_from_file_contents()
     write_file(temp_file, data);
     auto id{pqxx::blob::from_file(tx, temp_file)};
     std::remove(temp_file);
-    pqxx::blob::to_buf(tx, id, buf);
+    pqxx::blob::to_buf(tx, id, buf, 10);
   } catch (std::exception const &)
   {
     std::remove(temp_file);
     throw;
   }
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
-  */
 }
 
 
