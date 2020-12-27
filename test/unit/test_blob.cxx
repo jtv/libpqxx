@@ -249,6 +249,13 @@ void test_blob_seek_sets_positions()
 }
 
 
+void test_from_buf_creates_blob()
+{
+  // XXX: Test basic scenario.
+  // XXX: Can we test error cleanup?
+}
+
+
 PQXX_REGISTER_TEST(test_blob_create_makes_empty_blob);
 PQXX_REGISTER_TEST(test_blobs_are_transactional);
 PQXX_REGISTER_TEST(test_blob_remove_removes_blob);
@@ -261,4 +268,5 @@ PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_tell_tracks_position);
 PQXX_REGISTER_TEST(test_blob_seek_sets_positions);
+PQXX_REGISTER_TEST(test_from_buf_creates_blob);
 } // namespace

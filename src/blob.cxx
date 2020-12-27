@@ -245,7 +245,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[])
 
 pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[], oid id)
 {
-  auto actual_id{lo_import(raw_conn(tx), path)};
+  auto actual_id{lo_import_with_oid(raw_conn(tx), path, id)};
   if (actual_id == 0)
     throw failure{internal::concat(
       "Could not import '", path, "' as binary large object ", id, ": ",
