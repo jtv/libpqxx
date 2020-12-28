@@ -144,7 +144,7 @@ pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
     throw failure{
       internal::concat("Could not read from binary large object: ", errmsg())};
   buf.resize(static_cast<std::size_t>(received));
-  return received;
+  return static_cast<std::size_t>(received);
 }
 
 
@@ -251,14 +251,14 @@ void pqxx::blob::append_from_buf(
 
 void pqxx::blob::to_buf(
   dbtransaction &tx, oid id, std::basic_string<std::byte> &buf,
-  std::int64_t max_size)
+  std::size_t max_size)
 {
   open_r(tx, id).read(buf, max_size);
 }
 
 
 std::size_t pqxx::blob::append_to_buf(
-  dbtransaction &tx, oid id, size_t offset, std::basic_string<std::byte> &buf,
+  dbtransaction &tx, oid id, std::int64_t offset, std::basic_string<std::byte> &buf,
   std::size_t append_max)
 {
   if (append_max > chunk_limit)
@@ -271,7 +271,7 @@ std::size_t pqxx::blob::append_to_buf(
   try
   {
     auto here{reinterpret_cast<char *>(buf.data() + org_size)};
-    auto chunk{lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max)};
+    auto chunk{static_cast<std::size_t>(lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);
     return chunk;
   }

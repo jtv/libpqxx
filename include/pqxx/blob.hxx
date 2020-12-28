@@ -157,7 +157,7 @@ public:
    */
   static void to_buf(
     dbtransaction &, oid, std::basic_string<std::byte> &,
-    std::int64_t max_size);
+    std::size_t max_size);
 
   /// Read part of the binary large object with @c id, and append it to @c buf.
   /** Use this to break up a large read from one binary large object into one
@@ -167,7 +167,7 @@ public:
    * @c append_max says how much to try and read in one go.
    */
   static std::size_t append_to_buf(
-    dbtransaction &tx, oid id, std::size_t offset,
+    dbtransaction &tx, oid id, std::int64_t offset,
     std::basic_string<std::byte> &buf, std::size_t append_max);
 
   /// Write a binary large object's contents to a client-side file.
