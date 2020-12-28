@@ -39,7 +39,9 @@ void test_blob_create_with_oid_requires_oid_be_free()
   pqxx::work tx{conn};
   auto id{pqxx::blob::create(tx)};
 
-  PQXX_CHECK_THROWS(pqxx::ignore_unused(pqxx::blob::create(tx, id)), pqxx::failure, "Not getting expected error when oid not free.");
+  PQXX_CHECK_THROWS(
+    pqxx::ignore_unused(pqxx::blob::create(tx, id)), pqxx::failure,
+    "Not getting expected error when oid not free.");
 }
 
 
@@ -158,15 +160,18 @@ void test_blob_read_reads_data()
 
   std::basic_string<std::byte> buf;
   auto b{pqxx::blob::open_rw(tx, id)};
-  PQXX_CHECK_EQUAL(b.read(buf, 2), 2u, "Full read() returned an unexpected value.");
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 2u, "Full read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{std::byte{'a'}, std::byte{'b'}}),
     "Read back the wrong data.");
-  PQXX_CHECK_EQUAL(b.read(buf, 2), 1u, "Partial read() returned an unexpected value.");
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 1u, "Partial read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{std::byte{'c'}}),
     "Continued read produced wrong data.");
-  PQXX_CHECK_EQUAL(b.read(buf, 2), 0u, "read at end returned an unexpected value.");
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 0u, "read at end returned an unexpected value.");
   PQXX_CHECK_EQUAL(
     buf, (std::basic_string<std::byte>{}), "Read past end produced data.");
 }
@@ -313,12 +318,14 @@ void test_blob_append_from_buf_appends()
 
 namespace
 {
-void read_file(char const path[], std::size_t len, std::basic_string<std::byte> &buf)
+void read_file(
+  char const path[], std::size_t len, std::basic_string<std::byte> &buf)
 {
   buf.resize(len);
   auto f{std::fopen(path, "rb")};
   auto bytes{std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f)};
-  if (bytes == 0) throw std::runtime_error{"Error reading test file."};
+  if (bytes == 0)
+    throw std::runtime_error{"Error reading test file."};
   buf.resize(bytes);
 }
 
@@ -328,7 +335,10 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
   auto f{std::fopen(path, "wb")};
   try
   {
-    if (std::fwrite(reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) < std::size(data))
+    if (
+      std::fwrite(
+        reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) <
+      std::size(data))
       std::runtime_error{"File write failed."};
   }
   catch (const std::exception &)
@@ -357,7 +367,8 @@ void test_blob_from_file_creates_blob_from_file_contents()
     auto id{pqxx::blob::from_file(tx, temp_file)};
     std::remove(temp_file);
     pqxx::blob::to_buf(tx, id, buf, 10);
-  } catch (std::exception const &)
+  }
+  catch (std::exception const &)
   {
     std::remove(temp_file);
     throw;
@@ -397,25 +408,32 @@ void test_blob_from_file_with_oid_writes_blob()
 
 void test_blob_append_to_buf_appends()
 {
-  std::basic_string<std::byte> const data{std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
+  std::basic_string<std::byte> const data{
+    std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::from_buf(tx, data)};
 
   std::basic_string<std::byte> buf;
-  PQXX_CHECK_EQUAL(pqxx::blob::append_to_buf(tx, id, 0u, buf, 1u), 1u, "append_to_buf() returned unexpected value.");
+  PQXX_CHECK_EQUAL(
+    pqxx::blob::append_to_buf(tx, id, 0u, buf, 1u), 1u,
+    "append_to_buf() returned unexpected value.");
   PQXX_CHECK_EQUAL(std::size(buf), 1u, "Appended the wrong number of bytes.");
-  PQXX_CHECK_EQUAL(pqxx::blob::append_to_buf(tx, id, 1u, buf, 5u), 3u, "append_to_buf() returned unexpected value.");
+  PQXX_CHECK_EQUAL(
+    pqxx::blob::append_to_buf(tx, id, 1u, buf, 5u), 3u,
+    "append_to_buf() returned unexpected value.");
   PQXX_CHECK_EQUAL(std::size(buf), 4u, "Appended the wrong number of bytes.");
 
-  PQXX_CHECK_EQUAL(buf, data, "Reading using append_to_buf gave us wrong data.");
+  PQXX_CHECK_EQUAL(
+    buf, data, "Reading using append_to_buf gave us wrong data.");
 }
 
 
 void test_blob_to_file_writes_file()
 {
-  std::basic_string<std::byte> const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
+  std::basic_string<std::byte> const data{
+    std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 
   char const temp_file[] = "blob-test-to_file.tmp";
   pqxx::connection conn;

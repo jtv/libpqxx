@@ -129,7 +129,8 @@ void pqxx::blob::close()
 }
 
 
-std::size_t pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
+std::size_t
+pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to read from a closed binary large object."};
