@@ -113,8 +113,12 @@ pqxx::blob::~blob()
   {
     close();
   }
-  catch (std::exception const &)
-  {}
+  catch (std::exception const &e)
+  {
+    if (m_conn != nullptr)
+      m_conn->process_notice(internal::concat(
+        "Failure while closing binary large object: ", e.what(), "\n"));
+  }
 }
 
 
@@ -230,7 +234,16 @@ pqxx::oid pqxx::blob::from_buf(
       remove(tx, id);
     }
     catch (std::exception const &e)
-    {}
+    {
+      try
+      {
+        tx.conn().process_notice(internal::concat(
+          "Could not clean up partially created large object ", id, ": ",
+          e.what()));
+      }
+      catch (std::exception const &)
+      {}
+    }
     throw;
   }
   return actual_id;
@@ -258,8 +271,8 @@ void pqxx::blob::to_buf(
 
 
 std::size_t pqxx::blob::append_to_buf(
-  dbtransaction &tx, oid id, std::int64_t offset, std::basic_string<std::byte> &buf,
-  std::size_t append_max)
+  dbtransaction &tx, oid id, std::int64_t offset,
+  std::basic_string<std::byte> &buf, std::size_t append_max)
 {
   if (append_max > chunk_limit)
     throw range_error{
@@ -271,7 +284,8 @@ std::size_t pqxx::blob::append_to_buf(
   try
   {
     auto here{reinterpret_cast<char *>(buf.data() + org_size)};
-    auto chunk{static_cast<std::size_t>(lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max))};
+    auto chunk{static_cast<std::size_t>(
+      lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);
     return chunk;
   }
