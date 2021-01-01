@@ -101,20 +101,21 @@ public:
     Columns const &columns);
 
   /// @deprecated Use the @c from_table_t overload instead.
-  stream_from(transaction_base &tx, std::string_view table) :
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
+    transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
 
   /// @deprecated Use the @c from_table_t overload instead.
   template<typename Columns>
-  stream_from(
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &tx, std::string_view table, Columns const &columns) :
           stream_from{tx, from_table, table, columns}
   {}
 
   /// @deprecated Use the @c from_table_t overload instead.
   template<typename Iter>
-  stream_from(
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &, std::string_view table, Iter columns_begin,
     Iter columns_end);
 

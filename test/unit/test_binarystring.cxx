@@ -11,7 +11,9 @@ namespace
 pqxx::binarystring
 make_binarystring(pqxx::transaction_base &T, std::string content)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return pqxx::binarystring(T.exec1("SELECT " + T.quote_raw(content))[0]);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -71,6 +73,7 @@ void test_binarystring()
     PQXX_CHECK(uc <= 127, "Non-ASCII byte in escaped string.");
   }
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   PQXX_CHECK_EQUAL(
     tx.quote_raw(
       reinterpret_cast<unsigned char const *>(simple.c_str()),
@@ -81,6 +84,7 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(
     pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(), simple,
     "Binary string is not idempotent.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   std::string const bytes("\x01\x23\x23\xa1\x2b\x0c\xff");
   b = make_binarystring(tx, bytes);
@@ -116,7 +120,9 @@ void test_binarystring_conversion()
 {
   constexpr char bytes[]{"f\to\0o\n\0"};
   std::string_view const data{bytes, std::size(bytes) - 1};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::binarystring bin{data};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   auto const escaped{pqxx::to_string(bin)};
   PQXX_CHECK_EQUAL(
     escaped, std::string_view{"\\x66096f006f0a00"}, "Unexpected hex escape.");
@@ -130,7 +136,9 @@ void test_binarystring_stream()
 {
   constexpr char bytes[]{"a\tb\0c"};
   std::string_view const data{bytes, std::size(bytes) - 1};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::binarystring bin{data};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   pqxx::connection conn;
   pqxx::transaction tx{conn};
@@ -159,8 +167,10 @@ void test_binarystring_array_stream()
 
   constexpr char bytes1[]{"a\tb\0c"}, bytes2[]{"1\0.2"};
   std::string_view const data1{bytes1}, data2{bytes2};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::binarystring bin1{data1}, bin2{data2};
   std::vector<pqxx::binarystring> const vec{bin1, bin2};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   pqxx::stream_to to{tx, "pqxxbinstream"};
   to.write_values(0, vec);

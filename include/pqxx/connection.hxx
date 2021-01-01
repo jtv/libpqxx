@@ -109,13 +109,19 @@ class const_connection_largeobject;
 namespace pqxx
 {
 /// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard]] std::string PQXX_LIBEXPORT
-encrypt_password(char const user[], char const password[]);
+[[nodiscard,
+  deprecated("Use connection::encrypt_password instead.")]] std::string
+  PQXX_LIBEXPORT
+  encrypt_password(char const user[], char const password[]);
 
 /// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard]] inline std::string encrypt_password(zview user, zview password)
+[[nodiscard,
+  deprecated("Use connection::encrypt_password instead.")]] inline std::string
+encrypt_password(zview user, zview password)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return encrypt_password(user.c_str(), password.c_str());
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -566,7 +572,7 @@ public:
   /// Escape binary string for use as SQL string literal on this connection.
   /** @deprecated Use @c std::basic_string_view<std::byte> instead.
    */
-  [[nodiscard]] std::string
+  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
@@ -590,7 +596,7 @@ public:
   /// Escape and quote a string of binary data.
   /** @deprecated Use @c std::basic_string_view<std::byte> instead.
    */
-  [[nodiscard]] std::string
+  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape and quote a string of binary data.
@@ -607,7 +613,8 @@ public:
   [[nodiscard]] inline std::string quote(T const &t) const;
 
   /// @deprecated Use @c basic_string or @c basic_string_view of @c std::byte.
-  [[nodiscard]] std::string quote(binarystring const &) const;
+  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
+  quote(binarystring const &) const;
 
   [[nodiscard]] std::string
   quote(std::basic_string_view<std::byte> bytes) const;

@@ -135,7 +135,9 @@ public:
   [[nodiscard]] std::string
   esc_raw(unsigned char const data[], std::size_t len) const
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().esc_raw(data, len);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   /// Escape binary data for use as SQL string literal in this transaction
   [[nodiscard]] std::string esc_raw(zview) const;
@@ -162,14 +164,18 @@ public:
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T> [[nodiscard]] std::string quote(T const &t) const
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().quote(t);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
   [[nodiscard]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().quote_raw(bin, len);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   [[nodiscard]] std::string quote_raw(zview bin) const;

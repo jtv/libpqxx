@@ -170,6 +170,7 @@ void test_binary()
   constexpr char raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
   std::string const input{raw_bytes, std::size(raw_bytes)};
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   {
     pqxx::binarystring const bin{input};
     auto rw{tx.exec_prepared1("EchoBin", bin)};
@@ -177,6 +178,7 @@ void test_binary()
       pqxx::binarystring(rw[0]).str(), input,
       "Binary string came out damaged.");
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   {
     std::basic_string<std::byte> bytes{

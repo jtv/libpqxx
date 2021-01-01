@@ -109,14 +109,6 @@ void test_000()
   strconv("empty stringstream", ss, "");
   ss << -3.1415;
   strconv("stringstream", ss, ss.str());
-
-  std::string const pw{encrypt_password("foo", "bar")};
-  PQXX_CHECK(not std::empty(pw), "Encrypting a password returned no data.");
-  PQXX_CHECK_NOT_EQUAL(
-    pw, encrypt_password("splat", "blub"), "Password encryption is broken.");
-  PQXX_CHECK(
-    pw.find("bar") == std::string::npos,
-    "Encrypted password contains original.");
 }
 
 
