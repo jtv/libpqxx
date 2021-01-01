@@ -1,0 +1,4 @@
+/** Binary Large Objects interface.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "pqxx/blob.hxx"

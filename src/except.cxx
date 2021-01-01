@@ -106,3 +106,8 @@ pqxx::conversion_overrun::conversion_overrun(std::string const &whatarg) :
 pqxx::range_error::range_error(std::string const &whatarg) :
         out_of_range{whatarg}
 {}
+
+
+pqxx::blob_already_exists::blob_already_exists(std::string const &whatarg) :
+        failure{whatarg}
+{}

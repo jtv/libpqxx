@@ -131,18 +131,15 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test18.$(OBJEXT) test20.$(OBJEXT) test21.$(OBJEXT) \
 	test26.$(OBJEXT) test29.$(OBJEXT) test30.$(OBJEXT) \
 	test31.$(OBJEXT) test32.$(OBJEXT) test37.$(OBJEXT) \
-	test39.$(OBJEXT) test46.$(OBJEXT) test48.$(OBJEXT) \
-	test49.$(OBJEXT) test50.$(OBJEXT) test51.$(OBJEXT) \
-	test52.$(OBJEXT) test53.$(OBJEXT) test54.$(OBJEXT) \
-	test55.$(OBJEXT) test56.$(OBJEXT) test57.$(OBJEXT) \
-	test58.$(OBJEXT) test59.$(OBJEXT) test60.$(OBJEXT) \
-	test61.$(OBJEXT) test62.$(OBJEXT) test69.$(OBJEXT) \
-	test70.$(OBJEXT) test71.$(OBJEXT) test72.$(OBJEXT) \
-	test74.$(OBJEXT) test75.$(OBJEXT) test76.$(OBJEXT) \
-	test77.$(OBJEXT) test78.$(OBJEXT) test79.$(OBJEXT) \
-	test82.$(OBJEXT) test84.$(OBJEXT) test87.$(OBJEXT) \
-	test88.$(OBJEXT) test89.$(OBJEXT) test90.$(OBJEXT) \
-	unit/test_array.$(OBJEXT) unit/test_binarystring.$(OBJEXT) \
+	test39.$(OBJEXT) test46.$(OBJEXT) test49.$(OBJEXT) \
+	test56.$(OBJEXT) test60.$(OBJEXT) test61.$(OBJEXT) \
+	test62.$(OBJEXT) test69.$(OBJEXT) test70.$(OBJEXT) \
+	test71.$(OBJEXT) test72.$(OBJEXT) test74.$(OBJEXT) \
+	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
+	test78.$(OBJEXT) test79.$(OBJEXT) test82.$(OBJEXT) \
+	test84.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
+	test89.$(OBJEXT) test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
+	unit/test_binarystring.$(OBJEXT) unit/test_blob.$(OBJEXT) \
 	unit/test_cancel_query.$(OBJEXT) unit/test_column.$(OBJEXT) \
 	unit/test_composite.$(OBJEXT) unit/test_connection.$(OBJEXT) \
 	unit/test_cursor.$(OBJEXT) unit/test_encodings.$(OBJEXT) \
@@ -201,12 +198,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test30.Po ./$(DEPDIR)/test31.Po \
 	./$(DEPDIR)/test32.Po ./$(DEPDIR)/test37.Po \
 	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test46.Po \
-	./$(DEPDIR)/test48.Po ./$(DEPDIR)/test49.Po \
-	./$(DEPDIR)/test50.Po ./$(DEPDIR)/test51.Po \
-	./$(DEPDIR)/test52.Po ./$(DEPDIR)/test53.Po \
-	./$(DEPDIR)/test54.Po ./$(DEPDIR)/test55.Po \
-	./$(DEPDIR)/test56.Po ./$(DEPDIR)/test57.Po \
-	./$(DEPDIR)/test58.Po ./$(DEPDIR)/test59.Po \
+	./$(DEPDIR)/test49.Po ./$(DEPDIR)/test56.Po \
 	./$(DEPDIR)/test60.Po ./$(DEPDIR)/test61.Po \
 	./$(DEPDIR)/test62.Po ./$(DEPDIR)/test69.Po \
 	./$(DEPDIR)/test70.Po ./$(DEPDIR)/test71.Po \
@@ -218,6 +210,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test88.Po ./$(DEPDIR)/test89.Po \
 	./$(DEPDIR)/test90.Po unit/$(DEPDIR)/test_array.Po \
 	unit/$(DEPDIR)/test_binarystring.Po \
+	unit/$(DEPDIR)/test_blob.Po \
 	unit/$(DEPDIR)/test_cancel_query.Po \
 	unit/$(DEPDIR)/test_column.Po unit/$(DEPDIR)/test_composite.Po \
 	unit/$(DEPDIR)/test_connection.Po \
@@ -495,18 +488,8 @@ runner_SOURCES = \
   test37.cxx \
   test39.cxx \
   test46.cxx \
-  test48.cxx \
   test49.cxx \
-  test50.cxx \
-  test51.cxx \
-  test52.cxx \
-  test53.cxx \
-  test54.cxx \
-  test55.cxx \
   test56.cxx \
-  test57.cxx \
-  test58.cxx \
-  test59.cxx \
   test60.cxx \
   test61.cxx \
   test62.cxx \
@@ -528,6 +511,7 @@ runner_SOURCES = \
   test90.cxx \
   unit/test_array.cxx \
   unit/test_binarystring.cxx \
+  unit/test_blob.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
   unit/test_composite.cxx \
@@ -618,6 +602,8 @@ unit/$(DEPDIR)/$(am__dirstamp):
 unit/test_array.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_binarystring.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_blob.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_cancel_query.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
@@ -727,18 +713,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test37.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test39.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test46.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test48.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test49.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test50.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test51.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test52.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test53.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test54.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test55.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test56.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test57.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test58.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test59.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test60.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test61.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test62.Po@am__quote@ # am--include-marker
@@ -760,6 +736,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_array.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_binarystring.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_blob.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_cancel_query.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_composite.Po@am__quote@ # am--include-marker
@@ -1081,18 +1058,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test37.Po
 	-rm -f ./$(DEPDIR)/test39.Po
 	-rm -f ./$(DEPDIR)/test46.Po
-	-rm -f ./$(DEPDIR)/test48.Po
 	-rm -f ./$(DEPDIR)/test49.Po
-	-rm -f ./$(DEPDIR)/test50.Po
-	-rm -f ./$(DEPDIR)/test51.Po
-	-rm -f ./$(DEPDIR)/test52.Po
-	-rm -f ./$(DEPDIR)/test53.Po
-	-rm -f ./$(DEPDIR)/test54.Po
-	-rm -f ./$(DEPDIR)/test55.Po
 	-rm -f ./$(DEPDIR)/test56.Po
-	-rm -f ./$(DEPDIR)/test57.Po
-	-rm -f ./$(DEPDIR)/test58.Po
-	-rm -f ./$(DEPDIR)/test59.Po
 	-rm -f ./$(DEPDIR)/test60.Po
 	-rm -f ./$(DEPDIR)/test61.Po
 	-rm -f ./$(DEPDIR)/test62.Po
@@ -1114,6 +1081,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test90.Po
 	-rm -f unit/$(DEPDIR)/test_array.Po
 	-rm -f unit/$(DEPDIR)/test_binarystring.Po
+	-rm -f unit/$(DEPDIR)/test_blob.Po
 	-rm -f unit/$(DEPDIR)/test_cancel_query.Po
 	-rm -f unit/$(DEPDIR)/test_column.Po
 	-rm -f unit/$(DEPDIR)/test_composite.Po
@@ -1219,18 +1187,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test37.Po
 	-rm -f ./$(DEPDIR)/test39.Po
 	-rm -f ./$(DEPDIR)/test46.Po
-	-rm -f ./$(DEPDIR)/test48.Po
 	-rm -f ./$(DEPDIR)/test49.Po
-	-rm -f ./$(DEPDIR)/test50.Po
-	-rm -f ./$(DEPDIR)/test51.Po
-	-rm -f ./$(DEPDIR)/test52.Po
-	-rm -f ./$(DEPDIR)/test53.Po
-	-rm -f ./$(DEPDIR)/test54.Po
-	-rm -f ./$(DEPDIR)/test55.Po
 	-rm -f ./$(DEPDIR)/test56.Po
-	-rm -f ./$(DEPDIR)/test57.Po
-	-rm -f ./$(DEPDIR)/test58.Po
-	-rm -f ./$(DEPDIR)/test59.Po
 	-rm -f ./$(DEPDIR)/test60.Po
 	-rm -f ./$(DEPDIR)/test61.Po
 	-rm -f ./$(DEPDIR)/test62.Po
@@ -1252,6 +1210,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test90.Po
 	-rm -f unit/$(DEPDIR)/test_array.Po
 	-rm -f unit/$(DEPDIR)/test_binarystring.Po
+	-rm -f unit/$(DEPDIR)/test_blob.Po
 	-rm -f unit/$(DEPDIR)/test_cancel_query.Po
 	-rm -f unit/$(DEPDIR)/test_column.Po
 	-rm -f unit/$(DEPDIR)/test_composite.Po

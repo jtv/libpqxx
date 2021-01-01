@@ -20,6 +20,7 @@ install(
     # TODO: Is there any way to do this with CMake's globbing?
     PATTERN array
     PATTERN binarystring
+    PATTERN blob
     PATTERN compiler-public
     PATTERN composite
     PATTERN connection

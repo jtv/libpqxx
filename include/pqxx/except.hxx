@@ -426,6 +426,11 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
   {}
 };
 
+struct PQXX_LIBEXPORT blob_already_exists : failure
+{
+  explicit blob_already_exists(std::string const &);
+};
+
 /**
  * @}
  */

@@ -5,6 +5,7 @@
 #include <pqxx/strconv>
 
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <exception>
 #include <iomanip>
@@ -12,6 +13,34 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+
+namespace pqxx
+{
+template<> struct nullness<std::byte> : no_null<std::byte>
+{};
+
+template<> struct string_traits<std::byte>
+{
+  static std::size_t size_buffer(std::byte const &) { return 3; }
+
+  static zview to_buf(char *begin, char *end, std::byte const &value)
+  {
+    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
+      throw pqxx::conversion_overrun{
+        "Not enough buffer to convert std::byte."};
+    std::sprintf(
+      begin, "%x", static_cast<unsigned>(static_cast<unsigned char>(value)));
+    return zview{begin, 2u};
+  }
+
+  static char *into_buf(char *begin, char *end, std::byte const &value)
+  {
+    to_buf(begin, end, value).data();
+    return begin + size_buffer(value);
+  }
+};
+} // namespace pqxx
 
 
 class ipv4

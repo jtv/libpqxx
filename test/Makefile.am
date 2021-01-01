@@ -60,18 +60,8 @@ runner_SOURCES = \
   test37.cxx \
   test39.cxx \
   test46.cxx \
-  test48.cxx \
   test49.cxx \
-  test50.cxx \
-  test51.cxx \
-  test52.cxx \
-  test53.cxx \
-  test54.cxx \
-  test55.cxx \
   test56.cxx \
-  test57.cxx \
-  test58.cxx \
-  test59.cxx \
   test60.cxx \
   test61.cxx \
   test62.cxx \
@@ -93,6 +83,7 @@ runner_SOURCES = \
   test90.cxx \
   unit/test_array.cxx \
   unit/test_binarystring.cxx \
+  unit/test_blob.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
   unit/test_composite.cxx \

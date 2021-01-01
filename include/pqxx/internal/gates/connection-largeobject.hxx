@@ -5,14 +5,16 @@
 
 namespace pqxx
 {
+class blob;
 class largeobject;
-}
+} // namespace pqxx
 
 
 namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_largeobject : callgate<connection>
 {
+  friend class pqxx::blob;
   friend class pqxx::largeobject;
 
   connection_largeobject(reference x) : super(x) {}
@@ -23,6 +25,7 @@ class PQXX_PRIVATE connection_largeobject : callgate<connection>
 
 class PQXX_PRIVATE const_connection_largeobject : callgate<connection const>
 {
+  friend class pqxx::blob;
   friend class pqxx::largeobject;
 
   const_connection_largeobject(reference x) : super(x) {}
