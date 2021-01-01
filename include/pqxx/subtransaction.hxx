@@ -66,6 +66,12 @@ namespace pqxx
  * There are no isolation levels inside a transaction.  They are not needed
  * because all actions within the same backend transaction are always performed
  * sequentially anyway.
+ *
+ * @warning While the subtransaction is "live," you cannot execute queries or
+ * open streams etc. on its parent transaction.  A transaction can have at most
+ * one object of a type derived from @c pqxx::internal::transactionfocus active
+ * on it at a time.
+
  */
 class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
                                       public dbtransaction

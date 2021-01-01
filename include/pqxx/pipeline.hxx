@@ -38,6 +38,11 @@ namespace pqxx
  * Generally, if any of the queries fails, it will throw an exception at the
  * point where you request its result.  But it may happen earlier, especially
  * if you request results out of chronological order.
+ *
+ * @warning While a pipeline is active, you cannot execute queries, open
+ * streams, etc. on the same transaction.  A transaction can have at most one
+ * object of a type derived from @c pqxx::internal::transactionfocus active on
+ * it at a time.
  */
 class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 {

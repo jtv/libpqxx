@@ -65,6 +65,11 @@ namespace pqxx
  * It's not as fast and it doesn't support variable arguments: each row must be
  * either a @c std::tuple or something iterable, such as a @c std::vector, or
  * anything else with a @c begin and @c end.
+ *
+ * @warning While a stream is active, you cannot execute queries, open a
+ * pipeline, etc. on the same transaction.  A transaction can have at most one
+ * object of a type derived from @c pqxx::internal::transactionfocus active on
+ * it at a time.
  */
 class PQXX_LIBEXPORT stream_to : internal::transactionfocus
 {

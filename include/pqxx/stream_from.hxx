@@ -57,6 +57,12 @@ constexpr from_query_t from_query;
  *
  * Usually you'll want the @c stream convenience wrapper in transaction_base,
  * so you don't need to deal with this class directly.
+ *
+ * @warning While a stream is active, you cannot execute queries, open a
+ * pipeline, etc. on the same transaction.  A transaction can have at most one
+ * object of a type derived from @c pqxx::internal::transactionfocus active on
+ * it at a time.
+
  */
 class PQXX_LIBEXPORT stream_from : internal::transactionfocus
 {
