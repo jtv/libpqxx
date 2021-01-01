@@ -178,6 +178,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
+  /// Binary-escape and quote a binary string for use as an SQL constant.
   [[nodiscard]] std::string quote_raw(zview bin) const;
 
   /// Escape an SQL identifier for use in a query.
@@ -194,17 +195,28 @@ public:
   }
   //@}
 
-  /// Execute query
-  /** Perform a query in this transaction.
+  /**
+   * @name Command execution
    *
-   * This is one of the most important functions in libpqxx.
+   * There are many functions for executing (or "performing") a command (or
+   * "query").  This is the most fundamental thing you can do with the library,
+   * and you always do it from a transaction class.
    *
-   * Most libpqxx exceptions can be thrown from here, including sql_error,
+   * Command execution can throw many types of exception, including sql_error,
    * broken_connection, and many sql_error subtypes such as
    * feature_not_supported or insufficient_privilege.  But any exception thrown
-   * by the C++ standard library may also occur here.  All exceptions will be
-   * derived from std::exception.
+   * by the C++ standard library may also occur here.  All exceptions you will
+   * see libpqxx are derived from std::exception.
    *
+   * One unusual feature in libpqxx is that you can give your query a name or
+   * description.  This does not mean anything to the database, but sometimes
+   * it can help libpqxx produce more helpful error messages, making problems
+   * in your code easier to debug.
+   */
+  //@{
+
+  /// Execute a command.
+  /** 
    * @param query Query or command to execute.
    * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
@@ -212,13 +224,19 @@ public:
   result
   exec(std::string_view query, std::string_view desc = std::string_view{});
 
+  /// Execute a command.
+  /** 
+   * @param query Query or command to execute.
+   * @param desc Optional identifier for query, to help pinpoint SQL errors.
+   * @return A result set describing the query's or command's result.
+   */
   result exec(
     std::stringstream const &query, std::string_view desc = std::string_view{})
   {
     return exec(query.str(), desc);
   }
 
-  /// Execute query, which should zero rows of data.
+  /// Execute command, which should return zero rows of data.
   /** Works like exec, but fails if the result contains data.  It still returns
    * a result, however, which may contain useful metadata.
    *
@@ -229,7 +247,7 @@ public:
     return exec_n(0, query, desc);
   }
 
-  /// Execute query returning a single row of data.
+  /// Execute command returning a single row of data.
   /** Works like exec, but requires the result to contain exactly one row.
    * The row can be addressed directly, without the need to find the first row
    * in a result set.
@@ -241,7 +259,7 @@ public:
     return exec_n(1, query, desc).front();
   }
 
-  /// Execute query, expect given number of rows.
+  /// Execute command, expect given number of rows.
   /** Works like exec, but checks that the number of rows is exactly what's
    * expected.
    *
@@ -251,7 +269,10 @@ public:
     result::size_type rows, zview query,
     std::string_view desc = std::string_view{});
 
-  /// Execute query, expecting exactly 1 row with 1 field.
+  /// Perform query, expecting exactly 1 row with 1 field, and convert it.
+  /** This is convenience shorthand for querying exactly one value from the
+   * database.  It returns that value, converted to the type you specify.
+   */
   template<typename TYPE>
   TYPE query_value(zview query, std::string_view desc = std::string_view{})
   {

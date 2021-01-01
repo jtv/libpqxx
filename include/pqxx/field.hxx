@@ -35,13 +35,16 @@ class PQXX_LIBEXPORT field
 public:
   using size_type = field_size_type;
 
-  /// Constructor.
+  // TODO: Hide constructors from the public.
+  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
   field(row const &r, row_size_type c) noexcept;
 
+  // TODO: Hide constructors from the public.
+  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
   field() = default;
 
   /**
@@ -89,6 +92,7 @@ public:
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table() const;
 
+  /// Return row number.  The first row is row 0, the second is row 1, etc.
   PQXX_PURE row_size_type num() const { return col(); }
 
   /// What column number in its originating table did this column come from?

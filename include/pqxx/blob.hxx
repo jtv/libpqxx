@@ -61,9 +61,9 @@ public:
    */
   blob() = default;
 
-  /// You can move a blob, but not copy it.  The original is rendered unusable.
+  /// You can move a blob, but not copy it.  The original becomes unusable.
   blob(blob &&);
-  /// You can move a blob, but not copy it.  The original is rendered unusable.
+  /// You can move a blob, but not copy it.  The original becomes unusable.
   blob &operator=(blob &&);
 
   blob(blob const &) = delete;

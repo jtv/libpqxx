@@ -52,10 +52,13 @@ namespace pqxx
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
+  /// Begin transaction.
   explicit dbtransaction(connection &c) : transaction_base{c} {}
+  /// Begin transaction.
   dbtransaction(connection &c, std::string_view tname) :
           transaction_base{c, tname}
   {}
+  /// Begin transaction.
   dbtransaction(
     connection &c, std::string_view tname,
     std::shared_ptr<std::string> rollback_cmd) :

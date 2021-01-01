@@ -61,8 +61,11 @@ public:
    * @param channel Name of the notification to listen for.
    */
   notification_receiver(connection &c, std::string_view channel);
+  /// Register the receiver with a connection.
   notification_receiver(notification_receiver const &) = delete;
+  /// Register the receiver with a connection.
   notification_receiver &operator=(notification_receiver const &) = delete;
+  /// Deregister the receiver.
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.

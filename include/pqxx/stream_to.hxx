@@ -97,7 +97,9 @@ public:
 
   ~stream_to() noexcept;
 
+  /// Does this stream still need to @c complete()?
   [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  /// Has this stream been through its concluding @c complete()?
   [[nodiscard]] bool operator!() const noexcept { return m_finished; }
 
   /// Complete the operation, and check for errors.

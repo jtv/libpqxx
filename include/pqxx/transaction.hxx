@@ -43,7 +43,7 @@ namespace pqxx
  */
 //@{
 
-/// Standard back-end transaction, templatized on isolation level
+/// Standard back-end transaction, templatised on isolation level.
 /** This is the type you'll normally want to use to represent a transaction on
  * the database.
  *
@@ -70,7 +70,7 @@ template<
 class transaction final : public internal::basic_transaction
 {
 public:
-  /// Create a transaction.
+  /// Begin a transaction.
   /**
    * @param c Connection for this transaction to operate on.
    * @param tname Optional name for transaction.  Must begin with a letter and
@@ -81,7 +81,7 @@ public:
             c, internal::begin_cmd<ISOLATION, READWRITE>, tname}
   {}
 
-  /// Create a transaction.
+  /// Begin a transaction.
   /**
    * @param c Connection for this transaction to operate on.
    * @param tname Optional name for transaction.  Must begin with a letter and

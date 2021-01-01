@@ -171,12 +171,14 @@ class PQXX_LIBEXPORT connection
 public:
   connection() : connection{""} {}
 
+  /// Connect to a database, using @c options string.
   explicit connection(char const options[])
   {
     check_version();
     init(options);
   }
 
+  /// Connect to a database, using @c options string.
   explicit connection(zview options) : connection{options.c_str()}
   {
     // (Delegates to other constructor which calls check_version for us.)
@@ -191,7 +193,7 @@ public:
   connection(connection &&rhs);
 
 #if defined(PQXX_HAVE_CONCEPTS)
-  /// Connect, passing options as a range of key/value pairs.
+  /// Connect to a database, passing options as a range of key/value pairs.
   /** @warning Experimental.  Requires C++20 "concepts" support.  Define
    * @c PQXX_HAVE_CONCEPTS to enable it.
    *
@@ -426,8 +428,10 @@ public:
   int await_notification(std::time_t seconds, long microseconds);
   //@}
 
-  /// Encrypt a password for a given user.
-  /** Use this when setting a new password for the user if password encryption
+  /**
+   * @name Password encryption
+   *
+   * Use this when setting a new password for the user if password encryption
    * is enabled.  Inputs are the SQL name for the user for whom you with to
    * encrypt a password; the plaintext password; and the hash algorithm.
    *
@@ -453,20 +457,24 @@ public:
    * different algorithm than md5 will result in a @c feature_not_supported
    * exception.
    */
-  [[nodiscard]] std::string encrypt_password(
-    char const user[], char const password[], char const *algorithm = nullptr);
+  //@{
+  /// Encrypt a password for a given user.
   [[nodiscard]] std::string
   encrypt_password(zview user, zview password, zview algorithm)
   {
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
   }
+  /// Encrypt a password for a given user.
+  [[nodiscard]] std::string encrypt_password(
+    char const user[], char const password[], char const *algorithm = nullptr);
+  //@}
 
   /**
    * @name Prepared statements
    *
-   * PostgreSQL supports prepared SQL statements, i.e. statements that can be
-   * registered under a client-provided name, optimized once by the backend,
-   * and executed any number of times under the given name.
+   * PostgreSQL supports prepared SQL statements, i.e. statements that you can
+   * register under a name you choose, optimized once by the backend, and
+   * executed any number of times under the given name.
    *
    * Prepared statement definitions are not sensitive to transaction
    * boundaries. A statement defined inside a transaction will remain defined
@@ -480,20 +488,14 @@ public:
    * @warning Using prepared statements can save time, but if your statement
    * takes parameters, it may also make your application significantly slower!
    * The reason is that the server works out a plan for executing the query
-   * when you prepare it.  At that time, the values for the parameters are of
-   * course not yet known.  If you execute a query without preparing it, then
-   * the server works out the plan on the spot, with knowledge of the parameter
-   * values.  It can use knowlege about these values for optimisation, and the
-   * prepared version does not have this knowledge.
+   * when you prepare it.  At that time, of course it does not know the values
+   * for the parameters that you will pass.  If you execute a query without
+   * preparing it, then the server works out the plan on the spot, with full
+   * knowledge of the parameter values.
    *
-   * @{
-   */
-
-  /// Define a prepared statement.
-  /**
-   * The statement's definition can refer to a parameter using the parameter's
-   * positional number n in the definition.  For example, the first parameter
-   * can be used as a variable "$1", the second as "$2" and so on.
+   * A statement's definition can refer to its parameters as @c $1, @c $2, etc.
+   * The first parameter you pass to the call provides a value for @c $1, and
+   * so on.
    *
    * Here's an example of how to use prepared statements.
    *
@@ -507,16 +509,24 @@ public:
    *   if (std::empty(r)) throw runtime_error{"mytable not found!"};
    * }
    * @endcode
-   *
+   */
+   //@{
+
+  /// Define a prepared statement.
+  /**
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(char const name[], char const definition[]);
-
   void prepare(zview name, zview definition)
   {
     prepare(name.c_str(), definition.c_str());
   }
+
+  /**
+   * @param name unique name for the new prepared statement.
+   * @param definition SQL statement to prepare.
+   */
+  void prepare(char const name[], char const definition[]);
 
   /// Define a nameless prepared statement.
   /**
@@ -532,9 +542,7 @@ public:
   /// Drop prepared statement.
   void unprepare(std::string_view name);
 
-  /**
-   * @}
-   */
+  //@}
 
   /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
@@ -616,6 +624,7 @@ public:
   [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
   quote(binarystring const &) const;
 
+  /// Escape and quote binary data for use as a BYTEA value in SQL statement.
   [[nodiscard]] std::string
   quote(std::basic_string_view<std::byte> bytes) const;
 

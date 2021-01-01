@@ -47,21 +47,25 @@ namespace pqxx
 class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
 {
 public:
+  /// Identifying numbers for queries.
   using query_id = long;
 
   pipeline(pipeline const &) = delete;
   pipeline &operator=(pipeline const &) = delete;
 
+  /// Start a pipeline.
   explicit pipeline(transaction_base &t) : transactionfocus{t, s_classname}
   {
     init();
   }
+  /// Start a pipeline.  Assign it a name, for more helpful error messages.
   pipeline(transaction_base &t, std::string_view tname) :
           transactionfocus{t, s_classname, tname}
   {
     init();
   }
 
+  /// Close the pipeline.
   ~pipeline() noexcept;
 
   /// Add query to the pipeline.

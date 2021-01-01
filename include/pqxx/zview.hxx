@@ -68,6 +68,15 @@ public:
    */
   constexpr zview(char const str[]) : std::string_view{str} {}
 
+  /// Construct a @c zview from a string literal.
+  /** A C++ string literal ("foo") normally looks a lot like a pointer to
+   * char const, but that's not really true.  It's actually an array of char,
+   * which @e devolves to a pointer when you pass it.
+   *
+   * For the purpose of creating a @c zview there is one big difference: if we 
+   * know the array's size, we don't need to scan through the string in order
+   * to find out its length.
+   */
   template<size_t size>
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}

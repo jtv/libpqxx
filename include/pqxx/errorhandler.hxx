@@ -29,8 +29,8 @@ namespace pqxx
 {
 /**
  * @addtogroup errorhandler
- * @{
  */
+//@{
 
 /// Base class for error-handler callbacks.
 /** To receive errors and warnings from a connection, subclass this with your
@@ -79,14 +79,14 @@ private:
 class quiet_errorhandler : public errorhandler
 {
 public:
+  /// Suppress error notices.
   quiet_errorhandler(connection &conn) : errorhandler{conn} {}
 
+  /// Revert to previous handling of error notices.
   virtual bool operator()(char const[]) noexcept override { return false; }
 };
 
-/**
- * @}
- */
+//@}
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

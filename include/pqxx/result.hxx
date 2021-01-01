@@ -79,20 +79,34 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
+  // TODO: Hide constructors from the public.
+  /// Constructor.  Do not call this; libpqxx will call it for you.
   result() noexcept :
           m_data(make_data_pointer()),
           m_query(),
           m_encoding(internal::encoding_group::MONOBYTE)
   {}
+  // TODO: Hide constructors from the public.
+  /// Constructor.  Do not call this; libpqxx will call it for you.
   result(result const &rhs) noexcept = default;
 
+  /// Assign one result to another.
+  /** Copying results is cheap: it copies only smart pointers, but the actual
+   * data stays in the same place.
+   */
   result &operator=(result const &rhs) noexcept = default;
 
   /**
    * @name Comparisons
+   *
+   * You can compare results for equality.  Beware: this is a very strict,
+   * dumb comparison.  The smallest difference between two results (such as a
+   * string "Foo" versus a string "foo") will make them unequal.
    */
   //@{
+  /// Compare two results for equality.
   [[nodiscard]] bool operator==(result const &) const noexcept;
+  /// Compare two results for inequality.
   [[nodiscard]] bool operator!=(result const &rhs) const noexcept
   {
     return not operator==(rhs);
@@ -125,11 +139,26 @@ public:
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;
   [[nodiscard]] size_type capacity() const noexcept { return size(); }
 
+  /// Exchange two @c result values in an exception-safe manner.
+  /** If the swap fails, the two values will be exactly as they were before.
+   *
+   * The swap is not necessarily thread-safe.
+   */
   void swap(result &) noexcept;
 
+  /// Index a row by number.
   [[nodiscard]] row operator[](size_type i) const noexcept;
+  /// Index a row by number, but check that the row number is valid.
   row at(size_type) const;
 
+  /// Let go of the result's data.
+  /** Use this if you need to deallocate the result data earlier than you can
+   * destroy the @c result object itself.
+   *
+   * Multiple @c result objects can refer to the same set of underlying data.
+   * The underlying data will be deallocated once all @c result objects that
+   * refer to it are cleared or destroyed.
+   */
   void clear() noexcept
   {
     m_data.reset();

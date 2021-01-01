@@ -42,27 +42,32 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
+  /// Create an iterator, but in an unusable state.
   const_result_iterator() noexcept = default;
+  /// Copy an iterator.
   const_result_iterator(const_result_iterator const &) noexcept = default;
+  /// Move an iterator.
   const_result_iterator(const_result_iterator &&) noexcept = default;
+  /// Begin iterating a @c row.
   const_result_iterator(row const &t) noexcept : row{t} {}
 
   /**
    * @name Dereferencing operators
-   */
-  //@{
-  /** The iterator "points to" its own row, which is also itself.  This
-   * allows a result to be addressed as a two-dimensional container without
-   * going through the intermediate step of dereferencing the iterator.  I
-   * hope this works out to be similar to C pointer/array semantics in useful
-   * cases.
+   *
+   * An iterator "points to" its own row, which is also itself.  This makes it
+   * easy to address a @c result as a two-dimensional container, without going
+   * through the intermediate step of dereferencing the iterator.  It makes the
+   * interface similar to C pointer/array semantics.
    *
    * IIRC Alex Stepanov, the inventor of the STL, once remarked that having
    * this as standard behaviour for pointers would be useful in some
    * algorithms.  So even if this makes me look foolish, I would seem to be in
    * distinguished company.
    */
+  //@{
+  /// Dereference the iterator.
   [[nodiscard]] pointer operator->() const { return this; }
+  /// Dereference the iterator.
   [[nodiscard]] reference operator*() const { return row{*this}; }
   //@}
 
@@ -117,6 +122,7 @@ public:
     return *this;
   }
 
+  /// Interchange two iterators in an exception-safe manner.
   void swap(const_result_iterator &other) noexcept { row::swap(other); }
   //@}
 
@@ -183,28 +189,35 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
+  /// Create an iterator, but in an unusable state.
   const_reverse_result_iterator() = default;
+  /// Copy an iterator.
   const_reverse_result_iterator(const_reverse_result_iterator const &rhs) =
     default;
+  /// Copy a reverse iterator from a regular iterator.
   explicit const_reverse_result_iterator(const_result_iterator const &rhs) :
           const_result_iterator{rhs}
   {
     super::operator--();
   }
 
+  /// Move a regular iterator into a reverse iterator.
   explicit const_reverse_result_iterator(const_result_iterator const &&rhs) :
           const_result_iterator{std::move(rhs)}
   {
     super::operator--();
   }
 
+  /// Return the underlying "regular" iterator (as per standard library).
   [[nodiscard]] PQXX_PURE const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators
    */
   //@{
+  /// Dereference iterator.
   using const_result_iterator::operator->;
+  /// Dereference iterator.
   using const_result_iterator::operator*;
   //@}
 

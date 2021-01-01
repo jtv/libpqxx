@@ -127,7 +127,9 @@ public:
 
   ~stream_from() noexcept;
 
+  /// May this stream still produce more data?
   [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  /// Has this stream produced all the data it is going to produce?
   [[nodiscard]] bool operator!() const noexcept { return m_finished; }
 
   /// Finish this stream.  Call this before continuing to use the connection.

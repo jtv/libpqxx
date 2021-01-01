@@ -107,8 +107,30 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 /// Nullness traits describing a type which does not have a null value.
 template<typename TYPE> struct no_null
 {
+  /// Does @c TYPE have a "built-in null value"?
+  /** For example, a pointer can equal @c nullptr, which makes a very natural
+   * representation of an SQL null value.  For such types, the code sometimes
+   * needs to make special allowances.
+   *
+   * for most types, such as @c int or @c std::string, there is no built-in
+   * null.  If you want to represent an SQL null value for such a type, you
+   * would have to wrap it in something that does have a null value.  For
+   * example, you could use @c std::optional<int> for "either an @c int or a
+   * null value."
+   */
   static constexpr bool has_null = false;
+
+  /// Are all values of this type null?
+  /** There are a few special C++ types which are always null - mainly
+   * @c std::nullptr_t.
+   */
   static constexpr bool always_null = false;
+
+  /// Does a given value correspond to an SQL null value?
+  /** Most C++ types, such as @c int or @c std::string, have no inherent null
+   * value.  But some types such as C-style string pointers do have a natural
+   * equivalent to an SQL null.
+   */
   [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
   {
     return false;

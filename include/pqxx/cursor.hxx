@@ -173,6 +173,7 @@ public:
     m_cur.move(cursor_base::backward_all());
   }
 
+  /// Close this cursor.  The destructor will do this automatically.
   void close() noexcept { m_cur.close(); }
 
   /// Number of rows in cursor's result set
@@ -202,6 +203,7 @@ public:
       m_cur, result::difference_type(size()), begin_pos, end_pos);
   }
 
+  /// Return this cursor's name.
   [[nodiscard]] std::string const &name() const noexcept
   {
     return m_cur.name();
@@ -292,6 +294,7 @@ public:
     transaction_base &context, field const &cname, difference_type sstride = 1,
     cursor_base::ownership_policy op = cursor_base::owned);
 
+  /// Return @c true if this stream may still return more data.
   operator bool() const noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator >>
