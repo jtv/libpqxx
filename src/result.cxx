@@ -266,10 +266,14 @@ void pqxx::result::throw_sql_error(
   throw sql_error{Err, Query, code};
 }
 
-void pqxx::result::check_status() const
+void pqxx::result::check_status(std::string_view desc) const
 {
-  if (auto const err{status_error()}; not std::empty(err))
+  if (auto err{status_error()}; not std::empty(err))
+  {
+    if (not std::empty(desc))
+      err = pqxx::internal::concat("Failure during '", desc, "': ", err);
     throw_sql_error(err, query());
+  }
 }
 
 

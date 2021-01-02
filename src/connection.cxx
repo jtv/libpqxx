@@ -186,7 +186,8 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 
 pqxx::result pqxx::connection::make_result(
-  internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query)
+  internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
+  std::string_view desc)
 {
   if (pgr == nullptr)
   {
@@ -197,7 +198,7 @@ pqxx::result pqxx::connection::make_result(
   }
   auto const r{pqxx::internal::gate::result_creation::create(
     pgr, query, internal::enc_group(encoding_id()))};
-  pqxx::internal::gate::result_creation{r}.check_status();
+  pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
 
@@ -360,7 +361,7 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
     // Not listening on this event yet, start doing so.
     auto const lq{std::make_shared<std::string>(
       internal::concat("LISTEN ", quote_name(n->channel())))};
-    make_result(PQexec(m_conn, lq->c_str()), lq);
+    make_result(PQexec(m_conn, lq->c_str()), lq, *lq);
     m_receivers.insert(new_value);
   }
   else
@@ -570,15 +571,17 @@ std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 }
 
 
-pqxx::result pqxx::connection::exec(std::string_view query)
+pqxx::result
+pqxx::connection::exec(std::string_view query, std::string_view desc)
 {
-  return exec(std::make_shared<std::string>(query));
+  return exec(std::make_shared<std::string>(query), desc);
 }
 
 
-pqxx::result pqxx::connection::exec(std::shared_ptr<std::string> query)
+pqxx::result pqxx::connection::exec(
+  std::shared_ptr<std::string> query, std::string_view desc)
 {
-  auto const res{make_result(PQexec(m_conn, query->c_str()), query)};
+  auto const res{make_result(PQexec(m_conn, query->c_str()), query, desc)};
   get_notifs();
   return res;
 }
@@ -611,10 +614,11 @@ std::string pqxx::connection::encrypt_password(
 void pqxx::connection::prepare(char const name[], char const definition[])
 {
   // Allocate once, re-use across invocations.
-  static auto const q{std::make_shared<std::string>("[PREPARE]")};
+  static auto const q{std::make_shared<std::string>(
+    pqxx::internal::concat("[PREPARE ", name, "]"))};
 
   auto const r{
-    make_result(PQprepare(m_conn, name, definition, 0, nullptr), q)};
+    make_result(PQprepare(m_conn, name, definition, 0, nullptr), q, *q)};
 }
 
 
@@ -639,7 +643,7 @@ pqxx::result pqxx::connection::exec_prepared(
     m_conn, q->c_str(),
     check_cast<int>(std::size(args.nonnulls), "exec_prepared"sv),
     pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
-  auto const r{make_result(pq_result, q)};
+  auto const r{make_result(pq_result, q, statement)};
   get_notifs();
   return r;
 }
@@ -737,7 +741,7 @@ pqxx::connection::read_copy_line()
       internal::concat("Reading of table data failed: ", err_msg())};
 
   case -1: // End of COPY.
-    make_result(PQgetResult(m_conn), q);
+    make_result(PQgetResult(m_conn), q, *q);
     return raw_line{};
 
   case 0: // "Come back later."
@@ -783,7 +787,7 @@ void pqxx::connection::end_copy_write()
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};
-  make_result(PQgetResult(m_conn), q);
+  make_result(PQgetResult(m_conn), q, *q);
 }
 
 

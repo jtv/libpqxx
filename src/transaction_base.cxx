@@ -237,8 +237,10 @@ class PQXX_PRIVATE command : pqxx::internal::transactionfocus
 {
 public:
   command(pqxx::transaction_base &tx, std::string_view oname) :
-    transactionfocus{tx, "command"sv, oname}
-  { register_me(); }
+          transactionfocus{tx, "command"sv, oname}
+  {
+    register_me();
+  }
 
   ~command() { unregister_me(); }
 };
@@ -257,20 +259,19 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 
   case status::committed:
   case status::aborted:
-  case status::in_doubt:
-  {
+  case status::in_doubt: {
     std::string const n{
       std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
 
     throw usage_error{internal::concat(
-      "Could not execute query ", n, ": transaction is already closed.")};
+      "Could not execute command ", n, ": transaction is already closed.")};
   }
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
 
   // TODO: Pass desc to direct_exec(), and from there on down.
-  return direct_exec(query);
+  return direct_exec(query, desc);
 }
 
 
@@ -437,18 +438,19 @@ void pqxx::transaction_base::unregister_focus(
 }
 
 
-pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
+pqxx::result pqxx::transaction_base::direct_exec(
+  std::string_view cmd, std::string_view desc)
 {
   check_pending_error();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(cmd, desc);
 }
 
 
-pqxx::result
-pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
+pqxx::result pqxx::transaction_base::direct_exec(
+  std::shared_ptr<std::string> cmd, std::string_view desc)
 {
   check_pending_error();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(cmd, desc);
 }
 
 

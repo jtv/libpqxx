@@ -543,8 +543,9 @@ protected:
   }
 
   /// Execute query on connection directly.
-  result direct_exec(std::string_view);
-  result direct_exec(std::shared_ptr<std::string>);
+  result direct_exec(std::string_view, std::string_view desc = ""sv);
+  result
+  direct_exec(std::shared_ptr<std::string>, std::string_view desc = ""sv);
 
 private:
   enum class status

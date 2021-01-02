@@ -260,7 +260,7 @@ private:
     internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
     internal::encoding_group enc);
 
-  PQXX_PRIVATE void check_status() const;
+  PQXX_PRIVATE void check_status(std::string_view desc = ""sv) const;
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;

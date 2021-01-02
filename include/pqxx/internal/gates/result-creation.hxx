@@ -16,6 +16,9 @@ class PQXX_PRIVATE result_creation : callgate<result const>
     return result(rhs, query, enc);
   }
 
-  void check_status() const { return home().check_status(); }
+  void check_status(std::string_view desc = ""sv) const
+  {
+    return home().check_status(desc);
+  }
 };
 } // namespace pqxx::internal::gate

@@ -716,7 +716,8 @@ private:
   void wait_read(std::time_t seconds, long microseconds) const;
 
   result make_result(
-    internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query);
+    internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
+    std::string_view desc = ""sv);
 
   void PQXX_PRIVATE set_up_state();
 
@@ -746,8 +747,9 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result PQXX_PRIVATE exec(std::string_view);
-  result PQXX_PRIVATE exec(std::shared_ptr<std::string>);
+  result PQXX_PRIVATE exec(std::string_view, std::string_view = ""sv);
+  result
+    PQXX_PRIVATE exec(std::shared_ptr<std::string>, std::string_view = ""sv);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 

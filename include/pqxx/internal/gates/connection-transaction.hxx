@@ -13,9 +13,9 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   connection_transaction(reference x) : super(x) {}
 
-  template<typename STRING> result exec(STRING query)
+  template<typename STRING> result exec(STRING query, std::string_view desc)
   {
-    return home().exec(query);
+    return home().exec(query, desc);
   }
 
   void register_transaction(transaction_base *t)
