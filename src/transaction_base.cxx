@@ -227,19 +227,29 @@ std::string pqxx::transaction_base::quote_raw(zview bin) const
 }
 
 
+namespace
+{
+/// Guard command execution against clashes with pipelines and such.
+/** A transaction can have only one focus at a time.  Command execution is the
+ * most basic example of a transaction focus.
+ */
+class PQXX_PRIVATE command : pqxx::internal::transactionfocus
+{
+public:
+  command(pqxx::transaction_base &tx, std::string_view oname) :
+    transactionfocus{tx, "command"sv, oname}
+  { register_me(); }
+
+  ~command() { unregister_me(); }
+};
+} // namespace
+
 pqxx::result
 pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
 
-  std::string const n{
-    std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
-
-  if (m_focus != nullptr)
-    throw usage_error{internal::concat(
-      "Attempt to execute query ", n, "on ", description(), " with ",
-      m_focus->description(), " still open.")};
-
+  command{*this, desc};
 
   switch (m_status)
   {
@@ -248,8 +258,13 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
   case status::committed:
   case status::aborted:
   case status::in_doubt:
+  {
+    std::string const n{
+      std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
+
     throw usage_error{internal::concat(
       "Could not execute query ", n, ": transaction is already closed.")};
+  }
 
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
@@ -422,26 +437,9 @@ void pqxx::transaction_base::unregister_focus(
 }
 
 
-namespace
-{
-/// SQL statement.  This is purely internal; users don't need to care.
-/** This is here only as an easy way to check against SQL statements being
- * issued when a pipeline or similar is active.
- */
-class PQXX_PRIVATE statement : public pqxx::internal::transactionfocus
-{
-public:
-  statement(pqxx::transaction_base &t, std::string_view query) :
-          transactionfocus{t, "statement"sv, query}
-  {}
-};
-} // namespace
-
-
 pqxx::result pqxx::transaction_base::direct_exec(std::string_view c)
 {
   check_pending_error();
-  statement stat{*this, c};
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
@@ -450,7 +448,6 @@ pqxx::result
 pqxx::transaction_base::direct_exec(std::shared_ptr<std::string> c)
 {
   check_pending_error();
-  statement stat{*this, *c};
   return pqxx::internal::gate::connection_transaction{conn()}.exec(c);
 }
 
