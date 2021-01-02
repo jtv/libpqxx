@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/zview instead.
  *
- * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2021, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -73,7 +73,7 @@ public:
    * char const, but that's not really true.  It's actually an array of char,
    * which @e devolves to a pointer when you pass it.
    *
-   * For the purpose of creating a @c zview there is one big difference: if we 
+   * For the purpose of creating a @c zview there is one big difference: if we
    * know the array's size, we don't need to scan through the string in order
    * to find out its length.
    */

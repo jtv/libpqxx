@@ -16,5 +16,9 @@ add_test(
 )
 
 if(INSTALL_TEST)
-	install(PROGRAMS runner TYPE BIN RENAME libpqxx-test-runner)
+    install(
+        PROGRAMS runner
+        TYPE BIN
+        RENAME libpqxx-test-runner
+    )
 endif()
