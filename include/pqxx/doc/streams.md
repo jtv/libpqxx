@@ -23,7 +23,7 @@ types may have a built-in null value.  For instance, if you have a
 `char const *` value and you convert it to an SQL string, then converting a
 `nullptr` will produce a NULL SQL value.
 
-So what do you do about C++ types which don't have a built-in null value, such
+But what do you do about C++ types which don't have a built-in null value, such
 as `int`?  The trick is to wrap it in `std::optional`.  The difference between
 `int` and `std::optional<int>` is that the former always has an `int` value,
 and the latter doesn't have to.
