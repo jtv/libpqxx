@@ -18,6 +18,6 @@
 
 #endif // __GNUC__
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4996)
+#  pragma warning(push)
+#  pragma warning(disable : 4996)
 #endif

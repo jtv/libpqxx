@@ -52,9 +52,8 @@ And, you can start processing before you've received all the data.
 Every row is converted to a tuple type of your choice as you read it.  You
 stream into the tuple:
 
-    pqxx::stream_from stream{
-        tx, pqxx::from_query,
-        "SELECT name, points FROM score"};
+    auto stream pqxx::stream_from::query(
+        tx, "SELECT name, points FROM score");
     std::tuple<std::string, int> row;
     while (stream >> row)
       process(row);

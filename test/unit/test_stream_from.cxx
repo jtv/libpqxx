@@ -19,8 +19,8 @@ namespace
 void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_from extractor{
-    tx, pqxx::from_query, "SELECT * FROM stream_from_test ORDER BY number0"};
+  auto extractor{pqxx::stream_from::query(
+    tx, "SELECT * FROM stream_from_test ORDER BY number0")};
   PQXX_CHECK(extractor, "stream_from failed to initialize.");
 
   std::tuple<int, std::string, int, ipv4, std::string, bytea> got_tuple;
@@ -80,7 +80,7 @@ void test_nonoptionals(pqxx::connection &connection)
   PQXX_CHECK(not extractor, "Stream did not end.");
 
   // Of course we can't stream a non-null value into a nullptr field.
-  pqxx::stream_from ex2{tx, pqxx::from_query, "SELECT 1"};
+  auto ex2{pqxx::stream_from::query(tx, "SELECT 1")};
   std::tuple<std::nullptr_t> null_tup;
   try
   {
@@ -159,8 +159,8 @@ template<template<typename...> class O>
 void test_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_from extractor{
-    tx, pqxx::from_query, "SELECT * FROM stream_from_test ORDER BY number0"};
+  auto extractor{pqxx::stream_from::query(
+    tx, "SELECT * FROM stream_from_test ORDER BY number0")};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<int, O<std::string>, O<int>, O<ipv4>, O<std::string>, O<bytea>>
