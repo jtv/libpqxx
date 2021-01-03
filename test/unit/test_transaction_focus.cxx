@@ -7,7 +7,8 @@ namespace
 {
 auto make_focus(pqxx::dbtransaction &tx)
 {
-  return pqxx::stream_from{tx, pqxx::from_query, "SELECT * from generate_series(1, 10)"};
+  return pqxx::stream_from{
+    tx, pqxx::from_query, "SELECT * from generate_series(1, 10)"};
 }
 
 
