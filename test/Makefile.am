@@ -117,6 +117,7 @@ runner_SOURCES = \
   unit/test_thread_safety_model.cxx \
   unit/test_transaction.cxx \
   unit/test_transaction_base.cxx \
+  unit/test_transaction_focus.cxx \
   unit/test_transactor.cxx \
   unit/test_type_name.cxx \
   unit/test_zview.cxx \

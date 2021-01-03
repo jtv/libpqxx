@@ -251,7 +251,7 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
 
-  command{*this, desc};
+  command cmd{*this, desc};
 
   switch (m_status)
   {
@@ -319,6 +319,7 @@ void pqxx::transaction_base::check_rowcount_params(
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
   zview statement, internal::params const &args)
 {
+  command cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
     statement, args);
 }
@@ -327,6 +328,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 pqxx::result pqxx::transaction_base::internal_exec_params(
   zview query, internal::params const &args)
 {
+  command cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
     query, args);
 }

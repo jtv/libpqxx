@@ -70,6 +70,7 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
 
+  // TODO: Change to "named constructor" style.
   /// Execute query, and stream over the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.
