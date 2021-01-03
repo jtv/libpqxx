@@ -6,6 +6,8 @@
  - More deprecated items now have the `[[deprecated]]` attribute.
  - Document the concept of transaction focus.
  - Error messages more often report query description, if given.
+ - Suppress spurious deprecation messages on Visual Studio. (#402)
+ - Correct error when prepared/param statement clashes with tx focus. (#401)
 7.3.0
  - `stream_to` now quotes and escapes its table name.
  - Removed `transaction_base::classname()`.  Did anyone ever use it?
