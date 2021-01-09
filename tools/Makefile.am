@@ -1,7 +1,6 @@
 EXTRA_DIST = \
 	extract_version \
 	lint \
-	release \
 	rmlo.cxx \
 	splitconfig \
 	template2mak.py \

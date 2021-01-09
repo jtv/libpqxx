@@ -9,6 +9,7 @@
  - Suppress spurious deprecation messages on Visual Studio. (#402)
  - Correct error when prepared/param statement clashes with tx focus. (#401)
  - `from_stream` with `from_query` now has a convenient factory function.
+ - Removed some obsolete scripts from the `tools/` directory.
 7.3.0
  - `stream_to` now quotes and escapes its table name.
  - Removed `transaction_base::classname()`.  Did anyone ever use it?
