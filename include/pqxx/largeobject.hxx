@@ -36,19 +36,19 @@ public:
 
   /// Refer to a nonexistent large object (similar to what a null pointer
   /// does).
-  [[deprecated("Use blob instead.")]] largeobject() noexcept = default;
+  PQXX_DEPRECATED("Use blob instead.") largeobject() noexcept = default;
 
   /// Create new large object.
   /** @param t Backend transaction in which the object is to be created.
    */
-  [[deprecated("Use blob instead.")]] explicit largeobject(dbtransaction &t);
+  PQXX_DEPRECATED("Use blob instead.") explicit largeobject(dbtransaction &t);
 
   /// Wrap object with given oid.
   /** Convert combination of a transaction and object identifier into a
    * large object identity.  Does not affect the database.
    * @param o Object identifier for the given object.
    */
-  [[deprecated("Use blob instead.")]] explicit largeobject(oid o) noexcept :
+  PQXX_DEPRECATED("Use blob instead.") explicit largeobject(oid o) noexcept :
           m_id{o}
   {}
 
@@ -57,7 +57,7 @@ public:
    * @param t Backend transaction in which the large object is to be created.
    * @param file A filename on the client program's filesystem.
    */
-  [[deprecated("Use blob instead.")]] largeobject(
+  PQXX_DEPRECATED("Use blob instead.") largeobject(
     dbtransaction &t, std::string_view file);
 
   /// Take identity of an opened large object.
@@ -65,7 +65,7 @@ public:
    * as an implicit conversion.
    * @param o Already opened large object to copy identity from.
    */
-  [[deprecated("Use blob instead.")]] largeobject(
+  PQXX_DEPRECATED("Use blob instead.") largeobject(
     largeobjectaccess const &o) noexcept;
 
   /// Object identifier.
@@ -179,7 +179,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  [[deprecated("Use blob instead.")]] explicit largeobjectaccess(
+  PQXX_DEPRECATED("Use blob instead.") explicit largeobjectaccess(
     dbtransaction &t, openmode mode = default_mode);
 
   /// Open large object with given oid.
@@ -190,7 +190,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  [[deprecated("Use blob instead.")]] largeobjectaccess(
+  PQXX_DEPRECATED("Use blob instead.") largeobjectaccess(
     dbtransaction &t, oid o, openmode mode = default_mode);
 
   /// Open given large object.
@@ -200,7 +200,7 @@ public:
    * @param mode Access mode, defaults to ios_base::in | ios_base::out |
    * ios_base::binary.
    */
-  [[deprecated("Use blob instead.")]] largeobjectaccess(
+  PQXX_DEPRECATED("Use blob instead.") largeobjectaccess(
     dbtransaction &t, largeobject o, openmode mode = default_mode);
 
   /// Import large object from a local file and open it.
@@ -209,7 +209,7 @@ public:
    * @param file A filename on the client program's filesystem.
    * @param mode Access mode, defaults to ios_base::in | ios_base::out.
    */
-  [[deprecated("Use blob instead.")]] largeobjectaccess(
+  PQXX_DEPRECATED("Use blob instead.") largeobjectaccess(
     dbtransaction &t, std::string_view file, openmode mode = default_mode);
 
   ~largeobjectaccess() noexcept { close(); }
@@ -386,7 +386,7 @@ public:
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
-  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+  PQXX_DEPRECATED("Use blob instead.") largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
           m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
@@ -394,7 +394,7 @@ public:
     initialize(mode);
   }
 
-  [[deprecated("Use blob instead.")]] largeobject_streambuf(
+  PQXX_DEPRECATED("Use blob instead.") largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
     size_type buf_size = 512) :
           m_bufsize{buf_size}, m_obj{t, o, mode}, m_g{nullptr}, m_p{nullptr}
@@ -556,7 +556,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_ilostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_ilostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::in | std::ios::binary, buf_size}
@@ -570,7 +570,7 @@ public:
    * @param o Identifier of a large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_ilostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_ilostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::in | std::ios::binary, buf_size}
@@ -612,7 +612,7 @@ public:
    * @param o a large object to access.
    * @param buf_size size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_olostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_olostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::out | std::ios::binary, buf_size}
@@ -626,7 +626,7 @@ public:
    * @param o a large object to access.
    * @param buf_size size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_olostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_olostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{t, o, std::ios::out | std::ios::binary, buf_size}
@@ -682,7 +682,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_lostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_lostream(
     dbtransaction &t, largeobject o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{
@@ -697,7 +697,7 @@ public:
    * @param o Large object to access.
    * @param buf_size Size of buffer to use internally (optional).
    */
-  [[deprecated("Use blob instead.")]] basic_lostream(
+  PQXX_DEPRECATED("Use blob instead.") basic_lostream(
     dbtransaction &t, oid o, largeobject::size_type buf_size = 512) :
           super{nullptr},
           m_buf{

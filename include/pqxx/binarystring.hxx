@@ -65,7 +65,7 @@ public:
   using const_iterator = const_pointer;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  [[deprecated("Use std::byte for binary data.")]] binarystring(
+  PQXX_DEPRECATED("Use std::byte for binary data.") binarystring(
     binarystring const &) = default;
 
   /// Read and unescape bytea field.
@@ -73,22 +73,22 @@ public:
    * isn't.
    * @param F the field to read; must be a bytea field
    */
-  [[deprecated("Use std::byte for binary data.")]] explicit binarystring(
+  PQXX_DEPRECATED("Use std::byte for binary data.") explicit binarystring(
     field const &);
 
   /// Copy binary data from std::string_view on binary data.
   /** This is inefficient in that it copies the data to a buffer allocated on
    * the heap.
    */
-  [[deprecated("Use std::byte for binary data.")]] explicit binarystring(
+  PQXX_DEPRECATED("Use std::byte for binary data.") explicit binarystring(
     std::string_view);
 
   /// Copy binary data of given length straight out of memory.
-  [[deprecated("Use std::byte for binary data.")]] binarystring(
+  PQXX_DEPRECATED("Use std::byte for binary data.") binarystring(
     void const *, std::size_t);
 
   /// Efficiently wrap a buffer of binary data in a @c binarystring.
-  [[deprecated("Use std::byte for binary data.")]] binarystring(
+  PQXX_DEPRECATED("Use std::byte for binary data.") binarystring(
     std::shared_ptr<value_type> ptr, size_type size) :
           m_buf{std::move(ptr)}, m_size{size}
   {}

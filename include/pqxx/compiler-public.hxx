@@ -43,6 +43,11 @@
 // Workarounds for Microsoft Visual C++
 #  ifdef _MSC_VER
 
+// Workarounds for deprecated attribute syntax error in Visual Studio 2017.
+#    if _MSC_VER < 1920
+#      define PQXX_DEPRECATED(MESSAGE) __declspec(deprecated( #MESSAGE ))
+#    endif
+
 // Suppress vtables on abstract classes.
 #    define PQXX_NOVTABLE __declspec(novtable)
 
@@ -110,6 +115,10 @@
 
 #ifndef PQXX_NOVTABLE
 #  define PQXX_NOVTABLE
+#endif
+
+#ifndef PQXX_DEPRECATED
+#  define PQXX_DEPRECATED(MESSAGE) [[deprecated( #MESSAGE )]]
 #endif
 
 #endif
