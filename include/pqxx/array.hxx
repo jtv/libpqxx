@@ -79,7 +79,7 @@ private:
   internal::glyph_scanner_func *const m_scan;
 
   /// Current parsing position in the input.
-  std::string::size_type m_pos;
+  std::string::size_type m_pos = 0u;
 
   std::string::size_type scan_single_quoted_string() const;
   std::string parse_single_quoted_string(std::string::size_type end) const;
