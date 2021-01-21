@@ -1,6 +1,8 @@
 7.3.2
  - Work around Visual Studio 2017 bug with `[[deprecated]]`.  (#405, #406)
  - Work around eternal Windows bug with `max` macro yet again.  (#101)
+ - Prepare for C++20 `std::ssize()`.
+ - Dropped test12, which didn't add much and tried to read null strings.
 7.3.1
  - New, simpler API for large objects: `blob` ("binary large object").
  - `largeobject` and friends are now deprecated.

@@ -44,7 +44,6 @@ runner_SOURCES = \
   test07.cxx \
   test10.cxx \
   test11.cxx \
-  test12.cxx \
   test13.cxx \
   test14.cxx \
   test16.cxx \

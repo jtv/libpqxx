@@ -26,6 +26,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
+#include <version>
 
 #include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
@@ -302,6 +303,18 @@ unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 
 /// Reconstitute binary data from its escaped version.
 std::string PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
+
+
+/// Transitional: std::ssize(), or custom implementation if not available.
+template<typename T> auto ssize(T const &c)
+{
+#if defined(__cpp_lib_ssize) && __cplusplus >= __cpp_lib_ssize
+  return std::ssize(c);
+#else
+  using signed_t = std::make_signed_t<decltype(std::size(c))>;
+  return static_cast<signed_t>(std::size(c));
+#endif // __cpp_lib_ssize
+}
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

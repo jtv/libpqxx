@@ -760,8 +760,8 @@ pqxx::connection::read_copy_line()
 void pqxx::connection::write_copy_line(std::string_view line)
 {
   static std::string const err_prefix{"Error writing to table: "};
-  // TODO: Use C++20's ssize().
-  auto const size{check_cast<int>(std::size(line), "write_copy_line()"sv)};
+  auto const size{check_cast<int>(
+    internal::ssize(line), "Line in stream_to is too long to process."sv)};
   if (PQputCopyData(m_conn, line.data(), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)

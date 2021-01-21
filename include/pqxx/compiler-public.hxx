@@ -45,7 +45,7 @@
 
 // Workarounds for deprecated attribute syntax error in Visual Studio 2017.
 #    if _MSC_VER < 1920
-#      define PQXX_DEPRECATED(MESSAGE) __declspec(deprecated( #MESSAGE ))
+#      define PQXX_DEPRECATED(MESSAGE) __declspec(deprecated(#      MESSAGE))
 #    endif
 
 // Suppress vtables on abstract classes.
@@ -118,7 +118,7 @@
 #endif
 
 #ifndef PQXX_DEPRECATED
-#  define PQXX_DEPRECATED(MESSAGE) [[deprecated( #MESSAGE )]]
+#  define PQXX_DEPRECATED(MESSAGE) [[deprecated(#  MESSAGE)]]
 #endif
 
 #endif

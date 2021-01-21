@@ -174,8 +174,7 @@ private:
   /// Add a non-null string field.
   void add_field(std::string_view text)
   {
-    // TODO: Use C++20's std::ssize().
-    lengths.push_back(check_cast<int>(std::size(text), s_overflow));
+    lengths.push_back(check_cast<int>(internal::ssize(text), s_overflow));
     nonnulls.push_back(1);
     binaries.push_back(0);
     strings.emplace_back(std::string{text});
@@ -184,8 +183,7 @@ private:
   /// Add a non-null string field.
   void add_field(std::string &&text)
   {
-    // TODO: Use C++20's std::ssize().
-    lengths.push_back(check_cast<int>(std::size(text), s_overflow));
+    lengths.push_back(check_cast<int>(internal::ssize(text), s_overflow));
     nonnulls.push_back(1);
     binaries.push_back(0);
     strings.emplace_back(std::move(text));
@@ -202,7 +200,7 @@ private:
   /// Compile one argument (specialised for binarystring).
   void add_field(binarystring const &arg)
   {
-    lengths.push_back(check_cast<int>(std::size(arg), s_overflow));
+    lengths.push_back(check_cast<int>(internal::ssize(arg), s_overflow));
     nonnulls.push_back(1);
     binaries.push_back(1);
     bin_strings.push_back(std::basic_string_view<std::byte>{
@@ -212,8 +210,7 @@ private:
   /// Compile one binary argument.
   void add_field(std::basic_string_view<std::byte> arg)
   {
-    // TODO: Use C++20's std::ssize().
-    lengths.push_back(check_cast<int>(std::size(arg), s_overflow));
+    lengths.push_back(check_cast<int>(internal::ssize(arg), s_overflow));
     nonnulls.push_back(1);
     binaries.push_back(1);
     bin_strings.push_back(arg);

@@ -162,8 +162,8 @@ template<typename T> struct float_traits
            std::numeric_limits<T>::max_digits10 + // Mantissa digits.
            1 +                                    // Exponent "e".
            1 +                                    // Exponent sign.
-	   // Spell this weirdly to stop Windows compilers from reading this as
-	   // a call to their "max" macro when NOMINMAX is not defined.
+           // Spell this weirdly to stop Windows compilers from reading this as
+           // a call to their "max" macro when NOMINMAX is not defined.
            (std::max)(max_pos_exp, max_neg_exp) + // Exponent digits.
            1;                                     // Terminating zero.
 
