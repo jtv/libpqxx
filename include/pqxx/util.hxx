@@ -26,7 +26,10 @@
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
+
+#if __has_include(<version>)
 #include <version>
+#endif
 
 #include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
