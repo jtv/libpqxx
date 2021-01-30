@@ -45,6 +45,11 @@ namespace pqxx
  * stream's @c complete() to tell it to finalise the operation, wait for
  * completion, and check for errors.
  *
+ * (You @i must complete the stream before committing or aborting the
+ * transaction.  The connection is in a special state while the stream is
+ * active, where it can't process commands, and can't commit or abort a
+ * transaction.)
+ *
  * So how do you feed a row of data into the stream?  There's several ways, but
  * the preferred one is to call its @c write_values.  Pass the field values as
  * arguments.  Doesn't matter what type they are, as long as libpqxx knows how
