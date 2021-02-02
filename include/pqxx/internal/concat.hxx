@@ -16,6 +16,7 @@ void render_item(TYPE const &item, char *&here, char *end)
 }
 
 
+// TODO: In C++20, support non-random_access_range ranges.
 /// Efficiently combine a bunch of items into one big string.
 /** Use this as an optimised version of string concatentation.  It takes just
  * about any type; it will represent each item as a string according to its
