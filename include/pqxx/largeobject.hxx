@@ -49,8 +49,7 @@ public:
    * @param o Object identifier for the given object.
    */
   PQXX_DEPRECATED("Use blob instead.")
-  explicit largeobject(oid o) noexcept : m_id{o}
-  {}
+  explicit largeobject(oid o) noexcept : m_id{o} {}
 
   /// Import large object from a local file.
   /** Creates a large object containing the data found in the given file.
