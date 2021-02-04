@@ -3,6 +3,7 @@
  - Work around eternal Windows bug with `max` macro yet again.  (#101)
  - Prepare for C++20 `std::ssize()`.
  - Dropped test12, which didn't add much and tried to read null strings.
+ - Support string conversion for `std::monostate`.  (#409)
 7.3.1
  - New, simpler API for large objects: `blob` ("binary large object").
  - `largeobject` and friends are now deprecated.

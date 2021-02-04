@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <variant>
 
 #include <pqxx/connection>
 #include <pqxx/transaction>
@@ -162,6 +163,9 @@ void test_convert_null()
   PQXX_CHECK_EQUAL(
     tx.quote(std::nullopt), "NULL",
     "std::nullopt did not come out as SQL 'null'.");
+  PQXX_CHECK_EQUAL(
+    tx.quote(std::monostate{}), "NULL",
+    "std::monostate did not come out as SQL 'null'.");
 }
 
 

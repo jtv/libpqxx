@@ -382,6 +382,42 @@ template<> struct string_traits<std::nullptr_t>
 };
 
 
+template<> struct string_traits<std::nullopt_t>
+{
+  static char *into_buf(char *, char *, std::nullopt_t) = delete;
+
+  static constexpr zview
+  to_buf(char *, char *, std::nullopt_t const &) noexcept
+  {
+    return zview{};
+  }
+
+  static constexpr std::size_t size_buffer(std::nullopt_t) noexcept
+  {
+    return 0;
+  }
+  static std::nullopt_t from_string(std::string_view) = delete;
+};
+
+
+template<> struct string_traits<std::monostate>
+{
+  static char *into_buf(char *, char *, std::monostate) = delete;
+
+  static constexpr zview
+  to_buf(char *, char *, std::monostate const &) noexcept
+  {
+    return zview{};
+  }
+
+  static constexpr std::size_t size_buffer(std::monostate) noexcept
+  {
+    return 0;
+  }
+  static std::monostate from_string(std::string_view) = delete;
+};
+
+
 template<> inline constexpr bool is_unquoted_safe<std::nullptr_t>{true};
 
 
@@ -643,6 +679,18 @@ template<> struct nullness<std::nullopt_t>
     return true;
   }
   static constexpr std::nullopt_t null() noexcept { return std::nullopt; }
+};
+
+
+template<> struct nullness<std::monostate>
+{
+  static constexpr bool has_null = true;
+  static constexpr bool always_null = true;
+  static constexpr bool is_null(std::monostate const &) noexcept
+  {
+    return true;
+  }
+  static constexpr std::monostate null() noexcept { return std::monostate{}; }
 };
 
 
