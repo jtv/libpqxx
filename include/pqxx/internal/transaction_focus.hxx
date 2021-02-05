@@ -16,7 +16,13 @@
 
 namespace pqxx::internal
 {
+// TODO: Take this public.  Rename to transaction_focus.
 /// Base class for things that monopolise a transaction.
+/** Pipelines, SQL statements, and data streams are derived from this class.
+ *
+ * For any given transaction, only one object of such a type can be active at
+ * any time.
+ */
 class PQXX_LIBEXPORT transactionfocus
 {
 public:
