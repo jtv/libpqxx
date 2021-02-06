@@ -55,9 +55,8 @@ constexpr from_query_t from_query;
  * the stream is open.
  *
  * There are two ways of starting a stream: you stream either all rows in a
- * table (in which case, use a constructor which accepts @c pqxx::from_table),
- * or the results of a query (in which case, use a concstructor which accepts
- * @c pqxx::from_query).
+ * table (using one of the factories, @c table() or @c raw_table()), or the
+ * results of a query (using the @c query() factory).
  *
  * Usually you'll want the @c stream convenience wrapper in transaction_base,
  * so you don't need to deal with this class directly.
@@ -86,7 +85,9 @@ public:
    */
   static stream_from query(transaction_base &tx, std::string_view q)
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return stream_from{tx, from_query, q};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /**
@@ -132,17 +133,20 @@ public:
   /// Execute query, and stream over the results.
   /** @deprecated Use factory function @c query() instead.
    */
+  PQXX_DEPRECATED("Use query() factory instead.")
   stream_from(transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
-  /** @deprecated Use factory function @c query() instead.
+  /** @deprecated Use factory function @c table() or @c raw_table() instead.
    */
+  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
   stream_from(transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
-  /** @deprecated Use factory function @c query() instead.
+  /** @deprecated Use factory function @c table() or @c raw_table() instead.
    */
   template<typename Iter>
+  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
   stream_from(
     transaction_base &, from_table_t, std::string_view table,
     Iter columns_begin, Iter columns_end);
@@ -151,15 +155,18 @@ public:
   /** @deprecated Use factory function @c query() instead.
    */
   template<typename Columns>
+  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
   stream_from(
     transaction_base &tx, from_table_t, std::string_view table,
     Columns const &columns);
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// @deprecated Use factory function @c table() or @c raw_table() instead.
   PQXX_DEPRECATED("Use the from_table_t overload instead.")
   stream_from(transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// @deprecated Use factory function @c table() or @c raw_table() instead.
   template<typename Columns>

@@ -108,7 +108,7 @@ void test_nonoptionals(pqxx::connection &connection)
 void test_bad_tuples(pqxx::connection &conn)
 {
   pqxx::work tx{conn};
-  pqxx::stream_from extractor{tx, pqxx::from_table, "stream_from_test"};
+  auto extractor{pqxx::stream_from::table(tx, {"stream_from_test"})};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
   std::tuple<int> got_tuple_too_short;
@@ -244,7 +244,7 @@ void test_stream_from__escaping()
   pqxx::work tx{conn};
   tx.exec0("CREATE TEMP TABLE badstr (str text)");
   tx.exec0("INSERT INTO badstr (str) VALUES (" + tx.quote(input) + ")");
-  pqxx::stream_from reader{tx, pqxx::from_table, "badstr"};
+  auto reader{pqxx::stream_from::table(tx, {"badstr"})};
   std::tuple<std::string> out;
   reader >> out;
   PQXX_CHECK_EQUAL(
@@ -258,7 +258,7 @@ void test_stream_from__iteration()
   pqxx::work tx{conn};
   tx.exec0("CREATE TEMP TABLE str (s text)");
   tx.exec0("INSERT INTO str (s) VALUES ('foo')");
-  pqxx::stream_from reader{tx, pqxx::from_table, "str"};
+  auto reader{pqxx::stream_from::table(tx, {"str"})};
 
   int i{0};
   std::string out;
@@ -273,7 +273,7 @@ void test_stream_from__iteration()
   tx.exec0("INSERT INTO str (s) VALUES ('bar')");
   i = 0;
   std::set<std::string> strings;
-  pqxx::stream_from reader2{tx, pqxx::from_table, "str"};
+  auto reader2{pqxx::stream_from::table(tx, {"str"})};
   for (std::tuple<std::string> t : reader2.iter<std::string>())
   {
     i++;
@@ -322,7 +322,7 @@ void test_stream_from_read_row()
   tx.exec0("CREATE TEMP TABLE sample (id integer, name varchar, opt integer)");
   tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
 
-  pqxx::stream_from stream(tx, pqxx::from_table, "sample");
+  auto stream{pqxx::stream_from::table(tx, {"sample"})};
   auto fields{stream.read_row()};
   PQXX_CHECK_EQUAL(fields->size(), 3ul, "Wrong number of fields.");
   PQXX_CHECK_EQUAL(
