@@ -144,7 +144,7 @@ void test_binarystring_stream()
   pqxx::transaction tx{conn};
   tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, bin bytea)");
 
-  pqxx::stream_to to{tx, "pqxxbinstream"};
+  auto to{pqxx::stream_to::table(tx, {"pqxxbinstream"})};
   to.write_values(0, bin);
   to.complete();
 
@@ -172,7 +172,7 @@ void test_binarystring_array_stream()
   std::vector<pqxx::binarystring> const vec{bin1, bin2};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
-  pqxx::stream_to to{tx, "pqxxbinstream"};
+  auto to{pqxx::stream_to::table(tx, {"pqxxbinstream"})};
   to.write_values(0, vec);
   to.complete();
 

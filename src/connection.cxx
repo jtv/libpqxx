@@ -903,6 +903,20 @@ std::string pqxx::connection::quote_name(std::string_view identifier) const
 }
 
 
+std::string pqxx::connection::quote_table(std::string_view table_name) const
+{
+  return this->quote_name(table_name);
+}
+
+
+std::string pqxx::connection::quote_table(table_path path) const
+{
+  return separated_list(
+    ".", std::begin(path), std::end(path),
+    [this](auto name) { return this->quote_name(*name); });
+}
+
+
 std::string
 pqxx::connection::esc_like(std::string_view text, char escape_char) const
 {

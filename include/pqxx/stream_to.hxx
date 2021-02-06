@@ -16,7 +16,6 @@
 #include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
-#include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
 
 
@@ -79,23 +78,79 @@ namespace pqxx
 class PQXX_LIBEXPORT stream_to : internal::transactionfocus
 {
 public:
+  // TODO: Support WHERE clause?
+
+  /// Stream data to a pre-quoted table and columns.
+  /** This factory can be useful when it's not convenient to provide the
+   * columns list in the form of a @c std::initializer_list, or when the list
+   * of columns is simply not known at compile time.
+   *
+   * Also use this if you need to create multiple streams using the same table
+   * path and/or columns list, and you want to save a bit of work on composing
+   * the internal SQL statement for starting the stream.  It lets you compose
+   * the string representations for the table path and the columns list, so you
+   * can compute these once and then re-use them later.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path Name or path for the table upon which the stream will
+   *     operate.  If any part of the table path may contain special
+   *     characters or be case-sensitive, quote the path using
+   *     pqxx::connection::quote_table().
+   * @param columns Columns to which the stream will write.  They should be
+   *     comma-separated and, if needed, quoted.  You can produce the string
+   *     using pqxx::connection::quote_columns().  If you omit this argument,
+   *     the stream will write all columns in the table, in schema order.
+   */
+  static stream_to raw_table(
+    transaction_base &tx, std::string_view path, std::string_view columns = "")
+  {
+    return stream_to{tx, path, columns};
+  }
+
+  /// Create a @c stream_to writing to a named table and columns.
+  /** Use this to stream data to a table, where the list of columns is known at
+   * compile time.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path A @c table_path designating the target table.
+   * @param columns Optionally, the columns to which the stream should write.
+   *     If you do not pass this, the stream will write to all columns in the
+   *     table, in schema order.
+   */
+  static stream_to table(
+    transaction_base &tx, table_path path,
+    std::initializer_list<std::string_view> columns = {})
+  {
+    auto const &conn{tx.conn()};
+    return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
+  }
+
   /// Create a stream, without specifying columns.
-  /** Fields will be inserted in whatever order the columns have in the
+  /** @deprecated Use @c table() or @c raw_table() as a factory.
+   *
+   * Fields will be inserted in whatever order the columns have in the
    * database.
    *
    * You'll probably want to specify the columns, so that the mapping between
    * your data fields and the table is explicit in your code, and not hidden
    * in an "implicit contract" between your code and your schema.
    */
+  PQXX_DEPRECATED("Use table() or raw_table() factory.")
   stream_to(transaction_base &, std::string_view table_name);
 
   /// Create a stream, specifying column names as a container of strings.
+  /** @deprecated Use @c table() or @c raw_table() as a factory.
+   */
   template<typename Columns>
+  PQXX_DEPRECATED("Use table() or raw_table() factory.")
   stream_to(
     transaction_base &, std::string_view table_name, Columns const &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
+  /** @deprecated Use @c table() or @c raw_table() as a factory.
+   */
   template<typename Iter>
+  PQXX_DEPRECATED("Use table() or raw_table() factory.")
   stream_to(
     transaction_base &, std::string_view table_name, Iter columns_begin,
     Iter columns_end);
@@ -163,6 +218,13 @@ public:
   }
 
 private:
+  stream_to(
+    transaction_base &tx, std::string_view path, std::string_view columns) :
+          internal::transactionfocus{tx, s_classname, path}
+  {
+    set_up(tx, path, columns);
+  }
+
   bool m_finished = false;
 
   /// Reusable buffer for a row.  Saves doing an allocation for each row.
@@ -309,6 +371,7 @@ private:
     append_tuple(t, indexes{});
   }
 
+  // TODO: Fold into raw_table().
   void set_up(transaction_base &, std::string_view table_name);
   void set_up(
     transaction_base &, std::string_view table_name, std::string_view columns);
@@ -332,11 +395,15 @@ inline stream_to::stream_to(
 
 template<typename Iter>
 inline stream_to::stream_to(
-  transaction_base &tb, std::string_view table_name, Iter columns_begin,
+  transaction_base &tx, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
-        internal::transactionfocus{tb, s_classname, table_name}
+        internal::transactionfocus{tx, s_classname, table_name}
 {
-  set_up(tb, table_name, separated_list(",", columns_begin, columns_end));
+  set_up(
+    tx, tx.quote_name(table_name),
+    separated_list(",", columns_begin, columns_end, [&tx](auto col) {
+      return tx.quote_name(*col);
+    }));
 }
 } // namespace pqxx
 

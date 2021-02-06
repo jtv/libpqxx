@@ -19,6 +19,8 @@
 
 #include "pqxx/strconv.hxx"
 
+// TODO: Simplify using std::ranges::range, once we're on C++20.
+// TODO: Optimise buffer allocation using C++20 random_access_range.
 namespace pqxx
 {
 /**
@@ -130,6 +132,7 @@ template<
 [[nodiscard]] inline std::string
 separated_list(std::string_view sep, TUPLE const &t)
 {
+  // TODO: Optimise allocation.
   return separated_list(sep, t, [](TUPLE const &tup) { return *tup; });
 }
 //@}

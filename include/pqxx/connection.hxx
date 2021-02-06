@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <ctime>
 #include <functional>
+#include <initializer_list>
 #include <list>
 #include <map>
 #include <memory>
@@ -108,6 +109,17 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
+/// Representation of a PostgreSQL table path.
+/** A "table path" consists of a table name, optionally prefixed by a schema
+ * name, which in turn is optionally prefixed by a database name.
+ *
+ * A minimal example of a table path would be @c {mytable}.  But a table path
+ * may also take the forms @c {myschema,mytable} or
+ * @c {mydb,myschema,mytable}.
+ */
+using table_path = std::initializer_list<std::string_view>;
+
+
 /// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
 [[nodiscard,
   deprecated("Use connection::encrypt_password instead.")]] std::string
@@ -613,6 +625,35 @@ public:
   /// Escape and quote an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const;
 
+  /// Escape and quote a table name.
+  [[nodiscard]] std::string quote_table(std::string_view name) const;
+
+  /// Escape and quote a table path.
+  /** A table path consists of a table name, optionally prefixed by a schema
+   * name; and if both are given, they are in turn optionally prefixed by a
+   * database name.
+   *
+   * Each portion of the path (database name, schema name, table name) will be
+   * quoted separately, and they will be joined together by dots.  So for
+   * example, @c myschema.mytable will bercome @c "myschema"."mytable".
+   */
+  [[nodiscard]] std::string quote_table(table_path) const;
+
+  // TODO: C++20 concept for "range of string_view."
+  /// Quote and comma-separate a series of column names.
+  /** Use this to save a bit of work in cases where you repeatedly need to pass
+   * the same list of column names, e.g. with @c stream_to and @c stream_from.
+   * Some functions that need to quote the columns list internally, will have
+   * a "raw" alternative which let you do the quoting yourself.  It's a bit of
+   * extra work, but it can in rare cases let you eliminate some duplicate
+   * work in quoting them repeatedly.
+   */
+  template<typename CONTAINER>
+  inline std::enable_if_t<
+    std::is_convertible_v<typename CONTAINER::value_type, std::string_view>,
+    std::string>
+  quote_columns(CONTAINER const &columns) const;
+
   /// Represent object as SQL string, including quoting & escaping.
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
@@ -833,6 +874,18 @@ template<typename T> inline std::string connection::quote(T const &t) const
     buf.resize(end);
     return buf;
   }
+}
+
+
+template<typename CONTAINER>
+inline std::enable_if_t<
+  std::is_convertible_v<typename CONTAINER::value_type, std::string_view>,
+  std::string>
+connection::quote_columns(CONTAINER const &columns) const
+{
+  return separated_list(
+    ","sv, std::cbegin(columns), std::cend(columns),
+    [this](auto col) { return this->quote_name(*col); });
 }
 
 

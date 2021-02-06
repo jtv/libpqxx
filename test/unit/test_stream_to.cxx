@@ -21,7 +21,7 @@ std::string truncate_sql_error(std::string const &what)
 void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_to inserter{tx, "stream_to_test"};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
@@ -55,7 +55,7 @@ void test_nonoptionals(pqxx::connection &connection)
 void test_nonoptionals_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_to inserter{tx, "stream_to_test"};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
@@ -89,8 +89,8 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 
 void test_bad_null(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
@@ -99,7 +99,7 @@ void test_bad_null(pqxx::connection &connection)
       nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
       bytea{'\x00', '\x01', '\x02'});
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -114,8 +114,8 @@ void test_bad_null(pqxx::connection &connection)
 
 void test_bad_null_fold(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
@@ -124,7 +124,7 @@ void test_bad_null_fold(pqxx::connection &connection)
       nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
       bytea{'\x00', '\x01', '\x02'});
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from-fold improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -140,15 +140,15 @@ void test_bad_null_fold(pqxx::connection &connection)
 
 void test_too_few_fields(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
   {
     inserter << std::make_tuple(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -163,15 +163,15 @@ void test_too_few_fields(pqxx::connection &connection)
 
 void test_too_few_fields_fold(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
   {
     inserter.write_values(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -187,8 +187,8 @@ void test_too_few_fields_fold(pqxx::connection &connection)
 
 void test_too_many_fields(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
@@ -197,7 +197,7 @@ void test_too_many_fields(pqxx::connection &connection)
       1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
       bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -212,8 +212,8 @@ void test_too_many_fields(pqxx::connection &connection)
 
 void test_too_many_fields_fold(pqxx::connection &connection)
 {
-  pqxx::work transaction{connection};
-  pqxx::stream_to inserter{transaction, "stream_to_test"};
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   try
@@ -222,7 +222,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
       1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
       bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
-    transaction.commit();
+    tx.commit();
     PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
@@ -241,7 +241,7 @@ void test_stream_to__nonnull_optional()
   pqxx::connection conn;
   pqxx::work tx{conn};
   tx.exec0("CREATE TEMP TABLE foo(x integer, y text)");
-  pqxx::stream_to inserter{tx, "foo"};
+  auto inserter{pqxx::stream_to::table(tx, {"foo"})};
   inserter.write_values(
     std::optional<int>{368}, std::optional<std::string>{"Text"});
   inserter.complete();
@@ -258,7 +258,7 @@ template<template<typename...> class O>
 void test_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_to inserter{tx, "stream_to_test"};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter << std::make_tuple(
@@ -274,7 +274,7 @@ template<template<typename...> class O>
 void test_optional_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_to inserter{tx, "stream_to_test"};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
   inserter.write_values(
@@ -294,7 +294,7 @@ void test_container_stream_to()
   pqxx::work tx{conn};
   tx.exec0("CREATE TEMP TABLE test_container(a integer, b integer)");
 
-  pqxx::stream_to inserter{tx, "test_container"};
+  auto inserter{pqxx::stream_to::table(tx, {"test_container"})};
 
   inserter << std::vector{112, 244};
   inserter.complete();
@@ -310,7 +310,7 @@ void test_container_stream_to()
 void test_variant_fold(pqxx::connection_base &connection)
 {
   pqxx::work tx{connection};
-  pqxx::stream_to inserter{tx, "stream_to_test"};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
 
 #if defined(PQXX_HAVE_VARIANT)
@@ -381,7 +381,50 @@ void test_stream_to()
 }
 
 
+void test_stream_to_factory_with_static_columns()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  tx.exec0("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)");
+
+  auto stream{pqxx::stream_to::table(tx, {"pqxx_stream_to"}, {"a", "b"})};
+  stream.write_values(3, "three");
+  stream.complete();
+
+  auto r{tx.exec1("SELECT a, b FROM pqxx_stream_to")};
+  PQXX_CHECK_EQUAL(r[0].as<int>(), 3, "Failed to stream_to a table.");
+  PQXX_CHECK_EQUAL(
+    r[1].as<std::string>(), "three",
+    "Failed to stream_to a string to a table.");
+}
+
+
+void test_stream_to_factory_with_dynamic_columns()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  tx.exec0("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)");
+
+  std::vector<std::string_view> columns{"a", "b"};
+  auto stream{pqxx::stream_to::raw_table(
+    tx, conn.quote_table({"pqxx_stream_to"}), conn.quote_columns(columns))};
+  stream.write_values(4, "four");
+  stream.complete();
+
+  auto r{tx.exec1("SELECT a, b FROM pqxx_stream_to")};
+  PQXX_CHECK_EQUAL(
+    r[0].as<int>(), 4, "Failed to stream_to a table with dynamic columns.");
+  PQXX_CHECK_EQUAL(
+    r[1].as<std::string>(), "four",
+    "Failed to stream_to a string to a table with dynamic columns.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to__nonnull_optional);
+PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);
+PQXX_REGISTER_TEST(test_stream_to_factory_with_dynamic_columns);
 } // namespace

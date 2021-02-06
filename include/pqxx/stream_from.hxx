@@ -32,8 +32,12 @@
 namespace pqxx
 {
 /// Pass this to a @c stream_from constructor to stream table contents.
+/** @deprecated Use stream_from::table() instead.
+ */
 constexpr from_table_t from_table;
 /// Pass this to a @c stream_from constructor to stream query results.
+/** @deprecated Use stream_from::query() instead.
+ */
 constexpr from_query_t from_query;
 
 
@@ -70,12 +74,8 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
 
-  /**
-   * @name Streaming queries
-   *
-   * You can use @c stream_from to execute a query, and stream its results.
-   *
-   * The query can be a SELECT query or a VALUES query; or it can be an
+  /// Factory: Execute query, and stream the results.
+  /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.
    *
    * The query is executed as part of a COPY statement, so there are additional
@@ -84,56 +84,84 @@ public:
    *
    *     https://www.postgresql.org/docs/current/sql-copy.html
    */
-  //@{
-  /// Factory: Execute query, and stream the results.
   static stream_from query(transaction_base &tx, std::string_view q)
   {
     return stream_from{tx, from_query, q};
   }
 
-  /// Execute query, and stream over the results.
-  /** This is the awkward way to construct a @c stream_from.  It uses a marker
-   * argument type to disambiguate overloads.
-   *
-   * Where possible, use factory function @c query() instead.
-   */
-  stream_from(transaction_base &, from_query_t, std::string_view query);
-  //@}
-
   /**
-   * @name Streaming tables
+   * @name Streaming data from tables
    *
-   * You can use @c stream_from to read a table's contents.
-   *
-   * Streaming does not work from a view, and the table name cannot include a
-   * schema name, and there are no guarantees about ordering.  If you need any
-   * of those things, consider streaming from a query instead.
+   * You can use @c stream_from to read a table's contents.  This is a quick
+   * and easy way to read a table, but it comes with limitations.  It cannot
+   * stream from a view, only from a table.  It does not support conditions.
+   * And there are no guarantees about ordering.  If you need any of those
+   * things, consider streaming from a query instead.
    */
   //@{
-  // TODO: Replace constructors with factories.  Use Concepts.
+
+  /// Factory: Stream data from a pre-quoted table and columns.
+  /** Use this factory if you need to create multiple streams using the same
+   * table path and/or columns list, and you want to save a bit of work on
+   * composing the internal SQL statement for starting the stream.  It lets you
+   * compose the string representations for the table path and the columns
+   * list, so you can compute these once and then re-use them later.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path Name or path for the table upon which the stream will
+   *     operate.  If any part of the table path may contain special
+   *     characters or be case-sensitive, quote the path using
+   *     pqxx::connection::quote_table().
+   * @param columns Columns which the stream will read.  They should be
+   *     comma-separated and, if needed, quoted.  You can produce the string
+   *     using pqxx::connection::quote_columns().  If you omit this argument,
+   *     the stream will read all columns in the table, in schema order.
+   */
+  static stream_from raw_table(
+    transaction_base &tx, std::string_view path,
+    std::string_view columns = ""sv);
+
+  /// Factory: Stream data from a given table.
+  /** This is the convenient way to stream from a table.
+   */
+  static stream_from table(
+    transaction_base &tx, table_path path,
+    std::initializer_list<std::string_view> columns = {});
+  //@}
+
+  /// Execute query, and stream over the results.
+  /** @deprecated Use factory function @c query() instead.
+   */
+  stream_from(transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
+  /** @deprecated Use factory function @c query() instead.
+   */
   stream_from(transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
+  /** @deprecated Use factory function @c query() instead.
+   */
   template<typename Iter>
   stream_from(
     transaction_base &, from_table_t, std::string_view table,
     Iter columns_begin, Iter columns_end);
 
   /// Stream given columns from all rows in table.
+  /** @deprecated Use factory function @c query() instead.
+   */
   template<typename Columns>
   stream_from(
     transaction_base &tx, from_table_t, std::string_view table,
     Columns const &columns);
 
-  /// @deprecated Use the @c from_table_t overload instead.
+  /// @deprecated Use factory function @c table() or @c raw_table() instead.
   PQXX_DEPRECATED("Use the from_table_t overload instead.")
   stream_from(transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
 
-  /// @deprecated Use the @c from_table_t overload instead.
+  /// @deprecated Use factory function @c table() or @c raw_table() instead.
   template<typename Columns>
   PQXX_DEPRECATED("Use the from_table_t overload instead.")
   stream_from(
@@ -141,13 +169,12 @@ public:
           stream_from{tx, from_table, table, columns}
   {}
 
-  /// @deprecated Use the @c from_table_t overload instead.
+  /// @deprecated Use factory function @c table() or @c raw_table() instead.
   template<typename Iter>
   PQXX_DEPRECATED("Use the from_table_t overload instead.")
   stream_from(
     transaction_base &, std::string_view table, Iter columns_begin,
     Iter columns_end);
-  //@}
 
   ~stream_from() noexcept;
 
@@ -214,9 +241,17 @@ public:
   raw_line get_raw_line();
 
 private:
+  // TODO: Clean up this signature once we cull the deprecated constructors.
+  /// @deprecated
   stream_from(
-    transaction_base &tx, std::string_view table, std::string &&columns,
+    transaction_base &tx, std::string_view table, std::string_view columns,
     from_table_t);
+
+  // TODO: Clean up this signature once we cull the deprecated constructors.
+  /// @deprecated
+  stream_from(
+    transaction_base &, std::string_view unquoted_table,
+    std::string_view columns, from_table_t, int);
 
   template<typename Tuple, std::size_t... indexes>
   void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
@@ -259,7 +294,7 @@ inline stream_from::stream_from(
   Iter columns_begin, Iter columns_end) :
         stream_from{
           tx, table, separated_list(",", columns_begin, columns_end),
-          from_table}
+          from_table, 1}
 {}
 
 

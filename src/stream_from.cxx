@@ -53,14 +53,38 @@ pqxx::stream_from::stream_from(
 
 
 pqxx::stream_from::stream_from(
-  transaction_base &tx, std::string_view table, std::string &&columns,
+  transaction_base &tx, std::string_view table, std::string_view columns,
   from_table_t) :
         transactionfocus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
-  tx.exec0(internal::concat(
-    "COPY "sv, tx.quote_name(table), "("sv, columns, ") TO STDOUT"sv));
+  tx.exec0(
+    internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv));
   register_me();
+}
+
+
+pqxx::stream_from::stream_from(
+  transaction_base &tx, std::string_view unquoted_table,
+  std::string_view columns, from_table_t, int) :
+        stream_from{
+          tx, tx.conn().quote_table(unquoted_table), columns, from_table}
+{}
+
+
+pqxx::stream_from pqxx::stream_from::raw_table(
+  transaction_base &tx, std::string_view path, std::string_view columns)
+{
+  return stream_from{tx, path, columns, from_table};
+}
+
+
+pqxx::stream_from pqxx::stream_from::table(
+  transaction_base &tx, table_path path,
+  std::initializer_list<std::string_view> columns)
+{
+  auto const &conn{tx.conn()};
+  return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
 }
 
 

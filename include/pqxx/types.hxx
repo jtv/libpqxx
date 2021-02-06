@@ -52,10 +52,14 @@ class stream_from;
 class transaction_base;
 
 /// Marker for @c stream_from constructors: "stream from table."
+/** @deprecated Use stream_from::table() instead.
+ */
 struct from_table_t
 {};
 
 /// Marker for @c stream_from constructors: "stream from query."
+/** @deprecated Use stream_from::query() instead.
+ */
 struct from_query_t
 {};
 } // namespace pqxx
