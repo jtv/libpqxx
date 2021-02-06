@@ -38,10 +38,10 @@ count_includes() {
 }
 
 
-# Any file that includes compiler-internal-pre.hxx must also include
-# compiler-internal-post.hxx, and vice versa.
-check_compiler_internal_headers() {
-    local TEMPDIR PRE POST HEADERS
+# Check that any includes of $1-pre.hxx are matched by $1-post.hxx ones.
+match_pre_post_headers() {
+    local NAME TEMPDIR PRE POST HEADERS
+    NAME="$1"
     TEMPDIR="$(mktemp -d)"
     if test -z "$TEMPDIR"
     then
@@ -52,9 +52,9 @@ check_compiler_internal_headers() {
     POST="$TEMPDIR/post"
     HEADERS=$(find include/pqxx/* -type f | grep -v '\.swp$')
     count_includes \
-        $SRCDIR/pqxx/internal/compiler-internal-pre.hxx $HEADERS >"$PRE"
+        $SRCDIR/NAME-pre.hxx $HEADERS >"$PRE"
     count_includes \
-        $SRCDIR/pqxx/internal/compiler-internal-post.hxx $HEADERS >"$POST"
+        $SRCDIR/NAME-post.hxx $HEADERS >"$POST"
     DIFF="$(diff "$PRE" "$POST")" || /bin/true
     rm -r -- "$TEMPDIR"
     if test -n "$DIFF"
@@ -67,6 +67,14 @@ $DIFF
 EOF
         exit 1
     fi
+}
+
+
+# Any file that includes compiler-internal-pre.hxx must also include
+# compiler-internal-post.hxx, and vice versa.
+check_compiler_internal_headers() {
+    match_pre_post_headers "pqxx/internal/compiler-internal"
+    match_pre_post_headers "pqxx/internal/ignore-deprecated"
 }
 
 
