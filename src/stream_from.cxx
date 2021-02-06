@@ -59,10 +59,10 @@ pqxx::stream_from::stream_from(
         m_glyph_scanner{get_scanner(tx)}
 {
   if (std::empty(columns))
-  tx.exec0(internal::concat("COPY "sv, table, " TO STDOUT"sv));
+    tx.exec0(internal::concat("COPY "sv, table, " TO STDOUT"sv));
   else
-  tx.exec0(
-    internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv));
+    tx.exec0(
+      internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv));
   register_me();
 }
 

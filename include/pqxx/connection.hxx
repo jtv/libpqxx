@@ -567,6 +567,7 @@ public:
    */
   //@{
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This accepts a length, and it does not require a terminating
    * zero byte.  But if there is a zero byte, escaping stops there even if
@@ -577,12 +578,14 @@ public:
     return esc(std::string_view(text, maxlen));
   }
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
   [[nodiscard]] std::string esc(char const text[]) const
   {
     return esc(std::string_view(text));
   }
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
   /** @warning If the string contains a zero byte, escaping stops there even
    * if it's not at the end of the string!
@@ -595,9 +598,11 @@ public:
   [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape binary string for use as SQL string literal on this connection.
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
@@ -607,6 +612,7 @@ public:
     return unesc_raw(text.c_str());
   }
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
@@ -622,12 +628,18 @@ public:
   /// Escape and quote a string of binary data.
   [[nodiscard]] std::string quote_raw(std::basic_string_view<std::byte>) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote a table name.
+  /** When passing just a table name, this is just another name for
+   * @c quote_name.
+   */
   [[nodiscard]] std::string quote_table(std::string_view name) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote a table path.
   /** A table path consists of a table name, optionally prefixed by a schema
    * name; and if both are given, they are in turn optionally prefixed by a
@@ -640,6 +652,7 @@ public:
   [[nodiscard]] std::string quote_table(table_path) const;
 
   // TODO: C++20 concept for "range of string_view."
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Quote and comma-separate a series of column names.
   /** Use this to save a bit of work in cases where you repeatedly need to pass
    * the same list of column names, e.g. with @c stream_to and @c stream_from.
@@ -654,6 +667,7 @@ public:
     std::string>
   quote_columns(CONTAINER const &columns) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Represent object as SQL string, including quoting & escaping.
   /**
    * Nulls are recognized and represented as SQL nulls.  They get no quotes.
@@ -665,10 +679,12 @@ public:
   [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
   quote(binarystring const &) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
   [[nodiscard]] std::string
   quote(std::basic_string_view<std::byte> bytes) const;
 
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
    * literal string, not as a pattern, even if it contains "%" or "_"
