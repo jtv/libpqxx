@@ -79,15 +79,12 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  // TODO: Hide constructors from the public.
-  /// Constructor.  Do not call this; libpqxx will call it for you.
   result() noexcept :
           m_data(make_data_pointer()),
           m_query(),
           m_encoding(internal::encoding_group::MONOBYTE)
   {}
-  // TODO: Hide constructors from the public.
-  /// Constructor.  Do not call this; libpqxx will call it for you.
+
   result(result const &rhs) noexcept = default;
 
   /// Assign one result to another.

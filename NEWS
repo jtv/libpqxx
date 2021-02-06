@@ -8,6 +8,8 @@
  - New `table_path` type.
  - New `connection` methods `quote_table` and `quote_columns`.
  - Lots of deprecated stream constructors.
+ - `pqxx::row::swap()` now finally has the `deprecated` attribute.
+ - Finally deprecated a bunch of `field`, `row`, and `result` constructors.
 7.3.1
  - New, simpler API for large objects: `blob` ("binary large object").
  - `largeobject` and friends are now deprecated.

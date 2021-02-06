@@ -53,13 +53,17 @@ pqxx::row::const_iterator pqxx::row::cend() const noexcept
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return field{*this, m_begin};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return field{*this, m_end - 1};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -103,7 +107,9 @@ bool pqxx::row::operator==(row const &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return field{*this, m_begin + i};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -130,7 +136,9 @@ void pqxx::row::swap(row &rhs) noexcept
 
 pqxx::field pqxx::row::at(zview col_name) const
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return field{*this, m_begin + column_number(col_name)};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -187,7 +195,9 @@ pqxx::row pqxx::row::slice(size_type sbegin, size_type send) const
   if (sbegin > send or send > size())
     throw range_error{"Invalid field range."};
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   row res{*this};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   res.m_begin = m_begin + sbegin;
   res.m_end = m_begin + send;
   return res;

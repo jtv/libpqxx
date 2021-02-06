@@ -103,7 +103,7 @@ public:
   [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
 
   // TODO: Remove this.  Deprecated since early 2020.
-  /// @deprecated Do this sort of thing on iterators instead.
+  PQXX_DEPRECATED("Swap iterators, not rows.")
   void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
@@ -261,8 +261,10 @@ public:
   using difference_type = row_difference_type;
   using reference = field;
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() = default;
   const_row_iterator(row const &T, row_size_type C) noexcept : field{T, C} {}
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   const_row_iterator(field const &F) noexcept : field{F} {}
   const_row_iterator(const_row_iterator const &) = default;
   const_row_iterator(const_row_iterator &&) = default;
@@ -502,7 +504,9 @@ template<typename Tuple, std::size_t index>
 inline void row::extract_value(Tuple &t) const
 {
   using field_type = strip_t<decltype(std::get<index>(t))>;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   field const f{*this, index};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   std::get<index>(t) = from_string<field_type>(f);
 }
 } // namespace pqxx

@@ -35,16 +35,16 @@ class PQXX_LIBEXPORT field
 public:
   using size_type = field_size_type;
 
-  // TODO: Hide constructors from the public.
   /// Constructor.  Do not call this yourself; libpqxx will do it for you.
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
+  PQXX_DEPRECATED("Do not construct fields yourself.  Get them from the row.")
   field(row const &r, row_size_type c) noexcept;
 
-  // TODO: Hide constructors from the public.
   /// Constructor.  Do not call this yourself; libpqxx will do it for you.
+  PQXX_DEPRECATED("Do not construct fields yourself.  Get them from the row.")
   field() = default;
 
   /**
