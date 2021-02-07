@@ -102,7 +102,6 @@ public:
 
   [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
 
-  // TODO: Remove this.  Deprecated since early 2020.
   PQXX_DEPRECATED("Swap iterators, not rows.")
   void swap(row &) noexcept;
 
