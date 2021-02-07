@@ -270,7 +270,6 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
   default: throw internal_error{"pqxx::transaction: invalid status code."};
   }
 
-  // TODO: Pass desc to direct_exec(), and from there on down.
   return direct_exec(query, desc);
 }
 
