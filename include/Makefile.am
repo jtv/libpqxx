@@ -28,6 +28,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
 	pqxx/transaction pqxx/transaction.hxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
+	pqxx/transaction_focus pqxx/transaction_focus.hxx \
 	pqxx/transactor pqxx/transactor.hxx \
 	pqxx/row pqxx/row.hxx \
 	pqxx/util pqxx/util.hxx \
@@ -49,7 +50,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/stream_iterator.hxx \
-	pqxx/internal/transaction_focus.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
@@ -64,7 +64,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/result-pipeline.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
-	pqxx/internal/gates/transaction-transactionfocus.hxx
+	pqxx/internal/gates/transaction-transaction_focus.hxx
 
 
 nobase_nodist_include_HEADERS = \

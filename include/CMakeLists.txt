@@ -46,6 +46,7 @@ install(
     PATTERN subtransaction
     PATTERN transaction
     PATTERN transaction_base
+    PATTERN transaction_focus
     PATTERN transactor
     PATTERN types
     PATTERN util

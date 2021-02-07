@@ -41,10 +41,10 @@ namespace pqxx
  *
  * @warning While a pipeline is active, you cannot execute queries, open
  * streams, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::internal::transactionfocus active on
- * it at a time.
+ * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * time.
  */
-class PQXX_LIBEXPORT pipeline : public internal::transactionfocus
+class PQXX_LIBEXPORT pipeline : public transaction_focus
 {
 public:
   /// Identifying numbers for queries.
@@ -54,13 +54,13 @@ public:
   pipeline &operator=(pipeline const &) = delete;
 
   /// Start a pipeline.
-  explicit pipeline(transaction_base &t) : transactionfocus{t, s_classname}
+  explicit pipeline(transaction_base &t) : transaction_focus{t, s_classname}
   {
     init();
   }
   /// Start a pipeline.  Assign it a name, for more helpful error messages.
   pipeline(transaction_base &t, std::string_view tname) :
-          transactionfocus{t, s_classname, tname}
+          transaction_focus{t, s_classname, tname}
   {
     init();
   }

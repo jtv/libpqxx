@@ -72,10 +72,10 @@ namespace pqxx
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::internal::transactionfocus active on
- * it at a time.
+ * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * time.
  */
-class PQXX_LIBEXPORT stream_to : internal::transactionfocus
+class PQXX_LIBEXPORT stream_to : transaction_focus
 {
 public:
   // TODO: Support WHERE clause?
@@ -220,7 +220,7 @@ public:
 private:
   stream_to(
     transaction_base &tx, std::string_view path, std::string_view columns) :
-          internal::transactionfocus{tx, s_classname, path}
+          transaction_focus{tx, s_classname, path}
   {
     set_up(tx, path, columns);
   }
@@ -397,7 +397,7 @@ template<typename Iter>
 inline stream_to::stream_to(
   transaction_base &tx, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
-        internal::transactionfocus{tx, s_classname, table_name}
+        transaction_focus{tx, s_classname, table_name}
 {
   set_up(
     tx, tx.quote_name(table_name),

@@ -1,4 +1,4 @@
-/** Base class for things which lay a special claim on a transaction.
+/** Transaction focus: types which monopolise a transaction's attention.
  *
  * Copyright (c) 2000-2021, Jeroen T. Vermeulen.
  *
@@ -14,35 +14,34 @@
 
 #include "pqxx/util.hxx"
 
-namespace pqxx::internal
+namespace pqxx
 {
-// TODO: Take this public.  Rename to transaction_focus.
-/// Base class for things that monopolise a transaction.
+/// Base class for things that monopolise a transaction's attention.
 /** Pipelines, SQL statements, and data streams are derived from this class.
  *
- * For any given transaction, only one object of such a type can be active at
- * any time.
+ * For any given transaction, only one object of any type derived from
+ * @c transaction_focus can be active at any given time.
  */
-class PQXX_LIBEXPORT transactionfocus
+class PQXX_LIBEXPORT transaction_focus
 {
 public:
-  transactionfocus(
+  transaction_focus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
           m_trans{t}, m_classname{cname}, m_name{oname}
   {}
 
-  transactionfocus(
+  transaction_focus(
     transaction_base &t, std::string_view cname, std::string &&oname) :
           m_trans{t}, m_classname{cname}, m_name{std::move(oname)}
   {}
 
-  transactionfocus(transaction_base &t, std::string_view cname) :
+  transaction_focus(transaction_base &t, std::string_view cname) :
           m_trans{t}, m_classname{cname}
   {}
 
-  transactionfocus() = delete;
-  transactionfocus(transactionfocus const &) = delete;
-  transactionfocus &operator=(transactionfocus const &) = delete;
+  transaction_focus() = delete;
+  transaction_focus(transaction_focus const &) = delete;
+  transaction_focus &operator=(transaction_focus const &) = delete;
 
   /// Class name, for human consumption.
   [[nodiscard]] std::string_view classname() const noexcept
@@ -55,20 +54,20 @@ public:
 
   [[nodiscard]] std::string description() const
   {
-    return describe_object(m_classname, m_name);
+    return pqxx::internal::describe_object(m_classname, m_name);
   }
 
-  /// Can't move a transactionfocus.
-  /** Moving the transactionfocus would break the transaction's reference back
+  /// Can't move a transaction_focus.
+  /** Moving the transaction_focus would break the transaction's reference back
    * to the object.
    */
-  transactionfocus(transactionfocus &&) = delete;
+  transaction_focus(transaction_focus &&) = delete;
 
-  /// Can't move a transactionfocus.
-  /** Moving the transactionfocus would break the transaction's reference back
+  /// Can't move a transaction_focus.
+  /** Moving the transaction_focus would break the transaction's reference back
    * to the object.
    */
-  transactionfocus &operator=(transactionfocus &&) = delete;
+  transaction_focus &operator=(transaction_focus &&) = delete;
 
 protected:
   void register_me();
@@ -83,7 +82,7 @@ private:
   std::string_view m_classname;
   std::string m_name;
 };
-} // namespace pqxx::internal
+} // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

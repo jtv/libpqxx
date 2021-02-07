@@ -69,11 +69,10 @@ namespace pqxx
  *
  * @warning While the subtransaction is "live," you cannot execute queries or
  * open streams etc. on its parent transaction.  A transaction can have at most
- * one object of a type derived from @c pqxx::internal::transactionfocus active
- * on it at a time.
-
+ * one object of a type derived from @c pqxx::transaction_focus active on it at
+ * a time.
  */
-class PQXX_LIBEXPORT subtransaction : public internal::transactionfocus,
+class PQXX_LIBEXPORT subtransaction : public transaction_focus,
                                       public dbtransaction
 {
 public:
@@ -88,7 +87,7 @@ public:
 private:
   std::string quoted_name() const
   {
-    return quote_name(transactionfocus::name());
+    return quote_name(transaction_focus::name());
   }
   virtual void do_commit() override;
 };

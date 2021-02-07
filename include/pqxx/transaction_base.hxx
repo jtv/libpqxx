@@ -41,13 +41,16 @@ namespace pqxx::internal::gate
 class transaction_subtransaction;
 class transaction_sql_cursor;
 class transaction_stream_to;
-class transaction_transactionfocus;
+class transaction_transaction_focus;
 } // namespace pqxx::internal::gate
 
 
 namespace pqxx
 {
 using namespace std::literals;
+
+
+class transaction_focus;
 
 
 /**
@@ -580,9 +583,9 @@ private:
   /// Describe this transaction to humans, e.g. "transaction 'foo'".
   [[nodiscard]] std::string description() const;
 
-  friend class pqxx::internal::gate::transaction_transactionfocus;
-  PQXX_PRIVATE void register_focus(internal::transactionfocus *);
-  PQXX_PRIVATE void unregister_focus(internal::transactionfocus *) noexcept;
+  friend class pqxx::internal::gate::transaction_transaction_focus;
+  PQXX_PRIVATE void register_focus(transaction_focus *);
+  PQXX_PRIVATE void unregister_focus(transaction_focus *) noexcept;
   PQXX_PRIVATE void register_pending_error(zview) noexcept;
   PQXX_PRIVATE void register_pending_error(std::string &&) noexcept;
 
@@ -592,7 +595,7 @@ private:
   /** This pointer is used for only one purpose: sanity checks against mistakes
    * such as opening one while another is still active.
    */
-  internal::transactionfocus const *m_focus = nullptr;
+  transaction_focus const *m_focus = nullptr;
 
   status m_status = status::active;
   bool m_registered = false;

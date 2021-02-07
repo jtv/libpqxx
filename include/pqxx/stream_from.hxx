@@ -24,9 +24,9 @@
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
-#include "pqxx/internal/transaction_focus.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
+#include "pqxx/transaction_focus.hxx"
 
 
 namespace pqxx
@@ -63,11 +63,10 @@ constexpr from_query_t from_query;
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::internal::transactionfocus active on
- * it at a time.
-
+ * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * time.
  */
-class PQXX_LIBEXPORT stream_from : internal::transactionfocus
+class PQXX_LIBEXPORT stream_from : transaction_focus
 {
 public:
   using raw_line =

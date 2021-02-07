@@ -35,7 +35,7 @@ constexpr std::string_view class_name{"stream_from"};
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
-        transactionfocus{tx, class_name}, m_glyph_scanner{get_scanner(tx)}
+        transaction_focus{tx, class_name}, m_glyph_scanner{get_scanner(tx)}
 {
   tx.exec0(internal::concat("COPY ("sv, query, ") TO STDOUT"sv));
   register_me();
@@ -44,7 +44,7 @@ pqxx::stream_from::stream_from(
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
-        transactionfocus{tx, class_name, table},
+        transaction_focus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
   tx.exec0(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv));
@@ -55,7 +55,7 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from::stream_from(
   transaction_base &tx, std::string_view table, std::string_view columns,
   from_table_t) :
-        transactionfocus{tx, class_name, table},
+        transaction_focus{tx, class_name, table},
         m_glyph_scanner{get_scanner(tx)}
 {
   if (std::empty(columns))

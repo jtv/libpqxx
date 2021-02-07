@@ -17,13 +17,13 @@
 #include "pqxx/connection"
 #include "pqxx/result"
 #include "pqxx/transaction_base"
+#include "pqxx/transaction_focus.hxx"
 
 #include "pqxx/internal/gates/connection-transaction.hxx"
-#include "pqxx/internal/gates/transaction-transactionfocus.hxx"
+#include "pqxx/internal/gates/transaction-transaction_focus.hxx"
 
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
-#include "pqxx/internal/transaction_focus.hxx"
 
 
 using namespace std::literals;
@@ -233,11 +233,11 @@ namespace
 /** A transaction can have only one focus at a time.  Command execution is the
  * most basic example of a transaction focus.
  */
-class PQXX_PRIVATE command : pqxx::internal::transactionfocus
+class PQXX_PRIVATE command : pqxx::transaction_focus
 {
 public:
   command(pqxx::transaction_base &tx, std::string_view oname) :
-          transactionfocus{tx, "command"sv, oname}
+          transaction_focus{tx, "command"sv, oname}
   {
     register_me();
   }
@@ -398,22 +398,21 @@ void pqxx::transaction_base::close() noexcept
 namespace
 {
 [[nodiscard]] std::string_view
-get_classname(pqxx::internal::transactionfocus const *focus)
+get_classname(pqxx::transaction_focus const *focus)
 {
   return (focus == nullptr) ? ""sv : focus->classname();
 }
 
 
 [[nodiscard]] std::string_view
-get_obj_name(pqxx::internal::transactionfocus const *focus)
+get_obj_name(pqxx::transaction_focus const *focus)
 {
   return (focus == nullptr) ? ""sv : focus->name();
 }
 } // namespace
 
 
-void pqxx::transaction_base::register_focus(
-  internal::transactionfocus *new_focus)
+void pqxx::transaction_base::register_focus(transaction_focus *new_focus)
 {
   internal::check_unique_register(
     m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus,
@@ -423,11 +422,11 @@ void pqxx::transaction_base::register_focus(
 
 
 void pqxx::transaction_base::unregister_focus(
-  internal::transactionfocus *new_focus) noexcept
+  transaction_focus *new_focus) noexcept
 {
   try
   {
-    check_unique_unregister(
+    pqxx::internal::check_unique_unregister(
       m_focus, get_classname(m_focus), get_obj_name(m_focus), new_focus,
       get_classname(new_focus), get_obj_name(new_focus));
     m_focus = nullptr;
@@ -520,25 +519,25 @@ std::string pqxx::transaction_base::description() const
 }
 
 
-void pqxx::internal::transactionfocus::register_me()
+void pqxx::transaction_focus::register_me()
 {
-  pqxx::internal::gate::transaction_transactionfocus{m_trans}.register_focus(
+  pqxx::internal::gate::transaction_transaction_focus{m_trans}.register_focus(
     this);
   m_registered = true;
 }
 
 
-void pqxx::internal::transactionfocus::unregister_me() noexcept
+void pqxx::transaction_focus::unregister_me() noexcept
 {
-  pqxx::internal::gate::transaction_transactionfocus{m_trans}.unregister_focus(
-    this);
+  pqxx::internal::gate::transaction_transaction_focus{m_trans}
+    .unregister_focus(this);
   m_registered = false;
 }
 
 
-void pqxx::internal::transactionfocus::reg_pending_error(
+void pqxx::transaction_focus::reg_pending_error(
   std::string const &err) noexcept
 {
-  pqxx::internal::gate::transaction_transactionfocus{m_trans}
+  pqxx::internal::gate::transaction_transaction_focus{m_trans}
     .register_pending_error(err);
 }

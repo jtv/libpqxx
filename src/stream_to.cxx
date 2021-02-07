@@ -33,7 +33,7 @@ void begin_copy(
 
 
 pqxx::stream_to::stream_to(transaction_base &tb, std::string_view table_name) :
-        internal::transactionfocus{tb, s_classname, table_name}
+        transaction_focus{tb, s_classname, table_name}
 {
   set_up(tb, table_name);
 }

@@ -2,17 +2,17 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE transaction_transactionfocus : callgate<transaction_base>
+class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
 {
-  friend class pqxx::internal::transactionfocus;
+  friend class pqxx::transaction_focus;
 
-  transaction_transactionfocus(reference x) : super(x) {}
+  transaction_transaction_focus(reference x) : super(x) {}
 
-  void register_focus(transactionfocus *focus)
+  void register_focus(transaction_focus *focus)
   {
     home().register_focus(focus);
   }
-  void unregister_focus(transactionfocus *focus) noexcept
+  void unregister_focus(transaction_focus *focus) noexcept
   {
     home().unregister_focus(focus);
   }
