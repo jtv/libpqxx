@@ -288,9 +288,7 @@ void create_pqxxevents(transaction_base &);
 
 template<> inline std::string to_string(row const &value)
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return pqxx::test::list_row(value);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
