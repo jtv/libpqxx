@@ -212,7 +212,6 @@ public:
   template<typename... Vs>
   stream_from &operator>>(std::variant<Vs...> &) = delete;
 
-  // TODO: Hide this from the public.
   /// Iterate over this stream.  Supports range-based "for" loops.
   /** Produces an input iterator over the stream.
    *
