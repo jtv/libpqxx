@@ -422,9 +422,31 @@ void test_stream_to_factory_with_dynamic_columns()
 }
 
 
+void test_stream_to_quotes_arguments()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  std::string const table{R"--(pqxx_Stream"'x)--"}, column{R"--(a'"b)--"};
+
+  tx.exec0(
+    "CREATE TEMP TABLE " + tx.quote_name(table) + "(" + tx.quote_name(column) +
+    " integer)");
+  auto write{pqxx::stream_to::table(tx, {table}, {column})};
+  write.write_values<int>(12);
+  write.complete();
+
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(
+      "SELECT " + tx.quote_name(column) + " FROM " + tx.quote_name(table)),
+    12, "Stream wrote wrong value.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to__nonnull_optional);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_dynamic_columns);
+PQXX_REGISTER_TEST(test_stream_to_quotes_arguments);
 } // namespace
