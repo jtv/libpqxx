@@ -85,12 +85,6 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 }
 
 
-void pqxx::stream_to::set_up(transaction_base &tb, std::string_view table_name)
-{
-  set_up(tb, table_name, ""sv);
-}
-
-
 void pqxx::stream_to::set_up(
   transaction_base &tb, std::string_view table_name, std::string_view columns)
 {
