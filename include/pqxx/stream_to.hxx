@@ -213,7 +213,7 @@ public:
   /** This is the recommended way of inserting data.  Pass your field values,
    * of any convertible type.
    */
-  template<typename... Ts> void write_values(const Ts &...fields)
+  template<typename... Ts> void write_values(Ts const &...fields)
   {
     fill_buffer(fields...);
     write_buffer();
@@ -335,7 +335,9 @@ private:
   }
 
   /// Write raw COPY line into @c m_buffer, based on a container of fields.
-  template<typename Container> void fill_buffer(Container const &c)
+  template<typename Container>
+  std::enable_if_t<not std::is_same_v<typename Container::value_type, char>>
+  fill_buffer(Container const &c)
   {
     // To avoid unnecessary allocations and deallocations, we run through c
     // twice: once to determine how much buffer space we may need, and once to
