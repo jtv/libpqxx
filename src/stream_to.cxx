@@ -32,13 +32,6 @@ void begin_copy(
 } // namespace
 
 
-pqxx::stream_to::stream_to(transaction_base &tb, std::string_view table_name) :
-        transaction_focus{tb, s_classname, table_name}
-{
-  set_up(tb, table_name);
-}
-
-
 pqxx::stream_to::~stream_to() noexcept
 {
   try
@@ -85,10 +78,11 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 }
 
 
-void pqxx::stream_to::set_up(
-  transaction_base &tb, std::string_view table_name, std::string_view columns)
+pqxx::stream_to::stream_to(
+  transaction_base &tx, std::string_view path, std::string_view columns) :
+        transaction_focus{tx, s_classname, path}
 {
-  begin_copy(tb, table_name, columns);
+  begin_copy(tx, path, columns);
   register_me();
 }
 

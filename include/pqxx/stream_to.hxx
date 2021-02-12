@@ -136,7 +136,9 @@ public:
    * in an "implicit contract" between your code and your schema.
    */
   PQXX_DEPRECATED("Use table() or raw_table() factory.")
-  stream_to(transaction_base &, std::string_view table_name);
+  stream_to(transaction_base &tx, std::string_view table_name) :
+          stream_to{tx, table_name, ""sv}
+  {}
 
   /// Create a stream, specifying column names as a container of strings.
   /** @deprecated Use @c table() or @c raw_table() as a factory.
@@ -218,12 +220,9 @@ public:
   }
 
 private:
+  /// Stream a pre-quoted table name and columns list.
   stream_to(
-    transaction_base &tx, std::string_view path, std::string_view columns) :
-          transaction_focus{tx, s_classname, path}
-  {
-    set_up(tx, path, columns);
-  }
+    transaction_base &tx, std::string_view path, std::string_view columns);
 
   bool m_finished = false;
 
@@ -371,11 +370,6 @@ private:
     append_tuple(t, indexes{});
   }
 
-  // TODO: Fold into raw_table().
-  void set_up(
-    transaction_base &, std::string_view table_name,
-    std::string_view columns = ""sv);
-
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
@@ -388,8 +382,8 @@ private:
 
 template<typename Columns>
 inline stream_to::stream_to(
-  transaction_base &tb, std::string_view table_name, Columns const &columns) :
-        stream_to{tb, table_name, std::begin(columns), std::end(columns)}
+  transaction_base &tx, std::string_view table_name, Columns const &columns) :
+        stream_to{tx, table_name, std::begin(columns), std::end(columns)}
 {}
 
 
@@ -397,14 +391,14 @@ template<typename Iter>
 inline stream_to::stream_to(
   transaction_base &tx, std::string_view table_name, Iter columns_begin,
   Iter columns_end) :
-        transaction_focus{tx, s_classname, table_name}
-{
-  set_up(
-    tx, tx.quote_name(table_name),
-    separated_list(",", columns_begin, columns_end, [&tx](auto col) {
-      return tx.quote_name(*col);
-    }));
-}
+        stream_to{
+          tx,
+          tx.quote_name(
+            table_name,
+            separated_list(",", columns_begin, columns_end, [&tx](auto col) {
+              return tx.quote_name(*col);
+            }))}
+{}
 } // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"

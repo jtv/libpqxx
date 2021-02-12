@@ -286,10 +286,10 @@ private:
 
 template<typename Columns>
 inline stream_from::stream_from(
-  transaction_base &tb, from_table_t, std::string_view table_name,
+  transaction_base &tx, from_table_t, std::string_view table_name,
   Columns const &columns) :
         stream_from{
-          tb, from_table, table_name, std::begin(columns), std::end(columns)}
+          tx, from_table, table_name, std::begin(columns), std::end(columns)}
 {}
 
 
