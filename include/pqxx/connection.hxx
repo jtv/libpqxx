@@ -33,6 +33,7 @@
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/prepared_statement.hxx"
+#include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"
