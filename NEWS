@@ -1,3 +1,4 @@
+7.4.2
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0
