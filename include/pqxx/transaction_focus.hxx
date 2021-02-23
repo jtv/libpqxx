@@ -17,10 +17,12 @@
 namespace pqxx
 {
 /// Base class for things that monopolise a transaction's attention.
-/** Pipelines, SQL statements, and data streams are derived from this class.
+/** You probably won't need to use this class.  But it can be useful to @i know
+ * that a given libpqxx class is derived from it.
  *
- * For any given transaction, only one object of any type derived from
- * @c transaction_focus can be active at any given time.
+ * Pipelines, SQL statements, and data streams are examples of classes derived
+ * from @c transaction_focus.  For any given transaction, only one object of
+ * such a class can be active at any given time.
  */
 class PQXX_LIBEXPORT transaction_focus
 {
