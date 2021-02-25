@@ -1,4 +1,5 @@
 7.4.2
+ - Stop "aborting" nontransaction on closing.  (#419)
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0

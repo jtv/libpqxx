@@ -22,6 +22,8 @@
 
 namespace pqxx
 {
+using namespace std::literals;
+
 /// Simple "transaction" class offering no transactional integrity.
 /**
  * @ingroup transaction
@@ -58,19 +60,8 @@ public:
    * @param name Optional name for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  nontransaction(connection &c, std::string_view tname) :
+  nontransaction(connection &c, std::string_view tname = ""sv) :
           transaction_base{c, tname, std::shared_ptr<std::string>{}}
-  {
-    register_transaction();
-  }
-
-  /// Constructor.
-  /** Create a "dummy" transaction.
-   * @param c Connection that this "transaction" will operate on.
-   * @param name Optional name for the transaction, beginning with a letter
-   * and containing only letters and digits.
-   */
-  explicit nontransaction(connection &c) : transaction_base{c}
   {
     register_transaction();
   }
