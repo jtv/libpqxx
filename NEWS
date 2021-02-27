@@ -1,5 +1,6 @@
 7.4.2
  - Stop "aborting" nontransaction on closing.  (#419)
+ - Silence an overzealous Visual C++ warning.  (#418)
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0

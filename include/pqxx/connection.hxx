@@ -26,7 +26,8 @@
 #include <string_view>
 #include <tuple>
 
-#if __has_include(<ranges>)
+// Double-check in order to suppress an overzealous Visual C++ warning (#418).
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
 #  include <ranges>
 #endif
 
