@@ -298,12 +298,12 @@ void test_transaction_stream_from()
   int id{0};
   std::string name;
 
-  for (auto item :
+  for (auto [iid, iname] :
        tx.stream<int, std::string_view>("SELECT id, name FROM sample"))
   {
     items++;
-    id = std::get<0>(item);
-    name = std::get<1>(item);
+    id = iid;
+    name = iname;
   }
   PQXX_CHECK_EQUAL(items, 1, "Wrong number of iterations.");
   PQXX_CHECK_EQUAL(id, 321, "Got wrong int.");
