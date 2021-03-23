@@ -80,12 +80,52 @@ public:
   static constexpr std::size_t chunk_limit = 0x7fffffff;
 
   /// Read up to @c size bytes of the object into @c buf.  Return bytes read.
+  /** Uses a plain untyped C buffer to provide the least opinionated
+   * interface about container types and facilitate interaction with
+   * third-party libraries. The provided buffer has to be preallocated
+   * prior to the call to fit the requested number of bytes.
+   *
+   * @warning The underlying protocol only supports reads up to 2GB at a time.
+   */
+  std::size_t read(void* buf, std::size_t size);
+
+  /// Read up to @c size bytes into std::vector @c buf.  Return bytes read.
+  /** Uses std::vector template supporting all template parameters
+   * defined in C++ stdlib. Buffer must be resized (preallocated) to
+   * the number bytes that are being read. The number of bytes to be
+   * read is determined by the value returned by size() method.
+   *
+   * @warning Allocating STL containers' size with resize() leads to
+   * default-initialization with T{} values, where T is the contained type.
+   * If you use any standard type like std::byte or char as T, the
+   * buffer will be initialized to zero byte values. If you're reading
+   * a blob of 2Gb, for example, this means that in worst case 2Gb of memory
+   * are written out with zeros and then immediately overwritten with blob's data.
+   * To deal with this inefficiency you can use custom Allocator template
+   * parameter which is the canonical way in C++ libstd, or use your own
+   * type for T that doesn't do anything on default construction, e.g.:
+   *   struct my_byte { my_byte() {}; char c; };
+   * Another thing to keep in mind is that resize() potentially reallocates
+   * the memory which can lead to copying old data when growing
+   * the buffer. To avoid this, be sure to call clear() on container
+   * before calling resize().
+   */
+  template <typename T, typename Allocator = std::allocator<T>>
+  inline std::size_t read(std::vector<T, Allocator> &buf) {
+    return read(buf.data(), buf.size());
+  }
+
+
+  /// Read up to @c size bytes of the object into @c buf.  Return bytes read.
   /** Uses a buffer that you provide, so that you can (if this suits you)
    * allocate it once and then re-use it multiple times.  This is more
    * efficient than creating and returning a new buffer every time.
    *
    * @warning The underlying protocol only supports reads up to 2GB at a time.
    * If you need to read more, try making repeated calls to @c append_to_buf.
+   * @warning This function calls resize() internally on the buffer which may
+   * lead to writes of std::byte{} values for the full size requested
+   * prior to writing the actual data to the buffer.
    */
   std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
 
