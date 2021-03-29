@@ -18,6 +18,10 @@
 
 #include <cstdint>
 
+#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
+#  include <span>
+#endif
+
 #include "pqxx/dbtransaction.hxx"
 
 
@@ -79,15 +83,53 @@ public:
    */
   static constexpr std::size_t chunk_limit = 0x7fffffff;
 
-  /// Read up to @c size bytes of the object into @c buf.  Return bytes read.
-  /** Uses a buffer that you provide, so that you can (if this suits you)
-   * allocate it once and then re-use it multiple times.  This is more
-   * efficient than creating and returning a new buffer every time.
+  /// Read up to @c size bytes of the object into @c buf.
+  /** Uses a buffer that you provide, resizing it as needed.  If it suits you,
+   * this lets you allocate the buffer once and then re-use it multiple times.
+   *
+   * Resizes @c buf as needed.
    *
    * @warning The underlying protocol only supports reads up to 2GB at a time.
    * If you need to read more, try making repeated calls to @c append_to_buf.
    */
   std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
+
+#if defined(PQXX_HAVE_SPAN)
+
+  /// Read up to @c std::size(buf) bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until @c buf is
+   * full or there are no more bytes to read, whichever comes first.
+   *
+   * Returns the filled portion of @c buf.  This may be empty.
+   */
+  std::span<std::byte> read(std::span<std::byte> buf)
+  {
+    return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
+  }
+
+#else
+
+  /// Read up to @c std::size(buf) bytes from the object.
+  /** @deprecated As libpqxx moves to C++20 as its baseline language version,
+   * this will take and return @c std::span<std::byte>.
+   *
+   * Retrieves bytes from the blob, at the current position, until @c buf is
+   * full (i.e. its current size is reached), or there are no more bytes to
+   * read, whichever comes first.
+   *
+   * This function will not change either the size or the capacity of @c buf,
+   * only its contents.
+   *
+   * Returns the filled portion of @c buf.  This may be empty.
+   */
+  template<typename ALLOC>
+  std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> buf)
+  {
+    return std::basic_string_view<std::byte> { buf.data(), std::size(buf) }
+  }
+
+#endif // PQXX_HAVE_SPAN
+
 
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
@@ -199,6 +241,7 @@ private:
   }
   PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence);
+  std::size_t raw_read(std::byte buf[], std::size_t size);
 
   connection *m_conn = nullptr;
   int m_fd = -1;

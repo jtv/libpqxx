@@ -133,21 +133,28 @@ void pqxx::blob::close()
 }
 
 
-std::size_t
-pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
+std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to read from a closed binary large object."};
   if (size > chunk_limit)
     throw range_error{
       "Reads from a binary large object must be less than 2 GB at once."};
-  buf.resize(size);
-  auto data{reinterpret_cast<char *>(buf.data())};
+  auto data{reinterpret_cast<char *>(buf)};
   int received{lo_read(raw_conn(m_conn), m_fd, data, size)};
   if (received < 0)
     throw failure{
       internal::concat("Could not read from binary large object: ", errmsg())};
-  buf.resize(static_cast<std::size_t>(received));
+  return static_cast<std::size_t>(received);
+}
+
+
+std::size_t
+pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
+{
+  buf.resize(size);
+  auto const received{raw_read(buf.data(), size)};
+  buf.resize(received);
   return static_cast<std::size_t>(received);
 }
 
