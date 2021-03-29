@@ -125,7 +125,7 @@ public:
   template<typename ALLOC>
   std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> buf)
   {
-    return std::basic_string_view<std::byte> { buf.data(), std::size(buf) }
+    return std::basic_string_view<std::byte>{buf.data(), std::size(buf)};
   }
 
 #endif // PQXX_HAVE_SPAN
