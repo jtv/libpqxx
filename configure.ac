@@ -278,6 +278,16 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($concepts)
 
 
+# Check for std::span.
+AC_MSG_CHECKING([std::span])
+span=yes
+AC_COMPILE_IFELSE(
+	[read_test(span.cxx)],
+	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span]),
+	span=no)
+AC_MSG_RESULT($span)
+
+
 # Check for strnlen_s.
 AC_MSG_CHECKING([strnlen_s])
 strnlen_s=yes

@@ -88,6 +88,7 @@ runner_SOURCES = \
   unit/test_composite.cxx \
   unit/test_connection.cxx \
   unit/test_cursor.cxx \
+  unit/test_date.cxx \
   unit/test_encodings.cxx \
   unit/test_error_verbosity.cxx \
   unit/test_errorhandler.cxx \

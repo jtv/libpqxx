@@ -67,6 +67,10 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/concepts.cxx)
 try_compile(
+	PQXX_HAVE_SPAN
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
+try_compile(
 	PQXX_HAVE_STRNLEN_S
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strnlen_s.cxx)

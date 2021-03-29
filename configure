@@ -17703,6 +17703,42 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$concepts" >&6; }
 
 
+# Check for std::span.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking std::span" >&5
+$as_echo_n "checking std::span... " >&6; }
+span=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for std::span.
+
+#include <span>
+
+
+
+int main(int argc, char **argv)
+
+{
+
+  std::span<char *> args{argv, static_cast<std::size_t>(argc)};
+
+  return static_cast<int>(std::size(args) - 1u);
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_SPAN 1" >>confdefs.h
+
+else
+  span=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $span" >&5
+$as_echo "$span" >&6; }
+
+
 # Check for strnlen_s.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking strnlen_s" >&5
 $as_echo_n "checking strnlen_s... " >&6; }

@@ -84,6 +84,9 @@
 /* Define if libpq has PQencryptPasswordConn (since pg 10). */
 #undef PQXX_HAVE_PQENCRYPTPASSWORDCONN
 
+/* Define if compiler has std::span */
+#undef PQXX_HAVE_SPAN
+
 /* Define if compiler provides strnlen */
 #undef PQXX_HAVE_STRNLEN
 
