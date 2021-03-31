@@ -177,6 +177,60 @@ void test_blob_read_reads_data()
 }
 
 
+void test_blob_read_span()
+{
+#if defined(PQXX_HAVE_SPAN)
+  std::basic_string<std::byte> const data{std::byte{'u'}, std::byte{'v'},
+                                          std::byte{'w'}, std::byte{'x'},
+                                          std::byte{'y'}, std::byte{'z'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+
+  auto b{pqxx::blob::open_r(tx, id)};
+  std::basic_string<std::byte> string_buf;
+  string_buf.resize(2);
+
+  std::span<std::byte> output;
+
+  output = b.read(std::span<std::byte>{});
+  PQXX_CHECK_EQUAL(
+    std::size(output), 0u, "Empty read produced nonempty buffer.");
+  output = b.read(string_buf);
+  PQXX_CHECK_EQUAL(
+    std::size(output), 2u, "Got unexpected buf size from blob::read().");
+  PQXX_CHECK_EQUAL(
+    output[0], std::byte{'u'}, "Unexpected byte from blob::read().");
+  PQXX_CHECK_EQUAL(
+    output[1], std::byte{'v'}, "Unexpected byte from blob::read().");
+
+  string_buf.resize(100);
+  output = b.read(std::span<std::byte>{string_buf.data(), 1});
+  PQXX_CHECK_EQUAL(
+    std::size(output), 1u,
+    "Did blob::read() follow string size instead of span size?");
+  PQXX_CHECK_EQUAL(
+    output[0], std::byte{'w'}, "Unexpected byte from blob::read().");
+
+  std::vector<std::byte> vec_buf;
+  vec_buf.resize(2);
+  output = b.read(vec_buf);
+  PQXX_CHECK_EQUAL(
+    std::size(output), 2u, "Got unexpected buf size from blob::read().");
+  PQXX_CHECK_EQUAL(
+    output[0], std::byte{'x'}, "Unexpected byte from blob::read().");
+  PQXX_CHECK_EQUAL(
+    output[1], std::byte{'y'}, "Unexpected byte from blob::read().");
+
+  vec_buf.resize(100);
+  output = b.read(vec_buf);
+  PQXX_CHECK_EQUAL(std::size(output), 1u, "Weird things happened at EOF.");
+  PQXX_CHECK_EQUAL(output[0], std::byte{'z'}, "Bad data at EOF.");
+#endif // PQXX_HAVE_SPAN
+}
+
+
 void test_blob_write_appends_at_insertion_point()
 {
   pqxx::connection conn;
@@ -481,6 +535,7 @@ PQXX_REGISTER_TEST(test_blob_remove_is_not_idempotent);
 PQXX_REGISTER_TEST(test_blob_checks_open_mode);
 PQXX_REGISTER_TEST(test_blob_supports_move);
 PQXX_REGISTER_TEST(test_blob_read_reads_data);
+PQXX_REGISTER_TEST(test_blob_read_span);
 PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
 PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
