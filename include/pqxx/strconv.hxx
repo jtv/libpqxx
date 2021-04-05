@@ -352,7 +352,7 @@ inline void into_string(TYPE const &value, std::string &out);
 template<typename TYPE>
 [[nodiscard]] inline bool is_null(TYPE const &value) noexcept
 {
-  return nullness<TYPE>::is_null(value);
+  return nullness<strip_t<TYPE>>::is_null(value);
 }
 
 
@@ -363,7 +363,7 @@ template<typename TYPE>
 template<typename... TYPE>
 [[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
 {
-  return (string_traits<TYPE>::size_buffer(value) + ...);
+  return (string_traits<strip_t<TYPE>>::size_buffer(value) + ...);
 }
 
 

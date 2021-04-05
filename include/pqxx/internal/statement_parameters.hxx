@@ -35,7 +35,9 @@ constexpr inline auto const iterator_identity{
 
 
 /// Marker type: pass a dynamically-determined number of statement parameters.
-/** Normally when invoking a prepared or parameterised statement, the number
+/** @deprecated Use @c params instead.
+ *
+ * Normally when invoking a prepared or parameterised statement, the number
  * of parameters is known at compile time.  For instance,
  * @c t.exec_prepared("foo", 1, "x"); executes statement @c foo with two
  * parameters, an @c int and a C string.
@@ -113,18 +115,13 @@ private:
  */
 struct PQXX_LIBEXPORT c_params
 {
-  c_params() =default;
+  c_params() = default;
   /// Copying these objects is pointless and expensive.  Don't do it.
-  c_params(c_params const &) =delete;
-  c_params(c_params &&) =default;
+  c_params(c_params const &) = delete;
+  c_params(c_params &&) = default;
 
   /// Pre-allocate storage for @c n parameters.
-  void reserve(std::size_t n)
-  {
-    values.reserve(n);
-    lengths.reserve(n);
-    formats.reserve(n);
-  }
+  void reserve(std::size_t n);
 
   /// As used by libpq: pointers to parameter values.
   std::vector<char const *> values;

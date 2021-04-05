@@ -366,7 +366,7 @@ public:
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
     params pp(args...);
-    return internal_exec_params(query, pp.make_pointers());
+    return internal_exec_params(query, pp.make_c_params());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -431,7 +431,7 @@ public:
   result exec_prepared(zview statement, Args &&...args)
   {
     params pp(args...);
-    return internal_exec_prepared(statement, pp.make_pointers());
+    return internal_exec_prepared(statement, pp.make_c_params());
   }
 
   /// Execute a prepared statement, and expect a single-row result.
@@ -567,7 +567,8 @@ private:
   }
   template<typename T> bool parm_is_null(T) const noexcept { return false; }
 
-  result internal_exec_prepared(zview statement, internal::c_params const &args);
+  result
+  internal_exec_prepared(zview statement, internal::c_params const &args);
 
   result internal_exec_params(zview query, internal::c_params const &args);
 

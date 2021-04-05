@@ -17,8 +17,6 @@
 #include "pqxx/internal/statement_parameters.hxx"
 #include "pqxx/types.hxx"
 
-// TODO: This header is all about parameters.  Rename it.
-// TODO: Fold into the pqxx namespace?  Or inline?
 
 /// Dedicated namespace for helper types related to prepared statements.
 namespace pqxx::prepare
@@ -42,7 +40,8 @@ namespace pqxx::prepare
  * @return An object representing the parameters.
  */
 template<typename IT>
-[[deprecated("Use params instead.")]] constexpr inline auto make_dynamic_params(IT begin, IT end)
+[[deprecated("Use params instead.")]] constexpr inline auto
+make_dynamic_params(IT begin, IT end)
 {
   return pqxx::internal::dynamic_params(begin, end);
 }
@@ -119,7 +118,7 @@ namespace pqxx
  * string as the second.  You can even insert a @c params in a @c params, or
  * pass two @c params objects to a statement.
  */
-class params
+class PQXX_LIBEXPORT params
 {
 public:
   params() = default;
@@ -131,87 +130,63 @@ public:
     append_pack(std::forward<Args>(args)...);
   }
 
-  void reserve(std::size_t n) { m_params.reserve(n); }
+  void reserve(std::size_t);
   auto size() const { return std::size(m_params); }
   auto ssize() const { return pqxx::internal::ssize(m_params); }
 
-  /// Append a non-null zview parameter.push
+  /// Append a non-null zview parameter.
   /** The underlying data must stay valid for as long as the @c params remains
    * active.
    */
-  void append(zview value) { m_params.push_back(entry{value}); }
+  void append(zview);
+
   /// Append a non-null string parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @c zview variant if you can, or @c std::move().
    */
-  void append(std::string const &value) { m_params.push_back(entry{value}); }
+  void append(std::string const &);
+
   /// Append a non-null string parameter.
-  void append(std::string &&value)
-  {
-    m_params.push_back(entry{std::move(value)});
-  }
+  void append(std::string &&);
 
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the @c params remains
    * active.
    */
-  void append(std::basic_string_view<std::byte> value)
-  {
-    m_params.push_back(entry{value});
-  }
+  void append(std::basic_string_view<std::byte>);
+
   /// Append a non-null binary parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @c std::basic_string_view<std::byte> variant if you can, or
    * @c std::move().
    */
-  void append(std::basic_string<std::byte> const &value)
-  {
-    m_params.push_back(entry{value});
-  }
+  void append(std::basic_string<std::byte> const &);
+
   /// Append a non-null binary parameter.
-  void append(std::basic_string<std::byte> &&value)
-  {
-    m_params.push_back(entry{std::move(value)});
-  }
+  void append(std::basic_string<std::byte> &&);
 
   /// @deprecated Append binarystring parameter.
   /** The binarystring must stay valid for as long as the @c params remains
    * active.
    */
-  void append(binarystring const &value)
-  {
-    m_params.push_back(entry{std::basic_string_view<std::byte>{
-      reinterpret_cast<std::byte const *>(value.data()), std::size(value)}});
-  }
+  void append(binarystring const &value);
 
   /// Append all parameters from value.
   template<typename IT, typename ACCESSOR>
   void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value)
   {
-    // TODO: If supported: reserve(std::size(value)).
     for (auto &param : value) append(value.access(param));
   }
 
-  void append(params const &value)
-  {
-    this->reserve(std::size(value.m_params) + std::size(this->m_params));
-    for (auto const &param : value.m_params) m_params.emplace_back(param);
-  }
+  void append(params const &value);
 
-  void append(params &&value)
-  {
-    this->reserve(std::size(value.m_params) + std::size(this->m_params));
-    for (auto const &param : value.m_params)
-      m_params.emplace_back(std::move(param));
-    value.m_params.clear();
-  }
+  void append(params &&value);
 
   /// Append a non-null parameter, converting it to its string representation.
   template<typename TYPE> void append(TYPE const &value)
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
-    // XXX: Doesn't is_null() include the always_null check?
-    if constexpr (nullness<TYPE>::always_null)
+    if constexpr (nullness<strip_t<TYPE>>::always_null)
       m_params.emplace_back();
     else if (is_null(value))
       m_params.emplace_back();
@@ -235,33 +210,7 @@ public:
    * object is guaranteed to live only while the call is going on.  As soon as
    * we climb back out of that call tree, we're done with that data.
    */
-  pqxx::internal::c_params make_pointers() const
-  {
-    pqxx::internal::c_params p;
-    p.reserve(std::size(m_params));
-    for (auto const &param : m_params)
-      std::visit(
-        [&p](auto const &value) {
-          using T = strip_t<decltype(value)>;
-
-          if constexpr (std::is_same_v<T, nullptr_t>)
-          {
-            p.values.push_back(nullptr);
-            p.lengths.push_back(0);
-          }
-          else
-          {
-            p.values.push_back(reinterpret_cast<char const *>(value.data()));
-            p.lengths.push_back(
-              check_cast<int>(internal::ssize(value), s_overflow));
-          }
-
-          p.formats.push_back(param_format(value));
-        },
-        param);
-
-    return p;
-  }
+  pqxx::internal::c_params make_c_params() const;
 
 private:
   /// Recursively append a pack of params.
@@ -279,14 +228,14 @@ private:
   // The way we store a parameter depends on whether it's binary or text (most
   // types are text), and whether we're responsible for storing the contents.
   using entry = std::variant<
-    nullptr_t, zview, std::string, std::basic_string_view<std::byte>,
+    std::nullptr_t, zview, std::string, std::basic_string_view<std::byte>,
     std::basic_string<std::byte>>;
   std::vector<entry> m_params;
 
   static constexpr std::string_view s_overflow{
     "Statement parameter length overflow."sv};
 };
-} // namespace pqxx::prepare
+} // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

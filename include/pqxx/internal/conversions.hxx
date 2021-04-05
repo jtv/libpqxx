@@ -6,7 +6,7 @@
 #include <optional>
 
 #if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
-#include <span>
+#  include <span>
 #endif
 
 #include <type_traits>
@@ -797,8 +797,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 };
 
 
-template<typename T>
-format param_format(std::shared_ptr<T> const &value)
+template<typename T> format param_format(std::shared_ptr<T> const &value)
 {
   return param_format(*value);
 }
