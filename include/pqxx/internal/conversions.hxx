@@ -797,8 +797,8 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 };
 
 
-template<typename T, typename... Args>
-format param_format(std::shared_ptr<T, Args...> const &value)
+template<typename T>
+format param_format(std::shared_ptr<T> const &value)
 {
   return param_format(*value);
 }
