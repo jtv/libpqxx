@@ -24,7 +24,7 @@
 namespace pqxx::prepare
 {
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @c params_builder instead.
+/** @deprecated Use @c params instead.
  *
  * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
@@ -42,14 +42,14 @@ namespace pqxx::prepare
  * @return An object representing the parameters.
  */
 template<typename IT>
-[[deprecated("Use params_builder instead.")]] constexpr inline auto make_dynamic_params(IT begin, IT end)
+[[deprecated("Use params instead.")]] constexpr inline auto make_dynamic_params(IT begin, IT end)
 {
   return pqxx::internal::dynamic_params(begin, end);
 }
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @c params_builder instead.
+/** @deprecated Use @c params instead.
  *
  * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
@@ -74,7 +74,7 @@ template<typename C>
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated User @c params_builder instead.
+/** @deprecated User @c params instead.
  *
  * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
@@ -109,23 +109,23 @@ namespace pqxx
  * arguments to @c exec_prepared or @c exec_params.  But in complex cases,
  * sometimes that's just not convenient.
  *
- * In those situations, you can create a @c params_builder and append your
- * parameters into that, one by one.  Then you pass the @c params_builder to
- * @c exec_prepared or @c exec_params.
+ * In those situations, you can create a @c params and append your parameters
+ * into that, one by one.  Then you pass the @c params to @c exec_prepared or
+ * @c exec_params.
  *
- * Combinations also work: if you have a @c params_builder containing a string
+ * Combinations also work: if you have a @c params containing a string
  * parameter, and you call @c exec_params with an @c int argument followed by
- * your @c params_builder, you'll be passing the @c int as the first parameter
- * and the string as the second.  You can even insert a @c params_builder in a
- * @c params_builder, just like you can insert a @c dynamic_params.
+ * your @c params, you'll be passing the @c int as the first parameter and the
+ * string as the second.  You can even insert a @c params in a @c params, or
+ * pass two @c params objects to a statement.
  */
-class params_builder
+class params
 {
 public:
-  params_builder() = default;
+  params() = default;
 
-  /// Create a builder pre-populated with args.  Feel free to add more later.
-  template<typename... Args> constexpr params_builder(Args &&...args)
+  /// Create a @c params pre-populated with args.  Feel free to add more later.
+  template<typename... Args> constexpr params(Args &&...args)
   {
     reserve(sizeof...(args));
     append_pack(std::forward<Args>(args)...);
@@ -136,7 +136,7 @@ public:
   auto ssize() const { return pqxx::internal::ssize(m_params); }
 
   /// Append a non-null zview parameter.push
-  /** The underlying data must stay valid for as long as the builder remains
+  /** The underlying data must stay valid for as long as the @c params remains
    * active.
    */
   void append(zview value) { m_params.push_back(entry{value}); }
@@ -152,7 +152,7 @@ public:
   }
 
   /// Append a non-null binary parameter.
-  /** The underlying data must stay valid for as long as the builder remains
+  /** The underlying data must stay valid for as long as the @c params remains
    * active.
    */
   void append(std::basic_string_view<std::byte> value)
@@ -175,7 +175,7 @@ public:
   }
 
   /// @deprecated Append binarystring parameter.
-  /** The binarystring must stay valid for as long as the builder remains
+  /** The binarystring must stay valid for as long as the @c params remains
    * active.
    */
   void append(binarystring const &value)
@@ -192,13 +192,13 @@ public:
     for (auto &param : value) append(value.access(param));
   }
 
-  void append(params_builder const &value)
+  void append(params const &value)
   {
     this->reserve(std::size(value.m_params) + std::size(this->m_params));
     for (auto const &param : value.m_params) m_params.emplace_back(param);
   }
 
-  void append(params_builder &&value)
+  void append(params &&value)
   {
     this->reserve(std::size(value.m_params) + std::size(this->m_params));
     for (auto const &param : value.m_params)
@@ -231,9 +231,9 @@ public:
    * libpq when calling a parameterised or prepared statement.
    *
    * The pointers in the params will refer to storage owned by either the
-   * builder, or the caller.  This is not a problem because a @c params object
-   * is guaranteed to live only while the call is going on.  As soon as we
-   * climb back out of that call tree, we're done with that data.
+   * params object, or the caller.  This is not a problem because a @c c_params
+   * object is guaranteed to live only while the call is going on.  As soon as
+   * we climb back out of that call tree, we're done with that data.
    */
   pqxx::internal::c_params make_pointers() const
   {

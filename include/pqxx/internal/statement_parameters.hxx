@@ -113,6 +113,11 @@ private:
  */
 struct PQXX_LIBEXPORT c_params
 {
+  c_params() =default;
+  /// Copying these objects is pointless and expensive.  Don't do it.
+  c_params(c_params const &) =delete;
+  c_params(c_params &&) =default;
+
   /// Pre-allocate storage for @c n parameters.
   void reserve(std::size_t n)
   {

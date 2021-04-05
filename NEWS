@@ -5,7 +5,7 @@
  - Silence an overzealous Visual C++ warning.  (#418)
  - Starting support for C++20 `std::span`.
  - New `blob::read()` using `std::span`.  (#429)
- - New `params_builder` lets you build parameters incrementally.  (#387)
+ - New `params` class lets you build parameter lists incrementally.  (#387)
  - Pass `std::vector<std::byte>` params in binary format.
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)

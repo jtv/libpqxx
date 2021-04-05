@@ -74,18 +74,18 @@ Dynamic parameter lists
 In rare cases you may just not know how many parameters you'll pass into your
 statement when you call it.
 
-For these situations, have a look at `params_builder`.  It lets you compose
-your parameters list on the fly, even add whole ranges of parameters at a time.
+For these situations, have a look at `params`.  It lets you compose your
+parameters list on the fly, even add whole ranges of parameters at a time.
 
-You can pass a `params_builder` into your statement as a normal parameter.  It
-will fill in all the parameter values it contains into that position of the
+You can pass a `params` into your statement as a normal parameter.  It will
+fill in all the parameter values it contains into that position of the
 statement's overall parameter list.
 
 So if you call your statement passing a regular parameter `a`, a
-`params_builder` containing just a parameter `b`, and another regular parameter
-`c`, then your call will pass parameters `a`, `b`, and `c`.  Or if the builder
-is empty, it will pass just `a` and `c`.  If the builder contains `x` and `y`,
-your call will pass `a, x, y, c`.
+`params` containing just a parameter `b`, and another regular parameter `c`,
+then your call will pass parameters `a`, `b`, and `c`.  Or if the params object
+is empty, it will pass just `a` and `c`.  If the params object contains `x` and
+`y`, your call will pass `a, x, y, c`.
 
 You can mix static and dynamic parameters freely.  Don't go overboard though:
 complexity is where bugs happen!

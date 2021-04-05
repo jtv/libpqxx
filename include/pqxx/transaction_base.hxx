@@ -365,8 +365,8 @@ public:
   /// Execute an SQL statement with parameters.
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
-    params_builder builder(args...);
-    return internal_exec_params(query, builder.make_pointers());
+    params pp(args...);
+    return internal_exec_params(query, pp.make_pointers());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -430,8 +430,8 @@ public:
   template<typename... Args>
   result exec_prepared(zview statement, Args &&...args)
   {
-    params_builder builder(args...);
-    return internal_exec_prepared(statement, builder.make_pointers());
+    params pp(args...);
+    return internal_exec_prepared(statement, pp.make_pointers());
   }
 
   /// Execute a prepared statement, and expect a single-row result.
