@@ -395,6 +395,19 @@ template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 /// Element separator between SQL array elements of this type.
 template<typename T> inline constexpr char array_separator{','};
+
+
+/// What's the preferred format for passing parameters of this type?
+/** This affects how we pass parameters of @c TYPE when calling parameterised
+ * statements or prepared statements.
+ *
+ * Generally we pass parameters in text format, but binary strings are the
+ * exception.
+ */
+template<typename TYPE> inline constexpr format param_format(TYPE const &)
+{
+  return format::text;
+}
 //@}
 } // namespace pqxx
 

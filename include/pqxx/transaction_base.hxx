@@ -365,8 +365,8 @@ public:
   /// Execute an SQL statement with parameters.
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
-    return internal_exec_params(
-      query, internal::params(std::forward<Args>(args)...));
+    pqxx::prepare::params_builder builder(args...);
+    return internal_exec_params(query, builder.make_pointers());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -430,8 +430,8 @@ public:
   template<typename... Args>
   result exec_prepared(zview statement, Args &&...args)
   {
-    return internal_exec_prepared(
-      statement, internal::params(std::forward<Args>(args)...));
+    pqxx::prepare::params_builder builder(args...);
+    return internal_exec_prepared(statement, builder.make_pointers());
   }
 
   /// Execute a prepared statement, and expect a single-row result.

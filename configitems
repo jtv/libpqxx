@@ -16,5 +16,4 @@ PQXX_HAVE_SPAN	public	compiler
 PQXX_HAVE_STRNLEN       public        compiler
 PQXX_HAVE_STRNLEN_S       public        compiler
 PQXX_HAVE_THREAD_LOCAL       private        compiler
-PQXX_HAVE_VARIANT       public        compiler
 VERSION	internal	autotools

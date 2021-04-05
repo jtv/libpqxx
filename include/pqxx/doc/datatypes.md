@@ -314,3 +314,60 @@ sure that it's safe.
 Do not do this if a string representation of your type may contain a comma;
 semicolon; parenthesis; brace; quote; backslash; newline; or any other
 character that might need escaping.
+
+
+Optional: Specialise `param_format`
+-----------------------------------
+
+This one you don't generally need to worry about.  Read on if you're writing a
+type which represents raw binary data, or if you're writing a template where
+_some specialisations_ may contain raw binary data.
+
+When you call parameterised statements, or prepared statements with parameters,
+libpqxx needs to your parameters on to libpq, the underlying C-level PostgreSQL
+client library.
+
+There are two formats for doing that: _text_ and _binary._  In the first, we
+represent all values as strings, and the server then converts them into its own
+internal binary representation.  That's what the string conversions are all
+about, and it's what we do for almost all types of parameters.
+
+But we do it differently when the parameter is a contiguous series of raw bytes
+and the corresponding SQL type is `BYTEA`.  There is a text format for those,
+but we bypass it for efficiency.  The server can use the binary data in the
+exact same form, without any conversion or extra processing.  The binary data
+is also twice as compact during transport.
+
+(People sometimes ask why we can't just treat all types as binary.  However the
+general case isn't so clear-cut.  The binary formats are not documented, there
+are no guarantees that they will be platform-independent or that they will
+remain stable, and there's no really solid way to detect when we might get the
+format wrong.  But also, the conversions aren't necessarily as straightforward
+and efficient as they sound.  So, for the general case, libpqxx sticks with the
+text formats.  Raw binary data alone stands out as a clear win.)
+
+Long story short, the machinery for passing parameters needs to know: is this
+parameter a binary string, or not?  In the normal case it can assume "no," and
+that's what it does.  The text format is always a safe choice; we just try to
+use the binary format where it's faster.
+
+The `param_format` function template is what makes the decision.  We specialise
+it for types which may be binary strings, and use the default for all other
+types.
+
+"Types which _may_ be binary"?  You might think we know whether a type is a
+binary type or not.  But there are some complications with generic types.
+
+Templates like `std::shared_ptr`, `std::optional`, and so on act like
+"wrappers" for another type.  A `std::optional<T>` is binary if `T` is binary.
+Otherwise, it's not.  If you're building support for a template of this nature,
+you'll probably want to implement `param_format` for it.
+
+The decision to use binary format is made based on a given object, not
+necessarily based on the type in general.  Look at `std::variant`.  If you have
+a `std::variant` type which can hold an `int` or a binary string, is that a
+binary parameter?  We can't decide without knowing the individual object.
+
+Containers are another hard case.  Should we pass `std::vector<T>` in binary?
+Even when `T` is a binary type, we don't currently have any way to pass an
+array in binary format, so we always pass it as text.

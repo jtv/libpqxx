@@ -295,7 +295,7 @@ void pqxx::pipeline::obtain_dummy()
     return;
   }
 
-  // XXX: Can we actually re-issue statements after a failure?
+  // TODO: Can we actually re-issue statements after a failure?
   /* Execution of this batch failed.
    *
    * When we send multiple statements in one go, the backend treats them as a

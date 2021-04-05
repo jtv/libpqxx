@@ -4,6 +4,11 @@
 #include <memory>
 #include <numeric>
 #include <optional>
+
+#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
+#include <span>
+#endif
+
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -261,6 +266,13 @@ template<typename T> struct nullness<std::optional<T>>
 };
 
 
+template<typename T>
+inline constexpr format param_format(std::optional<T> const &value)
+{
+  return param_format(*value);
+}
+
+
 template<typename T> struct string_traits<std::optional<T>>
 {
   static char *into_buf(char *begin, char *end, std::optional<T> const &value)
@@ -293,7 +305,6 @@ template<typename T>
 inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 
 
-#if defined(PQXX_HAVE_VARIANT)
 template<typename... T> struct nullness<std::variant<T...>>
 {
   static constexpr bool has_null = (nullness<T>::has_null or ...);
@@ -313,10 +324,8 @@ template<typename... T> struct nullness<std::variant<T...>>
    */
   static constexpr std::variant<T...> null() = delete;
 };
-#endif // PQXX_HAVE_VARIANT
 
 
-#if defined(PQXX_HAVE_VARIANT)
 template<typename... T> struct string_traits<std::variant<T...>>
 {
   static char *
@@ -348,14 +357,18 @@ template<typename... T> struct string_traits<std::variant<T...>>
    */
   static std::variant<T...> from_string(std::string_view) = delete;
 };
-#endif // PQXX_HAVE_VARIANT
 
 
-#if defined(PQXX_HAVE_VARIANT)
+template<typename... Args>
+inline constexpr format param_format(std::variant<Args...> const &value)
+{
+  return std::visit([](auto &v) { return param_format(v); }, value);
+}
+
+
 template<typename... T>
 inline constexpr bool is_unquoted_safe<std::variant<T...>>{
   (is_unquoted_safe<T> and ...)};
-#endif // PQXX_HAVE_VARIANT
 
 
 template<typename T> inline T from_string(std::stringstream const &text)
@@ -706,7 +719,8 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 };
 
 
-template<typename T> struct string_traits<std::unique_ptr<T>>
+template<typename T, typename... Args>
+struct string_traits<std::unique_ptr<T, Args...>>
 {
   static std::unique_ptr<T> from_string(std::string_view text)
   {
@@ -714,12 +728,13 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
   }
 
   static char *
-  into_buf(char *begin, char *end, std::unique_ptr<T> const &value)
+  into_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
   {
     return string_traits<T>::into_buf(begin, end, *value);
   }
 
-  static zview to_buf(char *begin, char *end, std::unique_ptr<T> const &value)
+  static zview
+  to_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
   {
     if (value)
       return string_traits<T>::to_buf(begin, end, *value);
@@ -727,15 +742,23 @@ template<typename T> struct string_traits<std::unique_ptr<T>>
       return zview{};
   }
 
-  static std::size_t size_buffer(std::unique_ptr<T> const &value) noexcept
+  static std::size_t
+  size_buffer(std::unique_ptr<T, Args...> const &value) noexcept
   {
     return pqxx::size_buffer(*value.get());
   }
 };
 
 
-template<typename T>
-inline constexpr bool is_unquoted_safe<std::unique_ptr<T>>{
+template<typename T, typename... Args>
+inline format param_format(std::unique_ptr<T, Args...> const &value)
+{
+  return param_format(*value);
+}
+
+
+template<typename T, typename... Args>
+inline constexpr bool is_unquoted_safe<std::unique_ptr<T, Args...>>{
   is_unquoted_safe<T>};
 
 
@@ -774,6 +797,13 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 };
 
 
+template<typename T, typename... Args>
+format param_format(std::shared_ptr<T, Args...> const &value)
+{
+  return param_format(*value);
+}
+
+
 template<typename T>
 inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
@@ -783,6 +813,18 @@ template<>
 struct nullness<std::basic_string<std::byte>>
         : no_null<std::basic_string<std::byte>>
 {};
+
+
+// TODO: In C++20, generalise param_format for contiguous_range<byte>.
+
+
+#if defined(PQXX_HAVE_SPAN)
+template<typename... Args, Args... args>
+inline constexpr format param_format(std::span<std::byte, args...> const &)
+{
+  return format::binary;
+}
+#endif // PQXX_HAVE_SPAN
 
 
 template<> struct string_traits<std::basic_string<std::byte>>
@@ -823,6 +865,13 @@ template<> struct string_traits<std::basic_string<std::byte>>
     return buf;
   }
 };
+
+
+template<>
+inline constexpr format param_format(std::basic_string<std::byte> const &)
+{
+  return format::binary;
+}
 
 
 template<>
@@ -870,6 +919,11 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
   }
 };
 
+template<>
+inline constexpr format param_format(std::basic_string_view<std::byte> const &)
+{
+  return format::binary;
+}
 } // namespace pqxx
 
 
@@ -983,14 +1037,31 @@ private:
 
 namespace pqxx
 {
-template<typename T> struct nullness<std::vector<T>> : no_null<std::vector<T>>
+template<typename T, typename... Args>
+struct nullness<std::vector<T, Args...>> : no_null<std::vector<T>>
 {};
 
 
-template<typename T>
-struct string_traits<std::vector<T>>
-        : internal::array_string_traits<std::vector<T>>
+template<typename T, typename... Args>
+struct string_traits<std::vector<T, Args...>>
+        : internal::array_string_traits<std::vector<T, Args...>>
 {};
+
+
+/// We don't know how to pass array params in binary format, so pass as text.
+template<typename T, typename... Args>
+inline constexpr format param_format(std::vector<T, Args...> const &)
+{
+  return format::text;
+}
+
+
+/// A @c std::vector<std::byte> is a binary string.  Other vectors are not.
+template<typename... Args>
+inline constexpr format param_format(std::vector<std::byte, Args...> const &)
+{
+  return format::binary;
+}
 
 
 template<typename T> inline constexpr bool is_sql_array<std::vector<T>>{true};
@@ -1005,6 +1076,22 @@ template<typename T, std::size_t N>
 struct string_traits<std::array<T, N>>
         : internal::array_string_traits<std::array<T, N>>
 {};
+
+
+/// We don't know how to pass array params in binary format, so pass as text.
+template<typename T, typename... Args, Args... args>
+inline constexpr format param_format(std::array<T, args...> const &)
+{
+  return format::text;
+}
+
+
+/// An array of @c std::byte is a binary string.
+template<typename... Args, Args... args>
+inline constexpr format param_format(std::array<std::byte, args...> const &)
+{
+  return format::binary;
+}
 
 
 template<typename T, std::size_t N>
