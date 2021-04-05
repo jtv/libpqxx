@@ -316,7 +316,7 @@ void pqxx::transaction_base::check_rowcount_params(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  zview statement, internal::params const &args)
+  zview statement, internal::c_params const &args)
 {
   command cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
@@ -325,7 +325,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  zview query, internal::params const &args)
+  zview query, internal::c_params const &args)
 {
   command cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(

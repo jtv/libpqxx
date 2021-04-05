@@ -365,7 +365,7 @@ public:
   /// Execute an SQL statement with parameters.
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
-    pqxx::prepare::params_builder builder(args...);
+    params_builder builder(args...);
     return internal_exec_params(query, builder.make_pointers());
   }
 
@@ -430,7 +430,7 @@ public:
   template<typename... Args>
   result exec_prepared(zview statement, Args &&...args)
   {
-    pqxx::prepare::params_builder builder(args...);
+    params_builder builder(args...);
     return internal_exec_prepared(statement, builder.make_pointers());
   }
 
@@ -567,9 +567,9 @@ private:
   }
   template<typename T> bool parm_is_null(T) const noexcept { return false; }
 
-  result internal_exec_prepared(zview statement, internal::params const &args);
+  result internal_exec_prepared(zview statement, internal::c_params const &args);
 
-  result internal_exec_params(zview query, internal::params const &args);
+  result internal_exec_params(zview query, internal::c_params const &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(

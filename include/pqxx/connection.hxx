@@ -794,7 +794,7 @@ private:
 
   void PQXX_PRIVATE process_notice_raw(char const msg[]) noexcept;
 
-  result exec_prepared(std::string_view statement, internal::params const &);
+  result exec_prepared(std::string_view statement, internal::c_params const &);
 
   /// Throw @c usage_error if this connection is not in a movable state.
   void check_movable() const;
@@ -836,7 +836,7 @@ private:
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params(std::string_view query, internal::params const &args);
+  result exec_params(std::string_view query, internal::c_params const &args);
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;

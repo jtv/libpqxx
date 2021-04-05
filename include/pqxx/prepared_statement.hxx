@@ -24,7 +24,9 @@
 namespace pqxx::prepare
 {
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated Use @c params_builder instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -40,14 +42,16 @@ namespace pqxx::prepare
  * @return An object representing the parameters.
  */
 template<typename IT>
-[[nodiscard]] constexpr inline auto make_dynamic_params(IT begin, IT end)
+[[deprecated("Use params_builder instead.")]] constexpr inline auto make_dynamic_params(IT begin, IT end)
 {
   return pqxx::internal::dynamic_params(begin, end);
 }
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated Use @c params_builder instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -70,7 +74,9 @@ template<typename C>
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated User @c params_builder instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -92,8 +98,11 @@ make_dynamic_params(C &container, ACCESSOR accessor)
   using IT = decltype(std::begin(container));
   return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
 }
+} // namespace pqxx::prepare
 
 
+namespace pqxx
+{
 /// Build a parameter list for a parameterised or prepared statement.
 /** When calling a parameterised statement or a prepared statement, you can
  * pass parameters into the statement directly in the invocation, as additional
@@ -198,15 +207,23 @@ public:
   }
 
   /// Append a non-null parameter, converting it to its string representation.
-  template<typename T> void append(T const &value)
+  template<typename TYPE> void append(TYPE const &value)
   {
-    // TODO: Pool storage?
-    if constexpr (nullness<T>::always_null)
+    // TODO: Pool storage for multiple string conversions in one buffer?
+    // XXX: Doesn't is_null() include the always_null check?
+    if constexpr (nullness<TYPE>::always_null)
       m_params.emplace_back();
     else if (is_null(value))
       m_params.emplace_back();
     else
       m_params.emplace_back(entry{to_string(value)});
+  }
+
+  /// Append all elements of @c range as parameters.
+  template<typename RANGE> void append_multi(RANGE &range)
+  {
+    // TODO: If supported, reserve(std::size(m_params) + std::size(c)).
+    for (auto &value : range) append(value);
   }
 
   /// For internal use: Generate a @c params object for use in calls.
@@ -218,9 +235,9 @@ public:
    * is guaranteed to live only while the call is going on.  As soon as we
    * climb back out of that call tree, we're done with that data.
    */
-  pqxx::internal::params make_pointers() const
+  pqxx::internal::c_params make_pointers() const
   {
-    pqxx::internal::params p;
+    pqxx::internal::c_params p;
     p.reserve(std::size(m_params));
     for (auto const &param : m_params)
       std::visit(

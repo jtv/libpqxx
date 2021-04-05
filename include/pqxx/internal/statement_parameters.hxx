@@ -34,8 +34,6 @@ constexpr inline auto const iterator_identity{
   [](decltype(*std::declval<ITERATOR>()) x) { return x; }};
 
 
-// TODO: C++20 "ranges" alternative.
-
 /// Marker type: pass a dynamically-determined number of statement parameters.
 /** Normally when invoking a prepared or parameterised statement, the number
  * of parameters is known at compile time.  For instance,
@@ -57,7 +55,6 @@ template<typename IT, typename ACCESSOR = decltype(iterator_identity<IT>)>
 class dynamic_params
 {
 public:
-  // TODO: Support "ranges"?
   /// Wrap a sequence of pointers or iterators.
   constexpr dynamic_params(IT begin, IT end) :
           m_begin(begin), m_end(end), m_accessor(iterator_identity<IT>)
@@ -114,7 +111,7 @@ private:
  * points.  All values referenced by parameters must remain "live" until the
  * parameterised or prepared statement has been executed.
  */
-struct PQXX_LIBEXPORT params
+struct PQXX_LIBEXPORT c_params
 {
   /// Pre-allocate storage for @c n parameters.
   void reserve(std::size_t n)

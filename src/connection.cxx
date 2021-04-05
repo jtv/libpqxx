@@ -635,7 +635,7 @@ void pqxx::connection::unprepare(std::string_view name)
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  std::string_view statement, internal::params const &args)
+  std::string_view statement, internal::c_params const &args)
 {
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
@@ -1115,7 +1115,7 @@ int pqxx::connection::encoding_id() const
 
 
 pqxx::result pqxx::connection::exec_params(
-  std::string_view query, internal::params const &args)
+  std::string_view query, internal::c_params const &args)
 {
   auto const q{std::make_shared<std::string>(query)};
   auto const pq_result{PQexecParams(
