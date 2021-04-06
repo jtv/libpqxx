@@ -87,7 +87,14 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   std::string const escaped{t.esc_raw(data)};
 
   for (auto const i : escaped)
-    PQXX_CHECK(isascii(i), "Non-ASCII character in escaped data: " + escaped);
+  {
+    PQXX_CHECK_GREATER(
+      static_cast<unsigned>(static_cast<unsigned char>(i)), 7u,
+      "Non-ASCII character in escaped data: " + escaped);
+    PQXX_CHECK_LESS(
+      static_cast<unsigned>(static_cast<unsigned char>(i)), 127u,
+      "Non-ASCII character in escaped data: " + escaped);
+  }
 
   for (auto const i : escaped)
     PQXX_CHECK(
