@@ -8,10 +8,6 @@
 #include <variant>
 #include <vector>
 
-#if __has_include(<string.h>)
-#  include <string.h>
-#endif
-
 
 /* Internal helpers for string conversion, and conversion implementations.
  *
@@ -23,30 +19,6 @@ namespace pqxx::internal
 inline constexpr char number_to_digit(int i) noexcept
 {
   return static_cast<char>(i + '0');
-}
-
-
-/// Like strlen, but allowed to stop at @c max bytes.
-inline std::size_t
-shortcut_strlen(char const text[], [[maybe_unused]] std::size_t max)
-{
-  // strnlen_s is in C11, but not (yet) in C++'s "std" namespace.
-  // This may change, so don't qualify explicitly.
-  using namespace std;
-
-#if defined(PQXX_HAVE_STRNLEN_S)
-
-  return strnlen_s(text, max);
-
-#elif defined(PQXX_HAVE_STRNLEN)
-
-  return strnlen(text, max);
-
-#else
-
-  return strlen(text);
-
-#endif
 }
 
 
@@ -451,9 +423,7 @@ template<> struct string_traits<char const *>
   {
     auto const space{end - begin};
     // Count the trailing zero, even though std::strlen() and friends don't.
-    auto const len{
-      pqxx::internal::shortcut_strlen(value, static_cast<std::size_t>(space)) +
-      1};
+    auto const len{std::strlen(value) + 1};
     if (space < ptrdiff_t(len))
       throw conversion_overrun{
         "Could not copy string: buffer too small.  " +
