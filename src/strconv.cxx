@@ -535,7 +535,7 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
     }
     else
     {
-      if (have_thread_local)
+      if constexpr (have_thread_local)
       {
         thread_local dumb_stringstream<T> S;
         // Visual Studio 2017 seems to fail on repeated conversions if the
@@ -653,7 +653,7 @@ template<typename T> std::string to_string_float(T value)
     // In this rare case, we can convert to std::string but not to a simple
     // buffer.  So, implement to_buf in terms of to_string instead of the other
     // way around.
-    if (have_thread_local)
+    if constexpr (have_thread_local)
     {
       thread_local dumb_stringstream<T> s;
       return to_dumb_stringstream(s, value);

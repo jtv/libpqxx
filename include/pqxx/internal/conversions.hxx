@@ -138,12 +138,6 @@ template<typename T> struct float_traits
            // a call to their "max" macro when NOMINMAX is not defined.
            (std::max)(max_pos_exp, max_neg_exp) + // Exponent digits.
            1;                                     // Terminating zero.
-
-    /** Includes a sign if needed; a possible leading zero before the decimal
-     * point; the full number of base-10 digits which may be needed; a decimal
-     * point if needed; and the terminating zero.
-     */
-    return 1 + 1 + std::numeric_limits<T>::max_digits10 + 1 + 1;
   }
 };
 } // namespace pqxx::internal
