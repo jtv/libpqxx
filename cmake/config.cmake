@@ -71,14 +71,6 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
 try_compile(
-	PQXX_HAVE_STRNLEN_S
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strnlen_s.cxx)
-try_compile(
-	PQXX_HAVE_STRNLEN
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strnlen.cxx)
-try_compile(
 	PQXX_HAVE_CHARCONV_FLOAT
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_float.cxx)

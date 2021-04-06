@@ -264,18 +264,18 @@ namespace
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
-  char const *begin;
+  char const *here;
+  auto const end{in.data() + std::size(in)};
 
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
-  for (begin = in.data();
-       begin < std::end(in) and (*begin == ' ' or *begin == '\t'); ++begin)
+  for (here = in.data();
+       here < end and (*here == ' ' or *here == '\t'); ++here)
     ;
 
-  auto const end{in.data() + std::size(in)};
   TYPE out;
-  auto const res{std::from_chars(begin, end, out)};
+  auto const res{std::from_chars(here, end, out)};
   if (res.ec == std::errc() and res.ptr == end)
     return out;
 
