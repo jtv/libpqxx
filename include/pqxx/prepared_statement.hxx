@@ -134,6 +134,9 @@ public:
   auto size() const { return std::size(m_params); }
   auto ssize() const { return pqxx::internal::ssize(m_params); }
 
+  /// Append a null value.
+  void append();
+
   /// Append a non-null zview parameter.
   /** The underlying data must stay valid for as long as the @c params remains
    * active.

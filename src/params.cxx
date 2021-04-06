@@ -25,6 +25,12 @@ void pqxx::params::reserve(std::size_t n)
 }
 
 
+void pqxx::params::append()
+{
+  m_params.emplace_back(nullptr);
+}
+
+
 void pqxx::params::append(zview value)
 {
   m_params.emplace_back(value);
