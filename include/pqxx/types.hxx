@@ -62,6 +62,16 @@ struct from_table_t
  */
 struct from_query_t
 {};
+
+
+/// Format code: is data text or binary?
+/** Binary-compatible with libpq's format codes.
+ */
+enum class format : int
+{
+  text = 0,
+  binary = 1,
+};
 } // namespace pqxx
 
 #endif

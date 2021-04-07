@@ -330,19 +330,6 @@ AC_LINK_IFELSE(
 	have_thread_local=no)
 AC_MSG_RESULT($have_thread_local)
 
-# Still getting errors on std::visit() from clang 6, and on one of my systems,
-# on gcc 7 as well.
-AC_MSG_CHECKING([for full std::variant support])
-have_variant=yes
-AC_LINK_IFELSE(
-	[read_test(variant.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_VARIANT],
-		1,
-		[Define if std::variant is fully supported.]),
-	have_variant=no)
-AC_MSG_RESULT($have_variant)
-
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.

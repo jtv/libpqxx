@@ -365,8 +365,8 @@ public:
   /// Execute an SQL statement with parameters.
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
-    return internal_exec_params(
-      query, internal::params(std::forward<Args>(args)...));
+    params pp(args...);
+    return internal_exec_params(query, pp.make_c_params());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -430,8 +430,8 @@ public:
   template<typename... Args>
   result exec_prepared(zview statement, Args &&...args)
   {
-    return internal_exec_prepared(
-      statement, internal::params(std::forward<Args>(args)...));
+    params pp(args...);
+    return internal_exec_prepared(statement, pp.make_c_params());
   }
 
   /// Execute a prepared statement, and expect a single-row result.
@@ -567,9 +567,10 @@ private:
   }
   template<typename T> bool parm_is_null(T) const noexcept { return false; }
 
-  result internal_exec_prepared(zview statement, internal::params const &args);
+  result
+  internal_exec_prepared(zview statement, internal::c_params const &args);
 
-  result internal_exec_params(zview query, internal::params const &args);
+  result internal_exec_params(zview query, internal::c_params const &args);
 
   /// Throw unexpected_rows if prepared statement returned wrong no. of rows.
   void check_rowcount_prepared(

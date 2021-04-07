@@ -1,6 +1,6 @@
-/* Helper classes for defining and executing prepared statements.
+/* Helper classes for prepared statements and parameterised statements.
  *
- * See the connection class for more about prepared statements.
+ * See the connection class for more about such statements.
  *
  * Copyright (c) 2000-2021, Jeroen T. Vermeulen.
  *
@@ -22,7 +22,9 @@
 namespace pqxx::prepare
 {
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated Use @c params instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -38,14 +40,17 @@ namespace pqxx::prepare
  * @return An object representing the parameters.
  */
 template<typename IT>
-[[nodiscard]] constexpr inline auto make_dynamic_params(IT begin, IT end)
+[[deprecated("Use params instead.")]] constexpr inline auto
+make_dynamic_params(IT begin, IT end)
 {
   return pqxx::internal::dynamic_params(begin, end);
 }
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated Use @c params instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -68,7 +73,9 @@ template<typename C>
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** When you call any of the @c exec_params functions, the number of arguments
+/** @deprecated User @c params instead.
+ *
+ * When you call any of the @c exec_params functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -91,6 +98,147 @@ make_dynamic_params(C &container, ACCESSOR accessor)
   return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
 }
 } // namespace pqxx::prepare
+
+
+namespace pqxx
+{
+/// Build a parameter list for a parameterised or prepared statement.
+/** When calling a parameterised statement or a prepared statement, you can
+ * pass parameters into the statement directly in the invocation, as additional
+ * arguments to @c exec_prepared or @c exec_params.  But in complex cases,
+ * sometimes that's just not convenient.
+ *
+ * In those situations, you can create a @c params and append your parameters
+ * into that, one by one.  Then you pass the @c params to @c exec_prepared or
+ * @c exec_params.
+ *
+ * Combinations also work: if you have a @c params containing a string
+ * parameter, and you call @c exec_params with an @c int argument followed by
+ * your @c params, you'll be passing the @c int as the first parameter and the
+ * string as the second.  You can even insert a @c params in a @c params, or
+ * pass two @c params objects to a statement.
+ */
+class PQXX_LIBEXPORT params
+{
+public:
+  params() = default;
+
+  /// Create a @c params pre-populated with args.  Feel free to add more later.
+  template<typename... Args> constexpr params(Args &&...args)
+  {
+    reserve(sizeof...(args));
+    append_pack(std::forward<Args>(args)...);
+  }
+
+  void reserve(std::size_t);
+  auto size() const { return std::size(m_params); }
+  auto ssize() const { return pqxx::internal::ssize(m_params); }
+
+  /// Append a null value.
+  void append();
+
+  /// Append a non-null zview parameter.
+  /** The underlying data must stay valid for as long as the @c params remains
+   * active.
+   */
+  void append(zview);
+
+  /// Append a non-null string parameter.
+  /** Copies the underlying data into internal storage.  For best efficiency,
+   * use the @c zview variant if you can, or @c std::move().
+   */
+  void append(std::string const &);
+
+  /// Append a non-null string parameter.
+  void append(std::string &&);
+
+  /// Append a non-null binary parameter.
+  /** The underlying data must stay valid for as long as the @c params remains
+   * active.
+   */
+  void append(std::basic_string_view<std::byte>);
+
+  /// Append a non-null binary parameter.
+  /** Copies the underlying data into internal storage.  For best efficiency,
+   * use the @c std::basic_string_view<std::byte> variant if you can, or
+   * @c std::move().
+   */
+  void append(std::basic_string<std::byte> const &);
+
+  /// Append a non-null binary parameter.
+  void append(std::basic_string<std::byte> &&);
+
+  /// @deprecated Append binarystring parameter.
+  /** The binarystring must stay valid for as long as the @c params remains
+   * active.
+   */
+  void append(binarystring const &value);
+
+  /// Append all parameters from value.
+  template<typename IT, typename ACCESSOR>
+  void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value)
+  {
+    for (auto &param : value) append(value.access(param));
+  }
+
+  void append(params const &value);
+
+  void append(params &&value);
+
+  /// Append a non-null parameter, converting it to its string representation.
+  template<typename TYPE> void append(TYPE const &value)
+  {
+    // TODO: Pool storage for multiple string conversions in one buffer?
+    if constexpr (nullness<strip_t<TYPE>>::always_null)
+      m_params.emplace_back();
+    else if (is_null(value))
+      m_params.emplace_back();
+    else
+      m_params.emplace_back(entry{to_string(value)});
+  }
+
+  /// Append all elements of @c range as parameters.
+  template<typename RANGE> void append_multi(RANGE &range)
+  {
+    // TODO: If supported, reserve(std::size(m_params) + std::size(c)).
+    for (auto &value : range) append(value);
+  }
+
+  /// For internal use: Generate a @c params object for use in calls.
+  /** The params object encapsulates the pointers which we will need to pass to
+   * libpq when calling a parameterised or prepared statement.
+   *
+   * The pointers in the params will refer to storage owned by either the
+   * params object, or the caller.  This is not a problem because a @c c_params
+   * object is guaranteed to live only while the call is going on.  As soon as
+   * we climb back out of that call tree, we're done with that data.
+   */
+  pqxx::internal::c_params make_c_params() const;
+
+private:
+  /// Recursively append a pack of params.
+  template<typename Arg, typename... More>
+  void append_pack(Arg &&arg, More &&...args)
+  {
+    this->append(std::forward<Arg>(arg));
+    // Recurse for remaining args.
+    append_pack(std::forward<More>(args)...);
+  }
+
+  /// Terminating case: append an empty parameter pack.  It's not hard BTW.
+  void append_pack() {}
+
+  // The way we store a parameter depends on whether it's binary or text (most
+  // types are text), and whether we're responsible for storing the contents.
+  using entry = std::variant<
+    std::nullptr_t, zview, std::string, std::basic_string_view<std::byte>,
+    std::basic_string<std::byte>>;
+  std::vector<entry> m_params;
+
+  static constexpr std::string_view s_overflow{
+    "Statement parameter length overflow."sv};
+};
+} // namespace pqxx
 
 #include "pqxx/internal/compiler-internal-post.hxx"
 #endif

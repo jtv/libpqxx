@@ -11,6 +11,7 @@ libpqxx_la_SOURCES = \
 	field.cxx \
 	largeobject.cxx \
 	notification.cxx \
+	params.cxx \
 	pipeline.cxx \
 	result.cxx \
 	robusttransaction.cxx \

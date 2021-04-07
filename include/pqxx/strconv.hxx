@@ -352,7 +352,7 @@ inline void into_string(TYPE const &value, std::string &out);
 template<typename TYPE>
 [[nodiscard]] inline bool is_null(TYPE const &value) noexcept
 {
-  return nullness<TYPE>::is_null(value);
+  return nullness<strip_t<TYPE>>::is_null(value);
 }
 
 
@@ -363,7 +363,7 @@ template<typename TYPE>
 template<typename... TYPE>
 [[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
 {
-  return (string_traits<TYPE>::size_buffer(value) + ...);
+  return (string_traits<strip_t<TYPE>>::size_buffer(value) + ...);
 }
 
 
@@ -395,6 +395,20 @@ template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 /// Element separator between SQL array elements of this type.
 template<typename T> inline constexpr char array_separator{','};
+
+
+/// What's the preferred format for passing non-null parameters of this type?
+/** This affects how we pass parameters of @c TYPE when calling parameterised
+ * statements or prepared statements.
+ *
+ * Generally we pass parameters in text format, but binary strings are the
+ * exception.  We also pass nulls in binary format, so this function need not
+ * handle null values.
+ */
+template<typename TYPE> inline constexpr format param_format(TYPE const &)
+{
+  return format::text;
+}
 //@}
 } // namespace pqxx
 

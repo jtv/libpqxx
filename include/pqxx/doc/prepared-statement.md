@@ -74,21 +74,21 @@ Dynamic parameter lists
 In rare cases you may just not know how many parameters you'll pass into your
 statement when you call it.
 
-For these situations, have a look at `make_dynamic_params()`, which works with
-containers or iterator ranges of parameter values.  (This does mean that all of
-those parameters have to have the same static C++ type.)
+For these situations, have a look at `params`.  It lets you compose your
+parameters list on the fly, even add whole ranges of parameters at a time.
 
-The `make_dynamic_params` factory produces an object which you can pass into
-your statement as a normal parameter.  All its parameter values will be
-expanded into that position of the statement's overall parameter list.  So if
-you call your statement passing a regular parameter `a`, a set of dynamic
-parameters containing just a parameter `b`, and another regular parameter `c`,
-then your call will pass parameters `a`, `b`, and `c`.  Or if the dynamic
-parameters is empty, it will pass just `a` and `b`.  If the dynamic parameters
-contain `x` and `y`, your call will pass `a, x, y, c`.
+You can pass a `params` into your statement as a normal parameter.  It will
+fill in all the parameter values it contains into that position of the
+statement's overall parameter list.
 
-As you can see, you can mix static (regular) and dynamic parameters freely.
-Don't go overboard though: complexity is where bugs happen!
+So if you call your statement passing a regular parameter `a`, a
+`params` containing just a parameter `b`, and another regular parameter `c`,
+then your call will pass parameters `a`, `b`, and `c`.  Or if the params object
+is empty, it will pass just `a` and `c`.  If the params object contains `x` and
+`y`, your call will pass `a, x, y, c`.
+
+You can mix static and dynamic parameters freely.  Don't go overboard though:
+complexity is where bugs happen!
 
 
 A special prepared statement

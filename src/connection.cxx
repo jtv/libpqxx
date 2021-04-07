@@ -635,14 +635,15 @@ void pqxx::connection::unprepare(std::string_view name)
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  std::string_view statement, internal::params const &args)
+  std::string_view statement, internal::c_params const &args)
 {
-  auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
     m_conn, q->c_str(),
-    check_cast<int>(std::size(args.nonnulls), "exec_prepared"sv),
-    pointers.data(), args.lengths.data(), args.binaries.data(), 0)};
+    check_cast<int>(std::size(args.values), "exec_prepared"sv),
+    args.values.data(), args.lengths.data(),
+    reinterpret_cast<int const *>(args.formats.data()),
+    static_cast<int>(format::text))};
   auto const r{make_result(pq_result, q, statement)};
   get_notifs();
   return r;
@@ -1114,15 +1115,15 @@ int pqxx::connection::encoding_id() const
 
 
 pqxx::result pqxx::connection::exec_params(
-  std::string_view query, internal::params const &args)
+  std::string_view query, internal::c_params const &args)
 {
-  auto const pointers{args.get_pointers()};
   auto const q{std::make_shared<std::string>(query)};
-  auto const nonnulls{
-    check_cast<int>(std::size(args.nonnulls), "exec_params() parameters"sv)};
   auto const pq_result{PQexecParams(
-    m_conn, q->c_str(), nonnulls, nullptr, pointers.data(),
-    args.lengths.data(), args.binaries.data(), 0)};
+    m_conn, q->c_str(),
+    check_cast<int>(std::size(args.values), "exec_params"sv), nullptr,
+    args.values.data(), args.lengths.data(),
+    reinterpret_cast<int const *>(args.formats.data()),
+    static_cast<int>(format::text))};
   auto const r{make_result(pq_result, q)};
   get_notifs();
   return r;
