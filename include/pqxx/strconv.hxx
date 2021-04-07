@@ -397,12 +397,13 @@ template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 template<typename T> inline constexpr char array_separator{','};
 
 
-/// What's the preferred format for passing parameters of this type?
+/// What's the preferred format for passing non-null parameters of this type?
 /** This affects how we pass parameters of @c TYPE when calling parameterised
  * statements or prepared statements.
  *
  * Generally we pass parameters in text format, but binary strings are the
- * exception.
+ * exception.  We also pass nulls in binary format, so this function need not
+ * handle null values.
  */
 template<typename TYPE> inline constexpr format param_format(TYPE const &)
 {
