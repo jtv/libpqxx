@@ -129,16 +129,15 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test11.$(OBJEXT) test13.$(OBJEXT) test14.$(OBJEXT) \
 	test16.$(OBJEXT) test17.$(OBJEXT) test18.$(OBJEXT) \
 	test20.$(OBJEXT) test21.$(OBJEXT) test26.$(OBJEXT) \
-	test29.$(OBJEXT) test30.$(OBJEXT) test31.$(OBJEXT) \
-	test32.$(OBJEXT) test37.$(OBJEXT) test39.$(OBJEXT) \
-	test46.$(OBJEXT) test49.$(OBJEXT) test56.$(OBJEXT) \
-	test60.$(OBJEXT) test61.$(OBJEXT) test62.$(OBJEXT) \
-	test69.$(OBJEXT) test70.$(OBJEXT) test71.$(OBJEXT) \
-	test72.$(OBJEXT) test74.$(OBJEXT) test75.$(OBJEXT) \
-	test76.$(OBJEXT) test77.$(OBJEXT) test78.$(OBJEXT) \
-	test79.$(OBJEXT) test82.$(OBJEXT) test84.$(OBJEXT) \
-	test87.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
-	test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
+	test29.$(OBJEXT) test30.$(OBJEXT) test32.$(OBJEXT) \
+	test37.$(OBJEXT) test39.$(OBJEXT) test46.$(OBJEXT) \
+	test56.$(OBJEXT) test60.$(OBJEXT) test61.$(OBJEXT) \
+	test62.$(OBJEXT) test69.$(OBJEXT) test70.$(OBJEXT) \
+	test71.$(OBJEXT) test72.$(OBJEXT) test74.$(OBJEXT) \
+	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
+	test78.$(OBJEXT) test79.$(OBJEXT) test82.$(OBJEXT) \
+	test84.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
+	test89.$(OBJEXT) test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
 	unit/test_binarystring.$(OBJEXT) unit/test_blob.$(OBJEXT) \
 	unit/test_cancel_query.$(OBJEXT) unit/test_column.$(OBJEXT) \
 	unit/test_composite.$(OBJEXT) unit/test_connection.$(OBJEXT) \
@@ -196,9 +195,8 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test18.Po ./$(DEPDIR)/test20.Po \
 	./$(DEPDIR)/test21.Po ./$(DEPDIR)/test26.Po \
 	./$(DEPDIR)/test29.Po ./$(DEPDIR)/test30.Po \
-	./$(DEPDIR)/test31.Po ./$(DEPDIR)/test32.Po \
-	./$(DEPDIR)/test37.Po ./$(DEPDIR)/test39.Po \
-	./$(DEPDIR)/test46.Po ./$(DEPDIR)/test49.Po \
+	./$(DEPDIR)/test32.Po ./$(DEPDIR)/test37.Po \
+	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test46.Po \
 	./$(DEPDIR)/test56.Po ./$(DEPDIR)/test60.Po \
 	./$(DEPDIR)/test61.Po ./$(DEPDIR)/test62.Po \
 	./$(DEPDIR)/test69.Po ./$(DEPDIR)/test70.Po \
@@ -484,12 +482,10 @@ runner_SOURCES = \
   test26.cxx \
   test29.cxx \
   test30.cxx \
-  test31.cxx \
   test32.cxx \
   test37.cxx \
   test39.cxx \
   test46.cxx \
-  test49.cxx \
   test56.cxx \
   test60.cxx \
   test61.cxx \
@@ -711,12 +707,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test26.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test29.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test30.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test31.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test32.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test37.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test39.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test46.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test49.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test56.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test60.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test61.Po@am__quote@ # am--include-marker
@@ -1056,12 +1050,10 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test26.Po
 	-rm -f ./$(DEPDIR)/test29.Po
 	-rm -f ./$(DEPDIR)/test30.Po
-	-rm -f ./$(DEPDIR)/test31.Po
 	-rm -f ./$(DEPDIR)/test32.Po
 	-rm -f ./$(DEPDIR)/test37.Po
 	-rm -f ./$(DEPDIR)/test39.Po
 	-rm -f ./$(DEPDIR)/test46.Po
-	-rm -f ./$(DEPDIR)/test49.Po
 	-rm -f ./$(DEPDIR)/test56.Po
 	-rm -f ./$(DEPDIR)/test60.Po
 	-rm -f ./$(DEPDIR)/test61.Po
@@ -1185,12 +1177,10 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test26.Po
 	-rm -f ./$(DEPDIR)/test29.Po
 	-rm -f ./$(DEPDIR)/test30.Po
-	-rm -f ./$(DEPDIR)/test31.Po
 	-rm -f ./$(DEPDIR)/test32.Po
 	-rm -f ./$(DEPDIR)/test37.Po
 	-rm -f ./$(DEPDIR)/test39.Po
 	-rm -f ./$(DEPDIR)/test46.Po
-	-rm -f ./$(DEPDIR)/test49.Po
 	-rm -f ./$(DEPDIR)/test56.Po
 	-rm -f ./$(DEPDIR)/test60.Po
 	-rm -f ./$(DEPDIR)/test61.Po

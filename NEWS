@@ -1,5 +1,5 @@
 7.5.0
- - Now requires `std::variant` support.
+ - Now requires `std::variant` support!  No longer works with gcc7.
  - When implementing a string conversion, consider specialising `param_format`.
  - Stop "aborting" nontransaction on closing.  (#419)
  - Silence an overzealous Visual C++ warning.  (#418)
@@ -7,6 +7,7 @@
  - New `blob::read()` using `std::span`.  (#429)
  - New `params` class lets you build parameter lists incrementally.  (#387)
  - Pass `std::vector<std::byte>` params in binary format.
+ - Dropped legacy tests 31 and 49 to work around clang C++20 bug.
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0
