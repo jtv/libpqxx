@@ -18,6 +18,14 @@ find_source() {
 
 FILES=${*:-$(find_source)}
 
-# Use quotes here so we don't pick these up as todo items in our own script.
-grep 'XXX': $FILES
-grep 'TODO': $FILES
+
+# Search for "$1:" in files $2.
+# (This function adds the colon.  That way, the search statement itself won't
+# show up in the search.)
+search_for() {
+    grep $1: $2
+}
+
+
+search_for XXX "$FILES" || true
+search_for TODO "$FILES" || true
