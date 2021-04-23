@@ -8,6 +8,7 @@
  - New `params` class lets you build parameter lists incrementally.  (#387)
  - Pass `std::vector<std::byte>` params in binary format.
  - Dropped legacy tests 31 and 49 to work around clang C++20 bug.
+ - Fixed `stream_to` test failure in non-English locales.  (#440)
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0

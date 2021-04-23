@@ -87,54 +87,45 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 }
 
 
+/// Try to violate stream_to_test's not-null constraint using a stream_to.
+void insert_bad_null_tuple(pqxx::stream_to &inserter)
+{
+  inserter << std::make_tuple(
+    nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+    bytea{'\x00', '\x01', '\x02'});
+  inserter.complete();
+}
+
+
 void test_bad_null(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
-
-  try
-  {
-    inserter << std::make_tuple(
-      nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
-      bytea{'\x00', '\x01', '\x02'});
-    inserter.complete();
-    tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
-  }
-  catch (pqxx::sql_error const &e)
-  {
-    std::string what{e.what()};
-    if (what.find("null value in column") == std::string::npos)
-      throw;
-    pqxx::test::expected_exception(
-      "Could not insert row: " + truncate_sql_error(what));
-  }
+  PQXX_CHECK_THROWS(
+    insert_bad_null_tuple(inserter), pqxx::not_null_violation,
+    "Did not expected not_null_violation when stream_to inserts a bad null.");
 }
+
+
+/// Try to violate stream_to_test's not-null construct using a stream_to.
+void insert_bad_null_write(pqxx::stream_to &inserter)
+{
+  inserter.write_values(
+    nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
+    bytea{'\x00', '\x01', '\x02'});
+  inserter.complete();
+}
+
 
 void test_bad_null_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter, "stream_to failed to initialize");
-
-  try
-  {
-    inserter.write_values(
-      nullptr, "now", 4321, ipv4{8, 8, 8, 8}, "hello world",
-      bytea{'\x00', '\x01', '\x02'});
-    inserter.complete();
-    tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from-fold improperly inserted row");
-  }
-  catch (pqxx::sql_error const &e)
-  {
-    std::string what{e.what()};
-    if (what.find("null value in column") == std::string::npos)
-      throw;
-    pqxx::test::expected_exception(
-      "Fold - Could not insert row: " + truncate_sql_error(what));
-  }
+  PQXX_CHECK_THROWS(
+    insert_bad_null_write(inserter), pqxx::not_null_violation,
+    "Did not expected not_null_violation when stream_to inserts a bad null.");
 }
 
 
