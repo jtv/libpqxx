@@ -299,6 +299,8 @@ public:
    * sure you destroy the stream before you destroy the transaction.  Also,
    * either iterate the stream all the way to the end, or destroy first the
    * stream and then the transaction without touching either in any other way.
+   * Until the stream has finished, the transaction is in a special state where
+   * it cannot execute queries.
    *
    * As a special case, tuple may contain @c std::string_view fields, but the
    * strings to which they point will only remain valid until you extract the
