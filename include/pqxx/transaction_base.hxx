@@ -295,9 +295,15 @@ public:
    * network connection to the server breaks while you're iterating, you'll get
    * an exception partway through.
    *
-   * The tuple may contain @c std::string_view fields, but the strings to which
-   * they point will only remain valid until you extract the next row.  After
-   * that, the memory holding the string may be overwritten or deallocated.
+   * The stream lives entirely within the lifetime of the transaction.  Make
+   * sure you destroy the stream before you destroy the transaction.  Also,
+   * either iterate the stream all the way to the end, or destroy first the
+   * stream and then the transaction without touching either in any other way.
+   *
+   * As a special case, tuple may contain @c std::string_view fields, but the
+   * strings to which they point will only remain valid until you extract the
+   * next row.  After that, the memory holding the string may be overwritten or
+   * deallocated.
    *
    * If any of the columns can be null, and the C++ type to which it translates
    * does not have a null value, wrap the type in @c std::optional (or if
