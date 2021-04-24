@@ -190,11 +190,18 @@ public:
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
     if constexpr (nullness<strip_t<TYPE>>::always_null)
+    {
+      ignore_unused(value);
       m_params.emplace_back();
+    }
     else if (is_null(value))
+    {
       m_params.emplace_back();
+    }
     else
+    {
       m_params.emplace_back(entry{to_string(value)});
+    }
   }
 
   /// Append all elements of @c range as parameters.

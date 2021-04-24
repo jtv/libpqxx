@@ -20,6 +20,10 @@ namespace pqxx
 template<> struct nullness<std::byte> : no_null<std::byte>
 {};
 
+
+constexpr static auto hex_digit{"0123456789abcdef"};
+
+
 template<> struct string_traits<std::byte>
 {
   static std::size_t size_buffer(std::byte const &) { return 3; }
@@ -29,15 +33,16 @@ template<> struct string_traits<std::byte>
     if (static_cast<std::size_t>(end - begin) < size_buffer(value))
       throw pqxx::conversion_overrun{
         "Not enough buffer to convert std::byte."};
-    std::sprintf(
-      begin, "%x", static_cast<unsigned>(static_cast<unsigned char>(value)));
+    auto uc{static_cast<unsigned char>(value)};
+    begin[0] = hex_digit[uc >> 4];
+    begin[1] = hex_digit[uc & 0x0f];
     return zview{begin, 2u};
   }
 
   static char *into_buf(char *begin, char *end, std::byte const &value)
   {
-    to_buf(begin, end, value).data();
-    return begin + size_buffer(value);
+    auto view{to_buf(begin, end, value)};
+    return begin + std::size(view);
   }
 };
 } // namespace pqxx
