@@ -1,7 +1,7 @@
 libpqxx                                      {#mainpage}
 =======
 
-@version 7.5.0
+@version 7.5.1
 @author Jeroen T. Vermeulen
 @see http://pqxx.org
 @see https://github.com/jtv/libpqxx

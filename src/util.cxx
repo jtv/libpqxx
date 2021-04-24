@@ -25,8 +25,8 @@
 
 
 // For select() on some older POSIX systems.
-#if __has_include (<sys / types.h>)
-#include <sys/types.h>
+#if __has_include(<sys / types.h>)
+#  include <sys/types.h>
 #endif
 #if __has_include(<unistd.h>)
 #  include <unistd.h>
@@ -36,10 +36,10 @@
 #endif
 
 
-  extern "C"
-  {
+extern "C"
+{
 #include <libpq-fe.h>
-  }
+}
 
 #include "pqxx/except"
 #include "pqxx/util"
