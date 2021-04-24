@@ -17889,6 +17889,41 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_thread_local" >&5
 $as_echo "$have_thread_local" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::this_thread::sleep_for" >&5
+$as_echo_n "checking for std::this_thread::sleep_for... " >&6; }
+have_sleep_for=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for std::this_thread::sleep_for().
+
+#include <chrono>
+
+#include <thread>
+
+
+
+int main()
+
+{
+
+  std::this_thread::sleep_for(std::chrono::microseconds{10u});
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_SLEEP_FOR 1" >>confdefs.h
+
+else
+  have_sleep_for=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_sleep_for" >&5
+$as_echo "$have_sleep_for" >&6; }
+
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.

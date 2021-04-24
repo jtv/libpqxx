@@ -167,13 +167,12 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
   // If we get here, we're in doubt.  Figure out what happened.
 
-  auto const delay{std::chrono::milliseconds(300)};
   int const max_attempts{500};
   static_assert(max_attempts > 0);
 
   tx_stat stat;
   for (int attempts{0}; attempts < max_attempts;
-       ++attempts, std::this_thread::sleep_for(delay))
+       ++attempts, pqxx::internal::wait_for(300u))
   {
     stat = tx_unknown;
     try

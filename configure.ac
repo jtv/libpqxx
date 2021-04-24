@@ -330,6 +330,17 @@ AC_LINK_IFELSE(
 	have_thread_local=no)
 AC_MSG_RESULT($have_thread_local)
 
+AC_MSG_CHECKING([for std::this_thread::sleep_for])
+have_sleep_for=yes
+AC_LINK_IFELSE(
+	[read_test(sleep_for.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_SLEEP_FOR],
+		1,
+		[Define if std::this_thread::sleep_for works.]),
+	have_sleep_for=no)
+AC_MSG_RESULT($have_sleep_for)
+
 # Doing my own test for poll() for now.  The test built into autoconf-archive
 # triggers stupid warnings.
 # TODO: Try newer version of autoconf-archive.

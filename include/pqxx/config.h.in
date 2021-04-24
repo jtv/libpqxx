@@ -84,6 +84,9 @@
 /* Define if libpq has PQencryptPasswordConn (since pg 10). */
 #undef PQXX_HAVE_PQENCRYPTPASSWORDCONN
 
+/* Define if std::this_thread::sleep_for works. */
+#undef PQXX_HAVE_SLEEP_FOR
+
 /* Define if compiler has std::span */
 #undef PQXX_HAVE_SPAN
 

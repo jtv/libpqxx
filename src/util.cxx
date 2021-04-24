@@ -14,10 +14,32 @@
 #include <cstring>
 #include <new>
 
-extern "C"
-{
+#if defined(PQXX_HAVE_SLEEP_FOR)
+#  include <thread>
+#endif
+
+// For select() on recent POSIX systems.
+#if __has_include(<sys/select.h>)
+#  include <sys/select.h>
+#endif
+
+
+// For select() on some older POSIX systems.
+#if __has_include (<sys / types.h>)
+#include <sys/types.h>
+#endif
+#if __has_include(<unistd.h>)
+#  include <unistd.h>
+#endif
+#if __has_include(<sys/time.h>)
+#  include <sys/time.h>
+#endif
+
+
+  extern "C"
+  {
 #include <libpq-fe.h>
-}
+  }
 
 #include "pqxx/except"
 #include "pqxx/util"
@@ -184,4 +206,18 @@ std::string pqxx::internal::unesc_bin(std::string_view escaped_data)
   buf.resize(bytes);
   unesc_bin(escaped_data, reinterpret_cast<std::byte *>(buf.data()));
   return buf;
+}
+
+
+void pqxx::internal::wait_for(unsigned int microseconds)
+{
+#if defined(PQXX_HAVE_SLEEP_FOR)
+  std::this_thread::sleep_for(std::chrono::microseconds{microseconds});
+#else
+  // MinGW still does not have a functioning <thread> header.  Work around this
+  // using select().
+  // Not worth optimising for though -- they'll have to fix it at some point.
+  timeval tv{microseconds / 1'000'000u, microseconds % 1'000'000u};
+  select(0, nullptr, nullptr, nullptr, &tv);
+#endif
 }

@@ -270,8 +270,8 @@ template<typename TYPE>
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
-  for (here = in.data();
-       here < end and (*here == ' ' or *here == '\t'); ++here)
+  for (here = in.data(); here < end and (*here == ' ' or *here == '\t');
+       ++here)
     ;
 
   TYPE out;

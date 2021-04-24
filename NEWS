@@ -10,6 +10,7 @@
  - Dropped legacy tests 31 and 49 to work around clang C++20 bug.
  - Fixed `stream_to` test failure in non-English locales.  (#440)
  - Clarify `transaction_base::stream` documentation.  (#423)
+ - Avoid `<thread>` on MinGW; it's broken there.  (#336, #398, #424, #441)
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0

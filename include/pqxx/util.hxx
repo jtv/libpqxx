@@ -318,6 +318,13 @@ template<typename T> auto ssize(T const &c)
   return static_cast<signed_t>(std::size(c));
 #endif // __cpp_lib_ssize
 }
+
+
+/// Wait.
+/** This is normally @c std::this_thread::sleep_for().  But MinGW's @c <thread>
+ * doesn't work, so we must be careful about including it.
+ */
+void PQXX_LIBEXPORT wait_for(unsigned int microseconds);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"
