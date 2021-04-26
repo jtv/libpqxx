@@ -13,7 +13,6 @@
 #include <chrono>
 #include <cstdint>
 #include <stdexcept>
-#include <thread>
 #include <unordered_map>
 
 #include "pqxx/connection"
