@@ -20,17 +20,20 @@
 #include <functional>
 #include <variant>
 
+#include "pqxx/connection.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
-#include "pqxx/transaction_base.hxx"
 #include "pqxx/transaction_focus.hxx"
 
 
 namespace pqxx
 {
+class transaction_base;
+
+
 /// Pass this to a @c stream_from constructor to stream table contents.
 /** @deprecated Use stream_from::table() instead.
  */

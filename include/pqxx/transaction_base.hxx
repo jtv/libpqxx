@@ -338,6 +338,8 @@ public:
   template<typename... TYPE> [[nodiscard]] auto stream(std::string_view query)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
+    // TODO: Visual Studio won't suppress the "deprecated" warning.
+    // TODO: make_unique supports constructors but not RVO functions.
     return pqxx::internal::owning_stream_input_iteration<TYPE...>{
       std::make_unique<pqxx::stream_from>(*this, from_query_t{}, query)};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
