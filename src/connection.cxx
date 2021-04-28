@@ -605,9 +605,9 @@ std::string pqxx::connection::encrypt_password(
       throw feature_not_supported{
         "Could not encrypt password: available libpq version does not support "
         "algorithms other than md5."};
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
+#  include "pqxx/internal/ignore-deprecated-pre.hxx"
     return pqxx::encrypt_password(user, password);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+#  include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 #endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
 }
