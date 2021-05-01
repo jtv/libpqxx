@@ -1,6 +1,8 @@
 7.5.1
  - Fixed some Visual Studio warnings.
  - Missed a bit in working around MinGW's broken `<thread>`.
+ - Deprecated more obsolete representations of binary data.  Use `std::byte`.
+ - New script `tools/deprecations` lists files that use deprecated code.
 7.5.0
  - Now requires `std::variant` support!  No longer works with gcc7.
  - When implementing a string conversion, consider specialising `param_format`.

@@ -76,8 +76,7 @@ void pqxx::params::append(std::basic_string<std::byte> &&value)
 
 void pqxx::params::append(binarystring const &value)
 {
-  m_params.push_back(entry{std::basic_string_view<std::byte>{
-    reinterpret_cast<std::byte const *>(value.data()), std::size(value)}});
+  m_params.push_back(entry{value.bytes_view()});
 }
 
 

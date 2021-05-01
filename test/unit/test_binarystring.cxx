@@ -148,8 +148,8 @@ void test_binarystring_stream()
   to.write_values(0, bin);
   to.complete();
 
-  auto ptr{reinterpret_cast<unsigned char const *>(data.data())};
-  auto expect{tx.quote_raw(ptr, std::size(data))};
+  auto ptr{reinterpret_cast<std::byte const *>(data.data())};
+  auto expect{tx.quote(std::basic_string_view<std::byte>{ptr, std::size(data)})};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT bin = " + expect + " FROM pqxxbinstream"),
     "binarystring did not stream_to properly.");
@@ -181,10 +181,10 @@ void test_binarystring_array_stream()
       "SELECT array_length(vec, 1) FROM pqxxbinstream"),
     std::size(vec), "Array came out with wrong length.");
 
-  auto ptr1{reinterpret_cast<unsigned char const *>(data1.data())},
-    ptr2{reinterpret_cast<unsigned char const *>(data2.data())};
-  auto expect1{tx.quote_raw(ptr1, std::size(data1))},
-    expect2{tx.quote_raw(ptr2, std::size(data2))};
+  auto ptr1{reinterpret_cast<std::byte const *>(data1.data())},
+    ptr2{reinterpret_cast<std::byte const *>(data2.data())};
+  auto expect1{tx.quote(std::basic_string_view<std::byte>{ptr1, std::size(data1)})},
+    expect2{tx.quote(std::basic_string_view<std::byte>{ptr2, std::size(data2)})};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT vec[1] = " + expect1 + " FROM pqxxbinstream"),
     "Bytea in array came out wrong.");

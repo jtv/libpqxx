@@ -166,6 +166,16 @@ public:
    */
   [[nodiscard]] std::string str() const;
 
+  /// Access data as a pointer to @c std::byte.
+  [[nodiscard]] std::byte const *bytes() const
+  { return reinterpret_cast<std::byte const *>(get()); }
+
+  /// Read data as a @c std::basic_string_view<std::byte>.
+  [[nodiscard]] std::basic_string_view<std::byte> bytes_view() const
+  {
+    return std::basic_string_view<std::byte>{bytes(), size()};
+  }
+
 private:
   std::shared_ptr<value_type> m_buf;
   size_type m_size{0};
@@ -209,11 +219,11 @@ template<> struct string_traits<binarystring>
 
   static binarystring from_string(std::string_view text)
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::shared_ptr<unsigned char> buf{
       new unsigned char[size], [](unsigned char const *x) { delete[] x; }};
     pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.get()));
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return binarystring{std::move(buf), size};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }

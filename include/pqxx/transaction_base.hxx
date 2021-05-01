@@ -138,9 +138,8 @@ public:
   [[nodiscard]] std::string
   esc_raw(unsigned char const data[], std::size_t len) const
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().esc_raw(data, len);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+    return to_string(std::basic_string_view<std::byte>{
+	reinterpret_cast<std::byte const *>(data), len});
   }
   /// Escape binary data for use as SQL string literal in this transaction
   [[nodiscard]] std::string esc_raw(zview) const;
@@ -167,22 +166,26 @@ public:
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T> [[nodiscard]] std::string quote(T const &t) const
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().quote(t);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+  [[deprecated("Use std::basic_string<std::byte> instead of binarystring.")]]
+  std::string quote(binarystring const &t) const
+  {
+    return conn().quote(t.bytes_view());
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[nodiscard]] std::string
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
+  std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().quote_raw(bin, len);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+    return quote(std::basic_string_view<std::byte>{reinterpret_cast<std::byte const *>(bin), len});
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[nodiscard]] std::string quote_raw(zview bin) const;
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
+  std::string quote_raw(zview bin) const;
 
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const
