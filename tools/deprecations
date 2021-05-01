@@ -1,3 +1,6 @@
 #! /bin/sh
 set -eu
-grep -Ircl 'include.*ignore-deprecated-pre' * | sort
+
+MARKER='include.*ignore-deprecated-pre'
+FILES="src include tools/*.cxx test config-tests"
+grep -Ircl $MARKER $FILES | sort
