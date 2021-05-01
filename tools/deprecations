@@ -1,0 +1,3 @@
+#! /bin/sh
+set -eu
+grep -Ircl 'include.*ignore-deprecated-pre' * | sort
