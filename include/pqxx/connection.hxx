@@ -594,10 +594,11 @@ public:
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
+  // TODO: Also support esc(std::basic_string_view<std::byte>).
   /// Escape binary string for use as SQL string literal on this connection.
   /** @deprecated Use @c std::basic_string_view<std::byte> instead.
    */
-  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
+  [[deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
@@ -624,11 +625,13 @@ public:
   /// Escape and quote a string of binary data.
   /** @deprecated Use @c std::basic_string_view<std::byte> instead.
    */
-  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
+  std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape and quote a string of binary data.
-  [[nodiscard]] std::string quote_raw(std::basic_string_view<std::byte>) const;
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
+  std::string quote_raw(std::basic_string_view<std::byte>) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.

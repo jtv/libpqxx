@@ -868,9 +868,8 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
 std::string
 pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return internal::concat("'", esc_raw(bin, len), "'::bytea");
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  std::basic_string_view<std::byte> view{reinterpret_cast<std::byte const *>(bin), len};
+  return internal::concat("'", esc_raw(view), "'::bytea");
 }
 
 
@@ -883,15 +882,13 @@ pqxx::connection::quote_raw(std::basic_string_view<std::byte> bytes) const
 
 std::string pqxx::connection::quote(binarystring const &b) const
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return quote_raw(b.data(), std::size(b));
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  return quote(b.bytes_view());
 }
 
 
 std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
 {
-  return quote_raw(b);
+  return internal::concat("'", esc_raw(b), "'::bytea");
 }
 
 

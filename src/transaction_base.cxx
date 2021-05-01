@@ -211,19 +211,15 @@ void pqxx::transaction_base::abort()
 
 std::string pqxx::transaction_base::esc_raw(zview bin) const
 {
-  auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return conn().esc_raw(p, std::size(bin));
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  auto const p{reinterpret_cast<std::byte const *>(bin.c_str())};
+  return conn().esc_raw(std::basic_string_view<std::byte>{p, std::size(bin)});
 }
 
 
 std::string pqxx::transaction_base::quote_raw(zview bin) const
 {
-  auto const p{reinterpret_cast<unsigned char const *>(bin.c_str())};
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return conn().quote_raw(p, std::size(bin));
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  auto const p{reinterpret_cast<std::byte const *>(bin.c_str())};
+  return conn().quote(std::basic_string_view<std::byte>{p, std::size(bin)});
 }
 
 
