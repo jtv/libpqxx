@@ -16,7 +16,7 @@ simple words, what needs changing and why.
 Quick start
 -----------
 
-If you just wawnt to get it built and installed quickly, run `cmake` from the
+If you just want to get it built and installed quickly, run `cmake` from the
 root of the libpqxx source tree.  This configures your build.
 
 Then compile libpqxx by running:
