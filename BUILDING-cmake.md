@@ -231,7 +231,7 @@ both more secure and more convenient than passwords.
 Install
 -------
 
-Once you've built libpqxx, CMake can also help yuou install the library and
+Once you've built libpqxx, CMake can also help you install the library and
 headers on your system.  The default installation location will vary from one
 operating system to another, but you can set it explicitly.
 
