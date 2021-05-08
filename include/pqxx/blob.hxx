@@ -123,9 +123,10 @@ public:
    * Returns the filled portion of @c buf.  This may be empty.
    */
   template<typename ALLOC>
-  std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> buf)
+  std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> &buf)
   {
-    return std::basic_string_view<std::byte>{buf.data(), std::size(buf)};
+    return std::basic_string_view<std::byte>{
+      buf.data(), raw_read(buf.data(), std::size(buf))};
   }
 
 #endif // PQXX_HAVE_SPAN

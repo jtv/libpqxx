@@ -231,6 +231,20 @@ void test_blob_read_span()
 }
 
 
+void test_blob_reads_vector()
+{
+  char const content[]{"abcd"};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto id{pqxx::blob::from_buf(tx, std::basic_string_view<std::byte>{reinterpret_cast<std::byte const *>(content), std::size(content)})};
+  std::vector<std::byte> buf;
+  buf.resize(10);
+  auto out{pqxx::blob::open_r(tx, id).read(buf)};
+  PQXX_CHECK_EQUAL(std::size(out), std::size(content), "Got wrong length back when reading as vector.");
+  PQXX_CHECK_EQUAL(out[0], std::byte{'a'}, "Got bad data when reading as vector.");
+}
+
+
 void test_blob_write_appends_at_insertion_point()
 {
   pqxx::connection conn;
@@ -535,6 +549,7 @@ PQXX_REGISTER_TEST(test_blob_remove_is_not_idempotent);
 PQXX_REGISTER_TEST(test_blob_checks_open_mode);
 PQXX_REGISTER_TEST(test_blob_supports_move);
 PQXX_REGISTER_TEST(test_blob_read_reads_data);
+PQXX_REGISTER_TEST(test_blob_reads_vector);
 PQXX_REGISTER_TEST(test_blob_read_span);
 PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
 PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
