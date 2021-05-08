@@ -139,7 +139,7 @@ public:
   esc_raw(unsigned char const data[], std::size_t len) const
   {
     return to_string(std::basic_string_view<std::byte>{
-	reinterpret_cast<std::byte const *>(data), len});
+      reinterpret_cast<std::byte const *>(data), len});
   }
   /// Escape binary data for use as SQL string literal in this transaction
   [[nodiscard]] std::string esc_raw(zview) const;
@@ -169,23 +169,24 @@ public:
     return conn().quote(t);
   }
 
-  [[deprecated("Use std::basic_string<std::byte> instead of binarystring.")]]
-  std::string quote(binarystring const &t) const
+  [[deprecated(
+    "Use std::basic_string<std::byte> instead of binarystring.")]] std::string
+  quote(binarystring const &t) const
   {
     return conn().quote(t.bytes_view());
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
-  std::string
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
   {
-    return quote(std::basic_string_view<std::byte>{reinterpret_cast<std::byte const *>(bin), len});
+    return quote(std::basic_string_view<std::byte>{
+      reinterpret_cast<std::byte const *>(bin), len});
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
-  std::string quote_raw(zview bin) const;
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
+  quote_raw(zview bin) const;
 
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const

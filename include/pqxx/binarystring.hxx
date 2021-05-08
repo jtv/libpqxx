@@ -168,7 +168,9 @@ public:
 
   /// Access data as a pointer to @c std::byte.
   [[nodiscard]] std::byte const *bytes() const
-  { return reinterpret_cast<std::byte const *>(get()); }
+  {
+    return reinterpret_cast<std::byte const *>(get());
+  }
 
   /// Read data as a @c std::basic_string_view<std::byte>.
   [[nodiscard]] std::basic_string_view<std::byte> bytes_view() const

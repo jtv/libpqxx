@@ -625,13 +625,12 @@ public:
   /// Escape and quote a string of binary data.
   /** @deprecated Use @c std::basic_string_view<std::byte> instead.
    */
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
-  std::string
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]]
-  std::string quote_raw(std::basic_string_view<std::byte>) const;
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
+    quote_raw(std::basic_string_view<std::byte>) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.

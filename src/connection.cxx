@@ -868,7 +868,8 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
 std::string
 pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 {
-  std::basic_string_view<std::byte> view{reinterpret_cast<std::byte const *>(bin), len};
+  std::basic_string_view<std::byte> view{
+    reinterpret_cast<std::byte const *>(bin), len};
   return internal::concat("'", esc_raw(view), "'::bytea");
 }
 
