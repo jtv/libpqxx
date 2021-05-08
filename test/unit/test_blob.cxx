@@ -236,12 +236,17 @@ void test_blob_reads_vector()
   char const content[]{"abcd"};
   pqxx::connection conn;
   pqxx::work tx{conn};
-  auto id{pqxx::blob::from_buf(tx, std::basic_string_view<std::byte>{reinterpret_cast<std::byte const *>(content), std::size(content)})};
+  auto id{pqxx::blob::from_buf(
+    tx, std::basic_string_view<std::byte>{
+          reinterpret_cast<std::byte const *>(content), std::size(content)})};
   std::vector<std::byte> buf;
   buf.resize(10);
   auto out{pqxx::blob::open_r(tx, id).read(buf)};
-  PQXX_CHECK_EQUAL(std::size(out), std::size(content), "Got wrong length back when reading as vector.");
-  PQXX_CHECK_EQUAL(out[0], std::byte{'a'}, "Got bad data when reading as vector.");
+  PQXX_CHECK_EQUAL(
+    std::size(out), std::size(content),
+    "Got wrong length back when reading as vector.");
+  PQXX_CHECK_EQUAL(
+    out[0], std::byte{'a'}, "Got bad data when reading as vector.");
 }
 
 
@@ -276,6 +281,31 @@ void test_blob_write_appends_at_insertion_point()
     (std::basic_string<std::byte>{
       std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}),
     "Rewriting in the middle did not work right.");
+}
+
+
+void test_blob_writes_span()
+{
+#if defined(PQXX_HAVE_SPAN)
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  constexpr char content[]{"gfbltk"};
+  std::basic_string<std::byte> data{
+    reinterpret_cast<std::byte const *>(content), std::size(content)};
+
+  auto id{pqxx::blob::create(tx)};
+  auto b{pqxx::blob::open_rw(tx, id)};
+  b.write(std::span<std::byte>{data.data() + 1, 3u});
+  b.seek_abs(0);
+
+  std::vector<std::byte> buf;
+  buf.resize(4);
+  auto out{b.read(std::span<std::byte>{buf.data(), 4u})};
+  PQXX_CHECK_EQUAL(
+    std::size(out), 3u, "Did not get expected number of bytes back.");
+  PQXX_CHECK_EQUAL(out[0], std::byte{'f'}, "Data did not come back right.");
+  PQXX_CHECK_EQUAL(out[2], std::byte{'l'}, "Data started right, ended wrong!");
+#endif // PQXX_HAVE_SPAN
 }
 
 
@@ -552,6 +582,7 @@ PQXX_REGISTER_TEST(test_blob_read_reads_data);
 PQXX_REGISTER_TEST(test_blob_reads_vector);
 PQXX_REGISTER_TEST(test_blob_read_span);
 PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
+PQXX_REGISTER_TEST(test_blob_writes_span);
 PQXX_REGISTER_TEST(test_blob_resize_shortens_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_resize_extends_to_desired_length);
 PQXX_REGISTER_TEST(test_blob_tell_tracks_position);

@@ -152,6 +152,8 @@ public:
   /// Append a non-null string parameter.
   void append(std::string &&);
 
+  // TODO: C++20 std::span<std::byte...>.
+  // TODO: C++20 std::ranges::contiguous_range<std::byte>.
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the @c params remains
    * active.

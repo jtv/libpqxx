@@ -1,3 +1,5 @@
+7.6.0
+ - Broader `std::span` support for binary data in C++20.
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1

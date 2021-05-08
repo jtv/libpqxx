@@ -159,15 +159,15 @@ pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
 }
 
 
-void pqxx::blob::write(std::basic_string_view<std::byte> buf)
+void pqxx::blob::raw_write(std::byte const buf[], std::size_t size)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to write to a closed binary large object."};
-  if (std::size(buf) > chunk_limit)
+  if (size > chunk_limit)
     throw range_error{
       "Writes to a binary large object must be less than 2 GB at once."};
-  auto ptr{reinterpret_cast<char const *>(buf.data())};
-  int written{lo_write(raw_conn(m_conn), m_fd, ptr, std::size(buf))};
+  auto ptr{reinterpret_cast<char const *>(buf)};
+  int written{lo_write(raw_conn(m_conn), m_fd, ptr, size)};
   if (written < 0)
     throw failure{
       internal::concat("Write to binary large object failed: ", errmsg())};

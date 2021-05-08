@@ -94,8 +94,11 @@ public:
    */
   std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
 
+  // TODO: These are not really alternatives, are they?  Support both.
+  // TODO: C++20 ranges.
 #if defined(PQXX_HAVE_SPAN)
 
+  // TODO: Support all C++20 std::ranges::contiguous_range<std::byte>.
   /// Read up to @c std::size(buf) bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until @c buf is
    * full or there are no more bytes to read, whichever comes first.
@@ -103,6 +106,18 @@ public:
    * Returns the filled portion of @c buf.  This may be empty.
    */
   std::span<std::byte> read(std::span<std::byte> buf)
+  {
+    return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
+  }
+
+  /// Read up to @c std::size(buf) bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until @c buf is
+   * full or there are no more bytes to read, whichever comes first.
+   *
+   * Returns the filled portion of @c buf.  This may be empty.
+   */
+  template<typename... Args, Args... args>
+  std::span<std::byte> read(std::span<std::byte, args...> buf)
   {
     return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
   }
@@ -132,6 +147,9 @@ public:
 #endif // PQXX_HAVE_SPAN
 
 
+  // TODO: Support all C++20 std::ranges::contiguous_range<std::byte>.
+#if defined(PQXX_HAVE_SPAN)
+
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * @c data to the object's contents and move the writing position so that
@@ -151,7 +169,85 @@ public:
    * time.  If you need to write more, try making repeated calls to
    * @c append_from_buf.
    */
-  void write(std::basic_string_view<std::byte> data);
+  void write(std::span<std::byte> data)
+  {
+    raw_write(data.data(), std::size(data));
+  }
+
+  /// Write @c data to large object, at the current position.
+  /** If the writing position is at the end of the object, this will append
+   * @c data to the object's contents and move the writing position so that
+   * it's still at the end.
+   *
+   * If the writing position was not at the end, writing will overwrite the
+   * prior data, but it will not remove data that follows the part where you
+   * wrote your new data.
+   *
+   * @warning This is a big difference from writing to a file.  You can
+   * overwrite some data in a large object, but this does not truncate the
+   * data that was already there.  For example, if the object contained binary
+   * data "abc", and you write "12" at the starting position, the object will
+   * contain "12c".
+   *
+   * @warning The underlying protocol only supports writes up to 2 GB at a
+   * time.  If you need to write more, try making repeated calls to
+   * @c append_from_buf.
+   */
+  template<typename... Args, Args... args>
+  void write(std::span<std::byte, args...> data)
+  {
+    raw_write(data.data(), std::size(data));
+  }
+
+#endif // PQXX_HAVE_SPAN
+
+  /// Write @c data to large object, at the current position.
+  /** If the writing position is at the end of the object, this will append
+   * @c data to the object's contents and move the writing position so that
+   * it's still at the end.
+   *
+   * If the writing position was not at the end, writing will overwrite the
+   * prior data, but it will not remove data that follows the part where you
+   * wrote your new data.
+   *
+   * @warning This is a big difference from writing to a file.  You can
+   * overwrite some data in a large object, but this does not truncate the
+   * data that was already there.  For example, if the object contained binary
+   * data "abc", and you write "12" at the starting position, the object will
+   * contain "12c".
+   *
+   * @warning The underlying protocol only supports writes up to 2 GB at a
+   * time.  If you need to write more, try making repeated calls to
+   * @c append_from_buf.
+   */
+  void write(std::basic_string_view<std::byte> data)
+  {
+    raw_write(data.data(), std::size(data));
+  }
+
+  /// Write @c data to large object, at the current position.
+  /** If the writing position is at the end of the object, this will append
+   * @c data to the object's contents and move the writing position so that
+   * it's still at the end.
+   *
+   * If the writing position was not at the end, writing will overwrite the
+   * prior data, but it will not remove data that follows the part where you
+   * wrote your new data.
+   *
+   * @warning This is a big difference from writing to a file.  You can
+   * overwrite some data in a large object, but this does not truncate the
+   * data that was already there.  For example, if the object contained binary
+   * data "abc", and you write "12" at the starting position, the object will
+   * contain "12c".
+   *
+   * @warning The underlying protocol only supports writes up to 2 GB at a
+   * time.  If you need to write more, try making repeated calls to
+   * @c append_from_buf.
+   */
+  void write(std::basic_string<std::byte> const &data)
+  {
+    raw_write(data.data(), std::size(data));
+  }
 
   /// Resize large object to @c size bytes.
   /** If the blob is more than @c size bytes long, this removes the end so as
@@ -243,6 +339,7 @@ private:
   PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence);
   std::size_t raw_read(std::byte buf[], std::size_t size);
+  void raw_write(std::byte const buf[], std::size_t size);
 
   connection *m_conn = nullptr;
   int m_fd = -1;

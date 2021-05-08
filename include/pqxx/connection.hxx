@@ -595,9 +595,8 @@ public:
   [[nodiscard]] std::string esc(std::string_view text) const;
 
   // TODO: Also support esc(std::basic_string_view<std::byte>).
+  // TODO: Also support esc(std::ranges::range<std::byte>).
   /// Escape binary string for use as SQL string literal on this connection.
-  /** @deprecated Use @c std::basic_string_view<std::byte> instead.
-   */
   [[deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
@@ -623,8 +622,6 @@ public:
   [[nodiscard]] std::string unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
-  /** @deprecated Use @c std::basic_string_view<std::byte> instead.
-   */
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
@@ -684,6 +681,7 @@ public:
   quote(binarystring const &) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
+  // TODO: Support std::span<std::byte...>.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
   [[nodiscard]] std::string
   quote(std::basic_string_view<std::byte> bytes) const;
