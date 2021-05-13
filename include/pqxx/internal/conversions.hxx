@@ -779,13 +779,13 @@ struct nullness<std::basic_string<std::byte>>
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-template<binary DATA> struct nullness<DATA> : no_null<DATA> {};
+template<binary DATA> struct nullness<DATA> : no_null<DATA>
+{};
 #endif // PQXX_HAVE_CONCEPTS
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-template<binary DATA>
-inline constexpr format param_format(DATA const &)
+template<binary DATA> inline constexpr format param_format(DATA const &)
 {
   return format::binary;
 }
@@ -806,15 +806,13 @@ template<binary DATA> struct string_traits<DATA>
     return internal::size_esc_bin(std::size(value));
   }
 
-  static zview
-  to_buf(char *begin, char *end, DATA const &value)
+  static zview to_buf(char *begin, char *end, DATA const &value)
   {
     auto const value_end{into_buf(begin, end, value)};
     return zview{begin, value_end - begin - 1};
   }
 
-  static char *
-  into_buf(char *begin, char *end, DATA const &value)
+  static char *into_buf(char *begin, char *end, DATA const &value)
   {
     auto const budget{size_buffer(value)};
     if (static_cast<std::size_t>(end - begin) < budget)
