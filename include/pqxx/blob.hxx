@@ -111,7 +111,6 @@ public:
       std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
 
-
   /// Read up to @c std::size(buf) bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until @c buf is
    * full or there are no more bytes to read, whichever comes first.
