@@ -53,7 +53,7 @@ pqxx::binarystring::binarystring(field const &F)
 
 
 pqxx::binarystring::binarystring(std::string_view s) :
-        m_buf{copy_to_buffer(s.data(), std::size(s))}, m_size{std::size(s)}
+        m_buf{copy_to_buffer(std::data(s), std::size(s))}, m_size{std::size(s)}
 {}
 
 
@@ -65,7 +65,7 @@ pqxx::binarystring::binarystring(void const *binary_data, std::size_t len) :
 bool pqxx::binarystring::operator==(binarystring const &rhs) const noexcept
 {
   return (std::size(rhs) == size()) and
-         (std::memcmp(data(), rhs.data(), size()) == 0);
+         (std::memcmp(data(), std::data(rhs), size()) == 0);
 }
 
 

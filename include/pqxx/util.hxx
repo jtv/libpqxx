@@ -56,8 +56,8 @@ namespace pqxx::internal
   std::string buf;
   auto const xs{std::size(x)}, ys{std::size(y)};
   buf.resize(xs + ys);
-  x.copy(buf.data(), xs);
-  y.copy(buf.data() + xs, ys);
+  x.copy(std::data(buf), xs);
+  y.copy(std::data(buf) + xs, ys);
   return buf;
 }
 } // namespace pqxx::internal

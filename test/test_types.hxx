@@ -111,7 +111,7 @@ template<> struct string_traits<ipv4>
   static ipv4 from_string(std::string_view text)
   {
     ipv4 ts;
-    if (text.data() == nullptr)
+    if (std::data(text) == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
     std::regex ipv4_regex{R"--((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))--"};
     std::smatch match;

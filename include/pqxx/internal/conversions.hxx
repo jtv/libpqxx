@@ -778,16 +778,65 @@ struct nullness<std::basic_string<std::byte>>
 {};
 
 
-// TODO: In C++20, generalise param_format for contiguous_range<byte>.
+#if defined(PQXX_HAVE_CONCEPTS)
+template<binary DATA> struct nullness<DATA> : no_null<DATA> {};
+#endif // PQXX_HAVE_CONCEPTS
 
 
-#if defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
+template<binary DATA>
+inline constexpr format param_format(DATA const &)
+{
+  return format::binary;
+}
+#elif defined(PQXX_HAVE_SPAN)
 template<typename... Args, Args... args>
 inline constexpr format param_format(std::span<std::byte, args...> const &)
 {
   return format::binary;
 }
-#endif // PQXX_HAVE_SPAN
+#endif
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+template<binary DATA> struct string_traits<DATA>
+{
+  static std::size_t size_buffer(DATA const &value) noexcept
+  {
+    return internal::size_esc_bin(std::size(value));
+  }
+
+  static zview
+  to_buf(char *begin, char *end, DATA const &value)
+  {
+    auto const value_end{into_buf(begin, end, value)};
+    return zview{begin, value_end - begin - 1};
+  }
+
+  static char *
+  into_buf(char *begin, char *end, DATA const &value)
+  {
+    auto const budget{size_buffer(value)};
+    if (static_cast<std::size_t>(end - begin) < budget)
+      throw conversion_overrun{
+        "Not enough buffer space to escape binary data."};
+    internal::esc_bin(
+      std::string_view(
+        reinterpret_cast<char const *>(value.data()), std::size(value)),
+      begin);
+    return begin + budget;
+  }
+
+  static DATA from_string(std::string_view text)
+  {
+    auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
+    std::basic_string<std::byte> buf;
+    buf.resize(size);
+    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    return buf;
+  }
+};
+#endif // PQXX_HAVE_CONCEPTS
 
 
 template<> struct string_traits<std::basic_string<std::byte>>

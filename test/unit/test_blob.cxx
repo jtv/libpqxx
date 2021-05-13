@@ -206,7 +206,7 @@ void test_blob_read_span()
     output[1], std::byte{'v'}, "Unexpected byte from blob::read().");
 
   string_buf.resize(100);
-  output = b.read(std::span<std::byte>{string_buf.data(), 1});
+  output = b.read(std::span<std::byte>{std::data(string_buf), 1});
   PQXX_CHECK_EQUAL(
     std::size(output), 1u,
     "Did blob::read() follow string size instead of span size?");
@@ -215,18 +215,18 @@ void test_blob_read_span()
 
   std::vector<std::byte> vec_buf;
   vec_buf.resize(2);
-  output = b.read(vec_buf);
+  auto output2{b.read(vec_buf)};
   PQXX_CHECK_EQUAL(
-    std::size(output), 2u, "Got unexpected buf size from blob::read().");
+    std::size(output2), 2u, "Got unexpected buf size from blob::read().");
   PQXX_CHECK_EQUAL(
-    output[0], std::byte{'x'}, "Unexpected byte from blob::read().");
+    output2[0], std::byte{'x'}, "Unexpected byte from blob::read().");
   PQXX_CHECK_EQUAL(
-    output[1], std::byte{'y'}, "Unexpected byte from blob::read().");
+    output2[1], std::byte{'y'}, "Unexpected byte from blob::read().");
 
   vec_buf.resize(100);
-  output = b.read(vec_buf);
-  PQXX_CHECK_EQUAL(std::size(output), 1u, "Weird things happened at EOF.");
-  PQXX_CHECK_EQUAL(output[0], std::byte{'z'}, "Bad data at EOF.");
+  output2 = b.read(vec_buf);
+  PQXX_CHECK_EQUAL(std::size(output2), 1u, "Weird things happened at EOF.");
+  PQXX_CHECK_EQUAL(output2[0], std::byte{'z'}, "Bad data at EOF.");
 #endif // PQXX_HAVE_SPAN
 }
 
@@ -295,12 +295,12 @@ void test_blob_writes_span()
 
   auto id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
-  b.write(std::span<std::byte>{data.data() + 1, 3u});
+  b.write(std::span<std::byte>{std::data(data) + 1, 3u});
   b.seek_abs(0);
 
   std::vector<std::byte> buf;
   buf.resize(4);
-  auto out{b.read(std::span<std::byte>{buf.data(), 4u})};
+  auto out{b.read(std::span<std::byte>{std::data(buf), 4u})};
   PQXX_CHECK_EQUAL(
     std::size(out), 3u, "Did not get expected number of bytes back.");
   PQXX_CHECK_EQUAL(out[0], std::byte{'f'}, "Data did not come back right.");
@@ -421,7 +421,7 @@ void read_file(
 {
   buf.resize(len);
   auto f{std::fopen(path, "rb")};
-  auto bytes{std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f)};
+  auto bytes{std::fread(reinterpret_cast<char *>(std::data(buf)), 1, len, f)};
   if (bytes == 0)
     throw std::runtime_error{"Error reading test file."};
   buf.resize(bytes);
@@ -435,8 +435,8 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
   {
     if (
       std::fwrite(
-        reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) <
-      std::size(data))
+        reinterpret_cast<char const *>(std::data(data)), 1, std::size(data),
+        f) < std::size(data))
       std::runtime_error{"File write failed."};
   }
   catch (const std::exception &)

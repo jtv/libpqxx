@@ -1,4 +1,5 @@
 7.6.0
+ - C++20 concept for binary data: `pqxx::binary`.
  - Broader `std::span` support for binary data in C++20.
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.

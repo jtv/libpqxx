@@ -24,6 +24,10 @@
 #  include <charconv>
 #endif
 
+#if defined(PQXX_HAVE_RANGES) && __has_include(<ranges>)
+#  include <ranges>
+#endif
+
 #include "pqxx/except.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"
@@ -409,6 +413,19 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
 {
   return format::text;
 }
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+/// Binary string type.
+/** Any type that satisfies this concept can represent an SQL BYTEA value.
+ *
+ * Each byte is a @c std::byte, and they must be laid out contiguously in
+ * memory so we can reference them by a pointer.
+ */
+template<class TYPE>
+concept binary = std::ranges::contiguous_range<TYPE> and std::is_same_v<
+  strip_t<decltype(*std::begin(std::declval<TYPE>()))>, std::byte>;
+#endif
 //@}
 } // namespace pqxx
 

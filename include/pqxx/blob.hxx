@@ -18,6 +18,10 @@
 
 #include <cstdint>
 
+#if defined(PQXX_HAVE_RANGES) && __has_include(<ranges>)
+#  include <ranges>
+#endif
+
 #if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
 #  include <span>
 #endif
@@ -94,11 +98,21 @@ public:
    */
   std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
 
-  // TODO: These are not really alternatives, are they?  Support both.
-  // TODO: C++20 ranges.
-#if defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Read up to @c std::size(buf) bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until @c buf is
+   * full or there are no more bytes to read, whichever comes first.
+   *
+   * Returns the filled portion of @c buf.  This may be empty.
+   */
+  template<binary DATA> std::span<std::byte> read(DATA &buf)
+  {
+    return std::span<std::byte>{
+      std::data(buf), raw_read(std::data(buf), std::size(buf))};
+  }
+#endif
 
-  // TODO: Support all C++20 std::ranges::contiguous_range<std::byte>.
+#if defined(PQXX_HAVE_SPAN)
   /// Read up to @c std::size(buf) bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until @c buf is
    * full or there are no more bytes to read, whichever comes first.
@@ -121,8 +135,7 @@ public:
   {
     return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
   }
-
-#else
+#endif // PQXX_HAVE_SPAN
 
   /// Read up to @c std::size(buf) bytes from the object.
   /** @deprecated As libpqxx moves to C++20 as its baseline language version,
@@ -144,11 +157,33 @@ public:
       buf.data(), raw_read(buf.data(), std::size(buf))};
   }
 
-#endif // PQXX_HAVE_SPAN
+#if defined(PQXX_HAVE_CONCEPTS)
 
+  /// Write @c data to large object, at the current position.
+  /** If the writing position is at the end of the object, this will append
+   * @c data to the object's contents and move the writing position so that
+   * it's still at the end.
+   *
+   * If the writing position was not at the end, writing will overwrite the
+   * prior data, but it will not remove data that follows the part where you
+   * wrote your new data.
+   *
+   * @warning This is a big difference from writing to a file.  You can
+   * overwrite some data in a large object, but this does not truncate the
+   * data that was already there.  For example, if the object contained binary
+   * data "abc", and you write "12" at the starting position, the object will
+   * contain "12c".
+   *
+   * @warning The underlying protocol only supports writes up to 2 GB at a
+   * time.  If you need to write more, try making repeated calls to
+   * @c append_from_buf.
+   */
+  template<binary DATA> void write(DATA const &data)
+  {
+    raw_write(data.data(), std::size(data));
+  }
 
-  // TODO: Support all C++20 std::ranges::contiguous_range<std::byte>.
-#if defined(PQXX_HAVE_SPAN)
+#elif defined(PQXX_HAVE_SPAN)
 
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
