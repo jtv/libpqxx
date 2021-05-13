@@ -434,9 +434,12 @@ public:
    * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
    * end at the first char with value zero.  If you pass a string that contains
    * a zero byte, the last byte in the value will be the one just before the
-   * zero.  If you need a zero byte, consider using
-   * @c std::basic_string<std::byte> or @c std::basic_string_view<std::byte>,
-   * and on the SQL side, the @c bytea type.
+   * zero.  If you need a zero byte, you're dealing with binary strings, not
+   * regular strings.  Represent binary strings on the SQL side as @c BYTEA
+   * (or as large objects).  On the C++ side, use types like
+   * @c std::basic_string<std::byte> or @c std::basic_string_view<std::byte>
+   * or (in C++20) @c std::vector<std::byte>.  Also, consider large objects on
+   * the SQL side and @c blob on the C++ side.
    */
   //@{
 
