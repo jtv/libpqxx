@@ -127,6 +127,11 @@ Any string you pass as a parameter will end at the _first char with value
 zero._  If you pass a string that contains a zero byte, the last byte in the
 value will be the one just before the zero.
 
-So, if you need a zero byte in a string, consider using
-`std::basic_string<std::byte>` or `std::basic_string_view<std::byte>`, and on
-the SQL side, the `bytea` type.
+So, if you need a zero byte in a string, consider that it's really a _binary
+string,_ which is not the same thing as a text string.  SQL represents binary
+data as the `BYTEA` type, or in binary large objects _(blobs)._
+
+In libpqxx, you represent binary data as a range of `std::byte`.  They must be
+contiguous in memory, so that libpqxx can pass pointers to the underlying C
+library.  So you might use `std::basic_string<std::byte>`, or
+`std::basic_string_view<std::byte>`, or `std::vector<std::byte>`.
