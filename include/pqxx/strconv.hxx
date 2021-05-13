@@ -416,15 +416,26 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-/// Binary string type.
+/// Concept: Binary string, akin to @c std::string for binary data.
 /** Any type that satisfies this concept can represent an SQL BYTEA value.
  *
- * Each byte is a @c std::byte, and they must be laid out contiguously in
- * memory so we can reference them by a pointer.
+ * A @c binary has a @c begin(), @c end(), @c size(), and @data().  Each byte
+ * is a @c std::byte, and they must all be laid out contiguously in memory so
+ * we can reference them by a pointer.
  */
 template<class TYPE>
 concept binary = std::ranges::contiguous_range<TYPE> and std::is_same_v<
   strip_t<decltype(*std::begin(std::declval<TYPE>()))>, std::byte>;
+
+
+/// Concept: Binary string view, akin to @c std::string_view for binary data.
+/** A @c binary_view type is a @c binary, but also, it is a @i borrowed range.
+ * This means that the storage holding the actual data exists independently
+ * from the @c binary_view.  The @c binary_view merely references it.
+ */
+template<class TYPE>
+concept binary_view = binary<TYPE> and std::ranges::view<TYPE>
+  and std::ranges::borrowed_range<TYPE>;
 #endif
 //@}
 } // namespace pqxx

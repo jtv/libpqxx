@@ -100,6 +100,14 @@ constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
+/// A zview is a view.
+template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
+
+
+/// A zview is a borrowed range.
+template<>
+inline constexpr bool std::ranges::enable_borrowed_range<pqxx::zview>{true};
+
 namespace pqxx::internal
 {
 /// Concept: T is a known zero-terminated string type.

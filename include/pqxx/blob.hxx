@@ -110,9 +110,20 @@ public:
     return std::span<std::byte>{
       std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
-#endif
 
-#if defined(PQXX_HAVE_SPAN)
+
+  /// Read up to @c std::size(buf) bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until @c buf is
+   * full or there are no more bytes to read, whichever comes first.
+   *
+   * Returns the filled portion of @c buf.  This may be empty.
+   */
+  template<binary_view DATA> std::span<std::byte> read(DATA buf)
+  {
+    return std::span<std::byte>{
+      std::data(buf), raw_read(std::data(buf), std::size(buf))};
+  }
+#elif defined(PQXX_HAVE_SPAN)
   /// Read up to @c std::size(buf) bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until @c buf is
    * full or there are no more bytes to read, whichever comes first.
@@ -135,8 +146,7 @@ public:
   {
     return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
-#endif // PQXX_HAVE_SPAN
-
+#else
   /// Read up to @c std::size(buf) bytes from the object.
   /** @deprecated As libpqxx moves to C++20 as its baseline language version,
    * this will take and return @c std::span<std::byte>.
@@ -156,9 +166,10 @@ public:
     return std::basic_string_view<std::byte>{
       std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
+#endif
+
 
 #if defined(PQXX_HAVE_CONCEPTS)
-
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * @c data to the object's contents and move the writing position so that
@@ -182,9 +193,7 @@ public:
   {
     raw_write(std::data(data), std::size(data));
   }
-
 #elif defined(PQXX_HAVE_SPAN)
-
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * @c data to the object's contents and move the writing position so that
@@ -233,9 +242,7 @@ public:
   {
     raw_write(std::data(data), std::size(data));
   }
-
-#endif // PQXX_HAVE_SPAN
-
+#else
   /// Write @c data to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * @c data to the object's contents and move the writing position so that
@@ -283,6 +290,7 @@ public:
   {
     raw_write(std::data(data), std::size(data));
   }
+#endif
 
   /// Resize large object to @c size bytes.
   /** If the blob is more than @c size bytes long, this removes the end so as
