@@ -885,7 +885,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * std::size(text) + 1);
-    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
+    auto const content_bytes{esc_to_buf(text, std::data(buf) + 1)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
     auto const end{closing_quote + 1};
@@ -927,7 +927,7 @@ inline connection::connection(MAPPING const &params)
   }
   keys.push_back(nullptr);
   values.push_back(nullptr);
-  init(keys.data(), values.data());
+  init(std::data(keys), std::data(values));
 }
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx

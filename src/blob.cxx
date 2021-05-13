@@ -153,7 +153,7 @@ std::size_t
 pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
 {
   buf.resize(size);
-  auto const received{raw_read(buf.data(), size)};
+  auto const received{raw_read(std::data(buf), size)};
   buf.resize(received);
   return static_cast<std::size_t>(received);
 }
@@ -290,7 +290,7 @@ std::size_t pqxx::blob::append_to_buf(
   buf.resize(org_size + append_max);
   try
   {
-    auto here{reinterpret_cast<char *>(buf.data() + org_size)};
+    auto here{reinterpret_cast<char *>(std::data(buf) + org_size)};
     auto chunk{static_cast<std::size_t>(
       lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);

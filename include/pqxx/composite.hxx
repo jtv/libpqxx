@@ -36,7 +36,7 @@ inline void parse_composite(
   static_assert(sizeof...(fields) > 0);
 
   auto const scan{pqxx::internal::get_glyph_scanner(enc)};
-  auto const data{text.data()};
+  auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
     throw conversion_error{"Cannot parse composite value from empty string."};

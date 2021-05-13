@@ -334,10 +334,10 @@ inline void stream_from::extract_value(Tuple &t) const
   assert(index < std::size(m_fields));
   if constexpr (nullity::always_null)
   {
-    if (m_fields[index].data() != nullptr)
+    if (std::data(m_fields[index]) != nullptr)
       throw conversion_error{"Streaming non-null value into null field."};
   }
-  else if (m_fields[index].data() == nullptr)
+  else if (std::data(m_fields[index]) == nullptr)
   {
     if constexpr (nullity::has_null)
       std::get<index>(t) = nullity::null();

@@ -304,10 +304,10 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         char *const end{traits::into_buf(
-          m_buffer.data() + offset, m_buffer.data() + total, f)};
+          std::data(m_buffer) + offset, std::data(m_buffer) + total, f)};
         *(end - 1) = '\t';
         // Shrink to fit.  Keep the tab though.
-        m_buffer.resize(static_cast<std::size_t>(end - m_buffer.data()));
+        m_buffer.resize(static_cast<std::size_t>(end - std::data(m_buffer)));
       }
       else
       {
@@ -316,7 +316,8 @@ private:
         // m_field_buffer, then escape into its final place.
         m_field_buf.resize(budget);
         escape_field_to_buffer(traits::to_buf(
-          m_field_buf.data(), m_field_buf.data() + std::size(m_field_buf), f));
+          std::data(m_field_buf),
+          std::data(m_field_buf) + std::size(m_field_buf), f));
       }
     }
   }

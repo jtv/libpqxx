@@ -329,7 +329,7 @@ void test_stream_from_read_row()
     std::string((*fields)[0]), "321", "Integer field came out wrong.");
   PQXX_CHECK_EQUAL(
     std::string((*fields)[1]), "something", "Text field came out wrong.");
-  PQXX_CHECK((*fields)[2].data() == nullptr, "Null field came out wrong.");
+  PQXX_CHECK(std::data((*fields)[2]) == nullptr, "Null field came out wrong.");
 
   auto last{stream.read_row()};
   PQXX_CHECK(last == nullptr, "No null pointer at end of stream.");

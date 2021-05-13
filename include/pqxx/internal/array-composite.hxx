@@ -162,7 +162,7 @@ inline void parse_composite_field(
   glyph_scanner_func *scan, std::size_t last_field)
 {
   assert(index <= last_field);
-  auto next{scan(input.data(), std::size(input), pos)};
+  auto next{scan(std::data(input), std::size(input), pos)};
   if ((next - pos) != 1)
     throw conversion_error{"Non-ASCII character in composite-type syntax."};
 
@@ -181,9 +181,10 @@ inline void parse_composite_field(
     break;
 
   case '"': {
-    auto const stop{
-      scan_double_quoted_string(input.data(), std::size(input), pos, scan)};
-    auto const text{parse_double_quoted_string(input.data(), stop, pos, scan)};
+    auto const stop{scan_double_quoted_string(
+      std::data(input), std::size(input), pos, scan)};
+    auto const text{
+      parse_double_quoted_string(std::data(input), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;
   }
@@ -191,8 +192,8 @@ inline void parse_composite_field(
 
   default: {
     auto const stop{scan_unquoted_string<',', ')'>(
-      input.data(), std::size(input), pos, scan)};
-    auto const text{parse_unquoted_string(input.data(), stop, pos, scan)};
+      std::data(input), std::size(input), pos, scan)};
+    auto const text{parse_unquoted_string(std::data(input), stop, pos, scan)};
     field = from_string<T>(text);
     pos = stop;
   }
@@ -200,7 +201,7 @@ inline void parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
-  next = scan(input.data(), std::size(input), pos);
+  next = scan(std::data(input), std::size(input), pos);
 
   if ((next - pos) != 1)
     throw conversion_error{
@@ -212,14 +213,14 @@ inline void parse_composite_field(
     if (input[pos] != ',')
       throw conversion_error{
         "Found '" + std::string{input[pos]} +
-        "' in composite value where comma was expected: " + input.data()};
+        "' in composite value where comma was expected: " + std::data(input)};
   }
   else
   {
     if (input[pos] == ',')
       throw conversion_error{
         "Composite value contained more fields than the expected " +
-        to_string(last_field) + ": " + input.data()};
+        to_string(last_field) + ": " + std::data(input)};
     if (input[pos] != ')')
       throw conversion_error{
         "Composite value has unexpected characters where closing parenthesis "

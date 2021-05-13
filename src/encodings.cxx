@@ -678,7 +678,7 @@ template<encoding_group E> struct char_finder
   constexpr static PQXX_PURE std::size_t
   call(std::string_view haystack, char needle, std::size_t start)
   {
-    auto const buffer{haystack.data()};
+    auto const buffer{std::data(haystack)};
     auto const size{std::size(haystack)};
     for (auto here{start}; here + 1 <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
@@ -696,13 +696,13 @@ template<encoding_group E> struct string_finder
   PQXX_PURE constexpr static PQXX_PURE std::size_t
   call(std::string_view haystack, std::string_view needle, std::size_t start)
   {
-    auto const buffer{haystack.data()};
+    auto const buffer{std::data(haystack)};
     auto const size{std::size(haystack)};
     auto const needle_size{std::size(needle)};
     for (auto here{start}; here + needle_size <= size;
          here = glyph_scanner<E>::call(buffer, size, here))
     {
-      if (std::memcmp(buffer + here, needle.data(), needle_size) == 0)
+      if (std::memcmp(buffer + here, std::data(needle), needle_size) == 0)
         return here;
     }
     return std::string::npos;

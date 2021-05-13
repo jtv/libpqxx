@@ -265,12 +265,12 @@ template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
   char const *here;
-  auto const end{in.data() + std::size(in)};
+  auto const end{std::data(in) + std::size(in)};
 
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
-  for (here = in.data(); here < end and (*here == ' ' or *here == '\t');
+  for (here = std::data(in); here < end and (*here == ' ' or *here == '\t');
        ++here)
     ;
 
@@ -388,7 +388,7 @@ template<typename T>
     throw pqxx::conversion_error{
       "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
-  char const *const data{text.data()};
+  char const *const data{std::data(text)};
   std::size_t i{0};
 
   // Skip whitespace.  This is not the proper way to do it, but I see no way
@@ -644,7 +644,7 @@ template<typename T> std::string to_string_float(T value)
     std::string buf;
     buf.resize(space);
     std::string_view const view{
-      float_traits<T>::to_buf(buf.data(), buf.data() + space, value)};
+      float_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
     buf.resize(std::end(view) - std::begin(view));
     return buf;
   }

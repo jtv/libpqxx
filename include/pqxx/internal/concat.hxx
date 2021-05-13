@@ -33,11 +33,11 @@ template<typename... TYPE>
   // terminating zero bytes.
   buf.resize(size_buffer(item...));
 
-  char *here = buf.data();
-  char *end = buf.data() + std::size(buf);
+  char *here = std::data(buf);
+  char *end = std::data(buf) + std::size(buf);
   (render_item(item, here, end), ...);
 
-  buf.resize(static_cast<std::size_t>(here - buf.data()));
+  buf.resize(static_cast<std::size_t>(here - std::data(buf)));
   return buf;
 }
 } // namespace pqxx::internal

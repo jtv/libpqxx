@@ -48,7 +48,7 @@ void test_062()
   {
     PQXX_CHECK(c != std::end(B), "Premature end to binary string.");
 
-    char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(B.data()[i])};
+    char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
 
     PQXX_CHECK_EQUAL(
       std::string(&x, 1), std::string(&y, 1), "Binary string byte changed.");

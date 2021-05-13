@@ -26,7 +26,7 @@ namespace pqxx
 [[nodiscard]] std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos) const
 {
-  return m_scan(m_input.data(), std::size(m_input), pos);
+  return m_scan(std::data(m_input), std::size(m_input), pos);
 }
 
 
@@ -34,7 +34,7 @@ array_parser::scan_glyph(std::string::size_type pos) const
 std::string::size_type array_parser::scan_glyph(
   std::string::size_type pos, std::string::size_type end) const
 {
-  return m_scan(m_input.data(), end, pos);
+  return m_scan(std::data(m_input), end, pos);
 }
 
 
@@ -101,7 +101,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
       next = scan_glyph(here, end);
     }
 
-    output.append(m_input.data() + here, m_input.data() + next);
+    output.append(std::data(m_input) + here, std::data(m_input) + next);
   }
 
   return output;
@@ -112,7 +112,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
   return pqxx::internal::scan_double_quoted_string(
-    m_input.data(), std::size(m_input), m_pos, m_scan);
+    std::data(m_input), std::size(m_input), m_pos, m_scan);
 }
 
 
@@ -121,7 +121,7 @@ std::string
 array_parser::parse_double_quoted_string(std::string::size_type end) const
 {
   return pqxx::internal::parse_double_quoted_string(
-    m_input.data(), end, m_pos, m_scan);
+    std::data(m_input), end, m_pos, m_scan);
 }
 
 
@@ -131,7 +131,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 std::string::size_type array_parser::scan_unquoted_string() const
 {
   return pqxx::internal::scan_unquoted_string<',', ';', '}'>(
-    m_input.data(), std::size(m_input), m_pos, m_scan);
+    std::data(m_input), std::size(m_input), m_pos, m_scan);
 }
 
 
@@ -143,7 +143,7 @@ std::string
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
   return pqxx::internal::parse_unquoted_string(
-    m_input.data(), end, m_pos, m_scan);
+    std::data(m_input), end, m_pos, m_scan);
 }
 
 

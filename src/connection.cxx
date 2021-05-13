@@ -426,10 +426,10 @@ void pqxx::connection::cancel_query()
 
   std::array<char, 500u> errbuf;
   auto const c{PQcancel(
-    cancel.get(), errbuf.data(), static_cast<int>(std::size(errbuf)))};
+    cancel.get(), std::data(errbuf), static_cast<int>(std::size(errbuf)))};
   if (c == 0)
     throw pqxx::sql_error{
-      std::string{errbuf.data(), std::size(errbuf)}, "[cancel]"};
+      std::string{std::data(errbuf), std::size(errbuf)}, "[cancel]"};
 }
 
 
@@ -643,8 +643,8 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const pq_result{PQexecPrepared(
     m_conn, q->c_str(),
     check_cast<int>(std::size(args.values), "exec_prepared"sv),
-    args.values.data(), args.lengths.data(),
-    reinterpret_cast<int const *>(args.formats.data()),
+    std::data(args.values), std::data(args.lengths),
+    reinterpret_cast<int const *>(std::data(args.formats)),
     static_cast<int>(format::text))};
   auto const r{make_result(pq_result, q, statement)};
   get_notifs();
@@ -765,7 +765,7 @@ void pqxx::connection::write_copy_line(std::string_view line)
   static std::string const err_prefix{"Error writing to table: "};
   auto const size{check_cast<int>(
     internal::ssize(line), "Line in stream_to is too long to process."sv)};
-  if (PQputCopyData(m_conn, line.data(), size) <= 0)
+  if (PQputCopyData(m_conn, std::data(line), size) <= 0)
     throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
     throw failure{err_prefix + err_msg()};
@@ -811,7 +811,7 @@ size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
 {
   int err{0};
   auto const copied{
-    PQescapeStringConn(m_conn, buf, text.data(), std::size(text), &err)};
+    PQescapeStringConn(m_conn, buf, std::data(text), std::size(text), &err)};
   if (err)
     throw argument_error{err_msg()};
   return copied;
@@ -822,7 +822,7 @@ std::string pqxx::connection::esc(std::string_view text) const
 {
   std::string buf;
   buf.resize(2 * std::size(text) + 1);
-  auto const copied{esc_to_buf(text, buf.data())};
+  auto const copied{esc_to_buf(text, std::data(buf))};
   buf.resize(copied);
   return buf;
 }
@@ -840,7 +840,7 @@ std::string
 pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
 {
   return pqxx::internal::esc_bin(std::string_view{
-    reinterpret_cast<char const *>(bin.data()), std::size(bin)});
+    reinterpret_cast<char const *>(std::data(bin)), std::size(bin)});
 }
 
 
@@ -896,7 +896,7 @@ std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
   std::unique_ptr<char, std::function<void(char *)>> buf{
-    PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
+    PQescapeIdentifier(m_conn, std::data(identifier), std::size(identifier)),
     PQfreemem};
   if (buf.get() == nullptr)
     throw failure{err_msg()};
@@ -931,7 +931,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
-    text.data(), std::size(text));
+    std::data(text), std::size(text));
   return out;
 }
 
@@ -1121,8 +1121,8 @@ pqxx::result pqxx::connection::exec_params(
   auto const pq_result{PQexecParams(
     m_conn, q->c_str(),
     check_cast<int>(std::size(args.values), "exec_params"sv), nullptr,
-    args.values.data(), args.lengths.data(),
-    reinterpret_cast<int const *>(args.formats.data()),
+    std::data(args.values), std::data(args.lengths),
+    reinterpret_cast<int const *>(std::data(args.formats)),
     static_cast<int>(format::text))};
   auto const r{make_result(pq_result, q)};
   get_notifs();

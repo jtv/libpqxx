@@ -121,7 +121,7 @@ public:
    */
   std::span<std::byte> read(std::span<std::byte> buf)
   {
-    return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
+    return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
 
   /// Read up to @c std::size(buf) bytes from the object.
@@ -133,7 +133,7 @@ public:
   template<typename... Args, Args... args>
   std::span<std::byte> read(std::span<std::byte, args...> buf)
   {
-    return buf.subspan(0, raw_read(buf.data(), std::size(buf)));
+    return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
 #endif // PQXX_HAVE_SPAN
 
@@ -154,7 +154,7 @@ public:
   std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> &buf)
   {
     return std::basic_string_view<std::byte>{
-      buf.data(), raw_read(buf.data(), std::size(buf))};
+      std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -180,7 +180,7 @@ public:
    */
   template<binary DATA> void write(DATA const &data)
   {
-    raw_write(data.data(), std::size(data));
+    raw_write(std::data(data), std::size(data));
   }
 
 #elif defined(PQXX_HAVE_SPAN)
@@ -206,7 +206,7 @@ public:
    */
   void write(std::span<std::byte> data)
   {
-    raw_write(data.data(), std::size(data));
+    raw_write(std::data(data), std::size(data));
   }
 
   /// Write @c data to large object, at the current position.
@@ -231,7 +231,7 @@ public:
   template<typename... Args, Args... args>
   void write(std::span<std::byte, args...> data)
   {
-    raw_write(data.data(), std::size(data));
+    raw_write(std::data(data), std::size(data));
   }
 
 #endif // PQXX_HAVE_SPAN
@@ -257,7 +257,7 @@ public:
    */
   void write(std::basic_string_view<std::byte> data)
   {
-    raw_write(data.data(), std::size(data));
+    raw_write(std::data(data), std::size(data));
   }
 
   /// Write @c data to large object, at the current position.
@@ -281,7 +281,7 @@ public:
    */
   void write(std::basic_string<std::byte> const &data)
   {
-    raw_write(data.data(), std::size(data));
+    raw_write(std::data(data), std::size(data));
   }
 
   /// Resize large object to @c size bytes.

@@ -148,7 +148,7 @@ void test_binarystring_stream()
   to.write_values(0, bin);
   to.complete();
 
-  auto ptr{reinterpret_cast<std::byte const *>(data.data())};
+  auto ptr{reinterpret_cast<std::byte const *>(std::data(data))};
   auto expect{
     tx.quote(std::basic_string_view<std::byte>{ptr, std::size(data)})};
   PQXX_CHECK(
@@ -182,8 +182,8 @@ void test_binarystring_array_stream()
       "SELECT array_length(vec, 1) FROM pqxxbinstream"),
     std::size(vec), "Array came out with wrong length.");
 
-  auto ptr1{reinterpret_cast<std::byte const *>(data1.data())},
-    ptr2{reinterpret_cast<std::byte const *>(data2.data())};
+  auto ptr1{reinterpret_cast<std::byte const *>(std::data(data1))},
+    ptr2{reinterpret_cast<std::byte const *>(std::data(data2))};
   auto expect1{
     tx.quote(std::basic_string_view<std::byte>{ptr1, std::size(data1)})},
     expect2{

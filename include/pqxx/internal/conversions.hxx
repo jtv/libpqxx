@@ -64,7 +64,7 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
       state_buffer_overrun(space, len)};
-  std::memmove(begin, text.data(), len);
+  std::memmove(begin, std::data(text), len);
   return begin + len;
 }
 
@@ -415,7 +415,10 @@ template<> struct nullness<char const *>
 /// String traits for C-style string ("pointer to char const").
 template<> struct string_traits<char const *>
 {
-  static char const *from_string(std::string_view text) { return text.data(); }
+  static char const *from_string(std::string_view text)
+  {
+    return std::data(text);
+  }
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {
@@ -625,7 +628,7 @@ template<> struct string_traits<std::stringstream>
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
-    stream.write(text.data(), std::streamsize(std::size(text)));
+    stream.write(std::data(text), std::streamsize(std::size(text)));
     return stream;
   }
 
@@ -820,7 +823,7 @@ template<binary DATA> struct string_traits<DATA>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(
       std::string_view(
-        reinterpret_cast<char const *>(value.data()), std::size(value)),
+        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
       begin);
     return begin + budget;
   }
@@ -830,7 +833,8 @@ template<binary DATA> struct string_traits<DATA>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(
+      text, reinterpret_cast<std::byte *>(std::data(buf)));
     return buf;
   }
 };
@@ -861,7 +865,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(
       std::string_view(
-        reinterpret_cast<char const *>(value.data()), std::size(value)),
+        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
       begin);
     return begin + budget;
   }
@@ -871,7 +875,8 @@ template<> struct string_traits<std::basic_string<std::byte>>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(
+      text, reinterpret_cast<std::byte *>(std::data(buf)));
     return buf;
   }
 };
@@ -914,7 +919,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(
       std::string_view(
-        reinterpret_cast<char const *>(value.data()), std::size(value)),
+        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
       begin);
     return begin + budget;
   }
@@ -924,7 +929,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(text, buf.data());
+    pqxx::internal::unesc_bin(text, std::data(buf));
     return buf;
   }
 };
@@ -1122,8 +1127,8 @@ template<typename T> inline std::string to_string(T const &value)
   // undefined behaviour.
   buf.resize(size_buffer(value));
   auto const end{string_traits<T>::into_buf(
-    buf.data(), buf.data() + std::size(buf), value)};
-  buf.resize(static_cast<std::size_t>(end - buf.data() - 1));
+    std::data(buf), std::data(buf) + std::size(buf), value)};
+  buf.resize(static_cast<std::size_t>(end - std::data(buf) - 1));
   return buf;
 }
 
@@ -1156,7 +1161,7 @@ template<typename T> inline void into_string(T const &value, std::string &out)
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
   auto const end{string_traits<T>::into_buf(
-    out.data(), out.data() + std::size(out), value)};
-  out.resize(static_cast<std::size_t>(end - out.data() - 1));
+    std::data(out), std::data(out) + std::size(out), value)};
+  out.resize(static_cast<std::size_t>(end - std::data(out) - 1));
 }
 } // namespace pqxx

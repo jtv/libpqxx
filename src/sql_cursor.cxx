@@ -56,7 +56,7 @@ inline bool useless_trail(char c)
 std::string::size_type
 find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
-  auto const text{query.data()};
+  auto const text{std::data(query)};
   auto const size{std::size(query)};
   std::string::size_type end;
   if (enc == pqxx::internal::encoding_group::MONOBYTE)

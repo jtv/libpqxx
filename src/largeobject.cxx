@@ -80,7 +80,7 @@ pqxx::largeobject::largeobject(dbtransaction &t)
 
 pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file)
 {
-  m_id = lo_import(raw_connection(t), file.data());
+  m_id = lo_import(raw_connection(t), std::data(file));
   if (m_id == oid_none)
   {
     int const err{errno};
@@ -102,7 +102,7 @@ void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  if (lo_export(raw_connection(t), id(), file.data()) == -1)
+  if (lo_export(raw_connection(t), id(), std::data(file)) == -1)
   {
     int const err{errno};
     if (err == ENOMEM)

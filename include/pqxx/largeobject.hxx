@@ -248,7 +248,7 @@ public:
   /** If not all bytes could be written, an exception is thrown.
    * @param buf Data to write; no terminating zero is written.
    */
-  void write(std::string_view buf) { write(buf.data(), std::size(buf)); }
+  void write(std::string_view buf) { write(std::data(buf), std::size(buf)); }
 
   /// Read data from large object.
   /** Throws an exception if an error occurs while reading.

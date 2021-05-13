@@ -198,7 +198,7 @@ void pqxx::stream_from::parse_line()
   char const *read{line_begin};
 
   // Output iterator for unescaped text.
-  char *write{m_row.data()};
+  char *write{std::data(m_row)};
 
   // The pointer cannot be null at this point.  But we initialise field_begin
   // with this value, and carry it around the loop, and it can later become
