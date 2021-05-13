@@ -263,8 +263,8 @@ private:
     return is_null(field) ? std::size(null_field) : size_buffer(field);
   }
 
-  /// Append escaped version of @c m_field_buf to @c m_buffer, plus a tab.
-  void escape_field_to_buffer(std::string_view);
+  /// Append escaped version of @c data to @c m_buffer, plus a tab.
+  void escape_field_to_buffer(std::string_view data);
 
   /// Append string representation for @c f to @c m_buffer.
   /** This is for the general case, where the field may contain a value.
@@ -309,15 +309,20 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - std::data(m_buffer)));
       }
+      else if constexpr (std::is_same_v<Field, std::string> or std::is_same_v<Field, std::string_view> or std::is_same_v<Field, zview>)
+      {
+        // This string may need escaping.
+	m_field_buf.resize(budget);
+	escape_field_to_buffer(f);
+      }
       else
       {
-        // TODO: Specialise string/string_view/zview to skip to_buf()!
-        // This field may need escaping.  First convert the value into
-        // m_field_buffer, then escape into its final place.
+	// This field needs to be converted to a string, and after that,
+	// escaping as well.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(traits::to_buf(
-          std::data(m_field_buf),
-          std::data(m_field_buf) + std::size(m_field_buf), f));
+	auto const data{std::data(m_field_buf)};
+        escape_field_to_buffer(
+	  traits::to_buf(data, data + std::size(m_field_buf), f));
       }
     }
   }

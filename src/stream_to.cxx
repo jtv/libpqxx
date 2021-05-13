@@ -98,9 +98,9 @@ void pqxx::stream_to::complete()
 }
 
 
-void pqxx::stream_to::escape_field_to_buffer(std::string_view buf)
+void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
 {
-  for (auto c : buf)
+  for (auto c : data)
   {
     switch (c)
     {
