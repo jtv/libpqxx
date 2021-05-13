@@ -218,6 +218,19 @@ void test_binary()
         reinterpret_cast<char const *>(oval.c_str()), std::size(oval)}),
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
+
+#if defined(PQXX_HAVE_CONCEPTS)
+  // By the way, it doesn't have to be a std::basic_string.  Any contiguous
+  // range will do.
+  {
+    std::vector<std::byte> data{std::byte{'x'}, std::byte{'v'}};
+    auto op{tx.exec_prepared1("EchoBin", data)};
+    auto oval{op[0].as<std::basic_string<std::byte>>()};
+    PQXX_CHECK_EQUAL(std::size(oval), 2u, "Binary data came back as wrong length.");
+    PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'), "Wrong data.");
+    PQXX_CHECK_EQUAL(static_cast<int>(oval[1]), int('v'), "Wrong data.");
+  }
+#endif
 }
 
 
