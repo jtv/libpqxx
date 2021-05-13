@@ -624,7 +624,7 @@ private:
 };
 
 
-// TODO: C++20 "Conversion remains valid after underlying result dies" concept?
+// TODO: Can C++20's borrowed_range help?
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
 std::string_view transaction_base::query_value<std::string_view>(

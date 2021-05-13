@@ -594,8 +594,7 @@ public:
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
-  // TODO: Also support esc(std::basic_string_view<std::byte>).
-  // TODO: Also support esc(std::ranges::range<std::byte>).
+  // TODO: Also support esc(binary).
   /// Escape binary string for use as SQL string literal on this connection.
   [[deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
@@ -625,6 +624,7 @@ public:
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
+  // TODO: Accept "binary" concept.
   /// Escape and quote a string of binary data.
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
     quote_raw(std::basic_string_view<std::byte>) const;
