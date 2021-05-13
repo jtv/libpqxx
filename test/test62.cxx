@@ -23,10 +23,20 @@ void test_062()
 
   tx.exec0("CREATE TEMP TABLE pqxxbin (binfield bytea)");
 
-  std::string const Esc{tx.esc_raw(TestStr)},
-    Chk{tx.esc_raw(
+  std::string const Esc{
+    tx.esc_raw(
+      std::basic_string<std::byte>{
+        reinterpret_cast<std::byte const *>(std::data(TestStr)),
+        std::size(TestStr)
+      }
+    )
+  },
+  Chk{
+    tx.esc_raw(
       reinterpret_cast<unsigned char const *>(TestStr.c_str()),
-      strlen(TestStr.c_str()))};
+      strlen(TestStr.c_str())
+    )
+  };
 
   PQXX_CHECK_EQUAL(Chk, Esc, "Inconsistent results from esc_raw().");
 

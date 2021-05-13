@@ -158,17 +158,6 @@ public:
    */
   void append(std::basic_string_view<std::byte>);
 
-#if defined(PQXX_HAVE_CONCEPTS)
-  /// Append a non-null binary parameter.
-  /** The underlying data must stay valid for as long as the @c params remains
-   * active.
-   */
-  template<binary_view DATA> void append(DATA data)
-  {
-    append(std::basic_string_view<std::byte>{std::data(data), std::size(data)});
-  }
-#endif // PQXX_HAVE_CONCEPTS
-
   /// Append a non-null binary parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @c std::basic_string_view<std::byte> variant if you can, or
@@ -183,7 +172,8 @@ public:
    */
   template<binary DATA> void append(DATA const &data)
   {
-    append(std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+    append(
+      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
   }
 #endif // PQXX_HAVE_CONCEPTS
 

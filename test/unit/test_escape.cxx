@@ -11,29 +11,37 @@ void compare_esc(
 {
   std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(
-    c.esc(text, len), t.esc(text, len),
+    c.esc(std::string_view{text, len}), t.esc(std::string_view{text, len}),
     "Connection & transaction escape differently.");
 
   PQXX_CHECK_EQUAL(
-    t.esc(text, len), t.esc(text), "Length argument to esc() changes result.");
+    t.esc(std::string_view{text, len}), t.esc(text),
+    "Length argument to esc() changes result.");
 
   PQXX_CHECK_EQUAL(
     t.esc(std::string{text}), t.esc(text),
     "esc(std::string()) differs from esc(char const[]).");
 
   PQXX_CHECK_EQUAL(
-    text, t.query_value<std::string>("SELECT '" + t.esc(text, len) + "'"),
+    text,
+    t.query_value<std::string>(
+      "SELECT '" + t.esc(std::string_view{text, len}) + "'"),
     "esc() is not idempotent.");
 
   PQXX_CHECK_EQUAL(
-    t.esc(text, len), t.esc(text), "Oversized buffer affects esc().");
+    t.esc(std::string_view{text, len}), t.esc(text),
+    "Oversized buffer affects esc().");
 }
 
 
 void test_esc(pqxx::connection &c, pqxx::transaction_base &t)
 {
-  PQXX_CHECK_EQUAL(t.esc("", 0), "", "Empty string doesn't escape properly.");
-  PQXX_CHECK_EQUAL(t.esc("'", 1), "''", "Single quote escaped incorrectly.");
+  PQXX_CHECK_EQUAL(
+    t.esc(std::string_view{"", 0}), "",
+    "Empty string doesn't escape properly.");
+  PQXX_CHECK_EQUAL(
+    t.esc(std::string_view{"'", 1}), "''",
+    "Single quote escaped incorrectly.");
   PQXX_CHECK_EQUAL(
     t.esc(std::string_view{"hello"}), "hello", "Trivial escape went wrong.");
   char const *const escstrings[]{"x", " ", "", nullptr};
@@ -84,7 +92,8 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
   constexpr char binary[]{"1\0023\\4x5"};
   std::string const data(binary, std::size(binary));
-  std::string const escaped{t.esc_raw(data)};
+  std::string const escaped{t.esc_raw(std::basic_string_view<std::byte>{
+    reinterpret_cast<std::byte const *>(std::data(data)), std::size(binary)})};
 
   for (auto const i : escaped)
   {

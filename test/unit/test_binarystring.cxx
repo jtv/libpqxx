@@ -66,7 +66,10 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(
     std::size(b), std::size(simple), "Escaping confuses length.");
 
-  std::string const simple_escaped{tx.esc_raw(simple)};
+  std::string const simple_escaped{
+    tx.esc_raw(std::basic_string_view<std::byte>{
+      reinterpret_cast<std::byte const *>(std::data(simple)),
+      std::size(simple)})};
   for (auto c : simple_escaped)
   {
     auto const uc{static_cast<unsigned char>(c)};

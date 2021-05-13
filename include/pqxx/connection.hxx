@@ -569,15 +569,15 @@ public:
    */
   //@{
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This accepts a length, and it does not require a terminating
    * zero byte.  But if there is a zero byte, escaping stops there even if
    * it's not at the end of the string!
    */
-  [[nodiscard]] std::string esc(char const text[], std::size_t maxlen) const
+  [[deprecated("Use std::string_view or pqxx:zview.")]] std::string
+  esc(char const text[], std::size_t maxlen) const
   {
-    return esc(std::string_view(text, maxlen));
+    return esc(std::string_view{text, maxlen});
   }
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
@@ -589,19 +589,38 @@ public:
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
-  /** @warning If the string contains a zero byte, escaping stops there even
-   * if it's not at the end of the string!
+  /** @warning This is meant for text strings only.  It cannot contain bytes
+   * whose value is zero ("nul bytes").
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
-  // TODO: Also support esc(binary).
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Escape binary string for use as SQL string literal on this connection.
+  /** This is identical to @c esc_raw(data). */
+  template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
+  {
+    return esc_raw(data);
+  }
+#endif
+
   /// Escape binary string for use as SQL string literal on this connection.
   [[deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape binary string for use as SQL string literal on this connection.
+  /** You can also just use @c esc() with a binary string. */
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
+
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Escape binary string for use as SQL string literal on this connection.
+  template<binary DATA>
+  [[nodiscard]] std::string esc_raw(DATA const &data) const
+  {
+    return esc_raw(
+      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+  }
+#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
@@ -624,10 +643,18 @@ public:
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
 
-  // TODO: Accept "binary" concept.
   /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
-    quote_raw(std::basic_string_view<std::byte>) const;
+  std::string quote_raw(std::basic_string_view<std::byte>) const;
+
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Escape and quote a string of binary data.
+  /** You can also just use @c quote() with binary data. */
+  template<binary DATA> [[nodiscard]] std::string quote_raw(DATA const &data) const
+  {
+    return quote_raw(
+      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+  }
+#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.
@@ -671,17 +698,15 @@ public:
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Represent object as SQL string, including quoting & escaping.
   /**
-   * Nulls are recognized and represented as SQL nulls.  They get no quotes.
+   * Recognises nulls and represents them as SQL nulls.  They get no quotes.
    */
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t) const;
 
-  /// @deprecated Use @c basic_string or @c basic_string_view of @c std::byte.
-  [[nodiscard, deprecated("Use std::byte for binary data.")]] std::string
+  [[deprecated("Use std::byte for binary data.")]] std::string
   quote(binarystring const &) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
-  // TODO: Support std::span<std::byte...>.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
   [[nodiscard]] std::string
   quote(std::basic_string_view<std::byte> bytes) const;
