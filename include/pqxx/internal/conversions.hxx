@@ -947,6 +947,12 @@ namespace pqxx::internal
 /// String traits for SQL arrays.
 template<typename Container> struct array_string_traits
 {
+private:
+  using elt_type = strip_t<value_type<Container>>;
+  using elt_traits = string_traits<elt_type>;
+  static constexpr zview s_null{"NULL"};
+
+public:
   static zview to_buf(char *begin, char *end, Container const &value)
   {
     auto const stop{into_buf(begin, end, value)};
@@ -974,13 +980,13 @@ template<typename Container> struct array_string_traits
       else if constexpr (is_sql_array<elt_type>)
       {
         // Render nested array in-place.  Then erase the trailing zero.
-        here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
+        here = elt_traits::into_buf(here, end, elt) - 1;
       }
       else if constexpr (is_unquoted_safe<elt_type>)
       {
         // No need to quote or escape.  Just convert the value straight into
         // its place in the array, and "backspace" the trailing zero.
-        here = string_traits<elt_type>::into_buf(here, end, elt) - 1;
+        here = elt_traits::into_buf(here, end, elt) - 1;
       }
       else
       {
@@ -989,8 +995,7 @@ template<typename Container> struct array_string_traits
         // Use the tail end of the destination buffer as an intermediate
         // buffer.
         auto const elt_budget{pqxx::size_buffer(elt)};
-        for (char const c :
-             string_traits<elt_type>::to_buf(end - elt_budget, end, elt))
+        for (char const c : elt_traits::to_buf(end - elt_budget, end, elt))
         {
           if (c == '\\' or c == '"')
             *here++ = '\\';
@@ -1014,8 +1019,6 @@ template<typename Container> struct array_string_traits
 
   static std::size_t size_buffer(Container const &value) noexcept
   {
-    using elt_traits = string_traits<elt_type>;
-
     if constexpr (is_unquoted_safe<elt_type>)
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
@@ -1041,11 +1044,6 @@ template<typename Container> struct array_string_traits
 
   // We don't yet support parsing of array types using from_string.  Doing so
   // would require a reference to the connection.
-
-private:
-  using elt_type = strip_t<decltype(*std::begin(std::declval<Container>()))>;
-
-  static constexpr zview s_null{"NULL"};
 };
 } // namespace pqxx::internal
 

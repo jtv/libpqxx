@@ -3,6 +3,7 @@
  - Generalise binary strings to any contiguous range of `std::byte`.
  - Mark `zview` as a view and as a borrowed range.
  - Save a copy step on string fields in `stream_to`.
+ - New helper: `pqxx::value_type<CONTAINER>`.
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1

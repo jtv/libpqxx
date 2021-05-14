@@ -11,6 +11,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
+
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#include <ranges>
+#endif
+
 
 namespace pqxx
 {
@@ -72,6 +78,17 @@ enum class format : int
   text = 0,
   binary = 1,
 };
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+/// The type of a container's elements.
+template<std::ranges::range CONTAINER>
+using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
+#else
+/// The type of a container's elements.
+template<typename CONTAINER>
+using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
+#endif
 } // namespace pqxx
 
 #endif

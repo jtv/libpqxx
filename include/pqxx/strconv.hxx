@@ -425,7 +425,7 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
  */
 template<class TYPE>
 concept binary = std::ranges::contiguous_range<TYPE> and std::is_same_v<
-  strip_t<decltype(*std::begin(std::declval<TYPE>()))>, std::byte>;
+  strip_t<value_type<TYPE>>, std::byte>;
 
 
 /// Concept: Binary string view, akin to @c std::string_view for binary data.
