@@ -784,24 +784,14 @@ struct nullness<std::basic_string<std::byte>>
 #if defined(PQXX_HAVE_CONCEPTS)
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
-#endif // PQXX_HAVE_CONCEPTS
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<binary DATA> inline constexpr format param_format(DATA const &)
 {
   return format::binary;
 }
-#elif defined(PQXX_HAVE_SPAN)
-template<typename... Args, Args... args>
-inline constexpr format param_format(std::span<std::byte, args...> const &)
-{
-  return format::binary;
-}
-#endif
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<binary DATA> struct string_traits<DATA>
 {
   static std::size_t size_buffer(DATA const &value) noexcept

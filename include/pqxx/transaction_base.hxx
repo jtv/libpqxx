@@ -123,6 +123,7 @@ public:
   {
     return conn().esc(text);
   }
+
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal in this transaction.
   /** This is identical to @c esc(data). */

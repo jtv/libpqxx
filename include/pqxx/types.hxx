@@ -80,6 +80,13 @@ enum class format : int
 };
 
 
+/// Remove any constness, volatile, and reference-ness from a type.
+/** @deprecated In C++20 we'll replace this with std::remove_cvref.
+ */
+template<typename TYPE>
+using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
+
+
 #if defined(PQXX_HAVE_CONCEPTS)
 /// The type of a container's elements.
 template<std::ranges::range CONTAINER>
@@ -88,6 +95,12 @@ using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
 /// The type of a container's elements.
 template<typename CONTAINER>
 using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
+#endif
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+template<typename RANGE>
+concept char_buf = std::ranges::contiguous_range<RANGE> and std::is_same_v<strip_t<value_type<RANGE>>, char>;
 #endif
 } // namespace pqxx
 
