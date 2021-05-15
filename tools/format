@@ -1,6 +1,9 @@
-#! /bin/sh
+#! /bin/bash
 #
 # Reformat source code using clang-format.
+#
+# This script is not portable: as of Ubuntu 21.04, virtualenv's "activate"
+# seems to rely on a non-POSIX variable, $OSTYPE.
 
 set -C -u -e
 
