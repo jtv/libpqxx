@@ -828,19 +828,19 @@ std::string pqxx::connection::esc(std::string_view text) const
 }
 
 
+// TODO: Use std::byte.
 std::string
 pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
-  return pqxx::internal::esc_bin(
-    std::string_view{reinterpret_cast<char const *>(bin), len});
+  return pqxx::internal::esc_bin(std::basic_string_view<std::byte>{
+    reinterpret_cast<std::byte const *>(bin), len});
 }
 
 
 std::string
 pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
 {
-  return pqxx::internal::esc_bin(std::string_view{
-    reinterpret_cast<char const *>(std::data(bin)), std::size(bin)});
+  return pqxx::internal::esc_bin(bin);
 }
 
 

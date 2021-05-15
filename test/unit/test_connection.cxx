@@ -107,8 +107,8 @@ std::size_t length(char const str[])
 template<typename MAP> void test_params_type()
 {
 #if defined(PQXX_HAVE_CONCEPTS)
-  using item_t = std::remove_reference_t<decltype(
-    *std::declval<std::ranges::iterator_t<MAP>>())>;
+  using item_t = std::remove_reference_t<
+    decltype(*std::declval<std::ranges::iterator_t<MAP>>())>;
   using key_t = decltype(std::get<0>(std::declval<item_t>()));
   using value_t = decltype(std::get<1>(std::declval<item_t>()));
 

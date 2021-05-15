@@ -278,6 +278,7 @@ constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 }
 
 
+// TODO: Use actual binary type for "data".
 /// Hex-escape binary data into a buffer.
 /** The buffer must be able to accommodate
  * @c size_esc_bin(std::size(binary_data)) bytes, and the function will write
@@ -285,11 +286,12 @@ constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * zero.
  */
 void PQXX_LIBEXPORT
-esc_bin(std::string_view binary_data, char buffer[]) noexcept;
+esc_bin(std::basic_string_view<std::byte> binary_data, char buffer[]) noexcept;
 
 
 /// Hex-escape binary data into a std::string.
-std::string PQXX_LIBEXPORT esc_bin(std::string_view binary_data);
+std::string PQXX_LIBEXPORT
+esc_bin(std::basic_string_view<std::byte> binary_data);
 
 
 /// Reconstitute binary data from its escaped version.
@@ -297,6 +299,7 @@ void PQXX_LIBEXPORT
 unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 
 
+// TODO: Return actual binary type.
 /// Reconstitute binary data from its escaped version.
 std::string PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
 

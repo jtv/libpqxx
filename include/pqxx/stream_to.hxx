@@ -309,20 +309,23 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - std::data(m_buffer)));
       }
-      else if constexpr (std::is_same_v<Field, std::string> or std::is_same_v<Field, std::string_view> or std::is_same_v<Field, zview>)
+      else if constexpr (
+        std::is_same_v<Field, std::string> or
+        std::is_same_v<Field, std::string_view> or
+        std::is_same_v<Field, zview>)
       {
         // This string may need escaping.
-	m_field_buf.resize(budget);
-	escape_field_to_buffer(f);
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(f);
       }
       else
       {
-	// This field needs to be converted to a string, and after that,
-	// escaping as well.
+        // This field needs to be converted to a string, and after that,
+        // escaping as well.
         m_field_buf.resize(budget);
-	auto const data{std::data(m_field_buf)};
+        auto const data{std::data(m_field_buf)};
         escape_field_to_buffer(
-	  traits::to_buf(data, data + std::size(m_field_buf), f));
+          traits::to_buf(data, data + std::size(m_field_buf), f));
       }
     }
   }

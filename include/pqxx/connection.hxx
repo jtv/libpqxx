@@ -33,6 +33,7 @@
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
@@ -77,18 +78,15 @@ template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires()
 {
   {std::tuple_size<typename std::ranges::iterator_t<T>::value_type>::value};
-}
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2 and
-  requires(T t)
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
+== 2 and requires(T t)
 {
   {
     std::get<0>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
   {
     std::get<1>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
 };
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
@@ -580,14 +578,40 @@ public:
     return esc(std::string_view{text, maxlen});
   }
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for use as SQL string literal on this connection.
   [[nodiscard]] std::string esc(char const text[]) const
   {
-    return esc(std::string_view(text));
+    return esc(std::string_view{text});
   }
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
+#if defined(PQXX_HAVE_CONCEPTS)
+  /// Escape string for use as SQL string literal, into @c buffer.
+  /** Use this variant when you want to re-use the same buffer across multiple
+   * calls.  If that's not the case, or convenience and simplicity are more
+   * important, use the single-argument variant.
+   *
+   * For every byte in @c text, there must be at least 2 bytes of space in
+   * @c buffer; plus there must be one byte of space for a trailing zero.
+   * Throws
+   * @c range_error if this space is not available.
+   *
+   * Returns a reference to the escaped string, which is actually stored in
+   * @c buffer.
+   */
+  template<char_buf BUFFER>
+  [[nodiscard]] std::string_view esc(std::string_view text, BUFFER &buffer)
+  {
+    auto const size{std::size(text)}, space{std::size(buffer)};
+    auto const needed{2 * size + 1};
+    if (space < needed)
+      throw range_error{internal::concat(
+        "Not enough room to escape string of ", size, " byte(s): need ",
+        needed, " bytes of buffer space, but buffer size is ", space, ".")};
+    return std::string_view{
+      std::data(buffer), esc_to_buf(text, std::data(buffer))};
+  }
+#endif
+
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This is meant for text strings only.  It cannot contain bytes
    * whose value is zero ("nul bytes").
@@ -601,24 +625,62 @@ public:
   {
     return esc_raw(data);
   }
+
+  /// Escape binary string for use as SQL string literal, into @c buffer.
+  /** Use this variant when you want to re-use the same buffer across multiple
+   * calls.  If that's not the case, or convenience and simplicity are more
+   * important, use the single-argument variant.
+   *
+   * For every byte in @c data, there must be at least two bytes of space in
+   * @c buffer; plus there must be two bytes of space for a header and one for
+   * a trailing zero.  Throws @c range_error if this space is not available.
+   *
+   * Returns a reference to the escaped string, which is actually stored in
+   * @c buffer.
+   */
+  template<binary DATA, char_buf BUFFER>
+  [[nodiscard]] zview esc(DATA const &data, BUFFER &buffer)
+  {
+    auto const size{std::size(data)}, space{std::size(buffer)};
+    auto const needed{internal::size_esc_bin(std::size(data))};
+    if (space < needed)
+      throw range_error{internal::concat(
+        "Not enough room to escape binary string of ", size, " byte(s): need ",
+        needed, " bytes of buffer space, but buffer size is ", space, ".")};
+
+    std::basic_string_view<std::byte> view{std::data(data), std::size(data)};
+    // Actually, in the modern format, we know beforehand exactly how many
+    // bytes we're going to fill.  Just leave out the trailing zero.
+    internal::esc_bin(view, std::data(buffer));
+    return zview{std::data(buffer), needed - 1};
+  }
 #endif
 
   /// Escape binary string for use as SQL string literal on this connection.
   [[deprecated("Use std::byte for binary data.")]] std::string
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @c esc() with a binary string. */
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
+  /** You can also just use @c esc() with a binary string. */
   template<binary DATA>
   [[nodiscard]] std::string esc_raw(DATA const &data) const
   {
     return esc_raw(
       std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+  }
+
+  /// Escape binary string for use as SQL string literal, into @c buffer.
+  template<binary DATA, char_buf BUFFER>
+  [[nodiscard]] zview esc_raw(DATA const &data, BUFFER &buffer) const
+  {
+    return esc_raw(
+      std::basic_string_view<std::byte>{std::data(data), std::size(data)},
+      buffer);
   }
 #endif
 
@@ -649,7 +711,8 @@ public:
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape and quote a string of binary data.
   /** You can also just use @c quote() with binary data. */
-  template<binary DATA> [[nodiscard]] std::string quote_raw(DATA const &data) const
+  template<binary DATA>
+  [[nodiscard]] std::string quote_raw(DATA const &data) const
   {
     return quote_raw(
       std::basic_string_view<std::byte>{std::data(data), std::size(data)});

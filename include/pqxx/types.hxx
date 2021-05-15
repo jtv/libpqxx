@@ -14,7 +14,7 @@
 #include <iterator>
 
 #if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#include <ranges>
+#  include <ranges>
 #endif
 
 
@@ -99,9 +99,11 @@ using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
+/// Any contiguous block of @c char.  If they're writable, it can be a buffer.
 template<typename RANGE>
-concept char_buf = std::ranges::contiguous_range<RANGE> and std::is_same_v<strip_t<value_type<RANGE>>, char>;
+concept char_buf = std::ranges::contiguous_range<RANGE> and
+                   std::is_same_v < strip_t<value_type<RANGE>>,
+char > ;
 #endif
 } // namespace pqxx
-
 #endif

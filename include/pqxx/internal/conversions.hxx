@@ -811,10 +811,7 @@ template<binary DATA> struct string_traits<DATA>
     if (static_cast<std::size_t>(end - begin) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
-    internal::esc_bin(
-      std::string_view(
-        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
-      begin);
+    internal::esc_bin(value, begin);
     return begin + budget;
   }
 
@@ -853,10 +850,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
     if (static_cast<std::size_t>(end - begin) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
-    internal::esc_bin(
-      std::string_view(
-        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
-      begin);
+    internal::esc_bin(value, begin);
     return begin + budget;
   }
 
@@ -907,10 +901,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
     if (static_cast<std::size_t>(end - begin) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
-    internal::esc_bin(
-      std::string_view(
-        reinterpret_cast<char const *>(std::data(value)), std::size(value)),
-      begin);
+    internal::esc_bin(value, begin);
     return begin + budget;
   }
 

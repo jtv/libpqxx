@@ -142,7 +142,7 @@ constexpr int nibble(int c) noexcept
 
 
 void pqxx::internal::esc_bin(
-  std::string_view binary_data, char buffer[]) noexcept
+  std::basic_string_view<std::byte> binary_data, char buffer[]) noexcept
 {
   auto here{buffer};
   *here++ = '\\';
@@ -159,7 +159,8 @@ void pqxx::internal::esc_bin(
 }
 
 
-std::string pqxx::internal::esc_bin(std::string_view binary_data)
+std::string
+pqxx::internal::esc_bin(std::basic_string_view<std::byte> binary_data)
 {
   auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;

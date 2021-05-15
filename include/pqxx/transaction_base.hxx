@@ -183,7 +183,8 @@ public:
    * things that can disrupt their use in SQL queries, they will be replaced
    * with special escape sequences.
    */
-  [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte> data) const
+  [[nodiscard]] std::string
+  esc_raw(std::basic_string_view<std::byte> data) const
   {
     return to_string(data);
   }

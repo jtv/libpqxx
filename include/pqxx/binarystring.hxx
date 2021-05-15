@@ -215,7 +215,10 @@ template<> struct string_traits<binarystring>
     if (static_cast<std::size_t>(end - begin) < budget)
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
-    internal::esc_bin(value.view(), begin);
+    std::string_view text{value.view()};
+    auto const bytes{reinterpret_cast<std::byte const *>(std::data(text))};
+    internal::esc_bin(
+      std::basic_string_view<std::byte>{bytes, std::size(text)}, begin);
     return begin + budget;
   }
 

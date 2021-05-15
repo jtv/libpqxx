@@ -424,8 +424,8 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
  * we can reference them by a pointer.
  */
 template<class TYPE>
-concept binary = std::ranges::contiguous_range<TYPE> and std::is_same_v<
-  strip_t<value_type<TYPE>>, std::byte>;
+concept binary = std::ranges::contiguous_range<TYPE> and
+  std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
 
 
 /// Concept: Binary string view, akin to @c std::string_view for binary data.
@@ -434,8 +434,8 @@ concept binary = std::ranges::contiguous_range<TYPE> and std::is_same_v<
  * from the @c binary_view.  The @c binary_view merely references it.
  */
 template<class TYPE>
-concept binary_view = binary<TYPE> and std::ranges::view<TYPE>
-  and std::ranges::borrowed_range<TYPE>;
+concept binary_view = binary<TYPE> and std::ranges::view<TYPE> and
+  std::ranges::borrowed_range<TYPE>;
 #endif
 //@}
 } // namespace pqxx

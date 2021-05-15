@@ -6,6 +6,9 @@
 
 namespace
 {
+using namespace std::literals;
+
+
 void compare_esc(
   pqxx::connection &c, pqxx::transaction_base &t, char const text[])
 {
@@ -145,5 +148,58 @@ void test_escaping()
 }
 
 
+void test_esc_escapes_into_buffer()
+{
+#if defined(PQXX_HAVE_CONCEPTS)
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  std::string buffer;
+  buffer.resize(20);
+
+  auto const text{"Ain't"sv};
+  // TODO: Do this from tx.
+  auto escaped_text{conn.esc(text, buffer)};
+  PQXX_CHECK_EQUAL(escaped_text, "Ain''t", "Escaping into buffer went wrong.");
+
+  std::basic_string<std::byte> const data{std::byte{0x22}, std::byte{0x43}};
+  // TODO: Do this from tx.
+  auto escaped_data(conn.esc(data, buffer));
+  PQXX_CHECK_EQUAL(escaped_data, "\\x2243", "Binary data escaped wrong.");
+#endif
+}
+
+
+void test_esc_accepts_various_types()
+{
+#if defined(PQXX_HAVE_CONCEPTS)
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  std::string buffer;
+  buffer.resize(20);
+
+  std::string const text{"it's"};
+  // TODO: Do this from tx.
+  auto escaped_text{conn.esc(text, buffer)};
+  PQXX_CHECK_EQUAL(escaped_text, "it''s", "Escaping into buffer went wrong.");
+
+  std::vector<std::byte> const data{std::byte{0x23}, std::byte{0x44}};
+  // TODO: Do this from tx.
+  auto escaped_data(conn.esc(data, buffer));
+  PQXX_CHECK_EQUAL(escaped_data, "\\x2344", "Binary data escaped wrong.");
+#endif
+}
+
+
+void test_esc_checks_buffer_length()
+{
+  // XXX:
+}
+
+
 PQXX_REGISTER_TEST(test_escaping);
+PQXX_REGISTER_TEST(test_esc_escapes_into_buffer);
+PQXX_REGISTER_TEST(test_esc_accepts_various_types);
+PQXX_REGISTER_TEST(test_esc_checks_buffer_length);
 } // namespace
