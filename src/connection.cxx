@@ -828,7 +828,6 @@ std::string pqxx::connection::esc(std::string_view text) const
 }
 
 
-// TODO: Use std::byte.
 std::string
 pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {

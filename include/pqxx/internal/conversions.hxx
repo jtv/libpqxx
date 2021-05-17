@@ -13,6 +13,8 @@
 #include <variant>
 #include <vector>
 
+#include "pqxx/types.hxx"
+
 
 /* Internal helpers for string conversion, and conversion implementations.
  *

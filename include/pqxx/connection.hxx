@@ -37,6 +37,7 @@
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
+#include "pqxx/types.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"
 
@@ -584,7 +585,7 @@ public:
     return esc(std::string_view{text});
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_SPAN)
   /// Escape string for use as SQL string literal, into @c buffer.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -598,8 +599,8 @@ public:
    * Returns a reference to the escaped string, which is actually stored in
    * @c buffer.
    */
-  template<char_buf BUFFER>
-  [[nodiscard]] std::string_view esc(std::string_view text, BUFFER &buffer)
+  [[nodiscard]] std::string_view
+  esc(std::string_view text, std::span<char> buffer)
   {
     auto const size{std::size(text)}, space{std::size(buffer)};
     auto const needed{2 * size + 1};
@@ -638,8 +639,8 @@ public:
    * Returns a reference to the escaped string, which is actually stored in
    * @c buffer.
    */
-  template<binary DATA, char_buf BUFFER>
-  [[nodiscard]] zview esc(DATA const &data, BUFFER &buffer)
+  template<binary DATA>
+  [[nodiscard]] zview esc(DATA const &data, std::span<char> buffer)
   {
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
@@ -675,8 +676,8 @@ public:
   }
 
   /// Escape binary string for use as SQL string literal, into @c buffer.
-  template<binary DATA, char_buf BUFFER>
-  [[nodiscard]] zview esc_raw(DATA const &data, BUFFER &buffer) const
+  template<binary DATA>
+  [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
   {
     return esc_raw(
       std::basic_string_view<std::byte>{std::data(data), std::size(data)},

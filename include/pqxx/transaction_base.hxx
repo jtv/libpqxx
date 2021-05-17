@@ -18,6 +18,7 @@
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <string_view>
+#include <utility>
 
 /* End-user programs need not include this file, unless they define their own
  * transaction classes.  This is not something the typical program should want
@@ -105,33 +106,19 @@ public:
 
   /**
    * @ingroup escaping-functions
+   *
+   * Use these when writing SQL queries that incorporate C++ values as SQL
+   * constants.
+   *
+   * The functions you see here are just convenience shortcuts to the same
+   * functions on the connection object.
    */
   //@{
   /// Escape string for use as SQL string literal in this transaction.
-  [[nodiscard]] std::string esc(char const text[]) const
+  template<typename... ARGS> [[nodiscard]] auto esc(ARGS &&...args) const
   {
-    return conn().esc(text);
+    return conn().esc(std::forward<ARGS>(args)...);
   }
-  /// Escape string for use as SQL string literal in this transaction.
-  [[deprecated("Use std::string_view or pqxx::zview.")]] std::string
-  esc(char const text[], std::size_t maxlen) const
-  {
-    return conn().esc(std::string_view{text, maxlen});
-  }
-  /// Escape string for use as SQL string literal in this transaction.
-  [[nodiscard]] std::string esc(std::string_view text) const
-  {
-    return conn().esc(text);
-  }
-
-#if defined(PQXX_HAVE_CONCEPTS)
-  /// Escape binary string for use as SQL string literal in this transaction.
-  /** This is identical to @c esc(data). */
-  template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
-  {
-    return esc_raw(data);
-  }
-#endif
 
   /// Escape binary data for use as SQL string literal in this transaction.
   /** Raw, binary data is treated differently from regular strings.  Binary
@@ -145,54 +132,10 @@ public:
    * things that can disrupt their use in SQL queries, they will be replaced
    * with special escape sequences.
    */
-  [[nodiscard]] std::string
-  esc_raw(unsigned char const data[], std::size_t len) const
+  template<typename... ARGS> [[nodiscard]] auto esc_raw(ARGS &&...args) const
   {
-    return to_string(std::basic_string_view<std::byte>{
-      reinterpret_cast<std::byte const *>(data), len});
+    return conn().esc_raw(std::forward<ARGS>(args)...);
   }
-
-#if defined(PQXX_HAVE_CONCEPTS)
-  /// Escape binary data for use as SQL string literal in this transaction.
-  /** Raw, binary data is treated differently from regular strings.  Binary
-   * strings are never interpreted as text, so they may safely include byte
-   * values or byte sequences that don't happen to represent valid characters
-   * in the character encoding being used.
-   *
-   * The binary string does not stop at the first zero byte, as is the case
-   * with textual strings.  Instead, it may contain zero bytes anywhere.  If
-   * it happens to contain bytes that look like quote characters, or other
-   * things that can disrupt their use in SQL queries, they will be replaced
-   * with special escape sequences.
-   */
-  template<binary DATA>
-  [[nodiscard]] std::string esc_raw(DATA const &data) const
-  {
-    return to_string(data);
-  }
-#else
-  /// Escape binary data for use as SQL string literal in this transaction.
-  /** Raw, binary data is treated differently from regular strings.  Binary
-   * strings are never interpreted as text, so they may safely include byte
-   * values or byte sequences that don't happen to represent valid characters
-   * in the character encoding being used.
-   *
-   * The binary string does not stop at the first zero byte, as is the case
-   * with textual strings.  Instead, it may contain zero bytes anywhere.  If
-   * it happens to contain bytes that look like quote characters, or other
-   * things that can disrupt their use in SQL queries, they will be replaced
-   * with special escape sequences.
-   */
-  [[nodiscard]] std::string
-  esc_raw(std::basic_string_view<std::byte> data) const
-  {
-    return to_string(data);
-  }
-#endif
-
-  /// Escape binary data for use as SQL string literal in this transaction
-  [[deprecated("Use std::byte for binary data.")]] std::string
-    esc_raw(zview) const;
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored

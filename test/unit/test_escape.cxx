@@ -158,13 +158,11 @@ void test_esc_escapes_into_buffer()
   buffer.resize(20);
 
   auto const text{"Ain't"sv};
-  // TODO: Do this from tx.
-  auto escaped_text{conn.esc(text, buffer)};
+  auto escaped_text{tx.esc(text, buffer)};
   PQXX_CHECK_EQUAL(escaped_text, "Ain''t", "Escaping into buffer went wrong.");
 
   std::basic_string<std::byte> const data{std::byte{0x22}, std::byte{0x43}};
-  // TODO: Do this from tx.
-  auto escaped_data(conn.esc(data, buffer));
+  auto escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2243", "Binary data escaped wrong.");
 #endif
 }

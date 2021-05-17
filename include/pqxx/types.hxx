@@ -89,21 +89,19 @@ using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
 
 #if defined(PQXX_HAVE_CONCEPTS)
 /// The type of a container's elements.
+/** At the time of writing there's a similar thing in @c std::experimental,
+ * which we may or may not end up using for this.
+ */
 template<std::ranges::range CONTAINER>
 using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
-#else
+#else  // PQXX_HAVE_CONCEPTS
 /// The type of a container's elements.
+/** At the time of writing there's a similar thing in @c std::experimental,
+ * which we may or may not end up using for this.
+ */
 template<typename CONTAINER>
 using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
-#endif
+#endif // PQXX_HAVE_CONCEPTS
 
-
-#if defined(PQXX_HAVE_CONCEPTS)
-/// Any contiguous block of @c char.  If they're writable, it can be a buffer.
-template<typename RANGE>
-concept char_buf = std::ranges::contiguous_range<RANGE> and
-                   std::is_same_v < strip_t<value_type<RANGE>>,
-char > ;
-#endif
 } // namespace pqxx
 #endif

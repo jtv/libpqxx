@@ -1,4 +1,4 @@
-/* Representation for raw, binary data.
+/* Deprecated representation for raw, binary data.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/binarystring instead.
  *
@@ -30,7 +30,8 @@ template<> struct string_traits<binarystring>;
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
  * @deprecated Use @c std::basic_string<std::byte> and
- * @c std::basic_string_view<std::byte> for binary data.
+ * @c std::basic_string_view<std::byte> for binary data.  In C++20 or better,
+ * any @c contiguous_range of @c std::byte will do.
  *
  * This class represents a binary string as stored in a field of type @c bytea.
  *

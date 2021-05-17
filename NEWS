@@ -1,12 +1,11 @@
 7.6.0
- - C++20 concepts for binary data: `pqxx::binary` and `pqxx::binary_view`.
+ - C++20 concept for binary data: `pqxx::binary`.
  - Generalise binary strings to any contiguous range of `std::byte`.
  - Mark `zview` as a view and as a borrowed range.
  - Save a copy step on string fields in `stream_to`.
  - New helper: `pqxx::value_type<CONTAINER>`.
- - New concept: `char_buf`, for a buffer of `char`.
  - Some escaping functions now have "into my buffer" variants.
- - More generic binary escaping functions, supporting more types of binary.
+ - More generic escaping functions, supporting more types of binary.
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1
