@@ -87,8 +87,8 @@ public:
           dynamic_params(std::begin(container), std::end(container), acc)
   {}
 
-  constexpr IT begin() const { return m_begin; }
-  constexpr IT end() const { return m_end; }
+  constexpr IT begin() const noexcept { return m_begin; }
+  constexpr IT end() const noexcept { return m_end; }
 
   constexpr auto access(decltype(*std::declval<IT>()) value) const
     -> decltype(std::declval<ACCESSOR>()(value))
