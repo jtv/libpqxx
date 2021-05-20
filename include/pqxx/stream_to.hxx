@@ -126,6 +126,15 @@ public:
     return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
   }
 
+#if defined(PQXX_HAVE_CONCEPTS)
+  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  static stream_to table(
+    transaction_base &tx, table_path path, COLUMNS const &columns)
+  {
+    return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
+  }
+#endif // PQXX_HAVE_CONCEPTS
+
   /// Create a stream, without specifying columns.
   /** @deprecated Use @c table() or @c raw_table() as a factory.
    *

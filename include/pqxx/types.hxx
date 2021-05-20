@@ -103,5 +103,51 @@ template<typename CONTAINER>
 using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
 #endif // PQXX_HAVE_CONCEPTS
 
+
+#if defined(PQXX_HAVE_CONCEPTS)
+/// Concept: Any type that we can read as a string of @c char.
+template<typename STRING>
+concept char_string =
+  std::ranges::contiguous_range<STRING> and
+  std::same_as<strip_t<value_type<STRING>>, char>;
+
+/// Concept: Anything we can iterate to get things we can read as strings.
+template<typename RANGE>
+concept char_strings =
+  std::ranges::range<RANGE> and char_string<strip_t<value_type<RANGE>>>;
+#endif // PQXX_HAVE_CONCEPTS
+
+
+// TODO: Retire these compatibility definitions once we're on C++20.
+#if defined(PQXX_HAVE_CONCEPTS)
+
+/// Template argument type for @c char_string.
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#define PQXX_CHAR_STRING_ARG pqxx::char_string
+
+/// Template argument type for @c char_strings
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
+
+#else // PQXX_HAVE_CONCEPTS
+/// Template argument type for @c char_string.
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#define PQXX_CHAR_STRING_ARG typename
+
+/// Template argument type for @c char_strings
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#define PQXX_CHAR_STRINGS_ARG typename
+
+#endif // PQXX_HAVE_CONCEPTS
+
+
 } // namespace pqxx
 #endif

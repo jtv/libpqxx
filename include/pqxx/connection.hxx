@@ -743,7 +743,6 @@ public:
    */
   [[nodiscard]] std::string quote_table(table_path) const;
 
-  // TODO: C++20 concept for "range of string_view."
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Quote and comma-separate a series of column names.
   /** Use this to save a bit of work in cases where you repeatedly need to pass
@@ -753,11 +752,8 @@ public:
    * extra work, but it can in rare cases let you eliminate some duplicate
    * work in quoting them repeatedly.
    */
-  template<typename CONTAINER>
-  inline std::enable_if_t<
-    std::is_convertible_v<typename CONTAINER::value_type, std::string_view>,
-    std::string>
-  quote_columns(CONTAINER const &columns) const;
+  template<PQXX_CHAR_STRINGS_ARG STRINGS>
+  inline std::string quote_columns(STRINGS const &columns) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Represent object as SQL string, including quoting & escaping.
@@ -984,11 +980,9 @@ template<typename T> inline std::string connection::quote(T const &t) const
 }
 
 
-template<typename CONTAINER>
-inline std::enable_if_t<
-  std::is_convertible_v<typename CONTAINER::value_type, std::string_view>,
-  std::string>
-connection::quote_columns(CONTAINER const &columns) const
+template<PQXX_CHAR_STRINGS_ARG STRINGS>
+inline std::string
+connection::quote_columns(STRINGS const &columns) const
 {
   return separated_list(
     ","sv, std::cbegin(columns), std::cend(columns),
