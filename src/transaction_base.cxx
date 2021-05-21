@@ -211,8 +211,7 @@ void pqxx::transaction_base::abort()
 
 std::string pqxx::transaction_base::quote_raw(zview bin) const
 {
-  auto const p{reinterpret_cast<std::byte const *>(bin.c_str())};
-  return conn().quote(std::basic_string_view<std::byte>{p, std::size(bin)});
+  return conn().quote(binary_cast(bin));
 }
 
 

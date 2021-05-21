@@ -114,11 +114,22 @@ concept char_string = std::ranges::contiguous_range<STRING>
 template<typename RANGE>
 concept char_strings =
   std::ranges::range<RANGE> and char_string<strip_t<value_type<RANGE>>>;
+
+/// Concept: Anything we might want to treat as binary data.
+template<typename DATA>
+concept potential_binary = std::ranges::contiguous_range<DATA> and
+                           (sizeof(value_type<DATA>) == 1);
 #endif // PQXX_HAVE_CONCEPTS
 
 
 // TODO: Retire these compatibility definitions once we're on C++20.
 #if defined(PQXX_HAVE_CONCEPTS)
+
+/// Template argument type for a contiguous range.
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#  define PQXX_CONTIGUOUS_RANGE std::ranges::contiguous_range
 
 /// Template argument type for @c char_string.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20

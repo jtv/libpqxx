@@ -831,8 +831,7 @@ std::string pqxx::connection::esc(std::string_view text) const
 std::string
 pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
-  return pqxx::internal::esc_bin(std::basic_string_view<std::byte>{
-    reinterpret_cast<std::byte const *>(bin), len});
+  return pqxx::internal::esc_bin(binary_cast(bin, len));
 }
 
 
@@ -867,9 +866,7 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
 std::string
 pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 {
-  std::basic_string_view<std::byte> view{
-    reinterpret_cast<std::byte const *>(bin), len};
-  return internal::concat("'", esc_raw(view), "'::bytea");
+  return internal::concat("'", esc_raw(binary_cast(bin, len)), "'::bytea");
 }
 
 

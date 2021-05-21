@@ -204,6 +204,67 @@ struct PQXX_LIBEXPORT thread_safety_model
 [[nodiscard]] PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
+#if defined(PQXX_HAVE_CONCEPTS)
+#  define PQXX_POTENTIAL_BINARY_ARG pqxx::potential_binary
+#else
+#  define PQXX_POTENTIAL_BINARY_ARG typename
+#endif
+
+/// Cast binary data to a type that libpqxx will recognise as binary.
+/** There are many different formats for storing binary data in memory.  You
+ * may have yours as a @c std::string, or a @c std::vector<uchar_t>, or one of
+ * many other types.
+ *
+ * But for libpqxx to recognise your data as binary, it needs to be a
+ * @c std::basic_string<std::byte>, or a @c std::basic__string_view<std::byte>;
+ * or in C++20 or better, any contiguous block of @c std::byte.
+ *
+ * Use @c binary_cast as a convenience helper to cast your data as a
+ * @c std::basic_string_view<std::byte>.
+ *
+ * @warning There are two things you should be aware of!  First, the data must
+ * be contiguous in memory.  In C++20 the compiler will enforce this, but in
+ * C++17 it's your own problem.  Second, you must keep the object where you
+ * store the actual data alive for as long as you might use this function's
+ * return value.
+ */
+template<PQXX_POTENTIAL_BINARY_ARG TYPE>
+std::basic_string_view<std::byte> binary_cast(TYPE const &data)
+{
+  static_assert(sizeof(value_type<TYPE>) == 1);
+  return std::basic_string_view<std::byte>{
+    reinterpret_cast<std::byte const *>(
+      const_cast<strip_t<decltype(*std::data(data))> const *>(
+        std::data(data))),
+    std::size(data)};
+}
+
+
+#if defined(PQXX_HAVE_CONCEPTS)
+template<typename CHAR> concept char_sized = (sizeof(CHAR) == 1);
+#  define PQXX_CHAR_SIZED_ARG char_sized
+#else
+#  define PQXX_CHAR_SIZED_ARG typename
+#endif
+
+/// Construct a type that libpqxx will recognise as binary.
+/** Takes a data pointer and a size, without being too strict about their
+ * types, and constructs a @c std::basic_string_view<std::byte> pointing to
+ * the same data.
+ *
+ * This makes it a little easier to turn binary data, in whatever form you
+ * happen to have it, into binary data as libpqxx understands it.
+ */
+template<PQXX_CHAR_SIZED_ARG CHAR, typename SIZE>
+std::basic_string_view<std::byte> binary_cast(CHAR const *data, SIZE size)
+{
+  static_assert(sizeof(CHAR) == 1);
+  return std::basic_string_view<std::byte>{
+    reinterpret_cast<std::byte const *>(data),
+    check_cast<std::size_t>(size, "binary data size")};
+}
+
+
 /// The "null" oid.
 constexpr oid oid_none{0};
 } // namespace pqxx

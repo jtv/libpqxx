@@ -173,8 +173,7 @@ public:
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
   {
-    return quote(std::basic_string_view<std::byte>{
-      reinterpret_cast<std::byte const *>(bin), len});
+    return quote(binary_cast(bin, len));
   }
 
   /// Binary-escape and quote a binary string for use as an SQL constant.
