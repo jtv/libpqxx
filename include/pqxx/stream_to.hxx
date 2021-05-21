@@ -127,9 +127,34 @@ public:
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
+  /// Create a @c stream_to writing to a named table and columns.
+  /** Use this version to stream data to a table, when the list of columns is
+   * not known at compile time.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path A @c table_path designating the target table.
+   * @param columns The columns to which the stream should write.
+   */
   template<PQXX_CHAR_STRINGS_ARG COLUMNS>
-  static stream_to table(
-    transaction_base &tx, table_path path, COLUMNS const &columns)
+  static stream_to
+  table(transaction_base &tx, table_path path, COLUMNS const &columns)
+  {
+    auto const &conn{tx.conn()};
+    return stream_to::raw_table(
+      tx, conn.quote_table(path), tx.conn().quote_columns(columns));
+  }
+
+  /// Create a @c stream_to writing to a named table and columns.
+  /** Use this version to stream data to a table, when the list of columns is
+   * not known at compile time.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path A @c table_path designating the target table.
+   * @param columns The columns to which the stream should write.
+   */
+  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  static stream_to
+  table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {
     return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
   }

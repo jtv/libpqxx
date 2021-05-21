@@ -79,15 +79,18 @@ template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires()
 {
   {std::tuple_size<typename std::ranges::iterator_t<T>::value_type>::value};
-} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
-== 2 and requires(T t)
+}
+and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2 and
+  requires(T t)
 {
   {
     std::get<0>(*std::cbegin(t))
-    } -> ZString;
+  }
+  ->ZString;
   {
     std::get<1>(*std::cbegin(t))
-    } -> ZString;
+  }
+  ->ZString;
 };
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
@@ -981,8 +984,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
 
 
 template<PQXX_CHAR_STRINGS_ARG STRINGS>
-inline std::string
-connection::quote_columns(STRINGS const &columns) const
+inline std::string connection::quote_columns(STRINGS const &columns) const
 {
   return separated_list(
     ","sv, std::cbegin(columns), std::cend(columns),
