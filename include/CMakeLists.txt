@@ -33,6 +33,7 @@ install(
     PATTERN largeobject
     PATTERN nontransaction
     PATTERN notification
+    PATTERN params
     PATTERN pipeline
     PATTERN prepared_statement
     PATTERN result

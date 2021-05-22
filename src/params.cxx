@@ -8,7 +8,7 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/prepared_statement"
+#include "pqxx/params"
 
 
 void pqxx::internal::c_params::reserve(std::size_t n)

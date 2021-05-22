@@ -1,0 +1,6 @@
+/** Helper classes for passing statement parameters.
+ *
+ * Use these for prepared statements and parameterised statements.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "pqxx/params.hxx"

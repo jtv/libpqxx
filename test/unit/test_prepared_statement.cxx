@@ -235,13 +235,16 @@ void test_binary()
 }
 
 
-void test_dynamic_params()
+void test_params()
 {
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
   std::vector<int> values{3, 9};
-  auto const params{pqxx::prepare::make_dynamic_params(values)};
+  pqxx::params params;
+  params.reserve(std::size(values));
+  params.append_multi(values);
+
   auto const rw39{tx.exec_prepared1("Concat2Numbers", params)};
   PQXX_CHECK_EQUAL(
     rw39.front().as<int>(), 39,
@@ -252,13 +255,6 @@ void test_dynamic_params()
   PQXX_CHECK_EQUAL(
     rw1396.front().as<int>(), 1396,
     "Dynamic params did not interleave with static ones properly.");
-
-  auto const doubled{tx.exec_prepared1(
-    "Concat2Numbers", pqxx::prepare::make_dynamic_params(
-                        values, [](int const &i) { return 2 * i; }))};
-  PQXX_CHECK_EQUAL(
-    doubled.at(0).as<int>(), 2 * 39,
-    "Dynamic prepared-statement parameters went wrong.");
 }
 
 
@@ -287,7 +283,7 @@ void test_prepared_statements()
   test_nulls();
   test_strings();
   test_binary();
-  test_dynamic_params();
+  test_params();
 
   test_optional();
 }

@@ -125,11 +125,11 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 // TODO: Retire these compatibility definitions once we're on C++20.
 #if defined(PQXX_HAVE_CONCEPTS)
 
-/// Template argument type for a contiguous range.
+/// Template argument type for a range.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
  * environments it's just an alias for @c typename.
  */
-#  define PQXX_CONTIGUOUS_RANGE std::ranges::contiguous_range
+#define PQXX_RANGE_ARG std::ranges::range
 
 /// Template argument type for @c char_string.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
@@ -144,6 +144,13 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 #  define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
 
 #else // PQXX_HAVE_CONCEPTS
+
+/// Template argument type for a range.
+/** This is a concept, so only available in C++20 or better.  In pre-C++20
+ * environments it's just an alias for @c typename.
+ */
+#define PQXX_RANGE_ARG typename
+
 /// Template argument type for @c char_string.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
  * environments it's just an alias for @c typename.

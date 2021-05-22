@@ -8,6 +8,10 @@
  - Some escaping functions now have "into my buffer" variants.
  - More generic escaping functions, supporting more types of binary.
  - In C++20, accept generic columns list for `stream_to`.  (#447)
+ - Renamed `<pqxx/prepared_statement>` to `<pqxx/params>`.
+ - Deprecated `dynamic_params` in favour of `params`.
+ - `pqxx::params::append_multi()` now calls `reserve()` if possible.
+ - `pqxx::params::size()` is now `noexcept` (but sadly, `ssize()` is not).
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1

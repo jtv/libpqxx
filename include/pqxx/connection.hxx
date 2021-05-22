@@ -34,7 +34,7 @@
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
-#include "pqxx/prepared_statement.hxx"
+#include "pqxx/params.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"

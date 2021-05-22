@@ -9,6 +9,7 @@
 #include "pqxx/largeobject"
 #include "pqxx/nontransaction"
 #include "pqxx/notification"
+#include "pqxx/params"
 #include "pqxx/pipeline"
 #include "pqxx/prepared_statement"
 #include "pqxx/result"
