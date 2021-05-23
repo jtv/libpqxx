@@ -283,7 +283,7 @@ AC_MSG_CHECKING([std::span])
 span=yes
 AC_COMPILE_IFELSE(
 	[read_test(span.cxx)],
-	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span]),
+	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span.]),
 	span=no)
 AC_MSG_RESULT($span)
 
@@ -293,7 +293,7 @@ AC_MSG_CHECKING([attributes "likely" and "unlikely".])
 likely=yes
 AC_COMPILE_IFELSE(
 	[read_test(likely.cxx)],
-	AC_DEFINE([PQXX_HAVE_LIKELY], 1, [Define if likely & unlikely work.]]),
+	AC_DEFINE([PQXX_HAVE_LIKELY], 1, [Define if likely & unlikely work.]),
 	likely=no)
 AC_MSG_RESULT($likely)
 

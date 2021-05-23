@@ -78,7 +78,7 @@
 /* Define if g++ supports visibility attribute. */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
-/* Define if likely & unlikely work. */]
+/* Define if likely & unlikely work. */
 #undef PQXX_HAVE_LIKELY
 
 /* Define if poll() is available. */
@@ -90,7 +90,7 @@
 /* Define if std::this_thread::sleep_for works. */
 #undef PQXX_HAVE_SLEEP_FOR
 
-/* Define if compiler has std::span */
+/* Define if compiler has std::span. */
 #undef PQXX_HAVE_SPAN
 
 /* Define if thread_local is fully supported. */
