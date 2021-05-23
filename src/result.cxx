@@ -50,8 +50,8 @@ pqxx::result::result(
 bool pqxx::result::operator==(result const &rhs) const noexcept
 {
   if (&rhs == this)
-	PQXX_UNLIKELY
-    return true;
+    PQXX_UNLIKELY
+  return true;
   auto const s{size()};
   if (std::size(rhs) != s)
     return false;
@@ -140,8 +140,8 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 {
   if (i >= size())
-	PQXX_UNLIKELY
-    throw range_error{"Row number out of range."};
+    PQXX_UNLIKELY
+  throw range_error{"Row number out of range."};
   return operator[](i);
 }
 
@@ -165,13 +165,13 @@ void pqxx::result::throw_sql_error(
   {
     // No SQLSTATE at all.  Can this even happen?
     // Let's assume the connection is no longer usable.
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     throw broken_connection{Err};
   }
 
   switch (code[0])
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
   case '\0':
     // SQLSTATE is empty.  We may have seen this happen in one
     // circumstance: a client-side socket timeout (while using the
@@ -274,7 +274,7 @@ void pqxx::result::check_status(std::string_view desc) const
 {
   if (auto err{status_error()}; not std::empty(err))
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     if (not std::empty(desc))
       err = pqxx::internal::concat("Failure during '", desc, "': ", err);
     throw_sql_error(err, query());
@@ -285,8 +285,8 @@ void pqxx::result::check_status(std::string_view desc) const
 std::string pqxx::result::status_error() const
 {
   if (m_data.get() == nullptr)
-	PQXX_UNLIKELY
-    throw failure{"No result set given."};
+    PQXX_UNLIKELY
+  throw failure{"No result set given."};
 
   std::string err;
 
@@ -329,9 +329,9 @@ std::string const &pqxx::result::query() const noexcept
 pqxx::oid pqxx::result::inserted_oid() const
 {
   if (m_data.get() == nullptr)
-	PQXX_UNLIKELY
-    throw usage_error{
-      "Attempt to read oid of inserted row without an INSERT result"};
+    PQXX_UNLIKELY
+  throw usage_error{
+    "Attempt to read oid of inserted row without an INSERT result"};
   return PQoidValue(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -369,10 +369,10 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
-	PQXX_UNLIKELY
-    throw argument_error{internal::concat(
-      "Attempt to retrieve type of nonexistent column ", col_num,
-      " of query result.")};
+    PQXX_UNLIKELY
+  throw argument_error{internal::concat(
+    "Attempt to retrieve type of nonexistent column ", col_num,
+    " of query result.")};
   return t;
 }
 
@@ -382,9 +382,9 @@ pqxx::row::size_type pqxx::result::column_number(zview col_name) const
   auto const n{PQfnumber(
     const_cast<internal::pq::PGresult *>(m_data.get()), col_name.c_str())};
   if (n == -1)
-	PQXX_UNLIKELY
-    throw argument_error{
-      internal::concat("Unknown column name: '", col_name, "'.")};
+    PQXX_UNLIKELY
+  throw argument_error{
+    internal::concat("Unknown column name: '", col_name, "'.")};
 
   return static_cast<row::size_type>(n);
 }
@@ -398,10 +398,10 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
    * we got an invalid row number.
    */
   if (t == oid_none and col_num >= columns())
-	PQXX_UNLIKELY
-    throw argument_error{internal::concat(
-      "Attempt to retrieve table ID for column ", col_num, " out of ",
-      columns())};
+    PQXX_UNLIKELY
+  throw argument_error{internal::concat(
+    "Attempt to retrieve table ID for column ", col_num, " out of ",
+    columns())};
 
   return t;
 }
@@ -412,7 +412,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
   auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0)
     PQXX_LIKELY
-    return n - 1;
+  return n - 1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
   auto const col_str{to_string(col_num)};
@@ -450,7 +450,7 @@ char const *pqxx::result::column_name(pqxx::row::size_type number) const
   auto const n{PQfname(m_data.get(), number)};
   if (n == nullptr)
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     if (m_data.get() == nullptr)
       throw usage_error{"Queried column name on null result."};
     throw range_error{internal::concat(

@@ -51,33 +51,33 @@ std::string::size_type array_parser::scan_single_quoted_string() const
   {
     if (next - here == 1)
       PQXX_LIKELY
-      switch (m_input[here])
+    switch (m_input[here])
+    {
+    case '\'':
+      // SQL escapes single quotes by doubling them.  Terrible idea, but it's
+      // what we have.  Inspect the next character to find out whether this
+      // is the closing quote, or an escaped one inside the string.
+      here = next;
+      // (We can read beyond this quote because the array will always end in
+      // a closing brace.)
+      next = scan_glyph(here);
+
+      if ((here + 1 < next) or (m_input[here] != '\''))
       {
-      case '\'':
-        // SQL escapes single quotes by doubling them.  Terrible idea, but it's
-        // what we have.  Inspect the next character to find out whether this
-        // is the closing quote, or an escaped one inside the string.
-        here = next;
-        // (We can read beyond this quote because the array will always end in
-        // a closing brace.)
-        next = scan_glyph(here);
-
-        if ((here + 1 < next) or (m_input[here] != '\''))
-        {
-          // Our lookahead character is not an escaped quote.  It's the first
-          // character outside our string.  So, return it.
-          return here;
-        }
-
-        // We've just scanned an escaped quote.  Keep going.
-        break;
-
-      case '\\':
-        // Backslash escape.  Skip ahead by one more character.
-        here = next;
-        next = scan_glyph(here);
-        break;
+        // Our lookahead character is not an escaped quote.  It's the first
+        // character outside our string.  So, return it.
+        return here;
       }
+
+      // We've just scanned an escaped quote.  Keep going.
+      break;
+
+    case '\\':
+      // Backslash escape.  Skip ahead by one more character.
+      here = next;
+      next = scan_glyph(here);
+      break;
+    }
   }
   PQXX_UNLIKELY
   throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
@@ -210,7 +210,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
       {
         // The normal case: we just parsed an unquoted string.  The value is
         // what we need.
-	PQXX_LIKELY
+        PQXX_LIKELY
         found = juncture::string_value;
       }
       break;
@@ -222,7 +222,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
     auto next{scan_glyph(end)};
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
       PQXX_UNLIKELY
-      end = next;
+    end = next;
   }
 
   m_pos = end;

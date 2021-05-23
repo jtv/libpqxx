@@ -123,19 +123,19 @@ wrap_to_chars(char *begin, char *end, T const &value)
 {
   auto res{std::to_chars(begin, end - 1, value)};
   if (res.ec != std::errc())
-	PQXX_UNLIKELY
-    switch (res.ec)
-    {
-    case std::errc::value_too_large:
-      throw pqxx::conversion_overrun{
-        "Could not convert " + pqxx::type_name<T> +
-        " to string: "
-        "buffer too small (" +
-        pqxx::to_string(end - begin) + " bytes)."};
-    default:
-      throw pqxx::conversion_error{
-        "Could not convert " + pqxx::type_name<T> + " to string."};
-    }
+    PQXX_UNLIKELY
+  switch (res.ec)
+  {
+  case std::errc::value_too_large:
+    throw pqxx::conversion_overrun{
+      "Could not convert " + pqxx::type_name<T> +
+      " to string: "
+      "buffer too small (" +
+      pqxx::to_string(end - begin) + " bytes)."};
+  default:
+    throw pqxx::conversion_error{
+      "Could not convert " + pqxx::type_name<T> + " to string."};
+  }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
   *res.ptr++ = '\0';
@@ -154,12 +154,12 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
   auto const space{end - begin},
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
-	PQXX_UNLIKELY
-    throw conversion_overrun{
-      "Could not convert " + type_name<T> +
-      " to string: "
-      "buffer too small.  " +
-      pqxx::internal::state_buffer_overrun(space, need)};
+    PQXX_UNLIKELY
+  throw conversion_overrun{
+    "Could not convert " + type_name<T> +
+    " to string: "
+    "buffer too small.  " +
+    pqxx::internal::state_buffer_overrun(space, need)};
 
   char *pos;
   if constexpr (std::is_unsigned_v<T>)
@@ -279,8 +279,8 @@ template<typename TYPE>
   TYPE out;
   auto const res{std::from_chars(here, end, out)};
   if (res.ec == std::errc() and res.ptr == end)
-	  PQXX_LIKELY
-    return out;
+    PQXX_LIKELY
+  return out;
 
   std::string msg;
   if (res.ec == std::errc())
@@ -328,14 +328,14 @@ template<typename T>
   constexpr T ten{10};
   constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
   if (n > high_threshold)
-	PQXX_UNLIKELY
-    report_overflow();
+    PQXX_UNLIKELY
+  report_overflow();
   if constexpr (limits::is_signed)
   {
     constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
     if (low_threshold > n)
-	PQXX_UNLIKELY
-      report_overflow();
+      PQXX_UNLIKELY
+    report_overflow();
   }
   return T(n * ten);
 }
@@ -347,8 +347,8 @@ template<typename T>
 {
   T const high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
   if (n > high_threshold)
-	PQXX_UNLIKELY
-    report_overflow();
+    PQXX_UNLIKELY
+  report_overflow();
   return static_cast<T>(n + d);
 }
 
@@ -359,8 +359,8 @@ template<typename T>
 {
   T const low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
   if (n < low_threshold)
-	PQXX_UNLIKELY
-    report_overflow();
+    PQXX_UNLIKELY
+  report_overflow();
   return static_cast<T>(n - d);
 }
 
@@ -392,9 +392,9 @@ template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
   if (std::size(text) == 0)
-	PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
+    PQXX_UNLIKELY
+  throw pqxx::conversion_error{
+    "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
   char const *const data{std::data(text)};
   std::size_t i{0};
@@ -410,10 +410,10 @@ template<typename T>
   for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i)
     ;
   if (i == std::size(text))
-	PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Converting string to " + pqxx::type_name<T> +
-      ", but it contains only whitespace."};
+    PQXX_UNLIKELY
+  throw pqxx::conversion_error{
+    "Converting string to " + pqxx::type_name<T> +
+    ", but it contains only whitespace."};
 
   char const initial{data[i]};
   T result{0};
@@ -431,16 +431,16 @@ template<typename T>
 
     ++i;
     if (i >= std::size(text))
-	PQXX_UNLIKELY
-      throw pqxx::conversion_error{
-        "Converting string to " + pqxx::type_name<T> +
-        ", but it contains only a sign."};
+      PQXX_UNLIKELY
+    throw pqxx::conversion_error{
+      "Converting string to " + pqxx::type_name<T> +
+      ", but it contains only a sign."};
     for (; i < std::size(text) and isdigit(data[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(data[i]));
   }
   else
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     throw pqxx::conversion_error{
       "Could not convert string to " + pqxx::type_name<T> +
       ": "
@@ -449,12 +449,12 @@ template<typename T>
   }
 
   if (i < std::size(text))
-	PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Unexpected text after " + pqxx::type_name<T> +
-      ": "
-      "'" +
-      std::string{text} + "'."};
+    PQXX_UNLIKELY
+  throw pqxx::conversion_error{
+    "Unexpected text after " + pqxx::type_name<T> +
+    ": "
+    "'" +
+    std::string{text} + "'."};
 
   return result;
 }
@@ -516,9 +516,9 @@ inline bool from_dumb_stringstream(
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
-	PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
+    PQXX_UNLIKELY
+  throw pqxx::conversion_error{
+    "Trying to convert empty string to " + pqxx::type_name<T> + "."};
 
   bool ok{false};
   T result;
@@ -569,10 +569,9 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   }
 
   if (not ok)
-	PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Could not convert string to numeric value: '" + std::string{text} +
-      "'."};
+    PQXX_UNLIKELY
+  throw pqxx::conversion_error{
+    "Could not convert string to numeric value: '" + std::string{text} + "'."};
 
   return result;
 }
@@ -605,11 +604,11 @@ zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
     auto have{end - begin};
     auto need{std::size(text) + 1};
     if (need > std::size_t(have))
-	PQXX_UNLIKELY
-      throw conversion_error{
-        "Could not convert floating-point number to string: "
-        "buffer too small.  " +
-        state_buffer_overrun(have, need)};
+      PQXX_UNLIKELY
+    throw conversion_error{
+      "Could not convert floating-point number to string: "
+      "buffer too small.  " +
+      state_buffer_overrun(have, need)};
     text.copy(begin, need);
     return zview{begin, std::size(text)};
   }
@@ -776,9 +775,9 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   }
 
   if (not OK)
-	PQXX_UNLIKELY
-    throw conversion_error{
-      "Failed conversion to bool: '" + std::string{text} + "'."};
+    PQXX_UNLIKELY
+  throw conversion_error{
+    "Failed conversion to bool: '" + std::string{text} + "'."};
 
   return result;
 }

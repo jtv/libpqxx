@@ -112,12 +112,12 @@ void pqxx::connection::complete_init()
 {
   if (m_conn == nullptr)
     PQXX_UNLIKELY
-    throw std::bad_alloc{};
+  throw std::bad_alloc{};
   try
   {
     if (PQstatus(m_conn) != CONNECTION_OK)
-    PQXX_UNLIKELY
-      throw broken_connection{PQerrorMessage(m_conn)};
+      PQXX_UNLIKELY
+    throw broken_connection{PQerrorMessage(m_conn)};
 
     set_up_state();
   }
@@ -147,15 +147,15 @@ void pqxx::connection::check_movable() const
 {
   if (m_trans)
     PQXX_UNLIKELY
-    throw pqxx::usage_error{"Moving a connection with a transaction open."};
+  throw pqxx::usage_error{"Moving a connection with a transaction open."};
   if (not std::empty(m_errorhandlers))
     PQXX_UNLIKELY
-    throw pqxx::usage_error{
-      "Moving a connection with error handlers registered."};
+  throw pqxx::usage_error{
+    "Moving a connection with error handlers registered."};
   if (not std::empty(m_receivers))
     PQXX_UNLIKELY
-    throw pqxx::usage_error{
-      "Moving a connection with notification receivers registered."};
+  throw pqxx::usage_error{
+    "Moving a connection with notification receivers registered."};
 }
 
 
@@ -163,17 +163,17 @@ void pqxx::connection::check_overwritable() const
 {
   if (m_trans)
     PQXX_UNLIKELY
-    throw pqxx::usage_error{
-      "Moving a connection onto one with a transaction open."};
+  throw pqxx::usage_error{
+    "Moving a connection onto one with a transaction open."};
   if (not std::empty(m_errorhandlers))
     PQXX_UNLIKELY
-    throw pqxx::usage_error{
-      "Moving a connection onto one with error handlers registered."};
+  throw pqxx::usage_error{
+    "Moving a connection onto one with error handlers registered."};
   if (not std::empty(m_receivers))
     PQXX_UNLIKELY
-    throw usage_error{
-      "Moving a connection onto one "
-      "with notification receivers registered."};
+  throw usage_error{
+    "Moving a connection onto one "
+    "with notification receivers registered."};
 }
 
 
@@ -276,8 +276,8 @@ void pqxx::connection::set_up_state()
 
   if (server_version() <= 90000)
     PQXX_UNLIKELY
-    throw feature_not_supported{
-      "Unsupported server version; 9.0 is the minimum."};
+  throw feature_not_supported{
+    "Unsupported server version; 9.0 is the minimum."};
 
   // The default notice processor in libpq writes to stderr.  Ours does
   // nothing.
@@ -320,7 +320,7 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
   else
     // Newline is missing.  Let the zview version of the code add it.
     PQXX_UNLIKELY
-    process_notice(view);
+  process_notice(view);
 }
 
 
@@ -365,7 +365,7 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 {
   if (n == nullptr)
     PQXX_UNLIKELY
-    throw argument_error{"Null receiver registered"};
+  throw argument_error{"Null receiver registered"};
 
   // Add to receiver list and attempt to start listening.
   auto const p{m_receivers.find(n->channel())};
@@ -440,15 +440,15 @@ void pqxx::connection::cancel_query()
   pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
   if (cancel == nullptr)
     PQXX_UNLIKELY
-    throw std::bad_alloc{};
+  throw std::bad_alloc{};
 
   std::array<char, 500u> errbuf;
   auto const c{PQcancel(
     cancel.get(), std::data(errbuf), static_cast<int>(std::size(errbuf)))};
   if (c == 0)
     PQXX_UNLIKELY
-    throw pqxx::sql_error{
-      std::string{std::data(errbuf), std::size(errbuf)}, "[cancel]"};
+  throw pqxx::sql_error{
+    std::string{std::data(errbuf), std::size(errbuf)}, "[cancel]"};
 }
 
 
@@ -476,13 +476,13 @@ int pqxx::connection::get_notifs()
 {
   if (not consume_input())
     PQXX_UNLIKELY
-    throw broken_connection{"Connection lost."};
+  throw broken_connection{"Connection lost."};
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
   if (m_trans)
     PQXX_UNLIKELY
-    return 0;
+  return 0;
 
   int notifs = 0;
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
@@ -679,10 +679,10 @@ void pqxx::connection::close()
   {
     if (m_trans)
       PQXX_UNLIKELY
-      process_notice(internal::concat(
-        "Closing connection while ",
-        internal::describe_object("transaction"sv, m_trans->name()),
-        " is still open."));
+    process_notice(internal::concat(
+      "Closing connection while ",
+      internal::describe_object("transaction"sv, m_trans->name()),
+      " is still open."));
 
     if (not std::empty(m_receivers))
     {
@@ -790,10 +790,10 @@ void pqxx::connection::write_copy_line(std::string_view line)
     internal::ssize(line), "Line in stream_to is too long to process."sv)};
   if (PQputCopyData(m_conn, std::data(line), size) <= 0)
     PQXX_UNLIKELY
-    throw failure{err_prefix + err_msg()};
+  throw failure{err_prefix + err_msg()};
   if (PQputCopyData(m_conn, "\n", 1) <= 0)
     PQXX_UNLIKELY
-    throw failure{err_prefix + err_msg()};
+  throw failure{err_prefix + err_msg()};
 }
 
 
@@ -823,7 +823,7 @@ void pqxx::connection::start_exec(char const query[])
 {
   if (PQsendQuery(m_conn, query) == 0)
     PQXX_UNLIKELY
-    throw failure{err_msg()};
+  throw failure{err_msg()};
 }
 
 
@@ -840,7 +840,7 @@ size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
     PQescapeStringConn(m_conn, buf, std::data(text), std::size(text), &err)};
   if (err)
     PQXX_UNLIKELY
-    throw argument_error{err_msg()};
+  throw argument_error{err_msg()};
   return copied;
 }
 
@@ -924,7 +924,7 @@ std::string pqxx::connection::quote_name(std::string_view identifier) const
     PQfreemem};
   if (buf.get() == nullptr)
     PQXX_UNLIKELY
-    throw failure{err_msg()};
+  throw failure{err_msg()};
   return std::string{buf.get()};
 }
 
@@ -954,7 +954,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         // We're not expecting a lot of wildcards in a string.  Usually.
         PQXX_UNLIKELY
-        out.push_back(escape_char);
+      out.push_back(escape_char);
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
@@ -981,7 +981,7 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
 {
   if (fd < 0)
     PQXX_UNLIKELY
-    throw pqxx::broken_connection{"No connection."};
+  throw pqxx::broken_connection{"No connection."};
 
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
@@ -1196,14 +1196,14 @@ std::string pqxx::connection::connection_string() const
 {
   if (m_conn == nullptr)
     PQXX_UNLIKELY
-    throw usage_error{"Can't get connection string: connection is not open."};
+  throw usage_error{"Can't get connection string: connection is not open."};
 
   std::unique_ptr<
     PQconninfoOption, std::function<void(PQconninfoOption *)>> const params{
     PQconninfo(m_conn), PQconninfoFree};
   if (params.get() == nullptr)
     PQXX_UNLIKELY
-    throw std::bad_alloc{};
+  throw std::bad_alloc{};
 
   std::string buf;
   for (std::size_t i{0}; params.get()[i].keyword != nullptr; ++i)

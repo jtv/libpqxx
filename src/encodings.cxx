@@ -86,14 +86,14 @@ PQXX_PURE std::size_t next_seq_for_euc_jplike(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 1);
+  throw_for_encoding_error(encoding_name, buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (byte1 == 0x8e)
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
       PQXX_UNLIKELY
-      throw_for_encoding_error(encoding_name, buffer, start, 2);
+    throw_for_encoding_error(encoding_name, buffer, start, 2);
 
     return start + 2;
   }
@@ -102,7 +102,7 @@ PQXX_PURE std::size_t next_seq_for_euc_jplike(
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
       PQXX_UNLIKELY
-      throw_for_encoding_error(encoding_name, buffer, start, 2);
+    throw_for_encoding_error(encoding_name, buffer, start, 2);
 
     return start + 2;
   }
@@ -113,7 +113,7 @@ PQXX_PURE std::size_t next_seq_for_euc_jplike(
     if (
       not between_inc(byte2, 0xa1, 0xfe) or not between_inc(byte3, 0xa1, 0xfe))
       PQXX_UNLIKELY
-      throw_for_encoding_error(encoding_name, buffer, start, 3);
+    throw_for_encoding_error(encoding_name, buffer, start, 3);
 
     return start + 3;
   }
@@ -145,16 +145,16 @@ PQXX_PURE std::size_t next_seq_for_sjislike(
   if (
     not between_inc(byte1, 0x81, 0x9f) and not between_inc(byte1, 0xe0, 0xfc))
     PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 1);
+  throw_for_encoding_error(encoding_name, buffer, start, 1);
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, buffer_len - start);
+  throw_for_encoding_error(encoding_name, buffer, start, buffer_len - start);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (byte2 == 0x7f)
     PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 2);
+  throw_for_encoding_error(encoding_name, buffer, start, 2);
 
   if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
     return start + 2;
@@ -200,13 +200,13 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::BIG5>::call(
 
   if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > buffer_len))
     PQXX_UNLIKELY
-    throw_for_encoding_error("BIG5", buffer, start, 1);
+  throw_for_encoding_error("BIG5", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (
     not between_inc(byte2, 0x40, 0x7e) and not between_inc(byte2, 0xa1, 0xfe))
     PQXX_UNLIKELY
-    throw_for_encoding_error("BIG5", buffer, start, 2);
+  throw_for_encoding_error("BIG5", buffer, start, 2);
 
   return start + 2;
 }
@@ -236,12 +236,12 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_CN>::call(
 
   if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_CN", buffer, start, 1);
+  throw_for_encoding_error("EUC_CN", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (not between_inc(byte2, 0xa1, 0xfe))
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_CN", buffer, start, 2);
+  throw_for_encoding_error("EUC_CN", buffer, start, 2);
 
   return start + 2;
 }
@@ -274,12 +274,12 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_KR>::call(
 
   if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+  throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (not between_inc(byte2, 0xa1, 0xfe))
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+  throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   return start + 2;
 }
@@ -291,7 +291,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_TW>::call(
 {
   if (start >= buffer_len)
     PQXX_UNLIKELY
-    return std::string::npos;
+  return std::string::npos;
 
   auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
@@ -299,21 +299,21 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_TW>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+  throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0xa1, 0xfe))
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
       PQXX_UNLIKELY
-      throw_for_encoding_error("EUC_KR", buffer, start, 2);
+    throw_for_encoding_error("EUC_KR", buffer, start, 2);
 
     return start + 2;
   }
 
   if (byte1 != 0x8e or start + 4 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+  throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
   if (
     between_inc(byte2, 0xa1, 0xb0) and
@@ -339,21 +339,21 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
+  throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte2, 0x40, 0xfe))
   {
     if (byte2 == 0x7f)
-	     PQXX_UNLIKELY
-      throw_for_encoding_error("GB18030", buffer, start, 2);
+      PQXX_UNLIKELY
+    throw_for_encoding_error("GB18030", buffer, start, 2);
 
     return start + 2;
   }
 
   if (start + 4 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
+  throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   if (
     between_inc(byte2, 0x30, 0x39) and
@@ -361,7 +361,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
     between_inc(get_byte(buffer, start + 3), 0x30, 0x39))
     return start + 4;
 
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw_for_encoding_error("GB18030", buffer, start, 4);
 }
 
@@ -379,7 +379,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GBK>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("GBK", buffer, start, 1);
+  throw_for_encoding_error("GBK", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (
@@ -397,7 +397,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GBK>::call(
      byte2 != 0x7f))
     return start + 2;
 
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw_for_encoding_error("GBK", buffer, start, 2);
 }
 
@@ -423,7 +423,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::JOHAB>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("JOHAB", buffer, start, 1);
+  throw_for_encoding_error("JOHAB", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start)};
   if (
@@ -433,7 +433,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::JOHAB>::call(
      (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))))
     return start + 2;
 
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw_for_encoding_error("JOHAB", buffer, start, 2);
 }
 
@@ -457,7 +457,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
+  throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xA0)
@@ -465,7 +465,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
 
   if (start + 3 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
+  throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
 
   if (
     ((byte1 == 0x9A and between_inc(byte2, 0xa0, 0xdf)) or
@@ -476,7 +476,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
 
   if (start + 4 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
+  throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
 
   if (
     ((byte1 == 0x9C and between_inc(byte2, 0xf0, 0xf4)) or
@@ -485,7 +485,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
     get_byte(buffer, start + 4) >= 0xa0)
     return start + 4;
 
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw_for_encoding_error("MULE_INTERNAL", buffer, start, 4);
 }
 
@@ -517,7 +517,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::UHC>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
+  throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0x80, 0xc6))
@@ -534,8 +534,8 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::UHC>::call(
   if (between_inc(byte1, 0xa1, 0xfe))
   {
     if (not between_inc(byte2, 0xa1, 0xfe))
-    PQXX_UNLIKELY
-      throw_for_encoding_error("UHC", buffer, start, 2);
+      PQXX_UNLIKELY
+    throw_for_encoding_error("UHC", buffer, start, 2);
 
     return start + 2;
   }
@@ -557,21 +557,21 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::UTF8>::call(
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+  throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
   auto const byte2{get_byte(buffer, start + 1)};
   if (between_inc(byte1, 0xc0, 0xdf))
   {
     if (not between_inc(byte2, 0x80, 0xbf))
-    PQXX_UNLIKELY
-      throw_for_encoding_error("UTF8", buffer, start, 2);
+      PQXX_UNLIKELY
+    throw_for_encoding_error("UTF8", buffer, start, 2);
 
     return start + 2;
   }
 
   if (start + 3 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+  throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
   auto const byte3{get_byte(buffer, start + 2)};
   if (between_inc(byte1, 0xe0, 0xef))
@@ -585,7 +585,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::UTF8>::call(
 
   if (start + 4 > buffer_len)
     PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+  throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
   if (between_inc(byte1, 0xf0, 0xf7))
   {
@@ -598,7 +598,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::UTF8>::call(
     throw_for_encoding_error("UTF8", buffer, start, 4);
   }
 
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw_for_encoding_error("UTF8", buffer, start, 1);
 }
 
@@ -665,8 +665,8 @@ encoding_group enc_group(std::string_view encoding_name)
   auto const found_encoding_group{encoding_map.find(encoding_name)};
   if (found_encoding_group == std::end(encoding_map))
     PQXX_UNLIKELY
-    throw std::invalid_argument{
-      internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
+  throw std::invalid_argument{
+    internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
   return found_encoding_group->second;
 }
 
@@ -702,7 +702,7 @@ constexpr inline F *for_encoding(encoding_group enc)
     CASE_GROUP(UHC);
     PQXX_LIKELY CASE_GROUP(UTF8);
   }
-    PQXX_UNLIKELY
+  PQXX_UNLIKELY
   throw pqxx::usage_error{
     internal::concat("Unsupported encoding group code ", enc, ".")};
 

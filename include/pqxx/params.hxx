@@ -151,8 +151,8 @@ public:
   {
     if (m_current >= max_params)
       PQXX_UNLIKELY
-      throw range_error{pqxx::internal::concat(
-        "Too many parameters in one statement: limit is ", max_params, ".")};
+    throw range_error{pqxx::internal::concat(
+      "Too many parameters in one statement: limit is ", max_params, ".")};
     ++m_current;
     if (m_current % 10 == 0)
     {

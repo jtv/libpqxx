@@ -170,8 +170,8 @@ public:
    * your data fields and the table is explicit in your code, and not hidden
    * in an "implicit contract" between your code and your schema.
    */
-  PQXX_DEPRECATED("Use table() or raw_table() factory.")
-  stream_to(transaction_base &tx, std::string_view table_name) :
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
+    transaction_base &tx, std::string_view table_name) :
           stream_to{tx, table_name, ""sv}
   {}
 
@@ -179,16 +179,14 @@ public:
   /** @deprecated Use @c table() or @c raw_table() as a factory.
    */
   template<typename Columns>
-  PQXX_DEPRECATED("Use table() or raw_table() factory.")
-  stream_to(
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
     transaction_base &, std::string_view table_name, Columns const &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
   /** @deprecated Use @c table() or @c raw_table() as a factory.
    */
   template<typename Iter>
-  PQXX_DEPRECATED("Use table() or raw_table() factory.")
-  stream_to(
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
     transaction_base &, std::string_view table_name, Iter columns_begin,
     Iter columns_end);
 

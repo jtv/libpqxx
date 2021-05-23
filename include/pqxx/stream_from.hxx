@@ -135,21 +135,20 @@ public:
   /// Execute query, and stream over the results.
   /** @deprecated Use factory function @c query() instead.
    */
-  PQXX_DEPRECATED("Use query() factory instead.")
-  stream_from(transaction_base &, from_query_t, std::string_view query);
+  [[deprecated("Use query() factory instead.")]] stream_from(
+    transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
   /** @deprecated Use factory function @c table() or @c raw_table() instead.
    */
-  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
-  stream_from(transaction_base &, from_table_t, std::string_view table);
+  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
+    transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
   /** @deprecated Use factory function @c table() or @c raw_table() instead.
    */
   template<typename Iter>
-  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
-  stream_from(
+  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
     transaction_base &, from_table_t, std::string_view table,
     Iter columns_begin, Iter columns_end);
 
@@ -157,31 +156,28 @@ public:
   /** @deprecated Use factory function @c query() instead.
    */
   template<typename Columns>
-  PQXX_DEPRECATED("Use table() or raw_table() factory instead.")
-  stream_from(
+  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
     transaction_base &tx, from_table_t, std::string_view table,
     Columns const &columns);
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// @deprecated Use factory function @c table() or @c raw_table() instead.
-  PQXX_DEPRECATED("Use the from_table_t overload instead.")
-  stream_from(transaction_base &tx, std::string_view table) :
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
+    transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// @deprecated Use factory function @c table() or @c raw_table() instead.
   template<typename Columns>
-  PQXX_DEPRECATED("Use the from_table_t overload instead.")
-  stream_from(
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &tx, std::string_view table, Columns const &columns) :
           stream_from{tx, from_table, table, columns}
   {}
 
   /// @deprecated Use factory function @c table() or @c raw_table() instead.
   template<typename Iter>
-  PQXX_DEPRECATED("Use the from_table_t overload instead.")
-  stream_from(
+  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &, std::string_view table, Iter columns_begin,
     Iter columns_end);
 
@@ -318,9 +314,9 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 
   if (std::size(m_fields) != tup_size)
     PQXX_UNLIKELY
-    throw usage_error{internal::concat(
-      "Tried to extract ", tup_size, " field(s) from a stream of ",
-      std::size(m_fields), ".")};
+  throw usage_error{internal::concat(
+    "Tried to extract ", tup_size, " field(s) from a stream of ",
+    std::size(m_fields), ".")};
 
   extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;
@@ -337,7 +333,7 @@ inline void stream_from::extract_value(Tuple &t) const
   {
     if (std::data(m_fields[index]) != nullptr)
       PQXX_UNLIKELY
-      throw conversion_error{"Streaming non-null value into null field."};
+    throw conversion_error{"Streaming non-null value into null field."};
   }
   else if (std::data(m_fields[index]) == nullptr)
   {
@@ -345,7 +341,7 @@ inline void stream_from::extract_value(Tuple &t) const
       std::get<index>(t) = nullity::null();
     else
       PQXX_UNLIKELY
-      internal::throw_null_conversion(type_name<field_type>);
+    internal::throw_null_conversion(type_name<field_type>);
   }
   else
   {

@@ -1053,7 +1053,6 @@ INCLUDE_FILE_PATTERNS  = *.h *.hxx
 # instead of the = operator.
 
 PREDEFINED             = PQXX_ABI="@PQXX_ABI@" \
-                         PQXX_DEPRECATED= \
                          PQXX_LIBEXPORT= \
                          PQXX_NOVTABLE= \
                          PQXX_PRIVATE= \

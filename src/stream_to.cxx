@@ -104,7 +104,7 @@ void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
   {
     switch (c)
     {
-	PQXX_UNLIKELY
+      PQXX_UNLIKELY
     case '\b': m_buffer += "\\b"; break;  // Backspace
     case '\f': m_buffer += "\\f"; break;  // Vertical tab
     case '\n': m_buffer += "\\n"; break;  // Form feed

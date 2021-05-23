@@ -102,8 +102,8 @@ inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
 {
   if (attempts <= 0)
     PQXX_UNLIKELY
-    throw std::invalid_argument{
-      "Zero or negative number of attempts passed to pqxx::perform()."};
+  throw std::invalid_argument{
+    "Zero or negative number of attempts passed to pqxx::perform()."};
 
   for (; attempts > 0; --attempts)
   {

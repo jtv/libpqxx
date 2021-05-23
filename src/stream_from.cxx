@@ -59,12 +59,10 @@ pqxx::stream_from::stream_from(
         m_glyph_scanner{get_scanner(tx)}
 {
   if (std::empty(columns))
-	PQXX_UNLIKELY
-    tx.exec0(internal::concat("COPY "sv, table, " TO STDOUT"sv));
-  else
-	  PQXX_LIKELY
-    tx.exec0(
-      internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv));
+    PQXX_UNLIKELY
+  tx.exec0(internal::concat("COPY "sv, table, " TO STDOUT"sv));
+  else PQXX_LIKELY tx.exec0(
+    internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv));
   register_me();
 }
 
@@ -135,7 +133,7 @@ void pqxx::stream_from::close()
 {
   if (not m_finished)
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     m_finished = true;
     unregister_me();
   }
@@ -174,8 +172,8 @@ void pqxx::stream_from::complete()
 void pqxx::stream_from::parse_line()
 {
   if (m_finished)
-	PQXX_UNLIKELY
-    return;
+    PQXX_UNLIKELY
+  return;
   auto const next_seq{m_glyph_scanner};
 
   m_fields.clear();
@@ -188,8 +186,8 @@ void pqxx::stream_from::parse_line()
   }
 
   if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
-	PQXX_UNLIKELY
-    throw range_error{"Stream produced a ridiculously long line."};
+    PQXX_UNLIKELY
+  throw range_error{"Stream produced a ridiculously long line."};
 
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
@@ -245,12 +243,12 @@ void pqxx::stream_from::parse_line()
         field_begin = write;
         break;
 
-	PQXX_UNLIKELY
+        PQXX_UNLIKELY
       case '\\': {
         // Escape sequence.
         if (read >= line_end)
-	PQXX_UNLIKELY
-          throw failure{"Row ends in backslash"};
+          PQXX_UNLIKELY
+        throw failure{"Row ends in backslash"};
 
         c = *read++;
         switch (c)
@@ -258,18 +256,18 @@ void pqxx::stream_from::parse_line()
         case 'N':
           // Null value.
           if (write != field_begin)
-	PQXX_UNLIKELY
-            throw failure{"Null sequence found in nonempty field"};
+            PQXX_UNLIKELY
+          throw failure{"Null sequence found in nonempty field"};
           field_begin = nullptr;
           // (If there's any characters _after_ the null we'll just crash.)
           break;
 
         case 'b': // Backspace.
-	PQXX_UNLIKELY
+          PQXX_UNLIKELY
           *write++ = '\b';
           break;
         case 'f': // Form feed
-	PQXX_UNLIKELY
+          PQXX_UNLIKELY
           *write++ = '\f';
           break;
         case 'n': // Line feed.
@@ -286,7 +284,7 @@ void pqxx::stream_from::parse_line()
           break;
 
         default:
-	  PQXX_LIKELY
+          PQXX_LIKELY
           // Regular character ("self-escaped").
           *write++ = c;
           break;
@@ -294,7 +292,7 @@ void pqxx::stream_from::parse_line()
       }
       break;
 
-      PQXX_LIKELY
+        PQXX_LIKELY
       default: *write++ = c; break;
       }
     }

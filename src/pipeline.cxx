@@ -133,9 +133,9 @@ void pqxx::pipeline::cancel()
 bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (m_queries.find(q) == std::end(m_queries))
-	PQXX_UNLIKELY
-    throw std::logic_error{
-      internal::concat("Requested status for unknown query '", q, "'.")};
+    PQXX_UNLIKELY
+  throw std::logic_error{
+    internal::concat("Requested status for unknown query '", q, "'.")};
   return (QueryMap::const_iterator(m_issuedrange.first) ==
           std::end(m_queries)) or
          (q < m_issuedrange.first->first and q < m_error);
@@ -145,8 +145,8 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 {
   if (std::empty(m_queries))
-	PQXX_UNLIKELY
-    throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
+    PQXX_UNLIKELY
+  throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
   return retrieve(std::begin(m_queries));
 }
 
@@ -154,9 +154,9 @@ std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 int pqxx::pipeline::retain(int retain_max)
 {
   if (retain_max < 0)
-	PQXX_UNLIKELY
-    throw range_error{internal::concat(
-      "Attempt to make pipeline retain ", retain_max, " queries")};
+    PQXX_UNLIKELY
+  throw range_error{internal::concat(
+    "Attempt to make pipeline retain ", retain_max, " queries")};
 
   int const oldvalue{m_retain};
   m_retain = retain_max;
@@ -183,8 +183,8 @@ void pqxx::pipeline::resume()
 pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 {
   if (m_q_id == qid_limit())
-	PQXX_UNLIKELY
-    throw std::overflow_error{"Too many queries went through pipeline."};
+    PQXX_UNLIKELY
+  throw std::overflow_error{"Too many queries went through pipeline."};
   ++m_q_id;
   return m_q_id;
 }
@@ -238,7 +238,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   {
     if (have_pending() and not expect_none)
     {
-	PQXX_UNLIKELY
+      PQXX_UNLIKELY
       set_error_at(m_issuedrange.first->first);
       m_issuedrange.second = m_issuedrange.first;
     }
@@ -250,7 +250,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   if (not have_pending())
   {
-	PQXX_UNLIKELY
+    PQXX_UNLIKELY
     set_error_at(std::begin(m_queries)->first);
     throw std::logic_error{
       "Got more results from pipeline than there were queries."};
@@ -258,8 +258,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   // Must be the result for the oldest pending query.
   if (not std::empty(m_issuedrange.first->second.res))
-	PQXX_UNLIKELY
-    internal_error("Multiple results for one query.");
+    PQXX_UNLIKELY
+  internal_error("Multiple results for one query.");
 
   m_issuedrange.first->second.res = res;
   ++m_issuedrange.first;
@@ -279,9 +279,8 @@ void pqxx::pipeline::obtain_dummy()
   m_dummy_pending = false;
 
   if (r == nullptr)
-	PQXX_UNLIKELY
-    internal_error(
-      "Pipeline got no result from backend when it expected one.");
+    PQXX_UNLIKELY
+  internal_error("Pipeline got no result from backend when it expected one.");
 
   result R{pqxx::internal::gate::result_creation::create(r, text, m_encoding)};
 
@@ -295,14 +294,14 @@ void pqxx::pipeline::obtain_dummy()
   {}
   if (OK)
   {
-	  PQXX_LIKELY
+    PQXX_LIKELY
     if (std::size(R) > 1)
-	PQXX_UNLIKELY
-      internal_error("Unexpected result for dummy query in pipeline.");
+      PQXX_UNLIKELY
+    internal_error("Unexpected result for dummy query in pipeline.");
 
     if (R.at(0).at(0).as<std::string>() != theDummyValue)
-	PQXX_UNLIKELY
-      internal_error("Dummy query in pipeline returned unexpected value.");
+      PQXX_UNLIKELY
+    internal_error("Dummy query in pipeline returned unexpected value.");
     return;
   }
 
@@ -361,13 +360,13 @@ std::pair<pqxx::pipeline::query_id, pqxx::result>
 pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
 {
   if (q == std::end(m_queries))
-	PQXX_UNLIKELY
-    throw std::logic_error{"Attempt to retrieve result for unknown query."};
+    PQXX_UNLIKELY
+  throw std::logic_error{"Attempt to retrieve result for unknown query."};
 
   if (q->first >= m_error)
-	PQXX_UNLIKELY
-    throw std::runtime_error{
-      "Could not complete query in pipeline due to error in earlier query."};
+    PQXX_UNLIKELY
+  throw std::runtime_error{
+    "Could not complete query in pipeline due to error in earlier query."};
 
   // If query hasn't issued yet, do it now.
   if (
@@ -396,9 +395,9 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
   }
 
   if (q->first >= m_error)
-	PQXX_UNLIKELY
-    throw std::runtime_error{
-      "Could not complete query in pipeline due to error in earlier query."};
+    PQXX_UNLIKELY
+  throw std::runtime_error{
+    "Could not complete query in pipeline due to error in earlier query."};
 
   // Don't leave the backend idle if there are queries waiting to be issued.
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
@@ -419,8 +418,8 @@ void pqxx::pipeline::get_further_available_results()
   pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   while (not gate.is_busy() and obtain_result())
     if (not gate.consume_input())
-	PQXX_UNLIKELY
-      throw broken_connection{};
+      PQXX_UNLIKELY
+  throw broken_connection{};
 }
 
 
@@ -428,8 +427,8 @@ void pqxx::pipeline::receive_if_available()
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans.conn()};
   if (not gate.consume_input())
-	PQXX_UNLIKELY
-    throw broken_connection{};
+    PQXX_UNLIKELY
+  throw broken_connection{};
   if (gate.is_busy())
     return;
 

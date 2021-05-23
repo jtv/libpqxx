@@ -320,7 +320,7 @@ void test_placeholders_generates_names()
   name.next();
   PQXX_CHECK_EQUAL(name.view(), "$10"_zv, "Incorrect placeholders carry.");
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$11"_zv, "Incorrect placeholders 11."); 
+  PQXX_CHECK_EQUAL(name.view(), "$11"_zv, "Incorrect placeholders 11.");
 
   while (name.count() < 999) name.next();
   PQXX_CHECK_EQUAL(name.view(), "$999"_zv, "Incorrect placeholders 999.");

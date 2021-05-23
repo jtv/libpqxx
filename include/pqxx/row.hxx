@@ -102,8 +102,7 @@ public:
 
   [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
 
-  PQXX_DEPRECATED("Swap iterators, not rows.")
-  void swap(row &) noexcept;
+  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard]] result::size_type rownumber() const noexcept
@@ -198,9 +197,8 @@ protected:
   {
     if (size() != expected)
       PQXX_UNLIKELY
-      throw usage_error{internal::concat(
-        "Tried to extract ", expected, " field(s) from a row of ", size(),
-        ".")};
+    throw usage_error{internal::concat(
+      "Tried to extract ", expected, " field(s) from a row of ", size(), ".")};
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;

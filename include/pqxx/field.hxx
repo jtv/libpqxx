@@ -40,12 +40,13 @@ public:
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
-  PQXX_DEPRECATED("Do not construct fields yourself.  Get them from the row.")
-  field(row const &r, row_size_type c) noexcept;
+  [[deprecated(
+    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
 
   /// Constructor.  Do not call this yourself; libpqxx will do it for you.
-  PQXX_DEPRECATED("Do not construct fields yourself.  Get them from the row.")
-  field() = default;
+  [[deprecated(
+    "Do not construct fields yourself.  Get them from the row.")]] field() =
+    default;
 
   /**
    * @name Comparison
@@ -217,10 +218,9 @@ public:
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-	PQXX_UNLIKELY
-        internal::throw_null_conversion(type_name<T>);
-      else
-        return nullness<T>::null();
+        PQXX_UNLIKELY
+      internal::throw_null_conversion(type_name<T>);
+      else return nullness<T>::null();
     }
     else
     {
@@ -331,8 +331,8 @@ inline bool field::to<std::string_view>(
 template<> inline std::string_view field::as<std::string_view>() const
 {
   if (is_null())
-	PQXX_UNLIKELY
-    internal::throw_null_conversion(type_name<std::string_view>);
+    PQXX_UNLIKELY
+  internal::throw_null_conversion(type_name<std::string_view>);
   return view();
 }
 
@@ -369,8 +369,8 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 template<> inline zview field::as<zview>() const
 {
   if (is_null())
-	PQXX_UNLIKELY
-    internal::throw_null_conversion(type_name<zview>);
+    PQXX_UNLIKELY
+  internal::throw_null_conversion(type_name<zview>);
   return zview{c_str(), size()};
 }
 
@@ -494,8 +494,8 @@ template<typename T> inline T from_string(field const &value)
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-	PQXX_UNLIKELY
-      internal::throw_null_conversion(type_name<T>);
+      PQXX_UNLIKELY
+    internal::throw_null_conversion(type_name<T>);
   }
   else
   {
@@ -515,9 +515,8 @@ template<>
 inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
 {
   if (not value.is_null())
-	PQXX_UNLIKELY
-    throw conversion_error{
-      "Extracting non-null field into nullptr_t variable."};
+    PQXX_UNLIKELY
+  throw conversion_error{"Extracting non-null field into nullptr_t variable."};
   return nullptr;
 }
 

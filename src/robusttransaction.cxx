@@ -77,13 +77,13 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
   auto const status_row{w.exec1(query)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
-	PQXX_UNLIKELY
-    throw pqxx::internal_error{"Transaction status string is empty."};
+    PQXX_UNLIKELY
+  throw pqxx::internal_error{"Transaction status string is empty."};
   auto const status{parse_status(status_field.as<std::string_view>())};
   if (status == tx_unknown)
-	PQXX_UNLIKELY
-    throw pqxx::internal_error{pqxx::internal::concat(
-      "Unknown transaction status string: ", status_field.view())};
+    PQXX_UNLIKELY
+  throw pqxx::internal_error{pqxx::internal::concat(
+    "Unknown transaction status string: ", status_field.view())};
   return status;
 }
 } // namespace
