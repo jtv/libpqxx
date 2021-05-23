@@ -12,6 +12,7 @@
  - Deprecated `dynamic_params` in favour of `params`.
  - `pqxx::params::append_multi()` now calls `reserve()` if possible.
  - `pqxx::params::size()` is now `noexcept` (but sadly, `ssize()` is not).
+ - Helper for generating parameter placeholders `$1`, `$2`, etc.  ($443)
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1

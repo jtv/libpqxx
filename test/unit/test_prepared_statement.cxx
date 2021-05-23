@@ -16,6 +16,9 @@
 
 namespace
 {
+using namespace std::literals;
+
+
 template<typename T> std::string stringize(pqxx::transaction_base &t, T i)
 {
   return stringize(t, pqxx::to_string(i));
@@ -289,5 +292,43 @@ void test_prepared_statements()
 }
 
 
+void test_placeholders_generates_names()
+{
+  using pqxx::operator""_zv;
+  pqxx::placeholders name;
+  PQXX_CHECK_EQUAL(name.view(), "$1"_zv, "Bad placeholders initial zview.");
+  PQXX_CHECK_EQUAL(name.view(), "$1"sv, "Bad placeholders string_view.");
+  PQXX_CHECK_EQUAL(name.get(), "$1", "Bad placeholders::get().");
+
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$2"_zv, "Incorrect placeholders::next().");
+
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$3"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$4"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$5"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$6"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$7"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$8"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$9"_zv, "Incorrect placeholders::next().");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$10"_zv, "Incorrect placeholders carry.");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$11"_zv, "Incorrect placeholders 11."); 
+
+  while (name.count() < 999) name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$999"_zv, "Incorrect placeholders 999.");
+  name.next();
+  PQXX_CHECK_EQUAL(name.view(), "$1000"_zv, "Incorrect large placeholder.");
+}
+
+
 PQXX_REGISTER_TEST(test_prepared_statements);
+PQXX_REGISTER_TEST(test_placeholders_generates_names);
 } // namespace

@@ -25,5 +25,6 @@ Some links that should help you find your bearings:
 * @ref escaping
 * @ref binary
 * @ref performance
+* @ref parameters
 * @ref transactor
 * @ref datatypes

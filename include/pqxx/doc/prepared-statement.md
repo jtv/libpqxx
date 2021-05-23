@@ -48,6 +48,9 @@ Did I mention that prepared statements can have parameters?  The query text
 can contain `$1`, `$2` etc. as placeholders for parameter values that you
 will provide when you invoke the prepared satement.
 
+See @ref parameters for more about this.  And here's a simple example of
+preparing a statement and invoking it with parameters:
+
     void prepare_find(pqxx::connection &c)
     {
       // Prepare a statement called "find" that looks for employees with a
@@ -66,29 +69,6 @@ This example looks up the prepared statement "find," passes `name` and
     {
       return t.exec_prepared("find", name, min_salary);
     }
-
-
-Dynamic parameter lists
------------------------
-
-In rare cases you may just not know how many parameters you'll pass into your
-statement when you call it.
-
-For these situations, have a look at `params`.  It lets you compose your
-parameters list on the fly, even add whole ranges of parameters at a time.
-
-You can pass a `params` into your statement as a normal parameter.  It will
-fill in all the parameter values it contains into that position of the
-statement's overall parameter list.
-
-So if you call your statement passing a regular parameter `a`, a
-`params` containing just a parameter `b`, and another regular parameter `c`,
-then your call will pass parameters `a`, `b`, and `c`.  Or if the params object
-is empty, it will pass just `a` and `c`.  If the params object contains `x` and
-`y`, your call will pass `a, x, y, c`.
-
-You can mix static and dynamic parameters freely.  Don't go overboard though:
-complexity is where bugs happen!
 
 
 A special prepared statement
