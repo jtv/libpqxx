@@ -76,16 +76,14 @@ class sql_cursor;
 #if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
-concept ZKey_ZValues = std::ranges::input_range<T> and requires()
+concept ZKey_ZValues = std::ranges::input_range<T> and
+requires(T t)
 {
-  {std::tuple_size<typename std::ranges::iterator_t<T>::value_type>::value};
+  { std::cbegin(t) };
+  { std::get<0>(*std::cbegin(t)) } ->ZString;
+  { std::get<1>(*std::cbegin(t)) } ->ZString;
 }
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2 and
-  requires(T t)
-{
-  std::get<0>(*std::cbegin(t))->ZString;
-  std::get<1>(*std::cbegin(t))->ZString;
-};
+and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
@@ -212,7 +210,7 @@ public:
    * See the PostgreSQL libpq documentation for the full list of possible
    * options:
    *
-   * https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
+   * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
    *
    * The options can be anything that can be iterated as a series of pairs of
    * zero-terminated strings: @c std::pair<std::string, std::string>`, or
