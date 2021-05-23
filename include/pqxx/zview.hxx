@@ -17,6 +17,8 @@
 #include <string_view>
 #include <type_traits>
 
+#include "pqxx/types.hxx"
+
 
 namespace pqxx
 {
@@ -117,7 +119,8 @@ namespace pqxx::internal
  */
 template<typename T>
 concept ZString =
-  std::is_convertible_v<T, char const *> or std::is_convertible_v<T, zview> or
+  std::is_convertible_v<strip_t<T>, char const *> or
+  std::is_convertible_v<strip_t<T>, zview> or
   std::is_convertible_v<T, std::string const &>;
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CONCEPTS
