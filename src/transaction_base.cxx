@@ -58,6 +58,7 @@ pqxx::transaction_base::~transaction_base()
   try
   {
     if (not std::empty(m_pending_error))
+	PQXX_UNLIKELY
       process_notice(
         internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
 
@@ -130,6 +131,7 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus != nullptr)
+	PQXX_UNLIKELY
     throw failure{internal::concat(
       "Attempt to commit ", description(), " with ", m_focus->description(),
       " still open.")};
@@ -139,6 +141,7 @@ void pqxx::transaction_base::commit()
   // already, the commit would fail anyway but this way at least we don't
   // remain in-doubt as to whether the backend got the commit order at all.
   if (not m_conn.is_open())
+	PQXX_UNLIKELY
     throw broken_connection{
       "Broken connection to backend; cannot complete transaction."};
 
@@ -283,11 +286,10 @@ void pqxx::transaction_base::check_rowcount_prepared(
   result::size_type actual_rows)
 {
   if (actual_rows != expected_rows)
-  {
+	PQXX_UNLIKELY
     throw unexpected_rows{internal::concat(
       "Expected ", expected_rows, " row(s) of data from prepared statement '",
       statement, "', got ", actual_rows, ".")};
-  }
 }
 
 
@@ -295,11 +297,10 @@ void pqxx::transaction_base::check_rowcount_params(
   std::size_t expected_rows, std::size_t actual_rows)
 {
   if (actual_rows != expected_rows)
-  {
+	PQXX_UNLIKELY
     throw unexpected_rows{internal::concat(
       "Expected ", expected_rows,
       " row(s) of data from parameterised query, got ", actual_rows, ".")};
-  }
 }
 
 
@@ -358,6 +359,7 @@ void pqxx::transaction_base::close() noexcept
       return;
 
     if (m_focus != nullptr)
+	PQXX_UNLIKELY
       m_conn.process_notice(internal::concat(
         "Closing ", description(), "  with ", m_focus->description(),
         " still open.\n"));
@@ -454,6 +456,7 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
+	PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
         process_notice(e.what());
         process_notice("ERROR WAS:");
@@ -478,6 +481,7 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
     {
       try
       {
+	PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
         process_notice(e.what());
         process_notice("ERROR WAS:");

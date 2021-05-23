@@ -17679,6 +17679,8 @@ template<Foo F> auto foo(F const &r)
 
 
 
+
+
 int main()
 
 {
@@ -17737,6 +17739,39 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $span" >&5
 $as_echo "$span" >&6; }
+
+
+# Check for [[likely]] and [[unlikely]] attributes.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking attributes \"likely\" and \"unlikely\"." >&5
+$as_echo_n "checking attributes \"likely\" and \"unlikely\".... " >&6; }
+likely=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for C++20 [[likely]] and [[unlikely]] attributes.
+
+
+
+int main(int argc, char **)
+
+{
+
+  if (argc == 1) [[likely]] return 0;
+
+  else [[unlikely]] return 1;
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  $as_echo "#define PQXX_HAVE_LIKELY 1" >>confdefs.h
+
+else
+  likely=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $likely" >&5
+$as_echo "$likely" >&6; }
 
 
 # It's mid-2019, and gcc's charconv supports integers but not yet floats.

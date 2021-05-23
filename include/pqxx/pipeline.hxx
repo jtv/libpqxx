@@ -166,7 +166,7 @@ private:
   void attach();
   void detach();
 
-  /// Upper bound to query id's
+  /// Upper bound to query id's.
   static constexpr query_id qid_limit() noexcept
   {
     // Parenthesise this to work around an eternal Visual C++ problem:
@@ -176,7 +176,7 @@ private:
     return (std::numeric_limits<query_id>::max)();
   }
 
-  /// Create new query_id
+  /// Create new query_id.
   PQXX_PRIVATE query_id generate_id();
 
   bool have_pending() const noexcept
@@ -186,9 +186,10 @@ private:
 
   PQXX_PRIVATE void issue();
 
-  /// The given query failed; never issue anything beyond that
+  /// The given query failed; never issue anything beyond that.
   void set_error_at(query_id qid) noexcept
   {
+    PQXX_UNLIKELY
     if (qid < m_error)
       m_error = qid;
   }
@@ -202,10 +203,10 @@ private:
   PQXX_PRIVATE void get_further_available_results();
   PQXX_PRIVATE void check_end_results();
 
-  /// Receive any results that happen to be available; it's not urgent
+  /// Receive any results that happen to be available; it's not urgent.
   PQXX_PRIVATE void receive_if_available();
 
-  /// Receive results, up to stop if possible
+  /// Receive results, up to stop if possible.
   PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop);
   std::pair<pipeline::query_id, result> retrieve(pipeline::QueryMap::iterator);
 

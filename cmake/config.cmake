@@ -59,6 +59,10 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_visibility.cxx)
 try_compile(
+	PQXX_HAVE_LIKELY
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/likely.cxx)
+try_compile(
 	PQXX_HAVE_CXA_DEMANGLE
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cxa_demangle.cxx)

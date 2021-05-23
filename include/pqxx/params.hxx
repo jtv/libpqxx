@@ -150,12 +150,12 @@ public:
   void next()
   {
     if (m_current >= max_params)
+      PQXX_UNLIKELY
       throw range_error{pqxx::internal::concat(
         "Too many parameters in one statement: limit is ", max_params, ".")};
     ++m_current;
     if (m_current % 10 == 0)
     {
-      // TODO: Mark as unlikely.
       // Carry the 1.  Don't get too clever for this relatively rare
       // case, just rewrite the entire number.  Leave the $ in place
       // though.
@@ -167,7 +167,7 @@ public:
     }
     else
     {
-      // TODO: Mark as likely.
+      PQXX_LIKELY
       // Shortcut for the common case: just increment that last digit.
       ++m_buf[m_len - 1];
     }

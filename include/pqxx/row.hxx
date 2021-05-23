@@ -197,6 +197,7 @@ protected:
   void check_size(size_type expected) const
   {
     if (size() != expected)
+      PQXX_UNLIKELY
       throw usage_error{internal::concat(
         "Tried to extract ", expected, " field(s) from a row of ", size(),
         ".")};

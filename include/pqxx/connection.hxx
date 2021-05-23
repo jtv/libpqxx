@@ -600,6 +600,7 @@ public:
     auto const size{std::size(text)}, space{std::size(buffer)};
     auto const needed{2 * size + 1};
     if (space < needed)
+      PQXX_UNLIKELY
       throw range_error{internal::concat(
         "Not enough room to escape string of ", size, " byte(s): need ",
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
@@ -640,6 +641,7 @@ public:
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
     if (space < needed)
+      PQXX_UNLIKELY
       throw range_error{internal::concat(
         "Not enough room to escape binary string of ", size, " byte(s): need ",
         needed, " bytes of buffer space, but buffer size is ", space, ".")};

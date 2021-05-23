@@ -57,6 +57,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
   result::difference_type begin_pos, result::difference_type end_pos)
 {
   if (begin_pos < 0 or begin_pos > size)
+    PQXX_UNLIKELY
     throw range_error{"Starting position out of range"};
 
   if (end_pos < -1)
@@ -111,6 +112,7 @@ pqxx::icursorstream::icursorstream(
 void pqxx::icursorstream::set_stride(difference_type stride)
 {
   if (stride < 1)
+    PQXX_UNLIKELY
     throw argument_error{
       internal::concat("Attempt to set cursor stride to ", stride)};
   m_stride = stride;
@@ -260,10 +262,12 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
   if (n <= 0)
   {
+    PQXX_UNLIKELY
     if (n == 0)
       return *this;
     throw argument_error{"Advancing icursor_iterator by negative offset."};
   }
+  PQXX_LIKELY
   m_pos = difference_type(
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}.forward(
       icursorstream::size_type(n)));
@@ -277,11 +281,13 @@ pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 {
   if (rhs.m_stream == m_stream)
   {
+    PQXX_UNLIKELY
     m_here = rhs.m_here;
     m_pos = rhs.m_pos;
   }
   else
   {
+    PQXX_LIKELY
     if (m_stream != nullptr)
       pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
         .remove_iterator(this);

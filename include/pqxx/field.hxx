@@ -217,13 +217,10 @@ public:
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-      {
+	PQXX_UNLIKELY
         internal::throw_null_conversion(type_name<T>);
-      }
       else
-      {
         return nullness<T>::null();
-      }
     }
     else
     {
@@ -334,6 +331,7 @@ inline bool field::to<std::string_view>(
 template<> inline std::string_view field::as<std::string_view>() const
 {
   if (is_null())
+	PQXX_UNLIKELY
     internal::throw_null_conversion(type_name<std::string_view>);
   return view();
 }
@@ -371,6 +369,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 template<> inline zview field::as<zview>() const
 {
   if (is_null())
+	PQXX_UNLIKELY
     internal::throw_null_conversion(type_name<zview>);
   return zview{c_str(), size()};
 }
@@ -495,6 +494,7 @@ template<typename T> inline T from_string(field const &value)
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
+	PQXX_UNLIKELY
       internal::throw_null_conversion(type_name<T>);
   }
   else
@@ -515,6 +515,7 @@ template<>
 inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
 {
   if (not value.is_null())
+	PQXX_UNLIKELY
     throw conversion_error{
       "Extracting non-null field into nullptr_t variable."};
   return nullptr;

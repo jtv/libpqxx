@@ -52,17 +52,18 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
   {
   case 'a':
     if (text == aborted)
-      return tx_aborted;
+      PQXX_LIKELY return tx_aborted;
     break;
   case 'c':
     if (text == committed)
-      return tx_committed;
+      PQXX_LIKELY return tx_committed;
     break;
   case 'i':
     if (text == in_progress)
-      return tx_in_progress;
+      PQXX_LIKELY return tx_in_progress;
     break;
   }
+  PQXX_UNLIKELY
   return tx_unknown;
 }
 
@@ -76,9 +77,11 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
   auto const status_row{w.exec1(query)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
+	PQXX_UNLIKELY
     throw pqxx::internal_error{"Transaction status string is empty."};
   auto const status{parse_status(status_field.as<std::string_view>())};
   if (status == tx_unknown)
+	PQXX_UNLIKELY
     throw pqxx::internal_error{pqxx::internal::concat(
       "Unknown transaction status string: ", status_field.view())};
   return status;

@@ -98,6 +98,7 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
+        PQXX_UNLIKELY
         throw range_error{internal::cat2("Cast underflow: "sv, description)};
     }
     else
@@ -106,10 +107,9 @@ inline TO check_cast(FROM value, std::string_view description)
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-      {
+        PQXX_UNLIKELY
         throw range_error{internal::cat2(
           "Casting negative value to unsigned type: "sv, description)};
-      }
     }
   }
   else
@@ -127,12 +127,14 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (from_max > to_max)
     {
       if (static_cast<unsigned_from>(value) > to_max)
+	PQXX_UNLIKELY
         throw range_error{internal::cat2("Cast overflow: "sv, description)};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
+      PQXX_UNLIKELY
       throw range_error{internal::cat2("Cast overflow: ", description)};
   }
 

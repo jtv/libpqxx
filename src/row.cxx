@@ -145,6 +145,7 @@ pqxx::field pqxx::row::at(zview col_name) const
 pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 {
   if (i >= size())
+	PQXX_UNLIKELY
     throw range_error{"Invalid field number."};
 
   return operator[](i);
@@ -173,6 +174,7 @@ pqxx::row::size_type pqxx::row::column_number(zview col_name) const
 {
   auto const n{m_result.column_number(col_name)};
   if (n >= m_end)
+	PQXX_UNLIKELY
     throw argument_error{
       "Column '" + std::string{col_name} + "' falls outside slice."};
   if (n >= m_begin)
@@ -193,6 +195,7 @@ pqxx::row::size_type pqxx::row::column_number(zview col_name) const
 pqxx::row pqxx::row::slice(size_type sbegin, size_type send) const
 {
   if (sbegin > send or send > size())
+	PQXX_UNLIKELY
     throw range_error{"Invalid field range."};
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"

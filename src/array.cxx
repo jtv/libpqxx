@@ -50,6 +50,7 @@ std::string::size_type array_parser::scan_single_quoted_string() const
        here = next, next = scan_glyph(here))
   {
     if (next - here == 1)
+      PQXX_LIKELY
       switch (m_input[here])
       {
       case '\'':
@@ -78,6 +79,7 @@ std::string::size_type array_parser::scan_single_quoted_string() const
         break;
       }
   }
+  PQXX_UNLIKELY
   throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
 }
 
@@ -96,7 +98,9 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   {
     if (next - here == 1 and (m_input[here] == '\'' or m_input[here] == '\\'))
     {
-      // Skip escape.
+      // Skip escape.  (Performance-wise, we bet that these are relatively
+      // rare.)
+      PQXX_UNLIKELY
       here = next;
       next = scan_glyph(here, end);
     }
@@ -173,7 +177,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   else
     switch (m_input[m_pos])
     {
-    case '\0': throw failure{"Unexpected zero byte in array."};
+    case '\0': PQXX_UNLIKELY throw failure{"Unexpected zero byte in array."};
     case '{':
       found = juncture::row_start;
       end = scan_glyph(m_pos);
@@ -206,6 +210,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
       {
         // The normal case: we just parsed an unquoted string.  The value is
         // what we need.
+	PQXX_LIKELY
         found = juncture::string_value;
       }
       break;
@@ -216,6 +221,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   {
     auto next{scan_glyph(end)};
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
+      PQXX_UNLIKELY
       end = next;
   }
 

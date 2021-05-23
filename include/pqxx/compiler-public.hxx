@@ -24,7 +24,7 @@
 /// Declare function "pure": no side effects, only reads globals and its args.
 #  define PQXX_PURE __attribute__((pure))
 #else
-#  define PQXX_PURE
+#  define PQXX_PURE /* pure */
 #endif
 
 
@@ -106,19 +106,29 @@
 
 
 #ifndef PQXX_LIBEXPORT
-#  define PQXX_LIBEXPORT
+#  define PQXX_LIBEXPORT /* libexport */
 #endif
 
 #ifndef PQXX_PRIVATE
-#  define PQXX_PRIVATE
+#  define PQXX_PRIVATE /* private */
 #endif
 
 #ifndef PQXX_NOVTABLE
-#  define PQXX_NOVTABLE
+#  define PQXX_NOVTABLE /* novtable */
 #endif
 
+// TODO: This was introduced in C++14.  Just assume support.
 #ifndef PQXX_DEPRECATED
 #  define PQXX_DEPRECATED(MESSAGE) [[deprecated(#  MESSAGE)]]
+#endif
+
+// TODO: Assume support once we're on C++20.
+#if defined(PQXX_HAVE_LIKELY)
+#define PQXX_LIKELY [[likely]]
+#define PQXX_UNLIKELY [[unlikely]]
+#else
+#define PQXX_LIKELY /* [[likely]] */
+#define PQXX_UNLIKELY /* [[unlikely]] */
 #endif
 
 #endif

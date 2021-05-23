@@ -10,6 +10,7 @@ PQXX_HAVE_CONCEPTS	public	compiler
 PQXX_HAVE_CXA_DEMANGLE	internal	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	public	compiler
+PQXX_HAVE_LIKELY	public	compiler
 PQXX_HAVE_POLL       internal        compiler
 PQXX_HAVE_PQENCRYPTPASSWORDCONN	internal	libpq
 PQXX_HAVE_SLEEP_FOR	internal	compiler

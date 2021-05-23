@@ -78,6 +78,9 @@
 /* Define if g++ supports visibility attribute. */
 #undef PQXX_HAVE_GCC_VISIBILITY
 
+/* Define if likely & unlikely work. */]
+#undef PQXX_HAVE_LIKELY
+
 /* Define if poll() is available. */
 #undef PQXX_HAVE_POLL
 
