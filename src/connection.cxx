@@ -111,13 +111,11 @@ pqxx::connection::connection(connection &&rhs) :
 void pqxx::connection::complete_init()
 {
   if (m_conn == nullptr)
-    PQXX_UNLIKELY
-  throw std::bad_alloc{};
+    throw std::bad_alloc{};
   try
   {
     if (PQstatus(m_conn) != CONNECTION_OK)
-      PQXX_UNLIKELY
-    throw broken_connection{PQerrorMessage(m_conn)};
+      throw broken_connection{PQerrorMessage(m_conn)};
 
     set_up_state();
   }
@@ -146,34 +144,28 @@ void pqxx::connection::init(char const *params[], char const *values[])
 void pqxx::connection::check_movable() const
 {
   if (m_trans)
-    PQXX_UNLIKELY
-  throw pqxx::usage_error{"Moving a connection with a transaction open."};
+    throw pqxx::usage_error{"Moving a connection with a transaction open."};
   if (not std::empty(m_errorhandlers))
-    PQXX_UNLIKELY
-  throw pqxx::usage_error{
-    "Moving a connection with error handlers registered."};
+    throw pqxx::usage_error{
+      "Moving a connection with error handlers registered."};
   if (not std::empty(m_receivers))
-    PQXX_UNLIKELY
-  throw pqxx::usage_error{
-    "Moving a connection with notification receivers registered."};
+    throw pqxx::usage_error{
+      "Moving a connection with notification receivers registered."};
 }
 
 
 void pqxx::connection::check_overwritable() const
 {
   if (m_trans)
-    PQXX_UNLIKELY
-  throw pqxx::usage_error{
-    "Moving a connection onto one with a transaction open."};
+    throw pqxx::usage_error{
+      "Moving a connection onto one with a transaction open."};
   if (not std::empty(m_errorhandlers))
-    PQXX_UNLIKELY
-  throw pqxx::usage_error{
-    "Moving a connection onto one with error handlers registered."};
+    throw pqxx::usage_error{
+      "Moving a connection onto one with error handlers registered."};
   if (not std::empty(m_receivers))
-    PQXX_UNLIKELY
-  throw usage_error{
-    "Moving a connection onto one "
-    "with notification receivers registered."};
+    throw usage_error{
+      "Moving a connection onto one "
+      "with notification receivers registered."};
 }
 
 
@@ -199,7 +191,6 @@ pqxx::result pqxx::connection::make_result(
 {
   if (pgr == nullptr)
   {
-    PQXX_UNLIKELY
     if (is_open())
       throw failure(err_msg());
     else
@@ -266,7 +257,6 @@ void pqxx::connection::set_up_state()
 {
   if (auto const proto_ver{protocol_version()}; proto_ver < 3)
   {
-    PQXX_UNLIKELY
     if (proto_ver == 0)
       throw broken_connection{"No connection."};
     else
@@ -275,9 +265,8 @@ void pqxx::connection::set_up_state()
   }
 
   if (server_version() <= 90000)
-    PQXX_UNLIKELY
-  throw feature_not_supported{
-    "Unsupported server version; 9.0 is the minimum."};
+    throw feature_not_supported{
+      "Unsupported server version; 9.0 is the minimum."};
 
   // The default notice processor in libpq writes to stderr.  Ours does
   // nothing.
@@ -364,8 +353,7 @@ void pqxx::connection::trace(FILE *out) noexcept
 void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 {
   if (n == nullptr)
-    PQXX_UNLIKELY
-  throw argument_error{"Null receiver registered"};
+    throw argument_error{"Null receiver registered"};
 
   // Add to receiver list and attempt to start listening.
   auto const p{m_receivers.find(n->channel())};

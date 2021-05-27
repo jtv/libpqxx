@@ -98,8 +98,7 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        PQXX_UNLIKELY
-      throw range_error{internal::cat2("Cast underflow: "sv, description)};
+        throw range_error{internal::cat2("Cast underflow: "sv, description)};
     }
     else
     {
@@ -107,9 +106,8 @@ inline TO check_cast(FROM value, std::string_view description)
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-        PQXX_UNLIKELY
-      throw range_error{internal::cat2(
-        "Casting negative value to unsigned type: "sv, description)};
+        throw range_error{internal::cat2(
+          "Casting negative value to unsigned type: "sv, description)};
     }
   }
   else
@@ -127,15 +125,13 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (from_max > to_max)
     {
       if (static_cast<unsigned_from>(value) > to_max)
-        PQXX_UNLIKELY
-      throw range_error{internal::cat2("Cast overflow: "sv, description)};
+        throw range_error{internal::cat2("Cast overflow: "sv, description)};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      PQXX_UNLIKELY
-    throw range_error{internal::cat2("Cast overflow: ", description)};
+      throw range_error{internal::cat2("Cast overflow: ", description)};
   }
 
   return static_cast<TO>(value);
@@ -243,7 +239,8 @@ std::basic_string_view<std::byte> binary_cast(TYPE const &data)
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-template<typename CHAR> concept char_sized = (sizeof(CHAR) == 1);
+template<typename CHAR>
+concept char_sized = (sizeof(CHAR) == 1);
 #  define PQXX_CHAR_SIZED_ARG char_sized
 #else
 #  define PQXX_CHAR_SIZED_ARG typename

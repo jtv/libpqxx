@@ -131,19 +131,17 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus != nullptr)
-    PQXX_UNLIKELY
-  throw failure{internal::concat(
-    "Attempt to commit ", description(), " with ", m_focus->description(),
-    " still open.")};
+    throw failure{internal::concat(
+      "Attempt to commit ", description(), " with ", m_focus->description(),
+      " still open.")};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
   // already, the commit would fail anyway but this way at least we don't
   // remain in-doubt as to whether the backend got the commit order at all.
   if (not m_conn.is_open())
-    PQXX_UNLIKELY
-  throw broken_connection{
-    "Broken connection to backend; cannot complete transaction."};
+    throw broken_connection{
+      "Broken connection to backend; cannot complete transaction."};
 
   try
   {
@@ -286,10 +284,9 @@ void pqxx::transaction_base::check_rowcount_prepared(
   result::size_type actual_rows)
 {
   if (actual_rows != expected_rows)
-    PQXX_UNLIKELY
-  throw unexpected_rows{internal::concat(
-    "Expected ", expected_rows, " row(s) of data from prepared statement '",
-    statement, "', got ", actual_rows, ".")};
+    throw unexpected_rows{internal::concat(
+      "Expected ", expected_rows, " row(s) of data from prepared statement '",
+      statement, "', got ", actual_rows, ".")};
 }
 
 
@@ -297,10 +294,9 @@ void pqxx::transaction_base::check_rowcount_params(
   std::size_t expected_rows, std::size_t actual_rows)
 {
   if (actual_rows != expected_rows)
-    PQXX_UNLIKELY
-  throw unexpected_rows{internal::concat(
-    "Expected ", expected_rows,
-    " row(s) of data from parameterised query, got ", actual_rows, ".")};
+    throw unexpected_rows{internal::concat(
+      "Expected ", expected_rows,
+      " row(s) of data from parameterised query, got ", actual_rows, ".")};
 }
 
 

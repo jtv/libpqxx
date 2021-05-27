@@ -79,7 +79,6 @@ std::string::size_type array_parser::scan_single_quoted_string() const
       break;
     }
   }
-  PQXX_UNLIKELY
   throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
 }
 
@@ -177,7 +176,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   else
     switch (m_input[m_pos])
     {
-    case '\0': PQXX_UNLIKELY throw failure{"Unexpected zero byte in array."};
+    case '\0': throw failure{"Unexpected zero byte in array."};
     case '{':
       found = juncture::row_start;
       end = scan_glyph(m_pos);

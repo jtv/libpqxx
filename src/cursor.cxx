@@ -57,8 +57,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
   result::difference_type begin_pos, result::difference_type end_pos)
 {
   if (begin_pos < 0 or begin_pos > size)
-    PQXX_UNLIKELY
-  throw range_error{"Starting position out of range"};
+    throw range_error{"Starting position out of range"};
 
   if (end_pos < -1)
     end_pos = -1;
@@ -112,9 +111,8 @@ pqxx::icursorstream::icursorstream(
 void pqxx::icursorstream::set_stride(difference_type stride)
 {
   if (stride < 1)
-    PQXX_UNLIKELY
-  throw argument_error{
-    internal::concat("Attempt to set cursor stride to ", stride)};
+    throw argument_error{
+      internal::concat("Attempt to set cursor stride to ", stride)};
   m_stride = stride;
 }
 

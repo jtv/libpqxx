@@ -313,10 +313,9 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
     return *this;
 
   if (std::size(m_fields) != tup_size)
-    PQXX_UNLIKELY
-  throw usage_error{internal::concat(
-    "Tried to extract ", tup_size, " field(s) from a stream of ",
-    std::size(m_fields), ".")};
+    throw usage_error{internal::concat(
+      "Tried to extract ", tup_size, " field(s) from a stream of ",
+      std::size(m_fields), ".")};
 
   extract_fields(t, std::make_index_sequence<tup_size>{});
   return *this;
@@ -332,8 +331,7 @@ inline void stream_from::extract_value(Tuple &t) const
   if constexpr (nullity::always_null)
   {
     if (std::data(m_fields[index]) != nullptr)
-      PQXX_UNLIKELY
-    throw conversion_error{"Streaming non-null value into null field."};
+      throw conversion_error{"Streaming non-null value into null field."};
   }
   else if (std::data(m_fields[index]) == nullptr)
   {

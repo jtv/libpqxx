@@ -154,12 +154,11 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
   auto const space{end - begin},
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
-    PQXX_UNLIKELY
-  throw conversion_overrun{
-    "Could not convert " + type_name<T> +
-    " to string: "
-    "buffer too small.  " +
-    pqxx::internal::state_buffer_overrun(space, need)};
+    throw conversion_overrun{
+      "Could not convert " + type_name<T> +
+      " to string: "
+      "buffer too small.  " +
+      pqxx::internal::state_buffer_overrun(space, need)};
 
   char *pos;
   if constexpr (std::is_unsigned_v<T>)
@@ -392,9 +391,8 @@ template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
   if (std::size(text) == 0)
-    PQXX_UNLIKELY
-  throw pqxx::conversion_error{
-    "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
+    throw pqxx::conversion_error{
+      "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
 
   char const *const data{std::data(text)};
   std::size_t i{0};
@@ -410,10 +408,9 @@ template<typename T>
   for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i)
     ;
   if (i == std::size(text))
-    PQXX_UNLIKELY
-  throw pqxx::conversion_error{
-    "Converting string to " + pqxx::type_name<T> +
-    ", but it contains only whitespace."};
+    throw pqxx::conversion_error{
+      "Converting string to " + pqxx::type_name<T> +
+      ", but it contains only whitespace."};
 
   char const initial{data[i]};
   T result{0};
@@ -431,16 +428,14 @@ template<typename T>
 
     ++i;
     if (i >= std::size(text))
-      PQXX_UNLIKELY
-    throw pqxx::conversion_error{
-      "Converting string to " + pqxx::type_name<T> +
-      ", but it contains only a sign."};
+      throw pqxx::conversion_error{
+        "Converting string to " + pqxx::type_name<T> +
+        ", but it contains only a sign."};
     for (; i < std::size(text) and isdigit(data[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(data[i]));
   }
   else
   {
-    PQXX_UNLIKELY
     throw pqxx::conversion_error{
       "Could not convert string to " + pqxx::type_name<T> +
       ": "
@@ -449,12 +444,11 @@ template<typename T>
   }
 
   if (i < std::size(text))
-    PQXX_UNLIKELY
-  throw pqxx::conversion_error{
-    "Unexpected text after " + pqxx::type_name<T> +
-    ": "
-    "'" +
-    std::string{text} + "'."};
+    throw pqxx::conversion_error{
+      "Unexpected text after " + pqxx::type_name<T> +
+      ": "
+      "'" +
+      std::string{text} + "'."};
 
   return result;
 }
@@ -516,9 +510,8 @@ inline bool from_dumb_stringstream(
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
-    PQXX_UNLIKELY
-  throw pqxx::conversion_error{
-    "Trying to convert empty string to " + pqxx::type_name<T> + "."};
+    throw pqxx::conversion_error{
+      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
 
   bool ok{false};
   T result;
@@ -569,9 +562,9 @@ template<typename T> inline T from_string_awful_float(std::string_view text)
   }
 
   if (not ok)
-    PQXX_UNLIKELY
-  throw pqxx::conversion_error{
-    "Could not convert string to numeric value: '" + std::string{text} + "'."};
+    throw pqxx::conversion_error{
+      "Could not convert string to numeric value: '" + std::string{text} +
+      "'."};
 
   return result;
 }
@@ -604,11 +597,10 @@ zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
     auto have{end - begin};
     auto need{std::size(text) + 1};
     if (need > std::size_t(have))
-      PQXX_UNLIKELY
-    throw conversion_error{
-      "Could not convert floating-point number to string: "
-      "buffer too small.  " +
-      state_buffer_overrun(have, need)};
+      throw conversion_error{
+        "Could not convert floating-point number to string: "
+        "buffer too small.  " +
+        state_buffer_overrun(have, need)};
     text.copy(begin, need);
     return zview{begin, std::size(text)};
   }
@@ -775,9 +767,8 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   }
 
   if (not OK)
-    PQXX_UNLIKELY
-  throw conversion_error{
-    "Failed conversion to bool: '" + std::string{text} + "'."};
+    throw conversion_error{
+      "Failed conversion to bool: '" + std::string{text} + "'."};
 
   return result;
 }

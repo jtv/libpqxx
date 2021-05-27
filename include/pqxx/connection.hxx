@@ -81,14 +81,12 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
   {std::cbegin(t)};
   {
     std::get<0>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
   {
     std::get<1>(*std::cbegin(t))
-  }
-  ->ZString;
-}
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
+    } -> ZString;
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
+== 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
@@ -605,10 +603,9 @@ public:
     auto const size{std::size(text)}, space{std::size(buffer)};
     auto const needed{2 * size + 1};
     if (space < needed)
-      PQXX_UNLIKELY
-    throw range_error{internal::concat(
-      "Not enough room to escape string of ", size, " byte(s): need ", needed,
-      " bytes of buffer space, but buffer size is ", space, ".")};
+      throw range_error{internal::concat(
+        "Not enough room to escape string of ", size, " byte(s): need ",
+        needed, " bytes of buffer space, but buffer size is ", space, ".")};
     return std::string_view{
       std::data(buffer), esc_to_buf(text, std::data(buffer))};
   }
@@ -646,10 +643,9 @@ public:
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
     if (space < needed)
-      PQXX_UNLIKELY
-    throw range_error{internal::concat(
-      "Not enough room to escape binary string of ", size, " byte(s): need ",
-      needed, " bytes of buffer space, but buffer size is ", space, ".")};
+      throw range_error{internal::concat(
+        "Not enough room to escape binary string of ", size, " byte(s): need ",
+        needed, " bytes of buffer space, but buffer size is ", space, ".")};
 
     std::basic_string_view<std::byte> view{std::data(data), std::size(data)};
     // Actually, in the modern format, we know beforehand exactly how many

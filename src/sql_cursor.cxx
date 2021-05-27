@@ -97,17 +97,14 @@ pqxx::internal::sql_cursor::sql_cursor(
         m_pos{0}
 {
   if (&t.conn() != &m_home)
-    PQXX_UNLIKELY
-  throw internal_error{"Cursor in wrong connection"};
+    throw internal_error{"Cursor in wrong connection"};
 
   if (std::empty(query))
-    PQXX_UNLIKELY
-  throw usage_error{"Cursor has empty query."};
+    throw usage_error{"Cursor has empty query."};
   auto const enc{enc_group(t.conn().encoding_id())};
   auto const qend{find_query_end(query, enc)};
   if (qend == 0)
-    PQXX_UNLIKELY
-  throw usage_error{"Cursor has effectively empty query."};
+    throw usage_error{"Cursor has effectively empty query."};
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{internal::concat(
@@ -162,8 +159,7 @@ void pqxx::internal::sql_cursor::close() noexcept
 void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
 {
   if (pos() != 0)
-    PQXX_UNLIKELY
-  throw internal_error{"init_empty_result() from bad pos()."};
+    throw internal_error{"init_empty_result() from bad pos()."};
   m_empty_result =
     t.exec(internal::concat("FETCH 0 IN ", m_home.quote_name(name())));
 }
@@ -174,8 +170,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
   difference_type hoped, difference_type actual)
 {
   if (actual < 0)
-    PQXX_UNLIKELY
-  throw internal_error{"Negative rows in cursor movement."};
+    throw internal_error{"Negative rows in cursor movement."};
   if (hoped == 0)
     return 0;
   int const direction{((hoped < 0) ? -1 : 1)};
@@ -183,8 +178,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
   if (actual != labs(hoped))
   {
     if (actual > labs(hoped))
-      PQXX_UNLIKELY
-    throw internal_error{"Cursor displacement larger than requested."};
+      throw internal_error{"Cursor displacement larger than requested."};
 
     // If we see fewer rows than requested, then we've hit an end (on either
     // side) of the result set.  Wether we make an extra step to a one-past-end
@@ -203,10 +197,10 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
     else if (m_pos == -1)
       m_pos = actual;
     else if (m_pos != actual)
-      PQXX_UNLIKELY
-    throw internal_error{internal::concat(
-      "Moved back to beginning, but wrong position: hoped=", hoped,
-      ", actual=", actual, ", m_pos=", m_pos, ", direction=", direction, ".")};
+      throw internal_error{internal::concat(
+        "Moved back to beginning, but wrong position: hoped=", hoped,
+        ", actual=", actual, ", m_pos=", m_pos, ", direction=", direction,
+        ".")};
 
     m_at_end = direction;
   }
@@ -220,8 +214,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
   if (hit_end)
   {
     if (m_endpos >= 0 and m_pos != m_endpos)
-      PQXX_UNLIKELY
-    throw internal_error{"Inconsistent cursor end positions."};
+      throw internal_error{"Inconsistent cursor end positions."};
     m_endpos = m_pos;
   }
   return direction * actual;

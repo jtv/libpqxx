@@ -515,8 +515,8 @@ template<>
 inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
 {
   if (not value.is_null())
-    PQXX_UNLIKELY
-  throw conversion_error{"Extracting non-null field into nullptr_t variable."};
+    throw conversion_error{
+      "Extracting non-null field into nullptr_t variable."};
   return nullptr;
 }
 

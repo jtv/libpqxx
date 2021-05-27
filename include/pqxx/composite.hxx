@@ -39,14 +39,12 @@ inline void parse_composite(
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
-    PQXX_UNLIKELY
-  throw conversion_error{"Cannot parse composite value from empty string."};
+    throw conversion_error{"Cannot parse composite value from empty string."};
 
   std::size_t here{0}, next{scan(data, size, here)};
   if (next != 1 or data[here] != '(')
-    PQXX_UNLIKELY
-  throw conversion_error{
-    internal::concat("Invalid composite value string: ", text)};
+    throw conversion_error{
+      internal::concat("Invalid composite value string: ", text)};
 
   here = next;
 
@@ -114,9 +112,8 @@ template<typename... T>
 inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
   if (std::size_t(end - begin) < composite_size_buffer(fields...))
-    PQXX_UNLIKELY
-  throw conversion_error{
-    "Buffer space may not be enough to represent composite value."};
+    throw conversion_error{
+      "Buffer space may not be enough to represent composite value."};
 
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)

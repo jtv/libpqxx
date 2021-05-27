@@ -186,8 +186,7 @@ void pqxx::stream_from::parse_line()
   }
 
   if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
-    PQXX_UNLIKELY
-  throw range_error{"Stream produced a ridiculously long line."};
+    throw range_error{"Stream produced a ridiculously long line."};
 
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
@@ -247,8 +246,7 @@ void pqxx::stream_from::parse_line()
       case '\\': {
         // Escape sequence.
         if (read >= line_end)
-          PQXX_UNLIKELY
-        throw failure{"Row ends in backslash"};
+          throw failure{"Row ends in backslash"};
 
         c = *read++;
         switch (c)
@@ -256,8 +254,7 @@ void pqxx::stream_from::parse_line()
         case 'N':
           // Null value.
           if (write != field_begin)
-            PQXX_UNLIKELY
-          throw failure{"Null sequence found in nonempty field"};
+            throw failure{"Null sequence found in nonempty field"};
           field_begin = nullptr;
           // (If there's any characters _after_ the null we'll just crash.)
           break;

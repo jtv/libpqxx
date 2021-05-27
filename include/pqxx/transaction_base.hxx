@@ -287,9 +287,8 @@ public:
   {
     row const r{exec1(query, desc)};
     if (std::size(r) != 1)
-      PQXX_UNLIKELY
-    throw usage_error{internal::concat(
-      "Queried single value from result with ", std::size(r), " columns.")};
+      throw usage_error{internal::concat(
+        "Queried single value from result with ", std::size(r), " columns.")};
     return r[0].as<TYPE>();
   }
 

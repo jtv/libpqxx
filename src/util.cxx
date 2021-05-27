@@ -82,17 +82,15 @@ void pqxx::internal::check_unique_register(
   void const *new_guest, std::string_view new_class, std::string_view new_name)
 {
   if (new_guest == nullptr)
-    PQXX_UNLIKELY
-  throw internal_error{"Null pointer registered."};
+    throw internal_error{"Null pointer registered."};
 
   if (old_guest != nullptr)
-    PQXX_UNLIKELY
-  throw usage_error{
-    (old_guest == new_guest) ?
-      concat("Started twice: ", describe_object(old_class, old_name), ".") :
-      concat(
-        "Started new ", describe_object(new_class, new_name), " while ",
-        describe_object(new_class, new_name), " was still active.")};
+    throw usage_error{
+      (old_guest == new_guest) ?
+        concat("Started twice: ", describe_object(old_class, old_name), ".") :
+        concat(
+          "Started new ", describe_object(new_class, new_name), " while ",
+          describe_object(new_class, new_name), " was still active.")};
 }
 
 
@@ -178,29 +176,24 @@ void pqxx::internal::unesc_bin(
 {
   auto const in_size{std::size(escaped_data)};
   if (in_size < 2)
-    PQXX_UNLIKELY
-  throw pqxx::failure{"Binary data appears truncated."};
+    throw pqxx::failure{"Binary data appears truncated."};
   if ((in_size % 2) != 0)
-    PQXX_UNLIKELY
-  throw pqxx::failure{"Invalid escaped binary length."};
+    throw pqxx::failure{"Invalid escaped binary length."};
   char const *in{std::data(escaped_data)};
   char const *const end{in + in_size};
   if (*in++ != '\\' or *in++ != 'x')
-    PQXX_UNLIKELY
-  throw pqxx::failure(
-    "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
-    "too old?");
+    throw pqxx::failure(
+      "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
+      "too old?");
   auto out{buffer};
   while (in != end)
   {
     int hi{nibble(*in++)};
     if (hi < 0)
-      PQXX_UNLIKELY
-    throw pqxx::failure{"Invalid hex-escaped data."};
+      throw pqxx::failure{"Invalid hex-escaped data."};
     int lo{nibble(*in++)};
     if (lo < 0)
-      PQXX_UNLIKELY
-    throw pqxx::failure{"Invalid hex-escaped data."};
+      throw pqxx::failure{"Invalid hex-escaped data."};
     *out++ = static_cast<std::byte>((hi << 4) | lo);
   }
 }
