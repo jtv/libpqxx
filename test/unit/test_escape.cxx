@@ -170,7 +170,7 @@ void test_esc_escapes_into_buffer()
 
 void test_esc_accepts_various_types()
 {
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
   pqxx::connection conn;
   pqxx::work tx{conn};
 
@@ -178,26 +178,44 @@ void test_esc_accepts_various_types()
   buffer.resize(20);
 
   std::string const text{"it's"};
-  // TODO: Do this from tx.
-  auto escaped_text{conn.esc(text, buffer)};
+  auto escaped_text{tx.esc(text, buffer)};
   PQXX_CHECK_EQUAL(escaped_text, "it''s", "Escaping into buffer went wrong.");
 
   std::vector<std::byte> const data{std::byte{0x23}, std::byte{0x44}};
-  // TODO: Do this from tx.
-  auto escaped_data(conn.esc(data, buffer));
+  auto escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2344", "Binary data escaped wrong.");
 #endif
 }
 
 
-void test_esc_checks_buffer_length()
+void test_binary_esc_checks_buffer_length()
 {
-  // XXX:
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  std::string buf;
+  std::basic_string<std::byte> bin{
+    std::byte{'b'}, std::byte{'o'}, std::byte{'o'}};
+
+  buf.resize(2 * std::size(bin) + 3);
+  pqxx::ignore_unused(tx.esc(bin, buf));
+  PQXX_CHECK_EQUAL(int{buf[0]}, int{'\\'}, "Unexpected binary escape format.");
+  PQXX_CHECK_NOT_EQUAL(
+    int(buf[std::size(buf) - 2]), int('\0'), "Escaped binary ends too soon.");
+  PQXX_CHECK_EQUAL(
+    int(buf[std::size(buf) - 1]), int('\0'), "Terminating zero is missing.");
+
+  buf.resize(2 * std::size(bin) + 2);
+  PQXX_CHECK_THROWS(
+    pqxx::ignore_unused(tx.esc(bin, buf)), pqxx::range_error,
+    "Didn't get expected exception from escape overrun.");
+#endif
 }
 
 
 PQXX_REGISTER_TEST(test_escaping);
 PQXX_REGISTER_TEST(test_esc_escapes_into_buffer);
 PQXX_REGISTER_TEST(test_esc_accepts_various_types);
-PQXX_REGISTER_TEST(test_esc_checks_buffer_length);
+PQXX_REGISTER_TEST(test_binary_esc_checks_buffer_length);
 } // namespace

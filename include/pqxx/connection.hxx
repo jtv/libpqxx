@@ -81,12 +81,14 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
   {std::cbegin(t)};
   {
     std::get<0>(*std::cbegin(t))
-    } -> ZString;
+  }
+  ->ZString;
   {
     std::get<1>(*std::cbegin(t))
-    } -> ZString;
-} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
-== 2;
+  }
+  ->ZString;
+}
+and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
@@ -624,7 +626,9 @@ public:
   {
     return esc_raw(data);
   }
+#endif
 
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into @c buffer.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -638,7 +642,7 @@ public:
    * @c buffer.
    */
   template<binary DATA>
-  [[nodiscard]] zview esc(DATA const &data, std::span<char> buffer)
+  [[nodiscard]] zview esc(DATA const &data, std::span<char> buffer) const
   {
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
@@ -663,6 +667,13 @@ public:
   /** You can also just use @c esc() with a binary string. */
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
 
+#if defined(PQXX_HAVE_SPAN)
+  /// Escape binary string for use as SQL string literal, into @c buffer.
+  /** You can also just use @c esc() with a binary string. */
+  [[nodiscard]] std::string
+  esc_raw(std::basic_string_view<std::byte>, std::span<char> buffer) const;
+#endif
+
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @c esc() with a binary string. */
@@ -672,14 +683,14 @@ public:
     return esc_raw(
       std::basic_string_view<std::byte>{std::data(data), std::size(data)});
   }
+#endif
 
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into @c buffer.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
   {
-    return esc_raw(
-      std::basic_string_view<std::byte>{std::data(data), std::size(data)},
-      buffer);
+    return this->esc(binary_cast(data), buffer);
   }
 #endif
 
