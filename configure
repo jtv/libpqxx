@@ -3978,12 +3978,7 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
+  MISSING="\${SHELL} '$am_aux_dir/missing'"
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then
@@ -9031,11 +9026,11 @@ $as_echo "$lt_cv_ld_force_load" >&6; }
       # to the OS version, if on x86, and 10.4, the deployment
       # target defaults to 10.4. Don't you love it?
       case ${MACOSX_DEPLOYMENT_TARGET-10.0},$host in
-	10.0,*86*-darwin8*|10.0,*-darwin[91]*)
+	10.0,*86*-darwin8*|10.0,*-darwin[912]*)
 	  _lt_dar_allow_undefined='$wl-undefined ${wl}dynamic_lookup' ;;
 	10.[012][,.]*)
 	  _lt_dar_allow_undefined='$wl-flat_namespace $wl-undefined ${wl}suppress' ;;
-	10.*)
+	10.*|11.*)
 	  _lt_dar_allow_undefined='$wl-undefined ${wl}dynamic_lookup' ;;
       esac
     ;;
@@ -17663,7 +17658,9 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-template<typename T> concept Foo = std::ranges::input_range<T>;
+template<typename T>
+
+concept Foo = std::ranges::input_range<T>;
 
 
 
@@ -17755,13 +17752,13 @@ int main(int argc, char **)
 
 {
 
-  if (argc == 1) [[likely]]
+  int x = 0;
 
-    return 0;
+  if (argc == 1) [[likely]] x = 0;
 
-  else [[unlikely]]
+  else x = 1;
 
-    return 1;
+  return x;
 
 }
 
