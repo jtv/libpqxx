@@ -2,8 +2,8 @@
 
 int main(int argc, char **)
 {
-  if (argc == 1) [[likely]]
-    return 0;
-  else [[unlikely]]
-    return 1;
+  int x = 0;
+  if (argc == 1) [[likely]] x = 0;
+  else x = 1;
+  return x;
 }
