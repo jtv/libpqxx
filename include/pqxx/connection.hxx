@@ -717,6 +717,10 @@ public:
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
+   *
+   * (The data must be encoded in PostgreSQL's "hex" format.  The legacy
+   * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
+   * supported.)
    */
   [[nodiscard]]
   std::basic_string<std::byte> unesc_bin(std::string_view text) const
