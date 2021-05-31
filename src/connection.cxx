@@ -1072,20 +1072,8 @@ int pqxx::connection::await_notification(
 std::string pqxx::connection::adorn_name(std::string_view n)
 {
   auto const id{to_string(++m_unique_id)};
-  if (std::empty(n))
-  {
-    return "x" + id;
-  }
-  else
-  {
-    std::string name;
-    // TODO: Use concat().
-    name.reserve(std::size(n) + 1 + std::size(id));
-    name.append(n);
-    name.push_back('_');
-    name.append(id);
-    return name;
-  }
+  if (std::empty(n)) return pqxx::internal::concat("x", id);
+  else return pqxx::internal::concat(n, "_", id);
 }
 
 
