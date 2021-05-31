@@ -862,8 +862,11 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
   if (text[0] == '\\' and text[1] == 'x')
   {
     // Hex-escaped format.
-    PQXX_LIKELY
-    return pqxx::internal::unesc_bin(std::string_view{text});
+    std::string buf;
+    buf.resize(pqxx::internal::size_unesc_bin(std::strlen(text)));
+    pqxx::internal::unesc_bin(
+      std::string_view{text}, reinterpret_cast<std::byte *>(std::data(buf)));
+    return buf;
   }
   else
   {

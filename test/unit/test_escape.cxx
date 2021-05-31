@@ -94,9 +94,9 @@ void test_quote_name(pqxx::transaction_base &t)
 void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
   constexpr char binary[]{"1\0023\\4x5"};
-  std::string const data(binary, std::size(binary));
+  std::basic_string<std::byte> const data(reinterpret_cast<std::byte const *>(binary), std::size(binary));
   std::string const escaped{t.esc_raw(std::basic_string_view<std::byte>{
-    reinterpret_cast<std::byte const *>(std::data(data)), std::size(binary)})};
+    std::data(data), std::size(binary)})};
 
   for (auto const i : escaped)
   {
@@ -115,11 +115,17 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   PQXX_CHECK_EQUAL(
     escaped, "\\x3102335c34783500", "Binary data escaped wrong.");
   PQXX_CHECK_EQUAL(
-    std::size(t.unesc_raw(escaped)), std::size(data),
+    std::size(t.unesc_bin(escaped)), std::size(data),
     "Wrong size after unescaping.");
+  auto unescaped{t.unesc_bin(escaped)};
   PQXX_CHECK_EQUAL(
-    t.unesc_raw(escaped), data,
-    "Unescaping binary data does not undo escaping it.");
+    std::size(unescaped), std::size(data),
+    "Unescaping did not restore original size.");
+  for (std::size_t i{0}; i<std::size(unescaped); ++i)
+    PQXX_CHECK_EQUAL(
+      int(unescaped[i]), int(data[i]),
+      "Unescaping binary data did not restore byte #" +
+      pqxx::to_string(i) + ".");
 }
 
 

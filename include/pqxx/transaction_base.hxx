@@ -141,18 +141,42 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(zview text) const
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
+  std::string unesc_raw(zview text) const
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().unesc_raw(text);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(char const *text) const
+  [[nodiscard]] std::basic_string<std::byte> unesc_bin(zview text)
   {
+    return conn().unesc_bin(text);
+  }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
+  std::string unesc_raw(char const *text) const
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().unesc_raw(text);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  [[nodiscard]] std::basic_string<std::byte> unesc_bin(char const text[])
+  {
+    return conn().unesc_bin(text);
   }
 
   /// Represent object as SQL string, including quoting & escaping.

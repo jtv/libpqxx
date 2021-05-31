@@ -694,22 +694,38 @@ public:
   }
 #endif
 
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(zview text) const
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
+  std::string unesc_raw(zview text) const
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return unesc_raw(text.c_str());
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  [[nodiscard, deprecated("Use unesc_bin() intead.")]]
+  std::string unesc_raw(char const text[]) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] std::string unesc_raw(char const text[]) const;
+  [[nodiscard]]
+  std::basic_string<std::byte> unesc_bin(std::string_view text) const
+  {
+    std::basic_string<std::byte> buf;
+    buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
+    pqxx::internal::unesc_bin(text, std::data(buf));
+    return buf;
+  }
 
   /// Escape and quote a string of binary data.
   [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string

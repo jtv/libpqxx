@@ -199,12 +199,13 @@ void pqxx::internal::unesc_bin(
 }
 
 
-std::string pqxx::internal::unesc_bin(std::string_view escaped_data)
+std::basic_string<std::byte>
+pqxx::internal::unesc_bin(std::string_view escaped_data)
 {
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
-  std::string buf;
+  std::basic_string<std::byte> buf;
   buf.resize(bytes);
-  unesc_bin(escaped_data, reinterpret_cast<std::byte *>(std::data(buf)));
+  unesc_bin(escaped_data, std::data(buf));
   return buf;
 }
 
