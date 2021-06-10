@@ -361,7 +361,7 @@ unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 
 /// Reconstitute binary data from its escaped version.
 std::basic_string<std::byte>
-PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
+  PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
 
 
 /// Transitional: std::ssize(), or custom implementation if not available.

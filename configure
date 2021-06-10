@@ -17754,9 +17754,13 @@ int main(int argc, char **)
 
   int x = 0;
 
-  if (argc == 1) [[likely]] x = 0;
+  if (argc == 1) [[likely]]
 
-  else x = 1;
+    x = 0;
+
+  else
+
+    x = 1;
 
   return x;
 
@@ -17903,6 +17907,12 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int main(int argc, char **)
 
 {
+
+#if defined(__MINGW32__) && defined(__GNUC__) && __GNUC__ < 11
+
+#error "This MinGW gcc's thread_local breaks at run time, sorry."
+
+#endif
 
   thread_local std::stringstream s;
 

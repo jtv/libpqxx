@@ -141,8 +141,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
-  std::string unesc_raw(zview text) const
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
+  unesc_raw(zview text) const
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().unesc_raw(text);
@@ -162,8 +162,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
-  std::string unesc_raw(char const *text) const
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
+  unesc_raw(char const *text) const
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return conn().unesc_raw(text);

@@ -81,14 +81,12 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
   {std::cbegin(t)};
   {
     std::get<0>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
   {
     std::get<1>(*std::cbegin(t))
-  }
-  ->ZString;
-}
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
+    } -> ZString;
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
+== 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
@@ -698,8 +696,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]]
-  std::string unesc_raw(zview text) const
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
+  unesc_raw(zview text) const
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return unesc_raw(text.c_str());
@@ -710,8 +708,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() intead.")]]
-  std::string unesc_raw(char const text[]) const;
+  [[nodiscard, deprecated("Use unesc_bin() intead.")]] std::string
+  unesc_raw(char const text[]) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
@@ -722,8 +720,8 @@ public:
    * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
    * supported.)
    */
-  [[nodiscard]]
-  std::basic_string<std::byte> unesc_bin(std::string_view text) const
+  [[nodiscard]] std::basic_string<std::byte>
+  unesc_bin(std::string_view text) const
   {
     std::basic_string<std::byte> buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
