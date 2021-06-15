@@ -436,8 +436,7 @@ void pqxx::connection::cancel_query()
     cancel.get(), err, static_cast<int>(std::size(errbuf)))};
   if (c == 0)
     PQXX_UNLIKELY
-  throw pqxx::sql_error{
-    std::string{err, std::size(errbuf)}, "[cancel]"};
+  throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};
 }
 
 
