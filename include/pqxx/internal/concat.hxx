@@ -33,8 +33,9 @@ template<typename... TYPE>
   // terminating zero bytes.
   buf.resize(size_buffer(item...));
 
-  char *here = std::data(buf);
-  char *end = std::data(buf) + std::size(buf);
+  char *const data{std::data(buf)};
+  char *here = data;
+  char *end = data + std::size(buf);
   (render_item(item, here, end), ...);
 
   buf.resize(static_cast<std::size_t>(here - std::data(buf)));
