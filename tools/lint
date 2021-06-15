@@ -91,9 +91,10 @@ cpplint() {
         fi
 
 # TODO: Please, is there any way we can parallelise this?
+# TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
         clang-tidy \
             $(find $SRCDIR/src $SRCDIR/tools $SRCDIR/test -name \*.cxx) \
-            --checks=abseil-*,boost-*,cppcoreguidelines-* \
+            --checks=abseil-*,boost-*, \
             -- \
             -I$SRCDIR/include -Iinclude $cxxflags
     fi
