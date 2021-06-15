@@ -146,7 +146,7 @@ public:
 
 void test_get_errorhandlers(pqxx::connection &c)
 {
-  MinimalErrorHandler *eh3{nullptr};
+  std::unique_ptr<MinimalErrorHandler> eh3;
   auto const handlers_before{c.get_errorhandlers()};
   std::size_t const base_handlers{std::size(handlers_before)};
 
@@ -181,13 +181,13 @@ void test_get_errorhandlers(pqxx::connection &c)
       std::size_t(*std::rbegin(handlers_without_eh2)), std::size_t(&eh1),
       "Destroyed wrong handler.");
 
-    eh3 = new MinimalErrorHandler(c);
+    eh3 = std::make_unique<MinimalErrorHandler>(c);
     auto const handlers_with_eh3{c.get_errorhandlers()};
     PQXX_CHECK_EQUAL(
       std::size(handlers_with_eh3), base_handlers + 2,
       "Remove-and-add breaks.");
     PQXX_CHECK_EQUAL(
-      std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3),
+      std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3.get()),
       "Added wrong third handler.");
   }
   auto const handlers_without_eh1{c.get_errorhandlers()};
@@ -195,10 +195,10 @@ void test_get_errorhandlers(pqxx::connection &c)
     std::size(handlers_without_eh1), base_handlers + 1,
     "Destroying oldest handler didn't work as expected.");
   PQXX_CHECK_EQUAL(
-    std::size_t(*std::rbegin(handlers_without_eh1)), std::size_t(eh3),
+    std::size_t(*std::rbegin(handlers_without_eh1)), std::size_t(eh3.get()),
     "Destroyed wrong handler.");
 
-  delete eh3;
+  eh3.reset();
 
   auto const handlers_without_all{c.get_errorhandlers()};
   PQXX_CHECK_EQUAL(

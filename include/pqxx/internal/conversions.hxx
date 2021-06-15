@@ -1104,7 +1104,7 @@ template<typename T> inline std::string to_string(T const &value)
       "Attempt to convert null " + type_name<T> + " to a string."};
 
   std::string buf;
-  // We can't just reserve() data; modifying the terminating zero leads to
+  // We can't just reserve() space; modifying the terminating zero leads to
   // undefined behaviour.
   buf.resize(size_buffer(value));
   auto const data{std::data(buf)};
