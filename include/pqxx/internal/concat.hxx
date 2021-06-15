@@ -38,7 +38,7 @@ template<typename... TYPE>
   char *end = data + std::size(buf);
   (render_item(item, here, end), ...);
 
-  buf.resize(static_cast<std::size_t>(here - std::data(buf)));
+  buf.resize(static_cast<std::size_t>(here - data));
   return buf;
 }
 } // namespace pqxx::internal
