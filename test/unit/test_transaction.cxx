@@ -26,7 +26,7 @@ std::string const table{"pqxx_test_transaction"};
 
 void delete_temp_table(pqxx::transaction_base &tx)
 {
-  tx.exec0("DROP TABLE IF EXISTS " + table);
+  tx.exec0(std::string{"DROP TABLE IF EXISTS "} + table);
 }
 
 
