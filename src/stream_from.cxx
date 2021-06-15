@@ -191,8 +191,8 @@ void pqxx::stream_from::parse_line()
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
   // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
-  // NOT GET RESIZED while we're working, because we're working with pointers
-  // into its buffer.
+  // NOT GET RESIZED while we're working, because we're working with views into
+  // its buffer.
   m_row.resize(line_size + 1);
 
   char const *line_begin{line.get()};
@@ -200,7 +200,7 @@ void pqxx::stream_from::parse_line()
   char const *read{line_begin};
 
   // Output iterator for unescaped text.
-  char *write{std::data(m_row)};
+  char *write{m_row.data()};
 
   // The pointer cannot be null at this point.  But we initialise field_begin
   // with this value, and carry it around the loop, and it can later become

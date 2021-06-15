@@ -606,8 +606,8 @@ public:
       throw range_error{internal::concat(
         "Not enough room to escape string of ", size, " byte(s): need ",
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
-    return std::string_view{
-      std::data(buffer), esc_to_buf(text, std::data(buffer))};
+    auto const data{buffer.data()};
+    return std::string_view{data, esc_to_buf(text, data)};
   }
 #endif
 
@@ -650,10 +650,11 @@ public:
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
 
     std::basic_string_view<std::byte> view{std::data(data), std::size(data)};
+    auto const out{std::data(buffer)};
     // Actually, in the modern format, we know beforehand exactly how many
     // bytes we're going to fill.  Just leave out the trailing zero.
-    internal::esc_bin(view, std::data(buffer));
-    return zview{std::data(buffer), needed - 1};
+    internal::esc_bin(view, out);
+    return zview{out, needed - 1};
   }
 #endif
 
@@ -725,7 +726,7 @@ public:
   {
     std::basic_string<std::byte> buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
-    pqxx::internal::unesc_bin(text, std::data(buf));
+    pqxx::internal::unesc_bin(text, buf.data());
     return buf;
   }
 
@@ -997,7 +998,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * std::size(text) + 1);
-    auto const content_bytes{esc_to_buf(text, std::data(buf) + 1)};
+    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
     auto const end{closing_quote + 1};

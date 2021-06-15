@@ -164,7 +164,7 @@ pqxx::internal::esc_bin(std::basic_string_view<std::byte> binary_data)
   auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;
   buf.resize(bytes);
-  esc_bin(binary_data, std::data(buf));
+  esc_bin(binary_data, buf.data());
   // Strip off the trailing zero.
   buf.resize(bytes - 1);
   return buf;
@@ -179,7 +179,7 @@ void pqxx::internal::unesc_bin(
     throw pqxx::failure{"Binary data appears truncated."};
   if ((in_size % 2) != 0)
     throw pqxx::failure{"Invalid escaped binary length."};
-  char const *in{std::data(escaped_data)};
+  char const *in{escaped_data.data()};
   char const *const end{in + in_size};
   if (*in++ != '\\' or *in++ != 'x')
     throw pqxx::failure(
@@ -205,7 +205,7 @@ pqxx::internal::unesc_bin(std::string_view escaped_data)
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
   std::basic_string<std::byte> buf;
   buf.resize(bytes);
-  unesc_bin(escaped_data, std::data(buf));
+  unesc_bin(escaped_data, buf.data());
   return buf;
 }
 

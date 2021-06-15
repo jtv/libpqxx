@@ -66,7 +66,7 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
       state_buffer_overrun(space, len)};
-  std::memmove(begin, std::data(text), len);
+  std::memmove(begin, text.data(), len);
   return begin + len;
 }
 
@@ -419,7 +419,7 @@ template<> struct string_traits<char const *>
 {
   static char const *from_string(std::string_view text)
   {
-    return std::data(text);
+    return text.data();
   }
 
   static zview to_buf(char *begin, char *end, char const *const &value)
@@ -630,7 +630,7 @@ template<> struct string_traits<std::stringstream>
   static std::stringstream from_string(std::string_view text)
   {
     std::stringstream stream;
-    stream.write(std::data(text), std::streamsize(std::size(text)));
+    stream.write(text.data(), std::streamsize(std::size(text)));
     return stream;
   }
 
@@ -823,7 +823,7 @@ template<binary DATA> struct string_traits<DATA>
     std::basic_string<std::byte> buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(
-      text, reinterpret_cast<std::byte *>(std::data(buf)));
+      text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
   }
 };
@@ -862,7 +862,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
     std::basic_string<std::byte> buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(
-      text, reinterpret_cast<std::byte *>(std::data(buf)));
+      text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
   }
 };
@@ -912,7 +912,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(text, std::data(buf));
+    pqxx::internal::unesc_bin(text, buf.data());
     return buf;
   }
 };
@@ -1107,7 +1107,7 @@ template<typename T> inline std::string to_string(T const &value)
   // We can't just reserve() space; modifying the terminating zero leads to
   // undefined behaviour.
   buf.resize(size_buffer(value));
-  auto const data{std::data(buf)};
+  auto const data{buf.data()};
   auto const end{
     string_traits<T>::into_buf(data, data + std::size(buf), value)};
   buf.resize(static_cast<std::size_t>(end - data - 1));
@@ -1142,7 +1142,7 @@ template<typename T> inline void into_string(T const &value, std::string &out)
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
-  auto const data{std::data(out)};
+  auto const data{out.data()};
   auto const end{
     string_traits<T>::into_buf(data, data + std::size(out), value)};
   out.resize(static_cast<std::size_t>(end - data - 1));

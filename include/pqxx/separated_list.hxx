@@ -61,7 +61,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   std::string result;
   result.resize(budget);
 
-  char *const data{std::data(result)};
+  char *const data{result.data()};
   char *here{data};
   char *stop{data + budget};
   here = traits::into_buf(here, stop, access(begin)) - 1;

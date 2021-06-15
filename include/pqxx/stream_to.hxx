@@ -335,11 +335,11 @@ private:
         // fields, so we re-purpose the extra byte for that.
         auto const total{offset + budget};
         m_buffer.resize(total);
-        char *const end{traits::into_buf(
-          std::data(m_buffer) + offset, std::data(m_buffer) + total, f)};
+	auto const data{m_buffer.data()};
+        char *const end{traits::into_buf(data + offset, data + total, f)};
         *(end - 1) = '\t';
         // Shrink to fit.  Keep the tab though.
-        m_buffer.resize(static_cast<std::size_t>(end - std::data(m_buffer)));
+        m_buffer.resize(static_cast<std::size_t>(end - data));
       }
       else if constexpr (
         std::is_same_v<Field, std::string> or
@@ -355,7 +355,7 @@ private:
         // This field needs to be converted to a string, and after that,
         // escaped as well.
         m_field_buf.resize(budget);
-        auto const data{std::data(m_field_buf)};
+        auto const data{m_field_buf.data()};
         escape_field_to_buffer(
           traits::to_buf(data, data + std::size(m_field_buf), f));
       }

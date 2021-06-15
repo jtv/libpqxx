@@ -33,7 +33,7 @@ template<typename... TYPE>
   // terminating zero bytes.
   buf.resize(size_buffer(item...));
 
-  char *const data{std::data(buf)};
+  char *const data{buf.data()};
   char *here = data;
   char *end = data + std::size(buf);
   (render_item(item, here, end), ...);
