@@ -28,6 +28,10 @@ PQXX_DECLARE_ENUM_CONVERSION(EnumB);
 
 namespace
 {
+// "A minimal difference."
+constexpr double thres{0.00001};
+
+
 void test_string_conversion()
 {
   PQXX_CHECK_EQUAL(
@@ -93,10 +97,10 @@ void test_string_conversion()
   long double ldi1, ldi2;
   pqxx::from_string(lds1, ldi1);
   PQXX_CHECK_BOUNDS(
-    ldi1, ld1 - 0.00001, ld1 + 0.00001, "Wrong conversion to long double.");
+    ldi1, ld1 - thres, ld1 + thres, "Wrong conversion to long double.");
   pqxx::from_string(lds2, ldi2);
   PQXX_CHECK_BOUNDS(
-    ldi2, ld2 - 0.00001, ld2 + 0.00001,
+    ldi2, ld2 - thres, ld2 + thres,
     "Wrong repeated conversion to long double.");
 
   // We can define string conversions for enums.
