@@ -18538,6 +18538,7 @@ rm -f core conftest.err conftest.$ac_objext \
 		if test "$found_fslib" = "yes"
 		then
 			result_msg="$l"
+			# (And keep our current value of $LIBS.)
 		fi
 	fi
 done

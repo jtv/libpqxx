@@ -96,6 +96,7 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/need_fslib.cxx)
 if(!need_fslib)
+    # TODO: This may work for gcc 8, but some clang versions may need -lc++fs.
     link_libraries(stdc++fs)
 endif()
 
