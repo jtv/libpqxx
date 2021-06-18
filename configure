@@ -3978,7 +3978,12 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
-  MISSING="\${SHELL} '$am_aux_dir/missing'"
+  case $am_aux_dir in
+  *\ * | *\	*)
+    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
+  *)
+    MISSING="\${SHELL} $am_aux_dir/missing" ;;
+  esac
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then
@@ -9026,11 +9031,11 @@ $as_echo "$lt_cv_ld_force_load" >&6; }
       # to the OS version, if on x86, and 10.4, the deployment
       # target defaults to 10.4. Don't you love it?
       case ${MACOSX_DEPLOYMENT_TARGET-10.0},$host in
-	10.0,*86*-darwin8*|10.0,*-darwin[912]*)
+	10.0,*86*-darwin8*|10.0,*-darwin[91]*)
 	  _lt_dar_allow_undefined='$wl-undefined ${wl}dynamic_lookup' ;;
 	10.[012][,.]*)
 	  _lt_dar_allow_undefined='$wl-flat_namespace $wl-undefined ${wl}suppress' ;;
-	10.*|11.*)
+	10.*)
 	  _lt_dar_allow_undefined='$wl-undefined ${wl}dynamic_lookup' ;;
       esac
     ;;
@@ -17910,11 +17915,11 @@ int main(int argc, char **)
 
 #if defined(__MINGW32__) && defined(__GNUC__)
 
-#if __GNUC__ < 11 || ((__GNUC__ == 11) && (__GNU_MINOR__ == 0))
+#  if __GNUC__ < 11 || ((__GNUC__ == 11) && (__GNU_MINOR__ == 0))
 
-#  error "On MinGW before gcc 11.1, thread_local breaks at run time."
+#    error "On MinGW before gcc 11.1, thread_local breaks at run time."
 
-#endif
+#  endif
 
 #endif
 
@@ -18466,6 +18471,41 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_pqencryptpasswordconn" >&5
 $as_echo "$have_pqencryptpasswordconn" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we need -lstdc++fs" >&5
+$as_echo_n "checking whether we need -lstdc++fs... " >&6; }
+need_fslib=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		    #include <iostream>
+
+		    #if __has_include(<filesystem>)
+		    #include <filesystem>
+		    #endif
+
+int
+main ()
+{
+
+		    #if __has_include(<filesystem>)
+		    std::cout << std::filesystem::path{"foo.bar"}.c_str();
+		    #endif
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  need_fslib=no
+else
+  LIBS="$LIBS -lstdc++fs"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $need_fslib" >&5
+$as_echo "$need_fslib" >&6; }
 
 
 # Remove redundant occurrances of -lpq
