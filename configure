@@ -18478,25 +18478,49 @@ $as_echo_n "checking whether we need -lstdc++fs... " >&6; }
 need_fslib=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+// Check whether we need to link to the stdc++fs library.
 
-		    #include <iostream>
+//
 
-		    #if __has_include(<filesystem>)
-		    #include <filesystem>
-		    #endif
+// We assume that the presence of the <filesystem> header means that we have
 
-int
-main ()
+// support for the basics of std::filesystem.  This check will succeed if
+
+// either there is no <filesystem> header, or there is one and it works without
+
+// any special options.  If the link fails, we assume that -lstdc++fs will fix
+
+// it for us.
+
+
+
+#include <iostream>
+
+
+
+#if __has_include(<filesystem>)
+
+#include <filesystem>
+
+#endif
+
+
+
+
+
+int main()
+
 {
 
-		    #if __has_include(<filesystem>)
-		    std::cout << std::filesystem::path{"foo.bar"}.c_str();
-		    #endif
+#if __has_include(<filesystem>)
 
+  std::cout << std::filesystem::path{"foo.bar"}.c_str() << '\n';
 
-  ;
-  return 0;
+#endif
+
 }
+
+
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
   need_fslib=no

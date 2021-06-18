@@ -91,6 +91,14 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/sleep_for.cxx)
 
+try_compile(
+	need_fslib
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/need_fslib.cxx)
+if(need_fslib)
+    link_libraries(stdc++fs)
+endif()
+
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.
 # Workaround: Pop CMAKE_REQUIRED_DEFINITIONS

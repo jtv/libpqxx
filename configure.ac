@@ -573,20 +573,7 @@ AC_MSG_RESULT($have_pqencryptpasswordconn)
 AC_MSG_CHECKING([whether we need -lstdc++fs])
 need_fslib=yes
 AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM(
-		[
-		    #include <iostream>
-
-		    #if __has_include(<filesystem>)
-		    #include <filesystem>
-		    #endif
-		],
-		[
-		    #if __has_include(<filesystem>)
-		    std::cout << std::filesystem::path{"foo.bar"}.c_str();
-		    #endif
-		]
-	)],
+	[read_test(need_fslib.cxx)],
 	[need_fslib=no],
 	[LIBS="$LIBS -lstdc++fs"])
 AC_MSG_RESULT($need_fslib)
