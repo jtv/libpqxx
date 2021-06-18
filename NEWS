@@ -17,6 +17,7 @@
  - Deprecated `unesc_raw()` with `unesc_bin()` variants.
  - Once `unesc_raw()` is gone, we'll support only the hex escape format.
  - Work around broken `thread_local` in MinGW gcc < 11.1.
+ - `pqxx::blob` now supports `std::filesystem::path`.
 7.5.2
  - **Actual serious bug.**  `blob::read(std::vector<...>)` was broken.
 7.5.1

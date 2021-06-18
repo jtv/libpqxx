@@ -447,6 +447,22 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
   }
   std::fclose(f);
 }
+
+
+/// Temporary file.
+class TempFile
+{
+public:
+  /// Create (and later clean up) a file at path containing data.
+  TempFile(char const path[], std::basic_string_view<std::byte> data) :
+    m_path(path)
+  { write_file(path, data); }
+
+  ~TempFile() { std::remove(m_path.c_str()); }
+
+private:
+  std::string m_path;
+};
 } // namespace
 
 
@@ -459,18 +475,12 @@ void test_blob_from_file_creates_blob_from_file_contents()
   pqxx::work tx{conn};
   std::basic_string<std::byte> buf;
 
-  try
+  pqxx::oid id;
   {
-    write_file(temp_file, data);
-    auto id{pqxx::blob::from_file(tx, temp_file)};
-    std::remove(temp_file);
-    pqxx::blob::to_buf(tx, id, buf, 10);
+    TempFile f{temp_file, data};
+    id = pqxx::blob::from_file(tx, temp_file);
   }
-  catch (std::exception const &)
-  {
-    std::remove(temp_file);
-    throw;
-  }
+  pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
 }
 
@@ -481,25 +491,18 @@ void test_blob_from_file_with_oid_writes_blob()
   char const temp_file[] = "blob-test-from_file-oid.tmp";
   std::basic_string<std::byte> buf;
 
-  try
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  // Guarantee (more or less) that id is not in use.
+  auto id{pqxx::blob::create(tx)};
+  pqxx::blob::remove(tx, id);
+
   {
-    pqxx::connection conn;
-    pqxx::work tx{conn};
-
-    // Guarantee (more or less) that id is not in use.
-    auto id{pqxx::blob::create(tx)};
-    pqxx::blob::remove(tx, id);
-
-    write_file(temp_file, data);
+    TempFile f{temp_file, data};
     pqxx::blob::from_file(tx, temp_file, id);
-    std::remove(temp_file);
-    pqxx::blob::to_buf(tx, id, buf, 10);
   }
-  catch (std::exception const &)
-  {
-    std::remove(temp_file);
-    throw;
-  }
+  pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
 }
 
@@ -569,6 +572,24 @@ void test_blob_close_leaves_blob_unusable()
 }
 
 
+void test_blob_accepts_std_filesystem_path()
+{
+#if __has_include(<filesystem>)
+  char const temp_file[] = "blob-test-filesystem-path.tmp";
+  std::basic_string<std::byte> const data{std::byte{'4'}, std::byte{'2'}};
+
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  std::basic_string<std::byte> buf;
+
+  TempFile f{temp_file, data};
+  auto id{pqxx::blob::from_file(tx, std::filesystem::path{temp_file})};
+  pqxx::blob::to_buf(tx, id, buf, 10);
+  PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
+#endif
+}
+
+
 PQXX_REGISTER_TEST(test_blob_is_useless_by_default);
 PQXX_REGISTER_TEST(test_blob_create_makes_empty_blob);
 PQXX_REGISTER_TEST(test_blob_create_with_oid_requires_oid_be_free);
@@ -594,4 +615,5 @@ PQXX_REGISTER_TEST(test_blob_from_file_with_oid_writes_blob);
 PQXX_REGISTER_TEST(test_blob_append_to_buf_appends);
 PQXX_REGISTER_TEST(test_blob_to_file_writes_file);
 PQXX_REGISTER_TEST(test_blob_close_leaves_blob_unusable);
+PQXX_REGISTER_TEST(test_blob_accepts_std_filesystem_path);
 } // namespace
