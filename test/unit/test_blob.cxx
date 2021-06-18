@@ -583,7 +583,8 @@ void test_blob_accepts_std_filesystem_path()
   std::basic_string<std::byte> buf;
 
   TempFile f{temp_file, data};
-  auto id{pqxx::blob::from_file(tx, std::filesystem::path{temp_file})};
+  std::filesystem::path const path{temp_file};
+  auto id{pqxx::blob::from_file(tx, path)};
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
 #endif
