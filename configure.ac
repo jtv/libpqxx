@@ -572,7 +572,7 @@ AC_MSG_RESULT($have_pqencryptpasswordconn)
 
 AC_MSG_CHECKING([whether we need -lstdc++fs])
 need_fslib=yes
-AC_COMPILE_IFELSE(
+AC_LINK_IFELSE(
 	[AC_LANG_PROGRAM(
 		[
 		    #include <iostream>
