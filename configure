@@ -18473,10 +18473,16 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$have_pqencryptpasswordconn" >&6; }
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we need -lstdc++fs" >&5
-$as_echo_n "checking whether we need -lstdc++fs... " >&6; }
-need_fslib=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we need a link option for <filesystem> support" >&5
+$as_echo_n "checking whether we need a link option for <filesystem> support... " >&6; }
+LIBS_SAVE="$LIBS"
+found_fslib=no
+for l in '' '-lstdc++fs' '-lc++fs'
+do
+	if test "$found_fslib" != "yes"
+	then
+		LIBS="$LIBS $l"
+		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 // Check whether we need to link to the stdc++fs library.
 
@@ -18523,14 +18529,28 @@ int main()
 
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  need_fslib=no
+  found_fslib=yes
 else
-  LIBS="$LIBS -lstdc++fs"
+  LIBS="$LIBS_SAVE"
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $need_fslib" >&5
-$as_echo "$need_fslib" >&6; }
+		if test "$found_fslib" = "yes"
+		then
+			result_msg="$l"
+		fi
+	fi
+done
+
+if test "$found_fslib" != "yes"
+then
+	as_fn_error $? "
+There seems to be <filesystem> support, but I could not figure out now to make
+it work.  You'll have to add set your own build options for this.
+	" "$LINENO" 5
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $result_msg" >&5
+$as_echo "$result_msg" >&6; }
 
 
 # Remove redundant occurrances of -lpq

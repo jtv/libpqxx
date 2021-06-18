@@ -570,13 +570,34 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_pqencryptpasswordconn)
 
 
-AC_MSG_CHECKING([whether we need -lstdc++fs])
-need_fslib=yes
-AC_LINK_IFELSE(
-	[read_test(need_fslib.cxx)],
-	[need_fslib=no],
-	[LIBS="$LIBS -lstdc++fs"])
-AC_MSG_RESULT($need_fslib)
+AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
+LIBS_SAVE="$LIBS"
+found_fslib=no
+for l in '' '-lstdc++fs' '-lc++fs'
+do
+	if test "$found_fslib" != "yes"
+	then
+		LIBS="$LIBS $l"
+		AC_LINK_IFELSE(
+			[read_test(need_fslib.cxx)],
+			[found_fslib=yes],
+			[LIBS="$LIBS_SAVE"])
+		if test "$found_fslib" = "yes"
+		then
+			result_msg="$l"
+			# (And keep our current value of $LIBS.)
+		fi
+	fi
+done
+
+if test "$found_fslib" != "yes"
+then
+	AC_MSG_ERROR([
+There seems to be <filesystem> support, but I could not figure out now to make
+it work.  You'll have to add set your own build options for this.
+	])
+fi
+AC_MSG_RESULT($result_msg)
 
 
 # Remove redundant occurrances of -lpq
