@@ -335,7 +335,7 @@ private:
         // fields, so we re-purpose the extra byte for that.
         auto const total{offset + budget};
         m_buffer.resize(total);
-	auto const data{m_buffer.data()};
+        auto const data{m_buffer.data()};
         char *const end{traits::into_buf(data + offset, data + total, f)};
         *(end - 1) = '\t';
         // Shrink to fit.  Keep the tab though.

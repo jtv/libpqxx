@@ -435,8 +435,8 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
   {
     if (
       std::fwrite(
-        reinterpret_cast<char const *>(data.data()), 1, std::size(data),
-        f) < std::size(data))
+        reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) <
+      std::size(data))
       std::runtime_error{"File write failed."};
   }
   catch (const std::exception &)
@@ -455,8 +455,10 @@ class TempFile
 public:
   /// Create (and later clean up) a file at path containing data.
   TempFile(char const path[], std::basic_string_view<std::byte> data) :
-    m_path(path)
-  { write_file(path, data); }
+          m_path(path)
+  {
+    write_file(path, data);
+  }
 
   ~TempFile() { std::remove(m_path.c_str()); }
 

@@ -417,10 +417,7 @@ template<> struct nullness<char const *>
 /// String traits for C-style string ("pointer to char const").
 template<> struct string_traits<char const *>
 {
-  static char const *from_string(std::string_view text)
-  {
-    return text.data();
-  }
+  static char const *from_string(std::string_view text) { return text.data(); }
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {
@@ -822,8 +819,7 @@ template<binary DATA> struct string_traits<DATA>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(
-      text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
   }
 };
@@ -861,8 +857,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     std::basic_string<std::byte> buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(
-      text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
   }
 };

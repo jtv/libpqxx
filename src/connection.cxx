@@ -432,8 +432,8 @@ void pqxx::connection::cancel_query()
 
   std::array<char, 500u> errbuf;
   auto const err{errbuf.data()};
-  auto const c{PQcancel(
-    cancel.get(), err, static_cast<int>(std::size(errbuf)))};
+  auto const c{
+    PQcancel(cancel.get(), err, static_cast<int>(std::size(errbuf)))};
   if (c == 0)
     PQXX_UNLIKELY
   throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};

@@ -23,8 +23,7 @@
 /// Minor version number.
 #  define PQXX_VERSION_MINOR 6
 
-#  define PQXX_VERSION_CHECK                                                  \
-    check_pqxx_version_##PQXX_VERSION_MAJOR##_##PQXX_VERSION_MINOR
+#  define PQXX_VERSION_CHECK check_pqxx_version_7_6
 
 namespace pqxx::internal
 {

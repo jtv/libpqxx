@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #if __has_include(<filesystem>)
-#include <filesystem>
+#  include <filesystem>
 #endif
 
 #if defined(PQXX_HAVE_RANGES) && __has_include(<ranges>)
@@ -238,7 +238,9 @@ public:
 #if __has_include(<filesystem>)
   /// Read client-side file and store it server-side as a binary large object.
   static oid from_file(dbtransaction &tx, std::filesystem::path const &path)
-  { return from_file(tx, path.c_str()); }
+  {
+    return from_file(tx, path.c_str());
+  }
 #endif
 
   /// Read client-side file and store it server-side as a binary large object.
@@ -252,9 +254,11 @@ public:
   /** In this version, you specify the binary large object's oid.  If that oid
    * is already in use, the operation will fail.
    */
-  static oid from_file(
-    dbtransaction &tx, std::filesystem::path const &path, oid id)
-  { return from_file(tx, path.c_str(), id); }
+  static oid
+  from_file(dbtransaction &tx, std::filesystem::path const &path, oid id)
+  {
+    return from_file(tx, path.c_str(), id);
+  }
 #endif
 
   /// Convenience function: Read up to @c max_size bytes from blob with @c id.
@@ -281,9 +285,11 @@ public:
 
 #if __has_include(<filesystem>)
   /// Write a binary large object's contents to a client-side file.
-  static void to_file(
-    dbtransaction &tx, oid id, std::filesystem::path const &path)
-  { to_file(tx, id, path.c_str()); }
+  static void
+  to_file(dbtransaction &tx, oid id, std::filesystem::path const &path)
+  {
+    to_file(tx, id, path.c_str());
+  }
 #endif
 
   /// Close this blob (but leave the actual binary large object on the server).
