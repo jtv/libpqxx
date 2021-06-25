@@ -23,19 +23,17 @@ out the revision that's tagged for that version.  For example, to get version
 
 ### Upgrade notes
 
-**The 7.x versions require C++17.**  However, it's probably not a problem if
-your compiler does not implement C++17 fully.  Initially the 7.x series will
-only require some basic C++17 features such as `std::string_view`.  More
-advanced use may follow later.
+**The 7.x versions require C++17.**  Make sure your compiler is up to date.
+For libpqxx 8.x you will need C++20.
 
 Also, **7.0 makes some breaking changes in rarely used APIs:**
  * There is just a single `connection` class.  It connects immediately.
  * Custom `connection` classes are no longer supported.
- * Closed connections can no longer be reactivated.
+ * It's no longer possible to reactivate a connection once it's been closed.
  * The API for defining string conversions has changed.
 
-And if you're defining your own type conversions, **7.1 requires one additional
-field in your `nullness` traits.*
+If you're defining your own type conversions, **7.1 requires one additional
+field in your `nullness` traits.**
 
 
 Building libpqxx
@@ -101,19 +99,26 @@ int main()
 {
     try
     {
+        // Connect to the database.
         pqxx::connection C;
-        std::cout << "Connected to " << C.dbname() << std::endl;
+        std::cout << "Connected to " << C.dbname() << '\n';
+
+        // Start a transaction.
         pqxx::work W{C};
 
+        // Perform a query and retrieve all results.
         pqxx::result R{W.exec("SELECT name FROM employee")};
 
+        // Iterate over results.
         std::cout << "Found " << R.size() << "employees:\n";
         for (auto row: R)
             std::cout << row[0].c_str() << '\n';
 
+        // Perform a query and check that it returns no result.
         std::cout << "Doubling all employees' salaries...\n";
         W.exec0("UPDATE employee SET salary = salary*2");
 
+        // Commit the transaction.
         std::cout << "Making changes definite: ";
         W.commit();
         std::cout << "OK.\n";
