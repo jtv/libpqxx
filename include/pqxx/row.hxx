@@ -156,20 +156,21 @@ public:
 
   /** Produce a slice of this row, containing the given range of columns.
    *
+   * @deprecated I haven't heard of anyone caring about row slicing at all in
+   * at least the last 15 years.  Yet it adds complexity, so unless anyone
+   * files a bug explaining why they really need this feature, I'm going to
+   * remove it.  Even if they do, the feature may need an update.
+   *
    * The slice runs from the range's starting column to the range's end
    * column, exclusive.  It looks just like a normal result row, except
    * slices can be empty.
-   *
-   * @warning Slicing is a relatively new feature, and not all software may be
-   * prepared to deal with empty slices.  If there is any chance that your
-   * program might be creating empty slices and passing them to code that may
-   * not be designed with the possibility of empty rows in mind, be sure to
-   * test for that case.
    */
-  [[nodiscard]] row slice(size_type sbegin, size_type send) const;
+  [[deprecated("Row slicing is going away.  File a bug if you need it.")]]
+  row slice(size_type sbegin, size_type send) const;
 
-  // Is this an empty slice?
-  [[nodiscard]] PQXX_PURE bool empty() const noexcept;
+  /// Is this a row without fields?  Can only happen to a slice.
+  [[nodiscard, deprecated("Row slicing is going away.")]]
+  PQXX_PURE bool empty() const noexcept;
 
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.

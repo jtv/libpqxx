@@ -55,8 +55,6 @@ void test_table_column()
     col = X.table_column(3), "table_column() on non-table didn't fail.");
   pqxx::ignore_unused(col);
 }
-
-// TODO: Test interaction with result slicing.
 } // namespace
 
 

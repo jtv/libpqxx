@@ -2,6 +2,8 @@
 
 #include "../test_helpers.hxx"
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
 namespace pqxx
 {
 template<> struct nullness<row::const_iterator> : no_null<row::const_iterator>
@@ -151,3 +153,5 @@ void test_result_slicing()
 
 PQXX_REGISTER_TEST(test_result_slicing);
 } // namespace
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"

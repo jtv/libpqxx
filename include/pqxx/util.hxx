@@ -377,8 +377,8 @@ template<typename T> auto ssize(T const &c)
 
 
 /// Wait.
-/** This is normally @c std::this_thread::sleep_for().  But MinGW's @c <thread>
- * doesn't work, so we must be careful about including it.
+/** This is normally @c std::this_thread::sleep_for().  But MinGW's @c thread
+ * header doesn't work, so we must be careful about including it.
  */
 void PQXX_LIBEXPORT wait_for(unsigned int microseconds);
 } // namespace pqxx::internal
