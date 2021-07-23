@@ -73,7 +73,7 @@ public:
    */
   difference_type endpos() const noexcept { return m_endpos; }
 
-  /// Return zero-row result for this cursor
+  /// Return zero-row result for this cursor.
   result const &empty_result() const noexcept { return m_empty_result; }
 
   void close() noexcept;

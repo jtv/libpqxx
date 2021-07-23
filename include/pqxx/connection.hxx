@@ -872,8 +872,13 @@ public:
   [[nodiscard]] std::string connection_string() const;
 
   /// Explicitly close the connection.
-  /** You won't normally need this.  Destroying a connection object will have
-   * the same effect.
+  /** The destructor will do this for you automatically.  Still, there is a
+   * reason to @c close() objects explicitly where possible: if an error should
+   * occur while closing, @c close() can throw an exception.  A destructor
+   * cannot.
+   *
+   * Closing a connection is idempotent.  Closing a connection that's already
+   * closed does nothing.
    */
   void close();
 

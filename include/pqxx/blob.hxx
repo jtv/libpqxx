@@ -292,13 +292,17 @@ public:
   }
 #endif
 
-  /// Close this blob (but leave the actual binary large object on the server).
-  /** Resets the blob to a useless state similar to one that was
+  /// Close this blob.
+  /** This does not delete the blob from the database; it only terminates your
+   * local object for accessing the blob.
+   *
+   * Resets the blob to a useless state similar to one that was
    * default-constructed.
    *
-   * You don't have to call this.  The destructor will do it for you.  However
-   * in the unlikely event that closing the object should fail, the destructor
-   * can't throw an exception.  The @c close() function can.
+   * The destructor will do this for you automatically.  Still, there is a
+   * reason to @c close() objects explicitly where possible: if an error should
+   * occur while closing, @c close() can throw an exception.  A destructor
+   * cannot.
    */
   void close();
 

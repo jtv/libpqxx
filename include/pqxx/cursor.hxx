@@ -159,13 +159,25 @@ public:
   using difference_type = result_difference_type;
 
   /// Create cursor.
+  /**
+   * @param trans The transaction within which you want to create the cursor.
+   * @param query The SQL query whose results the cursor should traverse.
+   * @param cname A hint for the cursor's name.  The actual SQL cursor's name
+   *     will be based on this (though not necessarily identical).
+   */
   stateless_cursor(
     transaction_base &trans, std::string_view query, std::string_view cname,
     bool hold) :
           m_cur{trans, query, cname, cursor_base::random_access, up, op, hold}
   {}
 
-  /// Adopt existing scrolling SQL cursor.
+  /// Adopt an existing scrolling SQL cursor.
+  /** This lets you define a cursor yourself, and then wrap it in a
+   * libpqxx-managed @c stateless_cursor object.
+   *
+   * @param trans The transaction within which you want to manage the cursor.
+   * @param adopted_cursor Your cursor's SQL name.
+   */
   stateless_cursor(transaction_base &trans, std::string_view adopted_cursor) :
           m_cur{trans, adopted_cursor, op}
   {
@@ -173,7 +185,12 @@ public:
     m_cur.move(cursor_base::backward_all());
   }
 
-  /// Close this cursor.  The destructor will do this automatically.
+  /// Close this cursor.
+  /** The destructor will do this for you automatically.
+   *
+   * Closing a cursor is idempotent.  Closing a cursor that's already closed
+   * does nothing.
+   */
   void close() noexcept { m_cur.close(); }
 
   /// Number of rows in cursor's result set
@@ -249,7 +266,7 @@ public:
   using size_type = cursor_base::size_type;
   using difference_type = cursor_base::difference_type;
 
-  /// Set up a read-only, forward-only cursor
+  /// Set up a read-only, forward-only cursor.
   /** Roughly equivalent to a C++ Standard Library istream, this cursor type
    * supports only two operations: reading a block of rows while moving
    * forward, and moving forward without reading any data.
@@ -297,10 +314,12 @@ public:
   /// Return @c true if this stream may still return more data.
   operator bool() const noexcept { return not m_done; }
 
-  /// Read new value into given result object; same as operator >>
+  /// Read new value into given result object; same as operator @c >>.
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
+   *
+   * @param res Write the retrieved data into this result object.
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.get(r1).get(r2);")
    */
@@ -309,25 +328,29 @@ public:
     res = fetchblock();
     return *this;
   }
-  /// Read new value into given result object; same as get(result &)
+  /// Read new value into given result object; same as @c get(result&).
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
+   *
+   * @param res Write the retrieved data into this result object.
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C >> r1 >> r2;")
    */
   icursorstream &operator>>(result &res) { return get(res); }
 
-  /// Move given number of rows forward (ignoring stride) without reading data
-  /**
-   * @return Reference to this very stream, to facilitate "chained" invocations
-   * ("C.ignore(2).get(r).ignore(4);")
+  /// Move given number of rows forward without reading data.
+  /** Ignores any stride that you may have set.  It moves by a given number of
+   * rows, not a number of strides.
+   *
+   * @return Reference to this stream itself, to facilitate "chained"
+   * invocations.
    */
   icursorstream &ignore(std::streamsize n = 1);
 
-  /// Change stride, i.e. the number of rows to fetch per read operation
+  /// Change stride, i.e. the number of rows to fetch per read operation.
   /**
-   * @param stride Must be a positive number
+   * @param stride Must be a positive number.
    */
   void set_stride(difference_type stride);
   [[nodiscard]] difference_type stride() const noexcept { return m_stride; }
@@ -353,7 +376,7 @@ private:
 };
 
 
-/// Approximate istream_iterator for icursorstream
+/// Approximate istream_iterator for icursorstream.
 /** Intended as an implementation of an input_iterator (as defined by the C++
  * Standard Library), this class supports only two basic operations: reading
  * the current element, and moving forward.  In addition to the minimal
