@@ -118,12 +118,14 @@ void pqxx::internal::check_unique_unregister(
 
 namespace
 {
+constexpr char hex_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
 constexpr char hex_digit(int c) noexcept
 {
-  constexpr char hex[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-  return hex[c];
+  return hex_digits[c];
 }
 
 

@@ -94,7 +94,7 @@ inline std::size_t composite_size_buffer(T const &...fields) noexcept
   //  + closing parenthesis
   //  + terminating zero
 
-  if constexpr (sizeof...(fields) == 0)
+  if constexpr (num == 0)
     return std::size(pqxx::internal::empty_composite_str);
   else
     return 1 + (pqxx::internal::size_composite_field_buffer(fields) + ...) +

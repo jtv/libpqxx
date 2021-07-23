@@ -233,7 +233,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
-  constexpr char *demangled{nullptr};
+  inline constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
   std::free(demangled);
@@ -324,14 +324,14 @@ template<typename T>
 {
   using limits = std::numeric_limits<T>;
 
-  constexpr T ten{10};
-  constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
+  inline constexpr T ten{10};
+  inline constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
   if (n > high_threshold)
     PQXX_UNLIKELY
   report_overflow();
   if constexpr (limits::is_signed)
   {
-    constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
+    inline constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
     if (low_threshold > n)
       PQXX_UNLIKELY
     report_overflow();
@@ -647,7 +647,7 @@ template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
-    constexpr auto space{float_traits<T>::size_buffer(value)};
+    static constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
     std::string_view const view{

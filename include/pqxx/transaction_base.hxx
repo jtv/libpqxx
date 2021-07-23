@@ -649,7 +649,7 @@ private:
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
 
-  constexpr static std::string_view s_type_name{"transaction"sv};
+  static constexpr std::string_view s_type_name{"transaction"sv};
 };
 
 
