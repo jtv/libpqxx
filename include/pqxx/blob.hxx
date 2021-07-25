@@ -215,8 +215,10 @@ public:
   /// Set the current reading/writing position to an absolute offset.
   std::int64_t seek_abs(std::int64_t offset = 0);
   /// Move the current reading/writing position forwards by an offset.
+  /** To move backwards, pass a negative offset. */
   std::int64_t seek_rel(std::int64_t offset = 0);
   /// Set the current position to an offset relative to the end of the blob.
+  /** You'll probably want an offset of zero or less. */
   std::int64_t seek_end(std::int64_t offset = 0);
 
   /// Create a binary large object containing given @c data.
