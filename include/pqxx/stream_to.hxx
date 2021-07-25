@@ -79,8 +79,6 @@ namespace pqxx
 class PQXX_LIBEXPORT stream_to : transaction_focus
 {
 public:
-  // TODO: Support WHERE clause?
-
   /// Stream data to a pre-quoted table and columns.
   /** This factory can be useful when it's not convenient to provide the
    * columns list in the form of a @c std::initializer_list, or when the list

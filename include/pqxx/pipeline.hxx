@@ -1,6 +1,6 @@
 /* Definition of the pqxx::pipeline class.
  *
- *   Throughput-optimized query manager
+ *   Throughput-optimized mechanism for executing queries.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/pipeline instead.
  *
@@ -25,6 +25,8 @@
 
 namespace pqxx
 {
+// TODO: libpq 13 introduced a similar "pipeline mode."  Can we use that?
+
 /// Processes several queries in FIFO manner, optimized for high throughput.
 /** Use a pipeline if you want to keep doing useful work while your queries are
  * executing.  Result retrieval is decoupled from execution request; queries
