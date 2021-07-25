@@ -6,6 +6,13 @@
 
 namespace
 {
+void test_connection_string_constructor()
+{
+  pqxx::connection c1{""};
+  pqxx::connection c2{std::string{}};
+}
+
+
 void test_move_constructor()
 {
   pqxx::connection c1;
@@ -165,6 +172,7 @@ void test_connection_params()
 }
 
 
+PQXX_REGISTER_TEST(test_connection_string_constructor);
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
 PQXX_REGISTER_TEST(test_encrypt_password);
