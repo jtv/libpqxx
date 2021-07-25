@@ -233,7 +233,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
-  inline constexpr char *demangled{nullptr};
+  static constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
   std::free(demangled);
