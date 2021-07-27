@@ -1,4 +1,5 @@
 7.6.0
+ - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
  - Generalise binary strings to any contiguous range of `std::byte`.
  - Mark `zview` as a view and as a borrowed range.

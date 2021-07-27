@@ -902,14 +902,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
     return begin + budget;
   }
 
-  static std::basic_string<std::byte> from_string(std::string_view text)
-  {
-    auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    std::basic_string<std::byte> buf;
-    buf.resize(size);
-    pqxx::internal::unesc_bin(text, buf.data());
-    return buf;
-  }
+  // There's no from_string, because there's nobody to hold the data.
 };
 
 template<>
