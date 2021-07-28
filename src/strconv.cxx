@@ -324,14 +324,14 @@ template<typename T>
 {
   using limits = std::numeric_limits<T>;
 
-  inline constexpr T ten{10};
-  inline constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
+  constexpr T ten{10};
+  constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
   if (n > high_threshold)
     PQXX_UNLIKELY
   report_overflow();
   if constexpr (limits::is_signed)
   {
-    inline constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
+    constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
     if (low_threshold > n)
       PQXX_UNLIKELY
     report_overflow();
