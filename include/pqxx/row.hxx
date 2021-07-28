@@ -165,12 +165,12 @@ public:
    * column, exclusive.  It looks just like a normal result row, except
    * slices can be empty.
    */
-  [[deprecated("Row slicing is going away.  File a bug if you need it.")]]
-  row slice(size_type sbegin, size_type send) const;
+  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
+  slice(size_type sbegin, size_type send) const;
 
   /// Is this a row without fields?  Can only happen to a slice.
-  [[nodiscard, deprecated("Row slicing is going away.")]]
-  PQXX_PURE bool empty() const noexcept;
+  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
+  empty() const noexcept;
 
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.

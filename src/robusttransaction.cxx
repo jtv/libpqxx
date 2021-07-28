@@ -43,7 +43,7 @@ enum tx_stat
 
 
 constexpr auto committed{"committed"_zv}, aborted{"aborted"_zv},
-    in_progress{"in progress"_zv};
+  in_progress{"in progress"_zv};
 
 
 /// Parse a nonempty transaction status string.
