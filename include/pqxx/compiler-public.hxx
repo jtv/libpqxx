@@ -113,7 +113,7 @@
 #endif
 
 // TODO: Assume support once we're on C++20.
-#if defined(PQXX_HAVE_LIKELY)
+#if __cplusplus >= 202002L && defined(PQXX_HAVE_LIKELY)
 #  define PQXX_LIKELY [[likely]]
 #  define PQXX_UNLIKELY [[unlikely]]
 #else
