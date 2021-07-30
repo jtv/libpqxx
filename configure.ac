@@ -60,12 +60,12 @@ AM_CONDITIONAL([BUILD_REFERENCE],
 
 AM_MAINTAINER_MODE
 
-# See if we want verbose compiler warnings.
+# See if we want stricter compiler warnings.
 AC_MSG_CHECKING([maintainer mode])
 AC_ARG_ENABLE(maintainer-mode)
 AC_MSG_RESULT(${enable_maintainer_mode})
 
-# See if we want "audit," with loads of runtime checking.
+# See if we want runtime debug checking.
 AC_MSG_CHECKING([audit])
 AC_ARG_ENABLE(audit)
 AC_MSG_RESULT(${enable_audit})
