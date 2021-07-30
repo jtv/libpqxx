@@ -324,12 +324,14 @@ template<typename T> struct numeric_ten
 
 template<typename T> struct numeric_high_threshold
 {
-  static inline constexpr T value = (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
+  static inline constexpr T value =
+    (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
 };
 
 template<typename T> struct numeric_low_threshold
 {
-  static inline constexpr T value = (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
+  static inline constexpr T value =
+    (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
 };
 
 /// Return 10*n, or throw exception if it overflows.

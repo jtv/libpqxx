@@ -570,6 +570,25 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_pqencryptpasswordconn)
 
 
+# "Pipeline mode" was introduced in libpq 14.
+AC_MSG_CHECKING([for libpq pipeline mode])
+have_pq_pipeline=yes
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include<libpq-fe.h>],
+		[
+			extern PGconn *conn;
+			PQenterPipelineMode(conn)
+		]
+	)],
+	AC_DEFINE(
+		[PQXX_HAVE_PQ_PIPELINE],
+		1,
+		[Define if libpq has pipeline mode (since pg 14).]),
+	[have_pq_pipeline=no])
+AC_MSG_RESULT($have_pq_pipeline)
+
+
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"
 found_fslib=no

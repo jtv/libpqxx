@@ -37,6 +37,10 @@ check_symbol_exists(
 	PQencryptPasswordConn
 	"${PostgreSQL_INCLUDE_DIR}/libpq-fe.h"
 	PQXX_HAVE_PQENCRYPTPASSWORDCONN)
+check_symbol_exists(
+	PQenterPipelineMode
+	"${PostgreSQL_INCLUDE_DIR}/libpq-fe.h"
+	PQXX_HAVE_PQ_PIPELINE)
 
 cmake_determine_compile_features(CXX)
 cmake_policy(SET CMP0057 NEW)
