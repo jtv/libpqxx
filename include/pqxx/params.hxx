@@ -124,7 +124,7 @@ template<typename COUNTER = unsigned int> class placeholders
 public:
   /// Maximum number of parameters we support.
   static inline constexpr unsigned int max_params{
-    std::numeric_limits<COUNTER>::max()};
+    (std::numeric_limits<COUNTER>::max)()};
 
   placeholders()
   {
