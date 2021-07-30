@@ -317,6 +317,20 @@ namespace
     "Could not convert string to integer: value out of range."};
 }
 
+template<typename T> struct numeric_ten
+{
+  static inline constexpr T value = 10;
+};
+
+template<typename T> struct numeric_high_threshold
+{
+  static inline constexpr T value = (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
+};
+
+template<typename T> struct numeric_low_threshold
+{
+  static inline constexpr T value = (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
+};
 
 /// Return 10*n, or throw exception if it overflows.
 template<typename T>
@@ -324,19 +338,16 @@ template<typename T>
 {
   using limits = std::numeric_limits<T>;
 
-  inline constexpr T ten{10};
-  inline constexpr T high_threshold(std::numeric_limits<T>::max() / ten);
-  if (n > high_threshold)
+  if (n > numeric_high_threshold<T>::value)
     PQXX_UNLIKELY
   report_overflow();
   if constexpr (limits::is_signed)
   {
-    inline constexpr T low_threshold(std::numeric_limits<T>::min() / ten);
-    if (low_threshold > n)
+    if (numeric_low_threshold<T>::value > n)
       PQXX_UNLIKELY
     report_overflow();
   }
-  return T(n * ten);
+  return T(n * numeric_ten<T>::value);
 }
 
 
