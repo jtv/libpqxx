@@ -58,8 +58,8 @@ class transaction_focus;
  * @defgroup transaction Transaction classes
  *
  * All database access goes through instances of these classes.
- * However, not all implementations of this interface need to provide
- * full transactional integrity.
+ * However, not all implementations of this interface need to provide full
+ * transactional integrity.
  *
  * Several implementations of this interface are shipped with libpqxx,
  * including the plain transaction class, the entirely unprotected
@@ -83,22 +83,23 @@ public:
 
   virtual ~transaction_base() = 0;
 
-  /// Commit the transaction
-  /** Unless this function is called explicitly, the transaction will not be
-   * committed (actually the nontransaction implementation breaks this rule,
-   * hence the name).
+  /// Commit the transaction.
+  /** Make the effects of this transaction definite.  If you destroy a
+   * transaction without invoking its @c commit() first, that will implicitly
+   * abort it.  (For the @c nontransaction class though, "commit" and "abort"
+   * really don't do anything, hence its name.)
    *
-   * Once this function returns, the whole transaction will typically be
-   * irrevocably completed in the database.  There is also, however, a minute
-   * risk that the connection to the database may be lost at just the wrong
-   * moment.  In that case, libpqxx may be unable to determine whether the
-   * transaction was completed or aborted and an in_doubt_error will be thrown
-   * to make this fact known to the caller.  The robusttransaction
-   * implementation takes some special precautions to reduce this risk.
+   * There is, however, a minute risk that you might lose your connection to
+   * the database at just the wrong moment here.  In that case, libpqxx may be
+   * unable to determine whether the database was able to complete the
+   * transaction, or had to roll it back.  In that scenario, @c commit() will
+   * throw an in_doubt_error.  There is a different transaction class called
+   * @c robusttransaction which takes some special precautions to reduce this
+   * risk.
    */
   void commit();
 
-  /// Abort the transaction
+  /// Abort the transaction.
   /** No special effort is required to call this function; it will be called
    * implicitly when the transaction is destructed.
    */
