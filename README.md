@@ -13,10 +13,9 @@ Compiling this package requires PostgreSQL to be installed -- or at least the C
 headers and library for client development.  The library builds on top of
 PostgreSQL's standard C API, libpq, though your code won't notice.
 
-If you're getting the code straight from the Git repo, the `master` branch
-contains the current _development version._  To get a released version, check
-out the revision that's tagged for that version.  For example, to get version
-7.1.1:
+If you're getting the code straight from the Git repo, the head of the `master`
+branch represents the current _development version._  Releases are tags on
+commits in `master`.  For example, to get version 7.1.1:
 
     git checkout 7.1.1
 
