@@ -976,7 +976,7 @@ void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
 
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
-  short const events{forwrite ? POLLWRNORM : POLLRDNORM};
+  short const events{static_cast<short>(forwrite ? POLLWRNORM : POLLRDNORM)};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   WSAPoll(&fdarray, 1, tv_milliseconds(tv));
   // TODO: Check for errors.

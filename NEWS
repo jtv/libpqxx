@@ -1,5 +1,6 @@
 7.6.1
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
+ - Fix clang "not a const expression" error in Windows.  (#472)
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
