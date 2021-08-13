@@ -17295,7 +17295,7 @@ fi
 
 
 
-# See if we want verbose compiler warnings.
+# See if we want stricter compiler warnings.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking maintainer mode" >&5
 $as_echo_n "checking maintainer mode... " >&6; }
 # Check whether --enable-maintainer-mode was given.
@@ -17306,7 +17306,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${enable_maintainer_mode}" >&5
 $as_echo "${enable_maintainer_mode}" >&6; }
 
-# See if we want "audit," with loads of runtime checking.
+# See if we want runtime debug checking.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking audit" >&5
 $as_echo_n "checking audit... " >&6; }
 # Check whether --enable-audit was given.
@@ -17751,6 +17751,14 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int main(int argc, char **)
 
 {
+
+#if __cplusplus < 202002L
+
+  deliberately_fail(because, older, C++, standard);
+
+#endif
+
+
 
   int x = 0;
 

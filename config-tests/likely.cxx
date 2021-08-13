@@ -2,6 +2,10 @@
 
 int main(int argc, char **)
 {
+#if __cplusplus < 202002L
+  deliberately_fail(because, older, C++, standard);
+#endif
+
   int x = 0;
   if (argc == 1) [[likely]]
     x = 0;
