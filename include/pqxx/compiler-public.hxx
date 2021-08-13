@@ -112,7 +112,7 @@
 #  define PQXX_NOVTABLE /* novtable */
 #endif
 
-// TODO: Assume support once we're on C++20.
+// C++20: Assume support.
 #if defined(PQXX_HAVE_LIKELY)
 #  define PQXX_LIKELY [[likely]]
 #  define PQXX_UNLIKELY [[unlikely]]

@@ -24,7 +24,7 @@ class result;
 
 namespace pqxx::internal
 {
-// TODO: Replace with C++20 iterator.
+// C++20: Replace with generator?
 /// Iterator for looped unpacking of a result.
 template<typename... TYPE> class result_iter
 {

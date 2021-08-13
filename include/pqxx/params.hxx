@@ -235,7 +235,7 @@ public:
   /// Get the number of parameters currently in this @c params.
   auto size() const noexcept { return m_params.size(); }
 
-  // TODO: In C++20, use the vector's ssize() directly and go noexcept.
+  // C++20: Use the vector's ssize() directly and go noexcept.
   /// Get the number of parameters (signed).
   /** Unlike @c size(), this is not yet @c noexcept.  That's because C++17's
    * @c std::vector does not have a @c ssize() member function.  These member

@@ -17983,17 +17983,10 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_sleep_for" >&5
 $as_echo "$have_sleep_for" >&6; }
 
-# Doing my own test for poll() for now.  The test built into autoconf-archive
-# triggers stupid warnings.
-# TODO: Try newer version of autoconf-archive.
-#AX_HAVE_POLL(
-#        [AX_CONFIG_FEATURE_ENABLE(poll)],
-#        [AX_CONFIG_FEATURE_DISABLE(poll)])
-#AX_CONFIG_FEATURE(
-#	[poll],
-#	[System supports poll().],
-#	[PQXX_HAVE_POLL],
-#	[System supports poll().])
+# Doing my own check for poll().  There's one built into autoconf-archive, but
+# it produces warnings in C++ (about unnecessarily using "struct", and using 0
+# as a null pointer constant).  In maintainer mode, those warnings turn into
+# errors.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll()" >&5
 $as_echo_n "checking for poll()... " >&6; }
 ax_cv_have_poll=yes

@@ -654,7 +654,7 @@ private:
 };
 
 
-// TODO: Can C++20's borrowed_range help?
+// C++20: Can borrowed_range help?
 /// Forbidden specialisation: underlying buffer immediately goes out of scope.
 template<>
 std::string_view transaction_base::query_value<std::string_view>(

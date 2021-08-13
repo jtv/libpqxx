@@ -22,7 +22,7 @@ class stream_from;
 
 namespace pqxx::internal
 {
-// TODO: Replace with C++20 generator.
+// C++20: Replace with generator?
 /// Input iterator for stream_from.
 /** Just barely enough to support range-based "for" loops.  Don't assume that
  * any of the usual behaviour works beyond that.
@@ -74,7 +74,7 @@ private:
 };
 
 
-// TODO: Replace with C++20 generator.
+// C++20: Replace with generator?
 /// Iteration over a @c stream_from.
 template<typename... TYPE> class stream_input_iteration
 {
@@ -89,7 +89,7 @@ private:
 };
 
 
-// TODO: Replace with C++20 generator.
+// C++20: Replace with generator?
 /// Iteration over a @c stream_from, deleting it once done.
 template<typename... TYPE> class owning_stream_input_iteration
 {

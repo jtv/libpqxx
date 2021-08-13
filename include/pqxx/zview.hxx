@@ -143,7 +143,7 @@ inline constexpr char const *as_c_string(pqxx::zview str) noexcept
 {
   return str.c_str();
 }
-// TODO: constexpr as of C++20.
+// C++20: Make this constexpr.
 /// Get a raw C string pointer.
 inline char const *as_c_string(std::string const &str) noexcept
 {

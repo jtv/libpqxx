@@ -123,7 +123,7 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 #endif // PQXX_HAVE_CONCEPTS
 
 
-// TODO: Retire these compatibility definitions once we're on C++20.
+// C++20: Retire these compatibility definitions.
 #if defined(PQXX_HAVE_CONCEPTS)
 
 /// Template argument type for a range.

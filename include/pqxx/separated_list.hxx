@@ -19,8 +19,8 @@
 
 #include "pqxx/strconv.hxx"
 
-// TODO: Simplify using std::ranges::range, once we're on C++20.
-// TODO: Optimise buffer allocation using C++20 random_access_range/iterator.
+// C++20: Simplify using std::ranges::range.
+// C++20: Optimise buffer allocation using random_access_range/iterator.
 namespace pqxx
 {
 /**
