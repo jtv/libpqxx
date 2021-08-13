@@ -351,17 +351,10 @@ AC_LINK_IFELSE(
 	have_sleep_for=no)
 AC_MSG_RESULT($have_sleep_for)
 
-# Doing my own test for poll() for now.  The test built into autoconf-archive
-# triggers stupid warnings.
-# TODO: Try newer version of autoconf-archive.
-#AX_HAVE_POLL(
-#        [AX_CONFIG_FEATURE_ENABLE(poll)],
-#        [AX_CONFIG_FEATURE_DISABLE(poll)])
-#AX_CONFIG_FEATURE(
-#	[poll],
-#	[System supports poll().],
-#	[PQXX_HAVE_POLL],
-#	[System supports poll().])
+# Doing my own check for poll().  There's one built into autoconf-archive, but
+# it produces warnings in C++ (about unnecessarily using "struct", and using 0
+# as a null pointer constant).  In maintainer mode, those warnings turn into
+# errors.
 AC_MSG_CHECKING([for poll()])
 ax_cv_have_poll=yes
 AC_LINK_IFELSE(
