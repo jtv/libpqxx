@@ -34,6 +34,7 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 // TODO: Cut corners for ASCII needle.  Most "ASCII supersets" act like ASCII.
 // TODO: Actually, are we using these at all!?
+// TODO: Can we do a "scan until you find one of these" template?
 /// Find a single-byte "needle" character in a "haystack" text buffer.
 std::size_t find_with_encoding(
   encoding_group enc, std::string_view haystack, char needle,

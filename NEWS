@@ -1,4 +1,5 @@
-7.6.1
+7.7.0
+ - Fix `stream_to` for differing table/client encodings.  (#473)
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
  - Fix clang "not a const expression" error in Windows.  (#472)
 7.6.0

@@ -42,7 +42,7 @@ void test_nonoptionals(pqxx::connection &connection)
     r1[4].as<std::string>(), "hello nonoptional world",
     "Read back wrong string.");
   PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4), "Read back wrong ip.");
-  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytera.");
+  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytea.");
 
   auto r2{tx.exec1("SELECT * FROM stream_to_test WHERE number0 = 5678")};
   PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
