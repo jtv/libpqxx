@@ -64,7 +64,6 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
       PQXX_LIKELY return tx_in_progress;
     break;
   }
-  PQXX_UNLIKELY
   return tx_unknown;
 }
 
