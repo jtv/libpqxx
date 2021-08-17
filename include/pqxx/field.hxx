@@ -218,8 +218,7 @@ public:
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        PQXX_UNLIKELY
-      internal::throw_null_conversion(type_name<T>);
+        internal::throw_null_conversion(type_name<T>);
       else return nullness<T>::null();
     }
     else
@@ -494,8 +493,7 @@ template<typename T> inline T from_string(field const &value)
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      PQXX_UNLIKELY
-    internal::throw_null_conversion(type_name<T>);
+      internal::throw_null_conversion(type_name<T>);
   }
   else
   {
