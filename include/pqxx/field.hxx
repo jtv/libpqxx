@@ -219,7 +219,8 @@ public:
     {
       if constexpr (not nullness<T>::has_null)
         internal::throw_null_conversion(type_name<T>);
-      else return nullness<T>::null();
+      else
+        return nullness<T>::null();
     }
     else
     {

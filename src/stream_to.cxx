@@ -106,16 +106,17 @@ void pqxx::stream_to::complete()
  */
 constexpr char escape(std::size_t width, char c)
 {
-  if (width == 1u) switch (c)
-  {
-  case '\b': return 'b';
-  case '\f': return 'f';
-  case '\n': return 'n';
-  case '\r': return 'r';
-  case '\t': return 't';
-  case '\v': return 'v';
-  case '\\': return '\\';
-  }
+  if (width == 1u)
+    switch (c)
+    {
+    case '\b': return 'b';
+    case '\f': return 'f';
+    case '\n': return 'n';
+    case '\r': return 'r';
+    case '\t': return 't';
+    case '\v': return 'v';
+    case '\\': return '\\';
+    }
 
   PQXX_LIKELY
   return '\0';
