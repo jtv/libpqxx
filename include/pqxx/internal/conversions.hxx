@@ -50,6 +50,28 @@ inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 throw_null_conversion(std::string const &type);
 
 
+/// Deliberately nonfunctional conversion traits for @c char types.
+/** There are no string conversions for @c char and its signed and unsigned
+ * variants.  Such a conversion would be dangerously ambiguous: should we treat
+ * it as text, or as a small integer?  It'd be an open invitation for bugs.
+ *
+ * But the error message when you get this wrong is very cryptic.  So, we
+ * derive dummy @c string_traits implementations from this dummy type, and
+ * ensure that the compiler disallows their use.  The compiler error message
+ * will at least contain a hint of the root of the problem.
+ */
+template<typename CHAR_TYPE> struct disallowed_ambiguous_char_conversion
+{
+  static char *into_buf(char *, char *, CHAR_TYPE) = delete;
+  static constexpr zview
+  to_buf(char *, char *, CHAR_TYPE const &) noexcept = delete;
+
+  static constexpr std::size_t
+  size_buffer(CHAR_TYPE const &) noexcept = delete;
+  static CHAR_TYPE from_string(std::string_view) = delete;
+};
+
+
 template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T);
 
 
@@ -216,6 +238,37 @@ template<> struct string_traits<bool>
 
   static constexpr std::size_t size_buffer(bool const &) noexcept { return 6; }
 };
+
+
+/// We don't support conversion to/from @c char types.
+/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
+ * clear whether we should treat values of these types as text or as small
+ * integers.  Either choice would lead to bugs.
+ */
+template<>
+struct string_traits<char>
+        : internal::disallowed_ambiguous_char_conversion<char>
+{};
+
+/// We don't support conversion to/from @c char types.
+/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
+ * clear whether we should treat values of these types as text or as small
+ * integers.  Either choice would lead to bugs.
+ */
+template<>
+struct string_traits<signed char>
+        : internal::disallowed_ambiguous_char_conversion<signed char>
+{};
+
+/// We don't support conversion to/from @c char types.
+/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
+ * clear whether we should treat values of these types as text or as small
+ * integers.  Either choice would lead to bugs.
+ */
+template<>
+struct string_traits<unsigned char>
+        : internal::disallowed_ambiguous_char_conversion<unsigned char>
+{};
 
 
 template<> inline constexpr bool is_unquoted_safe<bool>{true};
