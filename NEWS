@@ -4,6 +4,7 @@
  - Fix clang "not a const expression" error in Windows.  (#472)
  - Fix warnings about `[[likely]]` in `if constexpr`.  (#475)
  - Clearer error for ambiguous string conversion of `char` type.  (#481)
+ - Pseudo-statement in `prepare()` error was for the wrong statement.  (#488)
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.

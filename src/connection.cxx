@@ -624,8 +624,7 @@ std::string pqxx::connection::encrypt_password(
 
 void pqxx::connection::prepare(char const name[], char const definition[])
 {
-  // Allocate once, re-use across invocations.
-  static auto const q{std::make_shared<std::string>(
+  auto const q{std::make_shared<std::string>(
     pqxx::internal::concat("[PREPARE ", name, "]"))};
 
   auto const r{
