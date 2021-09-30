@@ -985,9 +985,9 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
 namespace
 {
-unsigned to_milli(unsigned seconds, unsigned microseconds)
+template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
 {
-  return pqxx::check_cast<unsigned>(
+  return pqxx::check_cast<T>(
     (seconds * 1000) + (microseconds / 1000),
     "Wait timeout value out of bounds.");
 }
@@ -1004,14 +1004,14 @@ void pqxx::internal::wait_fd(
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  WSAPoll(&fdarray, 1, to_milli(seconds, microseconds));
+  WSAPoll(&fdarray, 1, to_milli<unsigned>(seconds, microseconds));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
     (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
-  poll(&pfd, 1, to_milli(seconds, microseconds));
+  poll(&pfd, 1, to_milli<int>(seconds, microseconds));
   // TODO: Check for errors.
 #else
   // No poll()?  Our last option is select().
