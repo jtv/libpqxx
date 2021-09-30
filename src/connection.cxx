@@ -1056,7 +1056,7 @@ int pqxx::connection::await_notification(
   if (notifs == 0)
   {
     PQXX_LIKELY
-    internal::wait_fd(socket_of(m_conn), true, false, seconds, microseconds);
+    internal::wait_fd(socket_of(m_conn), true, false, check_cast<unsigned>(seconds, "Seconds out of range."), check_cast<unsigned>(microseconds, "Microseconds out of range."));
     return get_notifs();
   }
   return notifs;
