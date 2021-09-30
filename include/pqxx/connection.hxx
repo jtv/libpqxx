@@ -81,12 +81,14 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
   {std::cbegin(t)};
   {
     std::get<0>(*std::cbegin(t))
-    } -> ZString;
+  }
+  ->ZString;
   {
     std::get<1>(*std::cbegin(t))
-    } -> ZString;
-} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
-== 2;
+  }
+  ->ZString;
+}
+and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
@@ -883,14 +885,26 @@ public:
   void close();
 
 private:
+  friend class connecting;
+  enum connect_mode
+  {
+    connect_nonblocking
+  };
+  connection(connect_mode, zview connection_string);
+
+  /// Poll for ongoing connection, try to progress towards completion.
+  /** Returns a pair of "now please wait to read data from socket" and "now
+   * please wait to write data to socket."  Both will be false when done.
+   *
+   * Throws an exception if polling indicates that the connection has failed.
+   */
+  std::pair<bool, bool> poll_connect();
+
   // Initialise based on connection string.
   void init(char const options[]);
   // Initialise based on parameter names and values.
   void init(char const *params[], char const *values[]);
   void complete_init();
-
-  void wait_read() const;
-  void wait_read(std::time_t seconds, long microseconds) const;
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
@@ -985,6 +999,71 @@ private:
 using connection_base = connection;
 
 
+/// An ongoing, non-blocking stepping stone to a connection.
+/** Use this when you want to create a connection to the database, but without
+ * blocking your whole thread.
+ *
+ * Connecting in this way is probably not "faster" (it's more complicated and
+ * has some extra overhead), but in some situations you can use it to make your
+ * application as a whole faster.  It all depends on having other useful work
+ * to do in the same thread, and being able to wait on a socket.  If you have
+ * other I/O going on at the same time, your event loop can wait for both the
+ * libpqxx socket and your own sockets, and wake up whenever any of them is
+ * ready to do work.
+ *
+ * Connecting in this way is not properly "asynchronous;" it's merely
+ * "nonblocking."  This means it's not a super-high-performance mechanism like
+ * you might get with e.g. @c io_uring.  In particular, if we need to look up
+ * the database hostname in DNS, that will happen synchronously.
+ *
+ * To use this, create the @c connecting object, passing a connection string.
+ * Then loop: If @c wait_to_read() returns true, wait for the socket to have
+ * incoming data on it.  If @c wait_to_write() returns true, wait wait for the
+ * socket to be ready for writing.  Repeat until @c done() returns true (or
+ * there is an exception).  Finally, call @c produce() to get the completed
+ * connection.  This will work only once on the @c connecting object.
+ */
+class PQXX_LIBEXPORT connecting
+{
+public:
+  /// Start connecting.
+  connecting(zview connection_string) :
+          m_conn{connection::connect_nonblocking, connection_string}
+  {}
+  connecting() : m_conn{connection::connect_nonblocking, ""_zv} {}
+
+  /// Get the socket.  This may change during the process.
+  int sock() const noexcept { return m_conn.sock(); }
+
+  /// Should we currently wait to @i read from the socket?
+  bool wait_to_read() const noexcept { return m_reading; }
+
+  /// Should we currently wait to @i write to the socket?
+  bool wait_to_write() const noexcept { return m_writing; }
+
+  /// Progress towards completion but don't block.
+  void process()
+  {
+    auto const [reading, writing]{m_conn.poll_connect()};
+    m_reading = reading;
+    m_writing = writing;
+  }
+
+  /// Is our connection finished?
+  bool done() const noexcept { return not m_reading and not m_writing; }
+
+  /// Produce the completed connection object.
+  /** Use this only once, after @c done() returned @c true.
+   */
+  connection produce();
+
+private:
+  connection m_conn;
+  bool m_reading{false};
+  bool m_writing{true};
+};
+
+
 template<typename T> inline std::string connection::quote(T const &t) const
 {
   if constexpr (nullness<T>::always_null)
@@ -1050,10 +1129,10 @@ inline connection::connection(MAPPING const &params)
 
 namespace pqxx::internal
 {
-PQXX_LIBEXPORT void wait_read(internal::pq::PGconn const *);
-PQXX_LIBEXPORT void wait_read(
-  internal::pq::PGconn const *, std::time_t seconds, long microseconds);
-PQXX_LIBEXPORT void wait_write(internal::pq::PGconn const *);
+/// Wait for a socket to be ready for reading/writing, or timeout.
+PQXX_LIBEXPORT void wait_fd(
+  int fd, bool for_read, bool for_write, unsigned seconds = 1,
+  unsigned microseconds = 0);
 } // namespace pqxx::internal
 
 #include "pqxx/internal/compiler-internal-post.hxx"

@@ -239,8 +239,7 @@ std::basic_string_view<std::byte> binary_cast(TYPE const &data)
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-template<typename CHAR>
-concept char_sized = (sizeof(CHAR) == 1);
+template<typename CHAR> concept char_sized = (sizeof(CHAR) == 1);
 #  define PQXX_CHAR_SIZED_ARG char_sized
 #else
 #  define PQXX_CHAR_SIZED_ARG typename

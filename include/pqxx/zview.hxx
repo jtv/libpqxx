@@ -118,9 +118,9 @@ namespace pqxx::internal
  * support each of these individually.
  */
 template<typename T>
-concept ZString = std::is_convertible_v < strip_t<T>,
-char const * > or std::is_convertible_v<strip_t<T>, zview> or
-  std::is_convertible_v<T, std::string const &>;
+concept ZString = std::is_convertible_v<strip_t<T>, char const *> or
+                  std::is_convertible_v<strip_t<T>, zview> or
+                  std::is_convertible_v<T, std::string const &>;
 } // namespace pqxx::internal
 #endif // PQXX_HAVE_CONCEPTS
 

@@ -108,13 +108,43 @@ pqxx::connection::connection(connection &&rhs) :
 }
 
 
+pqxx::connection::connection(
+  connection::connect_mode, zview connection_string) :
+        m_conn{PQconnectStart(connection_string.c_str())}
+{
+  if (m_conn == nullptr)
+    throw std::bad_alloc{};
+}
+
+
+std::pair<bool, bool> pqxx::connection::poll_connect()
+{
+  switch (PQconnectPoll(m_conn))
+  {
+  case PGRES_POLLING_FAILED:
+    throw pqxx::broken_connection{PQerrorMessage(m_conn)};
+  case PGRES_POLLING_READING: return std::make_pair(true, false);
+  case PGRES_POLLING_WRITING: return std::make_pair(false, true);
+  case PGRES_POLLING_OK:
+    if (not is_open())
+      throw pqxx::broken_connection{PQerrorMessage(m_conn)};
+    return std::make_pair(false, false);
+  case PGRES_POLLING_ACTIVE:
+    throw internal_error{
+      "Nonblocking connection poll returned obsolete 'active' state."};
+  default:
+    throw internal_error{
+      "Nonblocking connection poll returned unknown value."};
+  }
+}
+
 void pqxx::connection::complete_init()
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
   try
   {
-    if (PQstatus(m_conn) != CONNECTION_OK)
+    if (not is_open())
       throw broken_connection{PQerrorMessage(m_conn)};
 
     set_up_state();
@@ -955,92 +985,54 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
 namespace
 {
-// Convert a timeval to milliseconds, or -1 if no timeval is given.
-[[maybe_unused]] constexpr int tv_milliseconds(timeval *tv = nullptr)
+unsigned to_milli(std::time_t seconds, long microseconds)
 {
-  if (tv == nullptr)
-    return -1;
-  else
-    return pqxx::check_cast<int>(
-      tv->tv_sec * 1000 + tv->tv_usec / 1000, "milliseconds"sv);
+  return pqxx::check_cast<unsigned>(
+    (seconds * 1000) + (microseconds / 1000),
+    "Wait timeout value out of bounds.");
 }
+} // namespace
 
 
 /// Wait for an fd to become free for reading/writing.  Optional timeout.
-void wait_fd(int fd, bool forwrite = false, timeval *tv = nullptr)
+void pqxx::internal::wait_fd(
+  int fd, bool for_read, bool for_write, unsigned seconds,
+  unsigned microseconds)
 {
-  if (fd < 0)
-    PQXX_UNLIKELY
-  throw pqxx::broken_connection{"No connection."};
-
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
-  short const events{static_cast<short>(forwrite ? POLLWRNORM : POLLRDNORM)};
+  short const events{static_cast<short>(
+    (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  WSAPoll(&fdarray, 1, tv_milliseconds(tv));
+  WSAPoll(&fdarray, 1, to_milli(seconds, microseconds));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
-    POLLERR | POLLHUP | POLLNVAL | (forwrite ? POLLOUT : POLLIN))};
+    POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
+    (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
-  poll(&pfd, 1, tv_milliseconds(tv));
+  poll(&pfd, 1, to_milli(seconds, microseconds));
   // TODO: Check for errors.
 #else
   // No poll()?  Our last option is select().
   fd_set read_fds;
   FD_ZERO(&read_fds);
-  if (not forwrite)
+  if (for_read)
     FD_SET(fd, &read_fds);
 
   fd_set write_fds;
   FD_ZERO(&write_fds);
-  if (forwrite)
+  if (for_write)
     FD_SET(fd, &write_fds);
 
   fd_set except_fds;
   FD_ZERO(&except_fds);
   FD_SET(fd, &except_fds);
 
-  select(fd + 1, &read_fds, &write_fds, &except_fds, tv);
+  timeval tv = {seconds, microseconds};
+  select(fd + 1, &read_fds, &write_fds, &except_fds, &tv);
   // TODO: Check for errors.
 #endif
-}
-} // namespace
-
-void pqxx::internal::wait_read(internal::pq::PGconn const *c)
-{
-  wait_fd(socket_of(c));
-}
-
-
-void pqxx::internal::wait_read(
-  internal::pq::PGconn const *c, std::time_t seconds, long microseconds)
-{
-  // Not all platforms have suseconds_t for the microseconds.  And some 64-bit
-  // systems use 32-bit integers here.
-  timeval tv{
-    check_cast<decltype(timeval::tv_sec)>(seconds, "read timeout seconds"sv),
-    check_cast<decltype(timeval::tv_usec)>(
-      microseconds, "read timeout microseconds"sv)};
-  wait_fd(socket_of(c), false, &tv);
-}
-
-
-void pqxx::internal::wait_write(internal::pq::PGconn const *c)
-{
-  wait_fd(socket_of(c), true);
-}
-
-
-void pqxx::connection::wait_read() const
-{
-  internal::wait_read(m_conn);
-}
-
-
-void pqxx::connection::wait_read(std::time_t seconds, long microseconds) const
-{
-  internal::wait_read(m_conn, seconds, microseconds);
 }
 
 
@@ -1050,7 +1042,7 @@ int pqxx::connection::await_notification()
   if (notifs == 0)
   {
     PQXX_LIKELY
-    wait_read();
+    internal::wait_fd(socket_of(m_conn), true, false, 10, 0);
     notifs = get_notifs();
   }
   return notifs;
@@ -1064,7 +1056,7 @@ int pqxx::connection::await_notification(
   if (notifs == 0)
   {
     PQXX_LIKELY
-    wait_read(seconds, microseconds);
+    internal::wait_fd(socket_of(m_conn), true, false, seconds, microseconds);
     return get_notifs();
   }
   return notifs;
@@ -1204,4 +1196,14 @@ std::string pqxx::connection::connection_string() const
     }
   }
   return buf;
+}
+
+
+pqxx::connection pqxx::connecting::produce()
+{
+  if (!done())
+    throw usage_error{
+      "Tried to produce a nonblocking connection before it was done."};
+  m_conn.complete_init();
+  return std::move(m_conn);
 }
