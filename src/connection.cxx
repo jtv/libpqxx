@@ -985,7 +985,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
 namespace
 {
-unsigned to_milli(std::time_t seconds, long microseconds)
+unsigned to_milli(unsigned seconds, unsigned microseconds)
 {
   return pqxx::check_cast<unsigned>(
     (seconds * 1000) + (microseconds / 1000),
