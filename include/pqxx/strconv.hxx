@@ -424,8 +424,8 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
  * we can reference them by a pointer.
  */
 template<class TYPE>
-concept binary = std::ranges::contiguous_range<TYPE>
-  and std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
+concept binary = std::ranges::contiguous_range<TYPE> and
+  std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
 #endif
 //@}
 } // namespace pqxx

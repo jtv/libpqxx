@@ -81,14 +81,12 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
   {std::cbegin(t)};
   {
     std::get<0>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
   {
     std::get<1>(*std::cbegin(t))
-  }
-  ->ZString;
-}
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
+    } -> ZString;
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
+== 2;
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
 
