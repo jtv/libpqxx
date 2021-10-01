@@ -1016,10 +1016,11 @@ using connection_base = connection;
  *
  * To use this, create the @c connecting object, passing a connection string.
  * Then loop: If @c wait_to_read() returns true, wait for the socket to have
- * incoming data on it.  If @c wait_to_write() returns true, wait wait for the
- * socket to be ready for writing.  Repeat until @c done() returns true (or
+ * incoming data on it.  If @c wait_to_write() returns true, wait for the
+ * socket to be ready for writing.  Then call @c process() to process any
+ * incoming or outgoing data.  Do all of this until @c done() returns true (or
  * there is an exception).  Finally, call @c produce() to get the completed
- * connection.  This will work only once on the @c connecting object.
+ * connection.
  */
 class PQXX_LIBEXPORT connecting
 {
@@ -1030,22 +1031,17 @@ public:
   {}
   connecting() : m_conn{connection::connect_nonblocking, ""_zv} {}
 
-  /// Get the socket.  This may change during the process.
+  /// Get the socket.  The socket may change during the connection process.
   int sock() const noexcept { return m_conn.sock(); }
 
-  /// Should we currently wait to @i read from the socket?
+  /// Should we currently wait to be able to @i read from the socket?
   bool wait_to_read() const noexcept { return m_reading; }
 
-  /// Should we currently wait to @i write to the socket?
+  /// Should we currently wait to be able to @i write to the socket?
   bool wait_to_write() const noexcept { return m_writing; }
 
-  /// Progress towards completion but don't block.
-  void process()
-  {
-    auto const [reading, writing]{m_conn.poll_connect()};
-    m_reading = reading;
-    m_writing = writing;
-  }
+  /// Progress towards completion (but don't block).
+  void process();
 
   /// Is our connection finished?
   bool done() const noexcept { return not m_reading and not m_writing; }

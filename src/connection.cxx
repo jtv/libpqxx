@@ -1202,6 +1202,14 @@ std::string pqxx::connection::connection_string() const
 }
 
 
+void pqxx::connecting::process()
+{
+  auto const [reading, writing]{m_conn.poll_connect()};
+  m_reading = reading;
+  m_writing = writing;
+}
+
+
 pqxx::connection pqxx::connecting::produce()
 {
   if (!done())
