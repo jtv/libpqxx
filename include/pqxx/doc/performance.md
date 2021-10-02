@@ -8,11 +8,17 @@ of how you issue commands and retrieve data:
 
 * @ref streams.  Use these as a faster way to transfer data between your
     code and the database.
+* `std::string_view` and `pqxx::zview`.  In places where traditional C++ worked
+    with `std::string`, see whether `std::string_view` or `pqxx::zview` will
+    do.  Of course that means that you'll have to look at the data's lifetime
+    more carefully, but it'll save the computer a lot of copying.
 * @ref prepared.  These can be executed many times without the server
     parsing and planning them each and every time.  They also save you having
     to escape string parameters.
-* pqxx::pipeline lets you send queries to the database in batch, and
+* `pqxx::pipeline` lets you send queries to the database in batches, and
     continue other processing while they are executing.
+* `pqxx::connecting` lets you start setting up a database connection, but
+    without blocking the thread.
 
 As always of course, don't risk the quality of your code for optimizations
 that you don't need!
