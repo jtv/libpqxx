@@ -1,0 +1,4 @@
+/** Client-side support for SQL range types.
+ */
+// Actual definitions in .hxx file so editors and such recognize file type.
+#include "pqxx/range.hxx"

@@ -149,7 +149,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_nonblocking_connect.$(OBJEXT) \
 	unit/test_notification.$(OBJEXT) unit/test_pipeline.$(OBJEXT) \
 	unit/test_prepared_statement.$(OBJEXT) \
-	unit/test_read_transaction.$(OBJEXT) \
+	unit/test_range.$(OBJEXT) unit/test_read_transaction.$(OBJEXT) \
 	unit/test_result_iteration.$(OBJEXT) \
 	unit/test_result_slicing.$(OBJEXT) unit/test_row.$(OBJEXT) \
 	unit/test_separated_list.$(OBJEXT) \
@@ -225,6 +225,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	unit/$(DEPDIR)/test_notification.Po \
 	unit/$(DEPDIR)/test_pipeline.Po \
 	unit/$(DEPDIR)/test_prepared_statement.Po \
+	unit/$(DEPDIR)/test_range.Po \
 	unit/$(DEPDIR)/test_read_transaction.Po \
 	unit/$(DEPDIR)/test_result_iteration.Po \
 	unit/$(DEPDIR)/test_result_slicing.Po \
@@ -528,6 +529,7 @@ runner_SOURCES = \
   unit/test_notification.cxx \
   unit/test_pipeline.cxx \
   unit/test_prepared_statement.cxx \
+  unit/test_range.cxx \
   unit/test_read_transaction.cxx \
   unit/test_result_iteration.cxx \
   unit/test_result_slicing.cxx \
@@ -639,6 +641,8 @@ unit/test_notification.$(OBJEXT): unit/$(am__dirstamp) \
 unit/test_pipeline.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_prepared_statement.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_range.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_read_transaction.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
@@ -756,6 +760,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_range.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_read_transaction.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_result_iteration.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_result_slicing.Po@am__quote@ # am--include-marker
@@ -1100,6 +1105,7 @@ distclean: distclean-am
 	-rm -f unit/$(DEPDIR)/test_notification.Po
 	-rm -f unit/$(DEPDIR)/test_pipeline.Po
 	-rm -f unit/$(DEPDIR)/test_prepared_statement.Po
+	-rm -f unit/$(DEPDIR)/test_range.Po
 	-rm -f unit/$(DEPDIR)/test_read_transaction.Po
 	-rm -f unit/$(DEPDIR)/test_result_iteration.Po
 	-rm -f unit/$(DEPDIR)/test_result_slicing.Po
@@ -1228,6 +1234,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f unit/$(DEPDIR)/test_notification.Po
 	-rm -f unit/$(DEPDIR)/test_pipeline.Po
 	-rm -f unit/$(DEPDIR)/test_prepared_statement.Po
+	-rm -f unit/$(DEPDIR)/test_range.Po
 	-rm -f unit/$(DEPDIR)/test_read_transaction.Po
 	-rm -f unit/$(DEPDIR)/test_result_iteration.Po
 	-rm -f unit/$(DEPDIR)/test_result_slicing.Po
