@@ -80,7 +80,7 @@ an `int`, and prints it out.  It also contains some basic error handling.
     }
 
 This prints the number 1.  Notice that you can keep the result object around
-after the transaction (or even the connection) has been closed.  There are
+after you've closed the transaction or even the connection.  There are
 situations where you can't do it, but generally it's fine.  If you're
 interested: you can install your own callbacks for receiving error messages
 from the database, and in that case you'll have to keep the connection object

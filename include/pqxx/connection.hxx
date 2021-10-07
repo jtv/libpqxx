@@ -153,8 +153,8 @@ enum class error_verbosity : int
  *
  * When creating a connection, you can pass a connection URI or a postgres
  * connection string, to specify the database server's address, a login
- * username, and so on.  If none is given, the connection will try to obtain
- * them from certain environment variables.  If those are not set either, the
+ * username, and so on.  If you don't, the connection will try to obtain them
+ * from certain environment variables.  If those are not set either, the
  * default is to try and connect to the local system's port 5432.
  *
  * Find more about connection strings here:
@@ -169,7 +169,7 @@ enum class error_verbosity : int
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
  * transactor framework (see pqxx/transactor.hxx).
  *
- * When a connection breaks, you will typically get a broken_connection
+ * When a connection breaks, you will typically get a @c broken_connection
  * exception.  This can happen at almost any point.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
@@ -245,8 +245,9 @@ public:
 
   /// Is this connection open at the moment?
   /** @warning This function is @b not needed in most code.  Resist the
-   * temptation to check it after opening a connection.  Instead, just use the
-   * connection and rely on getting a broken_connection exception if it failed.
+   * temptation to check it after opening a connection.  The @c connection
+   * constructor will throw a @c broken_connection exception if can't connect
+   * to the database.
    */
   [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
 
