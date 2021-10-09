@@ -100,6 +100,24 @@ public:
   range_bound(no_bound) : m_bound{} {}
   range_bound(inclusive_bound<TYPE> const &bound) : m_bound{bound} {}
   range_bound(exclusive_bound<TYPE> const &bound) : m_bound{bound} {}
+  range_bound(range_bound const &) =default;
+  range_bound(range_bound &&) =default;
+
+  bool operator==(range_bound const &rhs) const
+  {
+    if (this->is_limited())
+      return (
+        rhs.is_limited() and
+	(this->is_inclusive() == rhs.is_inclusive()) and
+	(*this->value() == *rhs.value())
+      );
+    else
+      return not rhs.is_limited();
+  }
+
+  bool operator!=(range_bound const &rhs) const { return not (*this == rhs); }
+  range_bound &operator=(range_bound const &) =default;
+  range_bound &operator=(range_bound &&) =default;
 
   /// Is this a finite bound?
   bool is_limited() const noexcept
@@ -203,23 +221,20 @@ public:
 
   bool operator==(range const &rhs) const
   {
-    if (rhs.empty() and this->empty()) return true;
-    bool const llimited{m_lower.is_limited()}, ulimited{m_upper.is_limited()};
-    if (
-      rhs.m_lower.is_limited() != llimited or
-      rhs.m_lower.is_inclusive() != m_lower.is_inclusive() or
-      rhs.m_lower.is_exclusive() != m_lower.is_exclusive() or
-      rhs.m_upper.is_limited() != ulimited or
-      rhs.m_upper.is_inclusive() != m_upper.is_inclusive() or
-      rhs.m_upper.is_exclusive() != m_upper.is_exclusive()
-    ) return false;
-
-    if (llimited and *rhs.m_lower.value() != *m_lower.value()) return false;
-    if (ulimited and *rhs.m_upper.value() != *m_upper.value()) return false;
-    return true;
+    return (
+      this->lower_bound() == rhs.lower_bound() and
+      this->upper_bound() == rhs.upper_bound()
+      ) or (
+        this->empty() and rhs.empty()
+      );
   }
 
   bool operator!=(range const &rhs) const { return !(*this == rhs); }
+
+  range(range const &) =default;
+  range(range &&) =default;
+  range &operator=(range const &) =default;
+  range &operator=(range &&) =default;
 
   /// Is this range clearly empty?
   /** An empty range encompasses no values.
@@ -241,6 +256,15 @@ public:
   bool contains(TYPE value) const
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
+  }
+
+  /// Does this range encompass all of @c other?
+  /** This function is not particularly smart.  It does not know, for example,
+   * that integer ranges @c [0,9] and @c [0,10) contain the same values.
+   */
+  bool contains(range<TYPE> const &other) const
+  {
+    return (*this & other) == other;
   }
 
   range_bound<TYPE> const &lower_bound() const noexcept { return m_lower; }
@@ -279,14 +303,32 @@ public:
     else
       upper = other.upper_bound();
 
-    if (lower.is_limited() and upper.is_limited() and (*upper.value() < *lower.value()))
+    if (
+      lower.is_limited() and
+      upper.is_limited() and
+      (*upper.value() < *lower.value())
+    )
       return range{};
     else
       return range{lower, upper};
   }
 
-  // TODO: Iteration?
-  // TODO: Casts to other value types.
+  /// Convert to another base type.
+  template<typename DEST> operator range<DEST>() const
+  {
+    range_bound<DEST> lower{no_bound{}}, upper{no_bound{}};
+    if (lower_bound().is_inclusive())
+      lower = inclusive_bound<DEST>{*lower_bound().value()};
+    else if (lower_bound().is_exclusive())
+      lower = exclusive_bound<DEST>{*lower_bound().value()};
+
+    if (upper_bound().is_inclusive())
+      upper = inclusive_bound<DEST>{*upper_bound().value()};
+    else if (upper_bound().is_exclusive())
+      upper = exclusive_bound<DEST>{*upper_bound().value()};
+
+    return range<DEST>{lower, upper};
+  }
 
 private:
   range_bound<TYPE> m_lower, m_upper;

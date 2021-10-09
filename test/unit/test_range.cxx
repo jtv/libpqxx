@@ -323,6 +323,56 @@ void test_float_range_contains()
 }
 
 
+void test_range_subset()
+{
+  using range = pqxx::range<int>;
+  using traits = pqxx::string_traits<range>;
+
+  std::string_view subsets[][2]{
+    {"empty", "empty"},
+    {"(,)", "empty"},
+    {"(0,1)", "empty"},
+    {"(,)", "[-10,10]"},
+    {"(,)", "(-10,10)"},
+    {"(,)", "(,)"},
+    {"(,10)", "(,10)"},
+    {"(,10)", "(,9)"},
+    {"(,10]", "(,10)"},
+    {"(,10]", "(,10]"},
+    {"(1,)", "(10,)"},
+    {"(1,)", "(9,)"},
+    {"[1,)", "(10,)"},
+    {"[1,)", "[10,)"},
+    {"[0,5]", "[1,4]"},
+    {"(0,5)", "[1,4]"},
+  };
+  for (auto const [super, sub] : subsets)
+    PQXX_CHECK(
+      traits::from_string(super).contains(traits::from_string(sub)),
+      pqxx::internal::concat(
+        "Range '", super, "' did not contain '", sub, "'."));
+
+  std::string_view non_subsets[][2]{
+    {"empty", "[0,0]"},
+    {"empty", "(,)"},
+    {"[-10,10]", "(,)"},
+    {"(-10,10)", "(,)"},
+    {"(,9)", "(,10)"},
+    {"(,10)", "(,10]"},
+    {"[1,4]", "[0,4]"},
+    {"[1,4]", "[1,5]"},
+    {"(0,10)", "[0,10]"},
+    {"(0,10)", "(0,10]"},
+    {"(0,10)", "[0,10)"},
+  };
+  for (auto const [super, sub] : non_subsets)
+    PQXX_CHECK(
+      not traits::from_string(super).contains(traits::from_string(sub)),
+      pqxx::internal::concat(
+        "Range '", super, "' contained '", sub, "'."));
+}
+
+
 void test_range_to_string()
 {
   using range = pqxx::range<int>;
@@ -513,13 +563,38 @@ void test_range_intersection()
 }
 
 
+void test_range_conversion()
+{
+  std::string_view const ranges[]{
+    "empty",
+    "(,)",
+    "(,10)",
+    "(0,)",
+    "[0,10]",
+    "[0,10)",
+    "(0,10]",
+    "(0,10)",
+  };
+
+  for (auto r : ranges)
+  {
+    auto const shortr{pqxx::from_string<pqxx::range<short>>(r)};
+    pqxx::range<int> intr{shortr};
+    PQXX_CHECK_EQUAL(
+      pqxx::to_string(intr), r, "Converted range looks different.");
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_range_construct);
 PQXX_REGISTER_TEST(test_range_equality);
 PQXX_REGISTER_TEST(test_range_empty);
 PQXX_REGISTER_TEST(test_range_contains);
 PQXX_REGISTER_TEST(test_float_range_contains);
+PQXX_REGISTER_TEST(test_range_subset);
 PQXX_REGISTER_TEST(test_range_to_string);
 PQXX_REGISTER_TEST(test_parse_range);
 PQXX_REGISTER_TEST(test_parse_bad_range);
 PQXX_REGISTER_TEST(test_range_intersection);
+PQXX_REGISTER_TEST(test_range_conversion);
 } // namespace
