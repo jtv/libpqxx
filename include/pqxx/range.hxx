@@ -246,7 +246,45 @@ public:
   range_bound<TYPE> const &lower_bound() const noexcept { return m_lower; }
   range_bound<TYPE> const &upper_bound() const noexcept { return m_upper; }
 
-  // TODO: Intersection.
+  /// Intersection of two ranges.
+  /** Returns a range describing those values which are in both ranges.
+   */
+  range operator&(range const &other) const
+  {
+    range_bound<TYPE> lower{no_bound{}};
+    if (not this->lower_bound().is_limited())
+      lower = other.lower_bound();
+    else if (not other.lower_bound().is_limited())
+      lower = this->lower_bound();
+    else if (*this->lower_bound().value() < *other.lower_bound().value())
+      lower = other.lower_bound();
+    else if (*other.lower_bound().value() < *this->lower_bound().value())
+      lower = this->lower_bound();
+    else if (this->lower_bound().is_exclusive())
+      lower = this->lower_bound();
+    else
+      lower = other.lower_bound();
+
+    range_bound<TYPE> upper{no_bound{}};
+    if (not this->upper_bound().is_limited())
+      upper = other.upper_bound();
+    else if (not other.upper_bound().is_limited())
+      upper = this->upper_bound();
+    else if (*other.upper_bound().value() < *this->upper_bound().value())
+      upper = other.upper_bound();
+    else if (*this->upper_bound().value() < *other.upper_bound().value())
+      upper = this->upper_bound();
+    else if (this->upper_bound().is_exclusive())
+      upper = this->upper_bound();
+    else
+      upper = other.upper_bound();
+
+    if (lower.is_limited() and upper.is_limited() and (*upper.value() < *lower.value()))
+      return range{};
+    else
+      return range{lower, upper};
+  }
+
   // TODO: Iteration?
   // TODO: Casts to other value types.
 

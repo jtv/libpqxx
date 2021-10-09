@@ -386,6 +386,19 @@ void test_parse_range()
       pqxx::internal::concat(
         "This was supposed to produce a universal range: '", univ, "'"));
 
+  PQXX_CHECK(
+    traits::from_string("(0,10]").lower_bound().is_exclusive(),
+    "Exclusive lower bound did not parse right.");
+  PQXX_CHECK(
+    traits::from_string("[0,10]").lower_bound().is_inclusive(),
+    "Inclusive lower bound did not parse right.");
+  PQXX_CHECK(
+    traits::from_string("(0,10)").upper_bound().is_exclusive(),
+    "Exclusive upper bound did not parse right.");
+  PQXX_CHECK(
+    traits::from_string("[0,10]").upper_bound().is_inclusive(),
+    "Inclusive upper bound did not parse right.");
+
   PQXX_CHECK_EQUAL(
     *traits::from_string("(\"0\",\"10\")").lower_bound().value(),
     0, "Quoted range boundary did not parse right.");
@@ -423,12 +436,17 @@ void test_parse_bad_range()
     "emptyy",
     "()",
     "[]",
+    "(empty)",
+    "(empty, 0)",
+    "(0, empty)",
     ",",
     "(,",
     ",)",
     "(1,2,3)",
     "(4,5x)",
     "(null, 0)",
+    "[0, 1.0]",
+    "[1.0, 0]",
   };
 
   for (auto bad : bad_ranges)
@@ -436,6 +454,62 @@ void test_parse_bad_range()
       pqxx::ignore_unused(traits::from_string(bad)), conv_err,
       pqxx::internal::concat(
         "This range wasn't supposed to parse: '", bad, "'"));
+}
+
+
+/// Parse ranges lhs and rhs, return their intersection as a string.
+template<typename TYPE>
+std::string intersect(std::string_view lhs, std::string_view rhs)
+{
+  using traits = pqxx::string_traits<pqxx::range<TYPE>>;
+  return pqxx::to_string(traits::from_string(lhs) & traits::from_string(rhs));
+}
+
+
+void test_range_intersection()
+{
+  // Intersections and their expected results, in text form.
+  // Each row contains two ranges, and their intersection.
+  std::string_view intersections[][3]{
+    {"empty", "empty", "empty"},
+    {"(,)", "empty", "empty"},
+    {"[,]", "empty", "empty"},
+    {"empty", "[0,10]", "empty"},
+    {"(,)", "(,)", "(,)"},
+    {"(,)", "(5,8)", "(5,8)"},
+    {"(,)", "[5,8)", "[5,8)"},
+    {"(,)", "(5,8]", "(5,8]"},
+    {"(,)", "[5,8]", "[5,8]"},
+    {"(-1000,10)", "(0,1000)", "(0,10)"},
+    {"[-1000,10)", "(0,1000)", "(0,10)"},
+    {"(-1000,10]", "(0,1000)", "(0,10]"},
+    {"[-1000,10]", "(0,1000)", "(0,10]"},
+    {"[0,100]", "[0,100]", "[0,100]"},
+    {"[0,100]", "[0,100)", "[0,100)"},
+    {"[0,100]", "(0,100]", "(0,100]"},
+    {"[0,100]", "(0,100)", "(0,100)"},
+    {"[0,10]", "[11,20]", "empty"},
+    {"[0,10]", "(11,20]", "empty"},
+    {"[0,10]", "[11,20)", "empty"},
+    {"[0,10]", "(11,20)", "empty"},
+    {"[0,10]", "[10,11]", "[10,10]"},
+    {"[0,10)", "[10,11]", "empty"},
+    {"[0,10]", "(10,11]", "empty"},
+    {"[0,10)", "(10,11]", "empty"},
+  };
+  for (auto [left, right, expected] : intersections)
+  {
+    PQXX_CHECK_EQUAL(
+      intersect<int>(left, right), expected,
+      pqxx::internal::concat(
+        "Intersection of '", left, "' and '", right,
+	" produced unexpected result."));
+    PQXX_CHECK_EQUAL(
+      intersect<int>(right, left), expected,
+      pqxx::internal::concat(
+        "Intersection of '", left, "' and '", right,
+	" was asymmetric."));
+  }
 }
 
 
@@ -447,4 +521,5 @@ PQXX_REGISTER_TEST(test_float_range_contains);
 PQXX_REGISTER_TEST(test_range_to_string);
 PQXX_REGISTER_TEST(test_parse_range);
 PQXX_REGISTER_TEST(test_parse_bad_range);
+PQXX_REGISTER_TEST(test_range_intersection);
 } // namespace
