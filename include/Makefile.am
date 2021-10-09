@@ -19,6 +19,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/params pqxx/params.hxx \
 	pqxx/pipeline pqxx/pipeline.hxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
+	pqxx/range pqxx/range.hxx \
 	pqxx/result pqxx/result.hxx \
 	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \

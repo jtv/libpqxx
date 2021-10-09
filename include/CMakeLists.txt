@@ -36,6 +36,7 @@ install(
     PATTERN params
     PATTERN pipeline
     PATTERN prepared_statement
+    PATTERN range
     PATTERN result
     PATTERN result_iterator
     PATTERN robusttransaction

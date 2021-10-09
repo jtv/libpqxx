@@ -287,12 +287,14 @@ template<typename TYPE>
     msg = "Could not parse full string.";
   }
   else
+  {
     switch (res.ec)
     {
     case std::errc::result_out_of_range: msg = "Value out of range."; break;
     case std::errc::invalid_argument: msg = "Invalid argument."; break;
     default: break;
     }
+  }
 
   auto const base{
     "Could not convert '" + std::string(in) +

@@ -98,6 +98,7 @@ runner_SOURCES = \
   unit/test_notification.cxx \
   unit/test_pipeline.cxx \
   unit/test_prepared_statement.cxx \
+  unit/test_range.cxx \
   unit/test_read_transaction.cxx \
   unit/test_result_iteration.cxx \
   unit/test_result_slicing.cxx \

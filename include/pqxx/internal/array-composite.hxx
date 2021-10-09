@@ -145,6 +145,15 @@ inline std::string parse_unquoted_string(
 /** @c T is the C++ type of the field we're parsing, and @c index is its
  * zero-based number.
  *
+ * Strip off the leading parenthesis or bracket yourself before parsing.
+ * However, this function will parse the lcosing parenthesis or bracket.
+ *
+ * After a successful parse, @c pos will point at @c std::end(text).
+ *
+ * For the purposes of parsing, ranges and arrays count as compositve values,
+ * so this function supports parsing those.  If you specifically need a closing
+ * parenthesis, check afterwards that @c text did not end in a bracket instead.
+ *
  * @param index Index of the current field, zero-based.  It will increment for
  *     the next field.
  * @param input Full input text for the entire composite-type value.
@@ -171,6 +180,7 @@ inline void parse_composite_field(
   {
   case ',':
   case ')':
+  case ']':
     // The field is empty, i.e, null.
     if constexpr (nullness<T>::has_null)
       field = nullness<T>::null();
@@ -191,7 +201,7 @@ inline void parse_composite_field(
   break;
 
   default: {
-    auto const stop{scan_unquoted_string<',', ')'>(
+    auto const stop{scan_unquoted_string<',', ')', ']'>(
       std::data(input), std::size(input), pos, scan)};
     auto const text{parse_unquoted_string(std::data(input), stop, pos, scan)};
     field = from_string<T>(text);
@@ -221,7 +231,7 @@ inline void parse_composite_field(
       throw conversion_error{
         "Composite value contained more fields than the expected " +
         to_string(last_field) + ": " + std::data(input)};
-    if (input[pos] != ')')
+    if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
         "Composite value has unexpected characters where closing parenthesis "
         "was expected: " +
