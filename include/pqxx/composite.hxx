@@ -53,6 +53,15 @@ inline void parse_composite(
   (pqxx::internal::parse_composite_field(
      index, text, here, fields, scan, num_fields - 1),
    ...);
+  if (here != std::size(text))
+    throw conversion_error{
+      internal::concat(
+        "Composite value did not end at the closing parenthesis: '", text,
+	"'.")};
+  if (text[here - 1] != ')')
+    throw conversion_error{
+      internal::concat(
+        "Composive value did not end in parenthesis: '", text, "'")};
 }
 
 

@@ -20,12 +20,12 @@ namespace pqxx
 struct no_bound
 {
   template<typename TYPE>
-  constexpr bool extends_down_to(TYPE const &value) const noexcept
+  constexpr bool extends_down_to(TYPE const &) const
   {
     return true;
   }
   template<typename TYPE>
-  constexpr bool extends_up_to(TYPE const &value) const noexcept
+  constexpr bool extends_up_to(TYPE const &) const
   {
     return true;
   }
@@ -139,7 +139,7 @@ public:
   TYPE const *value() const noexcept
   {
     return std::visit(
-      [](auto const &bound) {
+      [](auto const &bound) noexcept {
         using bound_t = std::decay_t<decltype(bound)>;
         if constexpr (std::is_same_v<bound_t, no_bound>)
           return static_cast<TYPE const *>(nullptr);
@@ -272,7 +272,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   {
     if (value.empty())
     {
-      if ((end - begin) <= std::size(s_empty))
+      if ((end - begin) <= internal::ssize(s_empty))
         throw conversion_overrun{s_overrun.c_str()};
       char *here = begin + s_empty.copy(begin, std::size(s_empty));
       *here++ = '\0';
@@ -333,13 +333,47 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     default:
       throw pqxx::conversion_error{err_bad_input(text)};
     }
-    return range<TYPE>{}; // XXX: Parse!
+
+    auto scan{internal::get_glyph_scanner(internal::encoding_group::UTF8)};
+    // The field parser uses this to track which field it's parsing, and
+    // when not to expect a field separator.
+    std::size_t index{0};
+    // The last field we expect to see.
+    constexpr std::size_t last{1};
+    // Current parsing position.  We skip the opening parenthesis or bracket.
+    std::size_t pos{1};
+    // The string may leave out either bound to indicate that it's unlimited.
+    std::optional<TYPE> lower, upper;
+    // We reuse the same field parser we use for composite values and arrays.
+    internal::parse_composite_field(index, text, pos, lower, scan, last);
+    internal::parse_composite_field(index, text, pos, upper, scan, last);
+
+    // We need one more character: the closing parenthesis or bracket.
+    if (pos != std::size(text))
+      throw pqxx::conversion_error{err_bad_input(text)};
+    char const closing{text[pos - 1]};
+    if (closing != ')' and closing != ']')
+      throw pqxx::conversion_error{err_bad_input(text)};
+    bool const right_inc{closing == ']'};
+
+    range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};
+    if (lower)
+    {
+      if (left_inc) lower_bound = inclusive_bound{*lower};
+      else lower_bound = exclusive_bound{*lower};
+    }
+    if (upper)
+    {
+      if (right_inc) upper_bound = inclusive_bound{*upper};
+      else upper_bound = exclusive_bound{*upper};
+    }
+
+    return range{lower_bound, upper_bound};
   }
 
   [[nodiscard]] static inline std::size_t
   size_buffer(range<TYPE> const &value) noexcept
   {
-    using value_traits = string_traits<TYPE>;
     TYPE const *lower{value.lower_bound().value()},
       *upper{value.upper_bound().value()};
     std::size_t const lsz{

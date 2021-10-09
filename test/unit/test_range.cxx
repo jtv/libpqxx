@@ -21,7 +21,6 @@ void test_range_construct()
     "Exclusive bound accepted a null.");
 
   using ibound = pqxx::inclusive_bound<int>;
-  using xbound = pqxx::exclusive_bound<int>;
   PQXX_CHECK_THROWS(
     (pqxx::range<int>{ibound{1}, ibound{0}}),
     pqxx::range_error,
@@ -271,6 +270,8 @@ void test_float_range_contains()
   using ibound = pqxx::inclusive_bound<double>;
   using xbound = pqxx::exclusive_bound<double>;
   using ubound = pqxx::no_bound;
+  using limits = std::numeric_limits<double>;
+  constexpr auto inf{limits::infinity()};
 
   PQXX_CHECK(
     not(range{ibound{4.0}, ibound{8.0}}.contains(3.9)),
@@ -281,12 +282,44 @@ void test_float_range_contains()
   PQXX_CHECK(
     (range{ibound{4.0}, ibound{8.0}}.contains(5.0)),
     "Float inclusive range does not contain value inside it.");
-// XXX: Check floating-point "contains" as well, with infinities!
-// XXX: Infinity (inclusive) includes all numbers.
-// XXX: Infinity (exclusive) includes all numbers.
-// XXX: Infinity (inclusive) includes infinity.
-// XXX: Infinity (exclusive) does not include infinity.
-// XXX: Infinity falls within unlimited bound.
+
+  PQXX_CHECK(
+    (range{ibound{0}, ibound{inf}}).contains(9999.0),
+    "Range to infinity did not include large number.");
+  PQXX_CHECK(
+    not (range{ibound{0}, ibound{inf}}.contains(-0.1)),
+    "Range to infinity includes number outside it.");
+  PQXX_CHECK(
+    (range{ibound{0}, xbound{inf}}.contains(9999.0)),
+    "Range to exclusive infinity did not include large number.");
+  PQXX_CHECK(
+    (range{ibound{0}, ibound{inf}}).contains(inf),
+    "Range to inclusive infinity does not include infinity.");
+  PQXX_CHECK(
+    not (range{ibound{0}, xbound{inf}}.contains(inf)),
+    "Range to exclusive infinity includes infinity.");
+  PQXX_CHECK(
+    (range{ibound{0}, ubound{}}).contains(inf),
+    "Right-unlimited range does not include infinity.");
+
+  PQXX_CHECK(
+    (range{ibound{-inf}, ibound{0}}).contains(-9999.0),
+    "Range from infinity did not include large negative number.");
+  PQXX_CHECK(
+    not (range{ibound{-inf}, ibound{0}}.contains(0.1)),
+    "Range from infinity includes number outside it.");
+  PQXX_CHECK(
+    (range{xbound{-inf}, ibound{0}}).contains(-9999.0),
+    "Range from exclusive infinity did not include large negative number.");
+  PQXX_CHECK(
+    (range{ibound{-inf}, ibound{0}}).contains(-inf),
+    "Range from inclusive infinity does not include negative infinity.");
+  PQXX_CHECK(
+    not (range{xbound{-inf}, ibound{0}}).contains(-inf),
+    "Range to infinity exclusive includes negative infinity.");
+  PQXX_CHECK(
+    (range{ubound{}, ibound{0}}).contains(-inf),
+    "Left-unlimited range does not include negative infinity.");
 }
 
 
@@ -336,8 +369,6 @@ void test_range_to_string()
 void test_parse_range()
 {
   using range = pqxx::range<int>;
-  using ibound = pqxx::inclusive_bound<int>;
-  using xbound = pqxx::exclusive_bound<int>;
   using ubound = pqxx::no_bound;
   using traits = pqxx::string_traits<range>;
 
@@ -355,9 +386,27 @@ void test_parse_range()
       pqxx::internal::concat(
         "This was supposed to produce a universal range: '", univ, "'"));
 
-  // XXX: Quotes.
-  // XXX: Float.
-  // XXX:
+  PQXX_CHECK_EQUAL(
+    *traits::from_string("(\"0\",\"10\")").lower_bound().value(),
+    0, "Quoted range boundary did not parse right.");
+  PQXX_CHECK_EQUAL(
+    *traits::from_string("(\"0\",\"10\")").upper_bound().value(),
+    10, "Quoted upper boundary did not parse right.");
+
+  auto floats{
+    pqxx::string_traits<pqxx::range<double>>::from_string("(0,1.0)")};
+  PQXX_CHECK_GREATER(
+    *floats.lower_bound().value(), -0.001,
+    "Float lower bound is out of range.");
+  PQXX_CHECK_LESS(
+    *floats.lower_bound().value(), 0.001,
+    "Float lower bound is out of range.");
+  PQXX_CHECK_GREATER(
+    *floats.upper_bound().value(), 0.999,
+    "Float upper bound is out of range.");
+  PQXX_CHECK_LESS(
+    *floats.upper_bound().value(), 1.001,
+    "Float upper bound is out of range.");
 }
 
 
