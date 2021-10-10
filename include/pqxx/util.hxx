@@ -284,6 +284,18 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
+/// A safer and more generic replacement for @c std::isdigit.
+/** Turns out @c std::isdigit isn't as easy to use as it sounds.  It takes an
+ * @c int, but requires it to be nonnegative.  Which means it's an outright
+ * liability on systems where @c char is signed.
+ */
+template<typename CHAR>
+bool is_digit(CHAR c)
+{
+  return (c >= '0') and (c <= '9');
+}
+
+
 /// Describe an object for humans, based on class name and optional name.
 /** Interprets an empty name as "no name given."
  */

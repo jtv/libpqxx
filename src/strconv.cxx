@@ -430,9 +430,9 @@ template<typename T>
   char const initial{data[i]};
   T result{0};
 
-  if (isdigit(initial))
+  if (pqxx::internal::is_digit(initial))
   {
-    for (; isdigit(data[i]); ++i)
+    for (; pqxx::internal::is_digit(data[i]); ++i)
       result = absorb_digit_positive(result, digit_to_number(data[i]));
   }
   else if (initial == '-')
@@ -446,7 +446,7 @@ template<typename T>
       throw pqxx::conversion_error{
         "Converting string to " + pqxx::type_name<T> +
         ", but it contains only a sign."};
-    for (; i < std::size(text) and isdigit(data[i]); ++i)
+    for (; i < std::size(text) and pqxx::internal::is_digit(data[i]); ++i)
       result = absorb_digit_negative(result, digit_to_number(data[i]));
   }
   else
