@@ -19,13 +19,11 @@ namespace pqxx
  */
 struct no_bound
 {
-  template<typename TYPE>
-  constexpr bool extends_down_to(TYPE const &) const
+  template<typename TYPE> constexpr bool extends_down_to(TYPE const &) const
   {
     return true;
   }
-  template<typename TYPE>
-  constexpr bool extends_up_to(TYPE const &) const
+  template<typename TYPE> constexpr bool extends_up_to(TYPE const &) const
   {
     return true;
   }
@@ -39,7 +37,7 @@ struct no_bound
 template<typename TYPE> class inclusive_bound
 {
 public:
-  inclusive_bound() =delete;
+  inclusive_bound() = delete;
   explicit inclusive_bound(TYPE const &value) : m_value{value}
   {
     if (is_null(value))
@@ -69,7 +67,7 @@ private:
 template<typename TYPE> class exclusive_bound
 {
 public:
-  exclusive_bound() =delete;
+  exclusive_bound() = delete;
   explicit exclusive_bound(TYPE const &value) : m_value{value}
   {
     if (is_null(value))
@@ -100,24 +98,22 @@ public:
   range_bound(no_bound) : m_bound{} {}
   range_bound(inclusive_bound<TYPE> const &bound) : m_bound{bound} {}
   range_bound(exclusive_bound<TYPE> const &bound) : m_bound{bound} {}
-  range_bound(range_bound const &) =default;
-  range_bound(range_bound &&) =default;
+  range_bound(range_bound const &) = default;
+  range_bound(range_bound &&) = default;
 
   bool operator==(range_bound const &rhs) const
   {
     if (this->is_limited())
       return (
-        rhs.is_limited() and
-	(this->is_inclusive() == rhs.is_inclusive()) and
-	(*this->value() == *rhs.value())
-      );
+        rhs.is_limited() and (this->is_inclusive() == rhs.is_inclusive()) and
+        (*this->value() == *rhs.value()));
     else
       return not rhs.is_limited();
   }
 
-  bool operator!=(range_bound const &rhs) const { return not (*this == rhs); }
-  range_bound &operator=(range_bound const &) =default;
-  range_bound &operator=(range_bound &&) =default;
+  bool operator!=(range_bound const &rhs) const { return not(*this == rhs); }
+  range_bound &operator=(range_bound const &) = default;
+  range_bound &operator=(range_bound &&) = default;
 
   /// Is this a finite bound?
   bool is_limited() const noexcept
@@ -215,26 +211,23 @@ public:
    * encompasses no values is an empty range.
    */
   range() :
-    m_lower{exclusive_bound<TYPE>{TYPE{}}},
-    m_upper{exclusive_bound<TYPE>{TYPE{}}}
+          m_lower{exclusive_bound<TYPE>{TYPE{}}},
+          m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
   bool operator==(range const &rhs) const
   {
-    return (
-      this->lower_bound() == rhs.lower_bound() and
-      this->upper_bound() == rhs.upper_bound()
-      ) or (
-        this->empty() and rhs.empty()
-      );
+    return (this->lower_bound() == rhs.lower_bound() and
+            this->upper_bound() == rhs.upper_bound()) or
+           (this->empty() and rhs.empty());
   }
 
   bool operator!=(range const &rhs) const { return !(*this == rhs); }
 
-  range(range const &) =default;
-  range(range &&) =default;
-  range &operator=(range const &) =default;
-  range &operator=(range &&) =default;
+  range(range const &) = default;
+  range(range &&) = default;
+  range &operator=(range const &) = default;
+  range &operator=(range &&) = default;
 
   /// Is this range clearly empty?
   /** An empty range encompasses no values.
@@ -304,10 +297,8 @@ public:
       upper = other.upper_bound();
 
     if (
-      lower.is_limited() and
-      upper.is_limited() and
-      (*upper.value() < *lower.value())
-    )
+      lower.is_limited() and upper.is_limited() and
+      (*upper.value() < *lower.value()))
       return range{};
     else
       return range{lower, upper};
@@ -363,9 +354,8 @@ template<typename TYPE> struct string_traits<range<TYPE>>
       if (end - begin < 4)
         throw conversion_overrun{s_overrun.c_str()};
       char *here = begin;
-      *here++ = (
-        static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '(')
-      );
+      *here++ =
+        (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (lower != nullptr)
@@ -386,32 +376,28 @@ template<typename TYPE> struct string_traits<range<TYPE>>
 
   [[nodiscard]] static inline range<TYPE> from_string(std::string_view text)
   {
-    if (std::size(text) < 3) throw pqxx::conversion_error{err_bad_input(text)};
+    if (std::size(text) < 3)
+      throw pqxx::conversion_error{err_bad_input(text)};
     bool left_inc{false};
     switch (text[0])
     {
-    case '[':
-      left_inc = true;
-      break;
+    case '[': left_inc = true; break;
 
-    case '(':
-      break;
+    case '(': break;
 
     case 'e':
     case 'E':
       if (
         (std::size(text) != std::size(s_empty)) or
         (text[1] != 'm' and text[1] != 'M') or
-	(text[2] != 'p' and text[2] != 'P') or
-	(text[3] != 't' and text[3] != 'T') or
-	(text[4] != 'y' and text[4] != 'Y')
-      )
+        (text[2] != 'p' and text[2] != 'P') or
+        (text[3] != 't' and text[3] != 'T') or
+        (text[4] != 'y' and text[4] != 'Y'))
         throw pqxx::conversion_error{err_bad_input(text)};
       return range<TYPE>{};
       break;
 
-    default:
-      throw pqxx::conversion_error{err_bad_input(text)};
+    default: throw pqxx::conversion_error{err_bad_input(text)};
     }
 
     auto scan{internal::get_glyph_scanner(internal::encoding_group::UTF8)};
@@ -439,13 +425,17 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};
     if (lower)
     {
-      if (left_inc) lower_bound = inclusive_bound{*lower};
-      else lower_bound = exclusive_bound{*lower};
+      if (left_inc)
+        lower_bound = inclusive_bound{*lower};
+      else
+        lower_bound = exclusive_bound{*lower};
     }
     if (upper)
     {
-      if (right_inc) upper_bound = inclusive_bound{*upper};
-      else upper_bound = exclusive_bound{*upper};
+      if (right_inc)
+        upper_bound = inclusive_bound{*upper};
+      else
+        upper_bound = exclusive_bound{*upper};
     }
 
     return range{lower_bound, upper_bound};

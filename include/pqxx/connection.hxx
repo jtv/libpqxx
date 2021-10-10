@@ -1032,10 +1032,10 @@ public:
   {}
   connecting() : m_conn{connection::connect_nonblocking, ""_zv} {}
 
-  connecting(connecting const &) =delete;
-  connecting(connecting &&) =default;
-  connecting &operator=(connecting const &) =delete;
-  connecting &operator=(connecting &&) =default;
+  connecting(connecting const &) = delete;
+  connecting(connecting &&) = default;
+  connecting &operator=(connecting const &) = delete;
+  connecting &operator=(connecting &&) = default;
 
   /// Get the socket.  The socket may change during the connection process.
   int sock() const noexcept { return m_conn.sock(); }

@@ -13,17 +13,14 @@ void test_range_construct()
   using oxbound = pqxx::inclusive_bound<std::optional<int>>;
   PQXX_CHECK_THROWS(
     (pqxx::range<optint>{oibound{optint{}}, oibound{optint{}}}),
-    pqxx::argument_error,
-    "Inclusive bound accepted a null.");
+    pqxx::argument_error, "Inclusive bound accepted a null.");
   PQXX_CHECK_THROWS(
     (pqxx::range<optint>{oxbound{optint{}}, oxbound{optint{}}}),
-    pqxx::argument_error,
-    "Exclusive bound accepted a null.");
+    pqxx::argument_error, "Exclusive bound accepted a null.");
 
   using ibound = pqxx::inclusive_bound<int>;
   PQXX_CHECK_THROWS(
-    (pqxx::range<int>{ibound{1}, ibound{0}}),
-    pqxx::range_error,
+    (pqxx::range<int>{ibound{1}, ibound{0}}), pqxx::range_error,
     "Range constructor accepted backwards range.");
 
   PQXX_CHECK_THROWS(
@@ -110,8 +107,7 @@ void test_range_empty()
   using ibound = pqxx::inclusive_bound<int>;
   using xbound = pqxx::exclusive_bound<int>;
   using ubound = pqxx::no_bound;
-  PQXX_CHECK(
-    (range{}.empty()), "Default-constructed range is not empty.");
+  PQXX_CHECK((range{}.empty()), "Default-constructed range is not empty.");
   PQXX_CHECK(
     (range{ibound{10}, xbound{10}}).empty(),
     "Right-exclusive zero-length interval is not empty.");
@@ -152,7 +148,7 @@ void test_range_contains()
   PQXX_CHECK(not(range{}.contains(1)), "Empty range contains a value.");
 
   PQXX_CHECK(
-    not(range{ibound{5}, ibound{8}}.contains(4)), 
+    not(range{ibound{5}, ibound{8}}.contains(4)),
     "Inclusive range contains value outside its left bound.");
   PQXX_CHECK(
     (range{ibound{5}, ibound{8}}.contains(5)),
@@ -164,11 +160,11 @@ void test_range_contains()
     (range{ibound{5}, ibound{8}}.contains(8)),
     "Inclusive range does not contain value on its right bound.");
   PQXX_CHECK(
-    not(range{ibound{5}, ibound{8}}.contains(9)), 
+    not(range{ibound{5}, ibound{8}}.contains(9)),
     "Inclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
-    not(range{ibound{5}, xbound{8}}.contains(4)), 
+    not(range{ibound{5}, xbound{8}}.contains(4)),
     "Left-inclusive range contains value outside its left bound.");
   PQXX_CHECK(
     (range{ibound{5}, xbound{8}}.contains(5)),
@@ -180,14 +176,14 @@ void test_range_contains()
     not(range{ibound{5}, xbound{8}}.contains(8)),
     "Left-inclusive range contains value on its right bound.");
   PQXX_CHECK(
-    not(range{ibound{5}, xbound{8}}.contains(9)), 
+    not(range{ibound{5}, xbound{8}}.contains(9)),
     "Left-inclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
-    not(range{xbound{5}, ibound{8}}.contains(4)), 
+    not(range{xbound{5}, ibound{8}}.contains(4)),
     "Right-inclusive range contains value outside its left bound.");
   PQXX_CHECK(
-    not (range{xbound{5}, ibound{8}}.contains(5)),
+    not(range{xbound{5}, ibound{8}}.contains(5)),
     "Right-inclusive range does contains value on its left bound.");
   PQXX_CHECK(
     (range{xbound{5}, ibound{8}}.contains(6)),
@@ -196,11 +192,11 @@ void test_range_contains()
     (range{xbound{5}, ibound{8}}.contains(8)),
     "Right-inclusive range does not contain value on its right bound.");
   PQXX_CHECK(
-    not(range{xbound{5}, ibound{8}}.contains(9)), 
+    not(range{xbound{5}, ibound{8}}.contains(9)),
     "Right-inclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
-    not(range{xbound{5}, xbound{8}}.contains(4)), 
+    not(range{xbound{5}, xbound{8}}.contains(4)),
     "Exclusive range contains value outside its left bound.");
   PQXX_CHECK(
     not(range{xbound{5}, xbound{8}}.contains(5)),
@@ -209,10 +205,10 @@ void test_range_contains()
     (range{xbound{5}, xbound{8}}.contains(6)),
     "Exclusive range does not contain value inside it.");
   PQXX_CHECK(
-    not (range{xbound{5}, xbound{8}}.contains(8)),
+    not(range{xbound{5}, xbound{8}}.contains(8)),
     "Exclusive range does contains value on its right bound.");
   PQXX_CHECK(
-    not(range{xbound{5}, xbound{8}}.contains(9)), 
+    not(range{xbound{5}, xbound{8}}.contains(9)),
     "Exclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
@@ -222,7 +218,7 @@ void test_range_contains()
     (range{ubound{}, ibound{8}}.contains(8)),
     "Right-inclusive range does not contain value on its right bound.");
   PQXX_CHECK(
-    not (range{ubound{}, ibound{8}}.contains(9)),
+    not(range{ubound{}, ibound{8}}.contains(9)),
     "Right-inclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
@@ -232,7 +228,7 @@ void test_range_contains()
     not(range{ubound{}, xbound{8}}.contains(8)),
     "Right-exclusive range contains value on its right bound.");
   PQXX_CHECK(
-    not (range{ubound{}, xbound{8}}.contains(9)),
+    not(range{ubound{}, xbound{8}}.contains(9)),
     "Right-exclusive range contains value outside its right bound.");
 
   PQXX_CHECK(
@@ -287,7 +283,7 @@ void test_float_range_contains()
     (range{ibound{0}, ibound{inf}}).contains(9999.0),
     "Range to infinity did not include large number.");
   PQXX_CHECK(
-    not (range{ibound{0}, ibound{inf}}.contains(-0.1)),
+    not(range{ibound{0}, ibound{inf}}.contains(-0.1)),
     "Range to infinity includes number outside it.");
   PQXX_CHECK(
     (range{ibound{0}, xbound{inf}}.contains(9999.0)),
@@ -296,7 +292,7 @@ void test_float_range_contains()
     (range{ibound{0}, ibound{inf}}).contains(inf),
     "Range to inclusive infinity does not include infinity.");
   PQXX_CHECK(
-    not (range{ibound{0}, xbound{inf}}.contains(inf)),
+    not(range{ibound{0}, xbound{inf}}.contains(inf)),
     "Range to exclusive infinity includes infinity.");
   PQXX_CHECK(
     (range{ibound{0}, ubound{}}).contains(inf),
@@ -306,7 +302,7 @@ void test_float_range_contains()
     (range{ibound{-inf}, ibound{0}}).contains(-9999.0),
     "Range from infinity did not include large negative number.");
   PQXX_CHECK(
-    not (range{ibound{-inf}, ibound{0}}.contains(0.1)),
+    not(range{ibound{-inf}, ibound{0}}.contains(0.1)),
     "Range from infinity includes number outside it.");
   PQXX_CHECK(
     (range{xbound{-inf}, ibound{0}}).contains(-9999.0),
@@ -315,7 +311,7 @@ void test_float_range_contains()
     (range{ibound{-inf}, ibound{0}}).contains(-inf),
     "Range from inclusive infinity does not include negative infinity.");
   PQXX_CHECK(
-    not (range{xbound{-inf}, ibound{0}}).contains(-inf),
+    not(range{xbound{-inf}, ibound{0}}).contains(-inf),
     "Range to infinity exclusive includes negative infinity.");
   PQXX_CHECK(
     (range{ubound{}, ibound{0}}).contains(-inf),
@@ -329,21 +325,11 @@ void test_range_subset()
   using traits = pqxx::string_traits<range>;
 
   std::string_view subsets[][2]{
-    {"empty", "empty"},
-    {"(,)", "empty"},
-    {"(0,1)", "empty"},
-    {"(,)", "[-10,10]"},
-    {"(,)", "(-10,10)"},
-    {"(,)", "(,)"},
-    {"(,10)", "(,10)"},
-    {"(,10)", "(,9)"},
-    {"(,10]", "(,10)"},
-    {"(,10]", "(,10]"},
-    {"(1,)", "(10,)"},
-    {"(1,)", "(9,)"},
-    {"[1,)", "(10,)"},
-    {"[1,)", "[10,)"},
-    {"[0,5]", "[1,4]"},
+    {"empty", "empty"},  {"(,)", "empty"},    {"(0,1)", "empty"},
+    {"(,)", "[-10,10]"}, {"(,)", "(-10,10)"}, {"(,)", "(,)"},
+    {"(,10)", "(,10)"},  {"(,10)", "(,9)"},   {"(,10]", "(,10)"},
+    {"(,10]", "(,10]"},  {"(1,)", "(10,)"},   {"(1,)", "(9,)"},
+    {"[1,)", "(10,)"},   {"[1,)", "[10,)"},   {"[0,5]", "[1,4]"},
     {"(0,5)", "[1,4]"},
   };
   for (auto const [super, sub] : subsets)
@@ -353,23 +339,15 @@ void test_range_subset()
         "Range '", super, "' did not contain '", sub, "'."));
 
   std::string_view non_subsets[][2]{
-    {"empty", "[0,0]"},
-    {"empty", "(,)"},
-    {"[-10,10]", "(,)"},
-    {"(-10,10)", "(,)"},
-    {"(,9)", "(,10)"},
-    {"(,10)", "(,10]"},
-    {"[1,4]", "[0,4]"},
-    {"[1,4]", "[1,5]"},
-    {"(0,10)", "[0,10]"},
-    {"(0,10)", "(0,10]"},
-    {"(0,10)", "[0,10)"},
+    {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
+    {"(-10,10)", "(,)"},  {"(,9)", "(,10)"},    {"(,10)", "(,10]"},
+    {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
+    {"(0,10)", "(0,10]"}, {"(0,10)", "[0,10)"},
   };
   for (auto const [super, sub] : non_subsets)
     PQXX_CHECK(
       not traits::from_string(super).contains(traits::from_string(sub)),
-      pqxx::internal::concat(
-        "Range '", super, "' contained '", sub, "'."));
+      pqxx::internal::concat("Range '", super, "' contained '", sub, "'."));
 }
 
 
@@ -383,8 +361,8 @@ void test_range_to_string()
   PQXX_CHECK_EQUAL(
     pqxx::to_string(range{}), "empty", "Empty range came out wrong.");
 
-  PQXX_CHECK_EQUAL(pqxx::to_string(
-    range{ibound{5}, ibound{8}}), "[5,8]",
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(range{ibound{5}, ibound{8}}), "[5,8]",
     "Inclusive range came out wrong.");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(range{xbound{5}, ibound{8}}), "(5,8]",
@@ -450,11 +428,11 @@ void test_parse_range()
     "Inclusive upper bound did not parse right.");
 
   PQXX_CHECK_EQUAL(
-    *traits::from_string("(\"0\",\"10\")").lower_bound().value(),
-    0, "Quoted range boundary did not parse right.");
+    *traits::from_string("(\"0\",\"10\")").lower_bound().value(), 0,
+    "Quoted range boundary did not parse right.");
   PQXX_CHECK_EQUAL(
-    *traits::from_string("(\"0\",\"10\")").upper_bound().value(),
-    10, "Quoted upper boundary did not parse right.");
+    *traits::from_string("(\"0\",\"10\")").upper_bound().value(), 10,
+    "Quoted upper boundary did not parse right.");
 
   auto floats{
     pqxx::string_traits<pqxx::range<double>>::from_string("(0,1.0)")};
@@ -479,24 +457,9 @@ void test_parse_bad_range()
   using conv_err = pqxx::conversion_error;
   using traits = pqxx::string_traits<range>;
   constexpr std::string_view bad_ranges[]{
-    "",
-    "x",
-    "e",
-    "empt",
-    "emptyy",
-    "()",
-    "[]",
-    "(empty)",
-    "(empty, 0)",
-    "(0, empty)",
-    ",",
-    "(,",
-    ",)",
-    "(1,2,3)",
-    "(4,5x)",
-    "(null, 0)",
-    "[0, 1.0]",
-    "[1.0, 0]",
+    "",   "x",       "e",          "empt",       "emptyy",   "()",
+    "[]", "(empty)", "(empty, 0)", "(0, empty)", ",",        "(,",
+    ",)", "(1,2,3)", "(4,5x)",     "(null, 0)",  "[0, 1.0]", "[1.0, 0]",
   };
 
   for (auto bad : bad_ranges)
@@ -553,12 +516,11 @@ void test_range_intersection()
       intersect<int>(left, right), expected,
       pqxx::internal::concat(
         "Intersection of '", left, "' and '", right,
-	" produced unexpected result."));
+        " produced unexpected result."));
     PQXX_CHECK_EQUAL(
       intersect<int>(right, left), expected,
       pqxx::internal::concat(
-        "Intersection of '", left, "' and '", right,
-	" was asymmetric."));
+        "Intersection of '", left, "' and '", right, " was asymmetric."));
   }
 }
 
@@ -566,14 +528,7 @@ void test_range_intersection()
 void test_range_conversion()
 {
   std::string_view const ranges[]{
-    "empty",
-    "(,)",
-    "(,10)",
-    "(0,)",
-    "[0,10]",
-    "[0,10)",
-    "(0,10]",
-    "(0,10)",
+    "empty", "(,)", "(,10)", "(0,)", "[0,10]", "[0,10)", "(0,10]", "(0,10)",
   };
 
   for (auto r : ranges)
