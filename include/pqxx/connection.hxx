@@ -289,19 +289,14 @@ public:
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
-   * on functions such as select() or poll(), where multiple file descriptors
-   * are watched.
+   * on functions such as select() or poll(), where you're waiting for any of
+   * multiple file descriptors to become ready for communication.
    *
    * Please try to stay away from this function.  It is really only meant for
    * event loops that need to wait on more than one file descriptor.  If all
    * you need is to block until a notification arrives, for instance, use
    * await_notification().  If you want to issue queries and retrieve results
    * in nonblocking fashion, check out the pipeline class.
-   *
-   * @warning Don't store this value anywhere, and always be prepared for the
-   * possibility that, at any given time, there may not be a socket!  The
-   * socket may change or even go away during any invocation of libpqxx code on
-   * the connection.
    */
   [[nodiscard]] int PQXX_PURE sock() const noexcept;
 
@@ -416,7 +411,7 @@ public:
    */
   int get_notifs();
 
-
+  // TODO: Document how to do your own wawiting on incoming notifications.
   /// Wait for a notification to come in.
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.
@@ -428,6 +423,7 @@ public:
    */
   int await_notification();
 
+  // TODO: Document how to do your own wawiting on incoming notifications.
   /// Wait for a notification to come in, or for given timeout to pass.
   /** The wait may also be terminated by other events, such as the connection
    * to the backend failing.
