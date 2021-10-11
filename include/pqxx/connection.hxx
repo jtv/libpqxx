@@ -397,39 +397,50 @@ public:
    */
   //@{
   /// Check for pending notifications and take appropriate action.
-  /**
-   * All notifications found pending at call time are processed by finding
-   * any matching receivers and invoking those.  If no receivers matched the
-   * notification string, none are invoked but the notification is considered
-   * processed.
+  /** This does not block.  To wait for incoming notifications, either call
+   * await_notification() (it calls this function); or wait for incoming data
+   * on the connection's socket (i.e. wait to read), and then call this
+   * function repeatedly until it returns zero.  After that, there are no more
+   * pending notifications so you may want to wait again.
    *
-   * Exceptions thrown by client-registered receivers are reported using the
-   * connection's errorhandlers, but the exceptions themselves are not passed
-   * on outside this function.
+   * If any notifications are pending when you call this function, it
+   * processes them by finding any receivers that match the notification string
+   * and invoking those.  If no receivers match, there is nothing to invoke but
+   * we do consider the notification processed.
+   *
+   * If any of the client-registered receivers throws an exception, the
+   * function will report it using the connection's errorhandlers.  It does not
+   * re-throw the exceptions.
    *
    * @return Number of notifications processed.
    */
   int get_notifs();
 
-  // TODO: Document how to do your own wawiting on incoming notifications.
   /// Wait for a notification to come in.
-  /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.
+  /** There are other events that will also terminate the wait, such as the
+   * backend failing.  It will also wake up periodically.
    *
-   * If a notification comes in, the call will process it.  It will also
-   * process any notifications that may have been pending.
+   * If a notification comes in, the call will process it, along with any other
+   * notifications that may have been pending.
+   *
+   * To wait for notifications into your own event loop instead, wait until
+   * there is incoming data on the connection's socket to be read, then call
+   * @c get_notifs() repeatedly until it returns zero.
    *
    * @return Number of notifications processed.
    */
   int await_notification();
 
-  // TODO: Document how to do your own wawiting on incoming notifications.
   /// Wait for a notification to come in, or for given timeout to pass.
-  /** The wait may also be terminated by other events, such as the connection
-   * to the backend failing.
+  /** There are other events that will also terminate the wait, such as the
+   * backend failing, or timeout expiring.
    *
-   * If a notification comes in, the call will process it.  It will also
-   * process any notifications that may have been pending.
+   * If a notification comes in, the call will process it, along with any other
+   * notifications that may have been pending.
+   *
+   * To wait for notifications into your own event loop instead, wait until
+   * there is incoming data on the connection's socket to be read, then call
+   * @c get_notifs() repeatedly until it returns zero.
    *
    * @return Number of notifications processed
    */
