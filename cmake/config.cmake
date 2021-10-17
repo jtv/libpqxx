@@ -94,6 +94,14 @@ try_compile(
 	PQXX_HAVE_SLEEP_FOR
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/sleep_for.cxx)
+try_compile(
+	PQXX_HAVE_STRERROR_R
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strerror_r.cxx)
+try_compile(
+	PQXX_HAVE_STRERROR_S
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strerror_s.cxx)
 
 try_compile(
 	need_fslib

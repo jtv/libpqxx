@@ -843,6 +843,11 @@ public:
    */
   void cancel_query();
 
+#if defined(_WIN32) || __has_include(<fcntl.h>)
+  /// Set socket to blocking (true) or nonblocking (false).
+  void set_blocking(bool block);
+#endif // defined(_WIN32) || __has_include(<fcntl.h>)
+
   /// Set session verbosity.
   /** Set the verbosity of error messages to "terse", "normal" (the default),
    * or "verbose."
@@ -1005,6 +1010,7 @@ private:
 using connection_base = connection;
 
 
+#if defined(_WIN32) || __has_include(<fcntl.h>)
 /// An ongoing, non-blocking stepping stone to a connection.
 /** Use this when you want to create a connection to the database, but without
  * blocking your whole thread.
@@ -1034,10 +1040,7 @@ class PQXX_LIBEXPORT connecting
 {
 public:
   /// Start connecting.
-  connecting(zview connection_string) :
-          m_conn{connection::connect_nonblocking, connection_string}
-  {}
-  connecting() : m_conn{connection::connect_nonblocking, ""_zv} {}
+  connecting(zview connection_string = ""_zv);
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;
@@ -1069,6 +1072,7 @@ private:
   bool m_reading{false};
   bool m_writing{true};
 };
+#endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
 template<typename T> inline std::string connection::quote(T const &t) const

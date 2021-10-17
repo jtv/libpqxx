@@ -288,6 +288,32 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($span)
 
 
+AC_MSG_CHECKING([for strerror_r()])
+strerror_r=yes
+AC_LINK_IFELSE(
+	[read_test(strerror_r.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_STRERROR_R],
+		1,
+		[Define if strerror_r() is available.]),
+	strerror_r=no)
+AC_MSG_RESULT($strerror_r)
+
+
+
+AC_MSG_CHECKING([for strerror_s()])
+strerror_s=yes
+AC_LINK_IFELSE(
+	[read_test(strerror_s.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_STRERROR_S],
+		1,
+		[Define if strerror_s() is available.]),
+	strerror_s=no)
+AC_MSG_RESULT($strerror_s)
+
+
+
 # Check for [[likely]] and [[unlikely]] attributes.
 AC_MSG_CHECKING([attributes "likely" and "unlikely".])
 likely=yes

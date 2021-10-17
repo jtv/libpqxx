@@ -96,6 +96,12 @@
 /* Define if compiler has std::span. */
 #undef PQXX_HAVE_SPAN
 
+/* Define if strerror_r() is available. */
+#undef PQXX_HAVE_STRERROR_R
+
+/* Define if strerror_s() is available. */
+#undef PQXX_HAVE_STRERROR_S
+
 /* Define if thread_local is fully supported. */
 #undef PQXX_HAVE_THREAD_LOCAL
 

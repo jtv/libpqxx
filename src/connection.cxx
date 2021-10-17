@@ -55,6 +55,11 @@
 #  include <sys/time.h>
 #endif
 
+// For fcntl().
+#if __has_include(<fcntl.h>)
+#  include <fcntl.h>
+#endif
+
 
 extern "C"
 {
@@ -467,6 +472,81 @@ void pqxx::connection::cancel_query()
   if (c == 0)
     PQXX_UNLIKELY
   throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};
+}
+
+
+namespace
+{
+/// Get error string for a given @c errno value.
+template<std::size_t BYTES>
+char const *error_string(int err_num, std::array<char, BYTES> &buffer)
+{
+  // Not entirely clear whether strerror_s will be in std or global namespace.
+  using namespace std;
+
+#if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
+#  if defined(PQXX_HAVE_STRERROR_S)
+  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
+#  else
+  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
+#  endif
+  if constexpr (std::is_same_v<pqxx::strip_t<decltype(err_result)>, char *>)
+  {
+    // GNU version of strerror_r; returns the error string, which may or may
+    // not reside within buffer.
+    return err_result;
+  }
+  else
+  {
+    // Either strerror_s or POSIX strerror_r; returns an error code.
+    // Sorry for being lazy here: Not reporting error string for the case
+    // where we can't retrieve an error string.
+    if (err_result == 0)
+      return std::data(buffer);
+    else
+      return "Compound errors.";
+  }
+
+#else
+  // Fallback case, hopefully for no actual platforms out there.
+  pqxx::ignore_unused(err_num, buffer);
+  return "(No error information available.)";
+#endif
+}
+} // namespace
+
+
+void pqxx::connection::set_blocking(bool block)
+{
+  auto const fd{sock()};
+#if defined _WIN32
+  unsigned long mode{not blocking};
+  if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
+  {
+    char const *err{error_string(WSAGetLastError(), errbuf)};
+    throw broken_connection{
+      internal::concat("Could not set socket's blocking mode: ", err)};
+  }
+#else
+  std::array<char, 200> errbuf;
+  auto flags{::fcntl(fd, F_GETFL, 0)};
+  if (flags == -1)
+  {
+    char const *const err{error_string(errno, errbuf)};
+    throw broken_connection{
+      internal::concat("Could not get socket state: ", err)};
+  }
+  if (block)
+    flags |= O_NONBLOCK;
+  else
+    flags &= ~O_NONBLOCK;
+  if (::fcntl(fd, F_SETFL, flags) == -1)
+  {
+    char const *const err{error_string(errno, errbuf)};
+    throw broken_connection{
+      internal::concat("Could not set socket's blocking mode: ", err)};
+  }
+#endif
 }
 
 
@@ -1202,19 +1282,33 @@ std::string pqxx::connection::connection_string() const
 }
 
 
+#if defined(_WIN32) || __has_include(<fcntl.h>)
+pqxx::connecting::connecting(zview connection_string) :
+        m_conn{connection::connect_nonblocking, connection_string}
+{
+  m_conn.set_blocking(false);
+}
+#endif // defined(_WIN32) || __has_include(<fcntl.h>
+
+
+#if defined(_WIN32) || __has_include(<fcntl.h>)
 void pqxx::connecting::process()
 {
   auto const [reading, writing]{m_conn.poll_connect()};
   m_reading = reading;
   m_writing = writing;
 }
+#endif // defined(_WIN32) || __has_include(<fcntl.h>
 
 
+#if defined(_WIN32) || __has_include(<fcntl.h>)
 pqxx::connection pqxx::connecting::produce()
 {
   if (!done())
     throw usage_error{
       "Tried to produce a nonblocking connection before it was done."};
+  m_conn.set_blocking(true);
   m_conn.complete_init();
   return std::move(m_conn);
 }
+#endif // defined(_WIN32) || __has_include(<fcntl.h>

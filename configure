@@ -17743,6 +17743,98 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$span" >&6; }
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for strerror_r()" >&5
+$as_echo_n "checking for strerror_r()... " >&6; }
+strerror_r=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Check for strerror_r.
+
+// It can be either the POSIX version (which returns int) or the GNU version
+
+// (which returns char *).
+
+
+
+#include <cstring>
+
+#include <type_traits>
+
+
+
+int main()
+
+{
+
+  char buffer[200];
+
+  auto res{strerror_r(1, buffer, 200)};
+
+  // Sidestep type differences.  We don't really care what the value is.
+
+  return not not res;
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_STRERROR_R 1" >>confdefs.h
+
+else
+  strerror_r=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $strerror_r" >&5
+$as_echo "$strerror_r" >&6; }
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for strerror_s()" >&5
+$as_echo_n "checking for strerror_s()... " >&6; }
+strerror_s=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for strerror_s, as defined in Windows and C11.
+
+// Presumably this'll be part of the C++ standard some day.
+
+
+
+#include <cstring>
+
+
+
+int main()
+
+{
+
+  using namespace std;
+
+  char buf[200];
+
+  return strerror_s(buf, 200, 1);
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_STRERROR_S 1" >>confdefs.h
+
+else
+  strerror_s=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $strerror_s" >&5
+$as_echo "$strerror_s" >&6; }
+
+
+
 # Check for [[likely]] and [[unlikely]] attributes.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking attributes \"likely\" and \"unlikely\"." >&5
 $as_echo_n "checking attributes \"likely\" and \"unlikely\".... " >&6; }

@@ -16,5 +16,7 @@ PQXX_HAVE_PQENCRYPTPASSWORDCONN	internal	libpq
 PQXX_HAVE_PQ_PIPELINE	internal	libpq
 PQXX_HAVE_SLEEP_FOR	internal	compiler
 PQXX_HAVE_SPAN	public	compiler
+PQXX_HAVE_STRERROR_R	internal	compiler
+PQXX_HAVE_STRERROR_S	internal	compiler
 PQXX_HAVE_THREAD_LOCAL       internal        compiler
 VERSION	internal	autotools
