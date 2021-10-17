@@ -520,9 +520,10 @@ void pqxx::connection::set_blocking(bool block)
 {
   auto const fd{sock()};
 #if defined _WIN32
-  unsigned long mode{not blocking};
+  unsigned long mode{not block};
   if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
   {
+    std::array<char, 200> errbuf;
     char const *err{error_string(WSAGetLastError(), errbuf)};
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
