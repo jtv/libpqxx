@@ -52,9 +52,9 @@ from traceback import print_exc
 
 CPUS = cpu_count()
 
-GCC_VERSIONS = list(range(8, 12))
+GCC_VERSIONS = list(range(8, 14))
 GCC = ['g++-%d' % ver for ver in GCC_VERSIONS]
-CLANG_VERSIONS = list(range(7, 12))
+CLANG_VERSIONS = list(range(7, 15))
 CLANG = ['clang++-6.0'] + ['clang++-%d' % ver for ver in CLANG_VERSIONS]
 CXX = GCC + CLANG
 
