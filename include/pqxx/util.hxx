@@ -289,8 +289,7 @@ using namespace std::literals;
  * @c int, but requires it to be nonnegative.  Which means it's an outright
  * liability on systems where @c char is signed.
  */
-template<typename CHAR>
-bool is_digit(CHAR c)
+template<typename CHAR> bool is_digit(CHAR c)
 {
   return (c >= '0') and (c <= '9');
 }
