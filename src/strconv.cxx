@@ -28,6 +28,7 @@
 
 namespace
 {
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Do we have fully functional thread_local support?
 /** When building with libcxxrt on clang, you can't create thread_local objects
  * of non-POD types.  Any attempt will result in a link error.
@@ -40,6 +41,8 @@ constexpr bool have_thread_local
   false
 #endif
 };
+#endif
+
 
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
@@ -521,7 +524,7 @@ inline bool from_dumb_stringstream(
 }
 
 
-// These are hard, and popular compilers do not yet implement std::from_chars.
+// These are hard, and some popular compilers still lack std::from_chars.
 template<typename T> inline T from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
@@ -667,7 +670,7 @@ template<typename T> std::string to_string_float(T value)
     buf.resize(space);
     std::string_view const view{
       float_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
-    buf.resize(std::end(view) - std::begin(view));
+    buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
     return buf;
   }
 #else
