@@ -21,7 +21,7 @@ substitute() {
 
 # Use templating system to generate various Makefiles.
 expand_templates() {
-	for template in $@
+	for template in "$@"
 	do
 		./tools/template2mak.py "$template" "${template%.template}"
 	done
