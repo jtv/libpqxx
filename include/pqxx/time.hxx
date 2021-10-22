@@ -8,7 +8,7 @@
 
 #include <chrono>
 
-#include "pqxx/internal/concat"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv"
 
 
