@@ -208,7 +208,7 @@ values, so they won't override parameters that the application sets in some
 other way.)
 * `PGHOST` — the IP address where we can contact the database's socket.  Or
   for a Unix domain socket, its absolute path on the filesystem.
-* `PGPORT` —
+* `PGPORT` — TCP port number on which we can connect to the database.
 * `PGDATABASE` — the name of the database to which you wish to connect.
 * `PGUSER` — user name under which you wish to log in on the database.
 * `PGPASSWORD` — user name's password for accessing the database.
