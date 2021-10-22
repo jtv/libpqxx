@@ -11,7 +11,7 @@ using namespace std::literals;
 void test_year_string_conversion()
 {
   // C++20: Use y/m/d literals.
-  auto const conversions[]{
+  std::tuple<int, std::string_view> const conversions[]{
     {-543, "-543"sv}, {-1, "-1"sv},     {0, "0"sv},
     {1, "1"sv},       {1971, "1971"sv}, {10191, "10191"sv},
   };
