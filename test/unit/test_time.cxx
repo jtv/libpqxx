@@ -11,9 +11,14 @@ using namespace std::literals;
 void test_year_string_conversion()
 {
   // C++20: Use y/m/d literals.
+  // The check for min/max representable years is odd, but there's one big
+  // advantage: if the range ever expands beyond a 16-bit signed integer, this
+  // test will fail and tell us that our assumed range is no longer valid.
   std::tuple<int, std::string_view> const conversions[]{
     {-543, "-543"sv}, {-1, "-1"sv},     {0, "0"sv},
     {1, "1"sv},       {1971, "1971"sv}, {10191, "10191"sv},
+    {std::chrono::year::min(), "-32767"},
+    {std::chrono::year::max(), "32767"},
   };
   for (auto const &[num, text] : conversions)
   {
@@ -29,6 +34,9 @@ void test_year_string_conversion()
     "-"sv,
     "+"sv,
     "1929-"sv,
+    // According to cppreference.com, years are limited to 16-bit signed.
+    "-32768"sv,
+    "32768"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
