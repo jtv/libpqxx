@@ -32,11 +32,11 @@ from glob import glob
 import os
 from sys import (
     argv,
-    exit,
     stdin,
     stderr,
     stdout,
     )
+import sys
 from textwrap import dedent
 
 
@@ -45,7 +45,7 @@ def expand_foreach_file(path, block, outfile):
 
     Write the results to outfile.
     """
-    basepath, extension = os.path.splitext(os.path.basename(path))
+    basepath, _ = os.path.splitext(os.path.basename(path))
     for line in block:
         line = line.replace("###FILENAME###", path)
         line = line.replace("###BASENAME###", basepath)
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         template_path, output_path = parse_args()
     except ArgumentError as error:
         stderr.write('%s\n' % error)
-        exit(2)
+        sys.exit(2)
 
     input_stream = open_stream(template_path, stdin, 'r')
     output_stream = open_stream(output_path, stdout, 'w')

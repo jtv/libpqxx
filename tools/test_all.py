@@ -47,7 +47,6 @@ from sys import (
     )
 from tempfile import mkdtemp
 from textwrap import dedent
-from traceback import print_exc
 
 
 CPUS = cpu_count()
@@ -192,11 +191,11 @@ def find_cmake_command():
     """Figure out a CMake generator we can use, or None."""
     try:
         caps = check_output(['cmake', '-E', 'capabilities'])
-    except FileNotFoundError as error:
+    except FileNotFoundError:
         return None
 
     names = {generator['name'] for generator in json.loads(caps)['generators']}
-    for gen, cmd in CMAKE_GENERATORS.items():
+    for gen in CMAKE_GENERATORS.keys():
         if gen in names:
             return gen
     return None
