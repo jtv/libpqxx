@@ -21,15 +21,13 @@ root of the libpqxx source tree.  This configures your build.
 
 Then compile libpqxx by running:
 
-```
-shell
+```shell
     cmake --build .
 ```
 
 To install in the default location:
 
-```
-shell
+```shell
     cmake --install .
 ```
 
@@ -154,8 +152,7 @@ Compile
 
 To compile, run:
 
-```
-shell
+```shell
     cmake --build $BUILD
 ```
 
@@ -238,8 +235,7 @@ operating system to another, but you can set it explicitly.
 Let's say you've got your finished build in `$BUILD`, and you want to install
 it to your system's default install location.  The command for this is:
 
-```
-shell
+```shell
     cmake --install $BUILD
 ```
 
@@ -249,8 +245,7 @@ something like `D:\Software` on a Windows system.
 
 To install to `$DEST`, run:
 
-```
-shell
+```shell
     cmake --install $BUILD --prefix $DEST
 ```
 
