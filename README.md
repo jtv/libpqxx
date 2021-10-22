@@ -20,7 +20,8 @@ commits in `master`.  For example, to get version 7.1.1:
     git checkout 7.1.1
 
 
-### Upgrade notes
+Upgrade notes
+-------------
 
 **The 7.x versions require C++17.**  Make sure your compiler is up to date.
 For libpqxx 8.x you will need C++20.
