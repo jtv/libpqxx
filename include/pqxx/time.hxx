@@ -8,6 +8,7 @@
 
 #include <chrono>
 
+#include "pqxx/internal/concat"
 #include "pqxx/strconv"
 
 
@@ -33,7 +34,7 @@ template<> struct string_traits<std::chrono::year>
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
   {
-    std::chrono::year const y{from_string<int>(text)};
+    std::chrono::year const y{string_traits<int>::from_string(text)};
     if (not y.ok())
       throw pqxx::conversion_error{
         internal::concat("Year out of range: '", text, "'.")};
@@ -138,7 +139,7 @@ template<> struct string_traits<std::chrono::day>
       not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
     std::chrono::day const d{
-      (10 * internal::digit_to_number(text[0]) +
+      (10 * internal::digit_to_number(text[0])) +
       internal::digit_to_number(text[1])};
     if (not d.ok())
       throw conversion_error{make_parse_error(text)};
