@@ -14,7 +14,8 @@ using namespace pqxx;
 namespace
 {
 template<typename T>
-inline void strconv(std::string const &type, T const &Obj, std::string const &expected)
+inline void
+strconv(std::string const &type, T const &Obj, std::string const &expected)
 {
   std::string const Objstr{to_string(Obj)};
 
@@ -26,7 +27,8 @@ inline void strconv(std::string const &type, T const &Obj, std::string const &ex
 }
 
 // There's no from_string<char const *>()...
-inline void strconv(std::string const &type, char const Obj[], std::string const &expected)
+inline void
+strconv(std::string const &type, char const Obj[], std::string const &expected)
 {
   std::string const Objstr(to_string(Obj));
   PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");

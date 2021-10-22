@@ -36,11 +36,11 @@ namespace
  */
 constexpr bool have_thread_local
 {
-#if defined(PQXX_HAVE_THREAD_LOCAL)
+#  if defined(PQXX_HAVE_THREAD_LOCAL)
   true
-#else
+#  else
   false
-#endif
+#  endif
 };
 #endif
 
