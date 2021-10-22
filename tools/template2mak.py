@@ -168,9 +168,7 @@ def parse_args():
 
 
 def write_header(stream, template_path=None):
-    """
-    Write header to stream.
-    """
+    """Write header to stream."""
     hr = ('# ' + '#' * 78) + "\n"
     script = os.path.basename(argv[0])
 
