@@ -23,12 +23,12 @@ template<> struct string_traits<std::chrono::year>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return to_buf<int>(begin, end, value);
+    return string_traits<int>::to_buf(begin, end, int(value));
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return into_buf<int>(begin, end, value);
+    return string_traits<int>::into_buf(begin, end, int(value));
   }
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
@@ -71,15 +71,17 @@ template<> struct string_traits<std::chrono::month>
     if (not value.ok())
       throw conversion_error{"Month value out of range."};
     unsigned const month{value};
-    begin[0] = number_to_digit(static_cast<int>(month / 10));
-    begin[1] = number_to_digit(static_cast<int>(month % 10));
+    begin[0] = internal::number_to_digit(static_cast<int>(month / 10));
+    begin[1] = internal::number_to_digit(static_cast<int>(month % 10));
     begin[2] = '\0';
     return begin + 3;
   }
 
   [[nodiscard]] static std::chrono::month from_string(std::string_view text)
   {
-    if (std::size(text) != 2 or not is_digit(text[0]) or not is_digit(text[1]))
+    if (
+      std::size(text) != 2 or not internal::is_digit(text[0]) or
+      not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
     std::chrono::month const m{
       (10 * internal::digit_to_number(text[0]) +
@@ -131,7 +133,9 @@ template<> struct string_traits<std::chrono::day>
 
   [[nodiscard]] static std::chrono::day from_string(std::string_view text)
   {
-    if (std::size(text) != 2 or not is_digit(text[0]) or not is_digit(text[1]))
+    if (
+      std::size(text) != 2 or not internal::is_digit(text[0]) or
+      not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
     std::chrono::day const d{
       (10 * internal::digit_to_number(text[0]) +
