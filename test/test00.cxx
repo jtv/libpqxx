@@ -13,7 +13,7 @@ using namespace pqxx;
 
 namespace
 {
-void check(std::string ref, std::string const &val, std::string vdesc)
+void check(std::string ref, std::string const &val, std::string const &vdesc)
 {
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }

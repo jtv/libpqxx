@@ -47,7 +47,7 @@ check_notreached(char const file[], int line, std::string desc)
 
 void check(
   char const file[], int line, bool condition, char const text[],
-  std::string desc)
+  std::string const &desc)
 {
   if (not condition)
     throw test_failure(
