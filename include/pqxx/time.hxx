@@ -93,7 +93,7 @@ template<> struct string_traits<std::chrono::month>
   }
 
   [[nodiscard]] static std::size_t
-  size_buffer(std::chrono::month const &value) noexcept
+  size_buffer(std::chrono::month const &) noexcept
   {
     return 3u;
   }
@@ -143,10 +143,11 @@ template<> struct string_traits<std::chrono::day>
       internal::digit_to_number(text[1]))};
     if (not d.ok())
       throw conversion_error{make_parse_error(text)};
+    return d;
   }
 
   [[nodiscard]] static std::size_t
-  size_buffer(std::chrono::day const &value) noexcept
+  size_buffer(std::chrono::day const &) noexcept
   {
     return 3u;
   }
@@ -170,7 +171,7 @@ template<> struct string_traits<std::chrono::year_month_day>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year_month_day const &value)
   {
-    return zview{begin, begin + into_buf(begin, end, value) - 1};
+    return zview{begin, into_buf(begin, end, value) - begin - 1};
   }
 
   static char *
@@ -185,7 +186,7 @@ template<> struct string_traits<std::chrono::year_month_day>
       *here++ = '1';
     else
       *here++ = '0';
-    *here++ = internal::number_to_digit(value.month() % 10);
+    *here++ = internal::number_to_digit(unsigned(value.month()) % 10);
     *here++ = '-';
     *here++ = internal::number_to_digit(value.day() / 10);
     *here++ = internal::number_to_digit(value.day() % 10);
