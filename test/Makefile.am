@@ -114,6 +114,7 @@ runner_SOURCES = \
   unit/test_subtransaction.cxx \
   unit/test_test_helpers.cxx \
   unit/test_thread_safety_model.cxx \
+  unit/test_time.cxx \
   unit/test_transaction.cxx \
   unit/test_transaction_base.cxx \
   unit/test_transaction_focus.cxx \

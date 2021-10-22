@@ -28,6 +28,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/stream_from pqxx/stream_from.hxx \
 	pqxx/stream_to pqxx/stream_to.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
+	pqxx/time pqxx/time.hxx \
 	pqxx/transaction pqxx/transaction.hxx \
 	pqxx/transaction_base pqxx/transaction_base.hxx \
 	pqxx/transaction_focus pqxx/transaction_focus.hxx \

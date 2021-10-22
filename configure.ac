@@ -313,6 +313,17 @@ AC_LINK_IFELSE(
 AC_MSG_RESULT($strerror_s)
 
 
+AC_MSG_CHECKING([for std::chrono::year_month_day etc])
+year_month_day=yes
+AC_LINK_IFELSE(
+	[read_test(year_month_day.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_YEAR_MONTH_DAY],
+		1,
+		[Define if std::chrono has year_month_day etc.]),
+	year_month_day=no)
+AC_MSG_RESULT($year_month_day)
+
 
 # Check for [[likely]] and [[unlikely]] attributes.
 AC_MSG_CHECKING([attributes "likely" and "unlikely".])

@@ -405,13 +405,6 @@ template<typename L, typename R>
 }
 
 
-/// Compute numeric value of given textual digit (assuming that it is a digit).
-[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
-{
-  return c - '0';
-}
-
-
 template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
