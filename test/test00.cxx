@@ -13,27 +13,23 @@ using namespace pqxx;
 
 namespace
 {
-void check(std::string ref, std::string const &val, std::string const &vdesc)
-{
-  PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
-}
-
 template<typename T>
 inline void strconv(std::string const &type, T const &Obj, std::string const &expected)
 {
   std::string const Objstr{to_string(Obj)};
 
-  check(expected, Objstr, type);
+  PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
   T NewObj;
   from_string(Objstr, NewObj);
-  check(expected, to_string(NewObj), "recycled " + type);
+  PQXX_CHECK_EQUAL(
+    to_string(NewObj), expected, "String mismatch for recycled " + type + ".");
 }
 
 // There's no from_string<char const *>()...
 inline void strconv(std::string const &type, char const Obj[], std::string const &expected)
 {
   std::string const Objstr(to_string(Obj));
-  check(expected, Objstr, type);
+  PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
 }
 
 constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};

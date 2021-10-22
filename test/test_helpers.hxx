@@ -59,7 +59,7 @@ check_notreached(char const file[], int line, std::string desc);
   pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
 void check(
   char const file[], int line, bool condition, char const text[],
-  std::string desc);
+  std::string const &desc);
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc)                              \
