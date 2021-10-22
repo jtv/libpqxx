@@ -46,7 +46,7 @@ template<> struct string_traits<std::chrono::year>
   {
     // This'll ask for a lot more room than it'll ever need, but we can't
     // reuse the int conversions without that buffer space.
-    return string_traits<int>::size_buffer(value);
+    return string_traits<int>::size_buffer(int(value));
   }
 };
 
@@ -61,7 +61,7 @@ template<> struct string_traits<std::chrono::month>
   to_buf(char *begin, char *end, std::chrono::month const &value)
   {
     into_buf(begin, end, value);
-    return zview{begin, 2};
+    return zview{begin, 2u};
   }
 
   static char *
@@ -85,8 +85,8 @@ template<> struct string_traits<std::chrono::month>
       not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
     std::chrono::month const m{
-      (10 * internal::digit_to_number(text[0]) +
-      internal::digit_to_number(text[1])};
+      unsigned((10 * internal::digit_to_number(text[0])) +
+      internal::digit_to_number(text[1]))};
     if (not m.ok())
       throw conversion_error{make_parse_error(text)};
     return m;
@@ -126,8 +126,8 @@ template<> struct string_traits<std::chrono::day>
     if (not value.ok())
       throw conversion_error{"Day value out of range."};
     unsigned const day{value};
-    begin[0] = number_to_digit(static_cast<int>(day / 10));
-    begin[1] = number_to_digit(static_cast<int>(day % 10));
+    begin[0] = internal::number_to_digit(static_cast<int>(day / 10));
+    begin[1] = internal::number_to_digit(static_cast<int>(day % 10));
     begin[2] = '\0';
     return begin + 3;
   }
@@ -139,8 +139,8 @@ template<> struct string_traits<std::chrono::day>
       not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
     std::chrono::day const d{
-      (10 * internal::digit_to_number(text[0])) +
-      internal::digit_to_number(text[1])};
+      unsigned((10 * internal::digit_to_number(text[0])) +
+      internal::digit_to_number(text[1]))};
     if (not d.ok())
       throw conversion_error{make_parse_error(text)};
   }
@@ -181,7 +181,7 @@ template<> struct string_traits<std::chrono::year_month_day>
     if ((end - here) < 6)
       throw pqxx::conversion_overrun{"Not enough buffer space for date."};
     *here++ = '-';
-    if (value.month() > 10)
+    if (unsigned(value.month()) > 10)
       *here++ = '1';
     else
       *here++ = '0';
