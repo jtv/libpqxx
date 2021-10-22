@@ -116,7 +116,7 @@ template<> struct string_traits<std::chrono::day>
   to_buf(char *begin, char *end, std::chrono::day const &value)
   {
     into_buf(begin, end, value);
-    return zview{begin, 2};
+    return zview{begin, 2u};
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::day const &value)
@@ -178,7 +178,7 @@ template<> struct string_traits<std::chrono::year_month_day>
   into_buf(char *begin, char *end, std::chrono::year_month_day const &value)
   {
     char *here{begin};
-    here = into_buf(begin, end, value.year());
+    here = string_traits<std::chrono::year>::into_buf(begin, end, value.year());
     if ((end - here) < 6)
       throw pqxx::conversion_overrun{"Not enough buffer space for date."};
     *here++ = '-';
@@ -188,8 +188,9 @@ template<> struct string_traits<std::chrono::year_month_day>
       *here++ = '0';
     *here++ = internal::number_to_digit(unsigned(value.month()) % 10);
     *here++ = '-';
-    *here++ = internal::number_to_digit(value.day() / 10);
-    *here++ = internal::number_to_digit(value.day() % 10);
+    auto const d{unsigned(value.day())};
+    *here++ = internal::number_to_digit(d / 10);
+    *here++ = internal::number_to_digit(d % 10);
     *here++ = '\0';
     return here;
   }
@@ -202,10 +203,10 @@ template<> struct string_traits<std::chrono::year_month_day>
     auto const ymsep{find_year_month_separator(text)};
     if ((std::size(text) - ymsep) != 6)
       throw pqxx::conversion_error{make_parse_error(text)};
-    auto const y{from_string<std::chrono::year>(
+    auto const y{string_traits<std::chrono::year>::from_string(
       std::string_view{std::data(text), ymsep})};
     auto const month{
-      from_string<std::chrono::month>(text.substr(ymsep + 1, 2))};
+      string_traits<std::chrono::month>::from_string(text.substr(ymsep + 1, 2))};
     if (text[ymsep + 3] != '-')
       throw pqxx::conversion_error{make_parse_error(text)};
     auto const day{from_string<std::chrono::day>(text.substr(ymsep + 4, 2)};
