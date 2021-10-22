@@ -32,7 +32,7 @@ void test_year_string_conversion()
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
-      ignore_unused(from_string<std::chrono::year>(text)),
+      pqxx::ignore_unused(pqxx::from_string<std::chrono::year>(text)),
       pqxx::conversion_error, "Invalid year parsed as if valid.");
 }
 
