@@ -18,7 +18,7 @@ class TestListener final : public pqxx::notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(pqxx::connection &conn, std::string Name) :
+  explicit TestListener(pqxx::connection &conn, std::string const &Name) :
           pqxx::notification_receiver(conn, Name), m_done(false)
   {}
 

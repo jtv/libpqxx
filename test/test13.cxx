@@ -35,7 +35,7 @@ struct deliberate_error : std::exception
 {};
 
 
-void failed_insert(connection &C, std::string table)
+void failed_insert(connection &C, std::string const &table)
 {
   work tx(C);
   result R = tx.exec0(

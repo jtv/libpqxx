@@ -20,7 +20,7 @@ constexpr long BoringYear{1977};
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(connection &conn, std::string table)
+std::pair<int, int> count_events(connection &conn, std::string const &table)
 {
   nontransaction tx{conn};
   std::string const count_query{"SELECT count(*) FROM " + table};

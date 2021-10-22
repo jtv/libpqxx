@@ -13,13 +13,13 @@ using namespace pqxx;
 
 namespace
 {
-void check(std::string ref, std::string val, std::string vdesc)
+void check(std::string ref, std::string const &val, std::string vdesc)
 {
   PQXX_CHECK_EQUAL(val, ref, "String mismatch for " + vdesc);
 }
 
 template<typename T>
-inline void strconv(std::string type, T const &Obj, std::string expected)
+inline void strconv(std::string const &type, T const &Obj, std::string const &expected)
 {
   std::string const Objstr{to_string(Obj)};
 
@@ -30,7 +30,7 @@ inline void strconv(std::string type, T const &Obj, std::string expected)
 }
 
 // There's no from_string<char const *>()...
-inline void strconv(std::string type, char const Obj[], std::string expected)
+inline void strconv(std::string const &type, char const Obj[], std::string const &expected)
 {
   std::string const Objstr(to_string(Obj));
   check(expected, Objstr, type);

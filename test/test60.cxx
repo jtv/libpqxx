@@ -36,14 +36,14 @@ void CheckDatestyle(connection &conn, std::string expected)
 }
 
 
-void RedoDatestyle(connection &conn, std::string style, std::string expected)
+void RedoDatestyle(connection &conn, std::string const &style, std::string const &expected)
 {
   PQXX_CHECK_EQUAL(
     SetDatestyle(conn, style), expected, "Set wrong datestyle.");
 }
 
 
-void ActivationTest(connection &conn, std::string style, std::string expected)
+void ActivationTest(connection &conn, std::string const &style, std::string const &expected)
 {
   RedoDatestyle(conn, style, expected);
   CheckDatestyle(conn, expected);

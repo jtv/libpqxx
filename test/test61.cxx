@@ -29,7 +29,7 @@ std::string SetDatestyle(transaction_base &T, std::string style)
 
 
 void RedoDatestyle(
-  transaction_base &T, std::string style, std::string expected)
+  transaction_base &T, std::string const &style, std::string const &expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
 }

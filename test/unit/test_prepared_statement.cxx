@@ -50,7 +50,7 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
 
 template<typename CNTNR>
 std::string
-subst(pqxx::transaction_base &t, std::string q, CNTNR const &patterns)
+subst(pqxx::transaction_base &t, std::string const &q, CNTNR const &patterns)
 {
   return subst(t, q, std::begin(patterns), std::end(patterns));
 }
