@@ -39,11 +39,11 @@ Stages
 
 I'll explain the main build steps in more detail below, but here's a quick
 overview:
- 1. Configure
- 2. Compile
- 3. Test
- 4. Install
- 5. Use
+1. Configure
+2. Compile
+3. Test
+4. Install
+5. Use
 
 The Test step is optional.
 
@@ -80,11 +80,11 @@ explain the two directories.
 ### Cheat sheet
 
 Here are some popular `cmake` options for libpqxx:
- * `-DSKIP_BUILD_TEST=on` skips compiling libpqxx's tests.
- * `-DBUILD_SHARED_LIBS=on` to build a shared library.
- * `-DBUILD_SHARED_LIBS=off` to build a static library.
- * `-DBUILD_DOC=on` to build documentation.
- * `-DINSTALL_TEST=on` to install test executor binary.
+* `-DSKIP_BUILD_TEST=on` skips compiling libpqxx's tests.
+* `-DBUILD_SHARED_LIBS=on` to build a shared library.
+* `-DBUILD_SHARED_LIBS=off` to build a static library.
+* `-DBUILD_DOC=on` to build documentation.
+* `-DINSTALL_TEST=on` to install test executor binary.
 
 On Windows, I recommend building libpqxx as a shared library and bundling it
 with your application.  On other platforms I would prefer a static library.
@@ -122,12 +122,12 @@ The first is to set the individual include and link paths.
 
 To make the build look for the libpq headers in some directory `$DIR`, add
 these options:
- * `-DPostgreSQL_TYPE_INCLUDE_DIR=$DIR`
- * `-DPostgreSQL_INCLUDE_DIR=$DIR`
+* `-DPostgreSQL_TYPE_INCLUDE_DIR=$DIR`
+* `-DPostgreSQL_INCLUDE_DIR=$DIR`
 
 To make the build look for the libpq library binary in a directory `$DIR`, add
 this option:
- * `-DPostgreSQL_LIBRARY_DIR=$DIR`
+* `-DPostgreSQL_LIBRARY_DIR=$DIR`
 
 The second, easier way requires CMake 3.12 or better.  Here, you specify a path
 to a full PostgreSQL build tree.  You do this (again for some directory `$DIR`)
@@ -163,10 +163,10 @@ shell
 
 This command will invoke your build tool.  Other ways to do the same thing
 would be...
- * With Unix Makefiles: `make`
- * With Ninja: `ninja`
- * With Visual Studio: `msbuild libpqxx.sln`
- * etc.
+* With Unix Makefiles: `make`
+* With Ninja: `ninja`
+* With Visual Studio: `msbuild libpqxx.sln`
+* etc.
 
 Depending on your build tool, you may want to speed this up by adding an option
 like `-j 16`, where `16` is an example of how many processes you might want to
@@ -209,20 +209,20 @@ You can set these parameters for the test suite, or for any other libpq-based
 application, using the following environment variables.  (They only set default
 values, so they won't override parameters that the application sets in some
 other way.)
- * `PGHOST` — the IP address where we can contact the database's socket.  Or
-   for a Unix domain socket, its absolute path on the filesystem.
- * `PGPORT` —
- * `PGDATABASE` — the name of the database to which you wish to connect.
- * `PGUSER` — user name under which you wish to log in on the database.
- * `PGPASSWORD` — user name's password for accessing the database.
+* `PGHOST` — the IP address where we can contact the database's socket.  Or
+  for a Unix domain socket, its absolute path on the filesystem.
+* `PGPORT` —
+* `PGDATABASE` — the name of the database to which you wish to connect.
+* `PGUSER` — user name under which you wish to log in on the database.
+* `PGPASSWORD` — user name's password for accessing the database.
 
 See the full list at https://www.postgresql.org/docs/current/libpq-envars.html
 
 **Be careful with passwords,** by the way.  Depending on your operating system
 and configuration, an attacker with access to your machine could try to read
 your password if you set it on the command line:
- * Your shell may keep a log of the commands you have entered.
- * Environment variables may be visible to other users on the system.
+* Your shell may keep a log of the commands you have entered.
+* Environment variables may be visible to other users on the system.
 
 If at all possible, rely on postgres "peer authentication."  Once set up, it is
 both more secure and more convenient than passwords.

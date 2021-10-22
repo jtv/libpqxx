@@ -28,10 +28,10 @@ Stages
 
 I'll explain the main build steps in more detail below, but here's a quick
 overview:
- 1. Configure
- 2. Compile
- 3. Test
- 4. Install
+1. Configure
+2. Compile
+3. Test
+4. Install
 
 The Test step is optional.
 
@@ -69,20 +69,20 @@ the output of `configure --help`.  I'll also explain the two directories.
 ### Cheat sheet
 
 Here are some popular `configure` options:
- * `--disable-documentation` skips building of the documentation.
- * `CXXFLAGS=-O0` disables optimisation.  Slower code, but faster build.
- * `CXXFLAGS=-O3` asks for _more_ optimisation.  Faster code, slower build.
- * `CXX=clang++` compiles with `clang++` as the compiler.
- * `--enable-maintainer-mode` makes the compiler more pedantic about the code.
- * `--enable-audit` enables expensive run-time checks for debugging.
- * `--with-postgres-lib=$DIR` looks for libpq in `$DIR`.
- * `--with-postgres-include=$DIR` looks for the libpq headers in `$DIR`.
- * `--prefix=$PATH` prepares to install libpqxx in `$PATH`.
- * `--enable-shared` enables compilation of libpqxx as a shared library.
- * `--disable-shared` disbles compilation of libpqxx as a shared library.
- * `--enable-static` enables compilation of libpqxx as a static library.
- * `--disable-static` disables compilation of libpqxx as a static library.
- * `--help` shows you a lot more of the options.
+* `--disable-documentation` skips building of the documentation.
+* `CXXFLAGS=-O0` disables optimisation.  Slower code, but faster build.
+* `CXXFLAGS=-O3` asks for _more_ optimisation.  Faster code, slower build.
+* `CXX=clang++` compiles with `clang++` as the compiler.
+* `--enable-maintainer-mode` makes the compiler more pedantic about the code.
+* `--enable-audit` enables expensive run-time checks for debugging.
+* `--with-postgres-lib=$DIR` looks for libpq in `$DIR`.
+* `--with-postgres-include=$DIR` looks for the libpq headers in `$DIR`.
+* `--prefix=$PATH` prepares to install libpqxx in `$PATH`.
+* `--enable-shared` enables compilation of libpqxx as a shared library.
+* `--disable-shared` disbles compilation of libpqxx as a shared library.
+* `--enable-static` enables compilation of libpqxx as a static library.
+* `--disable-static` disables compilation of libpqxx as a static library.
+* `--help` shows you a lot more of the options.
 
 So for example, to get a very quick build but produce very inefficient code:
 
@@ -106,9 +106,9 @@ of mistakes in the code, such as occasionally-unused variables.)
 
 One of `configure`'s most important jobs in the libpqxx build is to find the
 headers and library for libpq.  It has three ways of finding those:
- 1. Asking a popular tool called `pkg-config`, if installed.
- 2. Asking postgres' deprecated `pg_config` tool, if installed.
- 3. Through explicit command-line options to `configure`.
+1. Asking a popular tool called `pkg-config`, if installed.
+2. Asking postgres' deprecated `pg_config` tool, if installed.
+3. Through explicit command-line options to `configure`.
 
 The explicit command-line options are `--with-postgres-lib` (for the libpq
 library binary) and `--with-postgres-include` (for the libpq headers).
@@ -216,20 +216,20 @@ You can set these parameters for the test suite, or for any other libpq-based
 application, using the following environment variables.  (They only set default
 values, so they won't override parameters that the application sets in some
 other way.)
- * `PGHOST` — the IP address where we can contact the database's socket.  Or
-   for a Unix domain socket, its absolute path on the filesystem.
- * `PGPORT` —
- * `PGDATABASE` — the name of the database to which you wish to connect.
- * `PGUSER` — user name under which you wish to log in on the database.
- * `PGPASSWORD` — user name's password for accessing the database.
+* `PGHOST` — the IP address where we can contact the database's socket.  Or
+  for a Unix domain socket, its absolute path on the filesystem.
+* `PGPORT` —
+* `PGDATABASE` — the name of the database to which you wish to connect.
+* `PGUSER` — user name under which you wish to log in on the database.
+* `PGPASSWORD` — user name's password for accessing the database.
 
 See the full list at https://www.postgresql.org/docs/current/libpq-envars.html
 
 **Be careful with passwords,** by the way.  Depending on your operating system
 and configuration, an attacker with access to your machine could try to read
 your password if you set it on the command line:
- * Your shell may keep a log of the commands you have entered.
- * Environment variables may be visible to other users on the system.
+* Your shell may keep a log of the commands you have entered.
+* Environment variables may be visible to other users on the system.
 
 If at all possible, rely on postgres "peer authentication."  Once set up, it is
 both more secure and more convenient than passwords.
