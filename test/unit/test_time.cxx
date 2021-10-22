@@ -15,7 +15,7 @@ void test_year_string_conversion()
     {-543, "-543"sv}, {-1, "-1"sv},     {0, "0"sv},
     {1, "1"sv},       {1971, "1971"sv}, {10191, "10191"sv},
   };
-  for (auto const [num, text] : conversions)
+  for (auto const &[num, text] : conversions)
   {
     std::chrono::year const y{num};
     PQXX_CHECK_EQUAL(pqxx::to_string(y), text, "Year did not convert right.");
@@ -24,7 +24,7 @@ void test_year_string_conversion()
       "Year did not parse right.");
   }
 
-  auto const invalid{
+  auto const invalid[]{
     ""sv,
     "-"sv,
     "+"sv,
