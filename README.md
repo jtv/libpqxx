@@ -92,44 +92,44 @@ treat as an array of strings: one for each field in the row.  It's that simple.
 Here is a simple example program to get you going, with full error handling:
 
 ```c++
-#include <iostream>
-#include <pqxx/pqxx>
+    #include <iostream>
+    #include <pqxx/pqxx>
 
-int main()
-{
-    try
+    int main()
     {
-        // Connect to the database.
-        pqxx::connection C;
-        std::cout << "Connected to " << C.dbname() << '\n';
+        try
+        {
+            // Connect to the database.
+            pqxx::connection C;
+            std::cout << "Connected to " << C.dbname() << '\n';
 
-        // Start a transaction.
-        pqxx::work W{C};
+            // Start a transaction.
+            pqxx::work W{C};
 
-        // Perform a query and retrieve all results.
-        pqxx::result R{W.exec("SELECT name FROM employee")};
+            // Perform a query and retrieve all results.
+            pqxx::result R{W.exec("SELECT name FROM employee")};
 
-        // Iterate over results.
-        std::cout << "Found " << R.size() << "employees:\n";
-        for (auto row: R)
-            std::cout << row[0].c_str() << '\n';
+            // Iterate over results.
+            std::cout << "Found " << R.size() << "employees:\n";
+            for (auto row: R)
+                std::cout << row[0].c_str() << '\n';
 
-        // Perform a query and check that it returns no result.
-        std::cout << "Doubling all employees' salaries...\n";
-        W.exec0("UPDATE employee SET salary = salary*2");
+            // Perform a query and check that it returns no result.
+            std::cout << "Doubling all employees' salaries...\n";
+            W.exec0("UPDATE employee SET salary = salary*2");
 
-        // Commit the transaction.
-        std::cout << "Making changes definite: ";
-        W.commit();
-        std::cout << "OK.\n";
+            // Commit the transaction.
+            std::cout << "Making changes definite: ";
+            W.commit();
+            std::cout << "OK.\n";
+        }
+        catch (std::exception const &e)
+        {
+            std::cerr << e.what() << '\n';
+            return 1;
+        }
+        return 0;
     }
-    catch (std::exception const &e)
-    {
-        std::cerr << e.what() << '\n';
-        return 1;
-    }
-    return 0;
-}
 ```
 
 
