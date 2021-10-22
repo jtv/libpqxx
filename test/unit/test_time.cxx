@@ -24,7 +24,7 @@ void test_year_string_conversion()
       "Year did not parse right.");
   }
 
-  auto const invalid[]{
+  std::string_view const invalid[]{
     ""sv,
     "-"sv,
     "+"sv,
