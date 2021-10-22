@@ -28,7 +28,7 @@ void test_082()
     {
       PQXX_CHECK_EQUAL(
         (*f2).as(nullstr), f.as(nullstr), "Inconsistent iteration result.");
-      f2++;
+      ++f2;
     }
 
     PQXX_CHECK(
@@ -56,7 +56,7 @@ void test_082()
     pqxx::row::const_iterator f4{r, std::size(r)};
     PQXX_CHECK(f4 == f3, "Row iterator constructor with offset is broken.");
 
-    f3--;
+    --f3;
     f4 -= 1;
 
     PQXX_CHECK(f3 < std::end(r), "Last field in row is not before end().");
