@@ -205,11 +205,11 @@ template<> struct string_traits<std::chrono::year_month_day>
       throw pqxx::conversion_error{make_parse_error(text)};
     auto const y{string_traits<std::chrono::year>::from_string(
       std::string_view{std::data(text), ymsep})};
-    auto const month{
+    auto const m{
       string_traits<std::chrono::month>::from_string(text.substr(ymsep + 1, 2))};
     if (text[ymsep + 3] != '-')
       throw pqxx::conversion_error{make_parse_error(text)};
-    auto const d{string_traits<std::chrono::day>::from_string(text.substr(ymsep + 4, 2)};
+    auto const d{string_traits<std::chrono::day>::from_string(text.substr(ymsep + 4, 2))};
     std::chrono::year_month_day const date{y, m, d};
     if (not date.ok())
       throw conversion_error{make_parse_error(text)};
