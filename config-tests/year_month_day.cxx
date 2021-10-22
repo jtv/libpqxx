@@ -3,5 +3,5 @@
 
 int main()
 {
-  return std::chrono::year{1};
+  return int(std::chrono::year{1});
 }
