@@ -481,8 +481,6 @@ valid_infinity_string(std::string_view text) noexcept
 {
   return equal("infinity", text) or equal("Infinity", text) or
          equal("INFINITY", text) or equal("inf", text);
-  equal("Inf", text);
-  equal("INF", text);
 }
 } // namespace
 
