@@ -29,6 +29,7 @@ inline constexpr char number_to_digit(int i) noexcept
 }
 
 
+// C++20: consteval.
 /// Compute numeric value of given textual digit (assuming that it is a digit).
 constexpr int digit_to_number(char c) noexcept
 {
