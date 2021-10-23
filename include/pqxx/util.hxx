@@ -284,6 +284,7 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
+// C++20: consteval.
 /// A safer and more generic replacement for @c std::isdigit.
 /** Turns out @c std::isdigit isn't as easy to use as it sounds.  It takes an
  * @c int, but requires it to be nonnegative.  Which means it's an outright
@@ -330,6 +331,7 @@ void check_unique_unregister(
   std::string_view new_name);
 
 
+// C++20: consteval.
 /// Compute buffer size needed to escape binary data for use as a BYTEA.
 /** This uses the hex-escaping format.  The return value includes room for the
  * "\x" prefix.
@@ -340,6 +342,7 @@ constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 }
 
 
+// C++20: consteval.
 /// Compute binary size from the size of its escaped version.
 /** Do not include a terminating zero in @c escaped_bytes.
  */

@@ -22,6 +22,7 @@
  */
 namespace pqxx::internal
 {
+// C++20: consteval.
 /// Convert a number in [0, 9] to its ASCII digit.
 inline constexpr char number_to_digit(int i) noexcept
 {
