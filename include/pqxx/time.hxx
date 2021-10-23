@@ -24,12 +24,16 @@ template<> struct string_traits<std::chrono::year>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return string_traits<int>::to_buf(begin, end, short(value));
+    if (not value.ok()) throw conversion_error{"Year out of range."};
+    return string_traits<int>::to_buf(
+      begin, end, as_short(value));
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return string_traits<int>::into_buf(begin, end, short(value));
+    if (not value.ok()) throw conversion_error{"Year out of range."};
+    return string_traits<int>::into_buf(
+      begin, end, as_short(value));
   }
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
@@ -46,7 +50,17 @@ template<> struct string_traits<std::chrono::year>
   {
     // This'll ask for a lot more room than it'll ever need, but we can't
     // reuse the int conversions without that buffer space.
-    return string_traits<int>::size_buffer(short(value));
+    return string_traits<short>::size_buffer(as_short(value));
+  }
+
+private:
+  /// Cast an "OK" year value to @c short.
+  static short as_short(std::chrono::year value) noexcept
+  {
+    // This conversion is safe without runtime checks.  The C++ standard
+    // requires that a year value (that passes the @c year.ok() check) fit in
+    // a signed short.
+    return static_cast<short>(int(value));
   }
 };
 
