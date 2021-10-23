@@ -19,6 +19,14 @@ template<> struct nullness<std::chrono::year> : no_null<std::chrono::year>
 {};
 
 
+/// String conversions for a year value.
+/** Of course you can also use a regular integral type to represent a year.
+ * But if a @c std::chrono::year is what you want, libpqxx supports it.
+ *
+ * The C++20 @c year class supports a range from -32767 to 32767 inclusive.
+ *
+ * An invalid or out-of-range year will not convert.
+ */
 template<> struct string_traits<std::chrono::year>
 {
   [[nodiscard]] static zview
@@ -69,6 +77,13 @@ template<> struct nullness<std::chrono::month> : no_null<std::chrono::month>
 {};
 
 
+/// String conversions for a month: 1 for January, etc. up to 12 for December.
+/** This is not likely to be very useful to most applications, and I don't
+ * think there's a direct SQL equivalent.  However, the string conversions for
+ * full dates make use of the @c month conversions.
+ *
+ * An invalid or out-of-range month will not convert.
+ */
 template<> struct string_traits<std::chrono::month>
 {
   [[nodiscard]] static zview
@@ -124,6 +139,16 @@ template<> struct nullness<std::chrono::day> : no_null<std::chrono::day>
 {};
 
 
+/// String conversions for day-of-month.  Starts at 1, up to 31 inclusive.
+/** This is not likely to be very useful to most applications, and I don't
+ * think there's a direct SQL equivalent.  However, the string conversions for
+ * full dates make use of the @c day conversions.
+ *
+ * An invalid or out-of-range day will not convert.  But of course if you want
+ * to associate a day of 30 with the month of February, the @c day conversions
+ * per se will not notice.  That error only comes to the fore when you convert
+ * a full date.
+ */
 template<> struct string_traits<std::chrono::day>
 {
   [[nodiscard]] static zview
@@ -185,6 +210,10 @@ struct nullness<std::chrono::year_month_day>
  * other formats in turn support a choice of "month before day" versus "day
  * before month," meaning that it's not necessarily known which format a given
  * date is supposed to be.
+ *
+ * Invalid dates will not convert.  This includes February 29 on non-leap
+ * years, which is why it matters that @c year_month_day represents a
+ * @i Gregorian date.
  */
 template<> struct string_traits<std::chrono::year_month_day>
 {
