@@ -132,7 +132,6 @@ template<typename TYPE> struct no_null
    */
   static constexpr bool always_null = false;
 
-// C++20: consteval?
   /// Does a given value correspond to an SQL null value?
   /** Most C++ types, such as @c int or @c std::string, have no inherent null
    * value.  But some types such as C-style string pointers do have a natural
@@ -408,7 +407,6 @@ template<typename T> inline constexpr char array_separator{','};
 
 
 // TODO: constexpr.
-// C++20: consteval.
 /// What's the preferred format for passing non-null parameters of this type?
 /** This affects how we pass parameters of @c TYPE when calling parameterised
  * statements or prepared statements.

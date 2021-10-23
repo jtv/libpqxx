@@ -28,7 +28,6 @@ extern "C"
 
 namespace
 {
-// C++20: consteval.
 constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 {
 // C++20: constinit.
@@ -40,7 +39,6 @@ constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 }
 
 
-// C++20: consteval.
 constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 {
   if constexpr (

@@ -34,12 +34,12 @@ namespace pqxx
 class transaction_base;
 
 
-// C++20: consteval.
+// C++20: constinit.
 /// Pass this to a @c stream_from constructor to stream table contents.
 /** @deprecated Use stream_from::table() instead.
  */
 constexpr from_table_t from_table;
-// C++20: consteval.
+// C++20: constinit.
 /// Pass this to a @c stream_from constructor to stream query results.
 /** @deprecated Use stream_from::query() instead.
  */

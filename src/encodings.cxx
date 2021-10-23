@@ -59,7 +59,6 @@ get_byte(char const buffer[], std::size_t offset) noexcept
 }
 
 
-// C++20: consteval.
 /// Does value lie between bottom and top, inclusive?
 constexpr PQXX_PURE bool
 between_inc(unsigned char value, unsigned bottom, unsigned top)
@@ -177,7 +176,6 @@ template<encoding_group> struct glyph_scanner
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
-// C++20: consteval.
   static PQXX_PURE constexpr std::size_t
   call(char const /* buffer */[], std::size_t buffer_len, std::size_t start)
   {
@@ -673,7 +671,6 @@ encoding_group enc_group(std::string_view encoding_name)
 }
 
 
-// C++20: consteval.
 /// Look up instantiation @c T<enc>::call at runtime.
 /** Here, "T" is a struct template with a static member function "call", whose
  * type is "F".

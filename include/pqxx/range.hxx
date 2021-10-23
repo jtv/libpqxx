@@ -19,12 +19,10 @@ namespace pqxx
  */
 struct no_bound
 {
-// C++20: consteval.
   template<typename TYPE> constexpr bool extends_down_to(TYPE const &) const
   {
     return true;
   }
-// C++20: consteval.
   template<typename TYPE> constexpr bool extends_up_to(TYPE const &) const
   {
     return true;

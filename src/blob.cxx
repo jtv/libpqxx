@@ -13,7 +13,7 @@
 
 namespace
 {
-// C++20: consteval.
+// C++20: constinit.
 constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 } // namespace
 
