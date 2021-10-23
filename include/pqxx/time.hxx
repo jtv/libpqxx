@@ -24,12 +24,12 @@ template<> struct string_traits<std::chrono::year>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return string_traits<int>::to_buf(begin, end, int(value));
+    return string_traits<int>::to_buf(begin, end, short(value));
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    return string_traits<int>::into_buf(begin, end, int(value));
+    return string_traits<int>::into_buf(begin, end, short(value));
   }
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
@@ -46,7 +46,7 @@ template<> struct string_traits<std::chrono::year>
   {
     // This'll ask for a lot more room than it'll ever need, but we can't
     // reuse the int conversions without that buffer space.
-    return string_traits<int>::size_buffer(int(value));
+    return string_traits<int>::size_buffer(short(value));
   }
 };
 
@@ -166,6 +166,12 @@ struct nullness<std::chrono::year_month_day>
 {};
 
 
+/// String representation for a Gregorian date in ISO-8601 format.
+/** PostgreSQL supports a choice of date formats, but libpqxx does not.  The
+ * other formats in turn support a choice of "month before day" versus "day
+ * before month," meaning that it's not necessarily known which format a given
+ * date is supposed to be.
+ */
 template<> struct string_traits<std::chrono::year_month_day>
 {
   [[nodiscard]] static zview
