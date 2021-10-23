@@ -17,8 +17,8 @@ void test_year_string_conversion()
   std::tuple<int, std::string_view> const conversions[]{
     {-543, "-543"sv}, {-1, "-1"sv},     {0, "0"sv},
     {1, "1"sv},       {1971, "1971"sv}, {10191, "10191"sv},
-    {std::chrono::year::min(), "-32767"},
-    {std::chrono::year::max(), "32767"},
+    {int(std::chrono::year::min()), "-32767"},
+    {int(std::chrono::year::max()), "32767"},
   };
   for (auto const &[num, text] : conversions)
   {
