@@ -168,6 +168,7 @@ private:
   void attach();
   void detach();
 
+// C++20: consteval.
   /// Upper bound to query id's.
   static constexpr query_id qid_limit() noexcept
   {
@@ -230,6 +231,7 @@ private:
    */
   internal::encoding_group m_encoding;
 
+// C++20: constinit.
   constexpr static std::string_view s_classname{"pipeline"};
 };
 } // namespace pqxx

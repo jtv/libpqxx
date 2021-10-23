@@ -34,10 +34,12 @@ namespace pqxx
 class transaction_base;
 
 
+// C++20: consteval.
 /// Pass this to a @c stream_from constructor to stream table contents.
 /** @deprecated Use stream_from::table() instead.
  */
 constexpr from_table_t from_table;
+// C++20: consteval.
 /// Pass this to a @c stream_from constructor to stream query results.
 /** @deprecated Use stream_from::query() instead.
  */
@@ -306,6 +308,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_finished)
     return *this;
+// C++20: constinit.
   constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
   parse_line();

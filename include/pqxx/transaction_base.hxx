@@ -650,6 +650,7 @@ private:
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
 
+// C++20: constinit.
   static constexpr std::string_view s_type_name{"transaction"sv};
 };
 
@@ -673,6 +674,7 @@ namespace pqxx::internal
 template<pqxx::isolation_level isolation, pqxx::write_policy rw>
 extern const zview begin_cmd;
 
+// C++20: constinit.
 // These are not static members, so "constexpr" does not imply "inline".
 template<>
 inline constexpr zview begin_cmd<read_committed, write_policy::read_write>{

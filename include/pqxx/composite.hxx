@@ -48,6 +48,7 @@ inline void parse_composite(
 
   here = next;
 
+// C++20: constinit.
   constexpr auto num_fields{sizeof...(fields)};
   std::size_t index{0};
   (pqxx::internal::parse_composite_field(
@@ -79,6 +80,7 @@ inline void parse_composite(std::string_view text, T &...fields)
 
 namespace pqxx::internal
 {
+// C++20: constinit.
 constexpr char empty_composite_str[]{"()"};
 } // namespace pqxx::internal
 
@@ -91,6 +93,7 @@ namespace pqxx
 template<typename... T>
 inline std::size_t composite_size_buffer(T const &...fields) noexcept
 {
+// C++20: constinit.
   constexpr auto num{sizeof...(fields)};
 
   // Size for a multi-field composite includes room for...
@@ -122,9 +125,11 @@ inline char *composite_into_buf(char *begin, char *end, T const &...fields)
     throw conversion_error{
       "Buffer space may not be enough to represent composite value."};
 
+// C++20: constinit.
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
+  // C++20: constinit.
     constexpr char empty[]{"()"};
     std::memcpy(begin, empty, std::size(empty));
     return begin + std::size(empty);

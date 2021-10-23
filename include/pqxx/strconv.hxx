@@ -111,6 +111,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 /// Nullness traits describing a type which does not have a null value.
 template<typename TYPE> struct no_null
 {
+// C++20: constinit.
   /// Does @c TYPE have a "built-in null value"?
   /** For example, a pointer can equal @c nullptr, which makes a very natural
    * representation of an SQL null value.  For such types, the code sometimes
@@ -124,12 +125,14 @@ template<typename TYPE> struct no_null
    */
   static constexpr bool has_null = false;
 
+// C++20: constinit.
   /// Are all values of this type null?
   /** There are a few special C++ types which are always null - mainly
    * @c std::nullptr_t.
    */
   static constexpr bool always_null = false;
 
+// C++20: consteval?
   /// Does a given value correspond to an SQL null value?
   /** Most C++ types, such as @c int or @c std::string, have no inherent null
    * value.  But some types such as C-style string pointers do have a natural
@@ -371,6 +374,7 @@ template<typename... TYPE>
 }
 
 
+// C++20: constinit.
 /// Does this type translate to an SQL array?
 /** Specialisations may override this to be true for container types.
  *
@@ -381,6 +385,7 @@ template<typename... TYPE>
 template<typename TYPE> inline constexpr bool is_sql_array{false};
 
 
+// C++20: constinit.
 /// Can we use this type in arrays and composite types without quoting them?
 /** Define this as @c true only if values of @c TYPE can never contain any
  * special characters that might need escaping or confuse the parsing of array
@@ -397,10 +402,13 @@ template<typename TYPE> inline constexpr bool is_sql_array{false};
 template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 
+// C++20: constinit.
 /// Element separator between SQL array elements of this type.
 template<typename T> inline constexpr char array_separator{','};
 
 
+// TODO: constexpr.
+// C++20: consteval.
 /// What's the preferred format for passing non-null parameters of this type?
 /** This affects how we pass parameters of @c TYPE when calling parameterised
  * statements or prepared statements.

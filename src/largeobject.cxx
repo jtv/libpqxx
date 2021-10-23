@@ -28,8 +28,10 @@ extern "C"
 
 namespace
 {
+// C++20: consteval.
 constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 {
+// C++20: constinit.
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
   constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 
@@ -38,6 +40,7 @@ constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 }
 
 
+// C++20: consteval.
 constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 {
   if constexpr (

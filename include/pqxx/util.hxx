@@ -120,7 +120,9 @@ inline TO check_cast(FROM value, std::string_view description)
   {
     using unsigned_from = std::make_unsigned_t<FROM>;
     using unsigned_to = std::make_unsigned_t<TO>;
+// C++20: constinit.
     constexpr auto from_max{static_cast<unsigned_from>((from_limits::max)())};
+// C++20: constinit.
     constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
@@ -264,6 +266,7 @@ std::basic_string_view<std::byte> binary_cast(CHAR const *data, SIZE size)
 }
 
 
+// C++20: constinit.
 /// The "null" oid.
 constexpr oid oid_none{0};
 } // namespace pqxx

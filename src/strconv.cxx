@@ -29,6 +29,7 @@
 namespace
 {
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
+// C++20: constinit.
 /// Do we have fully functional thread_local support?
 /** When building with libcxxrt on clang, you can't create thread_local objects
  * of non-POD types.  Any attempt will result in a link error.
@@ -44,6 +45,7 @@ constexpr bool have_thread_local
 #endif
 
 
+// C++20: consteval?
 /// String comparison between string_view.
 constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 {
@@ -51,12 +53,15 @@ constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 }
 
 
+// C++20: consteval?
 /// The lowest possible value of integral type T.
 template<typename T> constexpr T bottom{std::numeric_limits<T>::min()};
 
+// C++20: consteval?
 /// The highest possible value of integral type T.
 template<typename T> constexpr T top{std::numeric_limits<T>::max()};
 
+// C++20: consteval?
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
  *
@@ -236,6 +241,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
+// C++20: constinit.
   static constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
@@ -324,21 +330,25 @@ namespace
 
 template<typename T> struct numeric_ten
 {
+// C++20: constinit.
   static inline constexpr T value = 10;
 };
 
 template<typename T> struct numeric_high_threshold
 {
+// C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
 };
 
 template<typename T> struct numeric_low_threshold
 {
+// C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
 };
 
+// C++20: consteval.
 /// Return 10*n, or throw exception if it overflows.
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_multiply_by_ten(T n)
@@ -358,6 +368,7 @@ template<typename T>
 }
 
 
+// C++20: consteval.
 /// Add digit d to nonnegative n, or throw exception if it overflows.
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_add_digit(T n, T d)
@@ -370,6 +381,7 @@ template<typename T>
 }
 
 
+// C++20: consteval.
 /// Subtract digit d to nonpositive n, or throw exception if it overflows.
 template<typename T>
 [[maybe_unused]] constexpr inline T safe_sub_digit(T n, T d)
@@ -382,6 +394,7 @@ template<typename T>
 }
 
 
+// C++20: consteval.
 /// For use in string parsing: add new numeric digit to intermediate value.
 template<typename L, typename R>
 [[maybe_unused]] constexpr inline L absorb_digit_positive(L value, R digit)
@@ -390,6 +403,7 @@ template<typename L, typename R>
 }
 
 
+// C++20: consteval.
 /// For use in string parsing: subtract digit from intermediate value.
 template<typename L, typename R>
 [[maybe_unused]] constexpr inline L absorb_digit_negative(L value, R digit)
@@ -398,6 +412,7 @@ template<typename L, typename R>
 }
 
 
+// C++20: consteval.
 /// Compute numeric value of given textual digit (assuming that it is a digit).
 [[maybe_unused]] constexpr int digit_to_number(char c) noexcept
 {
@@ -405,6 +420,7 @@ template<typename L, typename R>
 }
 
 
+// C++20: consteval?
 template<typename T>
 [[maybe_unused]] constexpr T from_string_integer(std::string_view text)
 {
@@ -476,6 +492,7 @@ template<typename T>
 
 namespace
 {
+// C++20: consteval.
 [[maybe_unused]] constexpr bool
 valid_infinity_string(std::string_view text) noexcept
 {
@@ -663,6 +680,7 @@ template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
+// C++20: consteval.
     static constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);

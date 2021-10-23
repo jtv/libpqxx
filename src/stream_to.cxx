@@ -100,6 +100,7 @@ void pqxx::stream_to::complete()
 }
 
 
+// C++20: consteval.
 /// Return escape letter for c's backslash sequence, or 0 if not needed.
 /** The API is a bit weird: you pass the width of the character, and its first
  * byte.  That's because we never need to escape a multibyte character anyway.

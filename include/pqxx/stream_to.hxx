@@ -274,6 +274,7 @@ private:
    */
   void write_buffer();
 
+// C++20: constinit.
   /// COPY encoding for a null field, plus subsequent separator.
   static constexpr std::string_view null_field{"\\N\t"};
 
@@ -421,6 +422,7 @@ private:
     (..., append_to_buffer(fields));
   }
 
+// C++20: constinit.
   constexpr static std::string_view s_classname{"stream_to"};
 };
 
