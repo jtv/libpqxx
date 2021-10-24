@@ -49,16 +49,16 @@ void test_year_string_conversion()
 void test_month_string_conversion()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::chrono::month{1}, "1",
+    pqxx::to_string(std::chrono::month{1}), "1",
     "Month did not convert right.");
   PQXX_CHECK_EQUAL(
     pqxx::from_string<std::chrono::month>("1"), std::chrono::month{1u},
     "Month did not parse right.");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::chrono::month{1}, "12",
+    pqxx::to_string(std::chrono::month{1}), "12",
     "December did not convert right.");
   PQXX_CHECK_EQUAL(
-    pqxx::from_string<std::chrono::month>("12"), std::chrono::month{12u},
+    pqxx::from_string<std::chrono::month>{"12"}, std::chrono::month{12u},
     "December did not parse right.");
 
   std::string_view const invalid[]{
@@ -83,13 +83,13 @@ void test_month_string_conversion()
 void test_day_string_conversion()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::chrono::day{1}, "1",
+    pqxx::to_string(std::chrono::day{1}), "1",
     "Day did not convert right.");
   PQXX_CHECK_EQUAL(
     pqxx::from_string<std::chrono::day>("1"), std::chrono::day{1u},
     "Day did not parse right.");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::chrono::day{1}, "31",
+    pqxx::to_string(std::chrono::day{1}), "31",
     "Day 31 did not convert right.");
   PQXX_CHECK_EQUAL(
     pqxx::from_string<std::chrono::day>("31"), std::chrono::day{31u},
