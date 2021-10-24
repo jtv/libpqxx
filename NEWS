@@ -8,6 +8,7 @@
  - New class, `connecting` for nonblocking connection to the database.  (#487)
  - New class, `range` for SQL range types.  (#490)
  - Replace `std::isdigit` with a safer alternative.
+ - Support string conversions for `std::chrono::year_month_date` etc. (#492)
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
