@@ -116,8 +116,8 @@ void test_date_string_conversion()
 {
   std::tuple<int, unsigned, unsigned, std::string_view> const
   conversions[]{
-    {{-543, 1, 1}, "-543-01-01"sv},
-    {{-1, 2, 3}, "-1-02-03"sv},
+    {-543, 1, 1, "-543-01-01"sv},
+    {-1, 2, 3, "-1-02-03"sv},
   // XXX:
   };
   for (auto const &[ymd, text] : conversions)
