@@ -58,7 +58,7 @@ void test_month_string_conversion()
     pqxx::to_string(std::chrono::month{1}), "12",
     "December did not convert right.");
   PQXX_CHECK_EQUAL(
-    pqxx::from_string<std::chrono::month>{"12"}, std::chrono::month{12u},
+    pqxx::from_string<std::chrono::month>("12"), std::chrono::month{12u},
     "December did not parse right.");
 
   std::string_view const invalid[]{
@@ -136,7 +136,8 @@ void test_date_conversion()
     "2010"sv,
     "2010-8-9"sv,
     "1900-02-29"sv,
-    "2000-02-29-3"sv,
+    "2021-02-29"sv,
+    "2000-11-29-3"sv,
     // XXX:
   };
   for (auto const text : invalid)
