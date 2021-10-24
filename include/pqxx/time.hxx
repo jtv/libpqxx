@@ -233,8 +233,6 @@ template<> struct string_traits<std::chrono::year_month_day>
   {
     char *here{begin};
     here = string_traits<std::chrono::year>::into_buf(begin, end, value.year());
-    if ((end - here) < 6)
-      throw pqxx::conversion_overrun{"Not enough buffer space for date."};
     *(here - 1) = '-';
     here = string_traits<std::chrono::month>::into_buf(
       here, end, value.month());
@@ -264,9 +262,12 @@ template<> struct string_traits<std::chrono::year_month_day>
   }
 
   [[nodiscard]] static std::size_t
-  size_buffer(std::chrono::year_month_day const &) noexcept
+  size_buffer(std::chrono::year_month_day const &value) noexcept
   {
-    return 11;
+    return
+      string_traits<std::chrono::year>::size_buffer(value.year()) +
+      string_traits<std::chrono::month>::size_buffer(value.month()) +
+      string_traits<std::chrono::day>::size_buffer(value.day());
   }
 
 private:
