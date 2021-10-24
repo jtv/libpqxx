@@ -270,7 +270,7 @@ template<> struct string_traits<std::chrono::year_month_day>
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year_month_day const &) noexcept
   {
-    return 10;
+    return 11;
   }
 
 private:
