@@ -118,7 +118,13 @@ void test_date_string_conversion()
   conversions[]{
     {-543, 1, 1, "-543-01-01"sv},
     {-1, 2, 3, "-1-02-03"sv},
-  // XXX:
+    {0, 9, 14, "0-09-14"sv},
+    {2021, 10, 24, "2021-10-24"sv},
+    {10191, 8, 30, "10191-08-30"sv},
+    {-32767, 1, 1, "-32767-01-01"sv},
+    {32767, 12, 31, "32767-12-31"sv},
+    {2000, 2, 29, "2000-02-29"sv},
+    {2004, 2, 29, "2000-02-29"sv},
   };
   for (auto const &[y, m, d, text] : conversions)
   {
@@ -140,7 +146,8 @@ void test_date_string_conversion()
     "1900-02-29"sv,
     "2021-02-29"sv,
     "2000-11-29-3"sv,
-    // XXX:
+    "1900-02-29"sv,
+    "2003-02-29"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
