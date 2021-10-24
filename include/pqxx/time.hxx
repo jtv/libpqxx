@@ -1,4 +1,6 @@
 /** Support for date/time values.
+ *
+ * At the moment this supports dates, but not times.
  */
 #ifndef PQXX_H_TIME
 #define PQXX_H_TIME

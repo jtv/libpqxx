@@ -34,9 +34,10 @@ void test_year_string_conversion()
     "-"sv,
     "+"sv,
     "1929-"sv,
-    // According to cppreference.com, years are limited to 16-bit signed.
     "-32768"sv,
     "32768"sv,
+    "x"sv,
+    "2001y"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
@@ -45,11 +46,110 @@ void test_year_string_conversion()
 }
 
 
-// XXX: Similar for month.
-// XXX: Similar for day.
-// XXX: Similar for year_month_day.
+void test_month_string_conversion()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::chrono::month{1}, "1",
+    "Month did not convert right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<std::chrono::month>("1"), std::chrono::month{1u},
+    "Month did not parse right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::chrono::month{1}, "12",
+    "December did not convert right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<std::chrono::month>("12"), std::chrono::month{12u},
+    "December did not parse right.");
+
+  std::string_view const invalid[]{
+    ""sv,
+    "-1"sv,
+    "+1"sv,
+    "+"sv,
+    "0"sv,
+    "13"sv,
+    "January"sv,
+    "5"sv,
+    "5m"sv,
+    "08-1"sv,
+  };
+  for (auto const text : invalid)
+    PQXX_CHECK_THROWS(
+      pqxx::ignore_unused(pqxx::from_string<std::chrono::month>(text)),
+      pqxx::conversion_error, "Invalid month parsed as if valid.");
+}
+
+
+void test_day_string_conversion()
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::chrono::day{1}, "1",
+    "Day did not convert right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<std::chrono::day>("1"), std::chrono::day{1u},
+    "Day did not parse right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::chrono::day{1}, "31",
+    "Day 31 did not convert right.");
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<std::chrono::day>("31"), std::chrono::day{31u},
+    "Day 31 did not parse right.");
+
+  std::string_view const invalid[]{
+    ""sv,
+    "-1"sv,
+    "+1"sv,
+    "0"sv,
+    "32"sv,
+    "inf"sv,
+    "3"sv,
+    "24-3"sv,
+  };
+  for (auto const text : invalid)
+    PQXX_CHECK_THROWS(
+      pqxx::ignore_unused(pqxx::from_string<std::chrono::day>(text)),
+      pqxx::conversion_error, "Invalid day parsed as if valid.");
+}
+
+
+void test_date_conversion()
+{
+  std::tuple<std::chrono::year_month_day, std::string_view> const
+  conversions[]{
+    {{-543, 1, 1}, "-543-01-01"sv},
+    {{-1, 2, 3}, "-1-02-03"sv},
+  // XXX:
+  };
+  for (auto const &[date, text] : conversions)
+  {
+    PQXX_CHECK_EQUAL(
+      pqxx::to_string(date), text, "Date did not convert right.");
+    PQXX_CHECK_EQUAL(
+      pqxx::from_string<std::chrono::year_month_day>(text), date,
+      "Date did not parse right.");
+  }
+
+  std::string_view const invalid[]{
+    ""sv,
+    "yesterday"sv,
+    "1981-01"sv,
+    "2010"sv,
+    "2010-8-9"sv,
+    "1900-02-29"sv,
+    "2000-02-29-3"sv,
+    // XXX:
+  };
+  for (auto const text : invalid)
+    PQXX_CHECK_THROWS(
+      pqxx::ignore_unused(
+        pqxx::from_string<std::chrono::year_month_day>(text)),
+      pqxx::conversion_error, "Invalid date parsed as if valid.");
+}
 
 
 PQXX_REGISTER_TEST(test_year_string_conversion);
+PQXX_REGISTER_TEST(test_month_string_conversion);
+PQXX_REGISTER_TEST(test_day_string_conversion);
+PQXX_REGISTER_TEST(test_date_string_conversion);
 #endif // PQXX_HAVE_YEAR_MONTH_DAY
 } // namespace
