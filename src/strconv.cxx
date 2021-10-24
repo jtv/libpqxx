@@ -36,11 +36,11 @@ namespace
  */
 constexpr bool have_thread_local
 {
-#if defined(PQXX_HAVE_THREAD_LOCAL)
+#  if defined(PQXX_HAVE_THREAD_LOCAL)
   true
-#else
+#  else
   false
-#endif
+#  endif
 };
 #endif
 
@@ -402,13 +402,6 @@ template<typename L, typename R>
 [[maybe_unused]] constexpr inline L absorb_digit_negative(L value, R digit)
 {
   return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
-}
-
-
-/// Compute numeric value of given textual digit (assuming that it is a digit).
-[[maybe_unused]] constexpr int digit_to_number(char c) noexcept
-{
-  return c - '0';
 }
 
 

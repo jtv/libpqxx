@@ -162,7 +162,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_subtransaction.$(OBJEXT) \
 	unit/test_test_helpers.$(OBJEXT) \
 	unit/test_thread_safety_model.$(OBJEXT) \
-	unit/test_transaction.$(OBJEXT) \
+	unit/test_time.$(OBJEXT) unit/test_transaction.$(OBJEXT) \
 	unit/test_transaction_base.$(OBJEXT) \
 	unit/test_transaction_focus.$(OBJEXT) \
 	unit/test_transactor.$(OBJEXT) unit/test_type_name.$(OBJEXT) \
@@ -241,7 +241,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	unit/$(DEPDIR)/test_subtransaction.Po \
 	unit/$(DEPDIR)/test_test_helpers.Po \
 	unit/$(DEPDIR)/test_thread_safety_model.Po \
-	unit/$(DEPDIR)/test_transaction.Po \
+	unit/$(DEPDIR)/test_time.Po unit/$(DEPDIR)/test_transaction.Po \
 	unit/$(DEPDIR)/test_transaction_base.Po \
 	unit/$(DEPDIR)/test_transaction_focus.Po \
 	unit/$(DEPDIR)/test_transactor.Po \
@@ -546,6 +546,7 @@ runner_SOURCES = \
   unit/test_subtransaction.cxx \
   unit/test_test_helpers.cxx \
   unit/test_thread_safety_model.cxx \
+  unit/test_time.cxx \
   unit/test_transaction.cxx \
   unit/test_transaction_base.cxx \
   unit/test_transaction_focus.cxx \
@@ -675,6 +676,8 @@ unit/test_test_helpers.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_thread_safety_model.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_time.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_transaction.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_transaction_base.$(OBJEXT): unit/$(am__dirstamp) \
@@ -777,6 +780,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_test_helpers.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_thread_safety_model.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_time.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction_base.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction_focus.Po@am__quote@ # am--include-marker
@@ -1121,6 +1125,7 @@ distclean: distclean-am
 	-rm -f unit/$(DEPDIR)/test_subtransaction.Po
 	-rm -f unit/$(DEPDIR)/test_test_helpers.Po
 	-rm -f unit/$(DEPDIR)/test_thread_safety_model.Po
+	-rm -f unit/$(DEPDIR)/test_time.Po
 	-rm -f unit/$(DEPDIR)/test_transaction.Po
 	-rm -f unit/$(DEPDIR)/test_transaction_base.Po
 	-rm -f unit/$(DEPDIR)/test_transaction_focus.Po
@@ -1250,6 +1255,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f unit/$(DEPDIR)/test_subtransaction.Po
 	-rm -f unit/$(DEPDIR)/test_test_helpers.Po
 	-rm -f unit/$(DEPDIR)/test_thread_safety_model.Po
+	-rm -f unit/$(DEPDIR)/test_time.Po
 	-rm -f unit/$(DEPDIR)/test_transaction.Po
 	-rm -f unit/$(DEPDIR)/test_transaction_base.Po
 	-rm -f unit/$(DEPDIR)/test_transaction_focus.Po

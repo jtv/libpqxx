@@ -17850,6 +17850,39 @@ rm -f core conftest.err conftest.$ac_objext \
 $as_echo "$strerror_s" >&6; }
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for std::chrono::year_month_day etc" >&5
+$as_echo_n "checking for std::chrono::year_month_day etc... " >&6; }
+year_month_day=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for std::chrono::year_month_day etc.
+
+#include <chrono>
+
+
+
+int main()
+
+{
+
+  return int(std::chrono::year{1});
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_YEAR_MONTH_DAY 1" >>confdefs.h
+
+else
+  year_month_day=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $year_month_day" >&5
+$as_echo "$year_month_day" >&6; }
+
 
 # Check for [[likely]] and [[unlikely]] attributes.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking attributes \"likely\" and \"unlikely\"." >&5

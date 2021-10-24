@@ -29,6 +29,13 @@ inline constexpr char number_to_digit(int i) noexcept
 }
 
 
+/// Compute numeric value of given textual digit (assuming that it is a digit).
+constexpr int digit_to_number(char c) noexcept
+{
+  return c - '0';
+}
+
+
 /// Summarize buffer overrun.
 /** Don't worry about the exact parameter types: the sizes will be reasonably
  * small, and nonnegative.

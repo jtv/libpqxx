@@ -105,6 +105,9 @@
 /* Define if thread_local is fully supported. */
 #undef PQXX_HAVE_THREAD_LOCAL
 
+/* Define if std::chrono has year_month_day etc. */
+#undef PQXX_HAVE_YEAR_MONTH_DAY
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

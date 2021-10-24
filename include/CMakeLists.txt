@@ -46,6 +46,7 @@ install(
     PATTERN stream_from
     PATTERN stream_to
     PATTERN subtransaction
+    PATTERN time
     PATTERN transaction
     PATTERN transaction_base
     PATTERN transaction_focus
