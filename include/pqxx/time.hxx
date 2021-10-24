@@ -34,16 +34,16 @@ template<> struct string_traits<std::chrono::year>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    if (not value.ok()) throw conversion_error{"Year out of range."};
-    return string_traits<int>::to_buf(
-      begin, end, as_short(value));
+    if (not value.ok())
+      throw conversion_error{"Year out of range."};
+    return string_traits<int>::to_buf(begin, end, as_short(value));
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    if (not value.ok()) throw conversion_error{"Year out of range."};
-    return string_traits<int>::into_buf(
-      begin, end, as_short(value));
+    if (not value.ok())
+      throw conversion_error{"Year out of range."};
+    return string_traits<int>::into_buf(begin, end, as_short(value));
   }
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
@@ -104,8 +104,10 @@ template<> struct string_traits<std::chrono::month>
       throw conversion_error{"Month value out of range."};
     unsigned const month{value};
     char *here{begin};
-    if (month >= 10) *here = '1';
-    else *here = '0';
+    if (month >= 10)
+      *here = '1';
+    else
+      *here = '0';
     ++here;
     *here++ = internal::number_to_digit(static_cast<int>(month % 10));
     *here++ = '\0';
@@ -118,8 +120,8 @@ template<> struct string_traits<std::chrono::month>
       std::size(text) != 2 or not internal::is_digit(text[0]) or
       not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
-    std::chrono::month const m{
-      unsigned((10 * internal::digit_to_number(text[0])) +
+    std::chrono::month const m{unsigned(
+      (10 * internal::digit_to_number(text[0])) +
       internal::digit_to_number(text[1]))};
     if (not m.ok())
       throw conversion_error{make_parse_error(text)};
@@ -182,8 +184,8 @@ template<> struct string_traits<std::chrono::day>
       std::size(text) != 2 or not internal::is_digit(text[0]) or
       not internal::is_digit(text[1]))
       throw conversion_error{make_parse_error(text)};
-    std::chrono::day const d{
-      unsigned((10 * internal::digit_to_number(text[0])) +
+    std::chrono::day const d{unsigned(
+      (10 * internal::digit_to_number(text[0])) +
       internal::digit_to_number(text[1]))};
     if (not d.ok())
       throw conversion_error{make_parse_error(text)};
@@ -232,10 +234,11 @@ template<> struct string_traits<std::chrono::year_month_day>
   into_buf(char *begin, char *end, std::chrono::year_month_day const &value)
   {
     char *here{begin};
-    here = string_traits<std::chrono::year>::into_buf(begin, end, value.year());
+    here =
+      string_traits<std::chrono::year>::into_buf(begin, end, value.year());
     *(here - 1) = '-';
-    here = string_traits<std::chrono::month>::into_buf(
-      here, end, value.month());
+    here =
+      string_traits<std::chrono::month>::into_buf(here, end, value.month());
     *(here - 1) = '-';
     return string_traits<std::chrono::day>::into_buf(here, end, value.day());
   }
@@ -250,11 +253,12 @@ template<> struct string_traits<std::chrono::year_month_day>
       throw pqxx::conversion_error{make_parse_error(text)};
     auto const y{string_traits<std::chrono::year>::from_string(
       std::string_view{std::data(text), ymsep})};
-    auto const m{
-      string_traits<std::chrono::month>::from_string(text.substr(ymsep + 1, 2))};
+    auto const m{string_traits<std::chrono::month>::from_string(
+      text.substr(ymsep + 1, 2))};
     if (text[ymsep + 3] != '-')
       throw pqxx::conversion_error{make_parse_error(text)};
-    auto const d{string_traits<std::chrono::day>::from_string(text.substr(ymsep + 4, 2))};
+    auto const d{
+      string_traits<std::chrono::day>::from_string(text.substr(ymsep + 4, 2))};
     std::chrono::year_month_day const date{y, m, d};
     if (not date.ok())
       throw conversion_error{make_parse_error(text)};
@@ -264,10 +268,9 @@ template<> struct string_traits<std::chrono::year_month_day>
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year_month_day const &value) noexcept
   {
-    return
-      string_traits<std::chrono::year>::size_buffer(value.year()) +
-      string_traits<std::chrono::month>::size_buffer(value.month()) +
-      string_traits<std::chrono::day>::size_buffer(value.day());
+    return string_traits<std::chrono::year>::size_buffer(value.year()) +
+           string_traits<std::chrono::month>::size_buffer(value.month()) +
+           string_traits<std::chrono::day>::size_buffer(value.day());
   }
 
 private:

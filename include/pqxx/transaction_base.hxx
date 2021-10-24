@@ -650,7 +650,7 @@ private:
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
 
-// C++20: constinit.
+  // C++20: constinit.
   static constexpr std::string_view s_type_name{"transaction"sv};
 };
 

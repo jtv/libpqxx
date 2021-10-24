@@ -128,7 +128,7 @@ public:
 
   placeholders()
   {
-// C++20: constinit.
+    // C++20: constinit.
     static constexpr auto initial{"$1\0"sv};
     initial.copy(std::data(m_buf), std::size(initial));
   }
@@ -371,7 +371,7 @@ private:
     std::basic_string<std::byte>>;
   std::vector<entry> m_params;
 
-// C++20: constinit.
+  // C++20: constinit.
   static constexpr std::string_view s_overflow{
     "Statement parameter length overflow."sv};
 };

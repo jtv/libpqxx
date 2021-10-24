@@ -206,7 +206,7 @@ protected:
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t) const
   {
-// C++20: constinit.
+    // C++20: constinit.
     constexpr auto tup_size{std::tuple_size_v<Tuple>};
     extract_fields(t, std::make_index_sequence<tup_size>{});
   }

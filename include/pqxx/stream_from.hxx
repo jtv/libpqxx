@@ -308,7 +308,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_finished)
     return *this;
-// C++20: constinit.
+  // C++20: constinit.
   constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
   parse_line();

@@ -239,7 +239,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
-// C++20: constinit.
+  // C++20: constinit.
   static constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
@@ -328,20 +328,20 @@ namespace
 
 template<typename T> struct numeric_ten
 {
-// C++20: constinit.
+  // C++20: constinit.
   static inline constexpr T value = 10;
 };
 
 template<typename T> struct numeric_high_threshold
 {
-// C++20: constinit?
+  // C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
 };
 
 template<typename T> struct numeric_low_threshold
 {
-// C++20: constinit?
+  // C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
 };
@@ -663,7 +663,7 @@ template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
-// C++20: constinit.
+    // C++20: constinit.
     static constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);

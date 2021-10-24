@@ -230,7 +230,7 @@ private:
    */
   internal::encoding_group m_encoding;
 
-// C++20: constinit.
+  // C++20: constinit.
   constexpr static std::string_view s_classname{"pipeline"};
 };
 } // namespace pqxx

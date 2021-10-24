@@ -82,7 +82,7 @@ public:
   blob &operator=(blob const &) = delete;
   ~blob();
 
-// C++20: constinit.
+  // C++20: constinit.
   /// Maximum number of bytes that can be read or written at a time.
   /** The underlying protocol only supports reads and writes up to 2 GB
    * exclusive.

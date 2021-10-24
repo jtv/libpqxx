@@ -77,7 +77,7 @@ public:
   using iterator = result_iter<TYPE...>;
   explicit result_iteration(result const &home) : m_home{home}
   {
-// C++20: constinit.
+    // C++20: constinit.
     constexpr auto tup_size{sizeof...(TYPE)};
     if (home.columns() != tup_size)
       throw usage_error{internal::concat(

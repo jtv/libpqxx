@@ -404,7 +404,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // The field parser uses this to track which field it's parsing, and
     // when not to expect a field separator.
     std::size_t index{0};
-// C++20: constinit.
+    // C++20: constinit.
     // The last field we expect to see.
     constexpr std::size_t last{1};
     // Current parsing position.  We skip the opening parenthesis or bracket.
@@ -458,9 +458,9 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   }
 
 private:
-// C++20: constinit.
+  // C++20: constinit.
   static constexpr zview s_empty{"empty"_zv};
-// C++20: constinit.
+  // C++20: constinit.
   static constexpr auto s_overrun{"Not enough space in buffer for range."_zv};
 
   /// Compose error message for invalid range input.

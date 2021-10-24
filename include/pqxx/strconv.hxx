@@ -111,7 +111,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 /// Nullness traits describing a type which does not have a null value.
 template<typename TYPE> struct no_null
 {
-// C++20: constinit.
+  // C++20: constinit.
   /// Does @c TYPE have a "built-in null value"?
   /** For example, a pointer can equal @c nullptr, which makes a very natural
    * representation of an SQL null value.  For such types, the code sometimes
@@ -125,7 +125,7 @@ template<typename TYPE> struct no_null
    */
   static constexpr bool has_null = false;
 
-// C++20: constinit.
+  // C++20: constinit.
   /// Are all values of this type null?
   /** There are a few special C++ types which are always null - mainly
    * @c std::nullptr_t.

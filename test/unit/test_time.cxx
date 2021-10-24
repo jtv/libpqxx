@@ -15,8 +15,12 @@ void test_year_string_conversion()
   // advantage: if the range ever expands beyond a 16-bit signed integer, this
   // test will fail and tell us that our assumed range is no longer valid.
   std::tuple<int, std::string_view> const conversions[]{
-    {-543, "-543"sv}, {-1, "-1"sv},     {0, "0"sv},
-    {1, "1"sv},       {1971, "1971"sv}, {10191, "10191"sv},
+    {-543, "-543"sv},
+    {-1, "-1"sv},
+    {0, "0"sv},
+    {1, "1"sv},
+    {1971, "1971"sv},
+    {10191, "10191"sv},
     {int(std::chrono::year::min()), "-32767"},
     {int(std::chrono::year::max()), "32767"},
   };
@@ -30,14 +34,7 @@ void test_year_string_conversion()
   }
 
   std::string_view const invalid[]{
-    ""sv,
-    "-"sv,
-    "+"sv,
-    "1929-"sv,
-    "-32768"sv,
-    "32768"sv,
-    "x"sv,
-    "2001y"sv,
+    ""sv, "-"sv, "+"sv, "1929-"sv, "-32768"sv, "32768"sv, "x"sv, "2001y"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
@@ -62,16 +59,8 @@ void test_month_string_conversion()
     "December did not parse right.");
 
   std::string_view const invalid[]{
-    ""sv,
-    "-1"sv,
-    "+1"sv,
-    "+"sv,
-    "0"sv,
-    "13"sv,
-    "January"sv,
-    "5"sv,
-    "5m"sv,
-    "08-1"sv,
+    ""sv,   "-1"sv,      "+1"sv, "+"sv,  "0"sv,
+    "13"sv, "January"sv, "5"sv,  "5m"sv, "08-1"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
@@ -83,8 +72,7 @@ void test_month_string_conversion()
 void test_day_string_conversion()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::chrono::day{1}), "01",
-    "Day did not convert right.");
+    pqxx::to_string(std::chrono::day{1}), "01", "Day did not convert right.");
   PQXX_CHECK_EQUAL(
     pqxx::from_string<std::chrono::day>("01"), std::chrono::day{1u},
     "Day did not parse right.");
@@ -96,14 +84,7 @@ void test_day_string_conversion()
     "Day 31 did not parse right.");
 
   std::string_view const invalid[]{
-    ""sv,
-    "-1"sv,
-    "+1"sv,
-    "0"sv,
-    "32"sv,
-    "inf"sv,
-    "3"sv,
-    "24-3"sv,
+    ""sv, "-1"sv, "+1"sv, "0"sv, "32"sv, "inf"sv, "3"sv, "24-3"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
@@ -114,16 +95,11 @@ void test_day_string_conversion()
 
 void test_date_string_conversion()
 {
-  std::tuple<int, unsigned, unsigned, std::string_view> const
-  conversions[]{
-    {-543, 1, 1, "-543-01-01"sv},
-    {-1, 2, 3, "-1-02-03"sv},
-    {0, 9, 14, "0-09-14"sv},
-    {2021, 10, 24, "2021-10-24"sv},
-    {10191, 8, 30, "10191-08-30"sv},
-    {-32767, 1, 1, "-32767-01-01"sv},
-    {32767, 12, 31, "32767-12-31"sv},
-    {2000, 2, 29, "2000-02-29"sv},
+  std::tuple<int, unsigned, unsigned, std::string_view> const conversions[]{
+    {-543, 1, 1, "-543-01-01"sv},     {-1, 2, 3, "-1-02-03"sv},
+    {0, 9, 14, "0-09-14"sv},          {2021, 10, 24, "2021-10-24"sv},
+    {10191, 8, 30, "10191-08-30"sv},  {-32767, 1, 1, "-32767-01-01"sv},
+    {32767, 12, 31, "32767-12-31"sv}, {2000, 2, 29, "2000-02-29"sv},
     {2004, 2, 29, "2004-02-29"sv},
   };
   for (auto const &[y, m, d, text] : conversions)
@@ -138,16 +114,9 @@ void test_date_string_conversion()
   }
 
   std::string_view const invalid[]{
-    ""sv,
-    "yesterday"sv,
-    "1981-01"sv,
-    "2010"sv,
-    "2010-8-9"sv,
-    "1900-02-29"sv,
-    "2021-02-29"sv,
-    "2000-11-29-3"sv,
-    "1900-02-29"sv,
-    "2003-02-29"sv,
+    ""sv,           "yesterday"sv,  "1981-01"sv,    "2010"sv,
+    "2010-8-9"sv,   "1900-02-29"sv, "2021-02-29"sv, "2000-11-29-3"sv,
+    "1900-02-29"sv, "2003-02-29"sv,
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
