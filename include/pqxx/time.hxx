@@ -232,7 +232,7 @@ template<> struct string_traits<std::chrono::year_month_day>
     here = string_traits<std::chrono::year>::into_buf(begin, end, value.year());
     if ((end - here) < 6)
       throw pqxx::conversion_overrun{"Not enough buffer space for date."};
-    *here++ = '-';
+    *(here - 1) = '-';
     if (unsigned(value.month()) > 10)
       *here++ = '1';
     else
