@@ -120,9 +120,8 @@ void test_date_string_conversion()
     {-1, 2, 3, "-1-02-03"sv},
   // XXX:
   };
-  for (auto const &[ymd, text] : conversions)
+  for (auto const &[y, m, d, text] : conversions)
   {
-    auto const [y, m, d]{ymd};
     std::chrono::year_month_day const date{
       std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
     PQXX_CHECK_EQUAL(
