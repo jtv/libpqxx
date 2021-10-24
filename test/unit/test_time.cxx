@@ -112,16 +112,19 @@ void test_day_string_conversion()
 }
 
 
-void test_date_conversion()
+void test_date_string_conversion()
 {
-  std::tuple<std::chrono::year_month_day, std::string_view> const
+  std::tuple<int, unsigned, unsigned, std::string_view> const
   conversions[]{
     {{-543, 1, 1}, "-543-01-01"sv},
     {{-1, 2, 3}, "-1-02-03"sv},
   // XXX:
   };
-  for (auto const &[date, text] : conversions)
+  for (auto const &[ymd, text] : conversions)
   {
+    auto const [y, m, d]{ymd};
+    std::chrono::year_month_day const date{
+      std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
     PQXX_CHECK_EQUAL(
       pqxx::to_string(date), text, "Date did not convert right.");
     PQXX_CHECK_EQUAL(
