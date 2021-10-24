@@ -121,4 +121,11 @@
 #  define PQXX_UNLIKELY /* [[unlikely]] */
 #endif
 
+// C++20: Assume support.
+#if defined(PQXX_HAVE_CONSTINIT)
+#  define PQXX_CONSTINIT constinit
+#else
+#  define PQXX_CONSTINIT constexpr
+#endif
+
 #endif

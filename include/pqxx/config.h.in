@@ -69,6 +69,9 @@
 /* Define if compiler supports Concepts and <ranges> header. */
 #undef PQXX_HAVE_CONCEPTS
 
+/* Define if compiler supports constinit keyword. */
+#undef PQXX_HAVE_CONSTINIT
+
 /* Define if compiler supports __cxa_demangle */
 #undef PQXX_HAVE_CXA_DEMANGLE
 

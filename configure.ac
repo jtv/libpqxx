@@ -325,6 +325,19 @@ AC_LINK_IFELSE(
 AC_MSG_RESULT($year_month_day)
 
 
+AC_MSG_CHECKING([for constinit support])
+constinit=yes
+AC_LINK_IFELSE(
+	[read_test(constinit.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_CONSTINIT],
+		1,
+		[Define if compiler supports constinit keyword.]),
+	constinit=no)
+AC_MSG_RESULT($constinit)
+
+
+# TODO: Replace with compile-time check?
 # Check for [[likely]] and [[unlikely]] attributes.
 AC_MSG_CHECKING([attributes "likely" and "unlikely".])
 likely=yes
