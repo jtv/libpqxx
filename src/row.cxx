@@ -22,6 +22,7 @@ extern "C"
 #include "pqxx/result"
 
 
+// TODO: Make the caller pass m_end.
 pqxx::row::row(result const &r, result::size_type i) noexcept :
         m_result{r}, m_index{i}, m_end{r.columns()}
 {}
