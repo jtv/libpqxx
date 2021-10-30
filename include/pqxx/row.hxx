@@ -212,14 +212,18 @@ protected:
   }
 
   friend class field;
+
   /// Result set of which this is one row.
   result m_result;
+
   /// Row number.
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
   result::size_type m_index = 0;
+
+  // TODO: Remove m_begin and (if possible) m_end when we remove slice().
   /// First column in slice.  This row ignores lower-numbered columns.
   size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.
