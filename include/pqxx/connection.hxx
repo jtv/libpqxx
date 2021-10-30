@@ -1050,10 +1050,10 @@ public:
   /// Get the socket.  The socket may change during the connection process.
   int sock() const noexcept { return m_conn.sock(); }
 
-  /// Should we currently wait to be able to @i read from the socket?
+  /// Should we currently wait to be able to @e read from the socket?
   bool wait_to_read() const noexcept { return m_reading; }
 
-  /// Should we currently wait to be able to @i write to the socket?
+  /// Should we currently wait to be able to @e write to the socket?
   bool wait_to_write() const noexcept { return m_writing; }
 
   /// Progress towards completion (but don't block).

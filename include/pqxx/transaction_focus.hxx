@@ -17,7 +17,7 @@
 namespace pqxx
 {
 /// Base class for things that monopolise a transaction's attention.
-/** You probably won't need to use this class.  But it can be useful to @i know
+/** You probably won't need to use this class.  But it can be useful to @e know
  * that a given libpqxx class is derived from it.
  *
  * Pipelines, SQL statements, and data streams are examples of classes derived

@@ -45,7 +45,7 @@ namespace pqxx
  * stream's @c complete() to tell it to finalise the operation, wait for
  * completion, and check for errors.
  *
- * (You @i must complete the stream before committing or aborting the
+ * (You @e must complete the stream before committing or aborting the
  * transaction.  The connection is in a special state while the stream is
  * active, where it can't process commands, and can't commit or abort a
  * transaction.)

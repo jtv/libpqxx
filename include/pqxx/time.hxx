@@ -220,7 +220,7 @@ struct nullness<std::chrono::year_month_day>
  *
  * Invalid dates will not convert.  This includes February 29 on non-leap
  * years, which is why it matters that @c year_month_day represents a
- * @i Gregorian date.
+ * @e Gregorian date.
  */
 template<> struct string_traits<std::chrono::year_month_day>
 {
