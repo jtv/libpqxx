@@ -206,8 +206,7 @@ template<> struct string_traits<binarystring>
 
   static zview to_buf(char *begin, char *end, binarystring const &value)
   {
-    auto const value_end{into_buf(begin, end, value)};
-    return zview{begin, value_end - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(char *begin, char *end, binarystring const &value)

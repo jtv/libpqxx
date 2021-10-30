@@ -421,6 +421,27 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
 }
 
 
+/// Implement @c string_traits<TYPE>::to_buf by calling @c into_buf.
+/** When you specialise @c string_traits for a new type, most of the time its
+ * @c to_buf implementation has no special optimisation tricks and just writes
+ * its text into the buffer it receives from the caller, starting at the
+ * beginning.
+ *
+ * In that common situation, you can implement @c to_buf as just a call to
+ * @c generic_to_buf.  It will call @c into_buf and return the right result for
+ * @c to_buf.
+ */
+template<typename TYPE> inline zview
+generic_to_buf(char *begin, char *end, TYPE const &value)
+{
+  using traits = string_traits<TYPE>;
+  // The trailing zero does not count towards the zview's size, so subtract 1
+  // from the result we get from into_buf().
+  if (is_null(value)) return zview{};
+  else return zview{begin, traits::into_buf(begin, end, value) - begin - 1};
+}
+
+
 #if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: Binary string, akin to @c std::string for binary data.
 /** Any type that satisfies this concept can represent an SQL BYTEA value.

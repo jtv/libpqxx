@@ -335,7 +335,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   [[nodiscard]] static inline zview
   to_buf(char *begin, char *end, range<TYPE> const &value)
   {
-    return zview{begin, into_buf(begin, end, value) - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static inline char *

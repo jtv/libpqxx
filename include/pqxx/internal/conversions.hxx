@@ -481,11 +481,7 @@ template<> struct string_traits<char const *>
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {
-    if (value == nullptr)
-      return zview{};
-    char *const next{string_traits<char const *>::into_buf(begin, end, value)};
-    // Don't count the trailing zero, even though into_buf does.
-    return zview{begin, next - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(char *begin, char *end, char const *const &value)
@@ -598,16 +594,10 @@ template<> struct string_traits<std::string>
   }
 
   static zview to_buf(char *begin, char *end, std::string const &value)
-  {
-    char *const next = into_buf(begin, end, value);
-    // Don't count the trailing zero, even though into_buf() does.
-    return zview{begin, next - begin - 1};
-  }
+  { return generic_to_buf(begin, end, value); }
 
   static std::size_t size_buffer(std::string const &value) noexcept
-  {
-    return std::size(value) + 1;
-  }
+  { return std::size(value) + 1; }
 };
 
 
@@ -860,8 +850,7 @@ template<binary DATA> struct string_traits<DATA>
 
   static zview to_buf(char *begin, char *end, DATA const &value)
   {
-    auto const value_end{into_buf(begin, end, value)};
-    return zview{begin, value_end - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(char *begin, char *end, DATA const &value)
@@ -897,8 +886,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
   static zview
   to_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
   {
-    auto const value_end{into_buf(begin, end, value)};
-    return zview{begin, value_end - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *
@@ -947,8 +935,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
   static zview to_buf(
     char *begin, char *end, std::basic_string_view<std::byte> const &value)
   {
-    auto const value_end{into_buf(begin, end, value)};
-    return zview{begin, value_end - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(
@@ -986,8 +973,7 @@ private:
 public:
   static zview to_buf(char *begin, char *end, Container const &value)
   {
-    auto const stop{into_buf(begin, end, value)};
-    return zview{begin, stop - begin - 1};
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(char *begin, char *end, Container const &value)

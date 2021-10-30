@@ -226,9 +226,7 @@ template<> struct string_traits<std::chrono::year_month_day>
 {
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year_month_day const &value)
-  {
-    return zview{begin, into_buf(begin, end, value) - begin - 1};
-  }
+  { return generic_to_buf(begin, end, value); }
 
   static char *
   into_buf(char *begin, char *end, std::chrono::year_month_day const &value)
