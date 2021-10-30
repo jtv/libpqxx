@@ -84,7 +84,6 @@ public:
   /// Begin a transaction.
   /**
    * @param c Connection for this transaction to operate on.
-   * @param tname Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
   explicit transaction(connection &c) :
