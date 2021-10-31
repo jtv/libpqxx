@@ -267,8 +267,8 @@ public:
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() = default;
-  const_row_iterator(row const &T, row_size_type C) noexcept : field{T, C} {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+  const_row_iterator(row const &t, row_size_type c) noexcept : field{t.m_result, t.m_index, c} {}
   const_row_iterator(field const &F) noexcept : field{F} {}
   const_row_iterator(const_row_iterator const &) = default;
   const_row_iterator(const_row_iterator &&) = default;
@@ -512,9 +512,7 @@ template<typename Tuple, std::size_t index>
 inline void row::extract_value(Tuple &t) const
 {
   using field_type = strip_t<decltype(std::get<index>(t))>;
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  field const f{*this, index};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  field const f{m_result, m_index, index};
   std::get<index>(t) = from_string<field_type>(f);
 }
 } // namespace pqxx

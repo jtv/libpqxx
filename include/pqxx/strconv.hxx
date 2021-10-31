@@ -227,12 +227,12 @@ template<typename ENUM> struct enum_traits
   [[nodiscard]] static constexpr zview
   to_buf(char *begin, char *end, ENUM const &value)
   {
-    return impl_traits::to_buf(begin, end, static_cast<impl_type>(value));
+    return impl_traits::to_buf(begin, end, to_underlying(value));
   }
 
   static constexpr char *into_buf(char *begin, char *end, ENUM const &value)
   {
-    return impl_traits::into_buf(begin, end, static_cast<impl_type>(value));
+    return impl_traits::into_buf(begin, end, to_underlying(value));
   }
 
   [[nodiscard]] static ENUM from_string(std::string_view text)
@@ -242,8 +242,13 @@ template<typename ENUM> struct enum_traits
 
   [[nodiscard]] static std::size_t size_buffer(ENUM const &value) noexcept
   {
-    return impl_traits::size_buffer(static_cast<impl_type>(value));
+    return impl_traits::size_buffer(to_underlying(value));
   }
+
+private:
+  // C++23: Replace with std::to_underlying.
+  static impl_type to_underlying(ENUM const &value)
+  { return static_cast<impl_type>(value); }
 };
 } // namespace pqxx::internal
 

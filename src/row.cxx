@@ -54,17 +54,13 @@ pqxx::row::const_iterator pqxx::row::cend() const noexcept
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return field{*this, m_begin};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  return field{m_result, m_index, m_begin};
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return field{*this, m_end - 1};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  return field{m_result, m_index, m_end - 1};
 }
 
 
@@ -108,9 +104,7 @@ bool pqxx::row::operator==(row const &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return field{*this, m_begin + i};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  return field{m_result, m_index, m_begin + i};
 }
 
 
@@ -137,9 +131,7 @@ void pqxx::row::swap(row &rhs) noexcept
 
 pqxx::field pqxx::row::at(zview col_name) const
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return field{*this, m_begin + column_number(col_name)};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+  return field{m_result, m_index, m_begin + column_number(col_name)};
 }
 
 

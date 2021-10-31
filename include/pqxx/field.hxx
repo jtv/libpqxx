@@ -257,6 +257,11 @@ protected:
   result::size_type idx() const noexcept { return m_row; }
   row_size_type col() const noexcept { return m_col; }
 
+  // TODO: Create a gate.
+  friend class pqxx::row;
+  field(result const &r, result_size_type row_num, row_size_type col_num) :
+    m_col{col_num}, m_home{r}, m_row{row_num} {}
+
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
