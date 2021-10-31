@@ -278,7 +278,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($concepts)
 
 
-# Check for std::span.
+# Check for C++20 std::span.
 AC_MSG_CHECKING([std::span])
 span=yes
 AC_COMPILE_IFELSE(
@@ -286,6 +286,18 @@ AC_COMPILE_IFELSE(
 	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span.]),
 	span=no)
 AC_MSG_RESULT($span)
+
+
+# Check for multidimensional subscript operator support.  Proposed for C++23.
+AC_MSG_CHECKING([for multidimensional subscript operator support])
+multidim_subscript=yes
+AC_COMPILE_IFELSE(
+	[read_test(multidim-subscript.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT], 1,
+		[Define if operator[] can take multiple arguments.]),
+	multidim_subscript=no)
+AC_MSG_RESULT($multidim_subscript)
 
 
 AC_MSG_CHECKING([for strerror_r()])

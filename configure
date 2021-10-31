@@ -17723,7 +17723,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$concepts" >&6; }
 
 
-# Check for std::span.
+# Check for C++20 std::span.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking std::span" >&5
 $as_echo_n "checking std::span... " >&6; }
 span=yes
@@ -17757,6 +17757,60 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $span" >&5
 $as_echo "$span" >&6; }
+
+
+# Check for multidimensional subscript operator support.  Proposed for C++23.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for multidimensional subscript operator support" >&5
+$as_echo_n "checking for multidimensional subscript operator support... " >&6; }
+multidim_subscript=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for multidimensional subscript operator support.
+
+// Proposed for C++23: P2128R6.
+
+struct table
+
+{
+
+  int width = 100;
+
+
+
+  int operator[](int x, int y) const
+
+  {
+
+    return x + width * y;
+
+  }
+
+};
+
+
+
+
+
+int main()
+
+{
+
+  return table{}[0, 0];
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT 1" >>confdefs.h
+
+else
+  multidim_subscript=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $multidim_subscript" >&5
+$as_echo "$multidim_subscript" >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for strerror_r()" >&5

@@ -81,6 +81,9 @@
 /* Define if likely & unlikely work. */
 #undef PQXX_HAVE_LIKELY
 
+/* Define if operator[] can take multiple arguments. */
+#undef PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT
+
 /* Define if poll() is available. */
 #undef PQXX_HAVE_POLL
 
