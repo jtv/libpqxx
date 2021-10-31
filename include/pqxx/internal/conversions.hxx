@@ -594,10 +594,14 @@ template<> struct string_traits<std::string>
   }
 
   static zview to_buf(char *begin, char *end, std::string const &value)
-  { return generic_to_buf(begin, end, value); }
+  {
+    return generic_to_buf(begin, end, value);
+  }
 
   static std::size_t size_buffer(std::string const &value) noexcept
-  { return std::size(value) + 1; }
+  {
+    return std::size(value) + 1;
+  }
 };
 
 

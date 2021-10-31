@@ -431,14 +431,16 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
  * @c generic_to_buf.  It will call @c into_buf and return the right result for
  * @c to_buf.
  */
-template<typename TYPE> inline zview
-generic_to_buf(char *begin, char *end, TYPE const &value)
+template<typename TYPE>
+inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 {
   using traits = string_traits<TYPE>;
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
-  if (is_null(value)) return zview{};
-  else return zview{begin, traits::into_buf(begin, end, value) - begin - 1};
+  if (is_null(value))
+    return zview{};
+  else
+    return zview{begin, traits::into_buf(begin, end, value) - begin - 1};
 }
 
 

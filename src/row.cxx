@@ -22,8 +22,9 @@ extern "C"
 #include "pqxx/result"
 
 
-pqxx::row::row(result const &r, result::size_type index, size_type cols)
-  noexcept : m_result{r}, m_index{index}, m_end{cols}
+pqxx::row::row(
+  result const &r, result::size_type index, size_type cols) noexcept :
+        m_result{r}, m_index{index}, m_end{cols}
 {}
 
 
