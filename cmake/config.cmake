@@ -80,7 +80,7 @@ try_compile(
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
 try_compile(
 	PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT
-	$(PROJECT_BINARY_DIR)
+	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/multidim-subscript.cxx)
 try_compile(
 	PQXX_HAVE_CHARCONV_FLOAT
