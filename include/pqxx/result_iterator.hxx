@@ -186,7 +186,7 @@ public:
 private:
   friend class pqxx::result;
   const_result_iterator(pqxx::result const *r, result_size_type i) noexcept :
-          row{*r, i}
+          row{*r, i, r->columns()}
   {}
 };
 

@@ -113,13 +113,13 @@ bool pqxx::result::empty() const noexcept
 
 pqxx::result::reference pqxx::result::front() const noexcept
 {
-  return row{*this, 0};
+  return row{*this, 0, columns()};
 }
 
 
 pqxx::result::reference pqxx::result::back() const noexcept
 {
-  return row{*this, size() - 1};
+  return row{*this, size() - 1, columns()};
 }
 
 
@@ -132,7 +132,7 @@ void pqxx::result::swap(result &rhs) noexcept
 
 pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 {
-  return row{*this, i};
+  return row{*this, i, columns()};
 }
 
 

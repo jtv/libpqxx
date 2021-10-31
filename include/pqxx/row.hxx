@@ -191,7 +191,7 @@ public:
 protected:
   friend class const_row_iterator;
   friend class result;
-  row(result const &r, result_size_type i) noexcept;
+  row(result const &r, result_size_type index, size_type cols) noexcept;
 
   /// Throw @c usage_error if row size is not @c expected.
   void check_size(size_type expected) const
@@ -480,8 +480,9 @@ public:
 
 const_row_iterator const_row_iterator::operator+(difference_type o) const
 {
+// XXX: More direct route to home().columns()?  row.m_end?
   return const_row_iterator{
-    row{home(), idx()}, size_type(difference_type(col()) + o)};
+    row{home(), idx(), home().columns()}, size_type(difference_type(col()) + o)};
 }
 
 inline const_row_iterator
@@ -493,8 +494,9 @@ operator+(const_row_iterator::difference_type o, const_row_iterator const &i)
 inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const
 {
+// XXX: More direct route to home().columns()?  row.m_end?
   return const_row_iterator{
-    row{home(), idx()}, size_type(difference_type(col()) - o)};
+    row{home(), idx(), home().columns()}, size_type(difference_type(col()) - o)};
 }
 
 inline const_row_iterator::difference_type
