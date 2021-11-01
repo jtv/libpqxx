@@ -97,7 +97,7 @@ template<> struct string_traits<std::chrono::year>
     bool const is_bc{text.ends_with(s_bc.substr(0, bc_len))};
     // Parse the year number separately.
     if (is_bc)
-      text = text.substr(0, std::size(text) - bc_len);
+      PQXX_UNLIKELY text = text.substr(0, std::size(text) - bc_len);
     if (std::size(text) < 4)
       throw conversion_error{
         internal::concat("Year field is too small: '", text, "'.")};
@@ -300,10 +300,12 @@ template<> struct string_traits<std::chrono::year_month_day>
     if (value.year() == std::chrono::year::min())
     {
       // Special case, because year-zero compensation wouldn't fit a short.
+      PQXX_UNLIKELY
       here += s_min_year.copy(begin, std::size(s_min_year));
     }
     else if (is_bc)
     {
+      PQXX_UNLIKELY
       here = string_traits<std::chrono::year>::into_buf(
         begin, end, std::chrono::year{-int{value.year()} + 1});
     }
@@ -319,6 +321,7 @@ template<> struct string_traits<std::chrono::year_month_day>
     here = string_traits<std::chrono::day>::into_buf(here, end, value.day());
     if (is_bc)
     {
+      PQXX_UNLIKELY
       --here;
       here += s_bc.copy(here, std::size(s_bc));
     }
@@ -335,6 +338,7 @@ template<> struct string_traits<std::chrono::year_month_day>
     constexpr auto suffix_len{std::size(s_bc) - 1};
     bool const is_bc{text.ends_with(s_bc.substr(0, suffix_len))};
     if (is_bc)
+      PQXX_UNLIKELY
       text = text.substr(0, std::size(text) - suffix_len);
     auto const ymsep{find_year_month_separator(text)};
     if ((std::size(text) - ymsep) != 6)
