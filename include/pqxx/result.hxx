@@ -143,6 +143,7 @@ public:
    */
   void swap(result &) noexcept;
 
+// C++23: Support result[row, column].
   /// Index a row by number.
   [[nodiscard]] row operator[](size_type i) const noexcept;
   /// Index a row by number, but check that the row number is valid.
