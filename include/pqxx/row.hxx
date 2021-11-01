@@ -268,7 +268,9 @@ public:
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-  const_row_iterator(row const &t, row_size_type c) noexcept : field{t.m_result, t.m_index, c} {}
+  const_row_iterator(row const &t, row_size_type c) noexcept :
+          field{t.m_result, t.m_index, c}
+  {}
   const_row_iterator(field const &F) noexcept : field{F} {}
   const_row_iterator(const_row_iterator const &) = default;
   const_row_iterator(const_row_iterator &&) = default;

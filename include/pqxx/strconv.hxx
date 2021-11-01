@@ -248,7 +248,9 @@ template<typename ENUM> struct enum_traits
 private:
   // C++23: Replace with std::to_underlying.
   static impl_type to_underlying(ENUM const &value)
-  { return static_cast<impl_type>(value); }
+  {
+    return static_cast<impl_type>(value);
+  }
 };
 } // namespace pqxx::internal
 

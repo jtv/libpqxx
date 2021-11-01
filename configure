@@ -17777,13 +17777,7 @@ struct table
 
 
 
-  int operator[](int x, int y) const
-
-  {
-
-    return x + width * y;
-
-  }
+  int operator[](int x, int y) const { return x + width * y; }
 
 };
 
