@@ -9,6 +9,7 @@
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <chrono>
+#include <cstdlib>
 
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv"
@@ -34,36 +35,95 @@ template<> struct string_traits<std::chrono::year>
   [[nodiscard]] static zview
   to_buf(char *begin, char *end, std::chrono::year const &value)
   {
-    if (not value.ok())
-      throw conversion_error{"Year out of range."};
-    return string_traits<int>::to_buf(begin, end, as_short(value));
+    return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(char *begin, char *end, std::chrono::year const &value)
   {
     if (not value.ok())
       throw conversion_error{"Year out of range."};
-    return string_traits<int>::into_buf(begin, end, as_short(value));
+    int const y{value};
+    if (y == int{std::chrono::year::min()})
+    {
+      // This is an evil special case: C++ year -32767 translates to 32768 BC,
+      // which is a number we can't fit into a short.  At the moment postgres
+      // doesn't handle years before 4713 BC, but who knows, right?
+      static_assert(int{std::chrono::year::min()} == -32767);
+      constexpr auto hardcoded{"32768 BC\0"sv};
+      PQXX_UNLIKELY
+      if ((end - begin) < std::ssize(hardcoded))
+        throw conversion_overrun{"Not enough buffer space for year."};
+      begin += hardcoded.copy(begin, std::size(hardcoded));
+    }
+    else
+    {
+      // C++ std::chrono::year has a year zero.  PostgreSQL does not.  So, C++
+      // year zero is 1 BC in the postgres calendar; C++ 1 BC is postgres 2 BC,
+      // and so on.
+      auto const absy{static_cast<short>(std::abs(y) + int{y <= 0})};
+
+      // PostgreSQL requires years to be at least 3 digits long, or it won't be
+      // able to deduce the date format correctly.  Dates and times are a
+      // dirty, dirty business.
+      if (absy < 1000)
+      {
+        PQXX_UNLIKELY
+        if ((end - begin) < 3)
+          throw conversion_overrun{"Not enough room in buffer for year."};
+        *begin++ = '0';
+        if (absy < 100)
+          *begin++ = '0';
+        if (absy < 10)
+          *begin++ = '0';
+      }
+      begin = string_traits<short>::into_buf(begin, end, absy);
+      if (y <= 0)
+      {
+        // Backspace the terminating zero, and append the BC suffix.
+        PQXX_UNLIKELY
+        --begin;
+        if ((end - begin) < std::ssize(s_bc))
+          throw conversion_overrun{"Not enough room in buffer for BC year."};
+        begin += s_bc.copy(begin, std::size(s_bc));
+      }
+    }
+    return begin;
   }
 
   [[nodiscard]] static std::chrono::year from_string(std::string_view text)
   {
-    std::chrono::year const y{string_traits<int>::from_string(text)};
-    if (not y.ok())
-      throw pqxx::conversion_error{
+    auto const bc_len{std::size(s_bc) - 1};
+    // std::string_view::ends_with() is C++20, but so is std::chrono::year.
+    bool const is_bc{text.ends_with(s_bc.substr(0, bc_len))};
+    // Parse the year number separately.
+    if (is_bc)
+      text = text.substr(0, std::size(text) - bc_len);
+    if (std::size(text) < 4)
+      throw conversion_error{
+        internal::concat("Year field is too small: '", text, "'.")};
+    // Parse as int, so we can accommodate 32768 BC which won't fit in a short
+    // as-is, but equates to 32767 BCE which will.
+    int const base_year{string_traits<int>::from_string(text)};
+    if (base_year <= 0)
+      throw conversion_error{internal::concat("Bad year: '", text, "'.")};
+    int const y{is_bc ? (-base_year + 1) : base_year};
+    std::chrono::year year{y};
+    if (not year.ok())
+      throw conversion_error{
         internal::concat("Year out of range: '", text, "'.")};
-    return y;
+    return year;
   }
 
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year const &value) noexcept
   {
-    // This'll ask for a lot more room than it'll ever need, but we can't
-    // reuse the int conversions without that buffer space.
-    return string_traits<short>::size_buffer(as_short(value));
+    auto base{string_traits<short>::size_buffer(as_short(value))};
+    return base + (int{value} <= 0) * std::size(s_bc);
   }
 
 private:
+  static constexpr std::string_view s_bc{" BC\0"sv};
+
   /// Cast an "OK" year value to @c short.
   static short as_short(std::chrono::year value) noexcept
   {
@@ -233,26 +293,57 @@ template<> struct string_traits<std::chrono::year_month_day>
   static char *
   into_buf(char *begin, char *end, std::chrono::year_month_day const &value)
   {
+    // We can't just re-use the std::chrono::year conversions, because the "BC"
+    // suffix comes at the very end.
+    bool const is_bc{int{value.year()} <= 0};
     char *here{begin};
-    here =
-      string_traits<std::chrono::year>::into_buf(begin, end, value.year());
+    if (value.year() == std::chrono::year::min())
+    {
+      // Special case, because year-zero compensation wouldn't fit a short.
+      here += s_min_year.copy(begin, std::size(s_min_year));
+    }
+    else if (is_bc)
+    {
+      here = string_traits<std::chrono::year>::into_buf(
+        begin, end, std::chrono::year{-int{value.year()} + 1});
+    }
+    else
+    {
+      here =
+        string_traits<std::chrono::year>::into_buf(begin, end, value.year());
+    }
     *(here - 1) = '-';
     here =
       string_traits<std::chrono::month>::into_buf(here, end, value.month());
     *(here - 1) = '-';
-    return string_traits<std::chrono::day>::into_buf(here, end, value.day());
+    here = string_traits<std::chrono::day>::into_buf(here, end, value.day());
+    if (is_bc)
+    {
+      --here;
+      here += s_bc.copy(here, std::size(s_bc));
+    }
+    return here;
   }
 
   [[nodiscard]] static std::chrono::year_month_day
   from_string(std::string_view text)
   {
-    if (std::size(text) < 7)
+    // We can't just re-use the std::chrono::year conversions, because the "BC"
+    // suffix comes at the very end.
+    if (std::size(text) < 9)
       throw pqxx::conversion_error{make_parse_error(text)};
+    constexpr auto suffix_len{std::size(s_bc) - 1};
+    bool const is_bc{text.ends_with(s_bc.substr(0, suffix_len))};
+    if (is_bc)
+      text = text.substr(0, std::size(text) - suffix_len);
     auto const ymsep{find_year_month_separator(text)};
     if ((std::size(text) - ymsep) != 6)
       throw pqxx::conversion_error{make_parse_error(text)};
-    auto const y{string_traits<std::chrono::year>::from_string(
+    auto const base_year{string_traits<int>::from_string(
       std::string_view{std::data(text), ymsep})};
+    if (base_year == 0)
+      throw conversion_error{"Year zero conversion."};
+    std::chrono::year const y{is_bc ? (-base_year + 1) : base_year};
     auto const m{string_traits<std::chrono::month>::from_string(
       text.substr(ymsep + 1, 2))};
     if (text[ymsep + 3] != '-')
@@ -274,16 +365,20 @@ template<> struct string_traits<std::chrono::year_month_day>
   }
 
 private:
+  static constexpr std::string_view s_min_year{"32768\0"sv};
+  static constexpr std::string_view s_bc{" BC\0"sv};
+
   /// Look for the dash separating year and month.
   /** Assumes that @c text is nonempty.
    */
   static std::size_t find_year_month_separator(std::string_view text) noexcept
   {
-    // We're looking for a dash.  But the year may be negative, so we've got
-    // to be careful not to confuse the minus sign for a dash.  Start scanning
-    // at offset 1, not at 0.
+    // We're looking for a dash.  PostgreSQL won't output a negative year, so
+    // no worries about a leading dash.  We could start searching at offset 4,
+    // but starting at the beginning produces more helpful error messages for
+    // malformed years.
     std::size_t here;
-    for (here = 1; here < std::size(text) and text[here] != '-'; ++here)
+    for (here = 0; here < std::size(text) and text[here] != '-'; ++here)
       ;
     return here;
   }
