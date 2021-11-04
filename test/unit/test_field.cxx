@@ -44,6 +44,12 @@ void test_field()
   PQXX_CHECK(!(f2.to(i)), "to(int) failed to report a null.");
   PQXX_CHECK(!(f2.to(i, 54)), "to(int, int) failed to report a null.");
   PQXX_CHECK_EQUAL(i, 54, "to(int, int) failed to default.");
+
+  auto const r3{tx.exec("SELECT generate_series(1, 5)")};
+  PQXX_CHECK_EQUAL(r3.at(3, 0).as<int>(), 4, "Two-argument at() went wrong.");
+#if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
+  PQXX_CHECK_EQUAL(r3[3, 0].as<int>(), 4, "Two-argument [] went wrong.");
+#endif
 }
 
 

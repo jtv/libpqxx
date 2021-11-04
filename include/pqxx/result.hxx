@@ -143,11 +143,22 @@ public:
    */
   void swap(result &) noexcept;
 
-  // C++23: Support result[row, column].
   /// Index a row by number.
+  /** This returns a @c row object.  Generally you should not keep the row
+   * around as a variable, but if you do, make sure that your variable is a
+   * @c row, not a @c row&.
+   */
   [[nodiscard]] row operator[](size_type i) const noexcept;
+
+#if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
+  [[nodiscard]] field operator[](size_type row_num, row_size_type col_num) const noexcept;
+#endif
+
   /// Index a row by number, but check that the row number is valid.
   row at(size_type) const;
+
+  /// Index a field by row number and column number.
+  field at(size_type, row_size_type) const;
 
   /// Let go of the result's data.
   /** Use this if you need to deallocate the result data earlier than you can

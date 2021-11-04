@@ -10,6 +10,8 @@
  - Replace `std::isdigit` with a safer alternative.
  - Support string conversions for `std::chrono::year_month_date` etc. (#492)
  - Helper for implementing string traits: `generic_to_buf`.
+ - Support `result::at(row_num, col_num)`.
+ - Support `result[row_num, col_num]` if the compiler allows it.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.

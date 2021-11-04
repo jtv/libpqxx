@@ -257,7 +257,8 @@ protected:
   result::size_type idx() const noexcept { return m_row; }
   row_size_type col() const noexcept { return m_col; }
 
-  // TODO: Create a gate.
+  // TODO: Create gates.
+  friend class pqxx::result;
   friend class pqxx::row;
   field(result const &r, result_size_type row_num, row_size_type col_num) :
           m_col{col_num}, m_home{r}, m_row{row_num}

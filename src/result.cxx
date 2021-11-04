@@ -136,11 +136,29 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 }
 
 
+#if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
+pqxx::field pqxx::result::operator[](result_size_type row_num, row_size_type col_num) const noexcept
+{
+  return field{*this, row_num, field_num};
+}
+#endif
+
+
 pqxx::row pqxx::result::at(pqxx::result::size_type i) const
 {
   if (i >= size())
     throw range_error{"Row number out of range."};
   return operator[](i);
+}
+
+
+pqxx::field pqxx::result::at(pqxx::result_size_type row_num, pqxx::row_size_type col_num) const
+{
+  if (row_num >= size())
+    throw range_error{"Row number out of range."};
+  if (col_num >= columns())
+    throw range_error{"Column out of range."};
+  return field{*this, row_num, col_num};
 }
 
 
