@@ -631,6 +631,18 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_pq_pipeline)
 
 
+AC_MSG_CHECKING([for usable std::filesystem::path])
+have_path=yes
+AC_COMPILE_IFELSE(
+	[read_test(fs.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_PATH],
+		1,
+		[Define if compiler has usable std::filesystem::path.]),
+	have_path=no)
+AC_MSG_RESULT($have_path)
+
+
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"
 found_fslib=no

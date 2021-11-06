@@ -12,6 +12,7 @@ PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	public	compiler
 PQXX_HAVE_LIKELY	public	compiler
 PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT	public	compiler
+PQXX_HAVE_PATH	public	compiler
 PQXX_HAVE_POLL       internal        compiler
 PQXX_HAVE_PQENCRYPTPASSWORDCONN	internal	libpq
 PQXX_HAVE_PQ_PIPELINE	internal	libpq

@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-#if __has_include(<filesystem>)
+#if defined(PQXX_HAVE_PATH)
 #  include <filesystem>
 #endif
 
@@ -238,7 +238,7 @@ public:
   /// Read client-side file and store it server-side as a binary large object.
   static oid from_file(dbtransaction &, char const path[]);
 
-#if __has_include(<filesystem>)
+#if defined(PQXX_HAVE_PATH)
   /// Read client-side file and store it server-side as a binary large object.
   static oid from_file(dbtransaction &tx, std::filesystem::path const &path)
   {
@@ -252,7 +252,7 @@ public:
    */
   static oid from_file(dbtransaction &, char const path[], oid);
 
-#if __has_include(<filesystem>)
+#if defined(PQXX_HAVE_PATH)
   /// Read client-side file and store it server-side as a binary large object.
   /** In this version, you specify the binary large object's oid.  If that oid
    * is already in use, the operation will fail.
@@ -286,7 +286,7 @@ public:
   /// Write a binary large object's contents to a client-side file.
   static void to_file(dbtransaction &, oid, char const path[]);
 
-#if __has_include(<filesystem>)
+#if defined(PQXX_HAVE_PATH)
   /// Write a binary large object's contents to a client-side file.
   static void
   to_file(dbtransaction &tx, oid id, std::filesystem::path const &path)
