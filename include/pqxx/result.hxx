@@ -246,13 +246,13 @@ private:
   }
 
   friend class pqxx::internal::gate::result_pipeline;
-  PQXX_PURE std::shared_ptr<std::string> query_ptr() const noexcept
+  PQXX_PURE std::shared_ptr<std::string const> query_ptr() const noexcept
   {
     return m_query;
   }
 
   /// Query string.
-  std::shared_ptr<std::string> m_query;
+  std::shared_ptr<std::string const> m_query;
 
   internal::encoding_group m_encoding;
 

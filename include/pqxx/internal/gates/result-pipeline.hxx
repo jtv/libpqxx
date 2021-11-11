@@ -8,6 +8,7 @@ class PQXX_PRIVATE result_pipeline : callgate<result const>
 
   result_pipeline(reference x) : super(x) {}
 
-  std::shared_ptr<std::string> query_ptr() const { return home().query_ptr(); }
+  std::shared_ptr<std::string const>
+  query_ptr() const { return home().query_ptr(); }
 };
 } // namespace pqxx::internal::gate
