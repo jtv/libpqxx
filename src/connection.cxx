@@ -231,8 +231,20 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server."};
   }
+
+  int enc_id = 0;
+  try
+  {
+    enc_id = encoding_id();
+  }
+  catch(std::exception& e)
+  {
+    clear_result(pgr);
+    throw;
+  }
+
   auto const r{pqxx::internal::gate::result_creation::create(
-    pgr, query, internal::enc_group(encoding_id()))};
+    pgr, query, internal::enc_group(enc_id))};
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
