@@ -151,7 +151,8 @@ public:
   [[nodiscard]] row operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
-  [[nodiscard]] field operator[](size_type row_num, row_size_type col_num) const noexcept;
+  [[nodiscard]] field
+  operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif
 
   /// Index a row by number, but check that the row number is valid.
