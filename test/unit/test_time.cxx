@@ -14,7 +14,7 @@ void test_date_string_conversion()
   pqxx::connection conn;
   pqxx::work tx{conn};
   std::tuple<int, unsigned, unsigned, std::string_view> const conversions[]{
-    {-543, 1, 1, "0544-01-01 BC"sv},
+    {-542, 1, 1, "0543-01-01 BC"sv},
     {-1, 2, 3, "0002-02-03 BC"sv},
     {0, 9, 14, "0001-09-14 BC"sv},
     {1, 12, 8, "0001-12-08"sv},

@@ -31,11 +31,27 @@ struct nullness<std::chrono::year_month_day>
 /** PostgreSQL supports a choice of date formats, but libpqxx does not.  The
  * other formats in turn support a choice of "month before day" versus "day
  * before month," meaning that it's not necessarily known which format a given
- * date is supposed to be.
+ * date is supposed to be.  So I repeat: ISO-8601-style format only!
  *
  * Invalid dates will not convert.  This includes February 29 on non-leap
  * years, which is why it matters that @c year_month_day represents a
  * @e Gregorian date.
+ *
+ * The range of years is limited.  At the time of writing, PostgreSQL 14
+ * supports years from 4713 BC to 294276 AD inclusive, and C++20 supports
+ * a range of 32767 BC to 32767 AD inclusive.  So in practice, years must fall
+ * between 4713 BC and 32767 AD, inclusive.
+ *
+ * @warning Support for BC (or BCE) years is still experimental.  I still need
+ * confirmation on this issue: it looks as if C++ years are astronomical years,
+ * which means they have a Year Zero.  Regular BC/AD years do not have a year
+ * zero, so the year 1 AD follows directly after 1 BC.
+ *
+ * So, what to our calendars (and to PostgreSQL) is the year "0001 BC" seems to
+ * count as year "0" in a @c std::chrono::year_month_day.  The year 0001 AD is
+ * still equal to 1 as you'd expect, and all AD years work normally, but all
+ * years before then are shifted by one.  For instance, the year 543 BC would
+ * be -542 in C++.
  */
 template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
 {
