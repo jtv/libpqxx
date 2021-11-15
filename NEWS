@@ -8,7 +8,7 @@
  - New class, `connecting` for nonblocking connection to the database.  (#487)
  - New class, `range` for SQL range types.  (#490)
  - Replace `std::isdigit` with a safer alternative.
- - Support string conversions for `std::chrono::year_month_date` etc. (#492)
+ - Support string conversions for `std::chrono::year_month_day`. (#492)
  - Helper for implementing string traits: `generic_to_buf`.
  - Support `result::at(row_num, col_num)`.
  - Support `result[row_num, col_num]` if the compiler allows it.

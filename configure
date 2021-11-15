@@ -693,6 +693,9 @@ AM_BACKSLASH
 AM_DEFAULT_VERBOSITY
 AM_DEFAULT_V
 AM_V
+CSCOPE
+ETAGS
+CTAGS
 am__fastdepCXX_FALSE
 am__fastdepCXX_TRUE
 CXXDEPMODE
@@ -2922,6 +2925,8 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+
+
     if test x$ac_success = xno; then
                 for alternative in ${ax_cxx_compile_alternatives}; do
       for switch in -std=c++${alternative} +std=c++${alternative} "-h std=c++${alternative}"; do
@@ -2969,11 +2974,13 @@ namespace cxx11
 
     struct Base
     {
+      virtual ~Base() {}
       virtual void f() {}
     };
 
     struct Derived : public Base
     {
+      virtual ~Derived() override {}
       virtual void f() override {}
     };
 
@@ -3978,12 +3985,7 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
+  MISSING="\${SHELL} '$am_aux_dir/missing'"
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then
@@ -4526,6 +4528,20 @@ CXXDEPMODE=depmode=$am_cv_CXX_dependencies_compiler_type
 else
   am__fastdepCXX_TRUE='#'
   am__fastdepCXX_FALSE=
+fi
+
+
+# Variables for tags utilities; see am/tags.am
+if test -z "$CTAGS"; then
+  CTAGS=ctags
+fi
+
+if test -z "$ETAGS"; then
+  ETAGS=etags
+fi
+
+if test -z "$CSCOPE"; then
+  CSCOPE=cscope
 fi
 
 
@@ -18683,7 +18699,7 @@ $as_echo_n "checking for usable std::filesystem::path... " >&6; }
 have_path=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-// Check for std::filesystem support.
+// Check for working std::filesystem support.
 
 #include <filesystem>
 
@@ -18694,6 +18710,8 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int main()
 
 {
+
+  // Apparently some versions of MinGW lack this comparison operator.
 
   return std::filesystem::path{} != std::filesystem::path{};
 
