@@ -137,7 +137,7 @@ am_libpqxx_la_OBJECTS = array.lo binarystring.lo blob.lo connection.lo \
 	cursor.lo encodings.lo errorhandler.lo except.lo field.lo \
 	largeobject.lo notification.lo params.lo pipeline.lo result.lo \
 	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
-	stream_to.lo subtransaction.lo transaction.lo \
+	stream_to.lo subtransaction.lo time.lo transaction.lo \
 	transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -172,8 +172,9 @@ am__depfiles_remade = ./$(DEPDIR)/array.Plo \
 	./$(DEPDIR)/row.Plo ./$(DEPDIR)/sql_cursor.Plo \
 	./$(DEPDIR)/strconv.Plo ./$(DEPDIR)/stream_from.Plo \
 	./$(DEPDIR)/stream_to.Plo ./$(DEPDIR)/subtransaction.Plo \
-	./$(DEPDIR)/transaction.Plo ./$(DEPDIR)/transaction_base.Plo \
-	./$(DEPDIR)/util.Plo ./$(DEPDIR)/version.Plo
+	./$(DEPDIR)/time.Plo ./$(DEPDIR)/transaction.Plo \
+	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/util.Plo \
+	./$(DEPDIR)/version.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -378,6 +379,7 @@ libpqxx_la_SOURCES = \
 	stream_from.cxx \
 	stream_to.cxx \
 	subtransaction.cxx \
+	time.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \
@@ -496,6 +498,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_from.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream_to.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subtransaction.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction_base.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@ # am--include-marker
@@ -686,6 +689,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/stream_from.Plo
 	-rm -f ./$(DEPDIR)/stream_to.Plo
 	-rm -f ./$(DEPDIR)/subtransaction.Plo
+	-rm -f ./$(DEPDIR)/time.Plo
 	-rm -f ./$(DEPDIR)/transaction.Plo
 	-rm -f ./$(DEPDIR)/transaction_base.Plo
 	-rm -f ./$(DEPDIR)/util.Plo
@@ -756,6 +760,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/stream_from.Plo
 	-rm -f ./$(DEPDIR)/stream_to.Plo
 	-rm -f ./$(DEPDIR)/subtransaction.Plo
+	-rm -f ./$(DEPDIR)/time.Plo
 	-rm -f ./$(DEPDIR)/transaction.Plo
 	-rm -f ./$(DEPDIR)/transaction_base.Plo
 	-rm -f ./$(DEPDIR)/util.Plo

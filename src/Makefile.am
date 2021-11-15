@@ -20,6 +20,7 @@ libpqxx_la_SOURCES = \
 	stream_from.cxx \
 	stream_to.cxx \
 	subtransaction.cxx \
+	time.cxx \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \
