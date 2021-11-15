@@ -147,26 +147,6 @@ inline std::chrono::day day_from_string(std::string_view text)
 
 namespace pqxx
 {
-template<> struct string_traits<std::chrono::day>
-{
-  [[nodiscard]] static std::chrono::day from_string(std::string_view text)
-  {
-    if (
-      std::size(text) != 2 or not internal::is_digit(text[0]) or
-      not internal::is_digit(text[1]))
-      throw conversion_error{
-        internal::concat("Bad day in year: '", text, "'.")};
-    std::chrono::day const d{unsigned(
-      (10 * internal::digit_to_number(text[0])) +
-      internal::digit_to_number(text[1]))};
-    if (not d.ok())
-      throw conversion_error{
-        internal::concat("Bad day in year: '", text, "'.")};
-    return d;
-  }
-};
-
-
 template<>
 struct nullness<std::chrono::year_month_day>
         : no_null<std::chrono::year_month_day>
@@ -232,8 +212,7 @@ template<> struct string_traits<std::chrono::year_month_day>
     auto const m{internal::month_from_string(text.substr(ymsep + 1, 2))};
     if (text[ymsep + 3] != '-')
       throw pqxx::conversion_error{make_parse_error(text)};
-    auto const d{
-      string_traits<std::chrono::day>::from_string(text.substr(ymsep + 4, 2))};
+    auto const d{internal::day_from_string(text.substr(ymsep + 4, 2))};
     std::chrono::year_month_day const date{y, m, d};
     if (not date.ok())
       throw conversion_error{make_parse_error(text)};
