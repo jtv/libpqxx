@@ -28,7 +28,10 @@ struct nullness<std::chrono::year_month_day>
 
 
 /// String representation for a Gregorian date in ISO-8601 format.
-/** PostgreSQL supports a choice of date formats, but libpqxx does not.  The
+/** @warning Experimental.  There may still be design problems, particularly
+ * when it comes to BC years.
+ *
+ * PostgreSQL supports a choice of date formats, but libpqxx does not.  The
  * other formats in turn support a choice of "month before day" versus "day
  * before month," meaning that it's not necessarily known which format a given
  * date is supposed to be.  So I repeat: ISO-8601-style format only!
