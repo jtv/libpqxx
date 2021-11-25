@@ -22,6 +22,63 @@
  */
 namespace pqxx::internal
 {
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_less, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_less(lhs, rhs);
+#else
+  if constexpr (std::is_signed_v<LEFT> == std::is_signed_v<RIGHT>)
+    return lhs < rhs;
+  else if constexpr (std::is_signed_v<LEFT>)
+    return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
+  else
+    return (rhs <= 0) ? false : (lhs < std::make_unsigned_t<RIGHT>(rhs));
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_greater, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_greater(lhs, rhs);
+#else
+  return cmp_less(rhs, lhs);
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_less_equal, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_less_equal(lhs, rhs);
+#else
+  return not cmp_less(rhs, lhs);
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_greater_equal, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_greater_equal(lhs, rhs);
+#else
+  return not cmp_less(lhs, rhs);
+#endif
+}
+
+
 /// Convert a number in [0, 9] to its ASCII digit.
 inline constexpr char number_to_digit(int i) noexcept
 {
@@ -87,11 +144,10 @@ template<typename T>
 inline char *generic_into_buf(char *begin, char *end, T const &value)
 {
   zview const text{string_traits<T>::to_buf(begin, end, value)};
-  auto const space = check_cast<std::size_t>(
-    end - begin, "floating-point conversion to string"sv);
+  auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (len > space)
+  if (internal::cmp_greater(len, space))
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
       state_buffer_overrun(space, len)};
@@ -555,7 +611,7 @@ template<std::size_t N> struct string_traits<char[N]>
 
   static char *into_buf(char *begin, char *end, char const (&value)[N])
   {
-    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
+    if (internal::cmp_less(end - begin, size_buffer(value)))
       throw conversion_overrun{
         "Could not convert char[] to string: too long for buffer."};
     std::memcpy(begin, value, N);
@@ -584,7 +640,7 @@ template<> struct string_traits<std::string>
 
   static char *into_buf(char *begin, char *end, std::string const &value)
   {
-    if (std::size(value) >= std::size_t(end - begin))
+    if (internal::cmp_greater_equal(std::size(value), end - begin))
       throw conversion_overrun{
         "Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
@@ -624,7 +680,7 @@ template<> struct string_traits<std::string_view>
 
   static char *into_buf(char *begin, char *end, std::string_view const &value)
   {
-    if (std::size(value) >= std::size_t(end - begin))
+    if (internal::cmp_greater_equal(std::size(value), end - begin))
       throw conversion_overrun{
         "Could not store string_view: too long for buffer."};
     value.copy(begin, std::size(value));
@@ -653,7 +709,7 @@ template<> struct string_traits<zview>
   static char *into_buf(char *begin, char *end, zview const &value)
   {
     auto const size{std::size(value)};
-    if (static_cast<std::size_t>(end - begin) <= std::size(value))
+    if (internal::cmp_less_equal(end - begin, std::size(value)))
       throw conversion_overrun{"Not enough buffer space to store this zview."};
     value.copy(begin, size);
     begin[size] = '\0';
@@ -860,7 +916,7 @@ template<binary DATA> struct string_traits<DATA>
   static char *into_buf(char *begin, char *end, DATA const &value)
   {
     auto const budget{size_buffer(value)};
-    if (static_cast<std::size_t>(end - begin) < budget)
+    if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -897,7 +953,7 @@ template<> struct string_traits<std::basic_string<std::byte>>
   into_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
   {
     auto const budget{size_buffer(value)};
-    if (static_cast<std::size_t>(end - begin) < budget)
+    if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -946,7 +1002,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
     char *begin, char *end, std::basic_string_view<std::byte> const &value)
   {
     auto const budget{size_buffer(value)};
-    if (static_cast<std::size_t>(end - begin) < budget)
+    if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -983,7 +1039,7 @@ public:
   static char *into_buf(char *begin, char *end, Container const &value)
   {
     std::size_t const budget{size_buffer(value)};
-    if (static_cast<std::size_t>(end - begin) < budget)
+    if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to convert array to string."};
 

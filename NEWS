@@ -14,6 +14,7 @@
  - Support `result[row_num, col_num]` if the compiler allows it.
  - Work around broken `std::filesystem::path` in MinGW.  (#498)
  - Fix leak when getting client encoding fails.  (#500)
+ - Use `std::cmp_greater` etc. when available.  Saves some ugly casts.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.

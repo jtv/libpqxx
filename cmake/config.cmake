@@ -114,6 +114,10 @@ try_compile(
 	PQXX_HAVE_YEAR_MONTH_DAY
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/year_month_day.cxx)
+try_compile(
+	PQXX_HAVE_CMP
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cmp.cxx)
 
 try_compile(
 	need_fslib

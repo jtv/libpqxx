@@ -66,6 +66,9 @@
 /* Define if <charconv> supports integer conversion. */
 #undef PQXX_HAVE_CHARCONV_INT
 
+/* Define if compiler has C++20 std::cmp_greater etc. */
+#undef PQXX_HAVE_CMP
+
 /* Define if compiler supports Concepts and <ranges> header. */
 #undef PQXX_HAVE_CONCEPTS
 

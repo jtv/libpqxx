@@ -400,6 +400,19 @@ AC_LINK_IFELSE(
 	have_sleep_for=no)
 AC_MSG_RESULT($have_sleep_for)
 
+
+AC_MSG_CHECKING([for std::cmp_greater, std::cmp_less_equal, etc])
+have_cmp=yes
+AC_COMPILE_IFELSE(
+	[read_test(cmp.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_CMP],
+		1,
+		[Define if compiler has C++20 std::cmp_greater etc.]),
+	have_cmp=no)
+AC_MSG_RESULT($have_cmp)
+
+
 # Doing my own check for poll().  There's one built into autoconf-archive, but
 # it produces warnings in C++ (about unnecessarily using "struct", and using 0
 # as a null pointer constant).  In maintainer mode, those warnings turn into

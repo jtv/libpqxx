@@ -22,6 +22,7 @@ extern "C"
 
 #include "pqxx/binarystring"
 #include "pqxx/field"
+#include "pqxx/strconv"
 
 
 namespace

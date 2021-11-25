@@ -17,6 +17,7 @@
 #include "pqxx/except"
 #include "pqxx/internal/array-composite.hxx"
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/strconv"
 #include "pqxx/util"
 
 
