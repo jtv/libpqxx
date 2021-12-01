@@ -11,8 +11,8 @@
 #ifndef PQXX_H_BINARYSTRING
 #define PQXX_H_BINARYSTRING
 
-#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <memory>
 #include <string>

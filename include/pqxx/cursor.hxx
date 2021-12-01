@@ -13,8 +13,8 @@
 #ifndef PQXX_H_CURSOR
 #define PQXX_H_CURSOR
 
-#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <limits>
 #include <stdexcept>

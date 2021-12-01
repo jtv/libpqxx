@@ -11,8 +11,8 @@
 #ifndef PQXX_H_LARGEOBJECT
 #define PQXX_H_LARGEOBJECT
 
-#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <streambuf>
 

@@ -11,8 +11,8 @@
 #ifndef PQXX_H_ISOLATION
 #define PQXX_H_ISOLATION
 
-#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include "pqxx/util.hxx"
 
