@@ -14,7 +14,7 @@
 #ifndef PQXX_H_TRANSACTION_BASE
 #define PQXX_H_TRANSACTION_BASE
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <string_view>

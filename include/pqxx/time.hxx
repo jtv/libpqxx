@@ -5,7 +5,7 @@
 #ifndef PQXX_H_TIME
 #define PQXX_H_TIME
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <chrono>

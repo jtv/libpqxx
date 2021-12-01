@@ -13,7 +13,7 @@
 #ifndef PQXX_H_ROBUSTTRANSACTION
 #define PQXX_H_ROBUSTTRANSACTION
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/dbtransaction.hxx"

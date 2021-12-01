@@ -11,7 +11,7 @@
 #ifndef PQXX_H_PARAMS
 #define PQXX_H_PARAMS
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/internal/concat.hxx"

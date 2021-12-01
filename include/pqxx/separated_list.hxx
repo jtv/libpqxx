@@ -11,7 +11,7 @@
 #ifndef PQXX_H_SEPARATED_LIST
 #define PQXX_H_SEPARATED_LIST
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <algorithm>

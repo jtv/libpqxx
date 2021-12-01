@@ -12,7 +12,7 @@
 #ifndef PQXX_H_TRANSACTION
 #define PQXX_H_TRANSACTION
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/dbtransaction.hxx"

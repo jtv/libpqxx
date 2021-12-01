@@ -11,7 +11,7 @@
 #ifndef PQXX_H_UTIL
 #define PQXX_H_UTIL
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <cctype>

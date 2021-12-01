@@ -13,7 +13,7 @@
 #ifndef PQXX_H_EXCEPT
 #define PQXX_H_EXCEPT
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <stdexcept>

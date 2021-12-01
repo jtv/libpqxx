@@ -11,7 +11,7 @@
 #ifndef PQXX_H_ARRAY
 #define PQXX_H_ARRAY
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include "pqxx/internal/encoding_group.hxx"

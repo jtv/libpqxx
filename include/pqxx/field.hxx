@@ -13,7 +13,7 @@
 #ifndef PQXX_H_FIELD
 #define PQXX_H_FIELD
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <optional>

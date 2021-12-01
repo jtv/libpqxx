@@ -9,7 +9,7 @@
 #ifndef PQXX_H_RESULT_ITER
 #define PQXX_H_RESULT_ITER
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 
 #include <memory>

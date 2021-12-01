@@ -10,7 +10,7 @@
  */
 #ifndef PQXX_H_VERSION
 
-#  include "pqxx/compiler-public.hxx"
+#  include "pqxx/internal/compiler-public.hxx"
 #  include "pqxx/internal/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
