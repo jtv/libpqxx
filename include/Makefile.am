@@ -21,7 +21,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/prepared_statement pqxx/prepared_statement.hxx \
 	pqxx/range pqxx/range.hxx \
 	pqxx/result pqxx/result.hxx \
-	pqxx/result_iterator.hxx \
 	pqxx/robusttransaction pqxx/robusttransaction.hxx \
 	pqxx/separated_list pqxx/separated_list.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
@@ -50,6 +49,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/libpq-forward.hxx \
 	pqxx/internal/result_iter.hxx \
+	pqxx/internal/result_iterator.hxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/stream_iterator.hxx \
