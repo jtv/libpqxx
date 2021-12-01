@@ -4,7 +4,6 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/array pqxx/array.hxx \
 	pqxx/binarystring pqxx/binarystring.hxx \
 	pqxx/blob pqxx/blob.hxx \
-	pqxx/compiler-public.hxx \
 	pqxx/composite pqxx/composite.hxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
@@ -41,6 +40,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/compiler-internal-pre.hxx \
 	pqxx/internal/compiler-internal-post.hxx \
+	pqxx/internal/compiler-public.hxx \
 	pqxx/internal/concat.hxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encoding_group.hxx \

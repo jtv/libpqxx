@@ -13,8 +13,8 @@
 #ifndef PQXX_H_ERRORHANDLER
 #define PQXX_H_ERRORHANDLER
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include "pqxx/types.hxx"
 

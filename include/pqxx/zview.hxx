@@ -11,7 +11,7 @@
 #ifndef PQXX_H_ZVIEW
 #define PQXX_H_ZVIEW
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <string>
 #include <string_view>

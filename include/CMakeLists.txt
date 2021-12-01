@@ -21,7 +21,6 @@ install(
     PATTERN array
     PATTERN binarystring
     PATTERN blob
-    PATTERN compiler-public
     PATTERN composite
     PATTERN connection
     PATTERN cursor

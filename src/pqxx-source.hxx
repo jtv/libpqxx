@@ -29,4 +29,4 @@
 
 #endif // _WIN32
 
-#include "pqxx/compiler-public.hxx"
+#include "pqxx/internal/compiler-public.hxx"

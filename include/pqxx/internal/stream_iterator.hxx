@@ -9,8 +9,8 @@
 #ifndef PQXX_H_STREAM_ITERATOR
 #define PQXX_H_STREAM_ITERATOR
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <memory>
 

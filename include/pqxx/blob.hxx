@@ -13,8 +13,8 @@
 #ifndef PQXX_H_BLOB
 #define PQXX_H_BLOB
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <cstdint>
 

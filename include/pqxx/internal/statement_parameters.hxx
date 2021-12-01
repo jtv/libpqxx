@@ -13,8 +13,8 @@
 #ifndef PQXX_H_STATEMENT_PARAMETER
 #define PQXX_H_STATEMENT_PARAMETER
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <cstring>
 #include <functional>

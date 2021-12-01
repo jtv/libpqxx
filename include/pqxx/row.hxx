@@ -13,8 +13,8 @@
 #ifndef PQXX_H_ROW
 #define PQXX_H_ROW
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include "pqxx/except.hxx"
 #include "pqxx/field.hxx"

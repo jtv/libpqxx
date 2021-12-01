@@ -11,8 +11,8 @@
 #ifndef PQXX_H_TRANSACTOR
 #define PQXX_H_TRANSACTOR
 
-#include "pqxx/compiler-public.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
 
 #include <functional>
 #include <type_traits>
