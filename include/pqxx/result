@@ -7,6 +7,6 @@
 
 // Now include some types which depend on result, but which the user will
 // expect to see defined after including this header.
-#include "pqxx/result_iterator.hxx"
+#include "pqxx/internal/result_iterator.hxx"
 #include "pqxx/field.hxx"
 #include "pqxx/internal/result_iter.hxx"
