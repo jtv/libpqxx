@@ -38,7 +38,6 @@ install(
     PATTERN prepared_statement
     PATTERN range
     PATTERN result
-    PATTERN result_iterator
     PATTERN robusttransaction
     PATTERN row
     PATTERN separated_list
