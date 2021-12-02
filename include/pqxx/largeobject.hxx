@@ -444,7 +444,7 @@ protected:
       auto const write_sz{pp - pb};
       auto const written_sz{
         m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb))};
-      if (written_sz <= static_cast<off_type>(0))
+      if (internal::cmp_less_equal(written_sz, 0))
         throw internal_error{
           "pqxx::largeobject: write failed "
           "(is transaction still valid on write or flush?), "

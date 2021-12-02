@@ -212,7 +212,7 @@ template<> struct string_traits<binarystring>
   static char *into_buf(char *begin, char *end, binarystring const &value)
   {
     auto const budget{size_buffer(value)};
-    if (static_cast<std::size_t>(end - begin) < budget)
+    if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     std::string_view text{value.view()};
