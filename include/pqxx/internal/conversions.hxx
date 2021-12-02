@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "pqxx/types.hxx"
+#include "pqxx/util.hxx"
 
 
 /* Internal helpers for string conversion, and conversion implementations.
@@ -22,63 +23,6 @@
  */
 namespace pqxx::internal
 {
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
-/// C++20 std::cmp_less, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs)
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less(lhs, rhs);
-#else
-  if constexpr (std::is_signed_v<LEFT> == std::is_signed_v<RIGHT>)
-    return lhs < rhs;
-  else if constexpr (std::is_signed_v<LEFT>)
-    return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
-  else
-    return (rhs <= 0) ? false : (lhs < std::make_unsigned_t<RIGHT>(rhs));
-#endif
-}
-
-
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
-/// C++20 std::cmp_greater, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs)
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater(lhs, rhs);
-#else
-  return cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
-/// C++20 std::cmp_less_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs)
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less_equal(lhs, rhs);
-#else
-  return not cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
-/// C++20 std::cmp_greater_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs)
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater_equal(lhs, rhs);
-#else
-  return not cmp_less(lhs, rhs);
-#endif
-}
-
-
 /// Convert a number in [0, 9] to its ASCII digit.
 inline constexpr char number_to_digit(int i) noexcept
 {

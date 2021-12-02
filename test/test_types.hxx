@@ -30,7 +30,7 @@ template<> struct string_traits<std::byte>
 
   static zview to_buf(char *begin, char *end, std::byte const &value)
   {
-    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
+    if (pqxx::internal::cmp_less(end - begin, size_buffer(value)))
       throw pqxx::conversion_overrun{
         "Not enough buffer to convert std::byte."};
     auto uc{static_cast<unsigned char>(value)};
@@ -137,7 +137,7 @@ template<> struct string_traits<ipv4>
 
   static char *into_buf(char *begin, char *end, ipv4 const &value)
   {
-    if (static_cast<std::size_t>(end - begin) < size_buffer(value))
+    if (pqxx::internal::cmp_less(end - begin, size_buffer(value)))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
     for (int i = 0; i < 4; ++i)

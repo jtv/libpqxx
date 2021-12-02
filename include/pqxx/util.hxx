@@ -48,6 +48,65 @@ namespace pqxx
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
 {
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_less, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_less(lhs, rhs);
+#else
+  if constexpr (std::is_signed_v<LEFT> == std::is_signed_v<RIGHT>)
+    return lhs < rhs;
+  else if constexpr (std::is_signed_v<LEFT>)
+    return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
+  else
+    return (rhs <= 0) ? false : (lhs < std::make_unsigned_t<RIGHT>(rhs));
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_greater, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_greater(lhs, rhs);
+#else
+  return cmp_less(rhs, lhs);
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_less_equal, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_less_equal(lhs, rhs);
+#else
+  return not cmp_less(rhs, lhs);
+#endif
+}
+
+
+// C++20: Use concept to express LEFT and RIGHT must be integral types.
+/// C++20 std::cmp_greater_equal, or workaround if not available.
+template<typename LEFT, typename RIGHT>
+inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs)
+{
+#if defined(PQXX_HAVE_CMP)
+  return std::cmp_greater_equal(lhs, rhs);
+#else
+  return not cmp_less(lhs, rhs);
+#endif
+}
+
+
 /// Efficiently concatenate two strings.
 /** This is a special case of concatenate(), needed because dependency
  * management does not let us use that function here.
@@ -127,7 +186,7 @@ inline TO check_cast(FROM value, std::string_view description)
     constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
-      if (static_cast<unsigned_from>(value) > to_max)
+      if (internal::cmp_greater(value, to_max))
         throw range_error{internal::cat2("Cast overflow: "sv, description)};
     }
   }

@@ -228,7 +228,7 @@ void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  if (auto const bytes{cwrite(buf, len)}; bytes < static_cast<off_type>(len))
+  if (auto const bytes{cwrite(buf, len)}; internal::cmp_less(bytes, len))
   {
     int const err{errno};
     if (err == ENOMEM)
