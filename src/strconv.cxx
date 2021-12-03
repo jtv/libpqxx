@@ -243,7 +243,12 @@ std::string demangle_type_name(char const raw[])
   static constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
-  std::free(demangled);
+  // Do not try to call free(nullptr), even though it safe in general, this can
+  // be crucial for jemalloc when this code will be called from global
+  // variables initializations, since jemalloc() initializes itself only on
+  // malloc() not on free().
+  if (demangled)
+    std::free(demangled);
   return name;
 }
 
