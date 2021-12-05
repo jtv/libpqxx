@@ -239,15 +239,12 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
 #else
-  // C++20: constinit.
   static constexpr char *demangled{nullptr};
 #endif
   std::string const name{(demangled == nullptr) ? raw : demangled};
-  // Do not try to call free(nullptr), even though it safe in general, this can
-  // be crucial for jemalloc when this code will be called from global
-  // variables initializations, since jemalloc() initializes itself only on
-  // malloc() not on free().
-  if (demangled)
+
+  // Check for nullness to work around jemalloc bug (see #508).
+  if (demangled != nullptr)
     std::free(demangled);
   return name;
 }
