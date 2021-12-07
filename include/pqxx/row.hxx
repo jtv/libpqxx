@@ -482,7 +482,7 @@ public:
 
 const_row_iterator const_row_iterator::operator+(difference_type o) const
 {
-  // XXX: More direct route to home().columns()?  row.m_end?
+  // TODO:: More direct route to home().columns()?
   return const_row_iterator{
     row{home(), idx(), home().columns()},
     size_type(difference_type(col()) + o)};
@@ -497,7 +497,7 @@ operator+(const_row_iterator::difference_type o, const_row_iterator const &i)
 inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const
 {
-  // XXX: More direct route to home().columns()?  row.m_end?
+  // TODO:: More direct route to home().columns()?
   return const_row_iterator{
     row{home(), idx(), home().columns()},
     size_type(difference_type(col()) - o)};
