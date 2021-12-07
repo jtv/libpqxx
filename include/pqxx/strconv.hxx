@@ -413,7 +413,6 @@ template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 template<typename T> inline constexpr char array_separator{','};
 
 
-// TODO: constexpr.
 /// What's the preferred format for passing non-null parameters of this type?
 /** This affects how we pass parameters of @c TYPE when calling parameterised
  * statements or prepared statements.
