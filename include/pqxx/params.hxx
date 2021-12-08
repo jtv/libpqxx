@@ -14,6 +14,8 @@
 #include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/compiler-public.hxx"
 
+#include <array>
+
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/statement_parameters.hxx"
 #include "pqxx/types.hxx"
