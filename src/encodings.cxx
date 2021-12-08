@@ -752,27 +752,5 @@ template<encoding_group E> struct string_finder
   }
 };
 
-
-PQXX_PURE std::size_t find_with_encoding(
-  encoding_group enc, std::string_view haystack, char needle,
-  std::size_t start)
-{
-  using finder_func =
-    std::size_t(std::string_view haystack, char needle, std::size_t start);
-  auto const finder{for_encoding<char_finder, finder_func>(enc)};
-  return finder(haystack, needle, start);
-}
-
-
-PQXX_PURE std::size_t find_with_encoding(
-  encoding_group enc, std::string_view haystack, std::string_view needle,
-  std::size_t start)
-{
-  using finder_func = std::size_t(
-    std::string_view haystack, std::string_view needle, std::size_t start);
-  auto const finder{for_encoding<string_finder, finder_func>(enc)};
-  return finder(haystack, needle, start);
-}
-
 #undef DISPATCH_ENCODING_OPERATION
 } // namespace pqxx::internal

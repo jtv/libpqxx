@@ -16,6 +16,7 @@ inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
+// XXX: find_char<'"', '\\'>().
   auto next{scan(input, size, pos)};
   bool at_quote{false};
   for (pos = next, next = scan(input, size, pos); pos < size;

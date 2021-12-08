@@ -46,39 +46,40 @@ std::string::size_type array_parser::scan_glyph(
  */
 std::string::size_type array_parser::scan_single_quoted_string() const
 {
-  auto here{m_pos}, next{scan_glyph(here)};
-  for (here = next, next = scan_glyph(here); here < std::size(m_input);
-       here = next, next = scan_glyph(here))
+  assert(m_input[m_pos] == '\'');
+  auto const sz{std::size(m_input)};
+  auto here{pqxx::internal::find_char<'\\', '\''>(m_scan, m_input, m_pos + 1)};
+  while (here < sz)
   {
-    if (next - here == 1)
-      PQXX_LIKELY
-    switch (m_input[here])
+    char const c{m_input[here]};
+    // Consume the slash or quote that we found.
+    ++here;
+    if (c == '\'')
     {
-    case '\'':
+      // Single quote.
+
+      // At end?
+      if (here >= sz) return here;
+
       // SQL escapes single quotes by doubling them.  Terrible idea, but it's
       // what we have.  Inspect the next character to find out whether this
       // is the closing quote, or an escaped one inside the string.
-      here = next;
-      // (We can read beyond this quote because the array will always end in
-      // a closing brace.)
-      next = scan_glyph(here);
+      if (m_input[here] != '\'') return here;
+      // Check against embedded "'" byte in a multichar byte.  If we do have a
+      // multibyte char, then we're still out of the string.
+      if (scan_glyph(here, sz) > here + 1) PQXX_UNLIKELY return here;
 
-      if ((here + 1 < next) or (m_input[here] != '\''))
-      {
-        // Our lookahead character is not an escaped quote.  It's the first
-        // character outside our string.  So, return it.
-        return here;
-      }
-
-      // We've just scanned an escaped quote.  Keep going.
-      break;
-
-    case '\\':
-      // Backslash escape.  Skip ahead by one more character.
-      here = next;
-      next = scan_glyph(here);
-      break;
+      // We have a second quote.  Consume it as well.
+      ++here;
     }
+    else
+    {
+      assert(c == '\\');
+      // Backslash escape.  Skip ahead by one more character.
+      here = scan_glyph(here, sz);
+    }
+    // Race on to the next quote or backslash.
+    here = pqxx::internal::find_char<'\\', '\''>(m_scan, m_input, here);
   }
   throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
 }
@@ -93,6 +94,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
   output.reserve(end - m_pos - 2);
+// XXX: find_char<'\\', '\''>().
   for (auto here = m_pos + 1, next = scan_glyph(here, end); here < end - 1;
        here = next, next = scan_glyph(here, end))
   {

@@ -32,18 +32,40 @@ encoding_group enc_group(std::string_view);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
-// TODO: Cut corners for ASCII needle.  Most "ASCII supersets" act like ASCII.
-// TODO: Actually, are we using these at all!?
-// TODO: Can we do a "scan until you find one of these" template?
-/// Find a single-byte "needle" character in a "haystack" text buffer.
-std::size_t find_with_encoding(
-  encoding_group enc, std::string_view haystack, char needle,
-  std::size_t start = 0);
+// TODO: Treat UTF-8 like monobyte for the purpose of finding ASCII chars.
 
+/// Find any of the ASCII characters @c NEEDLE in @c haystack.
+/** Scans through @c haystack until it finds a single-byte character that
+ * matches any value in @c NEEDLE.
+ *
+ * If it finds one, returns its offset.  If not, returns the end of the
+ * haystack.
+ */
+template<char... NEEDLE>
+inline std::size_t find_char(glyph_scanner_func *scanner, std::string_view haystack, std::size_t here = 0u)
+{
+  auto const sz{std::size(haystack)};
+  auto const data{std::data(haystack)};
+  while (here < sz)
+  {
+    auto next{scanner(data, sz, here)};
+    // (For some reason gcc had a problem with a right-fold here.  But clang
+    // was fine.)
+    if ((... or (data[here] == NEEDLE)))
+    {
+      // Also check against a multibyte character starting with a bytes which
+      // just happens to match one of the ASCII bytes we're looking for.  It'd
+      // be cleaner to check that first, but either works.  So, let's apply the
+      // most selective filter first and skip this check in almost all cases.
+      if (next == here + 1)
+        return here;
+    }
 
-PQXX_LIBEXPORT std::size_t find_with_encoding(
-  encoding_group enc, std::string_view haystack, std::string_view needle,
-  std::size_t start = 0);
+    // Nope, no hit.  Move on.
+    here = next;
+  }
+  return sz;
+}
 
 
 /// Iterate over the glyphs in a buffer.

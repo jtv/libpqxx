@@ -134,6 +134,7 @@ void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
     std::size_t begin_stretch{0};
 
     std::size_t begin_char{0}, end;
+// XXX: find_char<'\b', '\f', '\n', '\r', '\t', \v', '\\'>().
     for (end = m_scanner(std::data(data), std::size(data), begin_char);
          begin_char < std::size(data); begin_char = end,
         end = m_scanner(std::data(data), std::size(data), begin_char))
