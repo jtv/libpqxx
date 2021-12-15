@@ -70,12 +70,31 @@ void test_subtransaction_aborts_implicitly(connection_base &conn)
 }
 
 
+// A bug found in libpqxx 6.4.5: executing a prepared statement does not
+// activate the transaction. (#512)
+void test_subtransaction_starts_on_prepared_statement(connection_base &conn)
+{
+  work tx{conn};
+  tx.exec0("CREATE TEMP TABLE pqxx_foo (x integer)");
+  conn.prepare("pqxx_ins", "INSERT INTO pqxx_foo (x) VALUES (1)");
+  subtransaction sub{tx};
+  sub.exec_prepared("pqxx_ins");
+  sub.abort();
+  row count{tx.exec1("SELECT count(*) FROM pqxx_foo")};
+  PQXX_CHECK_EQUAL(
+	count[0].as<int>(),
+	0,
+	"Invoking prepared statement did not activate its (sub)transaction.");
+}
+
+
 void test_subtransaction()
 {
   connection conn;
   test_subtransaction_commits_if_commit_called(conn);
   test_subtransaction_aborts_if_abort_called(conn);
   test_subtransaction_aborts_implicitly(conn);
+  test_subtransaction_starts_on_prepared_statement(conn);
 }
 
 

@@ -2,6 +2,7 @@
  - Hopefully fix `extract_value` export problem with some shared builds.
  - Disable broken Python lint checks in lint script.
  - Fix lint script for out-of-tree builds.
+ - Make transactions activate when executing prepared statement.  (#512)
 6.4.7
  - Fix link error: missing `extract_value<nullptr_t>` in `stream_from`. (#340)
 6.4.6

@@ -350,6 +350,15 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 	const std::string &statement,
 	const internal::params &args)
 {
+  try
+  {
+    activate();
+  }
+  catch (const usage_error &e)
+  {
+    throw usage_error{
+	"Error executing prepared statement " + statement + ".  " + e.what()};
+  }
   gate::connection_transaction gate{conn()};
   return gate.exec_prepared(statement, args);
 }
@@ -359,6 +368,7 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 	const std::string &query,
 	const internal::params &args)
 {
+  activate();
   gate::connection_transaction gate{conn()};
   return gate.exec_params(query, args);
 }
