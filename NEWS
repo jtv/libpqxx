@@ -1,6 +1,7 @@
 6.4.9
  - Regenerate build files.
  - Fix indentation warning in test16.cxx.
+ - Don't run `configure` as part of `autogen.sh`.
 6.4.8
  - Hopefully fix `extract_value` export problem with some shared builds.
  - Disable broken Python lint checks in lint script.

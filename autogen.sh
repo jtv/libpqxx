@@ -57,12 +57,4 @@ aclocal -I . -I config/m4
 automake --add-missing --copy
 autoconf
 
-conf_flags="--enable-maintainer-mode ${CONFIG_ARGS:-}"
-if [ -z "${NOCONFIGURE:-}" ]
-then
-	echo Running ./configure $conf_flags "$@" ...
-	./configure $conf_flags "$@"
-	echo "Now type 'make' to compile libpqxx."
-else
-	echo Skipping configure process.
-fi
+echo "Now run 'configure' and 'make' to build."
