@@ -8,8 +8,8 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_STRINGCONV
-#define PQXX_H_STRINGCONV
+#ifndef PQXX_H_STRCONV
+#define PQXX_H_STRCONV
 
 #include <algorithm>
 #include <cstring>
