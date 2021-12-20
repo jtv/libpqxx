@@ -2,4 +2,9 @@
  * Transaction focus: types which monopolise a transaction's attention.
  */
 // Actual definitions in .hxx file so editors and such recognize file type.
+#include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
+
 #include "pqxx/types.hxx"
+
+#include "pqxx/internal/compiler-internal-post.hxx"

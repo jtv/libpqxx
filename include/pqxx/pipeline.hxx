@@ -13,9 +13,6 @@
 #ifndef PQXX_H_PIPELINE
 #define PQXX_H_PIPELINE
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <limits>
 #include <map>
 #include <string>
@@ -234,6 +231,4 @@ private:
   constexpr static std::string_view s_classname{"pipeline"};
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

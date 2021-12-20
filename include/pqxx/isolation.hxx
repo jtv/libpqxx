@@ -11,9 +11,6 @@
 #ifndef PQXX_H_ISOLATION
 #define PQXX_H_ISOLATION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/util.hxx"
 
 namespace pqxx
@@ -71,6 +68,4 @@ enum isolation_level
   serializable,
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

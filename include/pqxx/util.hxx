@@ -11,9 +11,6 @@
 #ifndef PQXX_H_UTIL
 #define PQXX_H_UTIL
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <cctype>
 #include <cstdio>
 #include <functional>
@@ -456,6 +453,4 @@ template<typename T> auto ssize(T const &c)
  */
 void PQXX_LIBEXPORT wait_for(unsigned int microseconds);
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

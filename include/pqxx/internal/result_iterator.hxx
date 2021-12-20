@@ -13,9 +13,6 @@
 #ifndef PQXX_H_RESULT_ITERATOR
 #define PQXX_H_RESULT_ITERATOR
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/row.hxx"
 
 
@@ -391,6 +388,4 @@ operator+(result::difference_type n, const_reverse_result_iterator const &i)
 }
 
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

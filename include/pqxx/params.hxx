@@ -11,9 +11,6 @@
 #ifndef PQXX_H_PARAMS
 #define PQXX_H_PARAMS
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <array>
 
 #include "pqxx/internal/concat.hxx"
@@ -378,6 +375,4 @@ private:
     "Statement parameter length overflow."sv};
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

@@ -9,9 +9,6 @@
 #ifndef PQXX_H_RESULT_ITER
 #define PQXX_H_RESULT_ITER
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <memory>
 
 #include "pqxx/strconv.hxx"
@@ -104,6 +101,4 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 {
   return pqxx::internal::result_iteration<TYPE...>{*this};
 }
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

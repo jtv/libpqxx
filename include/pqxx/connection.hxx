@@ -13,9 +13,6 @@
 #ifndef PQXX_H_CONNECTION
 #define PQXX_H_CONNECTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <cstddef>
 #include <ctime>
 #include <functional>
@@ -1145,6 +1142,4 @@ PQXX_LIBEXPORT void wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds = 1,
   unsigned microseconds = 0);
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

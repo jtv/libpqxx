@@ -1,8 +1,6 @@
 #ifndef PQXX_H_RANGE
 #define PQXX_H_RANGE
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-
 #include <variant>
 
 #include "pqxx/internal/array-composite.hxx"
@@ -475,5 +473,4 @@ private:
 template<typename TYPE> struct nullness<range<TYPE>> : no_null<range<TYPE>>
 {};
 } // namespace pqxx
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

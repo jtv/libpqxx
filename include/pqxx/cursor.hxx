@@ -13,9 +13,6 @@
 #ifndef PQXX_H_CURSOR
 #define PQXX_H_CURSOR
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <limits>
 #include <stdexcept>
 
@@ -466,6 +463,4 @@ private:
   icursor_iterator *m_prev{nullptr}, *m_next{nullptr};
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

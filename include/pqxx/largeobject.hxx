@@ -11,9 +11,6 @@
 #ifndef PQXX_H_LARGEOBJECT
 #define PQXX_H_LARGEOBJECT
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <streambuf>
 
 #include "pqxx/dbtransaction.hxx"
@@ -725,6 +722,4 @@ private:
 
 using lostream = basic_lostream<char>;
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

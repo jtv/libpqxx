@@ -13,9 +13,6 @@
 #ifndef PQXX_H_RESULT
 #define PQXX_H_RESULT
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <ios>
 #include <memory>
 #include <stdexcept>
@@ -287,6 +284,4 @@ private:
   PQXX_PURE char const *cmd_status() const noexcept;
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

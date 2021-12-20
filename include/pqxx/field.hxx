@@ -13,9 +13,6 @@
 #ifndef PQXX_H_FIELD
 #define PQXX_H_FIELD
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <optional>
 
 #include "pqxx/array.hxx"
@@ -530,6 +527,4 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
 /// Convert a field to a string.
 template<> PQXX_LIBEXPORT std::string to_string(field const &value);
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

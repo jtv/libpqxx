@@ -11,8 +11,6 @@
 #ifndef PQXX_H_ZVIEW
 #define PQXX_H_ZVIEW
 
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -152,5 +150,4 @@ inline char const *as_c_string(std::string const &str) noexcept
   return str.c_str();
 }
 } // namespace pqxx::internal
-
 #endif

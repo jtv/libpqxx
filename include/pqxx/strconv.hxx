@@ -11,8 +11,6 @@
 #ifndef PQXX_H_STRINGCONV
 #define PQXX_H_STRINGCONV
 
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <algorithm>
 #include <cstring>
 #include <limits>

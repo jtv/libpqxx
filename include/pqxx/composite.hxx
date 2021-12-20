@@ -1,8 +1,6 @@
 #ifndef PQXX_H_COMPOSITE
 #define PQXX_H_COMPOSITE
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-
 #include "pqxx/internal/array-composite.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
@@ -148,5 +146,4 @@ inline char *composite_into_buf(char *begin, char *end, T const &...fields)
   return pos;
 }
 } // namespace pqxx
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

@@ -13,9 +13,6 @@
 #ifndef PQXX_H_SUBTRANSACTION
 #define PQXX_H_SUBTRANSACTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/dbtransaction.hxx"
 
 namespace pqxx
@@ -92,6 +89,4 @@ private:
   virtual void do_commit() override;
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

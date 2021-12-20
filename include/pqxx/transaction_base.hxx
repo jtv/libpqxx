@@ -14,9 +14,6 @@
 #ifndef PQXX_H_TRANSACTION_BASE
 #define PQXX_H_TRANSACTION_BASE
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <string_view>
 #include <utility>
 
@@ -695,6 +692,4 @@ template<>
 inline constexpr zview begin_cmd<serializable, write_policy::read_only>{
   "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"_zv};
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

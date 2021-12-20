@@ -13,9 +13,6 @@
 #ifndef PQXX_H_NONTRANSACTION
 #define PQXX_H_NONTRANSACTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/connection.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/transaction.hxx"
@@ -72,6 +69,4 @@ private:
   virtual void do_commit() override {}
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

@@ -11,9 +11,6 @@
 #ifndef PQXX_H_ARRAY
 #define PQXX_H_ARRAY
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
@@ -93,6 +90,4 @@ private:
   scan_glyph(std::string::size_type pos, std::string::size_type end) const;
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

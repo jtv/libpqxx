@@ -13,9 +13,6 @@
 #ifndef PQXX_H_ROBUSTTRANSACTION
 #define PQXX_H_ROBUSTTRANSACTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/dbtransaction.hxx"
 
 namespace pqxx::internal
@@ -117,6 +114,4 @@ public:
  * @}
  */
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

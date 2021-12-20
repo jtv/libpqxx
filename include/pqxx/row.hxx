@@ -13,9 +13,6 @@
 #ifndef PQXX_H_ROW
 #define PQXX_H_ROW
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/except.hxx"
 #include "pqxx/field.hxx"
 #include "pqxx/result.hxx"
@@ -518,6 +515,4 @@ inline void row::extract_value(Tuple &t) const
   std::get<index>(t) = from_string<field_type>(f);
 }
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

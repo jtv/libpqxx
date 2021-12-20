@@ -12,9 +12,6 @@
 #ifndef PQXX_H_TRANSACTION
 #define PQXX_H_TRANSACTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/dbtransaction.hxx"
 
 namespace pqxx::internal
@@ -104,6 +101,4 @@ using read_transaction =
 
 //@}
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

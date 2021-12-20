@@ -13,9 +13,6 @@
 #ifndef PQXX_H_EXCEPT
 #define PQXX_H_EXCEPT
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <stdexcept>
 #include <string>
 
@@ -435,6 +432,4 @@ struct PQXX_LIBEXPORT blob_already_exists : failure
  * @}
  */
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

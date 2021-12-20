@@ -165,7 +165,5 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 #  define PQXX_CHAR_STRINGS_ARG typename
 
 #endif // PQXX_HAVE_CONCEPTS
-
-
 } // namespace pqxx
 #endif

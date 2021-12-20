@@ -13,9 +13,6 @@
 #ifndef PQXX_H_NOTIFICATION
 #define PQXX_H_NOTIFICATION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <string>
 
 #include "pqxx/types.hxx"
@@ -90,6 +87,4 @@ private:
   std::string m_channel;
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

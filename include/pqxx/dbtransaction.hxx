@@ -13,9 +13,6 @@
 #ifndef PQXX_H_DBTRANSACTION
 #define PQXX_H_DBTRANSACTION
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/transaction_base.hxx"
 
 namespace pqxx
@@ -66,6 +63,4 @@ protected:
   {}
 };
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

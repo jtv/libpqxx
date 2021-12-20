@@ -10,9 +10,6 @@
  */
 #ifndef PQXX_H_VERSION
 
-#  include "pqxx/internal/compiler-internal-pre.hxx"
-#  include "pqxx/internal/compiler-public.hxx"
-
 /// Full libpqxx version string.
 #  define PQXX_VERSION "7.7.0"
 /// Library ABI version.
@@ -51,5 +48,4 @@ namespace pqxx::internal
  */
 PQXX_LIBEXPORT int PQXX_VERSION_CHECK() noexcept;
 } // namespace pqxx::internal
-#  include "pqxx/internal/compiler-internal-post.hxx"
 #endif

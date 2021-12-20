@@ -11,9 +11,6 @@
 #ifndef PQXX_H_TRANSACTOR
 #define PQXX_H_TRANSACTOR
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <functional>
 #include <type_traits>
 
@@ -143,6 +140,4 @@ inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
 }
 } // namespace pqxx
 //@}
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

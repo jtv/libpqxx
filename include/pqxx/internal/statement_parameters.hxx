@@ -13,9 +13,6 @@
 #ifndef PQXX_H_STATEMENT_PARAMETER
 #define PQXX_H_STATEMENT_PARAMETER
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <cstring>
 #include <functional>
 #include <iterator>
@@ -132,6 +129,4 @@ struct PQXX_LIBEXPORT c_params
   std::vector<format> formats;
 };
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

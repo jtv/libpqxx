@@ -13,9 +13,6 @@
 #ifndef PQXX_H_STREAM_FROM
 #define PQXX_H_STREAM_FROM
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <cassert>
 #include <functional>
 #include <variant>
@@ -350,6 +347,4 @@ inline void stream_from::extract_value(Tuple &t) const
   }
 }
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

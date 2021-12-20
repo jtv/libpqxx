@@ -9,9 +9,6 @@
 #ifndef PQXX_H_STREAM_ITERATOR
 #define PQXX_H_STREAM_ITERATOR
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include <memory>
 
 namespace pqxx
@@ -105,6 +102,4 @@ private:
   std::unique_ptr<stream_from> m_home;
 };
 } // namespace pqxx::internal
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif

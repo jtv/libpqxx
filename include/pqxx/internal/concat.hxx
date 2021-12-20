@@ -42,5 +42,4 @@ template<typename... TYPE>
   return buf;
 }
 } // namespace pqxx::internal
-
 #endif

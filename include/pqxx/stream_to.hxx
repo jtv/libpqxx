@@ -13,9 +13,6 @@
 #ifndef PQXX_H_STREAM_TO
 #define PQXX_H_STREAM_TO
 
-#include "pqxx/internal/compiler-internal-pre.hxx"
-#include "pqxx/internal/compiler-public.hxx"
-
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
 
@@ -447,6 +444,4 @@ inline stream_to::stream_to(
             }))}
 {}
 } // namespace pqxx
-
-#include "pqxx/internal/compiler-internal-post.hxx"
 #endif
