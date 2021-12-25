@@ -1,0 +1,17 @@
+#! /bin/bash
+#
+# Update the libpqxx copyright strings in the current directory.
+#
+# Usage: update-copyright [year]
+#
+# Where "year" is the new copyright year.  Defaults to the current year.
+#
+# Assumes GNU grep and GNU sed.
+set -eu -o pipefail
+
+PREFIX='Copyright (c) 2000'
+YEAR='20[0-9][0-9]'
+NEW_YEAR="${1:-$(date '+%Y')}"
+SUFFIX=', Jeroen T\. Vermeulen'
+grep -rIl "$PREFIX-$YEAR$SUFFIX" |
+    xargs -r sed -i -e "s/\\($PREFIX\\)-$YEAR\\($SUFFIX\\)/\\1-$NEW_YEAR\\2/"
