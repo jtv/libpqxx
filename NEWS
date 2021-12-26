@@ -18,6 +18,8 @@
  - Move `result_iterator.hxx` into `pqxx/include/internal/`.
  - Move `compiler-public.hxx` into `pqxx/include/internal/`.
  - Added script for updating copyright strings.
+ - Make `tools/lint` figure out source directory by itself.
+ - Pass the actual C++ version to `tools/lint`, not the baseline one.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.

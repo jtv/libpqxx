@@ -32,7 +32,8 @@ count_includes() {
     shift
     WS="[[:space:]]*"
     PAT="^${WS}#${WS}include${WS}[<\"]$HEADER_NAME[>\"]"
-    grep -c "$PAT" $* | sort
+    # It's OK for the grep to fail.
+    (grep -c "$PAT" $* || /bin/true) | sort
 }
 
 

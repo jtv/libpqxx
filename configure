@@ -728,7 +728,6 @@ am__isrc
 INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
-PQXX_CXX_VERSION
 HAVE_CXX17
 OBJEXT
 EXEEXT
@@ -2406,7 +2405,6 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 # Require C++17 at minimum.
-# We need to specify this twice, so we can also pass it to clang-tidy.
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3774,8 +3772,6 @@ $as_echo "#define HAVE_CXX17 1" >>confdefs.h
 
   fi
 
-
-PQXX_CXX_VERSION=-std=c++17
 
 
 
