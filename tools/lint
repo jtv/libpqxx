@@ -1,17 +1,15 @@
-#! /bin/sh
+#! /bin/bash
 #
 # Routine sanity checks for libpqxx source tree.
 #
-# An environment variable "srcdir" should hold the source directory.  It
-# defaults to the current directory, but it needs to be set for out-of-tree
-# builds.
+# Optionally, set environment variable "srcdir" to the source directory.  It
+# defaults to the parent directory of the one where this script is.  This trick
+# requires bash (or a close equivalent) as the shell.
 
-set -e
-set -u
+set -eu -o pipefail
 
-
-SRCDIR="${srcdir:-.}"
-PQXXVERSION="$($SRCDIR/tools/extract_version)"
+SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
+PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
 
 
 # This version must be at the top of the NEWS file.
