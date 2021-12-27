@@ -211,12 +211,19 @@ public:
   [[nodiscard]] std::int64_t tell() const;
 
   /// Set the current reading/writing position to an absolute offset.
+  /** Returns the new file offset. */
   std::int64_t seek_abs(std::int64_t offset = 0);
   /// Move the current reading/writing position forwards by an offset.
-  /** To move backwards, pass a negative offset. */
+  /** To move backwards, pass a negative offset.
+   *
+   * Returns the new file offset.
+   */
   std::int64_t seek_rel(std::int64_t offset = 0);
   /// Set the current position to an offset relative to the end of the blob.
-  /** You'll probably want an offset of zero or less. */
+  /** You'll probably want an offset of zero or less.
+   *
+   * Returns the new file offset.
+   */
   std::int64_t seek_end(std::int64_t offset = 0);
 
   /// Create a binary large object containing given @c data.
@@ -233,11 +240,11 @@ public:
     dbtransaction &tx, std::basic_string_view<std::byte> data, oid id);
 
   /// Read client-side file and store it server-side as a binary large object.
-  static oid from_file(dbtransaction &, char const path[]);
+  [[nodiscard]] static oid from_file(dbtransaction &, char const path[]);
 
 #if defined(PQXX_HAVE_PATH)
   /// Read client-side file and store it server-side as a binary large object.
-  static oid from_file(dbtransaction &tx, std::filesystem::path const &path)
+  [[nodiscard]] static oid from_file(dbtransaction &tx, std::filesystem::path const &path)
   {
     return from_file(tx, path.c_str());
   }

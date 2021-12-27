@@ -21,6 +21,7 @@
  - Make `tools/lint` figure out source directory by itself.
  - Pass the actual C++ version to `tools/lint`, not the baseline one.
  - Re-enable pyflakes testing in `tools/lint`.
+ - Made more functions `[[nodiscard]]`.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
