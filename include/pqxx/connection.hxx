@@ -285,7 +285,7 @@ public:
   [[nodiscard]] char const *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
-  [[nodiscard]] int PQXX_PURE backendpid() const noexcept;
+  [[nodiscard]] int PQXX_PURE backendpid() const &noexcept;
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -298,7 +298,7 @@ public:
    * await_notification().  If you want to issue queries and retrieve results
    * in nonblocking fashion, check out the pipeline class.
    */
-  [[nodiscard]] int PQXX_PURE sock() const noexcept;
+  [[nodiscard]] int PQXX_PURE sock() const &noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
@@ -350,7 +350,7 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(zview encoding)
+  void set_client_encoding(zview encoding) &
   {
     set_client_encoding(encoding.c_str());
   }
@@ -359,7 +359,7 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(char const encoding[]);
+  void set_client_encoding(char const encoding[]) &;
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   [[nodiscard]] int PQXX_PRIVATE encoding_id() const;
@@ -382,7 +382,7 @@ public:
    * @param value New value for Var: an identifier, a quoted string, or a
    * number.
    */
-  void set_variable(std::string_view var, std::string_view value);
+  void set_variable(std::string_view var, std::string_view value) &;
 
   /// Read session variable, using SQL's @c SHOW command.
   /** @warning This executes an SQL query, so do not get or set variables while
@@ -536,7 +536,7 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(zview name, zview definition)
+  void prepare(zview name, zview definition) &
   {
     prepare(name.c_str(), definition.c_str());
   }
@@ -545,7 +545,7 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(char const name[], char const definition[]);
+  void prepare(char const name[], char const definition[]) &;
 
   /// Define a nameless prepared statement.
   /**
@@ -555,8 +555,8 @@ public:
    * the nameless statement being redefined unexpectedly by code somewhere
    * else.
    */
-  void prepare(char const definition[]);
-  void prepare(zview definition) { return prepare(definition.c_str()); }
+  void prepare(char const definition[]) &;
+  void prepare(zview definition) & { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -845,7 +845,7 @@ public:
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
   /// Set socket to blocking (true) or nonblocking (false).
-  void set_blocking(bool block);
+  void set_blocking(bool block) &;
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
   /// Set session verbosity.
@@ -858,7 +858,7 @@ public:
    * (these might span multiple lines).  "verbose" includes all available
    * fields.
    */
-  void set_verbosity(error_verbosity verbosity) noexcept;
+  void set_verbosity(error_verbosity verbosity) &noexcept;
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.

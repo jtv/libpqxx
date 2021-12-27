@@ -249,7 +249,7 @@ pqxx::result pqxx::connection::make_result(
 }
 
 
-int pqxx::connection::backendpid() const noexcept
+int pqxx::connection::backendpid() const &noexcept
 {
   return (m_conn == nullptr) ? 0 : PQbackendPID(m_conn);
 }
@@ -264,7 +264,7 @@ PQXX_PURE int socket_of(::pqxx::internal::pq::PGconn const *c) noexcept
 } // namespace
 
 
-int pqxx::connection::sock() const noexcept
+int pqxx::connection::sock() const &noexcept
 {
   return socket_of(m_conn);
 }
@@ -283,7 +283,7 @@ int pqxx::connection::server_version() const noexcept
 
 
 void pqxx::connection::set_variable(
-  std::string_view var, std::string_view value)
+  std::string_view var, std::string_view value) &
 {
   exec(internal::concat("SET ", var, "=", value));
 }
@@ -527,7 +527,7 @@ char const *error_string(int err_num, std::array<char, BYTES> &buffer)
 } // namespace
 
 
-void pqxx::connection::set_blocking(bool block)
+void pqxx::connection::set_blocking(bool block) &
 {
   auto const fd{sock()};
 #if defined _WIN32
@@ -562,7 +562,7 @@ void pqxx::connection::set_blocking(bool block)
 }
 
 
-void pqxx::connection::set_verbosity(error_verbosity verbosity) noexcept
+void pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
 {
   PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
 }
@@ -744,7 +744,7 @@ std::string pqxx::connection::encrypt_password(
 }
 
 
-void pqxx::connection::prepare(char const name[], char const definition[])
+void pqxx::connection::prepare(char const name[], char const definition[]) &
 {
   auto const q{std::make_shared<std::string>(
     pqxx::internal::concat("[PREPARE ", name, "]"))};
@@ -754,7 +754,7 @@ void pqxx::connection::prepare(char const name[], char const definition[])
 }
 
 
-void pqxx::connection::prepare(char const definition[])
+void pqxx::connection::prepare(char const definition[]) &
 {
   this->prepare("", definition);
 }
@@ -1174,7 +1174,7 @@ std::string pqxx::connection::get_client_encoding() const
 }
 
 
-void pqxx::connection::set_client_encoding(char const encoding[])
+void pqxx::connection::set_client_encoding(char const encoding[]) &
 {
   switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)
   {
