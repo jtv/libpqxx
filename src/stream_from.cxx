@@ -220,7 +220,7 @@ void pqxx::stream_from::parse_line()
   {
     auto const offset{static_cast<std::size_t>(read - line_begin)};
     auto const glyph_end{line_begin + next_seq(line_begin, line_size, offset)};
-// XXX: find_char<'\t', '\\'>().
+    // XXX: find_char<'\t', '\\'>().
     if (glyph_end == read + 1)
     {
       // Single-byte character.

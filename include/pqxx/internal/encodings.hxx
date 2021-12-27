@@ -42,7 +42,9 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
  * haystack.
  */
 template<char... NEEDLE>
-inline std::size_t find_char(glyph_scanner_func *scanner, std::string_view haystack, std::size_t here = 0u)
+inline std::size_t find_char(
+  glyph_scanner_func *scanner, std::string_view haystack,
+  std::size_t here = 0u)
 {
   auto const sz{std::size(haystack)};
   auto const data{std::data(haystack)};

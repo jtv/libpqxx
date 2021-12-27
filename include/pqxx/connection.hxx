@@ -40,17 +40,17 @@
 
 
 /**
- * @addtogroup connection
+ * @addtogroup connections
  *
  * Use of the libpqxx library starts here.
  *
  * Everything that can be done with a database through libpqxx must go through
- * a @c connection object.  It connects to a database when you create it, and
- * it terminates that communication during destruction.
+ * a @ref pqxx::connection object.  It connects to a database when you create
+ * it, and it terminates that communication during destruction.
  *
  * Many things come together in this class.  Handling of error and warning
- * messages, for example, is defined by @c errorhandler objects in the context
- * of a connection.  Prepared statements are also defined here.
+ * messages, for example, is defined by @ref pqxx::errorhandler objects in the
+ * context of a connection.  Prepared statements are also defined here.
  *
  * When you connect to a database, you pass a connection string containing any
  * parameters and options, such as the server address and the database name.
@@ -64,6 +64,9 @@
  * as defined by libpq:
  *
  * https://www.postgresql.org/docs/current/libpq-envars.html
+ *
+ * You can also create a database connection @em asynchronously using an
+ * intermediate @ref pqxx::connecting object.
  */
 
 namespace pqxx::internal
@@ -1007,10 +1010,10 @@ private:
 using connection_base = connection;
 
 
-#if defined(_WIN32) || __has_include(<fcntl.h>)
 /// An ongoing, non-blocking stepping stone to a connection.
 /** Use this when you want to create a connection to the database, but without
- * blocking your whole thread.
+ * blocking your whole thread.   It is only available on systems that have
+ * the @c <fcntl.h> header, and Windows.
  *
  * Connecting in this way is probably not "faster" (it's more complicated and
  * has some extra overhead), but in some situations you can use it to make your
@@ -1032,6 +1035,24 @@ using connection_base = connection;
  * incoming or outgoing data.  Do all of this until @c done() returns true (or
  * there is an exception).  Finally, call @c produce() to get the completed
  * connection.
+ *
+ * For example:
+ *
+ * @code{.cpp}
+ *    pqxx::connecting cg{};
+ *
+ *    // Loop until we're done connecting.
+ *    while (!cg.done())
+ *    {
+ *        wait_for_fd(cg.sock(), cg.wait_to_read(), cg.wait_to_write());
+ *        cg.process();
+ *    }
+ *
+ *    pqxx::connection conn = std::move(cg).produce();
+ *
+ *    // At this point, conn is a working connection.  You can no longer use
+ *    // cg at all.
+ * @endcode
  */
 class PQXX_LIBEXPORT connecting
 {
@@ -1045,31 +1066,39 @@ public:
   connecting &operator=(connecting &&) = default;
 
   /// Get the socket.  The socket may change during the connection process.
-  int sock() const noexcept { return m_conn.sock(); }
+  [[nodiscard]] int sock() const &noexcept { return m_conn.sock(); }
 
   /// Should we currently wait to be able to @e read from the socket?
-  bool wait_to_read() const noexcept { return m_reading; }
+  [[nodiscard]] bool wait_to_read() const &noexcept { return m_reading; }
 
   /// Should we currently wait to be able to @e write to the socket?
-  bool wait_to_write() const noexcept { return m_writing; }
+  [[nodiscard]] bool wait_to_write() const &noexcept { return m_writing; }
 
   /// Progress towards completion (but don't block).
-  void process();
+  void process() &;
 
   /// Is our connection finished?
-  bool done() const noexcept { return not m_reading and not m_writing; }
+  [[nodiscard]] bool done() const &noexcept
+  {
+    return not m_reading and not m_writing;
+  }
 
   /// Produce the completed connection object.
-  /** Use this only once, after @c done() returned @c true.
+  /** Use this only once, after @c done() returned @c true.  Once you have
+   * called this, the @c connecting instance has no more use or meaning.  You
+   * can't call any of its member functions afterwards.
+   *
+   * This member function is rvalue-qualified, meaning that you can only call
+   * it on an rvalue instance of the class.  If what you have is not an rvalue,
+   * turn it into one by wrapping it in @c std::move().
    */
-  connection produce();
+  [[nodiscard]] connection produce() &&;
 
 private:
   connection m_conn;
   bool m_reading{false};
   bool m_writing{true};
 };
-#endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
 template<typename T> inline std::string connection::quote(T const &t) const

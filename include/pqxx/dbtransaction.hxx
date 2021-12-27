@@ -19,7 +19,7 @@ namespace pqxx
 {
 /// Abstract transaction base class: bracket transactions on the database.
 /**
- * @ingroup transaction
+ * @ingroup transactions
  *
  * Use a dbtransaction-derived object such as "work" (transaction<>) to enclose
  * operations on a database in a single "unit of work."  This ensures that the

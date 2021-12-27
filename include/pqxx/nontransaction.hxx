@@ -23,7 +23,7 @@ using namespace std::literals;
 
 /// Simple "transaction" class offering no transactional integrity.
 /**
- * @ingroup transaction
+ * @ingroup transactions
  *
  * nontransaction, like transaction or any other transaction_base-derived
  * class, provides access to a database through a connection.  Unlike its

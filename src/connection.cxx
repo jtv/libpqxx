@@ -1304,7 +1304,7 @@ pqxx::connecting::connecting(zview connection_string) :
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-void pqxx::connecting::process()
+void pqxx::connecting::process() &
 {
   auto const [reading, writing]{m_conn.poll_connect()};
   m_reading = reading;
@@ -1314,7 +1314,7 @@ void pqxx::connecting::process()
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-pqxx::connection pqxx::connecting::produce()
+pqxx::connection pqxx::connecting::produce() &&
 {
   if (!done())
     throw usage_error{

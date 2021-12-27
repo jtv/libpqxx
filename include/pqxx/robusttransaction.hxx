@@ -47,7 +47,7 @@ private:
 namespace pqxx
 {
 /**
- * @ingroup transaction
+ * @ingroup transactions
  *
  * @{
  */

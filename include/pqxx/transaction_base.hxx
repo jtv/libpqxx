@@ -52,7 +52,7 @@ class transaction_focus;
 
 
 /**
- * @defgroup transaction Transaction classes
+ * @defgroup transactions Transaction classes
  *
  * All database access goes through instances of these classes.
  * However, not all implementations of this interface need to provide full
@@ -65,7 +65,7 @@ class transaction_focus;
 
 /// Interface definition (and common code) for "transaction" classes.
 /**
- * @ingroup transaction
+ * @ingroup transactions
  *
  * Abstract base class for all transaction types.
  */

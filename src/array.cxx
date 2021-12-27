@@ -59,15 +59,18 @@ std::string::size_type array_parser::scan_single_quoted_string() const
       // Single quote.
 
       // At end?
-      if (here >= sz) return here;
+      if (here >= sz)
+        return here;
 
       // SQL escapes single quotes by doubling them.  Terrible idea, but it's
       // what we have.  Inspect the next character to find out whether this
       // is the closing quote, or an escaped one inside the string.
-      if (m_input[here] != '\'') return here;
+      if (m_input[here] != '\'')
+        return here;
       // Check against embedded "'" byte in a multichar byte.  If we do have a
       // multibyte char, then we're still out of the string.
-      if (scan_glyph(here, sz) > here + 1) PQXX_UNLIKELY return here;
+      if (scan_glyph(here, sz) > here + 1)
+        PQXX_UNLIKELY return here;
 
       // We have a second quote.  Consume it as well.
       ++here;
@@ -94,7 +97,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
   output.reserve(end - m_pos - 2);
-// XXX: find_char<'\\', '\''>().
+  // XXX: find_char<'\\', '\''>().
   for (auto here = m_pos + 1, next = scan_glyph(here, end); here < end - 1;
        here = next, next = scan_glyph(here, end))
   {

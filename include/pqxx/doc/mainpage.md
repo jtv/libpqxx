@@ -20,8 +20,8 @@ file.  The latest information can be found at http://pqxx.org/
 Some links that should help you find your bearings:
 * @ref getting-started
 * @ref thread-safety
-* @ref connection
-* @ref transaction
+* @ref connections
+* @ref transactions
 * @ref escaping
 * @ref performance
 * @ref transactor
