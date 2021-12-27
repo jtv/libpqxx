@@ -82,7 +82,7 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name() const;
+  [[nodiscard]] PQXX_PURE char const *name() const &;
 
   /// Column type.
   [[nodiscard]] oid PQXX_PURE type() const;
@@ -102,7 +102,7 @@ public:
    */
   //@{
   /// Read as @c string_view, or an empty one if null.
-  [[nodiscard]] PQXX_PURE std::string_view view() const
+  [[nodiscard]] PQXX_PURE std::string_view view() const &
   {
     return std::string_view(c_str(), size());
   }
@@ -117,7 +117,7 @@ public:
    * convert the value to your desired type using @c to() or @c as().  For
    * example: @c f.as<std::basic_string<std::byte>>().
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const;
+  [[nodiscard]] PQXX_PURE char const *c_str() const &;
 
   /// Is this field's value null?
   [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
@@ -242,7 +242,7 @@ public:
    * you keep the @c row of @c field object alive, it will keep the @c result
    * object alive as well.
    */
-  array_parser as_array() const
+  array_parser as_array() const &
   {
     return array_parser{c_str(), m_home.m_encoding};
   }

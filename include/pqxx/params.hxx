@@ -136,7 +136,7 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  zview view() const noexcept { return zview{std::data(m_buf), m_len}; }
+  zview view() const &noexcept { return zview{std::data(m_buf), m_len}; }
 
   /// Read the current placeholder text, as a @c std::string.
   /** This will be slightly slower than converting to a @c zview.  With most
@@ -147,7 +147,7 @@ public:
   std::string get() const { return std::string(std::data(m_buf), m_len); }
 
   /// Move on to the next parameter.
-  void next()
+  void next() &
   {
     if (m_current >= max_params)
       throw range_error{pqxx::internal::concat(
@@ -230,10 +230,10 @@ public:
    * got some idea of how many there are going to be.  It may save some
    * memory re-allocations.
    */
-  void reserve(std::size_t n);
+  void reserve(std::size_t n) &;
 
   /// Get the number of parameters currently in this @c params.
-  auto size() const noexcept { return m_params.size(); }
+  [[nodiscard]] auto size() const noexcept { return m_params.size(); }
 
   // C++20: Use the vector's ssize() directly and go noexcept.
   /// Get the number of parameters (signed).
@@ -242,45 +242,45 @@ public:
    * functions are @c noexcept, but @c std::size() and @c std::ssize() are
    * not.
    */
-  auto ssize() const { return pqxx::internal::ssize(m_params); }
+  [[nodiscard]] auto ssize() const { return pqxx::internal::ssize(m_params); }
 
   /// Append a null value.
-  void append();
+  void append() &;
 
   /// Append a non-null zview parameter.
   /** The underlying data must stay valid for as long as the @c params
    * remains active.
    */
-  void append(zview);
+  void append(zview) &;
 
   /// Append a non-null string parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @c zview variant if you can, or @c std::move().
    */
-  void append(std::string const &);
+  void append(std::string const &) &;
 
   /// Append a non-null string parameter.
-  void append(std::string &&);
+  void append(std::string &&) &;
 
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the @c params
    * remains active.
    */
-  void append(std::basic_string_view<std::byte>);
+  void append(std::basic_string_view<std::byte>) &;
 
   /// Append a non-null binary parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @c std::basic_string_view<std::byte> variant if you can, or
    * @c std::move().
    */
-  void append(std::basic_string<std::byte> const &);
+  void append(std::basic_string<std::byte> const &) &;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Append a non-null binary parameter.
   /** The @c data object must stay in place and unchanged, for as long as the
    * @c params remains active.
    */
-  template<binary DATA> void append(DATA const &data)
+  template<binary DATA> void append(DATA const &data) &
   {
     append(
       std::basic_string_view<std::byte>{std::data(data), std::size(data)});
@@ -288,28 +288,28 @@ public:
 #endif // PQXX_HAVE_CONCEPTS
 
   /// Append a non-null binary parameter.
-  void append(std::basic_string<std::byte> &&);
+  void append(std::basic_string<std::byte> &&) &;
 
   /// @deprecated Append binarystring parameter.
   /** The binarystring must stay valid for as long as the @c params remains
    * active.
    */
-  void append(binarystring const &value);
+  void append(binarystring const &value) &;
 
   /// Append all parameters from value.
   template<typename IT, typename ACCESSOR>
-  void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value)
+  void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value) &
   {
     for (auto &param : value) append(value.access(param));
   }
 
-  void append(params const &value);
+  void append(params const &value) &;
 
-  void append(params &&value);
+  void append(params &&value) &;
 
   /// Append a non-null parameter, converting it to its string
   /// representation.
-  template<typename TYPE> void append(TYPE const &value)
+  template<typename TYPE> void append(TYPE const &value) &
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
     if constexpr (nullness<strip_t<TYPE>>::always_null)
@@ -328,7 +328,7 @@ public:
   }
 
   /// Append all elements of @c range as parameters.
-  template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range)
+  template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
   {
 #if defined(PQXX_HAVE_CONCEPTS)
     if constexpr (std::ranges::sized_range<RANGE>)

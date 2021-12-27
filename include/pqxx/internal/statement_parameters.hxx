@@ -119,7 +119,7 @@ struct PQXX_LIBEXPORT c_params
   c_params(c_params &&) = default;
 
   /// Pre-allocate storage for @c n parameters.
-  void reserve(std::size_t n);
+  void reserve(std::size_t n) &;
 
   /// As used by libpq: pointers to parameter values.
   std::vector<char const *> values;

@@ -11,7 +11,7 @@
 #include "pqxx/params"
 
 
-void pqxx::internal::c_params::reserve(std::size_t n)
+void pqxx::internal::c_params::reserve(std::size_t n) &
 {
   values.reserve(n);
   lengths.reserve(n);
@@ -19,68 +19,68 @@ void pqxx::internal::c_params::reserve(std::size_t n)
 }
 
 
-void pqxx::params::reserve(std::size_t n)
+void pqxx::params::reserve(std::size_t n) &
 {
   m_params.reserve(n);
 }
 
 
-void pqxx::params::append()
+void pqxx::params::append() &
 {
   m_params.emplace_back(nullptr);
 }
 
 
-void pqxx::params::append(zview value)
+void pqxx::params::append(zview value) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::string const &value)
+void pqxx::params::append(std::string const &value) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::string &&value)
+void pqxx::params::append(std::string &&value) &
 {
   m_params.emplace_back(std::move(value));
 }
 
 
-void pqxx::params::append(params const &value)
+void pqxx::params::append(params const &value) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params) m_params.emplace_back(param);
 }
 
 
-void pqxx::params::append(std::basic_string_view<std::byte> value)
+void pqxx::params::append(std::basic_string_view<std::byte> value) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::basic_string<std::byte> const &value)
+void pqxx::params::append(std::basic_string<std::byte> const &value) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::basic_string<std::byte> &&value)
+void pqxx::params::append(std::basic_string<std::byte> &&value) &
 {
   m_params.emplace_back(std::move(value));
 }
 
 
-void pqxx::params::append(binarystring const &value)
+void pqxx::params::append(binarystring const &value) &
 {
   m_params.push_back(entry{value.bytes_view()});
 }
 
 
-void pqxx::params::append(params &&value)
+void pqxx::params::append(params &&value) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params)

@@ -309,7 +309,7 @@ public:
     cursor_base::ownership_policy op = cursor_base::owned);
 
   /// Return @c true if this stream may still return more data.
-  operator bool() const & noexcept { return not m_done; }
+  operator bool() const &noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator @c >>.
   /** The result set may continue any number of rows from zero to the chosen

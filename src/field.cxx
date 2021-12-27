@@ -33,7 +33,7 @@ bool pqxx::field::operator==(field const &rhs) const
 }
 
 
-char const *pqxx::field::name() const
+char const *pqxx::field::name() const &
 {
   return home().column_name(col());
 }
@@ -57,7 +57,7 @@ pqxx::row::size_type pqxx::field::table_column() const
 }
 
 
-char const *pqxx::field::c_str() const
+char const *pqxx::field::c_str() const &
 {
   return home().get_value(idx(), col());
 }

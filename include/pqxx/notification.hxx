@@ -66,7 +66,7 @@ public:
   virtual ~notification_receiver();
 
   /// The channel that this receiver listens on.
-  [[nodiscard]] std::string const &channel() const { return m_channel; }
+  [[nodiscard]] std::string const &channel() const & { return m_channel; }
 
   // TODO: Change API to take payload as zview instead of string ref.
   /// Overridable: action to invoke when notification arrives.
