@@ -108,7 +108,7 @@ pqxx::icursorstream::icursorstream(
 }
 
 
-void pqxx::icursorstream::set_stride(difference_type stride)
+void pqxx::icursorstream::set_stride(difference_type stride) &
 {
   if (stride < 1)
     throw argument_error{
@@ -127,7 +127,7 @@ pqxx::result pqxx::icursorstream::fetchblock()
 }
 
 
-pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n)
+pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n) &
 {
   auto offset{m_cur.move(difference_type(n))};
   m_realpos += offset;
