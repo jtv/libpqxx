@@ -110,11 +110,10 @@ pylint() {
     # 	pocketlint $PYFILES
     # fi
 
-    echo "Skipping flake8; it's not up to date with Python3."
-    # if which flake8 >/dev/null
-    # then
-    # 	flake8 $PYFILES
-    # fi
+    if which pyflakes3 >/dev/null
+    then
+        pyflakes3 $PYFILES
+    fi
 }
 
 
