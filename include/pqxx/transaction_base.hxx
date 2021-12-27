@@ -363,7 +363,8 @@ public:
    * default-constructible, copy-constructible, and assignable.  These
    * requirements may be loosened once libpqxx moves on to C++20.
    */
-  template<typename... TYPE> [[nodiscard]] auto stream(std::string_view query)
+  template<typename... TYPE>
+  [[nodiscard]] auto stream(std::string_view query) &
   {
     // Tricky: std::make_unique() supports constructors but not RVO functions.
     return pqxx::internal::owning_stream_input_iteration<TYPE...>{
@@ -541,7 +542,7 @@ public:
   std::string get_variable(std::string_view);
 
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const noexcept { return m_name; }
+  [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).

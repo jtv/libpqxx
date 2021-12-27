@@ -184,7 +184,7 @@ public:
   [[nodiscard]] row_size_type column_number(zview name) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  [[nodiscard]] char const *column_name(row_size_type number) const;
+  [[nodiscard]] char const *column_name(row_size_type number) const &;
 
   /// Return column's type, as an OID from the system catalogue.
   [[nodiscard]] oid column_type(row_size_type col_num) const;
@@ -215,7 +215,7 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  [[nodiscard]] PQXX_PURE std::string const &query() const noexcept;
+  [[nodiscard]] PQXX_PURE std::string const &query() const &noexcept;
 
   /// If command was @c INSERT of 1 row, return oid of inserted row
   /** @return Identifier of inserted row if exactly one row was inserted, or

@@ -64,7 +64,7 @@ void pqxx::pipeline::detach()
 }
 
 
-pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q)
+pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q) &
 {
   attach();
   query_id const qid{generate_id()};
@@ -149,7 +149,7 @@ std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
 }
 
 
-int pqxx::pipeline::retain(int retain_max)
+int pqxx::pipeline::retain(int retain_max) &
 {
   if (retain_max < 0)
     throw range_error{internal::concat(
@@ -165,7 +165,7 @@ int pqxx::pipeline::retain(int retain_max)
 }
 
 
-void pqxx::pipeline::resume()
+void pqxx::pipeline::resume() &
 {
   if (have_pending())
     receive_if_available();

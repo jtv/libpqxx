@@ -215,7 +215,7 @@ public:
    *
    * Do not call this yourself.  Use it like "for (auto data : stream.iter())".
    */
-  template<typename... TYPE> [[nodiscard]] auto iter()
+  template<typename... TYPE> [[nodiscard]] auto iter() &
   {
     return pqxx::internal::stream_input_iteration<TYPE...>{*this};
   }
@@ -237,7 +237,7 @@ public:
    * @warning The return type may change in the future, to support C++20
    * coroutine-based usage.
    */
-  std::vector<zview> const *read_row();
+  std::vector<zview> const *read_row() &;
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */

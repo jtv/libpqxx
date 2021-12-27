@@ -82,7 +82,10 @@ public:
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
-  [[nodiscard]] constexpr char const *c_str() const noexcept { return data(); }
+  [[nodiscard]] constexpr char const *c_str() const &noexcept
+  {
+    return data();
+  }
 };
 
 

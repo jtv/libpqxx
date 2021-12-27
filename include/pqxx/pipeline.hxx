@@ -74,7 +74,7 @@ public:
    *
    * @return Identifier for this query, unique only within this pipeline.
    */
-  query_id insert(std::string_view);
+  query_id insert(std::string_view) &;
 
   /// Wait for all ongoing or pending operations to complete, and detach.
   /** Detaches from the transaction when done.
@@ -142,11 +142,11 @@ public:
    * cause queries to be issued immediately
    * @return Old retention capacity
    */
-  int retain(int retain_max = 2);
+  int retain(int retain_max = 2) &;
 
 
   /// Resume retained query emission.  Harmless when not needed.
-  void resume();
+  void resume() &;
 
 private:
   struct PQXX_PRIVATE Query

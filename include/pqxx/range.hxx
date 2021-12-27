@@ -42,16 +42,19 @@ public:
       throw argument_error{"Got null value as an inclusive range bound."};
   }
 
-  TYPE const &get() const noexcept { return m_value; }
+  [[nodiscard]] TYPE const &get() const &noexcept { return m_value; }
 
   /// Would this bound, as a lower bound, include value?
-  bool extends_down_to(TYPE const &value) const
+  [[nodiscard]] bool extends_down_to(TYPE const &value) const
   {
     return not(value < m_value);
   }
 
   /// Would this bound, as an upper bound, include value?
-  bool extends_up_to(TYPE const &value) const { return not(m_value < value); }
+  [[nodiscard]] bool extends_up_to(TYPE const &value) const
+  {
+    return not(m_value < value);
+  }
 
 private:
   TYPE m_value;
@@ -72,13 +75,19 @@ public:
       throw argument_error{"Got null value as an exclusive range bound."};
   }
 
-  TYPE const &get() const noexcept { return m_value; }
+  [[nodiscard]] TYPE const &get() const &noexcept { return m_value; }
 
   /// Would this bound, as a lower bound, include value?
-  bool extends_down_to(TYPE const &value) const { return m_value < value; }
+  [[nodiscard]] bool extends_down_to(TYPE const &value) const
+  {
+    return m_value < value;
+  }
 
   /// Would this bound, as an upper bound, include value?
-  bool extends_up_to(TYPE const &value) const { return value < m_value; }
+  [[nodiscard]] bool extends_up_to(TYPE const &value) const
+  {
+    return value < m_value;
+  }
 
 private:
   TYPE m_value;
@@ -148,7 +157,7 @@ public:
   }
 
   /// Return bound value, or @c nullptr if it's not limited.
-  TYPE const *value() const noexcept
+  [[nodiscard]] TYPE const *value() const &noexcept
   {
     return std::visit(
       [](auto const &bound) noexcept {
@@ -258,8 +267,14 @@ public:
     return (*this & other) == other;
   }
 
-  range_bound<TYPE> const &lower_bound() const noexcept { return m_lower; }
-  range_bound<TYPE> const &upper_bound() const noexcept { return m_upper; }
+  [[nodiscard]] range_bound<TYPE> const &lower_bound() const &noexcept
+  {
+    return m_lower;
+  }
+  [[nodiscard]] range_bound<TYPE> const &upper_bound() const &noexcept
+  {
+    return m_upper;
+  }
 
   /// Intersection of two ranges.
   /** Returns a range describing those values which are in both ranges.
