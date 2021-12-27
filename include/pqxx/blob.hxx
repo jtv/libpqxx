@@ -244,7 +244,8 @@ public:
 
 #if defined(PQXX_HAVE_PATH)
   /// Read client-side file and store it server-side as a binary large object.
-  [[nodiscard]] static oid from_file(dbtransaction &tx, std::filesystem::path const &path)
+  [[nodiscard]] static oid
+  from_file(dbtransaction &tx, std::filesystem::path const &path)
   {
     return from_file(tx, path.c_str());
   }

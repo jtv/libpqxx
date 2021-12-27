@@ -89,7 +89,8 @@ namespace pqxx
 /** Returns a conservative estimate.
  */
 template<typename... T>
-inline std::size_t composite_size_buffer(T const &...fields) noexcept
+[[nodiscard]] inline std::size_t
+composite_size_buffer(T const &...fields) noexcept
 {
   // C++20: constinit.
   constexpr auto num{sizeof...(fields)};
