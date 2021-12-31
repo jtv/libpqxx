@@ -11,6 +11,8 @@ set -eu -o pipefail
 SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
 PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
 
+ARGS="${1:-}"
+
 
 # This version must be at the top of the NEWS file.
 check_news_version() {
@@ -117,7 +119,40 @@ pylint() {
 }
 
 
-cpplint
-pylint
-check_news_version
-check_compiler_internal_headers
+main() {
+    local full="no"
+    for arg in $ARGS
+    do
+        case $arg in
+        -h|--help)
+	    cat <<EOF
+Perform static checks on libpqxx build tree.
+
+Usage:
+    $0 -h|--help -- print this message and exit.
+    $0 -f|--full -- perform full check, including C++ analysis.
+    $0 -- perform default check.
+EOF
+            exit 0
+        ;;
+        -f|--full)
+	    full="yes"
+        ;;
+        *)
+	    echo >&2 "Unknown argument: '$arg'"
+	    exit 1
+        ;;
+        esac
+    done
+
+    pylint
+    check_news_version
+    check_compiler_internal_headers
+    if [ $full == "yes" ]
+    then
+        cpplint
+    fi
+}
+
+
+main
