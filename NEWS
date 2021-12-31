@@ -24,6 +24,7 @@
  - Made more functions `[[nodiscard]]`.
  - Qualified some member functions as lvalue or rvalue.
  - Don't run clang-tidy by default.  Compatibility issues with gcc options.
+ - Describe version requirements in a JSON file, `requirements.json`.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
