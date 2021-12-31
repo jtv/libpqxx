@@ -342,12 +342,12 @@ template<typename... TYPE>
 [[nodiscard]] inline std::vector<std::string_view>
 to_buf(char *here, char const *end, TYPE... value)
 {
-  return std::vector<std::string_view>{[&here, end](auto v) {
+  return {[&here, end](auto v) {
     auto begin = here;
     here = string_traits<decltype(v)>::into_buf(begin, end, v);
     // Exclude the trailing zero out of the string_view.
     auto len{static_cast<std::size_t>(here - begin) - 1};
-    return std::string_view{begin, len};
+    return {begin, len};
   }(value)...};
 }
 
@@ -442,9 +442,9 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
   if (is_null(value))
-    return zview{};
+    return {};
   else
-    return zview{begin, traits::into_buf(begin, end, value) - begin - 1};
+    return {begin, traits::into_buf(begin, end, value) - begin - 1};
 }
 
 

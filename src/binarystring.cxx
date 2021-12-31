@@ -36,8 +36,7 @@ copy_to_buffer(void const *data, std::size_t len)
     throw std::bad_alloc{};
   static_cast<char *>(output)[len] = '\0';
   memcpy(static_cast<char *>(output), data, len);
-  return std::shared_ptr<unsigned char>{
-    static_cast<unsigned char *>(output), std::free};
+  return {static_cast<unsigned char *>(output), std::free};
 }
 } // namespace
 

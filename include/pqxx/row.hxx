@@ -277,7 +277,7 @@ public:
    */
   //@{
   [[nodiscard]] pointer operator->() const { return this; }
-  [[nodiscard]] reference operator*() const { return field{*this}; }
+  [[nodiscard]] reference operator*() const { return {*this}; }
   //@}
 
   /**
@@ -480,7 +480,7 @@ public:
 const_row_iterator const_row_iterator::operator+(difference_type o) const
 {
   // TODO:: More direct route to home().columns()?
-  return const_row_iterator{
+  return {
     row{home(), idx(), home().columns()},
     size_type(difference_type(col()) + o)};
 }
@@ -495,7 +495,7 @@ inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const
 {
   // TODO:: More direct route to home().columns()?
-  return const_row_iterator{
+  return {
     row{home(), idx(), home().columns()},
     size_type(difference_type(col()) - o)};
 }

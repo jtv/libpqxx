@@ -87,7 +87,7 @@ public:
   static stream_from query(transaction_base &tx, std::string_view q)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return stream_from{tx, from_query, q};
+    return {tx, from_query, q};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 

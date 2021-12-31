@@ -79,7 +79,7 @@ public:
   using iterator = stream_input_iterator<TYPE...>;
   explicit stream_input_iteration(stream_from &home) : m_home{home} {}
   iterator begin() const { return iterator{m_home}; }
-  iterator end() const { return iterator{}; }
+  iterator end() const { return {}; }
 
 private:
   stream_from &m_home;
@@ -96,7 +96,7 @@ public:
           m_home{std::move(home)}
   {}
   iterator begin() const { return iterator{*m_home.get()}; }
-  iterator end() const { return iterator{}; }
+  iterator end() const { return {}; }
 
 private:
   std::unique_ptr<stream_from> m_home;

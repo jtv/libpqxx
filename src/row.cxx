@@ -30,7 +30,7 @@ pqxx::row::row(
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
-  return const_iterator{*this, m_begin};
+  return {*this, m_begin};
 }
 
 
@@ -42,7 +42,7 @@ pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 
 pqxx::row::const_iterator pqxx::row::end() const noexcept
 {
-  return const_iterator{*this, m_end};
+  return {*this, m_end};
 }
 
 
@@ -131,7 +131,7 @@ void pqxx::row::swap(row &rhs) noexcept
 
 pqxx::field pqxx::row::at(zview col_name) const
 {
-  return field{m_result, m_index, m_begin + column_number(col_name)};
+  return {m_result, m_index, m_begin + column_number(col_name)};
 }
 
 

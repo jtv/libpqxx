@@ -70,7 +70,7 @@ public:
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Dereference the iterator.
-  [[nodiscard]] reference operator*() const { return row{*this}; }
+  [[nodiscard]] reference operator*() const { return *this; }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   //@}
 
@@ -346,8 +346,7 @@ public:
 inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
-  return const_result_iterator{
-    &m_result, size_type(result::difference_type(m_index) + o)};
+  return {&m_result, size_type(result::difference_type(m_index) + o)};
 }
 
 inline const_result_iterator
@@ -359,8 +358,7 @@ operator+(result::difference_type o, const_result_iterator const &i)
 inline const_result_iterator
 const_result_iterator::operator-(result::difference_type o) const
 {
-  return const_result_iterator{
-    &m_result, result_size_type(result::difference_type(m_index) - o)};
+  return {&m_result, result_size_type(result::difference_type(m_index) - o)};
 }
 
 inline result::difference_type
@@ -371,7 +369,7 @@ const_result_iterator::operator-(const const_result_iterator &i) const
 
 inline const_result_iterator result::end() const noexcept
 {
-  return const_result_iterator{this, size()};
+  return {this, size()};
 }
 
 

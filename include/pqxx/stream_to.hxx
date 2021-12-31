@@ -100,7 +100,7 @@ public:
   static stream_to raw_table(
     transaction_base &tx, std::string_view path, std::string_view columns = "")
   {
-    return stream_to{tx, path, columns};
+    return {tx, path, columns};
   }
 
   /// Create a @c stream_to writing to a named table and columns.

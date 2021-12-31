@@ -123,8 +123,7 @@ public:
    */
   template<binary DATA> std::span<std::byte> read(DATA &buf)
   {
-    return std::span<std::byte>{
-      std::data(buf), raw_read(std::data(buf), std::size(buf))};
+    return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
 #else  // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
   /// Read up to @c std::size(buf) bytes from the object.
@@ -143,8 +142,7 @@ public:
   template<typename ALLOC>
   std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> &buf)
   {
-    return std::basic_string_view<std::byte>{
-      std::data(buf), raw_read(std::data(buf), std::size(buf))};
+    return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
 #endif // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
 

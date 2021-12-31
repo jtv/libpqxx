@@ -79,7 +79,7 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from pqxx::stream_from::raw_table(
   transaction_base &tx, std::string_view path, std::string_view columns)
 {
-  return stream_from{tx, path, columns, from_table};
+  return {tx, path, columns, from_table};
 }
 
 
@@ -125,7 +125,7 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
   }
   else
   {
-    return raw_line{};
+    return {};
   }
 }
 

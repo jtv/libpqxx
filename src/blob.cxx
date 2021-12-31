@@ -47,7 +47,7 @@ pqxx::blob pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode)
   if (fd == -1)
     throw pqxx::failure{internal::concat(
       "Could not open binary large object ", id, ": ", errmsg(&conn))};
-  return pqxx::blob{conn, fd};
+  return {conn, fd};
 }
 
 

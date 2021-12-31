@@ -39,7 +39,7 @@ template<typename ITER, typename ACCESS>
 separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
 {
   if (end == begin)
-    return std::string{};
+    return {};
   auto next{begin};
   ++next;
   if (next == end)

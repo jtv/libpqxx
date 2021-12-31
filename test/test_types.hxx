@@ -36,7 +36,7 @@ template<> struct string_traits<std::byte>
     auto uc{static_cast<unsigned char>(value)};
     begin[0] = hex_digit[uc >> 4];
     begin[1] = hex_digit[uc & 0x0f];
-    return zview{begin, 2u};
+    return {begin, 2u};
   }
 
   static char *into_buf(char *begin, char *end, std::byte const &value)
@@ -226,7 +226,7 @@ template<> struct string_traits<bytea>
       *pos++ = nibble_to_hex(unsigned(u) & 0x0f);
     }
     *pos++ = '\0';
-    return zview{begin, pos - begin - 1};
+    return {begin, pos - begin - 1};
   }
 
   static char *into_buf(char *begin, char *end, bytea const &value)

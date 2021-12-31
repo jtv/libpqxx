@@ -101,7 +101,7 @@ std::string pqxx::encrypt_password(char const user[], char const password[])
 {
   std::unique_ptr<char, std::function<void(char *)>> p{
     PQencryptPassword(password, user), PQfreemem};
-  return std::string{p.get()};
+  return {p.get()};
 }
 
 
@@ -697,8 +697,7 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 
 std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
 {
-  return std::vector<errorhandler *>{
-    std::begin(m_errorhandlers), std::end(m_errorhandlers)};
+  return {std::begin(m_errorhandlers), std::end(m_errorhandlers)};
 }
 
 
@@ -861,8 +860,6 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
 pqxx::connection::read_copy_line()
 {
-  using raw_line =
-    std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
   char *buf{nullptr};
 
   // Allocate once, re-use across invocations.
@@ -877,7 +874,7 @@ pqxx::connection::read_copy_line()
 
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q);
-    return raw_line{};
+    return {};
 
   case 0: // "Come back later."
     throw internal_error{"table read inexplicably went asynchronous"};

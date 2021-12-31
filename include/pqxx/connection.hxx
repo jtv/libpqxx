@@ -615,7 +615,7 @@ public:
         "Not enough room to escape string of ", size, " byte(s): need ",
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
     auto const data{buffer.data()};
-    return std::string_view{data, esc_to_buf(text, data)};
+    return {data, esc_to_buf(text, data)};
   }
 #endif
 

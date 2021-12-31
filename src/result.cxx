@@ -87,7 +87,7 @@ pqxx::result::const_reverse_iterator pqxx::result::crend() const
 
 pqxx::result::const_iterator pqxx::result::begin() const noexcept
 {
-  return const_iterator{this, 0};
+  return {this, 0};
 }
 
 
@@ -140,7 +140,7 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 pqxx::field pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
-  return field{*this, row_num, field_num};
+  return {*this, row_num, field_num};
 }
 #endif
 
@@ -160,7 +160,7 @@ pqxx::field pqxx::result::at(
     throw range_error{"Row number out of range."};
   if (col_num >= columns())
     throw range_error{"Column out of range."};
-  return field{*this, row_num, col_num};
+  return {*this, row_num, col_num};
 }
 
 
@@ -526,5 +526,5 @@ pqxx::const_reverse_result_iterator::operator--(int)
 
 template<> std::string pqxx::to_string(field const &value)
 {
-  return std::string{value.c_str(), std::size(value)};
+  return {value.c_str(), std::size(value)};
 }

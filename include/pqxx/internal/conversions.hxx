@@ -290,7 +290,7 @@ template<typename T> struct nullness<std::optional<T>>
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
   }
-  static constexpr std::optional<T> null() { return std::optional<T>{}; }
+  static constexpr std::optional<T> null() { return {}; }
 };
 
 
@@ -313,7 +313,7 @@ template<typename T> struct string_traits<std::optional<T>>
     if (value.has_value())
       return string_traits<T>::to_buf(begin, end, *value);
     else
-      return zview{};
+      return {};
   }
 
   static std::optional<T> from_string(std::string_view text)
@@ -412,7 +412,7 @@ template<> struct string_traits<std::nullptr_t>
   static constexpr zview
   to_buf(char *, char *, std::nullptr_t const &) noexcept
   {
-    return zview{};
+    return {};
   }
 
   static constexpr std::size_t size_buffer(std::nullptr_t = nullptr) noexcept
@@ -430,7 +430,7 @@ template<> struct string_traits<std::nullopt_t>
   static constexpr zview
   to_buf(char *, char *, std::nullopt_t const &) noexcept
   {
-    return zview{};
+    return {};
   }
 
   static constexpr std::size_t size_buffer(std::nullopt_t) noexcept
@@ -448,7 +448,7 @@ template<> struct string_traits<std::monostate>
   static constexpr zview
   to_buf(char *, char *, std::monostate const &) noexcept
   {
-    return zview{};
+    return {};
   }
 
   static constexpr std::size_t size_buffer(std::monostate) noexcept
@@ -550,7 +550,7 @@ template<std::size_t N> struct string_traits<char[N]>
   static constexpr zview
   to_buf(char *, char *, char const (&value)[N]) noexcept
   {
-    return zview{value, N - 1};
+    return {value, N - 1};
   }
 
   static char *into_buf(char *begin, char *end, char const (&value)[N])
@@ -662,7 +662,7 @@ template<> struct string_traits<zview>
 
   static std::string_view to_buf(char *begin, char *end, zview const &value)
   {
-    return std::string_view{into_buf(begin, end, value), std::size(value)};
+    return {into_buf(begin, end, value), std::size(value)};
   }
 
   /// Don't convert to this type; it has nowhere to store its contents.
@@ -723,7 +723,7 @@ template<> struct nullness<std::monostate>
   {
     return true;
   }
-  static constexpr std::monostate null() noexcept { return std::monostate{}; }
+  static constexpr std::monostate null() noexcept { return {}; }
 };
 
 
@@ -735,7 +735,7 @@ template<typename T> struct nullness<std::unique_ptr<T>>
   {
     return not t or pqxx::is_null(*t);
   }
-  static constexpr std::unique_ptr<T> null() { return std::unique_ptr<T>{}; }
+  static constexpr std::unique_ptr<T> null() { return {}; }
 };
 
 
@@ -759,7 +759,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
     if (value)
       return string_traits<T>::to_buf(begin, end, *value);
     else
-      return zview{};
+      return {};
   }
 
   static std::size_t
@@ -790,7 +790,7 @@ template<typename T> struct nullness<std::shared_ptr<T>>
   {
     return not t or pqxx::is_null(*t);
   }
-  static constexpr std::shared_ptr<T> null() { return std::shared_ptr<T>{}; }
+  static constexpr std::shared_ptr<T> null() { return {}; }
 };
 
 

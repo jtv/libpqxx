@@ -89,7 +89,7 @@ public:
     else
       return iterator{m_home};
   }
-  iterator end() const { return iterator{}; }
+  iterator end() const { return {}; }
 
 private:
   pqxx::result const &m_home;

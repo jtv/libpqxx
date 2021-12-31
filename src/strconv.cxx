@@ -176,7 +176,7 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
   else
     pos = bottom_to_buf<T>(end);
 
-  return zview{pos, end - pos - 1};
+  return {pos, end - pos - 1};
 }
 
 

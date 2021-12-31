@@ -312,9 +312,9 @@ public:
     if (
       lower.is_limited() and upper.is_limited() and
       (*upper.value() < *lower.value()))
-      return range{};
+      return {};
     else
-      return range{lower, upper};
+      return {lower, upper};
   }
 
   /// Convert to another base type.
@@ -331,7 +331,7 @@ public:
     else if (upper_bound().is_exclusive())
       upper = exclusive_bound<DEST>{*upper_bound().value()};
 
-    return range<DEST>{lower, upper};
+    return {lower, upper};
   }
 
 private:
@@ -407,7 +407,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (text[3] != 't' and text[3] != 'T') or
         (text[4] != 'y' and text[4] != 'Y'))
         throw pqxx::conversion_error{err_bad_input(text)};
-      return range<TYPE>{};
+      return {};
       break;
 
     default: throw pqxx::conversion_error{err_bad_input(text)};
@@ -452,7 +452,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         upper_bound = exclusive_bound{*upper};
     }
 
-    return range{lower_bound, upper_bound};
+    return {lower_bound, upper_bound};
   }
 
   [[nodiscard]] static inline std::size_t

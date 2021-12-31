@@ -289,7 +289,7 @@ template<PQXX_POTENTIAL_BINARY_ARG TYPE>
 std::basic_string_view<std::byte> binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
-  return std::basic_string_view<std::byte>{
+  return {
     reinterpret_cast<std::byte const *>(
       const_cast<strip_t<decltype(*std::data(data))> const *>(
         std::data(data))),
@@ -317,7 +317,7 @@ template<PQXX_CHAR_SIZED_ARG CHAR, typename SIZE>
 std::basic_string_view<std::byte> binary_cast(CHAR const *data, SIZE size)
 {
   static_assert(sizeof(CHAR) == 1);
-  return std::basic_string_view<std::byte>{
+  return {
     reinterpret_cast<std::byte const *>(data),
     check_cast<std::size_t>(size, "binary data size")};
 }
