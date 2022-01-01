@@ -4,5 +4,6 @@
     "libpq": "9.6",
     "postgresql": "9.6",
     "gcc": "8",
-    "clang": "11"
+    "clang": "11",
+    "msvc": "2019"
 }
