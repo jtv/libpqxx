@@ -56,5 +56,5 @@ jobs:
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
-      - store_test_results:
+      - store_artifacts:
           path: lint.log
