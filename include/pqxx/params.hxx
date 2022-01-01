@@ -136,7 +136,7 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  zview view() const &noexcept { return {std::data(m_buf), m_len}; }
+  zview view() const &noexcept { return zview{std::data(m_buf), m_len}; }
 
   /// Read the current placeholder text, as a @c std::string.
   /** This will be slightly slower than converting to a @c zview.  With most
