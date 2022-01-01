@@ -31,12 +31,17 @@
 // Workarounds for Windows
 #ifdef _WIN32
 
-/* For now, export DLL symbols if _DLL is defined.  This is done automatically
- * by the compiler when linking to the dynamic version of the runtime library,
+/* For now, export DLL symbols if _DLL is defined.  The compiler does this
+ * automatically when linking to the dynamic version of the runtime library,
  * according to "gzh"
  */
 #  if defined(PQXX_SHARED) && !defined(PQXX_LIBEXPORT)
 #    define PQXX_LIBEXPORT __declspec(dllimport)
+// PQXX_DLL_EXTERN is for declaring exported standard library items in a
+// DLL build.
+#    define PQXX_DLL_EXTERN extern
+# else // PQXX_SHARED && !PQXX_LIBEXPORT
+# define PQXX_DLL_EXTERN /**/
 #  endif // PQXX_SHARED && !PQXX_LIBEXPORT
 
 

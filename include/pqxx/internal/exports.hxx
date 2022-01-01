@@ -17,21 +17,21 @@
 #  include "pqxx/types.hxx"
 
 
-template class PQXX_LIBEXPORT
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT
   std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
-template class PQXX_LIBEXPORT std::basic_string_view<char>;
-class PQXX_LIBEXPORT std::domain_error;
-class PQXX_LIBEXPORT std::invalid_argument;
-class PQXX_LIBEXPORT std::logic_error;
-class PQXX_LIBEXPORT std::out_of_range;
-class PQXX_LIBEXPORT std::runtime_error;
-template class PQXX_LIBEXPORT std::shared_ptr<std::string>;
-template class PQXX_LIBEXPORT std::vector < pqxx::format,
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::basic_string_view<char>;
+PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::domain_error;
+PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::invalid_argument;
+PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::logic_error;
+PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::out_of_range;
+PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::runtime_error;
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::shared_ptr<std::string>;
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::vector < pqxx::format,
   std::allocator<pqxx::format>>;
-template class PQXX_LIBEXPORT std::vector < char const *,
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::vector < char const *,
   std::allocator<char const *>>;
-template class PQXX_LIBEXPORT std::vector < int, std::allocator<int>>;
-template class PQXX_LIBEXPORT std::vector < std::string_view,
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::vector < int, std::allocator<int>>;
+PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::vector < std::string_view,
   std::allocator<std::string_view>>;
 
 #endif
