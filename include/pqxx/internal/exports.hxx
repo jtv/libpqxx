@@ -20,11 +20,11 @@
 PQXX_DLL_EXTERN template class PQXX_LIBEXPORT
   std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
 PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::basic_string_view<char>;
-PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::domain_error;
-PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::invalid_argument;
-PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::logic_error;
-PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::out_of_range;
-PQXX_DLL_EXTERN class PQXX_LIBEXPORT std::runtime_error;
+class PQXX_LIBEXPORT std::domain_error;
+class PQXX_LIBEXPORT std::invalid_argument;
+class PQXX_LIBEXPORT std::logic_error;
+class PQXX_LIBEXPORT std::out_of_range;
+class PQXX_LIBEXPORT std::runtime_error;
 PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::shared_ptr<std::string>;
 PQXX_DLL_EXTERN template class PQXX_LIBEXPORT std::vector < pqxx::format,
   std::allocator<pqxx::format>>;
