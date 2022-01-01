@@ -237,7 +237,7 @@ void test_stream_from()
 }
 
 
-void test_stream_from__escaping()
+void test_stream_from_does_escaping()
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection conn;
@@ -252,7 +252,7 @@ void test_stream_from__escaping()
 }
 
 
-void test_stream_from__iteration()
+void test_stream_from_does_iteration()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
@@ -337,8 +337,8 @@ void test_stream_from_read_row()
 
 
 PQXX_REGISTER_TEST(test_stream_from);
-PQXX_REGISTER_TEST(test_stream_from__escaping);
-PQXX_REGISTER_TEST(test_stream_from__iteration);
+PQXX_REGISTER_TEST(test_stream_from_does_escaping);
+PQXX_REGISTER_TEST(test_stream_from_does_iteration);
 PQXX_REGISTER_TEST(test_transaction_stream_from);
 PQXX_REGISTER_TEST(test_stream_from_read_row);
 } // namespace

@@ -227,7 +227,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 }
 
 
-void test_stream_to__nonnull_optional()
+void test_stream_to_does_nonnull_optional()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
@@ -438,7 +438,7 @@ void test_stream_to_quotes_arguments()
 
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
-PQXX_REGISTER_TEST(test_stream_to__nonnull_optional);
+PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_dynamic_columns);
 PQXX_REGISTER_TEST(test_stream_to_quotes_arguments);

@@ -273,7 +273,7 @@ struct PQXX_LIBEXPORT thread_safety_model
  * many other types.
  *
  * But for libpqxx to recognise your data as binary, it needs to be a
- * @c std::basic_string<std::byte>, or a @c std::basic__string_view<std::byte>;
+ * @c std::basic_string<std::byte>, or a @c std::basic_string_view<std::byte>;
  * or in C++20 or better, any contiguous block of @c std::byte.
  *
  * Use @c binary_cast as a convenience helper to cast your data as a
