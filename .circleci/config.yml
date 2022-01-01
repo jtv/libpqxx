@@ -53,6 +53,8 @@ jobs:
           command: PGDATA=db/data make check
       - run:
           name: Analyse
-          command: ./tools/lint --full >lint.log
+          command: ./tools/lint --full >lint.log 2>lint-stderr.log
       - store_artifacts:
           path: lint.log
+      - store_artifacts:
+          path: lint-stderr.log
