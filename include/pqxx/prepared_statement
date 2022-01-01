@@ -1,3 +1,11 @@
 /// @deprecated Include @c <pqxx/params> instead.
+#include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/compiler-public.hxx"
+
+#if !defined(PQXX_H_EXPORTS) && defined(_WIN32) && defined(PQXX_SHARED)
+#include "pqxx/internal/exports.hxx"
+#endif
 
 #include "params.hxx"
+
+#include "pqxx/internal/compiler-internal-post.hxx"
