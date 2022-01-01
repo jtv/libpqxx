@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:buster
+      - image: debian:testing
 #      - image: postgres:latest
     environment:
       - PGHOST: "/tmp"
@@ -11,13 +11,13 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt update && apt install -y wget # && echo >/etc/apt/sources.list.d/clang-upstream.list 'deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main' && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          command: apt update
       - run:
           name: Install
-          command: apt update && apt install -y python python3 cmake libpq-dev postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck # clang
+          command: apt install -y python python3 cmake postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
       - run:
           name: Identify
-          command: lsb_release -a && c++ --version # && clang++ --version
+          command: lsb_release -a && c++ --version
       - run:
           name: Prepare postgres
           command: |
@@ -33,9 +33,6 @@ jobs:
       - run:
           name: Set up database
           command: createdb root
-#      - run:
-#          name: Build using CMake
-#          command: (SRC="$(pwd)" && mkdir /tmp/build && cd /tmp/build && cmake "$SRC" -DBUILD_SHARED_LIBS=1 && make -j4)
       - run:
           name: Autogen
           command: NOCONFIGURE=1 ./autogen.sh
@@ -54,3 +51,8 @@ jobs:
       - run:
           name: Test
           command: PGDATA=db/data make check
+      - run:
+          name: Analyse
+	  command: ./tools/lint --full >lint.log
+      - store_artifacts:
+          path: lint.log
