@@ -23,12 +23,12 @@ namespace pqxx
  * @addtogroup exception Exception classes
  *
  * These exception classes follow, roughly, the two-level hierarchy defined by
- * the PostgreSQL error codes (see Appendix A of the PostgreSQL documentation
- * corresponding to your server version).  This is not a complete mapping
- * though.  There are other differences as well, e.g. the error code
- * @c statement_completion_unknown has a separate status in libpqxx as
- * @c in_doubt_error, and @c too_many_connections is classified as a
- * @c broken_connection rather than a subtype of @c insufficient_resources.
+ * the PostgreSQL SQLSTATE error codes (see Appendix A of the PostgreSQL
+ * documentation corresponding to your server version).  This is not a complete
+ * mapping though.  There are other differences as well, e.g. the error code
+ * for `statement_completion_unknown` has a separate status in libpqxx as
+ * @ref in_doubt_error, and `too_many_connections` is classified as a
+ * `broken_connection` rather than a subtype of `insufficient_resources`.
  *
  * @see http://www.postgresql.org/docs/9.4/interactive/errcodes-appendix.html
  *
@@ -49,17 +49,17 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
  * able to continue after a connection breaks, be sure to disarm this signal.
  *
  * If you're working on a Unix-like system, see the manual page for
- * @c signal (2) on how to deal with SIGPIPE.  The easiest way to make this
+ * `signal` (2) on how to deal with SIGPIPE.  The easiest way to make this
  * signal harmless is to make your program ignore it:
  *
- * @code
+ * ```cxx
  * #include <signal.h>
  *
  * int main()
  * {
  *   signal(SIGPIPE, SIG_IGN);
  *   // ...
- * @endcode
+ * ```
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {

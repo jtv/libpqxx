@@ -57,14 +57,14 @@ class row;
 class stream_from;
 class transaction_base;
 
-/// Marker for @c stream_from constructors: "stream from table."
-/** @deprecated Use stream_from::table() instead.
+/// Marker for @ref stream_from constructors: "stream from table."
+/** @deprecated Use @ref stream_from::table() instead.
  */
 struct from_table_t
 {};
 
-/// Marker for @c stream_from constructors: "stream from query."
-/** @deprecated Use stream_from::query() instead.
+/// Marker for @ref stream_from constructors: "stream from query."
+/** @deprecated Use @ref stream_from::query() instead.
  */
 struct from_query_t
 {};
@@ -89,14 +89,14 @@ using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
 
 #if defined(PQXX_HAVE_CONCEPTS)
 /// The type of a container's elements.
-/** At the time of writing there's a similar thing in @c std::experimental,
+/** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
 using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
 #else  // PQXX_HAVE_CONCEPTS
 /// The type of a container's elements.
-/** At the time of writing there's a similar thing in @c std::experimental,
+/** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<typename CONTAINER>
@@ -105,7 +105,7 @@ using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-/// Concept: Any type that we can read as a string of @c char.
+/// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
                       std::same_as < strip_t<value_type<STRING>>,
@@ -128,19 +128,19 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 
 /// Template argument type for a range.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_RANGE_ARG std::ranges::range
 
-/// Template argument type for @c char_string.
+/// Template argument type for @ref char_string.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_CHAR_STRING_ARG pqxx::char_string
 
-/// Template argument type for @c char_strings
+/// Template argument type for @ref char_strings
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
 
@@ -148,19 +148,19 @@ concept potential_binary = std::ranges::contiguous_range<DATA> and
 
 /// Template argument type for a range.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_RANGE_ARG typename
 
-/// Template argument type for @c char_string.
+/// Template argument type for @ref char_string.
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_CHAR_STRING_ARG typename
 
-/// Template argument type for @c char_strings
+/// Template argument type for @ref char_strings
 /** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @c typename.
+ * environments it's just an alias for @ref typename.
  */
 #  define PQXX_CHAR_STRINGS_ARG typename
 

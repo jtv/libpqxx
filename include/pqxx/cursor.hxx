@@ -28,7 +28,7 @@ namespace pqxx
  * beginning of the fetch, and the cursor ends up being positioned on the last
  * row in the result.
  *
- * There are singular positions akin to @c end() at both the beginning and the
+ * There are singular positions akin to `end()` at both the beginning and the
  * end of the cursor's range of movement, although these fit in so naturally
  * with the semantics that one rarely notices them.  The cursor begins at the
  * first of these, but any fetch in the forward direction will move the cursor
@@ -170,7 +170,7 @@ public:
 
   /// Adopt an existing scrolling SQL cursor.
   /** This lets you define a cursor yourself, and then wrap it in a
-   * libpqxx-managed @c stateless_cursor object.
+   * libpqxx-managed `stateless_cursor` object.
    *
    * @param trans The transaction within which you want to manage the cursor.
    * @param adopted_cursor Your cursor's SQL name.
@@ -244,7 +244,7 @@ namespace pqxx
 /// Simple read-only cursor represented as a stream of results
 /** SQL cursors can be tricky, especially in C++ since the two languages seem
  * to have been designed on different planets.  An SQL cursor has two singular
- * positions akin to @c end() on either side of the underlying result set.
+ * positions akin to `end()` on either side of the underlying result set.
  *
  * These cultural differences are hidden from view somewhat by libpqxx, which
  * tries to make SQL cursors behave more like familiar C++ entities such as
@@ -308,10 +308,10 @@ public:
     transaction_base &context, field const &cname, difference_type sstride = 1,
     cursor_base::ownership_policy op = cursor_base::owned);
 
-  /// Return @c true if this stream may still return more data.
+  /// Return `true` if this stream may still return more data.
   operator bool() const &noexcept { return not m_done; }
 
-  /// Read new value into given result object; same as operator @c >>.
+  /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.
@@ -325,7 +325,7 @@ public:
     res = fetchblock();
     return *this;
   }
-  /// Read new value into given result object; same as @c get(result&).
+  /// Read new value into given result object; same as `get(result&)`.
   /** The result set may continue any number of rows from zero to the chosen
    * stride, inclusive.  An empty result will only be returned if there are no
    * more rows to retrieve.

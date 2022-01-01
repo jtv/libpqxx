@@ -32,9 +32,9 @@ namespace pqxx
  * It also acts as a container mapping column numbers or names to field
  * values (see below):
  *
- * @code
+ * ```cxx
  *	cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
- * @endcode
+ * ```
  *
  * The row itself acts like a (non-modifyable) container, complete with its
  * own const_iterator and const_reverse_iterator.
@@ -190,7 +190,7 @@ protected:
   friend class result;
   row(result const &r, result_size_type index, size_type cols) noexcept;
 
-  /// Throw @c usage_error if row size is not @c expected.
+  /// Throw @ref usage_error if row size is not `expected`.
   void check_size(size_type expected) const
   {
     if (size() != expected)

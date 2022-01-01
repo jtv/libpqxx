@@ -33,44 +33,44 @@ namespace pqxx
  * pointless overhead, especially when you are working with a remote database
  * server over the network.  You may end up sending each row over the network
  * as a separate query, and waiting for a reply.  Do it "in bulk" using
- * @c stream_to, and you may find that it goes many times faster.  Sometimes
+ * `stream_to`, and you may find that it goes many times faster.  Sometimes
  * you gain orders of magnitude in speed.
  *
- * Here's how it works: you create a @c stream_to stream to start writing to
+ * Here's how it works: you create a `stream_to` stream to start writing to
  * your table.  You will probably want to specify the columns.  Then, you
  * feed your data into the stream one row at a time.  And finally, you call the
- * stream's @c complete() to tell it to finalise the operation, wait for
- * completion, and check for errors.
+ * stream's @ref complete function to tell it to finalise the operation, wait
+ * for completion, and check for errors.
  *
- * (You @e must complete the stream before committing or aborting the
+ * (You _must_ complete the stream before committing or aborting the
  * transaction.  The connection is in a special state while the stream is
  * active, where it can't process commands, and can't commit or abort a
  * transaction.)
  *
  * So how do you feed a row of data into the stream?  There's several ways, but
- * the preferred one is to call its @c write_values.  Pass the field values as
+ * the preferred one is to call its @ref write_values.  Pass the field values as
  * arguments.  Doesn't matter what type they are, as long as libpqxx knows how
- * to convert them to PostgreSQL's text format: @c int, @c std::string or
- * @c std:string_view, @c float and @c double, @c bool...  lots of basic types
+ * to convert them to PostgreSQL's text format: `int`, `std::string` or
+ * `std:string_view`, `float` and `double`, `bool`...  lots of basic types
  * are supported.  If some of the values are null, feel free to use
- * @c std::optional, @c std::shared_ptr, or @c std::unique_ptr.
+ * `std::optional`, `std::shared_ptr`, or `std::unique_ptr`.
  *
  * The arguments' types don't even have to match the fields' SQL types.  If you
- * want to insert an @c int into a @c DECIMAL column, that's your choice -- it
- * will produce a @c DECIMAL value which happens to be integral.  Insert a
- * @c float into a @c VARCHAR column?  That's fine, you'll get a string whose
+ * want to insert an `int` into a `DECIMAL` column, that's your choice -- it
+ * will produce a `DECIMAL` value which happens to be integral.  Insert a
+ * `float` into a `VARCHAR` column?  That's fine, you'll get a string whose
  * contents happen to read like a number.  And so on.  You can even insert
  * different types of value in the same column on different rows.  If you have
- * a code path where a particular field is always null, just insert @c nullptr.
+ * a code path where a particular field is always null, just insert `nullptr`.
  *
- * There is another way to insert rows: the @c << ("shift-left") operator.
+ * There is another way to insert rows: the `<<` ("shift-left") operator.
  * It's not as fast and it doesn't support variable arguments: each row must be
- * either a @c std::tuple or something iterable, such as a @c std::vector, or
- * anything else with a @c begin and @c end.
+ * either a `std::tuple` or something iterable, such as a `std::vector`, or
+ * anything else with a `begin()` and `end()`.
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
 class PQXX_LIBEXPORT stream_to : transaction_focus
@@ -78,7 +78,7 @@ class PQXX_LIBEXPORT stream_to : transaction_focus
 public:
   /// Stream data to a pre-quoted table and columns.
   /** This factory can be useful when it's not convenient to provide the
-   * columns list in the form of a @c std::initializer_list, or when the list
+   * columns list in the form of a `std::initializer_list`, or when the list
    * of columns is simply not known at compile time.
    *
    * Also use this if you need to create multiple streams using the same table
@@ -103,12 +103,12 @@ public:
     return {tx, path, columns};
   }
 
-  /// Create a @c stream_to writing to a named table and columns.
+  /// Create a `stream_to` writing to a named table and columns.
   /** Use this to stream data to a table, where the list of columns is known at
    * compile time.
    *
    * @param tx The transaction within which the stream will operate.
-   * @param path A @c table_path designating the target table.
+   * @param path A @ref table_path designating the target table.
    * @param columns Optionally, the columns to which the stream should write.
    *     If you do not pass this, the stream will write to all columns in the
    *     table, in schema order.
@@ -122,12 +122,12 @@ public:
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
-  /// Create a @c stream_to writing to a named table and columns.
+  /// Create a `stream_to` writing to a named table and columns.
   /** Use this version to stream data to a table, when the list of columns is
    * not known at compile time.
    *
    * @param tx The transaction within which the stream will operate.
-   * @param path A @c table_path designating the target table.
+   * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
   template<PQXX_CHAR_STRINGS_ARG COLUMNS>
@@ -139,12 +139,12 @@ public:
       tx, conn.quote_table(path), tx.conn().quote_columns(columns));
   }
 
-  /// Create a @c stream_to writing to a named table and columns.
+  /// Create a `stream_to` writing to a named table and columns.
   /** Use this version to stream data to a table, when the list of columns is
    * not known at compile time.
    *
    * @param tx The transaction within which the stream will operate.
-   * @param path A @c table_path designating the target table.
+   * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
   template<PQXX_CHAR_STRINGS_ARG COLUMNS>
@@ -156,7 +156,7 @@ public:
 #endif // PQXX_HAVE_CONCEPTS
 
   /// Create a stream, without specifying columns.
-  /** @deprecated Use @c table() or @c raw_table() as a factory.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
    *
    * Fields will be inserted in whatever order the columns have in the
    * database.
@@ -171,14 +171,14 @@ public:
   {}
 
   /// Create a stream, specifying column names as a container of strings.
-  /** @deprecated Use @c table() or @c raw_table() as a factory.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
    */
   template<typename Columns>
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
     transaction_base &, std::string_view table_name, Columns const &columns);
 
   /// Create a stream, specifying column names as a sequence of strings.
-  /** @deprecated Use @c table() or @c raw_table() as a factory.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
    */
   template<typename Iter>
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
@@ -187,7 +187,7 @@ public:
 
   ~stream_to() noexcept;
 
-  /// Does this stream still need to @c complete()?
+  /// Does this stream still need to @ref complete()?
   [[nodiscard]] operator bool() const noexcept { return not m_finished; }
   /// Has this stream been through its concluding @c complete()?
   [[nodiscard]] bool operator!() const noexcept { return m_finished; }

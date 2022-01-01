@@ -36,9 +36,9 @@ namespace pqxx
  * array, as returned by the database.  The parser reads this representation
  * on the fly.  The string must remain in memory until parsing is done.
  *
- * Parse the array by making calls to @c get_next until it returns a
- * @c juncture of "done".  The @c juncture tells you what the parser found in
- * that step: did the array "nest" to a deeper level, or "un-nest" back up?
+ * Parse the array by making calls to @ref get_next until it returns a
+ * @ref juncture of "done".  The @ref juncture tells you what the parser found
+ * in that step: did the array "nest" to a deeper level, or "un-nest" back up?
  */
 class PQXX_LIBEXPORT array_parser
 {
@@ -58,16 +58,16 @@ public:
     done,
   };
 
-  /// Constructor.  You don't need this; use @c field::as_array instead.
+  /// Constructor.  You don't need this; use @ref field::as_array instead.
   explicit array_parser(
     std::string_view input,
     internal::encoding_group = internal::encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
-  /** Returns what it found.  If the juncture is @c string_value, the string
+  /** Returns what it found.  If the juncture is @ref string_value, the string
    * will contain the value.  Otherwise, it will be empty.
    *
-   * Call this until the @c juncture it returns is @c done.
+   * Call this until the @ref juncture it returns is @ref done.
    */
   std::pair<juncture, std::string> get_next();
 

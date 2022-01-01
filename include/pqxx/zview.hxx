@@ -20,7 +20,7 @@
 
 namespace pqxx
 {
-/// Marker-type wrapper: zero-terminated @c std::string_view.
+/// Marker-type wrapper: zero-terminated `std::string_view`.
 /** @warning Use this only if the underlying string is zero-terminated.
  *
  * When you construct a zview, you are promising that if the data pointer is
@@ -32,7 +32,7 @@ namespace pqxx
  *
  * The added guarantee lets the view be used as a C-style string, which often
  * matters since libpqxx builds on top of a C library.  For this reason, zview
- * also adds a @c c_str method.
+ * also adds a @ref c_str method.
  */
 class zview : public std::string_view
 {
@@ -49,7 +49,7 @@ public:
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
-  /// Construct from any initialiser you might use for @c std::string_view.
+  /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
    */
   template<typename... Args>
@@ -57,23 +57,23 @@ public:
           std::string_view(std::forward<Args>(args)...)
   {}
 
-  /// @warning There's an implicit conversion from @c std::string.
+  /// @warning There's an implicit conversion from `std::string`.
   zview(std::string const &str) : std::string_view{str.c_str(), std::size(str)}
   {}
 
-  /// Construct a @c zview from a C-style string.
+  /// Construct a `zview` from a C-style string.
   /** @warning This scans the string to discover its length.  So if you need to
-   * do it many times, it's probably better to create the @c zview once and
+   * do it many times, it's probably better to create the `zview` once and
    * re-use it.
    */
   constexpr zview(char const str[]) : std::string_view{str} {}
 
-  /// Construct a @c zview from a string literal.
+  /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
    * char const, but that's not really true.  It's actually an array of char,
-   * which @e devolves to a pointer when you pass it.
+   * which _devolves_ to a pointer when you pass it.
    *
-   * For the purpose of creating a @c zview there is one big difference: if we
+   * For the purpose of creating a `zview` there is one big difference: if we
    * know the array's size, we don't need to scan through the string in order
    * to find out its length.
    */
@@ -89,11 +89,13 @@ public:
 };
 
 
-/// Support @c zview literals.
+/// Support @ref zview literals.
 /** You can "import" this selectively into your namespace, without pulling in
- * all of the @c pqxx namespace:
+ * all of the @ref pqxx namespace:
  *
- * @c using pqxx::operator"" _zv;
+ * ```cxx
+ * using pqxx::operator"" _zv;
+ * ```
  */
 constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
 {

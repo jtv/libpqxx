@@ -58,13 +58,13 @@ inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 throw_null_conversion(std::string const &type);
 
 
-/// Deliberately nonfunctional conversion traits for @c char types.
-/** There are no string conversions for @c char and its signed and unsigned
+/// Deliberately nonfunctional conversion traits for `char` types.
+/** There are no string conversions for `char` and its signed and unsigned
  * variants.  Such a conversion would be dangerously ambiguous: should we treat
  * it as text, or as a small integer?  It'd be an open invitation for bugs.
  *
  * But the error message when you get this wrong is very cryptic.  So, we
- * derive dummy @c string_traits implementations from this dummy type, and
+ * derive dummy @ref string_traits implementations from this dummy type, and
  * ensure that the compiler disallows their use.  The compiler error message
  * will at least contain a hint of the root of the problem.
  */
@@ -247,7 +247,7 @@ template<> struct string_traits<bool>
 };
 
 
-/// We don't support conversion to/from @c char types.
+/// We don't support conversion to/from `char` types.
 /** Why are these disallowed?  Because they are ambiguous.  It's not inherently
  * clear whether we should treat values of these types as text or as small
  * integers.  Either choice would lead to bugs.
@@ -257,7 +257,7 @@ struct string_traits<char>
         : internal::disallowed_ambiguous_char_conversion<char>
 {};
 
-/// We don't support conversion to/from @c char types.
+/// We don't support conversion to/from `char` types.
 /** Why are these disallowed?  Because they are ambiguous.  It's not inherently
  * clear whether we should treat values of these types as text or as small
  * integers.  Either choice would lead to bugs.
@@ -267,7 +267,7 @@ struct string_traits<signed char>
         : internal::disallowed_ambiguous_char_conversion<signed char>
 {};
 
-/// We don't support conversion to/from @c char types.
+/// We don't support conversion to/from `char` types.
 /** Why are these disallowed?  Because they are ambiguous.  It's not inherently
  * clear whether we should treat values of these types as text or as small
  * integers.  Either choice would lead to bugs.
@@ -346,8 +346,8 @@ template<typename... T> struct nullness<std::variant<T...>>
       value);
   }
 
-  // We don't support @c null() for @c std::variant.
-  /** It would be technically possible to have a @c null in the case where just
+  // We don't support `null()` for `std::variant`.
+  /** It would be technically possible to have a `null` in the case where just
    * one of the types has a null, but it gets complicated and arbitrary.
    */
   static constexpr std::variant<T...> null() = delete;
@@ -605,9 +605,9 @@ template<> struct string_traits<std::string>
 };
 
 
-/// There's no real null for @c std::string_view.
-/** I'm not sure how clear-cut this is: a @c string_view may have a null
- * data pointer, which is analogous to a null @c char pointer.
+/// There's no real null for `std::string_view`.
+/** I'm not sure how clear-cut this is: a `string_view` may have a null
+ * data pointer, which is analogous to a null `char` pointer.
  */
 template<> struct nullness<std::string_view> : no_null<std::string_view>
 {};
@@ -1090,7 +1090,7 @@ inline constexpr format param_format(std::vector<T, Args...> const &)
 }
 
 
-/// A @c std::vector<std::byte> is a binary string.  Other vectors are not.
+/// A `std::vector<std::byte>` is a binary string.  Other vectors are not.
 template<typename... Args>
 inline constexpr format param_format(std::vector<std::byte, Args...> const &)
 {
@@ -1120,7 +1120,7 @@ inline constexpr format param_format(std::array<T, args...> const &)
 }
 
 
-/// An array of @c std::byte is a binary string.
+/// An array of `std::byte` is a binary string.
 template<typename... Args, Args... args>
 inline constexpr format param_format(std::array<std::byte, args...> const &)
 {

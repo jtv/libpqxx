@@ -34,8 +34,8 @@ struct nullness<std::chrono::year_month_day>
  * date is supposed to be.  So I repeat: ISO-8601-style format only!
  *
  * Invalid dates will not convert.  This includes February 29 on non-leap
- * years, which is why it matters that @c year_month_day represents a
- * @e Gregorian date.
+ * years, which is why it matters that `year_month_day` represents a
+ * _Gregorian_ date.
  *
  * The range of years is limited.  At the time of writing, PostgreSQL 14
  * supports years from 4713 BC to 294276 AD inclusive, and C++20 supports
@@ -48,7 +48,7 @@ struct nullness<std::chrono::year_month_day>
  * zero, so the year 1 AD follows directly after 1 BC.
  *
  * So, what to our calendars (and to PostgreSQL) is the year "0001 BC" seems to
- * count as year "0" in a @c std::chrono::year_month_day.  The year 0001 AD is
+ * count as year "0" in a `std::chrono::year_month_day`.  The year 0001 AD is
  * still equal to 1 as you'd expect, and all AD years work normally, but all
  * years before then are shifted by one.  For instance, the year 543 BC would
  * be -542 in C++.

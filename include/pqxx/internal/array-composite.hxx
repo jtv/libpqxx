@@ -8,7 +8,7 @@
 namespace pqxx::internal
 {
 // Find the end of a double-quoted string.
-/** @c input[pos] must be the opening double quote.
+/** `input[pos]` must be the opening double quote.
  *
  * Returns the offset of the first position after the closing quote.
  */
@@ -143,28 +143,28 @@ inline std::string parse_unquoted_string(
 
 
 /// Parse a field of a composite-type value.
-/** @c T is the C++ type of the field we're parsing, and @c index is its
+/** `T` is the C++ type of the field we're parsing, and `index` is its
  * zero-based number.
  *
  * Strip off the leading parenthesis or bracket yourself before parsing.
  * However, this function will parse the lcosing parenthesis or bracket.
  *
- * After a successful parse, @c pos will point at @c std::end(text).
+ * After a successful parse, `pos` will point at `std::end(text)`.
  *
  * For the purposes of parsing, ranges and arrays count as compositve values,
  * so this function supports parsing those.  If you specifically need a closing
- * parenthesis, check afterwards that @c text did not end in a bracket instead.
+ * parenthesis, check afterwards that `text` did not end in a bracket instead.
  *
  * @param index Index of the current field, zero-based.  It will increment for
  *     the next field.
  * @param input Full input text for the entire composite-type value.
- * @param pos Starting position (in @c input) of the field that we're parsing.
+ * @param pos Starting position (in `input`) of the field that we're parsing.
  *     After parsing, this will point at the beginning of the next field if
  *     there is one, or one position past the last character otherwise.
  * @param field Destination for the parsed value.
  * @param scan Glyph scanning function for the relevant encoding type.
  * @param last_field Number of the last field in the value (zero-based).  When
- *     parsing the last field, this will equal @c index.
+ *     parsing the last field, this will equal `index`.
  */
 template<typename T>
 inline void parse_composite_field(

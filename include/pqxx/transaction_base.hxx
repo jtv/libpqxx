@@ -82,16 +82,16 @@ public:
 
   /// Commit the transaction.
   /** Make the effects of this transaction definite.  If you destroy a
-   * transaction without invoking its @c commit() first, that will implicitly
-   * abort it.  (For the @c nontransaction class though, "commit" and "abort"
+   * transaction without invoking its @ref commit() first, that will implicitly
+   * abort it.  (For the @ref nontransaction class though, "commit" and "abort"
    * really don't do anything, hence its name.)
    *
    * There is, however, a minute risk that you might lose your connection to
    * the database at just the wrong moment here.  In that case, libpqxx may be
    * unable to determine whether the database was able to complete the
-   * transaction, or had to roll it back.  In that scenario, @c commit() will
+   * transaction, or had to roll it back.  In that scenario, @ref commit() will
    * throw an in_doubt_error.  There is a different transaction class called
-   * @c robusttransaction which takes some special precautions to reduce this
+   * @ref robusttransaction which takes some special precautions to reduce this
    * risk.
    */
   void commit();
@@ -204,7 +204,7 @@ public:
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Binary-escape and quote a binary string for use as an SQL constant.
-  /** For binary data you can also just use @c quote(data). */
+  /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>
   [[nodiscard]] std::string quote_raw(DATA const &data) const
   {
@@ -315,10 +315,10 @@ public:
   }
 
   /// Execute a query, and loop over the results row by row.
-  /** Converts the rows to @c std::tuple, of the column types you specify.
+  /** Converts the rows to `std::tuple`, of the column types you specify.
    *
    * Use this with a range-based "for" loop.  It executes the query, and
-   * directly maps the resulting rows onto a @c std::tuple of the types you
+   * directly maps the resulting rows onto a `std::tuple` of the types you
    * specify.  It starts before all the data from the server is in, so if your
    * network connection to the server breaks while you're iterating, you'll get
    * an exception partway through.
@@ -330,25 +330,25 @@ public:
    * Until the stream has finished, the transaction is in a special state where
    * it cannot execute queries.
    *
-   * As a special case, tuple may contain @c std::string_view fields, but the
+   * As a special case, tuple may contain `std::string_view` fields, but the
    * strings to which they point will only remain valid until you extract the
    * next row.  After that, the memory holding the string may be overwritten or
    * deallocated.
    *
    * If any of the columns can be null, and the C++ type to which it translates
-   * does not have a null value, wrap the type in @c std::optional (or if
-   * you prefer, @c std::shared_ptr or @c std::unique_ptr).  These templates
+   * does not have a null value, wrap the type in `std::optional` (or if
+   * you prefer, `std::shared_ptr` or `std::unique_ptr)`.  These templates
    * do recognise null values, and libpqxx will know how to convert to them.
    *
    * The connection is in a special state until the iteration finishes.  So if
-   * it does not finish due to a @c break or a @c return or an exception, then
+   * it does not finish due to a `break` or a `return` or an exception, then
    * the entire connection becomes effectively unusable.
    *
-   * Querying in this way is faster than the @c exec() methods for larger
+   * Querying in this way is faster than the `exec()` methods for larger
    * results (but probably slower for small ones).  Also, you can start
-   * processing rows before the full result is in.  Also, @c stream() scales
-   * better in terms of memory usage.  Where @c exec() reads the entire result
-   * into memory at once, @c stream() will read and process one row at at a
+   * processing rows before the full result is in.  Also, `stream()` scales
+   * better in terms of memory usage.  Where @ref exec() reads the entire result
+   * into memory at once, `stream()` will read and process one row at at a
    * time.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
@@ -386,14 +386,14 @@ public:
    * like prepared statements, but for a single use.  You don't need to name
    * them, and you don't need to prepare them first.
    *
-   * Your query will include placeholders like @c $1 and $2 etc. in the places
+   * Your query will include placeholders like `$1` and `$2` etc. in the places
    * where you want the arguments to go.  Then, you pass the argument values
    * and the actual query is constructed for you.
    *
    * Pass the exact right number of parameters, and in the right order.  The
-   * parameters in the query don't have to be neatly ordered from @c $1 to
-   * @c $2 to @c $3 - but you must pass the argument for @c $1 first, the one
-   * for @c $2 second, etc.
+   * parameters in the query don't have to be neatly ordered from `$1` to
+   * `$2` to `$3` - but you must pass the argument for `$1` first, the one
+   * for `$2` second, etc.
    *
    * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
    * end at the first char with value zero.  If you pass a string that contains
@@ -445,7 +445,7 @@ public:
    * for that call.
    *
    * You prepare a statement on the connection, using
-   * @c pqxx::connection::prepare().  But you then call the statement in a
+   * @ref pqxx::connection::prepare().  But you then call the statement in a
    * transaction, using the functions you see here.
    *
    * Never try to prepare, execute, or unprepare a prepared statement manually
@@ -460,11 +460,11 @@ public:
    * end at the first char with value zero.  If you pass a string that contains
    * a zero byte, the last byte in the value will be the one just before the
    * zero.  If you need a zero byte, you're dealing with binary strings, not
-   * regular strings.  Represent binary strings on the SQL side as @c BYTEA
+   * regular strings.  Represent binary strings on the SQL side as `BYTEA`
    * (or as large objects).  On the C++ side, use types like
-   * @c std::basic_string<std::byte> or @c std::basic_string_view<std::byte>
-   * or (in C++20) @c std::vector<std::byte>.  Also, consider large objects on
-   * the SQL side and @c blob on the C++ side.
+   * `std::basic_string<std::byte>` or `std::basic_string_view<std::byte>`
+   * or (in C++20) `std::vector<std::byte>`.  Also, consider large objects on
+   * the SQL side and @ref blob on the C++ side.
    */
   //@{
 

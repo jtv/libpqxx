@@ -35,9 +35,9 @@ namespace pqxx
  * inside your receiver's function invocation operator.
  *
  * Notifications you are listening for may arrive anywhere within libpqxx code,
- * but be aware that @b PostgreSQL @b defers @b notifications @b occurring
- * @b inside @b transactions.  (This was done for excellent reasons; just think
- * about what happens if the transaction where you happen to handle an incoming
+ * but be aware that **PostgreSQL defers notifications occurring inside
+ * transactions.**  (This was done for excellent reasons; just think about what
+ * happens if the transaction where you happen to handle an incoming
  * notification is later rolled back for other reasons).  So if you're keeping
  * a transaction open, don't expect any of your receivers on the same
  * connection to be notified.

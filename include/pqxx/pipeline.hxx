@@ -40,7 +40,7 @@ namespace pqxx
  *
  * @warning While a pipeline is active, you cannot execute queries, open
  * streams, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
 class PQXX_LIBEXPORT pipeline : public transaction_focus
@@ -81,7 +81,7 @@ public:
    *
    * This does not produce the queries' results, so it may not report any
    * errors which may have occurred in their execution.  To be sure that your
-   * statements succeeded, call @c retrieve() until the pipeline is empty.
+   * statements succeeded, call @ref retrieve until the pipeline is empty.
    */
   void complete();
 

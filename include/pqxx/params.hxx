@@ -18,18 +18,18 @@
 #include "pqxx/types.hxx"
 
 
-/// @deprecated The new @c params class replaces all of this.
+/// @deprecated The new @ref params class replaces all of this.
 namespace pqxx::prepare
 {
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @c params instead.
+/** @deprecated Use @ref params instead.
  *
- * When you call any of the @c exec_params functions, the number of arguments
+ * When you call any of the `exec_params` functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
  * Use this function to pass a variable number of parameters, based on a
- * sequence ranging from @c begin to @c end exclusively.
+ * sequence ranging from `begin` to `end` exclusively.
  *
  * The technique combines with the regular static parameters.  You can use it
  * to insert dynamic parameter lists in any place, or places, among the call's
@@ -48,9 +48,9 @@ make_dynamic_params(IT begin, IT end)
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @c params instead.
+/** @deprecated Use @ref params instead.
  *
- * When you call any of the @c exec_params functions, the number of arguments
+ * When you call any of the `exec_params` functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -76,9 +76,9 @@ make_dynamic_params(C const &container)
 
 
 /// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @c params instead.
+/** @deprecated Use @ref params instead.
  *
- * When you call any of the @c exec_params functions, the number of arguments
+ * When you call any of the `exec_params` functions, the number of arguments
  * is normally known at compile time.  This helper function supports the case
  * where it is not.
  *
@@ -90,7 +90,7 @@ make_dynamic_params(C const &container)
  * parameters.  You can even insert multiple dynamic containers.
  *
  * @param container A container of parameter values.
- * @param accessor For each parameter @c p, pass @c accessor(p).
+ * @param accessor For each parameter `p`, pass `accessor(p)`.
  * @return An object representing the parameters.
  */
 template<typename C, typename ACCESSOR>
@@ -112,10 +112,10 @@ namespace pqxx
  * statement, you insert placeholders into the SQL.  During invocation, the
  * database replaces those with the respective parameter values you passed.
  *
- * The placeholders look like @c $1 (for the first parameter value), @c $2 (for
+ * The placeholders look like `$1` (for the first parameter value), `$2` (for
  * the second), and so on.  You can just write those directly in your
  * statement.  But for those rare cases where it becomes difficult to track
- * which number a placeholder should have, you can use a @c placeholders object
+ * which number a placeholder should have, you can use a `placeholders` object
  * to count and generate them in order.
  */
 template<typename COUNTER = unsigned int> class placeholders
@@ -138,8 +138,8 @@ public:
    */
   zview view() const &noexcept { return zview{std::data(m_buf), m_len}; }
 
-  /// Read the current placeholder text, as a @c std::string.
-  /** This will be slightly slower than converting to a @c zview.  With most
+  /// Read the current placeholder text, as a `std::string`.
+  /** This will be slightly slower than converting to a `zview`.  With most
    * C++ implementations however, until you get into ridiculous numbers of
    * parameters, the string will benefit from the Short String Optimization, or
    * SSO.
@@ -197,33 +197,32 @@ private:
 /// Build a parameter list for a parameterised or prepared statement.
 /** When calling a parameterised statement or a prepared statement, you can
  * pass parameters into the statement directly in the invocation, as
- * additional arguments to @c exec_prepared or @c exec_params.  But in
+ * additional arguments to `exec_prepared` or `exec_params`.  But in
  * complex cases, sometimes that's just not convenient.
  *
- * In those situations, you can create a @c params and append your parameters
- * into that, one by one.  Then you pass the @c params to @c exec_prepared or
- * @c exec_params.
+ * In those situations, you can create a `params` and append your parameters
+ * into that, one by one.  Then you pass the `params` to `exec_prepared` or
+ * `exec_params`.
  *
- * Combinations also work: if you have a @c params containing a string
- * parameter, and you call @c exec_params with an @c int argument followed by
- * your @c params, you'll be passing the @c int as the first parameter and
- * the string as the second.  You can even insert a @c params in a @c params,
- * or pass two @c params objects to a statement.
+ * Combinations also work: if you have a `params` containing a string
+ * parameter, and you call `exec_params` with an `int` argument followed by
+ * your `params`, you'll be passing the `int` as the first parameter and
+ * the string as the second.  You can even insert a `params` in a `params`,
+ * or pass two `params` objects to a statement.
  */
 class PQXX_LIBEXPORT params
 {
 public:
   params() = default;
 
-  /// Create a @c params pre-populated with args.  Feel free to add more
-  /// later.
+  /// Pre-populate a `params` with `args`.  Feel free to add more later.
   template<typename... Args> constexpr params(Args &&...args)
   {
     reserve(sizeof...(args));
     append_pack(std::forward<Args>(args)...);
   }
 
-  /// Pre-allocate room for at least @c n parameters.
+  /// Pre-allocate room for at least `n` parameters.
   /** This is not needed, but it may improve efficiency.
    *
    * Reserve space if you're going to add parameters individually, and you've
@@ -232,14 +231,14 @@ public:
    */
   void reserve(std::size_t n) &;
 
-  /// Get the number of parameters currently in this @c params.
+  /// Get the number of parameters currently in this `params`.
   [[nodiscard]] auto size() const noexcept { return m_params.size(); }
 
   // C++20: Use the vector's ssize() directly and go noexcept.
   /// Get the number of parameters (signed).
-  /** Unlike @c size(), this is not yet @c noexcept.  That's because C++17's
-   * @c std::vector does not have a @c ssize() member function.  These member
-   * functions are @c noexcept, but @c std::size() and @c std::ssize() are
+  /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
+   * `std::vector` does not have a `ssize()` member function.  These member
+   * functions are `noexcept`, but `std::size()` and `std::ssize()` are
    * not.
    */
   [[nodiscard]] auto ssize() const { return pqxx::internal::ssize(m_params); }
@@ -248,14 +247,14 @@ public:
   void append() &;
 
   /// Append a non-null zview parameter.
-  /** The underlying data must stay valid for as long as the @c params
+  /** The underlying data must stay valid for as long as the `params`
    * remains active.
    */
   void append(zview) &;
 
   /// Append a non-null string parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the @c zview variant if you can, or @c std::move().
+   * use the @ref zview variant if you can, or `std::move()`
    */
   void append(std::string const &) &;
 
@@ -263,22 +262,22 @@ public:
   void append(std::string &&) &;
 
   /// Append a non-null binary parameter.
-  /** The underlying data must stay valid for as long as the @c params
+  /** The underlying data must stay valid for as long as the `params`
    * remains active.
    */
   void append(std::basic_string_view<std::byte>) &;
 
   /// Append a non-null binary parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the @c std::basic_string_view<std::byte> variant if you can, or
-   * @c std::move().
+   * use the `std::basic_string_view<std::byte>` variant if you can, or
+   * `std::move()`.
    */
   void append(std::basic_string<std::byte> const &) &;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Append a non-null binary parameter.
-  /** The @c data object must stay in place and unchanged, for as long as the
-   * @c params remains active.
+  /** The `data` object must stay in place and unchanged, for as long as the
+   * `params` remains active.
    */
   template<binary DATA> void append(DATA const &data) &
   {
@@ -291,7 +290,7 @@ public:
   void append(std::basic_string<std::byte> &&) &;
 
   /// @deprecated Append binarystring parameter.
-  /** The binarystring must stay valid for as long as the @c params remains
+  /** The binarystring must stay valid for as long as the `params` remains
    * active.
    */
   void append(binarystring const &value) &;
@@ -327,7 +326,7 @@ public:
     }
   }
 
-  /// Append all elements of @c range as parameters.
+  /// Append all elements of `range` as parameters.
   template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
   {
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -337,13 +336,13 @@ public:
     for (auto &value : range) append(value);
   }
 
-  /// For internal use: Generate a @c params object for use in calls.
+  /// For internal use: Generate a `params` object for use in calls.
   /** The params object encapsulates the pointers which we will need to pass
    * to libpq when calling a parameterised or prepared statement.
    *
    * The pointers in the params will refer to storage owned by either the
-   * params object, or the caller.  This is not a problem because a @c
-   * c_params object is guaranteed to live only while the call is going on.
+   * params object, or the caller.  This is not a problem because a 
+   * `c_params` object is guaranteed to live only while the call is going on.
    * As soon as we climb back out of that call tree, we're done with that
    * data.
    */

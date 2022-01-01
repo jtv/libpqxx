@@ -30,10 +30,10 @@ namespace pqxx::internal
  * is really a class, and only lets specific friends in.
  *
  * To implement a call gate that gives client C access to host H,
- *  - derive a gate class from callgate<H>;
- *  - make the gate class a friend of H;
- *  - make C a friend of the gate class; and
- *  - implement "stuff C can do with H" as private members in the gate class.
+ * * derive a gate class from callgate<H>;
+ * * make the gate class a friend of H;
+ * * make C a friend of the gate class; and
+ * * implement "stuff C can do with H" as private members in the gate class.
  *
  * This special kind of "gated" friendship gives C private access to H, but
  * only through an expressly limited interface.  The gate class can access its

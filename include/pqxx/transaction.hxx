@@ -16,7 +16,7 @@
 
 namespace pqxx::internal
 {
-/// Helper base class for the @c transaction class template.
+/// Helper base class for the @ref transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
@@ -46,7 +46,7 @@ namespace pqxx
  *
  * Usage example: double all wages.
  *
- * @code
+ * ```cxx
  * extern connection C;
  * work T(C);
  * try
@@ -59,7 +59,7 @@ namespace pqxx
  *   cerr << e.what() << endl;
  *   T.abort();		// Usually not needed; same happens when T's life ends.
  * }
- * @endcode
+ * ```
  */
 template<
   isolation_level ISOLATION = isolation_level::read_committed,

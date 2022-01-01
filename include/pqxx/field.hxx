@@ -101,7 +101,7 @@ public:
    * @name Content access
    */
   //@{
-  /// Read as @c string_view, or an empty one if null.
+  /// Read as `string_view`, or an empty one if null.
   [[nodiscard]] PQXX_PURE std::string_view view() const &
   {
     return std::string_view(c_str(), size());
@@ -111,11 +111,11 @@ public:
   /** Since the field's data is stored internally in the form of a
    * zero-terminated C string, this is the fastest way to read it.  Use the
    * to() or as() functions to convert the string to other types such as
-   * @c int, or to C++ strings.
+   * `int`, or to C++ strings.
    *
    * Do not use this for BYTEA values, or other binary values.  To read those,
-   * convert the value to your desired type using @c to() or @c as().  For
-   * example: @c f.as<std::basic_string<std::byte>>().
+   * convert the value to your desired type using `to()` or `as()`.  For
+   * example: `f.as<std::basic_string<std::byte>>()`.
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const &;
 
@@ -125,7 +125,7 @@ public:
   /// Return number of bytes taken up by the field's value.
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
 
-  /// Read value into obj; or if null, leave obj untouched and return @c false.
+  /// Read value into obj; or if null, leave obj untouched and return `false`.
   /** This can be used with optional types (except pointers other than C-style
    * strings).
    */
@@ -146,11 +146,11 @@ public:
     }
   }
 
-  /// Read field as a composite value, write its components into @c fields.
+  /// Read field as a composite value, write its components into `fields`.
   /** @warning This is still experimental.  It may change or be replaced.
    *
    * Returns whether the field was null.  If it was, it will not touch the
-   * values in @c fields.
+   * values in `fields`.
    */
   template<typename... T> bool composite_to(T &...fields) const
   {
@@ -165,13 +165,13 @@ public:
     }
   }
 
-  /// Read value into obj; or leave obj untouched and return @c false if null.
+  /// Read value into obj; or leave obj untouched and return `false` if null.
   template<typename T> bool operator>>(T &obj) const { return to(obj); }
 
-  /// Read value into obj; or if null, use default value and return @c false.
-  /** This can be used with @c std::optional, as well as with standard smart
+  /// Read value into obj; or if null, use default value and return `false`.
+  /** This can be used with `std::optional`, as well as with standard smart
    * pointer types, but not with raw pointers.  If the conversion from a
-   * PostgreSQL string representation allocates a pointer (e.g. using @c new),
+   * PostgreSQL string representation allocates a pointer (e.g. using `new`),
    * then the object's later deallocation should be baked in as well, right
    * from the point where the object is created.  So if you want a pointer, use
    * a smart pointer, not a raw pointer.
@@ -238,8 +238,8 @@ public:
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
    *
-   * Make sure the @c result object stays alive until parsing is finished.  If
-   * you keep the @c row of @c field object alive, it will keep the @c result
+   * Make sure the @ref result object stays alive until parsing is finished.  If
+   * you keep the @ref row of `field` object alive, it will keep the @ref result
    * object alive as well.
    */
   array_parser as_array() const &
@@ -427,10 +427,10 @@ private:
 
 /// Input stream that gets its data from a result field
 /** Use this class exactly as you would any other istream to read data from a
- * field.  All formatting and streaming operations of @c std::istream are
+ * field.  All formatting and streaming operations of `std::istream` are
  * supported.  What you'll typically want to use, however, is the fieldstream
- * alias (which defines a basic_fieldstream for @c char).  This is similar to
- * how e.g. @c std::ifstream relates to @c std::basic_ifstream.
+ * alias (which defines a @ref basic_fieldstream for `char`).  This is similar
+ * to how e.g. `std::ifstream` relates to `std::basic_ifstream`.
  *
  * This class has only been tested for the char type (and its default traits).
  */
@@ -459,14 +459,14 @@ using fieldstream = basic_fieldstream<char>;
 
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
- * importantly, it lets you write a field to e.g. a @c stringstream which you
+ * importantly, it lets you write a field to e.g. a `stringstream` which you
  * can then use to read, format and convert the field in ways that to() does
  * not support.
  *
  * Example: parse a field into a variable of the nonstandard
  * "<tt>long long</tt>" type.
  *
- * @code
+ * ```cxx
  * extern result R;
  * long long L;
  * stringstream S;
@@ -476,7 +476,7 @@ using fieldstream = basic_fieldstream<char>;
  *
  * // Parse contents of S into L
  * S >> L;
- * @endcode
+ * ```
  */
 template<typename CHAR>
 inline std::basic_ostream<CHAR> &
@@ -487,8 +487,8 @@ operator<<(std::basic_ostream<CHAR> &s, field const &value)
 }
 
 
-/// Convert a field's value to type @c T.
-/** Unlike the "regular" @c from_string, this knows how to deal with null
+/// Convert a field's value to type `T`.
+/** Unlike the "regular" `from_string`, this knows how to deal with null
  * values.
  */
 template<typename T> inline T from_string(field const &value)
@@ -507,12 +507,12 @@ template<typename T> inline T from_string(field const &value)
 }
 
 
-/// Convert a field's value to @c nullptr_t.
+/// Convert a field's value to `nullptr_t`.
 /** Yes, you read that right.  This conversion does nothing useful.  It always
- * returns @c nullptr.
+ * returns `nullptr`.
  *
  * Except... what if the field is not null?  In that case, this throws
- * @c conversion_error.
+ * @ref conversion_error.
  */
 template<>
 inline std::nullptr_t from_string<std::nullptr_t>(field const &value)

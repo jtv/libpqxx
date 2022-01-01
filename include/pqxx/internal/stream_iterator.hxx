@@ -72,7 +72,7 @@ private:
 
 
 // C++20: Replace with generator?
-/// Iteration over a @c stream_from.
+/// Iteration over a @ref stream_from.
 template<typename... TYPE> class stream_input_iteration
 {
 public:
@@ -87,7 +87,7 @@ private:
 
 
 // C++20: Replace with generator?
-/// Iteration over a @c stream_from, deleting it once done.
+/// Iteration over a @ref stream_from, deleting it once done.
 template<typename... TYPE> class owning_stream_input_iteration
 {
 public:

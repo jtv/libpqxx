@@ -220,7 +220,7 @@ inline TO check_cast(FROM value, std::string_view description)
  */
 inline PQXX_PRIVATE void check_version()
 {
-  // There is no particular reason to do this here in @c connection, except
+  // There is no particular reason to do this here in @ref connection, except
   // to ensure that every meaningful libpqxx client will execute it.  The call
   // must be in the execution path somewhere or the compiler won't try to link
   // it.  We can't use it to initialise a global or class-static variable,
@@ -244,7 +244,7 @@ struct PQXX_LIBEXPORT thread_safety_model
   bool safe_libpq = false;
 
   /// Is Kerberos thread-safe?
-  /** @warning Is currently always @c false.
+  /** @warning Is currently always `false`.
    *
    * If your application uses Kerberos, all accesses to libpqxx or Kerberos
    * must be serialized.  Confine their use to a single thread, or protect it
@@ -269,15 +269,15 @@ struct PQXX_LIBEXPORT thread_safety_model
 
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
- * may have yours as a @c std::string, or a @c std::vector<uchar_t>, or one of
+ * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
  * many other types.
  *
  * But for libpqxx to recognise your data as binary, it needs to be a
- * @c std::basic_string<std::byte>, or a @c std::basic_string_view<std::byte>;
- * or in C++20 or better, any contiguous block of @c std::byte.
+ * `std::basic_string<std::byte>`, or a `std::basic_string_view<std::byte>`;
+ * or in C++20 or better, any contiguous block of `std::byte`.
  *
- * Use @c binary_cast as a convenience helper to cast your data as a
- * @c std::basic_string_view<std::byte>.
+ * Use `binary_cast` as a convenience helper to cast your data as a
+ * `std::basic_string_view<std::byte>`.
  *
  * @warning There are two things you should be aware of!  First, the data must
  * be contiguous in memory.  In C++20 the compiler will enforce this, but in
@@ -307,7 +307,7 @@ concept char_sized = (sizeof(CHAR) == 1);
 
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
- * types, and constructs a @c std::basic_string_view<std::byte> pointing to
+ * types, and constructs a `std::basic_string_view<std::byte>` pointing to
  * the same data.
  *
  * This makes it a little easier to turn binary data, in whatever form you
@@ -344,10 +344,10 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
-/// A safer and more generic replacement for @c std::isdigit.
-/** Turns out @c std::isdigit isn't as easy to use as it sounds.  It takes an
- * @c int, but requires it to be nonnegative.  Which means it's an outright
- * liability on systems where @c char is signed.
+/// A safer and more generic replacement for `std::isdigit`.
+/** Turns out `std::isdigit` isn't as easy to use as it sounds.  It takes an
+ * `int`, but requires it to be nonnegative.  Which means it's an outright
+ * liability on systems where `char` is signed.
  */
 template<typename CHAR> bool is_digit(CHAR c)
 {
@@ -380,7 +380,7 @@ void check_unique_register(
   std::string_view new_name);
 
 
-/// Like @c check_unique_register, but for un-registering a guest.
+/// Like @ref check_unique_register, but for un-registering a guest.
 /** Pass the guest which was registered, as well as the guest which is being
  * unregistered, so that the function can check that they are the same one.
  */
@@ -401,7 +401,7 @@ constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 
 
 /// Compute binary size from the size of its escaped version.
-/** Do not include a terminating zero in @c escaped_bytes.
+/** Do not include a terminating zero in `escaped_bytes`.
  */
 constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 {
@@ -412,7 +412,7 @@ constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 // TODO: Use actual binary type for "data".
 /// Hex-escape binary data into a buffer.
 /** The buffer must be able to accommodate
- * @c size_esc_bin(std::size(binary_data)) bytes, and the function will write
+ * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
@@ -448,7 +448,7 @@ template<typename T> auto ssize(T const &c)
 
 
 /// Wait.
-/** This is normally @c std::this_thread::sleep_for().  But MinGW's @c thread
+/** This is normally `std::this_thread::sleep_for()`.  But MinGW's `thread`
  * header doesn't work, so we must be careful about including it.
  */
 void PQXX_LIBEXPORT wait_for(unsigned int microseconds);

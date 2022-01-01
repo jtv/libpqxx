@@ -33,15 +33,15 @@ constexpr inline auto const iterator_identity{
 
 
 /// Marker type: pass a dynamically-determined number of statement parameters.
-/** @deprecated Use @c params instead.
+/** @deprecated Use @ref params instead.
  *
  * Normally when invoking a prepared or parameterised statement, the number
  * of parameters is known at compile time.  For instance,
- * @c t.exec_prepared("foo", 1, "x"); executes statement @c foo with two
- * parameters, an @c int and a C string.
+ * `t.exec_prepared("foo", 1, "x");` executes statement `foo` with two
+ * parameters, an `int` and a C string.
  *
  * But sometimes you may want to pass a number of parameters known only at run
- * time.  In those cases, a @c dynamic_params encodes a dynamically
+ * time.  In those cases, a @ref dynamic_params encodes a dynamically
  * determined number of parameters.  You can mix these with regular, static
  * parameter lists, and you can re-use them for multiple statement invocations.
  *
@@ -49,7 +49,7 @@ constexpr inline auto const iterator_identity{
  * sure they remain accessible until you've executed the statement.
  *
  * The ACCESSOR is an optional callable (such as a lambda).  If you pass an
- * accessor @c a, then each parameter @c p goes into your statement as @c a(p).
+ * accessor `a`, then each parameter `p` goes into your statement as `a(p)`.
  */
 template<typename IT, typename ACCESSOR = decltype(iterator_identity<IT>)>
 class dynamic_params
@@ -61,9 +61,9 @@ public:
   {}
 
   /// Wrap a sequence of pointers or iterators.
-  /** This version takes an accessor callable.  If you pass an accessor @c acc,
-   * then any parameter @c p will go into the statement's parameter list as
-   * @c acc(p).
+  /** This version takes an accessor callable.  If you pass an accessor `acc`,
+   * then any parameter `p` will go into the statement's parameter list as
+   * `acc(p)`.
    */
   constexpr dynamic_params(IT begin, IT end, ACCESSOR &acc) :
           m_begin(begin), m_end(end), m_accessor(acc)
@@ -76,9 +76,9 @@ public:
   {}
 
   /// Wrap a container.
-  /** This version takes an accessor callable.  If you pass an accessor @c acc,
-   * then any parameter @c p will go into the statement's parameter list as
-   * @c acc(p).
+  /** This version takes an accessor callable.  If you pass an accessor `acc`,
+   * then any parameter `p` will go into the statement's parameter list as
+   * `acc(p)`.
    */
   template<typename C>
   explicit constexpr dynamic_params(C &container, ACCESSOR &acc) :
@@ -104,9 +104,9 @@ private:
 /** Compiles arguments for prepared statements and parameterised queries into
  * a format that can be passed into libpq.
  *
- * Objects of this type are meant to be short-lived: it lives and dies entirely
+ * Objects of this type are meant to be short-lived: a `c_params` lives and dies entirely
  * within the call to execute.  So, for example, if you pass in a non-null
- * pointer as a parameter, @c params may simply use that pointer as a parameter
+ * pointer as a parameter, @ref params may simply use that pointer as a parameter
  * value, without arranging longer-term storage for the data to which it
  * points.  All values referenced by parameters must remain "live" until the
  * parameterised or prepared statement has been executed.
@@ -118,7 +118,7 @@ struct PQXX_LIBEXPORT c_params
   c_params(c_params const &) = delete;
   c_params(c_params &&) = default;
 
-  /// Pre-allocate storage for @c n parameters.
+  /// Pre-allocate storage for `n` parameters.
   void reserve(std::size_t n) &;
 
   /// As used by libpq: pointers to parameter values.

@@ -44,7 +44,7 @@ namespace pqxx
  *
  * The actual operations for committing/aborting the backend transaction are
  * implemented by a derived class.  The implementing concrete class must also
- * call @c close() from its destructor.
+ * call @ref close from its destructor.
  */
 class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {

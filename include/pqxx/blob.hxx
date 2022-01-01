@@ -34,14 +34,14 @@ namespace pqxx
 {
 /** Binary large object.
  *
- * This is how you store data that may be too large for the @c BYTEA type.
+ * This is how you store data that may be too large for the `BYTEA` type.
  * Access operations are similar to those for a file: you can read, write,
  * query or set the current reading/writing position, and so on.
  *
  * These large objects live in their own storage on the server, indexed by an
  * integer object identifier ("oid").
  *
- * Two @c blob objects may refer to the same actual large object in the
+ * Two `blob` objects may refer to the same actual large object in the
  * database at the same time.  Each will have its own reading/writing position,
  * but writes to the one will of course affect what the other sees.
  */
@@ -66,7 +66,8 @@ public:
   [[nodiscard]] static blob open_rw(dbtransaction &, oid);
 
   /// You can default-construct a blob, but it won't do anything useful.
-  /** Most operations on a default-constructed blob will throw @c usage_error.
+  /** Most operations on a default-constructed blob will throw @ref
+   * usage_error.
    */
   blob() = default;
 
@@ -89,23 +90,23 @@ public:
    */
   static constexpr std::size_t chunk_limit = 0x7fffffff;
 
-  /// Read up to @c size bytes of the object into @c buf.
+  /// Read up to `size` bytes of the object into `buf`.
   /** Uses a buffer that you provide, resizing it as needed.  If it suits you,
    * this lets you allocate the buffer once and then re-use it multiple times.
    *
-   * Resizes @c buf as needed.
+   * Resizes `buf` as needed.
    *
    * @warning The underlying protocol only supports reads up to 2GB at a time.
-   * If you need to read more, try making repeated calls to @c append_to_buf.
+   * If you need to read more, try making repeated calls to @ref append_to_buf.
    */
   std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
 
 #if defined(PQXX_HAVE_SPAN)
-  /// Read up to @c std::size(buf) bytes from the object.
-  /** Retrieves bytes from the blob, at the current position, until @c buf is
+  /// Read up to `std::size(buf)` bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
    *
-   * Returns the filled portion of @c buf.  This may be empty.
+   * Returns the filled portion of `buf`.  This may be empty.
    */
   template<std::size_t extent = std::dynamic_extent>
   std::span<std::byte> read(std::span<std::byte, extent> buf)
@@ -115,29 +116,29 @@ public:
 #endif // PQXX_HAVE_SPAN
 
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
-  /// Read up to @c std::size(buf) bytes from the object.
-  /** Retrieves bytes from the blob, at the current position, until @c buf is
+  /// Read up to `std::size(buf)` bytes from the object.
+  /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
    *
-   * Returns the filled portion of @c buf.  This may be empty.
+   * Returns the filled portion of `buf`.  This may be empty.
    */
   template<binary DATA> std::span<std::byte> read(DATA &buf)
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
 #else  // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
-  /// Read up to @c std::size(buf) bytes from the object.
+  /// Read up to `std::size(buf)` bytes from the object.
   /** @deprecated As libpqxx moves to C++20 as its baseline language version,
-   * this will take and return @c std::span<std::byte>.
+   * this will take and return `std::span<std::byte>`.
    *
-   * Retrieves bytes from the blob, at the current position, until @c buf is
+   * Retrieves bytes from the blob, at the current position, until `buf` is
    * full (i.e. its current size is reached), or there are no more bytes to
    * read, whichever comes first.
    *
-   * This function will not change either the size or the capacity of @c buf,
+   * This function will not change either the size or the capacity of `buf`,
    * only its contents.
    *
-   * Returns the filled portion of @c buf.  This may be empty.
+   * Returns the filled portion of `buf`.  This may be empty.
    */
   template<typename ALLOC>
   std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> &buf)
@@ -147,9 +148,9 @@ public:
 #endif // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
 
 #if defined(PQXX_HAVE_CONCEPTS)
-  /// Write @c data to large object, at the current position.
+  /// Write `data` to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
-   * @c data to the object's contents and move the writing position so that
+   * `data` to the object's contents and move the writing position so that
    * it's still at the end.
    *
    * If the writing position was not at the end, writing will overwrite the
@@ -164,16 +165,16 @@ public:
    *
    * @warning The underlying protocol only supports writes up to 2 GB at a
    * time.  If you need to write more, try making repeated calls to
-   * @c append_from_buf.
+   * @ref append_from_buf.
    */
   template<binary DATA> void write(DATA const &data)
   {
     raw_write(std::data(data), std::size(data));
   }
 #else
-  /// Write @c data to large object, at the current position.
+  /// Write `data` large object, at the current position.
   /** If the writing position is at the end of the object, this will append
-   * @c data to the object's contents and move the writing position so that
+   * `data` to the object's contents and move the writing position so that
    * it's still at the end.
    *
    * If the writing position was not at the end, writing will overwrite the
@@ -188,7 +189,7 @@ public:
    *
    * @warning The underlying protocol only supports writes up to 2 GB at a
    * time.  If you need to write more, try making repeated calls to
-   * @c append_from_buf.
+   * @ref append_from_buf.
    */
   template<typename DATA> void write(DATA const &data)
   {
@@ -196,11 +197,11 @@ public:
   }
 #endif
 
-  /// Resize large object to @c size bytes.
-  /** If the blob is more than @c size bytes long, this removes the end so as
+  /// Resize large object to `size` bytes.
+  /** If the blob is more than `size` bytes long, this removes the end so as
    * to make the blob the desired length.
    *
-   * If the blob is less than @c size bytes long, it adds enough zero bytes to
+   * If the blob is less than `size` bytes long, it adds enough zero bytes to
    * make it the desired length.
    */
   void resize(std::int64_t size);
@@ -224,14 +225,14 @@ public:
    */
   std::int64_t seek_end(std::int64_t offset = 0);
 
-  /// Create a binary large object containing given @c data.
+  /// Create a binary large object containing given `data`.
   /** You may optionally specify an oid for the new object.  If you do, and an
    * object with that oid already exists, creation will fail.
    */
   static oid from_buf(
     dbtransaction &tx, std::basic_string_view<std::byte> data, oid id = 0);
 
-  /// Append @c data to binary large object.
+  /// Append `data` to binary large object.
   /** The underlying protocol only supports appending blocks up to 2 GB.
    */
   static void append_from_buf(
@@ -267,20 +268,20 @@ public:
   }
 #endif
 
-  /// Convenience function: Read up to @c max_size bytes from blob with @c id.
-  /** You could easily do this yourself using the @c open_r and @c read
+  /// Convenience function: Read up to `max_size` bytes from blob with `id`.
+  /** You could easily do this yourself using the @ref open_r and @ref read
    * functions, but it can save you a bit of code to do it this way.
    */
   static void to_buf(
     dbtransaction &, oid, std::basic_string<std::byte> &,
     std::size_t max_size);
 
-  /// Read part of the binary large object with @c id, and append it to @c buf.
+  /// Read part of the binary large object with `id`, and append it to `buf`.
   /** Use this to break up a large read from one binary large object into one
    * massive buffer.  Just keep calling this function until it returns zero.
    *
-   * The @c offset is how far into the large object your desired chunk is, and
-   * @c append_max says how much to try and read in one go.
+   * The `offset` is how far into the large object your desired chunk is, and
+   * `append_max` says how much to try and read in one go.
    */
   static std::size_t append_to_buf(
     dbtransaction &tx, oid id, std::int64_t offset,
@@ -306,8 +307,8 @@ public:
    * default-constructed.
    *
    * The destructor will do this for you automatically.  Still, there is a
-   * reason to @c close() objects explicitly where possible: if an error should
-   * occur while closing, @c close() can throw an exception.  A destructor
+   * reason to `close()` objects explicitly where possible: if an error should
+   * occur while closing, `close()` can throw an exception.  A destructor
    * cannot.
    */
   void close();

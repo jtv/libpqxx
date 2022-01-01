@@ -19,7 +19,7 @@
 namespace pqxx
 {
 /// Identity of a large object.
-/** @deprecated Use the @c blob class instead.
+/** @deprecated Use the @ref blob class instead.
  *
  * Encapsulates the identity of a large object.
  *
@@ -144,7 +144,7 @@ private:
 
 
 /// Accessor for large object's contents.
-/** @deprecated Use the @c blob class instead.
+/** @deprecated Use the `blob` class instead.
  */
 class PQXX_LIBEXPORT largeobjectaccess : private largeobject
 {
@@ -153,9 +153,9 @@ public:
   using off_type = size_type;
   using pos_type = size_type;
 
-  /// Open mode: @c in, @c out (can be combined using "bitwise or").
-  /** According to the C++ standard, these should be in @c std::ios_base.  We
-   * take them from derived class @c std::ios instead, which is easier on the
+  /// Open mode: `in`, `out` (can be combined using "bitwise or").
+  /** According to the C++ standard, these should be in `std::ios_base`.  We
+   * take them from derived class `std::ios` instead, which is easier on the
    * eyes.
    *
    * Historical note: taking it from std::ios was originally a workaround for a
@@ -163,11 +163,11 @@ public:
    */
   using openmode = std::ios::openmode;
 
-  /// Default open mode: @c std::ios::in|std::ios::out|std::ios::binary.
+  /// Default open mode: `std::ios::in|std::ios::out|std::ios::binary`.
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
-  /// Seek direction: @c beg, @c cur, @c end.
+  /// Seek direction: `beg`, `cur`, `end`.
   using seekdir = std::ios::seekdir;
 
   /// Create new large object and open it.
@@ -282,7 +282,7 @@ public:
   //@{
   /// Seek in large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
-   * @c errno instead.
+   * `errno` instead.
    * @param dest Offset to go to.
    * @param dir Origin to which dest is relative: ios_base::beg (from beginning
    *        of the object), ios_base::cur (from current access position), or
@@ -293,7 +293,7 @@ public:
 
   /// Write to large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
-   * @c errno instead.
+   * `errno` instead.
    * @param buf Data to write.
    * @param len Number of bytes to write.
    * @return Number of bytes actually written, or -1 if an error occurred.
@@ -302,7 +302,7 @@ public:
 
   /// Read from large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
-   * @c errno instead.
+   * `errno` instead.
    * @param buf Area where incoming bytes should be stored.
    * @param len Number of bytes to read.
    * @return Number of bytes actually read, or -1 if an error occurred..
@@ -311,7 +311,7 @@ public:
 
   /// Report current position in large object's data stream.
   /** Does not throw exception in case of error; inspect return value and
-   * @c errno instead.
+   * `errno` instead.
    * @return Current position in large object, of -1 if an error occurred.
    */
   [[nodiscard]] pos_type ctell() const noexcept;
@@ -354,7 +354,7 @@ private:
 
 
 /// Streambuf to use large objects in standard I/O streams.
-/** @deprecated Access large objects directly using the @c blob class.
+/** @deprecated Access large objects directly using the @ref blob class.
  *
  * The standard streambuf classes provide uniform access to data storage such
  * as files or string buffers, so they can be accessed using standard input or
@@ -379,7 +379,7 @@ public:
   using openmode = largeobjectaccess::openmode;
   using seekdir = largeobjectaccess::seekdir;
 
-  /// Default open mode: @c std::ios::in|std::ios::out|std::ios::binary.
+  /// Default open mode: `std::ios::in|std::ios::out|std::ios::binary`.
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
@@ -526,11 +526,11 @@ private:
 
 
 /// Input stream that gets its data from a large object.
-/** @deprecated Access large objects directly using the @c blob class.
+/** @deprecated Access large objects directly using the @ref blob class.
  *
  * This class worked like any other istream, but to read data from a large
  * object.  It supported all formatting and streaming operations of
- * @c std::istream.
+ * `std::istream`.
  *
  * This functionality was considered too fragile and complex, so it has been
  * replaced with a single, much simpler class.
@@ -583,10 +583,10 @@ using ilostream = basic_ilostream<char>;
 
 
 /// Output stream that writes data back to a large object.
-/** @deprecated Access large objects directly using the @c blob class.
+/** @deprecated Access large objects directly using the @ref blob class.
  *
  * This worked like any other ostream, but to write data to a large object.
- * It supported all formatting and streaming operations of @c std::ostream.
+ * It supported all formatting and streaming operations of `std::ostream`.
  *
  * This functionality was considered too fragile and complex, so it has been
  * replaced with a single, much simpler class.
@@ -652,11 +652,11 @@ using olostream = basic_olostream<char>;
 
 
 /// Stream that reads and writes a large object.
-/** @deprecated Access large objects directly using the @c blob class.
+/** @deprecated Access large objects directly using the @ref blob class.
  *
  * This worked like a std::iostream, but to read data from, or write data to, a
  * large object.  It supported all formatting and streaming operations of
- * @c std::iostream.
+ * `std::iostream`.
  *
  * This functionality was considered too fragile and complex, so it has been
  * replaced with a single, much simpler class.

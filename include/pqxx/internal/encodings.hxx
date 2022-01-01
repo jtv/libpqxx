@@ -34,9 +34,9 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 // TODO: Treat UTF-8 like monobyte for the purpose of finding ASCII chars.
 
-/// Find any of the ASCII characters @c NEEDLE in @c haystack.
-/** Scans through @c haystack until it finds a single-byte character that
- * matches any value in @c NEEDLE.
+/// Find any of the ASCII characters `NEEDLE` in `haystack`.
+/** Scans through `haystack` until it finds a single-byte character that
+ * matches any value in `NEEDLE`.
  *
  * If it finds one, returns its offset.  If not, returns the end of the
  * haystack.
@@ -72,7 +72,7 @@ inline std::size_t find_char(
 
 /// Iterate over the glyphs in a buffer.
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
- * one-past-end pointers to @c callback.
+ * one-past-end pointers to `callback`.
  */
 template<typename CALLABLE>
 inline void for_glyphs(

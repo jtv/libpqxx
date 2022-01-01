@@ -8,7 +8,7 @@
 
 namespace pqxx
 {
-/// An @e unlimited boundary value to a @c pqxx::range.
+/// An _unlimited_ boundary value to a @ref pqxx::range.
 /** Use this as a lower or upper bound for a range if the range should extend
  * to infinity on that side.
  *
@@ -28,7 +28,7 @@ struct no_bound
 };
 
 
-/// An @e inclusive boundary value to a @c pqxx::range.
+/// An _inclusive_ boundary value to a @ref pqxx::range.
 /** Use this as a lower or upper bound for a range if the range should include
  * the value.
  */
@@ -61,8 +61,8 @@ private:
 };
 
 
-/// An @e exclusive boundary value to a @c pqxx::range.
-/** Use this as a lower or upper bound for a range if the range should @e not
+/// An _exclusive_ boundary value to a @ref pqxx::range.
+/** Use this as a lower or upper bound for a range if the range should _not_
  * include the value.
  */
 template<typename TYPE> class exclusive_bound
@@ -140,7 +140,7 @@ public:
     return std::holds_alternative<exclusive_bound<TYPE>>(m_bound);
   }
 
-  /// Would this bound, as a lower bound, include @c value?
+  /// Would this bound, as a lower bound, include `value`?
   bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
@@ -148,7 +148,7 @@ public:
       m_bound);
   }
 
-  /// Would this bound, as an upper bound, include @c value?
+  /// Would this bound, as an upper bound, include `value`?
   bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
@@ -156,7 +156,7 @@ public:
       m_bound);
   }
 
-  /// Return bound value, or @c nullptr if it's not limited.
+  /// Return bound value, or `nullptr` if it's not limited.
   [[nodiscard]] TYPE const *value() const &noexcept
   {
     return std::visit(
@@ -183,7 +183,7 @@ private:
  * which they range.  You can also define your own range types.
  *
  * Usually you'll want the server to deal with ranges.  But on occasions where
- * you need to work with them client-side, you may want to use @c pqxx::range.
+ * you need to work with them client-side, you may want to use @ref pqxx::range.
  * (In cases where all you do is pass them along to the server though, it's not
  * worth the complexity.  In that case you might as well treat ranges as just
  * strings.)
@@ -192,15 +192,15 @@ private:
  * https://www.postgresql.org/docs/current/rangetypes.html
  *
  * The value type must be copyable and default-constructible, and support the
- * less-than @c (<) and equals @c (==) comparisons.  Value initialisation must
+ * less-than (`<`) and equals (`==`) comparisons.  Value initialisation must
  * produce a consistent value.
  */
 template<typename TYPE> class range
 {
 public:
   /// Create a range.
-  /** For each of the two bounds, pass a @c no_bound, @c inclusive_bound, or
-   * @c exclusive_bound.
+  /** For each of the two bounds, pass a @ref no_bound, @ref inclusive_bound, or
+   * @ref exclusive_bound.
    */
   range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
           m_lower{lower}, m_upper{upper}
@@ -241,7 +241,7 @@ public:
    *
    * It is possible to "fool" this.  For example, if your range is of an
    * integer type and has exclusive bounds of 0 and 1, it encompasses no values
-   * but its @c empty() will return false.  The PostgreSQL implementation, by
+   * but its `empty()` will return false.  The PostgreSQL implementation, by
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
@@ -252,15 +252,15 @@ public:
            not(*m_lower.value() < *m_upper.value());
   }
 
-  /// Does this range encompass @c value?
+  /// Does this range encompass `value`?
   bool contains(TYPE value) const
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
   }
 
-  /// Does this range encompass all of @c other?
+  /// Does this range encompass all of `other`?
   /** This function is not particularly smart.  It does not know, for example,
-   * that integer ranges @c [0,9] and @c [0,10) contain the same values.
+   * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
   bool contains(range<TYPE> const &other) const
   {
@@ -339,7 +339,7 @@ private:
 };
 
 
-/// String conversions for a @c range type.
+/// String conversions for a @ref range type.
 /** Conversion assumes that either your client encoding is UTF-8, or the values
  * are pure ASCII.
  */

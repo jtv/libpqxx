@@ -32,12 +32,12 @@ class transaction_base;
 
 
 // C++20: constinit.
-/// Pass this to a @c stream_from constructor to stream table contents.
-/** @deprecated Use stream_from::table() instead.
+/// Pass this to a `stream_from` constructor to stream table contents.
+/** @deprecated Use @ref stream_from::table() instead.
  */
 constexpr from_table_t from_table;
 // C++20: constinit.
-/// Pass this to a @c stream_from constructor to stream query results.
+/// Pass this to a `stream_from` constructor to stream query results.
 /** @deprecated Use stream_from::query() instead.
  */
 constexpr from_query_t from_query;
@@ -57,15 +57,15 @@ constexpr from_query_t from_query;
  * the stream is open.
  *
  * There are two ways of starting a stream: you stream either all rows in a
- * table (using one of the factories, @c table() or @c raw_table()), or the
- * results of a query (using the @c query() factory).
+ * table (using one of the factories, `table()` or `raw_table()`), or the
+ * results of a query (using the `query()` factory).
  *
- * Usually you'll want the @c stream convenience wrapper in transaction_base,
- * so you don't need to deal with this class directly.
+ * Usually you'll want the `stream` convenience wrapper in
+ * @ref transaction_base, * so you don't need to deal with this class directly.
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
- * object of a type derived from @c pqxx::transaction_focus active on it at a
+ * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
 class PQXX_LIBEXPORT stream_from : transaction_focus
@@ -94,7 +94,7 @@ public:
   /**
    * @name Streaming data from tables
    *
-   * You can use @c stream_from to read a table's contents.  This is a quick
+   * You can use `stream_from` to read a table's contents.  This is a quick
    * and easy way to read a table, but it comes with limitations.  It cannot
    * stream from a view, only from a table.  It does not support conditions.
    * And there are no guarantees about ordering.  If you need any of those
@@ -132,19 +132,19 @@ public:
   //@}
 
   /// Execute query, and stream over the results.
-  /** @deprecated Use factory function @c query() instead.
+  /** @deprecated Use factory function @ref query instead.
    */
   [[deprecated("Use query() factory instead.")]] stream_from(
     transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
-  /** @deprecated Use factory function @c table() or @c raw_table() instead.
+  /** @deprecated Use factories @ref table or @ref raw_table instead.
    */
   [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
     transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
-  /** @deprecated Use factory function @c table() or @c raw_table() instead.
+  /** @deprecated Use factories @ref table or @ref raw_table instead.
    */
   template<typename Iter>
   [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
@@ -152,7 +152,7 @@ public:
     Iter columns_begin, Iter columns_end);
 
   /// Stream given columns from all rows in table.
-  /** @deprecated Use factory function @c query() instead.
+  /** @deprecated Use factory function @ref query instead.
    */
   template<typename Columns>
   [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
@@ -160,21 +160,21 @@ public:
     Columns const &columns);
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  /// @deprecated Use factory function @c table() or @c raw_table() instead.
+  /// @deprecated Use factories @ref table or @ref raw_table instead.
   [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
-  /// @deprecated Use factory function @c table() or @c raw_table() instead.
+  /// @deprecated Use factories @ref table or @ref raw_table instead.
   template<typename Columns>
   [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &tx, std::string_view table, Columns const &columns) :
           stream_from{tx, from_table, table, columns}
   {}
 
-  /// @deprecated Use factory function @c table() or @c raw_table() instead.
+  /// @deprecated Use factories @ref table or @ref raw_table instead.
   template<typename Iter>
   [[deprecated("Use the from_table_t overload instead.")]] stream_from(
     transaction_base &, std::string_view table, Iter columns_begin,
@@ -201,12 +201,12 @@ public:
    *
    * For a column which can contain nulls, be sure to give the corresponding
    * tuple field a type which can be null.  For example, to read a field as
-   * @c int when it may contain nulls, read it as @c std::optional<int>.
-   * Using @c std::shared_ptr or @c std::unique_ptr will also work.
+   * `int` when it may contain nulls, read it as `std::optional<int>`.
+   * Using `std::shared_ptr` or `std::unique_ptr` will also work.
    */
   template<typename Tuple> stream_from &operator>>(Tuple &);
 
-  /// Doing this with a @c std::variant is going to be horrifically borked.
+  /// Doing this with a `std::variant` is going to be horrifically borked.
   template<typename... Vs>
   stream_from &operator>>(std::variant<Vs...> &) = delete;
 
@@ -221,13 +221,13 @@ public:
   }
 
   /// Read a row.  Return fields as views, valid until you read the next row.
-  /** Returns @c nullptr when there are no more rows to read.  Do not attempt
+  /** Returns `nullptr` when there are no more rows to read.  Do not attempt
    * to read any further rows after that.
    *
    * Do not access the vector, or the storage referenced by the views, after
    * closing or completing the stream, or after attempting to read a next row.
    *
-   * A @c pqxx::zview is like a @c std::string_view, but with the added
+   * A @ref pqxx::zview is like a `std::string_view`, but with the added
    * guarantee that if its data pointer is non-null, the string is followed by
    * a terminating zero (which falls just outside the view itself).
    *
@@ -277,7 +277,7 @@ private:
   template<typename Tuple, std::size_t index>
   void extract_value(Tuple &) const;
 
-  /// Read a line of COPY data, write @c m_row and @c m_fields.
+  /// Read a line of COPY data, write `m_row` and `m_fields`.
   void parse_line();
 };
 

@@ -47,7 +47,7 @@ public:
   /// Move an iterator.
   const_result_iterator(const_result_iterator &&) noexcept = default;
 
-  /// Begin iterating a @c row.
+  /// Begin iterating a @ref row.
   const_result_iterator(row const &t) noexcept : row{t} {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
@@ -55,7 +55,7 @@ public:
    * @name Dereferencing operators
    *
    * An iterator "points to" its own row, which is also itself.  This makes it
-   * easy to address a @c result as a two-dimensional container, without going
+   * easy to address a @ref result as a two-dimensional container, without going
    * through the intermediate step of dereferencing the iterator.  It makes the
    * interface similar to C pointer/array semantics.
    *

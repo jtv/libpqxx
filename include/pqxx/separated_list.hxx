@@ -1,4 +1,4 @@
-/* Helper similar to Python's @c str.join().
+/* Helper similar to Python's `str.join()`.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/separated_list instead.
  *

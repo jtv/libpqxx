@@ -27,7 +27,7 @@ namespace pqxx
  * entire transaction.  Here's an example of how a temporary table may be
  * dropped before re-creating it, without failing if the table did not exist:
  *
- * @code
+ * ```cxx
  * void do_job(connection &C)
  * {
  *   string const temptable = "fleetingtable";
@@ -55,7 +55,7 @@ namespace pqxx
  *
  *   do_lastpart(W);
  * }
- * @endcode
+ * ```
  *
  * (This is just an example.  If you really wanted to do drop a table without
  * an error if it doesn't exist, you'd use DROP TABLE IF EXISTS.)
@@ -66,7 +66,7 @@ namespace pqxx
  *
  * @warning While the subtransaction is "live," you cannot execute queries or
  * open streams etc. on its parent transaction.  A transaction can have at most
- * one object of a type derived from @c pqxx::transaction_focus active on it at
+ * one object of a type derived from @ref pqxx::transaction_focus active on it at
  * a time.
  */
 class PQXX_LIBEXPORT subtransaction : public transaction_focus,

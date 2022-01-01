@@ -20,9 +20,9 @@ void render_item(TYPE const &item, char *&here, char *end)
 /// Efficiently combine a bunch of items into one big string.
 /** Use this as an optimised version of string concatentation.  It takes just
  * about any type; it will represent each item as a string according to its
- * @c string_traits.
+ * @ref string_traits.
  *
- * This is a simpler, more specialised version of @c separated_list for a
+ * This is a simpler, more specialised version of @ref separated_list for a
  * statically known series of items, possibly of different types.
  */
 template<typename... TYPE>

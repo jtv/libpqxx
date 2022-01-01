@@ -65,7 +65,7 @@
  *
  * https://www.postgresql.org/docs/current/libpq-envars.html
  *
- * You can also create a database connection @em asynchronously using an
+ * You can also create a database connection _asynchronously_ using an
  * intermediate @ref pqxx::connecting object.
  */
 
@@ -112,9 +112,9 @@ namespace pqxx
 /** A "table path" consists of a table name, optionally prefixed by a schema
  * name, which in turn is optionally prefixed by a database name.
  *
- * A minimal example of a table path would be @c {mytable}.  But a table path
- * may also take the forms @c {myschema,mytable} or
- * @c {mydb,myschema,mytable}.
+ * A minimal example of a table path would be `{mytable}`.  But a table path
+ * may also take the forms `{myschema,mytable}` or
+ * `{mydb,myschema,mytable}`.
  */
 using table_path = std::initializer_list<std::string_view>;
 
@@ -169,7 +169,7 @@ enum class error_verbosity : int
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
  * transactor framework (see pqxx/transactor.hxx).
  *
- * When a connection breaks, you will typically get a @c broken_connection
+ * When a connection breaks, you will typically get a @ref broken_connection
  * exception.  This can happen at almost any point.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
@@ -182,14 +182,14 @@ class PQXX_LIBEXPORT connection
 public:
   connection() : connection{""} {}
 
-  /// Connect to a database, using @c options string.
+  /// Connect to a database, using `options` string.
   explicit connection(char const options[])
   {
     check_version();
     init(options);
   }
 
-  /// Connect to a database, using @c options string.
+  /// Connect to a database, using `options` string.
   explicit connection(zview options) : connection{options.c_str()}
   {
     // (Delegates to other constructor which calls check_version for us.)
@@ -206,7 +206,7 @@ public:
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Connect to a database, passing options as a range of key/value pairs.
   /** @warning Experimental.  Requires C++20 "concepts" support.  Define
-   * @c PQXX_HAVE_CONCEPTS to enable it.
+   * `PQXX_HAVE_CONCEPTS` to enable it.
    *
    * There's no need to escape the parameter values.
    *
@@ -216,9 +216,9 @@ public:
    * https://postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
    *
    * The options can be anything that can be iterated as a series of pairs of
-   * zero-terminated strings: @c std::pair<std::string, std::string>`, or
-   * @c std::tuple<pqxx::zview, char const *>, or
-   * @c std::map<std::string, pqxx::zview>, and so on.
+   * zero-terminated strings: `std::pair<std::string, std::string>`, or
+   * `std::tuple<pqxx::zview, char const *>`, or
+   * `std::map<std::string, pqxx::zview>`, and so on.
    */
   template<internal::ZKey_ZValues MAPPING>
   inline connection(MAPPING const &params);
@@ -244,9 +244,9 @@ public:
   connection &operator=(connection const &) = delete;
 
   /// Is this connection open at the moment?
-  /** @warning This function is @b not needed in most code.  Resist the
-   * temptation to check it after opening a connection.  The @c connection
-   * constructor will throw a @c broken_connection exception if can't connect
+  /** @warning This function is **not** needed in most code.  Resist the
+   * temptation to check it after opening a connection.  The `connection`
+   * constructor will throw a @ref broken_connection exception if can't connect
    * to the database.
    */
   [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
@@ -366,7 +366,7 @@ public:
 
   //@}
 
-  /// Set session variable, using SQL's @c SET command.
+  /// Set session variable, using SQL's `SET` command.
   /** Set a session variable for this connection.  See the PostgreSQL
    * documentation for a list of variables that can be set and their
    * permissible values.
@@ -384,7 +384,7 @@ public:
    */
   void set_variable(std::string_view var, std::string_view value) &;
 
-  /// Read session variable, using SQL's @c SHOW command.
+  /// Read session variable, using SQL's `SHOW` command.
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
@@ -425,7 +425,7 @@ public:
    *
    * To wait for notifications into your own event loop instead, wait until
    * there is incoming data on the connection's socket to be read, then call
-   * @c get_notifs() repeatedly until it returns zero.
+   * @ref get_notifs() repeatedly until it returns zero.
    *
    * @return Number of notifications processed.
    */
@@ -440,7 +440,7 @@ public:
    *
    * To wait for notifications into your own event loop instead, wait until
    * there is incoming data on the connection's socket to be read, then call
-   * @c get_notifs() repeatedly until it returns zero.
+   * @ref get_notifs repeatedly until it returns zero.
    *
    * @return Number of notifications processed
    */
@@ -455,25 +455,25 @@ public:
    * encrypt a password; the plaintext password; and the hash algorithm.
    *
    * The algorithm must be one of "md5", "scram-sha-256" (introduced in
-   * PostgreSQL 10), or @c nullptr.  If the pointer is null, this will query
-   * the @c password_encryption setting from the server, and use the default
+   * PostgreSQL 10), or `nullptr`.  If the pointer is null, this will query
+   * the `password_encryption setting` from the server, and use the default
    * algorithm as defined there.
    *
    * @return encrypted version of the password, suitable for encrypted
    * PostgreSQL authentication.
    *
-   * Thus the password for a user can be changed with:
-   * @code
+   * Thus you can change a user's password with:
+   * ```cxx
    * void setpw(transaction_base &t, string const &user, string const &pw)
    * {
    *   t.exec0("ALTER USER " + user + " "
    *   	"PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
    * }
-   * @endcode
+   * ```
    *
    * When building this against a libpq older than version 10, this will use
    * an older function which only supports md5.  In that case, requesting a
-   * different algorithm than md5 will result in a @c feature_not_supported
+   * different algorithm than md5 will result in a @ref feature_not_supported
    * exception.
    */
   //@{
@@ -501,8 +501,8 @@ public:
    * aborted.  Once a statement has been prepared, it will only go away if you
    * close the connection or explicitly "unprepare" the statement.
    *
-   * Use the @c pqxx::transaction_base::exec_prepared functions to execute a
-   * prepared statement.  See \ref prepared for a full discussion.
+   * Use the `pqxx::transaction_base::exec_prepared` functions to execute a
+   * prepared statement.  See @ref prepared for a full discussion.
    *
    * @warning Using prepared statements can save time, but if your statement
    * takes parameters, it may also make your application significantly slower!
@@ -512,13 +512,13 @@ public:
    * preparing it, then the server works out the plan on the spot, with full
    * knowledge of the parameter values.
    *
-   * A statement's definition can refer to its parameters as @c $1, @c $2, etc.
-   * The first parameter you pass to the call provides a value for @c $1, and
+   * A statement's definition can refer to its parameters as `$1`, `$2`, etc.
+   * The first parameter you pass to the call provides a value for `$1`, and
    * so on.
    *
    * Here's an example of how to use prepared statements.
    *
-   * @code
+   * ```cxx
    * using namespace pqxx;
    * void foo(connection &c)
    * {
@@ -527,7 +527,7 @@ public:
    *   result r = tx.exec_prepared("findtable", "mytable");
    *   if (std::empty(r)) throw runtime_error{"mytable not found!"};
    * }
-   * @endcode
+   * ```
    */
   //@{
 
@@ -592,18 +592,17 @@ public:
   }
 
 #if defined(PQXX_HAVE_SPAN)
-  /// Escape string for use as SQL string literal, into @c buffer.
+  /// Escape string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
    * important, use the single-argument variant.
    *
-   * For every byte in @c text, there must be at least 2 bytes of space in
-   * @c buffer; plus there must be one byte of space for a trailing zero.
-   * Throws
-   * @c range_error if this space is not available.
+   * For every byte in `text`, there must be at least 2 bytes of space in
+   * `buffer`; plus there must be one byte of space for a trailing zero.
+   * Throws @ref range_error if this space is not available.
    *
    * Returns a reference to the escaped string, which is actually stored in
-   * @c buffer.
+   * `buffer`.
    */
   [[nodiscard]] std::string_view
   esc(std::string_view text, std::span<char> buffer)
@@ -627,7 +626,7 @@ public:
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
-  /** This is identical to @c esc_raw(data). */
+  /** This is identical to `esc_raw(data)`. */
   template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
   {
     return esc_raw(data);
@@ -635,17 +634,17 @@ public:
 #endif
 
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
-  /// Escape binary string for use as SQL string literal, into @c buffer.
+  /// Escape binary string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
    * important, use the single-argument variant.
    *
-   * For every byte in @c data, there must be at least two bytes of space in
-   * @c buffer; plus there must be two bytes of space for a header and one for
-   * a trailing zero.  Throws @c range_error if this space is not available.
+   * For every byte in `data`, there must be at least two bytes of space in
+   * `buffer`; plus there must be two bytes of space for a header and one for
+   * a trailing zero.  Throws @ref range_error if this space is not available.
    *
    * Returns a reference to the escaped string, which is actually stored in
-   * @c buffer.
+   * `buffer`.
    */
   template<binary DATA>
   [[nodiscard]] zview esc(DATA const &data, std::span<char> buffer) const
@@ -671,19 +670,19 @@ public:
   esc_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
-  /** You can also just use @c esc() with a binary string. */
+  /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
 
 #if defined(PQXX_HAVE_SPAN)
-  /// Escape binary string for use as SQL string literal, into @c buffer.
-  /** You can also just use @c esc() with a binary string. */
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string
   esc_raw(std::basic_string_view<std::byte>, std::span<char> buffer) const;
 #endif
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
-  /** You can also just use @c esc() with a binary string. */
+  /** You can also just use @ref esc with a binary string. */
   template<binary DATA>
   [[nodiscard]] std::string esc_raw(DATA const &data) const
   {
@@ -693,7 +692,7 @@ public:
 #endif
 
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
-  /// Escape binary string for use as SQL string literal, into @c buffer.
+  /// Escape binary string for use as SQL string literal, into `buffer`.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
   {
@@ -747,7 +746,7 @@ public:
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape and quote a string of binary data.
-  /** You can also just use @c quote() with binary data. */
+  /** You can also just use @ref quote with binary data. */
   template<binary DATA>
   [[nodiscard]] std::string quote_raw(DATA const &data) const
   {
@@ -763,7 +762,7 @@ public:
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote a table name.
   /** When passing just a table name, this is just another name for
-   * @c quote_name.
+   * @ref quote_name.
    */
   [[nodiscard]] std::string quote_table(std::string_view name) const;
 
@@ -775,14 +774,14 @@ public:
    *
    * Each portion of the path (database name, schema name, table name) will be
    * quoted separately, and they will be joined together by dots.  So for
-   * example, @c myschema.mytable will bercome @c "myschema"."mytable".
+   * example, `myschema.mytable` will become `"myschema"."mytable"`.
    */
   [[nodiscard]] std::string quote_table(table_path) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Quote and comma-separate a series of column names.
   /** Use this to save a bit of work in cases where you repeatedly need to pass
-   * the same list of column names, e.g. with @c stream_to and @c stream_from.
+   * the same list of column names, e.g. with @ref stream_to and @ref stream_from.
    * Some functions that need to quote the columns list internally, will have
    * a "raw" alternative which let you do the quoting yourself.  It's a bit of
    * extra work, but it can in rare cases let you eliminate some duplicate
@@ -815,19 +814,21 @@ public:
    *
    * The string does not get string-escaped or quoted.  You do that later.
    *
-   * For instance, let's say you have a string @c name entered by the user,
-   * and you're searching a @c file column for items that match @c name
-   * followed by a dot and three letters.  Even if @c name contains wildcard
+   * For instance, let's say you have a string `name` entered by the user,
+   * and you're searching a `file` column for items that match `name`
+   * followed by a dot and three letters.  Even if `name` contains wildcard
    * characters "%" or "_", you only want those to match literally, so "_"
    * only matches "_" and "%" only matches a single "%".
    *
-   * You do that by "like-escaping" @c name, appending the wildcard pattern
-   * @c ".___", and finally, escaping and quoting the result for inclusion in
+   * You do that by "like-escaping" `name`, appending the wildcard pattern
+   * `".___"`, and finally, escaping and quoting the result for inclusion in
    * your query:
    *
+   * ```cxx
    *    tx.exec(
    *        "SELECT file FROM item WHERE file LIKE " +
    *        tx.quote(tx.esc_like(name) + ".___"));
+   * ```
    *
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
@@ -886,8 +887,8 @@ public:
 
   /// Explicitly close the connection.
   /** The destructor will do this for you automatically.  Still, there is a
-   * reason to @c close() objects explicitly where possible: if an error should
-   * occur while closing, @c close() can throw an exception.  A destructor
+   * reason to `close()` objects explicitly where possible: if an error should
+   * occur while closing, `close()` can throw an exception.  A destructor
    * cannot.
    *
    * Closing a connection is idempotent.  Closing a connection that's already
@@ -926,7 +927,7 @@ private:
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
-  /** The buffer must have room for at least @c 2*std::size(text)+1 bytes.
+  /** The buffer must have room for at least `2*std::size(text) + 1` bytes.
    *
    * Returns the number of bytes written, including the trailing zero.
    */
@@ -939,9 +940,9 @@ private:
 
   result exec_prepared(std::string_view statement, internal::c_params const &);
 
-  /// Throw @c usage_error if this connection is not in a movable state.
+  /// Throw @ref usage_error if this connection is not in a movable state.
   void check_movable() const;
-  /// Throw @c usage_error if not in a state where it can be move-assigned.
+  /// Throw @ref usage_error if not in a state where it can be move-assigned.
   void check_overwritable() const;
 
   friend class internal::gate::connection_errorhandler;
@@ -1013,7 +1014,7 @@ using connection_base = connection;
 /// An ongoing, non-blocking stepping stone to a connection.
 /** Use this when you want to create a connection to the database, but without
  * blocking your whole thread.   It is only available on systems that have
- * the @c <fcntl.h> header, and Windows.
+ * the `<fcntl.h>` header, and Windows.
  *
  * Connecting in this way is probably not "faster" (it's more complicated and
  * has some extra overhead), but in some situations you can use it to make your
@@ -1025,34 +1026,34 @@ using connection_base = connection;
  *
  * Connecting in this way is not properly "asynchronous;" it's merely
  * "nonblocking."  This means it's not a super-high-performance mechanism like
- * you might get with e.g. @c io_uring.  In particular, if we need to look up
+ * you might get with e.g. `io_uring`.  In particular, if we need to look up
  * the database hostname in DNS, that will happen synchronously.
  *
- * To use this, create the @c connecting object, passing a connection string.
- * Then loop: If @c wait_to_read() returns true, wait for the socket to have
- * incoming data on it.  If @c wait_to_write() returns true, wait for the
- * socket to be ready for writing.  Then call @c process() to process any
- * incoming or outgoing data.  Do all of this until @c done() returns true (or
- * there is an exception).  Finally, call @c produce() to get the completed
+ * To use this, create the `connecting` object, passing a connection string.
+ * Then loop: If @ref wait_to_read returns true, wait for the socket to have
+ * incoming data on it.  If @ref wait_to_write returns true, wait for the
+ * socket to be ready for writing.  Then call @ref process to process any
+ * incoming or outgoing data.  Do all of this until @ref done returns true (or
+ * there is an exception).  Finally, call @ref produce to get the completed
  * connection.
  *
  * For example:
  *
- * @code{.cpp}
- *    pqxx::connecting cg{};
+ * ```cxx
+ *     pqxx::connecting cg{};
  *
- *    // Loop until we're done connecting.
- *    while (!cg.done())
- *    {
- *        wait_for_fd(cg.sock(), cg.wait_to_read(), cg.wait_to_write());
- *        cg.process();
- *    }
+ *     // Loop until we're done connecting.
+ *     while (!cg.done())
+ *     {
+ *         wait_for_fd(cg.sock(), cg.wait_to_read(), cg.wait_to_write());
+ *         cg.process();
+ *     }
  *
- *    pqxx::connection conn = std::move(cg).produce();
+ *     pqxx::connection conn = std::move(cg).produce();
  *
- *    // At this point, conn is a working connection.  You can no longer use
- *    // cg at all.
- * @endcode
+ *     // At this point, conn is a working connection.  You can no longer use
+ *     // cg at all.
+ * ```
  */
 class PQXX_LIBEXPORT connecting
 {
@@ -1068,10 +1069,10 @@ public:
   /// Get the socket.  The socket may change during the connection process.
   [[nodiscard]] int sock() const &noexcept { return m_conn.sock(); }
 
-  /// Should we currently wait to be able to @e read from the socket?
+  /// Should we currently wait to be able to _read_ from the socket?
   [[nodiscard]] bool wait_to_read() const &noexcept { return m_reading; }
 
-  /// Should we currently wait to be able to @e write to the socket?
+  /// Should we currently wait to be able to _write_ to the socket?
   [[nodiscard]] bool wait_to_write() const &noexcept { return m_writing; }
 
   /// Progress towards completion (but don't block).
@@ -1084,13 +1085,13 @@ public:
   }
 
   /// Produce the completed connection object.
-  /** Use this only once, after @c done() returned @c true.  Once you have
-   * called this, the @c connecting instance has no more use or meaning.  You
+  /** Use this only once, after @ref done returned `true`.  Once you have
+   * called this, the `connecting` instance has no more use or meaning.  You
    * can't call any of its member functions afterwards.
    *
    * This member function is rvalue-qualified, meaning that you can only call
    * it on an rvalue instance of the class.  If what you have is not an rvalue,
-   * turn it into one by wrapping it in @c std::move().
+   * turn it into one by wrapping it in `std::move()`.
    */
   [[nodiscard]] connection produce() &&;
 
