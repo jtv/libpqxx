@@ -29,9 +29,9 @@ template class PQXX_LIBEXPORT std::shared_ptr<std::string>;
 template class PQXX_LIBEXPORT std::vector < pqxx::format,
   std::allocator<pqxx::format>;
 template class PQXX_LIBEXPORT std::vector < char const *,
-  std::allocator<char const *>;
-template class PQXX_LIBEXPORT std::vector < int, std::allocator<int>;
+  std::allocator<char const *>>;
+template class PQXX_LIBEXPORT std::vector < int, std::allocator<int>>;
 template class PQXX_LIBEXPORT std::vector < std::string_view,
-  std::allocator<std::string_view>;
+  std::allocator<std::string_view>>;
 
 #endif
