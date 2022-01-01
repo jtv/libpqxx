@@ -12,11 +12,9 @@
 
 
 #if defined(_WIN32) && defined(PQXX_SHARED)
-#  define PQXX_EXPORT_TYPE(type) template class PQXX_LIBEXPORT type
 
-PQXX_EXPORT_STD(std::string);
-PQXX_EXPORT_STD(std::string_view);
-PQXX_EXPORT_STD(std::vector<std::string_view>);
+template class PQXX_LIBEXPORT std::string;
+template class PQXX_LIBEXPORT std::string_view;
+template class PQXX_LIBEXPORT std::vector;
 
-#  undef PQXX_EXPORT_TYPE
 #endif
