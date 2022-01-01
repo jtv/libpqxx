@@ -58,3 +58,5 @@ jobs:
           path: lint.log
       - store_artifacts:
           path: lint-stderr.log
+      - store_test_results:
+          path: test-results
