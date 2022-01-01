@@ -134,11 +134,11 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
 am_libpqxx_la_OBJECTS = array.lo binarystring.lo blob.lo connection.lo \
-	cursor.lo encodings.lo errorhandler.lo except.lo field.lo \
-	largeobject.lo notification.lo params.lo pipeline.lo result.lo \
-	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
-	stream_to.lo subtransaction.lo time.lo transaction.lo \
-	transaction_base.lo row.lo util.lo version.lo
+	cursor.lo encodings.lo errorhandler.lo except.lo exports.lo \
+	field.lo largeobject.lo notification.lo params.lo pipeline.lo \
+	result.lo robusttransaction.lo sql_cursor.lo strconv.lo \
+	stream_from.lo stream_to.lo subtransaction.lo time.lo \
+	transaction.lo transaction_base.lo row.lo util.lo version.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -165,16 +165,16 @@ am__depfiles_remade = ./$(DEPDIR)/array.Plo \
 	./$(DEPDIR)/binarystring.Plo ./$(DEPDIR)/blob.Plo \
 	./$(DEPDIR)/connection.Plo ./$(DEPDIR)/cursor.Plo \
 	./$(DEPDIR)/encodings.Plo ./$(DEPDIR)/errorhandler.Plo \
-	./$(DEPDIR)/except.Plo ./$(DEPDIR)/field.Plo \
-	./$(DEPDIR)/largeobject.Plo ./$(DEPDIR)/notification.Plo \
-	./$(DEPDIR)/params.Plo ./$(DEPDIR)/pipeline.Plo \
-	./$(DEPDIR)/result.Plo ./$(DEPDIR)/robusttransaction.Plo \
-	./$(DEPDIR)/row.Plo ./$(DEPDIR)/sql_cursor.Plo \
-	./$(DEPDIR)/strconv.Plo ./$(DEPDIR)/stream_from.Plo \
-	./$(DEPDIR)/stream_to.Plo ./$(DEPDIR)/subtransaction.Plo \
-	./$(DEPDIR)/time.Plo ./$(DEPDIR)/transaction.Plo \
-	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/util.Plo \
-	./$(DEPDIR)/version.Plo
+	./$(DEPDIR)/except.Plo ./$(DEPDIR)/exports.Plo \
+	./$(DEPDIR)/field.Plo ./$(DEPDIR)/largeobject.Plo \
+	./$(DEPDIR)/notification.Plo ./$(DEPDIR)/params.Plo \
+	./$(DEPDIR)/pipeline.Plo ./$(DEPDIR)/result.Plo \
+	./$(DEPDIR)/robusttransaction.Plo ./$(DEPDIR)/row.Plo \
+	./$(DEPDIR)/sql_cursor.Plo ./$(DEPDIR)/strconv.Plo \
+	./$(DEPDIR)/stream_from.Plo ./$(DEPDIR)/stream_to.Plo \
+	./$(DEPDIR)/subtransaction.Plo ./$(DEPDIR)/time.Plo \
+	./$(DEPDIR)/transaction.Plo ./$(DEPDIR)/transaction_base.Plo \
+	./$(DEPDIR)/util.Plo ./$(DEPDIR)/version.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -366,6 +366,7 @@ libpqxx_la_SOURCES = \
 	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
+	exports.cxx \
 	field.cxx \
 	largeobject.cxx \
 	notification.cxx \
@@ -484,6 +485,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encodings.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errorhandler.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/except.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exports.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/field.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/largeobject.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notification.Plo@am__quote@ # am--include-marker
@@ -675,6 +677,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/encodings.Plo
 	-rm -f ./$(DEPDIR)/errorhandler.Plo
 	-rm -f ./$(DEPDIR)/except.Plo
+	-rm -f ./$(DEPDIR)/exports.Plo
 	-rm -f ./$(DEPDIR)/field.Plo
 	-rm -f ./$(DEPDIR)/largeobject.Plo
 	-rm -f ./$(DEPDIR)/notification.Plo
@@ -746,6 +749,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/encodings.Plo
 	-rm -f ./$(DEPDIR)/errorhandler.Plo
 	-rm -f ./$(DEPDIR)/except.Plo
+	-rm -f ./$(DEPDIR)/exports.Plo
 	-rm -f ./$(DEPDIR)/field.Plo
 	-rm -f ./$(DEPDIR)/largeobject.Plo
 	-rm -f ./$(DEPDIR)/notification.Plo

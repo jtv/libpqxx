@@ -8,6 +8,7 @@ libpqxx_la_SOURCES = \
 	encodings.cxx \
 	errorhandler.cxx \
 	except.cxx \
+	exports.cxx \
 	field.cxx \
 	largeobject.cxx \
 	notification.cxx \
