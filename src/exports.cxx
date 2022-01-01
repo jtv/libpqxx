@@ -7,12 +7,15 @@
 #include "pqxx-source.hxx"
 
 #if defined(_WIN32) && defined(PQXX_SHARED)
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
 
-template class PQXX_LIBEXPORT std::string<>;
-template class PQXX_LIBEXPORT std::string_view<>;
+template class PQXX_LIBEXPORT std::basic_string<char>;
+template class PQXX_LIBEXPORT std::basic_string<std::byte>;
+template class PQXX_LIBEXPORT std::basic_string_view<char>;
+template class PQXX_LIBEXPORT std::basic_string_view<std::byte>;
 template class PQXX_LIBEXPORT std::vector<std::string_view>;
 
 #endif
