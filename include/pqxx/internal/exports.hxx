@@ -27,7 +27,7 @@ class PQXX_LIBEXPORT std::out_of_range;
 class PQXX_LIBEXPORT std::runtime_error;
 template class PQXX_LIBEXPORT std::shared_ptr<std::string>;
 template class PQXX_LIBEXPORT std::vector < pqxx::format,
-  std::allocator<pqxx::format>;
+  std::allocator<pqxx::format>>;
 template class PQXX_LIBEXPORT std::vector < char const *,
   std::allocator<char const *>>;
 template class PQXX_LIBEXPORT std::vector < int, std::allocator<int>>;
