@@ -15,22 +15,27 @@ as well.)
 
 For example, your code might do:
 
+```cxx
     pqxx::result r = tx.exec("SELECT * FROM mytable");
+```
 
 Now, how do you access the data inside `r`?
 
 Result sets act as standard C++ containers of rows.  Rows act as standard
 C++ containers of fields.  So the easiest way to go through them is:
 
+```cxx
     for (auto const &row: r)
     {
        for (auto const &field: row) std::cout << field.c_str() << '\t';
        std::cout << std::endl;
     }
+```
 
 But results and rows also support other kinds of access.  Array-style
 indexing, for instance, such as `r[rownum]`:
 
+```cxx
     int const num_rows = std::size(r);
     for (int rownum=0; rownum < num_rows; ++rownum)
     {
@@ -44,15 +49,18 @@ indexing, for instance, such as `r[rownum]`:
 
       std::cout << std::endl;
     }
+```
 
 And of course you can use classic "begin/end" loops:
 
+```cxx
     for (auto row = std::begin(r); row != std::end(r); row++)
     {
       for (auto field = std::begin(row); field != std::end(row); field++)
         std::cout << field->c_str() << '\t';
         std::cout << std::endl;
     }
+```
 
 Result sets are immutable, so all iterators on results and rows are actually
 `const_iterator`s.  There are also `const_reverse_iterator` types, which
@@ -90,10 +98,12 @@ https://www.postgresql.org/docs/current/sql-copy.html
 Now for the good news.  Streaming does make it very easy to query data and loop
 over it:
 
+```cxx
     for (auto [id, name, x, y] :
         tx.stream<int, std::string_view, float, float>(
             "SELECT id, name, x, y FROM point"))
       process(id + 1, "point-" + name, x * 10.0, y * 10.0);
+```
 
 The conversion to C++ types (here `int`, `std::string_view`, and two `float`)
 is built in.  You don't see the `row` objects, the `field` objects, the
