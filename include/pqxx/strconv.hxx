@@ -347,7 +347,7 @@ to_buf(char *here, char const *end, TYPE... value)
     here = string_traits<decltype(v)>::into_buf(begin, end, v);
     // Exclude the trailing zero out of the string_view.
     auto len{static_cast<std::size_t>(here - begin) - 1};
-    return std::vector<std::string_view>{begin, len};
+    return std::string_view{begin, len};
   }(value)...};
 }
 
