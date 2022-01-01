@@ -550,7 +550,7 @@ template<std::size_t N> struct string_traits<char[N]>
   static constexpr zview
   to_buf(char *, char *, char const (&value)[N]) noexcept
   {
-    return {value, N - 1};
+    return zview{value, N - 1};
   }
 
   static char *into_buf(char *begin, char *end, char const (&value)[N])
