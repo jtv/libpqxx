@@ -56,7 +56,5 @@ jobs:
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log 2>lint-stderr.log
-      - store_artifacts:
+      - store_test_results:
           path: lint.log
-      - store_artifacts:
-          path: lint-stderr.log
