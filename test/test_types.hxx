@@ -36,7 +36,7 @@ template<> struct string_traits<std::byte>
     auto uc{static_cast<unsigned char>(value)};
     begin[0] = hex_digit[uc >> 4];
     begin[1] = hex_digit[uc & 0x0f];
-    return {begin, 2u};
+    return zview{begin, 2u};
   }
 
   static char *into_buf(char *begin, char *end, std::byte const &value)
