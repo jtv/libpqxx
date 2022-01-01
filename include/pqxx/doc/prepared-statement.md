@@ -24,21 +24,25 @@ The identifier is the name by which the prepared statement will be known; it
 should consist of ASCII letters, digits, and underscores only, and start with
 an ASCII letter.  The name is case-sensitive.
 
+```cxx
     void prepare_my_statement(pqxx::connection &c)
     {
       c.prepare(
           "my_statement",
           "SELECT * FROM Employee WHERE name = 'Xavier'");
     }
+```
 
 Once you've done this, you'll be able to call `my_statement` from any
 transaction you execute on the same connection.  For this, use the
 `pqxx::transaction_base::exec_prepared` functions.
 
+```cxx
     pqxx::result execute_my_statement(pqxx::transaction_base &t)
     {
       return t.exec_prepared("my_statement");
     }
+```
 
 
 Parameters
@@ -51,6 +55,7 @@ will provide when you invoke the prepared satement.
 See @ref parameters for more about this.  And here's a simple example of
 preparing a statement and invoking it with parameters:
 
+```cxx
     void prepare_find(pqxx::connection &c)
     {
       // Prepare a statement called "find" that looks for employees with a
@@ -60,15 +65,18 @@ preparing a statement and invoking it with parameters:
   	    "find",
   	    "SELECT * FROM Employee WHERE name = $1 AND salary > $2");
     }
+```
 
 This example looks up the prepared statement "find," passes `name` and
 `min_salary` as parameters, and invokes the statement with those values:
 
+```cxx
     pqxx::result execute_find(
       pqxx::transaction_base &t, std::string name, int min_salary)
     {
       return t.exec_prepared("find", name, min_salary);
     }
+```
 
 
 A special prepared statement
@@ -109,7 +117,7 @@ value will be the one just before the zero.
 
 So, if you need a zero byte in a string, consider that it's really a _binary
 string,_ which is not the same thing as a text string.  SQL represents binary
-data as the `BYTEA` type, or in binary large objects _(blobs)._
+data as the `BYTEA` type, or in binary large objects ("blobs").
 
 In libpqxx, you represent binary data as a range of `std::byte`.  They must be
 contiguous in memory, so that libpqxx can pass pointers to the underlying C
