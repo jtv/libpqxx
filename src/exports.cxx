@@ -13,9 +13,9 @@
 #include <vector>
 
 template class PQXX_LIBEXPORT std::basic_string<char>;
-template class PQXX_LIBEXPORT std::basic_string<std::byte>;
+//template class PQXX_LIBEXPORT std::basic_string<std::byte>;
 template class PQXX_LIBEXPORT std::basic_string_view<char>;
-template class PQXX_LIBEXPORT std::basic_string_view<std::byte>;
+//template class PQXX_LIBEXPORT std::basic_string_view<std::byte>;
 template class PQXX_LIBEXPORT std::vector<std::string_view>;
 
 #endif
