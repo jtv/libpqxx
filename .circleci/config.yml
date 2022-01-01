@@ -14,7 +14,7 @@ jobs:
           command: apt update
       - run:
           name: Install
-          command: apt install -y python python3 cmake postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
+          command: apt install -y python3 cmake postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
       - run:
           name: Identify
           command: lsb_release -a && c++ --version
