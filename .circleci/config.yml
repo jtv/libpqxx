@@ -55,6 +55,6 @@ jobs:
           command: PGDATA=db/data make check
       - run:
           name: Analyse
-          command: ./tools/lint --full >lint.log 2>lint-stderr.log
+          command: ./tools/lint --full >lint.log
       - store_test_results:
           path: lint.log
