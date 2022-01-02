@@ -2,7 +2,8 @@ Building using `configure`
 ==========================
 
 The build requires `libpq`, the C client library for PostgreSQL.  This library
-must be installed before you can build libpqxx.
+must be installed before you can build libpqxx.  You'll need the headers as
+well as the library binary.
 
 The instructions will assume that you're working from a command-line shell.
 If you prefer to work from an IDE, you'll have to know how your IDE likes to
