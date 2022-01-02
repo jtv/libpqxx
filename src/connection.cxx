@@ -531,7 +531,7 @@ char const *error_string(int err_num, std::array<char, BYTES> &buffer)
 void pqxx::connection::set_blocking(bool block) &
 {
   auto const fd{sock()};
-#if defined _WIN32
+#  if defined _WIN32
   unsigned long mode{not block};
   if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
   {
@@ -540,7 +540,7 @@ void pqxx::connection::set_blocking(bool block) &
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
-#else // _WIN32
+#  else  // _WIN32
   std::array<char, 200> errbuf;
   auto flags{::fcntl(fd, F_GETFL, 0)};
   if (flags == -1)
@@ -559,7 +559,7 @@ void pqxx::connection::set_blocking(bool block) &
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
-#endif // _WIN32
+#  endif // _WIN32
 }
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
