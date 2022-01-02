@@ -1245,7 +1245,14 @@ char const *get_default(PQconninfoOption const &opt) noexcept
   }
   // As of C++11, std::getenv() uses thread-local storage, so it should be
   // thread-safe.  MSVC still warns about it though.
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
   char const *var{std::getenv(opt.envvar)};
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
   if (var == nullptr)
   {
     // There's an environment variable for this setting, but it's not set.

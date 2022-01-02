@@ -81,7 +81,14 @@ void test_connection_string()
   pqxx::connection c;
   std::string const connstr{c.connection_string()};
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
   if (std::getenv("PGUSER") == nullptr)
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
   {
     PQXX_CHECK(
       connstr.find("user=" + std::string{c.username()}) != std::string::npos,
