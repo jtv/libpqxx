@@ -416,12 +416,31 @@ void test_blob_append_from_buf_appends()
 
 namespace
 {
+/// Wrap `std::fopen`.
+/** This is just here to stop Visual Studio from advertising its own
+ * alternative.
+ */
+std::unique_ptr<FILE, std::function<int(FILE *)>>
+my_fopen(char const *path, char const *mode)
+{
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+  return {std::fopen(path, mode), std::fclose};
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+}
+
+
 void read_file(
   char const path[], std::size_t len, std::basic_string<std::byte> &buf)
 {
   buf.resize(len);
-  auto f{std::fopen(path, "rb")};
-  auto bytes{std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f)};
+  auto f{my_fopen(path, "rb")};
+  auto bytes{
+    std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f.get())};
   if (bytes == 0)
     throw std::runtime_error{"Error reading test file."};
   buf.resize(bytes);
@@ -430,22 +449,20 @@ void read_file(
 
 void write_file(char const path[], std::basic_string_view<std::byte> data)
 {
-  auto f{std::fopen(path, "wb")};
   try
   {
+    auto f{my_fopen(path, "wb")};
     if (
       std::fwrite(
-        reinterpret_cast<char const *>(data.data()), 1, std::size(data), f) <
-      std::size(data))
+        reinterpret_cast<char const *>(data.data()), 1, std::size(data),
+        f.get()) < std::size(data))
       std::runtime_error{"File write failed."};
   }
   catch (const std::exception &)
   {
-    std::fclose(f);
     std::remove(path);
     throw;
   }
-  std::fclose(f);
 }
 
 
