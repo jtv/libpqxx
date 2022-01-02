@@ -576,7 +576,7 @@ void test_blob_close_leaves_blob_unusable()
 
 void test_blob_accepts_std_filesystem_path()
 {
-#if defined(PQXX_HAVE_PATH)
+#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
   // A bug in gcc 8's ~std::filesystem::path() causes a run-time crash.
 #  if !defined(__GNUC__) || (__GNUC__ > 8)
 

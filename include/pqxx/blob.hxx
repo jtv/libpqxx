@@ -241,8 +241,11 @@ public:
   /// Read client-side file and store it server-side as a binary large object.
   [[nodiscard]] static oid from_file(dbtransaction &, char const path[]);
 
-#if defined(PQXX_HAVE_PATH)
+#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
   /// Read client-side file and store it server-side as a binary large object.
+  /** This overload is not available on Windows, where `std::filesystem::path`
+   * converts to a `wchar_t` string rather than a `char` string.
+   */
   [[nodiscard]] static oid
   from_file(dbtransaction &tx, std::filesystem::path const &path)
   {
@@ -256,10 +259,13 @@ public:
    */
   static oid from_file(dbtransaction &, char const path[], oid);
 
-#if defined(PQXX_HAVE_PATH)
+#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
   /// Read client-side file and store it server-side as a binary large object.
   /** In this version, you specify the binary large object's oid.  If that oid
    * is already in use, the operation will fail.
+   *
+   * This overload is not available on Windows, where `std::filesystem::path`
+   * converts to a `wchar_t` string rather than a `char` string.
    */
   static oid
   from_file(dbtransaction &tx, std::filesystem::path const &path, oid id)
@@ -290,8 +296,11 @@ public:
   /// Write a binary large object's contents to a client-side file.
   static void to_file(dbtransaction &, oid, char const path[]);
 
-#if defined(PQXX_HAVE_PATH)
+#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
   /// Write a binary large object's contents to a client-side file.
+  /** This overload is not available on Windows, where `std::filesystem::path`
+   * converts to a `wchar_t` string rather than a `char` string.
+   */
   static void
   to_file(dbtransaction &tx, oid id, std::filesystem::path const &path)
   {
