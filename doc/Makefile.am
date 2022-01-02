@@ -25,7 +25,7 @@ docs: $(DOCS)
 
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
-	if test -x "$(DOXYGEN)"; then \
+	if [ -x "$(DOXYGEN)" ]; then \
 	  $(MKDIR_P) html/Reference; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
@@ -48,21 +48,7 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 DISTHOOKDIRS = html/Reference
 
 dist-hook: reference
-	mkdir $(distdir)/html
-#	Do a shallow copy of each directory
-	for dir in $(DISTHOOKDIRS); do \
-	  if test -d $(srcdir)/$$dir; then \
-	    mkdir $(distdir)/$$dir; \
-	    for dirfile in $(srcdir)/$$dir/*; do \
-	      if test -f $$dirfile; then \
-		cp -p $$dirfile $(distdir)/$$dir; \
-	      fi ; \
-	      if test -d $$dirfile ; then \
-	        subdir="`basename "$$dirfile"`"; \
-	        if test "$$subdir" != "CVS" && "$$subdir" != ".svn" ; then \
-		  cp -pR $$dirfile $(distdir)/$$dir; \
-	        fi \
-	      fi \
-	    done \
-	  fi \
-	done
+	if [ -d $(srcdir)/html/Reference ]; then \
+	  $(MKDIR_P) $(distdir)/html ; \
+	  cp -pR html/Reference $(distdir)/html/ ; \
+	fi
