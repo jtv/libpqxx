@@ -44,7 +44,9 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/util"
 
+#include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
 
 
 using namespace std::literals;

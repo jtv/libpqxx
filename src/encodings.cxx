@@ -13,10 +13,14 @@
 #include <map>
 #include <sstream>
 
-#include "pqxx/except.hxx"
+#include "pqxx/except"
+
+#include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
-#include "pqxx/strconv.hxx"
+#include "pqxx/internal/compiler-internal-post.hxx"
+
+#include "pqxx/strconv"
 
 
 extern "C"

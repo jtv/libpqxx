@@ -28,7 +28,7 @@
  - Doxygen documentation now uses the (Doxygen-extended) Markdown format.
  - Build docs in `doc/html/`, no longer in `doc/html/Reference/`.
  - Disable some `std::filesystem` features on Windows.
- - Fix stupid Visual Studio adverts for "safer" alternative functions.
+ - Shut up stupid Visual Studio warnings.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
  - Add C++20 concepts: `binary`, `char_string`, `char_strings`.
