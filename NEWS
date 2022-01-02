@@ -17,16 +17,16 @@
  - Use `std::cmp_greater` etc. when available.  Saves some ugly casts.
  - Move `result_iterator.hxx` into `pqxx/include/internal/`.
  - Move `compiler-public.hxx` into `pqxx/include/internal/`.
- - Added script for updating copyright strings.
+ - Add script for updating copyright strings.
  - Make `tools/lint` figure out source directory by itself.
  - Pass the actual C++ version to `tools/lint`, not the baseline one.
  - Re-enable pyflakes testing in `tools/lint`.
- - Made more functions `[[nodiscard]]`.
+ - Make more functions `[[nodiscard]]`.
  - Qualified some member functions as lvalue or rvalue.
  - Don't run clang-tidy by default.  Compatibility issues with gcc options.
  - Describe version requirements in a JSON file, `requirements.json`.
  - Doxygen documentation now uses the (Doxygen-extended) Markdown format.
- - Building docs in `doc/html/`, no longer in `doc/html/Reference/`.
+ - Build docs in `doc/html/`, no longer in `doc/html/Reference/`.
  - Disable some `std::filesystem` features on Windows.
 7.6.0
  - Removed bad string conversion to `std::basic_string_view<std::byte>`. (#463)
