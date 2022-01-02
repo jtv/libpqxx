@@ -527,6 +527,7 @@ char const *error_string(int err_num, std::array<char, BYTES> &buffer)
 } // namespace
 
 
+#if defined(_WIN32) || __has_include(<fcntl.h>)
 void pqxx::connection::set_blocking(bool block) &
 {
   auto const fd{sock()};
@@ -539,7 +540,7 @@ void pqxx::connection::set_blocking(bool block) &
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
-#else
+#else // _WIN32
   std::array<char, 200> errbuf;
   auto flags{::fcntl(fd, F_GETFL, 0)};
   if (flags == -1)
@@ -558,8 +559,9 @@ void pqxx::connection::set_blocking(bool block) &
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
-#endif
+#endif // _WIN32
 }
+#endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
 void pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
