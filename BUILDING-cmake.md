@@ -36,7 +36,7 @@ Stages
 ------
 
 I'll explain the main build steps in more detail below, but here's a quick
-overview:
+rundown:
 1. Configure
 2. Compile
 3. Test
