@@ -781,11 +781,11 @@ public:
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Quote and comma-separate a series of column names.
   /** Use this to save a bit of work in cases where you repeatedly need to pass
-   * the same list of column names, e.g. with @ref stream_to and @ref stream_from.
-   * Some functions that need to quote the columns list internally, will have
-   * a "raw" alternative which let you do the quoting yourself.  It's a bit of
-   * extra work, but it can in rare cases let you eliminate some duplicate
-   * work in quoting them repeatedly.
+   * the same list of column names, e.g. with @ref stream_to and @ref
+   * stream_from. Some functions that need to quote the columns list
+   * internally, will have a "raw" alternative which let you do the quoting
+   * yourself.  It's a bit of extra work, but it can in rare cases let you
+   * eliminate some duplicate work in quoting them repeatedly.
    */
   template<PQXX_CHAR_STRINGS_ARG STRINGS>
   inline std::string quote_columns(STRINGS const &columns) const;

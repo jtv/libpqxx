@@ -238,9 +238,9 @@ public:
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
    *
-   * Make sure the @ref result object stays alive until parsing is finished.  If
-   * you keep the @ref row of `field` object alive, it will keep the @ref result
-   * object alive as well.
+   * Make sure the @ref result object stays alive until parsing is finished. If
+   * you keep the @ref row of `field` object alive, it will keep the @ref
+   * result object alive as well.
    */
   array_parser as_array() const &
   {

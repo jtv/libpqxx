@@ -80,7 +80,7 @@ class robusttransaction final : public internal::basic_robusttransaction
 public:
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
-   * @param name optional human-readable name for this transaction.
+   * @param tname optional human-readable name for this transaction.
    */
   robusttransaction(connection &c, std::string_view tname) :
           internal::basic_robusttransaction{
@@ -90,7 +90,7 @@ public:
 
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
-   * @param name optional human-readable name for this transaction.
+   * @param tname optional human-readable name for this transaction.
    */
   robusttransaction(connection &c, std::string &&tname) :
           internal::basic_robusttransaction{
@@ -100,7 +100,6 @@ public:
 
   /** Create robusttransaction of given name.
    * @param c Connection inside which this robusttransaction should live.
-   * @param name optional human-readable name for this transaction.
    */
   explicit robusttransaction(connection &c) :
           internal::basic_robusttransaction{

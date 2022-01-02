@@ -43,7 +43,7 @@ namespace pqxx::internal
  * of the headers is installed on the system.)
  *
  * If the libpqxx binary was compiled for a different version than the user's
- * code, linking will fail with an error: @ref check_library_version will not
+ * code, linking will fail with an error: `check_pqxx_version_*_*` will not
  * exist for the given version number.
  */
 PQXX_LIBEXPORT int PQXX_VERSION_CHECK() noexcept;

@@ -13,8 +13,8 @@ of how you issue commands and retrieve data:
     do.  Of course that means that you'll have to look at the data's lifetime
     more carefully, but it'll save the computer a lot of copying.
 * @ref prepared.  These can be executed many times without the server
-    parsing and planning them each and every time.  They also save you having
-    to escape string parameters.
+    parsing and planning them anew each time.  They also save you having to
+    escape string parameters.
 * `pqxx::pipeline` lets you send queries to the database in batches, and
     continue other processing while they are executing.
 * `pqxx::connecting` lets you start setting up a database connection, but

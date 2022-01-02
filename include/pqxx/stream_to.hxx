@@ -48,9 +48,9 @@ namespace pqxx
  * transaction.)
  *
  * So how do you feed a row of data into the stream?  There's several ways, but
- * the preferred one is to call its @ref write_values.  Pass the field values as
- * arguments.  Doesn't matter what type they are, as long as libpqxx knows how
- * to convert them to PostgreSQL's text format: `int`, `std::string` or
+ * the preferred one is to call its @ref write_values.  Pass the field values
+ * as arguments.  Doesn't matter what type they are, as long as libpqxx knows
+ * how to convert them to PostgreSQL's text format: `int`, `std::string` or
  * `std:string_view`, `float` and `double`, `bool`...  lots of basic types
  * are supported.  If some of the values are null, feel free to use
  * `std::optional`, `std::shared_ptr`, or `std::unique_ptr`.

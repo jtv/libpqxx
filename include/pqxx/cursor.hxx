@@ -157,26 +157,28 @@ public:
 
   /// Create cursor.
   /**
-   * @param trans The transaction within which you want to create the cursor.
+   * @param tx The transaction within which you want to create the cursor.
    * @param query The SQL query whose results the cursor should traverse.
    * @param cname A hint for the cursor's name.  The actual SQL cursor's name
    *     will be based on this (though not necessarily identical).
+   * @param hold Create a `WITH HOLD` cursor?  Such cursors stay alive after
+   *     the transaction has ended, so you can continue to use it.
    */
   stateless_cursor(
-    transaction_base &trans, std::string_view query, std::string_view cname,
+    transaction_base &tx, std::string_view query, std::string_view cname,
     bool hold) :
-          m_cur{trans, query, cname, cursor_base::random_access, up, op, hold}
+          m_cur{tx, query, cname, cursor_base::random_access, up, op, hold}
   {}
 
   /// Adopt an existing scrolling SQL cursor.
   /** This lets you define a cursor yourself, and then wrap it in a
    * libpqxx-managed `stateless_cursor` object.
    *
-   * @param trans The transaction within which you want to manage the cursor.
+   * @param tx The transaction within which you want to manage the cursor.
    * @param adopted_cursor Your cursor's SQL name.
    */
-  stateless_cursor(transaction_base &trans, std::string_view adopted_cursor) :
-          m_cur{trans, adopted_cursor, op}
+  stateless_cursor(transaction_base &tx, std::string_view adopted_cursor) :
+          m_cur{tx, adopted_cursor, op}
   {
     // Put cursor in known position
     m_cur.move(cursor_base::backward_all());

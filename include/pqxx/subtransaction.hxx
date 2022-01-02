@@ -66,8 +66,8 @@ namespace pqxx
  *
  * @warning While the subtransaction is "live," you cannot execute queries or
  * open streams etc. on its parent transaction.  A transaction can have at most
- * one object of a type derived from @ref pqxx::transaction_focus active on it at
- * a time.
+ * one object of a type derived from @ref pqxx::transaction_focus active on it
+ * at a time.
  */
 class PQXX_LIBEXPORT subtransaction : public transaction_focus,
                                       public dbtransaction

@@ -341,7 +341,7 @@ public:
    * to libpq when calling a parameterised or prepared statement.
    *
    * The pointers in the params will refer to storage owned by either the
-   * params object, or the caller.  This is not a problem because a 
+   * params object, or the caller.  This is not a problem because a
    * `c_params` object is guaranteed to live only while the call is going on.
    * As soon as we climb back out of that call tree, we're done with that
    * data.

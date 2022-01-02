@@ -53,8 +53,8 @@ class PQXX_LIBEXPORT nontransaction final : public transaction_base
 public:
   /// Constructor.
   /** Create a "dummy" transaction.
-   * @param c Connection that this "transaction" will operate on.
-   * @param name Optional name for the transaction, beginning with a letter
+   * @param c Connection in which this "transaction" will operate.
+   * @param tname Optional tname for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
   nontransaction(connection &c, std::string_view tname = ""sv) :

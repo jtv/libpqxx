@@ -43,12 +43,12 @@ namespace pqxx
  *
  * Here's how it works.  You write your transaction code as a lambda or
  * function, which creates its own transaction object, does its work, and
- * commits at the end.  You pass that callback to @ref pqxx::perform, which runs
- * it for you.
+ * commits at the end.  You pass that callback to @ref pqxx::perform, which
+ * runs it for you.
  *
  * If there's a failure inside your callback, there will be an exception.  Your
  * transaction object goes out of scope and gets destroyed, so that it aborts
- * implicitly.  Seeing this, @ref perform tries running your callback again.  It
+ * implicitly.  Seeing this, @ref perform tries running your callback again. It
  * stops doing that when the callback succeeds, or when it has failed too many
  * times, or when there's an error that leaves the database in an unknown
  * state, such as a lost connection just while we're waiting for the database

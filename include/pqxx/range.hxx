@@ -183,10 +183,10 @@ private:
  * which they range.  You can also define your own range types.
  *
  * Usually you'll want the server to deal with ranges.  But on occasions where
- * you need to work with them client-side, you may want to use @ref pqxx::range.
- * (In cases where all you do is pass them along to the server though, it's not
- * worth the complexity.  In that case you might as well treat ranges as just
- * strings.)
+ * you need to work with them client-side, you may want to use @ref
+ * pqxx::range. (In cases where all you do is pass them along to the server
+ * though, it's not worth the complexity.  In that case you might as well treat
+ * ranges as just strings.)
  *
  * For documentation on PostgreSQL's range types, see:
  * https://www.postgresql.org/docs/current/rangetypes.html
@@ -199,7 +199,8 @@ template<typename TYPE> class range
 {
 public:
   /// Create a range.
-  /** For each of the two bounds, pass a @ref no_bound, @ref inclusive_bound, or
+  /** For each of the two bounds, pass a @ref no_bound, @ref inclusive_bound,
+   * or
    * @ref exclusive_bound.
    */
   range(range_bound<TYPE> lower, range_bound<TYPE> upper) :

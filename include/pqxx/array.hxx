@@ -64,10 +64,11 @@ public:
     internal::encoding_group = internal::encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
-  /** Returns what it found.  If the juncture is @ref string_value, the string
-   * will contain the value.  Otherwise, it will be empty.
+  /** Returns what it found.  If the juncture is @ref juncture::string_value,
+   * the string will contain the value.  Otherwise, it will be empty.
    *
-   * Call this until the @ref juncture it returns is @ref done.
+   * Call this until the @ref array_parser::juncture it returns is
+   * @ref juncture::done.
    */
   std::pair<juncture, std::string> get_next();
 

@@ -163,7 +163,7 @@ public:
    */
   using openmode = std::ios::openmode;
 
-  /// Default open mode: `std::ios::in|std::ios::out|std::ios::binary`.
+  /// Default open mode: in, out, binary.
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
@@ -379,7 +379,7 @@ public:
   using openmode = largeobjectaccess::openmode;
   using seekdir = largeobjectaccess::seekdir;
 
-  /// Default open mode: `std::ios::in|std::ios::out|std::ios::binary`.
+  /// Default open mode: in, out, binary.
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 

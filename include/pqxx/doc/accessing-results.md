@@ -123,17 +123,23 @@ Streaming rows
 There's another way to go through the rows coming out of a query.  It's
 usually easier and faster, but there are drawbacks.
 
-One, you start getting rows before all the data has come in from the database.
-That speeds things up, but if there's an error while you're receiving and
-processing data then you're stuck in the middle.  You might lose your
-connection to the database when you've already started processing the incoming
-data.
+**One,** you start getting rows before all the data has come in from the
+database.  That speeds things up, but what happens if you lose your network
+connection while transferring the data?  Your application may already have
+processed some of the data before finding out that the rest isn't coming.  If
+that is a problem for your application, streaming may not be the right choice.
 
-Two, there are things that you can do in a regular query but not in a streaming
-one.  Your query gets wrapped in a PostgreSQL `COPY` command, and `COPY` only
-supports some queries: `SELECT`, `VALUES`, `or an `INSERT`, `UPDATE`, or
-`DELETE` with a `RETURNING` clause.  See the `COPY` documentation here:
+**Two,** streaming only works for some types of query.  The `stream()` function
+wraps your query in a PostgreSQL `COPY` command, and `COPY` only supports a few
+commands: `SELECT`, `VALUES`, `or an `INSERT`, `UPDATE`, or `DELETE` with a
+`RETURNING` clause.  See the `COPY` documentation here:
 https://www.postgresql.org/docs/current/sql-copy.html
+
+**Three,** when you convert a field to a "view" type (such as
+`std::string_view` or `std::basic_string_view<std::byte>`), the view points to
+underlying data which only stays valid until you iterate to the next row or
+exit the loop.  So if you want to use that data for longer than a single
+iteration of the streaming loop, you'll have to store it somewhere yourself.
 
 Now for the good news.  Streaming does make it very easy to query data and loop
 over it:

@@ -6,9 +6,9 @@ and the _result_.
 
 They fit together as follows:
 * You connect to the database by creating a `pqxx::connection` object (see
-  @ref connection).
+  @ref connections).
 
-* You create a transaction object (see @ref transaction) operating on that
+* You create a transaction object (see @ref transactions) operating on that
   connection.  You'll usually want the `pqxx::work` variety.
 
   Once you're done you call the transaction's `commit` function to make its

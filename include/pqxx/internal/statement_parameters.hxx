@@ -104,12 +104,12 @@ private:
 /** Compiles arguments for prepared statements and parameterised queries into
  * a format that can be passed into libpq.
  *
- * Objects of this type are meant to be short-lived: a `c_params` lives and dies entirely
- * within the call to execute.  So, for example, if you pass in a non-null
- * pointer as a parameter, @ref params may simply use that pointer as a parameter
- * value, without arranging longer-term storage for the data to which it
- * points.  All values referenced by parameters must remain "live" until the
- * parameterised or prepared statement has been executed.
+ * Objects of this type are meant to be short-lived: a `c_params` lives and
+ * dies entirely within the call to execute.  So, for example, if you pass in a
+ * non-null pointer as a parameter, @ref params may simply use that pointer as
+ * a parameter value, without arranging longer-term storage for the data to
+ * which it points.  All values referenced by parameters must remain "live"
+ * until the parameterised or prepared statement has been executed.
  */
 struct PQXX_LIBEXPORT c_params
 {
