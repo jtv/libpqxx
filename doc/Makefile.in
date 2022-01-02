@@ -266,7 +266,6 @@ EXTRA_DIST = Doxyfile.in libpqxx.xml reference-stamp
 @BUILD_REFERENCE_TRUE@DOCS = reference
 @MAINTAINER_MODE_FALSE@REFERENCE_STAMP_DEPENDENCIES = 
 @MAINTAINER_MODE_TRUE@REFERENCE_STAMP_DEPENDENCIES = ../src/libpqxx.la
-DISTHOOKDIRS = html/Reference
 all: all-am
 
 .SUFFIXES:
@@ -470,9 +469,9 @@ uninstall-am:
 
 
 maintainer-clean-local:
-	$(RM) -rf html/Reference
+	$(RM) -rf html
 	$(RM) reference-stamp
-	$(MKDIR) html/Reference
+	$(MKDIR) html
 
 all-local: docs
 
@@ -480,8 +479,8 @@ docs: $(DOCS)
 
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
-	if test -x "$(DOXYGEN)"; then \
-	  $(MKDIR_P) html/Reference; \
+	if [ -x "$(DOXYGEN)" ]; then \
+	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
 	else \
@@ -500,24 +499,9 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	$(MAKE) libpqxx.la
 
 dist-hook: reference
-	mkdir $(distdir)/html
-#	Do a shallow copy of each directory
-	for dir in $(DISTHOOKDIRS); do \
-	  if test -d $(srcdir)/$$dir; then \
-	    mkdir $(distdir)/$$dir; \
-	    for dirfile in $(srcdir)/$$dir/*; do \
-	      if test -f $$dirfile; then \
-		cp -p $$dirfile $(distdir)/$$dir; \
-	      fi ; \
-	      if test -d $$dirfile ; then \
-	        subdir="`basename "$$dirfile"`"; \
-	        if test "$$subdir" != "CVS" && "$$subdir" != ".svn" ; then \
-		  cp -pR $$dirfile $(distdir)/$$dir; \
-	        fi \
-	      fi \
-	    done \
-	  fi \
-	done
+	if [ -d $(srcdir)/html ]; then \
+	  cp -pR html $(distdir)/ ; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

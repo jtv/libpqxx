@@ -135,7 +135,7 @@ html_sidebars = {
 # has readthedocs copy the full generated HTML tree to the output directory.
 #
 # Problem is, that doesn't seem to be working now.  This needs debugging.
-html_extra_path = ["html/Reference"]
+html_extra_path = ["html"]
 
 # -- Options for HTMLHelp output ------------------------------------------
 

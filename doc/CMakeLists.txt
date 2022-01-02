@@ -32,7 +32,7 @@ if(HAVE_DOXYGEN)
     )
     set(DOXYGEN_STAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp")
     add_custom_command(OUTPUT ${DOXYGEN_STAMP_FILE}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html
         COMMAND doxygen Doxyfile
         COMMAND ${CMAKE_COMMAND} -E touch ${DOXYGEN_STAMP_FILE}
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${DOXYGEN_SOURCES}
@@ -44,7 +44,7 @@ if(HAVE_DOXYGEN)
         SOURCES ${DOXYGEN_SOURCES}
     )
     install(
-        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/Reference
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
     )
 endif()

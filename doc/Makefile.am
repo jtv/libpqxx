@@ -1,9 +1,9 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 maintainer-clean-local:
-	$(RM) -rf html/Reference
+	$(RM) -rf html
 	$(RM) reference-stamp
-	$(MKDIR) html/Reference
+	$(MKDIR) html
 
 EXTRA_DIST= Doxyfile.in libpqxx.xml reference-stamp
 
@@ -26,7 +26,7 @@ docs: $(DOCS)
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	if [ -x "$(DOXYGEN)" ]; then \
-	  $(MKDIR_P) html/Reference; \
+	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
 	else \
@@ -45,10 +45,7 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
 	$(MAKE) libpqxx.la
 
 
-DISTHOOKDIRS = html/Reference
-
 dist-hook: reference
-	if [ -d $(srcdir)/html/Reference ]; then \
-	  $(MKDIR_P) $(distdir)/html ; \
-	  cp -pR html/Reference $(distdir)/html/ ; \
+	if [ -d $(srcdir)/html ]; then \
+	  cp -pR html $(distdir)/ ; \
 	fi
