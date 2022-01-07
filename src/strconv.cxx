@@ -284,7 +284,7 @@ template<typename TYPE>
        ++here)
     ;
 
-  TYPE out;
+  TYPE out{};
   auto const res{std::from_chars(here, end, out)};
   if (res.ec == std::errc() and res.ptr == end)
     PQXX_LIKELY
