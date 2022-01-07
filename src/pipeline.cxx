@@ -118,7 +118,7 @@ void pqxx::pipeline::flush()
 }
 
 
-void pqxx::pipeline::cancel()
+void PQXX_COLD pqxx::pipeline::cancel()
 {
   while (have_pending())
   {
@@ -219,7 +219,7 @@ void pqxx::pipeline::issue()
 }
 
 
-void pqxx::pipeline::internal_error(std::string const &err)
+void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err)
 {
   set_error_at(0);
   throw pqxx::internal_error{err};

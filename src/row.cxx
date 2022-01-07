@@ -183,7 +183,7 @@ pqxx::row::size_type pqxx::row::column_number(zview col_name) const
 }
 
 
-pqxx::row pqxx::row::slice(size_type sbegin, size_type send) const
+pqxx::row PQXX_COLD pqxx::row::slice(size_type sbegin, size_type send) const
 {
   if (sbegin > send or send > size())
     throw range_error{"Invalid field range."};
@@ -197,7 +197,7 @@ pqxx::row pqxx::row::slice(size_type sbegin, size_type send) const
 }
 
 
-bool pqxx::row::empty() const noexcept
+bool PQXX_COLD pqxx::row::empty() const noexcept
 {
   return m_begin == m_end;
 }

@@ -28,7 +28,7 @@ extern "C"
 
 namespace
 {
-constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
+constexpr inline int PQXX_COLD std_mode_to_pq_mode(std::ios::openmode mode)
 {
   // C++20: constinit.
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
@@ -39,7 +39,7 @@ constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 }
 
 
-constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
+constexpr int PQXX_COLD std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 {
   if constexpr (
     static_cast<int>(std::ios::beg) == int(SEEK_SET) and
@@ -64,7 +64,7 @@ constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 } // namespace
 
 
-pqxx::largeobject::largeobject(dbtransaction &t)
+PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t)
 {
   // (Mode is ignored as of postgres 8.1.)
   m_id = lo_creat(raw_connection(t), 0);
@@ -79,6 +79,7 @@ pqxx::largeobject::largeobject(dbtransaction &t)
 }
 
 
+PQXX_COLD
 pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file)
 {
   m_id = lo_import(raw_connection(t), std::data(file));
@@ -94,12 +95,13 @@ pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file)
 }
 
 
-pqxx::largeobject::largeobject(largeobjectaccess const &o) noexcept :
+PQXX_COLD pqxx::largeobject::largeobject(largeobjectaccess const &o) noexcept :
         m_id{o.id()}
 {}
 
 
-void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
+void PQXX_COLD
+pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -115,7 +117,7 @@ void pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 }
 
 
-void pqxx::largeobject::remove(dbtransaction &t) const
+void PQXX_COLD pqxx::largeobject::remove(dbtransaction &t) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -130,7 +132,7 @@ void pqxx::largeobject::remove(dbtransaction &t) const
 }
 
 
-pqxx::internal::pq::PGconn *
+pqxx::internal::pq::PGconn *PQXX_COLD
 pqxx::largeobject::raw_connection(dbtransaction const &t)
 {
   return pqxx::internal::gate::connection_largeobject{t.conn()}
@@ -138,7 +140,8 @@ pqxx::largeobject::raw_connection(dbtransaction const &t)
 }
 
 
-std::string pqxx::largeobject::reason(connection const &c, int err) const
+std::string PQXX_COLD
+pqxx::largeobject::reason(connection const &c, int err) const
 {
   if (err == ENOMEM)
     return "Out of memory";
@@ -146,6 +149,7 @@ std::string pqxx::largeobject::reason(connection const &c, int err) const
 }
 
 
+PQXX_COLD
 pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &t, openmode mode) :
         largeobject{t}, m_trans{t}
 {
@@ -153,7 +157,7 @@ pqxx::largeobjectaccess::largeobjectaccess(dbtransaction &t, openmode mode) :
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(
+PQXX_COLD pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, oid o, openmode mode) :
         largeobject{o}, m_trans{t}
 {
@@ -161,7 +165,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(
+PQXX_COLD pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, largeobject o, openmode mode) :
         largeobject{o}, m_trans{t}
 {
@@ -169,7 +173,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 }
 
 
-pqxx::largeobjectaccess::largeobjectaccess(
+PQXX_COLD pqxx::largeobjectaccess::largeobjectaccess(
   dbtransaction &t, std::string_view file, openmode mode) :
         largeobject{t, file}, m_trans{t}
 {
@@ -177,7 +181,7 @@ pqxx::largeobjectaccess::largeobjectaccess(
 }
 
 
-pqxx::largeobjectaccess::size_type
+pqxx::largeobjectaccess::size_type PQXX_COLD
 pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
   auto const res{cseek(dest, dir)};
@@ -196,35 +200,36 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 }
 
 
-pqxx::largeobjectaccess::pos_type
+pqxx::largeobjectaccess::pos_type PQXX_COLD
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
   return lo_lseek64(raw_connection(), m_fd, dest, std_dir_to_pq_dir(dir));
 }
 
 
-pqxx::largeobjectaccess::pos_type
+pqxx::largeobjectaccess::pos_type PQXX_COLD
 pqxx::largeobjectaccess::cwrite(char const buf[], std::size_t len) noexcept
 {
   return std::max(lo_write(raw_connection(), m_fd, buf, len), -1);
 }
 
 
-pqxx::largeobjectaccess::pos_type
+pqxx::largeobjectaccess::pos_type PQXX_COLD
 pqxx::largeobjectaccess::cread(char buf[], std::size_t len) noexcept
 {
   return std::max(lo_read(raw_connection(), m_fd, buf, len), -1);
 }
 
 
-pqxx::largeobjectaccess::pos_type
+pqxx::largeobjectaccess::pos_type PQXX_COLD
 pqxx::largeobjectaccess::ctell() const noexcept
 {
   return lo_tell64(raw_connection(), m_fd);
 }
 
 
-void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
+void PQXX_COLD
+pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -247,7 +252,7 @@ void pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 }
 
 
-pqxx::largeobjectaccess::size_type
+pqxx::largeobjectaccess::size_type PQXX_COLD
 pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 {
   if (id() == oid_none)
@@ -265,7 +270,7 @@ pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 }
 
 
-void pqxx::largeobjectaccess::open(openmode mode)
+void PQXX_COLD pqxx::largeobjectaccess::open(openmode mode)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -281,14 +286,15 @@ void pqxx::largeobjectaccess::open(openmode mode)
 }
 
 
-void pqxx::largeobjectaccess::close() noexcept
+void PQXX_COLD pqxx::largeobjectaccess::close() noexcept
 {
   if (m_fd >= 0)
     lo_close(raw_connection(), m_fd);
 }
 
 
-pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
+pqxx::largeobjectaccess::size_type PQXX_COLD
+pqxx::largeobjectaccess::tell() const
 {
   auto const res{ctell()};
   if (res == -1)
@@ -297,7 +303,7 @@ pqxx::largeobjectaccess::size_type pqxx::largeobjectaccess::tell() const
 }
 
 
-std::string pqxx::largeobjectaccess::reason(int err) const
+std::string PQXX_COLD pqxx::largeobjectaccess::reason(int err) const
 {
   if (m_fd == -1)
     return "No object opened.";
@@ -305,7 +311,7 @@ std::string pqxx::largeobjectaccess::reason(int err) const
 }
 
 
-void pqxx::largeobjectaccess::process_notice(zview s) noexcept
+void PQXX_COLD pqxx::largeobjectaccess::process_notice(zview s) noexcept
 {
   m_trans.process_notice(s);
 }

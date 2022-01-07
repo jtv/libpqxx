@@ -74,7 +74,7 @@ void pqxx::params::append(std::basic_string<std::byte> &&value) &
 }
 
 
-void pqxx::params::append(binarystring const &value) &
+void PQXX_COLD pqxx::params::append(binarystring const &value) &
 {
   m_params.push_back(entry{value.bytes_view()});
 }

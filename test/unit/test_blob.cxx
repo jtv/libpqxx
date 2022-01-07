@@ -424,12 +424,12 @@ std::unique_ptr<FILE, std::function<int(FILE *)>>
 my_fopen(char const *path, char const *mode)
 {
 #if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4996)
+#  pragma warning(push)
+#  pragma warning(disable : 4996)
 #endif
   return {std::fopen(path, mode), std::fclose};
 #if defined(_MSC_VER)
-#pragma warning(pop)
+#  pragma warning(pop)
 #endif
 }
 

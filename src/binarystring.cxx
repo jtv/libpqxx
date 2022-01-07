@@ -29,7 +29,7 @@ namespace
 {
 /// Copy data to a heap-allocated buffer.
 std::shared_ptr<unsigned char>
-copy_to_buffer(void const *data, std::size_t len)
+  PQXX_COLD copy_to_buffer(void const *data, std::size_t len)
 {
   void *const output{malloc(len + 1)};
   if (output == nullptr)
@@ -41,7 +41,7 @@ copy_to_buffer(void const *data, std::size_t len)
 } // namespace
 
 
-pqxx::binarystring::binarystring(field const &F)
+PQXX_COLD pqxx::binarystring::binarystring(field const &F)
 {
   unsigned char const *data{
     reinterpret_cast<unsigned char const *>(F.c_str())};
@@ -72,7 +72,8 @@ bool pqxx::binarystring::operator==(binarystring const &rhs) const noexcept
 pqxx::binarystring &
 pqxx::binarystring::operator=(binarystring const &rhs) = default;
 
-pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
+PQXX_COLD pqxx::binarystring::const_reference
+pqxx::binarystring::at(size_type n) const
 {
   if (n >= m_size)
   {
@@ -86,7 +87,7 @@ pqxx::binarystring::const_reference pqxx::binarystring::at(size_type n) const
 }
 
 
-void pqxx::binarystring::swap(binarystring &rhs)
+PQXX_COLD void pqxx::binarystring::swap(binarystring &rhs)
 {
   m_buf.swap(rhs.m_buf);
 

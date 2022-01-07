@@ -210,7 +210,7 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string pqxx::transaction_base::quote_raw(zview bin) const
+std::string PQXX_COLD pqxx::transaction_base::quote_raw(zview bin) const
 {
   return conn().quote(binary_cast(bin));
 }

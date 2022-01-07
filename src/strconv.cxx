@@ -249,13 +249,13 @@ std::string demangle_type_name(char const raw[])
   return name;
 }
 
-void throw_null_conversion(std::string const &type)
+void PQXX_COLD throw_null_conversion(std::string const &type)
 {
   throw conversion_error{"Attempt to convert null to " + type + "."};
 }
 
 
-std::string state_buffer_overrun(int have_bytes, int need_bytes)
+std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 {
   // We convert these in standard library terms, not for the localisation
   // so much as to avoid "error cycles," if these values in turn should fail
@@ -322,7 +322,7 @@ template<typename TYPE>
 namespace
 {
 #if !defined(PQXX_HAVE_CHARCONV_INT)
-[[noreturn, maybe_unused]] void report_overflow()
+[[noreturn, maybe_unused]] void PQXX_COLD report_overflow()
 {
   throw pqxx::conversion_error{
     "Could not convert string to integer: value out of range."};
@@ -507,7 +507,7 @@ public:
   // Do not initialise the base-class object using "stringstream{}" (with curly
   // braces): that breaks on Visual C++.  The classic "stringstream()" syntax
   // (with parentheses) does work.
-  dumb_stringstream()
+  PQXX_COLD dumb_stringstream()
   {
     this->imbue(std::locale::classic());
     this->precision(std::numeric_limits<T>::max_digits10);
@@ -516,7 +516,7 @@ public:
 
 
 template<typename F>
-inline bool from_dumb_stringstream(
+inline bool PQXX_COLD from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
   s.str(std::string{text});
@@ -525,7 +525,8 @@ inline bool from_dumb_stringstream(
 
 
 // These are hard, and some popular compilers still lack std::from_chars.
-template<typename T> inline T from_string_awful_float(std::string_view text)
+template<typename T>
+inline T PQXX_COLD from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
@@ -651,7 +652,8 @@ float_traits<long double>::into_buf(char *, char *, long double const &);
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<typename F>
-inline std::string to_dumb_stringstream(dumb_stringstream<F> &s, F value)
+inline std::string PQXX_COLD
+to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
   s.str("");
   s << value;

@@ -82,12 +82,12 @@ void test_connection_string()
   std::string const connstr{c.connection_string()};
 
 #if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable: 4996)
+#  pragma warning(push)
+#  pragma warning(disable : 4996)
 #endif
   if (std::getenv("PGUSER") == nullptr)
 #if defined(_MSC_VER)
-#pragma warning(pop)
+#  pragma warning(pop)
 #endif
   {
     PQXX_CHECK(

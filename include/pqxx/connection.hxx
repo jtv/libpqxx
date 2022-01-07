@@ -716,7 +716,7 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() intead.")]] std::string
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
   unesc_raw(char const text[]) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.

@@ -44,14 +44,14 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/util"
 
+#include "pqxx/internal/compiler-internal-post.hxx"
 #include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/compiler-internal-post.hxx"
 
 
 using namespace std::literals;
 
-pqxx::thread_safety_model pqxx::describe_thread_safety()
+pqxx::thread_safety_model PQXX_COLD pqxx::describe_thread_safety()
 {
   thread_safety_model model;
   model.safe_libpq = (PQisthreadsafe() != 0);
@@ -215,7 +215,7 @@ pqxx::internal::unesc_bin(std::string_view escaped_data)
 }
 
 
-void pqxx::internal::wait_for(unsigned int microseconds)
+void PQXX_COLD pqxx::internal::wait_for(unsigned int microseconds)
 {
 #if defined(PQXX_HAVE_SLEEP_FOR)
   std::this_thread::sleep_for(std::chrono::microseconds{microseconds});

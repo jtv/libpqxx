@@ -173,7 +173,7 @@ inline bool equal(char const lhs[], char const rhs[])
 }
 } // namespace
 
-void pqxx::result::throw_sql_error(
+void PQXX_COLD pqxx::result::throw_sql_error(
   std::string const &Err, std::string const &Query) const
 {
   // Try to establish more precise error type, and throw corresponding
@@ -441,6 +441,7 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
     "Can't query origin of column ", col_str,
     ": not derived from table column.")};
 }
+
 
 int pqxx::result::errorposition() const
 {

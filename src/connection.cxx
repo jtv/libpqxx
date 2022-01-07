@@ -97,7 +97,8 @@ extern "C"
 
 using namespace std::literals;
 
-std::string pqxx::encrypt_password(char const user[], char const password[])
+std::string PQXX_COLD
+pqxx::encrypt_password(char const user[], char const password[])
 {
   std::unique_ptr<char, std::function<void(char *)>> p{
     PQencryptPassword(password, user), PQfreemem};
@@ -249,7 +250,7 @@ pqxx::result pqxx::connection::make_result(
 }
 
 
-int pqxx::connection::backendpid() const &noexcept
+int PQXX_COLD pqxx::connection::backendpid() const &noexcept
 {
   return (m_conn == nullptr) ? 0 : PQbackendPID(m_conn);
 }
@@ -270,13 +271,13 @@ int pqxx::connection::sock() const &noexcept
 }
 
 
-int pqxx::connection::protocol_version() const noexcept
+int PQXX_COLD pqxx::connection::protocol_version() const noexcept
 {
   return (m_conn == nullptr) ? 0 : PQprotocolVersion(m_conn);
 }
 
 
-int pqxx::connection::server_version() const noexcept
+int PQXX_COLD pqxx::connection::server_version() const noexcept
 {
   return PQserverVersion(m_conn);
 }
@@ -384,7 +385,7 @@ void pqxx::connection::process_notice(zview msg) noexcept
 }
 
 
-void pqxx::connection::trace(FILE *out) noexcept
+void PQXX_COLD pqxx::connection::trace(FILE *out) noexcept
 {
   if (m_conn)
   {
@@ -396,7 +397,7 @@ void pqxx::connection::trace(FILE *out) noexcept
 }
 
 
-void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
+void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 {
   if (n == nullptr)
     throw argument_error{"Null receiver registered"};
@@ -420,7 +421,8 @@ void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 }
 
 
-void pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
+void PQXX_COLD
+pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
 {
   if (T == nullptr)
     return;
@@ -468,7 +470,7 @@ bool pqxx::connection::is_busy() const noexcept
 }
 
 
-void pqxx::connection::cancel_query()
+void PQXX_COLD pqxx::connection::cancel_query()
 {
   using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel *)>>;
   pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
@@ -490,7 +492,8 @@ namespace
 {
 /// Get error string for a given @c errno value.
 template<std::size_t BYTES>
-char const *error_string(int err_num, std::array<char, BYTES> &buffer)
+char const *PQXX_COLD
+error_string(int err_num, std::array<char, BYTES> &buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
   using namespace std;
@@ -564,7 +567,8 @@ void pqxx::connection::set_blocking(bool block) &
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
-void pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
+void PQXX_COLD
+pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
 {
   PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
 }
@@ -639,25 +643,25 @@ int pqxx::connection::get_notifs()
 }
 
 
-char const *pqxx::connection::dbname() const
+char const *PQXX_COLD pqxx::connection::dbname() const
 {
   return PQdb(m_conn);
 }
 
 
-char const *pqxx::connection::username() const
+char const *PQXX_COLD pqxx::connection::username() const
 {
   return PQuser(m_conn);
 }
 
 
-char const *pqxx::connection::hostname() const
+char const *PQXX_COLD pqxx::connection::hostname() const
 {
   return PQhost(m_conn);
 }
 
 
-char const *pqxx::connection::port() const
+char const *PQXX_COLD pqxx::connection::port() const
 {
   return PQport(m_conn);
 }
@@ -670,7 +674,7 @@ char const *pqxx::connection::err_msg() const noexcept
 }
 
 
-void pqxx::connection::register_errorhandler(errorhandler *handler)
+void PQXX_COLD pqxx::connection::register_errorhandler(errorhandler *handler)
 {
   // Set notice processor on demand, i.e. only when the caller actually
   // registers an error handler.
@@ -687,7 +691,8 @@ void pqxx::connection::register_errorhandler(errorhandler *handler)
 }
 
 
-void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
+void PQXX_COLD
+pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 {
   // The errorhandler itself will take care of nulling its pointer to this
   // connection.
@@ -697,7 +702,8 @@ void pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 }
 
 
-std::vector<pqxx::errorhandler *> pqxx::connection::get_errorhandlers() const
+std::vector<pqxx::errorhandler *>
+  PQXX_COLD pqxx::connection::get_errorhandlers() const
 {
   return {std::begin(m_errorhandlers), std::end(m_errorhandlers)};
 }
@@ -963,7 +969,7 @@ std::string pqxx::connection::esc(std::string_view text) const
 }
 
 
-std::string
+std::string PQXX_COLD
 pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 {
   return pqxx::internal::esc_bin(binary_cast(bin, len));
@@ -977,7 +983,7 @@ pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
 }
 
 
-std::string pqxx::connection::unesc_raw(char const text[]) const
+std::string PQXX_COLD pqxx::connection::unesc_raw(char const text[]) const
 {
   if (text[0] == '\\' and text[1] == 'x')
   {
@@ -1002,7 +1008,7 @@ std::string pqxx::connection::unesc_raw(char const text[]) const
 }
 
 
-std::string
+std::string PQXX_COLD
 pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 {
   return internal::concat("'", esc_raw(binary_cast(bin, len)), "'::bytea");
@@ -1016,7 +1022,7 @@ pqxx::connection::quote_raw(std::basic_string_view<std::byte> bytes) const
 }
 
 
-std::string pqxx::connection::quote(binarystring const &b) const
+std::string PQXX_COLD pqxx::connection::quote(binarystring const &b) const
 {
   return quote(b.bytes_view());
 }
@@ -1173,7 +1179,7 @@ std::string pqxx::connection::get_client_encoding() const
 }
 
 
-void pqxx::connection::set_client_encoding(char const encoding[]) &
+void PQXX_COLD pqxx::connection::set_client_encoding(char const encoding[]) &
 {
   switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)
   {
@@ -1246,12 +1252,12 @@ char const *get_default(PQconninfoOption const &opt) noexcept
   // As of C++11, std::getenv() uses thread-local storage, so it should be
   // thread-safe.  MSVC still warns about it though.
 #if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable: 4996)
+#  pragma warning(push)
+#  pragma warning(disable : 4996)
 #endif
   char const *var{std::getenv(opt.envvar)};
 #if defined(_MSC_VER)
-#pragma warning(pop)
+#  pragma warning(pop)
 #endif
   if (var == nullptr)
   {

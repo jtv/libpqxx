@@ -28,6 +28,14 @@
 #endif
 
 
+#if defined(__GNUC__)
+/// Tell the compiler to optimise a function for size, not speed.
+#  define PQXX_COLD __attribute__((cold))
+#else
+#  define PQXX_COLD /* cold */
+#endif
+
+
 // Workarounds for Windows
 #ifdef _WIN32
 
