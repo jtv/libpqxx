@@ -8,9 +8,6 @@ AC_INIT(
 	[Jeroen T. Vermeulen])
 AC_LANG(C++)
 
-# Require C++17 at minimum.
-AX_CXX_COMPILE_STDCXX_17([noext])
-
 AC_CONFIG_SRCDIR([src/connection.cxx])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
@@ -104,6 +101,27 @@ add_compiler_opts_if_ok() {
 add_compiler_opts() {
 	CXXFLAGS="$CXXFLAGS $*"
 }
+
+
+# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_17 for this,
+# but it's 2022 and the C++20 equivalent isn't quite ready for use.
+# Seems simpler and more reliable for the user to arrange for the desired
+# language versions by setting the appropriate option for their compiler.
+AC_MSG_CHECKING([for sufficient C++ language/library level])
+sufficient_cxx=yes
+AC_COMPILE_IFELSE(
+	[AC_LANG_SOURCE([
+	#if __cplusplus < 201611L
+	#error "Need C++17 or better."
+	#endif
+	])],
+	sufficient_cxx=yes,
+	sufficient_cxx=no)
+AC_MSG_RESULT($sufficient_cxx)
+if test "$sufficient_cxx" != "yes"
+then
+	AC_MSG_ERROR([This libpqxx version needs at least C++17.])
+fi
 
 
 # Let's try to get the compiler to be helpful.
