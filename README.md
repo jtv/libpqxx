@@ -51,9 +51,11 @@ You'll find detailed build and install instructions in `BUILDING-configure.md`
 and `BUILDING-cmake.md`, respectively.
 
 And if you're working with Microsoft Visual Studio, have a look at Gordon
-Elliott's _Easy-PQXX Build for Windows Visual Studio_ project:
-
-    https://github.com/GordonLElliott/Easy-PQXX-Build-for-Windows-Visual-Studio
+Elliott's
+[
+  Easy-PQXX Build for Windows Visual Studio
+](https://github.com/GordonLElliott/Easy-PQXX-Build-for-Windows-Visual-Studio)
+project.
 
 At the time of writing, June 2020, this is still in development and in need of
 testers and feedback.
