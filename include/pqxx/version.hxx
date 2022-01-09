@@ -14,7 +14,7 @@
 #  include "pqxx/internal/compiler-internal-pre.hxx"
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.4.1"
+#  define PQXX_VERSION "7.4.2"
 /// Library ABI version.
 #  define PQXX_ABI "7.4"
 
