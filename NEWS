@@ -1,6 +1,7 @@
 7.4.2
  - Fix bug in support for GB18030 encoding. (#517)
  - Regenerated with newer tools.
+ - Update copyright strings.
 7.4.1
  - Missing includes; broke macOS clang build.  (#416)
 7.4.0
