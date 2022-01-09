@@ -343,7 +343,8 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
   auto const byte1{get_byte(buffer, start)};
   if (byte1 < 0x80)
     return start + 1;
-  if (byte1 == 0x80) throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
+  if (byte1 == 0x80)
+    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
@@ -629,114 +630,124 @@ encoding_group enc_group(std::string_view encoding_name)
   {
     std::string_view const name;
     encoding_group const group;
-    constexpr mapping(std::string_view n, encoding_group g) : name{n}, group{g} {}
-    constexpr bool operator<(mapping const &rhs) const { return name < rhs.name; }
+    constexpr mapping(std::string_view n, encoding_group g) : name{n}, group{g}
+    {}
+    constexpr bool operator<(mapping const &rhs) const
+    {
+      return name < rhs.name;
+    }
   };
 
   // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
   auto const sz{std::size(encoding_name)};
-  if (sz > 0u) switch (encoding_name[0])
-  {
-  case 'B':
-    if (encoding_name == "BIG5"sv) return encoding_group::BIG5;
-    PQXX_UNLIKELY
-    break;
-  case 'E':
-    // C++20: Use string_view::starts_with().
-    if ((sz >= 6u) and (encoding_name.substr(0, 4) == "EUC_"sv))
+  if (sz > 0u)
+    switch (encoding_name[0])
     {
-      auto const subtype{encoding_name.substr(4)};
-      static constexpr std::array<mapping, 5> subtypes{
-        mapping{"CN"sv, encoding_group::EUC_CN},
-        mapping{"JIS_2004"sv, encoding_group::EUC_JIS_2004},
-        mapping{"JP"sv, encoding_group::EUC_JP},
-        mapping{"KR"sv, encoding_group::EUC_KR},
-        mapping{"TW"sv, encoding_group::EUC_TW},
-      };
-      for (auto const &m : subtypes) if (m.name == subtype) return m.group;
-    }
-    PQXX_UNLIKELY
-    break;
-  case 'G':
-    if (encoding_name == "GB18030"sv) return encoding_group::GB18030;
-    else if (encoding_name == "GBK"sv) return encoding_group::GBK;
-    PQXX_UNLIKELY
-    break;
-  case 'I':
-    // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
-    if ((sz == 10) and (encoding_name.substr(0, 9) == "ISO_8859_"sv))
-    {
-      char const subtype{encoding_name[9]};
-      if (('5' <= subtype) and (subtype < '9')) return encoding_group::MONOBYTE;
-    }
-    PQXX_UNLIKELY
-    break;
-  case 'J':
-    if (encoding_name == "JOHAB"sv) return encoding_group::JOHAB;
-    PQXX_UNLIKELY
-    break;
-  case 'K':
-    if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
-      return encoding_group::MONOBYTE;
-    PQXX_UNLIKELY
-    break;
-  case 'L':
-    // We know LATIN1 through LATIN10.
-    if (encoding_name.substr(0, 5) == "LATIN"sv)
-    {
-      auto const subtype{encoding_name.substr(5)};
-      if (subtype.size() == 1)
+    case 'B':
+      if (encoding_name == "BIG5"sv)
+        return encoding_group::BIG5;
+      PQXX_UNLIKELY
+      break;
+    case 'E':
+      // C++20: Use string_view::starts_with().
+      if ((sz >= 6u) and (encoding_name.substr(0, 4) == "EUC_"sv))
       {
-        char const n{subtype[0]};
-	if (('1' <= n) and (n <= '9')) return encoding_group::MONOBYTE;
+        auto const subtype{encoding_name.substr(4)};
+        static constexpr std::array<mapping, 5> subtypes{
+          mapping{"CN"sv, encoding_group::EUC_CN},
+          mapping{"JIS_2004"sv, encoding_group::EUC_JIS_2004},
+          mapping{"JP"sv, encoding_group::EUC_JP},
+          mapping{"KR"sv, encoding_group::EUC_KR},
+          mapping{"TW"sv, encoding_group::EUC_TW},
+        };
+        for (auto const &m : subtypes)
+          if (m.name == subtype)
+            return m.group;
       }
-      else if (subtype == "10"sv)
+      PQXX_UNLIKELY
+      break;
+    case 'G':
+      if (encoding_name == "GB18030"sv)
+        return encoding_group::GB18030;
+      else if (encoding_name == "GBK"sv)
+        return encoding_group::GBK;
+      PQXX_UNLIKELY
+      break;
+    case 'I':
+      // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
+      if ((sz == 10) and (encoding_name.substr(0, 9) == "ISO_8859_"sv))
       {
+        char const subtype{encoding_name[9]};
+        if (('5' <= subtype) and (subtype < '9'))
+          return encoding_group::MONOBYTE;
+      }
+      PQXX_UNLIKELY
+      break;
+    case 'J':
+      if (encoding_name == "JOHAB"sv)
+        return encoding_group::JOHAB;
+      PQXX_UNLIKELY
+      break;
+    case 'K':
+      if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
         return encoding_group::MONOBYTE;
+      PQXX_UNLIKELY
+      break;
+    case 'L':
+      // We know LATIN1 through LATIN10.
+      if (encoding_name.substr(0, 5) == "LATIN"sv)
+      {
+        auto const subtype{encoding_name.substr(5)};
+        if (subtype.size() == 1)
+        {
+          char const n{subtype[0]};
+          if (('1' <= n) and (n <= '9'))
+            return encoding_group::MONOBYTE;
+        }
+        else if (subtype == "10"sv)
+        {
+          return encoding_group::MONOBYTE;
+        }
       }
+      PQXX_UNLIKELY
+      break;
+    case 'M':
+      if (encoding_name == "MULE_INTERNAL"sv)
+        return encoding_group::MULE_INTERNAL;
+      PQXX_UNLIKELY
+      break;
+    case 'S':
+      if (encoding_name == "SHIFT_JIS_2004"sv)
+        return encoding_group::SHIFT_JIS_2004;
+      else if (encoding_name == "SJIS"sv)
+        return encoding_group::SJIS;
+      else if (encoding_name == "SQL_ASCII"sv)
+        return encoding_group::MONOBYTE;
+      PQXX_UNLIKELY
+      break;
+    case 'U':
+      if (encoding_name == "UHC"sv)
+        return encoding_group::UHC;
+      else if (encoding_name == "UTF8"sv)
+        return encoding_group::UTF8;
+      PQXX_UNLIKELY
+      break;
+    case 'W':
+      if (encoding_name.substr(0, 3) == "WIN"sv)
+      {
+        auto const subtype{encoding_name.substr(3)};
+        static constexpr std::array<std::string_view, 11u> subtypes{
+          "866"sv,  "874"sv,  "1250"sv, "1251"sv, "1252"sv, "1253"sv,
+          "1254"sv, "1255"sv, "1256"sv, "1257"sv, "1258"sv,
+        };
+        for (auto const n : subtypes)
+          if (n == subtype)
+            return encoding_group::MONOBYTE;
+      }
+      PQXX_UNLIKELY
+      break;
+    default: PQXX_UNLIKELY break;
     }
-    PQXX_UNLIKELY
-    break;
-  case 'M':
-    if (encoding_name == "MULE_INTERNAL"sv) return encoding_group::MULE_INTERNAL;
-    PQXX_UNLIKELY
-    break;
-  case 'S':
-    if (encoding_name == "SHIFT_JIS_2004"sv) return encoding_group::SHIFT_JIS_2004;
-    else if (encoding_name == "SJIS"sv) return encoding_group::SJIS;
-    else if (encoding_name == "SQL_ASCII"sv) return encoding_group::MONOBYTE;
-    PQXX_UNLIKELY
-    break;
-  case 'U':
-    if (encoding_name == "UHC"sv) return encoding_group::UHC;
-    else if (encoding_name == "UTF8"sv) return encoding_group::UTF8;
-    PQXX_UNLIKELY
-    break;
-  case 'W':
-    if (encoding_name.substr(0, 3) == "WIN"sv)
-    {
-      auto const subtype{encoding_name.substr(3)};
-      static constexpr std::array<std::string_view, 11u> subtypes{
-        "866"sv,
-        "874"sv,
-        "1250"sv,
-        "1251"sv,
-        "1252"sv,
-        "1253"sv,
-        "1254"sv,
-        "1255"sv,
-        "1256"sv,
-        "1257"sv,
-        "1258"sv,
-      };
-      for (auto const n : subtypes) if (n == subtype) return encoding_group::MONOBYTE;
-    }
-    PQXX_UNLIKELY
-    break;
-  default:
-    PQXX_UNLIKELY
-    break;
-  }
   PQXX_UNLIKELY
   throw std::invalid_argument{
     internal::concat("Unrecognized encoding: '", encoding_name, "'.")};

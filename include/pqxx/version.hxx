@@ -11,7 +11,7 @@
 #ifndef PQXX_H_VERSION
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.7.0"
+#  define PQXX_VERSION "7.7.1"
 /// Library ABI version.
 #  define PQXX_ABI "7.7"
 
