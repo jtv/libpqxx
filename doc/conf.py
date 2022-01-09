@@ -11,7 +11,7 @@ to show the default.
 
 import codecs
 import os
-import subprocess
+from subprocess import check_call
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -25,9 +25,10 @@ import subprocess
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
-    subprocess.check_call(
-        os.path.join(os.path.curdir, 'configure'), cwd=os.path.pardir)
-    subprocess.check_call('doxygen', cwd=os.path.join(os.path.pardir, 'doc'))
+    env = {'CXXFLAGS': '-O0 -std=c++17'}.update(os.environ)
+    check_call(
+        os.path.join(os.path.curdir, 'configure'), cwd=os.path.pardir, env=env)
+    check_call('doxygen', cwd=os.path.join(os.path.pardir, 'doc'))
 
 # -- General configuration ------------------------------------------------
 
