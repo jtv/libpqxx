@@ -4,7 +4,8 @@
 #include <vector>
 
 
-template<typename T> concept Foo = std::ranges::input_range<T>;
+template<typename T>
+concept Foo = std::ranges::input_range<T>;
 
 
 template<Foo F> auto foo(F const &r)

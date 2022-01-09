@@ -236,12 +236,17 @@ void test_blob_reads_vector()
   char const content[]{"abcd"};
   pqxx::connection conn;
   pqxx::work tx{conn};
-  auto id{pqxx::blob::from_buf(tx, std::basic_string_view<std::byte>{reinterpret_cast<std::byte const *>(content), std::size(content)})};
+  auto id{pqxx::blob::from_buf(
+    tx, std::basic_string_view<std::byte>{
+          reinterpret_cast<std::byte const *>(content), std::size(content)})};
   std::vector<std::byte> buf;
   buf.resize(10);
   auto out{pqxx::blob::open_r(tx, id).read(buf)};
-  PQXX_CHECK_EQUAL(std::size(out), std::size(content), "Got wrong length back when reading as vector.");
-  PQXX_CHECK_EQUAL(out[0], std::byte{'a'}, "Got bad data when reading as vector.");
+  PQXX_CHECK_EQUAL(
+    std::size(out), std::size(content),
+    "Got wrong length back when reading as vector.");
+  PQXX_CHECK_EQUAL(
+    out[0], std::byte{'a'}, "Got bad data when reading as vector.");
 }
 
 

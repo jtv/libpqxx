@@ -77,18 +77,15 @@ template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires()
 {
   {std::tuple_size<typename std::ranges::iterator_t<T>::value_type>::value};
-}
-and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2 and
-  requires(T t)
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
+== 2 and requires(T t)
 {
   {
     std::get<0>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
   {
     std::get<1>(*std::cbegin(t))
-  }
-  ->ZString;
+    } -> ZString;
 };
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx::internal
