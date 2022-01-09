@@ -16,15 +16,15 @@ DOCS =
 endif
 
 if MAINTAINER_MODE
-REFERENCE_STAMP_DEPENDENCIES = ../src/libpqxx.la
+REFERENCE_STAMP_DEP = ../src/libpqxx.la
 else
-REFERENCE_STAMP_DEPENDENCIES =
+REFERENCE_STAMP_DEP =
 endif
 
 docs: $(DOCS)
 
 reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
+reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	if [ -x "$(DOXYGEN)" ]; then \
 	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \

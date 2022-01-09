@@ -263,8 +263,8 @@ MAINTAINERCLEANFILES = Makefile.in
 EXTRA_DIST = Doxyfile.in libpqxx.xml reference-stamp
 @BUILD_REFERENCE_FALSE@DOCS = 
 @BUILD_REFERENCE_TRUE@DOCS = reference
-@MAINTAINER_MODE_FALSE@REFERENCE_STAMP_DEPENDENCIES = 
-@MAINTAINER_MODE_TRUE@REFERENCE_STAMP_DEPENDENCIES = ../src/libpqxx.la
+@MAINTAINER_MODE_FALSE@REFERENCE_STAMP_DEP = 
+@MAINTAINER_MODE_TRUE@REFERENCE_STAMP_DEP = ../src/libpqxx.la
 all: all-am
 
 .SUFFIXES:
@@ -477,7 +477,7 @@ all-local: docs
 docs: $(DOCS)
 
 reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEPENDENCIES)
+reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	if [ -x "$(DOXYGEN)" ]; then \
 	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
