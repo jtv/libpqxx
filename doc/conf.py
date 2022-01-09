@@ -25,7 +25,8 @@ from subprocess import check_call
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
-    env = {'CXXFLAGS': '-O0 -std=c++17'}.update(os.environ)
+    env = {'CXXFLAGS': '-O0 -std=c++17'}
+    env.update(os.environ)
     check_call(
         os.path.join(os.path.curdir, 'configure'), cwd=os.path.pardir, env=env)
     check_call('doxygen', cwd=os.path.join(os.path.pardir, 'doc'))
