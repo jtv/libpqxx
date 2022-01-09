@@ -315,8 +315,10 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
     return std::string::npos;
 
   auto const byte1{get_byte(buffer, start)};
-  if (between_inc(byte1, 0x80, 0xff))
+  if (byte1 < 0x80)
     return start + 1;
+  if (byte1 == 0x80)
+    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   if (start + 2 > buffer_len)
     throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
