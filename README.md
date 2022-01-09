@@ -7,7 +7,7 @@ Home page: http://pqxx.org/development/libpqxx/
 
 Find libpqxx on Github: https://github.com/jtv/libpqxx
 
-Documentation on Read The Docs: https://readthedocs.org/projects/libpqxx/
+Documentation on Read The Docs: https://libpqxx.readthedocs.io
 
 Compiling this package requires PostgreSQL to be installed -- or at least the C
 headers and library for client development.  The library builds on top of
@@ -63,8 +63,8 @@ Documentation
 
 Building the library, if you have the right tools installed, generates HTML
 documentation in the `doc/` directory.  It is based on the headers in
-`include/pqxx/` and text in `include/pqxx/doc/`.  The documentation is also
-available online at readthedocs.org.
+`include/pqxx/` and text in `include/pqxx/doc/`.  This documentation is also
+available online at [readthedocs](https://libpqxx.readthedocs.io).
 
 
 Programming with libpqxx
