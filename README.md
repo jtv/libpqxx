@@ -23,8 +23,8 @@ commits in `master`.  For example, to get version 7.1.1:
 Upgrade notes
 -------------
 
-**The 7.x versions require C++17.**  Make sure your compiler is up to date.
-For libpqxx 8.x you will need C++20.
+**The 7.x versions require at least C++17.**  Make sure your compiler is up to
+date.  For libpqxx 8.x you will need at least C++20.
 
 Also, **7.0 makes some breaking changes in rarely used APIs:**
 * There is just a single `connection` class.  It connects immediately.

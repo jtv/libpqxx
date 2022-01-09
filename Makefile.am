@@ -1,5 +1,5 @@
 SUBDIRS = include src test tools config doc
-EXTRA_DIST = autogen.sh configitems README.md README-UPGRADE VERSION
+EXTRA_DIST = autogen.sh configitems README.md VERSION requirements.json
 
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in

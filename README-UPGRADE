@@ -1,5 +1,0 @@
-NOTICES FOR USERS UPGRADING FROM EARLIER VERSIONS TO 7.x
-
-As of 7.0, libpqxx requires C++17 or better.  Make sure that your libpqxx is
-built against the same version of the C++ standard as your own application, or
-there may be build problems.
