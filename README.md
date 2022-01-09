@@ -55,8 +55,7 @@ Elliott's
 [
   Easy-PQXX Build for Windows Visual Studio
 ](https://github.com/GordonLElliott/Easy-PQXX-Build-for-Windows-Visual-Studio)
-project.  At the time of writing, June 2020, this is still in development and
-in need of testers and feedback.
+project.
 
 
 Documentation
