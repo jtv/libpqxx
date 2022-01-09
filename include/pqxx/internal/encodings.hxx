@@ -32,7 +32,7 @@ encoding_group enc_group(std::string_view);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
-// TODO: Treat UTF-8 like monobyte for the purpose of finding ASCII chars.
+// TODO: For ASCII search, treat UTF8/EUC_*/MULE_INTERNAL as MONOBYTE.
 
 /// Find any of the ASCII characters `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that

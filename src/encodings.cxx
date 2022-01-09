@@ -250,6 +250,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_CN>::call(
   return start + 2;
 }
 
+
 template<>
 PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_JP>::call(
   char const buffer[], std::size_t buffer_len, std::size_t start)
@@ -257,12 +258,14 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_JP>::call(
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
 }
 
+
 template<>
 PQXX_PURE std::size_t glyph_scanner<encoding_group::EUC_JIS_2004>::call(
   char const buffer[], std::size_t buffer_len, std::size_t start)
 {
   return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JIS_2004");
 }
+
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<>
@@ -338,8 +341,9 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::GB18030>::call(
     return std::string::npos;
 
   auto const byte1{get_byte(buffer, start)};
-  if (between_inc(byte1, 0x80, 0xff))
+  if (byte1 < 0x80)
     return start + 1;
+  if (byte1 == 0x80) throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
   if (start + 2 > buffer_len)
     PQXX_UNLIKELY
@@ -464,7 +468,7 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
   throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
 
   auto const byte2{get_byte(buffer, start + 1)};
-  if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xA0)
+  if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xa0)
     return start + 2;
 
   if (start + 3 > buffer_len)
@@ -472,10 +476,10 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
   throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
 
   if (
-    ((byte1 == 0x9A and between_inc(byte2, 0xa0, 0xdf)) or
-     (byte1 == 0x9B and between_inc(byte2, 0xe0, 0xef)) or
+    ((byte1 == 0x9a and between_inc(byte2, 0xa0, 0xdf)) or
+     (byte1 == 0x9b and between_inc(byte2, 0xe0, 0xef)) or
      (between_inc(byte1, 0x90, 0x99) and byte2 >= 0xa0)) and
-    (byte2 >= 0xA0))
+    (byte2 >= 0xa0))
     return start + 3;
 
   if (start + 4 > buffer_len)
@@ -483,8 +487,8 @@ PQXX_PURE std::size_t glyph_scanner<encoding_group::MULE_INTERNAL>::call(
   throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
 
   if (
-    ((byte1 == 0x9C and between_inc(byte2, 0xf0, 0xf4)) or
-     (byte1 == 0x9D and between_inc(byte2, 0xf5, 0xfe))) and
+    ((byte1 == 0x9c and between_inc(byte2, 0xf0, 0xf4)) or
+     (byte1 == 0x9d and between_inc(byte2, 0xf5, 0xfe))) and
     get_byte(buffer, start + 2) >= 0xa0 and
     get_byte(buffer, start + 4) >= 0xa0)
     return start + 4;
@@ -621,57 +625,121 @@ encoding_group enc_group(int libpq_enc_id)
 
 encoding_group enc_group(std::string_view encoding_name)
 {
-  static std::map<std::string_view, encoding_group> const encoding_map{
-    {"BIG5", encoding_group::BIG5},
-    {"EUC_CN", encoding_group::EUC_CN},
-    {"EUC_JP", encoding_group::EUC_JP},
-    {"EUC_JIS_2004", encoding_group::EUC_JIS_2004},
-    {"EUC_KR", encoding_group::EUC_KR},
-    {"EUC_TW", encoding_group::EUC_TW},
-    {"GB18030", encoding_group::GB18030},
-    {"GBK", encoding_group::GBK},
-    {"ISO_8859_5", encoding_group::MONOBYTE},
-    {"ISO_8859_6", encoding_group::MONOBYTE},
-    {"ISO_8859_7", encoding_group::MONOBYTE},
-    {"ISO_8859_8", encoding_group::MONOBYTE},
-    {"JOHAB", encoding_group::JOHAB},
-    {"KOI8R", encoding_group::MONOBYTE},
-    {"KOI8U", encoding_group::MONOBYTE},
-    {"LATIN1", encoding_group::MONOBYTE},
-    {"LATIN2", encoding_group::MONOBYTE},
-    {"LATIN3", encoding_group::MONOBYTE},
-    {"LATIN4", encoding_group::MONOBYTE},
-    {"LATIN5", encoding_group::MONOBYTE},
-    {"LATIN6", encoding_group::MONOBYTE},
-    {"LATIN7", encoding_group::MONOBYTE},
-    {"LATIN8", encoding_group::MONOBYTE},
-    {"LATIN9", encoding_group::MONOBYTE},
-    {"LATIN10", encoding_group::MONOBYTE},
-    {"MULE_INTERNAL", encoding_group::MULE_INTERNAL},
-    {"SHIFT_JIS_2004", encoding_group::SHIFT_JIS_2004},
-    {"SJIS", encoding_group::SJIS},
-    {"SQL_ASCII", encoding_group::MONOBYTE},
-    {"UHC", encoding_group::UHC},
-    {"UTF8", encoding_group::UTF8},
-    {"WIN866", encoding_group::MONOBYTE},
-    {"WIN874", encoding_group::MONOBYTE},
-    {"WIN1250", encoding_group::MONOBYTE},
-    {"WIN1251", encoding_group::MONOBYTE},
-    {"WIN1252", encoding_group::MONOBYTE},
-    {"WIN1253", encoding_group::MONOBYTE},
-    {"WIN1254", encoding_group::MONOBYTE},
-    {"WIN1255", encoding_group::MONOBYTE},
-    {"WIN1256", encoding_group::MONOBYTE},
-    {"WIN1257", encoding_group::MONOBYTE},
-    {"WIN1258", encoding_group::MONOBYTE},
+  struct mapping
+  {
+    std::string_view const name;
+    encoding_group const group;
+    constexpr mapping(std::string_view n, encoding_group g) : name{n}, group{g} {}
+    constexpr bool operator<(mapping const &rhs) const { return name < rhs.name; }
   };
 
-  auto const found_encoding_group{encoding_map.find(encoding_name)};
-  if (found_encoding_group == std::end(encoding_map))
+  // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
+  auto const sz{std::size(encoding_name)};
+  if (sz > 0u) switch (encoding_name[0])
+  {
+  case 'B':
+    if (encoding_name == "BIG5"sv) return encoding_group::BIG5;
     PQXX_UNLIKELY
+    break;
+  case 'E':
+    // C++20: Use string_view::starts_with().
+    if ((sz >= 6u) and (encoding_name.substr(0, 4) == "EUC_"sv))
+    {
+      auto const subtype{encoding_name.substr(4)};
+      static constexpr std::array<mapping, 5> subtypes{
+        mapping{"CN"sv, encoding_group::EUC_CN},
+        mapping{"JIS_2004"sv, encoding_group::EUC_JIS_2004},
+        mapping{"JP"sv, encoding_group::EUC_JP},
+        mapping{"KR"sv, encoding_group::EUC_KR},
+        mapping{"TW"sv, encoding_group::EUC_TW},
+      };
+      for (auto const &m : subtypes) if (m.name == subtype) return m.group;
+    }
+    PQXX_UNLIKELY
+    break;
+  case 'G':
+    if (encoding_name == "GB18030"sv) return encoding_group::GB18030;
+    else if (encoding_name == "GBK"sv) return encoding_group::GBK;
+    PQXX_UNLIKELY
+    break;
+  case 'I':
+    // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
+    if ((sz == 10) and (encoding_name.substr(0, 9) == "ISO_8859_"sv))
+    {
+      char const subtype{encoding_name[9]};
+      if (('5' <= subtype) and (subtype < '9')) return encoding_group::MONOBYTE;
+    }
+    PQXX_UNLIKELY
+    break;
+  case 'J':
+    if (encoding_name == "JOHAB"sv) return encoding_group::JOHAB;
+    PQXX_UNLIKELY
+    break;
+  case 'K':
+    if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
+      return encoding_group::MONOBYTE;
+    PQXX_UNLIKELY
+    break;
+  case 'L':
+    // We know LATIN1 through LATIN10.
+    if (encoding_name.substr(0, 5) == "LATIN"sv)
+    {
+      auto const subtype{encoding_name.substr(5)};
+      if (subtype.size() == 1)
+      {
+        char const n{subtype[0]};
+	if (('1' <= n) and (n <= '9')) return encoding_group::MONOBYTE;
+      }
+      else if (subtype == "10"sv)
+      {
+        return encoding_group::MONOBYTE;
+      }
+    }
+    PQXX_UNLIKELY
+    break;
+  case 'M':
+    if (encoding_name == "MULE_INTERNAL"sv) return encoding_group::MULE_INTERNAL;
+    PQXX_UNLIKELY
+    break;
+  case 'S':
+    if (encoding_name == "SHIFT_JIS_2004"sv) return encoding_group::SHIFT_JIS_2004;
+    else if (encoding_name == "SJIS"sv) return encoding_group::SJIS;
+    else if (encoding_name == "SQL_ASCII"sv) return encoding_group::MONOBYTE;
+    PQXX_UNLIKELY
+    break;
+  case 'U':
+    if (encoding_name == "UHC"sv) return encoding_group::UHC;
+    else if (encoding_name == "UTF8"sv) return encoding_group::UTF8;
+    PQXX_UNLIKELY
+    break;
+  case 'W':
+    if (encoding_name.substr(0, 3) == "WIN"sv)
+    {
+      auto const subtype{encoding_name.substr(3)};
+      static constexpr std::array<std::string_view, 11u> subtypes{
+        "866"sv,
+        "874"sv,
+        "1250"sv,
+        "1251"sv,
+        "1252"sv,
+        "1253"sv,
+        "1254"sv,
+        "1255"sv,
+        "1256"sv,
+        "1257"sv,
+        "1258"sv,
+      };
+      for (auto const n : subtypes) if (n == subtype) return encoding_group::MONOBYTE;
+    }
+    PQXX_UNLIKELY
+    break;
+  default:
+    PQXX_UNLIKELY
+    break;
+  }
+  PQXX_UNLIKELY
   throw std::invalid_argument{
     internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
-  return found_encoding_group->second;
 }
 
 

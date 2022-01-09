@@ -20,9 +20,12 @@ enum class encoding_group
   // Handles all single-byte fixed-width encodings
   MONOBYTE,
 
-  // Multibyte encodings
+  // Multibyte encodings.
+  // Many of these can embed ASCII-like bytes inside multibyte characters,
+  // notably Big5, SJIS, SHIFT_JIS_2004, GP18030, GBK, JOHAB, UHC.
   BIG5,
   EUC_CN,
+  // TODO: Merge EUC_JP and EUC_JIS_2004?
   EUC_JP,
   EUC_JIS_2004,
   EUC_KR,
@@ -31,6 +34,7 @@ enum class encoding_group
   GBK,
   JOHAB,
   MULE_INTERNAL,
+  // TODO: Merge SJIS and SHIFT_JIS_2004?
   SJIS,
   SHIFT_JIS_2004,
   UHC,
