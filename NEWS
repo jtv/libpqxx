@@ -1,3 +1,4 @@
+7.6.2
 7.6.1
  - Fix bug in support for GB18030 encoding.  (#517)
  - Regenerated with newer tools.
