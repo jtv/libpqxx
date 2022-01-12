@@ -256,9 +256,9 @@ Beware of locales when converting.  If you use standard library features like
 `sprintf`, they may obey whatever locale is currently set on the system.   That
 means that a simple integer like 1000000 may come out as "1000000" on your
 system, but as "1,000,000" on mine, or as "1.000.000" for somebody else, and on
-an Indian system it may be different again.  Check the documentation for such
-functions, and set the C locale if necessary.  Or if you can, use the libpqxx
-conversions for the pre-existing types.
+an Indian system it may be "1,00,000".  Values coming from or going to the
+database should be in non-localised formats.  You can use libpqxx functions for
+those conversions: `pqxx::from_string`, `pqxx::to_string`, `pqxx::to_buf`.
 
 
 ### `into_buf`
