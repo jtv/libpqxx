@@ -70,7 +70,7 @@ available online at [readthedocs](https://libpqxx.readthedocs.io).
 Programming with libpqxx
 ------------------------
 
-Your first program will involve the libpqxx classes "connection" (see the
+Your first program will involve the libpqxx classes `connection` (see the
 `pqxx/connection.hxx` header), and `work` (a convenience alias for
 `transaction<>` which conforms to the interface defined in
 `pqxx/transaction_base.hxx`).
