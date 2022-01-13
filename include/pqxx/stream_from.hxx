@@ -31,12 +31,10 @@ namespace pqxx
 class transaction_base;
 
 
-// C++20: constinit.
 /// Pass this to a `stream_from` constructor to stream table contents.
 /** @deprecated Use @ref stream_from::table() instead.
  */
 constexpr from_table_t from_table;
-// C++20: constinit.
 /// Pass this to a `stream_from` constructor to stream query results.
 /** @deprecated Use stream_from::query() instead.
  */
@@ -183,9 +181,15 @@ public:
   ~stream_from() noexcept;
 
   /// May this stream still produce more data?
-  [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  [[nodiscard]] constexpr operator bool() const noexcept
+  {
+    return not m_finished;
+  }
   /// Has this stream produced all the data it is going to produce?
-  [[nodiscard]] bool operator!() const noexcept { return m_finished; }
+  [[nodiscard]] constexpr bool operator!() const noexcept
+  {
+    return m_finished;
+  }
 
   /// Finish this stream.  Call this before continuing to use the connection.
   /** Consumes all remaining lines, and closes the stream.
@@ -305,8 +309,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
   if (m_finished)
     return *this;
-  // C++20: constinit.
-  constexpr auto tup_size{std::tuple_size_v<Tuple>};
+  static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
   parse_line();
   if (m_finished)

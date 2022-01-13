@@ -520,7 +520,7 @@ public:
   //@}
 
   /// The connection in which this transaction lives.
-  [[nodiscard]] connection &conn() const { return m_conn; }
+  [[nodiscard]] constexpr connection &conn() const noexcept { return m_conn; }
 
   /// Set session variable using SQL "SET" command.
   /** The new value is typically forgotten if the transaction aborts.
@@ -541,6 +541,7 @@ public:
    */
   std::string get_variable(std::string_view);
 
+  // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
   [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
 
@@ -603,12 +604,6 @@ private:
 
   PQXX_PRIVATE void check_pending_error();
 
-  template<typename T> bool parm_is_null(T *p) const noexcept
-  {
-    return p == nullptr;
-  }
-  template<typename T> bool parm_is_null(T) const noexcept { return false; }
-
   result
   internal_exec_prepared(zview statement, internal::c_params const &args);
 
@@ -648,7 +643,6 @@ private:
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
 
-  // C++20: constinit.
   static constexpr std::string_view s_type_name{"transaction"sv};
 };
 
@@ -672,7 +666,6 @@ namespace pqxx::internal
 template<pqxx::isolation_level isolation, pqxx::write_policy rw>
 extern const zview begin_cmd;
 
-// C++20: constinit.
 // These are not static members, so "constexpr" does not imply "inline".
 template<>
 inline constexpr zview begin_cmd<read_committed, write_policy::read_write>{

@@ -43,7 +43,7 @@ public:
   transaction_focus &operator=(transaction_focus const &) = delete;
 
   /// Class name, for human consumption.
-  [[nodiscard]] std::string_view classname() const noexcept
+  [[nodiscard]] constexpr std::string_view classname() const noexcept
   {
     return m_classname;
   }

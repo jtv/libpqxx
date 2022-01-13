@@ -47,10 +47,10 @@ namespace pqxx::internal
 {
 
 
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
+// C++20: Use concept to express that LEFT and RIGHT must be integral types.
 /// C++20 std::cmp_less, or workaround if not available.
 template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs)
+inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
 {
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_less(lhs, rhs);
@@ -65,10 +65,10 @@ inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs)
 }
 
 
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
+// C++20: Use concept to express that LEFT and RIGHT must be integral types.
 /// C++20 std::cmp_greater, or workaround if not available.
 template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs)
+inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs) noexcept
 {
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_greater(lhs, rhs);
@@ -78,10 +78,10 @@ inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs)
 }
 
 
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
+// C++20: Use concept to express that LEFT and RIGHT must be integral types.
 /// C++20 std::cmp_less_equal, or workaround if not available.
 template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs)
+inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs) noexcept
 {
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_less_equal(lhs, rhs);
@@ -91,10 +91,10 @@ inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs)
 }
 
 
-// C++20: Use concept to express LEFT and RIGHT must be integral types.
+// C++20: Use concept to express that LEFT and RIGHT must be integral types.
 /// C++20 std::cmp_greater_equal, or workaround if not available.
 template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs)
+inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs) noexcept
 {
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_greater_equal(lhs, rhs);
@@ -125,7 +125,8 @@ namespace pqxx
 using namespace std::literals;
 
 /// Suppress compiler warning about an unused item.
-template<typename... T> inline void ignore_unused(T &&...) {}
+template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
+{}
 
 
 /// Cast a numeric value to another type, or throw if it underflows/overflows.
@@ -177,9 +178,7 @@ inline TO check_cast(FROM value, std::string_view description)
   {
     using unsigned_from = std::make_unsigned_t<FROM>;
     using unsigned_to = std::make_unsigned_t<TO>;
-    // C++20: constinit.
     constexpr auto from_max{static_cast<unsigned_from>((from_limits::max)())};
-    // C++20: constinit.
     constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
@@ -218,7 +217,7 @@ inline TO check_cast(FROM value, std::string_view description)
  * There will be a definition, but the version in the parameter values will
  * be different.
  */
-inline PQXX_PRIVATE void check_version()
+inline PQXX_PRIVATE void check_version() noexcept
 {
   // There is no particular reason to do this here in @ref connection, except
   // to ensure that every meaningful libpqxx client will execute it.  The call
@@ -266,6 +265,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 #else
 #  define PQXX_POTENTIAL_BINARY_ARG typename
 #endif
+
 
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
@@ -323,7 +323,6 @@ std::basic_string_view<std::byte> binary_cast(CHAR const *data, SIZE size)
 }
 
 
-// C++20: constinit.
 /// The "null" oid.
 constexpr oid oid_none{0};
 } // namespace pqxx
@@ -349,7 +348,7 @@ using namespace std::literals;
  * `int`, but requires it to be nonnegative.  Which means it's an outright
  * liability on systems where `char` is signed.
  */
-template<typename CHAR> bool is_digit(CHAR c)
+template<typename CHAR> inline constexpr bool is_digit(CHAR c) noexcept
 {
   return (c >= '0') and (c <= '9');
 }
@@ -394,7 +393,7 @@ void check_unique_unregister(
 /** This uses the hex-escaping format.  The return value includes room for the
  * "\x" prefix.
  */
-constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
+inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 {
   return 2 + (2 * binary_bytes) + 1;
 }
@@ -403,7 +402,7 @@ constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 /// Compute binary size from the size of its escaped version.
 /** Do not include a terminating zero in `escaped_bytes`.
  */
-constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
+inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 {
   return (escaped_bytes - 2) / 2;
 }

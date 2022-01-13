@@ -29,7 +29,6 @@ get_scanner(pqxx::transaction_base const &tx)
 }
 
 
-// C++20: constinit.
 constexpr std::string_view class_name{"stream_from"};
 } // namespace
 

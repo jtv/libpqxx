@@ -563,6 +563,7 @@ public:
 
   //@}
 
+  // C++20: constexpr.  Breaks ABI.
   /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
@@ -1070,16 +1071,22 @@ public:
   [[nodiscard]] int sock() const &noexcept { return m_conn.sock(); }
 
   /// Should we currently wait to be able to _read_ from the socket?
-  [[nodiscard]] bool wait_to_read() const &noexcept { return m_reading; }
+  [[nodiscard]] constexpr bool wait_to_read() const &noexcept
+  {
+    return m_reading;
+  }
 
   /// Should we currently wait to be able to _write_ to the socket?
-  [[nodiscard]] bool wait_to_write() const &noexcept { return m_writing; }
+  [[nodiscard]] constexpr bool wait_to_write() const &noexcept
+  {
+    return m_writing;
+  }
 
   /// Progress towards completion (but don't block).
   void process() &;
 
   /// Is our connection finished?
-  [[nodiscard]] bool done() const &noexcept
+  [[nodiscard]] constexpr bool done() const &noexcept
   {
     return not m_reading and not m_writing;
   }

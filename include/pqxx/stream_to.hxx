@@ -188,9 +188,15 @@ public:
   ~stream_to() noexcept;
 
   /// Does this stream still need to @ref complete()?
-  [[nodiscard]] operator bool() const noexcept { return not m_finished; }
+  [[nodiscard]] constexpr operator bool() const noexcept
+  {
+    return not m_finished;
+  }
   /// Has this stream been through its concluding @c complete()?
-  [[nodiscard]] bool operator!() const noexcept { return m_finished; }
+  [[nodiscard]] constexpr bool operator!() const noexcept
+  {
+    return m_finished;
+  }
 
   /// Complete the operation, and check for errors.
   /** Always call this to close the stream in an orderly fashion, even after
@@ -271,7 +277,6 @@ private:
    */
   void write_buffer();
 
-  // C++20: constinit.
   /// COPY encoding for a null field, plus subsequent separator.
   static constexpr std::string_view null_field{"\\N\t"};
 
@@ -419,7 +424,6 @@ private:
     (..., append_to_buffer(fields));
   }
 
-  // C++20: constinit.
   constexpr static std::string_view s_classname{"stream_to"};
 };
 

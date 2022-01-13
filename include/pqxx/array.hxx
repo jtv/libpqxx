@@ -58,7 +58,12 @@ public:
     done,
   };
 
+  // TODO: constexpr noexcept.  Breaks ABI.
   /// Constructor.  You don't need this; use @ref field::as_array instead.
+  /** The parser only remains valid while the data underlying the @ref result
+   * remains valid.  Once all `result` objects referring to that data have been
+   * destroyed, the parser will no longer refer to valid memory.
+   */
   explicit array_parser(
     std::string_view input,
     internal::encoding_group = internal::encoding_group::MONOBYTE);

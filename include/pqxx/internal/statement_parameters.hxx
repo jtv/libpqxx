@@ -27,7 +27,6 @@
 namespace pqxx::internal
 {
 template<typename ITERATOR>
-// C++20: constinit.
 constexpr inline auto const iterator_identity{
   [](decltype(*std::declval<ITERATOR>()) x) { return x; }};
 

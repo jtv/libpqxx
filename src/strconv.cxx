@@ -29,7 +29,6 @@
 namespace
 {
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-// C++20: constinit.
 /// Do we have fully functional thread_local support?
 /** When building with libcxxrt on clang, you can't create thread_local objects
  * of non-POD types.  Any attempt will result in a link error.
@@ -52,11 +51,9 @@ constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
 }
 
 
-// C++20: constinit.
 /// The lowest possible value of integral type T.
 template<typename T> constexpr T bottom{std::numeric_limits<T>::min()};
 
-// C++20: constinit.
 /// The highest possible value of integral type T.
 template<typename T> constexpr T top{std::numeric_limits<T>::max()};
 
@@ -330,20 +327,17 @@ namespace
 
 template<typename T> struct numeric_ten
 {
-  // C++20: constinit.
   static inline constexpr T value = 10;
 };
 
 template<typename T> struct numeric_high_threshold
 {
-  // C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
 };
 
 template<typename T> struct numeric_low_threshold
 {
-  // C++20: constinit?
   static inline constexpr T value =
     (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
 };
@@ -669,7 +663,6 @@ template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
-    // C++20: constinit.
     static constexpr auto space{float_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);

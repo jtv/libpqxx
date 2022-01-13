@@ -30,7 +30,6 @@ namespace
 {
 constexpr inline int PQXX_COLD std_mode_to_pq_mode(std::ios::openmode mode)
 {
-  // C++20: constinit.
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
   constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 

@@ -97,6 +97,7 @@ public:
    */
   //@{
 
+  // TODO: Make constexpr inline (but breaks ABI).
   /// Special value: read until end.
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
@@ -106,13 +107,17 @@ public:
   /// Special value: read one row only.
   /** @return Unsurprisingly, 1.
    */
-  [[nodiscard]] static difference_type next() noexcept { return 1; }
+  [[nodiscard]] static constexpr difference_type next() noexcept { return 1; }
 
   /// Special value: read backwards, one row only.
   /** @return Unsurprisingly, -1.
    */
-  [[nodiscard]] static difference_type prior() noexcept { return -1; }
+  [[nodiscard]] static constexpr difference_type prior() noexcept
+  {
+    return -1;
+  }
 
+  // TODO: Make constexpr inline (but breaks ABI).
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
@@ -126,7 +131,10 @@ public:
    * @warning Don't use this to access the SQL cursor directly without going
    * through the provided wrapper classes!
    */
-  [[nodiscard]] std::string const &name() const noexcept { return m_name; }
+  [[nodiscard]] constexpr std::string const &name() const noexcept
+  {
+    return m_name;
+  }
 
 protected:
   cursor_base(connection &, std::string_view Name, bool embellish_name = true);
@@ -220,7 +228,7 @@ public:
   }
 
   /// Return this cursor's name.
-  [[nodiscard]] std::string const &name() const noexcept
+  [[nodiscard]] constexpr std::string const &name() const noexcept
   {
     return m_cur.name();
   }
@@ -311,7 +319,7 @@ public:
     cursor_base::ownership_policy op = cursor_base::owned);
 
   /// Return `true` if this stream may still return more data.
-  operator bool() const &noexcept { return not m_done; }
+  constexpr operator bool() const &noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen
@@ -352,7 +360,10 @@ public:
    * @param stride Must be a positive number.
    */
   void set_stride(difference_type stride) &;
-  [[nodiscard]] difference_type stride() const noexcept { return m_stride; }
+  [[nodiscard]] constexpr difference_type stride() const noexcept
+  {
+    return m_stride;
+  }
 
 private:
   result fetchblock();

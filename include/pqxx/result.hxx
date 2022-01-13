@@ -27,8 +27,9 @@
 
 namespace pqxx::internal
 {
+// TODO: Make noexcept (but breaks ABI).
 PQXX_LIBEXPORT void clear_result(pq::PGresult const *);
-}
+} // namespace pqxx::internal
 
 
 namespace pqxx::internal::gate
@@ -77,18 +78,22 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   result() noexcept :
-          m_data(make_data_pointer()),
-          m_query(),
-          m_encoding(internal::encoding_group::MONOBYTE)
+          m_data{make_data_pointer()},
+          m_query{},
+          m_encoding{internal::encoding_group::MONOBYTE}
   {}
 
   result(result const &rhs) noexcept = default;
+  result(result &&rhs) noexcept = default;
 
   /// Assign one result to another.
   /** Copying results is cheap: it copies only smart pointers, but the actual
    * data stays in the same place.
    */
   result &operator=(result const &rhs) noexcept = default;
+
+  /// Assign one result to another, invaliding the old one.
+  result &operator=(result &&rhs) noexcept = default;
 
   /**
    * @name Comparisons
@@ -238,7 +243,7 @@ private:
 
   /// Factory for data_pointer.
   static data_pointer
-  make_data_pointer(internal::pq::PGresult const *res = nullptr)
+  make_data_pointer(internal::pq::PGresult const *res = nullptr) noexcept
   {
     return {res, internal::clear_result};
   }
@@ -257,7 +262,9 @@ private:
   static std::string const s_empty_string;
 
   friend class pqxx::field;
+  // TODO: noexcept.  Breaks ABI.
   PQXX_PURE char const *get_value(size_type row, row_size_type col) const;
+  // TODO: noexcept.  Breaks ABI.
   PQXX_PURE bool get_is_null(size_type row, row_size_type col) const;
   PQXX_PURE
   field_size_type get_length(size_type, row_size_type) const noexcept;

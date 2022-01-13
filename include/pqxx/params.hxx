@@ -127,7 +127,6 @@ public:
 
   placeholders()
   {
-    // C++20: constinit.
     static constexpr auto initial{"$1\0"sv};
     initial.copy(std::data(m_buf), std::size(initial));
   }
@@ -136,7 +135,10 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  zview view() const &noexcept { return zview{std::data(m_buf), m_len}; }
+  constexpr zview view() const &noexcept
+  {
+    return zview{std::data(m_buf), m_len};
+  }
 
   /// Read the current placeholder text, as a `std::string`.
   /** This will be slightly slower than converting to a `zview`.  With most
@@ -231,10 +233,11 @@ public:
    */
   void reserve(std::size_t n) &;
 
+  // C++20: constexpr.
   /// Get the number of parameters currently in this `params`.
   [[nodiscard]] auto size() const noexcept { return m_params.size(); }
 
-  // C++20: Use the vector's ssize() directly and go noexcept.
+  // C++20: Use the vector's ssize() directly and go noexcept+constexpr.
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
    * `std::vector` does not have a `ssize()` member function.  These member
@@ -359,7 +362,7 @@ private:
   }
 
   /// Terminating case: append an empty parameter pack.  It's not hard BTW.
-  void append_pack() {}
+  constexpr void append_pack() noexcept {}
 
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
@@ -369,7 +372,6 @@ private:
     std::basic_string<std::byte>>;
   std::vector<entry> m_params;
 
-  // C++20: constinit.
   static constexpr std::string_view s_overflow{
     "Statement parameter length overflow."sv};
 };
