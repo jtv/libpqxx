@@ -1,6 +1,7 @@
 7.7.1
  - Don't try to set C++ version in `configure`.  User can set compiler options.
  - Finally fix a long-standing silly warning in autogen.
+ - Fix `digit_to_number` not being found on some comilers.  (#518, #519)
 7.7.0
  - Fix `stream_to` for differing table/client encodings.  (#473)
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
