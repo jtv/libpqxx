@@ -438,7 +438,8 @@ template<typename T>
   if (pqxx::internal::is_digit(initial))
   {
     for (; pqxx::internal::is_digit(data[i]); ++i)
-      result = absorb_digit_positive(result, digit_to_number(data[i]));
+      result = absorb_digit_positive(
+        result, pqxx::internal::digit_to_number(data[i]));
   }
   else if (initial == '-')
   {
@@ -452,7 +453,8 @@ template<typename T>
         "Converting string to " + pqxx::type_name<T> +
         ", but it contains only a sign."};
     for (; i < std::size(text) and pqxx::internal::is_digit(data[i]); ++i)
-      result = absorb_digit_negative(result, digit_to_number(data[i]));
+      result = absorb_digit_negative(
+        result, pqxx::internal::digit_to_number(data[i]));
   }
   else
   {
