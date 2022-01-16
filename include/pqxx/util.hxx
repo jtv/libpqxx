@@ -55,7 +55,13 @@ inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_less(lhs, rhs);
 #else
-  if constexpr (std::is_signed_v<LEFT> == std::is_signed_v<RIGHT>)
+
+  // We need these variables just because lgtm.com gives off a false positive
+  // warning when we compare the values directly.  It considers that a
+  // "self-comparison."
+  constexpr bool left_signed{std::is_signed_v<LEFT>},
+    right_signed{std::is_signed_v<RIGHT>};
+  if constexpr (left_signed == right_signed)
     return lhs < rhs;
   else if constexpr (std::is_signed_v<LEFT>)
     return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
