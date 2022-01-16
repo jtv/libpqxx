@@ -22,6 +22,7 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 // For WSAPoll():
 #if __has_include(<winsock2.h>)
@@ -212,10 +213,8 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
   close();
 
-  m_conn = rhs.m_conn;
+  m_conn = std::exchange(rhs.m_conn, nullptr);
   m_unique_id = rhs.m_unique_id;
-
-  rhs.m_conn = nullptr;
 
   return *this;
 }

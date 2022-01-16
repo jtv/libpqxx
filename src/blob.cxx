@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <stdexcept>
+#include <utility>
 
 #include <libpq-fe.h>
 
@@ -92,10 +93,8 @@ pqxx::blob pqxx::blob::open_rw(dbtransaction &tx, oid id)
 }
 
 
-pqxx::blob::blob(blob &&other) : m_conn{other.m_conn}, m_fd{other.m_fd}
+pqxx::blob::blob(blob &&other) : m_conn{std::exchange(other.m_conn, nullptr)}, m_fd{std::exchange(other.m_fd, -1)}
 {
-  other.m_conn = nullptr;
-  other.m_fd = -1;
 }
 
 
@@ -103,10 +102,8 @@ pqxx::blob &pqxx::blob::operator=(blob &&other)
 {
   if (m_fd != -1)
     lo_close(raw_conn(m_conn), m_fd);
-  m_conn = other.m_conn;
-  m_fd = other.m_fd;
-  other.m_conn = nullptr;
-  other.m_fd = -1;
+  m_conn = std::exchange(other.m_conn, nullptr);
+  m_fd = std::exchange(other.m_fd, -1);
   return *this;
 }
 

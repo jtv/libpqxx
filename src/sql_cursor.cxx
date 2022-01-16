@@ -108,7 +108,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{internal::concat(
-    "DECLARE "sv, t.quote_name(name()), " ",
+    "DECLARE "sv, t.quote_name(name()), " "sv,
     ((ap == cursor_base::forward_only) ? "NO "sv : ""sv), "SCROLL CURSOR "sv,
     (hold ? "WITH HOLD "sv : ""sv), "FOR "sv, query, " "sv,
     ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY "sv))};
@@ -147,7 +147,7 @@ void pqxx::internal::sql_cursor::close() noexcept
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-        internal::concat("CLOSE ", m_home.quote_name(name())).c_str());
+        internal::concat("CLOSE "sv, m_home.quote_name(name())).c_str());
     }
     catch (std::exception const &)
     {}
@@ -161,7 +161,7 @@ void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
   if (pos() != 0)
     throw internal_error{"init_empty_result() from bad pos()."};
   m_empty_result =
-    t.exec(internal::concat("FETCH 0 IN ", m_home.quote_name(name())));
+    t.exec(internal::concat("FETCH 0 IN "sv, m_home.quote_name(name())));
 }
 
 
@@ -230,7 +230,8 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
     return m_empty_result;
   }
   auto const query{
-    "FETCH " + stridestring(rows) + " IN " + m_home.quote_name(name())};
+    pqxx::internal::concat(
+    "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(std::size(r)));
   return r;
@@ -247,7 +248,7 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
   }
 
   auto const query{
-    "MOVE " + stridestring(rows) + " IN " + m_home.quote_name(name())};
+    pqxx::internal::concat("MOVE "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
