@@ -51,11 +51,11 @@ public:
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  row() = default;
-  row(row &&) = default;
-  row(row const &) = default;
-  row &operator=(row const &) = default;
-  row &operator=(row &&) = default;
+  row() noexcept = default;
+  row(row &&) noexcept = default;
+  row(row const &) noexcept = default;
+  row &operator=(row const &) noexcept = default;
+  row &operator=(row &&) noexcept = default;
 
   /**
    * @name Comparison
@@ -80,9 +80,13 @@ public:
   [[nodiscard]] reference front() const noexcept;
   [[nodiscard]] reference back() const noexcept;
 
+  // TODO: noexcept.  Breaks ABI.
   [[nodiscard]] const_reverse_row_iterator rbegin() const;
+  // TODO: noexcept.  Breaks ABI.
   [[nodiscard]] const_reverse_row_iterator crbegin() const;
+  // TODO: noexcept.  Breaks ABI.
   [[nodiscard]] const_reverse_row_iterator rend() const;
+  // TODO: noexcept.  Breaks ABI.
   [[nodiscard]] const_reverse_row_iterator crend() const;
 
   [[nodiscard]] reference operator[](size_type) const noexcept;
@@ -97,12 +101,15 @@ public:
    */
   reference at(zview col_name) const;
 
-  [[nodiscard]] size_type size() const noexcept { return m_end - m_begin; }
+  [[nodiscard]] constexpr size_type size() const noexcept
+  {
+    return m_end - m_begin;
+  }
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] result::size_type rownumber() const noexcept
+  [[nodiscard]] constexpr result::size_type rownumber() const noexcept
   {
     return m_index;
   }
@@ -149,7 +156,10 @@ public:
   }
   //@}
 
-  [[nodiscard]] result::size_type num() const { return rownumber(); }
+  [[nodiscard]] constexpr result::size_type num() const noexcept
+  {
+    return rownumber();
+  }
 
   /** Produce a slice of this row, containing the given range of columns.
    *
@@ -203,9 +213,7 @@ protected:
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t) const
   {
-    // C++20: constinit.
-    constexpr auto tup_size{std::tuple_size_v<Tuple>};
-    extract_fields(t, std::make_index_sequence<tup_size>{});
+    extract_fields(t, std::make_index_sequence<std::tuple_size_v<Tuple>>{});
   }
 
   friend class field;
@@ -269,43 +277,45 @@ public:
           field{t.m_result, t.m_index, c}
   {}
   const_row_iterator(field const &F) noexcept : field{F} {}
-  const_row_iterator(const_row_iterator const &) = default;
-  const_row_iterator(const_row_iterator &&) = default;
+  const_row_iterator(const_row_iterator const &) noexcept = default;
+  const_row_iterator(const_row_iterator &&) noexcept = default;
 
   /**
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] pointer operator->() const { return this; }
-  [[nodiscard]] reference operator*() const { return {*this}; }
+  [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
+  [[nodiscard]] reference operator*() const noexcept { return {*this}; }
   //@}
 
   /**
    * @name Manipulations
    */
   //@{
-  const_row_iterator &operator=(const_row_iterator const &) = default;
-  const_row_iterator &operator=(const_row_iterator &&) = default;
+  const_row_iterator &operator=(const_row_iterator const &) noexcept = default;
+  const_row_iterator &operator=(const_row_iterator &&) noexcept = default;
 
+  // TODO: noexcept.  Breaks ABI.
   const_row_iterator operator++(int);
-  const_row_iterator &operator++()
+  const_row_iterator &operator++() noexcept
   {
     ++m_col;
     return *this;
   }
+  // TODO: noexcept.  Breaks ABI.
   const_row_iterator operator--(int);
-  const_row_iterator &operator--()
+  const_row_iterator &operator--() noexcept
   {
     --m_col;
     return *this;
   }
 
-  const_row_iterator &operator+=(difference_type i)
+  const_row_iterator &operator+=(difference_type i) noexcept
   {
     m_col = size_type(difference_type(m_col) + i);
     return *this;
   }
-  const_row_iterator &operator-=(difference_type i)
+  const_row_iterator &operator-=(difference_type i) noexcept
   {
     m_col = size_type(difference_type(m_col) - i);
     return *this;
@@ -316,27 +326,33 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] bool operator==(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator==(const_row_iterator const &i) const noexcept
   {
     return col() == i.col();
   }
-  [[nodiscard]] bool operator!=(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator!=(const_row_iterator const &i) const noexcept
   {
     return col() != i.col();
   }
-  [[nodiscard]] bool operator<(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator<(const_row_iterator const &i) const noexcept
   {
     return col() < i.col();
   }
-  [[nodiscard]] bool operator<=(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator<=(const_row_iterator const &i) const noexcept
   {
     return col() <= i.col();
   }
-  [[nodiscard]] bool operator>(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator>(const_row_iterator const &i) const noexcept
   {
     return col() > i.col();
   }
-  [[nodiscard]] bool operator>=(const_row_iterator const &i) const
+  [[nodiscard]] constexpr bool
+  operator>=(const_row_iterator const &i) const noexcept
   {
     return col() >= i.col();
   }
@@ -346,14 +362,16 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  [[nodiscard]] inline const_row_iterator operator+(difference_type) const;
+  [[nodiscard]] inline const_row_iterator
+  operator+(difference_type) const noexcept;
 
   friend const_row_iterator
-  operator+(difference_type, const_row_iterator const &);
+  operator+(difference_type, const_row_iterator const &) noexcept;
 
-  [[nodiscard]] inline const_row_iterator operator-(difference_type) const;
+  [[nodiscard]] inline const_row_iterator
+  operator-(difference_type) const noexcept;
   [[nodiscard]] inline difference_type
-  operator-(const_row_iterator const &) const;
+  operator-(const_row_iterator const &) const noexcept;
   //@}
 };
 
@@ -370,9 +388,10 @@ public:
   using value_type = iterator_type::value_type;
   using reference = iterator_type::reference;
 
-  const_reverse_row_iterator() = default;
-  const_reverse_row_iterator(const_reverse_row_iterator const &) = default;
-  const_reverse_row_iterator(const_reverse_row_iterator &&) = default;
+  const_reverse_row_iterator() noexcept = default;
+  const_reverse_row_iterator(const_reverse_row_iterator const &) noexcept =
+    default;
+  const_reverse_row_iterator(const_reverse_row_iterator &&) noexcept = default;
 
   explicit const_reverse_row_iterator(super const &rhs) noexcept :
           const_row_iterator{rhs}
@@ -394,29 +413,32 @@ public:
    * @name Manipulations
    */
   //@{
-  const_reverse_row_iterator &operator=(const_reverse_row_iterator const &r)
+  const_reverse_row_iterator &
+  operator=(const_reverse_row_iterator const &r) noexcept
   {
     iterator_type::operator=(r);
     return *this;
   }
-  const_reverse_row_iterator operator++()
+  const_reverse_row_iterator operator++() noexcept
   {
     iterator_type::operator--();
     return *this;
   }
+  // TODO: noexcept.  Breaks ABI.
   const_reverse_row_iterator operator++(int);
-  const_reverse_row_iterator &operator--()
+  const_reverse_row_iterator &operator--() noexcept
   {
     iterator_type::operator++();
     return *this;
   }
   const_reverse_row_iterator operator--(int);
-  const_reverse_row_iterator &operator+=(difference_type i)
+  // TODO: noexcept.  Breaks ABI.
+  const_reverse_row_iterator &operator+=(difference_type i) noexcept
   {
     iterator_type::operator-=(i);
     return *this;
   }
-  const_reverse_row_iterator &operator-=(difference_type i)
+  const_reverse_row_iterator &operator-=(difference_type i) noexcept
   {
     iterator_type::operator+=(i);
     return *this;
@@ -427,16 +449,18 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  [[nodiscard]] const_reverse_row_iterator operator+(difference_type i) const
+  [[nodiscard]] const_reverse_row_iterator
+  operator+(difference_type i) const noexcept
   {
     return const_reverse_row_iterator{base() - i};
   }
-  [[nodiscard]] const_reverse_row_iterator operator-(difference_type i)
+  [[nodiscard]] const_reverse_row_iterator
+  operator-(difference_type i) noexcept
   {
     return const_reverse_row_iterator{base() + i};
   }
   [[nodiscard]] difference_type
-  operator-(const_reverse_row_iterator const &rhs) const
+  operator-(const_reverse_row_iterator const &rhs) const noexcept
   {
     return rhs.const_row_iterator::operator-(*this);
   }
@@ -457,19 +481,23 @@ public:
     return !operator==(rhs);
   }
 
-  [[nodiscard]] bool operator<(const_reverse_row_iterator const &rhs) const
+  [[nodiscard]] constexpr bool
+  operator<(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>(rhs);
   }
-  [[nodiscard]] bool operator<=(const_reverse_row_iterator const &rhs) const
+  [[nodiscard]] constexpr bool
+  operator<=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>=(rhs);
   }
-  [[nodiscard]] bool operator>(const_reverse_row_iterator const &rhs) const
+  [[nodiscard]] constexpr bool
+  operator>(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<(rhs);
   }
-  [[nodiscard]] bool operator>=(const_reverse_row_iterator const &rhs) const
+  [[nodiscard]] constexpr bool
+  operator>=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<=(rhs);
   }
@@ -477,7 +505,8 @@ public:
 };
 
 
-const_row_iterator const_row_iterator::operator+(difference_type o) const
+const_row_iterator
+const_row_iterator::operator+(difference_type o) const noexcept
 {
   // TODO:: More direct route to home().columns()?
   return {
@@ -485,14 +514,14 @@ const_row_iterator const_row_iterator::operator+(difference_type o) const
     size_type(difference_type(col()) + o)};
 }
 
-inline const_row_iterator
-operator+(const_row_iterator::difference_type o, const_row_iterator const &i)
+inline const_row_iterator operator+(
+  const_row_iterator::difference_type o, const_row_iterator const &i) noexcept
 {
   return i + o;
 }
 
 inline const_row_iterator
-const_row_iterator::operator-(difference_type o) const
+const_row_iterator::operator-(difference_type o) const noexcept
 {
   // TODO:: More direct route to home().columns()?
   return {
@@ -501,7 +530,7 @@ const_row_iterator::operator-(difference_type o) const
 }
 
 inline const_row_iterator::difference_type
-const_row_iterator::operator-(const_row_iterator const &i) const
+const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 {
   return difference_type(num() - i.num());
 }

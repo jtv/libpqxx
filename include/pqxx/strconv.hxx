@@ -109,7 +109,6 @@ template<typename TYPE, typename ENABLE = void> struct nullness
 /// Nullness traits describing a type which does not have a null value.
 template<typename TYPE> struct no_null
 {
-  // C++20: constinit.
   /// Does @c TYPE have a "built-in null value"?
   /** For example, a pointer can equal @c nullptr, which makes a very natural
    * representation of an SQL null value.  For such types, the code sometimes
@@ -123,7 +122,6 @@ template<typename TYPE> struct no_null
    */
   static constexpr bool has_null = false;
 
-  // C++20: constinit.
   /// Are all values of this type null?
   /** There are a few special C++ types which are always null - mainly
    * @c std::nullptr_t.
@@ -188,6 +186,7 @@ template<typename TYPE> struct string_traits
    */
   [[nodiscard]] static inline TYPE from_string(std::string_view text);
 
+  // C++20: Can we make these all constexpr?
   /// Estimate how much buffer space is needed to represent value.
   /** The estimate may be a little pessimistic, if it saves time.
    *
@@ -245,7 +244,7 @@ template<typename ENUM> struct enum_traits
 
 private:
   // C++23: Replace with std::to_underlying.
-  static impl_type to_underlying(ENUM const &value)
+  static constexpr impl_type to_underlying(ENUM const &value) noexcept
   {
     return static_cast<impl_type>(value);
   }
@@ -361,7 +360,7 @@ inline void into_string(TYPE const &value, std::string &out);
 
 /// Is @c value null?
 template<typename TYPE>
-[[nodiscard]] inline bool is_null(TYPE const &value) noexcept
+[[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
   return nullness<strip_t<TYPE>>::is_null(value);
 }
@@ -378,7 +377,6 @@ template<typename... TYPE>
 }
 
 
-// C++20: constinit.
 /// Does this type translate to an SQL array?
 /** Specialisations may override this to be true for container types.
  *
@@ -389,7 +387,6 @@ template<typename... TYPE>
 template<typename TYPE> inline constexpr bool is_sql_array{false};
 
 
-// C++20: constinit.
 /// Can we use this type in arrays and composite types without quoting them?
 /** Define this as @c true only if values of @c TYPE can never contain any
  * special characters that might need escaping or confuse the parsing of array
@@ -406,7 +403,6 @@ template<typename TYPE> inline constexpr bool is_sql_array{false};
 template<typename TYPE> inline constexpr bool is_unquoted_safe{false};
 
 
-// C++20: constinit.
 /// Element separator between SQL array elements of this type.
 template<typename T> inline constexpr char array_separator{','};
 

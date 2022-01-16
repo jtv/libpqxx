@@ -49,6 +49,11 @@ public:
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
+  /// Explicitly promote a `string_view` to a `zview`.
+  explicit constexpr zview(std::string_view other) noexcept :
+          std::string_view{other}
+  {}
+
   /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
    */
@@ -57,8 +62,10 @@ public:
           std::string_view(std::forward<Args>(args)...)
   {}
 
+  // C++20: constexpr.
   /// @warning There's an implicit conversion from `std::string`.
-  zview(std::string const &str) : std::string_view{str.c_str(), std::size(str)}
+  zview(std::string const &str) noexcept :
+          std::string_view{str.c_str(), str.size()}
   {}
 
   /// Construct a `zview` from a C-style string.
@@ -105,12 +112,10 @@ constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
-// C++20: constinit.
 /// A zview is a view.
 template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 
 
-// C++20: constinit.
 /// A zview is a borrowed range.
 template<>
 inline constexpr bool std::ranges::enable_borrowed_range<pqxx::zview>{true};

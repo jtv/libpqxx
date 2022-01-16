@@ -21,7 +21,6 @@
 
 namespace
 {
-// C++20: constinit.
 using namespace std::literals;
 constexpr std::string_view class_name{"subtransaction"sv};
 } // namespace

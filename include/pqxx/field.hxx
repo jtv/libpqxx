@@ -42,13 +42,14 @@ public:
 
   /// Constructor.  Do not call this yourself; libpqxx will do it for you.
   [[deprecated(
-    "Do not construct fields yourself.  Get them from the row.")]] field() =
-    default;
+    "Do not construct fields yourself.  Get them from the "
+    "row.")]] field() noexcept = default;
 
   /**
    * @name Comparison
    */
   //@{
+  // TODO: noexcept.  Breaks ABI.
   /// Byte-by-byte comparison of two fields (all nulls are considered equal)
   /** @warning null handling is still open to discussion and change!
    *
@@ -71,7 +72,7 @@ public:
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  [[nodiscard]] PQXX_PURE bool operator!=(field const &rhs) const
+  [[nodiscard]] PQXX_PURE bool operator!=(field const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -91,7 +92,7 @@ public:
   [[nodiscard]] PQXX_PURE oid table() const;
 
   /// Return row number.  The first row is row 0, the second is row 1, etc.
-  PQXX_PURE row_size_type num() const { return col(); }
+  PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
   [[nodiscard]] PQXX_PURE row_size_type table_column() const;
@@ -102,6 +103,10 @@ public:
    */
   //@{
   /// Read as `string_view`, or an empty one if null.
+  /** The result only remains usable while the data for the underlying
+   * @ref result exists.  Once all `result` objects referring to that data have
+   * been destroyed, the `string_view` will no longer point to valid memory.
+   */
   [[nodiscard]] PQXX_PURE std::string_view view() const &
   {
     return std::string_view(c_str(), size());
@@ -235,6 +240,7 @@ public:
     return as<O<T>>();
   }
 
+  // TODO: constexpr noexcept, once array_parser constructor gets those.
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
    *
@@ -250,14 +256,16 @@ public:
 
 
 protected:
-  result const &home() const noexcept { return m_home; }
-  result::size_type idx() const noexcept { return m_row; }
-  row_size_type col() const noexcept { return m_col; }
+  constexpr result const &home() const noexcept { return m_home; }
+  constexpr result::size_type idx() const noexcept { return m_row; }
+  constexpr row_size_type col() const noexcept { return m_col; }
 
   // TODO: Create gates.
   friend class pqxx::result;
   friend class pqxx::row;
-  field(result const &r, result_size_type row_num, row_size_type col_num) :
+  field(
+    result const &r, result_size_type row_num, row_size_type col_num) noexcept
+          :
           m_col{col_num}, m_home{r}, m_row{row_num}
   {}
 
@@ -295,7 +303,7 @@ inline bool field::to<std::string>(
 }
 
 
-/// Specialization: <tt>to(char const *&)</tt>.
+/// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
  * not to use it after the last result object referring to this query result is
