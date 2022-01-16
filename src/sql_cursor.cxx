@@ -108,12 +108,12 @@ pqxx::internal::sql_cursor::sql_cursor(
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{internal::concat(
-    "DECLARE ", t.quote_name(name()), " ",
-    ((ap == cursor_base::forward_only) ? "NO "sv : ""sv), "SCROLL CURSOR ",
-    (hold ? "WITH HOLD "sv : ""sv), "FOR ", query, " ",
+    "DECLARE "sv, t.quote_name(name()), " ",
+    ((ap == cursor_base::forward_only) ? "NO "sv : ""sv), "SCROLL CURSOR "sv,
+    (hold ? "WITH HOLD "sv : ""sv), "FOR "sv, query, " "sv,
     ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY "sv))};
 
-  t.exec(cq, internal::concat("[DECLARE ", name(), "]"));
+  t.exec(cq, internal::concat("[DECLARE "sv, name(), "]"sv));
 
   // Now that we're here in the starting position, keep a copy of an empty
   // result.  That may come in handy later, because we may not be able to

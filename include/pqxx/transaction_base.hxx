@@ -268,8 +268,8 @@ public:
   }
 
   /// Execute command, which should return zero rows of data.
-  /** Works like exec, but fails if the result contains data.  It still returns
-   * a result, however, which may contain useful metadata.
+  /** Works like @ref exec, but fails if the result contains data.  It still
+   * returns a result, however, which may contain useful metadata.
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
@@ -279,7 +279,7 @@ public:
   }
 
   /// Execute command returning a single row of data.
-  /** Works like exec, but requires the result to contain exactly one row.
+  /** Works like @ref exec, but requires the result to contain exactly one row.
    * The row can be addressed directly, without the need to find the first row
    * in a result set.
    *
@@ -291,8 +291,8 @@ public:
   }
 
   /// Execute command, expect given number of rows.
-  /** Works like exec, but checks that the number of rows is exactly what's
-   * expected.
+  /** Works like @ref exec, but checks that the result has exactly the expected
+   * number of rows.
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
