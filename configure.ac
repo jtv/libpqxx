@@ -190,6 +190,7 @@ then
 	if test "$enable_audit" = "yes"
 	then
 		add_compiler_opts_if_ok \
+			-D_FORTIFY_SOURCE=2 \
 			-fsanitize=address \
 			-fsanitize-address-use-after-scope \
 			-fsanitize=alignment \
