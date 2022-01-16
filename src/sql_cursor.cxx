@@ -229,8 +229,7 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
     displacement = 0;
     return m_empty_result;
   }
-  auto const query{
-    pqxx::internal::concat(
+  auto const query{pqxx::internal::concat(
     "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(std::size(r)));
@@ -247,8 +246,8 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
     return 0;
   }
 
-  auto const query{
-    pqxx::internal::concat("MOVE "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
+  auto const query{pqxx::internal::concat(
+    "MOVE "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
   auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);

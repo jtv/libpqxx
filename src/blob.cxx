@@ -93,9 +93,10 @@ pqxx::blob pqxx::blob::open_rw(dbtransaction &tx, oid id)
 }
 
 
-pqxx::blob::blob(blob &&other) : m_conn{std::exchange(other.m_conn, nullptr)}, m_fd{std::exchange(other.m_fd, -1)}
-{
-}
+pqxx::blob::blob(blob &&other) :
+        m_conn{std::exchange(other.m_conn, nullptr)},
+        m_fd{std::exchange(other.m_fd, -1)}
+{}
 
 
 pqxx::blob &pqxx::blob::operator=(blob &&other)
