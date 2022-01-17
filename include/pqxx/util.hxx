@@ -48,7 +48,7 @@ namespace pqxx::internal
 
 
 // C++20: Use concept to express that LEFT and RIGHT must be integral types.
-/// C++20 std::cmp_less, or workaround if not available.
+/// Same as `std::cmp_less`, or a workaround where that's not available.
 template<typename LEFT, typename RIGHT>
 inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
 {
