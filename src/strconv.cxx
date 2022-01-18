@@ -739,7 +739,7 @@ template std::string to_string_float(long double);
 
 bool pqxx::string_traits<bool>::from_string(std::string_view text)
 {
-  bool OK, result;
+  bool OK{false}, result;
 
   switch (std::size(text))
   {

@@ -158,7 +158,8 @@ void pqxx::internal::esc_bin(
     *here++ = hex_digit(uc & 0x0f);
   }
 
-  *here++ = '\0';
+  // (No need to increment further.  Facebook's "infer" complains if we do.)
+  *here = '\0';
 }
 
 
