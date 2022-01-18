@@ -18,8 +18,8 @@ path_classifiers:
 
 extraction: 
   cpp:
-    packages:
-      - libpq-dev
+#    packages:
+#      - libpq-dev
     after_prepare:
       - export GNU_MAKE=make
       - export GIT=true
@@ -29,19 +29,6 @@ extraction:
       build_command:
         - $GNU_MAKE -j2 -s
       all_solutions: true
-      # Specify MSBuild settings
-      msbuild:
-        # Specify a list of additional arguments to MSBuild. Default: empty.
-        arguments: /p:Platform=x64 /p:Configuration=Release
-        # Specify the MSBuild configuration to use, for example, debug or release.
-        # Default: read from the solution file or files.
-        configuration:
-        # Specify the platform to target, for example: x86, x64, or Any CPU.
-        # Default: read from the solution file or files.
-        platform:
-        # Specify the MSBuild target. Default: rebuild.
-        target:
-
   python:
     after_prepare:
       - export PATH=$LGTM_WORKSPACE/tools:$PATH
