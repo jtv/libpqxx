@@ -765,7 +765,8 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
       OK = true;
       break;
 
-    default: OK = false; break;
+    default:
+      break;
     }
     break;
 
@@ -779,12 +780,11 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     OK = (equal(text, "false") or equal(text, "FALSE"));
     break;
 
-  default: OK = false; break;
+  default: break;
   }
 
-  if (not OK)
+  if (OK) return result;
+  else
     throw conversion_error{
       "Failed conversion to bool: '" + std::string{text} + "'."};
-
-  return result;
 }
