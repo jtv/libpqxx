@@ -17,9 +17,10 @@ path_classifiers:
 #   Used for temporary download and setup commands.
 
 extraction: 
+  prepare:
+    packages:
+      - libpq-dev
   cpp:
-#    packages:
-#      - libpq-dev
     after_prepare:
       - export GNU_MAKE=make
       - export GIT=true
