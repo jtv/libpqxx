@@ -21,14 +21,14 @@ extraction:
     prepare:
       packages:
         - libpq-dev
-    after_prepare:
-      - export GNU_MAKE=make
-      - export GIT=true
+#    after_prepare:
+#      - export GNU_MAKE=make
+#      - export GIT=true
     # The `index` step builds the code and extracts information during the
     # build process.
     index:
       build_command:
-        - $GNU_MAKE -j2 -s
+        - make -j2
       all_solutions: true
   python:
     after_prepare:
