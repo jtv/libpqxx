@@ -739,13 +739,12 @@ template std::string to_string_float(long double);
 
 bool pqxx::string_traits<bool>::from_string(std::string_view text)
 {
-  bool OK{false}, result;
+  std::optional<bool> result;
 
   switch (std::size(text))
   {
   case 0:
     result = false;
-    OK = true;
     break;
 
   case 1:
@@ -755,14 +754,12 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     case 'F':
     case '0':
       result = false;
-      OK = true;
       break;
 
     case 't':
     case 'T':
     case '1':
       result = true;
-      OK = true;
       break;
 
     default:
@@ -771,20 +768,17 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     break;
 
   case 4:
-    result = true;
-    OK = (equal(text, "true") or equal(text, "TRUE"));
+    if (equal(text, "true") or equal(text, "TRUE")) result = true;
     break;
 
   case 5:
-    result = false;
-    OK = (equal(text, "false") or equal(text, "FALSE"));
+    if (equal(text, "false") or equal(text, "FALSE")) result = false;
     break;
 
   default: break;
   }
 
-  if (OK) return result;
-  else
-    throw conversion_error{
+  if (result) return *result;
+  else throw conversion_error{
       "Failed conversion to bool: '" + std::string{text} + "'."};
 }
