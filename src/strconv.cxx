@@ -743,42 +743,39 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
 
   switch (std::size(text))
   {
-  case 0:
-    result = false;
-    break;
+  case 0: result = false; break;
 
   case 1:
     switch (text[0])
     {
     case 'f':
     case 'F':
-    case '0':
-      result = false;
-      break;
+    case '0': result = false; break;
 
     case 't':
     case 'T':
-    case '1':
-      result = true;
-      break;
+    case '1': result = true; break;
 
-    default:
-      break;
+    default: break;
     }
     break;
 
   case 4:
-    if (equal(text, "true") or equal(text, "TRUE")) result = true;
+    if (equal(text, "true") or equal(text, "TRUE"))
+      result = true;
     break;
 
   case 5:
-    if (equal(text, "false") or equal(text, "FALSE")) result = false;
+    if (equal(text, "false") or equal(text, "FALSE"))
+      result = false;
     break;
 
   default: break;
   }
 
-  if (result) return *result;
-  else throw conversion_error{
+  if (result)
+    return *result;
+  else
+    throw conversion_error{
       "Failed conversion to bool: '" + std::string{text} + "'."};
 }
