@@ -84,9 +84,12 @@ cpplint() {
 
     if which clang-tidy >/dev/null
     then
-        if test -e compile_flags
+        if [ -e compile_flags ]
         then
-            cxxflags=$(cat compile_flags)
+	    # Pick out the language dialect flag, but leave out the rest.
+	    # If we're not compiling with clang, compile_flags may contain
+	    # options that clang-tidy doesn't recognise.
+            cxxflags=$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)
         else
             cxxflags=""
         fi
