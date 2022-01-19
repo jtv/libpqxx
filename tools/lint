@@ -86,13 +86,19 @@ cpplint() {
     then
         if [ -e compile_flags ]
         then
-	    # Pick out the language dialect flag, but leave out the rest.
+	    # Pick out relevant flags, but leave out the rest.
 	    # If we're not compiling with clang, compile_flags may contain
 	    # options that clang-tidy doesn't recognise.
-            cxxflags=$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)
+            dialect="$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)"
+	    includes="$(
+	        grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
+		true)"
         else
-            cxxflags=""
+            dialect=""
+	    includes=""
         fi
+
+	cxxflags="$dialect $includes"
 
 # TODO: Please, is there any way we can parallelise this?
 # TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
