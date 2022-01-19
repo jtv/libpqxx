@@ -80,7 +80,7 @@ check_compiler_internal_headers() {
 
 
 cpplint() {
-    local cxxflags
+    local cxxflags dialect includes
 
     if which clang-tidy >/dev/null
     then
@@ -109,6 +109,17 @@ cpplint() {
             --checks=boost-*, \
             -- \
             -I$SRCDIR/include -Iinclude $cxxflags
+    fi
+
+    # Run Facebook's "infer" static analyser, if available.
+    # Instructions here: https://fbinfer.com/docs/getting-started/
+    if which infer >/dev/null
+    then
+        # This will work in an out-of-tree build, but either way it does
+	# require a successful "configure", or a cmake with the "make"
+	# generator.
+        infer capture -- make -j$(nproc)
+	infer run
     fi
 }
 

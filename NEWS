@@ -6,6 +6,7 @@
  - Make more functions `constexpr`.  Nothing particularly useful though.
  - Make more functions `noexcept`.
  - Move constructor & assignment for `result`.
+ - Support LGTM.com and Facebook "infer" static analysis.
 7.7.0
  - Fix `stream_to` for differing table/client encodings.  (#473)
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
