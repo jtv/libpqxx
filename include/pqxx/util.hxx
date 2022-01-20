@@ -55,7 +55,6 @@ inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
 #if defined(PQXX_HAVE_CMP)
   return std::cmp_less(lhs, rhs);
 #else
-
   // We need a variable just because lgtm.com gives off a false positive
   // warning when we compare the values directly.  It considers that a
   // "self-comparison."
