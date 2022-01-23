@@ -285,13 +285,24 @@ int PQXX_COLD pqxx::connection::server_version() const noexcept
 void pqxx::connection::set_variable(
   std::string_view var, std::string_view value) &
 {
-  exec(internal::concat("SET ", var, "=", value));
+  exec(internal::concat("SET ", quote_name(var), "=", value));
 }
 
 
 std::string pqxx::connection::get_variable(std::string_view var)
 {
-  return exec(internal::concat("SHOW ", var)).at(0).at(0).as(std::string{});
+  return exec(internal::concat("SHOW ", quote_name(var)))
+    .at(0)
+    .at(0)
+    .as(std::string{});
+}
+
+
+std::string pqxx::connection::get_var(std::string_view var)
+{
+  // (Variables can't be null, so far as I can make out.)
+  return exec(internal::concat("SHOW "sv, quote_name(var)))[0][0]
+    .as<std::string>();
 }
 
 

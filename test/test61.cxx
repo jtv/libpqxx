@@ -12,13 +12,13 @@ namespace
 {
 std::string GetDatestyle(transaction_base &T)
 {
-  return T.get_variable("DATESTYLE");
+  return T.conn().get_var("DATESTYLE");
 }
 
 
 std::string SetDatestyle(transaction_base &T, std::string style)
 {
-  T.set_variable("DATESTYLE", style);
+  T.conn().set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(T)};
   PQXX_CHECK(
     not std::empty(fullname),
@@ -52,7 +52,7 @@ void test_061()
   // Prove that setting an unknown variable causes an error, as expected
   quiet_errorhandler d(tx.conn());
   PQXX_CHECK_THROWS(
-    tx.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"), sql_error,
+    conn.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
     "Setting unknown variable failed to fail.");
 }
 

@@ -367,30 +367,83 @@ public:
   //@}
 
   /// Set session variable, using SQL's `SET` command.
-  /** Set a session variable for this connection.  See the PostgreSQL
-   * documentation for a list of variables that can be set and their
-   * permissible values.
+  /** @deprecated To set a session variable, use @ref set_session_var.  To set
+   * a transaction-local variable, execute an SQL `SET` command.
    *
-   * If a transaction is currently in progress, aborting that transaction will
-   * normally discard the newly set value.  That is not true for nontransaction
-   * however, since it does not start a real backend transaction.
+   * @warning When setting a string value, you must escape and quote it first.
+   * Use the @ref quote() function to do that.
    *
    * @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    *
    * @param var Variable to set.
-   * @param value New value for Var: an identifier, a quoted string, or a
-   * number.
+   * @param value New value for Var.  This can be any SQL expression.  If it's
+   * a string, be sure that it's properly escaped and quoted.
    */
-  void set_variable(std::string_view var, std::string_view value) &;
+  [[deprecated("To set session variables, use set_session_var.")]] void
+  set_variable(std::string_view var, std::string_view value) &;
+
+  /// Set one of the session variables to a new value.
+  /** This executes SQL, so do not do it while a pipeline or stream is active
+   * on the connection.
+   *
+   * The value you set here will last for the rest of the connection's
+   * duration, or until you set a new value.
+   *
+   * If you set the value while in a @ref dbtransaction (i.e. any transaction
+   * that is not a @ref nontransaction), then rolling back the transaction will
+   * undo the change.
+   *
+   * All applies to setting _session_ variables.  You can also set the same
+   * variables as _local_ variables, in which case they will always revert to
+   * their previous value when the transaction ends (or when you overwrite them
+   * of course).  To set a local variable, simply execute an SQL statement
+   * along the lines of "`SET LOCAL var = 'value'`" inside your transaction.
+   *
+   * @param var The variable to set.
+   * @param value The new value for the variable.
+   * @throw @ref variable_set_to_null if the value is null; this is not
+   * allowed.
+   */
+  template<typename TYPE>
+  void set_session_var(std::string_view var, TYPE const &value) &
+  {
+    if constexpr (nullness<TYPE>::has_null)
+    {
+      if (nullness<TYPE>::is_null(value))
+        throw variable_set_to_null{
+          internal::concat("Attempted to set variable ", var, " to null.")};
+    }
+    exec(internal::concat("SET ", quote_name(var), "=", quote(value)));
+  }
 
   /// Read session variable, using SQL's `SHOW` command.
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
-  std::string get_variable(std::string_view);
-  //@}
+  [[deprecated("Use get_var instead.")]] std::string
+    get_variable(std::string_view);
 
+  /// Read currently applicable value of a variable.
+  /** This function executes an SQL statement, so it won't work while a
+   * @ref pipeline or query stream is active on the connection.
+   *
+   * @return a blank `std::optional` if the variable's value is null, or its
+   * string value otherwise.
+   */
+  std::string get_var(std::string_view var);
+
+  /// Read currently applicable value of a variable.
+  /** This function executes an SQL statement, so it won't work while a
+   * @ref pipeline or query stream is active on the connection.
+   *
+   * If there is any possibility that the variable is null, ensure that `TYPE`
+   * can represent null values.
+   */
+  template<typename TYPE> TYPE get_var_as(std::string_view var)
+  {
+    return from_string<TYPE>(get_var(var));
+  }
 
   /**
    * @name Notifications and Receivers
@@ -951,7 +1004,7 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result PQXX_PRIVATE exec(std::string_view, std::string_view = ""sv);
+  result exec(std::string_view, std::string_view = ""sv);
   result
     PQXX_PRIVATE exec(std::shared_ptr<std::string>, std::string_view = ""sv);
   void PQXX_PRIVATE register_transaction(transaction_base *);

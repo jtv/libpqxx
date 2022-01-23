@@ -14,13 +14,13 @@ namespace
 {
 std::string GetDatestyle(connection &conn)
 {
-  return nontransaction(conn, "getdatestyle").get_variable("DATESTYLE");
+  return conn.get_var("DATESTYLE");
 }
 
 
 std::string SetDatestyle(connection &conn, std::string style)
 {
-  conn.set_variable("DATESTYLE", style);
+  conn.set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(conn)};
   PQXX_CHECK(
     not std::empty(fullname),
@@ -68,10 +68,15 @@ void test_060()
   ActivationTest(conn, "ISO", ISOname);
   ActivationTest(conn, "SQL", SQLname);
 
+  PQXX_CHECK_THROWS(
+    conn.set_session_var("bonjour_name", std::optional<std::string>{}),
+    pqxx::variable_set_to_null,
+    "Setting a variable to null did not report the error correctly.");
+
   // Prove that setting an unknown variable causes an error, as expected
   quiet_errorhandler d{conn};
   PQXX_CHECK_THROWS(
-    conn.set_variable("NONEXISTENT_VARIABLE_I_HOPE", "1"), sql_error,
+    conn.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
     "Setting unknown variable failed to fail.");
 }
 

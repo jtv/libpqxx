@@ -7,6 +7,10 @@
  - Make more functions `noexcept`.
  - Move constructor & assignment for `result`.
  - Support LGTM.com and Facebook "infer" static analysis.
+ - Deprecated `set_variable`/`get_variable` on `transaction_base`.
+ - (Design unearthed warts in SQL variables, which were then fixed.)
+ - Set/get session variables on `connection`: `set_session_var`/`get_var`.
+ - Set/get local variables: execute SQL statements.
 7.7.0
  - Fix `stream_to` for differing table/client encodings.  (#473)
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
