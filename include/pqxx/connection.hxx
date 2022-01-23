@@ -1004,7 +1004,7 @@ private:
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result PQXX_PRIVATE exec(std::string_view, std::string_view = ""sv);
+  result exec(std::string_view, std::string_view = ""sv);
   result
     PQXX_PRIVATE exec(std::shared_ptr<std::string>, std::string_view = ""sv);
   void PQXX_PRIVATE register_transaction(transaction_base *);
