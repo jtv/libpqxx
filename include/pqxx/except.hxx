@@ -68,6 +68,14 @@ struct PQXX_LIBEXPORT broken_connection : failure
 };
 
 
+/// The caller attempted to set a variable to null, which is not allowed.
+struct PQXX_LIBEXPORT variable_set_to_null : failure
+{
+  variable_set_to_null();
+  explicit variable_set_to_null(std::string const &);
+};
+
+
 /// Exception class for failed queries.
 /** Carries, in addition to a regular error message, a copy of the failed query
  * and (if available) the SQLSTATE value accompanying the error.

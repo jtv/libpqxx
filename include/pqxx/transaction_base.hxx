@@ -523,23 +523,31 @@ public:
   [[nodiscard]] constexpr connection &conn() const noexcept { return m_conn; }
 
   /// Set session variable using SQL "SET" command.
-  /** The new value is typically forgotten if the transaction aborts.
-   * Not for nontransaction though: in that case the set value will be kept
-   * regardless.
+  /** @deprecated To set a transaction-local variable, execute an SQL `SET`
+   * command.  To set a session variable, use the connection's
+   * @ref set_session_var function.
    *
-   * @warning This executes SQL.  Do not try to set or get variables while a
-   * pipeline or table stream is active.
+   * @warning When setting a string value, you must make sure that the string
+   * is "safe."  If you call @ref quote() on the string, it will return a
+   * safely escaped and quoted version for use as an SQL literal.
+   *
+   * @warning This function executes SQL.  Do not try to set or get variables
+   * while a pipeline or table stream is active.
    *
    * @param var The variable to set.
-   * @param value The new value to store in the variable.
+   * @param value The new value to store in the variable.  This can be any SQL
+   * expression.
    */
-  void set_variable(std::string_view var, std::string_view value);
+  [[deprecated(
+    "Set transaction-local variables using SQL SET statements.")]] void
+  set_variable(std::string_view var, std::string_view value);
 
   /// Read session variable using SQL "SHOW" command.
   /** @warning This executes SQL.  Do not try to set or get variables while a
    * pipeline or table stream is active.
    */
-  std::string get_variable(std::string_view);
+  [[deprecated("Read variables using SQL SHOW statements.")]] std::string
+    get_variable(std::string_view);
 
   // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.

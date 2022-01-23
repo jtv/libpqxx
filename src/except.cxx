@@ -28,6 +28,17 @@ pqxx::broken_connection::broken_connection(std::string const &whatarg) :
 {}
 
 
+pqxx::variable_set_to_null::variable_set_to_null() :
+        variable_set_to_null{
+          "Attempt to set a variable to null.  This is not allowed."}
+{}
+
+
+pqxx::variable_set_to_null::variable_set_to_null(std::string const &whatarg) :
+        failure{whatarg}
+{}
+
+
 pqxx::sql_error::sql_error(
   std::string const &whatarg, std::string const &Q, char const sqlstate[]) :
         failure{whatarg}, m_query{Q}, m_sqlstate{sqlstate ? sqlstate : ""}

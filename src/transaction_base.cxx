@@ -321,13 +321,17 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 void pqxx::transaction_base::set_variable(
   std::string_view var, std::string_view value)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   conn().set_variable(var, value);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 std::string pqxx::transaction_base::get_variable(std::string_view var)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return conn().get_variable(var);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
