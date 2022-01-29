@@ -1,11 +1,12 @@
 7.7.3
  - More strictness in `header-pre.hxx`/`header-post.hxx` checking.
  - Fix up more damage done by auto-formatting.
+ - New `result::for_each()`: simple iteration and conversion of rows.
  - Add some missing headers in `<pqxx/pqxx>`.  (#551)
 7.7.2
  - Fix up damage done by auto-formatting.
 7.7.1
- - Don't try to set C++ version in `configure`.  User can set compiler options.
+ - When you build libpqxx, configure the compiler's C++ version yourself!
  - Finally fix a long-standing silly warning in autogen.
  - Fix `digit_to_number` not being found on some comilers.  (#518, #519)
  - In audit mode, define `_FORTIFY_SOURCE` to enable some extra checks.

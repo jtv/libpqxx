@@ -50,7 +50,6 @@ namespace pqxx
 namespace pqxx::internal
 {
 
-
 // C++20: Retire wrapper.
 /// Same as `std::cmp_less`, or a workaround where that's not available.
 template<typename LEFT, typename RIGHT>
@@ -452,5 +451,71 @@ template<typename T> auto ssize(T const &c)
   return static_cast<signed_t>(std::size(c));
 #endif // __cpp_lib_ssize
 }
+
+
+/// Helper for determining a function's parameter types.
+/** This function has no definition.  It's not meant to be actually called.
+ * It's just there for pattern-matching in the compiler, so we can use its
+ * hypothetical return value.
+ */
+template<typename RETURN, typename... ARGS>
+std::tuple<ARGS...> args_f(RETURN (&func)(ARGS...));
+
+
+/// Helper for determining a `std::function`'s parameter types.
+/** This function has no definition.  It's not meant to be actually called.
+ * It's just there for pattern-matching in the compiler, so we can use its
+ * hypothetical return value.
+ */
+template<typename RETURN, typename... ARGS>
+std::tuple<ARGS...> args_f(std::function<RETURN(ARGS...)> const &);
+
+
+/// Helper for determining a member function's parameter types.
+/** This function has no definition.  It's not meant to be actually called.
+ * It's just there for pattern-matching in the compiler, so we can use its
+ * hypothetical return value.
+ */
+template<typename CLASS, typename RETURN, typename... ARGS>
+std::tuple<ARGS...> member_args_f(RETURN (CLASS::*)(ARGS...));
+
+
+/// Helper for determining a const member function's parameter types.
+/** This function has no definition.  It's not meant to be actually called.
+ * It's just there for pattern-matching in the compiler, so we can use its
+ * hypothetical return value.
+ */
+template<typename CLASS, typename RETURN, typename... ARGS>
+std::tuple<ARGS...> member_args_f(RETURN (CLASS::*)(ARGS...) const);
+
+
+/// Helper for determining a callable type's parameter types.
+/** This specialisation should work for lambdas.
+ *
+ * This function has no definition.  It's not meant to be actually called.
+ * It's just there for pattern-matching in the compiler, so we can use its
+ * hypothetical return value.
+ */
+template<typename CALLABLE>
+auto args_f(CALLABLE const &f)
+  -> decltype(member_args_f(&CALLABLE::operator()));
+
+
+/// A callable's parameter types, as a tuple.
+template<typename CALLABLE>
+using args_t = decltype(args_f(std::declval<CALLABLE>()));
+
+
+/// Helper: Apply `strip_t` to each of a tuple type's component types.
+/** This function has no definition.  It is not meant to be called, only to be
+ * used to deduce the right types.
+ */
+template<typename... TYPES>
+std::tuple<strip_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
+
+
+/// Take a tuple type and apply @ref strip_t to its component types.
+template<typename... TYPES>
+using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
 } // namespace pqxx::internal
 #endif

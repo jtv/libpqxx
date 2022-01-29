@@ -17,6 +17,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <functional>
 #include <ios>
 #include <memory>
 #include <stdexcept>
@@ -238,6 +239,43 @@ public:
    */
   [[nodiscard]] PQXX_PURE size_type affected_rows() const;
 
+  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Run `func` on each row, passing the row's fields as parameters.
+  /** Goes through the rows from first to last.  You provide a callable `func`.
+   *
+   * For each row in the `result`, `for_each` will call `func`.  It converts
+   * the row's fields to the types of `func`'s parameters, and pass them to
+   * `func`.
+   *
+   * (Therefore `func` must have a _single_ signature.  It can't be a generic
+   * lambda, or an object of a class with multiple overloaded function call
+   * operators.  Otherwise, `for_each` will have no way to detect a parameter
+   * list without ambiguity.)
+   *
+   * If any of your parameter types is `std::string_view`, it refers to the
+   * underlying storage of this `result`.
+   *
+   * If any of your parameter types is a reference type, its argument will
+   * refer to a temporary value which only lives for the duration of that
+   * single invocation to `func`.  If the reference is an lvalue reference, it
+   * must be `const`.
+   *
+   * For example, this queries employee names and salaries from the database
+   * and prints how much each would like to earn instead:
+   * ```cxx
+   *   tx.exec("SELECT name, salary FROM employee").for_each(
+   *       [](std::string_view name, float salary){
+   *           std::cout << name << " would like " << salary * 2 << ".\n";
+   *       })
+   * ```
+   *
+   * If `func` throws an exception, processing stops at that point and
+   * propagates the exception.
+   *
+   * @throws usage_error if `func`'s number of parameters does not match the
+   * number of columns in this result.
+   */
+  template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
 
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
