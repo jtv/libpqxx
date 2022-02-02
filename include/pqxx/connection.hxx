@@ -13,6 +13,10 @@
 #ifndef PQXX_H_CONNECTION
 #define PQXX_H_CONNECTION
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <cstddef>
 #include <ctime>
 #include <functional>

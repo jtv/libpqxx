@@ -13,6 +13,10 @@
 #ifndef PQXX_H_NOTIFICATION
 #define PQXX_H_NOTIFICATION
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <string>
 
 #include "pqxx/types.hxx"
