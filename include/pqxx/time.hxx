@@ -5,6 +5,10 @@
 #ifndef PQXX_H_TIME
 #define PQXX_H_TIME
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <chrono>
 #include <cstdlib>
 

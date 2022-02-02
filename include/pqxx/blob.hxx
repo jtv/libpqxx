@@ -13,6 +13,10 @@
 #ifndef PQXX_H_BLOB
 #define PQXX_H_BLOB
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <cstdint>
 
 #if defined(PQXX_HAVE_PATH)

@@ -11,6 +11,10 @@
 #ifndef PQXX_H_ISOLATION
 #define PQXX_H_ISOLATION
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include "pqxx/util.hxx"
 
 namespace pqxx

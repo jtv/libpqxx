@@ -12,6 +12,10 @@
 #ifndef PQXX_H_TRANSACTION
 #define PQXX_H_TRANSACTION
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include "pqxx/dbtransaction.hxx"
 
 namespace pqxx::internal

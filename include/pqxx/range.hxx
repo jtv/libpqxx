@@ -1,6 +1,10 @@
 #ifndef PQXX_H_RANGE
 #define PQXX_H_RANGE
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <variant>
 
 #include "pqxx/internal/array-composite.hxx"

@@ -11,6 +11,10 @@
 #ifndef PQXX_H_STRCONV
 #define PQXX_H_STRCONV
 
+#if !defined(PQXX_H_COMPILER_PUBLIC)
+#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#endif
+
 #include <algorithm>
 #include <cstring>
 #include <limits>
