@@ -14,6 +14,25 @@ PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
 ARGS="${1:-}"
 
 
+# Check that all source code is ASCII.
+#
+# I'd love to have rich Unicode, but I can live without it.  But we don't want
+# any surprises in contributions.
+check_ascii() {
+    local exotics=$(
+        find -name \*.cxx -o -name \*.hxx |
+	xargs cat |
+        tr -d '\011-\176' |
+	wc -c
+    )
+    if [ $exotics != 0 ]
+    then
+        echo >&2 "There's a non-ASCII character somewhere."
+	exit 1
+    fi
+}
+
+
 # This version must be at the top of the NEWS file.
 check_news_version() {
     if ! head -n1 $SRCDIR/NEWS | grep -q "^$PQXXVERSION\$"
@@ -165,6 +184,7 @@ EOF
         esac
     done
 
+    check_ascii
     pylint
     check_news_version
     check_compiler_internal_headers
