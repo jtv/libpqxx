@@ -26,6 +26,7 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 // Double-check in order to suppress an overzealous Visual C++ warning (#418).
 #if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
@@ -954,6 +955,29 @@ public:
    */
   void close();
 
+  /// Seize control of a raw libpq connection.
+  /** @warning Do not do this.  Please.  It's for very rare, very specific
+   * use-cases.  The mechanism may change (or break) in unexpected ways in
+   * future versions.
+   *
+   * @param raw_conn a raw libpq `PQconn` pointer.
+   */
+  static connection seize_raw_connection(internal::pq::PGconn *raw_conn)
+  {
+    return connection{raw_conn};
+  }
+
+  /// Release the raw connection without closing it.
+  /** @warning Do not do this.  It's for very rare, very specific use-cases.
+   * The mechanism may change (or break) in unexpected ways in future versions.
+   *
+   * The `connection` object becomes unusable after this.
+   */
+  internal::pq::PGconn *release_raw_connection() &&
+  {
+    return std::exchange(m_conn, nullptr);
+  }
+
 private:
   friend class connecting;
   enum connect_mode
@@ -961,6 +985,9 @@ private:
     connect_nonblocking
   };
   connection(connect_mode, zview connection_string);
+
+  /// For use by @ref seize_raw_connection.
+  explicit connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn} {}
 
   /// Poll for ongoing connection, try to progress towards completion.
   /** Returns a pair of "now please wait to read data from socket" and "now
