@@ -601,8 +601,7 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 int pqxx::connection::get_notifs()
 {
   if (not consume_input())
-    PQXX_UNLIKELY
-  throw broken_connection{"Connection lost."};
+    throw broken_connection{"Connection lost."};
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
