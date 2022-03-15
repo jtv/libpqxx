@@ -15,9 +15,11 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
-// Enable ISO-646 keywords: "and" instead of "&&" etc.  Some compilers have
-// them by default, others may need this header.
+// Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
+// etc. on older compilers.  C++20 removes this header.
+#if __has_include(<ciso646>)
 #include <ciso646>
+#endif
 
 
 #if defined(PQXX_HAVE_GCC_PURE)
