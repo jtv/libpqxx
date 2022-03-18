@@ -2,7 +2,6 @@
 #include <chrono>
 #include <cstring>
 #include <ctime>
-#include <thread>
 
 #include <pqxx/notification>
 #include <pqxx/transaction>

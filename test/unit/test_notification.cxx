@@ -1,5 +1,4 @@
 #include <chrono>
-#include <thread>
 
 #include <pqxx/nontransaction>
 #include <pqxx/notification>
