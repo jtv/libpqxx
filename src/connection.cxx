@@ -32,6 +32,10 @@
 #  include <unistd.h>
 #endif
 
+// For ioctlsocket().
+#if defined(_WIN32) && __has_include(<winsock2.h>)
+#  include <winsock2.h>
+#endif
 
 extern "C"
 {
