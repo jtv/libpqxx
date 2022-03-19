@@ -10,9 +10,9 @@
  */
 #ifndef PQXX_H_VERSION
 
-#if !defined(PQXX_H_COMPILER_PUBLIC)
-#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
-#endif
+#  if !defined(PQXX_H_COMPILER_PUBLIC)
+#    error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#  endif
 
 /// Full libpqxx version string.
 #  define PQXX_VERSION "7.7.1"

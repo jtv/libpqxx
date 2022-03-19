@@ -12,7 +12,7 @@
 #define PQXX_H_TRANSACTOR
 
 #if !defined(PQXX_H_COMPILER_PUBLIC)
-#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
 #include <functional>

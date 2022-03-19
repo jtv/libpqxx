@@ -24,41 +24,12 @@
 #include <stdexcept>
 #include <utility>
 
-// For WSAPoll():
-#if __has_include(<winsock2.h>)
-#  include <winsock2.h>
-#endif
-#if __has_include(<ws2tcpip.h>)
-#  include <ws2tcpip.h>
-#endif
-#if __has_include(<mstcpip.h>)
-#  include <mstcpip.h>
-#endif
-
-// For poll():
-#if __has_include(<poll.h>)
-#  include <poll.h>
-#endif
-
-// For select() on recent POSIX systems.
-#if __has_include(<sys/select.h>)
-#  include <sys/select.h>
-#endif
-
-// For select() on some older POSIX systems.
-#if __has_include(<sys/types.h>)
-#  include <sys/types.h>
-#endif
-#if __has_include(<unistd.h>)
-#  include <unistd.h>
-#endif
-#if __has_include(<sys/time.h>)
-#  include <sys/time.h>
-#endif
-
 // For fcntl().
 #if __has_include(<fcntl.h>)
 #  include <fcntl.h>
+#endif
+#if __has_include(<unistd.h>)
+#  include <unistd.h>
 #endif
 
 
@@ -75,6 +46,8 @@ extern "C"
 #include "pqxx/result"
 #include "pqxx/strconv"
 #include "pqxx/transaction"
+
+#include "pqxx/internal/wait.hxx"
 
 #include "pqxx/internal/gates/errorhandler-connection.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
@@ -1086,59 +1059,6 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
     },
     text.data(), std::size(text));
   return out;
-}
-
-
-namespace
-{
-template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
-{
-  return pqxx::check_cast<T>(
-    (seconds * 1000) + (microseconds / 1000),
-    "Wait timeout value out of bounds.");
-}
-} // namespace
-
-
-/// Wait for an fd to become free for reading/writing.  Optional timeout.
-void pqxx::internal::wait_fd(
-  int fd, bool for_read, bool for_write, unsigned seconds,
-  unsigned microseconds)
-{
-// WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
-#if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
-  short const events{static_cast<short>(
-    (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
-  WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  WSAPoll(&fdarray, 1, to_milli<unsigned>(seconds, microseconds));
-  // TODO: Check for errors.
-#elif defined(PQXX_HAVE_POLL)
-  auto const events{static_cast<short>(
-    POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
-    (for_write ? POLLOUT : 0))};
-  pollfd pfd{fd, events, 0};
-  poll(&pfd, 1, to_milli<int>(seconds, microseconds));
-  // TODO: Check for errors.
-#else
-  // No poll()?  Our last option is select().
-  fd_set read_fds;
-  FD_ZERO(&read_fds);
-  if (for_read)
-    FD_SET(fd, &read_fds);
-
-  fd_set write_fds;
-  FD_ZERO(&write_fds);
-  if (for_write)
-    FD_SET(fd, &write_fds);
-
-  fd_set except_fds;
-  FD_ZERO(&except_fds);
-  FD_SET(fd, &except_fds);
-
-  timeval tv = {seconds, microseconds};
-  select(fd + 1, &read_fds, &write_fds, &except_fds, &tv);
-  // TODO: Check for errors.
-#endif
 }
 
 

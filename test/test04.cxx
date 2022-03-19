@@ -3,6 +3,7 @@
 #include <cstring>
 #include <ctime>
 
+#include <pqxx/internal/wait.hxx>
 #include <pqxx/notification>
 #include <pqxx/transaction>
 #include <pqxx/transactor>

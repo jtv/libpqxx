@@ -1,5 +1,6 @@
 #include <chrono>
 
+#include <pqxx/internal/wait.hxx>
 #include <pqxx/nontransaction>
 #include <pqxx/notification>
 

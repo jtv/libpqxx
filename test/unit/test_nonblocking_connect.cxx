@@ -1,6 +1,8 @@
 #include <pqxx/connection>
 #include <pqxx/transaction>
 
+#include <pqxx/internal/wait.hxx>
+
 #include "../test_helpers.hxx"
 
 

@@ -12,7 +12,7 @@
 #define PQXX_H_UTIL
 
 #if !defined(PQXX_H_COMPILER_PUBLIC)
-#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
 #include <cctype>
@@ -452,12 +452,5 @@ template<typename T> auto ssize(T const &c)
   return static_cast<signed_t>(std::size(c));
 #endif // __cpp_lib_ssize
 }
-
-
-/// Wait.
-/** This is normally `std::this_thread::sleep_for()`.  But MinGW's `thread`
- * header doesn't work, so we must be careful about including it.
- */
-void PQXX_LIBEXPORT wait_for(unsigned int microseconds);
 } // namespace pqxx::internal
 #endif

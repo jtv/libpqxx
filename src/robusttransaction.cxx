@@ -21,6 +21,7 @@
 #include "pqxx/robusttransaction"
 
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/wait.hxx"
 
 
 using namespace std::literals;

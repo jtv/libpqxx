@@ -14,7 +14,7 @@
 #define PQXX_H_CONNECTION
 
 #if !defined(PQXX_H_COMPILER_PUBLIC)
-#error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
+#  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
 #include <cstddef>
@@ -1254,13 +1254,4 @@ inline connection::connection(MAPPING const &params)
 }
 #endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx
-
-
-namespace pqxx::internal
-{
-/// Wait for a socket to be ready for reading/writing, or timeout.
-PQXX_LIBEXPORT void wait_fd(
-  int fd, bool for_read, bool for_write, unsigned seconds = 1,
-  unsigned microseconds = 0);
-} // namespace pqxx::internal
 #endif

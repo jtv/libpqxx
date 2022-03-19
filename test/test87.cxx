@@ -5,25 +5,7 @@
 #include <ctime>
 #include <iostream>
 
-#if __has_include(<sys/select.h>)
-#  include <sys/select.h>
-#endif
-#if __has_include(<sys/types.h>)
-#  include <sys/types.h>
-#endif
-#if __has_include(<sys/time.h>)
-#  include <sys/time.h>
-#endif
-#if __has_include(<unistd.h>)
-#  include <unistd.h>
-#endif
-#if __has_include(<winsock2.h>)
-#  include <winsock2.h>
-#endif
-#if defined(_WIN32) && !defined(NOMINMAX)
-#  define NOMINMAX
-#endif
-
+#include <pqxx/internal/wait.hxx>
 #include <pqxx/notification>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
@@ -31,10 +13,10 @@
 #include "test_helpers.hxx"
 
 
-// Test program for libpqxx.  Send notification to self, and select() on socket
-// as returned by the connection to wait for it to come in.  Normally one would
-// use connection::await_notification() for this, but the socket may be needed
-// for event loops waiting on multiple sources of events.
+// Test program for libpqxx.  Send notification to self, and wait on the
+// socket's connection for it to come in.  In a simple situation you'd use
+// connection::await_notification() for this, but that won't let you wait for
+// multiple sockets.
 namespace
 {
 // Sample implementation of notification receiver.
@@ -62,28 +44,6 @@ public:
 };
 
 
-extern "C"
-{
-  static void set_fdbit(fd_set &s, int b)
-  {
-#ifdef _MSC_VER
-// Suppress pointless, unfixable warnings in Visual Studio.
-#  pragma warning(push)
-#  pragma warning(disable : 4389) // Signed/unsigned mismatch.
-#  pragma warning(disable : 4127) // Conditional expression is constant.
-#endif
-
-    // Do the actual work.
-    FD_SET(b, &s);
-
-#ifdef _MSV_VER
-// Restore prevalent warning settings.
-#  pragma warning(pop)
-#endif
-  }
-}
-
-
 void test_087()
 {
   pqxx::connection conn;
@@ -103,21 +63,8 @@ void test_087()
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
     std::cout << ".";
-    int const fd{conn.sock()};
 
-    // File descriptor from which we wish to read.
-    fd_set read_fds;
-    FD_ZERO(&read_fds);
-    set_fdbit(read_fds, fd);
-
-    // File descriptor for which we want to see errors.  We can't just use
-    // the same fd_set for reading and errors: they're marked "restrict".
-    fd_set except_fds;
-    FD_ZERO(&except_fds);
-    set_fdbit(except_fds, fd);
-
-    timeval timeout{1, 0};
-    select(fd + 1, &read_fds, nullptr, &except_fds, &timeout);
+    pqxx::internal::wait_fd(conn.sock(), true, false);
     notifs = conn.get_notifs();
   }
   std::cout << std::endl;
