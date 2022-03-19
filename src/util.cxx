@@ -19,12 +19,13 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/except"
-#include "pqxx/util"
-
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/header-post.hxx"
 #include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
+#include "pqxx/util.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 using namespace std::literals;

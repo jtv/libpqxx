@@ -12,9 +12,12 @@
 
 #include <string>
 
-#include "pqxx/internal/gates/connection-notification_receiver.hxx"
+#include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/notification"
+#include "pqxx/internal/gates/connection-notification_receiver.hxx"
+#include "pqxx/notification.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 pqxx::notification_receiver::notification_receiver(

@@ -14,16 +14,18 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "pqxx/connection"
-#include "pqxx/result"
-#include "pqxx/transaction_base"
-#include "pqxx/transaction_focus.hxx"
+#include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/internal/gates/connection-transaction.hxx"
-#include "pqxx/internal/gates/transaction-transaction_focus.hxx"
-
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
+#include "pqxx/internal/gates/connection-transaction.hxx"
+#include "pqxx/internal/gates/transaction-transaction_focus.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/transaction_base.hxx"
+#include "pqxx/transaction_focus.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 using namespace std::literals;

@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "pqxx/binarystring"
-#include "pqxx/strconv"
-#include "pqxx/util"
+#include "pqxx/binarystring.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/util.hxx"
 
 
 namespace pqxx::internal

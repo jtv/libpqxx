@@ -13,7 +13,7 @@
 #ifndef PQXX_H_FIELD
 #define PQXX_H_FIELD
 
-#if !defined(PQXX_H_COMPILER_PUBLIC)
+#if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 

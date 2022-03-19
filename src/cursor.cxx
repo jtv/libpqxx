@@ -12,13 +12,16 @@
 
 #include <iterator>
 
-#include "pqxx/cursor"
-#include "pqxx/result"
-#include "pqxx/strconv"
-#include "pqxx/transaction"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/cursor.hxx"
 #include "pqxx/internal/gates/icursor_iterator-icursorstream.hxx"
 #include "pqxx/internal/gates/icursorstream-icursor_iterator.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/transaction.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 pqxx::cursor_base::difference_type pqxx::cursor_base::all() noexcept

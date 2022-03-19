@@ -12,11 +12,14 @@
 
 #include <cassert>
 
-#include "pqxx/stream_from"
+#include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
+#include "pqxx/stream_from.hxx"
 #include "pqxx/transaction_base.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace

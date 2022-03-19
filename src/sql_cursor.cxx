@@ -12,11 +12,14 @@
 
 #include <iterator>
 
-#include "pqxx/cursor"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/cursor.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-sql_cursor.hxx"
 #include "pqxx/internal/gates/transaction-sql_cursor.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 using namespace std::literals;

@@ -43,8 +43,12 @@
 #endif
 
 
+#include "pqxx/internal/header-pre.hxx"
+
 #include "pqxx/internal/wait.hxx"
 #include "pqxx/util.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace

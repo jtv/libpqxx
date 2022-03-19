@@ -1,5 +1,7 @@
 #include <pqxx/internal/callgate.hxx>
 
+#include "pqxx/transaction_base.hxx"
+
 namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>

@@ -6,13 +6,14 @@
 
 #include <libpq-fe.h>
 
-#include "pqxx/blob"
-#include "pqxx/except"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/blob.hxx"
+#include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
+
 #include "pqxx/internal/header-post.hxx"
-#include "pqxx/internal/header-pre.hxx"
 
 
 namespace

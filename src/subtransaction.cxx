@@ -13,10 +13,13 @@
 #include <memory>
 #include <stdexcept>
 
-#include "pqxx/connection"
-#include "pqxx/subtransaction"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/subtransaction.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace

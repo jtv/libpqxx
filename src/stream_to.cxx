@@ -10,11 +10,15 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/stream_from.hxx"
-#include "pqxx/stream_to.hxx"
+#include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-stream_to.hxx"
+#include "pqxx/stream_from.hxx"
+#include "pqxx/stream_to.hxx"
+
+#include "pqxx/internal/header-post.hxx"
+
 
 namespace
 {

@@ -1,6 +1,9 @@
 #include <chrono>
 
+#include <pqxx/internal/header-pre.hxx>
 #include <pqxx/internal/wait.hxx>
+#include <pqxx/internal/header-post.hxx>
+
 #include <pqxx/nontransaction>
 #include <pqxx/notification>
 

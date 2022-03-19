@@ -1,6 +1,8 @@
 #include "pqxx/internal/libpq-forward.hxx"
 #include <pqxx/internal/callgate.hxx>
 
+#include "pqxx/pipeline.hxx"
+
 namespace pqxx::internal::gate
 {
 class PQXX_PRIVATE connection_pipeline : callgate<connection>

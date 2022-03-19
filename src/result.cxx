@@ -19,10 +19,15 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/except"
-#include "pqxx/result"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/result_iterator.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/row.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace pqxx

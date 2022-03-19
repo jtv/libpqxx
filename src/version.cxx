@@ -8,7 +8,12 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/version"
+#include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/version.hxx"
+
+#include "pqxx/internal/header-post.hxx"
+
 
 namespace pqxx::internal
 {

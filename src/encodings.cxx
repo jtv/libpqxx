@@ -13,20 +13,20 @@
 #include <map>
 #include <sstream>
 
-#include "pqxx/except"
-
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encodings.hxx"
-#include "pqxx/internal/header-post.hxx"
-#include "pqxx/internal/header-pre.hxx"
-
-#include "pqxx/strconv"
-
-
 extern "C"
 {
 #include <libpq-fe.h>
 }
+
+
+#include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/encodings.hxx"
+#include "pqxx/strconv.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace pqxx

@@ -12,14 +12,17 @@
 
 #include <iterator>
 
-#include "pqxx/dbtransaction"
-#include "pqxx/pipeline"
-#include "pqxx/separated_list"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/dbtransaction.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-pipeline.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-pipeline.hxx"
+#include "pqxx/pipeline.hxx"
+#include "pqxx/separated_list.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace

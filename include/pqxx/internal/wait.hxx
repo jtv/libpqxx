@@ -1,8 +1,6 @@
 #if !defined(PQXX_WAIT_HXX)
 #  define PQXX_WAIT_HXX
 
-#  include "pqxx/internal/compiler-public.hxx"
-
 namespace pqxx::internal
 {
 /// Wait.

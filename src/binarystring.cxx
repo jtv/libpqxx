@@ -20,9 +20,13 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/binarystring"
-#include "pqxx/field"
-#include "pqxx/strconv"
+#include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/binarystring.hxx"
+#include "pqxx/field.hxx"
+#include "pqxx/strconv.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace

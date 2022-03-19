@@ -13,16 +13,16 @@
 #include <cstring>
 #include <utility>
 
-#include "pqxx/array"
-#include "pqxx/except"
-
-#include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/header-post.hxx"
 #include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/strconv"
-#include "pqxx/util"
+#include "pqxx/array.hxx"
+#include "pqxx/except.hxx"
+#include "pqxx/internal/array-composite.hxx"
+#include "pqxx/internal/concat.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/util.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 namespace pqxx

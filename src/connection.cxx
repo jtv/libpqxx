@@ -42,20 +42,22 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/binarystring"
-#include "pqxx/config-internal-libpq.h"
-#include "pqxx/nontransaction"
-#include "pqxx/notification"
-#include "pqxx/pipeline"
-#include "pqxx/result"
-#include "pqxx/strconv"
-#include "pqxx/transaction"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/binarystring.hxx"
 #include "pqxx/internal/wait.hxx"
+#include "pqxx/nontransaction.hxx"
+#include "pqxx/notification.hxx"
+#include "pqxx/pipeline.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/strconv.hxx"
+#include "pqxx/transaction.hxx"
 
 #include "pqxx/internal/gates/errorhandler-connection.hxx"
 #include "pqxx/internal/gates/result-connection.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 extern "C"

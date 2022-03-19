@@ -15,13 +15,16 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "pqxx/connection"
-#include "pqxx/nontransaction"
-#include "pqxx/result"
-#include "pqxx/robusttransaction"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/wait.hxx"
+#include "pqxx/nontransaction.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/robusttransaction.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 using namespace std::literals;

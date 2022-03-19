@@ -8,7 +8,9 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/params"
+#include "pqxx/internal/header-pre.hxx"
+#include "pqxx/params.hxx"
+#include "pqxx/internal/header-post.hxx"
 
 
 void pqxx::internal::c_params::reserve(std::size_t n) &

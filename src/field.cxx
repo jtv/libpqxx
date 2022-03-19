@@ -12,9 +12,14 @@
 
 #include <cstring>
 
-#include "pqxx/internal/libpq-forward.hxx"
+#include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/result"
+#include "pqxx/internal/libpq-forward.hxx"
+#include "pqxx/field.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/row.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :

@@ -19,10 +19,14 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/largeobject"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
+#include "pqxx/largeobject.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 

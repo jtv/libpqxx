@@ -18,8 +18,13 @@ extern "C"
 #include <libpq-fe.h>
 }
 
-#include "pqxx/except"
-#include "pqxx/result"
+#include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/except.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/row.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 pqxx::row::row(

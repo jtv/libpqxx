@@ -15,7 +15,7 @@
  * mistake, or contact the author.
  */
 
-// Workarounds & definitions needed to compile libpqxx into a library
+// Workarounds & definitions needed to compile libpqxx into a library.
 #include "pqxx/config-internal-compiler.h"
 
 #ifdef _WIN32
@@ -28,5 +28,3 @@
 #  endif // PQXX_SHARED
 
 #endif // _WIN32
-
-#include "pqxx/internal/compiler-public.hxx"

@@ -14,3 +14,5 @@
 #if defined(_MSC_VER)
 #  pragma warning(pop) // Restore compiler's warning state
 #endif
+
+#undef PQXX_HEADER_PRE

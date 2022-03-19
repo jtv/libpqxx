@@ -8,10 +8,12 @@
  */
 #include "pqxx-source.hxx"
 
-#include "pqxx/except"
+#include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 
+#include "pqxx/internal/header-post.hxx"
 
 pqxx::failure::failure(std::string const &whatarg) :
         std::runtime_error{whatarg}

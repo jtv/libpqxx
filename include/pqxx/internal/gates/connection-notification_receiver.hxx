@@ -1,6 +1,6 @@
 #include <pqxx/internal/callgate.hxx>
 
-#include <pqxx/connection>
+#include "pqxx/connection.hxx"
 
 
 namespace pqxx

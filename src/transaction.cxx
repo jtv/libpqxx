@@ -12,9 +12,13 @@
 
 #include <stdexcept>
 
-#include "pqxx/connection"
-#include "pqxx/result"
-#include "pqxx/transaction"
+#include "pqxx/internal/header-pre.hxx"
+
+#include "pqxx/connection.hxx"
+#include "pqxx/result.hxx"
+#include "pqxx/transaction.hxx"
+
+#include "pqxx/internal/header-post.hxx"
 
 
 pqxx::internal::basic_transaction::basic_transaction(
