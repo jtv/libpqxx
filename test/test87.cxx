@@ -17,11 +17,11 @@
 #if __has_include(<unistd.h>)
 #  include <unistd.h>
 #endif
-#if defined(_WIN32)
-#  if !defined(NOMINMAX)
-#    define NOMINMAX
-#  endif
+#if __has_include(<winsock2.h>)
 #  include <winsock2.h>
+#endif
+#if defined(_WIN32) && !defined(NOMINMAX)
+#  define NOMINMAX
 #endif
 
 #include <pqxx/notification>

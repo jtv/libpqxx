@@ -11,6 +11,7 @@
  - (Design unearthed warts in SQL variables, which were then fixed.)
  - Set/get session variables on `connection`: `set_session_var`/`get_var`.
  - Set/get local variables: execute SQL statements.
+ - When using `select()`, include `<winsock2.h>` if available.
 7.7.0
  - Fix `stream_to` for differing table/client encodings.  (#473)
  - Use `[[likely]]` & `[[unlikely]]` only in C++20, to silence warnings.
