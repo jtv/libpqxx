@@ -80,8 +80,7 @@ match_pre_post_headers() {
     if test -n "$DIFF"
     then
         cat <<EOF >&2
-The number of inclusions of compiler-internal.post.hxx does not match the
-number of inclusions of compiler-internal.pre.hxx:
+Mismatched pre/post header pairs:
 
 $DIFF
 EOF
@@ -90,10 +89,10 @@ EOF
 }
 
 
-# Any file that includes compiler-internal-pre.hxx must also include
-# compiler-internal-post.hxx, and vice versa.
+# Any file that includes header-pre.hxx must also include header-post.hxx, and
+# vice versa.  Similar for ignore-deprecated-{pre|post}.hxx.
 check_compiler_internal_headers() {
-    match_pre_post_headers "pqxx/internal/compiler-internal"
+    match_pre_post_headers "pqxx/internal/header"
     match_pre_post_headers "pqxx/internal/ignore-deprecated"
 }
 

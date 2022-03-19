@@ -10,7 +10,7 @@
 // For WSAPoll():
 #if __has_include(<winsock2.h>)
 #  include <winsock2.h>
-#define PQXX_HAVE_SELECT
+#  define PQXX_HAVE_SELECT
 #endif
 #if __has_include(<ws2tcpip.h>)
 #  include <ws2tcpip.h>
@@ -27,13 +27,13 @@
 // For select() on recent POSIX systems.
 #if __has_include(<sys/select.h>)
 #  include <sys/select.h>
-#define PQXX_HAVE_SELECT
+#  define PQXX_HAVE_SELECT
 #endif
 
 // For select() on some older POSIX systems.
 #if __has_include(<sys/types.h>)
 #  include <sys/types.h>
-#define PQXX_HAVE_SELECT
+#  define PQXX_HAVE_SELECT
 #endif
 #if __has_include(<unistd.h>)
 #  include <unistd.h>
@@ -67,7 +67,7 @@ template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
 #    pragma warning(disable : 4389) // Signed/unsigned mismatch.
 #    pragma warning(disable : 4127) // Conditional expression is constant.
 #  endif
-    FD_SET(fd, &bits);
+  FD_SET(fd, &bits);
 #  ifdef _MSV_VER
 // Restore prevalent warning settings.
 #    pragma warning(pop)
@@ -99,11 +99,13 @@ void pqxx::internal::wait_fd(
   // No poll()?  Our last option is select().
   fd_set read_fds;
   FD_ZERO(&read_fds);
-  if (for_read) set_fdbit(read_fds, fd);
+  if (for_read)
+    set_fdbit(read_fds, fd);
 
   fd_set write_fds;
   FD_ZERO(&write_fds);
-  if (for_write) set_fdbit(write_fds, fd);
+  if (for_write)
+    set_fdbit(write_fds, fd);
 
   fd_set except_fds;
   FD_ZERO(&except_fds);

@@ -17,10 +17,10 @@
 #include "pqxx/except"
 
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/compiler-internal-post.hxx"
-#include "pqxx/internal/compiler-internal-pre.hxx"
-
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/header-post.hxx"
+#include "pqxx/internal/header-pre.hxx"
+
 #include "pqxx/strconv"
 #include "pqxx/util"
 

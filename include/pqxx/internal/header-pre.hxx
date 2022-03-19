@@ -18,7 +18,7 @@
 
 // Save compiler's warning state, and set warning level 4.
 // Setting the warning level explicitly ensures that libpqxx
-// headers will compiler at this warning level as well.
+// headers will compile at this warning level as well.
 #  pragma warning(push, 4)
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.

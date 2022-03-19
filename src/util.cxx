@@ -22,9 +22,9 @@ extern "C"
 #include "pqxx/except"
 #include "pqxx/util"
 
-#include "pqxx/internal/compiler-internal-post.hxx"
-#include "pqxx/internal/compiler-internal-pre.hxx"
 #include "pqxx/internal/concat.hxx"
+#include "pqxx/internal/header-post.hxx"
+#include "pqxx/internal/header-pre.hxx"
 
 
 using namespace std::literals;

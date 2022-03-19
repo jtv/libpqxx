@@ -3,7 +3,7 @@
  * pqxx::result represents the set of result rows from a database query.
  */
 // Actual definitions in .hxx file so editors and such recognize file type.
-#include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/internal/header-pre.hxx"
 #include "pqxx/internal/compiler-public.hxx"
 
 #include "pqxx/result.hxx"
@@ -14,4 +14,4 @@
 #include "pqxx/field.hxx"
 #include "pqxx/internal/result_iter.hxx"
 
-#include "pqxx/internal/compiler-internal-post.hxx"
+#include "pqxx/internal/header-post.hxx"

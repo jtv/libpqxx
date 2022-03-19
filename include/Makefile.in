@@ -387,13 +387,13 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/array-composite.hxx \
 	pqxx/internal/callgate.hxx \
-	pqxx/internal/compiler-internal-pre.hxx \
-	pqxx/internal/compiler-internal-post.hxx \
 	pqxx/internal/compiler-public.hxx \
 	pqxx/internal/concat.hxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \
+	pqxx/internal/header-pre.hxx \
+	pqxx/internal/header-post.hxx \
 	pqxx/internal/ignore-deprecated-post.hxx \
 	pqxx/internal/ignore-deprecated-pre.hxx \
 	pqxx/internal/libpq-forward.hxx \
