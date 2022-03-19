@@ -43,75 +43,75 @@
 
 
 #if defined(PQXX_HEADER_PRE)
-#error "Avoid nesting #include of pqxx/internal/header-pre.hxx."
+#  error "Avoid nesting #include of pqxx/internal/header-pre.hxx."
 #endif
 
 #define PQXX_HEADER_PRE
 
 
 // Workarounds & definitions that need to be included even in library's headers
-#  include "pqxx/config-public-compiler.h"
+#include "pqxx/config-public-compiler.h"
 
 // Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
 // etc. on older compilers.  C++20 removes this header.
-#  if __has_include(<ciso646>)
-#    include <ciso646>
-#  endif
+#if __has_include(<ciso646>)
+#  include <ciso646>
+#endif
 
 
-#  if defined(PQXX_HAVE_GCC_PURE)
+#if defined(PQXX_HAVE_GCC_PURE)
 /// Declare function "pure": no side effects, only reads globals and its args.
-#    define PQXX_PURE __attribute__((pure))
-#  else
-#    define PQXX_PURE /* pure */
-#  endif
+#  define PQXX_PURE __attribute__((pure))
+#else
+#  define PQXX_PURE /* pure */
+#endif
 
 
-#  if defined(__GNUC__)
+#if defined(__GNUC__)
 /// Tell the compiler to optimise a function for size, not speed.
-#    define PQXX_COLD __attribute__((cold))
-#  else
-#    define PQXX_COLD /* cold */
-#  endif
+#  define PQXX_COLD __attribute__((cold))
+#else
+#  define PQXX_COLD /* cold */
+#endif
 
 
 // Workarounds for Windows
-#  ifdef _WIN32
+#ifdef _WIN32
 
 /* For now, export DLL symbols if _DLL is defined.  This is done automatically
  * by the compiler when linking to the dynamic version of the runtime library,
  * according to "gzh"
  */
-#    if defined(PQXX_SHARED) && !defined(PQXX_LIBEXPORT)
-#      define PQXX_LIBEXPORT __declspec(dllimport)
-#    endif // PQXX_SHARED && !PQXX_LIBEXPORT
+#  if defined(PQXX_SHARED) && !defined(PQXX_LIBEXPORT)
+#    define PQXX_LIBEXPORT __declspec(dllimport)
+#  endif // PQXX_SHARED && !PQXX_LIBEXPORT
 
 
 // Workarounds for Microsoft Visual C++
-#    ifdef _MSC_VER
+#  ifdef _MSC_VER
 
 // Suppress vtables on abstract classes.
-#      define PQXX_NOVTABLE __declspec(novtable)
+#    define PQXX_NOVTABLE __declspec(novtable)
 
 // Automatically link with the appropriate libpq (static or dynamic, debug or
 // release).  The default is to use the release DLL.  Define PQXX_PQ_STATIC to
 // link to a static version of libpq, and _DEBUG to link to a debug version.
 // The two may be combined.
-#      if defined(PQXX_AUTOLINK)
-#        if defined(PQXX_PQ_STATIC)
-#          ifdef _DEBUG
-#            pragma comment(lib, "libpqd")
-#          else
-#            pragma comment(lib, "libpq")
-#          endif
+#    if defined(PQXX_AUTOLINK)
+#      if defined(PQXX_PQ_STATIC)
+#        ifdef _DEBUG
+#          pragma comment(lib, "libpqd")
 #        else
-#          ifdef _DEBUG
-#            pragma comment(lib, "libpqddll")
-#          else
-#            pragma comment(lib, "libpqdll")
-#          endif
+#          pragma comment(lib, "libpq")
+#        endif
+#      else
+#        ifdef _DEBUG
+#          pragma comment(lib, "libpqddll")
+#        else
+#          pragma comment(lib, "libpqdll")
 #        endif
 #      endif
+#    endif
 
 // If we're not compiling libpqxx itself, automatically link with the
 // appropriate libpqxx library.  To link with the libpqxx DLL, define
@@ -121,49 +121,49 @@
 // The preprocessor macro PQXX_INTERNAL is used to detect whether we
 // are compiling the libpqxx library itself.  When you compile the library
 // yourself using your own project file, make sure to include this macro.
-#      if defined(PQXX_AUTOLINK) && !defined(PQXX_INTERNAL)
-#        ifdef PQXX_SHARED
-#          ifdef _DEBUG
-#            pragma comment(lib, "libpqxxD")
-#          else
-#            pragma comment(lib, "libpqxx")
-#          endif
-#        else // !PQXX_SHARED
-#          ifdef _DEBUG
-#            pragma comment(lib, "libpqxx_staticD")
-#          else
-#            pragma comment(lib, "libpqxx_static")
-#          endif
+#    if defined(PQXX_AUTOLINK) && !defined(PQXX_INTERNAL)
+#      ifdef PQXX_SHARED
+#        ifdef _DEBUG
+#          pragma comment(lib, "libpqxxD")
+#        else
+#          pragma comment(lib, "libpqxx")
+#        endif
+#      else // !PQXX_SHARED
+#        ifdef _DEBUG
+#          pragma comment(lib, "libpqxx_staticD")
+#        else
+#          pragma comment(lib, "libpqxx_static")
 #        endif
 #      endif
+#    endif
 
-#    endif // _MSC_VER
+#  endif // _MSC_VER
 
-#  elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
+#elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
-#    define PQXX_LIBEXPORT __attribute__((visibility("default")))
-#    define PQXX_PRIVATE __attribute__((visibility("hidden")))
+#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
+#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
 
-#  endif // PQXX_HAVE_GCC_VISIBILITY
+#endif // PQXX_HAVE_GCC_VISIBILITY
 
 
-#  ifndef PQXX_LIBEXPORT
-#    define PQXX_LIBEXPORT /* libexport */
-#  endif
+#ifndef PQXX_LIBEXPORT
+#  define PQXX_LIBEXPORT /* libexport */
+#endif
 
-#  ifndef PQXX_PRIVATE
-#    define PQXX_PRIVATE /* private */
-#  endif
+#ifndef PQXX_PRIVATE
+#  define PQXX_PRIVATE /* private */
+#endif
 
-#  ifndef PQXX_NOVTABLE
-#    define PQXX_NOVTABLE /* novtable */
-#  endif
+#ifndef PQXX_NOVTABLE
+#  define PQXX_NOVTABLE /* novtable */
+#endif
 
 // C++20: Assume support.
-#  if defined(PQXX_HAVE_LIKELY)
-#    define PQXX_LIKELY [[likely]]
-#    define PQXX_UNLIKELY [[unlikely]]
-#  else
-#    define PQXX_LIKELY   /* [[likely]] */
-#    define PQXX_UNLIKELY /* [[unlikely]] */
-#  endif
+#if defined(PQXX_HAVE_LIKELY)
+#  define PQXX_LIKELY [[likely]]
+#  define PQXX_UNLIKELY [[unlikely]]
+#else
+#  define PQXX_LIKELY   /* [[likely]] */
+#  define PQXX_UNLIKELY /* [[unlikely]] */
+#endif
