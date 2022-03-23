@@ -1,3 +1,4 @@
+7.7.2
 7.7.1
  - Don't try to set C++ version in `configure`.  User can set compiler options.
  - Finally fix a long-standing silly warning in autogen.

@@ -14,8 +14,8 @@
 
 #include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/internal/libpq-forward.hxx"
 #include "pqxx/field.hxx"
+#include "pqxx/internal/libpq-forward.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
 
