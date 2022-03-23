@@ -35,9 +35,8 @@ macro(library_target_setup tgt)
     	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
-    get_target_property(name ${tgt} NAME)
-    get_target_property(output_name ${tgt} OUTPUT_NAME)
-    if(NOT name STREQUAL output_name AND NOT CMAKE_HOST_WIN32)
+
+    if(NOT CMAKE_HOST_WIN32)
         # Create library symlink
         get_target_property(target_type ${tgt} TYPE)
         if(target_type STREQUAL "SHARED_LIBRARY")
@@ -47,13 +46,21 @@ macro(library_target_setup tgt)
             set(library_prefix ${CMAKE_STATIC_LIBRARY_PREFIX})
             set(library_suffix ${CMAKE_STATIC_LIBRARY_SUFFIX})
         endif()
+
+        set(target_name_expression $<TARGET_PROPERTY:${tgt},NAME>)
+        set(target_output_name_expression $<TARGET_PROPERTY:${tgt},OUTPUT_NAME>)
+        set(create_library_symlink_condition $<STREQUAL:${target_name_expression},${target_output_name_expression}>)
+        list(APPEND noop_command "${CMAKE_COMMAND}" "-E" "true")
+        list(APPEND create_symlink_command "${CMAKE_COMMAND}" "-E" "create_symlink" "${library_prefix}${target_output_name_expression}${library_suffix}" "${library_prefix}${target_name_expression}${library_suffix}")
+        # `add_custom_command()` does nothing if the `OUTPUT_NAME` and `NAME`
+        # properties are equal, otherwise it creates library symlink.
         add_custom_command(TARGET ${tgt} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E create_symlink "${library_prefix}${output_name}${library_suffix}" "${library_prefix}${name}${library_suffix}"
+            COMMAND "$<IF:${create_library_symlink_condition},${noop_command},${create_symlink_command}>"
             VERBATIM
             COMMAND_EXPAND_LISTS
         )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
-        	DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        install(FILES "$<TARGET_FILE_DIR:${tgt}>/${library_prefix}${target_name_expression}${library_suffix}"
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     endif()
 endmacro()
