@@ -5,9 +5,11 @@
 #include <ctime>
 #include <iostream>
 
-#include <pqxx/internal/header-post.hxx>
 #include <pqxx/internal/header-pre.hxx>
+
 #include <pqxx/internal/wait.hxx>
+
+#include <pqxx/internal/header-post.hxx>
 
 #include <pqxx/notification>
 #include <pqxx/transaction>
