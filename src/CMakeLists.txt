@@ -58,7 +58,7 @@ macro(library_target_setup tgt)
             VERBATIM
             COMMAND_EXPAND_LISTS
         )
-        install(FILES $<TARGET_FILE_DIR:${tgt}>/${library_prefix}${name}${library_suffix}
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     endif()
