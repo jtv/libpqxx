@@ -15,4 +15,8 @@
 #  pragma warning(pop) // Restore compiler's warning state
 #endif
 
+#if !defined(PQXX_HEADER_PRE)
+#  error "Include pqxx/internal/header-post.hxx AFTER its 'pre' counterpart."
+#endif
+
 #undef PQXX_HEADER_PRE
