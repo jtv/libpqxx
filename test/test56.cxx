@@ -15,7 +15,7 @@ void test_056()
   quiet_errorhandler d(conn);
 
   PQXX_CHECK_THROWS(
-    tx.exec("DELIBERATELY INVALID TEST QUERY...", "invalid_query"), sql_error,
+    tx.exec("DELIBERATELY INVALID TEST QUERY..."), sql_error,
     "SQL syntax error did not raise expected exception.");
 }
 
