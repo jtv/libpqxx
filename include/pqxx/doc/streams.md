@@ -44,13 +44,28 @@ existing smart-pointer support.
 stream\_from
 ------------
 
-Use `stream_from` to read data directly from the database.  It's faster than a
-`SELECT` if the result contains enough rows, but also, you won't need to keep
-your full result set in memory.  That can really matter with larger data sets.
-And, you can start processing before you've received all the data.
+Use `stream_from` to read data directly from the database.  It's faster than
+the transaction's `exec` functions if the result contains enough rows.  But
+also, you won't need to keep your full result set in memory.  That can really
+matter with larger data sets.
 
-Every row is converted to a tuple type of your choice as you read it.  You
-stream into the tuple:
+And, you can start processing your data right after the first row of data comes
+in from the server.  With `exec()` you need to wait to receive all data, and
+then you begin processing.  With `stream_from` you can be processing data on
+the client side while the server is still sending you the rest.
+
+You don't actually need to create a `stream_from` object yourself, though you
+can.  Two shorthand functions, @ref pqxx::transaction_base::stream
+and @ref pqxx::transaction_base::for_each, can create the streams for you with
+a minimum of overhead.
+
+Not all kinds of queries will work in a stream.  Internally the streams make
+use of PostgreSQL's `COPY` command, so see the PostgreSQL documentation for
+`COPY` for the exact limitations.  Basic `SELECT` and `UPDATE ... RETURNING`
+queries should just work.
+
+As you read a row, the stream converts its fields to a tuple type containing
+the value types you ask for:
 
     auto stream pqxx::stream_from::query(
         tx, "SELECT name, points FROM score");
@@ -69,7 +84,7 @@ stream\_to
 
 Use `stream_to` to write data directly to a database table.  This saves you
 having to perform an `INSERT` for every row, and so it can be significantly
-faster.
+faster if you want to insert more than just one or two rows at a time.
 
 As with `stream_from`, you can specify the table and the columns, and not much
 else.  You insert tuple-like objects of your choice:

@@ -46,17 +46,21 @@ constexpr from_query_t from_query;
 
 
 /// Stream data from the database.
-/** Retrieving data this way is likely to be faster than executing a query and
- * then iterating and converting the rows fields.  You will also be able to
- * start processing before all of the data has come in.
+/** For larger data sets, retrieving data this way is likely to be faster than
+ * executing a query and then iterating and converting the rows fields.  You
+ * will also be able to start processing before all of the data has come in.
  *
- * There are also downsides.  If there's an error, it may leave the entire
- * connection in an unusable state, so you'll have to give the whole thing up.
- * Also, your connection to the database may break before you've received all
- * the data, so you may end up processing only part of the data.  Finally,
- * opening a stream puts the connection in a special state, so you won't be
- * able to do many other things with the connection or the transaction while
- * the stream is open.
+ * There are also downsides.  Not all kinds of query will work in a stream.
+ * But straightforward `SELECT` and `UPDATE ... RETURNING` queries should work.
+ * This function makes use of @ref pqxx::stream_from, which in turn uses
+ * PostgreSQL's `COPY` command, so see the documentation for those to get the
+ * full details.
+ *
+ * There are other downsides.  If there stream encounters an error, it may
+ * leave the entire connection in an unusable state, so you'll have to give the
+ * whole thing up.  Finally, opening a stream puts the connection in a special
+ * state, so you won't be able to do many other things with the connection or
+ * the transaction while the stream is open.
  *
  * There are two ways of starting a stream: you stream either all rows in a
  * table (using one of the factories, `table()` or `raw_table()`), or the

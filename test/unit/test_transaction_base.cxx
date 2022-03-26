@@ -1,3 +1,4 @@
+#include <pqxx/stream_to>
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
@@ -81,5 +82,25 @@ void test_transaction_base()
 }
 
 
+void test_transaction_for_each()
+{
+  constexpr auto query{
+    "SELECT i, concat('x', (2*i)::text) "
+    "FROM generate_series(1, 3) AS i "
+    "ORDER BY i"};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  std::string ints;
+  std::string strings;
+  tx.for_each(query, [&ints, &strings](int i, std::string const &s) {
+    ints += pqxx::to_string(i) + " ";
+    strings += s + " ";
+  });
+  PQXX_CHECK_EQUAL(ints, "1 2 3 ", "Unexpected int sequence.");
+  PQXX_CHECK_EQUAL(strings, "x2 x4 x6 ", "Unexpected string sequence.");
+}
+
+
 PQXX_REGISTER_TEST(test_transaction_base);
+PQXX_REGISTER_TEST(test_transaction_for_each);
 } // namespace
