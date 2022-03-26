@@ -6,7 +6,6 @@
 
 #include "../test_helpers.hxx"
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
 namespace
 {
 void test_stream_large_object()
@@ -24,6 +23,7 @@ void test_stream_large_object()
   std::string const contents{bytes, std::size(bytes)};
 
   pqxx::work tx{conn};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::largeobject new_obj{tx};
 
   pqxx::olostream write{tx, new_obj};
@@ -50,9 +50,9 @@ void test_stream_large_object()
     std::size(read_back), std::size(contents), "ilostream truncated data.");
   PQXX_CHECK_EQUAL(
     std::size(read_back), std::size(bytes), "ilostream truncated data.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 PQXX_REGISTER_TEST(test_stream_large_object);
 } // namespace
-#include "pqxx/internal/ignore-deprecated-post.hxx"

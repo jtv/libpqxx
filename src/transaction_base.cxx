@@ -268,7 +268,9 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 pqxx::result pqxx::transaction_base::exec_n(
   result::size_type rows, zview query, std::string_view desc)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   result const r{exec(query, desc)};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   if (std::size(r) != rows)
   {
     std::string const N{

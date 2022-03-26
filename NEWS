@@ -1,8 +1,9 @@
 7.7.3
- - More strictness in `header-pre.hxx`/`header-post.hxx` checking.
  - Fix up more damage done by auto-formatting.
- - New `result::for_each()`: simple iteration and conversion of rows.
+ - New `result::for_each()`: simple iteration and conversion of rows.  (#528)
  - Add some missing headers in `<pqxx/pqxx>`.  (#551)
+ - More strictness in `header-pre.hxx`/`header-post.hxx` checking.
+ - Disallow nesting of `ignore-deprecated` blocks.
 7.7.2
  - Fix up damage done by auto-formatting.
 7.7.1
