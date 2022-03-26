@@ -387,6 +387,7 @@ public:
   static constexpr auto default_mode{
     std::ios::in | std::ios::out | std::ios::binary};
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   [[deprecated("Use blob instead.")]] largeobject_streambuf(
     dbtransaction &t, largeobject o, openmode mode = default_mode,
     size_type buf_size = 512) :
@@ -394,6 +395,7 @@ public:
   {
     initialize(mode);
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   [[deprecated("Use blob instead.")]] largeobject_streambuf(
     dbtransaction &t, oid o, openmode mode = default_mode,
@@ -551,6 +553,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Create a basic_ilostream.
   /**
    * @param t Transaction in which this stream is to exist.
@@ -564,6 +567,7 @@ public:
   {
     super::init(&m_buf);
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_ilostream.
   /**
@@ -607,6 +611,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Create a basic_olostream.
   /**
    * @param t transaction in which this stream is to exist.
@@ -620,6 +625,7 @@ public:
   {
     super::init(&m_buf);
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Create a basic_olostream.
   /**

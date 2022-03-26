@@ -1,13 +1,12 @@
 #include <iostream>
 #include <sstream>
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-
 #include <pqxx/largeobject>
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
 namespace
 {
 void test_stream_large_object()
