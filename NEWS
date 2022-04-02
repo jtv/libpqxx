@@ -4,6 +4,7 @@
  - Add some missing headers in `<pqxx/pqxx>`.  (#551)
  - More strictness in `header-pre.hxx`/`header-post.hxx` checking.
  - Disallow nesting of `ignore-deprecated` blocks.
+ - Deprecate `exec` functions' `desc` parameter.
 7.7.2
  - Fix up damage done by auto-formatting.
 7.7.1

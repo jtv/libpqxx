@@ -242,12 +242,17 @@ public:
    * broken_connection, and many sql_error subtypes such as
    * feature_not_supported or insufficient_privilege.  But any exception thrown
    * by the C++ standard library may also occur here.  All exceptions you will
-   * see libpqxx are derived from std::exception.
+   * see libpqxx throw are derived from std::exception.
    *
    * One unusual feature in libpqxx is that you can give your query a name or
    * description.  This does not mean anything to the database, but sometimes
    * it can help libpqxx produce more helpful error messages, making problems
    * in your code easier to debug.
+   *
+   * Many of the execution functions used to accept a `desc` argument, a
+   * human-readable description of the statement for use in error messages.
+   * This could make failures easier to debug.  Future versions will use
+   * C++20's `std::source_location` to identify the failing statement.
    */
   //@{
 
@@ -257,8 +262,21 @@ public:
    * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
+  [[deprecated("The desc parameter is going away.")]] result
+  exec(std::string_view query, std::string_view desc);
+
+  /// Execute a command.
+  /**
+   * @param query Query or command to execute.
+   * @return A result set describing the query's or command's result.
+   */
   result
-  exec(std::string_view query, std::string_view desc = std::string_view{});
+  exec(std::string_view query)
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return exec(query, std::string_view{});
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
 
   /// Execute a command.
   /**
@@ -266,10 +284,12 @@ public:
    * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
-  result exec(
-    std::stringstream const &query, std::string_view desc = std::string_view{})
+  [[deprecated("Pass your query as a std::string_view, not stringstream.")]]
+  result exec(std::stringstream const &query, std::string_view desc)
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query.str(), desc);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /// Execute command, which should return zero rows of data.
@@ -278,9 +298,23 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(zview query, std::string_view desc = std::string_view{})
+  [[deprecated("The desc parameter is going away.")]]
+  result exec0(zview query, std::string_view desc)
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec_n(0, query, desc);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+  /// Execute command, which should return zero rows of data.
+  /** Works like @ref exec, but fails if the result contains data.  It still
+   * returns a result, however, which may contain useful metadata.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  result exec0(zview query)
+  {
+    return exec_n(0, query);
   }
 
   /// Execute command returning a single row of data.
@@ -290,9 +324,24 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(zview query, std::string_view desc = std::string_view{})
+  [[deprecated("The desc parameter is going away.")]]
+  row exec1(zview query, std::string_view desc)
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec_n(1, query, desc).front();
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+  /// Execute command returning a single row of data.
+  /** Works like @ref exec, but requires the result to contain exactly one row.
+   * The row can be addressed directly, without the need to find the first row
+   * in a result set.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  row exec1(zview query)
+  {
+    return exec_n(1, query).front();
   }
 
   /// Execute command, expect given number of rows.
@@ -301,18 +350,47 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec_n(
-    result::size_type rows, zview query,
-    std::string_view desc = std::string_view{});
+  [[deprecated("The desc parameter is going away.")]]
+  result exec_n(result::size_type rows, zview query, std::string_view desc);
+
+  /// Execute command, expect given number of rows.
+  /** Works like @ref exec, but checks that the result has exactly the expected
+   * number of rows.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   */
+  result exec_n(result::size_type rows, zview query)
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return exec_n(rows, query, std::string_view{});
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
 
   /// Perform query, expecting exactly 1 row with 1 field, and convert it.
   /** This is convenience shorthand for querying exactly one value from the
    * database.  It returns that value, converted to the type you specify.
    */
   template<typename TYPE>
-  TYPE query_value(zview query, std::string_view desc = std::string_view{})
+  [[deprecated("The desc parameter is going away.")]]
+  TYPE query_value(zview query, std::string_view desc)
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     row const r{exec1(query, desc)};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+    if (std::size(r) != 1)
+      throw usage_error{internal::concat(
+        "Queried single value from result with ", std::size(r), " columns.")};
+    return r[0].as<TYPE>();
+  }
+
+  /// Perform query, expecting exactly 1 row with 1 field, and convert it.
+  /** This is convenience shorthand for querying exactly one value from the
+   * database.  It returns that value, converted to the type you specify.
+   */
+  template<typename TYPE>
+  TYPE query_value(zview query)
+  {
+    row const r{exec1(query)};
     if (std::size(r) != 1)
       throw usage_error{internal::concat(
         "Queried single value from result with ", std::size(r), " columns.")};
