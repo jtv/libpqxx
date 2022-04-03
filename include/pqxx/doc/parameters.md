@@ -76,11 +76,15 @@ Let's say you've got some complex code to generate the conditions for an SQL
 "WHERE" clause.  You'll generally want to do these things close together in
 your, so that you don't accidentally update one part and forget another:
 
-    // Start a new parameter placeholder.
-    name.next();
-    // Extend the query text, using the current placeholder.
-    clause += " AND x = " + name.get();
-    // Add the parameter value.
-    values.append(my_x);
+    if (extra_clause)
+    {
+      // Extend the query text, using the current placeholder.
+      query += " AND x = " + name.get();
+      // Add the parameter value.
+      values.append(my_x);
+      // Move on to the next placeholder value.
+      name.next();
+    }
 
-Easy, right?
+Depending on the starting value of `name`, this might add to `query` a fragment
+like "` AND x = $3`" or "` AND x = $5`".
