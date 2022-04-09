@@ -11,8 +11,9 @@ namespace
 {
 void test_nonblocking_connect()
 {
+  std::clog << "Start test...\n"; // XXX: DEBUG
   pqxx::connecting nbc;
-  std::clog << "  (connecting)"; // XXX: DEBUG
+  std::clog << "(connecting)\n"; // XXX: DEBUG
   while (not nbc.done())
   {
     std::clog<<"  (wait)"; // XXX: DEBUG
