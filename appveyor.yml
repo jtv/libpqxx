@@ -6,6 +6,8 @@ before_build:
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
+
+    dir
 configuration: Release
 build:
   parallel: true
