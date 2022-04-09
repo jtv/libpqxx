@@ -19,10 +19,10 @@ void test_nonblocking_connect()
     std::clog<<"  (wait)"; // XXX: DEBUG
     pqxx::internal::wait_fd(
       nbc.sock(), nbc.wait_to_read(), nbc.wait_to_write());
-    std::clog<<"  (process)"; // XXX: DEBUG
+    std::clog<<"  (process)\n"; // XXX: DEBUG
     nbc.process();
   }
-  std::clog<<"  (connected)"; // XXX: DEBUG
+  std::clog<<"  (connected)\n"; // XXX: DEBUG
 
   pqxx::connection conn{std::move(nbc).produce()};
   pqxx::work tx{conn};
