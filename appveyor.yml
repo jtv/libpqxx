@@ -1,0 +1,27 @@
+version: 1.0.{build}
+image: Visual Studio 2022
+services: postgresql12
+build_script:
+- cmd: >-
+    set "SOURCE=%cd%"
+    dir "C:\Program Files\Microsoft Visual Studio\2022\Community\VC"
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+    cd ..
+    mkdir build
+    cd build
+    cmake %SOURCE% -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
+    msbuild -m libpqxx.sln
+test_script:
+- ps: >-
+    # $env:Path += ";.\src/Debug"
+    # Fails with code -1073741515.  No output.
+    # .\test\Debug\runner.exe
+notifications:
+- provider: Email
+  to:
+  - jtvjtv@gmail.com
+  subject: 'libpqxx: AppVeyor build failure'
+  message: The libpqxx AppVeyor build has failed.
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: false
