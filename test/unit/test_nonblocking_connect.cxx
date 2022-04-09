@@ -1,3 +1,4 @@
+#include <iostream> // XXX: DEBUG
 #include <pqxx/connection>
 #include <pqxx/transaction>
 
@@ -11,12 +12,16 @@ namespace
 void test_nonblocking_connect()
 {
   pqxx::connecting nbc;
+  std::clog << "  (connecting)"; // XXX: DEBUG
   while (not nbc.done())
   {
+    std::clog<<"  (wait)"; // XXX: DEBUG
     pqxx::internal::wait_fd(
       nbc.sock(), nbc.wait_to_read(), nbc.wait_to_write());
+    std::clog<<"  (process)"; // XXX: DEBUG
     nbc.process();
   }
+  std::clog<<"  (connected)"; // XXX: DEBUG
 
   pqxx::connection conn{std::move(nbc).produce()};
   pqxx::work tx{conn};
