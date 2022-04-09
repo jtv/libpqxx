@@ -13,9 +13,8 @@ build_script:
     msbuild -m libpqxx.sln
 test_script:
 - ps: >-
-    # $env:Path += ";.\src/Debug"
-    # Fails with code -1073741515.  No output.
-    # .\test\Debug\runner.exe
+    $env:Path += ";.\src/Release"
+    .\test\Debug\runner.exe
 notifications:
 - provider: Email
   to:
