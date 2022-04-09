@@ -18,7 +18,7 @@ test_script:
 
     $env:PGPASSWORD = "Password12!"
 
-    .\test\Debug\runner.exe
+    .\test\Release\runner.exe
 notifications:
 - provider: Email
   to:
