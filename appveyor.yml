@@ -18,11 +18,7 @@ test_script:
 
     $env:PGPASSWORD = "Password12!"
 
-    dir
-
-    dir src\Release
-
-    dir "C:\Program Files\PostgreSQL"
+    dir "C:\Program Files\PostgreSQL\12"
 
     .\test\Release\runner.exe
 notifications:
