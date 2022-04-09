@@ -20,7 +20,9 @@ test_script:
 
     dir
 
-    dir src
+    dir src\Release
+
+    dir "C:\Program Files\PostgreSQL"
 
     .\test\Release\runner.exe
 notifications:
