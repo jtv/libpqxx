@@ -9,7 +9,7 @@ build_script:
     cd ..
     mkdir build
     cd build
-    cmake %SOURCE% -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
+    cmake %SOURCE% -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20 --config Release
     msbuild -m libpqxx.sln
 test_script:
 - ps: >-
