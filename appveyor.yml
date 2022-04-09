@@ -20,9 +20,7 @@ test_script:
 
     dir
 
-    dir test
-
-    dir test\Release
+    dir src
 
     .\test\Release\runner.exe
 notifications:
