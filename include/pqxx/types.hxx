@@ -97,14 +97,14 @@ using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
+using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 #else  // PQXX_HAVE_CONCEPTS
 /// The type of a container's elements.
 /** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<typename CONTAINER>
-using value_type = decltype(*std::begin(std::declval<CONTAINER>()));
+using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 #endif // PQXX_HAVE_CONCEPTS
 
 
