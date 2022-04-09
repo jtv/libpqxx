@@ -12,13 +12,11 @@ build:
   project: libpqxx.sln
 test_script:
 - ps: >-
-    $env:Path += ";.\src\Release"
+    $env:Path += ";.\src\Release;C:\Program Files\PostgreSQL\12\bin"
 
     $env:PGUSER = "postgres"
 
     $env:PGPASSWORD = "Password12!"
-
-    dir "C:\Program Files\PostgreSQL\12\bin"
 
     .\test\Release\runner.exe
 notifications:
