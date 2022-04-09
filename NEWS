@@ -6,6 +6,7 @@
  - Disallow nesting of `ignore-deprecated` blocks.
  - Deprecate `exec` functions' `desc` parameter.
  - Fix `placeholders` documentation.  (#557)
+ - Strip `const` and references from `value_type`. (#558)
 7.7.2
  - Fix up damage done by auto-formatting.
 7.7.1
