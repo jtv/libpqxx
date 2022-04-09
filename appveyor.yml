@@ -3,13 +3,11 @@ image: Visual Studio 2022
 services: postgresql12
 before_build:
 - cmd: >-
-    set "SOURCE=%cd%"
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-    cmake %SOURCE% -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
 configuration: Release
 build:
   parallel: true
-  project: libpqxx.sln
 test_script:
 - ps: >-
     $env:Path += ";.\src\Release"
