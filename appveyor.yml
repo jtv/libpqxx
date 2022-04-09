@@ -4,6 +4,7 @@ services: postgresql12
 before_build:
 - cmd: >-
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
 configuration: Release
 build:
@@ -11,6 +12,11 @@ build:
 test_script:
 - ps: >-
     $env:Path += ";.\src\Release"
+
+    $env:PGUSER = "postgres"
+
+    $env:PGPASSWORD = "Password12!"
+
     .\test\Debug\runner.exe
 notifications:
 - provider: Email
