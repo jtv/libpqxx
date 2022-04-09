@@ -5,7 +5,7 @@ before_build:
 - cmd: >-
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=20
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=23
 configuration: Release
 build:
   parallel: true
@@ -21,8 +21,6 @@ test_script:
     .\test\Release\runner.exe
 notifications:
 - provider: Email
-  to:
-  - jtvjtv@gmail.com
   subject: 'libpqxx: AppVeyor build failure'
   message: The libpqxx AppVeyor build has failed.
   on_build_success: false
