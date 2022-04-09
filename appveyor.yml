@@ -1,7 +1,6 @@
 version: 1.0.{build}
 image: Visual Studio 2022
 services: postgresql12
-configuration: Release
 before_build:
 - cmd: >-
     set "SOURCE=%cd%"
