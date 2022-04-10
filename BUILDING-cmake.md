@@ -255,18 +255,27 @@ Use
 
 Other projects can include libpqxx in their CMake builds.
 
-`@abrownsword` uses this configuration:
+Here's an example of a `CMakeLists.txt` fragment.  You'll probably still need
+to provide details specific to your project.
 
 ```cmake
-    set(libpqxxdir "libpqxx-${LIBVERSION}")     # LIBVERSION set above
-    set(SKIP_BUILD_TEST on)
-    set(BUILD_SHARED_LIBS OFF)
+    # (First set LIBVERSION to the libpqxx version you have.)
+    set(libpqxxdir "libpqxx-${LIBVERSION}")
 
-    # Used this instead of FindLibrary.
-    # Setting PostgresSQL_INCLUDE_DIRS externally.
-    set(PostgreSQL_FOUND true)
-    set(PostgresSQL_INCLUDE_DIR ${PostgresSQL_INCLUDE_DIRS})
-    set(PostgresSQL_TYPE_INCLUDE_DIR ${PostgresSQL_INCLUDE_DIRS})
+    # You can usually skip building the tests.
+    set(SKIP_BUILD_TEST ON)
+
+    # On Windows we generally recommend building libpqxx as a shared
+    # library.  On other platforms, we recommend a static library.
+    IF (WIN32)
+        set(BUILD_SHARED_LIBS ON)
+    ELSE()
+        set(BUILD_SHARED_LIBS OFF)
+    ENDIF()
 
     add_subdirectory(${libpqxxdir})
 ```
+
+If you are using shared libraries (which is recommended when building on
+Windows), you may need to ensure that libpq and the libraries it in turn
+requires are all in your dynamic link path.
