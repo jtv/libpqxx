@@ -905,6 +905,10 @@ public:
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
   /// Set socket to blocking (true) or nonblocking (false).
+  /** @warning Do not use this unless you _really_ know what you're doing.
+   * @warning This function is available on most systems, but not necessarily
+   * all.
+   */
   void set_blocking(bool block) &;
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 

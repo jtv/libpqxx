@@ -100,6 +100,8 @@ pqxx::connection::connection(
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
+  if (status() == CONNECTION_BAD)
+    throw pqxx::broken_connection{PQerrorMessage(m_conn)};
 }
 
 
@@ -138,6 +140,7 @@ void pqxx::connection::complete_init()
   catch (std::exception const &)
   {
     PQfinish(m_conn);
+    m_conn = nullptr;
     throw;
   }
 }
@@ -479,6 +482,7 @@ void PQXX_COLD pqxx::connection::cancel_query()
 
 namespace
 {
+// C++20: std::span?
 /// Get error string for a given @c errno value.
 template<std::size_t BYTES>
 char const *PQXX_COLD
@@ -1245,7 +1249,6 @@ std::string pqxx::connection::connection_string() const
 pqxx::connecting::connecting(zview connection_string) :
         m_conn{connection::connect_nonblocking, connection_string}
 {
-  m_conn.set_blocking(false);
 }
 #endif // defined(_WIN32) || __has_include(<fcntl.h>
 
@@ -1266,7 +1269,6 @@ pqxx::connection pqxx::connecting::produce() &&
   if (!done())
     throw usage_error{
       "Tried to produce a nonblocking connection before it was done."};
-  m_conn.set_blocking(true);
   m_conn.complete_init();
   return std::move(m_conn);
 }
