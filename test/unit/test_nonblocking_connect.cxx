@@ -1,5 +1,3 @@
-#include <iostream> // XXX: DEBUG
-#include <pqxx/connection>
 #include <pqxx/transaction>
 
 #include <pqxx/internal/wait.hxx>
@@ -19,13 +17,9 @@ void test_nonblocking_connect()
     nbc.process();
   }
 
-std::clog<<"Connected.\n"; // XXX: DEBUG
   pqxx::connection conn{std::move(nbc).produce()};
-std::clog<<"Produced.\n"; // XXX: DEBUG
   pqxx::work tx{conn};
-std::clog<<"Transacting.\n"; // XXX: DEBUG
   PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 10"), 10, "Bad value!?");
-std::clog<<"Done.\n"; // XXX: DEBUG
 }
 
 
