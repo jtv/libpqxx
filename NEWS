@@ -8,7 +8,7 @@
  - Fix `placeholders` documentation.  (#557)
  - Strip `const` and references from `value_type`. (#558)
  - Get tests running on appveyor. (#560)
- - Fix broken nonblocking connection on Windows.
+ - Fix broken nonblocking connection on Windows. (#560)
 7.7.2
  - Fix up damage done by auto-formatting.
 7.7.1
