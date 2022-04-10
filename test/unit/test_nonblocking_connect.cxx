@@ -1,4 +1,3 @@
-#include <pqxx/connection>
 #include <pqxx/transaction>
 
 #include <pqxx/internal/wait.hxx>

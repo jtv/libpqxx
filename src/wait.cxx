@@ -90,7 +90,7 @@ void pqxx::internal::wait_fd(
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  WSAPoll(&fdarray, 1, to_milli<unsigned>(seconds, microseconds));
+  WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds));
   // TODO: Check for errors.
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
