@@ -270,8 +270,7 @@ public:
    * @param query Query or command to execute.
    * @return A result set describing the query's or command's result.
    */
-  result
-  exec(std::string_view query)
+  result exec(std::string_view query)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, std::string_view{});
@@ -284,8 +283,9 @@ public:
    * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
-  [[deprecated("Pass your query as a std::string_view, not stringstream.")]]
-  result exec(std::stringstream const &query, std::string_view desc)
+  [[deprecated(
+    "Pass your query as a std::string_view, not stringstream.")]] result
+  exec(std::stringstream const &query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query.str(), desc);
@@ -298,8 +298,8 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  [[deprecated("The desc parameter is going away.")]]
-  result exec0(zview query, std::string_view desc)
+  [[deprecated("The desc parameter is going away.")]] result
+  exec0(zview query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec_n(0, query, desc);
@@ -312,10 +312,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(zview query)
-  {
-    return exec_n(0, query);
-  }
+  result exec0(zview query) { return exec_n(0, query); }
 
   /// Execute command returning a single row of data.
   /** Works like @ref exec, but requires the result to contain exactly one row.
@@ -324,8 +321,8 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  [[deprecated("The desc parameter is going away.")]]
-  row exec1(zview query, std::string_view desc)
+  [[deprecated("The desc parameter is going away.")]] row
+  exec1(zview query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec_n(1, query, desc).front();
@@ -339,10 +336,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(zview query)
-  {
-    return exec_n(1, query).front();
-  }
+  row exec1(zview query) { return exec_n(1, query).front(); }
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -350,8 +344,8 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  [[deprecated("The desc parameter is going away.")]]
-  result exec_n(result::size_type rows, zview query, std::string_view desc);
+  [[deprecated("The desc parameter is going away.")]] result
+  exec_n(result::size_type rows, zview query, std::string_view desc);
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -371,8 +365,8 @@ public:
    * database.  It returns that value, converted to the type you specify.
    */
   template<typename TYPE>
-  [[deprecated("The desc parameter is going away.")]]
-  TYPE query_value(zview query, std::string_view desc)
+  [[deprecated("The desc parameter is going away.")]] TYPE
+  query_value(zview query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     row const r{exec1(query, desc)};
@@ -387,8 +381,7 @@ public:
   /** This is convenience shorthand for querying exactly one value from the
    * database.  It returns that value, converted to the type you specify.
    */
-  template<typename TYPE>
-  TYPE query_value(zview query)
+  template<typename TYPE> TYPE query_value(zview query)
   {
     row const r{exec1(query)};
     if (std::size(r) != 1)

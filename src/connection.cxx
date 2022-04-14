@@ -1248,8 +1248,7 @@ std::string pqxx::connection::connection_string() const
 #if defined(_WIN32) || __has_include(<fcntl.h>)
 pqxx::connecting::connecting(zview connection_string) :
         m_conn{connection::connect_nonblocking, connection_string}
-{
-}
+{}
 #endif // defined(_WIN32) || __has_include(<fcntl.h>
 
 

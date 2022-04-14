@@ -12,7 +12,7 @@
  * small as possible.
  */
 #if defined(PQXX_IGNORING_DEPRECATED)
-#error "Started an 'ignore-deprecated' block inside another."
+#  error "Started an 'ignore-deprecated' block inside another."
 #endif
 
 #define PQXX_IGNORING_DEPRECATED
