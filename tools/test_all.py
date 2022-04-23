@@ -17,6 +17,7 @@ from abc import (
     )
 from argparse import ArgumentParser
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
 import json
@@ -195,20 +196,18 @@ def find_cmake_command():
         return None
 
     names = {generator['name'] for generator in json.loads(caps)['generators']}
-    for gen in CMAKE_GENERATORS.keys():
+    for gen in CMAKE_GENERATORS:
         if gen in names:
             return gen
     return None
 
 
-class Config:
+class Config(metaclass=ABCMeta):
     """Configuration for a build.
 
     These classes must be suitable for pickling, so we can send its objects to
     worker processes.
     """
-    __metaclass__ = ABCMeta
-
     @abstractmethod
     def name(self):
         """Return an identifier for this build configuration."""
@@ -275,26 +274,24 @@ class Build:
         self.logging(self.test)
 
 
+@dataclass
 class AutotoolsConfig(Config):
     """A combination of build options for the "configure" script."""
-    def __init__(self, cxx, opt, stdlib, link, link_opts, debug, debug_opts):
-        self.cxx = cxx
-        self.opt = opt
-        self.stdlib = stdlib
-        self.link = link
-        self.link_opts = link_opts
-        self.debug = debug
-        self.debug_opts = debug_opts
+    cxx: str
+    opt: str
+    stdlib: str
+    link: str
+    link_opts: str
+    debug: str
+    debug_opts: str
 
     def name(self):
         return '_'.join([
             self.cxx, self.opt, self.stdlib, self.link, self.debug])
 
 
-class AutotoolsBuild(Build):
+class AutotoolsBuild(Build, metaclass=ABCMeta):
     """Build using the "configure" script."""
-    __metaclass__ = ABCMeta
-
     def configure(self, log):
         configure = [
             os.path.join(getcwd(), "configure"),
@@ -334,13 +331,11 @@ class CMakeConfig(Config):
         return "cmake"
 
 
-class CMakeBuild(Build):
+class CMakeBuild(Build, metaclass=ABCMeta):
     """Build using CMake.
 
     Ignores the config for now.
     """
-    __metaclass__ = ABCMeta
-
     def configure(self, log):
         source_dir = getcwd()
         generator = self.config.generator
