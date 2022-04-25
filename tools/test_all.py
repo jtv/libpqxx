@@ -52,8 +52,10 @@ CPUS = cpu_count()
 GCC_VERSIONS = list(range(8, 14))
 GCC = [f'g++-{ver}' for ver in GCC_VERSIONS]
 CLANG_VERSIONS = list(range(7, 15))
-CLANG = ['clang++-6.0'] + [f'clang++-{ver}' for ver in CLANG_VERSIONS]
+CLANG = [f'clang++-{ver}' for ver in CLANG_VERSIONS]
 CXX = GCC + CLANG
+
+DIALECTS = ['17', '20', '2b']
 
 STDLIB = (
     '',
@@ -281,13 +283,20 @@ class AutotoolsConfig(Config):
     link_opts: str
     debug: str
     debug_opts: str
+    dialect: str
 
     def name(self):
         return '_'.join([
-            self.cxx, self.opt, self.stdlib, self.link, self.debug])
+            self.cxx,
+            self.dialect,
+            self.opt,
+            self.stdlib,
+            self.link,
+            self.debug,
+        ])
 
 
-class AutotoolsBuild(Build, metaclass=ABCMeta):
+class AutotoolsBuild(Build):
     """Build using the "configure" script."""
     def configure(self, log):
         configure = [
@@ -295,15 +304,14 @@ class AutotoolsBuild(Build, metaclass=ABCMeta):
             f"CXX={self.config.cxx}",
             ]
 
-        if self.config.stdlib == '':
-            configure += [
-                f"CXXFLAGS={self.config.opt}",
-            ]
-        else:
-            configure += [
-                f"CXXFLAGS={self.config.opt} {self.config.stdlib}",
-                f"LDFLAGS={self.config.stdlib}",
-                ]
+        dialect_option = f'-std=c++{self.config.dialect}'
+
+        cxx_flags = ' '.join(filter(
+            None, [dialect_option, self.config.opt, self.config.stdlib]))
+
+        configure += [f"CXXFLAGS={cxx_flags}"]
+        if self.config.stdlib != "":
+            configure += [f"LDFLAGS={self.config.stdlib}"]
 
         configure += [
             "--disable-documentation",
@@ -320,9 +328,10 @@ class AutotoolsBuild(Build, metaclass=ABCMeta):
 
 class CMakeConfig(Config):
     """Configuration for a CMake build."""
-    def __init__(self, generator):
+    def __init__(self, generator, dialect):
         self.generator = generator
         self.builder = CMAKE_GENERATORS[generator]
+        self.dialect = dialect
 
     def name(self):
         return "cmake"
@@ -336,8 +345,9 @@ class CMakeBuild(Build, metaclass=ABCMeta):
     def configure(self, log):
         source_dir = getcwd()
         generator = self.config.generator
+        dialect_flag = f'-DCMAKE_CXX_VERSION={self.config.dialect}'
         run(
-            ['cmake', '-G', generator, source_dir], output=log,
+            ['cmake', '-G', generator, source_dir, dialect_flag], output=log,
             cwd=self.work_dir)
 
     def build(self, log):
@@ -351,6 +361,11 @@ def parse_args():
     parser.add_argument(
         '--compilers', '-c', default=','.join(CXX),
         help="Compilers, separated by commas.  Default is %(default)s.")
+    parser.add_argument(
+        '--dialects', '-d', default=','.join(DIALECTS),
+        help=(
+            "C++ dialects, separated by commas.  "
+            f"Default is {','.join(DIALECTS)}."))
     parser.add_argument(
         '--optimize', '-O', default=','.join(OPT),
         help=(
@@ -466,6 +481,7 @@ def gather_builds(args):
             "Did not find any viable compilers.  "
             f"Tried: {', '.join(compiler_candidates)}.")
 
+    dialects = args.dialects.split(',')
     opt_levels = args.optimize.split(',')
     link_types = LINK.items()
     debug_mixes = DEBUG.items()
@@ -481,16 +497,19 @@ def gather_builds(args):
             args.logs,
             AutotoolsConfig(
                 opt=opt, link=link, link_opts=link_opts, debug=debug,
-                debug_opts=debug_opts, cxx=cxx, stdlib=stdlib))
+                debug_opts=debug_opts, cxx=cxx, stdlib=stdlib,
+                dialect=dialect))
         for opt in sorted(opt_levels)
         for link, link_opts in sorted(link_types)
         for debug, debug_opts in sorted(debug_mixes)
         for cxx, stdlib in compilers
+        for dialect in dialects
     ]
 
     cmake = find_cmake_command()
     if cmake is not None:
-        builds.append(CMakeBuild(args.logs, CMakeConfig(cmake)))
+        builds.append(CMakeBuild(
+            args.logs, CMakeConfig(cmake, dialect=dialects[0])))
     return builds
 
 
