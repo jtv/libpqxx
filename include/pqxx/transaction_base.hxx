@@ -379,6 +379,9 @@ public:
   /// Perform query, expecting exactly 1 row with 1 field, and convert it.
   /** This is convenience shorthand for querying exactly one value from the
    * database.  It returns that value, converted to the type you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<typename TYPE> TYPE query_value(zview query)
   {
@@ -387,6 +390,42 @@ public:
       throw usage_error{internal::concat(
         "Queried single value from result with ", std::size(r), " columns.")};
     return r[0].as<TYPE>();
+  }
+
+  /// Perform query returning exactly one row, and convert its fields.
+  /** This is a convenient way of querying one row's worth of data, and
+   * converting its fields to a tuple of the C++-side types you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE> std::tuple<TYPE...> query1(zview query)
+  {
+    return exec1(query).as<TYPE...>();
+  }
+
+  /// Query at most one row of data, and if there is one, convert it.
+  /** If the query produced a row of data, this converts it to a tuple of the
+   * C++ types you specify.  Otherwise, this returns no tuple.
+   *
+   * @throw unexpected_rows If the query returned more than 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  std::optional<std::tuple<TYPE...>> query01(zview query)
+  {
+    result res{exec(query)};
+    auto const rows{std::size(res)};
+    switch (rows)
+    {
+    case 0: return {};
+    case 1: return {res[0].as<TYPE...>()};
+    default:
+      throw unexpected_rows{
+        internal::concat("Expected at most one row of data, got ", rows, ".")};
+    }
   }
 
   /// Execute a query, and loop over the results row by row.
