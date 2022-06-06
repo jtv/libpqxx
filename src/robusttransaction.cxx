@@ -204,6 +204,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
       // The transaction is still running.  Stick around until we know what
       // transpires.
       break;
+    default: PQXX_UNREACHABLE;
     }
   }
 

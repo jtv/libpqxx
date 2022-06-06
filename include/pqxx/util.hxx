@@ -15,6 +15,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <functional>
@@ -44,6 +45,15 @@ namespace pqxx
 {}
 
 #include <pqxx/internal/libpq-forward.hxx>
+
+
+// C++23: Retire wrapper.
+#if defined(PQXX_HAVE_UNREACHABLE)
+/// Equivalent to `std::unreachable()` if available.
+#  define PQXX_UNREACHABLE std::unreachable()
+#else
+#  define PQXX_UNREACHABLE assert(false)
+#endif
 
 
 /// Internal items for libpqxx' own use.  Do not use these yourself.

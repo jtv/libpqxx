@@ -8,10 +8,8 @@
  */
 #include "pqxx-source.hxx"
 
-#include <cassert>
 #include <cstddef>
 #include <cstring>
-#include <utility>
 
 #include "pqxx/internal/header-pre.hxx"
 

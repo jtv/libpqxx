@@ -673,6 +673,17 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_path)
 
 
+AC_MSG_CHECKING([for C++23 std::unreachable()])
+have_unreachable=yes
+AC_COMPILE_IFELSE(
+	[read_test(unreachable.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_UNREACHABLE],
+		1,
+		[Define if compiler has std::unreachable().]),
+	have_unreachable=no)
+AC_MSG_RESULT($have_unreachable)
+
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"
 found_fslib=no

@@ -125,7 +125,7 @@ void pqxx::transaction_base::commit()
     throw in_doubt_error{internal::concat(
       description(), " committed again while in an indeterminate state.")};
 
-  default: throw internal_error{"pqxx::transaction: invalid status code."};
+  default: PQXX_UNREACHABLE;
   }
 
   // Tricky one.  If stream is nested in transaction but inside the same scope,
@@ -204,7 +204,7 @@ void pqxx::transaction_base::abort()
       "it may have been executed anyway.\n"));
     return;
 
-  default: throw internal_error{"Invalid transaction status."};
+  default: PQXX_UNREACHABLE;
   }
 
   m_status = status::aborted;
@@ -258,7 +258,7 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
       "Could not execute command ", n, ": transaction is already closed.")};
   }
 
-  default: throw internal_error{"pqxx::transaction: invalid status code."};
+  default: PQXX_UNREACHABLE;
   }
 
   return direct_exec(query, desc);

@@ -17713,6 +17713,54 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 $as_echo "$have_path" >&6; }
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C++23 std::unreachable()" >&5
+$as_echo_n "checking for C++23 std::unreachable()... " >&6; }
+have_unreachable=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for C++23 std::unreachable.
+
+#include <utility>
+
+
+
+int main(int argc, char **)
+
+{
+
+  if (argc < 100)
+
+  {
+
+    return 0;
+
+  }
+
+  else
+
+  {
+
+    std::unreachable();
+
+  }
+
+  return 1;
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+$as_echo "#define PQXX_HAVE_UNREACHABLE 1" >>confdefs.h
+
+else
+  have_unreachable=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_unreachable" >&5
+$as_echo "$have_unreachable" >&6; }
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we need a link option for <filesystem> support" >&5
 $as_echo_n "checking whether we need a link option for <filesystem> support... " >&6; }
 LIBS_SAVE="$LIBS"

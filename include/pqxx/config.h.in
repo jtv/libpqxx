@@ -111,6 +111,9 @@
 /* Define if thread_local is fully supported. */
 #undef PQXX_HAVE_THREAD_LOCAL
 
+/* Define if compiler has std::unreachable(). */
+#undef PQXX_HAVE_UNREACHABLE
+
 /* Define if std::chrono has year_month_day etc. */
 #undef PQXX_HAVE_YEAR_MONTH_DAY
 
