@@ -28,7 +28,7 @@ strconv(std::string const &type, T const &Obj, std::string const &expected)
 
 // There's no from_string<char const *>()...
 inline void
-strconv(std::string const &type, char const Obj[], std::string const &expected)
+strconv(std::string const &type, char const *Obj, std::string const &expected)
 {
   std::string const Objstr(to_string(Obj));
   PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
@@ -36,20 +36,12 @@ strconv(std::string const &type, char const Obj[], std::string const &expected)
 
 constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};
 
-struct intderef
-{
-  template<typename ITER> int operator()(ITER i) const noexcept
-  {
-    return int(*i);
-  }
-};
-
 
 void test_000()
 {
   PQXX_CHECK_EQUAL(
     oid_none, 0u,
-    "InvalidIod is not zero as it used to be.  This may conceivably "
+    "InvalidId is not zero as it used to be.  This may conceivably "
     "cause problems in libpqxx.");
 
   PQXX_CHECK(
