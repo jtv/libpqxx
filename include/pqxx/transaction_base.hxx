@@ -431,8 +431,8 @@ public:
     case 0: return {};
     case 1: return {res[0].as<TYPE...>()};
     default:
-      throw unexpected_rows{
-        internal::concat("Expected at most one row of data, got ", rows, ".")};
+      throw unexpected_rows{internal::concat(
+        "Expected at most one row of data, got "sv, rows, "."sv)};
     }
   }
 

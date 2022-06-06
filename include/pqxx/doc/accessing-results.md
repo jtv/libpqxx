@@ -1,15 +1,16 @@
 Accessing results and result rows                   {#accessing-results}
 ---------------------------------
 
-When you execute a query using one of the transaction `exec` functions, you
+When you execute a query using one of the transaction `exec*` functions, you
 normally get a `result` object back.  A `result` is a container of `row`s.
 
-(There are exceptions.  The `exec1` functions expect exactly one row of data,
-so they return just a `row`, not a full `result`.)
+(There are exceptions: `exec1` expects exactly one row of data, so it returns
+just a `row`, not a full `result`.  And `exec0` expects no data at all, so it
+returns nothing.)
 
-Result objects are an all-or-nothing affair.  The `exec` function waits until
-it's received all the result data, and then gives it to you in the form of the
-`result`.  _(There is a faster, easier way of executing simple queries, so see
+Result objects are an all-or-nothing affair.  An `exec*` function waits until
+it's received all the result data, and only then will it return.  _(There is a
+faster, easier way of executing queries with large result sets, so see
 "streaming rows" below as well.)_
 
 For example, your code might do:
