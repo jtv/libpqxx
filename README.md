@@ -142,7 +142,7 @@ Here's an example with all the basics to get you going:
 
             // Or, query one whole row.  This will throw an exception unless
             // the result contains exactly 1 row.
-            auto top_name, top_salary = W.query1<std::string, int>(
+            auto [top_name, top_salary] = W.query1<std::string, int>(
                 R"(
                     SELECT salary
                     FROM employee
