@@ -320,8 +320,14 @@ private:
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
-  bool operator!() const noexcept { return m_data.get() == nullptr; }
-  operator bool() const noexcept { return m_data.get() != nullptr; }
+  bool operator!() const noexcept
+  {
+    return m_data.get() == nullptr;
+  }
+  operator bool() const noexcept
+  {
+    return m_data.get() != nullptr;
+  }
 
   [[noreturn]] PQXX_PRIVATE void
   throw_sql_error(std::string const &Err, std::string const &Query) const;
