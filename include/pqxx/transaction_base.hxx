@@ -408,7 +408,7 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE> std::tuple<TYPE...> query1(zview query)
+  template<typename... TYPE> [[nodiscard]] std::tuple<TYPE...> query1(zview query)
   {
     return exec1(query).as<TYPE...>();
   }
@@ -422,7 +422,7 @@ public:
    * the number of fields in the tuple.
    */
   template<typename... TYPE>
-  std::optional<std::tuple<TYPE...>> query01(zview query)
+  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(zview query)
   {
     result res{exec(query)};
     auto const rows{std::size(res)};
