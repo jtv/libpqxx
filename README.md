@@ -81,12 +81,13 @@ will include the actual .hxx files for you.  This was done so that includes are
 in standard C++ style (as in `<iostream>` etc.), but an editor will still
 recognize them as files containing C++ code.
 
-Continuing the list of classes, you will most likely also need the result class
+Continuing the list of classes, you may also need the result class
 (`pqxx/result.hxx`).  In a nutshell, you create a `connection` based on a
 Postgres connection string (see below), create a `work` in the context of that
 connection, and run one or more queries on the work which return `result`
 objects.  The results are containers of rows of data, each of which you can
-treat as an array of strings: one for each field in the row.  It's that simple.
+treat as an array of strings: one for each field in the row.  But there are
+other ways to query the database.
 
 Here's an example with all the basics to get you going:
 
