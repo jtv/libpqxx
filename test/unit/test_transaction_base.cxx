@@ -101,6 +101,52 @@ void test_transaction_for_each()
 }
 
 
+void test_transaction_query01()
+{
+  pqxx::connection c;
+  pqxx::work w{c};
+
+  std::optional<std::tuple<int>> o;
+  o = w.query01<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5");
+  PQXX_CHECK(not o.has_value(), "Why did we get a row?");
+  o = w.query01<int>("SELECT * FROM generate_series(8, 8)");
+  PQXX_CHECK(o.has_value(), "Why did we not get a row?");
+  PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query01().");
+  PQXX_CHECK_THROWS(
+    o = w.query01<int>("SELECT * FROM generate_series(1, 2)"),
+    pqxx::unexpected_rows,
+    "Wrong number of rows did not throw unexpected_rows.");
+  PQXX_CHECK_THROWS(
+    o = w.query01<int>("SELECT 1, 2"), pqxx::usage_error,
+    "Wrong number of columns did not throw usage_error.");
+}
+
+
+void test_transaction_query1()
+{
+  pqxx::connection c;
+  pqxx::work w{c};
+
+  std::tuple<int> x;
+  PQXX_CHECK_THROWS(
+    x = w.query1<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5"),
+    pqxx::unexpected_rows, "Zero rows did not throw unexpected_rows.");
+  std::optional<std::tuple<int>> const o{
+    w.query1<int>("SELECT * FROM generate_series(8, 8)")};
+  PQXX_CHECK(o.has_value(), "Why did we not get a row?");
+  PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query1().");
+  PQXX_CHECK_THROWS(
+    x = w.query1<int>("SELECT * FROM generate_series(1, 2)"),
+    pqxx::unexpected_rows, "Too many rows did not throw unexpected_rows.");
+  PQXX_CHECK_THROWS(
+    x = w.query1<int>("SELECT 1, 2"), pqxx::usage_error,
+    "Wrong number of columns did not throw usage_error.");
+  pqxx::ignore_unused(x);
+}
+
+
 PQXX_REGISTER_TEST(test_transaction_base);
 PQXX_REGISTER_TEST(test_transaction_for_each);
+PQXX_REGISTER_TEST(test_transaction_query01);
+PQXX_REGISTER_TEST(test_transaction_query1);
 } // namespace

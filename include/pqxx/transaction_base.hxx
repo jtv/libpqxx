@@ -234,8 +234,8 @@ public:
    * @name Command execution
    *
    * There are many functions for executing (or "performing") a command (or
-   * "query").  This is the most fundamental thing you can do with the library,
-   * and you always do it from a transaction class.
+   * "query").  This is the most fundamental thing you can do in libpqxx, and
+   * it always starts at a transaction class.
    *
    * Command execution can throw many types of exception, including sql_error,
    * broken_connection, and many sql_error subtypes such as
@@ -243,15 +243,23 @@ public:
    * by the C++ standard library may also occur here.  All exceptions you will
    * see libpqxx throw are derived from std::exception.
    *
-   * One unusual feature in libpqxx is that you can give your query a name or
-   * description.  This does not mean anything to the database, but sometimes
-   * it can help libpqxx produce more helpful error messages, making problems
-   * in your code easier to debug.
+   * Most of the differences between the query execution functions are in how
+   * they return the query's results.  The `exec*` functions run your query,
+   * wait for it to complete, and load the full results into memory on the
+   * client side as a @ref pqxx::result object.  The `query*` functions are for
+   * getting a single row of data, and converting it straight to the types of
+   * data you want in your client code.  Some of these also give you the option
+   * to specify how many rows of data you expect to get: `exec0()` throws an
+   * exception if the query returns any data at all, `exec1()` expects a single
+   * row of data, and so on.
    *
-   * Many of the execution functions used to accept a `desc` argument, a
-   * human-readable description of the statement for use in error messages.
-   * This could make failures easier to debug.  Future versions will use
-   * C++20's `std::source_location` to identify the failing statement.
+   * The `stream` and `for_each` functions execute your query in a completely
+   * different way.  Called _streaming queries,_ these don't support the full
+   * range of SQL queries, and they're slower to start, but they can be a lot
+   * faster and use less memory for queries that produce many rows of data.
+   * They also don't keep you waiting for all data to come in; you can start
+   * processing your first rows of data before the server has sent the rest.
+   * This can save you a lot of waiting time.
    */
   //@{
 
@@ -311,7 +319,10 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(zview query) { return exec_n(0, query); }
+  result exec0(zview query)
+  {
+    return exec_n(0, query);
+  }
 
   /// Execute command returning a single row of data.
   /** Works like @ref exec, but requires the result to contain exactly one row.
@@ -335,7 +346,10 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(zview query) { return exec_n(1, query).front(); }
+  row exec1(zview query)
+  {
+    return exec_n(1, query).front();
+  }
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -379,6 +393,9 @@ public:
   /// Perform query, expecting exactly 1 row with 1 field, and convert it.
   /** This is convenience shorthand for querying exactly one value from the
    * database.  It returns that value, converted to the type you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<typename TYPE> TYPE query_value(zview query)
   {
@@ -387,6 +404,43 @@ public:
       throw usage_error{internal::concat(
         "Queried single value from result with ", std::size(r), " columns.")};
     return r[0].as<TYPE>();
+  }
+
+  /// Perform query returning exactly one row, and convert its fields.
+  /** This is a convenient way of querying one row's worth of data, and
+   * converting its fields to a tuple of the C++-side types you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::tuple<TYPE...> query1(zview query)
+  {
+    return exec1(query).as<TYPE...>();
+  }
+
+  /// Query at most one row of data, and if there is one, convert it.
+  /** If the query produced a row of data, this converts it to a tuple of the
+   * C++ types you specify.  Otherwise, this returns no tuple.
+   *
+   * @throw unexpected_rows If the query returned more than 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(zview query)
+  {
+    result res{exec(query)};
+    auto const rows{std::size(res)};
+    switch (rows)
+    {
+    case 0: return {};
+    case 1: return {res[0].as<TYPE...>()};
+    default:
+      throw unexpected_rows{internal::concat(
+        "Expected at most one row of data, got "sv, rows, "."sv)};
+    }
   }
 
   /// Execute a query, and loop over the results row by row.
@@ -428,14 +482,13 @@ public:
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
    * either a SELECT or VALUES query; or an INSERT, UPDATE, or DELETE with a
-   * RETURNING clause.  See the documentation for PostgreSQL's COPY command for
-   * the details:
-   *
-   *     https://www.postgresql.org/docs/current/sql-copy.html
+   * RETURNING clause.  See the documentation for PostgreSQL's
+   * [COPY command](https://www.postgresql.org/docs/current/sql-copy.html) for
+   * the exact restrictions.
    *
    * Iterating in this way does require each of the field types you pass to be
    * default-constructible, copy-constructible, and assignable.  These
-   * requirements may be loosened once libpqxx moves on to C++20.
+   * requirements may loosen a bit once libpqxx moves on to C++20.
    */
   template<typename... TYPE>
   [[nodiscard]] auto stream(std::string_view query) &
@@ -619,13 +672,22 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
+  void process_notice(char const msg[]) const
+  {
+    m_conn.process_notice(msg);
+  }
   /// Have connection process a warning message.
-  void process_notice(zview msg) const { m_conn.process_notice(msg); }
+  void process_notice(zview msg) const
+  {
+    m_conn.process_notice(msg);
+  }
   //@}
 
   /// The connection in which this transaction lives.
-  [[nodiscard]] constexpr connection &conn() const noexcept { return m_conn; }
+  [[nodiscard]] constexpr connection &conn() const noexcept
+  {
+    return m_conn;
+  }
 
   /// Set session variable using SQL "SET" command.
   /** @deprecated To set a transaction-local variable, execute an SQL `SET`
@@ -656,7 +718,10 @@ public:
 
   // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
+  [[nodiscard]] std::string_view name() const &noexcept
+  {
+    return m_name;
+  }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).

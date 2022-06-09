@@ -1,5 +1,6 @@
 7.7.4
- - Use `std::unreachable()` where available.
+ - New ways to query a single row!  `query01()` and `query1()`.
+ - Use C++23 `std::unreachable()` where available.
 7.7.3
  - Fix up more damage done by auto-formatting.
  - New `result::for_each()`: simple iteration and conversion of rows.  (#528)

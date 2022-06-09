@@ -613,7 +613,10 @@ public:
    * else.
    */
   void prepare(char const definition[]) &;
-  void prepare(zview definition) & { return prepare(definition.c_str()); }
+  void prepare(zview definition) &
+  {
+    return prepare(definition.c_str());
+  }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -1053,7 +1056,10 @@ private:
   void PQXX_PRIVATE end_copy_write();
 
   friend class internal::gate::connection_largeobject;
-  internal::pq::PGconn *raw_connection() const { return m_conn; }
+  internal::pq::PGconn *raw_connection() const
+  {
+    return m_conn;
+  }
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);

@@ -185,6 +185,9 @@ public:
 
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `t`.
    */
   template<typename Tuple> void to(Tuple &t) const
   {
@@ -192,6 +195,12 @@ public:
     convert(t);
   }
 
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `t`.
+   */
   template<typename... TYPE> std::tuple<TYPE...> as() const
   {
     check_size(sizeof...(TYPE));
@@ -298,8 +307,14 @@ public:
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
-  [[nodiscard]] reference operator*() const noexcept { return {*this}; }
+  [[nodiscard]] constexpr pointer operator->() const noexcept
+  {
+    return this;
+  }
+  [[nodiscard]] reference operator*() const noexcept
+  {
+    return {*this};
+  }
   //@}
 
   /**

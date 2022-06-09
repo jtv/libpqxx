@@ -81,14 +81,15 @@ will include the actual .hxx files for you.  This was done so that includes are
 in standard C++ style (as in `<iostream>` etc.), but an editor will still
 recognize them as files containing C++ code.
 
-Continuing the list of classes, you will most likely also need the result class
+Continuing the list of classes, you may also need the result class
 (`pqxx/result.hxx`).  In a nutshell, you create a `connection` based on a
 Postgres connection string (see below), create a `work` in the context of that
 connection, and run one or more queries on the work which return `result`
 objects.  The results are containers of rows of data, each of which you can
-treat as an array of strings: one for each field in the row.  It's that simple.
+treat as an array of strings: one for each field in the row.  But there are
+other ways to query the database.
 
-Here is a simple example program to get you going, with full error handling:
+Here's an example with all the basics to get you going:
 
 ```c++
     #include <iostream>
@@ -113,9 +114,44 @@ Here is a simple example program to get you going, with full error handling:
             for (auto row: R)
                 std::cout << row[0].c_str() << '\n';
 
-            // Perform a query and check that it returns no result.
+            // For large amounts of data, "streaming" the results is more
+            // efficient.  It does not work for all types of queries though.
+            // What's really nice is that you don't need to iterate result
+            // objects.  This just converts the fields straight to the C++
+            // types you need.
+            //
+            // You can use std::string_view for fields here, which is not
+            // something you can do in most places.  A string_view becomes
+            // meaningless when the underlying string ceases to exist.  In this
+            // one situation, you can convert a field to string_view and it
+            // will be valid for just that one iteration of the loop.  The next
+            // iteration may overwrite or deallocate its buffer space.
+            for (auto [name, salary] : W.stream<std::string_view, int>(
+                "SELECT name, salary FROM employee"))
+            {
+                std::cout << name << " earns " << salary << ".\n";
+            }
+
+            // Execute a statement (and check that it returns 0 rows of data).
             std::cout << "Doubling all employees' salaries...\n";
             W.exec0("UPDATE employee SET salary = salary*2");
+
+            // Easy way to query a value from the database.
+            int my_salary = W.query_value<int>(
+                "SELECT salary FROM employee WHERE name = 'Me'");
+            std::cout << "I now earn " << my_salary << ".\n";
+
+            // Or, query one whole row.  This will throw an exception unless
+            // the result contains exactly 1 row.
+            auto [top_name, top_salary] = W.query1<std::string, int>(
+                R"(
+                    SELECT salary
+                    FROM employee
+                    WHERE salary = max(salary)
+                    LIMIT 1
+                )");
+            std::cout << "Top earner is " << top_name << " with a salary of "
+                      << top_salary << ".\n";
 
             // Commit the transaction.
             std::cout << "Making changes definite: ";

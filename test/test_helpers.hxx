@@ -45,7 +45,10 @@ struct registrar
 
 // Register a test function, so the runner will run it.
 #define PQXX_REGISTER_TEST(func)                                              \
-  pqxx::test::registrar tst_##func { #func, func }
+  pqxx::test::registrar tst_##func                                            \
+  {                                                                           \
+#    func, func                                                               \
+  }
 
 
 // Unconditional test failure.

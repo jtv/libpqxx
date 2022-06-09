@@ -412,7 +412,10 @@ public:
   }
 
   /// For use by large object stream classes.
-  void process_notice(zview const &s) { m_obj.process_notice(s); }
+  void process_notice(zview const &s)
+  {
+    m_obj.process_notice(s);
+  }
 
 protected:
   virtual int sync() override
@@ -476,7 +479,10 @@ protected:
     return res;
   }
 
-  virtual int_type overflow() { return overflow(eof()); }
+  virtual int_type overflow()
+  {
+    return overflow(eof());
+  }
 
   virtual int_type underflow() override
   {
@@ -492,7 +498,10 @@ protected:
 
 private:
   /// Shortcut for traits_type::eof().
-  static int_type eof() { return traits_type::eof(); }
+  static int_type eof()
+  {
+    return traits_type::eof();
+  }
 
   /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE> static std::streampos adjust_eof(INTYPE pos)
