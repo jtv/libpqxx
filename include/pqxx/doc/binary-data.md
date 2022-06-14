@@ -29,14 +29,18 @@ So long as it's _basically_ still a block of bytes though, you can use
 There are two forms of `binary_cast`.  One takes a single argument that must
 support `std::data()` and `std::size()`:
 
+```cxx
     std::string hi{"Hello binary world"};
     my_blob.write(pqxx::binary_cast(hi);
+```
 
 The other takes a pointer and a size:
 
+```cxx
     char const greeting[] = "Hello binary world";
     char const *hi = greeting;
     my_blob.write(pqxx::binary_cast(hi, sizeof(greeting)));
+```
 
 
 Caveats

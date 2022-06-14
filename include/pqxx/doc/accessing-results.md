@@ -1,7 +1,7 @@
 Accessing results and result rows                   {#accessing-results}
 ---------------------------------
 
-When you execute a query using one of the transaction `exec*` functions, you
+When you execute a query using one of the transaction "exec*" functions, you
 normally get a `result` object back.  A `result` is a container of `row`s.
 
 (There are exceptions: `exec1` expects exactly one row of data, so it returns
@@ -86,8 +86,8 @@ For C++23 or better, there's also a two-dimensional array access operator:
     for (std::size_t rownum=0u; rownum < num_rows; ++rownum)
     {
         for (std::size_t colnum=0u; colnum < num_cols; ++colnum)
-	    std::cout result[rownum, colnum].c_str() << '\t';
-	std::cout << '\n';
+            std::cout result[rownum, colnum].c_str() << '\t';
+        std::cout << '\n';
     }
 ```
 
@@ -132,9 +132,11 @@ that is a problem for your application, streaming may not be the right choice.
 
 **Two,** streaming only works for some types of query.  The `stream()` function
 wraps your query in a PostgreSQL `COPY` command, and `COPY` only supports a few
-commands: `SELECT`, `VALUES`, `or an `INSERT`, `UPDATE`, or `DELETE` with a
+commands: `SELECT`, `VALUES`, or an `INSERT`, `UPDATE`, or `DELETE` with a
 `RETURNING` clause.  See the `COPY` documentation here:
-https://www.postgresql.org/docs/current/sql-copy.html
+[
+    https://www.postgresql.org/docs/current/sql-copy.html
+](https://www.postgresql.org/docs/current/sql-copy.html).
 
 **Three,** when you convert a field to a "view" type (such as
 `std::string_view` or `std::basic_string_view<std::byte>`), the view points to

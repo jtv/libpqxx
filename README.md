@@ -3,11 +3,17 @@ libpqxx
 
 Welcome to libpqxx, the C++ API to the PostgreSQL database management system.
 
-Home page: http://pqxx.org/development/libpqxx/
+Home page: [
+    http://pqxx.org/development/libpqxx
+](http://pqxx.org/development/libpqxx/)
 
-Find libpqxx on Github: https://github.com/jtv/libpqxx
+Find libpqxx on Github: [
+    https://github.com/jtv/libpqxx
+](https://github.com/jtv/libpqxx)
 
-Documentation on Read The Docs: https://libpqxx.readthedocs.io
+Documentation on Read The Docs: [
+    https://libpqxx.readthedocs.io
+](https://libpqxx.readthedocs.io)
 
 Compiling this package requires PostgreSQL to be installed -- or at least the C
 headers and library for client development.  The library builds on top of
@@ -17,7 +23,9 @@ If you're getting the code straight from the Git repo, the head of the `master`
 branch represents the current _development version._  Releases are tags on
 commits in `master`.  For example, to get version 7.1.1:
 
+```sh
     git checkout 7.1.1
+```
 
 
 Upgrade notes
@@ -27,6 +35,7 @@ Upgrade notes
 date.  For libpqxx 8.x you will need at least C++20.
 
 Also, **7.0 makes some breaking changes in rarely used APIs:**
+
 * There is just a single `connection` class.  It connects immediately.
 * Custom `connection` classes are no longer supported.
 * It's no longer possible to reactivate a connection once it's been closed.
@@ -40,6 +49,7 @@ Building libpqxx
 ----------------
 
 There are two different ways of building libpqxx from the command line:
+
 1. Using CMake, on any system which supports it.
 2. On Unix-like systems, using a `configure` script.
 
@@ -184,6 +194,7 @@ PostgreSQL documentation for authoritative information.
 
 The connection string consists of attribute=value pairs separated by spaces,
 e.g. "user=john password=1x2y3z4".  The valid attributes include:
+
 * `host` —
   Name of server to connect to, or the full file path (beginning with a
   slash) to a Unix-domain socket on the local machine.  Defaults to
@@ -218,7 +229,9 @@ To link your final program, make sure you link to both the C-level libpq library
 and the actual C++ library, libpqxx.  With most Unix-style compilers, you'd do
 this using the options
 
+```
     -lpqxx -lpq
+```
 
 while linking.  Both libraries must be in your link path, so the linker knows
 where to find them.  Any dynamic libraries you use must also be in a place

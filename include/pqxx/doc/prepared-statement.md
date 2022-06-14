@@ -62,8 +62,8 @@ preparing a statement and invoking it with parameters:
       // given name (parameter 1) whose salary exceeds a given number
       // (parameter 2).
       c.prepare(
-  	    "find",
-  	    "SELECT * FROM Employee WHERE name = $1 AND salary > $2");
+        "find",
+        "SELECT * FROM Employee WHERE name = $1 AND salary > $2");
     }
 ```
 

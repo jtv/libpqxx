@@ -1,4 +1,4 @@
-Streams						{#streams}
+Streams                                                           {#streams}
 =======
 
 Most of the time it's fine to retrieve data from the database using `SELECT`
@@ -67,12 +67,14 @@ queries should just work.
 As you read a row, the stream converts its fields to a tuple type containing
 the value types you ask for:
 
+```cxx
     auto stream pqxx::stream_from::query(
         tx, "SELECT name, points FROM score");
     std::tuple<std::string, int> row;
     while (stream >> row)
       process(row);
     stream.complete();
+```
 
 As the stream reads each row, it converts that row's data into your tuple,
 goes through your loop body, and then promptly forgets that row's data.  This
@@ -89,6 +91,7 @@ faster if you want to insert more than just one or two rows at a time.
 As with `stream_from`, you can specify the table and the columns, and not much
 else.  You insert tuple-like objects of your choice:
 
+```cxx
     pqxx::stream_to stream{
         tx,
         "score",
@@ -96,6 +99,7 @@ else.  You insert tuple-like objects of your choice:
     for (auto const &entry: scores)
         stream << entry;
     stream.complete();
+```
 
 Each row is processed as you provide it, and not retained in memory after that.
 

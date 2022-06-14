@@ -29,6 +29,7 @@ Stages
 
 I'll explain the main build steps in more detail below, but here's a quick
 overview:
+
 1. Configure
 2. Compile
 3. Test
@@ -70,6 +71,7 @@ the output of `configure --help`.  I'll also explain the two directories.
 ### Cheat sheet
 
 Here are some popular `configure` options:
+
 * `--disable-documentation` skips building of the documentation.
 * `CXXFLAGS=-O0` disables optimisation.  Slower code, but faster build.
 * `CXXFLAGS=-O3` asks for _more_ optimisation.  Faster code, slower build.
@@ -107,6 +109,7 @@ of mistakes in the code, such as occasionally-unused variables.)
 
 One of `configure`'s most important jobs in the libpqxx build is to find the
 headers and library for libpq.  It has three ways of finding those:
+
 1. Asking a popular tool called `pkg-config`, if installed.
 2. Asking postgres' deprecated `pg_config` tool, if installed.
 3. Through explicit command-line options to `configure`.
@@ -217,6 +220,7 @@ You can set these parameters for the test suite, or for any other libpq-based
 application, using the following environment variables.  (They only set default
 values, so they won't override parameters that the application sets in some
 other way.)
+
 * `PGHOST` — the IP address where we can contact the database's socket.  Or
   for a Unix domain socket, its absolute path on the filesystem.
 * `PGPORT` —
@@ -224,11 +228,14 @@ other way.)
 * `PGUSER` — user name under which you wish to log in on the database.
 * `PGPASSWORD` — user name's password for accessing the database.
 
-See the full list at https://www.postgresql.org/docs/current/libpq-envars.html
+See the full list at [
+    https://www.postgresql.org/docs/current/libpq-envars.html
+](https://www.postgresql.org/docs/current/libpq-envars.html).
 
 **Be careful with passwords,** by the way.  Depending on your operating system
 and configuration, an attacker with access to your machine could try to read
 your password if you set it on the command line:
+
 * Your shell may keep a log of the commands you have entered.
 * Environment variables may be visible to other users on the system.
 

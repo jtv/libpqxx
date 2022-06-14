@@ -161,6 +161,7 @@ Stages
 
 I'll explain the main build steps in more detail below, but here's a quick
 rundown:
+
 1. Configure
 2. Compile
 3. Test
@@ -202,6 +203,7 @@ explain the two directories.
 ### Cheat sheet
 
 Here are some popular `cmake` options for libpqxx:
+
 * `-DSKIP_BUILD_TEST=on` skips compiling libpqxx's tests.
 * `-DBUILD_SHARED_LIBS=on` to build a shared library.
 * `-DBUILD_SHARED_LIBS=off` to build a static library.
@@ -341,11 +343,14 @@ other way.)
 * `PGUSER` — user name under which you wish to log in on the database.
 * `PGPASSWORD` — user name's password for accessing the database.
 
-See the full list at https://www.postgresql.org/docs/current/libpq-envars.html
+See the full list at [
+    https://www.postgresql.org/docs/current/libpq-envars.html
+](https://www.postgresql.org/docs/current/libpq-envars.html)
 
 **Be careful with passwords,** by the way.  Depending on your operating system
 and configuration, an attacker with access to your machine could try to read
 your password if you set it on the command line:
+
 * Your shell may keep a log of the commands you have entered.
 * Environment variables may be visible to other users on the system.
 
