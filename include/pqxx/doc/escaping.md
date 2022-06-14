@@ -34,10 +34,9 @@ authorized to view.  The userid and password strings are variables entered
 by the user himself.
 
 Now, if the user is actually an attacker who knows (or can guess) the
-general shape of this SQL statement, imagine he enters the following
-password:
+general shape of this SQL statement, imagine getting following password:
 
-```
+```text
     x') OR ('x' = 'x
 ```
 

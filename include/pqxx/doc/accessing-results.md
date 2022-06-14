@@ -1,5 +1,5 @@
 Accessing results and result rows                   {#accessing-results}
----------------------------------
+=================================
 
 When you execute a query using one of the transaction "exec*" functions, you
 normally get a `result` object back.  A `result` is a container of `row`s.

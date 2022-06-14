@@ -227,11 +227,7 @@ Linking with libpqxx
 
 To link your final program, make sure you link to both the C-level libpq library
 and the actual C++ library, libpqxx.  With most Unix-style compilers, you'd do
-this using the options
-
-```
-    -lpqxx -lpq
-```
+this using these options: `-lpqxx -lpq`
 
 while linking.  Both libraries must be in your link path, so the linker knows
 where to find them.  Any dynamic libraries you use must also be in a place

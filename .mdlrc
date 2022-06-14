@@ -1,0 +1,4 @@
+# Markdownlint config.  Basically it's code, not config.  :-(
+# Also, it seems all we can really do in this file is point to another file
+# containing our actual configuration.
+style '.mdl_style.rb'
