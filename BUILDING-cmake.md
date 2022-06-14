@@ -13,6 +13,7 @@ from users.  If you see something wrong here, please file a bug and explain, in
 simple words, what needs changing and why.
 
 There are two ways to use libpqxx in your project with CMake:
+
 * _(A)_ copy and build the libpqxx source tree.
 * Or _(B),_ make use of a separately installed libpqxx.
 
@@ -111,7 +112,7 @@ Installing a libpqxx OS package
 Your operating system provider may have a packaged version of libpqxx ready for
 you to install.  For example, on a Debian or Ubuntu system you might run:
 
-```sh
+```shell
     sudo apt-get install libpqxx-dev
 ```
 
@@ -124,7 +125,7 @@ suffix of `-devel` after the name, i.e. `libpqxx-devel`.
 Other systems may conventionally include the headers with the library package.
 For example, on macOS using HomeBrew, you would just...
 
-```sh
+```shell
     brew install libpqxx
 ```
 
