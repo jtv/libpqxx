@@ -538,7 +538,7 @@ public:
   [[deprecated("pqxx::transaction_base::for_each is now called for_stream.")]]
   auto for_each(std::string_view query, CALLABLE &&func)
   {
-    return for_stream(query, std::forward(func));
+    return for_stream(query, std::forward<CALLABLE>(func));
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -554,7 +554,7 @@ public:
   template<typename CALLABLE>
   void for_query(zview query, CALLABLE &&func)
   {
-    exec(query).for_each(std::forward(func));
+    exec(query).for_each(std::forward<CALLABLE>(func));
   }
 
   /**
