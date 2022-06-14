@@ -509,7 +509,7 @@ public:
    * object that supports the function call operator.  Of course `func` must
    * have an unambiguous signature; it can't be overloaded or generic.
    *
-   * The `for_each` function executes `query` in a stream using
+   * The `for_stream` function executes `query` in a stream using
    * @ref pqxx::stream_from.  Every time a row of data comes in from the
    * server, it converts the row's fields to the types of `func`'s respective
    * parameters, and calls `func` with those values.
@@ -521,7 +521,7 @@ public:
    *
    * Streaming a query like this is likely to be slower than the @ref exec()
    * functions for small result sets, but faster for large result sets.  So if
-   * performance matters, you'll want to use `for_each` if you query large
+   * performance matters, you'll want to use `for_stream` if you query large
    * amounts of data, but not if you do lots of queries with small outputs.
    */
   template<typename CALLABLE>
