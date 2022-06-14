@@ -82,7 +82,7 @@ void test_transaction_base()
 }
 
 
-void test_transaction_for_each()
+void test_transaction_for_query()
 {
   constexpr auto query{
     "SELECT i, concat('x', (2*i)::text) "
@@ -92,7 +92,26 @@ void test_transaction_for_each()
   pqxx::work tx{conn};
   std::string ints;
   std::string strings;
-  tx.for_each(query, [&ints, &strings](int i, std::string const &s) {
+  tx.for_query(query, [&ints, &strings](int i, std::string const &s) {
+    ints += pqxx::to_string(i) + " ";
+    strings += s + " ";
+  });
+  PQXX_CHECK_EQUAL(ints, "1 2 3 ", "Unexpected int sequence.");
+  PQXX_CHECK_EQUAL(strings, "x2 x4 x6 ", "Unexpected string sequence.");
+}
+
+
+void test_transaction_for_stream()
+{
+  constexpr auto query{
+    "SELECT i, concat('x', (2*i)::text) "
+    "FROM generate_series(1, 3) AS i "
+    "ORDER BY i"};
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  std::string ints;
+  std::string strings;
+  tx.for_stream(query, [&ints, &strings](int i, std::string const &s) {
     ints += pqxx::to_string(i) + " ";
     strings += s + " ";
   });
@@ -146,7 +165,8 @@ void test_transaction_query1()
 
 
 PQXX_REGISTER_TEST(test_transaction_base);
-PQXX_REGISTER_TEST(test_transaction_for_each);
+PQXX_REGISTER_TEST(test_transaction_for_query);
+PQXX_REGISTER_TEST(test_transaction_for_stream);
 PQXX_REGISTER_TEST(test_transaction_query01);
 PQXX_REGISTER_TEST(test_transaction_query1);
 } // namespace

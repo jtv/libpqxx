@@ -244,22 +244,24 @@ public:
    * see libpqxx throw are derived from std::exception.
    *
    * Most of the differences between the query execution functions are in how
-   * they return the query's results.  The `exec*` functions run your query,
-   * wait for it to complete, and load the full results into memory on the
-   * client side as a @ref pqxx::result object.  The `query*` functions are for
-   * getting a single row of data, and converting it straight to the types of
-   * data you want in your client code.  Some of these also give you the option
-   * to specify how many rows of data you expect to get: `exec0()` throws an
-   * exception if the query returns any data at all, `exec1()` expects a single
-   * row of data, and so on.
+   * they return the query's results.
+   * * The "exec" functions run your query, wait for it to complete, and load
+   *   the full results into memory on the client side as a pqxx::result object.
+   * * The "query" functions work the same, but they convert the query results
+   *   straight to the types of data you want in your client code.
+   * * The "stream" functions execute your query in a completely different way.
+   *   Called _streaming queries,_ these don't support quite the full range of
+   *   SQL queries, and they're slower to start.  But you may still want to use
+   *   them: streaming queries are significantly faster for queries that return
+   *   larger numbers of rows.  They don't load the entire result set, so you
+   *   can start processing data as soon as the first row of data comes in from
+   *   the database.  This can save you a lot of time.  And of course, it also
+   *   means they don't need to keep the entire result set in memory.
    *
-   * The `stream` and `for_each` functions execute your query in a completely
-   * different way.  Called _streaming queries,_ these don't support the full
-   * range of SQL queries, and they're slower to start, but they can be a lot
-   * faster and use less memory for queries that produce many rows of data.
-   * They also don't keep you waiting for all data to come in; you can start
-   * processing your first rows of data before the server has sent the rest.
-   * This can save you a lot of waiting time.
+   * Some of these functions also give you the option to specify how many rows
+   * of data you expect to get: `exec0()` fails if the query returns any data
+   * at all, `exec1()` expects a single row of data, `exec_n()` lets you
+   * specify the number of rows you expect, and so on.
    */
   //@{
 
@@ -443,6 +445,8 @@ public:
     }
   }
 
+  // TODO: Generic query() similar to stream().
+
   /// Execute a query, and loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
@@ -521,13 +525,36 @@ public:
    * amounts of data, but not if you do lots of queries with small outputs.
    */
   template<typename CALLABLE>
-  inline auto for_each(std::string_view query, CALLABLE &&func)
+  auto for_stream(std::string_view query, CALLABLE &&func)
   {
     using param_types =
       pqxx::internal::strip_types_t<pqxx::internal::args_t<CALLABLE>>;
     param_types const *const sample{nullptr};
     auto data_stream{stream_like(query, sample)};
     for (auto const &fields : data_stream) std::apply(func, fields);
+  }
+
+  template<typename CALLABLE>
+  [[deprecated("pqxx::transaction_base::for_each is now called for_stream.")]]
+  auto for_each(std::string_view query, CALLABLE &&func)
+  {
+    return for_stream(query, std::forward(func));
+  }
+
+  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Execute a query, load the full result, and perform `func` for each row.
+  /** Converts each row to data types matching `func`'s parameter types.  The
+   * number of columns in the result set must match the number of parameters.
+   *
+   * This is a lot like for_stream().  The differences are:
+   * 1. It can execute some unusual queries that for_stream() can't.
+   * 2. The `exec` functions are faster for small results, but slower for large
+   *    results.
+   */
+  template<typename CALLABLE>
+  void for_query(zview query, CALLABLE &&func)
+  {
+    exec(query).for_each(std::forward(func));
   }
 
   /**

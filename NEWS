@@ -1,5 +1,8 @@
 7.7.4
+ - `transaction_base::for_each()` is now called `for_stream()`.
+ - New `transaction_base::for_query()` is similar, but non-streaming.
  - New ways to query a single row!  `query01()` and `query1()`.
+ - We now have 3 kinds of execution: "exec", "query", and "stream" functions.
  - Use C++23 `std::unreachable()` where available.
 7.7.3
  - Fix up more damage done by auto-formatting.
