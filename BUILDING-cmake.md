@@ -244,11 +244,13 @@ The first is to set the individual include and link paths.
 
 To make the build look for the libpq headers in some directory `$DIR`, add
 these options:
+
 * `-DPostgreSQL_TYPE_INCLUDE_DIR=$DIR`
 * `-DPostgreSQL_INCLUDE_DIR=$DIR`
 
 To make the build look for the libpq library binary in a directory `$DIR`, add
 this option:
+
 * `-DPostgreSQL_LIBRARY_DIR=$DIR`
 
 The second, easier way requires CMake 3.12 or better.  Here, you specify a path
@@ -284,6 +286,7 @@ To compile, run:
 
 This command will invoke your build tool.  Other ways to do the same thing
 would be...
+
 * With Unix Makefiles: `make`
 * With Ninja: `ninja`
 * With Visual Studio: `msbuild libpqxx.sln`
@@ -330,6 +333,7 @@ You can set these parameters for the test suite, or for any other libpq-based
 application, using the following environment variables.  (They only set default
 values, so they won't override parameters that the application sets in some
 other way.)
+
 * `PGHOST` — the IP address where we can contact the database's socket.  Or
   for a Unix domain socket, its absolute path on the filesystem.
 * `PGPORT` — TCP port number on which we can connect to the database.
