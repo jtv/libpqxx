@@ -36,11 +36,15 @@ conversion is the actual value, and the type.
 In some cases the templates for these conversions can tell the type from the
 arguments you pass them:
 
+```cxx
     auto x = to_string(99);
+```
 
 In other cases you may need to instantiate template explicitly:
 
+```cxx
     auto y = from_string<int>("99");
+```
 
 
 Supporting a new type
@@ -108,10 +112,12 @@ To tell libpqxx the name of each type, there's a template variable called
 `pqxx::type_name`.  For any given type `T`, it should have a specialisation
 that provides that `T`'s human-readable name:
 
+```cxx
     namespace pqxx
     {
     template<> std::string const type_name<T>{"T"};
     }
+```
 
 (Yes, this means that you need to define something inside the pqxx namespace.
 Future versions of libpqxx may move this into a separate namespace.)
@@ -132,16 +138,19 @@ The simplest scenario is also the most common: most types don't have a null
 value built in.  In that case, derive your nullness traits from
 `pqxx::no_null`:
 
+```cxx
     namespace pqxx
     {
     template<> struct nullness<T> : pqxx::no_null<T> {};
     }
+```
 
 (Here again you're defining this in the pqxx namespace.)
 
 If your type does have a natural null value, the definition gets a little more
 complex:
 
+```cxx
     namespace pqxx
     {
     template<> struct nullness<T>
@@ -162,6 +171,7 @@ complex:
       }
     };
     }
+```
 
 You may be wondering why there's a function to produce a null value, but also a
 function to check whether a value is null.  Why not just compare the value to
@@ -181,6 +191,7 @@ Specialise `string_traits`
 This part is more work.  (You can skip it for types that are _always_ null,
 but those will be rare.)  Specialise the `pqxx::string_traits` template:
 
+```cxx
     namespace pqxx
     {
     template<> struct string_traits<T>
@@ -191,6 +202,7 @@ but those will be rare.)  Specialise the `pqxx::string_traits` template:
       static std::size_t size_buffer(T const &value) noexcept;
     };
     }
+```
 
 You'll also need to write those member functions, or as many of them as needed
 to get your code to build.
@@ -243,10 +255,12 @@ it will be there.
 
 Expressed in code, this rule must hold:
 
+```cxx
     void invariant(zview z)
     {
       assert(z[std::size(z)] == 0);
     }
+```
 
 Make sure you write your trailing zero _before_ the `end`.  If the trailing
 zero doesn't fit in the buffer, then there's just not enough room to perform
@@ -301,10 +315,12 @@ in arrays or composite types.
 
 If your type is like that, you can tell libpqxx about this by defining:
 
+```cxx
     namespace pqxx
     {
     template<> inline constexpr bool is_unquoted_safe<MY_TYPE>{true};
     }
+```
 
 The code that converts this type of field to strings in an array or a composite
 type can then use a simpler, more efficient variant of the code.  It's always

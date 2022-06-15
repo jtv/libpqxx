@@ -20,7 +20,7 @@ ARGS="${1:-}"
 # any surprises in contributions.
 check_ascii() {
     local exotics=$(
-        find -name \*.cxx -o -name \*.hxx |
+        find . -name \*.cxx -o -name \*.hxx |
 	xargs cat |
         tr -d '\011-\176' |
 	wc -c
@@ -157,6 +157,14 @@ pylint() {
 }
 
 
+markdownlint() {
+    if which mdl >/dev/null
+    then
+        find . -name \*.md -exec mdl -c .markdownlint.yaml '{}' ';'
+    fi
+}
+
+
 main() {
     local full="no"
     for arg in $ARGS
@@ -187,6 +195,7 @@ EOF
     pylint
     check_news_version
     check_compiler_internal_headers
+    markdownlint
     if [ $full == "yes" ]
     then
         cpplint

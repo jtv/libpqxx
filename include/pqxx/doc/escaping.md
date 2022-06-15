@@ -22,27 +22,32 @@ To understand what SQL injection vulnerabilities are and why they should be
 prevented, imagine you use the following SQL statement somewhere in your
 program:
 
+```cxx
     TX.exec(
-    	"SELECT number,amount "
-    	"FROM accounts "
-    	"WHERE allowed_to_see('" + userid + "','" + password + "')");
+        "SELECT number,amount "
+        "FROM account "
+        "WHERE allowed_to_see('" + userid + "','" + password + "')");
+```
 
 This shows a logged-in user important information on all accounts he is
 authorized to view.  The userid and password strings are variables entered
 by the user himself.
 
 Now, if the user is actually an attacker who knows (or can guess) the
-general shape of this SQL statement, imagine he enters the following
-password:
+general shape of this SQL statement, imagine getting following password:
 
+```text
     x') OR ('x' = 'x
+```
 
 Does that make sense to you?  Probably not.  But if this is inserted into
 the SQL string by the C++ code above, the query becomes:
 
+```sql
     SELECT number,amount
-    FROM accounts
+    FROM account
     WHERE allowed_to_see('user','x') OR ('x' = 'x')
+```
 
 Is this what you wanted to happen?  Probably not!  The neat `allowed_to_see()`
 clause is completely circumvented by the "`OR ('x' = 'x')`" clause, which is
@@ -55,18 +60,22 @@ Using the esc functions
 
 Here's how you can fix the problem in the example above:
 
+```cxx
     TX.exec(
-    	"SELECT number,amount "
-    	"FROM accounts "
-    	"WHERE allowed_to_see('" + TX.esc(userid) + "', "
-    		"'" + TX.esc(password) + "')");
+        "SELECT number,amount "
+        "FROM account "
+        "WHERE allowed_to_see('" + TX.esc(userid) + "', "
+        "'" + TX.esc(password) + "')");
+```
 
 Now, the quotes embedded in the attacker's string will be neatly escaped so
 they can't "break out" of the quoted SQL string they were meant to go into:
 
+```sql
     SELECT number,amount
-    FROM accounts
+    FROM account
     WHERE allowed_to_see('user', 'x'') OR (''x'' = ''x')
+```
 
 If you look carefully, you'll see that thanks to the added escape characters
 (a single-quote is escaped in SQL by doubling it) all we get is a very

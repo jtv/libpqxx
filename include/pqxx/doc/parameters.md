@@ -69,13 +69,16 @@ counter which produces those placeholder strings, `$1`, `$2`, `$3`, et cetera.
 When you start generating a complex statement, you can create both a `params`
 and a `placeholders`:
 
+```cxx
     pqxx::params values;
     pqxx::placeholders name;
+```
 
 Let's say you've got some complex code to generate the conditions for an SQL
 "WHERE" clause.  You'll generally want to do these things close together in
 your, so that you don't accidentally update one part and forget another:
 
+```cxx
     if (extra_clause)
     {
       // Extend the query text, using the current placeholder.
@@ -85,6 +88,7 @@ your, so that you don't accidentally update one part and forget another:
       // Move on to the next placeholder value.
       name.next();
     }
+```
 
 Depending on the starting value of `name`, this might add to `query` a fragment
-like "` AND x = $3`" or "` AND x = $5`".
+like " `AND x = $3` " or " `AND x = $5` ".

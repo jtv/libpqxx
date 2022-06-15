@@ -5,6 +5,7 @@ The most basic three types in libpqxx are the _connection_, the _transaction_,
 and the _result_.
 
 They fit together as follows:
+
 * You connect to the database by creating a `pqxx::connection` object (see
   @ref connections).
 
@@ -37,6 +38,7 @@ Here's a very basic example.  It connects to the default database (you'll
 need to have one set up), queries it for a very simple result, converts it to
 an `int`, and prints it out.  It also contains some basic error handling.
 
+```cxx
     #include <iostream>
     #include <pqxx/pqxx>
 
@@ -78,6 +80,7 @@ an `int`, and prints it out.  It also contains some basic error handling.
         return 1;
       }
     }
+```
 
 This prints the number 1.  Notice that you can keep the result object around
 after you've closed the transaction or even the connection.  There are
@@ -90,11 +93,13 @@ connection and deal with the data.
 You can also convert an entire row to a series of C++-side types in one go,
 using the @c as member function on the row:
 
+```cxx
     pqxx::connection c;
     pqxx::work w(c);
     pqxx::row r = w.exec1("SELECT 1, 2, 'Hello'");
     auto [one, two, hello] = r.as<int, int, std::string>();
     std::cout << (one + two) << ' ' << std::strlen(hello) << std::endl;
+```
 
 Here's a slightly more complicated example.  It takes an argument from the
 command line and retrieves a string with that value.  The interesting part is
@@ -102,6 +107,7 @@ that it uses the escaping-and-quoting function `quote` to embed this
 string value in SQL safely.  It also reads the result field's value as a
 plain C-style string using its `c_str` function.
 
+```cxx
     #include <iostream>
     #include <stdexcept>
     #include <pqxx/pqxx>
@@ -132,6 +138,7 @@ plain C-style string using its `c_str` function.
         return 1;
       }
     }
+```
 
 You can find more about converting field values to native types, or
 converting values to strings for use with libpqxx, under
