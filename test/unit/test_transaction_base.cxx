@@ -82,6 +82,30 @@ void test_transaction_base()
 }
 
 
+void test_transaction_query()
+{
+  pqxx::connection c;
+  pqxx::work tx{c};
+
+  std::vector<std::string> names;
+  std::vector<int> salaries;
+
+  for (auto [name, salary] : tx.query<std::string, int>(
+         "SELECT 'name' || i, i * 1000 FROM generate_series(1, 5) AS i"))
+  {
+    names.emplace_back(name);
+    salaries.emplace_back(salary);
+  }
+
+  PQXX_CHECK_EQUAL(std::size(names), 5u, "Wrong number of rows.");
+  PQXX_CHECK_EQUAL(std::size(salaries), 5u, "Mismatched number of salaries!");
+  PQXX_CHECK_EQUAL(names[0], "name1", "Names start out wrong.");
+  PQXX_CHECK_EQUAL(names[4], "name5", "Names end wrong.");
+  PQXX_CHECK_EQUAL(salaries[0], 1'000, "Salaries start out wrong.");
+  PQXX_CHECK_EQUAL(salaries[4], 5'000, "Salaries end wrong.");
+}
+
+
 void test_transaction_for_query()
 {
   constexpr auto query{
@@ -165,6 +189,7 @@ void test_transaction_query1()
 
 
 PQXX_REGISTER_TEST(test_transaction_base);
+PQXX_REGISTER_TEST(test_transaction_query);
 PQXX_REGISTER_TEST(test_transaction_for_query);
 PQXX_REGISTER_TEST(test_transaction_for_stream);
 PQXX_REGISTER_TEST(test_transaction_query01);

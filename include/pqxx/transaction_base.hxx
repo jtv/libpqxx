@@ -245,23 +245,29 @@ public:
    *
    * Most of the differences between the query execution functions are in how
    * they return the query's results.
-   * * The "exec" functions run your query, wait for it to complete, and load
-   *   the full results into memory on the client side as a pqxx::result object.
-   * * The "query" functions work the same, but they convert the query results
-   *   straight to the types of data you want in your client code.
+   *
+   * * The "query" functions run your query, wait for it to complete, and load
+   *   all of the results into memory on the client side.  You can then access
+   *   rows of result data, converted to C++ types that you request.
    * * The "stream" functions execute your query in a completely different way.
    *   Called _streaming queries,_ these don't support quite the full range of
-   *   SQL queries, and they're slower to start.  But you may still want to use
-   *   them: streaming queries are significantly faster for queries that return
-   *   larger numbers of rows.  They don't load the entire result set, so you
-   *   can start processing data as soon as the first row of data comes in from
-   *   the database.  This can save you a lot of time.  And of course, it also
-   *   means they don't need to keep the entire result set in memory.
+   *   SQL queries, and they're slower to start.  But they are significantly
+   *   _faster_ for queries that return larger numbers of rows.  They don't
+   *   load the entire result set, so you can start processing data as soon as
+   *   the first row of data comes in from the database.  This can save you a
+   *   lot of time.  And of course, it also means they don't need to keep the
+   *   entire result set in memory.
+   * * The "exec" functions are a more low-level interface.  Most of them
+   *   return a pqxx::result object.  This is an object that contains all
+   *   information abouut the query's result: the data itself, but also the
+   *   number of rows in the result, the column names, the number of rows that
+   *   your query may have modified, and so on.
    *
    * Some of these functions also give you the option to specify how many rows
    * of data you expect to get: `exec0()` fails if the query returns any data
-   * at all, `exec1()` expects a single row of data, `exec_n()` lets you
-   * specify the number of rows you expect, and so on.
+   * at all, `exec1()` expects a single row of data (and so returns a pqxx::row
+   * rather than a pqxx::result), `exec_n()` lets you specify the number of
+   * rows you expect, and so on.
    */
   //@{
 
@@ -445,8 +451,6 @@ public:
     }
   }
 
-  // TODO: Generic query() similar to stream().
-
   /// Execute a query, and loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
@@ -535,11 +539,48 @@ public:
   }
 
   template<typename CALLABLE>
-  [[deprecated("pqxx::transaction_base::for_each is now called for_stream.")]]
-  auto for_each(std::string_view query, CALLABLE &&func)
+  [[deprecated(
+    "pqxx::transaction_base::for_each is now called for_stream.")]] auto
+  for_each(std::string_view query, CALLABLE &&func)
   {
     return for_stream(query, std::forward<CALLABLE>(func));
   }
+
+  /// Execute query, read full results, then iterate rows of data.
+  /** Converts each row of the result to a `std::tuple` of the types you pass
+   * as template arguments.  (The number of template arguments must match the
+   * number of columns in the query's result.)
+   *
+   * Example:
+   *
+   * ```cxx
+   *     for (
+   *         auto [name, salary] :
+   *             tx.query<std::string_view, int>(
+   *                 "SELECT name, salary FROM employee"
+                 )
+   *     )
+   *         std::cout << name << " earns " << salary << ".\n";
+   * ```
+   *
+   * You can't normally convert a field value to `std::string_view`, but this
+   * is one of the places where you can.  The underlying string to which the
+   * `string_view` points exists only for the duration of the one iteration.
+   * After that, the buffer that holds the actual string may have disappeared,
+   * or it may contain a new string value.
+   *
+   * If you expect a lot of rows from your query, it's probably faster to use
+   * transaction_base::stream() instead.  Or if you need to access metadata of
+   * the result, such as the number of rows in the result, or the number of
+   * rows that your query updates, then you'll need to use
+   * transaction_base::exec() instead.
+   */
+  template<typename... TYPE> auto query(zview query)
+  {
+    return exec(query).iter<TYPE...>();
+  }
+
+  // TODO: query_n().
 
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.

@@ -1,9 +1,11 @@
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`.
  - New `transaction_base::for_query()` is similar, but non-streaming.
+ - New way to query data and iterate directly as client-side types: `query()`.
  - New ways to query a single row!  `query01()` and `query1()`.
  - We now have 3 kinds of execution: "exec", "query", and "stream" functions.
  - Use C++23 `std::unreachable()` where available.
+ - `result::iter()` return value now keeps its `result` alive.
 7.7.3
  - Fix up more damage done by auto-formatting.
  - New `result::for_each()`: simple iteration and conversion of rows.  (#528)
