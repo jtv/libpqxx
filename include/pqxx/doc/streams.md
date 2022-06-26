@@ -55,9 +55,9 @@ then you begin processing.  With `stream_from` you can be processing data on
 the client side while the server is still sending you the rest.
 
 You don't actually need to create a `stream_from` object yourself, though you
-can.  Two shorthand functions, @ref pqxx::transaction_base::stream
-and @ref pqxx::transaction_base::for_stream, can create the streams for you
-with a minimum of overhead.
+can if you want to.  Two shorthand functions,
+@ref pqxx::transaction_base::stream and @ref pqxx::transaction_base::for_stream,
+can each create the streams for you with a minimum of overhead.
 
 Not all kinds of queries will work in a stream.  Internally the streams make
 use of PostgreSQL's `COPY` command, so see the PostgreSQL documentation for
