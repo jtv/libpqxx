@@ -109,11 +109,14 @@ Here's an example with all the basics to get you going:
     {
         try
         {
-            // Connect to the database.
+            // Connect to the database.  You can have multiple connections open
+            // at the same time, even to the same database.
             pqxx::connection C;
             std::cout << "Connected to " << C.dbname() << '\n';
 
-            // Start a transaction.
+            // Start a transaction.  A connection can only have one transaction
+            // open at the same time, but after you finish a transaction, you
+            // can start a new one on the same connection.
             pqxx::work W{C};
 
             // Perform a query and retrieve all results.
