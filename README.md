@@ -134,7 +134,7 @@ Here's an example with all the basics to get you going:
             // For large amounts of data, "streaming" the results is more
             // efficient.  It does not work for all types of queries though.
             //
-            // You can use std::string_view for a field here, which is not
+            // You can read fields as std::string_view here, which is not
             // something you can do in most places.  A string_view becomes
             // meaningless when the underlying string ceases to exist.  In this
             // one situation, you can convert a field to string_view and it
