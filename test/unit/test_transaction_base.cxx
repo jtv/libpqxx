@@ -188,10 +188,34 @@ void test_transaction_query1()
 }
 
 
+void test_transaction_query_n()
+{
+  pqxx::connection c;
+  pqxx::work w{c};
+
+  std::tuple<int> x;
+  PQXX_CHECK_THROWS(
+    x = w.query_n<int>(5, "SELECT generate_series(1, 3)"),
+    pqxx::unexpected_rows, "No exception when query_n returns too few rows.");
+  PQXX_CHECK_THROWS(
+    x = w.query_n<int>(5, "SELECT generate_series(1, 10)"),
+    pqxx::unexpected_rows, "No exception when query_n returns too many rows.");
+  pqxx::ignore_unused(x);
+
+  std::vector<int> v;
+  for (auto [n] : w.query_n<int>(3, "SELECT generate_series(7, 9)"))
+    v.push_back(n);
+  PQXX_CHECK_EQUAL(std::size(v), 3, "Wrong number of rows.");
+  PQXX_CHECK_EQUAL(v[0], 7, "Wrong result data.");
+  PQXX_CHECK_EQUAL(v[2], 9, "Data started out right but went wrong.");
+}
+
+
 PQXX_REGISTER_TEST(test_transaction_base);
 PQXX_REGISTER_TEST(test_transaction_query);
 PQXX_REGISTER_TEST(test_transaction_for_query);
 PQXX_REGISTER_TEST(test_transaction_for_stream);
 PQXX_REGISTER_TEST(test_transaction_query01);
 PQXX_REGISTER_TEST(test_transaction_query1);
+PQXX_REGISTER_TEST(test_transaction_query_n);
 } // namespace

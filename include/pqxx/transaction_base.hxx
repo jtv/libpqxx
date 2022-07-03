@@ -574,13 +574,28 @@ public:
    * the result, such as the number of rows in the result, or the number of
    * rows that your query updates, then you'll need to use
    * transaction_base::exec() instead.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
    */
   template<typename... TYPE> auto query(zview query)
   {
     return exec(query).iter<TYPE...>();
   }
 
-  // TODO: query_n().
+  /// Perform query, expect given number of rows, iterate results.
+  /** Works like @ref query, but checks that the result has exactly the
+   * expected number of rows.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query_n(std::size_type rows, zview query)
+  {
+    return exec_n(rows, query).iter<TYPE...>();
+  }
 
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
