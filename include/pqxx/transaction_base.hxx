@@ -592,7 +592,7 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query_n(std::size_type rows, zview query)
+  template<typename... TYPE> auto query_n(result::size_type rows, zview query)
   {
     return exec_n(rows, query).iter<TYPE...>();
   }
