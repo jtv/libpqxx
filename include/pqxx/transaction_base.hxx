@@ -264,10 +264,10 @@ public:
    *   your query may have modified, and so on.
    *
    * Some of these functions also give you the option to specify how many rows
-   * of data you expect to get: `exec0()` fails if the query returns any data
-   * at all, `exec1()` expects a single row of data (and so returns a pqxx::row
-   * rather than a pqxx::result), `exec_n()` lets you specify the number of
-   * rows you expect, and so on.
+   * of data you expect to get: `exec0()` reports a failure if the query
+   * returns any rows of data at all, `exec1()` expects a single row of data
+   * (and so returns a pqxx::row rather than a pqxx::result), `exec_n()` lets
+   * you specify the number of rows you expect, and so on.
    */
   //@{
 
