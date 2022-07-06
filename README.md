@@ -160,7 +160,7 @@ Here's an example with all the basics to get you going:
             // unless the result contains exactly 1 row.
             auto [top_name, top_salary] = tx.query1<std::string, int>(
                 R"(
-                    SELECT salary
+                    SELECT name, salary
                     FROM employee
                     WHERE salary = max(salary)
                     LIMIT 1
