@@ -1,11 +1,8 @@
 # Generate configure script for libpqxx.  This needs the autoconf archive
 # package installed.  (The configure script itself does not require it though.)
 
-AC_PREREQ(2.69)
-AC_INIT(
-	libpqxx,
-	[m4_esyscmd_s([./tools/extract_version])],
-	[Jeroen T. Vermeulen])
+AC_PREREQ([2.71])
+AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version])],[Jeroen T. Vermeulen])
 AC_LANG(C++)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
@@ -17,7 +14,7 @@ PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
-AC_CONFIG_HEADER([include/pqxx/config.h])
+AC_CONFIG_HEADERS([include/pqxx/config.h])
 
 # Default prefix for installs.
 AC_PREFIX_DEFAULT(/usr/local)
@@ -32,7 +29,7 @@ AC_DEFUN([read_test], [AC_LANG_SOURCE(
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_DISABLE_SHARED
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 
@@ -746,4 +743,5 @@ AC_CONFIG_FILES([
 
 AC_CONFIG_COMMANDS([configitems], ["${srcdir}/tools/splitconfig" "${srcdir}"])
 
-AC_OUTPUT(compile_flags)
+AC_CONFIG_FILES([compile_flags])
+AC_OUTPUT
