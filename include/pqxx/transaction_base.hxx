@@ -607,8 +607,7 @@ public:
    * 2. The `exec` functions are faster for small results, but slower for large
    *    results.
    */
-  template<typename CALLABLE>
-  void for_query(zview query, CALLABLE &&func)
+  template<typename CALLABLE> void for_query(zview query, CALLABLE &&func)
   {
     exec(query).for_each(std::forward<CALLABLE>(func));
   }
