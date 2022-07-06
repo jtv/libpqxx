@@ -244,22 +244,30 @@ public:
    * see libpqxx throw are derived from std::exception.
    *
    * Most of the differences between the query execution functions are in how
-   * they return the query's results.  The `exec*` functions run your query,
-   * wait for it to complete, and load the full results into memory on the
-   * client side as a @ref pqxx::result object.  The `query*` functions are for
-   * getting a single row of data, and converting it straight to the types of
-   * data you want in your client code.  Some of these also give you the option
-   * to specify how many rows of data you expect to get: `exec0()` throws an
-   * exception if the query returns any data at all, `exec1()` expects a single
-   * row of data, and so on.
+   * they return the query's results.
    *
-   * The `stream` and `for_each` functions execute your query in a completely
-   * different way.  Called _streaming queries,_ these don't support the full
-   * range of SQL queries, and they're slower to start, but they can be a lot
-   * faster and use less memory for queries that produce many rows of data.
-   * They also don't keep you waiting for all data to come in; you can start
-   * processing your first rows of data before the server has sent the rest.
-   * This can save you a lot of waiting time.
+   * * The "query" functions run your query, wait for it to complete, and load
+   *   all of the results into memory on the client side.  You can then access
+   *   rows of result data, converted to C++ types that you request.
+   * * The "stream" functions execute your query in a completely different way.
+   *   Called _streaming queries,_ these don't support quite the full range of
+   *   SQL queries, and they're slower to start.  But they are significantly
+   *   _faster_ for queries that return larger numbers of rows.  They don't
+   *   load the entire result set, so you can start processing data as soon as
+   *   the first row of data comes in from the database.  This can save you a
+   *   lot of time.  And of course, it also means they don't need to keep the
+   *   entire result set in memory.
+   * * The "exec" functions are a more low-level interface.  Most of them
+   *   return a pqxx::result object.  This is an object that contains all
+   *   information abouut the query's result: the data itself, but also the
+   *   number of rows in the result, the column names, the number of rows that
+   *   your query may have modified, and so on.
+   *
+   * Some of these functions also give you the option to specify how many rows
+   * of data you expect to get: `exec0()` reports a failure if the query
+   * returns any rows of data at all, `exec1()` expects a single row of data
+   * (and so returns a pqxx::row rather than a pqxx::result), `exec_n()` lets
+   * you specify the number of rows you expect, and so on.
    */
   //@{
 
@@ -505,7 +513,7 @@ public:
    * object that supports the function call operator.  Of course `func` must
    * have an unambiguous signature; it can't be overloaded or generic.
    *
-   * The `for_each` function executes `query` in a stream using
+   * The `for_stream` function executes `query` in a stream using
    * @ref pqxx::stream_from.  Every time a row of data comes in from the
    * server, it converts the row's fields to the types of `func`'s respective
    * parameters, and calls `func` with those values.
@@ -517,17 +525,92 @@ public:
    *
    * Streaming a query like this is likely to be slower than the @ref exec()
    * functions for small result sets, but faster for large result sets.  So if
-   * performance matters, you'll want to use `for_each` if you query large
+   * performance matters, you'll want to use `for_stream` if you query large
    * amounts of data, but not if you do lots of queries with small outputs.
    */
   template<typename CALLABLE>
-  inline auto for_each(std::string_view query, CALLABLE &&func)
+  auto for_stream(std::string_view query, CALLABLE &&func)
   {
     using param_types =
       pqxx::internal::strip_types_t<pqxx::internal::args_t<CALLABLE>>;
     param_types const *const sample{nullptr};
     auto data_stream{stream_like(query, sample)};
     for (auto const &fields : data_stream) std::apply(func, fields);
+  }
+
+  template<typename CALLABLE>
+  [[deprecated(
+    "pqxx::transaction_base::for_each is now called for_stream.")]] auto
+  for_each(std::string_view query, CALLABLE &&func)
+  {
+    return for_stream(query, std::forward<CALLABLE>(func));
+  }
+
+  /// Execute query, read full results, then iterate rows of data.
+  /** Converts each row of the result to a `std::tuple` of the types you pass
+   * as template arguments.  (The number of template arguments must match the
+   * number of columns in the query's result.)
+   *
+   * Example:
+   *
+   * ```cxx
+   *     for (
+   *         auto [name, salary] :
+   *             tx.query<std::string_view, int>(
+   *                 "SELECT name, salary FROM employee"
+                 )
+   *     )
+   *         std::cout << name << " earns " << salary << ".\n";
+   * ```
+   *
+   * You can't normally convert a field value to `std::string_view`, but this
+   * is one of the places where you can.  The underlying string to which the
+   * `string_view` points exists only for the duration of the one iteration.
+   * After that, the buffer that holds the actual string may have disappeared,
+   * or it may contain a new string value.
+   *
+   * If you expect a lot of rows from your query, it's probably faster to use
+   * transaction_base::stream() instead.  Or if you need to access metadata of
+   * the result, such as the number of rows in the result, or the number of
+   * rows that your query updates, then you'll need to use
+   * transaction_base::exec() instead.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query(zview query)
+  {
+    return exec(query).iter<TYPE...>();
+  }
+
+  /// Perform query, expect given number of rows, iterate results.
+  /** Works like @ref query, but checks that the result has exactly the
+   * expected number of rows.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query_n(result::size_type rows, zview query)
+  {
+    return exec_n(rows, query).iter<TYPE...>();
+  }
+
+  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Execute a query, load the full result, and perform `func` for each row.
+  /** Converts each row to data types matching `func`'s parameter types.  The
+   * number of columns in the result set must match the number of parameters.
+   *
+   * This is a lot like for_stream().  The differences are:
+   * 1. It can execute some unusual queries that for_stream() can't.
+   * 2. The `exec` functions are faster for small results, but slower for large
+   *    results.
+   */
+  template<typename CALLABLE>
+  void for_query(zview query, CALLABLE &&func)
+  {
+    exec(query).for_each(std::forward<CALLABLE>(func));
   }
 
   /**

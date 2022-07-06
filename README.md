@@ -92,12 +92,16 @@ in standard C++ style (as in `<iostream>` etc.), but an editor will still
 recognize them as files containing C++ code.
 
 Continuing the list of classes, you may also need the result class
-(`pqxx/result.hxx`).  In a nutshell, you create a `connection` based on a
-Postgres connection string (see below), create a `work` in the context of that
-connection, and run one or more queries on the work which return `result`
-objects.  The results are containers of rows of data, each of which you can
-treat as an array of strings: one for each field in the row.  But there are
-other ways to query the database.
+(`pqxx/result.hxx`).  In a nutshell, you create a pqxx::connection based on a
+Postgres connection string (see below), create a pqxx::work (a transaction
+object) in the context of that connection, and run one or more queries and/or
+SQL commands on that.
+
+Depending on how you execute a query, it can return a stream of `std::tuple`
+(each representing one row); or a pqxx::result object which holds both the
+result data and additional metadata: how many rows your query returned and/or
+modified, what the column names are, and so on.  A pqxx::result is a container
+of pqxx::row, and a pqxx::row is a container of pqxx::field.
 
 Here's an example with all the basics to get you going:
 
@@ -111,52 +115,50 @@ Here's an example with all the basics to get you going:
         {
             // Connect to the database.  You can have multiple connections open
             // at the same time, even to the same database.
-            pqxx::connection C;
-            std::cout << "Connected to " << C.dbname() << '\n';
+            pqxx::connection c;
+            std::cout << "Connected to " << c.dbname() << '\n';
 
             // Start a transaction.  A connection can only have one transaction
             // open at the same time, but after you finish a transaction, you
             // can start a new one on the same connection.
-            pqxx::work W{C};
+            pqxx::work tx{c};
 
-            // Perform a query and retrieve all results.
-            pqxx::result R{W.exec("SELECT name FROM employee")};
-
-            // Iterate over results.
-            std::cout << "Found " << R.size() << "employees:\n";
-            for (auto row: R)
-                std::cout << row[0].c_str() << '\n';
+            // Query data of two columns, converting them to std::string and
+            // int respectively.  Iterate the rows.
+            for (auto [name, salary] : tx.query<std::string, int>(
+                "SELECT name, salary FROM employee ORDER BY name"))
+            {
+                std::cout << name << " earns " << salary << ".\n";
+            }
 
             // For large amounts of data, "streaming" the results is more
             // efficient.  It does not work for all types of queries though.
-            // What's really nice is that you don't need to iterate result
-            // objects.  This just converts the fields straight to the C++
-            // types you need.
             //
-            // You can use std::string_view for fields here, which is not
+            // You can read fields as std::string_view here, which is not
             // something you can do in most places.  A string_view becomes
             // meaningless when the underlying string ceases to exist.  In this
             // one situation, you can convert a field to string_view and it
             // will be valid for just that one iteration of the loop.  The next
             // iteration may overwrite or deallocate its buffer space.
-            for (auto [name, salary] : W.stream<std::string_view, int>(
+            for (auto [name, salary] : tx.stream<std::string_view, int>(
                 "SELECT name, salary FROM employee"))
             {
                 std::cout << name << " earns " << salary << ".\n";
             }
 
-            // Execute a statement (and check that it returns 0 rows of data).
+            // Execute a statement, and check that it returns 0 rows of data.
+            // This will throw pqxx::unexpected_rows if the query returns rows.
             std::cout << "Doubling all employees' salaries...\n";
-            W.exec0("UPDATE employee SET salary = salary*2");
+            tx.exec0("UPDATE employee SET salary = salary*2");
 
-            // Easy way to query a value from the database.
-            int my_salary = W.query_value<int>(
+            // Shorthand: conveniently query a single value from the database.
+            int my_salary = tx.query_value<int>(
                 "SELECT salary FROM employee WHERE name = 'Me'");
             std::cout << "I now earn " << my_salary << ".\n";
 
-            // Or, query one whole row.  This will throw an exception unless
-            // the result contains exactly 1 row.
-            auto [top_name, top_salary] = W.query1<std::string, int>(
+            // Or, query one whole row.  This function will throw an exception
+            // unless the result contains exactly 1 row.
+            auto [top_name, top_salary] = tx.query1<std::string, int>(
                 R"(
                     SELECT salary
                     FROM employee
@@ -166,14 +168,23 @@ Here's an example with all the basics to get you going:
             std::cout << "Top earner is " << top_name << " with a salary of "
                       << top_salary << ".\n";
 
-            // Commit the transaction.
+            // If you need to access the result metadata, not just the actual
+            // field values, use the "exec" functions.  Most of them return
+            // pqxx::result objects.
+            pqxx::result res = tx.exec("SELECT * FROM employee");
+            std::cout << "Columns:\n";
+            for (pqxx::row_size col = 0; col < res.columns(); ++col)
+                std::cout << res.column_name(col) << '\n';
+
+            // Commit the transaction.  If you don't do this, the database will
+            // undo any changes you made in the transaction.
             std::cout << "Making changes definite: ";
-            W.commit();
+            tx.commit();
             std::cout << "OK.\n";
         }
         catch (std::exception const &e)
         {
-            std::cerr << e.what() << '\n';
+            std::cerr << "ERROR: " << e.what() << '\n';
             return 1;
         }
         return 0;

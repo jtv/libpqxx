@@ -91,7 +91,7 @@ public:
   iterator end() const { return {}; }
 
 private:
-  pqxx::result const &m_home;
+  pqxx::result const m_home;
 };
 } // namespace pqxx::internal
 
