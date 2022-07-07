@@ -1,5 +1,6 @@
 7.7.5
  - Ran `autoupdate` (because the autotools told me to).
+ - Documentation tweak. (#584)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)
