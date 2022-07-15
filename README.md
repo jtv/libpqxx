@@ -173,7 +173,7 @@ Here's an example with all the basics to get you going:
             // pqxx::result objects.
             pqxx::result res = tx.exec("SELECT * FROM employee");
             std::cout << "Columns:\n";
-            for (pqxx::row_size col = 0; col < res.columns(); ++col)
+            for (pqxx::row_size_type col = 0; col < res.columns(); ++col)
                 std::cout << res.column_name(col) << '\n';
 
             // Commit the transaction.  If you don't do this, the database will
