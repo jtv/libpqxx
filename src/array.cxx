@@ -99,7 +99,22 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   // closing quotes.  In the worst case, the real number could be half that.
   // Usually it'll be a pretty close estimate.
   output.reserve(end - m_pos - 2);
-  // XXX: find_char<'\\', '\''>().
+// XXX: {
+  auto const data{std::data(m_input)};
+  auto const stop{m_end - 1};
+  auto here{m_pos + 1};
+  while (here < stop)
+  {
+    // Find a contiguous stretch of regular characters.
+    auto next{internal::find_char<'\\', '\''>(scan_glyph, m_input.substr(0, end - 1), m_pos + 1)};
+    // Copy those to the output in one go.
+    output.append(data + here, data + next);
+    // If we continue after this, skip the backslash or quote.
+    here = next + 1;
+  }
+// XXX: }
+
+/*
   for (auto here = m_pos + 1, next = scan_glyph(here, end); here < end - 1;
        here = next, next = scan_glyph(here, end))
   {
@@ -114,6 +129,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 
     output.append(std::data(m_input) + here, std::data(m_input) + next);
   }
+*/
 
   return output;
 }
