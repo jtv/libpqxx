@@ -101,7 +101,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   output.reserve(end - m_pos - 2);
 // XXX: {
   auto const data{std::data(m_input)};
-  auto const stop{m_end - 1};
+  auto const stop{end - 1};
   auto here{m_pos + 1};
   while (here < stop)
   {
