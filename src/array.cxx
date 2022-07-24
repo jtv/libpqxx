@@ -106,7 +106,9 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   while (here < stop)
   {
     // Find a contiguous stretch of regular characters.
-    auto next{internal::find_char<'\\', '\''>(scan_glyph, m_input.substr(0, end - 1), m_pos + 1)};
+    auto next{
+      pqxx::internal::find_char<'\\', '\''>(
+        scan_glyph, m_input.substr(0, end - 1), m_pos + 1)};
     // Copy those to the output in one go.
     output.append(data + here, data + next);
     // If we continue after this, skip the backslash or quote.
