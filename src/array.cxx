@@ -108,10 +108,11 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
     // Find a contiguous stretch of regular characters.
     auto next{
       pqxx::internal::find_char<'\\', '\''>(
-        scan_glyph, m_input.substr(0, end - 1), m_pos + 1)};
+        m_scan, m_input.substr(0, end - 1), m_pos + 1)};
     // Copy those to the output in one go.
     output.append(data + here, data + next);
-    // If we continue after this, skip the backslash or quote.
+    // If we continue after this, then the character we found must have been an
+    // escape character.  In which case, skip it and proceed to the next one.
     here = next + 1;
   }
 // XXX: }
