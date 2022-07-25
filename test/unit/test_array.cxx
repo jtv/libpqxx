@@ -306,7 +306,7 @@ void test_array_multiple_values()
 }
 
 
-void test_array_nested_array()
+void test_nested_array()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{{item}}");
