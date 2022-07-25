@@ -417,22 +417,6 @@ void test_nested_array_with_multiple_entries()
 }
 
 
-void test_array_parse()
-{
-  test_empty_arrays();
-  test_null_value();
-  test_single_quoted_string();
-  test_single_quoted_escaping();
-  test_double_quoted_string();
-  test_double_quoted_escaping();
-  test_double_double_quoted_string();
-  test_unquoted_string();
-  test_multiple_values();
-  test_nested_array();
-  test_nested_array_with_multiple_entries();
-}
-
-
 void test_generate_empty_array()
 {
   PQXX_CHECK_EQUAL(
@@ -542,6 +526,17 @@ void test_array_roundtrip()
 }
 
 
+PQXX_REGISTER_TEST(test_empty_arrays);
+PQXX_REGISTER_TEST(test_null_value);
+PQXX_REGISTER_TEST(test_single_quoted_string);
+PQXX_REGISTER_TEST(test_single_quoted_escaping);
+PQXX_REGISTER_TEST(test_double_quoted_string);
+PQXX_REGISTER_TEST(test_double_quoted_escaping);
+PQXX_REGISTER_TEST(test_double_double_quoted_string);
+PQXX_REGISTER_TEST(test_unquoted_string);
+PQXX_REGISTER_TEST(test_multiple_values);
+PQXX_REGISTER_TEST(test_nested_array);
+PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
 PQXX_REGISTER_TEST(test_array_parse);
 PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
