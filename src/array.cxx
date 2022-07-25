@@ -104,7 +104,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   auto const content{m_input.substr(1, end - m_pos - 2)};
   auto const data{std::data(content)};
   auto const stop{std::size(content)};
-  for (auto here{0}; here < stop; )
+  for (auto here{0u}; here < stop; )
   {
     // Find the end of a contiguous stretch of regular characters.
     auto next{
