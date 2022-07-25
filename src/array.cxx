@@ -100,19 +100,21 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
   // Usually it'll be a pretty close estimate.
   output.reserve(end - m_pos - 2);
 // XXX: {
-  auto const data{std::data(m_input)};
-  auto const stop{end - 1};
-  auto here{m_pos + 1};
-  while (here < stop)
+  // We're scanning the part between the opening and closing quotes.
+  auto const content{m_input.substr(1, end - m_pos - 2)};
+  auto const data{std::data(content)};
+  auto const stop{std::size(content)};
+  for (auto here{0}; here < stop; )
   {
-    // Find a contiguous stretch of regular characters.
+    // Find the end of a contiguous stretch of regular characters.
     auto next{
-      pqxx::internal::find_char<'\\', '\''>(
-        m_scan, m_input.substr(0, stop), here)};
+      pqxx::internal::find_char<'\\', '\''>(m_scan, content, here)};
     // Copy those to the output in one go.
     output.append(data + here, data + next);
+
     // If we continue after this, then the character we found must have been an
-    // escape character.  In which case, skip it and proceed to the next one.
+    // escape character.  Could be a backslash or a quote (thanks SQL), but
+    // either way, skip it and proceed to the next one.
     here = next + 1;
   }
 // XXX: }
