@@ -537,7 +537,6 @@ PQXX_REGISTER_TEST(test_unquoted_string);
 PQXX_REGISTER_TEST(test_multiple_values);
 PQXX_REGISTER_TEST(test_nested_array);
 PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
-PQXX_REGISTER_TEST(test_array_parse);
 PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 } // namespace
