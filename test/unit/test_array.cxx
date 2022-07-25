@@ -69,7 +69,7 @@ void test_empty_arrays()
 }
 
 
-void test_null_value()
+void test_array_null_value()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser containing_null("{NULL}");
@@ -100,7 +100,7 @@ void test_null_value()
 }
 
 
-void test_single_quoted_string()
+void test_array_single_quoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{'item'}");
@@ -130,7 +130,7 @@ void test_single_quoted_string()
 }
 
 
-void test_single_quoted_escaping()
+void test_array_single_quoted_escaping()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{'don''t\\\\ care'}");
@@ -160,7 +160,7 @@ void test_single_quoted_escaping()
 }
 
 
-void test_double_quoted_string()
+void test_array_double_quoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{\"item\"}");
@@ -190,7 +190,7 @@ void test_double_quoted_string()
 }
 
 
-void test_double_quoted_escaping()
+void test_array_double_quoted_escaping()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser(R"--({"don''t\\ care"})--");
@@ -221,7 +221,7 @@ void test_double_quoted_escaping()
 
 
 // A pair of double quotes in a double-quoted string is an escaped quote.
-void test_double_double_quoted_string()
+void test_array_double_double_quoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser{R"--({"3"" steel"})--"};
@@ -240,7 +240,7 @@ void test_double_double_quoted_string()
 }
 
 
-void test_unquoted_string()
+void test_array_unquoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{item}");
@@ -270,7 +270,7 @@ void test_unquoted_string()
 }
 
 
-void test_multiple_values()
+void test_array_multiple_values()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{1,2}");
@@ -306,7 +306,7 @@ void test_multiple_values()
 }
 
 
-void test_nested_array()
+void test_array_nested_array()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{{item}}");
@@ -527,14 +527,14 @@ void test_array_roundtrip()
 
 
 PQXX_REGISTER_TEST(test_empty_arrays);
-PQXX_REGISTER_TEST(test_null_value);
-PQXX_REGISTER_TEST(test_single_quoted_string);
-PQXX_REGISTER_TEST(test_single_quoted_escaping);
-PQXX_REGISTER_TEST(test_double_quoted_string);
-PQXX_REGISTER_TEST(test_double_quoted_escaping);
-PQXX_REGISTER_TEST(test_double_double_quoted_string);
-PQXX_REGISTER_TEST(test_unquoted_string);
-PQXX_REGISTER_TEST(test_multiple_values);
+PQXX_REGISTER_TEST(test_array_null_value);
+PQXX_REGISTER_TEST(test_array_single_quoted_string);
+PQXX_REGISTER_TEST(test_array_single_quoted_escaping);
+PQXX_REGISTER_TEST(test_array_double_quoted_string);
+PQXX_REGISTER_TEST(test_array_double_quoted_escaping);
+PQXX_REGISTER_TEST(test_array_double_double_quoted_string);
+PQXX_REGISTER_TEST(test_array_unquoted_string);
+PQXX_REGISTER_TEST(test_array_multiple_values);
 PQXX_REGISTER_TEST(test_nested_array);
 PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
 PQXX_REGISTER_TEST(test_array_generate);
