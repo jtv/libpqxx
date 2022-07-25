@@ -102,7 +102,7 @@ array_parser::parse_single_quoted_string(std::string::size_type end) const
 // XXX: {
   // We're scanning the part between the opening and closing quotes.
   //auto const content{m_input.substr(1, end - m_pos - 2)};
-  auto const content{m_input.substr(0, end - m_pos - 2)}; // XXX: EXPERIMENTAL
+  auto const content{m_input.substr(0, end - m_pos)}; // XXX: EXPERIMENTAL
   auto const data{std::data(content)};
   auto const stop{std::size(content)};
   for (std::size_t here{0u}; here < stop; )
