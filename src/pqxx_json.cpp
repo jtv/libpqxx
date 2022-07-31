@@ -25,7 +25,7 @@ void pqxx::to_json(json& result_json, pqxx::result &res) {
 }
 
 void pqxx::to_json(json& result_json, pqxx::result&& res) {
-    to_json(result_json, res);
+    pqxx::to_json(result_json, res);
 }
 
 void pqxx::to_json(json& result_json, pqxx::row& res_row) {
@@ -35,3 +35,6 @@ void pqxx::to_json(json& result_json, pqxx::row& res_row) {
     }
     result_json["status-code"] = 200;
 }
+
+void pqxx::to_json(json& result_json, pqxx::row&& res_row) {
+    pqxx::to_json(result_json, res_row);
