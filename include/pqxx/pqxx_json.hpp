@@ -24,11 +24,13 @@ namespace pqxx::internal {
 
 int cur_row_index = -1;
 
+json& json_to_use;
+
 template <typename... types>
 void tuple_callback(const types&... col_args) {
     int column_index = 0;
     auto tr_base_json_callback = [&column_index](const auto& elem) {
-            tr_base_json[cur_row_index][column_index++] = elem;
+            json_to_use["data"][cur_row_index][column_index++] = elem;
     };
     (tr_base_json_callback(col_args), ...);
 }
@@ -43,16 +45,18 @@ namespace pqxx {
     template <typename ...types>
     // to_json for the return value of a pqxx::work::query(); the return value is an iterator to
     // the underlying result set, which is composed of a number of std::tuples<types...>
-    void to_json(json& tr_base_json, result_iteration<types...>& iter_result) {
+    void to_json(json& tr_base_json, pqxx::internal::result_iteration<types...>& iter_result) {
+        json_to_use = tr_base_json;
         for (auto it = iter_result.begin(); it != iter_result.end(); ++it) {
             cur_row_index++;
             std::apply(tuple_callback, *it);
         }
+        cur_row_index = 0;
         tr_base_json["status-code"] = 200;
     }
 
     template <typename ...types>
-    void to_json(json& tr_base_json, result_iteration<types...>&& iter_result) {
+    void to_json(json& tr_base_json, pqxx::internal::result_iteration<types...>&& iter_result) {
         to_json(tr_base_json, iter_result);
     }
 }
