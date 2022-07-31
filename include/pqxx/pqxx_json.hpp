@@ -18,10 +18,6 @@
 
 using json = nlohmann::json;
 
-namespace pqxx::internal {
-    template<typename... TYPE> class result_iteration;
-}
-
 int cur_row_index = -1;
 
 json& json_to_use;
