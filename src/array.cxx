@@ -41,106 +41,6 @@ std::string::size_type array_parser::scan_glyph(
 }
 
 
-/// Find the end of a single-quoted SQL string in an SQL array.
-/** Call this while pointed at the opening quote.
- *
- * Returns the offset of the first character after the closing quote.
- */
-std::string::size_type array_parser::scan_single_quoted_string() const
-{
-  assert(m_input[m_pos] == '\'');
-  auto const sz{std::size(m_input)};
-  auto here{pqxx::internal::find_char<'\\', '\''>(m_scan, m_input, m_pos + 1)};
-  while (here < sz)
-  {
-    char const c{m_input[here]};
-    // Consume the slash or quote that we found.
-    ++here;
-    if (c == '\'')
-    {
-      // Single quote.
-
-      // At end?
-      if (here >= sz)
-        return here;
-
-      // SQL escapes single quotes by doubling them.  Terrible idea, but it's
-      // what we have.  Inspect the next character to find out whether this
-      // is the closing quote, or an escaped one inside the string.
-      if (m_input[here] != '\'')
-        return here;
-      // Check against embedded "'" byte in a multichar byte.  If we do have a
-      // multibyte char, then we're still out of the string.
-      if (scan_glyph(here, sz) > here + 1)
-        PQXX_UNLIKELY return here;
-
-      // We have a second quote.  Consume it as well.
-      ++here;
-    }
-    else
-    {
-      assert(c == '\\');
-      // Backslash escape.  Skip ahead by one more character.
-      here = scan_glyph(here, sz);
-    }
-    // Race on to the next quote or backslash.
-    here = pqxx::internal::find_char<'\\', '\''>(m_scan, m_input, here);
-  }
-  throw argument_error{internal::concat("Null byte in SQL string: ", m_input)};
-}
-
-
-/// Parse a single-quoted SQL string: un-quote it and un-escape it.
-std::string
-array_parser::parse_single_quoted_string(std::string::size_type end) const
-{
-  std::string output;
-  // Maximum output size is same as the input size, minus the opening and
-  // closing quotes.  In the worst case, the real number could be half that.
-  // Usually it'll be a pretty close estimate.
-  output.reserve(end - m_pos - 2);
-// XXX: {
-  // We're scanning the part between the opening and closing quotes.
-  //auto const content{m_input.substr(1, end - m_pos - 2)};
-  auto const content{m_input.substr(0, end - m_pos)}; // XXX: EXPERIMENTAL
-  auto const data{std::data(content)};
-  auto const stop{std::size(content)};
-  for (std::size_t here{0u}; here < stop; )
-  {
-    // Find the end of a contiguous stretch of regular characters.
-    auto next{
-      pqxx::internal::find_char<'\\', '\''>(m_scan, content, here)};
-    // Copy those to the output in one go.
-    output.append(data + here, data + next);
-
-    // If we continue after this, then the character we found must have been an
-    // escape character.  Could be a backslash or a quote (thanks SQL), but
-    // either way, skip it and proceed to the next one.
-    here = next + 1;
-  }
-// XXX: }
-
-/*
-  for (auto here = m_pos + 1, next = scan_glyph(here, end); here < end - 1;
-       here = next, next = scan_glyph(here, end))
-  {
-    if (next - here == 1 and (m_input[here] == '\'' or m_input[here] == '\\'))
-    {
-      // Skip escape.  (Performance-wise, we bet that these are relatively
-      // rare.)
-      PQXX_UNLIKELY
-      here = next;
-      next = scan_glyph(here, end);
-    }
-
-    output.append(std::data(m_input) + here, std::data(m_input) + next);
-  }
-*/
-
-  return output;
-}
-
-
 /// Find the end of a double-quoted SQL string in an SQL array.
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
@@ -214,11 +114,6 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
     case '}':
       found = juncture::row_end;
       end = scan_glyph(m_pos);
-      break;
-    case '\'':
-      found = juncture::string_value;
-      end = scan_single_quoted_string();
-      value = parse_single_quoted_string(end);
       break;
     case '"':
       found = juncture::string_value;

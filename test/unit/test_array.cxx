@@ -100,66 +100,6 @@ void test_array_null_value()
 }
 
 
-void test_array_single_quoted_string()
-{
-  std::pair<pqxx::array_parser::juncture, std::string> output;
-  pqxx::array_parser parser("{'item'}");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "item", "Unexpected string value.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
-}
-
-
-void test_array_single_quoted_escaping()
-{
-  std::pair<pqxx::array_parser::juncture, std::string> output;
-  pqxx::array_parser parser("{'don''t\\\\ care'}");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "don't\\ care", "Unexpected string value.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
-
-  output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
-}
-
-
 void test_array_double_quoted_string()
 {
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -528,8 +468,6 @@ void test_array_roundtrip()
 
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
-PQXX_REGISTER_TEST(test_array_single_quoted_string);
-PQXX_REGISTER_TEST(test_array_single_quoted_escaping);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
 PQXX_REGISTER_TEST(test_array_double_quoted_escaping);
 PQXX_REGISTER_TEST(test_array_double_double_quoted_string);
