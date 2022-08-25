@@ -349,6 +349,7 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - data));
       }
+      // TODO: Also support std::optional<std::string_view> etc. (#596)
       else if constexpr (
         std::is_same_v<Field, std::string> or
         std::is_same_v<Field, std::string_view> or
