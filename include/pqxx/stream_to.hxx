@@ -349,7 +349,6 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - data));
       }
-      // TODO: Also support std::optional<std::string_view> etc. (#596)
       else if constexpr (
         std::is_same_v<Field, std::string> or
         std::is_same_v<Field, std::string_view> or
@@ -359,6 +358,17 @@ private:
         m_field_buf.resize(budget);
         escape_field_to_buffer(f);
       }
+      else if constexpr (
+        std::is_same_v<Field, std::optional<std::string>> or
+        std::is_same_v<Field, std::optional<std::string_view>> or
+        std::is_same_v<Field, std::optional<zview>>)
+      {
+        // This is effectively an optional string.  It's not null (we checked
+        // for that above), so... Treat like a string.
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(f.value());
+      }
+      // TODO: Support smart-pointer-to-string as well.  Many types!
       else
       {
         // This field needs to be converted to a string, and after that,
