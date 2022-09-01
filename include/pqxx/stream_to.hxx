@@ -363,12 +363,25 @@ private:
         std::is_same_v<Field, std::optional<std::string_view>> or
         std::is_same_v<Field, std::optional<zview>>)
       {
-        // This is effectively an optional string.  It's not null (we checked
-        // for that above), so... Treat like a string.
+        // Optional string.  It's not null (we checked for that above), so...
+        // Treat like a string.
         m_field_buf.resize(budget);
         escape_field_to_buffer(f.value());
       }
-      // TODO: Support smart-pointer-to-string as well.  Many types!
+      else if constexpr (
+        std::is_same_v<Field, std::unique_ptr<std::string>> or
+        std::is_same_v<Field, std::unique_ptr<std::string_view>> or
+        std::is_same_v<Field, std::unique_ptr<zview>> or
+        std::is_same_v<Field, std::shared_ptr<std::string>> or
+        std::is_same_v<Field, std::shared_ptr<std::string_view>> or
+        std::is_same_v<Field, std::shared_ptr<zview>>)
+      {
+        // TODO: Can we generalise this elegantly without Concepts?
+        // Effectively also an optional string.  It's not null (we checked
+        // for that above).
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(*f);
+      }
       else
       {
         // This field needs to be converted to a string, and after that,

@@ -436,10 +436,60 @@ void test_stream_to_quotes_arguments()
 }
 
 
+void test_stream_to_optionals()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  tx.exec0("CREATE TEMP TABLE pqxx_strings(key integer, value varchar)");
+
+  auto stream{pqxx::stream_to::table(tx, {"pqxx_strings"}, {"key", "value"})};
+  stream.write_values(1, std::optional<std::string>{});
+  stream.write_values(2, std::optional<std::string_view>{});
+  stream.write_values(3, std::optional<pqxx::zview>{});
+  stream.write_values(4, std::optional<std::string>{"Opt str."});
+  stream.write_values(5, std::optional<std::string_view>{"Opt sv."});
+  stream.write_values(6, std::optional<pqxx::zview>{"Opt zv."});
+
+  stream.write_values(7, std::shared_ptr<std::string>{});
+  stream.write_values(8, std::shared_ptr<std::string_view>{});
+  stream.write_values(9, std::shared_ptr<pqxx::zview>{});
+  stream.write_values(10, std::make_shared<std::string>("Shared str."));
+  stream.write_values(11, std::make_shared<std::string_view>("Shared sv."));
+  stream.write_values(12, std::make_shared<pqxx::zview>("Shared zv."));
+
+  stream.write_values(13, std::unique_ptr<std::string>{});
+  stream.write_values(14, std::unique_ptr<std::string_view>{});
+  stream.write_values(15, std::unique_ptr<pqxx::zview>{});
+  stream.write_values(16, std::make_unique<std::string>("Uq str."));
+  stream.write_values(17, std::make_unique<std::string_view>("Uq sv."));
+  stream.write_values(18, std::make_unique<pqxx::zview>("Uq zv."));
+  stream.complete();
+
+  std::string nulls;
+  for (auto [key] : tx.query<int>(
+         "SELECT key FROM pqxx_strings WHERE value IS NULL ORDER BY key"))
+    nulls += pqxx::to_string(key) + '.';
+  PQXX_CHECK_EQUAL(
+    nulls, "1.2.3.7.8.9.13.14.15.", "Unexpected list of nulls.");
+
+  std::string values;
+  for (auto [value] :
+       tx.query<std::string>("SELECT value FROM pqxx_strings WHERE value IS "
+                             "NOT NULL ORDER BY key"))
+    values += value;
+  PQXX_CHECK_EQUAL(
+    values,
+    "Opt str.Opt sv.Opt zv.Shared str.Shared sv.Shared zv.Uq str.Uq sv.Uq zv.",
+    "Unexpected list of values.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_dynamic_columns);
 PQXX_REGISTER_TEST(test_stream_to_quotes_arguments);
+PQXX_REGISTER_TEST(test_stream_to_optionals);
 } // namespace
