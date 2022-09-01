@@ -3,8 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:testing
-#      - image: postgres:latest
+      - image: debian:stable
     environment:
       - PGHOST: "/tmp"
     steps:
