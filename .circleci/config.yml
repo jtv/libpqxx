@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stable
+      - image: debian:testing
     environment:
       - PGHOST: "/tmp"
     steps:
