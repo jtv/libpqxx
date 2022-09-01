@@ -368,6 +368,7 @@ private:
         m_field_buf.resize(budget);
         escape_field_to_buffer(f.value());
       }
+      // TODO: Support deleter template argument on unique_ptr.
       else if constexpr (
         std::is_same_v<Field, std::unique_ptr<std::string>> or
         std::is_same_v<Field, std::unique_ptr<std::string_view>> or
