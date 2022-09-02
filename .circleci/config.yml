@@ -13,10 +13,10 @@ jobs:
           command: apt update
       - run:
           name: Install
-          command: apt upgrade -y && apt install -y lsb-release python3 cmake postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck
+          command: apt install -y lsb-release python3 cmake postgresql libpq-dev postgresql-server-dev-all build-essential autoconf dh-autoreconf autoconf-archive automake cppcheck clang
       - run:
           name: Identify
-          command: lsb_release -a && c++ --version
+          command: lsb_release -a && c++ --version && clang++ --version
       - run:
           name: Prepare postgres
           command: |
@@ -43,7 +43,8 @@ jobs:
                   --enable-maintainer-mode \
                   --enable-audit \
                   --enable-shared --disable-static \
-                  CXXFLAGS=-O3
+                  CXXFLAGS=-O3 \
+                  CXX=clang++
       - store_artifacts:
           path: config.log
       - run:
