@@ -152,8 +152,10 @@ enum class error_verbosity : int
 
 /// Connection to a database.
 /** This is the first class to look at when you wish to work with a database
- * through libpqxx.  The connection opens during construction, and closes upon
- * destruction.
+ * through libpqxx.  As per RAII principles, the connection opens during
+ * construction, and closes upon destruction.  If the connection attempt fails,
+ * you will not get a @ref connection object; the constructor will fail with a
+ * @ref pqxx::broken_connection exception.
  *
  * When creating a connection, you can pass a connection URI or a postgres
  * connection string, to specify the database server's address, a login
@@ -173,8 +175,9 @@ enum class error_verbosity : int
  * transaction classes (see pqxx/transaction_base.hxx) and perhaps also the
  * transactor framework (see pqxx/transactor.hxx).
  *
- * When a connection breaks, you will typically get a @ref broken_connection
- * exception.  This can happen at almost any point.
+ * When a connection breaks, or fails to establish itself in the first place,
+ * you will typically get a @ref broken_connection exception.  This can happen
+ * at almost any point.
  *
  * @warning On Unix-like systems, including GNU and BSD systems, your program
  * may receive the SIGPIPE signal when the connection to the backend breaks. By
@@ -248,10 +251,10 @@ public:
   connection &operator=(connection const &) = delete;
 
   /// Is this connection open at the moment?
-  /** @warning This function is **not** needed in most code.  Resist the
-   * temptation to check it after opening a connection.  The `connection`
-   * constructor will throw a @ref broken_connection exception if can't connect
-   * to the database.
+  /** @warning Most code does **not** need this function.  Resist the
+   * temptation to check your connection after opening it: if the connection
+   * attempt failed, the constructor will never even return, throwing a
+   * @ref broken_connection exception instead.
    */
   [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
 
@@ -276,16 +279,21 @@ public:
    * The connection needs to be currently active for these to work.
    */
   //@{
-  /// Name of database we're connected to, if any.
+  /// Name of the database to which we're connected, if any.
+  /** Returns nullptr when not connected. */
   [[nodiscard]] char const *dbname() const;
 
-  /// Database user ID we're connected under, if any.
+  /// Database user ID under which we are connected, if any.
+  /** Returns nullptr when not connected. */
   [[nodiscard]] char const *username() const;
 
-  /// Address of server, or nullptr if none specified (i.e. default or local)
+  /// Database server address, if given.
+  /** This may be an IP address, or a hostname, or (for a Unix domain socket)
+   * a socket path.  Returns nullptr when not connected.
+   */
   [[nodiscard]] char const *hostname() const;
 
-  /// Server port number we're connected to.
+  /// Server port number on which we are connected to the database.
   [[nodiscard]] char const *port() const;
 
   /// Process ID for backend process, or 0 if inactive.

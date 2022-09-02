@@ -62,9 +62,20 @@ class transaction_focus;
  * However, not all implementations of this interface need to provide full
  * transactional integrity.
  *
- * Several implementations of this interface are shipped with libpqxx,
- * including the plain transaction class, the entirely unprotected
- * nontransaction, and the more cautious robusttransaction.
+ * You'll find several implementations of this interface in libpqxx, including
+ * the plain @ref transaction class, the entirely unprotected
+ * @ref nontransaction, and the more cautious @ref robusttransaction.
+ *
+ * Like most other things in libpqxx, transactions follow RAII principles:
+ * creating a transaction object means to start the transaction, and to destroy
+ * it means to end the transaction.  But there's one extra step: if you want to
+ * make the transaction's changes permanent, you need to _commit_ it at the
+ * end.  If you destroy the transaction object without committing it, or if you
+ * call its `abort()` member function, then the transaction will roll back its
+ * effects instead.
+ *
+ * The big exception to all this is @ref nontransaction.  It gives you the
+ * transaction API but without actually starting a transaction on the database.
  */
 
 /// Interface definition (and common code) for "transaction" classes.

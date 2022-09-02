@@ -202,6 +202,17 @@ void test_raw_connection()
 }
 
 
+void test_closed_connection()
+{
+  pqxx::connection conn;
+  conn.close();
+  PQXX_CHECK(not conn.dbname(), "Closed connection had a dbname.");
+  PQXX_CHECK(not conn.username(), "Closed connection had a username.");
+  PQXX_CHECK(not conn.hostname(), "Closed connection had a hostname.");
+  PQXX_CHECK(not conn.port(), "Closed connection had a port.");
+}
+
+
 PQXX_REGISTER_TEST(test_connection_string_constructor);
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
@@ -209,4 +220,5 @@ PQXX_REGISTER_TEST(test_encrypt_password);
 PQXX_REGISTER_TEST(test_connection_string);
 PQXX_REGISTER_TEST(test_connection_params);
 PQXX_REGISTER_TEST(test_raw_connection);
+PQXX_REGISTER_TEST(test_closed_connection);
 } // namespace
