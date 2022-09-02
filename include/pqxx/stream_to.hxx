@@ -349,7 +349,6 @@ private:
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - data));
       }
-      // TODO: Also support std::optional<std::string_view> etc. (#596)
       else if constexpr (
         std::is_same_v<Field, std::string> or
         std::is_same_v<Field, std::string_view> or
@@ -358,6 +357,31 @@ private:
         // This string may need escaping.
         m_field_buf.resize(budget);
         escape_field_to_buffer(f);
+      }
+      else if constexpr (
+        std::is_same_v<Field, std::optional<std::string>> or
+        std::is_same_v<Field, std::optional<std::string_view>> or
+        std::is_same_v<Field, std::optional<zview>>)
+      {
+        // Optional string.  It's not null (we checked for that above), so...
+        // Treat like a string.
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(f.value());
+      }
+      // TODO: Support deleter template argument on unique_ptr.
+      else if constexpr (
+        std::is_same_v<Field, std::unique_ptr<std::string>> or
+        std::is_same_v<Field, std::unique_ptr<std::string_view>> or
+        std::is_same_v<Field, std::unique_ptr<zview>> or
+        std::is_same_v<Field, std::shared_ptr<std::string>> or
+        std::is_same_v<Field, std::shared_ptr<std::string_view>> or
+        std::is_same_v<Field, std::shared_ptr<zview>>)
+      {
+        // TODO: Can we generalise this elegantly without Concepts?
+        // Effectively also an optional string.  It's not null (we checked
+        // for that above).
+        m_field_buf.resize(budget);
+        escape_field_to_buffer(*f);
       }
       else
       {
