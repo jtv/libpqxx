@@ -31,7 +31,7 @@ jobs:
           command: su postgres -c "createuser -w -d root"
       - run:
           name: Set up database
-          command: createdb --encoding=UNICODE root
+          command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Autogen
           command: ./autogen.sh
