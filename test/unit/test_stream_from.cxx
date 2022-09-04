@@ -336,9 +336,56 @@ void test_stream_from_read_row()
 }
 
 
+void test_stream_from_parses_awkward_strings()
+{
+  pqxx::connection conn;
+
+  // This is a particularly awkward encoding that we should test.  Its
+  // multibyte characters can include byte values that *look* like ASCII
+  // characters, such as quotes and backslashes.  It is crucial that we parse
+  // those properly.  A byte-for-byte scan could find special ASCII characters
+  // that aren't really there.
+  conn.set_client_encoding("SJIS");
+  pqxx::work tx{conn};
+  tx.exec0("CREATE TEMP TABLE nasty(id integer, value varchar)");
+  tx.exec0(
+    "INSERT INTO nasty(id, value) VALUES "
+    // A proper null.
+    "(0, NULL), "
+    // Some strings that could easily be mis-parsed as null.
+    "(1, 'NULL'), "
+    "(2, '\\N'), "
+    "(3, '''NULL'''), "
+    // An SJIS multibyte character that ends in a byte that happens to be the
+    // ASCII value for a backslash.  This is one example of how an SJIS SQL
+    // injection can break out of a string.
+    "(4, '\x81\x5c')");
+
+  std::vector<std::optional<std::string>> values;
+  for (auto [id, value] : tx.query<std::size_t, std::optional<std::string>>(
+         "SELECT id, value FROM nasty ORDER BY id"))
+  {
+    PQXX_CHECK_EQUAL(id, std::size(values), "Test data is broken.");
+    values.push_back(value);
+  }
+
+  PQXX_CHECK(not values[0].has_value(), "Null did not work properly.");
+  PQXX_CHECK(values[1].has_value(), "String 'NULL' became a NULL.");
+  PQXX_CHECK_EQUAL(values[1].value(), "NULL", "String 'NULL' went badly.");
+  PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
+  PQXX_CHECK_EQUAL(values[2].value(), "\\N", "String '\\N' went badly.");
+  PQXX_CHECK(values[3].has_value(), "String \"'NULL'\" became a NULL.");
+  PQXX_CHECK_EQUAL(
+    values[3].value(), "'NULL'", "String \"'NULL'\" went badly.");
+  PQXX_CHECK_EQUAL(
+    values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_from);
 PQXX_REGISTER_TEST(test_stream_from_does_escaping);
 PQXX_REGISTER_TEST(test_stream_from_does_iteration);
 PQXX_REGISTER_TEST(test_transaction_stream_from);
 PQXX_REGISTER_TEST(test_stream_from_read_row);
+PQXX_REGISTER_TEST(test_stream_from_parses_awkward_strings);
 } // namespace
