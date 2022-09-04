@@ -52,7 +52,7 @@ jobs:
           command: make -j$(nproc)
       - run:
           name: Test
-          command: PGDATA=db/data make check
+          command: PGDATA=db/data make -j$(nproc) check
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
