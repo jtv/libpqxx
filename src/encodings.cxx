@@ -801,7 +801,7 @@ encoding_group enc_group(std::string_view encoding_name)
 
 PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 {
-#define CASE_GROUP(ENC) \
+#define CASE_GROUP(ENC)                                                       \
   case encoding_group::ENC: return glyph_scanner<encoding_group::ENC>::call
 
   switch (enc)
@@ -837,39 +837,35 @@ PQXX_PURE char_finder_func *get_char_finder(encoding_group enc)
   // simplify the machine code in the search loops a bit.
   switch (enc)
   {
-    case encoding_group::MONOBYTE:
-    case encoding_group::EUC_CN:
-    case encoding_group::EUC_JP:
-    case encoding_group::EUC_JIS_2004:
-    case encoding_group::EUC_KR:
-    case encoding_group::EUC_TW:
-    case encoding_group::MULE_INTERNAL:
-    case encoding_group::UTF8:
-      // All these encodings are "ASCII-safe," meaning that if we're looking
-      // for a particular ASCII character, we can safely just go through the
-      // string byte for byte.  Multibyte characters have the high bit set.
-      PQXX_LIKELY return find_ascii_char<encoding_group::MONOBYTE, NEEDLE...>;
+  case encoding_group::MONOBYTE:
+  case encoding_group::EUC_CN:
+  case encoding_group::EUC_JP:
+  case encoding_group::EUC_JIS_2004:
+  case encoding_group::EUC_KR:
+  case encoding_group::EUC_TW:
+  case encoding_group::MULE_INTERNAL:
+  case encoding_group::UTF8:
+    // All these encodings are "ASCII-safe," meaning that if we're looking
+    // for a particular ASCII character, we can safely just go through the
+    // string byte for byte.  Multibyte characters have the high bit set.
+    PQXX_LIKELY return find_ascii_char<encoding_group::MONOBYTE, NEEDLE...>;
 
-    case encoding_group::BIG5:
-      return find_ascii_char<encoding_group::BIG5, NEEDLE...>;
+  case encoding_group::BIG5:
+    return find_ascii_char<encoding_group::BIG5, NEEDLE...>;
 
-    case encoding_group::GB18030:
-      return find_ascii_char<encoding_group::GB18030>;
+  case encoding_group::GB18030:
+    return find_ascii_char<encoding_group::GB18030>;
 
-    case encoding_group::GBK:
-      return find_ascii_char<encoding_group::GBK>;
+  case encoding_group::GBK: return find_ascii_char<encoding_group::GBK>;
 
-    case encoding_group::JOHAB:
-      return find_ascii_char<encoding_group::JOHAB>;
+  case encoding_group::JOHAB: return find_ascii_char<encoding_group::JOHAB>;
 
-    case encoding_group::SJIS:
-      return find_ascii_char<encoding_group::SJIS>;
+  case encoding_group::SJIS: return find_ascii_char<encoding_group::SJIS>;
 
-    case encoding_group::SHIFT_JIS_2004:
-      return find_ascii_char<encoding_group::SHIFT_JIS_2004>;
+  case encoding_group::SHIFT_JIS_2004:
+    return find_ascii_char<encoding_group::SHIFT_JIS_2004>;
 
-    case encoding_group::UHC:
-      return find_ascii_char<encoding_group::UHC>;
+  case encoding_group::UHC: return find_ascii_char<encoding_group::UHC>;
   }
   PQXX_UNLIKELY
   throw pqxx::usage_error{

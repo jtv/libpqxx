@@ -25,8 +25,7 @@
 
 namespace
 {
-pqxx::internal::char_finder_func *
-get_finder(pqxx::transaction_base const &tx)
+pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
   return pqxx::internal::get_char_finder<'\t', '\\'>(group);
@@ -48,8 +47,7 @@ pqxx::stream_from::stream_from(
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
-        transaction_focus{tx, class_name, table},
-        m_char_finder{get_finder(tx)}
+        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
   tx.exec0(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv));
   register_me();
@@ -59,8 +57,7 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from::stream_from(
   transaction_base &tx, std::string_view table, std::string_view columns,
   from_table_t) :
-        transaction_focus{tx, class_name, table},
-        m_char_finder{get_finder(tx)}
+        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
   if (std::empty(columns))
     PQXX_UNLIKELY
@@ -224,7 +221,8 @@ void pqxx::stream_from::parse_line()
     // Copy the text we have so far.  It's got no special characters in it.
     // TODO: Is there a truly convenient utility function for this?
     while (offset < stop_char) *write++ = line_begin[offset++];
-    if (offset >= line_size) break;
+    if (offset >= line_size)
+      break;
 
     char const special{line_begin[stop_char]};
     ++offset;
@@ -249,54 +247,56 @@ void pqxx::stream_from::parse_line()
       break;
 
     case '\\': // Escape sequence.
+    {
+      if ((offset) >= line_size)
+        throw failure{"Row ends in backslash"};
+
+      // The database will only escape ASCII characters, so no need to use
+      // the glyph scanner.
+      char const escaped{line_begin[offset++]};
+      switch (escaped)
       {
-        if ((offset) >= line_size)
-          throw failure{"Row ends in backslash"};
+      case 'N':
+        // Null value.
+        if (write != field_begin)
+          throw failure{"Null sequence found in nonempty field"};
+        field_begin = nullptr;
+        // (If there's any characters _after_ the null we'll just crash.)
+        break;
 
-        // The database will only escape ASCII characters, so no need to use
-        // the glyph scanner.
-        char const escaped{line_begin[offset++]};
-        switch (escaped)
-        {
-        case 'N':
-          // Null value.
-          if (write != field_begin)
-            throw failure{"Null sequence found in nonempty field"};
-          field_begin = nullptr;
-          // (If there's any characters _after_ the null we'll just crash.)
-          break;
+      case 'b': // Backspace.
+        PQXX_UNLIKELY
+        *write++ = '\b';
+        break;
+      case 'f': // Form feed
+        PQXX_UNLIKELY
+        *write++ = '\f';
+        break;
+      case 'n': // Line feed.
+        *write++ = '\n';
+        break;
+      case 'r': // Carriage return.
+        *write++ = '\r';
+        break;
+      case 't': // Horizontal tab.
+        *write++ = '\t';
+        break;
+      case 'v': // Vertical tab.
+        *write++ = '\v';
+        break;
 
-        case 'b': // Backspace.
-          PQXX_UNLIKELY
-          *write++ = '\b';
-          break;
-        case 'f': // Form feed
-          PQXX_UNLIKELY
-          *write++ = '\f';
-          break;
-        case 'n': // Line feed.
-          *write++ = '\n';
-          break;
-        case 'r': // Carriage return.
-          *write++ = '\r';
-          break;
-        case 't': // Horizontal tab.
-          *write++ = '\t';
-          break;
-        case 'v': // Vertical tab.
-          *write++ = '\v';
-          break;
-
-        default:
-          // Regular character ("self-escaped").
-          *write++ = escaped;
-          break;
-        }
+      default:
+        // Regular character ("self-escaped").
+        *write++ = escaped;
+        break;
       }
-      break;
+    }
+    break;
 
     default:
-      throw internal_error{pqxx::internal::concat("Stopped at unexpected char in stream_from: '", static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
+      throw internal_error{pqxx::internal::concat(
+        "Stopped at unexpected char in stream_from: '",
+        static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
     }
   }
 

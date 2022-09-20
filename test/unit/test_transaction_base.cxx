@@ -158,7 +158,8 @@ void test_transaction_query01()
   // The "if" is redundant (see the check above).  But gcc 11 complains when
   // enabling maintainer mode but not audit mode: something inside the optional
   // "may be used uninitialized."
-  if (o.has_value()) PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query01().");
+  if (o.has_value())
+    PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query01().");
   PQXX_CHECK_THROWS(
     o = w.query01<int>("SELECT * FROM generate_series(1, 2)"),
     pqxx::unexpected_rows,
