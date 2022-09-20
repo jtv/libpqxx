@@ -172,11 +172,56 @@ PQXX_PURE std::size_t next_seq_for_sjislike(
 // Implement template specializations first.
 namespace pqxx::internal
 {
+/// Wrapper struct template for "find next glyph" functions.
+/** When we use this, all we really want is a function pointer.  But that
+ * won't work, because the template specialisation we use will only work (under
+ * current C++ rules) for a struct or class, not for a function.
+ */
 template<encoding_group> struct glyph_scanner
 {
+  // TODO: Convert to use string_view.
+  /// Find the next glyph in `buffer` after position `start`.
   PQXX_PURE static std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start);
 };
+
+
+/// Find any of the ASCII characters in `NEEDLE` in `haystack`.
+/** Scans through `haystack` until it finds a single-byte character that
+ * matches any of the values in `NEEDLE`.
+ *
+ * Returns the offset of the character it finds, or the end of the `haystack`
+ * otherwise.
+ */
+template<encoding_group ENC, char... NEEDLE>
+PQXX_PURE static std::size_t
+find_ascii_char(std::string_view haystack, std::size_t here)
+{
+  auto const sz{std::size(haystack)};
+  auto const data{std::data(haystack)};
+  while (here < sz)
+  {
+    // Look up the next character boundary.  This can be quite costly, so we
+    // desperately want the call inlined.
+    auto next{glyph_scanner<ENC>::call(data, sz, here)};
+
+    // (For some reason gcc had a problem with a right-fold here.  But clang
+    // was fine.)
+    //
+    // Also check against a multibyte character starting with a bytes which
+    // just happens to match one of the ASCII bytes we're looking for.
+    // It'd be cleaner to check that first, but either works.  So, let's
+    // apply the most selective filter first and skip this check in almost
+    // all cases.
+    if ((next == here + 1) and (... or (data[here] == NEEDLE)))
+      return here;
+
+    // Nope, no hit.  Move on.
+    here = next;
+  }
+  return sz;
+}
+
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
@@ -754,18 +799,10 @@ encoding_group enc_group(std::string_view encoding_name)
 }
 
 
-/// Look up instantiation @c T<enc>::call at runtime.
-/** Here, "T" is a struct template with a static member function "call", whose
- * type is "F".
- *
- * The return value is a pointer to the "call" member function for the
- * instantiation of T for encoding group enc.
- */
-template<template<encoding_group> class T, typename F>
-constexpr inline F *for_encoding(encoding_group enc)
+PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 {
-#define CASE_GROUP(ENC)                                                       \
-  case encoding_group::ENC: return T<encoding_group::ENC>::call
+#define CASE_GROUP(ENC) \
+  case encoding_group::ENC: return glyph_scanner<encoding_group::ENC>::call
 
   switch (enc)
   {
@@ -792,48 +829,56 @@ constexpr inline F *for_encoding(encoding_group enc)
 #undef CASE_GROUP
 }
 
-
-PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
+template<char... NEEDLE>
+PQXX_PURE char_finder_func *get_char_finder(encoding_group enc)
 {
-  return for_encoding<glyph_scanner, glyph_scanner_func>(enc);
+  // Many encodings are "ASCII-safe" in the sense that for a search loop such
+  // as this one, we can treat them like any single-byte encoding.  That will
+  // simplify the machine code in the search loops a bit.
+  switch (enc)
+  {
+    case encoding_group::MONOBYTE:
+    case encoding_group::EUC_CN:
+    case encoding_group::EUC_JP:
+    case encoding_group::EUC_JIS_2004:
+    case encoding_group::EUC_KR:
+    case encoding_group::EUC_TW:
+    case encoding_group::MULE_INTERNAL:
+    case encoding_group::UTF8:
+      // All these encodings are "ASCII-safe," meaning that if we're looking
+      // for a particular ASCII character, we can safely just go through the
+      // string byte for byte.  Multibyte characters have the high bit set.
+      PQXX_LIKELY return find_ascii_char<encoding_group::MONOBYTE, NEEDLE...>;
+
+    case encoding_group::BIG5:
+      return find_ascii_char<encoding_group::BIG5, NEEDLE...>;
+
+    case encoding_group::GB18030:
+      return find_ascii_char<encoding_group::GB18030>;
+
+    case encoding_group::GBK:
+      return find_ascii_char<encoding_group::GBK>;
+
+    case encoding_group::JOHAB:
+      return find_ascii_char<encoding_group::JOHAB>;
+
+    case encoding_group::SJIS:
+      return find_ascii_char<encoding_group::SJIS>;
+
+    case encoding_group::SHIFT_JIS_2004:
+      return find_ascii_char<encoding_group::SHIFT_JIS_2004>;
+
+    case encoding_group::UHC:
+      return find_ascii_char<encoding_group::UHC>;
+  }
+  PQXX_UNLIKELY
+  throw pqxx::usage_error{
+    internal::concat("Unsupported encoding group code ", enc, ".")};
 }
 
+// Instantiate only those specialisations that we actually need.
+template char_finder_func *get_char_finder<'\t', '\\'>(encoding_group);
 
-template<encoding_group E> struct char_finder
-{
-  constexpr static PQXX_PURE std::size_t
-  call(std::string_view haystack, char needle, std::size_t start)
-  {
-    auto const buffer{std::data(haystack)};
-    auto const size{std::size(haystack)};
-    for (auto here{start}; here + 1 <= size;
-         here = glyph_scanner<E>::call(buffer, size, here))
-    {
-      if (haystack[here] == needle)
-        return here;
-    }
-    return std::string::npos;
-  }
-};
-
-
-template<encoding_group E> struct string_finder
-{
-  PQXX_PURE constexpr static PQXX_PURE std::size_t
-  call(std::string_view haystack, std::string_view needle, std::size_t start)
-  {
-    auto const buffer{std::data(haystack)};
-    auto const size{std::size(haystack)};
-    auto const needle_size{std::size(needle)};
-    for (auto here{start}; here + needle_size <= size;
-         here = glyph_scanner<E>::call(buffer, size, here))
-    {
-      if (std::memcmp(buffer + here, std::data(needle), needle_size) == 0)
-        return here;
-    }
-    return std::string::npos;
-  }
-};
 
 #undef DISPATCH_ENCODING_OPERATION
 } // namespace pqxx::internal

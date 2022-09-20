@@ -32,7 +32,16 @@ encoding_group enc_group(std::string_view);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
-// TODO: For ASCII search, treat UTF8/EUC_*/MULE_INTERNAL as MONOBYTE.
+/// Look up a character search function for an encoding group.
+/** We only define a few individual instantiations of this function, as needed.
+ *
+ * Returns a pointer to a function which looks for the first instance of any of
+ * the ASCII characters in `NEEDLE`.  Returns its offset, or the end of the
+ * `haystack` if it found none.
+ */
+template<char... NEEDLE>
+PQXX_LIBEXPORT char_finder_func *get_char_finder(encoding_group);
+
 
 /// Find any of the ASCII characters `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
