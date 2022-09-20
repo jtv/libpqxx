@@ -1,4 +1,5 @@
-7.7.5
+7.8.0
+ - Faster text decoding in `stream_from`.
  - Ran `autoupdate` (because the autotools told me to).
  - Documentation tweak. (#584)
  - Typo in README.md. (#586)
