@@ -1,5 +1,5 @@
 7.8.0
- - Faster text decoding in `stream_from`.
+ - Faster text decoding in `stream_from`.  At last, faster than regular query!
  - Ran `autoupdate` (because the autotools told me to).
  - Documentation tweak. (#584)
  - Typo in README.md. (#586)
