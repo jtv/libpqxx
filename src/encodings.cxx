@@ -874,7 +874,6 @@ PQXX_PURE char_finder_func *get_char_finder(encoding_group enc)
 
 // Instantiate only those specialisations that we actually need.
 template char_finder_func *get_char_finder<'\t', '\\'>(encoding_group);
+template char_finder_func *get_char_finder<'\b', '\f', '\n', '\r', '\t', '\v', '\\'>(encoding_group);
 
-
-#undef DISPATCH_ENCODING_OPERATION
 } // namespace pqxx::internal

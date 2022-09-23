@@ -270,8 +270,8 @@ private:
   /// Reusable buffer for converting/escaping a field.
   std::string m_field_buf;
 
-  /// Glyph scanner, for parsing the client encoding.
-  internal::glyph_scanner_func *m_scanner;
+  /// Callback to find the special characters we need to watch out for.
+  internal::char_finder_func *m_finder;
 
   /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view);
