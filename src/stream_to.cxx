@@ -33,6 +33,23 @@ void begin_copy(
       pqxx::internal::concat(
         "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv));
 }
+
+
+/// Return the escape character for escaping the given special character.
+constexpr char escape_char(char special)
+{
+  switch (special)
+  {
+        case '\b': return 'b';
+        case '\f': return 'f';
+        case '\n': return 'n';
+        case '\r': return 'r';
+        case '\t': return 't';
+        case '\v': return 'v';
+        case '\\': return '\\';
+   }
+   PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat("Stream escaping unexpectedly stopped at '", static_cast<unsigned>(static_cast<unsigned char>(special)))};
+}
 } // namespace
 
 
@@ -101,23 +118,6 @@ void pqxx::stream_to::complete()
     unregister_me();
     internal::gate::connection_stream_to{m_trans.conn()}.end_copy_write();
   }
-}
-
-
-/// Return the escape character for escaping the given special character.
-char escape_char(char special)
-{
-  switch (special)
-  {
-        case '\b': return 'b';
-        case '\f': return 'f';
-        case '\n': return 'n';
-        case '\r': return 'r';
-        case '\t': return 't';
-        case '\v': return 'v';
-        case '\\': return '\\';
-   }
-   PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat("Stream escaping unexpectedly stopped at '", static_cast<unsigned>(static_cast<unsigned char>(special)))};
 }
 
 
