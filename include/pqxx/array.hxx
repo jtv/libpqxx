@@ -88,8 +88,6 @@ private:
   /// Current parsing position in the input.
   std::string::size_type m_pos = 0u;
 
-  std::string::size_type scan_single_quoted_string() const;
-  std::string parse_single_quoted_string(std::string::size_type end) const;
   std::string::size_type scan_double_quoted_string() const;
   std::string parse_double_quoted_string(std::string::size_type end) const;
   std::string::size_type scan_unquoted_string() const;
