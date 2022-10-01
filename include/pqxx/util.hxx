@@ -35,7 +35,6 @@
 #endif
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/encodings.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
 

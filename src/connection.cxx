@@ -1056,13 +1056,12 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 {
   std::string out;
   out.reserve(std::size(text));
+  // TODO: Rewrite using a char_finder.
   internal::for_glyphs(
     internal::enc_group(encoding_id()),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
-        // We're not expecting a lot of wildcards in a string.  Usually.
-        PQXX_UNLIKELY
-      out.push_back(escape_char);
+        PQXX_UNLIKELY out.push_back(escape_char);
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
