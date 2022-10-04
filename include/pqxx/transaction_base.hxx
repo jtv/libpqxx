@@ -262,12 +262,13 @@ public:
    *   rows of result data, converted to C++ types that you request.
    * * The "stream" functions execute your query in a completely different way.
    *   Called _streaming queries,_ these don't support quite the full range of
-   *   SQL queries, and they're slower to start.  But they are significantly
-   *   _faster_ for queries that return larger numbers of rows.  They don't
-   *   load the entire result set, so you can start processing data as soon as
-   *   the first row of data comes in from the database.  This can save you a
-   *   lot of time.  And of course, it also means they don't need to keep the
-   *   entire result set in memory.
+   *   SQL queries, and they're a bit slower to start.  But they are
+   *   significantly *   _faster_ for queries that return larger numbers of
+   *   rows.  They don't load the entire result set, so you can start
+   *   processing data as soon as the first row of data comes in from the
+   *   database.  This can save you a lot of time.  Processing itself may also
+   *   be faster.  And of course, it also means you don't need enough memory to
+   *   hold the entire result set, just the row you're working on.
    * * The "exec" functions are a more low-level interface.  Most of them
    *   return a pqxx::result object.  This is an object that contains all
    *   information abouut the query's result: the data itself, but also the
