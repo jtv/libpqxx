@@ -9,6 +9,9 @@
 
 namespace
 {
+using namespace std::literals;
+
+
 std::string truncate_sql_error(std::string const &what)
 {
   auto trunc{what.substr(0, what.find('\n'))};
@@ -51,6 +54,7 @@ void test_nonoptionals(pqxx::connection &connection)
   PQXX_CHECK_EQUAL(r2[4].as<std::string>(), nonascii, "Wrong non-ascii text.");
   tx.commit();
 }
+
 
 void test_nonoptionals_fold(pqxx::connection &connection)
 {
@@ -485,6 +489,45 @@ void test_stream_to_optionals()
 }
 
 
+void test_stream_to_escaping()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  tx.exec0("CREATE TEMP TABLE foo (i integer, t varchar)");
+
+  // We'll check that streaming these strings to the database and querying them
+  // back reproduces them faithfully.
+  std::string_view const inputs[] =
+  {
+    ""sv,
+    "hello"sv,
+    "a\tb"sv,
+    "a\nb"sv,
+    "don't"sv,
+    "\\\\\\''"sv,
+    "\\N"sv,
+    "\\Nfoo"sv,
+  };
+
+  // Stream the input strings into the databsae.
+  pqxx::stream_to out{pqxx::stream_to::table(tx, {"foo"}, {"i", "t"})};
+  for (std::size_t i{0}; i < std::size(inputs); ++i)
+    out.write_values(i, inputs[i]);
+  out.complete();
+
+  // Verify.
+  auto outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
+  PQXX_CHECK_EQUAL(static_cast<std::size_t>(std::size(outputs)), std::size(inputs), "Wrong number of rows came back.");
+  for (std::size_t i{0}; i < std::size(inputs); ++i)
+  {
+    int idx{static_cast<int>(i)};
+    PQXX_CHECK_EQUAL(outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
+    PQXX_CHECK_EQUAL(outputs[idx][1].as<std::string_view>(), inputs[i], "String changed in transit.");
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
@@ -492,4 +535,5 @@ PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_dynamic_columns);
 PQXX_REGISTER_TEST(test_stream_to_quotes_arguments);
 PQXX_REGISTER_TEST(test_stream_to_optionals);
+PQXX_REGISTER_TEST(test_stream_to_escaping);
 } // namespace

@@ -45,6 +45,7 @@ There are different query functions for querying any number of rows (`query()`);
 querying just one row of data as a `std::tuple` and throwing an error if there's
 more than one row (`query1()`); or querying
 
+
 Streaming rows
 --------------
 
@@ -72,7 +73,7 @@ exit the loop.  So if you want to use that data for longer than a single
 iteration of the streaming loop, you'll have to store it somewhere yourself.
 
 Now for the good news.  Streaming does make it very easy to query data and loop
-over it:
+over it, and often faster than with the "query" or "exec" functions:
 
 ```cxx
     for (auto [id, name, x, y] :

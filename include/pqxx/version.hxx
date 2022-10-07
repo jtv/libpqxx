@@ -15,16 +15,16 @@
 #  endif
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.7.5"
+#  define PQXX_VERSION "7.8.0"
 /// Library ABI version.
-#  define PQXX_ABI "7.7"
+#  define PQXX_ABI "7.8"
 
 /// Major version number.
 #  define PQXX_VERSION_MAJOR 7
 /// Minor version number.
-#  define PQXX_VERSION_MINOR 7
+#  define PQXX_VERSION_MINOR 8
 
-#  define PQXX_VERSION_CHECK check_pqxx_version_7_7
+#  define PQXX_VERSION_CHECK check_pqxx_version_7_8
 
 namespace pqxx::internal
 {

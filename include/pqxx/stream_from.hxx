@@ -274,7 +274,7 @@ private:
     (extract_value<Tuple, indexes>(t), ...);
   }
 
-  pqxx::internal::glyph_scanner_func *m_glyph_scanner;
+  pqxx::internal::char_finder_func *m_char_finder;
 
   /// Current row's fields' text, combined into one reusable string.
   std::string m_row;
