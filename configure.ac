@@ -619,26 +619,6 @@ occurring in the file.
 	${with_postgres_libpath})
 
 
-# PQencryptPasswordConn was added in postgres 10.
-AC_MSG_CHECKING([for PQencryptPasswordConn])
-have_pqencryptpasswordconn=yes
-AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-		[#include<libpq-fe.h>],
-		[
-			extern PGconn *conn;
-			PQencryptPasswordConn(
-				conn, "pwd", "user", "scram-sha-256")
-		]
-	)],
-	AC_DEFINE(
-		[PQXX_HAVE_PQENCRYPTPASSWORDCONN],
-		1,
-		[Define if libpq has PQencryptPasswordConn (since pg 10).]),
-	[have_pqencryptpasswordconn=no])
-AC_MSG_RESULT($have_pqencryptpasswordconn)
-
-
 # "Pipeline mode" was introduced in libpq 14.
 AC_MSG_CHECKING([for libpq pipeline mode])
 have_pq_pipeline=yes

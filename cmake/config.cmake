@@ -34,10 +34,6 @@ check_function_exists("poll" PQXX_HAVE_POLL)
 
 set(CMAKE_REQUIRED_LIBRARIES pq)
 check_symbol_exists(
-	PQencryptPasswordConn
-	"${PostgreSQL_INCLUDE_DIR}/libpq-fe.h"
-	PQXX_HAVE_PQENCRYPTPASSWORDCONN)
-check_symbol_exists(
 	PQenterPipelineMode
 	"${PostgreSQL_INCLUDE_DIR}/libpq-fe.h"
 	PQXX_HAVE_PQ_PIPELINE)

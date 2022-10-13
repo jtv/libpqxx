@@ -3,7 +3,7 @@
 
 #  include <cassert>
 
-#include "pqxx/internal/encodings.hxx"
+#  include "pqxx/internal/encodings.hxx"
 #  include "pqxx/strconv.hxx"
 
 namespace pqxx::internal

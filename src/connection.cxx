@@ -719,26 +719,10 @@ pqxx::result pqxx::connection::exec(
 std::string pqxx::connection::encrypt_password(
   char const user[], char const password[], char const *algorithm)
 {
-#if defined(PQXX_HAVE_PQENCRYPTPASSWORDCONN)
-  {
-    auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
-    std::unique_ptr<char const, std::function<void(char const *)>> ptr{
-      buf, [](char const *x) { PQfreemem(const_cast<char *>(x)); }};
-    return std::string(ptr.get());
-  }
-#else
-  {
-    // No PQencryptPasswordConn.  Fall back on the old PQencryptPassword...
-    // unless the caller selects a different algorithm.
-    if (algorithm != nullptr and std::strcmp(algorithm, "md5") != 0)
-      throw feature_not_supported{
-        "Could not encrypt password: available libpq version does not support "
-        "algorithms other than md5."};
-#  include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return pqxx::encrypt_password(user, password);
-#  include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-#endif // PQXX_HAVE_PQENCRYPTPASSWORDCONN
+  auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
+  std::unique_ptr<char const, std::function<void(char const *)>> ptr{
+    buf, [](char const *x) { PQfreemem(const_cast<char *>(x)); }};
+  return std::string(ptr.get());
 }
 
 
