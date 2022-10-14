@@ -39,7 +39,7 @@ std::string const pqxx::result::s_empty_string;
 
 
 /// C++ wrapper for libpq's PQclear.
-void pqxx::internal::clear_result(pq::PGresult const *data)
+void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
 {
   PQclear(const_cast<pq::PGresult *>(data));
 }
@@ -365,14 +365,14 @@ pqxx::result::size_type pqxx::result::affected_rows() const
 
 
 char const *pqxx::result::get_value(
-  pqxx::result::size_type row, pqxx::row::size_type col) const
+  pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
   return PQgetvalue(m_data.get(), row, col);
 }
 
 
 bool pqxx::result::get_is_null(
-  pqxx::result::size_type row, pqxx::row::size_type col) const
+  pqxx::result::size_type row, pqxx::row::size_type col) const noexcept
 {
   return PQgetisnull(m_data.get(), row, col) != 0;
 }

@@ -101,7 +101,7 @@ inline std::string parse_double_quoted_string(
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
  *
- * For array values, STOP is a comma, a semicolon, or a closing brace.  For
+ * For array values, STOP is the separator character, or a closing brace.  For
  * a value of a composite type, STOP is a comma or a closing parenthesis.
  */
 template<char... STOP>

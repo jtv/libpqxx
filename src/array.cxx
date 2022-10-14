@@ -81,7 +81,7 @@ array_parser::parse_unquoted_string(std::string::size_type end) const
 
 
 array_parser::array_parser(
-  std::string_view input, internal::encoding_group enc) :
+  std::string_view input, internal::encoding_group enc) noexcept :
         m_input(input), m_scan(internal::get_glyph_scanner(enc))
 {}
 
