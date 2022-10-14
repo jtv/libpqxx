@@ -36,7 +36,7 @@ void begin_copy(
 
 
 /// Return the escape character for escaping the given special character.
-constexpr char escape_char(char special)
+char escape_char(char special)
 {
   switch (special)
   {
