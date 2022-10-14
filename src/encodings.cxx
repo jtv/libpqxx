@@ -38,7 +38,8 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
   {
     std::string_view const name;
     pqxx::internal::encoding_group const group;
-    constexpr mapping(std::string_view n, pqxx::internal::encoding_group g) : name{n}, group{g}
+    constexpr mapping(std::string_view n, pqxx::internal::encoding_group g) :
+            name{n}, group{g}
     {}
     constexpr bool operator<(mapping const &rhs) const
     {

@@ -498,16 +498,9 @@ void test_stream_to_escaping()
 
   // We'll check that streaming these strings to the database and querying them
   // back reproduces them faithfully.
-  std::string_view const inputs[] =
-  {
-    ""sv,
-    "hello"sv,
-    "a\tb"sv,
-    "a\nb"sv,
-    "don't"sv,
-    "\\\\\\''"sv,
-    "\\N"sv,
-    "\\Nfoo"sv,
+  std::string_view const inputs[] = {
+    ""sv,      "hello"sv,    "a\tb"sv, "a\nb"sv,
+    "don't"sv, "\\\\\\''"sv, "\\N"sv,  "\\Nfoo"sv,
   };
 
   // Stream the input strings into the databsae.
@@ -518,12 +511,17 @@ void test_stream_to_escaping()
 
   // Verify.
   auto outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
-  PQXX_CHECK_EQUAL(static_cast<std::size_t>(std::size(outputs)), std::size(inputs), "Wrong number of rows came back.");
+  PQXX_CHECK_EQUAL(
+    static_cast<std::size_t>(std::size(outputs)), std::size(inputs),
+    "Wrong number of rows came back.");
   for (std::size_t i{0}; i < std::size(inputs); ++i)
   {
     int idx{static_cast<int>(i)};
-    PQXX_CHECK_EQUAL(outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
-    PQXX_CHECK_EQUAL(outputs[idx][1].as<std::string_view>(), inputs[i], "String changed in transit.");
+    PQXX_CHECK_EQUAL(
+      outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
+    PQXX_CHECK_EQUAL(
+      outputs[idx][1].as<std::string_view>(), inputs[i],
+      "String changed in transit.");
   }
 }
 

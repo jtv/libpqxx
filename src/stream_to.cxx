@@ -40,15 +40,17 @@ char escape_char(char special)
 {
   switch (special)
   {
-        case '\b': return 'b';
-        case '\f': return 'f';
-        case '\n': return 'n';
-        case '\r': return 'r';
-        case '\t': return 't';
-        case '\v': return 'v';
-        case '\\': return '\\';
-   }
-   PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat("Stream escaping unexpectedly stopped at '", static_cast<unsigned>(static_cast<unsigned char>(special)))};
+  case '\b': return 'b';
+  case '\f': return 'f';
+  case '\n': return 'n';
+  case '\r': return 'r';
+  case '\t': return 't';
+  case '\v': return 'v';
+  case '\\': return '\\';
+  }
+  PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat(
+    "Stream escaping unexpectedly stopped at '",
+    static_cast<unsigned>(static_cast<unsigned char>(special)))};
 }
 } // namespace
 
@@ -102,7 +104,8 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 pqxx::stream_to::stream_to(
   transaction_base &tx, std::string_view path, std::string_view columns) :
         transaction_focus{tx, s_classname, path},
-        m_finder{pqxx::internal::get_char_finder<'\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
+        m_finder{pqxx::internal::get_char_finder<
+          '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
           pqxx::internal::enc_group(tx.conn().encoding_id()))}
 {
   begin_copy(tx, path, columns);
