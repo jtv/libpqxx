@@ -157,6 +157,8 @@ template<typename TYPE> struct string_traits
   /** Produces a @c string_view containing the PostgreSQL string representation
    * for @c value.
    *
+   * @warning A null value has no string representation.  Do not pass a null.
+   *
    * Uses the space from @c begin to @c end as a buffer, if needed.  The
    * returned string may lie somewhere in that buffer, or it may be a
    * compile-time constant, or it may be null if value was a null value.  Even
@@ -175,7 +177,7 @@ template<typename TYPE> struct string_traits
   to_buf(char *begin, char *end, TYPE const &value);
 
   /// Write value's string representation into buffer at @c begin.
-  /** Assumes that value is non-null.
+  /* @warning A null value has no string representation.  Do not pass a null.
    *
    * Writes value's string representation into the buffer, starting exactly at
    * @c begin, and ensuring a trailing zero.  Returns the address just beyond
@@ -187,6 +189,8 @@ template<typename TYPE> struct string_traits
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
    * for a value of this type.
+   *
+   * @warning A null value has no string representation.  Do not parse a null.
    */
   [[nodiscard]] static inline TYPE from_string(std::string_view text);
 

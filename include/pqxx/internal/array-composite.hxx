@@ -11,6 +11,9 @@ namespace pqxx::internal
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
+ * The backend double-quotes strings in composites or arrays, when needed.
+ * Special characters are escaped using backslashes.
+ *
  * Returns the offset of the first position after the closing quote.
  */
 inline std::size_t scan_double_quoted_string(
@@ -109,6 +112,7 @@ inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
+  // TODO: Backslashes don't show up in unquoted strings at all.
   bool at_backslash{false};
   auto next{scan(input, size, pos)};
   while ((pos < size) and
