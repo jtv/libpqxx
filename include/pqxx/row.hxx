@@ -84,14 +84,10 @@ public:
   [[nodiscard]] reference front() const noexcept;
   [[nodiscard]] reference back() const noexcept;
 
-  // TODO: noexcept.  Breaks ABI.
-  [[nodiscard]] const_reverse_row_iterator rbegin() const;
-  // TODO: noexcept.  Breaks ABI.
-  [[nodiscard]] const_reverse_row_iterator crbegin() const;
-  // TODO: noexcept.  Breaks ABI.
-  [[nodiscard]] const_reverse_row_iterator rend() const;
-  // TODO: noexcept.  Breaks ABI.
-  [[nodiscard]] const_reverse_row_iterator crend() const;
+  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
 
   [[nodiscard]] reference operator[](size_type) const noexcept;
   /** Address field by name.
@@ -294,7 +290,7 @@ public:
   using reference = field;
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  const_row_iterator() = default;
+  const_row_iterator() noexcept = default;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   const_row_iterator(row const &t, row_size_type c) noexcept :
           field{t.m_result, t.m_index, c}
@@ -324,15 +320,13 @@ public:
   const_row_iterator &operator=(const_row_iterator const &) noexcept = default;
   const_row_iterator &operator=(const_row_iterator &&) noexcept = default;
 
-  // TODO: noexcept.  Breaks ABI.
-  const_row_iterator operator++(int);
+  const_row_iterator operator++(int) noexcept;
   const_row_iterator &operator++() noexcept
   {
     ++m_col;
     return *this;
   }
-  // TODO: noexcept.  Breaks ABI.
-  const_row_iterator operator--(int);
+  const_row_iterator operator--(int) noexcept;
   const_row_iterator &operator--() noexcept
   {
     --m_col;
@@ -453,15 +447,13 @@ public:
     iterator_type::operator--();
     return *this;
   }
-  // TODO: noexcept.  Breaks ABI.
-  const_reverse_row_iterator operator++(int);
+  const_reverse_row_iterator operator++(int) noexcept;
   const_reverse_row_iterator &operator--() noexcept
   {
     iterator_type::operator++();
     return *this;
   }
   const_reverse_row_iterator operator--(int);
-  // TODO: noexcept.  Breaks ABI.
   const_reverse_row_iterator &operator+=(difference_type i) noexcept
   {
     iterator_type::operator-=(i);

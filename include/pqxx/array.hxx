@@ -62,7 +62,6 @@ public:
     done,
   };
 
-  // TODO: constexpr noexcept.  Breaks ABI.
   /// Constructor.  You don't need this; use @ref field::as_array instead.
   /** The parser only remains valid while the data underlying the @ref result
    * remains valid.  Once all `result` objects referring to that data have been
@@ -70,7 +69,7 @@ public:
    */
   explicit array_parser(
     std::string_view input,
-    internal::encoding_group = internal::encoding_group::MONOBYTE);
+    internal::encoding_group = internal::encoding_group::MONOBYTE) noexcept;
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @ref juncture::string_value,

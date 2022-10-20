@@ -53,7 +53,6 @@ public:
    * @name Comparison
    */
   //@{
-  // TODO: noexcept.  Breaks ABI.
   /// Byte-by-byte comparison of two fields (all nulls are considered equal)
   /** @warning null handling is still open to discussion and change!
    *
@@ -71,7 +70,7 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  [[nodiscard]] PQXX_PURE bool operator==(field const &) const;
+  [[nodiscard]] PQXX_PURE bool operator==(field const &) const noexcept;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
@@ -244,7 +243,6 @@ public:
     return as<O<T>>();
   }
 
-  // TODO: constexpr noexcept, once array_parser constructor gets those.
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
    *
@@ -252,7 +250,7 @@ public:
    * you keep the @ref row of `field` object alive, it will keep the @ref
    * result object alive as well.
    */
-  array_parser as_array() const &
+  array_parser as_array() const & noexcept
   {
     return array_parser{c_str(), m_home.m_encoding};
   }
