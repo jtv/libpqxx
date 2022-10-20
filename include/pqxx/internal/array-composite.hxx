@@ -9,6 +9,7 @@
 namespace pqxx::internal
 {
 // XXX: Get rid of this one; use the compile-time-specialised version instead.
+// XXX: Used only in parse_composite_field.
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -135,6 +136,7 @@ inline std::size_t s_scan_double_quoted_string(
 
 
 // XXX: Get rid of this one; use the compile-time-specialised version instead.
+// XXX: Used only in parse_composite_field().
 /// Un-quote and un-escape a double-quoted SQL string.
 inline std::string parse_double_quoted_string(
   char const input[], std::size_t end, std::size_t pos,
@@ -199,6 +201,7 @@ inline std::string s_parse_double_quoted_string(
 
 
 // XXX: Get rid of this one; use the compile-time-specialised version instead.
+// XXX: Used only in parse_composite_field().
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -211,7 +214,6 @@ inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
-  // TODO: Backslashes don't show up in unquoted strings at all.
   bool at_backslash{false};
   auto next{scan(input, size, pos)};
   while ((pos < size) and
@@ -255,6 +257,7 @@ inline std::size_t s_scan_unquoted_string(
 
 
 // XXX: Get rid of this one; use the compile-time-specialised version instead.
+// XXX: Used only in parse_composite_field().
 /// Parse an unquoted array entry or cfield of a composite-type field.
 inline std::string parse_unquoted_string(
   char const input[], std::size_t end, std::size_t pos,
@@ -297,6 +300,7 @@ inline std::string s_parse_unquoted_string(
 }
 
 
+// XXX: Specialise by encoding group.
 /// Parse a field of a composite-type value.
 /** `T` is the C++ type of the field we're parsing, and `index` is its
  * zero-based number.

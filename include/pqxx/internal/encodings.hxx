@@ -755,20 +755,22 @@ template<> struct glyph_scanner<encoding_group::UTF8>
 };
 
 
-// XXX: Extract encoding_group remapper for "search only."
-/// Look up a character search function for an encoding group.
-/** We only define a few individual instantiations of this function, as needed.
+/// Just for searching an ASCII character, what encoding can we use here?
+/** Maps an encoding group to an encoding group that we can apply for the
+ * specific purpose of looking for a given ASCII character.
  *
- * Returns a pointer to a function which looks for the first instance of any of
- * the ASCII characters in `NEEDLE`.  Returns its offset, or the end of the
- * `haystack` if it found none.
+ * The "difficult" encoding groups will map to themselves.  But the ones that
+ * work like "ASCII supersets" have the wonderful property that even a multibyte
+ * character cannot contain a byte that happens to be in the ASCII range.  This
+ * holds for the single-byte encodings, for example, but also for UTF-8.
+ *
+ * For those encodings, we can just pretend that we're dealing with a
+ * single-byte encoding and scan byte-by-byte until we find a byte with the
+ * value we're looking for.  We don't actually need to know where the
+ * boundaries between the characters are.
  */
-template<char... NEEDLE>
-PQXX_PURE inline char_finder_func *get_char_finder(encoding_group enc)
+constexpr inline encoding_group map_ascii_search_group(encoding_group enc) noexcept
 {
-  // Many encodings are "ASCII-safe" in the sense that for a search loop such
-  // as this one, we can treat them like any single-byte encoding.  That will
-  // simplify the machine code in the search loops a bit.
   switch (enc)
   {
   case encoding_group::MONOBYTE:
@@ -782,32 +784,47 @@ PQXX_PURE inline char_finder_func *get_char_finder(encoding_group enc)
     // All these encodings are "ASCII-safe," meaning that if we're looking
     // for a particular ASCII character, we can safely just go through the
     // string byte for byte.  Multibyte characters have the high bit set.
-    PQXX_LIKELY return pqxx::internal::find_ascii_char<
-      encoding_group::MONOBYTE, NEEDLE...>;
+    return encoding_group::MONOBYTE;
 
+  default:
+    PQXX_UNLIKELY return enc;
+  }
+}
+
+
+/// Look up a character search function for an encoding group.
+/** We only define a few individual instantiations of this function, as needed.
+ *
+ * Returns a pointer to a function which looks for the first instance of any of
+ * the ASCII characters in `NEEDLE`.  Returns its offset, or the end of the
+ * `haystack` if it found none.
+ */
+template<char... NEEDLE>
+PQXX_PURE constexpr inline char_finder_func *get_char_finder(encoding_group enc)
+{
+  auto const as_if{map_ascii_search_group(enc)};
+  switch (as_if)
+  {
+  case encoding_group::MONOBYTE:
+    return pqxx::internal::find_ascii_char<encoding_group::MONOBYTE, NEEDLE...>;
   case encoding_group::BIG5:
     return pqxx::internal::find_ascii_char<encoding_group::BIG5, NEEDLE...>;
-
   case encoding_group::GB18030:
-    return pqxx::internal::find_ascii_char<encoding_group::GB18030>;
-
+    return pqxx::internal::find_ascii_char<encoding_group::GB18030, NEEDLE...>;
   case encoding_group::GBK:
-    return pqxx::internal::find_ascii_char<encoding_group::GBK>;
-
+    return pqxx::internal::find_ascii_char<encoding_group::GBK, NEEDLE...>;
   case encoding_group::JOHAB:
-    return pqxx::internal::find_ascii_char<encoding_group::JOHAB>;
-
+    return pqxx::internal::find_ascii_char<encoding_group::JOHAB, NEEDLE...>;
   case encoding_group::SJIS:
-    return pqxx::internal::find_ascii_char<encoding_group::SJIS>;
-
+    return pqxx::internal::find_ascii_char<encoding_group::SJIS, NEEDLE...>;
   case encoding_group::SHIFT_JIS_2004:
-    return pqxx::internal::find_ascii_char<encoding_group::SHIFT_JIS_2004>;
-
+    return pqxx::internal::find_ascii_char<encoding_group::SHIFT_JIS_2004, NEEDLE...>;
   case encoding_group::UHC:
-    return pqxx::internal::find_ascii_char<encoding_group::UHC>;
+    return pqxx::internal::find_ascii_char<encoding_group::UHC, NEEDLE...>;
+
+  default:
+    throw pqxx::internal_error{concat("Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
   }
-  PQXX_UNLIKELY
-  throw usage_error{concat("Unsupported encoding group code ", enc, ".")};
 }
 } // namespace pqxx::internal
 #endif

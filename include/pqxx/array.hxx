@@ -41,7 +41,7 @@ namespace pqxx
  * on the fly.  The string must remain in memory until parsing is done.
  *
  * Parse the array by making calls to @ref get_next until it returns a
- * @ref juncture of "done".  The @ref juncture tells you what the parser found
+ * @ref juncture of `done`.  The @ref juncture tells you what the parser found
  * in that step: did the array "nest" to a deeper level, or "un-nest" back up?
  */
 class PQXX_LIBEXPORT array_parser
