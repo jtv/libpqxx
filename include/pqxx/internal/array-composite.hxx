@@ -8,6 +8,7 @@
 
 namespace pqxx::internal
 {
+// XXX: Get rid of this one; use the compile-time-specialised version instead.
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -20,7 +21,6 @@ inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos,
   pqxx::internal::glyph_scanner_func *scan)
 {
-  // XXX: find_char<'"', '\\'>().
   auto next{scan(input, size, pos)};
   bool at_quote{false};
   for (pos = next, next = scan(input, size, pos); pos < size;
@@ -70,6 +70,71 @@ inline std::size_t scan_double_quoted_string(
 }
 
 
+// XXX: Rename.
+// Find the end of a double-quoted string.
+/** `input[pos]` must be the opening double quote.
+ *
+ * The backend double-quotes strings in composites or arrays, when needed.
+ * Special characters are escaped using backslashes.
+ *
+ * Returns the offset of the first position after the closing quote.
+ */
+template<encoding_group ENC>
+inline std::size_t s_scan_double_quoted_string(
+  char const input[], std::size_t size, std::size_t pos)
+{
+  // XXX: find_char<'"', '\\'>().
+  using scanner = glyph_scanner<ENC>;
+  auto next{scanner::call(input, size, pos)};
+  bool at_quote{false};
+  for (pos = next, next = scanner::call(input, size, pos); pos < size;
+       pos = next, next = scanner::call(input, size, pos))
+  {
+    if (at_quote)
+    {
+      if (next - pos == 1 and input[pos] == '"')
+      {
+        // We just read a pair of double quotes.  Carry on.
+        at_quote = false;
+      }
+      else
+      {
+        // We just read one double quote, and now we're at a character that's
+        // not a second double quote.  Ergo, that last character was the
+        // closing double quote and this is the position right after it.
+        return pos;
+      }
+    }
+    else if (next - pos == 1)
+    {
+      switch (input[pos])
+      {
+      case '\\':
+        // Backslash escape.  Skip ahead by one more character.
+        pos = next;
+        next = scanner::call(input, size, pos);
+        break;
+
+      case '"':
+        // This is either the closing double quote, or the first of a pair of
+        // double quotes.
+        at_quote = true;
+        break;
+      }
+    }
+    else
+    {
+      // Multibyte character.  Carry on.
+    }
+  }
+  if (not at_quote)
+    throw argument_error{
+      "Missing closing double-quote: " + std::string{input}};
+  return pos;
+}
+
+
+// XXX: Get rid of this one; use the compile-time-specialised version instead.
 /// Un-quote and un-escape a double-quoted SQL string.
 inline std::string parse_double_quoted_string(
   char const input[], std::size_t end, std::size_t pos,
@@ -100,6 +165,40 @@ inline std::string parse_double_quoted_string(
 }
 
 
+// XXX: Rename.
+/// Un-quote and un-escape a double-quoted SQL string.
+template<encoding_group ENC>
+inline std::string s_parse_double_quoted_string(
+  char const input[], std::size_t end, std::size_t pos)
+{
+  std::string output;
+  // Maximum output size is same as the input size, minus the opening and
+  // closing quotes.  Or in the extreme opposite case, the real number could be
+  // half that.  Usually it'll be a pretty close estimate.
+  output.reserve(std::size_t(end - pos - 2));
+
+  // TODO: Use find_char<...>().
+  using scanner = glyph_scanner<ENC>;
+  for (auto here{scanner::call(input, end, pos)}, next{scanner::call(input, end, here)};
+       here < end - 1; here = next, next = scanner::call(input, end, here))
+  {
+    // A backslash here is always an escape.  So is a double-quote, since we're
+    // inside the double-quoted string.  In either case, we can just ignore the
+    // escape character and use the next character.  This is the one redeeming
+    // feature of SQL's escaping system.
+    if ((next - here == 1) and (input[here] == '\\' or input[here] == '"'))
+    {
+      // Skip escape.
+      here = next;
+      next = scanner::call(input, end, here);
+    }
+    output.append(input + here, input + next);
+  }
+  return output;
+}
+
+
+// XXX: Get rid of this one; use the compile-time-specialised version instead.
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -127,6 +226,35 @@ inline std::size_t scan_unquoted_string(
 }
 
 
+// XXX: Rename.
+/// Find the end of an unquoted string in an array or composite-type value.
+/** Stops when it gets to the end of the input; or when it sees any of the
+ * characters in STOP which has not been escaped.
+ *
+ * For array values, STOP is a comma, a semicolon, or a closing brace.  For
+ * a value of a composite type, STOP is a comma or a closing parenthesis.
+ */
+template<pqxx::internal::encoding_group ENC, char... STOP>
+inline std::size_t s_scan_unquoted_string(
+  char const input[], std::size_t size, std::size_t pos)
+{
+  // TODO: Backslashes don't show up in unquoted strings at all.
+  bool at_backslash{false};
+  using scanner = glyph_scanner<ENC>;
+  auto next{scanner::call(input, size, pos)};
+  while ((pos < size) and
+         ((next - pos) > 1 or at_backslash or ((input[pos] != STOP) and ...)))
+  {
+    pos = next;
+    next = scanner::call(input, size, pos);
+    at_backslash =
+      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
+  }
+  return pos;
+}
+
+
+// XXX: Get rid of this one; use the compile-time-specialised version instead.
 /// Parse an unquoted array entry or cfield of a composite-type field.
 inline std::string parse_unquoted_string(
   char const input[], std::size_t end, std::size_t pos,
@@ -137,6 +265,28 @@ inline std::string parse_unquoted_string(
   output.reserve(end - pos);
   for (auto next{scan(input, end, pos)}; pos < end;
        pos = next, next = scan(input, end, pos))
+  {
+    at_backslash =
+      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
+    if (not at_backslash)
+      output.append(input + pos, next - pos);
+  }
+  return output;
+}
+
+
+// XXX: Rename.
+/// Parse an unquoted array entry or cfield of a composite-type field.
+template<pqxx::internal::encoding_group ENC>
+inline std::string s_parse_unquoted_string(
+  char const input[], std::size_t end, std::size_t pos)
+{
+  using scanner = glyph_scanner<ENC>;
+  std::string output;
+  bool at_backslash{false};
+  output.reserve(end - pos);
+  for (auto next{scanner::call(input, end, pos)}; pos < end;
+       pos = next, next = scanner::call(input, end, pos))
   {
     at_backslash =
       ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));

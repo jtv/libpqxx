@@ -26,45 +26,51 @@
 namespace pqxx
 {
 /// Scan to next glyph in the buffer.  Assumes there is one.
+template<pqxx::internal::encoding_group ENC>
 [[nodiscard]] std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos) const
 {
-  return m_scan(std::data(m_input), std::size(m_input), pos);
+  return pqxx::internal::glyph_scanner<ENC>::call(
+    std::data(m_input), std::size(m_input), pos);
 }
 
 
 /// Scan to next glyph in a substring.  Assumes there is one.
+template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_glyph(
   std::string::size_type pos, std::string::size_type end) const
 {
-  return m_scan(std::data(m_input), end, pos);
+  return pqxx::internal::glyph_scanner<ENC>::call(std::data(m_input), end, pos);
 }
 
 
 /// Find the end of a double-quoted SQL string in an SQL array.
+template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
-  return pqxx::internal::scan_double_quoted_string(
-    std::data(m_input), std::size(m_input), m_pos, m_scan);
+  return pqxx::internal::s_scan_double_quoted_string<ENC>(
+    std::data(m_input), std::size(m_input), m_pos);
 }
 
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
+template<pqxx::internal::encoding_group ENC>
 std::string
 array_parser::parse_double_quoted_string(std::string::size_type end) const
 {
-  return pqxx::internal::parse_double_quoted_string(
-    std::data(m_input), end, m_pos, m_scan);
+  return pqxx::internal::s_parse_double_quoted_string<ENC>(
+    std::data(m_input), end, m_pos);
 }
 
 
 /// Find the end of an unquoted string in an SQL array.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
+template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  return pqxx::internal::scan_unquoted_string<',', ';', '}'>(
-    std::data(m_input), std::size(m_input), m_pos, m_scan);
+  return pqxx::internal::s_scan_unquoted_string<ENC, ',', ';', '}'>(
+    std::data(m_input), std::size(m_input), m_pos);
 }
 
 
@@ -72,21 +78,23 @@ std::string::size_type array_parser::scan_unquoted_string() const
 /** Here, the special unquoted value NULL means a null value, not a string
  * that happens to spell "NULL".
  */
+template<pqxx::internal::encoding_group ENC>
 std::string
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
-  return pqxx::internal::parse_unquoted_string(
-    std::data(m_input), end, m_pos, m_scan);
+  return pqxx::internal::s_parse_unquoted_string<ENC>(
+    std::data(m_input), end, m_pos);
 }
 
 
 array_parser::array_parser(
-  std::string_view input, internal::encoding_group enc) noexcept :
-        m_input(input), m_scan(internal::get_glyph_scanner(enc))
+  std::string_view input, internal::encoding_group enc) :
+        m_input{input}, m_impl{specialize_for_encoding(enc)}
 {}
 
 
-std::pair<array_parser::juncture, std::string> array_parser::get_next()
+template<pqxx::internal::encoding_group ENC>
+std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
 {
   std::string value;
 
@@ -96,11 +104,11 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   juncture found;
   std::string::size_type end;
 
-  if (scan_glyph(m_pos) - m_pos > 1)
+  if (scan_glyph<ENC>(m_pos) - m_pos > 1)
   {
     // Non-ASCII unquoted string.
-    end = scan_unquoted_string();
-    value = parse_unquoted_string(end);
+    end = scan_unquoted_string<ENC>();
+    value = parse_unquoted_string<ENC>(end);
     found = juncture::string_value;
   }
   else
@@ -109,20 +117,20 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
     case '\0': throw failure{"Unexpected zero byte in array."};
     case '{':
       found = juncture::row_start;
-      end = scan_glyph(m_pos);
+      end = scan_glyph<ENC>(m_pos);
       break;
     case '}':
       found = juncture::row_end;
-      end = scan_glyph(m_pos);
+      end = scan_glyph<ENC>(m_pos);
       break;
     case '"':
       found = juncture::string_value;
-      end = scan_double_quoted_string();
-      value = parse_double_quoted_string(end);
+      end = scan_double_quoted_string<ENC>();
+      value = parse_double_quoted_string<ENC>(end);
       break;
     default:
-      end = scan_unquoted_string();
-      value = parse_unquoted_string(end);
+      end = scan_unquoted_string<ENC>();
+      value = parse_unquoted_string<ENC>(end);
       if (value == "NULL")
       {
         // In this one situation, as a special case, NULL means a null field,
@@ -143,7 +151,7 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
   // Skip a trailing field separator, if present.
   if (end < std::size(m_input))
   {
-    auto next{scan_glyph(end)};
+    auto next{scan_glyph<ENC>(end)};
     if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
       PQXX_UNLIKELY
     end = next;
@@ -151,5 +159,37 @@ std::pair<array_parser::juncture, std::string> array_parser::get_next()
 
   m_pos = end;
   return std::make_pair(found, value);
+}
+
+
+array_parser::implementation array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
+{
+  using encoding_group = pqxx::internal::encoding_group;
+
+#define PQXX_ENCODING_CASE(GROUP) \
+  case encoding_group::GROUP: \
+    return &array_parser::parse_array_step<encoding_group::GROUP>
+
+  switch (enc)
+  {
+  PQXX_ENCODING_CASE(MONOBYTE);
+  PQXX_ENCODING_CASE(BIG5);
+  PQXX_ENCODING_CASE(EUC_CN);
+  PQXX_ENCODING_CASE(EUC_JP);
+  PQXX_ENCODING_CASE(EUC_JIS_2004);
+  PQXX_ENCODING_CASE(EUC_KR);
+  PQXX_ENCODING_CASE(EUC_TW);
+  PQXX_ENCODING_CASE(GB18030);
+  PQXX_ENCODING_CASE(GBK);
+  PQXX_ENCODING_CASE(JOHAB);
+  PQXX_ENCODING_CASE(MULE_INTERNAL);
+  PQXX_ENCODING_CASE(SJIS);
+  PQXX_ENCODING_CASE(SHIFT_JIS_2004);
+  PQXX_ENCODING_CASE(UHC);
+  PQXX_ENCODING_CASE(UTF8);
+  }
+  PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
+
+#undef PQXX_ENCODING_CASE
 }
 } // namespace pqxx

@@ -69,7 +69,7 @@ public:
    */
   explicit array_parser(
     std::string_view input,
-    internal::encoding_group = internal::encoding_group::MONOBYTE) noexcept;
+    internal::encoding_group = internal::encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @ref juncture::string_value,
@@ -78,21 +78,44 @@ public:
    * Call this until the @ref array_parser::juncture it returns is
    * @ref juncture::done.
    */
-  std::pair<juncture, std::string> get_next();
+  std::pair<juncture, std::string> get_next()
+  { return (this->*m_impl)(); }
 
 private:
   std::string_view m_input;
-  internal::glyph_scanner_func *const m_scan;
 
   /// Current parsing position in the input.
-  std::string::size_type m_pos = 0u;
+  std::size_t m_pos = 0u;
 
+  /// A function implementing the guts of `get_next`.
+  /** Internally this class uses a template to specialise the implementation of
+   * `get_next` for each of the various encoding groups.  This allows the
+   * compiler to inline the parsing of each text encoding, which happens in
+   * very hot loops.
+   */
+  using implementation = std::pair<juncture, std::string> (array_parser::*)();
+
+  /// Pick the `implementation` for `enc`.
+  static implementation specialize_for_encoding(pqxx::internal::encoding_group enc);
+
+  /// Our implementation of `parse_array_step`, specialised for our encoding.
+  implementation m_impl;
+
+  /// Perform one step of array parsing.
+  template<pqxx::internal::encoding_group> std::pair<juncture, std::string> parse_array_step();
+
+  template<pqxx::internal::encoding_group>
   std::string::size_type scan_double_quoted_string() const;
+  template<pqxx::internal::encoding_group>
   std::string parse_double_quoted_string(std::string::size_type end) const;
+  template<pqxx::internal::encoding_group>
   std::string::size_type scan_unquoted_string() const;
+  template<pqxx::internal::encoding_group>
   std::string parse_unquoted_string(std::string::size_type end) const;
 
+  template<pqxx::internal::encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos) const;
+  template<pqxx::internal::encoding_group>
   std::string::size_type
   scan_glyph(std::string::size_type pos, std::string::size_type end) const;
 };

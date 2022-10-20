@@ -40,6 +40,7 @@ PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
+// XXX: Get rid of thise one.  Use compile-time-specialised version instead.
 /// Find any of the ASCII characters `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any value in `NEEDLE`.
@@ -76,6 +77,7 @@ inline std::size_t find_char(
 }
 
 
+// XXX: Get rid of this one.  Use compile-time-specialised loop instead.
 /// Iterate over the glyphs in a buffer.
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
  * one-past-end pointers to `callback`.
@@ -234,7 +236,7 @@ PQXX_PURE std::size_t next_seq_for_sjislike(
  */
 template<encoding_group> struct glyph_scanner
 {
-  // TODO: Convert to use string_view.
+  // TODO: Convert to use string_view?
   /// Find the next glyph in `buffer` after position `start`.
   PQXX_PURE static std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start);
@@ -753,6 +755,7 @@ template<> struct glyph_scanner<encoding_group::UTF8>
 };
 
 
+// XXX: Extract encoding_group remapper for "search only."
 /// Look up a character search function for an encoding group.
 /** We only define a few individual instantiations of this function, as needed.
  *
@@ -761,7 +764,7 @@ template<> struct glyph_scanner<encoding_group::UTF8>
  * `haystack` if it found none.
  */
 template<char... NEEDLE>
-PQXX_PURE char_finder_func *get_char_finder(encoding_group enc)
+PQXX_PURE inline char_finder_func *get_char_finder(encoding_group enc)
 {
   // Many encodings are "ASCII-safe" in the sense that for a search loop such
   // as this one, we can treat them like any single-byte encoding.  That will
