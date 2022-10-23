@@ -26,14 +26,19 @@
 namespace pqxx
 {
 /// Low-level array parser.
-/** Use this to read an array field retrieved from the database.
+/** @warning This is not a great API.  Something newer is on the way.
  *
- * This parser will only work reliably if your client encoding is UTF-8, ASCII,
- * or a single-byte encoding which is a superset of ASCII (such as Latin-1).
+ * Use this to read an array field retrieved from the database.
  *
- * Also, the parser only supports array element types which use a comma (',')
- * as the separator between array elements.  All built-in types use comma,
- * except for one which uses semicolon, but some custom types may not work.
+ * @warning This parser will only work reliably if your client encoding is
+ * UTF-8, ASCII, or a "safe ASCII superset" (such as the EUC encodings) where
+ * a byte value in the ASCII range can only occur as an actual ASCII character,
+ * never as one byte in a multi-byte character.
+ *
+ * @warning The parser only supports array element types which use a comma
+ * (`','`) as the separator between array elements.  All built-in SQL types use
+ * comma, except for `box` which uses semicolon.  However some custom types may
+ * not work.
  *
  * The input is a C-style string containing the textual representation of an
  * array, as returned by the database.  The parser reads this representation
