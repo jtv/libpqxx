@@ -450,8 +450,10 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // The string may leave out either bound to indicate that it's unlimited.
     std::optional<TYPE> lower, upper;
     // We reuse the same field parser we use for composite values and arrays.
-// XXX: Use applicable encoding!
-    auto const field_parser{pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(pqxx::internal::encoding_group::UTF8)};
+    // XXX: Use applicable encoding!
+    auto const field_parser{
+      pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(
+        pqxx::internal::encoding_group::UTF8)};
     field_parser(index, text, pos, lower, last);
     field_parser(index, text, pos, upper, last);
 

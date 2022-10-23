@@ -469,35 +469,24 @@ void test_array_roundtrip()
 void test_array_strings()
 {
   std::vector<std::string_view> inputs{
-    "",
-    "null",
-    "NULL",
-    "\\N",
-    "'",
-    "''",
-    "\\",
-    "\n\t",
-    "\\n",
-    "\"",
-    "\"\"",
-    "a b",
-    "a<>b",
-    "{",
-    "}",
-    "{}",
+    "",    "null", "NULL", "\\N", "'",    "''", "\\", "\n\t",
+    "\\n", "\"",   "\"\"", "a b", "a<>b", "{",  "}",  "{}",
   };
   pqxx::connection conn;
   pqxx::work tx{conn};
 
-  for (auto const &input: inputs)
+  for (auto const &input : inputs)
   {
     auto const r{tx.exec_params("SELECT ARRAY[$1]", input)};
     pqxx::array_parser parser{r[0][0].as<std::string_view>()};
     auto [start_juncture, start_value]{parser.get_next()};
     pqxx::ignore_unused(start_value);
-    PQXX_CHECK_EQUAL(start_juncture, pqxx::array_parser::juncture::row_start, "Bad start.");
+    PQXX_CHECK_EQUAL(
+      start_juncture, pqxx::array_parser::juncture::row_start, "Bad start.");
     auto [value_juncture, value]{parser.get_next()};
-    PQXX_CHECK_EQUAL(value_juncture, pqxx::array_parser::juncture::string_value, "Bad value juncture.");
+    PQXX_CHECK_EQUAL(
+      value_juncture, pqxx::array_parser::juncture::string_value,
+      "Bad value juncture.");
     PQXX_CHECK_EQUAL(value, input, "Bad array value roundtrip.");
   }
 }

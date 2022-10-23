@@ -760,16 +760,18 @@ template<> struct glyph_scanner<encoding_group::UTF8>
  * specific purpose of looking for a given ASCII character.
  *
  * The "difficult" encoding groups will map to themselves.  But the ones that
- * work like "ASCII supersets" have the wonderful property that even a multibyte
- * character cannot contain a byte that happens to be in the ASCII range.  This
- * holds for the single-byte encodings, for example, but also for UTF-8.
+ * work like "ASCII supersets" have the wonderful property that even a
+ * multibyte character cannot contain a byte that happens to be in the ASCII
+ * range.  This holds for the single-byte encodings, for example, but also for
+ * UTF-8.
  *
  * For those encodings, we can just pretend that we're dealing with a
  * single-byte encoding and scan byte-by-byte until we find a byte with the
  * value we're looking for.  We don't actually need to know where the
  * boundaries between the characters are.
  */
-constexpr inline encoding_group map_ascii_search_group(encoding_group enc) noexcept
+constexpr inline encoding_group
+map_ascii_search_group(encoding_group enc) noexcept
 {
   switch (enc)
   {
@@ -786,8 +788,7 @@ constexpr inline encoding_group map_ascii_search_group(encoding_group enc) noexc
     // string byte for byte.  Multibyte characters have the high bit set.
     return encoding_group::MONOBYTE;
 
-  default:
-    PQXX_UNLIKELY return enc;
+  default: PQXX_UNLIKELY return enc;
   }
 }
 
@@ -800,13 +801,15 @@ constexpr inline encoding_group map_ascii_search_group(encoding_group enc) noexc
  * `haystack` if it found none.
  */
 template<char... NEEDLE>
-PQXX_PURE constexpr inline char_finder_func *get_char_finder(encoding_group enc)
+PQXX_PURE constexpr inline char_finder_func *
+get_char_finder(encoding_group enc)
 {
   auto const as_if{map_ascii_search_group(enc)};
   switch (as_if)
   {
   case encoding_group::MONOBYTE:
-    return pqxx::internal::find_ascii_char<encoding_group::MONOBYTE, NEEDLE...>;
+    return pqxx::internal::find_ascii_char<
+      encoding_group::MONOBYTE, NEEDLE...>;
   case encoding_group::BIG5:
     return pqxx::internal::find_ascii_char<encoding_group::BIG5, NEEDLE...>;
   case encoding_group::GB18030:
@@ -818,12 +821,14 @@ PQXX_PURE constexpr inline char_finder_func *get_char_finder(encoding_group enc)
   case encoding_group::SJIS:
     return pqxx::internal::find_ascii_char<encoding_group::SJIS, NEEDLE...>;
   case encoding_group::SHIFT_JIS_2004:
-    return pqxx::internal::find_ascii_char<encoding_group::SHIFT_JIS_2004, NEEDLE...>;
+    return pqxx::internal::find_ascii_char<
+      encoding_group::SHIFT_JIS_2004, NEEDLE...>;
   case encoding_group::UHC:
     return pqxx::internal::find_ascii_char<encoding_group::UHC, NEEDLE...>;
 
   default:
-    throw pqxx::internal_error{concat("Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
+    throw pqxx::internal_error{concat(
+      "Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
   }
 }
 } // namespace pqxx::internal

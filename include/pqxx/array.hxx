@@ -82,8 +82,7 @@ public:
    * Call this until the @ref array_parser::juncture it returns is
    * @ref juncture::done.
    */
-  std::pair<juncture, std::string> get_next()
-  { return (this->*m_impl)(); }
+  std::pair<juncture, std::string> get_next() { return (this->*m_impl)(); }
 
 private:
   std::string_view m_input;
@@ -100,13 +99,15 @@ private:
   using implementation = std::pair<juncture, std::string> (array_parser::*)();
 
   /// Pick the `implementation` for `enc`.
-  static implementation specialize_for_encoding(pqxx::internal::encoding_group enc);
+  static implementation
+  specialize_for_encoding(pqxx::internal::encoding_group enc);
 
   /// Our implementation of `parse_array_step`, specialised for our encoding.
   implementation m_impl;
 
   /// Perform one step of array parsing.
-  template<pqxx::internal::encoding_group> std::pair<juncture, std::string> parse_array_step();
+  template<pqxx::internal::encoding_group>
+  std::pair<juncture, std::string> parse_array_step();
 
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_double_quoted_string() const;

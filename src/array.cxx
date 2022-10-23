@@ -40,7 +40,8 @@ template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_glyph(
   std::string::size_type pos, std::string::size_type end) const
 {
-  return pqxx::internal::glyph_scanner<ENC>::call(std::data(m_input), end, pos);
+  return pqxx::internal::glyph_scanner<ENC>::call(
+    std::data(m_input), end, pos);
 }
 
 
@@ -162,33 +163,35 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
 }
 
 
-array_parser::implementation array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
+array_parser::implementation
+array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
 {
   using encoding_group = pqxx::internal::encoding_group;
 
-#define PQXX_ENCODING_CASE(GROUP) \
-  case encoding_group::GROUP: \
+#define PQXX_ENCODING_CASE(GROUP)                                             \
+  case encoding_group::GROUP:                                                 \
     return &array_parser::parse_array_step<encoding_group::GROUP>
 
   switch (enc)
   {
-  PQXX_ENCODING_CASE(MONOBYTE);
-  PQXX_ENCODING_CASE(BIG5);
-  PQXX_ENCODING_CASE(EUC_CN);
-  PQXX_ENCODING_CASE(EUC_JP);
-  PQXX_ENCODING_CASE(EUC_JIS_2004);
-  PQXX_ENCODING_CASE(EUC_KR);
-  PQXX_ENCODING_CASE(EUC_TW);
-  PQXX_ENCODING_CASE(GB18030);
-  PQXX_ENCODING_CASE(GBK);
-  PQXX_ENCODING_CASE(JOHAB);
-  PQXX_ENCODING_CASE(MULE_INTERNAL);
-  PQXX_ENCODING_CASE(SJIS);
-  PQXX_ENCODING_CASE(SHIFT_JIS_2004);
-  PQXX_ENCODING_CASE(UHC);
-  PQXX_ENCODING_CASE(UTF8);
+    PQXX_ENCODING_CASE(MONOBYTE);
+    PQXX_ENCODING_CASE(BIG5);
+    PQXX_ENCODING_CASE(EUC_CN);
+    PQXX_ENCODING_CASE(EUC_JP);
+    PQXX_ENCODING_CASE(EUC_JIS_2004);
+    PQXX_ENCODING_CASE(EUC_KR);
+    PQXX_ENCODING_CASE(EUC_TW);
+    PQXX_ENCODING_CASE(GB18030);
+    PQXX_ENCODING_CASE(GBK);
+    PQXX_ENCODING_CASE(JOHAB);
+    PQXX_ENCODING_CASE(MULE_INTERNAL);
+    PQXX_ENCODING_CASE(SJIS);
+    PQXX_ENCODING_CASE(SHIFT_JIS_2004);
+    PQXX_ENCODING_CASE(UHC);
+    PQXX_ENCODING_CASE(UTF8);
   }
-  PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
+  PQXX_UNLIKELY throw pqxx::internal_error{
+    pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
 
 #undef PQXX_ENCODING_CASE
 }
