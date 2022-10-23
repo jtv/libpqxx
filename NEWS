@@ -1,5 +1,7 @@
 7.8.0
+ - Use `array_parser` only on comma-separated types (which is most of them).
  - Bumping requirements versions: need postgres 10.
+ - Fix array parsing bug when parsing semicolon in an unquoted string.
  - Faster text decoding in `stream_from`, and escaping in `stream_to`.  (#601)
  - At last, streaming throughput is faster (on my system) than a regular query.
  - Ran `autoupdate` (because the autotools told me to).

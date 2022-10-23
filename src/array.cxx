@@ -69,7 +69,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  return pqxx::internal::s_scan_unquoted_string<ENC, ',', ';', '}'>(
+  return pqxx::internal::s_scan_unquoted_string<ENC, ',', '}'>(
     std::data(m_input), std::size(m_input), m_pos);
 }
 
@@ -152,7 +152,7 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
   if (end < std::size(m_input))
   {
     auto next{scan_glyph<ENC>(end)};
-    if (next - end == 1 and (m_input[end] == ',' or m_input[end] == ';'))
+    if (((next - end) == 1) and (m_input[end] == ','))
       PQXX_UNLIKELY
     end = next;
   }
