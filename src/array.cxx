@@ -48,7 +48,7 @@ std::string::size_type array_parser::scan_glyph(
 template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_double_quoted_string() const
 {
-  return pqxx::internal::s_scan_double_quoted_string<ENC>(
+  return pqxx::internal::scan_double_quoted_string<ENC>(
     std::data(m_input), std::size(m_input), m_pos);
 }
 
@@ -58,7 +58,7 @@ template<pqxx::internal::encoding_group ENC>
 std::string
 array_parser::parse_double_quoted_string(std::string::size_type end) const
 {
-  return pqxx::internal::s_parse_double_quoted_string<ENC>(
+  return pqxx::internal::parse_double_quoted_string<ENC>(
     std::data(m_input), end, m_pos);
 }
 
@@ -69,7 +69,7 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_unquoted_string() const
 {
-  return pqxx::internal::s_scan_unquoted_string<ENC, ',', '}'>(
+  return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
     std::data(m_input), std::size(m_input), m_pos);
 }
 
@@ -82,7 +82,7 @@ template<pqxx::internal::encoding_group ENC>
 std::string
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
-  return pqxx::internal::s_parse_unquoted_string<ENC>(
+  return pqxx::internal::parse_unquoted_string<ENC>(
     std::data(m_input), end, m_pos);
 }
 
