@@ -26,7 +26,7 @@
 namespace pqxx
 {
 /// Low-level array parser.
-/** @warning This is not a great API.  Something newer is on the way.
+/** @warning This is not a great API.  Something nicer is on the way.
  *
  * Use this to read an array field retrieved from the database.
  *
