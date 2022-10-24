@@ -250,7 +250,7 @@ public:
    * you keep the @ref row of `field` object alive, it will keep the @ref
    * result object alive as well.
    */
-  array_parser as_array() const & noexcept
+  array_parser as_array() const &noexcept
   {
     return array_parser{c_str(), m_home.m_encoding};
   }

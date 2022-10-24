@@ -50,10 +50,11 @@ inline void parse_composite(
 
   here = next;
 
+  // XXX: Reuse parse_composite_field specialisation across calls.
   constexpr auto num_fields{sizeof...(fields)};
   std::size_t index{0};
-  (pqxx::internal::parse_composite_field(
-     index, text, here, fields, scan, num_fields - 1),
+  (pqxx::internal::specialize_parse_composite_field<T>(enc)(
+     index, text, here, fields, num_fields - 1),
    ...);
   if (here != std::size(text))
     throw conversion_error{internal::concat(

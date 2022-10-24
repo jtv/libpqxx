@@ -303,7 +303,8 @@ private:
   static std::string const s_empty_string;
 
   friend class pqxx::field;
-  PQXX_PURE char const *get_value(size_type row, row_size_type col) const noexcept;
+  PQXX_PURE char const *
+  get_value(size_type row, row_size_type col) const noexcept;
   PQXX_PURE bool get_is_null(size_type row, row_size_type col) const noexcept;
   PQXX_PURE
   field_size_type get_length(size_type, row_size_type) const noexcept;
