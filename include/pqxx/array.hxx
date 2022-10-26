@@ -15,9 +15,12 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <cassert>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
@@ -25,6 +28,111 @@
 
 namespace pqxx
 {
+// XXX: Determine separator character for ELEMENT.
+/// An SQL array received from the database.
+template<typename ELEMENT, std::size_t DIMENSIONS = 1>
+class array final
+{
+public:
+  /// How many dimensions does this array have?
+  constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
+
+  std::array<std::size_t, DIMENSIONS> const &sizes() noexcept { return m_extents; }
+
+  template<typename... INDEX>
+  ELEMENT const &at(INDEX...... index) const
+  {
+    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
+    return m_elts.at(locate(index...));
+  }
+
+  template<typename... INDEX>
+  ELEMENT const &operator[](INDEX... index) const { return m_elts[locate(index...)]; }
+
+private:
+  // TODO: Optionally reserve() a specified number of elements?
+  explicit array(std::string_view data, pqxx::internal::encoding_group enc)
+  {
+    static_assert(DIMENSIONS > 0, "Can't create a zero-dimensional array.");
+    auto constexpr sz{std::size(data)};
+    if (sz < DIMENSIONS * 2)
+      throw conversion_error{pqxx::internal::concat("Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data, "'.")};
+
+    // Making some assumptions here:
+    // * The array holds no extraneous whitespace.
+    // * None of the sub-arrays can be null.
+    // * Only ASCII characters start off with a byte in the 0-127 range.
+    //
+    // Given those, the input must start with a sequence of DIMENSIONS bytes
+    // with the ASCII value for '{'; and likewise it must end with a sequence
+    // of DIMENSIONS bytes with the ASCII value for '}'.
+
+    if (data[0] != '{')
+      throw conversion_error{"Malformed array: does not start with '{'."};
+    for (std::size_t i{0}; i < DIMENSIONS; ++i)
+      if (data[i] != '{')
+        throw conversion_error{concat("Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
+    if (std::data[DIMENSIONS] == '{')
+      throw conversion_error{concat("Tried to parse ", DIMENSIONS, "-dimensional array from array data that has more dimensions.")};
+    for (std::size_t i{0}; i < DIMENSIONS; ++i)
+      if (data[sz - 1 - i] != '}')
+        throw conversion_error{"Malformed array: does not end in the right number of '}'."};
+
+  // We discover the array's extents along each of the dimensions, starting
+  // with the final dimension and working our way towards the first.  At any
+  // given point during parsing, we know the extents starting at this
+  // dimension.
+  std::size_t know_extents_from{DIMENSIONS};
+
+  // Currently parsing this dimension.  We start off at -1, relying on C++'s
+  // well-defined rollover for unsigned numbers.
+  constexpr std::size_t outer{0u - 1u};
+  std::size_t dim{outer};
+
+  // Extent counters, per dimension.
+  std::array<std::size_t, DIMENSIONS> extents;
+  for (std::size_t i{0}; i < DIMENSIONS; ++i) extents[i] = 0u;
+
+  // XXX: Parse array.
+  // XXX: When encountering '{':
+  // XXX: * if (dim != outer) check dim < DIMENSIONS - 1; // Or varying depth.
+  // XXX: * if (dim != outer) ++extents[dim];
+  // XXX: * ++dim;
+  // XXX: * extents[dim] = 0;
+  // XXX: When encountering element:
+  // XXX: * check dim == DIMENSIONS - 1; // Or varying depth.
+  // XXX: * ++extents[dim];
+  // XXX: * m_elts.emplace_back(parse(...));
+  // XXX: When encountering '}':
+  // XXX: * check dim >= 0; // Or multiple arrays in one.
+  // XXX: * if (dim < know_extents_from) m_extents[dim] = extents[dim];
+  // XXX: * else check extents[dim] == m_extents[dim]; // Or irregular-sized.
+  // XXX: * --dim;
+
+    if (dim != 0u)
+      throw conversion_error{"Malformed array; may be missing a '}'."};
+    assert(know_extents_from == 0);
+    if (extents[0] != 1)
+      throw conversion_error{"Malformed array: multiple arrays in one."};
+  }
+
+  /// Map a multidimensional index to an entry in our linear storage.
+  template<typename... INDEX>
+  std::size_t locate(std::size_t... index) const
+  {
+    static_assert(sizeof...(index) == DIMENSIONS, "Indexing array with wrong number of dimensions.");
+    static_assert(std::is_convertible<INDEX, std::size_t> and ...);
+  // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] * (index[-3] + ...))
+  }
+
+  /// Linear storage for the array's elements.
+  std::vector<ELEMENT> m_elts;
+
+  /// Size along each dimension.
+  std::array<std::size_t, DIMENSIONS> m_extents;
+};
+
+
 /// Low-level array parser.
 /** @warning This is not a great API.  Something nicer is on the way.
  *
