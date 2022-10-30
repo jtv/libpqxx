@@ -28,35 +28,41 @@
 
 namespace pqxx
 {
-// XXX: Determine separator character for ELEMENT.
 /// An SQL array received from the database.
-template<typename ELEMENT, std::size_t DIMENSIONS = 1>
+template<
+  typename ELEMENT, std::size_t DIMENSIONS = 1,
+  char SEPARATOR = array_separator<ELEMENT>>
 class array final
 {
 public:
   /// How many dimensions does this array have?
   constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
 
-  std::array<std::size_t, DIMENSIONS> const &sizes() noexcept { return m_extents; }
+  std::array<std::size_t, DIMENSIONS> const &sizes() noexcept
+  {
+    return m_extents;
+  }
 
-  template<typename... INDEX>
-  ELEMENT const &at(INDEX...... index) const
+  template<typename... INDEX> ELEMENT const &at(INDEX...... index) const
   {
     static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
     return m_elts.at(locate(index...));
   }
 
-  template<typename... INDEX>
-  ELEMENT const &operator[](INDEX... index) const { return m_elts[locate(index...)]; }
+  template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
+  {
+    return m_elts[locate(index...)];
+  }
 
 private:
-  // TODO: Optionally reserve() a specified number of elements?
   explicit array(std::string_view data, pqxx::internal::encoding_group enc)
   {
     static_assert(DIMENSIONS > 0, "Can't create a zero-dimensional array.");
     auto constexpr sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
-      throw conversion_error{pqxx::internal::concat("Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data, "'.")};
+      throw conversion_error{pqxx::internal::concat(
+        "Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data,
+        "'.")};
 
     // Making some assumptions here:
     // * The array holds no extraneous whitespace.
@@ -71,58 +77,116 @@ private:
       throw conversion_error{"Malformed array: does not start with '{'."};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
-        throw conversion_error{concat("Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
+        throw conversion_error{concat(
+          "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
     if (std::data[DIMENSIONS] == '{')
-      throw conversion_error{concat("Tried to parse ", DIMENSIONS, "-dimensional array from array data that has more dimensions.")};
+      throw conversion_error{concat(
+        "Tried to parse ", DIMENSIONS,
+        "-dimensional array from array data that has more dimensions.")};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[sz - 1 - i] != '}')
-        throw conversion_error{"Malformed array: does not end in the right number of '}'."};
+        throw conversion_error{
+          "Malformed array: does not end in the right number of '}'."};
 
-  // We discover the array's extents along each of the dimensions, starting
-  // with the final dimension and working our way towards the first.  At any
-  // given point during parsing, we know the extents starting at this
-  // dimension.
-  std::size_t know_extents_from{DIMENSIONS};
+    // We discover the array's extents along each of the dimensions, starting
+    // with the final dimension and working our way towards the first.  At any
+    // given point during parsing, we know the extents starting at this
+    // dimension.
+    std::size_t know_extents_from{DIMENSIONS};
 
-  // Currently parsing this dimension.  We start off at -1, relying on C++'s
-  // well-defined rollover for unsigned numbers.
-  constexpr std::size_t outer{0u - 1u};
-  std::size_t dim{outer};
+    // Currently parsing this dimension.  We start off at -1, relying on C++'s
+    // well-defined rollover for unsigned numbers.
+    // The actual outermost dimension of the array is 0, and the innermost is
+    // at the end.  But, the array as a whole is enclosed in braces just like
+    // each row.  So we act like there's an anomalous "outer" dimension holding
+    // the entire array.
+    constexpr std::size_t outer{0u - 1u};
 
-  // Extent counters, per dimension.
-  std::array<std::size_t, DIMENSIONS> extents;
-  for (std::size_t i{0}; i < DIMENSIONS; ++i) extents[i] = 0u;
+    // We start parsing at the fictional outer dimension.  The input begins
+    // with opening braces, one for each dimension, so we'll start off by
+    // bumping all the way to the innermost dimension.
+    std::size_t dim{outer};
 
-  // XXX: Parse array.
-  // XXX: When encountering '{':
-  // XXX: * if (dim != outer) check dim < DIMENSIONS - 1; // Or varying depth.
-  // XXX: * if (dim != outer) ++extents[dim];
-  // XXX: * ++dim;
-  // XXX: * extents[dim] = 0;
-  // XXX: When encountering element:
-  // XXX: * check dim == DIMENSIONS - 1; // Or varying depth.
-  // XXX: * ++extents[dim];
-  // XXX: * m_elts.emplace_back(parse(...));
-  // XXX: When encountering '}':
-  // XXX: * check dim >= 0; // Or multiple arrays in one.
-  // XXX: * if (dim < know_extents_from) m_extents[dim] = extents[dim];
-  // XXX: * else check extents[dim] == m_extents[dim]; // Or irregular-sized.
-  // XXX: * --dim;
+    // Extent counters, one per "real" dimension.
+    // Note initialiser syntax; this should zero-initialise all elements.
+    std::array<std::size_t, DIMENSIONS> extents{};
+    for (auto const e : extents) assert(e == 0u);
 
-    if (dim != 0u)
-      throw conversion_error{"Malformed array; may be missing a '}'."};
+    // Current parsing position.
+    std::size_t here{0};
+    while (here < sz)
+    {
+      if (input[here] == '{')
+      {
+        if (dim == outer)
+        {
+          // This must be the initial opening brace.
+          if (know_extents_from != DIMENSIONS)
+            throw conversion_error{
+              "Array text representation closed and reopened its outside "
+              "brace pair."};
+          assert(here == 0);
+        }
+        else
+        {
+          if (dim >= (DIMENSIONS - 1))
+            throw conversion_error{
+              "Array seems to have inconsistent number of dimensions."};
+          ++extents[dim];
+        }
+        ++dim;
+        extents[dim] = 0u;
+        ++here;
+      }
+      else if (input[here] == '}')
+      {
+        if (dim == outer)
+          throw conversion_error{"Array has spurious '}'."};
+        if (dim < know_extents_from)
+        {
+          // We just finished parsing our first row in this dimension.
+          // Now we know the array dimension's extent.
+          m_extents[dim] = extents[dim];
+          know_extents_from = dim;
+        }
+        else
+        {
+          if (extents[dim] != m_extents[dim])
+            throw conversion_error{"Rows in array have inconsistent sizes."};
+        }
+        // Bump back down to the next-lower dimension.
+        --dim;
+      }
+      else
+      {
+        // Found an array element.  The actual elements always live in the
+        // "inner" dimension.
+        if (dim != DIMENSIONS - 1)
+          throw conversion_error{
+            "Malformed array: found element where sub-array was expected."};
+        ++extents[dim];
+        // XXX: * Scan for SEPARATOR.
+        // XXX: * Parse element.
+        // XXX: * m_elts.emplace_back(parse(...));
+      }
+    }
+
+    if (dim != outer)
+      throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
     if (extents[0] != 1)
       throw conversion_error{"Malformed array: multiple arrays in one."};
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
-  template<typename... INDEX>
-  std::size_t locate(std::size_t... index) const
+  template<typename... INDEX> std::size_t locate(std::size_t... index) const
   {
-    static_assert(sizeof...(index) == DIMENSIONS, "Indexing array with wrong number of dimensions.");
+    static_assert(
+      sizeof...(index) == DIMENSIONS,
+      "Indexing array with wrong number of dimensions.");
     static_assert(std::is_convertible<INDEX, std::size_t> and ...);
-  // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] * (index[-3] + ...))
+    // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] *
+    // (index[-3] + ...))
   }
 
   /// Linear storage for the array's elements.
