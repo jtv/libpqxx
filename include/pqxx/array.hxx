@@ -45,10 +45,18 @@ public:
 
   template<typename... INDEX> ELEMENT const &at(INDEX...... index) const
   {
-    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
+    // XXX: Check bounds on all dimensions.
     return m_elts.at(locate(index...));
   }
 
+  /// Access element (without bounds check).
+  /** Return element at given index.  Blindly assumes that the index lies within
+   * the bounds of the array.
+   *
+   * Multi-dimensional indexing using `operator[]` only works in C++23 or
+   * better.  In older versions of C++ it will only work with single-dimensional
+   * arrays.
+   */
   template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
   {
     return m_elts[locate(index...)];
