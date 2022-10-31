@@ -115,17 +115,12 @@ template<pqxx::internal::encoding_group ENC, char... STOP>
 inline std::size_t
 scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
 {
-  // TODO: Backslashes don't show up in unquoted strings at all.
-  bool at_backslash{false};
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
-  while ((pos < size) and
-         ((next - pos) > 1 or at_backslash or ((input[pos] != STOP) and ...)))
+  while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
     next = scanner::call(input, size, pos);
-    at_backslash =
-      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
   }
   return pos;
 }
@@ -138,15 +133,11 @@ parse_unquoted_string(char const input[], std::size_t end, std::size_t pos)
 {
   using scanner = glyph_scanner<ENC>;
   std::string output;
-  bool at_backslash{false};
   output.reserve(end - pos);
   for (auto next{scanner::call(input, end, pos)}; pos < end;
        pos = next, next = scanner::call(input, end, pos))
   {
-    at_backslash =
-      ((not at_backslash) and ((next - pos) == 1) and (input[pos] == '\\'));
-    if (not at_backslash)
-      output.append(input + pos, next - pos);
+    output.append(input + pos, next - pos);
   }
   return output;
 }
