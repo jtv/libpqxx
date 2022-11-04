@@ -43,19 +43,21 @@ public:
     return m_extents;
   }
 
-  template<typename... INDEX> ELEMENT const &at(INDEX...... index) const
+  template<typename... INDEX>
+  ELEMENT const &at(INDEX...... index) const
   {
-    // XXX: Check bounds on all dimensions.
+    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
     return m_elts.at(locate(index...));
   }
 
   /// Access element (without bounds check).
-  /** Return element at given index.  Blindly assumes that the index lies within
-   * the bounds of the array.
+  /** Return element at given index.  Blindly assumes that the index lies
+   * within the bounds of the array.  This is likely to be slightly faster than
+   * `at()`.
    *
    * Multi-dimensional indexing using `operator[]` only works in C++23 or
-   * better.  In older versions of C++ it will only work with single-dimensional
-   * arrays.
+   * better.  In older versions of C++ it will work only with
+   * single-dimensional arrays.
    */
   template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
   {
@@ -65,6 +67,7 @@ public:
 private:
   explicit array(std::string_view data, pqxx::internal::encoding_group enc)
   {
+    // TODO: Can we scan first and allocate the right size vector?
     static_assert(DIMENSIONS > 0, "Can't create a zero-dimensional array.");
     auto constexpr sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
