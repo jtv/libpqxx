@@ -38,6 +38,8 @@ public:
   /// How many dimensions does this array have?
   constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
 
+// TODO: Document order of the elements.
+  /// Return the sizes of this array in each of its dimensions.
   std::array<std::size_t, DIMENSIONS> const &sizes() noexcept
   {
     return m_extents;
