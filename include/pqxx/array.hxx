@@ -93,7 +93,7 @@ private:
       if (data[i] != '{')
         throw conversion_error{pqxx::internal::concat(
           "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
-    if (std::data[DIMENSIONS] == '{')
+    if (data[DIMENSIONS] == '{')
       throw conversion_error{pqxx::internal::concat(
         "Tried to parse ", DIMENSIONS,
         "-dimensional array from array data that has more dimensions.")};
