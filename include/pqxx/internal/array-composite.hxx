@@ -71,6 +71,7 @@ inline std::size_t scan_double_quoted_string(
 }
 
 
+// TODO: Needs version with caller-supplied buffer.
 /// Un-quote and un-escape a double-quoted SQL string.
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
@@ -108,8 +109,9 @@ inline std::string parse_double_quoted_string(
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
  *
- * For array values, STOP is a comma, a semicolon, or a closing brace.  For
- * a value of a composite type, STOP is a comma or a closing parenthesis.
+ * For array values, STOP is an array element separator (typically comma, or
+ * semicolon), or a closing brace.  For a value of a composite type, STOP is a
+ * comma or a closing parenthesis.
  */
 template<pqxx::internal::encoding_group ENC, char... STOP>
 inline std::size_t
@@ -126,6 +128,7 @@ scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
 }
 
 
+// XXX: Retire this.  Just construct a string_view directly now!
 /// Parse an unquoted array entry or cfield of a composite-type field.
 template<pqxx::internal::encoding_group ENC>
 inline std::string

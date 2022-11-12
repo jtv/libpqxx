@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include "pqxx/internal/array-composite.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
@@ -46,9 +47,9 @@ public:
   }
 
   template<typename... INDEX>
-  ELEMENT const &at(INDEX...... index) const
+  ELEMENT const &at(INDEX... index) const
   {
-    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
+    // static_assert((std::is_convertible_v<INDEX, std::size_t>) and ...);
     return m_elts.at(locate(index...));
   }
 
@@ -70,7 +71,7 @@ private:
   explicit array(std::string_view data, pqxx::internal::encoding_group enc)
   {
     // TODO: Can we scan first and allocate the right size vector?
-    static_assert(DIMENSIONS > 0, "Can't create a zero-dimensional array.");
+    static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto constexpr sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{pqxx::internal::concat(
@@ -90,10 +91,10 @@ private:
       throw conversion_error{"Malformed array: does not start with '{'."};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
-        throw conversion_error{concat(
+        throw conversion_error{pqxx::internal::concat(
           "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
     if (std::data[DIMENSIONS] == '{')
-      throw conversion_error{concat(
+      throw conversion_error{pqxx::internal::concat(
         "Tried to parse ", DIMENSIONS,
         "-dimensional array from array data that has more dimensions.")};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
@@ -129,7 +130,7 @@ private:
     std::size_t here{0};
     while (here < sz)
     {
-      if (input[here] == '{')
+      if (data[here] == '{')
       {
         if (dim == outer)
         {
@@ -151,7 +152,7 @@ private:
         extents[dim] = 0u;
         ++here;
       }
-      else if (input[here] == '}')
+      else if (data[here] == '}')
       {
         if (dim == outer)
           throw conversion_error{"Array has spurious '}'."};
@@ -178,9 +179,41 @@ private:
           throw conversion_error{
             "Malformed array: found element where sub-array was expected."};
         ++extents[dim];
-        // XXX: * Scan for SEPARATOR.
-        // XXX: * Parse element.
-        // XXX: * m_elts.emplace_back(parse(...));
+	std::size_t end;
+	switch (data[here])
+	{
+	case '\0':
+	  throw failure{"Unexpected zero byte in array."};
+	case '"':
+	  {
+	    // Double-quoted string.  We parse it into a buffer before parsing
+	    // the resulting string as an element.  This seems wasteful: the
+	    // string might not contain any special characters.  So it's
+	    // tempting to check, and try to use a string_view and avoid a
+	    // useless copy step.  But.  Even besides the branch prediction
+	    // risk, the very fact that the back-end chose to quote the string
+	    // indicates that there is some kind of special character in there.
+	    // So in practice, this optimisation would only apply if the only
+	    // special characters in the string were commas.
+	    end = pqxx::internal::scan_double_quoted_string<ENC>(std::data(data), std::size(data), here);
+	    // TODO: scan_double_quoted_string() with reusable buffer.
+	    std::string const buf{pqxx::internal::parse_double_quoted_string<ENC>(std::data(data), end, here)};
+            m_elts.emplace_back(from_string<ELEMENT>(buf));
+	  }
+	  break;
+	default:
+	  {
+	    // Unquoted string.  An unquoted string is always literal, no
+	    // escaping or encoding, so we don't need to parse it into a
+	    // buffer.  We can just read it as a string_view.
+	    end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(std::data(data), std::size(data), here);
+	    field = std::string_view{std::data(data) + here, end - here};
+	    if (field == "NULL") m_elts.emplace_back(nullness<ELEMENT>::null());
+	    else m_elts.emplace_back(from_string<ELEMENT>(field));
+	  }
+	}
+	here = end;
+	// XXX: Skip separator, if present.  How & where?
       }
     }
 
@@ -192,7 +225,7 @@ private:
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
-  template<typename... INDEX> std::size_t locate(std::size_t... index) const
+  template<typename... INDEX> std::size_t locate(INDEX... index) const
   {
     static_assert(
       sizeof...(index) == DIMENSIONS,
@@ -200,6 +233,7 @@ private:
     static_assert(std::is_convertible<INDEX, std::size_t> and ...);
     // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] *
     // (index[-3] + ...))
+    return 0; // XXX:
   }
 
   /// Linear storage for the array's elements.
