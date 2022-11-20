@@ -207,7 +207,7 @@ private:
 	    // escaping or encoding, so we don't need to parse it into a
 	    // buffer.  We can just read it as a string_view.
 	    end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(std::data(data), std::size(data), here);
-	    field = std::string_view{std::data(data) + here, end - here};
+	    std::string_view const field{std::string_view{std::data(data) + here, end - here}};
 	    if (field == "NULL") m_elts.emplace_back(nullness<ELEMENT>::null());
 	    else m_elts.emplace_back(from_string<ELEMENT>(field));
 	  }
@@ -234,6 +234,23 @@ private:
     // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] *
     // (index[-3] + ...))
     return 0; // XXX:
+  }
+
+  // XXX: Make private.
+  // XXX: Can we make dimension a template parameter but still deduce?
+  template<typename... INDEX> constexpr add_index(std::size_t dimension, INDEX... indexes, std::size_t inner) noexcept
+  {
+    if constexpr (dimension == DIMENSIONS)
+    {
+    assert(sizeof...(INDEX) == 0);
+    return inner;
+    }
+    else
+    {
+    assert(dimension < DIMENSIONS);
+    assert(sizeof...(INDEX) > 0);
+    return inner + m_extents[dimension - 1] * add_index(dimension-1, indexes);
+    }
   }
 
   /// Linear storage for the array's elements.
