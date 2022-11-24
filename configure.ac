@@ -639,6 +639,7 @@ AC_MSG_RESULT($have_pq_pipeline)
 
 
 # TODO: PQresultMemorySize()
+# TODO: Use feature test macros in libpq-fe.h, should be faster & easier.
 
 
 AC_MSG_CHECKING([for usable std::filesystem::path])
