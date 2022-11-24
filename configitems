@@ -15,7 +15,6 @@ PQXX_HAVE_LIKELY	public	compiler
 PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT	public	compiler
 PQXX_HAVE_PATH	public	compiler
 PQXX_HAVE_POLL       internal        compiler
-PQXX_HAVE_PQ_PIPELINE	internal	libpq
 PQXX_HAVE_SLEEP_FOR	internal	compiler
 PQXX_HAVE_SPAN	public	compiler
 PQXX_HAVE_STRERROR_R	internal	compiler
