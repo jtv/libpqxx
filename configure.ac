@@ -638,6 +638,9 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_pq_pipeline)
 
 
+# TODO: PQresultMemorySize()
+
+
 AC_MSG_CHECKING([for usable std::filesystem::path])
 have_path=yes
 AC_COMPILE_IFELSE(
