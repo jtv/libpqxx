@@ -90,9 +90,6 @@
 /* Define if poll() is available. */
 #undef PQXX_HAVE_POLL
 
-/* Define if libpq has pipeline mode (since pg 14). */
-#undef PQXX_HAVE_PQ_PIPELINE
-
 /* Define if std::this_thread::sleep_for works. */
 #undef PQXX_HAVE_SLEEP_FOR
 
