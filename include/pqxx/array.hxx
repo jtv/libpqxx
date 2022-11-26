@@ -230,7 +230,7 @@ private:
     static_assert(
       sizeof...(index) == DIMENSIONS,
       "Indexing array with wrong number of dimensions.");
-    static_assert(std::is_convertible<INDEX, std::size_t> and ...);
+    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
     // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] *
     // (index[-3] + ...))
     return 0; // XXX:
@@ -238,7 +238,7 @@ private:
 
   // XXX: Make private.
   // XXX: Can we make dimension a template parameter but still deduce?
-  template<typename... INDEX> constexpr add_index(std::size_t dimension, INDEX... indexes, std::size_t inner) noexcept
+  template<typename... INDEX> constexpr void add_index(std::size_t dimension, INDEX... indexes, std::size_t inner) noexcept
   {
     if constexpr (dimension == DIMENSIONS)
     {
