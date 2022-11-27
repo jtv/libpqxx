@@ -145,7 +145,7 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 pqxx::field pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
-  return {*this, row_num, field_num};
+  return {*this, row_num, col_num};
 }
 #endif
 
