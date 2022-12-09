@@ -41,6 +41,7 @@ jobs:
 # Instead, we'll have to build manually:
       - name: Build
         run: |
+            apt-get install -y postgresql
             ./configure
             make -j4 check
 
