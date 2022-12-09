@@ -32,8 +32,17 @@ jobs:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+# For some reason, this seems to detect neither the configure script or the
+# CMake setup.
+#
+#      - name: Autobuild
+#        uses: github/codeql-action/autobuild@v2
+#
+# Instead, we'll have to build manually:
+      - name: Build
+        run: |
+            ./configure
+            make -j4 check
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
