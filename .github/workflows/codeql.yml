@@ -43,6 +43,8 @@ jobs:
         run: |
             sudo apt-get install -y postgresql
             sudo service postgresql start
+            sudo su postgres -c "createuser --createdb $(whoami)"
+            createdb "$(whoami)"
             ./configure
             make -j4 check
 
