@@ -42,6 +42,7 @@ jobs:
       - name: Build
         run: |
             apt-get install -y postgresql
+            service postgresql start
             ./configure
             make -j4 check
 
