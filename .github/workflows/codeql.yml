@@ -46,7 +46,7 @@ jobs:
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
             createdb "$(whoami)"
-            ./configure --enable-maintainer-mode --enable-audit --disable-documentation CXXFLAGS='-O1 -std=c++17'
+            ./configure --enable-maintainer-mode --enable-audit --disable-documentation --disable-static CXXFLAGS='-O1 -std=c++17'
             make -j4 check
 
       - name: Perform CodeQL Analysis
