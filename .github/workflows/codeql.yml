@@ -46,8 +46,8 @@ jobs:
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
             createdb "$(whoami)"
-	    # Using clang because currently the gcc build fails with an
-	    # address sanitizer (asan) link error.
+            # Using clang because currently the gcc build fails with an
+            # address sanitizer (asan) link error.
             ./configure --enable-maintainer-mode --enable-audit --disable-documentation --disable-static CXXFLAGS='-O1 -std=c++17' CXX=clang++
             make -j4 check
 
