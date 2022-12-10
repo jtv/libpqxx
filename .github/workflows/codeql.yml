@@ -41,7 +41,7 @@ jobs:
 # Instead, we'll have to build manually:
       - name: Build
         run: |
-	    gcc --version
+            gcc --version
             sudo apt-get install -y postgresql
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
