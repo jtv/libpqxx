@@ -32,8 +32,24 @@ jobs:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+# For some reason, this seems to detect neither the configure script or the
+# CMake setup.
+#
+#      - name: Autobuild
+#        uses: github/codeql-action/autobuild@v2
+#
+# Instead, we'll have to build manually:
+      - name: Build
+        run: |
+            gcc --version
+            sudo apt-get install -y postgresql
+            sudo service postgresql start
+            sudo su postgres -c "createuser --createdb $(whoami)"
+            createdb "$(whoami)"
+            # Using clang because currently the gcc build fails with an
+            # address sanitizer (asan) link error.
+            ./configure --enable-maintainer-mode --enable-audit --disable-documentation --disable-static CXXFLAGS='-O1 -std=c++17' CXX=clang++
+            make -j4 check
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

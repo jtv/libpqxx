@@ -476,20 +476,16 @@ template<typename T>
 } // namespace
 
 
+#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 namespace
 {
-[[maybe_unused]] constexpr bool
-valid_infinity_string(std::string_view text) noexcept
+constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
   return equal("infinity", text) or equal("Infinity", text) or
          equal("INFINITY", text) or equal("inf", text);
 }
-} // namespace
 
 
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
 /// Wrapper for std::stringstream with C locale.
 /** We use this to work around missing std::to_chars for floating-point types.
  *
