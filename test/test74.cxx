@@ -12,6 +12,7 @@ namespace
 {
 void test_074()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   connection conn;
   work tx{conn};
 
@@ -65,6 +66,7 @@ void test_074()
   PQXX_CHECK_BOUNDS(
     long_double_pi, roughpi - 0.00001, roughpi + 0.00001,
     "long double changed in conversion.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 } // namespace
 

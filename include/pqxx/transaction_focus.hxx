@@ -22,7 +22,7 @@ namespace pqxx
  * that a given libpqxx class is derived from it.
  *
  * Pipelines, SQL statements, and data streams are examples of classes derived
- * from `transaction_focus`.  For any given transaction, only one object of
+ * from `transaction_focus`.  In any given transaction, only one object of
  * such a class can be active at any given time.
  */
 class PQXX_LIBEXPORT transaction_focus
