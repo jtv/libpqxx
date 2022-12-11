@@ -476,8 +476,12 @@ private:
 using fieldstream = basic_fieldstream<char>;
 
 
-/// Write a result field to any type of stream
-/** This can be convenient when writing a field to an output stream.  More
+/// Write a result field to any type of stream.
+/** @deprecated The C++ streams library is not great to work with.  In
+ * particular, error handling is easy to get wrong.  So you're probably better
+ * off doing this by hand.
+ *
+ * This can be convenient when writing a field to an output stream.  More
  * importantly, it lets you write a field to e.g. a `stringstream` which you
  * can then use to read, format and convert the field in ways that to() does
  * not support.
@@ -498,6 +502,7 @@ using fieldstream = basic_fieldstream<char>;
  * ```
  */
 template<typename CHAR>
+[[deprecated("Do this by hand, probably with better error checking.")]]
 inline std::basic_ostream<CHAR> &
 operator<<(std::basic_ostream<CHAR> &s, field const &value)
 {

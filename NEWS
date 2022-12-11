@@ -5,6 +5,7 @@
  - Faster text decoding in `stream_from`, and escaping in `stream_to`.  (#601)
  - At last, streaming throughput is faster (on my system) than a regular query.
  - Deprecate `basic_fieldstream` and `fieldstream`.
+ - Deprecate `<<` operator inserting a field into an `ostream`.
  - Ran `autoupdate` (because the autotools told me to).
  - Documentation tweak. (#584)
  - Typo in README.md. (#586)

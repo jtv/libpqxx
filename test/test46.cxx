@@ -22,7 +22,9 @@ void test_046()
 
   // Read the value into a stringstream.
   std::stringstream I;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   I << R[0];
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   // Now convert the stringstream into a numeric type
   long L{}, L2{};
@@ -33,7 +35,9 @@ void test_046()
 
   float F{}, F2{};
   std::stringstream I2;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   I2 << R[0];
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   I2 >> F;
   R[0].to(F2);
   PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
