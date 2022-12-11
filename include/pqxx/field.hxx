@@ -436,11 +436,16 @@ private:
 
 
 /// Input stream that gets its data from a result field
-/** Use this class exactly as you would any other istream to read data from a
- * field.  All formatting and streaming operations of `std::istream` are
- * supported.  What you'll typically want to use, however, is the fieldstream
- * alias (which defines a @ref basic_fieldstream for `char`).  This is similar
- * to how e.g. `std::ifstream` relates to `std::basic_ifstream`.
+/** @deprecated To convert a field's value string to some other type, e.g. to
+ * an `int`, use the field's `as<...>()` member function.  To read a field
+ * efficiently just as a string, use its `c_str()` or its
+ * `as<std::string_vview>()`.
+ *
+ * Works like any other istream to read data from a field.  It supports all
+ * formatting and streaming operations of `std::istream`.  For convenience
+ * there is a fieldstream alias, which defines a @ref basic_fieldstream for
+ * `char`.  This is similar to how e.g. `std::ifstream` relates to
+ * `std::basic_ifstream`.
  *
  * This class has only been tested for the char type (and its default traits).
  */
@@ -456,6 +461,7 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
+  [[deprecated("Use field::as<...>() or field::c_str().")]]
   basic_fieldstream(field const &f) : super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);
@@ -465,7 +471,10 @@ private:
   field_streambuf<CHAR, TRAITS> m_buf;
 };
 
+
+/// @deprecated Read a field using `field::as<...>()` or `field::c_str()`.
 using fieldstream = basic_fieldstream<char>;
+
 
 /// Write a result field to any type of stream
 /** This can be convenient when writing a field to an output stream.  More
