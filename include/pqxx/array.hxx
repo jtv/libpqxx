@@ -68,10 +68,17 @@ public:
   }
 
 private:
-  explicit array(std::string_view data, pqxx::internal::encoding_group enc)
+  /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
+  /** Sanity-checks two aspects of the array syntax: the opening braces at the
+   * beginning, and the closing braces at the end.
+   *
+   * One syntax error this does not detect, for efficiency reasons, is for too
+   * many closing braces at the end.  That's a tough one to detect without
+   * walking through the entire array sequentially, and identifying all the
+   * character boundaries.  The main parsing routine detects that one.
+   */
+  void check_dims(std::string_view data)
   {
-    // TODO: Can we scan first and allocate the right size vector?
-    static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto constexpr sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{pqxx::internal::concat(
@@ -101,6 +108,69 @@ private:
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
           "Malformed array: does not end in the right number of '}'."};
+  }
+
+  explicit array(std::string_view data, pqxx::internal::encoding_group enc)
+  {
+    using group = pqxx::internal::encoding_group;
+    switch (enc)
+    {
+    case group::MONOBYTE:
+      parse<group::MONOBYTE>(data);
+      break;
+    case group::BIG5:
+      parse<group::BIG5>(data);
+      break;
+    case group::EUC_CN:
+      parse<group::EUC_CN>(data);
+      break;
+    case group::EUC_JP:
+      parse<group::EUC_JP>(data);
+      break;
+    case group::EUC_JIS_2004:
+      parse<group::EUC_JIS_2004>(data);
+      break;
+    case group::EUC_KR:
+      parse<group::EUC_KR>(data);
+      break;
+    case group::EUC_TW:
+      parse<group::EUC_TW>(data);
+      break;
+    case group::GB18030:
+      parse<group::GB18030>(data);
+      break;
+    case group::GBK:
+      parse<group::GBK>(data);
+      break;
+    case group::JOHAB:
+      parse<group::JOHAB>(data);
+      break;
+    case group::MULE_INTERNAL:
+      parse<group::MULE_INTERNAL>(data);
+      break;
+    case group::SJIS:
+      parse<group::SJIS>(data);
+      break;
+    case group::SHIFT_JIS_2004:
+      parse<group::SHIFT_JIS_2004>(data);
+      break;
+    case group::UHC:
+      parse<group::UHC>(data);
+      break;
+    case group::UTF8:
+      parse<group::UTF8>(data);
+      break;
+    }
+  }
+
+  template<pqxx::internal::encoding_group ENC>
+  void parse(std::string_view data)
+  {
+    static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
+    auto constexpr sz{std::size(data)};
+    check_dims(data);
+
+    // TODO: Can we scan first and allocate the right size vector?
 
     // We discover the array's extents along each of the dimensions, starting
     // with the final dimension and working our way towards the first.  At any
@@ -230,26 +300,22 @@ private:
     static_assert(
       sizeof...(index) == DIMENSIONS,
       "Indexing array with wrong number of dimensions.");
-    static_assert(std::is_convertible_v<INDEX, std::size_t> and ...);
-    // XXX: return index[-1] + m_extents[-1] * (index[-2] + m_extents[-2] *
     // (index[-3] + ...))
-    return 0; // XXX:
+    return add_index(index...);
   }
 
-  // XXX: Make private.
-  // XXX: Can we make dimension a template parameter but still deduce?
-  template<typename... INDEX> constexpr void add_index(std::size_t dimension, INDEX... indexes, std::size_t inner) noexcept
+  template<typename... INDEX> constexpr std::size_t add_index(INDEX... indexes, std::size_t inner) noexcept
   {
-    if constexpr (dimension == DIMENSIONS)
+    assert(sizeof...(indexes) < DIMENSIONS);
+    if constexpr (sizeof...(indexes) == 0)
     {
-    assert(sizeof...(INDEX) == 0);
-    return inner;
+      return inner;
     }
     else
     {
-    assert(dimension < DIMENSIONS);
-    assert(sizeof...(INDEX) > 0);
-    return inner + m_extents[dimension - 1] * add_index(dimension-1, indexes);
+    // XXX: I've probably got the dimensions count the wrong way around.
+      constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
+      return inner + m_extents[dimension - 1] * add_index(dimension-1, indexes...);
     }
   }
 
