@@ -236,9 +236,10 @@ std::clog<<"\n["<<data<<"]\n";// XXX: DEBUG
           if (dim >= (DIMENSIONS - 1))
             throw conversion_error{
               "Array seems to have inconsistent number of dimensions."};
+	  // XXX: Are we sure we're supposed to increment here?
           ++extents[dim];
         }
-	// (Rolls over to zero we're coming from the outer dimension.)
+	// (Rolls over to zero if we're coming from the outer dimension.)
         ++dim;
         extents[dim] = 0u;
         ++here;
@@ -271,6 +272,7 @@ std::clog<<"\n["<<data<<"]\n";// XXX: DEBUG
         if (dim != DIMENSIONS - 1)
           throw conversion_error{
             "Malformed array: found element where sub-array was expected."};
+	assert(dim != outer);
         ++extents[dim];
 	std::size_t end;
 	switch (data[here])
