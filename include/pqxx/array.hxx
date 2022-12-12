@@ -22,20 +22,39 @@
 #include <utility>
 #include <vector>
 
+#include "pqxx/connection.hxx"
 #include "pqxx/internal/array-composite.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
+#include <iostream> // XXX: DEBUG
 
 namespace pqxx
 {
 /// An SQL array received from the database.
+/** Parses an SQL array from its text format, making it available as a
+ * container of C++-side values.
+ */
 template<
   typename ELEMENT, std::size_t DIMENSIONS = 1,
   char SEPARATOR = array_separator<ELEMENT>>
 class array final
 {
 public:
+  /// Parse an SQL array, read as text from a pqxx::result or stream.
+  /** Uses `conn` only during construction, to find out the text encoding in
+   * which it should interpret `data`.
+   *
+   * Once the `array` constructor completes, destroying or moving the
+   * `connection` will not affect the `array` object in any way.
+   *
+   * @throws pqxx::unexpected_null if the array contains a null value, and the
+   * `ELEMENT` type does not support null values.
+   */
+  array(std::string_view data, connection const &conn) :
+    array{data, pqxx::internal::enc_group(conn.encoding_id())}
+  {}
+
   /// How many dimensions does this array have?
   constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
 
@@ -79,7 +98,7 @@ private:
    */
   void check_dims(std::string_view data)
   {
-    auto constexpr sz{std::size(data)};
+    auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{pqxx::internal::concat(
         "Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data,
@@ -166,8 +185,9 @@ private:
   template<pqxx::internal::encoding_group ENC>
   void parse(std::string_view data)
   {
+std::clog<<"\n["<<data<<"]\n";// XXX: DEBUG
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
-    auto constexpr sz{std::size(data)};
+    auto sz{std::size(data)};
     check_dims(data);
 
     // TODO: Can we scan first and allocate the right size vector?
@@ -184,7 +204,7 @@ private:
     // at the end.  But, the array as a whole is enclosed in braces just like
     // each row.  So we act like there's an anomalous "outer" dimension holding
     // the entire array.
-    constexpr std::size_t outer{0u - 1u};
+    constexpr std::size_t outer{std::size_t{0u} - std::size_t{1u}};
 
     // We start parsing at the fictional outer dimension.  The input begins
     // with opening braces, one for each dimension, so we'll start off by
@@ -218,6 +238,7 @@ private:
               "Array seems to have inconsistent number of dimensions."};
           ++extents[dim];
         }
+	// (Rolls over to zero we're coming from the outer dimension.)
         ++dim;
         extents[dim] = 0u;
         ++here;
@@ -238,8 +259,10 @@ private:
           if (extents[dim] != m_extents[dim])
             throw conversion_error{"Rows in array have inconsistent sizes."};
         }
-        // Bump back down to the next-lower dimension.
+        // Bump back down to the next-lower dimension.  Which may be the outer
+	// dimension, through underflow.
         --dim;
+	++here;
       }
       else
       {
@@ -265,6 +288,7 @@ private:
 	    // indicates that there is some kind of special character in there.
 	    // So in practice, this optimisation would only apply if the only
 	    // special characters in the string were commas.
+	    ++here;
 	    end = pqxx::internal::scan_double_quoted_string<ENC>(std::data(data), std::size(data), here);
 	    // TODO: scan_double_quoted_string() with reusable buffer.
 	    std::string const buf{pqxx::internal::parse_double_quoted_string<ENC>(std::data(data), end, here)};
@@ -278,33 +302,47 @@ private:
 	    // buffer.  We can just read it as a string_view.
 	    end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(std::data(data), std::size(data), here);
 	    std::string_view const field{std::string_view{std::data(data) + here, end - here}};
-	    if (field == "NULL") m_elts.emplace_back(nullness<ELEMENT>::null());
+	    if (field == "NULL")
+	    {
+	      if constexpr (nullness<ELEMENT>::has_null)
+	        m_elts.emplace_back(nullness<ELEMENT>::null());
+	      else
+	        throw unexpected_null{
+		  pqxx::internal::concat(
+		    "Array contains a null ", type_name<ELEMENT>,
+		    ".  Consider making it an array of std::optional<",
+		    type_name<ELEMENT>, "> instead.")
+		};
+	    }
 	    else m_elts.emplace_back(from_string<ELEMENT>(field));
 	  }
 	}
 	here = end;
-	// XXX: Skip separator, if present.  How & where?
+	if (here < sz)
+	{
+	  if (data[here] == SEPARATOR) ++here;
+	  else if (data[here] != '}') throw conversion_error{pqxx::internal::concat("Unexpected character in array: ", static_cast<unsigned>(static_cast<unsigned char>(data[here])), " where separator or closing brace expected.")};
+	}
       }
     }
 
     if (dim != outer)
       throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
-    if (extents[0] != 1)
-      throw conversion_error{"Malformed array: multiple arrays in one."};
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
-  template<typename... INDEX> std::size_t locate(INDEX... index) const
+  template<typename... INDEX> std::size_t locate(INDEX... index) const noexcept
   {
     static_assert(
       sizeof...(index) == DIMENSIONS,
       "Indexing array with wrong number of dimensions.");
-    // (index[-3] + ...))
     return add_index(index...);
   }
 
-  template<typename... INDEX> constexpr std::size_t add_index(INDEX... indexes, std::size_t inner) noexcept
+  template<typename... INDEX>
+  constexpr std::size_t add_index(INDEX... indexes, std::size_t inner)
+  const noexcept
   {
     assert(sizeof...(indexes) < DIMENSIONS);
     if constexpr (sizeof...(indexes) == 0)
@@ -313,9 +351,9 @@ private:
     }
     else
     {
-    // XXX: I've probably got the dimensions count the wrong way around.
+      // XXX: I've probably got the dimensions count the wrong way around.
       constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
-      return inner + m_extents[dimension - 1] * add_index(dimension-1, indexes...);
+      return inner + m_extents[dimension - 1] * add_index(indexes...);
     }
   }
 

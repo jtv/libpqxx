@@ -271,8 +271,8 @@ public:
    * If `func` throws an exception, processing stops at that point and
    * propagates the exception.
    *
-   * @throws usage_error if `func`'s number of parameters does not match the
-   * number of columns in this result.
+   * @throws pqxx::usage_error if `func`'s number of parameters does not match
+   * the number of columns in this result.
    */
   template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
 
