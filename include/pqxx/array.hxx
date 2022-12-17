@@ -27,7 +27,6 @@
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
-#include <iostream> // XXX: DEBUG
 
 namespace pqxx
 {
@@ -185,7 +184,6 @@ private:
   template<pqxx::internal::encoding_group ENC>
   void parse(std::string_view data)
   {
-std::clog<<"\n["<<data<<"]\n";// XXX: DEBUG
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto sz{std::size(data)};
     check_dims(data);
