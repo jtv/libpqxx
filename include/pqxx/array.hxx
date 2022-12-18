@@ -345,15 +345,16 @@ private:
   const noexcept
   {
     assert(sizeof...(indexes) < DIMENSIONS);
+    auto index{pqxx::check_cast<std::size_t>(inner, "array index"sv)};
     if constexpr (sizeof...(indexes) == 0)
     {
-      return inner;
+      return index;
     }
     else
     {
       // XXX: I've probably got the dimensions count the wrong way around.
       constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
-      return inner + m_extents[dimension - 1] * add_index(indexes...);
+      return index + m_extents[dimension - 1] * add_index(indexes...);
     }
   }
 
