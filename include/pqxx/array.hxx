@@ -66,7 +66,6 @@ public:
 
   template<typename... INDEX> ELEMENT const &at(INDEX... index) const
   {
-    // static_assert((std::is_convertible_v<INDEX, std::size_t>) and ...);
     return m_elts.at(locate(index...));
   }
 
