@@ -312,7 +312,7 @@ private:
     static_assert(
       sizeof...(index) == DIMENSIONS,
       "Indexing array with wrong number of dimensions.");
-    return add_index(index...);
+    return add_index(check_cast<std::size_t>(index, "array index"sv)...);
   }
 
   template<typename... INDEX>
@@ -320,16 +320,15 @@ private:
   add_index(INDEX... indexes, std::size_t inner) const noexcept
   {
     assert(sizeof...(indexes) < DIMENSIONS);
-    auto index{pqxx::check_cast<std::size_t>(inner, "array index"sv)};
     if constexpr (sizeof...(indexes) == 0)
     {
-      return index;
+      return inner;
     }
     else
     {
       // XXX: I've probably got the dimensions count the wrong way around.
       constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
-      return index + m_extents[dimension - 1] * add_index(indexes...);
+      return inner + m_extents[dimension - 1] * add_index(indexes...);
     }
   }
 
