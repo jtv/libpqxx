@@ -499,21 +499,32 @@ void test_array_parses_real_array()
 
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
   pqxx::array<int, 1> empty_a{empty_s, conn};
-  PQXX_CHECK_EQUAL(empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
-  PQXX_CHECK_EQUAL(empty_a.sizes(), (std::array<std::size_t, 1>{0u}), "Unexpected sizes for empty array.");
+  PQXX_CHECK_EQUAL(
+    empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
+  PQXX_CHECK_EQUAL(
+    empty_a.sizes(), (std::array<std::size_t, 1>{0u}),
+    "Unexpected sizes for empty array.");
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
   pqxx::array<int, 1> onedim_a{onedim_s, conn};
-  PQXX_CHECK_EQUAL(onedim_a.dimensions(), 1u, "Unexpected dimension count for one-dimensional array.");
-  PQXX_CHECK_EQUAL(onedim_a.sizes(), (std::array<std::size_t, 1>{3u}), "Unexpected sizes for one-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    onedim_a.dimensions(), 1u,
+    "Unexpected dimension count for one-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    onedim_a.sizes(), (std::array<std::size_t, 1>{3u}),
+    "Unexpected sizes for one-dimensional array.");
   PQXX_CHECK_EQUAL(onedim_a[0], 0, "Bad data in one-dimensional array.");
-  PQXX_CHECK_EQUAL(onedim_a[2], 2, "Array started off OK but later data was bad.");
+  PQXX_CHECK_EQUAL(
+    onedim_a[2], 2, "Array started off OK but later data was bad.");
 
-  auto const null_s{tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
-  PQXX_CHECK_THROWS((pqxx::array<int, 1>{null_s, conn}), pqxx::unexpected_null, "Not getting unexpected_null from array parser.");
+  auto const null_s{
+    tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
+  PQXX_CHECK_THROWS(
+    (pqxx::array<int, 1>{null_s, conn}), pqxx::unexpected_null,
+    "Not getting unexpected_null from array parser.");
   // XXX: Test unexpected nulls.
 
-// XXX: Test multidim.
+  // XXX: Test multidim.
 }
 
 

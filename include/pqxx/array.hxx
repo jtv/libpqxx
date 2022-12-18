@@ -51,21 +51,20 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &conn) :
-    array{data, pqxx::internal::enc_group(conn.encoding_id())}
+          array{data, pqxx::internal::enc_group(conn.encoding_id())}
   {}
 
   /// How many dimensions does this array have?
   constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
 
-// TODO: Document order of the elements.
+  // TODO: Document order of the elements.
   /// Return the sizes of this array in each of its dimensions.
   std::array<std::size_t, DIMENSIONS> const &sizes() noexcept
   {
     return m_extents;
   }
 
-  template<typename... INDEX>
-  ELEMENT const &at(INDEX... index) const
+  template<typename... INDEX> ELEMENT const &at(INDEX... index) const
   {
     // static_assert((std::is_convertible_v<INDEX, std::size_t>) and ...);
     return m_elts.at(locate(index...));
@@ -133,51 +132,21 @@ private:
     using group = pqxx::internal::encoding_group;
     switch (enc)
     {
-    case group::MONOBYTE:
-      parse<group::MONOBYTE>(data);
-      break;
-    case group::BIG5:
-      parse<group::BIG5>(data);
-      break;
-    case group::EUC_CN:
-      parse<group::EUC_CN>(data);
-      break;
-    case group::EUC_JP:
-      parse<group::EUC_JP>(data);
-      break;
-    case group::EUC_JIS_2004:
-      parse<group::EUC_JIS_2004>(data);
-      break;
-    case group::EUC_KR:
-      parse<group::EUC_KR>(data);
-      break;
-    case group::EUC_TW:
-      parse<group::EUC_TW>(data);
-      break;
-    case group::GB18030:
-      parse<group::GB18030>(data);
-      break;
-    case group::GBK:
-      parse<group::GBK>(data);
-      break;
-    case group::JOHAB:
-      parse<group::JOHAB>(data);
-      break;
-    case group::MULE_INTERNAL:
-      parse<group::MULE_INTERNAL>(data);
-      break;
-    case group::SJIS:
-      parse<group::SJIS>(data);
-      break;
-    case group::SHIFT_JIS_2004:
-      parse<group::SHIFT_JIS_2004>(data);
-      break;
-    case group::UHC:
-      parse<group::UHC>(data);
-      break;
-    case group::UTF8:
-      parse<group::UTF8>(data);
-      break;
+    case group::MONOBYTE: parse<group::MONOBYTE>(data); break;
+    case group::BIG5: parse<group::BIG5>(data); break;
+    case group::EUC_CN: parse<group::EUC_CN>(data); break;
+    case group::EUC_JP: parse<group::EUC_JP>(data); break;
+    case group::EUC_JIS_2004: parse<group::EUC_JIS_2004>(data); break;
+    case group::EUC_KR: parse<group::EUC_KR>(data); break;
+    case group::EUC_TW: parse<group::EUC_TW>(data); break;
+    case group::GB18030: parse<group::GB18030>(data); break;
+    case group::GBK: parse<group::GBK>(data); break;
+    case group::JOHAB: parse<group::JOHAB>(data); break;
+    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data); break;
+    case group::SJIS: parse<group::SJIS>(data); break;
+    case group::SHIFT_JIS_2004: parse<group::SHIFT_JIS_2004>(data); break;
+    case group::UHC: parse<group::UHC>(data); break;
+    case group::UTF8: parse<group::UTF8>(data); break;
     }
   }
 
@@ -234,10 +203,10 @@ private:
           if (dim >= (DIMENSIONS - 1))
             throw conversion_error{
               "Array seems to have inconsistent number of dimensions."};
-	  // XXX: Are we sure we're supposed to increment here?
+          // XXX: Are we sure we're supposed to increment here?
           ++extents[dim];
         }
-	// (Rolls over to zero if we're coming from the outer dimension.)
+        // (Rolls over to zero if we're coming from the outer dimension.)
         ++dim;
         extents[dim] = 0u;
         ++here;
@@ -259,9 +228,9 @@ private:
             throw conversion_error{"Rows in array have inconsistent sizes."};
         }
         // Bump back down to the next-lower dimension.  Which may be the outer
-	// dimension, through underflow.
+        // dimension, through underflow.
         --dim;
-	++here;
+        ++here;
       }
       else
       {
@@ -270,59 +239,65 @@ private:
         if (dim != DIMENSIONS - 1)
           throw conversion_error{
             "Malformed array: found element where sub-array was expected."};
-	assert(dim != outer);
+        assert(dim != outer);
         ++extents[dim];
-	std::size_t end;
-	switch (data[here])
-	{
-	case '\0':
-	  throw failure{"Unexpected zero byte in array."};
-	case '"':
-	  {
-	    // Double-quoted string.  We parse it into a buffer before parsing
-	    // the resulting string as an element.  This seems wasteful: the
-	    // string might not contain any special characters.  So it's
-	    // tempting to check, and try to use a string_view and avoid a
-	    // useless copy step.  But.  Even besides the branch prediction
-	    // risk, the very fact that the back-end chose to quote the string
-	    // indicates that there is some kind of special character in there.
-	    // So in practice, this optimisation would only apply if the only
-	    // special characters in the string were commas.
-	    ++here;
-	    end = pqxx::internal::scan_double_quoted_string<ENC>(std::data(data), std::size(data), here);
-	    // TODO: scan_double_quoted_string() with reusable buffer.
-	    std::string const buf{pqxx::internal::parse_double_quoted_string<ENC>(std::data(data), end, here)};
-            m_elts.emplace_back(from_string<ELEMENT>(buf));
-	  }
-	  break;
-	default:
-	  {
-	    // Unquoted string.  An unquoted string is always literal, no
-	    // escaping or encoding, so we don't need to parse it into a
-	    // buffer.  We can just read it as a string_view.
-	    end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(std::data(data), std::size(data), here);
-	    std::string_view const field{std::string_view{std::data(data) + here, end - here}};
-	    if (field == "NULL")
-	    {
-	      if constexpr (nullness<ELEMENT>::has_null)
-	        m_elts.emplace_back(nullness<ELEMENT>::null());
-	      else
-	        throw unexpected_null{
-		  pqxx::internal::concat(
-		    "Array contains a null ", type_name<ELEMENT>,
-		    ".  Consider making it an array of std::optional<",
-		    type_name<ELEMENT>, "> instead.")
-		};
-	    }
-	    else m_elts.emplace_back(from_string<ELEMENT>(field));
-	  }
-	}
-	here = end;
-	if (here < sz)
-	{
-	  if (data[here] == SEPARATOR) ++here;
-	  else if (data[here] != '}') throw conversion_error{pqxx::internal::concat("Unexpected character in array: ", static_cast<unsigned>(static_cast<unsigned char>(data[here])), " where separator or closing brace expected.")};
-	}
+        std::size_t end;
+        switch (data[here])
+        {
+        case '\0': throw failure{"Unexpected zero byte in array."};
+        case '"': {
+          // Double-quoted string.  We parse it into a buffer before parsing
+          // the resulting string as an element.  This seems wasteful: the
+          // string might not contain any special characters.  So it's
+          // tempting to check, and try to use a string_view and avoid a
+          // useless copy step.  But.  Even besides the branch prediction
+          // risk, the very fact that the back-end chose to quote the string
+          // indicates that there is some kind of special character in there.
+          // So in practice, this optimisation would only apply if the only
+          // special characters in the string were commas.
+          ++here;
+          end = pqxx::internal::scan_double_quoted_string<ENC>(
+            std::data(data), std::size(data), here);
+          // TODO: scan_double_quoted_string() with reusable buffer.
+          std::string const buf{
+            pqxx::internal::parse_double_quoted_string<ENC>(
+              std::data(data), end, here)};
+          m_elts.emplace_back(from_string<ELEMENT>(buf));
+        }
+        break;
+        default: {
+          // Unquoted string.  An unquoted string is always literal, no
+          // escaping or encoding, so we don't need to parse it into a
+          // buffer.  We can just read it as a string_view.
+          end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(
+            std::data(data), std::size(data), here);
+          std::string_view const field{
+            std::string_view{std::data(data) + here, end - here}};
+          if (field == "NULL")
+          {
+            if constexpr (nullness<ELEMENT>::has_null)
+              m_elts.emplace_back(nullness<ELEMENT>::null());
+            else
+              throw unexpected_null{pqxx::internal::concat(
+                "Array contains a null ", type_name<ELEMENT>,
+                ".  Consider making it an array of std::optional<",
+                type_name<ELEMENT>, "> instead.")};
+          }
+          else
+            m_elts.emplace_back(from_string<ELEMENT>(field));
+        }
+        }
+        here = end;
+        if (here < sz)
+        {
+          if (data[here] == SEPARATOR)
+            ++here;
+          else if (data[here] != '}')
+            throw conversion_error{pqxx::internal::concat(
+              "Unexpected character in array: ",
+              static_cast<unsigned>(static_cast<unsigned char>(data[here])),
+              " where separator or closing brace expected.")};
+        }
       }
     }
 
@@ -341,8 +316,8 @@ private:
   }
 
   template<typename... INDEX>
-  constexpr std::size_t add_index(INDEX... indexes, std::size_t inner)
-  const noexcept
+  constexpr std::size_t
+  add_index(INDEX... indexes, std::size_t inner) const noexcept
   {
     assert(sizeof...(indexes) < DIMENSIONS);
     auto index{pqxx::check_cast<std::size_t>(inner, "array index"sv)};
