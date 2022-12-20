@@ -492,7 +492,7 @@ void test_array_strings()
 }
 
 
-void test_array_parses_real_array()
+void test_array_parses_real_arrays()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
@@ -522,13 +522,21 @@ void test_array_parses_real_array()
   PQXX_CHECK_THROWS(
     (pqxx::array<int, 1>{null_s, conn}), pqxx::unexpected_null,
     "Not getting unexpected_null from array parser.");
-  // XXX: Test unexpected nulls.
 
-  // XXX: Test multidim.
+  auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
+  pqxx::array<int, 2> twodim_a{twodim_s, conn};
+  PQXX_CHECK_EQUAL(twodim_a.dimensions(), 2u, "Wrong number of dimensions on multi-dimensional array.");
+  PQXX_CHECK_EQUAL(twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}), "Wrong sizes on multidim array.");
 }
 
 
-// XXX: Test empty array.
+void test_array_rejects_malformed_arrays()
+{
+  // XXX:
+  // XXX: Test unexpected nulls.
+  // XXX: Test various kinds of irregular arrays.
+}
+
 
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
@@ -542,5 +550,6 @@ PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
 PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 PQXX_REGISTER_TEST(test_array_strings);
-PQXX_REGISTER_TEST(test_array_parses_real_array);
+PQXX_REGISTER_TEST(test_array_parses_real_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_arrays);
 } // namespace
