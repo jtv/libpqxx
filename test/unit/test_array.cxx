@@ -525,8 +525,12 @@ void test_array_parses_real_arrays()
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
   pqxx::array<int, 2> twodim_a{twodim_s, conn};
-  PQXX_CHECK_EQUAL(twodim_a.dimensions(), 2u, "Wrong number of dimensions on multi-dimensional array.");
-  PQXX_CHECK_EQUAL(twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}), "Wrong sizes on multidim array.");
+  PQXX_CHECK_EQUAL(
+    twodim_a.dimensions(), 2u,
+    "Wrong number of dimensions on multi-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}),
+    "Wrong sizes on multidim array.");
 }
 
 
