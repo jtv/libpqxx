@@ -230,6 +230,16 @@ private:
         // dimension, through underflow.
         --dim;
         ++here;
+        if (here < sz) switch (data[here])
+        {
+        case SEPARATOR:
+          ++here;
+          break;
+        case '}':
+          break;
+        default:
+          throw conversion_error{"Unexpected character in array after '}'."};
+        }
       }
       else
       {
@@ -287,11 +297,14 @@ private:
         }
         }
         here = end;
-        if (here < sz)
+        if (here < sz) switch (data[here])
         {
-          if (data[here] == SEPARATOR)
+          case SEPARATOR:
             ++here;
-          else if (data[here] != '}')
+            break;
+          case '}':
+            break;
+          default:
             throw conversion_error{pqxx::internal::concat(
               "Unexpected character in array: ",
               static_cast<unsigned>(static_cast<unsigned char>(data[here])),
