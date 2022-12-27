@@ -553,7 +553,7 @@ void test_array_rejects_malformed_arrays()
     "{1"sv,
     "{1,"sv,
     "{,}"sv,
-    //"{1,}"sv,
+    "{1,}"sv,
     "{,1}"sv,
     "{1,{}}"sv,
   };
