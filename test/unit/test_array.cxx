@@ -4,6 +4,8 @@
 
 // Test program for libpqxx array parsing.
 
+using namespace std::literals;
+
 namespace pqxx
 {
 template<>
@@ -536,6 +538,31 @@ void test_array_parses_real_arrays()
 
 void test_array_rejects_malformed_arrays()
 {
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,
+    "null"sv,
+    "1"sv,
+    "{"sv,
+    "}"sv,
+    "}{"sv,
+    "{}{"sv,
+    "{{}"sv,
+    "{}}"sv,
+    "{{}}"sv,
+    "{1"sv,
+    "{1,"sv,
+    "{,}"sv,
+    //"{1,}"sv,
+    "{,1}"sv,
+    "{1,{}}"sv,
+  };
+  for (auto bad : bad_arrays)
+  {
+    PQXX_CHECK_THROWS(
+      (pqxx::array<int, 1>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+  }
   // XXX:
   // XXX: Test unexpected nulls.
   // XXX: Test various kinds of irregular arrays.

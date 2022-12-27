@@ -230,10 +230,21 @@ private:
         // dimension, through underflow.
         --dim;
         ++here;
+        // XXX: This block occurs twice.
         if (here < sz) switch (data[here])
         {
         case SEPARATOR:
           ++here;
+          if (here >= sz) throw conversion_error{"Array looks truncated."};
+          switch (data[here])
+          {
+          case SEPARATOR:
+            throw conversion_error{"Array contains double separator."};
+          case '}':
+            throw conversion_error{"Array contains trailing separator."};
+          default:
+            break;
+          }
           break;
         case '}':
           break;
@@ -297,11 +308,22 @@ private:
         }
         }
         here = end;
+        // XXX: This block occurs twice.
         if (here < sz) switch (data[here])
         {
           case SEPARATOR:
             ++here;
-            break;
+            if (here >= sz) throw conversion_error{"Array looks truncated."};
+            switch (data[here])
+            {
+            case SEPARATOR:
+              throw conversion_error{"Array contains double separator."};
+            case '}':
+              throw conversion_error{"Array contains trailing separator."};
+            default:
+              break;
+            }
+             break;
           case '}':
             break;
           default:
