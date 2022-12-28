@@ -264,7 +264,8 @@ private:
         std::size_t end;
         switch (data[here])
         {
-        case '\0': throw failure{"Unexpected zero byte in array."};
+        case '\0': throw conversion_error{"Unexpected zero byte in array."};
+	case ',': throw conversion_error{"Array contains empty field."};
         case '"': {
           // Double-quoted string.  We parse it into a buffer before parsing
           // the resulting string as an element.  This seems wasteful: the

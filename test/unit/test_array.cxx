@@ -587,8 +587,7 @@ void test_array_rejects_malformed_simple_string_arrays()
     "{1,"sv,
     "{,}"sv,
     "{1,}"sv,
-    // XXX: This should fail!
-    //"{,1}"sv,
+    "{,1}"sv,
     "{1,{}}"sv,
    };
   for (auto bad : bad_arrays)
