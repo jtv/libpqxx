@@ -500,20 +500,20 @@ void test_array_parses_real_arrays()
   pqxx::work tx{conn};
 
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
-  pqxx::array<int, 1> empty_a{empty_s, conn};
+  pqxx::array<int> empty_a{empty_s, conn};
   PQXX_CHECK_EQUAL(
     empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
   PQXX_CHECK_EQUAL(
-    empty_a.sizes(), (std::array<std::size_t, 1>{0u}),
+    empty_a.sizes(), (std::array<std::size_t, 1u>{0u}),
     "Unexpected sizes for empty array.");
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
-  pqxx::array<int, 1> onedim_a{onedim_s, conn};
+  pqxx::array<int> onedim_a{onedim_s, conn};
   PQXX_CHECK_EQUAL(
     onedim_a.dimensions(), 1u,
     "Unexpected dimension count for one-dimensional array.");
   PQXX_CHECK_EQUAL(
-    onedim_a.sizes(), (std::array<std::size_t, 1>{3u}),
+    onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}),
     "Unexpected sizes for one-dimensional array.");
   PQXX_CHECK_EQUAL(onedim_a[0], 0, "Bad data in one-dimensional array.");
   PQXX_CHECK_EQUAL(
@@ -522,7 +522,7 @@ void test_array_parses_real_arrays()
   auto const null_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
   PQXX_CHECK_THROWS(
-    (pqxx::array<int, 1>{null_s, conn}), pqxx::unexpected_null,
+    (pqxx::array<int>{null_s, conn}), pqxx::unexpected_null,
     "Not getting unexpected_null from array parser.");
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
@@ -533,6 +533,20 @@ void test_array_parses_real_arrays()
   PQXX_CHECK_EQUAL(
     twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}),
     "Wrong sizes on multidim array.");
+
+  auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
+  pqxx::array<std::string> string_a{string_s, conn};
+  PQXX_CHECK_EQUAL(string_a[0], "Hello", "String field came out wrong.");
+
+  auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
+  pqxx::array<std::string> fake_null_a{string_s, conn};
+  PQXX_CHECK_EQUAL(fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
+
+  auto const nulls_s{tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
+  pqxx::array<std::optional<std::string>> nulls_a{nulls_s, conn};
+  PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
+  PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
+  PQXX_CHECK_EQUAL(nulls_a[1].value(), "NULL", "String 'NULL' came out wrong.");
 }
 
 
@@ -560,11 +574,9 @@ void test_array_rejects_malformed_simple_int_arrays()
     "{x}"sv,
   };
   for (auto bad : bad_arrays)
-  {
     PQXX_CHECK_THROWS(
-      (pqxx::array<int, 1>{bad, conn}), pqxx::conversion_error,
+      (pqxx::array<int>{bad, conn}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
-  }
 }
 
 
@@ -591,11 +603,9 @@ void test_array_rejects_malformed_simple_string_arrays()
     "{1,{}}"sv,
    };
   for (auto bad : bad_arrays)
-  {
     PQXX_CHECK_THROWS(
-      (pqxx::array<std::string, 1>{bad, conn}), pqxx::conversion_error,
+      (pqxx::array<std::string>{bad, conn}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
-  }
 }
 
 
@@ -610,11 +620,9 @@ void test_array_rejects_malformed_twodimensional_arrays()
   // XXX: Test various kinds of irregular arrays.
   };
   for (auto bad : bad_arrays)
-  {
     PQXX_CHECK_THROWS(
       (pqxx::array<std::string, 2>{bad, conn}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
-  }
 }
 
 

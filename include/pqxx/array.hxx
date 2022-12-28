@@ -30,16 +30,19 @@
 
 namespace pqxx
 {
+// TODO: Can we storage-optimise this for string_view/zview?
+
 /// An SQL array received from the database.
 /** Parses an SQL array from its text format, making it available as a
  * container of C++-side values.
  */
 template<
-  typename ELEMENT, std::size_t DIMENSIONS = 1,
+  typename ELEMENT, std::size_t DIMENSIONS = 1u,
   char SEPARATOR = array_separator<ELEMENT>>
 class array final
 {
 public:
+// XXX: Optional "reserve()" parameter.
   /// Parse an SQL array, read as text from a pqxx::result or stream.
   /** Uses `conn` only during construction, to find out the text encoding in
    * which it should interpret `data`.
@@ -202,7 +205,6 @@ private:
           if (dim >= (DIMENSIONS - 1))
             throw conversion_error{
               "Array seems to have inconsistent number of dimensions."};
-          // XXX: Are we sure we're supposed to increment here?
           ++extents[dim];
         }
         // (Rolls over to zero if we're coming from the outer dimension.)
@@ -276,7 +278,6 @@ private:
           // indicates that there is some kind of special character in there.
           // So in practice, this optimisation would only apply if the only
           // special characters in the string were commas.
-          ++here;
           end = pqxx::internal::scan_double_quoted_string<ENC>(
             std::data(data), std::size(data), here);
           // TODO: scan_double_quoted_string() with reusable buffer.
@@ -361,7 +362,6 @@ private:
     }
     else
     {
-      // XXX: I've probably got the dimensions count the wrong way around.
       constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
       return inner + m_extents[dimension - 1] * add_index(indexes...);
     }
