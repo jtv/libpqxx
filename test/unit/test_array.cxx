@@ -625,6 +625,7 @@ void test_array_rejects_malformed_twodimensional_arrays()
       "No conversion_error for '" + std::string{bad} + "'.");
 }
 
+// XXX: Test strings with escaping.
 
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);

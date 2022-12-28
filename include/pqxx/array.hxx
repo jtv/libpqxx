@@ -35,6 +35,18 @@ namespace pqxx
 /// An SQL array received from the database.
 /** Parses an SQL array from its text format, making it available as a
  * container of C++-side values.
+ *
+ * The array can have one or more dimensions.  You must specify the number of
+ * dimensions at compile time.  In each dimension, the array has a size which
+ * the `array` constructor determines at run time based on the SQL array's
+ * textual representation.  The sizes of a given SQL array are consistent: if
+ * your array has two dimensions, for example, then it will have one
+ * "horizontal" size which determines the number of elements in each row; and
+ * it will have one "vertical" size which determines the number of rows.
+ *
+ * Physical memory storage is "row-major."  This means that the last of the
+ * dimensions represents a row.  So in memory, element `a[m][n]` comes right
+ * before `a[m][n+1]`.
  */
 template<
   typename ELEMENT, std::size_t DIMENSIONS = 1u,
@@ -42,7 +54,6 @@ template<
 class array final
 {
 public:
-// XXX: Optional "reserve()" parameter.
   /// Parse an SQL array, read as text from a pqxx::result or stream.
   /** Uses `conn` only during construction, to find out the text encoding in
    * which it should interpret `data`.
@@ -58,10 +69,15 @@ public:
   {}
 
   /// How many dimensions does this array have?
+  /** This value is known at compile time.
+   */
   constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
 
-  // TODO: Document order of the elements.
   /// Return the sizes of this array in each of its dimensions.
+  /** The last of the sizes is the number of elements in a single row.  The
+   * size before that is the number of rows of elements, and so on.  The first
+   * is the "outer" size.
+   */
   std::array<std::size_t, DIMENSIONS> const &sizes() noexcept
   {
     return m_extents;
@@ -152,11 +168,44 @@ private:
     }
   }
 
+  /// Handle the end of a field.
+  /** Check for a trailing separator, detect any syntax errors at this somewhat
+   * complicated point, and return the offset where parsing should continue.
+   */
+  std::size_t parse_field_end(std::string_view data, std::size_t here) const
+  {
+    auto const sz{std::size(data)};
+    if (here < sz) switch (data[here])
+    {
+    case SEPARATOR:
+      ++here;
+      if (here >= sz) throw conversion_error{"Array looks truncated."};
+      switch (data[here])
+      {
+      case SEPARATOR:
+        throw conversion_error{"Array contains double separator."};
+      case '}':
+        throw conversion_error{"Array contains trailing separator."};
+      default:
+        break;
+      }
+      break;
+    case '}':
+      break;
+    default:
+      throw conversion_error{pqxx::internal::concat(
+        "Unexpected character in array: ",
+        static_cast<unsigned>(static_cast<unsigned char>(data[here])),
+        " where separator or closing brace expected.")};
+    }
+    return here;
+  }
+
   template<pqxx::internal::encoding_group ENC>
   void parse(std::string_view data)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
-    auto sz{std::size(data)};
+    auto const sz{std::size(data)};
     check_dims(data);
 
     // TODO: Can we scan first and allocate the right size vector?
@@ -232,27 +281,7 @@ private:
         // dimension, through underflow.
         --dim;
         ++here;
-        // XXX: This block occurs twice.
-        if (here < sz) switch (data[here])
-        {
-        case SEPARATOR:
-          ++here;
-          if (here >= sz) throw conversion_error{"Array looks truncated."};
-          switch (data[here])
-          {
-          case SEPARATOR:
-            throw conversion_error{"Array contains double separator."};
-          case '}':
-            throw conversion_error{"Array contains trailing separator."};
-          default:
-            break;
-          }
-          break;
-        case '}':
-          break;
-        default:
-          throw conversion_error{"Unexpected character in array after '}'."};
-        }
+	here = parse_field_end(data, here);
       }
       else
       {
@@ -310,30 +339,7 @@ private:
         }
         }
         here = end;
-        // XXX: This block occurs twice.
-        if (here < sz) switch (data[here])
-        {
-          case SEPARATOR:
-            ++here;
-            if (here >= sz) throw conversion_error{"Array looks truncated."};
-            switch (data[here])
-            {
-            case SEPARATOR:
-              throw conversion_error{"Array contains double separator."};
-            case '}':
-              throw conversion_error{"Array contains trailing separator."};
-            default:
-              break;
-            }
-             break;
-          case '}':
-            break;
-          default:
-            throw conversion_error{pqxx::internal::concat(
-              "Unexpected character in array: ",
-              static_cast<unsigned>(static_cast<unsigned char>(data[here])),
-              " where separator or closing brace expected.")};
-        }
+	here = parse_field_end(data, here);
       }
     }
 
