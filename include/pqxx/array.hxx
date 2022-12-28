@@ -175,29 +175,28 @@ private:
   std::size_t parse_field_end(std::string_view data, std::size_t here) const
   {
     auto const sz{std::size(data)};
-    if (here < sz) switch (data[here])
-    {
-    case SEPARATOR:
-      ++here;
-      if (here >= sz) throw conversion_error{"Array looks truncated."};
+    if (here < sz)
       switch (data[here])
       {
       case SEPARATOR:
-        throw conversion_error{"Array contains double separator."};
-      case '}':
-        throw conversion_error{"Array contains trailing separator."};
-      default:
+        ++here;
+        if (here >= sz)
+          throw conversion_error{"Array looks truncated."};
+        switch (data[here])
+        {
+        case SEPARATOR:
+          throw conversion_error{"Array contains double separator."};
+        case '}': throw conversion_error{"Array contains trailing separator."};
+        default: break;
+        }
         break;
+      case '}': break;
+      default:
+        throw conversion_error{pqxx::internal::concat(
+          "Unexpected character in array: ",
+          static_cast<unsigned>(static_cast<unsigned char>(data[here])),
+          " where separator or closing brace expected.")};
       }
-      break;
-    case '}':
-      break;
-    default:
-      throw conversion_error{pqxx::internal::concat(
-        "Unexpected character in array: ",
-        static_cast<unsigned>(static_cast<unsigned char>(data[here])),
-        " where separator or closing brace expected.")};
-    }
     return here;
   }
 
@@ -281,7 +280,7 @@ private:
         // dimension, through underflow.
         --dim;
         ++here;
-	here = parse_field_end(data, here);
+        here = parse_field_end(data, here);
       }
       else
       {
@@ -296,7 +295,7 @@ private:
         switch (data[here])
         {
         case '\0': throw conversion_error{"Unexpected zero byte in array."};
-	case ',': throw conversion_error{"Array contains empty field."};
+        case ',': throw conversion_error{"Array contains empty field."};
         case '"': {
           // Double-quoted string.  We parse it into a buffer before parsing
           // the resulting string as an element.  This seems wasteful: the
@@ -339,7 +338,7 @@ private:
         }
         }
         here = end;
-	here = parse_field_end(data, here);
+        here = parse_field_end(data, here);
       }
     }
 

@@ -540,13 +540,16 @@ void test_array_parses_real_arrays()
 
   auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
   pqxx::array<std::string> fake_null_a{string_s, conn};
-  PQXX_CHECK_EQUAL(fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
+  PQXX_CHECK_EQUAL(
+    fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
 
-  auto const nulls_s{tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
+  auto const nulls_s{
+    tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
   pqxx::array<std::optional<std::string>> nulls_a{nulls_s, conn};
   PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
   PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
-  PQXX_CHECK_EQUAL(nulls_a[1].value(), "NULL", "String 'NULL' came out wrong.");
+  PQXX_CHECK_EQUAL(
+    nulls_a[1].value(), "NULL", "String 'NULL' came out wrong.");
 }
 
 
@@ -554,24 +557,9 @@ void test_array_rejects_malformed_simple_int_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv,
-    "null"sv,
-    ","sv,
-    "1"sv,
-    "{"sv,
-    "}"sv,
-    "}{"sv,
-    "{}{"sv,
-    "{{}"sv,
-    "{}}"sv,
-    "{{}}"sv,
-    "{1"sv,
-    "{1,"sv,
-    "{,}"sv,
-    "{1,}"sv,
-    "{,1}"sv,
-    "{1,{}}"sv,
-    "{x}"sv,
+    ""sv,    "null"sv, ","sv,    "1"sv,    "{"sv,      "}"sv,
+    "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
+    "{1,"sv, "{,}"sv,  "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -584,24 +572,10 @@ void test_array_rejects_malformed_simple_string_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv,
-    "null"sv,
-    "1"sv,
-    ","sv,
-    "{"sv,
-    "}"sv,
-    "}{"sv,
-    "{}{"sv,
-    "{{}"sv,
-    "{}}"sv,
-    "{{}}"sv,
-    "{1"sv,
-    "{1,"sv,
-    "{,}"sv,
-    "{1,}"sv,
-    "{,1}"sv,
-    "{1,{}}"sv,
-   };
+    ""sv,    "null"sv, "1"sv,    ","sv,    "{"sv,      "}"sv,
+    "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
+    "{1,"sv, "{,}"sv,  "{1,}"sv, "{,1}"sv, "{1,{}}"sv,
+  };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
       (pqxx::array<std::string>{bad, conn}), pqxx::conversion_error,
@@ -613,11 +587,9 @@ void test_array_rejects_malformed_twodimensional_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv,
-    "{}"sv,
-    "{null}"sv,
-  // XXX:
-  // XXX: Test various kinds of irregular arrays.
+    ""sv, "{}"sv, "{null}"sv,
+    // XXX:
+    // XXX: Test various kinds of irregular arrays.
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
