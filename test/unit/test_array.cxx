@@ -536,12 +536,13 @@ void test_array_parses_real_arrays()
 }
 
 
-void test_array_rejects_malformed_arrays()
+void test_array_rejects_malformed_simple_int_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
     ""sv,
     "null"sv,
+    ","sv,
     "1"sv,
     "{"sv,
     "}"sv,
@@ -556,6 +557,7 @@ void test_array_rejects_malformed_arrays()
     "{1,}"sv,
     "{,1}"sv,
     "{1,{}}"sv,
+    "{x}"sv,
   };
   for (auto bad : bad_arrays)
   {
@@ -563,9 +565,57 @@ void test_array_rejects_malformed_arrays()
       (pqxx::array<int, 1>{bad, conn}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
   }
+}
+
+
+void test_array_rejects_malformed_simple_string_arrays()
+{
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,
+    "null"sv,
+    "1"sv,
+    ","sv,
+    "{"sv,
+    "}"sv,
+    "}{"sv,
+    "{}{"sv,
+    "{{}"sv,
+    "{}}"sv,
+    "{{}}"sv,
+    "{1"sv,
+    "{1,"sv,
+    "{,}"sv,
+    "{1,}"sv,
+    // XXX: This should fail!
+    //"{,1}"sv,
+    "{1,{}}"sv,
+   };
+  for (auto bad : bad_arrays)
+  {
+    PQXX_CHECK_THROWS(
+      (pqxx::array<std::string, 1>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+  }
+}
+
+
+void test_array_rejects_malformed_twodimensional_arrays()
+{
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,
+    "{}"sv,
+    "{null}"sv,
   // XXX:
-  // XXX: Test unexpected nulls.
   // XXX: Test various kinds of irregular arrays.
+  };
+  for (auto bad : bad_arrays)
+  {
+    PQXX_CHECK_THROWS(
+      (pqxx::array<std::string, 2>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+  }
 }
 
 
@@ -582,5 +632,7 @@ PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 PQXX_REGISTER_TEST(test_array_strings);
 PQXX_REGISTER_TEST(test_array_parses_real_arrays);
-PQXX_REGISTER_TEST(test_array_rejects_malformed_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_int_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_string_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);
 } // namespace
