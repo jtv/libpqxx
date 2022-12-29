@@ -588,8 +588,8 @@ void test_array_rejects_malformed_twodimensional_arrays()
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
     ""sv, "{}"sv, "{null}"sv,
-    // XXX:
-    // XXX: Test various kinds of irregular arrays.
+    // XXX: Test irregular array.
+    // XXX: Test null row.
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -597,7 +597,14 @@ void test_array_rejects_malformed_twodimensional_arrays()
       "No conversion_error for '" + std::string{bad} + "'.");
 }
 
-// XXX: Test strings with escaping.
+
+void test_array_parses_quoted_strings()
+{
+  pqxx::connection conn;
+  pqxx::array<std::string> const a{R"x({"\"'"})x", conn};
+  PQXX_CHECK_EQUAL(a[0], R"x("')x", "String in array did not unescape right.");
+}
+
 
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
@@ -615,4 +622,5 @@ PQXX_REGISTER_TEST(test_array_parses_real_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_int_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_string_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);
+PQXX_REGISTER_TEST(test_array_parses_quoted_strings);
 } // namespace
