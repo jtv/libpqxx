@@ -30,7 +30,7 @@
 
 namespace pqxx
 {
-// TODO: Can we storage-optimise this for string_view/zview?
+// TODO: Specialise for string_view/zview, allocate all strings in one buffer.
 
 /// An SQL array received from the database.
 /** Parses an SQL array from its text format, making it available as a

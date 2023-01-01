@@ -560,6 +560,7 @@ void test_array_rejects_malformed_simple_int_arrays()
     ""sv,    "null"sv, ","sv,    "1"sv,    "{"sv,      "}"sv,
     "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
     "{1,"sv, "{,}"sv,  "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,
+    "{1,{2,3}}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -587,9 +588,7 @@ void test_array_rejects_malformed_twodimensional_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv, "{}"sv, "{null}"sv,
-    // XXX: Test irregular array.
-    // XXX: Test null row.
+    ""sv, "{}"sv, "{null}"sv, "{{1}, {2, 3}}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
