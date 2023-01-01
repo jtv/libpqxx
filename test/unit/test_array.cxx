@@ -588,7 +588,7 @@ void test_array_rejects_malformed_twodimensional_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv, "{}"sv, "{null}"sv, "{{1}, {2, 3}}"sv,
+    ""sv, "{}"sv, "{null}"sv, "{{1},{2,3}}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -602,6 +602,29 @@ void test_array_parses_quoted_strings()
   pqxx::connection conn;
   pqxx::array<std::string> const a{R"x({"\"'"})x", conn};
   PQXX_CHECK_EQUAL(a[0], R"x("')x", "String in array did not unescape right.");
+}
+
+
+void test_array_parses_multidim_arrays()
+{
+  pqxx::connection conn;
+  pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", conn};
+  PQXX_CHECK_EQUAL(a.at(0u, 0u), 0, "Indexing is wrong.");
+  PQXX_CHECK_EQUAL(a.at(1u, 0u), 2, "Indexing seems to confuse dimensions.");
+  PQXX_CHECK_EQUAL(a.at(1u, 1u), 3, "Indexing at higher indexes goes wrong.");
+}
+
+
+void test_array_at_checks_bounds()
+{
+  pqxx::connection conn;
+  pqxx::array<int> const simple{"{0, 1, 2}", conn};
+  PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
+  PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
+  PQXX_CHECK_THROWS(simple.at(3), pqxx::range_error, "No bounds checking on array::at().");
+  PQXX_CHECK_THROWS(simple.at(-1), pqxx::range_error, "Negative index does not throw range_error.");
+  // XXX: And now for multi-dimensional arrays.
+  // XXX: Since indexes can be signed... check that negative index fails.
 }
 
 
@@ -622,4 +645,6 @@ PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_int_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_string_arrays);
 PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);
 PQXX_REGISTER_TEST(test_array_parses_quoted_strings);
+PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
+PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 } // namespace

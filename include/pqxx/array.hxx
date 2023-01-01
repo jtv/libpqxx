@@ -85,6 +85,8 @@ public:
 
   template<typename... INDEX> ELEMENT const &at(INDEX... index) const
   {
+    assert(sizeof...(index) == DIMENSIONS);
+    check_bounds(index...);
     return m_elts.at(locate(index...));
   }
 
@@ -99,6 +101,7 @@ public:
    */
   template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
   {
+    assert(sizeof...(index) == DIMENSIONS);
     return m_elts[locate(index...)];
   }
 
@@ -353,23 +356,38 @@ private:
     static_assert(
       sizeof...(index) == DIMENSIONS,
       "Indexing array with wrong number of dimensions.");
-    return add_index(check_cast<std::size_t>(index, "array index"sv)...);
+    return add_index(index...);
   }
 
-  template<typename... INDEX>
+  template<typename OUTER, typename... INDEX>
   constexpr std::size_t
-  add_index(INDEX... indexes, std::size_t inner) const noexcept
+  add_index(OUTER outer, INDEX... indexes) const noexcept
   {
-    assert(sizeof...(indexes) < DIMENSIONS);
+    std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
     if constexpr (sizeof...(indexes) == 0)
     {
-      return inner;
+      return first;
     }
     else
     {
+      assert(sizeof...(indexes) < DIMENSIONS);
       constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
-      return inner + m_extents[dimension - 1] * add_index(indexes...);
+      assert(dimension < DIMENSIONS);
+      return m_extents[dimension - 1] * first + add_index(indexes...);
     }
+  }
+
+  /// Check that indexes are within bounds.
+  /** @throw pqxx::range_error if not.
+   */
+  template<typename OUTER, typename... INDEX>
+  constexpr void check_bounds(OUTER outer, INDEX... indexes) const
+  {
+    std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
+    assert(sizeof...(indexes) < DIMENSIONS);
+    constexpr auto dimension{DIMENSIONS - sizeof...(indexes) - 1};
+    assert(dimension < DIMENSIONS);
+    if (first >= m_extents[dimension]) throw range_error{pqxx::internal::concat("Array index for dimension ", dimension, " is out of bounds: ", first, " >= ", m_extents[dimension])};
   }
 
   /// Linear storage for the array's elements.
