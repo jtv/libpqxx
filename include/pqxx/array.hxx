@@ -406,7 +406,8 @@ private:
         " >= ", m_extents[dimension])};
 
     // Now check the rest of the indexes, if any.
-    if constexpr (sizeof...(indexes) > 0) check_bounds(indexes...);
+    if constexpr (sizeof...(indexes) > 0)
+      check_bounds(indexes...);
   }
 
   /// Linear storage for the array's elements.

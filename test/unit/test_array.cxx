@@ -630,13 +630,22 @@ void test_array_at_checks_bounds()
     "Negative index does not throw range_error.");
 
   pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", conn};
-  PQXX_CHECK_EQUAL(multi.at(0, 0), 0, "Multidim array indexing does not work.");
+  PQXX_CHECK_EQUAL(
+    multi.at(0, 0), 0, "Multidim array indexing does not work.");
   PQXX_CHECK_EQUAL(multi.at(1, 1), 3, "Nonzero multidim indexing goes wrong.");
   PQXX_CHECK_EQUAL(multi.at(2, 1), 5, "Multidim top element went wrong.");
-  PQXX_CHECK_THROWS(multi.at(3, 0), pqxx::range_error, "Out-of-bounds on outer dimension was not detected.");
-  PQXX_CHECK_THROWS(multi.at(0, 2), pqxx::range_error, "Out-of-bounds on inner dimension was not detected.");
-  PQXX_CHECK_THROWS(multi.at(0, -1), pqxx::range_error, "Negative inner index was not detected.");
-  PQXX_CHECK_THROWS(multi.at(-1, 0), pqxx::range_error, "Negative outer index was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(3, 0), pqxx::range_error,
+    "Out-of-bounds on outer dimension was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(0, 2), pqxx::range_error,
+    "Out-of-bounds on inner dimension was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(0, -1), pqxx::range_error,
+    "Negative inner index was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(-1, 0), pqxx::range_error,
+    "Negative outer index was not detected.");
 }
 
 
