@@ -557,10 +557,9 @@ void test_array_rejects_malformed_simple_int_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv,    "null"sv, ","sv,    "1"sv,    "{"sv,      "}"sv,
-    "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
-    "{1,"sv, "{,}"sv,  "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,
-    "{1,{2,3}}"sv,
+    ""sv,     "null"sv, ","sv,      "1"sv,    "{"sv,         "}"sv,   "}{"sv,
+    "{}{"sv,  "{{}"sv,  "{}}"sv,    "{{}}"sv, "{1"sv,        "{1,"sv, "{,}"sv,
+    "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,  "{1,{2,3}}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -588,7 +587,10 @@ void test_array_rejects_malformed_twodimensional_arrays()
 {
   pqxx::connection conn;
   std::string_view const bad_arrays[]{
-    ""sv, "{}"sv, "{null}"sv, "{{1},{2,3}}"sv,
+    ""sv,
+    "{}"sv,
+    "{null}"sv,
+    "{{1},{2,3}}"sv,
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
@@ -621,8 +623,11 @@ void test_array_at_checks_bounds()
   pqxx::array<int> const simple{"{0, 1, 2}", conn};
   PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
   PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
-  PQXX_CHECK_THROWS(simple.at(3), pqxx::range_error, "No bounds checking on array::at().");
-  PQXX_CHECK_THROWS(simple.at(-1), pqxx::range_error, "Negative index does not throw range_error.");
+  PQXX_CHECK_THROWS(
+    simple.at(3), pqxx::range_error, "No bounds checking on array::at().");
+  PQXX_CHECK_THROWS(
+    simple.at(-1), pqxx::range_error,
+    "Negative index does not throw range_error.");
   // XXX: And now for multi-dimensional arrays.
   // XXX: Since indexes can be signed... check that negative index fails.
 }

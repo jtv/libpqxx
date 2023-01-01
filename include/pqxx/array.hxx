@@ -360,8 +360,7 @@ private:
   }
 
   template<typename OUTER, typename... INDEX>
-  constexpr std::size_t
-  add_index(OUTER outer, INDEX... indexes) const noexcept
+  constexpr std::size_t add_index(OUTER outer, INDEX... indexes) const noexcept
   {
     std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
     if constexpr (sizeof...(indexes) == 0)
@@ -387,7 +386,10 @@ private:
     assert(sizeof...(indexes) < DIMENSIONS);
     constexpr auto dimension{DIMENSIONS - sizeof...(indexes) - 1};
     assert(dimension < DIMENSIONS);
-    if (first >= m_extents[dimension]) throw range_error{pqxx::internal::concat("Array index for dimension ", dimension, " is out of bounds: ", first, " >= ", m_extents[dimension])};
+    if (first >= m_extents[dimension])
+      throw range_error{pqxx::internal::concat(
+        "Array index for dimension ", dimension, " is out of bounds: ", first,
+        " >= ", m_extents[dimension])};
   }
 
   /// Linear storage for the array's elements.
