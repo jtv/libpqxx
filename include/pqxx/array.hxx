@@ -27,7 +27,6 @@
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
-
 namespace pqxx
 {
 // TODO: Specialise for string_view/zview, allocate all strings in one buffer.
@@ -348,6 +347,19 @@ private:
     if (dim != outer)
       throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
+
+    init_factors();
+  }
+
+  /// Pre-compute indexing factors.
+  void init_factors() noexcept
+  {
+    std::size_t factor{1};
+    for (std::size_t dim{DIMENSIONS - 1}; dim > 0; --dim)
+    {
+      factor *= m_extents[dim];
+      m_factors[dim - 1] = factor;
+    }
   }
 
   /// Map a multidimensional index to an entry in our linear storage.
@@ -370,9 +382,10 @@ private:
     else
     {
       assert(sizeof...(indexes) < DIMENSIONS);
-      constexpr auto dimension{DIMENSIONS - sizeof...(indexes)};
+      // (Offset by 1 here because the outer dimension is not in there.)
+      constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
       assert(dimension < DIMENSIONS);
-      return m_extents[dimension - 1] * first + add_index(indexes...);
+      return first * m_factors[dimension] + add_index(indexes...);
     }
   }
 
@@ -384,12 +397,16 @@ private:
   {
     std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
     assert(sizeof...(indexes) < DIMENSIONS);
-    constexpr auto dimension{DIMENSIONS - sizeof...(indexes) - 1};
+    // (Offset by 1 here because the outer dimension is not in there.)
+    constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
     assert(dimension < DIMENSIONS);
     if (first >= m_extents[dimension])
       throw range_error{pqxx::internal::concat(
         "Array index for dimension ", dimension, " is out of bounds: ", first,
         " >= ", m_extents[dimension])};
+
+    // Now check the rest of the indexes, if any.
+    if constexpr (sizeof...(indexes) > 0) check_bounds(indexes...);
   }
 
   /// Linear storage for the array's elements.
@@ -397,6 +414,16 @@ private:
 
   /// Size along each dimension.
   std::array<std::size_t, DIMENSIONS> m_extents;
+
+  /// Multiplication factors for indexing in each dimension.
+  /** This wouldn't make any sense if `locate()` could recurse from the "inner"
+   * dimension towards the "outer" one.  Unfortunately we've got to recurse in
+   * the opposite direction, so it helps to pre-compute the factors.
+   *
+   * We don't need to cache a factor for the outer dimension, since we never
+   * multiply by that number.
+   */
+  std::array<std::size_t, DIMENSIONS - 1> m_factors;
 };
 
 
