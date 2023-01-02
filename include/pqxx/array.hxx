@@ -27,6 +27,7 @@
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
+
 namespace pqxx
 {
 // TODO: Specialise for string_view/zview, allocate all strings in one buffer.

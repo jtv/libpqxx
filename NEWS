@@ -1,7 +1,8 @@
 7.8.0
+ - New `array` class for easier parsing of SQL arrays.
  - Use `array_parser` only on comma-separated types, i.e. most of them. (#590)
  - Bumping requirements versions: need postgres 10.
- - Fix array parsing bug when parsing semicolon in an unquoted string.
+ - Fix `array_parser` bug when parsing semicolon in an unquoted string.
  - Faster text decoding in `stream_from`, and escaping in `stream_to`.  (#601)
  - At last, streaming throughput is faster (on my system) than a regular query.
  - Deprecate `basic_fieldstream` and `fieldstream`.
