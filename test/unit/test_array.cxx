@@ -649,6 +649,33 @@ void test_array_at_checks_bounds()
 }
 
 
+void test_array_iterates_in_row_major_order()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto const array_s{tx.query_value<std::string>(
+    "SELECT ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9]]")};
+  pqxx::array<int, 2> array{array_s, conn};
+  auto it{array.cbegin()};
+  PQXX_CHECK_EQUAL(*it, 1, "Iteration started off wrong.");
+  ++it;
+  ++it;
+  PQXX_CHECK_EQUAL(*it, 3, "Iteration seems to have taken the wrong order.");
+  ++it;
+  PQXX_CHECK_EQUAL(*it, 4, "Iteration did not jump to the next dimension.");
+  it += 6;
+  PQXX_CHECK(it == array.cend(), "Array cend() not where I expected.");
+  PQXX_CHECK_EQUAL(*(array.cend() - 1), 9, "Iteration did not end well.");
+  PQXX_CHECK_EQUAL(*array.crbegin(), 9, "Bad crbegin().");
+  PQXX_CHECK_EQUAL(*(array.crend() - 1), 1, "Bad crend().");
+  PQXX_CHECK_EQUAL(std::size(array), 9u, "Bad array size.");
+  // C++20: Use std::ssize() instead.
+  PQXX_CHECK_EQUAL(array.ssize(), 9, "Bad array ssize().");
+  PQXX_CHECK_EQUAL(array.front(), 1, "Bad front().");
+  PQXX_CHECK_EQUAL(array.back(), 9, "Bad back().");
+}
+
+
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
@@ -668,4 +695,5 @@ PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);
 PQXX_REGISTER_TEST(test_array_parses_quoted_strings);
 PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
 PQXX_REGISTER_TEST(test_array_at_checks_bounds);
+PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 } // namespace

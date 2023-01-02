@@ -105,6 +105,57 @@ public:
     return m_elts[locate(index...)];
   }
 
+  /// Begin iteration of individual elements.
+  /** If this is a multi-dimensional array, iteration proceeds in row-major
+   * order.  So for example, a two-dimensional array `a` would start at
+   * `a[0, 0]`, then `a[0, 1]`, and so on.  Once it reaches the end of that
+   * first row, it moves on to element `a[1, 0]`, and continues from there.
+   */
+  constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
+  /// Return end point of iteration.
+  constexpr auto cend() const noexcept { return m_elts.cend(); }
+  /// Begin reverse iteration.
+  constexpr auto crbegin() const noexcept { return m_elts.crbegin(); }
+  /// Return end point of reverse iteration.
+  constexpr auto crend() const noexcept { return m_elts.crend(); }
+
+  /// Number of elements in the array.
+  /** This includes all elements, in all dimensions.  Therefore it is the
+   * product of all values in `sizes()`.
+   */
+  constexpr std::size_t size() const noexcept { return m_elts.size(); }
+
+  /// Number of elements in the array (as a signed number).
+  /** This includes all elements, in all dimensions.  Therefore it is the
+   * product of all values in `sizes()`.
+   *
+   * In principle, the size could get so large that it had no signed
+   * equivalent.  If that can ever happen, this is your own problem and
+   * behaviour is undefined.
+   *
+   * In practice however, I don't think `ssize()` could ever overflow.  You'd
+   * need an array where each element takes up just one byte, such as Booleans,
+   * filling up more than half your address space.  But the input string for
+   * that array would need at least two bytes per value: one for the value, one
+   * for the separating comma between elements.  So even then you wouldn't have
+   * enough address space to create the array, even if your system allowed you
+   * to use your full address space.
+   */
+  constexpr auto ssize() const noexcept
+  {
+    return static_cast<std::ptrdiff_t>(size());
+  }
+
+  /// Refer to the first element, if any.
+  /** If the array is empty, dereferencing this results in undefined behaviour.
+   */
+  constexpr auto front() const noexcept { return m_elts.front(); }
+
+  /// Refer to the last element, if any.
+  /** If the array is empty, dereferencing this results in undefined behaviour.
+   */
+  constexpr auto back() const noexcept { return m_elts.back(); }
+
 private:
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
   /** Sanity-checks two aspects of the array syntax: the opening braces at the
