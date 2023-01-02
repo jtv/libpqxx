@@ -111,6 +111,11 @@ pqxx::conversion_error::conversion_error(std::string const &whatarg) :
 {}
 
 
+pqxx::unexpected_null::unexpected_null(std::string const &whatarg) :
+        conversion_error{whatarg}
+{}
+
+
 pqxx::conversion_overrun::conversion_overrun(std::string const &whatarg) :
         conversion_error{whatarg}
 {}

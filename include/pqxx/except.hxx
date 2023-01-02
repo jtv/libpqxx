@@ -190,6 +190,13 @@ struct PQXX_LIBEXPORT conversion_error : std::domain_error
 };
 
 
+/// Could not convert null value: target type does not support null.
+struct PQXX_LIBEXPORT unexpected_null : conversion_error
+{
+  explicit unexpected_null(std::string const &);
+};
+
+
 /// Could not convert value to string: not enough buffer space.
 struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 {

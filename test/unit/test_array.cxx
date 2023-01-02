@@ -4,6 +4,8 @@
 
 // Test program for libpqxx array parsing.
 
+using namespace std::literals;
+
 namespace pqxx
 {
 template<>
@@ -492,6 +494,161 @@ void test_array_strings()
 }
 
 
+void test_array_parses_real_arrays()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
+  pqxx::array<int> empty_a{empty_s, conn};
+  PQXX_CHECK_EQUAL(
+    empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
+  PQXX_CHECK_EQUAL(
+    empty_a.sizes(), (std::array<std::size_t, 1u>{0u}),
+    "Unexpected sizes for empty array.");
+
+  auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
+  pqxx::array<int> onedim_a{onedim_s, conn};
+  PQXX_CHECK_EQUAL(
+    onedim_a.dimensions(), 1u,
+    "Unexpected dimension count for one-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}),
+    "Unexpected sizes for one-dimensional array.");
+  PQXX_CHECK_EQUAL(onedim_a[0], 0, "Bad data in one-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    onedim_a[2], 2, "Array started off OK but later data was bad.");
+
+  auto const null_s{
+    tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
+  PQXX_CHECK_THROWS(
+    (pqxx::array<int>{null_s, conn}), pqxx::unexpected_null,
+    "Not getting unexpected_null from array parser.");
+
+  auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
+  pqxx::array<int, 2> twodim_a{twodim_s, conn};
+  PQXX_CHECK_EQUAL(
+    twodim_a.dimensions(), 2u,
+    "Wrong number of dimensions on multi-dimensional array.");
+  PQXX_CHECK_EQUAL(
+    twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}),
+    "Wrong sizes on multidim array.");
+
+  auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
+  pqxx::array<std::string> string_a{string_s, conn};
+  PQXX_CHECK_EQUAL(string_a[0], "Hello", "String field came out wrong.");
+
+  auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
+  pqxx::array<std::string> fake_null_a{string_s, conn};
+  PQXX_CHECK_EQUAL(
+    fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
+
+  auto const nulls_s{
+    tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
+  pqxx::array<std::optional<std::string>> nulls_a{nulls_s, conn};
+  PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
+  PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
+  PQXX_CHECK_EQUAL(
+    nulls_a[1].value(), "NULL", "String 'NULL' came out wrong.");
+}
+
+
+void test_array_rejects_malformed_simple_int_arrays()
+{
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,     "null"sv, ","sv,      "1"sv,    "{"sv,         "}"sv,   "}{"sv,
+    "{}{"sv,  "{{}"sv,  "{}}"sv,    "{{}}"sv, "{1"sv,        "{1,"sv, "{,}"sv,
+    "{1,}"sv, "{,1}"sv, "{1,{}}"sv, "{x}"sv,  "{1,{2,3}}"sv,
+  };
+  for (auto bad : bad_arrays)
+    PQXX_CHECK_THROWS(
+      (pqxx::array<int>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+}
+
+
+void test_array_rejects_malformed_simple_string_arrays()
+{
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,    "null"sv, "1"sv,    ","sv,    "{"sv,      "}"sv,
+    "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
+    "{1,"sv, "{,}"sv,  "{1,}"sv, "{,1}"sv, "{1,{}}"sv,
+  };
+  for (auto bad : bad_arrays)
+    PQXX_CHECK_THROWS(
+      (pqxx::array<std::string>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+}
+
+
+void test_array_rejects_malformed_twodimensional_arrays()
+{
+  pqxx::connection conn;
+  std::string_view const bad_arrays[]{
+    ""sv,
+    "{}"sv,
+    "{null}"sv,
+    "{{1},{2,3}}"sv,
+  };
+  for (auto bad : bad_arrays)
+    PQXX_CHECK_THROWS(
+      (pqxx::array<std::string, 2>{bad, conn}), pqxx::conversion_error,
+      "No conversion_error for '" + std::string{bad} + "'.");
+}
+
+
+void test_array_parses_quoted_strings()
+{
+  pqxx::connection conn;
+  pqxx::array<std::string> const a{R"x({"\"'"})x", conn};
+  PQXX_CHECK_EQUAL(a[0], R"x("')x", "String in array did not unescape right.");
+}
+
+
+void test_array_parses_multidim_arrays()
+{
+  pqxx::connection conn;
+  pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", conn};
+  PQXX_CHECK_EQUAL(a.at(0u, 0u), 0, "Indexing is wrong.");
+  PQXX_CHECK_EQUAL(a.at(1u, 0u), 2, "Indexing seems to confuse dimensions.");
+  PQXX_CHECK_EQUAL(a.at(1u, 1u), 3, "Indexing at higher indexes goes wrong.");
+}
+
+
+void test_array_at_checks_bounds()
+{
+  pqxx::connection conn;
+  pqxx::array<int> const simple{"{0, 1, 2}", conn};
+  PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
+  PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
+  PQXX_CHECK_THROWS(
+    simple.at(3), pqxx::range_error, "No bounds checking on array::at().");
+  PQXX_CHECK_THROWS(
+    simple.at(-1), pqxx::range_error,
+    "Negative index does not throw range_error.");
+
+  pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", conn};
+  PQXX_CHECK_EQUAL(
+    multi.at(0, 0), 0, "Multidim array indexing does not work.");
+  PQXX_CHECK_EQUAL(multi.at(1, 1), 3, "Nonzero multidim indexing goes wrong.");
+  PQXX_CHECK_EQUAL(multi.at(2, 1), 5, "Multidim top element went wrong.");
+  PQXX_CHECK_THROWS(
+    multi.at(3, 0), pqxx::range_error,
+    "Out-of-bounds on outer dimension was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(0, 2), pqxx::range_error,
+    "Out-of-bounds on inner dimension was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(0, -1), pqxx::range_error,
+    "Negative inner index was not detected.");
+  PQXX_CHECK_THROWS(
+    multi.at(-1, 0), pqxx::range_error,
+    "Negative outer index was not detected.");
+}
+
+
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
@@ -504,4 +661,11 @@ PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
 PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 PQXX_REGISTER_TEST(test_array_strings);
+PQXX_REGISTER_TEST(test_array_parses_real_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_int_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_simple_string_arrays);
+PQXX_REGISTER_TEST(test_array_rejects_malformed_twodimensional_arrays);
+PQXX_REGISTER_TEST(test_array_parses_quoted_strings);
+PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
+PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 } // namespace

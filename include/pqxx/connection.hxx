@@ -374,7 +374,7 @@ public:
   void set_client_encoding(char const encoding[]) &;
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
-  [[nodiscard]] int PQXX_PRIVATE encoding_id() const;
+  [[nodiscard]] int encoding_id() const;
 
   //@}
 

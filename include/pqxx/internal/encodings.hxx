@@ -40,7 +40,7 @@ PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
-// XXX: Get rid of thise one.  Use compile-time-specialised version instead.
+// XXX: Get rid of this one.  Use compile-time-specialised version instead.
 /// Find any of the ASCII characters `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any value in `NEEDLE`.
