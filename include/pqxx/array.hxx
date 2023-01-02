@@ -85,7 +85,7 @@ public:
 
   template<typename... INDEX> ELEMENT const &at(INDEX... index) const
   {
-    assert(sizeof...(index) == DIMENSIONS);
+    static_assert(sizeof...(index) == DIMENSIONS);
     check_bounds(index...);
     return m_elts.at(locate(index...));
   }
@@ -101,7 +101,7 @@ public:
    */
   template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
   {
-    assert(sizeof...(index) == DIMENSIONS);
+    static_assert(sizeof...(index) == DIMENSIONS);
     return m_elts[locate(index...)];
   }
 
@@ -433,10 +433,10 @@ private:
     }
     else
     {
-      assert(sizeof...(indexes) < DIMENSIONS);
+      static_assert(sizeof...(indexes) < DIMENSIONS);
       // (Offset by 1 here because the outer dimension is not in there.)
       constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-      assert(dimension < DIMENSIONS);
+      static_assert(dimension < DIMENSIONS);
       return first * m_factors[dimension] + add_index(indexes...);
     }
   }
@@ -448,10 +448,10 @@ private:
   constexpr void check_bounds(OUTER outer, INDEX... indexes) const
   {
     std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
-    assert(sizeof...(indexes) < DIMENSIONS);
+    static_assert(sizeof...(indexes) < DIMENSIONS);
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
-    assert(dimension < DIMENSIONS);
+    static_assert(dimension < DIMENSIONS);
     if (first >= m_extents[dimension])
       throw range_error{pqxx::internal::concat(
         "Array index for dimension ", dimension, " is out of bounds: ", first,
