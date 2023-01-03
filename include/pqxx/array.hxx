@@ -15,6 +15,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <stdexcept>
 #include <string>
@@ -254,6 +255,24 @@ private:
     return here;
   }
 
+  /// Estimate the number of elements in this array.
+  /** We use this to pre-allocate internal storage, so that we don't need to
+   * keep extending it on the fly.  It doesn't need to be too precise, so long
+   * as it's fast; doesn't usually underestimate; and never overestimates by
+   * orders of magnitude.
+   */
+  constexpr std::size_t estimate_elements(std::string_view data) const noexcept
+  {
+    // Dirty trick: just count the number of bytes that look as if they may be
+    // separators.  At the very worst we may overestimate by a factor of two or
+    // so, in exceedingly rare cases, on some encodings.
+    auto const separators{std::count(std::begin(data), std::end(data), SEPARATOR)};
+    // The number of dimensions makes no difference here.  It's still one
+    // separator between consecutive elements, just possibly with some extra
+    // braces as well.
+    return static_cast<std::size_t>(separators + 1);
+  }
+
   template<pqxx::internal::encoding_group ENC>
   void parse(std::string_view data)
   {
@@ -261,7 +280,7 @@ private:
     auto const sz{std::size(data)};
     check_dims(data);
 
-    // TODO: Can we scan first and allocate the right size vector?
+    m_elts.reserve(estimate_elements(data));
 
     // We discover the array's extents along each of the dimensions, starting
     // with the final dimension and working our way towards the first.  At any
@@ -400,6 +419,7 @@ private:
       throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
 
+    m_elts.shrink_to_fit();
     init_factors();
   }
 
