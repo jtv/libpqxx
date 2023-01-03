@@ -638,7 +638,7 @@ def main(args):  # pylint: disable=R0914
 
 if __name__ == '__main__':
     try:
-        sys.exit(main(parse_args()))
+        main(parse_args())
     except Fail as failure:
         sys.stderr.write(f"{failure}\n")
         sys.exit(2)
