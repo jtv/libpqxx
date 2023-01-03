@@ -213,8 +213,7 @@ inline void parse_composite_field(
   default: {
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
       std::data(input), std::size(input), pos)};
-    auto const text{parse_unquoted_string<ENC>(std::data(input), stop, pos)};
-    field = from_string<T>(text);
+    field = from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
     pos = stop;
   }
   break;
