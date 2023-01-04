@@ -24,8 +24,9 @@ inline std::size_t scan_double_quoted_string(
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
   bool at_quote{false};
-  for (pos = next, next = scanner::call(input, size, pos); pos < size;
-       pos = next, next = scanner::call(input, size, pos))
+  pos = next;
+  next = scanner::call(input, size, pos);
+  while (pos < size)
   {
     if (at_quote)
     {
@@ -63,6 +64,8 @@ inline std::size_t scan_double_quoted_string(
     {
       // Multibyte character.  Carry on.
     }
+    pos = next;
+    next = scanner::call(input, size, pos);
   }
   if (not at_quote)
     throw argument_error{
