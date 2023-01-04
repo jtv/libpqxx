@@ -239,7 +239,7 @@ template<encoding_group> struct glyph_scanner
   // TODO: Convert to use string_view?
   /// Find the next glyph in `buffer` after position `start`.
   PQXX_PURE static std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start);
+  call(char const *buffer, std::size_t buffer_len, std::size_t start);
 };
 
 
