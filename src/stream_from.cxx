@@ -170,6 +170,33 @@ void pqxx::stream_from::complete()
 }
 
 
+namespace
+{
+/// Return original byte for escaped character.
+char unescape_char(char escaped)
+{
+  switch (escaped)
+  {
+  case 'b': // Backspace.
+    PQXX_UNLIKELY return '\b';
+  case 'f': // Form feed
+    PQXX_UNLIKELY return '\f';
+  case 'n': // Line feed.
+    return '\n';
+  case 'r': // Carriage return.
+    return '\r';
+  case 't': // Horizontal tab.
+    return '\t';
+  case 'v': // Vertical tab.
+    return '\v';
+  default:
+    break;
+  }
+  // Regular character ("self-escaped").
+  return escaped;
+}
+} // namespace
+
 void pqxx::stream_from::parse_line()
 {
   if (m_finished)
@@ -254,42 +281,15 @@ void pqxx::stream_from::parse_line()
       // The database will only escape ASCII characters, so no need to use
       // the glyph scanner.
       char const escaped{line_begin[offset++]};
-      switch (escaped)
+      if (escaped == 'N')
       {
-      case 'N':
         // Null value.
         if (write != field_begin)
           throw failure{"Null sequence found in nonempty field"};
         field_begin = nullptr;
         // (If there's any characters _after_ the null we'll just crash.)
-        break;
-
-      case 'b': // Backspace.
-        PQXX_UNLIKELY
-        *write++ = '\b';
-        break;
-      case 'f': // Form feed
-        PQXX_UNLIKELY
-        *write++ = '\f';
-        break;
-      case 'n': // Line feed.
-        *write++ = '\n';
-        break;
-      case 'r': // Carriage return.
-        *write++ = '\r';
-        break;
-      case 't': // Horizontal tab.
-        *write++ = '\t';
-        break;
-      case 'v': // Vertical tab.
-        *write++ = '\v';
-        break;
-
-      default:
-        // Regular character ("self-escaped").
-        *write++ = escaped;
-        break;
       }
+      *write++ = unescape_char(escaped);
     }
     break;
 
