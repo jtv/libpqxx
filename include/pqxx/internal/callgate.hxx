@@ -4,6 +4,7 @@
 /*
 Here's what a typical gate class definition looks like:
 
+```cxx
 #include <pqxx/internal/callgate.hxx>
 
 namespace pqxx::internal::gate
@@ -17,6 +18,7 @@ class PQXX_PRIVATE @gateclass@ : callgate<@host@>
   // Methods here.  Use home() to access the host-class object.
 };
 } // namespace pqxx::internal::gate
+```
 */
 
 namespace pqxx::internal
