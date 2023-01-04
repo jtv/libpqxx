@@ -8,6 +8,9 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
+#if !defined(PQXX_H_LIBPQ_FORWARD)
+#define PQXX_H_LIBPQ_FORWARD
+
 extern "C"
 {
   struct pg_conn;
@@ -29,3 +32,4 @@ namespace pqxx
 /// PostgreSQL database row identifier.
 using oid = unsigned int;
 } // namespace pqxx
+#endif
