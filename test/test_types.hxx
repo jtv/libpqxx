@@ -1,6 +1,8 @@
 /*
  * Custom types for testing & libpqxx support those types
  */
+#if !defined(PQXX_H_TEST_TYPES)
+#define PQXX_H_TEST_TYPES
 
 #include <pqxx/strconv>
 
@@ -240,3 +242,4 @@ template<> struct string_traits<bytea>
   }
 };
 } // namespace pqxx
+#endif
