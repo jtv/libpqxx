@@ -180,7 +180,6 @@ void test_optional(pqxx::connection &connection)
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Field value mismatch.");
   PQXX_CHECK(
     static_cast<bool>(std::get<1>(got_tuple)), "Unexpected null field.");
-  // PQXX_CHECK_EQUAL(*std::get<1>(got_tuple), , "field value mismatch");
   ASSERT_FIELD_EQUAL(std::get<2>(got_tuple), 4321);
   ASSERT_FIELD_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}));
   ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "hello\n \tworld");
