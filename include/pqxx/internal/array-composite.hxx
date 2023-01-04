@@ -88,9 +88,9 @@ inline std::string parse_double_quoted_string(
 
   // TODO: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
-  for (auto here{scanner::call(input, end, pos)},
+  auto here{scanner::call(input, end, pos)},
        next{scanner::call(input, end, here)};
-       here < end - 1; here = next, next = scanner::call(input, end, here))
+  while (here < end - 1)
   {
     // A backslash here is always an escape.  So is a double-quote, since we're
     // inside the double-quoted string.  In either case, we can just ignore the
@@ -103,6 +103,8 @@ inline std::string parse_double_quoted_string(
       next = scanner::call(input, end, here);
     }
     output.append(input + here, input + next);
+    here = next;
+    next = scanner::call(input, end, here);
   }
   return output;
 }
