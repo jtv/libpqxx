@@ -40,7 +40,7 @@ template<typename TYPE> class inclusive_bound
 {
 public:
   inclusive_bound() = delete;
-  explicit inclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit inclusive_bound(TYPE const &value) : m_value{value}
   {
     if (is_null(value))
       throw argument_error{"Got null value as an inclusive range bound."};
@@ -48,16 +48,16 @@ public:
 
   [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
+  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as a lower bound, include value?
-  [[nodiscard]] bool extends_down_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
   {
     return not(value < m_value);
   }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
+  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as an upper bound, include value?
-  [[nodiscard]] bool extends_up_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
   {
     return not(m_value < value);
   }
@@ -75,7 +75,7 @@ template<typename TYPE> class exclusive_bound
 {
 public:
   exclusive_bound() = delete;
-  explicit exclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit exclusive_bound(TYPE const &value) : m_value{value}
   {
     if (is_null(value))
       throw argument_error{"Got null value as an exclusive range bound."};
@@ -83,16 +83,16 @@ public:
 
   [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
+  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as a lower bound, include value?
-  [[nodiscard]] bool extends_down_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
   {
     return m_value < value;
   }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
+  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as an upper bound, include value?
-  [[nodiscard]] bool extends_up_to(TYPE const &value) const
+  [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
   {
     return value < m_value;
   }
@@ -110,19 +110,19 @@ template<typename TYPE> class range_bound
 {
 public:
   range_bound() = delete;
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
-  range_bound(no_bound) : m_bound{} {}
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
-  range_bound(inclusive_bound<TYPE> const &bound) : m_bound{bound} {}
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
-  range_bound(exclusive_bound<TYPE> const &bound) : m_bound{bound} {}
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
-  range_bound(range_bound const &) = default;
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
-  range_bound(range_bound &&) = default;
+  // TODO: noexcept if underlying constructor supports it.
+  constexpr range_bound(no_bound) : m_bound{} {}
+  // TODO: noexcept if underlying constructor supports it.
+  constexpr range_bound(inclusive_bound<TYPE> const &bound) : m_bound{bound} {}
+  // TODO: noexcept if underlying constructor supports it.
+  constexpr range_bound(exclusive_bound<TYPE> const &bound) : m_bound{bound} {}
+  // TODO: noexcept if underlying constructor supports it.
+  constexpr range_bound(range_bound const &) = default;
+  // TODO: noexcept if underlying constructor supports it.
+  constexpr range_bound(range_bound &&) = default;
 
-  // TODO: constexpr and/or noexcept if underlying operators support it.
-  bool operator==(range_bound const &rhs) const
+  // TODO: noexcept if underlying operators support it.
+  constexpr bool operator==(range_bound const &rhs) const
   {
     if (this->is_limited())
       return (
@@ -132,8 +132,8 @@ public:
       return not rhs.is_limited();
   }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
-  bool operator!=(range_bound const &rhs) const { return not(*this == rhs); }
+  // TODO: noexcept if underlying operator supports it.
+  constexpr bool operator!=(range_bound const &rhs) const { return not(*this == rhs); }
   range_bound &operator=(range_bound const &) = default;
   range_bound &operator=(range_bound &&) = default;
 
@@ -155,18 +155,18 @@ public:
     return std::holds_alternative<exclusive_bound<TYPE>>(m_bound);
   }
 
-  // TODO: constexpr/noexcept if underlying function supports it.
+  // TODO: noexcept if underlying function supports it.
   /// Would this bound, as a lower bound, include `value`?
-  bool extends_down_to(TYPE const &value) const
+  constexpr bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) { return bound.extends_down_to(value); },
       m_bound);
   }
 
-  // TODO: constexpr/noexcept if underlying function supports it.
+  // TODO: noexcept if underlying function supports it.
   /// Would this bound, as an upper bound, include `value`?
-  bool extends_up_to(TYPE const &value) const
+  constexpr bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
       [&value](auto const &bound) { return bound.extends_up_to(value); },
@@ -220,7 +220,7 @@ public:
    * or
    * @ref exclusive_bound.
    */
-  range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
+  constexpr range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
           m_lower{lower}, m_upper{upper}
   {
     if (
@@ -231,33 +231,33 @@ public:
         ") is greater than its upper bound (", *upper.value(), ").")};
   }
 
-  // TODO: constexpr and/or noexcept if underlying constructor supports it.
+  // TODO: noexcept if underlying constructor supports it.
   /// Create an empty range.
   /** SQL has a separate literal to denote an empty range, but any range which
    * encompasses no values is an empty range.
    */
-  range() :
+  constexpr range() :
           m_lower{exclusive_bound<TYPE>{TYPE{}}},
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
-  // TODO: constexpr and/or noexcept if underlying operators support it.
-  bool operator==(range const &rhs) const
+  // TODO: noexcept if underlying operators support it.
+  constexpr bool operator==(range const &rhs) const
   {
     return (this->lower_bound() == rhs.lower_bound() and
             this->upper_bound() == rhs.upper_bound()) or
            (this->empty() and rhs.empty());
   }
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
-  bool operator!=(range const &rhs) const { return !(*this == rhs); }
+  // TODO: noexcept if underlying operator supports it.
+  constexpr bool operator!=(range const &rhs) const { return !(*this == rhs); }
 
   range(range const &) = default;
   range(range &&) = default;
   range &operator=(range const &) = default;
   range &operator=(range &&) = default;
 
-  // TODO: constexpr and/or noexcept if underlying operator supports it.
+  // TODO: noexcept if underlying operator supports it.
   /// Is this range clearly empty?
   /** An empty range encompasses no values.
    *
@@ -267,26 +267,26 @@ public:
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
-  bool empty() const
+  constexpr bool empty() const
   {
     return (m_lower.is_exclusive() or m_upper.is_exclusive()) and
            m_lower.is_limited() and m_upper.is_limited() and
            not(*m_lower.value() < *m_upper.value());
   }
 
-  // TODO: constexpr and/or noexcept if underlying functions support it.
+  // TODO: noexcept if underlying functions support it.
   /// Does this range encompass `value`?
-  bool contains(TYPE value) const
+  constexpr bool contains(TYPE value) const
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
   }
 
-  // TODO: constexpr and/or noexcept if underlying operators support it.
+  // TODO: noexcept if underlying operators support it.
   /// Does this range encompass all of `other`?
   /** This function is not particularly smart.  It does not know, for example,
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
-  bool contains(range<TYPE> const &other) const
+  constexpr bool contains(range<TYPE> const &other) const
   {
     return (*this & other) == other;
   }
@@ -302,11 +302,11 @@ public:
     return m_upper;
   }
 
-  // TODO: constexpr and/or noexcept if underlying operators support it.
+  // TODO: noexcept if underlying operators support it.
   /// Intersection of two ranges.
   /** Returns a range describing those values which are in both ranges.
    */
-  range operator&(range const &other) const
+  constexpr range operator&(range const &other) const
   {
     range_bound<TYPE> lower{no_bound{}};
     if (not this->lower_bound().is_limited())

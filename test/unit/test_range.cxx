@@ -541,6 +541,25 @@ void test_range_conversion()
 }
 
 
+constexpr void test_range_is_constexpr()
+{
+// Test compile-time operations.
+//
+// A few things in the standard library need to be constexpr for this to work,
+// so we only test it in C++20.
+#if __cplusplus >= 202002L
+  using range = pqxx::range<int>;
+  using ibound = pqxx::inclusive_bound<int>;
+
+  constexpr ibound one{1}, three{3};
+  constexpr range oneone{one, one}, onethree{one, three};
+  static_assert(oneone == oneone);
+  static_assert(oneone != onethree);
+  static_assert(onethree.contains(oneone));
+#endif
+}
+
+
 PQXX_REGISTER_TEST(test_range_construct);
 PQXX_REGISTER_TEST(test_range_equality);
 PQXX_REGISTER_TEST(test_range_empty);
@@ -552,4 +571,5 @@ PQXX_REGISTER_TEST(test_parse_range);
 PQXX_REGISTER_TEST(test_parse_bad_range);
 PQXX_REGISTER_TEST(test_range_intersection);
 PQXX_REGISTER_TEST(test_range_conversion);
+PQXX_REGISTER_TEST(test_range_is_constexpr);
 } // namespace
