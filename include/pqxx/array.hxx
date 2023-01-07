@@ -419,7 +419,6 @@ private:
       throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
 
-    // TODO: Call m_elts.shrink_to_fit()?  When would it be worth it?
     init_factors();
   }
 
