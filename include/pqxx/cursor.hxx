@@ -101,12 +101,14 @@ public:
    */
   //@{
 
-  // TODO: Make constexpr inline (but breaks ABI).
   /// Special value: read until end.
   /** @return Maximum value for result::difference_type, so the cursor will
    * attempt to read the largest possible result set.
    */
-  [[nodiscard]] static difference_type all() noexcept;
+  [[nodiscard]] static constexpr difference_type all() noexcept
+  {
+    return (std::numeric_limits<int>::max)() - 1;
+  }
 
   /// Special value: read one row only.
   /** @return Unsurprisingly, 1.
@@ -125,7 +127,10 @@ public:
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */
-  [[nodiscard]] static difference_type backward_all() noexcept;
+  [[nodiscard]] static constexpr difference_type backward_all() noexcept
+  {
+    return (std::numeric_limits<int>::min)() + 1;
+  }
 
   //@}
 
