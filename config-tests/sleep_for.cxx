@@ -6,7 +6,8 @@
  * the library, but succeed when we try it here?
  *
  * To try and get close to the situation in the library code itself, we try
- * including some standard headers that we don't strictly need here.
+ * including some standard headers and OS headers that we don't strictly need
+ * here.
  */
 
 #if __has_include(<ciso646>)
@@ -21,6 +22,17 @@
 
 #include <chrono>
 #include <thread>
+
+#if __has_include(<winsock2.h>)
+#include <winsock2.h>
+#endif
+#if __has_include(<ws2tcpip.h>)
+#  include <ws2tcpip.h>
+#endif
+#if __has_include(<mstcpip.h>)
+#  include <mstcpip.h>
+#endif
+
 
 int main()
 {
