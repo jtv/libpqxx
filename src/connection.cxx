@@ -10,6 +10,14 @@
  */
 #include "pqxx-source.hxx"
 
+// For ioctlsocket().
+// We would normally include this after the standard headers, but MinGW warns
+// that we can't include windows.h before winsock2.h, and some of the standard
+// headers probably include windows.h.
+#if defined(_WIN32) && __has_include(<winsock2.h>)
+#  include <winsock2.h>
+#endif
+
 #include <algorithm>
 #include <array>
 #include <cerrno>
@@ -29,11 +37,6 @@
 #endif
 #if __has_include(<unistd.h>)
 #  include <unistd.h>
-#endif
-
-// For ioctlsocket().
-#if defined(_WIN32) && __has_include(<winsock2.h>)
-#  include <winsock2.h>
 #endif
 
 extern "C"
