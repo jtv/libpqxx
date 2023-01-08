@@ -2,16 +2,21 @@
  */
 #include "pqxx-source.hxx"
 
+// For WSAPoll().
+// Normally we'd do this *after* including <thread>, but MinGW complains: it
+// issues a warning telling us to include winsock2.h before windows.h.
+// We don't actually include windows.h ourselves, but it looks as if MinGW's
+// <thread> does.
+#if __has_include(<winsock2.h>)
+#  include <winsock2.h>
+#  define PQXX_HAVE_SELECT
+#endif
+
 // The <thread> header is still broken on MinGW.  :-(
 #if defined(PQXX_HAVE_SLEEP_FOR)
 #  include <thread>
 #endif
 
-// For WSAPoll():
-#if __has_include(<winsock2.h>)
-#  include <winsock2.h>
-#  define PQXX_HAVE_SELECT
-#endif
 #if __has_include(<ws2tcpip.h>)
 #  include <ws2tcpip.h>
 #endif
