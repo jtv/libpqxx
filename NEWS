@@ -3,6 +3,7 @@
  - Use `array_parser` only on comma-separated types, i.e. most of them. (#590)
  - Bumping requirements versions: need postgres 10.
  - Fix `array_parser` bug when parsing semicolon in an unquoted string.
+ - Make some `zview` constructors `noexcept` if `string_view` does it.
  - Faster text decoding in `stream_from`, and escaping in `stream_to`.  (#601)
  - At last, streaming throughput is faster (on my system) than a regular query.
  - Deprecate `basic_fieldstream` and `fieldstream`.
