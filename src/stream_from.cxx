@@ -11,6 +11,7 @@
 #include "pqxx-source.hxx"
 
 #include <cassert>
+#include <cstring>
 #include <string_view>
 
 #include "pqxx/internal/header-pre.hxx"
@@ -203,6 +204,7 @@ void pqxx::stream_from::parse_line()
     PQXX_UNLIKELY
   return;
 
+  // TODO: Any way to keep current size in a local var, for speed?
   m_fields.clear();
 
   auto const [line, line_size] = get_raw_line();
@@ -246,10 +248,11 @@ void pqxx::stream_from::parse_line()
   {
     auto const stop_char{m_char_finder(line_view, offset)};
     // Copy the text we have so far.  It's got no special characters in it.
-    // TODO: Is there a truly convenient utility function for this?
-    while (offset < stop_char) *write++ = line_begin[offset++];
-    if (offset >= line_size)
+    std::memcpy(write, &line_begin[offset], stop_char - offset);
+    write += (stop_char - offset);
+    if (stop_char >= line_size)
       break;
+    offset = stop_char;
 
     char const special{line_begin[stop_char]};
     ++offset;
