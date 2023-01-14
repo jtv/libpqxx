@@ -41,13 +41,13 @@ public:
 
   /// Convenience overload: construct using pointer and signed length.
   constexpr zview(char const text[], std::ptrdiff_t len)
-    noexcept(noexcept(std::string_view{text, 0u})) :
+    noexcept(noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
   /// Convenience overload: construct using pointer and signed length.
   constexpr zview(char text[], std::ptrdiff_t len)
-    noexcept(noexcept(std::string_view{text, 0u})):
+    noexcept(noexcept(std::string_view{text, static_cast<std::size_t>(len)})):
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
