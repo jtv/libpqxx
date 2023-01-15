@@ -118,7 +118,7 @@ std::pair<bool, bool> pqxx::connection::poll_connect()
   case PGRES_POLLING_OK:
     if (not is_open())
       throw pqxx::broken_connection{PQerrorMessage(m_conn)};
-    return std::make_pair(false, false);
+    PQXX_LIKELY return std::make_pair(false, false);
   case PGRES_POLLING_ACTIVE:
     throw internal_error{
       "Nonblocking connection poll returned obsolete 'active' state."};
