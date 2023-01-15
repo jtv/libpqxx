@@ -40,7 +40,7 @@ PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group);
 
 
-// XXX: Get rid of this one.  Use compile-time-specialised version instead.
+// TODO: Get rid of this one.  Use compile-time-specialised version instead.
 /// Find any of the ASCII characters `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any value in `NEEDLE`.
@@ -77,7 +77,7 @@ inline std::size_t find_char(
 }
 
 
-// XXX: Get rid of this one.  Use compile-time-specialised loop instead.
+// TODO: Get rid of this one.  Use compile-time-specialised loop instead.
 /// Iterate over the glyphs in a buffer.
 /** Scans the glyphs in the buffer, and for each, passes its begin and its
  * one-past-end pointers to `callback`.
@@ -254,6 +254,10 @@ template<encoding_group ENC, char... NEEDLE>
 PQXX_PURE static std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here)
 {
+  // We only know how to search for ASCII characters.  It's an optimisation
+  // assumption in the code below.
+  static_assert((... and ((NEEDLE & 0x80) == 0)));
+
   auto const sz{std::size(haystack)};
   auto const data{std::data(haystack)};
   while (here < sz)
@@ -265,13 +269,20 @@ find_ascii_char(std::string_view haystack, std::size_t here)
     // (For some reason gcc had a problem with a right-fold here.  But clang
     // was fine.)
     //
-    // Also check against a multibyte character starting with a bytes which
-    // just happens to match one of the ASCII bytes we're looking for.
-    // It'd be cleaner to check that first, but either works.  So, let's
-    // apply the most selective filter first and skip this check in almost
-    // all cases.
-    if ((next == here + 1) and (... or (data[here] == NEEDLE)))
-      return here;
+    // In all supported encodings, if a character's first byte is in the ASCII
+    // range, that means it's a single-byte character.  It follows that when we
+    // find a match, we do not need to check that we're in a single-byte
+    // character:
+    //
+    // If this is an "ASCII-unsafe" encoding, e.g. SJIS, we're only checking
+    // each character's first byte.  That first byte can only match NEEDLE if
+    // it's a single-byte character.
+    //
+    // In an "ASCII-safe" encoding, e.g. UTF-8 or the ISO-8859 ones, we check
+    // for a match at each byte in the text, because it's faster than finding
+    // character boundaries first.  But in these encodings, a multichar byte
+    // never contains any bytes in the ASCII range at all.
+    if ((... or (data[here] == NEEDLE))) return here;
 
     // Nope, no hit.  Move on.
     here = next;
@@ -287,7 +298,7 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
   {
     // TODO: Don't bother with npos.  Let the caller check.
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
     else
       return start + 1;
   }
@@ -301,7 +312,7 @@ template<> struct glyph_scanner<encoding_group::BIG5>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -371,6 +382,7 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
 };
 
 
+// TODO: Merge with EUC_JP then?
 template<> struct glyph_scanner<encoding_group::EUC_JIS_2004>
 {
   static PQXX_PURE std::size_t
@@ -388,7 +400,7 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -459,7 +471,7 @@ template<> struct glyph_scanner<encoding_group::GB18030>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -504,7 +516,7 @@ template<> struct glyph_scanner<encoding_group::GBK>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -551,7 +563,7 @@ template<> struct glyph_scanner<encoding_group::JOHAB>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -588,7 +600,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -640,6 +652,7 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 };
 
 
+// TODO: Merge with SJIS then?
 template<> struct glyph_scanner<encoding_group::SHIFT_JIS_2004>
 {
   static PQXX_PURE std::size_t
@@ -657,7 +670,7 @@ template<> struct glyph_scanner<encoding_group::UHC>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -700,7 +713,7 @@ template<> struct glyph_scanner<encoding_group::UTF8>
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
     if (start >= buffer_len)
-      return std::string::npos;
+      PQXX_UNLIKELY return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
