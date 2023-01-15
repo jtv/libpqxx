@@ -256,9 +256,9 @@ void pqxx::stream_from::parse_line()
 
     char const special{line_begin[stop_char]};
     ++offset;
-    switch (special)
+    if (special == '\t')
     {
-    case '\t': // Field separator.
+      // Field separator.  End the field.
       // End the field.
       if (field_begin == nullptr)
       {
@@ -274,10 +274,11 @@ void pqxx::stream_from::parse_line()
       }
       // Set up for the next field.
       field_begin = write;
-      break;
-
-    case '\\': // Escape sequence.
+    }
+    else
     {
+      // Escape sequence.
+      assert(special == '\\');
       if ((offset) >= line_size)
         throw failure{"Row ends in backslash"};
 
@@ -293,13 +294,6 @@ void pqxx::stream_from::parse_line()
         // (If there's any characters _after_ the null we'll just crash.)
       }
       *write++ = unescape_char(escaped);
-    }
-    break;
-
-    default:
-      throw internal_error{pqxx::internal::concat(
-        "Stopped at unexpected char in stream_from: '",
-        static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
     }
   }
 

@@ -118,7 +118,7 @@ std::pair<bool, bool> pqxx::connection::poll_connect()
   case PGRES_POLLING_OK:
     if (not is_open())
       throw pqxx::broken_connection{PQerrorMessage(m_conn)};
-    return std::make_pair(false, false);
+    PQXX_LIKELY return std::make_pair(false, false);
   case PGRES_POLLING_ACTIVE:
     throw internal_error{
       "Nonblocking connection poll returned obsolete 'active' state."};
@@ -866,11 +866,14 @@ pqxx::connection::read_copy_line()
     throw internal_error{"table read inexplicably went asynchronous"};
 
   default: // Success, got buffer size.
-    // Line size includes a trailing zero, which we ignore.
-    auto const text_len{static_cast<std::size_t>(line_len) - 1};
-    return std::make_pair(
-      std::unique_ptr<char, std::function<void(char *)>>{buf, PQfreemem},
-      text_len);
+    PQXX_LIKELY
+    {
+      // Line size includes a trailing zero, which we ignore.
+      auto const text_len{static_cast<std::size_t>(line_len) - 1};
+      return std::make_pair(
+        std::unique_ptr<char, std::function<void(char *)>>{buf, PQfreemem},
+        text_len);
+    }
   }
 }
 
