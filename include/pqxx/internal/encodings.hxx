@@ -106,7 +106,7 @@ get_byte(char const buffer[], std::size_t offset) noexcept
 }
 
 
-PQXX_COLD [[noreturn]] void throw_for_encoding_error(
+[[noreturn]] PQXX_COLD void throw_for_encoding_error(
   char const *encoding_name, char const buffer[], std::size_t start,
   std::size_t count)
 {
