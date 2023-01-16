@@ -25,18 +25,14 @@ enum class encoding_group
   // notably Big5, SJIS, SHIFT_JIS_2004, GP18030, GBK, JOHAB, UHC.
   BIG5,
   EUC_CN,
-  // TODO: Merge EUC_JP and EUC_JIS_2004?
   EUC_JP,
-  EUC_JIS_2004,
   EUC_KR,
   EUC_TW,
   GB18030,
   GBK,
   JOHAB,
   MULE_INTERNAL,
-  // TODO: Merge SJIS and SHIFT_JIS_2004?
   SJIS,
-  SHIFT_JIS_2004,
   UHC,
   UTF8,
 };

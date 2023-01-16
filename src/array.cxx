@@ -178,7 +178,6 @@ array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
     PQXX_ENCODING_CASE(BIG5);
     PQXX_ENCODING_CASE(EUC_CN);
     PQXX_ENCODING_CASE(EUC_JP);
-    PQXX_ENCODING_CASE(EUC_JIS_2004);
     PQXX_ENCODING_CASE(EUC_KR);
     PQXX_ENCODING_CASE(EUC_TW);
     PQXX_ENCODING_CASE(GB18030);
@@ -186,7 +185,6 @@ array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
     PQXX_ENCODING_CASE(JOHAB);
     PQXX_ENCODING_CASE(MULE_INTERNAL);
     PQXX_ENCODING_CASE(SJIS);
-    PQXX_ENCODING_CASE(SHIFT_JIS_2004);
     PQXX_ENCODING_CASE(UHC);
     PQXX_ENCODING_CASE(UTF8);
   }

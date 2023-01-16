@@ -64,7 +64,8 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         auto const subtype{encoding_name.substr(4)};
         static constexpr std::array<mapping, 5> subtypes{
           mapping{"CN"sv, pqxx::internal::encoding_group::EUC_CN},
-          mapping{"JIS_2004"sv, pqxx::internal::encoding_group::EUC_JIS_2004},
+	  // We support EUC_JIS_2004 and EUC_JP as identical encodings.
+          mapping{"JIS_2004"sv, pqxx::internal::encoding_group::EUC_JP},
           mapping{"JP"sv, pqxx::internal::encoding_group::EUC_JP},
           mapping{"KR"sv, pqxx::internal::encoding_group::EUC_KR},
           mapping{"TW"sv, pqxx::internal::encoding_group::EUC_TW},
@@ -127,7 +128,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       break;
     case 'S':
       if (encoding_name == "SHIFT_JIS_2004"sv)
-        return pqxx::internal::encoding_group::SHIFT_JIS_2004;
+        return pqxx::internal::encoding_group::SJIS;
       else if (encoding_name == "SJIS"sv)
         return pqxx::internal::encoding_group::SJIS;
       else if (encoding_name == "SQL_ASCII"sv)
@@ -187,7 +188,6 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
     CASE_GROUP(BIG5);
     CASE_GROUP(EUC_CN);
     CASE_GROUP(EUC_JP);
-    CASE_GROUP(EUC_JIS_2004);
     CASE_GROUP(EUC_KR);
     CASE_GROUP(EUC_TW);
     CASE_GROUP(GB18030);
@@ -195,7 +195,6 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
     CASE_GROUP(JOHAB);
     CASE_GROUP(MULE_INTERNAL);
     CASE_GROUP(SJIS);
-    CASE_GROUP(SHIFT_JIS_2004);
     CASE_GROUP(UHC);
     PQXX_LIKELY CASE_GROUP(UTF8);
   }

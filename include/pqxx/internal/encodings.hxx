@@ -106,7 +106,7 @@ get_byte(char const buffer[], std::size_t offset) noexcept
 }
 
 
-[[noreturn]] void throw_for_encoding_error(
+PQXX_COLD [[noreturn]] void throw_for_encoding_error(
   char const *encoding_name, char const buffer[], std::size_t start,
   std::size_t count)
 {
@@ -128,103 +128,6 @@ constexpr PQXX_PURE bool
 between_inc(unsigned char value, unsigned bottom, unsigned top)
 {
   return value >= bottom and value <= top;
-}
-
-
-/*
-EUC-JP and EUC-JIS-2004 represent slightly different code points but iterate
-the same:
- * https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
- * http://x0213.org/codetable/index.en.html
-*/
-PQXX_PURE std::size_t next_seq_for_euc_jplike(
-  char const buffer[], std::size_t buffer_len, std::size_t start,
-  char const encoding_name[])
-{
-  if (start >= buffer_len)
-    return std::string::npos;
-
-  auto const byte1{get_byte(buffer, start)};
-  if (byte1 < 0x80)
-    return start + 1;
-
-  if (start + 2 > buffer_len)
-    PQXX_UNLIKELY
-  throw_for_encoding_error(encoding_name, buffer, start, 1);
-
-  auto const byte2{get_byte(buffer, start + 1)};
-  if (byte1 == 0x8e)
-  {
-    if (not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 2);
-
-    return start + 2;
-  }
-
-  if (between_inc(byte1, 0xa1, 0xfe))
-  {
-    if (not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 2);
-
-    return start + 2;
-  }
-
-  if (byte1 == 0x8f and start + 3 <= buffer_len)
-  {
-    auto const byte3{get_byte(buffer, start + 2)};
-    if (
-      not between_inc(byte2, 0xa1, 0xfe) or not between_inc(byte3, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error(encoding_name, buffer, start, 3);
-
-    return start + 3;
-  }
-
-  throw_for_encoding_error(encoding_name, buffer, start, 1);
-}
-
-/*
-As far as I can tell, for the purposes of iterating the only difference between
-SJIS and SJIS-2004 is increased range in the first byte of two-byte sequences
-(0xEF increased to 0xFC).  Officially, that is; apparently the version of SJIS
-used by Postgres has the same range as SJIS-2004.  They both have increased
-range over the documented versions, not having the even/odd restriction for the
-first byte in 2-byte sequences.
-*/
-// https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
-// http://x0213.org/codetable/index.en.html
-PQXX_PURE std::size_t next_seq_for_sjislike(
-  char const buffer[], std::size_t buffer_len, std::size_t start,
-  char const *encoding_name)
-{
-  if (start >= buffer_len)
-    return std::string::npos;
-
-  auto const byte1{get_byte(buffer, start)};
-  if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
-    return start + 1;
-
-  if (
-    not between_inc(byte1, 0x81, 0x9f) and not between_inc(byte1, 0xe0, 0xfc))
-    PQXX_UNLIKELY
-  throw_for_encoding_error(encoding_name, buffer, start, 1);
-
-  if (start + 2 > buffer_len)
-    PQXX_UNLIKELY
-  throw_for_encoding_error(encoding_name, buffer, start, buffer_len - start);
-
-  auto const byte2{get_byte(buffer, start + 1)};
-  if (byte2 == 0x7f)
-    PQXX_UNLIKELY
-  throw_for_encoding_error(encoding_name, buffer, start, 2);
-
-  if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
-    return start + 2;
-
-  PQXX_UNLIKELY
-  throw_for_encoding_error(encoding_name, buffer, start, 2);
 }
 } // namespace
 
@@ -372,23 +275,58 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
 };
 
 
+// EUC-JP and EUC-JIS-2004 represent slightly different code points but iterate
+// the same:
+//
+// https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
+// http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::EUC_JP>
 {
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JP");
-  }
-};
+  if (start >= buffer_len)
+    return std::string::npos;
 
+  auto const byte1{get_byte(buffer, start)};
+  if (byte1 < 0x80)
+    return start + 1;
 
-// TODO: Merge with EUC_JP then?
-template<> struct glyph_scanner<encoding_group::EUC_JIS_2004>
-{
-  static PQXX_PURE std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start)
+  if (start + 2 > buffer_len)
+    PQXX_UNLIKELY
+  throw_for_encoding_error("EUC_JP", buffer, start, 1);
+
+  auto const byte2{get_byte(buffer, start + 1)};
+  if (byte1 == 0x8e)
   {
-    return next_seq_for_euc_jplike(buffer, buffer_len, start, "EUC_JIS_2004");
+    if (not between_inc(byte2, 0xa1, 0xfe))
+      PQXX_UNLIKELY
+    throw_for_encoding_error("EUC_JP", buffer, start, 2);
+
+    return start + 2;
+  }
+
+  if (between_inc(byte1, 0xa1, 0xfe))
+  {
+    if (not between_inc(byte2, 0xa1, 0xfe))
+      PQXX_UNLIKELY
+    throw_for_encoding_error("EUC_JP", buffer, start, 2);
+
+    return start + 2;
+  }
+
+  if (byte1 == 0x8f and start + 3 <= buffer_len)
+  {
+    auto const byte3{get_byte(buffer, start + 2)};
+    if (
+      not between_inc(byte2, 0xa1, 0xfe) or not between_inc(byte3, 0xa1, 0xfe))
+      PQXX_UNLIKELY
+    throw_for_encoding_error("EUC_JP", buffer, start, 3);
+
+    return start + 3;
+  }
+
+  throw_for_encoding_error("EUC_JP", buffer, start, 1);
   }
 };
 
@@ -642,23 +580,46 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 };
 
 
+// As far as I can tell, for the purposes of iterating the only difference
+// between SJIS and SJIS-2004 is increased range in the first byte of two-byte
+// sequences (0xEF increased to 0xFC).  Officially, that is; apparently the
+// version of SJIS used by Postgres has the same range as SJIS-2004.  They both
+// have increased range over the documented versions, not having the even/odd
+// restriction for the first byte in 2-byte sequences.
+//
+// https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
+// http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::SJIS>
 {
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    return next_seq_for_sjislike(buffer, buffer_len, start, "SJIS");
-  }
-};
+  if (start >= buffer_len)
+    return std::string::npos;
 
+  auto const byte1{get_byte(buffer, start)};
+  if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
+    return start + 1;
 
-// TODO: Merge with SJIS then?
-template<> struct glyph_scanner<encoding_group::SHIFT_JIS_2004>
-{
-  static PQXX_PURE std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start)
-  {
-    return next_seq_for_sjislike(buffer, buffer_len, start, "SHIFT_JIS_2004");
+  if (
+    not between_inc(byte1, 0x81, 0x9f) and not between_inc(byte1, 0xe0, 0xfc))
+    PQXX_UNLIKELY
+  throw_for_encoding_error("SJIS", buffer, start, 1);
+
+  if (start + 2 > buffer_len)
+    PQXX_UNLIKELY
+  throw_for_encoding_error("SJIS", buffer, start, buffer_len - start);
+
+  auto const byte2{get_byte(buffer, start + 1)};
+  if (byte2 == 0x7f)
+    PQXX_UNLIKELY
+  throw_for_encoding_error("SJIS", buffer, start, 2);
+
+  if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
+    return start + 2;
+
+  PQXX_UNLIKELY
+  throw_for_encoding_error("SJIS", buffer, start, 2);
   }
 };
 
@@ -791,7 +752,6 @@ map_ascii_search_group(encoding_group enc) noexcept
   case encoding_group::MONOBYTE:
   case encoding_group::EUC_CN:
   case encoding_group::EUC_JP:
-  case encoding_group::EUC_JIS_2004:
   case encoding_group::EUC_KR:
   case encoding_group::EUC_TW:
   case encoding_group::MULE_INTERNAL:
@@ -833,9 +793,6 @@ get_char_finder(encoding_group enc)
     return pqxx::internal::find_ascii_char<encoding_group::JOHAB, NEEDLE...>;
   case encoding_group::SJIS:
     return pqxx::internal::find_ascii_char<encoding_group::SJIS, NEEDLE...>;
-  case encoding_group::SHIFT_JIS_2004:
-    return pqxx::internal::find_ascii_char<
-      encoding_group::SHIFT_JIS_2004, NEEDLE...>;
   case encoding_group::UHC:
     return pqxx::internal::find_ascii_char<encoding_group::UHC, NEEDLE...>;
 
