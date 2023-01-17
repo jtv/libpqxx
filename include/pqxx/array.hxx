@@ -304,7 +304,9 @@ private:
     // Extent counters, one per "real" dimension.
     // Note initialiser syntax; this should zero-initialise all elements.
     std::array<std::size_t, DIMENSIONS> extents{};
+#if !defined(NDEBUG)
     for (auto const e : extents) assert(e == 0u);
+#endif
 
     // Current parsing position.
     std::size_t here{0};
