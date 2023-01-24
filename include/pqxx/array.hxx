@@ -209,7 +209,6 @@ private:
     case group::BIG5: parse<group::BIG5>(data); break;
     case group::EUC_CN: parse<group::EUC_CN>(data); break;
     case group::EUC_JP: parse<group::EUC_JP>(data); break;
-    case group::EUC_JIS_2004: parse<group::EUC_JIS_2004>(data); break;
     case group::EUC_KR: parse<group::EUC_KR>(data); break;
     case group::EUC_TW: parse<group::EUC_TW>(data); break;
     case group::GB18030: parse<group::GB18030>(data); break;
@@ -217,7 +216,6 @@ private:
     case group::JOHAB: parse<group::JOHAB>(data); break;
     case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data); break;
     case group::SJIS: parse<group::SJIS>(data); break;
-    case group::SHIFT_JIS_2004: parse<group::SHIFT_JIS_2004>(data); break;
     case group::UHC: parse<group::UHC>(data); break;
     case group::UTF8: parse<group::UTF8>(data); break;
     }

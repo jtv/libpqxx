@@ -277,8 +277,6 @@ composite_field_parser<T> specialize_parse_composite_field(encoding_group enc)
     return parse_composite_field<encoding_group::EUC_CN>;
   case encoding_group::EUC_JP:
     return parse_composite_field<encoding_group::EUC_JP>;
-  case encoding_group::EUC_JIS_2004:
-    return parse_composite_field<encoding_group::EUC_JIS_2004>;
   case encoding_group::EUC_KR:
     return parse_composite_field<encoding_group::EUC_KR>;
   case encoding_group::EUC_TW:
@@ -292,8 +290,6 @@ composite_field_parser<T> specialize_parse_composite_field(encoding_group enc)
     return parse_composite_field<encoding_group::MULE_INTERNAL>;
   case encoding_group::SJIS:
     return parse_composite_field<encoding_group::SJIS>;
-  case encoding_group::SHIFT_JIS_2004:
-    return parse_composite_field<encoding_group::SHIFT_JIS_2004>;
   case encoding_group::UHC: return parse_composite_field<encoding_group::UHC>;
   case encoding_group::UTF8:
     return parse_composite_field<encoding_group::UTF8>;
