@@ -266,7 +266,8 @@ private:
     // Dirty trick: just count the number of bytes that look as if they may be
     // separators.  At the very worst we may overestimate by a factor of two or
     // so, in exceedingly rare cases, on some encodings.
-    auto const separators{std::count(std::begin(data), std::end(data), SEPARATOR)};
+    auto const separators{
+      std::count(std::begin(data), std::end(data), SEPARATOR)};
     // The number of dimensions makes no difference here.  It's still one
     // separator between consecutive elements, just possibly with some extra
     // braces as well.

@@ -2,19 +2,19 @@
  * Custom types for testing & libpqxx support those types
  */
 #if !defined(PQXX_H_TEST_TYPES)
-#define PQXX_H_TEST_TYPES
+#  define PQXX_H_TEST_TYPES
 
-#include <pqxx/strconv>
+#  include <pqxx/strconv>
 
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <exception>
-#include <iomanip>
-#include <regex>
-#include <sstream>
-#include <string>
-#include <vector>
+#  include <cstdint>
+#  include <cstdio>
+#  include <cstring>
+#  include <exception>
+#  include <iomanip>
+#  include <regex>
+#  include <sstream>
+#  include <string>
+#  include <vector>
 
 
 namespace pqxx

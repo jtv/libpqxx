@@ -318,12 +318,12 @@ std::string pqxx::result::status_error() const
   case PGRES_TUPLES_OK:   // The query successfully executed.
     break;
 
-  case PGRES_COPY_OUT: // Copy Out (from server) data transfer started.
-  case PGRES_COPY_IN:  // Copy In (to server) data transfer started.
+  case PGRES_COPY_OUT:  // Copy Out (from server) data transfer started.
+  case PGRES_COPY_IN:   // Copy In (to server) data transfer started.
   case PGRES_COPY_BOTH: // Copy In/Out.  Used for streaming replication.
     break;
 
-  case PGRES_PIPELINE_SYNC: // Pipeline mode synchronisation point.
+  case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
     throw feature_not_supported{"Not supported yet: libpq pipelines."};
 
