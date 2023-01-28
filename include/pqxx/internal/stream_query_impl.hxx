@@ -27,31 +27,21 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx)
 }
 
 
-template<typename... TYPE> inline
-auto
-stream_query<TYPE...>::get_raw_line() &
+template<typename... TYPE> inline auto stream_query<TYPE...>::get_raw_line() &
 {
-// XXX: Move the check to the caller?
-// XXX: Ditch the bool conversion & operator!.
-  if (*this)
+  assert(not done());
+  internal::gate::connection_stream_from gate{m_trans.conn()};
+  try
   {
-    internal::gate::connection_stream_from gate{m_trans.conn()};
-    try
-    {
-      raw_line line{gate.read_copy_line()};
-      if (line.first.get() == nullptr)
-        close();
-      return line;
-    }
-    catch (std::exception const &)
-    {
+    raw_line line{gate.read_copy_line()};
+    if (line.first.get() == nullptr)
       close();
-      throw;
-    }
+    return line;
   }
-  else
+  catch (std::exception const &)
   {
-    return raw_line{};
+    close();
+    throw;
   }
 }
 
@@ -98,13 +88,12 @@ public:
 private:
   void advance()
   {
-    if (m_home == nullptr)
-      throw usage_error{"Moving stream_query iterator beyond end()."};
-    if (not((*m_home) >> m_value))
-      m_home = nullptr;
+    assert(m_home != nullptr);
+    m_home->receive_row(m_value);
+    if (m_home->done()) m_home = nullptr;
   }
 
-  stream_t *m_home{nullptr};
+  stream_t *m_home = nullptr;
   value_type m_value;
 };
 

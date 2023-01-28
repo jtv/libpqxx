@@ -89,19 +89,7 @@ public:
     }
   }
 
-// XXX: Don't use bool conversion.
-  /// May this stream still produce more data?
-  [[nodiscard]] constexpr operator bool() const noexcept
-  {
-    return not m_finished;
-  }
-
-// XXX: Don't use operator.
-  /// Has this stream produced all the data it is going to produce?
-  [[nodiscard]] constexpr bool operator!() const noexcept
-  {
-    return m_finished;
-  }
+  bool done() const & noexcept { return m_finished; }
 
   /// Finish this stream.  Call this before continuing to use the connection.
   /** Consumes all remaining lines, and closes the stream.
@@ -112,19 +100,13 @@ public:
    */
   void complete()
   {
-    if (m_finished)
+    if (done())
       return;
     try
     {
       // Flush any remaining lines - libpq will automatically close the stream
       // when it hits the end.
-      bool done{false};
-      while (not done)
-      {
-        auto [line, size] = get_raw_line();
-        ignore_unused(size);
-        done = not line.get();
-      }
+      while (not done()) get_raw_line();
     }
     catch (broken_connection const &)
     {
@@ -138,9 +120,6 @@ public:
     close();
   }
 
-// XXX: Replace operator with normal function name.
-// XXX: Should we have a move-based alternative when possible?
-// XXX: And God, don't return *this.
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.
    *
@@ -149,32 +128,23 @@ public:
    * `int` when it may contain nulls, read it as `std::optional<int>`.
    * Using `std::shared_ptr` or `std::unique_ptr` will also work.
    */
-  stream_query &operator>>(std::tuple<TYPE...> &t) &
+  void receive_row(std::tuple<TYPE...> &t) &
   {
-    if (m_finished)
-      PQXX_UNLIKELY return *this;
+    // XXX: Do we actually need to check for this here?
+    if (done())
+      PQXX_UNLIKELY return;
     static constexpr auto tup_size{sizeof...(TYPE)};
     parse_line();
-    if (m_finished)
-      PQXX_UNLIKELY return *this;
+    if (done())
+      PQXX_UNLIKELY return;
 
     extract_fields(t, std::make_index_sequence<tup_size>{});
-    return *this;
+    return;
   }
 
   /// Doing this with a `std::variant` is going to be horrifically borked.
   template<typename... Vs>
   stream_query &operator>>(std::variant<Vs...> &) = delete;
-
-  /// Iterate over this stream.  Supports range-based "for" loops.
-  /** Produces an input iterator over the stream.
-   *
-   * Do not call this yourself.  Use it like "for (auto data : stream.iter())".
-   */
-  [[nodiscard]] auto iter() &
-  {
-    return pqxx::internal::stream_input_iteration<TYPE...>{*this};
-  }
 
   inline auto begin() &;
   inline auto end() const &;
@@ -182,30 +152,6 @@ public:
 private:
   static pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
-
-// XXX: Does this still need the return silliness?
-  /// Read a row.  Return fields as views, valid until you read the next row.
-  /** Returns `nullptr` when there are no more rows to read.  Do not attempt
-   * to read any further rows after that.
-   *
-   * Do not access the vector, or the storage referenced by the views, after
-   * closing or completing the stream, or after attempting to read a next row.
-   *
-   * A @ref pqxx::zview is like a `std::string_view`, but with the added
-   * guarantee that if its data pointer is non-null, the string is followed by
-   * a terminating zero (which falls just outside the view itself).
-   *
-   * If any of the views' data pointer is null, that means that the
-   * corresponding SQL field is null.
-   *
-   * @warning The return type may change in the future, to support C++20
-   * coroutine-based usage.
-   */
-  std::array<zview, sizeof...(TYPE)> const *read_row() &
-  {
-    parse_line();
-    return m_finished ? nullptr : &m_fields;
-  }
 
   /// Read a raw line of text from the COPY command.
   inline auto get_raw_line() &;
@@ -246,19 +192,13 @@ private:
   /// Read a line of COPY data, write `m_row` and `m_fields`.
   void parse_line() &
   {
-    if (m_finished)
-      PQXX_UNLIKELY
-    return;
+    assert(not done());
 
     // Which field are we currently parsing?
     std::size_t field_idx{0};
 
     auto const [line, line_size] = get_raw_line();
-    if (line.get() == nullptr)
-    {
-      m_finished = true;
-      return;
-    }
+    if (done()) return;
 
     if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
       throw range_error{"Stream produced a ridiculously long line."};
@@ -367,12 +307,12 @@ private:
   /// The current row's fields.
   std::array<zview, sizeof...(TYPE)> m_fields;
 
-// XXX: Could this be implicit in our other state?
+// XXX: Could this be implicit in our other state somewhere?
   bool m_finished = false;
 
   void close()
   {
-    if (not m_finished)
+    if (not done())
     {
       PQXX_UNLIKELY
       m_finished = true;
