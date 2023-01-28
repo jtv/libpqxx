@@ -130,9 +130,7 @@ public:
    */
   void receive_row(std::tuple<TYPE...> &t) &
   {
-    // XXX: Do we actually need to check for this here?
-    if (done())
-      PQXX_UNLIKELY return;
+    assert(not done());
     static constexpr auto tup_size{sizeof...(TYPE)};
     parse_line();
     if (done())
@@ -141,10 +139,6 @@ public:
     extract_fields(t, std::make_index_sequence<tup_size>{});
     return;
   }
-
-  /// Doing this with a `std::variant` is going to be horrifically borked.
-  template<typename... Vs>
-  stream_query &operator>>(std::variant<Vs...> &) = delete;
 
   inline auto begin() &;
   inline auto end() const &;
@@ -248,16 +242,15 @@ private:
         if (field_begin == nullptr)
         {
           m_fields[field_idx] = zview{};
-          ++field_idx;
         }
         else
         {
 	  m_fields[field_idx] = zview{field_begin, write - field_begin};
           *write++ = '\0';
-	  ++field_idx;
         }
         // Set up for the next field.
         field_begin = write;
+	++field_idx;
       }
       else
       {
@@ -291,14 +284,19 @@ private:
       m_fields[field_idx] = zview{field_begin, write - field_begin};
       *write++ = '\0';
     }
+    ++field_idx;
+
+    if (field_idx != sizeof...(TYPE))
+      PQXX_UNLIKELY throw usage_error{pqxx::internal::concat(
+        "Trying to stream query into ", sizeof...(TYPE), " column(s), "
+	"but received ", field_idx, ".")};
 
     // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
     // the buffer.  (Also, how useful would shrinking really be?)
   }
 
-  std::string_view s_class_name{"stream_query"};
+  static constexpr std::string_view s_class_name{"stream_query"};
 
-// XXX: Hoist choice of scanner up to higher level in call graph.
   pqxx::internal::char_finder_func *m_char_finder;
 
   /// Current row's fields' text, combined into one reusable string.
@@ -307,7 +305,7 @@ private:
   /// The current row's fields.
   std::array<zview, sizeof...(TYPE)> m_fields;
 
-// XXX: Could this be implicit in our other state somewhere?
+  /// Has our iteration finished?
   bool m_finished = false;
 
   void close()
