@@ -194,7 +194,7 @@ private:
     auto const [line, line_size] = get_raw_line();
     if (done()) return;
 
-    if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
+    if (line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
       throw range_error{"Stream produced a ridiculously long line."};
 
     // Make room for unescaping the line.  It's a pessimistic size.
