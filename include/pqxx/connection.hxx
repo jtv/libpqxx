@@ -1057,7 +1057,7 @@ private:
 
   friend struct internal::gate::connection_stream_from;
   std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
-    PQXX_PRIVATE read_copy_line();
+    read_copy_line();
 
   friend class internal::gate::connection_stream_to;
   void PQXX_PRIVATE write_copy_line(std::string_view);
