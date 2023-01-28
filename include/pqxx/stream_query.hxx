@@ -295,8 +295,6 @@ private:
     // the buffer.  (Also, how useful would shrinking really be?)
   }
 
-  static constexpr std::string_view s_class_name{"stream_query"};
-
   pqxx::internal::char_finder_func *m_char_finder;
 
   /// Current row's fields' text, combined into one reusable string.
