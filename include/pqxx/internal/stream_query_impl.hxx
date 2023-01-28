@@ -89,6 +89,7 @@ private:
   void advance()
   {
     assert(m_home != nullptr);
+    assert(not m_home->done());
     m_home->receive_row(m_value);
     if (m_home->done()) m_home = nullptr;
   }

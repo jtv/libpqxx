@@ -327,7 +327,7 @@ private:
     return m_data.get() != nullptr;
   }
 
-  [[noreturn]] PQXX_PRIVATE void
+  [[noreturn]] PQXX_PRIVATE PQXX_COLD void
   throw_sql_error(std::string const &Err, std::string const &Query) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
   PQXX_PRIVATE std::string status_error() const;
