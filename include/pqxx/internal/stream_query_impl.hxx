@@ -11,7 +11,7 @@ namespace pqxx
 template<typename... TYPE> inline
 stream_query<TYPE...>::stream_query(
   transaction_base &tx, std::string_view query
-) : transaction_focus{tx, s_class_name}, m_char_finder{get_finder(tx)}
+) : transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
   tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"));
   register_me();
