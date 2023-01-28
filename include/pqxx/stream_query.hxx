@@ -144,7 +144,8 @@ public:
   inline auto end() const &;
 
 private:
-  static pqxx::internal::char_finder_func *
+  static inline
+  pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
 
   /// Read a raw line of text from the COPY command.
