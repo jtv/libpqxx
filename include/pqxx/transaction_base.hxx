@@ -35,7 +35,7 @@
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
-#include "pqxx/stream_from.hxx"
+#include "pqxx/stream_query.hxx"
 #include "pqxx/util.hxx"
 
 namespace pqxx::internal::gate
@@ -513,10 +513,7 @@ public:
   template<typename... TYPE>
   [[nodiscard]] auto stream(std::string_view query) &
   {
-    // Tricky: std::make_unique() supports constructors but not RVO functions.
-    return pqxx::internal::owning_stream_input_iteration<TYPE...>{
-      std::unique_ptr<stream_from>{
-        new stream_from{stream_from::query(*this, query)}}};
+    return stream_query<TYPE...>{*this, query};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -526,13 +523,13 @@ public:
    * have an unambiguous signature; it can't be overloaded or generic.
    *
    * The `for_stream` function executes `query` in a stream using
-   * @ref pqxx::stream_from.  Every time a row of data comes in from the
+   * @ref pqxx::stream_query.  Every time a row of data comes in from the
    * server, it converts the row's fields to the types of `func`'s respective
    * parameters, and calls `func` with those values.
    *
    * This will not work for all queries, but straightforward `SELECT` and
    * `UPDATE ... RETURNING` queries should work.  Consult the documentation for
-   * @ref pqxx::stream_from and PostgreSQL's underlying `COPY` command for the
+   * @ref pqxx::stream_query and PostgreSQL's underlying `COPY` command for the
    * full details.
    *
    * Streaming a query like this is likely to be slower than the @ref exec()
@@ -965,4 +962,6 @@ template<>
 inline constexpr zview begin_cmd<serializable, write_policy::read_only>{
   "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"_zv};
 } // namespace pqxx::internal
+
+#include "pqxx/internal/stream_query_impl.hxx"
 #endif

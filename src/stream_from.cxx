@@ -171,33 +171,6 @@ void pqxx::stream_from::complete()
 }
 
 
-namespace
-{
-/// Return original byte for escaped character.
-char unescape_char(char escaped)
-{
-  switch (escaped)
-  {
-  case 'b': // Backspace.
-    PQXX_UNLIKELY return '\b';
-  case 'f': // Form feed
-    PQXX_UNLIKELY return '\f';
-  case 'n': // Line feed.
-    return '\n';
-  case 'r': // Carriage return.
-    return '\r';
-  case 't': // Horizontal tab.
-    return '\t';
-  case 'v': // Vertical tab.
-    return '\v';
-  default:
-    break;
-  }
-  // Regular character ("self-escaped").
-  return escaped;
-}
-} // namespace
-
 void pqxx::stream_from::parse_line()
 {
   if (m_finished)
@@ -293,7 +266,7 @@ void pqxx::stream_from::parse_line()
         field_begin = nullptr;
         // (If there's any characters _after_ the null we'll just crash.)
       }
-      *write++ = unescape_char(escaped);
+      *write++ = pqxx::internal::unescape_char(escaped);
     }
   }
 

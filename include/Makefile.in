@@ -372,6 +372,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/separated_list pqxx/separated_list.hxx \
 	pqxx/strconv pqxx/strconv.hxx \
 	pqxx/stream_from pqxx/stream_from.hxx \
+	pqxx/stream_query pqxx/stream_query.hxx \
 	pqxx/stream_to pqxx/stream_to.hxx \
 	pqxx/subtransaction pqxx/subtransaction.hxx \
 	pqxx/time pqxx/time.hxx \
@@ -400,6 +401,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/sql_cursor.hxx \
 	pqxx/internal/statement_parameters.hxx \
 	pqxx/internal/stream_iterator.hxx \
+	pqxx/internal/stream_query_impl.hxx \
 	pqxx/internal/wait.hxx \
 	pqxx/internal/gates/connection-errorhandler.hxx \
 	pqxx/internal/gates/connection-largeobject.hxx \
