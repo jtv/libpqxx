@@ -69,7 +69,7 @@ class transaction_base;
  * time.
  */
 template<typename... TYPE>
-class PQXX_LIBEXPORT stream_query : transaction_focus
+class stream_query : transaction_focus
 {
 public:
   using raw_line =
