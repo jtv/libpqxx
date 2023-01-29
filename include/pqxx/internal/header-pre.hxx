@@ -62,9 +62,18 @@
 // We're aware of that, and we don't include it if it's not there.
 // The hard part is not to accidentally undefine the macro to suppress that
 // warning if the client code also had it defined.
-#  define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#  if defined(_SILENCE_CXX20_CISO646_REMOVED_WARNING)
+#    define PQXX_KEEP_SILENCE_CISO646
+#  else
+#    undef PQXX_KEEP_SILENCE_CISO646
+#    define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#  endif
 
 #  include <ciso646>
+
+#  if !defined(PQXX_KEEP_SILENCE_CISO646)
+#    undef _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#  endif
 
 #endif
 
