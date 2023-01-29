@@ -66,27 +66,28 @@ public:
   }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
 
-  stream_query_input_iterator &operator++()
+  stream_query_input_iterator &operator++() &
   {
     advance();
     return *this;
   }
 
+// XXX: Could we construct and return the tuple?  Would it be faster?
   value_type const &operator*() const { return m_value; }
 
   /// Comparison only works for comparing to end().
-  bool operator==(stream_query_input_iterator const &rhs) const
+  bool operator==(stream_query_input_iterator const &rhs) const noexcept
   {
     return m_home == rhs.m_home;
   }
   /// Comparison only works for comparing to end().
-  bool operator!=(stream_query_input_iterator const &rhs) const
+  bool operator!=(stream_query_input_iterator const &rhs) const noexcept
   {
     return not(*this == rhs);
   }
 
 private:
-  void advance()
+  void advance() &
   {
     assert(m_home != nullptr);
     assert(not m_home->done());
