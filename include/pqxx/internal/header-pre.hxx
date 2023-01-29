@@ -73,7 +73,7 @@
 
 #  include <ciso646>
 
-#  if defined(_MSC_VER) && !defined(PQXX_RESTORE_SILENCE_CISO646)
+#  if defined(_MSC_VER) && !defined(PQXX_KEEP_SILENCE_CISO646)
 #    undef _SILENCE_CXX20_CISO646_REMOVED_WARNING
 #  endif
 
