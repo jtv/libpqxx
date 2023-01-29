@@ -42,9 +42,9 @@ class transaction_base;
 // XXX: Move to pqxx::internal.  Call only through transaction::stream().
 /// Stream query results from the database.
 /** For larger data sets, retrieving data this way is likely to be faster than
- * executing a query and then iterating and converting the rows fields.  You
+ * executing a query and then iterating and converting the rows' fields.  You
  * will also be able to start processing before all of the data has come in.
- * (For smaller result sets though, it's likely to be slower.)
+ * (For smaller result sets though, a stream is likely to be a bit slower.)
  *
  * This class is similar to @ref stream_from, but it's more strongly typed.
  * You specify the column fields while instantiating the stream_query template.
@@ -120,6 +120,7 @@ public:
     close();
   }
 
+// XXX: Can we return the tuple?  Would it be faster?
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.
    *
