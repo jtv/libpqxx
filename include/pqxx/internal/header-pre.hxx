@@ -52,11 +52,31 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
+
 // C++20: No longer needed.
 // Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
 // etc. on older compilers.  C++20 removes this header.
 #if __has_include(<ciso646>)
+
+// Suppress Visual Studio warnings that the ciso646 header goes away in C++20.
+// We're aware of that, and we don't include it if it's not there.
+// The hard part is not to accidentally undefine the macro to suppress that
+// warning if the client code also had it defined.
+#  if defined(_MSC_VER)
+#    if defined(_SILENCE_CXX20_CISO646_REMOVED_WARNING)
+#      define PQXX_KEEP_SILENCE_CISO646
+#    else
+#      undef PQXX_KEEP_SILENCE_CISO646
+#      define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#    endif
+#  endif
+
 #  include <ciso646>
+
+#  if defined(_MSC_VER) && !defined(PQXX_RESTORE_SILENCE_CISO646)
+#    undef _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#  endif
+
 #endif
 
 
