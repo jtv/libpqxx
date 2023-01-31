@@ -89,7 +89,7 @@ public:
   }
 
 private:
-  bool done() const
+  bool done() const noexcept
   {
     return (m_home == nullptr) or m_home->done();
   }

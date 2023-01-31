@@ -120,26 +120,6 @@ public:
     close();
   }
 
-// XXX: I think we can get rid of this one.
-  /// Read one row into a tuple.
-  /** Converts the row's fields into the fields making up the tuple.
-   *
-   * For a column which can contain nulls, be sure to give the corresponding
-   * tuple field a type which can be null.  For example, to read a field as
-   * `int` when it may contain nulls, read it as `std::optional<int>`.
-   * Using `std::shared_ptr` or `std::unique_ptr` will also work.
-   */
-  std::optional<std::tuple<TYPE...>> receive_row() &
-  {
-    assert(not done());
-    static constexpr auto tup_size{sizeof...(TYPE)};
-    parse_line();
-    if (done())
-      PQXX_UNLIKELY return {};
-
-    return extract_fields(std::make_index_sequence<tup_size>{});
-  }
-
   inline auto begin() &;
   inline auto end() const &;
 
@@ -325,7 +305,7 @@ private:
   /// Has our iteration finished?
   bool m_finished = false;
 
-  void close()
+  void close() noexcept
   {
     if (not done())
     {
