@@ -233,7 +233,7 @@ public:
     register_me();
   }
 
-  ~command() { unregister_me(); }
+  ~command() noexcept { unregister_me(); }
 };
 } // namespace
 
