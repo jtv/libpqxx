@@ -120,7 +120,7 @@ public:
     close();
   }
 
-// XXX: Can we return the tuple?  Would it be faster?
+// XXX: I think we can get rid of this one.
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.
    *
@@ -129,75 +129,30 @@ public:
    * `int` when it may contain nulls, read it as `std::optional<int>`.
    * Using `std::shared_ptr` or `std::unique_ptr` will also work.
    */
-  void receive_row(std::tuple<TYPE...> &t) &
+  std::optional<std::tuple<TYPE...>> receive_row() &
   {
     assert(not done());
     static constexpr auto tup_size{sizeof...(TYPE)};
     parse_line();
     if (done())
-      PQXX_UNLIKELY return;
+      PQXX_UNLIKELY return {};
 
-    extract_fields(t, std::make_index_sequence<tup_size>{});
-    return;
+    return extract_fields(std::make_index_sequence<tup_size>{});
   }
 
   inline auto begin() &;
   inline auto end() const &;
 
-private:
-  static inline
-  pqxx::internal::char_finder_func *
-  get_finder(transaction_base const &tx);
-
-  /// Read a raw line of text from the COPY command.
-  inline auto get_raw_line() &;
-
-  template<std::size_t... indexes>
-  void
-  extract_fields(std::tuple<TYPE...> &t, std::index_sequence<indexes...>)
-  const &
-  {
-    (extract_value<indexes>(t), ...);
-  }
-
-  template<std::size_t index>
-  void extract_value(std::tuple<TYPE...> &t) const &
-  {
-    using field_type = strip_t<decltype(std::get<index>(t))>;
-    using nullity = nullness<field_type>;
-    static_assert(index < sizeof...(TYPE));
-    if constexpr (nullity::always_null)
-    {
-      if (std::data(m_fields[index]) != nullptr)
-        throw conversion_error{"Streaming non-null value into null field."};
-    }
-    else if (std::data(m_fields[index]) == nullptr)
-    {
-      if constexpr (nullity::has_null)
-        std::get<index>(t) = nullity::null();
-      else
-        internal::throw_null_conversion(type_name<field_type>);
-    }
-    else
-    {
-      // Don't ever try to convert a non-null value to nullptr_t!
-      std::get<index>(t) = from_string<field_type>(m_fields[index]);
-    }
-  }
-
   /// Read a line of COPY data, write `m_row` and `m_fields`.
-  void parse_line() &
+  std::tuple<TYPE...>
+  parse_line(
+    std::unique_ptr<char, std::function<void(char *)>> &&line,
+    std::size_t line_size) &
   {
     assert(not done());
 
     // Which field are we currently parsing?
     std::size_t field_idx{0};
-
-    auto const [line, line_size] = get_raw_line();
-    if (done()) return;
-
-    if (line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
-      throw range_error{"Stream produced a ridiculously long line."};
 
     // Make room for unescaping the line.  It's a pessimistic size.
     // Unusually, we're storing terminating zeroes *inside* the string.
@@ -295,6 +250,68 @@ private:
 
     // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
     // the buffer.  (Also, how useful would shrinking really be?)
+
+    static constexpr auto tup_size{sizeof...(TYPE)};
+    return extract_fields(std::make_index_sequence<tup_size>{});
+  }
+
+  auto read_line() &
+  {
+    assert(not done());
+
+    auto [line, line_size] = get_raw_line();
+    if (done())
+      return raw_line{};
+
+    if (line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
+      throw range_error{"Stream produced a ridiculously long line."};
+
+    return std::make_pair(std::move(line), line_size);
+  }
+
+private:
+  static inline
+  pqxx::internal::char_finder_func *
+  get_finder(transaction_base const &tx);
+
+  /// Read a raw line of text from the COPY command.
+  inline auto get_raw_line() &;
+
+  template<std::size_t... indexes>
+  std::tuple<TYPE...>
+  extract_fields(std::index_sequence<indexes...>)
+  const &
+  {
+    return std::tuple<TYPE...>{extract_value<indexes>()...};
+  }
+
+  /// Extract type `#n` from our parameter pack, `TYPE...`.
+  template<std::size_t n>
+  using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
+
+  template<std::size_t index>
+  auto extract_value() const &
+  {
+    using field_type = strip_t<extract_t<index>>;
+    using nullity = nullness<field_type>;
+    static_assert(index < sizeof...(TYPE));
+    if constexpr (nullity::always_null)
+    {
+      if (std::data(m_fields[index]) != nullptr)
+        throw conversion_error{"Streaming non-null value into null field."};
+    }
+    else if (std::data(m_fields[index]) == nullptr)
+    {
+      if constexpr (nullity::has_null)
+        return nullity::null();
+      else
+        internal::throw_null_conversion(type_name<field_type>);
+    }
+    else
+    {
+      // Don't ever try to convert a non-null value to nullptr_t!
+      return from_string<field_type>(m_fields[index]);
+    }
   }
 
   pqxx::internal::char_finder_func *m_char_finder;

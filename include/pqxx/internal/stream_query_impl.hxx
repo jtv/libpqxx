@@ -72,13 +72,15 @@ public:
     return *this;
   }
 
-// XXX: Could we construct and return the tuple?  Would it be faster?
-  value_type const &operator*() const { return m_value; }
+  value_type operator*()
+  {
+    return m_home->parse_line(std::move(m_line), m_line_size);
+  }
 
   /// Comparison only works for comparing to end().
   bool operator==(stream_query_input_iterator const &rhs) const noexcept
   {
-    return m_home == rhs.m_home;
+    return done() == rhs.done();
   }
   /// Comparison only works for comparing to end().
   bool operator!=(stream_query_input_iterator const &rhs) const noexcept
@@ -87,16 +89,22 @@ public:
   }
 
 private:
+  bool done() const
+  {
+    return (m_home == nullptr) or m_home->done();
+  }
+
   void advance() &
   {
-    assert(m_home != nullptr);
-    assert(not m_home->done());
-    m_home->receive_row(m_value);
-    if (m_home->done()) m_home = nullptr;
+    assert(not done());
+    auto line{m_home->read_line()};
+    m_line = std::move(line.first);
+    m_line_size = line.second;
   }
 
   stream_t *m_home = nullptr;
-  value_type m_value;
+  std::unique_ptr<char, std::function<void(char *)>> m_line;
+  std::size_t m_line_size;
 };
 
 
