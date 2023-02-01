@@ -1,9 +1,9 @@
 #if !defined(PQXX_H_CONNECTION_STREAM_FROM)
-#define PQXX_H_CONNECTION_STREAM_FROM
+#  define PQXX_H_CONNECTION_STREAM_FROM
 
-#include <pqxx/internal/callgate.hxx>
+#  include <pqxx/internal/callgate.hxx>
 
-#include "pqxx/connection.hxx"
+#  include "pqxx/connection.hxx"
 
 namespace pqxx::internal::gate
 {

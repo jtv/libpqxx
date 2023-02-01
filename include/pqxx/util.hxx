@@ -545,8 +545,7 @@ inline constexpr char unescape_char(char escaped) noexcept
     return '\t';
   case 'v': // Vertical tab.
     return '\v';
-  default:
-    break;
+  default: break;
   }
   // Regular character ("self-escaped").
   return escaped;

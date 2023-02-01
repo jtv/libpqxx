@@ -4,22 +4,22 @@
  * circular dependencies between headers.
  */
 #if !defined(PQXX_H_STREAM_QUERY_IMPL)
-#define PQXX_H_STREAM_QUERY_IMPL
+#  define PQXX_H_STREAM_QUERY_IMPL
 
 namespace pqxx
 {
-template<typename... TYPE> inline
-stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query
-) : transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+template<typename... TYPE>
+inline stream_query<TYPE...>::stream_query(
+  transaction_base &tx, std::string_view query) :
+        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
   tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"));
   register_me();
 }
 
 
-template<typename... TYPE> inline
-pqxx::internal::char_finder_func *
+template<typename... TYPE>
+inline pqxx::internal::char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx)
 {
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
@@ -54,6 +54,7 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::get_raw_line() &
 template<typename... TYPE> class stream_query_input_iterator
 {
   using stream_t = stream_query<TYPE...>;
+
 public:
   using value_type = std::tuple<TYPE...>;
 
@@ -89,10 +90,7 @@ public:
   }
 
 private:
-  bool done() const noexcept
-  {
-    return (m_home == nullptr) or m_home->done();
-  }
+  bool done() const noexcept { return (m_home == nullptr) or m_home->done(); }
 
   void advance() &
   {
@@ -108,18 +106,15 @@ private:
 };
 
 
-template<typename... TYPE> inline
-auto
-stream_query<TYPE...>::begin() &
+template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 {
   return stream_query_input_iterator<TYPE...>{*this};
 }
 
 
-template<typename... TYPE> inline
-auto
-stream_query<TYPE...>::end() const &
+template<typename... TYPE> inline auto stream_query<TYPE...>::end() const &
 {
   return stream_query_input_iterator<TYPE...>{};
-}} // namespace pqxx
+}
+} // namespace pqxx
 #endif

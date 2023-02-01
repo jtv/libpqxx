@@ -68,8 +68,7 @@ class transaction_base;
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-template<typename... TYPE>
-class stream_query : transaction_focus
+template<typename... TYPE> class stream_query : transaction_focus
 {
 public:
   using raw_line =
@@ -89,7 +88,7 @@ public:
     }
   }
 
-  bool done() const & noexcept { return m_finished; }
+  bool done() const &noexcept { return m_finished; }
 
   /// Finish this stream.  Call this before continuing to use the connection.
   /** Consumes all remaining lines, and closes the stream.
@@ -124,8 +123,7 @@ public:
   inline auto end() const &;
 
   /// Read a line of COPY data, write `m_row` and `m_fields`.
-  std::tuple<TYPE...>
-  parse_line(
+  std::tuple<TYPE...> parse_line(
     std::unique_ptr<char, std::function<void(char *)>> &&line,
     std::size_t line_size) &
   {
@@ -182,12 +180,12 @@ public:
         }
         else
         {
-	  m_fields[field_idx] = zview{field_begin, write - field_begin};
+          m_fields[field_idx] = zview{field_begin, write - field_begin};
           *write++ = '\0';
         }
         // Set up for the next field.
         field_begin = write;
-	++field_idx;
+        ++field_idx;
       }
       else
       {
@@ -225,8 +223,10 @@ public:
 
     if (field_idx != sizeof...(TYPE))
       PQXX_UNLIKELY throw usage_error{pqxx::internal::concat(
-        "Trying to stream query into ", sizeof...(TYPE), " column(s), "
-	"but received ", field_idx, ".")};
+        "Trying to stream query into ", sizeof...(TYPE),
+        " column(s), "
+        "but received ",
+        field_idx, ".")};
 
     // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
     // the buffer.  (Also, how useful would shrinking really be?)
@@ -250,17 +250,14 @@ public:
   }
 
 private:
-  static inline
-  pqxx::internal::char_finder_func *
+  static inline pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
 
   /// Read a raw line of text from the COPY command.
   inline auto get_raw_line() &;
 
   template<std::size_t... indexes>
-  std::tuple<TYPE...>
-  extract_fields(std::index_sequence<indexes...>)
-  const &
+  std::tuple<TYPE...> extract_fields(std::index_sequence<indexes...>) const &
   {
     return std::tuple<TYPE...>{extract_value<indexes>()...};
   }
@@ -269,8 +266,7 @@ private:
   template<std::size_t n>
   using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
 
-  template<std::size_t index>
-  auto extract_value() const &
+  template<std::size_t index> auto extract_value() const &
   {
     using field_type = strip_t<extract_t<index>>;
     using nullity = nullness<field_type>;

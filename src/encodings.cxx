@@ -64,7 +64,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         auto const subtype{encoding_name.substr(4)};
         static constexpr std::array<mapping, 5> subtypes{
           mapping{"CN"sv, pqxx::internal::encoding_group::EUC_CN},
-	  // We support EUC_JIS_2004 and EUC_JP as identical encodings.
+          // We support EUC_JIS_2004 and EUC_JP as identical encodings.
           mapping{"JIS_2004"sv, pqxx::internal::encoding_group::EUC_JP},
           mapping{"JP"sv, pqxx::internal::encoding_group::EUC_JP},
           mapping{"KR"sv, pqxx::internal::encoding_group::EUC_KR},

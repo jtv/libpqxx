@@ -27,6 +27,7 @@ namespace pqxx::internal
 template<typename... TYPE> class stream_from_input_iterator
 {
   using stream_t = stream_from;
+
 public:
   using value_type = std::tuple<TYPE...>;
 
