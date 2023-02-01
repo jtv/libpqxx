@@ -42,7 +42,6 @@ install(
     PATTERN separated_list
     PATTERN strconv
     PATTERN stream_from
-    PATTERN stream_query
     PATTERN stream_to
     PATTERN subtransaction
     PATTERN time

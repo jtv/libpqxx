@@ -20,7 +20,6 @@
 #include "pqxx/robusttransaction.hxx"
 #include "pqxx/row.hxx"
 #include "pqxx/stream_from.hxx"
-#include "pqxx/stream_query.hxx"
 #include "pqxx/stream_to.hxx"
 #include "pqxx/subtransaction.hxx"
 #include "pqxx/transaction.hxx"
