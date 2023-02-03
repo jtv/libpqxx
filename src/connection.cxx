@@ -878,6 +878,34 @@ pqxx::connection::read_copy_line()
 }
 
 
+std::tuple<char *, std::size_t, std::size_t>
+pqxx::connection::next_copy_line(char *buffer, std::size_t capacity)
+{
+  static auto const q{std::make_shared<std::string>("[END COPY]")};
+  auto const line_len{PQgetNextCopyData(m_conn, &buffer, &capacity, false)};
+  switch (line_len)
+  {
+  case -2: // Error.
+    throw failure{
+      internal::concat("Reading of table data failed: ", err_msg())};
+
+  case -1: // End of COPY.
+    make_result(PQgetResult(m_conn), q, *q);
+    return {};
+
+  case 0: // "Come back later."
+    throw internal_error{"table read inexplicably went asynchronous"};
+
+  default: // Success, got buffer size.
+    PQXX_LIKELY
+    {
+      auto const text_len{static_cast<std::size_t>(line_len) - 1};
+      return std::tuple{buffer, capacity, text_len};
+    }
+  }
+}
+
+
 void pqxx::connection::write_copy_line(std::string_view line)
 {
   static std::string const err_prefix{"Error writing to table: "};
