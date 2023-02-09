@@ -106,8 +106,8 @@ private:
   }
 
   stream_t *m_home = nullptr;
-  std::unique_ptr<char, std::function<void(char *)>> m_line;
-  std::size_t m_line_size;
+  char *m_line = nullptr;
+  std::size_t m_line_size = 0u;
 };
 
 
