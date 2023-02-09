@@ -77,7 +77,7 @@ public:
 
   value_type operator*()
   {
-    return m_home->parse_line(std::move(m_line), m_line_size);
+    return m_home->parse_line(m_line, m_line_size);
   }
 
   /// Comparison only works for comparing to end().

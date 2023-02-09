@@ -126,7 +126,7 @@ public:
   /// Read a line of COPY data, write `m_row` and `m_fields`.
   std::tuple<TYPE...>
   parse_line(
-    std::unique_ptr<char, std::function<void(char *)>> &&line,
+    char *line,
     std::size_t line_size) &
   {
     assert(not done());
@@ -141,7 +141,7 @@ public:
     // into its buffer.
     m_row.resize(line_size + 1);
 
-    char const *line_begin{line.get()};
+    char const *line_begin{line};
     std::string_view const line_view{line_begin, line_size};
 
     // Output iterator for unescaped text.
