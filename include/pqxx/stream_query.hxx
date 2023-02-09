@@ -235,13 +235,13 @@ public:
     return extract_fields(std::make_index_sequence<tup_size>{});
   }
 
-  std::string_view read_line() &
+  std::pair<char *, std::size_t> read_line() &
   {
     assert(not done());
 
     get_raw_line();
     if (done())
-      return std::string_view{};
+      return {nullptr, 0u};
 
     if (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
       throw range_error{"Stream produced a ridiculously long line."};
