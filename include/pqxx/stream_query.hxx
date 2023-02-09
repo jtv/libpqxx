@@ -235,18 +235,18 @@ public:
     return extract_fields(std::make_index_sequence<tup_size>{});
   }
 
-  auto read_line() &
+  std::string_view read_line() &
   {
     assert(not done());
 
-    auto [line, line_size] = get_raw_line();
+    get_raw_line();
     if (done())
-      return raw_line{};
+      return std::string_view{};
 
-    if (line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
+    if (m_line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
       throw range_error{"Stream produced a ridiculously long line."};
 
-    return std::make_pair(std::move(line), line_size);
+    return (m_line, m_line_size};
   }
 
 private:
