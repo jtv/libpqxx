@@ -243,10 +243,10 @@ public:
     if (done())
       return std::string_view{};
 
-    if (m_line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
+    if (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
       throw range_error{"Stream produced a ridiculously long line."};
 
-    return (m_line, m_line_size};
+    return {m_line, m_line_size};
   }
 
 private:
