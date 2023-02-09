@@ -33,10 +33,13 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::get_raw_line() &
   internal::gate::connection_stream_from gate{m_trans.conn()};
   try
   {
-    raw_line line{gate.read_copy_line()};
-    if (line.first.get() == nullptr)
+    auto const [buffer, capacity, line_len] = gate.next_copy_line(m_line, m_capacity);
+    if (buffer == nullptr)
       close();
-    return line;
+    m_line = buffer;
+    m_capacity = capacity;
+    m_line_len = line_len;
+    return buffer;
   }
   catch (std::exception const &)
   {

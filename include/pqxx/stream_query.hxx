@@ -305,6 +305,10 @@ private:
   /// Has our iteration finished?
   bool m_finished = false;
 
+  char *m_line = nullptr;
+  std::size_t m_line_len = 0u;
+  std::size_t m_capacity = 0u;
+
   void close() noexcept
   {
     if (not done())
