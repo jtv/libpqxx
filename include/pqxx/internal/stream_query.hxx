@@ -97,10 +97,15 @@ public:
   inline auto begin() &;
   inline auto end() const & { return stream_query_end_iterator{}; }
 
-  /// Parse a line of data, store results in `m_row` and `m_fields`.
+  /// Parse and convert the latest line of data we received.
   std::tuple<TYPE...> parse_line() &
   {
     assert(not done());
+
+    // This function uses m_row as a buffer, across calls.  The only reason for
+    // it to carry over across calls is to avoid reallocation.
+
+    std::array<zview, sizeof...(TYPE)> fields;
 
     // Which field are we currently parsing?
     std::size_t field_idx{0};
@@ -151,11 +156,11 @@ public:
         // Field separator.  End the field.
         if (field_begin == nullptr)
         {
-          m_fields[field_idx] = zview{};
+          fields[field_idx] = zview{};
         }
         else
         {
-          m_fields[field_idx] = zview{field_begin, write - field_begin};
+          fields[field_idx] = zview{field_begin, write - field_begin};
           *write++ = '\0';
         }
         // Set up for the next field.
@@ -187,11 +192,11 @@ public:
     // End the last field here.
     if (field_begin == nullptr)
     {
-      m_fields[field_idx] = zview{};
+      fields[field_idx] = zview{};
     }
     else
     {
-      m_fields[field_idx] = zview{field_begin, write - field_begin};
+      fields[field_idx] = zview{field_begin, write - field_begin};
       *write++ = '\0';
     }
     ++field_idx;
@@ -207,7 +212,7 @@ public:
     // the buffer.  (Also, how useful would shrinking really be?)
 
     static constexpr auto tup_size{sizeof...(TYPE)};
-    return extract_fields(std::make_index_sequence<tup_size>{});
+    return extract_fields(std::make_index_sequence<tup_size>{}, fields);
   }
 
   /// Read a line from the server, into `m_line` and `m_line_size`.
@@ -218,26 +223,26 @@ private:
   get_finder(transaction_base const &tx);
 
   template<std::size_t... indexes>
-  std::tuple<TYPE...> extract_fields(std::index_sequence<indexes...>) const &
+  std::tuple<TYPE...> extract_fields(std::index_sequence<indexes...>, std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
-    return std::tuple<TYPE...>{extract_value<indexes>()...};
+    return std::tuple<TYPE...>{extract_value<indexes>(fields)...};
   }
 
   /// Extract type `#n` from our parameter pack, `TYPE...`.
   template<std::size_t n>
   using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
 
-  template<std::size_t index> auto extract_value() const &
+  template<std::size_t index> auto extract_value(std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
     using field_type = strip_t<extract_t<index>>;
     using nullity = nullness<field_type>;
     static_assert(index < sizeof...(TYPE));
     if constexpr (nullity::always_null)
     {
-      if (std::data(m_fields[index]) != nullptr)
+      if (std::data(fields[index]) != nullptr)
         throw conversion_error{"Streaming non-null value into null field."};
     }
-    else if (std::data(m_fields[index]) == nullptr)
+    else if (std::data(fields[index]) == nullptr)
     {
       if constexpr (nullity::has_null)
         return nullity::null();
@@ -247,7 +252,7 @@ private:
     else
     {
       // Don't ever try to convert a non-null value to nullptr_t!
-      return from_string<field_type>(m_fields[index]);
+      return from_string<field_type>(fields[index]);
     }
   }
 
@@ -255,9 +260,6 @@ private:
 
   /// Current row's fields' text, combined into one reusable string.
   std::string m_row;
-
-  /// The current row's fields.
-  std::array<zview, sizeof...(TYPE)> m_fields;
 
   /// Buffer (allocated by libpq) holding the last line we read.
   std::unique_ptr<char, std::function<void(char *)>> m_line;
