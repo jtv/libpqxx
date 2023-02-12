@@ -105,7 +105,7 @@ public:
     // This function uses m_row as a buffer, across calls.  The only reason for
     // it to carry over across calls is to avoid reallocation.
 
-// XXX: Do we even need an array here?  Or can we find fields as we go?
+// TODO: We could probably parse fields as we go, without this array.
     // The last-read row's fields, as views into m_rows.
     std::array<zview, sizeof...(TYPE)> fields;
 
@@ -221,6 +221,10 @@ public:
   auto read_line() &;
 
 private:
+  /// Look up a char_finder_func.
+  /** This is the only encoding-dependent code in the class.  All we need to
+   * store after that is this function pointer.
+   */
   static inline pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
 
