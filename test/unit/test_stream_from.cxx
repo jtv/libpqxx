@@ -14,8 +14,6 @@
 #include <optional>
 
 
-// XXX: Retarget to test streaming queries.
-// XXX: Are we testing empty streams?
 namespace
 {
 void test_nonoptionals(pqxx::connection &connection)
