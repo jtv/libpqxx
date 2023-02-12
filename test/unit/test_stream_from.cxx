@@ -16,6 +16,7 @@
 
 namespace
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
 void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
@@ -351,6 +352,7 @@ void test_stream_from_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
 }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
 PQXX_REGISTER_TEST(test_stream_from);

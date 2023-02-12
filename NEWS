@@ -1,6 +1,7 @@
 7.8.0
  - Streaming large data sets now benchmarks faster than similar C/libpq code!
  - New `array` class for easier parsing of SQL arrays.
+ - Deprecating `stream_from`.  Use `transaction_base::stream()`.
  - Use `array_parser` only on comma-separated types, i.e. most of them. (#590)
  - Bumping requirements versions: need postgres 10.
  - Fix `array_parser` bug when parsing semicolon in an unquoted string.

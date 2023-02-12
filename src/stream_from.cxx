@@ -89,7 +89,9 @@ pqxx::stream_from pqxx::stream_from::table(
   std::initializer_list<std::string_view> columns)
 {
   auto const &conn{tx.conn()};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 

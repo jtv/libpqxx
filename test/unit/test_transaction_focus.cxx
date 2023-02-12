@@ -7,7 +7,9 @@ namespace
 {
 auto make_focus(pqxx::dbtransaction &tx)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return pqxx::stream_from::query(tx, "SELECT * from generate_series(1, 10)");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
