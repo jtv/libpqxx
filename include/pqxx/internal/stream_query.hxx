@@ -39,15 +39,19 @@ namespace pqxx
 class transaction_base;
 
 
-// XXX: Move to pqxx::internal.  Call only through transaction::stream().
+/// The `end()` iterator for a `stream_query`.
+class stream_query_end_iterator {};
+
+
+// C++20: Can we use generators, and maybe get speedup from HALO?
 /// Stream query results from the database.
 /** For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows' fields.  You
  * will also be able to start processing before all of the data has come in.
  * (For smaller result sets though, a stream is likely to be a bit slower.)
  *
- * This class is similar to @ref stream_from, but it's more strongly typed.
- * You specify the column fields while instantiating the stream_query template.
+ * A `stream_query` stream is strongly typed.  You specify the columns' types
+ * while instantiating the stream_query template.
  *
  * Not all kinds of query will work in a stream.  But straightforward `SELECT`
  * and `UPDATE ... RETURNING` queries should work.  The class uses PostgreSQL's
@@ -71,9 +75,8 @@ class transaction_base;
 template<typename... TYPE> class stream_query : transaction_focus
 {
 public:
-  using raw_line =
-    std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
 
+  /// Execute `query` on `tx`, stream results.
   inline stream_query(transaction_base &tx, std::string_view query);
 
   ~stream_query() noexcept
@@ -88,6 +91,7 @@ public:
     }
   }
 
+  /// Has this stream reached the end of its data?
   bool done() const &noexcept { return m_finished; }
 
   /// Finish this stream.  Call this before continuing to use the connection.
@@ -97,40 +101,20 @@ public:
    * skip it in error scenarios where you're not planning to use the connection
    * again afterwards.
    */
-  void complete()
-  {
-    if (done())
-      return;
-    try
-    {
-      // Flush any remaining lines - libpq will automatically close the stream
-      // when it hits the end.
-      while (not done()) get_raw_line();
-    }
-    catch (broken_connection const &)
-    {
-      close();
-      throw;
-    }
-    catch (std::exception const &e)
-    {
-      reg_pending_error(e.what());
-    }
-    close();
-  }
+  void complete();
 
   inline auto begin() &;
-  inline auto end() const &;
+  inline auto end() const & { return stream_query_end_iterator{}; }
 
-  /// Read a line of COPY data, write `m_row` and `m_fields`.
-  std::tuple<TYPE...> parse_line(
-    std::unique_ptr<char, std::function<void(char *)>> &&line,
-    std::size_t line_size) &
+  /// Parse a line of data, store results in `m_row` and `m_fields`.
+  std::tuple<TYPE...> parse_line() &
   {
     assert(not done());
 
     // Which field are we currently parsing?
     std::size_t field_idx{0};
+
+    auto const line_size{m_line_size};
 
     // Make room for unescaping the line.  It's a pessimistic size.
     // Unusually, we're storing terminating zeroes *inside* the string.
@@ -139,7 +123,7 @@ public:
     // into its buffer.
     m_row.resize(line_size + 1);
 
-    char const *line_begin{line.get()};
+    char const *line_begin{m_line.get()};
     std::string_view const line_view{line_begin, line_size};
 
     // Output iterator for unescaped text.
@@ -235,26 +219,12 @@ public:
     return extract_fields(std::make_index_sequence<tup_size>{});
   }
 
-  auto read_line() &
-  {
-    assert(not done());
-
-    auto [line, line_size] = get_raw_line();
-    if (done())
-      return raw_line{};
-
-    if (line_size >= ((std::numeric_limits<decltype(line_size)>::max)() / 2))
-      throw range_error{"Stream produced a ridiculously long line."};
-
-    return std::make_pair(std::move(line), line_size);
-  }
+  /// Read a line from the server, into `m_line` and `m_line_size`.
+  auto read_line() &;
 
 private:
   static inline pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
-
-  /// Read a raw line of text from the COPY command.
-  inline auto get_raw_line() &;
 
   template<std::size_t... indexes>
   std::tuple<TYPE...> extract_fields(std::index_sequence<indexes...>) const &
@@ -297,6 +267,12 @@ private:
 
   /// The current row's fields.
   std::array<zview, sizeof...(TYPE)> m_fields;
+
+  /// Buffer (allocated by libpq) holding the last line we read.
+  std::unique_ptr<char, std::function<void(char *)>> m_line;
+
+  /// Size of the last line we read.
+  std::size_t m_line_size{0u};
 
   /// Has our iteration finished?
   bool m_finished = false;

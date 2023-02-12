@@ -27,25 +27,6 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx)
 }
 
 
-template<typename... TYPE> inline auto stream_query<TYPE...>::get_raw_line() &
-{
-  assert(not done());
-  internal::gate::connection_stream_from gate{m_trans.conn()};
-  try
-  {
-    raw_line line{gate.read_copy_line()};
-    if (line.first.get() == nullptr)
-      close();
-    return line;
-  }
-  catch (std::exception const &)
-  {
-    close();
-    throw;
-  }
-}
-
-
 // C++20: Replace with generator?
 /// Input iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on stream_from.
@@ -75,18 +56,18 @@ public:
 
   value_type operator*()
   {
-    return m_home->parse_line(std::move(m_line), m_line_size);
+    return m_home->parse_line();
   }
 
-  /// Comparison only works for comparing to end().
-  bool operator==(stream_query_input_iterator const &rhs) const noexcept
+  /// Are we at the end?
+  bool operator==(stream_query_end_iterator) const noexcept
   {
-    return done() == rhs.done();
+    return done();
   }
   /// Comparison only works for comparing to end().
-  bool operator!=(stream_query_input_iterator const &rhs) const noexcept
+  bool operator!=(stream_query_end_iterator) const noexcept
   {
-    return not(*this == rhs);
+    return not done();
   }
 
 private:
@@ -95,15 +76,25 @@ private:
   void advance() &
   {
     assert(not done());
-    auto line{m_home->read_line()};
-    m_line = std::move(line.first);
-    m_line_size = line.second;
+    m_home->read_line();
   }
 
   stream_t *m_home = nullptr;
-  std::unique_ptr<char, std::function<void(char *)>> m_line;
-  std::size_t m_line_size;
 };
+
+
+template<typename... TYPE> inline bool
+operator==(stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+{
+  return i.done();
+}
+
+
+template<typename... TYPE> inline bool
+operator!=(stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+{
+  return not i.done();
+}
 
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
@@ -112,9 +103,53 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 }
 
 
-template<typename... TYPE> inline auto stream_query<TYPE...>::end() const &
+template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
 {
-  return stream_query_input_iterator<TYPE...>{};
+  assert(not done());
+
+  internal::gate::connection_stream_from gate{m_trans.conn()};
+  try
+  {
+    auto raw_line{gate.read_copy_line()};
+    m_line = std::move(raw_line.first);
+    m_line_size = raw_line.second;
+    // Check for completion.
+  }
+  catch (std::exception const &)
+  {
+    close();
+    throw;
+  }
+  if (not m_line) close();
+  if (
+    not done() and
+    (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
+  )
+    throw range_error{"Stream produced a ridiculously long line."};
+}
+
+
+template<typename... TYPE> inline void stream_query<TYPE...>::complete()
+{
+  if (done())
+    return;
+  try
+  {
+    // Flush any remaining lines - libpq will automatically close the stream
+    // when it hits the end.
+    internal::gate::connection_stream_from gate{m_trans.conn()};
+    while (not done()) gate.read_copy_line();
+  }
+  catch (broken_connection const &)
+  {
+    close();
+    throw;
+  }
+  catch (std::exception const &e)
+  {
+    reg_pending_error(e.what());
+  }
+  close();
 }
 } // namespace pqxx
 #endif

@@ -46,7 +46,9 @@ constexpr from_query_t from_query;
 
 
 /// Stream data from the database.
-/** For larger data sets, retrieving data this way is likely to be faster than
+/** @deprecated Use @ref transaction_base::stream.
+ *
+ * For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows fields.  You
  * will also be able to start processing before all of the data has come in.
  *
@@ -125,6 +127,7 @@ public:
    *     using pqxx::connection::quote_columns().  If you omit this argument,
    *     the stream will read all columns in the table, in schema order.
    */
+  // XXX: Mark constructors [[deprecated]].
   static stream_from raw_table(
     transaction_base &tx, std::string_view path,
     std::string_view columns = ""sv);
