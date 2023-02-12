@@ -213,8 +213,7 @@ public:
     // DO NOT shrink m_row to fit.  We're carrying views pointing into the
     // buffer.  (Also, how useful would shrinking really be?)
 
-    static constexpr auto tup_size{sizeof...(TYPE)};
-    return extract_fields(std::make_index_sequence<tup_size>{}, fields);
+    return extract_fields(std::make_index_sequence<sizeof...(TYPE)>{}, fields);
   }
 
   /// Read a line from the server, into `m_line` and `m_line_size`.
@@ -228,6 +227,7 @@ private:
   static inline pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
 
+  /// Extract values for the fields, and return them as a tuple.
   template<std::size_t... indexes>
   std::tuple<TYPE...>
   extract_fields(
@@ -242,7 +242,8 @@ private:
   template<std::size_t n>
   using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
 
-  template<std::size_t index> auto extract_value(std::array<zview, sizeof...(TYPE)> const &fields) const &
+  template<std::size_t index> auto extract_value(
+    std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
     using field_type = strip_t<extract_t<index>>;
     using nullity = nullness<field_type>;
