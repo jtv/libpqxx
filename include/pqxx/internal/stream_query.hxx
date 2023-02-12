@@ -94,15 +94,6 @@ public:
   /// Has this stream reached the end of its data?
   bool done() const &noexcept { return m_finished; }
 
-  /// Finish this stream.  Call this before continuing to use the connection.
-  /** Consumes all remaining lines, and closes the stream.
-   *
-   * This may take a while if you're abandoning the stream before it's done, so
-   * skip it in error scenarios where you're not planning to use the connection
-   * again afterwards.
-   */
-  void complete();
-
   inline auto begin() &;
   inline auto end() const & { return stream_query_end_iterator{}; }
 

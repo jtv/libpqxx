@@ -39,24 +39,25 @@ template<typename... TYPE> class stream_query_input_iterator
 public:
   using value_type = std::tuple<TYPE...>;
 
-  /// Construct an "end" iterator.
-  stream_query_input_iterator() = default;
-
-  explicit stream_query_input_iterator(stream_t &home) : m_home(&home)
+  explicit stream_query_input_iterator(stream_t &home) : m_home(home)
   {
-    advance();
+    home.read_line();
   }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
+  stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
+  /// Pre-increment.
   stream_query_input_iterator &operator++() &
   {
-    advance();
+    assert(not done());
+    m_home.read_line();
     return *this;
   }
 
-  value_type operator*()
+  /// Dereference.  There's no caching in here, so don't repeat calls.
+  value_type operator*() const
   {
-    return m_home->parse_line();
+    return m_home.parse_line();
   }
 
   /// Are we at the end?
@@ -71,15 +72,9 @@ public:
   }
 
 private:
-  bool done() const noexcept { return (m_home == nullptr) or m_home->done(); }
+  bool done() const noexcept { return m_home.done(); }
 
-  void advance() &
-  {
-    assert(not done());
-    m_home->read_line();
-  }
-
-  stream_t *m_home = nullptr;
+  stream_t &m_home;
 };
 
 
@@ -113,43 +108,18 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
     auto raw_line{gate.read_copy_line()};
     m_line = std::move(raw_line.first);
     m_line_size = raw_line.second;
-    // Check for completion.
   }
   catch (std::exception const &)
   {
     close();
     throw;
   }
+  // Check for completion.
   if (not m_line) close();
-  if (
-    not done() and
+  else if (
     (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
   )
     throw range_error{"Stream produced a ridiculously long line."};
-}
-
-
-template<typename... TYPE> inline void stream_query<TYPE...>::complete()
-{
-  if (done())
-    return;
-  try
-  {
-    // Flush any remaining lines - libpq will automatically close the stream
-    // when it hits the end.
-    internal::gate::connection_stream_from gate{m_trans.conn()};
-    while (not done()) gate.read_copy_line();
-  }
-  catch (broken_connection const &)
-  {
-    close();
-    throw;
-  }
-  catch (std::exception const &e)
-  {
-    reg_pending_error(e.what());
-  }
-  close();
 }
 } // namespace pqxx
 #endif
