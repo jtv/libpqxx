@@ -17983,7 +17983,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #if __has_include(<winsock2.h>)
 
-#include <winsock2.h>
+#  include <winsock2.h>
 
 #endif
 

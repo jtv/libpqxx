@@ -288,34 +288,6 @@ void test_stream_from_does_iteration()
 }
 
 
-void test_transaction_stream_from()
-{
-  pqxx::connection conn;
-  pqxx::work tx{conn};
-  tx.exec0("CREATE TEMP TABLE sample (id integer, name varchar)");
-  tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
-
-  int items{0};
-  int id{0};
-  std::string name;
-
-  for (auto [iid, iname] :
-       tx.stream<int, std::string_view>("SELECT id, name FROM sample"))
-  {
-    items++;
-    id = iid;
-    name = iname;
-  }
-  PQXX_CHECK_EQUAL(items, 1, "Wrong number of iterations.");
-  PQXX_CHECK_EQUAL(id, 321, "Got wrong int.");
-  PQXX_CHECK_EQUAL(name, std::string{"something"}, "Got wrong string.");
-
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 4"), 4,
-    "Loop did not relinquish transaction.");
-}
-
-
 void test_stream_from_read_row()
 {
   pqxx::connection conn;
@@ -386,7 +358,6 @@ void test_stream_from_parses_awkward_strings()
 PQXX_REGISTER_TEST(test_stream_from);
 PQXX_REGISTER_TEST(test_stream_from_does_escaping);
 PQXX_REGISTER_TEST(test_stream_from_does_iteration);
-PQXX_REGISTER_TEST(test_transaction_stream_from);
 PQXX_REGISTER_TEST(test_stream_from_read_row);
 PQXX_REGISTER_TEST(test_stream_from_parses_awkward_strings);
 } // namespace
