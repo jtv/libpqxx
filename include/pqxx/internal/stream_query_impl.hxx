@@ -27,7 +27,7 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx)
 }
 
 
-// C++20: Replace with generator?
+// C++20: Replace with generator?  Could be faster (local vars vs. members).
 /// Input iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
@@ -115,7 +115,7 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
     throw;
   }
   // Check for completion.
-  if (not m_line) close();
+  if (not m_line) PQXX_UNLIKELY close();
   else if (
     (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
   )

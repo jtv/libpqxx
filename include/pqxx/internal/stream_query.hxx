@@ -105,6 +105,8 @@ public:
     // This function uses m_row as a buffer, across calls.  The only reason for
     // it to carry over across calls is to avoid reallocation.
 
+// XXX: Do we even need an array here?  Or can we find fields as we go?
+    // The last-read row's fields, as views into m_rows.
     std::array<zview, sizeof...(TYPE)> fields;
 
     // Which field are we currently parsing?
@@ -202,14 +204,14 @@ public:
     ++field_idx;
 
     if (field_idx != sizeof...(TYPE))
-      PQXX_UNLIKELY throw usage_error{pqxx::internal::concat(
+      throw usage_error{pqxx::internal::concat(
         "Trying to stream query into ", sizeof...(TYPE),
         " column(s), "
         "but received ",
         field_idx, ".")};
 
-    // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
-    // the buffer.  (Also, how useful would shrinking really be?)
+    // DO NOT shrink m_row to fit.  We're carrying views pointing into the
+    // buffer.  (Also, how useful would shrinking really be?)
 
     static constexpr auto tup_size{sizeof...(TYPE)};
     return extract_fields(std::make_index_sequence<tup_size>{}, fields);
@@ -223,7 +225,11 @@ private:
   get_finder(transaction_base const &tx);
 
   template<std::size_t... indexes>
-  std::tuple<TYPE...> extract_fields(std::index_sequence<indexes...>, std::array<zview, sizeof...(TYPE)> const &fields) const &
+  std::tuple<TYPE...>
+  extract_fields(
+    std::index_sequence<indexes...>,
+    std::array<zview, sizeof...(TYPE)> const &fields
+  ) const &
   {
     return std::tuple<TYPE...>{extract_value<indexes>(fields)...};
   }
@@ -274,7 +280,6 @@ private:
   {
     if (not done())
     {
-      PQXX_UNLIKELY
       m_finished = true;
       unregister_me();
     }
