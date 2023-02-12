@@ -44,7 +44,7 @@ class stream_query_end_iterator {};
 
 
 // C++20: Can we use generators, and maybe get speedup from HALO?
-/// Stream query results from the database.
+/// Stream query results from the database.  Used by transaction_base::stream.
 /** For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows' fields.  You
  * will also be able to start processing before all of the data has come in.
@@ -92,9 +92,15 @@ public:
   }
 
   /// Has this stream reached the end of its data?
-  bool done() const &noexcept { return m_finished; }
+  bool done() const &noexcept { return m_char_finder == nullptr; }
 
+  /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;
+  /// End iterator.  Only for use by "range for."
+  /** The end iterator is a different type than the regular iterator.  It
+   * simplifies the comparisons: we know at compile time that we're comparing
+   * to the end pointer.
+   */
   inline auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
@@ -158,7 +164,9 @@ public:
         // Field separator.  End the field.
         if (field_begin == nullptr)
         {
-          fields[field_idx] = zview{};
+	  // This is a null field.  We mark that by leaving the "fields" entry
+	  // in its default-initialised state.
+	  assert(std::data(fields[field_idx]) == nullptr);
         }
         else
         {
@@ -194,7 +202,9 @@ public:
     // End the last field here.
     if (field_begin == nullptr)
     {
-      fields[field_idx] = zview{};
+      // Last field is null.  Leave "fields" entry in its default-initialised
+      // state.
+      assert(std::data(fields[field_idx]) == nullptr);
     }
     else
     {
@@ -203,6 +213,7 @@ public:
     }
     ++field_idx;
 
+    // XXX: Any way we can do this check just the once?
     if (field_idx != sizeof...(TYPE))
       throw usage_error{pqxx::internal::concat(
         "Trying to stream query into ", sizeof...(TYPE),
@@ -242,6 +253,7 @@ private:
   template<std::size_t n>
   using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
 
+  /// Extract one of the current row's values.
   template<std::size_t index> auto extract_value(
     std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
@@ -267,9 +279,18 @@ private:
     }
   }
 
+  /// Callback for finding next special character (or end of line).
+  /** This pointer doubles as an indication that we're done.  We set it to
+   * nullptr when the iteration is finished, and that's how we can know that
+   * there are no more rows to be iterated.
+   */
   pqxx::internal::char_finder_func *m_char_finder;
 
   /// Current row's fields' text, combined into one reusable string.
+  /** We carry this buffer over from one invocation to the next, not because we
+   * need the data, but just so we can re-use the space.  It saves us having to
+   * re-allocate it every time.
+   */
   std::string m_row;
 
   /// Buffer (allocated by libpq) holding the last line we read.
@@ -278,14 +299,12 @@ private:
   /// Size of the last line we read.
   std::size_t m_line_size{0u};
 
-  /// Has our iteration finished?
-  bool m_finished = false;
-
+  /// If this stream isn't already closed, close it now.
   void close() noexcept
   {
     if (not done())
     {
-      m_finished = true;
+      m_char_finder = nullptr;
       unregister_me();
     }
   }
