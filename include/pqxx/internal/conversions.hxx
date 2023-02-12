@@ -17,6 +17,9 @@
 #include "pqxx/util.hxx"
 
 
+// XXX: Complex floating-point types.
+// XXX: Imaginary floating-point types.
+
 /* Internal helpers for string conversion, and conversion implementations.
  *
  * Do not include this header directly.  The libpqxx headers do it for you.
@@ -961,7 +964,25 @@ inline constexpr format param_format(std::basic_string_view<std::byte> const &)
 {
   return format::binary;
 }
+
 } // namespace pqxx
+
+
+// Decimal floating-point types.
+#if defined(__STDC_IEC_60559_DFP__)
+namespace pqxx
+{
+template<> struct string_traits<_Decimal32> : pqxx::internal::float_traits<_Decimal32>{};
+template<> struct string_traits<_Decimal64> : pqxx::internal::float_traits<_Decimal64>{};
+template<> struct string_traits<_Decimal128> : pqxx::internal::float_traits<_Decimal128>{};
+template<> inline constexpr bool is_unquoted_safe<_Decimal32>{true};
+template<> inline constexpr bool is_unquoted_safe<_Decimal64>{true};
+template<> inline constexpr bool is_unquoted_safe<_Decimal128>{true};
+template<> struct nullness<_Decimal32> : no_null<_Decimal32> {};
+template<> struct nullness<_Decimal64> : no_null<_Decimal64> {};
+template<> struct nullness<_Decimal128> : no_null<_Decimal128> {};
+} // namespace pqxx
+#endif // __STDC_IEC_60559_DFP__
 
 
 namespace pqxx::internal
