@@ -461,8 +461,9 @@ public:
   using pos_type = typename traits_type::pos_type;
   using off_type = typename traits_type::off_type;
 
-  [[deprecated("Use field::as<...>() or field::c_str().")]]
-  basic_fieldstream(field const &f) : super{nullptr}, m_buf{f}
+  [[deprecated("Use field::as<...>() or field::c_str().")]] basic_fieldstream(
+    field const &f) :
+          super{nullptr}, m_buf{f}
   {
     super::init(&m_buf);
   }
@@ -502,9 +503,10 @@ using fieldstream = basic_fieldstream<char>;
  * ```
  */
 template<typename CHAR>
-[[deprecated("Do this by hand, probably with better error checking.")]]
-inline std::basic_ostream<CHAR> &
-operator<<(std::basic_ostream<CHAR> &s, field const &value)
+[[deprecated(
+  "Do this by hand, probably with better error checking.")]] inline std::
+  basic_ostream<CHAR> &
+  operator<<(std::basic_ostream<CHAR> &s, field const &value)
 {
   s.write(value.c_str(), std::streamsize(std::size(value)));
   return s;

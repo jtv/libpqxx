@@ -190,8 +190,7 @@ char unescape_char(char escaped)
     return '\t';
   case 'v': // Vertical tab.
     return '\v';
-  default:
-    break;
+  default: break;
   }
   // Regular character ("self-escaped").
   return escaped;

@@ -9,7 +9,7 @@
  * mistake, or contact the author.
  */
 #if !defined(PQXX_H_LIBPQ_FORWARD)
-#define PQXX_H_LIBPQ_FORWARD
+#  define PQXX_H_LIBPQ_FORWARD
 
 extern "C"
 {

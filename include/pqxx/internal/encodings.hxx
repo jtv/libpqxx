@@ -185,7 +185,8 @@ find_ascii_char(std::string_view haystack, std::size_t here)
     // for a match at each byte in the text, because it's faster than finding
     // character boundaries first.  But in these encodings, a multichar byte
     // never contains any bytes in the ASCII range at all.
-    if ((... or (data[here] == NEEDLE))) return here;
+    if ((... or (data[here] == NEEDLE)))
+      return here;
 
     // Nope, no hit.  Move on.
     here = next;

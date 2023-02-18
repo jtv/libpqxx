@@ -20,7 +20,7 @@
 #include <thread>
 
 #if __has_include(<winsock2.h>)
-#include <winsock2.h>
+#  include <winsock2.h>
 #endif
 #if __has_include(<ws2tcpip.h>)
 #  include <ws2tcpip.h>

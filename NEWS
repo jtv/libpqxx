@@ -5,6 +5,7 @@
  - Bumping requirements versions: need postgres 10.
  - Fix `array_parser` bug when parsing semicolon in an unquoted string.
  - Make some `zview` constructors `noexcept` if `string_view` does it.
+ - Handle result status code for starting streaming replication.  (#631)
  - Faster text decoding in `stream_from`, and escaping in `stream_to`.  (#601)
  - Deprecate `basic_fieldstream` and `fieldstream`.
  - Deprecate `<<` operator inserting a field into an `ostream`.

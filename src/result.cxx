@@ -318,17 +318,28 @@ std::string pqxx::result::status_error() const
   case PGRES_TUPLES_OK:   // The query successfully executed.
     break;
 
-  case PGRES_COPY_OUT: // Copy Out (from server) data transfer started.
-  case PGRES_COPY_IN:  // Copy In (to server) data transfer started.
+  case PGRES_COPY_OUT:  // Copy Out (from server) data transfer started.
+  case PGRES_COPY_IN:   // Copy In (to server) data transfer started.
+  case PGRES_COPY_BOTH: // Copy In/Out.  Used for streaming replication.
     break;
+
+  case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
+  case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
+    throw feature_not_supported{"Not supported yet: libpq pipelines."};
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
   case PGRES_NONFATAL_ERROR:
-  case PGRES_FATAL_ERROR: err = PQresultErrorMessage(m_data.get()); break;
+  case PGRES_FATAL_ERROR:
+    PQXX_UNLIKELY
+    err = PQresultErrorMessage(m_data.get());
+    break;
+
+  case PGRES_SINGLE_TUPLE:
+    throw feature_not_supported{"Not supported: single-row mode."};
 
   default:
     throw internal_error{internal::concat(
-      "pqxx::result: Unrecognized response code ",
+      "pqxx::result: Unrecognized result status code ",
       PQresultStatus(m_data.get()))};
   }
   return err;

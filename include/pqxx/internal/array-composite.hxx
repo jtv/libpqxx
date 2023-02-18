@@ -89,7 +89,7 @@ inline std::string parse_double_quoted_string(
   // TODO: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
   auto here{scanner::call(input, end, pos)},
-       next{scanner::call(input, end, here)};
+    next{scanner::call(input, end, here)};
   while (here < end - 1)
   {
     // A backslash here is always an escape.  So is a double-quote, since we're
@@ -213,7 +213,8 @@ inline void parse_composite_field(
   default: {
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
       std::data(input), std::size(input), pos)};
-    field = from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
+    field =
+      from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
     pos = stop;
   }
   break;

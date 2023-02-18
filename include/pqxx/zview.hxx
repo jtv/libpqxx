@@ -40,14 +40,14 @@ public:
   constexpr zview() noexcept = default;
 
   /// Convenience overload: construct using pointer and signed length.
-  constexpr zview(char const text[], std::ptrdiff_t len)
-    noexcept(noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
+  constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
+    noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
   /// Convenience overload: construct using pointer and signed length.
-  constexpr zview(char text[], std::ptrdiff_t len)
-    noexcept(noexcept(std::string_view{text, static_cast<std::size_t>(len)})):
+  constexpr zview(char text[], std::ptrdiff_t len) noexcept(
+    noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
   {}
 
@@ -76,7 +76,8 @@ public:
    * re-use it.
    */
   constexpr zview(char const str[]) noexcept(noexcept(std::string_view{str})) :
-          std::string_view{str} {}
+          std::string_view{str}
+  {}
 
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
