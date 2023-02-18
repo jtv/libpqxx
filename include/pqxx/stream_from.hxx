@@ -136,8 +136,8 @@ public:
   /// Factory: Stream data from a given table.
   /** This is the convenient way to stream from a table.
    */
-  [[deprecated("Use transaction_base::stream instead.")]] static
-  stream_from table(
+  [[deprecated("Use transaction_base::stream instead.")]] static stream_from
+  table(
     transaction_base &tx, table_path path,
     std::initializer_list<std::string_view> columns = {});
   //@}

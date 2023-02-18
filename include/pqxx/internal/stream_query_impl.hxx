@@ -55,16 +55,10 @@ public:
   }
 
   /// Dereference.  There's no caching in here, so don't repeat calls.
-  value_type operator*() const
-  {
-    return m_home.parse_line();
-  }
+  value_type operator*() const { return m_home.parse_line(); }
 
   /// Are we at the end?
-  bool operator==(stream_query_end_iterator) const noexcept
-  {
-    return done();
-  }
+  bool operator==(stream_query_end_iterator) const noexcept { return done(); }
   /// Comparison only works for comparing to end().
   bool operator!=(stream_query_end_iterator) const noexcept
   {
@@ -78,15 +72,17 @@ private:
 };
 
 
-template<typename... TYPE> inline bool
-operator==(stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+template<typename... TYPE>
+inline bool operator==(
+  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
 {
   return i.done();
 }
 
 
-template<typename... TYPE> inline bool
-operator!=(stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
+template<typename... TYPE>
+inline bool operator!=(
+  stream_query_end_iterator, stream_query_input_iterator<TYPE...> const &i)
 {
   return not i.done();
 }
@@ -115,10 +111,10 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
     throw;
   }
   // Check for completion.
-  if (not m_line) PQXX_UNLIKELY close();
-  else if (
-    (m_line_size >= ((std::numeric_limits<decltype(m_line_size)>::max)() / 2))
-  )
+  if (not m_line)
+    PQXX_UNLIKELY close();
+  else if ((m_line_size >=
+            ((std::numeric_limits<decltype(m_line_size)>::max)() / 2)))
     throw range_error{"Stream produced a ridiculously long line."};
 }
 } // namespace pqxx

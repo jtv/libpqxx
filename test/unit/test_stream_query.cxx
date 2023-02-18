@@ -21,7 +21,9 @@ void test_stream_handles_empty()
   pqxx::work tx{conn};
   for (auto [out] : tx.stream<int>("SELECT generate_series(1, 0)"))
     PQXX_CHECK(false, "Unexpectedly got a value: " + pqxx::to_string(out));
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 99"), 99, "Things went wrong after empty stream.");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>("SELECT 99"), 99,
+    "Things went wrong after empty stream.");
 }
 
 
@@ -48,16 +50,15 @@ void test_stream_iterates()
   std::vector<int> ids;
   std::vector<std::string> values;
 
-  for (
-    auto [id, value] : tx.stream<int, std::string>(
-      "SELECT generate_series, 'String ' || generate_series::text || '.' "
-      "FROM generate_series(1, 2)")
-  )
+  for (auto [id, value] : tx.stream<int, std::string>(
+         "SELECT generate_series, 'String ' || generate_series::text || '.' "
+         "FROM generate_series(1, 2)"))
   {
     ids.push_back(id);
     values.push_back(value);
   }
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 99"), 99, "Things went wrong after stream.");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>("SELECT 99"), 99, "Things went wrong after stream.");
   tx.commit();
 
   PQXX_CHECK_EQUAL(std::size(ids), 2u, "Wrong number of rows.");
@@ -74,16 +75,16 @@ void test_stream_reads_simple_values()
   pqxx::connection conn;
   pqxx::work tx{conn};
   int counter{0};
-  for (
-    auto [id, name] : tx.stream<std::size_t, std::string>("SELECT 213, 'Hi'")
-  )
+  for (auto [id, name] :
+       tx.stream<std::size_t, std::string>("SELECT 213, 'Hi'"))
   {
     PQXX_CHECK_EQUAL(id, 213u, "Bad ID.");
     PQXX_CHECK_EQUAL(name, "Hi", "Bad name.");
     ++counter;
   }
   PQXX_CHECK_EQUAL(counter, 1, "Expected exactly 1 row.");
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 333"), 333, "Bad value after stream.");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>("SELECT 333"), 333, "Bad value after stream.");
 }
 
 
@@ -92,7 +93,8 @@ void test_stream_reads_string_view()
   pqxx::connection conn;
   pqxx::work tx{conn};
   std::vector<std::string> out;
-  for (auto [v]: tx.stream<std::string_view>("SELECT 'x' || generate_series FROM generate_series(1, 2)"))
+  for (auto [v] : tx.stream<std::string_view>(
+         "SELECT 'x' || generate_series FROM generate_series(1, 2)"))
   {
     static_assert(std::is_same_v<decltype(v), std::string_view>);
     out.push_back(std::string{v});
@@ -113,7 +115,8 @@ void test_stream_reads_nulls_as_optionals()
 
   for (auto [val] : tx.stream<std::optional<std::string>>("SELECT 'x'"))
   {
-    PQXX_CHECK(val.has_value(), "Non-null value did not come through as optional.");
+    PQXX_CHECK(
+      val.has_value(), "Non-null value did not come through as optional.");
     PQXX_CHECK_EQUAL(*val, "x", "Bad value in optional.");
   }
 }

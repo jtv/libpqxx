@@ -40,7 +40,8 @@ class transaction_base;
 
 
 /// The `end()` iterator for a `stream_query`.
-class stream_query_end_iterator {};
+class stream_query_end_iterator
+{};
 
 
 // C++20: Can we use generators, and maybe get speedup from HALO?
@@ -75,7 +76,6 @@ class stream_query_end_iterator {};
 template<typename... TYPE> class stream_query : transaction_focus
 {
 public:
-
   /// Execute `query` on `tx`, stream results.
   inline stream_query(transaction_base &tx, std::string_view query);
 
@@ -111,7 +111,7 @@ public:
     // This function uses m_row as a buffer, across calls.  The only reason for
     // it to carry over across calls is to avoid reallocation.
 
-// TODO: We could probably parse fields as we go, without this array.
+    // TODO: We could probably parse fields as we go, without this array.
     // The last-read row's fields, as views into m_rows.
     std::array<zview, sizeof...(TYPE)> fields;
 
@@ -164,9 +164,9 @@ public:
         // Field separator.  End the field.
         if (field_begin == nullptr)
         {
-	  // This is a null field.  We mark that by leaving the "fields" entry
-	  // in its default-initialised state.
-	  assert(std::data(fields[field_idx]) == nullptr);
+          // This is a null field.  We mark that by leaving the "fields" entry
+          // in its default-initialised state.
+          assert(std::data(fields[field_idx]) == nullptr);
         }
         else
         {
@@ -240,11 +240,9 @@ private:
 
   /// Extract values for the fields, and return them as a tuple.
   template<std::size_t... indexes>
-  std::tuple<TYPE...>
-  extract_fields(
+  std::tuple<TYPE...> extract_fields(
     std::index_sequence<indexes...>,
-    std::array<zview, sizeof...(TYPE)> const &fields
-  ) const &
+    std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
     return std::tuple<TYPE...>{extract_value<indexes>(fields)...};
   }
@@ -254,8 +252,8 @@ private:
   using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
 
   /// Extract one of the current row's values.
-  template<std::size_t index> auto extract_value(
-    std::array<zview, sizeof...(TYPE)> const &fields) const &
+  template<std::size_t index>
+  auto extract_value(std::array<zview, sizeof...(TYPE)> const &fields) const &
   {
     using field_type = strip_t<extract_t<index>>;
     using nullity = nullness<field_type>;
