@@ -101,7 +101,7 @@ public:
    * simplifies the comparisons: we know at compile time that we're comparing
    * to the end pointer.
    */
-  inline auto end() const & { return stream_query_end_iterator{}; }
+  auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
   std::tuple<TYPE...> parse_line() &
@@ -110,13 +110,6 @@ public:
 
     // This function uses m_row as a buffer, across calls.  The only reason for
     // it to carry over across calls is to avoid reallocation.
-
-    // TODO: We could probably parse fields as we go, without this array.
-    // The last-read row's fields, as views into m_rows.
-    std::array<zview, sizeof...(TYPE)> fields;
-
-    // Which field are we currently parsing?
-    std::size_t field_idx{0};
 
     auto const line_size{m_line_size};
 
@@ -127,104 +120,25 @@ public:
     // into its buffer.
     m_row.resize(line_size + 1);
 
-    char const *line_begin{m_line.get()};
-    std::string_view const line_view{line_begin, line_size};
-
-    // Output iterator for unescaped text.
+    std::string_view const line{view_line()};
+    std::size_t offset{0u};
     char *write{m_row.data()};
-
-    // The pointer cannot be null at this point.  But we initialise field_begin
-    // with this value, and carry it around the loop, and it can later become
-    // null.  Static analysis in clang-tidy then likes to assume a case where
-    // field_begin is null, and deduces from this that "write" must have been
-    // null -- and so it marks "*write" as a null pointer dereference.
-    //
-    // This assertion tells clang-tidy just what it needs in order to deduce
-    // that *write never dereferences a null pointer.
-    assert(write != nullptr);
-
-    // Beginning of current field in m_row, or nullptr for null fields.
-    char const *field_begin{write};
-
-    std::size_t offset{0};
-    while (offset < line_size)
-    {
-      auto const stop_char{m_char_finder(line_view, offset)};
-      // Copy the text we have so far.  It's got no special characters in it.
-      std::memcpy(write, &line_begin[offset], stop_char - offset);
-      write += (stop_char - offset);
-      if (stop_char >= line_size)
-        break;
-      offset = stop_char;
-
-      char const special{line_begin[stop_char]};
-      ++offset;
-      if (special == '\t')
-      {
-        // Field separator.  End the field.
-        if (field_begin == nullptr)
-        {
-          // This is a null field.  We mark that by leaving the "fields" entry
-          // in its default-initialised state.
-          assert(std::data(fields[field_idx]) == nullptr);
-        }
-        else
-        {
-          fields[field_idx] = zview{field_begin, write - field_begin};
-          *write++ = '\0';
-        }
-        // Set up for the next field.
-        field_begin = write;
-        ++field_idx;
-      }
-      else
-      {
-        // Escape sequence.
-        assert(special == '\\');
-        if ((offset) >= line_size)
-          throw failure{"Row ends in backslash"};
-
-        // The database will only escape ASCII characters, so no need to use
-        // the glyph scanner.
-        char const escaped{line_begin[offset++]};
-        if (escaped == 'N')
-        {
-          // Null value.
-          if (write != field_begin)
-            throw failure{"Null sequence found in nonempty field"};
-          field_begin = nullptr;
-          // (If there's any characters _after_ the null we'll just crash.)
-        }
-        *write++ = pqxx::internal::unescape_char(escaped);
-      }
-    }
-
-    // End the last field here.
-    if (field_begin == nullptr)
-    {
-      // Last field is null.  Leave "fields" entry in its default-initialised
-      // state.
-      assert(std::data(fields[field_idx]) == nullptr);
-    }
-    else
-    {
-      fields[field_idx] = zview{field_begin, write - field_begin};
-      *write++ = '\0';
-    }
-    ++field_idx;
-
-    // XXX: Any way we can do this check just the once?
-    if (field_idx != sizeof...(TYPE))
-      throw usage_error{pqxx::internal::concat(
-        "Trying to stream query into ", sizeof...(TYPE),
-        " column(s), "
-        "but received ",
-        field_idx, ".")};
 
     // DO NOT shrink m_row to fit.  We're carrying views pointing into the
     // buffer.  (Also, how useful would shrinking really be?)
 
-    return extract_fields(std::make_index_sequence<sizeof...(TYPE)>{}, fields);
+    // Folding expression: scan and unescape each field, and convert it to its
+    // requested type.
+    std::tuple<TYPE...> data{parse_field<TYPE>(
+      m_char_finder, line, offset, write)...
+    };
+    if (offset < line_size)
+      throw conversion_error{
+        "Streaming query had fewer fields than expected."};
+
+    // TODO: Once confident, we can optimise but lose this clear invariant.
+    assert(offset == line_size);
+    return data;
   }
 
   /// Read a line from the server, into `m_line` and `m_line_size`.
@@ -238,32 +152,135 @@ private:
   static inline pqxx::internal::char_finder_func *
   get_finder(transaction_base const &tx);
 
-  /// Extract values for the fields, and return them as a tuple.
-  template<std::size_t... indexes>
-  std::tuple<TYPE...> extract_fields(
-    std::index_sequence<indexes...>,
-    std::array<zview, sizeof...(TYPE)> const &fields) const &
+  /// Return the latest COPY line, as a `string_view`.
+  std::string_view view_line() const
   {
-    return std::tuple<TYPE...>{extract_value<indexes>(fields)...};
+    char const *const line_begin{m_line.get()};
+    return {line_begin, m_line_size};
   }
 
-  /// Extract type `#n` from our parameter pack, `TYPE...`.
-  template<std::size_t n>
-  using extract_t = decltype(std::get<n>(std::declval<std::tuple<TYPE...>>()));
-
-  /// Extract one of the current row's values.
-  template<std::size_t index>
-  auto extract_value(std::array<zview, sizeof...(TYPE)> const &fields) const &
+  /// Scan and unescape a field into the row buffer.
+  /** The row buffer is `m_row`.
+   *
+   * @param line The line of COPY output.
+   * @param offset The current scanning position inside `line`.
+   * @param write The current writing position in the row buffer.
+   *
+   * @return new `offset`; new `write`; and a zview on the unescaped
+   * field text in the row buffer.
+   *
+   * The string_view's data pointer will be nullptr for a null field.
+   */
+  static std::tuple<std::size_t, char *, zview>
+  read_field(
+    pqxx::internal::char_finder_func *finder, std::string_view line,
+    std::size_t offset, char *write)
   {
-    using field_type = strip_t<extract_t<index>>;
+    assert(line.back() != '\t');
+    assert(offset < std::size(line));
+
+    // Beginning of the field text in the row buffer; it will become nullptr
+    // if this is a null field.
+    char const *field_begin{write};
+
+    // Relying on multibyte characters never starting with an ASCII-range byte.
+    while ((offset < std::size(line)) and (line[offset] != '\t'))
+    {
+      // Beginning of the next character of interest (or the end of the line).
+      auto const stop_char{finder(line, offset)};
+
+      // Copy the text we have so far.  It's got no special characters in it.
+      std::memcpy(write, &line[offset], stop_char - offset);
+      write += (stop_char - offset);
+      offset = stop_char;
+      if (offset < std::size(line))
+      {
+        // We're still within the line.
+        char const special{line[offset]};
+        if (special == '\\')
+        {
+          // Escape sequence.
+          ++offset;
+          assert(special == '\\');
+	  assert(offset < std::size(line));
+
+          // The database will only escape ASCII characters, so no need to use
+          // the glyph scanner.
+          char const escaped{line[offset]};
+	  ++offset;
+          if (escaped == 'N')
+          {
+            // Null field.  The field can't contain anything else.
+	    assert(write == field_begin);
+	    if (offset < std::size(line))
+	    {
+	      // Not the final field.  Expect a field separator.
+	      assert(line[offset] == '\t');
+	      // TODO: We could probably increment unconditionally, and avoid a
+	      // branch misprediction.  But, if the row ends in a null field,
+	      // offset would be greater than line size, which makes for a much
+	      // harder invariant to check in assertions.  It's nice to be able
+	      // to assert that offset == line_size.
+	      ++offset;
+	    }
+	    return {offset, write, {}};
+          }
+	  else
+	  {
+            *write++ = pqxx::internal::unescape_char(escaped);
+	  }
+        }
+        else
+        {
+          // Field separator.  Fall through to the same field-terminating code
+	  // as when we hit the end of the line at the end of a non-null field.
+          assert(special == '\t');
+        }
+      }
+    }
+
+    // Hit the end of a non-null field.
+    *write++ = '\0';
+    // TODO: We can probably make this unconditional (but lose our invariant).
+    // If we're not at the end of the line, consume the field separator.
+    if (offset < std::size(line)) ++offset;
+    return {offset, write, {field_begin, write - field_begin - 1}};
+  }
+
+  /// Parse the next field.
+  /** Unescapes the field into the row buffer (m_row), and converts it to its
+   * TARGET type.
+   *
+   * @param line The latest COPY line.
+   * @param offset The current parsing offset in `line`.
+   * @param write The current writing position in the row buffer.
+   * @return Field value converted to TARGET type.
+   */
+  template<typename TARGET> static TARGET
+  parse_field(
+    pqxx::internal::char_finder_func *finder, std::string_view line,
+    std::size_t &offset, char *&write)
+  {
+    using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
-    static_assert(index < sizeof...(TYPE));
+
+    if (offset >= std::size(line))
+      throw conversion_error{"Streaming query had more fields than expected."};
+
+    auto [new_offset, new_write, text]{
+      read_field(finder, line, offset, write)
+    };
+    offset = new_offset;
+    write = new_write;
     if constexpr (nullity::always_null)
     {
-      if (std::data(fields[index]) != nullptr)
-        throw conversion_error{"Streaming non-null value into null field."};
+      if (std::data(text) != nullptr)
+        throw conversion_error{pqxx::internal::concat(
+	  "Streaming a non-null value into a ", type_name<field_type>,
+	  ", which must always be null."
+	)};
     }
-    else if (std::data(fields[index]) == nullptr)
+    else if (std::data(text) == nullptr)
     {
       if constexpr (nullity::has_null)
         return nullity::null();
@@ -273,7 +290,7 @@ private:
     else
     {
       // Don't ever try to convert a non-null value to nullptr_t!
-      return from_string<field_type>(fields[index]);
+      return from_string<field_type>(text);
     }
   }
 
