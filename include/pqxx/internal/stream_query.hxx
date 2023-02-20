@@ -128,9 +128,7 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{parse_field<TYPE>(
-      m_char_finder, line, offset, write)...
-    };
+    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write)...};
 
     assert(offset == std::size(line) + 1u);
     return data;
@@ -162,10 +160,8 @@ private:
    * After reading the final field in a row, if all goes well, offset should be
    * one greater than the size of the line, pointing at the terminating zero.
    */
-  static std::tuple<std::size_t, char *, zview>
-  read_field(
-    pqxx::internal::char_finder_func *finder, std::string_view line,
-    std::size_t offset, char *write)
+  std::tuple<std::size_t, char *, zview>
+  read_field(std::string_view line, std::size_t offset, char *write)
   {
     assert(line.back() != '\t');
     assert(offset < std::size(line));
@@ -187,7 +183,7 @@ private:
     while ((line[offset] != '\n') and (line[offset] != '\t'))
     {
       // Beginning of the next character of interest (or the end of the line).
-      auto const stop_char{finder(line, offset)};
+      auto const stop_char{m_char_finder(line, offset)};
 
       // Copy the text we have so far.  It's got no special characters in it.
       std::memcpy(write, &line[offset], stop_char - offset);
@@ -258,19 +254,15 @@ private:
    *   function will update this value.
    * @return Field value converted to TARGET type.
    */
-  template<typename TARGET> static TARGET
-  parse_field(
-    pqxx::internal::char_finder_func *finder, std::string_view line,
-    std::size_t &offset, char *&write)
+  template<typename TARGET> TARGET
+  parse_field(std::string_view line, std::size_t &offset, char *&write)
   {
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
 
     assert(offset < std::size(line));
 
-    auto [new_offset, new_write, text]{
-      read_field(finder, line, offset, write)
-    };
+    auto [new_offset, new_write, text]{read_field(line, offset, write)};
     offset = new_offset;
     write = new_write;
     if constexpr (nullity::always_null)
