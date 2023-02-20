@@ -136,8 +136,7 @@ public:
       throw conversion_error{
         "Streaming query had fewer fields than expected."};
 
-    // TODO: Once confident, we can optimise but lose this clear invariant.
-    assert(offset == line_size);
+    assert(offset == line_size + 1u);
     return data;
   }
 
@@ -169,7 +168,10 @@ private:
    * @return new `offset`; new `write`; and a zview on the unescaped
    * field text in the row buffer.
    *
-   * The string_view's data pointer will be nullptr for a null field.
+   * The zview's data pointer will be nullptr for a null field.
+   *
+   * After reading the final field in a row, if all goes well, offset should be
+   * one greater than the size of the line, pointing at the terminating zero.
    */
   static std::tuple<std::size_t, char *, zview>
   read_field(
@@ -179,12 +181,21 @@ private:
     assert(line.back() != '\t');
     assert(offset < std::size(line));
 
-    // Beginning of the field text in the row buffer; it will become nullptr
-    // if this is a null field.
-    char const *field_begin{write};
+    // The COPY line ends in a newline, just beyond the end of the view.
+    assert(line[std::size(line)] == '\n');
+    assert(line[std::size(line) + 1] == '\0');
 
-    // Relying on multibyte characters never starting with an ASCII-range byte.
-    while ((offset < std::size(line)) and (line[offset] != '\t'))
+    // Beginning of the field text in the row buffer.
+    char const *const field_begin{write};
+
+    // We're relying on several assumptions just for making the main loop
+    // condition work:
+    // * The COPY line ends in a newline.
+    // * Multibyte characters never start with an ASCII-range byte.
+    // * We can index a view beyond its bounds (but within its address space).
+    //
+    // Effectively, the newline acts as a final field separator.
+    while ((line[offset] != '\n') and (line[offset] != '\t'))
     {
       // Beginning of the next character of interest (or the end of the line).
       auto const stop_char{finder(line, offset)};
@@ -193,57 +204,54 @@ private:
       std::memcpy(write, &line[offset], stop_char - offset);
       write += (stop_char - offset);
       offset = stop_char;
-      if (offset < std::size(line))
-      {
-        // We're still within the line.
-        char const special{line[offset]};
-        if (special == '\\')
-        {
-          // Escape sequence.
-          ++offset;
-          assert(special == '\\');
-	  assert(offset < std::size(line));
 
-          // The database will only escape ASCII characters, so no need to use
-          // the glyph scanner.
-          char const escaped{line[offset]};
-	  ++offset;
-          if (escaped == 'N')
-          {
-            // Null field.  The field can't contain anything else.
-	    assert(write == field_begin);
-	    if (offset < std::size(line))
-	    {
-	      // Not the final field.  Expect a field separator.
-	      assert(line[offset] == '\t');
-	      // TODO: We could probably increment unconditionally, and avoid a
-	      // branch misprediction.  But, if the row ends in a null field,
-	      // offset would be greater than line size, which makes for a much
-	      // harder invariant to check in assertions.  It's nice to be able
-	      // to assert that offset == line_size.
-	      ++offset;
-	    }
-	    return {offset, write, {}};
-          }
-	  else
-	  {
-            *write++ = pqxx::internal::unescape_char(escaped);
-	  }
+      if (line[offset] == '\n') break;
+
+      // We're still within the line.
+      char const special{line[offset]};
+      if (special == '\\')
+      {
+        // Escape sequence.
+        // Consume the backslash.
+        ++offset;
+        assert(offset < std::size(line));
+
+        // The database will only escape ASCII characters, so we assume that
+        // we're dealing with a single-byte character.
+        char const escaped{line[offset]};
+        assert((escaped >> 7) == 0);
+        // Consume the escaped character.
+        ++offset;
+        if (escaped == 'N')
+        {
+          // Null field.  The field can't contain anything else.
+          assert(write == field_begin);
+          assert(
+            ((offset == std::size(line)) and (line[offset] == '\n')) or
+            (line[offset] == '\t'));
+          // Consume the field separator or newline.  Checking bounds serves
+          // no purpose at this point: it adds code (and a conditional branch
+          // at that!) but affects only the invariants.
+          ++offset;
+          assert((offset < std::size(line)) or (line[offset] == '\0'));
+          return {offset, write, {}};
         }
         else
         {
-          // Field separator.  Fall through to the same field-terminating code
-	  // as when we hit the end of the line at the end of a non-null field.
-          assert(special == '\t');
+          // Regular escaped character.
+          *write++ = pqxx::internal::unescape_char(escaped);
         }
+      }
+      else
+      {
+        // Field separator or newline.  Fall out of the loop.
+        assert((special == '\t') or (special == '\n'));
       }
     }
 
     // Hit the end of a non-null field.
     *write++ = '\0';
-    // TODO: We can probably make this unconditional (but lose our invariant).
-    // If we're not at the end of the line, consume the field separator.
-    if (offset < std::size(line)) ++offset;
+    ++offset;
     return {offset, write, {field_begin, write - field_begin - 1}};
   }
 
@@ -251,9 +259,14 @@ private:
   /** Unescapes the field into the row buffer (m_row), and converts it to its
    * TARGET type.
    *
+   * Using non-const reference parameters here, so we can propagate side
+   * effects across a fold expression.
+   *
    * @param line The latest COPY line.
-   * @param offset The current parsing offset in `line`.
-   * @param write The current writing position in the row buffer.
+   * @param offset The current parsing offset in `line`.  The function will
+   *   update this value.
+   * @param write The current writing position in the row buffer.  The
+   *   function will update this value.
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET> static TARGET
@@ -294,6 +307,16 @@ private:
     }
   }
 
+  /// If this stream isn't already closed, close it now.
+  void close() noexcept
+  {
+    if (not done())
+    {
+      m_char_finder = nullptr;
+      unregister_me();
+    }
+  }
+
   /// Callback for finding next special character (or end of line).
   /** This pointer doubles as an indication that we're done.  We set it to
    * nullptr when the iteration is finished, and that's how we can know that
@@ -313,16 +336,6 @@ private:
 
   /// Size of the last line we read.
   std::size_t m_line_size{0u};
-
-  /// If this stream isn't already closed, close it now.
-  void close() noexcept
-  {
-    if (not done())
-    {
-      m_char_finder = nullptr;
-      unregister_me();
-    }
-  }
 };
 } // namespace pqxx
 #endif

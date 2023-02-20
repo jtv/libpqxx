@@ -23,7 +23,7 @@ inline pqxx::internal::char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx)
 {
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
-  return pqxx::internal::get_char_finder<'\t', '\\'>(group);
+  return pqxx::internal::get_s_char_finder<'\t', '\\', '\n'>(group);
 }
 
 
