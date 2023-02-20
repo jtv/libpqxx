@@ -15,6 +15,9 @@ inline stream_query<TYPE...>::stream_query(
 {
   tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"));
   register_me();
+  // For some reason we need to read and discard the first line.
+  // TODO: Reconstruct why that is the case.  I hate not knowing.
+  read_line();
 }
 
 
@@ -39,10 +42,7 @@ template<typename... TYPE> class stream_query_input_iterator
 public:
   using value_type = std::tuple<TYPE...>;
 
-  explicit stream_query_input_iterator(stream_t &home) : m_home(home)
-  {
-    home.read_line();
-  }
+  explicit stream_query_input_iterator(stream_t &home) : m_home(home) {}
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
