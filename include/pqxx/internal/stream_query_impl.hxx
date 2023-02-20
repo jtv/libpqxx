@@ -50,7 +50,7 @@ public:
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
-  /// Pre-increment.
+  /// Pre-increment.  (There's no post-increment.)
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
@@ -73,6 +73,7 @@ public:
   }
 
 private:
+  /// Have we finished?
   bool done() const noexcept { return m_home.done(); }
 
   /// Read a line from the stream, store it in the iterator.
@@ -125,6 +126,7 @@ stream_query<TYPE...>::read_line() &
   try
   {
     auto line{gate.read_copy_line()};
+    // Check for completion.
     if (not line.first) PQXX_UNLIKELY close();
     return line;
   }
@@ -133,7 +135,6 @@ stream_query<TYPE...>::read_line() &
     close();
     throw;
   }
-  // Check for completion.
 }
 } // namespace pqxx
 #endif
