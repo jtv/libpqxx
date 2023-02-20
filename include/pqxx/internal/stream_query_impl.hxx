@@ -46,7 +46,7 @@ public:
   using value_type = std::tuple<TYPE...>;
 
   explicit stream_query_input_iterator(stream_t &home) : m_home(home)
-  { m_line_size = m_home.read_line(); }
+  { consume_line(); }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
@@ -54,12 +54,15 @@ public:
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
-    m_line_size = m_home.read_line();
+    consume_line();
     return *this;
   }
 
   /// Dereference.  There's no caching in here, so don't repeat calls.
-  value_type operator*() const { return m_home.parse_line(m_line_size); }
+  value_type operator*() const
+  {
+    return m_home.parse_line(zview{m_line.get(), m_line_size});
+  }
 
   /// Are we at the end?
   bool operator==(stream_query_end_iterator) const noexcept { return done(); }
@@ -72,7 +75,18 @@ public:
 private:
   bool done() const noexcept { return m_home.done(); }
 
+  /// Read a line from the stream, store it in the iterator.
+  void consume_line() &
+  {
+    auto [line, size]{m_home.read_line()};
+    m_line = std::move(line);
+    m_line_size = size;
+  }
+
   stream_t &m_home;
+
+  /// Last COPY line we read, allocated by libpq.
+  typename stream_t::line_handle m_line;
 
   /// Length of the last COPY line we read.
   std::size_t m_line_size;
@@ -101,7 +115,8 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 }
 
 
-template<typename... TYPE> inline std::size_t
+template<typename... TYPE> inline
+std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
 stream_query<TYPE...>::read_line() &
 {
   assert(not done());
@@ -109,10 +124,9 @@ stream_query<TYPE...>::read_line() &
   internal::gate::connection_stream_from gate{m_trans.conn()};
   try
   {
-    auto raw_line{gate.read_copy_line()};
-    m_line = std::move(raw_line.first);
-    if (not m_line) PQXX_UNLIKELY close();
-    return raw_line.second;
+    auto line{gate.read_copy_line()};
+    if (not line.first) PQXX_UNLIKELY close();
+    return line;
   }
   catch (std::exception const &)
   {

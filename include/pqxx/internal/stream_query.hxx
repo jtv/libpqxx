@@ -76,6 +76,8 @@ class stream_query_end_iterator
 template<typename... TYPE> class stream_query : transaction_focus
 {
 public:
+  using line_handle = std::unique_ptr<char, std::function<void(char *)>>;
+
   /// Execute `query` on `tx`, stream results.
   inline stream_query(transaction_base &tx, std::string_view query);
 
@@ -104,7 +106,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(std::size_t line_size) &
+  std::tuple<TYPE...> parse_line(zview line) &
   {
     assert(not done());
 
@@ -116,9 +118,8 @@ public:
     // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
     // NOT GET RESIZED while we're working, because we're working with views
     // into its buffer.
-    m_row.resize(line_size + 1);
+    m_row.resize(std::size(line) + 1);
 
-    zview const line{m_line.get(), line_size};
     std::size_t offset{0u};
     char *write{m_row.data()};
 
@@ -131,12 +132,12 @@ public:
       m_char_finder, line, offset, write)...
     };
 
-    assert(offset == line_size + 1u);
+    assert(offset == std::size(line) + 1u);
     return data;
   }
 
-  /// Read a line from the server, into `m_line`.  Return line size.
-  std::size_t read_line() &;
+  /// Read a COPY line from the server.
+  std::pair<line_handle, std::size_t> read_line() &;
 
 private:
   /// Look up a char_finder_func.
@@ -317,9 +318,6 @@ private:
    * re-allocate it every time.
    */
   std::string m_row;
-
-  /// Buffer (allocated by libpq) holding the last line we read.
-  std::unique_ptr<char, std::function<void(char *)>> m_line;
 };
 } // namespace pqxx
 #endif
