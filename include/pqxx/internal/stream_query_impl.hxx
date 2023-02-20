@@ -21,9 +21,6 @@ inline stream_query<TYPE...>::stream_query(
 	"code expects ", sizeof...(TYPE), " but query returns ", r.columns(),
 	".")};
   register_me();
-  // For some reason we need to read and discard the first line.
-  // TODO: Reconstruct why that is the case.  I hate not knowing.
-  read_line();
 }
 
 
@@ -48,7 +45,8 @@ template<typename... TYPE> class stream_query_input_iterator
 public:
   using value_type = std::tuple<TYPE...>;
 
-  explicit stream_query_input_iterator(stream_t &home) : m_home(home) {}
+  explicit stream_query_input_iterator(stream_t &home) : m_home(home)
+  { m_line_size = m_home.read_line(); }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
@@ -56,12 +54,12 @@ public:
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
-    m_home.read_line();
+    m_line_size = m_home.read_line();
     return *this;
   }
 
   /// Dereference.  There's no caching in here, so don't repeat calls.
-  value_type operator*() const { return m_home.parse_line(); }
+  value_type operator*() const { return m_home.parse_line(m_line_size); }
 
   /// Are we at the end?
   bool operator==(stream_query_end_iterator) const noexcept { return done(); }
@@ -75,6 +73,9 @@ private:
   bool done() const noexcept { return m_home.done(); }
 
   stream_t &m_home;
+
+  /// Length of the last COPY line we read.
+  std::size_t m_line_size;
 };
 
 
@@ -100,7 +101,8 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 }
 
 
-template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
+template<typename... TYPE> inline std::size_t
+stream_query<TYPE...>::read_line() &
 {
   assert(not done());
 
@@ -109,7 +111,8 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
   {
     auto raw_line{gate.read_copy_line()};
     m_line = std::move(raw_line.first);
-    m_line_size = raw_line.second;
+    if (not m_line) PQXX_UNLIKELY close();
+    return raw_line.second;
   }
   catch (std::exception const &)
   {
@@ -117,11 +120,6 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::read_line() &
     throw;
   }
   // Check for completion.
-  if (not m_line)
-    PQXX_UNLIKELY close();
-  else if ((m_line_size >=
-            ((std::numeric_limits<decltype(m_line_size)>::max)() / 2)))
-    throw range_error{"Stream produced a ridiculously long line."};
 }
 } // namespace pqxx
 #endif
