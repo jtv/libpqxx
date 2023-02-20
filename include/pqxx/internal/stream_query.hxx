@@ -132,9 +132,6 @@ public:
     std::tuple<TYPE...> data{parse_field<TYPE>(
       m_char_finder, line, offset, write)...
     };
-    if (offset < line_size)
-      throw conversion_error{
-        "Streaming query had fewer fields than expected."};
 
     assert(offset == line_size + 1u);
     return data;
@@ -277,8 +274,7 @@ private:
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
 
-    if (offset >= std::size(line))
-      throw conversion_error{"Streaming query had more fields than expected."};
+    assert(offset < std::size(line));
 
     auto [new_offset, new_write, text]{
       read_field(finder, line, offset, write)

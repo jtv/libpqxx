@@ -13,7 +13,13 @@ inline stream_query<TYPE...>::stream_query(
   transaction_base &tx, std::string_view query) :
         transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
-  tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"));
+  auto const r{tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"))};
+  if (r.columns() != sizeof...(TYPE))
+    throw usage_error{
+      pqxx::internal::concat(
+        "Parsing query stream with wrong number of columns: "
+	"code expects ", sizeof...(TYPE), " but query returns ", r.columns(),
+	".")};
   register_me();
   // For some reason we need to read and discard the first line.
   // TODO: Reconstruct why that is the case.  I hate not knowing.
