@@ -110,6 +110,8 @@ public:
   {
     assert(not done());
 
+    auto const line_size{std::size(line)};
+
     // This function uses m_row as a buffer, across calls.  The only reason for
     // it to carry over across calls is to avoid reallocation.
 
@@ -118,7 +120,7 @@ public:
     // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
     // NOT GET RESIZED while we're working, because we're working with views
     // into its buffer.
-    m_row.resize(std::size(line) + 1);
+    m_row.resize(line_size + 1);
 
     std::size_t offset{0u};
     char *write{m_row.data()};
@@ -130,7 +132,7 @@ public:
     // requested type.
     std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write)...};
 
-    assert(offset == std::size(line) + 1u);
+    assert(offset == line_size + 1u);
     return data;
   }
 
@@ -161,14 +163,23 @@ private:
    * one greater than the size of the line, pointing at the terminating zero.
    */
   std::tuple<std::size_t, char *, zview>
-  read_field(std::string_view line, std::size_t offset, char *write)
+  read_field(zview line, std::size_t offset, char *write)
   {
+#if !defined(NDEBUG)
+    auto const line_size{std::size(line)};
+#endif
+
     assert(line.back() != '\t');
-    assert(offset < std::size(line));
+    assert(offset < line_size);
+
+    char const *lp{std::data(line)};
 
     // The COPY line ends in a newline, just beyond the end of the view.
-    assert(line[std::size(line)] == '\n');
-    assert(line[std::size(line) + 1] == '\0');
+    assert(lp[line_size] == '\n');
+    assert(lp[line_size + 1] == '\0');
+
+// XXX: Replace final '\n' with a '\t' to simplify the loop.
+// XXX: Check for null field right at the start, take it out of the loop!
 
     // Beginning of the field text in the row buffer.
     char const *const field_begin{write};
@@ -180,30 +191,31 @@ private:
     // * We can index a view beyond its bounds (but within its address space).
     //
     // Effectively, the newline acts as a final field separator.
-    while ((line[offset] != '\n') and (line[offset] != '\t'))
+    while ((lp[offset] != '\n') and (lp[offset] != '\t'))
     {
+      assert(lp[offset] != '\0');
+
       // Beginning of the next character of interest (or the end of the line).
       auto const stop_char{m_char_finder(line, offset)};
+      assert(stop_char < (line_size + 1));
 
       // Copy the text we have so far.  It's got no special characters in it.
-      std::memcpy(write, &line[offset], stop_char - offset);
+      std::memcpy(write, &lp[offset], stop_char - offset);
       write += (stop_char - offset);
       offset = stop_char;
 
-      if (line[offset] == '\n') break;
-
       // We're still within the line.
-      char const special{line[offset]};
+      char const special{lp[offset]};
       if (special == '\\')
       {
         // Escape sequence.
         // Consume the backslash.
         ++offset;
-        assert(offset < std::size(line));
+        assert(offset < line_size);
 
         // The database will only escape ASCII characters, so we assume that
         // we're dealing with a single-byte character.
-        char const escaped{line[offset]};
+        char const escaped{lp[offset]};
         assert((escaped >> 7) == 0);
         // Consume the escaped character.
         ++offset;
@@ -212,13 +224,13 @@ private:
           // Null field.  The field can't contain anything else.
           assert(write == field_begin);
           assert(
-            ((offset == std::size(line)) and (line[offset] == '\n')) or
-            (line[offset] == '\t'));
+            ((offset == line_size) and (lp[offset] == '\n')) or
+            ((offset < line_size) and (lp[offset] == '\t')));
           // Consume the field separator or newline.  Checking bounds serves
           // no purpose at this point: it adds code (and a conditional branch
           // at that!) but affects only the invariants.
           ++offset;
-          assert((offset < std::size(line)) or (line[offset] == '\0'));
+          assert((offset < line_size) or (lp[offset] == '\0'));
           return {offset, write, {}};
         }
         else
@@ -255,7 +267,7 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET> TARGET
-  parse_field(std::string_view line, std::size_t &offset, char *&write)
+  parse_field(zview line, std::size_t &offset, char *&write)
   {
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;

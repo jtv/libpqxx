@@ -206,7 +206,7 @@ find_s_ascii_char(std::string_view haystack, std::size_t here)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
   // assumption in the code below.
-  static_assert((... and ((NEEDLE & 0x80) == 0)));
+  static_assert((... and ((NEEDLE >> 7) == 0)));
 
   auto const sz{std::size(haystack)};
   auto const data{std::data(haystack)};
