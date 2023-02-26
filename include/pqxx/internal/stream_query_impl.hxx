@@ -29,7 +29,7 @@ inline pqxx::internal::char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx)
 {
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
-  return pqxx::internal::get_s_char_finder<'\t', '\\', '\n'>(group);
+  return pqxx::internal::get_s_char_finder<'\t', '\\'>(group);
 }
 
 
@@ -82,6 +82,15 @@ private:
     auto [line, size]{m_home.read_line()};
     m_line = std::move(line);
     m_line_size = size;
+    if (size > 0)
+    {
+      // We know how many fields to expect.  Replace the newline at the end
+      // with the field separator, so the parsing loop only needs to scan for a
+      // tab, not a tab or a newline.
+      char *const ptr{m_line.get()};
+      assert(ptr[size] == '\n');
+      ptr[size] = '\t';
+    }
   }
 
   stream_t &m_home;

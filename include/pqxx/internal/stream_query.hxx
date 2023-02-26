@@ -169,17 +169,23 @@ private:
     auto const line_size{std::size(line)};
 #endif
 
-    assert(line.back() != '\t');
     assert(offset < line_size);
 
     char const *lp{std::data(line)};
 
-    // The COPY line ends in a newline, just beyond the end of the view.
-    assert(lp[line_size] == '\n');
+    // The COPY line now ends in a tab.  (We replace the trailing newline with
+    // that to simplify the loop here.)
+    assert(lp[line_size] == '\t');
     assert(lp[line_size + 1] == '\0');
 
-// XXX: Replace final '\n' with a '\t' to simplify the loop.
-// XXX: Check for null field right at the start, take it out of the loop!
+    if ((lp[offset] == '\\') and (lp[offset + 1] == 'N'))
+    {
+      // Null field.
+      assert(lp[offset + 2] == '\t');
+      // Consume the "\N" and the field separator.
+      offset += 3;
+      return {offset, write, {}};
+    }
 
     // Beginning of the field text in the row buffer.
     char const *const field_begin{write};
@@ -191,7 +197,7 @@ private:
     // * We can index a view beyond its bounds (but within its address space).
     //
     // Effectively, the newline acts as a final field separator.
-    while ((lp[offset] != '\n') and (lp[offset] != '\t'))
+    while (lp[offset] != '\t')
     {
       assert(lp[offset] != '\0');
 
@@ -217,32 +223,13 @@ private:
         // we're dealing with a single-byte character.
         char const escaped{lp[offset]};
         assert((escaped >> 7) == 0);
-        // Consume the escaped character.
         ++offset;
-        if (escaped == 'N')
-        {
-          // Null field.  The field can't contain anything else.
-          assert(write == field_begin);
-          assert(
-            ((offset == line_size) and (lp[offset] == '\n')) or
-            ((offset < line_size) and (lp[offset] == '\t')));
-          // Consume the field separator or newline.  Checking bounds serves
-          // no purpose at this point: it adds code (and a conditional branch
-          // at that!) but affects only the invariants.
-          ++offset;
-          assert((offset < line_size) or (lp[offset] == '\0'));
-          return {offset, write, {}};
-        }
-        else
-        {
-          // Regular escaped character.
-          *write++ = pqxx::internal::unescape_char(escaped);
-        }
+        *write++ = pqxx::internal::unescape_char(escaped);
       }
       else
       {
         // Field separator or newline.  Fall out of the loop.
-        assert((special == '\t') or (special == '\n'));
+        assert(special == '\t');
       }
     }
 
