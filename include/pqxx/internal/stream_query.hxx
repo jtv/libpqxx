@@ -184,6 +184,7 @@ private:
       assert(lp[offset + 2] == '\t');
       // Consume the "\N" and the field separator.
       offset += 3;
+      // Return a null value.  There's nothing to write into m_row.
       return {offset, write, {}};
     }
 
@@ -228,13 +229,15 @@ private:
       }
       else
       {
-        // Field separator or newline.  Fall out of the loop.
+        // Field separator.  Fall out of the loop.
         assert(special == '\t');
       }
     }
 
-    // Hit the end of a non-null field.
-    *write++ = '\0';
+    // Hit the end of the field.
+    assert(lp[offset] == '\t');
+    *write = '\0';
+    ++write;
     ++offset;
     return {offset, write, {field_begin, write - field_begin - 1}};
   }
