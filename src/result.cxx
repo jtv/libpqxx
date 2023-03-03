@@ -323,9 +323,11 @@ std::string pqxx::result::status_error() const
   case PGRES_COPY_BOTH: // Copy In/Out.  Used for streaming replication.
     break;
 
+#if defined(LIBPQ_HAS_PIPELINING)
   case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
     throw feature_not_supported{"Not supported yet: libpq pipelines."};
+#endif
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
   case PGRES_NONFATAL_ERROR:
