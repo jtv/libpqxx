@@ -145,7 +145,8 @@ void test_stream_parses_awkward_strings()
     // An SJIS multibyte character that ends in a byte that happens to be the
     // ASCII value for a backslash.  This is one example of how an SJIS SQL
     // injection can break out of a string.
-    "(4, '\x81\x5c')");
+    "(4, '\x81\x5c'), "
+    "(5, '\t')");
 
   std::vector<std::optional<std::string>> values;
   for (auto [id, value] : tx.stream<std::size_t, std::optional<std::string>>(
@@ -165,6 +166,32 @@ void test_stream_parses_awkward_strings()
     values[3].value(), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
     values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
+  PQXX_CHECK_EQUAL(values[5].value(), "\t", "Tab unescaped wrong.");
+}
+
+
+void test_stream_handles_nulls_in_all_places()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  int counter{0};
+  for (auto [a, b, c, d, e] : tx.stream<
+    std::optional<std::string>,
+    std::optional<int>,
+    int,
+    std::optional<std::string>,
+    std::optional<std::string>
+  >(
+    "SELECT NULL::text, NULL::integer, 11, NULL::text, NULL::text"
+  ))
+  {
+    ++counter;
+    PQXX_CHECK(not a, "Starting null did not come through.");
+    PQXX_CHECK(not b, "Null in 2nd column did not come through.");
+    PQXX_CHECK_EQUAL(c, 11, "Integer in the middle went wrong.");
+    PQXX_CHECK(not d, "Null further in did not come through.");
+    PQXX_CHECK(not e, "Final null did not come through.");
+  }
 }
 
 
@@ -175,4 +202,5 @@ PQXX_REGISTER_TEST(test_stream_reads_string_view);
 PQXX_REGISTER_TEST(test_stream_iterates);
 PQXX_REGISTER_TEST(test_stream_reads_nulls_as_optionals);
 PQXX_REGISTER_TEST(test_stream_parses_awkward_strings);
+PQXX_REGISTER_TEST(test_stream_handles_nulls_in_all_places);
 } // namespace
