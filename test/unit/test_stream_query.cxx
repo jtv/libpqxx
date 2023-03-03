@@ -146,7 +146,8 @@ void test_stream_parses_awkward_strings()
     // ASCII value for a backslash.  This is one example of how an SJIS SQL
     // injection can break out of a string.
     "(4, '\x81\x5c'), "
-    "(5, '\t')");
+    "(5, '\t'), "
+    "(6, '\\\\\\\n\\\\')");
 
   std::vector<std::optional<std::string>> values;
   for (auto [id, value] : tx.stream<std::size_t, std::optional<std::string>>(
@@ -167,6 +168,7 @@ void test_stream_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
   PQXX_CHECK_EQUAL(values[5].value(), "\t", "Tab unescaped wrong.");
+  PQXX_CHECK_EQUAL(values[6].value(), "\\\\\\\n\\\\", "Backslashes confused stream.");
 }
 
 
