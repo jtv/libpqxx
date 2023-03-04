@@ -9,6 +9,7 @@ PQXX_HAVE_CHARCONV_FLOAT	internal	compiler
 PQXX_HAVE_CMP	public	compiler
 PQXX_HAVE_CONCEPTS	public	compiler
 PQXX_HAVE_CXA_DEMANGLE	internal	compiler
+PQXX_HAVE_DECIMAL_FP	public	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	public	compiler
 PQXX_HAVE_LIKELY	public	compiler
