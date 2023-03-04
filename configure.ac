@@ -292,6 +292,19 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($concepts)
 
 
+# Check for C23 decimal floating point support.
+AC_MSG_CHECKING([C23 decimal floating point])
+decimal_fp=yes
+AC_COMPILE_IFELSE(
+	[read_test(decimal-fp.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_DECIMAL_FP],
+		1,
+		[Define if compiler supports C23 floating point types.]),
+	decimal_fp=no)
+AC_MSG_RESULT($decimal_fp)
+
+
 # Check for C++20 std::span.
 AC_MSG_CHECKING([std::span])
 span=yes

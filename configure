@@ -17506,6 +17506,35 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 printf "%s\n" "$concepts" >&6; }
 
 
+# Check for C23 decimal floating point support.
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking C23 decimal floating point" >&5
+printf %s "checking C23 decimal floating point... " >&6; }
+decimal_fp=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+// Test for C23 decimal floating-point types.
+
+_Decimal32 d32 const = 3.2;
+
+_Decimal64 d64 const = 6.4;
+
+_Decimal128 d128 const = 1.28;
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+
+printf "%s\n" "#define PQXX_HAVE_DECIMAL_FP 1" >>confdefs.h
+
+else $as_nop
+  decimal_fp=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $decimal_fp" >&5
+printf "%s\n" "$decimal_fp" >&6; }
+
+
 # Check for C++20 std::span.
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking std::span" >&5
 printf %s "checking std::span... " >&6; }
@@ -17955,17 +17984,11 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
  * To try and get close to the situation in the library code itself, we try
 
- * including some standard headers that we don't strictly need here.
+ * including some standard headers and OS headers that we don't strictly need
+
+ * here.
 
  */
-
-
-
-#if __has_include(<ciso646>)
-
-#  include <ciso646>
-
-#endif
 
 
 
@@ -17984,6 +18007,28 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #include <chrono>
 
 #include <thread>
+
+
+
+#if __has_include(<winsock2.h>)
+
+#  include <winsock2.h>
+
+#endif
+
+#if __has_include(<ws2tcpip.h>)
+
+#  include <ws2tcpip.h>
+
+#endif
+
+#if __has_include(<mstcpip.h>)
+
+#  include <mstcpip.h>
+
+#endif
+
+
 
 
 

@@ -67,6 +67,10 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/concepts.cxx)
 try_compile(
+	PQXX_HAVE_DECIMAL_FP
+	${PROJECT_BINARY_DIR}
+	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/decimal-fp.cxx)
+try_compile(
 	PQXX_HAVE_SPAN
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
