@@ -72,6 +72,9 @@
 /* Define if compiler supports __cxa_demangle */
 #undef PQXX_HAVE_CXA_DEMANGLE
 
+/* Define if compiler supports C23 floating point types. */
+#undef PQXX_HAVE_DECIMAL_FP
+
 /* Define if g++ supports pure attribute */
 #undef PQXX_HAVE_GCC_PURE
 
