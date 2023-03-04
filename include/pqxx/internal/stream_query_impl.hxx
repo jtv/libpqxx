@@ -1,4 +1,4 @@
-/* Code for parts of pqxx::stream_query.
+/* Code for parts of pqxx::internal::stream_query.
  *
  * These definitions needs to be in a separate file in order to iron out
  * circular dependencies between headers.
@@ -6,7 +6,7 @@
 #if !defined(PQXX_H_STREAM_QUERY_IMPL)
 #  define PQXX_H_STREAM_QUERY_IMPL
 
-namespace pqxx
+namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
@@ -15,8 +15,7 @@ inline stream_query<TYPE...>::stream_query(
 {
   auto const r{tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"))};
   if (r.columns() != sizeof...(TYPE))
-    throw usage_error{
-      pqxx::internal::concat(
+    throw usage_error{concat(
         "Parsing query stream with wrong number of columns: "
 	"code expects ", sizeof...(TYPE), " but query returns ", r.columns(),
 	".")};
@@ -25,11 +24,11 @@ inline stream_query<TYPE...>::stream_query(
 
 
 template<typename... TYPE>
-inline pqxx::internal::char_finder_func *
+inline char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx)
 {
-  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
-  return pqxx::internal::get_s_char_finder<'\t', '\\'>(group);
+  auto const group{enc_group(tx.conn().encoding_id())};
+  return get_s_char_finder<'\t', '\\'>(group);
 }
 
 
@@ -145,5 +144,5 @@ stream_query<TYPE...>::read_line() &
     throw;
   }
 }
-} // namespace pqxx
+} // namespace pqxx::internal
 #endif

@@ -511,7 +511,7 @@ public:
   template<typename... TYPE>
   [[nodiscard]] auto stream(std::string_view query) &
   {
-    return stream_query<TYPE...>{*this, query};
+    return pqxx::internal::stream_query<TYPE...>{*this, query};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -527,8 +527,8 @@ public:
    *
    * This will not work for all queries, but straightforward `SELECT` and
    * `UPDATE ... RETURNING` queries should work.  Consult the documentation for
-   * @ref pqxx::stream_query and PostgreSQL's underlying `COPY` command for the
-   * full details.
+   * @ref pqxx::internal::stream_query and PostgreSQL's underlying `COPY`
+   * command for the full details.
    *
    * Streaming a query like this is likely to be slower than the @ref exec()
    * functions for small result sets, but faster for larger result sets.  So if

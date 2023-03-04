@@ -1,6 +1,6 @@
-/* Definition of the pqxx::stream_query class.
+/* Definition of the pqxx::internal::stream_query class.
  *
- * pqxx::stream_query enables optimized batch reads from a database table.
+ * Enables optimized batch reads from a database table.
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_query instead.
  *
@@ -37,8 +37,11 @@
 namespace pqxx
 {
 class transaction_base;
+} // namespace pqxx
 
 
+namespace pqxx::internal
+{
 /// The `end()` iterator for a `stream_query`.
 class stream_query_end_iterator
 {};
@@ -144,7 +147,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline pqxx::internal::char_finder_func *
+  static inline char_finder_func *
   get_finder(transaction_base const &tx);
 
   /// Scan and unescape a field into the row buffer.
@@ -225,7 +228,7 @@ private:
         char const escaped{lp[offset]};
         assert((escaped >> 7) == 0);
         ++offset;
-        *write++ = pqxx::internal::unescape_char(escaped);
+        *write++ = unescape_char(escaped);
       }
       else
       {
@@ -270,7 +273,7 @@ private:
     if constexpr (nullity::always_null)
     {
       if (std::data(text) != nullptr)
-        throw conversion_error{pqxx::internal::concat(
+        throw conversion_error{concat(
 	  "Streaming a non-null value into a ", type_name<field_type>,
 	  ", which must always be null."
 	)};
@@ -304,7 +307,7 @@ private:
    * nullptr when the iteration is finished, and that's how we can know that
    * there are no more rows to be iterated.
    */
-  pqxx::internal::char_finder_func *m_char_finder;
+  char_finder_func *m_char_finder;
 
   /// Current row's fields' text, combined into one reusable string.
   /** We carry this buffer over from one invocation to the next, not because we
@@ -313,5 +316,5 @@ private:
    */
   std::string m_row;
 };
-} // namespace pqxx
+} // namespace pqxx::internal
 #endif
