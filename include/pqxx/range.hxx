@@ -133,7 +133,10 @@ public:
   }
 
   // TODO: noexcept if underlying operator supports it.
-  constexpr bool operator!=(range_bound const &rhs) const { return not(*this == rhs); }
+  constexpr bool operator!=(range_bound const &rhs) const
+  {
+    return not(*this == rhs);
+  }
   range_bound &operator=(range_bound const &) = default;
   range_bound &operator=(range_bound &&) = default;
 

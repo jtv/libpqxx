@@ -286,48 +286,49 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-  if (start >= buffer_len)
-    return std::string::npos;
+    if (start >= buffer_len)
+      return std::string::npos;
 
-  auto const byte1{get_byte(buffer, start)};
-  if (byte1 < 0x80)
-    return start + 1;
+    auto const byte1{get_byte(buffer, start)};
+    if (byte1 < 0x80)
+      return start + 1;
 
-  if (start + 2 > buffer_len)
-    PQXX_UNLIKELY
-  throw_for_encoding_error("EUC_JP", buffer, start, 1);
-
-  auto const byte2{get_byte(buffer, start + 1)};
-  if (byte1 == 0x8e)
-  {
-    if (not between_inc(byte2, 0xa1, 0xfe))
+    if (start + 2 > buffer_len)
       PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_JP", buffer, start, 2);
+    throw_for_encoding_error("EUC_JP", buffer, start, 1);
 
-    return start + 2;
-  }
+    auto const byte2{get_byte(buffer, start + 1)};
+    if (byte1 == 0x8e)
+    {
+      if (not between_inc(byte2, 0xa1, 0xfe))
+        PQXX_UNLIKELY
+      throw_for_encoding_error("EUC_JP", buffer, start, 2);
 
-  if (between_inc(byte1, 0xa1, 0xfe))
-  {
-    if (not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_JP", buffer, start, 2);
+      return start + 2;
+    }
 
-    return start + 2;
-  }
+    if (between_inc(byte1, 0xa1, 0xfe))
+    {
+      if (not between_inc(byte2, 0xa1, 0xfe))
+        PQXX_UNLIKELY
+      throw_for_encoding_error("EUC_JP", buffer, start, 2);
 
-  if (byte1 == 0x8f and start + 3 <= buffer_len)
-  {
-    auto const byte3{get_byte(buffer, start + 2)};
-    if (
-      not between_inc(byte2, 0xa1, 0xfe) or not between_inc(byte3, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_JP", buffer, start, 3);
+      return start + 2;
+    }
 
-    return start + 3;
-  }
+    if (byte1 == 0x8f and start + 3 <= buffer_len)
+    {
+      auto const byte3{get_byte(buffer, start + 2)};
+      if (
+        not between_inc(byte2, 0xa1, 0xfe) or
+        not between_inc(byte3, 0xa1, 0xfe))
+        PQXX_UNLIKELY
+      throw_for_encoding_error("EUC_JP", buffer, start, 3);
 
-  throw_for_encoding_error("EUC_JP", buffer, start, 1);
+      return start + 3;
+    }
+
+    throw_for_encoding_error("EUC_JP", buffer, start, 1);
   }
 };
 
@@ -595,32 +596,33 @@ template<> struct glyph_scanner<encoding_group::SJIS>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-  if (start >= buffer_len)
-    return std::string::npos;
+    if (start >= buffer_len)
+      return std::string::npos;
 
-  auto const byte1{get_byte(buffer, start)};
-  if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
-    return start + 1;
+    auto const byte1{get_byte(buffer, start)};
+    if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
+      return start + 1;
 
-  if (
-    not between_inc(byte1, 0x81, 0x9f) and not between_inc(byte1, 0xe0, 0xfc))
+    if (
+      not between_inc(byte1, 0x81, 0x9f) and
+      not between_inc(byte1, 0xe0, 0xfc))
+      PQXX_UNLIKELY
+    throw_for_encoding_error("SJIS", buffer, start, 1);
+
+    if (start + 2 > buffer_len)
+      PQXX_UNLIKELY
+    throw_for_encoding_error("SJIS", buffer, start, buffer_len - start);
+
+    auto const byte2{get_byte(buffer, start + 1)};
+    if (byte2 == 0x7f)
+      PQXX_UNLIKELY
+    throw_for_encoding_error("SJIS", buffer, start, 2);
+
+    if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
+      return start + 2;
+
     PQXX_UNLIKELY
-  throw_for_encoding_error("SJIS", buffer, start, 1);
-
-  if (start + 2 > buffer_len)
-    PQXX_UNLIKELY
-  throw_for_encoding_error("SJIS", buffer, start, buffer_len - start);
-
-  auto const byte2{get_byte(buffer, start + 1)};
-  if (byte2 == 0x7f)
-    PQXX_UNLIKELY
-  throw_for_encoding_error("SJIS", buffer, start, 2);
-
-  if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
-    return start + 2;
-
-  PQXX_UNLIKELY
-  throw_for_encoding_error("SJIS", buffer, start, 2);
+    throw_for_encoding_error("SJIS", buffer, start, 2);
   }
 };
 
