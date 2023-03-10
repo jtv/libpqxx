@@ -434,13 +434,13 @@ template<> struct string_traits<std::nullptr_t>
 
   static char *into_buf(char *, char *, std::nullptr_t) = delete;
 
-  static [[deprecated("Do not convert nulls.")]] constexpr zview
+  [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullptr_t const &) noexcept
   {
     return {};
   }
 
-  static [[deprecated("Do not convert nulls.")]] constexpr std::size_t
+  [[deprecated("Do not convert nulls.")]] static constexpr std::size_t
   size_buffer(std::nullptr_t = nullptr) noexcept
   {
     return 0;
@@ -456,13 +456,13 @@ template<> struct string_traits<std::nullopt_t>
 
   static char *into_buf(char *, char *, std::nullopt_t) = delete;
 
-  static [[deprecated("Do not convert nulls.")]] constexpr zview
+  [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullopt_t const &) noexcept
   {
     return {};
   }
 
-  static [[deprecated("Do not convert nulls.")]] constexpr std::size_t
+  [[deprecated("Do not convert nulls.")]] static constexpr std::size_t
   size_buffer(std::nullopt_t) noexcept
   {
     return 0;
@@ -478,18 +478,19 @@ template<> struct string_traits<std::monostate>
 
   static char *into_buf(char *, char *, std::monostate) = delete;
 
-  static [[deprecated("Do not convert nulls.")]] constexpr zview
+  [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::monostate const &) noexcept
   {
     return {};
   }
 
-  static [[deprecated("Do not convert nulls.")]] constexpr std::size_t
+  [[deprecated("Do not convert nulls.")]] static constexpr std::size_t
   size_buffer(std::monostate) noexcept
   {
     return 0;
   }
-  static std::monostate from_string(std::string_view) = delete;
+  [[deprecated("Do not convert nulls.")]] static std::monostate
+  from_string(std::string_view) = delete;
 };
 
 

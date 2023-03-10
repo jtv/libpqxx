@@ -157,13 +157,13 @@ template<typename TYPE> struct string_traits
   /** When defining your own conversions, specialise this as `true` to indicate
    * that your string traits support the conversions to strings.
    */
-  static constexpr converts_to_string{false};
+  static constexpr bool converts_to_string{false};
 
   /// Is conversion from `string_view` to `TYPE` supported?
   /** When defining your own conversions, specialise this as `true` to indicate
    * that your string traits support `from_string`.
    */
-  static constexpr converts_from_string{false};
+  static constexpr bool converts_from_string{false};
 
   /// Return a @c string_view representing value, plus terminating zero.
   /** Produces a @c string_view containing the PostgreSQL string representation
