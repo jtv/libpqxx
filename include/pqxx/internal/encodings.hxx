@@ -146,6 +146,8 @@ template<encoding_group> struct glyph_scanner
 };
 
 
+namespace
+{
 /// Find any of the ASCII characters in `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any of the values in `NEEDLE`.
@@ -154,7 +156,7 @@ template<encoding_group> struct glyph_scanner
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE std::size_t
+PQXX_PURE inline std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -193,6 +195,7 @@ find_ascii_char(std::string_view haystack, std::size_t here)
   }
   return sz;
 }
+} // namespace
 
 
 /// Find first of `NEEDLE` ASCII chars in `haystack`.
