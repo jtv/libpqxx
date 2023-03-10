@@ -153,6 +153,18 @@ template<typename TYPE> struct no_null
  */
 template<typename TYPE> struct string_traits
 {
+  /// Is conversion from `TYPE` to strings supported?
+  /** When defining your own conversions, specialise this as `true` to indicate
+   * that your string traits support the conversions to strings.
+   */
+  static constexpr converts_to_string{false};
+
+  /// Is conversion from `string_view` to `TYPE` supported?
+  /** When defining your own conversions, specialise this as `true` to indicate
+   * that your string traits support `from_string`.
+   */
+  static constexpr converts_from_string{false};
+
   /// Return a @c string_view representing value, plus terminating zero.
   /** Produces a @c string_view containing the PostgreSQL string representation
    * for @c value.
@@ -202,6 +214,8 @@ template<typename TYPE> struct string_traits
    */
   [[nodiscard]] static inline std::size_t
   size_buffer(TYPE const &value) noexcept;
+
+  // TODO: Move is_unquoted_string into the traits after all?
 };
 
 
@@ -209,6 +223,9 @@ template<typename TYPE> struct string_traits
 template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
 {};
+
+
+// C++20: Concepts for "converts from string" & "converts to string."
 } // namespace pqxx
 
 
@@ -228,6 +245,9 @@ template<typename ENUM> struct enum_traits
 {
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
+
+  static constexpr bool converts_to_string{true};
+  static constexpr bool converts_from_string{true};
 
   [[nodiscard]] static constexpr zview
   to_buf(char *begin, char *end, ENUM const &value)
