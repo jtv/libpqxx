@@ -146,6 +146,8 @@ template<encoding_group> struct glyph_scanner
 };
 
 
+namespace
+{
 /// Find any of the ASCII characters in `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any of the values in `NEEDLE`.
@@ -154,7 +156,7 @@ template<encoding_group> struct glyph_scanner
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE static std::size_t
+PQXX_PURE inline std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -192,6 +194,31 @@ find_ascii_char(std::string_view haystack, std::size_t here)
     here = next;
   }
   return sz;
+}
+} // namespace
+
+
+/// Find first of `NEEDLE` ASCII chars in `haystack`.
+/** @warning This assumes that one of the `NEEDLE` characters is actually
+ * present.  It does not check for buffer overruns, so make sure that there's
+ * a sentinel.
+ */
+template<encoding_group ENC, char... NEEDLE>
+PQXX_PURE std::size_t
+find_s_ascii_char(std::string_view haystack, std::size_t here)
+{
+  // We only know how to search for ASCII characters.  It's an optimisation
+  // assumption in the code below.
+  static_assert((... and ((NEEDLE >> 7) == 0)));
+
+  auto const sz{std::size(haystack)};
+  auto const data{std::data(haystack)};
+
+  // No supported encoding has multibyte characters that start with an
+  // ASCII-range byte.
+  while ((... and (data[here] != NEEDLE)))
+    here = glyph_scanner<ENC>::call(data, sz, here);
+  return here;
 }
 
 
@@ -798,6 +825,40 @@ get_char_finder(encoding_group enc)
     return pqxx::internal::find_ascii_char<encoding_group::SJIS, NEEDLE...>;
   case encoding_group::UHC:
     return pqxx::internal::find_ascii_char<encoding_group::UHC, NEEDLE...>;
+
+  default:
+    throw pqxx::internal_error{concat(
+      "Unexpected encoding group: ", as_if, " (mapped from ", enc, ").")};
+  }
+}
+
+
+/// Look up a "sentry" character search function for an encoding group.
+/** This version returns a finder function that does not check buffer bounds.
+ * It just assumes that one of the `NEEDLE` characters will be there.
+ */
+template<char... NEEDLE>
+PQXX_PURE constexpr inline char_finder_func *
+get_s_char_finder(encoding_group enc)
+{
+  auto const as_if{map_ascii_search_group(enc)};
+  switch (as_if)
+  {
+  case encoding_group::MONOBYTE:
+    return pqxx::internal::find_s_ascii_char<
+      encoding_group::MONOBYTE, NEEDLE...>;
+  case encoding_group::BIG5:
+    return pqxx::internal::find_s_ascii_char<encoding_group::BIG5, NEEDLE...>;
+  case encoding_group::GB18030:
+    return pqxx::internal::find_s_ascii_char<encoding_group::GB18030, NEEDLE...>;
+  case encoding_group::GBK:
+    return pqxx::internal::find_s_ascii_char<encoding_group::GBK, NEEDLE...>;
+  case encoding_group::JOHAB:
+    return pqxx::internal::find_s_ascii_char<encoding_group::JOHAB, NEEDLE...>;
+  case encoding_group::SJIS:
+    return pqxx::internal::find_s_ascii_char<encoding_group::SJIS, NEEDLE...>;
+  case encoding_group::UHC:
+    return pqxx::internal::find_s_ascii_char<encoding_group::UHC, NEEDLE...>;
 
   default:
     throw pqxx::internal_error{concat(

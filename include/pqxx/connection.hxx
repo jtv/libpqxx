@@ -103,7 +103,7 @@ class connection_largeobject;
 class connection_notification_receiver;
 class connection_pipeline;
 class connection_sql_cursor;
-class connection_stream_from;
+struct connection_stream_from;
 class connection_stream_to;
 class connection_transaction;
 class const_connection_largeobject;
@@ -1055,9 +1055,9 @@ private:
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
-  friend class internal::gate::connection_stream_from;
+  friend struct internal::gate::connection_stream_from;
   std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
-    PQXX_PRIVATE read_copy_line();
+  read_copy_line();
 
   friend class internal::gate::connection_stream_to;
   void PQXX_PRIVATE write_copy_line(std::string_view);

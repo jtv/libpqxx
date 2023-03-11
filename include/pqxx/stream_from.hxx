@@ -36,17 +36,19 @@ class transaction_base;
 
 
 /// Pass this to a `stream_from` constructor to stream table contents.
-/** @deprecated Use @ref stream_from::table() instead.
+/** @deprecated Use @ref transaction_base::stream instead of stream_from.
  */
 constexpr from_table_t from_table;
 /// Pass this to a `stream_from` constructor to stream query results.
-/** @deprecated Use stream_from::query() instead.
+/** @deprecated Use transaction_base::stream instead of stream_from.
  */
 constexpr from_query_t from_query;
 
 
 /// Stream data from the database.
-/** For larger data sets, retrieving data this way is likely to be faster than
+/** @deprecated Use @ref transaction_base::stream.
+ *
+ * For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows fields.  You
  * will also be able to start processing before all of the data has come in.
  *
@@ -90,7 +92,8 @@ public:
    *
    *     https://www.postgresql.org/docs/current/sql-copy.html
    */
-  static stream_from query(transaction_base &tx, std::string_view q)
+  [[deprecated("Use transaction_base::stream instead.")]] static stream_from
+  query(transaction_base &tx, std::string_view q)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return {tx, from_query, q};
@@ -125,14 +128,16 @@ public:
    *     using pqxx::connection::quote_columns().  If you omit this argument,
    *     the stream will read all columns in the table, in schema order.
    */
-  static stream_from raw_table(
+  [[deprecated("Use transaction_base::stream instead.")]] static stream_from
+  raw_table(
     transaction_base &tx, std::string_view path,
     std::string_view columns = ""sv);
 
   /// Factory: Stream data from a given table.
   /** This is the convenient way to stream from a table.
    */
-  static stream_from table(
+  [[deprecated("Use transaction_base::stream instead.")]] static stream_from
+  table(
     transaction_base &tx, table_path path,
     std::initializer_list<std::string_view> columns = {});
   //@}
@@ -140,20 +145,20 @@ public:
   /// Execute query, and stream over the results.
   /** @deprecated Use factory function @ref query instead.
    */
-  [[deprecated("Use query() factory instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &, from_query_t, std::string_view query);
 
   /// Stream all rows in table, all columns.
   /** @deprecated Use factories @ref table or @ref raw_table instead.
    */
-  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &, from_table_t, std::string_view table);
 
   /// Stream given columns from all rows in table.
   /** @deprecated Use factories @ref table or @ref raw_table instead.
    */
   template<typename Iter>
-  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &, from_table_t, std::string_view table,
     Iter columns_begin, Iter columns_end);
 
@@ -161,13 +166,13 @@ public:
   /** @deprecated Use factory function @ref query instead.
    */
   template<typename Columns>
-  [[deprecated("Use table() or raw_table() factory instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream() instead.")]] stream_from(
     transaction_base &tx, from_table_t, std::string_view table,
     Columns const &columns);
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// @deprecated Use factories @ref table or @ref raw_table instead.
-  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &tx, std::string_view table) :
           stream_from{tx, from_table, table}
   {}
@@ -175,14 +180,14 @@ public:
 
   /// @deprecated Use factories @ref table or @ref raw_table instead.
   template<typename Columns>
-  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &tx, std::string_view table, Columns const &columns) :
           stream_from{tx, from_table, table, columns}
   {}
 
   /// @deprecated Use factories @ref table or @ref raw_table instead.
   template<typename Iter>
-  [[deprecated("Use the from_table_t overload instead.")]] stream_from(
+  [[deprecated("Use transaction_base::stream instead.")]] stream_from(
     transaction_base &, std::string_view table, Iter columns_begin,
     Iter columns_end);
 

@@ -32,10 +32,10 @@
 #include "pqxx/connection.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
-#include "pqxx/stream_from.hxx"
 #include "pqxx/util.hxx"
 
 namespace pqxx::internal::gate
@@ -468,36 +468,34 @@ public:
    *
    * Use this with a range-based "for" loop.  It executes the query, and
    * directly maps the resulting rows onto a `std::tuple` of the types you
-   * specify.  It starts before all the data from the server is in, so if your
-   * network connection to the server breaks while you're iterating, you'll get
-   * an exception partway through.
-   *
-   * The stream lives entirely within the lifetime of the transaction.  Make
-   * sure you destroy the stream before you destroy the transaction.  Either
-   * iterate the stream all the way to the end, or destroy first the stream
-   * and then the transaction without touching either in any other way.  Until
-   * the stream has finished, the transaction is in a special state where it
-   * cannot execute queries.
+   * specify.  Unlike with the "exec" functions, processing can start before
+   * all the data from the server is in.
    *
    * As a special case, tuple may contain `std::string_view` fields, but the
    * strings to which they point will only remain valid until you extract the
    * next row.  After that, the memory holding the string may be overwritten or
    * deallocated.
    *
-   * If any of the columns can be null, and the C++ type to which it translates
-   * does not have a null value, wrap the type in `std::optional` (or if
-   * you prefer, `std::shared_ptr` or `std::unique_ptr)`.  These templates
-   * do recognise null values, and libpqxx will know how to convert to them.
+   * If any of the columns can be null, and the C++ type to which you're
+   * translating it does not have a null value, wrap the type in a
+   * `std::optional<>` (or if you prefer, a `std::shared_ptr<>` or a
+   * `std::unique_ptr`).  These templates do support null values, and libpqxx
+   * will know how to convert to them.
    *
-   * The connection is in a special state until the iteration finishes.  So if
-   * it does not finish due to a `break` or a `return` or an exception, then
-   * the entire connection becomes effectively unusable.
+   * The stream lives entirely within the lifetime of the transaction.  Make
+   * sure you complete the stream before you destroy the transaction.  Until
+   * the stream has finished, the transaction and the connection are in a
+   * special state where they cannot be used for anything else.
    *
-   * Querying in this way is faster than the `exec()` methods for larger
-   * results (but slower for small ones).  You can start processing rows before
-   * the full result is in.  Also, `stream()` scales better in terms of memory
-   * usage.  Where @ref exec() reads the entire result into memory at once,
-   * `stream()` will read and process one row at at a time.
+   * @warning If the stream fails, you will have to destroy the transaction
+   * and the connection.  If this is a problem, use the "exec" functions
+   * instead.
+   *
+   * Streaming your query is likely to be faster than the `exec()` methods for
+   * larger results (but slower for small results), and start useful processing
+   * sooner.  Also, `stream()` scales better in terms of memory usage: it only
+   * needs to keep the current row in memory.  The "exec" functions read the
+   * entire result into memory at once.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
@@ -513,10 +511,7 @@ public:
   template<typename... TYPE>
   [[nodiscard]] auto stream(std::string_view query) &
   {
-    // Tricky: std::make_unique() supports constructors but not RVO functions.
-    return pqxx::internal::owning_stream_input_iteration<TYPE...>{
-      std::unique_ptr<stream_from>{
-        new stream_from{stream_from::query(*this, query)}}};
+    return pqxx::internal::stream_query<TYPE...>{*this, query};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -525,20 +520,25 @@ public:
    * object that supports the function call operator.  Of course `func` must
    * have an unambiguous signature; it can't be overloaded or generic.
    *
-   * The `for_stream` function executes `query` in a stream using
-   * @ref pqxx::stream_from.  Every time a row of data comes in from the
-   * server, it converts the row's fields to the types of `func`'s respective
-   * parameters, and calls `func` with those values.
+   * The `for_stream` function executes `query` in a stream similar to
+   * @ref stream.  Every time a row of data comes in from the server, it
+   * converts the row's fields to the types of `func`'s respective parameters,
+   * and calls `func` with those values.
    *
    * This will not work for all queries, but straightforward `SELECT` and
    * `UPDATE ... RETURNING` queries should work.  Consult the documentation for
-   * @ref pqxx::stream_from and PostgreSQL's underlying `COPY` command for the
-   * full details.
+   * @ref pqxx::internal::stream_query and PostgreSQL's underlying `COPY`
+   * command for the full details.
    *
    * Streaming a query like this is likely to be slower than the @ref exec()
-   * functions for small result sets, but faster for large result sets.  So if
+   * functions for small result sets, but faster for larger result sets.  So if
    * performance matters, you'll want to use `for_stream` if you query large
    * amounts of data, but not if you do lots of queries with small outputs.
+   *
+   * However, the transaction and the connection are in a special state while
+   * the iteration is ongoing.  If `func` throws an exception, or the iteration
+   * fails in some way, the only way out is to destroy the transaction and the
+   * connection.
    */
   template<typename CALLABLE>
   auto for_stream(std::string_view query, CALLABLE &&func)
@@ -965,4 +965,6 @@ template<>
 inline constexpr zview begin_cmd<serializable, write_policy::read_only>{
   "BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY"_zv};
 } // namespace pqxx::internal
+
+#include "pqxx/internal/stream_query_impl.hxx"
 #endif

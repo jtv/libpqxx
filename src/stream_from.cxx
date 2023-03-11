@@ -89,7 +89,9 @@ pqxx::stream_from pqxx::stream_from::table(
   std::initializer_list<std::string_view> columns)
 {
   auto const &conn{tx.conn()};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -170,32 +172,6 @@ void pqxx::stream_from::complete()
   close();
 }
 
-
-namespace
-{
-/// Return original byte for escaped character.
-char unescape_char(char escaped)
-{
-  switch (escaped)
-  {
-  case 'b': // Backspace.
-    PQXX_UNLIKELY return '\b';
-  case 'f': // Form feed
-    PQXX_UNLIKELY return '\f';
-  case 'n': // Line feed.
-    return '\n';
-  case 'r': // Carriage return.
-    return '\r';
-  case 't': // Horizontal tab.
-    return '\t';
-  case 'v': // Vertical tab.
-    return '\v';
-  default: break;
-  }
-  // Regular character ("self-escaped").
-  return escaped;
-}
-} // namespace
 
 void pqxx::stream_from::parse_line()
 {
@@ -292,7 +268,7 @@ void pqxx::stream_from::parse_line()
         field_begin = nullptr;
         // (If there's any characters _after_ the null we'll just crash.)
       }
-      *write++ = unescape_char(escaped);
+      *write++ = pqxx::internal::unescape_char(escaped);
     }
   }
 

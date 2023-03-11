@@ -38,7 +38,7 @@ enum class encoding_group
 };
 
 
-// XXX: Get rid of these.  Specialise at higher level.
+// TODO: Get rid of these.  Specialise at higher level.
 /// Function type: "find the end of the current glyph."
 /** This type of function takes a text buffer, and a location in that buffer,
  * and returns the location one byte past the end of the current glyph.

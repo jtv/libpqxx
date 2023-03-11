@@ -526,5 +526,29 @@ std::tuple<strip_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
 /// Take a tuple type and apply @ref strip_t to its component types.
 template<typename... TYPES>
 using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
+
+
+/// Return original byte for escaped character.
+inline constexpr char unescape_char(char escaped) noexcept
+{
+  switch (escaped)
+  {
+  case 'b': // Backspace.
+    PQXX_UNLIKELY return '\b';
+  case 'f': // Form feed
+    PQXX_UNLIKELY return '\f';
+  case 'n': // Line feed.
+    return '\n';
+  case 'r': // Carriage return.
+    return '\r';
+  case 't': // Horizontal tab.
+    return '\t';
+  case 'v': // Vertical tab.
+    return '\v';
+  default: break;
+  }
+  // Regular character ("self-escaped").
+  return escaped;
+}
 } // namespace pqxx::internal
 #endif

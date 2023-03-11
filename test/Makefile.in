@@ -157,7 +157,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_sql_cursor.$(OBJEXT) \
 	unit/test_stateless_cursor.$(OBJEXT) \
 	unit/test_strconv.$(OBJEXT) unit/test_stream_from.$(OBJEXT) \
-	unit/test_stream_to.$(OBJEXT) \
+	unit/test_stream_query.$(OBJEXT) unit/test_stream_to.$(OBJEXT) \
 	unit/test_string_conversion.$(OBJEXT) \
 	unit/test_subtransaction.$(OBJEXT) \
 	unit/test_test_helpers.$(OBJEXT) \
@@ -236,6 +236,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	unit/$(DEPDIR)/test_stateless_cursor.Po \
 	unit/$(DEPDIR)/test_strconv.Po \
 	unit/$(DEPDIR)/test_stream_from.Po \
+	unit/$(DEPDIR)/test_stream_query.Po \
 	unit/$(DEPDIR)/test_stream_to.Po \
 	unit/$(DEPDIR)/test_string_conversion.Po \
 	unit/$(DEPDIR)/test_subtransaction.Po \
@@ -538,6 +539,7 @@ runner_SOURCES = \
   unit/test_stateless_cursor.cxx \
   unit/test_strconv.cxx \
   unit/test_stream_from.cxx \
+  unit/test_stream_query.cxx \
   unit/test_stream_to.cxx \
   unit/test_string_conversion.cxx \
   unit/test_subtransaction.cxx \
@@ -663,6 +665,8 @@ unit/test_strconv.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_stream_from.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_stream_query.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_stream_to.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_string_conversion.$(OBJEXT): unit/$(am__dirstamp) \
@@ -772,6 +776,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stateless_cursor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_strconv.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_from.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_query.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_to.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_string_conversion.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
@@ -1117,6 +1122,7 @@ distclean: distclean-am
 	-rm -f unit/$(DEPDIR)/test_stateless_cursor.Po
 	-rm -f unit/$(DEPDIR)/test_strconv.Po
 	-rm -f unit/$(DEPDIR)/test_stream_from.Po
+	-rm -f unit/$(DEPDIR)/test_stream_query.Po
 	-rm -f unit/$(DEPDIR)/test_stream_to.Po
 	-rm -f unit/$(DEPDIR)/test_string_conversion.Po
 	-rm -f unit/$(DEPDIR)/test_subtransaction.Po
@@ -1247,6 +1253,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f unit/$(DEPDIR)/test_stateless_cursor.Po
 	-rm -f unit/$(DEPDIR)/test_strconv.Po
 	-rm -f unit/$(DEPDIR)/test_stream_from.Po
+	-rm -f unit/$(DEPDIR)/test_stream_query.Po
 	-rm -f unit/$(DEPDIR)/test_stream_to.Po
 	-rm -f unit/$(DEPDIR)/test_string_conversion.Po
 	-rm -f unit/$(DEPDIR)/test_subtransaction.Po

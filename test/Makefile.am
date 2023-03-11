@@ -109,6 +109,7 @@ runner_SOURCES = \
   unit/test_stateless_cursor.cxx \
   unit/test_strconv.cxx \
   unit/test_stream_from.cxx \
+  unit/test_stream_query.cxx \
   unit/test_stream_to.cxx \
   unit/test_string_conversion.cxx \
   unit/test_subtransaction.cxx \

@@ -20,7 +20,7 @@ template<encoding_group ENC>
 inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos)
 {
-  // XXX: find_char<'"', '\\'>().
+  // TODO: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
   bool at_quote{false};
