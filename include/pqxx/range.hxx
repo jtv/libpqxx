@@ -5,6 +5,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <utility>
 #include <variant>
 
 #include "pqxx/internal/array-composite.hxx"
@@ -21,11 +22,13 @@ namespace pqxx
  */
 struct no_bound
 {
-  template<typename TYPE> constexpr bool extends_down_to(TYPE const &) const
+  template<typename TYPE>
+  constexpr bool extends_down_to(TYPE const &) const noexcept
   {
     return true;
   }
-  template<typename TYPE> constexpr bool extends_up_to(TYPE const &) const
+  template<typename TYPE>
+  constexpr bool extends_up_to(TYPE const &) const noexcept
   {
     return true;
   }
@@ -48,16 +51,16 @@ public:
 
   [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
 
-  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
+  noexcept(noexcept(value < m_value))
   {
     return not(value < m_value);
   }
 
-  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as an upper bound, include value?
   [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
+  noexcept(noexcept(value < m_value))
   {
     return not(m_value < value);
   }
@@ -83,16 +86,16 @@ public:
 
   [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
 
-  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
+  noexcept(noexcept(m_value < value))
   {
     return m_value < value;
   }
 
-  // TODO: noexcept if underlying operator supports it.
   /// Would this bound, as an upper bound, include value?
   [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
+  noexcept(noexcept(value < m_value))
   {
     return value < m_value;
   }
@@ -110,19 +113,26 @@ template<typename TYPE> class range_bound
 {
 public:
   range_bound() = delete;
-  // TODO: noexcept if underlying constructor supports it.
-  constexpr range_bound(no_bound) : m_bound{} {}
-  // TODO: noexcept if underlying constructor supports it.
-  constexpr range_bound(inclusive_bound<TYPE> const &bound) : m_bound{bound} {}
-  // TODO: noexcept if underlying constructor supports it.
-  constexpr range_bound(exclusive_bound<TYPE> const &bound) : m_bound{bound} {}
-  // TODO: noexcept if underlying constructor supports it.
-  constexpr range_bound(range_bound const &) = default;
-  // TODO: noexcept if underlying constructor supports it.
-  constexpr range_bound(range_bound &&) = default;
+  constexpr range_bound(no_bound) noexcept : m_bound{} {}
 
-  // TODO: noexcept if underlying operators support it.
+  constexpr range_bound(inclusive_bound<TYPE> const &bound)
+  noexcept(noexcept(inclusive_bound<TYPE>{bound})) : m_bound{bound} {}
+
+  constexpr range_bound(exclusive_bound<TYPE> const &bound) 
+  noexcept(noexcept(exclusive_bound{bound})) : m_bound{bound} {}
+
+  constexpr range_bound(range_bound const &)
+  noexcept(
+    noexcept(inclusive_bound<TYPE>{std::declval<inclusive_bound<TYPE> const &>()}) and
+    noexcept(exclusive_bound<TYPE>{std::declval<exclusive_bound<TYPE> const &>()})
+  )
+  = default;
+
+  constexpr range_bound(range_bound &&)
+  = default;
+
   constexpr bool operator==(range_bound const &rhs) const
+  noexcept(noexcept(*this->value() == *rhs.value()))
   {
     if (this->is_limited())
       return (
@@ -132,8 +142,8 @@ public:
       return not rhs.is_limited();
   }
 
-  // TODO: noexcept if underlying operator supports it.
   constexpr bool operator!=(range_bound const &rhs) const
+  noexcept(noexcept(*this == rhs))
   {
     return not(*this == rhs);
   }
@@ -158,21 +168,23 @@ public:
     return std::holds_alternative<exclusive_bound<TYPE>>(m_bound);
   }
 
-  // TODO: noexcept if underlying function supports it.
   /// Would this bound, as a lower bound, include `value`?
   constexpr bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
-      [&value](auto const &bound) { return bound.extends_down_to(value); },
+      [&value](auto const &bound)
+      noexcept(noexcept(bound.extends_down_to(value)))
+      { return bound.extends_down_to(value); },
       m_bound);
   }
 
-  // TODO: noexcept if underlying function supports it.
   /// Would this bound, as an upper bound, include `value`?
   constexpr bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
-      [&value](auto const &bound) { return bound.extends_up_to(value); },
+      [&value](auto const &bound)
+      noexcept(noexcept(bound.extends_up_to(value)))
+      { return bound.extends_up_to(value); },
       m_bound);
   }
 
@@ -234,33 +246,38 @@ public:
         ") is greater than its upper bound (", *upper.value(), ").")};
   }
 
-  // TODO: noexcept if underlying constructor supports it.
   /// Create an empty range.
   /** SQL has a separate literal to denote an empty range, but any range which
    * encompasses no values is an empty range.
    */
-  constexpr range() :
+  constexpr range()
+  noexcept(noexcept(exclusive_bound<TYPE>{TYPE{}})) :
           m_lower{exclusive_bound<TYPE>{TYPE{}}},
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
-  // TODO: noexcept if underlying operators support it.
   constexpr bool operator==(range const &rhs) const
+  noexcept
+  (
+    noexcept(this->lower_bound() == rhs.lower_bound()) and
+    noexcept(this->upper_bound() == rhs.upper_bound()) and
+    noexcept(this->empty())
+  )
   {
     return (this->lower_bound() == rhs.lower_bound() and
             this->upper_bound() == rhs.upper_bound()) or
            (this->empty() and rhs.empty());
   }
 
-  // TODO: noexcept if underlying operator supports it.
-  constexpr bool operator!=(range const &rhs) const { return !(*this == rhs); }
+  constexpr bool operator!=(range const &rhs) const
+  noexcept(noexcept(*this == rhs))
+  { return not (*this == rhs); }
 
   range(range const &) = default;
   range(range &&) = default;
   range &operator=(range const &) = default;
   range &operator=(range &&) = default;
 
-  // TODO: noexcept if underlying operator supports it.
   /// Is this range clearly empty?
   /** An empty range encompasses no values.
    *
@@ -271,25 +288,35 @@ public:
    * floating-point types, but with more subtleties and edge cases.
    */
   constexpr bool empty() const
+  noexcept
+  (
+    noexcept(m_lower.is_exclusive()) and
+    noexcept(m_lower.is_limited()) and
+    noexcept(*m_lower.value() < *m_upper.value())
+  )
   {
     return (m_lower.is_exclusive() or m_upper.is_exclusive()) and
            m_lower.is_limited() and m_upper.is_limited() and
            not(*m_lower.value() < *m_upper.value());
   }
 
-  // TODO: noexcept if underlying functions support it.
   /// Does this range encompass `value`?
   constexpr bool contains(TYPE value) const
+  noexcept
+  (
+    noexcept(m_lower.extends_down_to(value)) and
+    noexcept(m_upper.extends_up_to(value))
+  )
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
   }
 
-  // TODO: noexcept if underlying operators support it.
   /// Does this range encompass all of `other`?
   /** This function is not particularly smart.  It does not know, for example,
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
   constexpr bool contains(range<TYPE> const &other) const
+  noexcept(noexcept((*this & other) == other))
   {
     return (*this & other) == other;
   }
@@ -305,7 +332,6 @@ public:
     return m_upper;
   }
 
-  // TODO: noexcept if underlying operators support it.
   /// Intersection of two ranges.
   /** Returns a range describing those values which are in both ranges.
    */

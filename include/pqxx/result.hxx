@@ -157,7 +157,6 @@ public:
   [[nodiscard]] row operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
-  // TODO: If C++23 will let us, also accept string for the column.
   [[nodiscard]] field
   operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif
