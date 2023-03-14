@@ -92,18 +92,19 @@ void pqxx::internal::wait_fd(
 {
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
+  static_assert(SOCKET_ERROR == -1);
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds));
-  // TODO: Check for errors.
+  int const code{
+    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds))
+  };
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
     (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
-  poll(&pfd, 1, to_milli<int>(seconds, microseconds));
-  // TODO: Check for errors.
+  int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds))};
 #else
   // No poll()?  Our last option is select().
   fd_set read_fds;
@@ -121,9 +122,21 @@ void pqxx::internal::wait_fd(
   set_fdbit(except_fds, fd);
 
   timeval tv = {seconds, microseconds};
-  select(fd + 1, &read_fds, &write_fds, &except_fds, &tv);
-  // TODO: Check for errors.
+  int const code{select(fd + 1, &read_fds, &write_fds, &except_fds, &tv)};
 #endif
+
+  if (code == -1)
+  {
+    std::array<char, 200> errbuf;
+    int const err_code{
+#if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
+      WSAGetLastError()
+#else
+      errno
+#endif
+    };
+    throw std::runtime_error{pqxx::internal::error_string(err_code, errbuf)};
+  }
 }
 
 

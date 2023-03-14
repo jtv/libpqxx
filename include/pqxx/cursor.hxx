@@ -123,7 +123,6 @@ public:
     return -1;
   }
 
-  // TODO: Make constexpr inline (but breaks ABI).
   /// Special value: read backwards from current position back to origin.
   /** @return Minimum value for result::difference_type.
    */

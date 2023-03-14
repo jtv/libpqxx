@@ -17,7 +17,9 @@
 
 #include <cassert>
 #include <cctype>
+#include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -549,6 +551,46 @@ inline constexpr char unescape_char(char escaped) noexcept
   }
   // Regular character ("self-escaped").
   return escaped;
+}
+
+
+// C++20: std::span?
+/// Get error string for a given @c errno value.
+template<std::size_t BYTES>
+char const *PQXX_COLD
+error_string(int err_num, std::array<char, BYTES> &buffer)
+{
+  // Not entirely clear whether strerror_s will be in std or global namespace.
+  using namespace std;
+
+#if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
+#  if defined(PQXX_HAVE_STRERROR_S)
+  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
+#  else
+  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
+#  endif
+  if constexpr (std::is_same_v<pqxx::strip_t<decltype(err_result)>, char *>)
+  {
+    // GNU version of strerror_r; returns the error string, which may or may
+    // not reside within buffer.
+    return err_result;
+  }
+  else
+  {
+    // Either strerror_s or POSIX strerror_r; returns an error code.
+    // Sorry for being lazy here: Not reporting error string for the case
+    // where we can't retrieve an error string.
+    if (err_result == 0)
+      return std::data(buffer);
+    else
+      return "Compound errors.";
+  }
+
+#else
+  // Fallback case, hopefully for no actual platforms out there.
+  pqxx::ignore_unused(err_num, buffer);
+  return "(No error information available.)";
+#endif
 }
 } // namespace pqxx::internal
 #endif
