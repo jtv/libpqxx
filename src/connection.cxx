@@ -482,49 +482,6 @@ void PQXX_COLD pqxx::connection::cancel_query()
 }
 
 
-namespace
-{
-// C++20: std::span?
-/// Get error string for a given @c errno value.
-template<std::size_t BYTES>
-char const *PQXX_COLD
-error_string(int err_num, std::array<char, BYTES> &buffer)
-{
-  // Not entirely clear whether strerror_s will be in std or global namespace.
-  using namespace std;
-
-#if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
-#  if defined(PQXX_HAVE_STRERROR_S)
-  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
-#  else
-  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
-#  endif
-  if constexpr (std::is_same_v<pqxx::strip_t<decltype(err_result)>, char *>)
-  {
-    // GNU version of strerror_r; returns the error string, which may or may
-    // not reside within buffer.
-    return err_result;
-  }
-  else
-  {
-    // Either strerror_s or POSIX strerror_r; returns an error code.
-    // Sorry for being lazy here: Not reporting error string for the case
-    // where we can't retrieve an error string.
-    if (err_result == 0)
-      return std::data(buffer);
-    else
-      return "Compound errors.";
-  }
-
-#else
-  // Fallback case, hopefully for no actual platforms out there.
-  pqxx::ignore_unused(err_num, buffer);
-  return "(No error information available.)";
-#endif
-}
-} // namespace
-
-
 #if defined(_WIN32) || __has_include(<fcntl.h>)
 void pqxx::connection::set_blocking(bool block) &
 {
@@ -534,7 +491,7 @@ void pqxx::connection::set_blocking(bool block) &
   if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
   {
     std::array<char, 200> errbuf;
-    char const *err{error_string(WSAGetLastError(), errbuf)};
+    char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
@@ -543,7 +500,7 @@ void pqxx::connection::set_blocking(bool block) &
   auto flags{::fcntl(fd, F_GETFL, 0)};
   if (flags == -1)
   {
-    char const *const err{error_string(errno, errbuf)};
+    char const *const err{pqxx::internal::error_string(errno, errbuf)};
     throw broken_connection{
       internal::concat("Could not get socket state: ", err)};
   }
@@ -553,7 +510,7 @@ void pqxx::connection::set_blocking(bool block) &
     flags &= ~O_NONBLOCK;
   if (::fcntl(fd, F_SETFL, flags) == -1)
   {
-    char const *const err{error_string(errno, errbuf)};
+    char const *const err{pqxx::internal::error_string(errno, errbuf)};
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
