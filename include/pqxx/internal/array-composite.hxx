@@ -139,15 +139,7 @@ template<pqxx::internal::encoding_group ENC>
 inline std::string
 parse_unquoted_string(char const input[], std::size_t end, std::size_t pos)
 {
-  using scanner = glyph_scanner<ENC>;
-  std::string output;
-  output.reserve(end - pos);
-  for (auto next{scanner::call(input, end, pos)}; pos < end;
-       pos = next, next = scanner::call(input, end, pos))
-  {
-    output.append(input + pos, next - pos);
-  }
-  return output;
+  return {&input[pos], end - pos};
 }
 
 
