@@ -3,7 +3,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:testing
+      - image: debian:stable
+#      - image: debian:testing
 #      - image: postgres:latest
     environment:
       - PGHOST: "/tmp"
@@ -35,7 +36,7 @@ jobs:
           command: createdb root
       - run:
           name: Autogen
-          command: NOCONFIGURE=1 ./autogen.sh
+          command: ./autogen.sh
       - run:
           name: Configure
           command: |
