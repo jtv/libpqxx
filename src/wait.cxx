@@ -99,8 +99,7 @@ void pqxx::internal::wait_fd(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   int const code{
-    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds))
-  };
+    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds))};
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
@@ -130,7 +129,8 @@ void pqxx::internal::wait_fd(
   if (code == -1)
   {
     std::array<char, 200> errbuf;
-    int const err_code{
+    int const err_code
+    {
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
       WSAGetLastError()
 #else

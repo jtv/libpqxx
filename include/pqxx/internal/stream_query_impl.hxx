@@ -16,9 +16,9 @@ inline stream_query<TYPE...>::stream_query(
   auto const r{tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"))};
   if (r.columns() != sizeof...(TYPE))
     throw usage_error{concat(
-        "Parsing query stream with wrong number of columns: "
-	"code expects ", sizeof...(TYPE), " but query returns ", r.columns(),
-	".")};
+      "Parsing query stream with wrong number of columns: "
+      "code expects ",
+      sizeof...(TYPE), " but query returns ", r.columns(), ".")};
   register_me();
 }
 
@@ -45,7 +45,9 @@ public:
   using value_type = std::tuple<TYPE...>;
 
   explicit stream_query_input_iterator(stream_t &home) : m_home(home)
-  { consume_line(); }
+  {
+    consume_line();
+  }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
@@ -124,8 +126,8 @@ template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 }
 
 
-template<typename... TYPE> inline
-std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
+template<typename... TYPE>
+inline std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
 stream_query<TYPE...>::read_line() &
 {
   assert(not done());
@@ -135,7 +137,8 @@ stream_query<TYPE...>::read_line() &
   {
     auto line{gate.read_copy_line()};
     // Check for completion.
-    if (not line.first) PQXX_UNLIKELY close();
+    if (not line.first)
+      PQXX_UNLIKELY close();
     return line;
   }
   catch (std::exception const &)

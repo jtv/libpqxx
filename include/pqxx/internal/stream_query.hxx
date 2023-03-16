@@ -147,8 +147,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *
-  get_finder(transaction_base const &tx);
+  static inline char_finder_func *get_finder(transaction_base const &tx);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.
@@ -259,8 +258,8 @@ private:
    *   function will update this value.
    * @return Field value converted to TARGET type.
    */
-  template<typename TARGET> TARGET
-  parse_field(zview line, std::size_t &offset, char *&write)
+  template<typename TARGET>
+  TARGET parse_field(zview line, std::size_t &offset, char *&write)
   {
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
@@ -274,9 +273,8 @@ private:
     {
       if (std::data(text) != nullptr)
         throw conversion_error{concat(
-	  "Streaming a non-null value into a ", type_name<field_type>,
-	  ", which must always be null."
-	)};
+          "Streaming a non-null value into a ", type_name<field_type>,
+          ", which must always be null.")};
     }
     else if (std::data(text) == nullptr)
     {

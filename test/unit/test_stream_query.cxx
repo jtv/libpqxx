@@ -168,7 +168,8 @@ void test_stream_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
   PQXX_CHECK_EQUAL(values[5].value(), "\t", "Tab unescaped wrong.");
-  PQXX_CHECK_EQUAL(values[6].value(), "\\\\\\\n\\\\", "Backslashes confused stream.");
+  PQXX_CHECK_EQUAL(
+    values[6].value(), "\\\\\\\n\\\\", "Backslashes confused stream.");
 }
 
 
@@ -177,15 +178,11 @@ void test_stream_handles_nulls_in_all_places()
   pqxx::connection conn;
   pqxx::work tx{conn};
   int counter{0};
-  for (auto [a, b, c, d, e] : tx.stream<
-    std::optional<std::string>,
-    std::optional<int>,
-    int,
-    std::optional<std::string>,
-    std::optional<std::string>
-  >(
-    "SELECT NULL::text, NULL::integer, 11, NULL::text, NULL::text"
-  ))
+  for (auto [a, b, c, d, e] :
+       tx.stream<
+         std::optional<std::string>, std::optional<int>, int,
+         std::optional<std::string>, std::optional<std::string>>(
+         "SELECT NULL::text, NULL::integer, 11, NULL::text, NULL::text"))
   {
     ++counter;
     PQXX_CHECK(not a, "Starting null did not come through.");
