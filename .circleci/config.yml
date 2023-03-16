@@ -44,7 +44,7 @@ jobs:
                   --enable-maintainer-mode \
                   --enable-audit \
                   --enable-shared --disable-static \
-                  CXXFLAGS=-O3
+                  CXXFLAGS="-std=c++17 -O3"
       - store_artifacts:
           path: config.log
       - run:
