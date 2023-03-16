@@ -58,6 +58,8 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/connection-notification_receiver.hxx \
 	pqxx/internal/gates/connection-pipeline.hxx \
 	pqxx/internal/gates/connection-sql_cursor.hxx \
+	pqxx/internal/gates/connection-stream_from.hxx \
+	pqxx/internal/gates/connection-stream_to.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \
 	pqxx/internal/gates/errorhandler-connection.hxx \
 	pqxx/internal/gates/icursorstream-icursor_iterator.hxx \

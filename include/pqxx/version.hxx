@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/version instead.
  *
- * Copyright (c) 2000-2022, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -15,7 +15,7 @@
 #  endif
 
 /// Full libpqxx version string.
-#  define PQXX_VERSION "7.7.4"
+#  define PQXX_VERSION "7.7.5"
 /// Library ABI version.
 #  define PQXX_ABI "7.7"
 

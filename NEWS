@@ -1,3 +1,5 @@
+7.7.5
+ - Fix missing internal headers in `configure`-based install. (#657)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)
