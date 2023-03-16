@@ -850,7 +850,8 @@ get_s_char_finder(encoding_group enc)
   case encoding_group::BIG5:
     return pqxx::internal::find_s_ascii_char<encoding_group::BIG5, NEEDLE...>;
   case encoding_group::GB18030:
-    return pqxx::internal::find_s_ascii_char<encoding_group::GB18030, NEEDLE...>;
+    return pqxx::internal::find_s_ascii_char<
+      encoding_group::GB18030, NEEDLE...>;
   case encoding_group::GBK:
     return pqxx::internal::find_s_ascii_char<encoding_group::GBK, NEEDLE...>;
   case encoding_group::JOHAB:

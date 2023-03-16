@@ -53,14 +53,14 @@ public:
 
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
-  noexcept(noexcept(value < m_value))
+    noexcept(noexcept(value < m_value))
   {
     return not(value < m_value);
   }
 
   /// Would this bound, as an upper bound, include value?
   [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
-  noexcept(noexcept(value < m_value))
+    noexcept(noexcept(value < m_value))
   {
     return not(m_value < value);
   }
@@ -88,14 +88,14 @@ public:
 
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
-  noexcept(noexcept(m_value < value))
+    noexcept(noexcept(m_value < value))
   {
     return m_value < value;
   }
 
   /// Would this bound, as an upper bound, include value?
   [[nodiscard]] constexpr bool extends_up_to(TYPE const &value) const
-  noexcept(noexcept(value < m_value))
+    noexcept(noexcept(value < m_value))
   {
     return value < m_value;
   }
@@ -115,24 +115,26 @@ public:
   range_bound() = delete;
   constexpr range_bound(no_bound) noexcept : m_bound{} {}
 
-  constexpr range_bound(inclusive_bound<TYPE> const &bound)
-  noexcept(noexcept(inclusive_bound<TYPE>{bound})) : m_bound{bound} {}
+  constexpr range_bound(inclusive_bound<TYPE> const &bound) noexcept(
+    noexcept(inclusive_bound<TYPE>{bound})) :
+          m_bound{bound}
+  {}
 
-  constexpr range_bound(exclusive_bound<TYPE> const &bound) 
-  noexcept(noexcept(exclusive_bound{bound})) : m_bound{bound} {}
+  constexpr range_bound(exclusive_bound<TYPE> const &bound) noexcept(
+    noexcept(exclusive_bound{bound})) :
+          m_bound{bound}
+  {}
 
-  constexpr range_bound(range_bound const &)
-  noexcept(
-    noexcept(inclusive_bound<TYPE>{std::declval<inclusive_bound<TYPE> const &>()}) and
-    noexcept(exclusive_bound<TYPE>{std::declval<exclusive_bound<TYPE> const &>()})
-  )
-  = default;
+  constexpr range_bound(range_bound const &) noexcept(
+    noexcept(inclusive_bound<TYPE>{
+      std::declval<inclusive_bound<TYPE> const &>()})
+      and noexcept(exclusive_bound<TYPE>{
+        std::declval<exclusive_bound<TYPE> const &>()})) = default;
 
-  constexpr range_bound(range_bound &&)
-  = default;
+  constexpr range_bound(range_bound &&) = default;
 
   constexpr bool operator==(range_bound const &rhs) const
-  noexcept(noexcept(*this->value() == *rhs.value()))
+    noexcept(noexcept(*this->value() == *rhs.value()))
   {
     if (this->is_limited())
       return (
@@ -143,7 +145,7 @@ public:
   }
 
   constexpr bool operator!=(range_bound const &rhs) const
-  noexcept(noexcept(*this == rhs))
+    noexcept(noexcept(*this == rhs))
   {
     return not(*this == rhs);
   }
@@ -172,9 +174,8 @@ public:
   constexpr bool extends_down_to(TYPE const &value) const
   {
     return std::visit(
-      [&value](auto const &bound)
-      noexcept(noexcept(bound.extends_down_to(value)))
-      { return bound.extends_down_to(value); },
+      [&value](auto const &bound) noexcept(noexcept(bound.extends_down_to(
+        value))) { return bound.extends_down_to(value); },
       m_bound);
   }
 
@@ -182,9 +183,8 @@ public:
   constexpr bool extends_up_to(TYPE const &value) const
   {
     return std::visit(
-      [&value](auto const &bound)
-      noexcept(noexcept(bound.extends_up_to(value)))
-      { return bound.extends_up_to(value); },
+      [&value](auto const &bound) noexcept(noexcept(
+        bound.extends_up_to(value))) { return bound.extends_up_to(value); },
       m_bound);
   }
 
@@ -250,19 +250,14 @@ public:
   /** SQL has a separate literal to denote an empty range, but any range which
    * encompasses no values is an empty range.
    */
-  constexpr range()
-  noexcept(noexcept(exclusive_bound<TYPE>{TYPE{}})) :
+  constexpr range() noexcept(noexcept(exclusive_bound<TYPE>{TYPE{}})) :
           m_lower{exclusive_bound<TYPE>{TYPE{}}},
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
   constexpr bool operator==(range const &rhs) const
-  noexcept
-  (
-    noexcept(this->lower_bound() == rhs.lower_bound()) and
-    noexcept(this->upper_bound() == rhs.upper_bound()) and
-    noexcept(this->empty())
-  )
+    noexcept(noexcept(this->lower_bound() == rhs.lower_bound()) and noexcept(
+      this->upper_bound() == rhs.upper_bound()) and noexcept(this->empty()))
   {
     return (this->lower_bound() == rhs.lower_bound() and
             this->upper_bound() == rhs.upper_bound()) or
@@ -270,8 +265,10 @@ public:
   }
 
   constexpr bool operator!=(range const &rhs) const
-  noexcept(noexcept(*this == rhs))
-  { return not (*this == rhs); }
+    noexcept(noexcept(*this == rhs))
+  {
+    return not(*this == rhs);
+  }
 
   range(range const &) = default;
   range(range &&) = default;
@@ -288,12 +285,8 @@ public:
    * floating-point types, but with more subtleties and edge cases.
    */
   constexpr bool empty() const
-  noexcept
-  (
-    noexcept(m_lower.is_exclusive()) and
-    noexcept(m_lower.is_limited()) and
-    noexcept(*m_lower.value() < *m_upper.value())
-  )
+    noexcept(noexcept(m_lower.is_exclusive()) and noexcept(
+      m_lower.is_limited()) and noexcept(*m_lower.value() < *m_upper.value()))
   {
     return (m_lower.is_exclusive() or m_upper.is_exclusive()) and
            m_lower.is_limited() and m_upper.is_limited() and
@@ -301,12 +294,8 @@ public:
   }
 
   /// Does this range encompass `value`?
-  constexpr bool contains(TYPE value) const
-  noexcept
-  (
-    noexcept(m_lower.extends_down_to(value)) and
-    noexcept(m_upper.extends_up_to(value))
-  )
+  constexpr bool contains(TYPE value) const noexcept(noexcept(
+    m_lower.extends_down_to(value)) and noexcept(m_upper.extends_up_to(value)))
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
   }
@@ -316,7 +305,7 @@ public:
    * that integer ranges `[0,9]` and `[0,10)` contain the same values.
    */
   constexpr bool contains(range<TYPE> const &other) const
-  noexcept(noexcept((*this & other) == other))
+    noexcept(noexcept((*this & other) == other))
   {
     return (*this & other) == other;
   }
