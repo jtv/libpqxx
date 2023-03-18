@@ -1,32 +1,63 @@
 Building using `configure`
 ==========================
 
+The instructions will assume that you're working from a command-line shell.
+If you prefer to work from an IDE, you'll have to know how your IDE likes to
+do things, and you'll want to follow the shell instructions as a guide.
+
+Prerequisites
+-------------
+
 Before you can begin the build process for libpqxx, you must first install
 `libpq-dev` and the latest `libpq5` library. These are C client libraries
 for PostgreSQL. 
+
+Enter this terminal command to obtain the latest `libpq5` library.
+
+```shell
+    apt-cache policy libpq5
+```
+
+From the output, select the `Candidate` value.
+
+For example, on Linux (Ubuntu 22.04) the terminal output is as follows:
+
+```shell
+libpq5:
+  Installed: 14.7-0ubuntu0.22.04.1
+  Candidate: 14.7-0ubuntu0.22.04.1
+  Version table:
+ *** 14.7-0ubuntu0.22.04.1 500
+        500 http://apt.pop-os.org/ubuntu jammy-security/main amd64 Packages
+        500 http://apt.pop-os.org/ubuntu jammy-updates/main amd64 Packages
+        100 /var/lib/dpkg/status
+     14.2-1ubuntu1 500
+        500 http://apt.pop-os.org/ubuntu jammy/main amd64 Packages
+```
+
+In the above output, the `Candidate` value is `14.7-0ubuntu0.22.04.1`. 
+Using this information, construct the library install command.
 
 ```shell
     sudo apt-get install libpq5=14.7-0ubuntu0.22.04.1 && sudo apt-get install libpq-dev
 ```
 
-The instructions will assume that you're working from a command-line shell.
-If you prefer to work from an IDE, you'll have to know how your IDE likes to
-do things, and you'll want to follow the shell instructions as a guide.
-
+When the installation process completes, you are prepared to install libpqxx.
 
 Quick start
 -----------
 
-If you just want to get it built and installed quickly, try:
+If you just want to get it built and installed quickly, try the following:
 
 ```shell
-    ./configure
+    cd ~/Downloads
+    git clone https://github.com/jtv/libpqxx.git && cd libpqxx
+    ./configure --disable-shared
     make
     sudo make install
 ```
 
 Want more detail?  Read on.
-
 
 Stages
 ------
