@@ -164,7 +164,27 @@ then
 
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
+# TODO: Once false positive in std lib is fixed, simplify to "-fanalyzer".
 		add_compiler_opts_if_ok \
+			-Wanalyzer-double-fclose \
+			-Wanalyzer-double-free \
+			-Wanalyzer-exposure-through-output-file \
+			-Wanalyzer-file-leak \
+			-Wanalyzer-free-of-non-heap \
+			-Wanalyzer-malloc-leak \
+			-Wanalyzer-mismatching-deallocation \
+			-Wanalyzer-null-dereference \
+			-Wanalyzer-null-argument \
+			-Wanalyzer-possible-null-argument \
+			-Wanalyzer-shift-count-negative \
+			-Wanalyzer-overflow \
+			-Wanalyzer-stale-setjmp-buffer \
+			-Wanalyzer-unsafe-call-within-signal-handler \
+			-Wanalyzer-use-after-free \
+			-Wanalyzer-use-of-pointer-in-stale-stack-frame \
+			-Wanalyzer-use-of-uninitialized-value \
+			-Wanalyzer-write-to-const \
+			-Wanalyzer-write-to-string-literal \
 			-fnothrow-opt \
 			-Wattribute-alias=2 \
 			-Wextra-semi \
