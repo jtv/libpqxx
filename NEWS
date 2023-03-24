@@ -18,7 +18,6 @@
  - Optimise out a kink in composite field parser.`
  - Work around build warning in MinGW: include `winsock2.h` before `windows.h`.
  - Drop some redundant encoding groups.
-7.7.5
  - If CMake can't find libpq, fall back to pkg-config. (#664)
  - Work around spurious compile error on g++ pre-gcc-10. (#665)
 7.7.4
