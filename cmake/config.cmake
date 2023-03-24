@@ -23,11 +23,16 @@ if(NOT PostgreSQL_FOUND)
         cmake_policy(SET CMP0074 NEW)
     endif()
 
-    find_package(PostgreSQL REQUIRED)
+    find_package(PostgreSQL)
 
     if(POLICY CMP0074)
         cmake_policy(POP)
     endif()
+endif()
+
+if(NOT PostgreSQL_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PostgreSQL REQUIRED libpq)
 endif()
 
 check_function_exists("poll" PQXX_HAVE_POLL)
