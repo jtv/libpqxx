@@ -41,6 +41,9 @@ struct no_bound
  */
 template<typename TYPE> class inclusive_bound
 {
+private:
+  TYPE m_value;
+
 public:
   inclusive_bound() = delete;
   constexpr explicit inclusive_bound(TYPE const &value) : m_value{value}
@@ -64,9 +67,6 @@ public:
   {
     return not(m_value < value);
   }
-
-private:
-  TYPE m_value;
 };
 
 
@@ -76,6 +76,9 @@ private:
  */
 template<typename TYPE> class exclusive_bound
 {
+private:
+  TYPE m_value;
+
 public:
   exclusive_bound() = delete;
   constexpr explicit exclusive_bound(TYPE const &value) : m_value{value}
@@ -99,9 +102,6 @@ public:
   {
     return value < m_value;
   }
-
-private:
-  TYPE m_value;
 };
 
 
@@ -111,6 +111,9 @@ private:
  */
 template<typename TYPE> class range_bound
 {
+private:
+  std::variant<no_bound, inclusive_bound<TYPE>, exclusive_bound<TYPE>> m_bound;
+
 public:
   range_bound() = delete;
   constexpr range_bound(no_bound) noexcept : m_bound{} {}
@@ -201,9 +204,6 @@ public:
       },
       m_bound);
   }
-
-private:
-  std::variant<no_bound, inclusive_bound<TYPE>, exclusive_bound<TYPE>> m_bound;
 };
 
 
@@ -229,6 +229,9 @@ private:
  */
 template<typename TYPE> class range
 {
+private:
+  range_bound<TYPE> m_lower, m_upper;
+
 public:
   /// Create a range.
   /** For each of the two bounds, pass a @ref no_bound, @ref inclusive_bound,
@@ -378,9 +381,6 @@ public:
 
     return {lower, upper};
   }
-
-private:
-  range_bound<TYPE> m_lower, m_upper;
 };
 
 
