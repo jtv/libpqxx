@@ -57,8 +57,8 @@ There are two different ways of building libpqxx from the command line:
 HP-UX, Irix, Solaris, etc.  Even on Microsoft Windows, a Unix-like environment
 such as WSL, Cygwin, or MinGW should work.
 
-You'll find detailed build and install instructions in [`BUILDING-configure.md`](Building-configure.md)
-and [`BUILDING-cmake.md`](BUILDING-cmake.md), respectively.
+You'll find detailed build and install instructions in [`BUILDING-configure.md`](/Building-configure.md)
+and [`BUILDING-cmake.md`](/BUILDING-cmake.md), respectively.
 
 And if you're working with Microsoft Visual Studio, have a look at Gordon
 Elliott's
