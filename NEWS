@@ -20,6 +20,7 @@
  - Drop some redundant encoding groups.
  - If CMake can't find libpq, fall back to pkg-config. (#664)
  - Work around spurious compile error on g++ pre-gcc-10. (#665)
+ - Include `<pqxx/range>` and `<pqxx/time>` headers in `<pqxx/pqxx>`. (#667)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)
