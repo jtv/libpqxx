@@ -14,6 +14,7 @@
 #include "pqxx/params.hxx"
 #include "pqxx/pipeline.hxx"
 #include "pqxx/prepared_statement.hxx"
+#include "pqxx/range.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/internal/result_iterator.hxx"
 #include "pqxx/internal/result_iter.hxx"
@@ -22,6 +23,7 @@
 #include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"
 #include "pqxx/subtransaction.hxx"
+#include "pqxx/time.hxx"
 #include "pqxx/transaction.hxx"
 #include "pqxx/transactor.hxx"
 
