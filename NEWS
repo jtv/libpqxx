@@ -1,4 +1,3 @@
-7.7.6
 7.7.5
  - Fix missing internal headers in `configure`-based install. (#657)
  - Include `<pqxx/range>` and `<pqxx/time>` headers in `<pqxx/pqxx>`. (#667)
