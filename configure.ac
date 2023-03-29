@@ -286,6 +286,17 @@ AC_MSG_RESULT($gcc_pure)
 fi # End of gcc-specific part.
 
 
+# In "audit," enable all runtime checks we can.
+if test "$enable_audit" = "yes"
+then
+	# Run-time check options for Visual Studio.
+	add_compiler_opts_if_ok \
+		/analyze \
+		/D_ITERATOR_DEBUG_LEVEL=2
+fi
+
+
+
 # Check for __cxa_demangle.
 AC_MSG_CHECKING([__cxa_demangle])
 cxa_demangle=yes
