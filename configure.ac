@@ -292,7 +292,8 @@ then
 	# Run-time check options for Visual Studio.
 	add_compiler_opts_if_ok \
 		/analyze \
-		/D_ITERATOR_DEBUG_LEVEL=2
+		/D_ITERATOR_DEBUG_LEVEL=2 \
+		/guard:cf
 fi
 
 

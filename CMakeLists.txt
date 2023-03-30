@@ -35,7 +35,21 @@ if(BUILD_TEST)
     add_subdirectory(test)
 endif()
 
-# installation
+
+add_compile_definitions(
+    # In Debug mode, we enable MSVC's iterator debugging.  Other compilers may
+    # support this as well, and it shouldn't do any harm on others, so just
+    # define it regardless of the compiler.
+    $<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=2
+)
+# XXX: Why can't I make add_compile_options() do anything for me at all?
+add_compile_options(
+-march=wuicxkewl
+    # In Debug mode on MSVC, enable a few compile-time checks.
+    #$<AND:$<CONFIG:DEBUG>,$<CXX_COMPILER_ID:MSVC>>"/Wanalyze /guard:cf"
+)
+
+# Installation
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
     VERSION ${PROJECT_VERSION}
