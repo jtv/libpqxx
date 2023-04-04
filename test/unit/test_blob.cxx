@@ -456,7 +456,7 @@ void write_file(char const path[], std::basic_string_view<std::byte> data)
       std::fwrite(
         reinterpret_cast<char const *>(data.data()), 1, std::size(data),
         f.get()) < std::size(data))
-      std::runtime_error{"File write failed."};
+      throw std::runtime_error{"File write failed."};
   }
   catch (const std::exception &)
   {
