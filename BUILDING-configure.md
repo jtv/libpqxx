@@ -13,9 +13,7 @@ Before attempting to install the `libpqxx` library, you first need to
 install the `libpq` library. This is the official C client library for
 PostgreSQL that allows `libpqxx` to communicate with the database backend
 server. Methods for installing the `libpq` library will vary depending
-on your operating system and individual setup. Make sure to install the
-headers as well as the library binary.
-
+on your operating system and individual setup. 
 
 Quick start
 -----------
