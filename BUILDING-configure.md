@@ -9,7 +9,7 @@ do things, and you'll want to follow the shell instructions as a guide.
 Prerequisites
 -------------
 
-Before attempting to install the `libpqxx` library, you first need to 
+Before building and installing the `libpqxx` library, you first need to 
 install the `libpq` library. This is the official C client library for
 PostgreSQL that allows `libpqxx` to communicate with the database backend
 server. Methods for installing the `libpq` library will vary depending
