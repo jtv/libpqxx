@@ -1,25 +1,35 @@
 Building using `configure`
 ==========================
 
-The build requires `libpq`, the C client library for PostgreSQL.  This library
-must be installed before you can build libpqxx.  You'll need the headers as
-well as the library binary.
-
 The instructions will assume that you're working from a command-line shell.
 If you prefer to work from an IDE, you'll have to know how your IDE likes to
 do things, and you'll want to follow the shell instructions as a guide.
 
 
+Prerequisites
+-------------
+
+Before building and installing the `libpqxx` library, you first need to 
+install the `libpq` library. This is the official C client library for
+PostgreSQL that allows `libpqxx` to communicate with the database backend
+server. Methods for installing the `libpq` library will vary depending
+on your operating system and individual setup. 
+
 Quick start
 -----------
 
-If you just want to get it built and installed quickly, try:
+Once you have downloaded the `libpqxx` source code, you can build and
+install it quickly by entering the following commands:
 
 ```shell
-    ./configure
+    ./configure --disable-shared
     make
     sudo make install
 ```
+
+This installation automatically places the `libpqxx` libraries in the
+appropriate locations for your system. If you wish, you may delete the
+downloaded folder after the installation process completes. 
 
 Want more detail?  Read on.
 
