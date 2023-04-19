@@ -10,6 +10,7 @@
  - Faster text decoding and escaping in data streaming.  (#601)
  - Deprecate `basic_fieldstream` and `fieldstream`.
  - Deprecate `<<` operator inserting a field into an `ostream`.
+ - New string conversion fields: `converts_to_string` & `converts_from_string`.
  - Ran `autoupdate` (because the autotools told me to).
  - Documentation tweak. (#584)
  - Typo in README.md. (#586)
