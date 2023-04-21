@@ -177,14 +177,12 @@ void test_stream_handles_nulls_in_all_places()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  int counter{0};
   for (auto [a, b, c, d, e] :
        tx.stream<
          std::optional<std::string>, std::optional<int>, int,
          std::optional<std::string>, std::optional<std::string>>(
          "SELECT NULL::text, NULL::integer, 11, NULL::text, NULL::text"))
   {
-    ++counter;
     PQXX_CHECK(not a, "Starting null did not come through.");
     PQXX_CHECK(not b, "Null in 2nd column did not come through.");
     PQXX_CHECK_EQUAL(c, 11, "Integer in the middle went wrong.");
