@@ -14,7 +14,6 @@
 #define PQXX_H_STATEMENT_PARAMETER
 
 #include <cstring>
-#include <functional>
 #include <iterator>
 #include <string>
 #include <vector>

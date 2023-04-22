@@ -19,7 +19,6 @@
 
 #include <cstddef>
 #include <ctime>
-#include <functional>
 #include <initializer_list>
 #include <list>
 #include <map>
@@ -1056,7 +1055,7 @@ private:
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
   friend struct internal::gate::connection_stream_from;
-  std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
+  std::pair<std::unique_ptr<char, void(*)(void const *)>, std::size_t>
   read_copy_line();
 
   friend class internal::gate::connection_stream_to;

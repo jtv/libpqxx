@@ -18,7 +18,6 @@
 #endif
 
 #include <cassert>
-#include <functional>
 #include <variant>
 
 #include "pqxx/connection.hxx"
@@ -80,7 +79,7 @@ class PQXX_LIBEXPORT stream_from : transaction_focus
 {
 public:
   using raw_line =
-    std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>;
+    std::pair<std::unique_ptr<char, void(*)(void const *)>, std::size_t>;
 
   /// Factory: Execute query, and stream the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an

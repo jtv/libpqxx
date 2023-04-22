@@ -121,24 +121,22 @@ template<> struct string_traits<ipv4>
     ipv4 ts;
     if (std::data(text) == nullptr)
       internal::throw_null_conversion(type_name<ipv4>);
-    std::regex ipv4_regex{R"--((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))--"};
-    std::smatch match;
-    // Need non-temporary for `std::regex_match()`
-    std::string sstr{text};
-    if (not std::regex_match(sstr, match, ipv4_regex) or std::size(match) != 5)
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
-    try
+    std::vector<std::size_t> ends;
+    for (std::size_t i{0}; i < std::size(text); ++i)
+      if (text[i] == '.') ends.push_back(i);
+    ends.push_back(std::size(text));
+    if (std::size(ends) != 4)
+      throw conversion_error{pqxx::internal::concat(
+        "Can't parse '", text, "' as ipv4: expected 4 octets, "
+	"found ",std::size(ends), "."
+      )};
+    std::size_t start{0};
+    for (int i{0}; i < 4; ++i)
     {
-      for (std::size_t i{0}; i < 4; ++i)
-        ts.set_byte(int(i), uint32_t(std::stoi(match[i + 1])));
-    }
-    catch (std::invalid_argument const &)
-    {
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
-    }
-    catch (std::out_of_range const &)
-    {
-      throw std::runtime_error{"Invalid ipv4 format: " + std::string{text}};
+      std::string_view digits{&text[start], ends[i] - start};
+      auto value{pqxx::from_string<uint32_t>(digits)};
+      ts.set_byte(i, value);
+      start = ends[i] + 1;
     }
     return ts;
   }

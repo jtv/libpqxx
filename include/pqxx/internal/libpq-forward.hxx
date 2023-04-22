@@ -25,6 +25,9 @@ using PGconn = pg_conn;
 using PGresult = pg_result;
 using PGnotify = pgNotify;
 using PQnoticeProcessor = void (*)(void *, char const *);
+
+/// Wrapper for `PQfreemem()`, but with C++ linkage.
+void pqfreemem(void const *);
 } // namespace pqxx::internal::pq
 
 namespace pqxx
