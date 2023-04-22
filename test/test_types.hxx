@@ -133,10 +133,11 @@ template<> struct string_traits<ipv4>
     std::size_t start{0};
     for (int i{0}; i < 4; ++i)
     {
-      std::string_view digits{&text[start], ends[i] - start};
+      auto idx{static_cast<std::size_t>(i)};
+      std::string_view digits{&text[start], ends[idx] - start};
       auto value{pqxx::from_string<uint32_t>(digits)};
       ts.set_byte(i, value);
-      start = ends[i] + 1;
+      start = ends[idx] + 1;
     }
     return ts;
   }
