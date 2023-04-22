@@ -80,16 +80,6 @@ extern "C"
 using namespace std::literals;
 
 
-namespace pqxx::internal::pq
-{
-/// Wrapper for `PQfreemem`, with C++ linkage.
-void pqfreemem(void const *ptr)
-{
-  PQfreemem(const_cast<void *>(ptr));
-}
-} // namespace pqxx::internal::pq
-
-
 std::string PQXX_COLD
 pqxx::encrypt_password(char const user[], char const password[])
 {

@@ -192,3 +192,12 @@ pqxx::internal::unesc_bin(std::string_view escaped_data)
   unesc_bin(escaped_data, buf.data());
   return buf;
 }
+
+
+namespace pqxx::internal::pq
+{
+void pqfreemem(void const *ptr) noexcept
+{
+  PQfreemem(const_cast<void *>(ptr));
+}
+} // namespace pqxx::internal::pq
