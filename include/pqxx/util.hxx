@@ -593,4 +593,11 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
 #endif
 }
 } // namespace pqxx::internal
+
+
+namespace pqxx::internal::pq
+{
+/// Wrapper for `PQfreemem()`, with C++ linkage.
+PQXX_LIBEXPORT void pqfreemem(void const *) noexcept;
+} // namespace pqxx::internal::pq
 #endif

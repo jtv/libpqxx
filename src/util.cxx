@@ -192,3 +192,14 @@ pqxx::internal::unesc_bin(std::string_view escaped_data)
   unesc_bin(escaped_data, buf.data());
   return buf;
 }
+
+
+namespace pqxx::internal::pq
+{
+void pqfreemem(void const *ptr) noexcept
+{
+  // Why is it OK to const_cast here?  Because this is the C equivalent to a
+  // destructor.  Those apply to const objects as well as non-const ones.
+  PQfreemem(const_cast<void *>(ptr));
+}
+} // namespace pqxx::internal::pq

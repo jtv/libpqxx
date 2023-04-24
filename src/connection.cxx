@@ -79,11 +79,12 @@ extern "C"
 
 using namespace std::literals;
 
+
 std::string PQXX_COLD
 pqxx::encrypt_password(char const user[], char const password[])
 {
-  std::unique_ptr<char, std::function<void(char *)>> p{
-    PQencryptPassword(password, user), PQfreemem};
+  std::unique_ptr<char, void(*)(void const *)> p{
+    PQencryptPassword(password, user), pqxx::internal::pq::pqfreemem};
   return {p.get()};
 }
 
@@ -464,10 +465,20 @@ bool pqxx::connection::is_busy() const noexcept
 }
 
 
+namespace
+{
+/// Wrapper for `PQfreeCancel`, with C++ linkage.
+void wrap_pgfreecancel(PGcancel *ptr)
+{
+  PQfreeCancel(ptr);
+}
+} // namespace
+
+
 void PQXX_COLD pqxx::connection::cancel_query()
 {
-  using pointer = std::unique_ptr<PGcancel, std::function<void(PGcancel *)>>;
-  pointer cancel{PQgetCancel(m_conn), PQfreeCancel};
+  std::unique_ptr<PGcancel, void(*)(PGcancel *)> cancel{
+    PQgetCancel(m_conn), wrap_pgfreecancel};
   if (cancel == nullptr)
     PQXX_UNLIKELY
   throw std::bad_alloc{};
@@ -529,13 +540,13 @@ pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
 namespace
 {
 /// Unique pointer to PGnotify.
-using notify_ptr = std::unique_ptr<PGnotify, std::function<void(PGnotify *)>>;
+using notify_ptr = std::unique_ptr<PGnotify, void(*)(void const *)>;
 
 
 /// Get one notification from a connection, or null.
 notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 {
-  return notify_ptr(PQnotifies(conn), PQfreemem);
+  return notify_ptr(PQnotifies(conn), pqxx::internal::pq::pqfreemem);
 }
 } // namespace
 
@@ -680,8 +691,8 @@ std::string pqxx::connection::encrypt_password(
   char const user[], char const password[], char const *algorithm)
 {
   auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
-  std::unique_ptr<char const, std::function<void(char const *)>> ptr{
-    buf, [](char const *x) { PQfreemem(const_cast<char *>(x)); }};
+  std::unique_ptr<char const, void(*)(void const *)> ptr{
+    buf, pqxx::internal::pq::pqfreemem};
   return std::string(ptr.get());
 }
 
@@ -800,7 +811,7 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 }
 
 
-std::pair<std::unique_ptr<char, std::function<void(char *)>>, std::size_t>
+std::pair<std::unique_ptr<char, void(*)(void const *)>, std::size_t>
 pqxx::connection::read_copy_line()
 {
   char *buf{nullptr};
@@ -817,7 +828,10 @@ pqxx::connection::read_copy_line()
 
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q);
-    return {};
+    return std::make_pair(
+      std::unique_ptr<char, void(*)(void const *)>{
+        nullptr, pqxx::internal::pq::pqfreemem},
+	0u);
 
   case 0: // "Come back later."
     throw internal_error{"table read inexplicably went asynchronous"};
@@ -828,7 +842,8 @@ pqxx::connection::read_copy_line()
       // Line size includes a trailing zero, which we ignore.
       auto const text_len{static_cast<std::size_t>(line_len) - 1};
       return std::make_pair(
-        std::unique_ptr<char, std::function<void(char *)>>{buf, PQfreemem},
+        std::unique_ptr<char, void(*)(void const *)>{
+	  buf, pqxx::internal::pq::pqfreemem},
         text_len);
     }
   }
@@ -939,8 +954,8 @@ std::string PQXX_COLD pqxx::connection::unesc_raw(char const text[]) const
     std::size_t len;
     auto bytes{const_cast<unsigned char *>(
       reinterpret_cast<unsigned char const *>(text))};
-    std::unique_ptr<unsigned char, std::function<void(unsigned char *)>> const
-      ptr{PQunescapeBytea(bytes, &len), PQfreemem};
+    std::unique_ptr<unsigned char, void(*)(void const *)> const
+      ptr{PQunescapeBytea(bytes, &len), pqxx::internal::pq::pqfreemem};
     return std::string{ptr.get(), ptr.get() + len};
   }
 }
@@ -974,9 +989,9 @@ std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
 
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
-  std::unique_ptr<char, std::function<void(char *)>> buf{
+  std::unique_ptr<char, void(*)(void const *)> buf{
     PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
-    PQfreemem};
+    pqxx::internal::pq::pqfreemem};
   if (buf.get() == nullptr)
     PQXX_UNLIKELY
   throw failure{err_msg()};
@@ -1152,6 +1167,13 @@ char const *get_default(PQconninfoOption const &opt) noexcept
   // The environment variable is the prevailing default.
   return var;
 }
+
+
+/// Wrapper for `PQconninfoFree()`, with C++ linkage.
+void pqconninfofree(PQconninfoOption *ptr)
+{
+  PQconninfoFree(ptr);
+}
 } // namespace
 
 
@@ -1161,9 +1183,8 @@ std::string pqxx::connection::connection_string() const
     PQXX_UNLIKELY
   throw usage_error{"Can't get connection string: connection is not open."};
 
-  std::unique_ptr<
-    PQconninfoOption, std::function<void(PQconninfoOption *)>> const params{
-    PQconninfo(m_conn), PQconninfoFree};
+  std::unique_ptr<PQconninfoOption, void(*)(PQconninfoOption *)>
+    const params{PQconninfo(m_conn), pqconninfofree};
   if (params.get() == nullptr)
     PQXX_UNLIKELY
   throw std::bad_alloc{};

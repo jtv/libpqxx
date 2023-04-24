@@ -420,7 +420,7 @@ namespace
 /** This is just here to stop Visual Studio from advertising its own
  * alternative.
  */
-std::unique_ptr<FILE, std::function<int(FILE *)>>
+std::unique_ptr<FILE, int(*)(FILE *)>
 my_fopen(char const *path, char const *mode)
 {
 #if defined(_MSC_VER)
