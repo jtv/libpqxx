@@ -83,6 +83,8 @@ using namespace std::literals;
 void PQXX_COLD PQXX_LIBEXPORT
 pqxx::internal::do_not_initialize_ssl(int skips) noexcept
 {
+  // We got "skip flags," but we pass to libpq which libraries we *do* want it
+  // to initialise.
   PQinitOpenSSL(
     not (skips & (1 << skip_init::openssl)),
     not (skips & (1 << skip_init::crypto))
