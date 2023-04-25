@@ -80,6 +80,16 @@ extern "C"
 using namespace std::literals;
 
 
+void PQXX_COLD PQXX_LIBEXPORT
+pqxx::internal::do_not_initialize_ssl(int skips) noexcept
+{
+  PQinitOpenSSL(
+    not (skips & (1 << skip_init::openssl)),
+    not (skips & (1 << skip_init::crypto))
+  );
+}
+
+
 std::string PQXX_COLD
 pqxx::encrypt_password(char const user[], char const password[])
 {
