@@ -24,6 +24,7 @@
  - Include `<pqxx/range>` and `<pqxx/time>` headers in `<pqxx/pqxx>`. (#667)
  - Don't use `std::function` as deleter for smart pointers.
  - Work around gcc compile error with regex + address sanitizer + analyzers.
+ - Fix "double free" on exit when built as shared library on Debian. (#681)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)
