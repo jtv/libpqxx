@@ -280,6 +280,10 @@ private:
 } // namespace pqxx::internal
 
 
+// We used to inline type_name<ENUM>, but this triggered a "double free" error
+// on program exit, when libpqxx was built as a shared library on Debian with
+// gcc 12.
+
 /// Macro: Define a string conversion for an enum type.
 /** This specialises the @c pqxx::string_traits template, so use it in the
  * @c ::pqxx namespace.
@@ -295,10 +299,7 @@ private:
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
   {};                                                                         \
-  template<> inline std::string const type_name<ENUM>                         \
-  {                                                                           \
-#    ENUM                                                                     \
-  }
+  template<> inline std::string_view const type_name<ENUM> { #ENUM }
 
 
 namespace pqxx
