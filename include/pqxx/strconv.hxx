@@ -299,7 +299,7 @@ private:
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
   {};                                                                         \
-  template<> std::string const type_name<ENUM> { #ENUM }
+  template<> inline std::string_view const type_name<ENUM> { #ENUM }
 
 
 namespace pqxx

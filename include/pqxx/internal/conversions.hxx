@@ -1217,7 +1217,8 @@ template<typename T> inline std::string to_string(T const &value)
 {
   if (is_null(value))
     throw conversion_error{
-      "Attempt to convert null " + type_name<T> + " to a string."};
+      "Attempt to convert null " + std::string{type_name<T>} +
+      " to a string."};
 
   std::string buf;
   // We can't just reserve() space; modifying the terminating zero leads to
