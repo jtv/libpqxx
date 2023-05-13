@@ -717,6 +717,17 @@ public:
    * `std::basic_string<std::byte>` or `std::basic_string_view<std::byte>`
    * or (in C++20) `std::vector<std::byte>`.  Also, consider large objects on
    * the SQL side and @ref blob on the C++ side.
+   *
+   * @warning Passing the wrong number of parameters to a prepared or
+   * parameterised statement will _break the connection._  The usual exception
+   * that occurs in this situation is @ref pqxx::protocol_violation.  It's a
+   * subclass of @ref pqxx::broken_connection, but where `broken_connection`
+   * usually indicates a networking problem, `protocol_violation` indicates
+   * that the communication with the server has deviated from protocol.  Once
+   * something like that happens, communication is broken and there is nothing
+   * for it but to discard the connection.  A networking problem is usually
+   * worth retrying, but a protocol violation is not.  The same violation will
+   * probably just happen again.
    */
   //@{
 
