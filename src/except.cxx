@@ -30,6 +30,11 @@ pqxx::broken_connection::broken_connection(std::string const &whatarg) :
 {}
 
 
+pqxx::protocol_violation::protocol_violation(std::string const &whatarg) :
+	broken_connection{whatarg}
+{}
+
+
 pqxx::variable_set_to_null::variable_set_to_null() :
         variable_set_to_null{
           "Attempt to set a variable to null.  This is not allowed."}
