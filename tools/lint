@@ -19,23 +19,24 @@ ARGS="${1:-}"
 # I'd love to have rich Unicode, but I can live without it.  But we don't want
 # any surprises in contributions.
 check_ascii() {
-    local exotics=$(
-        find . -name \*.cxx -o -name \*.hxx |
-	xargs cat |
+    local exotics
+    exotics="$(
+        find "$SRCDIR" -type f -name '*.[ch].cxx' -print0 |
+        xargs -0 cat |
         tr -d '\011-\176' |
-	wc -c
-    )
-    if [ $exotics != 0 ]
+        wc -c
+    )"
+    if [ "$exotics" != 0 ]
     then
         echo >&2 "There's a non-ASCII character somewhere."
-	exit 1
+        exit 1
     fi
 }
 
 
 # This version must be at the top of the NEWS file.
 check_news_version() {
-    if ! head -n1 $SRCDIR/NEWS | grep -q "^$PQXXVERSION\$"
+    if ! head -n1 "$SRCDIR/NEWS" | grep -q "^$PQXXVERSION\$"
     then
         cat <<EOF >&2
 Version $PQXXVERSION is not at the top of NEWS.
@@ -48,19 +49,20 @@ EOF
 # Count number of times header $1 is included from each of given input files.
 # Output is lines of <filename>:<count>, one line per file, sorted.
 count_includes() {
-    local HEADER_NAME WS PAT
+    local HEADER_NAME PAT
     HEADER_NAME="$1"
     shift
-    WS="[[:space:]]*"
-    PAT="^${WS}#${WS}include${WS}[<\"]$HEADER_NAME[>\"]"
+    PAT='^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]'"$HEADER_NAME"'[>"]'
     # It's OK for the grep to fail.
-    (grep -c "$PAT" $* || /bin/true) | sort
+    find "$SRCDIR/include/pqxx" -type f -print0 |
+        ( xargs -0 grep -c "$PAT" || /bin/true ) |
+	sort
 }
 
 
 # Check that any includes of $1-pre.hxx are matched by $1-post.hxx ones.
 match_pre_post_headers() {
-    local NAME TEMPDIR PRE POST HEADERS
+    local NAME TEMPDIR PRE POST
     NAME="$1"
     TEMPDIR="$(mktemp -d)"
     if test -z "$TEMPDIR"
@@ -70,11 +72,8 @@ match_pre_post_headers() {
     fi
     PRE="$TEMPDIR/pre"
     POST="$TEMPDIR/post"
-    HEADERS=$(find include/pqxx/* -type f | grep -v '\.swp$')
-    count_includes \
-        $SRCDIR/NAME-pre.hxx $HEADERS >"$PRE"
-    count_includes \
-        $SRCDIR/NAME-post.hxx $HEADERS >"$POST"
+    count_includes "$SRCDIR/$NAME-pre.hxx" >"$PRE"
+    count_includes "$SRCDIR/$NAME-post.hxx" >"$POST"
     DIFF="$(diff "$PRE" "$POST")" || /bin/true
     rm -r -- "$TEMPDIR"
     if test -n "$DIFF"
@@ -104,29 +103,29 @@ cpplint() {
     then
         if [ -e compile_flags ]
         then
-	    # Pick out relevant flags, but leave out the rest.
-	    # If we're not compiling with clang, compile_flags may contain
-	    # options that clang-tidy doesn't recognise.
+            # Pick out relevant flags, but leave out the rest.
+            # If we're not compiling with clang, compile_flags may contain
+            # options that clang-tidy doesn't recognise.
             dialect="$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)"
-	    includes="$(
-	        grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
-		true)"
+            includes="$(
+                grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
+                true)"
         else
             dialect=""
-	    includes=""
+            includes=""
         fi
 
-	cxxflags="$dialect $includes"
+        cxxflags="$dialect $includes"
 
 # TODO: Please, is there any way we can parallelise this?
 # TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
 # TODO: Some useful checks in abseil-*, but it recommends "use our library."
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
         clang-tidy \
-            $(find $SRCDIR/src $SRCDIR/tools -name \*.cxx) \
+            "$(find "$SRCDIR"/src "$SRCDIR"/tools -name \*.cxx)" \
             --checks=boost-*, \
             -- \
-            -I$SRCDIR/include -Iinclude $cxxflags
+            -I"$SRCDIR/include" -Iinclude "$cxxflags"
     fi
 
     # Run Facebook's "infer" static analyser, if available.
@@ -134,10 +133,10 @@ cpplint() {
     if which infer >/dev/null
     then
         # This will work in an out-of-tree build, but either way it does
-	# require a successful "configure", or a cmake with the "make"
-	# generator.
-        infer capture -- make -j$(nproc)
-	infer run
+        # require a successful "configure", or a cmake with the "make"
+        # generator.
+        infer capture -- make -j"$(nproc)"
+        infer run
     fi
 }
 
@@ -147,12 +146,27 @@ pylint() {
     echo "Skipping pocketlint; it's not up to date with Python3."
     # if which pocketlint >/dev/null
     # then
-    # 	pocketlint $PYFILES
+    #    pocketlint $PYFILES
     # fi
 
     if which pyflakes3 >/dev/null
     then
-        pyflakes3 $PYFILES
+        pyflakes3 "$PYFILES"
+    fi
+}
+
+
+shelllint() {
+    local TLS="deprecations extract_version format lint todo update-copyright"
+    if which shellcheck >/dev/null
+    then
+        shellcheck "$SRCDIR/autogen.sh"
+        for s in $TLS
+        do
+            shellcheck "$SRCDIR/tools/$s"
+        done
+    else
+        echo "No shellcheck found.  Skipping."
     fi
 }
 
@@ -171,7 +185,7 @@ main() {
     do
         case $arg in
         -h|--help)
-	    cat <<EOF
+            cat <<EOF
 Perform static checks on libpqxx build tree.
 
 Usage:
@@ -182,17 +196,18 @@ EOF
             exit 0
         ;;
         -f|--full)
-	    full="yes"
+            full="yes"
         ;;
         *)
-	    echo >&2 "Unknown argument: '$arg'"
-	    exit 1
+            echo >&2 "Unknown argument: '$arg'"
+            exit 1
         ;;
         esac
     done
 
     check_ascii
     pylint
+    shelllint
     check_news_version
     check_compiler_internal_headers
     markdownlint

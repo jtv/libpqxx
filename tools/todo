@@ -8,11 +8,8 @@ set -e -u -o pipefail
 # TODO: Make location-independent?
 find_source() {
     echo configure.ac
-    find . -name \*.cxx -o -name \*.hxx | sed -e 's|^\./||' | sort
-    for f in $(ls tools)
-    do
-        echo tools/$f
-    done
+    find . -name '*.[ch]xx' | sed -e 's|^\./||' | sort
+    echo tools/*
 }
 
 
@@ -23,7 +20,9 @@ FILES=${*:-$(find_source)}
 # (This function adds the colon.  That way, the search statement itself won't
 # show up in the search.)
 search_for() {
-    grep $1: $2
+    local key="$1:"
+    shift
+    find_source | xargs grep "$key"
 }
 
 

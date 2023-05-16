@@ -8,13 +8,14 @@
 set -C -u -e
 
 # Reformat C++ files.
-find -name \*.cxx -o -name \*.hxx | xargs clang-format -i
+find . -name '*.[ch]xx' -print0 | xargs -0 clang-format -i
 
 
 # Reformat CMake files.
 WORKDIR=$(mktemp -d)
-virtualenv -q --python=$(which python3) "$WORKDIR/venv"
-. "$WORKDIR/venv/bin/activate"
+virtualenv -q --python="$(which python3)" "$WORKDIR/venv"
+# shellcheck disable=SC1091
+source "$WORKDIR"/venv/bin/activate
 pip install -q six pyaml cmake-format
-(find -name CMakeLists.txt | xargs cmake-format -i) || /bin/true
+(find . -name CMakeLists.txt -print0 | xargs -0 cmake-format -i) || /bin/true
 rm -rf "$WORKDIR"

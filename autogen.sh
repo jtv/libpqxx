@@ -30,7 +30,7 @@ expand_templates() {
 
 # We have two kinds of templates.  One uses our custom templating tool.  And
 # a few others simply have some substitutions done.
-expand_templates $(find -name \*.template)
+expand_templates "$(find . -name \*.template)"
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
 
