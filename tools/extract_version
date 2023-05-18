@@ -42,7 +42,7 @@ EOF
 case "$ARG" in
 ''|-f|--full)
 	# Default: Print full version.
-	cat $srcdir/VERSION
+	cat "$srcdir/VERSION"
 	;;
 
 -h|--help)
@@ -53,21 +53,21 @@ case "$ARG" in
 
 -a|--abi)
 	# Print just the ABI version (major & minor).
-	sed -e 's/^\([^.]*\.[^.]*\)\..*/\1/' $srcdir/VERSION
+	sed -e 's/^\([^.]*\.[^.]*\)\..*/\1/' "$srcdir/VERSION"
 	;;
 
 -M|--major)
 	# Print the major version number.
-	sed -e 's/^\([^.]*\)\..*/\1/' $srcdir/VERSION
+	sed -e 's/^\([^.]*\)\..*/\1/' "$srcdir/VERSION"
 	;;
 
 -m|--minor)
 	# Print the minor version number.
-	sed -e 's/^[^.]*\.\([^.]*\)\..*/\1/' $srcdir/VERSION
+	sed -e 's/^[^.]*\.\([^.]*\)\..*/\1/' "$srcdir/VERSION"
 	;;
 
 *)
-	unknown_arg $ARG
+	unknown_arg "$ARG"
 	exit 1
 	;;
 esac
