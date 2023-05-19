@@ -142,16 +142,9 @@ cpplint() {
 
 
 pylint() {
-    local PYFILES="$SRCDIR/tools/*.py $SRCDIR/tools/splitconfig"
-    echo "Skipping pocketlint; it's not up to date with Python3."
-    # if which pocketlint >/dev/null
-    # then
-    #    pocketlint $PYFILES
-    # fi
-
     if which pyflakes3 >/dev/null
     then
-        pyflakes3 "$PYFILES"
+        pyflakes3 "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
     fi
 }
 
