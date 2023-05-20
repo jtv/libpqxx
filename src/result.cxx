@@ -207,7 +207,9 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     switch (code[1])
     {
     case 'A': throw feature_not_supported{Err, Query, code};
-    case '8': throw broken_connection{Err};
+    case '8':
+      if (equal(code, "08P01")) throw protocol_violation{Err};
+      throw broken_connection{Err};
     case 'L':
     case 'P': throw insufficient_privilege{Err, Query, code};
     }

@@ -329,6 +329,31 @@ void test_placeholders_generates_names()
 }
 
 
+void test_wrong_number_of_params()
+{
+  {
+    pqxx::connection conn1;
+    pqxx::transaction tx1{conn1};
+    conn1.prepare("broken1", "SELECT $1::int + $2::int");
+    PQXX_CHECK_THROWS(
+	tx1.exec_prepared("broken1", 10),
+	pqxx::protocol_violation,
+	"Incomplete params no longer thrws protocol violation.");
+  }
+
+  {
+    pqxx::connection conn2;
+    pqxx::transaction tx2{conn2};
+    conn2.prepare("broken2", "SELECT $1::int + $2::int");
+    PQXX_CHECK_THROWS(
+	tx2.exec_prepared("broken2", 5, 4, 3),
+	pqxx::protocol_violation,
+	"Passing too many params no longer thrws protocol violation.");
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_prepared_statements);
 PQXX_REGISTER_TEST(test_placeholders_generates_names);
+PQXX_REGISTER_TEST(test_wrong_number_of_params);
 } // namespace

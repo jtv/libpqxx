@@ -123,6 +123,12 @@ inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
       // again.
       throw;
     }
+    catch (protocol_violation const &)
+    {
+      // This is a subclass of broken_connection, but it's not one where
+      // retrying is likely to do us any good.
+      throw;
+    }
     catch (broken_connection const &)
     {
       // Connection failed.  May be worth retrying, if the transactor opens its

@@ -41,7 +41,7 @@ void test_transactor_newstyle_retries_broken_connection()
   auto const &callback{[&counter] {
     ++counter;
     if (counter == 1)
-      throw pqxx::broken_connection();
+      throw pqxx::broken_connection{};
     return counter;
   }};
 

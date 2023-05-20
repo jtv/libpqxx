@@ -63,12 +63,28 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
  * {
  *   signal(SIGPIPE, SIG_IGN);
  *   // ...
+ * }
  * ```
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {
   broken_connection();
   explicit broken_connection(std::string const &);
+};
+
+
+/// Exception class for micommunication with th server.
+/** This happens when the conversation between libpq and the server gets messed
+ * up.  There aren't many situations where this happens, but one known instance
+ * is when you call a parameterised or prepared statement with th ewrong number
+ * of parameters.
+ *
+ * So even though this is a `broken_connection`, it signals that retrying is
+ * _not_ likely to make the problem go away.
+ */
+struct PQXX_LIBEXPORT protocol_violation : broken_connection
+{
+  explicit protocol_violation(std::string const &);
 };
 
 
