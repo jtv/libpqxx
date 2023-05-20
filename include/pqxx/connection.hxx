@@ -94,7 +94,10 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
 
 
 /// Control OpenSSL/crypto library initialisation.
-/** @param flags a bitmask of `1 << flag` for each of the `skip_init` flags.
+/** This is an internal helper.  Unless you're working on libpqxx itself, use
+ * @ref pqxx::do_not_initialize_ssl instead.
+ *
+ * @param flags a bitmask of `1 << flag` for each of the `skip_init` flags.
  *
  * Ignores the `skip_init::noop` flag.
  */
@@ -124,7 +127,8 @@ namespace pqxx
  * libpqxx, libpq automatically initialises the OpenSSL and libcrypto
  * libraries.  But there are scenarios in which you may want to suppress that.
  *
- * This enum is a way to express this.
+ * This enum is a way to express this.  Pass values of this enum to
+ * @ref pqxx::do_not_initialize_ssl as template arguments.
  */
 enum skip_init : int
 {
@@ -139,7 +143,6 @@ enum skip_init : int
 };
 
 
-// C++20: Nicer type enforcement on the arguments.
 /// Control initialisation of OpenSSL and libcrypto libraries.
 /** By default, libpq initialises the openssl and libcrypto libraries when your
  * process first opens an SSL connection to a database.  But this may not be
@@ -156,20 +159,20 @@ enum skip_init : int
  *
  * Examples:
  * * To let libpq initialise libcrypto but not OpenSSL:
- *   `do_not_initialize_ssl(pqxx::skip_init::openssl)`
+ *   `do_not_initialize_ssl<pqxx::skip_init::openssl>();`
  * * To let libpq know that it should not initialise either:
- *   `do_not_initialize_ssl(pqxx::skip_init::openssl, pqxx::skip_init::crypto)`
+ *   ```cxx
+ *   do_not_initialize_ssl<
+ *       pqxx::skip_init::openssl, pqxx::skip_init::crypto
+ *   >();
+ *   ```
  * * To say explicitly that you want libpq to initialise both:
- *   `do_not_initialize_ssl()`, or
- *   `do_not_initialize_ssl(pqxx::skip_init::noop)`
+ *   `do_not_initialize_ssl<pqxx::skip_init::noop>(;)`
  */
-template<typename... SKIP>
-inline void do_not_initialize_ssl(SKIP... skip) noexcept
+template<skip_init... SKIP> inline void do_not_initialize_ssl() noexcept
 {
-  static_assert((std::is_same_v<SKIP, skip_init> and ...));
-
   // (Normalise skip flags to one per.)
-  pqxx::internal::do_not_initialize_ssl(((1 << skip) | ...));
+  pqxx::internal::do_not_initialize_ssl(((1 << SKIP) | ...));
 }
 
 
