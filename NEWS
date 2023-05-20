@@ -27,6 +27,7 @@
  - Fix "double free" on exit when built as shared library on Debian. (#681)
  - Stop including `<ciso646>`; should be built into compilers. (#680)
  - New `broken_connection` exception subclass: `protocol_violation`. (#686)
+ - Retired unused `blob_already_exists` exception class. (#686)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)
