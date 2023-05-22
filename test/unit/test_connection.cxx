@@ -215,7 +215,7 @@ void test_closed_connection()
 
 void test_skip_init_ssl()
 {
-  pqxx::skip_init_ssl<pqxx::skip_init::openssl>();
+  pqxx::skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
   pqxx::skip_init_ssl<pqxx::skip_init::noop>();
 }
 
