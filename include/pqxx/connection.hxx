@@ -99,7 +99,7 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
  *
  * @param flags a bitmask of `1 << flag` for each of the `skip_init` flags.
  *
- * Ignores the `skip_init::noop` flag.
+ * Ignores the `skip_init::nothing` flag.
  */
 void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int flags) noexcept;
 } // namespace pqxx::internal
@@ -133,7 +133,7 @@ namespace pqxx
 enum skip_init : int
 {
   /// A do-nothing flag that does not affect anything.
-  noop,
+  nothing,
 
   /// Skip initialisation of OpenSSL library.
   openssl,
@@ -165,7 +165,7 @@ enum skip_init : int
  *   skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
  *   ```
  * * To say explicitly that you want libpq to initialise both:
- *   `skip_init_ssl<pqxx::skip_init::noop>(;)`
+ *   `skip_init_ssl<pqxx::skip_init::nothing>();`
  */
 template<skip_init... SKIP> inline void skip_init_ssl() noexcept
 {
