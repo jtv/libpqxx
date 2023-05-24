@@ -213,6 +213,13 @@ void test_closed_connection()
 }
 
 
+void test_skip_init_ssl()
+{
+  pqxx::skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
+  pqxx::skip_init_ssl<pqxx::skip_init::nothing>();
+}
+
+
 PQXX_REGISTER_TEST(test_connection_string_constructor);
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
@@ -221,4 +228,5 @@ PQXX_REGISTER_TEST(test_connection_string);
 PQXX_REGISTER_TEST(test_connection_params);
 PQXX_REGISTER_TEST(test_raw_connection);
 PQXX_REGISTER_TEST(test_closed_connection);
+PQXX_REGISTER_TEST(test_skip_init_ssl);
 } // namespace

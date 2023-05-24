@@ -91,6 +91,17 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
 } and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
 == 2;
 #endif // PQXX_HAVE_CONCEPTS
+
+
+/// Control OpenSSL/crypto library initialisation.
+/** This is an internal helper.  Unless you're working on libpqxx itself, use
+ * @ref pqxx::skip_init_ssl instead.
+ *
+ * @param flags a bitmask of `1 << flag` for each of the `skip_init` flags.
+ *
+ * Ignores the `skip_init::nothing` flag.
+ */
+void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int flags) noexcept;
 } // namespace pqxx::internal
 
 
@@ -111,6 +122,58 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
+/// Flags for skipping initialisation of SSL-related libraries.
+/** When a running process makes its first SSL connection to a database through
+ * libpqxx, libpq automatically initialises the OpenSSL and libcrypto
+ * libraries.  But there are scenarios in which you may want to suppress that.
+ *
+ * This enum is a way to express this.  Pass values of this enum to
+ * @ref pqxx::skip_init_ssl as template arguments.
+ */
+enum skip_init : int
+{
+  /// A do-nothing flag that does not affect anything.
+  nothing,
+
+  /// Skip initialisation of OpenSSL library.
+  openssl,
+
+  /// Skip initialisation of libcrypto.
+  crypto,
+};
+
+
+/// Control initialisation of OpenSSL and libcrypto libraries.
+/** By default, libpq initialises the openssl and libcrypto libraries when your
+ * process first opens an SSL connection to a database.  But this may not be
+ * what you want: perhaps your application (or some other library it uses)
+ * already initialises one or both of these libraries.
+ *
+ * Call this function to stop libpq from initialising one or the other of these.
+ * Pass as arguments each of the `skip_init` flags for which of the libraries
+ * whose initialisation you want to prevent.
+ *
+ * @warning Each call to this function _overwrites_ the effects of any previous
+ * call.  So if you make one call to skip OpenSSL initialisation, and then
+ * another to skip libcrypto initialisation, the first call will do nothing.
+ *
+ * Examples:
+ * * To let libpq initialise libcrypto but not OpenSSL:
+ *   `skip_init_ssl<pqxx::skip_init::openssl>();`
+ * * To let libpq know that it should not initialise either:
+ *   ```cxx
+ *   skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
+ *   ```
+ * * To say explicitly that you want libpq to initialise both:
+ *   `skip_init_ssl<pqxx::skip_init::nothing>();`
+ */
+template<skip_init... SKIP> inline void skip_init_ssl() noexcept
+{
+  // (Normalise skip flags to one per.)
+  pqxx::internal::skip_init_ssl(((1 << SKIP) | ...));
+}
+
+
 /// Representation of a PostgreSQL table path.
 /** A "table path" consists of a table name, optionally prefixed by a schema
  * name, which in turn is optionally prefixed by a database name.
