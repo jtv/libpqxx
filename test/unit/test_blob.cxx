@@ -178,8 +178,7 @@ void test_blob_read_reads_data()
 
 
 /// Cast a `char` or `std::byte` to `unsigned int`.
-template<typename BYTE>
-unsigned get_byte(BYTE val)
+template<typename BYTE> inline unsigned byte_val(BYTE val)
 {
   using uchar_t = unsigned char;
   return unsigned(uchar_t(val));
@@ -210,9 +209,9 @@ void test_blob_read_span()
   PQXX_CHECK_EQUAL(
     std::size(output), 2u, "Got unexpected buf size from blob::read().");
   PQXX_CHECK_EQUAL(
-    get_byte(output[0]), get_byte('u'), "Unexpected byte from blob::read().");
+    byte_val(output[0]), byte_val('u'), "Unexpected byte from blob::read().");
   PQXX_CHECK_EQUAL(
-    get_byte(output[1]), get_byte('v'), "Unexpected byte from blob::read().");
+    byte_val(output[1]), byte_val('v'), "Unexpected byte from blob::read().");
 
   string_buf.resize(100);
   output = b.read(std::span<std::byte>{string_buf.data(), 1});
@@ -220,7 +219,7 @@ void test_blob_read_span()
     std::size(output), 1u,
     "Did blob::read() follow string size instead of span size?");
   PQXX_CHECK_EQUAL(
-    get_byte(output[0]), get_byte('w'), "Unexpected byte from blob::read().");
+    byte_val(output[0]), byte_val('w'), "Unexpected byte from blob::read().");
 
   std::vector<std::byte> vec_buf;
   vec_buf.resize(2);
@@ -228,14 +227,14 @@ void test_blob_read_span()
   PQXX_CHECK_EQUAL(
     std::size(output2), 2u, "Got unexpected buf size from blob::read().");
   PQXX_CHECK_EQUAL(
-    get_byte(output2[0]), get_byte('x'), "Unexpected byte from blob::read().");
+    byte_val(output2[0]), byte_val('x'), "Unexpected byte from blob::read().");
   PQXX_CHECK_EQUAL(
-    get_byte(output2[1]), get_byte('y'), "Unexpected byte from blob::read().");
+    byte_val(output2[1]), byte_val('y'), "Unexpected byte from blob::read().");
 
   vec_buf.resize(100);
   output2 = b.read(vec_buf);
   PQXX_CHECK_EQUAL(std::size(output2), 1u, "Weird things happened at EOF.");
-  PQXX_CHECK_EQUAL(get_byte(output2[0]), get_byte('z'), "Bad data at EOF.");
+  PQXX_CHECK_EQUAL(byte_val(output2[0]), byte_val('z'), "Bad data at EOF.");
 #endif // PQXX_HAVE_SPAN
 }
 
@@ -255,7 +254,7 @@ void test_blob_reads_vector()
     std::size(out), std::size(content),
     "Got wrong length back when reading as vector.");
   PQXX_CHECK_EQUAL(
-    get_byte(out[0]), get_byte('a'), "Got bad data when reading as vector.");
+    byte_val(out[0]), byte_val('a'), "Got bad data when reading as vector.");
 }
 
 
@@ -313,9 +312,9 @@ void test_blob_writes_span()
   PQXX_CHECK_EQUAL(
     std::size(out), 3u, "Did not get expected number of bytes back.");
   PQXX_CHECK_EQUAL(
-    get_byte(out[0]), get_byte('f'), "Data did not come back right.");
+    byte_val(out[0]), byte_val('f'), "Data did not come back right.");
   PQXX_CHECK_EQUAL(
-    get_byte(out[2]), get_byte('l'), "Data started right, ended wrong!");
+    byte_val(out[2]), byte_val('l'), "Data started right, ended wrong!");
 #endif // PQXX_HAVE_SPAN
 }
 
@@ -385,21 +384,21 @@ void test_blob_seek_sets_positions()
   b.seek_rel(3);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
-    get_byte(buf[0]), get_byte(3),
+    byte_val(buf[0]), byte_val(3),
     "seek_rel() from beginning did not take us to the right position.");
 
   b.seek_abs(2);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
-    get_byte(buf[0]),
-    get_byte(2),
+    byte_val(buf[0]),
+    byte_val(2),
     "seek_abs() did not take us to the right position.");
 
   b.seek_end(-2);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
-    get_byte(buf[0]),
-    get_byte(8),
+    byte_val(buf[0]),
+    byte_val(8),
     "seek_end() did not take us to the right position.");
 }
 
