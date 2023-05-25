@@ -180,8 +180,7 @@ void test_blob_read_reads_data()
 /// Cast a `char` or `std::byte` to `unsigned int`.
 template<typename BYTE> inline unsigned byte_val(BYTE val)
 {
-  using uchar_t = unsigned char;
-  return unsigned(uchar_t(val));
+  return unsigned(static_cast<unsigned char>(val));
 }
 
 
