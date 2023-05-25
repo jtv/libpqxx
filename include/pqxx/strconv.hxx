@@ -220,38 +220,44 @@ template<typename TYPE> struct string_traits
 
 
 /// Nonexistent function to indicate a disallowed type conversion.
-/** There are some C++ types that you may want to convert to or from SQL values,
- * but which libpqxx deliberately does not support.  For example, `char` is one
- * of these: we define no conversions for that type because it is not inherently
- * clear whether the corresponding SQL type should be a single-character string,
- * a small integer, a raw byte value, etc.
+/** There is no implementation for this function, so any reference to it will
+ * fail to link.  The error message will mention the function name and its
+ * template argument, as a deliberate message to an application developer that
+ * their code is attempting to use a deliberately unsupported conversion.
+ *
+ * There are some C++ types that you may want to convert to or from SQL values,
+ * but which libpqxx deliberately does not support.  Take `char` for example: we
+ * define no conversions for that type because it is not inherently clear
+ * whether whether the corresponding SQL type should be a single-character
+ * string, a small integer, a raw byte value, etc.  The intention could differ
+ * from one call site to the next.
  *
  * If an application attempts to convert these types, we try to make sure that
  * the compiler will issue an error involving this function name, and mention
  * the type, as a hint as to the reason.
  */
 template<typename TYPE> [[noreturn]]
-void help_forbidden_conversion() noexcept;
+void oops_forbidden_conversion() noexcept;
 
 
 /// String traits for a forbidden type conversion.
 /** If you have a C++ type for which you explicitly wish to forbid SQL
  * conversion, you can derive a @ref pqxx::string_traits specialisation for
  * that type from this struct.  Any attempt to convert the type will then fail
- * to build, and produce an error mentioning @ref help_forbidden_conversion.
+ * to build, and produce an error mentioning @ref oops_forbidden_conversion.
  */
 template<typename TYPE> struct forbidden_conversion
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
   [[noreturn]] static zview to_buf(char *, char *, TYPE const &)
-  { help_forbidden_conversion<TYPE>(); }
+  { oops_forbidden_conversion<TYPE>(); }
   [[noreturn]] static char *into_buf(char *, char *, TYPE const &)
-  { help_forbidden_conversion<TYPE>(); }
+  { oops_forbidden_conversion<TYPE>(); }
   [[noreturn]] static TYPE from_string(std::string_view)
-  { help_forbidden_conversion<TYPE>(); }
+  { oops_forbidden_conversion<TYPE>(); }
   [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept
-  { help_forbidden_conversion<TYPE>(); }
+  { oops_forbidden_conversion<TYPE>(); }
 };
 
 
