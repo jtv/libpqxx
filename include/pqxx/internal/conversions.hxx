@@ -264,37 +264,6 @@ template<> struct string_traits<bool>
 template<> inline constexpr bool is_unquoted_safe<bool>{true};
 
 
-/// We don't support conversion to/from `char` types.
-/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
- * clear whether we should treat values of these types as text or as small
- * integers.  Either choice would lead to bugs.
- */
-template<>
-struct string_traits<char>
-        : internal::disallowed_ambiguous_char_conversion<char>
-{};
-
-/// We don't support conversion to/from `char` types.
-/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
- * clear whether we should treat values of these types as text or as small
- * integers.  Either choice would lead to bugs.
- */
-template<>
-struct string_traits<signed char>
-        : internal::disallowed_ambiguous_char_conversion<signed char>
-{};
-
-/// We don't support conversion to/from `char` types.
-/** Why are these disallowed?  Because they are ambiguous.  It's not inherently
- * clear whether we should treat values of these types as text or as small
- * integers.  Either choice would lead to bugs.
- */
-template<>
-struct string_traits<unsigned char>
-        : internal::disallowed_ambiguous_char_conversion<unsigned char>
-{};
-
-
 template<typename T> struct nullness<std::optional<T>>
 {
   static constexpr bool has_null = true;

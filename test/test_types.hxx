@@ -19,37 +19,7 @@
 
 namespace pqxx
 {
-template<> struct nullness<std::byte> : no_null<std::byte>
-{};
-
-
-constexpr static auto hex_digit{"0123456789abcdef"};
-
-
-template<> struct string_traits<std::byte>
-{
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
-  static std::size_t size_buffer(std::byte const &) { return 3; }
-
-  static zview to_buf(char *begin, char *end, std::byte const &value)
-  {
-    if (pqxx::internal::cmp_less(end - begin, size_buffer(value)))
-      throw pqxx::conversion_overrun{
-        "Not enough buffer to convert std::byte."};
-    auto uc{static_cast<unsigned char>(value)};
-    begin[0] = hex_digit[uc >> 4];
-    begin[1] = hex_digit[uc & 0x0f];
-    return zview{begin, 2u};
-  }
-
-  static char *into_buf(char *begin, char *end, std::byte const &value)
-  {
-    auto view{to_buf(begin, end, value)};
-    return begin + std::size(view);
-  }
-};
+template<> struct nullness<std::byte> : no_null<std::byte> {};
 } // namespace pqxx
 
 
