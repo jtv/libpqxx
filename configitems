@@ -15,6 +15,7 @@ PQXX_HAVE_LIKELY	public	compiler
 PQXX_HAVE_PATH	public	compiler
 PQXX_HAVE_POLL       internal        compiler
 PQXX_HAVE_SLEEP_FOR	internal	compiler
+PQXX_HAVE_SOURCE_LOCATION	public	compiler
 PQXX_HAVE_SPAN	public	compiler
 PQXX_HAVE_STRERROR_R	public	compiler
 PQXX_HAVE_STRERROR_S	public	compiler

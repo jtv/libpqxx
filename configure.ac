@@ -401,6 +401,17 @@ AC_LINK_IFELSE(
 	have_charconv_float=no)
 AC_MSG_RESULT($have_charconv_float)
 
+AC_MSG_CHECKING([for C++20 source_location support])
+have_source_location=yes
+AC_COMPILE_IFELSE(
+	[read_test(source_location.cxx)],
+	AC_DEFINE(
+		[PQXX_HAVE_SOURCE_LOCATION],
+		1,
+		[Define if compiler supports std::source_location.]),
+	have_source_location=no)
+AC_MSG_RESULT($have_source_location)
+
 # As per #262, clang with libcxxrt does not support thread_local on non-POD
 # objects.  Luckily we can live without those, it's just less efficient.
 AC_MSG_CHECKING([for full thread_local support])

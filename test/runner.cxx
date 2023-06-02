@@ -165,6 +165,10 @@ int main(int argc, char const *argv[])
       catch (pqxx::feature_not_supported const &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what()
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
+		  << "(" << e.location.file_name() << ':' << e.location.line()
+		  << " in " << e.location.function_name() << " )"
+#endif
                   << std::endl;
         success = true;
         --test_count;
@@ -172,6 +176,10 @@ int main(int argc, char const *argv[])
       catch (pqxx::sql_error const &e)
       {
         std::cerr << "SQL error: " << e.what() << std::endl
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
+		  << "(" << e.location.file_name() << ':' << e.location.line()
+		  << " in " << e.location.function_name() << " )"
+#endif
                   << "Query was: " << e.query() << std::endl;
       }
       catch (std::exception const &e)

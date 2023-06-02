@@ -118,9 +118,8 @@ pqxx::blob::~blob()
   catch (std::exception const &e)
   {
     if (m_conn != nullptr)
-      PQXX_UNLIKELY
-    m_conn->process_notice(internal::concat(
-      "Failure while closing binary large object: ", e.what(), "\n"));
+      m_conn->process_notice(internal::concat(
+        "Failure while closing binary large object: ", e.what(), "\n"));
   }
 }
 
