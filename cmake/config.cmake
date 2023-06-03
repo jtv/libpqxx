@@ -83,10 +83,6 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_float.cxx)
 try_compile(
-	PQXX_HAVE_SOURCE_LOCATION
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/source_location.cxx)
-try_compile(
 	PQXX_HAVE_CHARCONV_INT
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_int.cxx)

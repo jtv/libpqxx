@@ -90,9 +90,6 @@
 /* Define if std::this_thread::sleep_for works. */
 #undef PQXX_HAVE_SLEEP_FOR
 
-/* Define if compiler supports std::source_location. */
-#undef PQXX_HAVE_SOURCE_LOCATION
-
 /* Define if compiler has std::span. */
 #undef PQXX_HAVE_SPAN
 
