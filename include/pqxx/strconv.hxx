@@ -219,6 +219,119 @@ template<typename TYPE> struct string_traits
 };
 
 
+/// Nonexistent function to indicate a disallowed type conversion.
+/** There is no implementation for this function, so any reference to it will
+ * fail to link.  The error message will mention the function name and its
+ * template argument, as a deliberate message to an application developer that
+ * their code is attempting to use a deliberately unsupported conversion.
+ *
+ * There are some C++ types that you may want to convert to or from SQL values,
+ * but which libpqxx deliberately does not support.  Take `char` for example: we
+ * define no conversions for that type because it is not inherently clear
+ * whether whether the corresponding SQL type should be a single-character
+ * string, a small integer, a raw byte value, etc.  The intention could differ
+ * from one call site to the next.
+ *
+ * If an application attempts to convert these types, we try to make sure that
+ * the compiler will issue an error involving this function name, and mention
+ * the type, as a hint as to the reason.
+ */
+template<typename TYPE> [[noreturn]]
+void oops_forbidden_conversion() noexcept;
+
+
+/// String traits for a forbidden type conversion.
+/** If you have a C++ type for which you explicitly wish to forbid SQL
+ * conversion, you can derive a @ref pqxx::string_traits specialisation for
+ * that type from this struct.  Any attempt to convert the type will then fail
+ * to build, and produce an error mentioning @ref oops_forbidden_conversion.
+ */
+template<typename TYPE> struct forbidden_conversion
+{
+  static constexpr bool converts_to_string{false};
+  static constexpr bool converts_from_string{false};
+  [[noreturn]] static zview to_buf(char *, char *, TYPE const &)
+  { oops_forbidden_conversion<TYPE>(); }
+  [[noreturn]] static char *into_buf(char *, char *, TYPE const &)
+  { oops_forbidden_conversion<TYPE>(); }
+  [[noreturn]] static TYPE from_string(std::string_view)
+  { oops_forbidden_conversion<TYPE>(); }
+  [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept
+  { oops_forbidden_conversion<TYPE>(); }
+};
+
+
+/// You cannot convert a `char` to/from SQL.
+/** Converting this type may seem simple enough, but it's ambiguous: Did you
+ * mean the `char` value as a small integer?  If so, did you mean it to be
+ * signed or unsigned?  (The C++ Standard allows the system to implement `char`
+ * as either a signed type or an unsigned type.)  Or were you thinking of a
+ * single-character string (and if so, using what encoding)?  Or perhaps it's
+ * just a raw byte value?
+ *
+ * If you meant it as an integer, use an appropriate integral type such as
+ * `int` or `short` or `unsigned int` etc.
+ *
+ * If you wanted a single-character string, use `std::string_view` (or a
+ * similar type such as `std::string`).
+ *
+ * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
+ * instead.
+ */
+template<> struct string_traits<char> : forbidden_conversion<char> {};
+
+
+
+/// You cannot convert an `unsigned char` to/from SQL.
+/** Converting this type may seem simple enough, but it's ambiguous: Did you
+ * mean the `char` value as a small integer?  Or were you thinking of a
+ * single-character string (and if so, using what encoding)?  Or perhaps it's
+ * just a raw byte value?
+ *
+ * If you meant it as an integer, use an appropriate integral type such as
+ * `int` or `short` or `unsigned int` etc.
+ *
+ * If you wanted a single-character string, use `std::string_view` (or a
+ * similar type such as `std::string`).
+ *
+ * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
+ * instead.
+ */
+template<>
+struct string_traits<unsigned char> : forbidden_conversion<unsigned char> {};
+
+
+
+/// You cannot convert a `signed char` to/from SQL.
+/** Converting this type may seem simple enough, but it's ambiguous: Did you
+ * mean the value as a small integer?  Or were you thinking of a
+ * single-character string (and if so, in what encoding)?  Or perhaps it's just
+ * a raw byte value?
+ *
+ * If you meant it as an integer, use an appropriate integral type such as
+ * `int` or `short` etc.
+ *
+ * If you wanted a single-character string, use `std::string_view` (or a
+ * similar type such as `std::string`).
+ *
+ * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
+ * instead.
+ */
+template<>
+struct string_traits<signed char> : forbidden_conversion<signed char> {};
+
+
+
+/// You cannot convert a `std::byte` to/from SQL.
+/** To convert a raw byte value, use a `std::basic_string_view<std::byte>`.
+ *
+ * For example, to convert a byte `b` from C++ to SQL, convert the value
+ * `std::basic_string_view<std::byte>{&b, 1}` instead.
+ */
+template<>
+struct string_traits<std::byte> : forbidden_conversion<std::byte> {};
+
+
 /// Nullness: Enums do not have an inherent null value.
 template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
