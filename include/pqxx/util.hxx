@@ -307,6 +307,7 @@ template<PQXX_POTENTIAL_BINARY_ARG TYPE>
 std::basic_string_view<std::byte> binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
+  // C++20: Use std::as_bytes.
   return {
     reinterpret_cast<std::byte const *>(
       const_cast<strip_t<decltype(*std::data(data))> const *>(
