@@ -30,16 +30,16 @@ class PQXX_LIBEXPORT transaction_focus
 public:
   transaction_focus(
     transaction_base &t, std::string_view cname, std::string_view oname) :
-          m_trans{t}, m_classname{cname}, m_name{oname}
+          m_trans{&t}, m_classname{cname}, m_name{oname}
   {}
 
   transaction_focus(
     transaction_base &t, std::string_view cname, std::string &&oname) :
-          m_trans{t}, m_classname{cname}, m_name{std::move(oname)}
+          m_trans{&t}, m_classname{cname}, m_name{std::move(oname)}
   {}
 
   transaction_focus(transaction_base &t, std::string_view cname) :
-          m_trans{t}, m_classname{cname}
+          m_trans{&t}, m_classname{cname}
   {}
 
   transaction_focus() = delete;
@@ -70,13 +70,19 @@ public:
     // This is a bit more complicated than you might expect.  The transaction
     // has a backpointer to the focus, and we need to transfer that to the new
     // focus.
-    bool const reg{other.m_registered};
-    // This may need access to other.m_name.
-    if (reg) other.unregister_me();
-    // Now!  Quick!  Steal that name!
-    m_name = std::move(other.m_name);
-    // This may need access to this->m_name.
-    if (reg) register_me();
+    move_name_and_registration(other);
+  }
+
+  transaction_focus &operator=(transaction_focus &&other)
+  {
+    if (&other != this)
+    {
+      if (m_registered) unregister_me();
+      m_trans = other.m_trans;
+      m_classname = other.m_classname;
+      move_name_and_registration(other);
+    }
+    return *this;
   }
 
 protected:
@@ -85,12 +91,24 @@ protected:
   void reg_pending_error(std::string const &) noexcept;
   bool registered() const noexcept { return m_registered; }
 
-  transaction_base &m_trans;
+  transaction_base *m_trans;
 
 private:
   bool m_registered = false;
   std::string_view m_classname;
   std::string m_name;
+
+  /// Perform part of a move operation.
+  void move_name_and_registration(transaction_focus &other)
+  {
+    bool const reg{other.m_registered};
+    // Unregister the original while it still owns its name.
+    if (reg) other.unregister_me();
+    // Now!  Quick!  Steal that name.
+    m_name = std::move(other.m_name);
+    // Now that we own the name, register ourselves instead.
+    if (reg) this->register_me();
+  }
 };
 } // namespace pqxx
 #endif
