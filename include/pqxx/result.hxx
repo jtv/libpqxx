@@ -23,7 +23,6 @@
 #include <stdexcept>
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/cxx-features.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"

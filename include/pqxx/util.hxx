@@ -33,7 +33,6 @@
 #include <vector>
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/cxx-features.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/version.hxx"
 

@@ -21,6 +21,8 @@
 #include <version>
 #endif
 
+#include "pqxx/internal/cxx-features.hxx"
+
 // NO GUARD HERE! This part should be included every time this file is.
 #if defined(_MSC_VER)
 
@@ -164,19 +166,4 @@
 #else
 #  define PQXX_LIKELY   /* [[likely]] */
 #  define PQXX_UNLIKELY /* [[unlikely]] */
-#endif
-
-// Wrap feature test macros.
-//
-// The standard C++ feature test macros cleverly rely on a preprocessor
-// feature: if we write "#if foo" where "foo" is undefined, the conditional
-// evaluates to false.  But you may like to compile with compiler options to
-// treat the use of an undefined macro as an error.
-//
-// So, rather than use the standard feature test macros, we define our own.
-// These are always defined: 1 if the feature is there, 0 otherwise.
-#if defined(__cpp_lib_source_location)
-#define pqxx_have_source_location __cpp_lib_source_location
-#else
-#define pqxx_have_source_location 0
 #endif
