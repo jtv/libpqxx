@@ -16,7 +16,7 @@
  - Typo in README.md. (#586)
  - Support `std::optional<std::string_view>` etc. in `stream_to`. (#596)
  - Remove support for single-quoted array/composite elements.  No such thing!
- - Optimise out a kink in composite field parser.`
+ - Optimise out a kink in composite field parser.
  - Work around build warning in MinGW: include `winsock2.h` before `windows.h`.
  - Drop some redundant encoding groups.
  - If CMake can't find libpq, fall back to pkg-config. (#664)
