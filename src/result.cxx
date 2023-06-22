@@ -141,13 +141,15 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 }
 
 
-#if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
+#if defined(__cpp_multidimensional_subscript)
+#if __cpp_multidimensional_subscript
 pqxx::field pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
   return {*this, row_num, col_num};
 }
-#endif
+#endif // __cpp_multidimensional_subscript
+#endif // __cpp_multidimensional_subscript
 
 
 pqxx::row pqxx::result::at(pqxx::result::size_type i) const

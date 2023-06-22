@@ -299,6 +299,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($cxa_demangle)
 
 
+# C++20: Assume support.
 # Check for sufficient Concepts support, introduced with C++20.
 AC_MSG_CHECKING([concepts])
 concepts=yes
@@ -312,6 +313,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($concepts)
 
 
+# C++20: Assume support.
 # Check for C++20 std::span.
 AC_MSG_CHECKING([std::span])
 span=yes
@@ -320,18 +322,6 @@ AC_COMPILE_IFELSE(
 	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span.]),
 	span=no)
 AC_MSG_RESULT($span)
-
-
-# Check for multidimensional subscript operator support.  Proposed for C++23.
-AC_MSG_CHECKING([for multidimensional subscript operator support])
-multidim_subscript=yes
-AC_COMPILE_IFELSE(
-	[read_test(multidim-subscript.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT], 1,
-		[Define if operator[] can take multiple arguments.]),
-	multidim_subscript=no)
-AC_MSG_RESULT($multidim_subscript)
 
 
 AC_MSG_CHECKING([for strerror_r()])
@@ -371,6 +361,7 @@ AC_LINK_IFELSE(
 AC_MSG_RESULT($year_month_day)
 
 
+# C++20: Assume support.
 # Check for [[likely]] and [[unlikely]] attributes.
 AC_MSG_CHECKING([attributes "likely" and "unlikely".])
 likely=yes
@@ -435,6 +426,7 @@ AC_LINK_IFELSE(
 AC_MSG_RESULT($have_sleep_for)
 
 
+# C++20: Assume support.
 AC_MSG_CHECKING([for std::cmp_greater, std::cmp_less_equal, etc])
 have_cmp=yes
 AC_COMPILE_IFELSE(
@@ -654,17 +646,6 @@ AC_COMPILE_IFELSE(
 	have_path=no)
 AC_MSG_RESULT($have_path)
 
-
-AC_MSG_CHECKING([for C++23 std::unreachable()])
-have_unreachable=yes
-AC_COMPILE_IFELSE(
-	[read_test(unreachable.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_UNREACHABLE],
-		1,
-		[Define if compiler has std::unreachable().]),
-	have_unreachable=no)
-AC_MSG_RESULT($have_unreachable)
 
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"

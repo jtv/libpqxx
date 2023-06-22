@@ -59,6 +59,7 @@ try_compile(
 	PQXX_HAVE_GCC_VISIBILITY
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_visibility.cxx)
+# C++20: Assume support.
 try_compile(
 	PQXX_HAVE_LIKELY
 	${PROJECT_BINARY_DIR}
@@ -67,18 +68,16 @@ try_compile(
 	PQXX_HAVE_CXA_DEMANGLE
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cxa_demangle.cxx)
+# C++20: Assume support.
 try_compile(
 	PQXX_HAVE_CONCEPTS
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/concepts.cxx)
+# C++20: Assume support.
 try_compile(
 	PQXX_HAVE_SPAN
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
-try_compile(
-	PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/multidim-subscript.cxx)
 try_compile(
 	PQXX_HAVE_CHARCONV_FLOAT
 	${PROJECT_BINARY_DIR}
@@ -111,14 +110,11 @@ try_compile(
 	PQXX_HAVE_YEAR_MONTH_DAY
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/year_month_day.cxx)
+# C++20: Assume support.
 try_compile(
 	PQXX_HAVE_CMP
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cmp.cxx)
-try_compile(
-	PQXX_HAVE_UNREACHABLE
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/unreachable.cxx)
 
 try_compile(
 	need_fslib
