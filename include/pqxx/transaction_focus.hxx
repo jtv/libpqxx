@@ -60,17 +60,24 @@ public:
     return pqxx::internal::describe_object(m_classname, m_name);
   }
 
-  /// Can't move a transaction_focus.
-  /** Moving the transaction_focus would break the transaction's reference back
-   * to the object.
-   */
-  transaction_focus(transaction_focus &&) = delete;
-
-  /// Can't move a transaction_focus.
-  /** Moving the transaction_focus would break the transaction's reference back
-   * to the object.
-   */
-  transaction_focus &operator=(transaction_focus &&) = delete;
+  transaction_focus(transaction_focus &&other) :
+    m_trans{other.m_trans},
+    m_registered{other.m_registered},
+    m_classname{other.m_classname},
+    // We can't move the name until later.
+    m_name{}
+  {
+    // This is a bit more complicated than you might expect.  The transaction
+    // has a backpointer to the focus, and we need to transfer that to the new
+    // focus.
+    bool const reg{other.m_registered};
+    // This may need access to other.m_name.
+    if (reg) other.unregister_me();
+    // Now!  Quick!  Steal that name!
+    m_name = std::move(other.m_name);
+    // This may need access to this->m_name.
+    if (reg) register_me();
+  }
 
 protected:
   void register_me();
