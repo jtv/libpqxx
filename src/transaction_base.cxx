@@ -13,6 +13,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <utility>
 
 #include "pqxx/internal/header-pre.hxx"
 

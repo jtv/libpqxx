@@ -23,6 +23,7 @@
 #include <stdexcept>
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/cxx-features.hxx"
 #include "pqxx/types.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"
@@ -156,10 +157,10 @@ public:
    */
   [[nodiscard]] row operator[](size_type i) const noexcept;
 
-#if defined(PQXX_HAVE_MULTIDIMENSIONAL_SUBSCRIPT)
+#if pqxx_have_multidim
   [[nodiscard]] field
   operator[](size_type row_num, row_size_type col_num) const noexcept;
-#endif
+#endif // pqxx_have_multidim
 
   /// Index a row by number, but check that the row number is valid.
   row at(size_type) const;
