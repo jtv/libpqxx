@@ -23,10 +23,16 @@ inline std::string deref_field(pqxx::field const &f)
 
 namespace pqxx::test
 {
+#if pqxx_have_source_location
+test_failure::test_failure(std::string const &desc, std::source_location loc) :
+        std::logic_error{desc}, m_loc{loc}
+{}
+#else
 test_failure::test_failure(
   std::string const &ffile, int fline, std::string const &desc) :
         std::logic_error(desc), m_file(ffile), m_line(fline)
 {}
+#endif
 
 test_failure::~test_failure() noexcept = default;
 
@@ -39,19 +45,49 @@ inline void drop_table(transaction_base &t, std::string const &table)
 
 
 [[noreturn]] void
-check_notreached(char const file[], int line, std::string desc)
+check_notreached(
+#if !pqxx_have_source_location
+  char const file[], int line,
+#endif
+  std::string desc
+#if pqxx_have_source_location
+  , std::source_location loc
+#endif
+)
 {
-  throw test_failure(file, line, desc);
+  throw test_failure{
+#if !pqxx_have_source_location
+    file, line,
+#endif
+    desc
+#if pqxx_have_source_location
+    , loc
+#endif
+    };
 }
 
 
 void check(
-  char const file[], int line, bool condition, char const text[],
-  std::string const &desc)
+#if !pqxx_have_source_location
+  char const file[], int line,
+#endif
+  bool condition, char const text[],
+  std::string const &desc
+#if pqxx_have_source_location
+  , std::source_location loc
+#endif
+)
 {
   if (not condition)
-    throw test_failure(
-      file, line, desc + " (failed expression: " + text + ")");
+    throw test_failure{
+#if !pqxx_have_source_location
+      file, line,
+#endif
+      desc + " (failed expression: " + text + ")"
+#if pqxx_have_source_location
+      , loc
+#endif
+    };
 }
 
 
@@ -154,9 +190,10 @@ int main(int argc, char const *argv[])
       }
       catch (pqxx::test::test_failure const &e)
       {
-        std::cerr << "Test failure in " + e.file() + " line " +
-                       pqxx::to_string(e.line())
-                  << ": " << e.what() << std::endl;
+        std::cerr
+	  << "Test failure in " << e.file() << " line "
+	  << pqxx::to_string(e.line())
+         << ": " << e.what() << std::endl;
       }
       catch (std::bad_alloc const &)
       {
