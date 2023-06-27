@@ -55,6 +55,9 @@ public:
 
   pipeline(pipeline const &) = delete;
   pipeline &operator=(pipeline const &) = delete;
+  pipeline(pipeline &&) = delete;
+  pipeline &operator=(pipeline &&) = delete;
+
 
   /// Start a pipeline.
   explicit pipeline(transaction_base &t) : transaction_focus{t, s_classname}
