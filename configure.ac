@@ -145,6 +145,7 @@ then
 			-Wctor-dtor-privacy \
 			-Wendif-labels \
 			-Wextra \
+			-Wextra-semi \
 			-Wfloat-equal \
 			-Wformat=2 \
 			-Wformat-security \
@@ -160,7 +161,8 @@ then
 			-Wsign-promo \
 			-Wundef \
 			-Wunused \
-			-Wwrite-strings
+			-Wwrite-strings \
+			-Wzero-as-null-pointer-constant \
 
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
@@ -187,14 +189,12 @@ then
 			-Wanalyzer-write-to-string-literal \
 			-fnothrow-opt \
 			-Wattribute-alias=2 \
-			-Wextra-semi \
 			-Wlogical-op \
 			-Wmismatched-tags \
 			-Wnoexcept \
 			-Wredundant-tags \
 			-Wrestrict \
 			-Wstringop-overflow \
-			-Wzero-as-null-pointer-constant \
 			-Warray-bounds=2 \
 			-Wduplicated-branches \
 			-Wduplicated-cond \
@@ -632,7 +632,6 @@ occurring in the file.
 
 
 # TODO: PQresultMemorySize()
-# TODO: Use feature test macros in libpq-fe.h, should be faster & easier.
 
 
 AC_MSG_CHECKING([for usable std::filesystem::path])
