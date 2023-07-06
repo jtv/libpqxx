@@ -31,6 +31,9 @@
  - Support for `PQinitOpenSSL()`. (#678)
  - Slightly more helpful error for unsupported conversions. (#695)
  - Replace some C++ feature tests with C++20 feature macros.
+ - Give `stream_to` a move constructor. (#706)
+ - Support move in `stream_to`. (#706)
+>>>>>>> 42a46214 (Support move assignment as well.)
 7.7.4
  - `transaction_base::for_each()` is now called `for_stream()`. (#580)
  - New `transaction_base::for_query()` is similar, but non-streaming. (#580)

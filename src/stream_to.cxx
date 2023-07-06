@@ -70,7 +70,7 @@ pqxx::stream_to::~stream_to() noexcept
 
 void pqxx::stream_to::write_raw_line(std::string_view text)
 {
-  internal::gate::connection_stream_to{m_trans.conn()}.write_copy_line(text);
+  internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(text);
 }
 
 
@@ -119,7 +119,7 @@ void pqxx::stream_to::complete()
   {
     m_finished = true;
     unregister_me();
-    internal::gate::connection_stream_to{m_trans.conn()}.end_copy_write();
+    internal::gate::connection_stream_to{m_trans->conn()}.end_copy_write();
   }
 }
 

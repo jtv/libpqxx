@@ -112,7 +112,7 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
 {
   if (*this)
   {
-    internal::gate::connection_stream_from gate{m_trans.conn()};
+    internal::gate::connection_stream_from gate{m_trans->conn()};
     try
     {
       raw_line line{gate.read_copy_line()};

@@ -518,7 +518,7 @@ std::string pqxx::transaction_base::description() const
 
 void pqxx::transaction_focus::register_me()
 {
-  pqxx::internal::gate::transaction_transaction_focus{m_trans}.register_focus(
+  pqxx::internal::gate::transaction_transaction_focus{*m_trans}.register_focus(
     this);
   m_registered = true;
 }
@@ -526,7 +526,7 @@ void pqxx::transaction_focus::register_me()
 
 void pqxx::transaction_focus::unregister_me() noexcept
 {
-  pqxx::internal::gate::transaction_transaction_focus{m_trans}
+  pqxx::internal::gate::transaction_transaction_focus{*m_trans}
     .unregister_focus(this);
   m_registered = false;
 }
@@ -535,6 +535,6 @@ void pqxx::transaction_focus::unregister_me() noexcept
 void pqxx::transaction_focus::reg_pending_error(
   std::string const &err) noexcept
 {
-  pqxx::internal::gate::transaction_transaction_focus{m_trans}
+  pqxx::internal::gate::transaction_transaction_focus{*m_trans}
     .register_pending_error(err);
 }

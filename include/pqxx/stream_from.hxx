@@ -81,6 +81,9 @@ public:
   using raw_line =
     std::pair<std::unique_ptr<char, void(*)(void const *)>, std::size_t>;
 
+  stream_from(stream_from &&) = delete;
+  stream_from &operator=(stream_from &&) = delete;
+
   /// Factory: Execute query, and stream the results.
   /** The query can be a SELECT query or a VALUES query; or it can be an
    * UPDATE, INSERT, or DELETE with a RETURNING clause.

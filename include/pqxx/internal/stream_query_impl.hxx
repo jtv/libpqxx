@@ -137,7 +137,7 @@ stream_query<TYPE...>::read_line() &
 {
   assert(not done());
 
-  internal::gate::connection_stream_from gate{m_trans.conn()};
+  internal::gate::connection_stream_from gate{m_trans->conn()};
   try
   {
     auto line{gate.read_copy_line()};
