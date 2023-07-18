@@ -201,23 +201,30 @@ int main(int argc, char const *argv[])
       }
       catch (pqxx::feature_not_supported const &e)
       {
-        std::cerr << "Not testing unsupported feature: " << e.what()
+        std::cerr << "Not testing unsupported feature: " << e.what() << '\n';
 #if pqxx_have_source_location
-		  << "(" << e.location.file_name() << ':' << e.location.line()
-		  << " in " << e.location.function_name() << " )"
+        std::string func{e.location.function_name()};
+	std::cerr << "(";
+	std::cerr << e.location.file_name() << ':' << e.location.line();
+	if (not func.empty())
+	  std::cerr << " in " << e.location.function_name();
+	std::cerr << ")\n";
 #endif
-                  << std::endl;
         success = true;
         --test_count;
       }
       catch (pqxx::sql_error const &e)
       {
-        std::cerr << "SQL error: " << e.what() << std::endl
+        std::cerr << "SQL error: " << e.what() << '\n';
 #if pqxx_have_source_location
-		  << "(" << e.location.file_name() << ':' << e.location.line()
-		  << " in " << e.location.function_name() << " )"
+        std::string func{e.location.function_name()};
+        std::cerr << "(";
+	std::cerr << e.location.file_name() << ':' << e.location.line();
+	if (not func.empty())
+          std::cerr << " in " << e.location.function_name();
+        std::cerr << ")\n";
 #endif
-                  << "Query was: " << e.query() << std::endl;
+        std::cerr << "Query was: " << e.query() << std::endl;
       }
       catch (std::exception const &e)
       {
