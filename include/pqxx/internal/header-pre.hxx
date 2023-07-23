@@ -17,6 +17,12 @@
  * mistake, or contact the author.
  */
 
+#if __has_include(<version>)
+#include <version>
+#endif
+
+#include "pqxx/internal/cxx-features.hxx"
+
 // NO GUARD HERE! This part should be included every time this file is.
 #if defined(_MSC_VER)
 

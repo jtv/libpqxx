@@ -24,6 +24,12 @@
 #define pqxx_have_multidim 0
 #endif // pqxx_have_multidim
 
+#if defined(__cpp_lib_source_location) && __cpp_lib_source_location
+#define pqxx_have_source_location 1
+#else
+#define pqxx_have_source_location 0
+#endif // __cpp_lib_source_location
+
 #if defined(__cpp_lib_ssize) && __cpp_lib_ssize
 #define pqxx_have_ssize 1
 #else
