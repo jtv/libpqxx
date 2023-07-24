@@ -129,7 +129,7 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
   else
   {
     return std::make_pair(
-      std::unique_ptr<char, void(*)(void const *)>{nullptr, nullptr}, 0u);
+      std::unique_ptr<char, void (*)(void const *)>{nullptr, nullptr}, 0u);
   }
 }
 

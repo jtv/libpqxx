@@ -45,11 +45,9 @@ public:
   using value_type = std::tuple<TYPE...>;
 
   explicit stream_query_input_iterator(stream_t &home) :
-    m_home(home),
-    m_line{
-      typename stream_query<TYPE...>::line_handle(
-        nullptr, pqxx::internal::pq::pqfreemem)
-    }
+          m_home(home),
+          m_line{typename stream_query<TYPE...>::line_handle(
+            nullptr, pqxx::internal::pq::pqfreemem)}
   {
     consume_line();
   }

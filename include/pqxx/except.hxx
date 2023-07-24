@@ -18,7 +18,7 @@
 #endif
 
 #if pqxx_have_source_location
-#include <source_location>
+#  include <source_location>
 #endif
 
 #include <stdexcept>
@@ -49,8 +49,7 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
 #if pqxx_have_source_location
   explicit failure(
     std::string const &,
-    std::source_location = std::source_location::current()
-  );
+    std::source_location = std::source_location::current());
   std::source_location location;
 #else
   explicit failure(std::string const &);
@@ -81,9 +80,11 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
 struct PQXX_LIBEXPORT broken_connection : failure
 {
   broken_connection();
-  explicit broken_connection(std::string const &
+  explicit broken_connection(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -100,9 +101,11 @@ struct PQXX_LIBEXPORT broken_connection : failure
  */
 struct PQXX_LIBEXPORT protocol_violation : broken_connection
 {
-  explicit protocol_violation(std::string const &
+  explicit protocol_violation(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -114,7 +117,8 @@ struct PQXX_LIBEXPORT variable_set_to_null : failure
   explicit variable_set_to_null(
     std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -136,7 +140,8 @@ public:
     std::string const &whatarg = "", std::string const &Q = "",
     char const sqlstate[] = nullptr
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
   virtual ~sql_error() noexcept override;
@@ -158,9 +163,11 @@ public:
  */
 struct PQXX_LIBEXPORT in_doubt_error : failure
 {
-  explicit in_doubt_error(std::string const &
+  explicit in_doubt_error(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -173,7 +180,8 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
     std::string const &whatarg, std::string const &q = "",
     char const sqlstate[] = nullptr
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -194,7 +202,8 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
     std::string const &whatarg, std::string const &q,
     char const sqlstate[] = nullptr
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -207,7 +216,8 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
     std::string const &whatarg, std::string const &q,
     char const sqlstate[] = nullptr
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -220,7 +230,8 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
     std::string const &whatarg, std::string const &q,
     char const sqlstate[] = nullptr
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -236,9 +247,11 @@ struct PQXX_LIBEXPORT internal_error : std::logic_error
 /// Error in usage of libpqxx library, similar to std::logic_error
 struct PQXX_LIBEXPORT usage_error : std::logic_error
 {
-  explicit usage_error(std::string const &
+  explicit usage_error(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 
@@ -251,9 +264,11 @@ struct PQXX_LIBEXPORT usage_error : std::logic_error
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
 struct PQXX_LIBEXPORT argument_error : std::invalid_argument
 {
-  explicit argument_error(std::string const &
+  explicit argument_error(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 
@@ -266,9 +281,11 @@ struct PQXX_LIBEXPORT argument_error : std::invalid_argument
 /// Value conversion failed, e.g. when converting "Hello" to int.
 struct PQXX_LIBEXPORT conversion_error : std::domain_error
 {
-  explicit conversion_error(std::string const &
+  explicit conversion_error(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 
@@ -281,9 +298,11 @@ struct PQXX_LIBEXPORT conversion_error : std::domain_error
 /// Could not convert null value: target type does not support null.
 struct PQXX_LIBEXPORT unexpected_null : conversion_error
 {
-  explicit unexpected_null(std::string const &
+  explicit unexpected_null(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -292,9 +311,11 @@ struct PQXX_LIBEXPORT unexpected_null : conversion_error
 /// Could not convert value to string: not enough buffer space.
 struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 {
-  explicit conversion_overrun(std::string const &
+  explicit conversion_overrun(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 };
@@ -303,9 +324,11 @@ struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 /// Something is out of range, similar to std::out_of_range
 struct PQXX_LIBEXPORT range_error : std::out_of_range
 {
-  explicit range_error(std::string const &
+  explicit range_error(
+    std::string const &
 #if pqxx_have_source_location
-    , std::source_location = std::source_location::current()
+    ,
+    std::source_location = std::source_location::current()
 #endif
   );
 
@@ -321,9 +344,9 @@ struct PQXX_LIBEXPORT unexpected_rows : public range_error
 #if pqxx_have_source_location
   explicit unexpected_rows(
     std::string const &msg,
-    std::source_location loc = std::source_location::current()
-  ) :
-  range_error{msg, loc} {}
+    std::source_location loc = std::source_location::current()) :
+          range_error{msg, loc}
+  {}
 #else
   explicit unexpected_rows(std::string const &msg) : range_error{msg} {}
 #endif
@@ -558,7 +581,7 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
     std::string const &err, std::string const &Q = "",
     char const sqlstate[] = nullptr,
     std::source_location loc = std::source_location::current()) :
-// TODO: Can we get the column?
+          // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
 #else
@@ -577,7 +600,7 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
     std::string const &err, std::string const &Q = "",
     char const sqlstate[] = nullptr,
     std::source_location loc = std::source_location::current()) :
-// TODO: Can we get the column?
+          // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
 #else
@@ -596,7 +619,7 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
     std::string const &err, std::string const &Q = "",
     char const sqlstate[] = nullptr,
     std::source_location loc = std::source_location::current()) :
-// TODO: Can we get the column?
+          // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
 #else
@@ -686,8 +709,7 @@ struct PQXX_LIBEXPORT too_many_connections : broken_connection
 #if pqxx_have_source_location
   explicit too_many_connections(
     std::string const &err,
-    std::source_location loc = std::source_location::current()
-    ) :
+    std::source_location loc = std::source_location::current()) :
           broken_connection{err, loc}
   {}
 #else

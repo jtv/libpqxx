@@ -79,17 +79,20 @@ class sql_cursor;
 #if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
-concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t)
-{
-  {std::cbegin(t)};
-  {
-    std::get<0>(*std::cbegin(t))
-    } -> ZString;
-  {
-    std::get<1>(*std::cbegin(t))
-    } -> ZString;
-} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type>
-== 2;
+concept ZKey_ZValues =
+  std::ranges::input_range<T> and
+  requires(T t) {
+    {
+      std::cbegin(t)
+    };
+    {
+      std::get<0>(*std::cbegin(t))
+      } -> ZString;
+    {
+      std::get<1>(*std::cbegin(t))
+      } -> ZString;
+  } and
+  std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
 #endif // PQXX_HAVE_CONCEPTS
 
 
@@ -149,9 +152,9 @@ enum skip_init : int
  * what you want: perhaps your application (or some other library it uses)
  * already initialises one or both of these libraries.
  *
- * Call this function to stop libpq from initialising one or the other of these.
- * Pass as arguments each of the `skip_init` flags for which of the libraries
- * whose initialisation you want to prevent.
+ * Call this function to stop libpq from initialising one or the other of
+ * these. Pass as arguments each of the `skip_init` flags for which of the
+ * libraries whose initialisation you want to prevent.
  *
  * @warning Each call to this function _overwrites_ the effects of any previous
  * call.  So if you make one call to skip OpenSSL initialisation, and then
@@ -683,10 +686,7 @@ public:
    * else.
    */
   void prepare(char const definition[]) &;
-  void prepare(zview definition) &
-  {
-    return prepare(definition.c_str());
-  }
+  void prepare(zview definition) & { return prepare(definition.c_str()); }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
@@ -1118,7 +1118,7 @@ private:
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
   friend struct internal::gate::connection_stream_from;
-  std::pair<std::unique_ptr<char, void(*)(void const *)>, std::size_t>
+  std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
   read_copy_line();
 
   friend class internal::gate::connection_stream_to;
@@ -1126,10 +1126,7 @@ private:
   void PQXX_PRIVATE end_copy_write();
 
   friend class internal::gate::connection_largeobject;
-  internal::pq::PGconn *raw_connection() const
-  {
-    return m_conn;
-  }
+  internal::pq::PGconn *raw_connection() const { return m_conn; }
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);

@@ -18,7 +18,7 @@
  */
 
 #if __has_include(<version>)
-#include <version>
+#  include <version>
 #endif
 
 #include "pqxx/internal/cxx-features.hxx"

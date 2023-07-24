@@ -459,7 +459,7 @@ template<> struct string_traits<std::monostate>
     return 0;
   }
   [[deprecated("Do not convert nulls.")]] static std::monostate
-  from_string(std::string_view) = delete;
+    from_string(std::string_view) = delete;
 };
 
 
@@ -767,10 +767,10 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 template<typename T, typename... Args>
 struct string_traits<std::unique_ptr<T, Args...>>
 {
-  static constexpr bool
-  converts_to_string{string_traits<T>::converts_to_string};
-  static constexpr bool
-  converts_from_string{string_traits<T>::converts_from_string};
+  static constexpr bool converts_to_string{
+    string_traits<T>::converts_to_string};
+  static constexpr bool converts_from_string{
+    string_traits<T>::converts_from_string};
 
   static std::unique_ptr<T> from_string(std::string_view text)
   {
@@ -826,10 +826,10 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
-  static constexpr bool
-  converts_to_string{string_traits<T>::converts_to_string};
-  static constexpr bool
-  converts_from_string{string_traits<T>::converts_from_string};
+  static constexpr bool converts_to_string{
+    string_traits<T>::converts_to_string};
+  static constexpr bool converts_from_string{
+    string_traits<T>::converts_from_string};
 
   static std::shared_ptr<T> from_string(std::string_view text)
   {

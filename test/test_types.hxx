@@ -19,7 +19,8 @@
 
 namespace pqxx
 {
-template<> struct nullness<std::byte> : no_null<std::byte> {};
+template<> struct nullness<std::byte> : no_null<std::byte>
+{};
 } // namespace pqxx
 
 
@@ -93,13 +94,15 @@ template<> struct string_traits<ipv4>
       internal::throw_null_conversion(type_name<ipv4>);
     std::vector<std::size_t> ends;
     for (std::size_t i{0}; i < std::size(text); ++i)
-      if (text[i] == '.') ends.push_back(i);
+      if (text[i] == '.')
+        ends.push_back(i);
     ends.push_back(std::size(text));
     if (std::size(ends) != 4)
       throw conversion_error{pqxx::internal::concat(
-        "Can't parse '", text, "' as ipv4: expected 4 octets, "
-	"found ",std::size(ends), "."
-      )};
+        "Can't parse '", text,
+        "' as ipv4: expected 4 octets, "
+        "found ",
+        std::size(ends), ".")};
     std::size_t start{0};
     for (int i{0}; i < 4; ++i)
     {

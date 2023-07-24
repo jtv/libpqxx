@@ -41,7 +41,7 @@ struct no_bound
  */
 template<typename TYPE> class inclusive_bound
 {
-// (Putting private section first to work around bug in gcc < 10: see #665.)
+  // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   TYPE m_value;
 
@@ -77,7 +77,7 @@ public:
  */
 template<typename TYPE> class exclusive_bound
 {
-// (Putting private section first to work around bug in gcc < 10: see #665.)
+  // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   TYPE m_value;
 
@@ -113,7 +113,7 @@ public:
  */
 template<typename TYPE> class range_bound
 {
-// (Putting private section first to work around bug in gcc < 10: see #665.)
+  // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   std::variant<no_bound, inclusive_bound<TYPE>, exclusive_bound<TYPE>> m_bound;
 
@@ -232,7 +232,7 @@ public:
  */
 template<typename TYPE> class range
 {
-// (Putting private section first to work around bug in gcc < 10: see #665.)
+  // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   range_bound<TYPE> m_lower, m_upper;
 

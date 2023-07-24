@@ -339,10 +339,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  result exec0(zview query)
-  {
-    return exec_n(0, query);
-  }
+  result exec0(zview query) { return exec_n(0, query); }
 
   /// Execute command returning a single row of data.
   /** Works like @ref exec, but requires the result to contain exactly one row.
@@ -366,10 +363,7 @@ public:
    *
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
-  row exec1(zview query)
-  {
-    return exec_n(1, query).front();
-  }
+  row exec1(zview query) { return exec_n(1, query).front(); }
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -777,22 +771,13 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(char const msg[]) const
-  {
-    m_conn.process_notice(msg);
-  }
+  void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
   /// Have connection process a warning message.
-  void process_notice(zview msg) const
-  {
-    m_conn.process_notice(msg);
-  }
+  void process_notice(zview msg) const { m_conn.process_notice(msg); }
   //@}
 
   /// The connection in which this transaction lives.
-  [[nodiscard]] constexpr connection &conn() const noexcept
-  {
-    return m_conn;
-  }
+  [[nodiscard]] constexpr connection &conn() const noexcept { return m_conn; }
 
   /// Set session variable using SQL "SET" command.
   /** @deprecated To set a transaction-local variable, execute an SQL `SET`
@@ -823,10 +808,7 @@ public:
 
   // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const &noexcept
-  {
-    return m_name;
-  }
+  [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).

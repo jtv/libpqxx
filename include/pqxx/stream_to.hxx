@@ -190,12 +190,13 @@ public:
     Iter columns_end);
 
   explicit stream_to(stream_to &&other) :
-    // (This first step only moves the transaction_focus base-class object.)
-    transaction_focus{std::move(other)},
-    m_finished{other.m_finished},
-    m_buffer{std::move(other.m_buffer)},
-    m_field_buf{std::move(other.m_field_buf)},
-    m_finder{other.m_finder}
+          // (This first step only moves the transaction_focus base-class
+          // object.)
+          transaction_focus{std::move(other)},
+          m_finished{other.m_finished},
+          m_buffer{std::move(other.m_buffer)},
+          m_field_buf{std::move(other.m_field_buf)},
+          m_finder{other.m_finder}
   {
     other.m_finished = true;
   }

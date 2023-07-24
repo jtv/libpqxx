@@ -336,9 +336,8 @@ void test_wrong_number_of_params()
     pqxx::transaction tx1{conn1};
     conn1.prepare("broken1", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-	tx1.exec_prepared("broken1", 10),
-	pqxx::protocol_violation,
-	"Incomplete params no longer thrws protocol violation.");
+      tx1.exec_prepared("broken1", 10), pqxx::protocol_violation,
+      "Incomplete params no longer thrws protocol violation.");
   }
 
   {
@@ -346,9 +345,8 @@ void test_wrong_number_of_params()
     pqxx::transaction tx2{conn2};
     conn2.prepare("broken2", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-	tx2.exec_prepared("broken2", 5, 4, 3),
-	pqxx::protocol_violation,
-	"Passing too many params no longer thrws protocol violation.");
+      tx2.exec_prepared("broken2", 5, 4, 3), pqxx::protocol_violation,
+      "Passing too many params no longer thrws protocol violation.");
   }
 }
 

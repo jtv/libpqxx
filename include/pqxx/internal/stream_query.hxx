@@ -79,7 +79,7 @@ class stream_query_end_iterator
 template<typename... TYPE> class stream_query : transaction_focus
 {
 public:
-  using line_handle = std::unique_ptr<char, void(*)(void const *)>;
+  using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
   inline stream_query(transaction_base &tx, std::string_view query);

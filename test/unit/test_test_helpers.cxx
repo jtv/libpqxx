@@ -19,11 +19,13 @@ void test_check_notreached()
     // This is what we expect.
   }
   if (not failed)
-    throw pqxx::test::test_failure{
+    throw pqxx::test::test_failure
+    {
 #if !pqxx_have_source_location
       __FILE__, __LINE__,
 #endif
-      "PQXX_CHECK_NOTREACHED is broken."};
+        "PQXX_CHECK_NOTREACHED is broken."
+    };
 }
 
 
@@ -60,7 +62,7 @@ void test_check_throws_exception()
     "PQXX_CHECK_THROWS_EXCEPTION() failed to catch expected exception.");
 #else
   PQXX_CHECK_THROWS_EXCEPTION(
-    throw (pqxx::test::test_failure{__FILE__, __LINE__, "(expected)"}),
+    throw(pqxx::test::test_failure{__FILE__, __LINE__, "(expected)"}),
     "PQXX_CHECK_THROWS_EXCEPTION() failed to catch expected exception.");
 #endif
 
@@ -109,8 +111,7 @@ void test_check_throws()
 {
 #if pqxx_have_source_location
   PQXX_CHECK_THROWS(
-    throw pqxx::test::test_failure{"(expected)"},
-    pqxx::test::test_failure,
+    throw pqxx::test::test_failure{"(expected)"}, pqxx::test::test_failure,
     "PQXX_CHECK_THROWS() failed to catch expected exception.");
 #else
   PQXX_CHECK_THROWS(

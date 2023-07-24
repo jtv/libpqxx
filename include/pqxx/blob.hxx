@@ -339,10 +339,7 @@ private:
   {
     return errmsg(&tx.conn());
   }
-  PQXX_PRIVATE std::string errmsg() const
-  {
-    return errmsg(m_conn);
-  }
+  PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence);
   std::size_t raw_read(std::byte buf[], std::size_t size);
   void raw_write(std::byte const buf[], std::size_t size);

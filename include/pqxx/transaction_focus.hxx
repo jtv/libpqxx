@@ -61,11 +61,11 @@ public:
   }
 
   transaction_focus(transaction_focus &&other) :
-    m_trans{other.m_trans},
-    m_registered{other.m_registered},
-    m_classname{other.m_classname},
-    // We can't move the name until later.
-    m_name{}
+          m_trans{other.m_trans},
+          m_registered{other.m_registered},
+          m_classname{other.m_classname},
+          // We can't move the name until later.
+          m_name{}
   {
     // This is a bit more complicated than you might expect.  The transaction
     // has a backpointer to the focus, and we need to transfer that to the new
@@ -77,7 +77,8 @@ public:
   {
     if (&other != this)
     {
-      if (m_registered) unregister_me();
+      if (m_registered)
+        unregister_me();
       m_trans = other.m_trans;
       m_classname = other.m_classname;
       move_name_and_registration(other);
@@ -103,11 +104,13 @@ private:
   {
     bool const reg{other.m_registered};
     // Unregister the original while it still owns its name.
-    if (reg) other.unregister_me();
+    if (reg)
+      other.unregister_me();
     // Now!  Quick!  Steal that name.
     m_name = std::move(other.m_name);
     // Now that we own the name, register ourselves instead.
-    if (reg) this->register_me();
+    if (reg)
+      this->register_me();
   }
 };
 } // namespace pqxx

@@ -226,8 +226,8 @@ template<typename TYPE> struct string_traits
  * their code is attempting to use a deliberately unsupported conversion.
  *
  * There are some C++ types that you may want to convert to or from SQL values,
- * but which libpqxx deliberately does not support.  Take `char` for example: we
- * define no conversions for that type because it is not inherently clear
+ * but which libpqxx deliberately does not support.  Take `char` for example:
+ * we define no conversions for that type because it is not inherently clear
  * whether whether the corresponding SQL type should be a single-character
  * string, a small integer, a raw byte value, etc.  The intention could differ
  * from one call site to the next.
@@ -236,8 +236,7 @@ template<typename TYPE> struct string_traits
  * the compiler will issue an error involving this function name, and mention
  * the type, as a hint as to the reason.
  */
-template<typename TYPE> [[noreturn]]
-void oops_forbidden_conversion() noexcept;
+template<typename TYPE> [[noreturn]] void oops_forbidden_conversion() noexcept;
 
 
 /// String traits for a forbidden type conversion.
@@ -251,13 +250,21 @@ template<typename TYPE> struct forbidden_conversion
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
   [[noreturn]] static zview to_buf(char *, char *, TYPE const &)
-  { oops_forbidden_conversion<TYPE>(); }
+  {
+    oops_forbidden_conversion<TYPE>();
+  }
   [[noreturn]] static char *into_buf(char *, char *, TYPE const &)
-  { oops_forbidden_conversion<TYPE>(); }
+  {
+    oops_forbidden_conversion<TYPE>();
+  }
   [[noreturn]] static TYPE from_string(std::string_view)
-  { oops_forbidden_conversion<TYPE>(); }
+  {
+    oops_forbidden_conversion<TYPE>();
+  }
   [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept
-  { oops_forbidden_conversion<TYPE>(); }
+  {
+    oops_forbidden_conversion<TYPE>();
+  }
 };
 
 
@@ -278,8 +285,8 @@ template<typename TYPE> struct forbidden_conversion
  * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
  * instead.
  */
-template<> struct string_traits<char> : forbidden_conversion<char> {};
-
+template<> struct string_traits<char> : forbidden_conversion<char>
+{};
 
 
 /// You cannot convert an `unsigned char` to/from SQL.
@@ -298,8 +305,8 @@ template<> struct string_traits<char> : forbidden_conversion<char> {};
  * instead.
  */
 template<>
-struct string_traits<unsigned char> : forbidden_conversion<unsigned char> {};
-
+struct string_traits<unsigned char> : forbidden_conversion<unsigned char>
+{};
 
 
 /// You cannot convert a `signed char` to/from SQL.
@@ -318,8 +325,8 @@ struct string_traits<unsigned char> : forbidden_conversion<unsigned char> {};
  * instead.
  */
 template<>
-struct string_traits<signed char> : forbidden_conversion<signed char> {};
-
+struct string_traits<signed char> : forbidden_conversion<signed char>
+{};
 
 
 /// You cannot convert a `std::byte` to/from SQL.
@@ -328,8 +335,8 @@ struct string_traits<signed char> : forbidden_conversion<signed char> {};
  * For example, to convert a byte `b` from C++ to SQL, convert the value
  * `std::basic_string_view<std::byte>{&b, 1}` instead.
  */
-template<>
-struct string_traits<std::byte> : forbidden_conversion<std::byte> {};
+template<> struct string_traits<std::byte> : forbidden_conversion<std::byte>
+{};
 
 
 /// Nullness: Enums do not have an inherent null value.
@@ -412,7 +419,10 @@ private:
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
   {};                                                                         \
-  template<> inline std::string_view const type_name<ENUM> { #ENUM }
+  template<> inline std::string_view const type_name<ENUM>                    \
+  {                                                                           \
+#    ENUM                                                                     \
+  }
 
 
 namespace pqxx
@@ -599,7 +609,7 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  */
 template<class TYPE>
 concept binary = std::ranges::contiguous_range<TYPE> and
-  std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
+                 std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
 #endif
 //@}
 } // namespace pqxx

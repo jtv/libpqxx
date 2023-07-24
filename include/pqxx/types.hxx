@@ -112,8 +112,7 @@ using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
-                      std::same_as < strip_t<value_type<STRING>>,
-char > ;
+                      std::same_as<strip_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
@@ -123,7 +122,7 @@ concept char_strings =
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
 concept potential_binary = std::ranges::contiguous_range<DATA> and
-  (sizeof(value_type<DATA>) == 1);
+                           (sizeof(value_type<DATA>) == 1);
 #endif // PQXX_HAVE_CONCEPTS
 
 

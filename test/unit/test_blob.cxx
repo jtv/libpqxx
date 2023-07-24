@@ -389,15 +389,13 @@ void test_blob_seek_sets_positions()
   b.seek_abs(2);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
-    byte_val(buf[0]),
-    byte_val(2),
+    byte_val(buf[0]), byte_val(2),
     "seek_abs() did not take us to the right position.");
 
   b.seek_end(-2);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
-    byte_val(buf[0]),
-    byte_val(8),
+    byte_val(buf[0]), byte_val(8),
     "seek_end() did not take us to the right position.");
 }
 
@@ -433,7 +431,7 @@ namespace
 /** This is just here to stop Visual Studio from advertising its own
  * alternative.
  */
-std::unique_ptr<FILE, int(*)(FILE *)>
+std::unique_ptr<FILE, int (*)(FILE *)>
 my_fopen(char const *path, char const *mode)
 {
 #if defined(_MSC_VER)

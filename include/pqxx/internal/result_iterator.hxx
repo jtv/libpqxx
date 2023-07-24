@@ -66,17 +66,11 @@ public:
    */
   //@{
   /// Dereference the iterator.
-  [[nodiscard]] pointer operator->() const
-  {
-    return this;
-  }
+  [[nodiscard]] pointer operator->() const { return this; }
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Dereference the iterator.
-  [[nodiscard]] reference operator*() const
-  {
-    return *this;
-  }
+  [[nodiscard]] reference operator*() const { return *this; }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   //@}
 

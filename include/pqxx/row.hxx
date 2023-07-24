@@ -303,14 +303,8 @@ public:
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept
-  {
-    return this;
-  }
-  [[nodiscard]] reference operator*() const noexcept
-  {
-    return {*this};
-  }
+  [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
+  [[nodiscard]] reference operator*() const noexcept { return {*this}; }
   //@}
 
   /**

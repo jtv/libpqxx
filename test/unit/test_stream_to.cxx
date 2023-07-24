@@ -531,13 +531,15 @@ void test_stream_to_moves_into_optional()
   pqxx::connection cx;
   pqxx::transaction tx{cx};
   tx.exec0("CREATE TEMP TABLE foo (a integer)");
-  std::optional<pqxx::stream_to> org{std::in_place, pqxx::stream_to::table(tx, {"foo"}, {"a"})};
+  std::optional<pqxx::stream_to> org{
+    std::in_place, pqxx::stream_to::table(tx, {"foo"}, {"a"})};
   org->write_values(1);
   auto copy{std::move(org)};
   copy->write_values(2);
   copy->complete();
   auto values{tx.exec_n(2, "SELECT a FROM foo ORDER BY a")};
-  PQXX_CHECK_EQUAL(values[0][0].as<int>(), 1, "Streaming results start off wrong.");
+  PQXX_CHECK_EQUAL(
+    values[0][0].as<int>(), 1, "Streaming results start off wrong.");
   PQXX_CHECK_EQUAL(values[1][0].as<int>(), 2, "Moved stream went wrong.");
 }
 
