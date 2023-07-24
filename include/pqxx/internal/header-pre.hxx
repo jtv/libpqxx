@@ -58,6 +58,18 @@
 // Workarounds & definitions that need to be included even in library's headers
 #include "pqxx/config-public-compiler.h"
 
+#if defined(_MSC_VER)
+#  define PQXX_CPLUSPLUS _MSVC_LANG
+#else
+#  define PQXX_CPLUSPLUS __cplusplus
+#endif
+
+// C++20: No longer needed.
+// Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
+// etc. on older compilers.  C++20 removes this header.
+#if PQXX_CPLUSPLUS <= 201703L && __has_include(<ciso646>)
+#  include <ciso646>
+#endif
 
 #if defined(PQXX_HAVE_GCC_PURE)
 /// Declare function "pure": no side effects, only reads globals and its args.
