@@ -1,4 +1,5 @@
 7.8.1
+ - Regenerate build files. Should fix ARM Mac build. (#715)
 7.8.0
  - Streaming large data sets now benchmarks faster than similar C/libpq code!
  - New `array` class for easier parsing of SQL arrays.
