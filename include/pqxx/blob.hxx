@@ -23,11 +23,13 @@
 #  include <filesystem>
 #endif
 
-#if defined(PQXX_HAVE_RANGES) && __has_include(<ranges>)
+// C++20: Assume support.
+#if __has_include(<ranges>)
 #  include <ranges>
 #endif
 
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
+// C++20: Assume support.
+#if __has_include(<span>)
 #  include <span>
 #endif
 
