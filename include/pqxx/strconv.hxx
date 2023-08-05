@@ -16,17 +16,15 @@
 #endif
 
 #include <algorithm>
+#include <charconv>
 #include <cstring>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
 
-#if __has_include(<charconv>)
-#  include <charconv>
-#endif
-
-#if defined(PQXX_HAVE_RANGES) && __has_include(<ranges>)
+// C++20: Assume support.
+#if __has_include(<ranges>)
 #  include <ranges>
 #endif
 
