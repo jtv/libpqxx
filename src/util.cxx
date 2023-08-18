@@ -123,8 +123,7 @@ constexpr int nibble(int c) noexcept
 } // namespace
 
 
-void pqxx::internal::esc_bin(
-  std::basic_string_view<std::byte> binary_data, char buffer[]) noexcept
+void pqxx::internal::esc_bin(bytes_view binary_data, char buffer[]) noexcept
 {
   auto here{buffer};
   *here++ = '\\';
@@ -142,8 +141,7 @@ void pqxx::internal::esc_bin(
 }
 
 
-std::string
-pqxx::internal::esc_bin(std::basic_string_view<std::byte> binary_data)
+std::string pqxx::internal::esc_bin(bytes_view binary_data)
 {
   auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;
@@ -183,11 +181,10 @@ void pqxx::internal::unesc_bin(
 }
 
 
-std::basic_string<std::byte>
-pqxx::internal::unesc_bin(std::string_view escaped_data)
+pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data)
 {
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   buf.resize(bytes);
   unesc_bin(escaped_data, buf.data());
   return buf;

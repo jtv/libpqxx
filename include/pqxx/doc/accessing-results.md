@@ -67,10 +67,10 @@ commands: `SELECT`, `VALUES`, or an `INSERT`, `UPDATE`, or `DELETE` with a
 ](https://www.postgresql.org/docs/current/sql-copy.html).
 
 **Three,** when you convert a field to a "view" type (such as
-`std::string_view` or `std::basic_string_view<std::byte>`), the view points to
-underlying data which only stays valid until you iterate to the next row or
-exit the loop.  So if you want to use that data for longer than a single
-iteration of the streaming loop, you'll have to store it somewhere yourself.
+`std::string_view` or `pqxx::bytes_view`), the view points to underlying data
+which only stays valid until you iterate to the next row or exit the loop.  So
+if you want to use that data for longer than a single iteration of the
+streaming loop, you'll have to store it somewhere yourself.
 
 Now for the good news.  Streaming does make it very easy to query data and loop
 over it, and often faster than with the "query" or "exec" functions:

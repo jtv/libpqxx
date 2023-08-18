@@ -10,6 +10,13 @@
  - Implement conversion from `string_view` to string. (#728)
  - Rename `splitconfig` to `splitconfig.py`. (#763)
  - Document need for conversions more clearly, link to docs. (#757)
+ - `std::basic_string<std::byte>` and `std::basic_string_view<std::byte>` have
+   been replaced with `pqxx::bytes` and `pqxx::bytes_view` respectively to
+   support the removal of generic `std::char_traits` in libc++ 19. Users must
+   switch to these aliases to support versions from libc++ 18 onward.
+   In a future major release that start requiring C++20 these are likely to
+   become aliases for `std::vector<std::byte>` and `std::span<std::byte>` to
+   better match the intent of the interfaces. (#726)
 7.8.1
  - Regenerate build files. Should fix ARM Mac build. (#715)
  - Reinstate `<ciso646>` that MSVC can't live with or without. (#713)

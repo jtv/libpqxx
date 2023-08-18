@@ -151,8 +151,7 @@ std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size)
 }
 
 
-std::size_t
-pqxx::blob::read(std::basic_string<std::byte> &buf, std::size_t size)
+std::size_t pqxx::blob::read(bytes &buf, std::size_t size)
 {
   buf.resize(size);
   auto const received{raw_read(std::data(buf), size)};
@@ -228,8 +227,7 @@ std::int64_t pqxx::blob::seek_end(std::int64_t offset)
 }
 
 
-pqxx::oid pqxx::blob::from_buf(
-  dbtransaction &tx, std::basic_string_view<std::byte> data, oid id)
+pqxx::oid pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id)
 {
   oid actual_id{create(tx, id)};
   try
@@ -259,8 +257,7 @@ pqxx::oid pqxx::blob::from_buf(
 }
 
 
-void pqxx::blob::append_from_buf(
-  dbtransaction &tx, std::basic_string_view<std::byte> data, oid id)
+void pqxx::blob::append_from_buf(dbtransaction &tx, bytes_view data, oid id)
 {
   if (std::size(data) > chunk_limit)
     throw range_error{
@@ -272,16 +269,15 @@ void pqxx::blob::append_from_buf(
 
 
 void pqxx::blob::to_buf(
-  dbtransaction &tx, oid id, std::basic_string<std::byte> &buf,
-  std::size_t max_size)
+  dbtransaction &tx, oid id, bytes &buf, std::size_t max_size)
 {
   open_r(tx, id).read(buf, max_size);
 }
 
 
 std::size_t pqxx::blob::append_to_buf(
-  dbtransaction &tx, oid id, std::int64_t offset,
-  std::basic_string<std::byte> &buf, std::size_t append_max)
+  dbtransaction &tx, oid id, std::int64_t offset, bytes &buf,
+  std::size_t append_max)
 {
   if (append_max > chunk_limit)
     throw range_error{

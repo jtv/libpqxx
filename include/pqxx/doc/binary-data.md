@@ -9,13 +9,12 @@ Generally you'll want to use `BYTEA` for reasonably-sized values, and large
 objects for very large values.
 
 That's the database side.  On the C++ side, in libpqxx, all binary data must be
-either `std::basic_string<std::byte>` or `std::basic_string_view<std::byte>`;
-or if you're building in C++20 or better, anything that's a block of
-contiguous `std::byte` in memory.
+either `pqxx::bytes` or `pqxx::bytes_view`; or if you're building in C++20 or
+better, anything that's a block of contiguous `std::byte` in memory.
 
 So for example, if you want to write a large object, you'd create a
 `pqxx::blob` object.  And you might use that to write data in the form of
-`std::basic_string_view<std::byte>`.
+`pqxx::bytes_view`.
 
 Your particular binary data may look different though.  You may have it in a
 `std::string`, or a `std::vector<unsigned char>`, or a pointer to `char`
@@ -24,7 +23,7 @@ different widths).  Sometimes that's your choice, or sometimes some other
 library will dictate what form it takes.
 
 So long as it's _basically_ still a block of bytes though, you can use
-`pqxx::binary_cast` to construct a `std::basic_string_view<std::byte>` from it.
+`pqxx::binary_cast` to construct a `pqxx::bytes_view` from it.
 
 There are two forms of `binary_cast`.  One takes a single argument that must
 support `std::data()` and `std::size()`:

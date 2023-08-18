@@ -280,6 +280,103 @@ struct PQXX_LIBEXPORT thread_safety_model
 #  define PQXX_POTENTIAL_BINARY_ARG typename
 #endif
 
+// A custom std::char_traits if the standard library lacks a generic
+// implementation or a specialisation for std::byte. Notably they aren't
+// required to provide either.
+// libc++ 19 removed its generic implementation.
+struct byte_char_traits : std::char_traits<char>
+{
+  using char_type = std::byte;
+
+  static void assign(std::byte &a, const std::byte &b) noexcept { a = b; }
+  static bool eq(std::byte a, std::byte b) { return a == b; }
+  static bool lt(std::byte a, std::byte b) { return a < b; }
+
+  static int compare(const std::byte *a, const std::byte *b, std::size_t size)
+  {
+    return std::memcmp(a, b, size);
+  }
+
+  // This is nonsense: we can't determine the length of a random sequence of
+  // bytes.
+  // But std::char_traits requires us to implement this so we treat 0 as a
+  // terminator for our "string".
+  static size_t length(const std::byte *data)
+  {
+    return std::strlen(reinterpret_cast<const char*>(data));
+  }
+
+  static const std::byte *
+  find(const std::byte *data, std::size_t size, const std::byte &value)
+  {
+    return static_cast<const std::byte*>(std::memchr(data, static_cast<int>(value), size));
+  }
+
+  static std::byte *
+  move(std::byte *dest, const std::byte *src, std::size_t size)
+  {
+    return static_cast<std::byte*>(std::memmove(dest, src, size));
+  }
+
+  static std::byte *
+  copy(std::byte *dest, const std::byte *src, std::size_t size)
+  {
+    return static_cast<std::byte*>(std::memcpy(dest, src, size));
+  }
+
+  static std::byte *assign(std::byte *dest, std::size_t size, std::byte value)
+  {
+    return static_cast<std::byte*>(std::memset(dest, static_cast<int>(value), size));
+  }
+
+  static int_type not_eof(int_type value)
+  {
+    return eq_int_type(value, eof()) ? ~eof() : value;
+  }
+
+  static std::byte to_char_type(int_type value) { return std::byte(value); }
+
+  static int_type to_int_type(std::byte value) { return int_type(value); }
+
+  static bool eq_int_type(int_type a, int_type b) { return a == b; }
+
+  static int_type eof() { return int_type(EOF); }
+};
+
+template<typename TYPE, typename = void>
+struct has_generic_char_traits : std::false_type
+{};
+
+template<typename TYPE>
+struct has_generic_char_traits<
+  TYPE, std::void_t<decltype(std::char_traits<TYPE>::eof)>> : std::true_type
+{};
+
+inline constexpr bool has_generic_bytes_char_traits =
+  has_generic_char_traits<std::byte>::value;
+
+// Supress warnings from potentially using a deprecated generic
+// std::char_traits.
+// Necessary for libc++ 18.
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+
+// Type alias for a container containing bytes.
+// Required to support standard libraries without a generic implementation for
+// std::char_traits<std::byte>.
+// WARNING: Will change to std::vector<std::byte> in the next major release.
+using bytes = std::conditional<
+  has_generic_bytes_char_traits, std::basic_string<std::byte>,
+  std::basic_string<std::byte, byte_char_traits>>::type;
+
+// Type alias for a view of bytes.
+// Required to support standard libraries without a generic implementation for
+// std::char_traits<std::byte>.
+// WARNING: Will change to std::span<std::byte> in the next major release.
+using bytes_view = std::conditional<
+  has_generic_bytes_char_traits, std::basic_string_view<std::byte>,
+  std::basic_string_view<std::byte, byte_char_traits>>::type;
+
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
@@ -287,11 +384,11 @@ struct PQXX_LIBEXPORT thread_safety_model
  * many other types.
  *
  * But for libpqxx to recognise your data as binary, it needs to be a
- * `std::basic_string<std::byte>`, or a `std::basic_string_view<std::byte>`;
- * or in C++20 or better, any contiguous block of `std::byte`.
+ * `pqxx::bytes`, or a `pqxx::bytes_view`; or in C++20 or better, any
+ * contiguous block of `std::byte`.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
- * `std::basic_string_view<std::byte>`.
+ * `pqxx::bytes_view`.
  *
  * @warning There are two things you should be aware of!  First, the data must
  * be contiguous in memory.  In C++20 the compiler will enforce this, but in
@@ -300,7 +397,7 @@ struct PQXX_LIBEXPORT thread_safety_model
  * return value.
  */
 template<PQXX_POTENTIAL_BINARY_ARG TYPE>
-std::basic_string_view<std::byte> binary_cast(TYPE const &data)
+bytes_view binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
   // C++20: Use std::as_bytes.
@@ -322,14 +419,13 @@ concept char_sized = (sizeof(CHAR) == 1);
 
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
- * types, and constructs a `std::basic_string_view<std::byte>` pointing to
- * the same data.
+ * types, and constructs a `pqxx::bytes_view` pointing to the same data.
  *
  * This makes it a little easier to turn binary data, in whatever form you
  * happen to have it, into binary data as libpqxx understands it.
  */
 template<PQXX_CHAR_SIZED_ARG CHAR, typename SIZE>
-std::basic_string_view<std::byte> binary_cast(CHAR const *data, SIZE size)
+bytes_view binary_cast(CHAR const *data, SIZE size)
 {
   static_assert(sizeof(CHAR) == 1);
   return {
@@ -430,13 +526,11 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-void PQXX_LIBEXPORT
-esc_bin(std::basic_string_view<std::byte> binary_data, char buffer[]) noexcept;
+void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
 
 
 /// Hex-escape binary data into a std::string.
-std::string PQXX_LIBEXPORT
-esc_bin(std::basic_string_view<std::byte> binary_data);
+std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 
 /// Reconstitute binary data from its escaped version.
@@ -445,8 +539,7 @@ unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 
 
 /// Reconstitute binary data from its escaped version.
-std::basic_string<std::byte>
-  PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
+bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
 
 
 /// Transitional: std::ssize(), or custom implementation if not available.

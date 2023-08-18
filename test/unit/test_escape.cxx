@@ -94,10 +94,10 @@ void test_quote_name(pqxx::transaction_base &t)
 void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
   constexpr char binary[]{"1\0023\\4x5"};
-  std::basic_string<std::byte> const data(
+  pqxx::bytes const data(
     reinterpret_cast<std::byte const *>(binary), std::size(binary));
-  std::string const escaped{t.esc_raw(
-    std::basic_string_view<std::byte>{std::data(data), std::size(binary)})};
+  std::string const escaped{
+    t.esc_raw(pqxx::bytes_view{std::data(data), std::size(binary)})};
 
   for (auto const i : escaped)
   {
@@ -168,7 +168,7 @@ void test_esc_escapes_into_buffer()
   auto escaped_text{tx.esc(text, buffer)};
   PQXX_CHECK_EQUAL(escaped_text, "Ain''t", "Escaping into buffer went wrong.");
 
-  std::basic_string<std::byte> const data{std::byte{0x22}, std::byte{0x43}};
+  pqxx::bytes const data{std::byte{0x22}, std::byte{0x43}};
   auto escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2243", "Binary data escaped wrong.");
 #endif
@@ -202,8 +202,7 @@ void test_binary_esc_checks_buffer_length()
   pqxx::work tx{conn};
 
   std::string buf;
-  std::basic_string<std::byte> bin{
-    std::byte{'b'}, std::byte{'o'}, std::byte{'o'}};
+  pqxx::bytes bin{std::byte{'b'}, std::byte{'o'}, std::byte{'o'}};
 
   buf.resize(2 * std::size(bin) + 3);
   pqxx::ignore_unused(tx.esc(bin, buf));
