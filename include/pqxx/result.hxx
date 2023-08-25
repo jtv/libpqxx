@@ -194,6 +194,10 @@ public:
   /// Name of column with this number (throws exception if it doesn't exist)
   [[nodiscard]] char const *column_name(row_size_type number) const &;
 
+  [[nodiscard]] int const column_size(row_size_type number) const;
+
+  [[nodiscard]] int const column_mod(row_size_type number) const;
+
   /// Return column's type, as an OID from the system catalogue.
   [[nodiscard]] oid column_type(row_size_type col_num) const;
 

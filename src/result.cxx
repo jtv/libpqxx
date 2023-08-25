@@ -502,6 +502,18 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
+int const pqxx::result::column_size(pqxx::row::size_type number) const
+{
+  return PQfsize(m_data.get(), number);
+}
+
+
+int const pqxx::result::column_mod(pqxx::row::size_type number) const
+{
+  return PQfmod(m_data.get(), number);
+}
+
+
 // const_result_iterator
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
