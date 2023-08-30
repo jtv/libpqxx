@@ -199,14 +199,14 @@ public:
    * A negative value indicates the data type is variable-length.
    */
   /// This is the size of the server's internal representation of the data type
-  [[nodiscard]] int const column_storage(row_size_type number) const noexcept;
+  [[nodiscard]] int column_storage(row_size_type number) const noexcept;
 
   /// Type modifier of the column with this number
   /** The interpretation of modifier values is type-specific; they typically indicate precision or size limits.
    * The value -1 is used to indicate “no information available”.
    * Most data types do not use modifiers, in which case the value is always -1.
    */
-  [[nodiscard]] int const column_type_modifier(row_size_type number) const noexcept;
+  [[nodiscard]] int column_type_modifier(row_size_type number) const noexcept;
 
   /// Return column's type, as an OID from the system catalogue.
   [[nodiscard]] oid column_type(row_size_type col_num) const;

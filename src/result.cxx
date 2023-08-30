@@ -502,13 +502,13 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
-int const pqxx::result::column_storage(pqxx::row::size_type number) const noexcept
+int pqxx::result::column_storage(pqxx::row::size_type number) const noexcept
 {
   return PQfsize(m_data.get(), number);
 }
 
 
-int const pqxx::result::column_type_modifier(pqxx::row::size_type number) const noexcept
+int pqxx::result::column_type_modifier(pqxx::row::size_type number) const noexcept
 {
   return PQfmod(m_data.get(), number);
 }
