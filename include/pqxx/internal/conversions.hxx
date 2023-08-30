@@ -684,7 +684,8 @@ template<> struct string_traits<zview>
 
   static std::string_view to_buf(char *begin, char *end, zview const &value)
   {
-    return {into_buf(begin, end, value), std::size(value)};
+    char *const stop{into_buf(begin, end, value)};
+    return {begin, static_cast<std::size_t>(stop - begin - 1)};
   }
 
   /// Don't convert to this type; it has nowhere to store its contents.
