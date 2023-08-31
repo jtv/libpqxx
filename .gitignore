@@ -47,6 +47,3 @@ win32/common
 **/runner.log
 **/runner.trs
 **/test-suite.log
-/.vs
-/_ReSharper.Caches/ReSharperPlatformVs17232_999e35d1.libpqxx.00
-/out/build/x64-Debug
