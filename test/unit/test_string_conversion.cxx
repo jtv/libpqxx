@@ -6,6 +6,9 @@
 
 #include "../test_helpers.hxx"
 
+using namespace std::literals;
+
+
 // Some enums with string conversions.
 enum EnumA
 {
@@ -171,8 +174,40 @@ void test_convert_null()
 }
 
 
+void test_string_view_conversion()
+{
+  using traits = pqxx::string_traits<std::string_view>;
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string("view here"sv),
+    "view here"s,
+    "Bad conversion from string_view.");
+
+  char buf[200];
+
+  char *end{traits::into_buf(std::begin(buf), std::end(buf), "more view"sv)};
+  PQXX_CHECK(
+    std::begin(buf) < end and end < std::end(buf),
+    "string_view into_buf did not stay within its buffer.");
+  PQXX_CHECK(
+    *(end - 1) == '\0', "string_view into_buf did not zero-terminate.");
+  PQXX_CHECK_EQUAL(
+    (std::string{buf, static_cast<std::size_t>(end - std::begin(buf) - 1)}),
+    "more view"s,
+    "string_view into_buf wrote wrong data.");
+  PQXX_CHECK(
+    *(end - 2) == 'w', "string_view into_buf is in the wrong place.");
+
+  pqxx::zview out{
+    traits::to_buf(std::begin(buf), std::end(buf), "another!"sv)};
+  PQXX_CHECK_EQUAL(
+    std::string{out}, "another!"s, "string_view to_buf returned wrong data.");
+}
+
+
 PQXX_REGISTER_TEST(test_string_conversion);
 PQXX_REGISTER_TEST(test_convert_variant_to_string);
 PQXX_REGISTER_TEST(test_integer_conversion);
 PQXX_REGISTER_TEST(test_convert_null);
+PQXX_REGISTER_TEST(test_string_view_conversion);
 } // namespace

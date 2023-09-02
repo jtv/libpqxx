@@ -651,6 +651,13 @@ template<> struct string_traits<std::string_view>
     return begin + std::size(value) + 1;
   }
 
+  static zview to_buf(char *begin, char *end, std::string_view const &value)
+  {
+    // You'd think we could just return the same view but alas, there's no
+    // zero-termination on a string_view.
+    return generic_to_buf(begin, end, value);
+  }
+
   /// Don't convert to this type; it has nowhere to store its contents.
   static std::string_view from_string(std::string_view) = delete;
 };
