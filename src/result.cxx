@@ -502,6 +502,18 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
+int pqxx::result::column_storage(pqxx::row::size_type number) const noexcept
+{
+  return PQfsize(m_data.get(), number);
+}
+
+
+int pqxx::result::column_type_modifier(pqxx::row::size_type number) const noexcept
+{
+  return PQfmod(m_data.get(), number);
+}
+
+
 // const_result_iterator
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
