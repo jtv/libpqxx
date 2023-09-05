@@ -194,17 +194,22 @@ public:
   /// Name of column with this number (throws exception if it doesn't exist)
   [[nodiscard]] char const *column_name(row_size_type number) const &;
 
-  /// Size in bytes of column with this number
-  /** This is the size of the server's internal representation of the data type.
-   * A negative value indicates the data type is variable-length.
+  /// Server-side storage size for field of column's type, in bytes.
+  /** Returns the size of the server's internal representation of the column's
+   * data type.  A negative value indicates the data type is variable-length.
    */
-  /// This is the size of the server's internal representation of the data type
-  [[nodiscard]] int column_storage(row_size_type number) const noexcept;
+  [[nodiscard]] int column_storage(row_size_type number) const;
 
-  /// Type modifier of the column with this number
-  /** The interpretation of modifier values is type-specific; they typically indicate precision or size limits.
-   * The value -1 is used to indicate “no information available”.
-   * Most data types do not use modifiers, in which case the value is always -1.
+  /// Type modifier of the column with this number.
+  /** The meaning of modifier values is type-specific; they typically indicate
+   * precision or size limits.
+   *
+   * _Use this only if you know what you're doing._  Most applications do not
+   * need it, and most types do not use modifiers.
+   *
+   * The value -1 indicates "no information available."
+   *
+   * @warning There is no check for errors, such as an invalid column number.
    */
   [[nodiscard]] int column_type_modifier(row_size_type number) const noexcept;
 
