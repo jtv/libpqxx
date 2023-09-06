@@ -1,6 +1,7 @@
 7.8.2
  - Fix broken `to_buf()` on `zview`. (#728)
  - Support `PQfsize()` and `PQfmod()`. (#727)
+ - Implement conversion from `string_view` to string. (#728)
 7.8.1
  - Regenerate build files. Should fix ARM Mac build. (#715)
  - Reinstate `<ciso646>` that MSVC can't live with or without. (#713)
