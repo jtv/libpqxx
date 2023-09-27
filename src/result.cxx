@@ -509,19 +509,17 @@ int pqxx::result::column_storage(pqxx::row::size_type number) const
   {
     auto const sz{this->size()};
     if ((number < 0) or (number >= sz))
-      throw argument_error{
-        pqxx::internal::concat(
-	  "Column number out of range: ", number, " (have 0 - ", sz, ")")};
-    throw failure{
-      pqxx::internal::concat(
-        "Error getting column_storage for column ", number)};
+      throw argument_error{pqxx::internal::concat(
+        "Column number out of range: ", number, " (have 0 - ", sz, ")")};
+    throw failure{pqxx::internal::concat(
+      "Error getting column_storage for column ", number)};
   }
   return out;
 }
 
 
-int pqxx::result::column_type_modifier(pqxx::row::size_type number)
-  const noexcept
+int pqxx::result::column_type_modifier(
+  pqxx::row::size_type number) const noexcept
 {
   return PQfmod(m_data.get(), number);
 }
