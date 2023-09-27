@@ -179,8 +179,7 @@ void test_string_view_conversion()
   using traits = pqxx::string_traits<std::string_view>;
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string("view here"sv),
-    "view here"s,
+    pqxx::to_string("view here"sv), "view here"s,
     "Bad conversion from string_view.");
 
   char buf[200];
@@ -193,10 +192,8 @@ void test_string_view_conversion()
     *(end - 1) == '\0', "string_view into_buf did not zero-terminate.");
   PQXX_CHECK_EQUAL(
     (std::string{buf, static_cast<std::size_t>(end - std::begin(buf) - 1)}),
-    "more view"s,
-    "string_view into_buf wrote wrong data.");
-  PQXX_CHECK(
-    *(end - 2) == 'w', "string_view into_buf is in the wrong place.");
+    "more view"s, "string_view into_buf wrote wrong data.");
+  PQXX_CHECK(*(end - 2) == 'w', "string_view into_buf is in the wrong place.");
 
   std::string_view org{"another!"sv};
   pqxx::zview out{traits::to_buf(std::begin(buf), std::end(buf), org)};
