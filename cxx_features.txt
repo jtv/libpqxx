@@ -1,0 +1,6 @@
+__cpp_concepts pqxx_have_concepts
+__cpp_multidimensional_subscript pqxx_have_multidim
+__cpp_lib_source_location pqxx_have_source_location
+__cpp_lib_span pqxx_have_span
+__cpp_lib_ssize pqxx_have_ssize
+__cpp_lib_unreachable pqxx_have_unreachable

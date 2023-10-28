@@ -24,7 +24,6 @@ AC_PREFIX_DEFAULT(/usr/local)
 AC_DEFUN([read_test], [AC_LANG_SOURCE(
 	esyscmd(tools/m4esc.py --input=config-tests/$1))])
 
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_INSTALL
@@ -300,6 +299,7 @@ AC_MSG_RESULT($cxa_demangle)
 
 
 # C++20: Assume support.
+# XXX: Replace with generated pqxx_have_concepts.
 # Check for sufficient Concepts support, introduced with C++20.
 AC_MSG_CHECKING([concepts])
 concepts=yes
@@ -314,6 +314,7 @@ AC_MSG_RESULT($concepts)
 
 
 # C++20: Assume support.
+# XXX: Replace with generated pqxx_have_span.
 # Check for C++20 std::span.
 AC_MSG_CHECKING([std::span])
 span=yes
@@ -697,6 +698,34 @@ change!
 ])])
 AC_MSG_RESULT(yes)
 
+# Configuration based on C++ feature test macros.  We want a resuable header
+# describing these, so users can build a libpqxx with a fixed, stable config
+# even when actual compile options may differ.
+#
+# Unfortunately this will not work when cross-compiling.  There is just no
+# guarantee that compilation for the machine where we're building will be
+# at all similar to compilation for the target architecture.  In that case,
+# we will generate a dummy config header with all features disabled.
+mkdir -p include/pqxx
+AC_RUN_IFELSE(
+	[AC_LANG_SOURCE(
+		esyscmd(
+			"tools/generate_checks.py" \
+			"cxx_features.txt" \
+			"-H" "include/pqxx/cxx_features.hxx"
+		)
+	)],
+	[AC_MSG_RESULT([Generated cxx_features.hxx.])],
+	[AC_MSG_FAILURE(["C++ features check failed."])],
+	# We're cross-compiling.  Generate a dummy.
+	[AX_PRINT_TO_FILE(
+		include/pqxx/cxx_features.hxx,
+		esyscmd(
+			"tools/generate_checks.py" \
+			"cxx_features.txt" \
+			"--dummy"))]
+)
+
 
 AC_PROG_MAKE_SET
 
@@ -704,7 +733,6 @@ AC_CONFIG_FILES([
 	Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile
 	test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile
 	libpqxx.pc])
-
 
 AC_CONFIG_COMMANDS([configitems], ["${srcdir}/tools/splitconfig" "${srcdir}"])
 
