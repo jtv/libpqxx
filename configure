@@ -18860,16 +18860,16 @@ printf "%s\n" "yes" >&6; }
 # at all similar to compilation for the target architecture.  In that case,
 # we will generate a dummy config header with all features disabled.
 mkdir -p include/pqxx
+if test "$cross_compiling" = yes
+then :
+  # We're cross-compiling.  Generate a dummy.
+
 
 AX_DOLLAR="\$"
 AX_SRB="\\135"
 AX_SLB="\\133"
 AX_BS="\\\\"
 AX_DQ="\""
-
-if test "$cross_compiling" = yes
-then :
-  # We're cross-compiling.  Generate a dummy.
 
 
 printf "// Dummy settings for cross-compile.  Configure manually.
