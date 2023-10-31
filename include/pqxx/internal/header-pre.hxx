@@ -21,7 +21,7 @@
 #  include <version>
 #endif
 
-#include "pqxx/internal/cxx-features.hxx"
+#include "pqxx/cxx_features.hxx"
 
 // NO GUARD HERE! This part should be included every time this file is.
 #if defined(_MSC_VER)
