@@ -23,7 +23,7 @@ from textwrap import dedent
 if sys.version_info >= (3, 11):
     from datetime import UTC
 else:
-    from pytz impot UTC
+    from pytz import UTC
 endif
 
 HELP_EPILOGUE = dedent("""\

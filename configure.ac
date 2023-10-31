@@ -718,8 +718,7 @@ AC_RUN_IFELSE(
 	[AC_MSG_RESULT([Generated cxx_features.hxx.])],
 	[AC_MSG_FAILURE(["C++ features check failed."])],
 	# We're cross-compiling.  Generate a dummy.
-	AX_PRINT_TO_FILE(
-		[include/pqxx/cxx_features.hxx],
+	AX_PRINT_TO_FILE([include/pqxx/cxx_features.hxx],
 		esyscmd(
 			"tools/generate_checks.py" \
 			"cxx_features.txt" \
