@@ -36,6 +36,17 @@ substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
 
 
+# Generate a piece of C++ code which at configure time we run through the
+# preprocessor in order to discover which C++ features the environment
+# supports.
+#
+# Not using our usual ".cxx" filename suffix: autoconf documents that $CXXCPP
+# will only work reliably on suffixes ".cc", ".C", etc.
+./tools/generate_cxx_checks.py \
+    --static \
+    --input cxx_features.txt \
+    --output config-tests/cxx-features.cc
+
 autoheader
 libtoolize --force --automake --copy
 aclocal -I . -I config/m4

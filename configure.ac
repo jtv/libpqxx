@@ -26,6 +26,7 @@ AC_DEFUN([read_test], [AC_LANG_SOURCE(
 
 # Checks for programs.
 AC_PROG_CXX
+AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_DISABLE_SHARED
 LT_INIT
@@ -698,32 +699,14 @@ change!
 ])])
 AC_MSG_RESULT(yes)
 
-# Configuration based on C++ feature test macros.  We want a resuable header
-# describing these, so users can build a libpqxx with a fixed, stable config
-# even when actual compile options may differ.
-#
-# Unfortunately this will not work when cross-compiling.  There is just no
-# guarantee that compilation for the machine where we're building will be
-# at all similar to compilation for the target architecture.  In that case,
-# we will generate a dummy config header with all features disabled.
+# Configuration based on C++ feature test macros.  We generated a static
+# source file that we can run through the preprocessor to detect the features
+# we want, and generate the actual libpqxx configuration header from the
+# output.
 mkdir -p include/pqxx
-AC_RUN_IFELSE(
-	[AC_LANG_SOURCE(
-		esyscmd(
-			"tools/generate_checks.py" \
-			"cxx_features.txt" \
-			"-H" "include/pqxx/cxx_features.hxx"
-		)
-	)],
-	[AC_MSG_RESULT([Generated cxx_features.hxx.])],
-	[AC_MSG_FAILURE(["C++ features check failed."])],
-	# We're cross-compiling.  Generate a dummy.
-	AX_PRINT_TO_FILE([include/pqxx/cxx_features.hxx],
-		esyscmd(
-			"tools/generate_checks.py" \
-			"cxx_features.txt" \
-			"--dummy"))
-)
+${CXXCPP} ${CXXFLAGS} "$srcdir/config-tests/cxx-features.cc" | \
+    "$srcdir/tools/generate_cxx_checks.py" \
+        --config --output include/pqxx/cxx_features.hxx
 
 
 AC_PROG_MAKE_SET
