@@ -15,13 +15,16 @@ from argparse import (
     ArgumentParser,
     FileType,
 )
-from datetime import (
-    datetime,
-    UTC,
-)
+from datetime import datetime
 from pathlib import Path
 import sys
 from textwrap import dedent
+
+if sys.version_info >= (3, 11):
+    from datetime import UTC
+else:
+    from pytz impot UTC
+endif
 
 HELP_EPILOGUE = dedent("""\
     Pass in the "cxx_features.txt" file, listing (one pair per line) the C++
