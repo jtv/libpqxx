@@ -699,6 +699,7 @@ change!
 ])])
 AC_MSG_RESULT(yes)
 
+
 # Configuration based on C++ feature test macros.  We generated a static
 # source file that we can run through the preprocessor to detect the features
 # we want, and generate the actual libpqxx configuration header from the
