@@ -705,7 +705,7 @@ AC_MSG_RESULT(yes)
 # we want, and generate the actual libpqxx configuration header from the
 # output.
 mkdir -p include/pqxx
-${CXXCPP} ${CXXFLAGS} "$srcdir/config-tests/cxx-features.cc" | \
+${CXXCPP} ${CXXFLAGS} ${CPPFLAGS} "$srcdir/config-tests/cxx-features.cc" | \
     "$srcdir/tools/generate_cxx_checks.py" \
         --config --output include/pqxx/cxx_features.hxx
 
