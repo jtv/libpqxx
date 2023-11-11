@@ -35,6 +35,7 @@ expand_templates $(find . -name \*.template)
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
 
+./tools/generate_cxx_checks.py
 
 autoheader
 libtoolize --force --automake --copy

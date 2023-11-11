@@ -1,0 +1,14 @@
+# Feature definitions.
+#
+# The generate_cxx_checks.py script generates feature test programs based on
+# these, and hooks them into the autoconf and CMake builds.
+#
+# Each line consists of a libpqxx feature macro, and the corresponding C++
+# feature test macro that determines whether that feature is present.
+
+PQXX_HAVE_CONCEPTS __cpp_concepts
+PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
+PQXX_HAVE_SOURCE_LOCATION __cpp_lib_source_location
+PQXX_HAVE_SPAN __cpp_lib_span
+PQXX_HAVE_SSIZE __cpp_lib_ssize
+PQXX_HAVE_UNREACHABLE __cpp_lib_unreachable

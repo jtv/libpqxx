@@ -1,0 +1,65 @@
+AC_MSG_CHECKING([__cpp_concepts])
+PQXX_HAVE_CONCEPTS=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_CONCEPTS.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_CONCEPTS],
+        1,
+        [Define if __cpp_concepts is present and true.]),
+    PQXX_HAVE_CONCEPTS=no)
+AC_MSG_RESULT($PQXX_HAVE_CONCEPTS)
+
+AC_MSG_CHECKING([__cpp_multidimensional_subscript])
+PQXX_HAVE_MULTIDIM=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_MULTIDIM.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_MULTIDIM],
+        1,
+        [Define if __cpp_multidimensional_subscript is present and true.]),
+    PQXX_HAVE_MULTIDIM=no)
+AC_MSG_RESULT($PQXX_HAVE_MULTIDIM)
+
+AC_MSG_CHECKING([__cpp_lib_source_location])
+PQXX_HAVE_SOURCE_LOCATION=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_SOURCE_LOCATION.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_SOURCE_LOCATION],
+        1,
+        [Define if __cpp_lib_source_location is present and true.]),
+    PQXX_HAVE_SOURCE_LOCATION=no)
+AC_MSG_RESULT($PQXX_HAVE_SOURCE_LOCATION)
+
+AC_MSG_CHECKING([__cpp_lib_span])
+PQXX_HAVE_SPAN=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_SPAN.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_SPAN],
+        1,
+        [Define if __cpp_lib_span is present and true.]),
+    PQXX_HAVE_SPAN=no)
+AC_MSG_RESULT($PQXX_HAVE_SPAN)
+
+AC_MSG_CHECKING([__cpp_lib_ssize])
+PQXX_HAVE_SSIZE=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_SSIZE.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_SSIZE],
+        1,
+        [Define if __cpp_lib_ssize is present and true.]),
+    PQXX_HAVE_SSIZE=no)
+AC_MSG_RESULT($PQXX_HAVE_SSIZE)
+
+AC_MSG_CHECKING([__cpp_lib_unreachable])
+PQXX_HAVE_UNREACHABLE=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_UNREACHABLE.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_UNREACHABLE],
+        1,
+        [Define if __cpp_lib_unreachable is present and true.]),
+    PQXX_HAVE_UNREACHABLE=no)
+AC_MSG_RESULT($PQXX_HAVE_UNREACHABLE)

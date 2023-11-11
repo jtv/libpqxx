@@ -439,6 +439,11 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($have_cmp)
 
 
+# Incorporate feature checks based on C++ feature test macros.  The
+# generate_cxx_checks.py script produces these based on cxx_feaures.txt.
+m4_include([pqxx_generated_checks.ac])
+
+
 # Doing my own check for poll().  There's one built into autoconf-archive, but
 # it produces warnings in C++ (about unnecessarily using "struct", and using 0
 # as a null pointer constant).  In maintainer mode, those warnings turn into

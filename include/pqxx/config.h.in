@@ -66,7 +66,7 @@
 /* Define if compiler has C++20 std::cmp_greater etc. */
 #undef PQXX_HAVE_CMP
 
-/* Define if compiler supports Concepts and <ranges> header. */
+/* Define if __cpp_concepts is present and true. */
 #undef PQXX_HAVE_CONCEPTS
 
 /* Define if compiler supports __cxa_demangle */
@@ -81,6 +81,9 @@
 /* Define if likely & unlikely work. */
 #undef PQXX_HAVE_LIKELY
 
+/* Define if __cpp_multidimensional_subscript is present and true. */
+#undef PQXX_HAVE_MULTIDIM
+
 /* Define if compiler has usable std::filesystem::path. */
 #undef PQXX_HAVE_PATH
 
@@ -90,8 +93,14 @@
 /* Define if std::this_thread::sleep_for works. */
 #undef PQXX_HAVE_SLEEP_FOR
 
-/* Define if compiler has std::span. */
+/* Define if __cpp_lib_source_location is present and true. */
+#undef PQXX_HAVE_SOURCE_LOCATION
+
+/* Define if __cpp_lib_span is present and true. */
 #undef PQXX_HAVE_SPAN
+
+/* Define if __cpp_lib_ssize is present and true. */
+#undef PQXX_HAVE_SSIZE
 
 /* Define if strerror_r() is available. */
 #undef PQXX_HAVE_STRERROR_R
@@ -101,6 +110,9 @@
 
 /* Define if thread_local is fully supported. */
 #undef PQXX_HAVE_THREAD_LOCAL
+
+/* Define if __cpp_lib_unreachable is present and true. */
+#undef PQXX_HAVE_UNREACHABLE
 
 /* Define if std::chrono has year_month_day etc. */
 #undef PQXX_HAVE_YEAR_MONTH_DAY

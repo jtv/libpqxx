@@ -116,6 +116,10 @@ try_compile(
 	${PROJECT_BINARY_DIR}
 	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cmp.cxx)
 
+# Incorporate feature checks based on C++ feature test macros.  The
+# generate_cxx_checks.py script produces these based on cxx_features.txt.
+include(pqxx_generated_checks)
+
 try_compile(
 	need_fslib
 	${PROJECT_BINARY_DIR}
