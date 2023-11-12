@@ -1,4 +1,5 @@
 // Test for std::span.
+// C++20: Assume support.
 #include <span>
 
 int main(int argc, char **argv)

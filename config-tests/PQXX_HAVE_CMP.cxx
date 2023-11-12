@@ -1,4 +1,5 @@
 // Test for C++20 std::cmp_greater etc. support.
+// C++20: Assume support.
 #include <utility>
 
 

@@ -1,4 +1,5 @@
 // Test for concepts support.  Not just the language feature; also headers.
+// C++20: Assume support.
 #include <iostream>
 #include <ranges>
 #include <vector>
