@@ -141,13 +141,13 @@ pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
 }
 
 
-#if pqxx_have_multidim
+#if defined(PQXX_HAVE_MULTIDIM)
 pqxx::field pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
   return {*this, row_num, col_num};
 }
-#endif // pqxx_have_multidim
+#endif // PQXX_HAVE_MULTIDIM
 
 
 pqxx::row pqxx::result::at(pqxx::result::size_type i) const

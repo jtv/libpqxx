@@ -47,9 +47,9 @@ void test_field()
 
   auto const r3{tx.exec("SELECT generate_series(1, 5)")};
   PQXX_CHECK_EQUAL(r3.at(3, 0).as<int>(), 4, "Two-argument at() went wrong.");
-#if pqxx_have_multidim
+#if defined(PQXX_HAVE_MULTIDIM)
   PQXX_CHECK_EQUAL((r3[3, 0].as<int>()), 4, "Two-argument [] went wrong.");
-#endif // pqxx_have_multidim
+#endif // PQXX_HAVE_MULTIDIM
 }
 
 

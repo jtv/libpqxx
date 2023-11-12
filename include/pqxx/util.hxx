@@ -45,7 +45,7 @@ namespace pqxx
 
 
 // C++23: Retire wrapper.
-#if pqxx_have_unreachable
+#if defined(PQXX_HAVE_UNREACHABLE)
 /// Equivalent to `std::unreachable()` if available.
 #  define PQXX_UNREACHABLE std::unreachable()
 #else
@@ -452,12 +452,12 @@ std::basic_string<std::byte>
 /// Transitional: std::ssize(), or custom implementation if not available.
 template<typename T> auto ssize(T const &c)
 {
-#if pqxx_have_ssize
+#if defined(PQXX_HAVE_SSIZE)
   return std::ssize(c);
 #else
   using signed_t = std::make_signed_t<decltype(std::size(c))>;
   return static_cast<signed_t>(std::size(c));
-#endif // pqxx_have_ssize
+#endif // PQXX_HAVE_SSIZe
 }
 
 

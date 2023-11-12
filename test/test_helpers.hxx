@@ -11,7 +11,7 @@ namespace test
 class test_failure : public std::logic_error
 {
 public:
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   test_failure(
     std::string const &desc,
     std::source_location loc = std::source_location::current());
@@ -21,7 +21,7 @@ public:
 
   ~test_failure() noexcept override;
 
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   constexpr char const *file() const noexcept { return m_loc.file_name(); }
   constexpr auto line() const noexcept { return m_loc.line(); }
 #else
@@ -30,7 +30,7 @@ public:
 #endif
 
 private:
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   std::source_location m_loc;
 #else
   std::string const m_file;
@@ -68,25 +68,25 @@ struct registrar
 
 
 // Unconditional test failure.
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 #  define PQXX_CHECK_NOTREACHED(desc) pqxx::test::check_notreached((desc))
 #else
 #  define PQXX_CHECK_NOTREACHED(desc)                                         \
     pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
 #endif
 [[noreturn]] void check_notreached(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   std::string desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
 );
 
 // Verify that a condition is met, similar to assert()
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 #  define PQXX_CHECK(condition, desc)                                         \
     pqxx::test::check((condition), #condition, (desc))
 #else
@@ -94,18 +94,18 @@ struct registrar
     pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
 #endif
 void check(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   bool condition, char const text[], std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
 );
 
 // Verify that variable has the expected value.
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 #  define PQXX_CHECK_EQUAL(actual, expected, desc)                            \
     pqxx::test::check_equal((actual), #actual, (expected), #expected, (desc))
 #else
@@ -115,12 +115,12 @@ void check(
 #endif
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   ACTUAL actual, char const actual_text[], EXPECTED expected,
   char const expected_text[], std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
@@ -136,7 +136,7 @@ inline void check_equal(
                                ", "
                                "expected=" +
                                to_string(expected) + ")";
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
 #else
   throw test_failure(file, line, fulldesc);
@@ -144,7 +144,7 @@ inline void check_equal(
 }
 
 // Verify that two values are not equal.
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 #  define PQXX_CHECK_NOT_EQUAL(value1, value2, desc)                          \
     pqxx::test::check_not_equal((value1), #value1, (value2), #value2, (desc))
 #else
@@ -154,12 +154,12 @@ inline void check_equal(
 #endif
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
   std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
@@ -171,7 +171,7 @@ inline void check_not_equal(
                                ": "
                                "both are " +
                                to_string(value2) + ")";
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
 #else
   throw test_failure{file, line, fulldesc};
@@ -179,7 +179,7 @@ inline void check_not_equal(
 }
 
 
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 // Verify that value1 is less than value2.
 #  define PQXX_CHECK_LESS(value1, value2, desc)                               \
     pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
@@ -198,12 +198,12 @@ inline void check_not_equal(
 #endif
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
   std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
@@ -218,7 +218,7 @@ inline void check_less(
                                ", "
                                "\"upper\"=" +
                                to_string(value2) + ")";
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
 #else
   throw test_failure(file, line, fulldesc);
@@ -226,7 +226,7 @@ inline void check_less(
 }
 
 
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 // Verify that value1 is less than or equal to value2.
 #  define PQXX_CHECK_LESS_EQUAL(value1, value2, desc)                         \
     pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
@@ -245,12 +245,12 @@ inline void check_less(
 #endif
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
   std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
@@ -265,7 +265,7 @@ inline void check_less_equal(
                                ", "
                                "\"upper\"=" +
                                to_string(value2) + ")";
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
 #else
   throw test_failure(file, line, fulldesc);
@@ -361,7 +361,7 @@ inline void end_of_statement() {}
   }                                                                           \
   pqxx::test::internal::end_of_statement()
 
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 #  define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                        \
     pqxx::test::check_bounds(                                                 \
       (value), #value, (lower), #lower, (upper), #upper, (desc))
@@ -373,12 +373,12 @@ inline void end_of_statement() {}
 #endif
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   VALUE value, char const text[], LOWER lower, char const lower_text[],
   UPPER upper, char const upper_text[], std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
 #endif
@@ -390,34 +390,34 @@ inline void check_bounds(
                     upper_check = std::string{text} + " < " + upper_text;
 
   pqxx::test::check(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
     file, line,
 #endif
     lower < upper, range_check.c_str(),
     desc + " (acceptable range is empty; value was " + text + ")"
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
   );
   pqxx::test::check(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
     file, line,
 #endif
     not(value < lower), lower_check.c_str(),
     desc + " (" + text + " is below lower bound " + lower_text + ")"
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
   );
   pqxx::test::check(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
     file, line,
 #endif
     value < upper, upper_check.c_str(),
     desc + " (" + text + " is not below upper bound " + upper_text + ")"
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif

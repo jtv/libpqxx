@@ -156,10 +156,10 @@ public:
    */
   [[nodiscard]] row operator[](size_type i) const noexcept;
 
-#if pqxx_have_multidim
+#if defined(PQXX_HAVE_MULTIDIM)
   [[nodiscard]] field
   operator[](size_type row_num, row_size_type col_num) const noexcept;
-#endif // pqxx_have_multidim
+#endif // PQXX_HAVE_MULTIDIM
 
   /// Index a row by number, but check that the row number is valid.
   row at(size_type) const;

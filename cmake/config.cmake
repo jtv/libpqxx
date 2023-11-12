@@ -55,7 +55,7 @@ set(CMAKE_REQUIRED_QUIET ON)
 # Incorporate feature checks based on C++ feature test mac
 include(pqxx_cxx_feature_checks)
 
-# This variable is set by one of the config-tests.
+# This variable is set by one of the snippets in config-tests.
 if(!no_need_fslib)
     # TODO: This may work for gcc 8, but some clang versions may need -lc++fs.
     link_libraries(stdc++fs)
