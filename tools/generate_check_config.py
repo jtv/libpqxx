@@ -41,7 +41,7 @@ def parse_args() -> Namespace:
 
 def list_snippets(source: Path) -> list[str]:
     """Return list of C++ snippets."""
-    return sorted(source / 'config-tests').glob('*.cxx')
+    return sorted(map(str, (source / 'config-tests').glob('*.cxx')))
 
 
 # Comment header for either autoconf or CMake config we generate.
@@ -64,16 +64,16 @@ FOOT = "# End of config.\n"
 
 # Template for an autoconf feature check.
 AUTOCONF_TEMPLATE = dedent("""\
-    AC_MSG_CHECKING([%(pqxx_macro)s])
-    %(pqxx_macro)s=yes
+    AC_MSG_CHECKING([%(macro)s])
+    %(macro)s=yes
     AC_COMPILE_IFELSE(
-        [read_test(%(pqxx_macro)s.cxx)],
+        [read_test(%(macro)s.cxx)],
         AC_DEFINE(
-            [%(pqxx_macro)s],
+            [%(macro)s],
             1,
             [Define if this feature is available.]),
-        %(pqxx_macro)s=no)
-    AC_MSG_RESULT($%(pqxx_macro)s)
+        %(macro)s=no)
+    AC_MSG_RESULT($%(macro)s)
 """)
 
 
@@ -83,7 +83,7 @@ def generate_autoconf(source: Path, snippets: list[str]) -> None:
     with dest.open('w', encoding='ascii') as stream:
         stream.write(compose_header())
         for snippet in snippets:
-            stream.write(AUTOCONF_TEMPLATE % {'pqxx_macro': snippet.stem})
+            stream.write(AUTOCONF_TEMPLATE % {'macro': Path(snippet).stem})
         stream.write(FOOT)
 
 
@@ -92,9 +92,9 @@ def generate_autoconf(source: Path, snippets: list[str]) -> None:
 # Makes use of a custom function, try_compile.
 CMAKE_TEMPLATE = dedent("""\
     try_compile(
-        %(pqxx_macro)s
+        %(macro)s
         ${PROJECT_BINARY_DIR}
-        SOURCES %{PROJECT_SOURCE_DIR}/config-tests/%{pqxx_macro}s.cxx
+        SOURCES ${PROJECT_SOURCE_DIR}/config-tests/%(macro)s.cxx
     )
 """)
 
@@ -105,7 +105,7 @@ def generate_cmake(source: Path, snippets: list[str]) -> None:
     with dest.open('w', encoding='ascii') as stream:
         stream.write(compose_header())
         for snippet in snippets:
-            stream.write(CMAKE_TEMPLATE % {'pqxx_macro': snippet.stem})
+            stream.write(CMAKE_TEMPLATE % {'macro': Path(snippet).stem})
         stream.write(FOOT)
 
 

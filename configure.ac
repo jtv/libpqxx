@@ -266,23 +266,8 @@ then
 fi
 
 
-
-# Doing my own check for poll().  There's one built into autoconf-archive, but
-# it produces warnings in C++ (about unnecessarily using "struct", and using 0
-# as a null pointer constant).  In maintainer mode, those warnings turn into
-# errors.
-AC_MSG_CHECKING([for poll()])
-ax_cv_have_poll=yes
-AC_LINK_IFELSE(
-	[read_test(poll.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_POLL],
-		1,
-		[Define if poll() is available.]),
-	ax_cv_have_poll=no)
-AC_MSG_RESULT($ax_cv_have_poll)
-
-if test "$ax_cv_have_poll" != "yes"
+# One of the generated checks sets this variable.
+if test "$PQXX_HAVE_POLL" != "yes"
 then
 # No poll(); we'll fall back to select().
 
@@ -462,18 +447,6 @@ occurring in the file.
 # TODO: PQresultMemorySize()
 
 
-AC_MSG_CHECKING([for usable std::filesystem::path])
-have_path=yes
-AC_COMPILE_IFELSE(
-	[read_test(fs.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_PATH],
-		1,
-		[Define if compiler has usable std::filesystem::path.]),
-	have_path=no)
-AC_MSG_RESULT($have_path)
-
-
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"
 found_fslib=no
@@ -483,7 +456,7 @@ do
 	then
 		LIBS="$LIBS $l"
 		AC_LINK_IFELSE(
-			[read_test(need_fslib.cxx)],
+			[read_test(no_need_fslib.cxx)],
 			[found_fslib=yes],
 			[LIBS="$LIBS_SAVE"])
 		if test "$found_fslib" = "yes"
