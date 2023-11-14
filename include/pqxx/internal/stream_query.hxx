@@ -100,7 +100,7 @@ public:
   }
 
   /// Has this stream reached the end of its data?
-  bool done() const &noexcept { return m_char_finder == nullptr; }
+  bool done() const & noexcept { return m_char_finder == nullptr; }
 
   /// Begin iterator.  Only for use by "range for."
   inline auto begin() &;

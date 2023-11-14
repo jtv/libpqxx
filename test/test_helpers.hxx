@@ -63,7 +63,7 @@ struct registrar
 #define PQXX_REGISTER_TEST(func)                                              \
   pqxx::test::registrar tst_##func                                            \
   {                                                                           \
-#    func, func                                                               \
+    #func, func                                                               \
   }
 
 

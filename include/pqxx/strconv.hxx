@@ -419,7 +419,7 @@ private:
   {};                                                                         \
   template<> inline std::string_view const type_name<ENUM>                    \
   {                                                                           \
-#    ENUM                                                                     \
+    #ENUM                                                                     \
   }
 
 

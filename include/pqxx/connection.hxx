@@ -79,20 +79,17 @@ class sql_cursor;
 #if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
-concept ZKey_ZValues =
-  std::ranges::input_range<T> and
-  requires(T t) {
-    {
-      std::cbegin(t)
-    };
-    {
-      std::get<0>(*std::cbegin(t))
-      } -> ZString;
-    {
-      std::get<1>(*std::cbegin(t))
-      } -> ZString;
-  } and
-  std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
+concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
+  {
+    std::cbegin(t)
+  };
+  {
+    std::get<0>(*std::cbegin(t))
+  } -> ZString;
+  {
+    std::get<1>(*std::cbegin(t))
+  } -> ZString;
+} and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
 #endif // PQXX_HAVE_CONCEPTS
 
 
@@ -362,7 +359,7 @@ public:
   [[nodiscard]] char const *port() const;
 
   /// Process ID for backend process, or 0 if inactive.
-  [[nodiscard]] int PQXX_PURE backendpid() const &noexcept;
+  [[nodiscard]] int PQXX_PURE backendpid() const & noexcept;
 
   /// Socket currently used for connection, or -1 for none.  Use with care!
   /** Query the current socket number.  This is intended for event loops based
@@ -375,7 +372,7 @@ public:
    * await_notification().  If you want to issue queries and retrieve results
    * in nonblocking fashion, check out the pipeline class.
    */
-  [[nodiscard]] int PQXX_PURE sock() const &noexcept;
+  [[nodiscard]] int PQXX_PURE sock() const & noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
@@ -994,7 +991,7 @@ public:
    * (these might span multiple lines).  "verbose" includes all available
    * fields.
    */
-  void set_verbosity(error_verbosity verbosity) &noexcept;
+  void set_verbosity(error_verbosity verbosity) & noexcept;
 
   /// Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
@@ -1228,16 +1225,16 @@ public:
   connecting &operator=(connecting &&) = default;
 
   /// Get the socket.  The socket may change during the connection process.
-  [[nodiscard]] int sock() const &noexcept { return m_conn.sock(); }
+  [[nodiscard]] int sock() const & noexcept { return m_conn.sock(); }
 
   /// Should we currently wait to be able to _read_ from the socket?
-  [[nodiscard]] constexpr bool wait_to_read() const &noexcept
+  [[nodiscard]] constexpr bool wait_to_read() const & noexcept
   {
     return m_reading;
   }
 
   /// Should we currently wait to be able to _write_ to the socket?
-  [[nodiscard]] constexpr bool wait_to_write() const &noexcept
+  [[nodiscard]] constexpr bool wait_to_write() const & noexcept
   {
     return m_writing;
   }
@@ -1246,7 +1243,7 @@ public:
   void process() &;
 
   /// Is our connection finished?
-  [[nodiscard]] constexpr bool done() const &noexcept
+  [[nodiscard]] constexpr bool done() const & noexcept
   {
     return not m_reading and not m_writing;
   }

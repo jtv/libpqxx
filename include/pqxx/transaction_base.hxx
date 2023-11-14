@@ -808,7 +808,7 @@ public:
 
   // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
+  [[nodiscard]] std::string_view name() const & noexcept { return m_name; }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).

@@ -139,7 +139,7 @@ public:
   /** @warning Changing the current placeholder number will overwrite this.
    * Use the view immediately, or lose it.
    */
-  constexpr zview view() const &noexcept
+  constexpr zview view() const & noexcept
   {
     return zview{std::data(m_buf), m_len};
   }

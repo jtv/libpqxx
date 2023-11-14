@@ -17596,9 +17596,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_concepts) || !__cpp_concepts
+#if !defined(__cpp_concepts)
 
-#error "No support for PQXX_HAVE_CONCEPTS detected: __cpp_concepts not set."
+#  error "No PQXX_HAVE_CONCEPTS: __cpp_concepts is not set."
+
+#endif
+
+#if !__cpp_concepts
+
+#  error "No PQXX_HAVE_CONCEPTS: __cpp_concepts is false."
 
 #endif
 
@@ -17816,9 +17822,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_multidimensional_subscript) || !__cpp_multidimensional_subscript
+#if !defined(__cpp_multidimensional_subscript)
 
-#error "No support for PQXX_HAVE_MULTIDIM detected: __cpp_multidimensional_subscript not set."
+#  error "No PQXX_HAVE_MULTIDIM: __cpp_multidimensional_subscript is not set."
+
+#endif
+
+#if !__cpp_multidimensional_subscript
+
+#  error "No PQXX_HAVE_MULTIDIM: __cpp_multidimensional_subscript is false."
 
 #endif
 
@@ -18008,9 +18020,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_lib_source_location) || !__cpp_lib_source_location
+#if !defined(__cpp_lib_source_location)
 
-#error "No support for PQXX_HAVE_SOURCE_LOCATION detected: __cpp_lib_source_location not set."
+#  error "No PQXX_HAVE_SOURCE_LOCATION: __cpp_lib_source_location is not set."
+
+#endif
+
+#if !__cpp_lib_source_location
+
+#  error "No PQXX_HAVE_SOURCE_LOCATION: __cpp_lib_source_location is false."
 
 #endif
 
@@ -18042,9 +18060,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_lib_span) || !__cpp_lib_span
+#if !defined(__cpp_lib_span)
 
-#error "No support for PQXX_HAVE_SPAN detected: __cpp_lib_span not set."
+#  error "No PQXX_HAVE_SPAN: __cpp_lib_span is not set."
+
+#endif
+
+#if !__cpp_lib_span
+
+#  error "No PQXX_HAVE_SPAN: __cpp_lib_span is false."
 
 #endif
 
@@ -18076,9 +18100,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_lib_ssize) || !__cpp_lib_ssize
+#if !defined(__cpp_lib_ssize)
 
-#error "No support for PQXX_HAVE_SSIZE detected: __cpp_lib_ssize not set."
+#  error "No PQXX_HAVE_SSIZE: __cpp_lib_ssize is not set."
+
+#endif
+
+#if !__cpp_lib_ssize
+
+#  error "No PQXX_HAVE_SSIZE: __cpp_lib_ssize is false."
 
 #endif
 
@@ -18246,9 +18276,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 #include <version>
 
-#if !defined(__cpp_lib_unreachable) || !__cpp_lib_unreachable
+#if !defined(__cpp_lib_unreachable)
 
-#error "No support for PQXX_HAVE_UNREACHABLE detected: __cpp_lib_unreachable not set."
+#  error "No PQXX_HAVE_UNREACHABLE: __cpp_lib_unreachable is not set."
+
+#endif
+
+#if !__cpp_lib_unreachable
+
+#  error "No PQXX_HAVE_UNREACHABLE: __cpp_lib_unreachable is false."
 
 #endif
 

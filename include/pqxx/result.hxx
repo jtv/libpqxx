@@ -242,7 +242,7 @@ public:
   //@}
 
   /// Query that produced this result, if available (empty string otherwise)
-  [[nodiscard]] PQXX_PURE std::string const &query() const &noexcept;
+  [[nodiscard]] PQXX_PURE std::string const &query() const & noexcept;
 
   /// If command was an `INSERT` of 1 row, return oid of the inserted row.
   /** @return Identifier of inserted row if exactly one row was inserted, or

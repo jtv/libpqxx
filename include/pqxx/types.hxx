@@ -121,8 +121,8 @@ concept char_strings =
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
-concept potential_binary = std::ranges::contiguous_range<DATA> and
-                           (sizeof(value_type<DATA>) == 1);
+concept potential_binary =
+  std::ranges::contiguous_range<DATA> and (sizeof(value_type<DATA>) == 1);
 #endif // PQXX_HAVE_CONCEPTS
 
 

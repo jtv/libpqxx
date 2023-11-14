@@ -53,7 +53,7 @@ public:
   }
 
   /// Name for this object, if the caller passed one; empty string otherwise.
-  [[nodiscard]] std::string_view name() const &noexcept { return m_name; }
+  [[nodiscard]] std::string_view name() const & noexcept { return m_name; }
 
   [[nodiscard]] std::string description() const
   {

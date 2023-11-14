@@ -357,7 +357,7 @@ char const *pqxx::result::cmd_status() const noexcept
 }
 
 
-std::string const &pqxx::result::query() const &noexcept
+std::string const &pqxx::result::query() const & noexcept
 {
   return (m_query.get() == nullptr) ? s_empty_string : *m_query;
 }
