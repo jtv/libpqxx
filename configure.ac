@@ -250,21 +250,14 @@ then
 			-Wsuggest-final-types \
 			-Wsuggest-final-methods
 	fi
+fi # End of gcc-specific part.
 
-AC_MSG_CHECKING([g++ visibility attribute])
-gcc_visibility=yes
-SAVE_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS -Werror"
-AC_COMPILE_IFELSE(
-	[read_test(gcc_visibility.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_GCC_VISIBILITY],
-		1,
-		[Define if g++ supports visibility attribute.]),
-	gcc_visibility=no)
-AC_MSG_RESULT($gcc_visibility)
-CXXFLAGS="$SAVE_CXXFLAGS"
-if test "$gcc_visibility" = "yes"
+
+m4_include([pqxx_cxx_feature_checks.ac])
+
+
+# One of the generated checks sets this variable.
+if test "$PQXX_HAVE_GCC_VISIBILITY" = "yes"
 then
     # Make internal definitions accessible only to the library itself.
     # Only definitions marked PQXX_LIBEXPORT will be accessible.
@@ -272,189 +265,9 @@ then
     add_compiler_opts -fvisibility-inlines-hidden
 fi
 
-AC_MSG_CHECKING([g++ pure attribute])
-gcc_pure=yes
-AC_COMPILE_IFELSE(
-	[read_test(gcc_pure.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_GCC_PURE],
-		1,
-		[Define if g++ supports pure attribute]),
-	gcc_pure=no)
-AC_MSG_RESULT($gcc_pure)
 
-fi # End of gcc-specific part.
-
-
-# Check for __cxa_demangle.
-AC_MSG_CHECKING([__cxa_demangle])
-cxa_demangle=yes
-AC_COMPILE_IFELSE(
-	[read_test(cxa_demangle.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_CXA_DEMANGLE],
-		1,
-		[Define if compiler supports __cxa_demangle]),
-	cxa_demangle=no)
-AC_MSG_RESULT($cxa_demangle)
-
-
-# C++20: Assume support.
-# Check for sufficient Concepts support, introduced with C++20.
-AC_MSG_CHECKING([concepts])
-concepts=yes
-AC_COMPILE_IFELSE(
-	[read_test(concepts.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_CONCEPTS],
-		1,
-		[Define if compiler supports Concepts and <ranges> header.]),
-	concepts=no)
-AC_MSG_RESULT($concepts)
-
-
-# C++20: Assume support.
-# Check for C++20 std::span.
-AC_MSG_CHECKING([std::span])
-span=yes
-AC_COMPILE_IFELSE(
-	[read_test(span.cxx)],
-	AC_DEFINE([PQXX_HAVE_SPAN], 1, [Define if compiler has std::span.]),
-	span=no)
-AC_MSG_RESULT($span)
-
-
-AC_MSG_CHECKING([for strerror_r()])
-strerror_r=yes
-AC_LINK_IFELSE(
-	[read_test(strerror_r.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_STRERROR_R],
-		1,
-		[Define if strerror_r() is available.]),
-	strerror_r=no)
-AC_MSG_RESULT($strerror_r)
-
-
-
-AC_MSG_CHECKING([for strerror_s()])
-strerror_s=yes
-AC_LINK_IFELSE(
-	[read_test(strerror_s.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_STRERROR_S],
-		1,
-		[Define if strerror_s() is available.]),
-	strerror_s=no)
-AC_MSG_RESULT($strerror_s)
-
-
-AC_MSG_CHECKING([for std::chrono::year_month_day etc])
-year_month_day=yes
-AC_LINK_IFELSE(
-	[read_test(year_month_day.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_YEAR_MONTH_DAY],
-		1,
-		[Define if std::chrono has year_month_day etc.]),
-	year_month_day=no)
-AC_MSG_RESULT($year_month_day)
-
-
-# C++20: Assume support.
-# Check for [[likely]] and [[unlikely]] attributes.
-AC_MSG_CHECKING([attributes "likely" and "unlikely".])
-likely=yes
-AC_COMPILE_IFELSE(
-	[read_test(likely.cxx)],
-	AC_DEFINE([PQXX_HAVE_LIKELY], 1, [Define if likely & unlikely work.]),
-	likely=no)
-AC_MSG_RESULT($likely)
-
-
-# It's mid-2019, and gcc's charconv supports integers but not yet floats.
-# So for now, we test for int and float conversion... separately.
-#
-# It's worse for older clang versions, which compile the integer conversions
-# but then fail at link time because of a missing symbol "__muloti4" with the
-# "long long" version.  I couldn't resolve that symbol by adding -lm either.
-# So don't just compile these tests; link them as well.
-AC_MSG_CHECKING([for C++17 charconv integer conversion])
-have_charconv_int=yes
-AC_LINK_IFELSE(
-	[read_test(charconv_int.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_CHARCONV_INT],
-		1,
-		[Define if <charconv> supports integer conversion.]),
-	have_charconv_int=no)
-AC_MSG_RESULT($have_charconv_int)
-
-AC_MSG_CHECKING([for C++17 charconv floating-point conversion])
-have_charconv_float=yes
-AC_LINK_IFELSE(
-	[read_test(charconv_float.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_CHARCONV_FLOAT],
-		1,
-		[Define if <charconv> supports floating-point conversion.]),
-	have_charconv_float=no)
-AC_MSG_RESULT($have_charconv_float)
-
-# As per #262, clang with libcxxrt does not support thread_local on non-POD
-# objects.  Luckily we can live without those, it's just less efficient.
-AC_MSG_CHECKING([for full thread_local support])
-have_thread_local=yes
-AC_LINK_IFELSE(
-	[read_test(thread_local.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_THREAD_LOCAL],
-		1,
-		[Define if thread_local is fully supported.]),
-	have_thread_local=no)
-AC_MSG_RESULT($have_thread_local)
-
-AC_MSG_CHECKING([for std::this_thread::sleep_for])
-have_sleep_for=yes
-AC_LINK_IFELSE(
-	[read_test(sleep_for.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_SLEEP_FOR],
-		1,
-		[Define if std::this_thread::sleep_for works.]),
-	have_sleep_for=no)
-AC_MSG_RESULT($have_sleep_for)
-
-
-# C++20: Assume support.
-AC_MSG_CHECKING([for std::cmp_greater, std::cmp_less_equal, etc])
-have_cmp=yes
-AC_COMPILE_IFELSE(
-	[read_test(cmp.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_CMP],
-		1,
-		[Define if compiler has C++20 std::cmp_greater etc.]),
-	have_cmp=no)
-AC_MSG_RESULT($have_cmp)
-
-
-# Doing my own check for poll().  There's one built into autoconf-archive, but
-# it produces warnings in C++ (about unnecessarily using "struct", and using 0
-# as a null pointer constant).  In maintainer mode, those warnings turn into
-# errors.
-AC_MSG_CHECKING([for poll()])
-ax_cv_have_poll=yes
-AC_LINK_IFELSE(
-	[read_test(poll.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_POLL],
-		1,
-		[Define if poll() is available.]),
-	ax_cv_have_poll=no)
-AC_MSG_RESULT($ax_cv_have_poll)
-
-if test "$ax_cv_have_poll" != "yes"
+# One of the generated checks sets this variable.
+if test "$PQXX_HAVE_POLL" != "yes"
 then
 # No poll(); we'll fall back to select().
 
@@ -634,18 +447,6 @@ occurring in the file.
 # TODO: PQresultMemorySize()
 
 
-AC_MSG_CHECKING([for usable std::filesystem::path])
-have_path=yes
-AC_COMPILE_IFELSE(
-	[read_test(fs.cxx)],
-	AC_DEFINE(
-		[PQXX_HAVE_PATH],
-		1,
-		[Define if compiler has usable std::filesystem::path.]),
-	have_path=no)
-AC_MSG_RESULT($have_path)
-
-
 AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
 LIBS_SAVE="$LIBS"
 found_fslib=no
@@ -655,7 +456,7 @@ do
 	then
 		LIBS="$LIBS $l"
 		AC_LINK_IFELSE(
-			[read_test(need_fslib.cxx)],
+			[read_test(no_need_fslib.cxx)],
 			[found_fslib=yes],
 			[LIBS="$LIBS_SAVE"])
 		if test "$found_fslib" = "yes"

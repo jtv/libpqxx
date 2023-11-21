@@ -15,7 +15,7 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 pqxx::failure::failure(std::string const &whatarg, std::source_location loc) :
         std::runtime_error{whatarg}, location{loc}
 {}
@@ -33,7 +33,7 @@ pqxx::broken_connection::broken_connection() :
 
 pqxx::broken_connection::broken_connection(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -41,7 +41,7 @@ pqxx::broken_connection::broken_connection(
         failure
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -51,7 +51,7 @@ pqxx::broken_connection::broken_connection(
 
 pqxx::protocol_violation::protocol_violation(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -59,7 +59,7 @@ pqxx::protocol_violation::protocol_violation(
         broken_connection
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -69,7 +69,7 @@ pqxx::protocol_violation::protocol_violation(
 
 pqxx::variable_set_to_null::variable_set_to_null(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -77,7 +77,7 @@ pqxx::variable_set_to_null::variable_set_to_null(
         failure
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -87,7 +87,7 @@ pqxx::variable_set_to_null::variable_set_to_null(
 
 pqxx::sql_error::sql_error(
   std::string const &whatarg, std::string const &Q, char const sqlstate[]
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -95,7 +95,7 @@ pqxx::sql_error::sql_error(
         failure
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -120,7 +120,7 @@ PQXX_PURE std::string const &pqxx::sql_error::sqlstate() const noexcept
 
 pqxx::in_doubt_error::in_doubt_error(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -128,7 +128,7 @@ pqxx::in_doubt_error::in_doubt_error(
         failure
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -138,7 +138,7 @@ pqxx::in_doubt_error::in_doubt_error(
 
 pqxx::transaction_rollback::transaction_rollback(
   std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -146,7 +146,7 @@ pqxx::transaction_rollback::transaction_rollback(
         sql_error
 {
   whatarg, q, sqlstate
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -156,7 +156,7 @@ pqxx::transaction_rollback::transaction_rollback(
 
 pqxx::serialization_failure::serialization_failure(
   std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -164,7 +164,7 @@ pqxx::serialization_failure::serialization_failure(
         transaction_rollback
 {
   whatarg, q, sqlstate
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -174,7 +174,7 @@ pqxx::serialization_failure::serialization_failure(
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
   std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -182,7 +182,7 @@ pqxx::statement_completion_unknown::statement_completion_unknown(
         transaction_rollback
 {
   whatarg, q, sqlstate
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -192,7 +192,7 @@ pqxx::statement_completion_unknown::statement_completion_unknown(
 
 pqxx::deadlock_detected::deadlock_detected(
   std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -200,7 +200,7 @@ pqxx::deadlock_detected::deadlock_detected(
         transaction_rollback
 {
   whatarg, q, sqlstate
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -215,13 +215,13 @@ pqxx::internal_error::internal_error(std::string const &whatarg) :
 
 pqxx::usage_error::usage_error(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
   ) :
         std::logic_error{whatarg}
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         location{loc}
 #endif
@@ -230,13 +230,13 @@ pqxx::usage_error::usage_error(
 
 pqxx::argument_error::argument_error(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
   ) :
         invalid_argument{whatarg}
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         location{loc}
 #endif
@@ -245,13 +245,13 @@ pqxx::argument_error::argument_error(
 
 pqxx::conversion_error::conversion_error(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
   ) :
         domain_error{whatarg}
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         location{loc}
 #endif
@@ -260,7 +260,7 @@ pqxx::conversion_error::conversion_error(
 
 pqxx::unexpected_null::unexpected_null(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -268,7 +268,7 @@ pqxx::unexpected_null::unexpected_null(
         conversion_error
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -278,7 +278,7 @@ pqxx::unexpected_null::unexpected_null(
 
 pqxx::conversion_overrun::conversion_overrun(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -286,7 +286,7 @@ pqxx::conversion_overrun::conversion_overrun(
         conversion_error
 {
   whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc
 #endif
@@ -296,13 +296,13 @@ pqxx::conversion_overrun::conversion_overrun(
 
 pqxx::range_error::range_error(
   std::string const &whatarg
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
   ) :
         out_of_range{whatarg}
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         location{loc}
 #endif

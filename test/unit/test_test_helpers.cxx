@@ -21,7 +21,7 @@ void test_check_notreached()
   if (not failed)
     throw pqxx::test::test_failure
     {
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
       __FILE__, __LINE__,
 #endif
         "PQXX_CHECK_NOTREACHED is broken."
@@ -56,7 +56,7 @@ void test_check_throws_exception()
     "PQXX_CHECK_THROWS_EXCEPTION did not catch std::exception.");
 
   // ...or any exception type derived from it.
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   PQXX_CHECK_THROWS_EXCEPTION(
     throw pqxx::test::test_failure{"(expected)"},
     "PQXX_CHECK_THROWS_EXCEPTION() failed to catch expected exception.");
@@ -109,7 +109,7 @@ void test_check_throws_exception()
 // Test PQXX_CHECK_THROWS.
 void test_check_throws()
 {
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   PQXX_CHECK_THROWS(
     throw pqxx::test::test_failure{"(expected)"}, pqxx::test::test_failure,
     "PQXX_CHECK_THROWS() failed to catch expected exception.");

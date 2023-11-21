@@ -51,79 +51,16 @@ endif()
 set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION})
 set(CMAKE_REQUIRED_QUIET ON)
 
-try_compile(
-	PQXX_HAVE_GCC_PURE
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_pure.cxx)
-try_compile(
-	PQXX_HAVE_GCC_VISIBILITY
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/gcc_visibility.cxx)
-# C++20: Assume support.
-try_compile(
-	PQXX_HAVE_LIKELY
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/likely.cxx)
-try_compile(
-	PQXX_HAVE_CXA_DEMANGLE
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cxa_demangle.cxx)
-# C++20: Assume support.
-try_compile(
-	PQXX_HAVE_CONCEPTS
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/concepts.cxx)
-# C++20: Assume support.
-try_compile(
-	PQXX_HAVE_SPAN
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/span.cxx)
-try_compile(
-	PQXX_HAVE_CHARCONV_FLOAT
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_float.cxx)
-try_compile(
-	PQXX_HAVE_CHARCONV_INT
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/charconv_int.cxx)
-try_compile(
-	PQXX_HAVE_PATH
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/fs.cxx)
-try_compile(
-	PQXX_HAVE_THREAD_LOCAL
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/thread_local.cxx)
-try_compile(
-	PQXX_HAVE_SLEEP_FOR
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/sleep_for.cxx)
-try_compile(
-	PQXX_HAVE_STRERROR_R
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strerror_r.cxx)
-try_compile(
-	PQXX_HAVE_STRERROR_S
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/strerror_s.cxx)
-try_compile(
-	PQXX_HAVE_YEAR_MONTH_DAY
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/year_month_day.cxx)
-# C++20: Assume support.
-try_compile(
-	PQXX_HAVE_CMP
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/cmp.cxx)
 
-try_compile(
-	need_fslib
-	${PROJECT_BINARY_DIR}
-	SOURCES ${PROJECT_SOURCE_DIR}/config-tests/need_fslib.cxx)
-if(!need_fslib)
+# Incorporate feature checks based on C++ feature test mac
+include(pqxx_cxx_feature_checks)
+
+# This variable is set by one of the snippets in config-tests.
+if(!no_need_fslib)
     # TODO: This may work for gcc 8, but some clang versions may need -lc++fs.
     link_libraries(stdc++fs)
 endif()
+
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments.

@@ -53,7 +53,10 @@ public:
       throw argument_error{"Got null value as an inclusive range bound."};
   }
 
-  [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
+  [[nodiscard]] constexpr TYPE const &get() const & noexcept
+  {
+    return m_value;
+  }
 
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
@@ -89,7 +92,10 @@ public:
       throw argument_error{"Got null value as an exclusive range bound."};
   }
 
-  [[nodiscard]] constexpr TYPE const &get() const &noexcept { return m_value; }
+  [[nodiscard]] constexpr TYPE const &get() const & noexcept
+  {
+    return m_value;
+  }
 
   /// Would this bound, as a lower bound, include value?
   [[nodiscard]] constexpr bool extends_down_to(TYPE const &value) const
@@ -195,7 +201,7 @@ public:
   }
 
   /// Return bound value, or `nullptr` if it's not limited.
-  [[nodiscard]] constexpr TYPE const *value() const &noexcept
+  [[nodiscard]] constexpr TYPE const *value() const & noexcept
   {
     return std::visit(
       [](auto const &bound) noexcept {
@@ -318,12 +324,12 @@ public:
   }
 
   [[nodiscard]] constexpr range_bound<TYPE> const &
-  lower_bound() const &noexcept
+  lower_bound() const & noexcept
   {
     return m_lower;
   }
   [[nodiscard]] constexpr range_bound<TYPE> const &
-  upper_bound() const &noexcept
+  upper_bound() const & noexcept
   {
     return m_upper;
   }

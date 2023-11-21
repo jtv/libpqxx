@@ -244,7 +244,7 @@ pqxx::result pqxx::connection::make_result(
 }
 
 
-int PQXX_COLD pqxx::connection::backendpid() const &noexcept
+int PQXX_COLD pqxx::connection::backendpid() const & noexcept
 {
   return (m_conn == nullptr) ? 0 : PQbackendPID(m_conn);
 }
@@ -259,7 +259,7 @@ PQXX_PURE int socket_of(::pqxx::internal::pq::PGconn const *c) noexcept
 } // namespace
 
 
-int pqxx::connection::sock() const &noexcept
+int pqxx::connection::sock() const & noexcept
 {
   return socket_of(m_conn);
 }
@@ -541,7 +541,7 @@ void pqxx::connection::set_blocking(bool block) &
 
 
 void PQXX_COLD
-pqxx::connection::set_verbosity(error_verbosity verbosity) &noexcept
+pqxx::connection::set_verbosity(error_verbosity verbosity) & noexcept
 {
   PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
 }

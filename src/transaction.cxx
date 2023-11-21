@@ -81,7 +81,7 @@ void pqxx::internal::basic_transaction::do_commit()
     throw in_doubt_error
     {
       std::move(msg)
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         e.location
 #endif

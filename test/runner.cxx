@@ -23,7 +23,7 @@ inline std::string deref_field(pqxx::field const &f)
 
 namespace pqxx::test
 {
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
 test_failure::test_failure(std::string const &desc, std::source_location loc) :
         std::logic_error{desc}, m_loc{loc}
 {}
@@ -45,11 +45,11 @@ inline void drop_table(transaction_base &t, std::string const &table)
 
 
 [[noreturn]] void check_notreached(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   std::string desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -57,11 +57,11 @@ inline void drop_table(transaction_base &t, std::string const &table)
 {
   throw test_failure
   {
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
     file, line,
 #endif
       desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
       ,
       loc
 #endif
@@ -70,11 +70,11 @@ inline void drop_table(transaction_base &t, std::string const &table)
 
 
 void check(
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
   bool condition, char const text[], std::string const &desc
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
@@ -83,11 +83,11 @@ void check(
   if (not condition)
     throw test_failure
     {
-#if !pqxx_have_source_location
+#if !defined(PQXX_HAVE_SOURCE_LOCATION)
       file, line,
 #endif
         desc + " (failed expression: " + text + ")"
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         ,
         loc
 #endif
@@ -205,7 +205,7 @@ int main(int argc, char const *argv[])
       catch (pqxx::feature_not_supported const &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what() << '\n';
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         std::string func{e.location.function_name()};
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();
@@ -219,7 +219,7 @@ int main(int argc, char const *argv[])
       catch (pqxx::sql_error const &e)
       {
         std::cerr << "SQL error: " << e.what() << '\n';
-#if pqxx_have_source_location
+#if defined(PQXX_HAVE_SOURCE_LOCATION)
         std::string func{e.location.function_name()};
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();

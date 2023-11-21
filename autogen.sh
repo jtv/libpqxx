@@ -35,6 +35,12 @@ expand_templates $(find . -name \*.template)
 substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
 substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
 
+# Generate feature test snippets for C++ features that we simply detect by
+# checking a C++ feature test macro.
+./tools/generate_cxx_checks.py
+
+# Generate autoconf and CMake configuration for our feature test snippets.
+./tools/generate_check_config.py
 
 autoheader
 libtoolize --force --automake --copy

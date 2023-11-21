@@ -327,7 +327,7 @@ public:
     cursor_base::ownership_policy op = cursor_base::owned);
 
   /// Return `true` if this stream may still return more data.
-  constexpr operator bool() const &noexcept { return not m_done; }
+  constexpr operator bool() const & noexcept { return not m_done; }
 
   /// Read new value into given result object; same as operator `>>`.
   /** The result set may continue any number of rows from zero to the chosen

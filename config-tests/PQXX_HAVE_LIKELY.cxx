@@ -1,4 +1,5 @@
 // Test for C++20 [[likely]] and [[unlikely]] attributes.
+// C++20: Assume support.
 
 int main(int argc, char **)
 {

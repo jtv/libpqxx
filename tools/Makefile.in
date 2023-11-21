@@ -96,6 +96,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
 	$(top_srcdir)/config/m4/ltsugar.m4 \
 	$(top_srcdir)/config/m4/ltversion.m4 \
 	$(top_srcdir)/config/m4/lt~obsolete.m4 \
+	$(top_srcdir)/pqxx_cxx_feature_checks.ac \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -312,12 +313,19 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
 EXTRA_DIST = \
+	deprecations \
 	extract_version \
+	format \
+	generate_check_config.py \
+	generate_cxx_checks.py \
 	lint \
+	m4esc.py \
+	pqxxthreadsafety.cxx \
 	rmlo.cxx \
 	splitconfig \
 	template2mak.py \
-	pqxxthreadsafety.cxx
+	todo \
+	update-copyright
 
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
 # Override automatically generated list of default includes.  It contains only

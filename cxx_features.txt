@@ -1,0 +1,20 @@
+# Feature checks that we can perform simply by testing a C++ feature
+# test macro.
+#
+# Each (non-empty, non-comment) line consists of a libpqxx feature macro
+# and the corresponding C++ feature test macro that we need to check in
+# order to detect that feature.
+#
+# From these, the autogen script generates code snippets that the build
+# configuration step can try to compile, as well as the bits of config
+# to do that in the supported build systems.
+#
+# Remember to enter each of these in configitems as well, or they won't
+# end up in the actual configuration headers.
+
+PQXX_HAVE_CONCEPTS __cpp_concepts
+PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
+PQXX_HAVE_SOURCE_LOCATION __cpp_lib_source_location
+PQXX_HAVE_SPAN __cpp_lib_span
+PQXX_HAVE_SSIZE __cpp_lib_ssize
+PQXX_HAVE_UNREACHABLE __cpp_lib_unreachable
