@@ -232,8 +232,9 @@ void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err)
 bool pqxx::pipeline::obtain_result(bool expect_none)
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
-  auto const r{gate.get_result()};
-  if (r == nullptr)
+  std::shared_ptr<pqxx::internal::pq::PGresult> const r{
+    gate.get_result(), pqxx::internal::clear_result};
+  if (not r)
   {
     if (have_pending() and not expect_none)
     {
@@ -274,10 +275,11 @@ void pqxx::pipeline::obtain_dummy()
     std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
 
   pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
-  auto const r{gate.get_result()};
+  std::shared_ptr<pqxx::internal::pq::PGresult> const r{
+    gate.get_result(), pqxx::internal::clear_result};
   m_dummy_pending = false;
 
-  if (r == nullptr)
+  if (not r)
     PQXX_UNLIKELY
   internal_error("Pipeline got no result from backend when it expected one.");
 

@@ -172,7 +172,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
   using todolist = std::multimap<difference_type, icursor_iterator *>;
   todolist todo;
-  for (icursor_iterator *i{m_iterators}, *next; i != nullptr; i = next)
+  for (icursor_iterator *i{m_iterators}, *next{}; i != nullptr; i = next)
   {
     pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
     auto const ipos{gate.pos()};

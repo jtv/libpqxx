@@ -35,12 +35,13 @@ namespace
 std::shared_ptr<unsigned char>
   PQXX_COLD copy_to_buffer(void const *data, std::size_t len)
 {
-  void *const output{malloc(len + 1)};
-  if (output == nullptr)
+  std::shared_ptr<unsigned char> ptr{
+    static_cast<unsigned char *>(malloc(len + 1)), std::free};
+  if (not ptr)
     throw std::bad_alloc{};
-  static_cast<char *>(output)[len] = '\0';
-  memcpy(static_cast<char *>(output), data, len);
-  return {static_cast<unsigned char *>(output), std::free};
+  ptr.get()[len] = '\0';
+  std::memcpy(ptr.get(), data, len);
+  return ptr;
 }
 } // namespace
 

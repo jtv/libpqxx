@@ -46,9 +46,9 @@ void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
 
 
 pqxx::result::result(
-  pqxx::internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
-  internal::encoding_group enc) :
-        m_data{make_data_pointer(rhs)}, m_query{query}, m_encoding(enc)
+  std::shared_ptr<pqxx::internal::pq::PGresult> rhs,
+  std::shared_ptr<std::string> query, internal::encoding_group enc) :
+        m_data{rhs}, m_query{query}, m_encoding(enc)
 {}
 
 
@@ -368,7 +368,7 @@ pqxx::oid pqxx::result::inserted_oid() const
   if (m_data.get() == nullptr)
     throw usage_error{
       "Attempt to read oid of inserted row without an INSERT result"};
-  return PQoidValue(const_cast<internal::pq::PGresult *>(m_data.get()));
+  return PQoidValue(m_data.get());
 }
 
 
@@ -414,8 +414,7 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num) const
 
 pqxx::row::size_type pqxx::result::column_number(zview col_name) const
 {
-  auto const n{PQfnumber(
-    const_cast<internal::pq::PGresult *>(m_data.get()), col_name.c_str())};
+  auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
     throw argument_error{
       internal::concat("Unknown column name: '", col_name, "'.")};
@@ -469,9 +468,8 @@ int pqxx::result::errorposition() const
   int pos{-1};
   if (m_data.get())
   {
-    auto const p{PQresultErrorField(
-      const_cast<internal::pq::PGresult *>(m_data.get()),
-      PG_DIAG_STATEMENT_POSITION)};
+    auto const p{
+      PQresultErrorField(m_data.get(), PG_DIAG_STATEMENT_POSITION)};
     if (p)
       pos = from_string<decltype(pos)>(p);
   }
@@ -497,8 +495,7 @@ char const *pqxx::result::column_name(pqxx::row::size_type number) const &
 
 pqxx::row::size_type pqxx::result::columns() const noexcept
 {
-  auto ptr{const_cast<internal::pq::PGresult *>(m_data.get())};
-  return (ptr == nullptr) ? 0 : row::size_type(PQnfields(ptr));
+  return m_data ? row::size_type(PQnfields(m_data.get())) : 0;
 }
 
 

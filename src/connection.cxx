@@ -219,26 +219,17 @@ pqxx::result pqxx::connection::make_result(
   internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
   std::string_view desc)
 {
-  if (pgr == nullptr)
+  std::shared_ptr<internal::pq::PGresult> smart{pgr, internal::clear_result};
+  if (not smart)
   {
     if (is_open())
       throw failure(err_msg());
     else
       throw broken_connection{"Lost connection to the database server."};
   }
-  internal::encoding_group enc;
-  try
-  {
-    enc = internal::enc_group(encoding_id());
-  }
-  catch (std::exception const &)
-  {
-    // Don't let the PGresult leak.
-    // TODO: Can we just accept a unique_ptr instead?
-    internal::clear_result(pgr);
-    throw;
-  }
-  auto const r{pqxx::internal::gate::result_creation::create(pgr, query, enc)};
+  auto const enc{internal::enc_group(encoding_id())};
+  auto const r{
+    pqxx::internal::gate::result_creation::create(smart, query, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
@@ -316,7 +307,8 @@ void pqxx::connection::set_up_state()
         "Unsupported frontend/backend protocol version; 3.0 is the minimum."};
   }
 
-  if (server_version() <= 90000)
+  constexpr int oldest_server{90000};
+  if (server_version() <= oldest_server)
     throw feature_not_supported{
       "Unsupported server version; 9.0 is the minimum."};
 
@@ -354,9 +346,10 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
   if (msg == nullptr)
     return;
   zview const view{msg};
+  // TODO: A multibyte message could end in a '\n' that's not a newline!
   if (std::empty(view))
     return;
-  else if (msg[std::size(view) - 1] == '\n')
+  else if (view.back() == '\n')
     process_notice_raw(msg);
   else
     // Newline is missing.  Let the zview version of the code add it.
@@ -482,6 +475,9 @@ void wrap_pgfreecancel(PGcancel *ptr)
 {
   PQfreeCancel(ptr);
 }
+
+
+constexpr int buf_size{500u};
 } // namespace
 
 
@@ -493,10 +489,9 @@ void PQXX_COLD pqxx::connection::cancel_query()
     PQXX_UNLIKELY
   throw std::bad_alloc{};
 
-  std::array<char, 500u> errbuf;
+  std::array<char, buf_size> errbuf;
   auto const err{errbuf.data()};
-  auto const c{
-    PQcancel(cancel.get(), err, static_cast<int>(std::size(errbuf)))};
+  auto const c{PQcancel(cancel.get(), err, buf_size)};
   if (c == 0)
     PQXX_UNLIKELY
   throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};
@@ -511,13 +506,13 @@ void pqxx::connection::set_blocking(bool block) &
   unsigned long mode{not block};
   if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
   {
-    std::array<char, 200> errbuf;
+    std::array<char, buf_size> errbuf;
     char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
 #  else  // _WIN32
-  std::array<char, 200> errbuf;
+  std::array<char, buf_size> errbuf;
   auto flags{::fcntl(fd, F_GETFL, 0)};
   if (flags == -1)
   {
@@ -961,9 +956,8 @@ std::string PQXX_COLD pqxx::connection::unesc_raw(char const text[]) const
   {
     // Legacy escape format.
     // TODO: Remove legacy support.
-    std::size_t len;
-    auto bytes{const_cast<unsigned char *>(
-      reinterpret_cast<unsigned char const *>(text))};
+    std::size_t len{};
+    auto bytes{reinterpret_cast<unsigned char const *>(text)};
     std::unique_ptr<unsigned char, void (*)(void const *)> const ptr{
       PQunescapeBytea(bytes, &len), pqxx::internal::pq::pqfreemem};
     return std::string{ptr.get(), ptr.get() + len};
