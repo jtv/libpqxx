@@ -171,40 +171,39 @@ void pqxx::internal::basic_robusttransaction::do_commit()
 
   // If we get here, we're in doubt.  Figure out what happened.
 
-  int const max_attempts{500};
+  constexpr int max_attempts{500};
+  constexpr unsigned int wait_micros{300u};
   static_assert(max_attempts > 0);
 
-  tx_stat stat;
   for (int attempts{0}; attempts < max_attempts;
-       ++attempts, pqxx::internal::wait_for(300u))
+       ++attempts, pqxx::internal::wait_for(wait_micros))
   {
-    stat = tx_unknown;
     try
     {
-      stat = query_status(m_xid, m_conn_string);
+      switch (query_status(m_xid, m_conn_string))
+      {
+      case tx_unknown:
+        // We were unable to reconnect and query transaction status.
+        // Stay in it for another attempt.
+        return;
+      case tx_committed:
+        // Success!  We're done.
+        return;
+      case tx_aborted:
+        // Aborted.  We're done.
+        do_abort();
+        return;
+      case tx_in_progress:
+        // The transaction is still running.  Stick around until we know what
+        // transpires.
+        break;
+      default: PQXX_UNREACHABLE;
+      }
     }
     catch (pqxx::broken_connection const &)
     {
-      // Swallow the error.  Pause and retry.
-    }
-    switch (stat)
-    {
-    case tx_unknown:
-      // We were unable to reconnect and query transaction status.
-      // Stay in it for another attempt.
-      return;
-    case tx_committed:
-      // Success!  We're done.
-      return;
-    case tx_aborted:
-      // Aborted.  We're done.
-      do_abort();
-      return;
-    case tx_in_progress:
-      // The transaction is still running.  Stick around until we know what
-      // transpires.
-      break;
-    default: PQXX_UNREACHABLE;
+      // We can expect this to happen before we can get a working
+      // connection.  Swallow the error and retry.
     }
   }
 

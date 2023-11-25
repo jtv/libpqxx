@@ -61,13 +61,13 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
-  std::string::size_type end;
+  std::string::size_type end{size};
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    for (end = std::size(query); end > 0 and useless_trail(text[end - 1]);
-         --end)
-      ;
+    // C++20: Use string_view::ends_with() and sub-view.
+    while (end > 0 and useless_trail(text[end - 1]))
+      --end;
   }
   else
   {
@@ -135,11 +135,10 @@ pqxx::internal::sql_cursor::sql_cursor(
         m_home{t.conn()},
         m_empty_result{},
         m_adopted{true},
+	m_ownership{op},
         m_at_end{0},
         m_pos{-1}
 {
-  m_adopted = true;
-  m_ownership = op;
 }
 
 
