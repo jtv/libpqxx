@@ -171,7 +171,7 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
       pqxx::internal::state_buffer_overrun(space, need)};
 
   char *const pos{
-    [begin, end, &value](){
+    [end, &value](){
       if constexpr (std::is_unsigned_v<T>)
         return nonneg_to_buf(end, value);
       else if (value >= 0)

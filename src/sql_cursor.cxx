@@ -30,7 +30,7 @@ namespace
 /** A character is "useless" at the end of a query if it is either whitespace
  * or a semicolon.
  */
-inline bool useless_trail(char c)
+inline constexpr bool useless_trail(char c)
 {
   return isspace(c) or c == ';';
 }
@@ -66,7 +66,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
   {
     // This is an encoding where we can scan backwards from the end.
     // C++20: Use string_view::ends_with() and sub-view.
-    while (end > 0 and useless_trail(text[end - 1]))
+    while (end > 0 and useless_trail(query[end - 1]))
       --end;
   }
   else
@@ -75,6 +75,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
     // the beginning.
     end = 0;
 
+    // TODO: Rewrite using find_char.
     pqxx::internal::for_glyphs(
       enc,
       [text, &end](char const *gbegin, char const *gend) {
