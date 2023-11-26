@@ -9,6 +9,7 @@
 #include "pqxx-source.hxx"
 
 #include <array>
+#include <cassert>
 #include <cerrno>
 #include <cmath>
 #include <cstdlib>
@@ -109,7 +110,8 @@ constexpr std::array<char, 16u> hex_digits{
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
 constexpr char hex_digit(int c) noexcept
 {
-  return hex_digits[c];
+  assert(c >= 0 and c < pqxx::internal::ssize(hex_digits));
+  return hex_digits[static_cast<unsigned int>(c)];
 }
 
 
