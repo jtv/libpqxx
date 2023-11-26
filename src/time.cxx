@@ -18,6 +18,10 @@ namespace
 using namespace std::literals;
 
 
+/// Because the C++ Core Guidelines don't like numeric constants...
+constexpr int ten{10};
+
+
 /// Render the numeric part of a year value into a buffer.
 /** Converts the year from "common era" (with a Year Zero) to "anno domini"
  * (without a Year Zero).
@@ -39,7 +43,8 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     // This is an evil special case: C++ year -32767 translates to 32768 BC,
     // which is a number we can't fit into a short.  At the moment postgres
     // doesn't handle years before 4713 BC, but who knows, right?
-    static_assert(int{(std::chrono::year::min)()} == -32767);
+    constexpr int oldest{-32767};
+    static_assert(int{(std::chrono::year::min)()} == oldest);
     constexpr auto hardcoded{"32768"sv};
     PQXX_UNLIKELY
     begin += hardcoded.copy(begin, std::size(hardcoded));
@@ -51,17 +56,20 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     // and so on.
     auto const absy{static_cast<short>(std::abs(y) + int{y <= 0})};
 
+    // Keep C++ Code Guidelines happy.
+    constexpr int hundred{100}, thousand{1000};
+
     // PostgreSQL requires year input to be at least 3 digits long, or it
     // won't be able to deduce the date format correctly.  However on output
     // it always writes years as at least 4 digits, and we'll do the same.
     // Dates and times are a dirty, dirty business.
-    if (absy < 1000)
+    if (absy < thousand)
     {
       PQXX_UNLIKELY
       *begin++ = '0';
-      if (absy < 100)
+      if (absy < hundred)
         *begin++ = '0';
-      if (absy < 10)
+      if (absy < ten)
         *begin++ = '0';
     }
     begin = pqxx::string_traits<short>::into_buf(begin, end, absy) - 1;
@@ -96,12 +104,12 @@ inline static char *
 month_into_buf(char *begin, std::chrono::month const &value)
 {
   unsigned const m{value};
-  if (m >= 10)
+  if (m >= ten)
     *begin = '1';
   else
     *begin = '0';
   ++begin;
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(m % 10));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(m % ten));
   return begin;
 }
 
@@ -115,7 +123,7 @@ inline std::chrono::month month_from_string(std::string_view text)
     throw pqxx::conversion_error{
       pqxx::internal::concat("Invalid month: '", text, "'.")};
   return std::chrono::month{unsigned(
-    (10 * pqxx::internal::digit_to_number(text[0])) +
+    (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
 }
 
@@ -124,8 +132,8 @@ inline std::chrono::month month_from_string(std::string_view text)
 inline char *day_into_buf(char *begin, std::chrono::day const &value)
 {
   unsigned d{value};
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d / 10));
-  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d % 10));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d / ten));
+  *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d % ten));
   return begin;
 }
 
@@ -139,7 +147,7 @@ inline std::chrono::day day_from_string(std::string_view text)
     throw pqxx::conversion_error{
       pqxx::internal::concat("Bad day in date: '", text, "'.")};
   std::chrono::day const d{unsigned(
-    (10 * pqxx::internal::digit_to_number(text[0])) +
+    (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
   if (not d.ok())
     throw pqxx::conversion_error{
@@ -157,9 +165,9 @@ inline std::size_t find_year_month_separator(std::string_view text) noexcept
   // no worries about a leading dash.  We could start searching at offset 4,
   // but starting at the beginning produces more helpful error messages for
   // malformed years.
-  std::size_t here;
-  for (here = 0; here < std::size(text) and text[here] != '-'; ++here)
-    ;
+  std::size_t here{0};
+  while (here < std::size(text) and text[here] != '-')
+    ++here;
   return here;
 }
 
