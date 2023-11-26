@@ -95,7 +95,6 @@ pqxx::internal::sql_cursor::sql_cursor(
   cursor_base::ownership_policy op, bool hold) :
         cursor_base{t.conn(), cname},
         m_home{t.conn()},
-        m_adopted{false},
         m_at_end{-1},
         m_pos{0}
 {
@@ -134,7 +133,6 @@ pqxx::internal::sql_cursor::sql_cursor(
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},
         m_empty_result{},
-        m_adopted{true},
 	m_ownership{op},
         m_at_end{0},
         m_pos{-1}
