@@ -10,6 +10,7 @@
  */
 #include "pqxx-source.hxx"
 
+#include <cctype>
 #include <iterator>
 
 #include "pqxx/internal/header-pre.hxx"
@@ -30,9 +31,9 @@ namespace
 /** A character is "useless" at the end of a query if it is either whitespace
  * or a semicolon.
  */
-inline constexpr bool useless_trail(char c)
+inline bool useless_trail(char c)
 {
-  return isspace(c) or c == ';';
+  return std::isspace(c) or c == ';';
 }
 
 
