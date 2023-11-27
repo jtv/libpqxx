@@ -477,6 +477,7 @@ void wrap_pgfreecancel(PGcancel *ptr)
 }
 
 
+/// A fairly arbitrary buffer size for error strings and such.
 constexpr int buf_size{500u};
 } // namespace
 
@@ -489,7 +490,7 @@ void PQXX_COLD pqxx::connection::cancel_query()
     PQXX_UNLIKELY
   throw std::bad_alloc{};
 
-  std::array<char, buf_size> errbuf;
+  std::array<char, buf_size> errbuf{};
   auto const err{errbuf.data()};
   auto const c{PQcancel(cancel.get(), err, buf_size)};
   if (c == 0)
@@ -506,13 +507,13 @@ void pqxx::connection::set_blocking(bool block) &
   unsigned long mode{not block};
   if (::ioctlsocket(fd, FIONBIO, &mode) != 0)
   {
-    std::array<char, buf_size> errbuf;
+    std::array<char, buf_size> errbuf{};
     char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};
     throw broken_connection{
       internal::concat("Could not set socket's blocking mode: ", err)};
   }
 #  else  // _WIN32
-  std::array<char, buf_size> errbuf;
+  std::array<char, buf_size> errbuf{};
   auto flags{::fcntl(fd, F_GETFL, 0)};
   if (flags == -1)
   {

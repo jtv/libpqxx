@@ -105,13 +105,13 @@ public:
     return *this;
   }
 
-  const_result_iterator operator++(int);
+  const_result_iterator operator++(int) &;
   const_result_iterator &operator++()
   {
     ++m_index;
     return *this;
   }
-  const_result_iterator operator--(int);
+  const_result_iterator operator--(int) &;
   const_result_iterator &operator--()
   {
     --m_index;
@@ -264,13 +264,13 @@ public:
     iterator_type::operator--();
     return *this;
   }
-  const_reverse_result_iterator operator++(int);
+  const_reverse_result_iterator operator++(int) &;
   const_reverse_result_iterator &operator--()
   {
     iterator_type::operator++();
     return *this;
   }
-  const_reverse_result_iterator operator--(int);
+  const_reverse_result_iterator operator--(int) &;
   const_reverse_result_iterator &operator+=(difference_type i)
   {
     iterator_type::operator-=(i);

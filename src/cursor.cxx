@@ -224,9 +224,9 @@ pqxx::icursor_iterator::~icursor_iterator() noexcept
 }
 
 
-pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
+pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int) &
 {
-  icursor_iterator old{*this};
+  icursor_iterator const old{*this};
   m_pos = difference_type(
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}.forward());
   m_here.clear();

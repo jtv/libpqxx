@@ -25,11 +25,15 @@
 #include "pqxx/internal/header-post.hxx"
 
 
+using namespace std::literals::string_view_literals;
+
+
 namespace
 {
-std::string const theSeparator{"; "};
-std::string const theDummyValue{"1"};
-std::string const theDummyQuery{"SELECT " + theDummyValue + theSeparator};
+constexpr std::string_view
+    theSeparator{"; "sv},
+    theDummyValue{"1"sv},
+    theDummyQuery{"SELECT 1; "sv};
 } // namespace
 
 
@@ -209,7 +213,7 @@ void pqxx::pipeline::issue()
     QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
   bool const prepend_dummy{num_issued > 1};
   if (prepend_dummy)
-    cum = theDummyQuery + cum;
+    cum = pqxx::internal::concat(theDummyQuery, cum);
 
   pqxx::internal::gate::connection_pipeline{m_trans->conn()}.start_exec(
     cum.c_str());
@@ -300,7 +304,7 @@ void pqxx::pipeline::obtain_dummy()
       PQXX_UNLIKELY
     internal_error("Unexpected result for dummy query in pipeline.");
 
-    if (R.at(0).at(0).as<std::string>() != theDummyValue)
+    if (R.at(0).at(0).as<std::string_view>() != theDummyValue)
       PQXX_UNLIKELY
     internal_error("Dummy query in pipeline returned unexpected value.");
     return;

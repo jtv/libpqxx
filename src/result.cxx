@@ -319,8 +319,6 @@ std::string pqxx::result::status_error() const
   case PGRES_EMPTY_QUERY: // The string sent to the backend was empty.
   case PGRES_COMMAND_OK:  // Successful completion, no result data.
   case PGRES_TUPLES_OK:   // The query successfully executed.
-    break;
-
   case PGRES_COPY_OUT:  // Copy Out (from server) data transfer started.
   case PGRES_COPY_IN:   // Copy In (to server) data transfer started.
   case PGRES_COPY_BOTH: // Copy In/Out.  Used for streaming replication.
@@ -524,17 +522,17 @@ int pqxx::result::column_type_modifier(
 
 // const_result_iterator
 
-pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int)
+pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 {
-  const_result_iterator old{*this};
+  const_result_iterator const old{*this};
   m_index++;
   return old;
 }
 
 
-pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int)
+pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int) &
 {
-  const_result_iterator old{*this};
+  const_result_iterator const old{*this};
   m_index--;
   return old;
 }
@@ -549,18 +547,18 @@ pqxx::result::const_reverse_iterator::base() const noexcept
 
 
 pqxx::const_reverse_result_iterator
-pqxx::const_reverse_result_iterator::operator++(int)
+pqxx::const_reverse_result_iterator::operator++(int) &
 {
-  const_reverse_result_iterator tmp{*this};
+  const_reverse_result_iterator const tmp{*this};
   iterator_type::operator--();
   return tmp;
 }
 
 
 pqxx::const_reverse_result_iterator
-pqxx::const_reverse_result_iterator::operator--(int)
+pqxx::const_reverse_result_iterator::operator--(int) &
 {
-  const_reverse_result_iterator tmp{*this};
+  const_reverse_result_iterator const tmp{*this};
   iterator_type::operator++();
   return tmp;
 }

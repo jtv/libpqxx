@@ -208,7 +208,7 @@ bool PQXX_COLD pqxx::row::empty() const noexcept
 }
 
 
-pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) noexcept
+pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
   auto const old{*this};
   m_col++;
@@ -216,7 +216,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) noexcept
 }
 
 
-pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int) noexcept
+pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int) & noexcept
 {
   auto const old{*this};
   m_col--;
@@ -233,7 +233,7 @@ pqxx::const_reverse_row_iterator::base() const noexcept
 
 
 pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator++(int) noexcept
+pqxx::const_reverse_row_iterator::operator++(int) & noexcept
 {
   auto tmp{*this};
   operator++();
@@ -242,7 +242,7 @@ pqxx::const_reverse_row_iterator::operator++(int) noexcept
 
 
 pqxx::const_reverse_row_iterator
-pqxx::const_reverse_row_iterator::operator--(int)
+pqxx::const_reverse_row_iterator::operator--(int) &
 {
   auto tmp{*this};
   operator--();
