@@ -118,14 +118,11 @@ cpplint() {
         cxxflags="$dialect $includes"
 
 # TODO: Please, is there any way we can parallelise this?
-# TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
-# TODO: Some useful checks in abseil-*, but it recommends "use our library."
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
         # Suppress shellcheck error about the unquoted $cxxflags.  We want it
 	# that way, or the options will all become one string.
         # shellcheck disable=SC2086
         clang-tidy "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
-            --checks=boost-*,cppcoreguidelines-* \
             -- \
             -I"$SRCDIR/include" -Iinclude $cxxflags
     fi
