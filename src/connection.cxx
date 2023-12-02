@@ -93,7 +93,7 @@ void PQXX_COLD PQXX_LIBEXPORT pqxx::internal::skip_init_ssl(int skips) noexcept
 std::string PQXX_COLD
 pqxx::encrypt_password(char const user[], char const password[])
 {
-  std::unique_ptr<char, void (*)(void const *)> p{
+  std::unique_ptr<char, void (*)(void const *)> const p{
     PQencryptPassword(password, user), pqxx::internal::pq::pqfreemem};
   return {p.get()};
 }
@@ -219,7 +219,8 @@ pqxx::result pqxx::connection::make_result(
   internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
   std::string_view desc)
 {
-  std::shared_ptr<internal::pq::PGresult> smart{pgr, internal::clear_result};
+  std::shared_ptr<internal::pq::PGresult> const smart{
+    pgr, internal::clear_result};
   if (not smart)
   {
     if (is_open())
@@ -228,7 +229,7 @@ pqxx::result pqxx::connection::make_result(
       throw broken_connection{"Lost connection to the database server."};
   }
   auto const enc{internal::enc_group(encoding_id())};
-  auto const r{
+  auto r{
     pqxx::internal::gate::result_creation::create(smart, query, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
@@ -445,7 +446,7 @@ pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
       bool const gone{R.second == ++R.first};
       m_receivers.erase(i);
       if (gone)
-        exec(internal::concat("UNLISTEN ", quote_name(needle.first)).c_str());
+        exec(internal::concat("UNLISTEN ", quote_name(needle.first)));
     }
   }
   catch (std::exception const &e)
@@ -484,7 +485,7 @@ constexpr int buf_size{500u};
 
 void PQXX_COLD pqxx::connection::cancel_query()
 {
-  std::unique_ptr<PGcancel, void (*)(PGcancel *)> cancel{
+  std::unique_ptr<PGcancel, void (*)(PGcancel *)> const cancel{
     PQgetCancel(m_conn), wrap_pgfreecancel};
   if (cancel == nullptr)
     PQXX_UNLIKELY
@@ -552,7 +553,7 @@ using notify_ptr = std::unique_ptr<PGnotify, void (*)(void const *)>;
 /// Get one notification from a connection, or null.
 notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
 {
-  return notify_ptr(PQnotifies(conn), pqxx::internal::pq::pqfreemem);
+  return {PQnotifies(conn), pqxx::internal::pq::pqfreemem};
 }
 } // namespace
 
@@ -576,7 +577,7 @@ int pqxx::connection::get_notifs()
     auto const Hit{m_receivers.equal_range(std::string{N->relname})};
     if (Hit.second != Hit.first)
     {
-      std::string payload{N->extra};
+      std::string const payload{N->extra};
       for (auto i{Hit.first}; i != Hit.second; ++i) try
         {
           (*i->second)(payload, N->be_pid);
@@ -685,9 +686,9 @@ pqxx::connection::exec(std::string_view query, std::string_view desc)
 
 
 pqxx::result pqxx::connection::exec(
-  std::shared_ptr<std::string> query, std::string_view desc)
+  std::shared_ptr<std::string> const &query, std::string_view desc)
 {
-  auto const res{make_result(PQexec(m_conn, query->c_str()), query, desc)};
+  auto res{make_result(PQexec(m_conn, query->c_str()), query, desc)};
   get_notifs();
   return res;
 }
@@ -697,9 +698,9 @@ std::string pqxx::connection::encrypt_password(
   char const user[], char const password[], char const *algorithm)
 {
   auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
-  std::unique_ptr<char const, void (*)(void const *)> ptr{
+  std::unique_ptr<char const, void (*)(void const *)> const ptr{
     buf, pqxx::internal::pq::pqfreemem};
-  return std::string(ptr.get());
+  return (ptr.get());
 }
 
 
@@ -735,7 +736,7 @@ pqxx::result pqxx::connection::exec_prepared(
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
-  auto const r{make_result(pq_result, q, statement)};
+  auto r{make_result(pq_result, q, statement)};
   get_notifs();
   return r;
 }
@@ -872,7 +873,7 @@ void pqxx::connection::write_copy_line(std::string_view line)
 
 void pqxx::connection::end_copy_write()
 {
-  int res{PQputCopyEnd(m_conn, nullptr)};
+  int const res{PQputCopyEnd(m_conn, nullptr)};
   switch (res)
   {
   case -1:
@@ -994,10 +995,10 @@ std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
 
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
-  std::unique_ptr<char, void (*)(void const *)> buf{
+  std::unique_ptr<char, void (*)(void const *)> const buf{
     PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
     pqxx::internal::pq::pqfreemem};
-  if (buf.get() == nullptr)
+  if (buf == nullptr)
     PQXX_UNLIKELY
   throw failure{err_msg()};
   return std::string{buf.get()};
@@ -1053,7 +1054,7 @@ int pqxx::connection::await_notification()
 int pqxx::connection::await_notification(
   std::time_t seconds, long microseconds)
 {
-  int notifs = get_notifs();
+  int const notifs = get_notifs();
   if (notifs == 0)
   {
     PQXX_LIKELY
@@ -1136,7 +1137,7 @@ pqxx::result pqxx::connection::exec_params(
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
-  auto const r{make_result(pq_result, q)};
+  auto r{make_result(pq_result, q)};
   get_notifs();
   return r;
 }
@@ -1190,7 +1191,7 @@ std::string pqxx::connection::connection_string() const
 
   std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const params{
     PQconninfo(m_conn), pqconninfofree};
-  if (params.get() == nullptr)
+  if (params == nullptr)
     PQXX_UNLIKELY
   throw std::bad_alloc{};
 

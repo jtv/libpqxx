@@ -86,7 +86,7 @@ pqxx::variable_set_to_null::variable_set_to_null(
 
 
 pqxx::sql_error::sql_error(
-  std::string const &whatarg, std::string const &Q, char const sqlstate[]
+  std::string whatarg, std::string const &Q, char const sqlstate[]
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
@@ -94,7 +94,7 @@ pqxx::sql_error::sql_error(
   ) :
         failure
 {
-  whatarg
+  std::move(whatarg)
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     loc

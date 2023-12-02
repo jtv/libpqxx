@@ -182,10 +182,10 @@ void pqxx::internal::unesc_bin(
   auto out{buffer};
   while (in != end)
   {
-    int hi{nibble(*in++)};
+    int const hi{nibble(*in++)};
     if (hi < 0)
       throw pqxx::failure{"Invalid hex-escaped data."};
-    int lo{nibble(*in++)};
+    int const lo{nibble(*in++)};
     if (lo < 0)
       throw pqxx::failure{"Invalid hex-escaped data."};
     *out++ = static_cast<std::byte>((hi << 4) | lo);

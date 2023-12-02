@@ -287,7 +287,8 @@ void pqxx::pipeline::obtain_dummy()
     PQXX_UNLIKELY
   internal_error("Pipeline got no result from backend when it expected one.");
 
-  result R{pqxx::internal::gate::result_creation::create(r, text, m_encoding)};
+  result const R{
+    pqxx::internal::gate::result_creation::create(r, text, m_encoding)};
 
   bool OK{false};
   try
@@ -406,7 +407,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
     issue();
 
   result const R{q->second.res};
-  auto const P{std::make_pair(q->first, R)};
+  auto P{std::make_pair(q->first, R)};
 
   m_queries.erase(q);
 

@@ -116,7 +116,7 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
     try
     {
       raw_line line{gate.read_copy_line()};
-      if (line.first.get() == nullptr)
+      if (line.first == nullptr)
         close();
       return line;
     }

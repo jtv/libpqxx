@@ -33,7 +33,7 @@ extern "C"
 namespace pqxx
 {
 PQXX_DECLARE_ENUM_CONVERSION(ExecStatusType);
-}
+} // namespace pqxx
 
 std::string const pqxx::result::s_empty_string;
 
@@ -46,8 +46,8 @@ void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
 
 
 pqxx::result::result(
-  std::shared_ptr<pqxx::internal::pq::PGresult> rhs,
-  std::shared_ptr<std::string> query, internal::encoding_group enc) :
+  std::shared_ptr<pqxx::internal::pq::PGresult> const &rhs,
+  std::shared_ptr<std::string> const &query, internal::encoding_group enc) :
         m_data{rhs}, m_query{query}, m_encoding(enc)
 {}
 
@@ -357,7 +357,7 @@ char const *pqxx::result::cmd_status() const noexcept
 
 std::string const &pqxx::result::query() const & noexcept
 {
-  return (m_query.get() == nullptr) ? s_empty_string : *m_query;
+  return (m_query == nullptr) ? s_empty_string : *m_query;
 }
 
 
@@ -524,7 +524,7 @@ int pqxx::result::column_type_modifier(
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 {
-  const_result_iterator const old{*this};
+  const_result_iterator old{*this};
   m_index++;
   return old;
 }
@@ -532,7 +532,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int) &
 {
-  const_result_iterator const old{*this};
+  const_result_iterator old{*this};
   m_index--;
   return old;
 }

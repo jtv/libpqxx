@@ -46,7 +46,7 @@ pqxx::subtransaction::subtransaction(
 namespace
 {
 using dbtransaction_ref = pqxx::dbtransaction &;
-}
+} // namespace
 
 
 pqxx::subtransaction::subtransaction(

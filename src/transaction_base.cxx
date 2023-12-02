@@ -249,7 +249,7 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
 
-  command cmd{*this, desc};
+  command const cmd{*this, desc};
 
   switch (m_status)
   {
@@ -276,7 +276,7 @@ pqxx::result pqxx::transaction_base::exec_n(
   result::size_type rows, zview query, std::string_view desc)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  result const r{exec(query, desc)};
+  result r{exec(query, desc)};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   if (std::size(r) != rows)
   {
@@ -314,7 +314,7 @@ void pqxx::transaction_base::check_rowcount_params(
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
   zview statement, internal::c_params const &args)
 {
-  command cmd{*this, statement};
+  command const cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
     statement, args);
 }
@@ -323,7 +323,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 pqxx::result pqxx::transaction_base::internal_exec_params(
   zview query, internal::c_params const &args)
 {
-  command cmd{*this, query};
+  command const cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
     query, args);
 }
@@ -451,7 +451,8 @@ pqxx::result pqxx::transaction_base::direct_exec(
   std::shared_ptr<std::string> cmd, std::string_view desc)
 {
   check_pending_error();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(cmd, desc);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(
+    std::move(cmd), desc);
 }
 
 

@@ -325,8 +325,8 @@ private:
 
   friend class pqxx::internal::gate::result_creation;
   result(
-    std::shared_ptr<internal::pq::PGresult> rhs,
-    std::shared_ptr<std::string> query, internal::encoding_group enc);
+    std::shared_ptr<internal::pq::PGresult> const &rhs,
+    std::shared_ptr<std::string> const &query, internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status(std::string_view desc = ""sv) const;
 

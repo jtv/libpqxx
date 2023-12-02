@@ -210,7 +210,7 @@ bool PQXX_COLD pqxx::row::empty() const noexcept
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
-  auto const old{*this};
+  auto old{*this};
   m_col++;
   return old;
 }
@@ -218,7 +218,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int) & noexcept
 {
-  auto const old{*this};
+  auto old{*this};
   m_col--;
   return old;
 }

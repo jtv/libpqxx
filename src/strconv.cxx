@@ -243,7 +243,7 @@ std::string demangle_type_name(char const raw[])
   // fall back to the raw name.
   //
   // When __cxa_demangle fails, it's guaranteed to return null.
-  std::unique_ptr<char, void(*)(char *)> demangled{
+  std::unique_ptr<char, void(*)(char *)> const demangled{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status),
     [](char *x){ std::free(x); }};
 #else

@@ -134,7 +134,6 @@ pqxx::internal::sql_cursor::sql_cursor(
   cursor_base::ownership_policy op) :
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},
-        m_empty_result{},
 	m_ownership{op},
         m_at_end{0},
         m_pos{-1}
@@ -233,7 +232,7 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
   }
   auto const query{pqxx::internal::concat(
     "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(std::size(r)));
   return r;
 }
