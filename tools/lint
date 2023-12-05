@@ -56,7 +56,7 @@ count_includes() {
     # It's OK for the grep to fail.
     find "$SRCDIR/include/pqxx" -type f -print0 |
         ( xargs -0 grep -c "$PAT" || /bin/true ) |
-	sort
+        sort
 }
 
 
@@ -142,9 +142,37 @@ cpplint() {
 
 
 pylint() {
-    if which pyflakes3 >/dev/null
+    local venv
+
+    if ! which pyflakes -o ! which ruff >/dev/null
     then
+        venv="$(mktemp -d)"
+        virtualenv "$venv"
+        # shellcheck disable=SC1091
+        . "$venv/bin/activate"
+    fi
+    if ! which pyflakes -a ! which pyflakes3 >/dev/null
+    then
+        pip install pyflakes
+    fi
+    if ! which ruff >/dev/null
+    then
+        pip install ruff
+    fi
+
+    if which pyflakes
+    then
+        pyflakes "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    else
         pyflakes3 "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    fi
+
+    ruff "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+
+    if test -n "$venv"
+    then
+        deactivate
+        rm -r "$venv"
     fi
 }
 
