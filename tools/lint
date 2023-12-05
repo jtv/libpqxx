@@ -144,14 +144,14 @@ cpplint() {
 pylint() {
     local venv
 
-    if ! which pyflakes3 -o ! which ruff >/dev/null
+    if ! which pyflakes -o ! which ruff >/dev/null
     then
         venv="$(mktemp -d)"
         virtualenv "$venv"
-	# shellcheck disable=SC1091
+        # shellcheck disable=SC1091
         . "$venv/bin/activate"
     fi
-    if ! which pyflakes3 >/dev/null
+    if ! which pyflakes -a ! which pyflakes3 >/dev/null
     then
         pip install pyflakes
     fi
@@ -160,13 +160,19 @@ pylint() {
         pip install ruff
     fi
 
-    pyflakes3 "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    if which pyflakes
+    then
+        pyflakes "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    else
+        pyflakes3 "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    fi
+
     ruff "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
 
     if test -n "$venv"
     then
-	deactivate
-	rm -r "$venv"
+        deactivate
+        rm -r "$venv"
     fi
 }
 
