@@ -142,38 +142,17 @@ cpplint() {
 
 
 pylint() {
-    local venv
+    local venv="$(mktemp -d)"
+    virtualenv "$venv"
+    # shellcheck disable=SC1091
+    . "$venv/bin/activate"
+    pip install pyflakes ruff
 
-    if ! which pyflakes -o ! which ruff >/dev/null
-    then
-        venv="$(mktemp -d)"
-        virtualenv "$venv"
-        # shellcheck disable=SC1091
-        . "$venv/bin/activate"
-    fi
-    if ! which pyflakes -a ! which pyflakes3 >/dev/null
-    then
-        pip install pyflakes
-    fi
-    if ! which ruff >/dev/null
-    then
-        pip install ruff
-    fi
-
-    if which pyflakes
-    then
-        pyflakes "$SRCDIR"/tools/*.py
-    else
-        pyflakes3 "$SRCDIR"/tools/*.py
-    fi
-
+    pyflakes "$SRCDIR"/tools/*.py
     ruff "$SRCDIR"/tools/*.py
 
-    if test -n "$venv"
-    then
-        deactivate
-        rm -r "$venv"
-    fi
+    deactivate
+    rm -r "$venv"
 }
 
 
