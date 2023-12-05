@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: |
             gcc --version
-            sudo apt-get install -y postgresql
+            sudo apt-get install -y postgresql virtualenv
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
             createdb "$(whoami)"
