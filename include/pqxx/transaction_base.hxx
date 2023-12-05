@@ -465,6 +465,11 @@ public:
    * specify.  Unlike with the "exec" functions, processing can start before
    * all the data from the server is in.
    *
+   * The column types must all be types that have conversions from PostgreSQL's
+   * text format defined.  Many built-in types such as `int` or `std::string`
+   * have pre-defined conversions; if you want to define your own conversions
+   * for additional types, see @ref datatypes.
+   *
    * As a special case, tuple may contain `std::string_view` fields, but the
    * strings to which they point will only remain valid until you extract the
    * next row.  After that, the memory holding the string may be overwritten or
@@ -533,6 +538,10 @@ public:
    * the iteration is ongoing.  If `func` throws an exception, or the iteration
    * fails in some way, the only way out is to destroy the transaction and the
    * connection.
+   *
+   * Each of the parameter types must have a conversion from PostgreSQL's text
+   * format defined.  To define conversions for additional types, see
+   * @ref datatypes.
    */
   template<typename CALLABLE>
   auto for_stream(std::string_view query, CALLABLE &&func)

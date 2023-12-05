@@ -103,6 +103,17 @@ public:
 
   /**
    * @name Content access
+   *
+   * You can read a field as any C++ type for which a conversion from
+   * PostgreSQL's text format is defined.  See @ref datatypes for how this
+   * works.  This mechanism is _weakly typed:_ the conversions do not care
+   * what SQL type a field had in the database, only that its actual contents
+   * convert to the target type without problems.  So for instance, you can
+   * read a `text` field as an `int`, so long as the string in the field spells
+   * out a valid `int` number.
+   *
+   * Many built-in types come with conversions predefined.  To find out how to
+   * add your own, see @ref datatypes.
    */
   //@{
   /// Read as `string_view`, or an empty one if null.
