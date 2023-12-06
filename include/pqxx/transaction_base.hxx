@@ -747,6 +747,58 @@ public:
     return exec_params_n(rows, query, parms).iter<TYPE...>();
   }
 
+  /// Perform query, expecting exactly 1 row with 1 field, and convert it.
+  /** This is convenience shorthand for querying exactly one value from the
+   * database.  It returns that value, converted to the type you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the row did not contain exactly 1 field.
+   */
+  template<typename TYPE> TYPE query_value(zview query, params const &parms)
+  {
+    std::tuple<TYPE> const value{query1(query, parms)};
+    return value;
+  }
+
+  /// Perform query returning exactly one row, and convert its fields.
+  /** This is a convenient way of querying one row's worth of data, and
+   * converting its fields to a tuple of the C++-side types you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::tuple<TYPE...> query1(zview query, params const &parms)
+  {
+    result const r{exec_params_n(1, query, parms)};
+    return r[0].as<TYPE...>();
+  }
+
+  /// Query at most one row of data, and if there is one, convert it.
+  /** If the query produced a row of data, this converts it to a tuple of the
+   * C++ types you specify.  Otherwise, this returns no tuple.
+   *
+   * @throw unexpected_rows If the query returned more than 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(
+    zview query, params const &parms)
+  {
+    result res{exec_params(query, parms)};
+    auto const rows{std::size(res)};
+    switch (rows)
+    {
+    case 0: return {};
+    case 1: return {res[0].as<TYPE...>()};
+    default:
+      throw unexpected_rows{internal::concat(
+        "Expected at most one row of data, got "sv, rows, "."sv)};
+    }
+  }
+
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
   /** The query may use parameters.  So for example, the query may contain `$1`
