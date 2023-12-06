@@ -106,6 +106,36 @@ void test_transaction_query()
 }
 
 
+void test_transaction_query_params()
+{
+  pqxx::connection c;
+  pqxx::work tx{c};
+
+  int outcome{-1};
+
+  for (auto [value] : tx.query<int>("SELECT $1 * 2", {32}))
+  {
+    PQXX_CHECK_EQUAL(outcome, -1, "Queried one row, got multiple.");
+    outcome = value;
+  }
+  PQXX_CHECK_EQUAL(outcome, 64, "Parameterised query() produced wrong result.");
+
+  outcome = -1;
+  for (auto [value] : tx.query_n<int>(1, "SELECT * FROM generate_series(1, $1)", {1}))
+  {
+    PQXX_CHECK_EQUAL(outcome, -1, "Queried one row, got multiple.");
+    outcome = value;
+  }
+  PQXX_CHECK_EQUAL(outcome, 1, "Bad value from query_n() with params.");
+
+  PQXX_CHECK_THROWS(
+    tx.query_n<int>(2, "SELECT $1", {9}),
+      pqxx::unexpected_rows,
+        "query_n() with params failed to detect unexpected rows.");
+}
+
+
+
 void test_transaction_for_query()
 {
   constexpr auto query{
@@ -216,6 +246,7 @@ void test_transaction_query_n()
 
 PQXX_REGISTER_TEST(test_transaction_base);
 PQXX_REGISTER_TEST(test_transaction_query);
+PQXX_REGISTER_TEST(test_transaction_query_params);
 PQXX_REGISTER_TEST(test_transaction_for_query);
 PQXX_REGISTER_TEST(test_transaction_for_stream);
 PQXX_REGISTER_TEST(test_transaction_query01);
