@@ -66,6 +66,11 @@ void test_query_value(pqxx::connection &conn)
   PQXX_CHECK_THROWS(
     tx.query_value<int>("SELECT 3.141"), pqxx::conversion_error,
     "Got int field from float string.");
+
+  // Now with parameters:
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>("SELECT $1 + 1", {5}), 6,
+    "Wrong value from query_value with params.");
 }
 
 
@@ -132,6 +137,40 @@ void test_transaction_query_params()
     tx.query_n<int>(2, "SELECT $1", {9}),
       pqxx::unexpected_rows,
         "query_n() with params failed to detect unexpected rows.");
+
+  std::tuple<int> res{tx.query1<int>("SELECT $1 / 3", {33})};
+  auto [res_int] = res;
+  PQXX_CHECK_EQUAL(res_int, 11, "Wrong value from query1() with params.");
+
+  PQXX_CHECK_THROWS(
+    pqxx::ignore_unused(
+      tx.query1<int>("SELECT * from generate_series(1, $1)", {4})),
+    pqxx::unexpected_rows,
+    "query1() with params failed to detect wrong number of rows.");
+
+  std::tuple<int, int> const res2{
+    tx.query1<int, int>("SELECT $1, $2", {3, 6})};
+  auto [res2_a, res2_b] = res2;
+  PQXX_CHECK_EQUAL(
+    res2_a, 3, "Multi-column query1() with params gave wrong result.");
+  PQXX_CHECK_EQUAL(
+    res2_b, 6, "Multi-column query1() with params gave wrong result.");
+
+  std::optional<std::tuple<int>> const opt1{
+    tx.query01<int>("SELECT 1 WHERE 1 = $1", {0})};
+  PQXX_CHECK(not opt1, "query01 got a result it shouldn't have.");
+  std::optional<std::tuple<int>> const opt2{
+    tx.query01<int>("SELECT $1 - 10", {12})};
+  PQXX_CHECK(
+    opt2.has_value(), "query01 did not get the result it should have.");
+  auto const [opt2_val] = *opt2;
+  PQXX_CHECK_EQUAL(opt2_val, 2, "query01 got wrong result.");
+  auto const [opt3_a, opt3_b] =
+    tx.query01<int, int>("SELECT $1, $2", {12, 99}).value();
+  PQXX_CHECK_EQUAL(
+    opt3_a, 12, "Multi-column query01() with params gave wrong result.");
+  PQXX_CHECK_EQUAL(
+    opt3_b, 99, "Multi-column query01() with params gave wrong result.");
 }
 
 
@@ -152,6 +191,21 @@ void test_transaction_for_query()
   });
   PQXX_CHECK_EQUAL(ints, "1 2 3 ", "Unexpected int sequence.");
   PQXX_CHECK_EQUAL(strings, "x2 x4 x6 ", "Unexpected string sequence.");
+
+  // And now with parameters...
+  int x{0}, y{0};
+  tx.for_query(
+    "SELECT $1, $2",
+    [&x, &y](int xout, int yout)
+    {
+      PQXX_CHECK_EQUAL(x, 0, "for_query() called too many times.");
+      PQXX_CHECK_EQUAL(y, 0, "for_query() called too many times.");
+      x = xout;
+      y = yout;
+    },
+    {42, 67});
+  PQXX_CHECK_EQUAL(x, 42, "for_query() with parameters got wrong value.");
+  PQXX_CHECK_EQUAL(y, 67, "for_query() with parameters got wrong value.");
 }
 
 

@@ -658,7 +658,9 @@ public:
   //@{
 
   /// Execute an SQL statement with parameters.
-  /** This is like calling `exec()` with a @ref pqxx::params object
+  /** This is like calling `exec()`, except it will substitute the first
+   * parameter after `query` (the first in `args`) for a `$1` in the query, the
+   * next one for `$2`, etc.
    */
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
@@ -756,8 +758,11 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, params const &parms)
   {
-    std::tuple<TYPE> const value{query1(query, parms)};
-    return value;
+    row const r{exec_params1(query, parms)};
+    if (std::size(r) != 1)
+      throw usage_error{internal::concat(
+        "Queried single value from result with ", std::size(r), " columns.")};
+    return r[0].as<TYPE>();
   }
 
   /// Perform query returning exactly one row, and convert its fields.
