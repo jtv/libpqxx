@@ -126,7 +126,7 @@ void test_transaction_query_params()
   PQXX_CHECK_EQUAL(outcome, 64, "Parameterised query() produced wrong result.");
 
   outcome = -1;
-  for (auto [value] : tx.query_n<int>(1u, "SELECT * FROM generate_series(1, $1)", {1}))
+  for (auto [value] : tx.query_n<int>(1, "SELECT * FROM generate_series(1, $1)", {1}))
   {
     PQXX_CHECK_EQUAL(outcome, -1, "Queried one row, got multiple.");
     outcome = value;
@@ -134,7 +134,7 @@ void test_transaction_query_params()
   PQXX_CHECK_EQUAL(outcome, 1, "Bad value from query_n() with params.");
 
   PQXX_CHECK_THROWS(
-    tx.query_n<int>(2u, "SELECT $1", {9}),
+    tx.query_n<int>(2, "SELECT $1", {9}),
       pqxx::unexpected_rows,
         "query_n() with params failed to detect unexpected rows.");
 
@@ -283,14 +283,14 @@ void test_transaction_query_n()
   pqxx::work w{c};
 
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(w.query_n<int>(5u, "SELECT generate_series(1, 3)")),
+    pqxx::ignore_unused(w.query_n<int>(5, "SELECT generate_series(1, 3)")),
     pqxx::unexpected_rows, "No exception when query_n returns too few rows.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(w.query_n<int>(5u, "SELECT generate_series(1, 10)")),
+    pqxx::ignore_unused(w.query_n<int>(5, "SELECT generate_series(1, 10)")),
     pqxx::unexpected_rows, "No exception when query_n returns too many rows.");
 
   std::vector<int> v;
-  for (auto [n] : w.query_n<int>(3u, "SELECT generate_series(7, 9)"))
+  for (auto [n] : w.query_n<int>(3, "SELECT generate_series(7, 9)"))
     v.push_back(n);
   PQXX_CHECK_EQUAL(std::size(v), 3u, "Wrong number of rows.");
   PQXX_CHECK_EQUAL(v[0], 7, "Wrong result data.");
