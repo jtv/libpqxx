@@ -691,7 +691,9 @@ public:
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
-    check_rowcount_params(rows, static_cast<std::size_t>(std::size(r)));
+    // The cast isn't to get the type of the right width.  Automatic promotion
+    // will take care of that.  But we do need it unsigned first.
+    check_rowcount_params(rows, static_cast<unsigned>(std::size(r)));
     return r;
   }
 
@@ -702,8 +704,10 @@ public:
   result exec_params_n(result::size_type rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
+    // The casts aren't to get the type of the right width.  Automatic
+    // promotion will take care of that.  But we do need these unsigned first.
     check_rowcount_params(
-      static_cast<std::size_t>(rows), static_cast<std::size_t>(std::size(r)));
+      static_cast<unsigned>(rows), static_cast<unsigned>(std::size(r)));
     return r;
   }
 
