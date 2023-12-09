@@ -691,7 +691,19 @@ public:
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
-    check_rowcount_params(rows, std::size(r));
+    check_rowcount_params(rows, static_cast<std::size_t>(std::size(r)));
+    return r;
+  }
+
+  // Execute parameterised statement, expect exactly a given number of rows.
+  /** @throw unexpected_rows if the result contains the wrong number of rows.
+   */
+  template<typename... Args>
+  result exec_params_n(result::size_type rows, zview query, Args &&...args)
+  {
+    auto const r{exec_params(query, std::forward<Args>(args)...)};
+    check_rowcount_params(
+      static_cast<std::size_t>(rows), static_cast<std::size_t>(std::size(r)));
     return r;
   }
 
