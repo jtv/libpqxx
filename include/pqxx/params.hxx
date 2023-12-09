@@ -1,6 +1,6 @@
 /* Helpers for prepared statements and parameterised statements.
  *
- * See @ref connection and @transcation_base for more about such statements.
+ * See @ref connection and @ref transaction_base for more.
  *
  * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
  *
