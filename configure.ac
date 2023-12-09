@@ -507,7 +507,8 @@ AC_CONFIG_FILES([
 	libpqxx.pc])
 
 
-AC_CONFIG_COMMANDS([configitems], ["${srcdir}/tools/splitconfig" "${srcdir}"])
+AC_CONFIG_COMMANDS([configitems],
+	["${srcdir}/tools/splitconfig.py" "${srcdir}"])
 
 AC_CONFIG_FILES([compile_flags])
 AC_OUTPUT

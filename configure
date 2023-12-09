@@ -21548,7 +21548,7 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
-    "configitems":C) "${srcdir}/tools/splitconfig" "${srcdir}" ;;
+    "configitems":C) "${srcdir}/tools/splitconfig.py" "${srcdir}" ;;
 
   esac
 done # for ac_tag

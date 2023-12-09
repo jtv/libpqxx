@@ -162,12 +162,12 @@ pylint() {
 
     if which pyflakes
     then
-        pyflakes "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+        pyflakes "$SRCDIR"/tools/*.py
     else
-        pyflakes3 "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+        pyflakes3 "$SRCDIR"/tools/*.py
     fi
 
-    ruff "$SRCDIR"/tools/*.py "$SRCDIR"/tools/splitconfig
+    ruff "$SRCDIR"/tools/*.py
 
     if test -n "$venv"
     then
