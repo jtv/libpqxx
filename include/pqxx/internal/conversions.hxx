@@ -551,7 +551,7 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
 {};
 
 
-/// String traits for C-style string constant ("array of char").
+/// String traits for C-style string constant ("pointer to array of char").
 /** @warning This assumes that every array-of-char is a C-style string literal.
  * So, it must include a trailing zero. and it must have static duration.
  */
