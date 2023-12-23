@@ -61,19 +61,6 @@ class row;
 class stream_from;
 class transaction_base;
 
-/// Marker for @ref stream_from constructors: "stream from table."
-/** @deprecated Use @ref stream_from::table() instead.
- */
-struct from_table_t
-{};
-
-/// Marker for @ref stream_from constructors: "stream from query."
-/** @deprecated Use @ref stream_from::query() instead.
- */
-struct from_query_t
-{};
-
-
 /// Format code: is data text or binary?
 /** Binary-compatible with libpq's format codes.
  */
@@ -168,5 +155,18 @@ concept potential_binary =
 #  define PQXX_CHAR_STRINGS_ARG typename
 
 #endif // PQXX_HAVE_CONCEPTS
+
+/// Marker for @ref stream_from constructors: "stream from table."
+/** @deprecated Use @ref stream_from::table() instead.
+ */
+struct from_table_t
+{};
+
+/// Marker for @ref stream_from constructors: "stream from query."
+/** @deprecated Use @ref stream_from::query() instead.
+ */
+struct from_query_t
+{};
+
 } // namespace pqxx
 #endif

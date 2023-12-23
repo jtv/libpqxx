@@ -159,36 +159,6 @@ public:
   }
 #endif // PQXX_HAVE_CONCEPTS
 
-  /// Create a stream, without specifying columns.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   *
-   * Fields will be inserted in whatever order the columns have in the
-   * database.
-   *
-   * You'll probably want to specify the columns, so that the mapping between
-   * your data fields and the table is explicit in your code, and not hidden
-   * in an "implicit contract" between your code and your schema.
-   */
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &tx, std::string_view table_name) :
-          stream_to{tx, table_name, ""sv}
-  {}
-
-  /// Create a stream, specifying column names as a container of strings.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   */
-  template<typename Columns>
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &, std::string_view table_name, Columns const &columns);
-
-  /// Create a stream, specifying column names as a sequence of strings.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   */
-  template<typename Iter>
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &, std::string_view table_name, Iter columns_begin,
-    Iter columns_end);
-
   explicit stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
           // object.)
@@ -267,6 +237,36 @@ public:
     fill_buffer(fields...);
     write_buffer();
   }
+
+  /// Create a stream, without specifying columns.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
+   *
+   * Fields will be inserted in whatever order the columns have in the
+   * database.
+   *
+   * You'll probably want to specify the columns, so that the mapping between
+   * your data fields and the table is explicit in your code, and not hidden
+   * in an "implicit contract" between your code and your schema.
+   */
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
+    transaction_base &tx, std::string_view table_name) :
+          stream_to{tx, table_name, ""sv}
+  {}
+
+  /// Create a stream, specifying column names as a container of strings.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
+   */
+  template<typename Columns>
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
+    transaction_base &, std::string_view table_name, Columns const &columns);
+
+  /// Create a stream, specifying column names as a sequence of strings.
+  /** @deprecated Use @ref table or @ref raw_table as a factory.
+   */
+  template<typename Iter>
+  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
+    transaction_base &, std::string_view table_name, Iter columns_begin,
+    Iter columns_end);
 
 private:
   /// Stream a pre-quoted table name and columns list.

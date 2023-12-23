@@ -106,8 +106,6 @@ public:
     return m_end - m_begin;
   }
 
-  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
-
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard]] constexpr result::size_type rownumber() const noexcept
   {
@@ -161,24 +159,6 @@ public:
     return rownumber();
   }
 
-  /** Produce a slice of this row, containing the given range of columns.
-   *
-   * @deprecated I haven't heard of anyone caring about row slicing at all in
-   * at least the last 15 years.  Yet it adds complexity, so unless anyone
-   * files a bug explaining why they really need this feature, I'm going to
-   * remove it.  Even if they do, the feature may need an update.
-   *
-   * The slice runs from the range's starting column to the range's end
-   * column, exclusive.  It looks just like a normal result row, except
-   * slices can be empty.
-   */
-  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
-  slice(size_type sbegin, size_type send) const;
-
-  /// Is this a row without fields?  Can only happen to a slice.
-  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
-  empty() const noexcept;
-
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
    *
@@ -209,6 +189,26 @@ public:
     using seq = std::make_index_sequence<sizeof...(TYPE)>;
     return get_tuple<std::tuple<TYPE...>>(seq{});
   }
+
+  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
+
+  /** Produce a slice of this row, containing the given range of columns.
+   *
+   * @deprecated I haven't heard of anyone caring about row slicing at all in
+   * at least the last 15 years.  Yet it adds complexity, so unless anyone
+   * files a bug explaining why they really need this feature, I'm going to
+   * remove it.  Even if they do, the feature may need an update.
+   *
+   * The slice runs from the range's starting column to the range's end
+   * column, exclusive.  It looks just like a normal result row, except
+   * slices can be empty.
+   */
+  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
+  slice(size_type sbegin, size_type send) const;
+
+  /// Is this a row without fields?  Can only happen to a slice.
+  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
+  empty() const noexcept;
 
 protected:
   friend class const_row_iterator;

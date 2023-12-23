@@ -36,19 +36,6 @@ class PQXX_LIBEXPORT field
 public:
   using size_type = field_size_type;
 
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
-  /** Create field as reference to a field in a result set.
-   * @param r Row that this field is part of.
-   * @param c Column number of this field.
-   */
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
-
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the "
-    "row.")]] field() noexcept = default;
-
   /**
    * @name Comparison
    */
@@ -266,6 +253,19 @@ public:
     return array_parser{c_str(), m_home.m_encoding};
   }
   //@}
+
+  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
+  /** Create field as reference to a field in a result set.
+   * @param r Row that this field is part of.
+   * @param c Column number of this field.
+   */
+  [[deprecated(
+    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
+
+  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
+  [[deprecated(
+    "Do not construct fields yourself.  Get them from the "
+    "row.")]] field() noexcept = default;
 
 
 protected:

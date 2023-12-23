@@ -185,23 +185,6 @@ template<skip_init... SKIP> inline void skip_init_ssl() noexcept
 using table_path = std::initializer_list<std::string_view>;
 
 
-/// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] std::string
-  PQXX_LIBEXPORT
-  encrypt_password(char const user[], char const password[]);
-
-/// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] inline std::string
-encrypt_password(zview user, zview password)
-{
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return encrypt_password(user.c_str(), password.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
 /// Error verbosity levels.
 enum class error_verbosity : int
 {
@@ -440,23 +423,6 @@ public:
 
   //@}
 
-  /// Set session variable, using SQL's `SET` command.
-  /** @deprecated To set a session variable, use @ref set_session_var.  To set
-   * a transaction-local variable, execute an SQL `SET` command.
-   *
-   * @warning When setting a string value, you must escape and quote it first.
-   * Use the @ref quote() function to do that.
-   *
-   * @warning This executes an SQL query, so do not get or set variables while
-   * a table stream or pipeline is active on the same connection.
-   *
-   * @param var Variable to set.
-   * @param value New value for Var.  This can be any SQL expression.  If it's
-   * a string, be sure that it's properly escaped and quoted.
-   */
-  [[deprecated("To set session variables, use set_session_var.")]] void
-  set_variable(std::string_view var, std::string_view value) &;
-
   /// Set one of the session variables to a new value.
   /** This executes SQL, so do not do it while a pipeline or stream is active
    * on the connection.
@@ -490,13 +456,6 @@ public:
     }
     exec(internal::concat("SET ", quote_name(var), "=", quote(value)));
   }
-
-  /// Read session variable, using SQL's `SHOW` command.
-  /** @warning This executes an SQL query, so do not get or set variables while
-   * a table stream or pipeline is active on the same connection.
-   */
-  [[deprecated("Use get_var instead.")]] std::string
-    get_variable(std::string_view);
 
   /// Read currently applicable value of a variable.
   /** This function executes an SQL statement, so it won't work while a
@@ -703,17 +662,6 @@ public:
   //@{
 
   /// Escape string for use as SQL string literal on this connection.
-  /** @warning This accepts a length, and it does not require a terminating
-   * zero byte.  But if there is a zero byte, escaping stops there even if
-   * it's not at the end of the string!
-   */
-  [[deprecated("Use std::string_view or pqxx:zview.")]] std::string
-  esc(char const text[], std::size_t maxlen) const
-  {
-    return esc(std::string_view{text, maxlen});
-  }
-
-  /// Escape string for use as SQL string literal on this connection.
   [[nodiscard]] std::string esc(char const text[]) const
   {
     return esc(std::string_view{text});
@@ -828,25 +776,6 @@ public:
   }
 #endif
 
-  /// Unescape binary data, e.g. from a table field or notification payload.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(zview text) const
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return unesc_raw(text.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-
-  /// Unescape binary data, e.g. from a table field or notification payload.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(char const text[]) const;
-
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a table field or notification payload.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -864,10 +793,6 @@ public:
     pqxx::internal::unesc_bin(text, buf.data());
     return buf;
   }
-
-  /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
-  quote_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape and quote a string of binary data.
   std::string quote_raw(std::basic_string_view<std::byte>) const;
@@ -963,6 +888,40 @@ public:
    */
   [[nodiscard]] std::string
   esc_like(std::string_view text, char escape_char = '\\') const;
+
+  /// Escape string for use as SQL string literal on this connection.
+  /** @warning This accepts a length, and it does not require a terminating
+   * zero byte.  But if there is a zero byte, escaping stops there even if
+   * it's not at the end of the string!
+   */
+  [[deprecated("Use std::string_view or pqxx:zview.")]] std::string
+  esc(char const text[], std::size_t maxlen) const
+  {
+    return esc(std::string_view{text, maxlen});
+  }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
+  unesc_raw(zview text) const
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return unesc_raw(text.c_str());
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+  /// Unescape binary data, e.g. from a table field or notification payload.
+  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
+   * copy of the original binary data.
+   */
+  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
+  unesc_raw(char const text[]) const;
+
+  /// Escape and quote a string of binary data.
+  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
+  quote_raw(unsigned char const bin[], std::size_t len) const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -1050,6 +1009,30 @@ public:
   {
     return std::exchange(m_conn, nullptr);
   }
+
+  /// Set session variable, using SQL's `SET` command.
+  /** @deprecated To set a session variable, use @ref set_session_var.  To set
+   * a transaction-local variable, execute an SQL `SET` command.
+   *
+   * @warning When setting a string value, you must escape and quote it first.
+   * Use the @ref quote() function to do that.
+   *
+   * @warning This executes an SQL query, so do not get or set variables while
+   * a table stream or pipeline is active on the same connection.
+   *
+   * @param var Variable to set.
+   * @param value New value for Var.  This can be any SQL expression.  If it's
+   * a string, be sure that it's properly escaped and quoted.
+   */
+  [[deprecated("To set session variables, use set_session_var.")]] void
+  set_variable(std::string_view var, std::string_view value) &;
+
+  /// Read session variable, using SQL's `SHOW` command.
+  /** @warning This executes an SQL query, so do not get or set variables while
+   * a table stream or pipeline is active on the same connection.
+   */
+  [[deprecated("Use get_var instead.")]] std::string
+    get_variable(std::string_view);
 
 private:
   friend class connecting;
@@ -1326,5 +1309,22 @@ inline connection::connection(MAPPING const &params)
   init(std::data(keys), std::data(values));
 }
 #endif // PQXX_HAVE_CONCEPTS
+
+
+/// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
+[[nodiscard,
+  deprecated("Use connection::encrypt_password instead.")]] std::string
+  PQXX_LIBEXPORT
+  encrypt_password(char const user[], char const password[]);
+
+/// Encrypt password.  @deprecated Use connection::encrypt_password instead.
+[[nodiscard,
+  deprecated("Use connection::encrypt_password instead.")]] inline std::string
+encrypt_password(zview user, zview password)
+{
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  return encrypt_password(user.c_str(), password.c_str());
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+}
 } // namespace pqxx
 #endif

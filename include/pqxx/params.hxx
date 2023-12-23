@@ -1,6 +1,6 @@
 /* Helpers for prepared statements and parameterised statements.
  *
- * See the connection class for more about such statements.
+ * See @ref connection and @ref transaction_base for more.
  *
  * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
  *
@@ -22,199 +22,25 @@
 #include "pqxx/types.hxx"
 
 
-/// @deprecated The new @ref params class replaces all of this.
-namespace pqxx::prepare
-{
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * sequence ranging from `begin` to `end` exclusively.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic sequences.
- *
- * @param begin A pointer or iterator for iterating parameters.
- * @param end A pointer or iterator for iterating parameters.
- * @return An object representing the parameters.
- */
-template<typename IT>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(IT begin, IT end)
-{
-  return pqxx::internal::dynamic_params(begin, end);
-}
-
-
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * container of parameter values.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic containers.
- *
- * @param container A container of parameter values.
- * @return An object representing the parameters.
- */
-template<typename C>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C const &container)
-{
-  using IT = typename C::const_iterator;
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT>{container};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * container of parameter values.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic containers.
- *
- * @param container A container of parameter values.
- * @param accessor For each parameter `p`, pass `accessor(p)`.
- * @return An object representing the parameters.
- */
-template<typename C, typename ACCESSOR>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C &container, ACCESSOR accessor)
-{
-  using IT = decltype(std::begin(container));
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-} // namespace pqxx::prepare
-
-
 namespace pqxx
 {
-/// Generate parameter placeholders for use in an SQL statement.
-/** When you want to pass parameters to a prepared statement or a parameterised
- * statement, you insert placeholders into the SQL.  During invocation, the
- * database replaces those with the respective parameter values you passed.
- *
- * The placeholders look like `$1` (for the first parameter value), `$2` (for
- * the second), and so on.  You can just write those directly in your
- * statement.  But for those rare cases where it becomes difficult to track
- * which number a placeholder should have, you can use a `placeholders` object
- * to count and generate them in order.
- */
-template<typename COUNTER = unsigned int> class placeholders
-{
-public:
-  /// Maximum number of parameters we support.
-  static inline constexpr unsigned int max_params{
-    (std::numeric_limits<COUNTER>::max)()};
-
-  placeholders()
-  {
-    static constexpr auto initial{"$1\0"sv};
-    initial.copy(std::data(m_buf), std::size(initial));
-  }
-
-  /// Read an ephemeral version of the current placeholder text.
-  /** @warning Changing the current placeholder number will overwrite this.
-   * Use the view immediately, or lose it.
-   */
-  constexpr zview view() const & noexcept
-  {
-    return zview{std::data(m_buf), m_len};
-  }
-
-  /// Read the current placeholder text, as a `std::string`.
-  /** This will be slightly slower than converting to a `zview`.  With most
-   * C++ implementations however, until you get into ridiculous numbers of
-   * parameters, the string will benefit from the Short String Optimization, or
-   * SSO.
-   */
-  std::string get() const { return std::string(std::data(m_buf), m_len); }
-
-  /// Move on to the next parameter.
-  void next() &
-  {
-    if (m_current >= max_params)
-      throw range_error{pqxx::internal::concat(
-        "Too many parameters in one statement: limit is ", max_params, ".")};
-    ++m_current;
-    if (m_current % 10 == 0)
-    {
-      // Carry the 1.  Don't get too clever for this relatively rare
-      // case, just rewrite the entire number.  Leave the $ in place
-      // though.
-      char *const data{std::data(m_buf)};
-      char *const end{string_traits<COUNTER>::into_buf(
-        data + 1, data + std::size(m_buf), m_current)};
-      // (Subtract because we don't include the trailing zero.)
-      m_len = check_cast<COUNTER>(end - data, "placeholders counter") - 1;
-    }
-    else
-    {
-      PQXX_LIKELY
-      // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
-    }
-  }
-
-  /// Return the current placeholder number.  The initial placeholder is 1.
-  COUNTER count() const noexcept { return m_current; }
-
-private:
-  /// Current placeholder number.  Starts at 1.
-  COUNTER m_current = 1;
-
-  /// Length of the current placeholder string, not including trailing zero.
-  COUNTER m_len = 2;
-
-  /// Text buffer where we render the placeholders, with a trailing zero.
-  /** We keep reusing this for every subsequent placeholder, just because we
-   * don't like string allocations.
-   *
-   * Maximum length is the maximum base-10 digits that COUNTER can fully
-   * represent, plus 1 more for the extra digit that it can only partially
-   * fill up, plus room for the dollar sign and the trailing zero.
-   */
-  std::array<char, std::numeric_limits<COUNTER>::digits10 + 3> m_buf;
-};
-
-
 /// Build a parameter list for a parameterised or prepared statement.
-/** When calling a parameterised statement or a prepared statement, you can
- * pass parameters into the statement directly in the invocation, as
- * additional arguments to `exec_prepared` or `exec_params`.  But in
- * complex cases, sometimes that's just not convenient.
+/** When calling a parameterised statement or a prepared statement, in some
+ * cases you can pass parameters into the statement directly in the invocation,
+ * as additional arguments to e.g. `exec_prepared` or `exec_params`.  But not
+ * all functions accept that, plus, sometimes you want to build the lists at
+ * run time.
  *
  * In those situations, you can create a `params` and append your parameters
- * into that, one by one.  Then you pass the `params` to `exec_prepared` or
- * `exec_params`.
+ * into that, one by one.  Then you pass the `params` to  the function that
+ * executes your SQL statement.
  *
  * Combinations also work: if you have a `params` containing a string
  * parameter, and you call `exec_params` with an `int` argument followed by
  * your `params`, you'll be passing the `int` as the first parameter and
  * the string as the second.  You can even insert a `params` in a `params`,
- * or pass two `params` objects to a statement.
+ * or pass two `params` objects to a statement.  In the end all the embedded
+ * parameters show up in their natural order.
  */
 class PQXX_LIBEXPORT params
 {
@@ -379,5 +205,181 @@ private:
   static constexpr std::string_view s_overflow{
     "Statement parameter length overflow."sv};
 };
+
+
+/// Generate parameter placeholders for use in an SQL statement.
+/** When you want to pass parameters to a prepared statement or a parameterised
+ * statement, you insert placeholders into the SQL.  During invocation, the
+ * database replaces those with the respective parameter values you passed.
+ *
+ * The placeholders look like `$1` (for the first parameter value), `$2` (for
+ * the second), and so on.  You can just write those directly in your
+ * statement.  But for those rare cases where it becomes difficult to track
+ * which number a placeholder should have, you can use a `placeholders` object
+ * to count and generate them in order.
+ */
+template<typename COUNTER = unsigned int> class placeholders
+{
+public:
+  /// Maximum number of parameters we support.
+  static inline constexpr unsigned int max_params{
+    (std::numeric_limits<COUNTER>::max)()};
+
+  placeholders()
+  {
+    static constexpr auto initial{"$1\0"sv};
+    initial.copy(std::data(m_buf), std::size(initial));
+  }
+
+  /// Read an ephemeral version of the current placeholder text.
+  /** @warning Changing the current placeholder number will overwrite this.
+   * Use the view immediately, or lose it.
+   */
+  constexpr zview view() const & noexcept
+  {
+    return zview{std::data(m_buf), m_len};
+  }
+
+  /// Read the current placeholder text, as a `std::string`.
+  /** This will be slightly slower than converting to a `zview`.  With most
+   * C++ implementations however, until you get into ridiculous numbers of
+   * parameters, the string will benefit from the Short String Optimization, or
+   * SSO.
+   */
+  std::string get() const { return std::string(std::data(m_buf), m_len); }
+
+  /// Move on to the next parameter.
+  void next() &
+  {
+    if (m_current >= max_params)
+      throw range_error{pqxx::internal::concat(
+        "Too many parameters in one statement: limit is ", max_params, ".")};
+    ++m_current;
+    if (m_current % 10 == 0)
+    {
+      // Carry the 1.  Don't get too clever for this relatively rare
+      // case, just rewrite the entire number.  Leave the $ in place
+      // though.
+      char *const data{std::data(m_buf)};
+      char *const end{string_traits<COUNTER>::into_buf(
+        data + 1, data + std::size(m_buf), m_current)};
+      // (Subtract because we don't include the trailing zero.)
+      m_len = check_cast<COUNTER>(end - data, "placeholders counter") - 1;
+    }
+    else
+    {
+      PQXX_LIKELY
+      // Shortcut for the common case: just increment that last digit.
+      ++m_buf[m_len - 1];
+    }
+  }
+
+  /// Return the current placeholder number.  The initial placeholder is 1.
+  COUNTER count() const noexcept { return m_current; }
+
+private:
+  /// Current placeholder number.  Starts at 1.
+  COUNTER m_current = 1;
+
+  /// Length of the current placeholder string, not including trailing zero.
+  COUNTER m_len = 2;
+
+  /// Text buffer where we render the placeholders, with a trailing zero.
+  /** We keep reusing this for every subsequent placeholder, just because we
+   * don't like string allocations.
+   *
+   * Maximum length is the maximum base-10 digits that COUNTER can fully
+   * represent, plus 1 more for the extra digit that it can only partially
+   * fill up, plus room for the dollar sign and the trailing zero.
+   */
+  std::array<char, std::numeric_limits<COUNTER>::digits10 + 3> m_buf;
+};
 } // namespace pqxx
+
+
+/// @deprecated The new @ref params class replaces all of this.
+namespace pqxx::prepare
+{
+/// Pass a number of statement parameters only known at runtime.
+/** @deprecated Use @ref params instead.
+ *
+ * When you call any of the `exec_params` functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
+ *
+ * Use this function to pass a variable number of parameters, based on a
+ * sequence ranging from `begin` to `end` exclusively.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic sequences.
+ *
+ * @param begin A pointer or iterator for iterating parameters.
+ * @param end A pointer or iterator for iterating parameters.
+ * @return An object representing the parameters.
+ */
+template<typename IT>
+[[deprecated("Use the params class instead.")]] constexpr inline auto
+make_dynamic_params(IT begin, IT end)
+{
+  return pqxx::internal::dynamic_params(begin, end);
+}
+
+
+/// Pass a number of statement parameters only known at runtime.
+/** @deprecated Use @ref params instead.
+ *
+ * When you call any of the `exec_params` functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
+ *
+ * Use this function to pass a variable number of parameters, based on a
+ * container of parameter values.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic containers.
+ *
+ * @param container A container of parameter values.
+ * @return An object representing the parameters.
+ */
+template<typename C>
+[[deprecated("Use the params class instead.")]] constexpr inline auto
+make_dynamic_params(C const &container)
+{
+  using IT = typename C::const_iterator;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  return pqxx::internal::dynamic_params<IT>{container};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+}
+
+
+/// Pass a number of statement parameters only known at runtime.
+/** @deprecated Use @ref params instead.
+ *
+ * When you call any of the `exec_params` functions, the number of arguments
+ * is normally known at compile time.  This helper function supports the case
+ * where it is not.
+ *
+ * Use this function to pass a variable number of parameters, based on a
+ * container of parameter values.
+ *
+ * The technique combines with the regular static parameters.  You can use it
+ * to insert dynamic parameter lists in any place, or places, among the call's
+ * parameters.  You can even insert multiple dynamic containers.
+ *
+ * @param container A container of parameter values.
+ * @param accessor For each parameter `p`, pass `accessor(p)`.
+ * @return An object representing the parameters.
+ */
+template<typename C, typename ACCESSOR>
+[[deprecated("Use the params class instead.")]] constexpr inline auto
+make_dynamic_params(C &container, ACCESSOR accessor)
+{
+  using IT = decltype(std::begin(container));
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+}
+} // namespace pqxx::prepare
 #endif

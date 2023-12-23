@@ -656,10 +656,15 @@ public:
    * zero.
    */
   //@{
+
   /// Execute an SQL statement with parameters.
+  /** This is like calling `exec()`, except it will substitute the first
+   * parameter after `query` (the first in `args`) for a `$1` in the query, the
+   * next one for `$2`, etc.
+   */
   template<typename... Args> result exec_params(zview query, Args &&...args)
   {
-    params pp(args...);
+    params pp{args...};
     return internal_exec_params(query, pp.make_c_params());
   }
 
@@ -686,8 +691,152 @@ public:
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
     auto const r{exec_params(query, std::forward<Args>(args)...)};
-    check_rowcount_params(rows, std::size(r));
+    // The cast isn't to get the type of the right width.  Automatic promotion
+    // will take care of that.  But we do need it unsigned first.
+    check_rowcount_params(rows, static_cast<unsigned>(std::size(r)));
     return r;
+  }
+
+  // Execute parameterised statement, expect exactly a given number of rows.
+  /** @throw unexpected_rows if the result contains the wrong number of rows.
+   */
+  template<typename... Args>
+  result exec_params_n(result::size_type rows, zview query, Args &&...args)
+  {
+    auto const r{exec_params(query, std::forward<Args>(args)...)};
+    // The casts aren't to get the type of the right width.  Automatic
+    // promotion will take care of that.  But we do need these unsigned first.
+    check_rowcount_params(
+      static_cast<unsigned>(rows), static_cast<unsigned>(std::size(r)));
+    return r;
+  }
+
+  /// Execute parameterised query, read full results, iterate rows of data.
+  /** Like @ref query, but the query can contain parameters.
+   *
+   * Converts each row of the result to a `std::tuple` of the types you pass
+   * as template arguments.  (The number of template arguments must match the
+   * number of columns in the query's result.)
+   *
+   * Example:
+   *
+   * ```cxx
+   *     for (
+   *         auto [name, salary] :
+   *             tx.query<std::string_view, int>(
+   *                 "SELECT name, salary FROM employee"
+                 )
+   *     )
+   *         std::cout << name << " earns " << salary << ".\n";
+   * ```
+   *
+   * You can't normally convert a field value to `std::string_view`, but this
+   * is one of the places where you can.  The underlying string to which the
+   * `string_view` points exists only for the duration of the one iteration.
+   * After that, the buffer that holds the actual string may have disappeared,
+   * or it may contain a new string value.
+   *
+   * If you expect a lot of rows from your query, it's probably faster to use
+   * transaction_base::stream() instead.  Or if you need to access metadata of
+   * the result, such as the number of rows in the result, or the number of
+   * rows that your query updates, then you'll need to use
+   * transaction_base::exec() instead.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query(zview query, params const &parms)
+  {
+    return exec_params(query, parms).iter<TYPE...>();
+  }
+
+  /// Perform query parameterised, expect given number of rows, iterate results.
+  /** Works like @ref query, but checks that the result has exactly the
+   * expected number of rows.
+   *
+   * @throw unexpected_rows If the query returned the wrong number of rows.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query_n(
+    result::size_type rows, zview query, params const &parms)
+  {
+    return exec_params_n(rows, query, parms).iter<TYPE...>();
+  }
+
+  /// Perform query, expecting exactly 1 row with 1 field, and convert it.
+  /** This is convenience shorthand for querying exactly one value from the
+   * database.  It returns that value, converted to the type you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the row did not contain exactly 1 field.
+   */
+  template<typename TYPE> TYPE query_value(zview query, params const &parms)
+  {
+    row const r{exec_params1(query, parms)};
+    if (std::size(r) != 1)
+      throw usage_error{internal::concat(
+        "Queried single value from result with ", std::size(r), " columns.")};
+    return r[0].as<TYPE>();
+  }
+
+  /// Perform query returning exactly one row, and convert its fields.
+  /** This is a convenient way of querying one row's worth of data, and
+   * converting its fields to a tuple of the C++-side types you specify.
+   *
+   * @throw unexpected_rows If the query did not return exactly 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::tuple<TYPE...> query1(zview query, params const &parms)
+  {
+    result const r{exec_params_n(1, query, parms)};
+    return r[0].as<TYPE...>();
+  }
+
+  /// Query at most one row of data, and if there is one, convert it.
+  /** If the query produced a row of data, this converts it to a tuple of the
+   * C++ types you specify.  Otherwise, this returns no tuple.
+   *
+   * @throw unexpected_rows If the query returned more than 1 row.
+   * @throw usage_error If the number of columns in the result does not match
+   * the number of fields in the tuple.
+   */
+  template<typename... TYPE>
+  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(
+    zview query, params const &parms)
+  {
+    result res{exec_params(query, parms)};
+    auto const rows{std::size(res)};
+    switch (rows)
+    {
+    case 0: return {};
+    case 1: return {res[0].as<TYPE...>()};
+    default:
+      throw unexpected_rows{internal::concat(
+        "Expected at most one row of data, got "sv, rows, "."sv)};
+    }
+  }
+
+  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Execute a query, load the full result, and perform `func` for each row.
+  /** The query may use parameters.  So for example, the query may contain `$1`
+   * to denote the first parameter value in `parms`, and so on.
+   *
+   * Converts each row to data types matching `func`'s parameter types.  The
+   * number of columns in the result set must match the number of parameters.
+   *
+   * This is a lot like for_stream().  The differences are:
+   * 1. It can execute some unusual queries that for_stream() can't.
+   * 2. The `exec` functions are faster for small results, but slower for large
+   *    results.
+   */
+  template<typename CALLABLE> void for_query(
+    zview query, CALLABLE &&func, params const &parms)
+  {
+    exec_params(query, parms).for_each(std::forward<CALLABLE>(func));
   }
   //@}
 
