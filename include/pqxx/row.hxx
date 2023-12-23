@@ -46,6 +46,8 @@ namespace pqxx
 class PQXX_LIBEXPORT row
 {
 public:
+  // TODO: Some of these types conflict: class is both iterator and container.
+  // TODO: Set iterator nested types using std::iterator_traits.
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using const_iterator = const_row_iterator;

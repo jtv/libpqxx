@@ -2,6 +2,7 @@
  - Support parameterised versions of `query()` etc. (#646)
  - Put all feature tests back in config header. (#732)
  - Automate integration of feature tests into both CMake & autoconf. (#747)
+ - Streaming query result implements `std::input_iterator`. (#771)
  - Fix broken `to_buf()` on `zview`. (#728)
  - Support `PQfsize()` and `PQfmod()`. (#727)
  - Implement conversion from `string_view` to string. (#728)
