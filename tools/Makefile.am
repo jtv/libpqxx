@@ -8,7 +8,7 @@ EXTRA_DIST = \
 	m4esc.py \
 	pqxxthreadsafety.cxx \
 	rmlo.cxx \
-	splitconfig \
+	splitconfig.py \
 	template2mak.py \
 	todo \
 	update-copyright
