@@ -291,6 +291,9 @@ public:
    *
    * @throws pqxx::usage_error if `func`'s number of parameters does not match
    * the number of columns in this result.
+   *
+   * The parameter types must have conversions from PostgreSQL's string format
+   * defined; see @ref datatypes.
    */
   template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
 

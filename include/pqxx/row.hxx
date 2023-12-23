@@ -182,6 +182,9 @@ public:
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
    *
+   * The types in the tuple must have conversions from PostgreSQL's text format
+   * defined; see @ref datatypes.
+   *
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `t`.
    */
@@ -193,6 +196,9 @@ public:
 
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
+   *
+   * The types must have conversions from PostgreSQL's text format defined;
+   * see @ref datatypes.
    *
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `t`.
