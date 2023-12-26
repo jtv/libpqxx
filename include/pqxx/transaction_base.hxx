@@ -263,12 +263,12 @@ public:
    * * The "stream" functions execute your query in a completely different way.
    *   Called _streaming queries,_ these don't support quite the full range of
    *   SQL queries, and they're a bit slower to start.  But they are
-   *   significantly *   _faster_ for queries that return larger numbers of
-   *   rows.  They don't load the entire result set, so you can start
-   *   processing data as soon as the first row of data comes in from the
-   *   database.  This can save you a lot of time.  Processing itself may also
-   *   be faster.  And of course, it also means you don't need enough memory to
-   *   hold the entire result set, just the row you're working on.
+   *   significantly _faster_ for queries that return larger numbers of rows.
+   *   They don't load the entire result set, so you can start processing data
+   *   as soon as the first row of data comes in from the database.  This can
+   *   This can save you a lot of time.  Processing itself may also be faster.
+   *   And of course, it also means you don't need enough memory to hold the
+   *   entire result set, just the row you're working on.
    * * The "exec" functions are a more low-level interface.  Most of them
    *   return a pqxx::result object.  This is an object that contains all
    *   information abouut the query's result: the data itself, but also the
@@ -457,13 +457,15 @@ public:
     }
   }
 
-  /// Execute a query, and loop over the results row by row.
+  /// Execute a query, in streaming fashion; loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
    * Use this with a range-based "for" loop.  It executes the query, and
    * directly maps the resulting rows onto a `std::tuple` of the types you
    * specify.  Unlike with the "exec" functions, processing can start before
    * all the data from the server is in.
+   *
+   * Streaming is also documented in @ref streams.
    *
    * The column types must all be types that have conversions from PostgreSQL's
    * text format defined.  Many built-in types such as `int` or `std::string`
