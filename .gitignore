@@ -47,3 +47,6 @@ win32/common
 **/runner.log
 **/runner.trs
 **/test-suite.log
+
+# GSS ignores
+build/
