@@ -105,12 +105,15 @@ private:
   bool done() const noexcept { return m_home->done(); }
 
   /// Read a line from the stream, store it in the iterator.
+  /** Replaces the newline at the end with a tab, as a sentinel to simplify
+   * (and thus hopefully speed up) the field parsing loop.
+   */
   void consume_line() &
   {
     auto [line, size]{m_home->read_line()};
     m_line = std::move(line);
     m_line_size = size;
-    if (size > 0)
+    if (m_line)
     {
       // We know how many fields to expect.  Replace the newline at the end
       // with the field separator, so the parsing loop only needs to scan for a

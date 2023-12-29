@@ -174,7 +174,7 @@ private:
     auto const line_size{std::size(line)};
 #endif
 
-    assert(offset < line_size);
+    assert(offset <= line_size);
 
     char const *lp{std::data(line)};
 
@@ -267,7 +267,7 @@ private:
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
 
-    assert(offset < std::size(line));
+    assert(offset <= std::size(line));
 
     auto [new_offset, new_write, text]{read_field(line, offset, write)};
     offset = new_offset;

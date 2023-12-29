@@ -188,6 +188,7 @@ void test_string_view_conversion()
   PQXX_CHECK(
     std::begin(buf) < end and end < std::end(buf),
     "string_view into_buf did not stay within its buffer.");
+  assert(end > std::begin(buf));
   PQXX_CHECK(
     *(end - 1) == '\0', "string_view into_buf did not zero-terminate.");
   PQXX_CHECK_EQUAL(

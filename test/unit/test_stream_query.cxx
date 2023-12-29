@@ -192,6 +192,36 @@ void test_stream_handles_nulls_in_all_places()
 }
 
 
+void test_stream_handles_empty_string()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  std::string out{"<uninitialised>"};
+  for (auto [empty] : tx.stream<std::string_view>("SELECT ''"))
+    out = empty;
+  PQXX_CHECK_EQUAL(out, "", "Empty string_view parsed wrong.");
+
+  out = "<uniniutialised>";
+  int num{0};
+  for (auto [i, s] : tx.stream<int, std::string_view>("SELECT 99, ''"))
+  {
+    num = i;
+    out = s;
+  }
+  PQXX_CHECK_EQUAL(num, 99, "Integer came out wrong before empty string.");
+  PQXX_CHECK_EQUAL(out, "", "Final empty string came out wrong.");
+
+  for (auto [s2, i2] : tx.stream<std::string_view, int>("SELECT '', 33"))
+  {
+    out = s2;
+    num = i2;
+  }
+  PQXX_CHECK_EQUAL(out, "", "Leading empty string came out wrong.");
+  PQXX_CHECK_EQUAL(num, 33, "Integer came out wrong after empty string.");
+}
+
+
 PQXX_REGISTER_TEST(test_stream_handles_empty);
 PQXX_REGISTER_TEST(test_stream_does_escaping);
 PQXX_REGISTER_TEST(test_stream_reads_simple_values);
@@ -200,4 +230,5 @@ PQXX_REGISTER_TEST(test_stream_iterates);
 PQXX_REGISTER_TEST(test_stream_reads_nulls_as_optionals);
 PQXX_REGISTER_TEST(test_stream_parses_awkward_strings);
 PQXX_REGISTER_TEST(test_stream_handles_nulls_in_all_places);
+PQXX_REGISTER_TEST(test_stream_handles_empty_string);
 } // namespace
