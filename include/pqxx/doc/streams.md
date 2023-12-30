@@ -76,7 +76,8 @@ the value types you ask for:
 ```
 
 On each iteration, the stream gives you a `std::tuple` of the column types you
-specify.  It converts the row's fields (which internally arrive at the client in text format) to your chosen types.
+specify.  It converts the row's fields (which internally arrive at the client
+in text format) to your chosen types.
 
 The `auto [name, score]` in the example is a _structured binding_ which unpacks
 the tuple's fields into separate variables.  If you prefer, you can choose to
