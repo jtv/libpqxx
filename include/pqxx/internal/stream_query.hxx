@@ -185,10 +185,10 @@ private:
 
     if ((lp[offset] == '\\') and (lp[offset + 1] == 'N'))
     {
-      // Null field.
-      assert(lp[offset + 2] == '\t');
-      // Consume the "\N" and the field separator.
+      // Null field.  Consume the "\N" and the field separator.
       offset += 3;
+      assert(offset <= (line_size + 1));
+      assert(lp[offset - 1] == '\t');
       // Return a null value.  There's nothing to write into m_row.
       return {offset, write, {}};
     }
