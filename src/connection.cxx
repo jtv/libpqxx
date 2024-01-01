@@ -747,6 +747,8 @@ pqxx::result pqxx::connection::exec_prepared(
 
 void pqxx::connection::close()
 {
+  // Just in case PQfinish() doesn't handle nullptr nicely.
+  if (m_conn == nullptr) return;
   try
   {
     if (m_trans)
