@@ -67,6 +67,7 @@ endmacro()
 file(GLOB CXX_SOURCES *.cxx)
 
 add_library(pqxx ${CXX_SOURCES})
+add_library(libpqxx::pqxx ALIAS pqxx)
 
 get_target_property(pqxx_target_type pqxx TYPE)
 if(pqxx_target_type STREQUAL "SHARED_LIBRARY")
