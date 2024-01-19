@@ -1,5 +1,6 @@
 7.9.0
  - Fix assertion failure when streaming row ending in empty string. (#774)
+ - CMake users can `shared_link_libraries(... libpqxx::pqxx)`. (#785)
  - Support parameterised versions of `query()` etc. (#646)
  - Put all feature tests back in config header. (#732)
  - Automate integration of feature tests into both CMake & autoconf. (#747)

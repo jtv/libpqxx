@@ -69,7 +69,7 @@ class stream_query_end_iterator
  * the transaction while the stream is open.
  *
  * Usually you'll want the `stream` convenience wrapper in
- * @ref transaction_base, * so you don't need to deal with this class directly.
+ * @ref transaction_base, so you don't need to deal with this class directly.
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
