@@ -14,6 +14,36 @@ PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
 ARGS="${1:-}"
 
 
+set_up() {
+    MY_VENV="$(mktemp -d)"
+    if [ -z "$MY_VENV" ]
+    then
+        echo "Failed to set up virtualenv." >&2
+        exit 2
+    fi
+    virtualenv -q "$MY_VENV"
+    # shellcheck disable=SC1091
+    . "$MY_VENV/bin/activate"
+    pip install -q pyflakes ruff shellcheck-py
+}
+
+
+clean_up() {
+    if [ -n "${MY_VENV:-}" ] && [ "${VIRTUAL_ENV:-x}" = "${MY_VENV:-y}" ]
+    then
+        deactivate || true
+    fi
+    if [ -n "${MY_VENV:-}" ] && [ -d "${MY_VENV:-/nonexistent/dir}" ]
+    then
+        rm -r "$MY_VENV"
+    fi
+}
+
+
+trap clean_up EXIT
+set_up
+
+
 # Check that all source code is ASCII.
 #
 # I'd love to have rich Unicode, but I can live without it.  But we don't want
@@ -64,12 +94,8 @@ count_includes() {
 match_pre_post_headers() {
     local NAME TEMPDIR PRE POST
     NAME="$1"
-    TEMPDIR="$(mktemp -d)"
-    if test -z "$TEMPDIR"
-    then
-        echo >&2 "Could not create temporary directory."
-        exit 1
-    fi
+    TEMPDIR="$MY_VENV/tmp-lint"
+    mkdir -p  "$TEMPDIR"
     PRE="$TEMPDIR/pre"
     POST="$TEMPDIR/post"
     count_includes "$SRCDIR/$NAME-pre.hxx" >"$PRE"
@@ -99,36 +125,35 @@ check_compiler_internal_headers() {
 cpplint() {
     local cxxflags dialect includes
 
-    if which clang-tidy >/dev/null
+    pip install -q clang-tidy
+    if [ -e compile_flags ]
     then
-        if [ -e compile_flags ]
-        then
-            # Pick out relevant flags, but leave out the rest.
-            # If we're not compiling with clang, compile_flags may contain
-            # options that clang-tidy doesn't recognise.
-            dialect="$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)"
-            includes="$(
-                grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
-                true)"
-        else
-            dialect=""
-            includes=""
-        fi
+        # Pick out relevant flags, but leave out the rest.
+        # If we're not compiling with clang, compile_flags may contain
+        # options that clang-tidy doesn't recognise.
+        dialect="$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)"
+        includes="$(
+            grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
+            true)"
+    else
+        dialect=""
+        includes=""
+    fi
 
-        cxxflags="$dialect $includes"
+    cxxflags="$dialect $includes"
 
 # TODO: Please, is there any way we can parallelise this?
 # TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
 # TODO: Some useful checks in abseil-*, but it recommends "use our library."
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
-        clang-tidy \
-            "$(find "$SRCDIR"/src "$SRCDIR"/tools -name \*.cxx)" \
-            --checks=boost-*, \
-            -- \
-            -I"$SRCDIR/include" -Iinclude "$cxxflags"
-    fi
+    clang-tidy \
+        "$(find "$SRCDIR"/src "$SRCDIR"/tools -name \*.cxx)" \
+        --checks=boost-*, \
+        -- \
+        -I"$SRCDIR/include" -Iinclude "$cxxflags"
 
     # Run Facebook's "infer" static analyser, if available.
+    # A "pip install" didn't work for me: No module named 'nltk'.
     # Instructions here: https://fbinfer.com/docs/getting-started/
     if which infer >/dev/null
     then
@@ -142,36 +167,22 @@ cpplint() {
 
 
 pylint() {
-    local venv="$(mktemp -d)"
-    virtualenv "$venv"
-    # shellcheck disable=SC1091
-    . "$venv/bin/activate"
-    pip install pyflakes ruff
-
     pyflakes "$SRCDIR"/tools/*.py
     ruff "$SRCDIR"/tools/*.py
-
-    deactivate
-    rm -r "$venv"
 }
 
 
 shelllint() {
     local TLS="deprecations extract_version format lint todo update-copyright"
-    if which shellcheck >/dev/null
-    then
-        shellcheck "$SRCDIR/autogen.sh"
-        for s in $TLS
-        do
-            shellcheck "$SRCDIR/tools/$s"
-        done
-    else
-        echo "No shellcheck found.  Skipping."
-    fi
+    shellcheck "$SRCDIR/autogen.sh"
+    for s in $TLS
+    do
+        shellcheck "$SRCDIR/tools/$s"
+    done
 }
 
 
-markdownlint() {
+mdlint() {
     if which mdl >/dev/null
     then
         find . -name \*.md -exec mdl -c .markdownlint.yaml '{}' ';'
@@ -210,7 +221,7 @@ EOF
     shelllint
     check_news_version
     check_compiler_internal_headers
-    markdownlint
+    mdlint
     if [ $full == "yes" ]
     then
         cpplint
