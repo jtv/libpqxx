@@ -125,7 +125,7 @@ check_compiler_internal_headers() {
 cpplint() {
     local dialect includes
 
-    #pip install -q clang-tidy
+    pip install -q clang-tidy
     if [ -e compile_flags ]
     then
         # Pick out relevant flags, but leave out the rest.
