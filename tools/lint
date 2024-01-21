@@ -123,9 +123,9 @@ check_compiler_internal_headers() {
 
 
 cpplint() {
-    local cxxflags dialect includes
+    local dialect includes
 
-    pip install -q clang-tidy
+    #pip install -q clang-tidy
     if [ -e compile_flags ]
     then
         # Pick out relevant flags, but leave out the rest.
@@ -140,17 +140,15 @@ cpplint() {
         includes=""
     fi
 
-    cxxflags="$dialect $includes"
-
 # TODO: Please, is there any way we can parallelise this?
 # TODO: I'd like cppcoreguidelines-*, but it's a tsunami of false positives.
 # TODO: Some useful checks in abseil-*, but it recommends "use our library."
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
-    clang-tidy \
-        "$(find "$SRCDIR"/src "$SRCDIR"/tools -name \*.cxx)" \
-        --checks=boost-*, \
+    # shellcheck disable=SC2086,2046
+    clang-tidy "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
+        '--checks=boost-*', \
         -- \
-        -I"$SRCDIR/include" -Iinclude "$cxxflags"
+        -I"$SRCDIR/include" -Iinclude $dialect $includes
 
     # Run Facebook's "infer" static analyser, if available.
     # A "pip install" didn't work for me: No module named 'nltk'.
