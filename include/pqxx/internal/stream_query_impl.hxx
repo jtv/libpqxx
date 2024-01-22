@@ -43,9 +43,10 @@ template<typename... TYPE> class stream_query_input_iterator
 
 public:
   using value_type = std::tuple<TYPE...>;
+  using difference_type = long;
 
   explicit stream_query_input_iterator(stream_t &home) :
-          m_home(home),
+          m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
             nullptr, pqxx::internal::pq::pqfreemem)}
   {
@@ -54,7 +55,7 @@ public:
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
 
-  /// Pre-increment.  (There's no post-increment.)
+  /// Pre-increment.  This is what you'd normally want to use.
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
@@ -62,10 +63,19 @@ public:
     return *this;
   }
 
+  /// Post-increment.  Only here to satisfy input_iterator concept.
+  /** The iterator that this returns is in an unusable state.
+   */
+  stream_query_input_iterator operator++(int)
+  {
+    ++*this;
+    return {};
+  }
+
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    return m_home.parse_line(zview{m_line.get(), m_line_size});
+    return m_home->parse_line(zview{m_line.get(), m_line_size});
   }
 
   /// Are we at the end?
@@ -76,17 +86,34 @@ public:
     return not done();
   }
 
+  stream_query_input_iterator &operator=(stream_query_input_iterator &&rhs)
+  noexcept
+  {
+    if (&rhs != this)
+    {
+      m_line = std::move(rhs.m_line);
+      m_home = rhs.m_home;
+      m_line_size = rhs.m_line_size;
+    }
+    return *this;
+  }
+
 private:
+  stream_query_input_iterator() {}
+
   /// Have we finished?
-  bool done() const noexcept { return m_home.done(); }
+  bool done() const noexcept { return m_home->done(); }
 
   /// Read a line from the stream, store it in the iterator.
+  /** Replaces the newline at the end with a tab, as a sentinel to simplify
+   * (and thus hopefully speed up) the field parsing loop.
+   */
   void consume_line() &
   {
-    auto [line, size]{m_home.read_line()};
+    auto [line, size]{m_home->read_line()};
     m_line = std::move(line);
     m_line_size = size;
-    if (size > 0)
+    if (m_line)
     {
       // We know how many fields to expect.  Replace the newline at the end
       // with the field separator, so the parsing loop only needs to scan for a
@@ -97,7 +124,7 @@ private:
     }
   }
 
-  stream_t &m_home;
+  stream_t *m_home;
 
   /// Last COPY line we read, allocated by libpq.
   typename stream_t::line_handle m_line;

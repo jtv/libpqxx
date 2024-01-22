@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2024, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -46,6 +46,8 @@ namespace pqxx
 class PQXX_LIBEXPORT row
 {
 public:
+  // TODO: Some of these types conflict: class is both iterator and container.
+  // TODO: Set iterator nested types using std::iterator_traits.
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using const_iterator = const_row_iterator;

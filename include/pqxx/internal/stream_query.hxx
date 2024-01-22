@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_query instead.
  *
- * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2024, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -69,7 +69,7 @@ class stream_query_end_iterator
  * the transaction while the stream is open.
  *
  * Usually you'll want the `stream` convenience wrapper in
- * @ref transaction_base, * so you don't need to deal with this class directly.
+ * @ref transaction_base, so you don't need to deal with this class directly.
  *
  * @warning While a stream is active, you cannot execute queries, open a
  * pipeline, etc. on the same transaction.  A transaction can have at most one
@@ -174,7 +174,7 @@ private:
     auto const line_size{std::size(line)};
 #endif
 
-    assert(offset < line_size);
+    assert(offset <= line_size);
 
     char const *lp{std::data(line)};
 
@@ -185,10 +185,10 @@ private:
 
     if ((lp[offset] == '\\') and (lp[offset + 1] == 'N'))
     {
-      // Null field.
-      assert(lp[offset + 2] == '\t');
-      // Consume the "\N" and the field separator.
+      // Null field.  Consume the "\N" and the field separator.
       offset += 3;
+      assert(offset <= (line_size + 1));
+      assert(lp[offset - 1] == '\t');
       // Return a null value.  There's nothing to write into m_row.
       return {offset, write, {}};
     }
@@ -267,7 +267,7 @@ private:
     using field_type = strip_t<TARGET>;
     using nullity = nullness<field_type>;
 
-    assert(offset < std::size(line));
+    assert(offset <= std::size(line));
 
     auto [new_offset, new_write, text]{read_field(line, offset, write)};
     offset = new_offset;

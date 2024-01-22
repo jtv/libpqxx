@@ -3,20 +3,23 @@ Streams                                                           {#streams}
 
 Most of the time it's fine to retrieve data from the database using `SELECT`
 queries, and store data using `INSERT`.  But for those cases where efficiency
-matters, there are two classes to help you do this better: `stream_from` and
-`stream_to`.  They're less flexible than SQL queries, and there's the risk of
-losing your connection while you're in mid-stream, but you get some speed and
+matters, there are two _data streaming_ mechanisms to help you do this more
+efficiently: "streaming queries," for reading query results from the
+database; and the @ref pqxx::stream_to class, for writing data from the client
+into a table.
+
+These are less flexible than SQL queries.  Also, depending on your needs, it
+may be a problem to lose your connection while you're in mid-stream, not
+knowing that the query may not complete.  But, you get some scalability and
 memory efficiencies in return.
 
-Both stream classes do data conversion for you: `stream_from` receives values
-from the database in PostgreSQL's text format, and converts them to the C++
-types you specify.  Likewise, `stream_to` converts C++ values you provide to
-PostgreSQL's text format for transfer.  (On its end, the database of course
-converts values to and from their SQL types.)
+Just like regular querying, these streaming mechanisms do data conversion for
+you.  You deal with the C++ data types, and the database deals with the SQL
+data types.
 
 
-Null values
------------
+Interlude: null values
+----------------------
 
 So how do you deal with nulls?  It depends on the C++ type you're using.  Some
 types may have a built-in null value.  For instance, if you have a
@@ -41,48 +44,112 @@ wrappers and smart pointers by copying the implementation patterns from the
 existing smart-pointer support.
 
 
-stream\_from
-------------
+Streaming data _from a query_
+-----------------------------
 
-Use `stream_from` to read data directly from the database.  It's faster than
-the transaction's `exec` functions if the result contains enough rows.  But
-also, you won't need to keep your full result set in memory.  That can really
+Use @ref transaction_base::stream to read large amounts of data directly from
+the database.  In terms of API it works just like @ref transaction_base::query,
+but it's faster than the `exec` and `query` functions For larger data sets.
+Also, you won't need to keep your full result set in memory.  That can really
 matter with larger data sets.
 
-And, you can start processing your data right after the first row of data comes
-in from the server.  With `exec()` you need to wait to receive all data, and
-then you begin processing.  With `stream_from` you can be processing data on
-the client side while the server is still sending you the rest.
-
-You don't actually need to create a `stream_from` object yourself, though you
-can if you want to.  Two shorthand functions,
-@ref pqxx::transaction_base::stream and @ref pqxx::transaction_base::for_stream,
-can each create the streams for you with a minimum of overhead.
+Another performance advantage is that with a streaming query, you can start
+processing your data right after the first row of data comes in from the
+server.  With `exec()` or `query()` you need to wait to receive all data, and
+only then can you begin processing.  With streaming queries you can be
+processing data on the client side while the server is still sending you the
+rest.
 
 Not all kinds of queries will work in a stream.  Internally the streams make
 use of PostgreSQL's `COPY` command, so see the PostgreSQL documentation for
 `COPY` for the exact limitations.  Basic `SELECT` and `UPDATE ... RETURNING`
-queries should just work.
+queries will just work, but fancier constructs may not.
 
 As you read a row, the stream converts its fields to a tuple type containing
 the value types you ask for:
 
 ```cxx
-    auto stream pqxx::stream_from::query(
-        tx, "SELECT name, points FROM score");
-    std::tuple<std::string, int> row;
-    while (stream >> row)
-      process(row);
-    stream.complete();
+    for (auto [name, score] :
+        tx.stream<std::string_view, int>("SELECT name, points FROM score")
+    )
+        process(name, score);
 ```
 
-As the stream reads each row, it converts that row's data into your tuple,
-goes through your loop body, and then promptly forgets that row's data.  This
-means you can easily process more data than will fit in memory.
+On each iteration, the stream gives you a `std::tuple` of the column types you
+specify.  It converts the row's fields (which internally arrive at the client
+in text format) to your chosen types.
+
+The `auto [name, score]` in the example is a _structured binding_ which unpacks
+the tuple's fields into separate variables.  If you prefer, you can choose to
+receive the tuple instead: `for (std::tuple<int, std::string_view> :`.
 
 
-stream\_to
-----------
+### Is streaming right for my query?
+
+Here are the things you need to be aware of when deciding whether to stream a
+query, or just execute it normally.
+
+First, when you stream a query, there is no metadata describing how many rows
+it returned, what the columns are called, and so on.  With a regular query you
+get a @ref result object which contains this metadata as well as the data
+itself.  If you absolutely need this metadata for a particular query, then
+that means you can't stream the query.
+
+Second, under the bonnet, streaming from a query uses a PostgreSQL-specific SQL
+command `COPY (...) TO STDOUT`.  There are some limitations on what kinds of
+queries this command can handle.  These limitations may change over time, so I
+won't describe them here.  Instead, see PostgreSQL's
+[COPY documentation](https://www.postgresql.org/docs/current/sql-copy.html)
+for the details.  (Look for the `TO` variant, with a query as the data source.)
+
+Third: when you stream a query, you start receiving and processing data before
+you even know whether you will receive all of the data.  If you lose your
+connection to the database halfway through, you will have processed half your
+data, unaware that the query may never execute to completion.  If this is a
+problem for your application, don't stream that query!
+
+The fourth and final factor is performance.  If you're interested in streaming,
+obviously you care about this one.
+
+I can't tell you _a priori_ whether streaming will make your query faster.  It
+depends on how many rows you're retrieving, how much data there is in those
+rows, the speed of your network connection to the database, your client
+encoding, how much processing you do per row, and the details of the
+client-side system: hardware speed, CPU load, and available memory.
+
+Ultimately, no amount of theory beats real-world measurement for your specific
+situation so...  if it really matters, measure.  (And as per Knuth's Law: if
+it doesn't really matter, don't optimise.)
+
+That said, here are a few data points from some toy benchmarks:
+
+If your query returns e.g. a hundred small rows, it's not likely to make up a
+significant portion of your application's run time.  Streaming is likely to be
+_slower_ than regular querying, but most likely the difference just won't
+amtter.
+
+If your query returns _a thousand_ small rows, streaming is probably still
+going to be a bit slower than regular querying, though "your mileage may vary."
+
+If you're querying _ten thousand_ small rows, however, it becomes more likely
+that streaming will speed it up.  The advantage increases as the number of rows
+increases.
+
+That's for small rows, based on a test where each row consisted of just one
+integer number.  If your query returns larger rows, with more columns,
+I find that streaming seems to become more attractive.  In a simple test with 4
+columns (two integers and two strings), streaming even just a thousand rows was
+considerably faster than a regular query.
+
+If your network connection to the database is slow, however, that may make
+streaming a bit _less_ effcient.  There is a bit more communication back and
+forth between the client and the database to set up a stream.  This overhead
+takes a more or less constant amount of time, so for larger data sets it will
+tend to become insignificant compared to the other performance costs.
+
+
+Streaming data _into a table_
+-----------------------------
 
 Use `stream_to` to write data directly to a database table.  This saves you
 having to perform an `INSERT` for every row, and so it can be significantly

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/connection instead.
  *
- * Copyright (c) 2000-2023, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2024, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -1099,6 +1099,12 @@ private:
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
   friend struct internal::gate::connection_stream_from;
+  /// Read a line of COPY output.
+  /** If the output indicates that the COPY has ended, the buffer pointer
+   * will be null and the size will be zero.  Otherwise, the pointer will hold
+   * a buffer containing the line, and size will be its length not including
+   * the newline at the end.
+   */
   std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
   read_copy_line();
 
