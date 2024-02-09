@@ -298,15 +298,14 @@ struct byte_char_traits : std::char_traits<char>
     return std::memcmp(a, b, size);
   }
 
-// XXX: See if we can leave this undefined.
-  // This is nonsense: we can't determine the length of a random sequence of
-  // bytes.
-  // But std::char_traits requires us to implement this so we treat 0 as a
-  // terminator for our "string".
-  static size_t length(const std::byte *data)
-  {
-    return std::strlen(reinterpret_cast<const char*>(data));
-  }
+  /// Deliberately undefined: "guess" the length of an array of bytes.
+  /* This is nonsense: we can't determine the length of a random sequence of
+   * bytes.  There is no terminating zero like there is for C strings.
+   *
+   * But `std::char_traits` requires us to provide this function, so we
+   * declare it without defining it.
+   */
+  static size_t length(const std::byte *data);
 
   static const std::byte *
   find(const std::byte *data, std::size_t size, const std::byte &value)
