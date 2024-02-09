@@ -146,8 +146,8 @@ public:
     }
     else
     {
-      auto const bytes{c_str()};
-      from_string(bytes, obj);
+      auto const data{c_str()};
+      from_string(data, obj);
       return true;
     }
   }
