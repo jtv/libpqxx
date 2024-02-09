@@ -280,10 +280,11 @@ struct PQXX_LIBEXPORT thread_safety_model
 #  define PQXX_POTENTIAL_BINARY_ARG typename
 #endif
 
-// A custom std::char_traits if the standard library lacks a generic
-// implementation or a specialisation for std::byte. Notably they aren't
-// required to provide either.
-// libc++ 19 removed its generic implementation.
+/// Custom `std::char_trast` if the compiler does not provide one.
+/** Needed if the standard library lacks a generic implementation or a
+ * specialisation for std::byte.  They aren't strictly required to provide
+ * either, and libc++ 19 removed its generic implementation.
+ */
 struct byte_char_traits : std::char_traits<char>
 {
   using char_type = std::byte;
@@ -297,14 +298,14 @@ struct byte_char_traits : std::char_traits<char>
     return std::memcmp(a, b, size);
   }
 
-  // This is nonsense: we can't determine the length of a random sequence of
-  // bytes.
-  // But std::char_traits requires us to implement this so we treat 0 as a
-  // terminator for our "string".
-  static size_t length(const std::byte *data)
-  {
-    return std::strlen(reinterpret_cast<const char*>(data));
-  }
+  /// Deliberately undefined: "guess" the length of an array of bytes.
+  /* This is nonsense: we can't determine the length of a random sequence of
+   * bytes.  There is no terminating zero like there is for C strings.
+   *
+   * But `std::char_traits` requires us to provide this function, so we
+   * declare it without defining it.
+   */
+  static size_t length(const std::byte *data);
 
   static const std::byte *
   find(const std::byte *data, std::size_t size, const std::byte &value)
@@ -360,23 +361,28 @@ inline constexpr bool has_generic_bytes_char_traits =
 // Necessary for libc++ 18.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
-// Type alias for a container containing bytes.
-// Required to support standard libraries without a generic implementation for
-// std::char_traits<std::byte>.
-// WARNING: Will change to std::vector<std::byte> in the next major release.
+// C++20: Change this type.
+/// Type alias for a container containing bytes.
+/* Required to support standard libraries without a generic implementation for
+ * `std::char_traits<std::byte>`.
+ * @warn Will change to `std::vector<std::byte>` in the next major release.
+ */
 using bytes = std::conditional<
   has_generic_bytes_char_traits, std::basic_string<std::byte>,
   std::basic_string<std::byte, byte_char_traits>>::type;
 
-// Type alias for a view of bytes.
-// Required to support standard libraries without a generic implementation for
-// std::char_traits<std::byte>.
-// WARNING: Will change to std::span<std::byte> in the next major release.
+// C++20: Change this type.
+/// Type alias for a view of bytes.
+/* Required to support standard libraries without a generic implementation for
+ * `std::char_traits<std::byte>`.
+ * @warn Will change to `std::span<std::byte>` in the next major release.
+ */
 using bytes_view = std::conditional<
   has_generic_bytes_char_traits, std::basic_string_view<std::byte>,
   std::basic_string_view<std::byte, byte_char_traits>>::type;
 
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+
 
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
