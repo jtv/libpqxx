@@ -12,7 +12,7 @@ namespace
 void test_blob_is_useless_by_default()
 {
   pqxx::blob b{};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   PQXX_CHECK_THROWS(
     b.read(buf, 1), pqxx::usage_error,
     "Read on default-constructed blob did not throw failure.");
@@ -103,7 +103,7 @@ void test_blob_checks_open_mode()
   pqxx::blob b_w{pqxx::blob::open_w(tx, id)};
   pqxx::blob b_rw{pqxx::blob::open_rw(tx, id)};
 
-  std::basic_string<std::byte> buf{std::byte{3}, std::byte{2}, std::byte{1}};
+  pqxx::bytes buf{std::byte{3}, std::byte{2}, std::byte{1}};
 
   // These are all allowed:
   b_w.write(buf);
@@ -123,7 +123,7 @@ void test_blob_checks_open_mode()
 
 void test_blob_supports_move()
 {
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   buf.push_back(std::byte{'x'});
 
   pqxx::connection conn;
@@ -151,29 +151,26 @@ void test_blob_supports_move()
 
 void test_blob_read_reads_data()
 {
-  std::basic_string<std::byte> const data{
-    std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
+  pqxx::bytes const data{std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
   pqxx::oid id{pqxx::blob::from_buf(tx, data)};
 
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   auto b{pqxx::blob::open_rw(tx, id)};
   PQXX_CHECK_EQUAL(
     b.read(buf, 2), 2u, "Full read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{std::byte{'a'}, std::byte{'b'}}),
+    buf, (pqxx::bytes{std::byte{'a'}, std::byte{'b'}}),
     "Read back the wrong data.");
   PQXX_CHECK_EQUAL(
     b.read(buf, 2), 1u, "Partial read() returned an unexpected value.");
   PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{std::byte{'c'}}),
-    "Continued read produced wrong data.");
+    buf, (pqxx::bytes{std::byte{'c'}}), "Continued read produced wrong data.");
   PQXX_CHECK_EQUAL(
     b.read(buf, 2), 0u, "read at end returned an unexpected value.");
-  PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{}), "Read past end produced data.");
+  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{}), "Read past end produced data.");
 }
 
 
@@ -187,16 +184,15 @@ template<typename BYTE> inline unsigned byte_val(BYTE val)
 void test_blob_read_span()
 {
 #if defined(PQXX_HAVE_SPAN)
-  std::basic_string<std::byte> const data{std::byte{'u'}, std::byte{'v'},
-                                          std::byte{'w'}, std::byte{'x'},
-                                          std::byte{'y'}, std::byte{'z'}};
+  pqxx::bytes const data{std::byte{'u'}, std::byte{'v'}, std::byte{'w'},
+                         std::byte{'x'}, std::byte{'y'}, std::byte{'z'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
   pqxx::oid id{pqxx::blob::from_buf(tx, data)};
 
   auto b{pqxx::blob::open_r(tx, id)};
-  std::basic_string<std::byte> string_buf;
+  pqxx::bytes string_buf;
   string_buf.resize(2);
 
   std::span<std::byte> output;
@@ -244,7 +240,7 @@ void test_blob_reads_vector()
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::from_buf(
-    tx, std::basic_string_view<std::byte>{
+    tx, pqxx::bytes_view{
           reinterpret_cast<std::byte const *>(content), std::size(content)})};
   std::vector<std::byte> buf;
   buf.resize(10);
@@ -264,29 +260,26 @@ void test_blob_write_appends_at_insertion_point()
   auto id{pqxx::blob::create(tx)};
 
   auto b{pqxx::blob::open_rw(tx, id)};
-  b.write(std::basic_string<std::byte>{std::byte{'z'}});
-  b.write(std::basic_string<std::byte>{std::byte{'a'}});
+  b.write(pqxx::bytes{std::byte{'z'}});
+  b.write(pqxx::bytes{std::byte{'a'}});
 
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   b.read(buf, 5);
-  PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{}), "Found data at the end.");
+  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{}), "Found data at the end.");
   b.seek_abs(0);
   b.read(buf, 5);
   PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{std::byte{'z'}, std::byte{'a'}}),
+    buf, (pqxx::bytes{std::byte{'z'}, std::byte{'a'}}),
     "Consecutive writes did not append correctly.");
 
-  b.write(std::basic_string<std::byte>{std::byte{'x'}});
+  b.write(pqxx::bytes{std::byte{'x'}});
   // Blob now contains "zax".  That's not we wanted...  Rewind and rewrite.
   b.seek_abs(1);
-  b.write(std::basic_string<std::byte>{std::byte{'y'}});
+  b.write(pqxx::bytes{std::byte{'y'}});
   b.seek_abs(0);
   b.read(buf, 5);
   PQXX_CHECK_EQUAL(
-    buf,
-    (std::basic_string<std::byte>{
-      std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}),
+    buf, (pqxx::bytes{std::byte{'z'}, std::byte{'y'}, std::byte{'x'}}),
     "Rewriting in the middle did not work right.");
 }
 
@@ -297,7 +290,7 @@ void test_blob_writes_span()
   pqxx::connection conn;
   pqxx::work tx{conn};
   constexpr char content[]{"gfbltk"};
-  std::basic_string<std::byte> data{
+  pqxx::bytes data{
     reinterpret_cast<std::byte const *>(content), std::size(content)};
 
   auto id{pqxx::blob::create(tx)};
@@ -320,7 +313,7 @@ void test_blob_writes_span()
 
 void test_blob_resize_shortens_to_desired_length()
 {
-  std::basic_string<std::byte> const data{
+  pqxx::bytes const data{
     std::byte{'w'}, std::byte{'o'}, std::byte{'r'}, std::byte{'k'}};
 
   pqxx::connection conn;
@@ -328,10 +321,10 @@ void test_blob_resize_shortens_to_desired_length()
   auto id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::blob::open_w(tx, id).resize(2);
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(
-    buf, (std::basic_string<std::byte>{std::byte{'w'}, std::byte{'o'}}),
+    buf, (pqxx::bytes{std::byte{'w'}, std::byte{'o'}}),
     "Truncate did not shorten correctly.");
 }
 
@@ -340,14 +333,12 @@ void test_blob_resize_extends_to_desired_length()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  auto id{
-    pqxx::blob::from_buf(tx, std::basic_string<std::byte>{std::byte{100}})};
+  auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{100}})};
   pqxx::blob::open_w(tx, id).resize(3);
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(
-    buf,
-    (std::basic_string<std::byte>{std::byte{100}, std::byte{0}, std::byte{0}}),
+    buf, (pqxx::bytes{std::byte{100}, std::byte{0}, std::byte{0}}),
     "Resize did not zero-extend correctly.");
 }
 
@@ -361,7 +352,7 @@ void test_blob_tell_tracks_position()
 
   PQXX_CHECK_EQUAL(
     b.tell(), 0, "Empty blob started out in non-zero position.");
-  b.write(std::basic_string<std::byte>{std::byte{'e'}, std::byte{'f'}});
+  b.write(pqxx::bytes{std::byte{'e'}, std::byte{'f'}});
   PQXX_CHECK_EQUAL(
     b.tell(), 2, "Empty blob started out in non-zero position.");
   b.seek_abs(1);
@@ -371,15 +362,15 @@ void test_blob_tell_tracks_position()
 
 void test_blob_seek_sets_positions()
 {
-  std::basic_string<std::byte> data{
-    std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4},
-    std::byte{5}, std::byte{6}, std::byte{7}, std::byte{8}, std::byte{9}};
+  pqxx::bytes data{std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3},
+                   std::byte{4}, std::byte{5}, std::byte{6}, std::byte{7},
+                   std::byte{8}, std::byte{9}};
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::from_buf(tx, data)};
   auto b{pqxx::blob::open_r(tx, id)};
 
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   b.seek_rel(3);
   b.read(buf, 1u);
   PQXX_CHECK_EQUAL(
@@ -402,8 +393,8 @@ void test_blob_seek_sets_positions()
 
 void test_blob_from_buf_interoperates_with_to_buf()
 {
-  std::basic_string<std::byte> const data{std::byte{'h'}, std::byte{'i'}};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes const data{std::byte{'h'}, std::byte{'i'}};
+  pqxx::bytes buf;
   pqxx::connection conn;
   pqxx::work tx{conn};
   pqxx::blob::to_buf(tx, pqxx::blob::from_buf(tx, data), buf, 10);
@@ -413,13 +404,13 @@ void test_blob_from_buf_interoperates_with_to_buf()
 
 void test_blob_append_from_buf_appends()
 {
-  std::basic_string<std::byte> const data{std::byte{'h'}, std::byte{'o'}};
+  pqxx::bytes const data{std::byte{'h'}, std::byte{'o'}};
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::create(tx)};
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::blob::append_from_buf(tx, data, id);
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data + data, "append_from_buf() wrote wrong data?");
 }
@@ -445,8 +436,7 @@ my_fopen(char const *path, char const *mode)
 }
 
 
-void read_file(
-  char const path[], std::size_t len, std::basic_string<std::byte> &buf)
+void read_file(char const path[], std::size_t len, pqxx::bytes &buf)
 {
   buf.resize(len);
   auto f{my_fopen(path, "rb")};
@@ -458,7 +448,7 @@ void read_file(
 }
 
 
-void write_file(char const path[], std::basic_string_view<std::byte> data)
+void write_file(char const path[], pqxx::bytes_view data)
 {
   try
   {
@@ -482,8 +472,7 @@ class TempFile
 {
 public:
   /// Create (and later clean up) a file at path containing data.
-  TempFile(char const path[], std::basic_string_view<std::byte> data) :
-          m_path(path)
+  TempFile(char const path[], pqxx::bytes_view data) : m_path(path)
   {
     write_file(path, data);
   }
@@ -499,11 +488,11 @@ private:
 void test_blob_from_file_creates_blob_from_file_contents()
 {
   char const temp_file[] = "blob-test-from_file.tmp";
-  std::basic_string<std::byte> const data{std::byte{'4'}, std::byte{'2'}};
+  pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
 
   pqxx::oid id;
   {
@@ -517,9 +506,9 @@ void test_blob_from_file_creates_blob_from_file_contents()
 
 void test_blob_from_file_with_oid_writes_blob()
 {
-  std::basic_string<std::byte> const data{std::byte{'6'}, std::byte{'9'}};
+  pqxx::bytes const data{std::byte{'6'}, std::byte{'9'}};
   char const temp_file[] = "blob-test-from_file-oid.tmp";
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
 
   pqxx::connection conn;
   pqxx::work tx{conn};
@@ -539,14 +528,14 @@ void test_blob_from_file_with_oid_writes_blob()
 
 void test_blob_append_to_buf_appends()
 {
-  std::basic_string<std::byte> const data{
+  pqxx::bytes const data{
     std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::from_buf(tx, data)};
 
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   PQXX_CHECK_EQUAL(
     pqxx::blob::append_to_buf(tx, id, 0u, buf, 1u), 1u,
     "append_to_buf() returned unexpected value.");
@@ -563,14 +552,13 @@ void test_blob_append_to_buf_appends()
 
 void test_blob_to_file_writes_file()
 {
-  std::basic_string<std::byte> const data{
-    std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
+  pqxx::bytes const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 
   char const temp_file[] = "blob-test-to_file.tmp";
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto id{pqxx::blob::from_buf(tx, data)};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
 
   try
   {
@@ -591,11 +579,10 @@ void test_blob_close_leaves_blob_unusable()
 {
   pqxx::connection conn;
   pqxx::work tx{conn};
-  auto id{
-    pqxx::blob::from_buf(tx, std::basic_string<std::byte>{std::byte{1}})};
+  auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{1}})};
   auto b{pqxx::blob::open_rw(tx, id)};
   b.close();
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
   PQXX_CHECK_THROWS(
     b.read(buf, 1), pqxx::usage_error,
     "Reading from closed blob did not fail right.");
@@ -609,11 +596,11 @@ void test_blob_accepts_std_filesystem_path()
 #  if !defined(__GNUC__) || (__GNUC__ > 8)
 
   char const temp_file[] = "blob-test-filesystem-path.tmp";
-  std::basic_string<std::byte> const data{std::byte{'4'}, std::byte{'2'}};
+  pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection conn;
   pqxx::work tx{conn};
-  std::basic_string<std::byte> buf;
+  pqxx::bytes buf;
 
   TempFile f{temp_file, data};
   std::filesystem::path const path{temp_file};

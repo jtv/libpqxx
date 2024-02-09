@@ -104,7 +104,7 @@ public:
    * @warning The underlying protocol only supports reads up to 2GB at a time.
    * If you need to read more, try making repeated calls to @ref append_to_buf.
    */
-  std::size_t read(std::basic_string<std::byte> &buf, std::size_t size);
+  std::size_t read(bytes &buf, std::size_t size);
 
 #if defined(PQXX_HAVE_SPAN)
   /// Read up to `std::size(buf)` bytes from the object.
@@ -145,8 +145,7 @@ public:
    *
    * Returns the filled portion of `buf`.  This may be empty.
    */
-  template<typename ALLOC>
-  std::basic_string_view<std::byte> read(std::vector<std::byte, ALLOC> &buf)
+  template<typename ALLOC> bytes_view read(std::vector<std::byte, ALLOC> &buf)
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
@@ -234,14 +233,12 @@ public:
   /** You may optionally specify an oid for the new object.  If you do, and an
    * object with that oid already exists, creation will fail.
    */
-  static oid from_buf(
-    dbtransaction &tx, std::basic_string_view<std::byte> data, oid id = 0);
+  static oid from_buf(dbtransaction &tx, bytes_view data, oid id = 0);
 
   /// Append `data` to binary large object.
   /** The underlying protocol only supports appending blocks up to 2 GB.
    */
-  static void append_from_buf(
-    dbtransaction &tx, std::basic_string_view<std::byte> data, oid id);
+  static void append_from_buf(dbtransaction &tx, bytes_view data, oid id);
 
   /// Read client-side file and store it server-side as a binary large object.
   [[nodiscard]] static oid from_file(dbtransaction &, char const path[]);
@@ -283,9 +280,7 @@ public:
   /** You could easily do this yourself using the @ref open_r and @ref read
    * functions, but it can save you a bit of code to do it this way.
    */
-  static void to_buf(
-    dbtransaction &, oid, std::basic_string<std::byte> &,
-    std::size_t max_size);
+  static void to_buf(dbtransaction &, oid, bytes &, std::size_t max_size);
 
   /// Read part of the binary large object with `id`, and append it to `buf`.
   /** Use this to break up a large read from one binary large object into one
@@ -295,8 +290,8 @@ public:
    * `append_max` says how much to try and read in one go.
    */
   static std::size_t append_to_buf(
-    dbtransaction &tx, oid id, std::int64_t offset,
-    std::basic_string<std::byte> &buf, std::size_t append_max);
+    dbtransaction &tx, oid id, std::int64_t offset, bytes &buf,
+    std::size_t append_max);
 
   /// Write a binary large object's contents to a client-side file.
   static void to_file(dbtransaction &, oid, char const path[]);

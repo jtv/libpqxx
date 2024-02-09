@@ -66,10 +66,9 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(
     std::size(b), std::size(simple), "Escaping confuses length.");
 
-  std::string const simple_escaped{
-    tx.esc_raw(std::basic_string_view<std::byte>{
-      reinterpret_cast<std::byte const *>(std::data(simple)),
-      std::size(simple)})};
+  std::string const simple_escaped{tx.esc_raw(pqxx::bytes_view{
+    reinterpret_cast<std::byte const *>(std::data(simple)),
+    std::size(simple)})};
   for (auto c : simple_escaped)
   {
     auto const uc{static_cast<unsigned char>(c)};
@@ -152,8 +151,7 @@ void test_binarystring_stream()
   to.complete();
 
   auto ptr{reinterpret_cast<std::byte const *>(std::data(data))};
-  auto expect{
-    tx.quote(std::basic_string_view<std::byte>{ptr, std::size(data)})};
+  auto expect{tx.quote(pqxx::bytes_view{ptr, std::size(data)})};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT bin = " + expect + " FROM pqxxbinstream"),
     "binarystring did not stream_to properly.");
@@ -187,10 +185,8 @@ void test_binarystring_array_stream()
 
   auto ptr1{reinterpret_cast<std::byte const *>(std::data(data1))},
     ptr2{reinterpret_cast<std::byte const *>(std::data(data2))};
-  auto expect1{
-    tx.quote(std::basic_string_view<std::byte>{ptr1, std::size(data1)})},
-    expect2{
-      tx.quote(std::basic_string_view<std::byte>{ptr2, std::size(data2)})};
+  auto expect1{tx.quote(pqxx::bytes_view{ptr1, std::size(data1)})},
+    expect2{tx.quote(pqxx::bytes_view{ptr2, std::size(data2)})};
   PQXX_CHECK(
     tx.query_value<bool>("SELECT vec[1] = " + expect1 + " FROM pqxxbinstream"),
     "Bytea in array came out wrong.");

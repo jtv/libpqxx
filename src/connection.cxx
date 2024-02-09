@@ -941,8 +941,7 @@ pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
 }
 
 
-std::string
-pqxx::connection::esc_raw(std::basic_string_view<std::byte> bin) const
+std::string pqxx::connection::esc_raw(bytes_view bin) const
 {
   return pqxx::internal::esc_bin(bin);
 }
@@ -980,8 +979,7 @@ pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 }
 
 
-std::string
-pqxx::connection::quote_raw(std::basic_string_view<std::byte> bytes) const
+std::string pqxx::connection::quote_raw(bytes_view bytes) const
 {
   return internal::concat("'", esc_raw(bytes), "'::bytea");
 }
@@ -993,7 +991,7 @@ std::string PQXX_COLD pqxx::connection::quote(binarystring const &b) const
 }
 
 
-std::string pqxx::connection::quote(std::basic_string_view<std::byte> b) const
+std::string pqxx::connection::quote(bytes_view b) const
 {
   return internal::concat("'", esc_raw(b), "'::bytea");
 }

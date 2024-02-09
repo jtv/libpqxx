@@ -98,14 +98,13 @@ public:
   /** The underlying data must stay valid for as long as the `params`
    * remains active.
    */
-  void append(std::basic_string_view<std::byte>) &;
+  void append(bytes_view) &;
 
   /// Append a non-null binary parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the `std::basic_string_view<std::byte>` variant if you can, or
-   * `std::move()`.
+   * use the `pqxx::bytes_view` variant if you can, or `std::move()`.
    */
-  void append(std::basic_string<std::byte> const &) &;
+  void append(bytes const &) &;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Append a non-null binary parameter.
@@ -114,13 +113,12 @@ public:
    */
   template<binary DATA> void append(DATA const &data) &
   {
-    append(
-      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+    append(bytes_view{std::data(data), std::size(data)});
   }
 #endif // PQXX_HAVE_CONCEPTS
 
   /// Append a non-null binary parameter.
-  void append(std::basic_string<std::byte> &&) &;
+  void append(bytes &&) &;
 
   /// @deprecated Append binarystring parameter.
   /** The binarystring must stay valid for as long as the `params` remains
@@ -197,9 +195,8 @@ private:
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
   // contents.
-  using entry = std::variant<
-    std::nullptr_t, zview, std::string, std::basic_string_view<std::byte>,
-    std::basic_string<std::byte>>;
+  using entry =
+    std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
   std::vector<entry> m_params;
 
   static constexpr std::string_view s_overflow{

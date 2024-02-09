@@ -280,8 +280,7 @@ template<typename TYPE> struct forbidden_conversion
  * If you wanted a single-character string, use `std::string_view` (or a
  * similar type such as `std::string`).
  *
- * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
- * instead.
+ * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
 template<> struct string_traits<char> : forbidden_conversion<char>
 {};
@@ -299,8 +298,7 @@ template<> struct string_traits<char> : forbidden_conversion<char>
  * If you wanted a single-character string, use `std::string_view` (or a
  * similar type such as `std::string`).
  *
- * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
- * instead.
+ * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
 template<>
 struct string_traits<unsigned char> : forbidden_conversion<unsigned char>
@@ -319,8 +317,7 @@ struct string_traits<unsigned char> : forbidden_conversion<unsigned char>
  * If you wanted a single-character string, use `std::string_view` (or a
  * similar type such as `std::string`).
  *
- * Or if you had a raw byte in mind, try `std::basic_string_view<std::byte>`
- * instead.
+ * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
 template<>
 struct string_traits<signed char> : forbidden_conversion<signed char>
@@ -328,10 +325,10 @@ struct string_traits<signed char> : forbidden_conversion<signed char>
 
 
 /// You cannot convert a `std::byte` to/from SQL.
-/** To convert a raw byte value, use a `std::basic_string_view<std::byte>`.
+/** To convert a raw byte value, use a `bytes_view`.
  *
  * For example, to convert a byte `b` from C++ to SQL, convert the value
- * `std::basic_string_view<std::byte>{&b, 1}` instead.
+ * `pqxx::bytes_view{&b, 1}` instead.
  */
 template<> struct string_traits<std::byte> : forbidden_conversion<std::byte>
 {};

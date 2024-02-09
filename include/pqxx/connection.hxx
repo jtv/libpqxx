@@ -732,7 +732,7 @@ public:
         "Not enough room to escape binary string of ", size, " byte(s): need ",
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
 
-    std::basic_string_view<std::byte> view{std::data(data), std::size(data)};
+    bytes_view view{std::data(data), std::size(data)};
     auto const out{std::data(buffer)};
     // Actually, in the modern format, we know beforehand exactly how many
     // bytes we're going to fill.  Just leave out the trailing zero.
@@ -747,13 +747,12 @@ public:
 
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
-  [[nodiscard]] std::string esc_raw(std::basic_string_view<std::byte>) const;
+  [[nodiscard]] std::string esc_raw(bytes_view) const;
 
 #if defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** You can also just use @ref esc with a binary string. */
-  [[nodiscard]] std::string
-  esc_raw(std::basic_string_view<std::byte>, std::span<char> buffer) const;
+  [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
 #endif
 
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -762,8 +761,7 @@ public:
   template<binary DATA>
   [[nodiscard]] std::string esc_raw(DATA const &data) const
   {
-    return esc_raw(
-      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+    return esc_raw(bytes_view{std::data(data), std::size(data)});
   }
 #endif
 
@@ -785,17 +783,16 @@ public:
    * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
    * supported.)
    */
-  [[nodiscard]] std::basic_string<std::byte>
-  unesc_bin(std::string_view text) const
+  [[nodiscard]] bytes unesc_bin(std::string_view text) const
   {
-    std::basic_string<std::byte> buf;
+    bytes buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
     pqxx::internal::unesc_bin(text, buf.data());
     return buf;
   }
 
   /// Escape and quote a string of binary data.
-  std::string quote_raw(std::basic_string_view<std::byte>) const;
+  std::string quote_raw(bytes_view) const;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape and quote a string of binary data.
@@ -803,8 +800,7 @@ public:
   template<binary DATA>
   [[nodiscard]] std::string quote_raw(DATA const &data) const
   {
-    return quote_raw(
-      std::basic_string_view<std::byte>{std::data(data), std::size(data)});
+    return quote_raw(bytes_view{std::data(data), std::size(data)});
   }
 #endif
 
@@ -856,8 +852,7 @@ public:
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
-  [[nodiscard]] std::string
-  quote(std::basic_string_view<std::byte> bytes) const;
+  [[nodiscard]] std::string quote(bytes_view bytes) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
@@ -920,7 +915,7 @@ public:
   unesc_raw(char const text[]) const;
 
   /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(std::basic_string_view<std::byte>).")]] std::string
+  [[deprecated("Use quote(bytes_view).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const;
   //@}
 

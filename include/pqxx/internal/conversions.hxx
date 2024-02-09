@@ -872,8 +872,8 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
 
 
 template<>
-struct nullness<std::basic_string<std::byte>>
-        : no_null<std::basic_string<std::byte>>
+struct nullness<bytes>
+        : no_null<bytes>
 {};
 
 
@@ -916,7 +916,7 @@ template<binary DATA> struct string_traits<DATA>
   static DATA from_string(std::string_view text)
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    std::basic_string<std::byte> buf;
+    bytes buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
@@ -925,25 +925,25 @@ template<binary DATA> struct string_traits<DATA>
 #endif // PQXX_HAVE_CONCEPTS
 
 
-template<> struct string_traits<std::basic_string<std::byte>>
+template<> struct string_traits<bytes>
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
   static std::size_t
-  size_buffer(std::basic_string<std::byte> const &value) noexcept
+  size_buffer(bytes const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
   static zview
-  to_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
+  to_buf(char *begin, char *end, bytes const &value)
   {
     return generic_to_buf(begin, end, value);
   }
 
   static char *
-  into_buf(char *begin, char *end, std::basic_string<std::byte> const &value)
+  into_buf(char *begin, char *end, bytes const &value)
   {
     auto const budget{size_buffer(value)};
     if (internal::cmp_less(end - begin, budget))
@@ -953,10 +953,10 @@ template<> struct string_traits<std::basic_string<std::byte>>
     return begin + budget;
   }
 
-  static std::basic_string<std::byte> from_string(std::string_view text)
+  static bytes from_string(std::string_view text)
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    std::basic_string<std::byte> buf;
+    bytes buf;
     buf.resize(size);
     pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
     return buf;
@@ -965,37 +965,37 @@ template<> struct string_traits<std::basic_string<std::byte>>
 
 
 template<>
-inline constexpr format param_format(std::basic_string<std::byte> const &)
+inline constexpr format param_format(bytes const &)
 {
   return format::binary;
 }
 
 
 template<>
-struct nullness<std::basic_string_view<std::byte>>
-        : no_null<std::basic_string_view<std::byte>>
+struct nullness<bytes_view>
+        : no_null<bytes_view>
 {};
 
 
-template<> struct string_traits<std::basic_string_view<std::byte>>
+template<> struct string_traits<bytes_view>
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
   static std::size_t
-  size_buffer(std::basic_string_view<std::byte> const &value) noexcept
+  size_buffer(bytes_view const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
   static zview to_buf(
-    char *begin, char *end, std::basic_string_view<std::byte> const &value)
+    char *begin, char *end, bytes_view const &value)
   {
     return generic_to_buf(begin, end, value);
   }
 
   static char *into_buf(
-    char *begin, char *end, std::basic_string_view<std::byte> const &value)
+    char *begin, char *end, bytes_view const &value)
   {
     auto const budget{size_buffer(value)};
     if (internal::cmp_less(end - begin, budget))
@@ -1009,7 +1009,7 @@ template<> struct string_traits<std::basic_string_view<std::byte>>
 };
 
 template<>
-inline constexpr format param_format(std::basic_string_view<std::byte> const &)
+inline constexpr format param_format(bytes_view const &)
 {
   return format::binary;
 }

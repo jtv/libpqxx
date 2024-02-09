@@ -184,10 +184,10 @@ void test_binary()
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   {
-    std::basic_string<std::byte> bytes{
+    pqxx::bytes bytes{
       reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes)};
     auto bp{tx.exec_prepared1("EchoBin", bytes)};
-    auto bval{bp[0].as<std::basic_string<std::byte>>()};
+    auto bval{bp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(bval.c_str()), std::size(bval)}),
@@ -195,15 +195,15 @@ void test_binary()
   }
 
   // Now try it with a complex type that ultimately uses the conversions of
-  // std::basic_string<std::byte>, but complex enough that the call may
-  // convert the data to a text string on the libpqxx side.  Which would be
-  // okay, except of course it's likely to be slower.
+  // pqx::bytes, but complex enough that the call may convert the data to a
+  // text string on the libpqxx side.  Which would be okay, except of course
+  // it's likely to be slower.
 
   {
-    auto ptr{std::make_shared<std::basic_string<std::byte>>(
+    auto ptr{std::make_shared<pqxx::bytes>(
       reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes))};
     auto rp{tx.exec_prepared1("EchoBin", ptr)};
-    auto pval{rp[0].as<std::basic_string<std::byte>>()};
+    auto pval{rp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(pval.c_str()), std::size(pval)}),
@@ -211,11 +211,11 @@ void test_binary()
   }
 
   {
-    auto opt{std::optional<std::basic_string<std::byte>>{
+    auto opt{std::optional<pqxx::bytes>{
       std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
       std::size(raw_bytes)}};
     auto op{tx.exec_prepared1("EchoBin", opt)};
-    auto oval{op[0].as<std::basic_string<std::byte>>()};
+    auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(oval.c_str()), std::size(oval)}),
@@ -223,12 +223,12 @@ void test_binary()
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
-  // By the way, it doesn't have to be a std::basic_string.  Any contiguous
-  // range will do.
+  // By the way, it doesn't have to be a pqxx::bytes.  Any contiguous range
+  // will do.
   {
     std::vector<std::byte> data{std::byte{'x'}, std::byte{'v'}};
     auto op{tx.exec_prepared1("EchoBin", data)};
-    auto oval{op[0].as<std::basic_string<std::byte>>()};
+    auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       std::size(oval), 2u, "Binary data came back as wrong length.");
     PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'), "Wrong data.");

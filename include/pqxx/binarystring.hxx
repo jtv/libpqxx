@@ -30,9 +30,8 @@ template<> struct string_traits<binarystring>;
 
 /// Binary data corresponding to PostgreSQL's "BYTEA" binary-string type.
 /** @ingroup escaping-functions
- * @deprecated Use @c std::basic_string<std::byte> and
- * @c std::basic_string_view<std::byte> for binary data.  In C++20 or better,
- * any @c contiguous_range of @c std::byte will do.
+ * @deprecated Use @c bytes and @c bytes_view for binary data.  In C++20 or
+ * better, any @c contiguous_range of @c std::byte will do.
  *
  * This class represents a binary string as stored in a field of type @c bytea.
  *
@@ -59,7 +58,7 @@ class PQXX_LIBEXPORT binarystring
 {
 public:
   using char_type = unsigned char;
-  using value_type = std::char_traits<char_type>::char_type;
+  using value_type = char_type;
   using size_type = std::size_t;
   using difference_type = long;
   using const_reference = value_type const &;
@@ -174,10 +173,10 @@ public:
     return reinterpret_cast<std::byte const *>(get());
   }
 
-  /// Read data as a @c std::basic_string_view<std::byte>.
-  [[nodiscard]] std::basic_string_view<std::byte> bytes_view() const
+  /// Read data as a @c bytes_view.
+  [[nodiscard]] pqxx::bytes_view bytes_view() const
   {
-    return std::basic_string_view<std::byte>{bytes(), size()};
+    return pqxx::bytes_view{bytes(), size()};
   }
 
 private:

@@ -121,7 +121,7 @@ public:
    *
    * Do not use this for BYTEA values, or other binary values.  To read those,
    * convert the value to your desired type using `to()` or `as()`.  For
-   * example: `f.as<std::basic_string<std::byte>>()`.
+   * example: `f.as<pqx::bytes>()`.
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const &;
 
