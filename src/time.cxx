@@ -131,7 +131,7 @@ inline std::chrono::month month_from_string(std::string_view text)
 /// Render a valid 1-based day-of-month value into a buffer.
 inline char *day_into_buf(char *begin, std::chrono::day const &value)
 {
-  unsigned d{value};
+  unsigned const d{value};
   *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d / ten));
   *begin++ = pqxx::internal::number_to_digit(static_cast<int>(d % ten));
   return begin;
