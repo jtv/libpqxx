@@ -330,10 +330,8 @@ struct byte_char_traits : std::char_traits<char>
     return static_cast<std::byte*>(std::memset(dest, static_cast<int>(value), size));
   }
 
-  static int_type not_eof(int_type value)
-  {
-    return eq_int_type(value, eof()) ? ~eof() : value;
-  }
+  /// Declared but not defined: makes no sense for binary data.
+  static int_type not_eof(int_type value);
 
   static std::byte to_char_type(int_type value) { return std::byte(value); }
 
@@ -341,7 +339,8 @@ struct byte_char_traits : std::char_traits<char>
 
   static bool eq_int_type(int_type a, int_type b) { return a == b; }
 
-  static int_type eof() { return int_type(EOF); }
+  /// Declared but not defined: makes no sense for binary data.
+  static int_type eof();
 };
 
 template<typename TYPE, typename = void>
