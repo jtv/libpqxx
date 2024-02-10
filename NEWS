@@ -12,7 +12,7 @@
  - Implement conversion from `string_view` to string. (#728)
  - Rename `splitconfig` to `splitconfig.py`. (#763)
  - Document need for conversions more clearly, link to docs. (#757)
- - Experimental support for converting `std::span` to SQL arrays. (#769)
+ - Support for passing a `std::span` as an SQL array. (#769)
 7.8.1
  - Regenerate build files. Should fix ARM Mac build. (#715)
  - Reinstate `<ciso646>` that MSVC can't live with or without. (#713)

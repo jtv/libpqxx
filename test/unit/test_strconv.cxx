@@ -135,9 +135,22 @@ void test_strconv_smart_pointer()
 }
 
 
+void test_strconv_span()
+{
+#if defined(PQXX_HAVE_SPAN)
+  std::vector<int> values{1, 2, 3};
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(values),
+    "{1,2,3}",
+    "Span of ints converted wrong.");
+#endif // PQXX_HAVE_SPAN
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
 PQXX_REGISTER_TEST(test_strconv_optional);
 PQXX_REGISTER_TEST(test_strconv_smart_pointer);
+PQXX_REGISTER_TEST(test_strconv_span);
 } // namespace
