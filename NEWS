@@ -1,4 +1,6 @@
 7.9.0
+ - BREAKING: `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
+ - BREAKING: `std::basic_string_view<std::byte>` becomes `bytes_view`. (#726)
  - Fix assertion failure when streaming row ending in empty string. (#774)
  - CMake users can `shared_link_libraries(... libpqxx::pqxx)`. (#785)
  - Support parameterised versions of `query()` etc. (#646)
@@ -10,10 +12,7 @@
  - Implement conversion from `string_view` to string. (#728)
  - Rename `splitconfig` to `splitconfig.py`. (#763)
  - Document need for conversions more clearly, link to docs. (#757)
- - `std::basic_string<std::byte>` and `std::basic_string_view<std::byte>` have
-   been replaced with `pqxx::bytes` and `pqxx::bytes_view` respectively to
-   support the removal of generic `std::char_traits` in libc++ 19. Users must
-   switch to these aliases to support versions from libc++ 18 onward. (#726)
+ - Experimental support for converting `std::span` to SQL arrays. (#769)
 7.8.1
  - Regenerate build files. Should fix ARM Mac build. (#715)
  - Reinstate `<ciso646>` that MSVC can't live with or without. (#713)
