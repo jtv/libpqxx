@@ -97,57 +97,54 @@ array_parser::array_parser(
 template<pqxx::internal::encoding_group ENC>
 std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
 {
-  std::string value;
+  std::string value{};
 
   if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
-  juncture found;
-  std::string::size_type end;
-
-  if (scan_glyph<ENC>(m_pos) - m_pos > 1)
-  {
-    // Non-ASCII unquoted string.
-    end = scan_unquoted_string<ENC>();
-    value = parse_unquoted_string<ENC>(end);
-    found = juncture::string_value;
-  }
-  else
-    switch (m_input[m_pos])
+  auto [found, end] = [this, &value]{
+    if (scan_glyph<ENC>(m_pos) - m_pos > 1)
     {
-    case '\0': throw failure{"Unexpected zero byte in array."};
-    case '{':
-      found = juncture::row_start;
-      end = scan_glyph<ENC>(m_pos);
-      break;
-    case '}':
-      found = juncture::row_end;
-      end = scan_glyph<ENC>(m_pos);
-      break;
-    case '"':
-      found = juncture::string_value;
-      end = scan_double_quoted_string<ENC>();
-      value = parse_double_quoted_string<ENC>(end);
-      break;
-    default:
-      end = scan_unquoted_string<ENC>();
-      value = parse_unquoted_string<ENC>(end);
-      if (value == "NULL")
-      {
-        // In this one situation, as a special case, NULL means a null field,
-        // not a string that happens to spell "NULL".
-        value.clear();
-        found = juncture::null_value;
-      }
-      else
-      {
-        // The normal case: we just parsed an unquoted string.  The value is
-        // what we need.
-        PQXX_LIKELY
-        found = juncture::string_value;
-      }
-      break;
+      // Non-ASCII unquoted string.
+      auto const endpoint = scan_unquoted_string<ENC>();
+      value = parse_unquoted_string<ENC>(endpoint);
+      return std::tuple{juncture::string_value, endpoint};
     }
+    else
+      switch (m_input[m_pos])
+      {
+      case '\0': throw failure{"Unexpected zero byte in array."};
+      case '{':
+        return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos)};
+      case '}':
+        return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos)};
+      case '"':
+        {
+          auto const endpoint = scan_double_quoted_string<ENC>();
+          value = parse_double_quoted_string<ENC>(endpoint);
+	  return std::tuple{juncture::string_value, endpoint};
+	}
+      default:
+        {
+          auto const endpoint = scan_unquoted_string<ENC>();
+          value = parse_unquoted_string<ENC>(endpoint);
+          if (value == "NULL")
+          {
+            // In this one situation, as a special case, NULL means a null
+	    // field, not a string that happens to spell "NULL".
+            value.clear();
+	    return std::tuple{juncture::null_value, endpoint};
+          }
+          else
+          {
+            // The normal case: we just parsed an unquoted string.  The value
+	    // is what we need.
+            PQXX_LIKELY
+	    return std::tuple{juncture::string_value, endpoint};
+          }
+	}
+      }
+  }();
 
   // Skip a trailing field separator, if present.
   if (end < std::size(m_input))

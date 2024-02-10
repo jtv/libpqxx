@@ -8,6 +8,8 @@
  */
 #include "pqxx-source.hxx"
 
+#include <array>
+#include <cassert>
 #include <cerrno>
 #include <cmath>
 #include <cstdlib>
@@ -99,15 +101,21 @@ void pqxx::internal::check_unique_unregister(
 
 namespace
 {
-constexpr char hex_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+constexpr std::array<char, 16u> hex_digits{
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
 
 
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
 constexpr char hex_digit(int c) noexcept
 {
-  return hex_digits[c];
+  assert(c >= 0 and c < pqxx::internal::ssize(hex_digits));
+  return hex_digits[static_cast<unsigned int>(c)];
 }
+
+
+constexpr int ten{10};
 
 
 /// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
@@ -116,8 +124,8 @@ constexpr int nibble(int c) noexcept
   if (c >= '0' and c <= '9')
     PQXX_LIKELY
   return c - '0';
-  else if (c >= 'a' and c <= 'f') return 10 + (c - 'a');
-  else if (c >= 'A' and c <= 'F') return 10 + (c - 'A');
+  else if (c >= 'a' and c <= 'f') return ten + (c - 'a');
+  else if (c >= 'A' and c <= 'F') return ten + (c - 'A');
   else return -1;
 }
 } // namespace
@@ -129,11 +137,13 @@ void pqxx::internal::esc_bin(bytes_view binary_data, char buffer[]) noexcept
   *here++ = '\\';
   *here++ = 'x';
 
+  constexpr int nibble_bits{4};
+  constexpr int nibble_mask{0x0f};
   for (auto const byte : binary_data)
   {
     auto uc{static_cast<unsigned char>(byte)};
-    *here++ = hex_digit(uc >> 4);
-    *here++ = hex_digit(uc & 0x0f);
+    *here++ = hex_digit(uc >> nibble_bits);
+    *here++ = hex_digit(uc & nibble_mask);
   }
 
   // (No need to increment further.  Facebook's "infer" complains if we do.)
@@ -170,10 +180,10 @@ void pqxx::internal::unesc_bin(
   auto out{buffer};
   while (in != end)
   {
-    int hi{nibble(*in++)};
+    int const hi{nibble(*in++)};
     if (hi < 0)
       throw pqxx::failure{"Invalid hex-escaped data."};
-    int lo{nibble(*in++)};
+    int const lo{nibble(*in++)};
     if (lo < 0)
       throw pqxx::failure{"Invalid hex-escaped data."};
     *out++ = static_cast<std::byte>((hi << 4) | lo);

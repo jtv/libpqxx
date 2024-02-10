@@ -106,7 +106,7 @@ void pqxx::icursorstream::set_stride(difference_type stride) &
 
 pqxx::result pqxx::icursorstream::fetchblock()
 {
-  result const r{m_cur.fetch(m_stride)};
+  result r{m_cur.fetch(m_stride)};
   m_realpos += std::size(r);
   if (std::empty(r))
     m_done = true;
@@ -172,7 +172,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos)
 
   using todolist = std::multimap<difference_type, icursor_iterator *>;
   todolist todo;
-  for (icursor_iterator *i{m_iterators}, *next; i != nullptr; i = next)
+  for (icursor_iterator *i{m_iterators}, *next{}; i != nullptr; i = next)
   {
     pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
     auto const ipos{gate.pos()};
@@ -224,9 +224,9 @@ pqxx::icursor_iterator::~icursor_iterator() noexcept
 }
 
 
-pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int)
+pqxx::icursor_iterator pqxx::icursor_iterator::operator++(int) &
 {
-  icursor_iterator old{*this};
+  icursor_iterator const old{*this};
   m_pos = difference_type(
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}.forward());
   m_here.clear();
@@ -264,7 +264,10 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 pqxx::icursor_iterator &
 pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 {
-  if (rhs.m_stream == m_stream)
+  if (&rhs == this)
+  {
+  }
+  else if (rhs.m_stream == m_stream)
   {
     PQXX_UNLIKELY
     m_here = rhs.m_here;

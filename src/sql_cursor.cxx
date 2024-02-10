@@ -10,6 +10,7 @@
  */
 #include "pqxx-source.hxx"
 
+#include <cctype>
 #include <iterator>
 
 #include "pqxx/internal/header-pre.hxx"
@@ -32,7 +33,7 @@ namespace
  */
 inline bool useless_trail(char c)
 {
-  return isspace(c) or c == ';';
+  return std::isspace(c) or c == ';';
 }
 
 
@@ -61,13 +62,13 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
-  std::string::size_type end;
+  std::string::size_type end{size};
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    for (end = std::size(query); end > 0 and useless_trail(text[end - 1]);
-         --end)
-      ;
+    // C++20: Use string_view::ends_with() and sub-view.
+    while (end > 0 and useless_trail(query[end - 1]))
+      --end;
   }
   else
   {
@@ -75,6 +76,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
     // the beginning.
     end = 0;
 
+    // TODO: Rewrite using find_char.
     pqxx::internal::for_glyphs(
       enc,
       [text, &end](char const *gbegin, char const *gend) {
@@ -95,7 +97,6 @@ pqxx::internal::sql_cursor::sql_cursor(
   cursor_base::ownership_policy op, bool hold) :
         cursor_base{t.conn(), cname},
         m_home{t.conn()},
-        m_adopted{false},
         m_at_end{-1},
         m_pos{0}
 {
@@ -133,13 +134,10 @@ pqxx::internal::sql_cursor::sql_cursor(
   cursor_base::ownership_policy op) :
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},
-        m_empty_result{},
-        m_adopted{true},
+	m_ownership{op},
         m_at_end{0},
         m_pos{-1}
 {
-  m_adopted = true;
-  m_ownership = op;
 }
 
 
@@ -234,7 +232,7 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
   }
   auto const query{pqxx::internal::concat(
     "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
   displacement = adjust(rows, difference_type(std::size(r)));
   return r;
 }

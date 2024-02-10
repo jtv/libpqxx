@@ -30,6 +30,8 @@
 #include "pqxx/internal/header-post.hxx"
 
 
+using namespace std::literals;
+
 namespace
 {
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -68,11 +70,12 @@ template<typename T> constexpr T top{std::numeric_limits<T>::max()};
  */
 template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
 {
+  constexpr int ten{10};
   char *pos = end;
   *--pos = '\0';
   do {
-    *--pos = pqxx::internal::number_to_digit(int(value % 10));
-    value = T(value / 10);
+    *--pos = pqxx::internal::number_to_digit(int(value % ten));
+    value = T(value / ten);
   } while (value > 0);
   return pos;
 }
@@ -167,16 +170,18 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
       "buffer too small.  " +
       pqxx::internal::state_buffer_overrun(space, need)};
 
-  char *pos;
-  if constexpr (std::is_unsigned_v<T>)
-    pos = nonneg_to_buf(end, value);
-  else if (value >= 0)
-    pos = nonneg_to_buf(end, value);
-  else if (value > bottom<T>)
-    pos = neg_to_buf(end, -value);
-  else
-    pos = bottom_to_buf<T>(end);
-
+  char *const pos{
+    [end, &value](){
+      if constexpr (std::is_unsigned_v<T>)
+        return nonneg_to_buf(end, value);
+      else if (value >= 0)
+        return nonneg_to_buf(end, value);
+      else if (value > bottom<T>)
+        return neg_to_buf(end, -value);
+      else
+        return bottom_to_buf<T>(end);
+    }()
+  };
   return {pos, end - pos - 1};
 }
 
@@ -238,16 +243,13 @@ std::string demangle_type_name(char const raw[])
   // fall back to the raw name.
   //
   // When __cxa_demangle fails, it's guaranteed to return null.
-  char *demangled{abi::__cxa_demangle(raw, nullptr, nullptr, &status)};
+  std::unique_ptr<char, void(*)(char *)> const demangled{
+    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+    [](char *x){ std::free(x); }};
 #else
-  static constexpr char *demangled{nullptr};
+  std::unique_ptr<char> demangled{};
 #endif
-  std::string const name{(demangled == nullptr) ? raw : demangled};
-
-  // Check for nullness to work around jemalloc bug (see #508).
-  if (demangled != nullptr)
-    std::free(demangled);
-  return name;
+  return std::string{demangled ? demangled.get() : raw};
 }
 
 void PQXX_COLD throw_null_conversion(std::string const &type)
@@ -275,15 +277,14 @@ namespace
 template<typename TYPE>
 [[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
 {
-  char const *here;
+  char const *here{std::data(in)};
   auto const end{std::data(in) + std::size(in)};
 
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
-  for (here = std::data(in); here < end and (*here == ' ' or *here == '\t');
-       ++here)
-    ;
+  while (here < end and (*here == ' ' or *here == '\t'))
+       ++here;
 
   TYPE out{};
   auto const res{std::from_chars(here, end, out)};
@@ -741,6 +742,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
 {
   std::optional<bool> result;
 
+  // TODO: Don't really need to handle all these formats.
   switch (std::size(text))
   {
   case 0: result = false; break;
@@ -760,12 +762,12 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     }
     break;
 
-  case 4:
+  case std::size("true"sv):
     if (equal(text, "true") or equal(text, "TRUE"))
       result = true;
     break;
 
-  case 5:
+  case std::size("false"sv):
     if (equal(text, "false") or equal(text, "FALSE"))
       result = false;
     break;

@@ -101,7 +101,7 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
  *
  * Ignores the `skip_init::nothing` flag.
  */
-void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int flags) noexcept;
+void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int skips) noexcept;
 } // namespace pqxx::internal
 
 
@@ -1088,7 +1088,8 @@ private:
   friend class internal::gate::connection_transaction;
   result exec(std::string_view, std::string_view = ""sv);
   result
-    PQXX_PRIVATE exec(std::shared_ptr<std::string>, std::string_view = ""sv);
+    PQXX_PRIVATE exec(
+      std::shared_ptr<std::string> const &, std::string_view = ""sv);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 

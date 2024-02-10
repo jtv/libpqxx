@@ -116,7 +116,7 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
     try
     {
       raw_line line{gate.read_copy_line()};
-      if (line.first.get() == nullptr)
+      if (line.first == nullptr)
         close();
       return line;
     }
@@ -245,7 +245,7 @@ void pqxx::stream_from::parse_line()
         // Would love to emplace_back() here, but gcc 9.1 warns about the
         // constructor not throwing.  It suggests adding "noexcept."  Which
         // we can hardly do, without std::string_view guaranteeing it.
-        m_fields.push_back(zview{field_begin, write - field_begin});
+        m_fields.emplace_back(field_begin, write - field_begin);
         *write++ = '\0';
       }
       // Set up for the next field.
@@ -280,7 +280,7 @@ void pqxx::stream_from::parse_line()
   }
   else
   {
-    m_fields.push_back(zview{field_begin, write - field_begin});
+    m_fields.emplace_back(field_begin, write - field_begin);
     *write++ = '\0';
   }
 

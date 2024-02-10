@@ -36,15 +36,20 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
 {
   struct mapping
   {
-    std::string_view const name;
-    pqxx::internal::encoding_group const group;
+  private:
+    std::string_view m_name;
+    pqxx::internal::encoding_group m_group;
+  public:
     constexpr mapping(std::string_view n, pqxx::internal::encoding_group g) :
-            name{n}, group{g}
+            m_name{n}, m_group{g}
     {}
     constexpr bool operator<(mapping const &rhs) const
     {
-      return name < rhs.name;
+      return m_name < rhs.m_name;
     }
+    [[nodiscard]] std::string_view get_name() const { return m_name; }
+    [[nodiscard]] pqxx::internal::encoding_group get_group() const
+    { return m_group; }
   };
 
   // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
@@ -71,8 +76,8 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
           mapping{"TW"sv, pqxx::internal::encoding_group::EUC_TW},
         };
         for (auto const &m : subtypes)
-          if (m.name == subtype)
-            return m.group;
+          if (m.get_name() == subtype)
+            return m.get_group();
       }
       PQXX_UNLIKELY
       break;
@@ -85,6 +90,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
+      // C++20: Use string_view::starts_with().
       if ((sz == 10) and (encoding_name.substr(0, 9) == "ISO_8859_"sv))
       {
         char const subtype{encoding_name[9]};
@@ -105,6 +111,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       break;
     case 'L':
       // We know LATIN1 through LATIN10.
+      // C++20: Use string_view::starts_with().
       if (encoding_name.substr(0, 5) == "LATIN"sv)
       {
         auto const subtype{encoding_name.substr(5)};

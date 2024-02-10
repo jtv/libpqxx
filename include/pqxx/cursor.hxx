@@ -448,7 +448,7 @@ public:
     return &m_here;
   }
   icursor_iterator &operator++();
-  icursor_iterator operator++(int);
+  icursor_iterator operator++(int) &;
   icursor_iterator &operator+=(difference_type);
   icursor_iterator &operator=(icursor_iterator const &) noexcept;
 

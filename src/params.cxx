@@ -80,7 +80,7 @@ void pqxx::params::append(bytes &&value) &
 
 void PQXX_COLD pqxx::params::append(binarystring const &value) &
 {
-  m_params.push_back(entry{value.bytes_view()});
+  m_params.emplace_back(value.bytes_view());
 }
 
 
@@ -88,7 +88,7 @@ void pqxx::params::append(params &&value) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params)
-    m_params.emplace_back(std::move(param));
+    m_params.emplace_back(param);
   value.m_params.clear();
 }
 

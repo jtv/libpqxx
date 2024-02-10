@@ -25,7 +25,7 @@ constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 pqxx::internal::pq::PGconn *
 pqxx::blob::raw_conn(pqxx::connection *conn) noexcept
 {
-  pqxx::internal::gate::connection_largeobject gate{*conn};
+  pqxx::internal::gate::connection_largeobject const gate{*conn};
   return gate.raw_connection();
 }
 
@@ -39,7 +39,7 @@ pqxx::blob::raw_conn(pqxx::dbtransaction const &tx) noexcept
 
 std::string pqxx::blob::errmsg(connection const *conn)
 {
-  pqxx::internal::gate::const_connection_largeobject gate{*conn};
+  pqxx::internal::gate::const_connection_largeobject const gate{*conn};
   return gate.error_message();
 }
 
@@ -47,7 +47,7 @@ std::string pqxx::blob::errmsg(connection const *conn)
 pqxx::blob pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode)
 {
   auto &conn{tx.conn()};
-  int fd{lo_open(raw_conn(&conn), id, mode)};
+  int const fd{lo_open(raw_conn(&conn), id, mode)};
   if (fd == -1)
     throw pqxx::failure{internal::concat(
       "Could not open binary large object ", id, ": ", errmsg(&conn))};
@@ -57,7 +57,7 @@ pqxx::blob pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode)
 
 pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id)
 {
-  oid actual_id{lo_create(raw_conn(tx), id)};
+  oid const actual_id{lo_create(raw_conn(tx), id)};
   if (actual_id == 0)
     throw failure{internal::concat(
       "Could not create binary large object: ", errmsg(&tx.conn()))};
@@ -143,7 +143,7 @@ std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size)
     throw range_error{
       "Reads from a binary large object must be less than 2 GB at once."};
   auto data{reinterpret_cast<char *>(buf)};
-  int received{lo_read(raw_conn(m_conn), m_fd, data, size)};
+  int const received{lo_read(raw_conn(m_conn), m_fd, data, size)};
   if (received < 0)
     throw failure{
       internal::concat("Could not read from binary large object: ", errmsg())};
@@ -168,7 +168,7 @@ void pqxx::blob::raw_write(std::byte const buf[], std::size_t size)
     throw range_error{
       "Writes to a binary large object must be less than 2 GB at once."};
   auto ptr{reinterpret_cast<char const *>(buf)};
-  int written{lo_write(raw_conn(m_conn), m_fd, ptr, size)};
+  int const written{lo_write(raw_conn(m_conn), m_fd, ptr, size)};
   if (written < 0)
     throw failure{
       internal::concat("Write to binary large object failed: ", errmsg())};
@@ -189,7 +189,7 @@ std::int64_t pqxx::blob::tell() const
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to tell() a closed binary large object."};
-  std::int64_t offset{lo_tell64(raw_conn(m_conn), m_fd)};
+  std::int64_t const offset{lo_tell64(raw_conn(m_conn), m_fd)};
   if (offset < 0)
     throw failure{internal::concat(
       "Error reading binary large object position: ", errmsg())};
@@ -201,7 +201,8 @@ std::int64_t pqxx::blob::seek(std::int64_t offset, int whence)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to seek() a closed binary large object."};
-  std::int64_t seek_result{lo_lseek64(raw_conn(m_conn), m_fd, offset, whence)};
+  std::int64_t const seek_result{
+    lo_lseek64(raw_conn(m_conn), m_fd, offset, whence)};
   if (seek_result < 0)
     throw failure{internal::concat(
       "Error during seek on binary large object: ", errmsg())};
@@ -229,7 +230,7 @@ std::int64_t pqxx::blob::seek_end(std::int64_t offset)
 
 pqxx::oid pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id)
 {
-  oid actual_id{create(tx, id)};
+  oid const actual_id{create(tx, id)};
   try
   {
     open_w(tx, actual_id).write(data);

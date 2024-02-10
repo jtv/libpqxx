@@ -82,7 +82,7 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   result() noexcept :
-          m_data{make_data_pointer()},
+          m_data{},
           m_query{},
           m_encoding{internal::encoding_group::MONOBYTE}
   {}
@@ -303,13 +303,6 @@ private:
   /// Underlying libpq result set.
   data_pointer m_data;
 
-  /// Factory for data_pointer.
-  static data_pointer
-  make_data_pointer(internal::pq::PGresult const *res = nullptr) noexcept
-  {
-    return {res, internal::clear_result};
-  }
-
   friend class pqxx::internal::gate::result_pipeline;
   PQXX_PURE std::shared_ptr<std::string const> query_ptr() const noexcept
   {
@@ -332,8 +325,8 @@ private:
 
   friend class pqxx::internal::gate::result_creation;
   result(
-    internal::pq::PGresult *rhs, std::shared_ptr<std::string> query,
-    internal::encoding_group enc);
+    std::shared_ptr<internal::pq::PGresult> const &rhs,
+    std::shared_ptr<std::string> const &query, internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status(std::string_view desc = ""sv) const;
 

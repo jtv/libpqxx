@@ -10,8 +10,8 @@ class PQXX_PRIVATE result_creation : callgate<result const>
   result_creation(reference x) : super(x) {}
 
   static result create(
-    internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query,
-    encoding_group enc)
+    std::shared_ptr<internal::pq::PGresult> rhs,
+    std::shared_ptr<std::string> const &query, encoding_group enc)
   {
     return result(rhs, query, enc);
   }

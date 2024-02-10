@@ -322,13 +322,13 @@ public:
   const_row_iterator &operator=(const_row_iterator const &) noexcept = default;
   const_row_iterator &operator=(const_row_iterator &&) noexcept = default;
 
-  const_row_iterator operator++(int) noexcept;
+  const_row_iterator operator++(int) & noexcept;
   const_row_iterator &operator++() noexcept
   {
     ++m_col;
     return *this;
   }
-  const_row_iterator operator--(int) noexcept;
+  const_row_iterator operator--(int) & noexcept;
   const_row_iterator &operator--() noexcept
   {
     --m_col;
@@ -449,13 +449,13 @@ public:
     iterator_type::operator--();
     return *this;
   }
-  const_reverse_row_iterator operator++(int) noexcept;
+  const_reverse_row_iterator operator++(int) & noexcept;
   const_reverse_row_iterator &operator--() noexcept
   {
     iterator_type::operator++();
     return *this;
   }
-  const_reverse_row_iterator operator--(int);
+  const_reverse_row_iterator operator--(int) &;
   const_reverse_row_iterator &operator+=(difference_type i) noexcept
   {
     iterator_type::operator-=(i);

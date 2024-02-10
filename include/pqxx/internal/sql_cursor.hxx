@@ -25,7 +25,7 @@ namespace pqxx::internal
  * does not refer to a row.  There is a similar non-row position at the end of
  * the result set.
  *
- * Don't use this at home.  You deserve better.  Use the stateles_cursor
+ * Don't use this at home.  You deserve better.  Use the stateless_cursor
  * instead.
  */
 class PQXX_LIBEXPORT sql_cursor : public cursor_base
@@ -92,9 +92,6 @@ private:
   result m_empty_result;
 
   result m_cached_current_row;
-
-  /// Is this cursor adopted (as opposed to created by this cursor object)?
-  bool m_adopted;
 
   /// Will this cursor object destroy its SQL cursor when it dies?
   cursor_base::ownership_policy m_ownership;

@@ -128,7 +128,8 @@ void pqxx::internal::wait_fd(
 
   if (code == -1)
   {
-    std::array<char, 200> errbuf;
+    constexpr std::size_t buf_size{200u};
+    std::array<char, buf_size> errbuf{};
     int const err_code
     {
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
