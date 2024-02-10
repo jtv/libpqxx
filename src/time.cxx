@@ -100,7 +100,7 @@ inline int year_from_buf(std::string_view text)
  * right after the last digit.  (It may or may not write a terminating zero at
  * that position itself.)
  */
-inline static char *
+inline char *
 month_into_buf(char *begin, std::chrono::month const &value)
 {
   unsigned const m{value};
