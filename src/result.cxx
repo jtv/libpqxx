@@ -319,9 +319,9 @@ std::string pqxx::result::status_error() const
   case PGRES_EMPTY_QUERY: // The string sent to the backend was empty.
   case PGRES_COMMAND_OK:  // Successful completion, no result data.
   case PGRES_TUPLES_OK:   // The query successfully executed.
-  case PGRES_COPY_OUT:  // Copy Out (from server) data transfer started.
-  case PGRES_COPY_IN:   // Copy In (to server) data transfer started.
-  case PGRES_COPY_BOTH: // Copy In/Out.  Used for streaming replication.
+  case PGRES_COPY_OUT:    // Copy Out (from server) data transfer started.
+  case PGRES_COPY_IN:     // Copy In (to server) data transfer started.
+  case PGRES_COPY_BOTH:   // Copy In/Out.  Used for streaming replication.
     break;
 
 #if defined(LIBPQ_HAS_PIPELINING)
@@ -466,8 +466,7 @@ int pqxx::result::errorposition() const
   int pos{-1};
   if (m_data.get())
   {
-    auto const p{
-      PQresultErrorField(m_data.get(), PG_DIAG_STATEMENT_POSITION)};
+    auto const p{PQresultErrorField(m_data.get(), PG_DIAG_STATEMENT_POSITION)};
     if (p)
       pos = from_string<decltype(pos)>(p);
   }

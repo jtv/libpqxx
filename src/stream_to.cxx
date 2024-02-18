@@ -51,8 +51,7 @@ char escape_char(char special)
   }
   PQXX_UNLIKELY throw pqxx::internal_error{pqxx::internal::concat(
     "Stream escaping unexpectedly stopped at '",
-    static_cast<unsigned>(static_cast<unsigned char>(special)),
-    "'.")};
+    static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
 }
 } // namespace
 

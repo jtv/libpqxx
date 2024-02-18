@@ -102,7 +102,7 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
   if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
-  auto [found, end] = [this, &value]{
+  auto [found, end] = [this, &value] {
     if (scan_glyph<ENC>(m_pos) - m_pos > 1)
     {
       // Non-ASCII unquoted string.
@@ -114,35 +114,31 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
       switch (m_input[m_pos])
       {
       case '\0': throw failure{"Unexpected zero byte in array."};
-      case '{':
-        return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos)};
-      case '}':
-        return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos)};
-      case '"':
+      case '{': return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos)};
+      case '}': return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos)};
+      case '"': {
+        auto const endpoint = scan_double_quoted_string<ENC>();
+        value = parse_double_quoted_string<ENC>(endpoint);
+        return std::tuple{juncture::string_value, endpoint};
+      }
+      default: {
+        auto const endpoint = scan_unquoted_string<ENC>();
+        value = parse_unquoted_string<ENC>(endpoint);
+        if (value == "NULL")
         {
-          auto const endpoint = scan_double_quoted_string<ENC>();
-          value = parse_double_quoted_string<ENC>(endpoint);
-	  return std::tuple{juncture::string_value, endpoint};
-	}
-      default:
+          // In this one situation, as a special case, NULL means a null
+          // field, not a string that happens to spell "NULL".
+          value.clear();
+          return std::tuple{juncture::null_value, endpoint};
+        }
+        else
         {
-          auto const endpoint = scan_unquoted_string<ENC>();
-          value = parse_unquoted_string<ENC>(endpoint);
-          if (value == "NULL")
-          {
-            // In this one situation, as a special case, NULL means a null
-	    // field, not a string that happens to spell "NULL".
-            value.clear();
-	    return std::tuple{juncture::null_value, endpoint};
-          }
-          else
-          {
-            // The normal case: we just parsed an unquoted string.  The value
-	    // is what we need.
-            PQXX_LIKELY
-	    return std::tuple{juncture::string_value, endpoint};
-          }
-	}
+          // The normal case: we just parsed an unquoted string.  The value
+          // is what we need.
+          PQXX_LIKELY
+          return std::tuple{juncture::string_value, endpoint};
+        }
+      }
       }
   }();
 

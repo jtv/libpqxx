@@ -229,8 +229,7 @@ pqxx::result pqxx::connection::make_result(
       throw broken_connection{"Lost connection to the database server."};
   }
   auto const enc{internal::enc_group(encoding_id())};
-  auto r{
-    pqxx::internal::gate::result_creation::create(smart, query, enc)};
+  auto r{pqxx::internal::gate::result_creation::create(smart, query, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
@@ -745,7 +744,8 @@ pqxx::result pqxx::connection::exec_prepared(
 void pqxx::connection::close()
 {
   // Just in case PQfinish() doesn't handle nullptr nicely.
-  if (m_conn == nullptr) return;
+  if (m_conn == nullptr)
+    return;
   try
   {
     if (m_trans)

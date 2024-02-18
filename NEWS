@@ -1,6 +1,7 @@
 7.9.0
- - BREAKING: `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
- - BREAKING: `std::basic_string_view<std::byte>` becomes `bytes_view`. (#726)
+ - Support standard libraries without `std::basic_string<std::byte>` etc.
+ - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
+ - `std::basic_string_view<std::byte>` becomes `bytes_view`. (#726)
  - Fix assertion failure when streaming row ending in empty string. (#774)
  - CMake users can `shared_link_libraries(... libpqxx::pqxx)`. (#785)
  - Support parameterised versions of `query()` etc. (#646)

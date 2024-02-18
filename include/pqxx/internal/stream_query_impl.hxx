@@ -86,8 +86,8 @@ public:
     return not done();
   }
 
-  stream_query_input_iterator &operator=(stream_query_input_iterator &&rhs)
-  noexcept
+  stream_query_input_iterator &
+  operator=(stream_query_input_iterator &&rhs) noexcept
   {
     if (&rhs != this)
     {

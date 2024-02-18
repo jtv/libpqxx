@@ -67,8 +67,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
   {
     // This is an encoding where we can scan backwards from the end.
     // C++20: Use string_view::ends_with() and sub-view.
-    while (end > 0 and useless_trail(query[end - 1]))
-      --end;
+    while (end > 0 and useless_trail(query[end - 1])) --end;
   }
   else
   {
@@ -95,10 +94,7 @@ pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
   cursor_base::ownership_policy op, bool hold) :
-        cursor_base{t.conn(), cname},
-        m_home{t.conn()},
-        m_at_end{-1},
-        m_pos{0}
+        cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
 {
   if (&t.conn() != &m_home)
     throw internal_error{"Cursor in wrong connection"};
@@ -134,11 +130,10 @@ pqxx::internal::sql_cursor::sql_cursor(
   cursor_base::ownership_policy op) :
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},
-	m_ownership{op},
+        m_ownership{op},
         m_at_end{0},
         m_pos{-1}
-{
-}
+{}
 
 
 void pqxx::internal::sql_cursor::close() noexcept

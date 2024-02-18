@@ -1087,9 +1087,8 @@ private:
 
   friend class internal::gate::connection_transaction;
   result exec(std::string_view, std::string_view = ""sv);
-  result
-    PQXX_PRIVATE exec(
-      std::shared_ptr<std::string> const &, std::string_view = ""sv);
+  result PQXX_PRIVATE
+  exec(std::shared_ptr<std::string> const &, std::string_view = ""sv);
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 

@@ -68,7 +68,7 @@ constexpr int PQXX_COLD std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 
 
 PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
-  m_id{lo_creat(raw_connection(t), 0)}
+        m_id{lo_creat(raw_connection(t), 0)}
 {
   // (Mode is ignored as of postgres 8.1.)
   if (m_id == oid_none)
@@ -84,7 +84,7 @@ PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
 
 PQXX_COLD
 pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
-  m_id{lo_import(raw_connection(t), std::data(file))}
+        m_id{lo_import(raw_connection(t), std::data(file))}
 {
   if (m_id == oid_none)
   {

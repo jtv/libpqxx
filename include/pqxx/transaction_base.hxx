@@ -748,7 +748,8 @@ public:
     return exec_params(query, parms).iter<TYPE...>();
   }
 
-  /// Perform query parameterised, expect given number of rows, iterate results.
+  /// Perform query parameterised, expect given number of rows, iterate
+  /// results.
   /** Works like @ref query, but checks that the result has exactly the
    * expected number of rows.
    *
@@ -757,8 +758,8 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query_n(
-    result::size_type rows, zview query, params const &parms)
+  template<typename... TYPE>
+  auto query_n(result::size_type rows, zview query, params const &parms)
   {
     return exec_params_n(rows, query, parms).iter<TYPE...>();
   }
@@ -803,8 +804,8 @@ public:
    * the number of fields in the tuple.
    */
   template<typename... TYPE>
-  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(
-    zview query, params const &parms)
+  [[nodiscard]] std::optional<std::tuple<TYPE...>>
+  query01(zview query, params const &parms)
   {
     result res{exec_params(query, parms)};
     auto const rows{std::size(res)};
@@ -831,8 +832,8 @@ public:
    * 2. The `exec` functions are faster for small results, but slower for large
    *    results.
    */
-  template<typename CALLABLE> void for_query(
-    zview query, CALLABLE &&func, params const &parms)
+  template<typename CALLABLE>
+  void for_query(zview query, CALLABLE &&func, params const &parms)
   {
     exec_params(query, parms).for_each(std::forward<CALLABLE>(func));
   }

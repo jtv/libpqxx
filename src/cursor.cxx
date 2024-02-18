@@ -264,9 +264,7 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 pqxx::icursor_iterator &
 pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 {
-  if (&rhs == this)
-  {
-  }
+  if (&rhs == this) {}
   else if (rhs.m_stream == m_stream)
   {
     PQXX_UNLIKELY
