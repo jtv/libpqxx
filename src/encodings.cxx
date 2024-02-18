@@ -39,6 +39,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
   private:
     std::string_view m_name;
     pqxx::internal::encoding_group m_group;
+
   public:
     constexpr mapping(std::string_view n, pqxx::internal::encoding_group g) :
             m_name{n}, m_group{g}
@@ -49,7 +50,9 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
     }
     [[nodiscard]] std::string_view get_name() const { return m_name; }
     [[nodiscard]] pqxx::internal::encoding_group get_group() const
-    { return m_group; }
+    {
+      return m_group;
+    }
   };
 
   // C++20: Once compilers are ready, go full constexpr, leave to the compiler.

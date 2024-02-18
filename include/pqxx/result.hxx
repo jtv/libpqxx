@@ -82,9 +82,7 @@ public:
   using reverse_iterator = const_reverse_iterator;
 
   result() noexcept :
-          m_data{},
-          m_query{},
-          m_encoding{internal::encoding_group::MONOBYTE}
+          m_data{}, m_query{}, m_encoding{internal::encoding_group::MONOBYTE}
   {}
 
   result(result const &rhs) noexcept = default;

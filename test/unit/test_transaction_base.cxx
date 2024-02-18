@@ -123,10 +123,12 @@ void test_transaction_query_params()
     PQXX_CHECK_EQUAL(outcome, -1, "Queried one row, got multiple.");
     outcome = value;
   }
-  PQXX_CHECK_EQUAL(outcome, 64, "Parameterised query() produced wrong result.");
+  PQXX_CHECK_EQUAL(
+    outcome, 64, "Parameterised query() produced wrong result.");
 
   outcome = -1;
-  for (auto [value] : tx.query_n<int>(1, "SELECT * FROM generate_series(1, $1)", {1}))
+  for (auto [value] :
+       tx.query_n<int>(1, "SELECT * FROM generate_series(1, $1)", {1}))
   {
     PQXX_CHECK_EQUAL(outcome, -1, "Queried one row, got multiple.");
     outcome = value;
@@ -134,9 +136,8 @@ void test_transaction_query_params()
   PQXX_CHECK_EQUAL(outcome, 1, "Bad value from query_n() with params.");
 
   PQXX_CHECK_THROWS(
-    tx.query_n<int>(2, "SELECT $1", {9}),
-      pqxx::unexpected_rows,
-        "query_n() with params failed to detect unexpected rows.");
+    tx.query_n<int>(2, "SELECT $1", {9}), pqxx::unexpected_rows,
+    "query_n() with params failed to detect unexpected rows.");
 
   std::tuple<int> res{tx.query1<int>("SELECT $1 / 3", {33})};
   auto [res_int] = res;
@@ -174,7 +175,6 @@ void test_transaction_query_params()
 }
 
 
-
 void test_transaction_for_query()
 {
   constexpr auto query{
@@ -196,8 +196,7 @@ void test_transaction_for_query()
   int x{0}, y{0};
   tx.for_query(
     "SELECT $1, $2",
-    [&x, &y](int xout, int yout)
-    {
+    [&x, &y](int xout, int yout) {
       PQXX_CHECK_EQUAL(x, 0, "for_query() called too many times.");
       PQXX_CHECK_EQUAL(y, 0, "for_query() called too many times.");
       x = xout;

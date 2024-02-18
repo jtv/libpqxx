@@ -87,8 +87,7 @@ void PQXX_COLD pqxx::params::append(binarystring const &value) &
 void pqxx::params::append(params &&value) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
-  for (auto const &param : value.m_params)
-    m_params.emplace_back(param);
+  for (auto const &param : value.m_params) m_params.emplace_back(param);
   value.m_params.clear();
 }
 

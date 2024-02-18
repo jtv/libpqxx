@@ -198,8 +198,7 @@ void test_stream_handles_empty_string()
   pqxx::work tx{conn};
 
   std::string out{"<uninitialised>"};
-  for (auto [empty] : tx.stream<std::string_view>("SELECT ''"))
-    out = empty;
+  for (auto [empty] : tx.stream<std::string_view>("SELECT ''")) out = empty;
   PQXX_CHECK_EQUAL(out, "", "Empty string_view parsed wrong.");
 
   out = "<uniniutialised>";

@@ -170,18 +170,16 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
       "buffer too small.  " +
       pqxx::internal::state_buffer_overrun(space, need)};
 
-  char *const pos{
-    [end, &value](){
-      if constexpr (std::is_unsigned_v<T>)
-        return nonneg_to_buf(end, value);
-      else if (value >= 0)
-        return nonneg_to_buf(end, value);
-      else if (value > bottom<T>)
-        return neg_to_buf(end, -value);
-      else
-        return bottom_to_buf<T>(end);
-    }()
-  };
+  char *const pos{[end, &value]() {
+    if constexpr (std::is_unsigned_v<T>)
+      return nonneg_to_buf(end, value);
+    else if (value >= 0)
+      return nonneg_to_buf(end, value);
+    else if (value > bottom<T>)
+      return neg_to_buf(end, -value);
+    else
+      return bottom_to_buf<T>(end);
+  }()};
   return {pos, end - pos - 1};
 }
 
@@ -243,9 +241,9 @@ std::string demangle_type_name(char const raw[])
   // fall back to the raw name.
   //
   // When __cxa_demangle fails, it's guaranteed to return null.
-  std::unique_ptr<char, void(*)(char *)> const demangled{
+  std::unique_ptr<char, void (*)(char *)> const demangled{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-    [](char *x){ std::free(x); }};
+    [](char *x) { std::free(x); }};
 #else
   std::unique_ptr<char> demangled{};
 #endif
@@ -283,8 +281,7 @@ template<typename TYPE>
   // Skip whitespace.  This is not the proper way to do it, but I see no way
   // that any of the supported encodings could ever produce a valid character
   // whose byte sequence would confuse this code.
-  while (here < end and (*here == ' ' or *here == '\t'))
-       ++here;
+  while (here < end and (*here == ' ' or *here == '\t')) ++here;
 
   TYPE out{};
   auto const res{std::from_chars(here, end, out)};

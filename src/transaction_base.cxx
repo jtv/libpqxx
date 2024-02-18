@@ -236,11 +236,11 @@ public:
 
   ~command() noexcept { unregister_me(); }
 
-  command() =delete;
-  command(command const &) =delete;
-  command(command &&) =delete;
-  command &operator=(command const &) =delete;
-  command &operator=(command &&) =delete;
+  command() = delete;
+  command(command const &) = delete;
+  command(command &&) = delete;
+  command &operator=(command const &) = delete;
+  command &operator=(command &&) = delete;
 };
 } // namespace
 

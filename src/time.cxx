@@ -100,8 +100,7 @@ inline int year_from_buf(std::string_view text)
  * right after the last digit.  (It may or may not write a terminating zero at
  * that position itself.)
  */
-inline char *
-month_into_buf(char *begin, std::chrono::month const &value)
+inline char *month_into_buf(char *begin, std::chrono::month const &value)
 {
   unsigned const m{value};
   if (m >= ten)
@@ -166,8 +165,7 @@ inline std::size_t find_year_month_separator(std::string_view text) noexcept
   // but starting at the beginning produces more helpful error messages for
   // malformed years.
   std::size_t here{0};
-  while (here < std::size(text) and text[here] != '-')
-    ++here;
+  while (here < std::size(text) and text[here] != '-') ++here;
   return here;
 }
 

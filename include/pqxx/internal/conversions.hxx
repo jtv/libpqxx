@@ -871,9 +871,7 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
 
 
-template<>
-struct nullness<bytes>
-        : no_null<bytes>
+template<> struct nullness<bytes> : no_null<bytes>
 {};
 
 
@@ -930,20 +928,17 @@ template<> struct string_traits<bytes>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static std::size_t
-  size_buffer(bytes const &value) noexcept
+  static std::size_t size_buffer(bytes const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
-  static zview
-  to_buf(char *begin, char *end, bytes const &value)
+  static zview to_buf(char *begin, char *end, bytes const &value)
   {
     return generic_to_buf(begin, end, value);
   }
 
-  static char *
-  into_buf(char *begin, char *end, bytes const &value)
+  static char *into_buf(char *begin, char *end, bytes const &value)
   {
     auto const budget{size_buffer(value)};
     if (internal::cmp_less(end - begin, budget))
@@ -964,16 +959,13 @@ template<> struct string_traits<bytes>
 };
 
 
-template<>
-inline constexpr format param_format(bytes const &)
+template<> inline constexpr format param_format(bytes const &)
 {
   return format::binary;
 }
 
 
-template<>
-struct nullness<bytes_view>
-        : no_null<bytes_view>
+template<> struct nullness<bytes_view> : no_null<bytes_view>
 {};
 
 
@@ -982,20 +974,17 @@ template<> struct string_traits<bytes_view>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static std::size_t
-  size_buffer(bytes_view const &value) noexcept
+  static std::size_t size_buffer(bytes_view const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
   }
 
-  static zview to_buf(
-    char *begin, char *end, bytes_view const &value)
+  static zview to_buf(char *begin, char *end, bytes_view const &value)
   {
     return generic_to_buf(begin, end, value);
   }
 
-  static char *into_buf(
-    char *begin, char *end, bytes_view const &value)
+  static char *into_buf(char *begin, char *end, bytes_view const &value)
   {
     auto const budget{size_buffer(value)};
     if (internal::cmp_less(end - begin, budget))
@@ -1008,8 +997,7 @@ template<> struct string_traits<bytes_view>
   // There's no from_string, because there's nobody to hold the data.
 };
 
-template<>
-inline constexpr format param_format(bytes_view const &)
+template<> inline constexpr format param_format(bytes_view const &)
 {
   return format::binary;
 }

@@ -30,10 +30,8 @@ using namespace std::literals::string_view_literals;
 
 namespace
 {
-constexpr std::string_view
-    theSeparator{"; "sv},
-    theDummyValue{"1"sv},
-    theDummyQuery{"SELECT 1; "sv};
+constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
+  theDummyQuery{"SELECT 1; "sv};
 } // namespace
 
 
