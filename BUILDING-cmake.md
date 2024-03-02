@@ -59,8 +59,8 @@ So a simple working `CMakeLists.txt` might be:
 ```cmake
 cmake_minimum_required(VERSION 3.18)
 project(ausom)
-add_executable(ausom src/ausom.cxx)
 set(CMAKE_CXX_STANDARD 20)
+add_executable(ausom src/ausom.cxx)
 
 add_subdirectory(deps/libpqxx build-pqxx)
 target_link_libraries(ausom PRIVATE pqxx)
@@ -95,8 +95,8 @@ So a simple working `CMakeLists.txt` might be:
 ```cmake
 cmake_minimum_required(VERSION 3.18)
 project(ausom)
-add_executable(ausom src/ausom.cxx)
 set(CMAKE_CXX_STANDARD 20)
+add_executable(ausom src/ausom.cxx)
 
 find_package(libpqxx REQUIRED)
 target_link_libraries(ausom PRIVATE pqxx)
