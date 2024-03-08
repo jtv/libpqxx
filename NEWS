@@ -1,3 +1,4 @@
+7.9.1
 7.9.0
  - Support standard libraries without `std::basic_string<std::byte>` etc.
  - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
