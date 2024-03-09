@@ -320,7 +320,7 @@ private:
               "Array text representation closed and reopened its outside "
               "brace pair."};
           assert(here == 0);
-	  PQXX_ASSUME(here == 0);
+          PQXX_ASSUME(here == 0);
         }
         else
         {
