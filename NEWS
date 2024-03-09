@@ -1,4 +1,6 @@
 7.9.1
+ - Move `[[likely]]` feature check back to compile time, to speed up configure.
+ - Support `[[assume(...)]]`.
 7.9.0
  - Support standard libraries without `std::basic_string<std::byte>` etc.
  - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)

@@ -178,3 +178,15 @@
 #  define PQXX_LIKELY   /* [[likely]] */
 #  define PQXX_UNLIKELY /* [[unlikely]] */
 #endif
+
+
+// C++23: Assume support.
+// C++20: Assume __has_cpp_attribute is defined.
+// XXX: Find places to apply [[assume(...)]].
+#if !defined(__has_cpp_attribute)
+#  define PQXX_ASSUME(condition) while (false)
+#elif !__has_cpp_attribute(assume)
+#  define PQXX_ASSUME(condition) while (false)
+#else
+#  define PQXX_ASSUME(condition) [[assume(condition)]]
+#endif
