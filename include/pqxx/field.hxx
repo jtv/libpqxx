@@ -260,12 +260,13 @@ public:
    * @param c Column number of this field.
    */
   [[deprecated(
-    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
+    "Do not construct fields yourself.  Get them from the row.")]]
+  field(row const &r, row_size_type c) noexcept;
 
   /// Constructor.  Do not call this yourself; libpqxx will do it for you.
   [[deprecated(
-    "Do not construct fields yourself.  Get them from the "
-    "row.")]] field() noexcept = default;
+    "Do not construct fields yourself.  Get them from the row.")]]
+  field() noexcept = default;
 
 
 protected:
