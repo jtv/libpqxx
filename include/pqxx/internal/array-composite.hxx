@@ -23,9 +23,11 @@ inline std::size_t scan_double_quoted_string(
   // TODO: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
+  PQXX_ASSUME(next > pos);
   bool at_quote{false};
   pos = next;
   next = scanner::call(input, size, pos);
+  PQXX_ASSUME(next > pos);
   while (pos < size)
   {
     if (at_quote)
@@ -51,6 +53,7 @@ inline std::size_t scan_double_quoted_string(
         // Backslash escape.  Skip ahead by one more character.
         pos = next;
         next = scanner::call(input, size, pos);
+        PQXX_ASSUME(next > pos);
         break;
 
       case '"':
@@ -66,6 +69,7 @@ inline std::size_t scan_double_quoted_string(
     }
     pos = next;
     next = scanner::call(input, size, pos);
+    PQXX_ASSUME(next > pos);
   }
   if (not at_quote)
     throw argument_error{
@@ -90,6 +94,8 @@ inline std::string parse_double_quoted_string(
   using scanner = glyph_scanner<ENC>;
   auto here{scanner::call(input, end, pos)},
     next{scanner::call(input, end, here)};
+  PQXX_ASSUME(here > pos);
+  PQXX_ASSUME(next > here);
   while (here < end - 1)
   {
     // A backslash here is always an escape.  So is a double-quote, since we're
@@ -101,10 +107,12 @@ inline std::string parse_double_quoted_string(
       // Skip escape.
       here = next;
       next = scanner::call(input, end, here);
+      PQXX_ASSUME(next > here);
     }
     output.append(input + here, input + next);
     here = next;
     next = scanner::call(input, end, here);
+    PQXX_ASSUME(next > here);
   }
   return output;
 }
@@ -124,10 +132,12 @@ scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
 {
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
+  PQXX_ASSUME(next > pos);
   while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
     next = scanner::call(input, size, pos);
+    PQXX_ASSUME(next > pos);
   }
   return pos;
 }
@@ -174,6 +184,7 @@ inline void parse_composite_field(
 {
   assert(index <= last_field);
   auto next{glyph_scanner<ENC>::call(std::data(input), std::size(input), pos)};
+  PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)
     throw conversion_error{"Non-ASCII character in composite-type syntax."};
 
@@ -195,6 +206,7 @@ inline void parse_composite_field(
   case '"': {
     auto const stop{
       scan_double_quoted_string<ENC>(std::data(input), std::size(input), pos)};
+    PQXX_ASSUME(stop > pos);
     auto const text{
       parse_double_quoted_string<ENC>(std::data(input), stop, pos)};
     field = from_string<T>(text);
@@ -205,6 +217,7 @@ inline void parse_composite_field(
   default: {
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
       std::data(input), std::size(input), pos)};
+    PQXX_ASSUME(stop >= pos);
     field =
       from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
     pos = stop;
@@ -214,6 +227,7 @@ inline void parse_composite_field(
 
   // Expect a comma or a closing parenthesis.
   next = glyph_scanner<ENC>::call(std::data(input), std::size(input), pos);
+  PQXX_ASSUME(next > pos);
 
   if ((next - pos) != 1)
     throw conversion_error{
