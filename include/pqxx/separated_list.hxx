@@ -22,6 +22,7 @@
 
 // C++20: Simplify using std::ranges::range.
 // C++20: Optimise buffer allocation using random_access_range/iterator.
+// C++23: Use std::join_with().
 // TODO: Can we pass separators at compile time?
 namespace pqxx
 {
