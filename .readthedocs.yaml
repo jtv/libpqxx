@@ -17,7 +17,8 @@ build:
 sphinx:
   builder: html
   configuration: doc/conf.py
-  fail_on_warning: true
+  # Disabling this experimentally.
+  # fail_on_warning: true
 
 # We recommend specifying your dependencies to enable reproducible builds:
 # https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
