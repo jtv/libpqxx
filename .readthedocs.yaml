@@ -11,10 +11,11 @@ build:
   apt_packages:
     - doxygen
     - graphviz
+    - python3-graphviz
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-  #builder: html
+  builder: html
   configuration: doc/conf.py
   fail_on_warning: true
 
