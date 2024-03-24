@@ -45,11 +45,13 @@ namespace pqxx
 
 
 // C++23: Retire wrapper.
-#if defined(PQXX_HAVE_UNREACHABLE)
-/// Equivalent to `std::unreachable()` if available.
-#  define PQXX_UNREACHABLE std::unreachable()
-#else
+// PQXX_UNREACHABLE: equivalent to `std::unreachable()` if available.
+#if !defined(__cpp_lib_unreachable)
 #  define PQXX_UNREACHABLE assert(false)
+#elif !__cpp_lib_unreachable
+#  define PQXX_UNREACHABLE assert(false)
+#else
+#  define PQXX_UNREACHABLE std::unreachable()
 #endif
 
 

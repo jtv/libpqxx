@@ -58,6 +58,7 @@ inline std::size_t find_char(
   while (here < sz)
   {
     auto next{scanner(data, sz, here)};
+    PQXX_ASSUME(next > here);
     // (For some reason gcc had a problem with a right-fold here.  But clang
     // was fine.)
     if ((... or (data[here] == NEEDLE)))
@@ -91,6 +92,7 @@ inline void for_glyphs(
   for (std::size_t here = start, next; here < buffer_len; here = next)
   {
     next = scan(buffer, buffer_len, here);
+    PQXX_ASSUME(next > here);
     callback(buffer + here, buffer + next);
   }
 }
@@ -170,6 +172,7 @@ find_ascii_char(std::string_view haystack, std::size_t here)
     // Look up the next character boundary.  This can be quite costly, so we
     // desperately want the call inlined.
     auto next{glyph_scanner<ENC>::call(data, sz, here)};
+    PQXX_ASSUME(next > here);
 
     // (For some reason gcc had a problem with a right-fold here.  But clang
     // was fine.)
@@ -217,7 +220,11 @@ find_s_ascii_char(std::string_view haystack, std::size_t here)
   // No supported encoding has multibyte characters that start with an
   // ASCII-range byte.
   while ((... and (data[here] != NEEDLE)))
-    here = glyph_scanner<ENC>::call(data, sz, here);
+  {
+    auto const next = glyph_scanner<ENC>::call(data, sz, here);
+    PQXX_ASSUME(next > here);
+    here = next;
+  }
   return here;
 }
 

@@ -163,7 +163,7 @@ cpplint() {
 
 pylint() {
     pyflakes "$SRCDIR"/tools/*.py
-    ruff "$SRCDIR"/tools/*.py
+    ruff check "$SRCDIR"/tools/*.py
 }
 
 

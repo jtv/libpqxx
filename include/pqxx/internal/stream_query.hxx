@@ -209,6 +209,7 @@ private:
 
       // Beginning of the next character of interest (or the end of the line).
       auto const stop_char{m_char_finder(line, offset)};
+      PQXX_ASSUME(stop_char > offset);
       assert(stop_char < (line_size + 1));
 
       // Copy the text we have so far.  It's got no special characters in it.
@@ -270,6 +271,8 @@ private:
     assert(offset <= std::size(line));
 
     auto [new_offset, new_write, text]{read_field(line, offset, write)};
+    PQXX_ASSUME(new_offset > offset);
+    PQXX_ASSUME(new_write >= write);
     offset = new_offset;
     write = new_write;
     if constexpr (nullity::always_null)

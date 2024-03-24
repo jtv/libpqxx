@@ -491,6 +491,7 @@ template<typename... TYPE>
 [[nodiscard]] inline std::vector<std::string_view>
 to_buf(char *here, char const *end, TYPE... value)
 {
+  PQXX_ASSUME(here <= end);
   return {[&here, end](auto v) {
     auto begin = here;
     here = string_traits<decltype(v)>::into_buf(begin, end, v);

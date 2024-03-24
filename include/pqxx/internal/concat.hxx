@@ -12,7 +12,9 @@ namespace pqxx::internal
 template<typename TYPE>
 void render_item(TYPE const &item, char *&here, char *end)
 {
-  here = string_traits<TYPE>::into_buf(here, end, item) - 1;
+  auto const next = string_traits<TYPE>::into_buf(here, end, item) - 1;
+  PQXX_ASSUME(next >= here);
+  here = next;
 }
 
 

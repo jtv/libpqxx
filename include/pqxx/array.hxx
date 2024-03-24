@@ -218,6 +218,7 @@ private:
     case group::SJIS: parse<group::SJIS>(data); break;
     case group::UHC: parse<group::UHC>(data); break;
     case group::UTF8: parse<group::UTF8>(data); break;
+    default: PQXX_UNREACHABLE; break;
     }
   }
 
@@ -301,14 +302,12 @@ private:
     std::size_t dim{outer};
 
     // Extent counters, one per "real" dimension.
-    // Note initialiser syntax; this should zero-initialise all elements.
+    // Note initialiser syntax; this zero-initialises all elements.
     std::array<std::size_t, DIMENSIONS> extents{};
-#if !defined(NDEBUG)
-    for (auto const e : extents) assert(e == 0u);
-#endif
 
     // Current parsing position.
     std::size_t here{0};
+    PQXX_ASSUME(here <= sz);
     while (here < sz)
     {
       if (data[here] == '{')
@@ -321,6 +320,7 @@ private:
               "Array text representation closed and reopened its outside "
               "brace pair."};
           assert(here == 0);
+          PQXX_ASSUME(here == 0);
         }
         else
         {
@@ -412,6 +412,7 @@ private:
         }
         }
         here = end;
+        PQXX_ASSUME(here <= sz);
         here = parse_field_end(data, here);
       }
     }
@@ -419,6 +420,7 @@ private:
     if (dim != outer)
       throw conversion_error{"Malformed array; may be truncated."};
     assert(know_extents_from == 0);
+    PQXX_ASSUME(know_extents_from == 0);
 
     init_factors();
   }
