@@ -12,6 +12,7 @@ to show the default.
 import codecs
 import os
 from subprocess import check_call
+import sys
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -20,6 +21,7 @@ from subprocess import check_call
 #
 # import sys
 # sys.path.insert(0, os.path.abspath(os.path.curdir))
+sys.path.insert(0, os.path.abspath(os.path.curdir))
 
 
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
