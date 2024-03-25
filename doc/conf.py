@@ -9,7 +9,6 @@ All configuration values have a default; values that are commented out serve
 to show the default.
 """
 
-import codecs
 import os
 from pathlib import Path
 from subprocess import check_call
@@ -19,16 +18,13 @@ import sys
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, make it absolute, like shown here.
-#
-# import sys
-# sys.path.insert(0, os.path.abspath(os.path.curdir))
 sys.path.insert(0, Path(__file__).parents[1].absolute())
 
 
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
-    parent_dir = Path.cwd().parent
+    parent_dir = Path.cwd().parent.absolute
     # C++20: Replace -std=c++17 with -std=c++20.
     check_call(
         [parent_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
@@ -67,9 +63,7 @@ author = u'Jeroen T. Vermeulen'
 
 def read_version():
     """Return version number as specified in the VERSION file."""
-    version_file = Path(__file__).parents[1] / 'VERSION'
-    with codecs.open(version_file, encoding='ascii') as stream:
-        return stream.read().strip()
+    return (Path(__file__).parents[1] / 'VERSION').read_text().strip()
 
 
 # The version info for the project you're documenting, acts as replacement for
