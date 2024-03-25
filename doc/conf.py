@@ -28,11 +28,11 @@ sys.path.insert(0, Path(__file__).parents[1].absolute())
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
+    parent_dir = Path.cwd().parent
     # C++20: Replace -std=c++17 with -std=c++20.
     check_call(
-        [Path.cwd() / 'configure', 'CXXFLAGS=-std=c++17 -O0'],
-	cwd=Path.cwd().parent)
-    check_call('doxygen', cwd=(Path.cwd().parent / 'doc'))
+        [parent_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
+    check_call('doxygen', cwd=(parent_dir / 'doc'))
 
 # -- General configuration ------------------------------------------------
 
