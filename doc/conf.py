@@ -11,26 +11,28 @@ to show the default.
 
 import codecs
 import os
+from pathlib import Path
 from subprocess import check_call
 import sys
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
+# documentation root, make it absolute, like shown here.
 #
 # import sys
 # sys.path.insert(0, os.path.abspath(os.path.curdir))
-sys.path.insert(0, os.path.abspath(os.path.curdir))
+sys.path.insert(0, Path(__file__).parents[1].absolute())
 
 
 read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
 
 if read_the_docs_build:
+    # C++20: Replace -std=c++17 with -std=c++20.
     check_call(
-        [os.path.join(os.path.curdir, 'configure'), 'CXXFLAGS=-std=c++17 -O0'],
-	cwd=os.path.pardir)
-    check_call('doxygen', cwd=os.path.join(os.path.pardir, 'doc'))
+        [Path.cwd() / 'configure', 'CXXFLAGS=-std=c++17 -O0'],
+	cwd=Path.cwd().parent)
+    check_call('doxygen', cwd=(Path.cwd().parent / 'doc'))
 
 # -- General configuration ------------------------------------------------
 
@@ -65,8 +67,7 @@ author = u'Jeroen T. Vermeulen'
 
 def read_version():
     """Return version number as specified in the VERSION file."""
-    version_file = os.path.join(
-        os.path.dirname(__file__), os.path.pardir, 'VERSION')
+    version_file = Path(__file__).parents[1] / 'VERSION'
     with codecs.open(version_file, encoding='ascii') as stream:
         return stream.read().strip()
 
