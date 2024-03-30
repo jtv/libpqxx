@@ -28,11 +28,6 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
         [parent_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
     check_call('doxygen', cwd=(parent_dir / 'doc'))
 
-print(f"*** READTHEDOCS='{os.environ.get('READTHEDOCS')}' ***") # XXX: DEBUG
-print(f"*** READTHEDOCS_PROJECT='{os.environ.get('READTHEDOCS_PROJECT')}' ***") # XXX: DEBUG
-print(f"*** READTHEDOCS_VERSION='{os.environ.get('READTHEDOCS_VERSION')}' ***") # XXX: DEBUG
-print(f"*** READTHEDOCS_VERSION_NAME='{os.environ.get('READTHEDOCS_VERSION_NAME')}' ***") # XXX: DEBUG
-print(f"*** READTHEDOCS_OUTPUT='{os.environ.get('READTHEDOCS_OUTPUT')}' ***") # XXX: DEBUG
 
 # -- General configuration ------------------------------------------------
 
@@ -136,9 +131,9 @@ html_sidebars = {
 # has readthedocs copy the full generated HTML tree to the output directory.
 #
 # Problem is, that doesn't seem to be working now.  This needs debugging.
-html_extra_path = [
-    str(Path(os.environ.get("READTHEDOCS_OUTPUT", '.')) / "html")
-]
+#html_extra_path = [
+#    str(Path(os.environ.get("READTHEDOCS_OUTPUT", '.')) / "html")
+#]
 
 # -- Options for HTMLHelp output ------------------------------------------
 
