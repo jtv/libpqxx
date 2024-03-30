@@ -21,14 +21,18 @@ import sys
 sys.path.insert(0, Path(__file__).parents[1].absolute())
 
 
-read_the_docs_build = os.environ.get('READTHEDOCS') == 'True'
-
-if read_the_docs_build:
+if os.environ.get('READTHEDOCS', '').strip() == 'True':
     parent_dir = Path.cwd().parent.absolute()
     # C++20: Replace -std=c++17 with -std=c++20.
     check_call(
         [parent_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
     check_call('doxygen', cwd=(parent_dir / 'doc'))
+
+print(f"*** READTHEDOCS='{os.environ.get('READTHEDOCS')}' ***") # XXX: DEBUG
+print(f"*** READTHEDOCS_PROJECT='{os.environ.get('READTHEDOCS_PROJECT')}' ***") # XXX: DEBUG
+print(f"*** READTHEDOCS_VERSION='{os.environ.get('READTHEDOCS_VERSION')}' ***") # XXX: DEBUG
+print(f"*** READTHEDOCS_VERSION_NAME='{os.environ.get('READTHEDOCS_VERSION_NAME')}' ***") # XXX: DEBUG
+print(f"*** READTHEDOCS_OUTPUT='{os.environ.get('READTHEDOCS_OUTPUT')}' ***") # XXX: DEBUG
 
 # -- General configuration ------------------------------------------------
 
