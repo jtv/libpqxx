@@ -132,7 +132,9 @@ html_sidebars = {
 # has readthedocs copy the full generated HTML tree to the output directory.
 #
 # Problem is, that doesn't seem to be working now.  This needs debugging.
-html_extra_path = [str(Path(__file__).parent.absolute() / "html")]
+html_extra_path = [
+    str(Path(os.environ.get("READTHEDOCS_OUTPUT", '.')) / "html")
+]
 
 # -- Options for HTMLHelp output ------------------------------------------
 

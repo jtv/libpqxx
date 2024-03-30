@@ -15,8 +15,7 @@ build:
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-  # builder: html
-  builder: dirhtml
+  builder: html
   configuration: doc/conf.py
   fail_on_warning: true
 
