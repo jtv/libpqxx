@@ -28,11 +28,6 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	if [ -x "$(DOXYGEN)" ]; then \
 	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
-	  if [ -n "${READTHEDOCS_SOURCE:-}" ]; then \
-	  if [ "${READTHEDOCS_SOURCE}" != "$(pwd)" ]; then \
-	  cp -r html "${READTHEDOCS_SOURCE}/html" \
-	  fi; \
-	  fi; \
 	  touch $@; \
 	else \
 	  echo >&2; \
