@@ -27,7 +27,8 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
-    check_call('doxygen', cwd=(build_dir / 'doc'))
+    #check_call('doxygen', cwd=(build_dir / 'doc'))
+    check_call(['make'], cwd=(build_dir / 'doc'))
 
 
 # -- General configuration ------------------------------------------------
