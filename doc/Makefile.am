@@ -29,9 +29,6 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
-	  if [ -n "${READTHEDOCS_OUTPUT}" ]; then \
-	    cp -r html "${READTHEDOCS_OUTPUT}/"; \
-	  fi; \
 	else \
 	  echo >&2; \
 	  echo >&2 "*****************************************************"; \
