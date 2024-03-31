@@ -15,22 +15,24 @@ from subprocess import check_call
 import sys
 
 
+source_dir = Path(__file__).parents[1].absolute()
+build_dir = Path.cwd().parent.absolute()
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, make it absolute, like shown here.
-sys.path.insert(0, Path(__file__).parents[1].absolute())
+sys.path.insert(0, source_dir)
 
-breathe_projects = {}
+breathe_projects = {
+    'libpqxx': (build_dir / 'xml'),
+}
 breathe_default_project = 'libpqxx'
 
 if os.environ.get('READTHEDOCS', '').strip() == 'True':
-    source_dir = Path(__file__).parents[1]
-    build_dir = Path.cwd().parent.absolute()
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
     check_call('doxygen', cwd=(build_dir / 'doc'))
-    breathe_projects['libpqxx'] = (build_dir / 'xml')
 
 
 # -- General configuration ------------------------------------------------
