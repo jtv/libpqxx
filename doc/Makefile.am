@@ -29,6 +29,7 @@ reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	  $(MKDIR_P) html; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
+	  echo "*** Wrote documentation to $(pwd)/html/. ***"; \
 	else \
 	  echo >&2; \
 	  echo >&2 "*****************************************************"; \
