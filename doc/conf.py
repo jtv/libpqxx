@@ -45,6 +45,8 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
 #    ]
 extensions = ['breathe']
 
+breathe_default_project = 'libpqxx'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
