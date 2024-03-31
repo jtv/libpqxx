@@ -28,4 +28,6 @@ sphinx:
 sphinx:
   configuration: doc/conf.py
 
-requirements_file: doc/requirements.txt
+python:
+  install:
+    - requirements: doc/requirements.txt
