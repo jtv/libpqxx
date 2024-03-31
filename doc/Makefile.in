@@ -480,7 +480,7 @@ docs: $(DOCS)
 reference: reference-stamp
 reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
 	if [ -x "$(DOXYGEN)" ]; then \
-	  $(MKDIR_P) html; \
+	  $(MKDIR_P) html xml; \
 	  $(DOXYGEN) Doxyfile; \
 	  touch $@; \
 	  echo "*** Wrote documentation to $(pwd)/html/. ***"; \

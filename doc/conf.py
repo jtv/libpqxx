@@ -20,6 +20,8 @@ import sys
 # documentation root, make it absolute, like shown here.
 sys.path.insert(0, Path(__file__).parents[1].absolute())
 
+breathe_projects = {}
+breathe_default_project = 'libpqxx'
 
 if os.environ.get('READTHEDOCS', '').strip() == 'True':
     source_dir = Path(__file__).parents[1]
@@ -27,8 +29,8 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
-    #check_call('doxygen', cwd=(build_dir / 'doc'))
-    check_call(['make'], cwd=(build_dir / 'doc'))
+    check_call('doxygen', cwd=(build_dir / 'doc'))
+    breathe_projects['libpqxx'] = (build_dir / 'xml')
 
 
 # -- General configuration ------------------------------------------------
@@ -44,8 +46,6 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
 #    'sphinx.ext.autodoc',
 #    ]
 extensions = ['breathe']
-
-breathe_default_project = 'libpqxx'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
