@@ -27,3 +27,5 @@ sphinx:
 
 sphinx:
   configuration: doc/conf.py
+
+requirements_file: doc/requirements.txt
