@@ -22,10 +22,11 @@ sys.path.insert(0, Path(__file__).parents[1].absolute())
 
 
 if os.environ.get('READTHEDOCS', '').strip() == 'True':
+    root_dir = Path(__file__).parents[1]
     parent_dir = Path.cwd().parent.absolute()
     # C++20: Replace -std=c++17 with -std=c++20.
     check_call(
-        [parent_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
+        [root_dir / 'configure', 'CXXFLAGS=-std=c++17 -O0'], cwd=parent_dir)
     check_call('doxygen', cwd=(parent_dir / 'doc'))
 
 
