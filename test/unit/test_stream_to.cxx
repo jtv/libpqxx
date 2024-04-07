@@ -544,6 +544,21 @@ void test_stream_to_moves_into_optional()
 }
 
 
+void test_stream_to_empty_strings()
+{
+  // Reproduce #816: Streaming an array of 4 or more empty strings to a table
+  // using stream_to crashes.
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  tx.exec0("CREATE TEMP TABLE strs (list text[])");
+  std::vector<std::string> empties{"", "", "", ""};
+  auto stream{pqxx::stream_to::table(tx, {"strs"})};
+  stream.write_values(std::variant<std::vector<std::string>>{empties});
+  stream.complete();
+  tx.commit();
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
@@ -553,4 +568,5 @@ PQXX_REGISTER_TEST(test_stream_to_quotes_arguments);
 PQXX_REGISTER_TEST(test_stream_to_optionals);
 PQXX_REGISTER_TEST(test_stream_to_escaping);
 PQXX_REGISTER_TEST(test_stream_to_moves_into_optional);
+PQXX_REGISTER_TEST(test_stream_to_empty_strings);
 } // namespace

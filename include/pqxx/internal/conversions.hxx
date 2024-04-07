@@ -1059,8 +1059,12 @@ public:
         // Use the tail end of the destination buffer as an intermediate
         // buffer.
         auto const elt_budget{pqxx::size_buffer(elt)};
+	assert(elt_budget < (end - here));
         for (char const c : elt_traits::to_buf(end - elt_budget, end, elt))
         {
+	  // We copy the intermediate buffer into the final buffer, char by
+	  // char, with escaping where necessary.
+	  // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
           if (c == '\\' or c == '"')
             *here++ = '\\';
           *here++ = c;
@@ -1101,7 +1105,7 @@ public:
                      // but don't count the trailing zeroes.
                      std::size_t const elt_size{
                        pqxx::is_null(elt) ? std::size(s_null) :
-                                            elt_traits::size_buffer(elt) - 1};
+                                            elt_traits::size_buffer(elt)};
                      return acc + 2 * elt_size + 2;
                    });
   }
