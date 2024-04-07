@@ -1025,6 +1025,7 @@ public:
 
   static char *into_buf(char *begin, char *end, Container const &value)
   {
+    assert(begin <= end);
     std::size_t const budget{size_buffer(value)};
     if (internal::cmp_less(end - begin, budget))
       throw conversion_overrun{
@@ -1059,7 +1060,7 @@ public:
         // Use the tail end of the destination buffer as an intermediate
         // buffer.
         auto const elt_budget{pqxx::size_buffer(elt)};
-	assert(elt_budget < (end - here));
+	assert(elt_budget < static_cast<std::size_t>(end - here));
         for (char const c : elt_traits::to_buf(end - elt_budget, end, elt))
         {
 	  // We copy the intermediate buffer into the final buffer, char by
