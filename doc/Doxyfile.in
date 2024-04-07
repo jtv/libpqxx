@@ -1119,7 +1119,7 @@ EXTERNAL_GROUPS        = YES
 # fallback. It is recommended to install and use dot, since it yields more
 # powerful graphs.
 
-CLASS_DIAGRAMS         = YES
+# CLASS_DIAGRAMS         = YES
 
 # If set to YES, the inheritance and collaboration graphs will hide
 # inheritance and usage relations if the target is undocumented
