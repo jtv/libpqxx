@@ -420,6 +420,25 @@ void test_generate_escaped_strings()
 }
 
 
+void test_array_generate_empty_strings()
+{
+  // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>({""})),
+    "{\"\"}",
+    "Array of one empty string came out wrong.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>({"", "", "", ""})),
+    "{\"\",\"\",\"\",\"\"}",
+    "Array of 4 empty strings came out wrong.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>(
+        {"", "", "", "", "", "", "", "", "", "", "", ""})),
+    "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}",
+    "Array of 12 empty strings came out wrong.");
+}
+
+
 void test_array_generate()
 {
   test_generate_empty_array();
@@ -696,4 +715,5 @@ PQXX_REGISTER_TEST(test_array_parses_quoted_strings);
 PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
 PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
+PQXX_REGISTER_TEST(test_array_generate_empty_strings);
 } // namespace
