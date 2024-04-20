@@ -224,9 +224,9 @@ the API — or how it uses the API internally.
     template<> struct string_traits<T>
     {
       // Do you support converting T to PostgreSQL string format?
-      static constexpr converts_to_string{true};
+      static constexpr bool converts_to_string{true};
       // Do you support converting PostgreSQL string format to T?
-      static constexpr converts_from_string{true};
+      static constexpr bool converts_from_string{true};
 
       // If converts_to_string is true:
 
