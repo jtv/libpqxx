@@ -291,7 +291,7 @@ std::size_t pqxx::blob::append_to_buf(
   {
     auto here{reinterpret_cast<char *>(std::data(buf) + org_size)};
     auto chunk{static_cast<std::size_t>(
-      lo_read(b.raw_conn(b.m_conn), b.m_fd, here, append_max))};
+      lo_read(raw_conn(b.m_conn), b.m_fd, here, append_max))};
     buf.resize(org_size + chunk);
     return chunk;
   }
