@@ -25,6 +25,7 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
+#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -250,9 +251,17 @@ std::string demangle_type_name(char const raw[])
   return std::string{demangled ? demangled.get() : raw};
 }
 
+
+// TODO: Equivalents for converting a null in the other direction.
 void PQXX_COLD throw_null_conversion(std::string const &type)
 {
-  throw conversion_error{"Attempt to convert null to " + type + "."};
+  throw conversion_error{concat("Attempt to convert null to ", type, ".")};
+}
+
+
+void PQXX_COLD throw_null_conversion(std::string_view type)
+{
+  throw conversion_error{concat("Attempt to convert null to ", type, ".")};
 }
 
 

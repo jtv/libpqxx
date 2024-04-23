@@ -58,6 +58,11 @@ inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 throw_null_conversion(std::string const &type);
 
 
+/// Throw exception for attempt to convert null to given type.
+[[noreturn]] PQXX_LIBEXPORT PQXX_COLD void
+throw_null_conversion(std::string_view type);
+
+
 /// Deliberately nonfunctional conversion traits for `char` types.
 /** There are no string conversions for `char` and its signed and unsigned
  * variants.  Such a conversion would be dangerously ambiguous: should we treat
