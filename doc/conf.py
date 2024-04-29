@@ -24,7 +24,7 @@ build_dir = Path.cwd().parent.absolute()
 sys.path.insert(0, source_dir)
 
 breathe_projects = {
-    'libpqxx': (build_dir / 'xml'),
+    'auto': (build_dir / 'xml'),
 }
 breathe_default_project = 'libpqxx'
 
