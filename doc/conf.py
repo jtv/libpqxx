@@ -30,6 +30,7 @@ sys.path.insert(0, source_dir)
 
 breathe_projects = {
     'auto': (build_dir / 'xml'),
+    'libpqxx': (build_dir / 'xml'),
 }
 breathe_default_project = 'libpqxx'
 

@@ -6,5 +6,5 @@
 libpqxx
 =======
 
-.. autodoxygenindex::
+.. doxygenindex::
    :project: auto
