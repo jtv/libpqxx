@@ -7,4 +7,4 @@ libpqxx
 =======
 
 .. doxygenindex::
-   :project: auto
+   :project: libpqxx
