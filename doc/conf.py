@@ -28,13 +28,12 @@ sys.path.append(Path.cwd().parent)
 # documentation root, make it absolute, like shown here.
 sys.path.insert(0, source_dir)
 
-# XXX: Breathe docs use both these names.
+
 breathe_projects = {
     'libpqxx': (build_dir / 'xml'),
-    'auto': (build_dir / 'xml'),
+}
 breathe_projects_source = {
-    'libpqxx': (build_dir / 'xml'),
-    'auto': (build_dir / 'xml'),
+    'libpqxx': (source_dir / 'include/', 'src'),
 }
 breathe_default_project = 'libpqxx'
 
