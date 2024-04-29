@@ -7,4 +7,4 @@ libpqxx
 =======
 
 .. autodoxygenindex::
-   :project: libpqxx
+   :project: auto
