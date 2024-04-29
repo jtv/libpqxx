@@ -28,17 +28,18 @@ sys.path.append(Path.cwd().parent)
 # documentation root, make it absolute, like shown here.
 sys.path.insert(0, source_dir)
 
+# XXX: Which of these, if any, is what we actually need?
 breathe_projects = {
     'auto': (build_dir / 'xml'),
     'libpqxx': (build_dir / 'xml'),
 }
 breathe_default_project = 'libpqxx'
 
-if os.environ.get('READTHEDOCS', '').strip() == 'True':
+if os.environ.get('READTHEDOCS') == 'True':
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
-    check_call('doxygen', cwd=(build_dir / 'doc'))
+    check_call('doxygen', cwd=(Path.cwd().parent / 'doc'))
 
 
 # -- General configuration ------------------------------------------------
@@ -59,10 +60,7 @@ extensions = ['breathe', 'myst_parser']
 templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = '.rst'
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst', '.md', 'xml']
 
 # The master toctree document.
 master_doc = 'index'
