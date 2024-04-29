@@ -1,2 +1,3 @@
 # Python packages that sphinx needs installed.
 breathe
+myst-parser
