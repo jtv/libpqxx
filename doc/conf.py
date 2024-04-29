@@ -39,6 +39,8 @@ if os.environ.get('READTHEDOCS') == 'True':
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
+    print("*** Dirtree... ***") # XXX: DEBUG
+    check_call(['ls', '-R']) # XXX: DEBUG
     check_call('doxygen', cwd=(Path.cwd().parent / 'doc'))
 
 
