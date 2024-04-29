@@ -36,10 +36,10 @@ breathe_default_project = 'libpqxx'
 
 if os.environ.get('READTHEDOCS') == 'True':
     # C++23: Upgrade C++ version.
-    check_call(['ls', '-Rl', '..']) # XXX: DEBUG
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
-    check_call('doxygen', cwd=(Path.cwd().parent / 'doc'))
+    check_call(['mkdir', build_dir / 'doc' / 'xml'])
+    check_call('doxygen', cwd=(build_dir / 'doc'))
 
 
 # -- General configuration ------------------------------------------------

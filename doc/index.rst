@@ -8,3 +8,4 @@ libpqxx
 
 .. doxygenindex::
    :project: libpqxx
+   :path: doc/xml
