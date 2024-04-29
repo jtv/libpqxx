@@ -28,7 +28,11 @@ sys.path.append(Path.cwd().parent)
 # documentation root, make it absolute, like shown here.
 sys.path.insert(0, source_dir)
 
+# XXX: Breathe docs use both these names.
 breathe_projects = {
+    'libpqxx': (build_dir / 'xml'),
+    'auto': (build_dir / 'xml'),
+breathe_projects_source = {
     'libpqxx': (build_dir / 'xml'),
     'auto': (build_dir / 'xml'),
 }
@@ -38,7 +42,6 @@ if os.environ.get('READTHEDOCS') == 'True':
     # C++23: Upgrade C++ version.
     check_call(
         [source_dir / 'configure', 'CXXFLAGS=-std=c++20 -O0'], cwd=build_dir)
-    check_call(['mkdir', build_dir / 'doc' / 'xml'])
     check_call('doxygen', cwd=(build_dir / 'doc'))
 
 
