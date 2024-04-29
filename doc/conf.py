@@ -47,7 +47,7 @@ if os.environ.get('READTHEDOCS', '').strip() == 'True':
 #extensions = [
 #    'sphinx.ext.autodoc',
 #    ]
-extensions = ['breathe']
+extensions = ['breathe', 'myst_parser']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
