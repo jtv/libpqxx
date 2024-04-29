@@ -18,6 +18,11 @@ import sys
 source_dir = Path(__file__).parents[1].absolute()
 build_dir = Path.cwd().parent.absolute()
 
+
+# Trying this as a way to get myst_parser extension working.
+sys.path.append(Path.cwd().parent)
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, make it absolute, like shown here.
