@@ -40,7 +40,7 @@ def recursive_dir(path, relative_to):
         else:
             reldir = os.path.relpath(dirpath, relative_to)
         for filename in sorted(filenames):
-	    filename = os.path.normpath(filename)
+            filename = os.path.normpath(filename)
             if not filename.startswith('.'):
                 files.append(os.path.join(reldir, filename))
     return files
