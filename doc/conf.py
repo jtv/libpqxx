@@ -29,13 +29,37 @@ sys.path.append(Path.cwd().parent)
 sys.path.insert(0, source_dir)
 
 
+def recursive_dir(path, relative_to):
+    """List all files in `path`, as relative paths from `relative_to`."""
+    files = []
+    for dirpath, _, filenames in os.walk(path):
+        if dirpath == path:
+            reldir = ''
+        else:
+            reldir = os.path.relpath(dirpath, relative_to)
+        for filename in filenames:
+            if not filename.beginswith('.'):
+                files.append(os.path.join(reldir, filename))
+    return files
+
+
 breathe_projects = {
-    'libpqxx': (build_dir / 'xml'),
+    'libpqxx': (build_dir / 'doc'),
 }
 breathe_projects_source = {
-    'libpqxx': (source_dir / 'include/', 'src'),
+    'libpqxx': (
+        source_dir / 'include',
+        (
+            recursive_dir(source_dir / 'include', source_dir) +
+            recursive_dir(source_dir / 'src', source_dir)
+        )
+    ),
 }
 breathe_default_project = 'libpqxx'
+
+
+breathe_implementation_filename_extensions = ['.cxx']
+
 
 if os.environ.get('READTHEDOCS') == 'True':
     # C++23: Upgrade C++ version.
