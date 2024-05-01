@@ -31,13 +31,16 @@ sys.path.insert(0, source_dir)
 
 def recursive_dir(path, relative_to):
     """List all files in `path`, as relative paths from `relative_to`."""
+    path = os.path.normpath(path)
+    relative_to = os.path.normpath(relative_to)
     files = []
     for dirpath, _, filenames in os.walk(path):
         if dirpath == path:
             reldir = ''
         else:
             reldir = os.path.relpath(dirpath, relative_to)
-        for filename in filenames:
+        for filename in sorted(filenames):
+	    filename = os.path.normpath(filename)
             if not filename.startswith('.'):
                 files.append(os.path.join(reldir, filename))
     return files
