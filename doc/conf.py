@@ -55,7 +55,6 @@ breathe_projects_source = {
     'libpqxx': (
         source_dir,
         (
-            recursive_dir(source_dir / 'include', source_dir) +
             recursive_dir(source_dir / 'src', source_dir)
         )
     ),
