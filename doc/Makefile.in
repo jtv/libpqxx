@@ -300,8 +300,6 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 Doxyfile: $(top_builddir)/config.status $(srcdir)/Doxyfile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-	echo "xxxxx Checking Doxyfile: xxxxx" # XXX: DEBUG CODE
-	grep INCLUDE_PATH Doxyfile # XXX: DEBUG CODE
 
 mostlyclean-libtool:
 	-rm -f *.lo

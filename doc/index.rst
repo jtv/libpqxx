@@ -6,6 +6,6 @@
 libpqxx
 =======
 
-.. doxygenindex::
+.. autodoxygenindex::
    :project: libpqxx
-   :path: doc/xml
+   :source-path: doc/xml
