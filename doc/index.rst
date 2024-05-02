@@ -10,5 +10,10 @@ libpqxx
 Sphinx and Doxygen working again (this time also using Breathe), but clearly
 I'm missing something.**
 
+.. toctree::
+   :maxdepth: 2
+
+   ../include/pqxx/doc/mainpage
+
 .. autodoxygenindex::
    :project: libpqxx
