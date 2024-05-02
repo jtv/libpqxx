@@ -55,6 +55,7 @@ breathe_projects_source = {
     'libpqxx': (
         source_dir,
         (
+	    ['include/pqxx/doc/mainpage.md'] +
             recursive_dir(source_dir / 'src', source_dir) +
 	    recursive_dir(source_dir / 'include/pqxx', source_dir)
         )
