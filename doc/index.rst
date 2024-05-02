@@ -13,3 +13,5 @@ I'm missing something.
 .. autodoxygenindex::
    :project: libpqxx
    :source-path: doc/xml
+
+.. toctree::
