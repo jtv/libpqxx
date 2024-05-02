@@ -10,5 +10,5 @@ libpqxx
 Sphinx and Doxygen working again (this time also using Breathe), but clearly
 I'm missing something.**
 
-.. doxygenindex::
+.. autodoxygenindex::
    :project: libpqxx
