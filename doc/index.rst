@@ -6,11 +6,9 @@
 libpqxx
 =======
 
-I'm sorry, this page is broken for now.  I'm trying to get ReadTheDocs with
+**I'm sorry, this page is broken for now.  I'm trying to get ReadTheDocs with
 Sphinx and Doxygen working again (this time also using Breathe), but clearly
-I'm missing something.
+I'm missing something.**
 
-.. mainpage::
-
-.. autodoxygenindex::
+.. doxygenindex::
    :project: libpqxx
