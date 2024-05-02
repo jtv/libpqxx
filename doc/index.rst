@@ -11,4 +11,4 @@ Sphinx and Doxygen working again (this time also using Breathe), but clearly
 I'm missing something.**
 
 .. autodoxygenindex::
-   :source: libpqxx
+   :project: libpqxx
