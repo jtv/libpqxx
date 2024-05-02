@@ -13,7 +13,7 @@ I'm missing something.**
 .. toctree::
    :maxdepth: 2
 
-   ../include/pqxx/doc/mainpage
+   "../include/pqxx/doc/mainpage"
 
 .. autodoxygenindex::
    :project: libpqxx
