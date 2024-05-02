@@ -55,7 +55,8 @@ breathe_projects_source = {
     'libpqxx': (
         source_dir,
         (
-            recursive_dir(source_dir / 'src', source_dir)
+            recursive_dir(source_dir / 'src', source_dir) +
+	    recursive_dir(source_dir / 'include/pqxx', source_dir)
         )
     ),
 }
@@ -96,7 +97,7 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'index.rst'
 
 # General information about the project.
 project = u'libpqxx'

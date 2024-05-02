@@ -9,4 +9,3 @@ libpqxx
 .. autodoxygenindex::
    :project: libpqxx
    :source-path: doc/xml
-   :outline:
