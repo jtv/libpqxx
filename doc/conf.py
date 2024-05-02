@@ -35,14 +35,16 @@ def recursive_dir(path, relative_to):
     relative_to = os.path.normpath(relative_to)
     files = []
     for dirpath, _, filenames in os.walk(path):
-        if dirpath == path:
-            reldir = ''
-        else:
-            reldir = os.path.relpath(dirpath, relative_to)
-        for filename in sorted(filenames):
+        local = os.path.samefile(dirpath, relative_to)
+        reldir = os.path.relpath(dirpath, relative_to)
+        for filename in filenames:
             filename = os.path.normpath(filename)
             if not filename.startswith('.'):
-                files.append(os.path.join(reldir, filename))
+                if local:
+                    relative = filename
+                else:
+                    relative = os.path.join(reldir, filename)
+                files.append(relative)
     return files
 
 
