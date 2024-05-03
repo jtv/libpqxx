@@ -98,6 +98,8 @@ source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
+# Or has it been renamed to this?
+root_doc = 'index'
 
 # General information about the project.
 project = u'libpqxx'
