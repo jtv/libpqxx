@@ -13,10 +13,5 @@ I'm missing something.**
 **Depending on where I am in my desperate quest for a working setup, the
 introduction may be all the way at the bottom.**
 
-```{include-literal} ../include/pqxx/doc/mainpage.md
-:language: md
-```
-
-
 .. autodoxygenindex::
    :project: libpqxx
