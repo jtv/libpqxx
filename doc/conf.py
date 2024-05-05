@@ -97,9 +97,9 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 # Or has it been renamed to this?
-root_doc = 'index'
+root_doc = 'contents'
 
 # General information about the project.
 project = u'libpqxx'
