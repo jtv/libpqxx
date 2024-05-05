@@ -2,4 +2,7 @@ libpqxx
 =======
 
 .. toctree::
-   :project: libpqxx
+
+   mainpage
+   parameters
+   streams
