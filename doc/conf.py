@@ -94,7 +94,14 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = '.rst'
-source_suffix = ['.rst', '.md']
+#source_suffix = ['.rst', '.md']
+
+# This is now a dict:
+{
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+
 
 # The master toctree document.
 master_doc = 'contents'
@@ -103,7 +110,11 @@ root_doc = 'contents'
 
 # General information about the project.
 project = u'libpqxx'
+
 copyright = u'2000-2024, Jeroen T. Vermeulen'
+# Was renamed to...
+project_copyright = u'2000-2024, Jeroen T. Vermeulen'
+
 author = u'Jeroen T. Vermeulen'
 
 
