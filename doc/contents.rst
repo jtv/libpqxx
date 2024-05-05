@@ -1,0 +1,5 @@
+libpqxx
+=======
+
+.. toctree::
+   :project: libpqxx
