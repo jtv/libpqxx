@@ -15,3 +15,4 @@ introduction may be all the way at the bottom.**
 
 .. autodoxygenindex::
    :project: libpqxx
+   :outline:
