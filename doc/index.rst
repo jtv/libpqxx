@@ -18,4 +18,3 @@ All documentation:
 
 .. autodoxygenindex::
    :project: libpqxx
-   :reversed:
