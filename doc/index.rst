@@ -17,7 +17,8 @@ introduction may be all the way at the bottom.**
    :reverse:
 
    mainpage
-   parameters stream
+   parameters
+   stream
 
 All documentation:
 
