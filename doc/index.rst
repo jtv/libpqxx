@@ -14,11 +14,7 @@ I'm missing something.**
 introduction may be all the way at the bottom.**
 
 .. toctree::
-   :reverse:
-
-   mainpage
-   parameters
-   stream
+   :reversed:
 
 All documentation:
 
