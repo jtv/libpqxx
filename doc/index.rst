@@ -13,10 +13,9 @@ I'm missing something.**
 **Depending on where I am in my desperate quest for a working setup, the
 introduction may be all the way at the bottom.**
 
-.. toctree::
-   :reversed:
 
 All documentation:
 
 .. autodoxygenindex::
    :project: libpqxx
+   :reversed:
