@@ -424,16 +424,14 @@ void test_array_generate_empty_strings()
 {
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>({""})),
-    "{\"\"}",
+    pqxx::to_string(std::vector<std::string>({""})), "{\"\"}",
     "Array of one empty string came out wrong.");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>({"", "", "", ""})),
-    "{\"\",\"\",\"\",\"\"}",
-    "Array of 4 empty strings came out wrong.");
+    "{\"\",\"\",\"\",\"\"}", "Array of 4 empty strings came out wrong.");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>(
-        {"", "", "", "", "", "", "", "", "", "", "", ""})),
+      {"", "", "", "", "", "", "", "", "", "", "", ""})),
     "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}",
     "Array of 12 empty strings came out wrong.");
 }

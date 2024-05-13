@@ -1065,12 +1065,12 @@ public:
         // Use the tail end of the destination buffer as an intermediate
         // buffer.
         auto const elt_budget{pqxx::size_buffer(elt)};
-	assert(elt_budget < static_cast<std::size_t>(end - here));
+        assert(elt_budget < static_cast<std::size_t>(end - here));
         for (char const c : elt_traits::to_buf(end - elt_budget, end, elt))
         {
-	  // We copy the intermediate buffer into the final buffer, char by
-	  // char, with escaping where necessary.
-	  // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
+          // We copy the intermediate buffer into the final buffer, char by
+          // char, with escaping where necessary.
+          // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
           if (c == '\\' or c == '"')
             *here++ = '\\';
           *here++ = c;
