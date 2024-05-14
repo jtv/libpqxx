@@ -498,8 +498,7 @@ using fieldstream = basic_fieldstream<char>;
  * can then use to read, format and convert the field in ways that to() does
  * not support.
  *
- * Example: parse a field into a variable of the nonstandard
- * "<tt>long long</tt>" type.
+ * Example: parse a field into a variable of the nonstandard `long long` type.
  *
  * ```cxx
  * extern result R;
