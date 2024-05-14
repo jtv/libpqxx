@@ -97,7 +97,7 @@ templates_path = ['_templates']
 #source_suffix = ['.rst', '.md']
 
 # This is now a dict:
-{
+source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'markdown',
 }
