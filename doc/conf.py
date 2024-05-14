@@ -109,13 +109,13 @@ master_doc = 'index'
 root_doc = 'index'
 
 # General information about the project.
-project = u'libpqxx'
+project = 'libpqxx'
 
-copyright = u'2000-2024, Jeroen T. Vermeulen'
+copyright = '2000-2024, Jeroen T. Vermeulen'
 # Was renamed to...
-project_copyright = u'2000-2024, Jeroen T. Vermeulen'
+project_copyright = copyright
 
-author = u'Jeroen T. Vermeulen'
+author = 'Jeroen T. Vermeulen'
 
 
 def read_version():
@@ -226,8 +226,8 @@ latex_documents = [
     (
         master_doc,
         'libpqxx.tex',
-        u'libpqxx Documentation',
-        u'Jeroen T. Vermeulen',
+        'libpqxx Documentation',
+        'Jeroen T. Vermeulen',
         'manual',
     ),
 ]
@@ -238,7 +238,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'libpqxx', u'libpqxx Documentation', [author], 1)
+    (master_doc, 'libpqxx', 'libpqxx Documentation', [author], 1)
 ]
 
 
@@ -248,7 +248,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'libpqxx', u'libpqxx Documentation',
+    (master_doc, 'libpqxx', 'libpqxx Documentation',
      author, 'libpqxx', "C++ client API for PostgreSQL.",
      'Miscellaneous'),
 ]
