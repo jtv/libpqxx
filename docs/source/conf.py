@@ -15,11 +15,15 @@ release = '.'.join(version.split('.')[:2])
 # -- General configuration
 
 extensions = [
+    # From readthedocs template:
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+
+    # Additional:
+    'myst_parser',
 ]
 
 intersphinx_mapping = {
