@@ -13,13 +13,5 @@ Contents
 
 .. toctree::
 
-   mainpage
-   getting-started
-   thread-safety
-   connections
-   transactions
-   escaping
-   performance
-   transactor
-   datatypes
+   index
 
