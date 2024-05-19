@@ -33,23 +33,6 @@ LT_INIT
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 
-# Documentation.
-AC_ARG_ENABLE(
-	documentation,
-	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
-	[],
-	[enable_documentation=auto])
-AC_ARG_VAR([DOXYGEN],
-	[Path to doxygen needed to build reference documentation])
-AC_PATH_TOOL([DOXYGEN], [doxygen], [nodoxygen])
-AC_ARG_VAR([HAVE_DOT],
-	[Variable used by doxygen to declare availibility of dot])
-AC_CHECK_TOOL([HAVE_DOT], [dot], [YES], [NO])
-AS_IF([test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen"],
-      [AC_MSG_ERROR([could not find tools necessary to build documentation])])
-AM_CONDITIONAL([BUILD_REFERENCE],
-	[test "$enable_documentation" != "no" -a "$DOXYGEN" != "nodoxygen"])
-
 AM_MAINTAINER_MODE
 
 # See if we want stricter compiler warnings.
@@ -502,9 +485,8 @@ AC_MSG_RESULT(yes)
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([
-	Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile
-	test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile
-	libpqxx.pc])
+	Makefile config/Makefile src/Makefile test/Makefile tools/Makefile
+	include/Makefile include/pqxx/Makefile libpqxx.pc])
 
 
 AC_CONFIG_COMMANDS([configitems],

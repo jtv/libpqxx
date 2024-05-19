@@ -207,15 +207,10 @@ Here are some popular `cmake` options for libpqxx:
 * `-DSKIP_BUILD_TEST=on` skips compiling libpqxx's tests.
 * `-DBUILD_SHARED_LIBS=on` to build a shared library.
 * `-DBUILD_SHARED_LIBS=off` to build a static library.
-* `-DBUILD_DOC=on` to build documentation.
 * `-DINSTALL_TEST=on` to install test executor binary.
 
 On Windows, I recommend building libpqxx as a shared library and bundling it
 with your application.  On other platforms I would prefer a static library.
-
-Building the documentation requires some tools to be installed.  It takes at
-least Doxygen, but there's no list of requirements.  The way to get this set up
-is to just try it and see what it's missing.
 
 
 ### Generators
