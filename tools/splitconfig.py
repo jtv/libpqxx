@@ -131,7 +131,7 @@ def extract_macro_name(config_line):
         statement, or None.
     """
     config_line = config_line.strip()
-    match = re.match('\s*#\s*define\s+([^\s]+)', config_line)
+    match = re.match(r'\s*#\s*define\s+([^\s]+)', config_line)
     if match is None:
         return None
     else:
