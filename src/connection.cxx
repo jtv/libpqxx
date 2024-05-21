@@ -114,7 +114,11 @@ pqxx::connection::connection(
   if (m_conn == nullptr)
     throw std::bad_alloc{};
   if (status() == CONNECTION_BAD)
+  {
+    PQfinish(m_conn);
+    m_conn = nullptr;
     throw pqxx::broken_connection{PQerrorMessage(m_conn)};
+  }
 }
 
 
