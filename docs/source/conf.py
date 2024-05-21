@@ -1,5 +1,6 @@
 # Configuration file for the Sphinx documentation builder.
 
+from os import getenv
 from pathlib import Path
 
 
@@ -23,6 +24,7 @@ extensions = [
     'sphinx.ext.intersphinx',
 
     # Additional:
+    'breathe',
     'myst_parser',
 ]
 
@@ -41,3 +43,15 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
 
+pqxx_source = Path(__file__).parents[2]
+pqxx_doxygen_xml = pqxx_source / 'docs' / 'source' / 'doxygen-xml'
+
+# XXX: Or are we in a separate build directory?
+breathe_projects = {'libpqxx': pqxx_doxygen_xml}
+breathe_default_project = 'libpqxx'
+
+
+if getenv('READTHEDOCS', '').strip() == 'True':
+    pqxx_doxygen_xml.mkdir(parents=True, exist_ok=True)
+    # XXX: Generate Doxyfile
+    # XXX: Run Doxygen

@@ -1,3 +1,6 @@
+breathe==4.35.0
+doxygen
 sphinx==7.1.2
+sphinx-dox
 sphinx-rtd-theme
 myst-parser
