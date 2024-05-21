@@ -3,6 +3,7 @@
  - Move `[[likely]]` feature check back to compile time, to speed up configure.
  - Support `[[assume(...)]]`.
  - Fix `throw_null_conversion` compile error when converting enums. (#807)
+ - Fix memory leak when failing to connect.
 7.9.0
  - Support standard libraries without `std::basic_string<std::byte>` etc.
  - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
