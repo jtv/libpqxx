@@ -270,6 +270,7 @@ std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
   // We convert these in standard library terms, not for the localisation
   // so much as to avoid "error cycles," if these values in turn should fail
   // to get enough buffer space.
+  // C++20: Use formatting library.
   std::stringstream have, need;
   have << have_bytes;
   need << need_bytes;
