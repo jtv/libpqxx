@@ -444,8 +444,7 @@ void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
     obtain_dummy();
 
   while (obtain_result() and
-         QueryMap::const_iterator{m_issuedrange.first} != stop)
-    ;
+         QueryMap::const_iterator{m_issuedrange.first} != stop);
 
   // Also haul in any remaining "targets of opportunity".
   if (QueryMap::const_iterator{m_issuedrange.first} == stop)

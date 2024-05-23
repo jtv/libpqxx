@@ -139,9 +139,9 @@ public:
 
   constexpr range_bound(range_bound const &) noexcept(
     noexcept(inclusive_bound<TYPE>{
-      std::declval<inclusive_bound<TYPE> const &>()})
-      and noexcept(exclusive_bound<TYPE>{
-        std::declval<exclusive_bound<TYPE> const &>()})) = default;
+      std::declval<inclusive_bound<TYPE> const &>()}) and
+    noexcept(exclusive_bound<TYPE>{
+      std::declval<exclusive_bound<TYPE> const &>()})) = default;
 
   constexpr range_bound(range_bound &&) = default;
 
@@ -268,9 +268,10 @@ public:
           m_upper{exclusive_bound<TYPE>{TYPE{}}}
   {}
 
-  constexpr bool operator==(range const &rhs) const
-    noexcept(noexcept(this->lower_bound() == rhs.lower_bound()) and noexcept(
-      this->upper_bound() == rhs.upper_bound()) and noexcept(this->empty()))
+  constexpr bool operator==(range const &rhs) const noexcept(
+    noexcept(this->lower_bound() == rhs.lower_bound()) and
+    noexcept(this->upper_bound() == rhs.upper_bound()) and
+    noexcept(this->empty()))
   {
     return (this->lower_bound() == rhs.lower_bound() and
             this->upper_bound() == rhs.upper_bound()) or
@@ -297,9 +298,9 @@ public:
    * contrast, will notice that it is empty.  Similar things can happen for
    * floating-point types, but with more subtleties and edge cases.
    */
-  constexpr bool empty() const
-    noexcept(noexcept(m_lower.is_exclusive()) and noexcept(
-      m_lower.is_limited()) and noexcept(*m_lower.value() < *m_upper.value()))
+  constexpr bool empty() const noexcept(
+    noexcept(m_lower.is_exclusive()) and noexcept(m_lower.is_limited()) and
+    noexcept(*m_lower.value() < *m_upper.value()))
   {
     return (m_lower.is_exclusive() or m_upper.is_exclusive()) and
            m_lower.is_limited() and m_upper.is_limited() and
@@ -307,8 +308,9 @@ public:
   }
 
   /// Does this range encompass `value`?
-  constexpr bool contains(TYPE value) const noexcept(noexcept(
-    m_lower.extends_down_to(value)) and noexcept(m_upper.extends_up_to(value)))
+  constexpr bool contains(TYPE value) const noexcept(
+    noexcept(m_lower.extends_down_to(value)) and
+    noexcept(m_upper.extends_up_to(value)))
   {
     return m_lower.extends_down_to(value) and m_upper.extends_up_to(value);
   }

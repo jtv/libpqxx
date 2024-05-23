@@ -340,8 +340,7 @@ void pqxx::connection::process_notice_raw(char const msg[]) noexcept
     return;
   auto const rbegin = std::crbegin(m_errorhandlers),
              rend = std::crend(m_errorhandlers);
-  for (auto i{rbegin}; (i != rend) and (**i)(msg); ++i)
-    ;
+  for (auto i{rbegin}; (i != rend) and (**i)(msg); ++i);
 }
 
 

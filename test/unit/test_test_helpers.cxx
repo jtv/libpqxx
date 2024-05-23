@@ -19,13 +19,11 @@ void test_check_notreached()
     // This is what we expect.
   }
   if (not failed)
-    throw pqxx::test::test_failure
-    {
+    throw pqxx::test::test_failure{
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
       __FILE__, __LINE__,
 #endif
-        "PQXX_CHECK_NOTREACHED is broken."
-    };
+      "PQXX_CHECK_NOTREACHED is broken."};
 }
 
 

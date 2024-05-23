@@ -136,9 +136,10 @@ public:
    * strings).
    */
   template<typename T>
-  auto to(T &obj) const -> typename std::enable_if_t<
-    (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-    bool>
+  auto to(T &obj) const ->
+    typename std::enable_if_t<
+      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
+      bool>
   {
     if (is_null())
     {
@@ -186,9 +187,10 @@ public:
    * pointers to the field's internal text data.
    */
   template<typename T>
-  auto to(T &obj, T const &default_value) const -> typename std::enable_if_t<
-    (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-    bool>
+  auto to(T &obj, T const &default_value) const ->
+    typename std::enable_if_t<
+      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
+      bool>
   {
     bool const null{is_null()};
     if (null)
