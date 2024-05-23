@@ -55,15 +55,14 @@ inline void drop_table(transaction_base &t, std::string const &table)
 #endif
 )
 {
-  throw test_failure
-  {
+  throw test_failure{
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
     file, line,
 #endif
-      desc
+    desc
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-      ,
-      loc
+    ,
+    loc
 #endif
   };
 }
@@ -81,15 +80,14 @@ void check(
 )
 {
   if (not condition)
-    throw test_failure
-    {
+    throw test_failure{
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
       file, line,
 #endif
-        desc + " (failed expression: " + text + ")"
+      desc + " (failed expression: " + text + ")"
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
-        loc
+      ,
+      loc
 #endif
     };
 }

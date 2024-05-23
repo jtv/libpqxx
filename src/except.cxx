@@ -38,14 +38,13 @@ pqxx::broken_connection::broken_connection(
   std::source_location loc
 #endif
   ) :
-        failure
-{
-  whatarg
+        failure{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -56,14 +55,13 @@ pqxx::protocol_violation::protocol_violation(
   std::source_location loc
 #endif
   ) :
-        broken_connection
-{
-  whatarg
+        broken_connection{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -74,14 +72,13 @@ pqxx::variable_set_to_null::variable_set_to_null(
   std::source_location loc
 #endif
   ) :
-        failure
-{
-  whatarg
+        failure{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -92,15 +89,16 @@ pqxx::sql_error::sql_error(
   std::source_location loc
 #endif
   ) :
-        failure
-{
-  std::move(whatarg)
+        failure{
+          std::move(whatarg)
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+            ,
+          loc
 #endif
-}
-, m_query{Q}, m_sqlstate{sqlstate ? sqlstate : ""} {}
+        },
+        m_query{Q},
+        m_sqlstate{sqlstate ? sqlstate : ""}
+{}
 
 
 pqxx::sql_error::~sql_error() noexcept = default;
@@ -125,14 +123,13 @@ pqxx::in_doubt_error::in_doubt_error(
   std::source_location loc
 #endif
   ) :
-        failure
-{
-  whatarg
+        failure{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -143,14 +140,13 @@ pqxx::transaction_rollback::transaction_rollback(
   std::source_location loc
 #endif
   ) :
-        sql_error
-{
-  whatarg, q, sqlstate
+        sql_error{
+          whatarg, q, sqlstate
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -161,14 +157,13 @@ pqxx::serialization_failure::serialization_failure(
   std::source_location loc
 #endif
   ) :
-        transaction_rollback
-{
-  whatarg, q, sqlstate
+        transaction_rollback{
+          whatarg, q, sqlstate
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -179,14 +174,13 @@ pqxx::statement_completion_unknown::statement_completion_unknown(
   std::source_location loc
 #endif
   ) :
-        transaction_rollback
-{
-  whatarg, q, sqlstate
+        transaction_rollback{
+          whatarg, q, sqlstate
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -197,14 +191,13 @@ pqxx::deadlock_detected::deadlock_detected(
   std::source_location loc
 #endif
   ) :
-        transaction_rollback
-{
-  whatarg, q, sqlstate
+        transaction_rollback{
+          whatarg, q, sqlstate
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -265,14 +258,13 @@ pqxx::unexpected_null::unexpected_null(
   std::source_location loc
 #endif
   ) :
-        conversion_error
-{
-  whatarg
+        conversion_error{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 
@@ -283,14 +275,13 @@ pqxx::conversion_overrun::conversion_overrun(
   std::source_location loc
 #endif
   ) :
-        conversion_error
-{
-  whatarg
+        conversion_error{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
+          ,
+          loc
 #endif
-}
+        }
 {}
 
 

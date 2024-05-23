@@ -40,8 +40,7 @@ namespace
 /** When building with libcxxrt on clang, you can't create thread_local objects
  * of non-POD types.  Any attempt will result in a link error.
  */
-constexpr bool have_thread_local
-{
+constexpr bool have_thread_local{
 #  if defined(PQXX_HAVE_THREAD_LOCAL)
   true
 #  else
@@ -431,8 +430,7 @@ template<typename T>
   // work _for composite types._  I see no clean way to support leading
   // whitespace there without putting the code in here.  A shame about the
   // overhead, modest as it is, for the normal case.
-  for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i)
-    ;
+  for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i);
   if (i == std::size(text))
     throw pqxx::conversion_error{
       "Converting string to " + pqxx::type_name<T> +
