@@ -93,7 +93,7 @@ HIDE_IN_BODY_DOCS = YES
 
 SHOW_HEADERFILE = NO
 
-INPUT = src include
+INPUT = ../src ../include
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
@@ -105,7 +105,7 @@ RECURSIVE = YES
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH = test test/unit
+EXAMPLE_PATH = ../test ../test/unit
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -119,7 +119,7 @@ EXAMPLE_PATTERNS = *.cxx
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = include/pqxx/doc/mainpage.md
+USE_MDFILE_AS_MAINPAGE = ../include/pqxx/doc/mainpage.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
