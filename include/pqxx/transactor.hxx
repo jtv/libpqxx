@@ -94,7 +94,7 @@ namespace pqxx
  *
  * @param callback Transaction code that can be called with no arguments.
  * @param attempts Maximum number of times to attempt performing callback.
- *	Must be greater than zero.
+ *     Must be greater than zero.
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>

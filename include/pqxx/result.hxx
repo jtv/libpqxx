@@ -54,9 +54,9 @@ namespace pqxx
  * also access a row by indexing a `result R` by the row's zero-based
  * number:
  *
- *
- *	for (result::size_type i=0; i < std::size(R); ++i) Process(R[i]);
- *
+ * ```cxx
+ *     for (result::size_type i=0; i < std::size(R); ++i) Process(R[i]);
+ * ```
  *
  * Result sets in libpqxx are lightweight, reference-counted wrapper objects
  * which are relatively small and cheap to copy.  Think of a result object as
