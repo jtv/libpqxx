@@ -1,5 +1,7 @@
 breathe==4.35.0
+dia
 doxygen
+graphviz
 sphinx==7.1.2
 sphinx-dox
 sphinx-rtd-theme
