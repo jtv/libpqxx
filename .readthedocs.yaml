@@ -4,6 +4,7 @@
 version: 2
 
 # Set the version of Python and other tools you might need
+# XXX: Upgrade to 24.04 soon.
 build:
   os: "ubuntu-22.04"
   tools:

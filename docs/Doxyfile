@@ -257,7 +257,8 @@ GENERATE_TREEVIEW = YES
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML = YES
+# TODO: Not really doing Sphinx/Breathe for now.  Should we?
+# GENERATE_XML = YES
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
@@ -265,5 +266,4 @@ GENERATE_XML = YES
 # The default directory is: xml.
 # This tag requires that the tag GENERATE_XML is set to YES.
 
-# XXX: Create directory.
-XML_OUTPUT = xml
+XML_OUTPUT = doxygen-xml
