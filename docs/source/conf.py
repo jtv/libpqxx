@@ -88,6 +88,6 @@ if getenv('READTHEDOCS', '') == 'True':
     pqxx_output_dir = getenv('READTHEDOCS_OUTPUT')
     if pqxx_output_dir:
         # Move the HTML output to where readthedocs expects it.
-	pqxx_output_dir = Path(pqxx_output_dir)
-	pqxx_output_dir.mkdir(parents=True)
+        pqxx_output_dir = Path(pqxx_output_dir)
+        pqxx_output_dir.mkdir(parents=True)
         pqxx_html.rename(pqxx_rtd_html / 'html')
