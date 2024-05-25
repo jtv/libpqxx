@@ -9,6 +9,15 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3.12"
+  jobs:
+    pre_build:
+      - "./configure --disable-shared CXXFLAGS='-O0 -std=c++23'"
+      - "mkdir -p docs/doxygen-html"
+      - "cd docs && doxygen"
+      - "mkdir -p -- $READTHEDOCS_OUTPUT/html"
+    post_build:
+      - "mv -- $READTHEDOCS_OUTPUT/html $READTHEDOCS_OUTPUT/sphinx-html"
+      - "mv -- docs/doxygen-html $READTHEDOCS_OUTPUT/html"
 
 
 python:
