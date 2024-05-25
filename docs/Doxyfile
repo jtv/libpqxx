@@ -191,8 +191,7 @@ IGNORE_PREFIX =
 # The default directory is: html.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-# XXX: Create directory.
-HTML_OUTPUT = html
+HTML_OUTPUT = doxygen-html
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to

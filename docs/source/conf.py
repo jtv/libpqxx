@@ -42,7 +42,7 @@ html_theme = 'sphinx_rtd_theme'
 
 pqxx_source = Path(__file__).parents[2]
 pqxx_docs = pqxx_source / 'docs'
-pqxx_html = pqxx_docs / 'html'
+pqxx_html = pqxx_docs / 'doxygen-html'
 
 # TODO: Not really using Sphinx/Breathe for now.  Should we?
 # pqxx_doxygen_xml = pqxx_source / 'docs' / 'doxygen-xml'
