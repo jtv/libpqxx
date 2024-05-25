@@ -1,7 +1,7 @@
 # breathe==4.35.0
 dia
 graphviz
-sphinx==7.1.2
+sphinx
 sphinx-dox
 sphinx-rtd-theme
 myst-parser
