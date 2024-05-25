@@ -56,12 +56,12 @@ namespace pqxx
  * try
  * {
  *   T.exec0("UPDATE employees SET wage=wage*2");
- *   T.commit();	// NOTE: do this inside try block
+ *   T.commit();  // NOTE: do this inside try block
  * }
  * catch (exception const &e)
  * {
  *   cerr << e.what() << endl;
- *   T.abort();		// Usually not needed; same happens when T's life ends.
+ *   T.abort();  // Usually not needed; same happens when T's life ends.
  * }
  * ```
  */

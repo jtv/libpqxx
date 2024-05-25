@@ -547,7 +547,7 @@ public:
    * void setpw(transaction_base &t, string const &user, string const &pw)
    * {
    *   t.exec0("ALTER USER " + user + " "
-   *   	"PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
+   *       "PASSWORD '" + t.conn().encrypt_password(user,pw) + "'");
    * }
    * ```
    *

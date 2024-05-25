@@ -37,7 +37,7 @@ namespace pqxx
  * values (see below):
  *
  * ```cxx
- *	cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
+ *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
  * ```
  *
  * The row itself acts like a (non-modifyable) container, complete with its
