@@ -4,6 +4,7 @@
  - Support `[[assume(...)]]`.
  - Fix `throw_null_conversion` compile error when converting enums. (#807)
  - Fix memory leak when failing to connect.
+ - Improve introductory docs for connections and transactions.
 7.9.0
  - Support standard libraries without `std::basic_string<std::byte>` etc.
  - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)

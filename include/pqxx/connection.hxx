@@ -53,7 +53,10 @@
  *
  * Many things come together in this class.  Handling of error and warning
  * messages, for example, is defined by @ref pqxx::errorhandler objects in the
- * context of a connection.  Prepared statements are also defined here.
+ * context of a connection.  Prepared statements are also defined here.  For
+ * actually executing SQL on it, however, you'll also need a transaction
+ * object which operates "on top of" the connection.  (See @ref transactions
+ * for more about these.)
  *
  * When you connect to a database, you pass a connection string containing any
  * parameters and options, such as the server address and the database name.

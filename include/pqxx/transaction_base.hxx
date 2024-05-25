@@ -58,24 +58,86 @@ class transaction_focus;
 /**
  * @defgroup transactions Transaction classes
  *
- * All database access goes through instances of these classes.
- * However, not all implementations of this interface need to provide full
- * transactional integrity.
+ * All database access goes through instances of these classes.  In libpqxx
+ * you can't execute SQL directly on the connection object; that all happens
+ * only on a transaction object.  If you don't actually want to start a
+ * transaction on the server, there's a @ref nontransaction class which
+ * operates in _autocommit,_ i.e. without a transaction.
  *
- * You'll find several implementations of this interface in libpqxx, including
- * the plain @ref transaction class, the entirely unprotected
- * @ref nontransaction, and the more cautious @ref robusttransaction.
+ * (Why do you always need a transaction object?  It ended up being the cleaner
+ * choice in terms of interface design.  It avoids a bunch of API maladies:
+ * duplicating API between classes, messy inheritance, inviting mistakes by
+ * making the transaction afterthought, and so on.)
  *
- * Like most other things in libpqxx, transactions follow RAII principles:
- * creating a transaction object means to start the transaction, and to destroy
- * it means to end the transaction.  But there's one extra step: if you want to
- * make the transaction's changes permanent, you need to _commit_ it at the
- * end.  If you destroy the transaction object without committing it, or if you
- * call its `abort()` member function, then the transaction will roll back its
- * effects instead.
+ * Like most other things in libpqxx, transactions follow RAII principles.
+ * Creating a transaction object starts the transaction on the backend (if
+ * appropriate), and to destroying one ends the transaction.  But there's one
+ * extra step: if you want to make the transaction's changes permanent, you
+ * need to _commit_ it before you destroy it.  If you destroy the transaction
+ * object without committing, or if you call its `abort()` member function,
+ * then any transaction type (other than @ref nontransaction) will roll back
+ * its changes to the database instead.
  *
- * The big exception to all this is @ref nontransaction.  It gives you the
- * transaction API but without actually starting a transaction on the database.
+ * There is a choice of transaction types.  To start with you'll probably want
+ * to use @ref work, represents a regular, vanilla transaction with the default
+ * isolation level.
+ *
+ * All the actual transaction functionality, including all the functions for
+ * executing SQL statements, lives in the abstract @ref transaction_base class.
+ * It defines the API for each type of transaction.  You create a transaction,
+ * you use it by calling @ref transaction_base member functions, and then you
+ * either commit or (in the case of failure) abort.  If you destroy your
+ * transaction object without doing either, it automatically aborts.
+ *
+ * Once you're done with your transaction, you can start a new one using the
+ * same connection.  But there can be only one main transaction going on on a
+ * connection at any given time.  (You _can_ have more "nested" transactions,
+ * but I'm not counting those as "main" transactions here.  See below.)
+ *
+ * The concrete transaction types, all derived from @ref transaction_base, are:
+ *
+ * First and foremost, the plain @ref transaction template.  Template
+ * parameters let you select isolation level, and whether it should be
+ * read-only.  Two aliases are usually more convenient: @ref work is a
+ * regular, run-of-the-mill default transaction.  @ref read_transaction is a
+ * read-only transaction that will not let you modify the database.
+ *
+ * Then there's @ref nontransaction.  This one runs in autocommit, meaning
+ * that we don't start any transaction at all.  (Technically in this mode each
+ * SQL command runs in its own little transaction, hence the term
+ * "autocommit."  There is no way to "undo" an SQL statement in this kind of
+ * transaction.)  Autocommit is sometimes a bit faster, and sometimes a bit
+ * slower.  Mainly you'll use it for specific operations that cannot be done
+ *inside a database transaction, such as some kinds of schema changes.
+ *
+ * And then ther's @ref robusttransaction to help you deal with those painful
+ * situations where you don't know for sure whether a transaction actually
+ * succeeded.  This can happen if you lose your network connection to the
+ * database _just_ while you're trying to commit your transaction, before you
+ * receive word about the outcome.  You can re-connect and find out, but what
+ * if the server is still executing the commit?
+ *
+ * You could say that @ref robusttransaction is not more robust, exactly, but
+ * it goes to some extra effort to try and figure these situations out and give
+ * you clarity.  Extra effort does actually mean more things that can go wrong,
+ * and it may be a litte slower, so investigate carefully before using this
+ * transaction class.
+ *
+ * All of the transaction types that actually begin and commit/abort on the
+ * database itself are derived from @ref dbtransaction, which can be a useful
+ * type if your code needs a reference to such a transaction but doesn't need
+ * to enforce a particular one.  These types are @ref transaction, @ref work,
+ * @ref read_transaction, and @ref robusttransaction.
+ *
+ * Finally, there's @ref subtransaction.  This one is not at all like the
+ * others: it can only exist inside a @ref dbtransaction.  (Which includes
+ * @ref subtransaction itself: you can nest them freely.)  You can only
+ * operate on the "innermost" active subtransaction at any given time, until
+ * you either commit or abort it.  Subtransactions are built on _savepoints_
+ * in the database; these are efficient to a point but do consume some server
+ * resources.  So use them when they make sense, e.g. to try an SQL statement
+ * but continue your main transation if it fails.  But don't create them in
+ * enormous numbers, or performance may start to suffer.
  */
 
 /// Interface definition (and common code) for "transaction" classes.
