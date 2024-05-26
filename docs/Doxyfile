@@ -39,8 +39,7 @@ CREATE_SUBDIRS = NO
 # SEPARATE_MEMBER_PAGES.
 # The default value is: NO.
 
-# XXX: Would be nice to have a group for e.g. "transaction classes."
-INLINE_GROUPED_CLASSES = NO
+INLINE_GROUPED_CLASSES = YES
 
 # When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and unions
 # with only public data fields or simple typedef fields will be shown inline in
