@@ -168,15 +168,6 @@ CLANG_OPTIONS = -O0 -std=c++23
 
 ALPHABETICAL_INDEX = YES
 
-# In case all classes in a project start with a common prefix, all classes will
-# be put under the same header in the alphabetical index. The IGNORE_PREFIX tag
-# can be used to specify a prefix (or a list of prefixes) that should be ignored
-# while generating the index headers.
-# This tag requires that the tag ALPHABETICAL_INDEX is set to YES.
-
-# XXX: Set "pqxx"?  Or maybe "pqxx::"?
-IGNORE_PREFIX = pqxx
-
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
 #---------------------------------------------------------------------------
