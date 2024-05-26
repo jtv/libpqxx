@@ -49,8 +49,7 @@ INLINE_GROUPED_CLASSES = YES
 # Man pages) or section (for LaTeX and RTF).
 # The default value is: NO.
 
-# XXX: Probably a good thing to change.
-INLINE_SIMPLE_STRUCTS  = NO
+INLINE_SIMPLE_STRUCTS  = YES
 
 # The NUM_PROC_THREADS specifies the number of threads doxygen is allowed to use
 # during processing. When set to 0 doxygen will base this on the number of
@@ -63,8 +62,7 @@ INLINE_SIMPLE_STRUCTS  = NO
 # DOT_NUM_THREADS setting.
 # Minimum value: 0, maximum value: 32, default value: 1.
 
-# XXX: Change to zero.
-NUM_PROC_THREADS = 1
+NUM_PROC_THREADS = 0
 
 #---------------------------------------------------------------------------
 # Build related configuration options
