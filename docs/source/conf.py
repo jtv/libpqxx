@@ -1,8 +1,6 @@
 # Configuration file for the Sphinx documentation builder.
 
-from os import getenv
 from pathlib import Path
-from subprocess import run
 
 
 project = 'libpqxx'
