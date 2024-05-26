@@ -175,7 +175,7 @@ ALPHABETICAL_INDEX = YES
 # This tag requires that the tag ALPHABETICAL_INDEX is set to YES.
 
 # XXX: Set "pqxx"?  Or maybe "pqxx::"?
-IGNORE_PREFIX =
+IGNORE_PREFIX = pqxx::
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
