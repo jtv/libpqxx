@@ -158,17 +158,6 @@ CLANG_ADD_INC_PATHS = NO
 CLANG_OPTIONS = -O0 -std=c++23
 
 #---------------------------------------------------------------------------
-# Configuration options related to the alphabetical class index
-#---------------------------------------------------------------------------
-
-# If the ALPHABETICAL_INDEX tag is set to YES, an alphabetical index of all
-# compounds will be generated. Enable this if the project contains a lot of
-# classes, structs, unions or interfaces.
-# The default value is: YES.
-
-ALPHABETICAL_INDEX = YES
-
-#---------------------------------------------------------------------------
 # Configuration options related to the HTML output
 #---------------------------------------------------------------------------
 
