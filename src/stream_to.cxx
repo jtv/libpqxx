@@ -34,6 +34,15 @@ void begin_copy(
         "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv));
 }
 
+void begin_binary_copy(
+  pqxx::transaction_base &tx, std::string_view table, std::string_view columns)
+{
+  tx.exec0(
+    std::empty(columns) ?
+      pqxx::internal::concat("COPY "sv, table, " FROM STDIN WITH BINARY"sv) :
+      pqxx::internal::concat(
+        "COPY "sv, table, "("sv, columns, ") FROM STDIN WITH BINARY"sv));
+}
 
 /// Return the escape character for escaping the given special character.
 char escape_char(char special)
@@ -103,12 +112,14 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 
 
 pqxx::stream_to::stream_to(
-  transaction_base &tx, std::string_view path, std::string_view columns) :
+  transaction_base &tx, std::string_view path, std::string_view columns, bool binary /*= false*/) :
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
           pqxx::internal::enc_group(tx.conn().encoding_id()))}
 {
+  if (binary)
+    begin_binary_copy(tx, path, columns);
   begin_copy(tx, path, columns);
   register_me();
 }

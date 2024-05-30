@@ -38,13 +38,12 @@ constexpr std::string_view class_name{"stream_from"};
 
 
 pqxx::stream_from::stream_from(
-  transaction_base &tx, from_query_t, std::string_view query) :
+  transaction_base &tx, from_query_t, std::string_view query, bool binary /*= false*/) :
         transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
 {
-  tx.exec0(internal::concat("COPY ("sv, query, ") TO STDOUT"sv));
+  tx.exec0(binary?internal::concat("COPY ("sv, query, ") TO STDOUT WITH BINARY"sv):internal::concat("COPY ("sv, query, ") TO STDOUT"sv));
   register_me();
 }
-
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :

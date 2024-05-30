@@ -47,3 +47,9 @@ win32/common
 **/runner.log
 **/runner.trs
 **/test-suite.log
+/x64
+/CMakeFiles
+/.vs
+/out
+/Testing/Temporary
+/unit_runner.dir
