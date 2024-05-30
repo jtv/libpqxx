@@ -373,6 +373,49 @@ void test_stream_to()
   test_variant_fold(conn);
 }
 
+void test_nonoptionals_binary(pqxx::connection &connection)
+{
+  pqxx::work tx{connection};
+  auto inserter{pqxx::stream_to::table(tx, {"stream_binary_to_test"}, {}, true)};
+  PQXX_CHECK(inserter, "stream_to (binary) failed to initialize");
+
+  auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
+  bytea const binary{'\x00', '\x01', '\x02'},
+    text{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'};
+
+  inserter << std::make_tuple(
+    1234, binary);
+  inserter << std::make_tuple(
+    5678, text);
+  inserter << std::make_tuple(910, bytea{});
+
+  inserter.complete();
+
+  auto r1{tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 1234")};
+  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
+  PQXX_CHECK_EQUAL(r1[1].as<bytea>(), binary, "Read back wrong bytea.");
+
+  auto r2{tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 5678")};
+  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
+  PQXX_CHECK_EQUAL(r2[1].as<bytea>(), text, "Wrong text binary.");
+  tx.commit();
+}
+
+void test_stream_to_binary()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+
+  tx.exec0(
+    "CREATE TEMP TABLE stream_binary_to_test ("
+    "number0 INT NOT NULL,"
+    "bin5    BYTEA NOT NULL"
+    ")");
+  tx.commit();
+
+  test_nonoptionals_binary(conn);
+  clear_table(conn);
+}
 
 void test_stream_to_factory_with_static_columns()
 {
@@ -560,6 +603,7 @@ void test_stream_to_empty_strings()
 
 
 PQXX_REGISTER_TEST(test_stream_to);
+PQXX_REGISTER_TEST(test_stream_to_binary);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
 PQXX_REGISTER_TEST(test_stream_to_factory_with_static_columns);

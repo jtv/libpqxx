@@ -102,6 +102,24 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
+  /// Factory: Execute query, and stream the results.
+  /** The query can be a SELECT query or a VALUES query; or it can be an
+   * UPDATE, INSERT, or DELETE with a RETURNING clause.
+   *
+   * The query is executed as part of a COPY statement, so there are additional
+   * restrictions on what kind of query you can use here.  See the PostgreSQL
+   * documentation for the COPY command:
+   *
+   *     https://www.postgresql.org/docs/current/sql-copy.html
+   */
+  static stream_from query_binary(transaction_base &tx, std::string_view q)
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return stream_from{tx, from_query, q, true};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+
   /**
    * @name Streaming data from tables
    *

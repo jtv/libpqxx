@@ -102,9 +102,10 @@ public:
    *     the stream will write all columns in the table, in schema order.
    */
   static stream_to raw_table(
-    transaction_base &tx, std::string_view path, std::string_view columns = "")
+    transaction_base &tx, std::string_view path, std::string_view columns = "",
+    bool binary = false)
   {
-    return {tx, path, columns};
+    return {tx, path, columns, binary};
   }
 
   /// Create a `stream_to` writing to a named table and columns.
@@ -119,10 +120,11 @@ public:
    */
   static stream_to table(
     transaction_base &tx, table_path path,
-    std::initializer_list<std::string_view> columns = {})
+    std::initializer_list<std::string_view> columns = {},
+    bool binary = false)
   {
     auto const &conn{tx.conn()};
-    return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
+    return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns), binary);
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -249,7 +251,7 @@ public:
    * in an "implicit contract" between your code and your schema.
    */
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &tx, std::string_view table_name) :
+    transaction_base &tx, std::string_view table_name, bool binary = false) :
           stream_to{tx, table_name, ""sv}
   {}
 
@@ -258,7 +260,8 @@ public:
    */
   template<typename Columns>
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &, std::string_view table_name, Columns const &columns);
+    transaction_base &, std::string_view table_name, Columns const &columns,
+    bool binary = false);
 
   /// Create a stream, specifying column names as a sequence of strings.
   /** @deprecated Use @ref table or @ref raw_table as a factory.
@@ -266,12 +269,16 @@ public:
   template<typename Iter>
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
     transaction_base &, std::string_view table_name, Iter columns_begin,
-    Iter columns_end);
+    Iter columns_end, bool binary = false);
+
+  /// Write a row of raw text-format data into the destination table.
+  void write_raw_line(std::string_view);
 
 private:
   /// Stream a pre-quoted table name and columns list.
   stream_to(
-    transaction_base &tx, std::string_view path, std::string_view columns);
+    transaction_base &tx, std::string_view path, std::string_view columns,
+    bool binary = false);
 
   bool m_finished = false;
 
@@ -283,9 +290,6 @@ private:
 
   /// Callback to find the special characters we need to watch out for.
   internal::char_finder_func *m_finder;
-
-  /// Write a row of raw text-format data into the destination table.
-  void write_raw_line(std::string_view);
 
   /// Write a row of data from @c m_buffer into the destination table.
   /** Resets the buffer for the next row.
@@ -470,22 +474,23 @@ private:
 
 template<typename Columns>
 inline stream_to::stream_to(
-  transaction_base &tx, std::string_view table_name, Columns const &columns) :
-        stream_to{tx, table_name, std::begin(columns), std::end(columns)}
+  transaction_base &tx, std::string_view table_name, Columns const &columns,
+  bool binary /*= false*/) :
+        stream_to{tx, table_name, std::begin(columns), std::end(columns), binary}
 {}
 
 
 template<typename Iter>
 inline stream_to::stream_to(
   transaction_base &tx, std::string_view table_name, Iter columns_begin,
-  Iter columns_end) :
+  Iter columns_end, bool binary /*= false*/) :
         stream_to{
           tx,
           tx.quote_name(
             table_name,
             separated_list(",", columns_begin, columns_end, [&tx](auto col) {
               return tx.quote_name(*col);
-            }))}
+            })), binary}
 {}
 } // namespace pqxx
 #endif
