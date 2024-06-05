@@ -1,4 +1,4 @@
-SUBDIRS = include src test tools config
+SUBDIRS = include src test tools config docs
 EXTRA_DIST = autogen.sh configitems README.md VERSION requirements.json
 
 MAINTAINERCLEANFILES = \

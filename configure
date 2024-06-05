@@ -811,6 +811,7 @@ with_aix_soname
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+enable_documentation
 enable_maintainer_mode
 enable_audit
 enable_suggest
@@ -1468,6 +1469,7 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --enable-documentation  Generate documentation
   --enable-maintainer-mode
                           enable make rules and dependencies not useful (and
                           sometimes confusing) to the casual installer
@@ -16924,6 +16926,15 @@ fi
 
 
 
+# Check whether --enable-documentation was given.
+if test ${enable_documentation+y}
+then :
+  enableval=$enable_documentation; enable_documentation=yes
+else $as_nop
+  enable_documentation=no
+fi
+
+
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
 printf %s "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
@@ -18718,7 +18729,7 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-ac_config_files="$ac_config_files Makefile config/Makefile src/Makefile test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
+ac_config_files="$ac_config_files Makefile config/Makefile docs/Makefile src/Makefile test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 
 
@@ -19843,6 +19854,7 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "config/Makefile") CONFIG_FILES="$CONFIG_FILES config/Makefile" ;;
+    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;

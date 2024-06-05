@@ -33,6 +33,12 @@ LT_INIT
 AC_PROG_MAKE_SET
 AC_PATH_PROG([MKDIR], [mkdir])
 
+AC_ARG_ENABLE(
+	documentation,
+	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
+	[enable_documentation=yes],
+	[enable_documentation=no])
+
 AM_MAINTAINER_MODE
 
 # See if we want stricter compiler warnings.
@@ -485,8 +491,8 @@ AC_MSG_RESULT(yes)
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([
-	Makefile config/Makefile src/Makefile test/Makefile tools/Makefile
-	include/Makefile include/pqxx/Makefile libpqxx.pc])
+	Makefile config/Makefile docs/Makefile src/Makefile test/Makefile
+	tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
 
 
 AC_CONFIG_COMMANDS([configitems],

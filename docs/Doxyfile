@@ -19,6 +19,8 @@ PROJECT_BRIEF = "The C++ client library for PostgreSQL"
 # when doxygen was run.  Relative paths are relative to there.
 OUTPUT_DIRECTORY =
 
+GENERATE_LATEX = NO
+
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
 # and will distribute the generated files over these directories. Enabling this
@@ -118,17 +120,54 @@ EXAMPLE_PATTERNS = *.cxx
 USE_MDFILE_AS_MAINPAGE = ../include/pqxx/doc/mainpage.md
 
 #---------------------------------------------------------------------------
-# Configuration options related to source browsing
+# Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
 
-# If the REFERENCES_LINK_SOURCE tag is set to YES and SOURCE_BROWSER tag is set
-# to YES then the hyperlinks from functions in REFERENCES_RELATION and
-# REFERENCED_BY_RELATION lists will link to the source code. Otherwise they will
-# link to the documentation.
+# If the ENABLE_PREPROCESSING tag is set to YES, doxygen will evaluate all
+# C-preprocessor directives found in the sources and include files.
 # The default value is: YES.
 
-# XXX: Change?
-REFERENCES_LINK_SOURCE = YES
+ENABLE_PREPROCESSING = YES
+
+# If the MACRO_EXPANSION tag is set to YES, doxygen will expand all macro names
+# in the source code. If set to NO, only conditional compilation will be
+# performed. Macro expansion can be done in a controlled way by setting
+# EXPAND_ONLY_PREDEF to YES.
+# The default value is: NO.
+# This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
+
+MACRO_EXPANSION = YES
+
+# The INCLUDE_PATH tag can be used to specify one or more directories that
+# contain include files that are not input files but should be processed by the
+# preprocessor. Note that the INCLUDE_PATH is not recursive, so the setting of
+# RECURSIVE has no effect here.
+# This tag requires that the tag SEARCH_INCLUDES is set to YES.
+
+INCLUDE_PATH = ../include /usr/include/postgresql
+
+# You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
+# patterns (like *.h and *.hpp) to filter out the header-files in the
+# directories. If left blank, the patterns specified with FILE_PATTERNS will be
+# used.
+# This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
+
+INCLUDE_FILE_PATTERNS = *
+
+# If the SKIP_FUNCTION_MACROS tag is set to YES then doxygen's preprocessor will
+# remove all references to function-like macros that are alone on a line, have
+# an all uppercase name, and do not end with a semicolon. Such function macros
+# are typically used for boiler-plate code, and will confuse the parser if not
+# removed.
+# The default value is: YES.
+# This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
+
+SKIP_FUNCTION_MACROS   = NO
+
+
+#---------------------------------------------------------------------------
+# Configuration options related to source browsing
+#---------------------------------------------------------------------------
 
 # If the CLANG_ASSISTED_PARSING tag is set to YES then doxygen will use the
 # clang parser (see:
