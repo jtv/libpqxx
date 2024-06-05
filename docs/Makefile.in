@@ -260,6 +260,8 @@ top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in
 EXTRA_DIST = Doxyfile
+@BUILD_DOCS_FALSE@DOXYGEN = echo -n "Not running doxygen "
+@BUILD_DOCS_TRUE@DOXYGEN = doxygen
 all: all-am
 
 .SUFFIXES:
@@ -468,14 +470,13 @@ all-local: docs
 
 # Doxygen config needs the source files in its local tree.  That means the
 # build tree.  If that differs from the source tree, copy the files.
-@BUILD_DOCS_TRUE@docs:
-@BUILD_DOCS_TRUE@	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
-@BUILD_DOCS_TRUE@	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
-@BUILD_DOCS_TRUE@	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
-@BUILD_DOCS_TRUE@	    cp -r "$(srcdir)"/../test ../test/ ; \
-@BUILD_DOCS_TRUE@	fi
-@BUILD_DOCS_TRUE@	doxygen "$(srcdir)"/Doxyfile
-@BUILD_DOCS_FALSE@docs:
+docs:
+	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
+	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
+	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
+	    cp -r "$(srcdir)"/../test ../test/ ; \
+	fi
+	$(DOXYGEN) "$(srcdir)"/Doxyfile
 
 dist-hook:
 	if [ -d doxygen-html ]; then \
