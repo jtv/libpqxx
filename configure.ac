@@ -36,8 +36,8 @@ AC_PATH_PROG([MKDIR], [mkdir])
 AC_ARG_ENABLE(
 	documentation,
 	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
-	[enable_documentation=yes],
-	[enable_documentation=no])
+	[],
+	[enable_documentation=yes])
 AM_CONDITIONAL([BUILD_DOCS], [test "$enable_documentation" = "yes"])
 
 AM_MAINTAINER_MODE

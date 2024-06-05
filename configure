@@ -16931,9 +16931,9 @@ fi
 # Check whether --enable-documentation was given.
 if test ${enable_documentation+y}
 then :
-  enableval=$enable_documentation; enable_documentation=yes
+  enableval=$enable_documentation;
 else $as_nop
-  enable_documentation=no
+  enable_documentation=yes
 fi
 
  if test "$enable_documentation" = "yes"; then
