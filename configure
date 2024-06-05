@@ -16931,10 +16931,10 @@ fi
 # Check whether --enable-documentation was given.
 if test ${enable_documentation+y}
 then :
-  enableval=$enable_documentation; enable_documentation=yes
+  enableval=$enable_documentation; enable_documentation="${enableval}"
 fi
 
- if enable_documentation="${enableval}"; then
+ if test "$enable_documentation" = "yes"; then
   BUILD_DOCS_TRUE=
   BUILD_DOCS_FALSE='#'
 else
