@@ -16934,7 +16934,7 @@ then :
   enableval=$enable_documentation; enable_documentation=yes
 fi
 
- if test "$enable_documentation" = "yes"; then
+ if enable_documentation="${enableval}"; then
   BUILD_DOCS_TRUE=
   BUILD_DOCS_FALSE='#'
 else
