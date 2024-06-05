@@ -466,14 +466,16 @@ maintainer-clean-local:
 
 all-local: docs
 
-# Doxygen config needs the input files in its local tree.  Copy them.
-docs:
-	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
-	    cp "$(srcdir)"/../src/*.cxx "$(srcdir)"/../src/*.hxx ../src/ ; \
-	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
-	    cp -r "$(srcdir)"/../test ../test/ ; \
-	fi
-	doxygen "$(srcdir)"/Doxyfile
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+@BUILD_DOCS_TRUE@docs:
+@BUILD_DOCS_TRUE@	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
+@BUILD_DOCS_TRUE@	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
+@BUILD_DOCS_TRUE@	    cp -r "$(srcdir)"/../test ../test/ ; \
+@BUILD_DOCS_TRUE@	fi
+@BUILD_DOCS_TRUE@	doxygen "$(srcdir)"/Doxyfile
+@BUILD_DOCS_FALSE@docs:
 
 dist-hook:
 	if [ -d doxygen-html ]; then \

@@ -671,6 +671,8 @@ PKG_CONFIG
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
+BUILD_DOCS_FALSE
+BUILD_DOCS_TRUE
 MKDIR
 CXXCPP
 LT_SYS_LIBRARY_PATH
@@ -16934,6 +16936,14 @@ else $as_nop
   enable_documentation=no
 fi
 
+ if test "$enable_documentation" = "yes"; then
+  BUILD_DOCS_TRUE=
+  BUILD_DOCS_FALSE='#'
+else
+  BUILD_DOCS_TRUE='#'
+  BUILD_DOCS_FALSE=
+fi
+
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
@@ -18873,6 +18883,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_DOCS_TRUE}" && test -z "${BUILD_DOCS_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_DOCS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then

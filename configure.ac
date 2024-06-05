@@ -38,6 +38,7 @@ AC_ARG_ENABLE(
 	[AS_HELP_STRING([--enable-documentation], [Generate documentation])],
 	[enable_documentation=yes],
 	[enable_documentation=no])
+AM_CONDITIONAL([BUILD_DOCS], [test "$enable_documentation" = "yes"])
 
 AM_MAINTAINER_MODE
 

@@ -8,14 +8,19 @@ EXTRA_DIST = Doxyfile
 
 all-local: docs
 
-# Doxygen config needs the input files in its local tree.  Copy them.
+if BUILD_DOCS
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
 docs:
 	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
-	    cp "$(srcdir)"/../src/*.cxx "$(srcdir)"/../src/*.hxx ../src/ ; \
+	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
 	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
 	    cp -r "$(srcdir)"/../test ../test/ ; \
 	fi
 	doxygen "$(srcdir)"/Doxyfile
+else
+docs:
+endif
 
 dist-hook:
 	if [ -d doxygen-html ]; then \
