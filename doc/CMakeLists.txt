@@ -9,7 +9,9 @@ set(PQXX_MINOR "${PROJECT_VERSION_MINOR}")
 add_custom_target(build-docs ALL
     COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.[ch]xx ../src/
     COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/../include/pqxx/* ../include/pqxx/
-    COMMAND doxygen ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
+    COMMAND doxygen ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+    COMMENT Building documentation
+)
 
 install(
     DIRECTORY doxygen-html

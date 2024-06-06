@@ -1,6 +1,6 @@
 # Doxyfile 1.9.4
 
-# Set up to run Doxygen from the "docs" directory.
+# Set up to run Doxygen from the "doc" directory.
 
 PROJECT_NAME = "libpqxx"
 
