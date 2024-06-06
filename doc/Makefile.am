@@ -1,52 +1,30 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 maintainer-clean-local:
-	$(RM) -rf html
-	$(RM) reference-stamp
-	$(MKDIR) html
+	$(RM) -rf doxygen-html
+	$(MKDIR) doxygen-html
 
-EXTRA_DIST= Doxyfile.in libpqxx.xml reference-stamp
+EXTRA_DIST = Doxyfile
 
 all-local: docs
 
-if BUILD_REFERENCE
-DOCS = reference
+if BUILD_DOCS
+DOXYGEN = doxygen
 else
-DOCS =
+DOXYGEN = echo -n "Not running doxygen "
 endif
 
-if MAINTAINER_MODE
-REFERENCE_STAMP_DEP = ../src/libpqxx.la
-else
-REFERENCE_STAMP_DEP =
-endif
-
-docs: $(DOCS)
-
-reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
-	if [ -x "$(DOXYGEN)" ]; then \
-	  $(MKDIR_P) html xml; \
-	  $(DOXYGEN) Doxyfile; \
-	  touch $@; \
-	  echo "*** Wrote documentation to $(pwd)/html/. ***"; \
-	else \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  echo >&2; \
-	  echo >&2 "Doxygen not found."; \
-	  echo >&2 "Install it, or configure with --disable-documentation"; \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  exit 1; \
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+docs:
+	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
+	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
+	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
+	    cp -r "$(srcdir)"/../test ../test/ ; \
 	fi
+	$(DOXYGEN) "$(srcdir)"/Doxyfile
 
-../src/libpqxx.la:
-	cd ../src; \
-	$(MAKE) libpqxx.la
-
-
-dist-hook: reference
-	if [ -d $(srcdir)/html ]; then \
-	  cp -pR html $(distdir)/ ; \
+dist-hook:
+	if [ -d doxygen-html ]; then \
+	    cp -pR doxygen-html $(distdir)/html ; \
 	fi

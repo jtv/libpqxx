@@ -101,7 +101,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
-CONFIG_CLEAN_FILES = Doxyfile
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -123,7 +123,7 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
-am__DIST_COMMON = $(srcdir)/Doxyfile.in $(srcdir)/Makefile.in \
+am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/mkinstalldirs
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -148,7 +148,6 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
-DOXYGEN = @DOXYGEN@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -160,7 +159,6 @@ EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 FILECMD = @FILECMD@
 GREP = @GREP@
-HAVE_DOT = @HAVE_DOT@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -261,11 +259,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
 MAINTAINERCLEANFILES = Makefile.in
-EXTRA_DIST = Doxyfile.in libpqxx.xml reference-stamp
-@BUILD_REFERENCE_FALSE@DOCS = 
-@BUILD_REFERENCE_TRUE@DOCS = reference
-@MAINTAINER_MODE_FALSE@REFERENCE_STAMP_DEP = 
-@MAINTAINER_MODE_TRUE@REFERENCE_STAMP_DEP = ../src/libpqxx.la
+EXTRA_DIST = Doxyfile
+@BUILD_DOCS_FALSE@DOXYGEN = echo -n "Not running doxygen "
+@BUILD_DOCS_TRUE@DOXYGEN = doxygen
 all: all-am
 
 .SUFFIXES:
@@ -298,8 +294,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-Doxyfile: $(top_builddir)/config.status $(srcdir)/Doxyfile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -469,39 +463,24 @@ uninstall-am:
 
 
 maintainer-clean-local:
-	$(RM) -rf html
-	$(RM) reference-stamp
-	$(MKDIR) html
+	$(RM) -rf doxygen-html
+	$(MKDIR) doxygen-html
 
 all-local: docs
 
-docs: $(DOCS)
-
-reference: reference-stamp
-reference-stamp: Doxyfile.in $(REFERENCE_STAMP_DEP)
-	if [ -x "$(DOXYGEN)" ]; then \
-	  $(MKDIR_P) html xml; \
-	  $(DOXYGEN) Doxyfile; \
-	  touch $@; \
-	  echo "*** Wrote documentation to $(pwd)/html/. ***"; \
-	else \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  echo >&2; \
-	  echo >&2 "Doxygen not found."; \
-	  echo >&2 "Install it, or configure with --disable-documentation"; \
-	  echo >&2; \
-	  echo >&2 "*****************************************************"; \
-	  exit 1; \
+# Doxygen config needs the source files in its local tree.  That means the
+# build tree.  If that differs from the source tree, copy the files.
+docs:
+	if ! [ "$(srcdir)/../src" -ef ../src ]; then \
+	    cp "$(srcdir)"/../src/*.[ch]xx ../src/ ; \
+	    cp -r "$(srcdir)"/../include/pqxx/* ../include/pqxx/ ; \
+	    cp -r "$(srcdir)"/../test ../test/ ; \
 	fi
+	$(DOXYGEN) "$(srcdir)"/Doxyfile
 
-../src/libpqxx.la:
-	cd ../src; \
-	$(MAKE) libpqxx.la
-
-dist-hook: reference
-	if [ -d $(srcdir)/html ]; then \
-	  cp -pR html $(distdir)/ ; \
+dist-hook:
+	if [ -d doxygen-html ]; then \
+	    cp -pR doxygen-html $(distdir)/html ; \
 	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

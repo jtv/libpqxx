@@ -26,4 +26,4 @@ grep -rIl "$PREFIX-$YEAR$SUFFIX" |
 sed \
     -i \
     -e "s/\\(2000\\)-$YEAR\\(,* Jeroen T\\. Vermeulen\\)/\1-$NEW_YEAR\\2/" \
-    doc/conf.py
+    doc/source/conf.py

@@ -4,30 +4,26 @@
 version: 2
 
 # Set the version of Python and other tools you might need
+# XXX: Upgrade to 24.04 soon.
 build:
-  os: ubuntu-22.04
+  os: "ubuntu-22.04"
   tools:
-    python: "3.10"
-  apt_packages:
-    - doxygen
-    - graphviz
-    - python3-graphviz
+    python: "3.12"
+  jobs:
+    pre_build:
+      - "./configure --disable-shared CXXFLAGS='-O0 -std=c++23'"
+      - "mkdir -p docs/doxygen-html"
+      - "cd docs && doxygen"
+      - "mkdir -p -- $READTHEDOCS_OUTPUT/html"
+    post_build:
+      - "mv -- $READTHEDOCS_OUTPUT/html $READTHEDOCS_OUTPUT/sphinx-html"
+      - "mv -- docs/doxygen-html $READTHEDOCS_OUTPUT/html"
 
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  builder: html
-  configuration: doc/conf.py
-  fail_on_warning: true
-
-# We recommend specifying your dependencies to enable reproducible builds:
-# https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
-# python:
-#   install:
-#   - requirements: docs/requirements.txt
-
-sphinx:
-  configuration: doc/conf.py
 
 python:
   install:
-    - requirements: doc/requirements.txt
+    - requirements: docs/requirements.txt
+
+sphinx:
+  configuration: docs/source/conf.py
+  fail_on_warning: true

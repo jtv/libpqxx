@@ -671,10 +671,8 @@ PKG_CONFIG
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
-BUILD_REFERENCE_FALSE
-BUILD_REFERENCE_TRUE
-HAVE_DOT
-DOXYGEN
+BUILD_DOCS_FALSE
+BUILD_DOCS_TRUE
 MKDIR
 CXXCPP
 LT_SYS_LIBRARY_PATH
@@ -834,9 +832,7 @@ CCC
 CC
 CFLAGS
 LT_SYS_LIBRARY_PATH
-CXXCPP
-DOXYGEN
-HAVE_DOT'
+CXXCPP'
 
 
 # Initialize some variables set by options.
@@ -1512,8 +1508,6 @@ Some influential environment variables:
   LT_SYS_LIBRARY_PATH
               User-defined run-time library search path.
   CXXCPP      C++ preprocessor
-  DOXYGEN     Path to doxygen needed to build reference documentation
-  HAVE_DOT    Variable used by doxygen to declare availibility of dot
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -16934,237 +16928,18 @@ fi
 
 
 
-# Documentation.
 # Check whether --enable-documentation was given.
 if test ${enable_documentation+y}
 then :
-  enableval=$enable_documentation;
-else $as_nop
-  enable_documentation=auto
+  enableval=$enable_documentation; enable_documentation="${enableval}"
 fi
 
-
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}doxygen", so it can be a program name with args.
-set dummy ${ac_tool_prefix}doxygen; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_DOXYGEN+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $DOXYGEN in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_DOXYGEN="$DOXYGEN" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_DOXYGEN="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-DOXYGEN=$ac_cv_path_DOXYGEN
-if test -n "$DOXYGEN"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $DOXYGEN" >&5
-printf "%s\n" "$DOXYGEN" >&6; }
+ if test "$enable_documentation" = "yes"; then
+  BUILD_DOCS_TRUE=
+  BUILD_DOCS_FALSE='#'
 else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_path_DOXYGEN"; then
-  ac_pt_DOXYGEN=$DOXYGEN
-  # Extract the first word of "doxygen", so it can be a program name with args.
-set dummy doxygen; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_ac_pt_DOXYGEN+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $ac_pt_DOXYGEN in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_DOXYGEN="$ac_pt_DOXYGEN" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_DOXYGEN="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_DOXYGEN=$ac_cv_path_ac_pt_DOXYGEN
-if test -n "$ac_pt_DOXYGEN"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_pt_DOXYGEN" >&5
-printf "%s\n" "$ac_pt_DOXYGEN" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-  if test "x$ac_pt_DOXYGEN" = x; then
-    DOXYGEN="nodoxygen"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    DOXYGEN=$ac_pt_DOXYGEN
-  fi
-else
-  DOXYGEN="$ac_cv_path_DOXYGEN"
-fi
-
-
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}dot", so it can be a program name with args.
-set dummy ${ac_tool_prefix}dot; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_HAVE_DOT+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$HAVE_DOT"; then
-  ac_cv_prog_HAVE_DOT="$HAVE_DOT" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in NO
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_HAVE_DOT="${ac_tool_prefix}dot"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-HAVE_DOT=$ac_cv_prog_HAVE_DOT
-if test -n "$HAVE_DOT"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $HAVE_DOT" >&5
-printf "%s\n" "$HAVE_DOT" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_HAVE_DOT"; then
-  ac_ct_HAVE_DOT=$HAVE_DOT
-  # Extract the first word of "dot", so it can be a program name with args.
-set dummy dot; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_ac_ct_HAVE_DOT+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$ac_ct_HAVE_DOT"; then
-  ac_cv_prog_ac_ct_HAVE_DOT="$ac_ct_HAVE_DOT" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in NO
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_HAVE_DOT="dot"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_HAVE_DOT=$ac_cv_prog_ac_ct_HAVE_DOT
-if test -n "$ac_ct_HAVE_DOT"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_ct_HAVE_DOT" >&5
-printf "%s\n" "$ac_ct_HAVE_DOT" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-  if test "x$ac_ct_HAVE_DOT" = x; then
-    HAVE_DOT="YES"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    HAVE_DOT=$ac_ct_HAVE_DOT
-  fi
-else
-  HAVE_DOT="$ac_cv_prog_HAVE_DOT"
-fi
-
-if test "$enable_documentation" = "yes" && test "$DOXYGEN" = "nodoxygen"
-then :
-  as_fn_error $? "could not find tools necessary to build documentation" "$LINENO" 5
-fi
- if test "$enable_documentation" != "no" -a "$DOXYGEN" != "nodoxygen"; then
-  BUILD_REFERENCE_TRUE=
-  BUILD_REFERENCE_FALSE='#'
-else
-  BUILD_REFERENCE_TRUE='#'
-  BUILD_REFERENCE_FALSE=
+  BUILD_DOCS_TRUE='#'
+  BUILD_DOCS_FALSE=
 fi
 
 
@@ -18962,7 +18737,7 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile doc/Doxyfile src/Makefile test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
+ac_config_files="$ac_config_files Makefile config/Makefile doc/Makefile src/Makefile test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc"
 
 
 
@@ -19108,8 +18883,8 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${BUILD_REFERENCE_TRUE}" && test -z "${BUILD_REFERENCE_FALSE}"; then
-  as_fn_error $? "conditional \"BUILD_REFERENCE\" was never defined.
+if test -z "${BUILD_DOCS_TRUE}" && test -z "${BUILD_DOCS_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_DOCS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
@@ -20092,7 +19867,6 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "config/Makefile") CONFIG_FILES="$CONFIG_FILES config/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
-    "doc/Doxyfile") CONFIG_FILES="$CONFIG_FILES doc/Doxyfile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;

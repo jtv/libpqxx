@@ -1,3 +1,5 @@
-# Python packages that sphinx needs installed.
-breathe
+# XXX: Pin versions.
+dia
+graphviz
+sphinx-rtd-theme
 myst-parser
