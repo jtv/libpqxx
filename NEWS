@@ -1,3 +1,4 @@
+7.9.2
 7.9.1
  - Fix bad conversion of array of empty strings to string. (#816)
  - Move `[[likely]]` feature check back to compile time, to speed up configure.
@@ -8,7 +9,6 @@
  - Re-do entire documentation build.  No more Sphinx in readthedocs. (#802)
  - No more autodetection of doxygen etc.  Run it, or don't.
  - Docs build now disabled by default; use `--enable-documentation` to change.
- - No more autodetection of doxygen.
 7.9.0
  - Support standard libraries without `std::basic_string<std::byte>` etc.
  - `std::basic_string<std::byte` becomes `pqxx::bytes`. (#726)
