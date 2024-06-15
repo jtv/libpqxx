@@ -14,6 +14,6 @@ add_custom_target(build-docs ALL
 )
 
 install(
-    DIRECTORY doxygen-html
+    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doxygen-html/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}/html
 )
