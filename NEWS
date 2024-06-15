@@ -1,4 +1,5 @@
 7.9.2
+ - Fix CMake documenationinstall. (#848)
 7.9.1
  - Fix bad conversion of array of empty strings to string. (#816)
  - Move `[[likely]]` feature check back to compile time, to speed up configure.
