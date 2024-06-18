@@ -9,10 +9,10 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3.12"
+  apt_pcakages:
+    - "graphviz"
   jobs:
     pre_build:
-      - "sudo apt update && apt install python3-pydot"
-      - "find /usr -name pydot -type d"  # XXX: DEBUG
       - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
