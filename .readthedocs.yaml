@@ -9,7 +9,7 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3.12"
-  apt_pcakages:
+  apt_packages:
     - "graphviz"
   jobs:
     pre_build:
