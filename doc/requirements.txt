@@ -3,3 +3,4 @@ dia
 graphviz
 sphinx-rtd-theme
 myst-parser
+pydot

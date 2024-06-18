@@ -11,7 +11,6 @@ build:
     python: "3.12"
   jobs:
     pre_build:
-      - "which dot"  # XXX: DEBUG
       - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
