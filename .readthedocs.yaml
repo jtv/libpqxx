@@ -11,6 +11,7 @@ build:
     python: "3.12"
   jobs:
     pre_build:
+      - "apt update && apt install python3-pydot"
       - "find /usr -name pydot -type d"  # XXX: DEBUG
       - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
       - "mkdir -p doc/doxygen-html"
