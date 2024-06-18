@@ -286,7 +286,7 @@ private:
 };
 
 
-/// Iterator for fields in a row.  Use as row::const_iterator.
+/// Iterator over fields in a row.  Use as row::const_iterator.
 class PQXX_LIBEXPORT const_row_iterator : public field
 {
 public:
@@ -313,6 +313,13 @@ public:
   //@{
   [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
   [[nodiscard]] reference operator*() const noexcept { return {*this}; }
+  /// Array indexing: add offset, and dereference.
+  /** This is how the C++ standard defines the C++ array index operator for
+   * random access iterators.  It's a bit counterintuitive but it conforms to
+   * the rules the Ancients established in C.  `assert("a string"[2] == 's');`
+   */
+  [[nodiscard]] reference operator[](difference_type offset) const
+  { return *(this + offset); }
   //@}
 
   /**

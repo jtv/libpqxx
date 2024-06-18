@@ -32,7 +32,8 @@ namespace pqxx
 class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
-  using iterator_category = std::random_access_iterator_tag;
+  // TODO: Upgrade to random_access once we have standard-conformant indexing.
+  using iterator_category = std::bidirectional_iterator_tag;
   using value_type = row const;
   using pointer = row const *;
   using reference = row;
@@ -80,7 +81,17 @@ public:
   //@{
   using row::back;
   using row::front;
-  using row::operator[];
+
+  [[
+    deprecated(
+      "Indexing a row iterator currently still indexes the row itself.  "
+      "The C++ Standard requires it to add an offset instead.  "
+      "This will change soon."
+    )
+  ]]
+  field operator[](row_size_type index) const noexcept
+  { return row::operator[](index); }
+
   using row::at;
   using row::rownumber;
   //@}
@@ -239,7 +250,22 @@ public:
   //@{
   using const_result_iterator::back;
   using const_result_iterator::front;
-  using const_result_iterator::operator[];
+
+  [[
+    deprecated(
+      "Indexing a row iterator currently still indexes the row itself.  "
+      "The C++ Standard requires it to add an offset instead.  "
+      "This will change soon."
+    )
+  ]]
+  field operator[](row_size_type index) const noexcept
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return iterator_type::operator[](index);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+
+
   using const_result_iterator::at;
   using const_result_iterator::rownumber;
   //@}
