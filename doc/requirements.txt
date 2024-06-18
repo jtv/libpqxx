@@ -1,5 +1,4 @@
 # XXX: Pin versions.
 dia
-graphviz
 sphinx-rtd-theme
 myst-parser

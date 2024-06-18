@@ -4,11 +4,12 @@
 version: 2
 
 # Set the version of Python and other tools you might need
-# XXX: Upgrade to 24.04 soon.
 build:
-  os: "ubuntu-22.04"
+  os: "ubuntu-24.04"
   tools:
     python: "3.12"
+  apt_packages:
+    - "graphviz"
   jobs:
     pre_build:
       - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
