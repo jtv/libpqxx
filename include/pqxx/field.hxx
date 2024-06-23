@@ -243,6 +243,19 @@ public:
     return as<O<T>>();
   }
 
+  /// Read SQL array contents as a @ref pqxx::array.
+  template<typename ELEMENT, auto... ARGS>
+  array<ELEMENT, ARGS...> as_sql_array() const
+  {
+    using array_type = array<ELEMENT, ARGS...>;
+
+    // There's no such thing as a null SQL array.
+    if (is_null())
+      internal::throw_null_conversion(type_name<array_type>);
+    else
+      return array_type{this->view(), this->m_home.m_encoding};
+  }
+
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
    *
@@ -250,6 +263,10 @@ public:
    * you keep the @ref row of `field` object alive, it will keep the @ref
    * result object alive as well.
    */
+  [[deprecated(
+    "Avoid pqxx::array_parser.  "
+    "Instead, use as_sql_array() to convert to pqxx::array."
+  )]]
   array_parser as_array() const & noexcept
   {
     return array_parser{c_str(), m_home.m_encoding};

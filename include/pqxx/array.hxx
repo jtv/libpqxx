@@ -200,7 +200,11 @@ private:
           "Malformed array: does not end in the right number of '}'."};
   }
 
-  explicit array(std::string_view data, pqxx::internal::encoding_group enc)
+  // Allow fields to construct arrays passing the encoding group.
+  // Couldn't make this work through a call gate, thanks to the templating.
+  friend class ::pqxx::field;
+
+  array(std::string_view data, pqxx::internal::encoding_group enc)
   {
     using group = pqxx::internal::encoding_group;
     switch (enc)

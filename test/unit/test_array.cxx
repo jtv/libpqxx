@@ -693,6 +693,16 @@ void test_array_iterates_in_row_major_order()
 }
 
 
+void test_as_sql_array()
+{
+  pqxx::connection conn;
+  pqxx::work tx{conn};
+  auto const r{tx.exec1("SELECT ARRAY [5, 4, 3, 2]")};
+  auto const array{r[0].as_sql_array<int>()};
+  PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array.");
+}
+
+
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
@@ -714,4 +724,5 @@ PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
 PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
+PQXX_REGISTER_TEST(test_as_sql_array);
 } // namespace
