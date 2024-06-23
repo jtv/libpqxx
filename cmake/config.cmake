@@ -8,10 +8,18 @@ function(detect_code_compiled code macro msg)
     endif()
 endfunction(detect_code_compiled)
 
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30.0)
+    include(CMakeDetermineCompilerSupport)
+    cmake_determine_compiler_support(CXX)
+else()
+    # This function changed names in CMake 3.30.  :-(
+    include(CMakeDetermineCompileFeatures)
+    cmake_determine_compile_features(CXX)
+endif()
+
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(CMakeDetermineCompileFeatures)
 include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
 
@@ -39,7 +47,6 @@ check_function_exists("poll" PQXX_HAVE_POLL)
 
 set(CMAKE_REQUIRED_LIBRARIES pq)
 
-cmake_determine_compile_features(CXX)
 cmake_policy(SET CMP0057 NEW)
 
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
