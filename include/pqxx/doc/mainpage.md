@@ -3,7 +3,7 @@ libpqxx                                      {#mainpage}
 
 @version 7.9.2
 @author Jeroen T. Vermeulen
-@see http://pqxx.org
+@see https://pqxx.org/libpqxx/
 @see https://github.com/jtv/libpqxx
 
 Welcome to libpqxx, the C++ API to the PostgreSQL database management system.

@@ -14,6 +14,7 @@ else
 DOXYGEN = echo -n "Not running doxygen "
 endif
 
+if BUILD_DOCS
 # Doxygen config needs the source files in its local tree.  That means the
 # build tree.  If that differs from the source tree, copy the files.
 docs:
@@ -23,6 +24,9 @@ docs:
 	    cp -r "$(srcdir)"/../test ../test/ ; \
 	fi
 	$(DOXYGEN) "$(srcdir)"/Doxyfile
+else
+docs:
+endif
 
 dist-hook:
 	if [ -d doxygen-html ]; then \
