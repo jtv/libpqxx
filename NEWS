@@ -3,6 +3,7 @@
  - Bump gcc/clang/postgres minimum version requirements.
  - Another fix to the readthedocs documentation build. (#845)
  - Work around CMake 3.30 renaming one of its functions. (#851)
+ - Fix obscure deprecated `stream_to` constructor. (#853)
 7.9.1
  - Fix bad conversion of array of empty strings to string. (#816)
  - Move `[[likely]]` feature check back to compile time, to speed up configure.

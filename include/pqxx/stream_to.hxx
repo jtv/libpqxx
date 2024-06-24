@@ -481,11 +481,10 @@ inline stream_to::stream_to(
   Iter columns_end) :
         stream_to{
           tx,
-          tx.quote_name(
-            table_name,
-            separated_list(",", columns_begin, columns_end, [&tx](auto col) {
+          tx.quote_name(table_name),
+          separated_list(",", columns_begin, columns_end, [&tx](auto col) {
               return tx.quote_name(*col);
-            }))}
+            })}
 {}
 } // namespace pqxx
 #endif
