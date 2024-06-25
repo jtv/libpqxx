@@ -41,6 +41,9 @@ std::string const pqxx::result::s_empty_string;
 /// C++ wrapper for libpq's PQclear.
 void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
 {
+  // This acts as a destructor, though implemented as a regular function so we
+  // can pass it into a smart pointer.  That's why I think it's kind of fair
+  // to treat the PGresult as const.
   PQclear(const_cast<pq::PGresult *>(data));
 }
 
@@ -351,6 +354,7 @@ std::string pqxx::result::status_error() const
 
 char const *pqxx::result::cmd_status() const noexcept
 {
+  // TODO: PQcmdStatus() could totally take a pointer to const.
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -372,6 +376,7 @@ pqxx::oid pqxx::result::inserted_oid() const
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
+  // TODO: PQcmdTuples() could take a pointer to const.
   auto const rows_str{
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
   return (rows_str[0] == '\0') ? 0 : size_type(atoi(rows_str));
