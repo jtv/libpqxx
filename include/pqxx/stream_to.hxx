@@ -260,14 +260,6 @@ public:
   [[deprecated("Use table() or raw_table() factory.")]] stream_to(
     transaction_base &, std::string_view table_name, Columns const &columns);
 
-  /// Create a stream, specifying column names as a sequence of strings.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   */
-  template<typename Iter>
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &, std::string_view table_name, Iter columns_begin,
-    Iter columns_end);
-
 private:
   /// Stream a pre-quoted table name and columns list.
   stream_to(
@@ -472,19 +464,6 @@ template<typename Columns>
 inline stream_to::stream_to(
   transaction_base &tx, std::string_view table_name, Columns const &columns) :
         stream_to{tx, table_name, std::begin(columns), std::end(columns)}
-{}
-
-
-template<typename Iter>
-inline stream_to::stream_to(
-  transaction_base &tx, std::string_view table_name, Iter columns_begin,
-  Iter columns_end) :
-        stream_to{
-          tx,
-          tx.quote_name(table_name),
-          separated_list(",", columns_begin, columns_end, [&tx](auto col) {
-              return tx.quote_name(*col);
-            })}
 {}
 } // namespace pqxx
 #endif
