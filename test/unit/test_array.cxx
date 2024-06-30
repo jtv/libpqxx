@@ -696,8 +696,12 @@ void test_array_iterates_in_row_major_order()
 void test_as_sql_array()
 {
   pqxx::connection conn;
-  pqxx::work tx{conn};
-  auto const r{tx.exec1("SELECT ARRAY [5, 4, 3, 2]")};
+  pqxx::row r;
+  {
+    pqxx::work tx{conn};
+    r = tx.exec1("SELECT ARRAY [5, 4, 3, 2]");
+    // Connection closes, but we should still be able to parse the array.
+  }
   auto const array{r[0].as_sql_array<int>()};
   PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array.");
 }
