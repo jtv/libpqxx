@@ -506,10 +506,8 @@ private:
 };
 
 
-/// Low-level array parser.
-/** @warning This is not a great API.  Something nicer is on the way.
- *
- * Use this to read an array field retrieved from the database.
+/// Low-level parser for C++ arrays.  @deprecated Use @ref pqxx::array instead.
+/** Clunky old API for parsing SQL arrays.
  *
  * @warning This parser will only work reliably if your client encoding is
  * UTF-8, ASCII, or a "safe ASCII superset" (such as the EUC encodings) where
