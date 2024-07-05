@@ -32,7 +32,8 @@ namespace pqxx
 class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
-  using iterator_category = std::random_access_iterator_tag;
+  // TODO: Change operator[] so this becomes a proper random_access_iterator.
+  using iterator_category = std::bidirectional_iterator_tag;
   using value_type = row const;
   using pointer = row const *;
   using reference = row;
@@ -55,9 +56,9 @@ public:
    * @name Dereferencing operators
    *
    * An iterator "points to" its own row, which is also itself.  This makes it
-   * easy to address a @ref result as a two-dimensional container, without
-   * going through the intermediate step of dereferencing the iterator.  It
-   * makes the interface similar to C pointer/array semantics.
+   * easy to address a @ref pqxx::result as a two-dimensional container,
+   * without going through the intermediate step of dereferencing the iterator.
+   * It makes the interface similar to C pointer/array semantics.
    *
    * IIRC Alex Stepanov, the inventor of the STL, once remarked that having
    * this as standard behaviour for pointers would be useful in some
@@ -80,6 +81,7 @@ public:
   //@{
   using row::back;
   using row::front;
+  // TODO: Replace with standard operator[]: i[n] == *(i + n).
   using row::operator[];
   using row::at;
   using row::rownumber;
@@ -239,6 +241,7 @@ public:
   //@{
   using const_result_iterator::back;
   using const_result_iterator::front;
+  // TODO: Replace with standard operator[]: i[n] == *(i + n).
   using const_result_iterator::operator[];
   using const_result_iterator::at;
   using const_result_iterator::rownumber;
