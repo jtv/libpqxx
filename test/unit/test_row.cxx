@@ -84,8 +84,12 @@ void test_row_iterator_array_index_offsets_iterator()
   pqxx::connection conn;
   pqxx::work tx{conn};
   auto const row{tx.exec1("SELECT 5, 4, 3, 2")};
-  PQXX_CHECK_EQUAL(row.begin()[1].as<std::string>(), "4", "Row iterator indexing went wrong.");
-  PQXX_CHECK_EQUAL(row.rbegin()[1].as<std::string>(), "3", "Reverse row iterator indexing went wrong.");
+  PQXX_CHECK_EQUAL(
+    row.begin()[1].as<std::string>(), "4",
+    "Row iterator indexing went wrong.");
+  PQXX_CHECK_EQUAL(
+    row.rbegin()[1].as<std::string>(), "3",
+    "Reverse row iterator indexing went wrong.");
 }
 
 

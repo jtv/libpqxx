@@ -399,7 +399,9 @@ public:
   operator-(const_row_iterator const &) const noexcept;
 
   [[nodiscard]] inline field operator[](difference_type offset) const noexcept
-  { return *(*this + offset); }
+  {
+    return *(*this + offset);
+  }
   //@}
 };
 
@@ -491,7 +493,9 @@ public:
     return rhs.const_row_iterator::operator-(*this);
   }
   [[nodiscard]] inline field operator[](difference_type offset) const noexcept
-  { return *(*this + offset); }
+  {
+    return *(*this + offset);
+  }
   //@}
 
   /**
