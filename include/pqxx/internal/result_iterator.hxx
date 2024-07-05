@@ -32,7 +32,7 @@ namespace pqxx
 class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
-  using iterator_category = std::random_access_iterator_tag;
+  using iterator_category = std::bidirectional_iterator_tag;
   using value_type = row const;
   using pointer = row const *;
   using reference = row;
