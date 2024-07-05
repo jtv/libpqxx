@@ -32,6 +32,7 @@ namespace pqxx
 class PQXX_LIBEXPORT const_result_iterator : public row
 {
 public:
+  // TODO: Change operator[] so this becomes a proper random_access_iterator.
   using iterator_category = std::bidirectional_iterator_tag;
   using value_type = row const;
   using pointer = row const *;
@@ -80,6 +81,7 @@ public:
   //@{
   using row::back;
   using row::front;
+  // TODO: Replace with standard operator[]: i[n] == *(i + n).
   using row::operator[];
   using row::at;
   using row::rownumber;
@@ -239,6 +241,7 @@ public:
   //@{
   using const_result_iterator::back;
   using const_result_iterator::front;
+  // TODO: Replace with standard operator[]: i[n] == *(i + n).
   using const_result_iterator::operator[];
   using const_result_iterator::at;
   using const_result_iterator::rownumber;
