@@ -13,8 +13,8 @@ namespace
 {
 void test_072()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
   pipeline P{tx};
 
   // Ensure all queries are issued at once to make the test more interesting
@@ -34,7 +34,7 @@ void test_072()
 
   // We should *not* get a result for the query behind the error
   {
-    quiet_errorhandler d{conn};
+    quiet_errorhandler d{cx};
     PQXX_CHECK_THROWS(
       P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
       "Pipeline wrongly resumed after SQL error.");
@@ -42,7 +42,7 @@ void test_072()
 
   // Now see that we get an exception when we touch the failed result
   {
-    quiet_errorhandler d{conn};
+    quiet_errorhandler d{cx};
     PQXX_CHECK_THROWS(
       P.retrieve(id_f), sql_error, "Pipeline failed to register SQL error.");
   }

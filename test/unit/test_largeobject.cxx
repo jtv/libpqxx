@@ -10,7 +10,7 @@ namespace
 {
 void test_stream_large_object()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   // Construct a really nasty string.  (Don't just construct a std::string from
   // a char[] constant, because it'll terminate at the embedded zero.)
@@ -22,7 +22,7 @@ void test_stream_large_object()
   constexpr char bytes[]{"\xff\0end"};
   std::string const contents{bytes, std::size(bytes)};
 
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::largeobject new_obj{tx};
 

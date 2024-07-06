@@ -6,8 +6,8 @@ namespace
 {
 void test_read_transaction()
 {
-  pqxx::connection conn;
-  pqxx::read_transaction tx{conn};
+  pqxx::connection cx;
+  pqxx::read_transaction tx{cx};
   PQXX_CHECK_EQUAL(
     tx.exec("SELECT 1")[0][0].as<int>(), 1,
     "Bad result from read transaction.");

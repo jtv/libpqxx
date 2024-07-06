@@ -1188,9 +1188,9 @@ using connection_base = connection;
  *         cg.process();
  *     }
  *
- *     pqxx::connection conn = std::move(cg).produce();
+ *     pqxx::connection cx = std::move(cg).produce();
  *
- *     // At this point, conn is a working connection.  You can no longer use
+ *     // At this point, cx is a working connection.  You can no longer use
  *     // cg at all.
  * ```
  */

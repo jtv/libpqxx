@@ -7,8 +7,8 @@ namespace
 {
 void test_result_iteration()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
 
   PQXX_CHECK(std::end(r) != std::begin(r), "Broken begin/end.");
@@ -26,8 +26,8 @@ void test_result_iteration()
 
 void test_result_iter()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
 
   int total{0};
@@ -38,8 +38,8 @@ void test_result_iter()
 
 void test_result_iterator_swap()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
 
   auto head{std::begin(r)}, next{head + 1};
@@ -56,8 +56,8 @@ void test_result_iterator_swap()
 
 void test_result_iterator_assignment()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
 
   pqxx::result::const_iterator fwd;
@@ -85,8 +85,8 @@ void check_employee(std::string name, int salary)
 
 void test_result_for_each()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE employee(name varchar, salary int)");
   auto fill{pqxx::stream_to::table(tx, {"employee"}, {"name", "salary"})};
   fill.write_values("x", 1000);

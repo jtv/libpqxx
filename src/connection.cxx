@@ -66,9 +66,9 @@ extern "C"
 {
   // The PQnoticeProcessor that receives an error or warning from libpq and
   // sends it to the appropriate connection for processing.
-  void pqxx_notice_processor(void *conn, char const *msg) noexcept
+  void pqxx_notice_processor(void *cx, char const *msg) noexcept
   {
-    reinterpret_cast<pqxx::connection *>(conn)->process_notice(msg);
+    reinterpret_cast<pqxx::connection *>(cx)->process_notice(msg);
   }
 
 
@@ -553,9 +553,9 @@ using notify_ptr = std::unique_ptr<PGnotify, void (*)(void const *)>;
 
 
 /// Get one notification from a connection, or null.
-notify_ptr get_notif(pqxx::internal::pq::PGconn *conn)
+notify_ptr get_notif(pqxx::internal::pq::PGconn *cx)
 {
-  return {PQnotifies(conn), pqxx::internal::pq::pqfreemem};
+  return {PQnotifies(cx), pqxx::internal::pq::pqfreemem};
 }
 } // namespace
 

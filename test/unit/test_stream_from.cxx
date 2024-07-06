@@ -106,9 +106,9 @@ void test_nonoptionals(pqxx::connection &connection)
 }
 
 
-void test_bad_tuples(pqxx::connection &conn)
+void test_bad_tuples(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
   auto extractor{pqxx::stream_from::table(tx, {"stream_from_test"})};
   PQXX_CHECK(extractor, "stream_from failed to initialize");
 
@@ -205,8 +205,8 @@ void test_optional(pqxx::connection &connection)
 
 void test_stream_from()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0(
     "CREATE TEMP TABLE stream_from_test ("
     "number0 INT NOT NULL,"
@@ -228,20 +228,20 @@ void test_stream_from()
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
   tx.commit();
 
-  test_nonoptionals(conn);
-  test_bad_tuples(conn);
+  test_nonoptionals(cx);
+  test_bad_tuples(cx);
   std::cout << "testing `std::unique_ptr` as optional...\n";
-  test_optional<std::unique_ptr>(conn);
+  test_optional<std::unique_ptr>(cx);
   std::cout << "testing `std::optional` as optional...\n";
-  test_optional<std::optional>(conn);
+  test_optional<std::optional>(cx);
 }
 
 
 void test_stream_from_does_escaping()
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE badstr (str text)");
   tx.exec0("INSERT INTO badstr (str) VALUES (" + tx.quote(input) + ")");
   auto reader{pqxx::stream_from::table(tx, {"badstr"})};
@@ -254,8 +254,8 @@ void test_stream_from_does_escaping()
 
 void test_stream_from_does_iteration()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE str (s text)");
   tx.exec0("INSERT INTO str (s) VALUES ('foo')");
   auto reader{pqxx::stream_from::table(tx, {"str"})};
@@ -289,8 +289,8 @@ void test_stream_from_does_iteration()
 
 void test_stream_from_read_row()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE sample (id integer, name varchar, opt integer)");
   tx.exec0("INSERT INTO sample (id, name) VALUES (321, 'something')");
 
@@ -310,15 +310,15 @@ void test_stream_from_read_row()
 
 void test_stream_from_parses_awkward_strings()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   // This is a particularly awkward encoding that we should test.  Its
   // multibyte characters can include byte values that *look* like ASCII
   // characters, such as quotes and backslashes.  It is crucial that we parse
   // those properly.  A byte-for-byte scan could find special ASCII characters
   // that aren't really there.
-  conn.set_client_encoding("SJIS");
-  pqxx::work tx{conn};
+  cx.set_client_encoding("SJIS");
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE nasty(id integer, value varchar)");
   tx.exec0(
     "INSERT INTO nasty(id, value) VALUES "

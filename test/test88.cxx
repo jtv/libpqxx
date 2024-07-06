@@ -11,9 +11,9 @@ namespace
 {
 void test_088()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
-  pqxx::work tx0{conn};
+  pqxx::work tx0{cx};
   pqxx::test::create_pqxxevents(tx0);
 
   // Trivial test: create subtransactions, and commit/abort
@@ -28,7 +28,7 @@ void test_088()
   tx0.commit();
 
   // Basic functionality: perform query in subtransaction; abort, continue
-  pqxx::work tx1{conn, "tx1"};
+  pqxx::work tx1{cx, "tx1"};
   std::cout << tx1.exec1("SELECT 'tx1 starts'")[0].c_str() << std::endl;
   pqxx::subtransaction tx1a{tx1, "tx1a"};
   std::cout << tx1a.exec1("SELECT '  a'")[0].c_str() << std::endl;
@@ -43,7 +43,7 @@ void test_088()
   tx1.commit();
 
   // Commit/rollback functionality
-  pqxx::work tx2{conn, "tx2"};
+  pqxx::work tx2{cx, "tx2"};
   std::string const Table{"test088"};
   tx2.exec0("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)");
 
@@ -72,7 +72,7 @@ void test_088()
   tx2.abort();
 
   // Auto-abort should only roll back the subtransaction.
-  pqxx::work tx3{conn, "tx3"};
+  pqxx::work tx3{cx, "tx3"};
   pqxx::subtransaction tx3a(tx3, "tx3a");
   PQXX_CHECK_THROWS(
     tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),

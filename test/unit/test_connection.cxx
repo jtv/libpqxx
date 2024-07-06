@@ -204,12 +204,12 @@ void test_raw_connection()
 
 void test_closed_connection()
 {
-  pqxx::connection conn;
-  conn.close();
-  PQXX_CHECK(not conn.dbname(), "Closed connection had a dbname.");
-  PQXX_CHECK(not conn.username(), "Closed connection had a username.");
-  PQXX_CHECK(not conn.hostname(), "Closed connection had a hostname.");
-  PQXX_CHECK(not conn.port(), "Closed connection had a port.");
+  pqxx::connection cx;
+  cx.close();
+  PQXX_CHECK(not cx.dbname(), "Closed connection had a dbname.");
+  PQXX_CHECK(not cx.username(), "Closed connection had a username.");
+  PQXX_CHECK(not cx.hostname(), "Closed connection had a hostname.");
+  PQXX_CHECK(not cx.port(), "Closed connection had a port.");
 }
 
 

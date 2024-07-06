@@ -7,8 +7,8 @@ namespace
 {
 void test_forward_sql_cursor()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   // Plain owned, scoped, forward-only read-only cursor.
   pqxx::internal::sql_cursor forward(
@@ -107,8 +107,8 @@ void test_forward_sql_cursor()
 
 void test_scroll_sql_cursor()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::internal::sql_cursor scroll(
     tx, "SELECT generate_series(1, 10)", "scroll",
     pqxx::cursor_base::random_access, pqxx::cursor_base::read_only,
@@ -170,8 +170,8 @@ void test_scroll_sql_cursor()
 
 void test_adopted_sql_cursor()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0(
     "DECLARE adopted SCROLL CURSOR FOR "
@@ -231,8 +231,8 @@ void test_adopted_sql_cursor()
 
 void test_hold_cursor()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   // "With hold" cursor is kept after commit.
   pqxx::internal::sql_cursor with_hold(
@@ -240,7 +240,7 @@ void test_hold_cursor()
     pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
     pqxx::cursor_base::owned, true);
   tx.commit();
-  pqxx::work tx2(conn, "tx2");
+  pqxx::work tx2(cx, "tx2");
   auto rows{with_hold.fetch(1)};
   PQXX_CHECK_EQUAL(
     std::size(rows), 1, "Did not get 1 row from with-hold cursor");
@@ -251,7 +251,7 @@ void test_hold_cursor()
     pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
     pqxx::cursor_base::owned, false);
   tx2.commit();
-  pqxx::work tx3(conn, "tx3");
+  pqxx::work tx3(cx, "tx3");
   PQXX_CHECK_THROWS(
     no_hold.fetch(1), pqxx::sql_error, "Cursor not closed on commit");
 }

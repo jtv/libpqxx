@@ -18,8 +18,8 @@ namespace
 {
 void test_084()
 {
-  pqxx::connection conn;
-  pqxx::transaction<pqxx::serializable> tx{conn};
+  pqxx::connection cx;
+  pqxx::transaction<pqxx::serializable> tx{cx};
 
   std::string const Table{"pg_tables"}, Key{"tablename"};
 

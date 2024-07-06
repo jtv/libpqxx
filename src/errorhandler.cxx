@@ -19,7 +19,7 @@
 #include "pqxx/internal/header-post.hxx"
 
 
-pqxx::errorhandler::errorhandler(connection &conn) : m_home{&conn}
+pqxx::errorhandler::errorhandler(connection &cx) : m_home{&cx}
 {
   pqxx::internal::gate::connection_errorhandler{*m_home}.register_errorhandler(
     this);

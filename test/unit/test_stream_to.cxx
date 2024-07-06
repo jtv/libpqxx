@@ -233,8 +233,8 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 
 void test_stream_to_does_nonnull_optional()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE foo(x integer, y text)");
   auto inserter{pqxx::stream_to::table(tx, {"foo"})};
   inserter.write_values(
@@ -285,8 +285,8 @@ void test_optional_fold(pqxx::connection &connection)
 // As an alternative to a tuple, you can also insert a container.
 void test_container_stream_to()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE test_container(a integer, b integer)");
 
   auto inserter{pqxx::stream_to::table(tx, {"test_container"})};
@@ -322,9 +322,9 @@ void test_variant_fold(pqxx::connection_base &connection)
   tx.commit();
 }
 
-void clear_table(pqxx::connection &conn)
+void clear_table(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
   tx.exec0("DELETE FROM stream_to_test");
   tx.commit();
 }
@@ -332,8 +332,8 @@ void clear_table(pqxx::connection &conn)
 
 void test_stream_to()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0(
     "CREATE TEMP TABLE stream_to_test ("
@@ -346,38 +346,38 @@ void test_stream_to()
     ")");
   tx.commit();
 
-  test_nonoptionals(conn);
-  clear_table(conn);
-  test_nonoptionals_fold(conn);
-  clear_table(conn);
-  test_bad_null(conn);
-  clear_table(conn);
-  test_bad_null_fold(conn);
-  clear_table(conn);
-  test_too_few_fields(conn);
-  clear_table(conn);
-  test_too_few_fields_fold(conn);
-  clear_table(conn);
-  test_too_many_fields(conn);
-  clear_table(conn);
-  test_too_many_fields_fold(conn);
-  clear_table(conn);
-  test_optional<std::unique_ptr>(conn);
-  clear_table(conn);
-  test_optional_fold<std::unique_ptr>(conn);
-  clear_table(conn);
-  test_optional<std::optional>(conn);
-  clear_table(conn);
-  test_optional_fold<std::optional>(conn);
-  clear_table(conn);
-  test_variant_fold(conn);
+  test_nonoptionals(cx);
+  clear_table(cx);
+  test_nonoptionals_fold(cx);
+  clear_table(cx);
+  test_bad_null(cx);
+  clear_table(cx);
+  test_bad_null_fold(cx);
+  clear_table(cx);
+  test_too_few_fields(cx);
+  clear_table(cx);
+  test_too_few_fields_fold(cx);
+  clear_table(cx);
+  test_too_many_fields(cx);
+  clear_table(cx);
+  test_too_many_fields_fold(cx);
+  clear_table(cx);
+  test_optional<std::unique_ptr>(cx);
+  clear_table(cx);
+  test_optional_fold<std::unique_ptr>(cx);
+  clear_table(cx);
+  test_optional<std::optional>(cx);
+  clear_table(cx);
+  test_optional_fold<std::optional>(cx);
+  clear_table(cx);
+  test_variant_fold(cx);
 }
 
 
 void test_stream_to_factory_with_static_columns()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)");
 
@@ -395,8 +395,8 @@ void test_stream_to_factory_with_static_columns()
 
 void test_stream_to_factory_with_dynamic_columns()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)");
 
@@ -405,7 +405,7 @@ void test_stream_to_factory_with_dynamic_columns()
   auto stream{pqxx::stream_to::table(tx, {"pqxx_stream_to"}, columns)};
 #else
   auto stream{pqxx::stream_to::raw_table(
-    tx, conn.quote_table({"pqxx_stream_to"}), conn.quote_columns(columns))};
+    tx, cx.quote_table({"pqxx_stream_to"}), cx.quote_columns(columns))};
 #endif
   stream.write_values(4, "four");
   stream.complete();
@@ -421,8 +421,8 @@ void test_stream_to_factory_with_dynamic_columns()
 
 void test_stream_to_quotes_arguments()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::string const table{R"--(pqxx_Stream"'x)--"}, column{R"--(a'"b)--"};
 
@@ -442,8 +442,8 @@ void test_stream_to_quotes_arguments()
 
 void test_stream_to_optionals()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0("CREATE TEMP TABLE pqxx_strings(key integer, value varchar)");
 
@@ -491,8 +491,8 @@ void test_stream_to_optionals()
 
 void test_stream_to_escaping()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0("CREATE TEMP TABLE foo (i integer, t varchar)");
 

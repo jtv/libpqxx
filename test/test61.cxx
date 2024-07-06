@@ -37,8 +37,8 @@ void RedoDatestyle(
 
 void test_061()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
 
   PQXX_CHECK(not std::empty(GetDatestyle(tx)), "Initial datestyle not set.");
 
@@ -52,7 +52,7 @@ void test_061()
   // Prove that setting an unknown variable causes an error, as expected
   quiet_errorhandler d(tx.conn());
   PQXX_CHECK_THROWS(
-    conn.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
+    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
     "Setting unknown variable failed to fail.");
 }
 

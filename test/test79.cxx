@@ -18,8 +18,8 @@ class TestListener final : public pqxx::notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(pqxx::connection &conn, std::string const &Name) :
-          pqxx::notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection &cx, std::string const &Name) :
+          pqxx::notification_receiver(cx, Name), m_done(false)
   {}
 
   void operator()(std::string const &, int be_pid) override
@@ -38,17 +38,17 @@ public:
 
 void test_079()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   std::string const NotifName{"mylistener"};
-  TestListener L(conn, NotifName);
+  TestListener L(cx, NotifName);
 
   // First see if the timeout really works: we're not expecting any notifs
-  int notifs{conn.await_notification(0, 1)};
+  int notifs{cx.await_notification(0, 1)};
   PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notification.");
 
-  pqxx::perform([&conn, &L] {
-    pqxx::work tx{conn};
+  pqxx::perform([&cx, &L] {
+    pqxx::work tx{cx};
     tx.exec0("NOTIFY " + L.channel());
     tx.commit();
   });
@@ -57,7 +57,7 @@ void test_079()
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got notifications, but no handler called.");
     std::cout << ".";
-    notifs = conn.await_notification(1, 0);
+    notifs = cx.await_notification(1, 0);
   }
   std::cout << std::endl;
 

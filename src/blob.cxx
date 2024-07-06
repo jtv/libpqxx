@@ -23,9 +23,9 @@ constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 
 
 pqxx::internal::pq::PGconn *
-pqxx::blob::raw_conn(pqxx::connection *conn) noexcept
+pqxx::blob::raw_conn(pqxx::connection *cx) noexcept
 {
-  pqxx::internal::gate::connection_largeobject const gate{*conn};
+  pqxx::internal::gate::connection_largeobject const gate{*cx};
   return gate.raw_connection();
 }
 
@@ -37,21 +37,21 @@ pqxx::blob::raw_conn(pqxx::dbtransaction const &tx) noexcept
 }
 
 
-std::string pqxx::blob::errmsg(connection const *conn)
+std::string pqxx::blob::errmsg(connection const *cx)
 {
-  pqxx::internal::gate::const_connection_largeobject const gate{*conn};
+  pqxx::internal::gate::const_connection_largeobject const gate{*cx};
   return gate.error_message();
 }
 
 
 pqxx::blob pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode)
 {
-  auto &conn{tx.conn()};
-  int const fd{lo_open(raw_conn(&conn), id, mode)};
+  auto &cx{tx.conn()};
+  int const fd{lo_open(raw_conn(&cx), id, mode)};
   if (fd == -1)
     throw pqxx::failure{internal::concat(
-      "Could not open binary large object ", id, ": ", errmsg(&conn))};
-  return {conn, fd};
+      "Could not open binary large object ", id, ": ", errmsg(&cx))};
+  return {cx, fd};
 }
 
 

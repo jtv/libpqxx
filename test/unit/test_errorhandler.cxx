@@ -209,13 +209,13 @@ void test_get_errorhandlers(pqxx::connection &c)
 
 void test_errorhandler()
 {
-  pqxx::connection conn;
-  test_process_notice_calls_errorhandler(conn);
-  test_error_handlers_get_called_newest_to_oldest(conn);
-  test_returning_false_stops_error_handling(conn);
-  test_destroyed_error_handlers_are_not_called(conn);
+  pqxx::connection cx;
+  test_process_notice_calls_errorhandler(cx);
+  test_error_handlers_get_called_newest_to_oldest(cx);
+  test_returning_false_stops_error_handling(cx);
+  test_destroyed_error_handlers_are_not_called(cx);
   test_destroying_connection_unregisters_handlers();
-  test_get_errorhandlers(conn);
+  test_get_errorhandlers(cx);
 }
 
 

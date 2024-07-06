@@ -5,9 +5,9 @@
 
 namespace
 {
-void test_stateless_cursor_provides_random_access(pqxx::connection &conn)
+void test_stateless_cursor_provides_random_access(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
   pqxx::stateless_cursor<
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     c{tx, "SELECT * FROM generate_series(0, 3)", "count", false};
@@ -26,9 +26,9 @@ void test_stateless_cursor_provides_random_access(pqxx::connection &conn)
 }
 
 
-void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &conn)
+void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
   pqxx::stateless_cursor<
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>
     c{tx, "SELECT * FROM generate_series(0, 3)  ;; ; \n \t  ", "count", false};
@@ -40,9 +40,9 @@ void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &conn)
 
 void test_cursor()
 {
-  pqxx::connection conn;
-  test_stateless_cursor_provides_random_access(conn);
-  test_stateless_cursor_ignores_trailing_semicolon(conn);
+  pqxx::connection cx;
+  test_stateless_cursor_provides_random_access(cx);
+  test_stateless_cursor_ignores_trailing_semicolon(cx);
 }
 
 

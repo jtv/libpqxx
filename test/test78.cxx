@@ -19,8 +19,8 @@ class TestListener : public pqxx::notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(pqxx::connection &conn, std::string const &Name) :
-          pqxx::notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection &cx, std::string const &Name) :
+          pqxx::notification_receiver(cx, Name), m_done(false)
   {}
 
   void operator()(std::string const &, int be_pid) override
@@ -40,13 +40,13 @@ public:
 
 void test_078()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   std::string const NotifName{"my listener"};
-  TestListener L{conn, NotifName};
+  TestListener L{cx, NotifName};
 
-  pqxx::perform([&conn, &L] {
-    pqxx::work tx{conn};
+  pqxx::perform([&cx, &L] {
+    pqxx::work tx{cx};
     tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
     tx.commit();
   });
@@ -56,7 +56,7 @@ void test_078()
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     std::cout << ".";
-    notifs = conn.await_notification();
+    notifs = cx.await_notification();
   }
   std::cout << std::endl;
 

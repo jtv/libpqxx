@@ -491,8 +491,8 @@ void test_array_strings()
     "",    "null", "NULL", "\\N", "'",    "''", "\\", "\n\t",
     "\\n", "\"",   "\"\"", "a b", "a<>b", "{",  "}",  "{}",
   };
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   for (auto const &input : inputs)
   {
@@ -513,11 +513,11 @@ void test_array_strings()
 
 void test_array_parses_real_arrays()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
-  pqxx::array<int> empty_a{empty_s, conn};
+  pqxx::array<int> empty_a{empty_s, cx};
   PQXX_CHECK_EQUAL(
     empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
   PQXX_CHECK_EQUAL(
@@ -525,7 +525,7 @@ void test_array_parses_real_arrays()
     "Unexpected sizes for empty array.");
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
-  pqxx::array<int> onedim_a{onedim_s, conn};
+  pqxx::array<int> onedim_a{onedim_s, cx};
   PQXX_CHECK_EQUAL(
     onedim_a.dimensions(), 1u,
     "Unexpected dimension count for one-dimensional array.");
@@ -539,11 +539,11 @@ void test_array_parses_real_arrays()
   auto const null_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
   PQXX_CHECK_THROWS(
-    (pqxx::array<int>{null_s, conn}), pqxx::unexpected_null,
+    (pqxx::array<int>{null_s, cx}), pqxx::unexpected_null,
     "Not getting unexpected_null from array parser.");
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
-  pqxx::array<int, 2> twodim_a{twodim_s, conn};
+  pqxx::array<int, 2> twodim_a{twodim_s, cx};
   PQXX_CHECK_EQUAL(
     twodim_a.dimensions(), 2u,
     "Wrong number of dimensions on multi-dimensional array.");
@@ -552,17 +552,17 @@ void test_array_parses_real_arrays()
     "Wrong sizes on multidim array.");
 
   auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
-  pqxx::array<std::string> string_a{string_s, conn};
+  pqxx::array<std::string> string_a{string_s, cx};
   PQXX_CHECK_EQUAL(string_a[0], "Hello", "String field came out wrong.");
 
   auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
-  pqxx::array<std::string> fake_null_a{string_s, conn};
+  pqxx::array<std::string> fake_null_a{string_s, cx};
   PQXX_CHECK_EQUAL(
     fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
 
   auto const nulls_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
-  pqxx::array<std::optional<std::string>> nulls_a{nulls_s, conn};
+  pqxx::array<std::optional<std::string>> nulls_a{nulls_s, cx};
   PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
   PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
   PQXX_CHECK_EQUAL(
@@ -572,7 +572,7 @@ void test_array_parses_real_arrays()
 
 void test_array_rejects_malformed_simple_int_arrays()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   std::string_view const bad_arrays[]{
     ""sv,     "null"sv, ","sv,      "1"sv,    "{"sv,         "}"sv,   "}{"sv,
     "{}{"sv,  "{{}"sv,  "{}}"sv,    "{{}}"sv, "{1"sv,        "{1,"sv, "{,}"sv,
@@ -580,14 +580,14 @@ void test_array_rejects_malformed_simple_int_arrays()
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
-      (pqxx::array<int>{bad, conn}), pqxx::conversion_error,
+      (pqxx::array<int>{bad, cx}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
 }
 
 
 void test_array_rejects_malformed_simple_string_arrays()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   std::string_view const bad_arrays[]{
     ""sv,    "null"sv, "1"sv,    ","sv,    "{"sv,      "}"sv,
     "}{"sv,  "{}{"sv,  "{{}"sv,  "{}}"sv,  "{{}}"sv,   "{1"sv,
@@ -595,14 +595,14 @@ void test_array_rejects_malformed_simple_string_arrays()
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
-      (pqxx::array<std::string>{bad, conn}), pqxx::conversion_error,
+      (pqxx::array<std::string>{bad, cx}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
 }
 
 
 void test_array_rejects_malformed_twodimensional_arrays()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   std::string_view const bad_arrays[]{
     ""sv,
     "{}"sv,
@@ -611,23 +611,23 @@ void test_array_rejects_malformed_twodimensional_arrays()
   };
   for (auto bad : bad_arrays)
     PQXX_CHECK_THROWS(
-      (pqxx::array<std::string, 2>{bad, conn}), pqxx::conversion_error,
+      (pqxx::array<std::string, 2>{bad, cx}), pqxx::conversion_error,
       "No conversion_error for '" + std::string{bad} + "'.");
 }
 
 
 void test_array_parses_quoted_strings()
 {
-  pqxx::connection conn;
-  pqxx::array<std::string> const a{R"x({"\"'"})x", conn};
+  pqxx::connection cx;
+  pqxx::array<std::string> const a{R"x({"\"'"})x", cx};
   PQXX_CHECK_EQUAL(a[0], R"x("')x", "String in array did not unescape right.");
 }
 
 
 void test_array_parses_multidim_arrays()
 {
-  pqxx::connection conn;
-  pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", conn};
+  pqxx::connection cx;
+  pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", cx};
   PQXX_CHECK_EQUAL(a.at(0u, 0u), 0, "Indexing is wrong.");
   PQXX_CHECK_EQUAL(a.at(1u, 0u), 2, "Indexing seems to confuse dimensions.");
   PQXX_CHECK_EQUAL(a.at(1u, 1u), 3, "Indexing at higher indexes goes wrong.");
@@ -636,8 +636,8 @@ void test_array_parses_multidim_arrays()
 
 void test_array_at_checks_bounds()
 {
-  pqxx::connection conn;
-  pqxx::array<int> const simple{"{0, 1, 2}", conn};
+  pqxx::connection cx;
+  pqxx::array<int> const simple{"{0, 1, 2}", cx};
   PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
   PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
   PQXX_CHECK_THROWS(
@@ -646,7 +646,7 @@ void test_array_at_checks_bounds()
     simple.at(-1), pqxx::range_error,
     "Negative index does not throw range_error.");
 
-  pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", conn};
+  pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", cx};
   PQXX_CHECK_EQUAL(
     multi.at(0, 0), 0, "Multidim array indexing does not work.");
   PQXX_CHECK_EQUAL(multi.at(1, 1), 3, "Nonzero multidim indexing goes wrong.");
@@ -668,11 +668,11 @@ void test_array_at_checks_bounds()
 
 void test_array_iterates_in_row_major_order()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto const array_s{tx.query_value<std::string>(
     "SELECT ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9]]")};
-  pqxx::array<int, 2> array{array_s, conn};
+  pqxx::array<int, 2> array{array_s, cx};
   auto it{array.cbegin()};
   PQXX_CHECK_EQUAL(*it, 1, "Iteration started off wrong.");
   ++it;
@@ -695,10 +695,10 @@ void test_array_iterates_in_row_major_order()
 
 void test_as_sql_array()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   pqxx::row r;
   {
-    pqxx::work tx{conn};
+    pqxx::work tx{cx};
     r = tx.exec1("SELECT ARRAY [5, 4, 3, 2]");
     // Connection closes, but we should still be able to parse the array.
   }

@@ -7,11 +7,11 @@ namespace
 {
 void test_simultaneous_transactions()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
-  pqxx::nontransaction n1{conn};
+  pqxx::nontransaction n1{cx};
   PQXX_CHECK_THROWS(
-    pqxx::nontransaction n2{conn}, std::logic_error,
+    pqxx::nontransaction n2{cx}, std::logic_error,
     "Allowed to open simultaneous nontransactions.");
 }
 

@@ -12,8 +12,8 @@ namespace
 {
 void test_075()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   pqxx::test::create_pqxxevents(tx);
   auto const R(tx.exec("SELECT year FROM pqxxevents"));

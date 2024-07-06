@@ -121,8 +121,8 @@ public:
     transaction_base &tx, table_path path,
     std::initializer_list<std::string_view> columns = {})
   {
-    auto const &conn{tx.conn()};
-    return raw_table(tx, conn.quote_table(path), conn.quote_columns(columns));
+    auto const &cx{tx.conn()};
+    return raw_table(tx, cx.quote_table(path), cx.quote_columns(columns));
   }
 
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -138,9 +138,9 @@ public:
   static stream_to
   table(transaction_base &tx, table_path path, COLUMNS const &columns)
   {
-    auto const &conn{tx.conn()};
+    auto const &cx{tx.conn()};
     return stream_to::raw_table(
-      tx, conn.quote_table(path), tx.conn().quote_columns(columns));
+      tx, cx.quote_table(path), tx.conn().quote_columns(columns));
   }
 
   /// Create a `stream_to` writing to a named table and columns.

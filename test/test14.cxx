@@ -13,12 +13,12 @@ namespace
 {
 void test_014()
 {
-  connection conn;
+  connection cx;
 
   // Begin a "non-transaction" acting on our current connection.  This is
   // really all the transactional integrity we need since we're only
   // performing one query which does not modify the database.
-  nontransaction tx{conn, "test14"};
+  nontransaction tx{cx, "test14"};
 
   // The transaction class family also has process_notice() functions.
   // These simply pass the notice through to their connection, but this may

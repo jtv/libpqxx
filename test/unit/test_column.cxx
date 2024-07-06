@@ -6,8 +6,8 @@ namespace
 {
 void test_table_column()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   tx.exec0("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)");
   tx.exec0("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");

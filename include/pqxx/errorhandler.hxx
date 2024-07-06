@@ -81,7 +81,7 @@ class quiet_errorhandler : public errorhandler
 {
 public:
   /// Suppress error notices.
-  quiet_errorhandler(connection &conn) : errorhandler{conn} {}
+  quiet_errorhandler(connection &cx) : errorhandler{cx} {}
 
   /// Revert to previous handling of error notices.
   virtual bool operator()(char const[]) noexcept override { return false; }

@@ -19,8 +19,8 @@ make_binarystring(pqxx::transaction_base &T, std::string content)
 
 void test_binarystring()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto b{make_binarystring(tx, "")};
   PQXX_CHECK(std::empty(b), "Empty binarystring is not empty.");
   PQXX_CHECK_EQUAL(b.str(), "", "Empty binarystring doesn't work.");
@@ -142,8 +142,8 @@ void test_binarystring_stream()
   pqxx::binarystring bin{data};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
-  pqxx::connection conn;
-  pqxx::transaction tx{conn};
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
   tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, bin bytea)");
 
   auto to{pqxx::stream_to::table(tx, {"pqxxbinstream"})};
@@ -163,8 +163,8 @@ void test_binarystring_stream()
 
 void test_binarystring_array_stream()
 {
-  pqxx::connection conn;
-  pqxx::transaction tx{conn};
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
   tx.exec0("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])");
 
   constexpr char bytes1[]{"a\tb\0c"}, bytes2[]{"1\0.2"};

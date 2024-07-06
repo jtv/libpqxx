@@ -16,8 +16,8 @@ constexpr unsigned long BoringYear{1977};
 
 void test_020()
 {
-  connection conn;
-  nontransaction t1{conn};
+  connection cx;
+  nontransaction t1{cx};
   test::create_pqxxevents(t1);
 
   std::string const Table{"pqxxevents"};
@@ -53,7 +53,7 @@ void test_020()
   t1.abort();
 
   // Verify that our record was added, despite the Abort()
-  nontransaction t2{conn, "t2"};
+  nontransaction t2{cx, "t2"};
   R = t2.exec(("SELECT * FROM " + Table +
                " "
                "WHERE year=" +
@@ -79,7 +79,7 @@ void test_020()
   t2.commit();
 
   // And again, verify results
-  nontransaction t3{conn, "t3"};
+  nontransaction t3{cx, "t3"};
 
   R = t3.exec(("SELECT * FROM " + Table +
                " "

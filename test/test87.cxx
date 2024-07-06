@@ -30,8 +30,8 @@ class TestListener final : public pqxx::notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(pqxx::connection &conn, std::string Name) :
-          pqxx::notification_receiver(conn, Name), m_done(false)
+  explicit TestListener(pqxx::connection &cx, std::string Name) :
+          pqxx::notification_receiver(cx, Name), m_done(false)
   {}
 
   void operator()(std::string const &, int be_pid) override
@@ -51,13 +51,13 @@ public:
 
 void test_087()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   std::string const NotifName{"my notification"};
-  TestListener L{conn, NotifName};
+  TestListener L{cx, NotifName};
 
-  pqxx::perform([&conn, &L] {
-    pqxx::work tx{conn};
+  pqxx::perform([&cx, &L] {
+    pqxx::work tx{cx};
     tx.exec0("NOTIFY " + tx.quote_name(L.channel()));
     tx.commit();
   });
@@ -69,8 +69,8 @@ void test_087()
 
     std::cout << ".";
 
-    pqxx::internal::wait_fd(conn.sock(), true, false);
-    notifs = conn.get_notifs();
+    pqxx::internal::wait_fd(cx.sock(), true, false);
+    notifs = cx.get_notifs();
   }
   std::cout << std::endl;
 

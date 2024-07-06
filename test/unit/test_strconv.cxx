@@ -97,8 +97,8 @@ void test_strconv_class_enum()
     pqxx::to_string(std::numeric_limits<unsigned long long>::max()),
     "Large wide enum did not convert right.");
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::tuple<weather> out;
   tx.exec1("SELECT 0").to(out);
 }

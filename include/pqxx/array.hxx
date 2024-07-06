@@ -56,7 +56,7 @@ class array final
 {
 public:
   /// Parse an SQL array, read as text from a pqxx::result or stream.
-  /** Uses `conn` only during construction, to find out the text encoding in
+  /** Uses `cx` only during construction, to find out the text encoding in
    * which it should interpret `data`.
    *
    * Once the `array` constructor completes, destroying or moving the
@@ -65,8 +65,8 @@ public:
    * @throws pqxx::unexpected_null if the array contains a null value, and the
    * `ELEMENT` type does not support null values.
    */
-  array(std::string_view data, connection const &conn) :
-          array{data, pqxx::internal::enc_group(conn.encoding_id())}
+  array(std::string_view data, connection const &cx) :
+          array{data, pqxx::internal::enc_group(cx.encoding_id())}
   {}
 
   /// How many dimensions does this array have?

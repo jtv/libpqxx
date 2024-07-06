@@ -13,8 +13,8 @@ namespace
 void test_074()
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
 
   result R{tx.exec("SELECT * FROM pg_tables")};
   std::string const sval{R.at(0).at(1).c_str()};

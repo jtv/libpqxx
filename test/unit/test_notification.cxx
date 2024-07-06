@@ -38,7 +38,7 @@ void test_receive(
   pqxx::transaction_base &t, std::string const &channel,
   char const payload[] = nullptr)
 {
-  pqxx::connection &conn(t.conn());
+  pqxx::connection &cx(t.conn());
 
   std::string SQL{"NOTIFY \"" + channel + "\""};
   if (payload != nullptr)
@@ -48,7 +48,7 @@ void test_receive(
 
   // Clear out any previously pending notifications that might otherwise
   // confuse the test.
-  conn.get_notifs();
+  cx.get_notifs();
 
   // Notify, and receive.
   t.exec(SQL);
@@ -57,10 +57,10 @@ void test_receive(
   int notifs{0};
   for (int i{0}; (i < 10) and (notifs == 0);
        ++i, pqxx::internal::wait_for(1000u))
-    notifs = conn.get_notifs();
+    notifs = cx.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
-  PQXX_CHECK_EQUAL(receiver.backend_pid, conn.backendpid(), "Bad pid.");
+  PQXX_CHECK_EQUAL(receiver.backend_pid, cx.backendpid(), "Bad pid.");
   if (payload == nullptr)
     PQXX_CHECK(std::empty(receiver.payload), "Unexpected payload.");
   else
@@ -70,14 +70,14 @@ void test_receive(
 
 void test_notification()
 {
-  pqxx::connection conn;
-  TestReceiver receiver(conn, "mychannel");
+  pqxx::connection cx;
+  TestReceiver receiver(cx, "mychannel");
   PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
 
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
   test_receive(tx, "channel1");
 
-  pqxx::nontransaction u(conn);
+  pqxx::nontransaction u(cx);
   test_receive(u, "channel2", "payload");
 }
 

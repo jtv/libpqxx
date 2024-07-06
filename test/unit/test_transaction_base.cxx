@@ -47,9 +47,9 @@ void test_exec_n(pqxx::transaction_base &trans)
 }
 
 
-void test_query_value(pqxx::connection &conn)
+void test_query_value(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
 
   PQXX_CHECK_EQUAL(
     tx.query_value<int>("SELECT 84 / 2"), 42,
@@ -76,14 +76,14 @@ void test_query_value(pqxx::connection &conn)
 
 void test_transaction_base()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   {
-    pqxx::work tx{conn};
+    pqxx::work tx{cx};
     test_exec_n(tx);
     test_exec0(tx);
     test_exec1(tx);
   }
-  test_query_value(conn);
+  test_query_value(cx);
 }
 
 
@@ -181,8 +181,8 @@ void test_transaction_for_query()
     "SELECT i, concat('x', (2*i)::text) "
     "FROM generate_series(1, 3) AS i "
     "ORDER BY i"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::string ints;
   std::string strings;
   tx.for_query(query, [&ints, &strings](int i, std::string const &s) {
@@ -214,8 +214,8 @@ void test_transaction_for_stream()
     "SELECT i, concat('x', (2*i)::text) "
     "FROM generate_series(1, 3) AS i "
     "ORDER BY i"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::string ints;
   std::string strings;
   tx.for_stream(query, [&ints, &strings](int i, std::string const &s) {

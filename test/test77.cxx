@@ -8,8 +8,8 @@ namespace
 {
 void test_077()
 {
-  pqxx::connection conn;
-  pqxx::nontransaction tx{conn};
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
 
   auto RFalse{tx.exec("SELECT 1=0")}, RTrue{tx.exec("SELECT 1=1")};
   auto f{pqxx::from_string<bool>(RFalse[0][0])};

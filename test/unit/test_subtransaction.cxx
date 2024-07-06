@@ -23,9 +23,9 @@ int count_rows(pqxx::transaction_base &trans)
 }
 
 
-void test_subtransaction_commits_if_commit_called(pqxx::connection &conn)
+void test_subtransaction_commits_if_commit_called(pqxx::connection &cx)
 {
-  pqxx::work trans(conn);
+  pqxx::work trans(cx);
   make_table(trans);
   {
     pqxx::subtransaction sub(trans);
@@ -37,9 +37,9 @@ void test_subtransaction_commits_if_commit_called(pqxx::connection &conn)
 }
 
 
-void test_subtransaction_aborts_if_abort_called(pqxx::connection &conn)
+void test_subtransaction_aborts_if_abort_called(pqxx::connection &cx)
 {
-  pqxx::work trans(conn);
+  pqxx::work trans(cx);
   make_table(trans);
   {
     pqxx::subtransaction sub(trans);
@@ -51,9 +51,9 @@ void test_subtransaction_aborts_if_abort_called(pqxx::connection &conn)
 }
 
 
-void test_subtransaction_aborts_implicitly(pqxx::connection &conn)
+void test_subtransaction_aborts_implicitly(pqxx::connection &cx)
 {
-  pqxx::work trans(conn);
+  pqxx::work trans(cx);
   make_table(trans);
   {
     pqxx::subtransaction sub(trans);
@@ -67,10 +67,10 @@ void test_subtransaction_aborts_implicitly(pqxx::connection &conn)
 
 void test_subtransaction()
 {
-  pqxx::connection conn;
-  test_subtransaction_commits_if_commit_called(conn);
-  test_subtransaction_aborts_if_abort_called(conn);
-  test_subtransaction_aborts_implicitly(conn);
+  pqxx::connection cx;
+  test_subtransaction_commits_if_commit_called(cx);
+  test_subtransaction_aborts_if_abort_called(cx);
+  test_subtransaction_aborts_implicitly(cx);
 }
 
 

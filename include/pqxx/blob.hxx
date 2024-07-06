@@ -323,8 +323,8 @@ public:
   void close();
 
 private:
-  PQXX_PRIVATE blob(connection &conn, int fd) noexcept :
-          m_conn{&conn}, m_fd{fd}
+  PQXX_PRIVATE blob(connection &cx, int fd) noexcept :
+          m_conn{&cx}, m_fd{fd}
   {}
   static PQXX_PRIVATE blob open_internal(dbtransaction &, oid, int);
   static PQXX_PRIVATE pqxx::internal::pq::PGconn *

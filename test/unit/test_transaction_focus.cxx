@@ -15,8 +15,8 @@ auto make_focus(pqxx::dbtransaction &tx)
 
 void test_cannot_run_statement_during_focus()
 {
-  pqxx::connection conn;
-  pqxx::transaction tx{conn};
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
   tx.exec("SELECT 1");
   auto focus{make_focus(tx)};
   PQXX_CHECK_THROWS(
@@ -27,9 +27,9 @@ void test_cannot_run_statement_during_focus()
 
 void test_cannot_run_prepared_statement_during_focus()
 {
-  pqxx::connection conn;
-  conn.prepare("foo", "SELECT 1");
-  pqxx::transaction tx{conn};
+  pqxx::connection cx;
+  cx.prepare("foo", "SELECT 1");
+  pqxx::transaction tx{cx};
   tx.exec_prepared("foo");
   auto focus{make_focus(tx)};
   PQXX_CHECK_THROWS(
@@ -39,8 +39,8 @@ void test_cannot_run_prepared_statement_during_focus()
 
 void test_cannot_run_params_statement_during_focus()
 {
-  pqxx::connection conn;
-  pqxx::transaction tx{conn};
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
   tx.exec_params("select $1", 10);
   auto focus{make_focus(tx)};
   PQXX_CHECK_THROWS(

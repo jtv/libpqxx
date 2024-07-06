@@ -92,8 +92,8 @@ void Test(connection &C, bool ExplicitAbort)
 
 void test_abort()
 {
-  connection conn;
-  nontransaction t{conn};
+  connection cx;
+  nontransaction t{cx};
   test::create_pqxxevents(t);
   connection &c(t.conn());
   t.commit();

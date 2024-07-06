@@ -10,9 +10,9 @@ namespace
 {
 void test_056()
 {
-  connection conn;
-  work tx{conn};
-  quiet_errorhandler d(conn);
+  connection cx;
+  work tx{cx};
+  quiet_errorhandler d(cx);
 
   PQXX_CHECK_THROWS(
     tx.exec("DELIBERATELY INVALID TEST QUERY..."), sql_error,

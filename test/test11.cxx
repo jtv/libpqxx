@@ -14,8 +14,8 @@ namespace
 {
 void test_011()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
   std::string const Table{"pg_tables"};
 
   result R(tx.exec("SELECT * FROM " + Table));

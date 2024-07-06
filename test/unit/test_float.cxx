@@ -36,9 +36,9 @@ void test_infinities()
 /// Reproduce bug #262: repeated float conversions break without charconv.
 template<typename T> void bug_262()
 {
-  pqxx::connection conn;
-  conn.prepare("stmt", "select cast($1 as float)");
-  pqxx::work tr{conn};
+  pqxx::connection cx;
+  cx.prepare("stmt", "select cast($1 as float)");
+  pqxx::work tr{cx};
 
   // We must use the same float type both for passing the value to the
   // statement and for retrieving result of the statement execution.  This is
