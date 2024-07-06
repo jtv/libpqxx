@@ -22,8 +22,7 @@ constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
 } // namespace
 
 
-pqxx::internal::pq::PGconn *
-pqxx::blob::raw_conn(pqxx::connection *cx) noexcept
+pqxx::internal::pq::PGconn *pqxx::blob::raw_conn(pqxx::connection *cx) noexcept
 {
   pqxx::internal::gate::connection_largeobject const gate{*cx};
   return gate.raw_connection();

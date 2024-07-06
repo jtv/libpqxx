@@ -39,8 +39,7 @@ void CheckDatestyle(connection &cx, std::string expected)
 void RedoDatestyle(
   connection &cx, std::string const &style, std::string const &expected)
 {
-  PQXX_CHECK_EQUAL(
-    SetDatestyle(cx, style), expected, "Set wrong datestyle.");
+  PQXX_CHECK_EQUAL(SetDatestyle(cx, style), expected, "Set wrong datestyle.");
 }
 
 

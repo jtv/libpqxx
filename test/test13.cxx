@@ -70,8 +70,7 @@ void test_013()
     perform([&cx, &Table] { failed_insert(cx, Table); }), deliberate_error,
     "Failing transactor failed to throw correct exception.");
 
-  auto const After{
-    perform([&cx, &Table] { return count_events(cx, Table); })};
+  auto const After{perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(
     After.first, Before.first, "abort() didn't reset event count.");

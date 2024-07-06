@@ -66,8 +66,7 @@ void test_018()
       "Not getting expected exception from failing transactor.");
   }
 
-  auto const After{
-    perform([&cx, &Table] { return count_events(cx, Table); })};
+  auto const After{perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

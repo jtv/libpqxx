@@ -8,9 +8,8 @@ namespace
 void test_transactor_newstyle_executes_simple_query()
 {
   pqxx::connection cx;
-  auto const r{pqxx::perform([&cx] {
-    return pqxx::work{cx}.exec("SELECT generate_series(1, 4)");
-  })};
+  auto const r{pqxx::perform(
+    [&cx] { return pqxx::work{cx}.exec("SELECT generate_series(1, 4)"); })};
 
   PQXX_CHECK_EQUAL(std::size(r), 4, "Unexpected result size.");
   PQXX_CHECK_EQUAL(r.columns(), 1, "Unexpected number of columns.");
