@@ -17,8 +17,8 @@ namespace
 {
 void test_stream_handles_empty()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   for (auto [out] : tx.stream<int>("SELECT generate_series(1, 0)"))
     PQXX_CHECK(false, "Unexpectedly got a value: " + pqxx::to_string(out));
   PQXX_CHECK_EQUAL(
@@ -30,8 +30,8 @@ void test_stream_handles_empty()
 void test_stream_does_escaping()
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   int counter{0};
   for (auto [out] : tx.stream<std::string_view>("SELECT " + tx.quote(input)))
   {
@@ -44,8 +44,8 @@ void test_stream_does_escaping()
 
 void test_stream_iterates()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::vector<int> ids;
   std::vector<std::string> values;
@@ -72,8 +72,8 @@ void test_stream_iterates()
 
 void test_stream_reads_simple_values()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   int counter{0};
   for (auto [id, name] :
        tx.stream<std::size_t, std::string>("SELECT 213, 'Hi'"))
@@ -90,8 +90,8 @@ void test_stream_reads_simple_values()
 
 void test_stream_reads_string_view()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::vector<std::string> out;
   for (auto [v] : tx.stream<std::string_view>(
          "SELECT 'x' || generate_series FROM generate_series(1, 2)"))
@@ -107,8 +107,8 @@ void test_stream_reads_string_view()
 
 void test_stream_reads_nulls_as_optionals()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   for (auto [null] : tx.stream<std::optional<std::string>>("SELECT NULL"))
     PQXX_CHECK(not null.has_value(), "NULL translated to nonempty optional.");
@@ -124,15 +124,15 @@ void test_stream_reads_nulls_as_optionals()
 
 void test_stream_parses_awkward_strings()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
 
   // This is a particularly awkward encoding that we should test.  Its
   // multibyte characters can include byte values that *look* like ASCII
   // characters, such as quotes and backslashes.  It is crucial that we parse
   // those properly.  A byte-for-byte scan could find special ASCII characters
   // that aren't really there.
-  conn.set_client_encoding("SJIS");
-  pqxx::work tx{conn};
+  cx.set_client_encoding("SJIS");
+  pqxx::work tx{cx};
   tx.exec0("CREATE TEMP TABLE nasty(id integer, value varchar)");
   tx.exec0(
     "INSERT INTO nasty(id, value) VALUES "
@@ -175,8 +175,8 @@ void test_stream_parses_awkward_strings()
 
 void test_stream_handles_nulls_in_all_places()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   for (auto [a, b, c, d, e] :
        tx.stream<
          std::optional<std::string>, std::optional<int>, int,
@@ -194,8 +194,8 @@ void test_stream_handles_nulls_in_all_places()
 
 void test_stream_handles_empty_string()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::string out{"<uninitialised>"};
   for (auto [empty] : tx.stream<std::string_view>("SELECT ''")) out = empty;

@@ -38,11 +38,11 @@ int To4Digits(int Y)
 
 void test_007()
 {
-  connection conn;
-  conn.set_client_encoding("SQL_ASCII");
+  connection cx;
+  cx.set_client_encoding("SQL_ASCII");
 
   {
-    work tx{conn};
+    work tx{cx};
     test::create_pqxxevents(tx);
     tx.commit();
   }
@@ -50,8 +50,8 @@ void test_007()
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
   std::map<int, int> conversions;
-  perform([&conversions, &conn] {
-    work tx{conn};
+  perform([&conversions, &cx] {
+    work tx{cx};
     // First select all different years occurring in the table.
     result R(tx.exec("SELECT year FROM pqxxevents"));
 

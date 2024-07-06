@@ -24,11 +24,11 @@ void test_error_verbosity()
     static_cast<int>(PQERRORS_VERBOSE),
     "error_verbosity enum should match PGVerbosity.");
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
-  conn.set_verbosity(pqxx::error_verbosity::terse);
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.set_verbosity(pqxx::error_verbosity::terse);
   tx.exec1("SELECT 1");
-  conn.set_verbosity(pqxx::error_verbosity::verbose);
+  cx.set_verbosity(pqxx::error_verbosity::verbose);
   tx.exec1("SELECT 2");
 }
 

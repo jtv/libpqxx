@@ -26,8 +26,8 @@ void test_exceptions()
       "Getting query from pqxx exception is broken.");
   }
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   try
   {
     tx.exec("INVALID QUERY HERE");

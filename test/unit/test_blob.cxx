@@ -24,8 +24,8 @@ void test_blob_is_useless_by_default()
 
 void test_blob_create_makes_empty_blob()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_r(tx, id)};
   b.seek_end(0);
@@ -35,8 +35,8 @@ void test_blob_create_makes_empty_blob()
 
 void test_blob_create_with_oid_requires_oid_be_free()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::create(tx)};
 
   PQXX_CHECK_THROWS(
@@ -47,8 +47,8 @@ void test_blob_create_with_oid_requires_oid_be_free()
 
 void test_blob_create_with_oid_obeys_oid()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
 
@@ -59,11 +59,11 @@ void test_blob_create_with_oid_obeys_oid()
 
 void test_blobs_are_transactional()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   tx.abort();
-  pqxx::work tx2{conn};
+  pqxx::work tx2{cx};
   PQXX_CHECK_THROWS(
     pqxx::ignore_unused(pqxx::blob::open_r(tx2, id)), pqxx::failure,
     "Blob from aborted transaction still exists.");
@@ -72,8 +72,8 @@ void test_blobs_are_transactional()
 
 void test_blob_remove_removes_blob()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
   PQXX_CHECK_THROWS(
@@ -84,8 +84,8 @@ void test_blob_remove_removes_blob()
 
 void test_blob_remove_is_not_idempotent()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
   PQXX_CHECK_THROWS(
@@ -96,8 +96,8 @@ void test_blob_remove_is_not_idempotent()
 
 void test_blob_checks_open_mode()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob b_r{pqxx::blob::open_r(tx, id)};
   pqxx::blob b_w{pqxx::blob::open_w(tx, id)};
@@ -126,8 +126,8 @@ void test_blob_supports_move()
   pqxx::bytes buf;
   buf.push_back(std::byte{'x'});
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob b1{pqxx::blob::open_rw(tx, id)};
   b1.write(buf);
@@ -153,8 +153,8 @@ void test_blob_read_reads_data()
 {
   pqxx::bytes const data{std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::bytes buf;
@@ -187,8 +187,8 @@ void test_blob_read_span()
   pqxx::bytes const data{std::byte{'u'}, std::byte{'v'}, std::byte{'w'},
                          std::byte{'x'}, std::byte{'y'}, std::byte{'z'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::oid id{pqxx::blob::from_buf(tx, data)};
 
   auto b{pqxx::blob::open_r(tx, id)};
@@ -237,8 +237,8 @@ void test_blob_read_span()
 void test_blob_reads_vector()
 {
   char const content[]{"abcd"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(
     tx, pqxx::bytes_view{
           reinterpret_cast<std::byte const *>(content), std::size(content)})};
@@ -255,8 +255,8 @@ void test_blob_reads_vector()
 
 void test_blob_write_appends_at_insertion_point()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::create(tx)};
 
   auto b{pqxx::blob::open_rw(tx, id)};
@@ -287,8 +287,8 @@ void test_blob_write_appends_at_insertion_point()
 void test_blob_writes_span()
 {
 #if defined(PQXX_HAVE_SPAN)
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   constexpr char content[]{"gfbltk"};
   pqxx::bytes data{
     reinterpret_cast<std::byte const *>(content), std::size(content)};
@@ -316,8 +316,8 @@ void test_blob_resize_shortens_to_desired_length()
   pqxx::bytes const data{
     std::byte{'w'}, std::byte{'o'}, std::byte{'r'}, std::byte{'k'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::blob::open_w(tx, id).resize(2);
@@ -331,8 +331,8 @@ void test_blob_resize_shortens_to_desired_length()
 
 void test_blob_resize_extends_to_desired_length()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{100}})};
   pqxx::blob::open_w(tx, id).resize(3);
   pqxx::bytes buf;
@@ -345,8 +345,8 @@ void test_blob_resize_extends_to_desired_length()
 
 void test_blob_tell_tracks_position()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
 
@@ -365,8 +365,8 @@ void test_blob_seek_sets_positions()
   pqxx::bytes data{std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3},
                    std::byte{4}, std::byte{5}, std::byte{6}, std::byte{7},
                    std::byte{8}, std::byte{9}};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
   auto b{pqxx::blob::open_r(tx, id)};
 
@@ -395,8 +395,8 @@ void test_blob_from_buf_interoperates_with_to_buf()
 {
   pqxx::bytes const data{std::byte{'h'}, std::byte{'i'}};
   pqxx::bytes buf;
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::blob::to_buf(tx, pqxx::blob::from_buf(tx, data), buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "from_buf()/to_buf() roundtrip did not work.");
 }
@@ -405,8 +405,8 @@ void test_blob_from_buf_interoperates_with_to_buf()
 void test_blob_append_from_buf_appends()
 {
   pqxx::bytes const data{std::byte{'h'}, std::byte{'o'}};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::create(tx)};
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::blob::append_from_buf(tx, data, id);
@@ -490,8 +490,8 @@ void test_blob_from_file_creates_blob_from_file_contents()
   char const temp_file[] = "blob-test-from_file.tmp";
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::bytes buf;
 
   pqxx::oid id;
@@ -510,8 +510,8 @@ void test_blob_from_file_with_oid_writes_blob()
   char const temp_file[] = "blob-test-from_file-oid.tmp";
   pqxx::bytes buf;
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   // Guarantee (more or less) that id is not in use.
   auto id{pqxx::blob::create(tx)};
@@ -531,8 +531,8 @@ void test_blob_append_to_buf_appends()
   pqxx::bytes const data{
     std::byte{'b'}, std::byte{'l'}, std::byte{'u'}, std::byte{'b'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::bytes buf;
@@ -555,8 +555,8 @@ void test_blob_to_file_writes_file()
   pqxx::bytes const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 
   char const temp_file[] = "blob-test-to_file.tmp";
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
   pqxx::bytes buf;
 
@@ -577,8 +577,8 @@ void test_blob_to_file_writes_file()
 
 void test_blob_close_leaves_blob_unusable()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, pqxx::bytes{std::byte{1}})};
   auto b{pqxx::blob::open_rw(tx, id)};
   b.close();
@@ -598,8 +598,8 @@ void test_blob_accepts_std_filesystem_path()
   char const temp_file[] = "blob-test-filesystem-path.tmp";
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::bytes buf;
 
   TempFile f{temp_file, data};

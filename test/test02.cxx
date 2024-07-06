@@ -12,7 +12,7 @@ namespace
 {
 void bad_connect()
 {
-  connection conn{"totally#invalid@connect$string!?"};
+  connection cx{"totally#invalid@connect$string!?"};
 }
 
 void test_002()

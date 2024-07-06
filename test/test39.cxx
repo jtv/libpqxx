@@ -13,8 +13,8 @@ int BoringYear{1977};
 
 void test_039()
 {
-  connection conn;
-  nontransaction tx1{conn};
+  connection cx;
+  nontransaction tx1{cx};
   test::create_pqxxevents(tx1);
   std::string const Table{"pqxxevents"};
 
@@ -50,7 +50,7 @@ void test_039()
   tx1.abort();
 
   // Verify that our record was added, despite the Abort()
-  nontransaction tx2(conn, "tx2");
+  nontransaction tx2(cx, "tx2");
   R = tx2.exec(
     "SELECT * FROM " + Table +
     " "
@@ -73,7 +73,7 @@ void test_039()
   tx2.commit();
 
   // And again, verify results
-  nontransaction tx3(conn, "tx3");
+  nontransaction tx3(cx, "tx3");
 
   R = tx3.exec(
     "SELECT * FROM " + Table +

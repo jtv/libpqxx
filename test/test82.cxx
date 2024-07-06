@@ -10,8 +10,8 @@ namespace
 {
 void test_082()
 {
-  pqxx::connection conn;
-  pqxx::nontransaction tx{conn};
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
 
   pqxx::test::create_pqxxevents(tx);
   std::string const Table{"pqxxevents"};

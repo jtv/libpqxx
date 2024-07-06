@@ -37,7 +37,7 @@ std::pair<int, int> CountEvents(transaction_base &tx)
 
 // Try adding a record, then aborting it, and check whether the abort was
 // performed correctly.
-void Test(connection &conn, bool ExplicitAbort)
+void Test(connection &cx, bool ExplicitAbort)
 {
   std::vector<std::string> BoringRow{to_string(BoringYear), "yawn"};
 
@@ -48,7 +48,7 @@ void Test(connection &conn, bool ExplicitAbort)
   {
     // Begin a transaction acting on our current connection; we'll abort it
     // later though.
-    work Doomed(conn, "Doomed");
+    work Doomed(cx, "Doomed");
 
     // Verify that our Boring Year was not yet in the events table
     EventCounts = CountEvents(Doomed);
@@ -80,7 +80,7 @@ void Test(connection &conn, bool ExplicitAbort)
   // Now check that we're back in the original state.  Note that this may go
   // wrong if somebody managed to change the table between our two
   // transactions.
-  work Checkup(conn, "Checkup");
+  work Checkup(cx, "Checkup");
 
   auto NewEvents{CountEvents(Checkup)};
   PQXX_CHECK_EQUAL(
@@ -92,15 +92,15 @@ void Test(connection &conn, bool ExplicitAbort)
 
 void test_029()
 {
-  connection conn;
+  connection cx;
   {
-    nontransaction tx{conn};
+    nontransaction tx{cx};
     test::create_pqxxevents(tx);
   }
 
   // Test abort semantics, both with explicit and implicit abort
-  Test(conn, true);
-  Test(conn, false);
+  Test(cx, true);
+  Test(cx, false);
 }
 
 

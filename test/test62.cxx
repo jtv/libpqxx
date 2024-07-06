@@ -14,8 +14,8 @@ namespace
 {
 void test_062()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
 
   std::string const TestStr{
     "Nasty\n\030Test\n\t String with \200\277 weird bytes "

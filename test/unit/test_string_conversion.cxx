@@ -161,8 +161,8 @@ void test_integer_conversion()
 
 void test_convert_null()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   PQXX_CHECK_EQUAL(
     tx.quote(nullptr), "NULL", "Null pointer did not come out as SQL 'null'.");
   PQXX_CHECK_EQUAL(

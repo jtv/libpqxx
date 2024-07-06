@@ -13,8 +13,8 @@ namespace
 {
 void test_016()
 {
-  connection conn;
-  robusttransaction<> tx{conn};
+  connection cx;
+  robusttransaction<> tx{cx};
   result R{tx.exec("SELECT * FROM pg_tables")};
 
   result::const_iterator c;

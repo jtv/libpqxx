@@ -21,9 +21,9 @@ constexpr unsigned int BoringYear = 1977;
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(connection &conn, std::string const &table)
+std::pair<int, int> count_events(connection &cx, std::string const &table)
 {
-  work tx{conn};
+  work tx{cx};
   std::string const count_query{"SELECT count(*) FROM " + table};
   return std::make_pair(
     tx.query_value<int>(count_query),
@@ -50,9 +50,9 @@ void failed_insert(connection &C, std::string const &table)
 
 void test_013()
 {
-  connection conn;
+  connection cx;
   {
-    work tx{conn};
+    work tx{cx};
     test::create_pqxxevents(tx);
     tx.commit();
   }
@@ -60,18 +60,17 @@ void test_013()
   std::string const Table{"pqxxevents"};
 
   auto const Before{
-    perform([&conn, &Table] { return count_events(conn, Table); })};
+    perform([&cx, &Table] { return count_events(cx, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + "--can't test.");
 
-  quiet_errorhandler d(conn);
+  quiet_errorhandler d(cx);
   PQXX_CHECK_THROWS(
-    perform([&conn, &Table] { failed_insert(conn, Table); }), deliberate_error,
+    perform([&cx, &Table] { failed_insert(cx, Table); }), deliberate_error,
     "Failing transactor failed to throw correct exception.");
 
-  auto const After{
-    perform([&conn, &Table] { return count_events(conn, Table); })};
+  auto const After{perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(
     After.first, Before.first, "abort() didn't reset event count.");

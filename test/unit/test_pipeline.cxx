@@ -9,8 +9,8 @@ namespace
 {
 void test_pipeline()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   // A pipeline grabs transaction focus, blocking regular queries and such.
   pqxx::pipeline pipe(tx, "test_pipeline_detach");

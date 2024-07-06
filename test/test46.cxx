@@ -15,8 +15,8 @@ namespace
 {
 void test_046()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
 
   row R{tx.exec1("SELECT count(*) FROM pg_tables")};
 

@@ -67,16 +67,16 @@ std::map<int, int> update_years(connection &C)
 
 void test_026()
 {
-  connection conn;
+  connection cx;
   {
-    nontransaction tx{conn};
+    nontransaction tx{cx};
     test::create_pqxxevents(tx);
     tx.commit();
   }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  auto const conversions{perform([&conn] { return update_years(conn); })};
+  auto const conversions{perform([&cx] { return update_years(cx); })};
 
   PQXX_CHECK(not std::empty(conversions), "No conversions done!");
 }

@@ -6,8 +6,8 @@ namespace
 {
 void test_row()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
   pqxx::row r{rows[0]};
   PQXX_CHECK_EQUAL(std::size(r), 3, "Unexpected row size.");
@@ -26,8 +26,8 @@ void test_row()
 
 void test_row_iterator()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
 
   auto i{std::begin(rows[0])};
@@ -58,8 +58,8 @@ void test_row_as()
 {
   using pqxx::operator"" _zv;
 
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   pqxx::row const r{tx.exec1("SELECT 1, 2, 3")};
   auto [one, two, three]{r.as<int, float, pqxx::zview>()};
@@ -81,8 +81,8 @@ void test_row_as()
 // In a random access iterator i, i[n] == *(i + n).
 void test_row_iterator_array_index_offsets_iterator()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto const row{tx.exec1("SELECT 5, 4, 3, 2")};
   PQXX_CHECK_EQUAL(
     row.begin()[1].as<std::string>(), "4",

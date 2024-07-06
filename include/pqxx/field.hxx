@@ -265,8 +265,7 @@ public:
    */
   [[deprecated(
     "Avoid pqxx::array_parser.  "
-    "Instead, use as_sql_array() to convert to pqxx::array."
-  )]]
+    "Instead, use as_sql_array() to convert to pqxx::array.")]]
   array_parser as_array() const & noexcept
   {
     return array_parser{c_str(), m_home.m_encoding};

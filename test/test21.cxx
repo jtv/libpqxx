@@ -14,48 +14,48 @@ namespace
 {
 void test_021()
 {
-  connection conn;
+  connection cx;
 
   std::string const HostName{
-    ((conn.hostname() == nullptr) ? "<local>" : conn.hostname())};
-  conn.process_notice(
-    std::string{} + "database=" + conn.dbname() +
+    ((cx.hostname() == nullptr) ? "<local>" : cx.hostname())};
+  cx.process_notice(
+    std::string{} + "database=" + cx.dbname() +
     ", "
     "username=" +
-    conn.username() +
+    cx.username() +
     ", "
     "hostname=" +
     HostName +
     ", "
     "port=" +
-    to_string(conn.port()) +
+    to_string(cx.port()) +
     ", "
     "backendpid=" +
-    to_string(conn.backendpid()) + "\n");
+    to_string(cx.backendpid()) + "\n");
 
-  work tx{conn, "test_021"};
+  work tx{cx, "test_021"};
 
   // By now our connection should really have been created
-  conn.process_notice("Printing details on actual connection\n");
-  conn.process_notice(
-    std::string{} + "database=" + conn.dbname() +
+  cx.process_notice("Printing details on actual connection\n");
+  cx.process_notice(
+    std::string{} + "database=" + cx.dbname() +
     ", "
     "username=" +
-    conn.username() +
+    cx.username() +
     ", "
     "hostname=" +
     HostName +
     ", "
     "port=" +
-    to_string(conn.port()) +
+    to_string(cx.port()) +
     ", "
     "backendpid=" +
-    to_string(conn.backendpid()) + "\n");
+    to_string(cx.backendpid()) + "\n");
 
   std::string P;
-  from_string(conn.port(), P);
+  from_string(cx.port(), P);
   PQXX_CHECK_EQUAL(
-    P, to_string(conn.port()), "Port string conversion is broken.");
+    P, to_string(cx.port()), "Port string conversion is broken.");
   PQXX_CHECK_EQUAL(to_string(P), P, "Port string conversion is broken.");
 
   result R(tx.exec("SELECT * FROM pg_tables"));

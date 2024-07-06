@@ -25,8 +25,8 @@ template<typename PAIR> void checkresult(pipeline &P, PAIR c)
 
 void test_071()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
   pipeline P(tx);
 
   // Keep expected result for every query we issue

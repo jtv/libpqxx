@@ -5,51 +5,51 @@
 
 namespace
 {
-void test_exec0(pqxx::transaction_base &trans)
+void test_exec0(pqxx::transaction_base &tx)
 {
-  pqxx::result E{trans.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
+  pqxx::result E{tx.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
   PQXX_CHECK(std::empty(E), "Nonempty result from exec0.");
 
   PQXX_CHECK_THROWS(
-    trans.exec0("SELECT 99"), pqxx::unexpected_rows,
+    tx.exec0("SELECT 99"), pqxx::unexpected_rows,
     "Nonempty exec0 result did not throw unexpected_rows.");
 }
 
 
-void test_exec1(pqxx::transaction_base &trans)
+void test_exec1(pqxx::transaction_base &tx)
 {
-  pqxx::row R{trans.exec1("SELECT 99")};
+  pqxx::row R{tx.exec1("SELECT 99")};
   PQXX_CHECK_EQUAL(std::size(R), 1, "Wrong size result from exec1.");
   PQXX_CHECK_EQUAL(R.front().as<int>(), 99, "Wrong result from exec1.");
 
   PQXX_CHECK_THROWS(
-    trans.exec1("SELECT * FROM pg_tables WHERE 0 = 1"), pqxx::unexpected_rows,
+    tx.exec1("SELECT * FROM pg_tables WHERE 0 = 1"), pqxx::unexpected_rows,
     "Empty exec1 result did not throw unexpected_rows.");
   PQXX_CHECK_THROWS(
-    trans.exec1("SELECT * FROM generate_series(1, 2)"), pqxx::unexpected_rows,
+    tx.exec1("SELECT * FROM generate_series(1, 2)"), pqxx::unexpected_rows,
     "Two-row exec1 result did not throw unexpected_rows.");
 }
 
 
-void test_exec_n(pqxx::transaction_base &trans)
+void test_exec_n(pqxx::transaction_base &tx)
 {
-  pqxx::result R{trans.exec_n(3u, "SELECT * FROM generate_series(1, 3)")};
+  pqxx::result R{tx.exec_n(3u, "SELECT * FROM generate_series(1, 3)")};
   PQXX_CHECK_EQUAL(std::size(R), 3, "Wrong result size from exec_n.");
 
   PQXX_CHECK_THROWS(
-    trans.exec_n(2u, "SELECT * FROM generate_series(1, 3)"),
+    tx.exec_n(2u, "SELECT * FROM generate_series(1, 3)"),
     pqxx::unexpected_rows,
     "exec_n did not throw unexpected_rows for an undersized result.");
   PQXX_CHECK_THROWS(
-    trans.exec_n(4u, "SELECT * FROM generate_series(1, 3)"),
+    tx.exec_n(4u, "SELECT * FROM generate_series(1, 3)"),
     pqxx::unexpected_rows,
     "exec_n did not throw unexpected_rows for an oversized result.");
 }
 
 
-void test_query_value(pqxx::connection &conn)
+void test_query_value(pqxx::connection &cx)
 {
-  pqxx::work tx{conn};
+  pqxx::work tx{cx};
 
   PQXX_CHECK_EQUAL(
     tx.query_value<int>("SELECT 84 / 2"), 42,
@@ -76,14 +76,14 @@ void test_query_value(pqxx::connection &conn)
 
 void test_transaction_base()
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   {
-    pqxx::work tx{conn};
+    pqxx::work tx{cx};
     test_exec_n(tx);
     test_exec0(tx);
     test_exec1(tx);
   }
-  test_query_value(conn);
+  test_query_value(cx);
 }
 
 
@@ -181,8 +181,8 @@ void test_transaction_for_query()
     "SELECT i, concat('x', (2*i)::text) "
     "FROM generate_series(1, 3) AS i "
     "ORDER BY i"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::string ints;
   std::string strings;
   tx.for_query(query, [&ints, &strings](int i, std::string const &s) {
@@ -214,8 +214,8 @@ void test_transaction_for_stream()
     "SELECT i, concat('x', (2*i)::text) "
     "FROM generate_series(1, 3) AS i "
     "ORDER BY i"};
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::string ints;
   std::string strings;
   tx.for_stream(query, [&ints, &strings](int i, std::string const &s) {

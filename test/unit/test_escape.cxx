@@ -145,10 +145,10 @@ void test_esc_like(pqxx::transaction_base &tx)
 
 void test_escaping()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
-  test_esc(conn, tx);
-  test_quote(conn, tx);
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  test_esc(cx, tx);
+  test_quote(cx, tx);
   test_quote_name(tx);
   test_esc_raw_unesc_raw(tx);
   test_esc_like(tx);
@@ -158,8 +158,8 @@ void test_escaping()
 void test_esc_escapes_into_buffer()
 {
 #if defined(PQXX_HAVE_CONCEPTS)
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::string buffer;
   buffer.resize(20);
@@ -178,8 +178,8 @@ void test_esc_escapes_into_buffer()
 void test_esc_accepts_various_types()
 {
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::string buffer;
   buffer.resize(20);
@@ -198,8 +198,8 @@ void test_esc_accepts_various_types()
 void test_binary_esc_checks_buffer_length()
 {
 #if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::string buf;
   pqxx::bytes bin{std::byte{'b'}, std::byte{'o'}, std::byte{'o'}};

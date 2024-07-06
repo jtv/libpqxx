@@ -13,11 +13,11 @@ namespace
 // a transaction, and perform a query inside it.
 void test_001()
 {
-  connection conn;
+  connection cx;
 
   // Begin a transaction acting on our current connection.  Give it a human-
   // readable name so the library can include it in error messages.
-  work tx{conn, "test1"};
+  work tx{cx, "test1"};
 
   // Perform a query on the database, storing result rows in R.
   result r(tx.exec("SELECT * FROM pg_tables"));

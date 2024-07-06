@@ -30,8 +30,8 @@ class TestListener final : public notification_receiver
   bool m_done;
 
 public:
-  explicit TestListener(connection &conn) :
-          notification_receiver(conn, "listen"), m_done(false)
+  explicit TestListener(connection &cx) :
+          notification_receiver(cx, "listen"), m_done(false)
   {}
 
   virtual void operator()(std::string const &, int be_pid) override
@@ -47,14 +47,14 @@ public:
 
 void test_004()
 {
-  connection conn;
+  connection cx;
 
-  TestListener L{conn};
+  TestListener L{cx};
   // Trigger our notification receiver.
-  perform([&conn, &L] {
-    work tx(conn);
-    tx.exec0("NOTIFY " + conn.quote_name(L.channel()));
-    Backend_PID = conn.backendpid();
+  perform([&cx, &L] {
+    work tx(cx);
+    tx.exec0("NOTIFY " + cx.quote_name(L.channel()));
+    Backend_PID = cx.backendpid();
     tx.commit();
   });
 
@@ -65,7 +65,7 @@ void test_004()
     // Sleep for one second.  I'm not proud of this, but how does one inject
     // a change to the built-in clock in a static language?
     pqxx::internal::wait_for(1000u);
-    notifs = conn.get_notifs();
+    notifs = cx.get_notifs();
   }
 
   PQXX_CHECK_NOT_EQUAL(L.done(), false, "No notification received.");

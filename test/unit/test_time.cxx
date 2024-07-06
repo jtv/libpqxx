@@ -11,8 +11,8 @@ using namespace std::literals;
 
 void test_date_string_conversion()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::tuple<int, unsigned, unsigned, std::string_view> const conversions[]{
     {-542, 1, 1, "0543-01-01 BC"sv},
     {-1, 2, 3, "0002-02-03 BC"sv},

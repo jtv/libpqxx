@@ -6,7 +6,7 @@
 
 int main(int, char *argv[])
 {
-  pqxx::connection conn;
+  pqxx::connection cx;
   bool failures = false;
 
   try
@@ -16,8 +16,8 @@ int main(int, char *argv[])
       auto o{pqxx::from_string<pqxx::oid>(argv[i])};
       try
       {
-        pqxx::perform([o, &conn] {
-          pqxx::work tx{conn};
+        pqxx::perform([o, &cx] {
+          pqxx::work tx{cx};
           pqxx::blob::remove(tx, o);
           tx.commit();
         });

@@ -16,8 +16,8 @@ void test_030()
 {
   std::string const Table{"pg_tables"};
 
-  connection conn;
-  work tx{conn, "test30"};
+  connection cx;
+  work tx{cx, "test30"};
 
   result R(tx.exec(("SELECT * FROM " + Table).c_str()));
   PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");

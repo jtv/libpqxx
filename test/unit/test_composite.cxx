@@ -7,8 +7,8 @@ namespace
 {
 void test_composite()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   tx.exec0("CREATE TYPE pqxxfoo AS (a integer, b text)");
   auto const r{tx.exec1("SELECT '(5,hello)'::pqxxfoo")};
 
@@ -23,8 +23,8 @@ void test_composite()
 
 void test_composite_escapes()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::row r;
   tx.exec0("CREATE TYPE pqxxsingle AS (x text)");
   std::string s;
@@ -42,8 +42,8 @@ void test_composite_escapes()
 
 void test_composite_handles_nulls()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   pqxx::row r;
 
   tx.exec0("CREATE TYPE pqxxnull AS (a integer)");
@@ -68,8 +68,8 @@ void test_composite_handles_nulls()
 
 void test_composite_renders_to_string()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   char buf[1000];
 
   pqxx::composite_into_buf(

@@ -7,8 +7,8 @@ namespace
 {
 void test_stateless_cursor()
 {
-  pqxx::connection conn;
-  pqxx::work tx{conn};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   pqxx::stateless_cursor<
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>

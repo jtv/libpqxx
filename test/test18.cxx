@@ -20,9 +20,9 @@ constexpr long BoringYear{1977};
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(connection &conn, std::string const &table)
+std::pair<int, int> count_events(connection &cx, std::string const &table)
 {
-  nontransaction tx{conn};
+  nontransaction tx{cx};
   std::string const count_query{"SELECT count(*) FROM " + table};
   return std::make_pair(
     tx.query_value<int>(count_query),
@@ -36,9 +36,9 @@ struct deliberate_error : std::exception
 
 void test_018()
 {
-  connection conn;
+  connection cx;
   {
-    work tx{conn};
+    work tx{cx};
     test::create_pqxxevents(tx);
     tx.commit();
   }
@@ -46,16 +46,16 @@ void test_018()
   std::string const Table{"pqxxevents"};
 
   auto const Before{
-    perform([&conn, &Table] { return count_events(conn, Table); })};
+    perform([&cx, &Table] { return count_events(cx, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + ", cannot run.");
 
   {
-    quiet_errorhandler d{conn};
+    quiet_errorhandler d{cx};
     PQXX_CHECK_THROWS(
-      perform([&conn, Table] {
-        robusttransaction<serializable> tx{conn};
+      perform([&cx, Table] {
+        robusttransaction<serializable> tx{cx};
         tx.exec0(
           "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
           ", '" + tx.esc("yawn") + "')");
@@ -66,8 +66,7 @@ void test_018()
       "Not getting expected exception from failing transactor.");
   }
 
-  auto const After{
-    perform([&conn, &Table] { return count_events(conn, Table); })};
+  auto const After{perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(

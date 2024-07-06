@@ -15,9 +15,9 @@ namespace
 {
 void test_017()
 {
-  connection conn;
-  perform([&conn] {
-    nontransaction tx{conn};
+  connection cx;
+  perform([&cx] {
+    nontransaction tx{cx};
     auto const r{tx.exec("SELECT * FROM generate_series(1, 4)")};
     PQXX_CHECK_EQUAL(std::size(r), 4, "Weird query result.");
     tx.commit();

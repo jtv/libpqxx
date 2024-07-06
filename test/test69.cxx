@@ -43,8 +43,8 @@ void TestPipeline(pipeline &P, int numqueries)
 
 void test_069()
 {
-  connection conn;
-  work tx{conn};
+  connection cx;
+  work tx{cx};
   pipeline P(tx);
   PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
   for (int i{0}; i < 5; ++i) TestPipeline(P, i);
