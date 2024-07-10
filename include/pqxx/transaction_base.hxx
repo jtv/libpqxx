@@ -37,6 +37,7 @@
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
 #include "pqxx/util.hxx"
+#include "pqxx/want.hxx"
 
 namespace pqxx::internal::gate
 {
@@ -504,15 +505,9 @@ public:
   [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(zview query)
   {
     result res{exec(query)};
-    auto const rows{std::size(res)};
-    switch (rows)
-    {
-    case 0: return {};
-    case 1: return {res[0].as<TYPE...>()};
-    default:
-      throw unexpected_rows{internal::concat(
-        "Expected at most one row of data, got "sv, rows, "."sv)};
-    }
+    want<0, 2>(res);
+    if (std::size(res) == 0) return {};
+    else return {res[0].as<TYPE...>()};
   }
 
   /// Execute a query, in streaming fashion; loop over the results row by row.
@@ -870,15 +865,9 @@ public:
   query01(zview query, params const &parms)
   {
     result res{exec_params(query, parms)};
-    auto const rows{std::size(res)};
-    switch (rows)
-    {
-    case 0: return {};
-    case 1: return {res[0].as<TYPE...>()};
-    default:
-      throw unexpected_rows{internal::concat(
-        "Expected at most one row of data, got "sv, rows, "."sv)};
-    }
+    want<0, 2>(res);
+    if (std::size(res) == 0) return {};
+    else return {res[0].as<TYPE...>()};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
