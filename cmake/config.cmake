@@ -8,6 +8,15 @@ function(detect_code_compiled code macro msg)
     endif()
 endfunction(detect_code_compiled)
 
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30.0)
+    include(CMakeDetermineCompilerSupport)
+    cmake_determine_compiler_support(CXX)
+else()
+    # This function changed names in CMake 3.30.  :-(
+    include(CMakeDetermineCompileFeatures)
+    cmake_determine_compile_features(CXX)
+endif()
+
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
