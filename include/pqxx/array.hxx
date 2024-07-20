@@ -595,7 +595,7 @@ private:
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_unquoted_string() const;
   template<pqxx::internal::encoding_group>
-  std::string parse_unquoted_string(std::string::size_type end) const;
+  std::string_view parse_unquoted_string(std::string::size_type end) const;
 
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos) const;
