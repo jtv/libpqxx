@@ -38,8 +38,6 @@ check_function_exists("poll" PQXX_HAVE_POLL)
 
 set(CMAKE_REQUIRED_LIBRARIES pq)
 
-cmake_policy(SET CMP0057 NEW)
-
 # check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
 # compiling arguments. Workaround: Push CMAKE_REQUIRED_DEFINITIONS
 if(CMAKE_REQUIRED_DEFINITIONS)
