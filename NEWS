@@ -1,3 +1,4 @@
+7.9.3
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)
