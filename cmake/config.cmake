@@ -38,14 +38,6 @@ check_function_exists("poll" PQXX_HAVE_POLL)
 
 set(CMAKE_REQUIRED_LIBRARIES pq)
 
-# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
-# compiling arguments. Workaround: Push CMAKE_REQUIRED_DEFINITIONS
-if(CMAKE_REQUIRED_DEFINITIONS)
-    set(def "${CMAKE_REQUIRED_DEFINITIONS}")
-endif()
-set(CMAKE_REQUIRED_DEFINITIONS
-    ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}
-)
 set(CMAKE_REQUIRED_QUIET ON)
 
 # Incorporate feature checks based on C++ feature test mac
@@ -57,14 +49,6 @@ if(!no_need_fslib)
     link_libraries(stdc++fs)
 endif()
 
-# check_cxx_source_compiles requires CMAKE_REQUIRED_DEFINITIONS to specify
-# compiling arguments. Workaround: Pop CMAKE_REQUIRED_DEFINITIONS
-if(def)
-    set(CMAKE_REQUIRED_DEFINITIONS ${def})
-    unset(def CACHE)
-else()
-    unset(CMAKE_REQUIRED_DEFINITIONS CACHE)
-endif()
 set(CMAKE_REQUIRED_QUIET OFF)
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")

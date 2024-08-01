@@ -1,5 +1,7 @@
+7.9.3
 7.9.2
  - Fix CMake documentation install. (#848)
+ - More CMake build fix. (#869)
  - Bump gcc/clang/postgres minimum version requirements.
  - Another fix to the readthedocs documentation build. (#845)
  - Remove obsolete CMake workaround kludges. (#851, #866, #867)
