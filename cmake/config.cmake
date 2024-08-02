@@ -1,13 +1,3 @@
-function(detect_code_compiled code macro msg)
-    message(STATUS "Detecting ${msg}")
-    check_cxx_source_compiles("${code}" "${macro}" FAIL_REGEX "warning")
-    if(${macro})
-        message(STATUS "Detecting ${msg} - supported")
-    else()
-        message(STATUS "Detecting ${msg} - not supported")
-    endif()
-endfunction(detect_code_compiled)
-
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
