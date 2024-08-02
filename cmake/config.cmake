@@ -10,7 +10,6 @@ endfunction(detect_code_compiled)
 
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
-include(CheckSymbolExists)
 include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
 
