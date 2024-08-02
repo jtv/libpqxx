@@ -944,6 +944,7 @@ public:
   //@{
 
   /// Execute a prepared statement, with optional arguments.
+  [[deprecated("Use exec(prepped, params) instead.")]]
   template<typename... Args>
   result exec_prepared(zview statement, Args &&...args)
   {
@@ -951,6 +952,21 @@ public:
     return internal_exec_prepared(statement, pp.make_c_params());
   }
 
+  /// Execute a prepared statement taking no parameters.
+  result exec(prepped statement)
+  {
+    params pp;
+    // TODO: Can we shortcut the creation of the empty params?
+    return internal_exec_prepared(statement, pp.make_c_params());
+  }
+
+  /// Execute a prepared statement with parameters.
+  result exec(prepped statement, params parms)
+  {
+    return internal_exec_prepared(statement, parms.make_c_params());
+  }
+
+  // TODO: Extract rows check.
   /// Execute a prepared statement, and expect a single-row result.
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
@@ -960,6 +976,7 @@ public:
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
 
+  // TODO: Extract rows check.
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
@@ -969,6 +986,7 @@ public:
     return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
 
+  // TODO: Extract rows check.
   /// Execute a prepared statement, expect a result with given number of rows.
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
    *  given number of rows.
