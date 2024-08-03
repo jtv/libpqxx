@@ -902,48 +902,6 @@ public:
   }
   //@}
 
-  /**
-   * @name Prepared statements
-   *
-   * These are very similar to parameterised statements.  The difference is
-   * that you prepare them in advance, giving them identifying names.  You can
-   * then call them by these names, passing in the argument values appropriate
-   * for that call.
-   *
-   * You prepare a statement on the connection, using
-   * @ref pqxx::connection::prepare().  But you then call the statement in a
-   * transaction, using the functions you see here.
-   *
-   * Never try to prepare, execute, or unprepare a prepared statement manually
-   * using direct SQL queries when you also use the libpqxx equivalents.  For
-   * any given statement, either prepare, manage, and execute it through the
-   * dedicated libpqxx functions; or do it all directly in SQL.  Don't mix the
-   * two, or the code may get confused.
-   *
-   * See \ref prepared for a full discussion.
-   *
-   * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
-   * end at the first char with value zero.  If you pass a string that contains
-   * a zero byte, the last byte in the value will be the one just before the
-   * zero.  If you need a zero byte, you're dealing with binary strings, not
-   * regular strings.  Represent binary strings on the SQL side as `BYTEA`
-   * (or as large objects).  On the C++ side, use types like `pqxx::bytes` or
-   * `pqxx::bytes_view` or (in C++20) `std::vector<std::byte>`.  Also, consider
-   * large objects on the SQL side and @ref blob on the C++ side.
-   *
-   * @warning Passing the wrong number of parameters to a prepared or
-   * parameterised statement will _break the connection._  The usual exception
-   * that occurs in this situation is @ref pqxx::protocol_violation.  It's a
-   * subclass of @ref pqxx::broken_connection, but where `broken_connection`
-   * usually indicates a networking problem, `protocol_violation` indicates
-   * that the communication with the server has deviated from protocol.  Once
-   * something like that happens, communication is broken and there is nothing
-   * for it but to discard the connection.  A networking problem is usually
-   * worth retrying, but a protocol violation is not.  The same violation will
-   * probably just happen again.
-   */
-  //@{
-
   /// Execute a prepared statement, with optional arguments.
   template<typename... Args>
   [[deprecated("Use exec(prepped, params) instead.")]]
@@ -1000,8 +958,6 @@ public:
     check_rowcount_prepared(statement, rows, std::size(r));
     return r;
   }
-
-  //@}
 
   /**
    * @name Error/warning output
