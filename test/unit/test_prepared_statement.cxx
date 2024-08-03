@@ -68,7 +68,7 @@ void test_registration_and_invocation()
 
   // The statement returns exactly what you'd expect.
   COMPARE_RESULTS(
-    "CountToFive", tx1.exec_prepared("CountToFive"), tx1.exec(count_to_5));
+    "CountToFive", tx1.exec(pqxx::prepped{"CountToFive"}), tx1.exec(count_to_5));
 
   // Re-preparing it is an error.
   PQXX_CHECK_THROWS(
@@ -80,7 +80,7 @@ void test_registration_and_invocation()
 
   // Executing a nonexistent prepared statement is also an error.
   PQXX_CHECK_THROWS(
-    tx2.exec_prepared("NonexistentStatement"), pqxx::sql_error,
+    tx2.exec(pqxx::prepped{"NonexistentStatement"}), pqxx::sql_error,
     "Did not report invocation of nonexistent prepared statement.");
 }
 
@@ -90,7 +90,7 @@ void test_basic_args()
   pqxx::connection c;
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{c};
-  auto r{tx.exec_prepared("EchoNum", 7)};
+  auto r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
   PQXX_CHECK_EQUAL(
     std::size(r), 1, "Did not get 1 row from prepared statement.");
   PQXX_CHECK_EQUAL(std::size(r.front()), 1, "Did not get exactly one column.");
@@ -336,7 +336,7 @@ void test_wrong_number_of_params()
     pqxx::transaction tx1{conn1};
     conn1.prepare("broken1", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx1.exec_prepared("broken1", 10), pqxx::protocol_violation,
+      tx1.exec(pqxx::prepped{"broken1"}, 10), pqxx::protocol_violation,
       "Incomplete params no longer thrws protocol violation.");
   }
 
@@ -345,7 +345,7 @@ void test_wrong_number_of_params()
     pqxx::transaction tx2{conn2};
     conn2.prepare("broken2", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx2.exec_prepared("broken2", 5, 4, 3), pqxx::protocol_violation,
+      tx2.exec(pqxx::prepped{"broken2"}, {5, 4, 3}), pqxx::protocol_violation,
       "Passing too many params no longer thrws protocol violation.");
   }
 }

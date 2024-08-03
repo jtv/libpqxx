@@ -1,9 +1,10 @@
 /// Marker type to indicate that a string is the name of a prepared statement.
 
+#include "pqxx/internal/header-pre.hxx"
+
 // This include is deprecated.  It will go away.
 // Include <params> if you need it.
 #include "params.hxx"
 
-#include "pqxx/internal/header-pre.hxx"
 #include "pqxx/prepared_statement.hxx"
 #include "pqxx/internal/header-post.hxx"

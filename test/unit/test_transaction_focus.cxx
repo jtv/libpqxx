@@ -30,10 +30,10 @@ void test_cannot_run_prepared_statement_during_focus()
   pqxx::connection cx;
   cx.prepare("foo", "SELECT 1");
   pqxx::transaction tx{cx};
-  tx.exec_prepared("foo");
+  tx.exec(pqxx::prepped{"foo"});
   auto focus{make_focus(tx)};
   PQXX_CHECK_THROWS(
-    tx.exec_prepared("foo"), pqxx::usage_error,
+    tx.exec(pqxx::prepped{"foo"}), pqxx::usage_error,
     "Prepared statement during focus did not throw expected error.");
 }
 

@@ -34,6 +34,7 @@
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"
+#include "pqxx/prepared_statement.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
 #include "pqxx/util.hxx"
@@ -944,8 +945,8 @@ public:
   //@{
 
   /// Execute a prepared statement, with optional arguments.
-  [[deprecated("Use exec(prepped, params) instead.")]]
   template<typename... Args>
+  [[deprecated("Use exec(prepped, params) instead.")]]
   result exec_prepared(zview statement, Args &&...args)
   {
     params pp(args...);
@@ -995,7 +996,7 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    auto const r{exec_prepared(statement, std::forward<Args>(args)...)};
+    auto const r{exec(pqxx::prepped{statement}, params{args...})};
     check_rowcount_prepared(statement, rows, std::size(r));
     return r;
   }
