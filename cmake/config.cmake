@@ -1,4 +1,3 @@
-include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
