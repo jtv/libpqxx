@@ -2,8 +2,8 @@ Prepared statements                    {#prepared}
 ===================
 
 Prepared statements are SQL queries that you define once and then invoke
-as many times as you like, typically with varying parameters.  It's basically
-a function that you can define ad hoc.
+as many times as you like, typically with varying parameters.  It's a lot like
+a function that you can define ad hoc, within the scope of one connection.
 
 If you have an SQL statement that you're going to execute many times in
 quick succession, it may be more efficient to prepare it once and reuse it.
@@ -35,12 +35,15 @@ an ASCII letter.  The name is case-sensitive.
 
 Once you've done this, you'll be able to call `my_statement` from any
 transaction you execute on the same connection.  For this, use the
-`pqxx::transaction_base::exec_prepared` functions.
+`pqxx::transaction_base::exec()` functions that take a `pqxx::prepped` object
+instead of an SQL statement string.  The `pqxx::prepped` type is just a wrapper
+that tells the library "this is not SQL text, it's the name of a prepared
+statement."
 
 ```cxx
     pqxx::result execute_my_statement(pqxx::transaction_base &t)
     {
-      return t.exec_prepared("my_statement");
+      return t.exec(pqxx::prepped{"my_statement"});
     }
 ```
 
@@ -109,11 +112,20 @@ direct query will be optimised based on table statistics, partial indexes, etc.
 Zero bytes
 ----------
 
-@warning Beware of "nul" bytes!
+@warning Beware of zero ("nul") bytes!
 
-Any string you pass as a parameter will end at the _first char with value
-zero._  If you pass a string that contains a zero byte, the last byte in the
-value will be the one just before the zero.
+Since libpqxx is a wrapper around libpq, the C-level client library, most
+strings you pass to the library should be compatible with C-style strings.  So
+they must end with a single byte with value 0, and the text within them cannot
+contain any such zero bytes.
+
+(The `pqxx::zview` type exists specifically to tell libpqxx: "this is a
+C-compatible string, containing no zero bytes but ending in a zero byte.")
+
+One example is prepared statement names.  But the same also goes for the
+parameters values.  Any string you pass as a parameter will end at the _first
+char with value zero._  If you pass a string that contains a zero byte, the
+last byte in the value will be the one just before the zero.
 
 So, if you need a zero byte in a string, consider that it's really a _binary
 string,_ which is not the same thing as a text string.  SQL represents binary

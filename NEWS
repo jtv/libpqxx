@@ -1,4 +1,5 @@
 7.9.3
+ - Deprecate `exec_prepared()`; call `exec()` with a `pqxx::prepped` object.
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)

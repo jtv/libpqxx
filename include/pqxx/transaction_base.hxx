@@ -34,6 +34,7 @@
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"
+#include "pqxx/prepared_statement.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/row.hxx"
 #include "pqxx/util.hxx"
@@ -901,56 +902,30 @@ public:
   }
   //@}
 
-  /**
-   * @name Prepared statements
-   *
-   * These are very similar to parameterised statements.  The difference is
-   * that you prepare them in advance, giving them identifying names.  You can
-   * then call them by these names, passing in the argument values appropriate
-   * for that call.
-   *
-   * You prepare a statement on the connection, using
-   * @ref pqxx::connection::prepare().  But you then call the statement in a
-   * transaction, using the functions you see here.
-   *
-   * Never try to prepare, execute, or unprepare a prepared statement manually
-   * using direct SQL queries when you also use the libpqxx equivalents.  For
-   * any given statement, either prepare, manage, and execute it through the
-   * dedicated libpqxx functions; or do it all directly in SQL.  Don't mix the
-   * two, or the code may get confused.
-   *
-   * See \ref prepared for a full discussion.
-   *
-   * @warning Beware of "nul" bytes.  Any string you pass as a parameter will
-   * end at the first char with value zero.  If you pass a string that contains
-   * a zero byte, the last byte in the value will be the one just before the
-   * zero.  If you need a zero byte, you're dealing with binary strings, not
-   * regular strings.  Represent binary strings on the SQL side as `BYTEA`
-   * (or as large objects).  On the C++ side, use types like `pqxx::bytes` or
-   * `pqxx::bytes_view` or (in C++20) `std::vector<std::byte>`.  Also, consider
-   * large objects on the SQL side and @ref blob on the C++ side.
-   *
-   * @warning Passing the wrong number of parameters to a prepared or
-   * parameterised statement will _break the connection._  The usual exception
-   * that occurs in this situation is @ref pqxx::protocol_violation.  It's a
-   * subclass of @ref pqxx::broken_connection, but where `broken_connection`
-   * usually indicates a networking problem, `protocol_violation` indicates
-   * that the communication with the server has deviated from protocol.  Once
-   * something like that happens, communication is broken and there is nothing
-   * for it but to discard the connection.  A networking problem is usually
-   * worth retrying, but a protocol violation is not.  The same violation will
-   * probably just happen again.
-   */
-  //@{
-
   /// Execute a prepared statement, with optional arguments.
   template<typename... Args>
+  [[deprecated("Use exec(prepped, params) instead.")]]
   result exec_prepared(zview statement, Args &&...args)
   {
     params pp(args...);
     return internal_exec_prepared(statement, pp.make_c_params());
   }
 
+  /// Execute a prepared statement taking no parameters.
+  result exec(prepped statement)
+  {
+    params pp;
+    // TODO: Can we shortcut the creation of the empty params?
+    return internal_exec_prepared(statement, pp.make_c_params());
+  }
+
+  /// Execute a prepared statement with parameters.
+  result exec(prepped statement, params parms)
+  {
+    return internal_exec_prepared(statement, parms.make_c_params());
+  }
+
+  // TODO: Extract rows check.
   /// Execute a prepared statement, and expect a single-row result.
   /** @throw pqxx::unexpected_rows if the result was not exactly 1 row.
    */
@@ -960,6 +935,7 @@ public:
     return exec_prepared_n(1, statement, std::forward<Args>(args)...).front();
   }
 
+  // TODO: Extract rows check.
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
@@ -969,6 +945,7 @@ public:
     return exec_prepared_n(0, statement, std::forward<Args>(args)...);
   }
 
+  // TODO: Extract rows check.
   /// Execute a prepared statement, expect a result with given number of rows.
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
    *  given number of rows.
@@ -977,12 +954,10 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    auto const r{exec_prepared(statement, std::forward<Args>(args)...)};
+    auto const r{exec(pqxx::prepped{statement}, params{args...})};
     check_rowcount_prepared(statement, rows, std::size(r));
     return r;
   }
-
-  //@}
 
   /**
    * @name Error/warning output
