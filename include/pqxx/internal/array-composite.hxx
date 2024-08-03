@@ -143,10 +143,9 @@ scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
 }
 
 
-// XXX: Retire this.  Just construct a string_view directly now!
 /// Parse an unquoted array entry or cfield of a composite-type field.
 template<pqxx::internal::encoding_group ENC>
-inline std::string
+inline std::string_view
 parse_unquoted_string(char const input[], std::size_t end, std::size_t pos)
 {
   return {&input[pos], end - pos};
