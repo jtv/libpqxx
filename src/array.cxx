@@ -80,7 +80,7 @@ std::string::size_type array_parser::scan_unquoted_string() const
  * that happens to spell "NULL".
  */
 template<pqxx::internal::encoding_group ENC>
-std::string
+std::string_view
 array_parser::parse_unquoted_string(std::string::size_type end) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
