@@ -384,6 +384,7 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/types pqxx/types.hxx \
 	pqxx/zview pqxx/zview.hxx \
 	pqxx/version pqxx/version.hxx \
+	pqxx/want pqxx/want.hxx \
 	pqxx/internal/array-composite.hxx \
 	pqxx/internal/callgate.hxx \
 	pqxx/internal/concat.hxx \

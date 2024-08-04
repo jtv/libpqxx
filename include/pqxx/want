@@ -1,0 +1,6 @@
+/** Helpers for constraining expected query results.
+ */
+// Actual definitions in .hxx file so edtiors and such recognize file type.
+#include "pqxx/internal/header-pre.hxx"
+#include "pqxx/want.hxx"
+#include "pqxx/internal/header-post.hxx"

@@ -52,6 +52,7 @@ install(
     PATTERN types
     PATTERN util
     PATTERN version
+    PATTERN want
     PATTERN zview
     PATTERN internal/*.hxx
     PATTERN internal/gates/*.hxx
