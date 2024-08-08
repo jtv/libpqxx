@@ -1,5 +1,4 @@
 include(CheckFunctionExists)
-include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
 
 if(NOT PostgreSQL_FOUND)
@@ -13,9 +12,6 @@ endif()
 
 check_function_exists("poll" PQXX_HAVE_POLL)
 
-set(CMAKE_REQUIRED_LIBRARIES pq)
-
-set(CMAKE_REQUIRED_QUIET ON)
 
 # Incorporate feature checks based on C++ feature test mac
 include(pqxx_cxx_feature_checks)
@@ -25,8 +21,6 @@ if(!no_need_fslib)
     # TODO: This may work for gcc 8, but some clang versions may need -lc++fs.
     link_libraries(stdc++fs)
 endif()
-
-set(CMAKE_REQUIRED_QUIET OFF)
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
