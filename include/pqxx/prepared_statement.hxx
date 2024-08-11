@@ -69,6 +69,7 @@ namespace pqxx
 class PQXX_LIBEXPORT prepped : public zview
 {
 public:
+  // XXX: May not have to be a zview!  Because exec() draws a copy anyway.
   prepped(zview name) : zview{name} {}
 };
 } // namespace pqxx

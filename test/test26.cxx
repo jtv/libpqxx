@@ -51,13 +51,14 @@ std::map<int, int> update_years(connection &C)
   // occur in the table.  Since we're in a transaction, any changes made by
   // others at the same time will not affect us.
   for (auto const &c : conversions)
-    tx.exec0(
+    tx.exec(
       "UPDATE pqxxevents "
       "SET year=" +
       to_string(c.second) +
       " "
       "WHERE year=" +
-      to_string(c.first));
+      to_string(c.first)
+    ).no_rows();
 
   tx.commit();
 

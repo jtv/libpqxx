@@ -133,8 +133,8 @@ void test_stream_parses_awkward_strings()
   // that aren't really there.
   cx.set_client_encoding("SJIS");
   pqxx::work tx{cx};
-  tx.exec0("CREATE TEMP TABLE nasty(id integer, value varchar)");
-  tx.exec0(
+  tx.exec("CREATE TEMP TABLE nasty(id integer, value varchar)").no_rows();
+  tx.exec(
     "INSERT INTO nasty(id, value) VALUES "
     // A proper null.
     "(0, NULL), "
@@ -147,7 +147,8 @@ void test_stream_parses_awkward_strings()
     // injection can break out of a string.
     "(4, '\x81\x5c'), "
     "(5, '\t'), "
-    "(6, '\\\\\\\n\\\\')");
+    "(6, '\\\\\\\n\\\\')"
+  ).no_rows();
 
   std::vector<std::optional<std::string>> values;
   for (auto [id, value] : tx.stream<std::size_t, std::optional<std::string>>(

@@ -53,7 +53,7 @@ void test_004()
   // Trigger our notification receiver.
   perform([&cx, &L] {
     work tx(cx);
-    tx.exec0("NOTIFY " + cx.quote_name(L.channel()));
+    tx.exec("NOTIFY " + cx.quote_name(L.channel())).no_rows();
     Backend_PID = cx.backendpid();
     tx.commit();
   });

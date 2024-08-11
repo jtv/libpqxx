@@ -58,11 +58,12 @@ void Test(connection &cx, bool ExplicitAbort)
       "Can't run; " + to_string(BoringYear) + " is already in the table.");
 
     // Now let's try to introduce a row for our Boring Year
-    Doomed.exec0(
+    Doomed.exec(
       "INSERT INTO " + Table +
       "(year, event) "
       "VALUES (" +
-      to_string(BoringYear) + ", 'yawn')");
+      to_string(BoringYear) + ", 'yawn')"
+    ).no_rows();
 
     auto Recount{CountEvents(Doomed)};
     PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");

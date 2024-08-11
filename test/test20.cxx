@@ -38,14 +38,15 @@ void test_020()
   PQXX_CHECK(std::empty(R), "result::clear() is broken.");
 
   // OK.  Having laid that worry to rest, add a record for 1977.
-  t1.exec0(
+  t1.exec(
     "INSERT INTO " + Table +
     " VALUES"
     "(" +
     to_string(BoringYear) +
     ","
     "'Yawn'"
-    ")");
+    ")"
+  ).no_rows();
 
   // Abort T1.  Since T1 is a nontransaction, which provides only the
   // transaction class interface without providing any form of transactional
@@ -70,11 +71,12 @@ void test_020()
   PQXX_CHECK(std::empty(R), "result::clear() doesn't work.");
 
   // Now remove our record again
-  t2.exec0(
+  t2.exec(
     "DELETE FROM " + Table +
     " "
     "WHERE year=" +
-    to_string(BoringYear));
+    to_string(BoringYear)
+  ).no_rows();
 
   t2.commit();
 

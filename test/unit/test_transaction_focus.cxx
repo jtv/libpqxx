@@ -41,10 +41,10 @@ void test_cannot_run_params_statement_during_focus()
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
-  tx.exec_params("select $1", 10);
+  tx.exec("select $1", pqxx::params{10});
   auto focus{make_focus(tx)};
   PQXX_CHECK_THROWS(
-    tx.exec_params("select $1", 10), pqxx::usage_error,
+    tx.exec("select $1", pqxx::params{10}), pqxx::usage_error,
     "Parameterized statement during focus did not throw expected error.");
 }
 

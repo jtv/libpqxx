@@ -295,6 +295,67 @@ public:
    */
   template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
 
+  /// Check that result contains exactly `n` rows.
+  /** @return The result itself, for convenience.
+   * @throw @ref unexpected_rows if the actual count is not equal to `n`.
+   */
+  result expect_rows(size_type n) const
+  {
+    auto const sz{size()};
+    if (sz != n)
+    {
+      // TODO: See whether result contains a generated statement.
+      if (not m_query or m_query->empty())
+        throw unexpected_rows{pqxx::internal::concat(
+	  "Expected ", n, " row(s) from query, got ", sz, ".")};
+      else
+        throw unexpected_rows{pqxx::internal::concat(
+          "Expected ", n, " row(s) from query '", *m_query, "', got ", sz, ".")};
+    }
+    return *this;
+  }
+
+  /// Check that result contains exactly 1 row, and return that row.
+  /** @return @ref pqxx::row
+   * @throw @ref unexpected_rows if the actual count is not equal to `n`.
+   */
+  row one_row() const;
+
+  /// Expect that result contains at moost one row, and return as optional.
+  /** Returns an empty `std::optional` if the result is empty, or if it has
+   * exactly one row, a `std::optional` containing the row.
+   *
+   * @throw @ref unexpected_rows is the row count is not 0 or 1.
+   */
+  std::optional<row> opt_row() const;
+
+  /// Expect that result contains no rows.  Return result for convenience.
+  result no_rows() const
+  {
+    expect_rows(0);
+    return *this;
+  }
+
+  /// Expect that result consists of exactly `cols` columns.
+  /** @return The result itself, for convenience.
+   * @throw @ref usage_error otherwise.
+   */
+  result expect_columns(row_size_type cols) const
+  {
+    auto const actual{columns()};
+    if (actual != cols)
+    {
+      // TODO: See whether result contains a generated statement.
+      if (not m_query or m_query->empty())
+        throw usage_error{pqxx::internal::concat(
+	  "Expected 1 column from query, got ", actual, ".")};
+      else
+        throw usage_error{pqxx::internal::concat(
+	  "Expected 1 column from query '", *m_query, "', got ", actual, ".")};
+    }
+    return *this;
+  }
+
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
 

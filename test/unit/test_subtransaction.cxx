@@ -7,13 +7,13 @@ namespace
 {
 void make_table(pqxx::transaction_base &tx)
 {
-  tx.exec0("CREATE TEMP TABLE foo (x INTEGER)");
+  tx.exec("CREATE TEMP TABLE foo (x INTEGER)").no_rows();
 }
 
 
 void insert_row(pqxx::transaction_base &tx)
 {
-  tx.exec0("INSERT INTO foo(x) VALUES (1)");
+  tx.exec("INSERT INTO foo(x) VALUES (1)").no_rows();
 }
 
 

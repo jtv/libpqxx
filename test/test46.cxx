@@ -18,7 +18,7 @@ void test_046()
   connection cx;
   work tx{cx};
 
-  row R{tx.exec1("SELECT count(*) FROM pg_tables")};
+  row R{tx.exec("SELECT count(*) FROM pg_tables").one_row()};
 
   // Read the value into a stringstream.
   std::stringstream I;

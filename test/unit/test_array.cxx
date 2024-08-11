@@ -454,8 +454,9 @@ void test_array_roundtrip()
   pqxx::work w{c};
 
   std::vector<int> const in{0, 1, 2, 3, 5};
-  auto const r1{w.exec1("SELECT " + c.quote(in) + "::integer[]")};
-  pqxx::array_parser parser{r1[0].view()};
+  pqxx::array_parser parser{
+    w.query_value<std::string_view>("SELECT " + c.quote(in) + "::integer[]")
+  };
   auto item{parser.get_next()};
   PQXX_CHECK_EQUAL(
     item.first, pqxx::array_parser::juncture::row_start,
@@ -496,7 +497,7 @@ void test_array_strings()
 
   for (auto const &input : inputs)
   {
-    auto const r{tx.exec_params("SELECT ARRAY[$1]", input)};
+    auto const r{tx.exec("SELECT ARRAY[$1]", pqxx::params{input})};
     pqxx::array_parser parser{r[0][0].as<std::string_view>()};
     auto [start_juncture, start_value]{parser.get_next()};
     pqxx::ignore_unused(start_value);
@@ -699,7 +700,7 @@ void test_as_sql_array()
   pqxx::row r;
   {
     pqxx::work tx{cx};
-    r = tx.exec1("SELECT ARRAY [5, 4, 3, 2]");
+    r = tx.exec("SELECT ARRAY [5, 4, 3, 2]").one_row();
     // Connection closes, but we should still be able to parse the array.
   }
   auto const array{r[0].as_sql_array<int>()};

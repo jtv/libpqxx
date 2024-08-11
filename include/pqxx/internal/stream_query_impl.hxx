@@ -13,7 +13,20 @@ inline stream_query<TYPE...>::stream_query(
   transaction_base &tx, std::string_view query) :
         transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
-  auto const r{tx.exec0(internal::concat("COPY (", query, ") TO STDOUT"))};
+  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"))};
+  r.expect_columns(sizeof...(TYPE));
+  r.expect_rows(0);
+  register_me();
+}
+
+
+template<typename... TYPE>
+inline stream_query<TYPE...>::stream_query(
+  transaction_base &tx, std::string_view query, params const &parms) :
+        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+{
+  auto const r{
+    tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms).no_rows()};
   if (r.columns() != sizeof...(TYPE))
     throw usage_error{concat(
       "Parsing query stream with wrong number of columns: "

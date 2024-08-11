@@ -100,7 +100,7 @@ void test_strconv_class_enum()
   pqxx::connection cx;
   pqxx::work tx{cx};
   std::tuple<weather> out;
-  tx.exec1("SELECT 0").to(out);
+  tx.exec("SELECT 0").one_row().to(out);
 }
 
 
