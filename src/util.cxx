@@ -73,7 +73,7 @@ void pqxx::internal::check_unique_register(
         concat("Started twice: ", describe_object(old_class, old_name), ".") :
         concat(
           "Started new ", describe_object(new_class, new_name), " while ",
-          describe_object(new_class, new_name), " was still active.")};
+          describe_object(old_class, old_name), " was still active.")};
 }
 
 
