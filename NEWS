@@ -1,5 +1,6 @@
 7.9.3
  - Bump minimum CMake version to 3.28. (#874)
+ - Fixed error message on clashing transaction focuses. (#879)
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)
