@@ -3,6 +3,7 @@
  - Fixed error message on clashing transaction focuses. (#879)
  - Don't call`/bin/true`; macOS doesn't have it.  Just call `true`. (#885)
  - Deprecate `exec_prepared()`; just use `exec()` with a `pqxx::prepped`.
+ - Deprecate `exec1()` etc.  Use `result::expect_rows()` etc.
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)
