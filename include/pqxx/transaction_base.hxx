@@ -345,7 +345,7 @@ public:
   [[deprecated("The desc parameter is going away.")]]
   result exec(std::string_view query, std::string_view desc);
 
-  // XXX: Wrap PQdescribePrepared()!
+  // TODO: Wrap PQdescribePrepared().
 
   result exec(std::string_view query, params parms)
   { return internal_exec_params(query, parms.make_c_params()); }
@@ -885,14 +885,41 @@ public:
     return internal_exec_prepared(statement, pp.make_c_params());
   }
 
-  // XXX: query() with prepped.
-  // XXX: query_value() with prepped.
-  // XXX: query_for() with prepped.
-  // XXX: stream() with prepped.
-  // XXX: stream_like() with prepped.
+  /// Execute prepared statement, read full results, iterate rows of data.
+  /** Like @ref query(zview), but using a prepared statement.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE> auto query(
+    prepped statement, params const &parms={})
+  {
+    return exec(statement, parms).iter<TYPE...>();
+  }
+
+  /// Perform prepared statement returning exactly 1 value.
+  /** This is just like @ref query_value(zview), but using a prepared
+   * statement.
+   */
+  template<typename TYPE>
+  TYPE query_value(prepped statement, params const &parms={})
+  { return exec(statement, parms).expect_columns(1).one_row()[0].as<TYPE>(); }
+
+  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Execute prepared statement, load result, perform `func` for each row.
+  /** This is just like @ref for_query(zview), but using a prepared statement.
+   */
+  template<typename CALLABLE>
+  void for_query(prepped statement, CALLABLE &&func, params const &parms={})
+  {
+    exec(statement, parms).for_each(std::forward<CALLABLE>(func));
+  }
+
+  // TODO: stream() with prepped.
+  // TODO: stream_like() with prepped.
 
   /// Execute a prepared statement with parameters.
-  result exec(prepped statement, params parms)
+  result exec(prepped statement, params const &parms)
   {
     return internal_exec_prepared(statement, parms.make_c_params());
   }

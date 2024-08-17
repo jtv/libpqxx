@@ -369,7 +369,47 @@ void test_wrong_number_of_params()
 }
 
 
+void test_query_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("hop", "SELECT x * 3 FROM generate_series(1, 2) AS x");
+  std::vector<int> out;
+  for (auto [i] : tx.query<int>(pqxx::prepped{"hop"}))
+    out.push_back(i);
+  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong number of results.");
+  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
+  PQXX_CHECK_EQUAL(out.at(1), 6, "First item was correct, second was not!");
+}
+
+
+void test_query_value_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("pick", "SELECT 92");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(pqxx::prepped{"pick"}), 92, "Wrong value.");
+}
+
+
+void test_for_query_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("series", "SELECT * FROM generate_series(3, 4)");
+  std::vector<int> out;
+  tx.for_query(pqxx::prepped("series"), [&out](int x){ out.push_back(x); });
+  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong result size.");
+  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
+  PQXX_CHECK_EQUAL(out.at(1), 4, "First item was correct, second was not.");
+}
+
+
 PQXX_REGISTER_TEST(test_prepared_statements);
 PQXX_REGISTER_TEST(test_placeholders_generates_names);
 PQXX_REGISTER_TEST(test_wrong_number_of_params);
+PQXX_REGISTER_TEST(test_query_prepped);
+PQXX_REGISTER_TEST(test_query_value_prepped);
+PQXX_REGISTER_TEST(test_for_query_prepped);
 } // namespace
