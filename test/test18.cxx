@@ -57,9 +57,9 @@ void test_018()
       perform([&cx, Table] {
         robusttransaction<serializable> tx{cx};
         tx.exec(
-          "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
-          ", '" + tx.esc("yawn") + "')"
-	).no_rows();
+            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            ", '" + tx.esc("yawn") + "')")
+          .no_rows();
 
         throw deliberate_error();
       }),

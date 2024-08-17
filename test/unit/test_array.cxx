@@ -455,8 +455,7 @@ void test_array_roundtrip()
 
   std::vector<int> const in{0, 1, 2, 3, 5};
   auto const text{
-    w.query_value<std::string>("SELECT " + c.quote(in) + "::integer[]")
-  };
+    w.query_value<std::string>("SELECT " + c.quote(in) + "::integer[]")};
   pqxx::array_parser parser{text};
   auto item{parser.get_next()};
   PQXX_CHECK_EQUAL(

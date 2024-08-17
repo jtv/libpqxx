@@ -10,8 +10,7 @@ void test_076()
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};
 
-  auto
-    RFalse{tx.exec("SELECT 1=0").one_row()},
+  auto RFalse{tx.exec("SELECT 1=0").one_row()},
     RTrue{tx.exec("SELECT 1=1").one_row()};
   auto False{pqxx::from_string<bool>(RFalse[0])},
     True{pqxx::from_string<bool>(RTrue[0])};

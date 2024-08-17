@@ -54,11 +54,12 @@ void test_032()
     quiet_errorhandler d(cx);
     PQXX_CHECK_THROWS(
       perform([&cx, &Table] {
-        work{cx}.exec(
-          "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
-          ", "
-          "'yawn')"
-	).no_rows();
+        work{cx}
+          .exec(
+            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            ", "
+            "'yawn')")
+          .no_rows();
         throw deliberate_error();
       }),
       deliberate_error,

@@ -165,7 +165,8 @@ void test_binarystring_array_stream()
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
-  tx.exec("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])").no_rows();
+  tx.exec("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])")
+    .no_rows();
 
   constexpr char bytes1[]{"a\tb\0c"}, bytes2[]{"1\0.2"};
   std::string_view const data1{bytes1}, data2{bytes2};

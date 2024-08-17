@@ -39,7 +39,8 @@ void test_nonoptionals(pqxx::connection &connection)
 
   inserter.complete();
 
-  auto r1{tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
+  auto r1{
+    tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
   PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
   PQXX_CHECK_EQUAL(
     r1[4].as<std::string>(), "hello nonoptional world",
@@ -47,7 +48,8 @@ void test_nonoptionals(pqxx::connection &connection)
   PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4), "Read back wrong ip.");
   PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytea.");
 
-  auto r2{tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
+  auto r2{
+    tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
   PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
   PQXX_CHECK(r2[2].is_null(), "Field 2 was meant to be null.");
   PQXX_CHECK(r2[3].is_null(), "Field 3 was meant to be null.");
@@ -74,7 +76,8 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 
   inserter.complete();
 
-  auto r1{tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
+  auto r1{
+    tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
   PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
   PQXX_CHECK_EQUAL(
     r1[4].as<std::string>(), "hello nonoptional world",
@@ -82,7 +85,8 @@ void test_nonoptionals_fold(pqxx::connection &connection)
   PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4), "Read back wrong ip.");
   PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytera.");
 
-  auto r2{tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
+  auto r2{
+    tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
   PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
   PQXX_CHECK(r2[2].is_null(), "Field 2 was meant to be null.");
   PQXX_CHECK(r2[3].is_null(), "Field 3 was meant to be null.");
@@ -336,15 +340,15 @@ void test_stream_to()
   pqxx::work tx{cx};
 
   tx.exec(
-    "CREATE TEMP TABLE stream_to_test ("
-    "number0 INT NOT NULL,"
-    "ts1     TIMESTAMP NULL,"
-    "number2 INT NULL,"
-    "addr3   INET NULL,"
-    "txt4    TEXT NULL,"
-    "bin5    BYTEA NOT NULL"
-    ")"
-  ).no_rows();
+      "CREATE TEMP TABLE stream_to_test ("
+      "number0 INT NOT NULL,"
+      "ts1     TIMESTAMP NULL,"
+      "number2 INT NULL,"
+      "addr3   INET NULL,"
+      "txt4    TEXT NULL,"
+      "bin5    BYTEA NOT NULL"
+      ")")
+    .no_rows();
   tx.commit();
 
   test_nonoptionals(cx);
@@ -428,9 +432,9 @@ void test_stream_to_quotes_arguments()
   std::string const table{R"--(pqxx_Stream"'x)--"}, column{R"--(a'"b)--"};
 
   tx.exec(
-    "CREATE TEMP TABLE " + tx.quote_name(table) + "(" + tx.quote_name(column) +
-    " integer)"
-  ).no_rows();
+      "CREATE TEMP TABLE " + tx.quote_name(table) + "(" +
+      tx.quote_name(column) + " integer)")
+    .no_rows();
   auto write{pqxx::stream_to::table(tx, {table}, {column})};
   write.write_values<int>(12);
   write.complete();
@@ -447,7 +451,8 @@ void test_stream_to_optionals()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  tx.exec("CREATE TEMP TABLE pqxx_strings(key integer, value varchar)").no_rows();
+  tx.exec("CREATE TEMP TABLE pqxx_strings(key integer, value varchar)")
+    .no_rows();
 
   auto stream{pqxx::stream_to::table(tx, {"pqxx_strings"}, {"key", "value"})};
   stream.write_values(1, std::optional<std::string>{});

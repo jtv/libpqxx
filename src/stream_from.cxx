@@ -50,7 +50,8 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
-  tx.exec(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv)).no_rows();
+  tx.exec(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv))
+    .no_rows();
   register_me();
 }
 
@@ -63,9 +64,9 @@ pqxx::stream_from::stream_from(
   if (std::empty(columns))
     PQXX_UNLIKELY
   tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv)).no_rows();
-  else PQXX_LIKELY tx.exec(
-    internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv)
-  ).no_rows();
+  else PQXX_LIKELY tx
+    .exec(internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv))
+    .no_rows();
   register_me();
 }
 

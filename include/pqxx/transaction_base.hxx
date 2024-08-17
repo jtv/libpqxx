@@ -348,7 +348,9 @@ public:
   // TODO: Wrap PQdescribePrepared().
 
   result exec(std::string_view query, params parms)
-  { return internal_exec_params(query, parms.make_c_params()); }
+  {
+    return internal_exec_params(query, parms.make_c_params());
+  }
 
   /// Execute a command.
   /**
@@ -399,7 +401,9 @@ public:
    */
   [[deprecated("Use exec() and call no_rows() on the result.")]]
   result exec0(zview query)
-  { return exec(query).no_rows(); }
+  {
+    return exec(query).no_rows();
+  }
 
   /// Execute command returning a single row of data.
   /** Works like @ref exec, but requires the result to contain exactly one row.
@@ -425,7 +429,9 @@ public:
    */
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
   row exec1(zview query)
-  { return exec(query).one_row(); }
+  {
+    return exec(query).one_row();
+  }
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -471,7 +477,9 @@ public:
    * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<typename TYPE> TYPE query_value(zview query)
-  { return exec(query).expect_columns(1).one_row()[0].as<TYPE>(); }
+  {
+    return exec(query).expect_columns(1).one_row()[0].as<TYPE>();
+  }
 
   /// Perform query returning exactly one row, and convert its fields.
   /** This is a convenient way of querying one row's worth of data, and
@@ -499,8 +507,10 @@ public:
   [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(zview query)
   {
     std::optional<row> const r{exec(query).opt_row()};
-    if (r) return {r->as<TYPE...>()};
-    else return {};
+    if (r)
+      return {r->as<TYPE...>()};
+    else
+      return {};
   }
 
   /// Execute a query, in streaming fashion; loop over the results row by row.
@@ -659,7 +669,9 @@ public:
   template<typename... TYPE>
   [[deprecated("Use query() instead, and call expect_rows() on the result.")]]
   auto query_n(result::size_type rows, zview query)
-  { return exec(query).expect_rows(rows).iter<TYPE...>(); }
+  {
+    return exec(query).expect_rows(rows).iter<TYPE...>();
+  }
 
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
@@ -714,7 +726,9 @@ public:
   template<typename... Args>
   [[deprecated("Use exec(zview, params) instead.")]]
   result exec_params(std::string_view query, Args &&...args)
-  { return exec(query, params{args...}); }
+  {
+    return exec(query, params{args...});
+  }
 
   // Execute parameterised statement, expect a single-row result.
   /** @throw unexpected_rows if the result does not consist of exactly one row.
@@ -731,10 +745,11 @@ public:
    */
   template<typename... Args>
   [[deprecated(
-    "Use exec(string_view, params) and call no_rows() on the result."
-  )]]
+    "Use exec(string_view, params) and call no_rows() on the result.")]]
   result exec_params0(zview query, Args &&...args)
-  { return exec(query, params{args...}).no_rows(); }
+  {
+    return exec(query, params{args...}).no_rows();
+  }
 
   // Execute parameterised statement, expect exactly a given number of rows.
   /** @throw unexpected_rows if the result contains the wrong number of rows.
@@ -743,9 +758,8 @@ public:
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
-    return exec(
-      query, params{args...}
-    ).expect_rows(check_cast<result_size_type>(rows, "number of rows"));
+    return exec(query, params{args...})
+      .expect_rows(check_cast<result_size_type>(rows, "number of rows"));
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
@@ -754,7 +768,9 @@ public:
   template<typename... Args>
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
   result exec_params_n(result::size_type rows, zview query, Args &&...args)
-  { return exec(query, params{args...}).expect_rows(rows); }
+  {
+    return exec(query, params{args...}).expect_rows(rows);
+  }
 
   /// Execute parameterised query, read full results, iterate rows of data.
   /** Like @ref query, but the query can contain parameters.
@@ -808,7 +824,9 @@ public:
   template<typename... TYPE>
   [[deprecated("Use exec(), and call check_rows() & iter() on the result.")]]
   auto query_n(result::size_type rows, zview query, params const &parms)
-  { return exec(query, parms).expect_rows(rows).iter<TYPE...>(); }
+  {
+    return exec(query, parms).expect_rows(rows).iter<TYPE...>();
+  }
 
   /// Perform query, expecting exactly 1 row with 1 field, and convert it.
   /** This is convenience shorthand for querying exactly one value from the
@@ -818,7 +836,9 @@ public:
    * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<typename TYPE> TYPE query_value(zview query, params const &parms)
-  { return exec(query, parms).expect_columns(1).one_row()[0].as<TYPE>(); }
+  {
+    return exec(query, parms).expect_columns(1).one_row()[0].as<TYPE>();
+  }
 
   /// Perform query returning exactly one row, and convert its fields.
   /** This is a convenient way of querying one row's worth of data, and
@@ -831,7 +851,9 @@ public:
   template<typename... TYPE>
   [[nodiscard]]
   std::tuple<TYPE...> query1(zview query, params const &parms)
-  { return exec(query, parms).one_row().as<TYPE...>(); }
+  {
+    return exec(query, parms).one_row().as<TYPE...>();
+  }
 
   /// Query at most one row of data, and if there is one, convert it.
   /** If the query produced a row of data, this converts it to a tuple of the
@@ -846,8 +868,10 @@ public:
   query01(zview query, params const &parms)
   {
     std::optional<row> r{exec(query, parms).opt_row()};
-    if (r) return {r->as<TYPE...>()};
-    else return {};
+    if (r)
+      return {r->as<TYPE...>()};
+    else
+      return {};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -891,8 +915,8 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query(
-    prepped statement, params const &parms={})
+  template<typename... TYPE>
+  auto query(prepped statement, params const &parms = {})
   {
     return exec(statement, parms).iter<TYPE...>();
   }
@@ -902,15 +926,17 @@ public:
    * statement.
    */
   template<typename TYPE>
-  TYPE query_value(prepped statement, params const &parms={})
-  { return exec(statement, parms).expect_columns(1).one_row()[0].as<TYPE>(); }
+  TYPE query_value(prepped statement, params const &parms = {})
+  {
+    return exec(statement, parms).expect_columns(1).one_row()[0].as<TYPE>();
+  }
 
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute prepared statement, load result, perform `func` for each row.
   /** This is just like @ref for_query(zview), but using a prepared statement.
    */
   template<typename CALLABLE>
-  void for_query(prepped statement, CALLABLE &&func, params const &parms={})
+  void for_query(prepped statement, CALLABLE &&func, params const &parms = {})
   {
     exec(statement, parms).for_each(std::forward<CALLABLE>(func));
   }
@@ -929,18 +955,22 @@ public:
    */
   template<typename... Args>
   [[deprecated(
-    "Use exec(string_view, params) and call one_row() on the result."
-  )]]
+    "Use exec(string_view, params) and call one_row() on the result.")]]
   row exec_prepared1(zview statement, Args &&...args)
-  { return exec(prepped{statement}, params{args...}).one_row(); }
+  {
+    return exec(prepped{statement}, params{args...}).one_row();
+  }
 
   /// Execute a prepared statement, and expect a result with zero rows.
   /** @throw pqxx::unexpected_rows if the result contained rows.
    */
   template<typename... Args>
-  [[deprecated("Use exec(prepped, params), and call no_rows() on the result.")]]
+  [[deprecated(
+    "Use exec(prepped, params), and call no_rows() on the result.")]]
   result exec_prepared0(zview statement, Args &&...args)
-  { return exec(prepped{statement}, params{args...}).no_rows(); }
+  {
+    return exec(prepped{statement}, params{args...}).no_rows();
+  }
 
   /// Execute a prepared statement, expect a result with given number of rows.
   /** @throw pqxx::unexpected_rows if the result did not contain exactly the
@@ -948,8 +978,7 @@ public:
    */
   template<typename... Args>
   [[deprecated(
-    "Use exec(prepped, params), and call expect_rows() on the result."
-  )]]
+    "Use exec(prepped, params), and call expect_rows() on the result.")]]
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
@@ -1058,12 +1087,11 @@ private:
 
   PQXX_PRIVATE void check_pending_error();
 
-  result
-  internal_exec_prepared(
+  result internal_exec_prepared(
     std::string_view statement, internal::c_params const &args);
 
-  result internal_exec_params(
-    std::string_view query, internal::c_params const &args);
+  result
+  internal_exec_params(std::string_view query, internal::c_params const &args);
 
   /// Describe this transaction to humans, e.g. "transaction 'foo'".
   [[nodiscard]] std::string description() const;

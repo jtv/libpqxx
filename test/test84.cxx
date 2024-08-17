@@ -35,15 +35,14 @@ void test_084()
     Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
   constexpr int InitialSkip{2}, GetRows{3};
 
+  tx.exec("DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query)
+    .no_rows();
   tx.exec(
-    "DECLARE " + tx.quote_name(CurName) + " CURSOR FOR " + Query
-  ).no_rows();
-  tx.exec(
-    "MOVE " + pqxx::to_string(InitialSkip * GetRows) +
-    " "
-    "IN " +
-    tx.quote_name(CurName)
-  ).no_rows();
+      "MOVE " + pqxx::to_string(InitialSkip * GetRows) +
+      " "
+      "IN " +
+      tx.quote_name(CurName))
+    .no_rows();
 
   // Wrap cursor in cursor stream.  Apply some trickery to get its name inside
   // a result field for this purpose.  This isn't easy because it's not

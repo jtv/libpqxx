@@ -17,7 +17,8 @@ void test_088()
   pqxx::test::create_pqxxevents(tx0);
 
   // Trivial test: create subtransactions, and commit/abort
-  std::cout << tx0.query_value<std::string>("SELECT 'tx0 starts'") << std::endl;
+  std::cout << tx0.query_value<std::string>("SELECT 'tx0 starts'")
+            << std::endl;
 
   pqxx::subtransaction T0a(static_cast<pqxx::dbtransaction &>(tx0), "T0a");
   T0a.commit();
@@ -29,7 +30,8 @@ void test_088()
 
   // Basic functionality: perform query in subtransaction; abort, continue
   pqxx::work tx1{cx, "tx1"};
-  std::cout << tx1.query_value<std::string>("SELECT 'tx1 starts'") << std::endl;
+  std::cout << tx1.query_value<std::string>("SELECT 'tx1 starts'")
+            << std::endl;
   pqxx::subtransaction tx1a{tx1, "tx1a"};
   std::cout << tx1a.query_value<std::string>("SELECT '  a'") << std::endl;
   tx1a.commit();
@@ -45,7 +47,8 @@ void test_088()
   // Commit/rollback functionality
   pqxx::work tx2{cx, "tx2"};
   std::string const Table{"test088"};
-  tx2.exec("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)").no_rows();
+  tx2.exec("CREATE TEMP TABLE " + Table + "(no INTEGER, text VARCHAR)")
+    .no_rows();
 
   tx2.exec("INSERT INTO " + Table + " VALUES(1,'tx2')").no_rows();
 

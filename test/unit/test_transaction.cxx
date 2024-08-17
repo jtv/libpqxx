@@ -39,8 +39,8 @@ void create_temp_table(pqxx::transaction_base &tx)
 void insert_temp_table(pqxx::transaction_base &tx, int value)
 {
   tx.exec(
-    "INSERT INTO " + table + " (x) VALUES (" + pqxx::to_string(value) + ")"
-  ).no_rows();
+      "INSERT INTO " + table + " (x) VALUES (" + pqxx::to_string(value) + ")")
+    .no_rows();
 }
 
 int count_temp_table(pqxx::transaction_base &tx)

@@ -74,12 +74,16 @@ public:
   using iterator = result_iter<TYPE...>;
 
   explicit result_iteration(result const &home) : m_home{home}
-  { m_home.expect_columns(sizeof...(TYPE)); }
+  {
+    m_home.expect_columns(sizeof...(TYPE));
+  }
 
   iterator begin() const
   {
-    if (std::size(m_home) == 0) return end();
-    else return iterator{m_home};
+    if (std::size(m_home) == 0)
+      return end();
+    else
+      return iterator{m_home};
   }
   iterator end() const { return {}; }
 

@@ -54,10 +54,10 @@ void test_037()
       perform([&cx, &Table] {
         robusttransaction<> tx{cx};
         tx.exec(
-          "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
-          ", "
-          "'yawn')"
-	).no_rows();
+            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            ", "
+            "'yawn')")
+          .no_rows();
 
         throw deliberate_error();
       }),

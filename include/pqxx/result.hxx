@@ -307,10 +307,11 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw unexpected_rows{pqxx::internal::concat(
-	  "Expected ", n, " row(s) from query, got ", sz, ".")};
+          "Expected ", n, " row(s) from query, got ", sz, ".")};
       else
         throw unexpected_rows{pqxx::internal::concat(
-          "Expected ", n, " row(s) from query '", *m_query, "', got ", sz, ".")};
+          "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
+          ".")};
     }
     return *this;
   }
@@ -348,10 +349,10 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw usage_error{pqxx::internal::concat(
-	  "Expected 1 column from query, got ", actual, ".")};
+          "Expected 1 column from query, got ", actual, ".")};
       else
         throw usage_error{pqxx::internal::concat(
-	  "Expected 1 column from query '", *m_query, "', got ", actual, ".")};
+          "Expected 1 column from query '", *m_query, "', got ", actual, ".")};
     }
     return *this;
   }

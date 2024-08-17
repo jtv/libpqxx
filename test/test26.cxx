@@ -52,13 +52,13 @@ std::map<int, int> update_years(connection &C)
   // others at the same time will not affect us.
   for (auto const &c : conversions)
     tx.exec(
-      "UPDATE pqxxevents "
-      "SET year=" +
-      to_string(c.second) +
-      " "
-      "WHERE year=" +
-      to_string(c.first)
-    ).no_rows();
+        "UPDATE pqxxevents "
+        "SET year=" +
+        to_string(c.second) +
+        " "
+        "WHERE year=" +
+        to_string(c.first))
+      .no_rows();
 
   tx.commit();
 

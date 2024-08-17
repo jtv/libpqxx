@@ -526,42 +526,42 @@ int pqxx::result::column_type_modifier(
 
 pqxx::row pqxx::result::one_row() const
 {
-    auto const sz{size()};
-    if (sz != 1)
-    {
-      // TODO: See whether result contains a generated statement.
-      if (not m_query or m_query->empty())
-        throw unexpected_rows{pqxx::internal::concat(
-          "Expected 1 row from query, got ", sz, ".")};
-      else
-        throw unexpected_rows{pqxx::internal::concat(
-	  "Expected 1 row from query '", *m_query, "', got ", sz, ".")};
-    }
-    return front();
+  auto const sz{size()};
+  if (sz != 1)
+  {
+    // TODO: See whether result contains a generated statement.
+    if (not m_query or m_query->empty())
+      throw unexpected_rows{
+        pqxx::internal::concat("Expected 1 row from query, got ", sz, ".")};
+    else
+      throw unexpected_rows{pqxx::internal::concat(
+        "Expected 1 row from query '", *m_query, "', got ", sz, ".")};
+  }
+  return front();
 }
 
 
 std::optional<pqxx::row> pqxx::result::opt_row() const
 {
-    auto const sz{size()};
-    if (sz > 1)
-    {
-      // TODO: See whether result contains a generated statement.
-      if (not m_query or m_query->empty())
-        throw unexpected_rows{pqxx::internal::concat(
-	  "Expected at most 1 row from query, got ", sz, ".")};
-      else
-        throw unexpected_rows{pqxx::internal::concat(
-	  "Expected at most 1 row from query '", *m_query, "', got ", sz, ".")};
-    }
-    else if (sz == 1)
-    {
-      return {front()};
-    }
+  auto const sz{size()};
+  if (sz > 1)
+  {
+    // TODO: See whether result contains a generated statement.
+    if (not m_query or m_query->empty())
+      throw unexpected_rows{pqxx::internal::concat(
+        "Expected at most 1 row from query, got ", sz, ".")};
     else
-    {
-      return {};
-    }
+      throw unexpected_rows{pqxx::internal::concat(
+        "Expected at most 1 row from query '", *m_query, "', got ", sz, ".")};
+  }
+  else if (sz == 1)
+  {
+    return {front()};
+  }
+  else
+  {
+    return {};
+  }
 }
 
 
