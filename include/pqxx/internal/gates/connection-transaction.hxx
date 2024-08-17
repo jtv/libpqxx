@@ -31,12 +31,13 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   void write_copy_line(std::string_view line) { home().write_copy_line(line); }
   void end_copy_write() { home().end_copy_write(); }
 
-  result exec_prepared(zview statement, internal::c_params const &args)
+  result
+  exec_prepared(std::string_view statement, internal::c_params const &args)
   {
     return home().exec_prepared(statement, args);
   }
 
-  result exec_params(zview query, internal::c_params const &args)
+  result exec_params(std::string_view query, internal::c_params const &args)
   {
     return home().exec_params(query, args);
   }

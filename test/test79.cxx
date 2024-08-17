@@ -49,7 +49,7 @@ void test_079()
 
   pqxx::perform([&cx, &L] {
     pqxx::work tx{cx};
-    tx.exec0("NOTIFY " + L.channel());
+    tx.exec("NOTIFY " + L.channel()).no_rows();
     tx.commit();
   });
 

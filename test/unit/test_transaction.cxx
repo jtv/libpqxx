@@ -26,20 +26,21 @@ std::string const table{"pqxx_test_transaction"};
 
 void delete_temp_table(pqxx::transaction_base &tx)
 {
-  tx.exec0(std::string{"DROP TABLE IF EXISTS "} + table);
+  tx.exec(std::string{"DROP TABLE IF EXISTS "} + table).no_rows();
 }
 
 
 void create_temp_table(pqxx::transaction_base &tx)
 {
-  tx.exec0("CREATE TEMP TABLE " + table + " (x integer)");
+  tx.exec("CREATE TEMP TABLE " + table + " (x integer)").no_rows();
 }
 
 
 void insert_temp_table(pqxx::transaction_base &tx, int value)
 {
-  tx.exec0(
-    "INSERT INTO " + table + " (x) VALUES (" + pqxx::to_string(value) + ")");
+  tx.exec(
+      "INSERT INTO " + table + " (x) VALUES (" + pqxx::to_string(value) + ")")
+    .no_rows();
 }
 
 int count_temp_table(pqxx::transaction_base &tx)
@@ -74,24 +75,24 @@ template<typename TX> void test_double_close()
   pqxx::connection c;
 
   TX tx1{c};
-  tx1.exec1("SELECT 1");
+  tx1.exec("SELECT 1").one_row();
   tx1.commit();
   tx1.commit();
 
   TX tx2{c};
-  tx2.exec1("SELECT 2");
+  tx2.exec("SELECT 2").one_row();
   tx2.abort();
   tx2.abort();
 
   TX tx3{c};
-  tx3.exec1("SELECT 3");
+  tx3.exec("SELECT 3").one_row();
   tx3.commit();
   PQXX_CHECK_THROWS(
     tx3.abort(), pqxx::usage_error, "Abort after commit not caught.");
   ;
 
   TX tx4{c};
-  tx4.exec1("SELECT 4");
+  tx4.exec("SELECT 4").one_row();
   tx4.abort();
   PQXX_CHECK_THROWS(
     tx4.commit(), pqxx::usage_error, "Commit after abort not caught.");

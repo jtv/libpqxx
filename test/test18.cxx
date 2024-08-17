@@ -56,9 +56,10 @@ void test_018()
     PQXX_CHECK_THROWS(
       perform([&cx, Table] {
         robusttransaction<serializable> tx{cx};
-        tx.exec0(
-          "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
-          ", '" + tx.esc("yawn") + "')");
+        tx.exec(
+            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            ", '" + tx.esc("yawn") + "')")
+          .no_rows();
 
         throw deliberate_error();
       }),

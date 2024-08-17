@@ -72,15 +72,12 @@ template<typename... TYPE> class result_iteration
 {
 public:
   using iterator = result_iter<TYPE...>;
+
   explicit result_iteration(result const &home) : m_home{home}
   {
-    constexpr auto tup_size{sizeof...(TYPE)};
-    if (home.columns() != tup_size)
-      throw usage_error{internal::concat(
-        "Tried to extract ", to_string(tup_size),
-        " field(s) from a result with ", to_string(home.columns()),
-        " column(s).")};
+    m_home.expect_columns(sizeof...(TYPE));
   }
+
   iterator begin() const
   {
     if (std::size(m_home) == 0)

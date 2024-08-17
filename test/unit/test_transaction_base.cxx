@@ -7,17 +7,20 @@ namespace
 {
 void test_exec0(pqxx::transaction_base &tx)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::result E{tx.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
   PQXX_CHECK(std::empty(E), "Nonempty result from exec0.");
 
   PQXX_CHECK_THROWS(
     tx.exec0("SELECT 99"), pqxx::unexpected_rows,
     "Nonempty exec0 result did not throw unexpected_rows.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_exec1(pqxx::transaction_base &tx)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::row R{tx.exec1("SELECT 99")};
   PQXX_CHECK_EQUAL(std::size(R), 1, "Wrong size result from exec1.");
   PQXX_CHECK_EQUAL(R.front().as<int>(), 99, "Wrong result from exec1.");
@@ -28,11 +31,13 @@ void test_exec1(pqxx::transaction_base &tx)
   PQXX_CHECK_THROWS(
     tx.exec1("SELECT * FROM generate_series(1, 2)"), pqxx::unexpected_rows,
     "Two-row exec1 result did not throw unexpected_rows.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_exec_n(pqxx::transaction_base &tx)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::result R{tx.exec_n(3u, "SELECT * FROM generate_series(1, 3)")};
   PQXX_CHECK_EQUAL(std::size(R), 3, "Wrong result size from exec_n.");
 
@@ -44,6 +49,7 @@ void test_exec_n(pqxx::transaction_base &tx)
     tx.exec_n(4u, "SELECT * FROM generate_series(1, 3)"),
     pqxx::unexpected_rows,
     "exec_n did not throw unexpected_rows for an oversized result.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -55,7 +61,7 @@ void test_query_value(pqxx::connection &cx)
     tx.query_value<int>("SELECT 84 / 2"), 42,
     "Got wrong value from query_value.");
   PQXX_CHECK_THROWS(
-    tx.query_value<int>("SAVEPOINT dummy"), pqxx::unexpected_rows,
+    tx.query_value<int>("SAVEPOINT dummy"), pqxx::usage_error,
     "Got field when none expected.");
   PQXX_CHECK_THROWS(
     tx.query_value<int>("SELECT generate_series(1, 2)"), pqxx::unexpected_rows,
@@ -127,6 +133,7 @@ void test_transaction_query_params()
     outcome, 64, "Parameterised query() produced wrong result.");
 
   outcome = -1;
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   for (auto [value] :
        tx.query_n<int>(1, "SELECT * FROM generate_series(1, $1)", {1}))
   {
@@ -172,6 +179,7 @@ void test_transaction_query_params()
     opt3_a, 12, "Multi-column query01() with params gave wrong result.");
   PQXX_CHECK_EQUAL(
     opt3_b, 99, "Multi-column query01() with params gave wrong result.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -232,6 +240,7 @@ void test_transaction_query01()
   pqxx::connection c;
   pqxx::work w{c};
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::optional<std::tuple<int>> o{
     w.query01<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5")};
   PQXX_CHECK(not o.has_value(), "Why did we get a row?");
@@ -250,6 +259,7 @@ void test_transaction_query01()
   PQXX_CHECK_THROWS(
     o = w.query01<int>("SELECT 1, 2"), pqxx::usage_error,
     "Wrong number of columns did not throw usage_error.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -281,6 +291,7 @@ void test_transaction_query_n()
   pqxx::connection c;
   pqxx::work w{c};
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   PQXX_CHECK_THROWS(
     pqxx::ignore_unused(w.query_n<int>(5, "SELECT generate_series(1, 3)")),
     pqxx::unexpected_rows, "No exception when query_n returns too few rows.");
@@ -291,6 +302,7 @@ void test_transaction_query_n()
   std::vector<int> v;
   for (auto [n] : w.query_n<int>(3, "SELECT generate_series(7, 9)"))
     v.push_back(n);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_EQUAL(std::size(v), 3u, "Wrong number of rows.");
   PQXX_CHECK_EQUAL(v[0], 7, "Wrong result data.");
   PQXX_CHECK_EQUAL(v[2], 9, "Data started out right but went wrong.");

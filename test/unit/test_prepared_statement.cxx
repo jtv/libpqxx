@@ -68,7 +68,8 @@ void test_registration_and_invocation()
 
   // The statement returns exactly what you'd expect.
   COMPARE_RESULTS(
-    "CountToFive", tx1.exec_prepared("CountToFive"), tx1.exec(count_to_5));
+    "CountToFive", tx1.exec(pqxx::prepped{"CountToFive"}),
+    tx1.exec(count_to_5));
 
   // Re-preparing it is an error.
   PQXX_CHECK_THROWS(
@@ -80,7 +81,7 @@ void test_registration_and_invocation()
 
   // Executing a nonexistent prepared statement is also an error.
   PQXX_CHECK_THROWS(
-    tx2.exec_prepared("NonexistentStatement"), pqxx::sql_error,
+    tx2.exec(pqxx::prepped{"NonexistentStatement"}), pqxx::sql_error,
     "Did not report invocation of nonexistent prepared statement.");
 }
 
@@ -90,16 +91,18 @@ void test_basic_args()
   pqxx::connection c;
   c.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{c};
-  auto r{tx.exec_prepared("EchoNum", 7)};
+  auto r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
   PQXX_CHECK_EQUAL(
     std::size(r), 1, "Did not get 1 row from prepared statement.");
   PQXX_CHECK_EQUAL(std::size(r.front()), 1, "Did not get exactly one column.");
   PQXX_CHECK_EQUAL(r[0][0].as<int>(), 7, "Got wrong result.");
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   auto rw{tx.exec_prepared1("EchoNum", 8)};
   PQXX_CHECK_EQUAL(
     std::size(rw), 1, "Did not get 1 column from exec_prepared1.");
   PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -108,14 +111,15 @@ void test_multiple_params()
   pqxx::connection c;
   c.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
   pqxx::work tx{c};
-  auto r{tx.exec_prepared_n(4, "CountSeries", 7, 10)};
+  auto r{
+    tx.exec(pqxx::prepped{"CountSeries"}, pqxx::params{7, 10}).expect_rows(4)};
   PQXX_CHECK_EQUAL(
     std::size(r), 4, "Wrong number of rows, but no error raised.");
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
 
   c.prepare("Reversed", "SELECT * FROM generate_series($2::int, $1::int)");
-  r = tx.exec_prepared_n(3, "Reversed", 8, 6);
+  r = tx.exec(pqxx::prepped{"Reversed"}, pqxx::params{8, 6}).expect_rows(3);
   PQXX_CHECK_EQUAL(
     r.front().front().as<int>(), 6, "Did parameters get reordered?");
   PQXX_CHECK_EQUAL(
@@ -128,11 +132,11 @@ void test_nulls()
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("EchoStr", "SELECT $1::varchar");
-  auto rw{tx.exec_prepared1("EchoStr", nullptr)};
+  auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nullptr}).one_row()};
   PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
 
   char const *n{nullptr};
-  rw = tx.exec_prepared1("EchoStr", n);
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{n}).one_row();
   PQXX_CHECK(rw.front().is_null(), "Null pointer did not translate to null.");
 }
 
@@ -142,23 +146,25 @@ void test_strings()
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("EchoStr", "SELECT $1::varchar");
-  auto rw{tx.exec_prepared1("EchoStr", "foo")};
+  auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{"foo"}).one_row()};
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), "foo", "Wrong string result.");
 
   char const nasty_string[]{R"--('\"\)--"};
-  rw = tx.exec_prepared1("EchoStr", nasty_string);
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nasty_string}).one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(nasty_string),
     "Prepared statement did not quote/escape correctly.");
 
-  rw = tx.exec_prepared1("EchoStr", std::string{nasty_string});
+  rw =
+    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{std::string{nasty_string}})
+      .one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(nasty_string),
     "Quoting/escaping went wrong in std::string.");
 
   char nonconst[]{"non-const C string"};
-  rw = tx.exec_prepared1("EchoStr", nonconst);
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nonconst}).one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(nonconst),
     "Non-const C string passed incorrectly.");
@@ -176,7 +182,7 @@ void test_binary()
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   {
     pqxx::binarystring const bin{input};
-    auto rw{tx.exec_prepared1("EchoBin", bin)};
+    auto rw{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{bin}).one_row()};
     PQXX_CHECK_EQUAL(
       pqxx::binarystring(rw[0]).str(), input,
       "Binary string came out damaged.");
@@ -186,7 +192,7 @@ void test_binary()
   {
     pqxx::bytes bytes{
       reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes)};
-    auto bp{tx.exec_prepared1("EchoBin", bytes)};
+    auto bp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{bytes}).one_row()};
     auto bval{bp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -202,7 +208,7 @@ void test_binary()
   {
     auto ptr{std::make_shared<pqxx::bytes>(
       reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes))};
-    auto rp{tx.exec_prepared1("EchoBin", ptr)};
+    auto rp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{ptr}).one_row()};
     auto pval{rp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -214,7 +220,7 @@ void test_binary()
     auto opt{std::optional<pqxx::bytes>{
       std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
       std::size(raw_bytes)}};
-    auto op{tx.exec_prepared1("EchoBin", opt)};
+    auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{opt}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -227,7 +233,7 @@ void test_binary()
   // will do.
   {
     std::vector<std::byte> data{std::byte{'x'}, std::byte{'v'}};
-    auto op{tx.exec_prepared1("EchoBin", data)};
+    auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{data}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       std::size(oval), 2u, "Binary data came back as wrong length.");
@@ -248,13 +254,16 @@ void test_params()
   params.reserve(std::size(values));
   params.append_multi(values);
 
-  auto const rw39{tx.exec_prepared1("Concat2Numbers", params)};
+  auto const rw39{
+    tx.exec(pqxx::prepped{"Concat2Numbers"}, pqxx::params{params}).one_row()};
   PQXX_CHECK_EQUAL(
     rw39.front().as<int>(), 39,
     "Dynamic prepared-statement parameters went wrong.");
 
   c.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
-  auto const rw1396{tx.exec_prepared1("Concat4Numbers", 1, params, 6)};
+  auto const rw1396{
+    tx.exec(pqxx::prepped{"Concat4Numbers"}, pqxx::params{1, params, 6})
+      .one_row()};
   PQXX_CHECK_EQUAL(
     rw1396.front().as<int>(), 1396,
     "Dynamic params did not interleave with static ones properly.");
@@ -266,13 +275,16 @@ void test_optional()
   pqxx::connection c;
   pqxx::work tx{c};
   c.prepare("EchoNum", "SELECT $1::int");
-  pqxx::row rw{
-    tx.exec_prepared1("EchoNum", std::optional<int>{std::in_place, 10})};
+  pqxx::row rw{tx.exec(
+                   pqxx::prepped{"EchoNum"},
+                   pqxx::params{std::optional<int>{std::in_place, 10}})
+                 .one_row()};
   PQXX_CHECK_EQUAL(
     rw.front().as<int>(), 10,
     "optional (with value) did not return the right value.");
 
-  rw = tx.exec_prepared1("EchoNum", std::optional<int>{});
+  rw = tx.exec(pqxx::prepped{"EchoNum"}, pqxx::params{std::optional<int>{}})
+         .one_row();
   PQXX_CHECK(
     rw.front().is_null(), "optional without value did not come out as null.");
 }
@@ -336,7 +348,8 @@ void test_wrong_number_of_params()
     pqxx::transaction tx1{conn1};
     conn1.prepare("broken1", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx1.exec_prepared("broken1", 10), pqxx::protocol_violation,
+      tx1.exec(pqxx::prepped{"broken1"}, pqxx::params{10}),
+      pqxx::protocol_violation,
       "Incomplete params no longer thrws protocol violation.");
   }
 
@@ -345,13 +358,52 @@ void test_wrong_number_of_params()
     pqxx::transaction tx2{conn2};
     conn2.prepare("broken2", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx2.exec_prepared("broken2", 5, 4, 3), pqxx::protocol_violation,
+      tx2.exec(pqxx::prepped{"broken2"}, {5, 4, 3}), pqxx::protocol_violation,
       "Passing too many params no longer thrws protocol violation.");
   }
+}
+
+
+void test_query_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("hop", "SELECT x * 3 FROM generate_series(1, 2) AS x");
+  std::vector<int> out;
+  for (auto [i] : tx.query<int>(pqxx::prepped{"hop"})) out.push_back(i);
+  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong number of results.");
+  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
+  PQXX_CHECK_EQUAL(out.at(1), 6, "First item was correct, second was not!");
+}
+
+
+void test_query_value_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("pick", "SELECT 92");
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(pqxx::prepped{"pick"}), 92, "Wrong value.");
+}
+
+
+void test_for_query_prepped()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  cx.prepare("series", "SELECT * FROM generate_series(3, 4)");
+  std::vector<int> out;
+  tx.for_query(pqxx::prepped("series"), [&out](int x) { out.push_back(x); });
+  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong result size.");
+  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
+  PQXX_CHECK_EQUAL(out.at(1), 4, "First item was correct, second was not.");
 }
 
 
 PQXX_REGISTER_TEST(test_prepared_statements);
 PQXX_REGISTER_TEST(test_placeholders_generates_names);
 PQXX_REGISTER_TEST(test_wrong_number_of_params);
+PQXX_REGISTER_TEST(test_query_prepped);
+PQXX_REGISTER_TEST(test_query_value_prepped);
+PQXX_REGISTER_TEST(test_for_query_prepped);
 } // namespace

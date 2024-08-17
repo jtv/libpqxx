@@ -27,11 +27,12 @@ using namespace std::literals;
 void begin_copy(
   pqxx::transaction_base &tx, std::string_view table, std::string_view columns)
 {
-  tx.exec0(
-    std::empty(columns) ?
-      pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
-      pqxx::internal::concat(
-        "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv));
+  tx.exec(
+      std::empty(columns) ?
+        pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
+        pqxx::internal::concat(
+          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv))
+    .no_rows();
 }
 
 
