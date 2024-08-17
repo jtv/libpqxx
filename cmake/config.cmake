@@ -13,8 +13,6 @@ endif()
 
 check_function_exists("poll" PQXX_HAVE_POLL)
 
-set(CMAKE_REQUIRED_LIBRARIES pq)
-
 # Incorporate feature checks based on C++ feature test mac
 include(pqxx_cxx_feature_checks)
 
