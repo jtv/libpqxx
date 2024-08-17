@@ -85,7 +85,7 @@ count_includes() {
     PAT='^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]'"$HEADER_NAME"'[>"]'
     # It's OK for the grep to fail.
     find "$SRCDIR/include/pqxx" -type f -print0 |
-        ( xargs -0 grep -c "$PAT" || /bin/true ) |
+        ( xargs -0 grep -c "$PAT" || true ) |
         sort
 }
 
@@ -100,7 +100,7 @@ match_pre_post_headers() {
     POST="$TEMPDIR/post"
     count_includes "$SRCDIR/$NAME-pre.hxx" >"$PRE"
     count_includes "$SRCDIR/$NAME-post.hxx" >"$POST"
-    DIFF="$(diff "$PRE" "$POST")" || /bin/true
+    DIFF="$(diff "$PRE" "$POST")" || true
     rm -r -- "$TEMPDIR"
     if test -n "$DIFF"
     then
