@@ -6,23 +6,20 @@ as many times as you like, typically with varying parameters.  It's a lot like
 a function that you can define ad hoc, within the scope of one connection.
 
 If you have an SQL statement that you're going to execute many times in
-quick succession, it may be more efficient to prepare it once and reuse it.
-This saves the database backend the effort of parsing complex SQL and
-figuring out an efficient execution plan.  Another nice side effect is that
-you don't need to worry about escaping parameters.  Some corporate coding
-standards require all SQL parameters to be passed in this way, to reduce the
-risk of programmer mistakes leaving room for SQL injections.
+quick succession, it _may_ (but see below!) be more efficient to prepare it
+once and reuse it.  This saves the database backend the effort of parsing the
+SQL and figuring out an efficient execution plan.
 
 
 Preparing a statement
 ---------------------
 
 You create a prepared statement by preparing it on the connection (using the
-`pqxx::connection::prepare` functions), passing an identifier and its SQL text.
+`pqxx::connection::prepare` functions), passing an identifying name for the
+statement, and its SQL text.
 
-The identifier is the name by which the prepared statement will be known; it
-should consist of ASCII letters, digits, and underscores only, and start with
-an ASCII letter.  The name is case-sensitive.
+The statement's name should consist of ASCII letters, digits, and underscores
+only, and start with an ASCII letter.  The name is case-sensitive.
 
 ```cxx
     void prepare_my_statement(pqxx::connection &cx)
@@ -34,11 +31,10 @@ an ASCII letter.  The name is case-sensitive.
 ```
 
 Once you've done this, you'll be able to call `my_statement` from any
-transaction you execute on the same connection.  For this, use the
-`pqxx::transaction_base::exec()` functions that take a `pqxx::prepped` object
-instead of an SQL statement string.  The `pqxx::prepped` type is just a wrapper
-that tells the library "this is not SQL text, it's the name of a prepared
-statement."
+transaction you execute on the same connection.  For this, call
+`pqxx::transaction_base::exec()` and pass a `pqxx::prepped` object instead of
+an SQL statement string.  The `pqxx::prepped` type is just a wrapper that tells
+the library "this is not SQL text, it's the name of a prepared statement."
 
 ```cxx
     pqxx::result execute_my_statement(pqxx::transaction_base &t)
@@ -51,9 +47,10 @@ statement."
 Parameters
 ----------
 
-Did I mention that prepared statements can have parameters?  The query text
-can contain `$1`, `$2` etc. as placeholders for parameter values that you
-will provide when you invoke the prepared satement.
+You can pass parameters to a prepared statemet, just like you can with a
+regular statement.  The query text can contain `$1`, `$2` etc. as placeholders
+for parameter values that you will provide when you invoke the prepared
+satement.
 
 See @ref parameters for more about this.  And here's a simple example of
 preparing a statement and invoking it with parameters:
@@ -75,9 +72,9 @@ This example looks up the prepared statement "find," passes `name` and
 
 ```cxx
     pqxx::result execute_find(
-      pqxx::transaction_base &t, std::string name, int min_salary)
+      pqxx::transaction_base &tx, std::string name, int min_salary)
     {
-      return t.exec_prepared("find", name, min_salary);
+      return tx.exec(pqxx::prepped{"find"}, name, min_salary);
     }
 ```
 
@@ -93,7 +90,7 @@ statement can be redefined at any time, without un-preparing it first.
 Performance note
 ----------------
 
-Don't assume that using prepared statements will speed up your application.
+Don't _assume_ that using prepared statements will speed up your application.
 There are cases where prepared statements are actually slower than plain SQL.
 
 The reason is that the backend can often produce a better execution plan when
@@ -107,6 +104,11 @@ addresses you're looking for.  But in other cases, it may be much faster to
 find matching email addresses first and then see which of their owners are
 "inactive."  A prepared statement must be planned to fit either case, but a
 direct query will be optimised based on table statistics, partial indexes, etc.
+
+So, as with any optimisation... measure where your real performance problems
+are before you start making changes, and then afterwards, measure whether your
+changes actually helped.  Don't complicate your code unless it solves a real
+problem.  Knuth's Law applies.
 
 
 Zero bytes
