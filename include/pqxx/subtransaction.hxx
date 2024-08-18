@@ -32,17 +32,17 @@ namespace pqxx
  * dropped before re-creating it, without failing if the table did not exist:
  *
  * ```cxx
- * void do_job(connection &C)
+ * void do_job(connection &cx)
  * {
  *   string const temptable = "fleetingtable";
  *
- *   work W(C, "do_job");
- *   do_firstpart(W);
+ *   work tx(cx, "do_job");
+ *   do_firstpart(tx);
  *
  *   // Attempt to delete our temporary table if it already existed.
  *   try
  *   {
- *     subtransaction S(W, "droptemp");
+ *     subtransaction S(tx, "droptemp");
  *     S.exec0("DROP TABLE " + temptable);
  *     S.commit();
  *   }
@@ -53,11 +53,11 @@ namespace pqxx
  *   }
  *
  *   // S may have gone into a failed state and been destroyed, but the
- *   // upper-level transaction W is still fine.  We can continue to use it.
- *   W.exec0("CREATE TEMP TABLE " + temptable + "(bar integer, splat
+ *   // upper-level transaction tx is still fine.  We can continue to use it.
+ *   tx.exec0("CREATE TEMP TABLE " + temptable + "(bar integer, splat
  * varchar)");
  *
- *   do_lastpart(W);
+ *   do_lastpart(tx);
  * }
  * ```
  *

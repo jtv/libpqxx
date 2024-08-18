@@ -10,11 +10,11 @@ using namespace std::literals;
 
 
 void compare_esc(
-  pqxx::connection &c, pqxx::transaction_base &t, char const text[])
+  pqxx::connection &cx, pqxx::transaction_base &t, char const text[])
 {
   std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(
-    c.esc(std::string_view{text, len}), t.esc(std::string_view{text, len}),
+    cx.esc(std::string_view{text, len}), t.esc(std::string_view{text, len}),
     "Connection & transaction escape differently.");
 
   PQXX_CHECK_EQUAL(
@@ -37,7 +37,7 @@ void compare_esc(
 }
 
 
-void test_esc(pqxx::connection &c, pqxx::transaction_base &t)
+void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(
     t.esc(std::string_view{"", 0}), "",
@@ -49,11 +49,11 @@ void test_esc(pqxx::connection &c, pqxx::transaction_base &t)
     t.esc(std::string_view{"hello"}), "hello", "Trivial escape went wrong.");
   char const *const escstrings[]{"x", " ", "", nullptr};
   for (std::size_t i{0}; escstrings[i] != nullptr; ++i)
-    compare_esc(c, t, escstrings[i]);
+    compare_esc(cx, t, escstrings[i]);
 }
 
 
-void test_quote(pqxx::connection &c, pqxx::transaction_base &t)
+void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
 {
   PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
   PQXX_CHECK_EQUAL(
@@ -65,7 +65,7 @@ void test_quote(pqxx::connection &c, pqxx::transaction_base &t)
     t.quote(std::string{"'"}), "''''", "Escaping quotes goes wrong.");
 
   PQXX_CHECK_EQUAL(
-    t.quote("x"), c.quote("x"),
+    t.quote("x"), cx.quote("x"),
     "Connection and transaction quote differently.");
 
   char const *test_strings[]{"",   "x",   "\\", "\\\\", "'",

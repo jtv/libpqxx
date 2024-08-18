@@ -58,10 +58,10 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE notification_receiver
 public:
   /// Register the receiver with a connection.
   /**
-   * @param c Connnection to operate on.
+   * @param cx Connnection to operate on.
    * @param channel Name of the notification to listen for.
    */
-  notification_receiver(connection &c, std::string_view channel);
+  notification_receiver(connection &cx, std::string_view channel);
   /// Register the receiver with a connection.
   notification_receiver(notification_receiver const &) = delete;
   /// Register the receiver with a connection.

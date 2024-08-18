@@ -95,8 +95,8 @@ void test_transaction_base()
 
 void test_transaction_query()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::vector<std::string> names;
   std::vector<int> salaries;
@@ -119,8 +119,8 @@ void test_transaction_query()
 
 void test_transaction_query_params()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   int outcome{-1};
 
@@ -237,14 +237,14 @@ void test_transaction_for_stream()
 
 void test_transaction_query01()
 {
-  pqxx::connection c;
-  pqxx::work w{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::optional<std::tuple<int>> o{
-    w.query01<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5")};
+    tx.query01<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5")};
   PQXX_CHECK(not o.has_value(), "Why did we get a row?");
-  o = w.query01<int>("SELECT * FROM generate_series(8, 8)");
+  o = tx.query01<int>("SELECT * FROM generate_series(8, 8)");
   PQXX_CHECK(o.has_value(), "Why did we not get a row?");
 
   // The "if" is redundant (see the check above).  But gcc 11 complains when
@@ -253,11 +253,11 @@ void test_transaction_query01()
   if (o.has_value())
     PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query01().");
   PQXX_CHECK_THROWS(
-    o = w.query01<int>("SELECT * FROM generate_series(1, 2)"),
+    o = tx.query01<int>("SELECT * FROM generate_series(1, 2)"),
     pqxx::unexpected_rows,
     "Wrong number of rows did not throw unexpected_rows.");
   PQXX_CHECK_THROWS(
-    o = w.query01<int>("SELECT 1, 2"), pqxx::usage_error,
+    o = tx.query01<int>("SELECT 1, 2"), pqxx::usage_error,
     "Wrong number of columns did not throw usage_error.");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
@@ -265,22 +265,22 @@ void test_transaction_query01()
 
 void test_transaction_query1()
 {
-  pqxx::connection c;
-  pqxx::work w{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   std::tuple<int> x;
   PQXX_CHECK_THROWS(
-    x = w.query1<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5"),
+    x = tx.query1<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5"),
     pqxx::unexpected_rows, "Zero rows did not throw unexpected_rows.");
   std::optional<std::tuple<int>> const o{
-    w.query1<int>("SELECT * FROM generate_series(8, 8)")};
+    tx.query1<int>("SELECT * FROM generate_series(8, 8)")};
   PQXX_CHECK(o.has_value(), "Why did we not get a row?");
   PQXX_CHECK_EQUAL(std::get<0>(*o), 8, "Bad value from query1().");
   PQXX_CHECK_THROWS(
-    x = w.query1<int>("SELECT * FROM generate_series(1, 2)"),
+    x = tx.query1<int>("SELECT * FROM generate_series(1, 2)"),
     pqxx::unexpected_rows, "Too many rows did not throw unexpected_rows.");
   PQXX_CHECK_THROWS(
-    x = w.query1<int>("SELECT 1, 2"), pqxx::usage_error,
+    x = tx.query1<int>("SELECT 1, 2"), pqxx::usage_error,
     "Wrong number of columns did not throw usage_error.");
   pqxx::ignore_unused(x);
 }
@@ -288,19 +288,19 @@ void test_transaction_query1()
 
 void test_transaction_query_n()
 {
-  pqxx::connection c;
-  pqxx::work w{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(w.query_n<int>(5, "SELECT generate_series(1, 3)")),
+    pqxx::ignore_unused(tx.query_n<int>(5, "SELECT generate_series(1, 3)")),
     pqxx::unexpected_rows, "No exception when query_n returns too few rows.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(w.query_n<int>(5, "SELECT generate_series(1, 10)")),
+    pqxx::ignore_unused(tx.query_n<int>(5, "SELECT generate_series(1, 10)")),
     pqxx::unexpected_rows, "No exception when query_n returns too many rows.");
 
   std::vector<int> v;
-  for (auto [n] : w.query_n<int>(3, "SELECT generate_series(7, 9)"))
+  for (auto [n] : tx.query_n<int>(3, "SELECT generate_series(7, 9)"))
     v.push_back(n);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_EQUAL(std::size(v), 3u, "Wrong number of rows.");

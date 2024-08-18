@@ -6,8 +6,8 @@ namespace
 {
 void test_field()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   auto const r1{tx.exec("SELECT 9").one_row()};
   auto const &f1{r1[0]};
 

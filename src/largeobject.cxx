@@ -144,11 +144,11 @@ pqxx::largeobject::raw_connection(dbtransaction const &t)
 
 
 std::string PQXX_COLD
-pqxx::largeobject::reason(connection const &c, int err) const
+pqxx::largeobject::reason(connection const &cx, int err) const
 {
   if (err == ENOMEM)
     return "Out of memory";
-  return pqxx::internal::gate::const_connection_largeobject{c}.error_message();
+  return pqxx::internal::gate::const_connection_largeobject{cx}.error_message();
 }
 
 
