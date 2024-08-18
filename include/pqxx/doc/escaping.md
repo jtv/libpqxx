@@ -94,9 +94,9 @@ strange-looking password string--but not a change in the SQL statement.
 In practice, of course, it would be better to use parameters:
 
 ```cxx
-    tx.exec_params(
+    tx.exec(
         " SELECT number, amount "
         "FROM account "
         "WHERE allowed_to_see($1, $2)",
-	userid, password);
+	pqxx::params{userid, password});
 ```

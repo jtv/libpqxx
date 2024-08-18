@@ -25,22 +25,9 @@
 namespace pqxx
 {
 /// Build a parameter list for a parameterised or prepared statement.
-/** When calling a parameterised statement or a prepared statement, in some
- * cases you can pass parameters into the statement directly in the invocation,
- * as additional arguments to e.g. `exec_prepared` or `exec_params`.  But not
- * all functions accept that, plus, sometimes you want to build the lists at
- * run time.
- *
- * In those situations, you can create a `params` and append your parameters
- * into that, one by one.  Then you pass the `params` to  the function that
- * executes your SQL statement.
- *
- * Combinations also work: if you have a `params` containing a string
- * parameter, and you call `exec_params` with an `int` argument followed by
- * your `params`, you'll be passing the `int` as the first parameter and
- * the string as the second.  You can even insert a `params` in a `params`,
- * or pass two `params` objects to a statement.  In the end all the embedded
- * parameters show up in their natural order.
+/** When calling a parameterised statement or a prepared statement, in many
+ * cases you can pass parameters into the statement in the form of a
+ * `pqxx::params` object.
  */
 class PQXX_LIBEXPORT params
 {
@@ -298,24 +285,7 @@ private:
 /// @deprecated The new @ref params class replaces all of this.
 namespace pqxx::prepare
 {
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * sequence ranging from `begin` to `end` exclusively.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic sequences.
- *
- * @param begin A pointer or iterator for iterating parameters.
- * @param end A pointer or iterator for iterating parameters.
- * @return An object representing the parameters.
- */
+/// @deprecated Use @ref params instead.
 template<typename IT>
 [[deprecated("Use the params class instead.")]] constexpr inline auto
 make_dynamic_params(IT begin, IT end)
@@ -324,23 +294,7 @@ make_dynamic_params(IT begin, IT end)
 }
 
 
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * container of parameter values.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic containers.
- *
- * @param container A container of parameter values.
- * @return An object representing the parameters.
- */
+/// @deprecated Use @ref params instead.
 template<typename C>
 [[deprecated("Use the params class instead.")]] constexpr inline auto
 make_dynamic_params(C const &container)
@@ -352,24 +306,7 @@ make_dynamic_params(C const &container)
 }
 
 
-/// Pass a number of statement parameters only known at runtime.
-/** @deprecated Use @ref params instead.
- *
- * When you call any of the `exec_params` functions, the number of arguments
- * is normally known at compile time.  This helper function supports the case
- * where it is not.
- *
- * Use this function to pass a variable number of parameters, based on a
- * container of parameter values.
- *
- * The technique combines with the regular static parameters.  You can use it
- * to insert dynamic parameter lists in any place, or places, among the call's
- * parameters.  You can even insert multiple dynamic containers.
- *
- * @param container A container of parameter values.
- * @param accessor For each parameter `p`, pass `accessor(p)`.
- * @return An object representing the parameters.
- */
+/// @deprecated Use @ref params instead.
 template<typename C, typename ACCESSOR>
 [[deprecated("Use the params class instead.")]] constexpr inline auto
 make_dynamic_params(C &container, ACCESSOR accessor)
