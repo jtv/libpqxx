@@ -76,9 +76,9 @@ tx_stat query_status(std::string const &xid, std::string const &conn_str)
 {
   static std::string const name{"robusttxck"sv};
   auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
-  pqxx::connection c{conn_str};
-  pqxx::nontransaction w{c, name};
-  auto const status_row{w.exec(query).one_row()};
+  pqxx::connection cx{conn_str};
+  pqxx::nontransaction tx{cx, name};
+  auto const status_row{tx.exec(query).one_row()};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty."};
@@ -102,16 +102,16 @@ void pqxx::internal::basic_robusttransaction::init(zview begin_command)
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &c, zview begin_command, std::string_view tname) :
-        dbtransaction(c, tname), m_conn_string{c.connection_string()}
+  connection &cx, zview begin_command, std::string_view tname) :
+        dbtransaction(cx, tname), m_conn_string{cx.connection_string()}
 {
   init(begin_command);
 }
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &c, zview begin_command) :
-        dbtransaction(c), m_conn_string{c.connection_string()}
+  connection &cx, zview begin_command) :
+        dbtransaction(cx), m_conn_string{cx.connection_string()}
 {
   init(begin_command);
 }

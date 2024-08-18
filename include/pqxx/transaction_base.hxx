@@ -1034,9 +1034,9 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &c, std::string_view tname,
+    connection &cx, std::string_view tname,
     std::shared_ptr<std::string> rollback_cmd) :
-          m_conn{c}, m_name{tname}, m_rollback_cmd{rollback_cmd}
+          m_conn{cx}, m_name{tname}, m_rollback_cmd{rollback_cmd}
   {}
 
   /// Create a transaction (to be called by implementation classes only).
@@ -1045,10 +1045,10 @@ protected:
    * The name, if nonempty, must begin with a letter and may contain letters
    * and digits only.
    */
-  transaction_base(connection &c, std::string_view tname);
+  transaction_base(connection &cx, std::string_view tname);
 
   /// Create a transaction (to be called by implementation classes only).
-  explicit transaction_base(connection &c);
+  explicit transaction_base(connection &cx);
 
   /// Register this transaction with the connection.
   void register_transaction();

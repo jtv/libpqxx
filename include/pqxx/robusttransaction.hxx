@@ -30,8 +30,8 @@ public:
 
 protected:
   basic_robusttransaction(
-    connection &c, zview begin_command, std::string_view tname);
-  basic_robusttransaction(connection &c, zview begin_command);
+    connection &cx, zview begin_command, std::string_view tname);
+  basic_robusttransaction(connection &cx, zview begin_command);
 
 private:
   using IDType = unsigned long;
@@ -83,31 +83,31 @@ class robusttransaction final : public internal::basic_robusttransaction
 {
 public:
   /** Create robusttransaction of given name.
-   * @param c Connection inside which this robusttransaction should live.
+   * @param cx Connection inside which this robusttransaction should live.
    * @param tname optional human-readable name for this transaction.
    */
-  robusttransaction(connection &c, std::string_view tname) :
+  robusttransaction(connection &cx, std::string_view tname) :
           internal::basic_robusttransaction{
-            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
+            cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             tname}
   {}
 
   /** Create robusttransaction of given name.
-   * @param c Connection inside which this robusttransaction should live.
+   * @param cx Connection inside which this robusttransaction should live.
    * @param tname optional human-readable name for this transaction.
    */
-  robusttransaction(connection &c, std::string &&tname) :
+  robusttransaction(connection &cx, std::string &&tname) :
           internal::basic_robusttransaction{
-            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
+            cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             std::move(tname)}
   {}
 
   /** Create robusttransaction of given name.
-   * @param c Connection inside which this robusttransaction should live.
+   * @param cx Connection inside which this robusttransaction should live.
    */
-  explicit robusttransaction(connection &c) :
+  explicit robusttransaction(connection &cx) :
           internal::basic_robusttransaction{
-            c, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
+            cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
   {}
 
   virtual ~robusttransaction() noexcept override { close(); }

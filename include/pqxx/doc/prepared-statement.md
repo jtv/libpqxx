@@ -25,9 +25,9 @@ should consist of ASCII letters, digits, and underscores only, and start with
 an ASCII letter.  The name is case-sensitive.
 
 ```cxx
-    void prepare_my_statement(pqxx::connection &c)
+    void prepare_my_statement(pqxx::connection &cx)
     {
-      c.prepare(
+      cx.prepare(
           "my_statement",
           "SELECT * FROM Employee WHERE name = 'Xavier'");
     }
@@ -59,12 +59,12 @@ See @ref parameters for more about this.  And here's a simple example of
 preparing a statement and invoking it with parameters:
 
 ```cxx
-    void prepare_find(pqxx::connection &c)
+    void prepare_find(pqxx::connection &cx)
     {
       // Prepare a statement called "find" that looks for employees with a
       // given name (parameter 1) whose salary exceeds a given number
       // (parameter 2).
-      c.prepare(
+      cx.prepare(
         "find",
         "SELECT * FROM Employee WHERE name = $1 AND salary > $2");
     }

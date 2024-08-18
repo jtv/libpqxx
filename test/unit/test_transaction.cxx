@@ -8,8 +8,8 @@ namespace
 {
 void test_nontransaction_continues_after_error()
 {
-  pqxx::connection c;
-  pqxx::nontransaction tx{c};
+  pqxx::connection cx;
+  pqxx::nontransaction tx{cx};
 
   PQXX_CHECK_EQUAL(
     tx.query_value<int>("SELECT 9"), 9, "Simple query went wrong.");
@@ -51,18 +51,18 @@ int count_temp_table(pqxx::transaction_base &tx)
 
 void test_nontransaction_autocommits()
 {
-  pqxx::connection c;
+  pqxx::connection cx;
 
-  pqxx::nontransaction tx1{c};
+  pqxx::nontransaction tx1{cx};
   delete_temp_table(tx1);
   create_temp_table(tx1);
   tx1.commit();
 
-  pqxx::nontransaction tx2{c};
+  pqxx::nontransaction tx2{cx};
   insert_temp_table(tx2, 4);
   tx2.abort();
 
-  pqxx::nontransaction tx3{c};
+  pqxx::nontransaction tx3{cx};
   PQXX_CHECK_EQUAL(
     count_temp_table(tx3), 1,
     "Did not keep effect of aborted nontransaction.");
@@ -72,26 +72,26 @@ void test_nontransaction_autocommits()
 
 template<typename TX> void test_double_close()
 {
-  pqxx::connection c;
+  pqxx::connection cx;
 
-  TX tx1{c};
+  TX tx1{cx};
   tx1.exec("SELECT 1").one_row();
   tx1.commit();
   tx1.commit();
 
-  TX tx2{c};
+  TX tx2{cx};
   tx2.exec("SELECT 2").one_row();
   tx2.abort();
   tx2.abort();
 
-  TX tx3{c};
+  TX tx3{cx};
   tx3.exec("SELECT 3").one_row();
   tx3.commit();
   PQXX_CHECK_THROWS(
     tx3.abort(), pqxx::usage_error, "Abort after commit not caught.");
   ;
 
-  TX tx4{c};
+  TX tx4{cx};
   tx4.exec("SELECT 4").one_row();
   tx4.abort();
   PQXX_CHECK_THROWS(

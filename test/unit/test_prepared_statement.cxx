@@ -60,8 +60,8 @@ void test_registration_and_invocation()
 {
   constexpr auto count_to_5{"SELECT * FROM generate_series(1, 5)"};
 
-  pqxx::connection c;
-  pqxx::work tx1{c};
+  pqxx::connection cx;
+  pqxx::work tx1{cx};
 
   // Prepare a simple statement.
   tx1.conn().prepare("CountToFive", count_to_5);
@@ -77,7 +77,7 @@ void test_registration_and_invocation()
     "Did not report re-definition of prepared statement.");
 
   tx1.abort();
-  pqxx::work tx2{c};
+  pqxx::work tx2{cx};
 
   // Executing a nonexistent prepared statement is also an error.
   PQXX_CHECK_THROWS(
@@ -88,9 +88,9 @@ void test_registration_and_invocation()
 
 void test_basic_args()
 {
-  pqxx::connection c;
-  c.prepare("EchoNum", "SELECT $1::int");
-  pqxx::work tx{c};
+  pqxx::connection cx;
+  cx.prepare("EchoNum", "SELECT $1::int");
+  pqxx::work tx{cx};
   auto r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
   PQXX_CHECK_EQUAL(
     std::size(r), 1, "Did not get 1 row from prepared statement.");
@@ -108,9 +108,9 @@ void test_basic_args()
 
 void test_multiple_params()
 {
-  pqxx::connection c;
-  c.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
-  pqxx::work tx{c};
+  pqxx::connection cx;
+  cx.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
+  pqxx::work tx{cx};
   auto r{
     tx.exec(pqxx::prepped{"CountSeries"}, pqxx::params{7, 10}).expect_rows(4)};
   PQXX_CHECK_EQUAL(
@@ -118,7 +118,7 @@ void test_multiple_params()
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
 
-  c.prepare("Reversed", "SELECT * FROM generate_series($2::int, $1::int)");
+  cx.prepare("Reversed", "SELECT * FROM generate_series($2::int, $1::int)");
   r = tx.exec(pqxx::prepped{"Reversed"}, pqxx::params{8, 6}).expect_rows(3);
   PQXX_CHECK_EQUAL(
     r.front().front().as<int>(), 6, "Did parameters get reordered?");
@@ -129,9 +129,9 @@ void test_multiple_params()
 
 void test_nulls()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  c.prepare("EchoStr", "SELECT $1::varchar");
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.prepare("EchoStr", "SELECT $1::varchar");
   auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nullptr}).one_row()};
   PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
 
@@ -143,9 +143,9 @@ void test_nulls()
 
 void test_strings()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  c.prepare("EchoStr", "SELECT $1::varchar");
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.prepare("EchoStr", "SELECT $1::varchar");
   auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{"foo"}).one_row()};
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), "foo", "Wrong string result.");
@@ -173,9 +173,9 @@ void test_strings()
 
 void test_binary()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  c.prepare("EchoBin", "SELECT $1::bytea");
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.prepare("EchoBin", "SELECT $1::bytea");
   constexpr char raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
   std::string const input{raw_bytes, std::size(raw_bytes)};
 
@@ -246,9 +246,9 @@ void test_binary()
 
 void test_params()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  c.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
   std::vector<int> values{3, 9};
   pqxx::params params;
   params.reserve(std::size(values));
@@ -260,7 +260,7 @@ void test_params()
     rw39.front().as<int>(), 39,
     "Dynamic prepared-statement parameters went wrong.");
 
-  c.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
+  cx.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
   auto const rw1396{
     tx.exec(pqxx::prepped{"Concat4Numbers"}, pqxx::params{1, params, 6})
       .one_row()};
@@ -272,9 +272,9 @@ void test_params()
 
 void test_optional()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  c.prepare("EchoNum", "SELECT $1::int");
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  cx.prepare("EchoNum", "SELECT $1::int");
   pqxx::row rw{tx.exec(
                    pqxx::prepped{"EchoNum"},
                    pqxx::params{std::optional<int>{std::in_place, 10}})
