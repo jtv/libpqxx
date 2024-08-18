@@ -30,25 +30,7 @@ constexpr inline auto const iterator_identity{
   [](decltype(*std::declval<ITERATOR>()) x) { return x; }};
 
 
-/// Marker type: pass a dynamically-determined number of statement parameters.
-/** @deprecated Use @ref params instead.
- *
- * Normally when invoking a prepared or parameterised statement, the number
- * of parameters is known at compile time.  For instance,
- * `t.exec_prepared("foo", 1, "x");` executes statement `foo` with two
- * parameters, an `int` and a C string.
- *
- * But sometimes you may want to pass a number of parameters known only at run
- * time.  In those cases, a @ref dynamic_params encodes a dynamically
- * determined number of parameters.  You can mix these with regular, static
- * parameter lists, and you can re-use them for multiple statement invocations.
- *
- * A dynamic_params object does not store copies of its parameters, so make
- * sure they remain accessible until you've executed the statement.
- *
- * The ACCESSOR is an optional callable (such as a lambda).  If you pass an
- * accessor `a`, then each parameter `p` goes into your statement as `a(p)`.
- */
+/// @deprecated Use @ref params instead.
 template<typename IT, typename ACCESSOR = decltype(iterator_identity<IT>)>
 class dynamic_params
 {
