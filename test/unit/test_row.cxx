@@ -61,7 +61,7 @@ void test_row_as()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  pqxx::row const r{tx.exec1("SELECT 1, 2, 3")};
+  pqxx::row const r{tx.exec("SELECT 1, 2, 3").one_row()};
   auto [one, two, three]{r.as<int, float, pqxx::zview>()};
   static_assert(std::is_same_v<decltype(one), int>);
   static_assert(std::is_same_v<decltype(two), float>);
@@ -73,7 +73,7 @@ void test_row_as()
     three, "3"_zv, "row::as() did not produce the right zview.");
 
   PQXX_CHECK_EQUAL(
-    std::get<0>(tx.exec1("SELECT 999").as<int>()), 999,
+    std::get<0>(tx.exec("SELECT 999").one_row().as<int>()), 999,
     "Unary tuple did not extract right.");
 }
 
@@ -83,7 +83,7 @@ void test_row_iterator_array_index_offsets_iterator()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  auto const row{tx.exec1("SELECT 5, 4, 3, 2")};
+  auto const row{tx.exec("SELECT 5, 4, 3, 2").one_row()};
   PQXX_CHECK_EQUAL(
     row.begin()[1].as<std::string>(), "4",
     "Row iterator indexing went wrong.");

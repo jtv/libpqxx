@@ -25,19 +25,19 @@ void test_002()
 
   // Set up connection to database
   std::string ConnectString;
-  connection C{ConnectString};
+  connection cx{ConnectString};
 
   // Start transaction within context of connection.
-  work T{C, "test2"};
+  work tx{cx, "test2"};
 
   // Perform query within transaction.
-  result R(T.exec("SELECT * FROM pg_tables"));
+  result R(tx.exec("SELECT * FROM pg_tables"));
 
   // Let's keep the database waiting as briefly as possible: commit now,
   // before we start processing results.  We could do this later, or since
   // we're not making any changes in the database that need to be committed,
   // we could in this case even omit it altogether.
-  T.commit();
+  tx.commit();
 
   // Ah, this version of postgres will tell you which table a column in a
   // result came from.  Let's just test that functionality...

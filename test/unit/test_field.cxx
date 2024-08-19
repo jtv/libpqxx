@@ -6,9 +6,9 @@ namespace
 {
 void test_field()
 {
-  pqxx::connection c;
-  pqxx::work tx{c};
-  auto const r1{tx.exec1("SELECT 9")};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  auto const r1{tx.exec("SELECT 9").one_row()};
   auto const &f1{r1[0]};
 
   PQXX_CHECK_EQUAL(f1.as<std::string>(), "9", "as<string>() is broken.");
@@ -32,7 +32,7 @@ void test_field()
   PQXX_CHECK(f1.to(i, 12), "to(int, int) failed.");
   PQXX_CHECK_EQUAL(i, 9, "to(int, int) is broken.");
 
-  auto const r2{tx.exec1("SELECT NULL")};
+  auto const r2{tx.exec("SELECT NULL").one_row()};
   auto const f2{r2[0]};
   i = 100;
   PQXX_CHECK_THROWS(

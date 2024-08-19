@@ -87,7 +87,7 @@ void test_result_for_each()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  tx.exec0("CREATE TEMP TABLE employee(name varchar, salary int)");
+  tx.exec("CREATE TEMP TABLE employee(name varchar, salary int)").no_rows();
   auto fill{pqxx::stream_to::table(tx, {"employee"}, {"name", "salary"})};
   fill.write_values("x", 1000);
   fill.write_values("y", 1200);

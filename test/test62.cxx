@@ -21,16 +21,16 @@ void test_062()
     "Nasty\n\030Test\n\t String with \200\277 weird bytes "
     "\r\0 and Trailer\\\\\0"};
 
-  tx.exec0("CREATE TEMP TABLE pqxxbin (binfield bytea)");
+  tx.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)").no_rows();
 
   std::string const Esc{tx.esc_raw(bytes{
     reinterpret_cast<std::byte const *>(std::data(TestStr)),
     std::size(TestStr)})};
 
-  tx.exec0("INSERT INTO pqxxbin VALUES ('" + Esc + "')");
+  tx.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')").no_rows();
 
   result R{tx.exec("SELECT * from pqxxbin")};
-  tx.exec0("DELETE FROM pqxxbin");
+  tx.exec("DELETE FROM pqxxbin").no_rows();
 
   auto const B{R.at(0).at(0).as<bytes>()};
 

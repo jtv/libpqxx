@@ -51,11 +51,13 @@ void Test(connection &C, bool ExplicitAbort)
       EventCounts.second, 0, "Can't run, boring year is already in table.");
 
     // Now let's try to introduce a row for our Boring Year
-    Doomed.exec0(
-      "INSERT INTO " + Table +
-      "(year, event) "
-      "VALUES (" +
-      to_string(BoringYear) + ", 'yawn')");
+    Doomed
+      .exec(
+        "INSERT INTO " + Table +
+        "(year, event) "
+        "VALUES (" +
+        to_string(BoringYear) + ", 'yawn')")
+      .no_rows();
 
     auto const Recount{CountEvents(Doomed)};
     PQXX_CHECK_EQUAL(
@@ -93,10 +95,10 @@ void Test(connection &C, bool ExplicitAbort)
 void test_abort()
 {
   connection cx;
-  nontransaction t{cx};
-  test::create_pqxxevents(t);
-  connection &c(t.conn());
-  t.commit();
+  nontransaction tx{cx};
+  test::create_pqxxevents(tx);
+  connection &c(tx.conn());
+  tx.commit();
   Test(c, true);
   Test(c, false);
 }

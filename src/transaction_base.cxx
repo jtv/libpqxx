@@ -45,14 +45,14 @@ std::shared_ptr<std::string> make_rollback_cmd()
 }
 } // namespace
 
-pqxx::transaction_base::transaction_base(connection &c) :
-        m_conn{c}, m_rollback_cmd{make_rollback_cmd()}
+pqxx::transaction_base::transaction_base(connection &cx) :
+        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}
 {}
 
 
 pqxx::transaction_base::transaction_base(
-  connection &c, std::string_view tname) :
-        m_conn{c}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
+  connection &cx, std::string_view tname) :
+        m_conn{cx}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
 {}
 
 
@@ -278,41 +278,13 @@ pqxx::result pqxx::transaction_base::exec_n(
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   result r{exec(query, desc)};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-  if (std::size(r) != rows)
-  {
-    std::string const N{
-      std::empty(desc) ? "" : internal::concat("'", desc, "'")};
-    throw unexpected_rows{internal::concat(
-      "Expected ", rows, " row(s) of data from query ", N, ", got ",
-      std::size(r), ".")};
-  }
+  r.expect_rows(rows);
   return r;
 }
 
 
-void pqxx::transaction_base::check_rowcount_prepared(
-  zview statement, result::size_type expected_rows,
-  result::size_type actual_rows)
-{
-  if (actual_rows != expected_rows)
-    throw unexpected_rows{internal::concat(
-      "Expected ", expected_rows, " row(s) of data from prepared statement '",
-      statement, "', got ", actual_rows, ".")};
-}
-
-
-void pqxx::transaction_base::check_rowcount_params(
-  std::size_t expected_rows, std::size_t actual_rows)
-{
-  if (actual_rows != expected_rows)
-    throw unexpected_rows{internal::concat(
-      "Expected ", expected_rows,
-      " row(s) of data from parameterised query, got ", actual_rows, ".")};
-}
-
-
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  zview statement, internal::c_params const &args)
+  std::string_view statement, internal::c_params const &args)
 {
   command const cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
@@ -321,7 +293,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  zview query, internal::c_params const &args)
+  std::string_view query, internal::c_params const &args)
 {
   command const cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(

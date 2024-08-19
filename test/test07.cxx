@@ -123,7 +123,7 @@ void test_007()
         " "
         "WHERE year=" +
         to_string(c.first)};
-      R = tx.exec0(query);
+      R = tx.exec(query).no_rows();
     }
   });
 }

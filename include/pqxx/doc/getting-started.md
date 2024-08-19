@@ -51,20 +51,20 @@ an `int`, and prints it out.  It also contains some basic error handling.
         // The constructor parses options exactly like libpq's
         // PQconnectdb/PQconnect, see:
         // https://www.postgresql.org/docs/10/static/libpq-connect.html
-        pqxx::connection c;
+        pqxx::connection cx;
 
         // Start a transaction.  In libpqxx, you always work in one.
-        pqxx::work w(c);
+        pqxx::work tx(cx);
 
         // work::exec1() executes a query returning a single row of data.
         // We'll just ask the database to return the number 1 to us.
-        pqxx::row r = w.exec1("SELECT 1");
+        pqxx::row r = tx.exec1("SELECT 1");
 
         // Commit your transaction.  If an exception occurred before this
         // point, execution will have left the block, and the transaction will
         // have been destroyed along the way.  In that case, the failed
         // transaction would implicitly abort instead of getting to this point.
-        w.commit();
+        tx.commit();
 
         // Look at the first and only field in the row, parse it as an integer,
         // and print it.
@@ -94,9 +94,9 @@ You can also convert an entire row to a series of C++-side types in one go,
 using the @c as member function on the row:
 
 ```cxx
-    pqxx::connection c;
-    pqxx::work w(c);
-    pqxx::row r = w.exec1("SELECT 1, 2, 'Hello'");
+    pqxx::connection cx;
+    pqxx::work tx(cx);
+    pqxx::row r = tx.exec1("SELECT 1, 2, 'Hello'");
     auto [one, two, hello] = r.as<int, int, std::string>();
     std::cout << (one + two) << ' ' << std::strlen(hello) << std::endl;
 ```
@@ -118,15 +118,15 @@ plain C-style string using its `c_str` function.
       {
         if (!argv[1]) throw std::runtime_error("Give me a string!");
 
-        pqxx::connection c;
-        pqxx::work w(c);
+        pqxx::connection cx;
+        pqxx::work tx(cx);
 
         // work::exec() returns a full result set, which can consist of any
         // number of rows.
-        pqxx::result r = w.exec("SELECT " + w.quote(argv[1]));
+        pqxx::result r = tx.exec("SELECT " + tx.quote(argv[1]));
 
         // End our transaction here.  We can still use the result afterwards.
-        w.commit();
+        tx.commit();
 
         // Print the first field of the first row.  Read it as a C string,
         // just like std::string::c_str() does.

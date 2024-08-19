@@ -11,32 +11,32 @@ namespace
 {
 void test_089()
 {
-  pqxx::connection C;
+  pqxx::connection cx;
 
   // Trivial test: create subtransactions, and commit/abort
-  pqxx::work T0(C, "T0");
-  T0.exec1("SELECT 'T0 starts'");
-  pqxx::subtransaction T0a(T0, "T0a");
-  T0a.commit();
-  pqxx::subtransaction T0b(T0, "T0b");
-  T0b.abort();
-  T0.exec1("SELECT 'T0 ends'");
-  T0.commit();
+  pqxx::work tx0(cx, "tx0");
+  tx0.exec("SELECT 'tx0 starts'").one_row();
+  pqxx::subtransaction tx0a(tx0, "tx0a");
+  tx0a.commit();
+  pqxx::subtransaction tx0b(tx0, "tx0b");
+  tx0b.abort();
+  tx0.exec("SELECT 'tx0 ends'").one_row();
+  tx0.commit();
 
   // Basic functionality: perform query in subtransaction; abort, continue
-  pqxx::work T1(C, "T1");
-  T1.exec1("SELECT 'T1 starts'");
-  pqxx::subtransaction T1a(T1, "T1a");
-  T1a.exec1("SELECT '  a'");
-  T1a.commit();
-  pqxx::subtransaction T1b(T1, "T1b");
-  T1b.exec1("SELECT '  b'");
-  T1b.abort();
-  pqxx::subtransaction T1c(T1, "T1c");
-  T1c.exec1("SELECT '  c'");
-  T1c.commit();
-  T1.exec1("SELECT 'T1 ends'");
-  T1.commit();
+  pqxx::work tx1(cx, "tx1");
+  tx1.exec("SELECT 'tx1 starts'").one_row();
+  pqxx::subtransaction tx1a(tx1, "tx1a");
+  tx1a.exec("SELECT '  a'").one_row();
+  tx1a.commit();
+  pqxx::subtransaction tx1b(tx1, "tx1b");
+  tx1b.exec("SELECT '  b'").one_row();
+  tx1b.abort();
+  pqxx::subtransaction tx1c(tx1, "tx1c");
+  tx1c.exec("SELECT '  c'").one_row();
+  tx1c.commit();
+  tx1.exec("SELECT 'tx1 ends'").one_row();
+  tx1.commit();
 }
 } // namespace
 

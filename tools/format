@@ -17,5 +17,5 @@ virtualenv -q --python="$(which python3)" "$WORKDIR/venv"
 # shellcheck disable=SC1091
 source "$WORKDIR"/venv/bin/activate
 pip install -q six pyaml cmake-format
-(find . -name '*.cmake' -print0 | xargs -0 -n1 cmake-format -i) || /bin/true
+(find . -name '*.cmake' -print0 | xargs -0 -n1 cmake-format -i) || true
 rm -rf "$WORKDIR"

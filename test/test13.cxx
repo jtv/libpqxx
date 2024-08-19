@@ -35,13 +35,14 @@ struct deliberate_error : std::exception
 {};
 
 
-void failed_insert(connection &C, std::string const &table)
+void failed_insert(connection &cx, std::string const &table)
 {
-  work tx(C);
-  result R = tx.exec0(
-    "INSERT INTO " + table + " VALUES (" + to_string(BoringYear) +
-    ", "
-    "'yawn')");
+  work tx(cx);
+  result R = tx.exec(
+                 "INSERT INTO " + table + " VALUES (" + to_string(BoringYear) +
+                 ", "
+                 "'yawn')")
+               .no_rows();
 
   PQXX_CHECK_EQUAL(R.affected_rows(), 1, "Bad affected_rows().");
   throw deliberate_error();

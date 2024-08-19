@@ -9,8 +9,9 @@ void test_table_column()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  tx.exec0("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)");
-  tx.exec0("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)");
+  tx.exec("CREATE TEMP TABLE pqxxfoo (x varchar, y integer, z integer)")
+    .no_rows();
+  tx.exec("INSERT INTO pqxxfoo VALUES ('xx', 1, 2)").no_rows();
   auto R{tx.exec("SELECT z,y,x FROM pqxxfoo")};
   auto X{tx.exec("SELECT x,y,z,99 FROM pqxxfoo")};
 

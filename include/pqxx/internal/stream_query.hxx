@@ -83,6 +83,9 @@ public:
 
   /// Execute `query` on `tx`, stream results.
   inline stream_query(transaction_base &tx, std::string_view query);
+  /// Execute `query` on `tx`, stream results.
+  inline stream_query(
+    transaction_base &tx, std::string_view query, params const &);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;

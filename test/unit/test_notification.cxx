@@ -19,8 +19,8 @@ public:
   std::string payload;
   int backend_pid;
 
-  TestReceiver(pqxx::connection &c, std::string const &channel_name) :
-          pqxx::notification_receiver(c, channel_name),
+  TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
+          pqxx::notification_receiver(cx, channel_name),
           payload(),
           backend_pid(0)
   {}

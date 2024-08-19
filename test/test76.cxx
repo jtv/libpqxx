@@ -10,14 +10,15 @@ void test_076()
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};
 
-  auto RFalse{tx.exec1("SELECT 1=0")}, RTrue{tx.exec1("SELECT 1=1")};
+  auto RFalse{tx.exec("SELECT 1=0").one_row()},
+    RTrue{tx.exec("SELECT 1=1").one_row()};
   auto False{pqxx::from_string<bool>(RFalse[0])},
     True{pqxx::from_string<bool>(RTrue[0])};
   PQXX_CHECK(not False, "False bool converted to true.");
   PQXX_CHECK(True, "True bool converted to false.");
 
-  RFalse = tx.exec1("SELECT " + pqxx::to_string(False));
-  RTrue = tx.exec1("SELECT " + pqxx::to_string(True));
+  RFalse = tx.exec("SELECT " + pqxx::to_string(False)).one_row();
+  RTrue = tx.exec("SELECT " + pqxx::to_string(True)).one_row();
   False = pqxx::from_string<bool>(RFalse[0]);
   True = pqxx::from_string<bool>(RTrue[0]);
   PQXX_CHECK(not False, "False bool converted to true.");
@@ -29,7 +30,7 @@ void test_076()
     auto s{pqxx::from_string<short>(pqxx::to_string(svals[i]))};
     PQXX_CHECK_EQUAL(s, svals[i], "short/string conversion not bijective.");
     s = pqxx::from_string<short>(
-      tx.exec1("SELECT " + pqxx::to_string(svals[i]))[0].c_str());
+      tx.exec("SELECT " + pqxx::to_string(svals[i])).one_row()[0].c_str());
     PQXX_CHECK_EQUAL(s, svals[i], "Roundtrip through backend changed short.");
   }
 
@@ -41,7 +42,7 @@ void test_076()
       u, uvals[i], "unsigned short/string conversion not bijective.");
 
     u = pqxx::from_string<unsigned short>(
-      tx.exec1("SELECT " + pqxx::to_string(uvals[i]))[0].c_str());
+      tx.exec("SELECT " + pqxx::to_string(uvals[i])).one_row()[0].c_str());
     PQXX_CHECK_EQUAL(
       u, uvals[i], "Roundtrip through backend changed unsigned short.");
   }

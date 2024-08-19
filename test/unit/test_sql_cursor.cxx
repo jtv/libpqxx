@@ -173,9 +173,10 @@ void test_adopted_sql_cursor()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  tx.exec0(
-    "DECLARE adopted SCROLL CURSOR FOR "
-    "SELECT generate_series(1, 3)");
+  tx.exec(
+      "DECLARE adopted SCROLL CURSOR FOR "
+      "SELECT generate_series(1, 3)")
+    .no_rows();
   pqxx::internal::sql_cursor adopted(tx, "adopted", pqxx::cursor_base::owned);
   PQXX_CHECK_EQUAL(adopted.pos(), -1, "Adopted cursor has known pos()");
   PQXX_CHECK_EQUAL(adopted.endpos(), -1, "Adopted cursor has known endpos()");
@@ -206,9 +207,11 @@ void test_adopted_sql_cursor()
   // Owned adopted cursors are cleaned up on destruction.
   pqxx::connection conn2;
   pqxx::work tx2(conn2, "tx2");
-  tx2.exec0(
-    "DECLARE adopted2 CURSOR FOR "
-    "SELECT generate_series(1, 3)");
+  tx2
+    .exec(
+      "DECLARE adopted2 CURSOR FOR "
+      "SELECT generate_series(1, 3)")
+    .no_rows();
   {
     pqxx::internal::sql_cursor(tx2, "adopted2", pqxx::cursor_base::owned);
   }
