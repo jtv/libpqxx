@@ -24,7 +24,8 @@ void test_pipeline()
   PQXX_CHECK_EQUAL(
     std::size(r), 1, "Wrong query result after flushing pipeline.");
   PQXX_CHECK_EQUAL(
-    r[0][0].as<int>(), 2, "Query returns wrong data after flushing pipeline.");
+    r.one_field().as<int>(), 2,
+    "Query returns wrong data after flushing pipeline.");
 
   // Inserting a query makes the pipeline grab transaction focus back.
   auto q{pipe.insert("SELECT 2")};
@@ -37,12 +38,12 @@ void test_pipeline()
   r = tx.exec("SELECT 4");
   PQXX_CHECK_EQUAL(std::size(r), 1, "Wrong query result after complete().");
   PQXX_CHECK_EQUAL(
-    r[0][0].as<int>(), 4, "Query returns wrong data after complete().");
+    r.one_field().as<int>(), 4, "Query returns wrong data after complete().");
 
   // The complete() also received any pending query results from the backend.
   r = pipe.retrieve(q);
   PQXX_CHECK_EQUAL(std::size(r), 1, "Wrong result from pipeline.");
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 2, "Pipeline returned wrong data.");
+  PQXX_CHECK_EQUAL(r.one_field().as<int>(), 2, "Pipeline returned wrong data.");
 
   // We can cancel while the pipe is empty, and things will still work.
   pipe.cancel();

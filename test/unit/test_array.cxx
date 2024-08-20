@@ -497,8 +497,8 @@ void test_array_strings()
 
   for (auto const &input : inputs)
   {
-    auto const r{tx.exec("SELECT ARRAY[$1]", pqxx::params{input})};
-    pqxx::array_parser parser{r[0][0].as<std::string_view>()};
+    auto const f{tx.exec("SELECT ARRAY[$1]", pqxx::params{input}).one_field()};
+    pqxx::array_parser parser{f.as<std::string_view>()};
     auto [start_juncture, start_value]{parser.get_next()};
     pqxx::ignore_unused(start_value);
     PQXX_CHECK_EQUAL(

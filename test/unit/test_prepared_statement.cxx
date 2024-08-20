@@ -95,14 +95,12 @@ void test_basic_args()
   PQXX_CHECK_EQUAL(
     std::size(r), 1, "Did not get 1 row from prepared statement.");
   PQXX_CHECK_EQUAL(std::size(r.front()), 1, "Did not get exactly one column.");
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 7, "Got wrong result.");
+  PQXX_CHECK_EQUAL(r.one_field().as<int>(), 7, "Got wrong result.");
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  auto rw{tx.exec_prepared1("EchoNum", 8)};
+  auto rw{tx.exec(pqxx::prepped{"EchoNum"}, 8).one_row()};
   PQXX_CHECK_EQUAL(
     std::size(rw), 1, "Did not get 1 column from exec_prepared1.");
   PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 

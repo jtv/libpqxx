@@ -357,6 +357,12 @@ public:
     return *this;
   }
 
+  /// Expect that result consists of exactly 1 row and 1 column.
+  /** @return The one @ref pqxx::field in the result.
+   * @throw @ref usage_error otherwise.
+   */
+  field one_field() const;
+
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
 

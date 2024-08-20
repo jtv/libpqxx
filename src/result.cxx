@@ -541,6 +541,13 @@ pqxx::row pqxx::result::one_row() const
 }
 
 
+pqxx::field pqxx::result::one_field() const
+{
+  expect_columns(1);
+  return one_row()[0];
+}
+
+
 std::optional<pqxx::row> pqxx::result::opt_row() const
 {
   auto const sz{size()};

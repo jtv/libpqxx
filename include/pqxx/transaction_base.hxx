@@ -465,7 +465,7 @@ public:
   TYPE query_value(zview query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return exec(query, desc).expect_columns(1).one_row()[0].as<TYPE>();
+    return exec(query, desc).one_field().as<TYPE>();
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
@@ -478,7 +478,7 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query)
   {
-    return exec(query).expect_columns(1).one_row()[0].as<TYPE>();
+    return exec(query).one_field().as<TYPE>();
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -837,7 +837,7 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, params const &parms)
   {
-    return exec(query, parms).expect_columns(1).one_row()[0].as<TYPE>();
+    return exec(query, parms).expect_columns(1).one_field().as<TYPE>();
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -928,7 +928,7 @@ public:
   template<typename TYPE>
   TYPE query_value(prepped statement, params const &parms = {})
   {
-    return exec(statement, parms).expect_columns(1).one_row()[0].as<TYPE>();
+    return exec(statement, parms).expect_columns(1).one_field().as<TYPE>();
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.

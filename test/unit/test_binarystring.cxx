@@ -12,7 +12,8 @@ pqxx::binarystring
 make_binarystring(pqxx::transaction_base &T, std::string content)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::binarystring(T.exec1("SELECT " + T.quote_raw(content))[0]);
+  return pqxx::binarystring(
+    T.exec("SELECT " + T.quote_raw(content)).one_field());
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
