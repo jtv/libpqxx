@@ -81,7 +81,7 @@ void pqxx::internal::basic_transaction::do_commit()
     throw in_doubt_error{
       msg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
+      ,
       e.location
 #endif
     };

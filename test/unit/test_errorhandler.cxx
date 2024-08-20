@@ -139,7 +139,8 @@ void test_destroying_connection_unregisters_handlers()
 class MinimalErrorHandler final : public pqxx::errorhandler
 {
 public:
-  explicit MinimalErrorHandler(pqxx::connection &cx) : pqxx::errorhandler(cx) {}
+  explicit MinimalErrorHandler(pqxx::connection &cx) : pqxx::errorhandler(cx)
+  {}
   bool operator()(char const[]) noexcept override { return true; }
 };
 

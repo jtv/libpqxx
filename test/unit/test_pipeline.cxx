@@ -43,7 +43,8 @@ void test_pipeline()
   // The complete() also received any pending query results from the backend.
   r = pipe.retrieve(q);
   PQXX_CHECK_EQUAL(std::size(r), 1, "Wrong result from pipeline.");
-  PQXX_CHECK_EQUAL(r.one_field().as<int>(), 2, "Pipeline returned wrong data.");
+  PQXX_CHECK_EQUAL(
+    r.one_field().as<int>(), 2, "Pipeline returned wrong data.");
 
   // We can cancel while the pipe is empty, and things will still work.
   pipe.cancel();
