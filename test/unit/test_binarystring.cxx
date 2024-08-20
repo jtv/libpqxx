@@ -84,7 +84,10 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(
     tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-    pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(), simple,
+    pqxx::binarystring(
+      tx.query_value<std::string>("SELECT $1", pqxx::params{b})
+    ).str(),
+    simple,
     "Binary string is not idempotent.");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 

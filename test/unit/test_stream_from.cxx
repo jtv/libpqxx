@@ -246,8 +246,10 @@ void test_stream_from_does_escaping()
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  tx.exec0("CREATE TEMP TABLE badstr (str text)");
-  tx.exec0("INSERT INTO badstr (str) VALUES (" + tx.quote(input) + ")");
+  tx.exec("CREATE TEMP TABLE badstr (str text)").no_rows();
+  tx.exec(
+    "INSERT INTO badstr (str) VALUES ($1)", pqxx::params{input}
+  ).no_rows();
   auto reader{pqxx::stream_from::table(tx, {"badstr"})};
   std::tuple<std::string> out;
   reader >> out;
