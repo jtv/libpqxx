@@ -35,24 +35,24 @@ public:
 
 
 void test_receive(
-  pqxx::transaction_base &t, std::string const &channel,
+  pqxx::transaction_base &tx, std::string const &channel,
   char const payload[] = nullptr)
 {
-  pqxx::connection &cx(t.conn());
+  pqxx::connection &cx(tx.conn());
 
-  std::string SQL{"NOTIFY \"" + channel + "\""};
+  std::string SQL{"NOTIFY " + tx.quote_name(channel)};
   if (payload != nullptr)
-    SQL += ", " + t.quote(payload);
+    SQL += ", " + tx.quote(payload);
 
-  TestReceiver receiver{t.conn(), channel};
+  TestReceiver receiver{cx, channel};
 
   // Clear out any previously pending notifications that might otherwise
   // confuse the test.
   cx.get_notifs();
 
   // Notify, and receive.
-  t.exec(SQL);
-  t.commit();
+  tx.exec(SQL);
+  tx.commit();
 
   int notifs{0};
   for (int i{0}; (i < 10) and (notifs == 0);

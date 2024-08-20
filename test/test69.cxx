@@ -31,10 +31,10 @@ void TestPipeline(pipeline &P, int numqueries)
 
     if (res != 0)
       PQXX_CHECK_EQUAL(
-        R.second[0][0].as<int>(), res,
+        R.second.one_field().as<int>(), res,
         "Got unexpected result out of pipeline.");
 
-    res = R.second[0][0].as<int>();
+    res = R.second.one_field().as<int>();
   }
 
   PQXX_CHECK(std::empty(P), "Pipeline not empty after retrieval.");
