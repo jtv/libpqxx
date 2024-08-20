@@ -18,43 +18,43 @@ void test_046()
   connection cx;
   work tx{cx};
 
-  row R{tx.exec("SELECT count(*) FROM pg_tables").one_row()};
+  pqxx::field R{tx.exec("SELECT count(*) FROM pg_tables").one_field()};
 
   // Read the value into a stringstream.
   std::stringstream I;
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  I << R[0];
+  I << R;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   // Now convert the stringstream into a numeric type
   long L{}, L2{};
   I >> L;
 
-  R[0].to(L2);
+  R.to(L2);
   PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
 
   float F{}, F2{};
   std::stringstream I2;
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  I2 << R[0];
+  I2 << R;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   I2 >> F;
-  R[0].to(F2);
+  R.to(F2);
   PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
 
-  auto F3{from_string<float>(R[0].c_str())};
+  auto F3{from_string<float>(R.c_str())};
   PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01, "Bad float from from_string.");
 
-  auto D{from_string<double>(R[0].c_str())};
+  auto D{from_string<double>(R.c_str())};
   PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01, "Bad double from from_string.");
 
-  auto LD{from_string<long double>(R[0].c_str())};
+  auto LD{from_string<long double>(R.c_str())};
   PQXX_CHECK_BOUNDS(
     LD, F - 0.01, F + 0.01, "Bad long double from from_string.");
 
-  auto S{from_string<std::string>(R[0].c_str())},
-    S2{from_string<std::string>(std::string{R[0].c_str()})},
-    S3{from_string<std::string>(R[0])};
+  auto S{from_string<std::string>(R.c_str())},
+    S2{from_string<std::string>(std::string{R.c_str()})},
+    S3{from_string<std::string>(R)};
 
   PQXX_CHECK_EQUAL(
     S2, S,

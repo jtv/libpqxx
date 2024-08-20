@@ -123,7 +123,7 @@ plain C-style string using its `c_str` function.
 
         // work::exec() returns a full result set, which can consist of any
         // number of rows.
-        pqxx::result r = tx.exec("SELECT " + tx.quote(argv[1]));
+        pqxx::result r = tx.exec("SELECT $1", pqxx::params{argv[1]});
 
         // End our transaction here.  We can still use the result afterwards.
         tx.commit();

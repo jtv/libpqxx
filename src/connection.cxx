@@ -291,7 +291,8 @@ std::string pqxx::connection::get_variable(std::string_view var)
 std::string pqxx::connection::get_var(std::string_view var)
 {
   // (Variables can't be null, so far as I can make out.)
-  return exec(internal::concat("SHOW "sv, quote_name(var)))[0][0]
+  return exec(internal::concat("SHOW "sv, quote_name(var)))
+    .one_field()
     .as<std::string>();
 }
 

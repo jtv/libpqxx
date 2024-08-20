@@ -12,7 +12,8 @@ pqxx::binarystring
 make_binarystring(pqxx::transaction_base &T, std::string content)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::binarystring(T.exec1("SELECT " + T.quote_raw(content))[0]);
+  return pqxx::binarystring(
+    T.exec("SELECT " + T.quote_raw(content)).one_field());
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -84,8 +85,10 @@ void test_binarystring()
   PQXX_CHECK_EQUAL(
     tx.quote(b), tx.quote_raw(simple), "Binary quoting is broken.");
   PQXX_CHECK_EQUAL(
-    pqxx::binarystring(tx.exec1("SELECT " + tx.quote(b))[0]).str(), simple,
-    "Binary string is not idempotent.");
+    pqxx::binarystring(
+      tx.query_value<std::string>("SELECT $1", pqxx::params{b}))
+      .str(),
+    simple, "Binary string is not idempotent.");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   std::string const bytes("\x01\x23\x23\xa1\x2b\x0c\xff");

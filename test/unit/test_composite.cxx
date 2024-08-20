@@ -10,11 +10,11 @@ void test_composite()
   pqxx::connection cx;
   pqxx::work tx{cx};
   tx.exec("CREATE TYPE pqxxfoo AS (a integer, b text)").no_rows();
-  auto const r{tx.exec("SELECT '(5,hello)'::pqxxfoo").one_row()};
+  auto const f{tx.exec("SELECT '(5,hello)'::pqxxfoo").one_field()};
 
   int a;
   std::string b;
-  pqxx::parse_composite(r[0].view(), a, b);
+  pqxx::parse_composite(f.view(), a, b);
 
   PQXX_CHECK_EQUAL(a, 5, "Integer composite field came back wrong.");
   PQXX_CHECK_EQUAL(b, "hello", "String composite field came back wrong.");
@@ -25,10 +25,10 @@ void test_composite_escapes()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::row r;
   tx.exec("CREATE TYPE pqxxsingle AS (x text)").no_rows();
   std::string s;
 
+  pqxx::row r;
   r = tx.exec(R"--(SELECT '("a""b")'::pqxxsingle)--").one_row();
   pqxx::parse_composite(r[0].view(), s);
   PQXX_CHECK_EQUAL(
@@ -79,12 +79,12 @@ void test_composite_renders_to_string()
     "Composite was not rendered as expected.");
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();
-  auto const r{
-    tx.exec("SELECT '" + std::string{buf} + "'::pqxxcomp").one_row()};
+  auto const f{
+    tx.exec("SELECT '" + std::string{buf} + "'::pqxxcomp").one_field()};
 
   int a;
   std::string b, c;
-  bool const nonnull{r[0].composite_to(a, b, c)};
+  bool const nonnull{f.composite_to(a, b, c)};
   PQXX_CHECK(nonnull, "Mistaken nullness.");
   PQXX_CHECK_EQUAL(a, 355, "Int came back wrong.");
   PQXX_CHECK_EQUAL(b, "foo", "Simple string came back wrong.");

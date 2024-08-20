@@ -216,16 +216,20 @@ void test_stream_from()
     "txt4    TEXT NULL,"
     "bin5    BYTEA NOT NULL"
     ")");
-  tx.exec_params(
-    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 910, nullptr,
-    nullptr, nullptr, "\\N", bytea{});
-  tx.exec_params(
-    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 1234, "now",
-    4321, ipv4{8, 8, 8, 8}, "hello\n \tworld", bytea{'\x00', '\x01', '\x02'});
-  tx.exec_params(
-    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)", 5678,
-    "2018-11-17 21:23:00", nullptr, nullptr, "\u3053\u3093\u306b\u3061\u308f",
-    bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
+  tx.exec(
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
+    pqxx::params{910, nullptr, nullptr, nullptr, "\\N", bytea{}});
+  tx.exec(
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
+    pqxx::params{
+      1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello\n \tworld",
+      bytea{'\x00', '\x01', '\x02'}});
+  tx.exec(
+    "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
+    pqxx::params{
+      5678, "2018-11-17 21:23:00", nullptr, nullptr,
+      "\u3053\u3093\u306b\u3061\u308f",
+      bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}});
   tx.commit();
 
   test_nonoptionals(cx);
@@ -242,8 +246,9 @@ void test_stream_from_does_escaping()
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  tx.exec0("CREATE TEMP TABLE badstr (str text)");
-  tx.exec0("INSERT INTO badstr (str) VALUES (" + tx.quote(input) + ")");
+  tx.exec("CREATE TEMP TABLE badstr (str text)").no_rows();
+  tx.exec("INSERT INTO badstr (str) VALUES ($1)", pqxx::params{input})
+    .no_rows();
   auto reader{pqxx::stream_from::table(tx, {"badstr"})};
   std::tuple<std::string> out;
   reader >> out;

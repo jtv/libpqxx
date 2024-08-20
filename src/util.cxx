@@ -101,9 +101,10 @@ void pqxx::internal::check_unique_unregister(
 
 namespace
 {
-constexpr std::array<char, 16u> hex_digits{'0', '1', '2', '3', '4', '5',
-                                           '6', '7', '8', '9', 'a', 'b',
-                                           'c', 'd', 'e', 'f'};
+constexpr std::array<char, 16u> hex_digits{
+  '0', '1', '2', '3', '4', '5', '6', '7',
+  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+};
 
 
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
