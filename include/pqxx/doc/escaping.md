@@ -10,15 +10,16 @@ an SQL injection vulnerability there, where users can enter nasty stuff like
 discover when `name` happens to be "d'Arcy".  Or...  Well, I was born in a
 place called _'s-Gravenhage..._
 
-There are two ways of dealing with this.  One is statement _parameters:_ some
-SQL execution functions in libpqxx let you write placeholders for such values
-in your SQL, like `$1`, `$2`, etc.  When you then pass your variables as the
-parameter values, they get substituted into the query, but in a safe form.
+There are two ways of dealing with this.  One is statement @ref parameters —
+many SQL execution functions in libpqxx let you write _placeholders_ for
+variable values in your SQL, like `$1`, `$2`, etc.  When you then pass your
+variables as the parameter values, they get substituted into the query, but in
+a safe form.
 
 The other is to _escape_ the values yourself, before inserting them into your
 SQL.  This isn't as safe as using parameters, since you need to be really
-conscientious about it.  Use parameters if you can... and libpqxx will do the
-escaping for you.
+conscientious about it.  Use @ref parameters if you can... and libpqxx will do
+the escaping for you.
 
 In escaping, quotes and other problematic characters are marked as "this is
 just a character inside the string, not the end of the string."  There are
@@ -44,7 +45,7 @@ authorized to view.  The userid and password strings are variables entered
 by the user himself.
 
 Now, if the user is actually an attacker who knows (or can guess) the
-general shape of this SQL statement, imagine getting following password:
+general shape of this SQL statement, imagine getting the following password:
 
 ```text
     x') OR ('x' = 'x
@@ -89,7 +90,7 @@ they can't "break out" of the quoted SQL string they were meant to go into:
 
 If you look carefully, you'll see that thanks to the added escape characters
 (a single-quote is escaped in SQL by doubling it) all we get is a very
-strange-looking password string--but not a change in the SQL statement.
+strange-looking password string — but not a change in the SQL statement.
 
 In practice, of course, it would be better to use parameters:
 

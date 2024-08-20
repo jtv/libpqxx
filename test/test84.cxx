@@ -49,7 +49,7 @@ void test_084()
   // supposed to be easy; normally we'd only construct streams around existing
   // SQL cursors if they were being returned by functions.
   pqxx::icursorstream C{
-    tx, tx.exec("SELECT '" + tx.esc(CurName) + "'")[0][0], GetRows};
+    tx, tx.exec("SELECT $1", pqxx::params{CurName}).one_row()[0], GetRows};
 
   // Create parallel cursor to check results
   pqxx::icursorstream C2{tx, Query, "CHECKCUR", GetRows};
