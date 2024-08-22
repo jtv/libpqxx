@@ -95,6 +95,7 @@ def generate_cmake(source: Path, snippets: list[str]) -> None:
     dest = source / 'cmake' / CMAKE_CONFIG
     with dest.open('w', encoding='ascii') as stream:
         stream.write(compose_header())
+        stream.write("include(CheckCXXSourceCompiles)\n")
         for snippet in snippets:
             stream.write(CMAKE_TEMPLATE % {'macro': Path(snippet).stem})
         stream.write(FOOT)
