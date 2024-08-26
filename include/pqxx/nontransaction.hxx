@@ -47,7 +47,12 @@ using namespace std::literals;
  * time out, e.g. when the network is unavailable for a very long time).
  *
  * Any query executed in a nontransaction is committed immediately, and neither
- * commit() nor abort() has any effect.
+ * commit() nor abort() has any effect as far as the database is concerned.
+ * Just like other transaction types, however, the nontransaction remains
+ * attached to the @ref pqxx::connection until you commit, abort, or destroy
+ * it.  Just like a regular transaction, it is a @ref transaction_focus, of
+ * which no more than one can be active for any given connection at any given
+ * time.
  *
  * Database features that require a backend transaction, such as cursors or
  * large objects, will not work in a nontransaction.
