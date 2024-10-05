@@ -166,6 +166,10 @@ void test_binarystring_stream()
 
 void test_binarystring_array_stream()
 {
+  // This test won't compile on clang in maintainer mode.  For some reason,
+  // clang seems to ignore the ignore-deprecated headers in just this one
+  // function, where we create the vector of binarystring.
+#if !defined(__clang__)
   pqxx::connection cx;
   pqxx::transaction tx{cx};
   tx.exec("CREATE TEMP TABLE pqxxbinstream(id integer, vec bytea[])")
@@ -201,6 +205,7 @@ void test_binarystring_array_stream()
     tx.query_value<std::size_t>(
       "SELECT octet_length(vec[1]) FROM pqxxbinstream"),
     std::size(data1), "Bytea length broke inside array.");
+#endif // __clang__
 }
 
 
