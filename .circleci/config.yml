@@ -43,7 +43,6 @@ jobs:
           name: Configure
           command: |
             ./configure \
-                --disable-documentation \
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
