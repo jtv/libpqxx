@@ -181,11 +181,8 @@
 
 
 // C++23: Assume support.
-// C++20: Assume __has_cpp_attribute is defined.
-#if !defined(__has_cpp_attribute)
-#  define PQXX_ASSUME(condition) while (false)
-#elif !__has_cpp_attribute(assume)
-#  define PQXX_ASSUME(condition) while (false)
-#else
+#if defined(PQXX_HAVE_ASSUME)
 #  define PQXX_ASSUME(condition) [[assume(condition)]]
+#else
+#  define PQXX_ASSUME(condition) while (false)
 #endif
