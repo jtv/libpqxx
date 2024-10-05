@@ -115,9 +115,10 @@ pqxx::connection::connection(
     throw std::bad_alloc{};
   if (status() == CONNECTION_BAD)
   {
+    std::string const msg{PQerrorMessage(m_conn)};
     PQfinish(m_conn);
     m_conn = nullptr;
-    throw pqxx::broken_connection{PQerrorMessage(m_conn)};
+    throw pqxx::broken_connection{msg};
   }
 }
 
