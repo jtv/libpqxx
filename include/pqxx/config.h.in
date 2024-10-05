@@ -6,7 +6,7 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `pq' library (-lpq). */
+/* Define to 1 if you have the 'pq' library (-lpq). */
 #undef HAVE_LIBPQ
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -56,6 +56,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Define if this feature is available. */
+#undef PQXX_HAVE_ASSUME
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_CHARCONV_FLOAT
@@ -114,7 +117,7 @@
 /* Define if this feature is available. */
 #undef PQXX_HAVE_YEAR_MONTH_DAY
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
