@@ -1,5 +1,4 @@
 include(CheckFunctionExists)
-include(CheckCXXSourceCompiles)
 include(CMakeFindDependencyMacro)
 
 if(NOT PostgreSQL_FOUND)
