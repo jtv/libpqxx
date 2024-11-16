@@ -947,10 +947,15 @@ public:
    */
   void set_verbosity(error_verbosity verbosity) & noexcept;
 
+  // C++20: Use std::callable.
+
   /// Set a notice handler to the connection.
   /** When a notice comes in (a warning or error message), the connection or
    * result object on which it happens will call the notice handler, passing
    * the message as its argument.
+   *
+   * The handler must not throw any exceptions.  If it does, the program will
+   * terminate.
    *
    * @warning It's not just the `connection` that can call a notice handler,
    * but any of the `result` objects that it produces as well.  So, be prepared
@@ -959,8 +964,9 @@ public:
    */
   template<typename CALLABLE> void set_notice_handler(CALLABLE &&handler)
   {
-    m_notice_handler = std::make_shared<std::function<void(zview)>>(
-      std::forward(handler));
+// XXX: Can we get perfect forwarding here?
+// XXX: Express noexcept on handler in code.
+    m_notice_handler = std::make_shared<std::function<void(zview)>>(handler);
   }
 
   /// @deprecated Return pointers to the active errorhandlers.
@@ -1154,7 +1160,7 @@ private:
    */
   transaction_base const *m_trans = nullptr;
 
-  std::list<errorhandler *> m_errorhandlers;
+  std::shared_ptr<std::list<errorhandler *>> m_errorhandlers;
 
   /// Notice handler.
   std::shared_ptr<std::function<void(zview)>> m_notice_handler;
