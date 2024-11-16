@@ -50,7 +50,9 @@ void test_061()
   RedoDatestyle(tx, "SQL", SQLname);
 
   // Prove that setting an unknown variable causes an error, as expected
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   quiet_errorhandler d(tx.conn());
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
     cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
     "Setting unknown variable failed to fail.");

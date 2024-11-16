@@ -52,7 +52,9 @@ void test_018()
     "Already have event for " + to_string(BoringYear) + ", cannot run.");
 
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     quiet_errorhandler d{cx};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
       perform([&cx, Table] {
         robusttransaction<serializable> tx{cx};

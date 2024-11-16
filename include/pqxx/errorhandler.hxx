@@ -33,17 +33,9 @@ namespace pqxx
  */
 //@{
 
-/// Base class for error-handler callbacks.
-/** To receive errors and warnings from a connection, subclass this with your
- * own error-handler functor, and instantiate it for the connection. Destroying
- * the handler un-registers it.
- *
- * A connection can have multiple error handlers at the same time.  When the
- * database connection emits an error or warning message, it passes the message
- * to each error handler, starting with the most recently registered one and
- * progressing towards the oldest one.  However an error handler may also
- * instruct the connection not to pass the message to further handlers by
- * returning "false."
+/// @deprecated Base class for obsolete error-handler callbacks.
+/** This method of handling errors is obsolete.  Use a "notice handler"
+ * instead.
  *
  * @warning Strange things happen when a result object outlives its parent
  * connection.  If you register an error handler on a connection, then you must
@@ -53,6 +45,7 @@ namespace pqxx
 class PQXX_LIBEXPORT errorhandler
 {
 public:
+  [[deprecated("Use a notice handler instead.")]]
   explicit errorhandler(connection &);
   virtual ~errorhandler();
 
@@ -76,12 +69,15 @@ private:
 };
 
 
-/// An error handler that suppresses any previously registered error handlers.
+/// @deprecated Use a notice handler instead.
 class quiet_errorhandler : public errorhandler
 {
 public:
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Suppress error notices.
+  [[deprecated("Use notice handlers instead.")]]
   quiet_errorhandler(connection &cx) : errorhandler{cx} {}
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Revert to previous handling of error notices.
   virtual bool operator()(char const[]) noexcept override { return false; }

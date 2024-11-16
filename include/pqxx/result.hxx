@@ -378,6 +378,13 @@ private:
   /// Query string.
   std::shared_ptr<std::string const> m_query;
 
+  /// The connection's notice handler.
+  /** We're not actually using this, but we need a copy here so that the
+   * actual function does not get deallocated if the connection is destroyed
+   * while this result still exists.
+   */
+  std::shared_ptr<std::function<void(zview)>> m_notice_handler;
+
   internal::encoding_group m_encoding;
 
   static std::string const s_empty_string;
@@ -392,7 +399,9 @@ private:
   friend class pqxx::internal::gate::result_creation;
   result(
     std::shared_ptr<internal::pq::PGresult> const &rhs,
-    std::shared_ptr<std::string> const &query, internal::encoding_group enc);
+    std::shared_ptr<std::string> const &query,
+    std::shared_ptr<std::function<void(zview)>> &notice_handler,
+    internal::encoding_group enc);
 
   PQXX_PRIVATE void check_status(std::string_view desc = ""sv) const;
 

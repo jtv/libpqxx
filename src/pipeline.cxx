@@ -247,8 +247,10 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
     return false;
   }
 
+  pqxx::internal::gate::connection_pipeline pgate{m_trans->conn()};
+  auto handler{pgate.get_notice_handler()};
   result const res{pqxx::internal::gate::result_creation::create(
-    r, std::begin(m_queries)->second.query, m_encoding)};
+    r, std::begin(m_queries)->second.query, handler, m_encoding)};
 
   if (not have_pending())
   {
@@ -285,8 +287,11 @@ void pqxx::pipeline::obtain_dummy()
     PQXX_UNLIKELY
   internal_error("Pipeline got no result from backend when it expected one.");
 
+  pqxx::internal::gate::connection_pipeline pgate{m_trans->conn()};
+  auto handler{pgate.get_notice_handler()};
   result const R{
-    pqxx::internal::gate::result_creation::create(r, text, m_encoding)};
+    pqxx::internal::gate::result_creation::create(
+      r, text, handler, m_encoding)};
 
   bool OK{false};
   try

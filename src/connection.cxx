@@ -100,7 +100,9 @@ pqxx::encrypt_password(char const user[], char const password[])
 
 
 pqxx::connection::connection(connection &&rhs) :
-        m_conn{rhs.m_conn}, m_unique_id{rhs.m_unique_id}
+        m_conn{rhs.m_conn},
+	m_notice_handler{std::move(rhs.m_notice_handler)},
+	m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable();
   rhs.m_conn = nullptr;
@@ -215,6 +217,8 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
   m_conn = std::exchange(rhs.m_conn, nullptr);
   m_unique_id = rhs.m_unique_id;
+  m_notice_handler = std::exchange(
+    rhs.m_notice_handler, std::shared_ptr<std::function<void(zview)>>{});
 
   return *this;
 }
@@ -234,7 +238,10 @@ pqxx::result pqxx::connection::make_result(
       throw broken_connection{"Lost connection to the database server."};
   }
   auto const enc{internal::enc_group(encoding_id())};
-  auto r{pqxx::internal::gate::result_creation::create(smart, query, enc)};
+  auto r{
+    pqxx::internal::gate::result_creation::create(
+      smart, query, m_notice_handler, enc)
+  };
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
@@ -343,6 +350,7 @@ void pqxx::connection::process_notice_raw(char const msg[]) noexcept
   auto const rbegin = std::crbegin(m_errorhandlers),
              rend = std::crend(m_errorhandlers);
   for (auto i{rbegin}; (i != rend) and (**i)(msg); ++i);
+  if (m_notice_handler and *m_notice_handler) (*m_notice_handler)(zview{msg});
 }
 
 

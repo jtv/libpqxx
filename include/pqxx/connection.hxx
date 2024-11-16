@@ -25,6 +25,7 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 // Double-check in order to suppress an overzealous Visual C++ warning (#418).
 #if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
@@ -51,12 +52,11 @@
  * a @ref pqxx::connection object.  It connects to a database when you create
  * it, and it terminates that communication during destruction.
  *
- * Many things come together in this class.  Handling of error and warning
- * messages, for example, is defined by @ref pqxx::errorhandler objects in the
- * context of a connection.  Prepared statements are also defined here.  For
- * actually executing SQL on it, however, you'll also need a transaction
- * object which operates "on top of" the connection.  (See @ref transactions
- * for more about these.)
+ * Many things come together in this class.  For example, if you want custom
+ * handling of error andwarning messages, you control that in the context of a
+ * connection.  You also define prepared statements here.  For actually
+ * executing SQL, however, you'll also need a transaction object which operates
+ * "on top of" the connection.  (See @ref transactions for more about these.)
  *
  * When you connect to a database, you pass a connection string containing any
  * parameters and options, such as the server address and the database name.
@@ -492,8 +492,8 @@ public:
    * we do consider the notification processed.
    *
    * If any of the client-registered receivers throws an exception, the
-   * function will report it using the connection's errorhandlers.  It does not
-   * re-throw the exceptions.
+   * function will report it using the connection's notice handler.  It does
+   * not re-throw the exceptions.
    *
    * @return Number of notifications processed.
    */
@@ -936,6 +936,9 @@ public:
   /** Set the verbosity of error messages to "terse", "normal" (the default),
    * or "verbose."
    *
+   * This affects the notices that the `connection` and its `result` objects
+   * will pass to your notice handler.
+   *
    *  If "terse", returned messages include severity, primary text, and
    * position only; this will normally fit on a single line. "normal" produces
    * messages that include the above plus any detail, hint, or context fields
@@ -944,7 +947,25 @@ public:
    */
   void set_verbosity(error_verbosity verbosity) & noexcept;
 
-  /// Return pointers to the active errorhandlers.
+  /// Set a notice handler to the connection.
+  /** When a notice comes in (a warning or error message), the connection or
+   * result object on which it happens will call the notice handler, passing
+   * the message as its argument.
+   *
+   * @warning It's not just the `connection` that can call a notice handler,
+   * but any of the `result` objects that it produces as well.  So, be prepared
+   * for the possibility that the handler may still receive a call after the
+   * connection has been closed.
+   */
+  template<typename CALLABLE> void set_notice_handler(CALLABLE &&handler)
+  {
+    m_notice_handler = std::make_shared<std::function<void(zview)>>(
+      std::forward(handler));
+  }
+
+  // XXX: Copy notice_handler to result.
+
+  /// @deprecated Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
    *
    * You may use this to find errorhandlers that your application wants to
@@ -957,7 +978,8 @@ public:
    * The pointers point to the real errorhandlers.  The container it returns
    * however is a copy of the one internal to the connection, not a reference.
    */
-  [[nodiscard]] std::vector<errorhandler *> get_errorhandlers() const;
+  [[nodiscard, deprecated("Use a notice handler instead.")]]
+  std::vector<errorhandler *> get_errorhandlers() const;
 
   /// Return a connection string encapsulating this connection's options.
   /** The connection must be currently open for this to work.
@@ -1135,6 +1157,9 @@ private:
   transaction_base const *m_trans = nullptr;
 
   std::list<errorhandler *> m_errorhandlers;
+
+  /// Notice handler.
+  std::shared_ptr<std::function<void(zview)>> m_notice_handler;
 
   using receiver_list =
     std::multimap<std::string, pqxx::notification_receiver *>;

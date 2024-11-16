@@ -19,5 +19,10 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
   bool is_busy() const noexcept { return home().is_busy(); }
 
   int encoding_id() { return home().encoding_id(); }
+
+  std::shared_ptr<std::function<void(zview)>> get_notice_handler() const
+  {
+    return home().m_notice_handler;
+  }
 };
 } // namespace pqxx::internal::gate

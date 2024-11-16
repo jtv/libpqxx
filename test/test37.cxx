@@ -49,7 +49,9 @@ void test_037()
     "Already have event for " + to_string(BoringYear) + ", cannot test.");
 
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     quiet_errorhandler d(cx);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
       perform([&cx, &Table] {
         robusttransaction<> tx{cx};
