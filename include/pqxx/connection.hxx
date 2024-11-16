@@ -963,8 +963,6 @@ public:
       std::forward(handler));
   }
 
-  // XXX: Copy notice_handler to result.
-
   /// @deprecated Return pointers to the active errorhandlers.
   /** The entries are ordered from oldest to newest handler.
    *
