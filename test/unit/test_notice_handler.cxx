@@ -11,11 +11,11 @@ void test_notice_handler_receives_notice()
 
   int notices{0};
 
-  cx.set_notice_handler([&notices](zview){ ++notices; });
+  cx.set_notice_handler([&notices](pqxx::zview){ ++notices; });
 
   // Trigger a notice.
   PQXX_CHECK_THROWS(
-    tx.exec0("SELECT foo bar splat"),
+    tx.exec("SELECT foo bar splat").no_rows(),
     pqxx::sql_error,
     "Did not trigger expected exception.");
 
@@ -30,7 +30,7 @@ void test_notice_handler_works_after_connection_closes()
 
   {
     pqxx::connection cx;
-    cx.set_notice_handler([&notices](zview){ ++notices; });
+    cx.set_notice_handler([&notices](pqxx::zview){ ++notices; });
     pqxx::work tx{cx};
     r = tx.exec("SELECT 1");
   }

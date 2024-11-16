@@ -95,6 +95,7 @@ runner_SOURCES = \
   unit/test_float.cxx \
   unit/test_largeobject.cxx \
   unit/test_nonblocking_connect.cxx \
+  unit/test_notice_handler.cxx \
   unit/test_notification.cxx \
   unit/test_pipeline.cxx \
   unit/test_prepared_statement.cxx \
