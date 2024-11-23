@@ -8,6 +8,7 @@
  - Fix error-reporting crash in non-blocking connection constructor. (#894)
  - Fix buffer overrun when converting array containing nulls to string. (#906)
  - Fix nullness check for `std::optional` containing a nullable value. (#907)
+ - `connection::process_notice()` no longer appends newline if missing.
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)

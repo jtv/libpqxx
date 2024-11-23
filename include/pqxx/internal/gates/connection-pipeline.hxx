@@ -20,9 +20,9 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
 
   int encoding_id() { return home().encoding_id(); }
 
-  std::shared_ptr<std::function<void(zview)>> get_notice_handler() const
+  auto get_notice_waiters() const
   {
-    return home().m_notice_handler;
+    return home().m_notice_waiters;
   }
 };
 } // namespace pqxx::internal::gate

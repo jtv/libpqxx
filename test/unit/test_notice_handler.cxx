@@ -66,13 +66,30 @@ void test_notice_handler_works_after_connection_closes()
 }
 
 
+void test_process_notice_calls_notice_handler()
+{
+  int calls{0};
+  std::string received;
+  const std::string msg{"Hello there\n"};
+
+  pqxx::connection cx;
+  cx.set_notice_handler([&calls, &received](auto x){ ++calls; received = x; });
+  cx.process_notice(msg);
+
+  PQXX_CHECK_EQUAL(calls, 1, "Expected exactly 1 call to notice handler.");
+  PQXX_CHECK_EQUAL(received, msg, "Got wrong message.");
+}
+
+
 // XXX: Test stateless lambda.
 // XXX: Test function.
 // XXX: Test functor by value.
 // XXX: Test functor by reference.
 // XXX: Test functor by rvalue reference.
+// XXX: Test processing after copy/move construction/assignment.
 
 
 PQXX_REGISTER_TEST(test_notice_handler_receives_notice);
 PQXX_REGISTER_TEST(test_notice_handler_works_after_connection_closes);
+PQXX_REGISTER_TEST(test_process_notice_calls_notice_handler);
 } // namespace

@@ -964,9 +964,11 @@ public:
    */
   template<typename CALLABLE> void set_notice_handler(CALLABLE &&handler)
   {
-// XXX: Can we get perfect forwarding here?
 // XXX: Express noexcept on handler in code.
-    m_notice_handler = std::make_shared<std::function<void(zview)>>(handler);
+    if (not m_notice_waiters)
+      m_notice_waiters = std::make_shared<pqxx::internal::notice_waiters>();
+// XXX: Can we get perfect forwarding here?
+    m_notice_waiters->notice_handler = handler;
   }
 
   /// @deprecated Return pointers to the active errorhandlers.
@@ -1095,8 +1097,6 @@ private:
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
 
-  void PQXX_PRIVATE process_notice_raw(char const msg[]) noexcept;
-
   result exec_prepared(std::string_view statement, internal::c_params const &);
 
   /// Throw @ref usage_error if this connection is not in a movable state.
@@ -1160,10 +1160,8 @@ private:
    */
   transaction_base const *m_trans = nullptr;
 
-  std::shared_ptr<std::list<errorhandler *>> m_errorhandlers;
-
-  /// Notice handler.
-  std::shared_ptr<std::function<void(zview)>> m_notice_handler;
+  /// 9.0: Replace with just notice handler.
+  std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
   using receiver_list =
     std::multimap<std::string, pqxx::notification_receiver *>;

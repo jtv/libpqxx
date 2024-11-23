@@ -248,7 +248,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   }
 
   pqxx::internal::gate::connection_pipeline pgate{m_trans->conn()};
-  auto handler{pgate.get_notice_handler()};
+  auto handler{pgate.get_notice_waiters()};
   result const res{pqxx::internal::gate::result_creation::create(
     r, std::begin(m_queries)->second.query, handler, m_encoding)};
 
@@ -288,7 +288,7 @@ void pqxx::pipeline::obtain_dummy()
   internal_error("Pipeline got no result from backend when it expected one.");
 
   pqxx::internal::gate::connection_pipeline pgate{m_trans->conn()};
-  auto handler{pgate.get_notice_handler()};
+  auto handler{pgate.get_notice_waiters()};
   result const R{
     pqxx::internal::gate::result_creation::create(
       r, text, handler, m_encoding)};

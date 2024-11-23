@@ -12,10 +12,10 @@ class PQXX_PRIVATE result_creation : callgate<result const>
   static result create(
     std::shared_ptr<internal::pq::PGresult> rhs,
     std::shared_ptr<std::string> const &query,
-    std::shared_ptr<std::function<void(zview)>> &notice_handler,
+    std::shared_ptr<pqxx::internal::notice_waiters> &notice_waiters,
     encoding_group enc)
   {
-    return result(rhs, query, notice_handler, enc);
+    return result(rhs, query, notice_waiters, enc);
   }
 
   void check_status(std::string_view desc = ""sv) const
