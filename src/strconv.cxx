@@ -50,13 +50,6 @@ constexpr bool have_thread_local{
 #endif
 
 
-/// String comparison between string_view.
-constexpr inline bool equal(std::string_view lhs, std::string_view rhs)
-{
-  return lhs.compare(rhs) == 0;
-}
-
-
 /// The lowest possible value of integral type T.
 template<typename T> constexpr T bottom{std::numeric_limits<T>::min()};
 
@@ -487,8 +480,8 @@ namespace
 {
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
-  return equal("infinity", text) or equal("Infinity", text) or
-         equal("INFINITY", text) or equal("inf", text);
+  return text == "infinity" or text == "Infinity" or
+         text == "INFINITY" or text == "inf";
 }
 
 
@@ -768,12 +761,12 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     break;
 
   case std::size("true"sv):
-    if (equal(text, "true") or equal(text, "TRUE"))
+    if (text == "true" or text == "TRUE")
       result = true;
     break;
 
   case std::size("false"sv):
-    if (equal(text, "false") or equal(text, "FALSE"))
+    if (text == "false" or text == "FALSE")
       result = false;
     break;
 
