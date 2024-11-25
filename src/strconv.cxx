@@ -480,8 +480,8 @@ namespace
 {
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
-  return text == "infinity" or text == "Infinity" or
-         text == "INFINITY" or text == "inf";
+  return text == "inf" or text == "infinity" or text == "INFINITY" or
+         text == "Infinity";
 }
 
 

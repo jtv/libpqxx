@@ -1098,13 +1098,12 @@ public:
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
-		     // Budget for each element includes a terminating zero.
-		     // We won't actually be wanting those, but don't subtract
-		     // that one byte: we want room for a separator instead.
-                     return acc +
-                            (pqxx::is_null(elt) ?
-                               std::size(s_null) :
-                               elt_traits::size_buffer(elt));
+                     // Budget for each element includes a terminating zero.
+                     // We won't actually be wanting those, but don't subtract
+                     // that one byte: we want room for a separator instead.
+                     return acc + (pqxx::is_null(elt) ?
+                                     std::size(s_null) :
+                                     elt_traits::size_buffer(elt));
                    });
     else
       return 3 + std::accumulate(

@@ -177,10 +177,10 @@ void test_binarystring_array_stream()
 
   constexpr char bytes1[]{"a\tb\0c"}, bytes2[]{"1\0.2"};
   std::string_view const data1{bytes1}, data2{bytes2};
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
+#  include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::binarystring bin1{data1}, bin2{data2};
   std::vector<pqxx::binarystring> const vec{bin1, bin2};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+#  include "pqxx/internal/ignore-deprecated-post.hxx"
 
   auto to{pqxx::stream_to::table(tx, {"pqxxbinstream"})};
   to.write_values(0, vec);
