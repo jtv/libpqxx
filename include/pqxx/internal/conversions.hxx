@@ -1011,6 +1011,7 @@ template<> inline constexpr format param_format(bytes_view const &)
 
 namespace pqxx::internal
 {
+// C++20: Use input_range (except string or range of std::byte).
 /// String traits for SQL arrays.
 template<typename Container> struct array_string_traits
 {
@@ -1097,11 +1098,13 @@ public:
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
+		     // Budget for each element includes a terminating zero.
+		     // We won't actually be wanting those, but don't subtract
+		     // that one byte: we want room for a separator instead.
                      return acc +
                             (pqxx::is_null(elt) ?
                                std::size(s_null) :
-                               elt_traits::size_buffer(elt)) -
-                            1;
+                               elt_traits::size_buffer(elt));
                    });
     else
       return 3 + std::accumulate(
