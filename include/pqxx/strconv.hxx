@@ -214,7 +214,7 @@ template<typename TYPE> struct string_traits
   [[nodiscard]] static inline std::size_t
   size_buffer(TYPE const &value) noexcept;
 
-  // TODO: Move is_unquoted_string into the traits after all?
+  // TODO: Move is_unquoted_safe into the traits after all?
 };
 
 
