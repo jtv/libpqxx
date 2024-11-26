@@ -147,7 +147,8 @@ template<typename TYPE> struct no_null
  * and from_string support.
  *
  * String conversions are not meant to work for nulls.  Check for null before
- * converting a value of @c TYPE to a string, or vice versa.
+ * converting a value of @c TYPE to a string, or vice versa, and handle them
+ * separately.
  */
 template<typename TYPE> struct string_traits
 {
