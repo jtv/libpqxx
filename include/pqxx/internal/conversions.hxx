@@ -318,7 +318,7 @@ template<typename T> struct string_traits<std::optional<T>>
   static std::size_t size_buffer(std::optional<T> const &value) noexcept
   {
     if (pqxx::is_null(value))
-      return std::size("NULL");
+      return 0;
     else
       return pqxx::size_buffer(value.value());
   }
@@ -375,7 +375,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   static std::size_t size_buffer(std::variant<T...> const &value) noexcept
   {
     if (pqxx::is_null(value))
-      return std::size("NULL");
+      return 0;
     else
       return std::visit(
         [](auto const &i) noexcept { return pqxx::size_buffer(i); }, value);
@@ -517,7 +517,7 @@ template<> struct string_traits<char const *>
 
   static std::size_t size_buffer(char const *const &value) noexcept
   {
-    if (pqxx::is_null(value)) return std::size("NULL");
+    if (pqxx::is_null(value)) return 0;
     else return std::strlen(value) + 1;
   }
 };
@@ -551,7 +551,7 @@ template<> struct string_traits<char *>
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
-    if (pqxx::is_null(value)) return std::size("NULL");
+    if (pqxx::is_null(value)) return 0;
     else return string_traits<char const *>::size_buffer(value);
   }
 
@@ -817,7 +817,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
   size_buffer(std::unique_ptr<T, Args...> const &value) noexcept
   {
     if (pqxx::is_null(value))
-      return std::size("NULL");
+      return 0;
     else
       return pqxx::size_buffer(*value.get());
   }
@@ -871,7 +871,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
-    if (pqxx::is_null(value)) return std::size("NULL");
+    if (pqxx::is_null(value)) return 0;
     else return pqxx::size_buffer(*value);
   }
 };
