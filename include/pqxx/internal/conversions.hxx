@@ -303,10 +303,10 @@ template<typename T> struct string_traits<std::optional<T>>
 
   static zview to_buf(char *begin, char *end, std::optional<T> const &value)
   {
-    if (value.has_value())
-      return string_traits<T>::to_buf(begin, end, *value);
-    else
+    if (pqxx::is_null(value))
       return {};
+    else
+      return string_traits<T>::to_buf(begin, end, *value);
   }
 
   static std::optional<T> from_string(std::string_view text)
@@ -317,7 +317,10 @@ template<typename T> struct string_traits<std::optional<T>>
 
   static std::size_t size_buffer(std::optional<T> const &value) noexcept
   {
-    return pqxx::size_buffer(value.value());
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return pqxx::size_buffer(value.value());
   }
 };
 
@@ -332,7 +335,7 @@ template<typename... T> struct nullness<std::variant<T...>>
   static constexpr bool always_null = (nullness<T>::always_null and ...);
   static constexpr bool is_null(std::variant<T...> const &value) noexcept
   {
-    return std::visit(
+    return value.valueless_by_exception() or std::visit(
       [](auto const &i) noexcept {
         return nullness<strip_t<decltype(i)>>::is_null(i);
       },
@@ -371,8 +374,11 @@ template<typename... T> struct string_traits<std::variant<T...>>
   }
   static std::size_t size_buffer(std::variant<T...> const &value) noexcept
   {
-    return std::visit(
-      [](auto const &i) noexcept { return pqxx::size_buffer(i); }, value);
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return std::visit(
+        [](auto const &i) noexcept { return pqxx::size_buffer(i); }, value);
   }
 
   /** There's no from_string for std::variant.  We could have one with a rule
@@ -511,7 +517,8 @@ template<> struct string_traits<char const *>
 
   static std::size_t size_buffer(char const *const &value) noexcept
   {
-    return std::strlen(value) + 1;
+    if (pqxx::is_null(value)) return 0;
+    else return std::strlen(value) + 1;
   }
 };
 
@@ -544,7 +551,8 @@ template<> struct string_traits<char *>
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
-    return string_traits<char const *>::size_buffer(value);
+    if (pqxx::is_null(value)) return 0;
+    else return string_traits<char const *>::size_buffer(value);
   }
 
   /// Don't allow conversion to this type since it breaks const-safety.
@@ -808,7 +816,10 @@ struct string_traits<std::unique_ptr<T, Args...>>
   static std::size_t
   size_buffer(std::unique_ptr<T, Args...> const &value) noexcept
   {
-    return pqxx::size_buffer(*value.get());
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return pqxx::size_buffer(*value.get());
   }
 };
 
@@ -860,7 +871,8 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
-    return pqxx::size_buffer(*value);
+    if (pqxx::is_null(value)) return 0;
+    else return pqxx::size_buffer(*value);
   }
 };
 
@@ -1011,6 +1023,7 @@ template<> inline constexpr format param_format(bytes_view const &)
 
 namespace pqxx::internal
 {
+// C++20: Use concepts to identify arrays.
 /// String traits for SQL arrays.
 template<typename Container> struct array_string_traits
 {
@@ -1097,18 +1110,20 @@ public:
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
-                     return acc +
-                            (pqxx::is_null(elt) ?
-                               std::size(s_null) :
-                               elt_traits::size_buffer(elt)) -
-                            1;
+                     // Budget for each element includes a terminating zero.
+                     // We won't actually be wanting those, but don't subtract
+                     // that one byte: we want room for a separator instead.
+                     return acc + (pqxx::is_null(elt) ?
+                                     std::size(s_null) :
+                                     elt_traits::size_buffer(elt));
                    });
     else
       return 3 + std::accumulate(
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
                      // Opening and closing quotes, plus worst-case escaping,
-                     // but don't count the trailing zeroes.
+                     // and the one byte for the trailing zero becomes room
+		     // for a separator.
                      std::size_t const elt_size{
                        pqxx::is_null(elt) ? std::size(s_null) :
                                             elt_traits::size_buffer(elt)};
