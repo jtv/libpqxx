@@ -962,13 +962,10 @@ public:
    * for the possibility that the handler may still receive a call after the
    * connection has been closed.
    */
-  template<typename CALLABLE> void set_notice_handler(CALLABLE &&handler)
+  void set_notice_handler(std::function<void(zview)> handler)
   {
-// XXX: Express noexcept on handler in code.
-    if (not m_notice_waiters)
-      m_notice_waiters = std::make_shared<pqxx::internal::notice_waiters>();
-// XXX: Can we get perfect forwarding here?
-    m_notice_waiters->notice_handler = handler;
+// XXX: Express noexcept on handler in code, somehow.
+    m_notice_waiters->notice_handler = std::move(handler);
   }
 
   /// @deprecated Return pointers to the active errorhandlers.
@@ -1063,7 +1060,7 @@ private:
   connection(connect_mode, zview connection_string);
 
   /// For use by @ref seize_raw_connection.
-  explicit connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn} {}
+  explicit connection(internal::pq::PGconn *raw_conn);
 
   /// Poll for ongoing connection, try to progress towards completion.
   /** Returns a pair of "now please wait to read data from socket" and "now
@@ -1077,6 +1074,7 @@ private:
   void init(char const options[]);
   // Initialise based on parameter names and values.
   void init(char const *params[], char const *values[]);
+  void set_up_notice_handlers();
   void complete_init();
 
   result make_result(
@@ -1163,6 +1161,7 @@ private:
   /// 9.0: Replace with just notice handler.
   std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
+  // TODO: Can we make these movable?
   using receiver_list =
     std::multimap<std::string, pqxx::notification_receiver *>;
   /// Notification receivers.

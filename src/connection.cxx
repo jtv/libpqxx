@@ -80,7 +80,7 @@ void process_notice_raw(
 } // namespace
 
 
-// XXX: Notice processor?  Or notice receiver?
+// XXX: Switch from using notice processor to using notice receiver?
 
 extern "C"
 {
@@ -92,12 +92,8 @@ extern "C"
       reinterpret_cast<pqxx::internal::notice_waiters *>(cx),
       pqxx::zview{msg});
   }
-
-
-  // There's no way in libpq to disable a connection's notice processor.  So,
-  // set an inert one to get the same effect.
-  void inert_notice_processor(void *, char const *) noexcept {}
 } // extern "C"
+
 
 using namespace std::literals;
 
@@ -138,11 +134,7 @@ pqxx::connection::connection(
   if (m_conn == nullptr)
     throw std::bad_alloc{};
 
-  // Our notice processor gets a pointer to our notice handler.  We can't
-  // just pass "this" here, because our callback may get called at a time when
-  // the pqxx::connection has already been destroyed and only a pqxx::result
-  // remains.
-  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, m_notice_waiters.get());
+  set_up_notice_handlers();
 
   if (status() == CONNECTION_BAD)
   {
@@ -151,6 +143,13 @@ pqxx::connection::connection(
     m_conn = nullptr;
     throw pqxx::broken_connection{msg};
   }
+}
+
+
+pqxx::connection::connection(internal::pq::PGconn *raw_conn) :
+  m_conn{raw_conn}
+{
+  set_up_notice_handlers();
 }
 
 
@@ -175,6 +174,22 @@ std::pair<bool, bool> pqxx::connection::poll_connect()
   }
 }
 
+
+void pqxx::connection::set_up_notice_handlers()
+{
+  if (not m_notice_waiters)
+    m_notice_waiters = std::make_shared<pqxx::internal::notice_waiters>();
+
+  // Our notice processor gets a pointer to our notice_waiters.  We can't
+  // just pass "this" to it, because it may get called at a time when the
+  // pqxx::connection has already been destroyed and only a pqxx::result
+  // remains.
+  if (m_conn != nullptr)
+    PQsetNoticeProcessor(
+      m_conn, pqxx_notice_processor, m_notice_waiters.get());
+}
+
+
 void pqxx::connection::complete_init()
 {
   if (m_conn == nullptr)
@@ -198,7 +213,7 @@ void pqxx::connection::complete_init()
 void pqxx::connection::init(char const options[])
 {
   m_conn = PQconnectdb(options);
-  PQsetNoticeProcessor(m_conn, pqxx_notice_processor, m_notice_waiters.get());
+  set_up_notice_handlers();
   complete_init();
 }
 
@@ -206,6 +221,7 @@ void pqxx::connection::init(char const options[])
 void pqxx::connection::init(char const *params[], char const *values[])
 {
   m_conn = PQconnectdbParams(params, values, 0);
+  set_up_notice_handlers();
   complete_init();
 }
 
@@ -347,16 +363,6 @@ void pqxx::connection::set_up_state()
   if (server_version() <= oldest_server)
     throw feature_not_supported{
       "Unsupported server version; 9.0 is the minimum."};
-
-  // The default notice processor in libpq writes to stderr.  Ours does
-  // nothing.
-  // If the caller registers an error handler, this gets replaced with an
-  // error handler that walks down the connection's chain of handlers.  We
-  // don't do that by default because there's a danger: libpq may call the
-  // notice processor via a result object, even after the connection has been
-  // destroyed and the handlers list no longer exists.
-  PQXX_LIKELY
-  PQsetNoticeProcessor(m_conn, inert_notice_processor, nullptr);
 }
 
 
@@ -374,7 +380,7 @@ void pqxx::connection::process_notice(char const msg[]) noexcept
 
 void pqxx::connection::process_notice(zview msg) noexcept
 {
-  if (m_notice_waiters and not msg.empty())
+  if (not msg.empty())
     process_notice_raw(m_notice_waiters.get(), msg);
 }
 
@@ -640,8 +646,6 @@ char const *pqxx::connection::err_msg() const noexcept
 
 void PQXX_COLD pqxx::connection::register_errorhandler(errorhandler *handler)
 {
-  if (not m_notice_waiters)
-    m_notice_waiters = std::make_shared<pqxx::internal::notice_waiters>();
   m_notice_waiters->errorhandlers.push_back(handler);
 }
 
@@ -651,20 +655,17 @@ pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 {
   // The errorhandler itself will take care of nulling its pointer to this
   // connection.
-  if (m_notice_waiters) m_notice_waiters->errorhandlers.remove(handler);
+  m_notice_waiters->errorhandlers.remove(handler);
 }
 
 
 std::vector<pqxx::errorhandler *>
   PQXX_COLD pqxx::connection::get_errorhandlers() const
 {
-  if (m_notice_waiters)
-    return {
-      std::begin(m_notice_waiters->errorhandlers),
-      std::end(m_notice_waiters->errorhandlers)
-    };
-  else
-    return {};
+  return {
+    std::begin(m_notice_waiters->errorhandlers),
+    std::end(m_notice_waiters->errorhandlers)
+  };
 }
 
 
@@ -757,11 +758,11 @@ void pqxx::connection::close()
     {
       // It's a bit iffy to unregister these in this destructor.  There may
       // still be result objects that want to process notices.  But it's an
-      // improvement to the 7.9-and-older situation where you'd simply get a
-      // stale pointer, and better yet, this whole mechanism is going away.
-      auto old_handlers{std::move(m_notice_waiters)};
-      auto const rbegin{std::crbegin(old_handlers->errorhandlers)},
-        rend{std::crend(old_handlers->errorhandlers)};
+      // improvement over the 7.9-and-older situation where you'd simply get a
+      // stale pointer.  Better yet, this whole mechanism is going away.
+      auto old_handlers{m_notice_waiters->errorhandlers};
+      auto const rbegin{std::crbegin(old_handlers)},
+        rend{std::crend(old_handlers)};
       for (auto i{rbegin}; i != rend; ++i)
         pqxx::internal::gate::errorhandler_connection{**i}.unregister();
     }

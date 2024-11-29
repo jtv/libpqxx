@@ -1,6 +1,7 @@
 #include <numeric>
 
 #include <pqxx/transaction>
+#include <pqxx/nontransaction>
 
 #include "../test_helpers.hxx"
 
@@ -183,7 +184,7 @@ void test_raw_connection()
 {
   pqxx::connection conn1;
   PQXX_CHECK(conn1.is_open(), "Fresh connection is not open!");
-  pqxx::work tx1{conn1};
+  pqxx::nontransaction tx1{conn1};
   PQXX_CHECK_EQUAL(
     tx1.query_value<int>("SELECT 8"), 8, "Something weird happened.");
   pqxx::internal::pq::PGconn *raw{std::move(conn1).release_raw_connection()};
@@ -195,7 +196,7 @@ void test_raw_connection()
   pqxx::connection conn2{pqxx::connection::seize_raw_connection(raw)};
   PQXX_CHECK(
     conn2.is_open(), "Can't produce open connection from raw connection.");
-  pqxx::work tx2{conn2};
+  pqxx::nontransaction tx2{conn2};
   PQXX_CHECK_EQUAL(
     tx2.query_value<int>("SELECT 9"), 9,
     "Raw connection did not produce a working new connection.");

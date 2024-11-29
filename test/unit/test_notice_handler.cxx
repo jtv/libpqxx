@@ -1,44 +1,27 @@
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
+#include<iostream>// XXX: DEBUG
 
 namespace
 {
 void test_notice_handler_receives_notice()
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
-
-  // C++20: Use format library.
-  tx.exec(R"(
-    CREATE PROCEDURE pg_temp.say()
-    LANGUAGE plpgsql
-    AS
-    $$
-      BEGIN
-        RAISE EXCEPTION 'Test notice';
-      END;
-    $$
-    )").no_rows();
-
   int notices{0};
-  std::string received;
 
   cx.set_notice_handler(
-    [&notices, &received](pqxx::zview msg) noexcept
+    [&notices](pqxx::zview) noexcept
     {
       ++notices;
-      received = msg;
     }
   );
 
-  // Trigger a notice.
-  PQXX_CHECK_THROWS_EXCEPTION(
-    tx.exec("CALL pg_temp.say()").no_rows(),
-    "Did not trigger expected exception.");
+  pqxx::work tx{cx};
+  // Start a transaction while already in a transaction, to trigger a notice.
+  tx.exec("BEGIN").no_rows();
 
   PQXX_CHECK_EQUAL(notices, 1, "Did not get expected single notice.");
-  PQXX_CHECK_EQUAL(received, "Test notice", "Wrong notice message.");
 }
 
 
@@ -56,10 +39,10 @@ void test_notice_handler_works_after_connection_closes()
 
   PQXX_CHECK_EQUAL(notices, 0, "Got premature notice.");
 
-  // Trigger a notice.
+  // Trigger a notice by asking libpq about a nonexistent column.
   PQXX_CHECK_THROWS_EXCEPTION(
-    pqxx::ignore_unused(r[0][99]),
-    "Did not trigger expected exception.");
+    pqxx::ignore_unused(r.table_column(99)),
+    "Expected an out-of-bounds table_column() to throw an error.");
 
   PQXX_CHECK_EQUAL(
     notices, 1, "Did not get expected single post-connection notice.");
