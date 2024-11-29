@@ -63,15 +63,82 @@ void test_process_notice_calls_notice_handler()
 }
 
 
-// XXX: Test stateless lambda.
-// XXX: Test function.
-// XXX: Test functor by value.
-// XXX: Test functor by reference.
-// XXX: Test functor by rvalue reference.
-// XXX: Test processing after copy/move construction/assignment.
+// Global counter so we can count calls to a global function.
+int notice_handler_test_func_counter{0};
+
+void notice_handler_test_func(pqxx::zview)
+{
+  ++notice_handler_test_func_counter;
+}
+
+
+void test_notice_handler_accepts_function()
+{
+  pqxx::connection cx;
+  cx.set_notice_handler(notice_handler_test_func);
+  cx.process_notice("Hello");
+  PQXX_CHECK_EQUAL(notice_handler_test_func_counter, 1, "Expected 1 call.");
+}
+
+
+int notice_handler_test_lambda_counter{0};
+
+void test_notice_handler_accepts_stateless_lambda()
+{
+  pqxx::connection cx;
+  cx.set_notice_handler(
+    [](pqxx::zview){ ++notice_handler_test_lambda_counter; });
+  cx.process_notice("Hello");
+  PQXX_CHECK_EQUAL(notice_handler_test_lambda_counter, 1, "Expected 1 call.");
+}
+
+
+struct notice_handler_test_functor
+{
+  int &count;
+  std::string &received;
+
+  notice_handler_test_functor(int &c, std::string &r) :
+    count{c},
+    received{r}
+  {
+  }
+
+  void operator()(pqxx::zview msg) noexcept
+  {
+    ++count;
+    received = msg;
+  }
+};
+
+
+void test_notice_handler_accepts_functor()
+{
+  std::string const hello{"Hello world"};
+
+  // We're going to create a functor that stores its call count and message
+  // her.  We can't store it inside the functor, because that gets passed by
+  // value to the connection as a std::function.
+  int count{0};
+  std::string received;
+  notice_handler_test_functor f(count, received);
+
+  pqxx::connection cx;
+  cx.set_notice_handler(f);
+  cx.process_notice(hello);
+
+  PQXX_CHECK_EQUAL(count, 1, "Expected 1 call.");
+  PQXX_CHECK_EQUAL(received, hello, "Wrong message.");
+}
+
+// XXX: Test std::function.
+// XXX: Test processing after connection copy/move construction/assignment.
 
 
 PQXX_REGISTER_TEST(test_notice_handler_receives_notice);
 PQXX_REGISTER_TEST(test_notice_handler_works_after_connection_closes);
 PQXX_REGISTER_TEST(test_process_notice_calls_notice_handler);
+PQXX_REGISTER_TEST(test_notice_handler_accepts_function);
+PQXX_REGISTER_TEST(test_notice_handler_accepts_stateless_lambda);
+PQXX_REGISTER_TEST(test_notice_handler_accepts_functor);
 } // namespace
