@@ -1,7 +1,6 @@
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
-#include<iostream>// XXX: DEBUG
 
 namespace
 {
