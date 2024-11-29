@@ -80,8 +80,6 @@ void process_notice_raw(
 } // namespace
 
 
-// XXX: Switch from using notice processor to using notice receiver?
-
 extern "C"
 {
   // The PQnoticeProcessor that receives an error or warning from libpq and
