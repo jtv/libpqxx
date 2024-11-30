@@ -462,7 +462,7 @@ if test "$found_fslib" != "yes"
 then
 	AC_MSG_ERROR([
 There seems to be <filesystem> support, but I could not figure out now to make
-it work.  You'll have to add set your own build options for this.
+it work.  You'll have to set your own build options for this.
 	])
 fi
 AC_MSG_RESULT($result_msg)
