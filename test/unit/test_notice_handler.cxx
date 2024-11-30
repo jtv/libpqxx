@@ -55,7 +55,9 @@ void test_process_notice_calls_notice_handler()
   const std::string msg{"Hello there\n"};
 
   pqxx::connection cx;
-  cx.set_notice_handler([&calls, &received](auto x){ ++calls; received = x; });
+  cx.set_notice_handler(
+    [&calls, &received](auto x) noexcept { ++calls; received = x; }
+  );
   cx.process_notice(msg);
 
   PQXX_CHECK_EQUAL(calls, 1, "Expected exactly 1 call to notice handler.");
@@ -87,7 +89,7 @@ void test_notice_handler_accepts_stateless_lambda()
 {
   pqxx::connection cx;
   cx.set_notice_handler(
-    [](pqxx::zview){ ++notice_handler_test_lambda_counter; });
+    [](pqxx::zview) noexcept { ++notice_handler_test_lambda_counter; });
   cx.process_notice("Hello");
   PQXX_CHECK_EQUAL(notice_handler_test_lambda_counter, 1, "Expected 1 call.");
 }
@@ -131,8 +133,26 @@ void test_notice_handler_accepts_functor()
   PQXX_CHECK_EQUAL(received, hello, "Wrong message.");
 }
 
-// XXX: Test std::function.
-// XXX: Test processing after connection copy/move construction/assignment.
+
+void test_notice_handler_works_after_moving_connection()
+{
+  bool got_message{false};
+  pqxx::connection cx;
+  cx.set_notice_handler(
+    [&got_message](pqxx::zview) noexcept { got_message = true; }
+  );
+  auto cx2{std::move(cx)};
+  pqxx::connection cx3;
+  cx3 = std::move(cx2);
+  pqxx::work tx{cx3};
+
+  // Trigger a notice.  Just calling process_notice() isn't hard enough for a
+  // good strong test, because that function bypasses the libpq logic for
+  // receiving a notice.
+  tx.exec("BEGIN").no_rows();
+
+  PQXX_CHECK(got_message, "Did not receive notice after moving.");
+}
 
 
 PQXX_REGISTER_TEST(test_notice_handler_receives_notice);
@@ -141,4 +161,5 @@ PQXX_REGISTER_TEST(test_process_notice_calls_notice_handler);
 PQXX_REGISTER_TEST(test_notice_handler_accepts_function);
 PQXX_REGISTER_TEST(test_notice_handler_accepts_stateless_lambda);
 PQXX_REGISTER_TEST(test_notice_handler_accepts_functor);
+PQXX_REGISTER_TEST(test_notice_handler_works_after_moving_connection);
 } // namespace
