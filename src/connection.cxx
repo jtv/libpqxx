@@ -758,7 +758,9 @@ void pqxx::connection::close()
       // still be result objects that want to process notices.  But it's an
       // improvement over the 7.9-and-older situation where you'd simply get a
       // stale pointer.  Better yet, this whole mechanism is going away.
-      auto old_handlers{m_notice_waiters->errorhandlers};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+      auto old_handlers{get_errorhandlers()};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
       auto const rbegin{std::crbegin(old_handlers)},
         rend{std::crend(old_handlers)};
       for (auto i{rbegin}; i != rend; ++i)
