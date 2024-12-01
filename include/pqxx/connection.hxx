@@ -284,8 +284,8 @@ public:
   }
 
   /// Move assignment.
-  /** Neither connection can have an open transaction, registered error
-   * handlers, or registered notification receivers.
+  /** Neither connection can have an open transaction, or registered
+   * notification receivers.
    */
   connection &operator=(connection &&rhs);
 
