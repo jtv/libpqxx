@@ -148,6 +148,7 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_exceptions.$(OBJEXT) unit/test_field.$(OBJEXT) \
 	unit/test_float.$(OBJEXT) unit/test_largeobject.$(OBJEXT) \
 	unit/test_nonblocking_connect.$(OBJEXT) \
+	unit/test_notice_handler.$(OBJEXT) \
 	unit/test_notification.$(OBJEXT) unit/test_pipeline.$(OBJEXT) \
 	unit/test_prepared_statement.$(OBJEXT) \
 	unit/test_range.$(OBJEXT) unit/test_read_transaction.$(OBJEXT) \
@@ -223,6 +224,7 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	unit/$(DEPDIR)/test_float.Po \
 	unit/$(DEPDIR)/test_largeobject.Po \
 	unit/$(DEPDIR)/test_nonblocking_connect.Po \
+	unit/$(DEPDIR)/test_notice_handler.Po \
 	unit/$(DEPDIR)/test_notification.Po \
 	unit/$(DEPDIR)/test_pipeline.Po \
 	unit/$(DEPDIR)/test_prepared_statement.Po \
@@ -525,6 +527,7 @@ runner_SOURCES = \
   unit/test_float.cxx \
   unit/test_largeobject.cxx \
   unit/test_nonblocking_connect.cxx \
+  unit/test_notice_handler.cxx \
   unit/test_notification.cxx \
   unit/test_pipeline.cxx \
   unit/test_prepared_statement.cxx \
@@ -636,6 +639,8 @@ unit/test_float.$(OBJEXT): unit/$(am__dirstamp) \
 unit/test_largeobject.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_nonblocking_connect.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_notice_handler.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_notification.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
@@ -762,6 +767,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
@@ -1108,6 +1114,7 @@ distclean: distclean-am
 	-rm -f unit/$(DEPDIR)/test_float.Po
 	-rm -f unit/$(DEPDIR)/test_largeobject.Po
 	-rm -f unit/$(DEPDIR)/test_nonblocking_connect.Po
+	-rm -f unit/$(DEPDIR)/test_notice_handler.Po
 	-rm -f unit/$(DEPDIR)/test_notification.Po
 	-rm -f unit/$(DEPDIR)/test_pipeline.Po
 	-rm -f unit/$(DEPDIR)/test_prepared_statement.Po
@@ -1239,6 +1246,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f unit/$(DEPDIR)/test_float.Po
 	-rm -f unit/$(DEPDIR)/test_largeobject.Po
 	-rm -f unit/$(DEPDIR)/test_nonblocking_connect.Po
+	-rm -f unit/$(DEPDIR)/test_notice_handler.Po
 	-rm -f unit/$(DEPDIR)/test_notification.Po
 	-rm -f unit/$(DEPDIR)/test_pipeline.Po
 	-rm -f unit/$(DEPDIR)/test_prepared_statement.Po

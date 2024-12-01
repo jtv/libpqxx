@@ -81,6 +81,7 @@ pqxx::transaction_base::~transaction_base()
     }
     catch (std::exception const &)
     {
+      // TODO: Make at least an attempt to append a newline.
       process_notice(e.what());
     }
   }
@@ -328,6 +329,7 @@ void pqxx::transaction_base::close() noexcept
     }
     catch (std::exception const &e)
     {
+      // TODO: Make at least an attempt to append a newline.
       m_conn.process_notice(e.what());
     }
 
@@ -353,6 +355,7 @@ void pqxx::transaction_base::close() noexcept
     }
     catch (std::exception const &e)
     {
+      // TODO: Make at least an attempt to append a newline.
       m_conn.process_notice(e.what());
     }
   }
@@ -360,6 +363,7 @@ void pqxx::transaction_base::close() noexcept
   {
     try
     {
+      // TODO: Make at least an attempt to append a newline.
       m_conn.process_notice(e.what());
     }
     catch (std::exception const &)
@@ -406,7 +410,8 @@ void pqxx::transaction_base::unregister_focus(
   }
   catch (std::exception const &e)
   {
-    m_conn.process_notice(internal::concat(e.what(), "\n"));
+    // TODO: Make at least an attempt to append a newline.
+    m_conn.process_notice(e.what());
   }
 }
 
@@ -442,8 +447,9 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
       {
         PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
+	// TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
-        process_notice("ERROR WAS:");
+        process_notice("ERROR WAS:\n");
         process_notice(err);
       }
       catch (...)
@@ -467,8 +473,9 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
       {
         PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
+	// TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
-        process_notice("ERROR WAS:");
+        process_notice("ERROR WAS:\n");
         process_notice(err);
       }
       catch (...)

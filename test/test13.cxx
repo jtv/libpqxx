@@ -66,7 +66,9 @@ void test_013()
     Before.second, 0,
     "Already have event for " + to_string(BoringYear) + "--can't test.");
 
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   quiet_errorhandler d(cx);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
     perform([&cx, &Table] { failed_insert(cx, Table); }), deliberate_error,
     "Failing transactor failed to throw correct exception.");

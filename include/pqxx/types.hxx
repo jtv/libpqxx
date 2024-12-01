@@ -52,6 +52,8 @@ class const_reverse_result_iterator;
 class const_reverse_row_iterator;
 class const_row_iterator;
 class dbtransaction;
+// 9.0: Remove this.
+class errorhandler;
 class field;
 class largeobjectaccess;
 class notification_receiver;

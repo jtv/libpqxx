@@ -12,7 +12,9 @@ void test_056()
 {
   connection cx;
   work tx{cx};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   quiet_errorhandler d(cx);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   PQXX_CHECK_THROWS(
     tx.exec("DELIBERATELY INVALID TEST QUERY..."), sql_error,

@@ -117,8 +117,11 @@ pqxx::blob::~blob()
   catch (std::exception const &e)
   {
     if (m_conn != nullptr)
-      m_conn->process_notice(internal::concat(
-        "Failure while closing binary large object: ", e.what(), "\n"));
+    {
+      m_conn->process_notice("Failure while closing binary large object:\n");
+      // TODO: Make at least an attempt to append a newline.
+      m_conn->process_notice(e.what());
+    }
   }
 }
 
@@ -246,7 +249,7 @@ pqxx::oid pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id)
       {
         tx.conn().process_notice(internal::concat(
           "Could not clean up partially created large object ", id, ": ",
-          e.what()));
+          e.what(), "\n"));
       }
       catch (std::exception const &)
       {}

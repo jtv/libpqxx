@@ -1,4 +1,5 @@
-7.9.3
+7.10.0
+ - Deprecate `errorhandler`; replace with lambda-friendly "notice handlers."
  - Bump minimum CMake version to 3.28. (#874)
  - Fixed error message on clashing transaction focuses. (#879)
  - Don't call`/bin/true`; macOS doesn't have it.  Just call `true`. (#885)
@@ -7,6 +8,7 @@
  - Fix error-reporting crash in non-blocking connection constructor. (#894)
  - Fix buffer overrun when converting array containing nulls to string. (#906)
  - Fix nullness check for `std::optional` containing a nullable value. (#907)
+ - `connection::process_notice()` no longer appends newline if missing.
 7.9.2
  - Fix CMake documentation install. (#848)
  - More CMake build fix. (#869)

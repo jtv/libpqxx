@@ -25,6 +25,7 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 // Double-check in order to suppress an overzealous Visual C++ warning (#418).
 #if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
@@ -51,12 +52,11 @@
  * a @ref pqxx::connection object.  It connects to a database when you create
  * it, and it terminates that communication during destruction.
  *
- * Many things come together in this class.  Handling of error and warning
- * messages, for example, is defined by @ref pqxx::errorhandler objects in the
- * context of a connection.  Prepared statements are also defined here.  For
- * actually executing SQL on it, however, you'll also need a transaction
- * object which operates "on top of" the connection.  (See @ref transactions
- * for more about these.)
+ * Many things come together in this class.  For example, if you want custom
+ * handling of error andwarning messages, you control that in the context of a
+ * connection.  You also define prepared statements here.  For actually
+ * executing SQL, however, you'll also need a transaction object which operates
+ * "on top of" the connection.  (See @ref transactions for more about these.)
  *
  * When you connect to a database, you pass a connection string containing any
  * parameters and options, such as the server address and the database name.
@@ -492,8 +492,8 @@ public:
    * we do consider the notification processed.
    *
    * If any of the client-registered receivers throws an exception, the
-   * function will report it using the connection's errorhandlers.  It does not
-   * re-throw the exceptions.
+   * function will report it using the connection's notice handler.  It does
+   * not re-throw the exceptions.
    *
    * @return Number of notifications processed.
    */
@@ -936,6 +936,9 @@ public:
   /** Set the verbosity of error messages to "terse", "normal" (the default),
    * or "verbose."
    *
+   * This affects the notices that the `connection` and its `result` objects
+   * will pass to your notice handler.
+   *
    *  If "terse", returned messages include severity, primary text, and
    * position only; this will normally fit on a single line. "normal" produces
    * messages that include the above plus any detail, hint, or context fields
@@ -944,20 +947,35 @@ public:
    */
   void set_verbosity(error_verbosity verbosity) & noexcept;
 
-  /// Return pointers to the active errorhandlers.
-  /** The entries are ordered from oldest to newest handler.
+  // C++20: Use std::callable.
+
+  /// Set a notice handler to the connection.
+  /** When a notice comes in (a warning or error message), the connection or
+   * result object on which it happens will call the notice handler, passing
+   * the message as its argument.
    *
-   * You may use this to find errorhandlers that your application wants to
-   * delete when destroying the connection.  Be aware, however, that libpqxx
-   * may also add errorhandlers of its own, and those will be included in the
-   * list.  If this is a problem for you, derive your errorhandlers from a
-   * custom base class derived from pqxx::errorhandler.  Then use dynamic_cast
-   * to find which of the error handlers are yours.
+   * The handler must not throw any exceptions.  If it does, the program will
+   * terminate.
+   *
+   * @warning It's not just the `connection` that can call a notice handler,
+   * but any of the `result` objects that it produces as well.  So, be prepared
+   * for the possibility that the handler may still receive a call after the
+   * connection has been closed.
+   */
+  void set_notice_handler(std::function<void(zview)> handler)
+  {
+// XXX: Express noexcept on handler in code, somehow.
+    m_notice_waiters->notice_handler = std::move(handler);
+  }
+
+  /// @deprecated Return pointers to the active errorhandlers.
+  /** The entries are ordered from oldest to newest handler.
    *
    * The pointers point to the real errorhandlers.  The container it returns
    * however is a copy of the one internal to the connection, not a reference.
    */
-  [[nodiscard]] std::vector<errorhandler *> get_errorhandlers() const;
+  [[nodiscard, deprecated("Use a notice handler instead.")]]
+  std::vector<errorhandler *> get_errorhandlers() const;
 
   /// Return a connection string encapsulating this connection's options.
   /** The connection must be currently open for this to work.
@@ -1035,7 +1053,7 @@ private:
   connection(connect_mode, zview connection_string);
 
   /// For use by @ref seize_raw_connection.
-  explicit connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn} {}
+  explicit connection(internal::pq::PGconn *raw_conn);
 
   /// Poll for ongoing connection, try to progress towards completion.
   /** Returns a pair of "now please wait to read data from socket" and "now
@@ -1049,6 +1067,7 @@ private:
   void init(char const options[]);
   // Initialise based on parameter names and values.
   void init(char const *params[], char const *values[]);
+  void set_up_notice_handlers();
   void complete_init();
 
   result make_result(
@@ -1068,8 +1087,6 @@ private:
 
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
-
-  void PQXX_PRIVATE process_notice_raw(char const msg[]) noexcept;
 
   result exec_prepared(std::string_view statement, internal::c_params const &);
 
@@ -1134,8 +1151,10 @@ private:
    */
   transaction_base const *m_trans = nullptr;
 
-  std::list<errorhandler *> m_errorhandlers;
+  /// 9.0: Replace with just notice handler.
+  std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
+  // TODO: Can we make these movable?
   using receiver_list =
     std::multimap<std::string, pqxx::notification_receiver *>;
   /// Notification receivers.
