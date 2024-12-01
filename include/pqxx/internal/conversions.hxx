@@ -335,11 +335,12 @@ template<typename... T> struct nullness<std::variant<T...>>
   static constexpr bool always_null = (nullness<T>::always_null and ...);
   static constexpr bool is_null(std::variant<T...> const &value) noexcept
   {
-    return value.valueless_by_exception() or std::visit(
-      [](auto const &i) noexcept {
-        return nullness<strip_t<decltype(i)>>::is_null(i);
-      },
-      value);
+    return value.valueless_by_exception() or
+           std::visit(
+             [](auto const &i) noexcept {
+               return nullness<strip_t<decltype(i)>>::is_null(i);
+             },
+             value);
   }
 
   // We don't support `null()` for `std::variant`.
@@ -517,8 +518,10 @@ template<> struct string_traits<char const *>
 
   static std::size_t size_buffer(char const *const &value) noexcept
   {
-    if (pqxx::is_null(value)) return 0;
-    else return std::strlen(value) + 1;
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return std::strlen(value) + 1;
   }
 };
 
@@ -551,8 +554,10 @@ template<> struct string_traits<char *>
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
-    if (pqxx::is_null(value)) return 0;
-    else return string_traits<char const *>::size_buffer(value);
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return string_traits<char const *>::size_buffer(value);
   }
 
   /// Don't allow conversion to this type since it breaks const-safety.
@@ -871,8 +876,10 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
-    if (pqxx::is_null(value)) return 0;
-    else return pqxx::size_buffer(*value);
+    if (pqxx::is_null(value))
+      return 0;
+    else
+      return pqxx::size_buffer(*value);
   }
 };
 
@@ -1123,7 +1130,7 @@ public:
                    [](std::size_t acc, elt_type const &elt) {
                      // Opening and closing quotes, plus worst-case escaping,
                      // and the one byte for the trailing zero becomes room
-		     // for a separator.
+                     // for a separator.
                      std::size_t const elt_size{
                        pqxx::is_null(elt) ? std::size(s_null) :
                                             elt_traits::size_buffer(elt)};
