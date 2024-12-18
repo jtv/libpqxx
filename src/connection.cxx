@@ -655,10 +655,7 @@ int pqxx::connection::get_notifs()
 
     auto const handler{m_notification_handlers.find(N->relname)};
     if (handler != std::end(m_notification_handlers))
-    {
-      ++notifs;
       (handler->second)(name, N->be_pid, N->extra);
-    }
 
     N.reset();
   }
