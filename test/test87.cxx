@@ -32,7 +32,8 @@ void test_087()
 
   cx.listen(
     channel,
-    [&backend_pid](pqxx::zview, int pid, pqxx::zview){ backend_pid = pid; });
+    [&backend_pid](pqxx::zview, int pid, pqxx::zview) noexcept
+    { backend_pid = pid; });
 
   pqxx::perform([&cx, &channel] {
     pqxx::work tx{cx};

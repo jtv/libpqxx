@@ -18,7 +18,9 @@ void test_078()
   bool done{false};
 
   std::string const channel{"my listener"};
-  cx.listen(channel, [&done](pqxx::zview, int, pqxx::zview){ done = true; });
+  cx.listen(
+    channel,
+    [&done](pqxx::zview, int, pqxx::zview) noexcept { done = true; });
 
   pqxx::perform([&cx, &channel] {
     pqxx::nontransaction tx{cx};

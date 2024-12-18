@@ -25,7 +25,8 @@ void test_004()
   int backend_pid{0};
   cx.listen(
     channel,
-    [&backend_pid](pqxx::zview, int pid, pqxx::zview){ backend_pid = pid; });
+    [&backend_pid](pqxx::zview, int pid, pqxx::zview) noexcept
+    { backend_pid = pid; });
 
   // Trigger our notification receiver.
   pqxx::perform([&cx, &channel] {
