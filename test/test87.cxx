@@ -23,46 +23,25 @@
 // multiple sockets.
 namespace
 {
-// Sample implementation of notification receiver.
-class TestListener final : public pqxx::notification_receiver
-{
-  bool m_done;
-
-public:
-  explicit TestListener(pqxx::connection &cx, std::string Name) :
-          pqxx::notification_receiver(cx, Name), m_done(false)
-  {}
-
-  void operator()(std::string const &, int be_pid) override
-  {
-    m_done = true;
-    PQXX_CHECK_EQUAL(
-      be_pid, conn().backendpid(),
-      "Notification came from wrong backend process.");
-
-    std::cout << "Received notification: " << channel() << " pid=" << be_pid
-              << std::endl;
-  }
-
-  bool done() const { return m_done; }
-};
-
-
 void test_087()
 {
   pqxx::connection cx;
 
-  std::string const NotifName{"my notification"};
-  TestListener L{cx, NotifName};
+  std::string const channel{"my notification"};
+  int backend_pid{0};
 
-  pqxx::perform([&cx, &L] {
+  cx.listen(
+    channel,
+    [&backend_pid](pqxx::zview, int pid, pqxx::zview){ backend_pid = pid; });
+
+  pqxx::perform([&cx, &channel] {
     pqxx::work tx{cx};
-    tx.exec("NOTIFY " + tx.quote_name(L.channel())).no_rows();
+    tx.notify(channel);
     tx.commit();
   });
 
   int notifs{0};
-  for (int i{0}; (i < 20) and not L.done(); ++i)
+  for (int i{0}; (i < 20) and (backend_pid == 0); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
 
@@ -73,7 +52,8 @@ void test_087()
   }
   std::cout << std::endl;
 
-  PQXX_CHECK(L.done(), "No notification received.");
+  PQXX_CHECK_EQUAL(
+    backend_pid, cx.backendpid(), "Notification came from wrong backend.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got unexpected number of notifications.");
 }
 } // namespace

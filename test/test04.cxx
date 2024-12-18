@@ -28,7 +28,7 @@ void test_004()
     [&backend_pid](pqxx::zview, int pid, pqxx::zview){ backend_pid = pid; });
 
   // Trigger our notification receiver.
-  perform([&cx, &channel] {
+  pqxx::perform([&cx, &channel] {
     pqxx::work tx(cx);
     tx.notify(channel);
     tx.commit();
