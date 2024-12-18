@@ -419,6 +419,50 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 }
 
 
+void pqxx::connection::listen(
+    std::string_view name, notification_handler handler)
+{
+  if (m_trans != nullptr)
+    throw usage_error{pqxx::internal::concat(
+      "Attempting to listen for notifications on '", name,
+      "' while transaction is active.")};
+
+  std::string str_name{name};
+
+  auto const
+    pos{m_notification_handlers.lower_bound(str_name)},
+    handlers_end{std::end(m_notification_handlers)};
+
+  if (handler)
+  {
+    // Setting a handler.
+    if ((pos != handlers_end) and (pos->first == name))
+    {
+      // Overwrite existing handler.
+      m_notification_handlers.insert_or_assign(
+        pos, std::move(str_name), std::move(handler));
+    }
+    else
+    {
+      // We had no handler installed for this name.  Start listening.
+      exec(pqxx::internal::concat("LISTEN ", quote_name(name))).no_rows();
+      m_notification_handlers.emplace_hint(pos, name, std::move(handler));
+    }
+  }
+  else
+  {
+    // Installing an empty handler.  That's equivalent to removing whatever
+    // handler may have been installed previously.
+    if (pos != handlers_end)
+    {
+      // Yes, we had a handler for this name.  Remove it.
+      exec(pqxx::internal::concat("UNLISTEN ", quote_name(name))).no_rows();
+      m_notification_handlers.erase(pos);
+    }
+  }
+}
+
+
 void PQXX_COLD
 pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
 {

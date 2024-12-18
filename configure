@@ -18690,7 +18690,7 @@ if test "$found_fslib" != "yes"
 then
 	as_fn_error $? "
 There seems to be <filesystem> support, but I could not figure out now to make
-it work.  You'll have to add set your own build options for this.
+it work.  You'll have to set your own build options for this.
 	" "$LINENO" 5
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $result_msg" >&5
