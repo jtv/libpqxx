@@ -619,9 +619,9 @@ int pqxx::connection::get_notifs()
   {
     notifs++;
 
-    std::string const name{N->relname};
+    std::string const channel{N->relname};
 
-    auto const Hit{m_receivers.equal_range(name)};
+    auto const Hit{m_receivers.equal_range(channel)};
     if (Hit.second != Hit.first)
     {
       std::string const payload{N->extra};
@@ -654,8 +654,9 @@ int pqxx::connection::get_notifs()
     }
 
     auto const handler{m_notification_handlers.find(N->relname)};
+    // C++20: Use "dot notation" to initialise struct fields.
     if (handler != std::end(m_notification_handlers))
-      (handler->second)(name, N->be_pid, N->extra);
+      (handler->second)(notification{*this, channel, N->extra, N->be_pid});
 
     N.reset();
   }

@@ -120,6 +120,54 @@ class const_connection_largeobject;
 
 namespace pqxx
 {
+/// An incoming notification.
+/** PostgreSQL extends SQL with a "message bus" using the `LISTEN` and `NOTIFY`
+ * commands.  In libpqxx you use @ref connection::listen() and (optionally)
+ * @ref transaction_base::notify().
+ *
+ * When you receive a notification for which you have been listening, your
+ * handler receives it in the form of a `notification` object.
+ *
+ * @warning These structs are meant for extremely short lifespans: the fields
+ * reference memory that may become invalid as soon as your handler has been
+ * called.
+ */
+struct notification
+{
+  /// The connection which received the notification.
+  /** There will be no _backend_ transaction active on the connection when your
+   * handler gets called, but there may be a @ref nontransaction.  (This is a
+   * special transaction type in libpqxx which does not start a transaction on
+   * the backend.)
+   */
+  connection &conn;
+
+  /// Channel name.
+  /** The notification logic will only pass the notification to a handler which
+   * was registered to listen on this exact name.
+   */
+  zview channel;
+
+  /// Optional payload text.
+  /** If the notification did not carry a payload, the string will be empty.
+   */
+  zview payload;
+
+  /// Process ID of the backend that sent the notification.
+  /** This can be useful in situations where a multiple clients are listening
+   * on the same channel, and also send notifications on it.
+   *
+   * In those situations, it often makes sense for a client to ignore its own
+   * incoming notifications, but handle all others on the same channel in some
+   * way.
+   *
+   * To check for that, compare this process ID to the return value of the
+   * connection's `backendpid()`.
+   */
+  int backend_pid;
+};
+
+
 /// Flags for skipping initialisation of SSL-related libraries.
 /** When a running process makes its first SSL connection to a database through
  * libpqxx, libpq automatically initialises the OpenSSL and libcrypto
@@ -623,29 +671,28 @@ public:
    */
   int await_notification(std::time_t seconds, long microseconds);
 
-  /// A handler callback for notifications.
-  /** A notification handler takes 3 arguments: the _channel name_ to which
-   * the notification was sent; the process ID of the backend that sent the
-   * notification; and an optional "payload" text.  If there was no payload,
-   * you will receive an empty string there.
+  /// A handler callback for incoming notifications on a given channel.
+  /** Your callback must accept a @ref notification object.  This object can
+   * and will exist only for the duration of the handling of that one incoming
+   * notification.
    *
-   * Why the backend process ID?  Because sometimes you may want to send out
-   * a notification for every client listening on a channel, except yourself.
-   * If you sent out the notification yourself in the same session, then the
-   * handler will receive a process ID that's identical to the one that your
-   * connection's @ref backendpid() returns. 
+   * The handler can be "empty," i.e. contain no code.  Setting an empty
+   * handler on a channel disables listening on that channel.
    */
-  using notification_handler = std::function<void(zview, int, zview)>;
+  using notification_handler = std::function<void(notification)>;
 
   /// Attach a handler to a notification channel.
-  /** Issues a `LISTEN` SQL command for channel `name`, and stores `handler`
+  /** Issues a `LISTEN` SQL command for channel `channel`, and stores `handler`
    * as the callback for when a notification comes in on that channel.
    *
    * The handler is a `std::function` (see @ref notification_handler), but you
-   * can simply pass in a lambda with the right parameters.  Your handler
-   * probably needs to interact with your application's data; the simple way to
-   * get that working is to pass a lambda with a closure referencing the data
-   * items you need.
+   * can simply pass in a lambda with the right parameters, or a function, or
+   * an object of a type you define that happens to implemnt the right function
+   * call operator.
+   *
+   * Your handler probably needs to interact with your application's data; the
+   * simple way to get that working is to pass a lambda with a closure
+   * referencing the data items you need.
    *
    * If the handler is empty (the default), then that stops the connection
    * listening on the channel.  It cancels your subscription, so to speak.
@@ -656,7 +703,7 @@ public:
    * different handlers on the same channel, then the second overwrites the
    * first.
    */
-  void listen(std::string_view name, notification_handler handler = {});
+  void listen(std::string_view channel, notification_handler handler = {});
 
   //@}
 
