@@ -302,6 +302,22 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 }
 
 
+void pqxx::transaction_base::notify(std::string_view name)
+{
+  exec(pqxx::internal::concat("NOTIFY ", quote_name(name))).no_rows();
+}
+
+
+void pqxx::transaction_base::notify(
+  std::string_view name, std::string_view payload)
+{
+  exec(pqxx::internal::concat(
+    "NOTIFY ", quote_name(name), ", $1"),
+    params{payload}
+  ).no_rows();
+}
+
+
 void pqxx::transaction_base::set_variable(
   std::string_view var, std::string_view value)
 {

@@ -13,6 +13,7 @@
 
 namespace
 {
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
 class TestReceiver final : public pqxx::notification_receiver
 {
 public:
@@ -80,6 +81,7 @@ void test_notification()
   pqxx::nontransaction u(cx);
   test_receive(u, "channel2", "payload");
 }
+#include <pqxx/internal/ignore-deprecated-post.hxx>
 
 
 PQXX_REGISTER_TEST(test_notification);
