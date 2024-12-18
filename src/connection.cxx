@@ -608,16 +608,20 @@ int pqxx::connection::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_trans)
+  if (m_trans != nullptr)
     PQXX_UNLIKELY
   return 0;
 
   int notifs = 0;
+
+  // Old mechanism.  This is going away.
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
   {
     notifs++;
 
-    auto const Hit{m_receivers.equal_range(std::string{N->relname})};
+    std::string const name{N->relname};
+
+    auto const Hit{m_receivers.equal_range(name)};
     if (Hit.second != Hit.first)
     {
       std::string const payload{N->extra};
@@ -649,8 +653,16 @@ int pqxx::connection::get_notifs()
         }
     }
 
+    auto const handler{m_notification_handlers.find(N->relname)};
+    if (handler != std::end(m_notification_handlers))
+    {
+      ++notifs;
+      (handler->second)(name, N->be_pid, N->extra);
+    }
+
     N.reset();
   }
+
   return notifs;
 }
 

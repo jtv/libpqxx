@@ -1283,6 +1283,7 @@ private:
   /// 9.0: Replace with just notice handler.
   std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
+  // TODO: Remove these when we retire notification_receiver.
   // TODO: Can we make these movable?
   using receiver_list =
     std::multimap<std::string, pqxx::notification_receiver *>;
