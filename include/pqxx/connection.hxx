@@ -633,7 +633,7 @@ public:
    * a notification for every client listening on a channel, except yourself.
    * If you sent out the notification yourself in the same session, then the
    * handler will receive a process ID that's identical to the one that your
-   * connection's @ref backend_pid() returns. 
+   * connection's @ref backendpid() returns. 
    */
   using notification_handler = std::function<void(zview, int, zview)>;
 

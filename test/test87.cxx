@@ -11,7 +11,6 @@
 
 #include <pqxx/internal/header-post.hxx>
 
-#include <pqxx/notification>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
 

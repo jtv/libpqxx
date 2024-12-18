@@ -9,57 +9,33 @@
 
 #include <pqxx/internal/header-post.hxx>
 
-#include <pqxx/notification>
 #include <pqxx/transaction>
 #include <pqxx/transactor>
 
 #include "test_helpers.hxx"
 
-using namespace pqxx;
-
 // Example program for libpqxx.  Send notification to self.
 
 namespace
 {
-int Backend_PID{0};
-
-
-// Sample implementation of notification receiver.
-class TestListener final : public notification_receiver
-{
-  bool m_done;
-
-public:
-  explicit TestListener(connection &cx) :
-          notification_receiver(cx, "listen"), m_done(false)
-  {}
-
-  virtual void operator()(std::string const &, int be_pid) override
-  {
-    m_done = true;
-    PQXX_CHECK_EQUAL(
-      be_pid, Backend_PID, "Notification came from wrong backend process.");
-  }
-
-  bool done() const { return m_done; }
-};
-
-
 void test_004()
 {
-  connection cx;
+  auto const channel{"pqxx_test_notif"};
+  pqxx::connection cx;
+  int backend_pid{0};
+  cx.listen(
+    channel,
+    [&backend_pid](pqxx::zview, int pid, pqxx::zview){ backend_pid = pid; });
 
-  TestListener L{cx};
   // Trigger our notification receiver.
-  perform([&cx, &L] {
-    work tx(cx);
-    tx.exec("NOTIFY " + cx.quote_name(L.channel())).no_rows();
-    Backend_PID = cx.backendpid();
+  perform([&cx, &channel] {
+    pqxx::work tx(cx);
+    tx.notify(channel);
     tx.commit();
   });
 
   int notifs{0};
-  for (int i{0}; (i < 20) and not L.done(); ++i)
+  for (int i{0}; (i < 20) and (backend_pid == 0); ++i)
   {
     PQXX_CHECK_EQUAL(notifs, 0, "Got unexpected notifications.");
     // Sleep for one second.  I'm not proud of this, but how does one inject
@@ -68,7 +44,10 @@ void test_004()
     notifs = cx.get_notifs();
   }
 
-  PQXX_CHECK_NOT_EQUAL(L.done(), false, "No notification received.");
+  PQXX_CHECK_EQUAL(
+    backend_pid,
+    cx.backendpid(),
+    "Did not get our notification from our own backend.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");
 }
 
