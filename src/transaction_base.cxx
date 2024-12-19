@@ -302,18 +302,13 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 }
 
 
-void pqxx::transaction_base::notify(std::string_view name)
-{
-  exec(pqxx::internal::concat("NOTIFY ", quote_name(name))).no_rows();
-}
-
-
 void pqxx::transaction_base::notify(
-  std::string_view name, std::string_view payload)
+  std::string_view channel, std::string_view payload)
 {
-  exec(
-    pqxx::internal::concat("NOTIFY ", quote_name(name), ", ", quote(payload))
-  ).no_rows();
+  // For some reason, NOTIFY does not work as a parameterised statement,
+  // even just for the payload (which is supposed to be a normal string).
+  // Luckily, pg_notify() does.
+  exec("SELECT pg_notify($1, $2)", params{channel, payload}).one_row();
 }
 
 

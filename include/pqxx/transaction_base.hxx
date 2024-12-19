@@ -901,19 +901,15 @@ public:
    *
    * Unless this transaction is a nontransaction, the actual notification only
    * goes out once the outer transaction is committed.
-   */
-  void notify(std::string_view name);
-
-  /// Send a notification.
-  /** Convenience shorthand for executing a "NOTIFY" command.  Most of the
-   * logic for handling _incoming_ notifications is in @ref pqxx::connection
-   * (particularly @ref pqxx::connection::listen), but _outgoing_
-   * notifications happen here.
    *
-   * Unless this transaction is a nontransaction, the actual notification only
-   * goes out once the outer transaction is committed.
+   * @param channel Name of the "channel" on which clients will need to be
+   * listening in order to receive this notification.
+   *
+   * @param payload Optional argument string which any listeners will also
+   * receive.  If you leave this out, they will receive an empty string as the
+   * payload.
    */
-  void notify(std::string_view name, std::string_view payload);
+  void notify(std::string_view channel, std::string_view payload = {});
   //@}
 
   /// Execute a prepared statement, with optional arguments.
