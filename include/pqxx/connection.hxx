@@ -669,7 +669,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int await_notification(std::time_t seconds, long microseconds);
+  int await_notification(std::time_t seconds, long microseconds = 0);
 
   /// A handler callback for incoming notifications on a given channel.
   /** Your callback must accept a @ref notification object.  This object can

@@ -311,9 +311,8 @@ void pqxx::transaction_base::notify(std::string_view name)
 void pqxx::transaction_base::notify(
   std::string_view name, std::string_view payload)
 {
-  exec(pqxx::internal::concat(
-    "NOTIFY ", quote_name(name), ", $1"),
-    params{payload}
+  exec(
+    pqxx::internal::concat("NOTIFY ", quote_name(name), ", ", quote(payload))
   ).no_rows();
 }
 
