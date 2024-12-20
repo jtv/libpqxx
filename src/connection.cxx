@@ -420,14 +420,14 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 
 
 void pqxx::connection::listen(
-    std::string_view name, notification_handler handler)
+    std::string_view channel, notification_handler handler)
 {
   if (m_trans != nullptr)
     throw usage_error{pqxx::internal::concat(
-      "Attempting to listen for notifications on '", name,
+      "Attempting to listen for notifications on '", channel,
       "' while transaction is active.")};
 
-  std::string str_name{name};
+  std::string str_name{channel};
 
   auto const
     pos{m_notification_handlers.lower_bound(str_name)},
@@ -436,7 +436,7 @@ void pqxx::connection::listen(
   if (handler)
   {
     // Setting a handler.
-    if ((pos != handlers_end) and (pos->first == name))
+    if ((pos != handlers_end) and (pos->first == channel))
     {
       // Overwrite existing handler.
       m_notification_handlers.insert_or_assign(
@@ -445,8 +445,8 @@ void pqxx::connection::listen(
     else
     {
       // We had no handler installed for this name.  Start listening.
-      exec(pqxx::internal::concat("LISTEN ", quote_name(name))).no_rows();
-      m_notification_handlers.emplace_hint(pos, name, std::move(handler));
+      exec(pqxx::internal::concat("LISTEN ", quote_name(channel))).no_rows();
+      m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
     }
   }
   else
@@ -456,7 +456,7 @@ void pqxx::connection::listen(
     if (pos != handlers_end)
     {
       // Yes, we had a handler for this name.  Remove it.
-      exec(pqxx::internal::concat("UNLISTEN ", quote_name(name))).no_rows();
+      exec(pqxx::internal::concat("UNLISTEN ", quote_name(channel))).no_rows();
       m_notification_handlers.erase(pos);
     }
   }
