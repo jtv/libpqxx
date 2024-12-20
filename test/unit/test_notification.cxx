@@ -8,6 +8,7 @@
 
 #include <pqxx/nontransaction>
 #include <pqxx/notification>
+#include <pqxx/subtransaction>
 
 #include "../test_helpers.hxx"
 
@@ -156,15 +157,169 @@ void test_notification_has_payload()
   PQXX_CHECK_EQUAL(received, payload, "Unexpected payload.");
 }
 
-// XXX: different kinds of callable, including different signatures.
-// XXX: nontransaction.
-// XXX: subtransaction.
+
+// Functor-shaped notification handler.
+struct notify_test_listener
+{
+  int &received;
+  notify_test_listener(int &r) : received{r} {}
+  void operator()(pqxx::notification) { ++received; }
+};
+
+
+void test_listen_supports_different_types_of_callable()
+{
+  auto const chan{"pqxx-test-listen"};
+  pqxx::connection cx;
+  int received;
+
+  // Using a functor as a handler.
+  received = 0;
+  notify_test_listener l(received);
+  cx.listen(chan, l);
+  pqxx::work tx1{cx};
+  tx1.notify(chan);
+  tx1.commit();
+  cx.await_notification(3);
+  PQXX_CHECK_EQUAL(received, 1, "Notification did not arrive.");
+
+  // Using a handler that takes a const reference to the notification.
+  received = 0;
+  cx.listen(chan, [&received](pqxx::notification const &) { ++received; });
+  pqxx::work tx2{cx};
+  tx2.notify(chan);
+  tx2.commit();
+  cx.await_notification(3);
+  PQXX_CHECK_EQUAL(received, 1, "Const ref did not receive notification.");
+
+  // Using a handler that takes an rvalue reference.
+  received = 0;
+  cx.listen(chan, [&received](pqxx::notification &&) { ++received; });
+  pqxx::work tx3{cx};
+  tx3.notify(chan);
+  tx3.commit();
+  cx.await_notification(3);
+  PQXX_CHECK_EQUAL(received, 1, "Revalue ref did not receive notification.");
+}
+
+
+void test_abort_cancels_notification()
+{
+  auto const chan{"pqxx-test-channel"};
+  pqxx::connection cx;
+  bool received{false};
+  cx.listen(chan, [&received](pqxx::notification){ received = true; });
+
+  pqxx::work tx{cx};
+  tx.notify(chan);
+  tx.abort();
+
+  cx.await_notification(3);
+  PQXX_CHECK(not received, "Abort did not cancel notification.");
+}
+
+
+void test_notification_channels_are_case_sensitive()
+{
+  pqxx::connection cx;
+  std::string in;
+  cx.listen("pqxx-AbC", [&in](pqxx::notification n){ in = n.channel; });
+
+  pqxx::work tx{cx};
+  tx.notify("pqxx-AbC");
+  tx.notify("pqxx-ABC");
+  tx.notify("pqxx-abc");
+  tx.commit();
+
+  cx.await_notification(3);
+
+  PQXX_CHECK_EQUAL(in, "pqxx-AbC", "Channel is not case-insensitive.");
+}
+
+
+void test_notification_channels_may_contain_weird_chars()
+{
+  auto const chan{"pqxx-A_#&*!"};
+  pqxx::connection cx;
+  std::string got;
+  cx.listen(chan, [&got](pqxx::notification n){ got = n.channel; });
+  pqxx::work tx{cx};
+  tx.notify(chan);
+  tx.commit();
+  cx.await_notification(3);
+  PQXX_CHECK_EQUAL(
+    got, chan, "Channel name with weird characters got distorted.");
+}
+
+
+/// In a nontransaction, a notification goes out even if you abort.
+void test_nontransaction_sends_notification()
+{
+  auto const chan{"pqxx-test-chan"};
+  pqxx::connection cx;
+  bool got{false};
+  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+
+  pqxx::nontransaction tx{cx};
+  tx.notify(chan);
+  tx.abort();
+
+  cx.await_notification(3);
+  PQXX_CHECK(got, "Notification from nontransaction did not arrive.");
+}
+
+
+void test_subtransaction_sends_notification()
+{
+  auto const chan{"pqxx-test-chan6301"};
+  pqxx::connection cx;
+  bool got{false};
+  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+
+  pqxx::work tx{cx};
+  pqxx::subtransaction sx{tx};
+  sx.notify(chan);
+  sx.commit();
+  tx.commit();
+
+  cx.await_notification(3);
+  PQXX_CHECK(got, "Notification from subtransaction did not arrive.");
+}
+
+
+void test_subtransaction_abort_cancels_notification()
+{
+  auto const chan{"pqxx-test-chan123278w"};
+  pqxx::connection cx;
+  bool got{false};
+  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+
+  pqxx::work tx{cx};
+  pqxx::subtransaction sx{tx};
+  sx.notify(chan);
+  sx.abort();
+  tx.commit();
+
+  cx.await_notification(3);
+  PQXX_CHECK(not got, "Subtransaction rollback did not cancel notification.");
+}
+
 // XXX: refuses to listen() while in a transaction.
 // XXX: send across connections.
 // XXX: Choosing (just) the right one out of multiple handlers.
+// XXX: overwriting
+// XXX: notifications go _out_ immediately duruing nontransaction
+// XXX: notifications do not come in during even a nontransaction
 
 
 PQXX_REGISTER_TEST(test_notification_classic);
 PQXX_REGISTER_TEST(test_notification_to_self_arrives_after_commit);
 PQXX_REGISTER_TEST(test_notification_has_payload);
+PQXX_REGISTER_TEST(test_listen_supports_different_types_of_callable);
+PQXX_REGISTER_TEST(test_abort_cancels_notification);
+PQXX_REGISTER_TEST(test_notification_channels_are_case_sensitive);
+PQXX_REGISTER_TEST(test_notification_channels_may_contain_weird_chars);
+PQXX_REGISTER_TEST(test_nontransaction_sends_notification);
+PQXX_REGISTER_TEST(test_subtransaction_sends_notification);
+PQXX_REGISTER_TEST(test_subtransaction_abort_cancels_notification);
 } // namespace
