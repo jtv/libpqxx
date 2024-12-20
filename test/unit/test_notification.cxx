@@ -304,12 +304,120 @@ void test_subtransaction_abort_cancels_notification()
   PQXX_CHECK(not got, "Subtransaction rollback did not cancel notification.");
 }
 
-// XXX: refuses to listen() while in a transaction.
-// XXX: send across connections.
-// XXX: Choosing (just) the right one out of multiple handlers.
-// XXX: overwriting
-// XXX: notifications go _out_ immediately duruing nontransaction
-// XXX: notifications do not come in during even a nontransaction
+
+void test_cannot_listen_during_transaction()
+{
+  pqxx::connection cx;
+  // Listening while a transaction is active is an error, even when it's just
+  // a nontransaction.
+  pqxx::nontransaction tx{cx};
+  PQXX_CHECK_THROWS(
+    cx.listen("pqxx-test-chan02756", [](pqxx::notification){}),
+    pqxx::usage_error,
+    "Expected usage_error when listening during transaction.");
+}
+
+
+void test_notifications_cross_connections()
+{
+  auto const chan{"pqxx-chan7529"};
+  pqxx::connection cx_listen, cx_notify;
+  int sender_pid{0};
+  cx_listen.listen(
+    chan,
+    [&sender_pid](pqxx::notification n){ sender_pid = n.backend_pid; });
+
+  pqxx::work tx{cx_notify};
+  tx.notify(chan);
+  tx.commit();
+
+  cx_listen.await_notification(3);
+  PQXX_CHECK_EQUAL(
+    sender_pid, cx_notify.backendpid(), "Sender pid mismatch.");
+}
+
+
+void test_notification_goes_to_right_handler()
+{
+  pqxx::connection cx;
+  std::string got;
+  int count{0};
+
+  cx.listen(
+    "pqxx-chanX",
+    [&got, &count](pqxx::notification){ got = "chanX"; ++count; });
+  cx.listen(
+    "pqxx-chanY",
+    [&got, &count](pqxx::notification){ got = "chanY"; ++count; });
+  cx.listen(
+    "pqxx-chanZ",
+    [&got, &count](pqxx::notification){ got = "chanZ"; ++count; });
+
+  pqxx::work tx{cx};
+  tx.notify("pqxx-chanY");
+  tx.commit();
+  cx.await_notification(3);
+
+  PQXX_CHECK_EQUAL(got, "chanY", "Wrong handler got called.");
+  PQXX_CHECK_EQUAL(count, 1, "Wrong number of handler calls.");
+}
+
+
+void test_listen_on_same_channel_overwrites()
+{
+  auto const chan{"pqxx-chan84710"};
+  pqxx::connection cx;
+  std::string got;
+  int count{0};
+
+  cx.listen(
+    chan, [&got, &count](pqxx::notification){ got = "first"; ++count; });
+  cx.listen(
+    chan, [&got, &count](pqxx::notification){ got = "second"; ++count; });
+  cx.listen(
+    chan, [&got, &count](pqxx::notification){ got = "third"; ++count; });
+
+  pqxx::work tx{cx};
+  tx.notify(chan);
+  tx.commit();
+  cx.await_notification(3);
+
+  PQXX_CHECK_EQUAL(count, 1, "Expected 1 notification despite overwrite.");
+  PQXX_CHECK_EQUAL(got,"third", "Wrong handler called.");
+}
+
+
+void test_empty_notification_handler_disables()
+{
+  auto const chan{"pqxx-chan812710"};
+  pqxx::connection cx;
+  bool got{false};
+  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan);
+  pqxx::work tx{cx};
+  tx.notify(chan);
+  tx.commit();
+  PQXX_CHECK(not got, "Disabling a notification handler did not work.");
+}
+
+
+void test_notifications_do_not_come_in_until_commit()
+{
+  auto const chan{"pqxx-chan95017834"};
+  pqxx::connection cx;
+  bool got{false};
+  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+
+  // This applies even during a nontransaction.  Another test verifies that
+  // a notification goes _out_ even if we abort the nontransaction, because
+  // it goes out immediately, not at commit time.  What we're establishing
+  // here is that the notification does not come _in_ during a transaction,
+  // even if it's a nontransaction.
+  pqxx::nontransaction tx{cx};
+  tx.notify(chan);
+  cx.await_notification(3);
+  PQXX_CHECK(not got, "Notification came in during nontransaction.");
+}
 
 
 PQXX_REGISTER_TEST(test_notification_classic);
@@ -322,4 +430,10 @@ PQXX_REGISTER_TEST(test_notification_channels_may_contain_weird_chars);
 PQXX_REGISTER_TEST(test_nontransaction_sends_notification);
 PQXX_REGISTER_TEST(test_subtransaction_sends_notification);
 PQXX_REGISTER_TEST(test_subtransaction_abort_cancels_notification);
+PQXX_REGISTER_TEST(test_cannot_listen_during_transaction);
+PQXX_REGISTER_TEST(test_notifications_cross_connections);
+PQXX_REGISTER_TEST(test_notification_goes_to_right_handler);
+PQXX_REGISTER_TEST(test_listen_on_same_channel_overwrites);
+PQXX_REGISTER_TEST(test_empty_notification_handler_disables);
+PQXX_REGISTER_TEST(test_notifications_do_not_come_in_until_commit);
 } // namespace
