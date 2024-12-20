@@ -182,7 +182,6 @@ then
 			-Wattribute-alias=2 \
 			-Wlogical-op \
 			-Wmismatched-tags \
-			-Wnoexcept \
 			-Wredundant-tags \
 			-Wrestrict \
 			-Wstringop-overflow \

@@ -213,7 +213,7 @@ public:
     return conn().esc_raw(std::forward<ARGS>(args)...);
   }
 
-  /// Unescape binary data, e.g. from a table field or notification payload.
+  /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
@@ -225,13 +225,13 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
-  /// Unescape binary data, e.g. from a table field or notification payload.
+  /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
   [[nodiscard]] bytes unesc_bin(zview text) { return conn().unesc_bin(text); }
 
-  /// Unescape binary data, e.g. from a table field or notification payload.
+  /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
@@ -243,7 +243,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
-  /// Unescape binary data, e.g. from a table field or notification payload.
+  /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
@@ -892,6 +892,24 @@ public:
   {
     exec(query, parms).for_each(std::forward<CALLABLE>(func));
   }
+
+  /// Send a notification.
+  /** Convenience shorthand for executing a "NOTIFY" command.  Most of the
+   * logic for handling _incoming_ notifications is in @ref pqxx::connection
+   * (particularly @ref pqxx::connection::listen), but _outgoing_
+   * notifications happen here.
+   *
+   * Unless this transaction is a nontransaction, the actual notification only
+   * goes out once the outer transaction is committed.
+   *
+   * @param channel Name of the "channel" on which clients will need to be
+   * listening in order to receive this notification.
+   *
+   * @param payload Optional argument string which any listeners will also
+   * receive.  If you leave this out, they will receive an empty string as the
+   * payload.
+   */
+  void notify(std::string_view channel, std::string_view payload = {});
   //@}
 
   /// Execute a prepared statement, with optional arguments.
