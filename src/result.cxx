@@ -357,7 +357,9 @@ std::string pqxx::result::status_error() const
 
 char const *pqxx::result::cmd_status() const noexcept
 {
-  // TODO: PQcmdStatus() could totally take a pointer to const.
+  // PQcmdStatus() can't take a PGresult const * because it returns a non-const
+  // pointer into the PGresult's data, and that can't be changed without
+  // breaking compatibility.
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -379,7 +381,9 @@ pqxx::oid pqxx::result::inserted_oid() const
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
-  // TODO: PQcmdTuples() could take a pointer to const.
+  // PQcmdTuples() can't take a PGresult const * because it returns a non-const
+  // pointer into the PGresult's data, and that can't be changed without
+  // breaking compatibility.
   auto const rows_str{
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
   return (rows_str[0] == '\0') ? 0 : size_type(atoi(rows_str));
