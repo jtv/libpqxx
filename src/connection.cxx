@@ -118,6 +118,7 @@ pqxx::encrypt_password(char const user[], char const password[])
 pqxx::connection::connection(connection &&rhs) :
         m_conn{rhs.m_conn},
 	m_notice_waiters{std::move(rhs.m_notice_waiters)},
+	m_notification_handlers{std::move(rhs.m_notification_handlers)},
 	m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable();
@@ -251,11 +252,13 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
   check_overwritable();
   rhs.check_movable();
 
+  // Close our old connection, if any.
   close();
 
   m_conn = std::exchange(rhs.m_conn, nullptr);
   m_unique_id = rhs.m_unique_id;
   m_notice_waiters = std::move(rhs.m_notice_waiters);
+  m_notification_handlers = std::move(rhs.m_notification_handlers);
 
   return *this;
 }
