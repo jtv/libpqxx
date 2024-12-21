@@ -419,6 +419,50 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 }
 
 
+void pqxx::connection::listen(
+    std::string_view channel, notification_handler handler)
+{
+  if (m_trans != nullptr)
+    throw usage_error{pqxx::internal::concat(
+      "Attempting to listen for notifications on '", channel,
+      "' while transaction is active.")};
+
+  std::string str_name{channel};
+
+  auto const
+    pos{m_notification_handlers.lower_bound(str_name)},
+    handlers_end{std::end(m_notification_handlers)};
+
+  if (handler)
+  {
+    // Setting a handler.
+    if ((pos != handlers_end) and (pos->first == channel))
+    {
+      // Overwrite existing handler.
+      m_notification_handlers.insert_or_assign(
+        pos, std::move(str_name), std::move(handler));
+    }
+    else
+    {
+      // We had no handler installed for this name.  Start listening.
+      exec(pqxx::internal::concat("LISTEN ", quote_name(channel))).no_rows();
+      m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
+    }
+  }
+  else
+  {
+    // Installing an empty handler.  That's equivalent to removing whatever
+    // handler may have been installed previously.
+    if (pos != handlers_end)
+    {
+      // Yes, we had a handler for this name.  Remove it.
+      exec(pqxx::internal::concat("UNLISTEN ", quote_name(channel))).no_rows();
+      m_notification_handlers.erase(pos);
+    }
+  }
+}
+
+
 void PQXX_COLD
 pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
 {
@@ -564,16 +608,20 @@ int pqxx::connection::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_trans)
+  if (m_trans != nullptr)
     PQXX_UNLIKELY
   return 0;
 
   int notifs = 0;
+
+  // Old mechanism.  This is going away.
   for (auto N{get_notif(m_conn)}; N.get(); N = get_notif(m_conn))
   {
     notifs++;
 
-    auto const Hit{m_receivers.equal_range(std::string{N->relname})};
+    std::string const channel{N->relname};
+
+    auto const Hit{m_receivers.equal_range(channel)};
     if (Hit.second != Hit.first)
     {
       std::string const payload{N->extra};
@@ -605,8 +653,14 @@ int pqxx::connection::get_notifs()
         }
     }
 
+    auto const handler{m_notification_handlers.find(N->relname)};
+    // C++20: Use "dot notation" to initialise struct fields.
+    if (handler != std::end(m_notification_handlers))
+      (handler->second)(notification{*this, channel, N->extra, N->be_pid});
+
     N.reset();
   }
+
   return notifs;
 }
 

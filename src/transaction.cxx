@@ -71,7 +71,7 @@ void pqxx::internal::basic_transaction::do_commit()
     process_notice(internal::concat(e.what(), "\n"));
 
     std::string msg{internal::concat(
-      "WARNING: Commit of transaction '", name(),
+      "WARNING: Commit status of transaction '", name(),
       "' is unknown. "
       "There is no way to tell whether the transaction succeeded "
       "or was aborted except to check manually.\n")};
