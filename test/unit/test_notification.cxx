@@ -427,12 +427,14 @@ void test_notification_handlers_follow_connection_move()
   pqxx::connection *got{nullptr};
   cx1.listen(chan, [&got](pqxx::notification n){ got = &n.conn; });
   pqxx::connection cx2{std::move(cx1)};
-  pqxx::work tx{cx2};
+  pqxx::connection cx3;
+  cx3 = std::move(cx2);
+  pqxx::work tx{cx3};
   tx.notify(chan);
   tx.commit();
-  cx2.await_notification(3);
+  cx3.await_notification(3);
   PQXX_CHECK(got != nullptr, "Did not get notified.");
-  PQXX_CHECK(got == &cx2, "Notification got the wrong connection.");
+  PQXX_CHECK(got == &cx3, "Notification got the wrong connection.");
 }
 
 
