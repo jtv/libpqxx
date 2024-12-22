@@ -157,9 +157,11 @@ then
 
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
-		# The -fanalyzer one is a macro option for many of the others.
+		#
+		# The -fanalyzer one is a macro option for many of the others,
+		# but we can't use it because as of gcc 13.2.0 we still see it
+		# generating errors for the standard library.
 		add_compiler_opts_if_ok \
-			-fanalyzer \
 			-Wanalyzer-double-fclose \
 			-Wanalyzer-double-free \
 			-Wanalyzer-exposure-through-output-file \
