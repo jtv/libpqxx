@@ -17143,6 +17143,7 @@ then
 			-Wanalyzer-file-leak \
 			-Wanalyzer-free-of-non-heap \
 			-Wanalyzer-malloc-leak \
+			-Wanalyzer-possible-null-dereference \
 			-Wanalyzer-mismatching-deallocation \
 			-Wanalyzer-null-dereference \
 			-Wanalyzer-null-argument \
@@ -17150,6 +17151,7 @@ then
 			-Wanalyzer-shift-count-negative \
 			-Wanalyzer-overflow \
 			-Wanalyzer-stale-setjmp-buffer \
+			-Wanalyzer-tainted-array-index \
 			-Wanalyzer-unsafe-call-within-signal-handler \
 			-Wanalyzer-use-after-free \
 			-Wanalyzer-use-of-pointer-in-stale-stack-frame \

@@ -157,14 +157,16 @@ then
 
 		# "Iffy" g++ options.  Some reasonably current g++-like
 		# compilers may not support these.
-# TODO: Once false positive in std lib is fixed, simplify to "-fanalyzer".
+		# The -fanalyzer one is a macro option for many of the others.
 		add_compiler_opts_if_ok \
+			-fanalyzer \
 			-Wanalyzer-double-fclose \
 			-Wanalyzer-double-free \
 			-Wanalyzer-exposure-through-output-file \
 			-Wanalyzer-file-leak \
 			-Wanalyzer-free-of-non-heap \
 			-Wanalyzer-malloc-leak \
+			-Wanalyzer-possible-null-dereference \
 			-Wanalyzer-mismatching-deallocation \
 			-Wanalyzer-null-dereference \
 			-Wanalyzer-null-argument \
@@ -172,6 +174,7 @@ then
 			-Wanalyzer-shift-count-negative \
 			-Wanalyzer-overflow \
 			-Wanalyzer-stale-setjmp-buffer \
+			-Wanalyzer-tainted-array-index \
 			-Wanalyzer-unsafe-call-within-signal-handler \
 			-Wanalyzer-use-after-free \
 			-Wanalyzer-use-of-pointer-in-stale-stack-frame \
