@@ -97,7 +97,7 @@ void test_notification_to_self_arrives_after_commit()
 
   cx.listen(
     channel,
-    [&notifications, &conn, &incoming, &payload, &pid](pqxx::notification n){
+    [&notifications, &conn, &incoming, &payload, &pid](pqxx::notification n) {
       ++notifications;
       conn = &n.conn;
       incoming = n.channel;
@@ -126,7 +126,8 @@ void test_notification_to_self_arrives_after_commit()
   PQXX_CHECK_EQUAL(notifications, 1, "Miscounted notifcations.");
   PQXX_CHECK(conn == &cx, "Wrong connection on notification from self.");
   PQXX_CHECK_EQUAL(
-    pid, cx.backendpid(), "Notification from self came from wrong connection.");
+    pid, cx.backendpid(),
+    "Notification from self came from wrong connection.");
   PQXX_CHECK_EQUAL(incoming, channel, "Notification is on wrong channel.");
   PQXX_CHECK_EQUAL(payload, "", "Unexpected payload.");
 }
@@ -140,12 +141,10 @@ void test_notification_has_payload()
   int notifications{0};
   std::string received;
 
-  cx.listen(
-    channel,
-    [&notifications, &received](pqxx::notification n) {
-      ++notifications;
-      received = n.payload;
-    });
+  cx.listen(channel, [&notifications, &received](pqxx::notification n) {
+    ++notifications;
+    received = n.payload;
+  });
 
   pqxx::work tx{cx};
   tx.notify(channel, payload);
@@ -208,7 +207,7 @@ void test_abort_cancels_notification()
   auto const chan{"pqxx-test-channel"};
   pqxx::connection cx;
   bool received{false};
-  cx.listen(chan, [&received](pqxx::notification){ received = true; });
+  cx.listen(chan, [&received](pqxx::notification) { received = true; });
 
   pqxx::work tx{cx};
   tx.notify(chan);
@@ -223,7 +222,7 @@ void test_notification_channels_are_case_sensitive()
 {
   pqxx::connection cx;
   std::string in;
-  cx.listen("pqxx-AbC", [&in](pqxx::notification n){ in = n.channel; });
+  cx.listen("pqxx-AbC", [&in](pqxx::notification n) { in = n.channel; });
 
   pqxx::work tx{cx};
   tx.notify("pqxx-AbC");
@@ -242,7 +241,7 @@ void test_notification_channels_may_contain_weird_chars()
   auto const chan{"pqxx-A_#&*!"};
   pqxx::connection cx;
   std::string got;
-  cx.listen(chan, [&got](pqxx::notification n){ got = n.channel; });
+  cx.listen(chan, [&got](pqxx::notification n) { got = n.channel; });
   pqxx::work tx{cx};
   tx.notify(chan);
   tx.commit();
@@ -258,7 +257,7 @@ void test_nontransaction_sends_notification()
   auto const chan{"pqxx-test-chan"};
   pqxx::connection cx;
   bool got{false};
-  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan, [&got](pqxx::notification) { got = true; });
 
   pqxx::nontransaction tx{cx};
   tx.notify(chan);
@@ -274,7 +273,7 @@ void test_subtransaction_sends_notification()
   auto const chan{"pqxx-test-chan6301"};
   pqxx::connection cx;
   bool got{false};
-  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan, [&got](pqxx::notification) { got = true; });
 
   pqxx::work tx{cx};
   pqxx::subtransaction sx{tx};
@@ -292,7 +291,7 @@ void test_subtransaction_abort_cancels_notification()
   auto const chan{"pqxx-test-chan123278w"};
   pqxx::connection cx;
   bool got{false};
-  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan, [&got](pqxx::notification) { got = true; });
 
   pqxx::work tx{cx};
   pqxx::subtransaction sx{tx};
@@ -312,7 +311,7 @@ void test_cannot_listen_during_transaction()
   // a nontransaction.
   pqxx::nontransaction tx{cx};
   PQXX_CHECK_THROWS(
-    cx.listen("pqxx-test-chan02756", [](pqxx::notification){}),
+    cx.listen("pqxx-test-chan02756", [](pqxx::notification) {}),
     pqxx::usage_error,
     "Expected usage_error when listening during transaction.");
 }
@@ -324,16 +323,14 @@ void test_notifications_cross_connections()
   pqxx::connection cx_listen, cx_notify;
   int sender_pid{0};
   cx_listen.listen(
-    chan,
-    [&sender_pid](pqxx::notification n){ sender_pid = n.backend_pid; });
+    chan, [&sender_pid](pqxx::notification n) { sender_pid = n.backend_pid; });
 
   pqxx::work tx{cx_notify};
   tx.notify(chan);
   tx.commit();
 
   cx_listen.await_notification(3);
-  PQXX_CHECK_EQUAL(
-    sender_pid, cx_notify.backendpid(), "Sender pid mismatch.");
+  PQXX_CHECK_EQUAL(sender_pid, cx_notify.backendpid(), "Sender pid mismatch.");
 }
 
 
@@ -343,15 +340,18 @@ void test_notification_goes_to_right_handler()
   std::string got;
   int count{0};
 
-  cx.listen(
-    "pqxx-chanX",
-    [&got, &count](pqxx::notification){ got = "chanX"; ++count; });
-  cx.listen(
-    "pqxx-chanY",
-    [&got, &count](pqxx::notification){ got = "chanY"; ++count; });
-  cx.listen(
-    "pqxx-chanZ",
-    [&got, &count](pqxx::notification){ got = "chanZ"; ++count; });
+  cx.listen("pqxx-chanX", [&got, &count](pqxx::notification) {
+    got = "chanX";
+    ++count;
+  });
+  cx.listen("pqxx-chanY", [&got, &count](pqxx::notification) {
+    got = "chanY";
+    ++count;
+  });
+  cx.listen("pqxx-chanZ", [&got, &count](pqxx::notification) {
+    got = "chanZ";
+    ++count;
+  });
 
   pqxx::work tx{cx};
   tx.notify("pqxx-chanY");
@@ -370,12 +370,18 @@ void test_listen_on_same_channel_overwrites()
   std::string got;
   int count{0};
 
-  cx.listen(
-    chan, [&got, &count](pqxx::notification){ got = "first"; ++count; });
-  cx.listen(
-    chan, [&got, &count](pqxx::notification){ got = "second"; ++count; });
-  cx.listen(
-    chan, [&got, &count](pqxx::notification){ got = "third"; ++count; });
+  cx.listen(chan, [&got, &count](pqxx::notification) {
+    got = "first";
+    ++count;
+  });
+  cx.listen(chan, [&got, &count](pqxx::notification) {
+    got = "second";
+    ++count;
+  });
+  cx.listen(chan, [&got, &count](pqxx::notification) {
+    got = "third";
+    ++count;
+  });
 
   pqxx::work tx{cx};
   tx.notify(chan);
@@ -383,7 +389,7 @@ void test_listen_on_same_channel_overwrites()
   cx.await_notification(3);
 
   PQXX_CHECK_EQUAL(count, 1, "Expected 1 notification despite overwrite.");
-  PQXX_CHECK_EQUAL(got,"third", "Wrong handler called.");
+  PQXX_CHECK_EQUAL(got, "third", "Wrong handler called.");
 }
 
 
@@ -392,7 +398,7 @@ void test_empty_notification_handler_disables()
   auto const chan{"pqxx-chan812710"};
   pqxx::connection cx;
   bool got{false};
-  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan, [&got](pqxx::notification) { got = true; });
   cx.listen(chan);
   pqxx::work tx{cx};
   tx.notify(chan);
@@ -406,7 +412,7 @@ void test_notifications_do_not_come_in_until_commit()
   auto const chan{"pqxx-chan95017834"};
   pqxx::connection cx;
   bool got{false};
-  cx.listen(chan, [&got](pqxx::notification){ got = true; });
+  cx.listen(chan, [&got](pqxx::notification) { got = true; });
 
   // This applies even during a nontransaction.  Another test verifies that
   // a notification goes _out_ even if we abort the nontransaction, because
@@ -425,7 +431,7 @@ void test_notification_handlers_follow_connection_move()
   auto const chan{"pqxx-chan3782"};
   pqxx::connection cx1;
   pqxx::connection *got{nullptr};
-  cx1.listen(chan, [&got](pqxx::notification n){ got = &n.conn; });
+  cx1.listen(chan, [&got](pqxx::notification n) { got = &n.conn; });
   pqxx::connection cx2{std::move(cx1)};
   pqxx::connection cx3;
   cx3 = std::move(cx2);

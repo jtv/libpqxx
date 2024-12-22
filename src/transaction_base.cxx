@@ -457,7 +457,7 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
       {
         PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
-	// TODO: Make at least an attempt to append a newline.
+        // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
         process_notice(err);
@@ -483,7 +483,7 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
       {
         PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
-	// TODO: Make at least an attempt to append a newline.
+        // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
         process_notice(err);

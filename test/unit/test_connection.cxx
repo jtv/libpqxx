@@ -1,7 +1,7 @@
 #include <numeric>
 
-#include <pqxx/transaction>
 #include <pqxx/nontransaction>
+#include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
 

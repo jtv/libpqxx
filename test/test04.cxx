@@ -23,10 +23,9 @@ void test_004()
   auto const channel{"pqxx_test_notif"};
   pqxx::connection cx;
   int backend_pid{0};
-  cx.listen(
-    channel,
-    [&backend_pid](pqxx::notification n) noexcept
-    { backend_pid = n.backend_pid; });
+  cx.listen(channel, [&backend_pid](pqxx::notification n) noexcept {
+    backend_pid = n.backend_pid;
+  });
 
   // Trigger our notification receiver.
   pqxx::perform([&cx, &channel] {
@@ -46,8 +45,7 @@ void test_004()
   }
 
   PQXX_CHECK_EQUAL(
-    backend_pid,
-    cx.backendpid(),
+    backend_pid, cx.backendpid(),
     "Did not get our notification from our own backend.");
   PQXX_CHECK_EQUAL(notifs, 1, "Got too many notifications.");
 }

@@ -9,12 +9,7 @@ void test_notice_handler_receives_notice()
   pqxx::connection cx;
   int notices{0};
 
-  cx.set_notice_handler(
-    [&notices](pqxx::zview) noexcept
-    {
-      ++notices;
-    }
-  );
+  cx.set_notice_handler([&notices](pqxx::zview) noexcept { ++notices; });
 
   pqxx::work tx{cx};
   // Start a transaction while already in a transaction, to trigger a notice.
@@ -55,9 +50,10 @@ void test_process_notice_calls_notice_handler()
   const std::string msg{"Hello there\n"};
 
   pqxx::connection cx;
-  cx.set_notice_handler(
-    [&calls, &received](auto x) noexcept { ++calls; received = x; }
-  );
+  cx.set_notice_handler([&calls, &received](auto x) noexcept {
+    ++calls;
+    received = x;
+  });
   cx.process_notice(msg);
 
   PQXX_CHECK_EQUAL(calls, 1, "Expected exactly 1 call to notice handler.");
@@ -100,11 +96,8 @@ struct notice_handler_test_functor
   int &count;
   std::string &received;
 
-  notice_handler_test_functor(int &c, std::string &r) :
-    count{c},
-    received{r}
-  {
-  }
+  notice_handler_test_functor(int &c, std::string &r) : count{c}, received{r}
+  {}
 
   void operator()(pqxx::zview msg) noexcept
   {
@@ -139,8 +132,7 @@ void test_notice_handler_works_after_moving_connection()
   bool got_message{false};
   pqxx::connection cx;
   cx.set_notice_handler(
-    [&got_message](pqxx::zview) noexcept { got_message = true; }
-  );
+    [&got_message](pqxx::zview) noexcept { got_message = true; });
   auto cx2{std::move(cx)};
   pqxx::connection cx3;
   cx3 = std::move(cx2);

@@ -89,9 +89,10 @@ pqxx::sql_error::sql_error(
   std::source_location loc
 #endif
   ) :
-        failure{whatarg
+        failure{
+          whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-            ,
+          ,
           loc
 #endif
         },

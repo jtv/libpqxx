@@ -27,8 +27,7 @@ extern "C"
 #include "pqxx/internal/header-post.hxx"
 
 
-pqxx::row::row(
-  result r, result::size_type index, size_type cols) noexcept :
+pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
         m_result{std::move(r)}, m_index{index}, m_end{cols}
 {}
 

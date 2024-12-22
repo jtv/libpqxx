@@ -53,8 +53,10 @@ pqxx::result::result(
   std::shared_ptr<std::string> const &query,
   std::shared_ptr<pqxx::internal::notice_waiters> const &notice_waiters,
   internal::encoding_group enc) :
-        m_data{rhs}, m_query{query}, m_notice_waiters{notice_waiters},
-	m_encoding(enc)
+        m_data{rhs},
+        m_query{query},
+        m_notice_waiters{notice_waiters},
+        m_encoding(enc)
 {}
 
 
