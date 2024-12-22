@@ -1,3 +1,4 @@
+8.0.0
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)
