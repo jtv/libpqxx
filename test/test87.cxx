@@ -30,10 +30,9 @@ void test_087()
   std::string const channel{"my notification"};
   int backend_pid{0};
 
-  cx.listen(
-    channel,
-    [&backend_pid](pqxx::notification n) noexcept
-    { backend_pid = n.backend_pid; });
+  cx.listen(channel, [&backend_pid](pqxx::notification n) noexcept {
+    backend_pid = n.backend_pid;
+  });
 
   pqxx::perform([&cx, &channel] {
     pqxx::work tx{cx};

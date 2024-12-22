@@ -69,12 +69,12 @@ void process_notice_raw(
 {
   if ((waiters != nullptr) and not msg.empty())
   {
-    auto const
-      rbegin = std::crbegin(waiters->errorhandlers),
-      rend = std::crend(waiters->errorhandlers);
+    auto const rbegin = std::crbegin(waiters->errorhandlers),
+               rend = std::crend(waiters->errorhandlers);
     for (auto i{rbegin}; (i != rend) and (**i)(msg.data()); ++i);
 
-    if (waiters->notice_handler) waiters->notice_handler(msg);
+    if (waiters->notice_handler)
+      waiters->notice_handler(msg);
   }
 }
 } // namespace
@@ -117,9 +117,9 @@ pqxx::encrypt_password(char const user[], char const password[])
 
 pqxx::connection::connection(connection &&rhs) :
         m_conn{rhs.m_conn},
-	m_notice_waiters{std::move(rhs.m_notice_waiters)},
-	m_notification_handlers{std::move(rhs.m_notification_handlers)},
-	m_unique_id{rhs.m_unique_id}
+        m_notice_waiters{std::move(rhs.m_notice_waiters)},
+        m_notification_handlers{std::move(rhs.m_notification_handlers)},
+        m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable();
   rhs.m_conn = nullptr;
@@ -145,8 +145,7 @@ pqxx::connection::connection(
 }
 
 
-pqxx::connection::connection(internal::pq::PGconn *raw_conn) :
-  m_conn{raw_conn}
+pqxx::connection::connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn}
 {
   set_up_notice_handlers();
 }
@@ -278,10 +277,8 @@ pqxx::result pqxx::connection::make_result(
       throw broken_connection{"Lost connection to the database server."};
   }
   auto const enc{internal::enc_group(encoding_id())};
-  auto r{
-    pqxx::internal::gate::result_creation::create(
-      smart, query, m_notice_waiters, enc)
-  };
+  auto r{pqxx::internal::gate::result_creation::create(
+    smart, query, m_notice_waiters, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc);
   return r;
 }
@@ -423,7 +420,7 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 
 
 void pqxx::connection::listen(
-    std::string_view channel, notification_handler handler)
+  std::string_view channel, notification_handler handler)
 {
   if (m_trans != nullptr)
     throw usage_error{pqxx::internal::concat(
@@ -432,8 +429,7 @@ void pqxx::connection::listen(
 
   std::string str_name{channel};
 
-  auto const
-    pos{m_notification_handlers.lower_bound(str_name)},
+  auto const pos{m_notification_handlers.lower_bound(str_name)},
     handlers_end{std::end(m_notification_handlers)};
 
   if (handler)
@@ -719,8 +715,7 @@ std::vector<pqxx::errorhandler *>
 {
   return {
     std::begin(m_notice_waiters->errorhandlers),
-    std::end(m_notice_waiters->errorhandlers)
-  };
+    std::end(m_notice_waiters->errorhandlers)};
 }
 
 

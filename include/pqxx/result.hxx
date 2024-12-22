@@ -56,11 +56,11 @@ struct notice_waiters
   std::function<void(zview)> notice_handler;
   std::list<errorhandler *> errorhandlers;
 
-  notice_waiters() =default;
-  notice_waiters(notice_waiters const &) =delete;
-  notice_waiters(notice_waiters &&) =delete;
-  notice_waiters &operator=(notice_waiters const &) =delete;
-  notice_waiters &operator=(notice_waiters &&) =delete;
+  notice_waiters() = default;
+  notice_waiters(notice_waiters const &) = delete;
+  notice_waiters(notice_waiters &&) = delete;
+  notice_waiters &operator=(notice_waiters const &) = delete;
+  notice_waiters &operator=(notice_waiters &&) = delete;
 };
 } // namespace pqxx::internal
 

@@ -289,9 +289,8 @@ void pqxx::pipeline::obtain_dummy()
 
   pqxx::internal::gate::connection_pipeline const pgate{m_trans->conn()};
   auto handler{pgate.get_notice_waiters()};
-  result const R{
-    pqxx::internal::gate::result_creation::create(
-      r, text, handler, m_encoding)};
+  result const R{pqxx::internal::gate::result_creation::create(
+    r, text, handler, m_encoding)};
 
   bool OK{false};
   try

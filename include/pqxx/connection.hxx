@@ -581,7 +581,7 @@ public:
    * using, the message does go out immediately.)
    *
    * For listening to incoming notifications, it gets a bit more complicated.
-   * To avoid complicating its internal bookkeeping, libpqxx only lets you 
+   * To avoid complicating its internal bookkeeping, libpqxx only lets you
    * start listening while no transaction is open.
    *
    * No notifications will come in while you're in a transaction... again

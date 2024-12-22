@@ -20,9 +20,6 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
 
   int encoding_id() { return home().encoding_id(); }
 
-  auto get_notice_waiters() const
-  {
-    return home().m_notice_waiters;
-  }
+  auto get_notice_waiters() const { return home().m_notice_waiters; }
 };
 } // namespace pqxx::internal::gate
