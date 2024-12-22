@@ -420,6 +420,24 @@ void test_notifications_do_not_come_in_until_commit()
 }
 
 
+void test_notification_handlers_follow_connection_move()
+{
+  auto const chan{"pqxx-chan3782"};
+  pqxx::connection cx1;
+  pqxx::connection *got{nullptr};
+  cx1.listen(chan, [&got](pqxx::notification n){ got = &n.conn; });
+  pqxx::connection cx2{std::move(cx1)};
+  pqxx::connection cx3;
+  cx3 = std::move(cx2);
+  pqxx::work tx{cx3};
+  tx.notify(chan);
+  tx.commit();
+  cx3.await_notification(3);
+  PQXX_CHECK(got != nullptr, "Did not get notified.");
+  PQXX_CHECK(got == &cx3, "Notification got the wrong connection.");
+}
+
+
 PQXX_REGISTER_TEST(test_notification_classic);
 PQXX_REGISTER_TEST(test_notification_to_self_arrives_after_commit);
 PQXX_REGISTER_TEST(test_notification_has_payload);
@@ -436,4 +454,5 @@ PQXX_REGISTER_TEST(test_notification_goes_to_right_handler);
 PQXX_REGISTER_TEST(test_listen_on_same_channel_overwrites);
 PQXX_REGISTER_TEST(test_empty_notification_handler_disables);
 PQXX_REGISTER_TEST(test_notifications_do_not_come_in_until_commit);
+PQXX_REGISTER_TEST(test_notification_handlers_follow_connection_move);
 } // namespace
