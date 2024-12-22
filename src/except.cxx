@@ -83,20 +83,19 @@ pqxx::variable_set_to_null::variable_set_to_null(
 
 
 pqxx::sql_error::sql_error(
-  std::string whatarg, std::string const &Q, char const sqlstate[]
+  std::string const &whatarg, std::string Q, char const *sqlstate
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc
 #endif
   ) :
-        failure{
-          std::move(whatarg)
+        failure{whatarg
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
             ,
           loc
 #endif
         },
-        m_query{Q},
+        m_query{std::move(Q)},
         m_sqlstate{sqlstate ? sqlstate : ""}
 {}
 

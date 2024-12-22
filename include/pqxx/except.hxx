@@ -137,8 +137,8 @@ class PQXX_LIBEXPORT sql_error : public failure
 
 public:
   explicit sql_error(
-    std::string whatarg = "", std::string const &Q = "",
-    char const sqlstate[] = nullptr
+    std::string const &whatarg = "", std::string Q = "",
+    char const *sqlstate = nullptr
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
     ,
     std::source_location = std::source_location::current()

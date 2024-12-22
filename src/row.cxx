@@ -28,8 +28,8 @@ extern "C"
 
 
 pqxx::row::row(
-  result const &r, result::size_type index, size_type cols) noexcept :
-        m_result{r}, m_index{index}, m_end{cols}
+  result r, result::size_type index, size_type cols) noexcept :
+        m_result{std::move(r)}, m_index{index}, m_end{cols}
 {}
 
 

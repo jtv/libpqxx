@@ -215,7 +215,7 @@ public:
 protected:
   friend class const_row_iterator;
   friend class result;
-  row(result const &r, result_size_type index, size_type cols) noexcept;
+  row(result r, result_size_type index, size_type cols) noexcept;
 
   /// Throw @ref usage_error if row size is not `expected`.
   void check_size(size_type expected) const
