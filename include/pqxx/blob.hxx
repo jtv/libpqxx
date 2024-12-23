@@ -106,7 +106,6 @@ public:
    */
   std::size_t read(bytes &buf, std::size_t size);
 
-#if defined(PQXX_HAVE_SPAN)
   /// Read up to `std::size(buf)` bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
@@ -118,9 +117,8 @@ public:
   {
     return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
-#endif // PQXX_HAVE_SPAN
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   /// Read up to `std::size(buf)` bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
@@ -131,7 +129,7 @@ public:
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
-#else  // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
+#else  // PQXX_HAVE_CONCEPTS
   /// Read up to `std::size(buf)` bytes from the object.
   /** @deprecated As libpqxx moves to C++20 as its baseline language version,
    * this will take and return `std::span<std::byte>`.
@@ -149,7 +147,7 @@ public:
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
-#endif // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
+#endif // PQXX_HAVE_CONCEPTS
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Write `data` to large object, at the current position.

@@ -4,11 +4,7 @@
 #include <memory>
 #include <numeric>
 #include <optional>
-
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
-#  include <span>
-#endif
-
+#include <span>
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -1176,7 +1172,6 @@ inline constexpr format param_format(std::vector<std::byte, Args...> const &)
 template<typename T> inline constexpr bool is_sql_array<std::vector<T>>{true};
 
 
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
 template<typename T, size_t Extent>
 struct nullness<std::span<T, Extent>> : no_null<std::span<T, Extent>>
 {};
@@ -1204,7 +1199,6 @@ inline constexpr format param_format(std::span<std::byte, Extent> const &)
 
 template<typename T, size_t Extent>
 inline constexpr bool is_sql_array<std::span<T, Extent>>{true};
-#endif
 
 
 template<typename T, std::size_t N>

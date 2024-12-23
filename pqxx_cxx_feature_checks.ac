@@ -109,16 +109,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_SOURCE_LOCATION=no)
 AC_MSG_RESULT($PQXX_HAVE_SOURCE_LOCATION)
-AC_MSG_CHECKING([PQXX_HAVE_SPAN])
-PQXX_HAVE_SPAN=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_SPAN.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_SPAN],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_SPAN=no)
-AC_MSG_RESULT($PQXX_HAVE_SPAN)
 AC_MSG_CHECKING([PQXX_HAVE_SSIZE])
 PQXX_HAVE_SSIZE=yes
 AC_COMPILE_IFELSE(
