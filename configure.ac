@@ -91,7 +91,7 @@ add_compiler_opts() {
 }
 
 
-# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_17 for this,
+# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_* for this,
 # but it's not getting a lot of maintenance.
 # Seems simpler and more reliable for the user to arrange for the desired
 # language versions by setting the appropriate option for their compiler.
