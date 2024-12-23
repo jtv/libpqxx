@@ -81,9 +81,8 @@ void pqxx::internal::check_unique_unregister(
   void const *old_guest, std::string_view old_class, std::string_view old_name,
   void const *new_guest, std::string_view new_class, std::string_view new_name)
 {
-  if (new_guest != old_guest)
+  if (new_guest != old_guest) [[unlikely]]
   {
-    PQXX_UNLIKELY
     if (new_guest == nullptr)
       throw usage_error{concat(
         "Expected to close ", describe_object(old_class, old_name),
@@ -120,12 +119,14 @@ constexpr int ten{10};
 /// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
 constexpr int nibble(int c) noexcept
 {
-  if (c >= '0' and c <= '9')
-    PQXX_LIKELY
-  return c - '0';
-  else if (c >= 'a' and c <= 'f') return ten + (c - 'a');
-  else if (c >= 'A' and c <= 'F') return ten + (c - 'A');
-  else return -1;
+  if (c >= '0' and c <= '9') [[likely]]
+    return c - '0';
+  else if (c >= 'a' and c <= 'f')
+    return ten + (c - 'a');
+  else if (c >= 'A' and c <= 'F')
+    return ten + (c - 'A');
+  else
+    return -1;
 }
 } // namespace
 

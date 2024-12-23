@@ -17501,52 +17501,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_GCC_VISIBILITY" >&5
 printf "%s\n" "$PQXX_HAVE_GCC_VISIBILITY" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_LIKELY" >&5
-printf %s "checking PQXX_HAVE_LIKELY... " >&6; }
-PQXX_HAVE_LIKELY=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-// Test for C++20 [[likely]] and [[unlikely]] attributes.
-
-// C++20: Assume support.
-
-
-
-#if !__has_cpp_attribute(likely)
-
-#  error "No support for [[likely]] / [[unlikely]] attributes."
-
-#endif
-
-
-
-int foo(int i)
-
-{
-
-  if (i > 0) [[likely]]
-
-    return 100;
-
-  else
-
-    return 0;
-
-}
-
-
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"
-then :
-
-printf "%s\n" "#define PQXX_HAVE_LIKELY 1" >>confdefs.h
-
-else $as_nop
-  PQXX_HAVE_LIKELY=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_LIKELY" >&5
-printf "%s\n" "$PQXX_HAVE_LIKELY" >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_MULTIDIM" >&5
 printf %s "checking PQXX_HAVE_MULTIDIM... " >&6; }
 PQXX_HAVE_MULTIDIM=yes
