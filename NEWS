@@ -1,4 +1,6 @@
 8.0.0
+ - C++20 is now the oldest C++ version that libpqxx supports.
+ - Compiler must support integral conversions in `charconv`.
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.
