@@ -123,20 +123,19 @@ template<typename T>
 inline char *wrap_to_chars(char *begin, char *end, T const &value)
 {
   auto res{std::to_chars(begin, end - 1, value)};
-  if (res.ec != std::errc())
-    PQXX_UNLIKELY
-  switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    throw pqxx::conversion_overrun{
-      "Could not convert " + pqxx::type_name<T> +
-      " to string: "
-      "buffer too small (" +
-      pqxx::to_string(end - begin) + " bytes)."};
-  default:
-    throw pqxx::conversion_error{
-      "Could not convert " + pqxx::type_name<T> + " to string."};
-  }
+  if (res.ec != std::errc()) [[unlikely]]
+    switch (res.ec)
+    {
+    case std::errc::value_too_large:
+      throw pqxx::conversion_overrun{
+        "Could not convert " + pqxx::type_name<T> +
+        " to string: "
+        "buffer too small (" +
+        pqxx::to_string(end - begin) + " bytes)."};
+    default:
+      throw pqxx::conversion_error{
+        "Could not convert " + pqxx::type_name<T> + " to string."};
+    }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
   *res.ptr++ = '\0';
@@ -280,9 +279,8 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
 
   TYPE out{};
   auto const res{std::from_chars(here, end, out)};
-  if (res.ec == std::errc() and res.ptr == end)
-    PQXX_LIKELY
-  return out;
+  if (res.ec == std::errc() and res.ptr == end) [[likely]]
+    return out;
 
   std::string msg;
   if (res.ec == std::errc())
@@ -390,9 +388,8 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
       ok = true;
       result = -std::numeric_limits<T>::infinity();
     }
-    else
+    else [[likely]]
     {
-      PQXX_LIKELY
       if constexpr (have_thread_local)
       {
         thread_local dumb_stringstream<T> S;

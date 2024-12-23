@@ -56,16 +56,16 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
   switch (text[0])
   {
   case 'a':
-    if (text == aborted)
-      PQXX_LIKELY return tx_aborted;
+    if (text == aborted) [[likely]]
+      return tx_aborted;
     break;
   case 'c':
-    if (text == committed)
-      PQXX_LIKELY return tx_committed;
+    if (text == committed) [[likely]]
+      return tx_committed;
     break;
   case 'i':
-    if (text == in_progress)
-      PQXX_LIKELY return tx_in_progress;
+    if (text == in_progress) [[likely]]
+      return tx_in_progress;
     break;
   }
   return tx_unknown;

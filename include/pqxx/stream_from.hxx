@@ -322,13 +322,13 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  if (m_finished) [[unlikely]]
+    return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
   parse_line();
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  if (m_finished) [[unlikely]]
+    return *this;
 
   if (std::size(m_fields) != tup_size)
     throw usage_error{internal::concat(
