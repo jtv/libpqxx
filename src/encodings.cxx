@@ -63,8 +63,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
     case 'B':
       if (encoding_name == "BIG5"sv)
         return pqxx::internal::encoding_group::BIG5;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'E':
       // C++20: Use string_view::starts_with().
       if ((sz >= 6u) and (encoding_name.substr(0, 4) == "EUC_"sv))
@@ -82,15 +81,13 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
           if (m.get_name() == subtype)
             return m.get_group();
       }
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'G':
       if (encoding_name == "GB18030"sv)
         return pqxx::internal::encoding_group::GB18030;
       else if (encoding_name == "GBK"sv)
         return pqxx::internal::encoding_group::GBK;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
       // C++20: Use string_view::starts_with().
@@ -100,18 +97,15 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         if (('5' <= subtype) and (subtype < '9'))
           return pqxx::internal::encoding_group::MONOBYTE;
       }
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'J':
       if (encoding_name == "JOHAB"sv)
         return pqxx::internal::encoding_group::JOHAB;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'K':
       if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
         return pqxx::internal::encoding_group::MONOBYTE;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'L':
       // We know LATIN1 through LATIN10.
       // C++20: Use string_view::starts_with().
@@ -129,13 +123,11 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
           return pqxx::internal::encoding_group::MONOBYTE;
         }
       }
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'M':
       if (encoding_name == "MULE_INTERNAL"sv)
         return pqxx::internal::encoding_group::MULE_INTERNAL;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'S':
       if (encoding_name == "SHIFT_JIS_2004"sv)
         return pqxx::internal::encoding_group::SJIS;
@@ -143,15 +135,13 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         return pqxx::internal::encoding_group::SJIS;
       else if (encoding_name == "SQL_ASCII"sv)
         return pqxx::internal::encoding_group::MONOBYTE;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'U':
       if (encoding_name == "UHC"sv)
         return pqxx::internal::encoding_group::UHC;
       else if (encoding_name == "UTF8"sv)
         return pqxx::internal::encoding_group::UTF8;
-      PQXX_UNLIKELY
-      break;
+      [[unlikely]] break;
     case 'W':
       if (encoding_name.substr(0, 3) == "WIN"sv)
       {
@@ -164,12 +154,10 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
           if (n == subtype)
             return pqxx::internal::encoding_group::MONOBYTE;
       }
-      PQXX_UNLIKELY
-      break;
-    default: PQXX_UNLIKELY break;
+      [[unlikely]] break;
+    default: [[unlikely]] break;
     }
-  PQXX_UNLIKELY
-  throw std::invalid_argument{
+  [[unlikely]] throw std::invalid_argument{
     pqxx::internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
 }
 
@@ -194,7 +182,7 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
 
   switch (enc)
   {
-    PQXX_LIKELY CASE_GROUP(MONOBYTE);
+    [[likely]] CASE_GROUP(MONOBYTE);
     CASE_GROUP(BIG5);
     CASE_GROUP(EUC_CN);
     CASE_GROUP(EUC_JP);
@@ -206,9 +194,8 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
     CASE_GROUP(MULE_INTERNAL);
     CASE_GROUP(SJIS);
     CASE_GROUP(UHC);
-    PQXX_LIKELY CASE_GROUP(UTF8);
+    [[likely]] CASE_GROUP(UTF8);
   }
-  PQXX_UNLIKELY
   throw usage_error{
     internal::concat("Unsupported encoding group code ", enc, ".")};
 

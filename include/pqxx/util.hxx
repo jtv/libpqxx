@@ -573,9 +573,9 @@ inline constexpr char unescape_char(char escaped) noexcept
   switch (escaped)
   {
   case 'b': // Backspace.
-    PQXX_UNLIKELY return '\b';
+    [[unlikely]] return '\b';
   case 'f': // Form feed
-    PQXX_UNLIKELY return '\f';
+    [[unlikely]] return '\f';
   case 'n': // Line feed.
     return '\n';
   case 'r': // Carriage return.

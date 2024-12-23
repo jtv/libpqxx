@@ -170,16 +170,6 @@
 #  define PQXX_NOVTABLE /* novtable */
 #endif
 
-// C++20: Assume support.
-#if defined(PQXX_HAVE_LIKELY)
-#  define PQXX_LIKELY [[likely]]
-#  define PQXX_UNLIKELY [[unlikely]]
-#else
-#  define PQXX_LIKELY   /* [[likely]] */
-#  define PQXX_UNLIKELY /* [[unlikely]] */
-#endif
-
-
 // C++23: Assume support.
 #if defined(PQXX_HAVE_ASSUME)
 #  define PQXX_ASSUME(condition) [[assume(condition)]]
