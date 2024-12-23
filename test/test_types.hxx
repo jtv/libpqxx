@@ -117,7 +117,7 @@ template<> struct string_traits<ipv4>
 
   static char *into_buf(char *begin, char *end, ipv4 const &value)
   {
-    if (pqxx::internal::cmp_less(end - begin, size_buffer(value)))
+    if (std::cmp_less(end - begin, size_buffer(value)))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
     for (int i = 0; i < 4; ++i)
