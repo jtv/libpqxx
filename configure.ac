@@ -108,7 +108,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($sufficient_cxx)
 if test "$sufficient_cxx" != "yes"
 then
-	AC_MSG_ERROR([This libpqxx version needs at least C++17.])
+	AC_MSG_ERROR([This libpqxx version needs at least C++20.])
 fi
 
 
