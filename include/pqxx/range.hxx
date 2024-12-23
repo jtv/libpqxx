@@ -413,7 +413,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   {
     if (value.empty())
     {
-      if ((end - begin) <= internal::ssize(s_empty))
+      if ((end - begin) <= std::ssize(s_empty))
         throw conversion_overrun{s_overrun.c_str()};
       char *here = begin + s_empty.copy(begin, std::size(s_empty));
       *here++ = '\0';
