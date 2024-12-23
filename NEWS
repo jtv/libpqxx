@@ -1,4 +1,6 @@
 8.0.0
+ - C++20 is now the oldest C++ version that libpqxx supports.
+ - Compiler must support integral conversions in `charconv`.
 7.10.1
  - Remove `-fanalyzer` option again; gcc is still broken.
  - Oops, no, minimum CMake version is not 3.28, but 3.12!
