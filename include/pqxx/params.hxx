@@ -50,7 +50,6 @@ public:
    */
   void reserve(std::size_t n) &;
 
-  // C++20: constexpr.
   /// Get the number of parameters currently in this `params`.
   [[nodiscard]] constexpr auto size() const noexcept { return m_params.size(); }
 
