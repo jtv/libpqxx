@@ -4,7 +4,7 @@
 7.10.0
  - Deprecate `errorhandler`; replace with lambda-friendly "notice handlers."
  - Deprecate `notification_receiver`; replace with "notification handlers"
- - Bump minimum CMake version to 3.28. (#874)
+ - Bump minimum CMake version to 3.12. (#851, #874)
  - Fixed error message on clashing transaction focuses. (#879)
  - Don't call`/bin/true`; macOS doesn't have it.  Just call `true`. (#885)
  - Deprecate `exec_prepared()`; just use `exec()` with a `pqxx::prepped`.
