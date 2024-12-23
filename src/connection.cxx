@@ -162,7 +162,7 @@ std::pair<bool, bool> pqxx::connection::poll_connect()
   case PGRES_POLLING_OK:
     if (not is_open())
       throw pqxx::broken_connection{PQerrorMessage(m_conn)};
-    PQXX_LIKELY return std::make_pair(false, false);
+    [[likely]] return std::make_pair(false, false);
   case PGRES_POLLING_ACTIVE:
     throw internal_error{
       "Nonblocking connection poll returned obsolete 'active' state."};
@@ -477,8 +477,7 @@ pqxx::connection::remove_receiver(pqxx::notification_receiver *T) noexcept
 
     if (i == R.second)
     {
-      PQXX_UNLIKELY
-      process_notice(internal::concat(
+      [[unlikely]] process_notice(internal::concat(
         "Attempt to remove unknown receiver '", needle.first, "'\n"));
     }
     else
@@ -529,16 +528,14 @@ void PQXX_COLD pqxx::connection::cancel_query()
 {
   std::unique_ptr<PGcancel, void (*)(PGcancel *)> const cancel{
     PQgetCancel(m_conn), wrap_pgfreecancel};
-  if (cancel == nullptr)
-    PQXX_UNLIKELY
-  throw std::bad_alloc{};
+  if (cancel == nullptr) [[unlikely]]
+    throw std::bad_alloc{};
 
   std::array<char, buf_size> errbuf{};
   auto const err{errbuf.data()};
   auto const c{PQcancel(cancel.get(), err, buf_size)};
-  if (c == 0)
-    PQXX_UNLIKELY
-  throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};
+  if (c == 0) [[unlikely]]
+    throw pqxx::sql_error{std::string{err, std::size(errbuf)}, "[cancel]"};
 }
 
 
@@ -607,9 +604,8 @@ int pqxx::connection::get_notifs()
 
   // Even if somehow we receive notifications during our transaction, don't
   // deliver them.
-  if (m_trans != nullptr)
-    PQXX_UNLIKELY
-  return 0;
+  if (m_trans != nullptr) [[unlikely]]
+    return 0;
 
   int notifs = 0;
 
@@ -790,17 +786,16 @@ void pqxx::connection::close()
     return;
   try
   {
-    if (m_trans)
-      PQXX_UNLIKELY
-    process_notice(internal::concat(
-      "Closing connection while ",
-      internal::describe_object("transaction"sv, m_trans->name()),
-      " is still open.\n"));
+    if (m_trans) [[unlikely]]
+      process_notice(internal::concat(
+        "Closing connection while ",
+        internal::describe_object("transaction"sv, m_trans->name()),
+        " is still open.\n"));
 
     if (not std::empty(m_receivers))
     {
-      PQXX_UNLIKELY
-      process_notice("Closing connection with outstanding receivers.\n");
+      [[unlikely]] process_notice(
+        "Closing connection with outstanding receivers.\n");
       m_receivers.clear();
     }
 
@@ -897,7 +892,7 @@ pqxx::connection::read_copy_line()
     throw internal_error{"table read inexplicably went asynchronous"};
 
   default: // Success, got buffer size.
-    PQXX_LIKELY
+    [[likely]]
     {
       // Line size includes a trailing zero, which we ignore.
       auto const text_len{static_cast<std::size_t>(line_len) - 1};
@@ -915,12 +910,10 @@ void pqxx::connection::write_copy_line(std::string_view line)
   static std::string const err_prefix{"Error writing to table: "};
   auto const size{check_cast<int>(
     internal::ssize(line), "Line in stream_to is too long to process."sv)};
-  if (PQputCopyData(m_conn, line.data(), size) <= 0)
-    PQXX_UNLIKELY
-  throw failure{err_prefix + err_msg()};
-  if (PQputCopyData(m_conn, "\n", 1) <= 0)
-    PQXX_UNLIKELY
-  throw failure{err_prefix + err_msg()};
+  if (PQputCopyData(m_conn, line.data(), size) <= 0) [[unlikely]]
+    throw failure{err_prefix + err_msg()};
+  if (PQputCopyData(m_conn, "\n", 1) <= 0) [[unlikely]]
+    throw failure{err_prefix + err_msg()};
 }
 
 
@@ -948,9 +941,8 @@ void pqxx::connection::end_copy_write()
 
 void pqxx::connection::start_exec(char const query[])
 {
-  if (PQsendQuery(m_conn, query) == 0)
-    PQXX_UNLIKELY
-  throw failure{err_msg()};
+  if (PQsendQuery(m_conn, query) == 0) [[unlikely]]
+    throw failure{err_msg()};
 }
 
 
@@ -965,9 +957,8 @@ size_t pqxx::connection::esc_to_buf(std::string_view text, char *buf) const
   int err{0};
   auto const copied{
     PQescapeStringConn(m_conn, buf, text.data(), std::size(text), &err)};
-  if (err)
-    PQXX_UNLIKELY
-  throw argument_error{err_msg()};
+  if (err) [[unlikely]]
+    throw argument_error{err_msg()};
   return copied;
 }
 
@@ -1049,9 +1040,8 @@ std::string pqxx::connection::quote_name(std::string_view identifier) const
   std::unique_ptr<char, void (*)(void const *)> const buf{
     PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
     pqxx::internal::pq::pqfreemem};
-  if (buf == nullptr)
-    PQXX_UNLIKELY
-  throw failure{err_msg()};
+  if (buf == nullptr) [[unlikely]]
+    throw failure{err_msg()};
   return std::string{buf.get()};
 }
 
@@ -1080,7 +1070,8 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
     internal::enc_group(encoding_id()),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
-        PQXX_UNLIKELY out.push_back(escape_char);
+        [[unlikely]]
+        out.push_back(escape_char);
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
@@ -1094,8 +1085,7 @@ int pqxx::connection::await_notification()
   int notifs = get_notifs();
   if (notifs == 0)
   {
-    PQXX_LIKELY
-    internal::wait_fd(socket_of(m_conn), true, false, 10, 0);
+    [[likely]] internal::wait_fd(socket_of(m_conn), true, false, 10, 0);
     notifs = get_notifs();
   }
   return notifs;
@@ -1108,8 +1098,7 @@ int pqxx::connection::await_notification(
   int const notifs = get_notifs();
   if (notifs == 0)
   {
-    PQXX_LIKELY
-    internal::wait_fd(
+    [[likely]] internal::wait_fd(
       socket_of(m_conn), true, false,
       check_cast<unsigned>(seconds, "Seconds out of range."),
       check_cast<unsigned>(microseconds, "Microseconds out of range."));
@@ -1141,17 +1130,15 @@ void PQXX_COLD pqxx::connection::set_client_encoding(char const encoding[]) &
   {
   case 0:
     // OK.
-    PQXX_LIKELY
-    break;
+    [[likely]] break;
   case -1:
-    PQXX_UNLIKELY
+    [[unlikely]]
     if (is_open())
       throw failure{"Setting client encoding failed."};
     else
       throw broken_connection{"Lost connection to the database server."};
   default:
-    PQXX_UNLIKELY
-    throw internal_error{internal::concat(
+    [[unlikely]] throw internal_error{internal::concat(
       "Unexpected result from PQsetClientEncoding: ", retval)};
   }
 }
@@ -1167,14 +1154,13 @@ int pqxx::connection::encoding_id() const
     // *before* checking a query result for failure.  So, we need to handle
     // connection failure here and it will apply in lots of places.
     // TODO: Make pqxx::result::result(...) do all the checking.
-    PQXX_UNLIKELY
+    [[unlikely]]
     if (is_open())
       throw failure{"Could not obtain client encoding."};
     else
       throw broken_connection{"Lost connection to the database server."};
   }
-  PQXX_LIKELY
-  return enc;
+  [[likely]] return enc;
 }
 
 
@@ -1236,15 +1222,13 @@ void pqconninfofree(PQconninfoOption *ptr)
 
 std::string pqxx::connection::connection_string() const
 {
-  if (m_conn == nullptr)
-    PQXX_UNLIKELY
-  throw usage_error{"Can't get connection string: connection is not open."};
+  if (m_conn == nullptr) [[unlikely]]
+    throw usage_error{"Can't get connection string: connection is not open."};
 
   std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const params{
     PQconninfo(m_conn), pqconninfofree};
-  if (params == nullptr)
-    PQXX_UNLIKELY
-  throw std::bad_alloc{};
+  if (params == nullptr) [[unlikely]]
+    throw std::bad_alloc{};
 
   std::string buf;
   for (std::size_t i{0}; params.get()[i].keyword != nullptr; ++i)
