@@ -44,6 +44,7 @@ void pqxx::internal::clear_result(pq::PGresult const *data) noexcept
   // This acts as a destructor, though implemented as a regular function so we
   // can pass it into a smart pointer.  That's why I think it's kind of fair
   // to treat the PGresult as const.
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   PQclear(const_cast<pq::PGresult *>(data));
 }
 
@@ -362,6 +363,7 @@ char const *pqxx::result::cmd_status() const noexcept
   // PQcmdStatus() can't take a PGresult const * because it returns a non-const
   // pointer into the PGresult's data, and that can't be changed without
   // breaking compatibility.
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   return PQcmdStatus(const_cast<internal::pq::PGresult *>(m_data.get()));
 }
 
@@ -383,12 +385,13 @@ pqxx::oid pqxx::result::inserted_oid() const
 
 pqxx::result::size_type pqxx::result::affected_rows() const
 {
-  // PQcmdTuples() can't take a PGresult const * because it returns a non-const
-  // pointer into the PGresult's data, and that can't be changed without
-  // breaking compatibility.
-  auto const rows_str{
+  // PQcmdTuples() can't take a "PGresult const *" because it returns a
+  // non-const pointer into the PGresult's data, and that can't be changed
+  // without breaking compatibility.
+  std::string_view const rows_str{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
-  return (rows_str[0] == '\0') ? 0 : size_type(atoi(rows_str));
+  return from_string<size_type>(rows_str);
 }
 
 
