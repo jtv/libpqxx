@@ -23,15 +23,8 @@
 #  include <filesystem>
 #endif
 
-// C++20: Assume support.
-#if __has_include(<ranges>)
-#  include <ranges>
-#endif
-
-// C++20: Assume support.
-#if __has_include(<span>)
-#  include <span>
-#endif
+#include <ranges>
+#include <span>
 
 #include "pqxx/dbtransaction.hxx"
 
