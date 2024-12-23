@@ -17061,7 +17061,7 @@ add_compiler_opts() {
 
 
 # It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_17 for this,
-# but it's 2022 and the C++20 equivalent isn't quite ready for use.
+# but it's not getting a lot of maintenance.
 # Seems simpler and more reliable for the user to arrange for the desired
 # language versions by setting the appropriate option for their compiler.
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sufficient C++ language/library level" >&5
@@ -17070,8 +17070,8 @@ sufficient_cxx=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-	#if __cplusplus < 201611L
-	#error "Need C++17 or better."
+	#if __cplusplus < 202002L
+	#error "Need C++20 or better."
 	#endif
 
 _ACEOF
