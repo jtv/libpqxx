@@ -55,7 +55,7 @@ CLANG_VERSIONS = list(range(7, 15))
 CLANG = [f'clang++-{ver}' for ver in CLANG_VERSIONS]
 CXX = GCC + CLANG
 
-DIALECTS = ['17', '20', '2b']
+DIALECTS = ['20', '23']
 
 STDLIB = (
     '',
