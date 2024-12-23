@@ -138,12 +138,11 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
 	test78.$(OBJEXT) test79.$(OBJEXT) test82.$(OBJEXT) \
 	test84.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
-	test89.$(OBJEXT) test90.$(OBJEXT) \
-	test_connection_string.$(OBJEXT) unit/test_array.$(OBJEXT) \
-	unit/test_binarystring.$(OBJEXT) unit/test_blob.$(OBJEXT) \
-	unit/test_cancel_query.$(OBJEXT) unit/test_column.$(OBJEXT) \
-	unit/test_composite.$(OBJEXT) unit/test_connection.$(OBJEXT) \
-	unit/test_cursor.$(OBJEXT) unit/test_encodings.$(OBJEXT) \
+	test89.$(OBJEXT) test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
+	unit/test_blob.$(OBJEXT) unit/test_cancel_query.$(OBJEXT) \
+	unit/test_column.$(OBJEXT) unit/test_composite.$(OBJEXT) \
+	unit/test_connection.$(OBJEXT) unit/test_cursor.$(OBJEXT) \
+	unit/test_encodings.$(OBJEXT) \
 	unit/test_error_verbosity.$(OBJEXT) \
 	unit/test_errorhandler.$(OBJEXT) unit/test_escape.$(OBJEXT) \
 	unit/test_exceptions.$(OBJEXT) unit/test_field.$(OBJEXT) \
@@ -514,7 +513,6 @@ runner_SOURCES = \
   test90.cxx \
   test_connection_string.cxx \
   unit/test_array.cxx \
-  unit/test_binarystring.cxx \
   unit/test_blob.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
@@ -610,8 +608,6 @@ unit/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) unit/$(DEPDIR)
 	@: > unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_array.$(OBJEXT): unit/$(am__dirstamp) \
-	unit/$(DEPDIR)/$(am__dirstamp)
-unit/test_binarystring.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_blob.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
@@ -755,7 +751,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection_string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_array.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_binarystring.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_blob.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_cancel_query.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
@@ -1103,7 +1098,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test90.Po
 	-rm -f ./$(DEPDIR)/test_connection_string.Po
 	-rm -f unit/$(DEPDIR)/test_array.Po
-	-rm -f unit/$(DEPDIR)/test_binarystring.Po
 	-rm -f unit/$(DEPDIR)/test_blob.Po
 	-rm -f unit/$(DEPDIR)/test_cancel_query.Po
 	-rm -f unit/$(DEPDIR)/test_column.Po
@@ -1236,7 +1230,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test90.Po
 	-rm -f ./$(DEPDIR)/test_connection_string.Po
 	-rm -f unit/$(DEPDIR)/test_array.Po
-	-rm -f unit/$(DEPDIR)/test_binarystring.Po
 	-rm -f unit/$(DEPDIR)/test_blob.Po
 	-rm -f unit/$(DEPDIR)/test_cancel_query.Po
 	-rm -f unit/$(DEPDIR)/test_column.Po

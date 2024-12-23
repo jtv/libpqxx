@@ -134,9 +134,9 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpqxx_la_LIBADD =
-am_libpqxx_la_OBJECTS = array.lo binarystring.lo blob.lo connection.lo \
-	cursor.lo encodings.lo errorhandler.lo except.lo field.lo \
-	largeobject.lo notification.lo params.lo pipeline.lo result.lo \
+am_libpqxx_la_OBJECTS = array.lo blob.lo connection.lo cursor.lo \
+	encodings.lo errorhandler.lo except.lo field.lo largeobject.lo \
+	notification.lo params.lo pipeline.lo result.lo \
 	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
 	stream_to.lo subtransaction.lo time.lo transaction.lo \
 	transaction_base.lo row.lo util.lo version.lo wait.lo
@@ -162,8 +162,7 @@ am__v_at_0 = @
 am__v_at_1 = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/array.Plo \
-	./$(DEPDIR)/binarystring.Plo ./$(DEPDIR)/blob.Plo \
+am__depfiles_remade = ./$(DEPDIR)/array.Plo ./$(DEPDIR)/blob.Plo \
 	./$(DEPDIR)/connection.Plo ./$(DEPDIR)/cursor.Plo \
 	./$(DEPDIR)/encodings.Plo ./$(DEPDIR)/errorhandler.Plo \
 	./$(DEPDIR)/except.Plo ./$(DEPDIR)/field.Plo \
@@ -357,7 +356,6 @@ with_postgres_lib = @with_postgres_lib@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
 	array.cxx \
-	binarystring.cxx \
 	blob.cxx \
 	connection.cxx \
 	cursor.cxx \
@@ -476,7 +474,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/array.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binarystring.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blob.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cursor.Plo@am__quote@ # am--include-marker
@@ -668,7 +665,6 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/array.Plo
-	-rm -f ./$(DEPDIR)/binarystring.Plo
 	-rm -f ./$(DEPDIR)/blob.Plo
 	-rm -f ./$(DEPDIR)/connection.Plo
 	-rm -f ./$(DEPDIR)/cursor.Plo
@@ -740,7 +736,6 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/array.Plo
-	-rm -f ./$(DEPDIR)/binarystring.Plo
 	-rm -f ./$(DEPDIR)/blob.Plo
 	-rm -f ./$(DEPDIR)/connection.Plo
 	-rm -f ./$(DEPDIR)/cursor.Plo

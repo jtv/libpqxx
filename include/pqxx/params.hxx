@@ -109,12 +109,6 @@ public:
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
 
-  /// @deprecated Append binarystring parameter.
-  /** The binarystring must stay valid for as long as the `params` remains
-   * active.
-   */
-  void append(binarystring const &value) &;
-
   /// Append all parameters from value.
   template<typename IT, typename ACCESSOR>
   void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value) &

@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "pqxx/binarystring.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
 

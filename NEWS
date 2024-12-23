@@ -1,5 +1,8 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - Assume compiler supports integral conversions in `charconv`.
+ - Assume compiler supports spans, ranges, and `cmp_less` etc.
+ - Retired `binarystring` and its headers.
  - Compiler must support integral conversions in `charconv`.
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
