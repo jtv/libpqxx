@@ -825,7 +825,6 @@ public:
 
   //@}
 
-  // C++20: constexpr.  Breaks ABI.
   /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
