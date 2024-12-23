@@ -110,7 +110,7 @@ pqxx::internal::c_params pqxx::params::make_c_params() const
         {
           p.values.push_back(reinterpret_cast<char const *>(std::data(value)));
           p.lengths.push_back(
-            check_cast<int>(internal::ssize(value), s_overflow));
+            check_cast<int>(std::ssize(value), s_overflow));
         }
 
         p.formats.push_back(param_format(value));
