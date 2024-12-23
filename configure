@@ -17325,42 +17325,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_CHARCONV_FLOAT" >&5
 printf "%s\n" "$PQXX_HAVE_CHARCONV_FLOAT" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_CMP" >&5
-printf %s "checking PQXX_HAVE_CMP... " >&6; }
-PQXX_HAVE_CMP=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-// Test for C++20 std::cmp_greater etc. support.
-
-// C++20: Assume support.
-
-#include <utility>
-
-
-
-
-
-int main()
-
-{
-
-  return std::cmp_greater(-1, 2u) && std::cmp_less_equal(3, 0);
-
-}
-
-
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"
-then :
-
-printf "%s\n" "#define PQXX_HAVE_CMP 1" >>confdefs.h
-
-else $as_nop
-  PQXX_HAVE_CMP=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_CMP" >&5
-printf "%s\n" "$PQXX_HAVE_CMP" >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_CONCEPTS" >&5
 printf %s "checking PQXX_HAVE_CONCEPTS... " >&6; }
 PQXX_HAVE_CONCEPTS=yes
