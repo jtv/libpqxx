@@ -16,10 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
-
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#  include <ranges>
-#endif
+#include <ranges>
 
 
 namespace pqxx
