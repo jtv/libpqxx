@@ -3,6 +3,7 @@
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
  - Retired `binarystring` and its headers.
+ - Retired result row slicing.
  - Compiler must support integral conversions in `charconv`.
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)

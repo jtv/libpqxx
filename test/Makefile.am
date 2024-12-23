@@ -102,7 +102,6 @@ runner_SOURCES = \
   unit/test_range.cxx \
   unit/test_read_transaction.cxx \
   unit/test_result_iteration.cxx \
-  unit/test_result_slicing.cxx \
   unit/test_row.cxx \
   unit/test_separated_list.cxx \
   unit/test_simultaneous_transactions.cxx \
