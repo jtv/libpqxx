@@ -10,8 +10,6 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-// std::chrono::year_month_day is C++20, so let's worry a bit less about C++17
-// compatibility in this file.
 #if defined(PQXX_HAVE_YEAR_MONTH_DAY)
 namespace
 {
