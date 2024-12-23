@@ -112,49 +112,6 @@ concept potential_binary =
 #endif // PQXX_HAVE_CONCEPTS
 
 
-// C++20: Retire these compatibility definitions.
-#if defined(PQXX_HAVE_CONCEPTS)
-
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_RANGE_ARG std::ranges::range
-
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG pqxx::char_string
-
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
-
-#else // PQXX_HAVE_CONCEPTS
-
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_RANGE_ARG typename
-
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG typename
-
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG typename
-
-#endif // PQXX_HAVE_CONCEPTS
-
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
  */

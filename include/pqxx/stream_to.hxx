@@ -134,7 +134,7 @@ public:
    * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
-  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  template<pqxx::char_strings COLUMNS>
   static stream_to
   table(transaction_base &tx, table_path path, COLUMNS const &columns)
   {
@@ -151,7 +151,7 @@ public:
    * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
-  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  template<pqxx::char_strings COLUMNS>
   static stream_to
   table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {

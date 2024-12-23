@@ -146,7 +146,7 @@ public:
   }
 
   /// Append all elements of `range` as parameters.
-  template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
+  template<std::ranges::range RANGE> void append_multi(RANGE const &range) &
   {
 #if defined(PQXX_HAVE_CONCEPTS)
     if constexpr (std::ranges::sized_range<RANGE>)
