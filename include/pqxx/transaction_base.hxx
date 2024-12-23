@@ -259,12 +259,6 @@ public:
     return conn().quote(t);
   }
 
-  [[deprecated("Use bytes instead of binarystring.")]] std::string
-  quote(binarystring const &t) const
-  {
-    return conn().quote(t.bytes_view());
-  }
-
   /// Binary-escape and quote a binary string for use as an SQL constant.
   [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
