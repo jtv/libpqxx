@@ -177,7 +177,7 @@ void test_esc_escapes_into_buffer()
 
 void test_esc_accepts_various_types()
 {
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -197,7 +197,7 @@ void test_esc_accepts_various_types()
 
 void test_binary_esc_checks_buffer_length()
 {
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   pqxx::connection cx;
   pqxx::work tx{cx};
 

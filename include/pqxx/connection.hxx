@@ -847,7 +847,6 @@ public:
     return esc(std::string_view{text});
   }
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -872,7 +871,6 @@ public:
     auto const data{buffer.data()};
     return {data, esc_to_buf(text, data)};
   }
-#endif
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This is meant for text strings only.  It cannot contain bytes
@@ -889,7 +887,7 @@ public:
   }
 #endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -929,11 +927,9 @@ public:
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
-#endif
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
@@ -945,7 +941,7 @@ public:
   }
 #endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
