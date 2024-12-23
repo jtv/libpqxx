@@ -51,7 +51,10 @@ public:
   void reserve(std::size_t n) &;
 
   /// Get the number of parameters currently in this `params`.
-  [[nodiscard]] constexpr auto size() const noexcept { return m_params.size(); }
+  [[nodiscard]] constexpr auto size() const noexcept
+  {
+    return m_params.size();
+  }
 
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
