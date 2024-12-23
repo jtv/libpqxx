@@ -105,7 +105,7 @@ public:
 
   [[nodiscard]] constexpr size_type size() const noexcept
   {
-    return m_end - m_begin;
+    return m_end;
   }
 
   /// Row number, assuming this is a real row and not end()/rend().
@@ -194,24 +194,6 @@ public:
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
-  /** Produce a slice of this row, containing the given range of columns.
-   *
-   * @deprecated I haven't heard of anyone caring about row slicing at all in
-   * at least the last 15 years.  Yet it adds complexity, so unless anyone
-   * files a bug explaining why they really need this feature, I'm going to
-   * remove it.  Even if they do, the feature may need an update.
-   *
-   * The slice runs from the range's starting column to the range's end
-   * column, exclusive.  It looks just like a normal result row, except
-   * slices can be empty.
-   */
-  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
-  slice(size_type sbegin, size_type send) const;
-
-  /// Is this a row without fields?  Can only happen to a slice.
-  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
-  empty() const noexcept;
-
 protected:
   friend class const_row_iterator;
   friend class result;
@@ -255,9 +237,6 @@ protected:
    */
   result::size_type m_index = 0;
 
-  // TODO: Remove m_begin and (if possible) m_end when we remove slice().
-  /// First column in slice.  This row ignores lower-numbered columns.
-  size_type m_begin = 0;
   /// End column in slice.  This row only sees lower-numbered columns.
   size_type m_end = 0;
 
