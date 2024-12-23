@@ -19,16 +19,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_CHARCONV_FLOAT=no)
 AC_MSG_RESULT($PQXX_HAVE_CHARCONV_FLOAT)
-AC_MSG_CHECKING([PQXX_HAVE_CMP])
-PQXX_HAVE_CMP=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_CMP.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_CMP],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_CMP=no)
-AC_MSG_RESULT($PQXX_HAVE_CMP)
 AC_MSG_CHECKING([PQXX_HAVE_CONCEPTS])
 PQXX_HAVE_CONCEPTS=yes
 AC_COMPILE_IFELSE(

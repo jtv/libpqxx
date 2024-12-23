@@ -6,7 +6,6 @@ PACKAGE_TARNAME	internal	autotools
 PACKAGE_VERSION	internal	autotools
 PQXX_HAVE_ASSUME	public	compiler
 PQXX_HAVE_CHARCONV_FLOAT	internal	compiler
-PQXX_HAVE_CMP	public	compiler
 PQXX_HAVE_CONCEPTS	public	compiler
 PQXX_HAVE_CXA_DEMANGLE	internal	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
