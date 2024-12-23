@@ -1,4 +1,6 @@
 8.0.0
+ - C++20 is now the oldest C++ version that libpqxx supports.
+ - Compiler must support integral conversions in `charconv`.
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)
