@@ -1007,7 +1007,7 @@ public:
    * yourself.  It's a bit of extra work, but it can in rare cases let you
    * eliminate some duplicate work in quoting them repeatedly.
    */
-  template<PQXX_CHAR_STRINGS_ARG STRINGS>
+  template<pqxx::char_strings STRINGS>
   inline std::string quote_columns(STRINGS const &columns) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
@@ -1478,7 +1478,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
 }
 
 
-template<PQXX_CHAR_STRINGS_ARG STRINGS>
+template<pqxx::char_strings STRINGS>
 inline std::string connection::quote_columns(STRINGS const &columns) const
 {
   return separated_list(
