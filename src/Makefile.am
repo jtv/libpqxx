@@ -1,7 +1,6 @@
 lib_LTLIBRARIES = libpqxx.la
 libpqxx_la_SOURCES = \
 	array.cxx \
-	binarystring.cxx \
 	blob.cxx \
 	connection.cxx \
 	cursor.cxx \
