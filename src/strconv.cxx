@@ -96,7 +96,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
   // any modern-day system I can think of, a signed type's bottom value
   // has no positive equivalent.  Luckily the C++ standards committee can't
   // think of any exceptions either, so it's the required representation as
-  // of C++20.  We'll assume it right now, while still on C++17.
+  // of C++20.
   static_assert(-(bottom<T> + 1) == top<T>);
 
   // The unsigned version of T does have the unsigned version of bottom.
