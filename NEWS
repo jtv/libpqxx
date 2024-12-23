@@ -1,5 +1,6 @@
 7.10.1
  - Remove `-fanalyzer` option again; gcc is still broken.
+ - Oops, no, minimum CMake version is not 3.28, but 3.12!
 7.10.0
  - Deprecate `errorhandler`; replace with lambda-friendly "notice handlers."
  - Deprecate `notification_receiver`; replace with "notification handlers"

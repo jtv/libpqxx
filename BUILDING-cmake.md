@@ -57,7 +57,7 @@ your code will link with libpqxx.  For example, if your project is named
 So a simple working `CMakeLists.txt` might be:
 
 ```cmake
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.12)
 project(ausom)
 set(CMAKE_CXX_STANDARD 20)
 add_executable(ausom src/ausom.cxx)
@@ -93,7 +93,7 @@ your code will link with libpqxx.  For example, if your project is named
 So a simple working `CMakeLists.txt` might be:
 
 ```cmake
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.12)
 project(ausom)
 set(CMAKE_CXX_STANDARD 20)
 add_executable(ausom src/ausom.cxx)
