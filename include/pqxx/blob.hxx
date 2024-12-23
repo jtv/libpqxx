@@ -111,7 +111,6 @@ public:
     return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Read up to `std::size(buf)` bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
@@ -122,27 +121,7 @@ public:
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
-#else  // PQXX_HAVE_CONCEPTS
-  /// Read up to `std::size(buf)` bytes from the object.
-  /** @deprecated As libpqxx moves to C++20 as its baseline language version,
-   * this will take and return `std::span<std::byte>`.
-   *
-   * Retrieves bytes from the blob, at the current position, until `buf` is
-   * full (i.e. its current size is reached), or there are no more bytes to
-   * read, whichever comes first.
-   *
-   * This function will not change either the size or the capacity of `buf`,
-   * only its contents.
-   *
-   * Returns the filled portion of `buf`.  This may be empty.
-   */
-  template<typename ALLOC> bytes_view read(std::vector<std::byte, ALLOC> &buf)
-  {
-    return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
-  }
-#endif // PQXX_HAVE_CONCEPTS
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Write `data` to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * `data` to the object's contents and move the writing position so that
@@ -166,31 +145,6 @@ public:
   {
     raw_write(std::data(data), std::size(data));
   }
-#else
-  /// Write `data` large object, at the current position.
-  /** If the writing position is at the end of the object, this will append
-   * `data` to the object's contents and move the writing position so that
-   * it's still at the end.
-   *
-   * If the writing position was not at the end, writing will overwrite the
-   * prior data, but it will not remove data that follows the part where you
-   * wrote your new data.
-   *
-   * @warning This is a big difference from writing to a file.  You can
-   * overwrite some data in a large object, but this does not truncate the
-   * data that was already there.  For example, if the object contained binary
-   * data "abc", and you write "12" at the starting position, the object will
-   * contain "12c".
-   *
-   * @warning The underlying protocol only supports writes up to 2 GB at a
-   * time.  If you need to write more, try making repeated calls to
-   * @ref append_from_buf.
-   */
-  template<typename DATA> void write(DATA const &data)
-  {
-    raw_write(std::data(data), std::size(data));
-  }
-#endif
 
   /// Resize large object to `size` bytes.
   /** If the blob is more than `size` bytes long, this removes the end so as
