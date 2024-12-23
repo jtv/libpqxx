@@ -64,9 +64,6 @@
 #undef PQXX_HAVE_CHARCONV_FLOAT
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_CMP
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_CONCEPTS
 
 /* Define if this feature is available. */
