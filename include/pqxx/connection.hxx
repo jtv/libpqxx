@@ -33,6 +33,7 @@
 #include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/params.hxx"
+#include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
@@ -1017,9 +1018,6 @@ public:
    */
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t) const;
-
-  [[deprecated("Use std::byte for binary data.")]] std::string
-  quote(binarystring const &) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.

@@ -46,7 +46,6 @@ extern "C"
 
 #include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/binarystring.hxx"
 #include "pqxx/internal/wait.hxx"
 #include "pqxx/nontransaction.hxx"
 #include "pqxx/notification.hxx"
@@ -1020,12 +1019,6 @@ pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
 std::string pqxx::connection::quote_raw(bytes_view bytes) const
 {
   return internal::concat("'", esc_raw(bytes), "'::bytea");
-}
-
-
-std::string PQXX_COLD pqxx::connection::quote(binarystring const &b) const
-{
-  return quote(b.bytes_view());
 }
 
 
