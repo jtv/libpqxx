@@ -36,6 +36,7 @@ std::shared_ptr<unsigned char>
   PQXX_COLD copy_to_buffer(void const *data, std::size_t len)
 {
   std::shared_ptr<unsigned char> ptr{
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,hicpp-no-malloc)
     static_cast<unsigned char *>(malloc(len + 1)), std::free};
   if (not ptr)
     throw std::bad_alloc{};

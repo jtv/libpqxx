@@ -151,6 +151,7 @@ wrap_to_chars(char *begin, char *end, T const &value)
 namespace pqxx::internal
 {
 template<typename T>
+// NOLINTNEXTLINE(readability-non-const-parameter)
 zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
@@ -236,6 +237,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   std::unique_ptr<char, void (*)(char *)> const demangled{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status),
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc, hicpp-no-malloc)
     [](char *x) { std::free(x); }};
 #else
   std::unique_ptr<char> demangled{};
