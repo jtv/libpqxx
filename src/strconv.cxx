@@ -237,7 +237,7 @@ std::string demangle_type_name(char const raw[])
   // When __cxa_demangle fails, it's guaranteed to return null.
   std::unique_ptr<char, void (*)(char *)> const demangled{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc, hicpp-no-malloc)
+    // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
     [](char *x) { std::free(x); }};
 #else
   std::unique_ptr<char> demangled{};
