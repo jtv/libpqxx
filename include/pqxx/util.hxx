@@ -328,20 +328,17 @@ using bytes_view = std::conditional<
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
  * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
- * many other types.
+ * many other types.  In libpqxx we commend a container of `std::byte`.
  *
- * But for libpqxx to recognise your data as binary, it needs to be a
- * `pqxx::bytes`, or a `pqxx::bytes_view`; or in C++20 or better, any
- * contiguous block of `std::byte`.
+ * For libpqxx to recognise your data as binary, it needs to be a
+ * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
+ * `std::byte` should do.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
  * `pqxx::bytes_view`.
  *
- * @warning There are two things you should be aware of!  First, the data must
- * be contiguous in memory.  In C++20 the compiler will enforce this, but in
- * C++17 it's your own problem.  Second, you must keep the object where you
- * store the actual data alive for as long as you might use this function's
- * return value.
+ * @warning You must keep the storage holding the actual data alive for as
+ * long as you might use this function's return value.
  */
 template<PQXX_POTENTIAL_BINARY_ARG TYPE>
 bytes_view binary_cast(TYPE const &data)
