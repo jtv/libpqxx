@@ -52,16 +52,15 @@ public:
 
   // C++20: constexpr.
   /// Get the number of parameters currently in this `params`.
-  [[nodiscard]] auto size() const noexcept { return m_params.size(); }
+  [[nodiscard]] constexpr auto size() const noexcept { return m_params.size(); }
 
-  // C++20: Use the vector's ssize() directly and go noexcept+constexpr.
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
    * `std::vector` does not have a `ssize()` member function.  These member
    * functions are `noexcept`, but `std::size()` and `std::ssize()` are
    * not.
    */
-  [[nodiscard]] auto ssize() const { return pqxx::internal::ssize(m_params); }
+  [[nodiscard]] constexpr auto ssize() const { return std::ssize(m_params); }
 
   /// Append a null value.
   void append() &;

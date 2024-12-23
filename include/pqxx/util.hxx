@@ -489,18 +489,6 @@ unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
 
 
-/// Transitional: std::ssize(), or custom implementation if not available.
-template<typename T> auto ssize(T const &c)
-{
-#if defined(PQXX_HAVE_SSIZE)
-  return std::ssize(c);
-#else
-  using signed_t = std::make_signed_t<decltype(std::size(c))>;
-  return static_cast<signed_t>(std::size(c));
-#endif // PQXX_HAVE_SSIZe
-}
-
-
 /// Helper for determining a function's parameter types.
 /** This function has no definition.  It's not meant to be actually called.
  * It's just there for pattern-matching in the compiler, so we can use its
