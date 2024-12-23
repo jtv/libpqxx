@@ -135,8 +135,7 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
         {
           // The normal case: we just parsed an unquoted string.  The value
           // is what we need.
-          PQXX_LIKELY
-          return std::tuple{juncture::string_value, endpoint};
+          [[likely]] return std::tuple{juncture::string_value, endpoint};
         }
       }
       }
@@ -146,9 +145,8 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
   if (end < std::size(m_input))
   {
     auto next{scan_glyph<ENC>(end)};
-    if (((next - end) == 1) and (m_input[end] == ','))
-      PQXX_UNLIKELY
-    end = next;
+    if (((next - end) == 1) and (m_input[end] == ',')) [[unlikely]]
+      end = next;
   }
 
   m_pos = end;
@@ -181,7 +179,7 @@ array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
     PQXX_ENCODING_CASE(UHC);
     PQXX_ENCODING_CASE(UTF8);
   }
-  PQXX_UNLIKELY throw pqxx::internal_error{
+  [[unlikely]] throw pqxx::internal_error{
     pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
 
 #undef PQXX_ENCODING_CASE

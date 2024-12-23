@@ -61,12 +61,12 @@ pqxx::stream_from::stream_from(
   from_table_t) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
-  if (std::empty(columns))
-    PQXX_UNLIKELY
-  tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv)).no_rows();
-  else PQXX_LIKELY tx
-    .exec(internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv))
-    .no_rows();
+  if (std::empty(columns)) [[unlikely]]
+    tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv)).no_rows();
+  else [[likely]]
+    tx.exec(
+        internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv))
+      .no_rows();
   register_me();
 }
 
@@ -138,9 +138,8 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
 
 void pqxx::stream_from::close()
 {
-  if (not m_finished)
+  if (not m_finished) [[unlikely]]
   {
-    PQXX_UNLIKELY
     m_finished = true;
     unregister_me();
   }
@@ -178,9 +177,8 @@ void pqxx::stream_from::complete()
 
 void pqxx::stream_from::parse_line()
 {
-  if (m_finished)
-    PQXX_UNLIKELY
-  return;
+  if (m_finished) [[unlikely]]
+    return;
 
   // TODO: Any way to keep current size in a local var, for speed?
   m_fields.clear();

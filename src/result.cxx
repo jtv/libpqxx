@@ -63,8 +63,8 @@ pqxx::result::result(
 
 bool pqxx::result::operator==(result const &rhs) const noexcept
 {
-  if (&rhs == this)
-    PQXX_UNLIKELY return true;
+  if (&rhs == this) [[unlikely]]
+    return true;
   auto const s{size()};
   if (std::size(rhs) != s)
     return false;
@@ -202,7 +202,6 @@ void PQXX_COLD pqxx::result::throw_sql_error(
 
   switch (code[0])
   {
-    PQXX_UNLIKELY
   case '\0':
     // SQLSTATE is empty.  We may have seen this happen in one
     // circumstance: a client-side socket timeout (while using the
@@ -306,9 +305,8 @@ void PQXX_COLD pqxx::result::throw_sql_error(
 
 void pqxx::result::check_status(std::string_view desc) const
 {
-  if (auto err{status_error()}; not std::empty(err))
+  if (auto err{status_error()}; not std::empty(err)) [[unlikely]]
   {
-    PQXX_UNLIKELY
     if (not std::empty(desc))
       err = pqxx::internal::concat("Failure during '", desc, "': ", err);
     throw_sql_error(err, query());
@@ -342,8 +340,7 @@ std::string pqxx::result::status_error() const
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
   case PGRES_NONFATAL_ERROR:
   case PGRES_FATAL_ERROR:
-    PQXX_UNLIKELY
-    err = PQresultErrorMessage(m_data.get());
+    [[unlikely]] err = PQresultErrorMessage(m_data.get());
     break;
 
   case PGRES_SINGLE_TUPLE:
@@ -457,9 +454,8 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
 pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
 {
   auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
-  if (n != 0)
-    PQXX_LIKELY
-  return n - 1;
+  if (n != 0) [[likely]]
+    return n - 1;
 
   // Failed.  Now find out why, so we can throw a sensible exception.
   auto const col_str{to_string(col_num)};
@@ -494,9 +490,8 @@ int pqxx::result::errorposition() const
 char const *pqxx::result::column_name(pqxx::row::size_type number) const &
 {
   auto const n{PQfname(m_data.get(), number)};
-  if (n == nullptr)
+  if (n == nullptr) [[unlikely]]
   {
-    PQXX_UNLIKELY
     if (m_data.get() == nullptr)
       throw usage_error{"Queried column name on null result."};
     throw range_error{internal::concat(
