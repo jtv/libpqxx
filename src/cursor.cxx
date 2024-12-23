@@ -247,13 +247,12 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
   if (n <= 0)
   {
-    PQXX_UNLIKELY
+    [[unlikely]]
     if (n == 0)
       return *this;
     throw argument_error{"Advancing icursor_iterator by negative offset."};
   }
-  PQXX_LIKELY
-  m_pos = difference_type(
+  [[likely]] m_pos = difference_type(
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}.forward(
       icursorstream::size_type(n)));
   m_here.clear();
@@ -267,13 +266,12 @@ pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
   if (&rhs == this) {}
   else if (rhs.m_stream == m_stream)
   {
-    PQXX_UNLIKELY
-    m_here = rhs.m_here;
+    [[unlikely]] m_here = rhs.m_here;
     m_pos = rhs.m_pos;
   }
   else
   {
-    PQXX_LIKELY
+    [[likely]]
     if (m_stream != nullptr)
       pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}
         .remove_iterator(this);

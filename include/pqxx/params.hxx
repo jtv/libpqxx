@@ -253,9 +253,8 @@ public:
     }
     else
     {
-      PQXX_LIKELY
       // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
+      [[likely]]++ m_buf[m_len - 1];
     }
   }
 

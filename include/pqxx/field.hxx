@@ -374,8 +374,7 @@ inline bool field::to<std::string_view>(
 template<> inline std::string_view field::as<std::string_view>() const
 {
   if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<std::string_view>);
+    internal::throw_null_conversion(type_name<std::string_view>);
   return view();
 }
 
@@ -412,8 +411,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 template<> inline zview field::as<zview>() const
 {
   if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<zview>);
+    internal::throw_null_conversion(type_name<zview>);
   return zview{c_str(), size()};
 }
 
