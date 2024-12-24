@@ -96,7 +96,7 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
   // any modern-day system I can think of, a signed type's bottom value
   // has no positive equivalent.  Luckily the C++ standards committee can't
   // think of any exceptions either, so it's the required representation as
-  // of C++20.  We'll assume it right now, while still on C++17.
+  // of C++20.
   static_assert(-(bottom<T> + 1) == top<T>);
 
   // The unsigned version of T does have the unsigned version of bottom.
@@ -118,33 +118,29 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 }
 
 
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
-[[maybe_unused]] inline char *
-wrap_to_chars(char *begin, char *end, T const &value)
+inline char *wrap_to_chars(char *begin, char *end, T const &value)
 {
   auto res{std::to_chars(begin, end - 1, value)};
-  if (res.ec != std::errc())
-    PQXX_UNLIKELY
-  switch (res.ec)
-  {
-  case std::errc::value_too_large:
-    throw pqxx::conversion_overrun{
-      "Could not convert " + pqxx::type_name<T> +
-      " to string: "
-      "buffer too small (" +
-      pqxx::to_string(end - begin) + " bytes)."};
-  default:
-    throw pqxx::conversion_error{
-      "Could not convert " + pqxx::type_name<T> + " to string."};
-  }
+  if (res.ec != std::errc()) [[unlikely]]
+    switch (res.ec)
+    {
+    case std::errc::value_too_large:
+      throw pqxx::conversion_overrun{
+        "Could not convert " + pqxx::type_name<T> +
+        " to string: "
+        "buffer too small (" +
+        pqxx::to_string(end - begin) + " bytes)."};
+    default:
+      throw pqxx::conversion_error{
+        "Could not convert " + pqxx::type_name<T> + " to string."};
+    }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
   *res.ptr++ = '\0';
   return res.ptr;
 }
-#endif
 } // namespace
 
 
@@ -196,13 +192,9 @@ template zview integral_traits<unsigned long long>::to_buf(
 template<typename T>
 char *integral_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
-#if defined(PQXX_HAVE_CHARCONV_INT)
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
   return wrap_to_chars(begin, end, value);
-#else
-  return generic_into_buf(begin, end, value);
-#endif
 }
 
 
@@ -275,9 +267,7 @@ std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 
 namespace
 {
-#if defined(PQXX_HAVE_CHARCONV_INT) || defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename TYPE>
-[[maybe_unused]] inline TYPE from_string_arithmetic(std::string_view in)
+template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
 {
   char const *here{std::data(in)};
   auto const end{std::data(in) + std::size(in)};
@@ -289,9 +279,8 @@ template<typename TYPE>
 
   TYPE out{};
   auto const res{std::from_chars(here, end, out)};
-  if (res.ec == std::errc() and res.ptr == end)
-    PQXX_LIKELY
-  return out;
+  if (res.ec == std::errc() and res.ptr == end) [[likely]]
+    return out;
 
   std::string msg;
   if (res.ec == std::errc())
@@ -318,162 +307,6 @@ template<typename TYPE>
   else
     throw pqxx::conversion_error{base + ": " + msg};
 }
-#endif
-} // namespace
-
-
-namespace
-{
-#if !defined(PQXX_HAVE_CHARCONV_INT)
-[[noreturn, maybe_unused]] void PQXX_COLD report_overflow()
-{
-  throw pqxx::conversion_error{
-    "Could not convert string to integer: value out of range."};
-}
-
-template<typename T> struct numeric_ten
-{
-  static inline constexpr T value = 10;
-};
-
-template<typename T> struct numeric_high_threshold
-{
-  static inline constexpr T value =
-    (std::numeric_limits<T>::max)() / numeric_ten<T>::value;
-};
-
-template<typename T> struct numeric_low_threshold
-{
-  static inline constexpr T value =
-    (std::numeric_limits<T>::min)() / numeric_ten<T>::value;
-};
-
-/// Return 10*n, or throw exception if it overflows.
-template<typename T>
-[[maybe_unused]] constexpr inline T safe_multiply_by_ten(T n)
-{
-  using limits = std::numeric_limits<T>;
-
-  if (n > numeric_high_threshold<T>::value)
-    PQXX_UNLIKELY
-  report_overflow();
-  if constexpr (limits::is_signed)
-  {
-    if (numeric_low_threshold<T>::value > n)
-      PQXX_UNLIKELY
-    report_overflow();
-  }
-  return T(n * numeric_ten<T>::value);
-}
-
-
-/// Add digit d to nonnegative n, or throw exception if it overflows.
-template<typename T>
-[[maybe_unused]] constexpr inline T safe_add_digit(T n, T d)
-{
-  T const high_threshold{static_cast<T>(std::numeric_limits<T>::max() - d)};
-  if (n > high_threshold)
-    PQXX_UNLIKELY
-  report_overflow();
-  return static_cast<T>(n + d);
-}
-
-
-/// Subtract digit d to nonpositive n, or throw exception if it overflows.
-template<typename T>
-[[maybe_unused]] constexpr inline T safe_sub_digit(T n, T d)
-{
-  T const low_threshold{static_cast<T>(std::numeric_limits<T>::min() + d)};
-  if (n < low_threshold)
-    PQXX_UNLIKELY
-  report_overflow();
-  return static_cast<T>(n - d);
-}
-
-
-/// For use in string parsing: add new numeric digit to intermediate value.
-template<typename L, typename R>
-[[maybe_unused]] constexpr inline L absorb_digit_positive(L value, R digit)
-{
-  return safe_add_digit(safe_multiply_by_ten(value), L(digit));
-}
-
-
-/// For use in string parsing: subtract digit from intermediate value.
-template<typename L, typename R>
-[[maybe_unused]] constexpr inline L absorb_digit_negative(L value, R digit)
-{
-  return safe_sub_digit(safe_multiply_by_ten(value), L(digit));
-}
-
-
-template<typename T>
-[[maybe_unused]] constexpr T from_string_integer(std::string_view text)
-{
-  if (std::size(text) == 0)
-    throw pqxx::conversion_error{
-      "Attempt to convert empty string to " + pqxx::type_name<T> + "."};
-
-  char const *const data{std::data(text)};
-  std::size_t i{0};
-
-  // Skip whitespace.  This is not the proper way to do it, but I see no way
-  // that any of the supported encodings could ever produce a valid character
-  // whose byte sequence would confuse this code.
-  //
-  // Why skip whitespace?  Because that's how integral conversions are meant to
-  // work _for composite types._  I see no clean way to support leading
-  // whitespace there without putting the code in here.  A shame about the
-  // overhead, modest as it is, for the normal case.
-  for (; i < std::size(text) and (data[i] == ' ' or data[i] == '\t'); ++i);
-  if (i == std::size(text))
-    throw pqxx::conversion_error{
-      "Converting string to " + pqxx::type_name<T> +
-      ", but it contains only whitespace."};
-
-  char const initial{data[i]};
-  T result{0};
-
-  if (pqxx::internal::is_digit(initial))
-  {
-    for (; pqxx::internal::is_digit(data[i]); ++i)
-      result = absorb_digit_positive(
-        result, pqxx::internal::digit_to_number(data[i]));
-  }
-  else if (initial == '-')
-  {
-    if constexpr (not std::is_signed_v<T>)
-      throw pqxx::conversion_error{
-        "Attempt to convert negative value to " + pqxx::type_name<T> + "."};
-
-    ++i;
-    if (i >= std::size(text))
-      throw pqxx::conversion_error{
-        "Converting string to " + pqxx::type_name<T> +
-        ", but it contains only a sign."};
-    for (; i < std::size(text) and pqxx::internal::is_digit(data[i]); ++i)
-      result = absorb_digit_negative(
-        result, pqxx::internal::digit_to_number(data[i]));
-  }
-  else
-  {
-    throw pqxx::conversion_error{
-      "Could not convert string to " + pqxx::type_name<T> +
-      ": "
-      "'" +
-      std::string{text} + "'."};
-  }
-
-  if (i < std::size(text))
-    throw pqxx::conversion_error{
-      "Unexpected text after " + pqxx::type_name<T> +
-      ": "
-      "'" +
-      std::string{text} + "'."};
-
-  return result;
-}
-#endif // !PQXX_HAVE_CHARCONV_INT
 } // namespace
 
 
@@ -555,9 +388,8 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
       ok = true;
       result = -std::numeric_limits<T>::infinity();
     }
-    else
+    else [[likely]]
     {
-      PQXX_LIKELY
       if constexpr (have_thread_local)
       {
         thread_local dumb_stringstream<T> S;
@@ -697,11 +529,7 @@ namespace pqxx::internal
 {
 template<typename T> T integral_traits<T>::from_string(std::string_view text)
 {
-#if defined(PQXX_HAVE_CHARCONV_INT)
   return from_string_arithmetic<T>(text);
-#else
-  return from_string_integer<T>(text);
-#endif
 }
 
 template short integral_traits<short>::from_string(std::string_view);

@@ -50,18 +50,20 @@ public:
    */
   void reserve(std::size_t n) &;
 
-  // C++20: constexpr.
   /// Get the number of parameters currently in this `params`.
-  [[nodiscard]] auto size() const noexcept { return m_params.size(); }
+  [[nodiscard]] constexpr auto size() const noexcept
+  {
+    return m_params.size();
+  }
 
-  // C++20: Use the vector's ssize() directly and go noexcept+constexpr.
+  // C++20: noexcept.
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
    * `std::vector` does not have a `ssize()` member function.  These member
    * functions are `noexcept`, but `std::size()` and `std::ssize()` are
    * not.
    */
-  [[nodiscard]] auto ssize() const { return pqxx::internal::ssize(m_params); }
+  [[nodiscard]] constexpr auto ssize() const { return std::ssize(m_params); }
 
   /// Append a null value.
   void append() &;
@@ -107,12 +109,6 @@ public:
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
 
-  /// @deprecated Append binarystring parameter.
-  /** The binarystring must stay valid for as long as the `params` remains
-   * active.
-   */
-  void append(binarystring const &value) &;
-
   /// Append all parameters from value.
   template<typename IT, typename ACCESSOR>
   void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value) &
@@ -145,7 +141,7 @@ public:
   }
 
   /// Append all elements of `range` as parameters.
-  template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
+  template<std::ranges::range RANGE> void append_multi(RANGE const &range) &
   {
 #if defined(PQXX_HAVE_CONCEPTS)
     if constexpr (std::ranges::sized_range<RANGE>)
@@ -253,9 +249,8 @@ public:
     }
     else
     {
-      PQXX_LIKELY
       // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
+      [[likely]]++ m_buf[m_len - 1];
     }
   }
 

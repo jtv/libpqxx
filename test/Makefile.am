@@ -79,7 +79,6 @@ runner_SOURCES = \
   test89.cxx \
   test90.cxx \
   unit/test_array.cxx \
-  unit/test_binarystring.cxx \
   unit/test_blob.cxx \
   unit/test_cancel_query.cxx \
   unit/test_column.cxx \
@@ -102,7 +101,6 @@ runner_SOURCES = \
   unit/test_range.cxx \
   unit/test_read_transaction.cxx \
   unit/test_result_iteration.cxx \
-  unit/test_result_slicing.cxx \
   unit/test_row.cxx \
   unit/test_separated_list.cxx \
   unit/test_simultaneous_transactions.cxx \

@@ -16,10 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
-
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#  include <ranges>
-#endif
+#include <ranges>
 
 
 namespace pqxx
@@ -45,7 +42,6 @@ using large_object_size_type = int64_t;
 
 // Forward declarations, to help break compilation dependencies.
 // These won't necessarily include all classes in libpqxx.
-class binarystring;
 class connection;
 class const_result_iterator;
 class const_reverse_result_iterator;
@@ -114,49 +110,6 @@ concept potential_binary =
   std::ranges::contiguous_range<DATA> and (sizeof(value_type<DATA>) == 1);
 #endif // PQXX_HAVE_CONCEPTS
 
-
-// C++20: Retire these compatibility definitions.
-#if defined(PQXX_HAVE_CONCEPTS)
-
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_RANGE_ARG std::ranges::range
-
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG pqxx::char_string
-
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
-
-#else // PQXX_HAVE_CONCEPTS
-
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_RANGE_ARG typename
-
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG typename
-
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG typename
-
-#endif // PQXX_HAVE_CONCEPTS
 
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.

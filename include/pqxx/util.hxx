@@ -58,68 +58,6 @@ namespace pqxx
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
 {
-
-// C++20: Retire wrapper.
-/// Same as `std::cmp_less`, or a workaround where that's not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less(lhs, rhs);
-#else
-  // We need a variable just because lgtm.com gives off a false positive
-  // warning when we compare the values directly.  It considers that a
-  // "self-comparison."
-  constexpr bool left_signed{std::is_signed_v<LEFT>};
-  if constexpr (left_signed == std::is_signed_v<RIGHT>)
-    return lhs < rhs;
-  else if constexpr (std::is_signed_v<LEFT>)
-    return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
-  else
-    return (rhs <= 0) ? false : (lhs < std::make_unsigned_t<RIGHT>(rhs));
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_greater, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater(lhs, rhs);
-#else
-  return cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_less_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less_equal(lhs, rhs);
-#else
-  return not cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_greater_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater_equal(lhs, rhs);
-#else
-  return not cmp_less(lhs, rhs);
-#endif
-}
-
-
 /// Efficiently concatenate two strings.
 /** This is a special case of concatenate(), needed because dependency
  * management does not let us use that function here.
@@ -198,7 +136,7 @@ inline TO check_cast(FROM value, std::string_view description)
     constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
-      if (internal::cmp_greater(value, to_max))
+      if (std::cmp_greater(value, to_max))
         throw range_error{internal::cat2("Cast overflow: "sv, description)};
     }
   }
@@ -390,20 +328,17 @@ using bytes_view = std::conditional<
 /// Cast binary data to a type that libpqxx will recognise as binary.
 /** There are many different formats for storing binary data in memory.  You
  * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
- * many other types.
+ * many other types.  In libpqxx we commend a container of `std::byte`.
  *
- * But for libpqxx to recognise your data as binary, it needs to be a
- * `pqxx::bytes`, or a `pqxx::bytes_view`; or in C++20 or better, any
- * contiguous block of `std::byte`.
+ * For libpqxx to recognise your data as binary, it needs to be a
+ * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
+ * `std::byte` should do.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
  * `pqxx::bytes_view`.
  *
- * @warning There are two things you should be aware of!  First, the data must
- * be contiguous in memory.  In C++20 the compiler will enforce this, but in
- * C++17 it's your own problem.  Second, you must keep the object where you
- * store the actual data alive for as long as you might use this function's
- * return value.
+ * @warning You must keep the storage holding the actual data alive for as
+ * long as you might use this function's return value.
  */
 template<PQXX_POTENTIAL_BINARY_ARG TYPE>
 bytes_view binary_cast(TYPE const &data)
@@ -551,18 +486,6 @@ unesc_bin(std::string_view escaped_data, std::byte buffer[]);
 bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
 
 
-/// Transitional: std::ssize(), or custom implementation if not available.
-template<typename T> auto ssize(T const &c)
-{
-#if defined(PQXX_HAVE_SSIZE)
-  return std::ssize(c);
-#else
-  using signed_t = std::make_signed_t<decltype(std::size(c))>;
-  return static_cast<signed_t>(std::size(c));
-#endif // PQXX_HAVE_SSIZe
-}
-
-
 /// Helper for determining a function's parameter types.
 /** This function has no definition.  It's not meant to be actually called.
  * It's just there for pattern-matching in the compiler, so we can use its
@@ -635,9 +558,9 @@ inline constexpr char unescape_char(char escaped) noexcept
   switch (escaped)
   {
   case 'b': // Backspace.
-    PQXX_UNLIKELY return '\b';
+    [[unlikely]] return '\b';
   case 'f': // Form feed
-    PQXX_UNLIKELY return '\f';
+    [[unlikely]] return '\f';
   case 'n': // Line feed.
     return '\n';
   case 'r': // Carriage return.

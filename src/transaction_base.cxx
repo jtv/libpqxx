@@ -60,10 +60,9 @@ pqxx::transaction_base::~transaction_base()
 {
   try
   {
-    if (not std::empty(m_pending_error))
-      PQXX_UNLIKELY
-    process_notice(
-      internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
+    if (not std::empty(m_pending_error)) [[unlikely]]
+      process_notice(
+        internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
 
     if (m_registered)
     {
@@ -353,11 +352,10 @@ void pqxx::transaction_base::close() noexcept
     if (m_status != status::active)
       return;
 
-    if (m_focus != nullptr)
-      PQXX_UNLIKELY
-    m_conn.process_notice(internal::concat(
-      "Closing ", description(), "  with ", m_focus->description(),
-      " still open.\n"));
+    if (m_focus != nullptr) [[unlikely]]
+      m_conn.process_notice(internal::concat(
+        "Closing ", description(), "  with ", m_focus->description(),
+        " still open.\n"));
 
     try
     {
@@ -455,8 +453,7 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
-        process_notice("UNABLE TO PROCESS ERROR\n");
+        [[unlikely]] process_notice("UNABLE TO PROCESS ERROR\n");
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -481,7 +478,6 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());

@@ -19,14 +19,10 @@
 #include <charconv>
 #include <cstring>
 #include <limits>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
-
-// C++20: Assume support.
-#if __has_include(<ranges>)
-#  include <ranges>
-#endif
 
 #include "pqxx/except.hxx"
 #include "pqxx/util.hxx"

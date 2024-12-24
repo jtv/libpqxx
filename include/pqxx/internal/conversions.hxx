@@ -4,11 +4,7 @@
 #include <memory>
 #include <numeric>
 #include <optional>
-
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
-#  include <span>
-#endif
-
+#include <span>
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -98,7 +94,7 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
   auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
-  if (internal::cmp_greater(len, space))
+  if (std::cmp_greater(len, space))
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
       state_buffer_overrun(space, len)};
@@ -586,7 +582,7 @@ template<std::size_t N> struct string_traits<char[N]>
 
   static char *into_buf(char *begin, char *end, char const (&value)[N])
   {
-    if (internal::cmp_less(end - begin, size_buffer(value)))
+    if (std::cmp_less(end - begin, size_buffer(value)))
       throw conversion_overrun{
         "Could not convert char[] to string: too long for buffer."};
     std::memcpy(begin, value, N);
@@ -618,7 +614,7 @@ template<> struct string_traits<std::string>
 
   static char *into_buf(char *begin, char *end, std::string const &value)
   {
-    if (internal::cmp_greater_equal(std::size(value), end - begin))
+    if (std::cmp_greater_equal(std::size(value), end - begin))
       throw conversion_overrun{
         "Could not convert string to string: too long for buffer."};
     // Include the trailing zero.
@@ -661,7 +657,7 @@ template<> struct string_traits<std::string_view>
 
   static char *into_buf(char *begin, char *end, std::string_view const &value)
   {
-    if (internal::cmp_greater_equal(std::size(value), end - begin))
+    if (std::cmp_greater_equal(std::size(value), end - begin))
       throw conversion_overrun{
         "Could not store string_view: too long for buffer."};
     value.copy(begin, std::size(value));
@@ -700,7 +696,7 @@ template<> struct string_traits<zview>
   static char *into_buf(char *begin, char *end, zview const &value)
   {
     auto const size{std::size(value)};
-    if (internal::cmp_less_equal(end - begin, std::size(value)))
+    if (std::cmp_less_equal(end - begin, std::size(value)))
       throw conversion_overrun{"Not enough buffer space to store this zview."};
     value.copy(begin, size);
     begin[size] = '\0';
@@ -928,7 +924,7 @@ template<binary DATA> struct string_traits<DATA>
   static char *into_buf(char *begin, char *end, DATA const &value)
   {
     auto const budget{size_buffer(value)};
-    if (internal::cmp_less(end - begin, budget))
+    if (std::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -965,7 +961,7 @@ template<> struct string_traits<bytes>
   static char *into_buf(char *begin, char *end, bytes const &value)
   {
     auto const budget{size_buffer(value)};
-    if (internal::cmp_less(end - begin, budget))
+    if (std::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -1011,7 +1007,7 @@ template<> struct string_traits<bytes_view>
   static char *into_buf(char *begin, char *end, bytes_view const &value)
   {
     auto const budget{size_buffer(value)};
-    if (internal::cmp_less(end - begin, budget))
+    if (std::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
     internal::esc_bin(value, begin);
@@ -1052,7 +1048,7 @@ public:
   {
     assert(begin <= end);
     std::size_t const budget{size_buffer(value)};
-    if (internal::cmp_less(end - begin, budget))
+    if (std::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to convert array to string."};
 
@@ -1176,7 +1172,6 @@ inline constexpr format param_format(std::vector<std::byte, Args...> const &)
 template<typename T> inline constexpr bool is_sql_array<std::vector<T>>{true};
 
 
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
 template<typename T, size_t Extent>
 struct nullness<std::span<T, Extent>> : no_null<std::span<T, Extent>>
 {};
@@ -1204,7 +1199,6 @@ inline constexpr format param_format(std::span<std::byte, Extent> const &)
 
 template<typename T, size_t Extent>
 inline constexpr bool is_sql_array<std::span<T, Extent>>{true};
-#endif
 
 
 template<typename T, std::size_t N>

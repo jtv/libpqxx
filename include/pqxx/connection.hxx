@@ -24,19 +24,16 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string_view>
 #include <tuple>
 #include <utility>
-
-// Double-check in order to suppress an overzealous Visual C++ warning (#418).
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#  include <ranges>
-#endif
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/params.hxx"
+#include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
@@ -823,7 +820,6 @@ public:
 
   //@}
 
-  // C++20: constexpr.  Breaks ABI.
   /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
@@ -841,7 +837,6 @@ public:
     return esc(std::string_view{text});
   }
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -866,7 +861,6 @@ public:
     auto const data{buffer.data()};
     return {data, esc_to_buf(text, data)};
   }
-#endif
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This is meant for text strings only.  It cannot contain bytes
@@ -883,7 +877,7 @@ public:
   }
 #endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -923,11 +917,9 @@ public:
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
-#endif
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
@@ -939,7 +931,7 @@ public:
   }
 #endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
@@ -1010,7 +1002,7 @@ public:
    * yourself.  It's a bit of extra work, but it can in rare cases let you
    * eliminate some duplicate work in quoting them repeatedly.
    */
-  template<PQXX_CHAR_STRINGS_ARG STRINGS>
+  template<pqxx::char_strings STRINGS>
   inline std::string quote_columns(STRINGS const &columns) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
@@ -1020,9 +1012,6 @@ public:
    */
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t) const;
-
-  [[deprecated("Use std::byte for binary data.")]] std::string
-  quote(binarystring const &) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
@@ -1481,7 +1470,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
 }
 
 
-template<PQXX_CHAR_STRINGS_ARG STRINGS>
+template<pqxx::char_strings STRINGS>
 inline std::string connection::quote_columns(STRINGS const &columns) const
 {
   return separated_list(

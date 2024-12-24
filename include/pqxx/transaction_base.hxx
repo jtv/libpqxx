@@ -259,12 +259,6 @@ public:
     return conn().quote(t);
   }
 
-  [[deprecated("Use bytes instead of binarystring.")]] std::string
-  quote(binarystring const &t) const
-  {
-    return conn().quote(t.bytes_view());
-  }
-
   /// Binary-escape and quote a binary string for use as an SQL constant.
   [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
   quote_raw(unsigned char const bin[], std::size_t len) const
@@ -1042,9 +1036,11 @@ public:
   [[deprecated("Read variables using SQL SHOW statements.")]]
   std::string get_variable(std::string_view);
 
-  // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const & noexcept { return m_name; }
+  [[nodiscard]] constexpr std::string_view name() const & noexcept
+  {
+    return m_name;
+  }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).

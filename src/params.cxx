@@ -78,12 +78,6 @@ void pqxx::params::append(bytes &&value) &
 }
 
 
-void PQXX_COLD pqxx::params::append(binarystring const &value) &
-{
-  m_params.emplace_back(value.bytes_view());
-}
-
-
 void pqxx::params::append(params &&value) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
@@ -109,8 +103,7 @@ pqxx::internal::c_params pqxx::params::make_c_params() const
         else
         {
           p.values.push_back(reinterpret_cast<char const *>(std::data(value)));
-          p.lengths.push_back(
-            check_cast<int>(internal::ssize(value), s_overflow));
+          p.lengths.push_back(check_cast<int>(std::ssize(value), s_overflow));
         }
 
         p.formats.push_back(param_format(value));

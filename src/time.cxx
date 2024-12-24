@@ -10,8 +10,6 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-// std::chrono::year_month_day is C++20, so let's worry a bit less about C++17
-// compatibility in this file.
 #if defined(PQXX_HAVE_YEAR_MONTH_DAY)
 namespace
 {
@@ -38,7 +36,7 @@ inline char *
 year_into_buf(char *begin, char *end, std::chrono::year const &value)
 {
   int const y{value};
-  if (y == int{(std::chrono::year::min)()})
+  if (y == int{(std::chrono::year::min)()}) [[unlikely]]
   {
     // This is an evil special case: C++ year -32767 translates to 32768 BC,
     // which is a number we can't fit into a short.  At the moment postgres
@@ -46,7 +44,6 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     constexpr int oldest{-32767};
     static_assert(int{(std::chrono::year::min)()} == oldest);
     constexpr auto hardcoded{"32768"sv};
-    PQXX_UNLIKELY
     begin += hardcoded.copy(begin, std::size(hardcoded));
   }
   else
@@ -63,9 +60,8 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     // won't be able to deduce the date format correctly.  However on output
     // it always writes years as at least 4 digits, and we'll do the same.
     // Dates and times are a dirty, dirty business.
-    if (absy < thousand)
+    if (absy < thousand) [[unlikely]]
     {
-      PQXX_UNLIKELY
       *begin++ = '0';
       if (absy < hundred)
         *begin++ = '0';
@@ -190,11 +186,8 @@ char *string_traits<std::chrono::year_month_day>::into_buf(
   begin = month_into_buf(begin, value.month());
   *begin++ = '-';
   begin = day_into_buf(begin, value.day());
-  if (int{value.year()} <= 0)
-  {
-    PQXX_UNLIKELY
+  if (int{value.year()} <= 0) [[unlikely]]
     begin += s_bc.copy(begin, std::size(s_bc));
-  }
   *begin++ = '\0';
   return begin;
 }
@@ -208,9 +201,8 @@ string_traits<std::chrono::year_month_day>::from_string(std::string_view text)
   if (std::size(text) < 9)
     throw conversion_error{make_parse_error(text)};
   bool const is_bc{text.ends_with(s_bc)};
-  if (is_bc)
-    PQXX_UNLIKELY
-  text = text.substr(0, std::size(text) - std::size(s_bc));
+  if (is_bc) [[unlikely]]
+    text = text.substr(0, std::size(text) - std::size(s_bc));
   auto const ymsep{find_year_month_separator(text)};
   if ((std::size(text) - ymsep) != 6)
     throw conversion_error{make_parse_error(text)};

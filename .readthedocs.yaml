@@ -12,7 +12,7 @@ build:
     - "graphviz"
   jobs:
     pre_build:
-      - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
+      - "./configure CXXFLAGS='-O0 -std=c++23' --enable-documentation"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
       - "mkdir -p -- $READTHEDOCS_OUTPUT/html"

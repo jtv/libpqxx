@@ -64,9 +64,8 @@ public:
           std::string_view(std::forward<Args>(args)...)
   {}
 
-  // C++20: constexpr.
   /// @warning There's an implicit conversion from `std::string`.
-  zview(std::string const &str) noexcept :
+  constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
   {}
 
@@ -157,9 +156,8 @@ inline constexpr char const *as_c_string(pqxx::zview str) noexcept
 {
   return str.c_str();
 }
-// C++20: Make this constexpr.
 /// Get a raw C string pointer.
-inline char const *as_c_string(std::string const &str) noexcept
+inline constexpr char const *as_c_string(std::string const &str) noexcept
 {
   return str.c_str();
 }
