@@ -237,7 +237,7 @@ protected:
    */
   result::size_type m_index = 0;
 
-  /// End column in slice.  This row only sees lower-numbered columns.
+  /// Number of columns in the row.
   size_type m_end = 0;
 
 private:
