@@ -193,6 +193,7 @@ then
 			-Warray-bounds=2 \
 			-Wduplicated-branches \
 			-Wduplicated-cond \
+			-Wnrvo \
 			-Wsuggest-attribute=noreturn \
 			-Wsuggest-override \
 			-Wtrampolines
