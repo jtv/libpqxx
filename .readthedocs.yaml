@@ -9,14 +9,13 @@ build:
   tools:
     python: "3.12"
   apt_packages:
-    - "clang"
-    - "gcc"
+    - "build-essential"
     - "graphviz"
     - "libpq-dev"
   jobs:
     pre_build:
       - "lsb_release -a && g++ --version && clang++ --version"
-      - "./configure CXX=clang++ CXXFLAGS='-O0 -std=c++23' --enable-documentation"
+      - "./configure CXXFLAGS='-O0 -std=c++23' --enable-documentation"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
       - "mkdir -p -- $READTHEDOCS_OUTPUT/html"
