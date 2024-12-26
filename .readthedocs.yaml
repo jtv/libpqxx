@@ -9,6 +9,8 @@ build:
   tools:
     python: "3.12"
   apt_packages:
+    - "clang"
+    - "gcc"
     - "graphviz"
   jobs:
     pre_build:
