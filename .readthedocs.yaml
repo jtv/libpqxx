@@ -12,6 +12,7 @@ build:
     - "clang"
     - "gcc"
     - "graphviz"
+    - "libpq-dev"
   jobs:
     pre_build:
       - "lsb_release -a && g++ --version && clang++ --version"
