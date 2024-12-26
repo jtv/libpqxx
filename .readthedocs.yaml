@@ -12,8 +12,8 @@ build:
     - "graphviz"
   jobs:
     pre_build:
-      - "lsb_release -a && gcc --version"
-      - "./configure CXXFLAGS='-O0 -std=c++23' --enable-documentation"
+      - "lsb_release -a && g++ --version && clang++ --version"
+      - "./configure CXX=clang++ CXXFLAGS='-O0 -std=c++23' --enable-documentation"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
       - "mkdir -p -- $READTHEDOCS_OUTPUT/html"
