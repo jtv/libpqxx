@@ -14,7 +14,7 @@ build:
     - "libpq-dev"
   jobs:
     pre_build:
-      - "lsb_release -a && g++ --version && clang++ --version"
+      - "lsb_release -a && g++ --version"
       - "./configure CXXFLAGS='-O0 -std=c++23' --enable-documentation"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
