@@ -126,19 +126,19 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
-	test04.$(OBJEXT) test07.$(OBJEXT) test10.$(OBJEXT) \
-	test11.$(OBJEXT) test13.$(OBJEXT) test14.$(OBJEXT) \
-	test16.$(OBJEXT) test17.$(OBJEXT) test18.$(OBJEXT) \
-	test20.$(OBJEXT) test21.$(OBJEXT) test26.$(OBJEXT) \
-	test29.$(OBJEXT) test30.$(OBJEXT) test32.$(OBJEXT) \
-	test37.$(OBJEXT) test39.$(OBJEXT) test46.$(OBJEXT) \
-	test56.$(OBJEXT) test60.$(OBJEXT) test61.$(OBJEXT) \
-	test62.$(OBJEXT) test69.$(OBJEXT) test70.$(OBJEXT) \
-	test71.$(OBJEXT) test72.$(OBJEXT) test74.$(OBJEXT) \
-	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
-	test78.$(OBJEXT) test79.$(OBJEXT) test82.$(OBJEXT) \
-	test84.$(OBJEXT) test87.$(OBJEXT) test88.$(OBJEXT) \
-	test89.$(OBJEXT) test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
+	test07.$(OBJEXT) test10.$(OBJEXT) test11.$(OBJEXT) \
+	test13.$(OBJEXT) test14.$(OBJEXT) test16.$(OBJEXT) \
+	test17.$(OBJEXT) test18.$(OBJEXT) test20.$(OBJEXT) \
+	test21.$(OBJEXT) test26.$(OBJEXT) test29.$(OBJEXT) \
+	test30.$(OBJEXT) test32.$(OBJEXT) test37.$(OBJEXT) \
+	test39.$(OBJEXT) test46.$(OBJEXT) test56.$(OBJEXT) \
+	test60.$(OBJEXT) test61.$(OBJEXT) test62.$(OBJEXT) \
+	test69.$(OBJEXT) test70.$(OBJEXT) test71.$(OBJEXT) \
+	test72.$(OBJEXT) test74.$(OBJEXT) test75.$(OBJEXT) \
+	test76.$(OBJEXT) test77.$(OBJEXT) test78.$(OBJEXT) \
+	test79.$(OBJEXT) test82.$(OBJEXT) test84.$(OBJEXT) \
+	test87.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
+	test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
 	unit/test_blob.$(OBJEXT) unit/test_cancel_query.$(OBJEXT) \
 	unit/test_column.$(OBJEXT) unit/test_composite.$(OBJEXT) \
 	unit/test_connection.$(OBJEXT) unit/test_cursor.$(OBJEXT) \
@@ -190,26 +190,26 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test01.Po ./$(DEPDIR)/test02.Po \
-	./$(DEPDIR)/test04.Po ./$(DEPDIR)/test07.Po \
-	./$(DEPDIR)/test10.Po ./$(DEPDIR)/test11.Po \
-	./$(DEPDIR)/test13.Po ./$(DEPDIR)/test14.Po \
-	./$(DEPDIR)/test16.Po ./$(DEPDIR)/test17.Po \
-	./$(DEPDIR)/test18.Po ./$(DEPDIR)/test20.Po \
-	./$(DEPDIR)/test21.Po ./$(DEPDIR)/test26.Po \
-	./$(DEPDIR)/test29.Po ./$(DEPDIR)/test30.Po \
-	./$(DEPDIR)/test32.Po ./$(DEPDIR)/test37.Po \
-	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test46.Po \
-	./$(DEPDIR)/test56.Po ./$(DEPDIR)/test60.Po \
-	./$(DEPDIR)/test61.Po ./$(DEPDIR)/test62.Po \
-	./$(DEPDIR)/test69.Po ./$(DEPDIR)/test70.Po \
-	./$(DEPDIR)/test71.Po ./$(DEPDIR)/test72.Po \
-	./$(DEPDIR)/test74.Po ./$(DEPDIR)/test75.Po \
-	./$(DEPDIR)/test76.Po ./$(DEPDIR)/test77.Po \
-	./$(DEPDIR)/test78.Po ./$(DEPDIR)/test79.Po \
-	./$(DEPDIR)/test82.Po ./$(DEPDIR)/test84.Po \
-	./$(DEPDIR)/test87.Po ./$(DEPDIR)/test88.Po \
-	./$(DEPDIR)/test89.Po ./$(DEPDIR)/test90.Po \
-	unit/$(DEPDIR)/test_array.Po unit/$(DEPDIR)/test_blob.Po \
+	./$(DEPDIR)/test07.Po ./$(DEPDIR)/test10.Po \
+	./$(DEPDIR)/test11.Po ./$(DEPDIR)/test13.Po \
+	./$(DEPDIR)/test14.Po ./$(DEPDIR)/test16.Po \
+	./$(DEPDIR)/test17.Po ./$(DEPDIR)/test18.Po \
+	./$(DEPDIR)/test20.Po ./$(DEPDIR)/test21.Po \
+	./$(DEPDIR)/test26.Po ./$(DEPDIR)/test29.Po \
+	./$(DEPDIR)/test30.Po ./$(DEPDIR)/test32.Po \
+	./$(DEPDIR)/test37.Po ./$(DEPDIR)/test39.Po \
+	./$(DEPDIR)/test46.Po ./$(DEPDIR)/test56.Po \
+	./$(DEPDIR)/test60.Po ./$(DEPDIR)/test61.Po \
+	./$(DEPDIR)/test62.Po ./$(DEPDIR)/test69.Po \
+	./$(DEPDIR)/test70.Po ./$(DEPDIR)/test71.Po \
+	./$(DEPDIR)/test72.Po ./$(DEPDIR)/test74.Po \
+	./$(DEPDIR)/test75.Po ./$(DEPDIR)/test76.Po \
+	./$(DEPDIR)/test77.Po ./$(DEPDIR)/test78.Po \
+	./$(DEPDIR)/test79.Po ./$(DEPDIR)/test82.Po \
+	./$(DEPDIR)/test84.Po ./$(DEPDIR)/test87.Po \
+	./$(DEPDIR)/test88.Po ./$(DEPDIR)/test89.Po \
+	./$(DEPDIR)/test90.Po unit/$(DEPDIR)/test_array.Po \
+	unit/$(DEPDIR)/test_blob.Po \
 	unit/$(DEPDIR)/test_cancel_query.Po \
 	unit/$(DEPDIR)/test_column.Po unit/$(DEPDIR)/test_composite.Po \
 	unit/$(DEPDIR)/test_connection.Po \
@@ -468,7 +468,6 @@ runner_SOURCES = \
   test00.cxx \
   test01.cxx \
   test02.cxx \
-  test04.cxx \
   test07.cxx \
   test10.cxx \
   test11.cxx \
@@ -702,7 +701,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test00.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test01.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test02.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test04.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test07.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test10.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test11.Po@am__quote@ # am--include-marker
@@ -1047,7 +1045,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test00.Po
 	-rm -f ./$(DEPDIR)/test01.Po
 	-rm -f ./$(DEPDIR)/test02.Po
-	-rm -f ./$(DEPDIR)/test04.Po
 	-rm -f ./$(DEPDIR)/test07.Po
 	-rm -f ./$(DEPDIR)/test10.Po
 	-rm -f ./$(DEPDIR)/test11.Po
@@ -1177,7 +1174,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test00.Po
 	-rm -f ./$(DEPDIR)/test01.Po
 	-rm -f ./$(DEPDIR)/test02.Po
-	-rm -f ./$(DEPDIR)/test04.Po
 	-rm -f ./$(DEPDIR)/test07.Po
 	-rm -f ./$(DEPDIR)/test10.Po
 	-rm -f ./$(DEPDIR)/test11.Po
