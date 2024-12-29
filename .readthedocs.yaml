@@ -9,9 +9,12 @@ build:
   tools:
     python: "3.12"
   apt_packages:
+    - "autoconf"
+    - "automake"
     - "build-essential"
     - "graphviz"
     - "libpq-dev"
+    - "make"
   jobs:
     pre_build:
       - "lsb_release -a && g++ --version"
