@@ -135,9 +135,8 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test60.$(OBJEXT) test61.$(OBJEXT) test62.$(OBJEXT) \
 	test69.$(OBJEXT) test70.$(OBJEXT) test71.$(OBJEXT) \
 	test72.$(OBJEXT) test74.$(OBJEXT) test75.$(OBJEXT) \
-	test76.$(OBJEXT) test77.$(OBJEXT) test78.$(OBJEXT) \
-	test79.$(OBJEXT) test82.$(OBJEXT) test84.$(OBJEXT) \
-	test87.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
+	test76.$(OBJEXT) test77.$(OBJEXT) test82.$(OBJEXT) \
+	test84.$(OBJEXT) test88.$(OBJEXT) test89.$(OBJEXT) \
 	test90.$(OBJEXT) unit/test_array.$(OBJEXT) \
 	unit/test_blob.$(OBJEXT) unit/test_cancel_query.$(OBJEXT) \
 	unit/test_column.$(OBJEXT) unit/test_composite.$(OBJEXT) \
@@ -500,11 +499,8 @@ runner_SOURCES = \
   test75.cxx \
   test76.cxx \
   test77.cxx \
-  test78.cxx \
-  test79.cxx \
   test82.cxx \
   test84.cxx \
-  test87.cxx \
   test88.cxx \
   test89.cxx \
   test90.cxx \
@@ -734,11 +730,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test75.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test76.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test77.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test78.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test79.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test82.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test84.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test87.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test88.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test89.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@ # am--include-marker
@@ -1079,11 +1072,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test75.Po
 	-rm -f ./$(DEPDIR)/test76.Po
 	-rm -f ./$(DEPDIR)/test77.Po
-	-rm -f ./$(DEPDIR)/test78.Po
-	-rm -f ./$(DEPDIR)/test79.Po
 	-rm -f ./$(DEPDIR)/test82.Po
 	-rm -f ./$(DEPDIR)/test84.Po
-	-rm -f ./$(DEPDIR)/test87.Po
 	-rm -f ./$(DEPDIR)/test88.Po
 	-rm -f ./$(DEPDIR)/test89.Po
 	-rm -f ./$(DEPDIR)/test90.Po
@@ -1209,11 +1199,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test75.Po
 	-rm -f ./$(DEPDIR)/test76.Po
 	-rm -f ./$(DEPDIR)/test77.Po
-	-rm -f ./$(DEPDIR)/test78.Po
-	-rm -f ./$(DEPDIR)/test79.Po
 	-rm -f ./$(DEPDIR)/test82.Po
 	-rm -f ./$(DEPDIR)/test84.Po
-	-rm -f ./$(DEPDIR)/test87.Po
 	-rm -f ./$(DEPDIR)/test88.Po
 	-rm -f ./$(DEPDIR)/test89.Po
 	-rm -f ./$(DEPDIR)/test90.Po
