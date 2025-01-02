@@ -300,11 +300,14 @@ using bytes = std::conditional<
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
-/// Cast binary data to libpqxx's standard "view on binary data."
-/** There are many different formats for passing a reference to binary data in
- * memory.  There's `std::string_view`, or a `std::vector<uchar_t>`, or one of
- * many other types.  In libpqxx we recommend `std::span<std::byte>`, but
- * thanks to this conversion functions, most of these types should work.
+/// Cast binary data to a type that libpqxx will recognise as binary.
+/** There are many different formats for storing binary data in memory.  You
+ * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
+ * many other types.  In libpqxx we commend a container of `std::byte`.
+ *
+ * For libpqxx to recognise your data as binary, we recommend using a
+ * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
+ * `std::byte` should do.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
  * `pqxx::bytes_view`.
