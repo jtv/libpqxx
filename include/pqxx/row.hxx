@@ -103,10 +103,7 @@ public:
    */
   reference at(zview col_name) const;
 
-  [[nodiscard]] constexpr size_type size() const noexcept
-  {
-    return m_end;
-  }
+  [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
 
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard]] constexpr result::size_type rownumber() const noexcept
