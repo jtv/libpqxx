@@ -1,9 +1,14 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - Retired `binarystring` and its headers.  Use `blob` instead.
+ - Retired result row slicing.
+ - Retired `connection_base` type alias.  Use `connection`.
+ - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
- - Retired `binarystring` and its headers.
- - Retired result row slicing.
+ - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
+ - Assume compiler supports `ssize()`.
+ - Assume compiler supports ISO-646 without needing `<ciso646>` header.
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.
