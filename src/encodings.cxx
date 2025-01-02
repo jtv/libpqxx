@@ -65,8 +65,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         return pqxx::internal::encoding_group::BIG5;
       [[unlikely]] break;
     case 'E':
-      // C++20: Use string_view::starts_with().
-      if ((sz >= 6u) and (encoding_name.substr(0, 4) == "EUC_"sv))
+      if (encoding_name.starts_with("EUC_"sv))
       {
         auto const subtype{encoding_name.substr(4)};
         static constexpr std::array<mapping, 5> subtypes{
@@ -90,8 +89,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       [[unlikely]] break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
-      // C++20: Use string_view::starts_with().
-      if ((sz == 10) and (encoding_name.substr(0, 9) == "ISO_8859_"sv))
+      if (encoding_name.starts_with("ISO_8859_"sv))
       {
         char const subtype{encoding_name[9]};
         if (('5' <= subtype) and (subtype < '9'))
@@ -108,8 +106,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       [[unlikely]] break;
     case 'L':
       // We know LATIN1 through LATIN10.
-      // C++20: Use string_view::starts_with().
-      if (encoding_name.substr(0, 5) == "LATIN"sv)
+      if (encoding_name.starts_with("LATIN"sv))
       {
         auto const subtype{encoding_name.substr(5)};
         if (subtype.size() == 1)
@@ -140,7 +137,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       if (encoding_name == "UHC"sv)
         return pqxx::internal::encoding_group::UHC;
       else if (encoding_name == "UTF8"sv)
-        return pqxx::internal::encoding_group::UTF8;
+        [[likely]] return pqxx::internal::encoding_group::UTF8;
       [[unlikely]] break;
     case 'W':
       if (encoding_name.substr(0, 3) == "WIN"sv)
