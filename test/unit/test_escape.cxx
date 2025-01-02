@@ -157,7 +157,6 @@ void test_escaping()
 
 void test_esc_escapes_into_buffer()
 {
-#if defined(PQXX_HAVE_CONCEPTS)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -171,13 +170,11 @@ void test_esc_escapes_into_buffer()
   pqxx::bytes const data{std::byte{0x22}, std::byte{0x43}};
   auto escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2243", "Binary data escaped wrong.");
-#endif
 }
 
 
 void test_esc_accepts_various_types()
 {
-#if defined(PQXX_HAVE_CONCEPTS)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -191,13 +188,11 @@ void test_esc_accepts_various_types()
   std::vector<std::byte> const data{std::byte{0x23}, std::byte{0x44}};
   auto escaped_data(tx.esc(data, buffer));
   PQXX_CHECK_EQUAL(escaped_data, "\\x2344", "Binary data escaped wrong.");
-#endif
 }
 
 
 void test_binary_esc_checks_buffer_length()
 {
-#if defined(PQXX_HAVE_CONCEPTS)
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -216,7 +211,6 @@ void test_binary_esc_checks_buffer_length()
   PQXX_CHECK_THROWS(
     pqxx::ignore_unused(tx.esc(bin, buf)), pqxx::range_error,
     "Didn't get expected exception from escape overrun.");
-#endif
 }
 
 
