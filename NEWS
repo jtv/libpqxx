@@ -1,3 +1,21 @@
+8.0.0
+ - C++20 is now the oldest C++ version that libpqxx supports.
+ - Retired `binarystring` and its headers.  Use `blob` instead.
+ - Retired `connection_base` type alias.  Use `connection`.
+ - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.
+ - Retired `pqxx::prepare::dynamic_params`.  Use `pqxx::params`.
+ - Retired deprecated `stream_to` constructors.  Use factory functions.
+ - Retired `transaction_base::unesc_raw()`.  Use `unesc_bin()`.
+ - Retired `transaction_base::quote_raw()`.  Use `quote()` with `bytes_view`.
+ - Retired result row slicing.
+ - Deprecated `field` constructors are no longer publicly accessible.
+ - Assume compiler supports concepts.
+ - Assume compiler supports integral conversions in `charconv`.
+ - Assume compiler supports spans, ranges, and `cmp_less` etc.
+ - Assume compiler supports `std::remove_cvref_t`.
+ - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
+ - Assume compiler supports `ssize()`.
+ - Assume compiler supports ISO-646 without needing `<ciso646>` header.
 7.10.1
  - Remove `-fanalyzer` option again; gcc is still broken.
  - Oops, no, minimum CMake version is not 3.28, but 3.12!

@@ -64,9 +64,8 @@ public:
           std::string_view(std::forward<Args>(args)...)
   {}
 
-  // C++20: constexpr.
   /// @warning There's an implicit conversion from `std::string`.
-  zview(std::string const &str) noexcept :
+  constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
   {}
 
@@ -115,7 +114,6 @@ constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
 } // namespace pqxx
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// A zview is a view.
 template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 
@@ -132,11 +130,11 @@ namespace pqxx::internal
  * support each of these individually.
  */
 template<typename T>
-concept ZString = std::is_convertible_v<strip_t<T>, char const *> or
-                  std::is_convertible_v<strip_t<T>, zview> or
-                  std::is_convertible_v<T, std::string const &>;
+concept ZString =
+  std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
+  std::is_convertible_v<std::remove_cvref_t<T>, zview> or
+  std::is_convertible_v<T, std::string const &>;
 } // namespace pqxx::internal
-#endif // PQXX_HAVE_CONCEPTS
 
 
 namespace pqxx::internal
@@ -157,9 +155,8 @@ inline constexpr char const *as_c_string(pqxx::zview str) noexcept
 {
   return str.c_str();
 }
-// C++20: Make this constexpr.
 /// Get a raw C string pointer.
-inline char const *as_c_string(std::string const &str) noexcept
+inline constexpr char const *as_c_string(std::string const &str) noexcept
 {
   return str.c_str();
 }

@@ -235,8 +235,8 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
   call(char const /* buffer */[], std::size_t buffer_len, std::size_t start)
   {
     // TODO: Don't bother with npos.  Let the caller check.
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
     else
       return start + 1;
   }
@@ -249,23 +249,22 @@ template<> struct glyph_scanner<encoding_group::BIG5>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
     if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > buffer_len))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("BIG5", buffer, start, 1);
+      [[unlikely]]
+      throw_for_encoding_error("BIG5", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (
       not between_inc(byte2, 0x40, 0x7e) and
-      not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("BIG5", buffer, start, 2);
+      not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+      throw_for_encoding_error("BIG5", buffer, start, 2);
 
     return start + 2;
   }
@@ -297,13 +296,12 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
       return start + 1;
 
     if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_CN", buffer, start, 1);
+      [[unlikely]]
+      throw_for_encoding_error("EUC_CN", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
-    if (not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_CN", buffer, start, 2);
+    if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+      throw_for_encoding_error("EUC_CN", buffer, start, 2);
 
     return start + 2;
   }
@@ -327,25 +325,22 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_JP", buffer, start, 1);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("EUC_JP", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (byte1 == 0x8e)
     {
-      if (not between_inc(byte2, 0xa1, 0xfe))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("EUC_JP", buffer, start, 2);
+      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+        throw_for_encoding_error("EUC_JP", buffer, start, 2);
 
       return start + 2;
     }
 
     if (between_inc(byte1, 0xa1, 0xfe))
     {
-      if (not between_inc(byte2, 0xa1, 0xfe))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("EUC_JP", buffer, start, 2);
+      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+        throw_for_encoding_error("EUC_JP", buffer, start, 2);
 
       return start + 2;
     }
@@ -355,9 +350,8 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
       auto const byte3{get_byte(buffer, start + 2)};
       if (
         not between_inc(byte2, 0xa1, 0xfe) or
-        not between_inc(byte3, 0xa1, 0xfe))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("EUC_JP", buffer, start, 3);
+        not between_inc(byte3, 0xa1, 0xfe)) [[unlikely]]
+        throw_for_encoding_error("EUC_JP", buffer, start, 3);
 
       return start + 3;
     }
@@ -373,21 +367,20 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
     if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+      [[unlikely]]
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
-    if (not between_inc(byte2, 0xa1, 0xfe))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+    if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
     return start + 2;
   }
@@ -400,31 +393,27 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY
-    return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0xa1, 0xfe))
     {
-      if (not between_inc(byte2, 0xa1, 0xfe))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("EUC_KR", buffer, start, 2);
+      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+        throw_for_encoding_error("EUC_KR", buffer, start, 2);
 
       return start + 2;
     }
 
-    if (byte1 != 0x8e or start + 4 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 1);
+    if (byte1 != 0x8e or start + 4 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("EUC_KR", buffer, start, 1);
 
     if (
       between_inc(byte2, 0xa1, 0xb0) and
@@ -432,8 +421,7 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
       between_inc(get_byte(buffer, start + 3), 0xa1, 0xfe))
       return start + 4;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("EUC_KR", buffer, start, 4);
+    [[unlikely]] throw_for_encoding_error("EUC_KR", buffer, start, 4);
   }
 };
 
@@ -444,8 +432,8 @@ template<> struct glyph_scanner<encoding_group::GB18030>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -453,23 +441,20 @@ template<> struct glyph_scanner<encoding_group::GB18030>
     if (byte1 == 0x80)
       throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte2, 0x40, 0xfe))
     {
-      if (byte2 == 0x7f)
-        PQXX_UNLIKELY
-      throw_for_encoding_error("GB18030", buffer, start, 2);
+      if (byte2 == 0x7f) [[unlikely]]
+        throw_for_encoding_error("GB18030", buffer, start, 2);
 
       return start + 2;
     }
 
-    if (start + 4 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
+    if (start + 4 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("GB18030", buffer, start, buffer_len - start);
 
     if (
       between_inc(byte2, 0x30, 0x39) and
@@ -477,8 +462,7 @@ template<> struct glyph_scanner<encoding_group::GB18030>
       between_inc(get_byte(buffer, start + 3), 0x30, 0x39))
       return start + 4;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("GB18030", buffer, start, 4);
+    [[unlikely]] throw_for_encoding_error("GB18030", buffer, start, 4);
   }
 };
 
@@ -489,16 +473,15 @@ template<> struct glyph_scanner<encoding_group::GBK>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("GBK", buffer, start, 1);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("GBK", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (
@@ -516,8 +499,7 @@ template<> struct glyph_scanner<encoding_group::GBK>
        byte2 != 0x7f))
       return start + 2;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("GBK", buffer, start, 2);
+    [[unlikely]] throw_for_encoding_error("GBK", buffer, start, 2);
   }
 };
 
@@ -536,16 +518,15 @@ template<> struct glyph_scanner<encoding_group::JOHAB>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("JOHAB", buffer, start, 1);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("JOHAB", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start)};
     if (
@@ -555,8 +536,7 @@ template<> struct glyph_scanner<encoding_group::JOHAB>
        (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))))
       return start + 2;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("JOHAB", buffer, start, 2);
+    [[unlikely]] throw_for_encoding_error("JOHAB", buffer, start, 2);
   }
 };
 
@@ -573,24 +553,22 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xa0)
       return start + 2;
 
-    if (start + 3 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
+    if (start + 3 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2);
 
     if (
       ((byte1 == 0x9a and between_inc(byte2, 0xa0, 0xdf)) or
@@ -599,9 +577,8 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
       (byte2 >= 0xa0))
       return start + 3;
 
-    if (start + 4 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
+    if (start + 4 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3);
 
     if (
       ((byte1 == 0x9c and between_inc(byte2, 0xf0, 0xf4)) or
@@ -610,8 +587,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
       get_byte(buffer, start + 4) >= 0xa0)
       return start + 4;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("MULE_INTERNAL", buffer, start, 4);
+    [[unlikely]] throw_for_encoding_error("MULE_INTERNAL", buffer, start, 4);
   }
 };
 
@@ -639,24 +615,20 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 
     if (
       not between_inc(byte1, 0x81, 0x9f) and
-      not between_inc(byte1, 0xe0, 0xfc))
-      PQXX_UNLIKELY
-    throw_for_encoding_error("SJIS", buffer, start, 1);
+      not between_inc(byte1, 0xe0, 0xfc)) [[unlikely]]
+      throw_for_encoding_error("SJIS", buffer, start, 1);
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("SJIS", buffer, start, buffer_len - start);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("SJIS", buffer, start, buffer_len - start);
 
     auto const byte2{get_byte(buffer, start + 1)};
-    if (byte2 == 0x7f)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("SJIS", buffer, start, 2);
+    if (byte2 == 0x7f) [[unlikely]]
+      throw_for_encoding_error("SJIS", buffer, start, 2);
 
     if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
       return start + 2;
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("SJIS", buffer, start, 2);
+    [[unlikely]] throw_for_encoding_error("SJIS", buffer, start, 2);
   }
 };
 
@@ -667,16 +639,15 @@ template<> struct glyph_scanner<encoding_group::UHC>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("UHC", buffer, start, buffer_len - start);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0x80, 0xc6))
@@ -686,15 +657,13 @@ template<> struct glyph_scanner<encoding_group::UHC>
         between_inc(byte2, 0x80, 0xfe))
         return start + 2;
 
-      PQXX_UNLIKELY
-      throw_for_encoding_error("UHC", buffer, start, 2);
+      [[unlikely]] throw_for_encoding_error("UHC", buffer, start, 2);
     }
 
     if (between_inc(byte1, 0xa1, 0xfe))
     {
-      if (not between_inc(byte2, 0xa1, 0xfe))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("UHC", buffer, start, 2);
+      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
+        throw_for_encoding_error("UHC", buffer, start, 2);
 
       return start + 2;
     }
@@ -710,30 +679,27 @@ template<> struct glyph_scanner<encoding_group::UTF8>
   static PQXX_PURE std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start)
   {
-    if (start >= buffer_len)
-      PQXX_UNLIKELY return std::string::npos;
+    if (start >= buffer_len) [[unlikely]]
+      return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+    if (start + 2 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0xc0, 0xdf))
     {
-      if (not between_inc(byte2, 0x80, 0xbf))
-        PQXX_UNLIKELY
-      throw_for_encoding_error("UTF8", buffer, start, 2);
+      if (not between_inc(byte2, 0x80, 0xbf)) [[unlikely]]
+        throw_for_encoding_error("UTF8", buffer, start, 2);
 
       return start + 2;
     }
 
-    if (start + 3 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+    if (start + 3 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
     auto const byte3{get_byte(buffer, start + 2)};
     if (between_inc(byte1, 0xe0, 0xef))
@@ -741,13 +707,11 @@ template<> struct glyph_scanner<encoding_group::UTF8>
       if (between_inc(byte2, 0x80, 0xbf) and between_inc(byte3, 0x80, 0xbf))
         return start + 3;
 
-      PQXX_UNLIKELY
-      throw_for_encoding_error("UTF8", buffer, start, 3);
+      [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 3);
     }
 
-    if (start + 4 > buffer_len)
-      PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
+    if (start + 4 > buffer_len) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start);
 
     if (between_inc(byte1, 0xf0, 0xf7))
     {
@@ -756,12 +720,10 @@ template<> struct glyph_scanner<encoding_group::UTF8>
         between_inc(get_byte(buffer, start + 3), 0x80, 0xbf))
         return start + 4;
 
-      PQXX_UNLIKELY
-      throw_for_encoding_error("UTF8", buffer, start, 4);
+      [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 4);
     }
 
-    PQXX_UNLIKELY
-    throw_for_encoding_error("UTF8", buffer, start, 1);
+    [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 1);
   }
 };
 
@@ -798,7 +760,7 @@ map_ascii_search_group(encoding_group enc) noexcept
     // string byte for byte.  Multibyte characters have the high bit set.
     return encoding_group::MONOBYTE;
 
-  default: PQXX_UNLIKELY return enc;
+  default: [[unlikely]] return enc;
   }
 }
 

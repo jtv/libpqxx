@@ -125,7 +125,6 @@ public:
     return raw_table(tx, cx.quote_table(path), cx.quote_columns(columns));
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Create a `stream_to` writing to a named table and columns.
   /** Use this version to stream data to a table, when the list of columns is
    * not known at compile time.
@@ -134,7 +133,7 @@ public:
    * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
-  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  template<pqxx::char_strings COLUMNS>
   static stream_to
   table(transaction_base &tx, table_path path, COLUMNS const &columns)
   {
@@ -151,13 +150,12 @@ public:
    * @param path A @ref table_path designating the target table.
    * @param columns The columns to which the stream should write.
    */
-  template<PQXX_CHAR_STRINGS_ARG COLUMNS>
+  template<pqxx::char_strings COLUMNS>
   static stream_to
   table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {
     return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
   }
-#endif // PQXX_HAVE_CONCEPTS
 
   explicit stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
@@ -237,28 +235,6 @@ public:
     fill_buffer(fields...);
     write_buffer();
   }
-
-  /// Create a stream, without specifying columns.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   *
-   * Fields will be inserted in whatever order the columns have in the
-   * database.
-   *
-   * You'll probably want to specify the columns, so that the mapping between
-   * your data fields and the table is explicit in your code, and not hidden
-   * in an "implicit contract" between your code and your schema.
-   */
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &tx, std::string_view table_name) :
-          stream_to{tx, table_name, ""sv}
-  {}
-
-  /// Create a stream, specifying column names as a container of strings.
-  /** @deprecated Use @ref table or @ref raw_table as a factory.
-   */
-  template<typename Columns>
-  [[deprecated("Use table() or raw_table() factory.")]] stream_to(
-    transaction_base &, std::string_view table_name, Columns const &columns);
 
 private:
   /// Stream a pre-quoted table name and columns list.
@@ -458,12 +434,5 @@ private:
 
   constexpr static std::string_view s_classname{"stream_to"};
 };
-
-
-template<typename Columns>
-inline stream_to::stream_to(
-  transaction_base &tx, std::string_view table_name, Columns const &columns) :
-        stream_to{tx, table_name, std::begin(columns), std::end(columns)}
-{}
 } // namespace pqxx
 #endif

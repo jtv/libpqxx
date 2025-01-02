@@ -195,7 +195,7 @@ private:
   /// The given query failed; never issue anything beyond that.
   void set_error_at(query_id qid) noexcept
   {
-    PQXX_UNLIKELY
+    [[unlikely]]
     if (qid < m_error)
       m_error = qid;
   }

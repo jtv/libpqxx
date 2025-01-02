@@ -238,9 +238,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
     gate.get_result(), pqxx::internal::clear_result};
   if (not r)
   {
-    if (have_pending() and not expect_none)
+    if (have_pending() and not expect_none) [[unlikely]]
     {
-      PQXX_UNLIKELY
       set_error_at(m_issuedrange.first->first);
       m_issuedrange.second = m_issuedrange.first;
     }
@@ -252,18 +251,16 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
   result const res{pqxx::internal::gate::result_creation::create(
     r, std::begin(m_queries)->second.query, handler, m_encoding)};
 
-  if (not have_pending())
+  if (not have_pending()) [[unlikely]]
   {
-    PQXX_UNLIKELY
     set_error_at(std::begin(m_queries)->first);
     throw std::logic_error{
       "Got more results from pipeline than there were queries."};
   }
 
   // Must be the result for the oldest pending query.
-  if (not std::empty(m_issuedrange.first->second.res))
-    PQXX_UNLIKELY
-  internal_error("Multiple results for one query.");
+  if (not std::empty(m_issuedrange.first->second.res)) [[unlikely]]
+    internal_error("Multiple results for one query.");
 
   m_issuedrange.first->second.res = res;
   ++m_issuedrange.first;
@@ -283,9 +280,9 @@ void pqxx::pipeline::obtain_dummy()
     gate.get_result(), pqxx::internal::clear_result};
   m_dummy_pending = false;
 
-  if (not r)
-    PQXX_UNLIKELY
-  internal_error("Pipeline got no result from backend when it expected one.");
+  if (not r) [[unlikely]]
+    internal_error(
+      "Pipeline got no result from backend when it expected one.");
 
   pqxx::internal::gate::connection_pipeline const pgate{m_trans->conn()};
   auto handler{pgate.get_notice_waiters()};
@@ -300,16 +297,13 @@ void pqxx::pipeline::obtain_dummy()
   }
   catch (sql_error const &)
   {}
-  if (OK)
+  if (OK) [[likely]]
   {
-    PQXX_LIKELY
-    if (std::size(R) > 1)
-      PQXX_UNLIKELY
-    internal_error("Unexpected result for dummy query in pipeline.");
+    if (std::size(R) > 1) [[unlikely]]
+      internal_error("Unexpected result for dummy query in pipeline.");
 
-    if (R.at(0).at(0).as<std::string_view>() != theDummyValue)
-      PQXX_UNLIKELY
-    internal_error("Dummy query in pipeline returned unexpected value.");
+    if (R.at(0).at(0).as<std::string_view>() != theDummyValue) [[unlikely]]
+      internal_error("Dummy query in pipeline returned unexpected value.");
     return;
   }
 

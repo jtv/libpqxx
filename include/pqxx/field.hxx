@@ -272,21 +272,16 @@ public:
   }
   //@}
 
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
+protected:
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
+  field(row const &r, row_size_type c) noexcept;
 
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the "
-    "row.")]] field() noexcept = default;
+  /// Constructor.
+  field() noexcept = default;
 
-
-protected:
   constexpr result const &home() const noexcept { return m_home; }
   constexpr result::size_type idx() const noexcept { return m_row; }
   constexpr row_size_type col() const noexcept { return m_col; }
@@ -374,8 +369,7 @@ inline bool field::to<std::string_view>(
 template<> inline std::string_view field::as<std::string_view>() const
 {
   if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<std::string_view>);
+    internal::throw_null_conversion(type_name<std::string_view>);
   return view();
 }
 
@@ -412,8 +406,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 template<> inline zview field::as<zview>() const
 {
   if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<zview>);
+    internal::throw_null_conversion(type_name<zview>);
   return zview{c_str(), size()};
 }
 

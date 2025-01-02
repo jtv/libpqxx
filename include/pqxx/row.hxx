@@ -103,10 +103,7 @@ public:
    */
   reference at(zview col_name) const;
 
-  [[nodiscard]] constexpr size_type size() const noexcept
-  {
-    return m_end - m_begin;
-  }
+  [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
 
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard]] constexpr result::size_type rownumber() const noexcept
@@ -194,24 +191,6 @@ public:
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
-  /** Produce a slice of this row, containing the given range of columns.
-   *
-   * @deprecated I haven't heard of anyone caring about row slicing at all in
-   * at least the last 15 years.  Yet it adds complexity, so unless anyone
-   * files a bug explaining why they really need this feature, I'm going to
-   * remove it.  Even if they do, the feature may need an update.
-   *
-   * The slice runs from the range's starting column to the range's end
-   * column, exclusive.  It looks just like a normal result row, except
-   * slices can be empty.
-   */
-  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
-  slice(size_type sbegin, size_type send) const;
-
-  /// Is this a row without fields?  Can only happen to a slice.
-  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
-  empty() const noexcept;
-
 protected:
   friend class const_row_iterator;
   friend class result;
@@ -255,10 +234,7 @@ protected:
    */
   result::size_type m_index = 0;
 
-  // TODO: Remove m_begin and (if possible) m_end when we remove slice().
-  /// First column in slice.  This row ignores lower-numbered columns.
-  size_type m_begin = 0;
-  /// End column in slice.  This row only sees lower-numbered columns.
+  /// Number of columns in the row.
   size_type m_end = 0;
 
 private:
@@ -297,9 +273,7 @@ public:
   using difference_type = row_difference_type;
   using reference = field;
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() noexcept = default;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
   const_row_iterator(row const &t, row_size_type c) noexcept :
           field{t.m_result, t.m_index, c}
   {}
@@ -571,7 +545,7 @@ const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 template<typename Tuple, std::size_t index>
 inline void row::extract_value(Tuple &t) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   field const f{m_result, m_index, index};
   std::get<index>(t) = from_string<field_type>(f);
 }

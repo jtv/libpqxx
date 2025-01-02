@@ -19,7 +19,6 @@ install(
     PATTERN *.hxx
     # TODO: Is there any way to do this with CMake's globbing?
     PATTERN array
-    PATTERN binarystring
     PATTERN blob
     PATTERN composite
     PATTERN connection

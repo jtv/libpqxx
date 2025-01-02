@@ -57,8 +57,8 @@ void test_receive_classic(
   tx.commit();
 
   int notifs{0};
-  for (int i{0}; (i < 10) and (notifs == 0);
-       ++i, pqxx::internal::wait_for(1000u))
+  for (int i{0}; (i < 100) and (notifs == 0);
+       ++i, pqxx::internal::wait_for(100u))
     notifs = cx.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
