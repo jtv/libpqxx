@@ -14,6 +14,7 @@
  - Retired `binarystring` and its headers.
  - Retired result row slicing.
  - Compiler must support integral conversions in `charconv`.
+ - Assume compiler supports `std::remove_cvref_t`.
  - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
  - Assume compiler supports `ssize()`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
