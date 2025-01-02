@@ -146,7 +146,7 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
 
 namespace pqxx::internal
 {
-template<typename T>
+template<std::integral T>
 // NOLINTNEXTLINE(readability-non-const-parameter)
 zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
@@ -189,7 +189,7 @@ template zview integral_traits<unsigned long long>::to_buf(
   char *, char *, unsigned long long const &);
 
 
-template<typename T>
+template<std::integral T>
 char *integral_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
@@ -527,7 +527,7 @@ template<typename T> std::string to_string_float(T value)
 
 namespace pqxx::internal
 {
-template<typename T> T integral_traits<T>::from_string(std::string_view text)
+template<std::integral T> T integral_traits<T>::from_string(std::string_view text)
 {
   return from_string_arithmetic<T>(text);
 }

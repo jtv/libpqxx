@@ -66,7 +66,6 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
   if (enc == pqxx::internal::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
-    // C++20: Use string_view::ends_with() and sub-view.
     while (end > 0 and useless_trail(query[end - 1])) --end;
   }
   else

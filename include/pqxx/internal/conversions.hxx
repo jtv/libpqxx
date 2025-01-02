@@ -103,9 +103,9 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
 }
 
 
-// C++20: Guard with concept?
+// TODO: Define type_traits<std::integral T> directly?
 /// String traits for builtin integral types (though not bool).
-template<typename T> struct integral_traits
+template<std::integral T> struct integral_traits
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};

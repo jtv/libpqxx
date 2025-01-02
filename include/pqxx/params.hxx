@@ -56,7 +56,6 @@ public:
     return m_params.size();
   }
 
-  // C++20: noexcept.
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
    * `std::vector` does not have a `ssize()` member function.  These member
