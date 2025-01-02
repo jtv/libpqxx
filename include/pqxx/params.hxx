@@ -109,13 +109,6 @@ public:
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
 
-  /// Append all parameters from value.
-  template<typename IT, typename ACCESSOR>
-  void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value) &
-  {
-    for (auto &param : value) append(value.access(param));
-  }
-
   void append(params const &value) &;
 
   void append(params &&value) &;
@@ -275,41 +268,4 @@ private:
   std::array<char, std::numeric_limits<COUNTER>::digits10 + 3> m_buf;
 };
 } // namespace pqxx
-
-
-/// @deprecated The new @ref params class replaces all of this.
-namespace pqxx::prepare
-{
-/// @deprecated Use @ref params instead.
-template<typename IT>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(IT begin, IT end)
-{
-  return pqxx::internal::dynamic_params(begin, end);
-}
-
-
-/// @deprecated Use @ref params instead.
-template<typename C>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C const &container)
-{
-  using IT = typename C::const_iterator;
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT>{container};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
-/// @deprecated Use @ref params instead.
-template<typename C, typename ACCESSOR>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C &container, ACCESSOR accessor)
-{
-  using IT = decltype(std::begin(container));
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-} // namespace pqxx::prepare
 #endif
