@@ -406,12 +406,7 @@ void test_stream_to_factory_with_dynamic_columns()
   tx.exec("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)").no_rows();
 
   std::vector<std::string_view> columns{"a", "b"};
-#if defined(PQXX_HAVE_CONCEPTS)
   auto stream{pqxx::stream_to::table(tx, {"pqxx_stream_to"}, columns)};
-#else
-  auto stream{pqxx::stream_to::raw_table(
-    tx, cx.quote_table({"pqxx_stream_to"}), cx.quote_columns(columns))};
-#endif
   stream.write_values(4, "four");
   stream.complete();
 
