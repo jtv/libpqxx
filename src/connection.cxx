@@ -105,15 +105,6 @@ void PQXX_COLD PQXX_LIBEXPORT pqxx::internal::skip_init_ssl(int skips) noexcept
 }
 
 
-std::string PQXX_COLD
-pqxx::encrypt_password(char const user[], char const password[])
-{
-  std::unique_ptr<char, void (*)(void const *)> const p{
-    PQencryptPassword(password, user), pqxx::internal::pq::pqfreemem};
-  return {p.get()};
-}
-
-
 pqxx::connection::connection(connection &&rhs) :
         m_conn{rhs.m_conn},
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
