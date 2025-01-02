@@ -423,7 +423,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 namespace pqxx::internal
 {
 /// Floating-point to_buf implemented in terms of to_string.
-template<typename T>
+template<std::floating_point T>
 zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -462,7 +462,7 @@ template zview
 float_traits<long double>::to_buf(char *, char *, long double const &);
 
 
-template<typename T>
+template<std::floating_point T>
 char *float_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -545,7 +545,8 @@ template unsigned long long
   integral_traits<unsigned long long>::from_string(std::string_view);
 
 
-template<typename T> T float_traits<T>::from_string(std::string_view text)
+template<std::floating_point T>
+T float_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return from_string_arithmetic<T>(text);
