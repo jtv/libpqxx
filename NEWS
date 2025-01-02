@@ -8,6 +8,7 @@
  - Retired `transaction_base::unesc_raw()`.  Use `unesc_bin()`.
  - Retired `transaction_base::quote_raw()`.  Use `quote()` with `bytes_view`.
  - Retired result row slicing.
+ - Deprecated `field` constructors are no longer publicly accessible.
  - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
