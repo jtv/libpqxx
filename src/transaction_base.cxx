@@ -213,12 +213,6 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string PQXX_COLD pqxx::transaction_base::quote_raw(zview bin) const
-{
-  return conn().quote(binary_cast(bin));
-}
-
-
 namespace
 {
 /// Guard command execution against clashes with pipelines and such.
