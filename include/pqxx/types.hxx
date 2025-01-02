@@ -73,8 +73,7 @@ enum class format : int
 /// Remove any constness, volatile, and reference-ness from a type.
 /** @deprecated Use `std::remove_cvref` instead.
  */
-template<typename TYPE>
-using strip_t = std::remove_cvref_t<TYPE>;
+template<typename TYPE> using strip_t = std::remove_cvref_t<TYPE>;
 
 
 /// The type of a container's elements.
@@ -82,18 +81,20 @@ using strip_t = std::remove_cvref_t<TYPE>;
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type = std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
+using value_type =
+  std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 
 
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
-concept char_string = std::ranges::contiguous_range<STRING> and
-                      std::same_as<std::remove_cvref_t<value_type<STRING>>, char>;
+concept char_string =
+  std::ranges::contiguous_range<STRING> and
+  std::same_as<std::remove_cvref_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
-concept char_strings =
-  std::ranges::range<RANGE> and char_string<std::remove_cvref_t<value_type<RANGE>>>;
+concept char_strings = std::ranges::range<RANGE> and
+                       char_string<std::remove_cvref_t<value_type<RANGE>>>;
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>

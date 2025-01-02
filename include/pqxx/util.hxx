@@ -334,8 +334,7 @@ using bytes_view = std::conditional<
  * @warning You must keep the storage holding the actual data alive for as
  * long as you might use this function's return value.
  */
-template<potential_binary TYPE>
-bytes_view binary_cast(TYPE const &data)
+template<potential_binary TYPE> bytes_view binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
   // C++20: Use std::as_bytes.
@@ -535,7 +534,8 @@ using args_t = decltype(args_f(std::declval<CALLABLE>()));
  * used to deduce the right types.
  */
 template<typename... TYPES>
-std::tuple<std::remove_cvref_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
+std::tuple<std::remove_cvref_t<TYPES>...>
+strip_types(std::tuple<TYPES...> const &);
 
 
 /// Take a tuple type and apply std::remove_cvref_t to its component types.
@@ -582,7 +582,8 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
 #  else
   auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
 #  endif
-  if constexpr (std::is_same_v<std::remove_cvref_t<decltype(err_result)>, char *>)
+  if constexpr (std::is_same_v<
+                  std::remove_cvref_t<decltype(err_result)>, char *>)
   {
     // GNU version of strerror_r; returns the error string, which may or may
     // not reside within buffer.
