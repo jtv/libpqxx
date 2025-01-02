@@ -1064,8 +1064,6 @@ public:
    */
   void set_verbosity(error_verbosity verbosity) & noexcept;
 
-  // C++20: Use std::callable.
-
   /// Set a notice handler to the connection.
   /** When a notice comes in (a warning or error message), the connection or
    * result object on which it happens will call the notice handler, passing
