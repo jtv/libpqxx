@@ -9,8 +9,8 @@ Generally you'll want to use `BYTEA` for reasonably-sized values, and large
 objects for very large values.
 
 That's the database side.  On the C++ side, in libpqxx, all binary data must be
-either `pqxx::bytes` or `pqxx::bytes_view`; or if you're building in C++20 or
-better, anything that's a block of contiguous `std::byte` in memory.
+either `pqxx::bytes` or `pqxx::bytes_view`, or anything else that's a block of
+contiguous `std::byte` in memory.
 
 So for example, if you want to write a large object, you'd create a
 `pqxx::blob` object.  And you might use that to write data in the form of
