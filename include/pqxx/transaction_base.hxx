@@ -822,7 +822,7 @@ public:
    * type details may change.
    */
   template<typename... TYPE>
-  [[deprecated("Use exec(), and call check_rows() & iter() on the result.")]]
+  [[deprecated("Use exec(), and call expect_rows() & iter() on the result.")]]
   auto query_n(result::size_type rows, zview query, params const &parms)
   {
     return exec(query, parms).expect_rows(rows).iter<TYPE...>();
