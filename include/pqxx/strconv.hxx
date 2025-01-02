@@ -600,8 +600,9 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  * we can reference them by a pointer.
  */
 template<class TYPE>
-concept binary = std::ranges::contiguous_range<TYPE> and
-                 std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
+concept binary =
+  std::ranges::contiguous_range<TYPE> and
+  std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
 //@}
 } // namespace pqxx
 

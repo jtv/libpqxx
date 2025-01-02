@@ -357,7 +357,8 @@ template<typename... T> struct string_traits<std::variant<T...>>
   {
     return std::visit(
       [begin, end](auto const &i) {
-        return string_traits<std::remove_cvref_t<decltype(i)>>::into_buf(begin, end, i);
+        return string_traits<std::remove_cvref_t<decltype(i)>>::into_buf(
+          begin, end, i);
       },
       value);
   }
@@ -365,7 +366,8 @@ template<typename... T> struct string_traits<std::variant<T...>>
   {
     return std::visit(
       [begin, end](auto const &i) {
-        return string_traits<std::remove_cvref_t<decltype(i)>>::to_buf(begin, end, i);
+        return string_traits<std::remove_cvref_t<decltype(i)>>::to_buf(
+          begin, end, i);
       },
       value);
   }

@@ -238,8 +238,7 @@ public:
 };
 } // namespace
 
-pqxx::result
-pqxx::transaction_base::exec(std::string_view query)
+pqxx::result pqxx::transaction_base::exec(std::string_view query)
 {
   check_pending_error();
 
