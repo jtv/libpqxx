@@ -67,10 +67,8 @@ public:
   /// Dereference the iterator.
   [[nodiscard]] pointer operator->() const { return this; }
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Dereference the iterator.
   [[nodiscard]] reference operator*() const { return *this; }
-#include "pqxx/internal/ignore-deprecated-post.hxx"
   //@}
 
   /**
@@ -91,17 +89,13 @@ public:
   //@{
   const_result_iterator &operator=(const_result_iterator const &rhs)
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     row::operator=(rhs);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
     return *this;
   }
 
   const_result_iterator &operator=(const_result_iterator &&rhs)
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     row::operator=(std::move(rhs));
-#include "pqxx/internal/ignore-deprecated-post.hxx"
     return *this;
   }
 
