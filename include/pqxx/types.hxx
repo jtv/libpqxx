@@ -77,24 +77,14 @@ template<typename TYPE>
 using strip_t = std::remove_cvref_t<TYPE>;
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// The type of a container's elements.
 /** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
 using value_type = std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
-#else  // PQXX_HAVE_CONCEPTS
-/// The type of a container's elements.
-/** At the time of writing there's a similar thing in `std::experimental`,
- * which we may or may not end up using for this.
- */
-template<typename CONTAINER>
-using value_type = std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
-#endif // PQXX_HAVE_CONCEPTS
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
@@ -109,7 +99,6 @@ concept char_strings =
 template<typename DATA>
 concept potential_binary =
   std::ranges::contiguous_range<DATA> and (sizeof(value_type<DATA>) == 1);
-#endif // PQXX_HAVE_CONCEPTS
 
 
 /// Marker for @ref stream_from constructors: "stream from table."

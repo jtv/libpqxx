@@ -214,12 +214,6 @@ struct PQXX_LIBEXPORT thread_safety_model
 [[nodiscard]] PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
-#  define PQXX_POTENTIAL_BINARY_ARG pqxx::potential_binary
-#else
-#  define PQXX_POTENTIAL_BINARY_ARG typename
-#endif
-
 /// Custom `std::char_trast` if the compiler does not provide one.
 /** Needed if the standard library lacks a generic implementation or a
  * specialisation for std::byte.  They aren't strictly required to provide
@@ -340,7 +334,7 @@ using bytes_view = std::conditional<
  * @warning You must keep the storage holding the actual data alive for as
  * long as you might use this function's return value.
  */
-template<PQXX_POTENTIAL_BINARY_ARG TYPE>
+template<potential_binary TYPE>
 bytes_view binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
@@ -353,13 +347,10 @@ bytes_view binary_cast(TYPE const &data)
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
+/// A type one byte in size.
 template<typename CHAR>
 concept char_sized = (sizeof(CHAR) == 1);
-#  define PQXX_CHAR_SIZED_ARG char_sized
-#else
-#  define PQXX_CHAR_SIZED_ARG typename
-#endif
+
 
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
@@ -368,7 +359,7 @@ concept char_sized = (sizeof(CHAR) == 1);
  * This makes it a little easier to turn binary data, in whatever form you
  * happen to have it, into binary data as libpqxx understands it.
  */
-template<PQXX_CHAR_SIZED_ARG CHAR, typename SIZE>
+template<char_sized CHAR, typename SIZE>
 bytes_view binary_cast(CHAR const *data, SIZE size)
 {
   static_assert(sizeof(CHAR) == 1);
