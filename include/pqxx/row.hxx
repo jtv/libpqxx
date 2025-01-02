@@ -276,9 +276,7 @@ public:
   using difference_type = row_difference_type;
   using reference = field;
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() noexcept = default;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
   const_row_iterator(row const &t, row_size_type c) noexcept :
           field{t.m_result, t.m_index, c}
   {}
