@@ -239,8 +239,8 @@ struct byte_char_traits : std::char_traits<char>
   }
 
   /// Deliberately undefined: "guess" the length of an array of bytes.
-  /* This is nonsense: we can't determine the length of a random sequence of
-   * bytes.  There is no terminating zero like there is for C strings.
+  /* This would be nonsense: we can't determine the length of a random sequence
+   * of bytes.  There is no terminating zero like there is for C strings.
    *
    * But `std::char_traits` requires us to provide this function, so we
    * declare it without defining it.
@@ -330,7 +330,7 @@ using bytes_view = std::conditional<
  * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
  * many other types.  In libpqxx we commend a container of `std::byte`.
  *
- * For libpqxx to recognise your data as binary, it needs to be a
+ * For libpqxx to recognise your data as binary, we recommend using a
  * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
  * `std::byte` should do.
  *
