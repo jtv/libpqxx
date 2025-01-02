@@ -543,11 +543,7 @@ void test_range_conversion()
 
 constexpr void test_range_is_constexpr()
 {
-// Test compile-time operations.
-//
-// A few things in the standard library need to be constexpr for this to work,
-// so we only test it in C++20.
-#if __cplusplus >= 202002L
+  // Test compile-time operations.
   using range = pqxx::range<int>;
   using ibound = pqxx::inclusive_bound<int>;
 
@@ -556,7 +552,6 @@ constexpr void test_range_is_constexpr()
   static_assert(oneone == oneone);
   static_assert(oneone != onethree);
   static_assert(onethree.contains(oneone));
-#endif
 }
 
 
