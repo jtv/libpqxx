@@ -910,10 +910,6 @@ public:
 #endif
 
   /// Escape binary string for use as SQL string literal on this connection.
-  [[deprecated("Use std::byte for binary data.")]] std::string
-  esc_raw(unsigned char const bin[], std::size_t len) const;
-
-  /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view) const;
 
@@ -1046,40 +1042,6 @@ public:
    */
   [[nodiscard]] std::string
   esc_like(std::string_view text, char escape_char = '\\') const;
-
-  /// Escape string for use as SQL string literal on this connection.
-  /** @warning This accepts a length, and it does not require a terminating
-   * zero byte.  But if there is a zero byte, escaping stops there even if
-   * it's not at the end of the string!
-   */
-  [[deprecated("Use std::string_view or pqxx:zview.")]] std::string
-  esc(char const text[], std::size_t maxlen) const
-  {
-    return esc(std::string_view{text, maxlen});
-  }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(zview text) const
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return unesc_raw(text.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(char const text[]) const;
-
-  /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(bytes_view).")]] std::string
-  quote_raw(unsigned char const bin[], std::size_t len) const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
