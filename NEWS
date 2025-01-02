@@ -3,6 +3,7 @@
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired result row slicing.
  - Retired `connection_base` type alias.  Use `connection`.
+ - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.
  - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
