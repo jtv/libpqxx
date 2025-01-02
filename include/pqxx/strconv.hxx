@@ -599,7 +599,7 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  * is a @c std::byte, and they must all be laid out contiguously in memory so
  * we can reference them by a pointer.
  */
-template<class TYPE>
+template<typename TYPE>
 concept binary =
   std::ranges::contiguous_range<TYPE> and
   std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
