@@ -239,6 +239,31 @@ public:
 } // namespace
 
 pqxx::result
+pqxx::transaction_base::exec(std::string_view query)
+{
+  check_pending_error();
+
+  command const cmd{*this, {}};
+
+  switch (m_status)
+  {
+  case status::active: break;
+
+  case status::committed:
+  case status::aborted:
+  case status::in_doubt:
+    // TODO: Pass query.
+    throw usage_error{
+      "Could not execute command: transaction is already closed."};
+
+  default: PQXX_UNREACHABLE;
+  }
+
+  return direct_exec(query);
+}
+
+
+pqxx::result
 pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
 {
   check_pending_error();
