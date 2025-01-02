@@ -347,7 +347,7 @@ bytes_view binary_cast(TYPE const &data)
   // C++20: Use std::as_bytes.
   return {
     reinterpret_cast<std::byte const *>(
-      const_cast<strip_t<decltype(*std::data(data))> const *>(
+      const_cast<std::remove_cvref_t<decltype(*std::data(data))> const *>(
         std::data(data))),
     std::size(data)};
 }
@@ -539,15 +539,15 @@ template<typename CALLABLE>
 using args_t = decltype(args_f(std::declval<CALLABLE>()));
 
 
-/// Helper: Apply `strip_t` to each of a tuple type's component types.
+/// Apply `std::remove_cvref_t` to each of a tuple type's component types.
 /** This function has no definition.  It is not meant to be called, only to be
  * used to deduce the right types.
  */
 template<typename... TYPES>
-std::tuple<strip_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
+std::tuple<std::remove_cvref_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
 
 
-/// Take a tuple type and apply @ref strip_t to its component types.
+/// Take a tuple type and apply std::remove_cvref_t to its component types.
 template<typename... TYPES>
 using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
 
@@ -591,7 +591,7 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
 #  else
   auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
 #  endif
-  if constexpr (std::is_same_v<pqxx::strip_t<decltype(err_result)>, char *>)
+  if constexpr (std::is_same_v<std::remove_cvref_t<decltype(err_result)>, char *>)
   {
     // GNU version of strerror_r; returns the error string, which may or may
     // not reside within buffer.

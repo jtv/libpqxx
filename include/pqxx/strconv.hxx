@@ -510,7 +510,7 @@ inline void into_string(TYPE const &value, std::string &out);
 template<typename TYPE>
 [[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
-  return nullness<strip_t<TYPE>>::is_null(value);
+  return nullness<std::remove_cvref_t<TYPE>>::is_null(value);
 }
 
 
@@ -521,7 +521,7 @@ template<typename TYPE>
 template<typename... TYPE>
 [[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
 {
-  return (string_traits<strip_t<TYPE>>::size_buffer(value) + ...);
+  return (string_traits<std::remove_cvref_t<TYPE>>::size_buffer(value) + ...);
 }
 
 
@@ -602,7 +602,7 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  */
 template<class TYPE>
 concept binary = std::ranges::contiguous_range<TYPE> and
-                 std::is_same_v<strip_t<value_type<TYPE>>, std::byte>;
+                 std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
 #endif
 //@}
 } // namespace pqxx

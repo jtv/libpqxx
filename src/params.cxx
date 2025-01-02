@@ -93,7 +93,7 @@ pqxx::internal::c_params pqxx::params::make_c_params() const
   for (auto const &param : m_params)
     std::visit(
       [&p](auto const &value) {
-        using T = strip_t<decltype(value)>;
+        using T = std::remove_cvref_t<decltype(value)>;
 
         if constexpr (std::is_same_v<T, std::nullptr_t>)
         {
