@@ -77,7 +77,6 @@ namespace pqxx::internal
 {
 class sql_cursor;
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
@@ -85,7 +84,6 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
   { std::get<0>(*std::cbegin(t)) } -> ZString;
   { std::get<1>(*std::cbegin(t)) } -> ZString;
 } and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
-#endif // PQXX_HAVE_CONCEPTS
 
 
 /// Control OpenSSL/crypto library initialisation.
@@ -298,12 +296,8 @@ public:
    */
   connection(connection &&rhs);
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Connect to a database, passing options as a range of key/value pairs.
-  /** @warning Experimental.  Requires C++20 "concepts" support.  Define
-   * `PQXX_HAVE_CONCEPTS` to enable it.
-   *
-   * There's no need to escape the parameter values.
+  /** There's no need to escape the parameter values.
    *
    * See the PostgreSQL libpq documentation for the full list of possible
    * options:
@@ -317,7 +311,6 @@ public:
    */
   template<internal::ZKey_ZValues MAPPING>
   inline connection(MAPPING const &params);
-#endif // PQXX_HAVE_CONCEPTS
 
   ~connection()
   {
@@ -868,16 +861,13 @@ public:
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
   /** This is identical to `esc_raw(data)`. */
   template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
   {
     return esc_raw(data);
   }
-#endif
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -907,7 +897,6 @@ public:
     internal::esc_bin(view, out);
     return zview{out, needed - 1};
   }
-#endif
 
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
@@ -917,7 +906,6 @@ public:
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   template<binary DATA>
@@ -925,16 +913,13 @@ public:
   {
     return esc_raw(bytes_view{std::data(data), std::size(data)});
   }
-#endif
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
   {
     return this->esc(binary_cast(data), buffer);
   }
-#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a `bytea` field.
@@ -956,7 +941,6 @@ public:
   /// Escape and quote a string of binary data.
   std::string quote_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape and quote a string of binary data.
   /** You can also just use @ref quote with binary data. */
   template<binary DATA>
@@ -964,7 +948,6 @@ public:
   {
     return quote_raw(bytes_view{std::data(data), std::size(data)});
   }
-#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.
@@ -1437,7 +1420,6 @@ inline std::string connection::quote_columns(STRINGS const &columns) const
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<internal::ZKey_ZValues MAPPING>
 inline connection::connection(MAPPING const &params)
 {
@@ -1459,6 +1441,5 @@ inline connection::connection(MAPPING const &params)
   values.push_back(nullptr);
   init(std::data(keys), std::data(values));
 }
-#endif // PQXX_HAVE_CONCEPTS
 } // namespace pqxx
 #endif

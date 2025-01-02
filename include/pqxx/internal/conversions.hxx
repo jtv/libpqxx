@@ -895,7 +895,6 @@ template<> struct nullness<bytes> : no_null<bytes>
 {};
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
 
@@ -940,7 +939,6 @@ template<binary DATA> struct string_traits<DATA>
     return buf;
   }
 };
-#endif // PQXX_HAVE_CONCEPTS
 
 
 template<> struct string_traits<bytes>
