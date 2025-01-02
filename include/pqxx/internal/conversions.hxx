@@ -1,4 +1,5 @@
 #include <array>
+#include <concepts>
 #include <cstring>
 #include <map>
 #include <memory>
@@ -124,9 +125,8 @@ template<std::integral T> struct integral_traits
 };
 
 
-// C++20: Guard with concept?
 /// String traits for builtin floating-point types.
-template<typename T> struct float_traits
+template<std::floating_point T> struct float_traits
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
