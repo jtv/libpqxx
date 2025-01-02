@@ -114,7 +114,6 @@ constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
 } // namespace pqxx
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// A zview is a view.
 template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 
@@ -135,7 +134,6 @@ concept ZString = std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
                   std::is_convertible_v<std::remove_cvref_t<T>, zview> or
                   std::is_convertible_v<T, std::string const &>;
 } // namespace pqxx::internal
-#endif // PQXX_HAVE_CONCEPTS
 
 
 namespace pqxx::internal

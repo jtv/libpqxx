@@ -592,7 +592,6 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: Binary string, akin to @c std::string for binary data.
 /** Any type that satisfies this concept can represent an SQL BYTEA value.
  *
@@ -603,7 +602,6 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 template<class TYPE>
 concept binary = std::ranges::contiguous_range<TYPE> and
                  std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
-#endif
 //@}
 } // namespace pqxx
 

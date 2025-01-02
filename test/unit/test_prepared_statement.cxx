@@ -216,7 +216,6 @@ void test_binary()
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   // By the way, it doesn't have to be a pqxx::bytes.  Any contiguous range
   // will do.
   {
@@ -228,7 +227,6 @@ void test_binary()
     PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'), "Wrong data.");
     PQXX_CHECK_EQUAL(static_cast<int>(oval[1]), int('v'), "Wrong data.");
   }
-#endif
 }
 
 
