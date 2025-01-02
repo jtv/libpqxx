@@ -1347,10 +1347,6 @@ private:
 };
 
 
-/// @deprecated Old base class for connection.  They are now the same class.
-using connection_base = connection;
-
-
 /// An ongoing, non-blocking stepping stone to a connection.
 /** Use this when you want to create a connection to the database, but without
  * blocking your whole thread.   It is only available on systems that have
