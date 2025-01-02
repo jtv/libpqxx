@@ -105,7 +105,6 @@ void test_connection_string()
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<typename STR> std::size_t length(STR const &str)
 {
   return std::size(str);
@@ -116,12 +115,10 @@ std::size_t length(char const str[])
 {
   return std::strlen(str);
 }
-#endif // PQXX_HAVE_CONCEPTS
 
 
 template<typename MAP> void test_params_type()
 {
-#if defined(PQXX_HAVE_CONCEPTS)
   using item_t = std::remove_reference_t<
     decltype(*std::declval<std::ranges::iterator_t<MAP>>())>;
   using key_t = decltype(std::get<0>(std::declval<item_t>()));
@@ -160,7 +157,6 @@ template<typename MAP> void test_params_type()
       "Could not find value for '" + std::string{value} +
         "' in connection string: " + connstr);
   }
-#endif // PQXX_HAVE_CONCEPTS
 }
 
 
