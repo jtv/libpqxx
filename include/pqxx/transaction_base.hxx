@@ -298,7 +298,6 @@ public:
   /// Execute a command.
   /**
    * @param query Query or command to execute.
-   * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
   [[deprecated("The desc parameter is going away.")]]
@@ -316,12 +315,7 @@ public:
    * @param query Query or command to execute.
    * @return A result set describing the query's or command's result.
    */
-  result exec(std::string_view query)
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return exec(query, std::string_view{});
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
+  result exec(std::string_view query);
 
   /// Execute a command.
   /**
