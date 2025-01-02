@@ -40,7 +40,6 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Create an iterator, but in an unusable state.
   const_result_iterator() noexcept = default;
   /// Copy an iterator.
@@ -50,7 +49,6 @@ public:
 
   /// Begin iterating a @ref row.
   const_result_iterator(row const &t) noexcept : row{t} {}
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /**
    * @name Dereferencing operators
