@@ -217,31 +217,7 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(zview text) const
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().unesc_raw(text);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
   [[nodiscard]] bytes unesc_bin(zview text) { return conn().unesc_bin(text); }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(char const *text) const
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().unesc_raw(text);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
 
   /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
@@ -258,17 +234,6 @@ public:
   {
     return conn().quote(t);
   }
-
-  /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
-  quote_raw(unsigned char const bin[], std::size_t len) const
-  {
-    return quote(binary_cast(bin, len));
-  }
-
-  /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
-  quote_raw(zview bin) const;
 
 #if defined(PQXX_HAVE_CONCEPTS)
   /// Binary-escape and quote a binary string for use as an SQL constant.
