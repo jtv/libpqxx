@@ -125,9 +125,9 @@ constexpr int nibble(int c) noexcept
     return c - '0';
   else if (c >= 'a' and c <= 'f')
     return ten + (c - 'a');
-  else if (c >= 'A' and c <= 'F')
+  else [[unlikely]] if (c >= 'A' and c <= 'F')
     return ten + (c - 'A');
-  else
+  else [[unlikely]]
     return -1;
 }
 } // namespace
