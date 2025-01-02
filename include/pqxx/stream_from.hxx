@@ -343,7 +343,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 template<typename Tuple, std::size_t index>
 inline void stream_from::extract_value(Tuple &t) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   using nullity = nullness<field_type>;
   assert(index < std::size(m_fields));
   if constexpr (nullity::always_null)

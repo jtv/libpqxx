@@ -334,7 +334,7 @@ template<typename... T> struct nullness<std::variant<T...>>
     return value.valueless_by_exception() or
            std::visit(
              [](auto const &i) noexcept {
-               return nullness<strip_t<decltype(i)>>::is_null(i);
+               return nullness<std::remove_cvref_t<decltype(i)>>::is_null(i);
              },
              value);
   }
@@ -357,7 +357,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   {
     return std::visit(
       [begin, end](auto const &i) {
-        return string_traits<strip_t<decltype(i)>>::into_buf(begin, end, i);
+        return string_traits<std::remove_cvref_t<decltype(i)>>::into_buf(begin, end, i);
       },
       value);
   }
@@ -365,7 +365,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   {
     return std::visit(
       [begin, end](auto const &i) {
-        return string_traits<strip_t<decltype(i)>>::to_buf(begin, end, i);
+        return string_traits<std::remove_cvref_t<decltype(i)>>::to_buf(begin, end, i);
       },
       value);
   }
@@ -1031,7 +1031,7 @@ namespace pqxx::internal
 template<typename Container> struct array_string_traits
 {
 private:
-  using elt_type = strip_t<value_type<Container>>;
+  using elt_type = std::remove_cvref_t<value_type<Container>>;
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
