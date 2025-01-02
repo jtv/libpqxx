@@ -268,7 +268,7 @@ private:
   template<typename TARGET>
   TARGET parse_field(zview line, std::size_t &offset, char *&write)
   {
-    using field_type = strip_t<TARGET>;
+    using field_type = std::remove_cvref_t<TARGET>;
     using nullity = nullness<field_type>;
 
     assert(offset <= std::size(line));
