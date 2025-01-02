@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <iterator>
 #include <ranges>
+#include <type_traits>
 
 
 namespace pqxx
@@ -70,10 +71,10 @@ enum class format : int
 
 
 /// Remove any constness, volatile, and reference-ness from a type.
-/** @deprecated In C++20 we'll replace this with std::remove_cvref.
+/** @deprecated Use `std::remove_cvref` instead.
  */
 template<typename TYPE>
-using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
+using strip_t = std::remove_cvref_t<TYPE>;
 
 
 #if defined(PQXX_HAVE_CONCEPTS)
@@ -82,14 +83,14 @@ using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
+using value_type = std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 #else  // PQXX_HAVE_CONCEPTS
 /// The type of a container's elements.
 /** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<typename CONTAINER>
-using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
+using value_type = std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 #endif // PQXX_HAVE_CONCEPTS
 
 
@@ -97,12 +98,12 @@ using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
-                      std::same_as<strip_t<value_type<STRING>>, char>;
+                      std::same_as<std::remove_cvref_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
 concept char_strings =
-  std::ranges::range<RANGE> and char_string<strip_t<value_type<RANGE>>>;
+  std::ranges::range<RANGE> and char_string<std::remove_cvref_t<value_type<RANGE>>>;
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
