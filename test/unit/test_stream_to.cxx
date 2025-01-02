@@ -306,7 +306,7 @@ void test_container_stream_to()
   tx.commit();
 }
 
-void test_variant_fold(pqxx::connection_base &connection)
+void test_variant_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
