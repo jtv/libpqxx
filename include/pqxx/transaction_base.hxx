@@ -235,7 +235,6 @@ public:
     return conn().quote(t);
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Binary-escape and quote a binary string for use as an SQL constant.
   /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>
@@ -243,7 +242,6 @@ public:
   {
     return conn().quote_raw(data);
   }
-#endif
 
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const

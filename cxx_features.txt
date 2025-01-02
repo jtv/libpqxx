@@ -12,6 +12,5 @@
 # Remember to enter each of these in configitems as well, or they won't
 # end up in the actual configuration headers.
 
-PQXX_HAVE_CONCEPTS __cpp_concepts
 PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
 PQXX_HAVE_SOURCE_LOCATION __cpp_lib_source_location

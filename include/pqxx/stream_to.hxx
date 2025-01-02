@@ -125,7 +125,6 @@ public:
     return raw_table(tx, cx.quote_table(path), cx.quote_columns(columns));
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Create a `stream_to` writing to a named table and columns.
   /** Use this version to stream data to a table, when the list of columns is
    * not known at compile time.
@@ -157,7 +156,6 @@ public:
   {
     return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
   }
-#endif // PQXX_HAVE_CONCEPTS
 
   explicit stream_to(stream_to &&other) :
           // (This first step only moves the transaction_focus base-class
