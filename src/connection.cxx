@@ -963,47 +963,9 @@ std::string pqxx::connection::esc(std::string_view text) const
 }
 
 
-std::string PQXX_COLD
-pqxx::connection::esc_raw(unsigned char const bin[], std::size_t len) const
-{
-  return pqxx::internal::esc_bin(binary_cast(bin, len));
-}
-
-
 std::string pqxx::connection::esc_raw(bytes_view bin) const
 {
   return pqxx::internal::esc_bin(bin);
-}
-
-
-std::string PQXX_COLD pqxx::connection::unesc_raw(char const text[]) const
-{
-  if (text[0] == '\\' and text[1] == 'x')
-  {
-    // Hex-escaped format.
-    std::string buf;
-    buf.resize(pqxx::internal::size_unesc_bin(std::strlen(text)));
-    pqxx::internal::unesc_bin(
-      std::string_view{text}, reinterpret_cast<std::byte *>(buf.data()));
-    return buf;
-  }
-  else
-  {
-    // Legacy escape format.
-    // TODO: Remove legacy support.
-    std::size_t len{};
-    auto bytes{reinterpret_cast<unsigned char const *>(text)};
-    std::unique_ptr<unsigned char, void (*)(void const *)> const ptr{
-      PQunescapeBytea(bytes, &len), pqxx::internal::pq::pqfreemem};
-    return std::string{ptr.get(), ptr.get() + len};
-  }
-}
-
-
-std::string PQXX_COLD
-pqxx::connection::quote_raw(unsigned char const bin[], std::size_t len) const
-{
-  return internal::concat("'", esc_raw(binary_cast(bin, len)), "'::bytea");
 }
 
 
