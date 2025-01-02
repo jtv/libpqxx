@@ -639,9 +639,13 @@ int pqxx::connection::get_notifs()
     }
 
     auto const handler{m_notification_handlers.find(N->relname)};
-    // C++20: Use "dot notation" to initialise struct fields.
     if (handler != std::end(m_notification_handlers))
-      (handler->second)(notification{*this, channel, N->extra, N->be_pid});
+      (handler->second)(notification{
+        .conn=*this,
+	.channel=channel,
+	.payload=N->extra,
+	.backend_pid=N->be_pid,
+      });
 
     N.reset();
   }

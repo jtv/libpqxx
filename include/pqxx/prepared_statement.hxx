@@ -39,8 +39,8 @@ namespace pqxx
  * zero.  If you need a zero byte, you're dealing with binary strings, not
  * regular strings.  Represent binary strings on the SQL side as `BYTEA`
  * (or as large objects).  On the C++ side, use types like `pqxx::bytes` or
- * `pqxx::bytes_view` or (in C++20) `std::vector<std::byte>`.  Also, consider
- * large objects on the SQL side and @ref blob on the C++ side.
+ * `pqxx::bytes_view` or `std::vector<std::byte>`.  Also, consider large
+ * objects on the SQL side and @ref blob on the C++ side.
  *
  * @warning Passing the wrong number of parameters to a prepared or
  * parameterised statement will _break the connection._  The usual exception
