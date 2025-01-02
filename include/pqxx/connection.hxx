@@ -1504,22 +1504,5 @@ inline connection::connection(MAPPING const &params)
   init(std::data(keys), std::data(values));
 }
 #endif // PQXX_HAVE_CONCEPTS
-
-
-/// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] std::string
-  PQXX_LIBEXPORT
-  encrypt_password(char const user[], char const password[]);
-
-/// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] inline std::string
-encrypt_password(zview user, zview password)
-{
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return encrypt_password(user.c_str(), password.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
 } // namespace pqxx
 #endif
