@@ -12,15 +12,6 @@
 
 #include "test_helpers.hxx"
 
-namespace
-{
-inline std::string deref_field(pqxx::field const &f)
-{
-  return f.c_str();
-}
-} // namespace
-
-
 namespace pqxx::test
 {
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
@@ -101,7 +92,9 @@ void expected_exception(std::string const &message)
 
 std::string list_row(row Obj)
 {
-  return separated_list(", ", std::begin(Obj), std::end(Obj), deref_field);
+  return separated_list(
+    ", ", std::begin(Obj), std::end(Obj),
+    [](pqxx::field const &f) { return f.view(); });
 }
 
 

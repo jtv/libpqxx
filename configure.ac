@@ -125,6 +125,7 @@ then
 		# "Eternal" (FLW) g++ options.  These have been around for
 		# ages, and both g++ and clang++ support them.  Don't bother
 		# checking for support; just add them to the compiler options.
+		# TODO: Add -D_GLIBCXX_CONCEPT_CHECKS in 8.0.
 		add_compiler_opts \
 			-fstrict-enums \
 			-Werror \
@@ -203,6 +204,10 @@ then
 	then
 		add_compiler_opts_if_ok \
 			-D_FORTIFY_SOURCE=2 \
+			-D_GLIBCXX_ASSERTIONS \
+			-D_GLIBCXX_DEBUG \
+			-D_GLIBCXX_DEBUG_PEDANTIC \
+			-D_GLIBCXX_SANITIZE_VECTOR \
 			-fsanitize=address \
 			-fsanitize-address-use-after-scope \
 			-fsanitize=alignment \
