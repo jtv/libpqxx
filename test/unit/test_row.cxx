@@ -1,3 +1,5 @@
+#include <iterator>
+
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
