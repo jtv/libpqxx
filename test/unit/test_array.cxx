@@ -438,7 +438,8 @@ void test_array_generate_empty_strings()
 
 void test_sparse_arrays()
 {
-  // Reproduce # : NULL not paying for its separator in an array
+  // Reproduce #922 : NULL not paying for its separator in an array, causing
+  // problems in sparse arrays
 
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::optional<int>>{
