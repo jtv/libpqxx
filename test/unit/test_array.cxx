@@ -436,6 +436,31 @@ void test_array_generate_empty_strings()
     "Array of 12 empty strings came out wrong.");
 }
 
+void test_sparse_arrays()
+{
+  // Reproduce # : NULL not paying for its separator in an array
+
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::optional<int>>{
+      std::nullopt, std::nullopt, std::nullopt, std::nullopt}),
+    "{NULL,NULL,NULL,NULL}",
+    "Array of optional<int> filled with std::nullopt came out wrong");
+
+  std::vector<std::optional<int>> sparseVectorOfOptionalInts(13, std::nullopt);
+  sparseVectorOfOptionalInts.push_back(42);
+
+  std::array<std::optional<int>, 14> sparseArray{std::nullopt, std::nullopt,
+                                                 std::nullopt, std::nullopt,
+                                                 std::nullopt, std::nullopt,
+                                                 std::nullopt, std::nullopt,
+                                                 std::nullopt, std::nullopt,
+                                                 std::nullopt, std::nullopt,
+                                                 std::nullopt, 42};
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(sparseArray),
+    "{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,42}",
+    "A sparsely filled array of optional<int> came out wrong");
+}
 
 void test_array_generate()
 {
@@ -445,6 +470,7 @@ void test_array_generate()
   test_generate_multiple_items();
   test_generate_nested_array();
   test_generate_escaped_strings();
+  test_sparse_arrays();
 }
 
 
