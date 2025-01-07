@@ -1120,8 +1120,11 @@ public:
                      // Budget for each element includes a terminating zero.
                      // We won't actually be wanting those, but don't subtract
                      // that one byte: we want room for a separator instead.
+                     // However, std::size(s_null) doesn't account for a
+                     // separator, so add one to make s_null pay for its own
+                     // separator.
                      return acc + (pqxx::is_null(elt) ?
-                                     std::size(s_null) :
+                                     (std::size(s_null) + 1) :
                                      elt_traits::size_buffer(elt));
                    });
     else
@@ -1131,8 +1134,11 @@ public:
                      // Opening and closing quotes, plus worst-case escaping,
                      // and the one byte for the trailing zero becomes room
                      // for a separator.
+                     // std::size(s_null) doesn't account for a
+                     // separator, so add one to make s_null pay for its own
+                     // separator.
                      std::size_t const elt_size{
-                       pqxx::is_null(elt) ? std::size(s_null) :
+                       pqxx::is_null(elt) ? (std::size(s_null) + 1) :
                                             elt_traits::size_buffer(elt)};
                      return acc + 2 * elt_size + 2;
                    });
