@@ -447,9 +447,6 @@ void test_sparse_arrays()
     "{NULL,NULL,NULL,NULL}",
     "Array of optional<int> filled with std::nullopt came out wrong");
 
-  std::vector<std::optional<int>> sparseVectorOfOptionalInts(13, std::nullopt);
-  sparseVectorOfOptionalInts.push_back(42);
-
   std::array<std::optional<int>, 14> sparseArray{std::nullopt, std::nullopt,
                                                  std::nullopt, std::nullopt,
                                                  std::nullopt, std::nullopt,
