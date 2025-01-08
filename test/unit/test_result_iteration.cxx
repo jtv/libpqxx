@@ -1,3 +1,5 @@
+#include <iterator>
+
 #include <pqxx/stream_to>
 #include <pqxx/transaction>
 
