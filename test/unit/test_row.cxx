@@ -1,3 +1,5 @@
+#include <iterator>
+
 #include <pqxx/transaction>
 
 #include "../test_helpers.hxx"
@@ -8,8 +10,10 @@ void test_row()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
-  pqxx::row r{rows[0]};
+  pqxx::row r{tx.exec("SELECT 1, 2, 3").one_row()};
+#if defined(PQXX_HAVE_CONCEPTS)
+  static_assert(std::forward_iterator<decltype(r.begin())>);
+#endif
   PQXX_CHECK_EQUAL(std::size(r), 3, "Unexpected row size.");
   PQXX_CHECK_EQUAL(r.at(0).as<int>(), 1, "Wrong value at index 0.");
   PQXX_CHECK(std::begin(r) != std::end(r), "Broken row iteration.");
