@@ -334,7 +334,7 @@ using bytes_view = std::conditional<
  * @warning You must keep the storage holding the actual data alive for as
  * long as you might use this function's return value.
  */
-template<potential_binary TYPE> bytes_view binary_cast(TYPE const &data)
+template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 {
   static_assert(sizeof(value_type<TYPE>) == 1);
   // C++20: Use std::as_bytes.
@@ -453,7 +453,7 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 }
 
 
-// TODO: Use actual binary type for "data".
+// XXX: Maybe pass a span so we can check length?
 /// Hex-escape binary data into a buffer.
 /** The buffer must be able to accommodate
  * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
@@ -461,6 +461,19 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * zero.
  */
 void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
+
+
+/// Hex-escape binary data into a buffer.
+/** The buffer must be able to accommodate
+ * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
+ * exactly that number of bytes into the buffer.  This includes a trailing
+ * zero.
+ */
+template<binary T>
+inline void esc_bin(T &&binary_data, char buffer[]) noexcept
+{
+  esc_bin(binary_cast(binary_data), buffer);
+}
 
 
 /// Hex-escape binary data into a std::string.
