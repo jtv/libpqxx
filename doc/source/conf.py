@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 project = 'libpqxx'
-copyright = '2000-2024, Jeroen T. Vermeulen'
+copyright = '2000-2025, Jeroen T. Vermeulen'
 author = 'Jeroen T. Vermeulen'
 
 version = (Path(__file__).parents[2] / 'VERSION').read_text().strip()
