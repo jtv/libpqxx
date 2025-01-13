@@ -449,8 +449,8 @@ void test_sparse_arrays()
 
   PQXX_CHECK(
     pqxx::size_buffer(arrayOfNulls) >= arrayOfNullsStr.size(),
-    "Size allocated for an array of optional<int> filled with nulls was too "
-    "small.");
+    "Buffer size allocated for an array of optional<int> filled with nulls "
+    "was too small.");
 
   PQXX_CHECK_EQUAL(
     pqxx::to_string(arrayOfNulls), arrayOfNullsStr,
@@ -471,8 +471,8 @@ void test_sparse_arrays()
 
   PQXX_CHECK(
     pqxx::size_buffer(sparseArray) >= sparseArrayStr.size(),
-    "Size allocated for a sparsely-filled array of optional<int> was too "
-    "small.");
+    "Buffer size allocated for a sparsely-filled array of optional<int> was "
+    "too small.");
 
   PQXX_CHECK_EQUAL(
     pqxx::to_string(sparseArray), sparseArrayStr,
