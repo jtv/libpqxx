@@ -439,25 +439,45 @@ void test_array_generate_empty_strings()
 void test_sparse_arrays()
 {
   // Reproduce #922 : NULL not paying for its separator in an array, causing
-  // problems in sparse arrays
+  // problems in sparse arrays.
+
+  // If NULL didn't pay for its separator, the size allocated for an array-like
+  // object filled with null-like values would be too small when array size is
+  // >= 4.
+
+  auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
+  std::string arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
+
+  PQXX_CHECK(
+    pqxx::size_buffer(arrayOfNulls) >= arrayOfNullsStr.size(),
+    "Size allocated for an array of optional<int> filled with nulls was too "
+    "small.");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::optional<int>>{
-      std::nullopt, std::nullopt, std::nullopt, std::nullopt}),
-    "{NULL,NULL,NULL,NULL}",
-    "Array of optional<int> filled with std::nullopt came out wrong");
+    pqxx::to_string(arrayOfNulls), arrayOfNullsStr,
+    "Array of optional<int> filled with std::nullopt came out wrong. ");
 
-  std::array<std::optional<int>, 14> sparseArray{std::nullopt, std::nullopt,
-                                                 std::nullopt, std::nullopt,
-                                                 std::nullopt, std::nullopt,
-                                                 std::nullopt, std::nullopt,
-                                                 std::nullopt, std::nullopt,
-                                                 std::nullopt, std::nullopt,
-                                                 std::nullopt, 42};
+
+  // If the array-like object is instead sparsely-filled, the values contained
+  // in non-null elements may leave behind excess unused size which hides the
+  // problem better - it only becomes an error once the array contains enough
+  // null-like values to outweigh this excess unused size.
+
+  std::array<std::optional<int>, 14> sparseArray;
+  sparseArray[sparseArray.size() - 1] = 42;
+
+  std::string sparseArrayStr =
+    "{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"
+    "42}";
+
+  PQXX_CHECK(
+    pqxx::size_buffer(sparseArray) >= sparseArrayStr.size(),
+    "Size allocated for a sparsely-filled array of optional<int> was too "
+    "small.");
+
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(sparseArray),
-    "{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,42}",
-    "A sparsely filled array of optional<int> came out wrong");
+    pqxx::to_string(sparseArray), sparseArrayStr,
+    "A sparsely-filled array of optional<int> came out wrong.");
 }
 
 void test_array_generate()
