@@ -478,16 +478,21 @@ template<> struct nullness<char const *>
 
 
 /// String traits for C-style string ("pointer to char const").
+/** This conversion is not bidirectional.  You can convert a C-style string to
+ * an SQL string, but not the other way around.
+ *
+ * The reason for this is the terminating zero.  The incoming SQL string is a
+ * `std::string_view`, which may or may not have a zero at the end.  (And
+ * there's no reliable way of checking, since the next memory position may not
+ * be a valid address.  Even if there happens to be a zero there, it isn't
+ * necessarily part of the same block of mmory.)
+ */
 template<> struct string_traits<char const *>
 {
   static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
+  static constexpr bool converts_from_string{false};
 
-  /// @warning The string's lifetime depends on the original!
-  /** When the original string that you're converting becmoes invalid in any
-   * way, so does the pointer that you get from this.
-   */
-  static char const *from_string(std::string_view text) { return text.data(); }
+  static char const *from_string(std::string_view text) =delete;
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {
@@ -530,6 +535,15 @@ template<> struct nullness<char *>
 
 
 /// String traits for non-const C-style string ("pointer to char").
+/** This conversion is not bidirectional.  You can convert a `char *` to an
+ * SQL string, but not vice versa.
+ *
+ * There are two reasons.  One is the fact that an SQL string arrives in the
+ * form of a `std::string_view`; there is no guarantee of a trailing zero.
+ *
+ * The other reason is constness.  We can't give you a non-const pointer into
+ * a string that was handed into the conversion as `const`.
+ */
 template<> struct string_traits<char *>
 {
   static constexpr bool converts_to_string{true};
@@ -551,7 +565,6 @@ template<> struct string_traits<char *>
       return string_traits<char const *>::size_buffer(value);
   }
 
-  /// Don't allow conversion to this type since it breaks const-safety.
   static char *from_string(std::string_view) = delete;
 };
 
