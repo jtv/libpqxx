@@ -483,7 +483,10 @@ template<> struct string_traits<char const *>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  /// @warning The string's lifetime depends on the original.
+  /// @warning The string's lifetime depends on the original!
+  /** When the original string that you're converting becmoes invalid in any
+   * way, so does the pointer that you get from this.
+   */
   static char const *from_string(std::string_view text) { return text.data(); }
 
   static zview to_buf(char *begin, char *end, char const *const &value)
@@ -708,7 +711,7 @@ template<> struct string_traits<zview>
   }
 
   /// Don't convert to this type.  There may not be a terminating zero.
-  /** There is no validway to figure out here whether there is a terminating
+  /** There is no valid way to figure out here whether there is a terminating
    * zero.  Even if there is one, that may just be the first byte of an
    * entirely separately allocated piece of memory.
    */
