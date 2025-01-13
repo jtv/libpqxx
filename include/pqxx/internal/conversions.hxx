@@ -103,53 +103,26 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
   std::memmove(begin, text.data(), len);
   return begin + len;
 }
-} // namespace pqxx::internal
-
-
-namespace pqxx
-{
-/// The built-in arithmetic types do not have inherent null values.
-/** Not-a-Number values (or NaNs for short) behave a lot like an SQL null, but
- * they are not nulls.  A non-null SQL float can be NaN.
- */
-template<typename T>
-struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
-{};
-
-
-/// String traits for builtin integer types.
-/** This does not cover `bool` or (unlike `std::integral`) the `char` types.
- */
-template<pqxx::internal::integer T> struct string_traits<T>
-{
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-  static PQXX_LIBEXPORT T from_string(std::string_view text);
-  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
-  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
-
-  static constexpr std::size_t size_buffer(T const &) noexcept
-  {
-    /** Includes a sign if needed; the number of base-10 digits which the type
-     * can reliably represent; the one extra base-10 digit which the type can
-     * only partially represent; and the terminating zero.
-     */
-    return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1;
-  }
-};
-
-
-template<pqxx::internal::integer T>
-inline constexpr bool is_unquoted_safe<T>{true};
 
 
 /// String traits for builtin floating-point types.
-template<std::floating_point T> struct string_traits<T>
+/** It _would_ make sense to define this directly as the definition for
+ * `pqxx::string_traits<T>` where `T` is a `std::floating_point`.  However
+ * Viual Studio 2022 does not seem to accept that syntax.
+ *
+ * So instead, we create a separate base class for `std::floating_point` types
+ * and then derive specialisatinos of `pqxx::string_traits` from that.
+ */
+template<std::floating_point T> struct float_string_traits
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
+
   static PQXX_LIBEXPORT T from_string(std::string_view text);
-  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
+
+  static PQXX_LIBEXPORT
+  pqxx::zview to_buf(char *begin, char *end, T const &value);
+
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
   // Return a nonnegative integral value's number of decimal digits.
@@ -203,10 +176,57 @@ template<std::floating_point T> struct string_traits<T>
            1;                                     // Terminating zero.
   }
 };
+} // namespace pqxx::internal
 
 
+namespace pqxx
+{
+/// The built-in arithmetic types do not have inherent null values.
+/** Not-a-Number values (or NaNs for short) behave a lot like an SQL null, but
+ * they are not nulls.  A non-null SQL float can be NaN.
+ */
+template<typename T>
+struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
+{};
+
+
+/// String traits for builtin integer types.
+/** This does not cover `bool` or (unlike `std::integral`) the `char` types.
+ */
+template<pqxx::internal::integer T> struct string_traits<T>
+{
+  static constexpr bool converts_to_string{true};
+  static constexpr bool converts_from_string{true};
+  static PQXX_LIBEXPORT T from_string(std::string_view text);
+  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
+
+  static constexpr std::size_t size_buffer(T const &) noexcept
+  {
+    /** Includes a sign if needed; the number of base-10 digits which the type
+     * can reliably represent; the one extra base-10 digit which the type can
+     * only partially represent; and the terminating zero.
+     */
+    return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1;
+  }
+};
+
+
+template<pqxx::internal::integer T>
+inline constexpr bool is_unquoted_safe<T>{true};
 template<std::floating_point T>
 inline constexpr bool is_unquoted_safe<T>{true};
+
+
+template<>
+struct string_traits<float> : pqxx::internal::float_string_traits<float>
+{};
+template<>
+struct string_traits<double> : pqxx::internal::float_string_traits<double>
+{};
+template<>
+struct string_traits<long double> : pqxx::internal::float_string_traits<long double>
+{};
 
 
 template<> struct string_traits<bool>

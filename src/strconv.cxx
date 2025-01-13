@@ -146,7 +146,7 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
 
 namespace pqxx
 {
-template<pqxx::internal::integer T>
+template<pqxx::internal::integer T> inline
 // NOLINTNEXTLINE(readability-non-const-parameter)
 zview string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
@@ -174,22 +174,7 @@ zview string_traits<T>::to_buf(char *begin, char *end, T const &value)
 }
 
 
-template zview string_traits<short>::to_buf(char *, char *, short const &);
-template zview string_traits<unsigned short>::to_buf(
-  char *, char *, unsigned short const &);
-template zview string_traits<int>::to_buf(char *, char *, int const &);
-template zview
-string_traits<unsigned>::to_buf(char *, char *, unsigned const &);
-template zview string_traits<long>::to_buf(char *, char *, long const &);
-template zview
-string_traits<unsigned long>::to_buf(char *, char *, unsigned long const &);
-template zview
-string_traits<long long>::to_buf(char *, char *, long long const &);
-template zview string_traits<unsigned long long>::to_buf(
-  char *, char *, unsigned long long const &);
-
-
-template<pqxx::internal::integer T>
+template<pqxx::internal::integer T> inline
 char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
@@ -198,19 +183,14 @@ char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 }
 
 
-template char *string_traits<short>::into_buf(char *, char *, short const &);
-template char *string_traits<unsigned short>::into_buf(
-  char *, char *, unsigned short const &);
-template char *string_traits<int>::into_buf(char *, char *, int const &);
-template char *
-string_traits<unsigned>::into_buf(char *, char *, unsigned const &);
-template char *string_traits<long>::into_buf(char *, char *, long const &);
-template char *string_traits<unsigned long>::into_buf(
-  char *, char *, unsigned long const &);
-template char *
-string_traits<long long>::into_buf(char *, char *, long long const &);
-template char *string_traits<unsigned long long>::into_buf(
-  char *, char *, unsigned long long const &);
+template struct string_traits<short>;
+template struct string_traits<unsigned short>;
+template struct string_traits<int>;
+template struct string_traits<unsigned>;
+template struct string_traits<long>;
+template struct string_traits<unsigned long>;
+template struct string_traits<long long>;
+template struct string_traits<unsigned long long>;
 } // namespace pqxx
 
 
@@ -307,12 +287,9 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
   else
     throw pqxx::conversion_error{base + ": " + msg};
 }
-} // namespace
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
   return text == "inf" or text == "infinity" or text == "INFINITY" or
@@ -416,67 +393,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 
   return result;
 }
-} // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
-
-
-namespace pqxx
-{
-/// Floating-point to_buf implemented in terms of to_string.
-template<std::floating_point T>
-zview string_traits<T>::to_buf(char *begin, char *end, T const &value)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  {
-    // Definitely prefer to let the standard library handle this!
-    auto const ptr{wrap_to_chars(begin, end, value)};
-    return zview{begin, std::size_t(ptr - begin - 1)};
-  }
-#else
-  {
-    // Implement it ourselves.  Weird detail: since this workaround is based on
-    // std::stringstream, which produces a std::string, it's actually easier to
-    // build the to_buf() on top of the to_string() than the other way around.
-    if (std::isnan(value))
-      return "nan"_zv;
-    if (std::isinf(value))
-      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
-    auto text{to_string_float(value)};
-    auto have{end - begin};
-    auto need{std::size(text) + 1};
-    if (need > std::size_t(have))
-      throw conversion_error{
-        "Could not convert floating-point number to string: "
-        "buffer too small.  " +
-        state_buffer_overrun(have, need)};
-    text.copy(begin, need);
-    return zview{begin, std::size(text)};
-  }
-#endif
-}
-
-
-template zview string_traits<float>::to_buf(char *, char *, float const &);
-template zview string_traits<double>::to_buf(char *, char *, double const &);
-template zview
-string_traits<long double>::to_buf(char *, char *, long double const &);
-
-
-template<std::floating_point T>
-char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return wrap_to_chars(begin, end, value);
-#else
-  return generic_into_buf(begin, end, value);
-#endif
-}
-
-
-template char *string_traits<float>::into_buf(char *, char *, float const &);
-template char *string_traits<double>::into_buf(char *, char *, double const &);
-template char *
-string_traits<long double>::into_buf(char *, char *, long double const &);
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -525,6 +442,67 @@ template<typename T> std::string to_string_float(T value)
   }
 #endif
 }
+
+
+template<std::floating_point T>
+T float_string_traits<T>::from_string(std::string_view text)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+    return from_string_arithmetic<T>(text);
+#else
+    return from_string_awful_float<T>(text);
+#endif
+}
+
+
+template<std::floating_point T>
+zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  {
+    // Definitely prefer to let the standard library handle this!
+    auto const ptr{wrap_to_chars(begin, end, value)};
+    return zview{begin, std::size_t(ptr - begin - 1)};
+  }
+#else
+  {
+    // Implement it ourselves.  Weird detail: since this workaround is based
+    // on std::stringstream, which produces a std::string, it's actually
+    // easier to build the to_buf() on top of the to_string() than the other
+    // way around.
+    if (std::isnan(value))
+      return "nan"_zv;
+    if (std::isinf(value))
+      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
+    auto text{to_string_float(value)};
+    auto have{end - begin};
+    auto need{std::size(text) + 1};
+    if (need > std::size_t(have))
+      throw conversion_error{
+        "Could not convert floating-point number to string: "
+        "buffer too small.  " +
+        state_buffer_overrun(have, need)};
+    text.copy(begin, need);
+    return zview{begin, std::size(text)};
+  }
+#endif
+}
+
+
+template<std::floating_point T>
+char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  return wrap_to_chars(begin, end, value);
+#else
+  return generic_into_buf(begin, end, value);
+#endif
+}
+
+
+template struct float_string_traits<float>;
+template struct float_string_traits<double>;
+template struct float_string_traits<long double>;
 } // namespace pqxx::internal
 
 
@@ -547,22 +525,6 @@ template unsigned long
 template long long string_traits<long long>::from_string(std::string_view);
 template unsigned long long
   string_traits<unsigned long long>::from_string(std::string_view);
-
-
-template<std::floating_point T>
-T string_traits<T>::from_string(std::string_view text)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text);
-#else
-  return from_string_awful_float<T>(text);
-#endif
-}
-
-
-template float string_traits<float>::from_string(std::string_view);
-template double string_traits<double>::from_string(std::string_view);
-template long double string_traits<long double>::from_string(std::string_view);
 } // namespace pqxx
 
 
