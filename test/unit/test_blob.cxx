@@ -183,7 +183,6 @@ template<typename BYTE> inline unsigned byte_val(BYTE val)
 
 void test_blob_read_span()
 {
-#if defined(PQXX_HAVE_SPAN)
   pqxx::bytes const data{std::byte{'u'}, std::byte{'v'}, std::byte{'w'},
                          std::byte{'x'}, std::byte{'y'}, std::byte{'z'}};
 
@@ -230,7 +229,6 @@ void test_blob_read_span()
   output2 = b.read(vec_buf);
   PQXX_CHECK_EQUAL(std::size(output2), 1u, "Weird things happened at EOF.");
   PQXX_CHECK_EQUAL(byte_val(output2[0]), byte_val('z'), "Bad data at EOF.");
-#endif // PQXX_HAVE_SPAN
 }
 
 
@@ -286,7 +284,6 @@ void test_blob_write_appends_at_insertion_point()
 
 void test_blob_writes_span()
 {
-#if defined(PQXX_HAVE_SPAN)
   pqxx::connection cx;
   pqxx::work tx{cx};
   constexpr char content[]{"gfbltk"};
@@ -307,7 +304,6 @@ void test_blob_writes_span()
     byte_val(out[0]), byte_val('f'), "Data did not come back right.");
   PQXX_CHECK_EQUAL(
     byte_val(out[2]), byte_val('l'), "Data started right, ended wrong!");
-#endif // PQXX_HAVE_SPAN
 }
 
 

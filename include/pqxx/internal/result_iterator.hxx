@@ -40,7 +40,6 @@ public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Create an iterator, but in an unusable state.
   const_result_iterator() noexcept = default;
   /// Copy an iterator.
@@ -50,7 +49,6 @@ public:
 
   /// Begin iterating a @ref row.
   const_result_iterator(row const &t) noexcept : row{t} {}
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /**
    * @name Dereferencing operators
@@ -69,10 +67,8 @@ public:
   /// Dereference the iterator.
   [[nodiscard]] pointer operator->() const { return this; }
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   /// Dereference the iterator.
   [[nodiscard]] reference operator*() const { return *this; }
-#include "pqxx/internal/ignore-deprecated-post.hxx"
   //@}
 
   /**
@@ -93,17 +89,13 @@ public:
   //@{
   const_result_iterator &operator=(const_result_iterator const &rhs)
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     row::operator=(rhs);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
     return *this;
   }
 
   const_result_iterator &operator=(const_result_iterator &&rhs)
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
     row::operator=(std::move(rhs));
-#include "pqxx/internal/ignore-deprecated-post.hxx"
     return *this;
   }
 

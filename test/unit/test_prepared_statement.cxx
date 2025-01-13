@@ -177,16 +177,6 @@ void test_binary()
   constexpr char raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
   std::string const input{raw_bytes, std::size(raw_bytes)};
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  {
-    pqxx::binarystring const bin{input};
-    auto rw{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{bin}).one_row()};
-    PQXX_CHECK_EQUAL(
-      pqxx::binarystring(rw[0]).str(), input,
-      "Binary string came out damaged.");
-  }
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-
   {
     pqxx::bytes bytes{
       reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes)};
@@ -226,7 +216,6 @@ void test_binary()
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 
-#if defined(PQXX_HAVE_CONCEPTS)
   // By the way, it doesn't have to be a pqxx::bytes.  Any contiguous range
   // will do.
   {
@@ -238,7 +227,6 @@ void test_binary()
     PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'), "Wrong data.");
     PQXX_CHECK_EQUAL(static_cast<int>(oval[1]), int('v'), "Wrong data.");
   }
-#endif
 }
 
 

@@ -34,7 +34,7 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
-  return {*this, m_begin};
+  return {*this, 0};
 }
 
 
@@ -58,7 +58,7 @@ pqxx::row::const_iterator pqxx::row::cend() const noexcept
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-  return field{m_result, m_index, m_begin};
+  return field{m_result, m_index, 0};
 }
 
 
@@ -108,7 +108,7 @@ bool pqxx::row::operator==(row const &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-  return field{m_result, m_index, m_begin + i};
+  return field{m_result, m_index, i};
 }
 
 
@@ -121,21 +121,18 @@ pqxx::row::reference pqxx::row::operator[](zview col_name) const
 void pqxx::row::swap(row &rhs) noexcept
 {
   auto const i{m_index};
-  auto const b{m_begin};
   auto const e{m_end};
   m_result.swap(rhs.m_result);
   m_index = rhs.m_index;
-  m_begin = rhs.m_begin;
   m_end = rhs.m_end;
   rhs.m_index = i;
-  rhs.m_begin = b;
   rhs.m_end = e;
 }
 
 
 pqxx::field pqxx::row::at(zview col_name) const
 {
-  return {m_result, m_index, m_begin + column_number(col_name)};
+  return {m_result, m_index, column_number(col_name)};
 }
 
 
@@ -150,60 +147,25 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i) const
 
 pqxx::oid pqxx::row::column_type(size_type col_num) const
 {
-  return m_result.column_type(m_begin + col_num);
+  return m_result.column_type(col_num);
 }
 
 
 pqxx::oid pqxx::row::column_table(size_type col_num) const
 {
-  return m_result.column_table(m_begin + col_num);
+  return m_result.column_table(col_num);
 }
 
 
 pqxx::row::size_type pqxx::row::table_column(size_type col_num) const
 {
-  return m_result.table_column(m_begin + col_num);
+  return m_result.table_column(col_num);
 }
 
 
 pqxx::row::size_type pqxx::row::column_number(zview col_name) const
 {
-  auto const n{m_result.column_number(col_name)};
-  if (n >= m_end)
-    throw argument_error{
-      "Column '" + std::string{col_name} + "' falls outside slice."};
-  if (n >= m_begin)
-    return n - m_begin;
-
-  // This deals with a really nasty possibility: that the column name occurs
-  // twice - once before the beginning of the slice, and once inside the slice.
-  char const *const adapted_name{m_result.column_name(n)};
-  for (auto i{m_begin}; i < m_end; ++i)
-    if (strcmp(adapted_name, m_result.column_name(i)) == 0)
-      return i - m_begin;
-
-  // Didn't find any?  Recurse just to produce the same error message.
-  return result{}.column_number(col_name);
-}
-
-
-pqxx::row PQXX_COLD pqxx::row::slice(size_type sbegin, size_type send) const
-{
-  if (sbegin > send or send > size())
-    throw range_error{"Invalid field range."};
-
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  row res{*this};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  res.m_begin = m_begin + sbegin;
-  res.m_end = m_begin + send;
-  return res;
-}
-
-
-bool PQXX_COLD pqxx::row::empty() const noexcept
-{
-  return m_begin == m_end;
+  return m_result.column_number(col_name);
 }
 
 

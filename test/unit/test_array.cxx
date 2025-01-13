@@ -687,8 +687,7 @@ void test_array_iterates_in_row_major_order()
   PQXX_CHECK_EQUAL(*array.crbegin(), 9, "Bad crbegin().");
   PQXX_CHECK_EQUAL(*(array.crend() - 1), 1, "Bad crend().");
   PQXX_CHECK_EQUAL(std::size(array), 9u, "Bad array size.");
-  // C++20: Use std::ssize() instead.
-  PQXX_CHECK_EQUAL(array.ssize(), 9, "Bad array ssize().");
+  PQXX_CHECK_EQUAL(std::ssize(array), 9, "Bad array ssize().");
   PQXX_CHECK_EQUAL(array.front(), 1, "Bad front().");
   PQXX_CHECK_EQUAL(array.back(), 9, "Bad back().");
 }
