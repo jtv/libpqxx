@@ -541,7 +541,8 @@ template<typename T> std::string to_string_float(T value)
 
 namespace pqxx::internal
 {
-template<std::integral T> T integral_traits<T>::from_string(std::string_view text)
+template<std::integral T>
+T integral_traits<T>::from_string(std::string_view text)
 {
   return from_string_arithmetic<T>(text);
 }
