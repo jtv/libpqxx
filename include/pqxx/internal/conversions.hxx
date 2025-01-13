@@ -120,8 +120,8 @@ template<std::floating_point T> struct float_string_traits
 
   static PQXX_LIBEXPORT T from_string(std::string_view text);
 
-  static PQXX_LIBEXPORT
-  pqxx::zview to_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT pqxx::zview
+  to_buf(char *begin, char *end, T const &value);
 
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
@@ -225,7 +225,8 @@ template<>
 struct string_traits<double> : pqxx::internal::float_string_traits<double>
 {};
 template<>
-struct string_traits<long double> : pqxx::internal::float_string_traits<long double>
+struct string_traits<long double>
+        : pqxx::internal::float_string_traits<long double>
 {};
 
 
@@ -670,10 +671,7 @@ template<> struct string_traits<std::string_view>
   }
 
   /// Don't convert to this type; it has nowhere to store its contents.
-  static std::string_view from_string(std::string_view value)
-  {
-    return value;
-  }
+  static std::string_view from_string(std::string_view value) { return value; }
 };
 
 
@@ -1055,7 +1053,8 @@ public:
 
 namespace pqxx
 {
-template<nonbinary_range T> struct nullness<T> : no_null<T> {};
+template<nonbinary_range T> struct nullness<T> : no_null<T>
+{};
 
 
 template<nonbinary_range T>
@@ -1064,16 +1063,14 @@ struct string_traits<T> : internal::array_string_traits<T>
 
 
 /// We don't know how to pass array params in binary format, so pass as text.
-template<nonbinary_range T>
-inline constexpr format param_format(T const &)
+template<nonbinary_range T> inline constexpr format param_format(T const &)
 {
   return format::text;
 }
 
 
 /// A contiguous range of `std::byte` is a binary string; other ranges are not.
-template<binary T>
-inline constexpr format param_format(T const &)
+template<binary T> inline constexpr format param_format(T const &)
 {
   return format::binary;
 }

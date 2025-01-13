@@ -146,9 +146,11 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
 
 namespace pqxx
 {
-template<pqxx::internal::integer T> inline
-// NOLINTNEXTLINE(readability-non-const-parameter)
-zview string_traits<T>::to_buf(char *begin, char *end, T const &value)
+template<pqxx::internal::integer T>
+inline
+  // NOLINTNEXTLINE(readability-non-const-parameter)
+  zview
+  string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
   auto const space{end - begin},
@@ -174,8 +176,8 @@ zview string_traits<T>::to_buf(char *begin, char *end, T const &value)
 }
 
 
-template<pqxx::internal::integer T> inline
-char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
+template<pqxx::internal::integer T>
+inline char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
@@ -406,7 +408,7 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
   return s.str();
 }
 #endif
-} // namespace pqxx
+} // namespace
 
 
 namespace pqxx::internal
@@ -448,9 +450,9 @@ template<std::floating_point T>
 T float_string_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-    return from_string_arithmetic<T>(text);
+  return from_string_arithmetic<T>(text);
 #else
-    return from_string_awful_float<T>(text);
+  return from_string_awful_float<T>(text);
 #endif
 }
 

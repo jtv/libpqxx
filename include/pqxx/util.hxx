@@ -469,8 +469,7 @@ void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-template<binary T>
-inline void esc_bin(T &&binary_data, char buffer[]) noexcept
+template<binary T> inline void esc_bin(T &&binary_data, char buffer[]) noexcept
 {
   esc_bin(binary_cast(binary_data), buffer);
 }

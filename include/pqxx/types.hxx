@@ -112,15 +112,18 @@ concept potential_binary =
 template<typename T>
 concept binary =
   std::ranges::contiguous_range<T> and
-  std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte>;
+  std::same_as<
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte>;
 
 
 /// A series of something that's not bytes.
 template<typename T>
 concept nonbinary_range =
   std::ranges::range<T> and
-  not std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
-  not std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
+  not std::same_as<
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
+  not std::same_as<
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
 
 
 /// Marker for @ref stream_from constructors: "stream from table."
@@ -141,15 +144,15 @@ namespace pqxx::internal
 {
 /// Concept: one of the "char" types.
 template<typename T>
-concept char_type =
-  std::same_as<std::remove_cv_t<T>, char> or
-  std::same_as<std::remove_cv_t<T>, signed char> or
-  std::same_as<std::remove_cv_t<T>, unsigned char>;
+concept char_type = std::same_as<std::remove_cv_t<T>, char> or
+                    std::same_as<std::remove_cv_t<T>, signed char> or
+                    std::same_as<std::remove_cv_t<T>, unsigned char>;
 
 
 /// Concept: an integral number type.
 /** Unlike `std::integral`, this does not include the `char` types.
  */
-template<typename T> concept integer = std::integral<T> and not char_type<T>;
+template<typename T>
+concept integer = std::integral<T> and not char_type<T>;
 } // namespace pqxx::internal
 #endif
