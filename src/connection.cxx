@@ -641,10 +641,10 @@ int pqxx::connection::get_notifs()
     auto const handler{m_notification_handlers.find(N->relname)};
     if (handler != std::end(m_notification_handlers))
       (handler->second)(notification{
-        .conn=*this,
-	.channel=channel,
-	.payload=N->extra,
-	.backend_pid=N->be_pid,
+        .conn = *this,
+        .channel = channel,
+        .payload = N->extra,
+        .backend_pid = N->be_pid,
       });
 
     N.reset();
