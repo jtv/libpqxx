@@ -673,7 +673,6 @@ template<> struct string_traits<std::string_view>
     return generic_to_buf(begin, end, value);
   }
 
-  /// Don't convert to this type; it has nowhere to store its contents.
   static std::string_view from_string(std::string_view value) { return value; }
 };
 
