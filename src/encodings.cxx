@@ -136,8 +136,8 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
     case 'U':
       if (encoding_name == "UHC"sv)
         return pqxx::internal::encoding_group::UHC;
-      else if (encoding_name == "UTF8"sv)
-        [[likely]] return pqxx::internal::encoding_group::UTF8;
+      else if (encoding_name == "UTF8"sv) [[likely]]
+        return pqxx::internal::encoding_group::UTF8;
       [[unlikely]] break;
     case 'W':
       if (encoding_name.substr(0, 3) == "WIN"sv)
