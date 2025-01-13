@@ -442,8 +442,7 @@ void test_sparse_arrays()
   // problems in sparse arrays.
 
   // If NULL didn't pay for its separator, the size allocated for an array-like
-  // object filled with null-like values would be too small when array size is
-  // >= 4.
+  // object filled with null-like values would be too small.
 
   auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
   std::string arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
