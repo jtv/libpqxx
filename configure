@@ -17245,9 +17245,19 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-void foo()
+#include <iostream>
+
+
+
+
+
+void foo(int i)
 
 {
+
+  [[assume(i > 0)]];
+
+  std::cout << i << '\n';
 
 }
 
@@ -17587,7 +17597,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-#if ! __has_cpp_attribute(likely)
+#if !__has_cpp_attribute(likely)
 
 #  error "No support for [[likely]] / [[unlikely]] attributes."
 
@@ -17595,11 +17605,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-void foo()
-
-{
-
-}
+void foo() {}
 
 
 _ACEOF

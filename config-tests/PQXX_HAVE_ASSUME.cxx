@@ -2,4 +2,11 @@
 #  error "No support for [[assume]] attribute."
 #endif
 
-void foo() {}
+#include <iostream>
+
+
+void foo(int i)
+{
+  [[assume(i > 0)]];
+  std::cout << i << '\n';
+}
