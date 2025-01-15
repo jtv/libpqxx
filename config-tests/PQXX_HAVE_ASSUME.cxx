@@ -1,5 +1,12 @@
-int main(int argc, char **argv)
+#if !__has_cpp_attribute(assume)
+#  error "No support for [[assume]] attribute."
+#endif
+
+#include <iostream>
+
+
+void foo(int i)
 {
-  [[assume(argv != nullptr)]];
-  return argc - 1;
+  [[assume(i > 0)]];
+  std::cout << i << '\n';
 }
