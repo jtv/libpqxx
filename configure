@@ -17237,13 +17237,17 @@ printf %s "checking PQXX_HAVE_ASSUME... " >&6; }
 PQXX_HAVE_ASSUME=yes
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-int main(int argc, char **argv)
+#if !__has_cpp_attribute(assume)
+
+#  error "No support for [[assume]] attribute."
+
+#endif
+
+
+
+void foo()
 
 {
-
-  [[assume(argv != nullptr)]];
-
-  return argc - 1;
 
 }
 
@@ -17583,29 +17587,17 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-int main(int argc, char **)
+#if ! __has_cpp_attribute(likely)
 
-{
-
-#if __cplusplus < 202002L
-
-  deliberately_fail(because, older, C++, standard);
+#  error "No support for [[likely]] / [[unlikely]] attributes."
 
 #endif
 
 
 
-  int x = 0;
+void foo()
 
-  if (argc == 1) [[likely]]
-
-    x = 0;
-
-  else
-
-    x = 1;
-
-  return x;
+{
 
 }
 

@@ -1,5 +1,5 @@
-int main(int argc, char **argv)
-{
-  [[assume(argv != nullptr)]];
-  return argc - 1;
-}
+#if !__has_cpp_attribute(assume)
+#  error "No support for [[assume]] attribute."
+#endif
+
+void foo() {}
