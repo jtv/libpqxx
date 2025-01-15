@@ -17605,7 +17605,15 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-void foo() {}
+int foo(int i)
+
+{
+
+  if (i > 0) [[likely]] return 100;
+
+  else return 0;
+
+}
 
 
 _ACEOF

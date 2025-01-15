@@ -5,4 +5,10 @@
 #  error "No support for [[likely]] / [[unlikely]] attributes."
 #endif
 
-void foo() {}
+int foo(int i)
+{
+  if (i > 0) [[likely]]
+    return 100;
+  else
+    return 0;
+}
