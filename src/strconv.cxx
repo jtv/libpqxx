@@ -229,20 +229,34 @@ std::string demangle_type_name(char const raw[])
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   // We've got __cxa_demangle.  Use it to get a friendlier type name.
   int status{0};
+  std::size_t len{0};
 
   // We've seen this fail on FreeBSD 11.3 (see #361).  Trying to throw a
   // meaningful exception only made things worse.  So in case of error, just
   // fall back to the raw name.
   //
   // When __cxa_demangle fails, it's guaranteed to return null.
-  std::unique_ptr<char, void (*)(char *)> const demangled{
-    abi::__cxa_demangle(raw, nullptr, nullptr, &status),
-    // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
-    [](char *x) { std::free(x); }};
-#else
-  std::unique_ptr<char> demangled{};
+  char *str{abi::__cxa_demangle(raw, nullptr, &len, &status)};
+
+  if (str)
+  {
+    try
+    {
+      std::string out{str, len};
+      // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
+      std::free(str);
+      str = nullptr;
+      return out;
+    }
+    catch (std::exception const &)
+    {
+      // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
+      std::free(str);
+      throw;
+    }
+  }
 #endif
-  return std::string{demangled ? demangled.get() : raw};
+  return raw;
 }
 
 

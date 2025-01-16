@@ -145,7 +145,8 @@ void create_pqxxevents(transaction_base &t)
 
 namespace
 {
-std::map<std::string const, pqxx::test::testfunc> *all_tests{nullptr};
+std::vector<std::string_view> *all_test_names{nullptr};
+std::vector<pqxx::test::testfunc> *all_test_funcs{nullptr};
 } // namespace
 
 
@@ -153,55 +154,67 @@ namespace pqxx::test
 {
 void register_test(char const name[], pqxx::test::testfunc func)
 {
-  if (all_tests == nullptr)
+  if (all_test_names == nullptr)
   {
-    all_tests = new std::map<std::string const, pqxx::test::testfunc>();
+    assert(all_test_funcs == nullptr);
+    all_test_names = new std::vector<std::string_view>;
+    all_test_funcs = new std::vector<pqxx::test::testfunc>;
+    all_test_names->reserve(1000);
+    all_test_funcs->reserve(1000);
   }
-  else
-  {
-    assert(all_tests->find(name) == all_tests->end());
-  }
-  (*all_tests)[name] = func;
+  all_test_names->emplace_back(name);
+  all_test_funcs->emplace_back(func);
 }
 } // namespace pqxx::test
 
 
 int main(int argc, char const *argv[])
 {
-  char const *const test_name{(argc > 1) ? argv[1] : nullptr};
+  // TODO: Accept multiple names.
+  std::string_view test_name;
+  if (argc > 1) test_name = argv[1];
+
+  auto const num_tests{std::size(*all_test_names)};
+  std::map<std::string_view, pqxx::test::testfunc> all_tests;
+  for (std::size_t idx{0}; idx < num_tests; ++idx)
+  {
+    auto const name{all_test_names->at(idx)};
+    // C++20: Use std::map::contains().
+    assert(all_tests.find(name) == std::end(all_tests));
+    all_tests.emplace(name, all_test_funcs->at(idx));
+  }
 
   int test_count = 0;
-  std::list<std::string> failed;
-  for (auto const &i : *all_tests)
-    if (test_name == nullptr or std::string{test_name} == std::string{i.first})
+  std::vector<std::string> failed;
+  for (auto const [name, func] : all_tests)
+    if ((test_name.empty()) or (name == test_name))
     {
-      std::cout << std::endl << "Running: " << i.first << std::endl;
+      std::cout << std::endl << "Running: " << name << '\n';
 
-      bool success = false;
+      bool success{false};
       try
       {
-        i.second();
+        func();
         success = true;
       }
       catch (pqxx::test::test_failure const &e)
       {
         std::cerr << "Test failure in " << e.file() << " line "
                   << pqxx::to_string(e.line()) << ": " << e.what()
-                  << std::endl;
+                  << '\n';
       }
       catch (std::bad_alloc const &)
       {
-        std::cerr << "Out of memory!" << std::endl;
+        std::cerr << "Out of memory!\n";
       }
       catch (pqxx::feature_not_supported const &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what() << '\n';
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-        std::string func{e.location.function_name()};
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();
-        if (not func.empty())
-          std::cerr << " in " << e.location.function_name();
+        if (not name.empty())
+          std::cerr << " in " << name;
         std::cerr << ")\n";
 #endif
         success = true;
@@ -211,28 +224,27 @@ int main(int argc, char const *argv[])
       {
         std::cerr << "SQL error: " << e.what() << '\n';
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
-        std::string func{e.location.function_name()};
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();
-        if (not func.empty())
-          std::cerr << " in " << e.location.function_name();
+        if (not name.empty())
+          std::cerr << " in " << name;
         std::cerr << ")\n";
 #endif
-        std::cerr << "Query was: " << e.query() << std::endl;
+        std::cerr << "Query was: " << e.query() << '\n';
       }
       catch (std::exception const &e)
       {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cerr << "Exception: " << e.what() << '\n';
       }
       catch (...)
       {
-        std::cerr << "Unknown exception" << std::endl;
+        std::cerr << "Unknown exception.\n";
       }
 
       if (not success)
       {
-        std::cerr << "FAILED: " << i.first << std::endl;
-        failed.emplace_back(i.first);
+        std::cerr << "FAILED: " << name << '\n';
+        failed.emplace_back(name);
       }
       ++test_count;
     }
