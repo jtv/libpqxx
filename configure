@@ -17609,9 +17609,13 @@ int foo(int i)
 
 {
 
-  if (i > 0) [[likely]] return 100;
+  if (i > 0) [[likely]]
 
-  else return 0;
+    return 100;
+
+  else
+
+    return 0;
 
 }
 
