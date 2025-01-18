@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option(BUILD_DOC "Build documentation" OFF)
 
-if(NOT SKIP_BUILD_TEST)
+if(NOT SKIP_BUILD_TEST AND CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     option(BUILD_TEST "Build all test cases" ON)
 endif()
 
