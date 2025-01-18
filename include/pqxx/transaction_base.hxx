@@ -513,6 +513,7 @@ public:
       return {};
   }
 
+  // C++20: Update requirements for field types.
   /// Execute a query, in streaming fashion; loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
@@ -569,15 +570,6 @@ public:
   [[nodiscard]] auto stream(std::string_view query) &
   {
     return pqxx::internal::stream_query<TYPE...>{*this, query};
-  }
-
-  /// Execute a query, in streaming fashion; loop over the results row by row.
-  /** Like @ref stream(std::string_view), but with parameters.
-   */
-  template<typename... TYPE>
-  [[nodiscard]] auto stream(std::string_view query, params parms) &
-  {
-    return pqxx::internal::stream_query<TYPE...>{*this, query, parms};
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
