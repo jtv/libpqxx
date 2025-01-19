@@ -4,6 +4,7 @@
  - **Beware lifetime** when "converting" a string to `std::string_view`!
  - Conversion from string to `char const *` is no longer allowed.
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
+ - Generic `quote()` takes `always_null` into account.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
  - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.
