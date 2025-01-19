@@ -12,9 +12,7 @@ void test_result_iteration()
   pqxx::connection cx;
   pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
-#if defined(PQXX_HAVE_CONCEPTS)
   static_assert(std::forward_iterator<decltype(r.begin())>);
-#endif
 
   PQXX_CHECK(std::end(r) != std::begin(r), "Broken begin/end.");
   PQXX_CHECK(std::rend(r) != std::rbegin(r), "Broken rbegin/rend.");

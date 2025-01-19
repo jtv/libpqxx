@@ -322,13 +322,13 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  if (m_finished) [[unlikely]]
+    return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
   parse_line();
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  if (m_finished) [[unlikely]]
+    return *this;
 
   if (std::size(m_fields) != tup_size)
     throw usage_error{internal::concat(
@@ -343,7 +343,7 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 template<typename Tuple, std::size_t index>
 inline void stream_from::extract_value(Tuple &t) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   using nullity = nullness<field_type>;
   assert(index < std::size(m_fields));
   if constexpr (nullity::always_null)

@@ -24,19 +24,16 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string_view>
 #include <tuple>
 #include <utility>
-
-// Double-check in order to suppress an overzealous Visual C++ warning (#418).
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#  include <ranges>
-#endif
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/concat.hxx"
 #include "pqxx/params.hxx"
+#include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
@@ -80,7 +77,6 @@ namespace pqxx::internal
 {
 class sql_cursor;
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
@@ -88,7 +84,6 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
   { std::get<0>(*std::cbegin(t)) } -> ZString;
   { std::get<1>(*std::cbegin(t)) } -> ZString;
 } and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
-#endif // PQXX_HAVE_CONCEPTS
 
 
 /// Control OpenSSL/crypto library initialisation.
@@ -301,12 +296,8 @@ public:
    */
   connection(connection &&rhs);
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Connect to a database, passing options as a range of key/value pairs.
-  /** @warning Experimental.  Requires C++20 "concepts" support.  Define
-   * `PQXX_HAVE_CONCEPTS` to enable it.
-   *
-   * There's no need to escape the parameter values.
+  /** There's no need to escape the parameter values.
    *
    * See the PostgreSQL libpq documentation for the full list of possible
    * options:
@@ -320,7 +311,6 @@ public:
    */
   template<internal::ZKey_ZValues MAPPING>
   inline connection(MAPPING const &params);
-#endif // PQXX_HAVE_CONCEPTS
 
   ~connection()
   {
@@ -823,7 +813,6 @@ public:
 
   //@}
 
-  // C++20: constexpr.  Breaks ABI.
   /// Suffix unique number to name to make it unique within session context.
   /** Used internally to generate identifiers for SQL objects (such as cursors
    * and nested transactions) based on a given human-readable base name.
@@ -841,7 +830,6 @@ public:
     return esc(std::string_view{text});
   }
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -866,7 +854,6 @@ public:
     auto const data{buffer.data()};
     return {data, esc_to_buf(text, data)};
   }
-#endif
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This is meant for text strings only.  It cannot contain bytes
@@ -874,16 +861,13 @@ public:
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
   /** This is identical to `esc_raw(data)`. */
   template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
   {
     return esc_raw(data);
   }
-#endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** Use this variant when you want to re-use the same buffer across multiple
    * calls.  If that's not the case, or convenience and simplicity are more
@@ -913,23 +897,15 @@ public:
     internal::esc_bin(view, out);
     return zview{out, needed - 1};
   }
-#endif
-
-  /// Escape binary string for use as SQL string literal on this connection.
-  [[deprecated("Use std::byte for binary data.")]] std::string
-  esc_raw(unsigned char const bin[], std::size_t len) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
-#endif
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   template<binary DATA>
@@ -937,16 +913,13 @@ public:
   {
     return esc_raw(bytes_view{std::data(data), std::size(data)});
   }
-#endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
   /// Escape binary string for use as SQL string literal, into `buffer`.
   template<binary DATA>
   [[nodiscard]] zview esc_raw(DATA const &data, std::span<char> buffer) const
   {
     return this->esc(binary_cast(data), buffer);
   }
-#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Unescape binary data, e.g. from a `bytea` field.
@@ -968,7 +941,6 @@ public:
   /// Escape and quote a string of binary data.
   std::string quote_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_CONCEPTS)
   /// Escape and quote a string of binary data.
   /** You can also just use @ref quote with binary data. */
   template<binary DATA>
@@ -976,7 +948,6 @@ public:
   {
     return quote_raw(bytes_view{std::data(data), std::size(data)});
   }
-#endif
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote an SQL identifier for use in a query.
@@ -1010,7 +981,7 @@ public:
    * yourself.  It's a bit of extra work, but it can in rare cases let you
    * eliminate some duplicate work in quoting them repeatedly.
    */
-  template<PQXX_CHAR_STRINGS_ARG STRINGS>
+  template<pqxx::char_strings STRINGS>
   inline std::string quote_columns(STRINGS const &columns) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
@@ -1020,9 +991,6 @@ public:
    */
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t) const;
-
-  [[deprecated("Use std::byte for binary data.")]] std::string
-  quote(binarystring const &) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape and quote binary data for use as a BYTEA value in SQL statement.
@@ -1057,40 +1025,6 @@ public:
    */
   [[nodiscard]] std::string
   esc_like(std::string_view text, char escape_char = '\\') const;
-
-  /// Escape string for use as SQL string literal on this connection.
-  /** @warning This accepts a length, and it does not require a terminating
-   * zero byte.  But if there is a zero byte, escaping stops there even if
-   * it's not at the end of the string!
-   */
-  [[deprecated("Use std::string_view or pqxx:zview.")]] std::string
-  esc(char const text[], std::size_t maxlen) const
-  {
-    return esc(std::string_view{text, maxlen});
-  }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(zview text) const
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return unesc_raw(text.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(char const text[]) const;
-
-  /// Escape and quote a string of binary data.
-  [[deprecated("Use quote(bytes_view).")]] std::string
-  quote_raw(unsigned char const bin[], std::size_t len) const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.
@@ -1123,8 +1057,6 @@ public:
    * fields.
    */
   void set_verbosity(error_verbosity verbosity) & noexcept;
-
-  // C++20: Use std::callable.
 
   /// Set a notice handler to the connection.
   /** When a notice comes in (a warning or error message), the connection or
@@ -1352,10 +1284,6 @@ private:
 };
 
 
-/// @deprecated Old base class for connection.  They are now the same class.
-using connection_base = connection;
-
-
 /// An ongoing, non-blocking stepping stone to a connection.
 /** Use this when you want to create a connection to the database, but without
  * blocking your whole thread.   It is only available on systems that have
@@ -1455,14 +1383,13 @@ private:
 
 template<typename T> inline std::string connection::quote(T const &t) const
 {
-  if constexpr (nullness<T>::always_null)
+  // TODO: Can we leave the quotes out if unquoted_safe?
+  if (is_null(t))
   {
     return "NULL";
   }
   else
   {
-    if (is_null(t))
-      return "NULL";
     auto const text{to_string(t)};
 
     // Okay, there's an easy way to do this and there's a hard way.  The easy
@@ -1481,7 +1408,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
 }
 
 
-template<PQXX_CHAR_STRINGS_ARG STRINGS>
+template<pqxx::char_strings STRINGS>
 inline std::string connection::quote_columns(STRINGS const &columns) const
 {
   return separated_list(
@@ -1490,7 +1417,6 @@ inline std::string connection::quote_columns(STRINGS const &columns) const
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 template<internal::ZKey_ZValues MAPPING>
 inline connection::connection(MAPPING const &params)
 {
@@ -1511,24 +1437,6 @@ inline connection::connection(MAPPING const &params)
   keys.push_back(nullptr);
   values.push_back(nullptr);
   init(std::data(keys), std::data(values));
-}
-#endif // PQXX_HAVE_CONCEPTS
-
-
-/// Encrypt a password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] std::string
-  PQXX_LIBEXPORT
-  encrypt_password(char const user[], char const password[]);
-
-/// Encrypt password.  @deprecated Use connection::encrypt_password instead.
-[[nodiscard,
-  deprecated("Use connection::encrypt_password instead.")]] inline std::string
-encrypt_password(zview user, zview password)
-{
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return encrypt_password(user.c_str(), password.c_str());
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 } // namespace pqxx
 #endif

@@ -180,8 +180,8 @@ stream_query<TYPE...>::read_line() &
   {
     auto line{gate.read_copy_line()};
     // Check for completion.
-    if (not line.first)
-      PQXX_UNLIKELY close();
+    if (not line.first) [[unlikely]]
+      close();
     return line;
   }
   catch (std::exception const &)

@@ -12,8 +12,8 @@ You can "teach" libpqxx (in the scope of your own application) to convert
 additional types of values to and from PostgreSQL's string format.
 
 This is massively useful, but it's not for the faint of heart.  You'll need to
-specialise some templates.  And, **the API for doing this can change with any
-major libpqxx release.**
+specialise several templates.  And, **the API for doing this can change with
+any major libpqxx release.**
 
 If that happens, your code may fail to compile with the newer libpqxx version,
 and you'll have to go through the `NEWS` file to find the API changes.  Usually
@@ -107,12 +107,15 @@ namespace near the top of your translation unit, and pass the type as an
 argument.
 
 The library also provides specialisations for `std::optional<T>`,
-`std::shared_ptr<T>`, and `std::unique_ptr<T>`.  If you have conversions for
-`T`, you'll also automatically have conversions for those.
+`std::shared_ptr<T>`, and `std::unique_ptr<T>` (for any given `T`).  If you
+have conversions for `T`, you'll also automatically have conversions for those.
 
 
 Specialise `type_name`
 ----------------------
+
+(This is a feature that should disappear once we have introspection in the C++
+language.)
 
 When errors happen during conversion, libpqxx will compose error messages for
 the user.  Sometimes these will include the name of the type that's being
@@ -142,12 +145,16 @@ Specialise `nullness`
 ---------------------
 
 A struct template `pqxx::nullness` defines whether your type has a natural
-"null value" built in.  If so, it also provides member functions for producing
-and recognising null values.
+"null value" built in.  For example, a `std::optional` instantiation has a
+value that neatly maps to an SQL null: the un-initialised state.
+
+If your type has a value like that, its `pqxx::nullness` specialisation also
+provides member functions for producing and recognising null values.
 
 The simplest scenario is also the most common: most types don't have a null
 value built in.  There is no "null `int`" in C++.  In that kind of case, just
-derive your nullness traits from `pqxx::no_null` as a shorthand:
+derive your nullness traits from `pqxx::no_null` as a shorthand:  This tells
+libpqxx that your type has no null value of its own.
 
 ```cxx
     // T is your type.
@@ -196,9 +203,9 @@ where `NULL <> NULL`).  Or `T` may have multiple different null values.  Or `T`
 may override the comparison operator to behave in some unusual way.
 
 As a third case, your type may be one that _always_ represents a null value.
-This is the case for `std::nullptr_t` and `std::nullopt_t`.  In that case, you
-set `nullness<TYPE>::always_null` to `true` (as well as `has_null` of course),
-and you won't need to define any actual conversions.
+This is the case for `std::nullptr_t` and `std::nullopt_t`.  In a case like
+that, you set `nullness<TYPE>::always_null` to `true` (as well as `has_null`
+of course), and you won't need to define any actual conversions.
 
 
 Specialise `string_traits`

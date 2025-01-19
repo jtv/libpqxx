@@ -42,8 +42,8 @@ template<> struct nullness<TestErrorHandler *>
   // clang warns about these being unused.  And clang 6 won't accept a
   // [[maybe_unused]] attribute on them either!
 
-  // static inline constexpr bool has_null{true};
-  // static inline constexpr bool always_null{false};
+  [[maybe_unused]] static inline constexpr bool has_null{true};
+  static inline constexpr bool always_null{false};
 
   static constexpr bool is_null(TestErrorHandler *e) noexcept
   {
@@ -63,7 +63,7 @@ template<> struct string_traits<TestErrorHandler *>
   static char *into_buf(char *begin, char *end, TestErrorHandler *const &value)
   {
     std::string text{"TestErrorHandler at " + pqxx::to_string(value)};
-    if (pqxx::internal::cmp_greater_equal(std::size(text), end - begin))
+    if (std::cmp_greater_equal(std::size(text), end - begin))
       throw conversion_overrun{"Not enough buffer for TestErrorHandler."};
     std::memcpy(begin, text.c_str(), std::size(text) + 1);
     return begin + std::size(text) + 1;

@@ -60,10 +60,9 @@ pqxx::transaction_base::~transaction_base()
 {
   try
   {
-    if (not std::empty(m_pending_error))
-      PQXX_UNLIKELY
-    process_notice(
-      internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
+    if (not std::empty(m_pending_error)) [[unlikely]]
+      process_notice(
+        internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
 
     if (m_registered)
     {
@@ -214,12 +213,6 @@ void pqxx::transaction_base::abort()
 }
 
 
-std::string PQXX_COLD pqxx::transaction_base::quote_raw(zview bin) const
-{
-  return conn().quote(binary_cast(bin));
-}
-
-
 namespace
 {
 /// Guard command execution against clashes with pipelines and such.
@@ -244,6 +237,30 @@ public:
   command &operator=(command &&) = delete;
 };
 } // namespace
+
+pqxx::result pqxx::transaction_base::exec(std::string_view query)
+{
+  check_pending_error();
+
+  command const cmd{*this, {}};
+
+  switch (m_status)
+  {
+  case status::active: break;
+
+  case status::committed:
+  case status::aborted:
+  case status::in_doubt:
+    // TODO: Pass query.
+    throw usage_error{
+      "Could not execute command: transaction is already closed."};
+
+  default: PQXX_UNREACHABLE;
+  }
+
+  return direct_exec(query);
+}
+
 
 pqxx::result
 pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
@@ -353,11 +370,10 @@ void pqxx::transaction_base::close() noexcept
     if (m_status != status::active)
       return;
 
-    if (m_focus != nullptr)
-      PQXX_UNLIKELY
-    m_conn.process_notice(internal::concat(
-      "Closing ", description(), "  with ", m_focus->description(),
-      " still open.\n"));
+    if (m_focus != nullptr) [[unlikely]]
+      m_conn.process_notice(internal::concat(
+        "Closing ", description(), "  with ", m_focus->description(),
+        " still open.\n"));
 
     try
     {
@@ -455,8 +471,7 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
-        process_notice("UNABLE TO PROCESS ERROR\n");
+        [[unlikely]] process_notice("UNABLE TO PROCESS ERROR\n");
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -481,7 +496,6 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
         process_notice("UNABLE TO PROCESS ERROR\n");
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
