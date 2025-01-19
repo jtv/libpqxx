@@ -515,7 +515,10 @@ inline void into_string(TYPE const &value, std::string &out);
 template<typename TYPE>
 [[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
-  return nullness<std::remove_cvref_t<TYPE>>::is_null(value);
+  using base_type = std::remove_cvref_t<TYPE>;
+  using null_traits = nullness<base_type>;
+  if constexpr (null_traits::always_null) return true;
+  else return null_traits::is_null(value);
 }
 
 

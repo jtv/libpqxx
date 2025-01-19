@@ -1383,14 +1383,13 @@ private:
 
 template<typename T> inline std::string connection::quote(T const &t) const
 {
-  if constexpr (nullness<T>::always_null)
+  // TODO: Can we leave the quotes out if unquoted_safe?
+  if (is_null(t))
   {
     return "NULL";
   }
   else
   {
-    if (is_null(t))
-      return "NULL";
     auto const text{to_string(t)};
 
     // Okay, there's an easy way to do this and there's a hard way.  The easy
