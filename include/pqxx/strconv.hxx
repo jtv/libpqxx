@@ -198,6 +198,11 @@ template<typename TYPE> struct string_traits
    * for a value of this type.
    *
    * @warning A null value has no string representation.  Do not parse a null.
+   *
+   * @warning If you convert a string to `std::string_view`, you're basically
+   * just getting a pointer into the original buffer.  So, the `string_view`
+   * will become invalid when the original string's lifetime ends, or gets
+   * overwritten.  Do not access the `string_view` you got after that!
    */
   [[nodiscard]] static inline TYPE from_string(std::string_view text);
 
@@ -590,19 +595,6 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
   else
     return {begin, traits::into_buf(begin, end, value) - begin - 1};
 }
-
-
-/// Concept: Binary string, akin to @c std::string for binary data.
-/** Any type that satisfies this concept can represent an SQL BYTEA value.
- *
- * A @c binary has a @c begin(), @c end(), @c size(), and @data().  Each byte
- * is a @c std::byte, and they must all be laid out contiguously in memory so
- * we can reference them by a pointer.
- */
-template<typename TYPE>
-concept binary =
-  std::ranges::contiguous_range<TYPE> and
-  std::is_same_v<std::remove_cvref_t<value_type<TYPE>>, std::byte>;
 //@}
 } // namespace pqxx
 
