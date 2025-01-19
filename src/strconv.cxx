@@ -144,11 +144,13 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
 } // namespace
 
 
-namespace pqxx::internal
+namespace pqxx
 {
-template<std::integral T>
-// NOLINTNEXTLINE(readability-non-const-parameter)
-zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
+template<pqxx::internal::integer T>
+inline
+  // NOLINTNEXTLINE(readability-non-const-parameter)
+  zview
+  string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
   auto const space{end - begin},
@@ -174,23 +176,8 @@ zview integral_traits<T>::to_buf(char *begin, char *end, T const &value)
 }
 
 
-template zview integral_traits<short>::to_buf(char *, char *, short const &);
-template zview integral_traits<unsigned short>::to_buf(
-  char *, char *, unsigned short const &);
-template zview integral_traits<int>::to_buf(char *, char *, int const &);
-template zview
-integral_traits<unsigned>::to_buf(char *, char *, unsigned const &);
-template zview integral_traits<long>::to_buf(char *, char *, long const &);
-template zview
-integral_traits<unsigned long>::to_buf(char *, char *, unsigned long const &);
-template zview
-integral_traits<long long>::to_buf(char *, char *, long long const &);
-template zview integral_traits<unsigned long long>::to_buf(
-  char *, char *, unsigned long long const &);
-
-
-template<std::integral T>
-char *integral_traits<T>::into_buf(char *begin, char *end, T const &value)
+template<pqxx::internal::integer T>
+inline char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
@@ -198,20 +185,15 @@ char *integral_traits<T>::into_buf(char *begin, char *end, T const &value)
 }
 
 
-template char *integral_traits<short>::into_buf(char *, char *, short const &);
-template char *integral_traits<unsigned short>::into_buf(
-  char *, char *, unsigned short const &);
-template char *integral_traits<int>::into_buf(char *, char *, int const &);
-template char *
-integral_traits<unsigned>::into_buf(char *, char *, unsigned const &);
-template char *integral_traits<long>::into_buf(char *, char *, long const &);
-template char *integral_traits<unsigned long>::into_buf(
-  char *, char *, unsigned long const &);
-template char *
-integral_traits<long long>::into_buf(char *, char *, long long const &);
-template char *integral_traits<unsigned long long>::into_buf(
-  char *, char *, unsigned long long const &);
-} // namespace pqxx::internal
+template struct string_traits<short>;
+template struct string_traits<unsigned short>;
+template struct string_traits<int>;
+template struct string_traits<unsigned>;
+template struct string_traits<long>;
+template struct string_traits<unsigned long>;
+template struct string_traits<long long>;
+template struct string_traits<unsigned long long>;
+} // namespace pqxx
 
 
 namespace pqxx::internal
@@ -321,12 +303,9 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
   else
     throw pqxx::conversion_error{base + ": " + msg};
 }
-} // namespace
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-namespace
-{
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {
   return text == "inf" or text == "infinity" or text == "INFINITY" or
@@ -430,67 +409,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 
   return result;
 }
-} // namespace
 #endif // !PQXX_HAVE_CHARCONV_FLOAT
-
-
-namespace pqxx::internal
-{
-/// Floating-point to_buf implemented in terms of to_string.
-template<std::floating_point T>
-zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  {
-    // Definitely prefer to let the standard library handle this!
-    auto const ptr{wrap_to_chars(begin, end, value)};
-    return zview{begin, std::size_t(ptr - begin - 1)};
-  }
-#else
-  {
-    // Implement it ourselves.  Weird detail: since this workaround is based on
-    // std::stringstream, which produces a std::string, it's actually easier to
-    // build the to_buf() on top of the to_string() than the other way around.
-    if (std::isnan(value))
-      return "nan"_zv;
-    if (std::isinf(value))
-      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
-    auto text{to_string_float(value)};
-    auto have{end - begin};
-    auto need{std::size(text) + 1};
-    if (need > std::size_t(have))
-      throw conversion_error{
-        "Could not convert floating-point number to string: "
-        "buffer too small.  " +
-        state_buffer_overrun(have, need)};
-    text.copy(begin, need);
-    return zview{begin, std::size(text)};
-  }
-#endif
-}
-
-
-template zview float_traits<float>::to_buf(char *, char *, float const &);
-template zview float_traits<double>::to_buf(char *, char *, double const &);
-template zview
-float_traits<long double>::to_buf(char *, char *, long double const &);
-
-
-template<std::floating_point T>
-char *float_traits<T>::into_buf(char *begin, char *end, T const &value)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return wrap_to_chars(begin, end, value);
-#else
-  return generic_into_buf(begin, end, value);
-#endif
-}
-
-
-template char *float_traits<float>::into_buf(char *, char *, float const &);
-template char *float_traits<double>::into_buf(char *, char *, double const &);
-template char *
-float_traits<long double>::into_buf(char *, char *, long double const &);
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -503,18 +422,21 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
   return s.str();
 }
 #endif
+} // namespace
 
 
+namespace pqxx::internal
+{
 /// Floating-point implementations for @c pqxx::to_string().
 template<typename T> std::string to_string_float(T value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
-    static constexpr auto space{float_traits<T>::size_buffer(value)};
+    static constexpr auto space{string_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
     std::string_view const view{
-      float_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
+      string_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
     buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
     return buf;
   }
@@ -536,32 +458,10 @@ template<typename T> std::string to_string_float(T value)
   }
 #endif
 }
-} // namespace pqxx::internal
-
-
-namespace pqxx::internal
-{
-template<std::integral T>
-T integral_traits<T>::from_string(std::string_view text)
-{
-  return from_string_arithmetic<T>(text);
-}
-
-template short integral_traits<short>::from_string(std::string_view);
-template unsigned short
-  integral_traits<unsigned short>::from_string(std::string_view);
-template int integral_traits<int>::from_string(std::string_view);
-template unsigned integral_traits<unsigned>::from_string(std::string_view);
-template long integral_traits<long>::from_string(std::string_view);
-template unsigned long
-  integral_traits<unsigned long>::from_string(std::string_view);
-template long long integral_traits<long long>::from_string(std::string_view);
-template unsigned long long
-  integral_traits<unsigned long long>::from_string(std::string_view);
 
 
 template<std::floating_point T>
-T float_traits<T>::from_string(std::string_view text)
+T float_string_traits<T>::from_string(std::string_view text)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return from_string_arithmetic<T>(text);
@@ -571,11 +471,81 @@ T float_traits<T>::from_string(std::string_view text)
 }
 
 
-template float float_traits<float>::from_string(std::string_view);
-template double float_traits<double>::from_string(std::string_view);
-template long double float_traits<long double>::from_string(std::string_view);
+template<std::floating_point T>
+zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  {
+    // Definitely prefer to let the standard library handle this!
+    auto const ptr{wrap_to_chars(begin, end, value)};
+    return zview{begin, std::size_t(ptr - begin - 1)};
+  }
+#else
+  {
+    // Implement it ourselves.  Weird detail: since this workaround is based
+    // on std::stringstream, which produces a std::string, it's actually
+    // easier to build the to_buf() on top of the to_string() than the other
+    // way around.
+    if (std::isnan(value))
+      return "nan"_zv;
+    if (std::isinf(value))
+      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
+    auto text{to_string_float(value)};
+    auto have{end - begin};
+    auto need{std::size(text) + 1};
+    if (need > std::size_t(have))
+      throw conversion_error{
+        "Could not convert floating-point number to string: "
+        "buffer too small.  " +
+        state_buffer_overrun(have, need)};
+    text.copy(begin, need);
+    return zview{begin, std::size(text)};
+  }
+#endif
+}
 
 
+template<std::floating_point T>
+char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
+{
+#if defined(PQXX_HAVE_CHARCONV_FLOAT)
+  return wrap_to_chars(begin, end, value);
+#else
+  return generic_into_buf(begin, end, value);
+#endif
+}
+
+
+template struct float_string_traits<float>;
+template struct float_string_traits<double>;
+template struct float_string_traits<long double>;
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+template<pqxx::internal::integer T>
+T string_traits<T>::from_string(std::string_view text)
+{
+  return from_string_arithmetic<T>(text);
+}
+
+template short string_traits<short>::from_string(std::string_view);
+template unsigned short
+  string_traits<unsigned short>::from_string(std::string_view);
+template int string_traits<int>::from_string(std::string_view);
+template unsigned string_traits<unsigned>::from_string(std::string_view);
+template long string_traits<long>::from_string(std::string_view);
+template unsigned long
+  string_traits<unsigned long>::from_string(std::string_view);
+template long long string_traits<long long>::from_string(std::string_view);
+template unsigned long long
+  string_traits<unsigned long long>::from_string(std::string_view);
+} // namespace pqxx
+
+
+namespace pqxx::internal
+{
 template std::string to_string_float(float);
 template std::string to_string_float(double);
 template std::string to_string_float(long double);
