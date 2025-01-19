@@ -1106,15 +1106,26 @@ template<typename T> inline std::string to_string(T const &value)
       "Attempt to convert null " + std::string{type_name<T>} +
       " to a string."};
 
-  std::string buf;
-  // We can't just reserve() space; modifying the terminating zero leads to
-  // undefined behaviour.
-  buf.resize(size_buffer(value));
-  auto const data{buf.data()};
-  auto const end{
-    string_traits<T>::into_buf(data, data + std::size(buf), value)};
-  buf.resize(static_cast<std::size_t>(end - data - 1));
-  return buf;
+  if constexpr (nullness<std::remove_cvref_t<T>>::always_null)
+  {
+    // Have to separate out this case: some functions in the "regular" code
+    // may not exist in the "always null" case.
+    PQXX_UNREACHABLE;
+    // C++23: The return may not be needed when std::unreachable is available.
+    return {};
+  }
+  else
+  {
+    std::string buf;
+    // We can't just reserve() space; modifying the terminating zero leads to
+    // undefined behaviour.
+    buf.resize(size_buffer(value));
+    auto const data{buf.data()};
+    auto const end{
+      string_traits<T>::into_buf(data, data + std::size(buf), value)};
+    buf.resize(static_cast<std::size_t>(end - data - 1));
+    return buf;
+  }
 }
 
 
