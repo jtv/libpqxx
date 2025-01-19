@@ -1,5 +1,9 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - "String conversion" to `std::string_view` is now supported. (#694)
+ - **Beware lifetime** when "converting" a string to `std::string_view`!
+ - Conversion from string to `char const *` is no longer allowed.
+ - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
  - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.
