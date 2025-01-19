@@ -106,8 +106,10 @@ public:
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
 
+  /// Append all parameters in `value`.
   void append(params const &value) &;
 
+  /// Append all parameters in `value`.
   void append(params &&value) &;
 
   /// Append a non-null parameter, converting it to its string
