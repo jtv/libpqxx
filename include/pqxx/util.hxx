@@ -296,7 +296,7 @@ inline constexpr bool has_generic_bytes_char_traits =
 // Necessary for libc++ 18.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
-// C++20: Change this type.
+// XXX: Replace this type!
 /// Type alias for a container containing bytes.
 /* Required to support standard libraries without a generic implementation for
  * `std::char_traits<std::byte>`.
@@ -306,27 +306,14 @@ using bytes = std::conditional<
   has_generic_bytes_char_traits, std::basic_string<std::byte>,
   std::basic_string<std::byte, byte_char_traits>>::type;
 
-// C++20: Change this type.
-/// Type alias for a view of bytes.
-/* Required to support standard libraries without a generic implementation for
- * `std::char_traits<std::byte>`.
- * @warn Will change to `std::span<std::byte>` in the next major release.
- */
-using bytes_view = std::conditional<
-  has_generic_bytes_char_traits, std::basic_string_view<std::byte>,
-  std::basic_string_view<std::byte, byte_char_traits>>::type;
-
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
-/// Cast binary data to a type that libpqxx will recognise as binary.
-/** There are many different formats for storing binary data in memory.  You
- * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
- * many other types.  In libpqxx we commend a container of `std::byte`.
- *
- * For libpqxx to recognise your data as binary, we recommend using a
- * `pqxx::bytes`, or a `pqxx::bytes_view`; but any contiguous block of
- * `std::byte` should do.
+/// Cast binary data to libpqxx's standard "view on binary data."
+/** There are many different formats for passing a reference to binary data in
+ * memory.  There's `std::string_view`, or a `std::vector<uchar_t>`, or one of
+ * many other types.  In libpqxx we recommend `std::span<std::byte>`, but
+ * thanks to this conversion functions, most of these types should work.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
  * `pqxx::bytes_view`.
@@ -334,23 +321,15 @@ using bytes_view = std::conditional<
  * @warning You must keep the storage holding the actual data alive for as
  * long as you might use this function's return value.
  */
-template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
+template<potential_binary TYPE>
+inline bytes_view binary_cast(TYPE const &data)
 {
-  static_assert(sizeof(value_type<TYPE>) == 1);
-  // C++20: Use std::as_bytes.
-  return {
-    reinterpret_cast<std::byte const *>(
-      const_cast<std::remove_cvref_t<decltype(*std::data(data))> const *>(
-        std::data(data))),
-    std::size(data)};
+  using item_t = value_type<TYPE>;
+  return std::as_bytes(std::span<item_t const>{std::data(data), std::size(data)});
 }
 
 
-/// A type one byte in size.
-template<typename CHAR>
-concept char_sized = (sizeof(CHAR) == 1);
-
-
+// XXX: Write separate tests for binary_cast.
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
  * types, and constructs a `pqxx::bytes_view` pointing to the same data.
@@ -361,10 +340,7 @@ concept char_sized = (sizeof(CHAR) == 1);
 template<char_sized CHAR, typename SIZE>
 bytes_view binary_cast(CHAR const *data, SIZE size)
 {
-  static_assert(sizeof(CHAR) == 1);
-  return {
-    reinterpret_cast<std::byte const *>(data),
-    check_cast<std::size_t>(size, "binary data size")};
+  return binary_cast(std::span<CHAR>{data, check_cast<std::size_t>(size)});
 }
 
 

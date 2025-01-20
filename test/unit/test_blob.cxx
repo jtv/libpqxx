@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <filesystem>
 
 #include <pqxx/blob>
 #include <pqxx/transaction>
@@ -587,10 +588,7 @@ void test_blob_close_leaves_blob_unusable()
 
 void test_blob_accepts_std_filesystem_path()
 {
-#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
-  // A bug in gcc 8's ~std::filesystem::path() causes a run-time crash.
-#  if !defined(__GNUC__) || (__GNUC__ > 8)
-
+#if !defined(_WIN32)
   char const temp_file[] = "blob-test-filesystem-path.tmp";
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
@@ -603,9 +601,7 @@ void test_blob_accepts_std_filesystem_path()
   auto id{pqxx::blob::from_file(tx, path)};
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
-
-#  endif
-#endif
+#endif // WIN32
 }
 
 

@@ -997,6 +997,14 @@ public:
   [[nodiscard]] std::string quote(bytes_view bytes) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
+  /// Escape and quote binary data for use as a BYTEA value in SQL statement.
+  template<binary DATA>
+  [[nodiscard]] std::string quote(DATA data) const
+  {
+    return esc_raw(binary_cast(data));
+  }
+
+  // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
   /** Use this when part of an SQL "LIKE" pattern should match only as a
    * literal string, not as a pattern, even if it contains "%" or "_"
