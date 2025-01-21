@@ -148,8 +148,8 @@ namespace pqxx
 {
 template<pqxx::internal::integer T>
 inline
-  // NOLINTNEXTLINE(readability-non-const-parameter)
   zview
+  // NOLINTNEXTLINE(readability-non-const-parameter)
   string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
