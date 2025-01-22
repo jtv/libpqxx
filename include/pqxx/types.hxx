@@ -94,8 +94,7 @@ concept char_sized = (sizeof(CHAR) == 1);
 template<typename STRING>
 concept char_string =
   std::ranges::contiguous_range<STRING> and
-  char_sized<value_type<STRING>> and
-  std::same_as<std::remove_reference_t<value_type<STRING>>, value_type<STRING>>;
+  std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
@@ -107,7 +106,7 @@ concept char_strings =
 template<typename DATA>
 concept potential_binary =
   std::ranges::contiguous_range<DATA> and
-  (sizeof(value_type<DATA>) == 1) and
+  char_sized<value_type<DATA>> and
   not std::is_reference_v<value_type<DATA>>;
 
 
@@ -135,7 +134,7 @@ concept nonbinary_range =
 
 
 /// Type alias for a view of bytes.
-using bytes_view = std::span<const std::byte>;
+using bytes_view = std::span<std::byte const>;
 
 
 /// Type alias for a view of writable bytes.
