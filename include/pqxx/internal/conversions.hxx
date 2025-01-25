@@ -492,7 +492,7 @@ template<> struct string_traits<char const *>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static char const *from_string(std::string_view text) =delete;
+  static char const *from_string(std::string_view text) = delete;
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {

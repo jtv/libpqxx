@@ -939,6 +939,7 @@ public:
   }
 
   /// Escape and quote a string of binary data.
+  /** You can also just use @ref quote with binary data. */
   std::string quote_raw(bytes_view) const;
 
   /// Escape and quote a string of binary data.
@@ -991,10 +992,6 @@ public:
    */
   template<typename T>
   [[nodiscard]] inline std::string quote(T const &t) const;
-
-  // TODO: Make "into buffer" variant to eliminate a string allocation.
-  /// Escape and quote binary data for use as a BYTEA value in SQL statement.
-  [[nodiscard]] std::string quote(bytes_view bytes) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
@@ -1383,13 +1380,21 @@ private:
 
 template<typename T> inline std::string connection::quote(T const &t) const
 {
-  // TODO: Can we leave the quotes out if unquoted_safe?
   if (is_null(t))
   {
+    // It's easy to forget, but we can't support nulls in string conversion
+    // itself, because the "NULL" may end up inside quotes or something.
+    // We can only handle nulls at this slightly higher level in the call tree,
+    // where there is awareness of the quoting.
     return "NULL";
+  }
+  else if constexpr (binary<T>)
+  {
+    return quote_raw(t);
   }
   else
   {
+    // TODO: Can we leave the quotes out if unquoted_safe?
     auto const text{to_string(t)};
 
     // Okay, there's an easy way to do this and there's a hard way.  The easy

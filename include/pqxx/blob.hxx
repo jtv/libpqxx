@@ -19,10 +19,6 @@
 
 #include <cstdint>
 
-#if defined(PQXX_HAVE_PATH)
-#  include <filesystem>
-#endif
-
 #include <ranges>
 #include <span>
 
@@ -88,6 +84,7 @@ public:
    */
   static constexpr std::size_t chunk_limit = 0x7fffffff;
 
+  // XXX: Can we build a generic version of this?
   /// Read up to `size` bytes of the object into `buf`.
   /** Uses a buffer that you provide, resizing it as needed.  If it suits you,
    * this lets you allocate the buffer once and then re-use it multiple times.
@@ -106,7 +103,7 @@ public:
    * Returns the filled portion of `buf`.  This may be empty.
    */
   template<std::size_t extent = std::dynamic_extent>
-  std::span<std::byte> read(std::span<std::byte, extent> buf)
+  writable_bytes_view read(std::span<std::byte, extent> buf)
   {
     return buf.subspan(0, raw_read(std::data(buf), std::size(buf)));
   }
@@ -117,7 +114,7 @@ public:
    *
    * Returns the filled portion of `buf`.  This may be empty.
    */
-  template<binary DATA> std::span<std::byte> read(DATA &buf)
+  template<binary DATA> writable_bytes_view read(DATA &buf)
   {
     return {std::data(buf), raw_read(std::data(buf), std::size(buf))};
   }
@@ -143,7 +140,7 @@ public:
    */
   template<binary DATA> void write(DATA const &data)
   {
-    raw_write(std::data(data), std::size(data));
+    return raw_write(binary_cast(data));
   }
 
   /// Resize large object to `size` bytes.
@@ -180,53 +177,47 @@ public:
    */
   static oid from_buf(dbtransaction &tx, bytes_view data, oid id = 0);
 
+  /// Create a binary large object containing given `data`.
+  /** You may optionally specify an oid for the new object.  If you do, and an
+   * object with that oid already exists, creation will fail.
+   */
+  template<binary DATA>
+  static oid from_buf(dbtransaction &tx, DATA data, oid id = 0)
+  {
+    return from_buf(tx, binary_cast(data), id);
+  }
+
   /// Append `data` to binary large object.
   /** The underlying protocol only supports appending blocks up to 2 GB.
    */
   static void append_from_buf(dbtransaction &tx, bytes_view data, oid id);
 
-  /// Read client-side file and store it server-side as a binary large object.
-  [[nodiscard]] static oid from_file(dbtransaction &, char const path[]);
-
-#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
-  /// Read client-side file and store it server-side as a binary large object.
-  /** This overload is not available on Windows, where `std::filesystem::path`
-   * converts to a `wchar_t` string rather than a `char` string.
+  /// Append `data` to binary large object.
+  /** The underlying protocol only supports appending blocks up to 2 GB.
    */
-  [[nodiscard]] static oid
-  from_file(dbtransaction &tx, std::filesystem::path const &path)
+  template<binary DATA>
+  static void append_from_buf(dbtransaction &tx, DATA data, oid id)
   {
-    return from_file(tx, path.c_str());
+    append_from_buf(tx, binary_cast(data), id);
   }
-#endif
+
+  /// Read client-side file and store it server-side as a binary large object.
+  [[nodiscard]] static oid from_file(dbtransaction &, zview path);
 
   /// Read client-side file and store it server-side as a binary large object.
   /** In this version, you specify the binary large object's oid.  If that oid
    * is already in use, the operation will fail.
    */
-  static oid from_file(dbtransaction &, char const path[], oid);
+  static oid from_file(dbtransaction &, zview path, oid);
 
-#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
-  /// Read client-side file and store it server-side as a binary large object.
-  /** In this version, you specify the binary large object's oid.  If that oid
-   * is already in use, the operation will fail.
-   *
-   * This overload is not available on Windows, where `std::filesystem::path`
-   * converts to a `wchar_t` string rather than a `char` string.
-   */
-  static oid
-  from_file(dbtransaction &tx, std::filesystem::path const &path, oid id)
-  {
-    return from_file(tx, path.c_str(), id);
-  }
-#endif
-
+  // XXX: Can we build a generic version of this?
   /// Convenience function: Read up to `max_size` bytes from blob with `id`.
   /** You could easily do this yourself using the @ref open_r and @ref read
    * functions, but it can save you a bit of code to do it this way.
    */
   static void to_buf(dbtransaction &, oid, bytes &, std::size_t max_size);
 
+  // XXX: Can we build a generic version of this?
   /// Read part of the binary large object with `id`, and append it to `buf`.
   /** Use this to break up a large read from one binary large object into one
    * massive buffer.  Just keep calling this function until it returns zero.
@@ -239,19 +230,7 @@ public:
     std::size_t append_max);
 
   /// Write a binary large object's contents to a client-side file.
-  static void to_file(dbtransaction &, oid, char const path[]);
-
-#if defined(PQXX_HAVE_PATH) && !defined(_WIN32)
-  /// Write a binary large object's contents to a client-side file.
-  /** This overload is not available on Windows, where `std::filesystem::path`
-   * converts to a `wchar_t` string rather than a `char` string.
-   */
-  static void
-  to_file(dbtransaction &tx, oid id, std::filesystem::path const &path)
-  {
-    to_file(tx, id, path.c_str());
-  }
-#endif
+  static void to_file(dbtransaction &, oid, zview path);
 
   /// Close this blob.
   /** This does not delete the blob from the database; it only terminates your
@@ -282,7 +261,7 @@ private:
   PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
   PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence);
   std::size_t raw_read(std::byte buf[], std::size_t size);
-  void raw_write(std::byte const buf[], std::size_t size);
+  void raw_write(bytes_view);
 
   connection *m_conn = nullptr;
   int m_fd = -1;
