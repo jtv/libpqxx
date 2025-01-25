@@ -117,6 +117,7 @@ runner_SOURCES = \
   unit/test_transaction_focus.cxx \
   unit/test_transactor.cxx \
   unit/test_type_name.cxx \
+  unit/test_util.cxx \
   unit/test_zview.cxx \
   runner.cxx
 

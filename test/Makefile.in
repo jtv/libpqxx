@@ -166,7 +166,8 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	unit/test_transaction_base.$(OBJEXT) \
 	unit/test_transaction_focus.$(OBJEXT) \
 	unit/test_transactor.$(OBJEXT) unit/test_type_name.$(OBJEXT) \
-	unit/test_zview.$(OBJEXT) runner.$(OBJEXT)
+	unit/test_util.$(OBJEXT) unit/test_zview.$(OBJEXT) \
+	runner.$(OBJEXT)
 runner_OBJECTS = $(am_runner_OBJECTS)
 runner_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -247,7 +248,8 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	unit/$(DEPDIR)/test_transaction_base.Po \
 	unit/$(DEPDIR)/test_transaction_focus.Po \
 	unit/$(DEPDIR)/test_transactor.Po \
-	unit/$(DEPDIR)/test_type_name.Po unit/$(DEPDIR)/test_zview.Po
+	unit/$(DEPDIR)/test_type_name.Po unit/$(DEPDIR)/test_util.Po \
+	unit/$(DEPDIR)/test_zview.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -547,6 +549,7 @@ runner_SOURCES = \
   unit/test_transaction_focus.cxx \
   unit/test_transactor.cxx \
   unit/test_type_name.cxx \
+  unit/test_util.cxx \
   unit/test_zview.cxx \
   runner.cxx
 
@@ -683,6 +686,8 @@ unit/test_transactor.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_type_name.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
+unit/test_util.$(OBJEXT): unit/$(am__dirstamp) \
+	unit/$(DEPDIR)/$(am__dirstamp)
 unit/test_zview.$(OBJEXT): unit/$(am__dirstamp) \
 	unit/$(DEPDIR)/$(am__dirstamp)
 
@@ -778,6 +783,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction_focus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transactor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_type_name.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_util.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_zview.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -1120,6 +1126,7 @@ distclean: distclean-am
 	-rm -f unit/$(DEPDIR)/test_transaction_focus.Po
 	-rm -f unit/$(DEPDIR)/test_transactor.Po
 	-rm -f unit/$(DEPDIR)/test_type_name.Po
+	-rm -f unit/$(DEPDIR)/test_util.Po
 	-rm -f unit/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -1247,6 +1254,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f unit/$(DEPDIR)/test_transaction_focus.Po
 	-rm -f unit/$(DEPDIR)/test_transactor.Po
 	-rm -f unit/$(DEPDIR)/test_type_name.Po
+	-rm -f unit/$(DEPDIR)/test_util.Po
 	-rm -f unit/$(DEPDIR)/test_zview.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
