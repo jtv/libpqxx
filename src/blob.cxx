@@ -162,15 +162,15 @@ std::size_t pqxx::blob::read(bytes &buf, std::size_t size)
 }
 
 
-void pqxx::blob::raw_write(std::byte const buf[], std::size_t size)
+void pqxx::blob::raw_write(bytes_view data)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to write to a closed binary large object."};
-  if (size > chunk_limit)
-    throw range_error{
-      "Writes to a binary large object must be less than 2 GB at once."};
-  auto ptr{reinterpret_cast<char const *>(buf)};
-  int const written{lo_write(raw_conn(m_conn), m_fd, ptr, size)};
+  auto const sz{std::size(data)};
+  if (sz > chunk_limit)
+    throw range_error{"Write to binary large object exceeds 2GB limit."};
+  auto ptr{reinterpret_cast<char const *>(std::data(data))};
+  int const written{lo_write(raw_conn(m_conn), m_fd, ptr, sz)};
   if (written < 0)
     throw failure{
       internal::concat("Write to binary large object failed: ", errmsg())};
@@ -305,9 +305,9 @@ std::size_t pqxx::blob::append_to_buf(
 }
 
 
-pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[])
+pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path)
 {
-  auto id{lo_import(raw_conn(tx), path)};
+  auto id{lo_import(raw_conn(tx), path.c_str())};
   if (id == 0)
     throw failure{internal::concat(
       "Could not import '", path, "' as a binary large object: ", errmsg(tx))};
@@ -315,9 +315,9 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[])
 }
 
 
-pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[], oid id)
+pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id)
 {
-  auto actual_id{lo_import_with_oid(raw_conn(tx), path, id)};
+  auto actual_id{lo_import_with_oid(raw_conn(tx), path.c_str(), id)};
   if (actual_id == 0)
     throw failure{internal::concat(
       "Could not import '", path, "' as binary large object ", id, ": ",
@@ -326,9 +326,9 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, char const path[], oid id)
 }
 
 
-void pqxx::blob::to_file(dbtransaction &tx, oid id, char const path[])
+void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path)
 {
-  if (lo_export(raw_conn(tx), id, path) < 0)
+  if (lo_export(raw_conn(tx), id, path.c_str()) < 0)
     throw failure{internal::concat(
       "Could not export binary large object ", id, " to file '", path,
       "': ", errmsg(tx))};

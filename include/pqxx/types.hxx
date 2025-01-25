@@ -81,25 +81,29 @@ template<typename TYPE> using strip_t = std::remove_cvref_t<TYPE>;
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type =
-  std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
+using value_type = std::remove_cvref_t<std::ranges::range_value_t<CONTAINER>>;
+
+
+/// A type one byte in size.
+template<typename CHAR>
+concept char_sized = (sizeof(CHAR) == 1);
 
 
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
-concept char_string =
-  std::ranges::contiguous_range<STRING> and
-  std::same_as<std::remove_cvref_t<value_type<STRING>>, char>;
+concept char_string = std::ranges::contiguous_range<STRING> and
+                      std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
 concept char_strings = std::ranges::range<RANGE> and
-                       char_string<std::remove_cvref_t<value_type<RANGE>>>;
+                       char_string<std::remove_cv_t<value_type<RANGE>>>;
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
 concept potential_binary =
-  std::ranges::contiguous_range<DATA> and (sizeof(value_type<DATA>) == 1);
+  std::ranges::contiguous_range<DATA> and char_sized<value_type<DATA>> and
+  not std::is_reference_v<value_type<DATA>>;
 
 
 /// Concept: Binary string, akin to @c std::string for binary data.
@@ -110,10 +114,8 @@ concept potential_binary =
  * we can reference them by a pointer.
  */
 template<typename T>
-concept binary =
-  std::ranges::contiguous_range<T> and
-  std::same_as<
-    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte>;
+concept binary = std::ranges::contiguous_range<T> and
+                 std::same_as<std::remove_cv_t<value_type<T>>, std::byte>;
 
 
 /// A series of something that's not bytes.
@@ -124,6 +126,14 @@ concept nonbinary_range =
     std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
   not std::same_as<
     std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
+
+
+/// Type alias for a view of bytes.
+using bytes_view = std::span<std::byte const>;
+
+
+/// Type alias for a view of writable bytes.
+using writable_bytes_view = std::span<std::byte>;
 
 
 /// Marker for @ref stream_from constructors: "stream from table."
