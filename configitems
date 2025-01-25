@@ -10,7 +10,6 @@ PQXX_HAVE_CXA_DEMANGLE	internal	compiler
 PQXX_HAVE_GCC_PURE	public	compiler
 PQXX_HAVE_GCC_VISIBILITY	public	compiler
 PQXX_HAVE_MULTIDIM	public	compiler
-PQXX_HAVE_PATH	public	compiler
 PQXX_HAVE_POLL       internal        compiler
 PQXX_HAVE_SLEEP_FOR	internal	compiler
 PQXX_HAVE_SOURCE_LOCATION	public	compiler

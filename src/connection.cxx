@@ -979,12 +979,6 @@ std::string pqxx::connection::quote_raw(bytes_view bytes) const
 }
 
 
-std::string pqxx::connection::quote(bytes_view b) const
-{
-  return internal::concat("'", esc_raw(b), "'::bytea");
-}
-
-
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
   std::unique_ptr<char, void (*)(void const *)> const buf{

@@ -24,10 +24,6 @@ try_compile(
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_MULTIDIM.cxx
 )
 try_compile(
-    PQXX_HAVE_PATH ${PROJECT_BINARY_DIR}
-    SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_PATH.cxx
-)
-try_compile(
     PQXX_HAVE_POLL ${PROJECT_BINARY_DIR}
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_POLL.cxx
 )

@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <pqxx/zview>
 
 #include "../test_helpers.hxx"
@@ -5,6 +7,14 @@
 
 namespace
 {
+void test_zview_is_a_range()
+{
+  static_assert(std::ranges::range<pqxx::zview>);
+  static_assert(std::ranges::borrowed_range<pqxx::zview>);
+  static_assert(std::ranges::contiguous_range<pqxx::zview>);
+}
+
+
 void test_zview_literal()
 {
   using pqxx::operator"" _zv;
@@ -40,6 +50,7 @@ void test_zview_converts_to_string()
 }
 
 
+PQXX_REGISTER_TEST(test_zview_is_a_range);
 PQXX_REGISTER_TEST(test_zview_literal);
 PQXX_REGISTER_TEST(test_zview_converts_to_string);
 } // namespace

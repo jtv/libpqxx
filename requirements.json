@@ -5,5 +5,5 @@
     "postgresql": "12.0",
     "gcc": "9",
     "clang": "12",
-    "msvc": "2019"
+    "msvc": "2022"
 }

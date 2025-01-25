@@ -17,7 +17,8 @@
  - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
- - Assume compiler supports `std::remove_cvref_t`.
+ - Assume compiler supports `std::remove_cvref_t` etc.
+ - Assume compiler supports `std::filesystem::path`.
  - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
  - Assume compiler supports `ssize()`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.

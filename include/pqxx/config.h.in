@@ -76,9 +76,6 @@
 #undef PQXX_HAVE_MULTIDIM
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_PATH
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_POLL
 
 /* Define if this feature is available. */
