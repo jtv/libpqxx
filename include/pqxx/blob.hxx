@@ -201,7 +201,6 @@ public:
     append_from_buf(tx, binary_cast(data), id);
   }
 
-  // XXX: Standardise on std::filesystem::path, not zview.
   /// Read client-side file and store it server-side as a binary large object.
   [[nodiscard]] static oid from_file(dbtransaction &, zview path);
 

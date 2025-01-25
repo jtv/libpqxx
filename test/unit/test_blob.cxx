@@ -175,6 +175,31 @@ void test_blob_read_reads_data()
 }
 
 
+void test_blob_read_reads_generic_data()
+{
+  std::array<std::byte, 3> const data{std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
+
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+
+  pqxx::bytes buf;
+  auto b{pqxx::blob::open_rw(tx, id)};
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 2u, "Full read() returned an unexpected value.");
+  PQXX_CHECK_EQUAL(
+    buf, (pqxx::bytes{std::byte{'a'}, std::byte{'b'}}),
+    "Read back the wrong data.");
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 1u, "Partial read() returned an unexpected value.");
+  PQXX_CHECK_EQUAL(
+    buf, (pqxx::bytes{std::byte{'c'}}), "Continued read produced wrong data.");
+  PQXX_CHECK_EQUAL(
+    b.read(buf, 2), 0u, "read at end returned an unexpected value.");
+  PQXX_CHECK_EQUAL(buf, (pqxx::bytes{}), "Read past end produced data.");
+}
+
+
 /// Cast a `char` or `std::byte` to `unsigned int`.
 template<typename BYTE> inline unsigned byte_val(BYTE val)
 {
@@ -413,6 +438,20 @@ void test_blob_append_from_buf_appends()
 }
 
 
+void test_blob_generic_append_from_buf_appends()
+{
+  std::array<std::byte, 2> const data{std::byte{'h'}, std::byte{'o'}};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  auto id{pqxx::blob::create(tx)};
+  pqxx::blob::append_from_buf(tx, data, id);
+  pqxx::blob::append_from_buf(tx, data, id);
+  pqxx::bytes buf;
+  pqxx::blob::to_buf(tx, id, buf, 10);
+  PQXX_CHECK_EQUAL(std::size(buf), 2 * std::size(data), "Generic append_from_buf() created unexpected length.");
+}
+
+
 namespace
 {
 /// Wrap `std::fopen`.
@@ -615,6 +654,7 @@ PQXX_REGISTER_TEST(test_blob_remove_is_not_idempotent);
 PQXX_REGISTER_TEST(test_blob_checks_open_mode);
 PQXX_REGISTER_TEST(test_blob_supports_move);
 PQXX_REGISTER_TEST(test_blob_read_reads_data);
+PQXX_REGISTER_TEST(test_blob_read_reads_generic_data);
 PQXX_REGISTER_TEST(test_blob_reads_vector);
 PQXX_REGISTER_TEST(test_blob_read_span);
 PQXX_REGISTER_TEST(test_blob_write_appends_at_insertion_point);
@@ -625,6 +665,7 @@ PQXX_REGISTER_TEST(test_blob_tell_tracks_position);
 PQXX_REGISTER_TEST(test_blob_seek_sets_positions);
 PQXX_REGISTER_TEST(test_blob_from_buf_interoperates_with_to_buf);
 PQXX_REGISTER_TEST(test_blob_append_from_buf_appends);
+PQXX_REGISTER_TEST(test_blob_generic_append_from_buf_appends);
 PQXX_REGISTER_TEST(test_blob_from_file_creates_blob_from_file_contents);
 PQXX_REGISTER_TEST(test_blob_from_file_with_oid_writes_blob);
 PQXX_REGISTER_TEST(test_blob_append_to_buf_appends);
