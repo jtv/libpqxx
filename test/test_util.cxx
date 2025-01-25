@@ -3,7 +3,7 @@
 #include <pqxx/types>
 #include <pqxx/util>
 
-#include "../test_helpers.hxx"
+#include "test_helpers.hxx"
 
 namespace
 {
