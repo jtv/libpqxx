@@ -91,19 +91,11 @@ public:
   void append(bytes_view) &;
 
   /// Append a non-null binary parameter.
-  /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the `pqxx::bytes_view` variant if you can, or `std::move()`.
-   */
-  void append(bytes const &) &;
-
-  /// Append a non-null binary parameter.
   /** The `data` object must stay in place and unchanged, for as long as the
    * `params` remains active.
    */
   template<binary DATA> void append(DATA const &data) &
-  {
-    append(bytes_view{std::data(data), std::size(data)});
-  }
+  { append(binary_cast(data)); }
 
   /// Append a non-null binary parameter.
   void append(bytes &&) &;

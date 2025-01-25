@@ -66,12 +66,6 @@ void pqxx::params::append(bytes_view value) &
 }
 
 
-void pqxx::params::append(bytes const &value) &
-{
-  m_params.emplace_back(value);
-}
-
-
 void pqxx::params::append(bytes &&value) &
 {
   m_params.emplace_back(std::move(value));
