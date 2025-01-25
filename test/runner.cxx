@@ -172,7 +172,8 @@ int main(int argc, char const *argv[])
 {
   // TODO: Accept multiple names.
   std::string_view test_name;
-  if (argc > 1) test_name = argv[1];
+  if (argc > 1)
+    test_name = argv[1];
 
   auto const num_tests{std::size(*all_test_names)};
   std::map<std::string_view, pqxx::test::testfunc> all_tests;
@@ -200,8 +201,7 @@ int main(int argc, char const *argv[])
       catch (pqxx::test::test_failure const &e)
       {
         std::cerr << "Test failure in " << e.file() << " line "
-                  << pqxx::to_string(e.line()) << ": " << e.what()
-                  << '\n';
+                  << pqxx::to_string(e.line()) << ": " << e.what() << '\n';
       }
       catch (std::bad_alloc const &)
       {

@@ -177,7 +177,8 @@ void test_blob_read_reads_data()
 
 void test_blob_read_reads_generic_data()
 {
-  std::array<std::byte, 3> const data{std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
+  std::array<std::byte, 3> const data{
+    std::byte{'a'}, std::byte{'b'}, std::byte{'c'}};
 
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -448,7 +449,9 @@ void test_blob_generic_append_from_buf_appends()
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
-  PQXX_CHECK_EQUAL(std::size(buf), 2 * std::size(data), "Generic append_from_buf() created unexpected length.");
+  PQXX_CHECK_EQUAL(
+    std::size(buf), 2 * std::size(data),
+    "Generic append_from_buf() created unexpected length.");
 }
 
 

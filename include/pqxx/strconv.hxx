@@ -517,8 +517,10 @@ template<typename TYPE>
 {
   using base_type = std::remove_cvref_t<TYPE>;
   using null_traits = nullness<base_type>;
-  if constexpr (null_traits::always_null) return true;
-  else return null_traits::is_null(value);
+  if constexpr (null_traits::always_null)
+    return true;
+  else
+    return null_traits::is_null(value);
 }
 
 

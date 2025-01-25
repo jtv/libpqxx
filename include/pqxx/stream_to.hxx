@@ -390,7 +390,8 @@ private:
 
   /// Write raw COPY line into @c m_buffer, based on a container of fields.
   template<typename Container>
-  std::enable_if_t<not std::is_same_v<std::remove_cv_t<typename Container::value_type>, char>>
+  std::enable_if_t<
+    not std::is_same_v<std::remove_cv_t<typename Container::value_type>, char>>
   fill_buffer(Container const &c)
   {
     // To avoid unnecessary allocations and deallocations, we run through c

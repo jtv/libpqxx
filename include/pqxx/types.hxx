@@ -91,21 +91,18 @@ concept char_sized = (sizeof(CHAR) == 1);
 
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
-concept char_string =
-  std::ranges::contiguous_range<STRING> and
-  std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
+concept char_string = std::ranges::contiguous_range<STRING> and
+                      std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
-concept char_strings =
-    std::ranges::range<RANGE> and
-    char_string<std::remove_cv_t<value_type<RANGE>>>;
+concept char_strings = std::ranges::range<RANGE> and
+                       char_string<std::remove_cv_t<value_type<RANGE>>>;
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
 concept potential_binary =
-  std::ranges::contiguous_range<DATA> and
-  char_sized<value_type<DATA>> and
+  std::ranges::contiguous_range<DATA> and char_sized<value_type<DATA>> and
   not std::is_reference_v<value_type<DATA>>;
 
 
@@ -117,9 +114,8 @@ concept potential_binary =
  * we can reference them by a pointer.
  */
 template<typename T>
-concept binary =
-  std::ranges::contiguous_range<T> and
-  std::same_as<std::remove_cv_t<value_type<T>>, std::byte>;
+concept binary = std::ranges::contiguous_range<T> and
+                 std::same_as<std::remove_cv_t<value_type<T>>, std::byte>;
 
 
 /// A series of something that's not bytes.

@@ -321,11 +321,11 @@ using bytes = std::conditional<
  * @warning You must keep the storage holding the actual data alive for as
  * long as you might use this function's return value.
  */
-template<potential_binary TYPE>
-inline bytes_view binary_cast(TYPE const &data)
+template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 {
   using item_t = value_type<TYPE>;
-  return std::as_bytes(std::span<item_t const>{std::data(data), std::size(data)});
+  return std::as_bytes(
+    std::span<item_t const>{std::data(data), std::size(data)});
 }
 
 

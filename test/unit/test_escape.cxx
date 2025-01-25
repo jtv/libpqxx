@@ -80,8 +80,11 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
   }
 
   std::vector<std::byte> const bin{std::byte{0x33}, std::byte{0x4a}};
-  PQXX_CHECK_EQUAL(t.quote(bin), "'\\x334a'::bytea", "Unexpected binary quoting output.");
-  PQXX_CHECK_EQUAL(t.quote(std::span<std::byte const>{bin}), "'\\x334a'::bytea", "Binary span quotes differently from vector.");
+  PQXX_CHECK_EQUAL(
+    t.quote(bin), "'\\x334a'::bytea", "Unexpected binary quoting output.");
+  PQXX_CHECK_EQUAL(
+    t.quote(std::span<std::byte const>{bin}), "'\\x334a'::bytea",
+    "Binary span quotes differently from vector.");
 }
 
 
