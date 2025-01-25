@@ -81,8 +81,7 @@ template<typename TYPE> using strip_t = std::remove_cvref_t<TYPE>;
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type =
-  std::remove_cvref_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
+using value_type = std::remove_cvref_t<std::ranges::range_value_t<CONTAINER>>;
 
 
 /// A type one byte in size.
@@ -100,7 +99,7 @@ concept char_string =
 template<typename RANGE>
 concept char_strings =
     std::ranges::range<RANGE> and
-    char_string<std::remove_volatile_t<value_type<RANGE>>>;
+    char_string<std::remove_cv_t<value_type<RANGE>>>;
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
