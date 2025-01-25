@@ -61,6 +61,7 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
   PQXX_CHECK_EQUAL(t.quote(0), "'0'", "Quoting zero is a problem.");
   char const *const null_ptr{nullptr};
   PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL", "Not quoting NULL correctly.");
+  PQXX_CHECK_EQUAL(t.quote(nullptr), "NULL", "Not quoting nullptr correctly.");
   PQXX_CHECK_EQUAL(
     t.quote(std::string{"'"}), "''''", "Escaping quotes goes wrong.");
 
@@ -77,6 +78,10 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
     PQXX_CHECK_EQUAL(
       r, test_strings[i], "Selecting quoted string does not come back equal.");
   }
+
+  std::vector<std::byte> const bin{std::byte{0x33}, std::byte{0x4a}};
+  PQXX_CHECK_EQUAL(t.quote(bin), "'\\x334a'::bytea", "Unexpected binary quoting output.");
+  PQXX_CHECK_EQUAL(t.quote(std::span<std::byte const>{bin}), "'\\x334a'::bytea", "Binary span quotes differently from vector.");
 }
 
 
