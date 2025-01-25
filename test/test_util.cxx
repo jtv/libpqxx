@@ -30,6 +30,8 @@ void test_binary_cast()
     std::byte{0x22}, std::byte{0x23}, std::byte{0x24}};
   test_for(bytes_c_array);
   test_for("Hello world");
+  test_for(std::string{"I'm a string"});
+  test_for(std::string_view{"I'm a string_view"});
 
   test_for(std::vector<char>{'n', 'o', 'p', 'q'});
   test_for(std::vector<unsigned char>{'n', 'o', 'p', 'q'});

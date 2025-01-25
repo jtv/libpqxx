@@ -136,4 +136,5 @@ data as the `BYTEA` type, or in binary large objects ("blobs").
 In libpqxx, you represent binary data as a range of `std::byte`.  They must be
 contiguous in memory, so that libpqxx can pass pointers to the underlying C
 library.  So you might use `pqxx::bytes`, or `pqxx::bytes_view`, or
-`std::vector<std::byte>`.
+`std::vector<std::byte>`, or `std::array<std::byte, ...>`, or
+`std::span<std::byte>`, etc.
