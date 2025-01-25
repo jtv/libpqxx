@@ -59,16 +59,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_MULTIDIM=no)
 AC_MSG_RESULT($PQXX_HAVE_MULTIDIM)
-AC_MSG_CHECKING([PQXX_HAVE_PATH])
-PQXX_HAVE_PATH=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_PATH.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_PATH],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_PATH=no)
-AC_MSG_RESULT($PQXX_HAVE_PATH)
 AC_MSG_CHECKING([PQXX_HAVE_POLL])
 PQXX_HAVE_POLL=yes
 AC_COMPILE_IFELSE(
