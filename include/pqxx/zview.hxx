@@ -11,6 +11,7 @@
 #ifndef PQXX_H_ZVIEW
 #define PQXX_H_ZVIEW
 
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -52,6 +53,9 @@ public:
   {}
 
   /// Explicitly promote a `string_view` to a `zview`.
+  /** @warning This is not just a type conversion.  It's the caller making a
+   * promise that the string is zero-terminated.
+   */
   explicit constexpr zview(std::string_view other) noexcept :
           std::string_view{other}
   {}
@@ -90,6 +94,11 @@ public:
   template<size_t size>
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}
+
+#if !defined(WIN32)
+  /// Construct a `zview` from a `std::filesystem::path`.
+  zview(std::filesystem::path p) : zview(p.c_str()) {}
+#endif // WIN32
 
   /// Either a null pointer, or a zero-terminated text buffer.
   [[nodiscard]] constexpr char const *c_str() const & noexcept
