@@ -147,10 +147,9 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
 namespace pqxx
 {
 template<pqxx::internal::integer T>
-inline
-  zview
-  // NOLINTNEXTLINE(readability-non-const-parameter)
-  string_traits<T>::to_buf(char *begin, char *end, T const &value)
+inline zview
+// NOLINTNEXTLINE(readability-non-const-parameter)
+string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
   static_assert(std::is_integral_v<T>);
   auto const space{end - begin},
