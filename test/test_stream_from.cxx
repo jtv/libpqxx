@@ -287,8 +287,8 @@ void test_stream_from_does_iteration()
   PQXX_CHECK_EQUAL(i, 2, "Wrong number of iterations.");
   PQXX_CHECK_EQUAL(
     std::size(strings), 2u, "Wrong number of strings retrieved.");
-  PQXX_CHECK(strings.find("foo") != std::end(strings), "Missing key.");
-  PQXX_CHECK(strings.find("bar") != std::end(strings), "Missing key.");
+  PQXX_CHECK(strings.contains("foo"), "Missing key.");
+  PQXX_CHECK(strings.contains("bar"), "Missing key.");
 }
 
 
