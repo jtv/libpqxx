@@ -78,13 +78,7 @@ void pqxx::internal::basic_transaction::do_commit()
     process_notice(msg);
     // Strip newline.  It was only needed for process_notice().
     msg.pop_back();
-    throw in_doubt_error{
-      msg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-      ,
-      e.location
-#endif
-    };
+    throw in_doubt_error{msg, e.location};
   }
   catch (std::exception const &e)
   {
