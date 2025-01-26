@@ -95,7 +95,9 @@ public:
    * `params` remains active.
    */
   template<binary DATA> void append(DATA const &data) &
-  { append(binary_cast(data)); }
+  {
+    append(binary_cast(data));
+  }
 
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
