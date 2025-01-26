@@ -139,8 +139,7 @@ int main(int argc, char const *argv[])
   for (std::size_t idx{0}; idx < num_tests; ++idx)
   {
     auto const name{all_test_names->at(idx)};
-    // C++20: Use std::map::contains().
-    assert(all_tests.find(name) == std::end(all_tests));
+    assert(not all_tests.contains(name));
     all_tests.emplace(name, all_test_funcs->at(idx));
   }
 
