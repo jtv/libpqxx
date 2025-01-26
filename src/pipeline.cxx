@@ -137,7 +137,7 @@ void PQXX_COLD pqxx::pipeline::cancel()
 
 bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
-  if (m_queries.find(q) == std::end(m_queries))
+  if (not m_queries.contains(q))
     throw std::logic_error{
       internal::concat("Requested status for unknown query '", q, "'.")};
   return (QueryMap::const_iterator(m_issuedrange.first) ==

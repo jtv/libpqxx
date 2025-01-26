@@ -82,9 +82,6 @@
 #undef PQXX_HAVE_SLEEP_FOR
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_SOURCE_LOCATION
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_STRERROR_R
 
 /* Define if this feature is available. */

@@ -14,16 +14,9 @@
 
 namespace pqxx::test
 {
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
 test_failure::test_failure(std::string const &desc, std::source_location loc) :
         std::logic_error{desc}, m_loc{loc}
 {}
-#else
-test_failure::test_failure(
-  std::string const &ffile, int fline, std::string const &desc) :
-        std::logic_error(desc), m_file(ffile), m_line(fline)
-{}
-#endif
 
 test_failure::~test_failure() noexcept = default;
 
@@ -35,52 +28,18 @@ inline void drop_table(transaction_base &t, std::string const &table)
 }
 
 
-[[noreturn]] void check_notreached(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
-  std::string desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-)
+[[noreturn]] void check_notreached(std::string desc, std::source_location loc)
 {
-  throw test_failure{
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-    file, line,
-#endif
-    desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
-#endif
-  };
+  throw test_failure{desc, loc};
 }
 
 
 void check(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
-  bool condition, char const text[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-)
+  bool condition, char const text[], std::string const &desc,
+  std::source_location loc)
 {
   if (not condition)
-    throw test_failure{
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-      file, line,
-#endif
-      desc + " (failed expression: " + text + ")"
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-      ,
-      loc
-#endif
-    };
+    throw test_failure{desc + " (failed expression: " + text + ")", loc};
 }
 
 
@@ -180,8 +139,7 @@ int main(int argc, char const *argv[])
   for (std::size_t idx{0}; idx < num_tests; ++idx)
   {
     auto const name{all_test_names->at(idx)};
-    // C++20: Use std::map::contains().
-    assert(all_tests.find(name) == std::end(all_tests));
+    assert(not all_tests.contains(name));
     all_tests.emplace(name, all_test_funcs->at(idx));
   }
 
@@ -210,26 +168,22 @@ int main(int argc, char const *argv[])
       catch (pqxx::feature_not_supported const &e)
       {
         std::cerr << "Not testing unsupported feature: " << e.what() << '\n';
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();
         if (not name.empty())
           std::cerr << " in " << name;
         std::cerr << ")\n";
-#endif
         success = true;
         --test_count;
       }
       catch (pqxx::sql_error const &e)
       {
         std::cerr << "SQL error: " << e.what() << '\n';
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
         std::cerr << "(";
         std::cerr << e.location.file_name() << ':' << e.location.line();
         if (not name.empty())
           std::cerr << " in " << name;
         std::cerr << ")\n";
-#endif
         std::cerr << "Query was: " << e.query() << '\n';
       }
       catch (std::exception const &e)

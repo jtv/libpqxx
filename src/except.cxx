@@ -15,15 +15,9 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
 pqxx::failure::failure(std::string const &whatarg, std::source_location loc) :
         std::runtime_error{whatarg}, location{loc}
 {}
-#else
-pqxx::failure::failure(std::string const &whatarg) :
-        std::runtime_error{whatarg}
-{}
-#endif
 
 
 pqxx::broken_connection::broken_connection() :
@@ -32,70 +26,27 @@ pqxx::broken_connection::broken_connection() :
 
 
 pqxx::broken_connection::broken_connection(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        failure{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        failure{whatarg, loc}
 {}
 
 
 pqxx::protocol_violation::protocol_violation(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        broken_connection{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        broken_connection{whatarg, loc}
 {}
 
 
 pqxx::variable_set_to_null::variable_set_to_null(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        failure{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        failure{whatarg, loc}
 {}
 
 
 pqxx::sql_error::sql_error(
-  std::string const &whatarg, std::string Q, char const *sqlstate
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        failure{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        },
+  std::string const &whatarg, std::string Q, char const *sqlstate,
+  std::source_location loc) :
+        failure{whatarg, loc},
         m_query{std::move(Q)},
         m_sqlstate{sqlstate ? sqlstate : ""}
 {}
@@ -117,87 +68,36 @@ PQXX_PURE std::string const &pqxx::sql_error::sqlstate() const noexcept
 
 
 pqxx::in_doubt_error::in_doubt_error(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        failure{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        failure{whatarg, loc}
 {}
 
 
 pqxx::transaction_rollback::transaction_rollback(
-  std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        sql_error{
-          whatarg, q, sqlstate
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::string const &q, char const sqlstate[],
+  std::source_location loc) :
+        sql_error{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::serialization_failure::serialization_failure(
-  std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        transaction_rollback{
-          whatarg, q, sqlstate
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::string const &q, char const sqlstate[],
+  std::source_location loc) :
+        transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
-  std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        transaction_rollback{
-          whatarg, q, sqlstate
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::string const &q, char const sqlstate[],
+  std::source_location loc) :
+        transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::deadlock_detected::deadlock_detected(
-  std::string const &whatarg, std::string const &q, char const sqlstate[]
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        transaction_rollback{
-          whatarg, q, sqlstate
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::string const &q, char const sqlstate[],
+  std::source_location loc) :
+        transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
 
@@ -207,94 +107,36 @@ pqxx::internal_error::internal_error(std::string const &whatarg) :
 
 
 pqxx::usage_error::usage_error(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        std::logic_error{whatarg}
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
-        location{loc}
-#endif
+  std::string const &whatarg, std::source_location loc) :
+        std::logic_error{whatarg}, location{loc}
 {}
 
 
 pqxx::argument_error::argument_error(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        invalid_argument{whatarg}
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
-        location{loc}
-#endif
+  std::string const &whatarg, std::source_location loc) :
+        invalid_argument{whatarg}, location{loc}
 {}
 
 
 pqxx::conversion_error::conversion_error(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        domain_error{whatarg}
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
-        location{loc}
-#endif
+  std::string const &whatarg, std::source_location loc) :
+        domain_error{whatarg}, location{loc}
 {}
 
 
 pqxx::unexpected_null::unexpected_null(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        conversion_error{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        conversion_error{whatarg, loc}
 {}
 
 
 pqxx::conversion_overrun::conversion_overrun(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        conversion_error{
-          whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-          ,
-          loc
-#endif
-        }
+  std::string const &whatarg, std::source_location loc) :
+        conversion_error{whatarg, loc}
 {}
 
 
 pqxx::range_error::range_error(
-  std::string const &whatarg
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc
-#endif
-  ) :
-        out_of_range{whatarg}
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-        ,
-        location{loc}
-#endif
+  std::string const &whatarg, std::source_location loc) :
+        out_of_range{whatarg}, location{loc}
 {}
