@@ -47,7 +47,8 @@ std::string::size_type array_parser::scan_glyph(
 
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<pqxx::internal::encoding_group ENC>
-std::string::size_type array_parser::scan_double_quoted_string(PQXX_LOC loc) const
+std::string::size_type
+array_parser::scan_double_quoted_string(PQXX_LOC loc) const
 {
   return pqxx::internal::scan_double_quoted_string<ENC>(
     std::data(m_input), std::size(m_input), m_pos, loc);
@@ -56,8 +57,8 @@ std::string::size_type array_parser::scan_double_quoted_string(PQXX_LOC loc) con
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 template<pqxx::internal::encoding_group ENC>
-std::string
-array_parser::parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const
+std::string array_parser::parse_double_quoted_string(
+  std::string::size_type end, PQXX_LOC loc) const
 {
   return pqxx::internal::parse_double_quoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);
@@ -80,8 +81,8 @@ std::string::size_type array_parser::scan_unquoted_string(PQXX_LOC loc) const
  * that happens to spell "NULL".
  */
 template<pqxx::internal::encoding_group ENC>
-std::string_view
-array_parser::parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const
+std::string_view array_parser::parse_unquoted_string(
+  std::string::size_type end, PQXX_LOC loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);

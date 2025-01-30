@@ -65,7 +65,9 @@ public:
    * @throws pqxx::unexpected_null if the array contains a null value, and the
    * `ELEMENT` type does not support null values.
    */
-  array(std::string_view data, connection const &cx, PQXX_LOC loc = PQXX_LOC::current()) :
+  array(
+    std::string_view data, connection const &cx,
+    PQXX_LOC loc = PQXX_LOC::current()) :
           array{data, pqxx::internal::enc_group(cx.encoding_id()), loc}
   {}
 
@@ -101,7 +103,8 @@ public:
    * better.  In older versions of C++ it will work only with
    * single-dimensional arrays.
    */
-  template<std::integral... INDEX> ELEMENT const &operator[](INDEX... index) const
+  template<std::integral... INDEX>
+  ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     return m_elts[locate(index...)];
@@ -172,9 +175,11 @@ private:
   {
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
-      throw conversion_error{pqxx::internal::concat(
-        "Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data,
-        "'."), loc};
+      throw conversion_error{
+        pqxx::internal::concat(
+          "Trying to parse a ", DIMENSIONS, "-dimensional array out of '",
+          data, "'."),
+        loc};
 
     // Making some assumptions here:
     // * The array holds no extraneous whitespace.
@@ -189,12 +194,17 @@ private:
       throw conversion_error{"Malformed array: does not start with '{'.", loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
-        throw conversion_error{pqxx::internal::concat(
-          "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, "."), loc};
+        throw conversion_error{
+          pqxx::internal::concat(
+            "Expecting ", DIMENSIONS, "-dimensional array, but found ", i,
+            "."),
+          loc};
     if (data[DIMENSIONS] == '{')
-      throw conversion_error{pqxx::internal::concat(
-        "Tried to parse ", DIMENSIONS,
-        "-dimensional array from array data that has more dimensions."), loc};
+      throw conversion_error{
+        pqxx::internal::concat(
+          "Tried to parse ", DIMENSIONS,
+          "-dimensional array from array data that has more dimensions."),
+        loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
@@ -205,7 +215,8 @@ private:
   // Couldn't make this work through a call gate, thanks to the templating.
   friend class ::pqxx::field;
 
-  array(std::string_view data, pqxx::internal::encoding_group enc, PQXX_LOC loc)
+  array(
+    std::string_view data, pqxx::internal::encoding_group enc, PQXX_LOC loc)
   {
     using group = pqxx::internal::encoding_group;
     switch (enc)
@@ -231,7 +242,8 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  std::size_t parse_field_end(std::string_view data, std::size_t here, PQXX_LOC loc) const
+  std::size_t
+  parse_field_end(std::string_view data, std::size_t here, PQXX_LOC loc) const
   {
     auto const sz{std::size(data)};
     if (here < sz)
@@ -245,16 +257,19 @@ private:
         {
         case SEPARATOR:
           throw conversion_error{"Array contains double separator.", loc};
-        case '}': throw conversion_error{"Array contains trailing separator.", loc};
+        case '}':
+          throw conversion_error{"Array contains trailing separator.", loc};
         default: break;
         }
         break;
       case '}': break;
       default:
-        throw conversion_error{pqxx::internal::concat(
-          "Unexpected character in array: ",
-          static_cast<unsigned>(static_cast<unsigned char>(data[here])),
-          " where separator or closing brace expected."), loc};
+        throw conversion_error{
+          pqxx::internal::concat(
+            "Unexpected character in array: ",
+            static_cast<unsigned>(static_cast<unsigned char>(data[here])),
+            " where separator or closing brace expected."),
+          loc};
       }
     return here;
   }
@@ -323,7 +338,8 @@ private:
           if (know_extents_from != DIMENSIONS)
             throw conversion_error{
               "Array text representation closed and reopened its outside "
-              "brace pair.", loc};
+              "brace pair.",
+              loc};
           assert(here == 0);
           PQXX_ASSUME(here == 0);
         }
@@ -353,7 +369,8 @@ private:
         else
         {
           if (extents[dim] != m_extents[dim])
-            throw conversion_error{"Rows in array have inconsistent sizes.", loc};
+            throw conversion_error{
+              "Rows in array have inconsistent sizes.", loc};
         }
         // Bump back down to the next-lower dimension.  Which may be the outer
         // dimension, through underflow.
@@ -367,13 +384,15 @@ private:
         // "inner" dimension.
         if (dim != DIMENSIONS - 1)
           throw conversion_error{
-            "Malformed array: found element where sub-array was expected.", loc};
+            "Malformed array: found element where sub-array was expected.",
+            loc};
         assert(dim != outer);
         ++extents[dim];
         std::size_t end;
         switch (data[here])
         {
-        case '\0': throw conversion_error{"Unexpected zero byte in array.", loc};
+        case '\0':
+          throw conversion_error{"Unexpected zero byte in array.", loc};
         case ',': throw conversion_error{"Array contains empty field.", loc};
         case '"': {
           // Double-quoted string.  We parse it into a buffer before parsing
@@ -407,10 +426,12 @@ private:
             if constexpr (nullness<ELEMENT>::has_null)
               m_elts.emplace_back(nullness<ELEMENT>::null());
             else
-              throw unexpected_null{pqxx::internal::concat(
-                "Array contains a null ", type_name<ELEMENT>,
-                ".  Consider making it an array of std::optional<",
-                type_name<ELEMENT>, "> instead."), loc};
+              throw unexpected_null{
+                pqxx::internal::concat(
+                  "Array contains a null ", type_name<ELEMENT>,
+                  ".  Consider making it an array of std::optional<",
+                  type_name<ELEMENT>, "> instead."),
+                loc};
           }
           else
             m_elts.emplace_back(from_string<ELEMENT>(field));
@@ -594,11 +615,13 @@ private:
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_double_quoted_string(PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
-  std::string parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const;
+  std::string
+  parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_unquoted_string(PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
-  std::string_view parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const;
+  std::string_view
+  parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const;
 
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos) const;

@@ -44,7 +44,8 @@ inline void parse_composite(
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
-    throw conversion_error{"Cannot parse composite value from empty string.", loc};
+    throw conversion_error{
+      "Cannot parse composite value from empty string.", loc};
 
   std::size_t here{0}, next{scan(data, size, here)};
   if (next != 1 or data[here] != '(')
@@ -60,12 +61,16 @@ inline void parse_composite(
      index, text, here, fields, num_fields - 1, loc),
    ...);
   if (here != std::size(text))
-    throw conversion_error{internal::concat(
-      "Composite value did not end at the closing parenthesis: '", text,
-      "'."), loc};
+    throw conversion_error{
+      internal::concat(
+        "Composite value did not end at the closing parenthesis: '", text,
+        "'."),
+      loc};
   if (text[here - 1] != ')')
-    throw conversion_error{internal::concat(
-      "Composite value did not end in parenthesis: '", text, "'"), loc};
+    throw conversion_error{
+      internal::concat(
+        "Composite value did not end in parenthesis: '", text, "'"),
+      loc};
 }
 
 

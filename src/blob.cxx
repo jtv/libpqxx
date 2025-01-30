@@ -43,13 +43,16 @@ std::string pqxx::blob::errmsg(connection const *cx)
 }
 
 
-pqxx::blob pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, PQXX_LOC loc)
+pqxx::blob
+pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, PQXX_LOC loc)
 {
   auto &cx{tx.conn()};
   int const fd{lo_open(raw_conn(&cx), id, mode)};
   if (fd == -1)
-    throw pqxx::failure{internal::concat(
-      "Could not open binary large object ", id, ": ", errmsg(&cx)), loc};
+    throw pqxx::failure{
+      internal::concat(
+        "Could not open binary large object ", id, ": ", errmsg(&cx)),
+      loc};
   return {cx, fd};
 }
 
@@ -58,8 +61,10 @@ pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, PQXX_LOC loc)
 {
   oid const actual_id{lo_create(raw_conn(tx), id)};
   if (actual_id == 0)
-    throw failure{internal::concat(
-      "Could not create binary large object: ", errmsg(&tx.conn())), loc};
+    throw failure{
+      internal::concat(
+        "Could not create binary large object: ", errmsg(&tx.conn())),
+      loc};
   return actual_id;
 }
 
@@ -67,10 +72,13 @@ pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, PQXX_LOC loc)
 void pqxx::blob::remove(dbtransaction &tx, oid id, PQXX_LOC loc)
 {
   if (id == 0)
-    throw usage_error{"Trying to delete binary large object without an ID.", loc};
+    throw usage_error{
+      "Trying to delete binary large object without an ID.", loc};
   if (lo_unlink(raw_conn(tx), id) == -1)
-    throw failure{internal::concat(
-      "Could not delete large object ", id, ": ", errmsg(&tx.conn())), loc};
+    throw failure{
+      internal::concat(
+        "Could not delete large object ", id, ": ", errmsg(&tx.conn())),
+      loc};
 }
 
 
@@ -137,10 +145,12 @@ void pqxx::blob::close()
 }
 
 
-std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size, PQXX_LOC loc)
+std::size_t
+pqxx::blob::raw_read(std::byte buf[], std::size_t size, PQXX_LOC loc)
 {
   if (m_conn == nullptr)
-    throw usage_error{"Attempt to read from a closed binary large object.", loc};
+    throw usage_error{
+      "Attempt to read from a closed binary large object.", loc};
   if (size > chunk_limit)
     throw range_error{
       "Reads from a binary large object must be less than 2 GB at once.", loc};
@@ -148,7 +158,8 @@ std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size, PQXX_LOC loc
   int const received{lo_read(raw_conn(m_conn), m_fd, data, size)};
   if (received < 0)
     throw failure{
-      internal::concat("Could not read from binary large object: ", errmsg()), loc};
+      internal::concat("Could not read from binary large object: ", errmsg()),
+      loc};
   return static_cast<std::size_t>(received);
 }
 
@@ -165,7 +176,8 @@ std::size_t pqxx::blob::read(bytes &buf, std::size_t size, PQXX_LOC loc)
 void pqxx::blob::raw_write(bytes_view data, PQXX_LOC loc)
 {
   if (m_conn == nullptr)
-    throw usage_error{"Attempt to write to a closed binary large object.", loc};
+    throw usage_error{
+      "Attempt to write to a closed binary large object.", loc};
   auto const sz{std::size(data)};
   if (sz > chunk_limit)
     throw range_error{"Write to binary large object exceeds 2GB limit.", loc};
@@ -173,7 +185,8 @@ void pqxx::blob::raw_write(bytes_view data, PQXX_LOC loc)
   int const written{lo_write(raw_conn(m_conn), m_fd, ptr, sz)};
   if (written < 0)
     throw failure{
-      internal::concat("Write to binary large object failed: ", errmsg()), loc};
+      internal::concat("Write to binary large object failed: ", errmsg()),
+      loc};
 }
 
 
@@ -183,7 +196,8 @@ void pqxx::blob::resize(std::int64_t size, PQXX_LOC loc)
     throw usage_error{"Attempt to resize a closed binary large object.", loc};
   if (lo_truncate64(raw_conn(m_conn), m_fd, size) < 0)
     throw failure{
-      internal::concat("Binary large object truncation failed: ", errmsg()), loc};
+      internal::concat("Binary large object truncation failed: ", errmsg()),
+      loc};
 }
 
 
@@ -193,8 +207,10 @@ std::int64_t pqxx::blob::tell(PQXX_LOC loc) const
     throw usage_error{"Attempt to tell() a closed binary large object.", loc};
   std::int64_t const offset{lo_tell64(raw_conn(m_conn), m_fd)};
   if (offset < 0)
-    throw failure{internal::concat(
-      "Error reading binary large object position: ", errmsg()), loc};
+    throw failure{
+      internal::concat(
+        "Error reading binary large object position: ", errmsg()),
+      loc};
   return offset;
 }
 
@@ -206,8 +222,9 @@ std::int64_t pqxx::blob::seek(std::int64_t offset, int whence, PQXX_LOC loc)
   std::int64_t const seek_result{
     lo_lseek64(raw_conn(m_conn), m_fd, offset, whence)};
   if (seek_result < 0)
-    throw failure{internal::concat(
-      "Error during seek on binary large object: ", errmsg()), loc};
+    throw failure{
+      internal::concat("Error during seek on binary large object: ", errmsg()),
+      loc};
   return seek_result;
 }
 
@@ -230,7 +247,8 @@ std::int64_t pqxx::blob::seek_end(std::int64_t offset, PQXX_LOC loc)
 }
 
 
-pqxx::oid pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
+pqxx::oid
+pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
 {
   oid const actual_id{create(tx, id, loc)};
   try
@@ -260,7 +278,8 @@ pqxx::oid pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_
 }
 
 
-void pqxx::blob::append_from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
+void pqxx::blob::append_from_buf(
+  dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
 {
   if (std::size(data) > chunk_limit)
     throw range_error{
@@ -309,19 +328,25 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, PQXX_LOC loc)
 {
   auto id{lo_import(raw_conn(tx), path.c_str())};
   if (id == 0)
-    throw failure{internal::concat(
-      "Could not import '", path, "' as a binary large object: ", errmsg(tx)), loc};
+    throw failure{
+      internal::concat(
+        "Could not import '", path,
+        "' as a binary large object: ", errmsg(tx)),
+      loc};
   return id;
 }
 
 
-pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, PQXX_LOC loc)
+pqxx::oid
+pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, PQXX_LOC loc)
 {
   auto actual_id{lo_import_with_oid(raw_conn(tx), path.c_str(), id)};
   if (actual_id == 0)
-    throw failure{internal::concat(
-      "Could not import '", path, "' as binary large object ", id, ": ",
-      errmsg(tx)), loc};
+    throw failure{
+      internal::concat(
+        "Could not import '", path, "' as binary large object ", id, ": ",
+        errmsg(tx)),
+      loc};
   return actual_id;
 }
 
@@ -329,7 +354,9 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, PQXX_LOC 
 void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path, PQXX_LOC loc)
 {
   if (lo_export(raw_conn(tx), id, path.c_str()) < 0)
-    throw failure{internal::concat(
-      "Could not export binary large object ", id, " to file '", path,
-      "': ", errmsg(tx)), loc};
+    throw failure{
+      internal::concat(
+        "Could not export binary large object ", id, " to file '", path,
+        "': ", errmsg(tx)),
+      loc};
 }

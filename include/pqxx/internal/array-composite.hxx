@@ -127,8 +127,8 @@ inline std::string parse_double_quoted_string(
  * comma or a closing parenthesis.
  */
 template<pqxx::internal::encoding_group ENC, char... STOP>
-inline std::size_t
-scan_unquoted_string(char const input[], std::size_t size, std::size_t pos, PQXX_LOC)
+inline std::size_t scan_unquoted_string(
+  char const input[], std::size_t size, std::size_t pos, PQXX_LOC)
 {
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos)};
@@ -145,8 +145,8 @@ scan_unquoted_string(char const input[], std::size_t size, std::size_t pos, PQXX
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
 template<pqxx::internal::encoding_group ENC>
-inline std::string_view
-parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, PQXX_LOC)
+inline std::string_view parse_unquoted_string(
+  char const input[], std::size_t end, std::size_t pos, PQXX_LOC)
 {
   return {&input[pos], end - pos};
 }
@@ -185,7 +185,8 @@ inline void parse_composite_field(
   auto next{glyph_scanner<ENC>::call(std::data(input), std::size(input), pos)};
   PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)
-    throw conversion_error{"Non-ASCII character in composite-type syntax.", loc};
+    throw conversion_error{
+      "Non-ASCII character in composite-type syntax.", loc};
 
   // Expect a field.
   switch (input[pos])
@@ -199,12 +200,13 @@ inline void parse_composite_field(
     else
       throw conversion_error{
         "Can't read composite field " + to_string(index) + ": C++ type " +
-        type_name<T> + " does not support nulls.", loc};
+          type_name<T> + " does not support nulls.",
+        loc};
     break;
 
   case '"': {
-    auto const stop{
-      scan_double_quoted_string<ENC>(std::data(input), std::size(input), pos, loc)};
+    auto const stop{scan_double_quoted_string<ENC>(
+      std::data(input), std::size(input), pos, loc)};
     PQXX_ASSUME(stop > pos);
     auto const text{
       parse_double_quoted_string<ENC>(std::data(input), stop, pos, loc)};
@@ -231,30 +233,35 @@ inline void parse_composite_field(
   if ((next - pos) != 1)
     throw conversion_error{
       "Unexpected non-ASCII character after composite field: " +
-      std::string{input}, loc};
+        std::string{input},
+      loc};
 
   if (index < last_field)
   {
     if (input[pos] != ',')
       throw conversion_error{
         "Found '" + std::string{input[pos]} +
-        "' in composite value where comma was expected: " + std::data(input), loc};
+          "' in composite value where comma was expected: " + std::data(input),
+        loc};
   }
   else
   {
     if (input[pos] == ',')
       throw conversion_error{
         "Composite value contained more fields than the expected " +
-        to_string(last_field) + ": " + std::data(input), loc};
+          to_string(last_field) + ": " + std::data(input),
+        loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
         "Composite value has unexpected characters where closing parenthesis "
         "was expected: " +
-        std::string{input}, loc};
+          std::string{input},
+        loc};
     if (next != std::size(input))
       throw conversion_error{
         "Composite value has unexpected text after closing parenthesis: " +
-        std::string{input}, loc};
+          std::string{input},
+        loc};
   }
 
   pos = next;
@@ -271,7 +278,8 @@ using composite_field_parser = void (*)(
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
-composite_field_parser<T> specialize_parse_composite_field(encoding_group enc, PQXX_LOC loc)
+composite_field_parser<T>
+specialize_parse_composite_field(encoding_group enc, PQXX_LOC loc)
 {
   switch (enc)
   {
@@ -300,7 +308,8 @@ composite_field_parser<T> specialize_parse_composite_field(encoding_group enc, P
   case encoding_group::UTF8:
     return parse_composite_field<encoding_group::UTF8>;
   }
-  throw internal_error{concat("Unexpected encoding group code: ", enc, "."), loc};
+  throw internal_error{
+    concat("Unexpected encoding group code: ", enc, "."), loc};
 }
 
 

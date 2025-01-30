@@ -245,7 +245,8 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  array<ELEMENT, ARGS...> as_sql_array(PQXX_LOC loc = PQXX_LOC::current()) const
+  array<ELEMENT, ARGS...>
+  as_sql_array(PQXX_LOC loc = PQXX_LOC::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 

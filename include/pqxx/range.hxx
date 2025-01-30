@@ -444,7 +444,8 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
   }
 
-  [[nodiscard]] static inline range<TYPE> from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
+  [[nodiscard]] static inline range<TYPE>
+  from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
   {
     if (std::size(text) < 3)
       throw pqxx::conversion_error{err_bad_input(text), loc};
