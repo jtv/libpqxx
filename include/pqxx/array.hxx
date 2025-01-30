@@ -65,8 +65,8 @@ public:
    * @throws pqxx::unexpected_null if the array contains a null value, and the
    * `ELEMENT` type does not support null values.
    */
-  array(std::string_view data, connection const &cx) :
-          array{data, pqxx::internal::enc_group(cx.encoding_id())}
+  array(std::string_view data, connection const &cx, PQXX_LOC loc = PQXX_LOC::current()) :
+          array{data, pqxx::internal::enc_group(cx.encoding_id()), loc}
   {}
 
   /// How many dimensions does this array have?
@@ -84,7 +84,8 @@ public:
     return m_extents;
   }
 
-  template<typename... INDEX> ELEMENT const &at(INDEX... index) const
+  // TODO: How can we pass std::source_location here?
+  template<std::integral... INDEX> ELEMENT const &at(INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     check_bounds(index...);
@@ -100,7 +101,7 @@ public:
    * better.  In older versions of C++ it will work only with
    * single-dimensional arrays.
    */
-  template<typename... INDEX> ELEMENT const &operator[](INDEX... index) const
+  template<std::integral... INDEX> ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     return m_elts[locate(index...)];
@@ -167,13 +168,13 @@ private:
    * walking through the entire array sequentially, and identifying all the
    * character boundaries.  The main parsing routine detects that one.
    */
-  void check_dims(std::string_view data)
+  void check_dims(std::string_view data, PQXX_LOC loc = PQXX_LOC::current())
   {
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{pqxx::internal::concat(
         "Trying to parse a ", DIMENSIONS, "-dimensional array out of '", data,
-        "'.")};
+        "'."), loc};
 
     // Making some assumptions here:
     // * The array holds no extraneous whitespace.
@@ -185,43 +186,43 @@ private:
     // of DIMENSIONS bytes with the ASCII value for '}'.
 
     if (data[0] != '{')
-      throw conversion_error{"Malformed array: does not start with '{'."};
+      throw conversion_error{"Malformed array: does not start with '{'.", loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
         throw conversion_error{pqxx::internal::concat(
-          "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, ".")};
+          "Expecting ", DIMENSIONS, "-dimensional array, but found ", i, "."), loc};
     if (data[DIMENSIONS] == '{')
       throw conversion_error{pqxx::internal::concat(
         "Tried to parse ", DIMENSIONS,
-        "-dimensional array from array data that has more dimensions.")};
+        "-dimensional array from array data that has more dimensions."), loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
-          "Malformed array: does not end in the right number of '}'."};
+          "Malformed array: does not end in the right number of '}'.", loc};
   }
 
   // Allow fields to construct arrays passing the encoding group.
   // Couldn't make this work through a call gate, thanks to the templating.
   friend class ::pqxx::field;
 
-  array(std::string_view data, pqxx::internal::encoding_group enc)
+  array(std::string_view data, pqxx::internal::encoding_group enc, PQXX_LOC loc)
   {
     using group = pqxx::internal::encoding_group;
     switch (enc)
     {
-    case group::MONOBYTE: parse<group::MONOBYTE>(data); break;
-    case group::BIG5: parse<group::BIG5>(data); break;
-    case group::EUC_CN: parse<group::EUC_CN>(data); break;
-    case group::EUC_JP: parse<group::EUC_JP>(data); break;
-    case group::EUC_KR: parse<group::EUC_KR>(data); break;
-    case group::EUC_TW: parse<group::EUC_TW>(data); break;
-    case group::GB18030: parse<group::GB18030>(data); break;
-    case group::GBK: parse<group::GBK>(data); break;
-    case group::JOHAB: parse<group::JOHAB>(data); break;
-    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data); break;
-    case group::SJIS: parse<group::SJIS>(data); break;
-    case group::UHC: parse<group::UHC>(data); break;
-    case group::UTF8: parse<group::UTF8>(data); break;
+    case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
+    case group::BIG5: parse<group::BIG5>(data, loc); break;
+    case group::EUC_CN: parse<group::EUC_CN>(data, loc); break;
+    case group::EUC_JP: parse<group::EUC_JP>(data, loc); break;
+    case group::EUC_KR: parse<group::EUC_KR>(data, loc); break;
+    case group::EUC_TW: parse<group::EUC_TW>(data, loc); break;
+    case group::GB18030: parse<group::GB18030>(data, loc); break;
+    case group::GBK: parse<group::GBK>(data, loc); break;
+    case group::JOHAB: parse<group::JOHAB>(data, loc); break;
+    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data, loc); break;
+    case group::SJIS: parse<group::SJIS>(data, loc); break;
+    case group::UHC: parse<group::UHC>(data, loc); break;
+    case group::UTF8: parse<group::UTF8>(data, loc); break;
     default: PQXX_UNREACHABLE; break;
     }
   }
@@ -230,7 +231,7 @@ private:
   /** Check for a trailing separator, detect any syntax errors at this somewhat
    * complicated point, and return the offset where parsing should continue.
    */
-  std::size_t parse_field_end(std::string_view data, std::size_t here) const
+  std::size_t parse_field_end(std::string_view data, std::size_t here, PQXX_LOC loc) const
   {
     auto const sz{std::size(data)};
     if (here < sz)
@@ -239,12 +240,12 @@ private:
       case SEPARATOR:
         ++here;
         if (here >= sz)
-          throw conversion_error{"Array looks truncated."};
+          throw conversion_error{"Array looks truncated.", loc};
         switch (data[here])
         {
         case SEPARATOR:
-          throw conversion_error{"Array contains double separator."};
-        case '}': throw conversion_error{"Array contains trailing separator."};
+          throw conversion_error{"Array contains double separator.", loc};
+        case '}': throw conversion_error{"Array contains trailing separator.", loc};
         default: break;
         }
         break;
@@ -253,7 +254,7 @@ private:
         throw conversion_error{pqxx::internal::concat(
           "Unexpected character in array: ",
           static_cast<unsigned>(static_cast<unsigned char>(data[here])),
-          " where separator or closing brace expected.")};
+          " where separator or closing brace expected."), loc};
       }
     return here;
   }
@@ -278,7 +279,7 @@ private:
   }
 
   template<pqxx::internal::encoding_group ENC>
-  void parse(std::string_view data)
+  void parse(std::string_view data, PQXX_LOC loc = PQXX_LOC::current())
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto const sz{std::size(data)};
@@ -322,7 +323,7 @@ private:
           if (know_extents_from != DIMENSIONS)
             throw conversion_error{
               "Array text representation closed and reopened its outside "
-              "brace pair."};
+              "brace pair.", loc};
           assert(here == 0);
           PQXX_ASSUME(here == 0);
         }
@@ -330,7 +331,7 @@ private:
         {
           if (dim >= (DIMENSIONS - 1))
             throw conversion_error{
-              "Array seems to have inconsistent number of dimensions."};
+              "Array seems to have inconsistent number of dimensions.", loc};
           ++extents[dim];
         }
         // (Rolls over to zero if we're coming from the outer dimension.)
@@ -341,7 +342,7 @@ private:
       else if (data[here] == '}')
       {
         if (dim == outer)
-          throw conversion_error{"Array has spurious '}'."};
+          throw conversion_error{"Array has spurious '}'.", loc};
         if (dim < know_extents_from)
         {
           // We just finished parsing our first row in this dimension.
@@ -352,13 +353,13 @@ private:
         else
         {
           if (extents[dim] != m_extents[dim])
-            throw conversion_error{"Rows in array have inconsistent sizes."};
+            throw conversion_error{"Rows in array have inconsistent sizes.", loc};
         }
         // Bump back down to the next-lower dimension.  Which may be the outer
         // dimension, through underflow.
         --dim;
         ++here;
-        here = parse_field_end(data, here);
+        here = parse_field_end(data, here, loc);
       }
       else
       {
@@ -366,14 +367,14 @@ private:
         // "inner" dimension.
         if (dim != DIMENSIONS - 1)
           throw conversion_error{
-            "Malformed array: found element where sub-array was expected."};
+            "Malformed array: found element where sub-array was expected.", loc};
         assert(dim != outer);
         ++extents[dim];
         std::size_t end;
         switch (data[here])
         {
-        case '\0': throw conversion_error{"Unexpected zero byte in array."};
-        case ',': throw conversion_error{"Array contains empty field."};
+        case '\0': throw conversion_error{"Unexpected zero byte in array.", loc};
+        case ',': throw conversion_error{"Array contains empty field.", loc};
         case '"': {
           // Double-quoted string.  We parse it into a buffer before parsing
           // the resulting string as an element.  This seems wasteful: the
@@ -385,11 +386,11 @@ private:
           // So in practice, this optimisation would only apply if the only
           // special characters in the string were commas.
           end = pqxx::internal::scan_double_quoted_string<ENC>(
-            std::data(data), std::size(data), here);
+            std::data(data), std::size(data), here, loc);
           // TODO: scan_double_quoted_string() with reusable buffer.
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
-              std::data(data), end, here)};
+              std::data(data), end, here, loc)};
           m_elts.emplace_back(from_string<ELEMENT>(buf));
         }
         break;
@@ -398,7 +399,7 @@ private:
           // escaping or encoding, so we don't need to parse it into a
           // buffer.  We can just read it as a string_view.
           end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(
-            std::data(data), std::size(data), here);
+            std::data(data), std::size(data), here, loc);
           std::string_view const field{
             std::string_view{std::data(data) + here, end - here}};
           if (field == "NULL")
@@ -409,7 +410,7 @@ private:
               throw unexpected_null{pqxx::internal::concat(
                 "Array contains a null ", type_name<ELEMENT>,
                 ".  Consider making it an array of std::optional<",
-                type_name<ELEMENT>, "> instead.")};
+                type_name<ELEMENT>, "> instead."), loc};
           }
           else
             m_elts.emplace_back(from_string<ELEMENT>(field));
@@ -417,12 +418,12 @@ private:
         }
         here = end;
         PQXX_ASSUME(here <= sz);
-        here = parse_field_end(data, here);
+        here = parse_field_end(data, here, loc);
       }
     }
 
     if (dim != outer)
-      throw conversion_error{"Malformed array; may be truncated."};
+      throw conversion_error{"Malformed array; may be truncated.", loc};
     assert(know_extents_from == 0);
     PQXX_ASSUME(know_extents_from == 0);
 
@@ -467,10 +468,11 @@ private:
     }
   }
 
+  // TODO: How can we pass std::source_location here?
   /// Check that indexes are within bounds.
   /** @throw pqxx::range_error if not.
    */
-  template<typename OUTER, typename... INDEX>
+  template<typename OUTER, std::integral... INDEX>
   constexpr void check_bounds(OUTER outer, INDEX... indexes) const
   {
     std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
@@ -550,6 +552,7 @@ public:
    * remains valid.  Once all `result` objects referring to that data have been
    * destroyed, the parser will no longer refer to valid memory.
    */
+  [[deprecated("Use pqxx::array instead.")]]
   explicit array_parser(
     std::string_view input,
     internal::encoding_group = internal::encoding_group::MONOBYTE);
@@ -589,13 +592,13 @@ private:
   std::pair<juncture, std::string> parse_array_step();
 
   template<pqxx::internal::encoding_group>
-  std::string::size_type scan_double_quoted_string() const;
+  std::string::size_type scan_double_quoted_string(PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
-  std::string parse_double_quoted_string(std::string::size_type end) const;
+  std::string parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
-  std::string::size_type scan_unquoted_string() const;
+  std::string::size_type scan_unquoted_string(PQXX_LOC loc) const;
   template<pqxx::internal::encoding_group>
-  std::string_view parse_unquoted_string(std::string::size_type end) const;
+  std::string_view parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const;
 
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos) const;

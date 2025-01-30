@@ -101,8 +101,9 @@ pqxx::deadlock_detected::deadlock_detected(
 {}
 
 
-pqxx::internal_error::internal_error(std::string const &whatarg) :
-        std::logic_error{internal::concat("libpqxx internal error: ", whatarg)}
+pqxx::internal_error::internal_error(std::string const &whatarg, PQXX_LOC loc) :
+        std::logic_error{internal::concat("libpqxx internal error: ", whatarg)},
+	location{loc}
 {}
 
 

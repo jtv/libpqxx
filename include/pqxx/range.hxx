@@ -444,10 +444,10 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
   }
 
-  [[nodiscard]] static inline range<TYPE> from_string(std::string_view text)
+  [[nodiscard]] static inline range<TYPE> from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
   {
     if (std::size(text) < 3)
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     bool left_inc{false};
     switch (text[0])
     {
@@ -463,11 +463,11 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (text[2] != 'p' and text[2] != 'P') or
         (text[3] != 't' and text[3] != 'T') or
         (text[4] != 'y' and text[4] != 'Y'))
-        throw pqxx::conversion_error{err_bad_input(text)};
+        throw pqxx::conversion_error{err_bad_input(text), loc};
       return {};
       break;
 
-    default: throw pqxx::conversion_error{err_bad_input(text)};
+    default: throw pqxx::conversion_error{err_bad_input(text), loc};
     }
 
     // The field parser uses this to track which field it's parsing, and
@@ -482,16 +482,16 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // We reuse the same field parser we use for composite values and arrays.
     auto const field_parser{
       pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(
-        pqxx::internal::encoding_group::UTF8)};
-    field_parser(index, text, pos, lower, last);
-    field_parser(index, text, pos, upper, last);
+        pqxx::internal::encoding_group::UTF8, loc)};
+    field_parser(index, text, pos, lower, last, loc);
+    field_parser(index, text, pos, upper, last, loc);
 
     // We need one more character: the closing parenthesis or bracket.
     if (pos != std::size(text))
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     char const closing{text[pos - 1]};
     if (closing != ')' and closing != ']')
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     bool const right_inc{closing == ']'};
 
     range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};

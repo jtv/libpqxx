@@ -15,6 +15,7 @@ struct nullness<array_parser::juncture> : no_null<array_parser::juncture>
 
 inline std::string to_string(pqxx::array_parser::juncture const &j)
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   using junc = pqxx::array_parser::juncture;
   switch (j)
   {
@@ -25,6 +26,7 @@ inline std::string to_string(pqxx::array_parser::juncture const &j)
   case junc::done: return "done";
   default: return "UNKNOWN JUNCTURE: " + to_string(static_cast<int>(j));
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 } // namespace pqxx
 
@@ -33,6 +35,7 @@ namespace
 {
 void test_empty_arrays()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
 
   // Parsing a null pointer just immediately returns "done".
@@ -68,11 +71,13 @@ void test_empty_arrays()
     output.first, pqxx::array_parser::juncture::done,
     "Empty array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_null_value()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser containing_null("{NULL}");
 
@@ -99,11 +104,13 @@ void test_array_null_value()
     output.first, pqxx::array_parser::juncture::done,
     "Array containing null did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_double_quoted_string()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{\"item\"}");
 
@@ -129,11 +136,13 @@ void test_array_double_quoted_string()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_double_quoted_escaping()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser(R"--({"don''t\\ care"})--");
 
@@ -159,12 +168,14 @@ void test_array_double_quoted_escaping()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 // A pair of double quotes in a double-quoted string is an escaped quote.
 void test_array_double_double_quoted_string()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser{R"--({"3"" steel"})--"};
 
@@ -179,11 +190,13 @@ void test_array_double_double_quoted_string()
     "Array did not return string_value.");
 
   PQXX_CHECK_EQUAL(output.second, "3\" steel", "Unexpected string value.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_unquoted_string()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{item}");
 
@@ -209,11 +222,13 @@ void test_array_unquoted_string()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_multiple_values()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{1,2}");
 
@@ -245,11 +260,13 @@ void test_array_multiple_values()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_nested_array()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{{item}}");
 
@@ -286,11 +303,13 @@ void test_nested_array()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_nested_array_with_multiple_entries()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
   pqxx::array_parser parser("{{1,2},{3,4}}");
 
@@ -356,6 +375,7 @@ void test_nested_array_with_multiple_entries()
     output.first, pqxx::array_parser::juncture::done,
     "Array did not conclude with done.");
   PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
@@ -493,6 +513,7 @@ void test_array_generate()
 
 void test_array_roundtrip()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -526,11 +547,13 @@ void test_array_roundtrip()
   PQXX_CHECK_EQUAL(
     item.first, pqxx::array_parser::juncture::done,
     "Array did not end in done.");
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_array_strings()
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::vector<std::string_view> inputs{
     "",    "null", "NULL", "\\N", "'",    "''", "\\", "\n\t",
     "\\n", "\"",   "\"\"", "a b", "a<>b", "{",  "}",  "{}",
@@ -552,6 +575,7 @@ void test_array_strings()
       "Bad value juncture.");
     PQXX_CHECK_EQUAL(value, input, "Bad array value roundtrip.");
   }
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 

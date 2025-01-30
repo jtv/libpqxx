@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "pqxx/types.hxx"
+
 
 namespace pqxx
 {
@@ -197,7 +199,9 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 /// Internal error in libpqxx library
 struct PQXX_LIBEXPORT internal_error : std::logic_error
 {
-  explicit internal_error(std::string const &);
+  explicit internal_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+
+  PQXX_LOC location;
 };
 
 

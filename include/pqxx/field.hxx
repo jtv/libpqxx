@@ -245,7 +245,7 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  array<ELEMENT, ARGS...> as_sql_array() const
+  array<ELEMENT, ARGS...> as_sql_array(PQXX_LOC loc = PQXX_LOC::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 
@@ -253,7 +253,7 @@ public:
     if (is_null())
       internal::throw_null_conversion(type_name<array_type>);
     else
-      return array_type{this->view(), this->m_home.m_encoding};
+      return array_type{this->view(), this->m_home.m_encoding, loc};
   }
 
   /// Parse the field as an SQL array.
@@ -268,7 +268,9 @@ public:
     "Instead, use as_sql_array() to convert to pqxx::array.")]]
   array_parser as_array() const & noexcept
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return array_parser{c_str(), m_home.m_encoding};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
 

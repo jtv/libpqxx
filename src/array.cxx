@@ -47,20 +47,20 @@ std::string::size_type array_parser::scan_glyph(
 
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<pqxx::internal::encoding_group ENC>
-std::string::size_type array_parser::scan_double_quoted_string() const
+std::string::size_type array_parser::scan_double_quoted_string(PQXX_LOC loc) const
 {
   return pqxx::internal::scan_double_quoted_string<ENC>(
-    std::data(m_input), std::size(m_input), m_pos);
+    std::data(m_input), std::size(m_input), m_pos, loc);
 }
 
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 template<pqxx::internal::encoding_group ENC>
 std::string
-array_parser::parse_double_quoted_string(std::string::size_type end) const
+array_parser::parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const
 {
   return pqxx::internal::parse_double_quoted_string<ENC>(
-    std::data(m_input), end, m_pos);
+    std::data(m_input), end, m_pos, loc);
 }
 
 
@@ -68,10 +68,10 @@ array_parser::parse_double_quoted_string(std::string::size_type end) const
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
 template<pqxx::internal::encoding_group ENC>
-std::string::size_type array_parser::scan_unquoted_string() const
+std::string::size_type array_parser::scan_unquoted_string(PQXX_LOC loc) const
 {
   return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
-    std::data(m_input), std::size(m_input), m_pos);
+    std::data(m_input), std::size(m_input), m_pos, loc);
 }
 
 
@@ -81,10 +81,10 @@ std::string::size_type array_parser::scan_unquoted_string() const
  */
 template<pqxx::internal::encoding_group ENC>
 std::string_view
-array_parser::parse_unquoted_string(std::string::size_type end) const
+array_parser::parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
-    std::data(m_input), end, m_pos);
+    std::data(m_input), end, m_pos, loc);
 }
 
 
@@ -97,17 +97,18 @@ array_parser::array_parser(
 template<pqxx::internal::encoding_group ENC>
 std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
 {
+  auto loc{PQXX_LOC::current()};
   std::string value{};
 
   if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
-  auto [found, end] = [this, &value] {
+  auto [found, end] = [this, &value, loc] {
     if (scan_glyph<ENC>(m_pos) - m_pos > 1)
     {
       // Non-ASCII unquoted string.
-      auto const endpoint = scan_unquoted_string<ENC>();
-      value = parse_unquoted_string<ENC>(endpoint);
+      auto const endpoint = scan_unquoted_string<ENC>(loc);
+      value = parse_unquoted_string<ENC>(endpoint, loc);
       return std::tuple{juncture::string_value, endpoint};
     }
     else
@@ -117,13 +118,13 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
       case '{': return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos)};
       case '}': return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos)};
       case '"': {
-        auto const endpoint = scan_double_quoted_string<ENC>();
-        value = parse_double_quoted_string<ENC>(endpoint);
+        auto const endpoint = scan_double_quoted_string<ENC>(loc);
+        value = parse_double_quoted_string<ENC>(endpoint, loc);
         return std::tuple{juncture::string_value, endpoint};
       }
       default: {
-        auto const endpoint = scan_unquoted_string<ENC>();
-        value = parse_unquoted_string<ENC>(endpoint);
+        auto const endpoint = scan_unquoted_string<ENC>(loc);
+        value = parse_unquoted_string<ENC>(endpoint, loc);
         if (value == "NULL")
         {
           // In this one situation, as a special case, NULL means a null
