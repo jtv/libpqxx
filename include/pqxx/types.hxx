@@ -20,6 +20,10 @@
 #include <type_traits>
 
 
+/// Conenience alias for `std::source_location`.  It's just too long.
+#define PQXX_LOC std::source_location
+
+
 namespace pqxx
 {
 /// Number of rows in a result set.
