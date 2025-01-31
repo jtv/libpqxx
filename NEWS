@@ -6,7 +6,7 @@
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
  - The libpqxx exceptions now have a `std::source_location`.
- - More getters on `pqxx::connection` are now `noexcept`.
+ - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
  - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.

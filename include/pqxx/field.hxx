@@ -73,19 +73,19 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name() const &;
+  [[nodiscard]] PQXX_PURE char const *name(PQXX_LOC = PQXX_LOC::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type() const;
+  [[nodiscard]] oid PQXX_PURE type(PQXX_LOC loc = PQXX_LOC::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table() const;
+  [[nodiscard]] PQXX_PURE oid table(PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Return row number.  The first row is row 0, the second is row 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column() const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column(PQXX_LOC = PQXX_LOC::current()) const;
   //@}
 
   /**
@@ -108,10 +108,8 @@ public:
    * @ref result exists.  Once all `result` objects referring to that data have
    * been destroyed, the `string_view` will no longer point to valid memory.
    */
-  [[nodiscard]] PQXX_PURE std::string_view view() const &
-  {
-    return std::string_view(c_str(), size());
-  }
+  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  { return {c_str(), size()}; }
 
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a
@@ -123,7 +121,7 @@ public:
    * convert the value to your desired type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const &;
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
 
   /// Is this field's value null?
   [[nodiscard]] PQXX_PURE bool is_null() const noexcept;

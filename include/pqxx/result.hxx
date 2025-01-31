@@ -206,10 +206,10 @@ public:
   [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] row_size_type column_number(zview name) const;
+  [[nodiscard]] row_size_type column_number(zview name, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  [[nodiscard]] char const *column_name(row_size_type number) const &;
+  [[nodiscard]] char const *column_name(row_size_type number, PQXX_LOC = PQXX_LOC::current()) const &;
 
   /// Server-side storage size for field of column's type, in bytes.
   /** Returns the size of the server's internal representation of the column's
@@ -231,30 +231,30 @@ public:
   [[nodiscard]] int column_type_modifier(row_size_type number) const noexcept;
 
   /// Return column's type, as an OID from the system catalogue.
-  [[nodiscard]] oid column_type(row_size_type col_num) const;
+  [[nodiscard]] oid column_type(row_size_type col_num, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  [[nodiscard]] oid column_type(zview col_name) const
+  [[nodiscard]] oid column_type(zview col_name, PQXX_LOC loc = PQXX_LOC::current()) const
   {
-    return column_type(column_number(col_name));
+    return column_type(column_number(col_name, loc));
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(row_size_type col_num) const;
+  [[nodiscard]] oid column_table(row_size_type col_num, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name) const
+  [[nodiscard]] oid column_table(zview col_name, PQXX_LOC loc = PQXX_LOC::current()) const
   {
-    return column_table(column_number(col_name));
+    return column_table(column_number(col_name, loc), loc);
   }
 
   /// What column in its table did this column come from?
-  [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
+  [[nodiscard]] row_size_type table_column(row_size_type col_num, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// What column in its table did this column come from?
-  [[nodiscard]] row_size_type table_column(zview col_name) const
+  [[nodiscard]] row_size_type table_column(zview col_name, PQXX_LOC loc = PQXX_LOC::current()) const
   {
-    return table_column(column_number(col_name));
+    return table_column(column_number(col_name), loc);
   }
   //@}
 

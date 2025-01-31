@@ -413,29 +413,29 @@ pqxx::field::size_type pqxx::result::get_length(
 }
 
 
-pqxx::oid pqxx::result::column_type(row::size_type col_num) const
+pqxx::oid pqxx::result::column_type(row::size_type col_num, PQXX_LOC loc) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
     throw argument_error{internal::concat(
       "Attempt to retrieve type of nonexistent column ", col_num,
-      " of query result.")};
+      " of query result."), loc};
   return t;
 }
 
 
-pqxx::row::size_type pqxx::result::column_number(zview col_name) const
+pqxx::row::size_type pqxx::result::column_number(zview col_name, PQXX_LOC loc) const
 {
   auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
     throw argument_error{
-      internal::concat("Unknown column name: '", col_name, "'.")};
+      internal::concat("Unknown column name: '", col_name, "'."), loc};
 
   return static_cast<row::size_type>(n);
 }
 
 
-pqxx::oid pqxx::result::column_table(row::size_type col_num) const
+pqxx::oid pqxx::result::column_table(row::size_type col_num, PQXX_LOC loc) const
 {
   oid const t{PQftable(m_data.get(), col_num)};
 
@@ -445,13 +445,13 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
   if (t == oid_none and col_num >= columns())
     throw argument_error{internal::concat(
       "Attempt to retrieve table ID for column ", col_num, " out of ",
-      columns())};
+      columns()), loc};
 
   return t;
 }
 
 
-pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
+pqxx::row::size_type pqxx::result::table_column(row::size_type col_num, PQXX_LOC loc) const
 {
   auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0) [[likely]]
@@ -461,16 +461,16 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
   auto const col_str{to_string(col_num)};
   if (col_num > columns())
     throw range_error{
-      internal::concat("Invalid column index in table_column(): ", col_str)};
+      internal::concat("Invalid column index in table_column(): ", col_str), loc};
 
   if (m_data.get() == nullptr)
     throw usage_error{internal::concat(
       "Can't query origin of column ", col_str,
-      ": result is not initialized.")};
+      ": result is not initialized."), loc};
 
   throw usage_error{internal::concat(
     "Can't query origin of column ", col_str,
-    ": not derived from table column.")};
+    ": not derived from table column."), loc};
 }
 
 
@@ -487,16 +487,16 @@ int pqxx::result::errorposition() const
 }
 
 
-char const *pqxx::result::column_name(pqxx::row::size_type number) const &
+char const *pqxx::result::column_name(pqxx::row::size_type number, PQXX_LOC loc) const &
 {
   auto const n{PQfname(m_data.get(), number)};
   if (n == nullptr) [[unlikely]]
   {
     if (m_data.get() == nullptr)
-      throw usage_error{"Queried column name on null result."};
+      throw usage_error{"Queried column name on null result.", loc};
     throw range_error{internal::concat(
       "Invalid column number: ", number, " (maximum is ", (columns() - 1),
-      ").")};
+      ")."), loc};
   }
   return n;
 }
