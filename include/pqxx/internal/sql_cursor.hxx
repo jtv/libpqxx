@@ -47,19 +47,15 @@ public:
     close(loc);
   }
 
-  result fetch(
-    difference_type rows, difference_type &displacement,
-    PQXX_LOC = PQXX_LOC::current());
-  result fetch(difference_type rows, PQXX_LOC loc = PQXX_LOC::current())
+  result fetch(difference_type rows, difference_type &displacement, PQXX_LOC);
+  result fetch(difference_type rows, PQXX_LOC loc)
   {
     difference_type d = 0;
     return fetch(rows, d, loc);
   }
-  difference_type move(
-    difference_type rows, difference_type &displacement,
-    PQXX_LOC = PQXX_LOC::current());
   difference_type
-  move(difference_type rows, PQXX_LOC loc = PQXX_LOC::current())
+  move(difference_type rows, difference_type &displacement, PQXX_LOC);
+  difference_type move(difference_type rows, PQXX_LOC loc)
   {
     difference_type d = 0;
     return move(rows, d, loc);
@@ -117,9 +113,11 @@ private:
 };
 
 
-PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &);
+PQXX_LIBEXPORT result_size_type
+obtain_stateless_cursor_size(sql_cursor &, PQXX_LOC);
 PQXX_LIBEXPORT result stateless_cursor_retrieve(
   sql_cursor &, result::difference_type size,
-  result::difference_type begin_pos, result::difference_type end_pos);
+  result::difference_type begin_pos, result::difference_type end_pos,
+  PQXX_LOC);
 } // namespace pqxx::internal
 #endif

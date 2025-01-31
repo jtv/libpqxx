@@ -193,11 +193,13 @@ public:
    * @param tx The transaction within which you want to manage the cursor.
    * @param adopted_cursor Your cursor's SQL name.
    */
-  stateless_cursor(transaction_base &tx, std::string_view adopted_cursor) :
+  stateless_cursor(
+    transaction_base &tx, std::string_view adopted_cursor,
+    PQXX_LOC loc = PQXX_LOC::current()) :
           m_cur{tx, adopted_cursor, op}
   {
     // Put cursor in known position
-    m_cur.move(cursor_base::backward_all());
+    m_cur.move(cursor_base::backward_all(), loc);
   }
 
   /// Close this cursor.
@@ -212,9 +214,9 @@ public:
   /** @note This function is not const; it may need to scroll to find the size
    * of the result set.
    */
-  [[nodiscard]] size_type size()
+  [[nodiscard]] size_type size(PQXX_LOC loc = PQXX_LOC::current())
   {
-    return internal::obtain_stateless_cursor_size(m_cur);
+    return internal::obtain_stateless_cursor_size(m_cur, loc);
   }
 
   /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
@@ -229,10 +231,12 @@ public:
    * arbitrarily inside or outside the result set; only existing rows are
    * included in the result.
    */
-  result retrieve(difference_type begin_pos, difference_type end_pos)
+  result retrieve(
+    difference_type begin_pos, difference_type end_pos,
+    PQXX_LOC loc = PQXX_LOC::current())
   {
     return internal::stateless_cursor_retrieve(
-      m_cur, result::difference_type(size()), begin_pos, end_pos);
+      m_cur, result::difference_type(size()), begin_pos, end_pos, loc);
   }
 
   /// Return this cursor's name.
@@ -295,7 +299,8 @@ public:
    */
   icursorstream(
     transaction_base &context, std::string_view query,
-    std::string_view basename, difference_type sstride = 1);
+    std::string_view basename, difference_type sstride = 1,
+    PQXX_LOC = PQXX_LOC::current());
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g.
@@ -324,7 +329,8 @@ public:
    */
   icursorstream(
     transaction_base &context, field const &cname, difference_type sstride = 1,
-    cursor_base::ownership_policy op = cursor_base::owned);
+    cursor_base::ownership_policy op = cursor_base::owned,
+    PQXX_LOC = PQXX_LOC::current());
 
   /// Return `true` if this stream may still return more data.
   constexpr operator bool() const & noexcept { return not m_done; }
@@ -338,9 +344,9 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.get(r1).get(r2);")
    */
-  icursorstream &get(result &res)
+  icursorstream &get(result &res, PQXX_LOC loc = PQXX_LOC::current())
   {
-    res = fetchblock();
+    res = fetchblock(loc);
     return *this;
   }
   /// Read new value into given result object; same as `get(result&)`.
@@ -361,27 +367,28 @@ public:
    * @return Reference to this stream itself, to facilitate "chained"
    * invocations.
    */
-  icursorstream &ignore(std::streamsize n = 1) &;
+  icursorstream &
+  ignore(std::streamsize n = 1, PQXX_LOC = PQXX_LOC::current()) &;
 
   /// Change stride, i.e. the number of rows to fetch per read operation.
   /**
    * @param stride Must be a positive number.
    */
-  void set_stride(difference_type stride) &;
+  void set_stride(difference_type stride, PQXX_LOC = PQXX_LOC::current()) &;
   [[nodiscard]] constexpr difference_type stride() const noexcept
   {
     return m_stride;
   }
 
 private:
-  result fetchblock();
+  result fetchblock(PQXX_LOC);
 
   friend class internal::gate::icursorstream_icursor_iterator;
   size_type forward(size_type n = 1);
   void insert_iterator(icursor_iterator *) noexcept;
   void remove_iterator(icursor_iterator *) const noexcept;
 
-  void service_iterators(difference_type);
+  void service_iterators(difference_type, PQXX_LOC);
 
   internal::sql_cursor m_cur;
 
@@ -439,12 +446,16 @@ public:
 
   result const &operator*() const
   {
-    refresh();
+    // TODO: How can we pass std::source_location here?
+    auto loc{PQXX_LOC::current()};
+    refresh(loc);
     return m_here;
   }
   result const *operator->() const
   {
-    refresh();
+    // TODO: How can we pass std::source_location here?
+    auto loc{PQXX_LOC::current()};
+    refresh(loc);
     return &m_here;
   }
   icursor_iterator &operator++();
@@ -472,7 +483,7 @@ public:
   }
 
 private:
-  void refresh() const;
+  void refresh(PQXX_LOC) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }
