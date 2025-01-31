@@ -78,7 +78,14 @@ class PQXX_LIBEXPORT subtransaction : public transaction_focus,
 {
 public:
   /// Nest a subtransaction nested in another transaction.
-  explicit subtransaction(dbtransaction &t, std::string_view tname = ""sv);
+  explicit subtransaction(
+    dbtransaction &t, std::string_view tname, PQXX_LOC = PQXX_LOC::current());
+
+  /// Nest a subtransaction nested in another transaction.
+  explicit subtransaction(
+    dbtransaction &t, PQXX_LOC loc = PQXX_LOC::current()) :
+          subtransaction(t, "", loc)
+  {}
 
   /// Nest a subtransaction in another subtransaction.
   explicit subtransaction(subtransaction &t, std::string_view name = ""sv);
@@ -90,7 +97,7 @@ private:
   {
     return quote_name(transaction_focus::name());
   }
-  virtual void do_commit() override;
+  virtual void do_commit(PQXX_LOC) override;
 };
 } // namespace pqxx
 #endif

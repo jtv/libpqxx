@@ -13,9 +13,15 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   connection_transaction(reference x) : super(x) {}
 
-  template<typename STRING> result exec(STRING query, std::string_view desc)
+  template<typename STRING>
+  result exec(STRING query, std::string_view desc, PQXX_LOC loc)
   {
-    return home().exec(query, desc);
+    return home().exec(query, desc, loc);
+  }
+
+  template<typename STRING> result exec(STRING query, PQXX_LOC loc)
+  {
+    return home().exec(query, "", loc);
   }
 
   void register_transaction(transaction_base *t)
@@ -37,9 +43,10 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
     return home().exec_prepared(statement, args);
   }
 
-  result exec_params(std::string_view query, internal::c_params const &args)
+  result exec_params(
+    std::string_view query, internal::c_params const &args, PQXX_LOC loc)
   {
-    return home().exec_params(query, args);
+    return home().exec_params(query, args, loc);
   }
 };
 } // namespace pqxx::internal::gate

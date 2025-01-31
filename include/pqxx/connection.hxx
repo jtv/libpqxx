@@ -273,17 +273,18 @@ enum class error_verbosity : int
 class PQXX_LIBEXPORT connection
 {
 public:
-  connection() : connection{""} {}
+  connection(PQXX_LOC loc = PQXX_LOC::current()) : connection{"", loc} {}
 
   /// Connect to a database, using `options` string.
-  explicit connection(char const options[])
+  explicit connection(char const options[], PQXX_LOC loc = PQXX_LOC::current())
   {
     check_version();
-    init(options);
+    init(options, loc);
   }
 
   /// Connect to a database, using `options` string.
-  explicit connection(zview options) : connection{options.c_str()}
+  explicit connection(zview options, PQXX_LOC loc = PQXX_LOC::current()) :
+          connection{options.c_str(), loc}
   {
     // (Delegates to other constructor which calls check_version for us.)
   }
@@ -294,7 +295,7 @@ public:
    * other objects may hold references to the old object which would become
    * invalid and might produce hard-to-diagnose bugs.
    */
-  connection(connection &&rhs);
+  connection(connection &&rhs, PQXX_LOC = PQXX_LOC::current());
 
   /// Connect to a database, passing options as a range of key/value pairs.
   /** There's no need to escape the parameter values.
@@ -310,7 +311,7 @@ public:
    * `std::map<std::string, pqxx::zview>`, and so on.
    */
   template<internal::ZKey_ZValues MAPPING>
-  inline connection(MAPPING const &params);
+  inline connection(MAPPING const &params, PQXX_LOC = PQXX_LOC::current());
 
   ~connection()
   {
@@ -363,20 +364,20 @@ public:
   //@{
   /// Name of the database to which we're connected, if any.
   /** Returns nullptr when not connected. */
-  [[nodiscard]] char const *dbname() const;
+  [[nodiscard]] char const *dbname() const noexcept;
 
   /// Database user ID under which we are connected, if any.
   /** Returns nullptr when not connected. */
-  [[nodiscard]] char const *username() const;
+  [[nodiscard]] char const *username() const noexcept;
 
   /// Database server address, if given.
   /** This may be an IP address, or a hostname, or (for a Unix domain socket)
    * a socket path.  Returns nullptr when not connected.
    */
-  [[nodiscard]] char const *hostname() const;
+  [[nodiscard]] char const *hostname() const noexcept;
 
   /// Server port number on which we are connected to the database.
-  [[nodiscard]] char const *port() const;
+  [[nodiscard]] char const *port() const noexcept;
 
   /// Process ID for backend process, or 0 if inactive.
   [[nodiscard]] int PQXX_PURE backendpid() const & noexcept;
@@ -444,19 +445,21 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(zview encoding) &
+  void
+  set_client_encoding(zview encoding, PQXX_LOC loc = PQXX_LOC::current()) &
   {
-    set_client_encoding(encoding.c_str());
+    set_client_encoding(encoding.c_str(), loc);
   }
 
   /// Set client-side character encoding, by name.
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(char const encoding[]) &;
+  void
+  set_client_encoding(char const encoding[], PQXX_LOC = PQXX_LOC::current()) &;
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
-  [[nodiscard]] int encoding_id() const;
+  [[nodiscard]] int encoding_id(PQXX_LOC = PQXX_LOC::current()) const;
 
   //@}
 
@@ -483,15 +486,19 @@ public:
    * allowed.
    */
   template<typename TYPE>
-  void set_session_var(std::string_view var, TYPE const &value) &
+  void set_session_var(
+    std::string_view var, TYPE const &value,
+    PQXX_LOC loc = PQXX_LOC::current()) &
   {
     if constexpr (nullness<TYPE>::has_null)
     {
       if (nullness<TYPE>::is_null(value))
         throw variable_set_to_null{
-          internal::concat("Attempted to set variable ", var, " to null.")};
+          internal::concat("Attempted to set variable ", var, " to null."),
+          loc};
     }
-    exec(internal::concat("SET ", quote_name(var), "=", quote(value)));
+    exec(
+      internal::concat("SET ", quote_name(var), "=", quote(value, loc)), loc);
   }
 
   /// Read currently applicable value of a variable.
@@ -501,7 +508,8 @@ public:
    * @return a blank `std::optional` if the variable's value is null, or its
    * string value otherwise.
    */
-  std::string get_var(std::string_view var);
+  std::string
+  get_var(std::string_view var, PQXX_LOC loc = PQXX_LOC::current());
 
   /// Read currently applicable value of a variable.
   /** This function executes an SQL statement, so it won't work while a
@@ -510,9 +518,10 @@ public:
    * If there is any possibility that the variable is null, ensure that `TYPE`
    * can represent null values.
    */
-  template<typename TYPE> TYPE get_var_as(std::string_view var)
+  template<typename TYPE>
+  TYPE get_var_as(std::string_view var, PQXX_LOC loc = PQXX_LOC::current())
   {
-    return from_string<TYPE>(get_var(var));
+    return from_string<TYPE>(get_var(var, loc));
   }
 
   /**
@@ -623,7 +632,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int get_notifs();
+  int get_notifs(PQXX_LOC = PQXX_LOC::current());
 
   /// Wait for a notification to come in.
   /** There are other events that will also cancel the wait, such as the
@@ -640,7 +649,7 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int await_notification();
+  int await_notification(PQXX_LOC = PQXX_LOC::current());
 
   /// Wait for a notification to come in, or for given timeout to pass.
   /** There are other events that will also cancel the wait, such as the
@@ -659,7 +668,9 @@ public:
    *
    * @return Number of notifications processed.
    */
-  int await_notification(std::time_t seconds, long microseconds = 0);
+  int await_notification(
+    std::time_t seconds, long microseconds = 0,
+    PQXX_LOC = PQXX_LOC::current());
 
   /// A handler callback for incoming notifications on a given channel.
   /** Your callback must accept a @ref notification object.  This object can
@@ -693,7 +704,9 @@ public:
    * different handlers on the same channel, then the second overwrites the
    * first.
    */
-  void listen(std::string_view channel, notification_handler handler = {});
+  void listen(
+    std::string_view channel, notification_handler handler = {},
+    PQXX_LOC = PQXX_LOC::current());
 
   //@}
 
@@ -786,16 +799,19 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(zview name, zview definition) &
+  void
+  prepare(zview name, zview definition, PQXX_LOC loc = PQXX_LOC::current()) &
   {
-    prepare(name.c_str(), definition.c_str());
+    prepare(name.c_str(), definition.c_str(), loc);
   }
 
   /**
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(char const name[], char const definition[]) &;
+  void prepare(
+    char const name[], char const definition[],
+    PQXX_LOC loc = PQXX_LOC::current()) &;
 
   /// Define a nameless prepared statement.
   /**
@@ -805,11 +821,14 @@ public:
    * the nameless statement being redefined unexpectedly by code somewhere
    * else.
    */
-  void prepare(char const definition[]) &;
-  void prepare(zview definition) & { return prepare(definition.c_str()); }
+  void prepare(char const definition[], PQXX_LOC loc = PQXX_LOC::current()) &;
+  void prepare(zview definition, PQXX_LOC loc = PQXX_LOC::current()) &
+  {
+    return prepare(definition.c_str(), loc);
+  }
 
   /// Drop prepared statement.
-  void unprepare(std::string_view name);
+  void unprepare(std::string_view name, PQXX_LOC loc = PQXX_LOC::current());
 
   //@}
 
@@ -842,24 +861,28 @@ public:
    * Returns a reference to the escaped string, which is actually stored in
    * `buffer`.
    */
-  [[nodiscard]] std::string_view
-  esc(std::string_view text, std::span<char> buffer)
+  [[nodiscard]] std::string_view esc(
+    std::string_view text, std::span<char> buffer,
+    PQXX_LOC loc = PQXX_LOC::current())
   {
     auto const size{std::size(text)}, space{std::size(buffer)};
     auto const needed{2 * size + 1};
     if (space < needed)
-      throw range_error{internal::concat(
-        "Not enough room to escape string of ", size, " byte(s): need ",
-        needed, " bytes of buffer space, but buffer size is ", space, ".")};
+      throw range_error{
+        internal::concat(
+          "Not enough room to escape string of ", size, " byte(s): need ",
+          needed, " bytes of buffer space, but buffer size is ", space, "."),
+        loc};
     auto const data{buffer.data()};
-    return {data, esc_to_buf(text, data)};
+    return {data, esc_to_buf(text, data, loc)};
   }
 
   /// Escape string for use as SQL string literal on this connection.
   /** @warning This is meant for text strings only.  It cannot contain bytes
    * whose value is zero ("nul bytes").
    */
-  [[nodiscard]] std::string esc(std::string_view text) const;
+  [[nodiscard]] std::string
+  esc(std::string_view text, PQXX_LOC loc = PQXX_LOC::current()) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
   /** This is identical to `esc_raw(data)`. */
@@ -991,7 +1014,8 @@ public:
    * Recognises nulls and represents them as SQL nulls.  They get no quotes.
    */
   template<typename T>
-  [[nodiscard]] inline std::string quote(T const &t) const;
+  [[nodiscard]] inline std::string
+  quote(T const &t, PQXX_LOC = PQXX_LOC::current()) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Escape string for literal LIKE match.
@@ -1029,7 +1053,7 @@ public:
    * in a pipeline, but it's up to you to ensure that you're not canceling the
    * wrong query.  This may involve locking.
    */
-  void cancel_query();
+  void cancel_query(PQXX_LOC = PQXX_LOC::current());
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
   /// Set socket to blocking (true) or nonblocking (false).
@@ -1037,7 +1061,7 @@ public:
    * @warning This function is available on most systems, but not necessarily
    * all.
    */
-  void set_blocking(bool block) &;
+  void set_blocking(bool block, PQXX_LOC = PQXX_LOC::current()) &;
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
   /// Set session verbosity.
@@ -1100,7 +1124,7 @@ public:
    * Closing a connection is idempotent.  Closing a connection that's already
    * closed does nothing.
    */
-  void close();
+  void close(PQXX_LOC = PQXX_LOC::current());
 
   /// Seize control of a raw libpq connection.
   /** @warning Do not do this.  Please.  It's for very rare, very specific
@@ -1140,14 +1164,16 @@ public:
    * a string, be sure that it's properly escaped and quoted.
    */
   [[deprecated("To set session variables, use set_session_var.")]] void
-  set_variable(std::string_view var, std::string_view value) &;
+  set_variable(
+    std::string_view var, std::string_view value,
+    PQXX_LOC loc = PQXX_LOC::current()) &;
 
   /// Read session variable, using SQL's `SHOW` command.
   /** @warning This executes an SQL query, so do not get or set variables while
    * a table stream or pipeline is active on the same connection.
    */
   [[deprecated("Use get_var instead.")]] std::string
-    get_variable(std::string_view);
+  get_variable(std::string_view, PQXX_LOC loc = PQXX_LOC::current());
 
 private:
   friend class connecting;
@@ -1155,7 +1181,8 @@ private:
   {
     connect_nonblocking
   };
-  connection(connect_mode, zview connection_string);
+  connection(
+    connect_mode, zview connection_string, PQXX_LOC = PQXX_LOC::current());
 
   /// For use by @ref seize_raw_connection.
   explicit connection(internal::pq::PGconn *raw_conn);
@@ -1166,20 +1193,20 @@ private:
    *
    * Throws an exception if polling indicates that the connection has failed.
    */
-  std::pair<bool, bool> poll_connect();
+  std::pair<bool, bool> poll_connect(PQXX_LOC);
 
   // Initialise based on connection string.
-  void init(char const options[]);
+  void init(char const options[], PQXX_LOC);
   // Initialise based on parameter names and values.
-  void init(char const *params[], char const *values[]);
+  void init(char const *params[], char const *values[], PQXX_LOC);
   void set_up_notice_handlers();
-  void complete_init();
+  void complete_init(PQXX_LOC);
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
     std::string_view desc = ""sv);
 
-  void PQXX_PRIVATE set_up_state();
+  void PQXX_PRIVATE set_up_state(PQXX_LOC);
 
   int PQXX_PRIVATE PQXX_PURE status() const noexcept;
 
@@ -1188,26 +1215,38 @@ private:
    *
    * Returns the number of bytes written, including the trailing zero.
    */
-  std::size_t esc_to_buf(std::string_view text, char *buf) const;
+  std::size_t esc_to_buf(std::string_view text, char *buf, PQXX_LOC loc) const;
 
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
 
-  result exec_prepared(std::string_view statement, internal::c_params const &);
+  result exec_prepared(
+    std::string_view statement, internal::c_params const &,
+    PQXX_LOC loc = PQXX_LOC::current());
 
   /// Throw @ref usage_error if this connection is not in a movable state.
-  void check_movable() const;
+  void check_movable(PQXX_LOC) const;
   /// Throw @ref usage_error if not in a state where it can be move-assigned.
-  void check_overwritable() const;
+  void check_overwritable(PQXX_LOC) const;
 
   friend class internal::gate::connection_errorhandler;
   void PQXX_PRIVATE register_errorhandler(errorhandler *);
   void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
-  result exec(std::string_view, std::string_view = ""sv);
+  result exec(std::string_view query, PQXX_LOC loc)
+  {
+    return exec(query, "", loc);
+  }
+  result exec(std::string_view, std::string_view, PQXX_LOC);
   result PQXX_PRIVATE
-  exec(std::shared_ptr<std::string> const &, std::string_view = ""sv);
+  exec(std::shared_ptr<std::string> const &, std::string_view, PQXX_LOC);
+  result PQXX_PRIVATE
+  exec(std::shared_ptr<std::string> const &query, PQXX_LOC loc)
+  {
+    return exec(query, "", loc);
+  }
+
   void PQXX_PRIVATE register_transaction(transaction_base *);
   void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
 
@@ -1230,7 +1269,7 @@ private:
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);
-  void remove_receiver(notification_receiver *) noexcept;
+  void remove_receiver(notification_receiver *, PQXX_LOC loc) noexcept;
 
   friend class internal::gate::connection_pipeline;
   void PQXX_PRIVATE start_exec(char const query[]);
@@ -1241,7 +1280,8 @@ private:
   friend class internal::gate::connection_dbtransaction;
   friend class internal::gate::connection_sql_cursor;
 
-  result exec_params(std::string_view query, internal::c_params const &args);
+  result exec_params(
+    std::string_view query, internal::c_params const &args, PQXX_LOC);
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
@@ -1352,7 +1392,7 @@ public:
   }
 
   /// Progress towards completion (but don't block).
-  void process() &;
+  void process(PQXX_LOC loc = PQXX_LOC::current()) &;
 
   /// Is our connection finished?
   [[nodiscard]] constexpr bool done() const & noexcept
@@ -1369,7 +1409,7 @@ public:
    * it on an rvalue instance of the class.  If what you have is not an rvalue,
    * turn it into one by wrapping it in `std::move()`.
    */
-  [[nodiscard]] connection produce() &&;
+  [[nodiscard]] connection produce(PQXX_LOC = PQXX_LOC::current()) &&;
 
 private:
   connection m_conn;
@@ -1378,7 +1418,8 @@ private:
 };
 
 
-template<typename T> inline std::string connection::quote(T const &t) const
+template<typename T>
+inline std::string connection::quote(T const &t, PQXX_LOC loc) const
 {
   if (is_null(t))
   {
@@ -1403,7 +1444,7 @@ template<typename T> inline std::string connection::quote(T const &t) const
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * std::size(text) + 1);
-    auto const content_bytes{esc_to_buf(text, buf.data() + 1)};
+    auto const content_bytes{esc_to_buf(text, buf.data() + 1, loc)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
     auto const end{closing_quote + 1};
@@ -1423,7 +1464,7 @@ inline std::string connection::quote_columns(STRINGS const &columns) const
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(MAPPING const &params)
+inline connection::connection(MAPPING const &params, PQXX_LOC loc)
 {
   check_version();
 
@@ -1441,7 +1482,7 @@ inline connection::connection(MAPPING const &params)
   }
   keys.push_back(nullptr);
   values.push_back(nullptr);
-  init(std::data(keys), std::data(values));
+  init(std::data(keys), std::data(values), loc);
 }
 } // namespace pqxx
 #endif

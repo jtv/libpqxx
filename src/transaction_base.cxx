@@ -95,7 +95,7 @@ void pqxx::transaction_base::register_transaction()
 }
 
 
-void pqxx::transaction_base::commit()
+void pqxx::transaction_base::commit(PQXX_LOC loc)
 {
   check_pending_error();
 
@@ -107,8 +107,9 @@ void pqxx::transaction_base::commit()
     break;
 
   case status::aborted:
-    throw usage_error{internal::concat(
-      "Attempt to commit previously aborted ", description())};
+    throw usage_error{
+      internal::concat("Attempt to commit previously aborted ", description()),
+      loc};
 
   case status::committed:
     // Transaction has been committed already.  This is not exactly proper
@@ -134,9 +135,11 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus != nullptr)
-    throw failure{internal::concat(
-      "Attempt to commit ", description(), " with ", m_focus->description(),
-      " still open.")};
+    throw failure{
+      internal::concat(
+        "Attempt to commit ", description(), " with ", m_focus->description(),
+        " still open."),
+      loc};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -144,11 +147,11 @@ void pqxx::transaction_base::commit()
   // remain in-doubt as to whether the backend got the commit order at all.
   if (not m_conn.is_open())
     throw broken_connection{
-      "Broken connection to backend; cannot complete transaction."};
+      "Broken connection to backend; cannot complete transaction.", loc};
 
   try
   {
-    do_commit();
+    do_commit(loc);
     m_status = status::committed;
   }
   catch (in_doubt_error const &)
@@ -166,14 +169,14 @@ void pqxx::transaction_base::commit()
 }
 
 
-void pqxx::transaction_base::do_abort()
+void pqxx::transaction_base::do_abort(PQXX_LOC loc)
 {
   if (m_rollback_cmd)
-    direct_exec(m_rollback_cmd);
+    direct_exec(m_rollback_cmd, loc);
 }
 
 
-void pqxx::transaction_base::abort()
+void pqxx::transaction_base::abort(PQXX_LOC loc)
 {
   // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
@@ -182,7 +185,7 @@ void pqxx::transaction_base::abort()
   case status::active:
     try
     {
-      do_abort();
+      do_abort(loc);
     }
     catch (std::exception const &e)
     {
@@ -193,8 +196,10 @@ void pqxx::transaction_base::abort()
   case status::aborted: return;
 
   case status::committed:
-    throw usage_error{internal::concat(
-      "Attempt to abort previously committed ", description())};
+    throw usage_error{
+      internal::concat(
+        "Attempt to abort previously committed ", description()),
+      loc};
 
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
@@ -238,7 +243,7 @@ public:
 };
 } // namespace
 
-pqxx::result pqxx::transaction_base::exec(std::string_view query)
+pqxx::result pqxx::transaction_base::exec(std::string_view query, PQXX_LOC loc)
 {
   check_pending_error();
 
@@ -253,17 +258,17 @@ pqxx::result pqxx::transaction_base::exec(std::string_view query)
   case status::in_doubt:
     // TODO: Pass query.
     throw usage_error{
-      "Could not execute command: transaction is already closed."};
+      "Could not execute command: transaction is already closed.", loc};
 
   default: PQXX_UNREACHABLE;
   }
 
-  return direct_exec(query);
+  return direct_exec(query, loc);
 }
 
 
-pqxx::result
-pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
+pqxx::result pqxx::transaction_base::exec(
+  std::string_view query, std::string_view desc, PQXX_LOC loc)
 {
   check_pending_error();
 
@@ -279,14 +284,16 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
     std::string const n{
       std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
 
-    throw usage_error{internal::concat(
-      "Could not execute command ", n, ": transaction is already closed.")};
+    throw usage_error{
+      internal::concat(
+        "Could not execute command ", n, ": transaction is already closed."),
+      loc};
   }
 
   default: PQXX_UNREACHABLE;
   }
 
-  return direct_exec(query, desc);
+  return direct_exec(query, desc, loc);
 }
 
 
@@ -311,11 +318,11 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  std::string_view query, internal::c_params const &args)
+  std::string_view query, internal::c_params const &args, PQXX_LOC loc)
 {
   command const cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
-    query, args);
+    query, args, loc);
 }
 
 
@@ -443,19 +450,20 @@ void pqxx::transaction_base::unregister_focus(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::string_view cmd, std::string_view desc)
+  std::string_view cmd, std::string_view desc, PQXX_LOC loc)
 {
   check_pending_error();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(cmd, desc);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(
+    cmd, desc, loc);
 }
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc)
+  std::shared_ptr<std::string> cmd, std::string_view desc, PQXX_LOC loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
-    std::move(cmd), desc);
+    std::move(cmd), desc, loc);
 }
 
 

@@ -135,14 +135,14 @@ pqxx::internal::sql_cursor::sql_cursor(
 {}
 
 
-void pqxx::internal::sql_cursor::close() noexcept
+void pqxx::internal::sql_cursor::close(PQXX_LOC loc) noexcept
 {
   if (m_ownership == cursor_base::owned)
   {
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-        internal::concat("CLOSE "sv, m_home.quote_name(name())).c_str());
+        internal::concat("CLOSE "sv, m_home.quote_name(name())).c_str(), loc);
     }
     catch (std::exception const &)
     {}
@@ -217,7 +217,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
 
 
 pqxx::result pqxx::internal::sql_cursor::fetch(
-  difference_type rows, difference_type &displacement)
+  difference_type rows, difference_type &displacement, PQXX_LOC loc)
 {
   if (rows == 0)
   {
@@ -226,14 +226,14 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
   }
   auto const query{pqxx::internal::concat(
     "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), loc)};
   displacement = adjust(rows, difference_type(std::size(r)));
   return r;
 }
 
 
 pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
-  difference_type rows, difference_type &displacement)
+  difference_type rows, difference_type &displacement, PQXX_LOC loc)
 {
   if (rows == 0)
   {
@@ -243,7 +243,7 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   auto const query{pqxx::internal::concat(
     "MOVE "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), loc)};
   auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
   return d;

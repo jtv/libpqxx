@@ -25,14 +25,18 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
   basic_transaction(
-    connection &cx, zview begin_command, std::string_view tname);
-  basic_transaction(connection &cx, zview begin_command, std::string &&tname);
-  basic_transaction(connection &cx, zview begin_command);
+    connection &cx, zview begin_command, std::string_view tname,
+    PQXX_LOC = PQXX_LOC::current());
+  basic_transaction(
+    connection &cx, zview begin_command, std::string &&tname,
+    PQXX_LOC = PQXX_LOC::current());
+  basic_transaction(
+    connection &cx, zview begin_command, PQXX_LOC = PQXX_LOC::current());
 
   virtual ~basic_transaction() noexcept override = 0;
 
 private:
-  virtual void do_commit() override;
+  virtual void do_commit(PQXX_LOC) override;
 };
 } // namespace pqxx::internal
 

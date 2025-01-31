@@ -22,29 +22,29 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string_view tname) :
+  connection &cx, zview begin_command, std::string_view tname, PQXX_LOC loc) :
         dbtransaction(cx, tname)
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string &&tname) :
+  connection &cx, zview begin_command, std::string &&tname, PQXX_LOC loc) :
         dbtransaction(cx, std::move(tname))
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command) :
+  connection &cx, zview begin_command, PQXX_LOC loc) :
         dbtransaction(cx)
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
@@ -57,12 +57,12 @@ pqxx::internal::basic_transaction::basic_transaction(
 pqxx::internal::basic_transaction::~basic_transaction() noexcept = default;
 
 
-void pqxx::internal::basic_transaction::do_commit()
+void pqxx::internal::basic_transaction::do_commit(PQXX_LOC loc)
 {
   static auto const commit_q{std::make_shared<std::string>("COMMIT"sv)};
   try
   {
-    direct_exec(commit_q);
+    direct_exec(commit_q, loc);
   }
   catch (statement_completion_unknown const &e)
   {
@@ -95,7 +95,7 @@ void pqxx::internal::basic_transaction::do_commit()
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();
-      throw in_doubt_error{msg};
+      throw in_doubt_error{msg, loc};
     }
     else
     {

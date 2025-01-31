@@ -75,7 +75,7 @@ public:
   virtual ~nontransaction() override { close(); }
 
 private:
-  virtual void do_commit() override {}
+  virtual void do_commit(PQXX_LOC) override {}
 };
 } // namespace pqxx
 #endif

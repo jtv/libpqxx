@@ -172,13 +172,13 @@ public:
    * @ref robusttransaction which takes some special precautions to reduce this
    * risk.
    */
-  void commit();
+  void commit(PQXX_LOC = PQXX_LOC::current());
 
   /// Abort the transaction.
   /** No special effort is required to call this function; it will be called
    * implicitly when the transaction is destructed.
    */
-  void abort();
+  void abort(PQXX_LOC = PQXX_LOC::current());
 
   /**
    * @ingroup escaping-functions
@@ -299,13 +299,16 @@ public:
    * @return A result set describing the query's or command's result.
    */
   [[deprecated("The desc parameter is going away.")]]
-  result exec(std::string_view query, std::string_view desc);
+  result exec(
+    std::string_view query, std::string_view desc,
+    PQXX_LOC = PQXX_LOC::current());
 
   // TODO: Wrap PQdescribePrepared().
 
-  result exec(std::string_view query, params parms)
+  result exec(
+    std::string_view query, params parms, PQXX_LOC loc = PQXX_LOC::current())
   {
-    return internal_exec_params(query, parms.make_c_params());
+    return internal_exec_params(query, parms.make_c_params(), loc);
   }
 
   /// Execute a command.
@@ -313,7 +316,7 @@ public:
    * @param query Query or command to execute.
    * @return A result set describing the query's or command's result.
    */
-  result exec(std::string_view query);
+  result exec(std::string_view query, PQXX_LOC = PQXX_LOC::current());
 
   /// Execute a command.
   /**
@@ -1028,13 +1031,13 @@ protected:
   void close() noexcept;
 
   /// To be implemented by derived implementation class: commit transaction.
-  virtual void do_commit() = 0;
+  virtual void do_commit(PQXX_LOC) = 0;
 
   /// Transaction type-specific way of aborting a transaction.
   /** @warning This will become "final", since this function can be called
    * from the implementing class destructor.
    */
-  virtual void do_abort();
+  virtual void do_abort(PQXX_LOC);
 
   /// Set the rollback command.
   void set_rollback_cmd(std::shared_ptr<std::string> cmd)
@@ -1043,9 +1046,17 @@ protected:
   }
 
   /// Execute query on connection directly.
-  result direct_exec(std::string_view, std::string_view desc = ""sv);
+  result direct_exec(std::string_view, std::string_view desc, PQXX_LOC);
+  result direct_exec(std::string_view query, PQXX_LOC loc)
+  {
+    return direct_exec(query, "", loc);
+  }
   result
-  direct_exec(std::shared_ptr<std::string>, std::string_view desc = ""sv);
+  direct_exec(std::shared_ptr<std::string>, std::string_view desc, PQXX_LOC);
+  result direct_exec(std::shared_ptr<std::string> query, PQXX_LOC loc)
+  {
+    return direct_exec(query, "", loc);
+  }
 
 private:
   enum class status
@@ -1061,8 +1072,8 @@ private:
   result internal_exec_prepared(
     std::string_view statement, internal::c_params const &args);
 
-  result
-  internal_exec_params(std::string_view query, internal::c_params const &args);
+  result internal_exec_params(
+    std::string_view query, internal::c_params const &args, PQXX_LOC);
 
   /// Describe this transaction to humans, e.g. "transaction 'foo'".
   [[nodiscard]] std::string description() const;
