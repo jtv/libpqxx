@@ -524,6 +524,8 @@ template<typename T> inline T from_string(field const &value)
 }
 
 
+// TODO: Can we make this generic across all "always-null" types?
+// TODO: Do the same for streams.
 /// Convert a field's value to `nullptr_t`.
 /** Yes, you read that right.  This conversion does nothing useful.  It always
  * returns `nullptr`.
