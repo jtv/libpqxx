@@ -196,9 +196,9 @@ public:
   using reference = iterator_type::reference;
 
   /// Create an iterator, but in an unusable state.
-  const_reverse_result_iterator() = default;
+  const_reverse_result_iterator() noexcept = default;
   /// Copy an iterator.
-  const_reverse_result_iterator(const_reverse_result_iterator const &rhs) =
+  const_reverse_result_iterator(const_reverse_result_iterator const &rhs) noexcept =
     default;
   /// Copy a reverse iterator from a regular iterator.
   explicit const_reverse_result_iterator(const_result_iterator const &rhs) :

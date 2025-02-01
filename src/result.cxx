@@ -75,25 +75,25 @@ bool pqxx::result::operator==(result const &rhs) const noexcept
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::rbegin() const
+pqxx::result::const_reverse_iterator pqxx::result::rbegin() const noexcept
 {
   return const_reverse_iterator{end()};
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::crbegin() const
+pqxx::result::const_reverse_iterator pqxx::result::crbegin() const noexcept
 {
   return rbegin();
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::rend() const
+pqxx::result::const_reverse_iterator pqxx::result::rend() const noexcept
 {
   return const_reverse_iterator{begin()};
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::crend() const
+pqxx::result::const_reverse_iterator pqxx::result::crend() const noexcept
 {
   return rend();
 }
@@ -159,21 +159,21 @@ pqxx::field pqxx::result::operator[](
 #endif // PQXX_HAVE_MULTIDIM
 
 
-pqxx::row pqxx::result::at(pqxx::result::size_type i) const
+pqxx::row pqxx::result::at(pqxx::result::size_type i, PQXX_LOC loc) const
 {
   if (i >= size())
-    throw range_error{"Row number out of range."};
+    throw range_error{"Row number out of range.", loc};
   return operator[](i);
 }
 
 
 pqxx::field pqxx::result::at(
-  pqxx::result_size_type row_num, pqxx::row_size_type col_num) const
+  pqxx::result_size_type row_num, pqxx::row_size_type col_num, PQXX_LOC loc) const
 {
   if (row_num >= size())
-    throw range_error{"Row number out of range."};
+    throw range_error{"Row number out of range.", loc};
   if (col_num >= columns())
-    throw range_error{"Column out of range."};
+    throw range_error{"Column out of range.", loc};
   return {*this, row_num, col_num};
 }
 
@@ -303,18 +303,18 @@ void PQXX_COLD pqxx::result::throw_sql_error(
   throw sql_error{Err, Query, code};
 }
 
-void pqxx::result::check_status(std::string_view desc) const
+void pqxx::result::check_status(std::string_view desc, PQXX_LOC loc) const
 {
-  if (auto err{status_error()}; not std::empty(err)) [[unlikely]]
+  if (auto err{status_error(loc)}; not std::empty(err)) [[unlikely]]
   {
     if (not std::empty(desc))
       err = pqxx::internal::concat("Failure during '", desc, "': ", err);
-    throw_sql_error(err, query());
+    throw_sql_error(err, query(), loc);
   }
 }
 
 
-std::string pqxx::result::status_error() const
+std::string pqxx::result::status_error(PQXX_LOC loc) const
 {
   if (m_data.get() == nullptr)
     throw failure{"No result set given."};
@@ -371,11 +371,11 @@ std::string const &pqxx::result::query() const & noexcept
 }
 
 
-pqxx::oid pqxx::result::inserted_oid() const
+pqxx::oid pqxx::result::inserted_oid(PQXX_LOC loc) const
 {
   if (m_data.get() == nullptr)
     throw usage_error{
-      "Attempt to read oid of inserted row without an INSERT result"};
+      "Attempt to read oid of inserted row without an INSERT result", loc};
   return PQoidValue(m_data.get());
 }
 
@@ -523,7 +523,7 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
-int pqxx::result::column_storage(pqxx::row::size_type number) const
+int pqxx::result::column_storage(pqxx::row::size_type number, PQXX_LOC loc) const
 {
   int const out{PQfsize(m_data.get(), number)};
   if (out == 0)
@@ -531,9 +531,9 @@ int pqxx::result::column_storage(pqxx::row::size_type number) const
     auto const sz{this->size()};
     if ((number < 0) or (number >= sz))
       throw argument_error{pqxx::internal::concat(
-        "Column number out of range: ", number, " (have 0 - ", sz, ")")};
+        "Column number out of range: ", number, " (have 0 - ", sz, ")"), loc};
     throw failure{pqxx::internal::concat(
-      "Error getting column_storage for column ", number)};
+      "Error getting column_storage for column ", number), loc};
   }
   return out;
 }
@@ -546,7 +546,7 @@ int pqxx::result::column_type_modifier(
 }
 
 
-pqxx::row pqxx::result::one_row() const
+pqxx::row pqxx::result::one_row(PQXX_LOC loc) const
 {
   auto const sz{size()};
   if (sz != 1)
@@ -554,23 +554,23 @@ pqxx::row pqxx::result::one_row() const
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
       throw unexpected_rows{
-        pqxx::internal::concat("Expected 1 row from query, got ", sz, ".")};
+        pqxx::internal::concat("Expected 1 row from query, got ", sz, "."), loc};
     else
       throw unexpected_rows{pqxx::internal::concat(
-        "Expected 1 row from query '", *m_query, "', got ", sz, ".")};
+        "Expected 1 row from query '", *m_query, "', got ", sz, "."), loc};
   }
   return front();
 }
 
 
-pqxx::field pqxx::result::one_field() const
+pqxx::field pqxx::result::one_field(PQXX_LOC loc) const
 {
-  expect_columns(1);
-  return one_row()[0];
+  expect_columns(1, loc);
+  return one_row(loc)[0];
 }
 
 
-std::optional<pqxx::row> pqxx::result::opt_row() const
+std::optional<pqxx::row> pqxx::result::opt_row(PQXX_LOC loc) const
 {
   auto const sz{size()};
   if (sz > 1)
@@ -578,10 +578,10 @@ std::optional<pqxx::row> pqxx::result::opt_row() const
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
       throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query, got ", sz, ".")};
+        "Expected at most 1 row from query, got ", sz, "."), loc};
     else
       throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query '", *m_query, "', got ", sz, ".")};
+        "Expected at most 1 row from query '", *m_query, "', got ", sz, "."), loc};
   }
   else if (sz == 1)
   {

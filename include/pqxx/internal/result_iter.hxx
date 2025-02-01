@@ -50,13 +50,13 @@ public:
   }
 
   /// Comparison only works for comparing to end().
-  bool operator==(result_iter const &rhs) const
+  bool operator==(result_iter const &rhs) const noexcept
   {
     return m_home == rhs.m_home;
   }
-  bool operator!=(result_iter const &rhs) const { return not(*this == rhs); }
+  bool operator!=(result_iter const &rhs) const noexcet { return not(*this == rhs); }
 
-  value_type const &operator*() const { return m_value; }
+  value_type const &operator*() const noexcept { return m_value; }
 
 private:
   void read() { (*m_home)[m_index].convert(m_value); }
