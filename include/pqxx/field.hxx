@@ -73,7 +73,8 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name(PQXX_LOC = PQXX_LOC::current()) const &;
+  [[nodiscard]] PQXX_PURE char const *
+    name(PQXX_LOC = PQXX_LOC::current()) const &;
 
   /// Column type.
   [[nodiscard]] oid PQXX_PURE type(PQXX_LOC loc = PQXX_LOC::current()) const;
@@ -85,7 +86,8 @@ public:
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column(PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] PQXX_PURE
+    row_size_type table_column(PQXX_LOC = PQXX_LOC::current()) const;
   //@}
 
   /**
@@ -109,7 +111,9 @@ public:
    * been destroyed, the `string_view` will no longer point to valid memory.
    */
   [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
-  { return {c_str(), size()}; }
+  {
+    return {c_str(), size()};
+  }
 
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a

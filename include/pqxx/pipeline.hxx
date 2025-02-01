@@ -116,7 +116,8 @@ public:
   void cancel();
 
   /// Is result for given query available?
-  [[nodiscard]] bool is_finished(query_id) const;
+  [[nodiscard]] bool
+    is_finished(query_id, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Retrieve result for given query.
   /** If the query failed for whatever reason, this will throw an exception.
@@ -125,14 +126,14 @@ public:
    * than the one in which their queries were inserted, errors may "propagate"
    * to subsequent queries.
    */
-  result retrieve(query_id qid)
+  result retrieve(query_id qid, PQXX_LOC loc = PQXX_LOC::current())
   {
-    return retrieve(m_queries.find(qid)).second;
+    return retrieve(m_queries.find(qid), loc).second;
   }
 
   /// Retrieve oldest unretrieved result (possibly wait for one).
   /** @return The query's identifier and its result set. */
-  std::pair<query_id, result> retrieve();
+  std::pair<query_id, result> retrieve(PQXX_LOC = PQXX_LOC::current());
 
   [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
@@ -214,7 +215,8 @@ private:
 
   /// Receive results, up to stop if possible.
   PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop);
-  std::pair<pipeline::query_id, result> retrieve(pipeline::QueryMap::iterator);
+  std::pair<pipeline::query_id, result>
+    retrieve(pipeline::QueryMap::iterator, PQXX_LOC);
 
   QueryMap m_queries;
   std::pair<QueryMap::iterator, QueryMap::iterator> m_issuedrange;

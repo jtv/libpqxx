@@ -135,7 +135,7 @@ void PQXX_COLD pqxx::pipeline::cancel()
 }
 
 
-bool pqxx::pipeline::is_finished(pipeline::query_id q) const
+bool pqxx::pipeline::is_finished(pipeline::query_id q, PQXX_LOC loc) const
 {
   if (not m_queries.contains(q))
     throw std::logic_error{
@@ -146,11 +146,12 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 }
 
 
-std::pair<pqxx::pipeline::query_id, pqxx::result> pqxx::pipeline::retrieve()
+std::pair<pqxx::pipeline::query_id, pqxx::result>
+pqxx::pipeline::retrieve(PQXX_LOC loc)
 {
   if (std::empty(m_queries))
     throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
-  return retrieve(std::begin(m_queries));
+  return retrieve(std::begin(m_queries), loc);
 }
 
 
@@ -359,7 +360,7 @@ void pqxx::pipeline::obtain_dummy()
 
 
 std::pair<pqxx::pipeline::query_id, pqxx::result>
-pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q)
+pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, PQXX_LOC loc)
 {
   if (q == std::end(m_queries))
     throw std::logic_error{"Attempt to retrieve result for unknown query."};
