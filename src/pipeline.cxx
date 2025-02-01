@@ -135,7 +135,7 @@ void PQXX_COLD pqxx::pipeline::cancel()
 }
 
 
-bool pqxx::pipeline::is_finished(pipeline::query_id q, PQXX_LOC loc) const
+bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (not m_queries.contains(q))
     throw std::logic_error{

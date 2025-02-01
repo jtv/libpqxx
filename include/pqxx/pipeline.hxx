@@ -116,8 +116,7 @@ public:
   void cancel();
 
   /// Is result for given query available?
-  [[nodiscard]] bool
-    is_finished(query_id, PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] bool is_finished(query_id) const;
 
   /// Retrieve result for given query.
   /** If the query failed for whatever reason, this will throw an exception.
