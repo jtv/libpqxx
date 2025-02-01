@@ -54,7 +54,10 @@ public:
   {
     return m_home == rhs.m_home;
   }
-  bool operator!=(result_iter const &rhs) const noexcet { return not(*this == rhs); }
+  bool operator!=(result_iter const &rhs) const noexcept
+  {
+    return not(*this == rhs);
+  }
 
   value_type const &operator*() const noexcept { return m_value; }
 

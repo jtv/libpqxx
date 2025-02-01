@@ -168,7 +168,8 @@ pqxx::row pqxx::result::at(pqxx::result::size_type i, PQXX_LOC loc) const
 
 
 pqxx::field pqxx::result::at(
-  pqxx::result_size_type row_num, pqxx::row_size_type col_num, PQXX_LOC loc) const
+  pqxx::result_size_type row_num, pqxx::row_size_type col_num,
+  PQXX_LOC loc) const
 {
   if (row_num >= size())
     throw range_error{"Row number out of range.", loc};
@@ -188,7 +189,7 @@ inline bool equal(char const lhs[], char const rhs[])
 } // namespace
 
 void PQXX_COLD pqxx::result::throw_sql_error(
-  std::string const &Err, std::string const &Query) const
+  std::string const &Err, std::string const &Query, PQXX_LOC loc) const
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
@@ -197,7 +198,7 @@ void PQXX_COLD pqxx::result::throw_sql_error(
   {
     // No SQLSTATE at all.  Can this even happen?
     // Let's assume the connection is no longer usable.
-    throw broken_connection{Err};
+    throw broken_connection{Err, loc};
   }
 
   switch (code[0])
@@ -209,44 +210,44 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     // connection was just fine, so we had no real way of detecting the
     // problem.  (Trying to continue to use the connection does break
     // though, so I feel justified in panicking.)
-    throw broken_connection{Err};
+    throw broken_connection{Err, loc};
 
   case '0':
     switch (code[1])
     {
-    case 'A': throw feature_not_supported{Err, Query, code};
+    case 'A': throw feature_not_supported{Err, Query, code, loc};
     case '8':
       if (equal(code, "08P01"))
-        throw protocol_violation{Err};
-      throw broken_connection{Err};
+        throw protocol_violation{Err, loc};
+      throw broken_connection{Err, loc};
     case 'L':
-    case 'P': throw insufficient_privilege{Err, Query, code};
+    case 'P': throw insufficient_privilege{Err, Query, code, loc};
     }
     break;
   case '2':
     switch (code[1])
     {
-    case '2': throw data_exception{Err, Query, code};
+    case '2': throw data_exception{Err, Query, code, loc};
     case '3':
       if (equal(code, "23001"))
-        throw restrict_violation{Err, Query, code};
+        throw restrict_violation{Err, Query, code, loc};
       if (equal(code, "23502"))
-        throw not_null_violation{Err, Query, code};
+        throw not_null_violation{Err, Query, code, loc};
       if (equal(code, "23503"))
-        throw foreign_key_violation{Err, Query, code};
+        throw foreign_key_violation{Err, Query, code, loc};
       if (equal(code, "23505"))
-        throw unique_violation{Err, Query, code};
+        throw unique_violation{Err, Query, code, loc};
       if (equal(code, "23514"))
-        throw check_violation{Err, Query, code};
-      throw integrity_constraint_violation{Err, Query, code};
-    case '4': throw invalid_cursor_state{Err, Query, code};
-    case '6': throw invalid_sql_statement_name{Err, Query, code};
+        throw check_violation{Err, Query, code, loc};
+      throw integrity_constraint_violation{Err, Query, code, loc};
+    case '4': throw invalid_cursor_state{Err, Query, code, loc};
+    case '6': throw invalid_sql_statement_name{Err, Query, code, loc};
     }
     break;
   case '3':
     switch (code[1])
     {
-    case '4': throw invalid_cursor_name{Err, Query, code};
+    case '4': throw invalid_cursor_name{Err, Query, code, loc};
     }
     break;
   case '4':
@@ -254,25 +255,25 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     {
     case '0':
       if (equal(code, "40000"))
-        throw transaction_rollback{Err, Query, code};
+        throw transaction_rollback{Err, Query, code, loc};
       if (equal(code, "40001"))
-        throw serialization_failure{Err, Query, code};
+        throw serialization_failure{Err, Query, code, loc};
       if (equal(code, "40003"))
-        throw statement_completion_unknown{Err, Query, code};
+        throw statement_completion_unknown{Err, Query, code, loc};
       if (equal(code, "40P01"))
-        throw deadlock_detected{Err, Query, code};
+        throw deadlock_detected{Err, Query, code, loc};
       break;
     case '2':
       if (equal(code, "42501"))
-        throw insufficient_privilege{Err, Query};
+        throw insufficient_privilege{Err, Query, nullptr, loc};
       if (equal(code, "42601"))
-        throw syntax_error{Err, Query, code, errorposition()};
+        throw syntax_error{Err, Query, code, errorposition(), loc};
       if (equal(code, "42703"))
-        throw undefined_column{Err, Query, code};
+        throw undefined_column{Err, Query, code, loc};
       if (equal(code, "42883"))
-        throw undefined_function{Err, Query, code};
+        throw undefined_function{Err, Query, code, loc};
       if (equal(code, "42P01"))
-        throw undefined_table{Err, Query, code};
+        throw undefined_table{Err, Query, code, loc};
     }
     break;
   case '5':
@@ -280,27 +281,27 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     {
     case '3':
       if (equal(code, "53100"))
-        throw disk_full{Err, Query, code};
+        throw disk_full{Err, Query, code, loc};
       if (equal(code, "53200"))
-        throw out_of_memory{Err, Query, code};
+        throw out_of_memory{Err, Query, code, loc};
       if (equal(code, "53300"))
-        throw too_many_connections{Err};
-      throw insufficient_resources{Err, Query, code};
+        throw too_many_connections{Err, loc};
+      throw insufficient_resources{Err, Query, code, loc};
     }
     break;
 
   case 'P':
     if (equal(code, "P0001"))
-      throw plpgsql_raise{Err, Query, code};
+      throw plpgsql_raise{Err, Query, code, loc};
     if (equal(code, "P0002"))
-      throw plpgsql_no_data_found{Err, Query, code};
+      throw plpgsql_no_data_found{Err, Query, code, loc};
     if (equal(code, "P0003"))
-      throw plpgsql_too_many_rows{Err, Query, code};
+      throw plpgsql_too_many_rows{Err, Query, code, loc};
     throw plpgsql_error{Err, Query, code};
   }
 
   // Unknown error code.
-  throw sql_error{Err, Query, code};
+  throw sql_error{Err, Query, code, loc};
 }
 
 void pqxx::result::check_status(std::string_view desc, PQXX_LOC loc) const
@@ -523,17 +524,22 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
-int pqxx::result::column_storage(pqxx::row::size_type number, PQXX_LOC loc) const
+int pqxx::result::column_storage(
+  pqxx::row::size_type number, PQXX_LOC loc) const
 {
   int const out{PQfsize(m_data.get(), number)};
   if (out == 0)
   {
     auto const sz{this->size()};
     if ((number < 0) or (number >= sz))
-      throw argument_error{pqxx::internal::concat(
-        "Column number out of range: ", number, " (have 0 - ", sz, ")"), loc};
-    throw failure{pqxx::internal::concat(
-      "Error getting column_storage for column ", number), loc};
+      throw argument_error{
+        pqxx::internal::concat(
+          "Column number out of range: ", number, " (have 0 - ", sz, ")"),
+        loc};
+    throw failure{
+      pqxx::internal::concat(
+        "Error getting column_storage for column ", number),
+      loc};
   }
   return out;
 }
@@ -554,10 +560,13 @@ pqxx::row pqxx::result::one_row(PQXX_LOC loc) const
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
       throw unexpected_rows{
-        pqxx::internal::concat("Expected 1 row from query, got ", sz, "."), loc};
+        pqxx::internal::concat("Expected 1 row from query, got ", sz, "."),
+        loc};
     else
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected 1 row from query '", *m_query, "', got ", sz, "."), loc};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected 1 row from query '", *m_query, "', got ", sz, "."),
+        loc};
   }
   return front();
 }
@@ -577,11 +586,15 @@ std::optional<pqxx::row> pqxx::result::opt_row(PQXX_LOC loc) const
   {
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query, got ", sz, "."), loc};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected at most 1 row from query, got ", sz, "."),
+        loc};
     else
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query '", *m_query, "', got ", sz, "."), loc};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected at most 1 row from query '", *m_query, "', got ", sz, "."),
+        loc};
   }
   else if (sz == 1)
   {

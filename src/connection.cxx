@@ -260,7 +260,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 pqxx::result pqxx::connection::make_result(
   internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
-  std::string_view desc)
+  std::string_view desc, PQXX_LOC loc)
 {
   std::shared_ptr<internal::pq::PGresult> const smart{
     pgr, internal::clear_result};
@@ -269,12 +269,12 @@ pqxx::result pqxx::connection::make_result(
     if (is_open())
       throw failure(err_msg());
     else
-      throw broken_connection{"Lost connection to the database server."};
+      throw broken_connection{"Lost connection to the database server.", loc};
   }
   auto const enc{internal::enc_group(encoding_id())};
   auto r{pqxx::internal::gate::result_creation::create(
     smart, query, m_notice_waiters, enc)};
-  pqxx::internal::gate::result_creation{r}.check_status(desc);
+  pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
   return r;
 }
 

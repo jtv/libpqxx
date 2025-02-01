@@ -217,7 +217,8 @@ public:
   /** Returns the size of the server's internal representation of the column's
    * data type.  A negative value indicates the data type is variable-length.
    */
-  [[nodiscard]] int column_storage(row_size_type number, PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] int
+  column_storage(row_size_type number, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Type modifier of the column with this number.
   /** The meaning of modifier values is type-specific; they typically indicate
@@ -273,7 +274,8 @@ public:
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * @ref oid_none otherwise.
    */
-  [[nodiscard]] PQXX_PURE oid inserted_oid(PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] PQXX_PURE
+    oid inserted_oid(PQXX_LOC = PQXX_LOC::current()) const;
 
   /// If command was `INSERT`, `UPDATE`, or `DELETE`: number of affected rows.
   /** @return Number of affected rows if last command was `INSERT`, `UPDATE`,
@@ -333,12 +335,16 @@ public:
     {
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
-        throw unexpected_rows{pqxx::internal::concat(
-          "Expected ", n, " row(s) from query, got ", sz, "."), loc};
+        throw unexpected_rows{
+          pqxx::internal::concat(
+            "Expected ", n, " row(s) from query, got ", sz, "."),
+          loc};
       else
-        throw unexpected_rows{pqxx::internal::concat(
-          "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
-          "."), loc};
+        throw unexpected_rows{
+          pqxx::internal::concat(
+            "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
+            "."),
+          loc};
     }
     return *this;
   }
@@ -368,18 +374,24 @@ public:
   /** @return The result itself, for convenience.
    * @throw @ref usage_error otherwise.
    */
-  result expect_columns(row_size_type cols, PQXX_LOC loc = PQXX_LOC::current()) const
+  result
+  expect_columns(row_size_type cols, PQXX_LOC loc = PQXX_LOC::current()) const
   {
     auto const actual{columns()};
     if (actual != cols)
     {
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
-        throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query, got ", actual, "."), loc};
+        throw usage_error{
+          pqxx::internal::concat(
+            "Expected 1 column from query, got ", actual, "."),
+          loc};
       else
-        throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query '", *m_query, "', got ", actual, "."), loc};
+        throw usage_error{
+          pqxx::internal::concat(
+            "Expected 1 column from query '", *m_query, "', got ", actual,
+            "."),
+          loc};
     }
     return *this;
   }
@@ -437,8 +449,8 @@ private:
   bool operator!() const noexcept { return m_data.get() == nullptr; }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
-  [[noreturn]] PQXX_PRIVATE PQXX_COLD void
-  throw_sql_error(std::string const &Err, std::string const &Query, PQXX_LOC) const;
+  [[noreturn]] PQXX_PRIVATE PQXX_COLD void throw_sql_error(
+    std::string const &Err, std::string const &Query, PQXX_LOC) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
   PQXX_PRIVATE std::string status_error(PQXX_LOC) const;
 

@@ -1204,7 +1204,14 @@ private:
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
-    std::string_view desc = ""sv);
+    std::string_view desc, PQXX_LOC = PQXX_LOC::current());
+
+  result make_result(
+    internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
+    PQXX_LOC loc = PQXX_LOC::current())
+  {
+    return make_result(pgr, query, "", loc);
+  }
 
   void PQXX_PRIVATE set_up_state(PQXX_LOC);
 

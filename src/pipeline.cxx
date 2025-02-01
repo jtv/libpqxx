@@ -225,10 +225,11 @@ void pqxx::pipeline::issue()
 }
 
 
-void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err)
+void PQXX_COLD
+pqxx::pipeline::internal_error(std::string const &err, PQXX_LOC loc)
 {
   set_error_at(0);
-  throw pqxx::internal_error{err};
+  throw pqxx::internal_error{err, loc};
 }
 
 
@@ -270,7 +271,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 }
 
 
-void pqxx::pipeline::obtain_dummy()
+void pqxx::pipeline::obtain_dummy(PQXX_LOC loc)
 {
   // Allocate once, re-use across invocations.
   static auto const text{
@@ -283,7 +284,7 @@ void pqxx::pipeline::obtain_dummy()
 
   if (not r) [[unlikely]]
     internal_error(
-      "Pipeline got no result from backend when it expected one.");
+      "Pipeline got no result from backend when it expected one.", loc);
 
   pqxx::internal::gate::connection_pipeline const pgate{m_trans->conn()};
   auto handler{pgate.get_notice_waiters()};
@@ -293,7 +294,7 @@ void pqxx::pipeline::obtain_dummy()
   bool OK{false};
   try
   {
-    pqxx::internal::gate::result_creation{R}.check_status();
+    pqxx::internal::gate::result_creation{R}.check_status(loc);
     OK = true;
   }
   catch (sql_error const &)
@@ -344,7 +345,7 @@ void pqxx::pipeline::obtain_dummy()
       auto const query{*m_issuedrange.first->second.query};
       auto &holder{m_issuedrange.first->second};
       holder.res = m_trans->exec(query);
-      pqxx::internal::gate::result_creation{holder.res}.check_status();
+      pqxx::internal::gate::result_creation{holder.res}.check_status(loc);
       ++m_issuedrange.first;
     } while (m_issuedrange.first != stop);
   }
@@ -408,7 +409,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, PQXX_LOC loc)
 
   m_queries.erase(q);
 
-  pqxx::internal::gate::result_creation{R}.check_status();
+  pqxx::internal::gate::result_creation{R}.check_status(loc);
   return P;
 }
 

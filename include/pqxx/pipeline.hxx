@@ -202,11 +202,12 @@ private:
   }
 
   /// Throw pqxx::internal_error.
-  [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err);
+  [[noreturn]] PQXX_PRIVATE void
+  internal_error(std::string const &err, PQXX_LOC = PQXX_LOC::current());
 
   PQXX_PRIVATE bool obtain_result(bool expect_none = false);
 
-  PQXX_PRIVATE void obtain_dummy();
+  PQXX_PRIVATE void obtain_dummy(PQXX_LOC = PQXX_LOC::current());
   PQXX_PRIVATE void get_further_available_results();
   PQXX_PRIVATE void check_end_results();
 
