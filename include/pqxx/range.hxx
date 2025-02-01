@@ -47,10 +47,12 @@ private:
 
 public:
   inclusive_bound() = delete;
-  constexpr explicit inclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit inclusive_bound(
+    TYPE const &value, PQXX_LOC loc = PQXX_LOC::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an inclusive range bound."};
+      throw argument_error{"Got null value as an inclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -86,10 +88,12 @@ private:
 
 public:
   exclusive_bound() = delete;
-  constexpr explicit exclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit exclusive_bound(
+    TYPE const &value, PQXX_LOC loc = PQXX_LOC::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an exclusive range bound."};
+      throw argument_error{"Got null value as an exclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -248,15 +252,19 @@ public:
    * or
    * @ref exclusive_bound.
    */
-  constexpr range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
+  constexpr range(
+    range_bound<TYPE> lower, range_bound<TYPE> upper,
+    PQXX_LOC loc = PQXX_LOC::current()) :
           m_lower{lower}, m_upper{upper}
   {
     if (
       lower.is_limited() and upper.is_limited() and
       (*upper.value() < *lower.value()))
-      throw range_error{internal::concat(
-        "Range's lower bound (", *lower.value(),
-        ") is greater than its upper bound (", *upper.value(), ").")};
+      throw range_error{
+        internal::concat(
+          "Range's lower bound (", *lower.value(),
+          ") is greater than its upper bound (", *upper.value(), ")."),
+        loc};
   }
 
   /// Create an empty range.
@@ -408,13 +416,14 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     return generic_to_buf(begin, end, value);
   }
 
-  static inline char *
-  into_buf(char *begin, char *end, range<TYPE> const &value)
+  static inline char *into_buf(
+    char *begin, char *end, range<TYPE> const &value,
+    PQXX_LOC loc = PQXX_LOC::current())
   {
     if (value.empty())
     {
       if ((end - begin) <= std::ssize(s_empty))
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       char *here = begin + s_empty.copy(begin, std::size(s_empty));
       *here++ = '\0';
       return here;
@@ -422,7 +431,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     else
     {
       if (end - begin < 4)
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       char *here = begin;
       *here++ =
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
@@ -436,7 +445,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
       if (upper != nullptr)
         here = string_traits<TYPE>::into_buf(here, end, *upper) - 1;
       if ((end - here) < 2)
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =
         static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
       *here++ = '\0';
