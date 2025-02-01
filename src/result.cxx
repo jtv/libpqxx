@@ -335,7 +335,8 @@ std::string pqxx::result::status_error(PQXX_LOC loc) const
 #if defined(LIBPQ_HAS_PIPELINING)
   case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
-    throw feature_not_supported{"Not supported yet: libpq pipelines.", loc};
+    throw feature_not_supported{
+      "Not supported yet: libpq pipelines.", "", nullptr, loc};
 #endif
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
@@ -346,7 +347,7 @@ std::string pqxx::result::status_error(PQXX_LOC loc) const
 
   case PGRES_SINGLE_TUPLE:
     throw feature_not_supported{
-      "Not supported: single-row mode.", nullptr, loc};
+      "Not supported: single-row mode.", "", nullptr, loc};
 
   default:
     throw internal_error{
