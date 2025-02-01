@@ -345,12 +345,15 @@ std::string pqxx::result::status_error(PQXX_LOC loc) const
     break;
 
   case PGRES_SINGLE_TUPLE:
-    throw feature_not_supported{"Not supported: single-row mode.", loc};
+    throw feature_not_supported{
+      "Not supported: single-row mode.", nullptr, loc};
 
   default:
-    throw internal_error{internal::concat(
-      "pqxx::result: Unrecognized result status code ",
-      PQresultStatus(m_data.get())), loc};
+    throw internal_error{
+      internal::concat(
+        "pqxx::result: Unrecognized result status code ",
+        PQresultStatus(m_data.get())),
+      loc};
   }
   return err;
 }
