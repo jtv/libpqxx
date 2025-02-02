@@ -62,7 +62,10 @@ public:
   value_type const &operator*() const noexcept { return m_value; }
 
 private:
-  void read() { (*m_home)[m_index].convert(m_value); }
+  void read(PQXX_LOC loc = PQXX_LOC::current())
+  {
+    (*m_home)[m_index].convert(m_value, loc);
+  }
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
@@ -103,7 +106,7 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 
 
 template<typename CALLABLE>
-inline void pqxx::result::for_each(CALLABLE &&func) const
+inline void pqxx::result::for_each(CALLABLE &&func, PQXX_LOC loc) const
 {
   using args_tuple = internal::args_t<decltype(func)>;
   constexpr auto sz{std::tuple_size_v<args_tuple>};
@@ -114,11 +117,13 @@ inline void pqxx::result::for_each(CALLABLE &&func) const
 
   auto const cols{this->columns()};
   if (sz != cols)
-    throw usage_error{internal::concat(
-      "Callback to for_each takes ", sz, "parameter", (sz == 1) ? "" : "s",
-      ", but result set has ", cols, "field", (cols == 1) ? "" : "s", ".")};
+    throw usage_error{
+      internal::concat(
+        "Callback to for_each takes ", sz, "parameter", (sz == 1) ? "" : "s",
+        ", but result set has ", cols, "field", (cols == 1) ? "" : "s", "."),
+      loc};
 
   using pass_tuple = pqxx::internal::strip_types_t<args_tuple>;
-  for (auto const r : *this) std::apply(func, r.as_tuple<pass_tuple>());
+  for (auto const r : *this) std::apply(func, r.as_tuple<pass_tuple>(loc));
 }
 #endif

@@ -322,7 +322,8 @@ public:
    * The parameter types must have conversions from PostgreSQL's string format
    * defined; see @ref datatypes.
    */
-  template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
+  template<typename CALLABLE>
+  inline void for_each(CALLABLE &&func, PQXX_LOC = PQXX_LOC::current()) const;
 
   /// Check that result contains exactly `n` rows.
   /** @return The result itself, for convenience.
