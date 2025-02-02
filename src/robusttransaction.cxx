@@ -72,20 +72,24 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
 }
 
 
-tx_stat query_status(std::string const &xid, std::string const &conn_str)
+tx_stat query_status(
+  std::string const &xid, std::string const &conn_str,
+  PQXX_LOC loc = PQXX_LOC::current())
 {
   static std::string const name{"robusttxck"sv};
   auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
-  pqxx::connection cx{conn_str};
+  pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
-  auto const status_row{tx.exec(query).one_row()};
+  auto const status_row{tx.exec(query, loc).one_row(loc)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
-    throw pqxx::internal_error{"Transaction status string is empty."};
+    throw pqxx::internal_error{"Transaction status string is empty.", loc};
   auto const status{parse_status(status_field.as<std::string_view>())};
   if (status == tx_unknown)
-    throw pqxx::internal_error{pqxx::internal::concat(
-      "Unknown transaction status string: ", status_field.view())};
+    throw pqxx::internal_error{
+      pqxx::internal::concat(
+        "Unknown transaction status string: ", status_field.view()),
+      loc};
   return status;
 }
 } // namespace
@@ -98,7 +102,7 @@ void pqxx::internal::basic_robusttransaction::init(
     std::make_shared<std::string>("SELECT txid_current()"sv)};
   m_backendpid = conn().backendpid();
   direct_exec(begin_command, loc);
-  direct_exec(txid_q, loc).one_field().to(m_xid);
+  direct_exec(txid_q, loc).one_field(loc).to(m_xid);
 }
 
 
@@ -181,7 +185,7 @@ void pqxx::internal::basic_robusttransaction::do_commit(PQXX_LOC loc)
   {
     try
     {
-      switch (query_status(m_xid, m_conn_string))
+      switch (query_status(m_xid, m_conn_string, loc))
       {
       case tx_unknown:
         // We were unable to reconnect and query transaction status.
