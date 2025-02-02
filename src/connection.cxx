@@ -913,15 +913,15 @@ pqxx::connection::read_copy_line()
 }
 
 
-void pqxx::connection::write_copy_line(std::string_view line)
+void pqxx::connection::write_copy_line(std::string_view line, PQXX_LOC loc)
 {
   static std::string const err_prefix{"Error writing to table: "};
   auto const size{check_cast<int>(
     std::ssize(line), "Line in stream_to is too long to process."sv)};
   if (PQputCopyData(m_conn, line.data(), size) <= 0) [[unlikely]]
-    throw failure{err_prefix + err_msg()};
+    throw failure{err_prefix + err_msg(), loc};
   if (PQputCopyData(m_conn, "\n", 1) <= 0) [[unlikely]]
-    throw failure{err_prefix + err_msg()};
+    throw failure{err_prefix + err_msg(), loc};
 }
 
 

@@ -37,7 +37,7 @@ void begin_copy(
 
 
 /// Return the escape character for escaping the given special character.
-char escape_char(char special)
+char escape_char(char special, PQXX_LOC loc)
 {
   switch (special)
   {
@@ -50,9 +50,11 @@ char escape_char(char special)
   case '\\': return '\\';
   default: break;
   }
-  throw pqxx::internal_error{pqxx::internal::concat(
-    "Stream escaping unexpectedly stopped at '",
-    static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
+  throw pqxx::internal_error{
+    pqxx::internal::concat(
+      "Stream escaping unexpectedly stopped at '",
+      static_cast<unsigned>(static_cast<unsigned char>(special)), "'."),
+    loc};
 }
 } // namespace
 
@@ -70,13 +72,14 @@ pqxx::stream_to::~stream_to() noexcept
 }
 
 
-void pqxx::stream_to::write_raw_line(std::string_view text)
+void pqxx::stream_to::write_raw_line(std::string_view text, PQXX_LOC loc)
 {
-  internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(text);
+  internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(
+    text, loc);
 }
 
 
-void pqxx::stream_to::write_buffer()
+void pqxx::stream_to::write_buffer(PQXX_LOC loc)
 {
   if (not std::empty(m_buffer))
   {
@@ -85,7 +88,7 @@ void pqxx::stream_to::write_buffer()
     assert(m_buffer[std::size(m_buffer) - 1] == '\t');
     m_buffer.resize(std::size(m_buffer) - 1);
   }
-  write_raw_line(m_buffer);
+  write_raw_line(m_buffer, loc);
   m_buffer.clear();
 }
 
@@ -97,7 +100,7 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
     const auto [line, size] = tr.get_raw_line();
     if (line.get() == nullptr)
       break;
-    write_raw_line(std::string_view{line.get(), size});
+    write_raw_line(std::string_view{line.get(), size}, PQXX_LOC::current());
   }
   return *this;
 }
@@ -126,7 +129,8 @@ void pqxx::stream_to::complete()
 }
 
 
-void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
+void pqxx::stream_to::escape_field_to_buffer(
+  std::string_view data, PQXX_LOC loc)
 {
   std::size_t const end{std::size(data)};
   std::size_t here{0};
@@ -138,7 +142,7 @@ void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
     if (stop_char < end)
     {
       m_buffer.push_back('\\');
-      m_buffer.push_back(escape_char(data[stop_char]));
+      m_buffer.push_back(escape_char(data[stop_char], loc));
     }
     here = stop_char + 1;
   }

@@ -1268,7 +1268,7 @@ private:
   read_copy_line();
 
   friend class internal::gate::connection_stream_to;
-  void PQXX_PRIVATE write_copy_line(std::string_view);
+  void PQXX_PRIVATE write_copy_line(std::string_view, PQXX_LOC);
   void PQXX_PRIVATE end_copy_write();
 
   friend class internal::gate::connection_largeobject;
