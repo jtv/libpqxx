@@ -88,7 +88,8 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, std::string_view description)
+inline TO check_cast(
+  FROM value, std::string_view description, PQXX_LOC loc = PQXX_LOC::current())
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -110,7 +111,8 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error{internal::cat2("Cast underflow: "sv, description)};
+        throw range_error{
+          internal::cat2("Cast underflow: "sv, description), loc};
     }
     else
     {
@@ -118,8 +120,10 @@ inline TO check_cast(FROM value, std::string_view description)
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-        throw range_error{internal::cat2(
-          "Casting negative value to unsigned type: "sv, description)};
+        throw range_error{
+          internal::cat2(
+            "Casting negative value to unsigned type: "sv, description),
+          loc};
     }
   }
   else
@@ -137,13 +141,14 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (from_max > to_max)
     {
       if (std::cmp_greater(value, to_max))
-        throw range_error{internal::cat2("Cast overflow: "sv, description)};
+        throw range_error{
+          internal::cat2("Cast overflow: "sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error{internal::cat2("Cast overflow: ", description)};
+      throw range_error{internal::cat2("Cast overflow: ", description), loc};
   }
 
   return static_cast<TO>(value);
