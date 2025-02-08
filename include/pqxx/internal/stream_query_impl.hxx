@@ -10,28 +10,32 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query) :
+  transaction_base &tx, std::string_view query, PQXX_LOC loc) :
         transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"))};
-  r.expect_columns(sizeof...(TYPE));
-  r.expect_rows(0);
+  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), loc)};
+  r.expect_columns(sizeof...(TYPE), loc);
+  r.expect_rows(0, loc);
   register_me();
 }
 
 
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, params const &parms) :
+  transaction_base &tx, std::string_view query, params const &parms,
+  PQXX_LOC loc) :
         transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms)
-                 .no_rows()};
+  auto const r{
+    tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms, loc)
+      .no_rows(loc)};
   if (r.columns() != sizeof...(TYPE))
-    throw usage_error{concat(
-      "Parsing query stream with wrong number of columns: "
-      "code expects ",
-      sizeof...(TYPE), " but query returns ", r.columns(), ".")};
+    throw usage_error{
+      concat(
+        "Parsing query stream with wrong number of columns: "
+        "code expects ",
+        sizeof...(TYPE), " but query returns ", r.columns(), "."),
+      loc};
   register_me();
 }
 

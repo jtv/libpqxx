@@ -40,10 +40,10 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   }
   void end_copy_write() { home().end_copy_write(); }
 
-  result
-  exec_prepared(std::string_view statement, internal::c_params const &args)
+  result exec_prepared(
+    std::string_view statement, internal::c_params const &args, PQXX_LOC loc)
   {
-    return home().exec_prepared(statement, args);
+    return home().exec_prepared(statement, args, loc);
   }
 
   result exec_params(

@@ -457,11 +457,11 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[]);
+unesc_bin(std::string_view escaped_data, std::byte buffer[], PQXX_LOC loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
+bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, PQXX_LOC loc);
 
 
 /// Helper for determining a function's parameter types.

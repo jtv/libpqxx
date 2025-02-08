@@ -309,11 +309,11 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  std::string_view statement, internal::c_params const &args)
+  std::string_view statement, internal::c_params const &args, PQXX_LOC loc)
 {
   command const cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
-    statement, args);
+    statement, args, loc);
 }
 
 
@@ -327,12 +327,12 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 
 
 void pqxx::transaction_base::notify(
-  std::string_view channel, std::string_view payload)
+  std::string_view channel, std::string_view payload, PQXX_LOC loc)
 {
   // For some reason, NOTIFY does not work as a parameterised statement,
   // even just for the payload (which is supposed to be a normal string).
   // Luckily, pg_notify() does.
-  exec("SELECT pg_notify($1, $2)", params{channel, payload}).one_row();
+  exec("SELECT pg_notify($1, $2)", params{channel, payload}, loc).one_row(loc);
 }
 
 
@@ -521,6 +521,7 @@ void pqxx::transaction_base::check_pending_error()
 {
   if (not std::empty(m_pending_error))
   {
+    // TODO: Store exceptions, or message + source_location.
     std::string err;
     err.swap(m_pending_error);
     throw failure{err};

@@ -937,13 +937,15 @@ template<binary DATA> struct string_traits<DATA>
     return begin + budget;
   }
 
-  static DATA from_string(std::string_view text)
+  static DATA
+  from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     bytes buf;
     buf.resize(size);
     // XXX: Use std::as_writable_bytes.
-    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(
+      text, reinterpret_cast<std::byte *>(buf.data()), loc);
     return buf;
   }
 };

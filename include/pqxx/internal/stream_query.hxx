@@ -82,10 +82,13 @@ public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(transaction_base &tx, std::string_view query);
+  inline stream_query(
+    transaction_base &tx, std::string_view query,
+    PQXX_LOC loc = PQXX_LOC::current());
   /// Execute `query` on `tx`, stream results.
   inline stream_query(
-    transaction_base &tx, std::string_view query, params const &);
+    transaction_base &tx, std::string_view query, params const &,
+    PQXX_LOC loc = PQXX_LOC::current());
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;

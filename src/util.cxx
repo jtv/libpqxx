@@ -166,39 +166,41 @@ std::string pqxx::internal::esc_bin(bytes_view binary_data)
 
 
 void pqxx::internal::unesc_bin(
-  std::string_view escaped_data, std::byte buffer[])
+  std::string_view escaped_data, std::byte buffer[], PQXX_LOC loc)
 {
   auto const in_size{std::size(escaped_data)};
   if (in_size < 2)
-    throw pqxx::failure{"Binary data appears truncated."};
+    throw pqxx::failure{"Binary data appears truncated.", loc};
   if ((in_size % 2) != 0)
-    throw pqxx::failure{"Invalid escaped binary length."};
+    throw pqxx::failure{"Invalid escaped binary length.", loc};
   char const *in{escaped_data.data()};
   char const *const end{in + in_size};
   if (*in++ != '\\' or *in++ != 'x')
     throw pqxx::failure(
       "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
-      "too old?");
+      "too old?",
+      loc);
   auto out{buffer};
   while (in != end)
   {
     int const hi{nibble(*in++)};
     if (hi < 0)
-      throw pqxx::failure{"Invalid hex-escaped data."};
+      throw pqxx::failure{"Invalid hex-escaped data.", loc};
     int const lo{nibble(*in++)};
     if (lo < 0)
-      throw pqxx::failure{"Invalid hex-escaped data."};
+      throw pqxx::failure{"Invalid hex-escaped data.", loc};
     *out++ = static_cast<std::byte>((hi << 4) | lo);
   }
 }
 
 
-pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data)
+pqxx::bytes
+pqxx::internal::unesc_bin(std::string_view escaped_data, PQXX_LOC loc)
 {
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
   pqxx::bytes buf;
   buf.resize(bytes);
-  unesc_bin(escaped_data, buf.data());
+  unesc_bin(escaped_data, buf.data(), loc);
   return buf;
 }
 

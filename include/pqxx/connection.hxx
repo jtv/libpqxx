@@ -953,11 +953,12 @@ public:
    * "bytea" escape format, used prior to PostgreSQL 9.0, is no longer
    * supported.)
    */
-  [[nodiscard]] bytes unesc_bin(std::string_view text) const
+  [[nodiscard]] bytes
+  unesc_bin(std::string_view text, PQXX_LOC loc = PQXX_LOC::current()) const
   {
     bytes buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
-    pqxx::internal::unesc_bin(text, buf.data());
+    pqxx::internal::unesc_bin(text, buf.data(), loc);
     return buf;
   }
 

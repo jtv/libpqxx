@@ -81,9 +81,11 @@ public:
    * @param tname Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  transaction(connection &cx, std::string_view tname) :
+  transaction(
+    connection &cx, std::string_view tname,
+    PQXX_LOC loc = PQXX_LOC::current()) :
           internal::basic_transaction{
-            cx, internal::begin_cmd<ISOLATION, READWRITE>, tname}
+            cx, internal::begin_cmd<ISOLATION, READWRITE>, tname, loc}
   {}
 
   /// Begin a transaction.
