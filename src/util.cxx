@@ -110,7 +110,6 @@ constexpr std::array<char, 16u> hex_digits{
 constexpr char hex_digit(int c) noexcept
 {
   PQXX_ASSUME(c >= 0);
-  PQXX_ASSUME(c < std::ssize(hex_digits));
   return hex_digits.at(static_cast<unsigned int>(c));
 }
 

@@ -68,7 +68,7 @@ public:
   array(
     std::string_view data, connection const &cx,
     PQXX_LOC loc = PQXX_LOC::current()) :
-          array{data, pqxx::internal::enc_group(cx.encoding_id()), loc}
+          array{data, pqxx::internal::enc_group(cx.encoding_id(), loc), loc}
   {}
 
   /// How many dimensions does this array have?
@@ -585,7 +585,10 @@ public:
    * Call this until the @ref array_parser::juncture it returns is
    * @ref juncture::done.
    */
-  std::pair<juncture, std::string> get_next() { return (this->*m_impl)(); }
+  std::pair<juncture, std::string> get_next(PQXX_LOC loc = PQXX_LOC::current())
+  {
+    return (this->*m_impl)(loc);
+  }
 
 private:
   std::string_view m_input;
@@ -599,18 +602,19 @@ private:
    * compiler to inline the parsing of each text encoding, which happens in
    * very hot loops.
    */
-  using implementation = std::pair<juncture, std::string> (array_parser::*)();
+  using implementation =
+    std::pair<juncture, std::string> (array_parser::*)(PQXX_LOC);
 
   /// Pick the `implementation` for `enc`.
   static implementation
-  specialize_for_encoding(pqxx::internal::encoding_group enc);
+  specialize_for_encoding(pqxx::internal::encoding_group enc, PQXX_LOC loc);
 
   /// Our implementation of `parse_array_step`, specialised for our encoding.
   implementation m_impl;
 
   /// Perform one step of array parsing.
   template<pqxx::internal::encoding_group>
-  std::pair<juncture, std::string> parse_array_step();
+  std::pair<juncture, std::string> parse_array_step(PQXX_LOC loc);
 
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_double_quoted_string(PQXX_LOC loc) const;
@@ -624,10 +628,12 @@ private:
   parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const;
 
   template<pqxx::internal::encoding_group>
-  std::string::size_type scan_glyph(std::string::size_type pos) const;
-  template<pqxx::internal::encoding_group>
   std::string::size_type
-  scan_glyph(std::string::size_type pos, std::string::size_type end) const;
+  scan_glyph(std::string::size_type pos, PQXX_LOC loc) const;
+  template<pqxx::internal::encoding_group>
+  std::string::size_type scan_glyph(
+    std::string::size_type pos, std::string::size_type end,
+    PQXX_LOC loc) const;
 };
 } // namespace pqxx
 #endif

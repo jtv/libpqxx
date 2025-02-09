@@ -63,7 +63,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
 
 pqxx::icursorstream::icursorstream(
   transaction_base &context, std::string_view query, std::string_view basename,
-  difference_type sstride, PQXX_LOC) :
+  difference_type sstride, PQXX_LOC loc) :
         m_cur{
           context,
           query,
@@ -71,7 +71,8 @@ pqxx::icursorstream::icursorstream(
           cursor_base::forward_only,
           cursor_base::read_only,
           cursor_base::owned,
-          false},
+          false,
+          loc},
         m_stride{sstride},
         m_realpos{0},
         m_reqpos{0},

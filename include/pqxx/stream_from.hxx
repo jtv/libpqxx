@@ -256,7 +256,7 @@ public:
    * @warning The return type may change in the future, to support C++20
    * coroutine-based usage.
    */
-  std::vector<zview> const *read_row() &;
+  std::vector<zview> const *read_row(PQXX_LOC loc = PQXX_LOC::current()) &;
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */
@@ -297,7 +297,7 @@ private:
   void extract_value(Tuple &) const;
 
   /// Read a line of COPY data, write `m_row` and `m_fields`.
-  void parse_line();
+  void parse_line(PQXX_LOC);
 };
 
 
@@ -322,11 +322,12 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
+  PQXX_LOC loc{PQXX_LOC::current()};
   if (m_finished) [[unlikely]]
     return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
-  parse_line();
+  parse_line(loc);
   if (m_finished) [[unlikely]]
     return *this;
 

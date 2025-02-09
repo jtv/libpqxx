@@ -182,8 +182,9 @@ public:
    */
   stateless_cursor(
     transaction_base &tx, std::string_view query, std::string_view cname,
-    bool hold) :
-          m_cur{tx, query, cname, cursor_base::random_access, up, op, hold}
+    bool hold, PQXX_LOC loc = PQXX_LOC::current()) :
+          m_cur{tx, query, cname, cursor_base::random_access,
+                up, op,    hold,  loc}
   {}
 
   /// Adopt an existing scrolling SQL cursor.

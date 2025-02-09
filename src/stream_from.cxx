@@ -28,8 +28,9 @@ namespace
 {
 pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
-  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
-  return pqxx::internal::get_char_finder<'\t', '\\'>(group);
+  PQXX_LOC const loc{PQXX_LOC::current()};
+  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id(), loc)};
+  return pqxx::internal::get_char_finder<'\t', '\\'>(group, loc);
 }
 
 
@@ -41,7 +42,9 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
         transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
 {
-  tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv)).no_rows();
+  PQXX_LOC const loc{PQXX_LOC::current()};
+  tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv), loc)
+    .no_rows(loc);
   register_me();
 }
 
@@ -50,8 +53,10 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
-  tx.exec(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv))
-    .no_rows();
+  PQXX_LOC const loc{PQXX_LOC::current()};
+  tx.exec(
+      internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv), loc)
+    .no_rows(loc);
   register_me();
 }
 
@@ -61,12 +66,15 @@ pqxx::stream_from::stream_from(
   from_table_t) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
+  PQXX_LOC const loc{PQXX_LOC::current()};
   if (std::empty(columns)) [[unlikely]]
-    tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv)).no_rows();
+    tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv), loc)
+      .no_rows(loc);
   else [[likely]]
     tx.exec(
-        internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv))
-      .no_rows();
+        internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv),
+        loc)
+      .no_rows(loc);
   register_me();
 }
 
@@ -175,7 +183,7 @@ void pqxx::stream_from::complete()
 }
 
 
-void pqxx::stream_from::parse_line()
+void pqxx::stream_from::parse_line(PQXX_LOC loc)
 {
   if (m_finished) [[unlikely]]
     return;
@@ -191,7 +199,7 @@ void pqxx::stream_from::parse_line()
   }
 
   if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
-    throw range_error{"Stream produced a ridiculously long line."};
+    throw range_error{"Stream produced a ridiculously long line.", loc};
 
   // Make room for unescaping the line.  It's a pessimistic size.
   // Unusually, we're storing terminating zeroes *inside* the string.
@@ -222,7 +230,7 @@ void pqxx::stream_from::parse_line()
   std::size_t offset{0};
   while (offset < line_size)
   {
-    auto const stop_char{m_char_finder(line_view, offset)};
+    auto const stop_char{m_char_finder(line_view, offset, loc)};
     // Copy the text we have so far.  It's got no special characters in it.
     std::memcpy(write, &line_begin[offset], stop_char - offset);
     write += (stop_char - offset);
@@ -256,7 +264,7 @@ void pqxx::stream_from::parse_line()
       // Escape sequence.
       assert(special == '\\');
       if ((offset) >= line_size)
-        throw failure{"Row ends in backslash"};
+        throw failure{"Row ends in backslash", loc};
 
       // The database will only escape ASCII characters, so no need to use
       // the glyph scanner.
@@ -265,7 +273,7 @@ void pqxx::stream_from::parse_line()
       {
         // Null value.
         if (write != field_begin)
-          throw failure{"Null sequence found in nonempty field"};
+          throw failure{"Null sequence found in nonempty field", loc};
         field_begin = nullptr;
         // (If there's any characters _after_ the null we'll just crash.)
       }
@@ -289,8 +297,8 @@ void pqxx::stream_from::parse_line()
 }
 
 
-std::vector<pqxx::zview> const *pqxx::stream_from::read_row() &
+std::vector<pqxx::zview> const *pqxx::stream_from::read_row(PQXX_LOC loc) &
 {
-  parse_line();
+  parse_line(loc);
   return m_finished ? nullptr : &m_fields;
 }

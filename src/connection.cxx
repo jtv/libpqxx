@@ -271,7 +271,7 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{internal::enc_group(encoding_id())};
+  auto const enc{internal::enc_group(encoding_id(), loc)};
   auto r{pqxx::internal::gate::result_creation::create(
     smart, query, m_notice_waiters, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
@@ -1019,14 +1019,14 @@ std::string pqxx::connection::quote_table(table_path path) const
 }
 
 
-std::string
-pqxx::connection::esc_like(std::string_view text, char escape_char) const
+std::string pqxx::connection::esc_like(
+  std::string_view text, char escape_char, PQXX_LOC loc) const
 {
   std::string out;
   out.reserve(std::size(text));
   // TODO: Rewrite using a char_finder.
   internal::for_glyphs(
-    internal::enc_group(encoding_id()),
+    internal::enc_group(encoding_id(), loc),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         [[unlikely]]
@@ -1034,7 +1034,7 @@ pqxx::connection::esc_like(std::string_view text, char escape_char) const
 
       for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
     },
-    text.data(), std::size(text));
+    text.data(), std::size(text), 0u, loc);
   return out;
 }
 

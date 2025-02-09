@@ -118,7 +118,8 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line) &
+  std::tuple<TYPE...>
+  parse_line(zview line, PQXX_LOC loc = PQXX_LOC::current()) &
   {
     assert(not done());
 
@@ -142,7 +143,7 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write)...};
+    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write, loc)...};
 
     assert(offset == line_size + 1u);
     return data;
@@ -156,7 +157,8 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *get_finder(transaction_base const &tx);
+  static inline char_finder_func *
+  get_finder(transaction_base const &tx, PQXX_LOC);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.
@@ -174,7 +176,7 @@ private:
    * one greater than the size of the line, pointing at the terminating zero.
    */
   std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write)
+  read_field(zview line, std::size_t offset, char *write, PQXX_LOC loc)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -214,7 +216,7 @@ private:
       assert(lp[offset] != '\0');
 
       // Beginning of the next character of interest (or the end of the line).
-      auto const stop_char{m_char_finder(line, offset)};
+      auto const stop_char{m_char_finder(line, offset, loc)};
       PQXX_ASSUME(stop_char > offset);
       assert(stop_char < (line_size + 1));
 
@@ -269,14 +271,15 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET parse_field(zview line, std::size_t &offset, char *&write)
+  TARGET
+  parse_field(zview line, std::size_t &offset, char *&write, PQXX_LOC loc)
   {
     using field_type = std::remove_cvref_t<TARGET>;
     using nullity = nullness<field_type>;
 
     assert(offset <= std::size(line));
 
-    auto [new_offset, new_write, text]{read_field(line, offset, write)};
+    auto [new_offset, new_write, text]{read_field(line, offset, write, loc)};
     PQXX_ASSUME(new_offset > offset);
     PQXX_ASSUME(new_write >= write);
     offset = new_offset;

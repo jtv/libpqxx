@@ -57,8 +57,8 @@ inline bool useless_trail(char c)
  *
  * The query must be nonempty.
  */
-std::string::size_type
-find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
+std::string::size_type find_query_end(
+  std::string_view query, pqxx::internal::encoding_group enc, PQXX_LOC loc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
@@ -81,7 +81,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
         if (gend - gbegin > 1 or not useless_trail(*gbegin))
           end = std::string::size_type(gend - text);
       },
-      text, size);
+      text, size, 0u, loc);
   }
 
   return end;
@@ -92,18 +92,18 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
-  cursor_base::ownership_policy op, bool hold) :
+  cursor_base::ownership_policy op, bool hold, PQXX_LOC loc) :
         cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
 {
   if (&t.conn() != &m_home)
-    throw internal_error{"Cursor in wrong connection"};
+    throw internal_error{"Cursor in wrong connection", loc};
 
   if (std::empty(query))
-    throw usage_error{"Cursor has empty query."};
-  auto const enc{enc_group(t.conn().encoding_id())};
-  auto const qend{find_query_end(query, enc)};
+    throw usage_error{"Cursor has empty query.", loc};
+  auto const enc{enc_group(t.conn().encoding_id(), loc)};
+  auto const qend{find_query_end(query, enc, loc)};
   if (qend == 0)
-    throw usage_error{"Cursor has effectively empty query."};
+    throw usage_error{"Cursor has effectively empty query.", loc};
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{internal::concat(

@@ -165,14 +165,15 @@ PQXX_PURE char const *name_encoding(int encoding_id)
 }
 
 
-encoding_group enc_group(int libpq_enc_id)
+encoding_group enc_group(int libpq_enc_id, PQXX_LOC)
 {
   // TODO: Can we safely do this without using string representation?
   return enc_group(name_encoding(libpq_enc_id));
 }
 
 
-PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
+PQXX_PURE glyph_scanner_func *
+get_glyph_scanner(encoding_group enc, PQXX_LOC loc)
 {
 #define CASE_GROUP(ENC)                                                       \
   case encoding_group::ENC: return glyph_scanner<encoding_group::ENC>::call
@@ -194,7 +195,7 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc)
     [[likely]] CASE_GROUP(UTF8);
   }
   throw usage_error{
-    internal::concat("Unsupported encoding group code ", enc, ".")};
+    internal::concat("Unsupported encoding group code ", enc, "."), loc};
 
 #undef CASE_GROUP
 }

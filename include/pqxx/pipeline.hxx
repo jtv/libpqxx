@@ -60,15 +60,18 @@ public:
 
 
   /// Start a pipeline.
-  explicit pipeline(transaction_base &t) : transaction_focus{t, s_classname}
+  explicit pipeline(transaction_base &t, PQXX_LOC loc = PQXX_LOC::current()) :
+          transaction_focus{t, s_classname}
   {
-    init();
+    init(loc);
   }
   /// Start a pipeline.  Assign it a name, for more helpful error messages.
-  pipeline(transaction_base &t, std::string_view tname) :
+  pipeline(
+    transaction_base &t, std::string_view tname,
+    PQXX_LOC loc = PQXX_LOC::current()) :
           transaction_focus{t, s_classname, tname}
   {
-    init();
+    init(loc);
   }
 
   /// Close the pipeline.
@@ -168,7 +171,7 @@ private:
 
   using QueryMap = std::map<query_id, Query>;
 
-  void init();
+  void init(PQXX_LOC);
   void attach();
   void detach();
 

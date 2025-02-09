@@ -8,30 +8,30 @@ namespace
 void test_scan_ascii()
 {
   auto const scan{pqxx::internal::get_glyph_scanner(
-    pqxx::internal::encoding_group::MONOBYTE)};
+    pqxx::internal::encoding_group::MONOBYTE, PQXX_LOC::current())};
   std::string const text{"hello"};
 
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), std::size(text), 0), 1ul,
+    scan(text.c_str(), std::size(text), 0, PQXX_LOC::current()), 1ul,
     "Monobyte scanner acting up.");
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), std::size(text), 1), 2ul,
+    scan(text.c_str(), std::size(text), 1, PQXX_LOC::current()), 2ul,
     "Monobyte scanner is inconsistent.");
 }
 
 
 void test_scan_utf8()
 {
-  auto const scan{
-    pqxx::internal::get_glyph_scanner(pqxx::internal::encoding_group::UTF8)};
+  auto const scan{pqxx::internal::get_glyph_scanner(
+    pqxx::internal::encoding_group::UTF8, PQXX_LOC::current())};
 
   // Thai: "Khrab".
   std::string const text{"\xe0\xb8\x95\xe0\xb8\xa3\xe0\xb8\xb1\xe0\xb8\x9a"};
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), std::size(text), 0), 3ul,
+    scan(text.c_str(), std::size(text), 0, PQXX_LOC::current()), 3ul,
     "UTF-8 scanner mis-scanned Thai khor khwai.");
   PQXX_CHECK_EQUAL(
-    scan(text.c_str(), std::size(text), 3), 6ul,
+    scan(text.c_str(), std::size(text), 3, PQXX_LOC::current()), 6ul,
     "UTF-8 scanner mis-scanned Thai ror reua.");
 }
 
@@ -41,7 +41,8 @@ void test_for_glyphs_empty()
   bool iterated{false};
   pqxx::internal::for_glyphs(
     pqxx::internal::encoding_group::MONOBYTE,
-    [&iterated](char const *, char const *) { iterated = true; }, "", 0);
+    [&iterated](char const *, char const *) { iterated = true; }, "", 0, 0,
+    PQXX_LOC::current());
   PQXX_CHECK(!iterated, "Empty string went through an iteration.");
 }
 
@@ -56,7 +57,7 @@ void test_for_glyphs_ascii()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    text.c_str(), std::size(text));
+    text.c_str(), std::size(text), 0, PQXX_LOC::current());
 
   PQXX_CHECK_EQUAL(std::size(points), 2u, "Wrong number of ASCII iterations.");
   PQXX_CHECK_EQUAL(points[0], 1u, "ASCII iteration started off wrong.");
@@ -75,7 +76,7 @@ void test_for_glyphs_utf8()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    text.c_str(), std::size(text));
+    text.c_str(), std::size(text), 0, PQXX_LOC::current());
 
   PQXX_CHECK_EQUAL(std::size(points), 2u, "Wrong number of UTF-8 iterations.");
   PQXX_CHECK_EQUAL(points[0], 2u, "UTF-8 iteration started off wrong.");
@@ -90,7 +91,7 @@ void test_for_glyphs_utf8()
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
-    mix.c_str(), std::size(mix));
+    mix.c_str(), std::size(mix), 0, PQXX_LOC::current());
 
   PQXX_CHECK_EQUAL(std::size(points), 3u, "Mixed UTF-8 iteration is broken.");
   PQXX_CHECK_EQUAL(points[0], 2u, "Mixed UTF-8 iteration started off wrong.");

@@ -40,14 +40,14 @@ inline void parse_composite(
   // TODO: Turn this into a parameter.
   auto const loc{PQXX_LOC::current()};
 
-  auto const scan{pqxx::internal::get_glyph_scanner(enc)};
+  auto const scan{pqxx::internal::get_glyph_scanner(enc, loc)};
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
     throw conversion_error{
       "Cannot parse composite value from empty string.", loc};
 
-  std::size_t here{0}, next{scan(data, size, here)};
+  std::size_t here{0}, next{scan(data, size, here, loc)};
   if (next != 1 or data[here] != '(')
     throw conversion_error{
       internal::concat("Invalid composite value string: ", text), loc};

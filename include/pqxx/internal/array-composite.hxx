@@ -22,11 +22,11 @@ inline std::size_t scan_double_quoted_string(
 {
   // TODO: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, size, pos)};
+  auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
   bool at_quote{false};
   pos = next;
-  next = scanner::call(input, size, pos);
+  next = scanner::call(input, size, pos, loc);
   PQXX_ASSUME(next > pos);
   while (pos < size)
   {
@@ -52,7 +52,7 @@ inline std::size_t scan_double_quoted_string(
       case '\\':
         // Backslash escape.  Skip ahead by one more character.
         pos = next;
-        next = scanner::call(input, size, pos);
+        next = scanner::call(input, size, pos, loc);
         PQXX_ASSUME(next > pos);
         break;
 
@@ -68,7 +68,7 @@ inline std::size_t scan_double_quoted_string(
       // Multibyte character.  Carry on.
     }
     pos = next;
-    next = scanner::call(input, size, pos);
+    next = scanner::call(input, size, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   if (not at_quote)
@@ -82,7 +82,7 @@ inline std::size_t scan_double_quoted_string(
 /// Un-quote and un-escape a double-quoted SQL string.
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
-  char const input[], std::size_t end, std::size_t pos, PQXX_LOC)
+  char const input[], std::size_t end, std::size_t pos, PQXX_LOC loc)
 {
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
@@ -92,8 +92,8 @@ inline std::string parse_double_quoted_string(
 
   // TODO: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
-  auto here{scanner::call(input, end, pos)},
-    next{scanner::call(input, end, here)};
+  auto here{scanner::call(input, end, pos, loc)},
+    next{scanner::call(input, end, here, loc)};
   PQXX_ASSUME(here > pos);
   PQXX_ASSUME(next > here);
   while (here < end - 1)
@@ -106,12 +106,12 @@ inline std::string parse_double_quoted_string(
     {
       // Skip escape.
       here = next;
-      next = scanner::call(input, end, here);
+      next = scanner::call(input, end, here, loc);
       PQXX_ASSUME(next > here);
     }
     output.append(input + here, input + next);
     here = next;
-    next = scanner::call(input, end, here);
+    next = scanner::call(input, end, here, loc);
     PQXX_ASSUME(next > here);
   }
   return output;
@@ -128,15 +128,15 @@ inline std::string parse_double_quoted_string(
  */
 template<pqxx::internal::encoding_group ENC, char... STOP>
 inline std::size_t scan_unquoted_string(
-  char const input[], std::size_t size, std::size_t pos, PQXX_LOC)
+  char const input[], std::size_t size, std::size_t pos, PQXX_LOC loc)
 {
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, size, pos)};
+  auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
   while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
-    next = scanner::call(input, size, pos);
+    next = scanner::call(input, size, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   return pos;
@@ -182,7 +182,8 @@ inline void parse_composite_field(
   std::size_t last_field, PQXX_LOC loc)
 {
   assert(index <= last_field);
-  auto next{glyph_scanner<ENC>::call(std::data(input), std::size(input), pos)};
+  auto next{
+    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc)};
   PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)
     throw conversion_error{
@@ -227,7 +228,8 @@ inline void parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
-  next = glyph_scanner<ENC>::call(std::data(input), std::size(input), pos);
+  next =
+    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc);
   PQXX_ASSUME(next > pos);
 
   if ((next - pos) != 1)

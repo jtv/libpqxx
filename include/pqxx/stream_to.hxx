@@ -102,9 +102,10 @@ public:
    *     the stream will write all columns in the table, in schema order.
    */
   static stream_to raw_table(
-    transaction_base &tx, std::string_view path, std::string_view columns = "")
+    transaction_base &tx, std::string_view path, std::string_view columns = "",
+    PQXX_LOC loc = PQXX_LOC::current())
   {
-    return {tx, path, columns};
+    return {tx, path, columns, loc};
   }
 
   /// Create a `stream_to` writing to a named table and columns.
@@ -242,7 +243,8 @@ public:
 private:
   /// Stream a pre-quoted table name and columns list.
   stream_to(
-    transaction_base &tx, std::string_view path, std::string_view columns);
+    transaction_base &tx, std::string_view path, std::string_view columns,
+    PQXX_LOC);
 
   bool m_finished = false;
 

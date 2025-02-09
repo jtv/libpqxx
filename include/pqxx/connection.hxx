@@ -1045,8 +1045,9 @@ public:
    * The SQL "LIKE" operator also lets you choose your own escape character.
    * This is supported, but must be a single-byte character.
    */
-  [[nodiscard]] std::string
-  esc_like(std::string_view text, char escape_char = '\\') const;
+  [[nodiscard]] std::string esc_like(
+    std::string_view text, char escape_char = '\\',
+    PQXX_LOC loc = PQXX_LOC::current()) const;
   //@}
 
   /// Attempt to cancel the ongoing query, if any.

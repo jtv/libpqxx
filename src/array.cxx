@@ -28,20 +28,20 @@ namespace pqxx
 /// Scan to next glyph in the buffer.  Assumes there is one.
 template<pqxx::internal::encoding_group ENC>
 [[nodiscard]] std::string::size_type
-array_parser::scan_glyph(std::string::size_type pos) const
+array_parser::scan_glyph(std::string::size_type pos, PQXX_LOC loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(
-    std::data(m_input), std::size(m_input), pos);
+    std::data(m_input), std::size(m_input), pos, loc);
 }
 
 
 /// Scan to next glyph in a substring.  Assumes there is one.
 template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_glyph(
-  std::string::size_type pos, std::string::size_type end) const
+  std::string::size_type pos, std::string::size_type end, PQXX_LOC loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(
-    std::data(m_input), end, pos);
+    std::data(m_input), end, pos, loc);
 }
 
 
@@ -91,21 +91,22 @@ std::string_view array_parser::parse_unquoted_string(
 
 array_parser::array_parser(
   std::string_view input, internal::encoding_group enc) :
-        m_input{input}, m_impl{specialize_for_encoding(enc)}
+        m_input{input},
+        m_impl{specialize_for_encoding(enc, PQXX_LOC::current())}
 {}
 
 
 template<pqxx::internal::encoding_group ENC>
-std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
+std::pair<array_parser::juncture, std::string>
+array_parser::parse_array_step(PQXX_LOC loc)
 {
-  auto loc{PQXX_LOC::current()};
   std::string value{};
 
   if (m_pos >= std::size(m_input))
     return std::make_pair(juncture::done, value);
 
   auto [found, end] = [this, &value, loc] {
-    if (scan_glyph<ENC>(m_pos) - m_pos > 1)
+    if (scan_glyph<ENC>(m_pos, loc) - m_pos > 1)
     {
       // Non-ASCII unquoted string.
       auto const endpoint = scan_unquoted_string<ENC>(loc);
@@ -115,9 +116,11 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
     else
       switch (m_input[m_pos])
       {
-      case '\0': throw failure{"Unexpected zero byte in array."};
-      case '{': return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos)};
-      case '}': return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos)};
+      case '\0': throw failure{"Unexpected zero byte in array.", loc};
+      case '{':
+        return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos, loc)};
+      case '}':
+        return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos, loc)};
       case '"': {
         auto const endpoint = scan_double_quoted_string<ENC>(loc);
         value = parse_double_quoted_string<ENC>(endpoint, loc);
@@ -146,7 +149,7 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
   // Skip a trailing field separator, if present.
   if (end < std::size(m_input))
   {
-    auto next{scan_glyph<ENC>(end)};
+    auto next{scan_glyph<ENC>(end, loc)};
     if (((next - end) == 1) and (m_input[end] == ',')) [[unlikely]]
       end = next;
   }
@@ -156,8 +159,8 @@ std::pair<array_parser::juncture, std::string> array_parser::parse_array_step()
 }
 
 
-array_parser::implementation
-array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
+array_parser::implementation array_parser::specialize_for_encoding(
+  pqxx::internal::encoding_group enc, PQXX_LOC loc)
 {
   using encoding_group = pqxx::internal::encoding_group;
 
@@ -182,7 +185,7 @@ array_parser::specialize_for_encoding(pqxx::internal::encoding_group enc)
     PQXX_ENCODING_CASE(UTF8);
   }
   [[unlikely]] throw pqxx::internal_error{
-    pqxx::internal::concat("Unsupported encoding code: ", enc, ".")};
+    pqxx::internal::concat("Unsupported encoding code: ", enc, "."), loc};
 
 #undef PQXX_ENCODING_CASE
 }
