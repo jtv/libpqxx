@@ -65,10 +65,10 @@ public:
    */
   //@{
   /// Dereference the iterator.
-  [[nodiscard]] pointer operator->() const { return this; }
+  [[nodiscard]] pointer operator->() const noexcept { return this; }
 
   /// Dereference the iterator.
-  [[nodiscard]] reference operator*() const { return *this; }
+  [[nodiscard]] reference operator*() const noexcept { return *this; }
   //@}
 
   /**
