@@ -105,7 +105,7 @@ void PQXX_COLD PQXX_LIBEXPORT pqxx::internal::skip_init_ssl(int skips) noexcept
 }
 
 
-pqxx::connection::connection(connection &&rhs, PQXX_LOC loc) :
+pqxx::connection::connection(connection &&rhs, sl loc) :
         m_conn{rhs.m_conn},
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
@@ -117,7 +117,7 @@ pqxx::connection::connection(connection &&rhs, PQXX_LOC loc) :
 
 
 pqxx::connection::connection(
-  connection::connect_mode, zview connection_string, PQXX_LOC loc) :
+  connection::connect_mode, zview connection_string, sl loc) :
         m_conn{PQconnectStart(connection_string.c_str())}
 {
   if (m_conn == nullptr)
@@ -141,7 +141,7 @@ pqxx::connection::connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn}
 }
 
 
-std::pair<bool, bool> pqxx::connection::poll_connect(PQXX_LOC loc)
+std::pair<bool, bool> pqxx::connection::poll_connect(sl loc)
 {
   switch (PQconnectPoll(m_conn))
   {
@@ -178,7 +178,7 @@ void pqxx::connection::set_up_notice_handlers()
 }
 
 
-void pqxx::connection::complete_init(PQXX_LOC loc)
+void pqxx::connection::complete_init(sl loc)
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -198,7 +198,7 @@ void pqxx::connection::complete_init(PQXX_LOC loc)
 }
 
 
-void pqxx::connection::init(char const options[], PQXX_LOC loc)
+void pqxx::connection::init(char const options[], sl loc)
 {
   m_conn = PQconnectdb(options);
   set_up_notice_handlers();
@@ -206,8 +206,7 @@ void pqxx::connection::init(char const options[], PQXX_LOC loc)
 }
 
 
-void pqxx::connection::init(
-  char const *params[], char const *values[], PQXX_LOC loc)
+void pqxx::connection::init(char const *params[], char const *values[], sl loc)
 {
   m_conn = PQconnectdbParams(params, values, 0);
   set_up_notice_handlers();
@@ -215,7 +214,7 @@ void pqxx::connection::init(
 }
 
 
-void pqxx::connection::check_movable(PQXX_LOC loc) const
+void pqxx::connection::check_movable(sl loc) const
 {
   if (m_trans)
     throw pqxx::usage_error{
@@ -226,7 +225,7 @@ void pqxx::connection::check_movable(PQXX_LOC loc) const
 }
 
 
-void pqxx::connection::check_overwritable(PQXX_LOC loc) const
+void pqxx::connection::check_overwritable(sl loc) const
 {
   if (m_trans)
     throw pqxx::usage_error{
@@ -242,7 +241,7 @@ void pqxx::connection::check_overwritable(PQXX_LOC loc) const
 // TODO: How can we pass std::source_location here?
 pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 {
-  auto loc{PQXX_LOC::current()};
+  auto loc{sl::current()};
   check_overwritable(loc);
   rhs.check_movable(loc);
 
@@ -260,7 +259,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 
 pqxx::result pqxx::connection::make_result(
   internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
-  std::string_view desc, PQXX_LOC loc)
+  std::string_view desc, sl loc)
 {
   std::shared_ptr<internal::pq::PGresult> const smart{
     pgr, internal::clear_result};
@@ -313,13 +312,13 @@ int PQXX_COLD pqxx::connection::server_version() const noexcept
 
 
 void pqxx::connection::set_variable(
-  std::string_view var, std::string_view value, PQXX_LOC loc) &
+  std::string_view var, std::string_view value, sl loc) &
 {
   exec(internal::concat("SET ", quote_name(var), "=", value), loc);
 }
 
 
-std::string pqxx::connection::get_variable(std::string_view var, PQXX_LOC loc)
+std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 {
   return exec(internal::concat("SHOW ", quote_name(var)), loc)
     .at(0)
@@ -328,7 +327,7 @@ std::string pqxx::connection::get_variable(std::string_view var, PQXX_LOC loc)
 }
 
 
-std::string pqxx::connection::get_var(std::string_view var, PQXX_LOC loc)
+std::string pqxx::connection::get_var(std::string_view var, sl loc)
 {
   // (Variables can't be null, so far as I can make out.)
   return exec(internal::concat("SHOW "sv, quote_name(var)), loc)
@@ -341,7 +340,7 @@ std::string pqxx::connection::get_var(std::string_view var, PQXX_LOC loc)
  * recovered because the physical connection to the database was lost and is
  * being reset, or that may not have been initialized yet.
  */
-void pqxx::connection::set_up_state(PQXX_LOC loc)
+void pqxx::connection::set_up_state(sl loc)
 {
   if (auto const proto_ver{protocol_version()}; proto_ver < 3)
   {
@@ -417,7 +416,7 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 
 
 void pqxx::connection::listen(
-  std::string_view channel, notification_handler handler, PQXX_LOC loc)
+  std::string_view channel, notification_handler handler, sl loc)
 {
   if (m_trans != nullptr)
     throw usage_error{
@@ -464,7 +463,7 @@ void pqxx::connection::listen(
 
 
 void PQXX_COLD pqxx::connection::remove_receiver(
-  pqxx::notification_receiver *T, PQXX_LOC loc) noexcept
+  pqxx::notification_receiver *T, sl loc) noexcept
 {
   if (T == nullptr)
     return;
@@ -525,7 +524,7 @@ constexpr int buf_size{500u};
 } // namespace
 
 
-void PQXX_COLD pqxx::connection::cancel_query(PQXX_LOC loc)
+void PQXX_COLD pqxx::connection::cancel_query(sl loc)
 {
   std::unique_ptr<PGcancel, void (*)(PGcancel *)> const cancel{
     PQgetCancel(m_conn), wrap_pgfreecancel};
@@ -542,7 +541,7 @@ void PQXX_COLD pqxx::connection::cancel_query(PQXX_LOC loc)
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-void pqxx::connection::set_blocking(bool block, PQXX_LOC loc) &
+void pqxx::connection::set_blocking(bool block, sl loc) &
 {
   auto const fd{sock()};
 #  if defined _WIN32
@@ -599,7 +598,7 @@ notify_ptr get_notif(pqxx::internal::pq::PGconn *cx)
 } // namespace
 
 
-int pqxx::connection::get_notifs(PQXX_LOC loc)
+int pqxx::connection::get_notifs(sl loc)
 {
   if (not consume_input())
     throw broken_connection{"Connection lost.", loc};
@@ -721,16 +720,15 @@ std::vector<pqxx::errorhandler *>
 }
 
 
-pqxx::result pqxx::connection::exec(
-  std::string_view query, std::string_view desc, PQXX_LOC loc)
+pqxx::result
+pqxx::connection::exec(std::string_view query, std::string_view desc, sl loc)
 {
   return exec(std::make_shared<std::string>(query), desc, loc);
 }
 
 
 pqxx::result pqxx::connection::exec(
-  std::shared_ptr<std::string> const &query, std::string_view desc,
-  PQXX_LOC loc)
+  std::shared_ptr<std::string> const &query, std::string_view desc, sl loc)
 {
   auto res{make_result(PQexec(m_conn, query->c_str()), query, desc)};
   get_notifs(loc);
@@ -749,7 +747,7 @@ std::string pqxx::connection::encrypt_password(
 
 
 void pqxx::connection::prepare(
-  char const name[], char const definition[], PQXX_LOC) &
+  char const name[], char const definition[], sl) &
 {
   auto const q{std::make_shared<std::string>(
     pqxx::internal::concat("[PREPARE ", name, "]"))};
@@ -759,20 +757,20 @@ void pqxx::connection::prepare(
 }
 
 
-void pqxx::connection::prepare(char const definition[], PQXX_LOC loc) &
+void pqxx::connection::prepare(char const definition[], sl loc) &
 {
   this->prepare("", definition, loc);
 }
 
 
-void pqxx::connection::unprepare(std::string_view name, PQXX_LOC loc)
+void pqxx::connection::unprepare(std::string_view name, sl loc)
 {
   exec(internal::concat("DEALLOCATE ", quote_name(name)), loc);
 }
 
 
 pqxx::result pqxx::connection::exec_prepared(
-  std::string_view statement, internal::c_params const &args, PQXX_LOC loc)
+  std::string_view statement, internal::c_params const &args, sl loc)
 {
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
@@ -787,7 +785,7 @@ pqxx::result pqxx::connection::exec_prepared(
 }
 
 
-void pqxx::connection::close(PQXX_LOC)
+void pqxx::connection::close(sl)
 {
   // Just in case PQfinish() doesn't handle nullptr nicely.
   if (m_conn == nullptr)
@@ -913,7 +911,7 @@ pqxx::connection::read_copy_line()
 }
 
 
-void pqxx::connection::write_copy_line(std::string_view line, PQXX_LOC loc)
+void pqxx::connection::write_copy_line(std::string_view line, sl loc)
 {
   static std::string const err_prefix{"Error writing to table: "};
   auto const size{check_cast<int>(
@@ -960,8 +958,8 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 }
 
 
-size_t pqxx::connection::esc_to_buf(
-  std::string_view text, char *buf, PQXX_LOC loc) const
+size_t
+pqxx::connection::esc_to_buf(std::string_view text, char *buf, sl loc) const
 {
   int err{0};
   auto const copied{
@@ -972,7 +970,7 @@ size_t pqxx::connection::esc_to_buf(
 }
 
 
-std::string pqxx::connection::esc(std::string_view text, PQXX_LOC loc) const
+std::string pqxx::connection::esc(std::string_view text, sl loc) const
 {
   std::string buf;
   buf.resize(2 * std::size(text) + 1);
@@ -1020,7 +1018,7 @@ std::string pqxx::connection::quote_table(table_path path) const
 
 
 std::string pqxx::connection::esc_like(
-  std::string_view text, char escape_char, PQXX_LOC loc) const
+  std::string_view text, char escape_char, sl loc) const
 {
   std::string out;
   out.reserve(std::size(text));
@@ -1039,7 +1037,7 @@ std::string pqxx::connection::esc_like(
 }
 
 
-int pqxx::connection::await_notification(PQXX_LOC loc)
+int pqxx::connection::await_notification(sl loc)
 {
   int notifs = get_notifs(loc);
   if (notifs == 0)
@@ -1052,7 +1050,7 @@ int pqxx::connection::await_notification(PQXX_LOC loc)
 
 
 int pqxx::connection::await_notification(
-  std::time_t seconds, long microseconds, PQXX_LOC loc)
+  std::time_t seconds, long microseconds, sl loc)
 {
   int const notifs = get_notifs(loc);
   if (notifs == 0)
@@ -1084,7 +1082,7 @@ std::string pqxx::connection::get_client_encoding() const
 
 
 void PQXX_COLD
-pqxx::connection::set_client_encoding(char const encoding[], PQXX_LOC loc) &
+pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
 {
   switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)
   {
@@ -1105,7 +1103,7 @@ pqxx::connection::set_client_encoding(char const encoding[], PQXX_LOC loc) &
 }
 
 
-int pqxx::connection::encoding_id(PQXX_LOC loc) const
+int pqxx::connection::encoding_id(sl loc) const
 {
   int const enc{PQclientEncoding(m_conn)};
   if (enc == -1)
@@ -1126,7 +1124,7 @@ int pqxx::connection::encoding_id(PQXX_LOC loc) const
 
 
 pqxx::result pqxx::connection::exec_params(
-  std::string_view query, internal::c_params const &args, PQXX_LOC loc)
+  std::string_view query, internal::c_params const &args, sl loc)
 {
   auto const q{std::make_shared<std::string>(query)};
   auto const pq_result{PQexecParams(
@@ -1221,7 +1219,7 @@ pqxx::connecting::connecting(zview connection_string) :
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-void pqxx::connecting::process(PQXX_LOC loc) &
+void pqxx::connecting::process(sl loc) &
 {
   auto const [reading, writing]{m_conn.poll_connect(loc)};
   m_reading = reading;
@@ -1231,7 +1229,7 @@ void pqxx::connecting::process(PQXX_LOC loc) &
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-pqxx::connection pqxx::connecting::produce(PQXX_LOC loc) &&
+pqxx::connection pqxx::connecting::produce(sl loc) &&
 {
   if (!done())
     throw usage_error{

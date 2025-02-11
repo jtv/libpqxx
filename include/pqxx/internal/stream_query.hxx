@@ -83,12 +83,11 @@ public:
 
   /// Execute `query` on `tx`, stream results.
   inline stream_query(
-    transaction_base &tx, std::string_view query,
-    PQXX_LOC loc = PQXX_LOC::current());
+    transaction_base &tx, std::string_view query, sl loc = sl::current());
   /// Execute `query` on `tx`, stream results.
   inline stream_query(
     transaction_base &tx, std::string_view query, params const &,
-    PQXX_LOC loc = PQXX_LOC::current());
+    sl loc = sl::current());
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -118,8 +117,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...>
-  parse_line(zview line, PQXX_LOC loc = PQXX_LOC::current()) &
+  std::tuple<TYPE...> parse_line(zview line, sl loc = sl::current()) &
   {
     assert(not done());
 
@@ -157,8 +155,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *
-  get_finder(transaction_base const &tx, PQXX_LOC);
+  static inline char_finder_func *get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.
@@ -176,7 +173,7 @@ private:
    * one greater than the size of the line, pointing at the terminating zero.
    */
   std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write, PQXX_LOC loc)
+  read_field(zview line, std::size_t offset, char *write, sl loc)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -271,8 +268,7 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET
-  parse_field(zview line, std::size_t &offset, char *&write, PQXX_LOC loc)
+  TARGET parse_field(zview line, std::size_t &offset, char *&write, sl loc)
   {
     using field_type = std::remove_cvref_t<TARGET>;
     using nullity = nullness<field_type>;

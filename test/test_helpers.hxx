@@ -11,9 +11,7 @@ namespace test
 class test_failure : public std::logic_error
 {
 public:
-  test_failure(
-    std::string const &desc,
-    std::source_location loc = std::source_location::current());
+  test_failure(std::string const &desc, sl loc = sl::current());
 
   ~test_failure() noexcept override;
 
@@ -21,7 +19,7 @@ public:
   constexpr auto line() const noexcept { return m_loc.line(); }
 
 private:
-  std::source_location m_loc;
+  sl m_loc;
 };
 
 
@@ -55,16 +53,14 @@ struct registrar
 
 // Unconditional test failure.
 #define PQXX_CHECK_NOTREACHED(desc) pqxx::test::check_notreached((desc))
-[[noreturn]] void check_notreached(
-  std::string desc,
-  std::source_location loc = std::source_location::current());
+[[noreturn]] void check_notreached(std::string desc, sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc)                                           \
   pqxx::test::check((condition), #condition, (desc))
 void check(
   bool condition, char const text[], std::string const &desc,
-  std::source_location loc = std::source_location::current());
+  sl loc = sl::current());
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc)                              \
@@ -72,8 +68,7 @@ void check(
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
   ACTUAL actual, char const actual_text[], EXPECTED expected,
-  char const expected_text[], std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  char const expected_text[], std::string const &desc, sl loc = sl::current())
 {
   if (expected == actual)
     return;
@@ -94,8 +89,7 @@ inline void check_equal(
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 != value2)
     return;
@@ -116,8 +110,7 @@ inline void check_not_equal(
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 < value2)
     return;
@@ -141,8 +134,7 @@ inline void check_less(
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 <= value2)
     return;
@@ -252,7 +244,7 @@ template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
   VALUE value, char const text[], LOWER lower, char const lower_text[],
   UPPER upper, char const upper_text[], std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  sl loc = sl::current())
 {
   std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =

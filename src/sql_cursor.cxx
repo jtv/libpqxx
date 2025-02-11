@@ -58,7 +58,7 @@ inline bool useless_trail(char c)
  * The query must be nonempty.
  */
 std::string::size_type find_query_end(
-  std::string_view query, pqxx::internal::encoding_group enc, PQXX_LOC loc)
+  std::string_view query, pqxx::internal::encoding_group enc, pqxx::sl loc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
@@ -92,7 +92,7 @@ std::string::size_type find_query_end(
 pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
-  cursor_base::ownership_policy op, bool hold, PQXX_LOC loc) :
+  cursor_base::ownership_policy op, bool hold, sl loc) :
         cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
 {
   if (&t.conn() != &m_home)
@@ -135,7 +135,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 {}
 
 
-void pqxx::internal::sql_cursor::close(PQXX_LOC loc) noexcept
+void pqxx::internal::sql_cursor::close(sl loc) noexcept
 {
   if (m_ownership == cursor_base::owned)
   {
@@ -217,7 +217,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
 
 
 pqxx::result pqxx::internal::sql_cursor::fetch(
-  difference_type rows, difference_type &displacement, PQXX_LOC loc)
+  difference_type rows, difference_type &displacement, sl loc)
 {
   if (rows == 0)
   {
@@ -233,7 +233,7 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
 
 
 pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
-  difference_type rows, difference_type &displacement, PQXX_LOC loc)
+  difference_type rows, difference_type &displacement, sl loc)
 {
   if (rows == 0)
   {

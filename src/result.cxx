@@ -159,7 +159,7 @@ pqxx::field pqxx::result::operator[](
 #endif // PQXX_HAVE_MULTIDIM
 
 
-pqxx::row pqxx::result::at(pqxx::result::size_type i, PQXX_LOC loc) const
+pqxx::row pqxx::result::at(pqxx::result::size_type i, sl loc) const
 {
   if (i >= size())
     throw range_error{"Row number out of range.", loc};
@@ -168,8 +168,7 @@ pqxx::row pqxx::result::at(pqxx::result::size_type i, PQXX_LOC loc) const
 
 
 pqxx::field pqxx::result::at(
-  pqxx::result_size_type row_num, pqxx::row_size_type col_num,
-  PQXX_LOC loc) const
+  pqxx::result_size_type row_num, pqxx::row_size_type col_num, sl loc) const
 {
   if (row_num >= size())
     throw range_error{"Row number out of range.", loc};
@@ -189,7 +188,7 @@ inline bool equal(char const lhs[], char const rhs[])
 } // namespace
 
 void PQXX_COLD pqxx::result::throw_sql_error(
-  std::string const &Err, std::string const &Query, PQXX_LOC loc) const
+  std::string const &Err, std::string const &Query, sl loc) const
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
@@ -304,7 +303,7 @@ void PQXX_COLD pqxx::result::throw_sql_error(
   throw sql_error{Err, Query, code, loc};
 }
 
-void pqxx::result::check_status(std::string_view desc, PQXX_LOC loc) const
+void pqxx::result::check_status(std::string_view desc, sl loc) const
 {
   if (auto err{status_error(loc)}; not std::empty(err)) [[unlikely]]
   {
@@ -315,7 +314,7 @@ void pqxx::result::check_status(std::string_view desc, PQXX_LOC loc) const
 }
 
 
-std::string pqxx::result::status_error(PQXX_LOC loc) const
+std::string pqxx::result::status_error(sl loc) const
 {
   if (m_data.get() == nullptr)
     throw failure{"No result set given.", loc};
@@ -376,7 +375,7 @@ std::string const &pqxx::result::query() const & noexcept
 }
 
 
-pqxx::oid pqxx::result::inserted_oid(PQXX_LOC loc) const
+pqxx::oid pqxx::result::inserted_oid(sl loc) const
 {
   if (m_data.get() == nullptr)
     throw usage_error{
@@ -418,7 +417,7 @@ pqxx::field::size_type pqxx::result::get_length(
 }
 
 
-pqxx::oid pqxx::result::column_type(row::size_type col_num, PQXX_LOC loc) const
+pqxx::oid pqxx::result::column_type(row::size_type col_num, sl loc) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
@@ -431,8 +430,7 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num, PQXX_LOC loc) const
 }
 
 
-pqxx::row::size_type
-pqxx::result::column_number(zview col_name, PQXX_LOC loc) const
+pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
 {
   auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
@@ -443,8 +441,7 @@ pqxx::result::column_number(zview col_name, PQXX_LOC loc) const
 }
 
 
-pqxx::oid
-pqxx::result::column_table(row::size_type col_num, PQXX_LOC loc) const
+pqxx::oid pqxx::result::column_table(row::size_type col_num, sl loc) const
 {
   oid const t{PQftable(m_data.get(), col_num)};
 
@@ -463,7 +460,7 @@ pqxx::result::column_table(row::size_type col_num, PQXX_LOC loc) const
 
 
 pqxx::row::size_type
-pqxx::result::table_column(row::size_type col_num, PQXX_LOC loc) const
+pqxx::result::table_column(row::size_type col_num, sl loc) const
 {
   auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0) [[likely]]
@@ -505,7 +502,7 @@ int pqxx::result::errorposition() const
 
 
 char const *
-pqxx::result::column_name(pqxx::row::size_type number, PQXX_LOC loc) const &
+pqxx::result::column_name(pqxx::row::size_type number, sl loc) const &
 {
   auto const n{PQfname(m_data.get(), number)};
   if (n == nullptr) [[unlikely]]
@@ -528,8 +525,7 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
-int pqxx::result::column_storage(
-  pqxx::row::size_type number, PQXX_LOC loc) const
+int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
 {
   int const out{PQfsize(m_data.get(), number)};
   if (out == 0)
@@ -556,7 +552,7 @@ int pqxx::result::column_type_modifier(
 }
 
 
-pqxx::row pqxx::result::one_row(PQXX_LOC loc) const
+pqxx::row pqxx::result::one_row(sl loc) const
 {
   auto const sz{size()};
   if (sz != 1)
@@ -576,14 +572,14 @@ pqxx::row pqxx::result::one_row(PQXX_LOC loc) const
 }
 
 
-pqxx::field pqxx::result::one_field(PQXX_LOC loc) const
+pqxx::field pqxx::result::one_field(sl loc) const
 {
   expect_columns(1, loc);
   return one_row(loc)[0];
 }
 
 
-std::optional<pqxx::row> pqxx::result::opt_row(PQXX_LOC loc) const
+std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 {
   auto const sz{size()};
   if (sz > 1)

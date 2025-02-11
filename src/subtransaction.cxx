@@ -30,7 +30,7 @@ constexpr std::string_view class_name{"subtransaction"sv};
 
 
 pqxx::subtransaction::subtransaction(
-  dbtransaction &t, std::string_view tname, PQXX_LOC loc) :
+  dbtransaction &t, std::string_view tname, sl loc) :
         transaction_focus{t, class_name, t.conn().adorn_name(tname)},
         // We can't initialise the rollback command here, because we don't yet
         // have a full object to implement quoted_name().
@@ -63,7 +63,7 @@ pqxx::subtransaction::~subtransaction() noexcept
 }
 
 
-void pqxx::subtransaction::do_commit(PQXX_LOC loc)
+void pqxx::subtransaction::do_commit(sl loc)
 {
   direct_exec(
     std::make_shared<std::string>(

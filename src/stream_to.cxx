@@ -37,7 +37,7 @@ void begin_copy(
 
 
 /// Return the escape character for escaping the given special character.
-char escape_char(char special, PQXX_LOC loc)
+char escape_char(char special, pqxx::sl loc)
 {
   switch (special)
   {
@@ -72,14 +72,14 @@ pqxx::stream_to::~stream_to() noexcept
 }
 
 
-void pqxx::stream_to::write_raw_line(std::string_view text, PQXX_LOC loc)
+void pqxx::stream_to::write_raw_line(std::string_view text, sl loc)
 {
   internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(
     text, loc);
 }
 
 
-void pqxx::stream_to::write_buffer(PQXX_LOC loc)
+void pqxx::stream_to::write_buffer(sl loc)
 {
   if (not std::empty(m_buffer))
   {
@@ -100,7 +100,7 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
     const auto [line, size] = tr.get_raw_line();
     if (line.get() == nullptr)
       break;
-    write_raw_line(std::string_view{line.get(), size}, PQXX_LOC::current());
+    write_raw_line(std::string_view{line.get(), size}, sl::current());
   }
   return *this;
 }
@@ -108,7 +108,7 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 
 pqxx::stream_to::stream_to(
   transaction_base &tx, std::string_view path, std::string_view columns,
-  PQXX_LOC loc) :
+  sl loc) :
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
@@ -130,8 +130,7 @@ void pqxx::stream_to::complete()
 }
 
 
-void pqxx::stream_to::escape_field_to_buffer(
-  std::string_view data, PQXX_LOC loc)
+void pqxx::stream_to::escape_field_to_buffer(std::string_view data, sl loc)
 {
   std::size_t const end{std::size(data)};
   std::size_t here{0};

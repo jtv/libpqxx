@@ -34,8 +34,7 @@ public:
   /// Construct an "end" iterator.
   stream_from_input_iterator() = default;
 
-  explicit stream_from_input_iterator(stream_t &home, PQXX_LOC loc) :
-          m_home(&home)
+  explicit stream_from_input_iterator(stream_t &home, sl loc) : m_home(&home)
   {
     advance(loc);
   }
@@ -43,7 +42,7 @@ public:
 
   stream_from_input_iterator &operator++()
   {
-    advance(PQXX_LOC::current());
+    advance(sl::current());
     return *this;
   }
 
@@ -61,7 +60,7 @@ public:
   }
 
 private:
-  void advance(PQXX_LOC loc)
+  void advance(sl loc)
   {
     if (m_home == nullptr)
       throw usage_error{"Moving stream_from iterator beyond end().", loc};
@@ -82,7 +81,7 @@ public:
   using stream_t = stream_from;
   using iterator = stream_from_input_iterator<TYPE...>;
   explicit stream_input_iteration(stream_t &home) : m_home{home} {}
-  iterator begin(PQXX_LOC loc = PQXX_LOC::current()) const
+  iterator begin(sl loc = sl::current()) const
   {
     return iterator{m_home, loc};
   }

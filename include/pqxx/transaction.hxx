@@ -26,17 +26,16 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 protected:
   basic_transaction(
     connection &cx, zview begin_command, std::string_view tname,
-    PQXX_LOC = PQXX_LOC::current());
+    sl = sl::current());
   basic_transaction(
     connection &cx, zview begin_command, std::string &&tname,
-    PQXX_LOC = PQXX_LOC::current());
-  basic_transaction(
-    connection &cx, zview begin_command, PQXX_LOC = PQXX_LOC::current());
+    sl = sl::current());
+  basic_transaction(connection &cx, zview begin_command, sl = sl::current());
 
   virtual ~basic_transaction() noexcept override = 0;
 
 private:
-  virtual void do_commit(PQXX_LOC) override;
+  virtual void do_commit(sl) override;
 };
 } // namespace pqxx::internal
 
@@ -81,9 +80,7 @@ public:
    * @param tname Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  transaction(
-    connection &cx, std::string_view tname,
-    PQXX_LOC loc = PQXX_LOC::current()) :
+  transaction(connection &cx, std::string_view tname, sl loc = sl::current()) :
           internal::basic_transaction{
             cx, internal::begin_cmd<ISOLATION, READWRITE>, tname, loc}
   {}

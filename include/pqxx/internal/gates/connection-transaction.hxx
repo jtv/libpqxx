@@ -14,12 +14,12 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   connection_transaction(reference x) : super(x) {}
 
   template<typename STRING>
-  result exec(STRING query, std::string_view desc, PQXX_LOC loc)
+  result exec(STRING query, std::string_view desc, sl loc)
   {
     return home().exec(query, desc, loc);
   }
 
-  template<typename STRING> result exec(STRING query, PQXX_LOC loc)
+  template<typename STRING> result exec(STRING query, sl loc)
   {
     return home().exec(query, "", loc);
   }
@@ -34,20 +34,20 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   }
 
   auto read_copy_line() { return home().read_copy_line(); }
-  void write_copy_line(std::string_view line, PQXX_LOC loc)
+  void write_copy_line(std::string_view line, sl loc)
   {
     home().write_copy_line(line, loc);
   }
   void end_copy_write() { home().end_copy_write(); }
 
   result exec_prepared(
-    std::string_view statement, internal::c_params const &args, PQXX_LOC loc)
+    std::string_view statement, internal::c_params const &args, sl loc)
   {
     return home().exec_prepared(statement, args, loc);
   }
 
-  result exec_params(
-    std::string_view query, internal::c_params const &args, PQXX_LOC loc)
+  result
+  exec_params(std::string_view query, internal::c_params const &args, sl loc)
   {
     return home().exec_params(query, args, loc);
   }

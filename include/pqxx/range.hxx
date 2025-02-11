@@ -48,7 +48,7 @@ private:
 public:
   inclusive_bound() = delete;
   constexpr explicit inclusive_bound(
-    TYPE const &value, PQXX_LOC loc = PQXX_LOC::current()) :
+    TYPE const &value, sl loc = sl::current()) :
           m_value{value}
   {
     if (is_null(value))
@@ -89,7 +89,7 @@ private:
 public:
   exclusive_bound() = delete;
   constexpr explicit exclusive_bound(
-    TYPE const &value, PQXX_LOC loc = PQXX_LOC::current()) :
+    TYPE const &value, sl loc = sl::current()) :
           m_value{value}
   {
     if (is_null(value))
@@ -253,8 +253,7 @@ public:
    * @ref exclusive_bound.
    */
   constexpr range(
-    range_bound<TYPE> lower, range_bound<TYPE> upper,
-    PQXX_LOC loc = PQXX_LOC::current()) :
+    range_bound<TYPE> lower, range_bound<TYPE> upper, sl loc = sl::current()) :
           m_lower{lower}, m_upper{upper}
   {
     if (
@@ -417,8 +416,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   }
 
   static inline char *into_buf(
-    char *begin, char *end, range<TYPE> const &value,
-    PQXX_LOC loc = PQXX_LOC::current())
+    char *begin, char *end, range<TYPE> const &value, sl loc = sl::current())
   {
     if (value.empty())
     {
@@ -454,7 +452,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   }
 
   [[nodiscard]] static inline range<TYPE>
-  from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
+  from_string(std::string_view text, sl loc = sl::current())
   {
     if (std::size(text) < 3)
       throw pqxx::conversion_error{err_bad_input(text), loc};

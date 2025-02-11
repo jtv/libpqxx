@@ -97,9 +97,8 @@ namespace pqxx
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto perform(
-  TRANSACTION_CALLBACK &&callback, int attempts,
-  PQXX_LOC loc = PQXX_LOC::current())
+inline auto
+perform(TRANSACTION_CALLBACK &&callback, int attempts, sl loc = sl::current())
   -> std::invoke_result_t<TRANSACTION_CALLBACK>
 {
   if (attempts <= 0)
@@ -182,8 +181,7 @@ inline auto perform(
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto
-perform(TRANSACTION_CALLBACK &&callback, PQXX_LOC loc = PQXX_LOC::current())
+inline auto perform(TRANSACTION_CALLBACK &&callback, sl loc = sl::current())
   -> std::invoke_result_t<TRANSACTION_CALLBACK>
 {
   return perform(callback, 3, loc);

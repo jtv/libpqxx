@@ -35,7 +35,7 @@ constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
 } // namespace
 
 
-void pqxx::pipeline::init(PQXX_LOC loc)
+void pqxx::pipeline::init(sl loc)
 {
   m_encoding = internal::enc_group(m_trans->conn().encoding_id(), loc);
   m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
@@ -147,7 +147,7 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 
 
 std::pair<pqxx::pipeline::query_id, pqxx::result>
-pqxx::pipeline::retrieve(PQXX_LOC loc)
+pqxx::pipeline::retrieve(sl loc)
 {
   if (std::empty(m_queries))
     throw std::logic_error{"Attempt to retrieve result from empty pipeline."};
@@ -225,8 +225,7 @@ void pqxx::pipeline::issue()
 }
 
 
-void PQXX_COLD
-pqxx::pipeline::internal_error(std::string const &err, PQXX_LOC loc)
+void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err, sl loc)
 {
   set_error_at(0);
   throw pqxx::internal_error{err, loc};
@@ -271,7 +270,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 }
 
 
-void pqxx::pipeline::obtain_dummy(PQXX_LOC loc)
+void pqxx::pipeline::obtain_dummy(sl loc)
 {
   // Allocate once, re-use across invocations.
   static auto const text{
@@ -361,7 +360,7 @@ void pqxx::pipeline::obtain_dummy(PQXX_LOC loc)
 
 
 std::pair<pqxx::pipeline::query_id, pqxx::result>
-pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, PQXX_LOC loc)
+pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
 {
   if (q == std::end(m_queries))
     throw std::logic_error{"Attempt to retrieve result for unknown query."};

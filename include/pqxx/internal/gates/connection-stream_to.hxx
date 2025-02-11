@@ -11,7 +11,7 @@ class PQXX_PRIVATE connection_stream_to : callgate<connection>
 
   connection_stream_to(reference x) : super(x) {}
 
-  void write_copy_line(std::string_view line, PQXX_LOC loc)
+  void write_copy_line(std::string_view line, sl loc)
   {
     home().write_copy_line(line, loc);
   }

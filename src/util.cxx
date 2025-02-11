@@ -165,7 +165,7 @@ std::string pqxx::internal::esc_bin(bytes_view binary_data)
 
 
 void pqxx::internal::unesc_bin(
-  std::string_view escaped_data, std::byte buffer[], PQXX_LOC loc)
+  std::string_view escaped_data, std::byte buffer[], sl loc)
 {
   auto const in_size{std::size(escaped_data)};
   if (in_size < 2)
@@ -193,8 +193,7 @@ void pqxx::internal::unesc_bin(
 }
 
 
-pqxx::bytes
-pqxx::internal::unesc_bin(std::string_view escaped_data, PQXX_LOC loc)
+pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data, sl loc)
 {
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
   pqxx::bytes buf;

@@ -88,8 +88,8 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(
-  FROM value, std::string_view description, PQXX_LOC loc = PQXX_LOC::current())
+inline TO
+check_cast(FROM value, std::string_view description, sl loc = sl::current())
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -462,11 +462,11 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[], PQXX_LOC loc);
+unesc_bin(std::string_view escaped_data, std::byte buffer[], sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, PQXX_LOC loc);
+bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, sl loc);
 
 
 /// Helper for determining a function's parameter types.

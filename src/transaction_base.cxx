@@ -95,7 +95,7 @@ void pqxx::transaction_base::register_transaction()
 }
 
 
-void pqxx::transaction_base::commit(PQXX_LOC loc)
+void pqxx::transaction_base::commit(sl loc)
 {
   check_pending_error();
 
@@ -169,14 +169,14 @@ void pqxx::transaction_base::commit(PQXX_LOC loc)
 }
 
 
-void pqxx::transaction_base::do_abort(PQXX_LOC loc)
+void pqxx::transaction_base::do_abort(sl loc)
 {
   if (m_rollback_cmd)
     direct_exec(m_rollback_cmd, loc);
 }
 
 
-void pqxx::transaction_base::abort(PQXX_LOC loc)
+void pqxx::transaction_base::abort(sl loc)
 {
   // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
@@ -243,7 +243,7 @@ public:
 };
 } // namespace
 
-pqxx::result pqxx::transaction_base::exec(std::string_view query, PQXX_LOC loc)
+pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
 {
   check_pending_error();
 
@@ -268,7 +268,7 @@ pqxx::result pqxx::transaction_base::exec(std::string_view query, PQXX_LOC loc)
 
 
 pqxx::result pqxx::transaction_base::exec(
-  std::string_view query, std::string_view desc, PQXX_LOC loc)
+  std::string_view query, std::string_view desc, sl loc)
 {
   check_pending_error();
 
@@ -309,7 +309,7 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  std::string_view statement, internal::c_params const &args, PQXX_LOC loc)
+  std::string_view statement, internal::c_params const &args, sl loc)
 {
   command const cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
@@ -318,7 +318,7 @@ pqxx::result pqxx::transaction_base::internal_exec_prepared(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  std::string_view query, internal::c_params const &args, PQXX_LOC loc)
+  std::string_view query, internal::c_params const &args, sl loc)
 {
   command const cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
@@ -327,7 +327,7 @@ pqxx::result pqxx::transaction_base::internal_exec_params(
 
 
 void pqxx::transaction_base::notify(
-  std::string_view channel, std::string_view payload, PQXX_LOC loc)
+  std::string_view channel, std::string_view payload, sl loc)
 {
   // For some reason, NOTIFY does not work as a parameterised statement,
   // even just for the payload (which is supposed to be a normal string).
@@ -450,7 +450,7 @@ void pqxx::transaction_base::unregister_focus(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::string_view cmd, std::string_view desc, PQXX_LOC loc)
+  std::string_view cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
@@ -459,7 +459,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc, PQXX_LOC loc)
+  std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(

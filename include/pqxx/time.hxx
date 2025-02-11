@@ -67,10 +67,10 @@ template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
 
   static char *into_buf(
     char *begin, char *end, std::chrono::year_month_day const &value,
-    PQXX_LOC = PQXX_LOC::current());
+    sl = sl::current());
 
   [[nodiscard]] static std::chrono::year_month_day
-  from_string(std::string_view text, PQXX_LOC = PQXX_LOC::current());
+  from_string(std::string_view text, sl = sl::current());
 
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year_month_day const &) noexcept

@@ -28,7 +28,7 @@ namespace
 {
 pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
-  PQXX_LOC const loc{PQXX_LOC::current()};
+  pqxx::sl const loc{pqxx::sl::current()};
   auto const group{pqxx::internal::enc_group(tx.conn().encoding_id(), loc)};
   return pqxx::internal::get_char_finder<'\t', '\\'>(group, loc);
 }
@@ -42,7 +42,7 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
         transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
 {
-  PQXX_LOC const loc{PQXX_LOC::current()};
+  sl const loc{sl::current()};
   tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv), loc)
     .no_rows(loc);
   register_me();
@@ -53,7 +53,7 @@ pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
-  PQXX_LOC const loc{PQXX_LOC::current()};
+  sl const loc{sl::current()};
   tx.exec(
       internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv), loc)
     .no_rows(loc);
@@ -66,7 +66,7 @@ pqxx::stream_from::stream_from(
   from_table_t) :
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
-  PQXX_LOC const loc{PQXX_LOC::current()};
+  sl const loc{sl::current()};
   if (std::empty(columns)) [[unlikely]]
     tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv), loc)
       .no_rows(loc);
@@ -183,7 +183,7 @@ void pqxx::stream_from::complete()
 }
 
 
-void pqxx::stream_from::parse_line(PQXX_LOC loc)
+void pqxx::stream_from::parse_line(sl loc)
 {
   if (m_finished) [[unlikely]]
     return;
@@ -297,7 +297,7 @@ void pqxx::stream_from::parse_line(PQXX_LOC loc)
 }
 
 
-std::vector<pqxx::zview> const *pqxx::stream_from::read_row(PQXX_LOC loc) &
+std::vector<pqxx::zview> const *pqxx::stream_from::read_row(sl loc) &
 {
   parse_line(loc);
   return m_finished ? nullptr : &m_fields;

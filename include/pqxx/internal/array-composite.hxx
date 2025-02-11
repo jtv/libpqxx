@@ -18,7 +18,7 @@ namespace pqxx::internal
  */
 template<encoding_group ENC>
 inline std::size_t scan_double_quoted_string(
-  char const input[], std::size_t size, std::size_t pos, PQXX_LOC loc)
+  char const input[], std::size_t size, std::size_t pos, sl loc)
 {
   // TODO: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
@@ -82,7 +82,7 @@ inline std::size_t scan_double_quoted_string(
 /// Un-quote and un-escape a double-quoted SQL string.
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
-  char const input[], std::size_t end, std::size_t pos, PQXX_LOC loc)
+  char const input[], std::size_t end, std::size_t pos, sl loc)
 {
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
@@ -128,7 +128,7 @@ inline std::string parse_double_quoted_string(
  */
 template<pqxx::internal::encoding_group ENC, char... STOP>
 inline std::size_t scan_unquoted_string(
-  char const input[], std::size_t size, std::size_t pos, PQXX_LOC loc)
+  char const input[], std::size_t size, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos, loc)};
@@ -145,8 +145,8 @@ inline std::size_t scan_unquoted_string(
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
 template<pqxx::internal::encoding_group ENC>
-inline std::string_view parse_unquoted_string(
-  char const input[], std::size_t end, std::size_t pos, PQXX_LOC)
+inline std::string_view
+parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
 {
   return {&input[pos], end - pos};
 }
@@ -179,7 +179,7 @@ inline std::string_view parse_unquoted_string(
 template<encoding_group ENC, typename T>
 inline void parse_composite_field(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
-  std::size_t last_field, PQXX_LOC loc)
+  std::size_t last_field, sl loc)
 {
   assert(index <= last_field);
   auto next{
@@ -275,13 +275,13 @@ inline void parse_composite_field(
 template<typename T>
 using composite_field_parser = void (*)(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
-  std::size_t last_field, PQXX_LOC loc);
+  std::size_t last_field, sl loc);
 
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
 composite_field_parser<T>
-specialize_parse_composite_field(encoding_group enc, PQXX_LOC loc)
+specialize_parse_composite_field(encoding_group enc, sl loc)
 {
   switch (enc)
   {

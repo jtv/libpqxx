@@ -31,7 +31,7 @@ pqxx::cursor_base::cursor_base(
 
 
 pqxx::result::size_type
-pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur, PQXX_LOC loc)
+pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur, sl loc)
 {
   if (cur.endpos() == -1)
     cur.move(cursor_base::all(), loc);
@@ -41,8 +41,7 @@ pqxx::internal::obtain_stateless_cursor_size(sql_cursor &cur, PQXX_LOC loc)
 
 pqxx::result pqxx::internal::stateless_cursor_retrieve(
   sql_cursor &cur, result::difference_type size,
-  result::difference_type begin_pos, result::difference_type end_pos,
-  PQXX_LOC loc)
+  result::difference_type begin_pos, result::difference_type end_pos, sl loc)
 {
   if (begin_pos < 0 or begin_pos > size)
     throw range_error{"Starting position out of range", loc};
@@ -63,7 +62,7 @@ pqxx::result pqxx::internal::stateless_cursor_retrieve(
 
 pqxx::icursorstream::icursorstream(
   transaction_base &context, std::string_view query, std::string_view basename,
-  difference_type sstride, PQXX_LOC loc) :
+  difference_type sstride, sl loc) :
         m_cur{
           context,
           query,
@@ -85,7 +84,7 @@ pqxx::icursorstream::icursorstream(
 
 pqxx::icursorstream::icursorstream(
   transaction_base &context, field const &cname, difference_type sstride,
-  cursor_base::ownership_policy op, PQXX_LOC) :
+  cursor_base::ownership_policy op, sl) :
         m_cur{context, cname.c_str(), op},
         m_stride{sstride},
         m_realpos{0},
@@ -97,7 +96,7 @@ pqxx::icursorstream::icursorstream(
 }
 
 
-void pqxx::icursorstream::set_stride(difference_type stride, PQXX_LOC loc) &
+void pqxx::icursorstream::set_stride(difference_type stride, sl loc) &
 {
   if (stride < 1)
     throw argument_error{
@@ -106,7 +105,7 @@ void pqxx::icursorstream::set_stride(difference_type stride, PQXX_LOC loc) &
 }
 
 
-pqxx::result pqxx::icursorstream::fetchblock(PQXX_LOC loc)
+pqxx::result pqxx::icursorstream::fetchblock(sl loc)
 {
   result r{m_cur.fetch(m_stride, loc)};
   m_realpos += std::size(r);
@@ -116,8 +115,7 @@ pqxx::result pqxx::icursorstream::fetchblock(PQXX_LOC loc)
 }
 
 
-pqxx::icursorstream &
-pqxx::icursorstream::ignore(std::streamsize n, PQXX_LOC loc) &
+pqxx::icursorstream &pqxx::icursorstream::ignore(std::streamsize n, sl loc) &
 {
   auto offset{m_cur.move(difference_type(n), loc)};
   m_realpos += offset;
@@ -168,8 +166,7 @@ void pqxx::icursorstream::remove_iterator(icursor_iterator *i) const noexcept
 }
 
 
-void pqxx::icursorstream::service_iterators(
-  difference_type topos, PQXX_LOC loc)
+void pqxx::icursorstream::service_iterators(difference_type topos, sl loc)
 {
   if (topos < m_realpos)
     return;
@@ -293,7 +290,7 @@ pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 bool pqxx::icursor_iterator::operator==(icursor_iterator const &rhs) const
 {
   // TODO: How can we pass std::source_location here?
-  auto loc{PQXX_LOC::current()};
+  auto loc{sl::current()};
   if (m_stream == rhs.m_stream)
     return pos() == rhs.pos();
   if (m_stream != nullptr and rhs.m_stream != nullptr)
@@ -309,14 +306,14 @@ bool pqxx::icursor_iterator::operator<(icursor_iterator const &rhs) const
   if (m_stream == rhs.m_stream)
     return pos() < rhs.pos();
   // TODO: How can we pass std::source_location here?
-  auto loc{PQXX_LOC::current()};
+  auto loc{sl::current()};
   refresh(loc);
   rhs.refresh(loc);
   return not std::empty(m_here);
 }
 
 
-void pqxx::icursor_iterator::refresh(PQXX_LOC loc) const
+void pqxx::icursor_iterator::refresh(sl loc) const
 {
   if (m_stream != nullptr)
     pqxx::internal::gate::icursorstream_icursor_iterator{*m_stream}

@@ -22,7 +22,7 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string_view tname, PQXX_LOC loc) :
+  connection &cx, zview begin_command, std::string_view tname, sl loc) :
         dbtransaction(cx, tname)
 {
   register_transaction();
@@ -31,7 +31,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string &&tname, PQXX_LOC loc) :
+  connection &cx, zview begin_command, std::string &&tname, sl loc) :
         dbtransaction(cx, std::move(tname))
 {
   register_transaction();
@@ -40,7 +40,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, PQXX_LOC loc) :
+  connection &cx, zview begin_command, sl loc) :
         dbtransaction(cx)
 {
   register_transaction();
@@ -57,7 +57,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 pqxx::internal::basic_transaction::~basic_transaction() noexcept = default;
 
 
-void pqxx::internal::basic_transaction::do_commit(PQXX_LOC loc)
+void pqxx::internal::basic_transaction::do_commit(sl loc)
 {
   static auto const commit_q{std::make_shared<std::string>("COMMIT"sv)};
   try

@@ -28,7 +28,7 @@ namespace pqxx
 /// Scan to next glyph in the buffer.  Assumes there is one.
 template<pqxx::internal::encoding_group ENC>
 [[nodiscard]] std::string::size_type
-array_parser::scan_glyph(std::string::size_type pos, PQXX_LOC loc) const
+array_parser::scan_glyph(std::string::size_type pos, sl loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(
     std::data(m_input), std::size(m_input), pos, loc);
@@ -38,7 +38,7 @@ array_parser::scan_glyph(std::string::size_type pos, PQXX_LOC loc) const
 /// Scan to next glyph in a substring.  Assumes there is one.
 template<pqxx::internal::encoding_group ENC>
 std::string::size_type array_parser::scan_glyph(
-  std::string::size_type pos, std::string::size_type end, PQXX_LOC loc) const
+  std::string::size_type pos, std::string::size_type end, sl loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(
     std::data(m_input), end, pos, loc);
@@ -47,8 +47,7 @@ std::string::size_type array_parser::scan_glyph(
 
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<pqxx::internal::encoding_group ENC>
-std::string::size_type
-array_parser::scan_double_quoted_string(PQXX_LOC loc) const
+std::string::size_type array_parser::scan_double_quoted_string(sl loc) const
 {
   return pqxx::internal::scan_double_quoted_string<ENC>(
     std::data(m_input), std::size(m_input), m_pos, loc);
@@ -58,7 +57,7 @@ array_parser::scan_double_quoted_string(PQXX_LOC loc) const
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 template<pqxx::internal::encoding_group ENC>
 std::string array_parser::parse_double_quoted_string(
-  std::string::size_type end, PQXX_LOC loc) const
+  std::string::size_type end, sl loc) const
 {
   return pqxx::internal::parse_double_quoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);
@@ -69,7 +68,7 @@ std::string array_parser::parse_double_quoted_string(
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
 template<pqxx::internal::encoding_group ENC>
-std::string::size_type array_parser::scan_unquoted_string(PQXX_LOC loc) const
+std::string::size_type array_parser::scan_unquoted_string(sl loc) const
 {
   return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
     std::data(m_input), std::size(m_input), m_pos, loc);
@@ -81,8 +80,8 @@ std::string::size_type array_parser::scan_unquoted_string(PQXX_LOC loc) const
  * that happens to spell "NULL".
  */
 template<pqxx::internal::encoding_group ENC>
-std::string_view array_parser::parse_unquoted_string(
-  std::string::size_type end, PQXX_LOC loc) const
+std::string_view
+array_parser::parse_unquoted_string(std::string::size_type end, sl loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);
@@ -91,14 +90,13 @@ std::string_view array_parser::parse_unquoted_string(
 
 array_parser::array_parser(
   std::string_view input, internal::encoding_group enc) :
-        m_input{input},
-        m_impl{specialize_for_encoding(enc, PQXX_LOC::current())}
+        m_input{input}, m_impl{specialize_for_encoding(enc, sl::current())}
 {}
 
 
 template<pqxx::internal::encoding_group ENC>
 std::pair<array_parser::juncture, std::string>
-array_parser::parse_array_step(PQXX_LOC loc)
+array_parser::parse_array_step(sl loc)
 {
   std::string value{};
 
@@ -160,7 +158,7 @@ array_parser::parse_array_step(PQXX_LOC loc)
 
 
 array_parser::implementation array_parser::specialize_for_encoding(
-  pqxx::internal::encoding_group enc, PQXX_LOC loc)
+  pqxx::internal::encoding_group enc, sl loc)
 {
   using encoding_group = pqxx::internal::encoding_group;
 

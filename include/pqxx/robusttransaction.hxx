@@ -30,8 +30,8 @@ public:
 
 protected:
   basic_robusttransaction(
-    connection &cx, zview begin_command, std::string_view tname, PQXX_LOC);
-  basic_robusttransaction(connection &cx, zview begin_command, PQXX_LOC);
+    connection &cx, zview begin_command, std::string_view tname, sl);
+  basic_robusttransaction(connection &cx, zview begin_command, sl);
 
 private:
   using IDType = unsigned long;
@@ -40,10 +40,10 @@ private:
   std::string m_xid;
   int m_backendpid = -1;
 
-  void init(zview begin_command, PQXX_LOC);
+  void init(zview begin_command, sl);
 
   // @warning This function will become `final`.
-  virtual void do_commit(PQXX_LOC) override;
+  virtual void do_commit(sl) override;
 };
 } // namespace pqxx::internal
 
@@ -105,8 +105,7 @@ public:
   /** Create robusttransaction of given name.
    * @param cx Connection inside which this robusttransaction should live.
    */
-  explicit robusttransaction(
-    connection &cx, PQXX_LOC loc = PQXX_LOC::current()) :
+  explicit robusttransaction(connection &cx, sl loc = sl::current()) :
           internal::basic_robusttransaction{
             cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
             loc}

@@ -24,7 +24,7 @@ class PQXX_PRIVATE icursorstream_icursor_iterator : callgate<icursorstream>
     return home().forward(n);
   }
 
-  void service_iterators(icursorstream::difference_type p, PQXX_LOC loc)
+  void service_iterators(icursorstream::difference_type p, sl loc)
   {
     home().service_iterators(p, loc);
   }

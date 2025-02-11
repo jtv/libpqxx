@@ -21,7 +21,7 @@ class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
   {
     home().add_receiver(receiver);
   }
-  void remove_receiver(notification_receiver *receiver, PQXX_LOC loc) noexcept
+  void remove_receiver(notification_receiver *receiver, sl loc) noexcept
   {
     home().remove_receiver(receiver, loc);
   }

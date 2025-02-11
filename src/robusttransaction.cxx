@@ -74,7 +74,7 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
 
 tx_stat query_status(
   std::string const &xid, std::string const &conn_str,
-  PQXX_LOC loc = PQXX_LOC::current())
+  pqxx::sl loc = pqxx::sl::current())
 {
   static std::string const name{"robusttxck"sv};
   auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
@@ -95,8 +95,7 @@ tx_stat query_status(
 } // namespace
 
 
-void pqxx::internal::basic_robusttransaction::init(
-  zview begin_command, PQXX_LOC loc)
+void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
 {
   static auto const txid_q{
     std::make_shared<std::string>("SELECT txid_current()"sv)};
@@ -107,7 +106,7 @@ void pqxx::internal::basic_robusttransaction::init(
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command, std::string_view tname, PQXX_LOC loc) :
+  connection &cx, zview begin_command, std::string_view tname, sl loc) :
         dbtransaction(cx, tname), m_conn_string{cx.connection_string()}
 {
   init(begin_command, loc);
@@ -115,7 +114,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command, PQXX_LOC loc) :
+  connection &cx, zview begin_command, sl loc) :
         dbtransaction(cx), m_conn_string{cx.connection_string()}
 {
   init(begin_command, loc);
@@ -125,7 +124,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 
 
-void pqxx::internal::basic_robusttransaction::do_commit(PQXX_LOC loc)
+void pqxx::internal::basic_robusttransaction::do_commit(sl loc)
 {
   static auto const check_constraints_q{
     std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE"sv)},

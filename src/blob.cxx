@@ -44,7 +44,7 @@ std::string pqxx::blob::errmsg(connection const *cx)
 
 
 pqxx::blob
-pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, PQXX_LOC loc)
+pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, sl loc)
 {
   auto &cx{tx.conn()};
   int const fd{lo_open(raw_conn(&cx), id, mode)};
@@ -57,7 +57,7 @@ pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, PQXX_LOC loc)
 }
 
 
-pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, PQXX_LOC loc)
+pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, sl loc)
 {
   oid const actual_id{lo_create(raw_conn(tx), id)};
   if (actual_id == 0)
@@ -69,7 +69,7 @@ pqxx::oid pqxx::blob::create(dbtransaction &tx, oid id, PQXX_LOC loc)
 }
 
 
-void pqxx::blob::remove(dbtransaction &tx, oid id, PQXX_LOC loc)
+void pqxx::blob::remove(dbtransaction &tx, oid id, sl loc)
 {
   if (id == 0)
     throw usage_error{
@@ -82,19 +82,19 @@ void pqxx::blob::remove(dbtransaction &tx, oid id, PQXX_LOC loc)
 }
 
 
-pqxx::blob pqxx::blob::open_r(dbtransaction &tx, oid id, PQXX_LOC loc)
+pqxx::blob pqxx::blob::open_r(dbtransaction &tx, oid id, sl loc)
 {
   return open_internal(tx, id, INV_READ, loc);
 }
 
 
-pqxx::blob pqxx::blob::open_w(dbtransaction &tx, oid id, PQXX_LOC loc)
+pqxx::blob pqxx::blob::open_w(dbtransaction &tx, oid id, sl loc)
 {
   return open_internal(tx, id, INV_WRITE, loc);
 }
 
 
-pqxx::blob pqxx::blob::open_rw(dbtransaction &tx, oid id, PQXX_LOC loc)
+pqxx::blob pqxx::blob::open_rw(dbtransaction &tx, oid id, sl loc)
 {
   return open_internal(tx, id, INV_READ | INV_WRITE, loc);
 }
@@ -145,8 +145,7 @@ void pqxx::blob::close()
 }
 
 
-std::size_t
-pqxx::blob::raw_read(std::byte buf[], std::size_t size, PQXX_LOC loc)
+std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size, sl loc)
 {
   if (m_conn == nullptr)
     throw usage_error{
@@ -164,7 +163,7 @@ pqxx::blob::raw_read(std::byte buf[], std::size_t size, PQXX_LOC loc)
 }
 
 
-std::size_t pqxx::blob::read(bytes &buf, std::size_t size, PQXX_LOC loc)
+std::size_t pqxx::blob::read(bytes &buf, std::size_t size, sl loc)
 {
   buf.resize(size);
   auto const received{raw_read(std::data(buf), size, loc)};
@@ -173,7 +172,7 @@ std::size_t pqxx::blob::read(bytes &buf, std::size_t size, PQXX_LOC loc)
 }
 
 
-void pqxx::blob::raw_write(bytes_view data, PQXX_LOC loc)
+void pqxx::blob::raw_write(bytes_view data, sl loc)
 {
   if (m_conn == nullptr)
     throw usage_error{
@@ -190,7 +189,7 @@ void pqxx::blob::raw_write(bytes_view data, PQXX_LOC loc)
 }
 
 
-void pqxx::blob::resize(std::int64_t size, PQXX_LOC loc)
+void pqxx::blob::resize(std::int64_t size, sl loc)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to resize a closed binary large object.", loc};
@@ -201,7 +200,7 @@ void pqxx::blob::resize(std::int64_t size, PQXX_LOC loc)
 }
 
 
-std::int64_t pqxx::blob::tell(PQXX_LOC loc) const
+std::int64_t pqxx::blob::tell(sl loc) const
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to tell() a closed binary large object.", loc};
@@ -215,7 +214,7 @@ std::int64_t pqxx::blob::tell(PQXX_LOC loc) const
 }
 
 
-std::int64_t pqxx::blob::seek(std::int64_t offset, int whence, PQXX_LOC loc)
+std::int64_t pqxx::blob::seek(std::int64_t offset, int whence, sl loc)
 {
   if (m_conn == nullptr)
     throw usage_error{"Attempt to seek() a closed binary large object.", loc};
@@ -229,26 +228,26 @@ std::int64_t pqxx::blob::seek(std::int64_t offset, int whence, PQXX_LOC loc)
 }
 
 
-std::int64_t pqxx::blob::seek_abs(std::int64_t offset, PQXX_LOC loc)
+std::int64_t pqxx::blob::seek_abs(std::int64_t offset, sl loc)
 {
   return this->seek(offset, SEEK_SET, loc);
 }
 
 
-std::int64_t pqxx::blob::seek_rel(std::int64_t offset, PQXX_LOC loc)
+std::int64_t pqxx::blob::seek_rel(std::int64_t offset, sl loc)
 {
   return this->seek(offset, SEEK_CUR, loc);
 }
 
 
-std::int64_t pqxx::blob::seek_end(std::int64_t offset, PQXX_LOC loc)
+std::int64_t pqxx::blob::seek_end(std::int64_t offset, sl loc)
 {
   return this->seek(offset, SEEK_END, loc);
 }
 
 
 pqxx::oid
-pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
+pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, sl loc)
 {
   oid const actual_id{create(tx, id, loc)};
   try
@@ -279,7 +278,7 @@ pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
 
 
 void pqxx::blob::append_from_buf(
-  dbtransaction &tx, bytes_view data, oid id, PQXX_LOC loc)
+  dbtransaction &tx, bytes_view data, oid id, sl loc)
 {
   if (std::size(data) > chunk_limit)
     throw range_error{
@@ -291,7 +290,7 @@ void pqxx::blob::append_from_buf(
 
 
 void pqxx::blob::to_buf(
-  dbtransaction &tx, oid id, bytes &buf, std::size_t max_size, PQXX_LOC loc)
+  dbtransaction &tx, oid id, bytes &buf, std::size_t max_size, sl loc)
 {
   open_r(tx, id).read(buf, max_size, loc);
 }
@@ -299,7 +298,7 @@ void pqxx::blob::to_buf(
 
 std::size_t pqxx::blob::append_to_buf(
   dbtransaction &tx, oid id, std::int64_t offset, bytes &buf,
-  std::size_t append_max, PQXX_LOC loc)
+  std::size_t append_max, sl loc)
 {
   if (append_max > chunk_limit)
     throw range_error{
@@ -324,7 +323,7 @@ std::size_t pqxx::blob::append_to_buf(
 }
 
 
-pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, PQXX_LOC loc)
+pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
 {
   auto id{lo_import(raw_conn(tx), path.c_str())};
   if (id == 0)
@@ -337,8 +336,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, PQXX_LOC loc)
 }
 
 
-pqxx::oid
-pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, PQXX_LOC loc)
+pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
 {
   auto actual_id{lo_import_with_oid(raw_conn(tx), path.c_str(), id)};
   if (actual_id == 0)
@@ -351,7 +349,7 @@ pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, PQXX_LOC loc)
 }
 
 
-void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path, PQXX_LOC loc)
+void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path, sl loc)
 {
   if (lo_export(raw_conn(tx), id, path.c_str()) < 0)
     throw failure{

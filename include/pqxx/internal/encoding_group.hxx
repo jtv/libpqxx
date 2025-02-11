@@ -50,7 +50,7 @@ enum class encoding_group
  * kinds of encodings.
  */
 using glyph_scanner_func = std::size_t(
-  char const buffer[], std::size_t buffer_len, std::size_t start, PQXX_LOC);
+  char const buffer[], std::size_t buffer_len, std::size_t start, sl);
 
 
 /// Function type: "find first occurrence of specific any of ASCII characters."
@@ -68,7 +68,7 @@ using glyph_scanner_func = std::size_t(
  * end of `haystack`.
  */
 using char_finder_func =
-  std::size_t(std::string_view haystack, std::size_t start, PQXX_LOC);
+  std::size_t(std::string_view haystack, std::size_t start, sl);
 } // namespace pqxx::internal
 
 #endif

@@ -73,21 +73,19 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *
-    name(PQXX_LOC = PQXX_LOC::current()) const &;
+  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(PQXX_LOC loc = PQXX_LOC::current()) const;
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table(PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
   /// Return row number.  The first row is row 0, the second is row 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE
-    row_size_type table_column(PQXX_LOC = PQXX_LOC::current()) const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
   //@}
 
   /**
@@ -247,8 +245,7 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  array<ELEMENT, ARGS...>
-  as_sql_array(PQXX_LOC loc = PQXX_LOC::current()) const
+  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 

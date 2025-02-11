@@ -75,7 +75,7 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
 
 
 /// Parse the numeric part of a year value.
-inline int year_from_buf(std::string_view text, PQXX_LOC loc)
+inline int year_from_buf(std::string_view text, pqxx::sl loc)
 {
   if (std::size(text) < 4)
     throw pqxx::conversion_error{
@@ -111,7 +111,7 @@ inline char *month_into_buf(char *begin, std::chrono::month const &value)
 
 /// Parse a 1-based month value.
 inline std::chrono::month
-month_from_string(std::string_view text, PQXX_LOC loc)
+month_from_string(std::string_view text, pqxx::sl loc)
 {
   if (
     not pqxx::internal::is_digit(text[0]) or
@@ -135,7 +135,7 @@ inline char *day_into_buf(char *begin, std::chrono::day const &value)
 
 
 /// Parse a 1-based day-of-month value.
-inline std::chrono::day day_from_string(std::string_view text, PQXX_LOC loc)
+inline std::chrono::day day_from_string(std::string_view text, pqxx::sl loc)
 {
   if (
     not pqxx::internal::is_digit(text[0]) or
@@ -178,8 +178,7 @@ std::string make_parse_error(std::string_view text)
 namespace pqxx
 {
 char *string_traits<std::chrono::year_month_day>::into_buf(
-  char *begin, char *end, std::chrono::year_month_day const &value,
-  PQXX_LOC loc)
+  char *begin, char *end, std::chrono::year_month_day const &value, sl loc)
 {
   if (std::size_t(end - begin) < size_buffer(value))
     throw conversion_overrun{"Not enough room in buffer for date.", loc};
@@ -197,7 +196,7 @@ char *string_traits<std::chrono::year_month_day>::into_buf(
 
 std::chrono::year_month_day
 string_traits<std::chrono::year_month_day>::from_string(
-  std::string_view text, PQXX_LOC loc)
+  std::string_view text, sl loc)
 {
   // We can't just re-use the std::chrono::year conversions, because the "BC"
   // suffix comes at the very end.

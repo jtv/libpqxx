@@ -18,14 +18,11 @@ class PQXX_PRIVATE result_creation : callgate<result const>
     return result(rhs, query, notice_waiters, enc);
   }
 
-  void check_status(std::string_view desc, PQXX_LOC loc) const
+  void check_status(std::string_view desc, sl loc) const
   {
     return home().check_status(desc, loc);
   }
 
-  void check_status(PQXX_LOC loc) const
-  {
-    return home().check_status("", loc);
-  }
+  void check_status(sl loc) const { return home().check_status("", loc); }
 };
 } // namespace pqxx::internal::gate

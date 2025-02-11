@@ -29,7 +29,7 @@ namespace pqxx::internal
 PQXX_PURE char const *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum value to its libpqxx group.
-PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */, PQXX_LOC);
+PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */, sl);
 
 
 /// Look up the glyph scanner function for a given encoding group.
@@ -37,7 +37,7 @@ PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */, PQXX_LOC);
  * scanner function appropriate for the buffer's encoding.  Then, repeatedly
  * call the scanner function to find the glyphs.
  */
-PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, PQXX_LOC);
+PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, sl);
 
 
 // TODO: Get rid of this one.  Use compile-time-specialised version instead.
@@ -51,7 +51,7 @@ PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, PQXX_LOC);
 template<char... NEEDLE>
 inline std::size_t find_char(
   glyph_scanner_func *scanner, std::string_view haystack, std::size_t here,
-  PQXX_LOC loc)
+  sl loc)
 {
   auto const sz{std::size(haystack)};
   auto const data{std::data(haystack)};
@@ -86,7 +86,7 @@ inline std::size_t find_char(
 template<typename CALLABLE>
 inline void for_glyphs(
   encoding_group enc, CALLABLE callback, char const buffer[],
-  std::size_t buffer_len, std::size_t start, PQXX_LOC loc)
+  std::size_t buffer_len, std::size_t start, sl loc)
 {
   auto const scan{get_glyph_scanner(enc, loc)};
   for (std::size_t here = start, next; here < buffer_len; here = next)
@@ -110,7 +110,7 @@ get_byte(char const buffer[], std::size_t offset) noexcept
 
 [[noreturn]] PQXX_COLD void throw_for_encoding_error(
   char const *encoding_name, char const buffer[], std::size_t start,
-  std::size_t count, PQXX_LOC loc)
+  std::size_t count, sl loc)
 {
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
@@ -143,8 +143,8 @@ template<encoding_group> struct glyph_scanner
 {
   // TODO: Convert to use string_view?
   /// Find the next glyph in `buffer` after position `start`.
-  PQXX_PURE static std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start, PQXX_LOC);
+  PQXX_PURE static std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl);
 };
 
 
@@ -159,7 +159,7 @@ namespace
  */
 template<encoding_group ENC, char... NEEDLE>
 PQXX_PURE inline std::size_t
-find_ascii_char(std::string_view haystack, std::size_t here, PQXX_LOC loc)
+find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
   // assumption in the code below.
@@ -208,7 +208,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, PQXX_LOC loc)
  */
 template<encoding_group ENC, char... NEEDLE>
 PQXX_PURE std::size_t
-find_s_ascii_char(std::string_view haystack, std::size_t here, PQXX_LOC loc)
+find_s_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
   // assumption in the code below.
@@ -232,8 +232,7 @@ find_s_ascii_char(std::string_view haystack, std::size_t here, PQXX_LOC loc)
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
   static PQXX_PURE constexpr std::size_t call(
-    char const /* buffer */[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC)
+    char const /* buffer */[], std::size_t buffer_len, std::size_t start, sl)
   {
     // TODO: Don't bother with npos.  Let the caller check.
     if (start >= buffer_len) [[unlikely]]
@@ -247,9 +246,8 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> struct glyph_scanner<encoding_group::BIG5>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -287,9 +285,8 @@ depending on the specific extension:
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
 template<> struct glyph_scanner<encoding_group::EUC_CN>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
       return std::string::npos;
@@ -318,9 +315,8 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::EUC_JP>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
       return std::string::npos;
@@ -368,9 +364,8 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<> struct glyph_scanner<encoding_group::EUC_KR>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -395,9 +390,8 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
 template<> struct glyph_scanner<encoding_group::EUC_TW>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -435,9 +429,8 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<> struct glyph_scanner<encoding_group::GB18030>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -480,9 +473,8 @@ template<> struct glyph_scanner<encoding_group::GB18030>
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<> struct glyph_scanner<encoding_group::GBK>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -526,9 +518,8 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 */
 template<> struct glyph_scanner<encoding_group::JOHAB>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -562,9 +553,8 @@ using PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -617,9 +607,8 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::SJIS>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
       return std::string::npos;
@@ -651,9 +640,8 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<> struct glyph_scanner<encoding_group::UHC>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -692,9 +680,8 @@ template<> struct glyph_scanner<encoding_group::UHC>
 // https://en.wikipedia.org/wiki/UTF-8#Description
 template<> struct glyph_scanner<encoding_group::UTF8>
 {
-  static PQXX_PURE std::size_t call(
-    char const buffer[], std::size_t buffer_len, std::size_t start,
-    PQXX_LOC loc)
+  static PQXX_PURE std::size_t
+  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
       return std::string::npos;
@@ -791,7 +778,7 @@ map_ascii_search_group(encoding_group enc) noexcept
  */
 template<char... NEEDLE>
 PQXX_PURE constexpr inline char_finder_func *
-get_char_finder(encoding_group enc, PQXX_LOC loc)
+get_char_finder(encoding_group enc, sl loc)
 {
   auto const as_if{map_ascii_search_group(enc)};
   switch (as_if)
@@ -827,7 +814,7 @@ get_char_finder(encoding_group enc, PQXX_LOC loc)
  */
 template<char... NEEDLE>
 PQXX_PURE constexpr inline char_finder_func *
-get_s_char_finder(encoding_group enc, PQXX_LOC loc)
+get_s_char_finder(encoding_group enc, sl loc)
 {
   auto const as_if{map_ascii_search_group(enc)};
   switch (as_if)

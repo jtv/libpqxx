@@ -103,7 +103,7 @@ public:
    */
   static stream_to raw_table(
     transaction_base &tx, std::string_view path, std::string_view columns = "",
-    PQXX_LOC loc = PQXX_LOC::current())
+    sl loc = sl::current())
   {
     return {tx, path, columns, loc};
   }
@@ -221,8 +221,7 @@ public:
    *
    * The preferred way to insert a row is @c write_values.
    */
-  template<typename Row>
-  void write_row(Row const &row, PQXX_LOC loc = PQXX_LOC::current())
+  template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
     fill_buffer(row, loc);
     write_buffer(loc);
@@ -235,7 +234,7 @@ public:
    */
   template<typename... Ts> void write_values(Ts const &...fields)
   {
-    auto loc{PQXX_LOC::current()};
+    auto loc{sl::current()};
     fill_buffer(fields...);
     write_buffer(loc);
   }
@@ -243,8 +242,7 @@ public:
 private:
   /// Stream a pre-quoted table name and columns list.
   stream_to(
-    transaction_base &tx, std::string_view path, std::string_view columns,
-    PQXX_LOC);
+    transaction_base &tx, std::string_view path, std::string_view columns, sl);
 
   bool m_finished = false;
 
@@ -258,12 +256,12 @@ private:
   internal::char_finder_func *m_finder;
 
   /// Write a row of raw text-format data into the destination table.
-  void write_raw_line(std::string_view, PQXX_LOC);
+  void write_raw_line(std::string_view, sl);
 
   /// Write a row of data from @c m_buffer into the destination table.
   /** Resets the buffer for the next row.
    */
-  void write_buffer(PQXX_LOC);
+  void write_buffer(sl);
 
   /// COPY encoding for a null field, plus subsequent separator.
   static constexpr std::string_view null_field{"\\N\t"};
@@ -288,7 +286,7 @@ private:
   }
 
   /// Append escaped version of @c data to @c m_buffer, plus a tab.
-  void escape_field_to_buffer(std::string_view data, PQXX_LOC loc);
+  void escape_field_to_buffer(std::string_view data, sl loc);
 
   /// Append string representation for @c f to @c m_buffer.
   /** This is for the general case, where the field may contain a value.
@@ -299,7 +297,7 @@ private:
    */
   template<typename Field>
   std::enable_if_t<not nullness<Field>::always_null>
-  append_to_buffer(Field const &f, PQXX_LOC loc)
+  append_to_buffer(Field const &f, sl loc)
   {
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
@@ -388,7 +386,7 @@ private:
    */
   template<typename Field>
   std::enable_if_t<nullness<Field>::always_null>
-  append_to_buffer(Field const &, PQXX_LOC)
+  append_to_buffer(Field const &, sl)
   {
     m_buffer.append(null_field);
   }
@@ -397,7 +395,7 @@ private:
   template<typename Container>
   std::enable_if_t<
     not std::is_same_v<std::remove_cv_t<typename Container::value_type>, char>>
-  fill_buffer(Container const &c, PQXX_LOC loc)
+  fill_buffer(Container const &c, sl loc)
   {
     // To avoid unnecessary allocations and deallocations, we run through c
     // twice: once to determine how much buffer space we may need, and once to
@@ -418,15 +416,14 @@ private:
 
   /// Write tuple of fields to @c m_buffer.
   template<typename Tuple, std::size_t... indexes>
-  void
-  append_tuple(Tuple const &t, std::index_sequence<indexes...>, PQXX_LOC loc)
+  void append_tuple(Tuple const &t, std::index_sequence<indexes...>, sl loc)
   {
     (append_to_buffer(std::get<indexes>(t), loc), ...);
   }
 
   /// Write raw COPY line into @c m_buffer, based on a tuple of fields.
   template<typename... Elts>
-  void fill_buffer(std::tuple<Elts...> const &t, PQXX_LOC loc)
+  void fill_buffer(std::tuple<Elts...> const &t, sl loc)
   {
     using indexes = std::make_index_sequence<sizeof...(Elts)>;
 
@@ -438,7 +435,7 @@ private:
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
-    (..., append_to_buffer(fields, PQXX_LOC::current()));
+    (..., append_to_buffer(fields, sl::current()));
   }
 
   constexpr static std::string_view s_classname{"stream_to"};

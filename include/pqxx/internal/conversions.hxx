@@ -937,8 +937,7 @@ template<binary DATA> struct string_traits<DATA>
     return begin + budget;
   }
 
-  static DATA
-  from_string(std::string_view text, PQXX_LOC loc = PQXX_LOC::current())
+  static DATA from_string(std::string_view text, sl loc = sl::current())
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     bytes buf;

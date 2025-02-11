@@ -38,25 +38,25 @@ bool PQXX_COLD pqxx::field::operator==(field const &rhs) const noexcept
 }
 
 
-char const *pqxx::field::name(PQXX_LOC loc) const &
+char const *pqxx::field::name(sl loc) const &
 {
   return home().column_name(col(), loc);
 }
 
 
-pqxx::oid pqxx::field::type(PQXX_LOC loc) const
+pqxx::oid pqxx::field::type(sl loc) const
 {
   return home().column_type(col(), loc);
 }
 
 
-pqxx::oid pqxx::field::table(PQXX_LOC loc) const
+pqxx::oid pqxx::field::table(sl loc) const
 {
   return home().column_table(col(), loc);
 }
 
 
-pqxx::row::size_type pqxx::field::table_column(PQXX_LOC loc) const
+pqxx::row::size_type pqxx::field::table_column(sl loc) const
 {
   return home().table_column(col(), loc);
 }

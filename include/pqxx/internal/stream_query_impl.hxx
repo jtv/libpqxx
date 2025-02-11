@@ -10,7 +10,7 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, PQXX_LOC loc) :
+  transaction_base &tx, std::string_view query, sl loc) :
         transaction_focus{tx, "stream_query"},
         m_char_finder{get_finder(tx, loc)}
 {
@@ -23,8 +23,7 @@ inline stream_query<TYPE...>::stream_query(
 
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, params const &parms,
-  PQXX_LOC loc) :
+  transaction_base &tx, std::string_view query, params const &parms, sl loc) :
         transaction_focus{tx, "stream_query"},
         m_char_finder{get_finder(tx, loc)}
 {
@@ -44,7 +43,7 @@ inline stream_query<TYPE...>::stream_query(
 
 template<typename... TYPE>
 inline char_finder_func *
-stream_query<TYPE...>::get_finder(transaction_base const &tx, PQXX_LOC loc)
+stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
   auto const group{enc_group(tx.conn().encoding_id(), loc)};
   return get_s_char_finder<'\t', '\\'>(group, loc);

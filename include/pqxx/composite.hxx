@@ -38,7 +38,7 @@ inline void parse_composite(
 {
   static_assert(sizeof...(fields) > 0);
   // TODO: Turn this into a parameter.
-  auto const loc{PQXX_LOC::current()};
+  auto const loc{sl::current()};
 
   auto const scan{pqxx::internal::get_glyph_scanner(enc, loc)};
   auto const data{std::data(text)};
@@ -132,7 +132,7 @@ composite_size_buffer(T const &...fields) noexcept
 template<typename... T>
 inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
-  auto loc{PQXX_LOC::current()};
+  auto loc{sl::current()};
   if (std::size_t(end - begin) < composite_size_buffer(fields...))
     throw conversion_error{
       "Buffer space may not be enough to represent composite value.", loc};

@@ -62,7 +62,7 @@ public:
   value_type const &operator*() const noexcept { return m_value; }
 
 private:
-  void read(PQXX_LOC loc = PQXX_LOC::current())
+  void read(sl loc = sl::current())
   {
     (*m_home)[m_index].convert(m_value, loc);
   }
@@ -106,7 +106,7 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 
 
 template<typename CALLABLE>
-inline void pqxx::result::for_each(CALLABLE &&func, PQXX_LOC loc) const
+inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
 {
   using args_tuple = internal::args_t<decltype(func)>;
   constexpr auto sz{std::tuple_size_v<args_tuple>};

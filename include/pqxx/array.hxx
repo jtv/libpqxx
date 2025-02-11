@@ -65,9 +65,7 @@ public:
    * @throws pqxx::unexpected_null if the array contains a null value, and the
    * `ELEMENT` type does not support null values.
    */
-  array(
-    std::string_view data, connection const &cx,
-    PQXX_LOC loc = PQXX_LOC::current()) :
+  array(std::string_view data, connection const &cx, sl loc = sl::current()) :
           array{data, pqxx::internal::enc_group(cx.encoding_id(), loc), loc}
   {}
 
@@ -171,7 +169,7 @@ private:
    * walking through the entire array sequentially, and identifying all the
    * character boundaries.  The main parsing routine detects that one.
    */
-  void check_dims(std::string_view data, PQXX_LOC loc = PQXX_LOC::current())
+  void check_dims(std::string_view data, sl loc = sl::current())
   {
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
@@ -215,8 +213,7 @@ private:
   // Couldn't make this work through a call gate, thanks to the templating.
   friend class ::pqxx::field;
 
-  array(
-    std::string_view data, pqxx::internal::encoding_group enc, PQXX_LOC loc)
+  array(std::string_view data, pqxx::internal::encoding_group enc, sl loc)
   {
     using group = pqxx::internal::encoding_group;
     switch (enc)
@@ -243,7 +240,7 @@ private:
    * complicated point, and return the offset where parsing should continue.
    */
   std::size_t
-  parse_field_end(std::string_view data, std::size_t here, PQXX_LOC loc) const
+  parse_field_end(std::string_view data, std::size_t here, sl loc) const
   {
     auto const sz{std::size(data)};
     if (here < sz)
@@ -294,7 +291,7 @@ private:
   }
 
   template<pqxx::internal::encoding_group ENC>
-  void parse(std::string_view data, PQXX_LOC loc = PQXX_LOC::current())
+  void parse(std::string_view data, sl loc = sl::current())
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto const sz{std::size(data)};
@@ -585,7 +582,7 @@ public:
    * Call this until the @ref array_parser::juncture it returns is
    * @ref juncture::done.
    */
-  std::pair<juncture, std::string> get_next(PQXX_LOC loc = PQXX_LOC::current())
+  std::pair<juncture, std::string> get_next(sl loc = sl::current())
   {
     return (this->*m_impl)(loc);
   }
@@ -603,37 +600,35 @@ private:
    * very hot loops.
    */
   using implementation =
-    std::pair<juncture, std::string> (array_parser::*)(PQXX_LOC);
+    std::pair<juncture, std::string> (array_parser::*)(sl);
 
   /// Pick the `implementation` for `enc`.
   static implementation
-  specialize_for_encoding(pqxx::internal::encoding_group enc, PQXX_LOC loc);
+  specialize_for_encoding(pqxx::internal::encoding_group enc, sl loc);
 
   /// Our implementation of `parse_array_step`, specialised for our encoding.
   implementation m_impl;
 
   /// Perform one step of array parsing.
   template<pqxx::internal::encoding_group>
-  std::pair<juncture, std::string> parse_array_step(PQXX_LOC loc);
+  std::pair<juncture, std::string> parse_array_step(sl loc);
 
   template<pqxx::internal::encoding_group>
-  std::string::size_type scan_double_quoted_string(PQXX_LOC loc) const;
+  std::string::size_type scan_double_quoted_string(sl loc) const;
   template<pqxx::internal::encoding_group>
   std::string
-  parse_double_quoted_string(std::string::size_type end, PQXX_LOC loc) const;
+  parse_double_quoted_string(std::string::size_type end, sl loc) const;
   template<pqxx::internal::encoding_group>
-  std::string::size_type scan_unquoted_string(PQXX_LOC loc) const;
+  std::string::size_type scan_unquoted_string(sl loc) const;
   template<pqxx::internal::encoding_group>
   std::string_view
-  parse_unquoted_string(std::string::size_type end, PQXX_LOC loc) const;
+  parse_unquoted_string(std::string::size_type end, sl loc) const;
 
   template<pqxx::internal::encoding_group>
-  std::string::size_type
-  scan_glyph(std::string::size_type pos, PQXX_LOC loc) const;
+  std::string::size_type scan_glyph(std::string::size_type pos, sl loc) const;
   template<pqxx::internal::encoding_group>
   std::string::size_type scan_glyph(
-    std::string::size_type pos, std::string::size_type end,
-    PQXX_LOC loc) const;
+    std::string::size_type pos, std::string::size_type end, sl loc) const;
 };
 } // namespace pqxx
 #endif

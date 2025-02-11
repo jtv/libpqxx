@@ -17,7 +17,6 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
-#include <source_location>
 #include <stdexcept>
 #include <string>
 
@@ -45,10 +44,10 @@ namespace pqxx
 /// Run-time failure encountered by libpqxx, similar to std::runtime_error.
 struct PQXX_LIBEXPORT failure : std::runtime_error
 {
-  explicit failure(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit failure(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
@@ -75,8 +74,7 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
 struct PQXX_LIBEXPORT broken_connection : failure
 {
   broken_connection();
-  explicit broken_connection(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit broken_connection(std::string const &, sl = sl::current());
 };
 
 
@@ -91,16 +89,14 @@ struct PQXX_LIBEXPORT broken_connection : failure
  */
 struct PQXX_LIBEXPORT protocol_violation : broken_connection
 {
-  explicit protocol_violation(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit protocol_violation(std::string const &, sl = sl::current());
 };
 
 
 /// The caller attempted to set a variable to null, which is not allowed.
 struct PQXX_LIBEXPORT variable_set_to_null : failure
 {
-  explicit variable_set_to_null(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit variable_set_to_null(std::string const &, sl = sl::current());
 };
 
 
@@ -118,7 +114,7 @@ class PQXX_LIBEXPORT sql_error : public failure
 public:
   explicit sql_error(
     std::string const &whatarg = "", std::string Q = "",
-    char const *sqlstate = nullptr, PQXX_LOC = PQXX_LOC::current());
+    char const *sqlstate = nullptr, sl = sl::current());
   virtual ~sql_error() noexcept override;
 
   /// The query whose execution triggered the exception
@@ -138,7 +134,7 @@ public:
  */
 struct PQXX_LIBEXPORT in_doubt_error : failure
 {
-  explicit in_doubt_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit in_doubt_error(std::string const &, sl = sl::current());
 };
 
 
@@ -147,7 +143,7 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
 {
   explicit transaction_rollback(
     std::string const &whatarg, std::string const &q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC = PQXX_LOC::current());
+    char const sqlstate[] = nullptr, sl = sl::current());
 };
 
 
@@ -164,7 +160,7 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
 {
   explicit serialization_failure(
     std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr, PQXX_LOC = PQXX_LOC::current());
+    char const sqlstate[] = nullptr, sl = sl::current());
 };
 
 
@@ -173,7 +169,7 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
 {
   explicit statement_completion_unknown(
     std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr, PQXX_LOC = PQXX_LOC::current());
+    char const sqlstate[] = nullptr, sl = sl::current());
 };
 
 
@@ -182,82 +178,78 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 {
   explicit deadlock_detected(
     std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr, PQXX_LOC = PQXX_LOC::current());
+    char const sqlstate[] = nullptr, sl = sl::current());
 };
 
 
 /// Internal error in libpqxx library
 struct PQXX_LIBEXPORT internal_error : std::logic_error
 {
-  explicit internal_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit internal_error(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
 /// Error in usage of libpqxx library, similar to std::logic_error
 struct PQXX_LIBEXPORT usage_error : std::logic_error
 {
-  explicit usage_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit usage_error(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
 struct PQXX_LIBEXPORT argument_error : std::invalid_argument
 {
-  explicit argument_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit argument_error(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
 /// Value conversion failed, e.g. when converting "Hello" to int.
 struct PQXX_LIBEXPORT conversion_error : std::domain_error
 {
-  explicit conversion_error(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit conversion_error(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
 /// Could not convert null value: target type does not support null.
 struct PQXX_LIBEXPORT unexpected_null : conversion_error
 {
-  explicit unexpected_null(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit unexpected_null(std::string const &, sl = sl::current());
 };
 
 
 /// Could not convert value to string: not enough buffer space.
 struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 {
-  explicit conversion_overrun(
-    std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit conversion_overrun(std::string const &, sl = sl::current());
 };
 
 
 /// Something is out of range, similar to std::out_of_range
 struct PQXX_LIBEXPORT range_error : std::out_of_range
 {
-  explicit range_error(std::string const &, PQXX_LOC = PQXX_LOC::current());
+  explicit range_error(std::string const &, sl = sl::current());
 
   /// A `std::source_location` as a hint to the origin of the problem.
-  PQXX_LOC location;
+  sl location;
 };
 
 
 /// Query returned an unexpected number of rows.
 struct PQXX_LIBEXPORT unexpected_rows : public range_error
 {
-  explicit unexpected_rows(
-    std::string const &msg, PQXX_LOC loc = PQXX_LOC::current()) :
+  explicit unexpected_rows(std::string const &msg, sl loc = sl::current()) :
           range_error{msg, loc}
   {}
 };
@@ -268,7 +260,7 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
 {
   explicit feature_not_supported(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -278,7 +270,7 @@ struct PQXX_LIBEXPORT data_exception : sql_error
 {
   explicit data_exception(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -287,7 +279,7 @@ struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
 {
   explicit integrity_constraint_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -296,7 +288,7 @@ struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
 {
   explicit restrict_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc}
   {}
 };
@@ -305,7 +297,7 @@ struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
 {
   explicit not_null_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc}
   {}
 };
@@ -314,7 +306,7 @@ struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
 {
   explicit foreign_key_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc}
   {}
 };
@@ -323,7 +315,7 @@ struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 {
   explicit unique_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc}
   {}
 };
@@ -332,7 +324,7 @@ struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 {
   explicit check_violation(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc}
   {}
 };
@@ -341,7 +333,7 @@ struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
 {
   explicit invalid_cursor_state(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -350,7 +342,7 @@ struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
 {
   explicit invalid_sql_statement_name(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -359,7 +351,7 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 {
   explicit invalid_cursor_name(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -371,8 +363,7 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
 
   explicit syntax_error(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, int pos = -1,
-    PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, int pos = -1, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}, error_position{pos}
   {}
 };
@@ -381,7 +372,7 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
 {
   explicit undefined_column(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
@@ -391,7 +382,7 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
 {
   explicit undefined_function(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
@@ -401,7 +392,7 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
 {
   explicit undefined_table(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           // TODO: Can we get the column?
           syntax_error{err, Q, sqlstate, -1, loc}
   {}
@@ -411,7 +402,7 @@ struct PQXX_LIBEXPORT insufficient_privilege : sql_error
 {
   explicit insufficient_privilege(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -421,7 +412,7 @@ struct PQXX_LIBEXPORT insufficient_resources : sql_error
 {
   explicit insufficient_resources(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -430,7 +421,7 @@ struct PQXX_LIBEXPORT disk_full : insufficient_resources
 {
   explicit disk_full(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           insufficient_resources{err, Q, sqlstate, loc}
   {}
 };
@@ -439,7 +430,7 @@ struct PQXX_LIBEXPORT out_of_memory : insufficient_resources
 {
   explicit out_of_memory(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           insufficient_resources{err, Q, sqlstate, loc}
   {}
 };
@@ -447,7 +438,7 @@ struct PQXX_LIBEXPORT out_of_memory : insufficient_resources
 struct PQXX_LIBEXPORT too_many_connections : broken_connection
 {
   explicit too_many_connections(
-    std::string const &err, PQXX_LOC loc = PQXX_LOC::current()) :
+    std::string const &err, sl loc = sl::current()) :
           broken_connection{err, loc}
   {}
 };
@@ -459,7 +450,7 @@ struct PQXX_LIBEXPORT plpgsql_error : sql_error
 {
   explicit plpgsql_error(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           sql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -469,7 +460,7 @@ struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 {
   explicit plpgsql_raise(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           plpgsql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -478,7 +469,7 @@ struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 {
   explicit plpgsql_no_data_found(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           plpgsql_error{err, Q, sqlstate, loc}
   {}
 };
@@ -487,7 +478,7 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 {
   explicit plpgsql_too_many_rows(
     std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, PQXX_LOC loc = PQXX_LOC::current()) :
+    char const sqlstate[] = nullptr, sl loc = sl::current()) :
           plpgsql_error{err, Q, sqlstate, loc}
   {}
 };

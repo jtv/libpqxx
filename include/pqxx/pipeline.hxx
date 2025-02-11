@@ -60,15 +60,14 @@ public:
 
 
   /// Start a pipeline.
-  explicit pipeline(transaction_base &t, PQXX_LOC loc = PQXX_LOC::current()) :
+  explicit pipeline(transaction_base &t, sl loc = sl::current()) :
           transaction_focus{t, s_classname}
   {
     init(loc);
   }
   /// Start a pipeline.  Assign it a name, for more helpful error messages.
   pipeline(
-    transaction_base &t, std::string_view tname,
-    PQXX_LOC loc = PQXX_LOC::current()) :
+    transaction_base &t, std::string_view tname, sl loc = sl::current()) :
           transaction_focus{t, s_classname, tname}
   {
     init(loc);
@@ -128,14 +127,14 @@ public:
    * than the one in which their queries were inserted, errors may "propagate"
    * to subsequent queries.
    */
-  result retrieve(query_id qid, PQXX_LOC loc = PQXX_LOC::current())
+  result retrieve(query_id qid, sl loc = sl::current())
   {
     return retrieve(m_queries.find(qid), loc).second;
   }
 
   /// Retrieve oldest unretrieved result (possibly wait for one).
   /** @return The query's identifier and its result set. */
-  std::pair<query_id, result> retrieve(PQXX_LOC = PQXX_LOC::current());
+  std::pair<query_id, result> retrieve(sl = sl::current());
 
   [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
@@ -171,7 +170,7 @@ private:
 
   using QueryMap = std::map<query_id, Query>;
 
-  void init(PQXX_LOC);
+  void init(sl);
   void attach();
   void detach();
 
@@ -205,11 +204,11 @@ private:
 
   /// Throw pqxx::internal_error.
   [[noreturn]] PQXX_PRIVATE void
-  internal_error(std::string const &err, PQXX_LOC = PQXX_LOC::current());
+  internal_error(std::string const &err, sl = sl::current());
 
   PQXX_PRIVATE bool obtain_result(bool expect_none = false);
 
-  PQXX_PRIVATE void obtain_dummy(PQXX_LOC = PQXX_LOC::current());
+  PQXX_PRIVATE void obtain_dummy(sl = sl::current());
   PQXX_PRIVATE void get_further_available_results();
   PQXX_PRIVATE void check_end_results();
 
@@ -219,7 +218,7 @@ private:
   /// Receive results, up to stop if possible.
   PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop);
   std::pair<pipeline::query_id, result>
-    retrieve(pipeline::QueryMap::iterator, PQXX_LOC);
+    retrieve(pipeline::QueryMap::iterator, sl);
 
   QueryMap m_queries;
   std::pair<QueryMap::iterator, QueryMap::iterator> m_issuedrange;
