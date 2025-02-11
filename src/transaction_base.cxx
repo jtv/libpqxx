@@ -479,6 +479,7 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
+        // XXX: Log source location?
         [[unlikely]] process_notice("UNABLE TO PROCESS ERROR\n");
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());

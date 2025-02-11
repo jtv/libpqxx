@@ -70,6 +70,7 @@ void pqxx::internal::basic_transaction::do_commit(PQXX_LOC loc)
     // resulting state of the database.
     process_notice(internal::concat(e.what(), "\n"));
 
+    // XXX: Log source location?
     std::string msg{internal::concat(
       "WARNING: Commit status of transaction '", name(),
       "' is unknown. "

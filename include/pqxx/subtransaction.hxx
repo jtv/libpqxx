@@ -40,6 +40,7 @@ namespace pqxx
  *   do_firstpart(tx);
  *
  *   // Attempt to delete our temporary table if it already existed.
+ *   // (In reality you would just use the IF EXISTS option to DROP TABLE.)
  *   try
  *   {
  *     subtransaction S(tx, "droptemp");
