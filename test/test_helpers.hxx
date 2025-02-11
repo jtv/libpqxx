@@ -52,8 +52,7 @@ struct registrar
 
 
 // Unconditional test failure.
-#define PQXX_CHECK_NOTREACHED(desc) pqxx::test::check_notreached((desc))
-[[noreturn]] void check_notreached(std::string desc, sl loc = sl::current());
+[[noreturn]] void check_notreached(std::string desc = "Execution was never supposed to reach this point.", sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc)                                           \
@@ -169,13 +168,13 @@ inline void end_of_statement() {}
     }                                                                         \
     catch (std::exception const &e)                                           \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " - \"" +                                         \
         #action "\" threw exception: " + e.what());                           \
     }                                                                         \
     catch (...)                                                               \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " - \"" + #action "\" threw a non-exception!");   \
     }                                                                         \
   }                                                                           \
@@ -191,14 +190,14 @@ inline void end_of_statement() {}
     }                                                                         \
     catch (pqxx::test::failure_to_fail const &)                               \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " (\"" #action "\" did not throw)");              \
     }                                                                         \
     catch (std::exception const &)                                            \
     {}                                                                        \
     catch (...)                                                               \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
     }                                                                         \
   }                                                                           \
@@ -214,7 +213,7 @@ inline void end_of_statement() {}
     }                                                                         \
     catch (pqxx::test::failure_to_fail const &)                               \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " (\"" #action                                    \
                             "\" did not throw " #exception_type ")");         \
     }                                                                         \
@@ -222,7 +221,7 @@ inline void end_of_statement() {}
     {}                                                                        \
     catch (std::exception const &e)                                           \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} +                                                   \
         " (\"" #action                                                        \
         "\" "                                                                 \
@@ -231,7 +230,7 @@ inline void end_of_statement() {}
     }                                                                         \
     catch (...)                                                               \
     {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
+      pqxx::test::check_notreached(                                           \
         std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
     }                                                                         \
   }                                                                           \

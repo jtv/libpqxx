@@ -7,11 +7,11 @@ void empty() {}
 
 void test_check_notreached()
 {
-  // At a minimum, PQXX_CHECK_NOTREACHED must work.
+  // At a minimum, check_notreached() must work.
   bool failed{true};
   try
   {
-    PQXX_CHECK_NOTREACHED("(expected)");
+    pqxx::test::check_notreached("(expected)");
     failed = false;
   }
   catch (pqxx::test::test_failure const &)
@@ -19,7 +19,7 @@ void test_check_notreached()
     // This is what we expect.
   }
   if (not failed)
-    throw pqxx::test::test_failure{"PQXX_CHECK_NOTREACHED is broken."};
+    throw pqxx::test::test_failure{"check_notreached is broken."};
 }
 
 
@@ -37,7 +37,7 @@ void test_check()
   catch (pqxx::test::test_failure const &)
   {}
   if (not failed)
-    PQXX_CHECK_NOTREACHED("PQXX_CHECK failed to notice failure.");
+    pqxx::test::check_notreached("PQXX_CHECK failed to notice failure.");
 }
 
 
@@ -156,8 +156,8 @@ void test_test_helpers()
 
   // Test other helpers against PQXX_CHECK_THROWS.
   PQXX_CHECK_THROWS(
-    PQXX_CHECK_NOTREACHED("(expected)"), pqxx::test::test_failure,
-    "PQXX_CHECK_THROWS did not catch PQXX_CHECK_NOTREACHED.");
+    pqxx::test::check_notreached("(expected)"), pqxx::test::test_failure,
+    "PQXX_CHECK_THROWS did not catch check_notreached().");
 
   PQXX_CHECK_THROWS(
     PQXX_CHECK(false, "(expected)"), pqxx::test::test_failure,
