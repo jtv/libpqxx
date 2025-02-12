@@ -146,6 +146,7 @@ inline void check_less_equal(
 }
 
 
+/// A special exception type not derived from `std::exception`.
 struct failure_to_fail
 {};
 
@@ -186,61 +187,76 @@ inline void check_succeeds(
 }
 
 
+template<typename EXC, std::invocable F>
+inline void check_throws(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow the expected exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      pqxx::internal::concat(desc, " (\"", text, "\" did not throw)"), loc);
+  }
+  catch (EXC const &)
+  {}
+  catch (std::exception const &e)
+  {
+    check_notreached(pqxx::internal::concat(
+      desc, " (\"", text, "\" threw the wrong exception type: ", e.what(),
+      ")"));
+  }
+  catch (...)
+  {
+    check_notreached(
+      pqxx::internal::concat(
+        desc, " (\"", text, "\" threw a non-exception type!)"),
+      loc);
+  }
+}
+
+
+template<std::invocable F>
+inline void check_throws_exception(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow a std::exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      pqxx::internal::concat(desc, " (\"", text, "\" did not throw)"), loc);
+  }
+  catch (std::exception const &)
+  {}
+  catch (...)
+  {
+    check_notreached(
+      pqxx::internal::concat(
+        desc, " (\"", text, "\" threw a non-exception type!)"),
+      loc);
+  }
+}
+
+
 // Verify that "action" throws an exception, of any std::exception-based type.
 #define PQXX_CHECK_THROWS_EXCEPTION(action, desc)                             \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      pqxx::test::check_notreached(                                           \
-        std::string{desc} + " (\"" #action "\" did not throw)");              \
-    }                                                                         \
-    catch (std::exception const &)                                            \
-    {}                                                                        \
-    catch (...)                                                               \
-    {                                                                         \
-      pqxx::test::check_notreached(                                           \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws_exception(([&]() { action; }), #action, desc)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 #define PQXX_CHECK_THROWS(action, exception_type, desc)                       \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      pqxx::test::check_notreached(                                           \
-        std::string{desc} + " (\"" #action                                    \
-                            "\" did not throw " #exception_type ")");         \
-    }                                                                         \
-    catch (exception_type const &)                                            \
-    {}                                                                        \
-    catch (std::exception const &e)                                           \
-    {                                                                         \
-      pqxx::test::check_notreached(                                           \
-        std::string{desc} +                                                   \
-        " (\"" #action                                                        \
-        "\" "                                                                 \
-        "threw exception other than " #exception_type ": " +                  \
-        e.what() + ")");                                                      \
-    }                                                                         \
-    catch (...)                                                               \
-    {                                                                         \
-      pqxx::test::check_notreached(                                           \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws<exception_type>(([&] { action; }), #action, desc)
+
 
 #define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                          \
   pqxx::test::check_bounds(                                                   \
