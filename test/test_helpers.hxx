@@ -52,7 +52,9 @@ struct registrar
 
 
 // Unconditional test failure.
-[[noreturn]] void check_notreached(std::string desc = "Execution was never supposed to reach this point.", sl loc = sl::current());
+[[noreturn]] void check_notreached(
+  std::string desc = "Execution was never supposed to reach this point.",
+  sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc)                                           \
@@ -138,8 +140,8 @@ inline void check_less_equal(
   if (value1 <= value2)
     return;
   std::string const fulldesc = pqxx::internal::concat(
-    desc, " (", text1, " > ", text2, ": \"lower\"=", value1, ", \"upper\"=",
-    value2, ")");
+    desc, " (", text1, " > ", text2, ": \"lower\"=", value1,
+    ", \"upper\"=", value2, ")");
   throw test_failure{fulldesc, loc};
 }
 
@@ -156,23 +158,30 @@ inline void end_of_statement() {}
 
 
 // Verify that "action" does not throw an exception.
-#define PQXX_CHECK_SUCCEEDS(action, desc) \
-  pqxx::test::check_succeeds(([&](){ action; }), #action, (desc))
+#define PQXX_CHECK_SUCCEEDS(action, desc)                                     \
+  pqxx::test::check_succeeds(([&]() { action; }), #action, (desc))
 
 template<std::invocable F>
-inline void check_succeeds(F &&f, char const text[], std::string desc = "Expected this to succeed.", sl loc = sl::current())
+inline void check_succeeds(
+  F &&f, char const text[], std::string desc = "Expected this to succeed.",
+  sl loc = sl::current())
 {
   try
   {
     f();
   }
-  catch(std::exception const &e)
+  catch (std::exception const &e)
   {
-    pqxx::test::check_notreached(pqxx::internal::concat(desc, " - \"", text, "\" threw exception: ", e.what()), loc);
+    pqxx::test::check_notreached(
+      pqxx::internal::concat(
+        desc, " - \"", text, "\" threw exception: ", e.what()),
+      loc);
   }
   catch (...)
   {
-    pqxx::test::check_notreached(pqxx::internal::concat(desc, " - \"", text, "\" threw a non-exception!"), loc);
+    pqxx::test::check_notreached(
+      pqxx::internal::concat(desc, " - \"", text, "\" threw a non-exception!"),
+      loc);
   }
 }
 
