@@ -78,13 +78,13 @@ pqxx::icursorstream::icursorstream(
         m_iterators{nullptr},
         m_done{false}
 {
-  set_stride(sstride);
+  set_stride(sstride, loc);
 }
 
 
 pqxx::icursorstream::icursorstream(
   transaction_base &context, field const &cname, difference_type sstride,
-  cursor_base::ownership_policy op, sl) :
+  cursor_base::ownership_policy op, sl loc) :
         m_cur{context, cname.c_str(), op},
         m_stride{sstride},
         m_realpos{0},
@@ -92,7 +92,7 @@ pqxx::icursorstream::icursorstream(
         m_iterators{nullptr},
         m_done{false}
 {
-  set_stride(sstride);
+  set_stride(sstride, loc);
 }
 
 

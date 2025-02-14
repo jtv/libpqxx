@@ -100,7 +100,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (std::empty(query))
     throw usage_error{"Cursor has empty query.", loc};
-  auto const enc{enc_group(t.conn().encoding_id(), loc)};
+  auto const enc{enc_group(t.conn().encoding_id(loc), loc)};
   auto const qend{find_query_end(query, enc, loc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query.", loc};
@@ -112,13 +112,13 @@ pqxx::internal::sql_cursor::sql_cursor(
     (hold ? "WITH HOLD "sv : ""sv), "FOR "sv, query, " "sv,
     ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY "sv))};
 
-  t.exec(cq);
+  t.exec(cq, loc);
 
   // Now that we're here in the starting position, keep a copy of an empty
   // result.  That may come in handy later, because we may not be able to
   // construct an empty result with all the right metadata due to the weird
   // meaning of "FETCH 0."
-  init_empty_result(t);
+  init_empty_result(t, loc);
 
   m_ownership = op;
 }
@@ -151,12 +151,12 @@ void pqxx::internal::sql_cursor::close(sl loc) noexcept
 }
 
 
-void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
+void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t, sl loc)
 {
   if (pos() != 0)
-    throw internal_error{"init_empty_result() from bad pos()."};
+    throw internal_error{"init_empty_result() from bad pos().", loc};
   m_empty_result =
-    t.exec(internal::concat("FETCH 0 IN "sv, m_home.quote_name(name())));
+    t.exec(internal::concat("FETCH 0 IN "sv, m_home.quote_name(name())), loc);
 }
 
 

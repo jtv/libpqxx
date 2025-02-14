@@ -88,8 +88,7 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO
-check_cast(FROM value, std::string_view description, sl loc = sl::current())
+inline TO check_cast(FROM value, std::string_view description, sl loc)
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);

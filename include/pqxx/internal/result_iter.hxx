@@ -31,21 +31,22 @@ public:
   /// Construct an "end" iterator.
   result_iter() = default;
 
-  explicit result_iter(result const &home) :
+  explicit result_iter(result const &home, sl loc = sl::current()) :
           m_home{&home}, m_size{std::size(home)}
   {
     if (not std::empty(home))
-      read();
+      read(loc);
   }
   result_iter(result_iter const &) = default;
 
   result_iter &operator++()
   {
+    sl loc{sl::current()};
     m_index++;
     if (m_index >= m_size)
       m_home = nullptr;
     else
-      read();
+      read(loc);
     return *this;
   }
 
@@ -62,10 +63,7 @@ public:
   value_type const &operator*() const noexcept { return m_value; }
 
 private:
-  void read(sl loc = sl::current())
-  {
-    (*m_home)[m_index].convert(m_value, loc);
-  }
+  void read(sl loc) { (*m_home)[m_index].convert(m_value, loc); }
 
   result const *m_home{nullptr};
   result::size_type m_index{0};

@@ -111,7 +111,7 @@ public:
             loc}
   {}
 
-  virtual ~robusttransaction() noexcept override { close(); }
+  virtual ~robusttransaction() noexcept override { close(sl::current()); }
 };
 
 /**

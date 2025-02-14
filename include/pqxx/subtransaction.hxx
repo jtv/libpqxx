@@ -88,7 +88,8 @@ public:
   {}
 
   /// Nest a subtransaction in another subtransaction.
-  explicit subtransaction(subtransaction &t, std::string_view name = ""sv);
+  explicit subtransaction(
+    subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
   virtual ~subtransaction() noexcept override;
 

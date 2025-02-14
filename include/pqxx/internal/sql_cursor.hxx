@@ -88,7 +88,7 @@ private:
   difference_type adjust(difference_type hoped, difference_type actual);
   static std::string stridestring(difference_type);
   /// Initialize cached empty result.  Call only at beginning or end!
-  void init_empty_result(transaction_base &);
+  void init_empty_result(transaction_base &, sl);
 
   /// Connection in which this cursor lives.
   connection &m_home;

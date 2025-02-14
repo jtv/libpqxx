@@ -90,12 +90,12 @@ public:
    * @param cx Connection for this transaction to operate on.
    * may contain letters and digits only.
    */
-  explicit transaction(connection &cx) :
+  explicit transaction(connection &cx, sl loc = sl::current()) :
           internal::basic_transaction{
-            cx, internal::begin_cmd<ISOLATION, READWRITE>}
+            cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
 
-  virtual ~transaction() noexcept override { close(); }
+  virtual ~transaction() noexcept override { close(sl::current()); }
 };
 
 

@@ -22,9 +22,9 @@ test_failure::~test_failure() noexcept = default;
 
 
 /// Drop table, if it exists.
-inline void drop_table(transaction_base &t, std::string const &table)
+inline void drop_table(transaction_base &t, std::string const &table, sl loc)
 {
-  t.exec("DROP TABLE IF EXISTS " + table);
+  t.exec("DROP TABLE IF EXISTS " + table, loc);
 }
 
 

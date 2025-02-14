@@ -37,7 +37,7 @@ constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
 
 void pqxx::pipeline::init(sl loc)
 {
-  m_encoding = internal::enc_group(m_trans->conn().encoding_id(), loc);
+  m_encoding = internal::enc_group(m_trans->conn().encoding_id(loc), loc);
   m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
   attach();
 }
@@ -45,9 +45,11 @@ void pqxx::pipeline::init(sl loc)
 
 pqxx::pipeline::~pipeline() noexcept
 {
+  // TODO: How can we pass std::source_location here?
+  sl loc{sl::current()};
   try
   {
-    cancel();
+    cancel(loc);
   }
   catch (std::exception const &)
   {}
@@ -69,7 +71,7 @@ void pqxx::pipeline::detach()
 }
 
 
-pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q) &
+pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q, sl loc) &
 {
   attach();
   query_id const qid{generate_id()};
@@ -86,34 +88,34 @@ pqxx::pipeline::query_id pqxx::pipeline::insert(std::string_view q) &
   if (m_num_waiting > m_retain)
   {
     if (have_pending())
-      receive_if_available();
+      receive_if_available(loc);
     if (not have_pending())
-      issue();
+      issue(loc);
   }
 
   return qid;
 }
 
 
-void pqxx::pipeline::complete()
+void pqxx::pipeline::complete(sl loc)
 {
   if (have_pending())
-    receive(m_issuedrange.second);
+    receive(m_issuedrange.second, loc);
   if (m_num_waiting and (m_error == qid_limit()))
   {
-    issue();
-    receive(std::end(m_queries));
+    issue(loc);
+    receive(std::end(m_queries), loc);
   }
   detach();
 }
 
 
-void pqxx::pipeline::flush()
+void pqxx::pipeline::flush(sl loc)
 {
   if (not std::empty(m_queries))
   {
     if (have_pending())
-      receive(m_issuedrange.second);
+      receive(m_issuedrange.second, loc);
     m_issuedrange.first = m_issuedrange.second = std::end(m_queries);
     m_num_waiting = 0;
     m_dummy_pending = false;
@@ -123,11 +125,12 @@ void pqxx::pipeline::flush()
 }
 
 
-void PQXX_COLD pqxx::pipeline::cancel()
+void PQXX_COLD pqxx::pipeline::cancel(sl loc)
 {
   while (have_pending())
   {
-    pqxx::internal::gate::connection_pipeline(m_trans->conn()).cancel_query();
+    pqxx::internal::gate::connection_pipeline(m_trans->conn())
+      .cancel_query(loc);
     auto canceled_query{m_issuedrange.first};
     ++m_issuedrange.first;
     m_queries.erase(canceled_query);
@@ -171,14 +174,14 @@ int pqxx::pipeline::retain(int retain_max) &
 }
 
 
-void pqxx::pipeline::resume() &
+void pqxx::pipeline::resume(sl loc) &
 {
   if (have_pending())
-    receive_if_available();
+    receive_if_available(loc);
   if (not have_pending() and m_num_waiting)
   {
-    issue();
-    receive_if_available();
+    issue(loc);
+    receive_if_available(loc);
   }
 }
 
@@ -192,10 +195,10 @@ pqxx::pipeline::query_id pqxx::pipeline::generate_id()
 }
 
 
-void pqxx::pipeline::issue()
+void pqxx::pipeline::issue(sl loc)
 {
   // Retrieve that null result for the last query, if needed.
-  obtain_result();
+  obtain_result(false, loc);
 
   // Don't issue anything if we've encountered an error.
   if (m_error < qid_limit())
@@ -221,7 +224,7 @@ void pqxx::pipeline::issue()
   m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = std::end(m_queries);
-  m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()"sv);
+  m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()"sv, loc);
 }
 
 
@@ -232,7 +235,7 @@ void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err, sl loc)
 }
 
 
-bool pqxx::pipeline::obtain_result(bool expect_none)
+bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
   std::shared_ptr<pqxx::internal::pq::PGresult> const r{
@@ -261,7 +264,7 @@ bool pqxx::pipeline::obtain_result(bool expect_none)
 
   // Must be the result for the oldest pending query.
   if (not std::empty(m_issuedrange.first->second.res)) [[unlikely]]
-    internal_error("Multiple results for one query.");
+    internal_error("Multiple results for one query.", loc);
 
   m_issuedrange.first->second.res = res;
   ++m_issuedrange.first;
@@ -301,10 +304,11 @@ void pqxx::pipeline::obtain_dummy(sl loc)
   if (OK) [[likely]]
   {
     if (std::size(R) > 1) [[unlikely]]
-      internal_error("Unexpected result for dummy query in pipeline.");
+      internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).as<std::string_view>() != theDummyValue) [[unlikely]]
-      internal_error("Dummy query in pipeline returned unexpected value.");
+    if (R.at(0).at(0).as<std::string_view>(loc) != theDummyValue) [[unlikely]]
+      internal_error(
+        "Dummy query in pipeline returned unexpected value.", loc);
     return;
   }
 
@@ -328,11 +332,12 @@ void pqxx::pipeline::obtain_dummy(sl loc)
   auto const stop{m_issuedrange.second};
 
   // Retrieve that null result for the last query, if needed
-  obtain_result(true);
+  obtain_result(true, loc);
 
   // Reset internal state to forget botched batch attempt
   m_num_waiting += check_cast<int>(
-    std::distance(m_issuedrange.first, stop), "pipeline obtain_dummy()"sv);
+    std::distance(m_issuedrange.first, stop), "pipeline obtain_dummy()"sv,
+    loc);
   m_issuedrange.second = m_issuedrange.first;
 
   // Issue queries in failed batch one at a time.
@@ -343,7 +348,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
       m_num_waiting--;
       auto const query{*m_issuedrange.first->second.query};
       auto &holder{m_issuedrange.first->second};
-      holder.res = m_trans->exec(query);
+      holder.res = m_trans->exec(query, loc);
       pqxx::internal::gate::result_creation{holder.res}.check_status(loc);
       ++m_issuedrange.first;
     } while (m_issuedrange.first != stop);
@@ -375,9 +380,9 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
     (q->first >= m_issuedrange.second->first))
   {
     if (have_pending())
-      receive(m_issuedrange.second);
+      receive(m_issuedrange.second, loc);
     if (m_error == qid_limit())
-      issue();
+      issue(loc);
   }
 
   // If result not in yet, get it; else get at least whatever's convenient.
@@ -387,11 +392,11 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
     {
       auto suc{q};
       ++suc;
-      receive(suc);
+      receive(suc, loc);
     }
     else
     {
-      receive_if_available();
+      receive_if_available(loc);
     }
   }
 
@@ -401,7 +406,7 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
 
   // Don't leave the backend idle if there are queries waiting to be issued.
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
-    issue();
+    issue(loc);
 
   result const R{q->second.res};
   auto P{std::make_pair(q->first, R)};
@@ -413,39 +418,39 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
 }
 
 
-void pqxx::pipeline::get_further_available_results()
+void pqxx::pipeline::get_further_available_results(sl loc)
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
-  while (not gate.is_busy() and obtain_result())
+  while (not gate.is_busy() and obtain_result(false, loc))
     if (not gate.consume_input())
-      throw broken_connection{};
+      throw broken_connection{loc};
 }
 
 
-void pqxx::pipeline::receive_if_available()
+void pqxx::pipeline::receive_if_available(sl loc)
 {
   pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
   if (not gate.consume_input())
-    throw broken_connection{};
+    throw broken_connection{loc};
   if (gate.is_busy())
     return;
 
   if (m_dummy_pending)
-    obtain_dummy();
+    obtain_dummy(loc);
   if (have_pending())
-    get_further_available_results();
+    get_further_available_results(loc);
 }
 
 
-void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop)
+void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop, sl loc)
 {
   if (m_dummy_pending)
-    obtain_dummy();
+    obtain_dummy(loc);
 
-  while (obtain_result() and
+  while (obtain_result(false, loc) and
          QueryMap::const_iterator{m_issuedrange.first} != stop);
 
   // Also haul in any remaining "targets of opportunity".
   if (QueryMap::const_iterator{m_issuedrange.first} == stop)
-    get_further_available_results();
+    get_further_available_results(loc);
 }

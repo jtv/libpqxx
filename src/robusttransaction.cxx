@@ -84,7 +84,7 @@ tx_stat query_status(
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty.", loc};
-  auto const status{parse_status(status_field.as<std::string_view>())};
+  auto const status{parse_status(status_field.as<std::string_view>(loc))};
   if (status == tx_unknown)
     throw pqxx::internal_error{
       pqxx::internal::concat(

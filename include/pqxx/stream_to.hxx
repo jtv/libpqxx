@@ -203,7 +203,8 @@ public:
    */
   template<typename Row> stream_to &operator<<(Row const &row)
   {
-    write_row(row);
+    sl loc{sl::current()};
+    write_row(row, loc);
     return *this;
   }
 

@@ -20,8 +20,8 @@ pqxx::failure::failure(std::string const &whatarg, sl loc) :
 {}
 
 
-pqxx::broken_connection::broken_connection() :
-        failure{"Connection to database failed."}
+pqxx::broken_connection::broken_connection(sl loc) :
+        failure{"Connection to database failed.", loc}
 {}
 
 

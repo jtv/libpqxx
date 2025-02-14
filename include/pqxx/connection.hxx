@@ -315,9 +315,11 @@ public:
 
   ~connection()
   {
+    // TODO: How can we pass std::source_location?
+    sl loc{sl::current()};
     try
     {
-      close();
+      close(loc);
     }
     catch (std::exception const &)
     {}
@@ -439,7 +441,7 @@ public:
    */
   //@{
   /// Get client-side character encoding, by name.
-  [[nodiscard]] std::string get_client_encoding() const;
+  [[nodiscard]] std::string get_client_encoding(sl loc = sl::current()) const;
 
   /// Set client-side character encoding, by name.
   /**
@@ -837,9 +839,10 @@ public:
   //@{
 
   /// Escape string for use as SQL string literal on this connection.
-  [[nodiscard]] std::string esc(char const text[]) const
+  [[nodiscard]] std::string
+  esc(char const text[], sl loc = sl::current()) const
   {
-    return esc(std::string_view{text});
+    return esc(std::string_view{text}, loc);
   }
 
   /// Escape string for use as SQL string literal, into `buffer`.
@@ -1173,7 +1176,7 @@ private:
   {
     connect_nonblocking
   };
-  connection(connect_mode, zview connection_string, sl = sl::current());
+  connection(connect_mode, zview connection_string, sl);
 
   /// For use by @ref seize_raw_connection.
   explicit connection(internal::pq::PGconn *raw_conn);
@@ -1363,7 +1366,7 @@ class PQXX_LIBEXPORT connecting
 {
 public:
   /// Start connecting.
-  connecting(zview connection_string = ""_zv);
+  connecting(zview connection_string = ""_zv, sl = sl::current());
 
   connecting(connecting const &) = delete;
   connecting(connecting &&) = default;

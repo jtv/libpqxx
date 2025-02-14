@@ -252,7 +252,7 @@ pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, sl loc)
   oid const actual_id{create(tx, id, loc)};
   try
   {
-    open_w(tx, actual_id).write(data, loc);
+    open_w(tx, actual_id, loc).write(data, loc);
   }
   catch (std::exception const &)
   {
@@ -292,7 +292,7 @@ void pqxx::blob::append_from_buf(
 void pqxx::blob::to_buf(
   dbtransaction &tx, oid id, bytes &buf, std::size_t max_size, sl loc)
 {
-  open_r(tx, id).read(buf, max_size, loc);
+  open_r(tx, id, loc).read(buf, max_size, loc);
 }
 
 

@@ -25,14 +25,16 @@ namespace
 using namespace std::literals;
 
 void begin_copy(
-  pqxx::transaction_base &tx, std::string_view table, std::string_view columns)
+  pqxx::transaction_base &tx, std::string_view table, std::string_view columns,
+  pqxx::sl loc)
 {
   tx.exec(
       std::empty(columns) ?
         pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
         pqxx::internal::concat(
-          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv))
-    .no_rows();
+          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv),
+      loc)
+    .no_rows(loc);
 }
 
 
@@ -112,9 +114,9 @@ pqxx::stream_to::stream_to(
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          pqxx::internal::enc_group(tx.conn().encoding_id(), loc), loc)}
+          pqxx::internal::enc_group(tx.conn().encoding_id(loc), loc), loc)}
 {
-  begin_copy(tx, path, columns);
+  begin_copy(tx, path, columns, loc);
   register_me();
 }
 

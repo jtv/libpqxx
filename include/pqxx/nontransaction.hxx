@@ -72,7 +72,7 @@ public:
     register_transaction();
   }
 
-  virtual ~nontransaction() override { close(); }
+  virtual ~nontransaction() override { close(sl::current()); }
 
 private:
   virtual void do_commit(sl) override {}

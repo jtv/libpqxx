@@ -246,7 +246,7 @@ pqxx::connection &pqxx::connection::operator=(connection &&rhs)
   rhs.check_movable(loc);
 
   // Close our old connection, if any.
-  close();
+  close(loc);
 
   m_conn = std::exchange(rhs.m_conn, nullptr);
   m_unique_id = rhs.m_unique_id;
@@ -270,7 +270,7 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{internal::enc_group(encoding_id(), loc)};
+  auto const enc{internal::enc_group(encoding_id(loc), loc)};
   auto r{pqxx::internal::gate::result_creation::create(
     smart, query, m_notice_waiters, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
@@ -331,8 +331,8 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
 {
   // (Variables can't be null, so far as I can make out.)
   return exec(internal::concat("SHOW "sv, quote_name(var)), loc)
-    .one_field()
-    .as<std::string>();
+    .one_field(loc)
+    .as<std::string>(loc);
 }
 
 
@@ -775,7 +775,7 @@ pqxx::result pqxx::connection::exec_prepared(
   auto const q{std::make_shared<std::string>(statement)};
   auto const pq_result{PQexecPrepared(
     m_conn, q->c_str(),
-    check_cast<int>(std::size(args.values), "exec_prepared"sv),
+    check_cast<int>(std::size(args.values), "exec_prepared"sv, loc),
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
@@ -915,7 +915,7 @@ void pqxx::connection::write_copy_line(std::string_view line, sl loc)
 {
   static std::string const err_prefix{"Error writing to table: "};
   auto const size{check_cast<int>(
-    std::ssize(line), "Line in stream_to is too long to process."sv)};
+    std::ssize(line), "Line in stream_to is too long to process."sv, loc)};
   if (PQputCopyData(m_conn, line.data(), size) <= 0) [[unlikely]]
     throw failure{err_prefix + err_msg(), loc};
   if (PQputCopyData(m_conn, "\n", 1) <= 0) [[unlikely]]
@@ -1024,7 +1024,7 @@ std::string pqxx::connection::esc_like(
   out.reserve(std::size(text));
   // TODO: Rewrite using a char_finder.
   internal::for_glyphs(
-    internal::enc_group(encoding_id(), loc),
+    internal::enc_group(encoding_id(loc), loc),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         [[unlikely]]
@@ -1057,8 +1057,8 @@ int pqxx::connection::await_notification(
   {
     [[likely]] internal::wait_fd(
       socket_of(m_conn), true, false,
-      check_cast<unsigned>(seconds, "Seconds out of range."),
-      check_cast<unsigned>(microseconds, "Microseconds out of range."));
+      check_cast<unsigned>(seconds, "Seconds out of range.", loc),
+      check_cast<unsigned>(microseconds, "Microseconds out of range.", loc));
     return get_notifs(loc);
   }
   return notifs;
@@ -1075,9 +1075,9 @@ std::string pqxx::connection::adorn_name(std::string_view n)
 }
 
 
-std::string pqxx::connection::get_client_encoding() const
+std::string pqxx::connection::get_client_encoding(sl loc) const
 {
-  return internal::name_encoding(encoding_id());
+  return internal::name_encoding(encoding_id(loc));
 }
 
 
@@ -1129,7 +1129,7 @@ pqxx::result pqxx::connection::exec_params(
   auto const q{std::make_shared<std::string>(query)};
   auto const pq_result{PQexecParams(
     m_conn, q->c_str(),
-    check_cast<int>(std::size(args.values), "exec_params"sv), nullptr,
+    check_cast<int>(std::size(args.values), "exec_params"sv, loc), nullptr,
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
@@ -1212,8 +1212,8 @@ std::string pqxx::connection::connection_string() const
 
 
 #if defined(_WIN32) || __has_include(<fcntl.h>)
-pqxx::connecting::connecting(zview connection_string) :
-        m_conn{connection::connect_nonblocking, connection_string}
+pqxx::connecting::connecting(zview connection_string, sl loc) :
+        m_conn{connection::connect_nonblocking, connection_string, loc}
 {}
 #endif // defined(_WIN32) || __has_include(<fcntl.h>
 
@@ -1235,6 +1235,6 @@ pqxx::connection pqxx::connecting::produce(sl loc) &&
     throw usage_error{
       "Tried to produce a nonblocking connection before it was done.", loc};
   m_conn.complete_init(loc);
-  return std::move(m_conn);
+  return {std::move(m_conn), loc};
 }
 #endif // defined(_WIN32) || __has_include(<fcntl.h>

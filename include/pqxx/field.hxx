@@ -173,7 +173,11 @@ public:
   }
 
   /// Read value into obj; or leave obj untouched and return `false` if null.
-  template<typename T> bool operator>>(T &obj) const { return to(obj); }
+  template<typename T>
+  [[deprecated("Use to() or as().")]] bool operator>>(T &obj) const
+  {
+    return to(obj);
+  }
 
   /// Read value into obj; or if null, use default value and return `false`.
   /** This can be used with `std::optional`, as well as with standard smart
@@ -218,12 +222,12 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as() const
+  template<typename T> T as(sl loc = sl::current()) const
   {
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>);
+        internal::throw_null_conversion(type_name<T>, loc);
       else
         return nullness<T>::null();
     }
@@ -251,7 +255,7 @@ public:
 
     // There's no such thing as a null SQL array.
     if (is_null())
-      internal::throw_null_conversion(type_name<array_type>);
+      internal::throw_null_conversion(type_name<array_type>, loc);
     else
       return array_type{this->view(), this->m_home.m_encoding, loc};
   }
@@ -374,10 +378,10 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 }
 
 
-template<> inline zview field::as<zview>() const
+template<> inline zview field::as<zview>(sl loc) const
 {
   if (is_null())
-    internal::throw_null_conversion(type_name<zview>);
+    internal::throw_null_conversion(type_name<zview>, loc);
   return zview{c_str(), size()};
 }
 
@@ -509,14 +513,15 @@ template<typename CHAR>
 /** Unlike the "regular" `from_string`, this knows how to deal with null
  * values.
  */
-template<typename T> inline T from_string(field const &value)
+template<typename T>
+inline T from_string(field const &value, sl loc = sl::current())
 {
   if (value.is_null())
   {
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>);
+      internal::throw_null_conversion(type_name<T>, loc);
   }
   else
   {
@@ -535,11 +540,11 @@ template<typename T> inline T from_string(field const &value)
  * @ref conversion_error.
  */
 template<>
-inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
+inline std::nullptr_t from_string<std::nullptr_t>(field const &value, sl loc)
 {
   if (not value.is_null())
     throw conversion_error{
-      "Extracting non-null field into nullptr_t variable."};
+      "Extracting non-null field into nullptr_t variable.", loc};
   return nullptr;
 }
 

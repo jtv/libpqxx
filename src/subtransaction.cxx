@@ -52,14 +52,15 @@ using dbtransaction_ref = pqxx::dbtransaction &;
 
 
 pqxx::subtransaction::subtransaction(
-  subtransaction &t, std::string_view tname) :
-        subtransaction(dbtransaction_ref(t), tname)
+  subtransaction &t, std::string_view tname, sl loc) :
+        subtransaction(dbtransaction_ref(t), tname, loc)
 {}
 
 
 pqxx::subtransaction::~subtransaction() noexcept
 {
-  close();
+  sl loc{sl::current()};
+  close(loc);
 }
 
 

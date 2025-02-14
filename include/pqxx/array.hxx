@@ -66,7 +66,7 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &cx, sl loc = sl::current()) :
-          array{data, pqxx::internal::enc_group(cx.encoding_id(), loc), loc}
+          array{data, pqxx::internal::enc_group(cx.encoding_id(loc), loc), loc}
   {}
 
   /// How many dimensions does this array have?
@@ -291,7 +291,7 @@ private:
   }
 
   template<pqxx::internal::encoding_group ENC>
-  void parse(std::string_view data, sl loc = sl::current())
+  void parse(std::string_view data, sl loc)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     auto const sz{std::size(data)};
@@ -471,7 +471,9 @@ private:
   template<typename OUTER, typename... INDEX>
   constexpr std::size_t add_index(OUTER outer, INDEX... indexes) const noexcept
   {
-    std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
+    sl loc{sl::current()};
+    std::size_t const first{
+      check_cast<std::size_t>(outer, "array index"sv, loc)};
     if constexpr (sizeof...(indexes) == 0)
     {
       return first;
@@ -493,7 +495,9 @@ private:
   template<typename OUTER, std::integral... INDEX>
   constexpr void check_bounds(OUTER outer, INDEX... indexes) const
   {
-    std::size_t const first{check_cast<std::size_t>(outer, "array index"sv)};
+    sl loc{sl::current()};
+    std::size_t const first{
+      check_cast<std::size_t>(outer, "array index"sv, loc)};
     static_assert(sizeof...(indexes) < DIMENSIONS);
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};

@@ -24,7 +24,8 @@ private:
 
 
 /// Drop a table, if it exists.
-void drop_table(transaction_base &, std::string const &table);
+void drop_table(
+  transaction_base &, std::string const &table, sl loc = sl::current());
 
 
 using testfunc = void (*)();

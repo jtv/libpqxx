@@ -82,12 +82,10 @@ public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(
-    transaction_base &tx, std::string_view query, sl loc = sl::current());
+  inline stream_query(transaction_base &tx, std::string_view query, sl loc);
   /// Execute `query` on `tx`, stream results.
   inline stream_query(
-    transaction_base &tx, std::string_view query, params const &,
-    sl loc = sl::current());
+    transaction_base &tx, std::string_view query, params const &, sl loc);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -117,7 +115,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line, sl loc = sl::current()) &
+  std::tuple<TYPE...> parse_line(zview line, sl loc) &
   {
     assert(not done());
 
@@ -292,7 +290,7 @@ private:
       if constexpr (nullity::has_null)
         return nullity::null();
       else
-        internal::throw_null_conversion(type_name<field_type>);
+        internal::throw_null_conversion(type_name<field_type>, loc);
     }
     else
     {

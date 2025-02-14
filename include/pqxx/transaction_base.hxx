@@ -262,10 +262,11 @@ public:
   }
 
   /// Escape string for literal LIKE match.
-  [[nodiscard]] std::string
-  esc_like(std::string_view bin, char escape_char = '\\') const
+  [[nodiscard]] std::string esc_like(
+    std::string_view bin, char escape_char = '\\',
+    sl loc = sl::current()) const
   {
-    return conn().esc_like(bin, escape_char);
+    return conn().esc_like(bin, escape_char, loc);
   }
   //@}
 
@@ -318,7 +319,7 @@ public:
 
   result exec(std::string_view query, params parms, sl loc = sl::current())
   {
-    return internal_exec_params(query, parms.make_c_params(), loc);
+    return internal_exec_params(query, parms.make_c_params(loc), loc);
   }
 
   /// Execute a command.
@@ -442,7 +443,7 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, sl loc = sl::current())
   {
-    return exec(query, loc).one_field(loc).as<TYPE>();
+    return exec(query, loc).one_field(loc).as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -459,7 +460,7 @@ public:
     return exec(query, loc)
       .expect_columns(sizeof...(TYPE), loc)
       .one_row(loc)
-      .as<TYPE...>();
+      .as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -476,7 +477,7 @@ public:
   {
     std::optional<row> const r{exec(query, loc).opt_row(loc)};
     if (r)
-      return {r->as<TYPE...>()};
+      return {r->as<TYPE...>(loc)};
     else
       return {};
   }
@@ -699,7 +700,7 @@ public:
   [[deprecated("Use exec(zview, params) instead.")]]
   result exec_params(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...});
+    return exec(query, params{args...}, sl::current());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -730,8 +731,10 @@ public:
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
-    return exec(query, params{args...})
-      .expect_rows(check_cast<result_size_type>(rows, "number of rows"));
+    sl loc{sl::current()};
+    return exec(query, params{args...}, loc)
+      .expect_rows(
+        check_cast<result_size_type>(rows, "number of rows", loc), loc);
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
@@ -814,7 +817,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>();
+      .as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -830,7 +833,7 @@ public:
   std::tuple<TYPE...>
   query1(zview query, params const &parms, sl loc = sl::current())
   {
-    return exec(query, parms, loc).one_row(loc).as<TYPE...>();
+    return exec(query, parms, loc).one_row(loc).as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -847,7 +850,7 @@ public:
   {
     std::optional<row> r{exec(query, parms, loc).opt_row(loc)};
     if (r)
-      return {r->as<TYPE...>()};
+      return {r->as<TYPE...>(loc)};
     else
       return {};
   }
@@ -921,7 +924,7 @@ public:
   result exec(prepped statement, sl loc = sl::current())
   {
     params pp;
-    return internal_exec_prepared(statement, pp.make_c_params(), loc);
+    return internal_exec_prepared(statement, pp.make_c_params(loc), loc);
   }
 
   /// Execute prepared statement, read full results, iterate rows of data.
@@ -959,7 +962,7 @@ public:
     return exec(statement, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>();
+      .as<TYPE>(loc);
   }
 
   /// Perform prepared statement returning exactly 1 value.
@@ -972,7 +975,7 @@ public:
     return exec(statement, {}, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>();
+      .as<TYPE>(loc);
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -1000,7 +1003,7 @@ public:
   /// Execute a prepared statement with parameters.
   result exec(prepped statement, params const &parms, sl loc = sl::current())
   {
-    return internal_exec_prepared(statement, parms.make_c_params(), loc);
+    return internal_exec_prepared(statement, parms.make_c_params(loc), loc);
   }
 
   /// Execute a prepared statement, and expect a single-row result.
@@ -1011,7 +1014,8 @@ public:
     "Use exec(string_view, params) and call one_row() on the result.")]]
   row exec_prepared1(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...}).one_row();
+    sl loc{sl::current()};
+    return exec(prepped{statement}, params{args...}).one_row(loc);
   }
 
   /// Execute a prepared statement, and expect a result with zero rows.
@@ -1022,7 +1026,8 @@ public:
     "Use exec(prepped, params), and call no_rows() on the result.")]]
   result exec_prepared0(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...}).no_rows();
+    sl loc{sl::current()};
+    return exec(prepped{statement}, params{args...}).no_rows(loc);
   }
 
   /// Execute a prepared statement, expect a result with given number of rows.
@@ -1035,7 +1040,9 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    return exec(pqxx::prepped{statement}, params{args...}).expect_rows(rows);
+    sl loc{sl::current()};
+    return exec(pqxx::prepped{statement}, params{args...})
+      .expect_rows(rows, loc);
   }
 
   /**
@@ -1109,7 +1116,7 @@ protected:
   void register_transaction();
 
   /// End transaction.  To be called by implementing class' destructor.
-  void close() noexcept;
+  void close(sl = sl::current()) noexcept;
 
   /// To be implemented by derived implementation class: commit transaction.
   virtual void do_commit(sl) = 0;

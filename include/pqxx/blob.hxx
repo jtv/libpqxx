@@ -257,8 +257,7 @@ public:
 
 private:
   PQXX_PRIVATE blob(connection &cx, int fd) noexcept : m_conn{&cx}, m_fd{fd} {}
-  static PQXX_PRIVATE blob
-  open_internal(dbtransaction &, oid, int, sl = sl::current());
+  static PQXX_PRIVATE blob open_internal(dbtransaction &, oid, int, sl);
   static PQXX_PRIVATE pqxx::internal::pq::PGconn *
   raw_conn(pqxx::connection *) noexcept;
   static PQXX_PRIVATE pqxx::internal::pq::PGconn *
@@ -269,10 +268,9 @@ private:
     return errmsg(&tx.conn());
   }
   PQXX_PRIVATE std::string errmsg() const { return errmsg(m_conn); }
-  PQXX_PRIVATE std::int64_t
-  seek(std::int64_t offset, int whence, sl = sl::current());
-  std::size_t raw_read(std::byte buf[], std::size_t size, sl = sl::current());
-  void raw_write(bytes_view, sl = sl::current());
+  PQXX_PRIVATE std::int64_t seek(std::int64_t offset, int whence, sl);
+  std::size_t raw_read(std::byte buf[], std::size_t size, sl);
+  void raw_write(bytes_view, sl);
 
   connection *m_conn = nullptr;
   int m_fd = -1;

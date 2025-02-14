@@ -73,7 +73,7 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {
-  broken_connection();
+  broken_connection(sl loc = sl::current());
   explicit broken_connection(std::string const &, sl = sl::current());
 };
 

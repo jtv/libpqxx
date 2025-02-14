@@ -165,7 +165,7 @@ void pqxx::transaction_base::commit(sl loc)
     throw;
   }
 
-  close();
+  close(loc);
 }
 
 
@@ -214,7 +214,7 @@ void pqxx::transaction_base::abort(sl loc)
   }
 
   m_status = status::aborted;
-  close();
+  close(loc);
 }
 
 
@@ -353,7 +353,7 @@ std::string pqxx::transaction_base::get_variable(std::string_view var)
 }
 
 
-void pqxx::transaction_base::close() noexcept
+void pqxx::transaction_base::close(sl loc) noexcept
 {
   try
   {
@@ -384,7 +384,7 @@ void pqxx::transaction_base::close() noexcept
 
     try
     {
-      abort();
+      abort(loc);
     }
     catch (std::exception const &e)
     {
