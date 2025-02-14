@@ -46,7 +46,7 @@ void pqxx::pipeline::init(sl loc)
 pqxx::pipeline::~pipeline() noexcept
 {
   // TODO: How can we pass std::source_location here?
-  sl loc{sl::current()};
+  sl const loc{sl::current()};
   try
   {
     cancel(loc);

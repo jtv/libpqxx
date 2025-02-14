@@ -59,7 +59,7 @@ pqxx::subtransaction::subtransaction(
 
 pqxx::subtransaction::~subtransaction() noexcept
 {
-  sl loc{sl::current()};
+  sl const loc{sl::current()};
   close(loc);
 }
 
