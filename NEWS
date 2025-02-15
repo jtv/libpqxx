@@ -5,6 +5,8 @@
  - Conversion from string to `char const *` is no longer allowed.
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
+ - The libpqxx exceptions now have a `std::source_location`.
+ - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
  - Retired `pqxx::encrypt_password()`.  Use the ones in `pqxx::connection`.
@@ -21,6 +23,7 @@
  - Assume compiler supports `std::filesystem::path`.
  - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
  - Assume compiler supports `ssize()`.
+ - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)

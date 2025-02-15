@@ -234,15 +234,17 @@ std::string demangle_type_name(char const raw[])
 
 
 // TODO: Equivalents for converting a null in the other direction.
-void PQXX_COLD throw_null_conversion(std::string const &type)
+void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
 {
-  throw conversion_error{concat("Attempt to convert SQL null to ", type, ".")};
+  throw conversion_error{
+    concat("Attempt to convert SQL null to ", type, "."), loc};
 }
 
 
-void PQXX_COLD throw_null_conversion(std::string_view type)
+void PQXX_COLD throw_null_conversion(std::string_view type, sl loc)
 {
-  throw conversion_error{concat("Attempt to convert SQL null to ", type, ".")};
+  throw conversion_error{
+    concat("Attempt to convert SQL null to ", type, "."), loc};
 }
 
 

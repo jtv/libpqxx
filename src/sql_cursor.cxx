@@ -57,8 +57,8 @@ inline bool useless_trail(char c)
  *
  * The query must be nonempty.
  */
-std::string::size_type
-find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
+std::string::size_type find_query_end(
+  std::string_view query, pqxx::internal::encoding_group enc, pqxx::sl loc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
@@ -81,7 +81,7 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
         if (gend - gbegin > 1 or not useless_trail(*gbegin))
           end = std::string::size_type(gend - text);
       },
-      text, size);
+      text, size, 0u, loc);
   }
 
   return end;
@@ -92,18 +92,18 @@ find_query_end(std::string_view query, pqxx::internal::encoding_group enc)
 pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
-  cursor_base::ownership_policy op, bool hold) :
+  cursor_base::ownership_policy op, bool hold, sl loc) :
         cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
 {
   if (&t.conn() != &m_home)
-    throw internal_error{"Cursor in wrong connection"};
+    throw internal_error{"Cursor in wrong connection", loc};
 
   if (std::empty(query))
-    throw usage_error{"Cursor has empty query."};
-  auto const enc{enc_group(t.conn().encoding_id())};
-  auto const qend{find_query_end(query, enc)};
+    throw usage_error{"Cursor has empty query.", loc};
+  auto const enc{enc_group(t.conn().encoding_id(loc), loc)};
+  auto const qend{find_query_end(query, enc, loc)};
   if (qend == 0)
-    throw usage_error{"Cursor has effectively empty query."};
+    throw usage_error{"Cursor has effectively empty query.", loc};
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{internal::concat(
@@ -112,13 +112,13 @@ pqxx::internal::sql_cursor::sql_cursor(
     (hold ? "WITH HOLD "sv : ""sv), "FOR "sv, query, " "sv,
     ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY "sv))};
 
-  t.exec(cq);
+  t.exec(cq, loc);
 
   // Now that we're here in the starting position, keep a copy of an empty
   // result.  That may come in handy later, because we may not be able to
   // construct an empty result with all the right metadata due to the weird
   // meaning of "FETCH 0."
-  init_empty_result(t);
+  init_empty_result(t, loc);
 
   m_ownership = op;
 }
@@ -135,14 +135,14 @@ pqxx::internal::sql_cursor::sql_cursor(
 {}
 
 
-void pqxx::internal::sql_cursor::close() noexcept
+void pqxx::internal::sql_cursor::close(sl loc) noexcept
 {
   if (m_ownership == cursor_base::owned)
   {
     try
     {
       gate::connection_sql_cursor{m_home}.exec(
-        internal::concat("CLOSE "sv, m_home.quote_name(name())).c_str());
+        internal::concat("CLOSE "sv, m_home.quote_name(name())).c_str(), loc);
     }
     catch (std::exception const &)
     {}
@@ -151,12 +151,12 @@ void pqxx::internal::sql_cursor::close() noexcept
 }
 
 
-void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t)
+void pqxx::internal::sql_cursor::init_empty_result(transaction_base &t, sl loc)
 {
   if (pos() != 0)
-    throw internal_error{"init_empty_result() from bad pos()."};
+    throw internal_error{"init_empty_result() from bad pos().", loc};
   m_empty_result =
-    t.exec(internal::concat("FETCH 0 IN "sv, m_home.quote_name(name())));
+    t.exec(internal::concat("FETCH 0 IN "sv, m_home.quote_name(name())), loc);
 }
 
 
@@ -217,7 +217,7 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
 
 
 pqxx::result pqxx::internal::sql_cursor::fetch(
-  difference_type rows, difference_type &displacement)
+  difference_type rows, difference_type &displacement, sl loc)
 {
   if (rows == 0)
   {
@@ -226,14 +226,14 @@ pqxx::result pqxx::internal::sql_cursor::fetch(
   }
   auto const query{pqxx::internal::concat(
     "FETCH "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), loc)};
   displacement = adjust(rows, difference_type(std::size(r)));
   return r;
 }
 
 
 pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
-  difference_type rows, difference_type &displacement)
+  difference_type rows, difference_type &displacement, sl loc)
 {
   if (rows == 0)
   {
@@ -243,7 +243,7 @@ pqxx::cursor_base::difference_type pqxx::internal::sql_cursor::move(
 
   auto const query{pqxx::internal::concat(
     "MOVE "sv, stridestring(rows), " IN "sv, m_home.quote_name(name()))};
-  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str())};
+  auto const r{gate::connection_sql_cursor{m_home}.exec(query.c_str(), loc)};
   auto d{static_cast<difference_type>(r.affected_rows())};
   displacement = adjust(rows, d);
   return d;

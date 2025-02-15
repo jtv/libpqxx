@@ -75,25 +75,25 @@ bool pqxx::result::operator==(result const &rhs) const noexcept
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::rbegin() const
+pqxx::result::const_reverse_iterator pqxx::result::rbegin() const noexcept
 {
   return const_reverse_iterator{end()};
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::crbegin() const
+pqxx::result::const_reverse_iterator pqxx::result::crbegin() const noexcept
 {
   return rbegin();
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::rend() const
+pqxx::result::const_reverse_iterator pqxx::result::rend() const noexcept
 {
   return const_reverse_iterator{begin()};
 }
 
 
-pqxx::result::const_reverse_iterator pqxx::result::crend() const
+pqxx::result::const_reverse_iterator pqxx::result::crend() const noexcept
 {
   return rend();
 }
@@ -159,21 +159,21 @@ pqxx::field pqxx::result::operator[](
 #endif // PQXX_HAVE_MULTIDIM
 
 
-pqxx::row pqxx::result::at(pqxx::result::size_type i) const
+pqxx::row pqxx::result::at(pqxx::result::size_type i, sl loc) const
 {
   if (i >= size())
-    throw range_error{"Row number out of range."};
+    throw range_error{"Row number out of range.", loc};
   return operator[](i);
 }
 
 
 pqxx::field pqxx::result::at(
-  pqxx::result_size_type row_num, pqxx::row_size_type col_num) const
+  pqxx::result_size_type row_num, pqxx::row_size_type col_num, sl loc) const
 {
   if (row_num >= size())
-    throw range_error{"Row number out of range."};
+    throw range_error{"Row number out of range.", loc};
   if (col_num >= columns())
-    throw range_error{"Column out of range."};
+    throw range_error{"Column out of range.", loc};
   return {*this, row_num, col_num};
 }
 
@@ -188,7 +188,7 @@ inline bool equal(char const lhs[], char const rhs[])
 } // namespace
 
 void PQXX_COLD pqxx::result::throw_sql_error(
-  std::string const &Err, std::string const &Query) const
+  std::string const &Err, std::string const &Query, sl loc) const
 {
   // Try to establish more precise error type, and throw corresponding
   // type of exception.
@@ -197,7 +197,7 @@ void PQXX_COLD pqxx::result::throw_sql_error(
   {
     // No SQLSTATE at all.  Can this even happen?
     // Let's assume the connection is no longer usable.
-    throw broken_connection{Err};
+    throw broken_connection{Err, loc};
   }
 
   switch (code[0])
@@ -209,44 +209,44 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     // connection was just fine, so we had no real way of detecting the
     // problem.  (Trying to continue to use the connection does break
     // though, so I feel justified in panicking.)
-    throw broken_connection{Err};
+    throw broken_connection{Err, loc};
 
   case '0':
     switch (code[1])
     {
-    case 'A': throw feature_not_supported{Err, Query, code};
+    case 'A': throw feature_not_supported{Err, Query, code, loc};
     case '8':
       if (equal(code, "08P01"))
-        throw protocol_violation{Err};
-      throw broken_connection{Err};
+        throw protocol_violation{Err, loc};
+      throw broken_connection{Err, loc};
     case 'L':
-    case 'P': throw insufficient_privilege{Err, Query, code};
+    case 'P': throw insufficient_privilege{Err, Query, code, loc};
     }
     break;
   case '2':
     switch (code[1])
     {
-    case '2': throw data_exception{Err, Query, code};
+    case '2': throw data_exception{Err, Query, code, loc};
     case '3':
       if (equal(code, "23001"))
-        throw restrict_violation{Err, Query, code};
+        throw restrict_violation{Err, Query, code, loc};
       if (equal(code, "23502"))
-        throw not_null_violation{Err, Query, code};
+        throw not_null_violation{Err, Query, code, loc};
       if (equal(code, "23503"))
-        throw foreign_key_violation{Err, Query, code};
+        throw foreign_key_violation{Err, Query, code, loc};
       if (equal(code, "23505"))
-        throw unique_violation{Err, Query, code};
+        throw unique_violation{Err, Query, code, loc};
       if (equal(code, "23514"))
-        throw check_violation{Err, Query, code};
-      throw integrity_constraint_violation{Err, Query, code};
-    case '4': throw invalid_cursor_state{Err, Query, code};
-    case '6': throw invalid_sql_statement_name{Err, Query, code};
+        throw check_violation{Err, Query, code, loc};
+      throw integrity_constraint_violation{Err, Query, code, loc};
+    case '4': throw invalid_cursor_state{Err, Query, code, loc};
+    case '6': throw invalid_sql_statement_name{Err, Query, code, loc};
     }
     break;
   case '3':
     switch (code[1])
     {
-    case '4': throw invalid_cursor_name{Err, Query, code};
+    case '4': throw invalid_cursor_name{Err, Query, code, loc};
     }
     break;
   case '4':
@@ -254,25 +254,25 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     {
     case '0':
       if (equal(code, "40000"))
-        throw transaction_rollback{Err, Query, code};
+        throw transaction_rollback{Err, Query, code, loc};
       if (equal(code, "40001"))
-        throw serialization_failure{Err, Query, code};
+        throw serialization_failure{Err, Query, code, loc};
       if (equal(code, "40003"))
-        throw statement_completion_unknown{Err, Query, code};
+        throw statement_completion_unknown{Err, Query, code, loc};
       if (equal(code, "40P01"))
-        throw deadlock_detected{Err, Query, code};
+        throw deadlock_detected{Err, Query, code, loc};
       break;
     case '2':
       if (equal(code, "42501"))
-        throw insufficient_privilege{Err, Query};
+        throw insufficient_privilege{Err, Query, nullptr, loc};
       if (equal(code, "42601"))
-        throw syntax_error{Err, Query, code, errorposition()};
+        throw syntax_error{Err, Query, code, errorposition(), loc};
       if (equal(code, "42703"))
-        throw undefined_column{Err, Query, code};
+        throw undefined_column{Err, Query, code, loc};
       if (equal(code, "42883"))
-        throw undefined_function{Err, Query, code};
+        throw undefined_function{Err, Query, code, loc};
       if (equal(code, "42P01"))
-        throw undefined_table{Err, Query, code};
+        throw undefined_table{Err, Query, code, loc};
     }
     break;
   case '5':
@@ -280,44 +280,44 @@ void PQXX_COLD pqxx::result::throw_sql_error(
     {
     case '3':
       if (equal(code, "53100"))
-        throw disk_full{Err, Query, code};
+        throw disk_full{Err, Query, code, loc};
       if (equal(code, "53200"))
-        throw out_of_memory{Err, Query, code};
+        throw out_of_memory{Err, Query, code, loc};
       if (equal(code, "53300"))
-        throw too_many_connections{Err};
-      throw insufficient_resources{Err, Query, code};
+        throw too_many_connections{Err, loc};
+      throw insufficient_resources{Err, Query, code, loc};
     }
     break;
 
   case 'P':
     if (equal(code, "P0001"))
-      throw plpgsql_raise{Err, Query, code};
+      throw plpgsql_raise{Err, Query, code, loc};
     if (equal(code, "P0002"))
-      throw plpgsql_no_data_found{Err, Query, code};
+      throw plpgsql_no_data_found{Err, Query, code, loc};
     if (equal(code, "P0003"))
-      throw plpgsql_too_many_rows{Err, Query, code};
+      throw plpgsql_too_many_rows{Err, Query, code, loc};
     throw plpgsql_error{Err, Query, code};
   }
 
   // Unknown error code.
-  throw sql_error{Err, Query, code};
+  throw sql_error{Err, Query, code, loc};
 }
 
-void pqxx::result::check_status(std::string_view desc) const
+void pqxx::result::check_status(std::string_view desc, sl loc) const
 {
-  if (auto err{status_error()}; not std::empty(err)) [[unlikely]]
+  if (auto err{status_error(loc)}; not std::empty(err)) [[unlikely]]
   {
     if (not std::empty(desc))
       err = pqxx::internal::concat("Failure during '", desc, "': ", err);
-    throw_sql_error(err, query());
+    throw_sql_error(err, query(), loc);
   }
 }
 
 
-std::string pqxx::result::status_error() const
+std::string pqxx::result::status_error(sl loc) const
 {
   if (m_data.get() == nullptr)
-    throw failure{"No result set given."};
+    throw failure{"No result set given.", loc};
 
   std::string err;
 
@@ -334,7 +334,8 @@ std::string pqxx::result::status_error() const
 #if defined(LIBPQ_HAS_PIPELINING)
   case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
-    throw feature_not_supported{"Not supported yet: libpq pipelines."};
+    throw feature_not_supported{
+      "Not supported yet: libpq pipelines.", "", nullptr, loc};
 #endif
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
@@ -344,12 +345,15 @@ std::string pqxx::result::status_error() const
     break;
 
   case PGRES_SINGLE_TUPLE:
-    throw feature_not_supported{"Not supported: single-row mode."};
+    throw feature_not_supported{
+      "Not supported: single-row mode.", "", nullptr, loc};
 
   default:
-    throw internal_error{internal::concat(
-      "pqxx::result: Unrecognized result status code ",
-      PQresultStatus(m_data.get()))};
+    throw internal_error{
+      internal::concat(
+        "pqxx::result: Unrecognized result status code ",
+        PQresultStatus(m_data.get())),
+      loc};
   }
   return err;
 }
@@ -371,11 +375,11 @@ std::string const &pqxx::result::query() const & noexcept
 }
 
 
-pqxx::oid pqxx::result::inserted_oid() const
+pqxx::oid pqxx::result::inserted_oid(sl loc) const
 {
   if (m_data.get() == nullptr)
     throw usage_error{
-      "Attempt to read oid of inserted row without an INSERT result"};
+      "Attempt to read oid of inserted row without an INSERT result", loc};
   return PQoidValue(m_data.get());
 }
 
@@ -413,29 +417,31 @@ pqxx::field::size_type pqxx::result::get_length(
 }
 
 
-pqxx::oid pqxx::result::column_type(row::size_type col_num) const
+pqxx::oid pqxx::result::column_type(row::size_type col_num, sl loc) const
 {
   oid const t{PQftype(m_data.get(), col_num)};
   if (t == oid_none)
-    throw argument_error{internal::concat(
-      "Attempt to retrieve type of nonexistent column ", col_num,
-      " of query result.")};
+    throw argument_error{
+      internal::concat(
+        "Attempt to retrieve type of nonexistent column ", col_num,
+        " of query result."),
+      loc};
   return t;
 }
 
 
-pqxx::row::size_type pqxx::result::column_number(zview col_name) const
+pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
 {
   auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
     throw argument_error{
-      internal::concat("Unknown column name: '", col_name, "'.")};
+      internal::concat("Unknown column name: '", col_name, "'."), loc};
 
   return static_cast<row::size_type>(n);
 }
 
 
-pqxx::oid pqxx::result::column_table(row::size_type col_num) const
+pqxx::oid pqxx::result::column_table(row::size_type col_num, sl loc) const
 {
   oid const t{PQftable(m_data.get(), col_num)};
 
@@ -443,15 +449,18 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num) const
    * we got an invalid row number.
    */
   if (t == oid_none and col_num >= columns())
-    throw argument_error{internal::concat(
-      "Attempt to retrieve table ID for column ", col_num, " out of ",
-      columns())};
+    throw argument_error{
+      internal::concat(
+        "Attempt to retrieve table ID for column ", col_num, " out of ",
+        columns()),
+      loc};
 
   return t;
 }
 
 
-pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
+pqxx::row::size_type
+pqxx::result::table_column(row::size_type col_num, sl loc) const
 {
   auto const n{row::size_type(PQftablecol(m_data.get(), col_num))};
   if (n != 0) [[likely]]
@@ -461,16 +470,21 @@ pqxx::row::size_type pqxx::result::table_column(row::size_type col_num) const
   auto const col_str{to_string(col_num)};
   if (col_num > columns())
     throw range_error{
-      internal::concat("Invalid column index in table_column(): ", col_str)};
+      internal::concat("Invalid column index in table_column(): ", col_str),
+      loc};
 
   if (m_data.get() == nullptr)
-    throw usage_error{internal::concat(
-      "Can't query origin of column ", col_str,
-      ": result is not initialized.")};
+    throw usage_error{
+      internal::concat(
+        "Can't query origin of column ", col_str,
+        ": result is not initialized."),
+      loc};
 
-  throw usage_error{internal::concat(
-    "Can't query origin of column ", col_str,
-    ": not derived from table column.")};
+  throw usage_error{
+    internal::concat(
+      "Can't query origin of column ", col_str,
+      ": not derived from table column."),
+    loc};
 }
 
 
@@ -487,16 +501,19 @@ int pqxx::result::errorposition() const
 }
 
 
-char const *pqxx::result::column_name(pqxx::row::size_type number) const &
+char const *
+pqxx::result::column_name(pqxx::row::size_type number, sl loc) const &
 {
   auto const n{PQfname(m_data.get(), number)};
   if (n == nullptr) [[unlikely]]
   {
     if (m_data.get() == nullptr)
-      throw usage_error{"Queried column name on null result."};
-    throw range_error{internal::concat(
-      "Invalid column number: ", number, " (maximum is ", (columns() - 1),
-      ").")};
+      throw usage_error{"Queried column name on null result.", loc};
+    throw range_error{
+      internal::concat(
+        "Invalid column number: ", number, " (maximum is ", (columns() - 1),
+        ")."),
+      loc};
   }
   return n;
 }
@@ -508,17 +525,21 @@ pqxx::row::size_type pqxx::result::columns() const noexcept
 }
 
 
-int pqxx::result::column_storage(pqxx::row::size_type number) const
+int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
 {
   int const out{PQfsize(m_data.get(), number)};
   if (out == 0)
   {
     auto const sz{this->size()};
     if ((number < 0) or (number >= sz))
-      throw argument_error{pqxx::internal::concat(
-        "Column number out of range: ", number, " (have 0 - ", sz, ")")};
-    throw failure{pqxx::internal::concat(
-      "Error getting column_storage for column ", number)};
+      throw argument_error{
+        pqxx::internal::concat(
+          "Column number out of range: ", number, " (have 0 - ", sz, ")"),
+        loc};
+    throw failure{
+      pqxx::internal::concat(
+        "Error getting column_storage for column ", number),
+      loc};
   }
   return out;
 }
@@ -531,7 +552,7 @@ int pqxx::result::column_type_modifier(
 }
 
 
-pqxx::row pqxx::result::one_row() const
+pqxx::row pqxx::result::one_row(sl loc) const
 {
   auto const sz{size()};
   if (sz != 1)
@@ -539,34 +560,41 @@ pqxx::row pqxx::result::one_row() const
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
       throw unexpected_rows{
-        pqxx::internal::concat("Expected 1 row from query, got ", sz, ".")};
+        pqxx::internal::concat("Expected 1 row from query, got ", sz, "."),
+        loc};
     else
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected 1 row from query '", *m_query, "', got ", sz, ".")};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected 1 row from query '", *m_query, "', got ", sz, "."),
+        loc};
   }
   return front();
 }
 
 
-pqxx::field pqxx::result::one_field() const
+pqxx::field pqxx::result::one_field(sl loc) const
 {
-  expect_columns(1);
-  return one_row()[0];
+  expect_columns(1, loc);
+  return one_row(loc)[0];
 }
 
 
-std::optional<pqxx::row> pqxx::result::opt_row() const
+std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 {
   auto const sz{size()};
   if (sz > 1)
   {
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query, got ", sz, ".")};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected at most 1 row from query, got ", sz, "."),
+        loc};
     else
-      throw unexpected_rows{pqxx::internal::concat(
-        "Expected at most 1 row from query '", *m_query, "', got ", sz, ".")};
+      throw unexpected_rows{
+        pqxx::internal::concat(
+          "Expected at most 1 row from query '", *m_query, "', got ", sz, "."),
+        loc};
   }
   else if (sz == 1)
   {

@@ -14,7 +14,7 @@
 
 namespace pqxx::test
 {
-test_failure::test_failure(std::string const &desc, std::source_location loc) :
+test_failure::test_failure(std::string const &desc, sl loc) :
         std::logic_error{desc}, m_loc{loc}
 {}
 
@@ -22,21 +22,19 @@ test_failure::~test_failure() noexcept = default;
 
 
 /// Drop table, if it exists.
-inline void drop_table(transaction_base &t, std::string const &table)
+inline void drop_table(transaction_base &t, std::string const &table, sl loc)
 {
-  t.exec("DROP TABLE IF EXISTS " + table);
+  t.exec("DROP TABLE IF EXISTS " + table, loc);
 }
 
 
-[[noreturn]] void check_notreached(std::string desc, std::source_location loc)
+[[noreturn]] void check_notreached(std::string desc, sl loc)
 {
   throw test_failure{desc, loc};
 }
 
 
-void check(
-  bool condition, char const text[], std::string const &desc,
-  std::source_location loc)
+void check(bool condition, char const text[], std::string const &desc, sl loc)
 {
   if (not condition)
     throw test_failure{desc + " (failed expression: " + text + ")", loc};
