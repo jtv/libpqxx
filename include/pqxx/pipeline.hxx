@@ -60,15 +60,17 @@ public:
 
 
   /// Start a pipeline.
-  explicit pipeline(transaction_base &t) : transaction_focus{t, s_classname}
+  explicit pipeline(transaction_base &t, sl loc = sl::current()) :
+          transaction_focus{t, s_classname}
   {
-    init();
+    init(loc);
   }
   /// Start a pipeline.  Assign it a name, for more helpful error messages.
-  pipeline(transaction_base &t, std::string_view tname) :
+  pipeline(
+    transaction_base &t, std::string_view tname, sl loc = sl::current()) :
           transaction_focus{t, s_classname, tname}
   {
-    init();
+    init(loc);
   }
 
   /// Close the pipeline.
@@ -81,7 +83,7 @@ public:
    *
    * @return Identifier for this query, unique only within this pipeline.
    */
-  query_id insert(std::string_view) &;
+  query_id insert(std::string_view, sl = sl::current()) &;
 
   /// Wait for all ongoing or pending operations to complete, and detach.
   /** Detaches from the transaction when done.
@@ -90,7 +92,7 @@ public:
    * errors which may have occurred in their execution.  To be sure that your
    * statements succeeded, call @ref retrieve until the pipeline is empty.
    */
-  void complete();
+  void complete(sl = sl::current());
 
   /// Forget all ongoing or pending operations and retrieved results.
   /** Queries already sent to the backend may still be completed, depending
@@ -102,7 +104,7 @@ public:
    *
    * Detaches from the transaction when done.
    */
-  void flush();
+  void flush(sl = sl::current());
 
   /// Cancel ongoing query, if any.
   /** May cancel any or all of the queries that have been inserted at this
@@ -113,7 +115,7 @@ public:
    * Therefore, either use this function in a nontransaction, or abort the
    * transaction after calling it.
    */
-  void cancel();
+  void cancel(sl = sl::current());
 
   /// Is result for given query available?
   [[nodiscard]] bool is_finished(query_id) const;
@@ -125,14 +127,14 @@ public:
    * than the one in which their queries were inserted, errors may "propagate"
    * to subsequent queries.
    */
-  result retrieve(query_id qid)
+  result retrieve(query_id qid, sl loc = sl::current())
   {
-    return retrieve(m_queries.find(qid)).second;
+    return retrieve(m_queries.find(qid), loc).second;
   }
 
   /// Retrieve oldest unretrieved result (possibly wait for one).
   /** @return The query's identifier and its result set. */
-  std::pair<query_id, result> retrieve();
+  std::pair<query_id, result> retrieve(sl = sl::current());
 
   [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
@@ -153,7 +155,7 @@ public:
 
 
   /// Resume retained query emission.  Harmless when not needed.
-  void resume() &;
+  void resume(sl loc = sl::current()) &;
 
 private:
   struct PQXX_PRIVATE Query
@@ -168,7 +170,7 @@ private:
 
   using QueryMap = std::map<query_id, Query>;
 
-  void init();
+  void init(sl);
   void attach();
   void detach();
 
@@ -190,7 +192,7 @@ private:
     return m_issuedrange.second != m_issuedrange.first;
   }
 
-  PQXX_PRIVATE void issue();
+  PQXX_PRIVATE void issue(sl);
 
   /// The given query failed; never issue anything beyond that.
   void set_error_at(query_id qid) noexcept
@@ -201,20 +203,21 @@ private:
   }
 
   /// Throw pqxx::internal_error.
-  [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err);
+  [[noreturn]] PQXX_PRIVATE void internal_error(std::string const &err, sl);
 
-  PQXX_PRIVATE bool obtain_result(bool expect_none = false);
+  PQXX_PRIVATE bool obtain_result(bool expect_none, sl);
 
-  PQXX_PRIVATE void obtain_dummy();
-  PQXX_PRIVATE void get_further_available_results();
+  PQXX_PRIVATE void obtain_dummy(sl);
+  PQXX_PRIVATE void get_further_available_results(sl);
   PQXX_PRIVATE void check_end_results();
 
   /// Receive any results that happen to be available; it's not urgent.
-  PQXX_PRIVATE void receive_if_available();
+  PQXX_PRIVATE void receive_if_available(sl loc);
 
   /// Receive results, up to stop if possible.
-  PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop);
-  std::pair<pipeline::query_id, result> retrieve(pipeline::QueryMap::iterator);
+  PQXX_PRIVATE void receive(pipeline::QueryMap::const_iterator stop, sl);
+  std::pair<pipeline::query_id, result>
+    retrieve(pipeline::QueryMap::iterator, sl);
 
   QueryMap m_queries;
   std::pair<QueryMap::iterator, QueryMap::iterator> m_issuedrange;

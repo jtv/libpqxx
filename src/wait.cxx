@@ -60,11 +60,12 @@
 
 namespace
 {
-template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
+template<typename T>
+T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 {
   return pqxx::check_cast<T>(
     (seconds * 1000) + (microseconds / 1000),
-    "Wait timeout value out of bounds.");
+    "Wait timeout value out of bounds.", loc);
 }
 
 
@@ -90,7 +91,7 @@ template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
 
 void pqxx::internal::wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds,
-  unsigned microseconds)
+  unsigned microseconds, sl loc)
 {
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
@@ -99,13 +100,13 @@ void pqxx::internal::wait_fd(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
   int const code{
-    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds))};
+    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds, loc))};
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
     (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
-  int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds))};
+  int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds, loc))};
 #else
   // No poll()?  Our last option is select().
   fd_set read_fds;

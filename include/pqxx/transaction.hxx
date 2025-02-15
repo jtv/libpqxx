@@ -25,14 +25,17 @@ class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
   basic_transaction(
-    connection &cx, zview begin_command, std::string_view tname);
-  basic_transaction(connection &cx, zview begin_command, std::string &&tname);
-  basic_transaction(connection &cx, zview begin_command);
+    connection &cx, zview begin_command, std::string_view tname,
+    sl = sl::current());
+  basic_transaction(
+    connection &cx, zview begin_command, std::string &&tname,
+    sl = sl::current());
+  basic_transaction(connection &cx, zview begin_command, sl = sl::current());
 
   virtual ~basic_transaction() noexcept override = 0;
 
 private:
-  virtual void do_commit() override;
+  virtual void do_commit(sl) override;
 };
 } // namespace pqxx::internal
 
@@ -77,9 +80,9 @@ public:
    * @param tname Optional name for transaction.  Must begin with a letter and
    * may contain letters and digits only.
    */
-  transaction(connection &cx, std::string_view tname) :
+  transaction(connection &cx, std::string_view tname, sl loc = sl::current()) :
           internal::basic_transaction{
-            cx, internal::begin_cmd<ISOLATION, READWRITE>, tname}
+            cx, internal::begin_cmd<ISOLATION, READWRITE>, tname, loc}
   {}
 
   /// Begin a transaction.
@@ -87,12 +90,12 @@ public:
    * @param cx Connection for this transaction to operate on.
    * may contain letters and digits only.
    */
-  explicit transaction(connection &cx) :
+  explicit transaction(connection &cx, sl loc = sl::current()) :
           internal::basic_transaction{
-            cx, internal::begin_cmd<ISOLATION, READWRITE>}
+            cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
 
-  virtual ~transaction() noexcept override { close(); }
+  virtual ~transaction() noexcept override { close(sl::current()); }
 };
 
 
