@@ -102,9 +102,10 @@ public:
    *     the stream will write all columns in the table, in schema order.
    */
   static stream_to raw_table(
-    transaction_base &tx, std::string_view path, std::string_view columns = "")
+    transaction_base &tx, std::string_view path, std::string_view columns = "",
+    sl loc = sl::current())
   {
-    return {tx, path, columns};
+    return {tx, path, columns, loc};
   }
 
   /// Create a `stream_to` writing to a named table and columns.
@@ -202,7 +203,8 @@ public:
    */
   template<typename Row> stream_to &operator<<(Row const &row)
   {
-    write_row(row);
+    sl loc{sl::current()};
+    write_row(row, loc);
     return *this;
   }
 
@@ -220,26 +222,28 @@ public:
    *
    * The preferred way to insert a row is @c write_values.
    */
-  template<typename Row> void write_row(Row const &row)
+  template<typename Row> void write_row(Row const &row, sl loc = sl::current())
   {
-    fill_buffer(row);
-    write_buffer();
+    fill_buffer(row, loc);
+    write_buffer(loc);
   }
 
+  // TODO: How can we pass std::source_location here?
   /// Insert values as a row.
   /** This is the recommended way of inserting data.  Pass your field values,
    * of any convertible type.
    */
   template<typename... Ts> void write_values(Ts const &...fields)
   {
+    auto loc{sl::current()};
     fill_buffer(fields...);
-    write_buffer();
+    write_buffer(loc);
   }
 
 private:
   /// Stream a pre-quoted table name and columns list.
   stream_to(
-    transaction_base &tx, std::string_view path, std::string_view columns);
+    transaction_base &tx, std::string_view path, std::string_view columns, sl);
 
   bool m_finished = false;
 
@@ -253,12 +257,12 @@ private:
   internal::char_finder_func *m_finder;
 
   /// Write a row of raw text-format data into the destination table.
-  void write_raw_line(std::string_view);
+  void write_raw_line(std::string_view, sl);
 
   /// Write a row of data from @c m_buffer into the destination table.
   /** Resets the buffer for the next row.
    */
-  void write_buffer();
+  void write_buffer(sl);
 
   /// COPY encoding for a null field, plus subsequent separator.
   static constexpr std::string_view null_field{"\\N\t"};
@@ -283,7 +287,7 @@ private:
   }
 
   /// Append escaped version of @c data to @c m_buffer, plus a tab.
-  void escape_field_to_buffer(std::string_view data);
+  void escape_field_to_buffer(std::string_view data, sl loc);
 
   /// Append string representation for @c f to @c m_buffer.
   /** This is for the general case, where the field may contain a value.
@@ -294,7 +298,7 @@ private:
    */
   template<typename Field>
   std::enable_if_t<not nullness<Field>::always_null>
-  append_to_buffer(Field const &f)
+  append_to_buffer(Field const &f, sl loc)
   {
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
@@ -335,7 +339,7 @@ private:
       {
         // This string may need escaping.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(f);
+        escape_field_to_buffer(f, loc);
       }
       else if constexpr (
         std::is_same_v<Field, std::optional<std::string>> or
@@ -345,7 +349,7 @@ private:
         // Optional string.  It's not null (we checked for that above), so...
         // Treat like a string.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(f.value());
+        escape_field_to_buffer(f.value(), loc);
       }
       // TODO: Support deleter template argument on unique_ptr.
       else if constexpr (
@@ -360,7 +364,7 @@ private:
         // Effectively also an optional string.  It's not null (we checked
         // for that above).
         m_field_buf.resize(budget);
-        escape_field_to_buffer(*f);
+        escape_field_to_buffer(*f, loc);
       }
       else
       {
@@ -369,7 +373,7 @@ private:
         m_field_buf.resize(budget);
         auto const data{m_field_buf.data()};
         escape_field_to_buffer(
-          traits::to_buf(data, data + std::size(m_field_buf), f));
+          traits::to_buf(data, data + std::size(m_field_buf), f), loc);
       }
     }
   }
@@ -383,7 +387,7 @@ private:
    */
   template<typename Field>
   std::enable_if_t<nullness<Field>::always_null>
-  append_to_buffer(Field const &)
+  append_to_buffer(Field const &, sl)
   {
     m_buffer.append(null_field);
   }
@@ -392,7 +396,7 @@ private:
   template<typename Container>
   std::enable_if_t<
     not std::is_same_v<std::remove_cv_t<typename Container::value_type>, char>>
-  fill_buffer(Container const &c)
+  fill_buffer(Container const &c, sl loc)
   {
     // To avoid unnecessary allocations and deallocations, we run through c
     // twice: once to determine how much buffer space we may need, and once to
@@ -400,7 +404,7 @@ private:
     std::size_t budget{0};
     for (auto const &f : c) budget += estimate_buffer(f);
     m_buffer.reserve(budget);
-    for (auto const &f : c) append_to_buffer(f);
+    for (auto const &f : c) append_to_buffer(f, loc);
   }
 
   /// Estimate how many buffer bytes we need to write tuple.
@@ -413,24 +417,26 @@ private:
 
   /// Write tuple of fields to @c m_buffer.
   template<typename Tuple, std::size_t... indexes>
-  void append_tuple(Tuple const &t, std::index_sequence<indexes...>)
+  void append_tuple(Tuple const &t, std::index_sequence<indexes...>, sl loc)
   {
-    (append_to_buffer(std::get<indexes>(t)), ...);
+    (append_to_buffer(std::get<indexes>(t), loc), ...);
   }
 
   /// Write raw COPY line into @c m_buffer, based on a tuple of fields.
-  template<typename... Elts> void fill_buffer(std::tuple<Elts...> const &t)
+  template<typename... Elts>
+  void fill_buffer(std::tuple<Elts...> const &t, sl loc)
   {
     using indexes = std::make_index_sequence<sizeof...(Elts)>;
 
     m_buffer.reserve(budget_tuple(t, indexes{}));
-    append_tuple(t, indexes{});
+    append_tuple(t, indexes{}, loc);
   }
 
+  // TODO: How can we pass std::source_location here?
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
-    (..., append_to_buffer(fields));
+    (..., append_to_buffer(fields, sl::current()));
   }
 
   constexpr static std::string_view s_classname{"stream_to"};

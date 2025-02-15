@@ -40,6 +40,7 @@ namespace pqxx
  *   do_firstpart(tx);
  *
  *   // Attempt to delete our temporary table if it already existed.
+ *   // (In reality you would just use the IF EXISTS option to DROP TABLE.)
  *   try
  *   {
  *     subtransaction S(tx, "droptemp");
@@ -78,10 +79,17 @@ class PQXX_LIBEXPORT subtransaction : public transaction_focus,
 {
 public:
   /// Nest a subtransaction nested in another transaction.
-  explicit subtransaction(dbtransaction &t, std::string_view tname = ""sv);
+  explicit subtransaction(
+    dbtransaction &t, std::string_view tname, sl = sl::current());
+
+  /// Nest a subtransaction nested in another transaction.
+  explicit subtransaction(dbtransaction &t, sl loc = sl::current()) :
+          subtransaction(t, "", loc)
+  {}
 
   /// Nest a subtransaction in another subtransaction.
-  explicit subtransaction(subtransaction &t, std::string_view name = ""sv);
+  explicit subtransaction(
+    subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
   virtual ~subtransaction() noexcept override;
 
@@ -90,7 +98,7 @@ private:
   {
     return quote_name(transaction_focus::name());
   }
-  virtual void do_commit() override;
+  virtual void do_commit(sl) override;
 };
 } // namespace pqxx
 #endif
