@@ -22,29 +22,29 @@
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string_view tname) :
+  connection &cx, zview begin_command, std::string_view tname, sl loc) :
         dbtransaction(cx, tname)
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command, std::string &&tname) :
+  connection &cx, zview begin_command, std::string &&tname, sl loc) :
         dbtransaction(cx, std::move(tname))
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
 pqxx::internal::basic_transaction::basic_transaction(
-  connection &cx, zview begin_command) :
+  connection &cx, zview begin_command, sl loc) :
         dbtransaction(cx)
 {
   register_transaction();
-  direct_exec(begin_command);
+  direct_exec(begin_command, loc);
 }
 
 
@@ -57,12 +57,12 @@ pqxx::internal::basic_transaction::basic_transaction(
 pqxx::internal::basic_transaction::~basic_transaction() noexcept = default;
 
 
-void pqxx::internal::basic_transaction::do_commit()
+void pqxx::internal::basic_transaction::do_commit(sl loc)
 {
   static auto const commit_q{std::make_shared<std::string>("COMMIT"sv)};
   try
   {
-    direct_exec(commit_q);
+    direct_exec(commit_q, loc);
   }
   catch (statement_completion_unknown const &e)
   {
@@ -70,6 +70,7 @@ void pqxx::internal::basic_transaction::do_commit()
     // resulting state of the database.
     process_notice(internal::concat(e.what(), "\n"));
 
+    // XXX: Log source location?
     std::string msg{internal::concat(
       "WARNING: Commit status of transaction '", name(),
       "' is unknown. "
@@ -95,7 +96,7 @@ void pqxx::internal::basic_transaction::do_commit()
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();
-      throw in_doubt_error{msg};
+      throw in_doubt_error{msg, loc};
     }
     else
     {

@@ -114,7 +114,8 @@ pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](zview col_name) const
 {
-  return at(col_name);
+  sl const loc{sl::current()};
+  return at(col_name, loc);
 }
 
 
@@ -130,42 +131,42 @@ void pqxx::row::swap(row &rhs) noexcept
 }
 
 
-pqxx::field pqxx::row::at(zview col_name) const
+pqxx::field pqxx::row::at(zview col_name, sl loc) const
 {
-  return {m_result, m_index, column_number(col_name)};
+  return {m_result, m_index, column_number(col_name, loc)};
 }
 
 
-pqxx::field pqxx::row::at(pqxx::row::size_type i) const
+pqxx::field pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
   if (i >= size())
-    throw range_error{"Invalid field number."};
+    throw range_error{"Invalid field number.", loc};
 
   return operator[](i);
 }
 
 
-pqxx::oid pqxx::row::column_type(size_type col_num) const
+pqxx::oid pqxx::row::column_type(size_type col_num, sl loc) const
 {
-  return m_result.column_type(col_num);
+  return m_result.column_type(col_num, loc);
 }
 
 
-pqxx::oid pqxx::row::column_table(size_type col_num) const
+pqxx::oid pqxx::row::column_table(size_type col_num, sl loc) const
 {
-  return m_result.column_table(col_num);
+  return m_result.column_table(col_num, loc);
 }
 
 
-pqxx::row::size_type pqxx::row::table_column(size_type col_num) const
+pqxx::row::size_type pqxx::row::table_column(size_type col_num, sl loc) const
 {
-  return m_result.table_column(col_num);
+  return m_result.table_column(col_num, loc);
 }
 
 
-pqxx::row::size_type pqxx::row::column_number(zview col_name) const
+pqxx::row::size_type pqxx::row::column_number(zview col_name, sl loc) const
 {
-  return m_result.column_number(col_name);
+  return m_result.column_number(col_name, loc);
 }
 
 

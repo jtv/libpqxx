@@ -146,7 +146,7 @@ public:
    * As soon as we climb back out of that call tree, we're done with that
    * data.
    */
-  pqxx::internal::c_params make_c_params() const;
+  pqxx::internal::c_params make_c_params(sl loc) const;
 
 private:
   /// Recursively append a pack of params.
@@ -215,11 +215,13 @@ public:
   std::string get() const { return std::string(std::data(m_buf), m_len); }
 
   /// Move on to the next parameter.
-  void next() &
+  void next(sl loc = sl::current()) &
   {
     if (m_current >= max_params)
-      throw range_error{pqxx::internal::concat(
-        "Too many parameters in one statement: limit is ", max_params, ".")};
+      throw range_error{
+        pqxx::internal::concat(
+          "Too many parameters in one statement: limit is ", max_params, "."),
+        loc};
     PQXX_ASSUME(m_current > 0);
     ++m_current;
     if (m_current % 10 == 0)
@@ -231,7 +233,7 @@ public:
       char *const end{string_traits<COUNTER>::into_buf(
         data + 1, data + std::size(m_buf), m_current)};
       // (Subtract because we don't include the trailing zero.)
-      m_len = check_cast<COUNTER>(end - data, "placeholders counter") - 1;
+      m_len = check_cast<COUNTER>(end - data, "placeholders counter", loc) - 1;
     }
     else
     {

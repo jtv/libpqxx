@@ -10,38 +10,43 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query) :
-        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+  transaction_base &tx, std::string_view query, sl loc) :
+        transaction_focus{tx, "stream_query"},
+        m_char_finder{get_finder(tx, loc)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"))};
-  r.expect_columns(sizeof...(TYPE));
-  r.expect_rows(0);
+  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), loc)};
+  r.expect_columns(sizeof...(TYPE), loc);
+  r.expect_rows(0, loc);
   register_me();
 }
 
 
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, params const &parms) :
-        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+  transaction_base &tx, std::string_view query, params const &parms, sl loc) :
+        transaction_focus{tx, "stream_query"},
+        m_char_finder{get_finder(tx, loc)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms)
-                 .no_rows()};
+  auto const r{
+    tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms, loc)
+      .no_rows(loc)};
   if (r.columns() != sizeof...(TYPE))
-    throw usage_error{concat(
-      "Parsing query stream with wrong number of columns: "
-      "code expects ",
-      sizeof...(TYPE), " but query returns ", r.columns(), ".")};
+    throw usage_error{
+      concat(
+        "Parsing query stream with wrong number of columns: "
+        "code expects ",
+        sizeof...(TYPE), " but query returns ", r.columns(), "."),
+      loc};
   register_me();
 }
 
 
 template<typename... TYPE>
 inline char_finder_func *
-stream_query<TYPE...>::get_finder(transaction_base const &tx)
+stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
-  auto const group{enc_group(tx.conn().encoding_id())};
-  return get_s_char_finder<'\t', '\\'>(group);
+  auto const group{enc_group(tx.conn().encoding_id(loc), loc)};
+  return get_s_char_finder<'\t', '\\'>(group, loc);
 }
 
 
@@ -88,7 +93,8 @@ public:
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    return m_home->parse_line(zview{m_line.get(), m_line_size});
+    sl loc{sl::current()};
+    return m_home->parse_line(zview{m_line.get(), m_line_size}, loc);
   }
 
   /// Are we at the end?

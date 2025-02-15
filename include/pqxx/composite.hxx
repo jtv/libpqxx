@@ -11,6 +11,7 @@
 
 namespace pqxx
 {
+// TODO: How can we pass std::source_location here?
 /// Parse a string representation of a value of a composite type.
 /** @warning This code is still experimental.  Use with care.
  *
@@ -36,36 +37,44 @@ inline void parse_composite(
   pqxx::internal::encoding_group enc, std::string_view text, T &...fields)
 {
   static_assert(sizeof...(fields) > 0);
+  // TODO: Turn this into a parameter.
+  auto const loc{sl::current()};
 
-  auto const scan{pqxx::internal::get_glyph_scanner(enc)};
+  auto const scan{pqxx::internal::get_glyph_scanner(enc, loc)};
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
-    throw conversion_error{"Cannot parse composite value from empty string."};
+    throw conversion_error{
+      "Cannot parse composite value from empty string.", loc};
 
-  std::size_t here{0}, next{scan(data, size, here)};
+  std::size_t here{0}, next{scan(data, size, here, loc)};
   if (next != 1 or data[here] != '(')
     throw conversion_error{
-      internal::concat("Invalid composite value string: ", text)};
+      internal::concat("Invalid composite value string: ", text), loc};
 
   here = next;
 
   // TODO: Reuse parse_composite_field specialisation across calls.
   constexpr auto num_fields{sizeof...(fields)};
   std::size_t index{0};
-  (pqxx::internal::specialize_parse_composite_field<T>(enc)(
-     index, text, here, fields, num_fields - 1),
+  (pqxx::internal::specialize_parse_composite_field<T>(enc, loc)(
+     index, text, here, fields, num_fields - 1, loc),
    ...);
   if (here != std::size(text))
-    throw conversion_error{internal::concat(
-      "Composite value did not end at the closing parenthesis: '", text,
-      "'.")};
+    throw conversion_error{
+      internal::concat(
+        "Composite value did not end at the closing parenthesis: '", text,
+        "'."),
+      loc};
   if (text[here - 1] != ')')
-    throw conversion_error{internal::concat(
-      "Composive value did not end in parenthesis: '", text, "'")};
+    throw conversion_error{
+      internal::concat(
+        "Composite value did not end in parenthesis: '", text, "'"),
+      loc};
 }
 
 
+// TODO: How can we pass std::source_location here?
 /// Parse a string representation of a value of a composite type.
 /** @warning This version only works for UTF-8 and single-byte encodings.
  *
@@ -113,6 +122,7 @@ composite_size_buffer(T const &...fields) noexcept
 }
 
 
+// TODO: How can we pass std::source_location here?
 /// Render a series of values as a single composite SQL value.
 /** @warning This code is still experimental.  Use with care.
  *
@@ -122,9 +132,10 @@ composite_size_buffer(T const &...fields) noexcept
 template<typename... T>
 inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
+  auto loc{sl::current()};
   if (std::size_t(end - begin) < composite_size_buffer(fields...))
     throw conversion_error{
-      "Buffer space may not be enough to represent composite value."};
+      "Buffer space may not be enough to represent composite value.", loc};
 
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)

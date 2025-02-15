@@ -31,7 +31,7 @@ void test_nonoptionals(pqxx::connection &connection)
     // We can't read the "910" row -- it contains nulls, which our tuple does
     // not accept.
     extractor >> got_tuple;
-    PQXX_CHECK_NOTREACHED(
+    pqxx::test::check_notreached(
       "Failed to fail to stream null values into null-less fields.");
   }
   catch (pqxx::conversion_error const &e)
@@ -86,7 +86,7 @@ void test_nonoptionals(pqxx::connection &connection)
   try
   {
     ex2 >> null_tup;
-    PQXX_CHECK_NOTREACHED(
+    pqxx::test::check_notreached(
       "stream_from should have refused to convert non-null value to "
       "nullptr_t.");
   }
@@ -116,7 +116,7 @@ void test_bad_tuples(pqxx::connection &cx)
   try
   {
     extractor >> got_tuple_too_short;
-    PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
+    pqxx::test::check_notreached("stream_from improperly read first row");
   }
   catch (pqxx::usage_error const &e)
   {
@@ -133,7 +133,7 @@ void test_bad_tuples(pqxx::connection &cx)
   try
   {
     extractor >> got_tuple_too_long;
-    PQXX_CHECK_NOTREACHED("stream_from improperly read first row");
+    pqxx::test::check_notreached("stream_from improperly read first row");
   }
   catch (pqxx::usage_error const &e)
   {

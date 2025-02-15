@@ -88,7 +88,7 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, std::string_view description)
+inline TO check_cast(FROM value, std::string_view description, sl loc)
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -110,7 +110,8 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error{internal::cat2("Cast underflow: "sv, description)};
+        throw range_error{
+          internal::cat2("Cast underflow: "sv, description), loc};
     }
     else
     {
@@ -118,8 +119,10 @@ inline TO check_cast(FROM value, std::string_view description)
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-        throw range_error{internal::cat2(
-          "Casting negative value to unsigned type: "sv, description)};
+        throw range_error{
+          internal::cat2(
+            "Casting negative value to unsigned type: "sv, description),
+          loc};
     }
   }
   else
@@ -137,13 +140,14 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (from_max > to_max)
     {
       if (std::cmp_greater(value, to_max))
-        throw range_error{internal::cat2("Cast overflow: "sv, description)};
+        throw range_error{
+          internal::cat2("Cast overflow: "sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error{internal::cat2("Cast overflow: ", description)};
+      throw range_error{internal::cat2("Cast overflow: ", description), loc};
   }
 
   return static_cast<TO>(value);
@@ -457,11 +461,11 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[]);
+unesc_bin(std::string_view escaped_data, std::byte buffer[], sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
+bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, sl loc);
 
 
 /// Helper for determining a function's parameter types.

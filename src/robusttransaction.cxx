@@ -72,55 +72,59 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
 }
 
 
-tx_stat query_status(std::string const &xid, std::string const &conn_str)
+tx_stat query_status(
+  std::string const &xid, std::string const &conn_str,
+  pqxx::sl loc = pqxx::sl::current())
 {
   static std::string const name{"robusttxck"sv};
   auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
-  pqxx::connection cx{conn_str};
+  pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
-  auto const status_row{tx.exec(query).one_row()};
+  auto const status_row{tx.exec(query, loc).one_row(loc)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
-    throw pqxx::internal_error{"Transaction status string is empty."};
-  auto const status{parse_status(status_field.as<std::string_view>())};
+    throw pqxx::internal_error{"Transaction status string is empty.", loc};
+  auto const status{parse_status(status_field.as<std::string_view>(loc))};
   if (status == tx_unknown)
-    throw pqxx::internal_error{pqxx::internal::concat(
-      "Unknown transaction status string: ", status_field.view())};
+    throw pqxx::internal_error{
+      pqxx::internal::concat(
+        "Unknown transaction status string: ", status_field.view()),
+      loc};
   return status;
 }
 } // namespace
 
 
-void pqxx::internal::basic_robusttransaction::init(zview begin_command)
+void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
 {
   static auto const txid_q{
     std::make_shared<std::string>("SELECT txid_current()"sv)};
   m_backendpid = conn().backendpid();
-  direct_exec(begin_command);
-  direct_exec(txid_q).one_field().to(m_xid);
+  direct_exec(begin_command, loc);
+  direct_exec(txid_q, loc).one_field(loc).to(m_xid);
 }
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command, std::string_view tname) :
+  connection &cx, zview begin_command, std::string_view tname, sl loc) :
         dbtransaction(cx, tname), m_conn_string{cx.connection_string()}
 {
-  init(begin_command);
+  init(begin_command, loc);
 }
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command) :
+  connection &cx, zview begin_command, sl loc) :
         dbtransaction(cx), m_conn_string{cx.connection_string()}
 {
-  init(begin_command);
+  init(begin_command, loc);
 }
 
 
 pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 
 
-void pqxx::internal::basic_robusttransaction::do_commit()
+void pqxx::internal::basic_robusttransaction::do_commit(sl loc)
 {
   static auto const check_constraints_q{
     std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE"sv)},
@@ -129,11 +133,11 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // minimise our in-doubt window.
   try
   {
-    direct_exec(check_constraints_q);
+    direct_exec(check_constraints_q, loc);
   }
   catch (std::exception const &)
   {
-    do_abort();
+    do_abort(loc);
     throw;
   }
 
@@ -148,7 +152,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // robusttransaction what it is.
   try
   {
-    direct_exec(commit_q);
+    direct_exec(commit_q, loc);
 
     // If we make it here, great.  Normal, successful commit.
     return;
@@ -163,7 +167,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     if (conn().is_open())
     {
       // Commit failed, for some other reason.
-      do_abort();
+      do_abort(loc);
       throw;
     }
     // Otherwise, fall through to in-doubt handling.
@@ -180,7 +184,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   {
     try
     {
-      switch (query_status(m_xid, m_conn_string))
+      switch (query_status(m_xid, m_conn_string, loc))
       {
       case tx_unknown:
         // We were unable to reconnect and query transaction status.
@@ -191,7 +195,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
         return;
       case tx_aborted:
         // Aborted.  We're done.
-        do_abort();
+        do_abort(loc);
         return;
       case tx_in_progress:
         // The transaction is still running.  Stick around until we know what
@@ -208,14 +212,16 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   }
 
   // Okay, this has taken too long.  Give up, report in-doubt state.
-  throw in_doubt_error{internal::concat(
-    "Transaction ", name(), " (with transaction ID ", m_xid,
-    ") "
-    "lost connection while committing.  It's impossible to tell whether "
-    "it committed, or aborted, or is still running.  "
-    "Attempts to find out its outcome have failed.  "
-    "The backend process on the server had process ID ",
-    m_backendpid,
-    ".  "
-    "You may be able to check what happened to that process.")};
+  throw in_doubt_error{
+    internal::concat(
+      "Transaction ", name(), " (with transaction ID ", m_xid,
+      ") "
+      "lost connection while committing.  It's impossible to tell whether "
+      "it committed, or aborted, or is still running.  "
+      "Attempts to find out its outcome have failed.  "
+      "The backend process on the server had process ID ",
+      m_backendpid,
+      ".  "
+      "You may be able to check what happened to that process."),
+    loc};
 }

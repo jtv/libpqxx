@@ -97,11 +97,13 @@ public:
    */
   [[nodiscard]] reference operator[](zview col_name) const;
 
-  reference at(size_type) const;
+  /// Address a field by number, but check that the number is in range.
+  reference at(size_type, sl = sl::current()) const;
+
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(zview col_name) const;
+  reference at(zview col_name, sl = sl::current()) const;
 
   [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
 
@@ -116,24 +118,25 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type column_number(zview col_name) const;
+  [[nodiscard]] size_type
+  column_number(zview col_name, sl = sl::current()) const;
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(size_type) const;
+  [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(zview col_name) const
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
-    return column_type(column_number(col_name));
+    return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(size_type col_num) const;
+  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name) const
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
-    return column_table(column_number(col_name));
+    return column_table(column_number(col_name, loc), loc);
   }
 
   /// What column number in its table did this result column come from?
@@ -144,12 +147,13 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type table_column(size_type) const;
+  [[nodiscard]] size_type table_column(size_type, sl = sl::current()) const;
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] size_type table_column(zview col_name) const
+  [[nodiscard]] size_type
+  table_column(zview col_name, sl loc = sl::current()) const
   {
-    return table_column(column_number(col_name));
+    return table_column(column_number(col_name, loc), loc);
   }
   //@}
 
@@ -167,10 +171,10 @@ public:
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `t`.
    */
-  template<typename Tuple> void to(Tuple &t) const
+  template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
   {
-    check_size(std::tuple_size_v<Tuple>);
-    convert(t);
+    check_size(std::tuple_size_v<Tuple>, loc);
+    convert(t, loc);
   }
 
   /// Extract entire row's values into a tuple.
@@ -182,11 +186,12 @@ public:
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `t`.
    */
-  template<typename... TYPE> std::tuple<TYPE...> as() const
+  template<typename... TYPE>
+  std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
-    check_size(sizeof...(TYPE));
+    check_size(sizeof...(TYPE), loc);
     using seq = std::make_index_sequence<sizeof...(TYPE)>;
-    return get_tuple<std::tuple<TYPE...>>(seq{});
+    return get_tuple<std::tuple<TYPE...>>(seq{}, loc);
   }
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
@@ -197,29 +202,32 @@ protected:
   row(result r, result_size_type index, size_type cols) noexcept;
 
   /// Throw @ref usage_error if row size is not `expected`.
-  void check_size(size_type expected) const
+  void check_size(size_type expected, sl loc) const
   {
     if (size() != expected)
-      throw usage_error{internal::concat(
-        "Tried to extract ", expected, " field(s) from a row of ", size(),
-        ".")};
+      throw usage_error{
+        internal::concat(
+          "Tried to extract ", expected, " field(s) from a row of ", size(),
+          "."),
+        loc};
   }
 
   /// Convert to a given tuple of values, don't check sizes.
   /** We need this for cases where we have a full tuple of field types, but
    * not a parameter pack.
    */
-  template<typename TUPLE> TUPLE as_tuple() const
+  template<typename TUPLE> TUPLE as_tuple(sl loc) const
   {
     using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-    return get_tuple<TUPLE>(seq{});
+    return get_tuple<TUPLE>(seq{}, loc);
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
-  template<typename Tuple> void convert(Tuple &t) const
+  template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
-    extract_fields(t, std::make_index_sequence<std::tuple_size_v<Tuple>>{});
+    extract_fields(
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
   friend class field;
@@ -239,17 +247,17 @@ protected:
 
 private:
   template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
   {
-    (extract_value<Tuple, indexes>(t), ...);
+    (extract_value<Tuple, indexes>(t, loc), ...);
   }
 
   template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &t) const;
+  void extract_value(Tuple &t, sl loc) const;
 
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>) const
+  auto get_tuple(std::index_sequence<indexes...>, sl) const
   {
     return std::make_tuple(get_field<TUPLE, indexes>()...);
   }
@@ -543,7 +551,7 @@ const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 
 
 template<typename Tuple, std::size_t index>
-inline void row::extract_value(Tuple &t) const
+inline void row::extract_value(Tuple &t, sl) const
 {
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   field const f{m_result, m_index, index};

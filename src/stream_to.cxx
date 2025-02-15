@@ -25,19 +25,21 @@ namespace
 using namespace std::literals;
 
 void begin_copy(
-  pqxx::transaction_base &tx, std::string_view table, std::string_view columns)
+  pqxx::transaction_base &tx, std::string_view table, std::string_view columns,
+  pqxx::sl loc)
 {
   tx.exec(
       std::empty(columns) ?
         pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
         pqxx::internal::concat(
-          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv))
-    .no_rows();
+          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv),
+      loc)
+    .no_rows(loc);
 }
 
 
 /// Return the escape character for escaping the given special character.
-char escape_char(char special)
+char escape_char(char special, pqxx::sl loc)
 {
   switch (special)
   {
@@ -50,9 +52,11 @@ char escape_char(char special)
   case '\\': return '\\';
   default: break;
   }
-  throw pqxx::internal_error{pqxx::internal::concat(
-    "Stream escaping unexpectedly stopped at '",
-    static_cast<unsigned>(static_cast<unsigned char>(special)), "'.")};
+  throw pqxx::internal_error{
+    pqxx::internal::concat(
+      "Stream escaping unexpectedly stopped at '",
+      static_cast<unsigned>(static_cast<unsigned char>(special)), "'."),
+    loc};
 }
 } // namespace
 
@@ -70,13 +74,14 @@ pqxx::stream_to::~stream_to() noexcept
 }
 
 
-void pqxx::stream_to::write_raw_line(std::string_view text)
+void pqxx::stream_to::write_raw_line(std::string_view text, sl loc)
 {
-  internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(text);
+  internal::gate::connection_stream_to{m_trans->conn()}.write_copy_line(
+    text, loc);
 }
 
 
-void pqxx::stream_to::write_buffer()
+void pqxx::stream_to::write_buffer(sl loc)
 {
   if (not std::empty(m_buffer))
   {
@@ -85,7 +90,7 @@ void pqxx::stream_to::write_buffer()
     assert(m_buffer[std::size(m_buffer) - 1] == '\t');
     m_buffer.resize(std::size(m_buffer) - 1);
   }
-  write_raw_line(m_buffer);
+  write_raw_line(m_buffer, loc);
   m_buffer.clear();
 }
 
@@ -97,20 +102,21 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
     const auto [line, size] = tr.get_raw_line();
     if (line.get() == nullptr)
       break;
-    write_raw_line(std::string_view{line.get(), size});
+    write_raw_line(std::string_view{line.get(), size}, sl::current());
   }
   return *this;
 }
 
 
 pqxx::stream_to::stream_to(
-  transaction_base &tx, std::string_view path, std::string_view columns) :
+  transaction_base &tx, std::string_view path, std::string_view columns,
+  sl loc) :
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          pqxx::internal::enc_group(tx.conn().encoding_id()))}
+          pqxx::internal::enc_group(tx.conn().encoding_id(loc), loc), loc)}
 {
-  begin_copy(tx, path, columns);
+  begin_copy(tx, path, columns, loc);
   register_me();
 }
 
@@ -126,19 +132,19 @@ void pqxx::stream_to::complete()
 }
 
 
-void pqxx::stream_to::escape_field_to_buffer(std::string_view data)
+void pqxx::stream_to::escape_field_to_buffer(std::string_view data, sl loc)
 {
   std::size_t const end{std::size(data)};
   std::size_t here{0};
   while (here < end)
   {
-    auto const stop_char{m_finder(data, here)};
+    auto const stop_char{m_finder(data, here, loc)};
     // Append any unremarkable we just skipped over.
     m_buffer.append(std::data(data) + here, stop_char - here);
     if (stop_char < end)
     {
       m_buffer.push_back('\\');
-      m_buffer.push_back(escape_char(data[stop_char]));
+      m_buffer.push_back(escape_char(data[stop_char], loc));
     }
     here = stop_char + 1;
   }

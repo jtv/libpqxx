@@ -148,7 +148,7 @@ void test_too_few_fields(pqxx::connection &connection)
     inserter << std::make_tuple(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
     tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
+    pqxx::test::check_notreached("stream_from improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
   {
@@ -171,7 +171,7 @@ void test_too_few_fields_fold(pqxx::connection &connection)
     inserter.write_values(1234, "now", 4321, ipv4{8, 8, 8, 8});
     inserter.complete();
     tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
+    pqxx::test::check_notreached("stream_from_fold improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
   {
@@ -197,7 +197,7 @@ void test_too_many_fields(pqxx::connection &connection)
       bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
     tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from improperly inserted row");
+    pqxx::test::check_notreached("stream_from improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
   {
@@ -222,7 +222,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
       bytea{'\x00', '\x01', '\x02'}, 5678);
     inserter.complete();
     tx.commit();
-    PQXX_CHECK_NOTREACHED("stream_from_fold improperly inserted row");
+    pqxx::test::check_notreached("stream_from_fold improperly inserted row");
   }
   catch (pqxx::sql_error const &e)
   {
