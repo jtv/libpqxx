@@ -11,9 +11,7 @@ namespace test
 class test_failure : public std::logic_error
 {
 public:
-  test_failure(
-    std::string const &desc,
-    std::source_location loc = std::source_location::current());
+  test_failure(std::string const &desc, sl loc = sl::current());
 
   ~test_failure() noexcept override;
 
@@ -21,12 +19,13 @@ public:
   constexpr auto line() const noexcept { return m_loc.line(); }
 
 private:
-  std::source_location m_loc;
+  sl m_loc;
 };
 
 
 /// Drop a table, if it exists.
-void drop_table(transaction_base &, std::string const &table);
+void drop_table(
+  transaction_base &, std::string const &table, sl loc = sl::current());
 
 
 using testfunc = void (*)();
@@ -54,17 +53,16 @@ struct registrar
 
 
 // Unconditional test failure.
-#define PQXX_CHECK_NOTREACHED(desc) pqxx::test::check_notreached((desc))
 [[noreturn]] void check_notreached(
-  std::string desc,
-  std::source_location loc = std::source_location::current());
+  std::string desc = "Execution was never supposed to reach this point.",
+  sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()
 #define PQXX_CHECK(condition, desc)                                           \
   pqxx::test::check((condition), #condition, (desc))
 void check(
   bool condition, char const text[], std::string const &desc,
-  std::source_location loc = std::source_location::current());
+  sl loc = sl::current());
 
 // Verify that variable has the expected value.
 #define PQXX_CHECK_EQUAL(actual, expected, desc)                              \
@@ -72,8 +70,7 @@ void check(
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
   ACTUAL actual, char const actual_text[], EXPECTED expected,
-  char const expected_text[], std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  char const expected_text[], std::string const &desc, sl loc = sl::current())
 {
   if (expected == actual)
     return;
@@ -94,8 +91,7 @@ inline void check_equal(
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 != value2)
     return;
@@ -116,8 +112,7 @@ inline void check_not_equal(
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 < value2)
     return;
@@ -141,22 +136,18 @@ inline void check_less(
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
   VALUE1 value1, char const text1[], VALUE2 value2, char const text2[],
-  std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  std::string const &desc, sl loc = sl::current())
 {
   if (value1 <= value2)
     return;
-  std::string const fulldesc = desc + " (" + text1 + " > " + text2 +
-                               ": "
-                               "\"lower\"=" +
-                               to_string(value1) +
-                               ", "
-                               "\"upper\"=" +
-                               to_string(value2) + ")";
+  std::string const fulldesc = pqxx::internal::concat(
+    desc, " (", text1, " > ", text2, ": \"lower\"=", value1,
+    ", \"upper\"=", value2, ")");
   throw test_failure{fulldesc, loc};
 }
 
 
+/// A special exception type not derived from `std::exception`.
 struct failure_to_fail
 {};
 
@@ -170,80 +161,103 @@ inline void end_of_statement() {}
 
 // Verify that "action" does not throw an exception.
 #define PQXX_CHECK_SUCCEEDS(action, desc)                                     \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-    }                                                                         \
-    catch (std::exception const &e)                                           \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " - \"" +                                         \
-        #action "\" threw exception: " + e.what());                           \
-    }                                                                         \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " - \"" + #action "\" threw a non-exception!");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_succeeds(([&]() { action; }), #action, (desc))
+
+template<std::invocable F>
+inline void check_succeeds(
+  F &&f, char const text[], std::string desc = "Expected this to succeed.",
+  sl loc = sl::current())
+{
+  try
+  {
+    f();
+  }
+  catch (std::exception const &e)
+  {
+    pqxx::test::check_notreached(
+      pqxx::internal::concat(
+        desc, " - \"", text, "\" threw exception: ", e.what()),
+      loc);
+  }
+  catch (...)
+  {
+    pqxx::test::check_notreached(
+      pqxx::internal::concat(desc, " - \"", text, "\" threw a non-exception!"),
+      loc);
+  }
+}
+
+
+template<typename EXC, std::invocable F>
+inline void check_throws(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow the expected exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      pqxx::internal::concat(desc, " (\"", text, "\" did not throw)"), loc);
+  }
+  catch (EXC const &)
+  {}
+  catch (std::exception const &e)
+  {
+    check_notreached(pqxx::internal::concat(
+      desc, " (\"", text, "\" threw the wrong exception type: ", e.what(),
+      ")"));
+  }
+  catch (...)
+  {
+    check_notreached(
+      pqxx::internal::concat(
+        desc, " (\"", text, "\" threw a non-exception type!)"),
+      loc);
+  }
+}
+
+
+template<std::invocable F>
+inline void check_throws_exception(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow a std::exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      pqxx::internal::concat(desc, " (\"", text, "\" did not throw)"), loc);
+  }
+  catch (std::exception const &)
+  {}
+  catch (...)
+  {
+    check_notreached(
+      pqxx::internal::concat(
+        desc, " (\"", text, "\" threw a non-exception type!)"),
+      loc);
+  }
+}
+
 
 // Verify that "action" throws an exception, of any std::exception-based type.
 #define PQXX_CHECK_THROWS_EXCEPTION(action, desc)                             \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" did not throw)");              \
-    }                                                                         \
-    catch (std::exception const &)                                            \
-    {}                                                                        \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws_exception(([&]() { action; }), #action, desc)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 #define PQXX_CHECK_THROWS(action, exception_type, desc)                       \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action                                    \
-                            "\" did not throw " #exception_type ")");         \
-    }                                                                         \
-    catch (exception_type const &)                                            \
-    {}                                                                        \
-    catch (std::exception const &e)                                           \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} +                                                   \
-        " (\"" #action                                                        \
-        "\" "                                                                 \
-        "threw exception other than " #exception_type ": " +                  \
-        e.what() + ")");                                                      \
-    }                                                                         \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws<exception_type>(([&] { action; }), #action, desc)
+
 
 #define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                          \
   pqxx::test::check_bounds(                                                   \
@@ -252,7 +266,7 @@ template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
   VALUE value, char const text[], LOWER lower, char const lower_text[],
   UPPER upper, char const upper_text[], std::string const &desc,
-  std::source_location loc = std::source_location::current())
+  sl loc = sl::current())
 {
   std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =

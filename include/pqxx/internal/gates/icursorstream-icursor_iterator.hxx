@@ -24,9 +24,9 @@ class PQXX_PRIVATE icursorstream_icursor_iterator : callgate<icursorstream>
     return home().forward(n);
   }
 
-  void service_iterators(icursorstream::difference_type p)
+  void service_iterators(icursorstream::difference_type p, sl loc)
   {
-    home().service_iterators(p);
+    home().service_iterators(p, loc);
   }
 };
 } // namespace pqxx::internal::gate
