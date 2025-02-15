@@ -47,10 +47,12 @@ private:
 
 public:
   inclusive_bound() = delete;
-  constexpr explicit inclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit inclusive_bound(
+    TYPE const &value, sl loc = sl::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an inclusive range bound."};
+      throw argument_error{"Got null value as an inclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -86,10 +88,12 @@ private:
 
 public:
   exclusive_bound() = delete;
-  constexpr explicit exclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit exclusive_bound(
+    TYPE const &value, sl loc = sl::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an exclusive range bound."};
+      throw argument_error{"Got null value as an exclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -248,15 +252,18 @@ public:
    * or
    * @ref exclusive_bound.
    */
-  constexpr range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
+  constexpr range(
+    range_bound<TYPE> lower, range_bound<TYPE> upper, sl loc = sl::current()) :
           m_lower{lower}, m_upper{upper}
   {
     if (
       lower.is_limited() and upper.is_limited() and
       (*upper.value() < *lower.value()))
-      throw range_error{internal::concat(
-        "Range's lower bound (", *lower.value(),
-        ") is greater than its upper bound (", *upper.value(), ").")};
+      throw range_error{
+        internal::concat(
+          "Range's lower bound (", *lower.value(),
+          ") is greater than its upper bound (", *upper.value(), ")."),
+        loc};
   }
 
   /// Create an empty range.
@@ -408,13 +415,13 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     return generic_to_buf(begin, end, value);
   }
 
-  static inline char *
-  into_buf(char *begin, char *end, range<TYPE> const &value)
+  static inline char *into_buf(
+    char *begin, char *end, range<TYPE> const &value, sl loc = sl::current())
   {
     if (value.empty())
     {
       if ((end - begin) <= std::ssize(s_empty))
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       char *here = begin + s_empty.copy(begin, std::size(s_empty));
       *here++ = '\0';
       return here;
@@ -422,7 +429,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     else
     {
       if (end - begin < 4)
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       char *here = begin;
       *here++ =
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
@@ -436,7 +443,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
       if (upper != nullptr)
         here = string_traits<TYPE>::into_buf(here, end, *upper) - 1;
       if ((end - here) < 2)
-        throw conversion_overrun{s_overrun.c_str()};
+        throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =
         static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
       *here++ = '\0';
@@ -444,10 +451,11 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
   }
 
-  [[nodiscard]] static inline range<TYPE> from_string(std::string_view text)
+  [[nodiscard]] static inline range<TYPE>
+  from_string(std::string_view text, sl loc = sl::current())
   {
     if (std::size(text) < 3)
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     bool left_inc{false};
     switch (text[0])
     {
@@ -463,11 +471,11 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (text[2] != 'p' and text[2] != 'P') or
         (text[3] != 't' and text[3] != 'T') or
         (text[4] != 'y' and text[4] != 'Y'))
-        throw pqxx::conversion_error{err_bad_input(text)};
+        throw pqxx::conversion_error{err_bad_input(text), loc};
       return {};
       break;
 
-    default: throw pqxx::conversion_error{err_bad_input(text)};
+    default: throw pqxx::conversion_error{err_bad_input(text), loc};
     }
 
     // The field parser uses this to track which field it's parsing, and
@@ -482,16 +490,16 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // We reuse the same field parser we use for composite values and arrays.
     auto const field_parser{
       pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(
-        pqxx::internal::encoding_group::UTF8)};
-    field_parser(index, text, pos, lower, last);
-    field_parser(index, text, pos, upper, last);
+        pqxx::internal::encoding_group::UTF8, loc)};
+    field_parser(index, text, pos, lower, last, loc);
+    field_parser(index, text, pos, upper, last, loc);
 
     // We need one more character: the closing parenthesis or bracket.
     if (pos != std::size(text))
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     char const closing{text[pos - 1]};
     if (closing != ')' and closing != ']')
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     bool const right_inc{closing == ']'};
 
     range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};

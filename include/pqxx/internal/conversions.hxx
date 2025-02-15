@@ -52,12 +52,12 @@ inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 
 /// Throw exception for attempt to convert SQL NULL to given type.
 [[noreturn]] PQXX_LIBEXPORT PQXX_COLD void
-throw_null_conversion(std::string const &type);
+throw_null_conversion(std::string const &type, sl);
 
 
 /// Throw exception for attempt to convert SQL NULL to given type.
 [[noreturn]] PQXX_LIBEXPORT PQXX_COLD void
-throw_null_conversion(std::string_view type);
+throw_null_conversion(std::string_view type, sl);
 
 
 /// Deliberately nonfunctional conversion traits for `char` types.
@@ -937,13 +937,14 @@ template<binary DATA> struct string_traits<DATA>
     return begin + budget;
   }
 
-  static DATA from_string(std::string_view text)
+  static DATA from_string(std::string_view text, sl loc = sl::current())
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     bytes buf;
     buf.resize(size);
     // XXX: Use std::as_writable_bytes.
-    pqxx::internal::unesc_bin(text, reinterpret_cast<std::byte *>(buf.data()));
+    pqxx::internal::unesc_bin(
+      text, reinterpret_cast<std::byte *>(buf.data()), loc);
     return buf;
   }
 };

@@ -182,8 +182,9 @@ public:
    */
   stateless_cursor(
     transaction_base &tx, std::string_view query, std::string_view cname,
-    bool hold) :
-          m_cur{tx, query, cname, cursor_base::random_access, up, op, hold}
+    bool hold, sl loc = sl::current()) :
+          m_cur{tx, query, cname, cursor_base::random_access,
+                up, op,    hold,  loc}
   {}
 
   /// Adopt an existing scrolling SQL cursor.
@@ -193,11 +194,13 @@ public:
    * @param tx The transaction within which you want to manage the cursor.
    * @param adopted_cursor Your cursor's SQL name.
    */
-  stateless_cursor(transaction_base &tx, std::string_view adopted_cursor) :
+  stateless_cursor(
+    transaction_base &tx, std::string_view adopted_cursor,
+    sl loc = sl::current()) :
           m_cur{tx, adopted_cursor, op}
   {
     // Put cursor in known position
-    m_cur.move(cursor_base::backward_all());
+    m_cur.move(cursor_base::backward_all(), loc);
   }
 
   /// Close this cursor.
@@ -206,15 +209,15 @@ public:
    * Closing a cursor is idempotent.  Closing a cursor that's already closed
    * does nothing.
    */
-  void close() noexcept { m_cur.close(); }
+  void close(sl loc = sl::current()) noexcept { m_cur.close(loc); }
 
   /// Number of rows in cursor's result set
   /** @note This function is not const; it may need to scroll to find the size
    * of the result set.
    */
-  [[nodiscard]] size_type size()
+  [[nodiscard]] size_type size(sl loc = sl::current())
   {
-    return internal::obtain_stateless_cursor_size(m_cur);
+    return internal::obtain_stateless_cursor_size(m_cur, loc);
   }
 
   /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
@@ -229,10 +232,11 @@ public:
    * arbitrarily inside or outside the result set; only existing rows are
    * included in the result.
    */
-  result retrieve(difference_type begin_pos, difference_type end_pos)
+  result retrieve(
+    difference_type begin_pos, difference_type end_pos, sl loc = sl::current())
   {
     return internal::stateless_cursor_retrieve(
-      m_cur, result::difference_type(size()), begin_pos, end_pos);
+      m_cur, result::difference_type(size()), begin_pos, end_pos, loc);
   }
 
   /// Return this cursor's name.
@@ -295,7 +299,8 @@ public:
    */
   icursorstream(
     transaction_base &context, std::string_view query,
-    std::string_view basename, difference_type sstride = 1);
+    std::string_view basename, difference_type sstride = 1,
+    sl = sl::current());
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g.
@@ -324,7 +329,7 @@ public:
    */
   icursorstream(
     transaction_base &context, field const &cname, difference_type sstride = 1,
-    cursor_base::ownership_policy op = cursor_base::owned);
+    cursor_base::ownership_policy op = cursor_base::owned, sl = sl::current());
 
   /// Return `true` if this stream may still return more data.
   constexpr operator bool() const & noexcept { return not m_done; }
@@ -338,9 +343,9 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.get(r1).get(r2);")
    */
-  icursorstream &get(result &res)
+  icursorstream &get(result &res, sl loc = sl::current())
   {
-    res = fetchblock();
+    res = fetchblock(loc);
     return *this;
   }
   /// Read new value into given result object; same as `get(result&)`.
@@ -361,27 +366,27 @@ public:
    * @return Reference to this stream itself, to facilitate "chained"
    * invocations.
    */
-  icursorstream &ignore(std::streamsize n = 1) &;
+  icursorstream &ignore(std::streamsize n = 1, sl = sl::current()) &;
 
   /// Change stride, i.e. the number of rows to fetch per read operation.
   /**
    * @param stride Must be a positive number.
    */
-  void set_stride(difference_type stride) &;
+  void set_stride(difference_type stride, sl = sl::current()) &;
   [[nodiscard]] constexpr difference_type stride() const noexcept
   {
     return m_stride;
   }
 
 private:
-  result fetchblock();
+  result fetchblock(sl);
 
   friend class internal::gate::icursorstream_icursor_iterator;
   size_type forward(size_type n = 1);
   void insert_iterator(icursor_iterator *) noexcept;
   void remove_iterator(icursor_iterator *) const noexcept;
 
-  void service_iterators(difference_type);
+  void service_iterators(difference_type, sl);
 
   internal::sql_cursor m_cur;
 
@@ -439,12 +444,16 @@ public:
 
   result const &operator*() const
   {
-    refresh();
+    // TODO: How can we pass std::source_location here?
+    auto loc{sl::current()};
+    refresh(loc);
     return m_here;
   }
   result const *operator->() const
   {
-    refresh();
+    // TODO: How can we pass std::source_location here?
+    auto loc{sl::current()};
+    refresh(loc);
     return &m_here;
   }
   icursor_iterator &operator++();
@@ -472,7 +481,7 @@ public:
   }
 
 private:
-  void refresh() const;
+  void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }

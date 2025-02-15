@@ -17,11 +17,15 @@
 #include <cstdint>
 #include <iterator>
 #include <ranges>
+#include <source_location>
 #include <type_traits>
 
 
 namespace pqxx
 {
+/// Conenience alias for `std::source_location`.  It's just too long.
+using sl = std::source_location;
+
 /// Number of rows in a result set.
 using result_size_type = int;
 

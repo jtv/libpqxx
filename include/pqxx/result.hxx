@@ -142,10 +142,10 @@ public:
    */
   template<typename... TYPE> auto iter() const;
 
-  [[nodiscard]] const_reverse_iterator rbegin() const;
-  [[nodiscard]] const_reverse_iterator crbegin() const;
-  [[nodiscard]] const_reverse_iterator rend() const;
-  [[nodiscard]] const_reverse_iterator crend() const;
+  [[nodiscard]] const_reverse_iterator rbegin() const noexcept;
+  [[nodiscard]] const_reverse_iterator crbegin() const noexcept;
+  [[nodiscard]] const_reverse_iterator rend() const noexcept;
+  [[nodiscard]] const_reverse_iterator crend() const noexcept;
 
   [[nodiscard]] const_iterator begin() const noexcept;
   [[nodiscard]] const_iterator cbegin() const noexcept;
@@ -179,10 +179,10 @@ public:
 #endif // PQXX_HAVE_MULTIDIM
 
   /// Index a row by number, but check that the row number is valid.
-  row at(size_type) const;
+  row at(size_type, sl = sl::current()) const;
 
   /// Index a field by row number and column number.
-  field at(size_type, row_size_type) const;
+  field at(size_type, row_size_type, sl = sl::current()) const;
 
   /// Let go of the result's data.
   /** Use this if you need to deallocate the result data earlier than you can
@@ -206,16 +206,19 @@ public:
   [[nodiscard]] PQXX_PURE row_size_type columns() const noexcept;
 
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] row_size_type column_number(zview name) const;
+  [[nodiscard]] row_size_type
+  column_number(zview name, sl = sl::current()) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  [[nodiscard]] char const *column_name(row_size_type number) const &;
+  [[nodiscard]] char const *
+  column_name(row_size_type number, sl = sl::current()) const &;
 
   /// Server-side storage size for field of column's type, in bytes.
   /** Returns the size of the server's internal representation of the column's
    * data type.  A negative value indicates the data type is variable-length.
    */
-  [[nodiscard]] int column_storage(row_size_type number) const;
+  [[nodiscard]] int
+  column_storage(row_size_type number, sl = sl::current()) const;
 
   /// Type modifier of the column with this number.
   /** The meaning of modifier values is type-specific; they typically indicate
@@ -231,30 +234,34 @@ public:
   [[nodiscard]] int column_type_modifier(row_size_type number) const noexcept;
 
   /// Return column's type, as an OID from the system catalogue.
-  [[nodiscard]] oid column_type(row_size_type col_num) const;
+  [[nodiscard]] oid
+  column_type(row_size_type col_num, sl = sl::current()) const;
 
   /// Return column's type, as an OID from the system catalogue.
-  [[nodiscard]] oid column_type(zview col_name) const
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
-    return column_type(column_number(col_name));
+    return column_type(column_number(col_name, loc));
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(row_size_type col_num) const;
+  [[nodiscard]] oid
+  column_table(row_size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name) const
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
-    return column_table(column_number(col_name));
+    return column_table(column_number(col_name, loc), loc);
   }
 
   /// What column in its table did this column come from?
-  [[nodiscard]] row_size_type table_column(row_size_type col_num) const;
+  [[nodiscard]] row_size_type
+  table_column(row_size_type col_num, sl = sl::current()) const;
 
   /// What column in its table did this column come from?
-  [[nodiscard]] row_size_type table_column(zview col_name) const
+  [[nodiscard]] row_size_type
+  table_column(zview col_name, sl loc = sl::current()) const
   {
-    return table_column(column_number(col_name));
+    return table_column(column_number(col_name), loc);
   }
   //@}
 
@@ -265,7 +272,7 @@ public:
   /** @return Identifier of inserted row if exactly one row was inserted, or
    * @ref oid_none otherwise.
    */
-  [[nodiscard]] PQXX_PURE oid inserted_oid() const;
+  [[nodiscard]] PQXX_PURE oid inserted_oid(sl = sl::current()) const;
 
   /// If command was `INSERT`, `UPDATE`, or `DELETE`: number of affected rows.
   /** @return Number of affected rows if last command was `INSERT`, `UPDATE`,
@@ -312,25 +319,30 @@ public:
    * The parameter types must have conversions from PostgreSQL's string format
    * defined; see @ref datatypes.
    */
-  template<typename CALLABLE> inline void for_each(CALLABLE &&func) const;
+  template<typename CALLABLE>
+  inline void for_each(CALLABLE &&func, sl = sl::current()) const;
 
   /// Check that result contains exactly `n` rows.
   /** @return The result itself, for convenience.
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
-  result expect_rows(size_type n) const
+  result expect_rows(size_type n, sl loc = sl::current()) const
   {
     auto const sz{size()};
     if (sz != n)
     {
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
-        throw unexpected_rows{pqxx::internal::concat(
-          "Expected ", n, " row(s) from query, got ", sz, ".")};
+        throw unexpected_rows{
+          pqxx::internal::concat(
+            "Expected ", n, " row(s) from query, got ", sz, "."),
+          loc};
       else
-        throw unexpected_rows{pqxx::internal::concat(
-          "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
-          ".")};
+        throw unexpected_rows{
+          pqxx::internal::concat(
+            "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
+            "."),
+          loc};
     }
     return *this;
   }
@@ -339,7 +351,7 @@ public:
   /** @return @ref pqxx::row
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
-  row one_row() const;
+  row one_row(sl = sl::current()) const;
 
   /// Expect that result contains at moost one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
@@ -347,12 +359,12 @@ public:
    *
    * @throw @ref unexpected_rows is the row count is not 0 or 1.
    */
-  std::optional<row> opt_row() const;
+  std::optional<row> opt_row(sl = sl::current()) const;
 
   /// Expect that result contains no rows.  Return result for convenience.
-  result no_rows() const
+  result no_rows(sl loc = sl::current()) const
   {
-    expect_rows(0);
+    expect_rows(0, loc);
     return *this;
   }
 
@@ -360,18 +372,23 @@ public:
   /** @return The result itself, for convenience.
    * @throw @ref usage_error otherwise.
    */
-  result expect_columns(row_size_type cols) const
+  result expect_columns(row_size_type cols, sl loc = sl::current()) const
   {
     auto const actual{columns()};
     if (actual != cols)
     {
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
-        throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query, got ", actual, ".")};
+        throw usage_error{
+          pqxx::internal::concat(
+            "Expected 1 column from query, got ", actual, "."),
+          loc};
       else
-        throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query '", *m_query, "', got ", actual, ".")};
+        throw usage_error{
+          pqxx::internal::concat(
+            "Expected 1 column from query '", *m_query, "', got ", actual,
+            "."),
+          loc};
     }
     return *this;
   }
@@ -380,7 +397,7 @@ public:
   /** @return The one @ref pqxx::field in the result.
    * @throw @ref usage_error otherwise.
    */
-  field one_field() const;
+  field one_field(sl = sl::current()) const;
 
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
@@ -422,7 +439,7 @@ private:
     std::shared_ptr<pqxx::internal::notice_waiters> const &waiters,
     internal::encoding_group enc);
 
-  PQXX_PRIVATE void check_status(std::string_view desc = ""sv) const;
+  PQXX_PRIVATE void check_status(std::string_view desc, sl loc) const;
 
   friend class pqxx::internal::gate::result_connection;
   friend class pqxx::internal::gate::result_row;
@@ -430,9 +447,9 @@ private:
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
   [[noreturn]] PQXX_PRIVATE PQXX_COLD void
-  throw_sql_error(std::string const &Err, std::string const &Query) const;
+  throw_sql_error(std::string const &Err, std::string const &Query, sl) const;
   PQXX_PRIVATE PQXX_PURE int errorposition() const;
-  PQXX_PRIVATE std::string status_error() const;
+  PQXX_PRIVATE std::string status_error(sl) const;
 
   friend class pqxx::internal::gate::result_sql_cursor;
   PQXX_PURE char const *cmd_status() const noexcept;

@@ -73,19 +73,19 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name() const &;
+  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type() const;
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table() const;
+  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
   /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column() const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
   //@}
 
   /**
@@ -108,9 +108,9 @@ public:
    * @ref result exists.  Once all `result` objects referring to that data have
    * been destroyed, the `string_view` will no longer point to valid memory.
    */
-  [[nodiscard]] PQXX_PURE std::string_view view() const &
+  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
-    return std::string_view(c_str(), size());
+    return {c_str(), size()};
   }
 
   /// Read as plain C string.
@@ -123,7 +123,7 @@ public:
    * convert the value to your desired type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const &;
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
 
   /// Is this field's value null?
   [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
@@ -173,7 +173,11 @@ public:
   }
 
   /// Read value into obj; or leave obj untouched and return `false` if null.
-  template<typename T> bool operator>>(T &obj) const { return to(obj); }
+  template<typename T>
+  [[deprecated("Use to() or as().")]] bool operator>>(T &obj) const
+  {
+    return to(obj);
+  }
 
   /// Read value into obj; or if null, use default value and return `false`.
   /** This can be used with `std::optional`, as well as with standard smart
@@ -218,12 +222,12 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as() const
+  template<typename T> T as(sl loc = sl::current()) const
   {
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>);
+        internal::throw_null_conversion(type_name<T>, loc);
       else
         return nullness<T>::null();
     }
@@ -245,15 +249,15 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  array<ELEMENT, ARGS...> as_sql_array() const
+  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 
     // There's no such thing as a null SQL array.
     if (is_null())
-      internal::throw_null_conversion(type_name<array_type>);
+      internal::throw_null_conversion(type_name<array_type>, loc);
     else
-      return array_type{this->view(), this->m_home.m_encoding};
+      return array_type{this->view(), this->m_home.m_encoding, loc};
   }
 
   /// Parse the field as an SQL array.
@@ -268,7 +272,9 @@ public:
     "Instead, use as_sql_array() to convert to pqxx::array.")]]
   array_parser as_array() const & noexcept
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return array_parser{c_str(), m_home.m_encoding};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
 
@@ -372,10 +378,10 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 }
 
 
-template<> inline zview field::as<zview>() const
+template<> inline zview field::as<zview>(sl loc) const
 {
   if (is_null())
-    internal::throw_null_conversion(type_name<zview>);
+    internal::throw_null_conversion(type_name<zview>, loc);
   return zview{c_str(), size()};
 }
 
@@ -507,14 +513,15 @@ template<typename CHAR>
 /** Unlike the "regular" `from_string`, this knows how to deal with null
  * values.
  */
-template<typename T> inline T from_string(field const &value)
+template<typename T>
+inline T from_string(field const &value, sl loc = sl::current())
 {
   if (value.is_null())
   {
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>);
+      internal::throw_null_conversion(type_name<T>, loc);
   }
   else
   {
@@ -523,6 +530,8 @@ template<typename T> inline T from_string(field const &value)
 }
 
 
+// TODO: Can we make this generic across all "always-null" types?
+// TODO: Do the same for streams.
 /// Convert a field's value to `nullptr_t`.
 /** Yes, you read that right.  This conversion does nothing useful.  It always
  * returns `nullptr`.
@@ -531,11 +540,11 @@ template<typename T> inline T from_string(field const &value)
  * @ref conversion_error.
  */
 template<>
-inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
+inline std::nullptr_t from_string<std::nullptr_t>(field const &value, sl loc)
 {
   if (not value.is_null())
     throw conversion_error{
-      "Extracting non-null field into nullptr_t variable."};
+      "Extracting non-null field into nullptr_t variable.", loc};
   return nullptr;
 }
 

@@ -87,11 +87,11 @@ template<> struct string_traits<ipv4>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static ipv4 from_string(std::string_view text)
+  static ipv4 from_string(std::string_view text, sl loc = sl::current())
   {
     ipv4 ts;
     if (std::data(text) == nullptr)
-      internal::throw_null_conversion(type_name<ipv4>);
+      internal::throw_null_conversion(type_name<ipv4>, loc);
     std::vector<std::size_t> ends;
     for (std::size_t i{0}; i < std::size(text); ++i)
       if (text[i] == '.')
