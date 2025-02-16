@@ -917,11 +917,10 @@ public:
         needed, " bytes of buffer space, but buffer size is ", space, ".")};
 
     bytes_view view{std::data(data), std::size(data)};
-    auto const out{std::data(buffer)};
     // Actually, in the modern format, we know beforehand exactly how many
     // bytes we're going to fill.  Just leave out the trailing zero.
-    internal::esc_bin(view, out);
-    return zview{out, needed - 1};
+    internal::esc_bin(view, buffer);
+    return zview{std::data(buffer), needed - 1};
   }
 
   /// Escape binary string for use as SQL string literal on this connection.
@@ -961,7 +960,7 @@ public:
   {
     bytes buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
-    pqxx::internal::unesc_bin(text, buf.data(), loc);
+    pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
   }
 

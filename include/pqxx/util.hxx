@@ -433,14 +433,12 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 }
 
 
-// XXX: Maybe pass a span so we can check length?
 /// Hex-escape binary data into a buffer.
-/** The buffer must be able to accommodate
- * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
- * exactly that number of bytes into the buffer.  This includes a trailing
- * zero.
+/** The buffer must have room for `size_esc_bin(std::size(binary_data))` bytes,
+ * and the function will write exactly that number of bytes into the buffer.
+ * This includes a trailing zero.
  */
-void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
+void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
 
 
 /// Hex-escape binary data into a buffer.
@@ -449,7 +447,7 @@ void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-template<binary T> inline void esc_bin(T &&binary_data, char buffer[]) noexcept
+template<binary T> inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 {
   esc_bin(binary_cast(binary_data), buffer);
 }
@@ -461,7 +459,7 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[], sl loc);
+unesc_bin(std::string_view escaped_data, std::span<std::byte> buffer, sl loc);
 
 
 /// Reconstitute binary data from its escaped version.

@@ -957,7 +957,7 @@ template<binary DATA> struct string_traits<DATA>
     if (std::cmp_less(end - begin, budget))
       throw conversion_overrun{
         "Not enough buffer space to escape binary data."};
-    internal::esc_bin(value, begin);
+    internal::esc_bin(value, {begin, end});
     return begin + budget;
   }
 
@@ -967,8 +967,7 @@ template<binary DATA> struct string_traits<DATA>
     bytes buf;
     buf.resize(size);
     // XXX: Use std::as_writable_bytes.
-    pqxx::internal::unesc_bin(
-      text, reinterpret_cast<std::byte *>(buf.data()), loc);
+    pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
   }
 };
