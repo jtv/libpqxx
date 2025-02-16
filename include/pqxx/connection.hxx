@@ -515,12 +515,21 @@ public:
    *
    * If there is any possibility that the variable is null, ensure that `TYPE`
    * can represent null values.
+   *
+   * @warning The connection does not store the underlying string anywhere.
+   * So if you try to read it as a `std::string_view`, a `std::span`, a
+   * @ref pqxx::zview, or anything like that... the string value will no longer
+   * be valid by the time you receive it!  So if you want to read the variable
+   * as a string value, use `std::string`.
    */
   template<typename TYPE>
   TYPE get_var_as(std::string_view var, sl loc = sl::current())
   {
     return from_string<TYPE>(get_var(var, loc));
   }
+
+  template<std::ranges::borrowed_range TYPE>
+  TYPE get_var_as(std::string_view, sl loc = sl::current()) =delete;
 
   /**
    * @name Notifications and Receivers
