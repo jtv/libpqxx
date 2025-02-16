@@ -314,7 +314,8 @@ template<> inline std::string to_string(result const &value, sl)
 }
 
 
-template<> inline std::string to_string(result::const_iterator const &value, sl)
+template<>
+inline std::string to_string(result::const_iterator const &value, sl)
 {
   return pqxx::test::list_result_iterator(value);
 }

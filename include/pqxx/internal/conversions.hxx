@@ -85,12 +85,15 @@ struct disallowed_ambiguous_char_conversion
 };
 
 
-template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T, sl = sl::current());
+template<typename T>
+PQXX_LIBEXPORT extern std::string to_string_float(T, sl = sl::current());
 
 
 /// Generic implementation for into_buf, on top of to_buf.
-template<typename T> [[deprecated("Pass buffer as std::span<char>.")]]
-inline char *generic_into_buf(char *begin, char *end, T const &value, sl loc = sl::current())
+template<typename T>
+[[deprecated("Pass buffer as std::span<char>.")]]
+inline char *generic_into_buf(
+  char *begin, char *end, T const &value, sl loc = sl::current())
 {
   zview text{to_buf({begin, end}, value, loc)};
   auto const space{end - begin};
@@ -99,7 +102,8 @@ inline char *generic_into_buf(char *begin, char *end, T const &value, sl loc = s
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
-      state_buffer_overrun(space, len), loc};
+        state_buffer_overrun(space, len),
+      loc};
   std::memmove(begin, std::data(text), len);
   return begin + len;
 }
@@ -108,7 +112,8 @@ inline char *generic_into_buf(char *begin, char *end, T const &value, sl loc = s
 // XXX: Update return type.
 /// Generic implementation for into_buf, on top of to_buf.
 template<typename T>
-inline char *generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::current())
+inline char *
+generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::current())
 {
   auto const begin{std::data(buf)};
   zview text{to_buf(buf, value, loc)};
@@ -118,7 +123,8 @@ inline char *generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
-      state_buffer_overrun(space, len), loc};
+        state_buffer_overrun(space, len),
+      loc};
   std::memmove(begin, std::data(text), len);
   return begin + len;
 }
@@ -1123,7 +1129,8 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc)
   if (is_null(value))
     throw conversion_error{
       "Attempt to convert null " + std::string{type_name<TYPE>} +
-      " to a string.", loc};
+        " to a string.",
+      loc};
 
   if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
   {
@@ -1165,7 +1172,9 @@ template<> inline std::string to_string(std::stringstream const &value, sl)
 }
 
 
-template<typename T> inline void into_string(T const &value, std::string &out, sl loc = sl::current())
+template<typename T>
+inline void
+into_string(T const &value, std::string &out, sl loc = sl::current())
 {
   if (is_null(value))
     throw conversion_error{

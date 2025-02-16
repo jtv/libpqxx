@@ -1215,7 +1215,8 @@ private:
    *
    * Returns the number of bytes written, including the trailing zero.
    */
-  std::size_t esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
+  std::size_t
+  esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
@@ -1440,7 +1441,8 @@ inline std::string connection::quote(T const &t, sl loc) const
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * std::size(text) + 1);
-    auto const content_bytes{esc_to_buf(text, {std::begin(buf) + 1, std::end(buf)}, loc)};
+    auto const content_bytes{
+      esc_to_buf(text, {std::begin(buf) + 1, std::end(buf)}, loc)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
     auto const end{closing_quote + 1};

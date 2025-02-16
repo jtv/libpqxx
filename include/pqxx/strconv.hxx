@@ -160,8 +160,8 @@ template<typename TYPE> struct string_traits
    */
   static constexpr bool converts_from_string{false};
 
-// TODO: Can we support writable contiguous_ranges more broadly?
-// TODO: Can we preserve static buffer size information if present?
+  // TODO: Can we support writable contiguous_ranges more broadly?
+  // TODO: Can we preserve static buffer size information if present?
   /// Return a @c string_view representing value, plus terminating zero.
   /** Produces a @c string_view containing the PostgreSQL string representation
    * for @c value.
@@ -193,7 +193,8 @@ template<typename TYPE> struct string_traits
    * the trailing zero, so the caller could use it as the @c begin for another
    * call to @c into_buf writing a next value.
    */
-  static inline char *into_buf(std::span<char> buf, TYPE const &value, sl = sl::current());
+  static inline char *
+  into_buf(std::span<char> buf, TYPE const &value, sl = sl::current());
 
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
@@ -206,7 +207,8 @@ template<typename TYPE> struct string_traits
    * will become invalid when the original string's lifetime ends, or gets
    * overwritten.  Do not access the `string_view` you got after that!
    */
-  [[nodiscard]] static inline TYPE from_string(std::string_view text, sl = sl::current());
+  [[nodiscard]] static inline TYPE
+  from_string(std::string_view text, sl = sl::current());
 
   // C++20: Can we make these all constexpr?
   /// Estimate how much buffer space is needed to represent value.
@@ -251,11 +253,13 @@ template<typename TYPE> struct forbidden_conversion
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
-  [[noreturn]] static zview to_buf(std::span<char>, TYPE const &, sl = sl::current())
+  [[noreturn]] static zview
+  to_buf(std::span<char>, TYPE const &, sl = sl::current())
   {
     oops_forbidden_conversion<TYPE>();
   }
-  [[noreturn]] static char *into_buf(std::span<char>, TYPE const &, sl = sl::current())
+  [[noreturn]] static char *
+  into_buf(std::span<char>, TYPE const &, sl = sl::current())
   {
     oops_forbidden_conversion<TYPE>();
   }
@@ -348,27 +352,26 @@ namespace pqxx::internal
 {
 /// Signature for string_traits<TYPE>::to_buf() in libpqxx 8.
 template<typename TYPE>
-concept to_buf_8 = requires(zview out, std::span<char> buf, TYPE value, sl loc)
-{
-  out = string_traits<TYPE>::to_buf(buf, value, loc);
-  out = string_traits<TYPE>::to_buf(buf, value);
-};
+concept to_buf_8 =
+  requires(zview out, std::span<char> buf, TYPE value, sl loc) {
+    out = string_traits<TYPE>::to_buf(buf, value, loc);
+    out = string_traits<TYPE>::to_buf(buf, value);
+  };
 
 
 // XXX: Replace the char *!
 /// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
 template<typename TYPE>
-concept into_buf_8 = requires(char *out, std::span<char> buf, TYPE value, sl loc)
-{
-  out = string_traits<TYPE>::into_buf(buf, value, loc);
-  out = string_traits<TYPE>::into_buf(buf, value);
-};
+concept into_buf_8 =
+  requires(char *out, std::span<char> buf, TYPE value, sl loc) {
+    out = string_traits<TYPE>::into_buf(buf, value, loc);
+    out = string_traits<TYPE>::into_buf(buf, value);
+  };
 
 
 /// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
 template<typename TYPE>
-concept from_string_8 = requires(TYPE out, std::string_view text, sl loc)
-{
+concept from_string_8 = requires(TYPE out, std::string_view text, sl loc) {
   out = string_traits<TYPE>::from_string(text, loc);
   out = string_traits<TYPE>::from_string(text);
 };
@@ -382,7 +385,8 @@ namespace pqxx
  * differences.
  */
 template<typename TYPE>
-[[nodiscard]] inline zview to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+[[nodiscard]] inline zview
+to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
 {
   using traits = string_traits<TYPE>;
   if constexpr (pqxx::internal::to_buf_8<TYPE>)
@@ -401,7 +405,9 @@ template<typename TYPE>
 /** This calls string_traits<TYPE>::into_buf(), but bridges some API version
  * differences.
  */
-template<typename TYPE> [[nodiscard]] inline char *into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+template<typename TYPE>
+[[nodiscard]] inline char *
+into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
 {
   using traits = string_traits<TYPE>;
   if constexpr (pqxx::internal::into_buf_8<TYPE>)
@@ -549,7 +555,8 @@ template<typename T> inline void from_string(std::string_view text, T &value)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc = sl::current());
+template<typename TYPE>
+inline std::string to_string(TYPE const &value, sl loc = sl::current());
 } // namespace pqxx
 
 
@@ -693,13 +700,16 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
  * @c generic_to_buf.  It will call @c into_buf and return the right result for
  * @c to_buf.
  */
-template<typename TYPE> [[deprecated("Pass buffer as std::span<char>.")]]
+template<typename TYPE>
+[[deprecated("Pass buffer as std::span<char>.")]]
 inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 {
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
-  if (is_null(value)) return {};
-  else return {begin, pqxx::into_buf({begin, end}, value) - begin - 1};
+  if (is_null(value))
+    return {};
+  else
+    return {begin, pqxx::into_buf({begin, end}, value) - begin - 1};
 }
 
 
@@ -714,7 +724,8 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  * @c to_buf.
  */
 template<typename TYPE>
-inline zview generic_to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+inline zview
+generic_to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
 {
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
