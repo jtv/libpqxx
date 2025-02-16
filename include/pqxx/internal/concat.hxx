@@ -12,6 +12,7 @@ namespace pqxx::internal
 template<typename TYPE>
 void render_item(TYPE const &item, char *&here, char *end)
 {
+  // XXX: Use generic into_buf().
   auto const next = string_traits<TYPE>::into_buf(here, end, item) - 1;
   PQXX_ASSUME(next >= here);
   here = next;

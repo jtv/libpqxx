@@ -120,8 +120,9 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
-inline char *wrap_to_chars(char *begin, char *end, T const &value)
+inline char *wrap_to_chars(std::span<char> buf, T const &value)
 {
+  auto const begin{std::data(buf)}, end{begin + std::size(buf)};
   auto res{std::to_chars(begin, end - 1, value)};
   if (res.ec != std::errc()) [[unlikely]]
     switch (res.ec)
@@ -131,7 +132,7 @@ inline char *wrap_to_chars(char *begin, char *end, T const &value)
         "Could not convert " + pqxx::type_name<T> +
         " to string: "
         "buffer too small (" +
-        pqxx::to_string(end - begin) + " bytes)."};
+        pqxx::to_string(std::size(buf)) + " bytes)."};
     default:
       throw pqxx::conversion_error{
         "Could not convert " + pqxx::type_name<T> + " to string."};
@@ -180,7 +181,7 @@ inline char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
-  return wrap_to_chars(begin, end, value);
+  return wrap_to_chars({begin, end}, value);
 }
 
 
@@ -436,6 +437,7 @@ template<typename T> std::string to_string_float(T value)
     static constexpr auto space{string_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
+    // XXX: Use generic to_buf().
     std::string_view const view{
       string_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
     buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
@@ -478,7 +480,7 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
-    auto const ptr{wrap_to_chars(begin, end, value)};
+    auto const ptr{wrap_to_chars({begin, end}, value)};
     return zview{begin, std::size_t(ptr - begin - 1)};
   }
 #else
@@ -510,9 +512,9 @@ template<std::floating_point T>
 char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return wrap_to_chars(begin, end, value);
+  return wrap_to_chars({begin, end}, value);
 #else
-  return generic_into_buf(begin, end, value);
+  return generic_into_buf({begin, end}, value);
 #endif
 }
 

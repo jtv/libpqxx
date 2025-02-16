@@ -230,6 +230,7 @@ public:
       // case, just rewrite the entire number.  Leave the $ in place
       // though.
       char *const data{std::data(m_buf)};
+      // XXX: Use generic into_buf().
       char *const end{string_traits<COUNTER>::into_buf(
         data + 1, data + std::size(m_buf), m_current)};
       // (Subtract because we don't include the trailing zero.)

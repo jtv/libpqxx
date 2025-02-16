@@ -959,11 +959,11 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 
 
 size_t
-pqxx::connection::esc_to_buf(std::string_view text, char *buf, sl loc) const
+pqxx::connection::esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const
 {
   int err{0};
   auto const copied{
-    PQescapeStringConn(m_conn, buf, text.data(), std::size(text), &err)};
+    PQescapeStringConn(m_conn, std::data(buf), std::data(text), std::size(text), &err)};
   if (err) [[unlikely]]
     throw argument_error{err_msg(), loc};
   return copied;
@@ -974,7 +974,7 @@ std::string pqxx::connection::esc(std::string_view text, sl loc) const
 {
   std::string buf;
   buf.resize(2 * std::size(text) + 1);
-  auto const copied{esc_to_buf(text, buf.data(), loc)};
+  auto const copied{esc_to_buf(text, buf, loc)};
   buf.resize(copied);
   return buf;
 }

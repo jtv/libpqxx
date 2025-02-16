@@ -342,6 +342,7 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
 {
   if constexpr (is_unquoted_safe<T>)
   {
+    // XXX: Use generic into_buf().
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer, and "backspace" the trailing zero.
     pos = string_traits<T>::into_buf(pos, end, field) - 1;
@@ -355,6 +356,7 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
     *pos++ = '"';
 
     // Now escape buf into its final position.
+    // XXX: Use generic to_buf().
     for (char const c : string_traits<T>::to_buf(end - budget, end, field))
     {
       if ((c == '"') or (c == '\\'))

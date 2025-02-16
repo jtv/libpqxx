@@ -327,6 +327,7 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
+	// XXX: Use generic into_buf().
         char *const end{traits::into_buf(data + offset, data + total, f)};
         *(end - 1) = '\t';
         // Shrink to fit.  Keep the tab though.
@@ -372,6 +373,7 @@ private:
         // escaped as well.
         m_field_buf.resize(budget);
         auto const data{m_field_buf.data()};
+	// XXX: Use generic to_buf().
         escape_field_to_buffer(
           traits::to_buf(data, data + std::size(m_field_buf), f), loc);
       }
