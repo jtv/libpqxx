@@ -136,7 +136,7 @@ public:
    * strings).
    */
   template<typename T>
-  auto to(T &obj) const ->
+  auto to(T &obj, sl loc = sl::current()) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -148,7 +148,7 @@ public:
     else
     {
       auto const data{c_str()};
-      from_string(data, obj);
+      from_string(data, obj, loc);
       return true;
     }
   }
@@ -191,7 +191,7 @@ public:
    * pointers to the field's internal text data.
    */
   template<typename T>
-  auto to(T &obj, T const &default_value) const ->
+  auto to(T &obj, T const &default_value, sl loc = sl::current()) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -200,7 +200,7 @@ public:
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view());
+      obj = from_string<T>(this->view(), loc);
     return not null;
   }
 
@@ -208,12 +208,12 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value) const
+  template<typename T> T as(T const &default_value, sl loc = sl::current()) const
   {
     if (is_null())
       return default_value;
     else
-      return from_string<T>(this->view());
+      return from_string<T>(this->view(), loc);
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -233,7 +233,7 @@ public:
     }
     else
     {
-      return from_string<T>(this->view());
+      return from_string<T>(this->view(), loc);
     }
   }
 
@@ -313,7 +313,7 @@ private:
 };
 
 
-template<> inline bool field::to<std::string>(std::string &obj) const
+template<> inline bool field::to<std::string>(std::string &obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
@@ -324,7 +324,7 @@ template<> inline bool field::to<std::string>(std::string &obj) const
 
 template<>
 inline bool field::to<std::string>(
-  std::string &obj, std::string const &default_value) const
+  std::string &obj, std::string const &default_value, sl) const
 {
   bool const null{is_null()};
   if (null)
@@ -341,7 +341,7 @@ inline bool field::to<std::string>(
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> inline bool field::to<char const *>(char const *&obj) const
+template<> inline bool field::to<char const *>(char const *&obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
@@ -357,7 +357,7 @@ template<> inline bool field::to<char const *>(char const *&obj) const
  * zero occurring after the string in memory was actually part of the same
  * allocation.)
  */
-template<> inline bool field::to<zview>(zview &obj) const
+template<> inline bool field::to<zview>(zview &obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
@@ -367,7 +367,7 @@ template<> inline bool field::to<zview>(zview &obj) const
 
 
 template<>
-inline bool field::to<zview>(zview &obj, zview const &default_value) const
+inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
 {
   bool const null{is_null()};
   if (null)
@@ -386,7 +386,7 @@ template<> inline zview field::as<zview>(sl loc) const
 }
 
 
-template<> inline zview field::as<zview>(zview const &default_value) const
+template<> inline zview field::as<zview>(zview const &default_value, sl) const
 {
   return is_null() ? default_value : zview{c_str(), size()};
 }
@@ -525,7 +525,7 @@ inline T from_string(field const &value, sl loc = sl::current())
   }
   else
   {
-    return from_string<T>(value.view());
+    return from_string<T>(value.view(), loc);
   }
 }
 

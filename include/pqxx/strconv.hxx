@@ -420,6 +420,66 @@ into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
     return traits::into_buf(begin, end, value);
   }
 }
+
+
+/// Parse a value in postgres' text format as a TYPE.
+/** If the form of the value found in the string does not match the expected
+ * type, e.g. if a decimal point is found when converting to an integer type,
+ * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
+ * C++ type) are also treated as errors.  If in some cases this behaviour
+ * should be inappropriate, convert to something bigger such as @c long @c int
+ * first and then truncate the resulting value.
+ *
+ * Only the simplest possible conversions are supported.  Fancy features like
+ * hexadecimal or octal, spurious signs, or exponent notation won't work.
+ * Whitespace is not stripped away.  Only the kinds of strings that come out of
+ * PostgreSQL and out of to_string() can be converted.
+ */
+template<typename TYPE>
+[[nodiscard]] inline TYPE from_string(std::string_view text, sl loc = sl::current())
+{
+  if constexpr (pqxx::internal::from_string_8<TYPE>)
+  return string_traits<TYPE>::from_string(text, loc);
+  else return string_traits<TYPE>::from_string(text);
+}
+
+
+/// "Convert" a std::string_view to a std::string_view.
+/** Just returns its input.
+ *
+ * @warning Of course the result is only valid for as long as the original
+ * string remains valid!  Never access the string referenced by the return
+ * value after the original has been destroyed.
+ */
+template<>
+[[nodiscard]] inline std::string_view from_string(std::string_view text, sl)
+{
+  return text;
+}
+
+
+/// Attempt to convert postgres-generated string to given built-in object.
+/** This is like the single-argument form of the function, except instead of
+ * returning the value, it sets @c value.
+ *
+ * You may find this more convenient in that it infers the type you want from
+ * the argument you pass.  But there are disadvantages: it requires an
+ * assignment operator, and it may be less efficient.
+ */
+template<typename T> inline void from_string(std::string_view text, T &value, sl loc = sl::current())
+{
+  value = from_string<T>(text, loc);
+}
+
+
+/// Convert a value to a readable string that PostgreSQL will understand.
+/** The conversion does no special formatting, and ignores any locale settings.
+ * The resulting string will be human-readable and in a format suitable for use
+ * in SQL queries.  It won't have niceties such as "thousands separators"
+ * though.
+ */
+template<typename TYPE>
+inline std::string to_string(TYPE const &value, sl loc = sl::current());
 } // namespace pqxx
 
 
@@ -446,7 +506,7 @@ template<typename ENUM> struct enum_traits
   [[nodiscard]] static constexpr zview
   to_buf(char *begin, char *end, ENUM const &value)
   {
-    return pqxx::to_buf(begin, end, to_underlying(value));
+    return pqxx::to_buf({begin, end}, to_underlying(value));
   }
 
   static constexpr char *into_buf(char *begin, char *end, ENUM const &value)
@@ -454,9 +514,9 @@ template<typename ENUM> struct enum_traits
     return pqxx::into_buf({begin, end}, to_underlying(value));
   }
 
-  [[nodiscard]] static ENUM from_string(std::string_view text)
+  [[nodiscard]] static ENUM from_string(std::string_view text, sl loc = sl::current())
   {
-    return static_cast<ENUM>(impl_traits::from_string(text));
+    return static_cast<ENUM>(pqxx::from_string<impl_type>(text, loc));
   }
 
   [[nodiscard]] static std::size_t size_buffer(ENUM const &value) noexcept
@@ -497,67 +557,6 @@ private:
   {                                                                           \
     #ENUM                                                                     \
   }
-
-
-namespace pqxx
-{
-/// Parse a value in postgres' text format as a TYPE.
-/** If the form of the value found in the string does not match the expected
- * type, e.g. if a decimal point is found when converting to an integer type,
- * the conversion fails.  Overflows (e.g. converting "9999999999" to a 16-bit
- * C++ type) are also treated as errors.  If in some cases this behaviour
- * should be inappropriate, convert to something bigger such as @c long @c int
- * first and then truncate the resulting value.
- *
- * Only the simplest possible conversions are supported.  Fancy features like
- * hexadecimal or octal, spurious signs, or exponent notation won't work.
- * Whitespace is not stripped away.  Only the kinds of strings that come out of
- * PostgreSQL and out of to_string() can be converted.
- */
-template<typename TYPE>
-[[nodiscard]] inline TYPE from_string(std::string_view text)
-{
-  return string_traits<TYPE>::from_string(text);
-}
-
-
-/// "Convert" a std::string_view to a std::string_view.
-/** Just returns its input.
- *
- * @warning Of course the result is only valid for as long as the original
- * string remains valid!  Never access the string referenced by the return
- * value after the original has been destroyed.
- */
-template<>
-[[nodiscard]] inline std::string_view from_string(std::string_view text)
-{
-  return text;
-}
-
-
-/// Attempt to convert postgres-generated string to given built-in object.
-/** This is like the single-argument form of the function, except instead of
- * returning the value, it sets @c value.
- *
- * You may find this more convenient in that it infers the type you want from
- * the argument you pass.  But there are disadvantages: it requires an
- * assignment operator, and it may be less efficient.
- */
-template<typename T> inline void from_string(std::string_view text, T &value)
-{
-  value = from_string<T>(text);
-}
-
-
-/// Convert a value to a readable string that PostgreSQL will understand.
-/** The conversion does no special formatting, and ignores any locale settings.
- * The resulting string will be human-readable and in a format suitable for use
- * in SQL queries.  It won't have niceties such as "thousands separators"
- * though.
- */
-template<typename TYPE>
-inline std::string to_string(TYPE const &value, sl loc = sl::current());
-} // namespace pqxx
 
 
 namespace pqxx

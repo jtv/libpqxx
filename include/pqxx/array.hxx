@@ -407,7 +407,7 @@ private:
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
               std::data(data), end, here, loc)};
-          m_elts.emplace_back(from_string<ELEMENT>(buf));
+          m_elts.emplace_back(from_string<ELEMENT>(buf, loc));
         }
         break;
         default: {
@@ -431,7 +431,7 @@ private:
                 loc};
           }
           else
-            m_elts.emplace_back(from_string<ELEMENT>(field));
+            m_elts.emplace_back(from_string<ELEMENT>(field, loc));
         }
         }
         here = end;
