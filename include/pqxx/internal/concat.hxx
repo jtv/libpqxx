@@ -10,10 +10,9 @@ namespace pqxx::internal
 {
 /// Convert item to a string, write it into [here, end).
 template<typename TYPE>
-void render_item(TYPE const &item, char *&here, char *end)
+void render_item(TYPE const &item, char *&here, char *end, sl loc)
 {
-  // XXX: Use generic into_buf().
-  auto const next = string_traits<TYPE>::into_buf(here, end, item) - 1;
+  auto const next = pqxx::into_buf({here, end}, item, loc) - 1;
   PQXX_ASSUME(next >= here);
   here = next;
 }
@@ -39,7 +38,7 @@ template<typename... TYPE>
   char *const data{buf.data()};
   char *here = data;
   char *end = data + std::size(buf);
-  (render_item(item, here, end), ...);
+  (render_item(item, here, end, sl::current()), ...);
 
   buf.resize(static_cast<std::size_t>(here - data));
   return buf;

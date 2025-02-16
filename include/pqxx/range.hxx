@@ -435,15 +435,13 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use generic into_buf().
       if (lower != nullptr)
-        here = string_traits<TYPE>::into_buf(here, end, *lower) - 1;
+        here = pqxx::into_buf({here, end}, *lower) - 1;
       *here++ = ',';
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use generic into_buf().
       if (upper != nullptr)
-        here = string_traits<TYPE>::into_buf(here, end, *upper) - 1;
+        here = pqxx::into_buf({here, end}, *upper, loc) - 1;
       if ((end - here) < 2)
         throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =

@@ -302,19 +302,19 @@ void create_pqxxevents(transaction_base &);
 } // namespace test
 
 
-template<> inline std::string to_string(row const &value)
+template<> inline std::string to_string(row const &value, sl)
 {
   return pqxx::test::list_row(value);
 }
 
 
-template<> inline std::string to_string(result const &value)
+template<> inline std::string to_string(result const &value, sl)
 {
   return pqxx::test::list_result(value);
 }
 
 
-template<> inline std::string to_string(result::const_iterator const &value)
+template<> inline std::string to_string(result::const_iterator const &value, sl)
 {
   return pqxx::test::list_result_iterator(value);
 }

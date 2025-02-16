@@ -430,16 +430,14 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 namespace pqxx::internal
 {
 /// Floating-point implementations for @c pqxx::to_string().
-template<typename T> std::string to_string_float(T value)
+template<typename T> std::string to_string_float(T value, sl loc)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     static constexpr auto space{string_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
-    // XXX: Use generic to_buf().
-    std::string_view const view{
-      string_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
+    std::string_view const view{to_buf(buf, value, loc)};
     buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
     return buf;
   }
@@ -549,9 +547,9 @@ template unsigned long long
 
 namespace pqxx::internal
 {
-template std::string to_string_float(float);
-template std::string to_string_float(double);
-template std::string to_string_float(long double);
+template std::string to_string_float(float, sl);
+template std::string to_string_float(double, sl);
+template std::string to_string_float(long double, sl);
 } // namespace pqxx::internal
 
 

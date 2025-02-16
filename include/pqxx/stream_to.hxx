@@ -311,8 +311,6 @@ private:
     else
     {
       // Convert f into m_buffer.
-
-      using traits = string_traits<Field>;
       auto const budget{estimate_buffer(f)};
       auto const offset{std::size(m_buffer)};
 
@@ -327,8 +325,7 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
-	// XXX: Use generic into_buf().
-        char *const end{traits::into_buf(data + offset, data + total, f)};
+        char *const end{into_buf({data + offset, data + total}, f, loc)};
         *(end - 1) = '\t';
         // Shrink to fit.  Keep the tab though.
         m_buffer.resize(static_cast<std::size_t>(end - data));
@@ -372,10 +369,7 @@ private:
         // This field needs to be converted to a string, and after that,
         // escaped as well.
         m_field_buf.resize(budget);
-        auto const data{m_field_buf.data()};
-	// XXX: Use generic to_buf().
-        escape_field_to_buffer(
-          traits::to_buf(data, data + std::size(m_field_buf), f), loc);
+        escape_field_to_buffer(to_buf(m_field_buf, f, loc), loc);
       }
     }
   }

@@ -85,29 +85,21 @@ struct disallowed_ambiguous_char_conversion
 };
 
 
-template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T);
+template<typename T> PQXX_LIBEXPORT extern std::string to_string_float(T, sl = sl::current());
 
 
 /// Generic implementation for into_buf, on top of to_buf.
 template<typename T> [[deprecated("Pass buffer as std::span<char>.")]]
-inline char *generic_into_buf(char *begin, char *end, T const &value)
+inline char *generic_into_buf(char *begin, char *end, T const &value, sl loc = sl::current())
 {
-  using traits = string_traits<T>;
-
-  zview text;
-  // XXX: Use generic to_buf().
-  if constexpr (pqxx::internal::to_buf_8<T>)
-    text = traits::to_buf({begin, end}, value);
-  else
-    text = traits::to_buf(begin, end, value);
-
+  zview text{to_buf({begin, end}, value, loc)};
   auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
       "Not enough buffer space to insert " + type_name<T> + ".  " +
-      state_buffer_overrun(space, len)};
+      state_buffer_overrun(space, len), loc};
   std::memmove(begin, std::data(text), len);
   return begin + len;
 }
@@ -118,17 +110,8 @@ inline char *generic_into_buf(char *begin, char *end, T const &value)
 template<typename T>
 inline char *generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::current())
 {
-  using traits = string_traits<T>;
-
-  auto const begin{std::data(buf)}, end{begin + std::size(buf)};
-
-  zview text;
-  // XXX: Use generic to_buf().
-  if constexpr (pqxx::internal::to_buf_8<T>)
-    text = traits::to_buf(buf, value, loc);
-  else
-    text = traits::to_buf(begin, end, value);
-
+  auto const begin{std::data(buf)};
+  zview text{to_buf(buf, value, loc)};
   auto const space{std::size(buf)};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
@@ -319,8 +302,7 @@ template<typename T> struct string_traits<std::optional<T>>
 
   static char *into_buf(char *begin, char *end, std::optional<T> const &value)
   {
-    // XXX: Use generic into_buf().
-    return string_traits<T>::into_buf(begin, end, *value);
+    return pqxx::into_buf({begin, end}, *value);
   }
 
   static zview to_buf(char *begin, char *end, std::optional<T> const &value)
@@ -328,8 +310,7 @@ template<typename T> struct string_traits<std::optional<T>>
     if (pqxx::is_null(value))
       return {};
     else
-      // XXX: Use generic to_buf().
-      return string_traits<T>::to_buf(begin, end, *value);
+      return pqxx::to_buf({begin, end}, *value);
   }
 
   static std::optional<T> from_string(std::string_view text)
@@ -382,11 +363,10 @@ template<typename... T> struct string_traits<std::variant<T...>>
   static char *
   into_buf(char *begin, char *end, std::variant<T...> const &value)
   {
-  // XXX: Use generic into_buf().
     return std::visit(
       [begin, end](auto const &i) {
-        return string_traits<std::remove_cvref_t<decltype(i)>>::into_buf(
-          begin, end, i);
+        using elt_t = std::remove_cvref_t<decltype(i)>;
+        return pqxx::into_buf<elt_t>({begin, end}, i);
       },
       value);
   }
@@ -394,9 +374,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
   {
     return std::visit(
       [begin, end](auto const &i) {
-      // XXX: Use generic to_buf().
-        return string_traits<std::remove_cvref_t<decltype(i)>>::to_buf(
-          begin, end, i);
+        return pqxx::to_buf<std::remove_cvref_t<decltype(i)>>({begin, end}, i);
       },
       value);
   }
@@ -591,13 +569,11 @@ template<> struct string_traits<char *>
 
   static char *into_buf(char *begin, char *end, char *const &value)
   {
-    // XXX: Use generic to_buf().
     return string_traits<char const *>::into_buf(begin, end, value);
   }
   static zview to_buf(char *begin, char *end, char *const &value)
   {
-    // XXX: Use generic to_buf().
-    return string_traits<char const *>::to_buf(begin, end, value);
+    return pqxx::to_buf<char const *>({begin, end}, value);
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
@@ -760,8 +736,7 @@ template<> struct string_traits<zview>
 
   static std::string_view to_buf(char *begin, char *end, zview const &value)
   {
-    // XXX: Use generic to_buf().
-    char *const stop{into_buf(begin, end, value)};
+    char *const stop{pqxx::into_buf({begin, end}, value)};
     return {begin, static_cast<std::size_t>(stop - begin - 1)};
   }
 
@@ -862,16 +837,14 @@ struct string_traits<std::unique_ptr<T, Args...>>
   static char *
   into_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
   {
-    // XXX: Use generic into_buf().
-    return string_traits<T>::into_buf(begin, end, *value);
+    return pqxx::into_buf({begin, end}, *value);
   }
 
   static zview
   to_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
   {
     if (value)
-      // XXX: Use generic to_buf().
-      return string_traits<T>::to_buf(begin, end, *value);
+      return pqxx::to_buf({begin, end}, *value);
     else
       return {};
   }
@@ -925,14 +898,12 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 
   static zview to_buf(char *begin, char *end, std::shared_ptr<T> const &value)
   {
-    // XXX: Use generic to_buf().
-    return string_traits<T>::to_buf(begin, end, *value);
+    return to_buf({begin, end}, *value);
   }
   static char *
   into_buf(char *begin, char *end, std::shared_ptr<T> const &value)
   {
-    // XXX: Use generic into_buf().
-    return string_traits<T>::into_buf(begin, end, *value);
+    return pqxx::into_buf({begin, end}, *value);
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
@@ -1040,15 +1011,13 @@ public:
       else if constexpr (is_sql_array<elt_type>)
       {
         // Render nested array in-place.  Then erase the trailing zero.
-	// XXX: Use generic into_buf().
-        here = elt_traits::into_buf(here, end, elt) - 1;
+        here = pqxx::into_buf({here, end}, elt) - 1;
       }
       else if constexpr (is_unquoted_safe<elt_type>)
       {
         // No need to quote or escape.  Just convert the value straight into
         // its place in the array, and "backspace" the trailing zero.
-	// XXX: Use generic into_buf().
-        here = elt_traits::into_buf(here, end, elt) - 1;
+        here = pqxx::into_buf({here, end}, elt) - 1;
       }
       else
       {
@@ -1058,8 +1027,7 @@ public:
         // buffer.
         auto const elt_budget{pqxx::size_buffer(elt)};
         assert(elt_budget < static_cast<std::size_t>(end - here));
-	// XXX: Use generic to_buf().
-        for (char const c : elt_traits::to_buf(end - elt_budget, end, elt))
+        for (char const c : pqxx::to_buf({end - elt_budget, end}, elt))
         {
           // We copy the intermediate buffer into the final buffer, char by
           // char, with escaping where necessary.
@@ -1150,14 +1118,14 @@ template<binary T> inline constexpr format param_format(T const &)
 template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
-template<typename T> inline std::string to_string(T const &value)
+template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc)
 {
   if (is_null(value))
     throw conversion_error{
-      "Attempt to convert null " + std::string{type_name<T>} +
-      " to a string."};
+      "Attempt to convert null " + std::string{type_name<TYPE>} +
+      " to a string.", loc};
 
-  if constexpr (nullness<std::remove_cvref_t<T>>::always_null)
+  if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
   {
     // Have to separate out this case: some functions in the "regular" code
     // may not exist in the "always null" case.
@@ -1172,46 +1140,42 @@ template<typename T> inline std::string to_string(T const &value)
     // undefined behaviour.
     buf.resize(size_buffer(value));
     auto const data{buf.data()};
-    // XXX: Use generic into_buf().
-    auto const end{
-      string_traits<T>::into_buf(data, data + std::size(buf), value)};
+    auto const end{into_buf({data, data + std::size(buf)}, value, loc)};
     buf.resize(static_cast<std::size_t>(end - data - 1));
     return buf;
   }
 }
 
 
-template<> inline std::string to_string(float const &value)
+template<> inline std::string to_string(float const &value, sl loc)
 {
-  return pqxx::internal::to_string_float(value);
+  return pqxx::internal::to_string_float(value, loc);
 }
-template<> inline std::string to_string(double const &value)
+template<> inline std::string to_string(double const &value, sl loc)
 {
-  return pqxx::internal::to_string_float(value);
+  return pqxx::internal::to_string_float(value, loc);
 }
-template<> inline std::string to_string(long double const &value)
+template<> inline std::string to_string(long double const &value, sl loc)
 {
-  return pqxx::internal::to_string_float(value);
+  return pqxx::internal::to_string_float(value, loc);
 }
-template<> inline std::string to_string(std::stringstream const &value)
+template<> inline std::string to_string(std::stringstream const &value, sl)
 {
   return value.str();
 }
 
 
-template<typename T> inline void into_string(T const &value, std::string &out)
+template<typename T> inline void into_string(T const &value, std::string &out, sl loc = sl::current())
 {
   if (is_null(value))
     throw conversion_error{
-      "Attempt to convert null " + type_name<T> + " to a string."};
+      "Attempt to convert null " + type_name<T> + " to a string.", loc};
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
   auto const data{out.data()};
-  // XXX: Use generic into_buf().
-  auto const end{
-    string_traits<T>::into_buf(data, data + std::size(out), value)};
+  auto const end{into_buf({data, data + std::size(out)}, value, loc)};
   out.resize(static_cast<std::size_t>(end - data - 1));
 }
 } // namespace pqxx

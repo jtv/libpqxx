@@ -342,9 +342,78 @@ template<> struct string_traits<std::byte> : forbidden_conversion<std::byte>
 template<typename ENUM>
 struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
 {};
+} // namespace pqxx
+
+namespace pqxx::internal
+{
+/// Signature for string_traits<TYPE>::to_buf() in libpqxx 8.
+template<typename TYPE>
+concept to_buf_8 = requires(zview out, std::span<char> buf, TYPE value, sl loc)
+{
+  out = string_traits<TYPE>::to_buf(buf, value, loc);
+  out = string_traits<TYPE>::to_buf(buf, value);
+};
 
 
-// C++20: Concepts for "converts from string" & "converts to string."
+// XXX: Replace the char *!
+/// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
+template<typename TYPE>
+concept into_buf_8 = requires(char *out, std::span<char> buf, TYPE value, sl loc)
+{
+  out = string_traits<TYPE>::into_buf(buf, value, loc);
+  out = string_traits<TYPE>::into_buf(buf, value);
+};
+
+
+/// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
+template<typename TYPE>
+concept from_string_8 = requires(TYPE out, std::string_view text, sl loc)
+{
+  out = string_traits<TYPE>::from_string(text, loc);
+  out = string_traits<TYPE>::from_string(text);
+};
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+/// Represent `value` as SQL text, optionally using `buf` as storage.
+/** This calls string_traits<TYPE>::to_buf(), but bridges some API version
+ * differences.
+ */
+template<typename TYPE>
+[[nodiscard]] inline zview to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+{
+  using traits = string_traits<TYPE>;
+  if constexpr (pqxx::internal::to_buf_8<TYPE>)
+  {
+    return traits::to_buf(buf, value, loc);
+  }
+  else
+  {
+    auto const begin{std::data(buf)}, end{begin + std::size(buf)};
+    return traits::to_buf(begin, end, value);
+  }
+}
+
+
+/// Write an SQL representation of `value` into `buf`.
+/** This calls string_traits<TYPE>::into_buf(), but bridges some API version
+ * differences.
+ */
+template<typename TYPE> [[nodiscard]] inline char *into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+{
+  using traits = string_traits<TYPE>;
+  if constexpr (pqxx::internal::into_buf_8<TYPE>)
+  {
+    return traits::into_buf(buf, value, loc);
+  }
+  else
+  {
+    auto const begin{std::data(buf)}, end{begin + std::size(buf)};
+    return traits::into_buf(begin, end, value);
+  }
+}
 } // namespace pqxx
 
 
@@ -371,14 +440,12 @@ template<typename ENUM> struct enum_traits
   [[nodiscard]] static constexpr zview
   to_buf(char *begin, char *end, ENUM const &value)
   {
-    // XXX: Call through generic to_buf().
-    return impl_traits::to_buf(begin, end, to_underlying(value));
+    return pqxx::to_buf(begin, end, to_underlying(value));
   }
 
   static constexpr char *into_buf(char *begin, char *end, ENUM const &value)
   {
-    // XXX: Call through generic into_buf().
-    return impl_traits::into_buf(begin, end, to_underlying(value));
+    return pqxx::into_buf({begin, end}, to_underlying(value));
   }
 
   [[nodiscard]] static ENUM from_string(std::string_view text)
@@ -482,39 +549,8 @@ template<typename T> inline void from_string(std::string_view text, T &value)
  * in SQL queries.  It won't have niceties such as "thousands separators"
  * though.
  */
-template<typename TYPE> inline std::string to_string(TYPE const &value);
+template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc = sl::current());
 } // namespace pqxx
-
-
-namespace pqxx::internal
-{
-/// Signature for string_traits<TYPE>::to_buf() in libpqxx 8.
-template<typename TYPE>
-concept to_buf_8 = requires(zview out, std::span<char> buf, TYPE value, sl loc)
-{
-  out = string_traits<TYPE>::to_buf(buf, value, loc);
-  out = string_traits<TYPE>::to_buf(buf, value);
-};
-
-
-// XXX: Replace the char *!
-/// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
-template<typename TYPE>
-concept into_buf_8 = requires(char *out, std::span<char> buf, TYPE value, sl loc)
-{
-  out = string_traits<TYPE>::into_buf(buf, value, loc);
-  out = string_traits<TYPE>::into_buf(buf, value);
-};
-
-
-/// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
-template<typename TYPE>
-concept from_string_8 = requires(TYPE out, std::string_view text, sl loc)
-{
-  out = string_traits<TYPE>::from_string(text, loc);
-  out = string_traits<TYPE>::from_string(text);
-};
-} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -534,13 +570,9 @@ to_buf(char *here, char const *end, TYPE... value)
 {
   PQXX_ASSUME(here <= end);
   return {[&here, end](auto v) {
-    using traits = string_traits<decltype(v)>;
     auto begin = here;
     // XXX: Return type will change.
-    if constexpr (pqxx::internal::into_buf_8<decltype(v)>)
-      here = traits::into_buf({begin, end}, v);
-    else
-      here = traits::into_buf(begin, end, v);
+    here = pqxx::into_buf({begin, end}, v);
     // Exclude the trailing zero out of the string_view.
     auto len{static_cast<std::size_t>(here - begin) - 1};
     assert(here <= end);
@@ -560,19 +592,14 @@ to_buf(char *here, char const *end, TYPE... value)
  */
 template<typename... TYPE>
 inline std::vector<std::string_view>
-to_buf(std::span<char> buf, TYPE... value)
+to_buf_multi(std::span<char> buf, TYPE... value)
 {
   auto here{std::begin(buf)};
   PQXX_ASSUME(here <= std::end(buf));
   return {[&here, buf](auto v) {
-    using arg_t = decltype(v);
-    using traits = string_traits<arg_t>;
     auto begin = here;
-      // XXX: Return type will change.
-    if constexpr (pqxx::internal::into_buf_8<arg_t>)
-      here = traits::into_buf(buf, v);
-    else
-      here = traits::into_buf(begin, std::end(buf), v);
+    // XXX: Return type will change.
+    here = pqxx::into_buf(buf, v);
     // Exclude the trailing zero out of the string_view.
     auto len{static_cast<std::size_t>(here - begin - 1)};
     return std::string_view{std::data(buf), len};
@@ -669,15 +696,10 @@ template<typename TYPE> inline constexpr format param_format(TYPE const &)
 template<typename TYPE> [[deprecated("Pass buffer as std::span<char>.")]]
 inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 {
-  using traits = string_traits<TYPE>;
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
-  if (is_null(value))
-    return {};
-  else if constexpr (pqxx::internal::into_buf_8<TYPE>)
-    return {begin, traits::into_buf({begin, end}, value) - begin - 1};
-  else
-    return {begin, traits::into_buf(begin, end, value) - begin - 1};
+  if (is_null(value)) return {};
+  else return {begin, pqxx::into_buf({begin, end}, value) - begin - 1};
 }
 
 
@@ -694,18 +716,16 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 template<typename TYPE>
 inline zview generic_to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
 {
-  using traits = string_traits<TYPE>;
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
   if (is_null(value))
+  {
     return {};
+  }
   else
   {
-    auto const begin{std::data(buf)}, end{begin + std::size(buf)};;
-    if constexpr (pqxx::internal::into_buf_8<TYPE>)
-      return {begin, traits::into_buf(buf, end, value, loc) - begin - 1};
-    else
-      return {begin, traits::into_buf(begin, end, value) - begin - 1};
+    auto const begin{std::data(buf)};
+    return {begin, pqxx::into_buf(buf, value, loc) - begin - 1};
   }
 }
 //@}

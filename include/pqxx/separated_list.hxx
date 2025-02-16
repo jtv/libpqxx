@@ -67,13 +67,11 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   char *const data{result.data()};
   char *here{data};
   char *stop{data + budget};
-  // XXX: Use generic into_buf().
-  here = traits::into_buf(here, stop, access(begin)) - 1;
+  here = pqxx::into_buf({here, stop}, access(begin)) - 1;
   for (++begin; begin != end; ++begin)
   {
     here += sep.copy(here, std::size(sep));
-    // XXX: Use generic into_buf().
-    here = traits::into_buf(here, stop, access(begin)) - 1;
+    here = pqxx::into_buf({here, stop}, access(begin)) - 1;
   }
   result.resize(static_cast<std::size_t>(here - data));
   return result;

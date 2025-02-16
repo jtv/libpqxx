@@ -550,6 +550,6 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, sl loc)
 
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(field const &value);
+template<> PQXX_LIBEXPORT std::string to_string(field const &value, sl loc);
 } // namespace pqxx
 #endif
