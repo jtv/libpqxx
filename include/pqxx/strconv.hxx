@@ -436,11 +436,13 @@ into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename TYPE>
-[[nodiscard]] inline TYPE from_string(std::string_view text, sl loc = sl::current())
+[[nodiscard]] inline TYPE
+from_string(std::string_view text, sl loc = sl::current())
 {
   if constexpr (pqxx::internal::from_string_8<TYPE>)
-  return string_traits<TYPE>::from_string(text, loc);
-  else return string_traits<TYPE>::from_string(text);
+    return string_traits<TYPE>::from_string(text, loc);
+  else
+    return string_traits<TYPE>::from_string(text);
 }
 
 
@@ -466,7 +468,9 @@ template<>
  * the argument you pass.  But there are disadvantages: it requires an
  * assignment operator, and it may be less efficient.
  */
-template<typename T> inline void from_string(std::string_view text, T &value, sl loc = sl::current())
+template<typename T>
+inline void
+from_string(std::string_view text, T &value, sl loc = sl::current())
 {
   value = from_string<T>(text, loc);
 }
@@ -514,7 +518,8 @@ template<typename ENUM> struct enum_traits
     return pqxx::into_buf({begin, end}, to_underlying(value));
   }
 
-  [[nodiscard]] static ENUM from_string(std::string_view text, sl loc = sl::current())
+  [[nodiscard]] static ENUM
+  from_string(std::string_view text, sl loc = sl::current())
   {
     return static_cast<ENUM>(pqxx::from_string<impl_type>(text, loc));
   }

@@ -82,8 +82,6 @@ public:
   /// Append a non-null string parameter.
   void append(std::string &&) &;
 
-  // XXX: Rethink the view/copy situation.
-  // XXX: Generic pqxx::binary support.
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the `params`
    * remains active.

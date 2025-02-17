@@ -529,7 +529,7 @@ public:
   }
 
   template<std::ranges::borrowed_range TYPE>
-  TYPE get_var_as(std::string_view, sl loc = sl::current()) =delete;
+  TYPE get_var_as(std::string_view, sl loc = sl::current()) = delete;
 
   /**
    * @name Notifications and Receivers

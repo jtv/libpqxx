@@ -208,7 +208,8 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value, sl loc = sl::current()) const
+  template<typename T>
+  T as(T const &default_value, sl loc = sl::current()) const
   {
     if (is_null())
       return default_value;

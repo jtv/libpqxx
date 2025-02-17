@@ -132,7 +132,8 @@ constexpr int nibble(int c) noexcept
 } // namespace
 
 
-void pqxx::internal::esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept
+void pqxx::internal::esc_bin(
+  bytes_view binary_data, std::span<char> buffer) noexcept
 {
   assert(std::size(buffer) >= size_esc_bin(std::size(binary_data)));
   std::size_t here{0u};

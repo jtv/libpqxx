@@ -966,7 +966,6 @@ template<binary DATA> struct string_traits<DATA>
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     bytes buf;
     buf.resize(size);
-    // XXX: Use std::as_writable_bytes.
     pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
   }

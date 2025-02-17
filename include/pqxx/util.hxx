@@ -438,7 +438,8 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * and the function will write exactly that number of bytes into the buffer.
  * This includes a trailing zero.
  */
-void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
+void PQXX_LIBEXPORT
+esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
 
 
 /// Hex-escape binary data into a buffer.
@@ -447,7 +448,8 @@ void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, std::span<char> buffer) noex
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-template<binary T> inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
+template<binary T>
+inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 {
   esc_bin(binary_cast(binary_data), buffer);
 }
@@ -557,20 +559,20 @@ inline constexpr char unescape_char(char escaped) noexcept
 }
 
 
-// C++20: std::span?
 /// Get error string for a given @c errno value.
-template<std::size_t BYTES>
-char const *PQXX_COLD
-error_string(int err_num, std::array<char, BYTES> &buffer)
+[[nodiscard]] inline char const *PQXX_COLD
+error_string(int err_num, std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
   using namespace std;
 
 #if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
 #  if defined(PQXX_HAVE_STRERROR_S)
-  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
+  auto const err_result{
+    strerror_s(std::data(buffer), std::size(buffer), err_num)};
 #  else
-  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
+  auto const err_result{
+    strerror_r(err_num, std::data(buffer), std::size(buffer))};
 #  endif
   if constexpr (std::is_same_v<
                   std::remove_cvref_t<decltype(err_result)>, char *>)
@@ -584,10 +586,10 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
     // Either strerror_s or POSIX strerror_r; returns an error code.
     // Sorry for being lazy here: Not reporting error string for the case
     // where we can't retrieve an error string.
-    if (err_result == 0)
-      return std::data(buffer);
-    else
+    if (err_result)
       return "Compound errors.";
+    else
+      return std::data(buffer);
   }
 
 #else
