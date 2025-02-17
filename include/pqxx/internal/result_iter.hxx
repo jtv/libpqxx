@@ -116,9 +116,9 @@ inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
   auto const cols{this->columns()};
   if (sz != cols)
     throw usage_error{
-      internal::concat(
-        "Callback to for_each takes ", sz, "parameter", (sz == 1) ? "" : "s",
-        ", but result set has ", cols, "field", (cols == 1) ? "" : "s", "."),
+      std::format(
+        "Callback to for_each takes {} parameter(s), but result set has {} "
+        "field(s).", sz, cols),
       loc};
 
   using pass_tuple = pqxx::internal::strip_types_t<args_tuple>;

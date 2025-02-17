@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -110,8 +111,7 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error{
-          internal::cat2("Cast underflow: "sv, description), loc};
+        throw range_error{std::format("Cast underflow: {}"sv, description), loc};
     }
     else
     {
@@ -120,8 +120,7 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
       // perform our check.
       if (value < 0)
         throw range_error{
-          internal::cat2(
-            "Casting negative value to unsigned type: "sv, description),
+          std::format("Casting negative value to unsigned type: {}"sv, description),
           loc};
     }
   }
@@ -140,14 +139,13 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     if constexpr (from_max > to_max)
     {
       if (std::cmp_greater(value, to_max))
-        throw range_error{
-          internal::cat2("Cast overflow: "sv, description), loc};
+        throw range_error{std::format("Cast overflow: {}"sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error{internal::cat2("Cast overflow: ", description), loc};
+      throw range_error{std::format("Cast overflow: {}", description), loc};
   }
 
   return static_cast<TO>(value);

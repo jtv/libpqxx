@@ -19,6 +19,7 @@
 
 #include <cstddef>
 #include <ctime>
+#include <format>
 #include <functional>
 #include <initializer_list>
 #include <list>
@@ -31,7 +32,6 @@
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/params.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
@@ -493,11 +493,10 @@ public:
     {
       if (nullness<TYPE>::is_null(value))
         throw variable_set_to_null{
-          internal::concat("Attempted to set variable ", var, " to null."),
+          std::format("Attempted to set variable {} to null.", var),
           loc};
     }
-    exec(
-      internal::concat("SET ", quote_name(var), "=", quote(value, loc)), loc);
+    exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
   }
 
   /// Read currently applicable value of a variable.
@@ -873,9 +872,8 @@ public:
     auto const needed{2 * size + 1};
     if (space < needed)
       throw range_error{
-        internal::concat(
-          "Not enough room to escape string of ", size, " byte(s): need ",
-          needed, " bytes of buffer space, but buffer size is ", space, "."),
+        std::format(
+          "Not enough room to escape string of {} byte(s): need {} bytes of buffer space, but buffer size is {}.", size, needed, size),
         loc};
     return {std::data(buffer), esc_to_buf(text, buffer, loc)};
   }
@@ -912,9 +910,9 @@ public:
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
     if (space < needed)
-      throw range_error{internal::concat(
-        "Not enough room to escape binary string of ", size, " byte(s): need ",
-        needed, " bytes of buffer space, but buffer size is ", space, ".")};
+      throw range_error{std::format(
+        "Not enough room to escape binary string of {} byte(s): need {} ",
+        " bytes of buffer space, but buffer size is {}.", size, needed, space)};
 
     bytes_view view{std::data(data), std::size(data)};
     // Actually, in the modern format, we know beforehand exactly how many

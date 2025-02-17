@@ -21,7 +21,6 @@
 #include "pqxx/field.hxx"
 #include "pqxx/result.hxx"
 
-#include "pqxx/internal/concat.hxx"
 
 namespace pqxx::internal
 {
@@ -206,9 +205,8 @@ protected:
   {
     if (size() != expected)
       throw usage_error{
-        internal::concat(
-          "Tried to extract ", expected, " field(s) from a row of ", size(),
-          "."),
+        std::format(
+          "Tried to extract {} field(s) from a row of {}.", expected, size()),
         loc};
   }
 

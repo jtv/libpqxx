@@ -155,7 +155,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
     default: [[unlikely]] break;
     }
   [[unlikely]] throw std::invalid_argument{
-    pqxx::internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
+    std::format("Unrecognized encoding: '{}'.", to_string(encoding_name))};
 }
 
 
@@ -194,7 +194,7 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
     [[likely]] CASE_GROUP(UTF8);
   }
   throw usage_error{
-    internal::concat("Unsupported encoding group code ", enc, "."), loc};
+    std::format("Unsupported encoding group code {}.", to_string(enc)), loc};
 
 #undef CASE_GROUP
 }

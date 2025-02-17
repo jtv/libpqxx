@@ -17,6 +17,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <format>
 #include <functional>
 #include <ios>
 #include <list>
@@ -334,14 +335,10 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw unexpected_rows{
-          pqxx::internal::concat(
-            "Expected ", n, " row(s) from query, got ", sz, "."),
-          loc};
+          std::format("Expected {} row(s) from query, got {}.", n, sz), loc};
       else
         throw unexpected_rows{
-          pqxx::internal::concat(
-            "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
-            "."),
+          std::format("Expected {} row(s) from query '{}', got {}.", n, *m_query, sz),
           loc};
     }
     return *this;
@@ -380,14 +377,10 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw usage_error{
-          pqxx::internal::concat(
-            "Expected 1 column from query, got ", actual, "."),
-          loc};
+          std::format("Expected 1 column from query, got {}.", actual), loc};
       else
         throw usage_error{
-          pqxx::internal::concat(
-            "Expected 1 column from query '", *m_query, "', got ", actual,
-            "."),
+          std::format("Expected 1 column from query '{}', got {}.", *m_query, actual),
           loc};
     }
     return *this;

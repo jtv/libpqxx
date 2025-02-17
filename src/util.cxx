@@ -24,7 +24,6 @@ extern "C"
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -39,13 +38,14 @@ pqxx::thread_safety_model PQXX_COLD pqxx::describe_thread_safety()
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
 
-  model.description = internal::concat(
-    (model.safe_libpq ? ""sv :
-                        "Using a libpq build that is not thread-safe.\n"sv),
+  model.description = std::format(
+    "{}{}",
+    (model.safe_libpq ? "" :
+                        "Using a libpq build that is not thread-safe.\n"),
     (model.safe_kerberos ?
-       ""sv :
+       "" :
        "Kerberos is not thread-safe.  If your application uses Kerberos, "
-       "protect all calls to Kerberos or libpqxx using a global lock.\n"sv));
+       "protect all calls to Kerberos or libpqxx using a global lock.\n"));
   return model;
 }
 
@@ -56,7 +56,7 @@ std::string pqxx::internal::describe_object(
   if (std::empty(obj_name))
     return std::string{class_name};
   else
-    return pqxx::internal::concat(class_name, " '", obj_name, "'");
+    return std::format("{} '{}'", class_name, obj_name);
 }
 
 
@@ -70,10 +70,9 @@ void pqxx::internal::check_unique_register(
   if (old_guest != nullptr)
     throw usage_error{
       (old_guest == new_guest) ?
-        concat("Started twice: ", describe_object(old_class, old_name), ".") :
-        concat(
-          "Started new ", describe_object(new_class, new_name), " while ",
-          describe_object(old_class, old_name), " was still active.")};
+        std::format("Started twice: {}.", describe_object(old_class, old_name)) :
+        std::format(
+          "Started new {} while {} was still active.", describe_object(new_class, new_name), describe_object(old_class, old_name))};
 }
 
 
@@ -84,16 +83,14 @@ void pqxx::internal::check_unique_unregister(
   if (new_guest != old_guest) [[unlikely]]
   {
     if (new_guest == nullptr)
-      throw usage_error{concat(
-        "Expected to close ", describe_object(old_class, old_name),
-        ", but got null pointer instead.")};
+      throw usage_error{std::format(
+        "Expected to close, but got null pointer instead.", describe_object(old_class, old_name))};
     if (old_guest == nullptr)
-      throw usage_error{concat(
-        "Closed while not open: ", describe_object(new_class, new_name))};
+      throw usage_error{std::format(
+        "Closed while not open: {}", describe_object(new_class, new_name))};
     else
-      throw usage_error{concat(
-        "Closed ", describe_object(new_class, new_name),
-        "; expected to close ", describe_object(old_class, old_name))};
+      throw usage_error{std::format(
+        "Closed {}; expected to close ", describe_object(new_class, new_name), describe_object(old_class, old_name))};
   }
 }
 

@@ -14,7 +14,7 @@ inline stream_query<TYPE...>::stream_query(
         transaction_focus{tx, "stream_query"},
         m_char_finder{get_finder(tx, loc)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), loc)};
+  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), loc)};
   r.expect_columns(sizeof...(TYPE), loc);
   r.expect_rows(0, loc);
   register_me();
@@ -28,14 +28,14 @@ inline stream_query<TYPE...>::stream_query(
         m_char_finder{get_finder(tx, loc)}
 {
   auto const r{
-    tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms, loc)
+    tx.exec(std::format("COPY ({}) TO STDOUT", query), parms, loc)
       .no_rows(loc)};
   if (r.columns() != sizeof...(TYPE))
     throw usage_error{
-      concat(
+      std::format(
         "Parsing query stream with wrong number of columns: "
-        "code expects ",
-        sizeof...(TYPE), " but query returns ", r.columns(), "."),
+        "code expects {} but query returns {}.",
+        sizeof...(TYPE), r.columns()),
       loc};
   register_me();
 }

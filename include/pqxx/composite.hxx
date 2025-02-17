@@ -6,7 +6,6 @@
 #endif
 
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
 
 namespace pqxx
@@ -49,8 +48,7 @@ inline void parse_composite(
 
   std::size_t here{0}, next{scan(data, size, here, loc)};
   if (next != 1 or data[here] != '(')
-    throw conversion_error{
-      internal::concat("Invalid composite value string: ", text), loc};
+    throw conversion_error{std::format("Invalid composite value string: '{}'.", text), loc};
 
   here = next;
 
@@ -62,14 +60,12 @@ inline void parse_composite(
    ...);
   if (here != std::size(text))
     throw conversion_error{
-      internal::concat(
-        "Composite value did not end at the closing parenthesis: '", text,
-        "'."),
+      std::format(
+        "Composite value did not end at the closing parenthesis: '{}'.", text),
       loc};
   if (text[here - 1] != ')')
     throw conversion_error{
-      internal::concat(
-        "Composite value did not end in parenthesis: '", text, "'"),
+      std::format("Composite value did not end in parenthesis: '{}'.", text),
       loc};
 }
 

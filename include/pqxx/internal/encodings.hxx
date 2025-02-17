@@ -801,9 +801,7 @@ get_char_finder(encoding_group enc, sl loc)
 
   default:
     throw pqxx::internal_error{
-      concat(
-        "Unexpected encoding group: ", as_if, " (mapped from ", enc, ")."),
-      loc};
+      std::format("Unexpected encoding group: {} (mapped from {}", to_string(as_if), to_string(enc)), loc};
   }
 }
 
@@ -838,9 +836,7 @@ get_s_char_finder(encoding_group enc, sl loc)
 
   default:
     throw pqxx::internal_error{
-      concat(
-        "Unexpected encoding group: ", as_if, " (mapped from ", enc, ")."),
-      loc};
+      std::format("Unexpected encoding group: {} (mapped from {}).", to_string(as_if), to_string(enc)), loc};
   }
 }
 } // namespace pqxx::internal

@@ -15,14 +15,12 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
-// #include <algorithm>
 #include <numeric>
 
 #include "pqxx/strconv.hxx"
 
 // C++20: Optimise buffer allocation using random_access_range/iterator.
 // C++23: Use std::ranges::views::join_with()?
-// TODO: Can we pass separators at compile time?
 namespace pqxx
 {
 /**

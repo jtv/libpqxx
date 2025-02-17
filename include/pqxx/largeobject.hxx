@@ -454,10 +454,10 @@ protected:
           "libpq reports error"};
       else if (write_sz != written_sz)
         throw internal_error{
-          "pqxx::largeobject: write failed "
-          "(is transaction still valid on write or flush?), " +
-          std::to_string(written_sz) + "/" + std::to_string(write_sz) +
-          " bytes written"};
+	  std::format(
+            "pqxx::largeobject: write failed "
+            "(is transaction still valid on write or flush?), {}/{} "
+            " bytes written", std::to_string(written_sz), std::to_string(write_sz))};
       auto const out{adjust_eof(written_sz)};
 
       if constexpr (std::is_arithmetic_v<decltype(out)>)

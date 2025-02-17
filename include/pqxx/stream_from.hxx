@@ -18,11 +18,11 @@
 #endif
 
 #include <cassert>
+#include <format>
 #include <variant>
 
 #include "pqxx/connection.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
@@ -333,9 +333,8 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
     return *this;
 
   if (std::size(m_fields) != tup_size)
-    throw usage_error{internal::concat(
-      "Tried to extract ", tup_size, " field(s) from a stream of ",
-      std::size(m_fields), ".")};
+    throw usage_error{std::format(
+      "Tried to extract {} field(s) from a stream of {}.", tup_size, std::size(m_fields))};
 
   extract_fields(t, std::make_index_sequence<tup_size>{}, loc);
   return *this;

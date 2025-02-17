@@ -43,8 +43,7 @@ pqxx::stream_from::stream_from(
         transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
-  tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv), loc)
-    .no_rows(loc);
+  tx.exec(std::format("COPY ({}) TO STDOUT", query), loc).no_rows(loc);
   register_me();
 }
 
@@ -54,9 +53,7 @@ pqxx::stream_from::stream_from(
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
-  tx.exec(
-      internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv), loc)
-    .no_rows(loc);
+  tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc).no_rows(loc);
   register_me();
 }
 
@@ -68,13 +65,10 @@ pqxx::stream_from::stream_from(
 {
   sl const loc{sl::current()};
   if (std::empty(columns)) [[unlikely]]
-    tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv), loc)
+    tx.exec(std::format("COPY {} TO STDOUT", table), loc)
       .no_rows(loc);
   else [[likely]]
-    tx.exec(
-        internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv),
-        loc)
-      .no_rows(loc);
+    tx.exec(std::format("COPY {}({}) TO STDOUT", table, columns), loc).no_rows(loc);
   register_me();
 }
 

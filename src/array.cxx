@@ -16,7 +16,6 @@
 #include "pqxx/array.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
 
@@ -182,8 +181,7 @@ array_parser::implementation array_parser::specialize_for_encoding(
     PQXX_ENCODING_CASE(UHC);
     PQXX_ENCODING_CASE(UTF8);
   }
-  [[unlikely]] throw pqxx::internal_error{
-    pqxx::internal::concat("Unsupported encoding code: ", enc, "."), loc};
+  [[unlikely]] throw pqxx::internal_error{std::format("Unsupported encoding code: {}.", to_string(enc)), loc};
 
 #undef PQXX_ENCODING_CASE
 }

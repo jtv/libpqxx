@@ -5,11 +5,11 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <format>
 #include <utility>
 #include <variant>
 
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 
 namespace pqxx
 {
@@ -260,9 +260,9 @@ public:
       lower.is_limited() and upper.is_limited() and
       (*upper.value() < *lower.value()))
       throw range_error{
-        internal::concat(
-          "Range's lower bound (", *lower.value(),
-          ") is greater than its upper bound (", *upper.value(), ")."),
+        std::format(
+          "Range's lower bound ({}) is greater than its upper bound ({}).",
+	  to_string(*lower.value()), to_string(*upper.value())),
         loc};
   }
 
@@ -543,7 +543,7 @@ private:
   /// Compose error message for invalid range input.
   static std::string err_bad_input(std::string_view text)
   {
-    return internal::concat("Invalid range input: '", text, "'");
+    return std::format("Invalid range input: '{}'.", text);
   }
 };
 

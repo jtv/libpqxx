@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <format>
 #include <functional>
 #include <limits>
 #include <locale>
@@ -25,7 +26,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -129,13 +129,12 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value)
     {
     case std::errc::value_too_large:
       throw pqxx::conversion_overrun{
-        "Could not convert " + pqxx::type_name<T> +
-        " to string: "
-        "buffer too small (" +
-        pqxx::to_string(std::size(buf)) + " bytes)."};
+        std::format(
+        "Could not convert {} to string: buffer too small ({} bytes).",
+	pqxx::type_name<T>, std::size(buf))};
     default:
       throw pqxx::conversion_error{
-        "Could not convert " + pqxx::type_name<T> + " to string."};
+        std::format("Could not convert {} to string.", pqxx::type_name<T>)};
     }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
@@ -156,11 +155,9 @@ string_traits<T>::to_buf(char *begin, char *end, T const &value)
   auto const space{end - begin},
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
-    throw conversion_overrun{
-      "Could not convert " + type_name<T> +
-      " to string: "
-      "buffer too small.  " +
-      pqxx::internal::state_buffer_overrun(space, need)};
+    throw conversion_overrun{std::format(
+      "Could not convert {} to string: buffer too small.  {}",
+      type_name<T>, pqxx::internal::state_buffer_overrun(space, need))};
 
   char *const pos{[end, &value]() {
     if constexpr (std::is_unsigned_v<T>)
@@ -238,27 +235,22 @@ std::string demangle_type_name(char const raw[])
 void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
 {
   throw conversion_error{
-    concat("Attempt to convert SQL null to ", type, "."), loc};
+    std::format("Attempt to convert SQL null to {}.", type), loc};
 }
 
 
 void PQXX_COLD throw_null_conversion(std::string_view type, sl loc)
 {
   throw conversion_error{
-    concat("Attempt to convert SQL null to ", type, "."), loc};
+    std::format("Attempt to convert SQL null to {}.", type), loc};
 }
 
 
 std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 {
-  // We convert these in standard library terms, not for the localisation
-  // so much as to avoid "error cycles," if these values in turn should fail
-  // to get enough buffer space.
-  // C++20: Use formatting library.
-  std::stringstream have, need;
-  have << have_bytes;
-  need << need_bytes;
-  return "Have " + have.str() + " bytes, need " + need.str() + ".";
+  // We convert these in standard library terms, to avoid "error cycles," if
+  // these values in turn should fail to get enough buffer space.
+  return std::format("Have {} bytes, need {}.", have_bytes, need_bytes);
 }
 } // namespace pqxx::internal
 
@@ -296,14 +288,14 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
   }
 
   auto const base{
-    "Could not convert '" + std::string(in) +
-    "' "
-    "to " +
-    pqxx::type_name<TYPE>};
+    std::format(
+    "Could not convert '{}' to {}",
+    std::string(in),
+    pqxx::type_name<TYPE>)};
   if (std::empty(msg))
-    throw pqxx::conversion_error{base + "."};
+    throw pqxx::conversion_error{std::format("{}.", base)};
   else
-    throw pqxx::conversion_error{base + ": " + msg};
+    throw pqxx::conversion_error{std::format("{}: {}", base, msg)};
 }
 
 
@@ -355,7 +347,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
-      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
+    std::format("Trying to convert empty string to {}.", pqxx::type_name<T>)};
 
   bool ok{false};
   T result;
@@ -406,8 +398,8 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 
   if (not ok)
     throw pqxx::conversion_error{
-      "Could not convert string to numeric value: '" + std::string{text} +
-      "'."};
+      std::format(
+      "Could not convert string to numeric value: '{}'.", std::string(text))};
 
   return result;
 }
@@ -496,9 +488,10 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
     auto need{std::size(text) + 1};
     if (need > std::size_t(have))
       throw conversion_error{
+        std::format(
         "Could not convert floating-point number to string: "
-        "buffer too small.  " +
-        state_buffer_overrun(have, need)};
+        "buffer too small.  {}",
+        state_buffer_overrun(have, need))};
     text.copy(begin, need);
     return zview{begin, std::size(text)};
   }
@@ -593,6 +586,5 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   if (result)
     return *result;
   else
-    throw conversion_error{
-      "Failed conversion to bool: '" + std::string{text} + "'."};
+    throw conversion_error{std::format("Failed conversion to bool: '{}'.", std::string{text})};
 }

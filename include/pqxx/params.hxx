@@ -16,8 +16,8 @@
 #endif
 
 #include <array>
+#include <format>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/statement_parameters.hxx"
 #include "pqxx/types.hxx"
 
@@ -217,9 +217,7 @@ public:
   {
     if (m_current >= max_params)
       throw range_error{
-        pqxx::internal::concat(
-          "Too many parameters in one statement: limit is ", max_params, "."),
-        loc};
+        std::format("Too many parameters in one statement: limit is {}.", max_params), loc};
     PQXX_ASSUME(m_current > 0);
     ++m_current;
     if (m_current % 10 == 0)

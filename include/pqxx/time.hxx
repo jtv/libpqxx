@@ -12,7 +12,6 @@
 #include <chrono>
 #include <cstdlib>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 

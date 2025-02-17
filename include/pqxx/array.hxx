@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -174,10 +175,7 @@ private:
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{
-        pqxx::internal::concat(
-          "Trying to parse a ", DIMENSIONS, "-dimensional array out of '",
-          data, "'."),
-        loc};
+        std::format("Trying to parse a {}-dimensional array out of '{}'.", DIMENSIONS, data), loc};
 
     // Making some assumptions here:
     // * The array holds no extraneous whitespace.
@@ -193,16 +191,12 @@ private:
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
         throw conversion_error{
-          pqxx::internal::concat(
-            "Expecting ", DIMENSIONS, "-dimensional array, but found ", i,
-            "."),
-          loc};
+	  std::format("Expecting {}-dimensional array, but found {}.", DIMENSIONS, i), loc};
     if (data[DIMENSIONS] == '{')
       throw conversion_error{
-        pqxx::internal::concat(
-          "Tried to parse ", DIMENSIONS,
-          "-dimensional array from array data that has more dimensions."),
-        loc};
+        std::format(
+	  "Tried to parse {}-dimensional array from array data that has more "
+	  "dimensions.", DIMENSIONS), loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
@@ -262,10 +256,10 @@ private:
       case '}': break;
       default:
         throw conversion_error{
-          pqxx::internal::concat(
-            "Unexpected character in array: ",
-            static_cast<unsigned>(static_cast<unsigned char>(data[here])),
-            " where separator or closing brace expected."),
+          std::format(
+            "Unexpected character in array: {} where separator or closing "
+	    "brace expected.",
+            static_cast<unsigned>(static_cast<unsigned char>(data[here]))),
           loc};
       }
     return here;
@@ -424,11 +418,9 @@ private:
               m_elts.emplace_back(nullness<ELEMENT>::null());
             else
               throw unexpected_null{
-                pqxx::internal::concat(
-                  "Array contains a null ", type_name<ELEMENT>,
-                  ".  Consider making it an array of std::optional<",
-                  type_name<ELEMENT>, "> instead."),
-                loc};
+	        std::format(
+		  "Array contains a null {}.  Consider making it an array of "
+		  "std::optional<{}> instead.", type_name<ELEMENT>, type_name<ELEMENT>), loc};
           }
           else
             m_elts.emplace_back(from_string<ELEMENT>(field, loc));
@@ -503,9 +495,8 @@ private:
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
     static_assert(dimension < DIMENSIONS);
     if (first >= m_extents[dimension])
-      throw range_error{pqxx::internal::concat(
-        "Array index for dimension ", dimension, " is out of bounds: ", first,
-        " >= ", m_extents[dimension])};
+      throw range_error{std::format(
+        "Array index for dimension {} is out of bounds: {} >= {}.", dimension, first, m_extents[dimension])};
 
     // Now check the rest of the indexes, if any.
     if constexpr (sizeof...(indexes) > 0)

@@ -23,7 +23,6 @@
 
 #include "pqxx/connection.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
@@ -281,9 +280,8 @@ private:
     if constexpr (nullity::always_null)
     {
       if (std::data(text) != nullptr)
-        throw conversion_error{concat(
-          "Streaming a non-null value into a ", type_name<field_type>,
-          ", which must always be null.")};
+        throw conversion_error{std::format(
+          "Streaming a non-null value into a {}, which must always be null.", type_name<field_type>)};
     }
     else if (std::data(text) == nullptr)
     {
