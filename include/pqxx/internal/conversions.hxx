@@ -143,7 +143,8 @@ template<std::floating_point T> struct float_string_traits
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static PQXX_LIBEXPORT T from_string(std::string_view text);
+  static PQXX_LIBEXPORT T
+  from_string(std::string_view text, sl loc = sl::current());
 
   static PQXX_LIBEXPORT pqxx::zview
   to_buf(char *begin, char *end, T const &value);
@@ -222,7 +223,8 @@ template<pqxx::internal::integer T> struct string_traits<T>
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
-  static PQXX_LIBEXPORT T from_string(std::string_view text);
+  static PQXX_LIBEXPORT T
+  from_string(std::string_view text, sl loc = sl::current());
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
@@ -523,17 +525,19 @@ template<> struct string_traits<char const *>
     return generic_to_buf({begin, end}, value);
   }
 
-  static char *into_buf(char *begin, char *end, char const *const &value)
+  static char *into_buf(
+    std::span<char> buf, char const *const &value, sl loc = sl::current())
   {
-    auto const space{end - begin};
+    auto const space{std::size(buf)};
     // Count the trailing zero, even though std::strlen() and friends don't.
     auto const len{std::strlen(value) + 1};
-    if (space < ptrdiff_t(len))
+    if (std::cmp_less(space, ptrdiff_t(len)))
       throw conversion_overrun{
         "Could not copy string: buffer too small.  " +
-        pqxx::internal::state_buffer_overrun(space, len)};
-    std::memmove(begin, value, len);
-    return begin + len;
+          pqxx::internal::state_buffer_overrun(space, len),
+        loc};
+    std::memmove(std::data(buf), value, len);
+    return std::data(buf) + len;
   }
 
   static std::size_t size_buffer(char const *const &value) noexcept
@@ -573,9 +577,10 @@ template<> struct string_traits<char *>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static char *into_buf(char *begin, char *end, char *const &value)
+  static char *
+  into_buf(std::span<char> buf, char *const &value, sl loc = sl::current())
   {
-    return string_traits<char const *>::into_buf(begin, end, value);
+    return string_traits<char const *>::into_buf(buf, value, loc);
   }
   static zview to_buf(char *begin, char *end, char *const &value)
   {
@@ -693,14 +698,15 @@ template<> struct string_traits<std::string_view>
     return std::size(value) + 1;
   }
 
-  static char *into_buf(char *begin, char *end, std::string_view const &value)
+  static char *into_buf(
+    std::span<char> buf, std::string_view const &value, sl loc = sl::current())
   {
-    if (std::cmp_greater_equal(std::size(value), end - begin))
+    if (std::cmp_greater_equal(std::size(value), std::size(buf)))
       throw conversion_overrun{
-        "Could not store string_view: too long for buffer."};
-    value.copy(begin, std::size(value));
-    begin[std::size(value)] = '\0';
-    return begin + std::size(value) + 1;
+        "Could not store string_view: too long for buffer.", loc};
+    value.copy(std::data(buf), std::size(value));
+    buf[std::size(value)] = '\0';
+    return std::data(buf) + std::size(value) + 1;
   }
 
   static zview to_buf(char *begin, char *end, std::string_view const &value)

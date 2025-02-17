@@ -58,8 +58,7 @@ namespace pqxx
 
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
-{
-} // namespace pqxx::internal
+{} // namespace pqxx::internal
 
 
 namespace pqxx

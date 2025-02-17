@@ -256,7 +256,8 @@ std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 
 namespace
 {
-template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
+template<typename TYPE>
+inline TYPE from_string_arithmetic(std::string_view in, pqxx::sl loc)
 {
   char const *here{std::data(in)};
   auto const end{std::data(in) + std::size(in)};
@@ -289,9 +290,9 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
   auto const base{std::format(
     "Could not convert '{}' to {}", std::string(in), pqxx::type_name<TYPE>)};
   if (std::empty(msg))
-    throw pqxx::conversion_error{std::format("{}.", base)};
+    throw pqxx::conversion_error{std::format("{}.", base), loc};
   else
-    throw pqxx::conversion_error{std::format("{}: {}", base, msg)};
+    throw pqxx::conversion_error{std::format("{}: {}", base, msg), loc};
 }
 
 
@@ -339,11 +340,12 @@ inline bool PQXX_COLD from_dumb_stringstream(
 
 // These are hard, and some popular compilers still lack std::from_chars.
 template<typename T>
-inline T PQXX_COLD from_string_awful_float(std::string_view text)
+inline T PQXX_COLD from_string_awful_float(std::string_view text, sl loc)
 {
   if (std::empty(text))
-    throw pqxx::conversion_error{std::format(
-      "Trying to convert empty string to {}.", pqxx::type_name<T>)};
+    throw pqxx::conversion_error{
+      std::format("Trying to convert empty string to {}.", pqxx::type_name<T>),
+      loc};
 
   bool ok{false};
   T result;
@@ -393,8 +395,10 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
   }
 
   if (not ok)
-    throw pqxx::conversion_error{std::format(
-      "Could not convert string to numeric value: '{}'.", std::string(text))};
+    throw pqxx::conversion_error{
+      std::format(
+        "Could not convert string to numeric value: '{}'.", std::string(text)),
+      loc};
 
   return result;
 }
@@ -449,12 +453,12 @@ template<typename T> std::string to_string_float(T value, sl loc)
 
 
 template<std::floating_point T>
-T float_string_traits<T>::from_string(std::string_view text)
+T float_string_traits<T>::from_string(std::string_view text, pqxx::sl loc)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text);
+  return from_string_arithmetic<T>(text, loc);
 #else
-  return from_string_awful_float<T>(text);
+  return from_string_awful_float<T>(text, loc);
 #endif
 }
 
@@ -513,22 +517,24 @@ template struct float_string_traits<long double>;
 namespace pqxx
 {
 template<pqxx::internal::integer T>
-T string_traits<T>::from_string(std::string_view text)
+T string_traits<T>::from_string(std::string_view text, sl loc)
 {
-  return from_string_arithmetic<T>(text);
+  return from_string_arithmetic<T>(text, loc);
 }
 
-template short string_traits<short>::from_string(std::string_view);
+template short string_traits<short>::from_string(std::string_view, sl loc);
 template unsigned short
-  string_traits<unsigned short>::from_string(std::string_view);
-template int string_traits<int>::from_string(std::string_view);
-template unsigned string_traits<unsigned>::from_string(std::string_view);
-template long string_traits<long>::from_string(std::string_view);
+string_traits<unsigned short>::from_string(std::string_view, sl loc);
+template int string_traits<int>::from_string(std::string_view, sl loc);
+template unsigned
+string_traits<unsigned>::from_string(std::string_view, sl loc);
+template long string_traits<long>::from_string(std::string_view, sl loc);
 template unsigned long
-  string_traits<unsigned long>::from_string(std::string_view);
-template long long string_traits<long long>::from_string(std::string_view);
+string_traits<unsigned long>::from_string(std::string_view, sl loc);
+template long long
+string_traits<long long>::from_string(std::string_view, sl loc);
 template unsigned long long
-  string_traits<unsigned long long>::from_string(std::string_view);
+string_traits<unsigned long long>::from_string(std::string_view, sl loc);
 } // namespace pqxx
 
 

@@ -184,7 +184,7 @@ void test_string_view_conversion()
 
   char buf[200];
 
-  char *end{traits::into_buf(std::begin(buf), std::end(buf), "more view"sv)};
+  char *end{traits::into_buf(buf, "more view"sv)};
   PQXX_CHECK(
     std::begin(buf) < end and end < std::end(buf),
     "string_view into_buf did not stay within its buffer.");
