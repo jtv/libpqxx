@@ -59,19 +59,6 @@ namespace pqxx
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
 {
-/// Efficiently concatenate two strings.
-/** This is a special case of concatenate(), needed because dependency
- * management does not let us use that function here.
- */
-[[nodiscard]] inline std::string cat2(std::string_view x, std::string_view y)
-{
-  std::string buf;
-  auto const xs{std::size(x)}, ys{std::size(y)};
-  buf.resize(xs + ys);
-  x.copy(std::data(buf), xs);
-  y.copy(std::data(buf) + xs, ys);
-  return buf;
-}
 } // namespace pqxx::internal
 
 
@@ -111,7 +98,8 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error{std::format("Cast underflow: {}"sv, description), loc};
+        throw range_error{
+          std::format("Cast underflow: {}"sv, description), loc};
     }
     else
     {
@@ -120,7 +108,8 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
       // perform our check.
       if (value < 0)
         throw range_error{
-          std::format("Casting negative value to unsigned type: {}"sv, description),
+          std::format(
+            "Casting negative value to unsigned type: {}"sv, description),
           loc};
     }
   }
@@ -139,7 +128,8 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     if constexpr (from_max > to_max)
     {
       if (std::cmp_greater(value, to_max))
-        throw range_error{std::format("Cast overflow: {}"sv, description), loc};
+        throw range_error{
+          std::format("Cast overflow: {}"sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())

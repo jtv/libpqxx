@@ -49,8 +49,7 @@ pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, sl loc)
   int const fd{lo_open(raw_conn(&cx), id, mode)};
   if (fd == -1)
     throw pqxx::failure{
-      std::format(
-        "Could not open binary large object {}: ", id, errmsg(&cx)),
+      std::format("Could not open binary large object {}: ", id, errmsg(&cx)),
       loc};
   return {cx, fd};
 }
@@ -75,7 +74,8 @@ void pqxx::blob::remove(dbtransaction &tx, oid id, sl loc)
       "Trying to delete binary large object without an ID.", loc};
   if (lo_unlink(raw_conn(tx), id) == -1)
     throw failure{
-      std::format("Could not delete large object {}: ", id, errmsg(&tx.conn())),
+      std::format(
+        "Could not delete large object {}: ", id, errmsg(&tx.conn())),
       loc};
 }
 
@@ -154,7 +154,8 @@ std::size_t pqxx::blob::raw_read(std::byte buf[], std::size_t size, sl loc)
   auto data{reinterpret_cast<char *>(buf)};
   int const received{lo_read(raw_conn(m_conn), m_fd, data, size)};
   if (received < 0)
-    throw failure{std::format("Could not read from binary large object: {}", errmsg()),
+    throw failure{
+      std::format("Could not read from binary large object: {}", errmsg()),
       loc};
   return static_cast<std::size_t>(received);
 }
@@ -180,7 +181,8 @@ void pqxx::blob::raw_write(bytes_view data, sl loc)
   auto ptr{reinterpret_cast<char const *>(std::data(data))};
   int const written{lo_write(raw_conn(m_conn), m_fd, ptr, sz)};
   if (written < 0)
-    throw failure{std::format("Write to binary large object failed: {}", errmsg()), loc};
+    throw failure{
+      std::format("Write to binary large object failed: {}", errmsg()), loc};
 }
 
 
@@ -190,8 +192,7 @@ void pqxx::blob::resize(std::int64_t size, sl loc)
     throw usage_error{"Attempt to resize a closed binary large object.", loc};
   if (lo_truncate64(raw_conn(m_conn), m_fd, size) < 0)
     throw failure{
-      std::format("Binary large object truncation failed: {}", errmsg()),
-      loc};
+      std::format("Binary large object truncation failed: {}", errmsg()), loc};
 }
 
 
@@ -202,8 +203,7 @@ std::int64_t pqxx::blob::tell(sl loc) const
   std::int64_t const offset{lo_tell64(raw_conn(m_conn), m_fd)};
   if (offset < 0)
     throw failure{
-      std::format(
-        "Error reading binary large object position: {}", errmsg()),
+      std::format("Error reading binary large object position: {}", errmsg()),
       loc};
   return offset;
 }
@@ -260,8 +260,8 @@ pqxx::blob::from_buf(dbtransaction &tx, bytes_view data, oid id, sl loc)
       try
       {
         tx.conn().process_notice(std::format(
-          "Could not clean up partially created large object {}: {}\n",
-          id, e.what()));
+          "Could not clean up partially created large object {}: {}\n", id,
+          e.what()));
       }
       catch (std::exception const &)
       {}
@@ -324,7 +324,8 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, sl loc)
   if (id == 0)
     throw failure{
       std::format(
-        "Could not import '{}' as a binary large object: {}", to_string(path), errmsg(tx)),
+        "Could not import '{}' as a binary large object: {}", to_string(path),
+        errmsg(tx)),
       loc};
   return id;
 }
@@ -335,7 +336,9 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
   auto actual_id{lo_import_with_oid(raw_conn(tx), path.c_str(), id)};
   if (actual_id == 0)
     throw failure{
-      std::format("Could not import '{}' as binary large object : {}", to_string(path), id, errmsg(tx)),
+      std::format(
+        "Could not import '{}' as binary large object : {}", to_string(path),
+        id, errmsg(tx)),
       loc};
   return actual_id;
 }
@@ -346,6 +349,7 @@ void pqxx::blob::to_file(dbtransaction &tx, oid id, zview path, sl loc)
   if (lo_export(raw_conn(tx), id, path.c_str()) < 0)
     throw failure{
       std::format(
-        "Could not export binary large object {} to file '{}': {}", id, to_string(path), errmsg(tx)),
+        "Could not export binary large object {} to file '{}': {}", id,
+        to_string(path), errmsg(tx)),
       loc};
 }

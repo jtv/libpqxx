@@ -310,7 +310,8 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
   case encoding_group::UTF8:
     return parse_composite_field<encoding_group::UTF8>;
   }
-  throw internal_error{std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
+  throw internal_error{
+    std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
 }
 
 

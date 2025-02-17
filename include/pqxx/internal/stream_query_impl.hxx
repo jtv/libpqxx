@@ -27,9 +27,8 @@ inline stream_query<TYPE...>::stream_query(
         transaction_focus{tx, "stream_query"},
         m_char_finder{get_finder(tx, loc)}
 {
-  auto const r{
-    tx.exec(std::format("COPY ({}) TO STDOUT", query), parms, loc)
-      .no_rows(loc)};
+  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), parms, loc)
+                 .no_rows(loc)};
   if (r.columns() != sizeof...(TYPE))
     throw usage_error{
       std::format(

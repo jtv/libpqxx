@@ -107,9 +107,9 @@ pqxx::internal::sql_cursor::sql_cursor(
   query.remove_suffix(std::size(query) - qend);
 
   std::string const cq{std::format(
-    "DECLARE {} {} SCROLL CURSOR {} FOR {} {}",
-    t.quote_name(name()), ((ap == cursor_base::forward_only) ? "NO" : ""),
-    (hold ? "WITH HOLD" : ""), query, ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY"))};
+    "DECLARE {} {} SCROLL CURSOR {} FOR {} {}", t.quote_name(name()),
+    ((ap == cursor_base::forward_only) ? "NO" : ""), (hold ? "WITH HOLD" : ""),
+    query, ((up == cursor_base::update) ? "FOR UPDATE "sv : "FOR READ ONLY"))};
 
   t.exec(cq, loc);
 
@@ -193,7 +193,8 @@ pqxx::internal::sql_cursor::difference_type pqxx::internal::sql_cursor::adjust(
     else if (m_pos != actual)
       throw internal_error{std::format(
         "Moved back to beginning, but wrong position: hoped={}, "
-	"actual={}, m_pos={}, direction={}.", hoped, actual, m_pos, direction)};
+        "actual={}, m_pos={}, direction={}.",
+        hoped, actual, m_pos, direction)};
 
     m_at_end = direction;
   }

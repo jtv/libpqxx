@@ -160,8 +160,8 @@ pqxx::pipeline::retrieve(sl loc)
 int pqxx::pipeline::retain(int retain_max) &
 {
   if (retain_max < 0)
-    throw range_error{std::format(
-      "Attempt to make pipeline retain {} queries.", retain_max)};
+    throw range_error{
+      std::format("Attempt to make pipeline retain {} queries.", retain_max)};
 
   int const oldvalue{m_retain};
   m_retain = retain_max;

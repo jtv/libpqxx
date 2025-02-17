@@ -11,6 +11,8 @@
 
 #include <cstddef>
 
+#include "pqxx/strconv.hxx"
+
 namespace pqxx::internal
 {
 // Types of encodings supported by PostgreSQL, see

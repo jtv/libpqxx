@@ -409,7 +409,8 @@ void test_parse_range()
   for (auto univ : universals)
     PQXX_CHECK_EQUAL(
       traits::from_string(univ), (range{ubound{}, ubound{}}),
-      std::format("This was supposed to produce a universal range: '{}'", univ));
+      std::format(
+        "This was supposed to produce a universal range: '{}'", univ));
 
   PQXX_CHECK(
     traits::from_string("(0,10]").lower_bound().is_exclusive(),
@@ -462,8 +463,7 @@ void test_parse_bad_range()
   for (auto bad : bad_ranges)
     PQXX_CHECK_THROWS(
       pqxx::ignore_unused(traits::from_string(bad)), conv_err,
-      std::format(
-        "This range wasn't supposed to parse: '{}'", bad));
+      std::format("This range wasn't supposed to parse: '{}'", bad));
 }
 
 
@@ -512,7 +512,8 @@ void test_range_intersection()
     PQXX_CHECK_EQUAL(
       intersect<int>(left, right), expected,
       std::format(
-        "Intersection of '{}' and '{} produced unexpected result.", left, right));
+        "Intersection of '{}' and '{} produced unexpected result.", left,
+        right));
     PQXX_CHECK_EQUAL(
       intersect<int>(right, left), expected,
       std::format(

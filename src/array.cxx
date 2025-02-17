@@ -181,7 +181,8 @@ array_parser::implementation array_parser::specialize_for_encoding(
     PQXX_ENCODING_CASE(UHC);
     PQXX_ENCODING_CASE(UTF8);
   }
-  [[unlikely]] throw pqxx::internal_error{std::format("Unsupported encoding code: {}.", to_string(enc)), loc};
+  [[unlikely]] throw pqxx::internal_error{
+    std::format("Unsupported encoding code: {}.", to_string(enc)), loc};
 
 #undef PQXX_ENCODING_CASE
 }

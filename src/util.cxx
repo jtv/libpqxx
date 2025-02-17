@@ -40,8 +40,7 @@ pqxx::thread_safety_model PQXX_COLD pqxx::describe_thread_safety()
 
   model.description = std::format(
     "{}{}",
-    (model.safe_libpq ? "" :
-                        "Using a libpq build that is not thread-safe.\n"),
+    (model.safe_libpq ? "" : "Using a libpq build that is not thread-safe.\n"),
     (model.safe_kerberos ?
        "" :
        "Kerberos is not thread-safe.  If your application uses Kerberos, "
@@ -70,9 +69,12 @@ void pqxx::internal::check_unique_register(
   if (old_guest != nullptr)
     throw usage_error{
       (old_guest == new_guest) ?
-        std::format("Started twice: {}.", describe_object(old_class, old_name)) :
         std::format(
-          "Started new {} while {} was still active.", describe_object(new_class, new_name), describe_object(old_class, old_name))};
+          "Started twice: {}.", describe_object(old_class, old_name)) :
+        std::format(
+          "Started new {} while {} was still active.",
+          describe_object(new_class, new_name),
+          describe_object(old_class, old_name))};
 }
 
 
@@ -84,13 +86,15 @@ void pqxx::internal::check_unique_unregister(
   {
     if (new_guest == nullptr)
       throw usage_error{std::format(
-        "Expected to close, but got null pointer instead.", describe_object(old_class, old_name))};
+        "Expected to close, but got null pointer instead.",
+        describe_object(old_class, old_name))};
     if (old_guest == nullptr)
       throw usage_error{std::format(
         "Closed while not open: {}", describe_object(new_class, new_name))};
     else
       throw usage_error{std::format(
-        "Closed {}; expected to close ", describe_object(new_class, new_name), describe_object(old_class, old_name))};
+        "Closed {}; expected to close ", describe_object(new_class, new_name),
+        describe_object(old_class, old_name))};
   }
 }
 

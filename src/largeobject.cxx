@@ -75,8 +75,8 @@ PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{std::format(
-      "Could not create large object: {}", reason(t.conn(), err))};
+    throw failure{
+      std::format("Could not create large object: {}", reason(t.conn(), err))};
   }
 }
 
@@ -91,7 +91,8 @@ pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{std::format(
-      "Could not import file '{}' to large object: ", file, reason(t.conn(), err))};
+      "Could not import file '{}' to large object: ", file,
+      reason(t.conn(), err))};
   }
 }
 
@@ -112,7 +113,8 @@ pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{std::format(
-      "Could not export large object {} to file '{}': {}", m_id, file, reason(t.conn(), err))};
+      "Could not export large object {} to file '{}': {}", m_id, file,
+      reason(t.conn(), err))};
   }
 }
 
@@ -247,7 +249,8 @@ pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
         "Could not write to large object #{}: {}", id(), reason(err))};
 
     throw failure{std::format(
-      "Wanted to write {} bytes to large object #{}; could only write {}.", len, id(), bytes)};
+      "Wanted to write {} bytes to large object #{}; could only write {}.",
+      len, id(), bytes)};
   }
 }
 
@@ -280,8 +283,8 @@ void PQXX_COLD pqxx::largeobjectaccess::open(openmode mode)
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{std::format(
-      "Could not open large object {}: {}", id(), reason(err))};
+    throw failure{
+      std::format("Could not open large object {}: {}", id(), reason(err))};
   }
 }
 

@@ -99,8 +99,8 @@ template<> struct string_traits<ipv4>
     ends.push_back(std::size(text));
     if (std::size(ends) != 4)
       throw conversion_error{std::format(
-        "Can't parse '{}' as ipv4: expected 4 octets, found {}.",
-        text, std::size(ends))};
+        "Can't parse '{}' as ipv4: expected 4 octets, found {}.", text,
+        std::size(ends))};
     std::size_t start{0};
     for (int i{0}; i < 4; ++i)
     {

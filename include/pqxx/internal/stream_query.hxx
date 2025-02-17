@@ -281,7 +281,8 @@ private:
     {
       if (std::data(text) != nullptr)
         throw conversion_error{std::format(
-          "Streaming a non-null value into a {}, which must always be null.", type_name<field_type>)};
+          "Streaming a non-null value into a {}, which must always be null.",
+          type_name<field_type>)};
     }
     else if (std::data(text) == nullptr)
     {

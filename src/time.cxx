@@ -84,8 +84,7 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
   // as-is, but equates to 32767 BCE which will.
   int const year{pqxx::string_traits<int>::from_string(text)};
   if (year <= 0)
-    throw pqxx::conversion_error{
-      std::format("Bad year: '{}'.", text), loc};
+    throw pqxx::conversion_error{std::format("Bad year: '{}'.", text), loc};
   return year;
 }
 

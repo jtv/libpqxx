@@ -338,7 +338,8 @@ public:
           std::format("Expected {} row(s) from query, got {}.", n, sz), loc};
       else
         throw unexpected_rows{
-          std::format("Expected {} row(s) from query '{}', got {}.", n, *m_query, sz),
+          std::format(
+            "Expected {} row(s) from query '{}', got {}.", n, *m_query, sz),
           loc};
     }
     return *this;
@@ -380,7 +381,8 @@ public:
           std::format("Expected 1 column from query, got {}.", actual), loc};
       else
         throw usage_error{
-          std::format("Expected 1 column from query '{}', got {}.", *m_query, actual),
+          std::format(
+            "Expected 1 column from query '{}', got {}.", *m_query, actual),
           loc};
     }
     return *this;

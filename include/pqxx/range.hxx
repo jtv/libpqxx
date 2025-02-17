@@ -262,7 +262,7 @@ public:
       throw range_error{
         std::format(
           "Range's lower bound ({}) is greater than its upper bound ({}).",
-	  to_string(*lower.value()), to_string(*upper.value())),
+          to_string(*lower.value()), to_string(*upper.value())),
         loc};
   }
 

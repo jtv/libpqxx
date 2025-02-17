@@ -74,7 +74,8 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
     std::string msg{std::format(
       "WARNING: Commit status of transaction '{}' is unknown. "
       "There is no way to tell whether the transaction succeeded "
-      "or was aborted except to check manually.\n", name())};
+      "or was aborted except to check manually.\n",
+      name())};
     process_notice(msg);
     // Strip newline.  It was only needed for process_notice().
     msg.pop_back();
@@ -91,7 +92,8 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
       auto msg{std::format(
         "WARNING: Connection lost while committing transaction '{}'.  "
         "There is no way to tell whether the transaction succeeded or was "
-        "aborted except to check manually.\n", name())};
+        "aborted except to check manually.\n",
+        name())};
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();

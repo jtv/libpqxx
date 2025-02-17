@@ -493,8 +493,7 @@ public:
     {
       if (nullness<TYPE>::is_null(value))
         throw variable_set_to_null{
-          std::format("Attempted to set variable {} to null.", var),
-          loc};
+          std::format("Attempted to set variable {} to null.", var), loc};
     }
     exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
   }
@@ -873,7 +872,9 @@ public:
     if (space < needed)
       throw range_error{
         std::format(
-          "Not enough room to escape string of {} byte(s): need {} bytes of buffer space, but buffer size is {}.", size, needed, size),
+          "Not enough room to escape string of {} byte(s): need {} bytes of "
+          "buffer space, but buffer size is {}.",
+          size, needed, size),
         loc};
     return {std::data(buffer), esc_to_buf(text, buffer, loc)};
   }
@@ -912,7 +913,8 @@ public:
     if (space < needed)
       throw range_error{std::format(
         "Not enough room to escape binary string of {} byte(s): need {} ",
-        " bytes of buffer space, but buffer size is {}.", size, needed, space)};
+        " bytes of buffer space, but buffer size is {}.", size, needed,
+        space)};
 
     bytes_view view{std::data(data), std::size(data)};
     // Actually, in the modern format, we know beforehand exactly how many

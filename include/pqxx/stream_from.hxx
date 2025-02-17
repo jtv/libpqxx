@@ -334,7 +334,8 @@ template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 
   if (std::size(m_fields) != tup_size)
     throw usage_error{std::format(
-      "Tried to extract {} field(s) from a stream of {}.", tup_size, std::size(m_fields))};
+      "Tried to extract {} field(s) from a stream of {}.", tup_size,
+      std::size(m_fields))};
 
   extract_fields(t, std::make_index_sequence<tup_size>{}, loc);
   return *this;

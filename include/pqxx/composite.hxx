@@ -48,7 +48,8 @@ inline void parse_composite(
 
   std::size_t here{0}, next{scan(data, size, here, loc)};
   if (next != 1 or data[here] != '(')
-    throw conversion_error{std::format("Invalid composite value string: '{}'.", text), loc};
+    throw conversion_error{
+      std::format("Invalid composite value string: '{}'.", text), loc};
 
   here = next;
 

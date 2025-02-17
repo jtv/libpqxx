@@ -421,7 +421,9 @@ void pqxx::connection::listen(
   if (m_trans != nullptr)
     throw usage_error{
       std::format(
-        "Attempting to listen for notifications on '{}' while transaction is active.", channel),
+        "Attempting to listen for notifications on '{}' while transaction is "
+        "active.",
+        channel),
       loc};
 
   std::string str_name{channel};
@@ -441,8 +443,7 @@ void pqxx::connection::listen(
     else
     {
       // We had no handler installed for this name.  Start listening.
-      exec(std::format("LISTEN {}", quote_name(channel)), loc)
-        .no_rows(loc);
+      exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
       m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
     }
   }
@@ -453,8 +454,7 @@ void pqxx::connection::listen(
     if (pos != handlers_end)
     {
       // Yes, we had a handler for this name.  Remove it.
-      exec(std::format("UNLISTEN {}", quote_name(channel)), loc)
-        .no_rows(loc);
+      exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
       m_notification_handlers.erase(pos);
     }
   }
@@ -629,7 +629,8 @@ int pqxx::connection::get_notifs(sl loc)
           try
           {
             process_notice(std::format(
-              "Exception in notification receiver '{}': {}\n", i->first, e.what()));
+              "Exception in notification receiver '{}': {}\n", i->first,
+              e.what()));
           }
           catch (std::bad_alloc const &)
           {
@@ -747,7 +748,8 @@ std::string pqxx::connection::encrypt_password(
 void pqxx::connection::prepare(
   char const name[], char const definition[], sl) &
 {
-  auto const q{std::make_shared<std::string>(std::format("[PREPARE {}]", name))};
+  auto const q{
+    std::make_shared<std::string>(std::format("[PREPARE {}]", name))};
 
   auto const r{
     make_result(PQprepare(m_conn, name, definition, 0, nullptr), q, *q)};
@@ -792,7 +794,7 @@ void pqxx::connection::close(sl)
     if (m_trans) [[unlikely]]
       process_notice(std::format(
         "Closing connection while {} is still open.\n",
-	internal::describe_object("transaction"sv, m_trans->name())));
+        internal::describe_object("transaction"sv, m_trans->name())));
 
     if (not std::empty(m_receivers))
     {
@@ -880,8 +882,7 @@ pqxx::connection::read_copy_line()
   switch (line_len)
   {
   case -2: // Error.
-    throw failure{
-      std::format("Reading of table data failed: {}", err_msg())};
+    throw failure{std::format("Reading of table data failed: {}", err_msg())};
 
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q);
@@ -924,8 +925,7 @@ void pqxx::connection::end_copy_write()
   int const res{PQputCopyEnd(m_conn, nullptr)};
   switch (res)
   {
-  case -1:
-    throw failure{std::format("Write to table failed: {}", err_msg())};
+  case -1: throw failure{std::format("Write to table failed: {}", err_msg())};
   case 0: throw internal_error{"table write is inexplicably asynchronous"};
   case 1:
     // Normal termination.  Retrieve result object.
@@ -984,7 +984,7 @@ std::string pqxx::connection::esc_raw(bytes_view bin) const
 
 std::string pqxx::connection::quote_raw(bytes_view bytes) const
 {
-  return std::format("'{}'::bytea",  esc_raw(bytes));
+  return std::format("'{}'::bytea", esc_raw(bytes));
 }
 
 

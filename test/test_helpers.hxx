@@ -140,7 +140,9 @@ inline void check_less_equal(
 {
   if (value1 <= value2)
     return;
-  std::string fulldesc{std::format("{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1, value2)};
+  std::string fulldesc{std::format(
+    "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
+    value2)};
   throw test_failure{fulldesc, loc};
 }
 
@@ -179,8 +181,7 @@ inline void check_succeeds(
   catch (...)
   {
     pqxx::test::check_notreached(
-      std::format("{} - \"{}\" threw a non-exception!", desc, text),
-      loc);
+      std::format("{} - \"{}\" threw a non-exception!", desc, text), loc);
   }
 }
 
@@ -198,19 +199,21 @@ inline void check_throws(
   }
   catch (failure_to_fail const &)
   {
-    check_notreached(std::format("{} (\"{}\" did not throw).", desc, text), loc);
+    check_notreached(
+      std::format("{} (\"{}\" did not throw).", desc, text), loc);
   }
   catch (EXC const &)
   {}
   catch (std::exception const &e)
   {
-    check_notreached(std::format("{} (\"{}\" threw the wrong exception type: {}).", desc, text, e.what()));
+    check_notreached(std::format(
+      "{} (\"{}\" threw the wrong exception type: {}).", desc, text,
+      e.what()));
   }
   catch (...)
   {
     check_notreached(
-      std::format("{} (\"{}\" threw a non-exception type!)", desc, text),
-      loc);
+      std::format("{} (\"{}\" threw a non-exception type!)", desc, text), loc);
   }
 }
 
@@ -228,7 +231,8 @@ inline void check_throws_exception(
   }
   catch (failure_to_fail const &)
   {
-    check_notreached(std::format("{} (\"{}\" did not throw)", desc, text), loc);
+    check_notreached(
+      std::format("{} (\"{}\" did not throw)", desc, text), loc);
   }
   catch (std::exception const &)
   {}

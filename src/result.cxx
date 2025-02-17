@@ -349,7 +349,8 @@ std::string pqxx::result::status_error(sl loc) const
 
   default:
     throw internal_error{
-      std::format("pqxx::result: Unrecognized result status code {}",
+      std::format(
+        "pqxx::result: Unrecognized result status code {}",
         to_string(PQresultStatus(m_data.get()))),
       loc};
   }
@@ -421,7 +422,8 @@ pqxx::oid pqxx::result::column_type(row::size_type col_num, sl loc) const
   if (t == oid_none)
     throw argument_error{
       std::format(
-        "Attempt to retrieve type of nonexistent column {} of query result.", col_num),
+        "Attempt to retrieve type of nonexistent column {} of query result.",
+        col_num),
       loc};
   return t;
 }
@@ -431,7 +433,8 @@ pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
 {
   auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
-    throw argument_error{std::format("Unknown column name: ''.", to_string(col_name)), loc};
+    throw argument_error{
+      std::format("Unknown column name: ''.", to_string(col_name)), loc};
 
   return static_cast<row::size_type>(n);
 }
@@ -447,8 +450,8 @@ pqxx::oid pqxx::result::column_table(row::size_type col_num, sl loc) const
   if (t == oid_none and col_num >= columns())
     throw argument_error{
       std::format(
-        "Attempt to retrieve table ID for column {} out of {}.",
-        col_num, columns()),
+        "Attempt to retrieve table ID for column {} out of {}.", col_num,
+        columns()),
       loc};
 
   return t;
@@ -472,12 +475,14 @@ pqxx::result::table_column(row::size_type col_num, sl loc) const
   if (m_data.get() == nullptr)
     throw usage_error{
       std::format(
-        "Can't query origin of column {}: result is not initialized.", col_str),
+        "Can't query origin of column {}: result is not initialized.",
+        col_str),
       loc};
 
   throw usage_error{
     std::format(
-      "Can't query origin of column {}: not derived from table column.", col_str),
+      "Can't query origin of column {}: not derived from table column.",
+      col_str),
     loc};
 }
 
@@ -530,8 +535,7 @@ int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
           "Column number out of range: {} (have 0 - {})", number, sz),
         loc};
     throw failure{
-      std::format("Error getting column_storage for column {}.", number),
-      loc};
+      std::format("Error getting column_storage for column {}.", number), loc};
   }
   return out;
 }
@@ -552,8 +556,7 @@ pqxx::row pqxx::result::one_row(sl loc) const
     // TODO: See whether result contains a generated statement.
     if (not m_query or m_query->empty())
       throw unexpected_rows{
-        std::format("Expected 1 row from query, got {}.", sz),
-        loc};
+        std::format("Expected 1 row from query, got {}.", sz), loc};
     else
       throw unexpected_rows{
         std::format("Expected 1 row from query '{}', got {}.", *m_query, sz),
@@ -581,7 +584,8 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
         std::format("Expected at most 1 row from query, got {}.", sz), loc};
     else
       throw unexpected_rows{
-        std::format("Expected at most 1 row from query '{}', got {}.", *m_query, sz),
+        std::format(
+          "Expected at most 1 row from query '{}', got {}.", *m_query, sz),
         loc};
   }
   else if (sz == 1)

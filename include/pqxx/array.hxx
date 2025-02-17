@@ -175,7 +175,10 @@ private:
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
       throw conversion_error{
-        std::format("Trying to parse a {}-dimensional array out of '{}'.", DIMENSIONS, data), loc};
+        std::format(
+          "Trying to parse a {}-dimensional array out of '{}'.", DIMENSIONS,
+          data),
+        loc};
 
     // Making some assumptions here:
     // * The array holds no extraneous whitespace.
@@ -191,12 +194,16 @@ private:
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[i] != '{')
         throw conversion_error{
-	  std::format("Expecting {}-dimensional array, but found {}.", DIMENSIONS, i), loc};
+          std::format(
+            "Expecting {}-dimensional array, but found {}.", DIMENSIONS, i),
+          loc};
     if (data[DIMENSIONS] == '{')
       throw conversion_error{
         std::format(
-	  "Tried to parse {}-dimensional array from array data that has more "
-	  "dimensions.", DIMENSIONS), loc};
+          "Tried to parse {}-dimensional array from array data that has more "
+          "dimensions.",
+          DIMENSIONS),
+        loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
@@ -258,7 +265,7 @@ private:
         throw conversion_error{
           std::format(
             "Unexpected character in array: {} where separator or closing "
-	    "brace expected.",
+            "brace expected.",
             static_cast<unsigned>(static_cast<unsigned char>(data[here]))),
           loc};
       }
@@ -418,9 +425,11 @@ private:
               m_elts.emplace_back(nullness<ELEMENT>::null());
             else
               throw unexpected_null{
-	        std::format(
-		  "Array contains a null {}.  Consider making it an array of "
-		  "std::optional<{}> instead.", type_name<ELEMENT>, type_name<ELEMENT>), loc};
+                std::format(
+                  "Array contains a null {}.  Consider making it an array of "
+                  "std::optional<{}> instead.",
+                  type_name<ELEMENT>, type_name<ELEMENT>),
+                loc};
           }
           else
             m_elts.emplace_back(from_string<ELEMENT>(field, loc));
@@ -496,7 +505,8 @@ private:
     static_assert(dimension < DIMENSIONS);
     if (first >= m_extents[dimension])
       throw range_error{std::format(
-        "Array index for dimension {} is out of bounds: {} >= {}.", dimension, first, m_extents[dimension])};
+        "Array index for dimension {} is out of bounds: {} >= {}.", dimension,
+        first, m_extents[dimension])};
 
     // Now check the rest of the indexes, if any.
     if constexpr (sizeof...(indexes) > 0)

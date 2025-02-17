@@ -53,7 +53,8 @@ pqxx::stream_from::stream_from(
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
-  tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc).no_rows(loc);
+  tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc)
+    .no_rows(loc);
   register_me();
 }
 
@@ -65,10 +66,10 @@ pqxx::stream_from::stream_from(
 {
   sl const loc{sl::current()};
   if (std::empty(columns)) [[unlikely]]
-    tx.exec(std::format("COPY {} TO STDOUT", table), loc)
-      .no_rows(loc);
+    tx.exec(std::format("COPY {} TO STDOUT", table), loc).no_rows(loc);
   else [[likely]]
-    tx.exec(std::format("COPY {}({}) TO STDOUT", table, columns), loc).no_rows(loc);
+    tx.exec(std::format("COPY {}({}) TO STDOUT", table, columns), loc)
+      .no_rows(loc);
   register_me();
 }
 

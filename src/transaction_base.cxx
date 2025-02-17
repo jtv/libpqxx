@@ -60,8 +60,7 @@ pqxx::transaction_base::~transaction_base()
   try
   {
     if (not std::empty(m_pending_error)) [[unlikely]]
-      process_notice(
-        std::format("UNPROCESSED ERROR: {}\n", m_pending_error));
+      process_notice(std::format("UNPROCESSED ERROR: {}\n", m_pending_error));
 
     if (m_registered)
     {
@@ -136,7 +135,8 @@ void pqxx::transaction_base::commit(sl loc)
   if (m_focus != nullptr)
     throw failure{
       std::format(
-        "Attempt to commit {} with {} still open.", description(), m_focus->description()),
+        "Attempt to commit {} with {} still open.", description(),
+        m_focus->description()),
       loc};
 
   // Check that we're still connected (as far as we know--this is not an
@@ -203,7 +203,8 @@ void pqxx::transaction_base::abort(sl loc)
     // to an insane situation.  Log it, but do not fail.
     m_conn.process_notice(std::format(
       "Warning: {} aborted after going into indeterminate state; "
-      "it may have been executed anyway.\n", description()));
+      "it may have been executed anyway.\n",
+      description()));
     return;
 
   default: PQXX_UNREACHABLE;
@@ -277,8 +278,7 @@ pqxx::result pqxx::transaction_base::exec(
   case status::committed:
   case status::aborted:
   case status::in_doubt: {
-    std::string const n{
-      std::empty(desc) ? "" : std::format("'{}' ", desc)};
+    std::string const n{std::empty(desc) ? "" : std::format("'{}' ", desc)};
 
     throw usage_error{
       std::format(
@@ -375,7 +375,8 @@ void pqxx::transaction_base::close(sl loc) noexcept
 
     if (m_focus != nullptr) [[unlikely]]
       m_conn.process_notice(std::format(
-        "Closing {} with {} still open.\n", description(), m_focus->description()));
+        "Closing {} with {} still open.\n", description(),
+        m_focus->description()));
 
     try
     {

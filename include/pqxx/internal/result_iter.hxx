@@ -118,7 +118,8 @@ inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
     throw usage_error{
       std::format(
         "Callback to for_each takes {} parameter(s), but result set has {} "
-        "field(s).", sz, cols),
+        "field(s).",
+        sz, cols),
       loc};
 
   using pass_tuple = pqxx::internal::strip_types_t<args_tuple>;
