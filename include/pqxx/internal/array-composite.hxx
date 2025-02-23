@@ -338,13 +338,14 @@ inline std::size_t size_composite_field_buffer(T const &field)
 
 
 template<typename T>
-inline void write_composite_field(char *&pos, char *end, T const &field)
+inline void write_composite_field(
+  std::span<char> buf, std::size_t &pos, T const &field, sl loc)
 {
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer, and "backspace" the trailing zero.
-    pos = into_buf({pos, end}, field) - 1;
+    pos += into_buf(buf.subspan(pos), field) - 1;
   }
   else
   {
@@ -352,21 +353,28 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
     // To avoid allocating that at run time, we use the end of the buffer that
     // we have.
     auto const budget{size_buffer(field)};
-    *pos++ = '"';
+    assert(budget < std::size(buf));
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const c : to_buf({end - budget, end}, field))
+    for (char const c :
+         to_buf(buf.subspan(std::size(buf) - budget), field, loc))
     {
       if ((c == '"') or (c == '\\'))
-        *pos++ = '\\';
+        // C++26: Use buf.at().
+        buf[pos++] = '\\';
 
-      *pos++ = c;
+      // C++26: Use buf.at().
+      buf[pos++] = c;
     }
 
-    *pos++ = '"';
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
   }
 
-  *pos++ = ',';
+  // C++26: Use buf.at().
+  buf[pos++] = ',';
 }
 } // namespace pqxx::internal
 #endif

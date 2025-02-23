@@ -212,7 +212,7 @@ std::string demangle_type_name(char const raw[])
   {
     try
     {
-      std::string out{str, len};
+      std::string out{str};
       // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
       std::free(str);
       str = nullptr;

@@ -189,7 +189,7 @@ public:
    * The only circumstance where it's safe to skip this is after an error, if
    * you're discarding the entire connection.
    */
-  void complete();
+  void complete(sl loc = sl::current());
 
   /// Insert a row of data.
   /** Returns a reference to the stream, so you can chain the calls.
@@ -314,6 +314,7 @@ private:
       auto const budget{estimate_buffer(f)};
       auto const offset{std::size(m_buffer)};
 
+      // TODO: Didn't we have an abstraction specifically for this?
       if constexpr (std::is_arithmetic_v<Field>)
       {
         // Specially optimised for "safe" types, which never need any
@@ -325,10 +326,13 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
-        char *const end{into_buf({data + offset, data + total}, f, loc)};
-        *(end - 1) = '\t';
+        std::size_t const end{
+          offset + into_buf({data + offset, data + total}, f, loc)};
+        assert(end < std::size(m_buffer));
+        assert(m_buffer[end - 1] == '\0');
+        m_buffer[end - 1] = '\t';
         // Shrink to fit.  Keep the tab though.
-        m_buffer.resize(static_cast<std::size_t>(end - data));
+        m_buffer.resize(end);
       }
       else if constexpr (
         std::is_same_v<Field, std::string> or
@@ -358,7 +362,7 @@ private:
         std::is_same_v<Field, std::shared_ptr<std::string_view>> or
         std::is_same_v<Field, std::shared_ptr<zview>>)
       {
-        // TODO: Can we generalise this elegantly without Concepts?
+        // TODO: Generalise this.
         // Effectively also an optional string.  It's not null (we checked
         // for that above).
         m_field_buf.resize(budget);

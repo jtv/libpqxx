@@ -62,15 +62,14 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   result.resize(budget);
 
   char *const data{result.data()};
-  char *here{data};
   char *stop{data + budget};
-  here = pqxx::into_buf({here, stop}, access(begin)) - 1;
+  std::size_t here{pqxx::into_buf({data, stop}, access(begin)) - 1};
   for (++begin; begin != end; ++begin)
   {
-    here += sep.copy(here, std::size(sep));
-    here = pqxx::into_buf({here, stop}, access(begin)) - 1;
+    here += sep.copy(data + here, std::size(sep));
+    here += pqxx::into_buf({data + here, stop}, access(begin)) - 1;
   }
-  result.resize(static_cast<std::size_t>(here - data));
+  result.resize(here);
   return result;
 }
 

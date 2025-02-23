@@ -119,13 +119,13 @@ pqxx::stream_to::stream_to(
 }
 
 
-void pqxx::stream_to::complete()
+void pqxx::stream_to::complete(sl loc)
 {
   if (!m_finished)
   {
     m_finished = true;
     unregister_me();
-    internal::gate::connection_stream_to{m_trans->conn()}.end_copy_write();
+    internal::gate::connection_stream_to{m_trans->conn()}.end_copy_write(loc);
   }
 }
 

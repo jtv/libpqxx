@@ -126,71 +126,42 @@ composite_size_buffer(T const &...fields) noexcept
  * for a composite type.
  */
 template<typename... T>
-inline char *composite_into_buf(char *begin, char *end, T const &...fields)
-{
-  auto loc{sl::current()};
-  if (std::size_t(end - begin) < composite_size_buffer(fields...))
-    throw conversion_error{
-      "Buffer space may not be enough to represent composite value.", loc};
-
-  constexpr auto num_fields{sizeof...(fields)};
-  if constexpr (num_fields == 0)
-  {
-    constexpr char empty[]{"()"};
-    std::memcpy(begin, empty, std::size(empty));
-    return begin + std::size(empty);
-  }
-
-  char *pos{begin};
-  *pos++ = '(';
-
-  (pqxx::internal::write_composite_field<T>(pos, end, fields), ...);
-
-  // If we've got multiple fields, "backspace" that last comma.
-  if constexpr (num_fields > 1)
-    --pos;
-  *pos++ = ')';
-  *pos++ = '\0';
-  return pos;
-}
-
-
-// XXX: Inject source_location.
-// XXX: Change return type.
-/// Render a series of values as a single composite SQL value.
-/** @warning This code is still experimental.  Use with care.
- *
- * You may use this as a helper while implementing your own `string_traits`
- * for a composite type.
- */
-template<typename... T>
-inline char *composite_into_buf(std::span<char> buf, T const &...fields)
+inline std::size_t composite_into_buf(std::span<char> buf, T const &...fields)
 {
   auto loc{sl::current()};
   if (std::size(buf) < composite_size_buffer(fields...))
     throw conversion_error{
       "Buffer space may not be enough to represent composite value.", loc};
 
-  auto const begin{std::data(buf)};
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
-    constexpr char empty[]{"()"};
-    std::memcpy(begin, empty, std::size(empty));
-    return begin + std::size(empty);
+    constexpr std::string_view empty{"()"};
+    return empty.copy(std::data(buf), std::size(empty));
   }
 
-  char *pos{begin}, *end{begin + std::size(buf)};
-  *pos++ = '(';
+  std::size_t pos{0};
+  // C++26: Use buf.at().
+  buf[pos++] = '(';
 
-  (pqxx::internal::write_composite_field<T>(pos, end, fields), ...);
+  (pqxx::internal::write_composite_field<T>(buf, pos, fields, loc), ...);
 
   // If we've got multiple fields, "backspace" that last comma.
   if constexpr (num_fields > 1)
     --pos;
-  *pos++ = ')';
-  *pos++ = '\0';
+  // C++26: Use buf.at().
+  buf[pos++] = ')';
+  buf[pos++] = '\0';
   return pos;
+}
+
+
+/// Render a series of values as a single composite SQL value.
+template<typename... T>
+[[deprecated("Pass std::span<char> instead of pair of pointers.")]]
+inline char *composite_into_buf(char *begin, char *end, T const &...fields)
+{
+  return begin + composite_into_buf(std::span<char>{begin, end}, fields...);
 }
 } // namespace pqxx
 #endif

@@ -920,20 +920,22 @@ void pqxx::connection::write_copy_line(std::string_view line, sl loc)
 }
 
 
-void pqxx::connection::end_copy_write()
+void pqxx::connection::end_copy_write(sl loc)
 {
   int const res{PQputCopyEnd(m_conn, nullptr)};
   switch (res)
   {
-  case -1: throw failure{std::format("Write to table failed: {}", err_msg())};
-  case 0: throw internal_error{"table write is inexplicably asynchronous"};
+  case -1:
+    throw failure{std::format("Write to table failed: {}", err_msg()), loc};
+  case 0:
+    throw internal_error{"table write is inexplicably asynchronous", loc};
   case 1:
     // Normal termination.  Retrieve result object.
     break;
 
   default:
     throw internal_error{
-      std::format("unexpected result {} from PQputCopyEnd()", res)};
+      std::format("unexpected result {} from PQputCopyEnd()", res), loc};
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};

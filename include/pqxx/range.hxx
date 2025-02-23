@@ -436,12 +436,12 @@ template<typename TYPE> struct string_traits<range<TYPE>>
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (lower != nullptr)
-        here = pqxx::into_buf({here, end}, *lower) - 1;
+        here += pqxx::into_buf({here, end}, *lower) - 1;
       *here++ = ',';
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (upper != nullptr)
-        here = pqxx::into_buf({here, end}, *upper, loc) - 1;
+        here += pqxx::into_buf({here, end}, *upper, loc) - 1;
       if ((end - here) < 2)
         throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =

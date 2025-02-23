@@ -15,6 +15,6 @@ class PQXX_PRIVATE connection_stream_to : callgate<connection>
   {
     home().write_copy_line(line, loc);
   }
-  void end_copy_write() { home().end_copy_write(); }
+  void end_copy_write(sl loc) { home().end_copy_write(loc); }
 };
 } // namespace pqxx::internal::gate
