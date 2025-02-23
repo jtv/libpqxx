@@ -163,24 +163,23 @@ template<typename TYPE> struct string_traits
   // TODO: Can we support writable contiguous_ranges more broadly?
   // TODO: Can we preserve static buffer size information if present?
   /// Return a @c string_view representing value, plus terminating zero.
-  /** Produces a @c string_view containing the PostgreSQL string representation
-   * for @c value.
+  /** Produces a view containing the PostgreSQL string representation for
+   * @c value.
    *
    * @warning A null value has no string representation.  Do not pass a null.
    *
-   * Uses the space from @c begin to @c end as a buffer, if needed.  The
-   * returned string may lie somewhere in that buffer, or it may be a
-   * compile-time constant, or it may be null if value was a null value.  Even
-   * if the string is stored in the buffer, its @c begin() may or may not be
-   * the same as @c begin.
+   * Uses `buf` to store the string's contents, if needed.  The returned
+   * string view may lie somewhere in that buffer, or it may be a
+   * compile-time constant.  Even if it does store the string in the buffer,
+   * the string may not start at the exact beginning of `buf`.
    *
-   * The @c string_view is guaranteed to be valid as long as the buffer from
-   * @c begin to @c end remains accessible and unmodified.
+   * The resulting view  is guaranteed to be valid as long as the buffer space
+   * to which `buf` points remains accessible, and its contents unmodified.
    *
-   * @throws pqxx::conversion_overrun if the provided buffer space may not be
-   * enough.  For maximum performance, this is a conservative estimate.  It may
-   * complain about a buffer which is actually large enough for your value, if
-   * an exact check gets too expensive.
+   * @throws pqxx::conversion_overrun if `buf` is not large enough.  For
+   * maximum performance, this is a conservative estimate.  It may complain
+   * about a buffer which is actually large enough for your value, if an exact
+   * check would be too expensive.
    */
   [[nodiscard]] static inline zview
   to_buf(std::span<char> buf, TYPE const &value, sl = sl::current());
