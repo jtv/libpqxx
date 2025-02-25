@@ -14,8 +14,8 @@ jobs:
       - run:
           name: Install
           command: apt-get install -y lsb-release python3 cmake postgresql
-	    libpq-dev postgresql-server-dev-all build-essential autoconf
-	    dh-autoreconf autoconf-archive automake cppcheck clang shellcheck
+            libpq-dev postgresql-server-dev-all build-essential autoconf
+            autoconf-archive automake cppcheck clang shellcheck
             python3-virtualenv
       - run:
           name: Identify
