@@ -13,10 +13,10 @@ jobs:
           command: apt-get update
       - run:
           name: Install
-          command: DEBIAN_FRONTEND=noninteractive TC=UTC apt-get install -y
+          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
-            clang shellcheck python3-virtualenv
+            shellcheck python3-virtualenv
       - run:
           name: Identify
           command: lsb_release -a && c++ --version && clang++ --version
