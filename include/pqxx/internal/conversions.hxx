@@ -677,9 +677,10 @@ template<> struct string_traits<std::string>
 };
 
 
-/// There's no real null for `std::string_view`.
-/** I'm not sure how clear-cut this is: a `string_view` may have a null
- * data pointer, which is analogous to a null `char` pointer.
+/// There's no real null value for `std::string_view`.
+/** A `string_view` may have a null data pointer, which is analogous to a null
+ * `char` pointer, but the standard does not really seem to guarantee that it
+ * is distinct from other empty string views.
  */
 template<> struct nullness<std::string_view> : no_null<std::string_view>
 {};
@@ -852,18 +853,17 @@ struct string_traits<std::unique_ptr<T, Args...>>
   }
 
   static char *
-  into_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
+  into_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value, sl loc = sl::current())
   {
+    if (not value) internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
   static zview
-  to_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value)
+  to_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value, sl loc = sl::current())
   {
-    if (value)
-      return pqxx::to_buf({begin, end}, *value);
-    else
-      return {};
+    if (not value) internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
+    return pqxx::to_buf({begin, end}, *value);
   }
 
   static std::size_t
@@ -913,14 +913,16 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return std::make_shared<T>(string_traits<T>::from_string(text));
   }
 
-  static zview to_buf(char *begin, char *end, std::shared_ptr<T> const &value)
+  static zview to_buf(char *begin, char *end, std::shared_ptr<T> const &value, sl loc = sl::current())
   {
-    return to_buf({begin, end}, *value);
+    if (not value) internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
+    return pqxx::to_buf({begin, end}, *value, loc);
   }
   static char *
-  into_buf(char *begin, char *end, std::shared_ptr<T> const &value)
+  into_buf(char *begin, char *end, std::shared_ptr<T> const &value, sl loc = sl::current())
   {
-    return begin + pqxx::into_buf({begin, end}, *value);
+    if (not value) internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
+    return begin + pqxx::into_buf({begin, end}, *value, loc);
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {

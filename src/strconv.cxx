@@ -234,14 +234,14 @@ std::string demangle_type_name(char const raw[])
 void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
 {
   throw conversion_error{
-    std::format("Attempt to convert SQL null to {}.", type), loc};
+    std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
 void PQXX_COLD throw_null_conversion(std::string_view type, sl loc)
 {
   throw conversion_error{
-    std::format("Attempt to convert SQL null to {}.", type), loc};
+    std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
