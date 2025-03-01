@@ -1,6 +1,8 @@
 #include <memory>
 #include <optional>
 
+#include <pqxx/range>
+#include <pqxx/time>
 #include <pqxx/transaction>
 
 #include "test_helpers.hxx"
@@ -311,13 +313,24 @@ void test_to_buf()
   test_to_buf_for(std::make_unique<std::string>("Boogie"), "Boogie");
   test_to_buf_for(std::make_shared<std::string>("Woogie"), "Woogie");
 
+  test_to_buf_for(std::array<int,3>{10, 9, 8}, "{10,9,8}");
+  test_to_buf_for(std::vector<int>{3, 2, 1}, "{3,2,1}");
+  test_to_buf_for(std::vector<std::string>{"eins", "zwo"}, "{\"eins\",\"zwo\"}");
+  test_to_buf_for(std::vector<std::string>{"x,y", "z"}, "{\"x,y\",\"z\"}");
+  test_to_buf_for(std::list<std::string_view>{"foo"}, "{\"foo\"}");
+
+  test_to_buf_for(std::chrono::year_month_day{std::chrono::year{2025}, std::chrono::month{03}, std::chrono::day{01}}, "2025-03-01");
+
+  test_to_buf_for(pqxx::range<int>{pqxx::inclusive_bound<int>{9}, pqxx::inclusive_bound<int>{17}}, "[9,17]");
+  test_to_buf_for(pqxx::range<int>{pqxx::exclusive_bound<int>{0}, pqxx::exclusive_bound<int>{10}}, "(0,10)");
+  test_to_buf_for(pqxx::range<int>{pqxx::no_bound{}, pqxx::no_bound{}}, "(,)");
+
+  // XXX: composites
   // XXX: binary data
-  // XXX: SQL arrays
-  // XXX: Conversions outside of conversions.hxx.
 }
 
-// XXX: string_view
-// XXX: zview
+// XXX: to_buf() on string_view (irregular conversion)
+// XXX: to_buf() on zview (irregular conversion)
 
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
