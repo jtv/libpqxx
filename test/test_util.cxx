@@ -15,12 +15,12 @@ template<typename T> void test_for(T const &val)
   std::span<std::byte const> out{pqxx::binary_cast(val)};
 
   PQXX_CHECK_EQUAL(
-    std::size(out), sz, "Got bad size on binary_cast<" + name + "().");
+    std::size(out), sz, std::format("Got bad size on binary_cast<{}().", name));
 
   for (std::size_t i{0}; i < sz; ++i)
     PQXX_CHECK_EQUAL(
       static_cast<unsigned>(out[i]), static_cast<unsigned>(val[i]),
-      "Mismatch in " + name + " byte " + pqxx::to_string(i) + ".");
+      std::format("Mismatch in {} byte {}.", name, i));
 }
 
 
