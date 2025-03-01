@@ -200,8 +200,9 @@ inline void parse_composite_field(
       field = nullness<T>::null();
     else
       throw conversion_error{
-        "Can't read composite field " + to_string(index) + ": C++ type " +
-          type_name<T> + " does not support nulls.",
+        std::format(
+          "Can't read composite field {}: C++ type {} does not support nulls.",
+          to_string(index), type_name<T>),
         loc};
     break;
 
