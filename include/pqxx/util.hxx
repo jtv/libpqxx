@@ -320,7 +320,6 @@ template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 }
 
 
-// XXX: Write separate tests for binary_cast.
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
  * types, and constructs a `pqxx::bytes_view` pointing to the same data.
