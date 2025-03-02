@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get -y remove exim4 && apt-get update && apt-get -y upgrade
+          command: apt-get update && apt-get -y upgrade
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
