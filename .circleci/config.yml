@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get update
+          command: apt-get update && apt-get upgrade
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
