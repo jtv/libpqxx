@@ -367,10 +367,10 @@ concept to_buf_8 =
 
 /// Signature for string_traits<TYPE>::into_buf() in libpqxx 7.
 template<typename TYPE>
-concept into_buf_7 = requires(
-  zview out, char const *buf, char *begin, char *end, TYPE const &value) {
-  out = string_traits<TYPE>::into_buf(begin, end, value);
-};
+concept into_buf_7 =
+  requires(char *out, char *begin, char *end, TYPE const &value) {
+    out = string_traits<TYPE>::into_buf(begin, end, value);
+  };
 
 /// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
 template<typename TYPE>

@@ -751,12 +751,7 @@ template<> struct string_traits<zview>
     return begin + size + 1;
   }
 
-  static std::string_view to_buf(char *begin, char *end, zview const &value)
-  {
-    auto const stop{pqxx::into_buf({begin, end}, value)};
-    auto const len{stop - 1};
-    return {begin, len};
-  }
+  static zview to_buf(char *, char *, zview const &value) { return value; }
 
   /// Don't convert to this type.  There may not be a terminating zero.
   /** There is no valid way to figure out here whether there is a terminating
@@ -852,17 +847,21 @@ struct string_traits<std::unique_ptr<T, Args...>>
     return std::make_unique<T>(string_traits<T>::from_string(text));
   }
 
-  static char *
-  into_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value, sl loc = sl::current())
+  static char *into_buf(
+    char *begin, char *end, std::unique_ptr<T, Args...> const &value,
+    sl loc = sl::current())
   {
-    if (not value) internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
+    if (not value)
+      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
-  static zview
-  to_buf(char *begin, char *end, std::unique_ptr<T, Args...> const &value, sl loc = sl::current())
+  static zview to_buf(
+    char *begin, char *end, std::unique_ptr<T, Args...> const &value,
+    sl loc = sl::current())
   {
-    if (not value) internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
+    if (not value)
+      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
     return pqxx::to_buf({begin, end}, *value);
   }
 
@@ -913,15 +912,20 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return std::make_shared<T>(string_traits<T>::from_string(text));
   }
 
-  static zview to_buf(char *begin, char *end, std::shared_ptr<T> const &value, sl loc = sl::current())
+  static zview to_buf(
+    char *begin, char *end, std::shared_ptr<T> const &value,
+    sl loc = sl::current())
   {
-    if (not value) internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
+    if (not value)
+      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
     return pqxx::to_buf({begin, end}, *value, loc);
   }
-  static char *
-  into_buf(char *begin, char *end, std::shared_ptr<T> const &value, sl loc = sl::current())
+  static char *into_buf(
+    char *begin, char *end, std::shared_ptr<T> const &value,
+    sl loc = sl::current())
   {
-    if (not value) internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
+    if (not value)
+      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
     return begin + pqxx::into_buf({begin, end}, *value, loc);
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept

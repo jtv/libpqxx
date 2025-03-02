@@ -15,7 +15,8 @@ template<typename T> void test_for(T const &val)
   std::span<std::byte const> out{pqxx::binary_cast(val)};
 
   PQXX_CHECK_EQUAL(
-    std::size(out), sz, std::format("Got bad size on binary_cast<{}().", name));
+    std::size(out), sz,
+    std::format("Got bad size on binary_cast<{}().", name));
 
   for (std::size_t i{0}; i < sz; ++i)
     PQXX_CHECK_EQUAL(
