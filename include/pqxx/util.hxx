@@ -584,6 +584,33 @@ error_string(int err_num, std::span<char> buffer)
   return "(No error information available.)";
 #endif
 }
+
+
+/// Represent a std::source_location as human-readable text.
+inline std::string source_loc(sl loc)
+{
+  // TODO: Rewrite to guarantee Return Value Optimisation.
+  char const *const func{loc.function_name()};
+  // (The standard says this can't be null, but let's be conservative.)
+  bool const have_func{func != nullptr and *func != '\0'}, have_line{loc.line() > 0};
+
+  if (have_func and have_line)
+  {
+    return std::format("{} in {}:{}", func, loc.file_name(), loc.line());
+  }
+  else if (have_func)
+  {
+    return std::format("{} in {}", func, loc.file_name());
+  }
+  else if (have_line)
+  {
+    return std::format("{}:{}", loc.file_name(), loc.line());
+  }
+  else
+  {
+    return std::string{loc.file_name()};
+  }
+}
 } // namespace pqxx::internal
 
 
