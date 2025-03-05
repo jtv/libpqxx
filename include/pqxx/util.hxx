@@ -592,7 +592,8 @@ inline std::string source_loc(sl loc)
   // TODO: Rewrite to guarantee Return Value Optimisation.
   char const *const func{loc.function_name()};
   // (The standard says this can't be null, but let's be conservative.)
-  bool const have_func{func != nullptr and *func != '\0'}, have_line{loc.line() > 0};
+  bool const have_func{func != nullptr and *func != '\0'},
+    have_line{loc.line() > 0};
 
   if (have_func and have_line)
   {

@@ -213,7 +213,7 @@ public:
    * skip it in error scenarios where you're not planning to use the connection
    * again afterwards.
    */
-  void complete();
+  void complete(sl = sl::current());
 
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.

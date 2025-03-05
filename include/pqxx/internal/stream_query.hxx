@@ -97,7 +97,7 @@ public:
     }
     catch (std::exception const &e)
     {
-      reg_pending_error(e.what());
+      reg_pending_error(e.what(), sl::current());
     }
   }
 

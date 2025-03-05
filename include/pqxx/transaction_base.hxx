@@ -1167,8 +1167,8 @@ private:
   friend class pqxx::internal::gate::transaction_transaction_focus;
   PQXX_PRIVATE void register_focus(transaction_focus *);
   PQXX_PRIVATE void unregister_focus(transaction_focus *) noexcept;
-  PQXX_PRIVATE void register_pending_error(zview) noexcept;
-  PQXX_PRIVATE void register_pending_error(std::string &&) noexcept;
+  PQXX_PRIVATE void register_pending_error(zview, sl) noexcept;
+  PQXX_PRIVATE void register_pending_error(std::string &&, sl) noexcept;
 
   /// Like @ref stream(), but takes a tuple rather than a parameter pack.
   template<typename... ARGS>

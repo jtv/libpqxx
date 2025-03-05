@@ -89,7 +89,7 @@ public:
 protected:
   void register_me();
   void unregister_me() noexcept;
-  void reg_pending_error(std::string const &) noexcept;
+  void reg_pending_error(std::string const &, sl) noexcept;
   bool registered() const noexcept { return m_registered; }
 
   transaction_base *m_trans;

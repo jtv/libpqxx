@@ -108,7 +108,7 @@ pqxx::stream_from::~stream_from() noexcept
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), sl::current());
   }
 }
 
@@ -149,7 +149,7 @@ void pqxx::stream_from::close()
 }
 
 
-void pqxx::stream_from::complete()
+void pqxx::stream_from::complete(sl loc)
 {
   if (m_finished)
     return;
@@ -172,7 +172,7 @@ void pqxx::stream_from::complete()
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), loc);
   }
   close();
 }

@@ -463,7 +463,7 @@ pqxx::result pqxx::transaction_base::direct_exec(
 }
 
 
-void pqxx::transaction_base::register_pending_error(zview err) noexcept
+void pqxx::transaction_base::register_pending_error(zview err, sl loc) noexcept
 {
   if (std::empty(m_pending_error) and not std::empty(err))
   {
@@ -475,8 +475,8 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
-        // XXX: Log source location?
-        [[unlikely]] process_notice("UNABLE TO PROCESS ERROR\n");
+        [[unlikely]] process_notice(std::format(
+          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -489,7 +489,8 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
 }
 
 
-void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
+void pqxx::transaction_base::register_pending_error(
+  std::string &&err, sl loc) noexcept
 {
   if (std::empty(m_pending_error) and not std::empty(err))
   {
@@ -501,7 +502,8 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
     {
       try
       {
-        process_notice("UNABLE TO PROCESS ERROR\n");
+        process_notice(std::format(
+          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -549,8 +551,8 @@ void pqxx::transaction_focus::unregister_me() noexcept
 
 
 void pqxx::transaction_focus::reg_pending_error(
-  std::string const &err) noexcept
+  std::string const &err, sl loc) noexcept
 {
   pqxx::internal::gate::transaction_transaction_focus{*m_trans}
-    .register_pending_error(err);
+    .register_pending_error(err, loc);
 }
