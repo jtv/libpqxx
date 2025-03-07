@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-#include "pqxx/strconv.hxx"
+#include "pqxx/types.hxx"
 
 namespace pqxx
 {

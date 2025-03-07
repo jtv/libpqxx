@@ -136,7 +136,7 @@ public:
    * strings).
    */
   template<typename T>
-  auto to(T &obj, sl loc = sl::current()) const ->
+  auto to(T &obj, ctx c = {}) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -148,7 +148,7 @@ public:
     else
     {
       auto const data{c_str()};
-      from_string(data, obj, loc);
+      from_string(data, obj, c);
       return true;
     }
   }
@@ -191,7 +191,7 @@ public:
    * pointers to the field's internal text data.
    */
   template<typename T>
-  auto to(T &obj, T const &default_value, sl loc = sl::current()) const ->
+  auto to(T &obj, T const &default_value, ctx c = {}) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -200,7 +200,7 @@ public:
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view(), loc);
+      obj = from_string<T>(this->view(), c);
     return not null;
   }
 
@@ -209,12 +209,10 @@ public:
    * argument, the Default value's type also determines the result type.
    */
   template<typename T>
-  T as(T const &default_value, sl loc = sl::current()) const
+  T as(T const &default_value, ctx c = {}) const
   {
-    if (is_null())
-      return default_value;
-    else
-      return from_string<T>(this->view(), loc);
+    if (is_null()) return default_value;
+    else return from_string<T>(this->view(), c);
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -223,18 +221,18 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as(sl loc = sl::current()) const
+  template<typename T> T as(ctx c = {}) const
   {
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>, loc);
+        internal::throw_null_conversion(type_name<T>, c.loc);
       else
         return nullness<T>::null();
     }
     else
     {
-      return from_string<T>(this->view(), loc);
+      return from_string<T>(this->view(), c);
     }
   }
 
@@ -314,7 +312,8 @@ private:
 };
 
 
-template<> inline bool field::to<std::string>(std::string &obj, sl) const
+// XXX: Do we actually need this specialisation?
+template<> inline bool field::to<std::string>(std::string &obj, ctx) const
 {
   bool const null{is_null()};
   if (not null)
@@ -323,9 +322,10 @@ template<> inline bool field::to<std::string>(std::string &obj, sl) const
 }
 
 
+// XXX: Do we actually need this specialisation?
 template<>
 inline bool field::to<std::string>(
-  std::string &obj, std::string const &default_value, sl) const
+  std::string &obj, std::string const &default_value, ctx) const
 {
   bool const null{is_null()};
   if (null)
@@ -342,7 +342,7 @@ inline bool field::to<std::string>(
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> inline bool field::to<char const *>(char const *&obj, sl) const
+template<> inline bool field::to<char const *>(char const *&obj, ctx) const
 {
   bool const null{is_null()};
   if (not null)
@@ -358,7 +358,7 @@ template<> inline bool field::to<char const *>(char const *&obj, sl) const
  * zero occurring after the string in memory was actually part of the same
  * allocation.)
  */
-template<> inline bool field::to<zview>(zview &obj, sl) const
+template<> inline bool field::to<zview>(zview &obj, ctx) const
 {
   bool const null{is_null()};
   if (not null)
@@ -368,7 +368,7 @@ template<> inline bool field::to<zview>(zview &obj, sl) const
 
 
 template<>
-inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
+inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
 {
   bool const null{is_null()};
   if (null)
@@ -379,15 +379,21 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
 }
 
 
-template<> inline zview field::as<zview>(sl loc) const
+/// Efficient specialisation: you can convert a field to a `zview`.
+/** String conversions generally accept `std::string_view`.  You can't just
+ * "convert" any old `std::string_view` to a `pqxx::zview` because `zview` is
+ * a promise that the string is zero-terminated.  One can't generally make that
+ * promise based on a `string_view`.
+ *
+ */
+template<> inline zview field::as<zview>(ctx c) const
 {
-  if (is_null())
-    internal::throw_null_conversion(type_name<zview>, loc);
+  if (is_null()) internal::throw_null_conversion(type_name<zview>, c.loc);
   return zview{c_str(), size()};
 }
 
 
-template<> inline zview field::as<zview>(zview const &default_value, sl) const
+template<> inline zview field::as<zview>(zview const &default_value, ctx) const
 {
   return is_null() ? default_value : zview{c_str(), size()};
 }
@@ -515,18 +521,18 @@ template<typename CHAR>
  * values.
  */
 template<typename T>
-inline T from_string(field const &value, sl loc = sl::current())
+inline T from_string(field const &value, ctx c = {})
 {
   if (value.is_null())
   {
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>, loc);
+      internal::throw_null_conversion(type_name<T>, c.loc);
   }
   else
   {
-    return from_string<T>(value.view(), loc);
+    return from_string<T>(value.view(), c);
   }
 }
 
@@ -541,16 +547,16 @@ inline T from_string(field const &value, sl loc = sl::current())
  * @ref conversion_error.
  */
 template<>
-inline std::nullptr_t from_string<std::nullptr_t>(field const &value, sl loc)
+inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 {
   if (not value.is_null())
     throw conversion_error{
-      "Extracting non-null field into nullptr_t variable.", loc};
+      "Extracting non-null field into nullptr_t variable.", c.loc};
   return nullptr;
 }
 
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(field const &value, sl loc);
+template<> PQXX_LIBEXPORT std::string to_string(field const &value, ctx);
 } // namespace pqxx
 #endif

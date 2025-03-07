@@ -418,6 +418,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   static inline char *into_buf(
     char *begin, char *end, range<TYPE> const &value, sl loc = sl::current())
   {
+    conversion_context const c{{}, loc};
     if (value.empty())
     {
       if ((end - begin) <= std::ssize(s_empty))
@@ -441,7 +442,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (upper != nullptr)
-        here += pqxx::into_buf({here, end}, *upper, loc) - 1;
+        here += pqxx::into_buf({here, end}, *upper, c) - 1;
       if ((end - here) < 2)
         throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =

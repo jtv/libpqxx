@@ -300,6 +300,8 @@ private:
   std::enable_if_t<not nullness<Field>::always_null>
   append_to_buffer(Field const &f, sl loc)
   {
+    conversion_context const c{{}, loc};
+
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
     // at the end.
@@ -327,7 +329,7 @@ private:
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
         std::size_t const end{
-          offset + into_buf({data + offset, data + total}, f, loc)};
+          offset + into_buf({data + offset, data + total}, f, c)};
         assert(end < std::size(m_buffer));
         assert(m_buffer[end - 1] == '\0');
         m_buffer[end - 1] = '\t';
@@ -373,7 +375,7 @@ private:
         // This field needs to be converted to a string, and after that,
         // escaped as well.
         m_field_buf.resize(budget);
-        escape_field_to_buffer(to_buf(m_field_buf, f, loc), loc);
+        escape_field_to_buffer(to_buf(m_field_buf, f, c), loc);
       }
     }
   }

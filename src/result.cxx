@@ -643,7 +643,7 @@ pqxx::const_reverse_result_iterator::operator--(int) &
 }
 
 
-template<> std::string pqxx::to_string(field const &value, sl)
+template<> std::string pqxx::to_string(field const &value, ctx)
 {
   return {value.c_str(), std::size(value)};
 }

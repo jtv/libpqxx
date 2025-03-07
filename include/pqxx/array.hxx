@@ -295,6 +295,8 @@ private:
   void parse(std::string_view data, sl loc)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
+    // XXX: Encoding group1
+    conversion_context const c{{}, loc};
     auto const sz{std::size(data)};
     check_dims(data);
 
@@ -408,7 +410,7 @@ private:
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
               std::data(data), end, here, loc)};
-          m_elts.emplace_back(from_string<ELEMENT>(buf, loc));
+          m_elts.emplace_back(from_string<ELEMENT>(buf, c));
         }
         break;
         default: {
@@ -432,7 +434,7 @@ private:
                 loc};
           }
           else
-            m_elts.emplace_back(from_string<ELEMENT>(field, loc));
+            m_elts.emplace_back(from_string<ELEMENT>(field, c));
         }
         }
         here = end;

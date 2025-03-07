@@ -274,6 +274,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
 
 void pqxx::pipeline::obtain_dummy(sl loc)
 {
+  conversion_context const c{{}, loc};
+
   // Allocate once, re-use across invocations.
   static auto const text{
     std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
@@ -305,7 +307,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     if (std::size(R) > 1) [[unlikely]]
       internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).as<std::string_view>(loc) != theDummyValue) [[unlikely]]
+    if (R.at(0).at(0).as<std::string_view>(c) != theDummyValue) [[unlikely]]
       internal_error(
         "Dummy query in pipeline returned unexpected value.", loc);
     return;

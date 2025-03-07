@@ -332,7 +332,7 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
   // (Variables can't be null, so far as I can make out.)
   return exec(std::format("SHOW {}", quote_name(var)), loc)
     .one_field(loc)
-    .as<std::string>(loc);
+    .as<std::string>(conversion_context{{}, loc});
 }
 
 

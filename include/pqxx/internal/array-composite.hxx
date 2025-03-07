@@ -344,11 +344,12 @@ template<typename T>
 inline void write_composite_field(
   std::span<char> buf, std::size_t &pos, T const &field, sl loc)
 {
+  conversion_context const c{{}, loc};
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer, and "backspace" the trailing zero.
-    pos += into_buf(buf.subspan(pos), field) - 1;
+    pos += into_buf(buf.subspan(pos), field, c) - 1;
   }
   else
   {
@@ -361,15 +362,15 @@ inline void write_composite_field(
     buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const c :
-         to_buf(buf.subspan(std::size(buf) - budget), field, loc))
+    for (char const x :
+         to_buf(buf.subspan(std::size(buf) - budget), field, c))
     {
-      if ((c == '"') or (c == '\\'))
+      if ((x == '"') or (x == '\\'))
         // C++26: Use buf.at().
         buf[pos++] = '\\';
 
       // C++26: Use buf.at().
-      buf[pos++] = c;
+      buf[pos++] = x;
     }
 
     // C++26: Use buf.at().

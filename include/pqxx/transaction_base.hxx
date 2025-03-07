@@ -442,7 +442,7 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, sl loc = sl::current())
   {
-    return exec(query, loc).one_field(loc).as<TYPE>(loc);
+    return exec(query, loc).one_field(loc).as<TYPE>(conversion_context{{}, loc});
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -816,7 +816,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>(loc);
+      .as<TYPE>(conversion_context{{}, loc});
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -969,12 +969,12 @@ public:
    * statement.
    */
   template<typename TYPE>
-  TYPE query_value(prepped statement, sl loc = sl::current())
+  TYPE query_value(prepped statement, ctx c = {})
   {
-    return exec(statement, {}, loc)
-      .expect_columns(1, loc)
-      .one_field(loc)
-      .as<TYPE>(loc);
+    return exec(statement, {}, c.loc)
+      .expect_columns(1, c.loc)
+      .one_field(c.loc)
+      .as<TYPE>(c);
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.

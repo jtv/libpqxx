@@ -86,16 +86,16 @@ struct disallowed_ambiguous_char_conversion
 
 
 template<typename T>
-PQXX_LIBEXPORT extern std::string to_string_float(T, sl = sl::current());
+PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
 
 
 /// Generic implementation for into_buf, on top of to_buf.
 template<typename T>
 [[deprecated("Pass buffer as std::span<char>.")]]
 inline char *generic_into_buf(
-  char *begin, char *end, T const &value, sl loc = sl::current())
+  char *begin, char *end, T const &value, ctx c = {})
 {
-  zview text{to_buf({begin, end}, value, loc)};
+  zview text{to_buf({begin, end}, value, c)};
   auto const space{end - begin};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
@@ -103,7 +103,7 @@ inline char *generic_into_buf(
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.  ", type_name<T>) +
         state_buffer_overrun(space, len),
-      loc};
+      c.loc};
   std::memmove(begin, std::data(text), len);
   return begin + len;
 }
@@ -112,10 +112,10 @@ inline char *generic_into_buf(
 /// Generic implementation for into_buf, on top of to_buf.
 template<typename T>
 inline std::size_t
-generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::current())
+generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
 {
   auto const begin{std::data(buf)};
-  zview text{to_buf(buf, value, loc)};
+  zview text{to_buf(buf, value, c)};
   auto const space{std::size(buf)};
   // Include the trailing zero.
   auto const len = std::size(text) + 1;
@@ -123,7 +123,7 @@ generic_into_buf(std::span<char> buf, T const &value, sl loc = sl::current())
     throw conversion_overrun{
       std::format("Not enough buffer space to insert {}.  ", type_name<T>) +
         state_buffer_overrun(space, len),
-      loc};
+      c.loc};
   std::memmove(begin, std::data(text), len);
   return len;
 }
@@ -143,7 +143,7 @@ template<std::floating_point T> struct float_string_traits
   static constexpr bool converts_from_string{true};
 
   static PQXX_LIBEXPORT T
-  from_string(std::string_view text, sl loc = sl::current());
+  from_string(std::string_view text, ctx = {});
 
   static PQXX_LIBEXPORT pqxx::zview
   to_buf(char *begin, char *end, T const &value);
@@ -153,10 +153,8 @@ template<std::floating_point T> struct float_string_traits
   // Return a nonnegative integral value's number of decimal digits.
   static constexpr std::size_t digits10(std::size_t value) noexcept
   {
-    if (value < 10)
-      return 1;
-    else
-      return 1 + digits10(value / 10);
+    if (value < 10) return 1;
+    else return 1 + digits10(value / 10);
   }
 
   static constexpr std::size_t size_buffer(T const &) noexcept
@@ -223,7 +221,7 @@ template<pqxx::internal::integer T> struct string_traits<T>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
   static PQXX_LIBEXPORT T
-  from_string(std::string_view text, sl loc = sl::current());
+  from_string(std::string_view text, ctx = {});
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
@@ -521,16 +519,16 @@ template<> struct string_traits<char const *>
 
   static zview to_buf(char *begin, char *end, char const *const &value)
   {
-    auto loc{sl::current()};
+    conversion_context c;
     return generic_to_buf(
       std::span<char>{
         begin, check_cast<std::size_t>(
-                 end - begin, "C-style string too large.", loc)},
+                 end - begin, "C-style string too large.", c.loc)},
       value);
   }
 
   static std::size_t into_buf(
-    std::span<char> buf, char const *const &value, sl loc = sl::current())
+    std::span<char> buf, char const *const &value, ctx c = {})
   {
     auto const space{std::size(buf)};
     // Count the trailing zero, even though std::strlen() and friends don't.
@@ -539,7 +537,7 @@ template<> struct string_traits<char const *>
       throw conversion_overrun{
         "Could not copy string: buffer too small.  " +
           pqxx::internal::state_buffer_overrun(space, len),
-        loc};
+        c.loc};
     std::memmove(std::data(buf), value, len);
     return len;
   }
@@ -582,9 +580,9 @@ template<> struct string_traits<char *>
   static constexpr bool converts_from_string{false};
 
   static std::size_t
-  into_buf(std::span<char> buf, char *const &value, sl loc = sl::current())
+  into_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
-    return string_traits<char const *>::into_buf(buf, value, loc);
+    return string_traits<char const *>::into_buf(buf, value, c);
   }
   static zview to_buf(char *begin, char *end, char *const &value)
   {
@@ -704,11 +702,11 @@ template<> struct string_traits<std::string_view>
   }
 
   static std::size_t into_buf(
-    std::span<char> buf, std::string_view const &value, sl loc = sl::current())
+    std::span<char> buf, std::string_view const &value, ctx c = {})
   {
     if (std::cmp_greater_equal(std::size(value), std::size(buf)))
       throw conversion_overrun{
-        "Could not store string_view: too long for buffer.", loc};
+        "Could not store string_view: too long for buffer.", c.loc};
     value.copy(std::data(buf), std::size(value));
     buf[std::size(value)] = '\0';
     return std::size(value) + 1;
@@ -849,19 +847,19 @@ struct string_traits<std::unique_ptr<T, Args...>>
 
   static char *into_buf(
     char *begin, char *end, std::unique_ptr<T, Args...> const &value,
-    sl loc = sl::current())
+    ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
+      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, c.loc);
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
   static zview to_buf(
     char *begin, char *end, std::unique_ptr<T, Args...> const &value,
-    sl loc = sl::current())
+    ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, loc);
+      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, c.loc);
     return pqxx::to_buf({begin, end}, *value);
   }
 
@@ -914,19 +912,19 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 
   static zview to_buf(
     char *begin, char *end, std::shared_ptr<T> const &value,
-    sl loc = sl::current())
+    ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
-    return pqxx::to_buf({begin, end}, *value, loc);
+      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
+    return pqxx::to_buf({begin, end}, *value, c);
   }
   static char *into_buf(
     char *begin, char *end, std::shared_ptr<T> const &value,
-    sl loc = sl::current())
+    ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, loc);
-    return begin + pqxx::into_buf({begin, end}, *value, loc);
+      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
+    return begin + pqxx::into_buf({begin, end}, *value, c);
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
@@ -978,12 +976,12 @@ template<binary DATA> struct string_traits<DATA>
     return begin + budget;
   }
 
-  static DATA from_string(std::string_view text, sl loc = sl::current())
+  static DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     bytes buf;
     buf.resize(size);
-    pqxx::internal::unesc_bin(text, buf, loc);
+    pqxx::internal::unesc_bin(text, buf, c.loc);
     return buf;
   }
 };
@@ -1139,12 +1137,12 @@ template<binary T> inline constexpr format param_format(T const &)
 template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
-template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc)
+template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
     throw conversion_error{
       std::format("Attempt to convert null to a string.", type_name<TYPE>),
-      loc};
+      c.loc};
 
   if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
   {
@@ -1161,27 +1159,26 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, sl loc)
     // undefined behaviour.
     buf.resize(size_buffer(value));
     auto const data{buf.data()};
-    std::size_t const stop{
-      into_buf({data, data + std::size(buf)}, value, loc)};
+    std::size_t const stop{into_buf({data, data + std::size(buf)}, value, c)};
     buf.resize(stop - 1);
     return buf;
   }
 }
 
 
-template<> inline std::string to_string(float const &value, sl loc)
+template<> inline std::string to_string(float const &value, ctx c)
 {
-  return pqxx::internal::to_string_float(value, loc);
+  return pqxx::internal::to_string_float(value, c);
 }
-template<> inline std::string to_string(double const &value, sl loc)
+template<> inline std::string to_string(double const &value, ctx c)
 {
-  return pqxx::internal::to_string_float(value, loc);
+  return pqxx::internal::to_string_float(value, c);
 }
-template<> inline std::string to_string(long double const &value, sl loc)
+template<> inline std::string to_string(long double const &value, ctx c)
 {
-  return pqxx::internal::to_string_float(value, loc);
+  return pqxx::internal::to_string_float(value, c);
 }
-template<> inline std::string to_string(std::stringstream const &value, sl)
+template<> inline std::string to_string(std::stringstream const &value, ctx)
 {
   return value.str();
 }
@@ -1189,18 +1186,18 @@ template<> inline std::string to_string(std::stringstream const &value, sl)
 
 template<typename T>
 inline void
-into_string(T const &value, std::string &out, sl loc = sl::current())
+into_string(T const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{
       std::format("Attempt to convert null {} to a string.", type_name<T>),
-      loc};
+      c.loc};
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
   out.resize(size_buffer(value) + 1);
   auto const data{out.data()};
-  auto const end{into_buf({data, data + std::size(out)}, value, loc)};
+  auto const end{into_buf({data, data + std::size(out)}, value, c)};
   out.resize(static_cast<std::size_t>(end - data - 1));
 }
 } // namespace pqxx

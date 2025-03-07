@@ -14,6 +14,7 @@
 #include <string_view>
 
 #include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 namespace pqxx

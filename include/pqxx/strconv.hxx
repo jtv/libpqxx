@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <typeinfo>
 
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/util.hxx"
 #include "pqxx/zview.hxx"
@@ -138,6 +139,52 @@ template<typename TYPE> struct no_null
 };
 
 
+/// Contextual parameters for string conversions implementations.
+/** These are some "extra" items that libpqxx may be able to pass to a string
+ * conversion operation in order to provide it with extra infomation.
+ *
+ * Yes, these could simply have been extra parameters in the conversion API,
+ * but that makes it harder to add new features (which existing conversions
+ * can often safely ignore) without breaking compatibility.
+ *
+ * This type was introduced in libpqxx 8.  The older conversion API does not
+ * know about it, so older code will just have a default-constructed context.
+ */
+struct conversion_context
+{
+  /// Encoding group describing the client text encoding.
+  /** This will not tell you what the exact _encoding_ is.  All libpqxx cares
+   * about is how to parse text in a given encoding, so that it can reliably
+   * detect escape characters, closing quotes, and so on.  It has no need to
+   * "understand" the text beyond that.
+   */
+  encoding_group enc = encoding_group::UNKNOWN;
+
+  /// A `std::source_location` for the call.
+  /** When libpqxx throws an error, it will generally try to include this
+   * information to help you debug the problem.  However this is not always
+   * possible.
+   *
+   * Generally it will be helpful to pass the location where the client called
+   * into libpqxx.  However if you don't pass a source location, this will use
+   * the location in the suorce code where you created this `ctx`.
+   */
+  sl loc = sl::current();
+
+  conversion_context() {}
+
+  explicit conversion_context(encoding_group e, sl l = sl::current()) :
+    enc{e}, loc{l} {}
+};
+
+
+/// Convenience alias: `const` reference to a @ref pqxx::conversion_context.
+/** Because we need to squeeze this type into lots of function signatures, it
+ * helps to have a very terse name for it.
+ */
+using ctx = conversion_context const &;
+
+
 /// Traits class for use in string conversions.
 /** Specialize this template for a type for which you wish to add to_string
  * and from_string support.
@@ -182,7 +229,7 @@ template<typename TYPE> struct string_traits
    * check would be too expensive.
    */
   [[nodiscard]] static inline zview
-  to_buf(std::span<char> buf, TYPE const &value, sl = sl::current());
+  to_buf(std::span<char> buf, TYPE const &value, ctx = {});
 
   /// Write value's string representation into buffer.
   /* @warning A null value has no string representation.  Do not pass a null.
@@ -193,7 +240,7 @@ template<typename TYPE> struct string_traits
    * use it as the starting point for another call to write a next value.
    */
   static inline std::size_t
-  into_buf(std::span<char> buf, TYPE const &value, sl = sl::current());
+  into_buf(std::span<char> buf, TYPE const &value, ctx = {});
 
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
@@ -207,7 +254,7 @@ template<typename TYPE> struct string_traits
    * overwritten.  Do not access the `string_view` you got after that!
    */
   [[nodiscard]] static inline TYPE
-  from_string(std::string_view text, sl = sl::current());
+  from_string(std::string_view text, ctx = {});
 
   // C++20: Can we make these all constexpr?
   /// Estimate how much buffer space is needed to represent value.
@@ -253,16 +300,16 @@ template<typename TYPE> struct forbidden_conversion
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
   [[noreturn]] static zview
-  to_buf(std::span<char>, TYPE const &, sl = sl::current())
+  to_buf(std::span<char>, TYPE const &, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
   [[noreturn]] static std::size_t
-  into_buf(std::span<char>, TYPE const &, sl = sl::current())
+  into_buf(std::span<char>, TYPE const &, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
-  [[noreturn]] static TYPE from_string(std::string_view, sl = sl::current())
+  [[noreturn]] static TYPE from_string(std::string_view, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
@@ -359,8 +406,8 @@ concept to_buf_7 =
 /// Signature for string_traits<TYPE>::to_buf() in libpqxx 8.
 template<typename TYPE>
 concept to_buf_8 =
-  requires(zview out, std::span<char> buf, TYPE const &value, sl loc) {
-    out = string_traits<TYPE>::to_buf(buf, value, loc);
+  requires(zview out, std::span<char> buf, TYPE const &value, ctx c) {
+    out = string_traits<TYPE>::to_buf(buf, value, c);
     out = string_traits<TYPE>::to_buf(buf, value);
   };
 
@@ -375,15 +422,15 @@ concept into_buf_7 =
 /// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
 template<typename TYPE>
 concept into_buf_8 =
-  requires(std::size_t out, std::span<char> buf, TYPE const &value, sl loc) {
-    out = string_traits<TYPE>::into_buf(buf, value, loc);
+  requires(std::size_t out, std::span<char> buf, TYPE const &value, ctx c) {
+    out = string_traits<TYPE>::into_buf(buf, value, c);
     out = string_traits<TYPE>::into_buf(buf, value);
   };
 
 /// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
 template<typename TYPE>
-concept from_string_8 = requires(TYPE out, std::string_view text, sl loc) {
-  out = string_traits<TYPE>::from_string(text, loc);
+concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
+  out = string_traits<TYPE>::from_string(text, c);
   out = string_traits<TYPE>::from_string(text);
 };
 
@@ -403,14 +450,14 @@ namespace pqxx
  */
 template<typename TYPE>
 [[nodiscard]] inline zview
-to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   static_assert(
     pqxx::internal::to_buf_7<TYPE> or pqxx::internal::to_buf_8<TYPE>);
   using traits = string_traits<TYPE>;
   if constexpr (pqxx::internal::to_buf_8<TYPE>)
   {
-    return traits::to_buf(buf, value, loc);
+    return traits::to_buf(buf, value, c);
   }
   else
   {
@@ -426,21 +473,21 @@ to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
  */
 template<typename TYPE>
 [[nodiscard]] inline std::size_t
-into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   static_assert(
     pqxx::internal::into_buf_7<TYPE> or pqxx::internal::into_buf_8<TYPE>);
   using traits = string_traits<TYPE>;
   if constexpr (pqxx::internal::into_buf_8<TYPE>)
   {
-    return traits::into_buf(buf, value, loc);
+    return traits::into_buf(buf, value, c);
   }
   else
   {
     auto const begin{std::data(buf)}, end{begin + std::size(buf)};
     return check_cast<std::size_t>(
       traits::into_buf(begin, end, value) - begin,
-      "String conversion is too long.", loc);
+      "String conversion is too long.", c.loc);
   }
 }
 
@@ -460,13 +507,13 @@ into_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
  */
 template<typename TYPE>
 [[nodiscard]] inline TYPE
-from_string(std::string_view text, sl loc = sl::current())
+from_string(std::string_view text, ctx c = {})
 {
   static_assert(
     pqxx::internal::from_string_7<TYPE> or
     pqxx::internal::from_string_8<TYPE>);
   if constexpr (pqxx::internal::from_string_8<TYPE>)
-    return string_traits<TYPE>::from_string(text, loc);
+    return string_traits<TYPE>::from_string(text, c);
   else
     return string_traits<TYPE>::from_string(text);
 }
@@ -480,7 +527,7 @@ from_string(std::string_view text, sl loc = sl::current())
  * value after the original has been destroyed.
  */
 template<>
-[[nodiscard]] inline std::string_view from_string(std::string_view text, sl)
+[[nodiscard]] inline std::string_view from_string(std::string_view text, ctx)
 {
   return text;
 }
@@ -496,9 +543,9 @@ template<>
  */
 template<typename T>
 inline void
-from_string(std::string_view text, T &value, sl loc = sl::current())
+from_string(std::string_view text, T &value, ctx c = {})
 {
-  value = from_string<T>(text, loc);
+  value = from_string<T>(text, c);
 }
 
 
@@ -509,7 +556,7 @@ from_string(std::string_view text, T &value, sl loc = sl::current())
  * though.
  */
 template<typename TYPE>
-inline std::string to_string(TYPE const &value, sl loc = sl::current());
+inline std::string to_string(TYPE const &value, ctx c = {});
 } // namespace pqxx
 
 
@@ -540,15 +587,15 @@ template<typename ENUM> struct enum_traits
   }
 
   static constexpr std::size_t
-  into_buf(std::span<char> buf, ENUM const &value, sl loc = sl::current())
+  into_buf(std::span<char> buf, ENUM const &value, ctx c = {})
   {
-    return pqxx::into_buf(buf, to_underlying(value), loc);
+    return pqxx::into_buf(buf, to_underlying(value), c);
   }
 
   [[nodiscard]] static ENUM
-  from_string(std::string_view text, sl loc = sl::current())
+  from_string(std::string_view text, ctx c = {})
   {
-    return static_cast<ENUM>(pqxx::from_string<impl_type>(text, loc));
+    return static_cast<ENUM>(pqxx::from_string<impl_type>(text, c));
   }
 
   [[nodiscard]] static std::size_t size_buffer(ENUM const &value) noexcept
@@ -760,14 +807,14 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  */
 template<typename TYPE>
 inline zview
-generic_to_buf(std::span<char> buf, TYPE const &value, sl loc = sl::current())
+generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
   if (is_null(value))
     return {};
   else
-    return zview{std::data(buf), pqxx::into_buf(buf, value, loc) - 1};
+    return zview{std::data(buf), pqxx::into_buf(buf, value, c) - 1};
 }
 //@}
 } // namespace pqxx
