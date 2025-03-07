@@ -126,7 +126,7 @@ inline std::string parse_double_quoted_string(
  * semicolon), or a closing brace.  For a value of a composite type, STOP is a
  * comma or a closing parenthesis.
  */
-template<pqxx::internal::encoding_group ENC, char... STOP>
+template<encoding_group ENC, char... STOP>
 inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos, sl loc)
 {
@@ -144,8 +144,7 @@ inline std::size_t scan_unquoted_string(
 
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
-template<pqxx::internal::encoding_group ENC>
-inline std::string_view
+template<encoding_group ENC> inline std::string_view
 parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
 {
   return {&input[pos], end - pos};

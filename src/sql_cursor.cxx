@@ -58,12 +58,12 @@ inline bool useless_trail(char c)
  * The query must be nonempty.
  */
 std::string::size_type find_query_end(
-  std::string_view query, pqxx::internal::encoding_group enc, pqxx::sl loc)
+  std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
   std::string::size_type end{size};
-  if (enc == pqxx::internal::encoding_group::MONOBYTE)
+  if (enc == pqxx::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can scan backwards from the end.
     while (end > 0 and useless_trail(query[end - 1])) --end;

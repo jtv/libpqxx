@@ -33,7 +33,7 @@ namespace pqxx
  */
 template<typename... T>
 inline void parse_composite(
-  pqxx::internal::encoding_group enc, std::string_view text, T &...fields)
+  encoding_group enc, std::string_view text, T &...fields)
 {
   static_assert(sizeof...(fields) > 0);
   // TODO: Turn this into a parameter.
@@ -81,7 +81,7 @@ inline void parse_composite(
 template<typename... T>
 inline void parse_composite(std::string_view text, T &...fields)
 {
-  parse_composite(pqxx::internal::encoding_group::MONOBYTE, text, fields...);
+  parse_composite(encoding_group::MONOBYTE, text, fields...);
 }
 } // namespace pqxx
 

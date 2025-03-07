@@ -26,7 +26,7 @@
 
 #include "pqxx/connection.hxx"
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 
 
@@ -214,9 +214,9 @@ private:
   // Couldn't make this work through a call gate, thanks to the templating.
   friend class ::pqxx::field;
 
-  array(std::string_view data, pqxx::internal::encoding_group enc, sl loc)
+  array(std::string_view data, encoding_group enc, sl loc)
   {
-    using group = pqxx::internal::encoding_group;
+    using group = encoding_group;
     switch (enc)
     {
     case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
@@ -291,7 +291,7 @@ private:
     return static_cast<std::size_t>(separators + 1);
   }
 
-  template<pqxx::internal::encoding_group ENC>
+  template<encoding_group ENC>
   void parse(std::string_view data, sl loc)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
@@ -577,8 +577,7 @@ public:
    */
   [[deprecated("Use pqxx::array instead.")]]
   explicit array_parser(
-    std::string_view input,
-    internal::encoding_group = internal::encoding_group::MONOBYTE);
+    std::string_view input, encoding_group = encoding_group::MONOBYTE);
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @ref juncture::string_value,
@@ -609,30 +608,29 @@ private:
 
   /// Pick the `implementation` for `enc`.
   static implementation
-  specialize_for_encoding(pqxx::internal::encoding_group enc, sl loc);
+  specialize_for_encoding(encoding_group enc, sl loc);
 
   /// Our implementation of `parse_array_step`, specialised for our encoding.
   implementation m_impl;
 
   /// Perform one step of array parsing.
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::pair<juncture, std::string> parse_array_step(sl loc);
 
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::string::size_type scan_double_quoted_string(sl loc) const;
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::string
   parse_double_quoted_string(std::string::size_type end, sl loc) const;
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::string::size_type scan_unquoted_string(sl loc) const;
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::string_view
   parse_unquoted_string(std::string::size_type end, sl loc) const;
 
-  template<pqxx::internal::encoding_group>
+  template<encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos, sl loc) const;
-  template<pqxx::internal::encoding_group>
-  std::string::size_type scan_glyph(
+  template<encoding_group> std::string::size_type scan_glyph(
     std::string::size_type pos, std::string::size_type end, sl loc) const;
 };
 } // namespace pqxx

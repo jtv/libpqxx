@@ -13,12 +13,12 @@
 #include <string>
 #include <string_view>
 
-#include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/encoding_group.hxx"
 
 
 namespace pqxx
 {
-PQXX_DECLARE_ENUM_CONVERSION(pqxx::internal::encoding_group);
+PQXX_DECLARE_ENUM_CONVERSION(encoding_group);
 } // namespace pqxx
 
 

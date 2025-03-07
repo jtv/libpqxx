@@ -13,7 +13,7 @@
 
 #include "pqxx/strconv.hxx"
 
-namespace pqxx::internal
+namespace pqxx
 {
 // Types of encodings supported by PostgreSQL, see
 // https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
@@ -41,8 +41,11 @@ enum class encoding_group
   UHC,
   UTF8,
 };
+} // namespace pqxx
 
 
+namespace pqxx::internal
+{
 // TODO: Get rid of these.  Specialise at higher level.
 /// Function type: "find the end of the current glyph."
 /** This type of function takes a text buffer, and a location in that buffer,
