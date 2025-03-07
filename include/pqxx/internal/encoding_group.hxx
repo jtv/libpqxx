@@ -19,6 +19,9 @@ namespace pqxx::internal
 // https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
 enum class encoding_group
 {
+  // Indeterminate encoding.
+  UNKNOWN,
+
   // Handles all single-byte fixed-width encodings
   MONOBYTE,
 

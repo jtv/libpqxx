@@ -179,6 +179,9 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
 
   switch (enc)
   {
+    case encoding_group::UNKNOWN:
+      throw usage_error{"Trying to read text in unknown encoding.", loc};
+
     [[likely]] CASE_GROUP(MONOBYTE);
     CASE_GROUP(BIG5);
     CASE_GROUP(EUC_CN);

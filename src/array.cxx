@@ -167,6 +167,9 @@ array_parser::implementation array_parser::specialize_for_encoding(
 
   switch (enc)
   {
+    case encoding_group::UNKNOWN:
+      throw usage_error{"Tried to parse array without knowing its encoding.", loc};
+
     PQXX_ENCODING_CASE(MONOBYTE);
     PQXX_ENCODING_CASE(BIG5);
     PQXX_ENCODING_CASE(EUC_CN);

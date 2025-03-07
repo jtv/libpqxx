@@ -286,6 +286,9 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
 {
   switch (enc)
   {
+  case encoding_group::UNKNOWN:
+    throw usage_error{"Tried to parse array/composite without knowing its text encoding.", loc};
+
   case encoding_group::MONOBYTE:
     return parse_composite_field<encoding_group::MONOBYTE>;
   case encoding_group::BIG5:
