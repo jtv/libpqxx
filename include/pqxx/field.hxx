@@ -312,30 +312,6 @@ private:
 };
 
 
-// XXX: Do we actually need this specialisation?
-template<> inline bool field::to<std::string>(std::string &obj, ctx) const
-{
-  bool const null{is_null()};
-  if (not null)
-    obj = std::string{view()};
-  return not null;
-}
-
-
-// XXX: Do we actually need this specialisation?
-template<>
-inline bool field::to<std::string>(
-  std::string &obj, std::string const &default_value, ctx) const
-{
-  bool const null{is_null()};
-  if (null)
-    obj = default_value;
-  else
-    obj = std::string{view()};
-  return not null;
-}
-
-
 /// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
