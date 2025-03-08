@@ -461,6 +461,10 @@ public:
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   [[nodiscard]] int encoding_id(sl = sl::current()) const;
 
+  /// Read the curent client encoding's @ref pqxx::encoding_group.
+  encoding_group enc_group(sl loc) const
+  { return pqxx::internal::enc_group(this->encoding_id(loc), loc); }
+
   //@}
 
   /// Set one of the session variables to a new value.
@@ -1287,11 +1291,6 @@ private:
 
   result
   exec_params(std::string_view query, internal::c_params const &args, sl);
-
-  encoding_group enc_group(sl loc) const
-  {
-    return pqxx::internal::enc_group(this->encoding_id(loc), loc);
-  }
 
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;

@@ -94,7 +94,7 @@ void pqxx::transaction_base::register_transaction()
 
 pqxx::conversion_context pqxx::transaction_base::make_context(sl loc) const
 {
-  return conversion_context{pqxx::internal::gate::connection_transaction(m_conn).enc_group(loc), loc};
+  return conversion_context{m_conn.encoding_group(loc), loc};
 }
 
 

@@ -29,7 +29,7 @@ namespace
 pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
   pqxx::sl const loc{pqxx::sl::current()};
-  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id(loc), loc)};
+  auto const group{tx.conn().encoding_group(loc)};
   return pqxx::internal::get_char_finder<'\t', '\\'>(group, loc);
 }
 

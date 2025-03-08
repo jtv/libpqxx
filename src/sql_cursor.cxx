@@ -100,7 +100,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (std::empty(query))
     throw usage_error{"Cursor has empty query.", loc};
-  auto const enc{enc_group(t.conn().encoding_id(loc), loc)};
+  auto const enc{t.conn().encoding_group(loc)};
   auto const qend{find_query_end(query, enc, loc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query.", loc};

@@ -67,7 +67,7 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &cx, sl loc = sl::current()) :
-          array{data, pqxx::internal::enc_group(cx.encoding_id(loc), loc), loc}
+          array{data, cx.encoding_group(loc), loc}
   {}
 
   /// How many dimensions does this array have?
