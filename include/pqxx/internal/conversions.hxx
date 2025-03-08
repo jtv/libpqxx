@@ -517,15 +517,8 @@ template<> struct string_traits<char const *>
 
   static char const *from_string(std::string_view text) = delete;
 
-  static zview to_buf(char *begin, char *end, char const *const &value)
-  {
-    conversion_context c;
-    return generic_to_buf(
-      std::span<char>{
-        begin, check_cast<std::size_t>(
-                 end - begin, "C-style string too large.", c.loc)},
-      value);
-  }
+  static zview to_buf(std::span<char> buf, char const *const &value, ctx c = {})
+  { return generic_to_buf(buf, value, c); }
 
   static std::size_t into_buf(
     std::span<char> buf, char const *const &value, ctx c = {})

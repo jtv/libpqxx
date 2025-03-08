@@ -442,7 +442,8 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, sl loc = sl::current())
   {
-    return exec(query, loc).one_field(loc).as<TYPE>(conversion_context{{}, loc});
+    auto c{make_context(loc)};
+    return exec(query, loc).one_field(loc).as<TYPE>(c);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -816,7 +817,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>(conversion_context{{}, loc});
+      .as<TYPE>(make_context(loc));
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -1095,10 +1096,8 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &cx, std::string_view tname,
-    std::shared_ptr<std::string> rollback_cmd) :
-          m_conn{cx}, m_name{tname}, m_rollback_cmd{rollback_cmd}
-  {}
+    connection &, std::string_view,
+    std::shared_ptr<std::string> rollback_cmd);
 
   /// Create a transaction (to be called by implementation classes only).
   /** Its rollback command will be "ROLLBACK".
@@ -1152,6 +1151,12 @@ private:
     committed,
     in_doubt
   };
+
+  /// Compose a @ref conversion_context.
+  /** Gets its @ref encoding_group from the @ref connection, but uses the
+   * `std::suorce_location` that you pass.
+   */
+  conversion_context make_context(sl) const;
 
   PQXX_PRIVATE void check_pending_error();
 

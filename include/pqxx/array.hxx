@@ -85,7 +85,6 @@ public:
     return m_extents;
   }
 
-  // TODO: How can we pass std::source_location here?
   template<std::integral... INDEX> ELEMENT const &at(INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
@@ -170,7 +169,7 @@ private:
    * walking through the entire array sequentially, and identifying all the
    * character boundaries.  The main parsing routine detects that one.
    */
-  void check_dims(std::string_view data, sl loc = sl::current())
+  void check_dims(std::string_view data, sl loc)
   {
     auto sz{std::size(data)};
     if (sz < DIMENSIONS * 2)
@@ -214,7 +213,7 @@ private:
   // Couldn't make this work through a call gate, thanks to the templating.
   friend class ::pqxx::field;
 
-  array(std::string_view data, encoding_group enc, sl loc)
+  array(std::string_view data, encoding_group enc, sl loc) : m_ctx{enc, loc}
   {
     using group = encoding_group;
     switch (enc)
@@ -295,10 +294,9 @@ private:
   void parse(std::string_view data, sl loc)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
-    // XXX: Encoding group1
-    conversion_context const c{{}, loc};
+    conversion_context const c{m_ctx.enc, loc};
     auto const sz{std::size(data)};
-    check_dims(data);
+    check_dims(data, loc);
 
     m_elts.reserve(estimate_elements(data));
 
@@ -474,9 +472,8 @@ private:
   template<typename OUTER, typename... INDEX>
   constexpr std::size_t add_index(OUTER outer, INDEX... indexes) const noexcept
   {
-    sl loc{sl::current()};
     std::size_t const first{
-      check_cast<std::size_t>(outer, "array index"sv, loc)};
+      check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};
     if constexpr (sizeof...(indexes) == 0)
     {
       return first;
@@ -491,16 +488,14 @@ private:
     }
   }
 
-  // TODO: How can we pass std::source_location here?
   /// Check that indexes are within bounds.
   /** @throw pqxx::range_error if not.
    */
   template<typename OUTER, std::integral... INDEX>
   constexpr void check_bounds(OUTER outer, INDEX... indexes) const
   {
-    sl loc{sl::current()};
     std::size_t const first{
-      check_cast<std::size_t>(outer, "array index"sv, loc)};
+      check_cast<std::size_t>(outer, "array index"sv, m_ctx.loc)};
     static_assert(sizeof...(indexes) < DIMENSIONS);
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
@@ -508,7 +503,7 @@ private:
     if (first >= m_extents[dimension])
       throw range_error{std::format(
         "Array index for dimension {} is out of bounds: {} >= {}.", dimension,
-        first, m_extents[dimension])};
+        first, m_extents[dimension]), m_ctx.loc};
 
     // Now check the rest of the indexes, if any.
     if constexpr (sizeof...(indexes) > 0)
@@ -530,6 +525,13 @@ private:
    * multiply by that number.
    */
   std::array<std::size_t, DIMENSIONS - 1> m_factors;
+
+  /// Conversion context representing the construction point.
+  /** It's not always possible to pass a context, e.g. in overloaded operators
+   * or functions that take parameter packs (at least not nicely).  In those
+   * situations, we use the construction point.
+   */
+  conversion_context m_ctx;
 };
 
 

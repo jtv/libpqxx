@@ -13,6 +13,9 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 
   connection_transaction(reference x) : super(x) {}
 
+  encoding_group enc_group(sl loc)
+  { return home().enc_group(loc); }
+
   template<typename STRING>
   result exec(STRING query, std::string_view desc, sl loc)
   {

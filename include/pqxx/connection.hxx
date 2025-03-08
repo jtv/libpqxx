@@ -1288,6 +1288,11 @@ private:
   result
   exec_params(std::string_view query, internal::c_params const &args, sl);
 
+  encoding_group enc_group(sl loc) const
+  {
+    return pqxx::internal::enc_group(this->encoding_id(loc), loc);
+  }
+
   /// Connection handle.
   internal::pq::PGconn *m_conn = nullptr;
 
