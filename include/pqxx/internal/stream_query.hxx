@@ -22,8 +22,8 @@
 #include <variant>
 
 #include "pqxx/connection.hxx"
-#include "pqxx/except.hxx"
 #include "pqxx/encoding_group.hxx"
+#include "pqxx/except.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
 #include "pqxx/internal/stream_iterator.hxx"

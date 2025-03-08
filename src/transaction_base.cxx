@@ -44,14 +44,22 @@ std::shared_ptr<std::string> make_rollback_cmd()
 }
 } // namespace
 
-pqxx::transaction_base::transaction_base(connection &cx) : m_conn{cx}, m_rollback_cmd{make_rollback_cmd()} {}
-
-
-pqxx::transaction_base::transaction_base( connection &cx, std::string_view tname) : m_conn{cx}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()} {}
+pqxx::transaction_base::transaction_base(connection &cx) :
+        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}
+{}
 
 
 pqxx::transaction_base::transaction_base(
-  connection &cx, std::string_view tname, std::shared_ptr<std::string> rollback_cmd) : m_conn{cx}, m_name{tname}, m_rollback_cmd{rollback_cmd} {}
+  connection &cx, std::string_view tname) :
+        m_conn{cx}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
+{}
+
+
+pqxx::transaction_base::transaction_base(
+  connection &cx, std::string_view tname,
+  std::shared_ptr<std::string> rollback_cmd) :
+        m_conn{cx}, m_name{tname}, m_rollback_cmd{std::move(rollback_cmd)}
+{}
 
 
 pqxx::transaction_base::~transaction_base()
@@ -94,7 +102,7 @@ void pqxx::transaction_base::register_transaction()
 
 pqxx::conversion_context pqxx::transaction_base::make_context(sl loc) const
 {
-  return conversion_context{m_conn.encoding_group(loc), loc};
+  return conversion_context{m_conn.get_encoding_group(loc), loc};
 }
 
 

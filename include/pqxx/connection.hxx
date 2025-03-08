@@ -462,8 +462,10 @@ public:
   [[nodiscard]] int encoding_id(sl = sl::current()) const;
 
   /// Read the curent client encoding's @ref pqxx::encoding_group.
-  encoding_group enc_group(sl loc) const
-  { return pqxx::internal::enc_group(this->encoding_id(loc), loc); }
+  encoding_group get_encoding_group(sl loc) const
+  {
+    return pqxx::internal::enc_group(this->encoding_id(loc), loc);
+  }
 
   //@}
 

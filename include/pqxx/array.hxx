@@ -25,8 +25,8 @@
 #include <vector>
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/array-composite.hxx"
 #include "pqxx/encoding_group.hxx"
+#include "pqxx/internal/array-composite.hxx"
 #include "pqxx/internal/encodings.hxx"
 
 
@@ -67,7 +67,7 @@ public:
    * `ELEMENT` type does not support null values.
    */
   array(std::string_view data, connection const &cx, sl loc = sl::current()) :
-          array{data, cx.encoding_group(loc), loc}
+          array{data, cx.get_encoding_group(loc), loc}
   {}
 
   /// How many dimensions does this array have?
@@ -290,8 +290,7 @@ private:
     return static_cast<std::size_t>(separators + 1);
   }
 
-  template<encoding_group ENC>
-  void parse(std::string_view data, sl loc)
+  template<encoding_group ENC> void parse(std::string_view data, sl loc)
   {
     static_assert(DIMENSIONS > 0u, "Can't create a zero-dimensional array.");
     conversion_context const c{m_ctx.enc, loc};
@@ -501,9 +500,11 @@ private:
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
     static_assert(dimension < DIMENSIONS);
     if (first >= m_extents[dimension])
-      throw range_error{std::format(
-        "Array index for dimension {} is out of bounds: {} >= {}.", dimension,
-        first, m_extents[dimension]), m_ctx.loc};
+      throw range_error{
+        std::format(
+          "Array index for dimension {} is out of bounds: {} >= {}.",
+          dimension, first, m_extents[dimension]),
+        m_ctx.loc};
 
     // Now check the rest of the indexes, if any.
     if constexpr (sizeof...(indexes) > 0)
@@ -611,8 +612,7 @@ private:
     std::pair<juncture, std::string> (array_parser::*)(sl);
 
   /// Pick the `implementation` for `enc`.
-  static implementation
-  specialize_for_encoding(encoding_group enc, sl loc);
+  static implementation specialize_for_encoding(encoding_group enc, sl loc);
 
   /// Our implementation of `parse_array_step`, specialised for our encoding.
   implementation m_impl;
@@ -634,7 +634,8 @@ private:
 
   template<encoding_group>
   std::string::size_type scan_glyph(std::string::size_type pos, sl loc) const;
-  template<encoding_group> std::string::size_type scan_glyph(
+  template<encoding_group>
+  std::string::size_type scan_glyph(
     std::string::size_type pos, std::string::size_type end, sl loc) const;
 };
 } // namespace pqxx

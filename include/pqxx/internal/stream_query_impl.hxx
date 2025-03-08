@@ -44,7 +44,7 @@ template<typename... TYPE>
 inline char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
-  auto const group{tx.conn().encoding_group(loc)};
+  auto const group{tx.conn().get_encoding_group(loc)};
   return get_s_char_finder<'\t', '\\'>(group, loc);
 }
 

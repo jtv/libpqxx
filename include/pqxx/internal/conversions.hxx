@@ -92,8 +92,8 @@ PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
 /// Generic implementation for into_buf, on top of to_buf.
 template<typename T>
 [[deprecated("Pass buffer as std::span<char>.")]]
-inline char *generic_into_buf(
-  char *begin, char *end, T const &value, ctx c = {})
+inline char *
+generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
 {
   zview text{to_buf({begin, end}, value, c)};
   auto const space{end - begin};
@@ -142,8 +142,7 @@ template<std::floating_point T> struct float_string_traits
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static PQXX_LIBEXPORT T
-  from_string(std::string_view text, ctx = {});
+  static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
 
   static PQXX_LIBEXPORT pqxx::zview
   to_buf(char *begin, char *end, T const &value);
@@ -153,8 +152,10 @@ template<std::floating_point T> struct float_string_traits
   // Return a nonnegative integral value's number of decimal digits.
   static constexpr std::size_t digits10(std::size_t value) noexcept
   {
-    if (value < 10) return 1;
-    else return 1 + digits10(value / 10);
+    if (value < 10)
+      return 1;
+    else
+      return 1 + digits10(value / 10);
   }
 
   static constexpr std::size_t size_buffer(T const &) noexcept
@@ -220,8 +221,7 @@ template<pqxx::internal::integer T> struct string_traits<T>
 {
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
-  static PQXX_LIBEXPORT T
-  from_string(std::string_view text, ctx = {});
+  static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
   static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
@@ -517,11 +517,14 @@ template<> struct string_traits<char const *>
 
   static char const *from_string(std::string_view text) = delete;
 
-  static zview to_buf(std::span<char> buf, char const *const &value, ctx c = {})
-  { return generic_to_buf(buf, value, c); }
+  static zview
+  to_buf(std::span<char> buf, char const *const &value, ctx c = {})
+  {
+    return generic_to_buf(buf, value, c);
+  }
 
-  static std::size_t into_buf(
-    std::span<char> buf, char const *const &value, ctx c = {})
+  static std::size_t
+  into_buf(std::span<char> buf, char const *const &value, ctx c = {})
   {
     auto const space{std::size(buf)};
     // Count the trailing zero, even though std::strlen() and friends don't.
@@ -694,8 +697,8 @@ template<> struct string_traits<std::string_view>
     return std::size(value) + 1;
   }
 
-  static std::size_t into_buf(
-    std::span<char> buf, std::string_view const &value, ctx c = {})
+  static std::size_t
+  into_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
   {
     if (std::cmp_greater_equal(std::size(value), std::size(buf)))
       throw conversion_overrun{
@@ -903,17 +906,15 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return std::make_shared<T>(string_traits<T>::from_string(text));
   }
 
-  static zview to_buf(
-    char *begin, char *end, std::shared_ptr<T> const &value,
-    ctx c = {})
+  static zview
+  to_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
   {
     if (not value)
       internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
     return pqxx::to_buf({begin, end}, *value, c);
   }
-  static char *into_buf(
-    char *begin, char *end, std::shared_ptr<T> const &value,
-    ctx c = {})
+  static char *
+  into_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
   {
     if (not value)
       internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
@@ -1178,8 +1179,7 @@ template<> inline std::string to_string(std::stringstream const &value, ctx)
 
 
 template<typename T>
-inline void
-into_string(T const &value, std::string &out, ctx c = {})
+inline void into_string(T const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{

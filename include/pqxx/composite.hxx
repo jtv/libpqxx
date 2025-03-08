@@ -32,8 +32,8 @@ namespace pqxx
  * such as e.g. `int`, consider using `std::optional`.
  */
 template<typename... T>
-inline void parse_composite(
-  encoding_group enc, std::string_view text, T &...fields)
+inline void
+parse_composite(encoding_group enc, std::string_view text, T &...fields)
 {
   static_assert(sizeof...(fields) > 0);
   // TODO: Turn this into a parameter.

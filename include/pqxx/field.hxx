@@ -208,11 +208,12 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T>
-  T as(T const &default_value, ctx c = {}) const
+  template<typename T> T as(T const &default_value, ctx c = {}) const
   {
-    if (is_null()) return default_value;
-    else return from_string<T>(this->view(), c);
+    if (is_null())
+      return default_value;
+    else
+      return from_string<T>(this->view(), c);
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -364,7 +365,8 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
  */
 template<> inline zview field::as<zview>(ctx c) const
 {
-  if (is_null()) internal::throw_null_conversion(type_name<zview>, c.loc);
+  if (is_null())
+    internal::throw_null_conversion(type_name<zview>, c.loc);
   return zview{c_str(), size()};
 }
 
@@ -496,8 +498,7 @@ template<typename CHAR>
 /** Unlike the "regular" `from_string`, this knows how to deal with null
  * values.
  */
-template<typename T>
-inline T from_string(field const &value, ctx c = {})
+template<typename T> inline T from_string(field const &value, ctx c = {})
 {
   if (value.is_null())
   {

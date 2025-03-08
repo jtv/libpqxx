@@ -155,8 +155,8 @@ array_parser::parse_array_step(sl loc)
 }
 
 
-array_parser::implementation array_parser::specialize_for_encoding(
-  encoding_group enc, sl loc)
+array_parser::implementation
+array_parser::specialize_for_encoding(encoding_group enc, sl loc)
 {
 #define PQXX_ENCODING_CASE(GROUP)                                             \
   case encoding_group::GROUP:                                                 \
@@ -164,8 +164,9 @@ array_parser::implementation array_parser::specialize_for_encoding(
 
   switch (enc)
   {
-    case encoding_group::UNKNOWN:
-      throw usage_error{"Tried to parse array without knowing its encoding.", loc};
+  case encoding_group::UNKNOWN:
+    throw usage_error{
+      "Tried to parse array without knowing its encoding.", loc};
 
     PQXX_ENCODING_CASE(MONOBYTE);
     PQXX_ENCODING_CASE(BIG5);

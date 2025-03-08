@@ -969,8 +969,7 @@ public:
   /** This is just like @ref query_value(zview), but using a prepared
    * statement.
    */
-  template<typename TYPE>
-  TYPE query_value(prepped statement, ctx c = {})
+  template<typename TYPE> TYPE query_value(prepped statement, ctx c = {})
   {
     return exec(statement, {}, c.loc)
       .expect_columns(1, c.loc)
@@ -1096,8 +1095,7 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &, std::string_view,
-    std::shared_ptr<std::string> rollback_cmd);
+    connection &, std::string_view, std::shared_ptr<std::string> rollback_cmd);
 
   /// Create a transaction (to be called by implementation classes only).
   /** Its rollback command will be "ROLLBACK".

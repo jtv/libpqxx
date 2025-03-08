@@ -270,7 +270,7 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{enc_group(loc)};
+  auto const enc{get_encoding_group(loc)};
   auto r{pqxx::internal::gate::result_creation::create(
     smart, query, m_notice_waiters, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
@@ -332,7 +332,7 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
   // (Variables can't be null, so far as I can make out.)
   return exec(std::format("SHOW {}", quote_name(var)), loc)
     .one_field(loc)
-    .as<std::string>(conversion_context{enc_group(loc), loc});
+    .as<std::string>(conversion_context{get_encoding_group(loc), loc});
 }
 
 
@@ -1022,7 +1022,7 @@ std::string pqxx::connection::esc_like(
   out.reserve(std::size(text));
   // TODO: Rewrite using a char_finder.
   internal::for_glyphs(
-    enc_group(loc),
+    get_encoding_group(loc),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         [[unlikely]]

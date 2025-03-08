@@ -101,8 +101,7 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept :
-          m_data{}, m_query{}, m_encoding{encoding_group::UNKNOWN}
+  result() noexcept : m_data{}, m_query{}, m_encoding{encoding_group::UNKNOWN}
   {}
 
   result(result const &rhs) noexcept = default;

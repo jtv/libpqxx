@@ -57,8 +57,8 @@ inline bool useless_trail(char c)
  *
  * The query must be nonempty.
  */
-std::string::size_type find_query_end(
-  std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
+std::string::size_type
+find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
   auto const text{std::data(query)};
   auto const size{std::size(query)};
@@ -100,7 +100,7 @@ pqxx::internal::sql_cursor::sql_cursor(
 
   if (std::empty(query))
     throw usage_error{"Cursor has empty query.", loc};
-  auto const enc{t.conn().encoding_group(loc)};
+  auto const enc{t.conn().get_encoding_group(loc)};
   auto const qend{find_query_end(query, enc, loc)};
   if (qend == 0)
     throw usage_error{"Cursor has effectively empty query.", loc};

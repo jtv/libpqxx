@@ -144,7 +144,8 @@ inline std::size_t scan_unquoted_string(
 
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
-template<encoding_group ENC> inline std::string_view
+template<encoding_group ENC>
+inline std::string_view
 parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
 {
   return {&input[pos], end - pos};
@@ -286,7 +287,9 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
   switch (enc)
   {
   case encoding_group::UNKNOWN:
-    throw usage_error{"Tried to parse array/composite without knowing its text encoding.", loc};
+    throw usage_error{
+      "Tried to parse array/composite without knowing its text encoding.",
+      loc};
 
   case encoding_group::MONOBYTE:
     return parse_composite_field<encoding_group::MONOBYTE>;
@@ -362,8 +365,7 @@ inline void write_composite_field(
     buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const x :
-         to_buf(buf.subspan(std::size(buf) - budget), field, c))
+    for (char const x : to_buf(buf.subspan(std::size(buf) - budget), field, c))
     {
       if ((x == '"') or (x == '\\'))
         // C++26: Use buf.at().

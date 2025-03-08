@@ -174,7 +174,8 @@ struct conversion_context
   conversion_context() {}
 
   explicit conversion_context(encoding_group e, sl l = sl::current()) :
-    enc{e}, loc{l} {}
+          enc{e}, loc{l}
+  {}
 };
 
 
@@ -299,8 +300,7 @@ template<typename TYPE> struct forbidden_conversion
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
-  [[noreturn]] static zview
-  to_buf(std::span<char>, TYPE const &, ctx = {})
+  [[noreturn]] static zview to_buf(std::span<char>, TYPE const &, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
@@ -506,8 +506,7 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
  * PostgreSQL and out of to_string() can be converted.
  */
 template<typename TYPE>
-[[nodiscard]] inline TYPE
-from_string(std::string_view text, ctx c = {})
+[[nodiscard]] inline TYPE from_string(std::string_view text, ctx c = {})
 {
   static_assert(
     pqxx::internal::from_string_7<TYPE> or
@@ -542,8 +541,7 @@ template<>
  * assignment operator, and it may be less efficient.
  */
 template<typename T>
-inline void
-from_string(std::string_view text, T &value, ctx c = {})
+inline void from_string(std::string_view text, T &value, ctx c = {})
 {
   value = from_string<T>(text, c);
 }
@@ -592,8 +590,7 @@ template<typename ENUM> struct enum_traits
     return pqxx::into_buf(buf, to_underlying(value), c);
   }
 
-  [[nodiscard]] static ENUM
-  from_string(std::string_view text, ctx c = {})
+  [[nodiscard]] static ENUM from_string(std::string_view text, ctx c = {})
   {
     return static_cast<ENUM>(pqxx::from_string<impl_type>(text, c));
   }
@@ -806,8 +803,7 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  * @c to_buf.
  */
 template<typename TYPE>
-inline zview
-generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
+inline zview generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().

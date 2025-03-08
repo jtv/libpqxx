@@ -49,10 +49,7 @@ encoding_group enc_group(std::string_view encoding_name)
       return m_name < rhs.m_name;
     }
     [[nodiscard]] std::string_view get_name() const { return m_name; }
-    [[nodiscard]] encoding_group get_group() const
-    {
-      return m_group;
-    }
+    [[nodiscard]] encoding_group get_group() const { return m_group; }
   };
 
   // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
@@ -61,7 +58,8 @@ encoding_group enc_group(std::string_view encoding_name)
     switch (encoding_name[0])
     {
     case 'B':
-      if (encoding_name == "BIG5"sv) return encoding_group::BIG5;
+      if (encoding_name == "BIG5"sv)
+        return encoding_group::BIG5;
       [[unlikely]] break;
     case 'E':
       if (encoding_name.starts_with("EUC_"sv))
@@ -147,7 +145,8 @@ encoding_group enc_group(std::string_view encoding_name)
           "1254"sv, "1255"sv, "1256"sv, "1257"sv, "1258"sv,
         };
         for (auto const n : subtypes)
-          if (n == subtype) return encoding_group::MONOBYTE;
+          if (n == subtype)
+            return encoding_group::MONOBYTE;
       }
       [[unlikely]] break;
     default: [[unlikely]] break;
@@ -177,8 +176,8 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
 
   switch (enc)
   {
-    case encoding_group::UNKNOWN:
-      throw usage_error{"Trying to read text in unknown encoding.", loc};
+  case encoding_group::UNKNOWN:
+    throw usage_error{"Trying to read text in unknown encoding.", loc};
 
     [[likely]] CASE_GROUP(MONOBYTE);
     CASE_GROUP(BIG5);

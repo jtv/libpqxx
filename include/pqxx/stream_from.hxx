@@ -22,8 +22,8 @@
 #include <variant>
 
 #include "pqxx/connection.hxx"
-#include "pqxx/except.hxx"
 #include "pqxx/encoding_group.hxx"
+#include "pqxx/except.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_focus.hxx"
