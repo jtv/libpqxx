@@ -218,6 +218,10 @@ private:
     using group = encoding_group;
     switch (enc)
     {
+    case group::UNKNOWN:
+      throw usage_error{
+        "Tried to parse array without knowing its encoding.", loc};
+
     case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
     case group::BIG5: parse<group::BIG5>(data, loc); break;
     case group::EUC_CN: parse<group::EUC_CN>(data, loc); break;
