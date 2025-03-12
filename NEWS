@@ -8,6 +8,7 @@
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
  - You can now convert strings to `pqxx::array` types.
+ - There are fewer raw pointers in the API, for safety & verifiability.
  - The libpqxx exceptions now have a `std::source_location`. (#923)
  - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
@@ -28,6 +29,9 @@
  - Assume compiler supports `ssize()`.
  - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
+ - Feel free to use `pqxx::encoding_group`.  It's no longer "internal."
+ - There's an `UNKNOWN` encoding group.  It's the only fully safe default.
+ - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - Tests are now in a single directory (#934)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
