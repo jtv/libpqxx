@@ -984,12 +984,97 @@ template<binary DATA> struct string_traits<DATA>
 
 namespace pqxx::internal
 {
-// C++20: Use concepts to identify arrays.
+template<nonbinary_range TYPE>
+std::size_t array_into_buf(
+  std::span<char> buf, TYPE const &value, std::size_t budget, ctx c = {})
+{
+  using elt_type = std::remove_cvref_t<value_type<TYPE>>;
+
+  if (std::cmp_less(std::size(buf), budget))
+    throw conversion_overrun{
+      "Not enough buffer space to convert array to string.", c.loc};
+
+  std::size_t here{0u};
+  // C++26: Use buf.at().
+  buf[here++] = '{';
+
+  bool nonempty{false};
+  for (auto const &elt : value)
+  {
+    static constexpr zview s_null{"NULL"};
+    if (is_null(elt))
+    {
+      assert(std::cmp_less(here + std::size(s_null) + 1, std::size(buf)));
+      s_null.copy(std::data(buf) + here, std::size(s_null));
+      here += std::size(s_null);
+    }
+    else if constexpr (is_sql_array<elt_type>)
+    {
+      // Render nested array in-place.  Then erase the trailing zero.
+      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+    }
+    else if constexpr (is_unquoted_safe<elt_type>)
+    {
+      // No need to quote or escape.  Just convert the value straight into
+      // its place in the array, and "backspace" the trailing zero.
+      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+    }
+    else
+    {
+      // C++26: Use buf.at().
+      buf[here++] = '"';
+
+      // Use the tail end of the destination buffer as an intermediate
+      // buffer.
+      auto const sz{std::size(buf)}, elt_budget{pqxx::size_buffer(elt)};
+      assert(std::cmp_less(elt_budget, sz - here));
+      for (char const x : pqxx::to_buf(buf.subspan(sz - elt_budget), elt, c))
+      {
+        // We copy the intermediate buffer into the final buffer, char by
+        // char, with escaping where necessary.
+        // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
+        if (x == '\\' or x == '"')
+          // C++26:Use buf.at().
+          buf[here++] = '\\';
+        // C++26:Use buf.at().
+        buf[here++] = x;
+      }
+      // C++26:Use buf.at().
+      buf[here++] = '"';
+    }
+    // C++26:Use buf.at().
+    buf[here++] = array_separator<elt_type>;
+    nonempty = true;
+  }
+
+  // Erase that last comma, if present.
+  if (nonempty)
+    here--;
+
+  // C++26:Use buf.at().
+  buf[here++] = '}';
+  buf[here++] = '\0';
+
+  return here;
+}
+} // namespace pqxx::internal
+
+namespace pqxx
+{
+template<nonbinary_range T> struct nullness<T> : no_null<T>
+{};
+
+
 /// String traits for SQL arrays.
-template<typename Container> struct array_string_traits
+/** This is a very generic implementation,  It doesn't carry enough type
+ * information about `Container` to support _parsing_ of a string into an
+ * array of a more or less arbitrary C++ type, but it's handy for converting
+ * various container types _to_ strings.
+ */
+template<nonbinary_range T> struct string_traits<T>
 {
 private:
-  using elt_type = std::remove_cvref_t<value_type<Container>>;
+  using elt_type = std::remove_cvref_t<value_type<T>>;
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
@@ -997,75 +1082,17 @@ public:
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static zview to_buf(char *begin, char *end, Container const &value)
+  static zview to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
-    return generic_to_buf({begin, end}, value);
+    return generic_to_buf(buf, value, c);
   }
 
-  static char *into_buf(char *begin, char *end, Container const &value)
+  static std::size_t into_buf(std::span<char> buf, T const &value, ctx c = {})
   {
-    assert(begin <= end);
-    std::size_t const budget{size_buffer(value)};
-    if (std::cmp_less(end - begin, budget))
-      throw conversion_overrun{
-        "Not enough buffer space to convert array to string."};
-
-    char *here{begin};
-    *here++ = '{';
-
-    bool nonempty{false};
-    for (auto const &elt : value)
-    {
-      if (is_null(elt))
-      {
-        s_null.copy(here, std::size(s_null));
-        here += std::size(s_null);
-      }
-      else if constexpr (is_sql_array<elt_type>)
-      {
-        // Render nested array in-place.  Then erase the trailing zero.
-        here += pqxx::into_buf({here, end}, elt) - 1;
-      }
-      else if constexpr (is_unquoted_safe<elt_type>)
-      {
-        // No need to quote or escape.  Just convert the value straight into
-        // its place in the array, and "backspace" the trailing zero.
-        here += pqxx::into_buf({here, end}, elt) - 1;
-      }
-      else
-      {
-        *here++ = '"';
-
-        // Use the tail end of the destination buffer as an intermediate
-        // buffer.
-        auto const elt_budget{pqxx::size_buffer(elt)};
-        assert(elt_budget < static_cast<std::size_t>(end - here));
-        for (char const c : pqxx::to_buf({end - elt_budget, end}, elt))
-        {
-          // We copy the intermediate buffer into the final buffer, char by
-          // char, with escaping where necessary.
-          // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
-          if (c == '\\' or c == '"')
-            *here++ = '\\';
-          *here++ = c;
-        }
-        *here++ = '"';
-      }
-      *here++ = array_separator<elt_type>;
-      nonempty = true;
-    }
-
-    // Erase that last comma, if present.
-    if (nonempty)
-      here--;
-
-    *here++ = '}';
-    *here++ = '\0';
-
-    return here;
+    return pqxx::internal::array_into_buf(buf, value, size_buffer(value), c);
   }
 
-  static std::size_t size_buffer(Container const &value) noexcept
+  static std::size_t size_buffer(T const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)
       return 3 + std::accumulate(
@@ -1096,22 +1123,7 @@ public:
                      return acc + 2 * elt_size + 2;
                    });
   }
-
-  // We don't yet support parsing of array types using from_string.  Doing so
-  // would require a reference to the connection.
 };
-} // namespace pqxx::internal
-
-
-namespace pqxx
-{
-template<nonbinary_range T> struct nullness<T> : no_null<T>
-{};
-
-
-template<nonbinary_range T>
-struct string_traits<T> : internal::array_string_traits<T>
-{};
 
 
 /// We don't know how to pass array params in binary format, so pass as text.
@@ -1152,8 +1164,7 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
     // We can't just reserve() space; modifying the terminating zero leads to
     // undefined behaviour.
     buf.resize(size_buffer(value));
-    auto const data{buf.data()};
-    std::size_t const stop{into_buf({data, data + std::size(buf)}, value, c)};
+    std::size_t const stop{pqxx::into_buf(buf, value, c)};
     buf.resize(stop - 1);
     return buf;
   }

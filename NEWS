@@ -1,11 +1,14 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
+ - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
  - **Beware lifetime** when "converting" a string to `std::string_view`!
  - Conversion from string to `char const *` is no longer allowed.
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
- - The libpqxx exceptions now have a `std::source_location`.
+ - You can now convert strings to `pqxx::array` types.
+ - The libpqxx exceptions now have a `std::source_location`. (#923)
  - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
@@ -25,6 +28,7 @@
  - Assume compiler supports `ssize()`.
  - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
+ - Tests are now in a single directory (#934)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.

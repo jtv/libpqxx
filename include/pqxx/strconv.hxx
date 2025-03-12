@@ -435,6 +435,9 @@ concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
 };
 
 /// Signature for string_traist<TYPE>::from_string() in libpqxx 7.
+/** This is actually identical to the new format, except the latter accepts an
+ * optional @ref conversion_context argument.
+ */
 template<typename TYPE>
 concept from_string_7 = requires(TYPE out, std::string_view text) {
   out = string_traits<TYPE>::from_string(text);

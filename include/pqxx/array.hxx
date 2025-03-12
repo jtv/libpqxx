@@ -70,17 +70,43 @@ public:
           array{data, cx.get_encoding_group(loc), loc}
   {}
 
+  array(std::string_view data, encoding_group enc, sl loc) : m_ctx{enc, loc}
+  {
+    using group = encoding_group;
+    switch (enc)
+    {
+    case group::UNKNOWN:
+      throw usage_error{
+        "Tried to parse array without knowing its encoding.", loc};
+
+    case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
+    case group::BIG5: parse<group::BIG5>(data, loc); break;
+    case group::EUC_CN: parse<group::EUC_CN>(data, loc); break;
+    case group::EUC_JP: parse<group::EUC_JP>(data, loc); break;
+    case group::EUC_KR: parse<group::EUC_KR>(data, loc); break;
+    case group::EUC_TW: parse<group::EUC_TW>(data, loc); break;
+    case group::GB18030: parse<group::GB18030>(data, loc); break;
+    case group::GBK: parse<group::GBK>(data, loc); break;
+    case group::JOHAB: parse<group::JOHAB>(data, loc); break;
+    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data, loc); break;
+    case group::SJIS: parse<group::SJIS>(data, loc); break;
+    case group::UHC: parse<group::UHC>(data, loc); break;
+    case group::UTF8: parse<group::UTF8>(data, loc); break;
+    default: PQXX_UNREACHABLE; break;
+    }
+  }
+
   /// How many dimensions does this array have?
   /** This value is known at compile time.
    */
-  constexpr std::size_t dimensions() noexcept { return DIMENSIONS; }
+  constexpr std::size_t dimensions() const noexcept { return DIMENSIONS; }
 
   /// Return the sizes of this array in each of its dimensions.
   /** The last of the sizes is the number of elements in a single row.  The
    * size before that is the number of rows of elements, and so on.  The first
    * is the "outer" size.
    */
-  std::array<std::size_t, DIMENSIONS> const &sizes() noexcept
+  std::array<std::size_t, DIMENSIONS> const &sizes() const noexcept
   {
     return m_extents;
   }
@@ -207,36 +233,6 @@ private:
       if (data[sz - 1 - i] != '}')
         throw conversion_error{
           "Malformed array: does not end in the right number of '}'.", loc};
-  }
-
-  // Allow fields to construct arrays passing the encoding group.
-  // Couldn't make this work through a call gate, thanks to the templating.
-  friend class ::pqxx::field;
-
-  array(std::string_view data, encoding_group enc, sl loc) : m_ctx{enc, loc}
-  {
-    using group = encoding_group;
-    switch (enc)
-    {
-    case group::UNKNOWN:
-      throw usage_error{
-        "Tried to parse array without knowing its encoding.", loc};
-
-    case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
-    case group::BIG5: parse<group::BIG5>(data, loc); break;
-    case group::EUC_CN: parse<group::EUC_CN>(data, loc); break;
-    case group::EUC_JP: parse<group::EUC_JP>(data, loc); break;
-    case group::EUC_KR: parse<group::EUC_KR>(data, loc); break;
-    case group::EUC_TW: parse<group::EUC_TW>(data, loc); break;
-    case group::GB18030: parse<group::GB18030>(data, loc); break;
-    case group::GBK: parse<group::GBK>(data, loc); break;
-    case group::JOHAB: parse<group::JOHAB>(data, loc); break;
-    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data, loc); break;
-    case group::SJIS: parse<group::SJIS>(data, loc); break;
-    case group::UHC: parse<group::UHC>(data, loc); break;
-    case group::UTF8: parse<group::UTF8>(data, loc); break;
-    default: PQXX_UNREACHABLE; break;
-    }
   }
 
   /// Handle the end of a field.
@@ -537,6 +533,75 @@ private:
    * situations, we use the construction point.
    */
   conversion_context m_ctx;
+};
+
+
+/// String traits for SQL arrays represented as @ref pqxx::array.
+/** This supports two-way conversion.  There is also a more generic conversion
+ * which only knows how to convert _to_ a string.
+ */
+template<typename ELEMENT, std::size_t DIMENSIONS>
+struct string_traits<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
+{
+private:
+  using elt_type = std::remove_cvref_t<ELEMENT>;
+  using elt_traits = string_traits<elt_type>;
+  static constexpr zview s_null{"NULL"};
+
+public:
+  using array_type = array<ELEMENT, DIMENSIONS, array_separator<elt_type>>;
+
+  static constexpr bool converts_to_string{true};
+  static constexpr bool converts_from_string{true};
+
+  static zview to_buf(std::span<char> buf, array_type const &value, ctx c = {})
+  {
+    return generic_to_buf(buf, value, c);
+  }
+
+  static std::size_t
+  into_buf(std::span<char> buf, array_type const &value, ctx c = {})
+  {
+    return pqxx::internal::array_into_buf(buf, value, size_buffer(value), c);
+  }
+
+  static std::size_t size_buffer(array_type const &value) noexcept
+  {
+    if constexpr (is_unquoted_safe<elt_type>)
+      return 3 + std::accumulate(
+                   std::begin(value), std::end(value), std::size_t{},
+                   [](std::size_t acc, elt_type const &elt) {
+                     // Budget for each element includes a terminating zero.
+                     // We won't actually be wanting those, but don't subtract
+                     // that one byte: we want room for a separator instead.
+                     // However, std::size(s_null) doesn't account for the
+                     // terminating zero, so add one to make s_null pay for its
+                     // own separator.
+                     return acc + (pqxx::is_null(elt) ?
+                                     (std::size(s_null) + 1) :
+                                     elt_traits::size_buffer(elt));
+                   });
+    else
+      return 3 + std::accumulate(
+                   std::begin(value), std::end(value), std::size_t{},
+                   [](std::size_t acc, elt_type const &elt) {
+                     // Opening and closing quotes, plus worst-case escaping,
+                     // and the one byte for the trailing zero becomes room
+                     // for a separator. However, std::size(s_null) doesn't
+                     // account for the terminating zero, so add one to make
+                     // s_null pay for its own separator.
+                     std::size_t const elt_size{
+                       pqxx::is_null(elt) ? (std::size(s_null) + 1) :
+                                            elt_traits::size_buffer(elt)};
+                     return acc + 2 * elt_size + 2;
+                   });
+  }
+
+  static array_type from_string(std::string_view text, ctx c = {})
+  {
+    return array<ELEMENT, DIMENSIONS, array_separator<elt_type>>{
+      text, c.enc, c.loc};
+  }
 };
 
 
