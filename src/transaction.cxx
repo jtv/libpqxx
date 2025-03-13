@@ -68,14 +68,14 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
   {
     // Outcome of "commit" is unknown.  This is a disaster: we don't know the
     // resulting state of the database.
-    process_notice(internal::concat(e.what(), "\n"));
+    process_notice(std::format("{}\n", e.what()));
 
     // XXX: Log source location?
-    std::string msg{internal::concat(
-      "WARNING: Commit status of transaction '", name(),
-      "' is unknown. "
+    std::string msg{std::format(
+      "WARNING: Commit status of transaction '{}' is unknown. "
       "There is no way to tell whether the transaction succeeded "
-      "or was aborted except to check manually.\n")};
+      "or was aborted except to check manually.\n",
+      name())};
     process_notice(msg);
     // Strip newline.  It was only needed for process_notice().
     msg.pop_back();
@@ -87,12 +87,13 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
     {
       // We've lost the connection while committing.  There is just no way of
       // telling what happened on the other end.  >8-O
-      process_notice(internal::concat(e.what(), "\n"));
+      process_notice(std::format("{}\n", e.what()));
 
-      auto msg{internal::concat(
-        "WARNING: Connection lost while committing transaction '", name(),
-        "'. There is no way to tell whether the transaction succeeded "
-        "or was aborted except to check manually.\n")};
+      auto msg{std::format(
+        "WARNING: Connection lost while committing transaction '{}'.  "
+        "There is no way to tell whether the transaction succeeded or was "
+        "aborted except to check manually.\n",
+        name())};
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();

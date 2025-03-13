@@ -270,7 +270,7 @@ pqxx::result pqxx::connection::make_result(
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   }
-  auto const enc{internal::enc_group(encoding_id(loc), loc)};
+  auto const enc{get_encoding_group(loc)};
   auto r{pqxx::internal::gate::result_creation::create(
     smart, query, m_notice_waiters, enc)};
   pqxx::internal::gate::result_creation{r}.check_status(desc, loc);
@@ -314,13 +314,13 @@ int PQXX_COLD pqxx::connection::server_version() const noexcept
 void pqxx::connection::set_variable(
   std::string_view var, std::string_view value, sl loc) &
 {
-  exec(internal::concat("SET ", quote_name(var), "=", value), loc);
+  exec(std::format("SET {}={}", quote_name(var), value), loc);
 }
 
 
 std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 {
-  return exec(internal::concat("SHOW ", quote_name(var)), loc)
+  return exec(std::format("SHOW {}", quote_name(var)), loc)
     .at(0)
     .at(0)
     .as(std::string{});
@@ -330,9 +330,9 @@ std::string pqxx::connection::get_variable(std::string_view var, sl loc)
 std::string pqxx::connection::get_var(std::string_view var, sl loc)
 {
   // (Variables can't be null, so far as I can make out.)
-  return exec(internal::concat("SHOW "sv, quote_name(var)), loc)
+  return exec(std::format("SHOW {}", quote_name(var)), loc)
     .one_field(loc)
-    .as<std::string>(loc);
+    .as<std::string>(conversion_context{get_encoding_group(loc), loc});
 }
 
 
@@ -404,7 +404,7 @@ void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
   {
     // Not listening on this event yet, start doing so.
     auto const lq{std::make_shared<std::string>(
-      internal::concat("LISTEN ", quote_name(n->channel())))};
+      std::format("LISTEN {}", quote_name(n->channel())))};
     make_result(PQexec(m_conn, lq->c_str()), lq, *lq);
     m_receivers.insert(new_value);
   }
@@ -420,9 +420,10 @@ void pqxx::connection::listen(
 {
   if (m_trans != nullptr)
     throw usage_error{
-      pqxx::internal::concat(
-        "Attempting to listen for notifications on '", channel,
-        "' while transaction is active."),
+      std::format(
+        "Attempting to listen for notifications on '{}' while transaction is "
+        "active.",
+        channel),
       loc};
 
   std::string str_name{channel};
@@ -442,8 +443,7 @@ void pqxx::connection::listen(
     else
     {
       // We had no handler installed for this name.  Start listening.
-      exec(pqxx::internal::concat("LISTEN ", quote_name(channel)), loc)
-        .no_rows();
+      exec(std::format("LISTEN {}", quote_name(channel)), loc).no_rows(loc);
       m_notification_handlers.emplace_hint(pos, channel, std::move(handler));
     }
   }
@@ -454,8 +454,7 @@ void pqxx::connection::listen(
     if (pos != handlers_end)
     {
       // Yes, we had a handler for this name.  Remove it.
-      exec(pqxx::internal::concat("UNLISTEN ", quote_name(channel)), loc)
-        .no_rows();
+      exec(std::format("UNLISTEN {}", quote_name(channel)), loc).no_rows(loc);
       m_notification_handlers.erase(pos);
     }
   }
@@ -477,8 +476,8 @@ void PQXX_COLD pqxx::connection::remove_receiver(
 
     if (i == R.second)
     {
-      [[unlikely]] process_notice(internal::concat(
-        "Attempt to remove unknown receiver '", needle.first, "'\n"));
+      [[unlikely]] process_notice(std::format(
+        "Attempt to remove unknown receiver '{}'\n", needle.first));
     }
     else
     {
@@ -487,7 +486,7 @@ void PQXX_COLD pqxx::connection::remove_receiver(
       bool const gone{R.second == ++R.first};
       m_receivers.erase(i);
       if (gone)
-        exec(internal::concat("UNLISTEN ", quote_name(needle.first)), loc);
+        exec(std::format("UNLISTEN {}", quote_name(needle.first)), loc);
     }
   }
   catch (std::exception const &e)
@@ -551,7 +550,7 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
     std::array<char, buf_size> errbuf{};
     char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};
     throw broken_connection{
-      internal::concat("Could not set socket's blocking mode: ", err), loc};
+      std::format("Could not set socket's blocking mode: {}", err), loc};
   }
 #  else  // _WIN32
   std::array<char, buf_size> errbuf{};
@@ -560,7 +559,7 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
   {
     char const *const err{pqxx::internal::error_string(errno, errbuf)};
     throw broken_connection{
-      internal::concat("Could not get socket state: ", err), loc};
+      std::format("Could not get socket state: {}", err), loc};
   }
   if (block)
     flags |= O_NONBLOCK;
@@ -570,7 +569,7 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
   {
     char const *const err{pqxx::internal::error_string(errno, errbuf)};
     throw broken_connection{
-      internal::concat("Could not set socket's blocking mode: ", err), loc};
+      std::format("Could not set socket's blocking mode: {}", err), loc};
   }
 #  endif // _WIN32
 }
@@ -629,9 +628,9 @@ int pqxx::connection::get_notifs(sl loc)
         {
           try
           {
-            process_notice(internal::concat(
-              "Exception in notification receiver '", i->first,
-              "': ", e.what(), "\n"));
+            process_notice(std::format(
+              "Exception in notification receiver '{}': {}\n", i->first,
+              e.what()));
           }
           catch (std::bad_alloc const &)
           {
@@ -749,8 +748,8 @@ std::string pqxx::connection::encrypt_password(
 void pqxx::connection::prepare(
   char const name[], char const definition[], sl) &
 {
-  auto const q{std::make_shared<std::string>(
-    pqxx::internal::concat("[PREPARE ", name, "]"))};
+  auto const q{
+    std::make_shared<std::string>(std::format("[PREPARE {}]", name))};
 
   auto const r{
     make_result(PQprepare(m_conn, name, definition, 0, nullptr), q, *q)};
@@ -765,7 +764,7 @@ void pqxx::connection::prepare(char const definition[], sl loc) &
 
 void pqxx::connection::unprepare(std::string_view name, sl loc)
 {
-  exec(internal::concat("DEALLOCATE ", quote_name(name)), loc);
+  exec(std::format("DEALLOCATE {}", quote_name(name)), loc);
 }
 
 
@@ -793,10 +792,9 @@ void pqxx::connection::close(sl)
   try
   {
     if (m_trans) [[unlikely]]
-      process_notice(internal::concat(
-        "Closing connection while ",
-        internal::describe_object("transaction"sv, m_trans->name()),
-        " is still open.\n"));
+      process_notice(std::format(
+        "Closing connection while {} is still open.\n",
+        internal::describe_object("transaction"sv, m_trans->name())));
 
     if (not std::empty(m_receivers))
     {
@@ -884,8 +882,7 @@ pqxx::connection::read_copy_line()
   switch (line_len)
   {
   case -2: // Error.
-    throw failure{
-      internal::concat("Reading of table data failed: ", err_msg())};
+    throw failure{std::format("Reading of table data failed: {}", err_msg())};
 
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q);
@@ -923,21 +920,22 @@ void pqxx::connection::write_copy_line(std::string_view line, sl loc)
 }
 
 
-void pqxx::connection::end_copy_write()
+void pqxx::connection::end_copy_write(sl loc)
 {
   int const res{PQputCopyEnd(m_conn, nullptr)};
   switch (res)
   {
   case -1:
-    throw failure{internal::concat("Write to table failed: ", err_msg())};
-  case 0: throw internal_error{"table write is inexplicably asynchronous"};
+    throw failure{std::format("Write to table failed: {}", err_msg()), loc};
+  case 0:
+    throw internal_error{"table write is inexplicably asynchronous", loc};
   case 1:
     // Normal termination.  Retrieve result object.
     break;
 
   default:
     throw internal_error{
-      internal::concat("unexpected result ", res, " from PQputCopyEnd()")};
+      std::format("unexpected result {} from PQputCopyEnd()", res), loc};
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};
@@ -958,12 +956,12 @@ pqxx::internal::pq::PGresult *pqxx::connection::get_result()
 }
 
 
-size_t
-pqxx::connection::esc_to_buf(std::string_view text, char *buf, sl loc) const
+size_t pqxx::connection::esc_to_buf(
+  std::string_view text, std::span<char> buf, sl loc) const
 {
   int err{0};
-  auto const copied{
-    PQescapeStringConn(m_conn, buf, text.data(), std::size(text), &err)};
+  auto const copied{PQescapeStringConn(
+    m_conn, std::data(buf), std::data(text), std::size(text), &err)};
   if (err) [[unlikely]]
     throw argument_error{err_msg(), loc};
   return copied;
@@ -974,7 +972,7 @@ std::string pqxx::connection::esc(std::string_view text, sl loc) const
 {
   std::string buf;
   buf.resize(2 * std::size(text) + 1);
-  auto const copied{esc_to_buf(text, buf.data(), loc)};
+  auto const copied{esc_to_buf(text, buf, loc)};
   buf.resize(copied);
   return buf;
 }
@@ -988,7 +986,7 @@ std::string pqxx::connection::esc_raw(bytes_view bin) const
 
 std::string pqxx::connection::quote_raw(bytes_view bytes) const
 {
-  return internal::concat("'", esc_raw(bytes), "'::bytea");
+  return std::format("'{}'::bytea", esc_raw(bytes));
 }
 
 
@@ -1024,7 +1022,7 @@ std::string pqxx::connection::esc_like(
   out.reserve(std::size(text));
   // TODO: Rewrite using a char_finder.
   internal::for_glyphs(
-    internal::enc_group(encoding_id(loc), loc),
+    get_encoding_group(loc),
     [&out, escape_char](char const *gbegin, char const *gend) {
       if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
         [[unlikely]]
@@ -1069,9 +1067,9 @@ std::string pqxx::connection::adorn_name(std::string_view n)
 {
   auto const id{to_string(++m_unique_id)};
   if (std::empty(n))
-    return pqxx::internal::concat("x", id);
+    return std::format("x{}", id);
   else
-    return pqxx::internal::concat(n, "_", id);
+    return std::format("{}_{}", n, id);
 }
 
 
@@ -1097,7 +1095,7 @@ pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
       throw broken_connection{"Lost connection to the database server.", loc};
   default:
     [[unlikely]] throw internal_error{
-      internal::concat("Unexpected result from PQsetClientEncoding: ", retval),
+      std::format("Unexpected result from PQsetClientEncoding: {}", retval),
       loc};
   }
 }

@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -57,21 +58,7 @@ namespace pqxx
 
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
-{
-/// Efficiently concatenate two strings.
-/** This is a special case of concatenate(), needed because dependency
- * management does not let us use that function here.
- */
-[[nodiscard]] inline std::string cat2(std::string_view x, std::string_view y)
-{
-  std::string buf;
-  auto const xs{std::size(x)}, ys{std::size(y)};
-  buf.resize(xs + ys);
-  x.copy(std::data(buf), xs);
-  y.copy(std::data(buf) + xs, ys);
-  return buf;
-}
-} // namespace pqxx::internal
+{} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -111,7 +98,7 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     {
       if (value < to_limits::lowest())
         throw range_error{
-          internal::cat2("Cast underflow: "sv, description), loc};
+          std::format("Cast underflow: {}"sv, description), loc};
     }
     else
     {
@@ -120,8 +107,8 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
       // perform our check.
       if (value < 0)
         throw range_error{
-          internal::cat2(
-            "Casting negative value to unsigned type: "sv, description),
+          std::format(
+            "Casting negative value to unsigned type: {}"sv, description),
           loc};
     }
   }
@@ -141,13 +128,13 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
     {
       if (std::cmp_greater(value, to_max))
         throw range_error{
-          internal::cat2("Cast overflow: "sv, description), loc};
+          std::format("Cast overflow: {}"sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error{internal::cat2("Cast overflow: ", description), loc};
+      throw range_error{std::format("Cast overflow: {}", description), loc};
   }
 
   return static_cast<TO>(value);
@@ -333,7 +320,6 @@ template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 }
 
 
-// XXX: Write separate tests for binary_cast.
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
  * types, and constructs a `pqxx::bytes_view` pointing to the same data.
@@ -433,14 +419,13 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 }
 
 
-// XXX: Maybe pass a span so we can check length?
 /// Hex-escape binary data into a buffer.
-/** The buffer must be able to accommodate
- * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
- * exactly that number of bytes into the buffer.  This includes a trailing
- * zero.
+/** The buffer must have room for `size_esc_bin(std::size(binary_data))` bytes,
+ * and the function will write exactly that number of bytes into the buffer.
+ * This includes a trailing zero.
  */
-void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
+void PQXX_LIBEXPORT
+esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
 
 
 /// Hex-escape binary data into a buffer.
@@ -449,7 +434,8 @@ void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-template<binary T> inline void esc_bin(T &&binary_data, char buffer[]) noexcept
+template<binary T>
+inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 {
   esc_bin(binary_cast(binary_data), buffer);
 }
@@ -461,7 +447,7 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[], sl loc);
+unesc_bin(std::string_view escaped_data, std::span<std::byte> buffer, sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
@@ -559,20 +545,20 @@ inline constexpr char unescape_char(char escaped) noexcept
 }
 
 
-// C++20: std::span?
 /// Get error string for a given @c errno value.
-template<std::size_t BYTES>
-char const *PQXX_COLD
-error_string(int err_num, std::array<char, BYTES> &buffer)
+[[nodiscard]] inline char const *PQXX_COLD
+error_string(int err_num, std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
   using namespace std;
 
 #if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
 #  if defined(PQXX_HAVE_STRERROR_S)
-  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
+  auto const err_result{
+    strerror_s(std::data(buffer), std::size(buffer), err_num)};
 #  else
-  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
+  auto const err_result{
+    strerror_r(err_num, std::data(buffer), std::size(buffer))};
 #  endif
   if constexpr (std::is_same_v<
                   std::remove_cvref_t<decltype(err_result)>, char *>)
@@ -586,10 +572,10 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
     // Either strerror_s or POSIX strerror_r; returns an error code.
     // Sorry for being lazy here: Not reporting error string for the case
     // where we can't retrieve an error string.
-    if (err_result == 0)
-      return std::data(buffer);
-    else
+    if (err_result)
       return "Compound errors.";
+    else
+      return std::data(buffer);
   }
 
 #else
@@ -597,6 +583,34 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
   pqxx::ignore_unused(err_num, buffer);
   return "(No error information available.)";
 #endif
+}
+
+
+/// Represent a std::source_location as human-readable text.
+inline std::string source_loc(sl loc)
+{
+  // TODO: Rewrite to guarantee Return Value Optimisation.
+  char const *const func{loc.function_name()};
+  // (The standard says this can't be null, but let's be conservative.)
+  bool const have_func{func != nullptr and *func != '\0'},
+    have_line{loc.line() > 0};
+
+  if (have_func and have_line)
+  {
+    return std::format("{} in {}:{}", func, loc.file_name(), loc.line());
+  }
+  else if (have_func)
+  {
+    return std::format("{} in {}", func, loc.file_name());
+  }
+  else if (have_line)
+  {
+    return std::format("{}:{}", loc.file_name(), loc.line());
+  }
+  else
+  {
+    return std::string{loc.file_name()};
+  }
 }
 } // namespace pqxx::internal
 

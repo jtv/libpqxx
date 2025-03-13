@@ -15,7 +15,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/dbtransaction.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-pipeline.hxx"
 #include "pqxx/internal/gates/result-creation.hxx"
 #include "pqxx/internal/gates/result-pipeline.hxx"
@@ -37,7 +36,7 @@ constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
 
 void pqxx::pipeline::init(sl loc)
 {
-  m_encoding = internal::enc_group(m_trans->conn().encoding_id(loc), loc);
+  m_encoding = m_trans->conn().get_encoding_group(loc);
   m_issuedrange = make_pair(std::end(m_queries), std::end(m_queries));
   attach();
 }
@@ -142,7 +141,7 @@ bool pqxx::pipeline::is_finished(pipeline::query_id q) const
 {
   if (not m_queries.contains(q))
     throw std::logic_error{
-      internal::concat("Requested status for unknown query '", q, "'.")};
+      std::format("Requested status for unknown query '{}'.", q)};
   return (QueryMap::const_iterator(m_issuedrange.first) ==
           std::end(m_queries)) or
          (q < m_issuedrange.first->first and q < m_error);
@@ -161,8 +160,8 @@ pqxx::pipeline::retrieve(sl loc)
 int pqxx::pipeline::retain(int retain_max) &
 {
   if (retain_max < 0)
-    throw range_error{internal::concat(
-      "Attempt to make pipeline retain ", retain_max, " queries")};
+    throw range_error{
+      std::format("Attempt to make pipeline retain {} queries.", retain_max)};
 
   int const oldvalue{m_retain};
   m_retain = retain_max;
@@ -215,7 +214,7 @@ void pqxx::pipeline::issue(sl loc)
     QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
   bool const prepend_dummy{num_issued > 1};
   if (prepend_dummy)
-    cum = pqxx::internal::concat(theDummyQuery, cum);
+    cum = std::format("{}{}", theDummyQuery, cum);
 
   pqxx::internal::gate::connection_pipeline{m_trans->conn()}.start_exec(
     cum.c_str());
@@ -275,6 +274,8 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
 
 void pqxx::pipeline::obtain_dummy(sl loc)
 {
+  conversion_context const c{{}, loc};
+
   // Allocate once, re-use across invocations.
   static auto const text{
     std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
@@ -306,7 +307,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     if (std::size(R) > 1) [[unlikely]]
       internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).as<std::string_view>(loc) != theDummyValue) [[unlikely]]
+    if (R.at(0).at(0).as<std::string_view>(c) != theDummyValue) [[unlikely]]
       internal_error(
         "Dummy query in pipeline returned unexpected value.", loc);
     return;

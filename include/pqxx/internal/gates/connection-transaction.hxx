@@ -38,7 +38,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
   {
     home().write_copy_line(line, loc);
   }
-  void end_copy_write() { home().end_copy_write(); }
+  void end_copy_write(sl loc) { home().end_copy_write(loc); }
 
   result exec_prepared(
     std::string_view statement, internal::c_params const &args, sl loc)

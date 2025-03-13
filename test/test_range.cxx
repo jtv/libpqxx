@@ -335,8 +335,7 @@ void test_range_subset()
   for (auto const [super, sub] : subsets)
     PQXX_CHECK(
       traits::from_string(super).contains(traits::from_string(sub)),
-      pqxx::internal::concat(
-        "Range '", super, "' did not contain '", sub, "'."));
+      std::format("Range '{}' did not contain ''.", super, sub));
 
   std::string_view non_subsets[][2]{
     {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
@@ -347,7 +346,7 @@ void test_range_subset()
   for (auto const [super, sub] : non_subsets)
     PQXX_CHECK(
       not traits::from_string(super).contains(traits::from_string(sub)),
-      pqxx::internal::concat("Range '", super, "' contained '", sub, "'."));
+      std::format("Range '{}' contained '{}'.", super, sub));
 }
 
 
@@ -404,15 +403,14 @@ void test_parse_range()
   for (auto empty : empties)
     PQXX_CHECK(
       traits::from_string(empty).empty(),
-      pqxx::internal::concat(
-        "This was supposed to produce an empty range: '", empty, "'"));
+      std::format("This was supposed to produce an empty range: '{}'", empty));
 
   constexpr std::string_view universals[]{"(,)", "[,)", "(,]", "[,]"};
   for (auto univ : universals)
     PQXX_CHECK_EQUAL(
       traits::from_string(univ), (range{ubound{}, ubound{}}),
-      pqxx::internal::concat(
-        "This was supposed to produce a universal range: '", univ, "'"));
+      std::format(
+        "This was supposed to produce a universal range: '{}'", univ));
 
   PQXX_CHECK(
     traits::from_string("(0,10]").lower_bound().is_exclusive(),
@@ -465,8 +463,7 @@ void test_parse_bad_range()
   for (auto bad : bad_ranges)
     PQXX_CHECK_THROWS(
       pqxx::ignore_unused(traits::from_string(bad)), conv_err,
-      pqxx::internal::concat(
-        "This range wasn't supposed to parse: '", bad, "'"));
+      std::format("This range wasn't supposed to parse: '{}'", bad));
 }
 
 
@@ -514,13 +511,13 @@ void test_range_intersection()
   {
     PQXX_CHECK_EQUAL(
       intersect<int>(left, right), expected,
-      pqxx::internal::concat(
-        "Intersection of '", left, "' and '", right,
-        " produced unexpected result."));
+      std::format(
+        "Intersection of '{}' and '{} produced unexpected result.", left,
+        right));
     PQXX_CHECK_EQUAL(
       intersect<int>(right, left), expected,
-      pqxx::internal::concat(
-        "Intersection of '", left, "' and '", right, " was asymmetric."));
+      std::format(
+        "Intersection of '{}' and '{}' was asymmetric.", left, right));
   }
 }
 

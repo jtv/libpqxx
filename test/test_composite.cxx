@@ -72,8 +72,7 @@ void test_composite_renders_to_string()
   pqxx::work tx{cx};
   char buf[1000];
 
-  pqxx::composite_into_buf(
-    std::begin(buf), std::end(buf), 355, "foo", "b\na\\r");
+  pqxx::composite_into_buf(buf, 355, "foo", "b\na\\r");
   PQXX_CHECK_EQUAL(
     std::string{buf}, "(355,\"foo\",\"b\na\\\\r\")",
     "Composite was not rendered as expected.");

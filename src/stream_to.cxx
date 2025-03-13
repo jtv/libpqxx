@@ -12,7 +12,6 @@
 
 #include "pqxx/internal/header-pre.hxx"
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-stream_to.hxx"
 #include "pqxx/stream_from.hxx"
 #include "pqxx/stream_to.hxx"
@@ -28,13 +27,12 @@ void begin_copy(
   pqxx::transaction_base &tx, std::string_view table, std::string_view columns,
   pqxx::sl loc)
 {
-  tx.exec(
-      std::empty(columns) ?
-        pqxx::internal::concat("COPY "sv, table, " FROM STDIN"sv) :
-        pqxx::internal::concat(
-          "COPY "sv, table, "("sv, columns, ") FROM STDIN"sv),
-      loc)
-    .no_rows(loc);
+  pqxx::result res;
+  if (std::empty(columns))
+    res = tx.exec(std::format("COPY {} FROM STDIN", table));
+  else
+    res = tx.exec(std::format("COPY {} ({}) FROM STDIN", table, columns));
+  res.no_rows(loc);
 }
 
 
@@ -53,9 +51,9 @@ char escape_char(char special, pqxx::sl loc)
   default: break;
   }
   throw pqxx::internal_error{
-    pqxx::internal::concat(
-      "Stream escaping unexpectedly stopped at '",
-      static_cast<unsigned>(static_cast<unsigned char>(special)), "'."),
+    std::format(
+      "Stream escaping unexpectedly stopped at '{}'.",
+      static_cast<unsigned>(static_cast<unsigned char>(special))),
     loc};
 }
 } // namespace
@@ -69,7 +67,7 @@ pqxx::stream_to::~stream_to() noexcept
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), sl::current());
   }
 }
 
@@ -121,13 +119,13 @@ pqxx::stream_to::stream_to(
 }
 
 
-void pqxx::stream_to::complete()
+void pqxx::stream_to::complete(sl loc)
 {
   if (!m_finished)
   {
     m_finished = true;
     unregister_me();
-    internal::gate::connection_stream_to{m_trans->conn()}.end_copy_write();
+    internal::gate::connection_stream_to{m_trans->conn()}.end_copy_write(loc);
   }
 }
 

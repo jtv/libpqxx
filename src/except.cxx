@@ -8,10 +8,11 @@
  */
 #include "pqxx-source.hxx"
 
+#include <format>
+
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 
 #include "pqxx/internal/header-post.hxx"
 
@@ -100,8 +101,7 @@ pqxx::deadlock_detected::deadlock_detected(
 
 
 pqxx::internal_error::internal_error(std::string const &whatarg, sl loc) :
-        std::logic_error{
-          internal::concat("libpqxx internal error: ", whatarg)},
+        std::logic_error{std::format("libpqxx internal error: {}", whatarg)},
         location{loc}
 {}
 

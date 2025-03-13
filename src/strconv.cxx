@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <format>
 #include <functional>
 #include <limits>
 #include <locale>
@@ -25,7 +26,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -120,21 +120,20 @@ template<typename T> constexpr inline char *bottom_to_buf(char *end)
 
 /// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
-inline char *wrap_to_chars(char *begin, char *end, T const &value)
+inline char *wrap_to_chars(std::span<char> buf, T const &value)
 {
+  auto const begin{std::data(buf)}, end{begin + std::size(buf)};
   auto res{std::to_chars(begin, end - 1, value)};
   if (res.ec != std::errc()) [[unlikely]]
     switch (res.ec)
     {
     case std::errc::value_too_large:
-      throw pqxx::conversion_overrun{
-        "Could not convert " + pqxx::type_name<T> +
-        " to string: "
-        "buffer too small (" +
-        pqxx::to_string(end - begin) + " bytes)."};
+      throw pqxx::conversion_overrun{std::format(
+        "Could not convert {} to string: buffer too small ({} bytes).",
+        pqxx::type_name<T>, std::size(buf))};
     default:
       throw pqxx::conversion_error{
-        "Could not convert " + pqxx::type_name<T> + " to string."};
+        std::format("Could not convert {} to string.", pqxx::type_name<T>)};
     }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
@@ -155,11 +154,9 @@ string_traits<T>::to_buf(char *begin, char *end, T const &value)
   auto const space{end - begin},
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
-    throw conversion_overrun{
-      "Could not convert " + type_name<T> +
-      " to string: "
-      "buffer too small.  " +
-      pqxx::internal::state_buffer_overrun(space, need)};
+    throw conversion_overrun{std::format(
+      "Could not convert {} to string: buffer too small.  {}", type_name<T>,
+      pqxx::internal::state_buffer_overrun(space, need))};
 
   char *const pos{[end, &value]() {
     if constexpr (std::is_unsigned_v<T>)
@@ -180,7 +177,7 @@ inline char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
-  return wrap_to_chars(begin, end, value);
+  return wrap_to_chars({begin, end}, value);
 }
 
 
@@ -215,7 +212,7 @@ std::string demangle_type_name(char const raw[])
   {
     try
     {
-      std::string out{str, len};
+      std::string out{str};
       // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
       std::free(str);
       str = nullptr;
@@ -237,34 +234,30 @@ std::string demangle_type_name(char const raw[])
 void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
 {
   throw conversion_error{
-    concat("Attempt to convert SQL null to ", type, "."), loc};
+    std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
 void PQXX_COLD throw_null_conversion(std::string_view type, sl loc)
 {
   throw conversion_error{
-    concat("Attempt to convert SQL null to ", type, "."), loc};
+    std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
 std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 {
-  // We convert these in standard library terms, not for the localisation
-  // so much as to avoid "error cycles," if these values in turn should fail
-  // to get enough buffer space.
-  // C++20: Use formatting library.
-  std::stringstream have, need;
-  have << have_bytes;
-  need << need_bytes;
-  return "Have " + have.str() + " bytes, need " + need.str() + ".";
+  // We convert these in standard library terms, to avoid "error cycles," if
+  // these values in turn should fail to get enough buffer space.
+  return std::format("Have {} bytes, need {}.", have_bytes, need_bytes);
 }
 } // namespace pqxx::internal
 
 
 namespace
 {
-template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
+template<typename TYPE>
+inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
 {
   char const *here{std::data(in)};
   auto const end{std::data(in) + std::size(in)};
@@ -294,15 +287,12 @@ template<typename TYPE> inline TYPE from_string_arithmetic(std::string_view in)
     }
   }
 
-  auto const base{
-    "Could not convert '" + std::string(in) +
-    "' "
-    "to " +
-    pqxx::type_name<TYPE>};
+  auto const base{std::format(
+    "Could not convert '{}' to {}", std::string(in), pqxx::type_name<TYPE>)};
   if (std::empty(msg))
-    throw pqxx::conversion_error{base + "."};
+    throw pqxx::conversion_error{std::format("{}.", base), c.loc};
   else
-    throw pqxx::conversion_error{base + ": " + msg};
+    throw pqxx::conversion_error{std::format("{}: {}", base, msg), c.loc};
 }
 
 
@@ -350,11 +340,12 @@ inline bool PQXX_COLD from_dumb_stringstream(
 
 // These are hard, and some popular compilers still lack std::from_chars.
 template<typename T>
-inline T PQXX_COLD from_string_awful_float(std::string_view text)
+inline T PQXX_COLD from_string_awful_float(std::string_view text, ctx c)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
-      "Trying to convert empty string to " + pqxx::type_name<T> + "."};
+      std::format("Trying to convert empty string to {}.", pqxx::type_name<T>),
+      c.loc};
 
   bool ok{false};
   T result;
@@ -405,8 +396,9 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text)
 
   if (not ok)
     throw pqxx::conversion_error{
-      "Could not convert string to numeric value: '" + std::string{text} +
-      "'."};
+      std::format(
+        "Could not convert string to numeric value: '{}'.", std::string(text)),
+      c.loc};
 
   return result;
 }
@@ -429,15 +421,14 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 namespace pqxx::internal
 {
 /// Floating-point implementations for @c pqxx::to_string().
-template<typename T> std::string to_string_float(T value)
+template<typename T> std::string to_string_float(T value, ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     static constexpr auto space{string_traits<T>::size_buffer(value)};
     std::string buf;
     buf.resize(space);
-    std::string_view const view{
-      string_traits<T>::to_buf(std::data(buf), std::data(buf) + space, value)};
+    std::string_view const view{to_buf(buf, value, c)};
     buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
     return buf;
   }
@@ -462,12 +453,12 @@ template<typename T> std::string to_string_float(T value)
 
 
 template<std::floating_point T>
-T float_string_traits<T>::from_string(std::string_view text)
+T float_string_traits<T>::from_string(std::string_view text, pqxx::ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return from_string_arithmetic<T>(text);
+  return from_string_arithmetic<T>(text, c);
 #else
-  return from_string_awful_float<T>(text);
+  return from_string_awful_float<T>(text, c);
 #endif
 }
 
@@ -478,7 +469,7 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
-    auto const ptr{wrap_to_chars(begin, end, value)};
+    auto const ptr{wrap_to_chars({begin, end}, value)};
     return zview{begin, std::size_t(ptr - begin - 1)};
   }
 #else
@@ -495,10 +486,10 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
     auto have{end - begin};
     auto need{std::size(text) + 1};
     if (need > std::size_t(have))
-      throw conversion_error{
+      throw conversion_error{std::format(
         "Could not convert floating-point number to string: "
-        "buffer too small.  " +
-        state_buffer_overrun(have, need)};
+        "buffer too small.  {}",
+        state_buffer_overrun(have, need))};
     text.copy(begin, need);
     return zview{begin, std::size(text)};
   }
@@ -510,9 +501,9 @@ template<std::floating_point T>
 char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return wrap_to_chars(begin, end, value);
+  return wrap_to_chars({begin, end}, value);
 #else
-  return generic_into_buf(begin, end, value);
+  return generic_into_buf({begin, end}, value);
 #endif
 }
 
@@ -526,30 +517,32 @@ template struct float_string_traits<long double>;
 namespace pqxx
 {
 template<pqxx::internal::integer T>
-T string_traits<T>::from_string(std::string_view text)
+T string_traits<T>::from_string(std::string_view text, ctx c)
 {
-  return from_string_arithmetic<T>(text);
+  return from_string_arithmetic<T>(text, c);
 }
 
-template short string_traits<short>::from_string(std::string_view);
+template short string_traits<short>::from_string(std::string_view, ctx c);
 template unsigned short
-  string_traits<unsigned short>::from_string(std::string_view);
-template int string_traits<int>::from_string(std::string_view);
-template unsigned string_traits<unsigned>::from_string(std::string_view);
-template long string_traits<long>::from_string(std::string_view);
+string_traits<unsigned short>::from_string(std::string_view, ctx c);
+template int string_traits<int>::from_string(std::string_view, ctx c);
+template unsigned
+string_traits<unsigned>::from_string(std::string_view, ctx c);
+template long string_traits<long>::from_string(std::string_view, ctx c);
 template unsigned long
-  string_traits<unsigned long>::from_string(std::string_view);
-template long long string_traits<long long>::from_string(std::string_view);
+string_traits<unsigned long>::from_string(std::string_view, ctx c);
+template long long
+string_traits<long long>::from_string(std::string_view, ctx c);
 template unsigned long long
-  string_traits<unsigned long long>::from_string(std::string_view);
+string_traits<unsigned long long>::from_string(std::string_view, ctx c);
 } // namespace pqxx
 
 
 namespace pqxx::internal
 {
-template std::string to_string_float(float);
-template std::string to_string_float(double);
-template std::string to_string_float(long double);
+template std::string to_string_float(float, ctx);
+template std::string to_string_float(double, ctx);
+template std::string to_string_float(long double, ctx);
 } // namespace pqxx::internal
 
 
@@ -594,5 +587,5 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
     return *result;
   else
     throw conversion_error{
-      "Failed conversion to bool: '" + std::string{text} + "'."};
+      std::format("Failed conversion to bool: '{}'.", std::string{text})};
 }

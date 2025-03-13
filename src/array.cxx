@@ -16,7 +16,6 @@
 #include "pqxx/array.hxx"
 #include "pqxx/except.hxx"
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/util.hxx"
 
@@ -26,7 +25,7 @@
 namespace pqxx
 {
 /// Scan to next glyph in the buffer.  Assumes there is one.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 [[nodiscard]] std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos, sl loc) const
 {
@@ -36,7 +35,7 @@ array_parser::scan_glyph(std::string::size_type pos, sl loc) const
 
 
 /// Scan to next glyph in a substring.  Assumes there is one.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::string::size_type array_parser::scan_glyph(
   std::string::size_type pos, std::string::size_type end, sl loc) const
 {
@@ -46,7 +45,7 @@ std::string::size_type array_parser::scan_glyph(
 
 
 /// Find the end of a double-quoted SQL string in an SQL array.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::string::size_type array_parser::scan_double_quoted_string(sl loc) const
 {
   return pqxx::internal::scan_double_quoted_string<ENC>(
@@ -55,7 +54,7 @@ std::string::size_type array_parser::scan_double_quoted_string(sl loc) const
 
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::string array_parser::parse_double_quoted_string(
   std::string::size_type end, sl loc) const
 {
@@ -67,7 +66,7 @@ std::string array_parser::parse_double_quoted_string(
 /// Find the end of an unquoted string in an SQL array.
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::string::size_type array_parser::scan_unquoted_string(sl loc) const
 {
   return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
@@ -79,7 +78,7 @@ std::string::size_type array_parser::scan_unquoted_string(sl loc) const
 /** Here, the special unquoted value NULL means a null value, not a string
  * that happens to spell "NULL".
  */
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::string_view
 array_parser::parse_unquoted_string(std::string::size_type end, sl loc) const
 {
@@ -88,13 +87,12 @@ array_parser::parse_unquoted_string(std::string::size_type end, sl loc) const
 }
 
 
-array_parser::array_parser(
-  std::string_view input, internal::encoding_group enc) :
+array_parser::array_parser(std::string_view input, encoding_group enc) :
         m_input{input}, m_impl{specialize_for_encoding(enc, sl::current())}
 {}
 
 
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 std::pair<array_parser::juncture, std::string>
 array_parser::parse_array_step(sl loc)
 {
@@ -157,17 +155,19 @@ array_parser::parse_array_step(sl loc)
 }
 
 
-array_parser::implementation array_parser::specialize_for_encoding(
-  pqxx::internal::encoding_group enc, sl loc)
+array_parser::implementation
+array_parser::specialize_for_encoding(encoding_group enc, sl loc)
 {
-  using encoding_group = pqxx::internal::encoding_group;
-
 #define PQXX_ENCODING_CASE(GROUP)                                             \
   case encoding_group::GROUP:                                                 \
     return &array_parser::parse_array_step<encoding_group::GROUP>
 
   switch (enc)
   {
+  case encoding_group::UNKNOWN:
+    throw usage_error{
+      "Tried to parse array without knowing its encoding.", loc};
+
     PQXX_ENCODING_CASE(MONOBYTE);
     PQXX_ENCODING_CASE(BIG5);
     PQXX_ENCODING_CASE(EUC_CN);
@@ -183,7 +183,7 @@ array_parser::implementation array_parser::specialize_for_encoding(
     PQXX_ENCODING_CASE(UTF8);
   }
   [[unlikely]] throw pqxx::internal_error{
-    pqxx::internal::concat("Unsupported encoding code: ", enc, "."), loc};
+    std::format("Unsupported encoding code: {}.", to_string(enc)), loc};
 
 #undef PQXX_ENCODING_CASE
 }

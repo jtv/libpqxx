@@ -8,7 +8,7 @@ namespace
 void test_scan_ascii()
 {
   auto const scan{pqxx::internal::get_glyph_scanner(
-    pqxx::internal::encoding_group::MONOBYTE, pqxx::sl::current())};
+    pqxx::encoding_group::MONOBYTE, pqxx::sl::current())};
   std::string const text{"hello"};
 
   PQXX_CHECK_EQUAL(
@@ -23,7 +23,7 @@ void test_scan_ascii()
 void test_scan_utf8()
 {
   auto const scan{pqxx::internal::get_glyph_scanner(
-    pqxx::internal::encoding_group::UTF8, pqxx::sl::current())};
+    pqxx::encoding_group::UTF8, pqxx::sl::current())};
 
   // Thai: "Khrab".
   std::string const text{"\xe0\xb8\x95\xe0\xb8\xa3\xe0\xb8\xb1\xe0\xb8\x9a"};
@@ -40,7 +40,7 @@ void test_for_glyphs_empty()
 {
   bool iterated{false};
   pqxx::internal::for_glyphs(
-    pqxx::internal::encoding_group::MONOBYTE,
+    pqxx::encoding_group::MONOBYTE,
     [&iterated](char const *, char const *) { iterated = true; }, "", 0, 0,
     pqxx::sl::current());
   PQXX_CHECK(!iterated, "Empty string went through an iteration.");
@@ -53,7 +53,7 @@ void test_for_glyphs_ascii()
   std::vector<std::ptrdiff_t> points;
 
   pqxx::internal::for_glyphs(
-    pqxx::internal::encoding_group::UTF8,
+    pqxx::encoding_group::UTF8,
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
@@ -72,7 +72,7 @@ void test_for_glyphs_utf8()
   std::vector<std::ptrdiff_t> points;
 
   pqxx::internal::for_glyphs(
-    pqxx::internal::encoding_group::UTF8,
+    pqxx::encoding_group::UTF8,
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },
@@ -87,7 +87,7 @@ void test_for_glyphs_utf8()
   points.clear();
 
   pqxx::internal::for_glyphs(
-    pqxx::internal::encoding_group::UTF8,
+    pqxx::encoding_group::UTF8,
     [&points](char const *gbegin, char const *gend) {
       points.push_back(gend - gbegin);
     },

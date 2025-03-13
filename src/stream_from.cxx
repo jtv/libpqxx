@@ -29,7 +29,7 @@ namespace
 pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
   pqxx::sl const loc{pqxx::sl::current()};
-  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id(loc), loc)};
+  auto const group{tx.conn().get_encoding_group(loc)};
   return pqxx::internal::get_char_finder<'\t', '\\'>(group, loc);
 }
 
@@ -43,8 +43,7 @@ pqxx::stream_from::stream_from(
         transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
-  tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv), loc)
-    .no_rows(loc);
+  tx.exec(std::format("COPY ({}) TO STDOUT", query), loc).no_rows(loc);
   register_me();
 }
 
@@ -54,8 +53,7 @@ pqxx::stream_from::stream_from(
         transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
-  tx.exec(
-      internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv), loc)
+  tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc)
     .no_rows(loc);
   register_me();
 }
@@ -68,12 +66,9 @@ pqxx::stream_from::stream_from(
 {
   sl const loc{sl::current()};
   if (std::empty(columns)) [[unlikely]]
-    tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv), loc)
-      .no_rows(loc);
+    tx.exec(std::format("COPY {} TO STDOUT", table), loc).no_rows(loc);
   else [[likely]]
-    tx.exec(
-        internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv),
-        loc)
+    tx.exec(std::format("COPY {}({}) TO STDOUT", table, columns), loc)
       .no_rows(loc);
   register_me();
 }
@@ -113,7 +108,7 @@ pqxx::stream_from::~stream_from() noexcept
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), sl::current());
   }
 }
 
@@ -154,7 +149,7 @@ void pqxx::stream_from::close()
 }
 
 
-void pqxx::stream_from::complete()
+void pqxx::stream_from::complete(sl loc)
 {
   if (m_finished)
     return;
@@ -177,7 +172,7 @@ void pqxx::stream_from::complete()
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), loc);
   }
   close();
 }

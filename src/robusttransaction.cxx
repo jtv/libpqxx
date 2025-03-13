@@ -18,7 +18,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/wait.hxx"
 #include "pqxx/nontransaction.hxx"
 #include "pqxx/result.hxx"
@@ -76,19 +75,20 @@ tx_stat query_status(
   std::string const &xid, std::string const &conn_str,
   pqxx::sl loc = pqxx::sl::current())
 {
+  pqxx::conversion_context const c{{}, loc};
   static std::string const name{"robusttxck"sv};
-  auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
+  auto const query{std::format("SELECT txid_status({})", xid)};
   pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
   auto const status_row{tx.exec(query, loc).one_row(loc)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty.", loc};
-  auto const status{parse_status(status_field.as<std::string_view>(loc))};
+  auto const status{parse_status(status_field.as<std::string_view>(c))};
   if (status == tx_unknown)
     throw pqxx::internal_error{
-      pqxx::internal::concat(
-        "Unknown transaction status string: ", status_field.view()),
+      std::format(
+        "Unknown transaction status string: {}", status_field.view()),
       loc};
   return status;
 }
@@ -213,15 +213,12 @@ void pqxx::internal::basic_robusttransaction::do_commit(sl loc)
 
   // Okay, this has taken too long.  Give up, report in-doubt state.
   throw in_doubt_error{
-    internal::concat(
-      "Transaction ", name(), " (with transaction ID ", m_xid,
-      ") "
-      "lost connection while committing.  It's impossible to tell whether "
-      "it committed, or aborted, or is still running.  "
-      "Attempts to find out its outcome have failed.  "
-      "The backend process on the server had process ID ",
-      m_backendpid,
-      ".  "
-      "You may be able to check what happened to that process."),
+    std::format(
+      "Transaction {} (with transaction ID {}) lost connection while "
+      "committing.  It's impossible to tell whether it committed, or aborted, "
+      "or is still running.  Attempts to find out its outcome have failed.  "
+      "The backend process on the server had process ID {}.  "
+      "You may be able to check what happened to that process.",
+      name(), m_xid, m_backendpid),
     loc};
 }

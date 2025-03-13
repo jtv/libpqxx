@@ -19,6 +19,7 @@
 
 #include <cstddef>
 #include <ctime>
+#include <format>
 #include <functional>
 #include <initializer_list>
 #include <list>
@@ -31,7 +32,6 @@
 
 #include "pqxx/errorhandler.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/params.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/separated_list.hxx"
@@ -461,6 +461,12 @@ public:
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   [[nodiscard]] int encoding_id(sl = sl::current()) const;
 
+  /// Read the curent client encoding's @ref pqxx::encoding_group.
+  encoding_group get_encoding_group(sl loc) const
+  {
+    return pqxx::internal::enc_group(this->encoding_id(loc), loc);
+  }
+
   //@}
 
   /// Set one of the session variables to a new value.
@@ -493,11 +499,9 @@ public:
     {
       if (nullness<TYPE>::is_null(value))
         throw variable_set_to_null{
-          internal::concat("Attempted to set variable ", var, " to null."),
-          loc};
+          std::format("Attempted to set variable {} to null.", var), loc};
     }
-    exec(
-      internal::concat("SET ", quote_name(var), "=", quote(value, loc)), loc);
+    exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
   }
 
   /// Read currently applicable value of a variable.
@@ -515,12 +519,21 @@ public:
    *
    * If there is any possibility that the variable is null, ensure that `TYPE`
    * can represent null values.
+   *
+   * @warning The connection does not store the underlying string anywhere.
+   * So if you try to read it as a `std::string_view`, a `std::span`, a
+   * @ref pqxx::zview, or anything like that... the string value will no longer
+   * be valid by the time you receive it!  So if you want to read the variable
+   * as a string value, use `std::string`.
    */
   template<typename TYPE>
   TYPE get_var_as(std::string_view var, sl loc = sl::current())
   {
     return from_string<TYPE>(get_var(var, loc));
   }
+
+  template<std::ranges::borrowed_range TYPE>
+  TYPE get_var_as(std::string_view, sl loc = sl::current()) = delete;
 
   /**
    * @name Notifications and Receivers
@@ -870,12 +883,12 @@ public:
     auto const needed{2 * size + 1};
     if (space < needed)
       throw range_error{
-        internal::concat(
-          "Not enough room to escape string of ", size, " byte(s): need ",
-          needed, " bytes of buffer space, but buffer size is ", space, "."),
+        std::format(
+          "Not enough room to escape string of {} byte(s): need {} bytes of "
+          "buffer space, but buffer size is {}.",
+          size, needed, size),
         loc};
-    auto const data{buffer.data()};
-    return {data, esc_to_buf(text, data, loc)};
+    return {std::data(buffer), esc_to_buf(text, buffer, loc)};
   }
 
   /// Escape string for use as SQL string literal on this connection.
@@ -910,16 +923,16 @@ public:
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
     if (space < needed)
-      throw range_error{internal::concat(
-        "Not enough room to escape binary string of ", size, " byte(s): need ",
-        needed, " bytes of buffer space, but buffer size is ", space, ".")};
+      throw range_error{std::format(
+        "Not enough room to escape binary string of {} byte(s): need {} ",
+        " bytes of buffer space, but buffer size is {}.", size, needed,
+        space)};
 
     bytes_view view{std::data(data), std::size(data)};
-    auto const out{std::data(buffer)};
     // Actually, in the modern format, we know beforehand exactly how many
     // bytes we're going to fill.  Just leave out the trailing zero.
-    internal::esc_bin(view, out);
-    return zview{out, needed - 1};
+    internal::esc_bin(view, buffer);
+    return zview{std::data(buffer), needed - 1};
   }
 
   /// Escape binary string for use as SQL string literal on this connection.
@@ -959,7 +972,7 @@ public:
   {
     bytes buf;
     buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
-    pqxx::internal::unesc_bin(text, buf.data(), loc);
+    pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
   }
 
@@ -1222,7 +1235,8 @@ private:
    *
    * Returns the number of bytes written, including the trailing zero.
    */
-  std::size_t esc_to_buf(std::string_view text, char *buf, sl loc) const;
+  std::size_t
+  esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
   char const *PQXX_PURE err_msg() const noexcept;
@@ -1265,7 +1279,7 @@ private:
 
   friend class internal::gate::connection_stream_to;
   void PQXX_PRIVATE write_copy_line(std::string_view, sl);
-  void PQXX_PRIVATE end_copy_write();
+  void PQXX_PRIVATE end_copy_write(sl);
 
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *raw_connection() const { return m_conn; }
@@ -1447,7 +1461,8 @@ inline std::string connection::quote(T const &t, sl loc) const
     // incur some unnecessary memory allocations and deallocations.
     std::string buf{'\''};
     buf.resize(2 + 2 * std::size(text) + 1);
-    auto const content_bytes{esc_to_buf(text, buf.data() + 1, loc)};
+    auto const content_bytes{
+      esc_to_buf(text, {std::begin(buf) + 1, std::end(buf)}, loc)};
     auto const closing_quote{1 + content_bytes};
     buf[closing_quote] = '\'';
     auto const end{closing_quote + 1};

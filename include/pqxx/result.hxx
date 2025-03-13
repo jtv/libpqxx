@@ -17,6 +17,7 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <format>
 #include <functional>
 #include <ios>
 #include <list>
@@ -100,8 +101,7 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept :
-          m_data{}, m_query{}, m_encoding{internal::encoding_group::MONOBYTE}
+  result() noexcept : m_data{}, m_query{}, m_encoding{encoding_group::UNKNOWN}
   {}
 
   result(result const &rhs) noexcept = default;
@@ -334,14 +334,11 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw unexpected_rows{
-          pqxx::internal::concat(
-            "Expected ", n, " row(s) from query, got ", sz, "."),
-          loc};
+          std::format("Expected {} row(s) from query, got {}.", n, sz), loc};
       else
         throw unexpected_rows{
-          pqxx::internal::concat(
-            "Expected ", n, " row(s) from query '", *m_query, "', got ", sz,
-            "."),
+          std::format(
+            "Expected {} row(s) from query '{}', got {}.", n, *m_query, sz),
           loc};
     }
     return *this;
@@ -380,14 +377,11 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw usage_error{
-          pqxx::internal::concat(
-            "Expected 1 column from query, got ", actual, "."),
-          loc};
+          std::format("Expected 1 column from query, got {}.", actual), loc};
       else
         throw usage_error{
-          pqxx::internal::concat(
-            "Expected 1 column from query '", *m_query, "', got ", actual,
-            "."),
+          std::format(
+            "Expected 1 column from query '{}', got {}.", *m_query, actual),
           loc};
     }
     return *this;
@@ -421,7 +415,7 @@ private:
    */
   std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
-  internal::encoding_group m_encoding;
+  encoding_group m_encoding;
 
   static std::string const s_empty_string;
 
@@ -437,7 +431,7 @@ private:
     std::shared_ptr<internal::pq::PGresult> const &rhs,
     std::shared_ptr<std::string> const &query,
     std::shared_ptr<pqxx::internal::notice_waiters> const &waiters,
-    internal::encoding_group enc);
+    encoding_group enc);
 
   PQXX_PRIVATE void check_status(std::string_view desc, sl loc) const;
 

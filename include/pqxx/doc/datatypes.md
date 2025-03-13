@@ -3,9 +3,10 @@ Supporting additional data types                              {#datatypes}
 
 Communication with the database mostly happens in a text format.  When you
 include an integer value in a query, either you use `to_string` to convert it
-to that text format, or under the bonnet, libpqxx does it for you.  When you
-get a query result field "as a float," libpqxx converts from the text format to
-a floating-point type.  These conversions are everywhere in libpqxx.
+to that text format, or you pass it as a paraemeter and libpqxx does it for you
+under the bonnet.  When you get a query result field "as a float," libpqxx
+converts from the text format to a floating-point type.  These conversions are
+everywhere in libpqxx.
 
 The conversion system supports many built-in types, but it is also extensible.
 You can "teach" libpqxx (in the scope of your own application) to convert
@@ -48,7 +49,7 @@ arguments you pass them:
     auto x = to_string(99);
 ```
 
-In other cases you may need to instantiate template explicitly:
+In other cases you may need to instantiate the function template explicitly:
 
 ```cxx
     auto y = from_string<int>("99");
@@ -62,9 +63,9 @@ Let's say you have some other SQL type which you want to be able to store in,
 or retrieve from, the database.  What would it take to support that?
 
 Sometimes you do not need _complete_ support.  You might need a conversion _to_
-a string but not _from_ a string, for example.  You write out the conversion at
-compile time, so don't be too afraid to be incomplete.  If you leave out one of
-these steps, it's not going to crash at run time or mess up your data.  The
+a string but not _from_ a string, or vice versa.  You write out the conversion
+at compile time, so don't be too afraid to be incomplete.  If you leave out one
+of these steps, it's not going to crash at run time or mess up your data.  The
 worst that can happen is that your code won't build.
 
 So what do you need for a complete conversion?
@@ -166,8 +167,16 @@ libpqxx that your type has no null value of its own.
 
 (Here again you're defining this in the pqxx namespace.)
 
-If your type does have a natural null value, the definition gets a little more
-complex:
+Nullness is not part of the `string_traits` because as far as the string
+conversion system is concerned, a null is not a value!  You can't convert it
+to or from a string.  Consider what would happen if you tried to convert a
+null value to an SQL string: you'd get a string containing the value `NULL`,
+not the null value.  Handling of nulls happens at a higher level, when passing
+parameters to SQL statements, or quoting-and-escaping values for inclusion in
+SQL statements as literal values.
+
+If your type has a natural null value, the definition for `nullness` gets a
+little more complex than the one abov:
 
 ```cxx
     namespace pqxx
@@ -196,11 +205,16 @@ complex:
     }
 ```
 
+If you have a type like `int` that doesn't have a null value but you need to
+pass or parse an SQL value that may be null, you can use `std::optional<int>`
+instead.  An `optional` without a value is a null.
+
 You may be wondering why there's a function to produce a null value, but also a
 function to check whether a value is null.  Why not just compare the value to
 the result of `null()`?  Because two null values may not be equal (like in SQL,
-where `NULL <> NULL`).  Or `T` may have multiple different null values.  Or `T`
-may override the comparison operator to behave in some unusual way.
+where `NULL` is not equal to `NULL`).  Or `T` may have multiple different null
+values.  Or `T` may override the comparison operator to behave in some unusual
+way.
 
 As a third case, your type may be one that _always_ represents a null value.
 This is the case for `std::nullptr_t` and `std::nullopt_t`.  In a case like
@@ -214,15 +228,19 @@ Specialise `string_traits`
 This part is the most work.  You can skip it for types that are _always_ null,
 but those will be rare.
 
-The APIs for doing this are designed so that you don't need to allocate memory
-on the free store, also known as "the heap": `new`/`delete`.  Memory allocation
-can be hidden inside `std::string`, `std::vector`, etc.  The conversion API
-allows you to use `std::string` for convenience, or memory buffers for speed.
+The APIs for doing this are designed to avoid, where opssible, the need to
+allocate memory on the free store, also known as "the heap".  In other words,
+the API minimises use of `new`/`delete`, even ones hidden inside `std::string`,
+`std::vector`, etc.  The conversion API allows you to use `std::string` for
+convenience, or fixed memory buffers for speed.
 
 Start by specialising the `pqxx::string_traits` template.  You don't absolutely
 have to implement all parts of this API.  Generally, if it compilers, you're OK
 for the time being.  Just bear in mind that future libpqxx versions may change
-the API — or how it uses the API internally.
+the API — or how it uses the API internally.  In fact libpqxx 8.0 extends the
+conversion API in several ways.
+
+As of 8.0, this is what a specialisation of `string_traits` should look like:
 
 ```cxx
     namespace pqxx
@@ -237,11 +255,13 @@ the API — or how it uses the API internally.
 
       // If converts_to_string is true:
 
-      // Write string version into buffer, or return a constant string.
-      static zview to_buf(char *begin, char *end, T const &value);
+      // Represent `value` as a string, using `buf` for storage if needed.
+      // (But the result may lie outside the buffer, or lie inside it but
+      // start in a different location than its beginning.)
+      static zview to_buf(std::span<char>, T const &value, ctx c = {});
 
       // Write string version into buffer.
-      static char *into_buf(char *begin, char *end, T const &value);
+      static char *into_buf(std::span<char>, T const &value, ctx c = {});
 
       // Converting value to string may require this much buffer space at most.
       static std::size_t size_buffer(T const &value) noexcept;
@@ -249,7 +269,7 @@ the API — or how it uses the API internally.
       // If converts_from_string is true:
 
       // Parse text as a T value.
-      static T from_string(std::string_view text);
+      static T from_string(std::string_view text, ctx c = {});
     };
     }
 ```
@@ -258,17 +278,52 @@ You'll also need to write those member functions, or as many of them as needed
 to get your code to build.
 
 
+### `ctx`
+
+Notice those `ctx` parameters, with a default value of `{}`?  (The
+conventional name for that parameter in libpqxx is `c`, but feel free to name
+it differently.  It's nice to have it short though, since this parameter is
+al over the API.)
+
+These parameters are `pqxx::conversion_context` objects (`pqxx::ctx` is an
+alias for `pqxx::conversion_cnotext const &`).  This is for passing some
+context information to the conversions, in a waay that makes it easy to add
+more in future iterations wthout breaking API compatibility.  This is new in
+libpqxx 8.0
+
+As of 8.0, `conversino_context` contains:
+* `pqxx::encoding_group enc`.  This tells the conversion just enough about the
+  text's encoding do to its job.  It doesn't say exactly whether the text is in
+  UTF-8, or Latin-15, or EUC-KR, and so on.  But it's enough that the code can
+  figure out where each character begins and ends, which is all the
+  understanding that it really needs.
+* `std::source_location loc`.  We abbreviat that type as `pqxx::sl` because it
+  shows up in so many places.  In case the conversion throws an exception, the
+  exception can include this source location as a hint for wehre it happened.
+  It's not always possible but generally it should be the location where you
+  originally called libpqxx code that led to the error.
+
+There may be more fields in the future.
+
+The encoding group defaults to a special group, `UNKNOWN`.  If your conversion
+needs to know what kind of encoding the text has, you'll have to figure out why
+it didn't receive that information.  Ultimately it should come from the
+`pqxx::connection` object, but the chain of information to your conversion may
+not alwaays be complete.  It may be necessary to file a bug ticket.
+
+
 ### `from_string`
 
-We start off simple: `from_string` parses a string as a value of `T`, and
-returns that value.
+Now we start implementing the functions.  We start off simple: `from_string`
+parses a string as a value of `T` (your type) and returns that value.
 
 The string may or may not be zero-terminated; it's just the `string_view` from
-beginning to end (with `end` being exclusive).  In your tests, be sure to cover
-cases where the string does not end in a zero byte!
+beginning to end.  In your tests, be sure to cover cases where the string does
+not end in a zero byte!
 
 It's perfectly possible that the string doesn't actually represent a `T` value.
-Mistakes happen.  There can be corner cases.  When you run into this, throw a
+Mistakes happen.  There can be corner cases.  Maybe a value is outside the
+range you can reasonably support.  When you run into this, throw a
 `pqxx::conversion_error`.
 
 (Of course it's also possible that you run into some other error, so it's fine
@@ -282,23 +337,15 @@ In this function, you convert a value of `T` into a string that the postgres
 server will understand.
 
 The caller will provide you with a buffer where you can write the string, if
-you need it: from `begin` to `end` exclusive.  It's a half-open interval, so
-don't access `*end`.
+you need it.  But for this function it doesn't really matter where you store
+the string: somewhere inside the buffer, or as a string constant, or even by
+referring to the input value.  The buffer is just there for the common case
+that you need it.
 
-If the buffer is insufficient for you to do the conversion, throw a
-`pqxx::conversion_overrun`.  It doesn't have to be exact: you can be a little
-pessimistic and demand a bit more space than you need.  Just be sure to throw
-the exception if there's any risk of overrunning the buffer.
-
-You don't _have_ to use the buffer for this function though.  For example,
-`pqxx::string_traits<bool>::to_buf` returns a compile-time constant string and
-completely ignores the buffer.
-
-Even if you do use the buffer, your string does not _have_ to start at the
-beginning of the buffer.  For example, the integer conversions may work from
-right to left, if that's easier: they can start by writing the _least_
-significant digit to the _end_ of the buffer, divide the remainder by 10, and
-repeat for the next digit.
+If you need the buffer but it's not large enough for your conversion's needs,
+throw a `pqxx::conversion_overrun`.  It doesn't have to be exact: you can be a
+little pessimistic and demand a bit more space than you need.  Just be sure to
+throw the exception if there's any risk of overrunning the buffer.
 
 Return a `pqxx::zview`.  This is basically a `std::string_view`, but with one
 difference: when you create a `zview` you _guarantee_ that there is a valid
@@ -314,9 +361,9 @@ Expressed in code, this rule must hold:
     }
 ```
 
-The trailing zero should not go inside the `zview`, but if you convert into the
-buffer, do make sure you that trailing stays inside the buffer, i.e. before the
-`end`.  (If there's no room for that zero inside the buffer, throw
+The trailing zero should not go inside the `zview`, but if you write the text
+into the buffer, do make sure that trailing zero stays inside the buffer, i.e.
+inside `buf`.  (If there's no room for that zero inside the buffer, throw
 `pqxx::conversion_error`).
 
 Beware of locales when converting.  If you use standard library features like
@@ -339,17 +386,21 @@ directly.
 
 This is a stricter version of `to_buf`.  All the same requirements apply, but
 in addition you must write your string _into the given buffer,_ starting
-_exactly_ at `begin`.
+_exactly_ at its beginning.
 
-That's why this function returns just a simple pointer: the address right
-behind the trailing zero.  If the caller wants to use the string, they can
-find it at `begin`.  If they want to write another value into the rest of the
-buffer, they can continue writing at the location you returned.
+That's why this function returns just an offset: the index of the byte _right
+behind the trailing zero._  If the caller wants to use the string, they can
+find it at the beginning of the buffer.  If they want to write another value
+into the rest of the buffer, they can continue writing at the location you
+returned.
+
+Apart from that, `into_buf()` is much like `to_buf()`.  Read that section
+carefully before implemnting `into_buf()`.
 
 
 ### `size_buffer`
 
-Here you estimate how much buffer space you need for converting a `T` to a
+Here you estimate how much buffer space you may need for converting a `T` to a
 string.  Be precise if you can, but pessimistic if you must.  It's usually
 better to waste a few bytes of space than to spend a lot of time computing
 the exact buffer space you need.  And failing the conversion because you
@@ -358,8 +409,9 @@ under-budgeted the buffer is worst of all.
 Include the trailing zero in the buffer size.  If your `to_buf` takes more
 space than just what's needed to store the result, include that too.
 
-Make `size_buffer` a `constexpr` function if you can.  It can allow the caller
-to allocate the buffer on the stack, with a size known at compile time.
+Make `size_buffer` a `constexpr` function if you can.  It may sometiems allow
+the caller to allocate the buffer on the stack, with a size known at compile
+time.
 
 
 Optional: Specialise `is_unquoted_safe`
@@ -387,6 +439,9 @@ The code that converts this type of field to strings in an array or a composite
 type can then use a simpler, more efficient variant of the code.  It's always
 safe to leave this out; it's _just_ an optimisation for when you're completely
 sure that it's safe.
+
+Make sure this definition is visible wherever you call libpqxx code that may
+call your conversoin.
 
 Do not do this if a string representation of your type may contain a comma;
 semicolon; parenthesis; brace; quote; backslash; newline; or any other

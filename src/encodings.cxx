@@ -32,16 +32,16 @@ using namespace std::literals;
 namespace pqxx::internal
 {
 /// Convert libpq encoding name to its libpqxx encoding group.
-pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
+encoding_group enc_group(std::string_view encoding_name)
 {
   struct mapping
   {
   private:
     std::string_view m_name;
-    pqxx::internal::encoding_group m_group;
+    encoding_group m_group;
 
   public:
-    constexpr mapping(std::string_view n, pqxx::internal::encoding_group g) :
+    constexpr mapping(std::string_view n, encoding_group g) :
             m_name{n}, m_group{g}
     {}
     constexpr bool operator<(mapping const &rhs) const
@@ -49,10 +49,7 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       return m_name < rhs.m_name;
     }
     [[nodiscard]] std::string_view get_name() const { return m_name; }
-    [[nodiscard]] pqxx::internal::encoding_group get_group() const
-    {
-      return m_group;
-    }
+    [[nodiscard]] encoding_group get_group() const { return m_group; }
   };
 
   // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
@@ -62,19 +59,19 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
     {
     case 'B':
       if (encoding_name == "BIG5"sv)
-        return pqxx::internal::encoding_group::BIG5;
+        return encoding_group::BIG5;
       [[unlikely]] break;
     case 'E':
       if (encoding_name.starts_with("EUC_"sv))
       {
         auto const subtype{encoding_name.substr(4)};
         static constexpr std::array<mapping, 5> subtypes{
-          mapping{"CN"sv, pqxx::internal::encoding_group::EUC_CN},
+          mapping{"CN"sv, encoding_group::EUC_CN},
           // We support EUC_JIS_2004 and EUC_JP as identical encodings.
-          mapping{"JIS_2004"sv, pqxx::internal::encoding_group::EUC_JP},
-          mapping{"JP"sv, pqxx::internal::encoding_group::EUC_JP},
-          mapping{"KR"sv, pqxx::internal::encoding_group::EUC_KR},
-          mapping{"TW"sv, pqxx::internal::encoding_group::EUC_TW},
+          mapping{"JIS_2004"sv, encoding_group::EUC_JP},
+          mapping{"JP"sv, encoding_group::EUC_JP},
+          mapping{"KR"sv, encoding_group::EUC_KR},
+          mapping{"TW"sv, encoding_group::EUC_TW},
         };
         for (auto const &m : subtypes)
           if (m.get_name() == subtype)
@@ -83,9 +80,9 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       [[unlikely]] break;
     case 'G':
       if (encoding_name == "GB18030"sv)
-        return pqxx::internal::encoding_group::GB18030;
+        return encoding_group::GB18030;
       else if (encoding_name == "GBK"sv)
-        return pqxx::internal::encoding_group::GBK;
+        return encoding_group::GBK;
       [[unlikely]] break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
@@ -93,16 +90,16 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
       {
         char const subtype{encoding_name[9]};
         if (('5' <= subtype) and (subtype < '9'))
-          return pqxx::internal::encoding_group::MONOBYTE;
+          return encoding_group::MONOBYTE;
       }
       [[unlikely]] break;
     case 'J':
       if (encoding_name == "JOHAB"sv)
-        return pqxx::internal::encoding_group::JOHAB;
+        return encoding_group::JOHAB;
       [[unlikely]] break;
     case 'K':
       if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
-        return pqxx::internal::encoding_group::MONOBYTE;
+        return encoding_group::MONOBYTE;
       [[unlikely]] break;
     case 'L':
       // We know LATIN1 through LATIN10.
@@ -113,31 +110,31 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         {
           char const n{subtype[0]};
           if (('1' <= n) and (n <= '9'))
-            return pqxx::internal::encoding_group::MONOBYTE;
+            return encoding_group::MONOBYTE;
         }
         else if (subtype == "10"sv)
         {
-          return pqxx::internal::encoding_group::MONOBYTE;
+          return encoding_group::MONOBYTE;
         }
       }
       [[unlikely]] break;
     case 'M':
       if (encoding_name == "MULE_INTERNAL"sv)
-        return pqxx::internal::encoding_group::MULE_INTERNAL;
+        return encoding_group::MULE_INTERNAL;
       [[unlikely]] break;
     case 'S':
       if (encoding_name == "SHIFT_JIS_2004"sv)
-        return pqxx::internal::encoding_group::SJIS;
+        return encoding_group::SJIS;
       else if (encoding_name == "SJIS"sv)
-        return pqxx::internal::encoding_group::SJIS;
+        return encoding_group::SJIS;
       else if (encoding_name == "SQL_ASCII"sv)
-        return pqxx::internal::encoding_group::MONOBYTE;
+        return encoding_group::MONOBYTE;
       [[unlikely]] break;
     case 'U':
       if (encoding_name == "UHC"sv)
-        return pqxx::internal::encoding_group::UHC;
+        return encoding_group::UHC;
       else if (encoding_name == "UTF8"sv) [[likely]]
-        return pqxx::internal::encoding_group::UTF8;
+        return encoding_group::UTF8;
       [[unlikely]] break;
     case 'W':
       if (encoding_name.substr(0, 3) == "WIN"sv)
@@ -149,13 +146,13 @@ pqxx::internal::encoding_group enc_group(std::string_view encoding_name)
         };
         for (auto const n : subtypes)
           if (n == subtype)
-            return pqxx::internal::encoding_group::MONOBYTE;
+            return encoding_group::MONOBYTE;
       }
       [[unlikely]] break;
     default: [[unlikely]] break;
     }
   [[unlikely]] throw std::invalid_argument{
-    pqxx::internal::concat("Unrecognized encoding: '", encoding_name, "'.")};
+    std::format("Unrecognized encoding: '{}'.", to_string(encoding_name))};
 }
 
 
@@ -179,6 +176,9 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
 
   switch (enc)
   {
+  case encoding_group::UNKNOWN:
+    throw usage_error{"Trying to read text in unknown encoding.", loc};
+
     [[likely]] CASE_GROUP(MONOBYTE);
     CASE_GROUP(BIG5);
     CASE_GROUP(EUC_CN);
@@ -194,7 +194,7 @@ PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
     [[likely]] CASE_GROUP(UTF8);
   }
   throw usage_error{
-    internal::concat("Unsupported encoding group code ", enc, "."), loc};
+    std::format("Unsupported encoding group code {}.", to_string(enc)), loc};
 
 #undef CASE_GROUP
 }

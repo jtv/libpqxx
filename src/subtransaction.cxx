@@ -16,7 +16,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/subtransaction.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -37,10 +36,9 @@ pqxx::subtransaction::subtransaction(
         dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}}
 {
   set_rollback_cmd(std::make_shared<std::string>(
-    internal::concat("ROLLBACK TO SAVEPOINT ", quoted_name())));
+    std::format("ROLLBACK TO SAVEPOINT {}", quoted_name())));
   direct_exec(
-    std::make_shared<std::string>(
-      internal::concat("SAVEPOINT ", quoted_name())),
+    std::make_shared<std::string>(std::format("SAVEPOINT {}", quoted_name())),
     loc);
 }
 
@@ -68,6 +66,6 @@ void pqxx::subtransaction::do_commit(sl loc)
 {
   direct_exec(
     std::make_shared<std::string>(
-      internal::concat("RELEASE SAVEPOINT ", quoted_name())),
+      std::format("RELEASE SAVEPOINT {}", quoted_name())),
     loc);
 }

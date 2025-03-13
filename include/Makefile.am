@@ -7,6 +7,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/connection pqxx/connection.hxx \
 	pqxx/cursor pqxx/cursor.hxx \
 	pqxx/dbtransaction pqxx/dbtransaction.hxx \
+	pqxx/encoding_group pqxx/encoding_group.hxx \
 	pqxx/errorhandler pqxx/errorhandler.hxx \
 	pqxx/except pqxx/except.hxx \
 	pqxx/field pqxx/field.hxx \
@@ -37,9 +38,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/array-composite.hxx \
 	pqxx/internal/callgate.hxx \
-	pqxx/internal/concat.hxx \
 	pqxx/internal/conversions.hxx \
-	pqxx/internal/encoding_group.hxx \
 	pqxx/internal/encodings.hxx \
 	pqxx/internal/header-pre.hxx \
 	pqxx/internal/header-post.hxx \
