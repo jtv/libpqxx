@@ -85,7 +85,6 @@ public:
    */
   static constexpr std::size_t chunk_limit = 0x7fffffff;
 
-  // XXX: Can we build a generic version of this?
   /// Read up to `size` bytes of the object into `buf`.
   /** Uses a buffer that you provide, resizing it as needed.  If it suits you,
    * this lets you allocate the buffer once and then re-use it multiple times.
@@ -218,7 +217,6 @@ public:
    */
   static oid from_file(dbtransaction &, zview path, oid, sl = sl::current());
 
-  // XXX: Can we build a generic version of this?
   /// Convenience function: Read up to `max_size` bytes from blob with `id`.
   /** You could easily do this yourself using the @ref open_r and @ref read
    * functions, but it can save you a bit of code to do it this way.
@@ -226,7 +224,6 @@ public:
   static void to_buf(
     dbtransaction &, oid, bytes &, std::size_t max_size, sl = sl::current());
 
-  // XXX: Can we build a generic version of this?
   /// Read part of the binary large object with `id`, and append it to `buf`.
   /** Use this to break up a large read from one binary large object into one
    * massive buffer.  Just keep calling this function until it returns zero.
