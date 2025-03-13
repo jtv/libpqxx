@@ -126,7 +126,7 @@ inline std::string parse_double_quoted_string(
  * semicolon), or a closing brace.  For a value of a composite type, STOP is a
  * comma or a closing parenthesis.
  */
-template<pqxx::internal::encoding_group ENC, char... STOP>
+template<encoding_group ENC, char... STOP>
 inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos, sl loc)
 {
@@ -144,7 +144,7 @@ inline std::size_t scan_unquoted_string(
 
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 inline std::string_view
 parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
 {
@@ -200,8 +200,9 @@ inline void parse_composite_field(
       field = nullness<T>::null();
     else
       throw conversion_error{
-        "Can't read composite field " + to_string(index) + ": C++ type " +
-          type_name<T> + " does not support nulls.",
+        std::format(
+          "Can't read composite field {}: C++ type {} does not support nulls.",
+          to_string(index), type_name<T>),
         loc};
     break;
 
@@ -285,6 +286,11 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
 {
   switch (enc)
   {
+  case encoding_group::UNKNOWN:
+    throw usage_error{
+      "Tried to parse array/composite without knowing its text encoding.",
+      loc};
+
   case encoding_group::MONOBYTE:
     return parse_composite_field<encoding_group::MONOBYTE>;
   case encoding_group::BIG5:
@@ -311,7 +317,7 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
     return parse_composite_field<encoding_group::UTF8>;
   }
   throw internal_error{
-    concat("Unexpected encoding group code: ", enc, "."), loc};
+    std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
 }
 
 
@@ -338,13 +344,15 @@ inline std::size_t size_composite_field_buffer(T const &field)
 
 
 template<typename T>
-inline void write_composite_field(char *&pos, char *end, T const &field)
+inline void write_composite_field(
+  std::span<char> buf, std::size_t &pos, T const &field, sl loc)
 {
+  conversion_context const c{{}, loc};
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer, and "backspace" the trailing zero.
-    pos = string_traits<T>::into_buf(pos, end, field) - 1;
+    pos += into_buf(buf.subspan(pos), field, c) - 1;
   }
   else
   {
@@ -352,21 +360,27 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
     // To avoid allocating that at run time, we use the end of the buffer that
     // we have.
     auto const budget{size_buffer(field)};
-    *pos++ = '"';
+    assert(budget < std::size(buf));
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const c : string_traits<T>::to_buf(end - budget, end, field))
+    for (char const x : to_buf(buf.subspan(std::size(buf) - budget), field, c))
     {
-      if ((c == '"') or (c == '\\'))
-        *pos++ = '\\';
+      if ((x == '"') or (x == '\\'))
+        // C++26: Use buf.at().
+        buf[pos++] = '\\';
 
-      *pos++ = c;
+      // C++26: Use buf.at().
+      buf[pos++] = x;
     }
 
-    *pos++ = '"';
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
   }
 
-  *pos++ = ',';
+  // C++26: Use buf.at().
+  buf[pos++] = ',';
 }
 } // namespace pqxx::internal
 #endif

@@ -30,8 +30,7 @@
  */
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/prepared_statement.hxx"
@@ -443,7 +442,8 @@ public:
    */
   template<typename TYPE> TYPE query_value(zview query, sl loc = sl::current())
   {
-    return exec(query, loc).one_field(loc).as<TYPE>(loc);
+    auto c{make_context(loc)};
+    return exec(query, loc).one_field(loc).as<TYPE>(c);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -817,7 +817,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
-      .as<TYPE>(loc);
+      .as<TYPE>(make_context(loc));
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -969,13 +969,12 @@ public:
   /** This is just like @ref query_value(zview), but using a prepared
    * statement.
    */
-  template<typename TYPE>
-  TYPE query_value(prepped statement, sl loc = sl::current())
+  template<typename TYPE> TYPE query_value(prepped statement, ctx c = {})
   {
-    return exec(statement, {}, loc)
-      .expect_columns(1, loc)
-      .one_field(loc)
-      .as<TYPE>(loc);
+    return exec(statement, {}, c.loc)
+      .expect_columns(1, c.loc)
+      .one_field(c.loc)
+      .as<TYPE>(c);
   }
 
   // C++20: Concept like std::invocable, but without specifying param types.
@@ -1096,10 +1095,7 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &cx, std::string_view tname,
-    std::shared_ptr<std::string> rollback_cmd) :
-          m_conn{cx}, m_name{tname}, m_rollback_cmd{rollback_cmd}
-  {}
+    connection &, std::string_view, std::shared_ptr<std::string> rollback_cmd);
 
   /// Create a transaction (to be called by implementation classes only).
   /** Its rollback command will be "ROLLBACK".
@@ -1154,6 +1150,12 @@ private:
     in_doubt
   };
 
+  /// Compose a @ref conversion_context.
+  /** Gets its @ref encoding_group from the @ref connection, but uses the
+   * `std::suorce_location` that you pass.
+   */
+  conversion_context make_context(sl) const;
+
   PQXX_PRIVATE void check_pending_error();
 
   result internal_exec_prepared(
@@ -1168,8 +1170,8 @@ private:
   friend class pqxx::internal::gate::transaction_transaction_focus;
   PQXX_PRIVATE void register_focus(transaction_focus *);
   PQXX_PRIVATE void unregister_focus(transaction_focus *) noexcept;
-  PQXX_PRIVATE void register_pending_error(zview) noexcept;
-  PQXX_PRIVATE void register_pending_error(std::string &&) noexcept;
+  PQXX_PRIVATE void register_pending_error(zview, sl) noexcept;
+  PQXX_PRIVATE void register_pending_error(std::string &&, sl) noexcept;
 
   /// Like @ref stream(), but takes a tuple rather than a parameter pack.
   template<typename... ARGS>
