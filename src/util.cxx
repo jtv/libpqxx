@@ -24,7 +24,6 @@ extern "C"
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
 
 #include "pqxx/internal/header-post.hxx"
@@ -39,13 +38,13 @@ pqxx::thread_safety_model PQXX_COLD pqxx::describe_thread_safety()
   // Sadly I'm not aware of any way to avoid this just yet.
   model.safe_kerberos = false;
 
-  model.description = internal::concat(
-    (model.safe_libpq ? ""sv :
-                        "Using a libpq build that is not thread-safe.\n"sv),
+  model.description = std::format(
+    "{}{}",
+    (model.safe_libpq ? "" : "Using a libpq build that is not thread-safe.\n"),
     (model.safe_kerberos ?
-       ""sv :
+       "" :
        "Kerberos is not thread-safe.  If your application uses Kerberos, "
-       "protect all calls to Kerberos or libpqxx using a global lock.\n"sv));
+       "protect all calls to Kerberos or libpqxx using a global lock.\n"));
   return model;
 }
 
@@ -56,7 +55,7 @@ std::string pqxx::internal::describe_object(
   if (std::empty(obj_name))
     return std::string{class_name};
   else
-    return pqxx::internal::concat(class_name, " '", obj_name, "'");
+    return std::format("{} '{}'", class_name, obj_name);
 }
 
 
@@ -70,10 +69,12 @@ void pqxx::internal::check_unique_register(
   if (old_guest != nullptr)
     throw usage_error{
       (old_guest == new_guest) ?
-        concat("Started twice: ", describe_object(old_class, old_name), ".") :
-        concat(
-          "Started new ", describe_object(new_class, new_name), " while ",
-          describe_object(old_class, old_name), " was still active.")};
+        std::format(
+          "Started twice: {}.", describe_object(old_class, old_name)) :
+        std::format(
+          "Started new {} while {} was still active.",
+          describe_object(new_class, new_name),
+          describe_object(old_class, old_name))};
 }
 
 
@@ -84,16 +85,16 @@ void pqxx::internal::check_unique_unregister(
   if (new_guest != old_guest) [[unlikely]]
   {
     if (new_guest == nullptr)
-      throw usage_error{concat(
-        "Expected to close ", describe_object(old_class, old_name),
-        ", but got null pointer instead.")};
+      throw usage_error{std::format(
+        "Expected to close, but got null pointer instead.",
+        describe_object(old_class, old_name))};
     if (old_guest == nullptr)
-      throw usage_error{concat(
-        "Closed while not open: ", describe_object(new_class, new_name))};
+      throw usage_error{std::format(
+        "Closed while not open: {}", describe_object(new_class, new_name))};
     else
-      throw usage_error{concat(
-        "Closed ", describe_object(new_class, new_name),
-        "; expected to close ", describe_object(old_class, old_name))};
+      throw usage_error{std::format(
+        "Closed {}; expected to close ", describe_object(new_class, new_name),
+        describe_object(old_class, old_name))};
   }
 }
 
@@ -132,23 +133,27 @@ constexpr int nibble(int c) noexcept
 } // namespace
 
 
-void pqxx::internal::esc_bin(bytes_view binary_data, char buffer[]) noexcept
+void pqxx::internal::esc_bin(
+  bytes_view binary_data, std::span<char> buffer) noexcept
 {
-  auto here{buffer};
-  *here++ = '\\';
-  *here++ = 'x';
+  assert(std::size(buffer) >= size_esc_bin(std::size(binary_data)));
+  std::size_t here{0u};
+  // C++26: Use at().
+  buffer[here++] = '\\';
+  buffer[here++] = 'x';
 
   constexpr int nibble_bits{4};
   constexpr int nibble_mask{0x0f};
   for (auto const byte : binary_data)
   {
     auto uc{static_cast<unsigned char>(byte)};
-    *here++ = hex_digit(uc >> nibble_bits);
-    *here++ = hex_digit(uc & nibble_mask);
+
+    buffer[here++] = hex_digit(uc >> nibble_bits);
+    buffer[here++] = hex_digit(uc & nibble_mask);
   }
 
   // (No need to increment further.  Facebook's "infer" complains if we do.)
-  *here = '\0';
+  buffer[here] = '\0';
 }
 
 
@@ -157,7 +162,7 @@ std::string pqxx::internal::esc_bin(bytes_view binary_data)
   auto const bytes{size_esc_bin(std::size(binary_data))};
   std::string buf;
   buf.resize(bytes);
-  esc_bin(binary_data, buf.data());
+  esc_bin(binary_data, buf);
   // Strip off the trailing zero.
   buf.resize(bytes - 1);
   return buf;
@@ -165,31 +170,31 @@ std::string pqxx::internal::esc_bin(bytes_view binary_data)
 
 
 void pqxx::internal::unesc_bin(
-  std::string_view escaped_data, std::byte buffer[], sl loc)
+  std::string_view escaped_data, std::span<std::byte> buffer, sl loc)
 {
   auto const in_size{std::size(escaped_data)};
   if (in_size < 2)
     throw pqxx::failure{"Binary data appears truncated.", loc};
   if ((in_size % 2) != 0)
     throw pqxx::failure{"Invalid escaped binary length.", loc};
-  char const *in{escaped_data.data()};
-  char const *const end{in + in_size};
-  if (*in++ != '\\' or *in++ != 'x')
+  std::size_t in{0u};
+  if (escaped_data[in++] != '\\' or escaped_data[in++] != 'x')
     throw pqxx::failure(
       "Escaped binary data did not start with '\\x'`.  Is the server or libpq "
       "too old?",
       loc);
-  auto out{buffer};
-  while (in != end)
+  std::size_t out{0u};
+  while (in < in_size)
   {
-    int const hi{nibble(*in++)};
+    int const hi{nibble(escaped_data[in++])};
     if (hi < 0)
       throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    int const lo{nibble(*in++)};
+    int const lo{nibble(escaped_data[in++])};
     if (lo < 0)
       throw pqxx::failure{"Invalid hex-escaped data.", loc};
-    *out++ = static_cast<std::byte>((hi << 4) | lo);
+    buffer[out++] = static_cast<std::byte>((hi << 4) | lo);
   }
+  assert(out <= std::size(buffer));
 }
 
 
@@ -198,7 +203,7 @@ pqxx::bytes pqxx::internal::unesc_bin(std::string_view escaped_data, sl loc)
   auto const bytes{size_unesc_bin(std::size(escaped_data))};
   pqxx::bytes buf;
   buf.resize(bytes);
-  unesc_bin(escaped_data, buf.data(), loc);
+  unesc_bin(escaped_data, buf, loc);
   return buf;
 }
 

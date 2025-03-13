@@ -235,7 +235,7 @@ private:
   /** We store this in the object to avoid the risk of exceptions at awkward
    * moments.
    */
-  internal::encoding_group m_encoding;
+  encoding_group m_encoding;
 
   static constexpr std::string_view s_classname{"pipeline"};
 };

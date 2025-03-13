@@ -13,13 +13,13 @@
 #include <string>
 #include <string_view>
 
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/encoding_group.hxx"
+#include "pqxx/strconv.hxx"
 
 
 namespace pqxx
 {
-PQXX_DECLARE_ENUM_CONVERSION(pqxx::internal::encoding_group);
+PQXX_DECLARE_ENUM_CONVERSION(encoding_group);
 } // namespace pqxx
 
 
@@ -801,8 +801,9 @@ get_char_finder(encoding_group enc, sl loc)
 
   default:
     throw pqxx::internal_error{
-      concat(
-        "Unexpected encoding group: ", as_if, " (mapped from ", enc, ")."),
+      std::format(
+        "Unexpected encoding group: {} (mapped from {}", to_string(as_if),
+        to_string(enc)),
       loc};
   }
 }
@@ -838,8 +839,9 @@ get_s_char_finder(encoding_group enc, sl loc)
 
   default:
     throw pqxx::internal_error{
-      concat(
-        "Unexpected encoding group: ", as_if, " (mapped from ", enc, ")."),
+      std::format(
+        "Unexpected encoding group: {} (mapped from {}).", to_string(as_if),
+        to_string(enc)),
       loc};
   }
 }
