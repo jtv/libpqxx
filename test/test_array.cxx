@@ -579,13 +579,31 @@ void test_array_strings()
 }
 
 
+namespace
+{
+pqxx::conversion_context make_context(
+  pqxx::encoding_group enc = pqxx::encoding_group::UNKNOWN,
+  pqxx::sl loc = pqxx::sl::current())
+{
+  return pqxx::conversion_context{enc, loc};
+}
+} // namespace
+
 void test_array_parses_real_arrays()
 {
+  auto const mono{pqxx::encoding_group::MONOBYTE};
+
   pqxx::connection cx;
   pqxx::work tx{cx};
 
+  PQXX_CHECK_THROWS(
+    (pqxx::ignore_unused(pqxx::from_string<pqxx::array<int>>("{}"))),
+    pqxx::usage_error,
+    "Array parser accepted text in an unknown encoding group.");
+
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
-  pqxx::array<int> empty_a{empty_s, cx};
+  pqxx::array<int> const empty_a{
+    pqxx::from_string<pqxx::array<int>>(empty_s, make_context(mono))};
   PQXX_CHECK_EQUAL(
     empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
   PQXX_CHECK_EQUAL(
@@ -593,7 +611,8 @@ void test_array_parses_real_arrays()
     "Unexpected sizes for empty array.");
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
-  pqxx::array<int> onedim_a{onedim_s, cx};
+  pqxx::array<int> onedim_a{
+    pqxx::from_string<pqxx::array<int>>(onedim_s, make_context(mono))};
   PQXX_CHECK_EQUAL(
     onedim_a.dimensions(), 1u,
     "Unexpected dimension count for one-dimensional array.");
@@ -611,7 +630,8 @@ void test_array_parses_real_arrays()
     "Not getting unexpected_null from array parser.");
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
-  pqxx::array<int, 2> twodim_a{twodim_s, cx};
+  pqxx::array<int, 2> twodim_a{
+    pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context(mono))};
   PQXX_CHECK_EQUAL(
     twodim_a.dimensions(), 2u,
     "Wrong number of dimensions on multi-dimensional array.");

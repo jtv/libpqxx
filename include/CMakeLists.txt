@@ -24,6 +24,7 @@ install(
     PATTERN connection
     PATTERN cursor
     PATTERN dbtransaction
+    PATTERN encoding_group
     PATTERN errorhandler
     PATTERN except
     PATTERN field
