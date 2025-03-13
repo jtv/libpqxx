@@ -1117,18 +1117,6 @@ public:
                    });
   }
 };
-} // namespace pqxx::internal
-
-
-namespace pqxx
-{
-template<nonbinary_range T> struct nullness<T> : no_null<T>
-{};
-
-
-template<nonbinary_range T>
-struct string_traits<T> : internal::array_string_traits<T>
-{};
 
 
 /// We don't know how to pass array params in binary format, so pass as text.
