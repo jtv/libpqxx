@@ -79,13 +79,12 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
 {
   if (std::size(text) < 4)
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Year field is too small: '", text, "'."), loc};
+      std::format("Year field is too small: '{}'.", text), loc};
   // Parse as int, so we can accommodate 32768 BC which won't fit in a short
   // as-is, but equates to 32767 BCE which will.
   int const year{pqxx::string_traits<int>::from_string(text)};
   if (year <= 0)
-    throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad year: '", text, "'."), loc};
+    throw pqxx::conversion_error{std::format("Bad year: '{}'.", text), loc};
   return year;
 }
 
@@ -117,7 +116,7 @@ month_from_string(std::string_view text, pqxx::sl loc)
     not pqxx::internal::is_digit(text[0]) or
     not pqxx::internal::is_digit(text[1]))
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Invalid month: '", text, "'."), loc};
+      std::format("Invalid month: '{}'.", text), loc};
   return std::chrono::month{unsigned(
     (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
@@ -141,13 +140,13 @@ inline std::chrono::day day_from_string(std::string_view text, pqxx::sl loc)
     not pqxx::internal::is_digit(text[0]) or
     not pqxx::internal::is_digit(text[1]))
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad day in date: '", text, "'."), loc};
+      std::format("Bad day in date: '{}'.", text), loc};
   std::chrono::day const d{unsigned(
     (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
   if (not d.ok())
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad day in date: '", text, "'."), loc};
+      std::format("Bad day in date: '{}'.", text), loc};
   return d;
 }
 
@@ -170,7 +169,7 @@ inline std::size_t find_year_month_separator(std::string_view text) noexcept
 /// Componse generic "invalid date" message for given (invalid) date text.
 std::string make_parse_error(std::string_view text)
 {
-  return pqxx::internal::concat("Invalid date: '", text, "'.");
+  return std::format("Invalid date: '{}'.", text);
 }
 } // namespace
 

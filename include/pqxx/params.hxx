@@ -16,8 +16,8 @@
 #endif
 
 #include <array>
+#include <format>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/statement_parameters.hxx"
 #include "pqxx/types.hxx"
 
@@ -82,8 +82,6 @@ public:
   /// Append a non-null string parameter.
   void append(std::string &&) &;
 
-  // XXX: Rethink the view/copy situation.
-  // XXX: Generic pqxx::binary support.
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the `params`
    * remains active.
@@ -217,10 +215,11 @@ public:
   /// Move on to the next parameter.
   void next(sl loc = sl::current()) &
   {
+    conversion_context const c{{}, loc};
     if (m_current >= max_params)
       throw range_error{
-        pqxx::internal::concat(
-          "Too many parameters in one statement: limit is ", max_params, "."),
+        std::format(
+          "Too many parameters in one statement: limit is {}.", max_params),
         loc};
     PQXX_ASSUME(m_current > 0);
     ++m_current;
@@ -230,10 +229,11 @@ public:
       // case, just rewrite the entire number.  Leave the $ in place
       // though.
       char *const data{std::data(m_buf)};
-      char *const end{string_traits<COUNTER>::into_buf(
-        data + 1, data + std::size(m_buf), m_current)};
+      std::size_t end{
+        1 +
+        into_buf<COUNTER>({data + 1, data + std::size(m_buf)}, m_current, c)};
       // (Subtract because we don't include the trailing zero.)
-      m_len = check_cast<COUNTER>(end - data, "placeholders counter", loc) - 1;
+      m_len = check_cast<COUNTER>(end, "placeholders counter", loc) - 1;
     }
     else
     {

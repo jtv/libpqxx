@@ -98,10 +98,12 @@ template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
                       std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
 
+
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
 concept char_strings = std::ranges::range<RANGE> and
                        char_string<std::remove_cv_t<value_type<RANGE>>>;
+
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
