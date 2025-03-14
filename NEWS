@@ -4,6 +4,7 @@
  - Oops, no, minimum CMake version is not 3.28, but 3.12!
  - Fix warnings on compilers that accept `[[assume]]` with a warning. (#928)
  - Can't pass parameters to streaming query.
+ - CMake build: take libpq path from build target, not absolute path. (#964)
 7.10.0
  - Deprecate `errorhandler`; replace with lambda-friendly "notice handlers."
  - Deprecate `notification_receiver`; replace with "notification handlers"
