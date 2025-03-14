@@ -31,7 +31,7 @@ using namespace std::literals;
 
 namespace
 {
-using pqxx::operator"" _zv;
+using pqxx::operator""_zv;
 
 /// Statuses in which we may find our transaction.
 /** There's also "in the future," but it manifests as an error, not as an
