@@ -3,20 +3,20 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:unstable
+      - image: debian:testing
     environment:
       - PGHOST: "/tmp"
     steps:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt update
+          command: apt-get update && apt-get -y upgrade
       - run:
           name: Install
-          command: apt install -y lsb-release python3 cmake postgresql libpq-dev
-            postgresql-server-dev-all build-essential autoconf dh-autoreconf
-            autoconf-archive automake cppcheck clang shellcheck
-            python3-virtualenv
+          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
+            lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
+            build-essential autoconf autoconf-archive automake cppcheck clang
+            shellcheck python3-virtualenv libtool
       - run:
           name: Identify
           command: lsb_release -a && c++ --version && clang++ --version
