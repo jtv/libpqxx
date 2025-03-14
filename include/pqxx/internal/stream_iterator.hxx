@@ -34,36 +34,36 @@ public:
   /// Construct an "end" iterator.
   stream_from_input_iterator() = default;
 
-  explicit stream_from_input_iterator(stream_t &home) : m_home(&home)
+  explicit stream_from_input_iterator(stream_t &home, sl loc) : m_home(&home)
   {
-    advance();
+    advance(loc);
   }
   stream_from_input_iterator(stream_from_input_iterator const &) = default;
 
   stream_from_input_iterator &operator++()
   {
-    advance();
+    advance(sl::current());
     return *this;
   }
 
-  value_type const &operator*() const { return m_value; }
+  value_type const &operator*() const noexcept { return m_value; }
 
   /// Comparison only works for comparing to end().
-  bool operator==(stream_from_input_iterator const &rhs) const
+  bool operator==(stream_from_input_iterator const &rhs) const noexcept
   {
     return m_home == rhs.m_home;
   }
   /// Comparison only works for comparing to end().
-  bool operator!=(stream_from_input_iterator const &rhs) const
+  bool operator!=(stream_from_input_iterator const &rhs) const noexcept
   {
     return not(*this == rhs);
   }
 
 private:
-  void advance()
+  void advance(sl loc)
   {
     if (m_home == nullptr)
-      throw usage_error{"Moving stream_from iterator beyond end()."};
+      throw usage_error{"Moving stream_from iterator beyond end().", loc};
     if (not((*m_home) >> m_value))
       m_home = nullptr;
   }
@@ -81,7 +81,10 @@ public:
   using stream_t = stream_from;
   using iterator = stream_from_input_iterator<TYPE...>;
   explicit stream_input_iteration(stream_t &home) : m_home{home} {}
-  iterator begin() const { return iterator{m_home}; }
+  iterator begin(sl loc = sl::current()) const
+  {
+    return iterator{m_home, loc};
+  }
   iterator end() const { return {}; }
 
 private:

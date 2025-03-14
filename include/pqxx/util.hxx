@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -57,83 +58,7 @@ namespace pqxx
 
 /// Internal items for libpqxx' own use.  Do not use these yourself.
 namespace pqxx::internal
-{
-
-// C++20: Retire wrapper.
-/// Same as `std::cmp_less`, or a workaround where that's not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less(lhs, rhs);
-#else
-  // We need a variable just because lgtm.com gives off a false positive
-  // warning when we compare the values directly.  It considers that a
-  // "self-comparison."
-  constexpr bool left_signed{std::is_signed_v<LEFT>};
-  if constexpr (left_signed == std::is_signed_v<RIGHT>)
-    return lhs < rhs;
-  else if constexpr (std::is_signed_v<LEFT>)
-    return (lhs <= 0) ? true : (std::make_unsigned_t<LEFT>(lhs) < rhs);
-  else
-    return (rhs <= 0) ? false : (lhs < std::make_unsigned_t<RIGHT>(rhs));
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_greater, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater(lhs, rhs);
-#else
-  return cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_less_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_less_equal(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_less_equal(lhs, rhs);
-#else
-  return not cmp_less(rhs, lhs);
-#endif
-}
-
-
-// C++20: Retire wrapper.
-/// C++20 std::cmp_greater_equal, or workaround if not available.
-template<typename LEFT, typename RIGHT>
-inline constexpr bool cmp_greater_equal(LEFT lhs, RIGHT rhs) noexcept
-{
-#if defined(PQXX_HAVE_CMP)
-  return std::cmp_greater_equal(lhs, rhs);
-#else
-  return not cmp_less(lhs, rhs);
-#endif
-}
-
-
-/// Efficiently concatenate two strings.
-/** This is a special case of concatenate(), needed because dependency
- * management does not let us use that function here.
- */
-[[nodiscard]] inline std::string cat2(std::string_view x, std::string_view y)
-{
-  std::string buf;
-  auto const xs{std::size(x)}, ys{std::size(y)};
-  buf.resize(xs + ys);
-  x.copy(std::data(buf), xs);
-  y.copy(std::data(buf) + xs, ys);
-  return buf;
-}
-} // namespace pqxx::internal
+{} // namespace pqxx::internal
 
 
 namespace pqxx
@@ -150,7 +75,7 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, std::string_view description)
+inline TO check_cast(FROM value, std::string_view description, sl loc)
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -172,7 +97,8 @@ inline TO check_cast(FROM value, std::string_view description)
     if constexpr (std::is_signed_v<TO>)
     {
       if (value < to_limits::lowest())
-        throw range_error{internal::cat2("Cast underflow: "sv, description)};
+        throw range_error{
+          std::format("Cast underflow: {}"sv, description), loc};
     }
     else
     {
@@ -180,8 +106,10 @@ inline TO check_cast(FROM value, std::string_view description)
       // there may not be a good broader type in which the compiler can even
       // perform our check.
       if (value < 0)
-        throw range_error{internal::cat2(
-          "Casting negative value to unsigned type: "sv, description)};
+        throw range_error{
+          std::format(
+            "Casting negative value to unsigned type: {}"sv, description),
+          loc};
     }
   }
   else
@@ -198,14 +126,15 @@ inline TO check_cast(FROM value, std::string_view description)
     constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
     if constexpr (from_max > to_max)
     {
-      if (internal::cmp_greater(value, to_max))
-        throw range_error{internal::cat2("Cast overflow: "sv, description)};
+      if (std::cmp_greater(value, to_max))
+        throw range_error{
+          std::format("Cast overflow: {}"sv, description), loc};
     }
   }
   else if constexpr ((from_limits::max)() > (to_limits::max)())
   {
     if (value > (to_limits::max)())
-      throw range_error{internal::cat2("Cast overflow: ", description)};
+      throw range_error{std::format("Cast overflow: {}", description), loc};
   }
 
   return static_cast<TO>(value);
@@ -276,12 +205,6 @@ struct PQXX_LIBEXPORT thread_safety_model
 [[nodiscard]] PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
-#  define PQXX_POTENTIAL_BINARY_ARG pqxx::potential_binary
-#else
-#  define PQXX_POTENTIAL_BINARY_ARG typename
-#endif
-
 /// Custom `std::char_trast` if the compiler does not provide one.
 /** Needed if the standard library lacks a generic implementation or a
  * specialisation for std::byte.  They aren't strictly required to provide
@@ -301,8 +224,8 @@ struct byte_char_traits : std::char_traits<char>
   }
 
   /// Deliberately undefined: "guess" the length of an array of bytes.
-  /* This is nonsense: we can't determine the length of a random sequence of
-   * bytes.  There is no terminating zero like there is for C strings.
+  /* This would be nonsense: we can't determine the length of a random sequence
+   * of bytes.  There is no terminating zero like there is for C strings.
    *
    * But `std::char_traits` requires us to provide this function, so we
    * declare it without defining it.
@@ -364,7 +287,7 @@ inline constexpr bool has_generic_bytes_char_traits =
 // Necessary for libc++ 18.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
-// C++20: Change this type.
+// XXX: Replace this type!
 /// Type alias for a container containing bytes.
 /* Required to support standard libraries without a generic implementation for
  * `std::char_traits<std::byte>`.
@@ -374,57 +297,28 @@ using bytes = std::conditional<
   has_generic_bytes_char_traits, std::basic_string<std::byte>,
   std::basic_string<std::byte, byte_char_traits>>::type;
 
-// C++20: Change this type.
-/// Type alias for a view of bytes.
-/* Required to support standard libraries without a generic implementation for
- * `std::char_traits<std::byte>`.
- * @warn Will change to `std::span<std::byte>` in the next major release.
- */
-using bytes_view = std::conditional<
-  has_generic_bytes_char_traits, std::basic_string_view<std::byte>,
-  std::basic_string_view<std::byte, byte_char_traits>>::type;
-
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
-/// Cast binary data to a type that libpqxx will recognise as binary.
-/** There are many different formats for storing binary data in memory.  You
- * may have yours as a `std::string`, or a `std::vector<uchar_t>`, or one of
- * many other types.
- *
- * But for libpqxx to recognise your data as binary, it needs to be a
- * `pqxx::bytes`, or a `pqxx::bytes_view`; or in C++20 or better, any
- * contiguous block of `std::byte`.
+/// Cast binary data to libpqxx's standard "view on binary data."
+/** There are many different formats for passing a reference to binary data in
+ * memory.  There's `std::string_view`, or a `std::vector<uchar_t>`, or one of
+ * many other types.  In libpqxx we recommend `std::span<std::byte>`, but
+ * thanks to this conversion functions, most of these types should work.
  *
  * Use `binary_cast` as a convenience helper to cast your data as a
  * `pqxx::bytes_view`.
  *
- * @warning There are two things you should be aware of!  First, the data must
- * be contiguous in memory.  In C++20 the compiler will enforce this, but in
- * C++17 it's your own problem.  Second, you must keep the object where you
- * store the actual data alive for as long as you might use this function's
- * return value.
+ * @warning You must keep the storage holding the actual data alive for as
+ * long as you might use this function's return value.
  */
-template<PQXX_POTENTIAL_BINARY_ARG TYPE>
-bytes_view binary_cast(TYPE const &data)
+template<potential_binary TYPE> inline bytes_view binary_cast(TYPE const &data)
 {
-  static_assert(sizeof(value_type<TYPE>) == 1);
-  // C++20: Use std::as_bytes.
-  return {
-    reinterpret_cast<std::byte const *>(
-      const_cast<strip_t<decltype(*std::data(data))> const *>(
-        std::data(data))),
-    std::size(data)};
+  using item_t = value_type<TYPE>;
+  return std::as_bytes(
+    std::span<item_t const>{std::data(data), std::size(data)});
 }
 
-
-#if defined(PQXX_HAVE_CONCEPTS)
-template<typename CHAR>
-concept char_sized = (sizeof(CHAR) == 1);
-#  define PQXX_CHAR_SIZED_ARG char_sized
-#else
-#  define PQXX_CHAR_SIZED_ARG typename
-#endif
 
 /// Construct a type that libpqxx will recognise as binary.
 /** Takes a data pointer and a size, without being too strict about their
@@ -433,13 +327,10 @@ concept char_sized = (sizeof(CHAR) == 1);
  * This makes it a little easier to turn binary data, in whatever form you
  * happen to have it, into binary data as libpqxx understands it.
  */
-template<PQXX_CHAR_SIZED_ARG CHAR, typename SIZE>
+template<char_sized CHAR, typename SIZE>
 bytes_view binary_cast(CHAR const *data, SIZE size)
 {
-  static_assert(sizeof(CHAR) == 1);
-  return {
-    reinterpret_cast<std::byte const *>(data),
-    check_cast<std::size_t>(size, "binary data size")};
+  return binary_cast(std::span<CHAR>{data, check_cast<std::size_t>(size)});
 }
 
 
@@ -528,14 +419,26 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 }
 
 
-// TODO: Use actual binary type for "data".
+/// Hex-escape binary data into a buffer.
+/** The buffer must have room for `size_esc_bin(std::size(binary_data))` bytes,
+ * and the function will write exactly that number of bytes into the buffer.
+ * This includes a trailing zero.
+ */
+void PQXX_LIBEXPORT
+esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
+
+
 /// Hex-escape binary data into a buffer.
 /** The buffer must be able to accommodate
  * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
  * exactly that number of bytes into the buffer.  This includes a trailing
  * zero.
  */
-void PQXX_LIBEXPORT esc_bin(bytes_view binary_data, char buffer[]) noexcept;
+template<binary T>
+inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
+{
+  esc_bin(binary_cast(binary_data), buffer);
+}
 
 
 /// Hex-escape binary data into a std::string.
@@ -544,23 +447,11 @@ std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 
 /// Reconstitute binary data from its escaped version.
 void PQXX_LIBEXPORT
-unesc_bin(std::string_view escaped_data, std::byte buffer[]);
+unesc_bin(std::string_view escaped_data, std::span<std::byte> buffer, sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data);
-
-
-/// Transitional: std::ssize(), or custom implementation if not available.
-template<typename T> auto ssize(T const &c)
-{
-#if defined(PQXX_HAVE_SSIZE)
-  return std::ssize(c);
-#else
-  using signed_t = std::make_signed_t<decltype(std::size(c))>;
-  return static_cast<signed_t>(std::size(c));
-#endif // PQXX_HAVE_SSIZe
-}
+bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, sl loc);
 
 
 /// Helper for determining a function's parameter types.
@@ -616,15 +507,16 @@ template<typename CALLABLE>
 using args_t = decltype(args_f(std::declval<CALLABLE>()));
 
 
-/// Helper: Apply `strip_t` to each of a tuple type's component types.
+/// Apply `std::remove_cvref_t` to each of a tuple type's component types.
 /** This function has no definition.  It is not meant to be called, only to be
  * used to deduce the right types.
  */
 template<typename... TYPES>
-std::tuple<strip_t<TYPES>...> strip_types(std::tuple<TYPES...> const &);
+std::tuple<std::remove_cvref_t<TYPES>...>
+strip_types(std::tuple<TYPES...> const &);
 
 
-/// Take a tuple type and apply @ref strip_t to its component types.
+/// Take a tuple type and apply std::remove_cvref_t to its component types.
 template<typename... TYPES>
 using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
 
@@ -635,9 +527,9 @@ inline constexpr char unescape_char(char escaped) noexcept
   switch (escaped)
   {
   case 'b': // Backspace.
-    PQXX_UNLIKELY return '\b';
+    [[unlikely]] return '\b';
   case 'f': // Form feed
-    PQXX_UNLIKELY return '\f';
+    [[unlikely]] return '\f';
   case 'n': // Line feed.
     return '\n';
   case 'r': // Carriage return.
@@ -653,22 +545,23 @@ inline constexpr char unescape_char(char escaped) noexcept
 }
 
 
-// C++20: std::span?
 /// Get error string for a given @c errno value.
-template<std::size_t BYTES>
-char const *PQXX_COLD
-error_string(int err_num, std::array<char, BYTES> &buffer)
+[[nodiscard]] inline char const *PQXX_COLD
+error_string(int err_num, std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
   using namespace std;
 
 #if defined(PQXX_HAVE_STERROR_S) || defined(PQXX_HAVE_STRERROR_R)
 #  if defined(PQXX_HAVE_STRERROR_S)
-  auto const err_result{strerror_s(std::data(buffer), BYTES, err_num)};
+  auto const err_result{
+    strerror_s(std::data(buffer), std::size(buffer), err_num)};
 #  else
-  auto const err_result{strerror_r(err_num, std::data(buffer), BYTES)};
+  auto const err_result{
+    strerror_r(err_num, std::data(buffer), std::size(buffer))};
 #  endif
-  if constexpr (std::is_same_v<pqxx::strip_t<decltype(err_result)>, char *>)
+  if constexpr (std::is_same_v<
+                  std::remove_cvref_t<decltype(err_result)>, char *>)
   {
     // GNU version of strerror_r; returns the error string, which may or may
     // not reside within buffer.
@@ -679,10 +572,10 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
     // Either strerror_s or POSIX strerror_r; returns an error code.
     // Sorry for being lazy here: Not reporting error string for the case
     // where we can't retrieve an error string.
-    if (err_result == 0)
-      return std::data(buffer);
-    else
+    if (err_result)
       return "Compound errors.";
+    else
+      return std::data(buffer);
   }
 
 #else
@@ -690,6 +583,34 @@ error_string(int err_num, std::array<char, BYTES> &buffer)
   pqxx::ignore_unused(err_num, buffer);
   return "(No error information available.)";
 #endif
+}
+
+
+/// Represent a std::source_location as human-readable text.
+inline std::string source_loc(sl loc)
+{
+  // TODO: Rewrite to guarantee Return Value Optimisation.
+  char const *const func{loc.function_name()};
+  // (The standard says this can't be null, but let's be conservative.)
+  bool const have_func{func != nullptr and *func != '\0'},
+    have_line{loc.line() > 0};
+
+  if (have_func and have_line)
+  {
+    return std::format("{} in {}:{}", func, loc.file_name(), loc.line());
+  }
+  else if (have_func)
+  {
+    return std::format("{} in {}", func, loc.file_name());
+  }
+  else if (have_line)
+  {
+    return std::format("{}:{}", loc.file_name(), loc.line());
+  }
+  else
+  {
+    return std::string{loc.file_name()};
+  }
 }
 } // namespace pqxx::internal
 

@@ -18,12 +18,12 @@
 #endif
 
 #include <cassert>
+#include <format>
 #include <variant>
 
 #include "pqxx/connection.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_focus.hxx"
@@ -213,7 +213,7 @@ public:
    * skip it in error scenarios where you're not planning to use the connection
    * again afterwards.
    */
-  void complete();
+  void complete(sl = sl::current());
 
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.
@@ -256,7 +256,7 @@ public:
    * @warning The return type may change in the future, to support C++20
    * coroutine-based usage.
    */
-  std::vector<zview> const *read_row() &;
+  std::vector<zview> const *read_row(sl loc = sl::current()) &;
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */
@@ -276,9 +276,9 @@ private:
     std::string_view columns, from_table_t, int);
 
   template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
   {
-    (extract_value<Tuple, indexes>(t), ...);
+    (extract_value<Tuple, indexes>(t, loc), ...);
   }
 
   pqxx::internal::char_finder_func *m_char_finder;
@@ -294,10 +294,10 @@ private:
   void close();
 
   template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &) const;
+  void extract_value(Tuple &, sl loc) const;
 
   /// Read a line of COPY data, write `m_row` and `m_fields`.
-  void parse_line();
+  void parse_line(sl);
 };
 
 
@@ -320,43 +320,45 @@ inline stream_from::stream_from(
 {}
 
 
+// TODO: How can we pass std::source_location?
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  sl loc{sl::current()};
+  if (m_finished) [[unlikely]]
+    return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
-  parse_line();
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  parse_line(loc);
+  if (m_finished) [[unlikely]]
+    return *this;
 
   if (std::size(m_fields) != tup_size)
-    throw usage_error{internal::concat(
-      "Tried to extract ", tup_size, " field(s) from a stream of ",
-      std::size(m_fields), ".")};
+    throw usage_error{std::format(
+      "Tried to extract {} field(s) from a stream of {}.", tup_size,
+      std::size(m_fields))};
 
-  extract_fields(t, std::make_index_sequence<tup_size>{});
+  extract_fields(t, std::make_index_sequence<tup_size>{}, loc);
   return *this;
 }
 
 
 template<typename Tuple, std::size_t index>
-inline void stream_from::extract_value(Tuple &t) const
+inline void stream_from::extract_value(Tuple &t, sl loc) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   using nullity = nullness<field_type>;
   assert(index < std::size(m_fields));
   if constexpr (nullity::always_null)
   {
     if (std::data(m_fields[index]) != nullptr)
-      throw conversion_error{"Streaming non-null value into null field."};
+      throw conversion_error{"Streaming non-null value into null field.", loc};
   }
   else if (std::data(m_fields[index]) == nullptr)
   {
     if constexpr (nullity::has_null)
       std::get<index>(t) = nullity::null();
     else
-      internal::throw_null_conversion(type_name<field_type>);
+      internal::throw_null_conversion(type_name<field_type>, loc);
   }
   else
   {

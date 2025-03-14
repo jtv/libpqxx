@@ -16,14 +16,16 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
-
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
-#  include <ranges>
-#endif
+#include <ranges>
+#include <source_location>
+#include <type_traits>
 
 
 namespace pqxx
 {
+/// Conenience alias for `std::source_location`.  It's just too long.
+using sl = std::source_location;
+
 /// Number of rows in a result set.
 using result_size_type = int;
 
@@ -45,7 +47,6 @@ using large_object_size_type = int64_t;
 
 // Forward declarations, to help break compilation dependencies.
 // These won't necessarily include all classes in libpqxx.
-class binarystring;
 class connection;
 class const_result_iterator;
 class const_reverse_result_iterator;
@@ -74,89 +75,72 @@ enum class format : int
 
 
 /// Remove any constness, volatile, and reference-ness from a type.
-/** @deprecated In C++20 we'll replace this with std::remove_cvref.
+/** @deprecated Use `std::remove_cvref` instead.
  */
-template<typename TYPE>
-using strip_t = std::remove_cv_t<std::remove_reference_t<TYPE>>;
+template<typename TYPE> using strip_t = std::remove_cvref_t<TYPE>;
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
 /// The type of a container's elements.
 /** At the time of writing there's a similar thing in `std::experimental`,
  * which we may or may not end up using for this.
  */
 template<std::ranges::range CONTAINER>
-using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
-#else  // PQXX_HAVE_CONCEPTS
-/// The type of a container's elements.
-/** At the time of writing there's a similar thing in `std::experimental`,
- * which we may or may not end up using for this.
- */
-template<typename CONTAINER>
-using value_type = strip_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
-#endif // PQXX_HAVE_CONCEPTS
+using value_type = std::remove_cvref_t<std::ranges::range_value_t<CONTAINER>>;
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
+/// A type one byte in size.
+template<typename CHAR>
+concept char_sized = (sizeof(CHAR) == 1);
+
+
 /// Concept: Any type that we can read as a string of `char`.
 template<typename STRING>
 concept char_string = std::ranges::contiguous_range<STRING> and
-                      std::same_as<strip_t<value_type<STRING>>, char>;
+                      std::same_as<std::remove_cv_t<value_type<STRING>>, char>;
+
 
 /// Concept: Anything we can iterate to get things we can read as strings.
 template<typename RANGE>
-concept char_strings =
-  std::ranges::range<RANGE> and char_string<strip_t<value_type<RANGE>>>;
+concept char_strings = std::ranges::range<RANGE> and
+                       char_string<std::remove_cv_t<value_type<RANGE>>>;
+
 
 /// Concept: Anything we might want to treat as binary data.
 template<typename DATA>
 concept potential_binary =
-  std::ranges::contiguous_range<DATA> and (sizeof(value_type<DATA>) == 1);
-#endif // PQXX_HAVE_CONCEPTS
+  std::ranges::contiguous_range<DATA> and char_sized<value_type<DATA>> and
+  not std::is_reference_v<value_type<DATA>>;
 
 
-// C++20: Retire these compatibility definitions.
-#if defined(PQXX_HAVE_CONCEPTS)
-
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
+/// Concept: Binary string, akin to @c std::string for binary data.
+/** Any type that satisfies this concept can represent an SQL BYTEA value.
+ *
+ * A @c binary has a @c begin(), @c end(), @c size(), and @data().  Each byte
+ * is a @c std::byte, and they must all be laid out contiguously in memory so
+ * we can reference them by a pointer.
  */
-#  define PQXX_RANGE_ARG std::ranges::range
+template<typename T>
+concept binary = std::ranges::contiguous_range<T> and
+                 std::same_as<std::remove_cv_t<value_type<T>>, std::byte>;
 
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG pqxx::char_string
 
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG pqxx::char_strings
+/// A series of something that's not bytes.
+template<typename T>
+concept nonbinary_range =
+  std::ranges::range<T> and
+  not std::same_as<
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
+  not std::same_as<
+    std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
 
-#else // PQXX_HAVE_CONCEPTS
 
-/// Template argument type for a range.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_RANGE_ARG typename
+/// Type alias for a view of bytes.
+using bytes_view = std::span<std::byte const>;
 
-/// Template argument type for @ref char_string.
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRING_ARG typename
 
-/// Template argument type for @ref char_strings
-/** This is a concept, so only available in C++20 or better.  In pre-C++20
- * environments it's just an alias for @ref typename.
- */
-#  define PQXX_CHAR_STRINGS_ARG typename
+/// Type alias for a view of writable bytes.
+using writable_bytes_view = std::span<std::byte>;
 
-#endif // PQXX_HAVE_CONCEPTS
 
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
@@ -169,6 +153,22 @@ struct from_table_t
  */
 struct from_query_t
 {};
-
 } // namespace pqxx
+
+
+namespace pqxx::internal
+{
+/// Concept: one of the "char" types.
+template<typename T>
+concept char_type = std::same_as<std::remove_cv_t<T>, char> or
+                    std::same_as<std::remove_cv_t<T>, signed char> or
+                    std::same_as<std::remove_cv_t<T>, unsigned char>;
+
+
+/// Concept: an integral number type.
+/** Unlike `std::integral`, this does not include the `char` types.
+ */
+template<typename T>
+concept integer = std::integral<T> and not char_type<T>;
+} // namespace pqxx::internal
 #endif

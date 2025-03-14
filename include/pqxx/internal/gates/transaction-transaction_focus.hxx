@@ -18,13 +18,13 @@ class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
   {
     home().unregister_focus(focus);
   }
-  void register_pending_error(zview error)
+  void register_pending_error(zview error, sl loc)
   {
-    home().register_pending_error(error);
+    home().register_pending_error(error, loc);
   }
-  void register_pending_error(std::string &&error)
+  void register_pending_error(std::string &&error, sl loc)
   {
-    home().register_pending_error(std::move(error));
+    home().register_pending_error(std::move(error), loc);
   }
 };
 } // namespace pqxx::internal::gate

@@ -87,22 +87,20 @@ template<> struct string_traits<ipv4>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static ipv4 from_string(std::string_view text)
+  static ipv4 from_string(std::string_view text, sl loc = sl::current())
   {
     ipv4 ts;
     if (std::data(text) == nullptr)
-      internal::throw_null_conversion(type_name<ipv4>);
+      internal::throw_null_conversion(type_name<ipv4>, loc);
     std::vector<std::size_t> ends;
     for (std::size_t i{0}; i < std::size(text); ++i)
       if (text[i] == '.')
         ends.push_back(i);
     ends.push_back(std::size(text));
     if (std::size(ends) != 4)
-      throw conversion_error{pqxx::internal::concat(
-        "Can't parse '", text,
-        "' as ipv4: expected 4 octets, "
-        "found ",
-        std::size(ends), ".")};
+      throw conversion_error{std::format(
+        "Can't parse '{}' as ipv4: expected 4 octets, found {}.", text,
+        std::size(ends))};
     std::size_t start{0};
     for (int i{0}; i < 4; ++i)
     {
@@ -117,7 +115,7 @@ template<> struct string_traits<ipv4>
 
   static char *into_buf(char *begin, char *end, ipv4 const &value)
   {
-    if (pqxx::internal::cmp_less(end - begin, size_buffer(value)))
+    if (std::cmp_less(end - begin, size_buffer(value)))
       throw conversion_error{"Buffer too small for ipv4."};
     char *here = begin;
     for (int i = 0; i < 4; ++i)
