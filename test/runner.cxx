@@ -105,7 +105,7 @@ std::string list_result(result Obj)
   return "{" +
          separated_list(
            "}\n{", std::begin(Obj), std::end(Obj),
-           [](row r) { return list_row(r); }) +
+           [](row const &r) { return list_row(r); }) +
          "}";
 }
 
