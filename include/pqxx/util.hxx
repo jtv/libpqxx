@@ -630,9 +630,9 @@ inline std::string source_loc(sl loc)
  *
  * If `terminate` is true, also writes a terminating zero.
  */
+template<bool terminate>
 inline std::size_t copy_chars(
-  std::string_view src, std::span<char> dst, std::size_t dst_offset,
-  bool terminate, sl loc)
+  std::string_view src, std::span<char> dst, std::size_t dst_offset, sl loc)
 {
   auto const sz{std::size(src)};
   if (std::cmp_greater(
@@ -644,7 +644,7 @@ inline std::size_t copy_chars(
         sz, src, std::size(dst), dst_offset),
       loc};
   auto at{dst_offset + src.copy(std::data(dst) + dst_offset, sz)};
-  if (terminate)
+  if constexpr (terminate)
     dst[at++] = '\0';
   return at;
 }

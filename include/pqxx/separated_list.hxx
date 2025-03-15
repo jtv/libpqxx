@@ -66,7 +66,7 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   std::size_t here{pqxx::into_buf({data, stop}, access(begin)) - 1};
   for (++begin; begin != end; ++begin)
   {
-    here = pqxx::internal::copy_chars(sep, result, here, false, sl::current());
+    here = pqxx::internal::copy_chars<false>(sep, result, here, sl::current());
     here += pqxx::into_buf({data + here, stop}, access(begin)) - 1;
   }
   result.resize(here);

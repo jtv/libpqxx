@@ -700,7 +700,7 @@ template<> struct string_traits<std::string_view>
   static std::size_t
   into_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
   {
-    return pqxx::internal::copy_chars(value, buf, 0, true, c.loc);
+    return pqxx::internal::copy_chars<true>(value, buf, 0, c.loc);
   }
 
   static zview to_buf(char *begin, char *end, std::string_view const &value)
@@ -999,7 +999,7 @@ std::size_t array_into_buf(
     static constexpr zview s_null{"NULL"};
     if (is_null(elt))
     {
-      here = copy_chars(s_null, buf, here, false, c.loc);
+      here = copy_chars<false>(s_null, buf, here, c.loc);
     }
     else if constexpr (is_sql_array<elt_type>)
     {
