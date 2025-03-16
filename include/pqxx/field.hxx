@@ -227,7 +227,7 @@ public:
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>, c.loc);
+        internal::throw_null_conversion(name_type<T>(), c.loc);
       else
         return nullness<T>::null();
     }
@@ -255,7 +255,7 @@ public:
 
     // There's no such thing as a null SQL array.
     if (is_null())
-      internal::throw_null_conversion(type_name<array_type>, loc);
+      internal::throw_null_conversion(name_type<array_type>(), loc);
     else
       return array_type{this->view(), this->m_home.m_encoding, loc};
   }
@@ -366,7 +366,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
 template<> inline zview field::as<zview>(ctx c) const
 {
   if (is_null())
-    internal::throw_null_conversion(type_name<zview>, c.loc);
+    internal::throw_null_conversion(name_type<zview>(), c.loc);
   return zview{c_str(), size()};
 }
 
@@ -505,7 +505,7 @@ template<typename T> inline T from_string(field const &value, ctx c = {})
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>, c.loc);
+      internal::throw_null_conversion(name_type<T>(), c.loc);
   }
   else
   {

@@ -427,7 +427,7 @@ private:
                 std::format(
                   "Array contains a null {}.  Consider making it an array of "
                   "std::optional<{}> instead.",
-                  type_name<ELEMENT>, type_name<ELEMENT>),
+                  name_type<ELEMENT>(), name_type<ELEMENT>()),
                 loc};
           }
           else
