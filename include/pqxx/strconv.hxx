@@ -30,13 +30,6 @@
 #include "pqxx/zview.hxx"
 
 
-namespace pqxx::internal
-{
-/// Attempt to demangle @c std::type_info::name() to something human-readable.
-PQXX_LIBEXPORT std::string demangle_type_name(char const[]);
-} // namespace pqxx::internal
-
-
 namespace pqxx
 {
 /**
@@ -63,18 +56,6 @@ namespace pqxx
  * types.  The conversion will represent enumeration values as numeric strings.
  */
 //@{
-
-/// A human-readable name for a type, used in error messages and such.
-/** Actually this may not always be very user-friendly.  It uses
- * @c std::type_info::name().  On gcc-like compilers we try to demangle its
- * output.  Visual Studio produces human-friendly names out of the box.
- *
- * This variable is not inline.  Inlining it gives rise to "memory leak"
- * warnings from asan, the address sanitizer, possibly from use of
- * @c std::type_info::name.
- */
-template<typename TYPE>
-std::string const type_name{internal::demangle_type_name(typeid(TYPE).name())};
 
 
 /// Traits describing a type's "null value," if any.
