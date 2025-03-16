@@ -108,7 +108,10 @@ public:
 };
 
 
-template<> constexpr inline std::string_view name_type<zview>(){ return "pqxx::zview"; }
+template<> constexpr inline std::string_view name_type<zview>()
+{
+  return "pqxx::zview";
+}
 
 
 /// Support @ref zview literals.
