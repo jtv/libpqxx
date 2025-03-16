@@ -91,7 +91,7 @@ template<> struct string_traits<ipv4>
   {
     ipv4 ts;
     if (std::data(text) == nullptr)
-      internal::throw_null_conversion(type_name<ipv4>, loc);
+      internal::throw_null_conversion(name_type<ipv4>(), loc);
     std::vector<std::size_t> ends;
     for (std::size_t i{0}; i < std::size(text); ++i)
       if (text[i] == '.')

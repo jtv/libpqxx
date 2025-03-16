@@ -282,14 +282,14 @@ private:
       if (std::data(text) != nullptr)
         throw conversion_error{std::format(
           "Streaming a non-null value into a {}, which must always be null.",
-          type_name<field_type>)};
+          name_type<field_type>())};
     }
     else if (std::data(text) == nullptr)
     {
       if constexpr (nullity::has_null)
         return nullity::null();
       else
-        internal::throw_null_conversion(type_name<field_type>, loc);
+        internal::throw_null_conversion(name_type<field_type>(), loc);
     }
     else
     {

@@ -74,10 +74,11 @@ First off, of course, you need a C++ type.  It may be your own, but it doesn't
 have to be.  It could be a type from a third-party library, or even one from
 the standard library that libpqxx does not yet support.
 
-First thing to do is specialise the `pqxx::type_name` variable to give the type
-a human-readable name.  That allows libpqxx error messages and such to talk
-about the type.  If you don't define a name, libpqxx will try to figure one out
-with some help from the compiler, but it may not always be easy to read.
+First thing to do is specialise the `pqxx::name_type()` function to give the
+type a human-readable name.  That allows libpqxx error messages and such to
+talk about the type.  If you don't define a name, libpqxx will try to figure
+one out with some help from the compiler, but it may not always be easy to
+read.
 
 Then, does your type have a built-in null value?  For example, a `char *` can
 be null on the C++ side.  Or some types are _always_ null, such as `nullptr`.
@@ -112,8 +113,8 @@ The library also provides specialisations for `std::optional<T>`,
 have conversions for `T`, you'll also automatically have conversions for those.
 
 
-Specialise `type_name`
-----------------------
+Specialise `name_type()`
+------------------------
 
 (This is a feature that should disappear once we have introspection in the C++
 language.)
@@ -122,15 +123,16 @@ When errors happen during conversion, libpqxx will compose error messages for
 the user.  Sometimes these will include the name of the type that's being
 converted.
 
-To tell libpqxx the name of each type, there's a template variable called
-`pqxx::type_name`.  For any given type `T`, it should have a specialisation
+To tell libpqxx the name of each type, there's a function template called
+`pqxx::name_type()`.  For any given type `T`, it should have a specialisation
 that provides that `T`'s human-readable name:
 
 ```cxx
     // T is your type.
     namespace pqxx
     {
-    template<> std::string const type_name<T>{"My T type's name"};
+    template<> inline std::string_view
+    name_type<T>(){ return "My T type's name"; };
     }
 ```
 

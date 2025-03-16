@@ -101,7 +101,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
-      std::format("Not enough buffer space to insert {}.  ", type_name<T>) +
+      std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
   std::memmove(begin, std::data(text), len);
@@ -121,7 +121,7 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
-      std::format("Not enough buffer space to insert {}.  ", type_name<T>) +
+      std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
   std::memmove(begin, std::data(text), len);
@@ -841,7 +841,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
     ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, c.loc);
+      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
@@ -850,7 +850,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
     ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::unique_ptr<T>>, c.loc);
+      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
     return pqxx::to_buf({begin, end}, *value);
   }
 
@@ -905,14 +905,14 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
   to_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
+      internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
     return pqxx::to_buf({begin, end}, *value, c);
   }
   static char *
   into_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(type_name<std::shared_ptr<T>>, c.loc);
+      internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
     return begin + pqxx::into_buf({begin, end}, *value, c);
   }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
@@ -1140,7 +1140,7 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
     throw conversion_error{
-      std::format("Attempt to convert null to a string.", type_name<TYPE>),
+      std::format("Attempt to convert null to a string.", name_type<TYPE>()),
       c.loc};
 
   if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
@@ -1187,7 +1187,7 @@ inline void into_string(T const &value, std::string &out, ctx c = {})
 {
   if (is_null(value))
     throw conversion_error{
-      std::format("Attempt to convert null {} to a string.", type_name<T>),
+      std::format("Attempt to convert null {} to a string.", name_type<T>()),
       c.loc};
 
   // We can't just reserve() data; modifying the terminating zero leads to

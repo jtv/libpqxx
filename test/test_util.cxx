@@ -9,7 +9,7 @@ namespace
 {
 template<typename T> void test_for(T const &val)
 {
-  auto const name{pqxx::type_name<T>};
+  auto const name{pqxx::name_type<T>()};
   auto const sz{std::size(val)};
 
   std::span<std::byte const> out{pqxx::binary_cast(val)};

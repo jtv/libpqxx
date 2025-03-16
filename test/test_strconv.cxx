@@ -163,7 +163,7 @@ constexpr char hash_index(std::size_t index)
 template<typename T>
 void check_write(T const &value, std::string_view expected)
 {
-  std::string const name{pqxx::type_name<T>};
+  std::string const name{pqxx::name_type<T>()};
   std::array<char, 100> buf;
   for (auto i{0u}; i < std::size(buf); ++i) buf[i] = hash_index(i);
 
