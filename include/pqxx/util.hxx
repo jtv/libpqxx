@@ -612,6 +612,42 @@ inline std::string source_loc(sl loc)
     return std::string{loc.file_name()};
   }
 }
+
+
+/// Copy text from `src` into `buf` at offset `dst_offset`.
+/** This is a wrapper for `std::string_view::copy()` with a few changes.
+ *
+ * First, it checks for overruns and throws @ref pqxx::conversion_overrun if
+ * needed.  (To that end, the destination is a `std::span`, not a raw pointer.)
+ *
+ * Second, it takes an offset _into the destination buffer,_ i.e. you can tell
+ * it where in the destination buffer the copy should write, but there's no
+ * parameter to influence which part of `src` you want to copy.  You always
+ * copy the whole thing.
+ *
+ * Third, it returns not the number of bytes it copied, but rather, the offset
+ * into `dst` that's right behind the last copied byte.
+ *
+ * If `terminate` is true, also writes a terminating zero.
+ */
+template<bool terminate>
+inline std::size_t copy_chars(
+  std::string_view src, std::span<char> dst, std::size_t dst_offset, sl loc)
+{
+  auto const sz{std::size(src)};
+  if (std::cmp_greater(
+        dst_offset + sz + std::size_t(terminate), std::size(dst)))
+    throw conversion_overrun{
+      std::format(
+        "Text copy exceeded buffer space: tried to copy {} bytes '{}' into a "
+        "buffer of {} bytes, at offset {}.",
+        sz, src, std::size(dst), dst_offset),
+      loc};
+  auto at{dst_offset + src.copy(std::data(dst) + dst_offset, sz)};
+  if constexpr (terminate)
+    dst[at++] = '\0';
+  return at;
+}
 } // namespace pqxx::internal
 
 
