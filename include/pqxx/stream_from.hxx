@@ -358,7 +358,7 @@ inline void stream_from::extract_value(Tuple &t, sl loc) const
     if constexpr (nullity::has_null)
       std::get<index>(t) = nullity::null();
     else
-      internal::throw_null_conversion(type_name<field_type>, loc);
+      internal::throw_null_conversion(name_type<field_type>(), loc);
   }
   else
   {
