@@ -13,7 +13,9 @@
 #endif
 
 #include "pqxx/internal/header-pre.hxx"
+
 #include "pqxx/types.hxx"
+
 #include "pqxx/internal/header-post.hxx"
 
 

@@ -126,10 +126,10 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value)
     case std::errc::value_too_large:
       throw pqxx::conversion_overrun{std::format(
         "Could not convert {} to string: buffer too small ({} bytes).",
-        pqxx::type_name<T>, std::size(buf))};
+        pqxx::name_type<T>(), std::size(buf))};
     default:
       throw pqxx::conversion_error{
-        std::format("Could not convert {} to string.", pqxx::type_name<T>)};
+        std::format("Could not convert {} to string.", pqxx::name_type<T>())};
     }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
@@ -151,7 +151,7 @@ string_traits<T>::to_buf(char *begin, char *end, T const &value)
     need{static_cast<ptrdiff_t>(size_buffer(value))};
   if (space < need)
     throw conversion_overrun{std::format(
-      "Could not convert {} to string: buffer too small.  {}", type_name<T>,
+      "Could not convert {} to string: buffer too small.  {}", name_type<T>(),
       pqxx::internal::state_buffer_overrun(space, need))};
 
   char *const pos{[end, &value]() {
@@ -250,7 +250,7 @@ inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
   }
 
   auto const base{std::format(
-    "Could not convert '{}' to {}", std::string(in), pqxx::type_name<TYPE>)};
+    "Could not convert '{}' to {}", std::string(in), pqxx::name_type<TYPE>())};
   if (std::empty(msg))
     throw pqxx::conversion_error{std::format("{}.", base), c.loc};
   else
@@ -306,7 +306,8 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text, ctx c)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
-      std::format("Trying to convert empty string to {}.", pqxx::type_name<T>),
+      std::format(
+        "Trying to convert empty string to {}.", pqxx::name_type<T>()),
       c.loc};
 
   bool ok{false};

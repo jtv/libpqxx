@@ -841,7 +841,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
     ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(name_type<std::unique_ptr<T>()>, c.loc);
+      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
@@ -850,7 +850,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
     ctx c = {})
   {
     if (not value)
-      internal::throw_null_conversion(name_type<std::unique_ptr<T>()>, c.loc);
+      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
     return pqxx::to_buf({begin, end}, *value);
   }
 

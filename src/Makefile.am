@@ -23,6 +23,7 @@ libpqxx_la_SOURCES = \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \
+	types.cxx \
 	util.cxx \
 	version.cxx \
 	wait.cxx

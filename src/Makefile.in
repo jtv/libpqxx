@@ -139,7 +139,7 @@ am_libpqxx_la_OBJECTS = array.lo blob.lo connection.lo cursor.lo \
 	notification.lo params.lo pipeline.lo result.lo \
 	robusttransaction.lo sql_cursor.lo strconv.lo stream_from.lo \
 	stream_to.lo subtransaction.lo time.lo transaction.lo \
-	transaction_base.lo row.lo util.lo version.lo wait.lo
+	transaction_base.lo row.lo types.lo util.lo version.lo wait.lo
 libpqxx_la_OBJECTS = $(am_libpqxx_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -173,8 +173,9 @@ am__depfiles_remade = ./$(DEPDIR)/array.Plo ./$(DEPDIR)/blob.Plo \
 	./$(DEPDIR)/strconv.Plo ./$(DEPDIR)/stream_from.Plo \
 	./$(DEPDIR)/stream_to.Plo ./$(DEPDIR)/subtransaction.Plo \
 	./$(DEPDIR)/time.Plo ./$(DEPDIR)/transaction.Plo \
-	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/util.Plo \
-	./$(DEPDIR)/version.Plo ./$(DEPDIR)/wait.Plo
+	./$(DEPDIR)/transaction_base.Plo ./$(DEPDIR)/types.Plo \
+	./$(DEPDIR)/util.Plo ./$(DEPDIR)/version.Plo \
+	./$(DEPDIR)/wait.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -378,6 +379,7 @@ libpqxx_la_SOURCES = \
 	transaction.cxx \
 	transaction_base.cxx \
 	row.cxx \
+	types.cxx \
 	util.cxx \
 	version.cxx \
 	wait.cxx
@@ -496,6 +498,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transaction_base.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wait.Plo@am__quote@ # am--include-marker
@@ -687,6 +690,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/time.Plo
 	-rm -f ./$(DEPDIR)/transaction.Plo
 	-rm -f ./$(DEPDIR)/transaction_base.Plo
+	-rm -f ./$(DEPDIR)/types.Plo
 	-rm -f ./$(DEPDIR)/util.Plo
 	-rm -f ./$(DEPDIR)/version.Plo
 	-rm -f ./$(DEPDIR)/wait.Plo
@@ -758,6 +762,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/time.Plo
 	-rm -f ./$(DEPDIR)/transaction.Plo
 	-rm -f ./$(DEPDIR)/transaction_base.Plo
+	-rm -f ./$(DEPDIR)/types.Plo
 	-rm -f ./$(DEPDIR)/util.Plo
 	-rm -f ./$(DEPDIR)/version.Plo
 	-rm -f ./$(DEPDIR)/wait.Plo

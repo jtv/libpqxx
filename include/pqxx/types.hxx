@@ -165,7 +165,7 @@ PQXX_LIBEXPORT std::string demangle_type_name(char const[]);
 } // namespace pqxx::internal
 
 
-namespace pxx
+namespace pqxx
 {
 /// A human-readable name for a type, used in error messages and such.
 /** Actually this may not always be very user-friendly.  It uses
@@ -176,8 +176,12 @@ namespace pxx
  * warnings from asan, the address sanitizer, possibly from use of
  * @c std::type_info::name.
  */
-template<typename TYPE> [[deprecated("Use name_type() instead.")]]
-std::string const type_name{pqxx::internal::demangle_type_name(typeid(TYPE).name())};
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+template<typename TYPE>
+[[deprecated("Use name_type() instead.")]]
+std::string const type_name{
+  pqxx::internal::demangle_type_name(typeid(TYPE).name())};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
 /// Return human-readable name for `TYPE`.
@@ -191,43 +195,73 @@ template<typename TYPE> inline std::string_view name_type()
 
 /// Specialisation to save on startup work & produce friendlier output.
 template<> constexpr inline std::string_view name_type<std::string>()
-{ return "std::string"; }
+{
+  return "std::string";
+}
 /// Specialisation to save on startup work & produce friendlier output.
 template<> constexpr inline std::string_view name_type<std::string_view>()
-{ return "std::string_view"; }
+{
+  return "std::string_view";
+}
+template<> constexpr inline std::string_view name_type<char const *>()
+{
+  return "char const *";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<short>()
-{ return "short"; }
+{
+  return "short";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<int>()
-{ return "int"; }
+{
+  return "int";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<long>()
-{ return "long"; }
+{
+  return "long";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<long long>()
-{ return "long long"; }
+{
+  return "long long";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<unsigned short>()
-{ return "short"; }
+{
+  return "short";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<unsigned>()
-{ return "unsigned"; }
+{
+  return "unsigned";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<unsigned long>()
-{ return "unsigned long"; }
+{
+  return "unsigned long";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<unsigned long long>()
-{ return "unsigned long long"; }
+{
+  return "unsigned long long";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<float>()
-{ return "float"; }
+{
+  return "float";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<double>()
-{ return "double"; }
+{
+  return "double";
+}
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<long double>()
-{ return "long double"; }
+{
+  return "long double";
+}
 } // namespace pqxx
 
 
