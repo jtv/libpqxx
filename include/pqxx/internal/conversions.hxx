@@ -700,12 +700,7 @@ template<> struct string_traits<std::string_view>
   static std::size_t
   into_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
   {
-    if (std::cmp_greater_equal(std::size(value), std::size(buf)))
-      throw conversion_overrun{
-        "Could not store string_view: too long for buffer.", c.loc};
-    value.copy(std::data(buf), std::size(value));
-    buf[std::size(value)] = '\0';
-    return std::size(value) + 1;
+    return pqxx::internal::copy_chars<true>(value, buf, 0, c.loc);
   }
 
   static zview to_buf(char *begin, char *end, std::string_view const &value)
@@ -1004,9 +999,7 @@ std::size_t array_into_buf(
     static constexpr zview s_null{"NULL"};
     if (is_null(elt))
     {
-      assert(std::cmp_less(here + std::size(s_null) + 1, std::size(buf)));
-      s_null.copy(std::data(buf) + here, std::size(s_null));
-      here += std::size(s_null);
+      here = copy_chars<false>(s_null, buf, here, c.loc);
     }
     else if constexpr (is_sql_array<elt_type>)
     {

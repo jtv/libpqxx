@@ -90,8 +90,8 @@ inline void check_equal(
   pqxx::test::check_not_equal((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc, sl loc = sl::current())
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 != value2)
     return;
@@ -111,8 +111,8 @@ inline void check_not_equal(
   pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc, sl loc = sl::current())
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 < value2)
     return;
@@ -135,8 +135,8 @@ inline void check_less(
   pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc, sl loc = sl::current())
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 <= value2)
     return;
@@ -258,9 +258,9 @@ inline void check_throws_exception(
     (value), #value, (lower), #lower, (upper), #upper, (desc))
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
-  VALUE const &value, char const text[], LOWER const &lower, char const lower_text[],
-  UPPER const &upper, char const upper_text[], std::string const &desc,
-  sl loc = sl::current())
+  VALUE const &value, char const text[], LOWER const &lower,
+  char const lower_text[], UPPER const &upper, char const upper_text[],
+  std::string const &desc, sl loc = sl::current())
 {
   std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =
