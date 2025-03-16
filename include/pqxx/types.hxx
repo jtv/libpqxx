@@ -272,11 +272,6 @@ template<> constexpr inline std::string_view name_type<std::nullptr_t>()
 {
   return "std::nullptr_t";
 }
-/// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<std::nullopt_t>()
-{
-  return "std::nullopt_t";
-}
 } // namespace pqxx
 
 
