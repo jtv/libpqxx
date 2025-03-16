@@ -22,9 +22,8 @@
 #include <variant>
 
 #include "pqxx/connection.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
@@ -82,10 +81,10 @@ public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(transaction_base &tx, std::string_view query);
+  inline stream_query(transaction_base &tx, std::string_view query, sl loc);
   /// Execute `query` on `tx`, stream results.
   inline stream_query(
-    transaction_base &tx, std::string_view query, params const &);
+    transaction_base &tx, std::string_view query, params const &, sl loc);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -98,7 +97,7 @@ public:
     }
     catch (std::exception const &e)
     {
-      reg_pending_error(e.what());
+      reg_pending_error(e.what(), sl::current());
     }
   }
 
@@ -115,7 +114,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line) &
+  std::tuple<TYPE...> parse_line(zview line, sl loc) &
   {
     assert(not done());
 
@@ -139,7 +138,7 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write)...};
+    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write, loc)...};
 
     assert(offset == line_size + 1u);
     return data;
@@ -153,7 +152,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *get_finder(transaction_base const &tx);
+  static inline char_finder_func *get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.
@@ -171,7 +170,7 @@ private:
    * one greater than the size of the line, pointing at the terminating zero.
    */
   std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write)
+  read_field(zview line, std::size_t offset, char *write, sl loc)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -211,7 +210,7 @@ private:
       assert(lp[offset] != '\0');
 
       // Beginning of the next character of interest (or the end of the line).
-      auto const stop_char{m_char_finder(line, offset)};
+      auto const stop_char{m_char_finder(line, offset, loc)};
       PQXX_ASSUME(stop_char > offset);
       assert(stop_char < (line_size + 1));
 
@@ -266,14 +265,14 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET parse_field(zview line, std::size_t &offset, char *&write)
+  TARGET parse_field(zview line, std::size_t &offset, char *&write, sl loc)
   {
-    using field_type = strip_t<TARGET>;
+    using field_type = std::remove_cvref_t<TARGET>;
     using nullity = nullness<field_type>;
 
     assert(offset <= std::size(line));
 
-    auto [new_offset, new_write, text]{read_field(line, offset, write)};
+    auto [new_offset, new_write, text]{read_field(line, offset, write, loc)};
     PQXX_ASSUME(new_offset > offset);
     PQXX_ASSUME(new_write >= write);
     offset = new_offset;
@@ -281,16 +280,16 @@ private:
     if constexpr (nullity::always_null)
     {
       if (std::data(text) != nullptr)
-        throw conversion_error{concat(
-          "Streaming a non-null value into a ", type_name<field_type>,
-          ", which must always be null.")};
+        throw conversion_error{std::format(
+          "Streaming a non-null value into a {}, which must always be null.",
+          name_type<field_type>())};
     }
     else if (std::data(text) == nullptr)
     {
       if constexpr (nullity::has_null)
         return nullity::null();
       else
-        internal::throw_null_conversion(type_name<field_type>);
+        internal::throw_null_conversion(name_type<field_type>(), loc);
     }
     else
     {
