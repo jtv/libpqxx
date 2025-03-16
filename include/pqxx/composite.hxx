@@ -137,7 +137,7 @@ inline std::size_t composite_into_buf(std::span<char> buf, T const &...fields)
   if constexpr (num_fields == 0)
   {
     constexpr std::string_view empty{"()"};
-    return empty.copy(std::data(buf), std::size(empty));
+    return pqxx::internal::copy_chars<false>(empty, buf, 0, loc);
   }
 
   std::size_t pos{0};
