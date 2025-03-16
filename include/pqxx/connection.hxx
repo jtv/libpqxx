@@ -685,6 +685,12 @@ public:
   /** Issues a `LISTEN` SQL command for channel `channel`, and stores `handler`
    * as the callback for when a notification comes in on that channel.
    *
+   * The connection can call this handler when you call @ref get_notifs() or
+   * @ref await_notification() on the connection.  Some internal functions may
+   * also call these functions.  The client-side handling is fully synchronous
+   * and notifications only come in while the connection is _not_ in a back-end
+   * transaction.
+   *
    * The handler is a `std::function` (see @ref notification_handler), but you
    * can simply pass in a lambda with the right parameters, or a function, or
    * an object of a type you define that happens to implemnt the right function

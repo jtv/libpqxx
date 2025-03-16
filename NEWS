@@ -5,6 +5,7 @@
  - Fix warnings on compilers that accept `[[assume]]` with a warning. (#928)
  - Can't pass parameters to streaming query.
  - CMake build: take libpq path from build target, not absolute path. (#964)
+ - Added explanation to `listen()` of when notifications come in. (#963)
 7.10.0
  - Deprecate `errorhandler`; replace with lambda-friendly "notice handlers."
  - Deprecate `notification_receiver`; replace with "notification handlers"
