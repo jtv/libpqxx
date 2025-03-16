@@ -208,6 +208,11 @@ template<> constexpr inline std::string_view name_type<char const *>()
   return "char const *";
 }
 /// Specialisation to save on startup work.
+template<> constexpr inline std::string_view name_type<bool>()
+{
+  return "bool";
+}
+/// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<short>()
 {
   return "short";
@@ -261,6 +266,16 @@ template<> constexpr inline std::string_view name_type<double>()
 template<> constexpr inline std::string_view name_type<long double>()
 {
   return "long double";
+}
+/// Specialisation to save on startup work.
+template<> constexpr inline std::string_view name_type<std::nullptr_t>()
+{
+  return "std::nullptr_t";
+}
+/// Specialisation to save on startup work.
+template<> constexpr inline std::string_view name_type<std::nullopt_t>()
+{
+  return "std::nullopt_t";
 }
 } // namespace pqxx
 
