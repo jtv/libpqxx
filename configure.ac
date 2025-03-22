@@ -186,6 +186,7 @@ then
 			-Wanalyzer-write-to-string-literal \
 			-fnothrow-opt \
 			-Wattribute-alias=2 \
+			-Wdeprecated-literal-operator \
 			-Wlogical-op \
 			-Wmismatched-tags \
 			-Wredundant-tags \

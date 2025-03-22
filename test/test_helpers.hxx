@@ -157,8 +157,8 @@ inline void check_not_equal(
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
@@ -201,8 +201,8 @@ inline void check_less(
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
@@ -248,8 +248,8 @@ inline void check_less_equal(
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
-  VALUE1 const &value1, char const text1[], VALUE2 const &value2, char const text2[],
-  std::string const &desc
+  VALUE1 const &value1, char const text1[], VALUE2 const &value2,
+  char const text2[], std::string const &desc
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
@@ -376,8 +376,9 @@ inline void check_bounds(
 #if !defined(PQXX_HAVE_SOURCE_LOCATION)
   char const file[], int line,
 #endif
-  VALUE const &value, char const text[], LOWER const &lower, char const lower_text[],
-  UPPER const &upper, char const upper_text[], std::string const &desc
+  VALUE const &value, char const text[], LOWER const &lower,
+  char const lower_text[], UPPER const &upper, char const upper_text[],
+  std::string const &desc
 #if defined(PQXX_HAVE_SOURCE_LOCATION)
   ,
   std::source_location loc = std::source_location::current()
