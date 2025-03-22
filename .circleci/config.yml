@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: clang:16
+      - image: gcc:13
     environment:
       - PGHOST: "/tmp"
     steps:
