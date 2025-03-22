@@ -7,7 +7,7 @@ namespace
 {
 void test_zview_literal()
 {
-  using pqxx::operator"" _zv;
+  using pqxx::operator""_zv;
 
   PQXX_CHECK_EQUAL(("foo"_zv), pqxx::zview{"foo"}, "zview literal is broken.");
 }
@@ -15,7 +15,7 @@ void test_zview_literal()
 
 void test_zview_converts_to_string()
 {
-  using pqxx::operator"" _zv;
+  using pqxx::operator""_zv;
   using traits = pqxx::string_traits<pqxx::zview>;
 
   PQXX_CHECK_EQUAL(

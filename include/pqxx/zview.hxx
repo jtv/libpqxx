@@ -108,7 +108,7 @@ public:
  * using pqxx::operator"" _zv;
  * ```
  */
-constexpr zview operator"" _zv(char const str[], std::size_t len) noexcept
+constexpr zview operator""_zv(char const str[], std::size_t len) noexcept
 {
   return zview{str, len};
 }
