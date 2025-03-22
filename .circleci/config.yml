@@ -47,7 +47,7 @@ jobs:
                 --enable-audit \
                 --enable-shared --disable-static \
                 CXXFLAGS='-O3 -std=c++20' \
-                CXX=clang++
+                CXX=g++
       - store_artifacts:
           path: config.log
       - run:

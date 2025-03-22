@@ -4,6 +4,6 @@
     "libpq": "12.0",
     "postgresql": "12.0",
     "gcc": "9",
-    "clang": "12",
+    "clang": "16",
     "msvc": "2022"
 }
