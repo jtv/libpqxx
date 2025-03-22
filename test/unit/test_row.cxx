@@ -60,7 +60,7 @@ void test_row_iterator()
 
 void test_row_as()
 {
-  using pqxx::operator"" _zv;
+  using pqxx::operator""_zv;
 
   pqxx::connection cx;
   pqxx::work tx{cx};
