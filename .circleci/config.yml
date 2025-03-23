@@ -52,7 +52,7 @@ jobs:
           path: config.log
       - run:
           name: Make
-          command: make -j2
+          command: make -j1
       - run:
           name: Test
           command: PGDATA=db/data make -j$(nproc) check
