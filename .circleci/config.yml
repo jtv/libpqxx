@@ -19,7 +19,7 @@ jobs:
             shellcheck python3-virtualenv libtool
       - run:
           name: Identify
-          command: lsb_release -a && c++ --version && clang++ --version
+          command: echo "CPUs: $(nproc)" && lsb_release -a && c++ --version && clang++ --version
       - run:
           name: Prepare postgres
           command: |
@@ -52,7 +52,7 @@ jobs:
           path: config.log
       - run:
           name: Make
-          command: make -j4
+          command: make -j2
       - run:
           name: Test
           command: PGDATA=db/data make -j$(nproc) check
