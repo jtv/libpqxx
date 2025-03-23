@@ -19,7 +19,7 @@ jobs:
             shellcheck python3-virtualenv libtool
       - run:
           name: Identify
-          command: echo -n "CPUs: " && nproc && lsb_release -a && c++ --version && clang++ --version
+          command: echo -n 'CPUs: ' && nproc && lsb_release -a && c++ --version && clang++ --version
       - run:
           name: Prepare postgres
           command: |
