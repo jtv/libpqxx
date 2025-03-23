@@ -52,10 +52,10 @@ jobs:
           path: config.log
       - run:
           name: Make
-          command: make -j1
+          command: make -j4
       - run:
           name: Test
-          command: PGDATA=db/data make -j$(nproc) check
+          command: PGDATA=db/data make -j4 check
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
