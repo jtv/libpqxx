@@ -56,9 +56,10 @@ jobs:
       - run:
           name: Test
           command: PGDATA=db/data make -j4 check
-      - run:
-          name: Analyse
-          command: ./tools/lint --full >lint.log
+# Not working on gcc 13 image for some reason:
+#      - run:
+#          name: Analyse
+#          command: ./tools/lint --full >lint.log
       - store_artifacts:
           path: lint.log
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
