@@ -73,19 +73,19 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name() const &;
+  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type() const;
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table() const;
+  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
   /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column() const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
   //@}
 
   /**
@@ -108,9 +108,9 @@ public:
    * @ref result exists.  Once all `result` objects referring to that data have
    * been destroyed, the `string_view` will no longer point to valid memory.
    */
-  [[nodiscard]] PQXX_PURE std::string_view view() const &
+  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
-    return std::string_view(c_str(), size());
+    return {c_str(), size()};
   }
 
   /// Read as plain C string.
@@ -123,7 +123,7 @@ public:
    * convert the value to your desired type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const &;
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
 
   /// Is this field's value null?
   [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
@@ -136,7 +136,7 @@ public:
    * strings).
    */
   template<typename T>
-  auto to(T &obj) const ->
+  auto to(T &obj, ctx c = {}) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -148,7 +148,7 @@ public:
     else
     {
       auto const data{c_str()};
-      from_string(data, obj);
+      from_string(data, obj, c);
       return true;
     }
   }
@@ -173,7 +173,11 @@ public:
   }
 
   /// Read value into obj; or leave obj untouched and return `false` if null.
-  template<typename T> bool operator>>(T &obj) const { return to(obj); }
+  template<typename T>
+  [[deprecated("Use to() or as().")]] bool operator>>(T &obj) const
+  {
+    return to(obj);
+  }
 
   /// Read value into obj; or if null, use default value and return `false`.
   /** This can be used with `std::optional`, as well as with standard smart
@@ -187,7 +191,7 @@ public:
    * pointers to the field's internal text data.
    */
   template<typename T>
-  auto to(T &obj, T const &default_value) const ->
+  auto to(T &obj, T const &default_value, ctx c = {}) const ->
     typename std::enable_if_t<
       (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
       bool>
@@ -196,7 +200,7 @@ public:
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view());
+      obj = from_string<T>(this->view(), c);
     return not null;
   }
 
@@ -204,12 +208,12 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value) const
+  template<typename T> T as(T const &default_value, ctx c = {}) const
   {
     if (is_null())
       return default_value;
     else
-      return from_string<T>(this->view());
+      return from_string<T>(this->view(), c);
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -218,18 +222,18 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as() const
+  template<typename T> T as(ctx c = {}) const
   {
     if (is_null())
     {
       if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(type_name<T>);
+        internal::throw_null_conversion(name_type<T>(), c.loc);
       else
         return nullness<T>::null();
     }
     else
     {
-      return from_string<T>(this->view());
+      return from_string<T>(this->view(), c);
     }
   }
 
@@ -245,15 +249,15 @@ public:
 
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
-  array<ELEMENT, ARGS...> as_sql_array() const
+  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
   {
     using array_type = array<ELEMENT, ARGS...>;
 
     // There's no such thing as a null SQL array.
     if (is_null())
-      internal::throw_null_conversion(type_name<array_type>);
+      internal::throw_null_conversion(name_type<array_type>(), loc);
     else
-      return array_type{this->view(), this->m_home.m_encoding};
+      return array_type{this->view(), this->m_home.m_encoding, loc};
   }
 
   /// Parse the field as an SQL array.
@@ -268,25 +272,22 @@ public:
     "Instead, use as_sql_array() to convert to pqxx::array.")]]
   array_parser as_array() const & noexcept
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return array_parser{c_str(), m_home.m_encoding};
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
 
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
+protected:
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
    */
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the row.")]] field(row const &r, row_size_type c) noexcept;
+  field(row const &r, row_size_type c) noexcept;
 
-  /// Constructor.  Do not call this yourself; libpqxx will do it for you.
-  [[deprecated(
-    "Do not construct fields yourself.  Get them from the "
-    "row.")]] field() noexcept = default;
+  /// Constructor.
+  field() noexcept = default;
 
-
-protected:
   constexpr result const &home() const noexcept { return m_home; }
   constexpr result::size_type idx() const noexcept { return m_row; }
   constexpr row_size_type col() const noexcept { return m_col; }
@@ -312,35 +313,13 @@ private:
 };
 
 
-template<> inline bool field::to<std::string>(std::string &obj) const
-{
-  bool const null{is_null()};
-  if (not null)
-    obj = std::string{view()};
-  return not null;
-}
-
-
-template<>
-inline bool field::to<std::string>(
-  std::string &obj, std::string const &default_value) const
-{
-  bool const null{is_null()};
-  if (null)
-    obj = default_value;
-  else
-    obj = std::string{view()};
-  return not null;
-}
-
-
 /// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
  * result object, or the last remaining one copied from it etc.), so take care
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> inline bool field::to<char const *>(char const *&obj) const
+template<> inline bool field::to<char const *>(char const *&obj, ctx) const
 {
   bool const null{is_null()};
   if (not null)
@@ -349,46 +328,14 @@ template<> inline bool field::to<char const *>(char const *&obj) const
 }
 
 
-template<> inline bool field::to<std::string_view>(std::string_view &obj) const
-{
-  bool const null{is_null()};
-  if (not null)
-    obj = view();
-  return not null;
-}
-
-
-template<>
-inline bool field::to<std::string_view>(
-  std::string_view &obj, std::string_view const &default_value) const
-{
-  bool const null{is_null()};
-  if (null)
-    obj = default_value;
-  else
-    obj = view();
-  return not null;
-}
-
-
-template<> inline std::string_view field::as<std::string_view>() const
-{
-  if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<std::string_view>);
-  return view();
-}
-
-
-template<>
-inline std::string_view
-field::as<std::string_view>(std::string_view const &default_value) const
-{
-  return is_null() ? default_value : view();
-}
-
-
-template<> inline bool field::to<zview>(zview &obj) const
+/// Specialization: `to(zview &)`.
+/** This conversion is not generally available, since the general conversion
+ * would not know whether there was indeed a terminating zero at the end of
+ * the string.  (It could check, but it would have no way of knowing that a
+ * zero occurring after the string in memory was actually part of the same
+ * allocation.)
+ */
+template<> inline bool field::to<zview>(zview &obj, ctx) const
 {
   bool const null{is_null()};
   if (not null)
@@ -398,7 +345,7 @@ template<> inline bool field::to<zview>(zview &obj) const
 
 
 template<>
-inline bool field::to<zview>(zview &obj, zview const &default_value) const
+inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
 {
   bool const null{is_null()};
   if (null)
@@ -409,16 +356,22 @@ inline bool field::to<zview>(zview &obj, zview const &default_value) const
 }
 
 
-template<> inline zview field::as<zview>() const
+/// Efficient specialisation: you can convert a field to a `zview`.
+/** String conversions generally accept `std::string_view`.  You can't just
+ * "convert" any old `std::string_view` to a `pqxx::zview` because `zview` is
+ * a promise that the string is zero-terminated.  One can't generally make that
+ * promise based on a `string_view`.
+ *
+ */
+template<> inline zview field::as<zview>(ctx c) const
 {
   if (is_null())
-    PQXX_UNLIKELY
-  internal::throw_null_conversion(type_name<zview>);
+    internal::throw_null_conversion(name_type<zview>(), c.loc);
   return zview{c_str(), size()};
 }
 
 
-template<> inline zview field::as<zview>(zview const &default_value) const
+template<> inline zview field::as<zview>(zview const &default_value, ctx) const
 {
   return is_null() ? default_value : zview{c_str(), size()};
 }
@@ -545,22 +498,24 @@ template<typename CHAR>
 /** Unlike the "regular" `from_string`, this knows how to deal with null
  * values.
  */
-template<typename T> inline T from_string(field const &value)
+template<typename T> inline T from_string(field const &value, ctx c = {})
 {
   if (value.is_null())
   {
     if constexpr (nullness<T>::has_null)
       return nullness<T>::null();
     else
-      internal::throw_null_conversion(type_name<T>);
+      internal::throw_null_conversion(name_type<T>(), c.loc);
   }
   else
   {
-    return from_string<T>(value.view());
+    return from_string<T>(value.view(), c);
   }
 }
 
 
+// TODO: Can we make this generic across all "always-null" types?
+// TODO: Do the same for streams.
 /// Convert a field's value to `nullptr_t`.
 /** Yes, you read that right.  This conversion does nothing useful.  It always
  * returns `nullptr`.
@@ -569,16 +524,16 @@ template<typename T> inline T from_string(field const &value)
  * @ref conversion_error.
  */
 template<>
-inline std::nullptr_t from_string<std::nullptr_t>(field const &value)
+inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 {
   if (not value.is_null())
     throw conversion_error{
-      "Extracting non-null field into nullptr_t variable."};
+      "Extracting non-null field into nullptr_t variable.", c.loc};
   return nullptr;
 }
 
 
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(field const &value);
+template<> PQXX_LIBEXPORT std::string to_string(field const &value, ctx);
 } // namespace pqxx
 #endif

@@ -18,15 +18,15 @@ namespace pqxx::internal
  */
 template<encoding_group ENC>
 inline std::size_t scan_double_quoted_string(
-  char const input[], std::size_t size, std::size_t pos)
+  char const input[], std::size_t size, std::size_t pos, sl loc)
 {
   // TODO: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, size, pos)};
+  auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
   bool at_quote{false};
   pos = next;
-  next = scanner::call(input, size, pos);
+  next = scanner::call(input, size, pos, loc);
   PQXX_ASSUME(next > pos);
   while (pos < size)
   {
@@ -52,7 +52,7 @@ inline std::size_t scan_double_quoted_string(
       case '\\':
         // Backslash escape.  Skip ahead by one more character.
         pos = next;
-        next = scanner::call(input, size, pos);
+        next = scanner::call(input, size, pos, loc);
         PQXX_ASSUME(next > pos);
         break;
 
@@ -68,12 +68,12 @@ inline std::size_t scan_double_quoted_string(
       // Multibyte character.  Carry on.
     }
     pos = next;
-    next = scanner::call(input, size, pos);
+    next = scanner::call(input, size, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   if (not at_quote)
     throw argument_error{
-      "Missing closing double-quote: " + std::string{input}};
+      "Missing closing double-quote: " + std::string{input}, loc};
   return pos;
 }
 
@@ -82,7 +82,7 @@ inline std::size_t scan_double_quoted_string(
 /// Un-quote and un-escape a double-quoted SQL string.
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
-  char const input[], std::size_t end, std::size_t pos)
+  char const input[], std::size_t end, std::size_t pos, sl loc)
 {
   std::string output;
   // Maximum output size is same as the input size, minus the opening and
@@ -92,8 +92,8 @@ inline std::string parse_double_quoted_string(
 
   // TODO: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
-  auto here{scanner::call(input, end, pos)},
-    next{scanner::call(input, end, here)};
+  auto here{scanner::call(input, end, pos, loc)},
+    next{scanner::call(input, end, here, loc)};
   PQXX_ASSUME(here > pos);
   PQXX_ASSUME(next > here);
   while (here < end - 1)
@@ -106,12 +106,12 @@ inline std::string parse_double_quoted_string(
     {
       // Skip escape.
       here = next;
-      next = scanner::call(input, end, here);
+      next = scanner::call(input, end, here, loc);
       PQXX_ASSUME(next > here);
     }
     output.append(input + here, input + next);
     here = next;
-    next = scanner::call(input, end, here);
+    next = scanner::call(input, end, here, loc);
     PQXX_ASSUME(next > here);
   }
   return output;
@@ -126,17 +126,17 @@ inline std::string parse_double_quoted_string(
  * semicolon), or a closing brace.  For a value of a composite type, STOP is a
  * comma or a closing parenthesis.
  */
-template<pqxx::internal::encoding_group ENC, char... STOP>
-inline std::size_t
-scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
+template<encoding_group ENC, char... STOP>
+inline std::size_t scan_unquoted_string(
+  char const input[], std::size_t size, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, size, pos)};
+  auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
   while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
-    next = scanner::call(input, size, pos);
+    next = scanner::call(input, size, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   return pos;
@@ -144,9 +144,9 @@ scan_unquoted_string(char const input[], std::size_t size, std::size_t pos)
 
 
 /// Parse an unquoted array entry or cfield of a composite-type field.
-template<pqxx::internal::encoding_group ENC>
+template<encoding_group ENC>
 inline std::string_view
-parse_unquoted_string(char const input[], std::size_t end, std::size_t pos)
+parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
 {
   return {&input[pos], end - pos};
 }
@@ -179,13 +179,15 @@ parse_unquoted_string(char const input[], std::size_t end, std::size_t pos)
 template<encoding_group ENC, typename T>
 inline void parse_composite_field(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
-  std::size_t last_field)
+  std::size_t last_field, sl loc)
 {
   assert(index <= last_field);
-  auto next{glyph_scanner<ENC>::call(std::data(input), std::size(input), pos)};
+  auto next{
+    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc)};
   PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)
-    throw conversion_error{"Non-ASCII character in composite-type syntax."};
+    throw conversion_error{
+      "Non-ASCII character in composite-type syntax.", loc};
 
   // Expect a field.
   switch (input[pos])
@@ -198,16 +200,18 @@ inline void parse_composite_field(
       field = nullness<T>::null();
     else
       throw conversion_error{
-        "Can't read composite field " + to_string(index) + ": C++ type " +
-        type_name<T> + " does not support nulls."};
+        std::format(
+          "Can't read composite field {}: C++ type {} does not support nulls.",
+          to_string(index), name_type<T>()),
+        loc};
     break;
 
   case '"': {
-    auto const stop{
-      scan_double_quoted_string<ENC>(std::data(input), std::size(input), pos)};
+    auto const stop{scan_double_quoted_string<ENC>(
+      std::data(input), std::size(input), pos, loc)};
     PQXX_ASSUME(stop > pos);
     auto const text{
-      parse_double_quoted_string<ENC>(std::data(input), stop, pos)};
+      parse_double_quoted_string<ENC>(std::data(input), stop, pos, loc)};
     field = from_string<T>(text);
     pos = stop;
   }
@@ -215,7 +219,7 @@ inline void parse_composite_field(
 
   default: {
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
-      std::data(input), std::size(input), pos)};
+      std::data(input), std::size(input), pos, loc)};
     PQXX_ASSUME(stop >= pos);
     field =
       from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
@@ -225,36 +229,42 @@ inline void parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
-  next = glyph_scanner<ENC>::call(std::data(input), std::size(input), pos);
+  next =
+    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc);
   PQXX_ASSUME(next > pos);
 
   if ((next - pos) != 1)
     throw conversion_error{
       "Unexpected non-ASCII character after composite field: " +
-      std::string{input}};
+        std::string{input},
+      loc};
 
   if (index < last_field)
   {
     if (input[pos] != ',')
       throw conversion_error{
         "Found '" + std::string{input[pos]} +
-        "' in composite value where comma was expected: " + std::data(input)};
+          "' in composite value where comma was expected: " + std::data(input),
+        loc};
   }
   else
   {
     if (input[pos] == ',')
       throw conversion_error{
         "Composite value contained more fields than the expected " +
-        to_string(last_field) + ": " + std::data(input)};
+          to_string(last_field) + ": " + std::data(input),
+        loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
         "Composite value has unexpected characters where closing parenthesis "
         "was expected: " +
-        std::string{input}};
+          std::string{input},
+        loc};
     if (next != std::size(input))
       throw conversion_error{
         "Composite value has unexpected text after closing parenthesis: " +
-        std::string{input}};
+          std::string{input},
+        loc};
   }
 
   pos = next;
@@ -266,15 +276,21 @@ inline void parse_composite_field(
 template<typename T>
 using composite_field_parser = void (*)(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
-  std::size_t last_field);
+  std::size_t last_field, sl loc);
 
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
-composite_field_parser<T> specialize_parse_composite_field(encoding_group enc)
+composite_field_parser<T>
+specialize_parse_composite_field(encoding_group enc, sl loc)
 {
   switch (enc)
   {
+  case encoding_group::UNKNOWN:
+    throw usage_error{
+      "Tried to parse array/composite without knowing its text encoding.",
+      loc};
+
   case encoding_group::MONOBYTE:
     return parse_composite_field<encoding_group::MONOBYTE>;
   case encoding_group::BIG5:
@@ -300,7 +316,8 @@ composite_field_parser<T> specialize_parse_composite_field(encoding_group enc)
   case encoding_group::UTF8:
     return parse_composite_field<encoding_group::UTF8>;
   }
-  throw internal_error{concat("Unexpected encoding group code: ", enc, ".")};
+  throw internal_error{
+    std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
 }
 
 
@@ -327,13 +344,15 @@ inline std::size_t size_composite_field_buffer(T const &field)
 
 
 template<typename T>
-inline void write_composite_field(char *&pos, char *end, T const &field)
+inline void write_composite_field(
+  std::span<char> buf, std::size_t &pos, T const &field, sl loc)
 {
+  conversion_context const c{{}, loc};
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
     // place in the buffer, and "backspace" the trailing zero.
-    pos = string_traits<T>::into_buf(pos, end, field) - 1;
+    pos += into_buf(buf.subspan(pos), field, c) - 1;
   }
   else
   {
@@ -341,21 +360,27 @@ inline void write_composite_field(char *&pos, char *end, T const &field)
     // To avoid allocating that at run time, we use the end of the buffer that
     // we have.
     auto const budget{size_buffer(field)};
-    *pos++ = '"';
+    assert(budget < std::size(buf));
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const c : string_traits<T>::to_buf(end - budget, end, field))
+    for (char const x : to_buf(buf.subspan(std::size(buf) - budget), field, c))
     {
-      if ((c == '"') or (c == '\\'))
-        *pos++ = '\\';
+      if ((x == '"') or (x == '\\'))
+        // C++26: Use buf.at().
+        buf[pos++] = '\\';
 
-      *pos++ = c;
+      // C++26: Use buf.at().
+      buf[pos++] = x;
     }
 
-    *pos++ = '"';
+    // C++26: Use buf.at().
+    buf[pos++] = '"';
   }
 
-  *pos++ = ',';
+  // C++26: Use buf.at().
+  buf[pos++] = ',';
 }
 } // namespace pqxx::internal
 #endif

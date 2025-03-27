@@ -11,36 +11,21 @@ namespace test
 class test_failure : public std::logic_error
 {
 public:
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  test_failure(
-    std::string const &desc,
-    std::source_location loc = std::source_location::current());
-#else
-  test_failure(std::string const &ffile, int fline, std::string const &desc);
-#endif
+  test_failure(std::string const &desc, sl loc = sl::current());
 
   ~test_failure() noexcept override;
 
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
   constexpr char const *file() const noexcept { return m_loc.file_name(); }
   constexpr auto line() const noexcept { return m_loc.line(); }
-#else
-  std::string const &file() const noexcept { return m_file; }
-  int line() const noexcept { return m_line; }
-#endif
 
 private:
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  std::source_location m_loc;
-#else
-  std::string const m_file;
-  int m_line;
-#endif
+  sl m_loc;
 };
 
 
 /// Drop a table, if it exists.
-void drop_table(transaction_base &, std::string const &table);
+void drop_table(
+  transaction_base &, std::string const &table, sl loc = sl::current());
 
 
 using testfunc = void (*)();
@@ -68,63 +53,24 @@ struct registrar
 
 
 // Unconditional test failure.
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-#  define PQXX_CHECK_NOTREACHED(desc) pqxx::test::check_notreached((desc))
-#else
-#  define PQXX_CHECK_NOTREACHED(desc)                                         \
-    pqxx::test::check_notreached(__FILE__, __LINE__, (desc))
-#endif
 [[noreturn]] void check_notreached(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
-  std::string desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-);
+  std::string desc = "Execution was never supposed to reach this point.",
+  sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-#  define PQXX_CHECK(condition, desc)                                         \
-    pqxx::test::check((condition), #condition, (desc))
-#else
-#  define PQXX_CHECK(condition, desc)                                         \
-    pqxx::test::check(__FILE__, __LINE__, (condition), #condition, (desc))
-#endif
+#define PQXX_CHECK(condition, desc)                                           \
+  pqxx::test::check((condition), #condition, (desc))
 void check(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
-  bool condition, char const text[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-);
+  bool condition, char const text[], std::string const &desc,
+  sl loc = sl::current());
 
 // Verify that variable has the expected value.
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-#  define PQXX_CHECK_EQUAL(actual, expected, desc)                            \
-    pqxx::test::check_equal((actual), #actual, (expected), #expected, (desc))
-#else
-#  define PQXX_CHECK_EQUAL(actual, expected, desc)                            \
-    pqxx::test::check_equal(                                                  \
-      __FILE__, __LINE__, (actual), #actual, (expected), #expected, (desc))
-#endif
+#define PQXX_CHECK_EQUAL(actual, expected, desc)                              \
+  pqxx::test::check_equal((actual), #actual, (expected), #expected, (desc))
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
   ACTUAL const &actual, char const actual_text[], EXPECTED const &expected,
-  char const expected_text[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-)
+  char const expected_text[], std::string const &desc, sl loc = sl::current())
 {
   if (expected == actual)
     return;
@@ -136,34 +82,16 @@ inline void check_equal(
                                ", "
                                "expected=" +
                                to_string(expected) + ")";
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
-#else
-  throw test_failure(file, line, fulldesc);
-#endif
 }
 
 // Verify that two values are not equal.
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-#  define PQXX_CHECK_NOT_EQUAL(value1, value2, desc)                          \
-    pqxx::test::check_not_equal((value1), #value1, (value2), #value2, (desc))
-#else
-#  define PQXX_CHECK_NOT_EQUAL(value1, value2, desc)                          \
-    pqxx::test::check_not_equal(                                              \
-      __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
-#endif
+#define PQXX_CHECK_NOT_EQUAL(value1, value2, desc)                            \
+  pqxx::test::check_not_equal((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-)
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 != value2)
     return;
@@ -171,43 +99,20 @@ inline void check_not_equal(
                                ": "
                                "both are " +
                                to_string(value2) + ")";
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
-#else
-  throw test_failure{file, line, fulldesc};
-#endif
 }
 
 
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
 // Verify that value1 is less than value2.
-#  define PQXX_CHECK_LESS(value1, value2, desc)                               \
-    pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
+#define PQXX_CHECK_LESS(value1, value2, desc)                                 \
+  pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
 // Verify that value1 is greater than value2.
-#  define PQXX_CHECK_GREATER(value2, value1, desc)                            \
-    pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
-#else
-// Verify that value1 is less than value2.
-#  define PQXX_CHECK_LESS(value1, value2, desc)                               \
-    pqxx::test::check_less(                                                   \
-      __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
-// Verify that value1 is greater than value2.
-#  define PQXX_CHECK_GREATER(value2, value1, desc)                            \
-    pqxx::test::check_less(                                                   \
-      __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
-#endif
+#define PQXX_CHECK_GREATER(value2, value1, desc)                              \
+  pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-)
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 < value2)
     return;
@@ -218,61 +123,31 @@ inline void check_less(
                                ", "
                                "\"upper\"=" +
                                to_string(value2) + ")";
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
   throw test_failure{fulldesc, loc};
-#else
-  throw test_failure(file, line, fulldesc);
-#endif
 }
 
 
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
 // Verify that value1 is less than or equal to value2.
-#  define PQXX_CHECK_LESS_EQUAL(value1, value2, desc)                         \
-    pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
+#define PQXX_CHECK_LESS_EQUAL(value1, value2, desc)                           \
+  pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
 // Verify that value1 is greater than or equal to value2.
-#  define PQXX_CHECK_GREATER_EQUAL(value2, value1, desc)                      \
-    pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
-#else
-// Verify that value1 is less than or equal to value2.
-#  define PQXX_CHECK_LESS_EQUAL(value1, value2, desc)                         \
-    pqxx::test::check_less_equal(                                             \
-      __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
-// Verify that value1 is greater than or equal to value2.
-#  define PQXX_CHECK_GREATER_EQUAL(value2, value1, desc)                      \
-    pqxx::test::check_less_equal(                                             \
-      __FILE__, __LINE__, (value1), #value1, (value2), #value2, (desc))
-#endif
+#define PQXX_CHECK_GREATER_EQUAL(value2, value1, desc)                        \
+  pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-)
+  char const text2[], std::string const &desc, sl loc = sl::current())
 {
   if (value1 <= value2)
     return;
-  std::string const fulldesc = desc + " (" + text1 + " > " + text2 +
-                               ": "
-                               "\"lower\"=" +
-                               to_string(value1) +
-                               ", "
-                               "\"upper\"=" +
-                               to_string(value2) + ")";
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
+  std::string fulldesc{std::format(
+    "{} ({} > {}: \"lower\"={}, \"upper\"={})", desc, text1, text2, value1,
+    value2)};
   throw test_failure{fulldesc, loc};
-#else
-  throw test_failure(file, line, fulldesc);
-#endif
 }
 
 
+/// A special exception type not derived from `std::exception`.
 struct failure_to_fail
 {};
 
@@ -286,104 +161,106 @@ inline void end_of_statement() {}
 
 // Verify that "action" does not throw an exception.
 #define PQXX_CHECK_SUCCEEDS(action, desc)                                     \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-    }                                                                         \
-    catch (std::exception const &e)                                           \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " - \"" +                                         \
-        #action "\" threw exception: " + e.what());                           \
-    }                                                                         \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " - \"" + #action "\" threw a non-exception!");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_succeeds(([&]() { action; }), #action, (desc))
+
+template<std::invocable F>
+inline void check_succeeds(
+  F &&f, char const text[], std::string desc = "Expected this to succeed.",
+  sl loc = sl::current())
+{
+  try
+  {
+    f();
+  }
+  catch (std::exception const &e)
+  {
+    pqxx::test::check_notreached(
+      std::format("{} - \"{}\" threw exception: {}", desc, text, e.what()),
+      loc);
+  }
+  catch (...)
+  {
+    pqxx::test::check_notreached(
+      std::format("{} - \"{}\" threw a non-exception!", desc, text), loc);
+  }
+}
+
+
+template<typename EXC, std::invocable F>
+inline void check_throws(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow the expected exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      std::format("{} (\"{}\" did not throw).", desc, text), loc);
+  }
+  catch (EXC const &)
+  {}
+  catch (std::exception const &e)
+  {
+    check_notreached(std::format(
+      "{} (\"{}\" threw the wrong exception type: {}).", desc, text,
+      e.what()));
+  }
+  catch (...)
+  {
+    check_notreached(
+      std::format("{} (\"{}\" threw a non-exception type!)", desc, text), loc);
+  }
+}
+
+
+template<std::invocable F>
+inline void check_throws_exception(
+  F &&f, char const text[],
+  std::string desc = "This code did not thow a std::exception.",
+  pqxx::sl loc = sl::current())
+{
+  try
+  {
+    f();
+    throw failure_to_fail{};
+  }
+  catch (failure_to_fail const &)
+  {
+    check_notreached(
+      std::format("{} (\"{}\" did not throw)", desc, text), loc);
+  }
+  catch (std::exception const &)
+  {}
+  catch (...)
+  {
+    check_notreached(
+      std::format("{} (\"{}\" threw a non-exception type).", desc, text), loc);
+  }
+}
+
 
 // Verify that "action" throws an exception, of any std::exception-based type.
 #define PQXX_CHECK_THROWS_EXCEPTION(action, desc)                             \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" did not throw)");              \
-    }                                                                         \
-    catch (std::exception const &)                                            \
-    {}                                                                        \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws_exception(([&]() { action; }), #action, desc)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 #define PQXX_CHECK_THROWS(action, exception_type, desc)                       \
-  {                                                                           \
-    try                                                                       \
-    {                                                                         \
-      action;                                                                 \
-      throw pqxx::test::failure_to_fail();                                    \
-    }                                                                         \
-    catch (pqxx::test::failure_to_fail const &)                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action                                    \
-                            "\" did not throw " #exception_type ")");         \
-    }                                                                         \
-    catch (exception_type const &)                                            \
-    {}                                                                        \
-    catch (std::exception const &e)                                           \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} +                                                   \
-        " (\"" #action                                                        \
-        "\" "                                                                 \
-        "threw exception other than " #exception_type ": " +                  \
-        e.what() + ")");                                                      \
-    }                                                                         \
-    catch (...)                                                               \
-    {                                                                         \
-      PQXX_CHECK_NOTREACHED(                                                  \
-        std::string{desc} + " (\"" #action "\" threw non-exception type)");   \
-    }                                                                         \
-  }                                                                           \
-  pqxx::test::internal::end_of_statement()
+  pqxx::test::check_throws<exception_type>(([&] { action; }), #action, desc)
 
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-#  define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                        \
-    pqxx::test::check_bounds(                                                 \
-      (value), #value, (lower), #lower, (upper), #upper, (desc))
-#else
-#  define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                        \
-    pqxx::test::check_bounds(                                                 \
-      __FILE__, __LINE__, (value), #value, (lower), #lower, (upper), #upper,  \
-      (desc))
-#endif
+
+#define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                          \
+  pqxx::test::check_bounds(                                                   \
+    (value), #value, (lower), #lower, (upper), #upper, (desc))
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-  char const file[], int line,
-#endif
   VALUE const &value, char const text[], LOWER const &lower,
   char const lower_text[], UPPER const &upper, char const upper_text[],
-  std::string const &desc
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-  ,
-  std::source_location loc = std::source_location::current()
-#endif
-)
+  std::string const &desc, sl loc = sl::current())
 {
   std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =
@@ -391,38 +268,14 @@ inline void check_bounds(
                     upper_check = std::string{text} + " < " + upper_text;
 
   pqxx::test::check(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-    file, line,
-#endif
     lower < upper, range_check.c_str(),
-    desc + " (acceptable range is empty; value was " + text + ")"
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
-#endif
-  );
+    desc + " (acceptable range is empty; value was " + text + ")", loc);
   pqxx::test::check(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-    file, line,
-#endif
     not(value < lower), lower_check.c_str(),
-    desc + " (" + text + " is below lower bound " + lower_text + ")"
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
-#endif
-  );
+    desc + " (" + text + " is below lower bound " + lower_text + ")", loc);
   pqxx::test::check(
-#if !defined(PQXX_HAVE_SOURCE_LOCATION)
-    file, line,
-#endif
     value < upper, upper_check.c_str(),
-    desc + " (" + text + " is not below upper bound " + upper_text + ")"
-#if defined(PQXX_HAVE_SOURCE_LOCATION)
-    ,
-    loc
-#endif
-  );
+    desc + " (" + text + " is not below upper bound " + upper_text + ")", loc);
 }
 
 
@@ -443,19 +296,20 @@ void create_pqxxevents(transaction_base &);
 } // namespace test
 
 
-template<> inline std::string to_string(row const &value)
+template<> inline std::string to_string(row const &value, ctx)
 {
   return pqxx::test::list_row(value);
 }
 
 
-template<> inline std::string to_string(result const &value)
+template<> inline std::string to_string(result const &value, ctx)
 {
   return pqxx::test::list_result(value);
 }
 
 
-template<> inline std::string to_string(result::const_iterator const &value)
+template<>
+inline std::string to_string(result::const_iterator const &value, ctx)
 {
   return pqxx::test::list_result_iterator(value);
 }

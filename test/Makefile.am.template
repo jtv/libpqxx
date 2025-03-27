@@ -27,9 +27,6 @@ runner_SOURCES = \
 ###MAKTEMPLATE:FOREACH test/test*.cxx
   ###BASENAME###.cxx \
 ###MAKTEMPLATE:ENDFOREACH
-###MAKTEMPLATE:FOREACH test/unit/test_*.cxx
-  unit/###BASENAME###.cxx \
-###MAKTEMPLATE:ENDFOREACH
   runner.cxx
 
 runner_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
