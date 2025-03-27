@@ -81,7 +81,7 @@ public:
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
-  /// Return row number.  The first row is row 0, the second is row 1, etc.
+  /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
 
   /// What column number in its originating table did this column come from?
