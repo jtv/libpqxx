@@ -80,24 +80,24 @@ public:
   const_result_iterator operator++(int) &;
   const_result_iterator &operator++()
   {
-    ++m_row.m_index;
+    ++pqxx::internal::gate::row_ref_const_result_iterator{m_row}.index();
     return *this;
   }
   const_result_iterator operator--(int) &;
   const_result_iterator &operator--()
   {
-    --m_row.m_index;
+    --pqxx::internal::gate::row_ref_const_result_iterator(m_row).index();
     return *this;
   }
 
   const_result_iterator &operator+=(difference_type i)
   {
-    m_row.m_index += i;
+    pqxx::internal::gate::row_ref_const_result_iterator(m_row).index() += i;
     return *this;
   }
   const_result_iterator &operator-=(difference_type i)
   {
-    m_row.m_index -= i;
+    pqxx::internal::gate::row_ref_const_result_iterator(m_row).index() -= i;
     return *this;
   }
 
