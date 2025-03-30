@@ -100,7 +100,7 @@ pqxx::result::const_reverse_iterator pqxx::result::crend() const noexcept
 
 pqxx::result::const_iterator pqxx::result::begin() const noexcept
 {
-  return {this, 0};
+  return {*this, 0};
 }
 
 
@@ -604,7 +604,7 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 {
   const_result_iterator old{*this};
-  m_index++;
+  m_row.m_index++;
   return old;
 }
 
@@ -612,7 +612,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int) &
 {
   const_result_iterator old{*this};
-  m_index--;
+  m_row.m_index--;
   return old;
 }
 
