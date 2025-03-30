@@ -31,18 +31,8 @@ commits in `master`.  For example, to get version 7.1.1:
 Upgrade notes
 -------------
 
-**The 7.x versions require at least C++17.**  Make sure your compiler is up to
-date.  For libpqxx 8.x you will need at least C++20.
-
-Also, **7.0 makes some breaking changes in rarely used APIs:**
-
-* There is just a single `connection` class.  It connects immediately.
-* Custom `connection` classes are no longer supported.
-* It's no longer possible to reactivate a connection once it's been closed.
-* The API for defining string conversions has changed.
-
-If you're defining your own type conversions, **7.1 requires one additional
-field in your `nullness` traits.**
+**The 8.x versions require at least C++20.**  Make sure your compiler is up to
+date.
 
 
 Building libpqxx

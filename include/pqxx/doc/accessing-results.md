@@ -96,14 +96,17 @@ Sometimes you want more from a query result than just rows of data.  You may
 need to know right away how many rows of result data you received, or how many
 rows your `UPDATE` statement has affected, or the names of the columns, etc.
 
-For that, use the transaction's "exec" query execution functions.  Apart from a
-few exceptions, these return a `pqxx::result` object.  A `result` is a container
-of `pqxx::row` objects, so you can iterate them as normal, or index them like
-you would index an array.  Each `row` in turn is a container of `pqxx::field`,
-Each `field` holds a value, but doesn't know its type.  You specify the type
-when you read the value.
+For that, use the transaction's "exec" query execution functions.  These
+generally return a `pqxx::result` object.  A `result` is a container of
+`pqxx::row` objects, so you can iterate them as normal, or index them like you
+would index an array.  Each `row` in turn is a container of `pqxx::field`.
+Each `field` holds a value, but doesn't know what type of data it contains.
+Instead, _you_ specify the type, when you read the value.
 
-For example, your code might do:
+
+## Iterating rows and fields
+
+For example, your code might just read it as raw text using `c_str()`:
 
 ```cxx
     pqxx::result r = tx.exec("SELECT * FROM mytable");
@@ -113,6 +116,28 @@ For example, your code might do:
        std::cout << '\n';
     }
 ```
+
+
+## Data types
+
+Or you can ask for the field to convert itself to some other C++ type, using
+`as<my_type>()`:
+
+```cxx
+    pqxx::result r = tx.exec("SELECT number, number * 2 FROM data");
+    for (auto const &row: r)
+    {
+        for (auto const &field: row)
+	{
+	    int n = field.as<int>();
+	    double f = field.as<double>();
+	    std::cout << n << '\t << f << '\n';
+	}
+    }
+```
+
+
+## Indexing
 
 But results and rows also support other kinds of access.  Array-style
 indexing, for instance, such as `r[rownum]`:
@@ -162,7 +187,8 @@ But try not to do that if speed matters, because looking up the column by name
 takes time.  At least you'd want to look up the column index before your loop
 and then use numerical indexes inside the loop.
 
-For C++23 or better, there's also a two-dimensional array access operator:
+For C++23 or better, there's also a two-dimensional array access operator,
+which is actually a little faster than the classic indexing:
 
 ```cxx
     for (std::size_t rownum=0u; rownum < num_rows; ++rownum)
@@ -172,6 +198,9 @@ For C++23 or better, there's also a two-dimensional array access operator:
         std::cout << '\n';
     }
 ```
+
+
+## Going old-school
 
 And of course you can use classic "begin/end" loops:
 
@@ -183,6 +212,10 @@ And of course you can use classic "begin/end" loops:
       std::cout << '\n';
     }
 ```
+
+
+Fine print
+----------
 
 Result sets are immutable, so all iterators on results and rows are actually
 `const_iterator`s.  There are also `const_reverse_iterator` types, which
