@@ -61,7 +61,7 @@ struct registrar
 
 // Register a test function, so the runner will run it.
 #define PQXX_REGISTER_TEST(func)                                              \
-  pqxx::test::registrar tst_##func                                            \
+  [[maybe_unused]] pqxx::test::registrar tst_##func                           \
   {                                                                           \
     #func, func                                                               \
   }
