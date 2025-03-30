@@ -19,6 +19,7 @@
 
 #include "pqxx/except.hxx"
 #include "pqxx/field.hxx"
+#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
 #include "pqxx/result.hxx"
 
 
@@ -463,6 +464,8 @@ public:
   result const &home() const noexcept { return *m_result; }
 
 private:
+  friend class pqxx::internal::gate::row_ref_const_result_iterator;
+
   /// Throw @ref usage_error if row size is not `expected`.
   void check_size(size_type expected, sl loc) const
   {
