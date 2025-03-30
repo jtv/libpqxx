@@ -69,7 +69,7 @@ std::string list_result(result Obj)
 
 std::string list_result_iterator(result::const_iterator const &Obj)
 {
-  return "<iterator at " + to_string(Obj.rownumber()) + ">";
+  return "<iterator at " + to_string(Obj->row_number()) + ">";
 }
 
 
