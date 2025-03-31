@@ -27,8 +27,153 @@
 
 namespace pqxx
 {
+/// Lightweight reference to a field in a result set.
+/** This is like a @ref field, except the @ref result object must remain
+ * valid for the duration, and not move to another place in memory.
+ *
+ * A field represents one entry in a row.  It represents an actual value
+ * in the result set, and can be converted to various types.
+ */
+class PQXX_LIBEXPORT field_ref
+{
+public:
+  using size_type = field_size_type;
+
+  field_ref() noexcept = default;
+  field_ref(result const &res, result_size_type row_num, row_size_type col_num) noexcept : m_result(&res), m_row{row_num}, m_column{col_num} {}
+
+  result const &home() const noexcept { return *m_result; }
+  result_size_type row_number() const noexcept { return m_row; }
+
+  /**
+   * @name Column information
+   */
+  //@{
+  // XXX: Implement.
+  /// Column name.
+  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
+
+  // XXX: Implement.
+  /// Column type.
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
+
+  // XXX: Implement.
+  /// What table did this column come from?
+  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
+
+  // XXX: Implement.
+  /// Return column number.  The first column is 0, the second is 1, etc.
+  PQXX_PURE constexpr row_size_type column_number() const noexcept { return m_column; }
+
+  // XXX: Implement.
+  /// What column number in its originating table did this column come from?
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
+  //@}
+
+  /**
+   * @name Content access
+   *
+   * You can read a `field_ref` as any C++ type for which a conversion from
+   * PostgreSQL's text format is defined.  See @ref datatypes for how this
+   * works.  This mechanism is _weakly typed:_ the conversions do not care
+   * what SQL type a field had in the database, only that its actual contents
+   * convert to the target type without problems.  So for instance, you can
+   * read a `text` field as an `int`, so long as the string in the field spells
+   * out a valid `int` number.
+   *
+   * Many built-in types come with conversions predefined.  To find out how to
+   * add your own, see @ref datatypes.
+   */
+  //@{
+  /// Read as @ref zview, or an empty one if null.
+  /** A @ref zview is also a `std::string_view`.  It just adds the promise that
+   * there is a terminating zero right behind the string.
+   */
+  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  {
+    return zview{c_str(), size()};
+  }
+
+  /// Read as plain C string.
+  /** Since the field's data is stored internally in the form of a
+   * zero-terminated C string, this is the fastest way to read it.  Use the
+   * @ref is_null() and @ref as() functions to convert the string to other
+   * types such as `int`, or to C++ strings.
+   *
+   * @warning Binary data may contain null bytes, so do not use `c_str()` for
+   * those.  Instead, convert the value to a binary type using @ref as(), e.g.
+   * `f.as<pqxx::bytes>()`.
+   */
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
+
+  /// Is this field's value null?
+  [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
+
+  /// Return number of bytes taken up by the field's value.
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept;
+
+  /// Return value as object of given type, or `default value` if null.
+  /** Note that unless the function is instantiated with an explicit template
+   * argument, the Default value's type also determines the result type.
+   */
+  template<typename T> T as(T const &default_value, ctx c = {}) const
+  {
+    if (is_null())
+      return default_value;
+    else
+      return from_string<T>(this->view(), c);
+  }
+
+  /// Return value as object of given type, or throw exception if null.
+  /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
+   * an alternative to `get<int>()`; this is disabled for use with raw pointers
+   * (other than C-strings) because storage for the value can't safely be
+   * allocated here
+   */
+  template<typename T> T as(ctx c = {}) const
+  {
+    if (is_null())
+    {
+      if constexpr (not nullness<T>::has_null)
+        internal::throw_null_conversion(name_type<T>(), c.loc);
+      else
+        return nullness<T>::null();
+    }
+    else
+    {
+      return from_string<T>(this->view(), c);
+    }
+  }
+
+  /// Return value wrapped in some optional type (empty for nulls).
+  /** Use as `get<int>()` as before to obtain previous behavior, or specify
+   * container type with `get<int, std::optional>()`
+   */
+  template<typename T, template<typename> class O = std::optional>
+  constexpr O<T> get() const
+  {
+    return as<O<T>>();
+  }
+  //@}
+
+private:
+  result const *m_result = nullptr;
+
+  result_size_type m_row = -1;
+
+  /**
+   * You'd expect this to be unsigned, but due to the way reverse iterators
+   * are related to regular iterators, it must be allowed to underflow to -1.
+   */
+  row_size_type m_column = -1;
+};
+
+
 /// Reference to a field in a result set.
-/** A field represents one entry in a row.  It represents an actual value
+/** This is like @ref field_ref, except it's safe to destroy the @ref result
+ * object or move it to a different place in memory.
+ *
+ * A field represents one entry in a row.  It represents an actual value
  * in the result set, and can be converted to various types.
  */
 class PQXX_LIBEXPORT field

@@ -604,7 +604,7 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 {
   const_result_iterator old{*this};
-  m_row.m_index++;
+  pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(1);
   return old;
 }
 
@@ -612,7 +612,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int) &
 {
   const_result_iterator old{*this};
-  m_row.m_index--;
+  pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(-1);
   return old;
 }
 
