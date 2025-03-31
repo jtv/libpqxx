@@ -65,7 +65,6 @@ public:
   /// Dereference the iterator.
   [[nodiscard]] pointer operator->() const noexcept { return &m_row; }
 
-  // XXX: If has to return a reference, document modification hazard.
   /// Dereference the iterator.
   [[nodiscard]] reference operator*() const noexcept { return m_row; }
   //@}

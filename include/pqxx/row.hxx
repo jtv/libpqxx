@@ -36,244 +36,6 @@ class row_ref_const_result_iterator;
 
 namespace pqxx
 {
-/// Reference to one row in a result.
-/** A row represents one row (also called a row) in a query result set.
- * It also acts as a container mapping column numbers or names to field
- * values (see below):
- *
- * ```cxx
- *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
- * ```
- *
- * The row itself acts like a (non-modifyable) container, complete with its
- * own const_iterator and const_reverse_iterator.
- */
-class PQXX_LIBEXPORT row
-{
-public:
-  // TODO: Some of these types conflict: class is both iterator and container.
-  // TODO: Set iterator nested types using std::iterator_traits.
-  using size_type = row_size_type;
-  using difference_type = row_difference_type;
-  using const_iterator = const_row_iterator;
-  using iterator = const_iterator;
-  using reference = field;
-  using pointer = const_row_iterator;
-  using const_reverse_iterator = const_reverse_row_iterator;
-  using reverse_iterator = const_reverse_iterator;
-
-  row() noexcept = default;
-  row(row &&) noexcept = default;
-  row(row const &) noexcept = default;
-  row &operator=(row const &) noexcept = default;
-  row &operator=(row &&) noexcept = default;
-
-  /**
-   * @name Comparison
-   */
-  //@{
-  [[nodiscard]] PQXX_PURE bool operator==(row const &) const noexcept;
-  [[nodiscard]] bool operator!=(row const &rhs) const noexcept
-  {
-    return not operator==(rhs);
-  }
-  //@}
-
-  [[nodiscard]] const_iterator begin() const noexcept;
-  [[nodiscard]] const_iterator cbegin() const noexcept;
-  [[nodiscard]] const_iterator end() const noexcept;
-  [[nodiscard]] const_iterator cend() const noexcept;
-
-  /**
-   * @name Field access
-   */
-  //@{
-  [[nodiscard]] reference front() const noexcept;
-  [[nodiscard]] reference back() const noexcept;
-
-  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
-
-  [[nodiscard]] reference operator[](size_type) const noexcept;
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  [[nodiscard]] reference operator[](zview col_name) const;
-
-  /// Address a field by number, but check that the number is in range.
-  reference at(size_type, sl = sl::current()) const;
-
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  reference at(zview col_name, sl = sl::current()) const;
-
-  [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
-
-  /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] constexpr result::size_type rownumber() const noexcept
-  {
-    return m_index;
-  }
-
-  /**
-   * @name Column information
-   */
-  //@{
-  /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type
-  column_number(zview col_name, sl = sl::current()) const;
-
-  /// Return a column's type.
-  [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
-
-  /// Return a column's type.
-  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
-  {
-    return column_type(column_number(col_name, loc), loc);
-  }
-
-  /// What table did this column come from?
-  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
-
-  /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
-  {
-    return column_table(column_number(col_name, loc), loc);
-  }
-
-  /// What column number in its table did this result column come from?
-  /** A meaningful answer can be given only if the column in question comes
-   * directly from a column in a table.  If the column is computed in any
-   * other way, a logic_error will be thrown.
-   *
-   * @param col_num a zero-based column number in this result set
-   * @return a zero-based column number in originating table
-   */
-  [[nodiscard]] size_type table_column(size_type, sl = sl::current()) const;
-
-  /// What column number in its table did this result column come from?
-  [[nodiscard]] size_type
-  table_column(zview col_name, sl loc = sl::current()) const
-  {
-    return table_column(column_number(col_name, loc), loc);
-  }
-  //@}
-
-  [[nodiscard]] constexpr result::size_type num() const noexcept
-  {
-    return rownumber();
-  }
-
-  /// Extract entire row's values into a tuple.
-  /** Converts to the types of the tuple's respective fields.
-   *
-   * The types in the tuple must have conversions from PostgreSQL's text format
-   * defined; see @ref datatypes.
-   *
-   * @throw usage_error If the number of columns in the `row` does not match
-   * the number of fields in `t`.
-   */
-  template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
-  {
-    check_size(std::tuple_size_v<Tuple>, loc);
-    convert(t, loc);
-  }
-
-  /// Extract entire row's values into a tuple.
-  /** Converts to the types of the tuple's respective fields.
-   *
-   * The types must have conversions from PostgreSQL's text format defined;
-   * see @ref datatypes.
-   *
-   * @throw usage_error If the number of columns in the `row` does not match
-   * the number of fields in `t`.
-   */
-  template<typename... TYPE>
-  std::tuple<TYPE...> as(sl loc = sl::current()) const
-  {
-    check_size(sizeof...(TYPE), loc);
-    using seq = std::make_index_sequence<sizeof...(TYPE)>;
-    return get_tuple<std::tuple<TYPE...>>(seq{}, loc);
-  }
-
-  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
-
-protected:
-  friend class const_row_iterator;
-  friend class result;
-  row(result r, result_size_type index, size_type cols) noexcept;
-
-  /// Throw @ref usage_error if row size is not `expected`.
-  void check_size(size_type expected, sl loc) const
-  {
-    if (size() != expected)
-      throw usage_error{
-        std::format(
-          "Tried to extract {} field(s) from a row of {}.", expected, size()),
-        loc};
-  }
-
-  /// Convert to a given tuple of values, don't check sizes.
-  /** We need this for cases where we have a full tuple of field types, but
-   * not a parameter pack.
-   */
-  template<typename TUPLE> TUPLE as_tuple(sl loc) const
-  {
-    using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-    return get_tuple<TUPLE>(seq{}, loc);
-  }
-
-  template<typename... T> friend class pqxx::internal::result_iter;
-  /// Convert entire row to tuple fields, without checking row size.
-  template<typename Tuple> void convert(Tuple &t, sl loc) const
-  {
-    extract_fields(
-      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
-  }
-
-  friend class field;
-
-  /// Result set of which this is one row.
-  result m_result;
-
-  /// Row number.
-  /**
-   * You'd expect this to be unsigned, but due to the way reverse iterators
-   * are related to regular iterators, it must be allowed to underflow to -1.
-   */
-  result::size_type m_index = 0;
-
-  /// Number of columns in the row.
-  size_type m_end = 0;
-
-private:
-  template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
-  {
-    (extract_value<Tuple, indexes>(t, loc), ...);
-  }
-
-  template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &t, sl loc) const;
-
-  /// Convert row's values as a new tuple.
-  template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
-  {
-    return std::make_tuple(get_field<TUPLE, indexes>()...);
-  }
-
-  /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
-  {
-    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
-  }
-};
-
-
 class field_ref;
 
 
@@ -537,139 +299,245 @@ private:
 };
 
 
-// XXX: Document.
-class PQXX_LIBEXPORT field_ref
+/// Reference to one row in a result.
+/** This is like a @ref row_ref, except it's safe to destroy the @ref result
+ * object or move it to a different place in memory.  The price is performance.
+ *
+ * A row represents one row (also called a row) in a query result set.
+ * It also acts as a container mapping column numbers or names to field
+ * values (see below):
+ *
+ * ```cxx
+ *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
+ * ```
+ *
+ * The row itself acts like a (non-modifyable) container, complete with its
+ * own const_iterator and const_reverse_iterator.
+ */
+class PQXX_LIBEXPORT row
 {
 public:
-  using size_type = field_size_type;
+  // TODO: Some of these types conflict: class is both iterator and container.
+  // TODO: Set iterator nested types using std::iterator_traits.
+  using size_type = row_size_type;
+  using difference_type = row_difference_type;
+  using const_iterator = const_row_iterator;
+  using iterator = const_iterator;
+  using reference = field;
+  using pointer = const_row_iterator;
+  using const_reverse_iterator = const_reverse_row_iterator;
+  using reverse_iterator = const_reverse_iterator;
 
-  field_ref() noexcept = default;
-  field_ref(result const &res, result_size_type row_num, row_size_type col_num) noexcept : m_result(&res), m_row{row_num}, m_column{col_num} {}
+  row() noexcept = default;
+  row(row &&) noexcept = default;
+  row(row const &) noexcept = default;
+  row &operator=(row const &) noexcept = default;
+  row &operator=(row &&) noexcept = default;
 
-  result const &home() const noexcept { return *m_result; }
-  result_size_type row_number() const noexcept { return m_row; }
+  // XXX: Can probably rewrite a bunch of functions in terms of row_ref.
+  /**
+   * @name Comparison
+   */
+  //@{
+  [[nodiscard]] PQXX_PURE bool operator==(row const &) const noexcept;
+  [[nodiscard]] bool operator!=(row const &rhs) const noexcept
+  {
+    return not operator==(rhs);
+  }
+  //@}
+
+  [[nodiscard]] const_iterator begin() const noexcept;
+  [[nodiscard]] const_iterator cbegin() const noexcept;
+  [[nodiscard]] const_iterator end() const noexcept;
+  [[nodiscard]] const_iterator cend() const noexcept;
+
+  /**
+   * @name Field access
+   */
+  //@{
+  [[nodiscard]] reference front() const noexcept;
+  [[nodiscard]] reference back() const noexcept;
+
+  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
+
+  [[nodiscard]] reference operator[](size_type) const noexcept;
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
+  [[nodiscard]] reference operator[](zview col_name) const;
+
+  /// Address a field by number, but check that the number is in range.
+  reference at(size_type, sl = sl::current()) const;
+
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
+  reference at(zview col_name, sl = sl::current()) const;
+
+  [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
+
+  /// Row number, assuming this is a real row and not end()/rend().
+  [[nodiscard]] constexpr result::size_type rownumber() const noexcept
+  {
+    return m_index;
+  }
 
   /**
    * @name Column information
    */
   //@{
-  // XXX: Implement.
-  /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
+  /// Number of given column (throws exception if it doesn't exist).
+  [[nodiscard]] size_type
+  column_number(zview col_name, sl = sl::current()) const;
 
-  // XXX: Implement.
-  /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
+  /// Return a column's type.
+  [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
 
-  // XXX: Implement.
+  /// Return a column's type.
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
+  {
+    return column_type(column_number(col_name, loc), loc);
+  }
+
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
+  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
 
-  // XXX: Implement.
-  /// Return column number.  The first column is 0, the second is 1, etc.
-  PQXX_PURE constexpr row_size_type column_number() const noexcept { return m_column; }
-
-  // XXX: Implement.
-  /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
-  //@}
-
-  /**
-   * @name Content access
-   *
-   * You can read a `field_ref` as any C++ type for which a conversion from
-   * PostgreSQL's text format is defined.  See @ref datatypes for how this
-   * works.  This mechanism is _weakly typed:_ the conversions do not care
-   * what SQL type a field had in the database, only that its actual contents
-   * convert to the target type without problems.  So for instance, you can
-   * read a `text` field as an `int`, so long as the string in the field spells
-   * out a valid `int` number.
-   *
-   * Many built-in types come with conversions predefined.  To find out how to
-   * add your own, see @ref datatypes.
-   */
-  //@{
-  /// Read as @ref zview, or an empty one if null.
-  /** A @ref zview is also a `std::string_view`.  It just adds the promise that
-   * there is a terminating zero right behind the string.
-   */
-  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  /// What table did this column come from?
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
-    return zview{c_str(), size()};
+    return column_table(column_number(col_name, loc), loc);
   }
 
-  /// Read as plain C string.
-  /** Since the field's data is stored internally in the form of a
-   * zero-terminated C string, this is the fastest way to read it.  Use the
-   * @ref is_null() and @ref as() functions to convert the string to other
-   * types such as `int`, or to C++ strings.
+  /// What column number in its table did this result column come from?
+  /** A meaningful answer can be given only if the column in question comes
+   * directly from a column in a table.  If the column is computed in any
+   * other way, a logic_error will be thrown.
    *
-   * @warning Binary data may contain null bytes, so do not use `c_str()` for
-   * those.  Instead, convert the value to a binary type using @ref as(), e.g.
-   * `f.as<pqxx::bytes>()`.
+   * @param col_num a zero-based column number in this result set
+   * @return a zero-based column number in originating table
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
+  [[nodiscard]] size_type table_column(size_type, sl = sl::current()) const;
 
-  /// Is this field's value null?
-  [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
-
-  /// Return number of bytes taken up by the field's value.
-  [[nodiscard]] PQXX_PURE size_type size() const noexcept;
-
-  /// Return value as object of given type, or `default value` if null.
-  /** Note that unless the function is instantiated with an explicit template
-   * argument, the Default value's type also determines the result type.
-   */
-  template<typename T> T as(T const &default_value, ctx c = {}) const
+  /// What column number in its table did this result column come from?
+  [[nodiscard]] size_type
+  table_column(zview col_name, sl loc = sl::current()) const
   {
-    if (is_null())
-      return default_value;
-    else
-      return from_string<T>(this->view(), c);
-  }
-
-  /// Return value as object of given type, or throw exception if null.
-  /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
-   * an alternative to `get<int>()`; this is disabled for use with raw pointers
-   * (other than C-strings) because storage for the value can't safely be
-   * allocated here
-   */
-  template<typename T> T as(ctx c = {}) const
-  {
-    if (is_null())
-    {
-      if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(name_type<T>(), c.loc);
-      else
-        return nullness<T>::null();
-    }
-    else
-    {
-      return from_string<T>(this->view(), c);
-    }
-  }
-
-  /// Return value wrapped in some optional type (empty for nulls).
-  /** Use as `get<int>()` as before to obtain previous behavior, or specify
-   * container type with `get<int, std::optional>()`
-   */
-  template<typename T, template<typename> class O = std::optional>
-  constexpr O<T> get() const
-  {
-    return as<O<T>>();
+    return table_column(column_number(col_name, loc), loc);
   }
   //@}
 
-private:
-  result const *m_result = nullptr;
+  [[nodiscard]] constexpr result::size_type num() const noexcept
+  {
+    return rownumber();
+  }
 
-  result_size_type m_row = -1;
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   *
+   * The types in the tuple must have conversions from PostgreSQL's text format
+   * defined; see @ref datatypes.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `t`.
+   */
+  template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
+  {
+    check_size(std::tuple_size_v<Tuple>, loc);
+    convert(t, loc);
+  }
 
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   *
+   * The types must have conversions from PostgreSQL's text format defined;
+   * see @ref datatypes.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `t`.
+   */
+  template<typename... TYPE>
+  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  {
+    check_size(sizeof...(TYPE), loc);
+    using seq = std::make_index_sequence<sizeof...(TYPE)>;
+    return get_tuple<std::tuple<TYPE...>>(seq{}, loc);
+  }
+
+  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
+
+protected:
+  friend class const_row_iterator;
+  friend class result;
+  row(result r, result_size_type index, size_type cols) noexcept;
+
+  /// Throw @ref usage_error if row size is not `expected`.
+  void check_size(size_type expected, sl loc) const
+  {
+    if (size() != expected)
+      throw usage_error{
+        std::format(
+          "Tried to extract {} field(s) from a row of {}.", expected, size()),
+        loc};
+  }
+
+  /// Convert to a given tuple of values, don't check sizes.
+  /** We need this for cases where we have a full tuple of field types, but
+   * not a parameter pack.
+   */
+  template<typename TUPLE> TUPLE as_tuple(sl loc) const
+  {
+    using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
+    return get_tuple<TUPLE>(seq{}, loc);
+  }
+
+  template<typename... T> friend class pqxx::internal::result_iter;
+  /// Convert entire row to tuple fields, without checking row size.
+  template<typename Tuple> void convert(Tuple &t, sl loc) const
+  {
+    extract_fields(
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
+  }
+
+  friend class field;
+
+  /// Result set of which this is one row.
+  result m_result;
+
+  /// Row number.
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
-  row_size_type m_column = -1;
+  result::size_type m_index = 0;
+
+  /// Number of columns in the row.
+  size_type m_end = 0;
+
+private:
+  template<typename Tuple, std::size_t... indexes>
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
+  {
+    (extract_value<Tuple, indexes>(t, loc), ...);
+  }
+
+  template<typename Tuple, std::size_t index>
+  void extract_value(Tuple &t, sl loc) const;
+
+  /// Convert row's values as a new tuple.
+  template<typename TUPLE, std::size_t... indexes>
+  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  {
+    return std::make_tuple(get_field<TUPLE, indexes>()...);
+  }
+
+  /// Extract and convert a field.
+  template<typename TUPLE, std::size_t index> auto get_field() const
+  {
+    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
+  }
 };
 
 
