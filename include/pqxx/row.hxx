@@ -19,7 +19,6 @@
 
 #include "pqxx/except.hxx"
 #include "pqxx/field.hxx"
-#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
 #include "pqxx/result.hxx"
 
 
@@ -27,6 +26,12 @@ namespace pqxx::internal
 {
 template<typename... T> class result_iter;
 } // namespace pqxx::internal
+
+
+namespace pqxx::internal::gate
+{
+class row_ref_const_result_iterator;
+} // namespace pqxx::internal::gate
 
 
 namespace pqxx
@@ -465,6 +470,8 @@ public:
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
+  /// Move to another row (positive for forwards, negative for backwards).
+  void offset(difference_type d) noexcept { m_index += d; }
 
   /// Throw @ref usage_error if row size is not `expected`.
   void check_size(size_type expected, sl loc) const

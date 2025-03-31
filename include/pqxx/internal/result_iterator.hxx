@@ -13,6 +13,7 @@
 #ifndef PQXX_H_RESULT_ITERATOR
 #define PQXX_H_RESULT_ITERATOR
 
+#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
 #include "pqxx/row.hxx"
 
 
@@ -80,24 +81,24 @@ public:
   const_result_iterator operator++(int) &;
   const_result_iterator &operator++()
   {
-    ++pqxx::internal::gate::row_ref_const_result_iterator{m_row}.index();
+    pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(1);
     return *this;
   }
   const_result_iterator operator--(int) &;
   const_result_iterator &operator--()
   {
-    --pqxx::internal::gate::row_ref_const_result_iterator(m_row).index();
+    pqxx::internal::gate::row_ref_const_result_iterator(m_row).offset(-1);
     return *this;
   }
 
   const_result_iterator &operator+=(difference_type i)
   {
-    pqxx::internal::gate::row_ref_const_result_iterator(m_row).index() += i;
+    pqxx::internal::gate::row_ref_const_result_iterator(m_row).offset(i);
     return *this;
   }
   const_result_iterator &operator-=(difference_type i)
   {
-    pqxx::internal::gate::row_ref_const_result_iterator(m_row).index() -= i;
+    pqxx::internal::gate::row_ref_const_result_iterator(m_row).offset(-i);
     return *this;
   }
 
