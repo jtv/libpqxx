@@ -297,8 +297,14 @@ private:
     return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
   }
 };
+} // namespace pqxx
 
 
+#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
+
+
+namespace pqxx
+{
 /// Reference to one row in a result.
 /** This is like a @ref row_ref, except it's safe to destroy the @ref result
  * object or move it to a different place in memory.  The price is performance.
@@ -550,7 +556,7 @@ public:
   using pointer = field const *;
   using size_type = row_size_type;
   using difference_type = row_difference_type;
-  using reference = field;
+  using reference = field_ref;
 
   const_row_iterator() noexcept = default;
   const_row_iterator(row const &t, row_size_type c) noexcept :

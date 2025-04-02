@@ -13,7 +13,6 @@
 #ifndef PQXX_H_RESULT_ITERATOR
 #define PQXX_H_RESULT_ITERATOR
 
-#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
 #include "pqxx/row.hxx"
 
 
@@ -39,7 +38,6 @@ public:
   using iterator_category = std::bidirectional_iterator_tag;
   using value_type = row_ref const;
   using pointer = row_ref const *;
-  // XXX: Does this actually have to be a reference?
   using reference = row_ref;
   using size_type = result_size_type;
   using difference_type = result_difference_type;
