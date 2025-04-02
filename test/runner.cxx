@@ -51,7 +51,7 @@ std::string list_row(row_ref Obj)
 {
   return separated_list(
     ", ", std::begin(Obj), std::end(Obj),
-    [](pqxx::field_ref const &f) { return f.view(); });
+    [](pqxx::row_ref::iterator f) { return f->view(); });
 }
 
 
@@ -62,7 +62,7 @@ std::string list_result(result Obj)
   return "{" +
          separated_list(
            "}\n{", std::begin(Obj), std::end(Obj),
-           [](row_ref const &r) { return list_row(r); }) +
+           [](pqxx::result::iterator r) { return list_row(*r); }) +
          "}";
 }
 
