@@ -18,7 +18,6 @@ endif()
 # happens to contain autoconf-generated config headers, we should still prefer
 # the ones in the binary tree.
 macro(library_target_setup tgt)
-    get_target_property (PostgreSQL_INCLUDE_DIRS PostgreSQL::PostgreSQL INTERFACE_INCLUDE_DIRECTORIES)
     target_include_directories(${tgt}
     	PUBLIC
     		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
