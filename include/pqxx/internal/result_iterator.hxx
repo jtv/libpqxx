@@ -50,14 +50,16 @@ public:
   const_result_iterator(const_result_iterator &&) noexcept = default;
 
   /// Create an iterator on a @ref row_ref.
-  const_result_iterator(result const &r, result_size_type i) noexcept : m_row{r, i} {}
+  const_result_iterator(result const &r, result_size_type i) noexcept :
+          m_row{r, i}
+  {}
 
   reference operator[](difference_type d) const { return *(*this + d); }
 
   /**
    * @name Dereferencing operators
    *
-   * An iterator "points to" its current row.  
+   * An iterator "points to" its current row.
    */
   //@{
   /// Dereference the iterator.
@@ -72,8 +74,8 @@ public:
    * @name Manipulations
    */
   //@{
-  const_result_iterator &operator=(const_result_iterator const &) =default;
-  const_result_iterator &operator=(const_result_iterator &&) =default;
+  const_result_iterator &operator=(const_result_iterator const &) = default;
+  const_result_iterator &operator=(const_result_iterator &&) = default;
 
   const_result_iterator operator++(int) &;
   const_result_iterator &operator++()
@@ -112,11 +114,12 @@ public:
   //@{
   [[nodiscard]] bool operator==(const_result_iterator const &i) const
   {
-    return (&m_row.home() == &i.m_row.home()) and (m_row.row_number() == i.m_row.row_number());
+    return (&m_row.home() == &i.m_row.home()) and
+           (m_row.row_number() == i.m_row.row_number());
   }
   [[nodiscard]] bool operator!=(const_result_iterator const &i) const
   {
-    return not (*this == i);
+    return not(*this == i);
   }
   [[nodiscard]] bool operator<(const_result_iterator const &i) const
   {
@@ -313,7 +316,8 @@ public:
 inline const_result_iterator
 const_result_iterator::operator+(result::difference_type o) const
 {
-  return {m_row.home(), size_type(result::difference_type(m_row.row_number()) + o)};
+  return {
+    m_row.home(), size_type(result::difference_type(m_row.row_number()) + o)};
 }
 
 inline const_result_iterator
@@ -325,7 +329,9 @@ operator+(result::difference_type o, const_result_iterator const &i)
 inline const_result_iterator
 const_result_iterator::operator-(result::difference_type o) const
 {
-  return {m_row.home(), result_size_type(result::difference_type(m_row.row_number()) - o)};
+  return {
+    m_row.home(),
+    result_size_type(result::difference_type(m_row.row_number()) - o)};
 }
 
 inline result::difference_type
