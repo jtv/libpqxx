@@ -40,7 +40,11 @@ public:
   using size_type = field_size_type;
 
   field_ref() noexcept = default;
-  field_ref(result const &res, result_size_type row_num, row_size_type col_num) noexcept : m_result(&res), m_row{row_num}, m_column{col_num} {}
+  field_ref(
+    result const &res, result_size_type row_num,
+    row_size_type col_num) noexcept :
+          m_result(&res), m_row{row_num}, m_column{col_num}
+  {}
 
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
@@ -63,7 +67,10 @@ public:
 
   // XXX: Implement.
   /// Return column number.  The first column is 0, the second is 1, etc.
-  PQXX_PURE constexpr row_size_type column_number() const noexcept { return m_column; }
+  PQXX_PURE constexpr row_size_type column_number() const noexcept
+  {
+    return m_column;
+  }
 
   // XXX: Implement.
   /// What column number in its originating table did this column come from?
