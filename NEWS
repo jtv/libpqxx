@@ -1,3 +1,4 @@
+7.10.2
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.
