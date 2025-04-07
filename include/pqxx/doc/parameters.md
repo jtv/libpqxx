@@ -48,7 +48,7 @@ more bytes, which take time to transmit.
 Multiple parameters
 -------------------
 
-The `pqxx::params` class is quite fleixble.  It can contain any number of
+The `pqxx::params` class is quite flexible.  It can contain any number of
 parameter values, of many different types.
 
 You can pass them in while constructing the `params` object:
