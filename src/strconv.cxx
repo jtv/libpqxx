@@ -302,7 +302,7 @@ inline bool PQXX_COLD from_dumb_stringstream(
 
 // These are hard, and some popular compilers still lack std::from_chars.
 template<typename T>
-inline T PQXX_COLD from_string_awful_float(std::string_view text, ctx c)
+inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
@@ -466,7 +466,7 @@ char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return wrap_to_chars({begin, end}, value);
 #else
-  return generic_into_buf({begin, end}, value);
+  return begin + generic_into_buf({begin, end}, value);
 #endif
 }
 

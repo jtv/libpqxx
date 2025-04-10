@@ -545,6 +545,43 @@ inline constexpr char unescape_char(char escaped) noexcept
 }
 
 
+/// Helper for avoiding type trouble with `strerror_r()`/`strerror_s()`.
+/** Extracts the error string from a `strerror_s()` or a POSIX-style
+ * `streror_r()` outcome.
+ *
+ * The problem is with `strerror_r()`, really.  There's a GNU version which
+ * returns the error string as a `char *`; and there's a POSIX version which
+ * writes the error string into `buffer` and returns a status code.
+ *
+ * Not all compilers will let us handle that with a "if constexpr" on the
+ * return type.  In particular, clang 17 on a Mac complains.  it insists on
+ * even the non-applicable branch returning the right type.  So, instead of
+ * having an `if constexpr` with an `else`, we _overload_ functions for the two
+ * alternatives.
+ */
+[[maybe_unused]] inline char const *PQXX_COLD
+make_strerror_rs_result(int err_result, std::span<char> buffer)
+{
+  if (err_result == 0)
+    return std::data(buffer);
+  else
+    return "Unknown error; could not retrieve error string.";
+}
+
+
+/// Helper for avoiding type trouble with `strerror_r()`/`strerror_s()`.
+/** Extracts the error string from a GNU-style `strerror_r()` outcome.
+ *
+ * There's another overload for th `strerror_s()` and POSIX-style
+ * `strerror_r()` case.
+ */
+[[maybe_unused]] inline char const *PQXX_COLD
+make_strerror_rs_result(char const *err_result, std::span<char>)
+{
+  return err_result;
+}
+
+
 /// Get error string for a given @c errno value.
 [[nodiscard]] inline char const *PQXX_COLD
 error_string(int err_num, std::span<char> buffer)
@@ -560,24 +597,7 @@ error_string(int err_num, std::span<char> buffer)
   auto const err_result{
     strerror_r(err_num, std::data(buffer), std::size(buffer))};
 #  endif
-  if constexpr (std::is_same_v<
-                  std::remove_cvref_t<decltype(err_result)>, char *>)
-  {
-    // GNU version of strerror_r; returns the error string, which may or may
-    // not reside within buffer.
-    return err_result;
-  }
-  else
-  {
-    // Either strerror_s or POSIX strerror_r; returns an error code.
-    // Sorry for being lazy here: Not reporting error string for the case
-    // where we can't retrieve an error string.
-    if (err_result)
-      return "Compound errors.";
-    else
-      return std::data(buffer);
-  }
-
+  return make_strerror_rs_result(err_result, buffer);
 #else
   // Fallback case, hopefully for no actual platforms out there.
   pqxx::ignore_unused(err_num, buffer);
