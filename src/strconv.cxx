@@ -466,7 +466,7 @@ char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   return wrap_to_chars({begin, end}, value);
 #else
-  return generic_into_buf({begin, end}, value);
+  return begin + generic_into_buf({begin, end}, value);
 #endif
 }
 
