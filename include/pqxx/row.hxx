@@ -582,7 +582,10 @@ public:
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept { return &m_field; }
+  [[nodiscard]] constexpr pointer operator->() const noexcept
+  {
+    return &m_field;
+  }
   [[nodiscard]] reference operator*() const noexcept { return m_field; }
   //@}
 
@@ -669,7 +672,8 @@ public:
   [[nodiscard]] inline difference_type
   operator-(const_row_iterator const &) const noexcept;
 
-  [[nodiscard]] inline field_ref operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref
+  operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
@@ -766,7 +770,8 @@ public:
   {
     return rhs.const_row_iterator::operator-(*this);
   }
-  [[nodiscard]] inline field_ref operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref
+  operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
@@ -814,8 +819,10 @@ public:
 const_row_iterator
 const_row_iterator::operator+(difference_type o) const noexcept
 {
-  return {{m_field.home(), m_field.row_number()},
-  static_cast<row_size_type>(static_cast<difference_type>(m_field.column_number()) + o)};
+  return {
+    {m_field.home(), m_field.row_number()},
+    static_cast<row_size_type>(
+      static_cast<difference_type>(m_field.column_number()) + o)};
 }
 
 inline const_row_iterator operator+(
@@ -827,8 +834,10 @@ inline const_row_iterator operator+(
 inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const noexcept
 {
-  return {{m_field.home(), m_field.row_number()},
-  static_cast<row_size_type>(static_cast<difference_type>(m_field.column_number()) - o)};
+  return {
+    {m_field.home(), m_field.row_number()},
+    static_cast<row_size_type>(
+      static_cast<difference_type>(m_field.column_number()) - o)};
 }
 
 inline const_row_iterator::difference_type

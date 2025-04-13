@@ -70,7 +70,8 @@ void test_075()
   PQXX_CHECK(ri3 >= ri2, "operator<=() breaks on equal reverse_iterators.");
 
   PQXX_CHECK_EQUAL(
-    ri3.base()->front().view(), R.back()[0].view(), "reverse_iterator does not arrive at back().");
+    ri3.base()->front().view(), R.back()[0].view(),
+    "reverse_iterator does not arrive at back().");
 
   PQXX_CHECK_EQUAL(
     ri1->at(0).as<std::string>(), (*ri1).at(0).as<std::string>(),

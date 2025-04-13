@@ -57,8 +57,15 @@ public:
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
 
-  bool operator==(field_ref const &rhs) const noexcept { return (home() == rhs.home()) and (row_number() == rhs.row_number()) and (column_number() == rhs.column_number()); }
-  bool operator!=(field_ref const &rhs) const noexcept { return not operator==(rhs); }
+  bool operator==(field_ref const &rhs) const noexcept
+  {
+    return (home() == rhs.home()) and (row_number() == rhs.row_number()) and
+           (column_number() == rhs.column_number());
+  }
+  bool operator!=(field_ref const &rhs) const noexcept
+  {
+    return not operator==(rhs);
+  }
 
   /**
    * @name Column information

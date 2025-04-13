@@ -33,7 +33,8 @@ void test_016()
   std::string const nullstr;
   for (pqxx::row::size_type i{0}; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
-      (*c)[i].as(nullstr), R.back()[i].as(nullstr), "Value mismatch in back().");
+      (*c)[i].as(nullstr), R.back()[i].as(nullstr),
+      "Value mismatch in back().");
 }
 
 

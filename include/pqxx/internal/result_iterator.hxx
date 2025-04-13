@@ -55,7 +55,9 @@ public:
   {}
 
   /// Create an iterator pointing at a row.
-  const_result_iterator(row_ref const &r) noexcept : m_row{r.home(), r.row_number()} {}
+  const_result_iterator(row_ref const &r) noexcept :
+          m_row{r.home(), r.row_number()}
+  {}
 
   reference operator[](difference_type d) const { return *(*this + d); }
 
