@@ -32,27 +32,27 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 {}
 
 
-pqxx::row::const_iterator pqxx::row::begin() const noexcept
+pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 {
-  return {*this, 0};
+  return {{m_result, rownumber()}, 0};
 }
 
 
-pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
+pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
   return begin();
 }
 
 
-pqxx::row::const_iterator pqxx::row::end() const noexcept
+pqxx::row::const_iterator pqxx::row::cend() const noexcept
 {
-  return {*this, m_end};
+  return {{m_result, rownumber()}, m_end};
 }
 
 
-pqxx::row::const_iterator pqxx::row::cend() const noexcept
+pqxx::row::const_iterator pqxx::row::end() const noexcept
 {
-  return end();
+  return cend();
 }
 
 
@@ -173,7 +173,7 @@ pqxx::row::size_type pqxx::row::column_number(zview col_name, sl loc) const
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
   auto old{*this};
-  m_col++;
+  pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(1);
   return old;
 }
 
@@ -181,7 +181,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int) & noexcept
 {
   auto old{*this};
-  m_col--;
+  pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-1);
   return old;
 }
 

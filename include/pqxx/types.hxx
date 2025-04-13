@@ -144,30 +144,6 @@ using bytes_view = std::span<std::byte const>;
 using writable_bytes_view = std::span<std::byte>;
 
 
-/// Concept: Binary string, akin to @c std::string for binary data.
-/** Any type that satisfies this concept can represent an SQL BYTEA value.
- *
- * A @c binary has a @c begin(), @c end(), @c size(), and @data().  Each byte
- * is a @c std::byte, and they must all be laid out contiguously in memory so
- * we can reference them by a pointer.
- */
-template<typename T>
-concept binary =
-  std::ranges::contiguous_range<T> and
-  std::same_as<
-    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte>;
-
-
-/// A series of something that's not bytes.
-template<typename T>
-concept nonbinary_range =
-  std::ranges::range<T> and
-  not std::same_as<
-    std::remove_cvref_t<std::ranges::range_reference_t<T>>, std::byte> and
-  not std::same_as<
-    std::remove_cvref_t<std::ranges::range_reference_t<T>>, char>;
-
-
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
  */

@@ -119,9 +119,6 @@ Specialise `name_type()`
 (This is a feature that should disappear once we have introspection in the C++
 language.)
 
-(This is a feature that should disappear once we have introspection in the C++
-language.)
-
 When errors happen during conversion, libpqxx will compose error messages for
 the user.  Sometimes these will include the name of the type that's being
 converted.

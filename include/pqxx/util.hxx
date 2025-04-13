@@ -443,19 +443,6 @@ inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 }
 
 
-/// Hex-escape binary data into a buffer.
-/** The buffer must be able to accommodate
- * `size_esc_bin(std::size(binary_data))` bytes, and the function will write
- * exactly that number of bytes into the buffer.  This includes a trailing
- * zero.
- */
-template<binary T>
-inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
-{
-  esc_bin(binary_cast(binary_data), buffer);
-}
-
-
 /// Hex-escape binary data into a std::string.
 std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
 

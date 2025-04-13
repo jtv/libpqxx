@@ -36,7 +36,7 @@ void test_011()
       PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
 
     // Test result::iterator::swap()
-    pqxx::result::const_iterator const T1(R[0]), T2(R[1]);
+    pqxx::result::const_iterator const T1(R.begin() + 0), T2(R.begin() + 1);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
     pqxx::result::const_iterator T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1, "Result iterator copy-construction is wrong.");

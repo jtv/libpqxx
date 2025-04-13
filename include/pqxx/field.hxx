@@ -25,6 +25,12 @@
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
 
+namespace pqxx::internal::gate
+{
+class field_ref_const_row_iterator;
+} // namespace pqxx::internal::gate
+
+
 namespace pqxx
 {
 /// Lightweight reference to a field in a result set.
@@ -37,9 +43,11 @@ namespace pqxx
 class PQXX_LIBEXPORT field_ref
 {
 public:
+  /// A type for holding the number of bytes in a field.
   using size_type = field_size_type;
 
   field_ref() noexcept = default;
+  field_ref(field_ref const &) = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
@@ -48,6 +56,9 @@ public:
 
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
+
+  bool operator==(field_ref const &rhs) const noexcept { return (home() == rhs.home()) and (row_number() == rhs.row_number()) and (column_number() == rhs.column_number()); }
+  bool operator!=(field_ref const &rhs) const noexcept { return not operator==(rhs); }
 
   /**
    * @name Column information
@@ -164,18 +175,32 @@ public:
   //@}
 
 private:
+  friend class pqxx::internal::gate::field_ref_const_row_iterator;
+
+  /// Jump n columns ahead (negative to jump back).
+  void offset(row_difference_type n) { m_column += n; }
+
+  /// The result in which we're iterating.  Must remain valid.
   result const *m_result = nullptr;
 
+  /// Row's number inside the result.
   result_size_type m_row = -1;
 
+  /// Field's column number inside the result.
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
   row_size_type m_column = -1;
 };
+} // namespace pqxx
 
 
+#include "pqxx/internal/gates/field_ref-const_row_iterator.hxx"
+
+
+namespace pqxx
+{
 /// Reference to a field in a result set.
 /** This is like @ref field_ref, except it's safe to destroy the @ref result
  * object or move it to a different place in memory.

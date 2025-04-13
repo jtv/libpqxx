@@ -49,10 +49,13 @@ public:
   /// Move an iterator.
   const_result_iterator(const_result_iterator &&) noexcept = default;
 
-  /// Create an iterator on a @ref row_ref.
+  /// Create an iterator pointing at a row.
   const_result_iterator(result const &r, result_size_type i) noexcept :
           m_row{r, i}
   {}
+
+  /// Create an iterator pointing at a row.
+  const_result_iterator(row_ref const &r) noexcept : m_row{r.home(), r.row_number()} {}
 
   reference operator[](difference_type d) const { return *(*this + d); }
 

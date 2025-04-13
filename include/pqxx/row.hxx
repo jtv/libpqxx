@@ -86,11 +86,9 @@ public:
 
   // XXX: Implement.
   [[nodiscard]] const_iterator cbegin() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_iterator begin() const noexcept;
   // XXX: Implement.
   [[nodiscard]] const_iterator end() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_iterator cend() const noexcept;
 
   /**
@@ -276,16 +274,6 @@ private:
       t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
-  /// Result set of which this is one row.
-  result const *m_result = nullptr;
-
-  /// Row number.
-  /**
-   * You'd expect this to be unsigned, but due to the way reverse iterators
-   * are related to regular iterators, it must be allowed to underflow to -1.
-   */
-  result::size_type m_index = -1;
-
   template<typename Tuple, std::size_t... indexes>
   void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
   {
@@ -307,6 +295,16 @@ private:
   {
     return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
   }
+
+  /// Result set of which this is one row.
+  result const *m_result = nullptr;
+
+  /// Row number.
+  /**
+   * You'd expect this to be unsigned, but due to the way reverse iterators
+   * are related to regular iterators, it must be allowed to underflow to -1.
+   */
+  result::size_type m_index = -1;
 };
 } // namespace pqxx
 
@@ -559,30 +557,33 @@ private:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-class PQXX_LIBEXPORT const_row_iterator : public field
+class PQXX_LIBEXPORT const_row_iterator
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
-  using value_type = field const;
-  using pointer = field const *;
+  using value_type = field_ref const;
+  using pointer = field_ref const *;
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using reference = field_ref;
 
   const_row_iterator() noexcept = default;
-  const_row_iterator(row const &t, row_size_type c) noexcept :
-          field{t.m_result, t.m_index, c}
+  const_row_iterator(row_ref const &t, row_size_type c) noexcept :
+          m_field{t.home(), t.row_number(), c}
   {}
-  const_row_iterator(field const &F) noexcept : field{F} {}
+  const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
+
+  /// Current column number, if the iterator is pointing at a valid field.
+  size_type col() const noexcept { return m_field.column_number(); }
 
   /**
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
-  [[nodiscard]] reference operator*() const noexcept { return {*this}; }
+  [[nodiscard]] constexpr pointer operator->() const noexcept { return &m_field; }
+  [[nodiscard]] reference operator*() const noexcept { return m_field; }
   //@}
 
   /**
@@ -595,24 +596,24 @@ public:
   const_row_iterator operator++(int) & noexcept;
   const_row_iterator &operator++() noexcept
   {
-    ++m_col;
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(1);
     return *this;
   }
   const_row_iterator operator--(int) & noexcept;
   const_row_iterator &operator--() noexcept
   {
-    --m_col;
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-1);
     return *this;
   }
 
-  const_row_iterator &operator+=(difference_type i) noexcept
+  const_row_iterator &operator+=(difference_type n) noexcept
   {
-    m_col = size_type(difference_type(m_col) + i);
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(n);
     return *this;
   }
-  const_row_iterator &operator-=(difference_type i) noexcept
+  const_row_iterator &operator-=(difference_type n) noexcept
   {
-    m_col = size_type(difference_type(m_col) - i);
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-n);
     return *this;
   }
   //@}
@@ -668,11 +669,14 @@ public:
   [[nodiscard]] inline difference_type
   operator-(const_row_iterator const &) const noexcept;
 
-  [[nodiscard]] inline field operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
   //@}
+
+private:
+  field_ref m_field;
 };
 
 
@@ -762,7 +766,7 @@ public:
   {
     return rhs.const_row_iterator::operator-(*this);
   }
-  [[nodiscard]] inline field operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
@@ -810,10 +814,8 @@ public:
 const_row_iterator
 const_row_iterator::operator+(difference_type o) const noexcept
 {
-  // TODO:: More direct route to home().columns()?
-  return {
-    row{home(), idx(), home().columns()},
-    size_type(difference_type(col()) + o)};
+  return {{m_field.home(), m_field.row_number()},
+  static_cast<row_size_type>(static_cast<difference_type>(m_field.column_number()) + o)};
 }
 
 inline const_row_iterator operator+(
@@ -825,16 +827,14 @@ inline const_row_iterator operator+(
 inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const noexcept
 {
-  // TODO:: More direct route to home().columns()?
-  return {
-    row{home(), idx(), home().columns()},
-    size_type(difference_type(col()) - o)};
+  return {{m_field.home(), m_field.row_number()},
+  static_cast<row_size_type>(static_cast<difference_type>(m_field.column_number()) - o)};
 }
 
 inline const_row_iterator::difference_type
 const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 {
-  return difference_type(num() - i.num());
+  return difference_type(m_field.column_number() - i.m_field.column_number());
 }
 
 

@@ -81,12 +81,6 @@ void test_007()
     {
       int Y{0};
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-      // Read year, and if it is non-null, note its converted value
-      if (r[0] >> Y)
-        conversions[Y] = To4Digits(Y);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-
       // See if type identifiers are consistent
       oid const tctype{r.column_type(0)};
 

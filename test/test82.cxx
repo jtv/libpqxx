@@ -38,7 +38,7 @@ void test_082()
       pqxx::row::difference_type(std::size(r)) + std::begin(r) == std::end(r),
       "Row iterator addition is not commutative.");
     PQXX_CHECK_EQUAL(
-      std::begin(r)->num(), 0, "Wrong column number at begin().");
+      std::begin(r)->column_number(), 0, "Wrong column number at begin().");
 
     pqxx::row::const_iterator f3(r[std::size(r)]);
 
@@ -72,7 +72,7 @@ void test_082()
 
     for (auto fr = std::rbegin(r); fr != std::rend(r); ++fr, --f3)
       PQXX_CHECK_EQUAL(
-        *fr, *f3,
+        fr->as<std::string>(), f3->as<std::string>(),
         "Reverse traversal is not consistent with forward traversal.");
   }
 
@@ -119,8 +119,8 @@ void test_082()
     ri3 >= ri2, "reverse_iterator operator>=() breaks on equal iterators.");
   PQXX_CHECK(
     ri3 >= ri2, "reverse_iterator operator<=() breaks on equal iterators.");
-  PQXX_CHECK(
-    *ri3.base() == R.front().back(),
+  PQXX_CHECK_EQUAL(
+    ri3.base()->as<std::string>(), R.front().back().as<std::string>(),
     "reverse_iterator does not arrive at back().");
   PQXX_CHECK(
     ri1->c_str()[0] == (*ri1).c_str()[0],
