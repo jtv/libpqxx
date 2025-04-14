@@ -1,5 +1,6 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
