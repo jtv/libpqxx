@@ -47,8 +47,8 @@ void test_result_iterator_swap()
 
   auto head{std::begin(r)}, next{head + 1};
   head.swap(next);
-  PQXX_CHECK_EQUAL(head[0].as<int>(), 2, "Result iterator swap is wrong.");
-  PQXX_CHECK_EQUAL(next[0].as<int>(), 1, "Result iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*head)[0].as<int>(), 2, "Result iterator swap is wrong.");
+  PQXX_CHECK_EQUAL((*next)[0].as<int>(), 1, "Result iterator swap is crazy.");
 
   auto tail{std::rbegin(r)}, prev{tail + 1};
   tail.swap(prev);

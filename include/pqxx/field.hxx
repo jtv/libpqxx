@@ -40,7 +40,7 @@ namespace pqxx
  * A field represents one entry in a row.  It represents an actual value
  * in the result set, and can be converted to various types.
  */
-class PQXX_LIBEXPORT field_ref
+class PQXX_LIBEXPORT field_ref final
 {
 public:
   /// A type for holding the number of bytes in a field.

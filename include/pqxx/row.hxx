@@ -31,6 +31,7 @@ template<typename... T> class result_iter;
 namespace pqxx::internal::gate
 {
 class row_ref_const_result_iterator;
+class row_ref_result;
 } // namespace pqxx::internal::gate
 
 
@@ -45,7 +46,7 @@ class field_ref;
  * it refers to remain valid and in the same place in memory throughout its
  * lifetime.  If you use this class, it is your responsibility to ensure that.
  */
-class PQXX_LIBEXPORT row_ref
+class PQXX_LIBEXPORT row_ref final
 {
 public:
   // TODO: Some of these types conflict: class is both iterator and container.
@@ -241,6 +242,7 @@ public:
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
+  friend class pqxx::internal::gate::row_ref_result;
   /// Move to another row (positive for forwards, negative for backwards).
   void offset(difference_type d) noexcept { m_index += d; }
 
@@ -484,7 +486,6 @@ public:
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
 protected:
-  friend class const_row_iterator;
   friend class result;
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -498,15 +499,18 @@ protected:
         loc};
   }
 
+// XXX: Don't think we need this now...
   /// Convert to a given tuple of values, don't check sizes.
   /** We need this for cases where we have a full tuple of field types, but
    * not a parameter pack.
    */
+/*
   template<typename TUPLE> TUPLE as_tuple(sl loc) const
   {
     using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
     return get_tuple<TUPLE>(seq{}, loc);
   }
+*/
 
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
@@ -685,7 +689,7 @@ private:
 
 
 /// Reverse iterator for a row.  Use as row::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
+class PQXX_LIBEXPORT const_reverse_row_iterator final : private const_row_iterator
 {
 public:
   using super = const_row_iterator;
