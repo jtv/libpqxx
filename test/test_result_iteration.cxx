@@ -52,8 +52,8 @@ void test_result_iterator_swap()
 
   auto tail{std::rbegin(r)}, prev{tail + 1};
   tail.swap(prev);
-  PQXX_CHECK_EQUAL(tail[0].as<int>(), 2, "Reverse iterator swap is wrong.");
-  PQXX_CHECK_EQUAL(prev[0].as<int>(), 3, "Reverse iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*tail)[0].as<int>(), 2, "Reverse iterator swap is wrong.");
+  PQXX_CHECK_EQUAL((*prev)[0].as<int>(), 3, "Reverse iterator swap is crazy.");
 }
 
 
@@ -68,12 +68,12 @@ void test_result_iterator_assignment()
 
   fwd = std::begin(r);
   PQXX_CHECK_EQUAL(
-    fwd[0].as<int>(), std::begin(r)[0].as<int>(),
+    (*fwd)[0].as<int>(), (*std::begin(r))[0].as<int>(),
     "Result iterator assignment is wrong.");
 
   rev = std::rbegin(r);
   PQXX_CHECK_EQUAL(
-    rev[0].as<int>(), std::rbegin(r)[0].as<int>(),
+    (*rev)[0].as<int>(), (*std::rbegin(r))[0].as<int>(),
     "Reverse iterator assignment is wrong.");
 }
 
