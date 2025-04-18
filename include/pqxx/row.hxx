@@ -64,7 +64,7 @@ public:
   row_ref() = default;
   row_ref(row_ref const &) = default;
   row_ref(row_ref &&) = default;
-  row_ref(result const &res, result::size_type index) :
+  row_ref(result const &res, result_size_type index) :
           m_result{&res}, m_index{index}
   {}
 
@@ -397,7 +397,14 @@ public:
   [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] constexpr result::size_type rownumber() const noexcept
+  [[nodiscard, deprecated("Use row_number().")]] constexpr result::size_type
+  rownumber() const noexcept
+  {
+    return m_index;
+  }
+
+  /// Row number, assuming this is a real row and not end()/rend().
+  [[nodiscard]] constexpr result::size_type row_number() const noexcept
   {
     return m_index;
   }
@@ -448,7 +455,7 @@ public:
 
   [[nodiscard]] constexpr result::size_type num() const noexcept
   {
-    return rownumber();
+    return row_number();
   }
 
   /// Extract entire row's values into a tuple.
@@ -486,6 +493,13 @@ public:
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
 protected:
+  /// Return @ref row_ref for this row.
+  /** @warning The @ref row_ref holds a reference to the @ref result object
+   * _inside this `row` object._  So if you change that, the @ref row_ref
+   * becomes invalid.
+   */
+  row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
+
   friend class result;
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -859,5 +873,48 @@ inline void row::extract_value(Tuple &t, sl) const
   field const f{m_result, m_index, index};
   std::get<index>(t) = from_string<field_type>(f);
 }
+
+
+inline row_ref::const_iterator row_ref::cbegin() const noexcept
+{
+  return {{home(), row_number()}, 0};
+}
+
+inline row_ref::const_iterator row_ref::begin() const noexcept
+{
+  return cbegin();
+}
+
+inline row_ref::const_iterator row_ref::cend() const noexcept
+{
+  return {{home(), row_number()}, home().columns()};
+}
+
+inline row_ref::const_iterator row_ref::end() const noexcept
+{
+  return cend();
+}
+
+
+inline row::const_iterator row::cbegin() const noexcept
+{
+  return as_row_ref().cbegin();
+}
+
+inline row::const_iterator row::begin() const noexcept
+{
+  return cbegin();
+}
+
+inline row::const_iterator row::cend() const noexcept
+{
+  return {{m_result, row_number()}, m_end};
+}
+
+inline row::const_iterator row::end() const noexcept
+{
+  return cend();
+}
+
 } // namespace pqxx
 #endif

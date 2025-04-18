@@ -490,7 +490,7 @@ protected:
   field() noexcept = default;
 
   /// Retun @ref field_ref for this field.
-  /** Be careful: the @ref field_ref holds a reference to the @ref result
+  /** @warning The @ref field_ref holds a reference to the @ref result
    * object _inside this `field` object._  So if you change that, the
    * @ref field_ref becomes invalid.
    */

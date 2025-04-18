@@ -32,30 +32,6 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 {}
 
 
-pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
-{
-  return {{m_result, rownumber()}, 0};
-}
-
-
-pqxx::row::const_iterator pqxx::row::begin() const noexcept
-{
-  return cbegin();
-}
-
-
-pqxx::row::const_iterator pqxx::row::cend() const noexcept
-{
-  return {{m_result, rownumber()}, m_end};
-}
-
-
-pqxx::row::const_iterator pqxx::row::end() const noexcept
-{
-  return cend();
-}
-
-
 pqxx::row::reference pqxx::row::front() const noexcept
 {
   return field{m_result, m_index, 0};

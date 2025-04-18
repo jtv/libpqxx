@@ -30,10 +30,10 @@ void test_011()
   // If there are rows in R, compare their metadata to R's.
   if (not std::empty(R))
   {
-    PQXX_CHECK_EQUAL(R[0].rownumber(), 0, "Row 0 has wrong number.");
+    PQXX_CHECK_EQUAL(R[0].row_number(), 0, "Row 0 has wrong number.");
 
     if (std::size(R) >= 2)
-      PQXX_CHECK_EQUAL(R[1].rownumber(), 1, "Row 1 has wrong number.");
+      PQXX_CHECK_EQUAL(R[1].row_number(), 1, "Row 1 has wrong number.");
 
     // Test result::iterator::swap()
     pqxx::result::const_iterator const T1(R.begin() + 0), T2(R.begin() + 1);
