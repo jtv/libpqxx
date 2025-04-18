@@ -124,6 +124,8 @@ inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
       loc};
 
   using pass_tuple = pqxx::internal::strip_types_t<args_tuple>;
-  for (auto const r : *this) std::apply(func, pqxx::internal::gate::row_ref_result{r}.as_tuple<pass_tuple>(loc));
+  for (auto const r : *this)
+    std::apply(
+      func, pqxx::internal::gate::row_ref_result{r}.as_tuple<pass_tuple>(loc));
 }
 #endif

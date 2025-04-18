@@ -40,7 +40,7 @@ pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
 
 pqxx::row::const_iterator pqxx::row::begin() const noexcept
 {
-  return begin();
+  return cbegin();
 }
 
 

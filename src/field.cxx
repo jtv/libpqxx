@@ -60,21 +60,3 @@ pqxx::row::size_type pqxx::field::table_column(sl loc) const
 {
   return home().table_column(col(), loc);
 }
-
-
-char const *pqxx::field::c_str() const & noexcept
-{
-  return home().get_value(idx(), col());
-}
-
-
-bool pqxx::field::is_null() const noexcept
-{
-  return home().get_is_null(idx(), col());
-}
-
-
-pqxx::field::size_type pqxx::field::size() const noexcept
-{
-  return home().get_length(idx(), col());
-}

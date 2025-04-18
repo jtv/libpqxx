@@ -42,6 +42,7 @@ namespace pqxx::internal::gate
 {
 class result_connection;
 class result_creation;
+class result_field_ref;
 class result_pipeline;
 class result_row;
 class result_sql_cursor;
@@ -419,6 +420,8 @@ private:
 
   static std::string const s_empty_string;
 
+  friend class pqxx::internal::gate::result_field_ref;
+  // XXX: Retire this friendship.
   friend class pqxx::field;
   PQXX_PURE char const *
   get_value(size_type row, row_size_type col) const noexcept;

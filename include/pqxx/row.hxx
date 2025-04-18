@@ -499,18 +499,18 @@ protected:
         loc};
   }
 
-// XXX: Don't think we need this now...
+  // XXX: Don't think we need this now...
   /// Convert to a given tuple of values, don't check sizes.
   /** We need this for cases where we have a full tuple of field types, but
    * not a parameter pack.
    */
-/*
-  template<typename TUPLE> TUPLE as_tuple(sl loc) const
-  {
-    using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-    return get_tuple<TUPLE>(seq{}, loc);
-  }
-*/
+  /*
+    template<typename TUPLE> TUPLE as_tuple(sl loc) const
+    {
+      using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
+      return get_tuple<TUPLE>(seq{}, loc);
+    }
+  */
 
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
@@ -689,7 +689,8 @@ private:
 
 
 /// Reverse iterator for a row.  Use as row::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_row_iterator final : private const_row_iterator
+class PQXX_LIBEXPORT const_reverse_row_iterator final
+        : private const_row_iterator
 {
 public:
   using super = const_row_iterator;

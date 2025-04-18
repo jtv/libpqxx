@@ -28,6 +28,7 @@
 namespace pqxx::internal::gate
 {
 class field_ref_const_row_iterator;
+class result_field_ref;
 } // namespace pqxx::internal::gate
 
 
@@ -47,12 +48,14 @@ public:
   using size_type = field_size_type;
 
   field_ref() noexcept = default;
-  field_ref(field_ref const &) = default;
+  field_ref(field_ref const &) noexcept = default;
   field_ref(
     result const &res, result_size_type row_num,
     row_size_type col_num) noexcept :
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
+
+  field_ref &operator=(field_ref const &) noexcept =default;
 
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
@@ -204,6 +207,7 @@ private:
 
 
 #include "pqxx/internal/gates/field_ref-const_row_iterator.hxx"
+#include "pqxx/internal/gates/result-field_ref.hxx"
 
 
 namespace pqxx
@@ -307,10 +311,12 @@ public:
    * convert the value to your desired type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept
+  { return as_field_ref().c_str(); }
 
   /// Is this field's value null?
-  [[nodiscard]] PQXX_PURE bool is_null() const noexcept;
+  [[nodiscard]] PQXX_PURE bool is_null() const noexcept
+  { return as_field_ref().is_null(); }
 
   /// Return number of bytes taken up by the field's value.
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
@@ -472,8 +478,22 @@ protected:
   /// Constructor.
   field() noexcept = default;
 
+  /// Retun @ref field_ref for this field.
+  /** Be careful: the @ref field_ref holds a reference to the @ref result
+   * object _inside this `field` object._  So if you change that, the
+   * @ref field_ref becomes invalid.
+   */
+  field_ref as_field_ref() const noexcept
+  {
+    return field_ref{home(), idx(), col()};
+  }
+
   constexpr result const &home() const noexcept { return m_home; }
+  // XXX: Rename to row_number().
+  // XXX: Make public.
   constexpr result::size_type idx() const noexcept { return m_row; }
+  // XXX: Rename to column_number().
+  // XXX: Make public.
   constexpr row_size_type col() const noexcept { return m_col; }
 
   // TODO: Create gates.
@@ -495,6 +515,16 @@ private:
   result m_home;
   result::size_type m_row;
 };
+
+
+inline char const *field_ref::c_str() const & noexcept
+{ return pqxx::internal::gate::result_field_ref{home()}.get_value(row_number(), column_number()); }
+
+inline bool field_ref::is_null() const noexcept
+{ return pqxx::internal::gate::result_field_ref{home()}.get_is_null(row_number(), column_number()); }
+
+inline field_size_type field_ref::size() const noexcept
+{ return pqxx::internal::gate::result_field_ref{home()}.get_length(row_number(), column_number()); }
 
 
 /// Specialization: `to(char const *&)`.
