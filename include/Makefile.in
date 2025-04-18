@@ -410,12 +410,16 @@ nobase_include_HEADERS = pqxx/pqxx \
 	pqxx/internal/gates/connection-stream_to.hxx \
 	pqxx/internal/gates/connection-transaction.hxx \
 	pqxx/internal/gates/errorhandler-connection.hxx \
+	pqxx/internal/gates/field_ref-const_row_iterator.hxx \
 	pqxx/internal/gates/icursor_iterator-icursorstream.hxx \
 	pqxx/internal/gates/icursorstream-icursor_iterator.hxx \
 	pqxx/internal/gates/result-connection.hxx \
 	pqxx/internal/gates/result-creation.hxx \
+	pqxx/internal/gates/result-field_ref.hxx \
 	pqxx/internal/gates/result-pipeline.hxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
+	pqxx/internal/gates/row_ref-const_result_iterator.hxx \
+	pqxx/internal/gates/row_ref-result.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-transaction_focus.hxx
 

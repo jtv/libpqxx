@@ -55,7 +55,7 @@ public:
           m_result(&res), m_row{row_num}, m_column{col_num}
   {}
 
-  field_ref &operator=(field_ref const &) noexcept =default;
+  field_ref &operator=(field_ref const &) noexcept = default;
 
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
@@ -262,10 +262,16 @@ public:
   [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const { return as_field_ref().type(loc); }
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const
+  {
+    return as_field_ref().type(loc);
+  }
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table(sl loc = sl::current()) const { return as_field_ref().table(loc); }
+  [[nodiscard]] PQXX_PURE oid table(sl loc = sl::current()) const
+  {
+    return as_field_ref().table(loc);
+  }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
@@ -310,14 +316,21 @@ public:
    * example: `f.as<pqx::bytes>()`.
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept
-  { return as_field_ref().c_str(); }
+  {
+    return as_field_ref().c_str();
+  }
 
   /// Is this field's value null?
   [[nodiscard]] PQXX_PURE bool is_null() const noexcept
-  { return as_field_ref().is_null(); }
+  {
+    return as_field_ref().is_null();
+  }
 
   /// Return number of bytes taken up by the field's value.
-  [[nodiscard]] PQXX_PURE size_type size() const noexcept { return as_field_ref().size(); }
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept
+  {
+    return as_field_ref().size();
+  }
 
   /// Read value into obj; or if null, leave obj untouched and return `false`.
   /** This can be used with optional types (except pointers other than C-style
@@ -516,17 +529,34 @@ private:
 
 
 inline char const *field_ref::c_str() const & noexcept
-{ return pqxx::internal::gate::result_field_ref{home()}.get_value(row_number(), column_number()); }
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_value(
+    row_number(), column_number());
+}
 
 inline bool field_ref::is_null() const noexcept
-{ return pqxx::internal::gate::result_field_ref{home()}.get_is_null(row_number(), column_number()); }
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_is_null(
+    row_number(), column_number());
+}
 
 inline field_size_type field_ref::size() const noexcept
-{ return pqxx::internal::gate::result_field_ref{home()}.get_length(row_number(), column_number()); }
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_length(
+    row_number(), column_number());
+}
 
-inline oid field_ref::type(sl loc) const { return pqxx::internal::gate::result_field_ref{home()}.column_type(column_number(), loc); }
+inline oid field_ref::type(sl loc) const
+{
+  return pqxx::internal::gate::result_field_ref{home()}.column_type(
+    column_number(), loc);
+}
 
-inline oid field_ref::table(sl loc) const { return pqxx::internal::gate::result_field_ref{home()}.column_table(column_number(), loc); }
+inline oid field_ref::table(sl loc) const
+{
+  return pqxx::internal::gate::result_field_ref{home()}.column_table(
+    column_number(), loc);
+}
 
 /// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
