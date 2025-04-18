@@ -78,11 +78,9 @@ public:
   /// Column name.
   [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
-  // XXX: Implement.
   /// Column type.
   [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
 
-  // XXX: Implement.
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
@@ -264,10 +262,10 @@ public:
   [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const { return as_field_ref().type(loc); }
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
+  [[nodiscard]] PQXX_PURE oid table(sl loc = sl::current()) const { return as_field_ref().table(loc); }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
@@ -319,7 +317,7 @@ public:
   { return as_field_ref().is_null(); }
 
   /// Return number of bytes taken up by the field's value.
-  [[nodiscard]] PQXX_PURE size_type size() const noexcept;
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept { return as_field_ref().size(); }
 
   /// Read value into obj; or if null, leave obj untouched and return `false`.
   /** This can be used with optional types (except pointers other than C-style
@@ -526,6 +524,9 @@ inline bool field_ref::is_null() const noexcept
 inline field_size_type field_ref::size() const noexcept
 { return pqxx::internal::gate::result_field_ref{home()}.get_length(row_number(), column_number()); }
 
+inline oid field_ref::type(sl loc) const { return pqxx::internal::gate::result_field_ref{home()}.column_type(column_number(), loc); }
+
+inline oid field_ref::table(sl loc) const { return pqxx::internal::gate::result_field_ref{home()}.column_table(column_number(), loc); }
 
 /// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this
