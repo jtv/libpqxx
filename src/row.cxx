@@ -128,12 +128,6 @@ pqxx::oid pqxx::row::column_type(size_type col_num, sl loc) const
 }
 
 
-pqxx::oid pqxx::row::column_table(size_type col_num, sl loc) const
-{
-  return m_result.column_table(col_num, loc);
-}
-
-
 pqxx::row::size_type pqxx::row::table_column(size_type col_num, sl loc) const
 {
   return m_result.table_column(col_num, loc);

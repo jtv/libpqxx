@@ -175,11 +175,9 @@ public:
     return column_type(column_number(col_name, loc), loc);
   }
 
-  // XXX: Implement.
   /// What table did this column come from?
   [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
 
-  // XXX: Implement.
   /// What table did this column come from?
   [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
@@ -895,6 +893,10 @@ inline row_ref::const_iterator row_ref::end() const noexcept
   return cend();
 }
 
+inline oid row_ref::column_table(row_size_type col_num, sl loc) const
+{
+  return home().column_table(col_num, loc);
+}
 
 inline row::const_iterator row::cbegin() const noexcept
 {
