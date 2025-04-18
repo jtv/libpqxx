@@ -285,6 +285,8 @@ void expected_exception(std::string const &);
 
 // Represent result row as string.
 std::string list_row(row);
+// Represent result row as string.
+std::string list_row(row_ref);
 // Represent result as string.
 std::string list_result(result);
 // Represent result iterator as string.

@@ -44,30 +44,6 @@ pqxx::row::reference pqxx::row::back() const noexcept
 }
 
 
-pqxx::row::const_reverse_iterator pqxx::row::rbegin() const noexcept
-{
-  return const_reverse_row_iterator{end()};
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::crbegin() const noexcept
-{
-  return rbegin();
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::rend() const noexcept
-{
-  return const_reverse_row_iterator{begin()};
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::crend() const noexcept
-{
-  return rend();
-}
-
-
 bool pqxx::row::operator==(row const &rhs) const noexcept
 {
   if (&rhs == this)
@@ -119,12 +95,6 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i, sl loc) const
     throw range_error{"Invalid field number.", loc};
 
   return operator[](i);
-}
-
-
-pqxx::oid pqxx::row::column_type(size_type col_num, sl loc) const
-{
-  return m_result.column_type(col_num, loc);
 }
 
 

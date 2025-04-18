@@ -85,10 +85,8 @@ public:
   }
   //@}
 
-  // XXX: Implement.
   [[nodiscard]] const_iterator cbegin() const noexcept;
   [[nodiscard]] const_iterator begin() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_iterator end() const noexcept;
   [[nodiscard]] const_iterator cend() const noexcept;
 
@@ -96,22 +94,19 @@ public:
    * @name Field access
    */
   //@{
-  // XXX: Implement.
   [[nodiscard]] reference front() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] reference back() const noexcept;
 
-  // XXX: Implement.
   [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
-  // XXX: Implement.
   [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
 
-  // XXX: Implement.
-  [[nodiscard]] reference operator[](size_type) const noexcept;
+  [[nodiscard]] reference operator[](size_type i) const noexcept
+  {
+    return {home(), row_number(), i};
+  }
+
   // XXX: Implement.
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
@@ -144,10 +139,7 @@ public:
     return operator[](column_number(col_name, loc));
   }
 
-  [[nodiscard]] constexpr size_type size() const noexcept
-  {
-    return home().columns();
-  }
+  [[nodiscard]] size_type size() const noexcept { return home().columns(); }
 
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard]] constexpr result::size_type row_number() const noexcept
@@ -164,11 +156,13 @@ public:
   [[nodiscard]] size_type
   column_number(zview col_name, sl = sl::current()) const;
 
-  // XXX: Implement.
   /// Return a column's type.
-  [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
+  [[nodiscard]] oid
+  column_type(size_type col_num, sl loc = sl::current()) const
+  {
+    return home().column_type(col_num, loc);
+  }
 
-  // XXX: Implement.
   /// Return a column's type.
   [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
@@ -419,7 +413,11 @@ public:
   }
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
+  [[nodiscard]] oid
+  column_type(size_type col_num, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_type(col_num, loc);
+  }
 
   /// Return a column's type.
   [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
@@ -648,33 +646,27 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] constexpr bool
-  operator==(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator==(const_row_iterator const &i) const noexcept
   {
     return col() == i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator!=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator!=(const_row_iterator const &i) const noexcept
   {
     return col() != i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator<(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator<(const_row_iterator const &i) const noexcept
   {
     return col() < i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator<=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator<=(const_row_iterator const &i) const noexcept
   {
     return col() <= i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator>(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator>(const_row_iterator const &i) const noexcept
   {
     return col() > i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator>=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator>=(const_row_iterator const &i) const noexcept
   {
     return col() >= i.col();
   }
@@ -816,22 +808,22 @@ public:
     return !operator==(rhs);
   }
 
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator<(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator<=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>=(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator>(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator>=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<=(rhs);
@@ -900,6 +892,36 @@ inline row_ref::const_iterator row_ref::end() const noexcept
   return cend();
 }
 
+inline row_ref::const_reverse_iterator row_ref::crbegin() const noexcept
+{
+  return const_reverse_iterator{end()};
+}
+
+inline row_ref::const_reverse_iterator row_ref::rbegin() const noexcept
+{
+  return crbegin();
+}
+
+inline row_ref::const_reverse_iterator row_ref::crend() const noexcept
+{
+  return const_reverse_iterator{begin()};
+}
+
+inline row_ref::const_reverse_iterator row_ref::rend() const noexcept
+{
+  return crend();
+}
+
+inline field_ref row_ref::front() const noexcept
+{
+  return {home(), row_number(), 0};
+}
+
+inline field_ref row_ref::back() const noexcept
+{
+  return {home(), row_number(), home().columns() - 1};
+}
+
 inline row_size_type row_ref::column_number(zview col_name, sl loc) const
 {
   return home().column_number(col_name, loc);
@@ -930,5 +952,24 @@ inline row::const_iterator row::end() const noexcept
   return cend();
 }
 
+inline row::const_reverse_iterator row::crbegin() const noexcept
+{
+  return const_reverse_iterator{end()};
+}
+
+inline row::const_reverse_iterator row::rbegin() const noexcept
+{
+  return crbegin();
+}
+
+inline row::const_reverse_iterator row::crend() const noexcept
+{
+  return const_reverse_iterator{begin()};
+}
+
+inline row::const_reverse_iterator row::rend() const noexcept
+{
+  return crend();
+}
 } // namespace pqxx
 #endif

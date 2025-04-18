@@ -430,6 +430,7 @@ private:
   field_size_type get_length(size_type, row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
+  // XXX: Cache numbers of rows & columns in the class.
   result(
     std::shared_ptr<internal::pq::PGresult> const &rhs,
     std::shared_ptr<std::string> const &query,

@@ -84,7 +84,6 @@ public:
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
-  // XXX: Implement.
   /// Return column number.  The first column is 0, the second is 1, etc.
   PQXX_PURE constexpr row_size_type column_number() const noexcept
   {
@@ -557,6 +556,7 @@ inline oid field_ref::table(sl loc) const
   return pqxx::internal::gate::result_field_ref{home()}.column_table(
     column_number(), loc);
 }
+
 
 /// Specialization: `to(char const *&)`.
 /** The buffer has the same lifetime as the data in this result (i.e. of this

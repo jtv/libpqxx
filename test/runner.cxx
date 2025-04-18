@@ -55,6 +55,14 @@ std::string list_row(row_ref Obj)
 }
 
 
+std::string list_row(row Obj)
+{
+  return separated_list(
+    ", ", std::begin(Obj), std::end(Obj),
+    [](pqxx::row_ref::iterator f) { return f->view(); });
+}
+
+
 std::string list_result(result Obj)
 {
   if (std::empty(Obj))
