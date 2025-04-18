@@ -134,12 +134,6 @@ pqxx::row::size_type pqxx::row::table_column(size_type col_num, sl loc) const
 }
 
 
-pqxx::row::size_type pqxx::row::column_number(zview col_name, sl loc) const
-{
-  return m_result.column_number(col_name, loc);
-}
-
-
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
   auto old{*this};

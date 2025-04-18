@@ -413,7 +413,10 @@ public:
   //@{
   /// Number of given column (throws exception if it doesn't exist).
   [[nodiscard]] size_type
-  column_number(zview col_name, sl = sl::current()) const;
+  column_number(zview col_name, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_number(col_name, loc);
+  }
 
   /// Return a column's type.
   [[nodiscard]] oid column_type(size_type, sl = sl::current()) const;
@@ -425,7 +428,11 @@ public:
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
+  [[nodiscard]] oid
+  column_table(size_type col_num, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_table(col_num, loc);
+  }
 
   /// What table did this column come from?
   [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
@@ -891,6 +898,11 @@ inline row_ref::const_iterator row_ref::cend() const noexcept
 inline row_ref::const_iterator row_ref::end() const noexcept
 {
   return cend();
+}
+
+inline row_size_type row_ref::column_number(zview col_name, sl loc) const
+{
+  return home().column_number(col_name, loc);
 }
 
 inline oid row_ref::column_table(row_size_type col_num, sl loc) const
