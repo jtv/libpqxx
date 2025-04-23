@@ -126,13 +126,13 @@ bool pqxx::result::empty() const noexcept
 
 pqxx::result::reference pqxx::result::front() const noexcept
 {
-  return row{*this, 0, columns()};
+  return row_ref{*this, 0};
 }
 
 
 pqxx::result::reference pqxx::result::back() const noexcept
 {
-  return row{*this, size() - 1, columns()};
+  return row_ref{*this, size() - 1};
 }
 
 
@@ -143,22 +143,22 @@ void pqxx::result::swap(result &rhs) noexcept
 }
 
 
-pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
+pqxx::row_ref pqxx::result::operator[](result_size_type i) const noexcept
 {
-  return row{*this, i, columns()};
+  return {*this, i};
 }
 
 
 #if defined(PQXX_HAVE_MULTIDIM)
-pqxx::field pqxx::result::operator[](
+pqxx::field_ref pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
-  return {*this, row_num, col_num};
+  return {{*this, row_num}, col_num};
 }
 #endif // PQXX_HAVE_MULTIDIM
 
 
-pqxx::row pqxx::result::at(pqxx::result::size_type i, sl loc) const
+pqxx::row_ref pqxx::result::at(pqxx::result::size_type i, sl loc) const
 {
   if (i >= size())
     throw range_error{"Row number out of range.", loc};
@@ -166,14 +166,14 @@ pqxx::row pqxx::result::at(pqxx::result::size_type i, sl loc) const
 }
 
 
-pqxx::field pqxx::result::at(
+pqxx::field_ref pqxx::result::at(
   pqxx::result_size_type row_num, pqxx::row_size_type col_num, sl loc) const
 {
   if (row_num >= size())
     throw range_error{"Row number out of range.", loc};
   if (col_num >= columns())
     throw range_error{"Column out of range.", loc};
-  return {*this, row_num, col_num};
+  return {{*this, row_num}, col_num};
 }
 
 

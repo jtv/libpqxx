@@ -69,6 +69,10 @@ struct notice_waiters
 
 namespace pqxx
 {
+class row_ref;
+class field_ref;
+
+
 /// Result set containing data returned by a query or command.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its rows.  You can
@@ -95,7 +99,7 @@ class PQXX_LIBEXPORT result
 public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
-  using reference = row;
+  using reference = row_ref;
   using const_iterator = const_result_iterator;
   using pointer = const_iterator;
   using iterator = const_iterator;
@@ -172,18 +176,18 @@ public:
    * around as a variable, but if you do, make sure that your variable is a
    * `row`, not a `row&`.
    */
-  [[nodiscard]] row operator[](size_type i) const noexcept;
+  [[nodiscard]] row_ref operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIM)
-  [[nodiscard]] field
+  [[nodiscard]] field_ref
   operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif // PQXX_HAVE_MULTIDIM
 
   /// Index a row by number, but check that the row number is valid.
-  row at(size_type, sl = sl::current()) const;
+  row_ref at(size_type, sl = sl::current()) const;
 
   /// Index a field by row number and column number.
-  field at(size_type, row_size_type, sl = sl::current()) const;
+  field_ref at(size_type, row_size_type, sl = sl::current()) const;
 
   /// Let go of the result's data.
   /** Use this if you need to deallocate the result data earlier than you can

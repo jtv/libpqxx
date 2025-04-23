@@ -49,13 +49,10 @@ class field_ref;
 class PQXX_LIBEXPORT row_ref final
 {
 public:
-  // TODO: Some of these types conflict: class is both iterator and container.
-  // TODO: Set iterator nested types using std::iterator_traits.
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using const_iterator = const_row_iterator;
   using iterator = const_iterator;
-  // XXX: Does this actually have to be a reference?
   using reference = field_ref;
   using pointer = field_ref const *;
   using const_reverse_iterator = const_reverse_row_iterator;
@@ -332,7 +329,7 @@ public:
   using difference_type = row_difference_type;
   using const_iterator = const_row_iterator;
   using iterator = const_iterator;
-  using reference = field;
+  using reference = field_ref;
   using pointer = const_row_iterator;
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
@@ -340,6 +337,7 @@ public:
   row() noexcept = default;
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
+  row(row_ref const &ref) : m_result{ref.home()}, m_index{ref.row_number()}, m_end{std::size(ref)} {}
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 

@@ -34,13 +34,13 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-  return field{m_result, m_index, 0};
+  return {m_result, m_index, 0};
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
-  return field{m_result, m_index, m_end - 1};
+  return {m_result, m_index, m_end - 1};
 }
 
 
@@ -60,7 +60,7 @@ bool pqxx::row::operator==(row const &rhs) const noexcept
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-  return field{m_result, m_index, i};
+  return {m_result, m_index, i};
 }
 
 
@@ -83,13 +83,13 @@ void pqxx::row::swap(row &rhs) noexcept
 }
 
 
-pqxx::field pqxx::row::at(zview col_name, sl loc) const
+pqxx::field_ref pqxx::row::at(zview col_name, sl loc) const
 {
   return {m_result, m_index, column_number(col_name, loc)};
 }
 
 
-pqxx::field pqxx::row::at(pqxx::row::size_type i, sl loc) const
+pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
   if (i >= size())
     throw range_error{"Invalid field number.", loc};
