@@ -71,7 +71,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
   static bool has_null;
 
   /// Is this type always null?
-  static bool always_null;
+  constexpr static bool always_null = false;
 
   /// Is @c value a null?
   static bool is_null(TYPE const &value);
