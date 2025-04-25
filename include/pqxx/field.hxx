@@ -21,6 +21,7 @@
 
 #include "pqxx/array.hxx"
 #include "pqxx/composite.hxx"
+#include "pqxx/internal/gates/result-field_ref.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
@@ -28,7 +29,6 @@
 namespace pqxx::internal::gate
 {
 class field_ref_const_row_iterator;
-class result_field_ref;
 } // namespace pqxx::internal::gate
 
 
@@ -210,6 +210,19 @@ public:
   {
     return as<O<T>>();
   }
+
+  /// Read SQL array contents as a @ref pqxx::array.
+  template<typename ELEMENT, auto... ARGS>
+  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
+  {
+    using array_type = array<ELEMENT, ARGS...>;
+
+    // There's no such thing as a null SQL array.
+    if (is_null())
+      internal::throw_null_conversion(name_type<array_type>(), loc);
+    else
+      return array_type{this->view(), pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
+  }
   //@}
 
 private:
@@ -235,7 +248,6 @@ private:
 
 
 #include "pqxx/internal/gates/field_ref-const_row_iterator.hxx"
-#include "pqxx/internal/gates/result-field_ref.hxx"
 
 
 namespace pqxx
@@ -448,15 +460,7 @@ public:
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
   array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
-  {
-    using array_type = array<ELEMENT, ARGS...>;
-
-    // There's no such thing as a null SQL array.
-    if (is_null())
-      internal::throw_null_conversion(name_type<array_type>(), loc);
-    else
-      return array_type{this->view(), this->m_home.m_encoding, loc};
-  }
+  { return as_field_ref().as_sql_array<ELEMENT, ARGS...>(loc); }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
@@ -505,6 +509,7 @@ private:
   constexpr row_size_type col() const noexcept { return m_col; }
 
   // TODO: Create gates.
+  // XXX: May no longer need these.
   friend class pqxx::result;
   friend class pqxx::row;
   field(

@@ -35,5 +35,10 @@ class PQXX_PRIVATE result_field_ref : callgate<result const>
   {
     return home().column_table(col_num, loc);
   }
+
+  encoding_group encoding() const noexcept
+  {
+    return home().m_encoding;
+  }
 };
 } // namespace pqxx::internal::gate
