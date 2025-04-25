@@ -119,7 +119,6 @@ void test_082()
     ri3 >= ri2, "reverse_iterator operator>=() breaks on equal iterators.");
   PQXX_CHECK(
     ri3 >= ri2, "reverse_iterator operator<=() breaks on equal iterators.");
-  // XXX: This does a bad memory access in the base()->as<std::string>().
   PQXX_CHECK_EQUAL(
     ri3.base()->as<std::string>(), R.front().back().as<std::string>(),
     "reverse_iterator does not arrive at back().");

@@ -173,7 +173,7 @@ pqxx::field_ref pqxx::result::at(
     throw range_error{"Row number out of range.", loc};
   if (col_num >= columns())
     throw range_error{"Column out of range.", loc};
-  return {{*this, row_num}, col_num};
+  return {*this, row_num, col_num};
 }
 
 
@@ -569,7 +569,7 @@ pqxx::row pqxx::result::one_row(sl loc) const
 pqxx::field pqxx::result::one_field(sl loc) const
 {
   expect_columns(1, loc);
-  return one_row(loc)[0];
+  return field{one_row(loc)[0]};
 }
 
 

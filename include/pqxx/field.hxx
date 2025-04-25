@@ -74,9 +74,9 @@ public:
    * @name Column information
    */
   //@{
-  // XXX: Implement.
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
+  [[nodiscard]] PQXX_PURE char const *name(sl loc = sl::current()) const &
+  { return home().column_name(column_number(), loc); }
 
   /// Column type.
   [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
@@ -90,9 +90,9 @@ public:
     return m_column;
   }
 
-  // XXX: Implement.
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl loc = sl::current()) const
+  { return home().table_column(column_number(), loc); }
   //@}
 
   /**
@@ -220,6 +220,8 @@ class PQXX_LIBEXPORT field
 {
 public:
   using size_type = field_size_type;
+
+  field(field_ref const &f) : m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()} {}
 
   /**
    * @name Comparison
@@ -478,7 +480,7 @@ public:
   }
   //@}
 
-protected:
+private:
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
@@ -510,20 +512,16 @@ protected:
   friend class pqxx::result;
   friend class pqxx::row;
   field(
-    result const &r, result_size_type row_num, row_size_type col_num) noexcept
-          :
-          m_col{col_num}, m_home{r}, m_row{row_num}
-  {}
+    result const &r, result_size_type row_num, row_size_type col_num) noexcept : m_home{r}, m_row{row_num}, m_col{col_num} {}
 
+  result m_home;
+  result::size_type m_row;
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
   row_size_type m_col;
 
-private:
-  result m_home;
-  result::size_type m_row;
 };
 
 

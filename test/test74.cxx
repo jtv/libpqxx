@@ -25,13 +25,13 @@ void test_074()
 
   R = tx.exec("SELECT count(*) FROM pg_tables");
   int ival;
-  fieldstream fs2(R.at(0).at(0));
+  fieldstream fs2(R.at(0)->at(0));
   fs2 >> ival;
   PQXX_CHECK_EQUAL(
     ival, R.front().front().as<int>(), "fieldstream::front() is broken.");
 
   double dval;
-  (fieldstream(R.at(0).at(0))) >> dval;
+  (fieldstream(R.at(0)->at(0))) >> dval;
   PQXX_CHECK_BOUNDS(
     dval, R[0][0].as<double>() - 0.1, R[0][0].as<double>() + 0.1,
     "Got wrong double from fieldstream.");
