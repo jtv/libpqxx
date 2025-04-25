@@ -174,7 +174,6 @@ public:
     return column_table(column_number(col_name, loc), loc);
   }
 
-  // XXX: Implement.
   /// What column number in its table did this result column come from?
   /** A meaningful answer can be given only if the column in question comes
    * directly from a column in a table.  If the column is computed in any
@@ -183,7 +182,7 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type table_column(size_type, sl = sl::current()) const;
+  [[nodiscard]] size_type table_column(size_type col_num, sl loc = sl::current()) const { return home().table_column(col_num,loc); }
 
   /// What column number in its table did this result column come from?
   [[nodiscard]] size_type

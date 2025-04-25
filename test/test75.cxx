@@ -19,10 +19,10 @@ void test_075()
   auto const R(tx.exec("SELECT year FROM pqxxevents"));
   PQXX_CHECK(not std::empty(R), "No events found, cannot test.");
 
-  PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
+  PQXX_CHECK(R[0] == R.at(0), "Inconsistent result indexing.");
   PQXX_CHECK(not(R[0] != R.at(0)), "result::row::operator!=() is broken.");
 
-  PQXX_CHECK_EQUAL(R[0][0], R[0].at(0), "Inconsistent row indexing.");
+  PQXX_CHECK(R[0][0] == R[0].at(0), "Inconsistent row indexing.");
   PQXX_CHECK(
     not(R[0][0] != R[0].at(0)), "result::field::operator!=() is broken.");
 

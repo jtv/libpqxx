@@ -777,7 +777,9 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+/// Convert a field_ref to a string.
+template<> inline PQXX_LIBEXPORT std::string to_string(field_ref const &value, ctx) { return std::string{value.view()}; }
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(field const &value, ctx);
+template<> inline PQXX_LIBEXPORT std::string to_string(field const &value, ctx) { return std::string{value.view()}; }
 } // namespace pqxx
 #endif

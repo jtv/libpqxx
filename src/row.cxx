@@ -98,12 +98,6 @@ pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 }
 
 
-pqxx::row::size_type pqxx::row::table_column(size_type col_num, sl loc) const
-{
-  return m_result.table_column(col_num, loc);
-}
-
-
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
   auto old{*this};
