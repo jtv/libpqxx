@@ -28,7 +28,7 @@ void test_move_constructor()
   PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 5"), 5, "Weird result!");
 
   PQXX_CHECK_THROWS(
-    pqxx::connection c3{std::move(c2)}, pqxx::usage_error,
+    pqxx::connection{std::move(c2)}, pqxx::usage_error,
     "Moving a connection with a transaction open should be an error.");
 }
 
@@ -51,11 +51,11 @@ void test_move_assign()
 
     pqxx::connection c3;
     PQXX_CHECK_THROWS(
-      c3 = std::move(c2), pqxx::usage_error,
+      std::move(c2), pqxx::usage_error,
       "Moving a connection with a transaction open should be an error.");
 
     PQXX_CHECK_THROWS(
-      c2 = std::move(c3), pqxx::usage_error,
+      std::move(c3), pqxx::usage_error,
       "Moving a connection onto one with a transaction open should be "
       "an error.");
   }
