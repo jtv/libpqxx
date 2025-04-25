@@ -56,7 +56,7 @@ template<typename T> void bug_262()
   // This works properly, but as we parse the value from the stream, the
   // seeking cursor moves towards the EOF. When the inevitable EOF happens
   // 'eof' flag is set in the stream and 'good' flag is unset.
-  row[0].as<T>();
+  pqxx::ignore_unused(row[0].as<T>());
 
   // The second try. Select a float value again. The stream is not clean, so
   // we need to put an empty string into its buffer {stream.str("");}. This
@@ -73,9 +73,9 @@ template<typename T> void bug_262()
   // demonstration of how are intended to work. If we
   // simply just reset the stream flags properly, this would work fine.
   // The most obvious patch is just explicitly stream.seekg(0).
-  row[0].as<T>();
+  pqxx::ignore_unused(row[0].as<T>());
   row = tr.exec("SELECT 3.0").one_row();
-  row[0].as<T>();
+  pqxx::ignore_unused(row[0].as<T>());
 }
 
 
