@@ -349,7 +349,7 @@ public:
     return *this;
   }
 
-// XXX: Add one_row_ref().
+  // XXX: Add one_row_ref().
   /// Check that result contains exactly 1 row, and return that row.
   /** @return @ref pqxx::row
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
@@ -393,7 +393,7 @@ public:
     return *this;
   }
 
-// XXX: Add one_field_ref().
+  // XXX: Add one_field_ref().
   /// Expect that result consists of exactly 1 row and 1 column.
   /** @return The one @ref pqxx::field in the result.
    * @throw @ref usage_error otherwise.

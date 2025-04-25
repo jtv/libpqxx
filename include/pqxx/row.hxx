@@ -182,7 +182,11 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type table_column(size_type col_num, sl loc = sl::current()) const { return home().table_column(col_num,loc); }
+  [[nodiscard]] size_type
+  table_column(size_type col_num, sl loc = sl::current()) const
+  {
+    return home().table_column(col_num, loc);
+  }
 
   /// What column number in its table did this result column come from?
   [[nodiscard]] size_type
@@ -335,7 +339,11 @@ public:
   row() noexcept = default;
   row(row &&) noexcept = default;
   row(row const &) noexcept = default;
-  row(row_ref const &ref) : m_result{ref.home()}, m_index{ref.row_number()}, m_end{std::size(ref)} {}
+  row(row_ref const &ref) :
+          m_result{ref.home()},
+          m_index{ref.row_number()},
+          m_end{std::size(ref)}
+  {}
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 
@@ -372,7 +380,10 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] reference operator[](zview col_name) const { return as_row_ref()[col_name]; }
+  [[nodiscard]] reference operator[](zview col_name) const
+  {
+    return as_row_ref()[col_name];
+  }
 
   /// Address a field by number, but check that the number is in range.
   reference at(size_type, sl = sl::current()) const;

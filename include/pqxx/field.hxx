@@ -76,7 +76,9 @@ public:
   //@{
   /// Column name.
   [[nodiscard]] PQXX_PURE char const *name(sl loc = sl::current()) const &
-  { return home().column_name(column_number(), loc); }
+  {
+    return home().column_name(column_number(), loc);
+  }
 
   /// Column type.
   [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
@@ -91,8 +93,11 @@ public:
   }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column(sl loc = sl::current()) const
-  { return home().table_column(column_number(), loc); }
+  [[nodiscard]] PQXX_PURE row_size_type
+  table_column(sl loc = sl::current()) const
+  {
+    return home().table_column(column_number(), loc);
+  }
   //@}
 
   /**
@@ -196,8 +201,10 @@ public:
   bool to(T &obj, T const &default_value, ctx c = {}) const
   {
     bool const null{is_null()};
-    if (null) obj = default_value;
-    else obj = from_string<T>(this->view(), c);
+    if (null)
+      obj = default_value;
+    else
+      obj = from_string<T>(this->view(), c);
     return not null;
   }
 
@@ -221,7 +228,9 @@ public:
     if (is_null())
       internal::throw_null_conversion(name_type<array_type>(), loc);
     else
-      return array_type{this->view(), pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
+      return array_type{
+        this->view(),
+        pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
   }
   //@}
 
@@ -264,7 +273,9 @@ class PQXX_LIBEXPORT field
 public:
   using size_type = field_size_type;
 
-  field(field_ref const &f) : m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()} {}
+  field(field_ref const &f) :
+          m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()}
+  {}
 
   /**
    * @name Comparison
@@ -428,7 +439,9 @@ public:
    */
   template<typename T>
   bool to(T &obj, T const &default_value, ctx c = {}) const
-  { return as_field_ref().to<T>(obj, default_value, c); }
+  {
+    return as_field_ref().to<T>(obj, default_value, c);
+  }
 
   /// Return value as object of given type, or default value if null.
   /** Note that unless the function is instantiated with an explicit template
@@ -436,7 +449,9 @@ public:
    */
   template<typename T>
   [[nodiscard]] T as(T const &default_value, ctx c = {}) const
-  { return as_field_ref().as<T>(default_value, c); }
+  {
+    return as_field_ref().as<T>(default_value, c);
+  }
 
   /// Return value as object of given type, or throw exception if null.
   /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
@@ -445,7 +460,9 @@ public:
    * allocated here
    */
   template<typename T> [[nodiscard]] T as(ctx c = {}) const
-  { return as_field_ref().as<T>(c); }
+  {
+    return as_field_ref().as<T>(c);
+  }
 
   /// Return value wrapped in some optional type (empty for nulls).
   /** Use as `get<int>()` as before to obtain previous behavior, or specify
@@ -460,7 +477,9 @@ public:
   /// Read SQL array contents as a @ref pqxx::array.
   template<typename ELEMENT, auto... ARGS>
   array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
-  { return as_field_ref().as_sql_array<ELEMENT, ARGS...>(loc); }
+  {
+    return as_field_ref().as_sql_array<ELEMENT, ARGS...>(loc);
+  }
 
   /// Parse the field as an SQL array.
   /** Call the parser to retrieve values (and structure) from the array.
@@ -513,7 +532,10 @@ private:
   friend class pqxx::result;
   friend class pqxx::row;
   field(
-    result const &r, result_size_type row_num, row_size_type col_num) noexcept : m_home{r}, m_row{row_num}, m_col{col_num} {}
+    result const &r, result_size_type row_num, row_size_type col_num) noexcept
+          :
+          m_home{r}, m_row{row_num}, m_col{col_num}
+  {}
 
   result m_home;
   result::size_type m_row;
@@ -522,7 +544,6 @@ private:
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
   row_size_type m_col;
-
 };
 
 
@@ -778,8 +799,15 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 
 
 /// Convert a field_ref to a string.
-template<> inline PQXX_LIBEXPORT std::string to_string(field_ref const &value, ctx) { return std::string{value.view()}; }
+template<>
+inline PQXX_LIBEXPORT std::string to_string(field_ref const &value, ctx)
+{
+  return std::string{value.view()};
+}
 /// Convert a field to a string.
-template<> inline PQXX_LIBEXPORT std::string to_string(field const &value, ctx) { return std::string{value.view()}; }
+template<> inline PQXX_LIBEXPORT std::string to_string(field const &value, ctx)
+{
+  return std::string{value.view()};
+}
 } // namespace pqxx
 #endif
