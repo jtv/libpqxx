@@ -170,6 +170,36 @@ public:
     }
   }
 
+  /// Read value into `obj`; or if null, leave `obj` untouched.
+  /** This can be handy to read a field's value but also check for nullness
+   * along the way.
+   *
+   * @return Whether the field contained an actual value.  So: `true` for a
+   * non-null field, or `false` for a null field.
+   */
+  template<typename T> bool to(T &obj, ctx c = {}) const
+  {
+    if (is_null())
+    {
+      return false;
+    }
+    else
+    {
+      from_string(view(), obj, c);
+      return true;
+    }
+  }
+
+  /// Read value into `obj`; or if null, set default value and return `false`.
+  template<typename T>
+  bool to(T &obj, T const &default_value, ctx c = {}) const
+  {
+    bool const null{is_null()};
+    if (null) obj = default_value;
+    else obj = from_string<T>(this->view(), c);
+    return not null;
+  }
+
   /// Return value wrapped in some optional type (empty for nulls).
   /** Use as `get<int>()` as before to obtain previous behavior, or specify
    * container type with `get<int, std::optional>()`
@@ -228,9 +258,7 @@ public:
    */
   //@{
   /// Byte-by-byte comparison of two fields (all nulls are considered equal)
-  /** @warning null handling is still open to discussion and change!
-   *
-   * Handling of null values differs from that in SQL where a comparison
+  /** Handling of null values differs from that in SQL where a comparison
    * involving a null value yields null, so nulls are never considered equal
    * to one another or even to themselves.
    *
@@ -296,10 +324,12 @@ public:
    * add your own, see @ref datatypes.
    */
   //@{
-  /// Read as `string_view`, or an empty one if null.
-  /** The result only remains usable while the data for the underlying
+  /// Read as @ref zview (which is also a `string_view`).
+  /** Returns an empty view if the field is null.
+   *
+   * The result only remains usable while the data for the underlying
    * @ref result exists.  Once all `result` objects referring to that data have
-   * been destroyed, the `string_view` will no longer point to valid memory.
+   * been destroyed, the view will no longer point to valid memory.
    */
   [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
@@ -309,11 +339,11 @@ public:
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a
    * zero-terminated C string, this is the fastest way to read it.  Use the
-   * to() or as() functions to convert the string to other types such as
+   * `to()` or `as()` functions to convert the string to other types such as
    * `int`, or to C++ strings.
    *
-   * Do not use this for BYTEA values, or other binary values.  To read those,
-   * convert the value to your desired type using `to()` or `as()`.  For
+   * Do not use `c_str()` for BYTEA values, or other binary values.  To read
+   * those, convert the value to some binary type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept
@@ -333,15 +363,14 @@ public:
     return as_field_ref().size();
   }
 
-  /// Read value into obj; or if null, leave obj untouched and return `false`.
-  /** This can be used with optional types (except pointers other than C-style
-   * strings).
+  /// Read value into `obj`; or if null, leave `obj` untouched.
+  /** This can be handy to read a field's value but also check for nullness
+   * along the way.
+   *
+   * @return Whether the field contained an actual value.  So: `true` for a
+   * non-null field, or `false` for a null field.
    */
-  template<typename T>
-  auto to(T &obj, ctx c = {}) const ->
-    typename std::enable_if_t<
-      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-      bool>
+  template<typename T> bool to(T &obj, ctx c = {}) const
   {
     if (is_null())
     {
@@ -349,8 +378,7 @@ public:
     }
     else
     {
-      auto const data{c_str()};
-      from_string(data, obj, c);
+      from_string(view(), obj, c);
       return true;
     }
   }
@@ -383,26 +411,14 @@ public:
 
   /// Read value into obj; or if null, use default value and return `false`.
   /** This can be used with `std::optional`, as well as with standard smart
-   * pointer types, but not with raw pointers.  If the conversion from a
-   * PostgreSQL string representation allocates a pointer (e.g. using `new`),
-   * then the object's later deallocation should be baked in as well, right
-   * from the point where the object is created.  So if you want a pointer, use
-   * a smart pointer, not a raw pointer.
-   *
-   * There is one exception, of course: C-style strings.  Those are just
-   * pointers to the field's internal text data.
+   * pointer types, but not with raw pointers.
    */
   template<typename T>
-  auto to(T &obj, T const &default_value, ctx c = {}) const ->
-    typename std::enable_if_t<
-      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-      bool>
+  bool to(T &obj, T const &default_value, ctx c = {}) const
   {
     bool const null{is_null()};
-    if (null)
-      obj = default_value;
-    else
-      obj = from_string<T>(this->view(), c);
+    if (null) obj = default_value;
+    else obj = from_string<T>(this->view(), c);
     return not null;
   }
 
