@@ -141,7 +141,8 @@ public:
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value, ctx c = {}) const
+  template<typename T>
+  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
   {
     if (is_null())
       return default_value;
@@ -155,7 +156,7 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as(ctx c = {}) const
+  template<typename T> [[nodiscard]] T as(ctx c = {}) const
   {
     if (is_null())
     {
@@ -415,24 +416,15 @@ public:
    */
   template<typename T>
   bool to(T &obj, T const &default_value, ctx c = {}) const
-  {
-    bool const null{is_null()};
-    if (null) obj = default_value;
-    else obj = from_string<T>(this->view(), c);
-    return not null;
-  }
+  { return as_field_ref().to<T>(obj, default_value, c); }
 
   /// Return value as object of given type, or default value if null.
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value, ctx c = {}) const
-  {
-    if (is_null())
-      return default_value;
-    else
-      return from_string<T>(this->view(), c);
-  }
+  template<typename T>
+  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
+  { return as_field_ref().as<T>(default_value, c); }
 
   /// Return value as object of given type, or throw exception if null.
   /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
@@ -440,20 +432,8 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as(ctx c = {}) const
-  {
-    if (is_null())
-    {
-      if constexpr (not nullness<T>::has_null)
-        internal::throw_null_conversion(name_type<T>(), c.loc);
-      else
-        return nullness<T>::null();
-    }
-    else
-    {
-      return from_string<T>(this->view(), c);
-    }
-  }
+  template<typename T> [[nodiscard]] T as(ctx c = {}) const
+  { return as_field_ref().as<T>(c); }
 
   /// Return value wrapped in some optional type (empty for nulls).
   /** Use as `get<int>()` as before to obtain previous behavior, or specify
@@ -622,7 +602,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
  * promise based on a `string_view`.
  *
  */
-template<> inline zview field::as<zview>(ctx c) const
+template<> inline zview field_ref::as<zview>(ctx c) const
 {
   if (is_null())
     internal::throw_null_conversion(name_type<zview>(), c.loc);
