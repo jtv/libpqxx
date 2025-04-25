@@ -64,7 +64,7 @@ pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 }
 
 
-pqxx::row::reference pqxx::row::operator[](zview col_name) const
+pqxx::row_ref::reference pqxx::row_ref::operator[](zview col_name) const
 {
   sl const loc{sl::current()};
   return at(col_name, loc);

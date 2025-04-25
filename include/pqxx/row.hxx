@@ -104,7 +104,6 @@ public:
     return {home(), row_number(), i};
   }
 
-  // XXX: Implement.
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -374,7 +373,7 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] reference operator[](zview col_name) const;
+  [[nodiscard]] reference operator[](zview col_name) const { return as_row_ref()[col_name]; }
 
   /// Address a field by number, but check that the number is in range.
   reference at(size_type, sl = sl::current()) const;
