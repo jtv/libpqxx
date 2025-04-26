@@ -153,7 +153,7 @@ pqxx::row_ref pqxx::result::operator[](result_size_type i) const noexcept
 pqxx::field_ref pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
-  return {{*this, row_num}, col_num};
+  return {*this, row_num, col_num};
 }
 #endif // PQXX_HAVE_MULTIDIM
 

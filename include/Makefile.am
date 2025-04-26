@@ -72,6 +72,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/internal/gates/result-sql_cursor.hxx \
 	pqxx/internal/gates/row_ref-const_result_iterator.hxx \
 	pqxx/internal/gates/row_ref-result.hxx \
+	pqxx/internal/gates/row_ref-row.hxx \
 	pqxx/internal/gates/transaction-sql_cursor.hxx \
 	pqxx/internal/gates/transaction-transaction_focus.hxx
 

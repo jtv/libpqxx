@@ -32,6 +32,7 @@ namespace pqxx::internal::gate
 {
 class row_ref_const_result_iterator;
 class row_ref_result;
+class row_ref_row;
 } // namespace pqxx::internal::gate
 
 
@@ -267,6 +268,7 @@ private:
       t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
+  friend class pqxx::internal::gate::row_ref_row;
   template<typename Tuple, std::size_t... indexes>
   void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
   {
@@ -303,6 +305,7 @@ private:
 
 
 #include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
+#include "pqxx/internal/gates/row_ref-row.hxx"
 
 
 namespace pqxx
@@ -495,9 +498,7 @@ public:
   template<typename... TYPE>
   std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
-    check_size(sizeof...(TYPE), loc);
-    using seq = std::make_index_sequence<sizeof...(TYPE)>;
-    return get_tuple<std::tuple<TYPE...>>(seq{}, loc);
+    return as_row_ref().as<TYPE...>(loc);
   }
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
@@ -523,24 +524,12 @@ protected:
         loc};
   }
 
-  // XXX: Don't think we need this now...
-  /// Convert to a given tuple of values, don't check sizes.
-  /** We need this for cases where we have a full tuple of field types, but
-   * not a parameter pack.
-   */
-  /*
-    template<typename TUPLE> TUPLE as_tuple(sl loc) const
-    {
-      using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-      return get_tuple<TUPLE>(seq{}, loc);
-    }
-  */
-
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
-    extract_fields(
+    auto ref{as_row_ref()};
+    pqxx::internal::gate::row_ref_row{ref}.extract_fields(
       t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
@@ -560,15 +549,6 @@ protected:
   size_type m_end = 0;
 
 private:
-  template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
-  {
-    (extract_value<Tuple, indexes>(t, loc), ...);
-  }
-
-  template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &t, sl loc) const;
-
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
   auto get_tuple(std::index_sequence<indexes...>, sl) const
@@ -871,10 +851,10 @@ const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 
 
 template<typename Tuple, std::size_t index>
-inline void row::extract_value(Tuple &t, sl) const
+inline void row_ref::extract_value(Tuple &t, sl) const
 {
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
-  field const f{m_result, m_index, index};
+  field_ref const f{*m_result, m_index, index};
   std::get<index>(t) = from_string<field_type>(f);
 }
 
