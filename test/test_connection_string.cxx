@@ -1,5 +1,3 @@
-#include <format>
-
 #include <pqxx/pqxx>
 
 #include "test_helpers.hxx"
