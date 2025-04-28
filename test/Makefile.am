@@ -78,6 +78,7 @@ runner_SOURCES = \
   test88.cxx \
   test89.cxx \
   test90.cxx \
+  test_connection_string.cxx \
   unit/test_array.cxx \
   unit/test_binarystring.cxx \
   unit/test_blob.cxx \

@@ -1231,6 +1231,26 @@ void pqconninfofree(PQconninfoOption *ptr)
 {
   PQconninfoFree(ptr);
 }
+
+
+/// Quote and escape a connection string parameter as needed.
+std::string quote_connect_param(std::string_view val)
+{
+  std::string buf;
+  buf.reserve(2 * std::size(val) + 2);
+
+  // C++23: Use contains().
+  bool const quote{(val.find(' ') != std::string_view::npos) or (val.find('\'') != std::string_view::npos)};
+
+  if (quote) buf += '\'';
+  for (auto c : val)
+  {
+    if ((c == '\\') or (c == '\'')) buf += '\\';
+    buf += c;
+  }
+  if (quote) buf += '\'';
+  return buf;
+}
 } // namespace
 
 
@@ -1253,6 +1273,7 @@ std::string pqxx::connection::connection_string() const
     if (param.val != nullptr)
     {
       auto const default_val{get_default(param)};
+      // Skip over parameters that have the default value.
       if (
         (default_val == nullptr) or (std::strcmp(param.val, default_val) != 0))
       {
@@ -1260,7 +1281,10 @@ std::string pqxx::connection::connection_string() const
           buf.push_back(' ');
         buf += param.keyword;
         buf.push_back('=');
-        buf += param.val;
+	// There is no particular encoding support for connection strings in
+	// libpq, not even percent-encoding.  They just have to be in ASCII or
+	// some ASCII-safe encoding.
+        buf += quote_connect_param(param.val);
       }
     }
   }
