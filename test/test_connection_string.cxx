@@ -56,26 +56,30 @@ std::string app_name(pqxx::connection const &cx)
 }
 
 
+void check_connect_string(std::string const &in, std::string const &expected)
+{
+  auto cx{connect(in)};
+  PQXX_CHECK_EQUAL(app_name(cx), expected, "App name did not come out as expected.");
+
+  // Check that connection_string() produced a valid, more or less equivalent
+  // connection string.
+  pqxx::connection{cx.connection_string()};
+}
+
+
 void test_connection_string_escapes()
 {
   // XXX: Deal with encodings?
   // XXX: Deal with URI encoding?
-  PQXX_CHECK_EQUAL(
-    app_name(connect("pqxxtest")), "pqxxtest",
-    "Simple connection param came back wrong.");
-  PQXX_CHECK_EQUAL(
-    app_name(connect("'hello'")), "hello",
-    "Quoted connection param came back wrong.");
-  PQXX_CHECK_EQUAL(
-    app_name(connect("'a b c'")), "'a b c'", "Spaces in param went bad.");
-  PQXX_CHECK_EQUAL(
-    app_name(connect("'x \\\\y'")), "'x \\\\y'", "Backslash escaping failed.");
-  PQXX_CHECK_EQUAL(app_name(connect("\\\\r\\\\n")), "\\\\r\\\\n", "Unnecessary quotes for backslash?");
+  check_connect_string("pqxxtest", "pqxxtest");
+  check_connect_string("'hello'", "hello");
+  check_connect_string("'a b c'", "'a b c'");
+  check_connect_string("'x \\\\y'", "'x \\\\y'");
+  check_connect_string("\\\\r\\\\n", "\\\\r\\\\n");
+
   // This does seem to get quoted, even though as I read the spec, that's not
-  // actually required.
-  PQXX_CHECK_EQUAL(
-    app_name(connect("don\\'t")), "'don\\'t'",
-    "Unexpected backslash escaping.");
+  // actually required because there's no space in it.
+  check_connect_string("don\\'t", "'don\\'t'");
 }
 
 
