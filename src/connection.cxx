@@ -1281,8 +1281,9 @@ std::string pqxx::connection::connection_string() const
           buf.push_back(' ');
         buf += param.keyword;
         buf.push_back('=');
-        // XXX: Do we need encoding support to read param.val properly?
-        // XXX: Do we need to percent-encode?
+	// There is no particular encoding support for connection strings in
+	// libpq, not even percent-encoding.  They just have to be in ASCII or
+	// some ASCII-safe encoding.
         buf += quote_connect_param(param.val);
       }
     }

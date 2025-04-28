@@ -35,12 +35,14 @@ std::string app_name(pqxx::connection const &cx)
   std::size_t here{start}, end;
   if (all.at(here) == '\'')
   {
-    // Quoted string.  Be prepared for escaping.
+    // Quoted string.
     ++here;
     for (bool esc{false};
          (here < std::size(all)) and ((all.at(here) != '\'') or esc); ++here)
       esc = (all.at(here) == '\\' and not esc);
-    assert(here < std::size(all) - 1);
+    assert(here < std::size(all));
+    assert(all.at(here) == '\'');
+    // Skip closing quote.
     end = here + 1;
   }
   else
