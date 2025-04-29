@@ -31,8 +31,11 @@ void test_row_iterator()
   pqxx::connection cx;
   pqxx::work tx{cx};
   pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
-
-  auto i{std::begin(rows[0])};
+  // Very important to keep this in a variable.  We'll be creating an iterator
+  // on it, and if we used a temporary here, it'd go out of scope, get
+  // destroyed, and invalidate the accesses!
+  auto row{rows[0]};
+  auto i{std::begin(row)};
   PQXX_CHECK_EQUAL(i->as<int>(), 1, "Row iterator is wrong.");
   auto i2{i};
   PQXX_CHECK_EQUAL(i2->as<int>(), 1, "Row iterator copy is wrong.");
@@ -42,7 +45,7 @@ void test_row_iterator()
   i3 = i2;
   PQXX_CHECK_EQUAL(i3->as<int>(), 2, "Row iterator assignment is wrong.");
 
-  auto r{std::rbegin(rows[0])};
+  auto r{std::rbegin(row)};
   PQXX_CHECK_EQUAL(r->as<int>(), 3, "Row reverse iterator is wrong.");
   auto r2{r};
   PQXX_CHECK_EQUAL(r2->as<int>(), 3, "Row reverse iterator copy is wrong.");

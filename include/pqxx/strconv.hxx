@@ -71,7 +71,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness
   static bool has_null;
 
   /// Is this type always null?
-  static bool always_null;
+  constexpr static bool always_null = false;
 
   /// Is @c value a null?
   static bool is_null(TYPE const &value);
@@ -415,7 +415,7 @@ concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
   out = string_traits<TYPE>::from_string(text);
 };
 
-/// Signature for string_traist<TYPE>::from_string() in libpqxx 7.
+/// Signature for string_traits<TYPE>::from_string() in libpqxx 7.
 /** This is actually identical to the new format, except the latter accepts an
  * optional @ref conversion_context argument.
  */

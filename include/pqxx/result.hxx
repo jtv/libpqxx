@@ -42,6 +42,7 @@ namespace pqxx::internal::gate
 {
 class result_connection;
 class result_creation;
+class result_field_ref;
 class result_pipeline;
 class result_row;
 class result_sql_cursor;
@@ -68,6 +69,10 @@ struct notice_waiters
 
 namespace pqxx
 {
+class row_ref;
+class field_ref;
+
+
 /// Result set containing data returned by a query or command.
 /** This behaves as a container (as defined by the C++ standard library) and
  * provides random access const iterators to iterate over its rows.  You can
@@ -94,7 +99,7 @@ class PQXX_LIBEXPORT result
 public:
   using size_type = result_size_type;
   using difference_type = result_difference_type;
-  using reference = row;
+  using reference = row_ref;
   using const_iterator = const_result_iterator;
   using pointer = const_iterator;
   using iterator = const_iterator;
@@ -119,13 +124,37 @@ public:
   /**
    * @name Comparisons
    *
-   * You can compare results for equality.  Beware: this is a very strict,
-   * dumb comparison.  The smallest difference between two results (such as a
-   * string "Foo" versus a string "foo") will make them unequal.
+   * @warning The meaning of these comparisons has changed in 8.0.  The _old_
+   * comparisons went through the results' data (but not metadata!) and looked
+   * for differences.  This was fairy arbitrary and a potential performance
+   * trap.
+   *
+   * A `result` is essentially a reference-counted pointer to a data structure
+   * that we received from the database.  When you copy a result (through
+   * assignment or copy construction) you get a second reference to the same
+   * underlying data structure.
+   *
+   * This can be important because efficient code will use all kinds of direct
+   * references to that data: @ref row_ref, @ref field_ref, `std::string_vew`,
+   * @ref zview, raw C-style string pointers.  Those all stay valid even when
+   * you copy your `result` and destroy the original, because all you really
+   * did was replace one smart pointer with another.  The actual data
+   * structure underneath stays exactly where it was.
+   *
+   * (This may also help explain why we have @ref row and @ref field classes on
+   * the one hand, and @ref row_ref, @ref field_ref, and iterators on the
+   * other.  @ref row and @ref field contain their own copy of the `result`.
+   * Those other classes carry just a _pointer_ to the `result`.)
+   *
+   * The meaning of the `result` comparison operators is: _Do these two
+   * `result` objects refer to the same underlying data structure?_
    */
   //@{
   /// Compare two results for equality.
-  [[nodiscard]] bool operator==(result const &) const noexcept;
+  [[nodiscard]] bool operator==(result const &rhs) const noexcept
+  {
+    return rhs.m_data == m_data;
+  }
   /// Compare two results for inequality.
   [[nodiscard]] bool operator!=(result const &rhs) const noexcept
   {
@@ -171,18 +200,18 @@ public:
    * around as a variable, but if you do, make sure that your variable is a
    * `row`, not a `row&`.
    */
-  [[nodiscard]] row operator[](size_type i) const noexcept;
+  [[nodiscard]] row_ref operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIM)
-  [[nodiscard]] field
+  [[nodiscard]] field_ref
   operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif // PQXX_HAVE_MULTIDIM
 
   /// Index a row by number, but check that the row number is valid.
-  row at(size_type, sl = sl::current()) const;
+  row_ref at(size_type, sl = sl::current()) const;
 
   /// Index a field by row number and column number.
-  field at(size_type, row_size_type, sl = sl::current()) const;
+  field_ref at(size_type, row_size_type, sl = sl::current()) const;
 
   /// Let go of the result's data.
   /** Use this if you need to deallocate the result data earlier than you can
@@ -344,6 +373,7 @@ public:
     return *this;
   }
 
+  // XXX: Add one_row_ref().
   /// Check that result contains exactly 1 row, and return that row.
   /** @return @ref pqxx::row
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
@@ -387,6 +417,7 @@ public:
     return *this;
   }
 
+  // XXX: Add one_field_ref().
   /// Expect that result consists of exactly 1 row and 1 column.
   /** @return The one @ref pqxx::field in the result.
    * @throw @ref usage_error otherwise.
@@ -419,6 +450,8 @@ private:
 
   static std::string const s_empty_string;
 
+  friend class pqxx::internal::gate::result_field_ref;
+  // XXX: Retire this friendship.
   friend class pqxx::field;
   PQXX_PURE char const *
   get_value(size_type row, row_size_type col) const noexcept;
@@ -427,6 +460,7 @@ private:
   field_size_type get_length(size_type, row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
+  // XXX: Cache numbers of rows & columns in the class.
   result(
     std::shared_ptr<internal::pq::PGresult> const &rhs,
     std::shared_ptr<std::string> const &query,

@@ -36,7 +36,8 @@ void test_field()
   auto const f2{r2[0]};
   i = 100;
   PQXX_CHECK_THROWS(
-    f2.as<int>(), pqxx::conversion_error, "Null conversion failed to throw.");
+    pqxx::ignore_unused(f2.as<int>()), pqxx::conversion_error,
+    "Null conversion failed to throw.");
   PQXX_CHECK_EQUAL(i, 100, "Null conversion touched its output.");
 
   PQXX_CHECK_EQUAL(f2.as<int>(66), 66, "as<int> default is broken.");

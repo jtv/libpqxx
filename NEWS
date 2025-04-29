@@ -1,7 +1,8 @@
 8.0.0
-7.10.2
- - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
+ - **Result equality now only compares identity, not the data inside.**
+ - **Row/field equality now only compares identity, not the data inside.**
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
@@ -35,6 +36,8 @@
  - There's an `UNKNOWN` encoding group.  It's the only fully safe default.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - Tests are now in a single directory (#934)
+7.10.2
+ - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.

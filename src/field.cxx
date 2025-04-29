@@ -23,7 +23,7 @@
 
 
 pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :
-        m_col{c}, m_home{r.m_result}, m_row{r.m_index}
+        m_home{r.m_result}, m_row{r.m_index}, m_col{c}
 {}
 
 
@@ -44,37 +44,7 @@ char const *pqxx::field::name(sl loc) const &
 }
 
 
-pqxx::oid pqxx::field::type(sl loc) const
-{
-  return home().column_type(col(), loc);
-}
-
-
-pqxx::oid pqxx::field::table(sl loc) const
-{
-  return home().column_table(col(), loc);
-}
-
-
 pqxx::row::size_type pqxx::field::table_column(sl loc) const
 {
   return home().table_column(col(), loc);
-}
-
-
-char const *pqxx::field::c_str() const & noexcept
-{
-  return home().get_value(idx(), col());
-}
-
-
-bool pqxx::field::is_null() const noexcept
-{
-  return home().get_is_null(idx(), col());
-}
-
-
-pqxx::field::size_type pqxx::field::size() const noexcept
-{
-  return home().get_length(idx(), col());
 }

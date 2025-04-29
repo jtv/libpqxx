@@ -47,11 +47,19 @@ void expected_exception(std::string const &message)
 }
 
 
+std::string list_row(row_ref Obj)
+{
+  return separated_list(
+    ", ", std::begin(Obj), std::end(Obj),
+    [](pqxx::row_ref::iterator f) { return f->view(); });
+}
+
+
 std::string list_row(row Obj)
 {
   return separated_list(
     ", ", std::begin(Obj), std::end(Obj),
-    [](pqxx::field const &f) { return f.view(); });
+    [](pqxx::row_ref::iterator f) { return f->view(); });
 }
 
 
@@ -62,14 +70,14 @@ std::string list_result(result Obj)
   return "{" +
          separated_list(
            "}\n{", std::begin(Obj), std::end(Obj),
-           [](row const &r) { return list_row(r); }) +
+           [](pqxx::result::iterator r) { return list_row(*r); }) +
          "}";
 }
 
 
 std::string list_result_iterator(result::const_iterator const &Obj)
 {
-  return "<iterator at " + to_string(Obj.rownumber()) + ">";
+  return "<iterator at " + to_string(Obj->row_number()) + ">";
 }
 
 
