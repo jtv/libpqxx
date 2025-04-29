@@ -83,24 +83,24 @@ void test_084()
     std::size(R), static_cast<pqxx::result::size_type>(GetRows),
     "Got unexpected number of rows.");
 
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [1]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2), "Unexpected result at [1]");
 
   C.get(R);
   R2 = *i2;
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [2]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2), "Unexpected result at [2]");
   i2 += 1;
 
   C.ignore(GetRows);
   C.get(R);
   R2 = *++i2;
 
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [3]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2), "Unexpected result at [3]");
 
   ++i2;
   R2 = *i2++;
   for (int i{1}; C.get(R) and i2 != iend; R2 = *i2++, ++i)
     PQXX_CHECK_EQUAL(
-      R, R2, "Unexpected result in iteration at " + pqxx::to_string(i));
+      pqxx::to_string(R), pqxx::to_string(R2), "Unexpected result in iteration at " + pqxx::to_string(i));
 
   PQXX_CHECK(i2 == iend, "Adopted cursor terminated early.");
   PQXX_CHECK(not(C >> R), "icursor_iterator terminated early.");
