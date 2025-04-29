@@ -51,11 +51,11 @@ void test_move_assign()
 
     pqxx::connection c3;
     PQXX_CHECK_THROWS(
-      std::move(c2), pqxx::usage_error,
+      c1 = std::move(c2), pqxx::usage_error,
       "Moving a connection with a transaction open should be an error.");
 
     PQXX_CHECK_THROWS(
-      std::move(c3), pqxx::usage_error,
+      c2 = std::move(c3), pqxx::usage_error,
       "Moving a connection onto one with a transaction open should be "
       "an error.");
   }
