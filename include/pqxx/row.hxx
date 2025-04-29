@@ -495,13 +495,17 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type table_column(size_type, sl = sl::current()) const;
+  [[nodiscard]] size_type
+  table_column(size_type col, sl loc = sl::current()) const
+  {
+    return as_row_ref().table_column(col, loc);
+  }
 
   /// What column number in its table did this result column come from?
   [[nodiscard]] size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
-    return table_column(column_number(col_name, loc), loc);
+    return as_row_ref().table_column(col_name, loc);
   }
   //@}
 
