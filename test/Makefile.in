@@ -139,11 +139,12 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test90.$(OBJEXT) test_array.$(OBJEXT) test_blob.$(OBJEXT) \
 	test_cancel_query.$(OBJEXT) test_column.$(OBJEXT) \
 	test_composite.$(OBJEXT) test_connection.$(OBJEXT) \
-	test_cursor.$(OBJEXT) test_encodings.$(OBJEXT) \
-	test_error_verbosity.$(OBJEXT) test_errorhandler.$(OBJEXT) \
-	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
-	test_field.$(OBJEXT) test_float.$(OBJEXT) \
-	test_largeobject.$(OBJEXT) test_nonblocking_connect.$(OBJEXT) \
+	test_connection_string.$(OBJEXT) test_cursor.$(OBJEXT) \
+	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
+	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
+	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
+	test_float.$(OBJEXT) test_largeobject.$(OBJEXT) \
+	test_nonblocking_connect.$(OBJEXT) \
 	test_notice_handler.$(OBJEXT) test_notification.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_range.$(OBJEXT) test_read_transaction.$(OBJEXT) \
@@ -182,24 +183,22 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test01.Po ./$(DEPDIR)/test02.Po \
-	./$(DEPDIR)/test04.Po ./$(DEPDIR)/test07.Po \
-	./$(DEPDIR)/test10.Po ./$(DEPDIR)/test11.Po \
-	./$(DEPDIR)/test13.Po ./$(DEPDIR)/test14.Po \
-	./$(DEPDIR)/test16.Po ./$(DEPDIR)/test17.Po \
-	./$(DEPDIR)/test18.Po ./$(DEPDIR)/test20.Po \
-	./$(DEPDIR)/test21.Po ./$(DEPDIR)/test26.Po \
-	./$(DEPDIR)/test29.Po ./$(DEPDIR)/test30.Po \
-	./$(DEPDIR)/test32.Po ./$(DEPDIR)/test37.Po \
-	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test46.Po \
-	./$(DEPDIR)/test56.Po ./$(DEPDIR)/test60.Po \
-	./$(DEPDIR)/test61.Po ./$(DEPDIR)/test62.Po \
-	./$(DEPDIR)/test69.Po ./$(DEPDIR)/test70.Po \
-	./$(DEPDIR)/test71.Po ./$(DEPDIR)/test72.Po \
-	./$(DEPDIR)/test74.Po ./$(DEPDIR)/test75.Po \
-	./$(DEPDIR)/test76.Po ./$(DEPDIR)/test77.Po \
-	./$(DEPDIR)/test78.Po ./$(DEPDIR)/test79.Po \
-	./$(DEPDIR)/test82.Po ./$(DEPDIR)/test84.Po \
-	./$(DEPDIR)/test87.Po ./$(DEPDIR)/test88.Po \
+	./$(DEPDIR)/test07.Po ./$(DEPDIR)/test10.Po \
+	./$(DEPDIR)/test11.Po ./$(DEPDIR)/test13.Po \
+	./$(DEPDIR)/test14.Po ./$(DEPDIR)/test16.Po \
+	./$(DEPDIR)/test17.Po ./$(DEPDIR)/test18.Po \
+	./$(DEPDIR)/test20.Po ./$(DEPDIR)/test21.Po \
+	./$(DEPDIR)/test26.Po ./$(DEPDIR)/test29.Po \
+	./$(DEPDIR)/test30.Po ./$(DEPDIR)/test32.Po \
+	./$(DEPDIR)/test37.Po ./$(DEPDIR)/test39.Po \
+	./$(DEPDIR)/test46.Po ./$(DEPDIR)/test56.Po \
+	./$(DEPDIR)/test60.Po ./$(DEPDIR)/test61.Po \
+	./$(DEPDIR)/test62.Po ./$(DEPDIR)/test69.Po \
+	./$(DEPDIR)/test70.Po ./$(DEPDIR)/test71.Po \
+	./$(DEPDIR)/test72.Po ./$(DEPDIR)/test74.Po \
+	./$(DEPDIR)/test75.Po ./$(DEPDIR)/test76.Po \
+	./$(DEPDIR)/test77.Po ./$(DEPDIR)/test82.Po \
+	./$(DEPDIR)/test84.Po ./$(DEPDIR)/test88.Po \
 	./$(DEPDIR)/test89.Po ./$(DEPDIR)/test90.Po \
 	./$(DEPDIR)/test_array.Po ./$(DEPDIR)/test_blob.Po \
 	./$(DEPDIR)/test_cancel_query.Po ./$(DEPDIR)/test_column.Po \
@@ -626,51 +625,51 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test88.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test89.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test90.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_array.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_blob.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cancel_query.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_composite.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection_string.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_array.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_blob.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_cancel_query.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_composite.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_connection.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_cursor.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_encodings.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_error_verbosity.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_errorhandler.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_escape.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_exceptions.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_field.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_range.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_read_transaction.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_result_iteration.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_row.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_separated_list.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_sql_cursor.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stateless_cursor.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_strconv.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_from.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_query.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_stream_to.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_string_conversion.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_test_helpers.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_thread_safety_model.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_time.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction_base.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transaction_focus.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_transactor.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_type_name.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_util.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@unit/$(DEPDIR)/test_zview.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_encodings.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_errorhandler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_escape.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_exceptions.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_field.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_range.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_read_transaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_result_iteration.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_row.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_separated_list.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_simultaneous_transactions.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_sql_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stateless_cursor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_strconv.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_from.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_query.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_to.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string_conversion.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_time.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction_base.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction_focus.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transactor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_type_name.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_util.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_zview.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -973,6 +972,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test_column.Po
 	-rm -f ./$(DEPDIR)/test_composite.Po
 	-rm -f ./$(DEPDIR)/test_connection.Po
+	-rm -f ./$(DEPDIR)/test_connection_string.Po
 	-rm -f ./$(DEPDIR)/test_cursor.Po
 	-rm -f ./$(DEPDIR)/test_encodings.Po
 	-rm -f ./$(DEPDIR)/test_error_verbosity.Po
