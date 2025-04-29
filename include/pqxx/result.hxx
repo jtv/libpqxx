@@ -124,13 +124,37 @@ public:
   /**
    * @name Comparisons
    *
-   * You can compare results for equality.  Beware: this is a very strict,
-   * dumb comparison.  The smallest difference between two results (such as a
-   * string "Foo" versus a string "foo") will make them unequal.
+   * @warning The meaning of these comparisons has changed in 8.0.  The _old_
+   * comparisons went through the results' data (but not metadata!) and looked
+   * for differences.  This was fairy arbitrary and a potential performance
+   * trap.
+   *
+   * A `result` is essentially a reference-counted pointer to a data structure
+   * that we received from the database.  When you copy a result (through
+   * assignment or copy construction) you get a second reference to the same
+   * underlying data structure.
+   *
+   * This can be important because efficient code will use all kinds of direct
+   * references to that data: @ref row_ref, @ref field_ref, `std::string_vew`,
+   * @ref zview, raw C-style string pointers.  Those all stay valid even when
+   * you copy your `result` and destroy the original, because all you really
+   * did was replace one smart pointer with another.  The actual data
+   * structure underneath stays exactly where it was.
+   *
+   * (This may also help explain why we have @ref row and @ref field classes on
+   * the one hand, and @ref row_ref, @ref field_ref, and iterators on the
+   * other.  @ref row and @ref field contain their own copy of the `result`.
+   * Those other classes carry just a _pointer_ to the `result`.)
+   *
+   * The meaning of the `result` comparison operators is: _Do these two
+   * `result` objects refer to the same underlying data structure?_
    */
   //@{
   /// Compare two results for equality.
-  [[nodiscard]] bool operator==(result const &) const noexcept;
+  [[nodiscard]] bool operator==(result const &rhs) const noexcept
+  {
+    return rhs.m_data == m_data;
+  }
   /// Compare two results for inequality.
   [[nodiscard]] bool operator!=(result const &rhs) const noexcept
   {

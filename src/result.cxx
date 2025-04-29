@@ -60,20 +60,6 @@ pqxx::result::result(
 {}
 
 
-bool pqxx::result::operator==(result const &rhs) const noexcept
-{
-  if (&rhs == this) [[unlikely]]
-    return true;
-  auto const s{size()};
-  if (std::size(rhs) != s)
-    return false;
-  for (size_type i{0}; i < s; ++i)
-    if ((*this)[i] != rhs[i])
-      return false;
-  return true;
-}
-
-
 pqxx::result::const_reverse_iterator pqxx::result::rbegin() const noexcept
 {
   return const_reverse_iterator{end()};

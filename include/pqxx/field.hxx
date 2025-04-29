@@ -60,6 +60,17 @@ public:
   result const &home() const noexcept { return *m_result; }
   result_size_type row_number() const noexcept { return m_row; }
 
+  /**
+   * @name Comparison
+   *
+   * Equality between two `field_ref` objects means that they both refer to
+   * the same row and column in _the exact same @ref result object._
+   *
+   * So, if you copy a @ref result, even though the two copies refer to the
+   * exact same underlying data structure, a `field_ref` in the one will never
+   * be equal to a `field_ref` in the other.
+   */
+  //@{
   bool operator==(field_ref const &rhs) const noexcept
   {
     return (home() == rhs.home()) and (row_number() == rhs.row_number()) and
@@ -69,6 +80,7 @@ public:
   {
     return not operator==(rhs);
   }
+  //@}
 
   /**
    * @name Column information
@@ -282,7 +294,12 @@ public:
    */
   //@{
   /// Byte-by-byte comparison of two fields (all nulls are considered equal)
-  /** Handling of null values differs from that in SQL where a comparison
+  /** @warning This differs from what comparisons do in @ref result, @ref row,
+   * @ref row_ref, @ref field, @ref field_ref, and the iterator classes.  It
+   * will change in the future to compare only the fields' identities, not the
+   * actual data.
+   *
+   * Handling of null values differs from that in SQL where a comparison
    * involving a null value yields null, so nulls are never considered equal
    * to one another or even to themselves.
    *
@@ -296,12 +313,16 @@ public:
    * equivalent and equally valid) encodings of the same Unicode character
    * etc.
    */
-  [[nodiscard]] PQXX_PURE bool operator==(field const &) const noexcept;
+  [[deprecated(
+    "To compare fields by content, compare their view()s.")]] PQXX_PURE bool
+  operator==(field const &) const noexcept;
 
   /// Byte-by-byte comparison (all nulls are considered equal)
   /** @warning See operator==() for important information about this operator
    */
-  [[nodiscard]] PQXX_PURE bool operator!=(field const &rhs) const noexcept
+  [[deprecated(
+    "To compare fields by content, compare their view()s.")]] PQXX_PURE bool
+  operator!=(field const &rhs) const noexcept
   {
     return not operator==(rhs);
   }

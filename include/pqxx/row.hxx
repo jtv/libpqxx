@@ -71,6 +71,25 @@ public:
 
   /**
    * @name Comparison
+   *
+   * Equality between two @ref row_ref objects means that they both refer to
+   * the same row in _the exact same @ref result object._
+   *
+   * So, if you copy a @ref result, even though the two copies refer to the
+   * exact same underlying data structure, a `row_ref` in the one will never be
+   * equal to a `row_ref` in the other.
+   *
+   * ```cxx
+   * void test_equality(pqxx::result const &r1)
+   * {
+   *   pqxx::result const r2{r1};
+   *   if (not r1.empty())
+   *   {
+   *     assert(r1[0] == r1[0]);
+   *     assert(r2[0] != r1[0]);
+   *   }
+   * }
+   * ```
    */
   //@{
   [[nodiscard]] PQXX_PURE bool operator==(row_ref const &rhs) const noexcept
@@ -148,7 +167,6 @@ public:
    * @name Column information
    */
   //@{
-  // XXX: Implement.
   /// Number of given column (throws exception if it doesn't exist).
   [[nodiscard]] size_type
   column_number(zview col_name, sl = sl::current()) const;
@@ -312,18 +330,18 @@ namespace pqxx
 {
 /// Reference to one row in a result.
 /** This is like a @ref row_ref, except it's safe to destroy the @ref result
- * object or move it to a different place in memory.  The price is performance.
+ * object or move it to a different place in memory.  You do pay a performance
+ * price for this, so prefer @ref row_ref where possible.
  *
- * A row represents one row (also called a row) in a query result set.
- * It also acts as a container mapping column numbers or names to field
- * values (see below):
+ * A `row` is a referecne to one particular row of data in a query result set
+ * (represented by a @ref result object).
+ *
+ * A row also acts as a container, mapping column numbers or names to field
+ * values:
  *
  * ```cxx
  *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
  * ```
- *
- * The row itself acts like a (non-modifyable) container, complete with its
- * own const_iterator and const_reverse_iterator.
  */
 class PQXX_LIBEXPORT row
 {
@@ -350,12 +368,33 @@ public:
   row &operator=(row const &) noexcept = default;
   row &operator=(row &&) noexcept = default;
 
-  // XXX: Can probably rewrite a bunch of functions in terms of row_ref.
   /**
    * @name Comparison
+   *
+   * @warning The meaning of the comparison operators has changed in 8.0.  The
+   * _old_ behaviour was to go through all the data in the two rows (but not
+   * the metadata) and look for differences.  This was never fully specified.
+   *
+   * Equality between two @ref row objects means that they refer to the same
+   * row in the same data structure that we originally received from the
+   * database.  So the two may have been created from different @ref result
+   * objects, so long as those are both copies of (or the same as) the same
+   * original @ref result that you received from the database.
+   *
+   * ```cxx
+   * void test_row_equality(pqxx::result const &r1)
+   * {
+   *   pqxx::result r2{r1};
+   *   pqxx::row row1{r1[0]}, row2{r2};
+   *   assert(row1 == row2);
+   * }
+   * ```
    */
   //@{
-  [[nodiscard]] PQXX_PURE bool operator==(row const &) const noexcept;
+  [[nodiscard]] PQXX_PURE bool operator==(row const &rhs) const noexcept
+  {
+    return rhs.m_result == m_result and rhs.m_index == m_index;
+  }
   [[nodiscard]] bool operator!=(row const &rhs) const noexcept
   {
     return not operator==(rhs);

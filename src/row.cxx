@@ -44,20 +44,6 @@ pqxx::row::reference pqxx::row::back() const noexcept
 }
 
 
-bool pqxx::row::operator==(row const &rhs) const noexcept
-{
-  if (&rhs == this)
-    return true;
-  auto const s{size()};
-  if (std::size(rhs) != s)
-    return false;
-  for (size_type i{0}; i < s; ++i)
-    if ((*this)[i] != rhs[i])
-      return false;
-  return true;
-}
-
-
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
   return {m_result, m_index, i};
