@@ -246,7 +246,8 @@ inline void check_throws_exception(
 
 // Verify that "action" throws an exception, of any std::exception-based type.
 #define PQXX_CHECK_THROWS_EXCEPTION(action, desc)                             \
-  pqxx::test::check_throws_exception(([&]() { return action, 0; }), #action, desc)
+  pqxx::test::check_throws_exception(                                         \
+    ([&]() { return action, 0; }), #action, desc)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
 #define PQXX_CHECK_THROWS(action, exception_type, desc)                       \

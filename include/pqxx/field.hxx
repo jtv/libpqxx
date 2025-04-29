@@ -324,7 +324,9 @@ public:
     "To compare fields by content, compare their view()s.")]] PQXX_PURE bool
   operator!=(field const &rhs) const noexcept
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return not operator==(rhs);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
 
