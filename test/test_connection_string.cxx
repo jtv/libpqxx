@@ -59,7 +59,8 @@ std::string app_name(pqxx::connection const &cx)
 void check_connect_string(std::string const &in, std::string const &expected)
 {
   auto cx{connect(in)};
-  PQXX_CHECK_EQUAL(app_name(cx), expected, "App name did not come out as expected.");
+  PQXX_CHECK_EQUAL(
+    app_name(cx), expected, "App name did not come out as expected.");
 
   // Check that connection_string() produced a valid, more or less equivalent
   // connection string.
