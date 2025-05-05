@@ -127,9 +127,9 @@ Here's an example with all the basics to get you going:
             // You can read fields as std::string_view here, which is not
             // something you can do in most places.  A string_view becomes
             // meaningless when the underlying string ceases to exist.  In this
-            // one situation, you can convert a field to string_view and it
-            // will be valid for just that one iteration of the loop.  The next
-            // iteration may overwrite or deallocate its buffer space.
+            // particular situation, you can convert a field to string_view and
+	    // it will be valid for just that one iteration of the loop.  The
+	    // next iteration may overwrite or deallocate its buffer space.
             for (auto [name, salary] : tx.stream<std::string_view, int>(
                 "SELECT name, salary FROM employee"))
             {
@@ -139,9 +139,10 @@ Here's an example with all the basics to get you going:
             // Execute a statement, and check that it returns 0 rows of data.
             // This will throw pqxx::unexpected_rows if the query returns rows.
             std::cout << "Doubling all employees' salaries...\n";
-            tx.exec0("UPDATE employee SET salary = salary*2");
+            tx.exec("UPDATE employee SET salary = salary*2").no_rows();
 
-            // Shorthand: conveniently query a single value from the database.
+            // Shorthand: conveniently query a single value from the database,
+	    // and convert it to an `int`.
             int my_salary = tx.query_value<int>(
                 "SELECT salary FROM employee WHERE name = 'Me'");
             std::cout << "I now earn " << my_salary << ".\n";
@@ -159,8 +160,7 @@ Here's an example with all the basics to get you going:
                       << top_salary << ".\n";
 
             // If you need to access the result metadata, not just the actual
-            // field values, use the "exec" functions.  Most of them return
-            // pqxx::result objects.
+            // field values, use `exec>()`.  It returns a pqxx::result object.
             pqxx::result res = tx.exec("SELECT * FROM employee");
             std::cout << "Columns:\n";
             for (pqxx::row_size_type col = 0; col < res.columns(); ++col)

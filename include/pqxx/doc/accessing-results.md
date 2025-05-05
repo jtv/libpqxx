@@ -4,10 +4,10 @@ Accessing results and result rows                   {#accessing-results}
 A query produces a result set consisting of rows, and each row consists of
 fields.  There are several ways to receive this data.
 
-The fields are "untyped."  That is to say, libpqxx has no opinion on what their
-types are.  The database sends the data in a very flexible textual format.
-When you read a field, you specify what type you want it to be, and libpqxx
-converts the text format to that type for you.
+The fields are _untyped._  That is to say, libpqxx has no opinion on what their
+respective types are.  The database sends the data in a very flexible textual
+format.  When you read a field, you specify what type you want it to be, and
+libpqxx converts the text format to that type for you.
 
 If a value does not conform to the format for the type you specify, the
 conversion fails.  For example, if you have strings that all happen to contain
@@ -38,12 +38,14 @@ You can then iterate over the result to go over the rows of data:
 ```
 
 The "query" functions execute your query, load the complete result data from
-the database, and then as you iterate, convert each row it received to a tuple
+the database, and iterate them.  Along the way they convert each row to a tuple
 of C++ types that you indicated.
 
 There are different query functions for querying any number of rows (`query()`);
-querying just one row of data as a `std::tuple` and throwing an error if there's
-more than one row (`query1()`); or querying
+querying just one row of data as a `std::tuple` and throwing an error if it
+doesn't produce exactly one row (`query1()`); or querying either zero or one
+rows and getting a `std::optional` tuple of the values converted to the
+respective types you requested.
 
 
 Streaming rows
@@ -89,19 +91,57 @@ your data.
 
 
 
-Results with metadata
----------------------
+The `result` class
+------------------
 
 Sometimes you want more from a query result than just rows of data.  You may
-need to know right away how many rows of result data you received, or how many
-rows your `UPDATE` statement has affected, or the names of the columns, etc.
+need to know how many rows your `UPDATE` statement has affected, or the names
+of the columns, and so on.
 
-For that, use the transaction's "exec" query execution functions.  These
-generally return a `pqxx::result` object.  A `result` is a container of
-`pqxx::row` objects, so you can iterate them as normal, or index them like you
-would index an array.  Each `row` in turn is a container of `pqxx::field`.
-Each `field` holds a value, but doesn't know what type of data it contains.
-Instead, _you_ specify the type, when you read the value.
+For that, use the transaction's `exec()` function.  It returns a `pqxx::result`
+object.  A `result` is really a smart pointer to a data structure managed by
+the C library, libpq.  But seen from the outside, it _acts_ like a
+random-access container of rows of data, which you can iterate like any other
+container, or index them like you would index an array.  Each row in turn is a
+container of field values.  And finally, each field holds a value.
+
+Since `result` is at its core just a smart pointer, it is fairly cheap to
+copy: it doesn't copy the data, it just creates an extra reference to the same
+underlying data structure.  When you destroy the last copy of the original
+`result` object you got back from the database, that will destroy the
+underlying data structure as a side effect.
+
+
+## Rows and fields
+
+A field does not know what type of data it contains.  It holds the data in
+string form.  So, _you_ specify the type when you read the value (using
+functions like `as()`), and the field will convert its string representation
+to that type.
+
+By the way, there are no separate objects holding the rows or the fields.
+That data is all held inside the data structure managed by libpq.  There are
+however two classes representing a row of data, and two classes representing a
+field:
+
+1. _`row_ref`_: effectively a pointer to the `result`, plus a row number.
+2. _`row`_: effectively a _copy_ of the `result`, plus a row number.
+3. _`field_ref`_: effectively a pointer to the `result`, with row & column
+   numbers.
+4. _`field`_: effectively a copy of the result, with row & column numbers.
+
+When you index a `result` or dereference a `result` iterator, you get a
+`row_ref`.  When you index a `row_ref` or `row` or dereference an iterator of
+either, you get a `field_ref`.
+
+Usually you'll deal with `row_ref` and `field_ref`.  These are effficient,
+cheap to copy, and straightforward.  All you really need to do is ensure that
+the `result` object does not move in memory, or get destroyed.
+
+In rare cases you may need to reference a row or field but without keeping the
+`result`, you can use a `row` or `field` object.  These are less efficient,
+but they keep a `result` object so that the underlying data structure does not
+get destroyed so long as you stlil have a `row` or `field` referencing it.
 
 
 ## Iterating rows and fields
@@ -110,9 +150,9 @@ For example, your code might just read it as raw text using `c_str()`:
 
 ```cxx
     pqxx::result r = tx.exec("SELECT * FROM mytable");
-    for (auto const &row: r)
+    for (auto const &row_ref: r)
     {
-       for (auto const &field: row) std::cout << field.c_str() << '\t';
+       for (auto const &field_ref: row) std::cout << field.c_str() << '\t';
        std::cout << '\n';
     }
 ```
@@ -146,11 +186,11 @@ indexing, for instance, such as `r[rownum]`:
     std::size_t const num_rows = std::size(r);
     for (std::size_t rownum=0u; rownum < num_rows; ++rownum)
     {
-      pqxx::row const row = r[rownum];
+      pqxx::row_ref const row = r[rownum];
       std::size_t const num_cols = std::size(row);
       for (std::size_t colnum=0u; colnum < num_cols; ++colnum)
       {
-        pqxx::field const field = row[colnum];
+        pqxx::field_ref const field = row[colnum];
         std::cout << field.c_str() << '\t';
       }
 
@@ -166,10 +206,10 @@ look up the number of fields again for each one:
     std::size_t const num_cols = r.columns();
     for (std::size_t rownum=0u; rownum < num_rows; ++rownum)
     {
-      pqxx::row const row = r[rownum];
+      pqxx::row_ref const row = r[rownum];
       for (std::size_t colnum=0u; colnum < num_cols; ++colnum)
       {
-        pqxx::field const field = row[colnum];
+        pqxx::field_ref const field = row[colnum];
         std::cout << field.c_str() << '\t';
       }
 
