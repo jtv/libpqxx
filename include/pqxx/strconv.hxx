@@ -654,7 +654,6 @@ to_buf(char *begin, char const *end, TYPE... value)
 }
 
 
-// XXX: Work encoding_context into this.  Turn value... into a tuple?
 /// Convert multiple values to strings inside a single buffer.
 /** There must be enough room for all values, or this will throw
  * @c conversion_overrun.  You can obtain a conservative estimate of the buffer
