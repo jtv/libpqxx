@@ -276,7 +276,6 @@ private:
     return get_tuple<TUPLE>(seq{}, loc);
   }
 
-  // XXX: Make result_iter use row_ref instead of row.
   // XXX: Create gate.
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.

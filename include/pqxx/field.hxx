@@ -350,8 +350,7 @@ public:
   }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  [[deprecated("Use column_number().")]] constexpr row_size_type
-  num() const noexcept
+  [[deprecated("Use column_number().")]] row_size_type num() const noexcept
   {
     return column_number();
   }
@@ -553,10 +552,6 @@ private:
 
   constexpr result const &home() const noexcept { return m_home; }
 
-  // TODO: Create gates.
-  // XXX: May no longer need these.
-  friend class pqxx::result;
-  friend class pqxx::row;
   field(
     result const &r, result_size_type row_num, row_size_type col_num) noexcept
           :
