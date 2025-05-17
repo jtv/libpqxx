@@ -350,7 +350,7 @@ public:
   }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
+  [[deprecated("Use column_number().")]] constexpr row_size_type num() const noexcept { return column_number(); }
 
   /// What column number in its originating table did this column come from?
   [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
@@ -522,6 +522,11 @@ public:
   }
   //@}
 
+  /// This field's row number within the result.
+  PQXX_PURE result_size_type row_number() const noexcept { return m_row; }
+  /// This field's column number within the result.
+  PQXX_PURE row_size_type column_number() const noexcept { return m_col; }
+
 private:
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
@@ -539,16 +544,10 @@ private:
    */
   field_ref as_field_ref() const noexcept
   {
-    return field_ref{home(), idx(), col()};
+    return field_ref{home(), row_number(), column_number()};
   }
 
   constexpr result const &home() const noexcept { return m_home; }
-  // XXX: Rename to row_number().
-  // XXX: Make public.
-  constexpr result::size_type idx() const noexcept { return m_row; }
-  // XXX: Rename to column_number().
-  // XXX: Make public.
-  constexpr row_size_type col() const noexcept { return m_col; }
 
   // TODO: Create gates.
   // XXX: May no longer need these.

@@ -40,11 +40,11 @@ bool PQXX_COLD pqxx::field::operator==(field const &rhs) const noexcept
 
 char const *pqxx::field::name(sl loc) const &
 {
-  return home().column_name(col(), loc);
+  return home().column_name(column_number(), loc);
 }
 
 
 pqxx::row::size_type pqxx::field::table_column(sl loc) const
 {
-  return home().table_column(col(), loc);
+  return home().table_column(column_number(), loc);
 }
