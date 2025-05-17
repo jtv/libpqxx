@@ -1,6 +1,7 @@
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)
+ - _I said,_ can't pass parameters to streaming query.  Remove support. (#997)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.

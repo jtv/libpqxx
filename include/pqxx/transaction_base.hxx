@@ -571,15 +571,6 @@ public:
     return pqxx::internal::stream_query<TYPE...>{*this, query};
   }
 
-  /// Execute a query, in streaming fashion; loop over the results row by row.
-  /** Like @ref stream(std::string_view), but with parameters.
-   */
-  template<typename... TYPE>
-  [[nodiscard]] auto stream(std::string_view query, params parms) &
-  {
-    return pqxx::internal::stream_query<TYPE...>{*this, query, parms};
-  }
-
   // C++20: Concept like std::invocable, but without specifying param types.
   /// Perform a streaming query, and for each result row, call `func`.
   /** Here, `func` can be a function, a `std::function`, a lambda, or an
@@ -958,9 +949,6 @@ public:
   {
     exec(statement, parms).for_each(std::forward<CALLABLE>(func));
   }
-
-  // TODO: stream() with prepped.
-  // TODO: stream_like() with prepped.
 
   /// Execute a prepared statement with parameters.
   result exec(prepped statement, params const &parms)

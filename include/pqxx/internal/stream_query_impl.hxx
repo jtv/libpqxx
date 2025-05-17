@@ -21,22 +21,6 @@ inline stream_query<TYPE...>::stream_query(
 
 
 template<typename... TYPE>
-inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, params const &parms) :
-        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
-{
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"), parms)
-                 .no_rows()};
-  if (r.columns() != sizeof...(TYPE))
-    throw usage_error{concat(
-      "Parsing query stream with wrong number of columns: "
-      "code expects ",
-      sizeof...(TYPE), " but query returns ", r.columns(), ".")};
-  register_me();
-}
-
-
-template<typename... TYPE>
 inline char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx)
 {
