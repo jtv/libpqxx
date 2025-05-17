@@ -70,12 +70,11 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
     // resulting state of the database.
     process_notice(std::format("{}\n", e.what()));
 
-    // XXX: Log source location?
     std::string msg{std::format(
-      "WARNING: Commit status of transaction '{}' is unknown. "
+      "WARNING: {}: Commit status of transaction '{}' is unknown. "
       "There is no way to tell whether the transaction succeeded "
       "or was aborted except to check manually.\n",
-      name())};
+      pqxx::internal::source_loc(loc), name())};
     process_notice(msg);
     // Strip newline.  It was only needed for process_notice().
     msg.pop_back();
@@ -90,10 +89,10 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
       process_notice(std::format("{}\n", e.what()));
 
       auto msg{std::format(
-        "WARNING: Connection lost while committing transaction '{}'.  "
+        "WARNING: {}: Connection lost while committing transaction '{}'.  "
         "There is no way to tell whether the transaction succeeded or was "
         "aborted except to check manually.\n",
-        name())};
+        pqxx::internal::source_loc(loc), name())};
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();
