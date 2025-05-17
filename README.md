@@ -72,26 +72,37 @@ Programming with libpqxx
 
 Your first program will involve the libpqxx classes `connection` (see the
 `pqxx/connection.hxx` header), and `work` (a convenience alias for
-`transaction<>` which conforms to the interface defined in
-`pqxx/transaction_base.hxx`).
+`transaction<>`).  There are various transaction classes, but they all conform
+to the interface defined in the `transaction_base` class (in the
+`<pqxx/transaction_base.hxx>` header).
 
 These `*.hxx` headers are not the ones you include in your program.  Instead,
 include the versions without filename suffix (e.g. `pqxx/connection`).  Those
 will include the actual .hxx files for you.  This was done so that includes are
 in standard C++ style (as in `<iostream>` etc.), but an editor will still
-recognize them as files containing C++ code.
+recognize them as files containing C++ code.  Unless you care a lot about
+compilation speed, you'll probably just want to include everything:
 
-Continuing the list of classes, you may also need the result class
-(`pqxx/result.hxx`).  In a nutshell, you create a pqxx::connection based on a
-Postgres connection string (see below), create a pqxx::work (a transaction
-object) in the context of that connection, and run one or more queries and/or
+```cxx
+#include <pqxx/pqxx>
+```
+
+Continuing the list of classes, you may also need the `pqxx::result` class
+(`pqxx/result.hxx`).  In a nutshell, you create a `pqxx::connection` based on a
+PostgreSQL connection string (see below), create a pqxx::work (a transaction
+object) in the context of that connection, and run one or more queries or other
 SQL commands on that.
 
 Depending on how you execute a query, it can return a stream of `std::tuple`
-(each representing one row); or a pqxx::result object which holds both the
-result data and additional metadata: how many rows your query returned and/or
-modified, what the column names are, and so on.  A pqxx::result is a container
-of pqxx::row, and a pqxx::row is a container of pqxx::field.
+(each representing one row); or just one tuple or field; or a `pqxx::result`
+object which holds both the result data and additional metadata.  The metadata
+includes details like how many rows your query returned or modified, what the
+column names are, and so on.  A `pqxx::result` acts as a container of
+`pqxx::row_ref` objects, and a `pqxx::row_ref` in turn acts as a container of
+`pqxx::field_ref` objects.
+
+(They aren't _really_ containers; all these classes are essentially references
+to the real data returned by libpq.)
 
 Here's an example with all the basics to get you going:
 
@@ -229,20 +240,36 @@ define those variables that require non-default values.
 Linking with libpqxx
 --------------------
 
-To link your final program, make sure you link to both the C-level libpq library
-and the actual C++ library, libpqxx.  With most Unix-style compilers, you'd do
-this using these options: `-lpqxx -lpq`
+To link your final program, make sure you link to both libpqxx and the
+underlying C-level library, libpq, in that order.
 
-while linking.  Both libraries must be in your link path, so the linker knows
-where to find them.  Any dynamic libraries you use must also be in a place
-where the loader can find them when loading your program at runtime.
+With most Unix-style compilers, you'd do this using these options while
+linking: `-lpqxx -lpq`
 
-Some users have reported problems using the above syntax, however, particularly
-when multiple versions of libpqxx are partially or incorrectly installed on the
-system.  If you get massive link errors, try removing the "-lpqxx" argument from
-the command line and replacing it with the name of the libpqxx library binary
-instead.  That's typically libpqxx.a, but you'll have to add the path to its
-location as well, e.g. /usr/local/pqxx/lib/libpqxx.a.  This will ensure that the
-linker will use that exact version of the library rather than one found
-elsewhere on the system, and eliminate worries about the exact right version of
-the library being installed with your program..
+Both libraries must be in your link path, so the linker knows where to find
+them.  Any dynamic libraries you use must also be in a place where the loader
+can find them when loading your program at runtime.
+
+Sometimes people run into trouble with this when they have more than one
+lipqxx binary on their system.  If you get massive link errors, try removing
+the "-lpqxx" argument from the command line and replacing it with the name of
+the libpqxx library binary instead.  That's typically libpqxx.a, but you'll
+have to add the path to its location as well, e.g.
+`/usr/local/pqxx/lib/libpqxx.a`.  This will ensure that the linker will use
+that exact version of the library rather than one found elsewhere on the
+system, and eliminate worries about the exact right version of the library
+being installed with your program..
+
+If you get a moderate number fo link errors which include a missing symbol
+`check_pqxx_version_X_Y` (where `X` and `Y` are numbers), that's typically a
+sign that you're linking to a different version of libpqxx than the one whose
+headers your compiler used while compiling.
+
+And Visual Studio users in particular, beware: when linking object files and
+libraries, _do not mix Release artefacts with Debug artefacts._  This can be
+especially confusing when you install libpqxx from a pre-built package.  Which
+kind of binary did you get?
+
+Actually the same thing _can_ happen with other compilers: most compilers have
+options that change the code they produce in incompatible ways.  Mixing files
+from different kinds of builds can lead to link errors, or worse, crashes.

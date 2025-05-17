@@ -221,7 +221,7 @@ public:
    * The types in the tuple must have conversions from PostgreSQL's text format
    * defined; see @ref datatypes.
    *
-   * @throw usage_error If the number of columns in the `row` does not match
+   * @throw usage_error If the number of columns in the row does not match
    * the number of fields in `t`.
    */
   template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
@@ -329,12 +329,14 @@ private:
 namespace pqxx
 {
 /// Reference to one row in a result.
-/** This is like a @ref row_ref, except it's safe to destroy the @ref result
- * object or move it to a different place in memory.  You do pay a performance
- * price for this, so prefer @ref row_ref where possible.
- *
- * A `row` is a referecne to one particular row of data in a query result set
+/* A `row` is a referecne to one particular row of data in a query result set
  * (represented by a @ref result object).
+ *
+ * This is like a @ref row_ref, except (as far as this class is concerned) it
+ * is safe to destroy the @ref result object or move it to a different place in
+ * memory.  That's because unlike `row_ref`, a `row` contains its own copy of
+ * the internal smart pointer referring to the actual data in memory.  You do
+ * pay a performance price for this, so prefer @ref row_ref where possible.
  *
  * A row also acts as a container, mapping column numbers or names to field
  * values:
@@ -520,7 +522,7 @@ public:
    * The types in the tuple must have conversions from PostgreSQL's text format
    * defined; see @ref datatypes.
    *
-   * @throw usage_error If the number of columns in the `row` does not match
+   * @throw usage_error If the number of columns in the row does not match
    * the number of fields in `t`.
    */
   template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
@@ -535,7 +537,7 @@ public:
    * The types must have conversions from PostgreSQL's text format defined;
    * see @ref datatypes.
    *
-   * @throw usage_error If the number of columns in the `row` does not match
+   * @throw usage_error If the number of columns in the row does not match
    * the number of fields in `t`.
    */
   template<typename... TYPE>
@@ -608,6 +610,11 @@ private:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
+/** @warning Do notyou destroy or move the @ref result object while you're
+ * iterating it.  It will invalidate all iterators on the entire result.  They
+ * will no longer refer to valid memory, and your application may crash, or
+ * worse, read the wrong data.
+ */
 class PQXX_LIBEXPORT const_row_iterator
 {
 public:
