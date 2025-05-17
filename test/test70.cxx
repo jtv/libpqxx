@@ -35,7 +35,8 @@ void TestPipeline(pipeline &P, int numqueries)
 
     PQXX_CHECK_NOT_EQUAL(R.second, Empty, "Got empty result.");
     if (Prev != Empty)
-      PQXX_CHECK_EQUAL(R.second, Prev, "Results to same query are different.");
+      PQXX_CHECK_NOT_EQUAL(
+        R.second, Prev, "Results to same query are different.");
 
     Prev = R.second;
     PQXX_CHECK_EQUAL(Prev, R.second, "Assignment breaks result equality.");

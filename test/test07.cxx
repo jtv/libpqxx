@@ -19,23 +19,6 @@ using namespace pqxx;
 
 namespace
 {
-// Convert year to 4-digit format.
-int To4Digits(int Y)
-{
-  int Result{Y};
-
-  PQXX_CHECK(Y >= 0, "Negative year: " + to_string(Y));
-  if (Y < 70)
-    Result += 2000;
-  else if (Y < 100)
-    Result += 1900;
-  else if (Y < 1970)
-    pqxx::test::check_notreached("Unexpected year: " + to_string(Y));
-
-  return Result;
-}
-
-
 void test_007()
 {
   connection cx;
@@ -79,14 +62,6 @@ void test_007()
     // them and their correct mappings to conversions.
     for (auto const &r : R)
     {
-      int Y{0};
-
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-      // Read year, and if it is non-null, note its converted value
-      if (r[0] >> Y)
-        conversions[Y] = To4Digits(Y);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-
       // See if type identifiers are consistent
       oid const tctype{r.column_type(0)};
 
