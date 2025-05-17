@@ -350,7 +350,11 @@ public:
   }
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  [[deprecated("Use column_number().")]] constexpr row_size_type num() const noexcept { return column_number(); }
+  [[deprecated("Use column_number().")]] constexpr row_size_type
+  num() const noexcept
+  {
+    return column_number();
+  }
 
   /// What column number in its originating table did this column come from?
   [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
