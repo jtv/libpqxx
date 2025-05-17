@@ -276,7 +276,7 @@ private:
     return get_tuple<TUPLE>(seq{}, loc);
   }
 
-  // XXX: Create gate.
+  // TODO: Create gate.
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const

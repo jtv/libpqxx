@@ -150,14 +150,10 @@ public:
    * @name Arithmetic operators
    */
   //@{
-  // XXX: Implement.
   [[nodiscard]] inline const_result_iterator operator+(difference_type) const;
-  // XXX: Implement.
   friend const_result_iterator
   operator+(difference_type, const_result_iterator const &);
-  // XXX: Implement.
   [[nodiscard]] inline const_result_iterator operator-(difference_type) const;
-  // XXX: Implement.
   [[nodiscard]] inline difference_type
   operator-(const_result_iterator const &) const;
   //@}
