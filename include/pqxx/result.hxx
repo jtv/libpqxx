@@ -444,6 +444,9 @@ public:
    */
   field_ref one_field_ref(sl = sl::current()) const;
 
+  /// Retrieve encoding group for this result's client encoding.
+  encoding_group get_encoding_group() const noexcept { return m_encoding; }
+
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
 
@@ -487,8 +490,6 @@ private:
   static std::string const s_empty_string;
 
   friend class pqxx::internal::gate::result_field_ref;
-  // XXX: Retire this friendship.
-  friend class pqxx::field;
   PQXX_PURE char const *
   get_value(size_type row, row_size_type col) const noexcept;
   PQXX_PURE bool get_is_null(size_type row, row_size_type col) const noexcept;

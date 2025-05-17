@@ -447,7 +447,7 @@ public:
     }
     else
     {
-      parse_composite(m_home.m_encoding, view(), fields...);
+      parse_composite(m_home.get_encoding_group(), view(), fields...);
       return true;
     }
   }
@@ -520,7 +520,7 @@ public:
   array_parser as_array() const & noexcept
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return array_parser{c_str(), m_home.m_encoding};
+    return array_parser{c_str(), m_home.get_encoding_group()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
