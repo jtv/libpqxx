@@ -373,12 +373,22 @@ public:
     return *this;
   }
 
-  // XXX: Add one_row_ref().
   /// Check that result contains exactly 1 row, and return that row.
-  /** @return @ref pqxx::row
+  /** A @ref row is less efficient than a @ref row_ref, but will ensure that
+   * the underlying result data stays valid for as long as the @ref row object
+   * exists.
+   *
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
   row one_row(sl = sl::current()) const;
+
+  /// Check that result contains exactly 1 row, and return a reference to it.
+  /** You must ensure that the @ref result object stays valid, and does not
+   * move, whenever you access the row.
+   *
+   * @throw @ref unexpected_rows if the actual count is not equal to `n`.
+   */
+  row_ref one_row_ref(sl = sl::current()) const;
 
   /// Expect that result contains at moost one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
@@ -417,15 +427,41 @@ public:
     return *this;
   }
 
-  // XXX: Add one_field_ref().
-  /// Expect that result consists of exactly 1 row and 1 column.
-  /** @return The one @ref pqxx::field in the result.
+  /// Expect that result consists of exactly 1 row and 1 column; return it.
+  /** A @ref field is less efficient than a @ref field_ref, but will ensure
+   * that the underlying result data stays valid for as long as the @ref field
+   * object exists.
+   *
    * @throw @ref usage_error otherwise.
    */
   field one_field(sl = sl::current()) const;
 
+  /// Expect that result consists of exactly 1 row and 1 column; return it.
+  /** You must ensure that the @ref result object stays valid, and does not
+   * move, whenever you access the row.
+   *
+   * @throw @ref usage_error otherwise.
+   */
+  field_ref one_field_ref(sl = sl::current()) const;
+
 private:
   using data_pointer = std::shared_ptr<internal::pq::PGresult const>;
+
+  /// Check that there's exactly row of data, or throw @ref unexpected_rows.
+  void check_one_row(sl loc) const
+  {
+    auto const sz{size()};
+    if (sz != 1)
+    {
+      if (not m_query or m_query->empty())
+        throw unexpected_rows{
+          std::format("Expected 1 row from query, got {}.", sz), loc};
+      else
+        throw unexpected_rows{
+          std::format("Expected 1 row from query '{}', got {}.", *m_query, sz),
+          loc};
+    }
+  }
 
   /// Underlying libpq result set.
   data_pointer m_data;

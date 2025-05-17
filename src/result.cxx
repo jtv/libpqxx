@@ -536,18 +536,14 @@ int pqxx::result::column_type_modifier(
 
 pqxx::row pqxx::result::one_row(sl loc) const
 {
-  auto const sz{size()};
-  if (sz != 1)
-  {
-    // TODO: See whether result contains a generated statement.
-    if (not m_query or m_query->empty())
-      throw unexpected_rows{
-        std::format("Expected 1 row from query, got {}.", sz), loc};
-    else
-      throw unexpected_rows{
-        std::format("Expected 1 row from query '{}', got {}.", *m_query, sz),
-        loc};
-  }
+  check_one_row(loc);
+  return front();
+}
+
+
+pqxx::row_ref pqxx::result::one_row_ref(sl loc) const
+{
+  check_one_row(loc);
   return front();
 }
 
@@ -555,7 +551,14 @@ pqxx::row pqxx::result::one_row(sl loc) const
 pqxx::field pqxx::result::one_field(sl loc) const
 {
   expect_columns(1, loc);
-  return field{one_row(loc)[0]};
+  return one_row(loc)[0];
+}
+
+
+pqxx::field_ref pqxx::result::one_field_ref(sl loc) const
+{
+  expect_columns(1, loc);
+  return one_row_ref(loc)[0];
 }
 
 
