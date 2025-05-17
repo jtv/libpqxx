@@ -21,11 +21,11 @@
  - Retired deprecated `stream_to` constructors.  Use factory functions.
  - Retired `transaction_base::unesc_raw()`.  Use `unesc_bin()`.
  - Retired `transaction_base::quote_raw()`.  Use `quote()` with `bytes_view`.
- - Retired result row slicing.
  - Deprecated `field` constructors are no longer publicly accessible.
  - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
+ - Retired result row slicing.
  - Assume compiler supports `std::remove_cvref_t` etc.
  - Assume compiler supports `std::filesystem::path`.
  - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
@@ -33,11 +33,12 @@
  - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
  - Feel free to use `pqxx::encoding_group`.  It's no longer "internal."
- - There's an `UNKNOWN` encoding group.  It's the only fully safe default.
+ - There's now an `UNKNOWN` encoding group.  It's the only fully safe default.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - Tests are now in a single directory (#934)
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
+ - Handle spaces and single quotes in `connection::connection_string()` (#992)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.

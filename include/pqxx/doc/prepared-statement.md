@@ -47,10 +47,10 @@ the library "this is not SQL text, it's the name of a prepared statement."
 Parameters
 ----------
 
-You can pass parameters to a prepared statemet, just like you can with a
+You can pass parameters to a prepared statement, just like you can with a
 regular statement.  The query text can contain `$1`, `$2` etc. as placeholders
 for parameter values that you will provide when you invoke the prepared
-satement.
+statement.
 
 See @ref parameters for more about this.  And here's a simple example of
 preparing a statement and invoking it with parameters:
@@ -74,7 +74,7 @@ This example looks up the prepared statement "find," passes `name` and
     pqxx::result execute_find(
       pqxx::transaction_base &tx, std::string name, int min_salary)
     {
-      return tx.exec(pqxx::prepped{"find"}, name, min_salary);
+      return tx.exec(pqxx::prepped{"find"}, pqxx::params{name, min_salary});
     }
 ```
 
