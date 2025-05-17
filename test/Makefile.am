@@ -79,6 +79,7 @@ runner_SOURCES = \
   test_column.cxx \
   test_composite.cxx \
   test_connection.cxx \
+  test_connection_string.cxx \
   test_cursor.cxx \
   test_encodings.cxx \
   test_error_verbosity.cxx \

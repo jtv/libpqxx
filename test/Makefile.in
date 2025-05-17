@@ -139,11 +139,12 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test_array.$(OBJEXT) test_blob.$(OBJEXT) \
 	test_cancel_query.$(OBJEXT) test_column.$(OBJEXT) \
 	test_composite.$(OBJEXT) test_connection.$(OBJEXT) \
-	test_cursor.$(OBJEXT) test_encodings.$(OBJEXT) \
-	test_error_verbosity.$(OBJEXT) test_errorhandler.$(OBJEXT) \
-	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
-	test_field.$(OBJEXT) test_float.$(OBJEXT) \
-	test_largeobject.$(OBJEXT) test_nonblocking_connect.$(OBJEXT) \
+	test_connection_string.$(OBJEXT) test_cursor.$(OBJEXT) \
+	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
+	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
+	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
+	test_float.$(OBJEXT) test_largeobject.$(OBJEXT) \
+	test_nonblocking_connect.$(OBJEXT) \
 	test_notice_handler.$(OBJEXT) test_notification.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_range.$(OBJEXT) test_read_transaction.$(OBJEXT) \
@@ -201,8 +202,9 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test90.Po ./$(DEPDIR)/test_array.Po \
 	./$(DEPDIR)/test_blob.Po ./$(DEPDIR)/test_cancel_query.Po \
 	./$(DEPDIR)/test_column.Po ./$(DEPDIR)/test_composite.Po \
-	./$(DEPDIR)/test_connection.Po ./$(DEPDIR)/test_cursor.Po \
-	./$(DEPDIR)/test_encodings.Po \
+	./$(DEPDIR)/test_connection.Po \
+	./$(DEPDIR)/test_connection_string.Po \
+	./$(DEPDIR)/test_cursor.Po ./$(DEPDIR)/test_encodings.Po \
 	./$(DEPDIR)/test_error_verbosity.Po \
 	./$(DEPDIR)/test_errorhandler.Po ./$(DEPDIR)/test_escape.Po \
 	./$(DEPDIR)/test_exceptions.Po ./$(DEPDIR)/test_field.Po \
@@ -489,6 +491,7 @@ runner_SOURCES = \
   test_column.cxx \
   test_composite.cxx \
   test_connection.cxx \
+  test_connection_string.cxx \
   test_cursor.cxx \
   test_encodings.cxx \
   test_error_verbosity.cxx \
@@ -626,6 +629,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_column.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_composite.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_connection_string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_cursor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_encodings.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_error_verbosity.Po@am__quote@ # am--include-marker
@@ -965,6 +969,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test_column.Po
 	-rm -f ./$(DEPDIR)/test_composite.Po
 	-rm -f ./$(DEPDIR)/test_connection.Po
+	-rm -f ./$(DEPDIR)/test_connection_string.Po
 	-rm -f ./$(DEPDIR)/test_cursor.Po
 	-rm -f ./$(DEPDIR)/test_encodings.Po
 	-rm -f ./$(DEPDIR)/test_error_verbosity.Po
@@ -1091,6 +1096,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test_column.Po
 	-rm -f ./$(DEPDIR)/test_composite.Po
 	-rm -f ./$(DEPDIR)/test_connection.Po
+	-rm -f ./$(DEPDIR)/test_connection_string.Po
 	-rm -f ./$(DEPDIR)/test_cursor.Po
 	-rm -f ./$(DEPDIR)/test_encodings.Po
 	-rm -f ./$(DEPDIR)/test_error_verbosity.Po
