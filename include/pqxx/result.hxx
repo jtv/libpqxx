@@ -195,14 +195,18 @@ public:
    */
   void swap(result &) noexcept;
 
-  /// Index a row by number.
+  /// Index a result by number to get to a row.
   /** This returns a @ref row object.  Generally you should not keep the row
    * around as a variable, but if you do, make sure that your variable is a
    * `row`, not a `row&`.
+   *
+   * If you are working in C++23 or better, the two-dimensional indexing
+   * operator is likely to be more efficient.  Otherwise, consider @ref at().
    */
   [[nodiscard]] row_ref operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIM)
+  /// Index a result by row number and column number to get to a field.
   [[nodiscard]] field_ref
   operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif // PQXX_HAVE_MULTIDIM
