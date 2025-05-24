@@ -190,8 +190,6 @@ template struct string_traits<unsigned long long>;
 
 namespace pqxx::internal
 {
-
-
 // TODO: Equivalents for converting a null in the other direction.
 void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
 {

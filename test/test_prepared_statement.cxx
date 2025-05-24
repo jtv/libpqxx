@@ -11,7 +11,7 @@
 
 #define COMPARE_RESULTS(name, lhs, rhs)                                       \
   PQXX_CHECK_EQUAL(                                                           \
-    rhs, lhs,                                                                 \
+    pqxx::to_string(rhs), pqxx::to_string(lhs),                               \
     "Executing " name " as prepared statement yields different results.");
 
 namespace

@@ -70,8 +70,6 @@ void check_connect_string(std::string const &in, std::string const &expected)
 
 void test_connection_string_escapes()
 {
-  // XXX: Deal with encodings?
-  // XXX: Deal with URI encoding?
   check_connect_string("pqxxtest", "pqxxtest");
   check_connect_string("'hello'", "hello");
   check_connect_string("'a b c'", "'a b c'");
