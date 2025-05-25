@@ -13,6 +13,7 @@
  - You can now convert strings to `pqxx::array` types.
  - There are fewer raw pointers in the API, for safety & verifiability.
  - The libpqxx exceptions now have a `std::source_location`. (#923)
+ - Result & row iterators are now proper random access iterators.
  - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
