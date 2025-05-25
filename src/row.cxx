@@ -32,87 +32,25 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 {}
 
 
-pqxx::row::const_iterator pqxx::row::begin() const noexcept
-{
-  return {*this, 0};
-}
-
-
-pqxx::row::const_iterator pqxx::row::cbegin() const noexcept
-{
-  return begin();
-}
-
-
-pqxx::row::const_iterator pqxx::row::end() const noexcept
-{
-  return {*this, m_end};
-}
-
-
-pqxx::row::const_iterator pqxx::row::cend() const noexcept
-{
-  return end();
-}
-
-
 pqxx::row::reference pqxx::row::front() const noexcept
 {
-  return field{m_result, m_index, 0};
+  return {m_result, m_index, 0};
 }
 
 
 pqxx::row::reference pqxx::row::back() const noexcept
 {
-  return field{m_result, m_index, m_end - 1};
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::rbegin() const noexcept
-{
-  return const_reverse_row_iterator{end()};
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::crbegin() const noexcept
-{
-  return rbegin();
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::rend() const noexcept
-{
-  return const_reverse_row_iterator{begin()};
-}
-
-
-pqxx::row::const_reverse_iterator pqxx::row::crend() const noexcept
-{
-  return rend();
-}
-
-
-bool pqxx::row::operator==(row const &rhs) const noexcept
-{
-  if (&rhs == this)
-    return true;
-  auto const s{size()};
-  if (std::size(rhs) != s)
-    return false;
-  for (size_type i{0}; i < s; ++i)
-    if ((*this)[i] != rhs[i])
-      return false;
-  return true;
+  return {m_result, m_index, m_end - 1};
 }
 
 
 pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
 {
-  return field{m_result, m_index, i};
+  return {m_result, m_index, i};
 }
 
 
-pqxx::row::reference pqxx::row::operator[](zview col_name) const
+pqxx::row_ref::reference pqxx::row_ref::operator[](zview col_name) const
 {
   sl const loc{sl::current()};
   return at(col_name, loc);
@@ -131,13 +69,13 @@ void pqxx::row::swap(row &rhs) noexcept
 }
 
 
-pqxx::field pqxx::row::at(zview col_name, sl loc) const
+pqxx::field_ref pqxx::row::at(zview col_name, sl loc) const
 {
   return {m_result, m_index, column_number(col_name, loc)};
 }
 
 
-pqxx::field pqxx::row::at(pqxx::row::size_type i, sl loc) const
+pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
   if (i >= size())
     throw range_error{"Invalid field number.", loc};
@@ -146,34 +84,10 @@ pqxx::field pqxx::row::at(pqxx::row::size_type i, sl loc) const
 }
 
 
-pqxx::oid pqxx::row::column_type(size_type col_num, sl loc) const
-{
-  return m_result.column_type(col_num, loc);
-}
-
-
-pqxx::oid pqxx::row::column_table(size_type col_num, sl loc) const
-{
-  return m_result.column_table(col_num, loc);
-}
-
-
-pqxx::row::size_type pqxx::row::table_column(size_type col_num, sl loc) const
-{
-  return m_result.table_column(col_num, loc);
-}
-
-
-pqxx::row::size_type pqxx::row::column_number(zview col_name, sl loc) const
-{
-  return m_result.column_number(col_name, loc);
-}
-
-
 pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 {
   auto old{*this};
-  m_col++;
+  pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(1);
   return old;
 }
 
@@ -181,7 +95,7 @@ pqxx::const_row_iterator pqxx::const_row_iterator::operator++(int) & noexcept
 pqxx::const_row_iterator pqxx::const_row_iterator::operator--(int) & noexcept
 {
   auto old{*this};
-  m_col--;
+  pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-1);
   return old;
 }
 

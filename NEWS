@@ -1,5 +1,8 @@
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
+ - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
+ - **Result equality now only compares identity, not the data inside.**
+ - **Row/field equality now only compares identity, not the data inside.**
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
@@ -10,6 +13,7 @@
  - You can now convert strings to `pqxx::array` types.
  - There are fewer raw pointers in the API, for safety & verifiability.
  - The libpqxx exceptions now have a `std::source_location`. (#923)
+ - Result & row iterators are now proper random access iterators.
  - More getters are now `noexcept`.
  - Retired `binarystring` and its headers.  Use `blob` instead.
  - Retired `connection_base` type alias.  Use `connection`.
@@ -18,14 +22,11 @@
  - Retired deprecated `stream_to` constructors.  Use factory functions.
  - Retired `transaction_base::unesc_raw()`.  Use `unesc_bin()`.
  - Retired `transaction_base::quote_raw()`.  Use `quote()` with `bytes_view`.
- - Retired result row slicing.
  - Deprecated `field` constructors are no longer publicly accessible.
  - Assume compiler supports concepts.
  - Assume compiler supports integral conversions in `charconv`.
  - Assume compiler supports spans, ranges, and `cmp_less` etc.
- - Retired `binarystring` and its headers.
  - Retired result row slicing.
- - Compiler must support integral conversions in `charconv`.
  - Assume compiler supports `std::remove_cvref_t` etc.
  - Assume compiler supports `std::filesystem::path`.
  - Assume compiler supports `[[likely]]` & `[[unlikely]]`.
@@ -33,7 +34,7 @@
  - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
  - Feel free to use `pqxx::encoding_group`.  It's no longer "internal."
- - There's an `UNKNOWN` encoding group.  It's the only fully safe default.
+ - There's now an `UNKNOWN` encoding group.  It's the only fully safe default.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - Tests are now in a single directory (#934)
 7.10.2

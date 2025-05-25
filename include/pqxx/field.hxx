@@ -21,48 +21,75 @@
 
 #include "pqxx/array.hxx"
 #include "pqxx/composite.hxx"
+#include "pqxx/internal/gates/result-field_ref.hxx"
 #include "pqxx/result.hxx"
 #include "pqxx/strconv.hxx"
 #include "pqxx/types.hxx"
 
+namespace pqxx::internal::gate
+{
+class field_ref_const_row_iterator;
+} // namespace pqxx::internal::gate
+
+
 namespace pqxx
 {
-/// Reference to a field in a result set.
-/** A field represents one entry in a row.  It represents an actual value
- * in the result set, and can be converted to various types.
+/// Lightweight reference to a field in a result set.
+/** Like @ref field, represents one field in a query result set.  Unlike with
+ * @ref field, however, for as long as you're using a `field_ref`, the
+ * @ref result object must...
+ *
+ * 1. remain valid, i.e. you can't destroyit;
+ * 2. and in the same place in memory, i.e. you can't move it;
+ * 3. and keep the same value, i.e you can't assign to it.
+ *
+ * When you use `field_ref`, it is your responsibility to ensure all that.
+ *
+ * You can query whether a `field_ref` is null, and if not, you can convert its
+ * value from its textual "SQL representation" to a more suitable C++ type.
  */
-class PQXX_LIBEXPORT field
+class PQXX_LIBEXPORT field_ref final
 {
 public:
+  /// A type for holding the number of bytes in a field.
   using size_type = field_size_type;
+
+  field_ref() noexcept = default;
+  field_ref(field_ref const &) noexcept = default;
+  field_ref(
+    result const &res, result_size_type row_num,
+    row_size_type col_num) noexcept :
+          m_result(&res), m_row{row_num}, m_column{col_num}
+  {}
+
+  field_ref &operator=(field_ref const &) noexcept = default;
+
+  [[nodiscard]] PQXX_PURE result const &home() const noexcept
+  {
+    return *m_result;
+  }
+  [[nodiscard]] PQXX_PURE result_size_type row_number() const noexcept
+  {
+    return m_row;
+  }
 
   /**
    * @name Comparison
+   *
+   * Equality between two `field_ref` objects means that they both refer to
+   * the same row and column in _the exact same @ref result object._
+   *
+   * So, if you copy a @ref result, even though the two copies refer to the
+   * exact same underlying data structure, a `field_ref` in the one will never
+   * be equal to a `field_ref` in the other.
    */
   //@{
-  /// Byte-by-byte comparison of two fields (all nulls are considered equal)
-  /** @warning null handling is still open to discussion and change!
-   *
-   * Handling of null values differs from that in SQL where a comparison
-   * involving a null value yields null, so nulls are never considered equal
-   * to one another or even to themselves.
-   *
-   * Null handling also probably differs from the closest equivalent in C++,
-   * which is the NaN (Not-a-Number) value, a singularity comparable to
-   * SQL's null.  This is because the builtin == operator demands that a == a.
-   *
-   * The usefulness of this operator is questionable.  No interpretation
-   * whatsoever is imposed on the data; 0 and 0.0 are considered different,
-   * as are null vs. the empty string, or even different (but possibly
-   * equivalent and equally valid) encodings of the same Unicode character
-   * etc.
-   */
-  [[nodiscard]] PQXX_PURE bool operator==(field const &) const noexcept;
-
-  /// Byte-by-byte comparison (all nulls are considered equal)
-  /** @warning See operator==() for important information about this operator
-   */
-  [[nodiscard]] PQXX_PURE bool operator!=(field const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator==(field_ref const &rhs) const noexcept
+  {
+    return (home() == rhs.home()) and (row_number() == rhs.row_number()) and
+           (column_number() == rhs.column_number());
+  }
+  [[nodiscard]] PQXX_PURE bool operator!=(field_ref const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -73,25 +100,36 @@ public:
    */
   //@{
   /// Column name.
-  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
+  [[nodiscard]] PQXX_PURE char const *name(sl loc = sl::current()) const &
+  {
+    return home().column_name(column_number(), loc);
+  }
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
+  [[nodiscard]] PQXX_PURE oid type(sl loc = sl::current()) const;
 
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  PQXX_PURE constexpr row_size_type num() const noexcept { return col(); }
+  [[nodiscard]] PQXX_PURE constexpr row_size_type
+  column_number() const noexcept
+  {
+    return m_column;
+  }
 
   /// What column number in its originating table did this column come from?
-  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
+  [[nodiscard]] PQXX_PURE row_size_type
+  table_column(sl loc = sl::current()) const
+  {
+    return home().table_column(column_number(), loc);
+  }
   //@}
 
   /**
    * @name Content access
    *
-   * You can read a field as any C++ type for which a conversion from
+   * You can read a `field_ref` as any C++ type for which a conversion from
    * PostgreSQL's text format is defined.  See @ref datatypes for how this
    * works.  This mechanism is _weakly typed:_ the conversions do not care
    * what SQL type a field had in the database, only that its actual contents
@@ -103,25 +141,24 @@ public:
    * add your own, see @ref datatypes.
    */
   //@{
-  /// Read as `string_view`, or an empty one if null.
-  /** The result only remains usable while the data for the underlying
-   * @ref result exists.  Once all `result` objects referring to that data have
-   * been destroyed, the `string_view` will no longer point to valid memory.
+  /// Read as @ref zview, or an empty one if null.
+  /** A @ref zview is also a `std::string_view`.  It just adds the promise that
+   * there is a terminating zero right behind the string.
    */
   [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
   {
-    return {c_str(), size()};
+    return zview{c_str(), size()};
   }
 
   /// Read as plain C string.
   /** Since the field's data is stored internally in the form of a
    * zero-terminated C string, this is the fastest way to read it.  Use the
-   * to() or as() functions to convert the string to other types such as
-   * `int`, or to C++ strings.
+   * @ref is_null() and @ref as() functions to convert the string to other
+   * types such as `int`, or to C++ strings.
    *
-   * Do not use this for BYTEA values, or other binary values.  To read those,
-   * convert the value to your desired type using `to()` or `as()`.  For
-   * example: `f.as<pqx::bytes>()`.
+   * @warning Binary data may contain null bytes, so do not use `c_str()` for
+   * those.  Instead, convert the value to a binary type using @ref as(), e.g.
+   * `f.as<pqxx::bytes>()`.
    */
   [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept;
 
@@ -131,84 +168,12 @@ public:
   /// Return number of bytes taken up by the field's value.
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
 
-  /// Read value into obj; or if null, leave obj untouched and return `false`.
-  /** This can be used with optional types (except pointers other than C-style
-   * strings).
-   */
-  template<typename T>
-  auto to(T &obj, ctx c = {}) const ->
-    typename std::enable_if_t<
-      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-      bool>
-  {
-    if (is_null())
-    {
-      return false;
-    }
-    else
-    {
-      auto const data{c_str()};
-      from_string(data, obj, c);
-      return true;
-    }
-  }
-
-  /// Read field as a composite value, write its components into `fields`.
-  /** @warning This is still experimental.  It may change or be replaced.
-   *
-   * Returns whether the field was null.  If it was, it will not touch the
-   * values in `fields`.
-   */
-  template<typename... T> bool composite_to(T &...fields) const
-  {
-    if (is_null())
-    {
-      return false;
-    }
-    else
-    {
-      parse_composite(m_home.m_encoding, view(), fields...);
-      return true;
-    }
-  }
-
-  /// Read value into obj; or leave obj untouched and return `false` if null.
-  template<typename T>
-  [[deprecated("Use to() or as().")]] bool operator>>(T &obj) const
-  {
-    return to(obj);
-  }
-
-  /// Read value into obj; or if null, use default value and return `false`.
-  /** This can be used with `std::optional`, as well as with standard smart
-   * pointer types, but not with raw pointers.  If the conversion from a
-   * PostgreSQL string representation allocates a pointer (e.g. using `new`),
-   * then the object's later deallocation should be baked in as well, right
-   * from the point where the object is created.  So if you want a pointer, use
-   * a smart pointer, not a raw pointer.
-   *
-   * There is one exception, of course: C-style strings.  Those are just
-   * pointers to the field's internal text data.
-   */
-  template<typename T>
-  auto to(T &obj, T const &default_value, ctx c = {}) const ->
-    typename std::enable_if_t<
-      (not std::is_pointer<T>::value or std::is_same<T, char const *>::value),
-      bool>
-  {
-    bool const null{is_null()};
-    if (null)
-      obj = default_value;
-    else
-      obj = from_string<T>(this->view(), c);
-    return not null;
-  }
-
-  /// Return value as object of given type, or default value if null.
+  /// Return value as object of given type, or `default value` if null.
   /** Note that unless the function is instantiated with an explicit template
    * argument, the Default value's type also determines the result type.
    */
-  template<typename T> T as(T const &default_value, ctx c = {}) const
+  template<typename T>
+  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
   {
     if (is_null())
       return default_value;
@@ -222,7 +187,7 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> T as(ctx c = {}) const
+  template<typename T> [[nodiscard]] T as(ctx c = {}) const
   {
     if (is_null())
     {
@@ -235,6 +200,38 @@ public:
     {
       return from_string<T>(this->view(), c);
     }
+  }
+
+  /// Read value into `obj`; or if null, leave `obj` untouched.
+  /** This can be handy to read a field's value but also check for nullness
+   * along the way.
+   *
+   * @return Whether the field contained an actual value.  So: `true` for a
+   * non-null field, or `false` for a null field.
+   */
+  template<typename T> bool to(T &obj, ctx c = {}) const
+  {
+    if (is_null())
+    {
+      return false;
+    }
+    else
+    {
+      from_string(view(), obj, c);
+      return true;
+    }
+  }
+
+  /// Read value into `obj`; or if null, set default value and return `false`.
+  template<typename T>
+  bool to(T &obj, T const &default_value, ctx c = {}) const
+  {
+    bool const null{is_null()};
+    if (null)
+      obj = default_value;
+    else
+      obj = from_string<T>(this->view(), c);
+    return not null;
   }
 
   /// Return value wrapped in some optional type (empty for nulls).
@@ -257,7 +254,271 @@ public:
     if (is_null())
       internal::throw_null_conversion(name_type<array_type>(), loc);
     else
-      return array_type{this->view(), this->m_home.m_encoding, loc};
+      return array_type{
+        this->view(),
+        pqxx::internal::gate::result_field_ref{home()}.encoding(), loc};
+  }
+  //@}
+
+private:
+  friend class pqxx::internal::gate::field_ref_const_row_iterator;
+
+  /// Jump n columns ahead (negative to jump back).
+  void offset(row_difference_type n) { m_column += n; }
+
+  /// The result in which we're iterating.  Must remain valid.
+  result const *m_result = nullptr;
+
+  /// Row's number inside the result.
+  result_size_type m_row = -1;
+
+  /// Field's column number inside the result.
+  /**
+   * You'd expect this to be unsigned, but due to the way reverse iterators
+   * are related to regular iterators, it must be allowed to underflow to -1.
+   */
+  row_size_type m_column = -1;
+};
+} // namespace pqxx
+
+
+#include "pqxx/internal/gates/field_ref-const_row_iterator.hxx"
+
+
+namespace pqxx
+{
+/// Reference to a field in a result set.
+/** This is like @ref field_ref, except it's safe to destroy the @ref result
+ * object or move it to a different place in memory.
+ *
+ * A field represents one entry in a row.  It represents an actual value
+ * in the result set, and can be converted to various types.
+ */
+class PQXX_LIBEXPORT field
+{
+public:
+  using size_type = field_size_type;
+
+  field(field_ref const &f) :
+          m_home{f.home()}, m_row{f.row_number()}, m_col{f.column_number()}
+  {}
+
+  /**
+   * @name Comparison
+   */
+  //@{
+  /// Byte-by-byte comparison of two fields (all nulls are considered equal)
+  /** @warning This differs from what comparisons do in @ref result, @ref row,
+   * @ref row_ref, @ref field, @ref field_ref, and the iterator classes.  It
+   * will change in the future to compare only the fields' identities, not the
+   * actual data.
+   *
+   * Handling of null values differs from that in SQL where a comparison
+   * involving a null value yields null, so nulls are never considered equal
+   * to one another or even to themselves.
+   *
+   * Null handling also probably differs from the closest equivalent in C++,
+   * which is the NaN (Not-a-Number) value, a singularity comparable to
+   * SQL's null.  This is because the builtin == operator demands that a == a.
+   *
+   * The usefulness of this operator is questionable.  No interpretation
+   * whatsoever is imposed on the data; 0 and 0.0 are considered different,
+   * as are null vs. the empty string, or even different (but possibly
+   * equivalent and equally valid) encodings of the same Unicode character
+   * etc.
+   */
+  [[deprecated(
+    "To compare fields by content, compare their view()s.")]] PQXX_PURE bool
+  operator==(field const &) const noexcept;
+
+  /// Byte-by-byte comparison (all nulls are considered equal)
+  /** @warning See operator==() for important information about this operator
+   */
+  [[deprecated(
+    "To compare fields by content, compare their view()s.")]] PQXX_PURE bool
+  operator!=(field const &rhs) const noexcept
+  {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+    return not operator==(rhs);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+  }
+  //@}
+
+  /**
+   * @name Column information
+   */
+  //@{
+  /// Column name.
+  [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
+
+  /// Column type.
+  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const
+  {
+    return as_field_ref().type(loc);
+  }
+
+  /// What table did this column come from?
+  [[nodiscard]] PQXX_PURE oid table(sl loc = sl::current()) const
+  {
+    return as_field_ref().table(loc);
+  }
+
+  /// Return column number.  The first column is 0, the second is 1, etc.
+  [[deprecated("Use column_number().")]] row_size_type num() const noexcept
+  {
+    return column_number();
+  }
+
+  /// What column number in its originating table did this column come from?
+  [[nodiscard]] PQXX_PURE row_size_type table_column(sl = sl::current()) const;
+  //@}
+
+  /**
+   * @name Content access
+   *
+   * You can read a field as any C++ type for which a conversion from
+   * PostgreSQL's text format is defined.  See @ref datatypes for how this
+   * works.  This mechanism is _weakly typed:_ the conversions do not care
+   * what SQL type a field had in the database, only that its actual contents
+   * convert to the target type without problems.  So for instance, you can
+   * read a `text` field as an `int`, so long as the string in the field spells
+   * out a valid `int` number.
+   *
+   * Many built-in types come with conversions predefined.  To find out how to
+   * add your own, see @ref datatypes.
+   */
+  //@{
+  /// Read as @ref zview (which is also a `string_view`).
+  /** Returns an empty view if the field is null.
+   *
+   * The result only remains usable while the data for the underlying
+   * @ref result exists.  Once all `result` objects referring to that data have
+   * been destroyed, the view will no longer point to valid memory.
+   */
+  [[nodiscard]] PQXX_PURE std::string_view view() const & noexcept
+  {
+    return {c_str(), size()};
+  }
+
+  /// Read as plain C string.
+  /** Since the field's data is stored internally in the form of a
+   * zero-terminated C string, this is the fastest way to read it.  Use the
+   * `to()` or `as()` functions to convert the string to other types such as
+   * `int`, or to C++ strings.
+   *
+   * Do not use `c_str()` for BYTEA values, or other binary values.  To read
+   * those, convert the value to some binary type using `to()` or `as()`.  For
+   * example: `f.as<pqx::bytes>()`.
+   */
+  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept
+  {
+    return as_field_ref().c_str();
+  }
+
+  /// Is this field's value null?
+  [[nodiscard]] PQXX_PURE bool is_null() const noexcept
+  {
+    return as_field_ref().is_null();
+  }
+
+  /// Return number of bytes taken up by the field's value.
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept
+  {
+    return as_field_ref().size();
+  }
+
+  /// Read value into `obj`; or if null, leave `obj` untouched.
+  /** This can be handy to read a field's value but also check for nullness
+   * along the way.
+   *
+   * @return Whether the field contained an actual value.  So: `true` for a
+   * non-null field, or `false` for a null field.
+   */
+  template<typename T> bool to(T &obj, ctx c = {}) const
+  {
+    if (is_null())
+    {
+      return false;
+    }
+    else
+    {
+      from_string(view(), obj, c);
+      return true;
+    }
+  }
+
+  /// Read field as a composite value, write its components into `fields`.
+  /** @warning This is still experimental.  It may change or be replaced.
+   *
+   * Returns whether the field was null.  If it was, it will not touch the
+   * values in `fields`.
+   */
+  template<typename... T> bool composite_to(T &...fields) const
+  {
+    if (is_null())
+    {
+      return false;
+    }
+    else
+    {
+      parse_composite(m_home.get_encoding_group(), view(), fields...);
+      return true;
+    }
+  }
+
+  /// Read value into obj; or leave obj untouched and return `false` if null.
+  template<typename T>
+  [[deprecated("Use to() or as().")]] bool operator>>(T &obj) const
+  {
+    return to(obj);
+  }
+
+  /// Read value into obj; or if null, use default value and return `false`.
+  /** This can be used with `std::optional`, as well as with standard smart
+   * pointer types, but not with raw pointers.
+   */
+  template<typename T>
+  bool to(T &obj, T const &default_value, ctx c = {}) const
+  {
+    return as_field_ref().to<T>(obj, default_value, c);
+  }
+
+  /// Return value as object of given type, or default value if null.
+  /** Note that unless the function is instantiated with an explicit template
+   * argument, the Default value's type also determines the result type.
+   */
+  template<typename T>
+  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
+  {
+    return as_field_ref().as<T>(default_value, c);
+  }
+
+  /// Return value as object of given type, or throw exception if null.
+  /** Use as `as<std::optional<int>>()` or `as<my_untemplated_optional_t>()` as
+   * an alternative to `get<int>()`; this is disabled for use with raw pointers
+   * (other than C-strings) because storage for the value can't safely be
+   * allocated here
+   */
+  template<typename T> [[nodiscard]] T as(ctx c = {}) const
+  {
+    return as_field_ref().as<T>(c);
+  }
+
+  /// Return value wrapped in some optional type (empty for nulls).
+  /** Use as `get<int>()` as before to obtain previous behavior, or specify
+   * container type with `get<int, std::optional>()`
+   */
+  template<typename T, template<typename> class O = std::optional>
+  constexpr O<T> get() const
+  {
+    return as<O<T>>();
+  }
+
+  /// Read SQL array contents as a @ref pqxx::array.
+  template<typename ELEMENT, auto... ARGS>
+  array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
+  {
+    return as_field_ref().as_sql_array<ELEMENT, ARGS...>(loc);
   }
 
   /// Parse the field as an SQL array.
@@ -273,12 +534,23 @@ public:
   array_parser as_array() const & noexcept
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return array_parser{c_str(), m_home.m_encoding};
+    return array_parser{c_str(), m_home.get_encoding_group()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
   //@}
 
-protected:
+  /// This field's row number within the result.
+  [[nodiscard]] PQXX_PURE result_size_type row_number() const noexcept
+  {
+    return m_row;
+  }
+  /// This field's column number within the result.
+  [[nodiscard]] PQXX_PURE row_size_type column_number() const noexcept
+  {
+    return m_col;
+  }
+
+private:
   /** Create field as reference to a field in a result set.
    * @param r Row that this field is part of.
    * @param c Column number of this field.
@@ -288,29 +560,63 @@ protected:
   /// Constructor.
   field() noexcept = default;
 
-  constexpr result const &home() const noexcept { return m_home; }
-  constexpr result::size_type idx() const noexcept { return m_row; }
-  constexpr row_size_type col() const noexcept { return m_col; }
+  /// Retun @ref field_ref for this field.
+  /** @warning The @ref field_ref holds a reference to the @ref result
+   * object _inside this `field` object._  So if you change that, the
+   * @ref field_ref becomes invalid.
+   */
+  field_ref as_field_ref() const noexcept
+  {
+    return field_ref{home(), row_number(), column_number()};
+  }
 
-  // TODO: Create gates.
-  friend class pqxx::result;
-  friend class pqxx::row;
+  constexpr result const &home() const noexcept { return m_home; }
+
   field(
     result const &r, result_size_type row_num, row_size_type col_num) noexcept
           :
-          m_col{col_num}, m_home{r}, m_row{row_num}
+          m_home{r}, m_row{row_num}, m_col{col_num}
   {}
 
+  result m_home;
+  result::size_type m_row;
   /**
    * You'd expect this to be unsigned, but due to the way reverse iterators
    * are related to regular iterators, it must be allowed to underflow to -1.
    */
   row_size_type m_col;
-
-private:
-  result m_home;
-  result::size_type m_row;
 };
+
+
+inline char const *field_ref::c_str() const & noexcept
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_value(
+    row_number(), column_number());
+}
+
+inline bool field_ref::is_null() const noexcept
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_is_null(
+    row_number(), column_number());
+}
+
+inline field_size_type field_ref::size() const noexcept
+{
+  return pqxx::internal::gate::result_field_ref{home()}.get_length(
+    row_number(), column_number());
+}
+
+inline oid field_ref::type(sl loc) const
+{
+  return pqxx::internal::gate::result_field_ref{home()}.column_type(
+    column_number(), loc);
+}
+
+inline oid field_ref::table(sl loc) const
+{
+  return pqxx::internal::gate::result_field_ref{home()}.column_table(
+    column_number(), loc);
+}
 
 
 /// Specialization: `to(char const *&)`.
@@ -363,7 +669,7 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
  * promise based on a `string_view`.
  *
  */
-template<> inline zview field::as<zview>(ctx c) const
+template<> inline zview field_ref::as<zview>(ctx c) const
 {
   if (is_null())
     internal::throw_null_conversion(name_type<zview>(), c.loc);
@@ -533,7 +839,16 @@ inline std::nullptr_t from_string<std::nullptr_t>(field const &value, ctx c)
 }
 
 
+/// Convert a field_ref to a string.
+template<>
+inline PQXX_LIBEXPORT std::string to_string(field_ref const &value, ctx)
+{
+  return std::string{value.view()};
+}
 /// Convert a field to a string.
-template<> PQXX_LIBEXPORT std::string to_string(field const &value, ctx);
+template<> inline PQXX_LIBEXPORT std::string to_string(field const &value, ctx)
+{
+  return std::string{value.view()};
+}
 } // namespace pqxx
 #endif

@@ -60,20 +60,6 @@ pqxx::result::result(
 {}
 
 
-bool pqxx::result::operator==(result const &rhs) const noexcept
-{
-  if (&rhs == this) [[unlikely]]
-    return true;
-  auto const s{size()};
-  if (std::size(rhs) != s)
-    return false;
-  for (size_type i{0}; i < s; ++i)
-    if ((*this)[i] != rhs[i])
-      return false;
-  return true;
-}
-
-
 pqxx::result::const_reverse_iterator pqxx::result::rbegin() const noexcept
 {
   return const_reverse_iterator{end()};
@@ -100,7 +86,7 @@ pqxx::result::const_reverse_iterator pqxx::result::crend() const noexcept
 
 pqxx::result::const_iterator pqxx::result::begin() const noexcept
 {
-  return {this, 0};
+  return {*this, 0};
 }
 
 
@@ -126,13 +112,13 @@ bool pqxx::result::empty() const noexcept
 
 pqxx::result::reference pqxx::result::front() const noexcept
 {
-  return row{*this, 0, columns()};
+  return row_ref{*this, 0};
 }
 
 
 pqxx::result::reference pqxx::result::back() const noexcept
 {
-  return row{*this, size() - 1, columns()};
+  return row_ref{*this, size() - 1};
 }
 
 
@@ -143,14 +129,14 @@ void pqxx::result::swap(result &rhs) noexcept
 }
 
 
-pqxx::row pqxx::result::operator[](result_size_type i) const noexcept
+pqxx::row_ref pqxx::result::operator[](result_size_type i) const noexcept
 {
-  return row{*this, i, columns()};
+  return {*this, i};
 }
 
 
 #if defined(PQXX_HAVE_MULTIDIM)
-pqxx::field pqxx::result::operator[](
+pqxx::field_ref pqxx::result::operator[](
   result_size_type row_num, row_size_type col_num) const noexcept
 {
   return {*this, row_num, col_num};
@@ -158,20 +144,20 @@ pqxx::field pqxx::result::operator[](
 #endif // PQXX_HAVE_MULTIDIM
 
 
-pqxx::row pqxx::result::at(pqxx::result::size_type i, sl loc) const
+pqxx::row_ref pqxx::result::at(pqxx::result::size_type i, sl loc) const
 {
-  if (i >= size())
+  if (std::cmp_less(i, 0) or std::cmp_greater_equal(i, size()))
     throw range_error{"Row number out of range.", loc};
   return operator[](i);
 }
 
 
-pqxx::field pqxx::result::at(
+pqxx::field_ref pqxx::result::at(
   pqxx::result_size_type row_num, pqxx::row_size_type col_num, sl loc) const
 {
-  if (row_num >= size())
+  if (std::cmp_less(row_num, 0) or std::cmp_greater_equal(row_num, size()))
     throw range_error{"Row number out of range.", loc};
-  if (col_num >= columns())
+  if (std::cmp_less(col_num, 0) or std::cmp_greater_equal(col_num, columns()))
     throw range_error{"Column out of range.", loc};
   return {*this, row_num, col_num};
 }
@@ -529,7 +515,7 @@ int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
   if (out == 0)
   {
     auto const sz{this->size()};
-    if ((number < 0) or (number >= sz))
+    if (std::cmp_less(number, 0) or std::cmp_greater_equal(number, sz))
       throw argument_error{
         std::format(
           "Column number out of range: {} (have 0 - {})", number, sz),
@@ -550,18 +536,14 @@ int pqxx::result::column_type_modifier(
 
 pqxx::row pqxx::result::one_row(sl loc) const
 {
-  auto const sz{size()};
-  if (sz != 1)
-  {
-    // TODO: See whether result contains a generated statement.
-    if (not m_query or m_query->empty())
-      throw unexpected_rows{
-        std::format("Expected 1 row from query, got {}.", sz), loc};
-    else
-      throw unexpected_rows{
-        std::format("Expected 1 row from query '{}', got {}.", *m_query, sz),
-        loc};
-  }
+  check_one_row(loc);
+  return front();
+}
+
+
+pqxx::row_ref pqxx::result::one_row_ref(sl loc) const
+{
+  check_one_row(loc);
   return front();
 }
 
@@ -570,6 +552,13 @@ pqxx::field pqxx::result::one_field(sl loc) const
 {
   expect_columns(1, loc);
   return one_row(loc)[0];
+}
+
+
+pqxx::field_ref pqxx::result::one_field_ref(sl loc) const
+{
+  expect_columns(1, loc);
+  return one_row_ref(loc)[0];
 }
 
 
@@ -604,7 +593,7 @@ std::optional<pqxx::row> pqxx::result::opt_row(sl loc) const
 pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 {
   const_result_iterator old{*this};
-  m_index++;
+  pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(1);
   return old;
 }
 
@@ -612,7 +601,7 @@ pqxx::const_result_iterator pqxx::const_result_iterator::operator++(int) &
 pqxx::const_result_iterator pqxx::const_result_iterator::operator--(int) &
 {
   const_result_iterator old{*this};
-  m_index--;
+  pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(-1);
   return old;
 }
 
@@ -640,10 +629,4 @@ pqxx::const_reverse_result_iterator::operator--(int) &
   const_reverse_result_iterator const tmp{*this};
   iterator_type::operator++();
   return tmp;
-}
-
-
-template<> std::string pqxx::to_string(field const &value, ctx)
-{
-  return {value.c_str(), std::size(value)};
 }

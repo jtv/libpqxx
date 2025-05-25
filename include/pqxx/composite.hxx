@@ -119,6 +119,7 @@ composite_size_buffer(T const &...fields) noexcept
 }
 
 
+// TODO: How can we pass std::source_location here?
 /// Render a series of values as a single composite SQL value.
 /** @warning This code is still experimental.  Use with care.
  *

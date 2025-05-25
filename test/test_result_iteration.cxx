@@ -12,7 +12,8 @@ void test_result_iteration()
   pqxx::connection cx;
   pqxx::work tx{cx};
   pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
-  static_assert(std::forward_iterator<decltype(r.begin())>);
+  static_assert(std::random_access_iterator<decltype(r.begin())>);
+  static_assert(std::random_access_iterator<decltype(r.begin()->begin())>);
 
   PQXX_CHECK(std::end(r) != std::begin(r), "Broken begin/end.");
   PQXX_CHECK(std::rend(r) != std::rbegin(r), "Broken rbegin/rend.");
@@ -47,13 +48,13 @@ void test_result_iterator_swap()
 
   auto head{std::begin(r)}, next{head + 1};
   head.swap(next);
-  PQXX_CHECK_EQUAL(head[0].as<int>(), 2, "Result iterator swap is wrong.");
-  PQXX_CHECK_EQUAL(next[0].as<int>(), 1, "Result iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*head)[0].as<int>(), 2, "Result iterator swap is wrong.");
+  PQXX_CHECK_EQUAL((*next)[0].as<int>(), 1, "Result iterator swap is crazy.");
 
   auto tail{std::rbegin(r)}, prev{tail + 1};
   tail.swap(prev);
-  PQXX_CHECK_EQUAL(tail[0].as<int>(), 2, "Reverse iterator swap is wrong.");
-  PQXX_CHECK_EQUAL(prev[0].as<int>(), 3, "Reverse iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*tail)[0].as<int>(), 2, "Reverse iterator swap is wrong.");
+  PQXX_CHECK_EQUAL((*prev)[0].as<int>(), 3, "Reverse iterator swap is crazy.");
 }
 
 
@@ -68,12 +69,12 @@ void test_result_iterator_assignment()
 
   fwd = std::begin(r);
   PQXX_CHECK_EQUAL(
-    fwd[0].as<int>(), std::begin(r)[0].as<int>(),
+    (*fwd)[0].as<int>(), (*std::begin(r))[0].as<int>(),
     "Result iterator assignment is wrong.");
 
   rev = std::rbegin(r);
   PQXX_CHECK_EQUAL(
-    rev[0].as<int>(), std::rbegin(r)[0].as<int>(),
+    (*rev)[0].as<int>(), (*std::rbegin(r))[0].as<int>(),
     "Reverse iterator assignment is wrong.");
 }
 
