@@ -42,10 +42,16 @@ class field_ref;
 
 
 /// Lightweight reference to one row in a result.
-/** Like @ref row, represents one row (also called a row) in a query result
- * set. Unlike @ref row, however, it requires the @ref result object to which
- * it refers to remain valid and in the same place in memory throughout its
- * lifetime.  If you use this class, it is your responsibility to ensure that.
+/** Like @ref row, represents one row in a query result set.  Unlike with
+ * @ref row, however, for as long as you're using a `row_ref`, the @ref result
+ * object to which it refers must...
+ * 1. remain valid, i.e. you can't destroy it;
+ * 2. and in the same place in memory, i.e. you can't move it;
+ * 3. and keep the same value, i.e. you can't assign to it.
+ *
+ * When you use `row_ref`, it is your responsibility to ensure all that.
+ *
+ * A `row_ref` is one way of accessing the fields themselves.
  */
 class PQXX_LIBEXPORT row_ref final
 {
@@ -96,7 +102,7 @@ public:
   {
     return rhs.m_result == m_result and rhs.m_index == m_index;
   }
-  [[nodiscard]] bool operator!=(row_ref const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator!=(row_ref const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -119,7 +125,7 @@ public:
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
   [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
 
-  [[nodiscard]] reference operator[](size_type i) const noexcept
+  [[nodiscard]] PQXX_PURE reference operator[](size_type i) const noexcept
   {
     return {home(), row_number(), i};
   }
@@ -127,14 +133,14 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] reference operator[](zview col_name) const;
+  [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
 
   /// Address a field by number, but check that the number is in range.
-  reference at(size_type i, sl loc = sl::current()) const
+  PQXX_PURE reference at(size_type i, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
-    if (i < 0)
+    if (std::cmp_less(i, 0))
       throw usage_error{"Negative column index.", loc};
     auto const sz{size()};
     if (std::cmp_greater_equal(i, sz))
@@ -148,17 +154,21 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(zview col_name, sl loc = sl::current()) const
+  PQXX_PURE reference at(zview col_name, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
     return operator[](column_number(col_name, loc));
   }
 
-  [[nodiscard]] size_type size() const noexcept { return home().columns(); }
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept
+  {
+    return home().columns();
+  }
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] constexpr result::size_type row_number() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr result::size_type
+  row_number() const noexcept
   {
     return m_index;
   }
@@ -168,27 +178,30 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   column_number(zview col_name, sl = sl::current()) const;
 
   /// Return a column's type.
-  [[nodiscard]] oid
+  [[nodiscard]] PQXX_PURE oid
   column_type(size_type col_num, sl loc = sl::current()) const
   {
     return home().column_type(col_num, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] PQXX_PURE oid
+  column_type(zview col_name, sl loc = sl::current()) const
   {
     return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
+  [[nodiscard]] PQXX_PURE oid
+  column_table(size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] PQXX_PURE oid
+  column_table(zview col_name, sl loc = sl::current()) const
   {
     return column_table(column_number(col_name, loc), loc);
   }
@@ -201,14 +214,14 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   table_column(size_type col_num, sl loc = sl::current()) const
   {
     return home().table_column(col_num, loc);
   }
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
     return table_column(column_number(col_name, loc), loc);
@@ -248,7 +261,7 @@ public:
   }
 
   /// The @ref result object to which this `row_ref` refers.
-  result const &home() const noexcept { return *m_result; }
+  PQXX_PURE result const &home() const noexcept { return *m_result; }
 
 private:
   friend class pqxx::internal::gate::row_ref_const_result_iterator;
@@ -396,7 +409,7 @@ public:
   {
     return rhs.m_result == m_result and rhs.m_index == m_index;
   }
-  [[nodiscard]] bool operator!=(row const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator!=(row const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -419,24 +432,27 @@ public:
   [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
 
-  [[nodiscard]] reference operator[](size_type) const noexcept;
+  [[nodiscard]] PQXX_PURE reference operator[](size_type) const noexcept;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] reference operator[](zview col_name) const
+  [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const
   {
     return as_row_ref()[col_name];
   }
 
   /// Address a field by number, but check that the number is in range.
-  reference at(size_type, sl = sl::current()) const;
+  PQXX_PURE reference at(size_type, sl = sl::current()) const;
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  reference at(zview col_name, sl = sl::current()) const;
+  PQXX_PURE reference at(zview col_name, sl = sl::current()) const;
 
-  [[nodiscard]] constexpr size_type size() const noexcept { return m_end; }
+  [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
+  {
+    return m_end;
+  }
 
   /// Row number, assuming this is a real row and not end()/rend().
   [[nodiscard, deprecated("Use row_number().")]] constexpr result::size_type
@@ -446,7 +462,8 @@ public:
   }
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] constexpr result::size_type row_number() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr result::size_type
+  row_number() const noexcept
   {
     return m_index;
   }
@@ -456,34 +473,36 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   column_number(zview col_name, sl loc = sl::current()) const
   {
     return as_row_ref().column_number(col_name, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] oid
+  [[nodiscard]] PQXX_PURE oid
   column_type(size_type col_num, sl loc = sl::current()) const
   {
     return as_row_ref().column_type(col_num, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] PQXX_PURE oid
+  column_type(zview col_name, sl loc = sl::current()) const
   {
     return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid
+  [[nodiscard]] PQXX_PURE oid
   column_table(size_type col_num, sl loc = sl::current()) const
   {
     return as_row_ref().column_table(col_num, loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] PQXX_PURE oid
+  column_table(zview col_name, sl loc = sl::current()) const
   {
     return column_table(column_number(col_name, loc), loc);
   }
@@ -496,21 +515,21 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   table_column(size_type col, sl loc = sl::current()) const
   {
     return as_row_ref().table_column(col, loc);
   }
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] size_type
+  [[nodiscard]] PQXX_PURE size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
     return as_row_ref().table_column(col_name, loc);
   }
   //@}
 
-  [[nodiscard]] constexpr result::size_type num() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr result::size_type num() const noexcept
   {
     return row_number();
   }
@@ -633,7 +652,7 @@ public:
   const_row_iterator(const_row_iterator &&) noexcept = default;
 
   /// Current column number, if the iterator is pointing at a valid field.
-  size_type col() const noexcept { return m_field.column_number(); }
+  PQXX_PURE size_type col() const noexcept { return m_field.column_number(); }
 
   /**
    * @name Dereferencing operators
@@ -643,7 +662,10 @@ public:
   {
     return &m_field;
   }
-  [[nodiscard]] reference operator*() const noexcept { return m_field; }
+  [[nodiscard]] PQXX_PURE reference operator*() const noexcept
+  {
+    return m_field;
+  }
   //@}
 
   /**

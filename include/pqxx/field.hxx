@@ -35,11 +35,18 @@ class field_ref_const_row_iterator;
 namespace pqxx
 {
 /// Lightweight reference to a field in a result set.
-/** This is like a @ref field, except the @ref result object must remain
- * valid for the duration, and not move to another place in memory.
+/** Like @ref field, represents one field in a query result set.  Unlike with
+ * @ref field, however, for as long as you're using a `field_ref`, the
+ * @ref result object must...
  *
- * A field represents one entry in a row.  It represents an actual value
- * in the result set, and can be converted to various types.
+ * 1. remain valid, i.e. you can't destroyit;
+ * 2. and in the same place in memory, i.e. you can't move it;
+ * 3. and keep the same value, i.e you can't assign to it.
+ *
+ * When you use `field_ref`, it is your responsibility to ensure all that.
+ *
+ * You can query whether a `field_ref` is null, and if not, you can convert its
+ * value from its textual "SQL representation" to a more suitable C++ type.
  */
 class PQXX_LIBEXPORT field_ref final
 {
@@ -57,8 +64,14 @@ public:
 
   field_ref &operator=(field_ref const &) noexcept = default;
 
-  result const &home() const noexcept { return *m_result; }
-  result_size_type row_number() const noexcept { return m_row; }
+  [[nodiscard]] PQXX_PURE result const &home() const noexcept
+  {
+    return *m_result;
+  }
+  [[nodiscard]] PQXX_PURE result_size_type row_number() const noexcept
+  {
+    return m_row;
+  }
 
   /**
    * @name Comparison
@@ -71,12 +84,12 @@ public:
    * be equal to a `field_ref` in the other.
    */
   //@{
-  bool operator==(field_ref const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator==(field_ref const &rhs) const noexcept
   {
     return (home() == rhs.home()) and (row_number() == rhs.row_number()) and
            (column_number() == rhs.column_number());
   }
-  bool operator!=(field_ref const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator!=(field_ref const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
@@ -93,13 +106,14 @@ public:
   }
 
   /// Column type.
-  [[nodiscard]] oid PQXX_PURE type(sl loc = sl::current()) const;
+  [[nodiscard]] PQXX_PURE oid type(sl loc = sl::current()) const;
 
   /// What table did this column come from?
   [[nodiscard]] PQXX_PURE oid table(sl = sl::current()) const;
 
   /// Return column number.  The first column is 0, the second is 1, etc.
-  PQXX_PURE constexpr row_size_type column_number() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr row_size_type
+  column_number() const noexcept
   {
     return m_column;
   }
@@ -526,9 +540,15 @@ public:
   //@}
 
   /// This field's row number within the result.
-  PQXX_PURE result_size_type row_number() const noexcept { return m_row; }
+  [[nodiscard]] PQXX_PURE result_size_type row_number() const noexcept
+  {
+    return m_row;
+  }
   /// This field's column number within the result.
-  PQXX_PURE row_size_type column_number() const noexcept { return m_col; }
+  [[nodiscard]] PQXX_PURE row_size_type column_number() const noexcept
+  {
+    return m_col;
+  }
 
 private:
   /** Create field as reference to a field in a result set.

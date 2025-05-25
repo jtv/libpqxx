@@ -186,7 +186,10 @@ public:
 
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;
-  [[nodiscard]] size_type capacity() const noexcept { return size(); }
+  [[nodiscard]] PQXX_PURE size_type capacity() const noexcept
+  {
+    return size();
+  }
 
   /// Exchange two `result` values in an exception-safe manner.
   /** If the swap fails, the two values will be exactly as they were before.
@@ -479,6 +482,7 @@ private:
     return m_query;
   }
 
+  // TODO: Could we colocate some members in a single struct?
   /// Query string.
   std::shared_ptr<std::string const> m_query;
 
@@ -489,7 +493,7 @@ private:
    */
   std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
-  encoding_group m_encoding;
+  encoding_group m_encoding = encoding_group::UNKNOWN;
 
   static std::string const s_empty_string;
 
@@ -501,7 +505,6 @@ private:
   field_size_type get_length(size_type, row_size_type) const noexcept;
 
   friend class pqxx::internal::gate::result_creation;
-  // XXX: Cache numbers of rows & columns in the class.
   result(
     std::shared_ptr<internal::pq::PGresult> const &rhs,
     std::shared_ptr<std::string> const &query,

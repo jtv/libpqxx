@@ -146,7 +146,7 @@ pqxx::field_ref pqxx::result::operator[](
 
 pqxx::row_ref pqxx::result::at(pqxx::result::size_type i, sl loc) const
 {
-  if (i >= size())
+  if (std::cmp_less(i, 0) or std::cmp_greater_equal(i, size()))
     throw range_error{"Row number out of range.", loc};
   return operator[](i);
 }
@@ -155,9 +155,9 @@ pqxx::row_ref pqxx::result::at(pqxx::result::size_type i, sl loc) const
 pqxx::field_ref pqxx::result::at(
   pqxx::result_size_type row_num, pqxx::row_size_type col_num, sl loc) const
 {
-  if (row_num >= size())
+  if (std::cmp_less(row_num, 0) or std::cmp_greater_equal(row_num, size()))
     throw range_error{"Row number out of range.", loc};
-  if (col_num >= columns())
+  if (std::cmp_less(col_num, 0) or std::cmp_greater_equal(col_num, columns()))
     throw range_error{"Column out of range.", loc};
   return {*this, row_num, col_num};
 }
@@ -515,7 +515,7 @@ int pqxx::result::column_storage(pqxx::row::size_type number, sl loc) const
   if (out == 0)
   {
     auto const sz{this->size()};
-    if ((number < 0) or (number >= sz))
+    if (std::cmp_less(number, 0) or std::cmp_greater_equal(number, sz))
       throw argument_error{
         std::format(
           "Column number out of range: {} (have 0 - {})", number, sz),
