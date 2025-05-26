@@ -29,7 +29,7 @@ namespace pqxx::internal
 PQXX_PURE char const *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum value to its libpqxx group.
-PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */, sl);
+PQXX_LIBEXPORT PQXX_PURE encoding_group enc_group(int /* libpq encoding ID */, sl);
 
 
 /// Look up the glyph scanner function for a given encoding group.
@@ -38,44 +38,6 @@ PQXX_LIBEXPORT encoding_group enc_group(int /* libpq encoding ID */, sl);
  * call the scanner function to find the glyphs.
  */
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, sl);
-
-
-// TODO: Get rid of this one.  Use compile-time-specialised version instead.
-/// Find any of the ASCII characters `NEEDLE` in `haystack`.
-/** Scans through `haystack` until it finds a single-byte character that
- * matches any value in `NEEDLE`.
- *
- * If it finds one, returns its offset.  If not, returns the end of the
- * haystack.
- */
-template<char... NEEDLE>
-inline std::size_t find_char(
-  glyph_scanner_func *scanner, std::string_view haystack, std::size_t here,
-  sl loc)
-{
-  auto const sz{std::size(haystack)};
-  auto const data{std::data(haystack)};
-  while (here < sz)
-  {
-    auto next{scanner(data, sz, here, loc)};
-    PQXX_ASSUME(next > here);
-    // (For some reason gcc had a problem with a right-fold here.  But clang
-    // was fine.)
-    if ((... or (data[here] == NEEDLE)))
-    {
-      // Also check against a multibyte character starting with a bytes which
-      // just happens to match one of the ASCII bytes we're looking for.  It'd
-      // be cleaner to check that first, but either works.  So, let's apply the
-      // most selective filter first and skip this check in almost all cases.
-      if (next == here + 1)
-        return here;
-    }
-
-    // Nope, no hit.  Move on.
-    here = next;
-  }
-  return sz;
-}
 
 
 // TODO: Get rid of this one.  Use compile-time-specialised loop instead.

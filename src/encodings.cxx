@@ -221,7 +221,7 @@ PQXX_PURE char const *name_encoding(int encoding_id)
 
 encoding_group enc_group(int libpq_enc_id, sl loc)
 {
-  // TODO: Is there a safe, faster way without using the string representation?
+  // TODO: Is there a safe, faster way without the string representation?
   return enc_group(name_encoding(libpq_enc_id), loc);
 }
 
