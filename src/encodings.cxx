@@ -34,7 +34,8 @@ namespace
 /// Do these two string_views contain the same text?
 constexpr bool same(std::string_view a, std::string_view b) noexcept
 {
-  return a.compare(b) == 0;
+  // Check "readability-string-compare" (clang-tidy) prefers == over compare().
+  return a == b;
 }
 
 
