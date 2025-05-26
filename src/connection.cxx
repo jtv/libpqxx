@@ -1064,7 +1064,6 @@ std::string pqxx::connection::esc_like(
     // unremarkable ones all in one go.
     out.push_back(escape_char);
     out.append(data + here, data + next);
-    here = next;
   }
   return out;
 }
