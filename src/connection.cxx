@@ -1018,19 +1018,54 @@ std::string pqxx::connection::quote_table(table_path path) const
 std::string pqxx::connection::esc_like(
   std::string_view text, char escape_char, sl loc) const
 {
-  std::string out;
-  out.reserve(std::size(text));
-  // TODO: Rewrite using a char_finder.
-  internal::for_glyphs(
-    get_encoding_group(loc),
-    [&out, escape_char](char const *gbegin, char const *gend) {
-      if ((gend - gbegin == 1) and (*gbegin == '_' or *gbegin == '%'))
-        [[unlikely]]
-        out.push_back(escape_char);
+  auto const sz{std::size(text)};
+  if (sz == 0u)
+    return "";
+  auto const data{std::data(text)};
+  auto const finder{
+    pqxx::internal::get_char_finder<'_', '%'>(get_encoding_group(loc), loc)};
 
-      for (; gbegin != gend; ++gbegin) out.push_back(*gbegin);
-    },
-    text.data(), std::size(text), 0u, loc);
+  // We're going to loop in a counterintuitive order.  First we look for the
+  // end of the leading sequence of unremarkable characters.
+  auto next{finder(text, 0, loc)};
+  if (next >= sz)
+    // No special characters at all.  Copy the entire input.
+    return std::string{text};
+
+  // Still here?  Then we'll need to do some actual escaping.  Start a buffer.
+  //
+  // In the worst case we'll need 2 * sz bytes.  So why not just reserve those?
+  // Because if the string is short, reserving too much space may lose us the
+  // Short String Optimization and cost us an unnecessary memory allocation.
+  //
+  // For large inputs, std::string will have an efficient growth algorithm so
+  // it's not like we'll be re-allocating for every byte.
+  std::string out;
+
+  // Append any leading unremarkable characters that we just scanned.
+  out.append(data, data + next);
+
+  // Now we loop.  This is the counterintuitive part.  We'll be dealing in
+  // chunks of text, each _starting_ with a special character with zero or more
+  // unremarkable ones after.
+  for (std::size_t here{next}; here < sz; here = next)
+  {
+    // So we found a special character.  It's exactly 1 byte long.
+    assert((data[here] == '%') or (data[here] == '_'));
+
+    // Look for the next stopping point after that, whether another special
+    // character or the end of the input.  (This search may even start at the
+    // end of the input, and find nothing at all.)
+    next = finder(text, here + 1, loc);
+
+    // Now we start appending: an escape character, followed by the special
+    // character (so that it gets escaped) and its tail of unremarkable
+    // characters after that.  This way we copy the special character and the
+    // unremarkable ones all in one go.
+    out.push_back(escape_char);
+    out.append(data + here, data + next);
+    here = next;
+  }
   return out;
 }
 

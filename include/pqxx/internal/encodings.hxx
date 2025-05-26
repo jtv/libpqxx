@@ -29,7 +29,8 @@ namespace pqxx::internal
 PQXX_PURE char const *name_encoding(int encoding_id);
 
 /// Convert libpq encoding enum value to its libpqxx group.
-PQXX_LIBEXPORT PQXX_PURE encoding_group enc_group(int /* libpq encoding ID */, sl);
+PQXX_LIBEXPORT PQXX_PURE encoding_group
+enc_group(int /* libpq encoding ID */, sl);
 
 
 /// Look up the glyph scanner function for a given encoding group.

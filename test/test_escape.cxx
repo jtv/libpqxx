@@ -148,6 +148,21 @@ void test_esc_like(pqxx::transaction_base &tx)
     tx.esc_like("a%b_c"), "a\\%b\\_c", "esc_like breaks on mix.");
   PQXX_CHECK_EQUAL(
     tx.esc_like("_", '+'), "+_", "esc_like ignores escape character.");
+  PQXX_CHECK_EQUAL(
+    tx.esc_like("%foo"), "\\%foo",
+    "esc_like breaks on leading special character.");
+  PQXX_CHECK_EQUAL(
+    tx.esc_like("foo%"), "foo\\%",
+    "esc_like breaks on trailing special character.");
+  PQXX_CHECK_EQUAL(
+    tx.esc_like("f%o%o"), "f\\%o\\%o",
+    "esc_like breaks on central special character.");
+  PQXX_CHECK_EQUAL(
+    tx.esc_like("___"), "\\_\\_\\_",
+    "esc_like breaks on sequence of special chars.");
+  PQXX_CHECK_EQUAL(
+    tx.esc_like("_n_n__n_"), "\\_n\\_n\\_\\_n\\_",
+    "Strange mix confused esc_like.");
 }
 
 
