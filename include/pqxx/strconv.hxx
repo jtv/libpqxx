@@ -238,7 +238,7 @@ template<typename TYPE> struct string_traits
   [[nodiscard]] static inline TYPE
   from_string(std::string_view text, ctx = {});
 
-  // C++20: Can we make these all constexpr?
+  // TODO: Perhaps one day all of these can be constexpr.
   /// Estimate how much buffer space is needed to represent value.
   /** The estimate may be a little pessimistic, if it saves time.
    *

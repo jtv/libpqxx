@@ -538,12 +538,13 @@ template<> struct string_traits<char const *>
     return len;
   }
 
-  static std::size_t size_buffer(char const *const &value) noexcept
+  static constexpr std::size_t size_buffer(char const *const &value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
     else
-      return std::strlen(value) + 1;
+      // std::char_traits::length() is like std::strlen(), but constexpr.
+      return std::char_traits<char>::length(value) + 1;
   }
 };
 
@@ -664,7 +665,7 @@ template<> struct string_traits<std::string>
     return generic_to_buf({begin, end}, value);
   }
 
-  static std::size_t size_buffer(std::string const &value) noexcept
+  static constexpr std::size_t size_buffer(std::string const &value) noexcept
   {
     return std::size(value) + 1;
   }
@@ -947,6 +948,7 @@ template<binary DATA> struct string_traits<DATA>
 
   static std::size_t size_buffer(DATA const &value) noexcept
   {
+    // TODO: Can we guarantee constexpr?
     return internal::size_esc_bin(std::size(value));
   }
 
