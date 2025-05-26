@@ -88,6 +88,7 @@ runner_SOURCES = \
   test_exceptions.cxx \
   test_field.cxx \
   test_float.cxx \
+  test_helpers.cxx \
   test_largeobject.cxx \
   test_nonblocking_connect.cxx \
   test_notice_handler.cxx \
@@ -108,7 +109,6 @@ runner_SOURCES = \
   test_stream_to.cxx \
   test_string_conversion.cxx \
   test_subtransaction.cxx \
-  test_test_helpers.cxx \
   test_thread_safety_model.cxx \
   test_time.cxx \
   test_transaction.cxx \

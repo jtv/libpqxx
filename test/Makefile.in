@@ -143,8 +143,8 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
 	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
 	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
-	test_float.$(OBJEXT) test_largeobject.$(OBJEXT) \
-	test_nonblocking_connect.$(OBJEXT) \
+	test_float.$(OBJEXT) test_helpers.$(OBJEXT) \
+	test_largeobject.$(OBJEXT) test_nonblocking_connect.$(OBJEXT) \
 	test_notice_handler.$(OBJEXT) test_notification.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_range.$(OBJEXT) test_read_transaction.$(OBJEXT) \
@@ -155,9 +155,8 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test_strconv.$(OBJEXT) test_stream_from.$(OBJEXT) \
 	test_stream_query.$(OBJEXT) test_stream_to.$(OBJEXT) \
 	test_string_conversion.$(OBJEXT) test_subtransaction.$(OBJEXT) \
-	test_test_helpers.$(OBJEXT) test_thread_safety_model.$(OBJEXT) \
-	test_time.$(OBJEXT) test_transaction.$(OBJEXT) \
-	test_transaction_base.$(OBJEXT) \
+	test_thread_safety_model.$(OBJEXT) test_time.$(OBJEXT) \
+	test_transaction.$(OBJEXT) test_transaction_base.$(OBJEXT) \
 	test_transaction_focus.$(OBJEXT) test_transactor.$(OBJEXT) \
 	test_type_name.$(OBJEXT) test_util.$(OBJEXT) \
 	test_zview.$(OBJEXT) runner.$(OBJEXT)
@@ -208,7 +207,8 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test_error_verbosity.Po \
 	./$(DEPDIR)/test_errorhandler.Po ./$(DEPDIR)/test_escape.Po \
 	./$(DEPDIR)/test_exceptions.Po ./$(DEPDIR)/test_field.Po \
-	./$(DEPDIR)/test_float.Po ./$(DEPDIR)/test_largeobject.Po \
+	./$(DEPDIR)/test_float.Po ./$(DEPDIR)/test_helpers.Po \
+	./$(DEPDIR)/test_largeobject.Po \
 	./$(DEPDIR)/test_nonblocking_connect.Po \
 	./$(DEPDIR)/test_notice_handler.Po \
 	./$(DEPDIR)/test_notification.Po ./$(DEPDIR)/test_pipeline.Po \
@@ -223,7 +223,6 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test_stream_query.Po ./$(DEPDIR)/test_stream_to.Po \
 	./$(DEPDIR)/test_string_conversion.Po \
 	./$(DEPDIR)/test_subtransaction.Po \
-	./$(DEPDIR)/test_test_helpers.Po \
 	./$(DEPDIR)/test_thread_safety_model.Po \
 	./$(DEPDIR)/test_time.Po ./$(DEPDIR)/test_transaction.Po \
 	./$(DEPDIR)/test_transaction_base.Po \
@@ -500,6 +499,7 @@ runner_SOURCES = \
   test_exceptions.cxx \
   test_field.cxx \
   test_float.cxx \
+  test_helpers.cxx \
   test_largeobject.cxx \
   test_nonblocking_connect.cxx \
   test_notice_handler.cxx \
@@ -520,7 +520,6 @@ runner_SOURCES = \
   test_stream_to.cxx \
   test_string_conversion.cxx \
   test_subtransaction.cxx \
-  test_test_helpers.cxx \
   test_thread_safety_model.cxx \
   test_time.cxx \
   test_transaction.cxx \
@@ -638,6 +637,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_exceptions.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_field.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_float.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_helpers.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_largeobject.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
@@ -658,7 +658,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stream_to.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string_conversion.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_subtransaction.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_test_helpers.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_thread_safety_model.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_time.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_transaction.Po@am__quote@ # am--include-marker
@@ -978,6 +977,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test_exceptions.Po
 	-rm -f ./$(DEPDIR)/test_field.Po
 	-rm -f ./$(DEPDIR)/test_float.Po
+	-rm -f ./$(DEPDIR)/test_helpers.Po
 	-rm -f ./$(DEPDIR)/test_largeobject.Po
 	-rm -f ./$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f ./$(DEPDIR)/test_notice_handler.Po
@@ -998,7 +998,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test_stream_to.Po
 	-rm -f ./$(DEPDIR)/test_string_conversion.Po
 	-rm -f ./$(DEPDIR)/test_subtransaction.Po
-	-rm -f ./$(DEPDIR)/test_test_helpers.Po
 	-rm -f ./$(DEPDIR)/test_thread_safety_model.Po
 	-rm -f ./$(DEPDIR)/test_time.Po
 	-rm -f ./$(DEPDIR)/test_transaction.Po
@@ -1105,6 +1104,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test_exceptions.Po
 	-rm -f ./$(DEPDIR)/test_field.Po
 	-rm -f ./$(DEPDIR)/test_float.Po
+	-rm -f ./$(DEPDIR)/test_helpers.Po
 	-rm -f ./$(DEPDIR)/test_largeobject.Po
 	-rm -f ./$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f ./$(DEPDIR)/test_notice_handler.Po
@@ -1125,7 +1125,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test_stream_to.Po
 	-rm -f ./$(DEPDIR)/test_string_conversion.Po
 	-rm -f ./$(DEPDIR)/test_subtransaction.Po
-	-rm -f ./$(DEPDIR)/test_test_helpers.Po
 	-rm -f ./$(DEPDIR)/test_thread_safety_model.Po
 	-rm -f ./$(DEPDIR)/test_time.Po
 	-rm -f ./$(DEPDIR)/test_transaction.Po

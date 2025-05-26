@@ -147,7 +147,7 @@ void test_check_throws()
 }
 
 
-void test_test_helpers()
+void test_helpers()
 {
   test_check_notreached();
   test_check();
@@ -208,5 +208,5 @@ void test_test_helpers()
 }
 
 
-PQXX_REGISTER_TEST(test_test_helpers);
+PQXX_REGISTER_TEST(test_helpers);
 } // namespace
