@@ -50,7 +50,9 @@ const std::array<std::string_view, 11u> windows_subtypes{
 namespace pqxx::internal
 {
 // C++23: Reduce to const std::flat_map on top of constexpr array?
-/// Convert libpq encoding name to its libpqxx encoding group.
+/// Look up encoding group for an encding by name.
+/** @throw argument_error if the encoding name is not an accepted one.
+ */
 constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
 {
   auto const sz{std::size(encoding_name)};
