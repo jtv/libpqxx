@@ -29,64 +29,64 @@ extern "C"
 using namespace std::literals;
 
 
+namespace
+{
+/// Do these two string_views contain the same text?
+constexpr bool same(std::string_view a, std::string_view b) noexcept
+{
+  return a.compare(b) == 0;
+}
+
+
+/// Subtypes of Windows encoding.
+const std::array<std::string_view, 11u> windows_subtypes{
+  "866"sv,  "874"sv,  "1250"sv, "1251"sv, "1252"sv, "1253"sv,
+  "1254"sv, "1255"sv, "1256"sv, "1257"sv, "1258"sv,
+};
+} // namespace
+
+
 namespace pqxx::internal
 {
+// C++23: Reduce to const std::flat_map on top of constexpr array?
 /// Convert libpq encoding name to its libpqxx encoding group.
-encoding_group enc_group(std::string_view encoding_name)
+constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
 {
-  struct mapping
-  {
-  private:
-    std::string_view m_name;
-    encoding_group m_group;
-
-  public:
-    constexpr mapping(std::string_view n, encoding_group g) :
-            m_name{n}, m_group{g}
-    {}
-    constexpr bool operator<(mapping const &rhs) const
-    {
-      return m_name < rhs.m_name;
-    }
-    [[nodiscard]] std::string_view get_name() const { return m_name; }
-    [[nodiscard]] encoding_group get_group() const { return m_group; }
-  };
-
-  // C++20: Once compilers are ready, go full constexpr, leave to the compiler.
   auto const sz{std::size(encoding_name)};
   if (sz > 0u)
     switch (encoding_name[0])
     {
     case 'B':
-      if (encoding_name == "BIG5"sv)
+      if (same(encoding_name, "BIG5"sv))
         return encoding_group::BIG5;
       [[unlikely]] break;
     case 'E':
       if (encoding_name.starts_with("EUC_"sv))
       {
         auto const subtype{encoding_name.substr(4)};
-        static constexpr std::array<mapping, 5> subtypes{
-          mapping{"CN"sv, encoding_group::EUC_CN},
-          // We support EUC_JIS_2004 and EUC_JP as identical encodings.
-          mapping{"JIS_2004"sv, encoding_group::EUC_JP},
-          mapping{"JP"sv, encoding_group::EUC_JP},
-          mapping{"KR"sv, encoding_group::EUC_KR},
-          mapping{"TW"sv, encoding_group::EUC_TW},
-        };
-        for (auto const &m : subtypes)
-          if (m.get_name() == subtype)
-            return m.get_group();
+        if (same(subtype, "CN"))
+          return encoding_group::EUC_CN;
+        else if (same(subtype, "JIS_2004"))
+          return encoding_group::EUC_JP;
+        else if (same(subtype, "JP"))
+          return encoding_group::EUC_JP;
+        else if (same(subtype, "KR"))
+          return encoding_group::EUC_KR;
+        else if (same(subtype, "TW"))
+          return encoding_group::EUC_TW;
       }
       [[unlikely]] break;
     case 'G':
-      if (encoding_name == "GB18030"sv)
+      if (same(encoding_name, "GB18030"sv))
         return encoding_group::GB18030;
-      else if (encoding_name == "GBK"sv)
+      else if (same(encoding_name, "GBK"sv))
         return encoding_group::GBK;
       [[unlikely]] break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
-      if (encoding_name.starts_with("ISO_8859_"sv))
+      if (
+        (std::size(encoding_name) == 10) and
+        encoding_name.starts_with("ISO_8859_"sv))
       {
         char const subtype{encoding_name[9]};
         if (('5' <= subtype) and (subtype < '9'))
@@ -94,11 +94,11 @@ encoding_group enc_group(std::string_view encoding_name)
       }
       [[unlikely]] break;
     case 'J':
-      if (encoding_name == "JOHAB"sv)
+      if (same(encoding_name, "JOHAB"sv))
         return encoding_group::JOHAB;
       [[unlikely]] break;
     case 'K':
-      if ((encoding_name == "KOI8R"sv) or (encoding_name == "KOI8U"sv))
+      if (same(encoding_name, "KOI8R"sv) or same(encoding_name, "KOI8U"sv))
         return encoding_group::MONOBYTE;
       [[unlikely]] break;
     case 'L':
@@ -112,48 +112,102 @@ encoding_group enc_group(std::string_view encoding_name)
           if (('1' <= n) and (n <= '9'))
             return encoding_group::MONOBYTE;
         }
-        else if (subtype == "10"sv)
+        else if (same(subtype, "10"sv))
         {
           return encoding_group::MONOBYTE;
         }
       }
       [[unlikely]] break;
     case 'M':
-      if (encoding_name == "MULE_INTERNAL"sv)
+      if (same(encoding_name, "MULE_INTERNAL"sv))
         return encoding_group::MULE_INTERNAL;
       [[unlikely]] break;
     case 'S':
-      if (encoding_name == "SHIFT_JIS_2004"sv)
+      if (same(encoding_name, "SHIFT_JIS_2004"sv))
         return encoding_group::SJIS;
-      else if (encoding_name == "SJIS"sv)
+      else if (same(encoding_name, "SJIS"sv))
         return encoding_group::SJIS;
-      else if (encoding_name == "SQL_ASCII"sv)
+      else if (same(encoding_name, "SQL_ASCII"sv))
         return encoding_group::MONOBYTE;
       [[unlikely]] break;
     case 'U':
-      if (encoding_name == "UHC"sv)
+      if (same(encoding_name, "UHC"sv))
         return encoding_group::UHC;
-      else if (encoding_name == "UTF8"sv) [[likely]]
+      else if (same(encoding_name, "UTF8"sv)) [[likely]]
         return encoding_group::UTF8;
       [[unlikely]] break;
     case 'W':
-      if (encoding_name.substr(0, 3) == "WIN"sv)
+      if (same(encoding_name.substr(0, 3), "WIN"sv))
       {
         auto const subtype{encoding_name.substr(3)};
-        static constexpr std::array<std::string_view, 11u> subtypes{
-          "866"sv,  "874"sv,  "1250"sv, "1251"sv, "1252"sv, "1253"sv,
-          "1254"sv, "1255"sv, "1256"sv, "1257"sv, "1258"sv,
-        };
-        for (auto const n : subtypes)
-          if (n == subtype)
+        for (auto const n : windows_subtypes)
+          if (same(n, subtype))
             return encoding_group::MONOBYTE;
       }
       [[unlikely]] break;
     default: [[unlikely]] break;
     }
-  [[unlikely]] throw std::invalid_argument{
-    std::format("Unrecognized encoding: '{}'.", to_string(encoding_name))};
+  [[unlikely]] throw argument_error{
+    std::format("Unrecognized encoding: '{}'.", to_string(encoding_name)),
+    loc};
 }
+
+
+// Compile-time tests.  (Conditional so as not to slow down production builds.)
+#if defined(DEBUG)
+static_assert(enc_group("BIG5", sl::current()) == encoding_group::BIG5);
+static_assert(enc_group("EUC_CN", sl::current()) == encoding_group::EUC_CN);
+static_assert(
+  enc_group("EUC_JIS_2004", sl::current()) == encoding_group::EUC_JP);
+static_assert(enc_group("EUC_JP", sl::current()) == encoding_group::EUC_JP);
+static_assert(enc_group("EUC_KR", sl::current()) == encoding_group::EUC_KR);
+static_assert(enc_group("EUC_TW", sl::current()) == encoding_group::EUC_TW);
+static_assert(enc_group("GB18030", sl::current()) == encoding_group::GB18030);
+static_assert(enc_group("GBK", sl::current()) == encoding_group::GBK);
+static_assert(
+  enc_group("ISO_8859_1", sl::current()) == encoding_group::MONOBYTE);
+static_assert(
+  enc_group("ISO_8859_2", sl::current()) == encoding_group::MONOBYTE);
+static_assert(
+  enc_group("ISO_8859_3", sl::current()) == encoding_group::MONOBYTE);
+static_assert(
+  enc_group("ISO_8859_4", sl::current()) == encoding_group::MONOBYTE);
+static_assert(
+  enc_group("ISO_8859_5", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("JOHAB", sl::current()) == encoding_group::JOHAB);
+static_assert(enc_group("KOI8R", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("KOI8U", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN1", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN2", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN3", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN4", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN5", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN6", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN7", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN8", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN9", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("LATIN10", sl::current()) == encoding_group::MONOBYTE);
+static_assert(
+  enc_group("MULE_INTERNAL", sl::current()) == encoding_group::MULE_INTERNAL);
+static_assert(
+  enc_group("SHIFT_JIS_2004", sl::current()) == encoding_group::SJIS);
+static_assert(enc_group("SJIS", sl::current()) == encoding_group::SJIS);
+static_assert(
+  enc_group("SQL_ASCII", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("UHC", sl::current()) == encoding_group::UHC);
+static_assert(enc_group("UTF8", sl::current()) == encoding_group::UTF8);
+static_assert(enc_group("WIN866", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN874", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1250", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1251", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1252", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1253", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1254", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1255", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1256", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1257", sl::current()) == encoding_group::MONOBYTE);
+static_assert(enc_group("WIN1258", sl::current()) == encoding_group::MONOBYTE);
+#endif // DEBUG
 
 
 PQXX_PURE char const *name_encoding(int encoding_id)
@@ -162,10 +216,10 @@ PQXX_PURE char const *name_encoding(int encoding_id)
 }
 
 
-encoding_group enc_group(int libpq_enc_id, sl)
+encoding_group enc_group(int libpq_enc_id, sl loc)
 {
-  // TODO: Can we safely do this without using string representation?
-  return enc_group(name_encoding(libpq_enc_id));
+  // TODO: Is there a safe, faster way without using the string representation?
+  return enc_group(name_encoding(libpq_enc_id), loc);
 }
 
 
