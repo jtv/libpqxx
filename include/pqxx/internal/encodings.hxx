@@ -160,7 +160,6 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   }
   return sz;
 }
-} // namespace
 
 
 /// Find first of `NEEDLE` ASCII chars in `haystack`.
@@ -189,6 +188,7 @@ find_s_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   }
   return here;
 }
+} // namespace
 
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
