@@ -289,7 +289,6 @@ private:
     return get_tuple<TUPLE>(seq{}, loc);
   }
 
-  // TODO: Create gate.
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
@@ -574,8 +573,6 @@ private:
    */
   row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
 
-  // XXX: Can we get rid of this, or replace it with a gate?
-  friend class result;
   row(result r, result_size_type index, size_type cols) noexcept;
 
   /// Throw @ref usage_error if row size is not `expected`.
@@ -588,7 +585,6 @@ private:
         loc};
   }
 
-  template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
@@ -597,21 +593,8 @@ private:
       t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
-  // XXX: Can we get rid of this, or replace it with a gate?
+  // TODO: Define gate.
   friend class field;
-
-  /// Convert row's values as a new tuple.
-  template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
-  {
-    return std::make_tuple(get_field<TUPLE, indexes>()...);
-  }
-
-  /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
-  {
-    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
-  }
 
   /// Result set of which this is one row.
   result m_result;
