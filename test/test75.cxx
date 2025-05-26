@@ -3,7 +3,7 @@
 
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Compare const_reverse_iterator iteration of a

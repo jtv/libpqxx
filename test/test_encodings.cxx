@@ -1,4 +1,4 @@
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 #include "pqxx/internal/encodings.hxx"
 

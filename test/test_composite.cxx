@@ -1,4 +1,4 @@
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 #include "pqxx/composite"
 #include "pqxx/transaction"

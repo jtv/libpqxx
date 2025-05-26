@@ -1,7 +1,7 @@
 #include <pqxx/transaction>
 #include <pqxx/transactor>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 namespace
 {

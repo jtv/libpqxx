@@ -2,7 +2,7 @@
 
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Read and print table using row iterators.

@@ -1,6 +1,6 @@
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 // Simple test program for libpqxx.  Test string conversion routines.
 namespace

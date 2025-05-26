@@ -7,7 +7,7 @@
 #include <pqxx/cursor>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // "Adopted SQL Cursor" test program for libpqxx.  Create SQL cursor, wrap it

@@ -1,7 +1,7 @@
 #include <pqxx/nontransaction>
 #include <pqxx/subtransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 namespace
 {

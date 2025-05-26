@@ -5,7 +5,7 @@
 
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 // Test program for libpqxx.  Define and use prepared statements.
 

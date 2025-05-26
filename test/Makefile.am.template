@@ -15,7 +15,7 @@ AM_CPPFLAGS=-I$(top_builddir)/include -I$(top_srcdir)/include
 # unnecessary entries, and incorrectly mentions include/pqxx directly.
 DEFAULT_INCLUDES=
 
-noinst_HEADERS = test_helpers.hxx
+noinst_HEADERS = helpers.hxx
 
 CLEANFILES=pqxxlo.txt
 MAINTAINERCLEANFILES=Makefile.in

@@ -2,7 +2,7 @@
 
 #include <pqxx/internal/wait.hxx>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 namespace

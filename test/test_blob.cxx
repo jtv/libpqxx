@@ -4,7 +4,7 @@
 #include <pqxx/blob>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 #include "test_types.hxx"
 
 

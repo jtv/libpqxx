@@ -1,6 +1,6 @@
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Test result::swap()
