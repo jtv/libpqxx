@@ -39,19 +39,17 @@ parse_composite(encoding_group enc, std::string_view text, T &...fields)
   // TODO: Turn this into a parameter.
   auto const loc{sl::current()};
 
-  auto const scan{pqxx::internal::get_glyph_scanner(enc, loc)};
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
     throw conversion_error{
       "Cannot parse composite value from empty string.", loc};
 
-  std::size_t here{0}, next{scan(data, size, here, loc)};
-  if (next != 1 or data[here] != '(')
+  if (data[0] != '(')
     throw conversion_error{
       std::format("Invalid composite value string: '{}'.", text), loc};
 
-  here = next;
+  std::size_t here{1};
 
   // TODO: Reuse parse_composite_field specialisation across calls.
   constexpr auto num_fields{sizeof...(fields)};
