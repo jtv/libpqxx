@@ -566,7 +566,7 @@ public:
 
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
-protected:
+private:
   /// Return @ref row_ref for this row.
   /** @warning The @ref row_ref holds a reference to the @ref result object
    * _inside this `row` object._  So if you change that, the @ref row_ref
@@ -574,6 +574,7 @@ protected:
    */
   row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
 
+  // XXX: Can we get rid of this, or replace it with a gate?
   friend class result;
   row(result r, result_size_type index, size_type cols) noexcept;
 
@@ -596,7 +597,21 @@ protected:
       t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
   }
 
+  // XXX: Can we get rid of this, or replace it with a gate?
   friend class field;
+
+  /// Convert row's values as a new tuple.
+  template<typename TUPLE, std::size_t... indexes>
+  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  {
+    return std::make_tuple(get_field<TUPLE, indexes>()...);
+  }
+
+  /// Extract and convert a field.
+  template<typename TUPLE, std::size_t index> auto get_field() const
+  {
+    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
+  }
 
   /// Result set of which this is one row.
   result m_result;
@@ -610,20 +625,6 @@ protected:
 
   /// Number of columns in the row.
   size_type m_end = 0;
-
-private:
-  /// Convert row's values as a new tuple.
-  template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>, sl) const
-  {
-    return std::make_tuple(get_field<TUPLE, indexes>()...);
-  }
-
-  /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
-  {
-    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
-  }
 };
 
 
