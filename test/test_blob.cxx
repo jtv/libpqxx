@@ -41,7 +41,7 @@ void test_blob_create_with_oid_requires_oid_be_free()
   auto id{pqxx::blob::create(tx)};
 
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::blob::create(tx, id)), pqxx::failure,
+    std::ignore = pqxx::blob::create(tx, id), pqxx::failure,
     "Not getting expected error when oid not free.");
 }
 
@@ -66,7 +66,7 @@ void test_blobs_are_transactional()
   tx.abort();
   pqxx::work tx2{cx};
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::blob::open_r(tx2, id)), pqxx::failure,
+    std::ignore = pqxx::blob::open_r(tx2, id), pqxx::failure,
     "Blob from aborted transaction still exists.");
 }
 
@@ -78,7 +78,7 @@ void test_blob_remove_removes_blob()
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::blob::open_r(tx, id)), pqxx::failure,
+    std::ignore = pqxx::blob::open_r(tx, id), pqxx::failure,
     "Attempt to open blob after removing should have failed.");
 }
 

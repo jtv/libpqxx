@@ -35,7 +35,7 @@ void test_notice_handler_works_after_connection_closes()
 
   // Trigger a notice by asking libpq about a nonexistent column.
   PQXX_CHECK_THROWS_EXCEPTION(
-    pqxx::ignore_unused(r.table_column(99)),
+    std::ignore = r.table_column(99),
     "Expected an out-of-bounds table_column() to throw an error.");
 
   PQXX_CHECK_EQUAL(

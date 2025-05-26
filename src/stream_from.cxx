@@ -160,8 +160,7 @@ void pqxx::stream_from::complete(sl loc)
     bool done{false};
     while (not done)
     {
-      auto [line, size] = get_raw_line();
-      ignore_unused(size);
+      [[maybe_unused]] auto [line, size] = get_raw_line();
       done = not line.get();
     }
   }

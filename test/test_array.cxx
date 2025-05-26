@@ -565,8 +565,7 @@ void test_array_strings()
   {
     auto const f{tx.exec("SELECT ARRAY[$1]", pqxx::params{input}).one_field()};
     pqxx::array_parser parser{f.as<std::string_view>()};
-    auto [start_juncture, start_value]{parser.get_next()};
-    pqxx::ignore_unused(start_value);
+    [[maybe_unused]] auto [start_juncture, start_value]{parser.get_next()};
     PQXX_CHECK_EQUAL(
       start_juncture, pqxx::array_parser::juncture::row_start, "Bad start.");
     auto [value_juncture, value]{parser.get_next()};
@@ -597,7 +596,7 @@ void test_array_parses_real_arrays()
   pqxx::work tx{cx};
 
   PQXX_CHECK_THROWS(
-    (pqxx::ignore_unused(pqxx::from_string<pqxx::array<int>>("{}"))),
+    (std::ignore = pqxx::from_string<pqxx::array<int>>("{}")),
     pqxx::usage_error,
     "Array parser accepted text in an unknown encoding group.");
 

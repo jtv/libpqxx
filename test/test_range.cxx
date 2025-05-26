@@ -462,7 +462,7 @@ void test_parse_bad_range()
 
   for (auto bad : bad_ranges)
     PQXX_CHECK_THROWS(
-      pqxx::ignore_unused(traits::from_string(bad)), conv_err,
+      std::ignore = traits::from_string(bad), conv_err,
       std::format("This range wasn't supposed to parse: '{}'", bad));
 }
 

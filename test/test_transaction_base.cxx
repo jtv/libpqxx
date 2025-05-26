@@ -151,8 +151,7 @@ void test_transaction_query_params()
   PQXX_CHECK_EQUAL(res_int, 11, "Wrong value from query1() with params.");
 
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(
-      tx.query1<int>("SELECT * from generate_series(1, $1)", {4})),
+    std::ignore = tx.query1<int>("SELECT * from generate_series(1, $1)", {4}),
     pqxx::unexpected_rows,
     "query1() with params failed to detect wrong number of rows.");
 
@@ -268,7 +267,7 @@ void test_transaction_query1()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  std::tuple<int> x;
+  [[maybe_unused]] std::tuple<int> x;
   PQXX_CHECK_THROWS(
     x = tx.query1<int>("SELECT * FROM generate_series(1, 1) AS i WHERE i = 5"),
     pqxx::unexpected_rows, "Zero rows did not throw unexpected_rows.");
@@ -282,7 +281,6 @@ void test_transaction_query1()
   PQXX_CHECK_THROWS(
     x = tx.query1<int>("SELECT 1, 2"), pqxx::usage_error,
     "Wrong number of columns did not throw usage_error.");
-  pqxx::ignore_unused(x);
 }
 
 
@@ -293,10 +291,10 @@ void test_transaction_query_n()
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(tx.query_n<int>(5, "SELECT generate_series(1, 3)")),
+    std::ignore = tx.query_n<int>(5, "SELECT generate_series(1, 3)"),
     pqxx::unexpected_rows, "No exception when query_n returns too few rows.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(tx.query_n<int>(5, "SELECT generate_series(1, 10)")),
+    std::ignore = tx.query_n<int>(5, "SELECT generate_series(1, 10)"),
     pqxx::unexpected_rows, "No exception when query_n returns too many rows.");
 
   std::vector<int> v;

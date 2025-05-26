@@ -74,8 +74,7 @@ void test_date_string_conversion()
   };
   for (auto const text : invalid)
     PQXX_CHECK_THROWS(
-      pqxx::ignore_unused(
-        pqxx::from_string<std::chrono::year_month_day>(text)),
+      std::ignore = pqxx::from_string<std::chrono::year_month_day>(text),
       pqxx::conversion_error,
       std::format("Invalid date '{}' parsed as if valid.", text));
 }

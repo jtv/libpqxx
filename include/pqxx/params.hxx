@@ -108,12 +108,11 @@ public:
 
   /// Append a non-null parameter, converting it to its string
   /// representation.
-  template<typename TYPE> void append(TYPE const &value) &
+  template<typename TYPE> void append([[maybe_unused]] TYPE const &value) &
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
     if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
     {
-      ignore_unused(value);
       m_params.emplace_back();
     }
     else if (is_null(value))

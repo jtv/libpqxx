@@ -4,9 +4,7 @@
 #include <pqxx/result>
 #include <pqxx/row>
 
-namespace pqxx
-{
-namespace test
+namespace pqxx::test
 {
 class test_failure : public std::logic_error
 {
@@ -297,9 +295,11 @@ std::string list_result_iterator(result::const_iterator const &);
 
 // @deprecated Set up test data for legacy tests.
 void create_pqxxevents(transaction_base &);
-} // namespace test
+} // namespace pqxx::test
 
 
+namespace pqxx
+{
 template<> inline std::string to_string(row const &value, ctx)
 {
   return pqxx::test::list_row(value);

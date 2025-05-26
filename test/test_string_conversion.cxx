@@ -142,19 +142,19 @@ void test_integer_conversion()
     pqxx::from_string<int>(" 12"), 12,
     "Leading whitespace confused integer conversion.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::from_string<int>("")), pqxx::conversion_error,
+    std::ignore = pqxx::from_string<int>(""), pqxx::conversion_error,
     "Converting empty string to integer did not throw conversion error.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::from_string<int>(" ")), pqxx::conversion_error,
+    std::ignore = pqxx::from_string<int>(" "), pqxx::conversion_error,
     "Converting whitespace to integer did not throw conversion error.");
   PQXX_CHECK_EQUAL(
     pqxx::from_string<int>("-6"), -6,
     "Leading whitespace did not work with negative number.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::from_string<int>("- 3")), pqxx::conversion_error,
+    std::ignore = pqxx::from_string<int>("- 3"), pqxx::conversion_error,
     "A space between negation and number was not properly flagged.");
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(pqxx::from_string<int>("-")), pqxx::conversion_error,
+    std::ignore = pqxx::from_string<int>("-"), pqxx::conversion_error,
     "Just a minus sign should not parse as an integer.");
 }
 

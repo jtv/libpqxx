@@ -208,7 +208,7 @@ void test_binary_esc_checks_buffer_length()
   pqxx::bytes bin{std::byte{'b'}, std::byte{'o'}, std::byte{'o'}};
 
   buf.resize(2 * std::size(bin) + 3);
-  pqxx::ignore_unused(tx.esc(bin, buf));
+  std::ignore = tx.esc(bin, buf);
   PQXX_CHECK_EQUAL(int{buf[0]}, int{'\\'}, "Unexpected binary escape format.");
   PQXX_CHECK_NOT_EQUAL(
     int(buf[std::size(buf) - 2]), int('\0'), "Escaped binary ends too soon.");
@@ -217,7 +217,7 @@ void test_binary_esc_checks_buffer_length()
 
   buf.resize(2 * std::size(bin) + 2);
   PQXX_CHECK_THROWS(
-    pqxx::ignore_unused(tx.esc(bin, buf)), pqxx::range_error,
+    std::ignore = tx.esc(bin, buf), pqxx::range_error,
     "Didn't get expected exception from escape overrun.");
 }
 

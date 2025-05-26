@@ -56,7 +56,7 @@ namespace pqxx
 #endif
 
 
-/// Internal items for libpqxx' own use.  Do not use these yourself.
+/// Internal items for libpqxx's own use.  Do not use these yourself.
 namespace pqxx::internal
 {} // namespace pqxx::internal
 
@@ -65,8 +65,14 @@ namespace pqxx
 {
 using namespace std::literals;
 
-/// Suppress compiler warning about an unused item.
-template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
+
+/// Ignore an unused item.
+/** This should no longer be needed.  In modern C++, use `[[maybe_unused]]`,
+ * `std::ignore`, and/or the "`_`" (underscore) variable.
+ */
+template<typename... T>
+[[maybe_unused, deprecated("Use [[maybe_unused]], std::ignore, etc.")]]
+inline constexpr void ignore_unused(T &&...) noexcept
 {}
 
 
@@ -75,7 +81,8 @@ template<typename... T> inline constexpr void ignore_unused(T &&...) noexcept
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO check_cast(FROM value, std::string_view description, sl loc)
+inline TO
+check_cast(FROM value, [[maybe_unused]] std::string_view description, sl loc)
 {
   static_assert(std::is_arithmetic_v<FROM>);
   static_assert(std::is_arithmetic_v<TO>);
@@ -85,10 +92,6 @@ inline TO check_cast(FROM value, std::string_view description, sl loc)
   // convertible to other arithmetic types as far as I can see.
   if constexpr (std::is_same_v<FROM, bool>)
     return static_cast<TO>(value);
-
-  // Depending on our "if constexpr" conditions, this parameter may not be
-  // needed.  Some compilers will warn.
-  ignore_unused(description);
 
   using from_limits = std::numeric_limits<decltype(value)>;
   using to_limits = std::numeric_limits<TO>;
@@ -174,8 +177,8 @@ inline PQXX_PRIVATE void check_version() noexcept
   // often for performance reasons.  A local static variable is initialised
   // only on the definition's first execution.  Compilers will be well
   // optimised for this behaviour, so there's a minimal one-time cost.
-  static auto const version_ok{internal::PQXX_VERSION_CHECK()};
-  ignore_unused(version_ok);
+  [[maybe_unused]] static auto const version_ok{
+    internal::PQXX_VERSION_CHECK()};
 }
 
 
@@ -585,8 +588,8 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
 
 
 /// Get error string for a given @c errno value.
-[[nodiscard]] inline char const *PQXX_COLD
-error_string(int err_num, std::span<char> buffer)
+[[nodiscard]] inline char const *PQXX_COLD error_string(
+  [[maybe_unused]] int err_num, [[maybe_unused]] std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.
   using namespace std;
@@ -602,7 +605,6 @@ error_string(int err_num, std::span<char> buffer)
   return make_strerror_rs_result(err_result, buffer);
 #else
   // Fallback case, hopefully for no actual platforms out there.
-  pqxx::ignore_unused(err_num, buffer);
   return "(No error information available.)";
 #endif
 }
