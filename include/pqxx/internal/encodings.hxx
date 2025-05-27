@@ -104,7 +104,7 @@ between_inc(unsigned char value, unsigned bottom, unsigned top)
  */
 template<encoding_group> struct glyph_scanner
 {
-  // TODO: Convert to use string_view?
+  // TODO: Convert to use string_view.
   /// Find the next glyph in `buffer` after position `start`.
   PQXX_PURE static std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl);
@@ -121,7 +121,7 @@ namespace
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE inline std::size_t
+PQXX_PURE inline constexpr std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -209,7 +209,7 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> struct glyph_scanner<encoding_group::BIG5>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -248,7 +248,7 @@ depending on the specific extension:
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
 template<> struct glyph_scanner<encoding_group::EUC_CN>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
@@ -278,7 +278,7 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::EUC_JP>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
@@ -327,7 +327,7 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
 template<> struct glyph_scanner<encoding_group::EUC_KR>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -353,7 +353,7 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
 template<> struct glyph_scanner<encoding_group::EUC_TW>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -392,7 +392,7 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<> struct glyph_scanner<encoding_group::GB18030>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -436,7 +436,7 @@ template<> struct glyph_scanner<encoding_group::GB18030>
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<> struct glyph_scanner<encoding_group::GBK>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -481,7 +481,7 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 */
 template<> struct glyph_scanner<encoding_group::JOHAB>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -516,7 +516,7 @@ using PostgreSQL 9.2.23.  Use this at your own risk.
 */
 template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -570,7 +570,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::SJIS>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len)
@@ -603,7 +603,7 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<> struct glyph_scanner<encoding_group::UHC>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -643,7 +643,7 @@ template<> struct glyph_scanner<encoding_group::UHC>
 // https://en.wikipedia.org/wiki/UTF-8#Description
 template<> struct glyph_scanner<encoding_group::UTF8>
 {
-  static PQXX_PURE std::size_t
+  static PQXX_PURE constexpr std::size_t
   call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
   {
     if (start >= buffer_len) [[unlikely]]
@@ -710,7 +710,7 @@ template<> struct glyph_scanner<encoding_group::UTF8>
  * value we're looking for.  We don't actually need to know where the
  * boundaries between the characters are.
  */
-constexpr inline encoding_group
+PQXX_PURE constexpr inline encoding_group
 map_ascii_search_group(encoding_group enc) noexcept
 {
   switch (enc)

@@ -31,9 +31,9 @@ namespace
 /** A character is "useless" at the end of a query if it is either whitespace
  * or a semicolon.
  */
-inline bool useless_trail(char c)
+PQXX_PURE inline constexpr bool useless_trail(char c) noexcept
 {
-  return std::isspace(c) or c == ';';
+  return (c == ' ') or (c == '\t') or (c == '\n') or (c == '\r') or (c == ';');
 }
 
 
@@ -57,16 +57,18 @@ inline bool useless_trail(char c)
  *
  * The query must be nonempty.
  */
-std::string::size_type
+PQXX_PURE constexpr std::string::size_type
 find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
-  auto const text{std::data(query)};
   auto const size{std::size(query)};
-  std::string::size_type end{size};
+
+  // Marker for the end of the last "useful" character in the query.
+  std::size_t end{};
+  // XXX: Check map_ascii_search_group(enc) here, not enc.
   if (enc == pqxx::encoding_group::MONOBYTE)
   {
-    // This is an encoding where we can scan backwards from the end.
-    while (end > 0 and useless_trail(query[end - 1])) --end;
+    // This is an encoding where we can just scan backwards from the end.
+    for (end = size; end > 0 and useless_trail(query[end - 1]); --end);
   }
   else
   {
@@ -74,18 +76,61 @@ find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
     // the beginning.
     end = 0;
 
-    // TODO: Rewrite using find_char.
-    pqxx::internal::for_glyphs(
-      enc,
-      [text, &end](char const *gbegin, char const *gend) {
-        if (gend - gbegin > 1 or not useless_trail(*gbegin))
-          end = std::string::size_type(gend - text);
-      },
-      text, size, 0u, loc);
-  }
+    // Look for ASCII whitespace & semicolons.  Really we're looking for
+    // anything that's _not_ one of those.
+    auto const finder{
+      pqxx::internal::get_char_finder<' ', '\t', '\n', '\r', ';'>(enc, loc)};
 
+    for (std::size_t here{0}, next{}; here < size; here = next + 1)
+    {
+      next = finder(query, here, loc);
+      if ((next - here) > 0)
+        // Found something that's not whitespace or semicolon.  Move the "end"
+        // marker to the location right after it.
+        end = next;
+    }
+  }
   return end;
 }
+
+
+#if !defined(NDEBUG)
+/// Convenience shorthand: Invoke @ref find_query_end for compile-time testing.
+consteval auto check_query_end(
+  pqxx::encoding_group enc, std::string_view query,
+  pqxx::sl loc = pqxx::sl::current())
+{
+  return find_query_end(query, enc, loc);
+}
+
+
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, " ( ; ) ") == 6);
+
+static_assert(check_query_end(pqxx::encoding_group::BIG5, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::BIG5, " ( ; ) ") == 6);
+
+static_assert(check_query_end(pqxx::encoding_group::UTF8, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::UTF8, " ( ; ) ") == 6);
+#endif // NDEBUG
 } // namespace
 
 
@@ -96,7 +141,7 @@ pqxx::internal::sql_cursor::sql_cursor(
         cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
 {
   if (&t.conn() != &m_home)
-    throw internal_error{"Cursor in wrong connection", loc};
+    throw internal_error{"Using cursor in the wrong connection.", loc};
 
   if (std::empty(query))
     throw usage_error{"Cursor has empty query.", loc};
