@@ -41,26 +41,6 @@ enc_group(int /* libpq encoding ID */, sl);
 PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, sl);
 
 
-// TODO: Get rid of this one.  Use compile-time-specialised loop instead.
-/// Iterate over the glyphs in a buffer.
-/** Scans the glyphs in the buffer, and for each, passes its begin and its
- * one-past-end pointers to `callback`.
- */
-template<typename CALLABLE>
-inline void for_glyphs(
-  encoding_group enc, CALLABLE callback, char const buffer[],
-  std::size_t buffer_len, std::size_t start, sl loc)
-{
-  auto const scan{get_glyph_scanner(enc, loc)};
-  for (std::size_t here = start, next; here < buffer_len; here = next)
-  {
-    next = scan(buffer, buffer_len, here, loc);
-    PQXX_ASSUME(next > here);
-    callback(buffer + here, buffer + next);
-  }
-}
-
-
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.

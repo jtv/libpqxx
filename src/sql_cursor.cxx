@@ -62,9 +62,13 @@ find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
   auto const size{std::size(query)};
 
+  // Our only primitives for parsing text encodings are a char_finder_func, and
+  // the obvious shortcut for the special "monobyte" case.  Therefore, it's
+  // safe here to treat all ASCII-safe encodings as monobyte here.
+  enc = pqxx::internal::map_ascii_search_group(enc);
+
   // Marker for the end of the last "useful" character in the query.
   std::size_t end{};
-  // XXX: Check map_ascii_search_group(enc) here, not enc.
   if (enc == pqxx::encoding_group::MONOBYTE)
   {
     // This is an encoding where we can just scan backwards from the end.

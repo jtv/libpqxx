@@ -20,7 +20,7 @@ template<encoding_group ENC>
 inline std::size_t scan_double_quoted_string(
   char const input[], std::size_t size, std::size_t pos, sl loc)
 {
-  // TODO: find_char<'"', '\\'>().
+  // XXX: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
   auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
@@ -90,7 +90,7 @@ inline std::string parse_double_quoted_string(
   // half that.  Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - pos - 2));
 
-  // TODO: Use find_char<...>().
+  // XXX: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
   auto here{scanner::call(input, end, pos, loc)},
     next{scanner::call(input, end, here, loc)};
@@ -131,6 +131,7 @@ inline std::size_t scan_unquoted_string(
   char const input[], std::size_t size, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
+  // XXX: Use find_char.
   auto next{scanner::call(input, size, pos, loc)};
   PQXX_ASSUME(next > pos);
   while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
@@ -182,6 +183,7 @@ inline void parse_composite_field(
   std::size_t last_field, sl loc)
 {
   assert(index <= last_field);
+  // XXX: Use find_char().
   auto next{
     glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc)};
   PQXX_ASSUME(next > pos);
@@ -229,6 +231,7 @@ inline void parse_composite_field(
   }
 
   // Expect a comma or a closing parenthesis.
+  // XXX: Use find_char().
   next =
     glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc);
   PQXX_ASSUME(next > pos);
