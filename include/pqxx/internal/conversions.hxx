@@ -937,6 +937,11 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
 
 
+/// Concept: a type with a `resize()` member function that takes `std::size_t`.
+template<typename T>
+concept resizable = requires(T instance) { instance.resize(std::size_t{}); };
+
+
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
 
@@ -967,11 +972,28 @@ template<binary DATA> struct string_traits<DATA>
     return begin + budget;
   }
 
+  /// Convert a string to binary data.
   static DATA from_string(std::string_view text, ctx c = {})
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
-    bytes buf;
-    buf.resize(size);
+    DATA buf;
+    if constexpr (resizable<DATA>)
+    {
+      // Make `buf` allocate the number of bytes we need to store.
+      buf.resize(size);
+    }
+    else
+    {
+      // There's no suitable `DATA::resize()`.  But perhaps the caller has
+      // ensured that `DATA` is a type that inherently has the right size.
+      // Might a `std::array<std::byte, ...>` for instance.
+      if (std::size(buf) != size)
+        throw conversion_error{std::format(
+          "Can't convert binary data from SQL text to {}: I don't know how to "
+          "resize that type.",
+          name_type<DATA>())};
+    }
+
     pqxx::internal::unesc_bin(text, buf, c.loc);
     return buf;
   }

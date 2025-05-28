@@ -209,10 +209,36 @@ void test_string_view_conversion()
 
 void test_binary_converts_to_string()
 {
+  std::array<std::byte, 3> const bin_data{
+    std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
+  std::string_view const text_data{"\\x414243"};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::array<std::byte, 3>{
-      std::byte{0x41}, std::byte{0x42}, std::byte{0x43}}),
-    "\\x414243", "Bad conversino from std::array<std::byte, n> to string.");
+    pqxx::to_string(bin_data), text_data,
+    "Bad conversion from std::array<std::byte, n> to string.");
+
+  // We can convert a bytea SQL string to a vector of bytes.
+  auto const vec{pqxx::from_string<std::vector<std::byte>>(text_data)};
+  PQXX_CHECK_EQUAL(
+    std::size(vec), std::size(bin_data),
+    "Vector of bytes from text has wrong length.");
+  for (std::size_t i{0}; i < std::size(vec); ++i)
+    PQXX_CHECK(
+      vec[i] == bin_data[i], std::format("Difference in binary byte #{}.", i));
+
+  // We can also convert a bytea SQL string to an array of bytes of the right
+  // size.
+  auto const arr{pqxx::from_string<std::array<std::byte, 3>>(text_data)};
+  for (std::size_t i{0}; i < std::size(arr); ++i)
+    PQXX_CHECK(
+      arr[i] == bin_data[i], std::format("Difference in binary byte #{}.", i));
+
+  // However we can _not_ convert a bytea SQL string to an array of bytes of a
+  // different size.
+  PQXX_CHECK_THROWS(
+    (std::ignore = pqxx::from_string<std::array<std::byte, 4>>(text_data)),
+    pqxx::conversion_error,
+    "Not getting expected exception from converting binary to wrong size "
+    "array.");
 
   std::array<std::byte, 1> x{std::byte{0x78}};
   PQXX_CHECK_EQUAL(std::size(x), 1u, "This vector is not what I thought.");
