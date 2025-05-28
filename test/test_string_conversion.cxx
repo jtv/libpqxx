@@ -216,6 +216,22 @@ void test_binary_converts_to_string()
     pqxx::to_string(bin_data), text_data,
     "Bad conversion from std::array<std::byte, n> to string.");
 
+  std::array<std::byte, 1> x{std::byte{0x78}};
+  PQXX_CHECK_EQUAL(std::size(x), 1u, "This vector is not what I thought.");
+  std::span<std::byte> span{x};
+  PQXX_CHECK_EQUAL(std::size(span), 1u, "Strangely different span.");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(span), "\\x78",
+    "Bad conversion from std::span<std::byte> to string.");
+}
+
+
+void test_string_converts_to_binary()
+{
+  std::array<std::byte, 3> const bin_data{
+    std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
+  std::string_view const text_data{"\\x414243"};
+
   // We can convert a bytea SQL string to a vector of bytes.
   auto const vec{pqxx::from_string<std::vector<std::byte>>(text_data)};
   PQXX_CHECK_EQUAL(
@@ -239,14 +255,6 @@ void test_binary_converts_to_string()
     pqxx::conversion_error,
     "Not getting expected exception from converting binary to wrong size "
     "array.");
-
-  std::array<std::byte, 1> x{std::byte{0x78}};
-  PQXX_CHECK_EQUAL(std::size(x), 1u, "This vector is not what I thought.");
-  std::span<std::byte> span{x};
-  PQXX_CHECK_EQUAL(std::size(span), 1u, "Strangely different span.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(span), "\\x78",
-    "Bad conversion from std::span<std::byte> to string.");
 }
 
 
@@ -256,4 +264,5 @@ PQXX_REGISTER_TEST(test_integer_conversion);
 PQXX_REGISTER_TEST(test_convert_null);
 PQXX_REGISTER_TEST(test_string_view_conversion);
 PQXX_REGISTER_TEST(test_binary_converts_to_string);
+PQXX_REGISTER_TEST(test_string_converts_to_binary);
 } // namespace
