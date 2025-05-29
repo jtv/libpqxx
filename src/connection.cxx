@@ -1211,6 +1211,9 @@ void pqconninfofree(PQconninfoOption *ptr)
 
 
 /// Quote and escape a connection string parameter as needed.
+/** There's no encoding support here because all of that is based on client
+ * encodings.  And there's no such thing when we're not connected yet
+ */
 std::string quote_connect_param(std::string_view val)
 {
   std::string buf;

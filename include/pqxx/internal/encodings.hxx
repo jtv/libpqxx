@@ -45,14 +45,14 @@ namespace
 {
 /// Extract byte from buffer, return as unsigned char.
 constexpr PQXX_PURE unsigned char
-get_byte(char const buffer[], std::size_t offset) noexcept
+get_byte(std::string_view buffer, std::size_t offset) noexcept
 {
   return static_cast<unsigned char>(buffer[offset]);
 }
 
 
 [[noreturn]] PQXX_COLD void throw_for_encoding_error(
-  char const *encoding_name, char const buffer[], std::size_t start,
+  char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
   std::stringstream s;
@@ -84,10 +84,8 @@ between_inc(unsigned char value, unsigned bottom, unsigned top)
  */
 template<encoding_group> struct glyph_scanner
 {
-  // TODO: Convert to use string_view.
   /// Find the next glyph in `buffer` after position `start`.
-  PQXX_PURE static std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl);
+  PQXX_PURE static std::size_t call(std::string_view, std::size_t start, sl);
 };
 
 
@@ -114,7 +112,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   {
     // Look up the next character boundary.  This can be quite costly, so we
     // desperately want the call inlined.
-    auto next{glyph_scanner<ENC>::call(data, sz, here, loc)};
+    auto next{glyph_scanner<ENC>::call(haystack, here, loc)};
     PQXX_ASSUME(next > here);
 
     // (For some reason gcc had a problem with a right-fold here.  But clang
@@ -141,44 +139,16 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   }
   return sz;
 }
-
-
-/// Find first of `NEEDLE` ASCII chars in `haystack`.
-/** @warning This assumes that one of the `NEEDLE` characters is actually
- * present.  It does not check for buffer overruns, so make sure that there's
- * a sentinel.
- */
-template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE std::size_t
-find_s_ascii_char(std::string_view haystack, std::size_t here, sl loc)
-{
-  // We only know how to search for ASCII characters.  It's an optimisation
-  // assumption in the code below.
-  static_assert((... and ((NEEDLE >> 7) == 0)));
-
-  auto const sz{std::size(haystack)};
-  auto const data{std::data(haystack)};
-
-  // No supported encoding has multibyte characters that start with an
-  // ASCII-range byte.
-  while ((... and (data[here] != NEEDLE)))
-  {
-    auto const next = glyph_scanner<ENC>::call(data, sz, here, loc);
-    PQXX_ASSUME(next > here);
-    here = next;
-  }
-  return here;
-}
 } // namespace
 
 
 template<> struct glyph_scanner<encoding_group::MONOBYTE>
 {
-  static PQXX_PURE constexpr std::size_t call(
-    char const /* buffer */[], std::size_t buffer_len, std::size_t start, sl)
+  static PQXX_PURE constexpr std::size_t
+  call(std::string_view buffer, std::size_t start, sl)
   {
     // TODO: Don't bother with npos.  Let the caller check.
-    if (start >= buffer_len) [[unlikely]]
+    if (start >= std::size(buffer)) [[unlikely]]
       return std::string::npos;
     else
       return start + 1;
@@ -190,17 +160,17 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 template<> struct glyph_scanner<encoding_group::BIG5>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > buffer_len))
-      [[unlikely]]
+    if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > sz)) [[unlikely]]
       throw_for_encoding_error("BIG5", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -229,17 +199,17 @@ depending on the specific extension:
 template<> struct glyph_scanner<encoding_group::EUC_CN>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len)
+    auto const sz{std::size(buffer)};
+    if (start >= sz)
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > buffer_len)
-      [[unlikely]]
+    if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("EUC_CN", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -259,16 +229,17 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
 template<> struct glyph_scanner<encoding_group::EUC_JP>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len)
+    auto const sz{std::size(buffer)};
+    if (start >= sz)
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
+    if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("EUC_JP", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -288,7 +259,7 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
       return start + 2;
     }
 
-    if (byte1 == 0x8f and start + 3 <= buffer_len)
+    if (byte1 == 0x8f and start + 3 <= sz)
     {
       auto const byte3{get_byte(buffer, start + 2)};
       if (
@@ -308,17 +279,17 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
 template<> struct glyph_scanner<encoding_group::EUC_KR>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > buffer_len)
-      [[unlikely]]
+    if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -334,16 +305,17 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
 template<> struct glyph_scanner<encoding_group::EUC_TW>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
+    if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -355,7 +327,7 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
       return start + 2;
     }
 
-    if (byte1 != 0x8e or start + 4 > buffer_len) [[unlikely]]
+    if (byte1 != 0x8e or start + 4 > sz) [[unlikely]]
       throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
 
     if (
@@ -373,21 +345,20 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
 template<> struct glyph_scanner<encoding_group::GB18030>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
     if (byte1 == 0x80)
-      throw_for_encoding_error(
-        "GB18030", buffer, start, buffer_len - start, loc);
+      throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
 
-    if (start + 2 > buffer_len) [[unlikely]]
-      throw_for_encoding_error(
-        "GB18030", buffer, start, buffer_len - start, loc);
+    if (start + 2 > sz) [[unlikely]]
+      throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte2, 0x40, 0xfe))
@@ -398,9 +369,8 @@ template<> struct glyph_scanner<encoding_group::GB18030>
       return start + 2;
     }
 
-    if (start + 4 > buffer_len) [[unlikely]]
-      throw_for_encoding_error(
-        "GB18030", buffer, start, buffer_len - start, loc);
+    if (start + 4 > sz) [[unlikely]]
+      throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
 
     if (
       between_inc(byte2, 0x30, 0x39) and
@@ -417,16 +387,17 @@ template<> struct glyph_scanner<encoding_group::GB18030>
 template<> struct glyph_scanner<encoding_group::GBK>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
+    if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("GBK", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
@@ -462,16 +433,17 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 template<> struct glyph_scanner<encoding_group::JOHAB>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
+    if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("JOHAB", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start)};
@@ -497,23 +469,24 @@ using PostgreSQL 9.2.23.  Use this at your own risk.
 template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
+    if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xa0)
       return start + 2;
 
-    if (start + 3 > buffer_len) [[unlikely]]
+    if (start + 3 > sz) [[unlikely]]
       throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2, loc);
 
     if (
@@ -523,7 +496,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
       (byte2 >= 0xa0))
       return start + 3;
 
-    if (start + 4 > buffer_len) [[unlikely]]
+    if (start + 4 > sz) [[unlikely]]
       throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3, loc);
 
     if (
@@ -551,9 +524,10 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 template<> struct glyph_scanner<encoding_group::SJIS>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len)
+    auto const sz{std::size(buffer)};
+    if (start >= sz)
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
@@ -565,8 +539,8 @@ template<> struct glyph_scanner<encoding_group::SJIS>
       not between_inc(byte1, 0xe0, 0xfc)) [[unlikely]]
       throw_for_encoding_error("SJIS", buffer, start, 1, loc);
 
-    if (start + 2 > buffer_len) [[unlikely]]
-      throw_for_encoding_error("SJIS", buffer, start, buffer_len - start, loc);
+    if (start + 2 > sz) [[unlikely]]
+      throw_for_encoding_error("SJIS", buffer, start, sz - start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (byte2 == 0x7f) [[unlikely]]
@@ -584,17 +558,18 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 template<> struct glyph_scanner<encoding_group::UHC>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
-      throw_for_encoding_error("UHC", buffer, start, buffer_len - start, loc);
+    if (start + 2 > sz) [[unlikely]]
+      throw_for_encoding_error("UHC", buffer, start, sz - start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0x80, 0xc6))
@@ -624,17 +599,18 @@ template<> struct glyph_scanner<encoding_group::UHC>
 template<> struct glyph_scanner<encoding_group::UTF8>
 {
   static PQXX_PURE constexpr std::size_t
-  call(char const buffer[], std::size_t buffer_len, std::size_t start, sl loc)
+  call(std::string_view buffer, std::size_t start, sl loc)
   {
-    if (start >= buffer_len) [[unlikely]]
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
       return std::string::npos;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
-    if (start + 2 > buffer_len) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start, loc);
+    if (start + 2 > sz) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0xc0, 0xdf))
@@ -645,8 +621,8 @@ template<> struct glyph_scanner<encoding_group::UTF8>
       return start + 2;
     }
 
-    if (start + 3 > buffer_len) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start, loc);
+    if (start + 3 > sz) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
 
     auto const byte3{get_byte(buffer, start + 2)};
     if (between_inc(byte1, 0xe0, 0xef))
@@ -657,8 +633,8 @@ template<> struct glyph_scanner<encoding_group::UTF8>
       [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 3, loc);
     }
 
-    if (start + 4 > buffer_len) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, buffer_len - start, loc);
+    if (start + 4 > sz) [[unlikely]]
+      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
 
     if (between_inc(byte1, 0xf0, 0xf7))
     {
@@ -746,44 +722,6 @@ get_char_finder(encoding_group enc, sl loc)
     throw pqxx::internal_error{
       std::format(
         "Unexpected encoding group: {} (mapped from {}", to_string(as_if),
-        to_string(enc)),
-      loc};
-  }
-}
-
-
-/// Look up a "sentry" character search function for an encoding group.
-/** This version returns a finder function that does not check buffer bounds.
- * It just assumes that one of the `NEEDLE` characters will be there.
- */
-template<char... NEEDLE>
-PQXX_PURE constexpr inline char_finder_func *
-get_s_char_finder(encoding_group enc, sl loc)
-{
-  auto const as_if{map_ascii_search_group(enc)};
-  switch (as_if)
-  {
-  case encoding_group::MONOBYTE:
-    return pqxx::internal::find_s_ascii_char<
-      encoding_group::MONOBYTE, NEEDLE...>;
-  case encoding_group::BIG5:
-    return pqxx::internal::find_s_ascii_char<encoding_group::BIG5, NEEDLE...>;
-  case encoding_group::GB18030:
-    return pqxx::internal::find_s_ascii_char<
-      encoding_group::GB18030, NEEDLE...>;
-  case encoding_group::GBK:
-    return pqxx::internal::find_s_ascii_char<encoding_group::GBK, NEEDLE...>;
-  case encoding_group::JOHAB:
-    return pqxx::internal::find_s_ascii_char<encoding_group::JOHAB, NEEDLE...>;
-  case encoding_group::SJIS:
-    return pqxx::internal::find_s_ascii_char<encoding_group::SJIS, NEEDLE...>;
-  case encoding_group::UHC:
-    return pqxx::internal::find_s_ascii_char<encoding_group::UHC, NEEDLE...>;
-
-  default:
-    throw pqxx::internal_error{
-      std::format(
-        "Unexpected encoding group: {} (mapped from {}).", to_string(as_if),
         to_string(enc)),
       loc};
   }

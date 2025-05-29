@@ -29,8 +29,7 @@ template<encoding_group ENC>
 [[nodiscard]] std::string::size_type
 array_parser::scan_glyph(std::string::size_type pos, sl loc) const
 {
-  return pqxx::internal::glyph_scanner<ENC>::call(
-    std::data(m_input), std::size(m_input), pos, loc);
+  return pqxx::internal::glyph_scanner<ENC>::call(m_input, pos, loc);
 }
 
 

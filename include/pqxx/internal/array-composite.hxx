@@ -8,6 +8,7 @@
 
 namespace pqxx::internal
 {
+// XXX: Take string_vview.
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -22,11 +23,11 @@ inline std::size_t scan_double_quoted_string(
 {
   // XXX: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, size, pos, loc)};
+  auto next{scanner::call({input, size}, pos, loc)};
   PQXX_ASSUME(next > pos);
   bool at_quote{false};
   pos = next;
-  next = scanner::call(input, size, pos, loc);
+  next = scanner::call({input, size}, pos, loc);
   PQXX_ASSUME(next > pos);
   while (pos < size)
   {
@@ -52,7 +53,7 @@ inline std::size_t scan_double_quoted_string(
       case '\\':
         // Backslash escape.  Skip ahead by one more character.
         pos = next;
-        next = scanner::call(input, size, pos, loc);
+        next = scanner::call({input, size}, pos, loc);
         PQXX_ASSUME(next > pos);
         break;
 
@@ -68,7 +69,7 @@ inline std::size_t scan_double_quoted_string(
       // Multibyte character.  Carry on.
     }
     pos = next;
-    next = scanner::call(input, size, pos, loc);
+    next = scanner::call({input, size}, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   if (not at_quote)
@@ -79,6 +80,7 @@ inline std::size_t scan_double_quoted_string(
 
 
 // TODO: Needs version with caller-supplied buffer.
+// XXX: Take string_view.
 /// Un-quote and un-escape a double-quoted SQL string.
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
@@ -92,8 +94,8 @@ inline std::string parse_double_quoted_string(
 
   // XXX: Use find_char<...>().
   using scanner = glyph_scanner<ENC>;
-  auto here{scanner::call(input, end, pos, loc)},
-    next{scanner::call(input, end, here, loc)};
+  auto here{scanner::call({input, end}, pos, loc)},
+    next{scanner::call({input, end}, here, loc)};
   PQXX_ASSUME(here > pos);
   PQXX_ASSUME(next > here);
   while (here < end - 1)
@@ -106,18 +108,19 @@ inline std::string parse_double_quoted_string(
     {
       // Skip escape.
       here = next;
-      next = scanner::call(input, end, here, loc);
+      next = scanner::call({input, end}, here, loc);
       PQXX_ASSUME(next > here);
     }
     output.append(input + here, input + next);
     here = next;
-    next = scanner::call(input, end, here, loc);
+    next = scanner::call({input, end}, here, loc);
     PQXX_ASSUME(next > here);
   }
   return output;
 }
 
 
+// XXX: Can we make this take string_view?
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -132,12 +135,12 @@ inline std::size_t scan_unquoted_string(
 {
   using scanner = glyph_scanner<ENC>;
   // XXX: Use find_char.
-  auto next{scanner::call(input, size, pos, loc)};
+  auto next{scanner::call({input, size}, pos, loc)};
   PQXX_ASSUME(next > pos);
   while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
-    next = scanner::call(input, size, pos, loc);
+    next = scanner::call({input, size}, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   return pos;
@@ -184,8 +187,7 @@ inline void parse_composite_field(
 {
   assert(index <= last_field);
   // XXX: Use find_char().
-  auto next{
-    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc)};
+  auto next{glyph_scanner<ENC>::call(input, pos, loc)};
   PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)
     throw conversion_error{
@@ -232,8 +234,7 @@ inline void parse_composite_field(
 
   // Expect a comma or a closing parenthesis.
   // XXX: Use find_char().
-  next =
-    glyph_scanner<ENC>::call(std::data(input), std::size(input), pos, loc);
+  next = glyph_scanner<ENC>::call(input, pos, loc);
   PQXX_ASSUME(next > pos);
 
   if ((next - pos) != 1)

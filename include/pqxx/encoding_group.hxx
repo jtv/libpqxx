@@ -57,8 +57,8 @@ namespace pqxx::internal
  * There are multiple different glyph scanner implementations, for different
  * kinds of encodings.
  */
-using glyph_scanner_func = std::size_t(
-  char const buffer[], std::size_t buffer_len, std::size_t start, sl);
+using glyph_scanner_func =
+  std::size_t(std::string_view buffer, std::size_t start, sl);
 
 
 /// Function type: "find first occurrence of any of these ASCII characters."
