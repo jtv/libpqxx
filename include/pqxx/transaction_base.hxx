@@ -541,7 +541,6 @@ public:
     return pqxx::internal::stream_query<TYPE...>{*this, query, loc};
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Perform a streaming query, and for each result row, call `func`.
   /** Here, `func` can be a function, a `std::function`, a lambda, or an
    * object that supports the function call operator.  Of course `func` must
@@ -636,7 +635,6 @@ public:
     return exec(query, loc).expect_rows(rows, loc).iter<TYPE...>();
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
   /** Converts each row to data types matching `func`'s parameter types.  The
    * number of columns in the result set must match the number of parameters.
@@ -846,7 +844,6 @@ public:
       return {};
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
   /** The query may use parameters.  So for example, the query may contain `$1`
    * to denote the first parameter value in `parms`, and so on.
@@ -968,7 +965,6 @@ public:
       .as<TYPE>(c);
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute prepared statement, load result, perform `func` for each row.
   /** This is just like @ref for_query(zview), but using a prepared statement.
    */
@@ -980,7 +976,6 @@ public:
     exec(statement, parms, loc).for_each(std::forward<CALLABLE>(func), loc);
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute prepared statement, load result, perform `func` for each row.
   /** This is just like @ref for_query(zview), but using a prepared statement.
    */
