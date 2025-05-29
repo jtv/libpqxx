@@ -937,11 +937,6 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
 
 
-/// Concept: a type with a `resize()` member function that takes `std::size_t`.
-template<typename T>
-concept resizable = requires(T instance) { instance.resize(std::size_t{}); };
-
-
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
 
@@ -977,7 +972,7 @@ template<binary DATA> struct string_traits<DATA>
   {
     auto const size{pqxx::internal::size_unesc_bin(std::size(text))};
     DATA buf;
-    if constexpr (resizable<DATA>)
+    if constexpr (requires { buf.resize(std::size_t{}); })
     {
       // Make `buf` allocate the number of bytes we need to store.
       buf.resize(size);
