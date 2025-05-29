@@ -5,42 +5,30 @@
 
 namespace
 {
-void test_scan_ascii()
+/// Convenience shorthand: `std::source_location::current()`.
+pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
 {
-  auto const scan{pqxx::internal::get_glyph_scanner(
-    pqxx::encoding_group::MONOBYTE, pqxx::sl::current())};
-  std::string const text{"hello"};
-
-  PQXX_CHECK_EQUAL(
-    scan(text, 0, pqxx::sl::current()), 1ul, "Monobyte scanner acting up.");
-  PQXX_CHECK_EQUAL(
-    scan(text, 1, pqxx::sl::current()), 2ul,
-    "Monobyte scanner is inconsistent.");
+  return l;
 }
 
 
-void test_scan_utf8()
+void test_find_chars()
 {
-  auto const scan{pqxx::internal::get_glyph_scanner(
-    pqxx::encoding_group::UTF8, pqxx::sl::current())};
+  auto finder{pqxx::internal::get_char_finder<'.', '!', '?'>(
+    pqxx::encoding_group::MONOBYTE, loc())};
 
-  // Thai: "Khrab".
-  std::string const text{"\xe0\xb8\x95\xe0\xb8\xa3\xe0\xb8\xb1\xe0\xb8\x9a"};
   PQXX_CHECK_EQUAL(
-    scan(text, 0, pqxx::sl::current()), 3ul,
-    "UTF-8 scanner mis-scanned Thai khor khwai.");
+    finder("", 0, loc()), 0u, "Found something in empty string!?");
   PQXX_CHECK_EQUAL(
-    scan(text, 3, pqxx::sl::current()), 6ul,
-    "UTF-8 scanner mis-scanned Thai ror reua.");
+    finder("...", 0, loc()), 0u, "Did not stop at first match.");
+  PQXX_CHECK_EQUAL(
+    finder("...", 1, loc()), 1u, "Did not start at indicated position.");
+  PQXX_CHECK_EQUAL(
+    finder("abcd", 0, loc()), 4u, "Did not scan to end of string.");
+  PQXX_CHECK_EQUAL(
+    finder("hello?", 0, loc()), 5u, "Did not find match at end.");
 }
 
 
-void test_encodings()
-{
-  test_scan_ascii();
-  test_scan_utf8();
-}
-
-
-PQXX_REGISTER_TEST(test_encodings);
+PQXX_REGISTER_TEST(test_find_chars);
 } // namespace

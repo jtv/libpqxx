@@ -224,35 +224,4 @@ encoding_group enc_group(int libpq_enc_id, sl loc)
   // TODO: Is there a safe, faster way without the string representation?
   return enc_group(name_encoding(libpq_enc_id), loc);
 }
-
-
-PQXX_PURE glyph_scanner_func *get_glyph_scanner(encoding_group enc, sl loc)
-{
-#define CASE_GROUP(ENC)                                                       \
-  case encoding_group::ENC: return glyph_scanner<encoding_group::ENC>::call
-
-  switch (enc)
-  {
-  case encoding_group::UNKNOWN:
-    throw usage_error{"Trying to read text in unknown encoding.", loc};
-
-    [[likely]] CASE_GROUP(MONOBYTE);
-    CASE_GROUP(BIG5);
-    CASE_GROUP(EUC_CN);
-    CASE_GROUP(EUC_JP);
-    CASE_GROUP(EUC_KR);
-    CASE_GROUP(EUC_TW);
-    CASE_GROUP(GB18030);
-    CASE_GROUP(GBK);
-    CASE_GROUP(JOHAB);
-    CASE_GROUP(MULE_INTERNAL);
-    CASE_GROUP(SJIS);
-    CASE_GROUP(UHC);
-    [[likely]] CASE_GROUP(UTF8);
-  }
-  throw usage_error{
-    std::format("Unsupported encoding group code {}.", to_string(enc)), loc};
-
-#undef CASE_GROUP
-}
 } // namespace pqxx::internal

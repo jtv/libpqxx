@@ -33,14 +33,6 @@ PQXX_LIBEXPORT PQXX_PURE encoding_group
 enc_group(int /* libpq encoding ID */, sl);
 
 
-/// Look up the glyph scanner function for a given encoding group.
-/** To identify the glyph boundaries in a buffer, call this to obtain the
- * scanner function appropriate for the buffer's encoding.  Then, repeatedly
- * call the scanner function to find the glyphs.
- */
-PQXX_LIBEXPORT glyph_scanner_func *get_glyph_scanner(encoding_group, sl);
-
-
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.
