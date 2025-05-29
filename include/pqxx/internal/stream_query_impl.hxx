@@ -30,7 +30,7 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 }
 
 
-// C++20: Replace with generator?  Could be faster (local vars vs. members).
+// TODO: Replace with generator?  Could be faster (local vars vs. members).
 /// Input iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.

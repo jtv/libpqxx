@@ -46,7 +46,7 @@ class stream_query_end_iterator
 {};
 
 
-// C++20: Can we use generators, and maybe get speedup from HALO?
+// TODO: Can we use generators, and maybe get speedup from HALO?
 /// Stream query results from the database.  Used by transaction_base::stream.
 /** For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows' fields.  You

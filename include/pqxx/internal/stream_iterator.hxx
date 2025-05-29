@@ -19,7 +19,7 @@ template<typename... TYPE> class stream_query;
 
 namespace pqxx::internal
 {
-// C++20: Replace with generator?
+// TODO: Replace with generator?
 /// Input iterator for stream_from.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
@@ -73,7 +73,7 @@ private:
 };
 
 
-// C++20: Replace with generator?
+// TODO: Replace with generator?
 /// Iteration over a @ref stream_query.
 template<typename... TYPE> class stream_input_iteration
 {
