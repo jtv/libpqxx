@@ -316,7 +316,6 @@ public:
    */
   [[nodiscard]] PQXX_PURE size_type affected_rows() const;
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Run `func` on each row, passing the row's fields as parameters.
   /** Goes through the rows from first to last.  You provide a callable `func`.
    *
