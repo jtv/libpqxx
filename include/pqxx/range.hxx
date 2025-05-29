@@ -35,11 +35,21 @@ struct no_bound
 };
 
 
+/// Concept: `T` supports copying, and less-than operator.
+template<typename T>
+concept has_less = std::copy_constructible<T> and requires(T n) { n < n; };
+
+
+/// Concept: `T` supports equality comparson.
+template<typename T>
+concept has_equal = requires(T n) { n == n; };
+
+
 /// An _inclusive_ boundary value to a @ref pqxx::range.
 /** Use this as a lower or upper bound for a range if the range should include
  * the value.
  */
-template<typename TYPE> class inclusive_bound
+template<has_less TYPE> class inclusive_bound
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -80,7 +90,7 @@ public:
 /** Use this as a lower or upper bound for a range if the range should _not_
  * include the value.
  */
-template<typename TYPE> class exclusive_bound
+template<has_less TYPE> class exclusive_bound
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -121,11 +131,21 @@ public:
 /** A range bound is either no bound at all; or an inclusive bound; or an
  * exclusive bound.  Pass one of the three to the constructor.
  */
-template<typename TYPE> class range_bound
+template<has_less TYPE> class range_bound
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   std::variant<no_bound, inclusive_bound<TYPE>, exclusive_bound<TYPE>> m_bound;
+
+  static constexpr bool equal(TYPE const &lhs, TYPE const &rhs)
+  {
+    if constexpr (requires { lhs == rhs; })
+      // TYPE supports equality comparison.
+      return lhs == rhs;
+    else
+      // Oh well.  We do require less-than comparison, so use that.
+      return not((lhs < rhs) or (rhs < lhs));
+  }
 
 public:
   range_bound() = delete;
@@ -150,12 +170,11 @@ public:
   constexpr range_bound(range_bound &&) = default;
 
   constexpr bool operator==(range_bound const &rhs) const
-    noexcept(noexcept(*this->value() == *rhs.value()))
   {
     if (this->is_limited())
       return (
         rhs.is_limited() and (this->is_inclusive() == rhs.is_inclusive()) and
-        (*this->value() == *rhs.value()));
+        equal(*this->value(), *rhs.value()));
     else
       return not rhs.is_limited();
   }
@@ -220,7 +239,6 @@ public:
 };
 
 
-// C++20: Concepts for comparisons, construction, etc.
 /// A C++ equivalent to PostgreSQL's range types.
 /** You can use this as a client-side representation of a "range" in SQL.
  *
@@ -236,9 +254,9 @@ public:
  * For documentation on PostgreSQL's range types, see:
  * https://www.postgresql.org/docs/current/rangetypes.html
  *
- * The value type must be copyable and default-constructible, and support the
- * less-than (`<`) and equals (`==`) comparisons.  Value initialisation must
- * produce a consistent value.
+ * The value type `TYPE` must typically be copyable and default-constructible,
+ * and support the less-than (`<`) and equals (`==`) comparisons, but there
+ * can be rare cases where they need not be.
  */
 template<typename TYPE> class range
 {
