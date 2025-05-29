@@ -102,8 +102,11 @@ void test_quote_name(pqxx::transaction_base &t)
 void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
   constexpr char binary[]{"1\0023\\4x5"};
-  pqxx::bytes const data(
-    reinterpret_cast<std::byte const *>(binary), std::size(binary));
+
+  // C++23: Initialise as data{std::from_range_t, binary)?
+  pqxx::bytes data;
+  for (char c : binary) data.push_back(static_cast<std::byte>(c));
+
   std::string const escaped{
     t.esc_raw(pqxx::bytes_view{std::data(data), std::size(binary)})};
 

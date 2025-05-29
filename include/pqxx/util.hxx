@@ -273,32 +273,14 @@ struct byte_char_traits : std::char_traits<char>
   static int_type eof();
 };
 
-template<typename TYPE, typename = void>
-struct has_generic_char_traits : std::false_type
-{};
-
-template<typename TYPE>
-struct has_generic_char_traits<
-  TYPE, std::void_t<decltype(std::char_traits<TYPE>::eof)>> : std::true_type
-{};
-
-inline constexpr bool has_generic_bytes_char_traits =
-  has_generic_char_traits<std::byte>::value;
-
 // Supress warnings from potentially using a deprecated generic
 // std::char_traits.
 // Necessary for libc++ 18.
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
-// XXX: Replace this type!
 /// Type alias for a container containing bytes.
-/* Required to support standard libraries without a generic implementation for
- * `std::char_traits<std::byte>`.
- * @warn Will change to `std::vector<std::byte>` in the next major release.
- */
-using bytes = std::conditional<
-  has_generic_bytes_char_traits, std::basic_string<std::byte>,
-  std::basic_string<std::byte, byte_char_traits>>::type;
+using bytes = std::vector<std::byte>;
+
 
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 

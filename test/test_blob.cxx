@@ -314,8 +314,9 @@ void test_blob_writes_span()
   pqxx::connection cx;
   pqxx::work tx{cx};
   constexpr char content[]{"gfbltk"};
-  pqxx::bytes data{
-    reinterpret_cast<std::byte const *>(content), std::size(content)};
+  // C++23: Initialise as data{std::from_range_t, content}?
+  pqxx::bytes data;
+  for (char c : content) data.push_back(static_cast<std::byte>(c));
 
   auto id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_rw(tx, id)};
@@ -435,7 +436,12 @@ void test_blob_append_from_buf_appends()
   pqxx::blob::append_from_buf(tx, data, id);
   pqxx::bytes buf;
   pqxx::blob::to_buf(tx, id, buf, 10);
-  PQXX_CHECK_EQUAL(buf, data + data, "append_from_buf() wrote wrong data?");
+
+  auto expect{data};
+  // C++23: Use expect.append_range(data).
+  for (auto e : data) expect.push_back(e);
+
+  PQXX_CHECK_EQUAL(buf, expect, "append_from_buf() wrote wrong data?");
 }
 
 

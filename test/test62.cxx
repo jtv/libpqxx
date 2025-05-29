@@ -23,9 +23,11 @@ void test_062()
 
   tx.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)").no_rows();
 
-  std::string const Esc{tx.esc_raw(bytes{
-    reinterpret_cast<std::byte const *>(std::data(TestStr)),
-    std::size(TestStr)})};
+  // C++23: Initialise as data{std::from_range_t, TestStr}?
+  bytes data;
+  for (char c : TestStr) data.push_back(static_cast<std::byte>(c));
+
+  std::string const Esc{tx.esc_raw(data)};
 
   tx.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')").no_rows();
 

@@ -178,13 +178,15 @@ void test_binary()
   std::string const input{raw_bytes, std::size(raw_bytes)};
 
   {
-    pqxx::bytes bytes{
-      reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes)};
+    // C++23: Initialise as bytes{std::from_range_t, raw_bytes)?
+    pqxx::bytes bytes;
+    for (char c : raw_bytes) bytes.push_back(static_cast<std::byte>(c));
+
     auto bp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{bytes}).one_row()};
     auto bval{bp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(bval.c_str()), std::size(bval)}),
+        reinterpret_cast<char const *>(std::data(bval)), std::size(bval)}),
       input, "Binary string parameter went wrong.");
   }
 
@@ -194,25 +196,30 @@ void test_binary()
   // it's likely to be slower.
 
   {
-    auto ptr{std::make_shared<pqxx::bytes>(
-      reinterpret_cast<std::byte const *>(raw_bytes), std::size(raw_bytes))};
+    // C++23: Initialise as data{std::from_range_t, raw_bytes)?
+    pqxx::bytes data;
+    for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
+
+    auto ptr{std::make_shared<pqxx::bytes>(data)};
     auto rp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{ptr}).one_row()};
     auto pval{rp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(pval.c_str()), std::size(pval)}),
+        reinterpret_cast<char const *>(std::data(pval)), std::size(pval)}),
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 
   {
-    auto opt{std::optional<pqxx::bytes>{
-      std::in_place, reinterpret_cast<std::byte const *>(raw_bytes),
-      std::size(raw_bytes)}};
+    // C++23: Initialise as {std::in_place, std::from_range_t, raw_bytes}?
+    std::vector<std::byte> data;
+    for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
+
+    auto opt{std::optional<pqxx::bytes>{std::in_place, data}};
     auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{opt}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
-        reinterpret_cast<char const *>(oval.c_str()), std::size(oval)}),
+        reinterpret_cast<char const *>(std::data(oval)), std::size(oval)}),
       input, "Binary string as shared_ptr-to-optional went wrong.");
   }
 
