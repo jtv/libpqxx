@@ -4,6 +4,7 @@
  - **Result equality now only compares identity, not the data inside.**
  - **Row/field equality now only compares identity, not the data inside.**
  - `pqxx::bytes` is now a vector of bytes, not a string of bytes. (#924)
+ - Use `pqxx::bytes::data()` instead of `pqxx::bytes::c_str()`.
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
