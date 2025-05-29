@@ -147,9 +147,14 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
   {
-    // TODO: Don't bother with npos.  Let the caller check.
-    if (start >= std::size(buffer)) [[unlikely]]
-      return std::string::npos;
+    // If we can guarantee that it'll never overflow, it'd be nice to skip the
+    // check.
+    //
+    // For example, by requiring that we never call these functions beyond the
+    // end.  I think in practice we already ensure that.
+    auto const sz{std::size(buffer)};
+    if (start >= sz) [[unlikely]]
+      return sz;
     else
       return start + 1;
   }
@@ -164,7 +169,7 @@ template<> struct glyph_scanner<encoding_group::BIG5>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -202,8 +207,8 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
-    if (start >= sz)
-      return std::string::npos;
+    if (start >= sz) [[unlikely]]
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -232,8 +237,8 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
-    if (start >= sz)
-      return std::string::npos;
+    if (start >= sz) [[unlikely]]
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -283,7 +288,7 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -309,7 +314,7 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -349,7 +354,7 @@ template<> struct glyph_scanner<encoding_group::GB18030>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -391,7 +396,7 @@ template<> struct glyph_scanner<encoding_group::GBK>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -437,7 +442,7 @@ template<> struct glyph_scanner<encoding_group::JOHAB>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -473,7 +478,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -527,8 +532,8 @@ template<> struct glyph_scanner<encoding_group::SJIS>
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
-    if (start >= sz)
-      return std::string::npos;
+    if (start >= sz) [[unlikely]]
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
@@ -562,7 +567,7 @@ template<> struct glyph_scanner<encoding_group::UHC>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
@@ -603,7 +608,7 @@ template<> struct glyph_scanner<encoding_group::UTF8>
   {
     auto const sz{std::size(buffer)};
     if (start >= sz) [[unlikely]]
-      return std::string::npos;
+      return sz;
 
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)

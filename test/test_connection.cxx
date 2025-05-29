@@ -91,12 +91,14 @@ void test_connection_string()
 #  pragma warning(pop)
 #endif
   {
+    // C++23: Use std::string::contains().
     PQXX_CHECK(
       connstr.find("user=" + std::string{c.username()}) != std::string::npos,
       "Connection string did not specify user name: " + connstr);
   }
   else
   {
+    // C++23: Use std::string::contains().
     PQXX_CHECK(
       connstr.find("user=" + std::string{c.username()}) == std::string::npos,
       "Connection string specified user name, even when using default: " +
@@ -148,6 +150,7 @@ template<typename MAP> void test_params_type()
     "Connection string can't possibly contain the options we gave.");
   for (auto const &[key, value] : params)
   {
+    // C++23: Use std::string::contains().
     PQXX_CHECK_NOT_EQUAL(
       connstr.find(key), std::string::npos,
       "Could not find param name '" + std::string{key} +

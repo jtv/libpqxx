@@ -37,6 +37,7 @@ void test_nonoptionals(pqxx::connection &connection)
   catch (pqxx::conversion_error const &e)
   {
     std::string const what{e.what()};
+    // C++23: Use std::string::contains().
     if (what.find("null") == std::string::npos)
       throw;
     pqxx::test::expected_exception(
@@ -93,6 +94,7 @@ void test_nonoptionals(pqxx::connection &connection)
   catch (pqxx::conversion_error const &e)
   {
     std::string const what{e.what()};
+    // C++23: Use std::string::contains().
     if (what.find("null") == std::string::npos)
       throw;
     pqxx::test::expected_exception(
@@ -121,6 +123,7 @@ void test_bad_tuples(pqxx::connection &cx)
   catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
+    // C++23: Use std::string::contains().
     if (
       what.find("1") == std::string::npos or
       what.find("6") == std::string::npos)
@@ -138,6 +141,7 @@ void test_bad_tuples(pqxx::connection &cx)
   catch (pqxx::usage_error const &e)
   {
     std::string what{e.what()};
+    // C++23: Use std::string::contains().
     if (
       what.find("6") == std::string::npos or
       what.find("7") == std::string::npos)
