@@ -24,7 +24,6 @@
 
 namespace pqxx
 {
-// XXX: What type of iterator is this? Bearing in mind non-persistent contents.
 /// Iterator for rows in a result.  Use as result::const_iterator.
 /** A result, once obtained, cannot be modified.  Therefore all iterators on a
  * result are const iterators.
