@@ -34,25 +34,31 @@ public:
   sql_cursor(
     transaction_base &t, std::string_view query, std::string_view cname,
     cursor_base::access_policy ap, cursor_base::update_policy up,
-    cursor_base::ownership_policy op, bool hold);
+    cursor_base::ownership_policy op, bool hold, sl = sl::current());
 
   sql_cursor(
     transaction_base &t, std::string_view cname,
     cursor_base::ownership_policy op);
 
-  ~sql_cursor() noexcept { close(); }
-
-  result fetch(difference_type rows, difference_type &displacement);
-  result fetch(difference_type rows)
+  ~sql_cursor() noexcept
   {
-    difference_type d = 0;
-    return fetch(rows, d);
+    // TODO: How can we pass std::source_location here?
+    auto loc{sl::current()};
+    close(loc);
   }
-  difference_type move(difference_type rows, difference_type &displacement);
-  difference_type move(difference_type rows)
+
+  result fetch(difference_type rows, difference_type &displacement, sl);
+  result fetch(difference_type rows, sl loc)
   {
     difference_type d = 0;
-    return move(rows, d);
+    return fetch(rows, d, loc);
+  }
+  difference_type
+  move(difference_type rows, difference_type &displacement, sl);
+  difference_type move(difference_type rows, sl loc)
+  {
+    difference_type d = 0;
+    return move(rows, d, loc);
   }
 
   /// Current position, or -1 for unknown
@@ -76,13 +82,13 @@ public:
   /// Return zero-row result for this cursor.
   result const &empty_result() const noexcept { return m_empty_result; }
 
-  void close() noexcept;
+  void close(sl loc) noexcept;
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);
   static std::string stridestring(difference_type);
   /// Initialize cached empty result.  Call only at beginning or end!
-  void init_empty_result(transaction_base &);
+  void init_empty_result(transaction_base &, sl);
 
   /// Connection in which this cursor lives.
   connection &m_home;
@@ -107,9 +113,9 @@ private:
 };
 
 
-PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &);
+PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &, sl);
 PQXX_LIBEXPORT result stateless_cursor_retrieve(
   sql_cursor &, result::difference_type size,
-  result::difference_type begin_pos, result::difference_type end_pos);
+  result::difference_type begin_pos, result::difference_type end_pos, sl);
 } // namespace pqxx::internal
 #endif

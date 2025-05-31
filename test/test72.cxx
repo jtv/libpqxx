@@ -3,7 +3,7 @@
 #include <pqxx/pipeline>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 using namespace pqxx;
 
@@ -38,7 +38,7 @@ void test_072()
     quiet_errorhandler d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
+      std::ignore = P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
       "Pipeline wrongly resumed after SQL error.");
   }
 

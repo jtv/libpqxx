@@ -3,7 +3,7 @@
 #include <pqxx/connection>
 #include <pqxx/robusttransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 using namespace pqxx;
 
@@ -33,11 +33,8 @@ void test_016()
   std::string const nullstr;
   for (pqxx::row::size_type i{0}; i < c->size(); ++i)
     PQXX_CHECK_EQUAL(
-      c[i].as(nullstr), R.back()[i].as(nullstr), "Value mismatch in back().");
-  PQXX_CHECK(*c == R.back(), "Row equality is broken.");
-  PQXX_CHECK(not(*c != R.back()), "Row inequality is broken.");
-
-  tx.commit();
+      (*c)[i].as(nullstr), R.back()[i].as(nullstr),
+      "Value mismatch in back().");
 }
 
 

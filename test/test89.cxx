@@ -3,7 +3,7 @@
 #include <pqxx/subtransaction>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 // Test program for libpqxx.  Attempt to perform nested queries on various
 // types of connections.
