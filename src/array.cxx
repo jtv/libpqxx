@@ -26,8 +26,8 @@ namespace pqxx
 {
 /// Scan to next glyph in the buffer.  Assumes there is one.
 template<encoding_group ENC>
-[[nodiscard]] std::string::size_type
-array_parser::scan_glyph(std::string::size_type pos, sl loc) const
+[[nodiscard]] std::size_t
+array_parser::scan_glyph(std::size_t pos, sl loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(m_input, pos, loc);
 }
@@ -35,8 +35,8 @@ array_parser::scan_glyph(std::string::size_type pos, sl loc) const
 
 /// Scan to next glyph in a substring.  Assumes there is one.
 template<encoding_group ENC>
-std::string::size_type array_parser::scan_glyph(
-  std::string::size_type pos, std::string::size_type end, sl loc) const
+std::size_t
+array_parser::scan_glyph(std::size_t pos, std::size_t end, sl loc) const
 {
   return pqxx::internal::glyph_scanner<ENC>::call(
     std::data(m_input), end, pos, loc);
@@ -45,7 +45,7 @@ std::string::size_type array_parser::scan_glyph(
 
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<encoding_group ENC>
-std::string::size_type array_parser::scan_double_quoted_string(sl loc) const
+std::size_t array_parser::scan_double_quoted_string(sl loc) const
 {
   return pqxx::internal::scan_double_quoted_string<ENC>(
     std::data(m_input), std::size(m_input), m_pos, loc);
@@ -54,8 +54,8 @@ std::string::size_type array_parser::scan_double_quoted_string(sl loc) const
 
 /// Parse a double-quoted SQL string: un-quote it and un-escape it.
 template<encoding_group ENC>
-std::string array_parser::parse_double_quoted_string(
-  std::string::size_type end, sl loc) const
+std::string
+array_parser::parse_double_quoted_string(std::size_t end, sl loc) const
 {
   return pqxx::internal::parse_double_quoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);
@@ -66,7 +66,7 @@ std::string array_parser::parse_double_quoted_string(
 /** Assumes UTF-8 or an ASCII-superset single-byte encoding.
  */
 template<encoding_group ENC>
-std::string::size_type array_parser::scan_unquoted_string(sl loc) const
+std::size_t array_parser::scan_unquoted_string(sl loc) const
 {
   return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
     std::data(m_input), std::size(m_input), m_pos, loc);
@@ -79,7 +79,7 @@ std::string::size_type array_parser::scan_unquoted_string(sl loc) const
  */
 template<encoding_group ENC>
 std::string_view
-array_parser::parse_unquoted_string(std::string::size_type end, sl loc) const
+array_parser::parse_unquoted_string(std::size_t end, sl loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
     std::data(m_input), end, m_pos, loc);

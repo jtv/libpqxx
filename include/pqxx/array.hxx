@@ -691,22 +691,17 @@ private:
   template<encoding_group>
   std::pair<juncture, std::string> parse_array_step(sl loc);
 
+  template<encoding_group> std::size_t scan_double_quoted_string(sl loc) const;
   template<encoding_group>
-  std::string::size_type scan_double_quoted_string(sl loc) const;
+  std::string parse_double_quoted_string(std::size_t end, sl loc) const;
+  template<encoding_group> std::size_t scan_unquoted_string(sl loc) const;
   template<encoding_group>
-  std::string
-  parse_double_quoted_string(std::string::size_type end, sl loc) const;
-  template<encoding_group>
-  std::string::size_type scan_unquoted_string(sl loc) const;
-  template<encoding_group>
-  std::string_view
-  parse_unquoted_string(std::string::size_type end, sl loc) const;
+  std::string_view parse_unquoted_string(std::size_t end, sl loc) const;
 
   template<encoding_group>
-  std::string::size_type scan_glyph(std::string::size_type pos, sl loc) const;
+  std::size_t scan_glyph(std::size_t pos, sl loc) const;
   template<encoding_group>
-  std::string::size_type scan_glyph(
-    std::string::size_type pos, std::string::size_type end, sl loc) const;
+  std::size_t scan_glyph(std::size_t pos, std::size_t end, sl loc) const;
 };
 } // namespace pqxx
 #endif
