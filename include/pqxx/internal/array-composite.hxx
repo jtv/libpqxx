@@ -92,7 +92,7 @@ inline std::string parse_double_quoted_string(
   // half that.  Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - pos - 2));
 
-  // XXX: Use find_char<...>().
+  // XXX: Use find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
   auto here{scanner::call({input, end}, pos, loc)},
     next{scanner::call({input, end}, here, loc)};
@@ -121,6 +121,7 @@ inline std::string parse_double_quoted_string(
 
 
 // XXX: Can we make this take string_view?
+// XXX: Does this actually support escaping?  Does it need to?
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.

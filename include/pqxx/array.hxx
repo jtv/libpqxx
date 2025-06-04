@@ -700,8 +700,6 @@ private:
 
   template<encoding_group>
   std::size_t scan_glyph(std::size_t pos, sl loc) const;
-  template<encoding_group>
-  std::size_t scan_glyph(std::size_t pos, std::size_t end, sl loc) const;
 };
 } // namespace pqxx
 #endif

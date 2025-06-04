@@ -33,16 +33,6 @@ array_parser::scan_glyph(std::size_t pos, sl loc) const
 }
 
 
-/// Scan to next glyph in a substring.  Assumes there is one.
-template<encoding_group ENC>
-std::size_t
-array_parser::scan_glyph(std::size_t pos, std::size_t end, sl loc) const
-{
-  return pqxx::internal::glyph_scanner<ENC>::call(
-    std::data(m_input), end, pos, loc);
-}
-
-
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<encoding_group ENC>
 std::size_t array_parser::scan_double_quoted_string(sl loc) const
@@ -109,13 +99,14 @@ array_parser::parse_array_step(sl loc)
       return std::tuple{juncture::string_value, endpoint};
     }
     else
+    {
+      // This is an ASCII char, so only 1 byte wide.
+      std::size_t const next{m_pos + 1};
       switch (m_input[m_pos])
       {
       case '\0': throw failure{"Unexpected zero byte in array.", loc};
-      case '{':
-        return std::tuple{juncture::row_start, scan_glyph<ENC>(m_pos, loc)};
-      case '}':
-        return std::tuple{juncture::row_end, scan_glyph<ENC>(m_pos, loc)};
+      case '{': return std::tuple{juncture::row_start, next};
+      case '}': return std::tuple{juncture::row_end, next};
       case '"': {
         auto const endpoint = scan_double_quoted_string<ENC>(loc);
         value = parse_double_quoted_string<ENC>(endpoint, loc);
@@ -139,15 +130,15 @@ array_parser::parse_array_step(sl loc)
         }
       }
       }
+    }
   }();
 
   // Skip a trailing field separator, if present.
-  if (end < std::size(m_input))
-  {
-    auto next{scan_glyph<ENC>(end, loc)};
-    if (((next - end) == 1) and (m_input[end] == ',')) [[unlikely]]
-      end = next;
-  }
+  // No need to call the scanner here: if we're not at the end of the string,
+  // we're at the beginning of a character.  And if the first byte of a
+  // character is in the ASCII range, it's going to be an ASCII character.
+  if (end < std::size(m_input) and (m_input[end] == ',')) [[unlikely]]
+    end = scan_glyph<ENC>(end, loc);
 
   m_pos = end;
   return std::make_pair(found, value);
