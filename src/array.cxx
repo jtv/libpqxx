@@ -37,8 +37,7 @@ array_parser::scan_glyph(std::size_t pos, sl loc) const
 template<encoding_group ENC>
 std::size_t array_parser::scan_double_quoted_string(sl loc) const
 {
-  return pqxx::internal::scan_double_quoted_string<ENC>(
-    std::data(m_input), std::size(m_input), m_pos, loc);
+  return pqxx::internal::scan_double_quoted_string<ENC>(m_input, m_pos, loc);
 }
 
 

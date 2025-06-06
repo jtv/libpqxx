@@ -19,17 +19,18 @@ namespace pqxx::internal
  */
 template<encoding_group ENC>
 inline std::size_t scan_double_quoted_string(
-  char const input[], std::size_t size, std::size_t pos, sl loc)
+  std::string_view input, std::size_t pos, sl loc)
 {
   // XXX: find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call({input, size}, pos, loc)};
+  auto next{scanner::call(input, pos, loc)};
   PQXX_ASSUME(next > pos);
   bool at_quote{false};
   pos = next;
-  next = scanner::call({input, size}, pos, loc);
+  next = scanner::call(input, pos, loc);
   PQXX_ASSUME(next > pos);
-  while (pos < size)
+  auto const sz{std::size(input)};
+  while (pos < sz)
   {
     if (at_quote)
     {
@@ -53,7 +54,7 @@ inline std::size_t scan_double_quoted_string(
       case '\\':
         // Backslash escape.  Skip ahead by one more character.
         pos = next;
-        next = scanner::call({input, size}, pos, loc);
+        next = scanner::call(input, pos, loc);
         PQXX_ASSUME(next > pos);
         break;
 
@@ -69,7 +70,7 @@ inline std::size_t scan_double_quoted_string(
       // Multibyte character.  Carry on.
     }
     pos = next;
-    next = scanner::call({input, size}, pos, loc);
+    next = scanner::call(input, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   if (not at_quote)
@@ -212,8 +213,7 @@ inline void parse_composite_field(
     break;
 
   case '"': {
-    auto const stop{scan_double_quoted_string<ENC>(
-      std::data(input), std::size(input), pos, loc)};
+    auto const stop{scan_double_quoted_string<ENC>(input, pos, loc)};
     PQXX_ASSUME(stop > pos);
     auto const text{
       parse_double_quoted_string<ENC>(std::data(input), stop, pos, loc)};
