@@ -414,7 +414,7 @@ private:
           // escaping or encoding, so we don't need to parse it into a
           // buffer.  We can just read it as a string_view.
           end = pqxx::internal::scan_unquoted_string<ENC, SEPARATOR, '}'>(
-            std::data(data), std::size(data), here, loc);
+            data, here, loc);
           std::string_view const field{
             std::string_view{std::data(data) + here, end - here}};
           if (field == "NULL")

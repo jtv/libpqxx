@@ -8,7 +8,6 @@
 
 namespace pqxx::internal
 {
-// XXX: Take string_vview.
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -125,7 +124,7 @@ inline std::string parse_double_quoted_string(
 }
 
 
-// XXX: Can we make this take string_view?
+// XXX: Take string_view.
 // XXX: Does this actually support escaping?  Does it need to?
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
@@ -137,22 +136,25 @@ inline std::string parse_double_quoted_string(
  */
 template<encoding_group ENC, char... STOP>
 inline std::size_t scan_unquoted_string(
-  char const input[], std::size_t size, std::size_t pos, sl loc)
+  std::string_view input, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
   // XXX: Use find_char.
-  auto next{scanner::call({input, size}, pos, loc)};
-  PQXX_ASSUME(next > pos);
-  while ((pos < size) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
+  auto const sz{std::size(input)};
+  auto next{scanner::call(input, pos, loc)};
+  PQXX_ASSUME(pos < next);
+  PQXX_ASSUME(next <= end);
+  while ((pos < sz) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
-    next = scanner::call({input, size}, pos, loc);
+    next = scanner::call(input, pos, loc);
     PQXX_ASSUME(next > pos);
   }
   return pos;
 }
 
 
+// XXX: Take string_view.
 /// Parse an unquoted array entry or cfield of a composite-type field.
 template<encoding_group ENC>
 inline std::string_view
@@ -227,8 +229,7 @@ inline void parse_composite_field(
   break;
 
   default: {
-    auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
-      std::data(input), std::size(input), pos, loc)};
+    auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(input, pos, loc)};
     PQXX_ASSUME(stop >= pos);
     field = from_string<T>(input.substr(pos, stop - pos));
     pos = stop;

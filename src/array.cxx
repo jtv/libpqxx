@@ -61,7 +61,7 @@ template<encoding_group ENC>
 std::size_t array_parser::scan_unquoted_string(sl loc) const
 {
   return pqxx::internal::scan_unquoted_string<ENC, ',', '}'>(
-    std::data(m_input), std::size(m_input), m_pos, loc);
+    m_input, m_pos, loc);
 }
 
 
