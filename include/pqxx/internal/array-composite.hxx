@@ -81,13 +81,17 @@ inline std::size_t scan_double_quoted_string(
 
 
 // TODO: Needs version with caller-supplied buffer.
-// XXX: Take string_view.
 /// Un-quote and un-escape a double-quoted SQL string.
+/** @param input Text.  The double-quoted string must start at offset `pos`,
+ * and must end at the end of `input`.  So, truncate `input` before calling if
+ * necessary.
+ */
 template<encoding_group ENC>
 inline std::string parse_double_quoted_string(
-  char const input[], std::size_t end, std::size_t pos, sl loc)
+  std::string_view input, std::size_t pos, sl loc)
 {
   std::string output;
+  auto const end{std::size(input)};
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  Or in the extreme opposite case, the real number could be
   // half that.  Usually it'll be a pretty close estimate.
@@ -95,8 +99,8 @@ inline std::string parse_double_quoted_string(
 
   // XXX: Use find_char<'"', '\\'>().
   using scanner = glyph_scanner<ENC>;
-  auto here{scanner::call({input, end}, pos, loc)},
-    next{scanner::call({input, end}, here, loc)};
+  auto here{scanner::call(input, pos, loc)},
+    next{scanner::call(input, here, loc)};
   PQXX_ASSUME(here > pos);
   PQXX_ASSUME(next > here);
   while (here < end - 1)
@@ -109,12 +113,12 @@ inline std::string parse_double_quoted_string(
     {
       // Skip escape.
       here = next;
-      next = scanner::call({input, end}, here, loc);
+      next = scanner::call(input, here, loc);
       PQXX_ASSUME(next > here);
     }
-    output.append(input + here, input + next);
+    output.append(input.substr(here, next - here));
     here = next;
-    next = scanner::call({input, end}, here, loc);
+    next = scanner::call(input, here, loc);
     PQXX_ASSUME(next > here);
   }
   return output;
@@ -216,7 +220,7 @@ inline void parse_composite_field(
     auto const stop{scan_double_quoted_string<ENC>(input, pos, loc)};
     PQXX_ASSUME(stop > pos);
     auto const text{
-      parse_double_quoted_string<ENC>(std::data(input), stop, pos, loc)};
+      parse_double_quoted_string<ENC>(input.substr(0, stop), pos, loc)};
     field = from_string<T>(text);
     pos = stop;
   }
@@ -226,8 +230,7 @@ inline void parse_composite_field(
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(
       std::data(input), std::size(input), pos, loc)};
     PQXX_ASSUME(stop >= pos);
-    field =
-      from_string<T>(std::string_view{std::data(input) + pos, stop - pos});
+    field = from_string<T>(input.substr(pos, stop - pos));
     pos = stop;
   }
   break;

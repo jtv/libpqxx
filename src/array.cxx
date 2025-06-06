@@ -46,8 +46,11 @@ template<encoding_group ENC>
 std::string
 array_parser::parse_double_quoted_string(std::size_t end, sl loc) const
 {
+  // The only reason why we still let this substring start at the beginning
+  // of the input is so that error messages can still provide a meaningful
+  // offset.
   return pqxx::internal::parse_double_quoted_string<ENC>(
-    std::data(m_input), end, m_pos, loc);
+    m_input.substr(0, end), m_pos, loc);
 }
 
 

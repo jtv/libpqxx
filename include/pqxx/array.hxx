@@ -405,7 +405,7 @@ private:
           // TODO: scan_double_quoted_string() with reusable buffer.
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
-              std::data(data), end, here, loc)};
+              data.substr(0, end), here, loc)};
           m_elts.emplace_back(from_string<ELEMENT>(buf, c));
         }
         break;
