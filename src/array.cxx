@@ -91,45 +91,39 @@ array_parser::parse_array_step(sl loc)
     return std::make_pair(juncture::done, value);
 
   auto [found, end] = [this, &value, loc] {
-    if (scan_glyph<ENC>(m_pos, loc) - m_pos > 1)
+    // We don't need to do any actual scanning yet, because we're looking for
+    // specific ASCII characters and we're at the beginning of a character.
+    // The first byte in a multibyte character will not be in the ASCII range.
+    switch (m_input[m_pos])
     {
-      // Non-ASCII unquoted string.
-      auto const endpoint = scan_unquoted_string<ENC>(loc);
-      value = parse_unquoted_string<ENC>(endpoint, loc);
+    case '\0': throw failure{"Unexpected zero byte in array.", loc};
+    case '{': return std::tuple{juncture::row_start, m_pos + 1};
+    case '}': return std::tuple{juncture::row_end, m_pos + 1};
+    case '"': {
+      // Double-quoted string.  This needs proper scanning.
+      auto const endpoint = scan_double_quoted_string<ENC>(loc);
+      value = parse_double_quoted_string<ENC>(endpoint, loc);
       return std::tuple{juncture::string_value, endpoint};
     }
-    else
-    {
-      // This is an ASCII char, so only 1 byte wide.
-      std::size_t const next{m_pos + 1};
-      switch (m_input[m_pos])
+    default: {
+      // Unquoted string.  Needs proper scanning; in fact even the byte we're
+      // currently inspecting may be the first in a multibyte character.
+      auto const endpoint = scan_unquoted_string<ENC>(loc);
+      value = parse_unquoted_string<ENC>(endpoint, loc);
+      if (value == "NULL")
       {
-      case '\0': throw failure{"Unexpected zero byte in array.", loc};
-      case '{': return std::tuple{juncture::row_start, next};
-      case '}': return std::tuple{juncture::row_end, next};
-      case '"': {
-        auto const endpoint = scan_double_quoted_string<ENC>(loc);
-        value = parse_double_quoted_string<ENC>(endpoint, loc);
-        return std::tuple{juncture::string_value, endpoint};
+        // In this one situation, as a special case, NULL means a null
+        // field, not a string that happens to spell "NULL".
+        value.clear();
+        return std::tuple{juncture::null_value, endpoint};
       }
-      default: {
-        auto const endpoint = scan_unquoted_string<ENC>(loc);
-        value = parse_unquoted_string<ENC>(endpoint, loc);
-        if (value == "NULL")
-        {
-          // In this one situation, as a special case, NULL means a null
-          // field, not a string that happens to spell "NULL".
-          value.clear();
-          return std::tuple{juncture::null_value, endpoint};
-        }
-        else
-        {
-          // The normal case: we just parsed an unquoted string.  The value
-          // is what we need.
-          [[likely]] return std::tuple{juncture::string_value, endpoint};
-        }
+      else
+      {
+        // The normal case: we just parsed an unquoted string.  The value
+        // is what we need.
+        [[likely]] return std::tuple{juncture::string_value, endpoint};
       }
-      }
+    }
     }
   }();
 
