@@ -793,6 +793,40 @@ void test_as_sql_array()
 }
 
 
+// Shorthand for shorthand for std::source_location::current().
+constexpr pqxx::sl here(pqxx::sl loc = pqxx::sl::current())
+{
+  return loc;
+}
+
+
+void test_scan_double_quoted_string()
+{
+  using enc = pqxx::encoding_group;
+
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "\"\"", 0u, here()) == 2u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "x=\"\"", 2u, here()) == 4u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "\"x\"", 0u, here()) == 3u);
+  PQXX_CHECK_THROWS(
+    (pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "\"foo", 0u, here())),
+    pqxx::argument_error,
+    "Double-quoted string scan did not detect missing closing quote.");
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "\"x\\\"y\"", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      "\"x\\\\y\"", 0u, here()) == 6u);
+}
+
+
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
@@ -815,4 +849,5 @@ PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
 PQXX_REGISTER_TEST(test_as_sql_array);
+PQXX_REGISTER_TEST(test_scan_double_quoted_string);
 } // namespace

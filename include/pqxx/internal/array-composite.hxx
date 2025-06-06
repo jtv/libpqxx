@@ -17,13 +17,17 @@ namespace pqxx::internal
  * Returns the offset of the first position after the closing quote.
  */
 template<encoding_group ENC>
-inline std::size_t scan_double_quoted_string(
-  std::string_view input, std::size_t pos, sl loc)
+inline constexpr std::size_t
+scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   // XXX: find_char<'"', '\\'>().
+  PQXX_ASSUME((pos + 1) < std::size(input));
+  assert(input[pos] == '"');
+
   using scanner = glyph_scanner<ENC>;
-  auto next{scanner::call(input, pos, loc)};
-  PQXX_ASSUME(next > pos);
+
+  // Skip over the opening quote, which is a single-byte ASCII character.
+  auto next{pos + 1};
   bool at_quote{false};
   pos = next;
   next = scanner::call(input, pos, loc);
@@ -31,6 +35,7 @@ inline std::size_t scan_double_quoted_string(
   auto const sz{std::size(input)};
   while (pos < sz)
   {
+    PQXX_ASSUME((pos >= std::size(input)) or (next > pos));
     if (at_quote)
     {
       if (next - pos == 1 and input[pos] == '"')
@@ -70,7 +75,7 @@ inline std::size_t scan_double_quoted_string(
     }
     pos = next;
     next = scanner::call(input, pos, loc);
-    PQXX_ASSUME(next > pos);
+    PQXX_ASSUME((pos >= std::size(input)) or (next > pos));
   }
   if (not at_quote)
     throw argument_error{
@@ -86,8 +91,8 @@ inline std::size_t scan_double_quoted_string(
  * necessary.
  */
 template<encoding_group ENC>
-inline std::string parse_double_quoted_string(
-  std::string_view input, std::size_t pos, sl loc)
+inline constexpr std::string
+parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   std::string output;
   auto const end{std::size(input)};
@@ -134,8 +139,8 @@ inline std::string parse_double_quoted_string(
  * comma or a closing parenthesis.
  */
 template<encoding_group ENC, char... STOP>
-inline std::size_t scan_unquoted_string(
-  std::string_view input, std::size_t pos, sl loc)
+inline constexpr std::size_t
+scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
   // XXX: Use find_char.
@@ -159,7 +164,7 @@ inline std::size_t scan_unquoted_string(
  * @param pos The string's starting offset within `input`.
  */
 template<encoding_group ENC>
-inline std::string_view
+inline constexpr std::string_view
 parse_unquoted_string(std::string_view input, std::size_t pos, sl)
 {
   return input.substr(pos);
@@ -197,6 +202,7 @@ inline void parse_composite_field(
 {
   assert(index <= last_field);
   // XXX: Use find_char().
+  // XXX: Test for empty case?
   auto next{glyph_scanner<ENC>::call(input, pos, loc)};
   PQXX_ASSUME(next > pos);
   if ((next - pos) != 1)

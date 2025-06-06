@@ -401,7 +401,8 @@ private:
           // indicates that there is some kind of special character in there.
           // So in practice, this optimisation would only apply if the only
           // special characters in the string were commas.
-          end = pqxx::internal::scan_double_quoted_string<ENC>(data, here, loc);
+          end =
+            pqxx::internal::scan_double_quoted_string<ENC>(data, here, loc);
           // TODO: scan_double_quoted_string() with reusable buffer.
           std::string const buf{
             pqxx::internal::parse_double_quoted_string<ENC>(
