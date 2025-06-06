@@ -74,7 +74,7 @@ std::string_view
 array_parser::parse_unquoted_string(std::size_t end, sl loc) const
 {
   return pqxx::internal::parse_unquoted_string<ENC>(
-    std::data(m_input), end, m_pos, loc);
+    m_input.substr(0, end), m_pos, loc);
 }
 
 

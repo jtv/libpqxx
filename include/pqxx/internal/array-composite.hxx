@@ -124,7 +124,6 @@ inline std::string parse_double_quoted_string(
 }
 
 
-// XXX: Take string_view.
 // XXX: Does this actually support escaping?  Does it need to?
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
@@ -143,7 +142,6 @@ inline std::size_t scan_unquoted_string(
   auto const sz{std::size(input)};
   auto next{scanner::call(input, pos, loc)};
   PQXX_ASSUME(pos < next);
-  PQXX_ASSUME(next <= end);
   while ((pos < sz) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
   {
     pos = next;
@@ -154,13 +152,17 @@ inline std::size_t scan_unquoted_string(
 }
 
 
-// XXX: Take string_view.
 /// Parse an unquoted array entry or cfield of a composite-type field.
+/** @param input A view on the text, truncated at the end of the string.  So,
+ *     the end of `input` must coincide with the end of the string.  Truncate
+ *     before calling if necessary.
+ * @param pos The string's starting offset within `input`.
+ */
 template<encoding_group ENC>
 inline std::string_view
-parse_unquoted_string(char const input[], std::size_t end, std::size_t pos, sl)
+parse_unquoted_string(std::string_view input, std::size_t pos, sl)
 {
-  return {&input[pos], end - pos};
+  return input.substr(pos);
 }
 
 
