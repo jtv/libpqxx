@@ -36,24 +36,6 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     // first byte won't match either of these ASCII characters.
     switch (input[pos])
     {
-    case '\\':
-      // Backslash escape.  Move on to the next character, so that at the end
-      // of the iteration we'll skip right over it.
-      pos += one_ascii_char;
-      if (pos >= sz)
-        throw argument_error{"Unexpected end of string: backslash.", loc};
-      if ((input[pos] == '\\') or (input[pos] == '"'))
-      {
-        // As you'd expect: the backslash escapes a double-quote, or another
-        // backslash.  Move past it, or the find_ascii_char<>() at the end of
-        // the iteration will just stop here again.
-        pos += one_ascii_char;
-        if (pos >= sz)
-          throw argument_error{
-            "Unexected end of string: escape sequence.", loc};
-      }
-      break;
-
     case '"':
       pos += one_ascii_char;
       if (pos >= sz)
@@ -75,7 +57,25 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
         // This was the closing quote (though not at the end of the input).
         return pos;
       }
-    }
+
+    case '\\':
+      // Backslash escape.  Move on to the next character, so that at the end
+      // of the iteration we'll skip right over it.
+      pos += one_ascii_char;
+      if (pos >= sz)
+        throw argument_error{"Unexpected end of string: backslash.", loc};
+      if ((input[pos] == '\\') or (input[pos] == '"'))
+      {
+        // As you'd expect: the backslash escapes a double-quote, or another
+        // backslash.  Move past it, or the find_ascii_char<>() at the end of
+        // the iteration will just stop here again.
+        pos += one_ascii_char;
+        if (pos >= sz)
+          throw argument_error{
+            "Unexected end of string: escape sequence.", loc};
+      }
+      break;
+}
 
     // We've reached the end of one iteration without reaching the end of the
     // string.

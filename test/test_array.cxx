@@ -851,6 +851,9 @@ void test_scan_double_quoted_string()
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
       R"(a"\\\""""z)", 1u, here()) == 9u);
+
+  // XXX: Test multibyte.
+  // XXX: Test unsafe multibyte.
 }
 
 
