@@ -147,7 +147,7 @@ inline constexpr std::size_t
 scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   using scanner = glyph_scanner<ENC>;
-  // XXX: Use find_char.
+  // XXX: Use find_char<STOP...>().
   auto const sz{std::size(input)};
   auto next{scanner::call(input, pos, loc)};
   PQXX_ASSUME(pos < next);

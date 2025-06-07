@@ -332,7 +332,7 @@ void test_range_subset()
     {"[1,)", "(10,)"},   {"[1,)", "[10,)"},   {"[0,5]", "[1,4]"},
     {"(0,5)", "[1,4]"},
   };
-  for (auto const [super, sub] : subsets)
+  for (auto const &[super, sub] : subsets)
     PQXX_CHECK(
       traits::from_string(super).contains(traits::from_string(sub)),
       std::format("Range '{}' did not contain ''.", super, sub));
@@ -343,7 +343,7 @@ void test_range_subset()
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
     {"(0,10)", "(0,10]"}, {"(0,10)", "[0,10)"},
   };
-  for (auto const [super, sub] : non_subsets)
+  for (auto const &[super, sub] : non_subsets)
     PQXX_CHECK(
       not traits::from_string(super).contains(traits::from_string(sub)),
       std::format("Range '{}' contained '{}'.", super, sub));
