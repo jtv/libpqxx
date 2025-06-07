@@ -2,7 +2,7 @@
 
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 using namespace pqxx;
 
