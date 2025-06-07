@@ -184,13 +184,39 @@ int main(int argc, char const *argv[])
       }
       catch (pqxx::sql_error const &e)
       {
-        std::cerr << "SQL error: " << e.what() << '\n';
-        std::cerr << "(";
-        std::cerr << e.location.file_name() << ':' << e.location.line();
-        if (not name.empty())
-          std::cerr << " in " << name;
-        std::cerr << ")\n";
-        std::cerr << "Query was: " << e.query() << '\n';
+        std::cerr << "SQL error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location)
+                  << ")\nQuery was: " << e.query() << '\n';
+      }
+      catch (pqxx::internal_error const &e)
+      {
+        std::cerr << "Internal error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
+      }
+      catch (pqxx::usage_error const &e)
+      {
+        std::cerr << "Usage error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
+      }
+      catch (pqxx::conversion_error const &e)
+      {
+        std::cerr << "Conversion error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
+      }
+      catch (pqxx::argument_error const &e)
+      {
+        std::cerr << "Argument error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
+      }
+      catch (pqxx::range_error const &e)
+      {
+        std::cerr << "Range error: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
+      }
+      catch (pqxx::failure const &e)
+      {
+        std::cerr << "Failure: " << e.what() << "\n("
+                  << pqxx::internal::source_loc(e.location) << ")\n";
       }
       catch (std::exception const &e)
       {
