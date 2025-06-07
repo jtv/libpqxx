@@ -20,67 +20,71 @@ template<encoding_group ENC>
 inline constexpr std::size_t
 scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
-  // XXX: find_char<'"', '\\'>().
   PQXX_ASSUME((pos + 1) < std::size(input));
   assert(input[pos] == '"');
 
-  using scanner = glyph_scanner<ENC>;
-
-  // Skip over the opening quote, which is a single-byte ASCII character.
-  auto next{pos + 1};
-  bool at_quote{false};
-  pos = next;
-  next = scanner::call(input, pos, loc);
-  PQXX_ASSUME(next > pos);
   auto const sz{std::size(input)};
+
+  // The width in bytes of a single ASCII character.  In other words, one.
+  constexpr std::size_t one_ascii_char{1u};
+
+  // Skip over the opening double-quote.
+  pos += one_ascii_char;
   while (pos < sz)
   {
-    PQXX_ASSUME((pos >= std::size(input)) or (next > pos));
-    if (at_quote)
+    // No need to check for a multibyte character here: if it's multibyte, its
+    // first byte won't match either of these ASCII characters.
+    switch (input[pos])
     {
-      if (next - pos == 1 and input[pos] == '"')
+    case '\\':
+      // Backslash escape.  Move on to the next character, so that at the end
+      // of the iteration we'll skip right over it.
+      pos += one_ascii_char;
+      if (pos >= sz)
+        throw argument_error{"Unexpected end of string: backslash.", loc};
+      if ((input[pos] == '\\') or (input[pos] == '"'))
       {
-        // We just read a pair of double quotes.  Carry on.
-        at_quote = false;
+        // As you'd expect: the backslash escapes a double-quote, or another
+        // backslash.  Move past it, or the find_ascii_char<>() at the end of
+        // the iteration will just stop here again.
+        pos += one_ascii_char;
+        if (pos >= sz)
+          throw argument_error{
+            "Unexected end of string: escape sequence.", loc};
+      }
+      break;
+
+    case '"':
+      pos += one_ascii_char;
+      if (pos >= sz)
+      {
+        // Clear-cut case.  This is the closing quote and it's right at the end
+        // of the input.
+        return pos;
+      }
+      else if (input[pos] == '"')
+      {
+        // This is a doubled-up double-quote.  That's the other way of
+        // escaping them.  Why can't this ever be simple?
+        pos += one_ascii_char;
+        if (pos >= sz)
+          break;
       }
       else
       {
-        // We just read one double quote, and now we're at a character that's
-        // not a second double quote.  Ergo, that last character was the
-        // closing double quote and this is the position right after it.
+        // This was the closing quote (though not at the end of the input).
         return pos;
       }
     }
-    else if (next - pos == 1)
-    {
-      switch (input[pos])
-      {
-      case '\\':
-        // Backslash escape.  Skip ahead by one more character.
-        pos = next;
-        next = scanner::call(input, pos, loc);
-        PQXX_ASSUME(next > pos);
-        break;
 
-      case '"':
-        // This is either the closing double quote, or the first of a pair of
-        // double quotes.
-        at_quote = true;
-        break;
-      }
-    }
-    else
-    {
-      // Multibyte character.  Carry on.
-    }
-    pos = next;
-    next = scanner::call(input, pos, loc);
-    PQXX_ASSUME((pos >= std::size(input)) or (next > pos));
+    // We've reached the end of one iteration without reaching the end of the
+    // string.
+    pos = find_ascii_char<ENC, '"', '\\'>(input, pos, loc);
   }
-  if (not at_quote)
-    throw argument_error{
-      "Missing closing double-quote: " + std::string{input}, loc};
-  return pos;
+
+  // If we got here, we never found the closing double-quote.
+  throw argument_error{
+    "Missing closing double-quote: " + std::string{input}, loc};
 }
 
 

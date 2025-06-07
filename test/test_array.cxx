@@ -806,24 +806,48 @@ void test_scan_double_quoted_string()
 
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "\"\"", 0u, here()) == 2u);
+      R"("")", 0u, here()) == 2u);
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "x=\"\"", 2u, here()) == 4u);
+      R"(""z)", 0u, here()) == 2u);
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "\"x\"", 0u, here()) == 3u);
+      R"(x="")", 2u, here()) == 4u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"(x=""z)", 2u, here()) == 4u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x")", 0u, here()) == 3u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x"z)", 0u, here()) == 3u);
   PQXX_CHECK_THROWS(
     (pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "\"foo", 0u, here())),
+      R"("foo)", 0u, here())),
     pqxx::argument_error,
     "Double-quoted string scan did not detect missing closing quote.");
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "\"x\\\"y\"", 0u, here()) == 6u);
+      R"("x\"y")", 0u, here()) == 6u);
   static_assert(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      "\"x\\\\y\"", 0u, here()) == 6u);
+      R"("x\"y"z)", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x\\y")", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x\\y"z)", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x""y")", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("x""y"z)", 0u, here()) == 6u);
+  static_assert(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"("\\\"""")", 0u, here()) == 8u);
 }
 
 
