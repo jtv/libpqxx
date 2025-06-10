@@ -871,8 +871,13 @@ void test_scan_double_quoted_string()
       R"(""""z)", 0u, here()),
     4u, "Suffix breaks bare doubled double quote.");
 
-  // XXX: Test multibyte.
-  // XXX: Test unsafe multibyte.
+  // Now let's try a byte that _looks_ like an ASCII backslash escaping the
+  // closing quote (which would be an obvious vector for an injection attack)
+  // but is actually just one byte in a multibyte character.
+  // (I believe these two SJIS bytes form the Katakana letter "so".)
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<enc::SJIS>("\"\203\\\"", 0u,
+    here()), 4u, "Fell for embedded ASCII-like byte in multibyte char.");
 }
 
 
