@@ -20,16 +20,15 @@ template<encoding_group ENC>
 inline constexpr std::size_t
 scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
-  PQXX_ASSUME((pos + 1) < std::size(input));
   assert(input[pos] == '"');
-
   auto const sz{std::size(input)};
 
   // The width in bytes of a single ASCII character.  In other words, one.
   constexpr std::size_t one_ascii_char{1u};
 
-  // Skip over the opening double-quote.
-  pos += one_ascii_char;
+  // Skip over the opening double-quote, and after that, any leading
+  // "un-interesting" characters.
+  pos = find_ascii_char<ENC, '"', '\\'>(input, pos + one_ascii_char, loc);
   while (pos < sz)
   {
     // No need to check for a multibyte character here: if it's multibyte, its
@@ -37,6 +36,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     switch (input[pos])
     {
     case '"':
+      // Is this the closing quote we're looking for?  Scan ahead to find out.
       pos += one_ascii_char;
       if (pos >= sz)
       {
@@ -46,17 +46,20 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
       }
       else if (input[pos] == '"')
       {
-        // This is a doubled-up double-quote.  That's the other way of
+        // What we found is a doubled-up double-quote.  That's the other way of
         // escaping them.  Why can't this ever be simple?
         pos += one_ascii_char;
         if (pos >= sz)
-          break;
+          throw argument_error{
+            "Unexpected end of string: double double-quote."};
       }
       else
       {
         // This was the closing quote (though not at the end of the input).
+        // We are now at the one-past-end position.
         return pos;
       }
+      break;
 
     case '\\':
       // Backslash escape.  Move on to the next character, so that at the end
@@ -64,6 +67,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
       pos += one_ascii_char;
       if (pos >= sz)
         throw argument_error{"Unexpected end of string: backslash.", loc};
+
       if ((input[pos] == '\\') or (input[pos] == '"'))
       {
         // As you'd expect: the backslash escapes a double-quote, or another
@@ -75,7 +79,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
             "Unexected end of string: escape sequence.", loc};
       }
       break;
-}
+    }
 
     // We've reached the end of one iteration without reaching the end of the
     // string.

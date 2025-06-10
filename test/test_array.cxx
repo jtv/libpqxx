@@ -804,53 +804,72 @@ void test_scan_double_quoted_string()
 {
   using enc = pqxx::encoding_group;
 
-  static_assert(
+  // TODO: Use static_assert() once Visual Studio handles it.
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("")", 0u, here()) == 2u);
-  static_assert(
+      R"("")", 0u, here()),
+    2u, "Empty string scans wrong.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"(""z)", 0u, here()) == 2u);
-  static_assert(
+      R"(""z)", 0u, here()),
+    2u, "Scan does not stop in the right place.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"(x="")", 2u, here()) == 4u);
-  static_assert(
+      R"(x="")", 2u, here()),
+    4u, "Scan offset does not work.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"(x=""z)", 2u, here()) == 4u);
-  static_assert(
+      R"(x=""z)", 2u, here()),
+    4u, "Offset + suffix breaks scan.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x")", 0u, here()) == 3u);
-  static_assert(
+      R"("x")", 0u, here()),
+    3u, "Nonempty string scans wrong.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x"z)", 0u, here()) == 3u);
+      R"("x"z)", 0u, here()),
+    3u, "Suffix on nonempty string breaks scan.");
   PQXX_CHECK_THROWS(
     (pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
       R"("foo)", 0u, here())),
     pqxx::argument_error,
     "Double-quoted string scan did not detect missing closing quote.");
-  static_assert(
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x\"y")", 0u, here()) == 6u);
-  static_assert(
+      R"("x\"y")", 0u, here()),
+    6u, "Backslash escape breaks scan.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x\"y"z)", 0u, here()) == 6u);
-  static_assert(
+      R"("x\"y"z)", 0u, here()),
+    6u, "Backslash + suffix breaks scan.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x\\y")", 0u, here()) == 6u);
-  static_assert(
+      R"("x\\y")", 0u, here()),
+    6u, "Escaped backslash breaks scan.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x\\y"z)", 0u, here()) == 6u);
-  static_assert(
+      R"("x""y")", 0u, here()),
+    6u, "Doubled double-quote scans wrong.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x""y")", 0u, here()) == 6u);
-  static_assert(
+      R"("x""y"z)", 0u, here()),
+    6u, "Doubled quote + suffix breaks scan.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("x""y"z)", 0u, here()) == 6u);
-  static_assert(
+      R"("\\\"""")", 0u, here()),
+    8u, "Complex scan is broken.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"("\\\"""")", 0u, here()) == 8u);
-  static_assert(
+      R"(a"\\\""""z)", 1u, here()),
+    9u, "Suffix + complex scan breaks.");
+  PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
-      R"(a"\\\""""z)", 1u, here()) == 9u);
+      R"("""")", 0u, here()),
+    4u, "Bare doubled double quote breaks.");
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+      R"(""""z)", 0u, here()),
+    4u, "Suffix breaks bare doubled double quote.");
 
   // XXX: Test multibyte.
   // XXX: Test unsafe multibyte.
