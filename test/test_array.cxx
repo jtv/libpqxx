@@ -876,8 +876,8 @@ void test_scan_double_quoted_string()
   // but is actually just one byte in a multibyte character.
   // (I believe these two SJIS bytes form the Katakana letter "so".)
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::SJIS>("\"\203\\\"", 0u,
-    here()), 4u, "Fell for embedded ASCII-like byte in multibyte char.");
+    pqxx::internal::scan_double_quoted_string<enc::SJIS>("\"\203\\\"suffix",
+    0u, here()), 4u, "Fell for embedded ASCII-like byte in multibyte char.");
 }
 
 
