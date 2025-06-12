@@ -20,11 +20,11 @@ void test_stream_large_object()
   // have the same bit pattern as an 8-bit value of -1.  This conflation can be
   // a problem when it occurs at buffer boundaries.
   constexpr char bytes[]{"\xff\0end"};
-  std::string const contents{bytes, std::size(bytes)};
+  std::string const contents{std::data(bytes), std::size(bytes)};
 
   pqxx::work tx{cx};
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  pqxx::largeobject new_obj{tx};
+  pqxx::largeobject const new_obj{tx};
 
   pqxx::olostream write{tx, new_obj};
   write << contents;

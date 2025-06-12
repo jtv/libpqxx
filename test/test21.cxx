@@ -5,8 +5,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Simple test program for libpqxx.  Open a connection to database, start a
 // transaction, and perform a query inside it.
@@ -14,7 +12,7 @@ namespace
 {
 void test_021()
 {
-  connection cx;
+  pqxx::connection cx;
 
   std::string const HostName{
     ((cx.hostname() == nullptr) ? "<local>" : cx.hostname())};
@@ -28,12 +26,12 @@ void test_021()
     HostName +
     ", "
     "port=" +
-    to_string(cx.port()) +
+    pqxx::to_string(cx.port()) +
     ", "
     "backendpid=" +
-    to_string(cx.backendpid()) + "\n");
+    pqxx::to_string(cx.backendpid()) + "\n");
 
-  work tx{cx, "test_021"};
+  pqxx::work tx{cx, "test_021"};
 
   // By now our connection should really have been created
   cx.process_notice("Printing details on actual connection\n");
@@ -47,21 +45,22 @@ void test_021()
     HostName +
     ", "
     "port=" +
-    to_string(cx.port()) +
+    pqxx::to_string(cx.port()) +
     ", "
     "backendpid=" +
-    to_string(cx.backendpid()) + "\n");
+    pqxx::to_string(cx.backendpid()) + "\n");
 
   std::string P;
-  from_string(cx.port(), P);
+  pqxx::from_string(cx.port(), P);
   PQXX_CHECK_EQUAL(
-    P, to_string(cx.port()), "Port string conversion is broken.");
-  PQXX_CHECK_EQUAL(to_string(P), P, "Port string conversion is broken.");
+    P, pqxx::to_string(cx.port()), "Port string conversion is broken.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(P), P, "Port string conversion is broken.");
 
-  result R(tx.exec("SELECT * FROM pg_tables"));
+  pqxx::result const R(tx.exec("SELECT * FROM pg_tables"));
 
   tx.process_notice(std::format(
-    "{} result row in transaction {}\n", to_string(std::size(R)), tx.name()));
+    "{} result row in transaction {}\n", pqxx::to_string(std::size(R)),
+    tx.name()));
   tx.commit();
 }
 

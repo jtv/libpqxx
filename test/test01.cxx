@@ -4,8 +4,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 namespace
 {
@@ -13,14 +11,14 @@ namespace
 // a transaction, and perform a query inside it.
 void test_001()
 {
-  connection cx;
+  pqxx::connection cx;
 
   // Begin a transaction acting on our current connection.  Give it a human-
   // readable name so the library can include it in error messages.
-  work tx{cx, "test1"};
+  pqxx::work tx{cx, "test1"};
 
   // Perform a query on the database, storing result rows in R.
-  result r(tx.exec("SELECT * FROM pg_tables"));
+  pqxx::result const r(tx.exec("SELECT * FROM pg_tables"));
 
   // We're expecting to find some tables...
   PQXX_CHECK(not std::empty(r), "No tables found.");

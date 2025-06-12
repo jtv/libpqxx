@@ -69,7 +69,8 @@ void test_084()
 
   PQXX_CHECK(not(i3 <= i2), "icursor_iterator operator<=() is broken.");
 
-  pqxx::icursor_iterator iend, i4;
+  pqxx::icursor_iterator i4;
+  pqxx::icursor_iterator const iend;
   PQXX_CHECK(i3 != iend, "Early end to icursor_iterator iteration.");
   i4 = iend;
   PQXX_CHECK(i4 == iend, "Assigning empty icursor_iterator fails.");

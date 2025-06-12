@@ -21,31 +21,32 @@ void test_nontransaction_continues_after_error()
 }
 
 
-std::string const table{"pqxx_test_transaction"};
+std::string_view const table{"pqxx_test_transaction"};
 
 
 void delete_temp_table(pqxx::transaction_base &tx)
 {
-  tx.exec(std::string{"DROP TABLE IF EXISTS "} + table).no_rows();
+  tx.exec(std::format("DROP TABLE IF EXISTS {}", table)).no_rows();
 }
 
 
 void create_temp_table(pqxx::transaction_base &tx)
 {
-  tx.exec("CREATE TEMP TABLE " + table + " (x integer)").no_rows();
+  tx.exec(std::format("CREATE TEMP TABLE {} (x integer)", table)).no_rows();
 }
 
 
 void insert_temp_table(pqxx::transaction_base &tx, int value)
 {
   tx.exec(
-      "INSERT INTO " + table + " (x) VALUES (" + pqxx::to_string(value) + ")")
+      std::format("INSERT INTO {} (x) VALUES (", table) +
+      pqxx::to_string(value) + ")")
     .no_rows();
 }
 
 int count_temp_table(pqxx::transaction_base &tx)
 {
-  return tx.query_value<int>("SELECT count(*) FROM " + table);
+  return tx.query_value<int>(std::format("SELECT count(*) FROM {}", table));
 }
 
 

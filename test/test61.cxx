@@ -4,19 +4,17 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Test local variable functionality.
 namespace
 {
-std::string GetDatestyle(transaction_base &T)
+std::string GetDatestyle(pqxx::transaction_base &T)
 {
   return T.conn().get_var("DATESTYLE");
 }
 
 
-std::string SetDatestyle(transaction_base &T, std::string style)
+std::string SetDatestyle(pqxx::transaction_base &T, std::string const &style)
 {
   T.conn().set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(T)};
@@ -29,7 +27,8 @@ std::string SetDatestyle(transaction_base &T, std::string style)
 
 
 void RedoDatestyle(
-  transaction_base &T, std::string const &style, std::string const &expected)
+  pqxx::transaction_base &T, std::string const &style,
+  std::string const &expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
 }
@@ -37,8 +36,8 @@ void RedoDatestyle(
 
 void test_061()
 {
-  connection cx;
-  work tx{cx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
   PQXX_CHECK(not std::empty(GetDatestyle(tx)), "Initial datestyle not set.");
 
@@ -51,10 +50,10 @@ void test_061()
 
   // Prove that setting an unknown variable causes an error, as expected
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  quiet_errorhandler d(tx.conn());
+  pqxx::quiet_errorhandler const d(tx.conn());
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
-    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
+    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error,
     "Setting unknown variable failed to fail.");
 }
 
