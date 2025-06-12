@@ -139,7 +139,7 @@ struct conversion_context
    * detect escape characters, closing quotes, and so on.  It has no need to
    * "understand" the text beyond that.
    */
-  encoding_group enc = encoding_group::UNKNOWN;
+  encoding_group enc = encoding_group::unknown;
 
   /// A `std::source_location` for the call.
   /** When libpqxx throws an error, it will generally try to include this

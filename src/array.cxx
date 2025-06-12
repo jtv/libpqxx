@@ -150,23 +150,23 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
 
   switch (enc)
   {
-  case encoding_group::UNKNOWN:
+  case encoding_group::unknown:
     throw usage_error{
       "Tried to parse array without knowing its encoding.", loc};
 
-    PQXX_ENCODING_CASE(MONOBYTE);
-    PQXX_ENCODING_CASE(BIG5);
-    PQXX_ENCODING_CASE(EUC_CN);
-    PQXX_ENCODING_CASE(EUC_JP);
-    PQXX_ENCODING_CASE(EUC_KR);
-    PQXX_ENCODING_CASE(EUC_TW);
-    PQXX_ENCODING_CASE(GB18030);
-    PQXX_ENCODING_CASE(GBK);
-    PQXX_ENCODING_CASE(JOHAB);
-    PQXX_ENCODING_CASE(MULE_INTERNAL);
-    PQXX_ENCODING_CASE(SJIS);
-    PQXX_ENCODING_CASE(UHC);
-    PQXX_ENCODING_CASE(UTF8);
+    PQXX_ENCODING_CASE(monobyte);
+    PQXX_ENCODING_CASE(big5);
+    PQXX_ENCODING_CASE(euc_cn);
+    PQXX_ENCODING_CASE(euc_jp);
+    PQXX_ENCODING_CASE(euc_kr);
+    PQXX_ENCODING_CASE(euc_tw);
+    PQXX_ENCODING_CASE(gb18030);
+    PQXX_ENCODING_CASE(gbk);
+    PQXX_ENCODING_CASE(johab);
+    PQXX_ENCODING_CASE(mule_internal);
+    PQXX_ENCODING_CASE(sjis);
+    PQXX_ENCODING_CASE(uhc);
+    PQXX_ENCODING_CASE(utf8);
   }
   [[unlikely]] throw pqxx::internal_error{
     std::format("Unsupported encoding code: {}.", to_string(enc)), loc};

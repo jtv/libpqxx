@@ -581,7 +581,7 @@ void test_array_strings()
 namespace
 {
 pqxx::conversion_context make_context(
-  pqxx::encoding_group enc = pqxx::encoding_group::UNKNOWN,
+  pqxx::encoding_group enc = pqxx::encoding_group::unknown,
   pqxx::sl loc = pqxx::sl::current())
 {
   return pqxx::conversion_context{enc, loc};
@@ -590,7 +590,7 @@ pqxx::conversion_context make_context(
 
 void test_array_parses_real_arrays()
 {
-  auto const mono{pqxx::encoding_group::MONOBYTE};
+  auto const mono{pqxx::encoding_group::monobyte};
 
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -722,7 +722,7 @@ void test_array_parses_quoted_strings()
   // A byte value that looks like an ASCII backslash but inside a multibyte
   // character does not count as a backslash.
   pqxx::array<std::string> const b{
-    "{\"\203\\\",\"\\\203\\\"}", pqxx::encoding_group::SJIS};
+    "{\"\203\\\",\"\\\203\\\"}", pqxx::encoding_group::sjis};
   PQXX_CHECK_EQUAL(
     b[0],
     "\203\\"
@@ -831,68 +831,68 @@ void test_scan_double_quoted_string()
 
   // TODO: Use static_assert() once Visual Studio handles it.
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("")", 0u, here()),
     2u, "Empty string scans wrong.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(""z)", 0u, here()),
     2u, "Scan does not stop in the right place.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(x="")", 2u, here()),
     4u, "Scan offset does not work.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(x=""z)", 2u, here()),
     4u, "Offset + suffix breaks scan.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x")", 0u, here()),
     3u, "Nonempty string scans wrong.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x"z)", 0u, here()),
     3u, "Suffix on nonempty string breaks scan.");
   PQXX_CHECK_THROWS(
-    (pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    (pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("foo)", 0u, here())),
     pqxx::argument_error,
     "Double-quoted string scan did not detect missing closing quote.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x\"y")", 0u, here()),
     6u, "Backslash escape breaks scan.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x\"y"z)", 0u, here()),
     6u, "Backslash + suffix breaks scan.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x\\y")", 0u, here()),
     6u, "Escaped backslash breaks scan.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x""y")", 0u, here()),
     6u, "Doubled double-quote scans wrong.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x""y"z)", 0u, here()),
     6u, "Doubled quote + suffix breaks scan.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("\\\"""")", 0u, here()),
     8u, "Complex scan is broken.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(a"\\\""""z)", 1u, here()),
     9u, "Suffix + complex scan breaks.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("""")", 0u, here()),
     4u, "Bare doubled double quote breaks.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::MONOBYTE>(
+    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(""""z)", 0u, here()),
     4u, "Suffix breaks bare doubled double quote.");
 
@@ -901,7 +901,7 @@ void test_scan_double_quoted_string()
   // but is actually just one byte in a multibyte character.
   // (I believe these two SJIS bytes form the Katakana letter "so".)
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::SJIS>(
+    pqxx::internal::scan_double_quoted_string<enc::sjis>(
       "\"\203\\\"suffix", 0u, here()),
     4u, "Fell for embedded ASCII-like byte in multibyte char.");
 }

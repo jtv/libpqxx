@@ -168,7 +168,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 }
 
 
-// XXX: Does this actually support escaping?  Does it need to?
+// XXX: Support backslash escapes & doubled single-quote.
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -342,35 +342,35 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
 {
   switch (enc)
   {
-  case encoding_group::UNKNOWN:
+  case encoding_group::unknown:
     throw usage_error{
       "Tried to parse array/composite without knowing its text encoding.",
       loc};
 
-  case encoding_group::MONOBYTE:
-    return parse_composite_field<encoding_group::MONOBYTE>;
-  case encoding_group::BIG5:
-    return parse_composite_field<encoding_group::BIG5>;
-  case encoding_group::EUC_CN:
-    return parse_composite_field<encoding_group::EUC_CN>;
-  case encoding_group::EUC_JP:
-    return parse_composite_field<encoding_group::EUC_JP>;
-  case encoding_group::EUC_KR:
-    return parse_composite_field<encoding_group::EUC_KR>;
-  case encoding_group::EUC_TW:
-    return parse_composite_field<encoding_group::EUC_TW>;
-  case encoding_group::GB18030:
-    return parse_composite_field<encoding_group::GB18030>;
-  case encoding_group::GBK: return parse_composite_field<encoding_group::GBK>;
-  case encoding_group::JOHAB:
-    return parse_composite_field<encoding_group::JOHAB>;
-  case encoding_group::MULE_INTERNAL:
-    return parse_composite_field<encoding_group::MULE_INTERNAL>;
-  case encoding_group::SJIS:
-    return parse_composite_field<encoding_group::SJIS>;
-  case encoding_group::UHC: return parse_composite_field<encoding_group::UHC>;
-  case encoding_group::UTF8:
-    return parse_composite_field<encoding_group::UTF8>;
+  case encoding_group::monobyte:
+    return parse_composite_field<encoding_group::monobyte>;
+  case encoding_group::big5:
+    return parse_composite_field<encoding_group::big5>;
+  case encoding_group::euc_cn:
+    return parse_composite_field<encoding_group::euc_cn>;
+  case encoding_group::euc_jp:
+    return parse_composite_field<encoding_group::euc_jp>;
+  case encoding_group::euc_kr:
+    return parse_composite_field<encoding_group::euc_kr>;
+  case encoding_group::euc_tw:
+    return parse_composite_field<encoding_group::euc_tw>;
+  case encoding_group::gb18030:
+    return parse_composite_field<encoding_group::gb18030>;
+  case encoding_group::gbk: return parse_composite_field<encoding_group::gbk>;
+  case encoding_group::johab:
+    return parse_composite_field<encoding_group::johab>;
+  case encoding_group::mule_internal:
+    return parse_composite_field<encoding_group::mule_internal>;
+  case encoding_group::sjis:
+    return parse_composite_field<encoding_group::sjis>;
+  case encoding_group::uhc: return parse_composite_field<encoding_group::uhc>;
+  case encoding_group::utf8:
+    return parse_composite_field<encoding_group::utf8>;
   }
   throw internal_error{
     std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};

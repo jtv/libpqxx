@@ -79,7 +79,7 @@ parse_composite(encoding_group enc, std::string_view text, T &...fields)
 template<typename... T>
 inline void parse_composite(std::string_view text, T &...fields)
 {
-  parse_composite(encoding_group::MONOBYTE, text, fields...);
+  parse_composite(encoding_group::monobyte, text, fields...);
 }
 } // namespace pqxx
 

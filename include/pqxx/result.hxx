@@ -106,7 +106,7 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept : m_data{}, m_query{}, m_encoding{encoding_group::UNKNOWN}
+  result() noexcept : m_data{}, m_query{}, m_encoding{encoding_group::unknown}
   {}
 
   result(result const &rhs) noexcept = default;
@@ -492,7 +492,7 @@ private:
    */
   std::shared_ptr<pqxx::internal::notice_waiters> m_notice_waiters;
 
-  encoding_group m_encoding = encoding_group::UNKNOWN;
+  encoding_group m_encoding = encoding_group::unknown;
 
   static std::string const s_empty_string;
 

@@ -134,7 +134,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 } // namespace
 
 
-template<> struct glyph_scanner<encoding_group::MONOBYTE>
+template<> struct glyph_scanner<encoding_group::monobyte>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
@@ -154,7 +154,7 @@ template<> struct glyph_scanner<encoding_group::MONOBYTE>
 
 
 // https://en.wikipedia.org/wiki/Big5#Organization
-template<> struct glyph_scanner<encoding_group::BIG5>
+template<> struct glyph_scanner<encoding_group::big5>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -193,7 +193,7 @@ depending on the specific extension:
 */
 
 // https://en.wikipedia.org/wiki/GB_2312#EUC-CN
-template<> struct glyph_scanner<encoding_group::EUC_CN>
+template<> struct glyph_scanner<encoding_group::euc_cn>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -223,7 +223,7 @@ template<> struct glyph_scanner<encoding_group::EUC_CN>
 //
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
 // http://x0213.org/codetable/index.en.html
-template<> struct glyph_scanner<encoding_group::EUC_JP>
+template<> struct glyph_scanner<encoding_group::euc_jp>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -273,7 +273,7 @@ template<> struct glyph_scanner<encoding_group::EUC_JP>
 
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
-template<> struct glyph_scanner<encoding_group::EUC_KR>
+template<> struct glyph_scanner<encoding_group::euc_kr>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -299,7 +299,7 @@ template<> struct glyph_scanner<encoding_group::EUC_KR>
 
 
 // https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
-template<> struct glyph_scanner<encoding_group::EUC_TW>
+template<> struct glyph_scanner<encoding_group::euc_tw>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -339,7 +339,7 @@ template<> struct glyph_scanner<encoding_group::EUC_TW>
 
 
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
-template<> struct glyph_scanner<encoding_group::GB18030>
+template<> struct glyph_scanner<encoding_group::gb18030>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -381,7 +381,7 @@ template<> struct glyph_scanner<encoding_group::GB18030>
 
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
-template<> struct glyph_scanner<encoding_group::GBK>
+template<> struct glyph_scanner<encoding_group::gbk>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -427,7 +427,7 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 
   https://bit.ly/2BEOu5V
 */
-template<> struct glyph_scanner<encoding_group::JOHAB>
+template<> struct glyph_scanner<encoding_group::johab>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -463,7 +463,7 @@ This is implemented according to the description in said header file, but I was
 unable to get it to successfully iterate a MULE-encoded test CSV generated
 using PostgreSQL 9.2.23.  Use this at your own risk.
 */
-template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
+template<> struct glyph_scanner<encoding_group::mule_internal>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -518,7 +518,7 @@ template<> struct glyph_scanner<encoding_group::MULE_INTERNAL>
 //
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
-template<> struct glyph_scanner<encoding_group::SJIS>
+template<> struct glyph_scanner<encoding_group::sjis>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -552,7 +552,7 @@ template<> struct glyph_scanner<encoding_group::SJIS>
 
 
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
-template<> struct glyph_scanner<encoding_group::UHC>
+template<> struct glyph_scanner<encoding_group::uhc>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -593,7 +593,7 @@ template<> struct glyph_scanner<encoding_group::UHC>
 
 
 // https://en.wikipedia.org/wiki/UTF-8#Description
-template<> struct glyph_scanner<encoding_group::UTF8>
+template<> struct glyph_scanner<encoding_group::utf8>
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -668,17 +668,17 @@ map_ascii_search_group(encoding_group enc) noexcept
 {
   switch (enc)
   {
-  case encoding_group::MONOBYTE:
-  case encoding_group::EUC_CN:
-  case encoding_group::EUC_JP:
-  case encoding_group::EUC_KR:
-  case encoding_group::EUC_TW:
-  case encoding_group::MULE_INTERNAL:
-  case encoding_group::UTF8:
+  case encoding_group::monobyte:
+  case encoding_group::euc_cn:
+  case encoding_group::euc_jp:
+  case encoding_group::euc_kr:
+  case encoding_group::euc_tw:
+  case encoding_group::mule_internal:
+  case encoding_group::utf8:
     // All these encodings are "ASCII-safe," meaning that if we're looking
     // for a particular ASCII character, we can safely just go through the
     // string byte for byte.  Multibyte characters have the high bit set.
-    return encoding_group::MONOBYTE;
+    return encoding_group::monobyte;
 
   default: [[unlikely]] return enc;
   }
@@ -699,21 +699,21 @@ get_char_finder(encoding_group enc, sl loc)
   auto const as_if{map_ascii_search_group(enc)};
   switch (as_if)
   {
-  case encoding_group::MONOBYTE:
+  case encoding_group::monobyte:
     return pqxx::internal::find_ascii_char<
-      encoding_group::MONOBYTE, NEEDLE...>;
-  case encoding_group::BIG5:
-    return pqxx::internal::find_ascii_char<encoding_group::BIG5, NEEDLE...>;
-  case encoding_group::GB18030:
-    return pqxx::internal::find_ascii_char<encoding_group::GB18030, NEEDLE...>;
-  case encoding_group::GBK:
-    return pqxx::internal::find_ascii_char<encoding_group::GBK, NEEDLE...>;
-  case encoding_group::JOHAB:
-    return pqxx::internal::find_ascii_char<encoding_group::JOHAB, NEEDLE...>;
-  case encoding_group::SJIS:
-    return pqxx::internal::find_ascii_char<encoding_group::SJIS, NEEDLE...>;
-  case encoding_group::UHC:
-    return pqxx::internal::find_ascii_char<encoding_group::UHC, NEEDLE...>;
+      encoding_group::monobyte, NEEDLE...>;
+  case encoding_group::big5:
+    return pqxx::internal::find_ascii_char<encoding_group::big5, NEEDLE...>;
+  case encoding_group::gb18030:
+    return pqxx::internal::find_ascii_char<encoding_group::gb18030, NEEDLE...>;
+  case encoding_group::gbk:
+    return pqxx::internal::find_ascii_char<encoding_group::gbk, NEEDLE...>;
+  case encoding_group::johab:
+    return pqxx::internal::find_ascii_char<encoding_group::johab, NEEDLE...>;
+  case encoding_group::sjis:
+    return pqxx::internal::find_ascii_char<encoding_group::sjis, NEEDLE...>;
+  case encoding_group::uhc:
+    return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
 
   default:
     throw pqxx::internal_error{

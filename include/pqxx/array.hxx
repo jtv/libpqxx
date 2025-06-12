@@ -76,23 +76,23 @@ public:
     using group = encoding_group;
     switch (enc)
     {
-    case group::UNKNOWN:
+    case group::unknown:
       throw usage_error{
         "Tried to parse array without knowing its encoding.", loc};
 
-    case group::MONOBYTE: parse<group::MONOBYTE>(data, loc); break;
-    case group::BIG5: parse<group::BIG5>(data, loc); break;
-    case group::EUC_CN: parse<group::EUC_CN>(data, loc); break;
-    case group::EUC_JP: parse<group::EUC_JP>(data, loc); break;
-    case group::EUC_KR: parse<group::EUC_KR>(data, loc); break;
-    case group::EUC_TW: parse<group::EUC_TW>(data, loc); break;
-    case group::GB18030: parse<group::GB18030>(data, loc); break;
-    case group::GBK: parse<group::GBK>(data, loc); break;
-    case group::JOHAB: parse<group::JOHAB>(data, loc); break;
-    case group::MULE_INTERNAL: parse<group::MULE_INTERNAL>(data, loc); break;
-    case group::SJIS: parse<group::SJIS>(data, loc); break;
-    case group::UHC: parse<group::UHC>(data, loc); break;
-    case group::UTF8: parse<group::UTF8>(data, loc); break;
+    case group::monobyte: parse<group::monobyte>(data, loc); break;
+    case group::big5: parse<group::big5>(data, loc); break;
+    case group::euc_cn: parse<group::euc_cn>(data, loc); break;
+    case group::euc_jp: parse<group::euc_jp>(data, loc); break;
+    case group::euc_kr: parse<group::euc_kr>(data, loc); break;
+    case group::euc_tw: parse<group::euc_tw>(data, loc); break;
+    case group::gb18030: parse<group::gb18030>(data, loc); break;
+    case group::gbk: parse<group::gbk>(data, loc); break;
+    case group::johab: parse<group::johab>(data, loc); break;
+    case group::mule_internal: parse<group::mule_internal>(data, loc); break;
+    case group::sjis: parse<group::sjis>(data, loc); break;
+    case group::uhc: parse<group::uhc>(data, loc); break;
+    case group::utf8: parse<group::utf8>(data, loc); break;
     default: PQXX_UNREACHABLE; break;
     }
   }
@@ -653,7 +653,7 @@ public:
    */
   [[deprecated("Use pqxx::array instead.")]]
   explicit array_parser(
-    std::string_view input, encoding_group = encoding_group::MONOBYTE);
+    std::string_view input, encoding_group = encoding_group::monobyte);
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @ref juncture::string_value,

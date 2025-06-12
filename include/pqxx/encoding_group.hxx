@@ -15,33 +15,32 @@
 
 namespace pqxx
 {
-// XXX: Lower-case these names.
 // Types of encodings supported by PostgreSQL, see
 // https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
 enum class encoding_group
 {
   // Indeterminate encoding.
-  UNKNOWN,
+  unknown,
 
   // Handles all single-byte fixed-width encodings
-  MONOBYTE,
+  monobyte,
 
   // XXX: Treat all ASCII-safe ones as monobyte.
   // Multibyte encodings.
   // Some of these can embed ASCII-like bytes inside multibyte characters,
   // notably Big5, SJIS, SHIFT_JIS_2004, GP18030, GBK, JOHAB, UHC.
-  BIG5,
-  EUC_CN,
-  EUC_JP,
-  EUC_KR,
-  EUC_TW,
-  GB18030,
-  GBK,
-  JOHAB,
-  MULE_INTERNAL,
-  SJIS,
-  UHC,
-  UTF8,
+  big5,
+  euc_cn,
+  euc_jp,
+  euc_kr,
+  euc_tw,
+  gb18030,
+  gbk,
+  johab,
+  mule_internal,
+  sjis,
+  uhc,
+  utf8,
 };
 } // namespace pqxx
 

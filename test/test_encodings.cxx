@@ -15,7 +15,7 @@ pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
 void test_find_chars()
 {
   auto finder{pqxx::internal::get_char_finder<'.', '!', '?'>(
-    pqxx::encoding_group::MONOBYTE, loc())};
+    pqxx::encoding_group::monobyte, loc())};
 
   PQXX_CHECK_EQUAL(
     finder("", 0, loc()), 0u, "Found something in empty string!?");

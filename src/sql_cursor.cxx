@@ -69,7 +69,7 @@ find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 
   // Marker for the end of the last "useful" character in the query.
   std::size_t end{};
-  if (enc == pqxx::encoding_group::MONOBYTE)
+  if (enc == pqxx::encoding_group::monobyte)
   {
     // This is an encoding where we can just scan backwards from the end.
     for (end = size; end > 0 and useless_trail(query[end - 1]); --end);
@@ -108,32 +108,32 @@ consteval auto check_query_end(
 }
 
 
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::MONOBYTE, " ( ; ) ") == 6);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::monobyte, " ( ; ) ") == 6);
 
-static_assert(check_query_end(pqxx::encoding_group::BIG5, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::BIG5, " ( ; ) ") == 6);
+static_assert(check_query_end(pqxx::encoding_group::big5, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::big5, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::big5, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::big5, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::big5, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::big5, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::big5, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::big5, " ( ; ) ") == 6);
 
-static_assert(check_query_end(pqxx::encoding_group::UTF8, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::UTF8, " ( ; ) ") == 6);
+static_assert(check_query_end(pqxx::encoding_group::utf8, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::utf8, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::utf8, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::utf8, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::utf8, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::utf8, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::utf8, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::utf8, " ( ; ) ") == 6);
 #endif // NDEBUG
 } // namespace
 
