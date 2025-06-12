@@ -140,7 +140,7 @@ cpplint() {
         includes=""
     fi
 
-# TODO: Please, is there any way we can parallelise this?
+# TODO: Use run-clang-tidy -j$(nproc) instead.
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
     # shellcheck disable=SC2086,2046
     clang-tidy "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
