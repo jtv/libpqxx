@@ -152,20 +152,20 @@ void test_strings()
   char const nasty_string[]{R"--('\"\)--"};
   rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nasty_string}).one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(nasty_string),
+    rw.front().as<std::string>(), std::string(std::data(nasty_string)),
     "Prepared statement did not quote/escape correctly.");
 
   rw =
-    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{std::string{nasty_string}})
+    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{std::string{std::data(nasty_string)}})
       .one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(nasty_string),
+    rw.front().as<std::string>(), std::string(std::data(nasty_string)),
     "Quoting/escaping went wrong in std::string.");
 
   char nonconst[]{"non-const C string"};
   rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nonconst}).one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(nonconst),
+    rw.front().as<std::string>(), std::string(std::data(nonconst)),
     "Non-const C string passed incorrectly.");
 }
 
@@ -176,7 +176,7 @@ void test_binary()
   pqxx::work tx{cx};
   cx.prepare("EchoBin", "SELECT $1::bytea");
   constexpr char raw_bytes[]{"Binary\0bytes'\"with\tweird\xff bytes"};
-  std::string const input{raw_bytes, std::size(raw_bytes)};
+  std::string const input{std::data(raw_bytes), std::size(raw_bytes)};
 
   {
     // C++23: Initialise as bytes{std::from_range_t, raw_bytes)?

@@ -19,13 +19,13 @@ void test_030()
   connection cx;
   work tx{cx, "test30"};
 
-  result R(tx.exec(("SELECT * FROM " + Table).c_str()));
+  result const R(tx.exec(("SELECT * FROM " + Table).c_str()));
   PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");
 
   // Print column names
   for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
   {
-    std::string N{R.column_name(c)};
+    std::string const N{R.column_name(c)};
 
     PQXX_CHECK_EQUAL(
       R[0].column_number(N), R.column_number(N),
@@ -50,7 +50,7 @@ void test_030()
 
   for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
   {
-    std::string N{R.column_name(c)};
+    std::string const N{R.column_name(c)};
 
     PQXX_CHECK_EQUAL(
       std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),

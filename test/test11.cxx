@@ -6,24 +6,22 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
 void test_011()
 {
-  connection cx;
-  work tx{cx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
   std::string const Table{"pg_tables"};
 
-  result R(tx.exec("SELECT * FROM " + Table));
+  pqxx::result const R(tx.exec("SELECT * FROM " + Table));
 
   // Print column names
   for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
   {
-    std::string N{R.column_name(c)};
+    std::string const N{R.column_name(c)};
     PQXX_CHECK_EQUAL(R.column_number(N), c, "Inconsistent column numbers.");
   }
 
@@ -52,7 +50,7 @@ void test_011()
 
     for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
     {
-      std::string N{R.column_name(c)};
+      std::string const N{R.column_name(c)};
 
       PQXX_CHECK_EQUAL(
         std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),

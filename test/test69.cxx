@@ -5,14 +5,12 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Issue a query repeatedly through a pipeline, and
 // compare results.
 namespace
 {
-void TestPipeline(pipeline &P, int numqueries)
+void TestPipeline(pqxx::pipeline &P, int numqueries)
 {
   std::string const Q{"SELECT 99"};
 
@@ -43,9 +41,9 @@ void TestPipeline(pipeline &P, int numqueries)
 
 void test_069()
 {
-  connection cx;
-  work tx{cx};
-  pipeline P(tx);
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline P(tx);
   PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
   for (int i{0}; i < 5; ++i) TestPipeline(P, i);
 }
