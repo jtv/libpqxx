@@ -7,8 +7,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Modify the database, retaining transactional
 // integrity using the transactor framework.
@@ -19,23 +17,23 @@ int To4Digits(int Y)
 {
   int Result{Y};
 
-  PQXX_CHECK(Y >= 0, "Negative year: " + to_string(Y));
+  PQXX_CHECK(Y >= 0, "Negative year: " + pqxx::to_string(Y));
 
   if (Y < 70)
     Result += 2000;
   else if (Y < 100)
     Result += 1900;
   else
-    PQXX_CHECK(Y >= 1970, "Unexpected year: " + to_string(Y));
+    PQXX_CHECK(Y >= 1970, "Unexpected year: " + pqxx::to_string(Y));
   return Result;
 }
 
 
 // Transaction definition for year-field update.  Returns conversions done.
-std::map<int, int> update_years(connection &C)
+std::map<int, int> update_years(pqxx::connection &C)
 {
   std::map<int, int> conversions;
-  work tx{C};
+  pqxx::work tx{C};
 
   // Note all different years currently occurring in the table, writing them
   // and their correct mappings to m_conversions
@@ -54,10 +52,10 @@ std::map<int, int> update_years(connection &C)
     tx.exec(
         "UPDATE pqxxevents "
         "SET year=" +
-        to_string(c.second) +
+        pqxx::to_string(c.second) +
         " "
         "WHERE year=" +
-        to_string(c.first))
+        pqxx::to_string(c.first))
       .no_rows();
 
   tx.commit();
@@ -68,16 +66,16 @@ std::map<int, int> update_years(connection &C)
 
 void test_026()
 {
-  connection cx;
+  pqxx::connection cx;
   {
-    nontransaction tx{cx};
-    test::create_pqxxevents(tx);
+    pqxx::nontransaction tx{cx};
+    pqxx::test::create_pqxxevents(tx);
     tx.commit();
   }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
-  auto const conversions{perform([&cx] { return update_years(cx); })};
+  auto const conversions{pqxx::perform([&cx] { return update_years(cx); })};
 
   PQXX_CHECK(not std::empty(conversions), "No conversions done!");
 }

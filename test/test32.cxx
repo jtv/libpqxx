@@ -4,8 +4,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Verify abort behaviour of transactor.
 //
@@ -20,13 +18,15 @@ namespace
 // Let's take a boring year that is not going to be in the "pqxxevents" table
 constexpr int BoringYear{1977};
 
-std::pair<int, int> count_events(connection &cx, std::string const &table)
+std::pair<int, int>
+count_events(pqxx::connection &cx, std::string const &table)
 {
   std::string const count_query{"SELECT count(*) FROM " + table};
-  work tx{cx};
+  pqxx::work tx{cx};
   return std::make_pair(
     tx.query_value<int>(count_query),
-    tx.query_value<int>(count_query + " WHERE year=" + to_string(BoringYear)));
+    tx.query_value<int>(
+      count_query + " WHERE year=" + pqxx::to_string(BoringYear)));
 }
 
 
@@ -36,29 +36,31 @@ struct deliberate_error : std::exception
 
 void test_032()
 {
-  connection cx;
+  pqxx::connection cx;
   {
-    nontransaction tx{cx};
-    test::create_pqxxevents(tx);
+    pqxx::nontransaction tx{cx};
+    pqxx::test::create_pqxxevents(tx);
   }
 
   std::string const Table{"pqxxevents"};
 
   std::pair<int, int> const Before{
-    perform([&cx, &Table] { return count_events(cx, Table); })};
+    pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
-    "Already have event for " + to_string(BoringYear) + ", cannot test.");
+    "Already have event for " + pqxx::to_string(BoringYear) +
+      ", cannot test.");
 
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d(cx);
+    pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      perform([&cx, &Table] {
-        work{cx}
+      pqxx::perform([&cx, &Table] {
+        pqxx::work{cx}
           .exec(
-            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            "INSERT INTO " + Table + " VALUES (" +
+            pqxx::to_string(BoringYear) +
             ", "
             "'yawn')")
           .no_rows();
@@ -69,12 +71,12 @@ void test_032()
   }
 
   std::pair<int, int> const After{
-    perform([&cx, &Table] { return count_events(cx, Table); })};
+    pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
     After.second, Before.second,
-    "Event count for " + to_string(BoringYear) + " changed.");
+    "Event count for " + pqxx::to_string(BoringYear) + " changed.");
 }
 
 

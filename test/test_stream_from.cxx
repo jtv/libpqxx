@@ -122,11 +122,11 @@ void test_bad_tuples(pqxx::connection &cx)
   }
   catch (pqxx::usage_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (
-      what.find("1") == std::string::npos or
-      what.find("6") == std::string::npos)
+      what.find('1') == std::string::npos or
+      what.find('6') == std::string::npos)
       throw;
     pqxx::test::expected_exception("Tuple is wrong size: " + what);
   }
@@ -140,11 +140,11 @@ void test_bad_tuples(pqxx::connection &cx)
   }
   catch (pqxx::usage_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (
-      what.find("6") == std::string::npos or
-      what.find("7") == std::string::npos)
+      what.find('6') == std::string::npos or
+      what.find('7') == std::string::npos)
       throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }
@@ -155,7 +155,7 @@ void test_bad_tuples(pqxx::connection &cx)
 
 #define ASSERT_FIELD_EQUAL(OPT, VAL)                                          \
   PQXX_CHECK(static_cast<bool>(OPT), "unexpected null field");                \
-  PQXX_CHECK_EQUAL(*OPT, VAL, "field value mismatch")
+  PQXX_CHECK_EQUAL((*OPT), (VAL), "field value mismatch")
 #define ASSERT_FIELD_NULL(OPT)                                                \
   PQXX_CHECK(not static_cast<bool>(OPT), "expected null field")
 
@@ -343,7 +343,8 @@ void test_stream_from_parses_awkward_strings()
     "(4, '\x81\x5c')");
 
   std::vector<std::optional<std::string>> values;
-  for (auto [id, value] : tx.query<std::size_t, std::optional<std::string>>(
+  for (auto const &[id, value] :
+       tx.query<std::size_t, std::optional<std::string>>(
          "SELECT id, value FROM nasty ORDER BY id"))
   {
     PQXX_CHECK_EQUAL(id, std::size(values), "Test data is broken.");

@@ -465,7 +465,7 @@ void test_sparse_arrays()
   // object filled with null-like values would be too small.
 
   auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
-  std::string arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
+  std::string const arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
 
   PQXX_CHECK(
     pqxx::size_buffer(arrayOfNulls) >= arrayOfNullsStr.size(),
@@ -485,7 +485,7 @@ void test_sparse_arrays()
   std::array<std::optional<int>, 14> sparseArray;
   sparseArray[sparseArray.size() - 1] = 42;
 
-  std::string sparseArrayStr =
+  std::string const sparseArrayStr =
     "{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"
     "42}";
 
@@ -554,7 +554,7 @@ void test_array_roundtrip()
 void test_array_strings()
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  std::vector<std::string_view> inputs{
+  std::vector<std::string_view> const inputs{
     "",    "null", "NULL", "\\N", "'",    "''", "\\", "\n\t",
     "\\n", "\"",   "\"\"", "a b", "a<>b", "{",  "}",  "{}",
   };
@@ -610,7 +610,7 @@ void test_array_parses_real_arrays()
     "Unexpected sizes for empty array.");
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
-  pqxx::array<int> onedim_a{
+  pqxx::array<int> const onedim_a{
     pqxx::from_string<pqxx::array<int>>(onedim_s, make_context(mono))};
   PQXX_CHECK_EQUAL(
     onedim_a.dimensions(), 1u,
@@ -629,7 +629,7 @@ void test_array_parses_real_arrays()
     "Not getting unexpected_null from array parser.");
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
-  pqxx::array<int, 2> twodim_a{
+  pqxx::array<int, 2> const twodim_a{
     pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context(mono))};
   PQXX_CHECK_EQUAL(
     twodim_a.dimensions(), 2u,
@@ -639,17 +639,17 @@ void test_array_parses_real_arrays()
     "Wrong sizes on multidim array.");
 
   auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
-  pqxx::array<std::string> string_a{string_s, cx};
+  pqxx::array<std::string> const string_a{string_s, cx};
   PQXX_CHECK_EQUAL(string_a[0], "Hello", "String field came out wrong.");
 
   auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
-  pqxx::array<std::string> fake_null_a{string_s, cx};
+  pqxx::array<std::string> const fake_null_a{string_s, cx};
   PQXX_CHECK_EQUAL(
     fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
 
   auto const nulls_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
-  pqxx::array<std::optional<std::string>> nulls_a{nulls_s, cx};
+  pqxx::array<std::optional<std::string>> const nulls_a{nulls_s, cx};
   PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
   PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
   PQXX_CHECK_EQUAL(
@@ -705,7 +705,7 @@ void test_array_rejects_malformed_twodimensional_arrays()
 
 void test_array_parses_quoted_strings()
 {
-  pqxx::connection cx;
+  pqxx::connection const cx;
   pqxx::array<std::string> const a{
     R"x({"","n","nnn","\"'","""","\\","\"","a""","""z"})x", cx};
   PQXX_CHECK_EQUAL(a[0], "", "Empty string in array did not parse right.");
@@ -738,7 +738,7 @@ void test_array_parses_quoted_strings()
 
 void test_array_parses_multidim_arrays()
 {
-  pqxx::connection cx;
+  pqxx::connection const cx;
   pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", cx};
   PQXX_CHECK_EQUAL(a.at(0u, 0u), 0, "Indexing is wrong.");
   PQXX_CHECK_EQUAL(a.at(1u, 0u), 2, "Indexing seems to confuse dimensions.");
@@ -748,7 +748,7 @@ void test_array_parses_multidim_arrays()
 
 void test_array_at_checks_bounds()
 {
-  pqxx::connection cx;
+  pqxx::connection const cx;
   pqxx::array<int> const simple{"{0, 1, 2}", cx};
   PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
   PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
@@ -784,7 +784,7 @@ void test_array_iterates_in_row_major_order()
   pqxx::work tx{cx};
   auto const array_s{tx.query_value<std::string>(
     "SELECT ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9]]")};
-  pqxx::array<int, 2> array{array_s, cx};
+  pqxx::array<int, 2> const array{array_s, cx};
   auto it{array.cbegin()};
   PQXX_CHECK_EQUAL(*it, 1, "Iteration started off wrong.");
   ++it;
