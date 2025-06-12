@@ -706,15 +706,33 @@ void test_array_rejects_malformed_twodimensional_arrays()
 void test_array_parses_quoted_strings()
 {
   pqxx::connection cx;
-  // XXX: multibyte.
   pqxx::array<std::string> const a{
-    R"x({"","n","nnn","\"'","""","a""","""z"})x", cx};
+    R"x({"","n","nnn","\"'","""","\\","\"","a""","""z"})x", cx};
   PQXX_CHECK_EQUAL(a[0], "", "Empty string in array did not parse right.");
   PQXX_CHECK_EQUAL(a[1], "n", "Simple string in array did not parse right.");
   PQXX_CHECK_EQUAL(a[2], "nnn", "Simple string in array did not parse right.");
   PQXX_CHECK_EQUAL(a[3], R"x("')x", "Quote in array did not unescape right.");
   PQXX_CHECK_EQUAL(
     a[4], R"x(")x", "Doubled quote in array did not unescape right.");
+  PQXX_CHECK_EQUAL(a[5], "\\", "Backslash-escaped backslash confused parser.");
+  PQXX_CHECK_EQUAL(a[6], "\"", "Backslash-escaped quote confused parser.");
+  PQXX_CHECK_EQUAL(a[7], "a\"", "Doubled quote at end confused parser.");
+  PQXX_CHECK_EQUAL(a[8], "\"z", "Doubled quote at beginning confused parser.");
+
+  // A byte value that looks like an ASCII backslash but inside a multibyte
+  // character does not count as a backslash.
+  pqxx::array<std::string> const b{
+    "{\"\203\\\",\"\\\203\\\"}", pqxx::encoding_group::SJIS};
+  PQXX_CHECK_EQUAL(
+    b[0],
+    "\203\\"
+    "",
+    "Misleading multibyte character parsed wrong.");
+  PQXX_CHECK_EQUAL(
+    b[1],
+    "\203\\"
+    "",
+    "Escaped misleading multibyte character parsed wrong.");
 }
 
 
