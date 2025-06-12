@@ -29,13 +29,13 @@ void drop_table(
 using testfunc = void (*)();
 
 
-void register_test(char const name[], testfunc func);
+void register_test(char const name[], testfunc func) noexcept;
 
 
 /// Register a test while not inside a function.
 struct registrar
 {
-  registrar(char const name[], testfunc func)
+  registrar(char const name[], testfunc func) noexcept
   {
     pqxx::test::register_test(name, func);
   }
@@ -44,7 +44,7 @@ struct registrar
 
 // Register a test function, so the runner will run it.
 #define PQXX_REGISTER_TEST(func)                                              \
-  [[maybe_unused]] pqxx::test::registrar tst_##func                           \
+  [[maybe_unused]] pqxx::test::registrar const tst_##func                     \
   {                                                                           \
     #func, func                                                               \
   }

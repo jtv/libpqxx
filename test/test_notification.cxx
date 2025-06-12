@@ -15,11 +15,10 @@
 namespace
 {
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
-class TestReceiver final : public pqxx::notification_receiver
+struct TestReceiver final : public pqxx::notification_receiver
 {
-public:
-  std::string payload;
-  int backend_pid;
+  std::string payload{};
+  int backend_pid{};
 
   TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
           pqxx::notification_receiver(cx, channel_name),
@@ -27,8 +26,7 @@ public:
           backend_pid(0)
   {}
 
-  virtual void
-  operator()(std::string const &payload_string, int backend) override
+  void operator()(std::string const &payload_string, int backend) override
   {
     this->payload = payload_string;
     this->backend_pid = backend;
@@ -46,7 +44,7 @@ void test_receive_classic(
   if (payload != nullptr)
     SQL += ", " + tx.quote(payload);
 
-  TestReceiver receiver{cx, channel};
+  TestReceiver const receiver{cx, channel};
 
   // Clear out any previously pending notifications that might otherwise
   // confuse the test.
@@ -73,7 +71,7 @@ void test_receive_classic(
 void test_notification_classic()
 {
   pqxx::connection cx;
-  TestReceiver receiver(cx, "mychannel");
+  TestReceiver const receiver(cx, "mychannel");
   PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
 
   pqxx::work tx{cx};
@@ -91,7 +89,7 @@ void test_notification_to_self_arrives_after_commit()
 
   auto const channel{"pqxx_test_channel"};
   int notifications{0};
-  pqxx::connection *conn;
+  pqxx::connection *conn{nullptr};
   std::string incoming, payload;
   int pid{0};
 
@@ -170,11 +168,11 @@ void test_listen_supports_different_types_of_callable()
 {
   auto const chan{"pqxx-test-listen"};
   pqxx::connection cx;
-  int received;
+  int received{};
 
   // Using a functor as a handler.
   received = 0;
-  notify_test_listener l(received);
+  notify_test_listener const l(received);
   cx.listen(chan, l);
   pqxx::work tx1{cx};
   tx1.notify(chan);
@@ -309,7 +307,7 @@ void test_cannot_listen_during_transaction()
   pqxx::connection cx;
   // Listening while a transaction is active is an error, even when it's just
   // a nontransaction.
-  pqxx::nontransaction tx{cx};
+  pqxx::nontransaction const tx{cx};
   PQXX_CHECK_THROWS(
     cx.listen("pqxx-test-chan02756", [](pqxx::notification) {}),
     pqxx::usage_error,

@@ -8,7 +8,7 @@ namespace
 void test_exec0(pqxx::transaction_base &tx)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  pqxx::result E{tx.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
+  pqxx::result const E{tx.exec0("SELECT * FROM pg_tables WHERE 0 = 1")};
   PQXX_CHECK(std::empty(E), "Nonempty result from exec0.");
 
   PQXX_CHECK_THROWS(
@@ -21,7 +21,7 @@ void test_exec0(pqxx::transaction_base &tx)
 void test_exec1(pqxx::transaction_base &tx)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  pqxx::row R{tx.exec1("SELECT 99")};
+  pqxx::row const R{tx.exec1("SELECT 99")};
   PQXX_CHECK_EQUAL(std::size(R), 1, "Wrong size result from exec1.");
   PQXX_CHECK_EQUAL(R.front().as<int>(), 99, "Wrong result from exec1.");
 
@@ -38,7 +38,7 @@ void test_exec1(pqxx::transaction_base &tx)
 void test_exec_n(pqxx::transaction_base &tx)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  pqxx::result R{tx.exec_n(3u, "SELECT * FROM generate_series(1, 3)")};
+  pqxx::result const R{tx.exec_n(3u, "SELECT * FROM generate_series(1, 3)")};
   PQXX_CHECK_EQUAL(std::size(R), 3, "Wrong result size from exec_n.");
 
   PQXX_CHECK_THROWS(
@@ -101,7 +101,7 @@ void test_transaction_query()
   std::vector<std::string> names;
   std::vector<int> salaries;
 
-  for (auto [name, salary] : tx.query<std::string, int>(
+  for (auto const &[name, salary] : tx.query<std::string, int>(
          "SELECT 'name' || i, i * 1000 FROM generate_series(1, 5) AS i"))
   {
     names.emplace_back(name);
@@ -146,7 +146,7 @@ void test_transaction_query_params()
     tx.query_n<int>(2, "SELECT $1", {9}), pqxx::unexpected_rows,
     "query_n() with params failed to detect unexpected rows.");
 
-  std::tuple<int> res{tx.query1<int>("SELECT $1 / 3", {33})};
+  std::tuple<int> const res{tx.query1<int>("SELECT $1 / 3", {33})};
   auto [res_int] = res;
   PQXX_CHECK_EQUAL(res_int, 11, "Wrong value from query1() with params.");
 

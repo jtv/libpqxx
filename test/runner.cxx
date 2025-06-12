@@ -117,7 +117,7 @@ std::vector<pqxx::test::testfunc> *all_test_funcs{nullptr};
 
 namespace pqxx::test
 {
-void register_test(char const name[], pqxx::test::testfunc func)
+void register_test(char const name[], pqxx::test::testfunc func) noexcept
 {
   if (all_test_names == nullptr)
   {

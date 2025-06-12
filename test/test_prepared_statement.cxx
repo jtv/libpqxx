@@ -227,7 +227,7 @@ void test_binary()
   // By the way, it doesn't have to be a pqxx::bytes.  Any contiguous range
   // will do.
   {
-    std::vector<std::byte> data{std::byte{'x'}, std::byte{'v'}};
+    std::vector<std::byte> const data{std::byte{'x'}, std::byte{'v'}};
     auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{data}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
@@ -243,7 +243,7 @@ void test_params()
   pqxx::connection cx;
   pqxx::work tx{cx};
   cx.prepare("Concat2Numbers", "SELECT 10 * $1 + $2");
-  std::vector<int> values{3, 9};
+  std::vector<int> const values{3, 9};
   pqxx::params params;
   params.reserve(std::size(values));
   params.append_multi(values);
