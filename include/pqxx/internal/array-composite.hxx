@@ -104,35 +104,66 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   std::string output;
   auto const end{std::size(input)};
+  assert((end - pos) > 1);
+  assert(input[end - 1] == '"');
+
   // Maximum output size is same as the input size, minus the opening and
   // closing quotes.  Or in the extreme opposite case, the real number could be
   // half that.  Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - pos - 2));
 
-  // XXX: Use find_char<'"', '\\'>().
-  using scanner = glyph_scanner<ENC>;
-  auto here{scanner::call(input, pos, loc)},
-    next{scanner::call(input, here, loc)};
-  PQXX_ASSUME(here > pos);
-  PQXX_ASSUME(next > here);
-  while (here < end - 1)
+  // The width in bytes of a single ASCII character.  In other words, one.
+  constexpr std::size_t one_ascii_char{1u};
+  auto const closing_quote{end - 1};
+
+  // We're at the starting quote.  Skip it.
+  assert(pos < closing_quote);
+  assert(input[pos] == '"');
+  pos += one_ascii_char;
+  assert(pos <= closing_quote);
+
+  assert(input[closing_quote] == '"');
+
+  // In theory, the closing quote should mean that there's no need for the
+  // find_ascii_char() call to check for end-of-string inside its loop.  Not
+  // sure whether the compiler will be smart enough to see that though.
+  PQXX_ASSUME(input[closing_quote] == '"');
+
+  while (pos < closing_quote)
   {
-    // A backslash here is always an escape.  So is a double-quote, since we're
-    // inside the double-quoted string.  In either case, we can just ignore the
-    // escape character and use the next character.  This is the one redeeming
-    // feature of SQL's escaping system.
-    if ((next - here == 1) and (input[here] == '\\' or input[here] == '"'))
+    auto const next{find_ascii_char<ENC, '"', '\\'>(input, pos, loc)};
+    output.append(input.substr(pos, next - pos));
+    pos = next;
+    assert(pos <= closing_quote);
+    assert((input[pos] == '"') or (input[pos] == '\\'));
+
+    // TODO: Can we restructure this loop to eliminate the repeated condition?
+    if (pos == closing_quote)
+      return output;
+
+    // We're at either a backslash or a double-quote... and we're not at the
+    // closing quote.  Therefore, we're at an escape character.  Skip it.
+    pos += one_ascii_char;
+
+    // We are now at the escaped character.
+    // If the input has been scanned correctly, the string can't end here.
+    assert(pos < closing_quote);
+
+    if ((input[pos] == '"') or (input[pos] == '\\'))
     {
-      // Skip escape.
-      here = next;
-      next = scanner::call(input, here, loc);
-      PQXX_ASSUME(next > here);
+      // We know this is a single-byte character.  Append that (skipping the
+      // escaping character) and move on to the next character.
+      output.push_back(input[pos]);
+      pos += one_ascii_char;
     }
-    output.append(input.substr(here, next - here));
-    here = next;
-    next = scanner::call(input, here, loc);
-    PQXX_ASSUME(next > here);
+    else
+    {
+      // This could be a multibyte character.  But no matter: we can let the
+      // next iteration handle it like any run-of-the-mill character.
+    }
   }
+  assert(pos == closing_quote);
+
   return output;
 }
 

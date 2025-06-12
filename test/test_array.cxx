@@ -706,8 +706,15 @@ void test_array_rejects_malformed_twodimensional_arrays()
 void test_array_parses_quoted_strings()
 {
   pqxx::connection cx;
-  pqxx::array<std::string> const a{R"x({"\"'"})x", cx};
-  PQXX_CHECK_EQUAL(a[0], R"x("')x", "String in array did not unescape right.");
+  // XXX: multibyte.
+  pqxx::array<std::string> const a{
+    R"x({"","n","nnn","\"'","""","a""","""z"})x", cx};
+  PQXX_CHECK_EQUAL(a[0], "", "Empty string in array did not parse right.");
+  PQXX_CHECK_EQUAL(a[1], "n", "Simple string in array did not parse right.");
+  PQXX_CHECK_EQUAL(a[2], "nnn", "Simple string in array did not parse right.");
+  PQXX_CHECK_EQUAL(a[3], R"x("')x", "Quote in array did not unescape right.");
+  PQXX_CHECK_EQUAL(
+    a[4], R"x(")x", "Doubled quote in array did not unescape right.");
 }
 
 
@@ -876,8 +883,9 @@ void test_scan_double_quoted_string()
   // but is actually just one byte in a multibyte character.
   // (I believe these two SJIS bytes form the Katakana letter "so".)
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::SJIS>("\"\203\\\"suffix",
-    0u, here()), 4u, "Fell for embedded ASCII-like byte in multibyte char.");
+    pqxx::internal::scan_double_quoted_string<enc::SJIS>(
+      "\"\203\\\"suffix", 0u, here()),
+    4u, "Fell for embedded ASCII-like byte in multibyte char.");
 }
 
 

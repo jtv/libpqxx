@@ -70,7 +70,8 @@ public:
           array{data, cx.get_encoding_group(loc), loc}
   {}
 
-  array(std::string_view data, encoding_group enc, sl loc) : m_ctx{enc, loc}
+  array(std::string_view data, encoding_group enc, sl loc = sl::current()) :
+          m_ctx{enc, loc}
   {
     using group = encoding_group;
     switch (enc)
