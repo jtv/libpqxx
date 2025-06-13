@@ -116,7 +116,7 @@ void test_notice_handler_accepts_functor()
   // value to the connection as a std::function.
   int count{0};
   std::string received;
-  notice_handler_test_functor f(count, received);
+  notice_handler_test_functor const f(count, received);
 
   pqxx::connection cx;
   cx.set_notice_handler(f);

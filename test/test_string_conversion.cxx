@@ -41,7 +41,7 @@ void test_string_conversion()
     "C string array", pqxx::to_string("C string array"),
     "C-style string constant does not convert to string properly.");
 
-  char text_array[]{"C char array"};
+  char const text_array[]{"C char array"};
   PQXX_CHECK_EQUAL(
     "C char array", pqxx::to_string(text_array),
     "C-style non-const char array does not convert to string properly.");
@@ -65,7 +65,7 @@ void test_string_conversion()
   PQXX_CHECK_EQUAL(
     "-9999", pqxx::to_string(-9999), "Larger negative numbers don't work.");
 
-  int x;
+  int x{};
   pqxx::from_string("0", x);
   PQXX_CHECK_EQUAL(0, x, "Zero does not parse right.");
   pqxx::from_string("1", x);
@@ -80,7 +80,7 @@ void test_string_conversion()
   // Bug #263 describes a case where this kind of overflow went undetected.
   if (sizeof(unsigned int) == 4)
   {
-    std::uint32_t u;
+    std::uint32_t u{};
     PQXX_CHECK_THROWS(
       pqxx::from_string("4772185884", u), pqxx::conversion_error,
       "Overflow not detected.");
@@ -97,11 +97,11 @@ void test_string_conversion()
   PQXX_CHECK_EQUAL(
     pqxx::to_string(ld2).substr(0, 12), lds2,
     "Wrong value on repeated conversion from long double.");
-  long double ldi1, ldi2;
-  pqxx::from_string(lds1, ldi1);
+  long double ldi1{}, ldi2{};
+  pqxx::from_string(std::data(lds1), ldi1);
   PQXX_CHECK_BOUNDS(
     ldi1, ld1 - thres, ld1 + thres, "Wrong conversion to long double.");
-  pqxx::from_string(lds2, ldi2);
+  pqxx::from_string(std::data(lds2), ldi2);
   PQXX_CHECK_BOUNDS(
     ldi2, ld2 - thres, ld2 + thres,
     "Wrong repeated conversion to long double.");
@@ -116,7 +116,7 @@ void test_string_conversion()
     pqxx::to_string(ea1), "1",
     "Enum-to-string conversion breaks for nonzero value.");
 
-  EnumA ea;
+  EnumA ea{};
   pqxx::from_string("2", ea);
   PQXX_CHECK_EQUAL(ea, ea2, "String-to-enum conversion is broken.");
 }
@@ -162,7 +162,7 @@ void test_integer_conversion()
 void test_convert_null()
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
+  pqxx::work const tx{cx};
   PQXX_CHECK_EQUAL(
     tx.quote(nullptr), "NULL", "Null pointer did not come out as SQL 'null'.");
   PQXX_CHECK_EQUAL(
@@ -184,7 +184,7 @@ void test_string_view_conversion()
 
   char buf[200];
 
-  std::size_t stop{traits::into_buf(buf, "more view"sv)};
+  std::size_t const stop{traits::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(
     stop, std::size(buf),
     "string_view into_buf did not stay within its buffer.");
@@ -192,8 +192,8 @@ void test_string_view_conversion()
   PQXX_CHECK(
     buf[stop - 1] == '\0', "string_view into_buf did not zero-terminate.");
   PQXX_CHECK_EQUAL(
-    (std::string{buf, static_cast<std::size_t>(stop - 1)}), "more view"s,
-    "string_view into_buf wrote wrong data.");
+    (std::string{std::data(buf), static_cast<std::size_t>(stop - 1)}),
+    "more view"s, "string_view into_buf wrote wrong data.");
   PQXX_CHECK(
     buf[stop - 2] == 'w', "string_view into_buf is in the wrong place.");
 
@@ -218,7 +218,7 @@ void test_binary_converts_to_string()
 
   std::array<std::byte, 1> x{std::byte{0x78}};
   PQXX_CHECK_EQUAL(std::size(x), 1u, "This vector is not what I thought.");
-  std::span<std::byte> span{x};
+  std::span<std::byte> const span{x};
   PQXX_CHECK_EQUAL(std::size(span), 1u, "Strangely different span.");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(span), "\\x78",

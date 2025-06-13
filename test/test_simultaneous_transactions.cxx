@@ -9,7 +9,7 @@ void test_simultaneous_transactions()
 {
   pqxx::connection cx;
 
-  pqxx::nontransaction n1{cx};
+  pqxx::nontransaction const n1{cx};
   PQXX_CHECK_THROWS(
     pqxx::nontransaction{cx}, std::logic_error,
     "Allowed to open simultaneous nontransactions.");

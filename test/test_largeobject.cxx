@@ -31,7 +31,7 @@ void test_stream_large_object()
   write.flush();
 
   pqxx::largeobjectaccess check{tx, new_obj, std::ios::in | std::ios::binary};
-  std::array<char, 50> buf;
+  std::array<char, 50> buf{};
   std::size_t const len{
     static_cast<std::size_t>(check.read(std::data(buf), std::size(buf)))};
   PQXX_CHECK_EQUAL(len, std::size(contents), "olostream truncated data.");

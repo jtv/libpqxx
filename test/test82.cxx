@@ -15,7 +15,7 @@ void test_082()
 
   pqxx::test::create_pqxxevents(tx);
   std::string const Table{"pqxxevents"};
-  pqxx::result R{tx.exec("SELECT * FROM " + Table)};
+  pqxx::result const R{tx.exec("SELECT * FROM " + Table)};
 
   PQXX_CHECK(not std::empty(R), "Got empty result.");
 
@@ -77,8 +77,8 @@ void test_082()
   }
 
   // Thorough test for row::const_reverse_iterator
-  pqxx::row::const_reverse_iterator ri1(std::rbegin(R.front())), ri2(ri1),
-    ri3(std::end(R.front()));
+  pqxx::row::const_reverse_iterator const ri1(std::rbegin(R.front()));
+  pqxx::row::const_reverse_iterator ri2(ri1), ri3(std::end(R.front()));
   ri2 = std::rbegin(R.front());
 
   PQXX_CHECK(

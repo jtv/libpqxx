@@ -30,7 +30,7 @@ void test_row_iterator()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::result rows{tx.exec("SELECT 1, 2, 3")};
+  pqxx::result const rows{tx.exec("SELECT 1, 2, 3")};
   // Very important to keep this in a variable.  We'll be creating an iterator
   // on it, and if we used a temporary here, it'd go out of scope, get
   // destroyed, and invalidate the accesses!

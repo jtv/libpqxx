@@ -5,8 +5,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Initial test program for libpqxx.  Test functionality that doesn't require a
 // running database.
@@ -17,20 +15,21 @@ template<typename T>
 inline void
 strconv(std::string const &type, T const &Obj, std::string const &expected)
 {
-  std::string const Objstr{to_string(Obj)};
+  std::string const Objstr{pqxx::to_string(Obj)};
 
   PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
   T NewObj;
-  from_string(Objstr, NewObj);
+  pqxx::from_string(Objstr, NewObj);
   PQXX_CHECK_EQUAL(
-    to_string(NewObj), expected, "String mismatch for recycled " + type + ".");
+    pqxx::to_string(NewObj), expected,
+    "String mismatch for recycled " + type + ".");
 }
 
 // There's no from_string<char const *>()...
 inline void
 strconv(std::string const &type, char const *Obj, std::string const &expected)
 {
-  std::string const Objstr(to_string(Obj));
+  std::string const Objstr(pqxx::to_string(Obj));
   PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
 }
 
@@ -40,16 +39,16 @@ constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};
 void test_000()
 {
   PQXX_CHECK_EQUAL(
-    oid_none, 0u,
+    pqxx::oid_none, 0u,
     "InvalidId is not zero as it used to be.  This may conceivably "
     "cause problems in libpqxx.");
 
   PQXX_CHECK(
-    cursor_base::prior() < 0 and cursor_base::backward_all() < 0,
+    pqxx::cursor_base::prior() < 0 and pqxx::cursor_base::backward_all() < 0,
     "cursor_base::difference_type appears to be unsigned.");
 
   constexpr char weird[]{"foo\t\n\0bar"};
-  std::string const weirdstr(weird, std::size(weird) - 1);
+  std::string const weirdstr(std::data(weird), std::size(weird) - 1);
 
   // Test string conversions
   strconv("char const[]", "", "");

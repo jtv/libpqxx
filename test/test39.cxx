@@ -2,33 +2,32 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test: nontransaction changes are committed immediately.
 namespace
 {
-int BoringYear{1977};
+constexpr int BoringYear{1977};
 
 
 void test_039()
 {
-  connection cx;
-  nontransaction tx1{cx};
-  test::create_pqxxevents(tx1);
+  pqxx::connection cx;
+  pqxx::nontransaction tx1{cx};
+  pqxx::test::create_pqxxevents(tx1);
   std::string const Table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  result R(tx1.exec(
+  pqxx::result R(tx1.exec(
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    to_string(BoringYear)));
+    pqxx::to_string(BoringYear)));
 
   PQXX_CHECK_EQUAL(
     std::size(R), 0,
-    "Already have a row for " + to_string(BoringYear) + ", cannot test.");
+    "Already have a row for " + pqxx::to_string(BoringYear) +
+      ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
   R.clear();
@@ -40,7 +39,7 @@ void test_039()
       "INSERT INTO " + Table +
       " VALUES"
       "(" +
-      to_string(BoringYear) +
+      pqxx::to_string(BoringYear) +
       ","
       "'Yawn'"
       ")")
@@ -52,12 +51,12 @@ void test_039()
   tx1.abort();
 
   // Verify that our record was added, despite the Abort()
-  nontransaction tx2(cx, "tx2");
+  pqxx::nontransaction tx2(cx, "tx2");
   R = tx2.exec(
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    to_string(BoringYear));
+    pqxx::to_string(BoringYear));
   PQXX_CHECK_EQUAL(std::size(R), 1, "Unexpected result size.");
 
   PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
@@ -71,19 +70,19 @@ void test_039()
       "DELETE FROM " + Table +
       " "
       "WHERE year=" +
-      to_string(BoringYear))
+      pqxx::to_string(BoringYear))
     .no_rows();
 
   tx2.commit();
 
   // And again, verify results
-  nontransaction tx3(cx, "tx3");
+  pqxx::nontransaction tx3(cx, "tx3");
 
   R = tx3.exec(
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    to_string(BoringYear));
+    pqxx::to_string(BoringYear));
 
   PQXX_CHECK_EQUAL(std::size(R), 0, "Record is not gone as expected.");
 }

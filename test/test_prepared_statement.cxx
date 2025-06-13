@@ -155,9 +155,10 @@ void test_strings()
     rw.front().as<std::string>(), std::string(std::data(nasty_string)),
     "Prepared statement did not quote/escape correctly.");
 
-  rw =
-    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{std::string{std::data(nasty_string)}})
-      .one_row();
+  rw = tx.exec(
+           pqxx::prepped{"EchoStr"},
+           pqxx::params{std::string{std::data(nasty_string)}})
+         .one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(std::data(nasty_string)),
     "Quoting/escaping went wrong in std::string.");

@@ -6,19 +6,17 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Test session variable functionality.
 namespace
 {
-std::string GetDatestyle(connection &cx)
+std::string GetDatestyle(pqxx::connection &cx)
 {
   return cx.get_var("DATESTYLE");
 }
 
 
-std::string SetDatestyle(connection &cx, std::string style)
+std::string SetDatestyle(pqxx::connection &cx, std::string const &style)
 {
   cx.set_session_var("DATESTYLE", style);
   std::string const fullname{GetDatestyle(cx)};
@@ -30,21 +28,21 @@ std::string SetDatestyle(connection &cx, std::string style)
 }
 
 
-void CheckDatestyle(connection &cx, std::string expected)
+void CheckDatestyle(pqxx::connection &cx, std::string const &expected)
 {
   PQXX_CHECK_EQUAL(GetDatestyle(cx), expected, "Got wrong datestyle.");
 }
 
 
 void RedoDatestyle(
-  connection &cx, std::string const &style, std::string const &expected)
+  pqxx::connection &cx, std::string const &style, std::string const &expected)
 {
   PQXX_CHECK_EQUAL(SetDatestyle(cx, style), expected, "Set wrong datestyle.");
 }
 
 
 void ActivationTest(
-  connection &cx, std::string const &style, std::string const &expected)
+  pqxx::connection &cx, std::string const &style, std::string const &expected)
 {
   RedoDatestyle(cx, style, expected);
   CheckDatestyle(cx, expected);
@@ -53,7 +51,7 @@ void ActivationTest(
 
 void test_060()
 {
-  connection cx;
+  pqxx::connection cx;
 
   PQXX_CHECK(not std::empty(GetDatestyle(cx)), "Initial datestyle not set.");
 
@@ -74,10 +72,10 @@ void test_060()
 
   // Prove that setting an unknown variable causes an error, as expected
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  quiet_errorhandler d{cx};
+  pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
-    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), sql_error,
+    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error,
     "Setting unknown variable failed to fail.");
 }
 

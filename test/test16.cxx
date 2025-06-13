@@ -5,19 +5,17 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test robusttransaction.
 namespace
 {
 void test_016()
 {
-  connection cx;
-  robusttransaction<> tx{cx};
-  result R{tx.exec("SELECT * FROM pg_tables")};
+  pqxx::connection cx;
+  pqxx::robusttransaction<> tx{cx};
+  pqxx::result R{tx.exec("SELECT * FROM pg_tables")};
 
-  result::const_iterator c;
+  pqxx::result::const_iterator c;
   for (c = std::begin(R); c != std::end(R); ++c);
 
   // See if back() and row comparison work properly

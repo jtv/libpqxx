@@ -6,8 +6,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Example program for libpqxx.  Modify the database, retaining transactional
 // integrity using the transactor framework.
@@ -21,40 +19,40 @@ namespace
 {
 void test_007()
 {
-  connection cx;
+  pqxx::connection cx;
   cx.set_client_encoding("SQL_ASCII");
 
   {
-    work tx{cx};
-    test::create_pqxxevents(tx);
+    pqxx::work tx{cx};
+    pqxx::test::create_pqxxevents(tx);
     tx.commit();
   }
 
   // Perform (an instantiation of) the UpdateYears transactor we've defined
   // in the code above.  This is where the work gets done.
   std::map<int, int> conversions;
-  perform([&conversions, &cx] {
-    work tx{cx};
+  pqxx::perform([&conversions, &cx] {
+    pqxx::work tx{cx};
     // First select all different years occurring in the table.
-    result R(tx.exec("SELECT year FROM pqxxevents"));
+    pqxx::result R(tx.exec("SELECT year FROM pqxxevents"));
 
     // See if we get reasonable type identifier for this column.
-    oid const rctype{R.column_type(0)};
+    pqxx::oid const rctype{R.column_type(0)};
     PQXX_CHECK_EQUAL(
       R.column_type(pqxx::row::size_type(0)), rctype,
       "Inconsistent result::column_type().");
 
-    std::string const rct{to_string(rctype)};
+    std::string const rct{pqxx::to_string(rctype)};
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
     std::string const rcol{R.column_name(0)};
     PQXX_CHECK(not std::empty(rcol), "Didn't get a name for column.");
 
-    oid const rcctype{R.column_type(rcol)};
+    pqxx::oid const rcctype{R.column_type(rcol)};
     PQXX_CHECK_EQUAL(
       rcctype, rctype, "Column type is not what it is by name.");
 
-    oid const rawrcctype{R.column_type(rcol)};
+    pqxx::oid const rawrcctype{R.column_type(rcol)};
     PQXX_CHECK_EQUAL(
       rawrcctype, rctype, "Column type by C-style name is different.");
 
@@ -63,7 +61,7 @@ void test_007()
     for (auto const &r : R)
     {
       // See if type identifiers are consistent
-      oid const tctype{r.column_type(0)};
+      pqxx::oid const tctype{r.column_type(0)};
 
       PQXX_CHECK_EQUAL(
         tctype, r.column_type(pqxx::row::size_type(0)),
@@ -74,17 +72,17 @@ void test_007()
         "pqxx::row::column_type() is inconsistent with "
         "result::column_type().");
 
-      oid const ctctype{r.column_type(rcol)};
+      pqxx::oid const ctctype{r.column_type(rcol)};
 
       PQXX_CHECK_EQUAL(
         ctctype, rctype, "Column type lookup by column name is broken.");
 
-      oid const rawctctype{r.column_type(rcol)};
+      pqxx::oid const rawctctype{r.column_type(rcol)};
 
       PQXX_CHECK_EQUAL(
         rawctctype, rctype, "Column type lookup by C-style name is broken.");
 
-      oid const fctype{r[0].type()};
+      pqxx::oid const fctype{r[0].type()};
       PQXX_CHECK_EQUAL(fctype, rctype, "Field type lookup is broken.");
     }
 
@@ -96,10 +94,10 @@ void test_007()
       auto const query{
         "UPDATE pqxxevents "
         "SET year=" +
-        to_string(c.second) +
+        pqxx::to_string(c.second) +
         " "
         "WHERE year=" +
-        to_string(c.first)};
+        pqxx::to_string(c.first)};
       R = tx.exec(query).no_rows();
     }
   });

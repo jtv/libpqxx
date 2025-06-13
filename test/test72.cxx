@@ -5,17 +5,15 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Test error handling for pipeline.
 namespace
 {
 void test_072()
 {
-  connection cx;
-  work tx{cx};
-  pipeline P{tx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline P{tx};
 
   // Ensure all queries are issued at once to make the test more interesting
   P.retain();
@@ -35,7 +33,7 @@ void test_072()
   // We should *not* get a result for the query behind the error
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d{cx};
+    pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
       std::ignore = P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
@@ -45,10 +43,11 @@ void test_072()
   // Now see that we get an exception when we touch the failed result
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d{cx};
+    pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      P.retrieve(id_f), sql_error, "Pipeline failed to register SQL error.");
+      P.retrieve(id_f), pqxx::sql_error,
+      "Pipeline failed to register SQL error.");
   }
 }
 } // namespace

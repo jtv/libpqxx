@@ -258,7 +258,7 @@ void test_hold_cursor()
     pqxx::cursor_base::forward_only, pqxx::cursor_base::read_only,
     pqxx::cursor_base::owned, false);
   tx2.commit();
-  pqxx::work tx3(cx, "tx3");
+  pqxx::work const tx3(cx, "tx3");
   PQXX_CHECK_THROWS(
     no_hold.fetch(1, pqxx::sl::current()), pqxx::sql_error,
     "Cursor not closed on commit");

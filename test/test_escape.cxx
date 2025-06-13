@@ -184,7 +184,7 @@ void test_escaping()
 void test_esc_escapes_into_buffer()
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
+  pqxx::work const tx{cx};
 
   std::string buffer;
   buffer.resize(20);
@@ -202,7 +202,7 @@ void test_esc_escapes_into_buffer()
 void test_esc_accepts_various_types()
 {
   pqxx::connection cx;
-  pqxx::work tx{cx};
+  pqxx::work const tx{cx};
 
   std::string buffer;
   buffer.resize(20);
