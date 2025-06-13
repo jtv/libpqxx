@@ -192,6 +192,16 @@ public:
     return get_tuple<std::tuple<TYPE...>>(seq{});
   }
 
+  /// Convert to a given tuple of values, don't check sizes.
+  /** We need this for cases where we have a full tuple of field types, but
+   * not a parameter pack.
+   */
+  template<typename TUPLE> TUPLE as_tuple() const
+  {
+    using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
+    return get_tuple<TUPLE>(seq{});
+  }
+
   [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
 
   /** Produce a slice of this row, containing the given range of columns.
@@ -224,16 +234,6 @@ protected:
       throw usage_error{internal::concat(
         "Tried to extract ", expected, " field(s) from a row of ", size(),
         ".")};
-  }
-
-  /// Convert to a given tuple of values, don't check sizes.
-  /** We need this for cases where we have a full tuple of field types, but
-   * not a parameter pack.
-   */
-  template<typename TUPLE> TUPLE as_tuple() const
-  {
-    using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-    return get_tuple<TUPLE>(seq{});
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;
