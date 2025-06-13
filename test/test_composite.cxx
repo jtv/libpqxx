@@ -79,7 +79,8 @@ void test_composite_renders_to_string()
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();
   auto const f{
-    tx.exec("SELECT '" + std::string{std::data(buf)} + "'::pqxxcomp").one_field()};
+    tx.exec("SELECT '" + std::string{std::data(buf)} + "'::pqxxcomp")
+      .one_field()};
 
   int a{};
   std::string b, c;

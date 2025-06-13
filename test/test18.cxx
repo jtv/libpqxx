@@ -18,13 +18,15 @@ constexpr long BoringYear{1977};
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(pqxx::connection &cx, std::string const &table)
+std::pair<int, int>
+count_events(pqxx::connection &cx, std::string const &table)
 {
   pqxx::nontransaction tx{cx};
   std::string const count_query{"SELECT count(*) FROM " + table};
   return std::make_pair(
     tx.query_value<int>(count_query),
-    tx.query_value<int>(count_query + " WHERE year=" + pqxx::to_string(BoringYear)));
+    tx.query_value<int>(
+      count_query + " WHERE year=" + pqxx::to_string(BoringYear)));
 }
 
 
@@ -57,8 +59,8 @@ void test_018()
       pqxx::perform([&cx, Table] {
         pqxx::robusttransaction<pqxx::serializable> tx{cx};
         tx.exec(
-            "INSERT INTO " + Table + " VALUES (" + pqxx::to_string(BoringYear) +
-            ", '" + tx.esc("yawn") + "')")
+            "INSERT INTO " + Table + " VALUES (" +
+            pqxx::to_string(BoringYear) + ", '" + tx.esc("yawn") + "')")
           .no_rows();
 
         throw deliberate_error();
@@ -67,7 +69,8 @@ void test_018()
       "Not getting expected exception from failing transactor.");
   }
 
-  auto const After{pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
+  auto const After{
+    pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
