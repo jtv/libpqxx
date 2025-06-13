@@ -91,7 +91,7 @@ void test_bug_262()
 /// Test conversion of malformed floating-point values.
 void test_bad_float()
 {
-  float x [[maybe_unused]];
+  float x [[maybe_unused]]{};
   PQXX_CHECK_THROWS(
     x = pqxx::from_string<float>(""), pqxx::conversion_error,
     "Conversion of empty string to float was not caught.");

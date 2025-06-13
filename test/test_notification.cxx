@@ -17,7 +17,7 @@ namespace
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
 struct TestReceiver final : public pqxx::notification_receiver
 {
-  std::string payload{};
+  std::string payload;
   int backend_pid{};
 
   TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
@@ -159,7 +159,7 @@ void test_notification_has_payload()
 struct notify_test_listener
 {
   int &received;
-  notify_test_listener(int &r) : received{r} {}
+  explicit notify_test_listener(int &r) : received{r} {}
   void operator()(pqxx::notification) { ++received; }
 };
 

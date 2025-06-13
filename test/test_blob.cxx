@@ -516,6 +516,11 @@ void write_file(char const path[], pqxx::bytes_view data)
 class TempFile
 {
 public:
+  TempFile() = delete;
+  TempFile(TempFile const &) = delete;
+  TempFile(TempFile &&) = delete;
+  TempFile &operator=(TempFile const &) = delete;
+
   /// Create (and later clean up) a file at path containing data.
   TempFile(char const path[], pqxx::bytes_view data) : m_path(path)
   {
@@ -609,7 +614,7 @@ void test_blob_to_file_writes_file()
   {
     pqxx::blob::to_file(tx, id, std::data(temp_file));
     read_file(std::data(temp_file), 10u, buf);
-    std::ignore = std::remove(temp_file);
+    std::ignore = std::remove(std::data(temp_file));
   }
   catch (std::exception const &)
   {

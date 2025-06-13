@@ -47,9 +47,9 @@ void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
     "Single quote escaped incorrectly.");
   PQXX_CHECK_EQUAL(
     t.esc(std::string_view{"hello"}), "hello", "Trivial escape went wrong.");
-  char const *const escstrings[]{"x", " ", "", nullptr};
-  for (std::size_t i{0}; escstrings[i] != nullptr; ++i)
-    compare_esc(cx, t, escstrings[i]);
+  std::array<char const *, 4> const escstrings{"x", " ", "", nullptr};
+  for (std::size_t i{0}; escstrings.at(i) != nullptr; ++i)
+    compare_esc(cx, t, escstrings.at(i));
 }
 
 
@@ -69,14 +69,16 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
     t.quote("x"), cx.quote("x"),
     "Connection and transaction quote differently.");
 
-  char const *test_strings[]{"",   "x",   "\\", "\\\\", "'",
-                             "''", "\\'", "\t", "\n",   nullptr};
+  std::array<char const *, 10> const test_strings{
+    "", "x", "\\", "\\\\", "'", "''", "\\'", "\t", "\n", nullptr};
 
-  for (std::size_t i{0}; test_strings[i] != nullptr; ++i)
+  for (std::size_t i{0}; test_strings.at(i) != nullptr; ++i)
   {
-    auto r{t.query_value<std::string>("SELECT " + t.quote(test_strings[i]))};
+    auto r{
+      t.query_value<std::string>("SELECT " + t.quote(test_strings.at(i)))};
     PQXX_CHECK_EQUAL(
-      r, test_strings[i], "Selecting quoted string does not come back equal.");
+      r, test_strings.at(i),
+      "Selecting quoted string does not come back equal.");
   }
 
   std::vector<std::byte> const bin{std::byte{0x33}, std::byte{0x4a}};

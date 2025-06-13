@@ -42,8 +42,10 @@ public:
 
   result_iter &operator++()
   {
+    PQXX_ASSUME(m_home != nullptr);
+    PQXX_ASSUME(m_index <= m_size);
     sl loc{sl::current()};
-    m_index++;
+    ++m_index;
     if (m_index >= m_size)
       m_home = nullptr;
     else

@@ -53,7 +53,7 @@ void test_018()
 
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    pqxx::quiet_errorhandler d{cx};
+    pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
       pqxx::perform([&cx, Table] {

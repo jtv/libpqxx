@@ -49,7 +49,6 @@ std::string app_name(pqxx::connection const &cx)
   {
     // Simple string.  Just stop at the next space, or end of string.
     // This find() can return npos, but that's fine here.
-    here = all.find(' ', start);
     end = all.find(' ', start);
   }
   return all.substr(start, end - start);
