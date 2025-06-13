@@ -32,7 +32,7 @@ void test_result_iter()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::result r{tx.exec("SELECT generate_series(1, 3)")};
+  pqxx::result const r{tx.exec("SELECT generate_series(1, 3)")};
 
   int total{0};
   for (auto const &[i] : r.iter<int>()) total += i;
@@ -79,7 +79,7 @@ void test_result_iterator_assignment()
 }
 
 
-void check_employee(std::string name, int salary)
+void check_employee(std::string const &name, int salary)
 {
   PQXX_CHECK(name == "x" or name == "y" or name == "z", "Unknown name.");
   PQXX_CHECK(
@@ -105,13 +105,13 @@ void test_result_for_each()
 
   // Use for_each with a simple lambda.
   res.for_each(
-    [](std::string name, int salary) { check_employee(name, salary); });
+    [](std::string const &name, int salary) { check_employee(name, salary); });
 
   // Use for_each with a lambda closure.
   std::string names{};
   int total{0};
 
-  res.for_each([&names, &total](std::string name, int salary) {
+  res.for_each([&names, &total](std::string const &name, int salary) {
     names.append(name);
     total += salary;
   });

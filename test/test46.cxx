@@ -6,8 +6,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Streams test program for libpqxx.  Insert a result field into various
 // types of streams.
@@ -15,10 +13,10 @@ namespace
 {
 void test_046()
 {
-  connection cx;
-  work tx{cx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
-  pqxx::field R{tx.exec("SELECT count(*) FROM pg_tables").one_field()};
+  pqxx::field const R{tx.exec("SELECT count(*) FROM pg_tables").one_field()};
 
   // Read the value into a stringstream.
   std::stringstream I;
@@ -42,19 +40,19 @@ void test_046()
   R.to(F2);
   PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
 
-  auto F3{from_string<float>(R.c_str())};
+  auto F3{pqxx::from_string<float>(R.c_str())};
   PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01, "Bad float from from_string.");
 
-  auto D{from_string<double>(R.c_str())};
+  auto D{pqxx::from_string<double>(R.c_str())};
   PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01, "Bad double from from_string.");
 
-  auto LD{from_string<long double>(R.c_str())};
+  auto LD{pqxx::from_string<long double>(R.c_str())};
   PQXX_CHECK_BOUNDS(
     LD, F - 0.01, F + 0.01, "Bad long double from from_string.");
 
-  auto S{from_string<std::string>(R.c_str())},
-    S2{from_string<std::string>(std::string{R.c_str()})},
-    S3{from_string<std::string>(R)};
+  auto S{pqxx::from_string<std::string>(R.c_str())},
+    S2{pqxx::from_string<std::string>(std::string{R.c_str()})},
+    S3{pqxx::from_string<std::string>(R)};
 
   PQXX_CHECK_EQUAL(
     S2, S,

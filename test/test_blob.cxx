@@ -27,7 +27,7 @@ void test_blob_create_makes_empty_blob()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::create(tx)};
+  pqxx::oid const id{pqxx::blob::create(tx)};
   auto b{pqxx::blob::open_r(tx, id)};
   b.seek_end(0);
   PQXX_CHECK_EQUAL(b.tell(), 0, "New blob is not empty.");
@@ -99,7 +99,7 @@ void test_blob_checks_open_mode()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::create(tx)};
+  pqxx::oid const id{pqxx::blob::create(tx)};
   pqxx::blob b_r{pqxx::blob::open_r(tx, id)};
   pqxx::blob b_w{pqxx::blob::open_w(tx, id)};
   pqxx::blob b_rw{pqxx::blob::open_rw(tx, id)};
@@ -129,7 +129,7 @@ void test_blob_supports_move()
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::create(tx)};
+  pqxx::oid const id{pqxx::blob::create(tx)};
   pqxx::blob b1{pqxx::blob::open_rw(tx, id)};
   b1.write(buf);
 
@@ -156,7 +156,7 @@ void test_blob_read_reads_data()
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+  pqxx::oid const id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::bytes buf;
   auto b{pqxx::blob::open_rw(tx, id)};
@@ -182,7 +182,7 @@ void test_blob_read_reads_generic_data()
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+  pqxx::oid const id{pqxx::blob::from_buf(tx, data)};
 
   pqxx::bytes buf;
   auto b{pqxx::blob::open_rw(tx, id)};
@@ -215,7 +215,7 @@ void test_blob_read_span()
 
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::oid id{pqxx::blob::from_buf(tx, data)};
+  pqxx::oid const id{pqxx::blob::from_buf(tx, data)};
 
   auto b{pqxx::blob::open_r(tx, id)};
   pqxx::bytes string_buf;
@@ -386,9 +386,9 @@ void test_blob_tell_tracks_position()
 
 void test_blob_seek_sets_positions()
 {
-  pqxx::bytes data{std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3},
-                   std::byte{4}, std::byte{5}, std::byte{6}, std::byte{7},
-                   std::byte{8}, std::byte{9}};
+  pqxx::bytes const data{
+    std::byte{0}, std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4},
+    std::byte{5}, std::byte{6}, std::byte{7}, std::byte{8}, std::byte{9}};
   pqxx::connection cx;
   pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
@@ -506,7 +506,7 @@ void write_file(char const path[], pqxx::bytes_view data)
   }
   catch (const std::exception &)
   {
-    std::remove(path);
+    std::ignore = std::remove(path);
     throw;
   }
 }
@@ -522,7 +522,7 @@ public:
     write_file(path, data);
   }
 
-  ~TempFile() { std::remove(m_path.c_str()); }
+  ~TempFile() { std::ignore = std::remove(m_path.c_str()); }
 
 private:
   std::string m_path;
@@ -539,10 +539,10 @@ void test_blob_from_file_creates_blob_from_file_contents()
   pqxx::work tx{cx};
   pqxx::bytes buf;
 
-  pqxx::oid id;
+  pqxx::oid id{};
   {
-    TempFile f{temp_file, data};
-    id = pqxx::blob::from_file(tx, temp_file);
+    TempFile const f{std::data(temp_file), data};
+    id = pqxx::blob::from_file(tx, std::data(temp_file));
   }
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
@@ -563,8 +563,8 @@ void test_blob_from_file_with_oid_writes_blob()
   pqxx::blob::remove(tx, id);
 
   {
-    TempFile f{temp_file, data};
-    pqxx::blob::from_file(tx, temp_file, id);
+    TempFile const f{std::data(temp_file), data};
+    pqxx::blob::from_file(tx, std::data(temp_file), id);
   }
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data, "Wrong data from blob::from_file().");
@@ -607,13 +607,13 @@ void test_blob_to_file_writes_file()
 
   try
   {
-    pqxx::blob::to_file(tx, id, temp_file);
-    read_file(temp_file, 10u, buf);
-    std::remove(temp_file);
+    pqxx::blob::to_file(tx, id, std::data(temp_file));
+    read_file(std::data(temp_file), 10u, buf);
+    std::ignore = std::remove(temp_file);
   }
   catch (std::exception const &)
   {
-    std::remove(temp_file);
+    std::ignore = std::remove(std::data(temp_file));
     throw;
   }
   PQXX_CHECK_EQUAL(buf, data, "Got wrong data from to_file().");
@@ -644,7 +644,7 @@ void test_blob_accepts_std_filesystem_path()
   pqxx::work tx{cx};
   pqxx::bytes buf;
 
-  TempFile f{temp_file, data};
+  TempFile const f{std::data(temp_file), data};
   std::filesystem::path const path{temp_file};
   auto id{pqxx::blob::from_file(tx, path)};
   pqxx::blob::to_buf(tx, id, buf, 10);

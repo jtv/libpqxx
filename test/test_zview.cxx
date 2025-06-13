@@ -46,7 +46,8 @@ void test_zview_converts_to_string()
     "into_buf on zview did not store in buffer.");
   PQXX_CHECK(*(p - 1) == '\0', "into_buf on zview wasted space.");
   PQXX_CHECK(*(p - 2) == 'w', "into_buf on zview has extraneous data.");
-  PQXX_CHECK_EQUAL(std::string(buf), "moreview", "into_buf on zview failed.");
+  PQXX_CHECK_EQUAL(
+    std::string(std::data(buf)), "moreview", "into_buf on zview failed.");
 }
 
 

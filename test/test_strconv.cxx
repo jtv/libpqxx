@@ -43,7 +43,7 @@ void test_strconv_bool()
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
   PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
 
-  bool result;
+  bool result{};
   pqxx::from_string("false", result);
   PQXX_CHECK_EQUAL(result, false, "Wrong from_string('false').");
   pqxx::from_string("FALSE", result);
@@ -73,7 +73,7 @@ void test_strconv_enum()
   PQXX_CHECK_EQUAL(pqxx::to_string(green), "1", "Enum value did not convert.");
   PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2", "Enum value did not convert.");
 
-  colour col;
+  colour col{};
   pqxx::from_string("2", col);
   PQXX_CHECK_EQUAL(col, blue, "Could not recover enum value from string.");
 }
@@ -86,7 +86,7 @@ void test_strconv_class_enum()
   PQXX_CHECK_EQUAL(
     pqxx::to_string(weather::wet), "2", "Enum value did not convert.");
 
-  weather w;
+  weather w{};
   pqxx::from_string("2", w);
   PQXX_CHECK_EQUAL(
     w, weather::wet, "Could not recover class enum value from string.");
@@ -164,7 +164,7 @@ template<typename T>
 void check_write(T const &value, std::string_view expected)
 {
   std::string const name{pqxx::name_type<T>()};
-  std::array<char, 100> buf;
+  std::array<char, 100> buf{};
   for (auto i{0u}; i < std::size(buf); ++i) buf[i] = hash_index(i);
 
   // Test to_buf().
@@ -200,7 +200,7 @@ void check_write(T const &value, std::string_view expected)
 
   // Test into_buf().
   for (auto i{0u}; i < std::size(buf); ++i) buf[i] = hash_index(i);
-  std::size_t end{pqxx::into_buf(buf, value)};
+  std::size_t const end{pqxx::into_buf(buf, value)};
   PQXX_CHECK_GREATER(
     end, 0u, std::format("into_buf() for {} returned zero.", name));
   PQXX_CHECK_LESS_EQUAL(
@@ -276,31 +276,31 @@ void test_to_buf_into_buf()
   check_write(2147483647u, "2147483647");
   check_write(4294967296u, "4294967296");
 
-  check_write(0l, "0");
-  check_write(1l, "1");
-  check_write(100000l, "100000");
-  check_write(2147483647l, "2147483647");
-  check_write(-1l, "-1");
-  check_write(-2147483647l, "-2147483647");
-  check_write(-2147483648l, "-2147483648");
+  check_write(0L, "0");
+  check_write(1L, "1");
+  check_write(100000L, "100000");
+  check_write(2147483647L, "2147483647");
+  check_write(-1L, "-1");
+  check_write(-2147483647L, "-2147483647");
+  check_write(-2147483648L, "-2147483648");
 
-  check_write(0ul, "0");
-  check_write(1ul, "1");
-  check_write(2147483647ul, "2147483647");
-  check_write(4294967296ul, "4294967296");
+  check_write(0uL, "0");
+  check_write(1uL, "1");
+  check_write(2147483647uL, "2147483647");
+  check_write(4294967296uL, "4294967296");
 
-  check_write(0ll, "0");
-  check_write(1ll, "1");
-  check_write(100000ll, "100000");
-  check_write(2147483647ll, "2147483647");
-  check_write(-1ll, "-1");
-  check_write(-2147483647ll, "-2147483647");
-  check_write(-2147483648ll, "-2147483648");
+  check_write(0LL, "0");
+  check_write(1LL, "1");
+  check_write(100000LL, "100000");
+  check_write(2147483647LL, "2147483647");
+  check_write(-1LL, "-1");
+  check_write(-2147483647LL, "-2147483647");
+  check_write(-2147483648LL, "-2147483648");
 
-  check_write(0ull, "0");
-  check_write(1ull, "1");
-  check_write(2147483647ull, "2147483647");
-  check_write(4294967296ull, "4294967296");
+  check_write(0ULL, "0");
+  check_write(1ULL, "1");
+  check_write(2147483647ULL, "2147483647");
+  check_write(4294967296ULL, "4294967296");
 
   check_write(0.0f, "0");
   check_write(0.125f, "0.125");
@@ -320,24 +320,24 @@ void test_to_buf_into_buf()
   check_write(-1.0, "-1");
   check_write(-10000.0, "-10000");
 
-  check_write(0.0l, "0");
-  check_write(0.125l, "0.125");
-  check_write(1.0l, "1");
-  check_write(10000.0l, "10000");
-  check_write(-0.0l, "-0");
-  check_write(-0.125l, "-0.125");
-  check_write(-1.0l, "-1");
-  check_write(-10000.0l, "-10000");
+  check_write(0.0L, "0");
+  check_write(0.125L, "0.125");
+  check_write(1.0L, "1");
+  check_write(10000.0L, "10000");
+  check_write(-0.0L, "-0");
+  check_write(-0.125L, "-0.125");
+  check_write(-1.0L, "-1");
+  check_write(-10000.0L, "-10000");
 
   check_write(std::optional<int>{37}, "37");
 
   check_write(std::variant<int, unsigned long>{482}, "482");
-  check_write(std::variant<int, unsigned long>{777ul}, "777");
+  check_write(std::variant<int, unsigned long>{777UL}, "777");
 
   check_write(static_cast<char const *>(""), "");
   check_write(static_cast<char const *>("Hello"), "Hello");
 
-  std::array<char, 10> chars;
+  std::array<char, 10> chars{};
   chars.at(0) = '\0';
   for (auto i{1u}; i < std::size(chars); ++i) chars.at(i) = 'x';
   check_write(std::data(chars), "");

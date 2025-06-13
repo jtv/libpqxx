@@ -9,8 +9,8 @@ namespace
 {
 void test_connection_string_constructor()
 {
-  pqxx::connection c1{""};
-  pqxx::connection c2{std::string{}};
+  pqxx::connection const c1{""};
+  pqxx::connection const c2{std::string{}};
 }
 
 
@@ -79,7 +79,7 @@ void test_encrypt_password()
 
 void test_connection_string()
 {
-  pqxx::connection c;
+  pqxx::connection const c;
   std::string const connstr{c.connection_string()};
 
 #if defined(_MSC_VER)
@@ -134,7 +134,7 @@ template<typename MAP> void test_params_type()
   }};
 
   // Can we create a connection from these parameters?
-  pqxx::connection c{params};
+  pqxx::connection const c{params};
 
   // Check that the parameters came through in the connection string.
   // We don't know the exact format, but the parameters have to be in there.

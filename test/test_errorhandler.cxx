@@ -62,7 +62,7 @@ template<> struct string_traits<TestErrorHandler *>
 
   static char *into_buf(char *begin, char *end, TestErrorHandler *const &value)
   {
-    std::string text{"TestErrorHandler at " + pqxx::to_string(value)};
+    std::string const text{"TestErrorHandler at " + pqxx::to_string(value)};
     if (std::cmp_greater_equal(std::size(text), end - begin))
       throw conversion_overrun{"Not enough buffer for TestErrorHandler."};
     std::memcpy(begin, text.c_str(), std::size(text) + 1);
@@ -77,7 +77,7 @@ namespace
 void test_process_notice_calls_errorhandler(pqxx::connection &cx)
 {
   std::vector<TestErrorHandler *> dummy;
-  TestErrorHandler handler(cx, dummy);
+  TestErrorHandler const handler(cx, dummy);
   cx.process_notice("Error!\n");
   PQXX_CHECK_EQUAL(handler.message, "Error!\n", "Error not handled.");
 }
@@ -102,7 +102,7 @@ void test_error_handlers_get_called_newest_to_oldest(pqxx::connection &cx)
 void test_returning_false_stops_error_handling(pqxx::connection &cx)
 {
   std::vector<TestErrorHandler *> handlers;
-  TestErrorHandler starved(cx, handlers);
+  TestErrorHandler const starved(cx, handlers);
   TestErrorHandler blocker(cx, handlers, false);
   cx.process_notice("Error output.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 1u, "Handling chain was not stopped.");
@@ -115,7 +115,7 @@ void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)
 {
   std::vector<TestErrorHandler *> handlers;
   {
-    TestErrorHandler doomed(cx, handlers);
+    TestErrorHandler const doomed(cx, handlers);
   }
   cx.process_notice("Unheard output.");
   PQXX_CHECK(
@@ -124,7 +124,7 @@ void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)
 
 void test_destroying_connection_unregisters_handlers()
 {
-  TestErrorHandler *survivor;
+  TestErrorHandler *survivor{};
   std::vector<TestErrorHandler *> handlers;
   {
     pqxx::connection cx;

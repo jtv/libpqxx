@@ -12,7 +12,7 @@ void test_composite()
   tx.exec("CREATE TYPE pqxxfoo AS (a integer, b text)").no_rows();
   auto const f{tx.exec("SELECT '(5,hello)'::pqxxfoo").one_field()};
 
-  int a;
+  int a{};
   std::string b;
   pqxx::parse_composite(f.view(), a, b);
 
@@ -47,7 +47,7 @@ void test_composite_handles_nulls()
   pqxx::row r;
 
   tx.exec("CREATE TYPE pqxxnull AS (a integer)").no_rows();
-  int nonnull;
+  int nonnull{};
   r = tx.exec("SELECT '()'::pqxxnull").one_row();
   PQXX_CHECK_THROWS(
     pqxx::parse_composite(r[0].view(), nonnull), pqxx::conversion_error,
@@ -74,14 +74,14 @@ void test_composite_renders_to_string()
 
   pqxx::composite_into_buf(buf, 355, "foo", "b\na\\r");
   PQXX_CHECK_EQUAL(
-    std::string{buf}, "(355,\"foo\",\"b\na\\\\r\")",
+    std::string{std::data(buf)}, "(355,\"foo\",\"b\na\\\\r\")",
     "Composite was not rendered as expected.");
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();
   auto const f{
-    tx.exec("SELECT '" + std::string{buf} + "'::pqxxcomp").one_field()};
+    tx.exec("SELECT '" + std::string{std::data(buf)} + "'::pqxxcomp").one_field()};
 
-  int a;
+  int a{};
   std::string b, c;
   bool const nonnull{f.composite_to(a, b, c)};
   PQXX_CHECK(nonnull, "Mistaken nullness.");

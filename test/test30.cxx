@@ -6,8 +6,6 @@
 
 #include "helpers.hxx"
 
-using namespace pqxx;
-
 
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
@@ -16,10 +14,10 @@ void test_030()
 {
   std::string const Table{"pg_tables"};
 
-  connection cx;
-  work tx{cx, "test30"};
+  pqxx::connection cx;
+  pqxx::work tx{cx, "test30"};
 
-  result const R(tx.exec(("SELECT * FROM " + Table).c_str()));
+  pqxx::result const R(tx.exec(("SELECT * FROM " + Table).c_str()));
   PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");
 
   // Print column names

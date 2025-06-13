@@ -32,7 +32,7 @@ std::string app_name(pqxx::connection const &cx)
   auto const start{intro + std::size(marker)};
   if (start == std::string::npos or all.at(start) == ' ')
     return "";
-  std::size_t here{start}, end;
+  std::size_t here{start}, end{};
   if (all.at(here) == '\'')
   {
     // Quoted string.

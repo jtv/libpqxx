@@ -39,8 +39,8 @@ void test_075()
       "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator
-  pqxx::result::const_reverse_iterator ri1(std::rbegin(R)), ri2(ri1),
-    ri3(std::end(R));
+  pqxx::result::const_reverse_iterator const ri1(std::rbegin(R));
+  pqxx::result::const_reverse_iterator ri2(ri1), ri3(std::end(R));
   ri2 = std::rbegin(R);
 
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");

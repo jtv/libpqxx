@@ -152,7 +152,7 @@ void test_too_few_fields(pqxx::connection &connection)
   }
   catch (pqxx::sql_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (what.find("missing data for column") == std::string::npos)
       throw;
@@ -176,7 +176,7 @@ void test_too_few_fields_fold(pqxx::connection &connection)
   }
   catch (pqxx::sql_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (what.find("missing data for column") == std::string::npos)
       throw;
@@ -203,7 +203,7 @@ void test_too_many_fields(pqxx::connection &connection)
   }
   catch (pqxx::sql_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (what.find("extra data") == std::string::npos)
       throw;
@@ -229,7 +229,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
   }
   catch (pqxx::sql_error const &e)
   {
-    std::string what{e.what()};
+    std::string const what{e.what()};
     // C++23: Use std::string::contains().
     if (what.find("extra data") == std::string::npos)
       throw;
@@ -409,7 +409,7 @@ void test_stream_to_factory_with_dynamic_columns()
 
   tx.exec("CREATE TEMP TABLE pqxx_stream_to(a integer, b varchar)").no_rows();
 
-  std::vector<std::string_view> columns{"a", "b"};
+  std::vector<std::string_view> const columns{"a", "b"};
   auto stream{pqxx::stream_to::table(tx, {"pqxx_stream_to"}, columns)};
   stream.write_values(4, "four");
   stream.complete();
@@ -484,7 +484,7 @@ void test_stream_to_optionals()
     nulls, "1.2.3.7.8.9.13.14.15.", "Unexpected list of nulls.");
 
   std::string values;
-  for (auto [value] :
+  for (auto const &[value] :
        tx.query<std::string>("SELECT value FROM pqxx_strings WHERE value IS "
                              "NOT NULL ORDER BY key"))
     values += value;
@@ -522,7 +522,7 @@ void test_stream_to_escaping()
     "Wrong number of rows came back.");
   for (std::size_t i{0}; i < std::size(inputs); ++i)
   {
-    int idx{static_cast<int>(i)};
+    int const idx{static_cast<int>(i)};
     PQXX_CHECK_EQUAL(
       outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
     PQXX_CHECK_EQUAL(

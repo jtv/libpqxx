@@ -30,7 +30,7 @@ void test_table_column()
   PQXX_CHECK_EQUAL(y, 1, "Wrong number for named column.");
   PQXX_CHECK_EQUAL(z, 2, "Wrong number for named column.");
 
-  pqxx::row::size_type xx{X[0].table_column(static_cast<int>(0))},
+  pqxx::row::size_type const xx{X[0].table_column(static_cast<int>(0))},
     yx{X[0].table_column(pqxx::row::size_type(1))}, zx{X[0].table_column("z")};
 
   PQXX_CHECK_EQUAL(xx, 0, "Bad result from table_column(int).");
@@ -42,7 +42,7 @@ void test_table_column()
       R[0][i].table_column(), R.table_column(i),
       "Bad result from column_table().");
 
-  [[maybe_unused]] int col;
+  [[maybe_unused]] int col{};
   PQXX_CHECK_THROWS_EXCEPTION(
     col = R.table_column(3), "table_column() with invalid index didn't fail.");
 
