@@ -3,7 +3,7 @@
 
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Compare const_reverse_iterator iteration of a
@@ -19,10 +19,10 @@ void test_075()
   auto const R(tx.exec("SELECT year FROM pqxxevents"));
   PQXX_CHECK(not std::empty(R), "No events found, cannot test.");
 
-  PQXX_CHECK_EQUAL(R[0], R.at(0), "Inconsistent result indexing.");
+  PQXX_CHECK(R[0] == R.at(0), "Inconsistent result indexing.");
   PQXX_CHECK(not(R[0] != R.at(0)), "result::row::operator!=() is broken.");
 
-  PQXX_CHECK_EQUAL(R[0][0], R[0].at(0), "Inconsistent row indexing.");
+  PQXX_CHECK(R[0][0] == R[0].at(0), "Inconsistent row indexing.");
   PQXX_CHECK(
     not(R[0][0] != R[0].at(0)), "result::field::operator!=() is broken.");
 
@@ -39,8 +39,8 @@ void test_075()
       "Inconsistent iteration.");
 
   // Thorough test for result::const_reverse_iterator
-  pqxx::result::const_reverse_iterator ri1(std::rbegin(R)), ri2(ri1),
-    ri3(std::end(R));
+  pqxx::result::const_reverse_iterator const ri1(std::rbegin(R));
+  pqxx::result::const_reverse_iterator ri2(ri1), ri3(std::end(R));
   ri2 = std::rbegin(R);
 
   PQXX_CHECK(ri2 == ri1, "reverse_iterator copy constructor is broken.");
@@ -69,11 +69,12 @@ void test_075()
   PQXX_CHECK(ri3 >= ri2, "operator>=() breaks on equal reverse_iterators.");
   PQXX_CHECK(ri3 >= ri2, "operator<=() breaks on equal reverse_iterators.");
 
-  PQXX_CHECK(
-    *ri3.base() == R.back(), "reverse_iterator does not arrive at back().");
+  PQXX_CHECK_EQUAL(
+    ri3.base()->front().view(), R.back()[0].view(),
+    "reverse_iterator does not arrive at back().");
 
-  PQXX_CHECK(
-    ri1->at(0) == (*ri1).at(0),
+  PQXX_CHECK_EQUAL(
+    ri1->at(0).as<std::string>(), (*ri1).at(0).as<std::string>(),
     "reverse_iterator operator->() is inconsistent with operator*().");
 
   PQXX_CHECK(ri2-- == ri3, "reverse_iterator post-decrement is broken.");

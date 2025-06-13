@@ -1,17 +1,15 @@
 #include <pqxx/pipeline>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 namespace
 {
-void TestPipeline(pipeline &P, int numqueries)
+void TestPipeline(pqxx::pipeline &P, int numqueries)
 {
   std::string const Q{"SELECT * FROM generate_series(1, 10)"};
-  result const Empty;
+  pqxx::result const Empty;
   PQXX_CHECK(std::empty(Empty), "Default-constructed result is not empty.");
   PQXX_CHECK(
     std::empty(Empty.query()), "Default-constructed result has query");
@@ -24,7 +22,7 @@ void TestPipeline(pipeline &P, int numqueries)
     (numqueries == 0) || not std::empty(P), "pipeline::empty() is broken.");
 
   int res{0};
-  result Prev;
+  pqxx::result Prev;
   PQXX_CHECK_EQUAL(Prev, Empty, "Default-constructed results are not equal.");
 
   for (int i{numqueries}; i > 0; --i)
@@ -35,7 +33,8 @@ void TestPipeline(pipeline &P, int numqueries)
 
     PQXX_CHECK_NOT_EQUAL(R.second, Empty, "Got empty result.");
     if (Prev != Empty)
-      PQXX_CHECK_EQUAL(R.second, Prev, "Results to same query are different.");
+      PQXX_CHECK_NOT_EQUAL(
+        R.second, Prev, "Results to same query are different.");
 
     Prev = R.second;
     PQXX_CHECK_EQUAL(Prev, R.second, "Assignment breaks result equality.");
@@ -55,9 +54,9 @@ void TestPipeline(pipeline &P, int numqueries)
 // compare results.  Use retain() and resume() for performance.
 void test_070()
 {
-  connection cx;
-  work tx{cx};
-  pipeline P(tx);
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline P(tx);
 
   PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
 
@@ -92,7 +91,7 @@ void test_070()
 
     // See if retrieve() fails on an empty pipeline, as it should
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  quiet_errorhandler d(cx);
+  pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS_EXCEPTION(
     P.retrieve(), "Empty pipeline allows retrieve().");
