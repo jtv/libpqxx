@@ -881,11 +881,11 @@ void test_scan_double_quoted_string()
     6u, "Doubled quote + suffix breaks scan.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
-      R"("\\\"""")", 0u, here()),
+      "\"\\\\\\\"\"\"\"", 0u, here()),
     8u, "Complex scan is broken.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
-      R"(a"\\\""""z)", 1u, here()),
+      "a\"\\\\\\\"\"\"\"", 1u, here()),
     9u, "Suffix + complex scan breaks.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
