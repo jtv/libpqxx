@@ -861,11 +861,11 @@ void test_scan_double_quoted_string()
     "Double-quoted string scan did not detect missing closing quote.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
-      R"("x\"y")", 0u, here()),
+      "\"x\\\"y\"", 0u, here()),
     6u, "Backslash escape breaks scan.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
-      R"("x\"y"z)", 0u, here()),
+      "\"x\\\"y\"z\"", 0u, here()),
     6u, "Backslash + suffix breaks scan.");
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
