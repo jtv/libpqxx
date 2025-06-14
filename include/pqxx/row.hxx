@@ -13,8 +13,6 @@
 #ifndef PQXX_H_ROW
 #define PQXX_H_ROW
 
-#include <cstddef>
-#include <tuple>
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
