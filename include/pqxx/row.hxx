@@ -13,6 +13,8 @@
 #ifndef PQXX_H_ROW
 #define PQXX_H_ROW
 
+#include <cstddef>
+#include <tuple>
 #if !defined(PQXX_HEADER_PRE)
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
@@ -198,6 +200,7 @@ public:
    */
   template<typename TUPLE> TUPLE as_tuple() const
   {
+    check_size(std::tuple_size_v<TUPLE>);
     using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
     return get_tuple<TUPLE>(seq{});
   }
