@@ -1,6 +1,6 @@
 #include <pqxx/pqxx>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 namespace
@@ -32,7 +32,7 @@ std::string app_name(pqxx::connection const &cx)
   auto const start{intro + std::size(marker)};
   if (start == std::string::npos or all.at(start) == ' ')
     return "";
-  std::size_t here{start}, end;
+  std::size_t here{start}, end{};
   if (all.at(here) == '\'')
   {
     // Quoted string.
@@ -49,7 +49,6 @@ std::string app_name(pqxx::connection const &cx)
   {
     // Simple string.  Just stop at the next space, or end of string.
     // This find() can return npos, but that's fine here.
-    here = all.find(' ', start);
     end = all.find(' ', start);
   }
   return all.substr(start, end - start);
@@ -70,8 +69,6 @@ void check_connect_string(std::string const &in, std::string const &expected)
 
 void test_connection_string_escapes()
 {
-  // XXX: Deal with encodings?
-  // XXX: Deal with URI encoding?
   check_connect_string("pqxxtest", "pqxxtest");
   check_connect_string("'hello'", "hello");
   check_connect_string("'a b c'", "'a b c'");

@@ -3,7 +3,7 @@
 #include <pqxx/subtransaction>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Attempt to perform nested transactions.
@@ -67,10 +67,11 @@ void test_088()
 
   PQXX_CHECK_EQUAL(std::size(R), 3, "Wrong number of results.");
 
-  int expected[3]{1, 2, 4};
+  std::array<int, 3> const expected{1, 2, 4};
   for (pqxx::result::size_type n{0}; n < std::size(R); ++n)
     PQXX_CHECK_EQUAL(
-      R[n][0].as<int>(), expected[n], "Hit unexpected row number.");
+      R[n][0].as<int>(), expected.at(static_cast<std::size_t>(n)),
+      "Hit unexpected row number.");
 
   tx2.abort();
 

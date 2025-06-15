@@ -10,11 +10,15 @@ project(
 )
 
 if(NOT "${CMAKE_CXX_STANDARD}")
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+# Generate a "compilation database" so we can use run-clang-tidy, to run static
+# checks in parallel.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_DOC "Build documentation" OFF)
 
@@ -35,7 +39,7 @@ if(BUILD_TEST)
     add_subdirectory(test)
 endif()
 
-# installation
+# Installation
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
     VERSION ${PROJECT_VERSION}

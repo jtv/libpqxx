@@ -2,7 +2,7 @@
 
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Read and print table using row iterators.
@@ -15,7 +15,7 @@ void test_082()
 
   pqxx::test::create_pqxxevents(tx);
   std::string const Table{"pqxxevents"};
-  pqxx::result R{tx.exec("SELECT * FROM " + Table)};
+  pqxx::result const R{tx.exec("SELECT * FROM " + Table)};
 
   PQXX_CHECK(not std::empty(R), "Got empty result.");
 
@@ -38,7 +38,7 @@ void test_082()
       pqxx::row::difference_type(std::size(r)) + std::begin(r) == std::end(r),
       "Row iterator addition is not commutative.");
     PQXX_CHECK_EQUAL(
-      std::begin(r)->num(), 0, "Wrong column number at begin().");
+      std::begin(r)->column_number(), 0, "Wrong column number at begin().");
 
     pqxx::row::const_iterator f3(r[std::size(r)]);
 
@@ -72,13 +72,13 @@ void test_082()
 
     for (auto fr = std::rbegin(r); fr != std::rend(r); ++fr, --f3)
       PQXX_CHECK_EQUAL(
-        *fr, *f3,
+        fr->as<std::string>(), f3->as<std::string>(),
         "Reverse traversal is not consistent with forward traversal.");
   }
 
   // Thorough test for row::const_reverse_iterator
-  pqxx::row::const_reverse_iterator ri1(std::rbegin(R.front())), ri2(ri1),
-    ri3(std::end(R.front()));
+  pqxx::row::const_reverse_iterator const ri1(std::rbegin(R.front()));
+  pqxx::row::const_reverse_iterator ri2(ri1), ri3(std::end(R.front()));
   ri2 = std::rbegin(R.front());
 
   PQXX_CHECK(
@@ -119,8 +119,8 @@ void test_082()
     ri3 >= ri2, "reverse_iterator operator>=() breaks on equal iterators.");
   PQXX_CHECK(
     ri3 >= ri2, "reverse_iterator operator<=() breaks on equal iterators.");
-  PQXX_CHECK(
-    *ri3.base() == R.front().back(),
+  PQXX_CHECK_EQUAL(
+    ri3.base()->as<std::string>(), R.front().back().as<std::string>(),
     "reverse_iterator does not arrive at back().");
   PQXX_CHECK(
     ri1->c_str()[0] == (*ri1).c_str()[0],
