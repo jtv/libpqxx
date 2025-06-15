@@ -17,20 +17,25 @@ namespace
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
 struct TestReceiver final : public pqxx::notification_receiver
 {
-  std::string payload;
-  int backend_pid{};
-
   TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
-          pqxx::notification_receiver(cx, channel_name),
-          payload(),
-          backend_pid(0)
+          pqxx::notification_receiver(cx, channel_name)
   {}
 
   void operator()(std::string const &payload_string, int backend) override
   {
-    this->payload = payload_string;
-    this->backend_pid = backend;
+    m_payload = payload_string;
+    m_backend_pid = backend;
   }
+
+  [[nodiscard]] std::string const &payload() const noexcept
+  {
+    return m_payload;
+  }
+  [[nodiscard]] int backend_pid() const noexcept { return m_backend_pid; }
+
+private:
+  std::string m_payload;
+  int m_backend_pid = 0;
 };
 
 
@@ -60,11 +65,11 @@ void test_receive_classic(
     notifs = cx.get_notifs();
 
   PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
-  PQXX_CHECK_EQUAL(receiver.backend_pid, cx.backendpid(), "Bad pid.");
+  PQXX_CHECK_EQUAL(receiver.backend_pid(), cx.backendpid(), "Bad pid.");
   if (payload == nullptr)
-    PQXX_CHECK(std::empty(receiver.payload), "Unexpected payload.");
+    PQXX_CHECK(std::empty(receiver.payload()), "Unexpected payload.");
   else
-    PQXX_CHECK_EQUAL(receiver.payload, payload, "Bad payload.");
+    PQXX_CHECK_EQUAL(receiver.payload(), payload, "Bad payload.");
 }
 
 
@@ -158,9 +163,11 @@ void test_notification_has_payload()
 // Functor-shaped notification handler.
 struct notify_test_listener
 {
-  int &received;
-  explicit notify_test_listener(int &r) : received{r} {}
-  void operator()(pqxx::notification) { ++received; }
+  explicit notify_test_listener(int &r) : m_received{r} {}
+  void operator()(pqxx::notification) { ++m_received; }
+
+private:
+  int &m_received;
 };
 
 

@@ -38,6 +38,9 @@ PQXX_DECLARE_ENUM_CONVERSION(many);
 
 namespace
 {
+using namespace std::string_view_literals;
+
+
 void test_strconv_bool()
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
@@ -352,12 +355,12 @@ void test_to_buf_into_buf()
   check_write(std::string{}, "");
   check_write(std::string{"Blah"}, "Blah");
 
-  check_write(std::string_view{""}, "");
+  check_write(""sv, "");
   check_write(std::string_view{"abc", 0u}, "");
-  check_write(std::string_view{"view"}, "view");
+  check_write("view"sv, "view");
   check_write(std::string_view{"viewport", 4u}, "view");
 
-  check_write(pqxx::zview{""}, "");
+  check_write(""sv, "");
   check_write(pqxx::zview{"xyz", 0u}, "");
 
   check_write(std::make_unique<std::string>("Boogie"), "Boogie");

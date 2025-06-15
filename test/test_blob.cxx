@@ -520,6 +520,7 @@ public:
   TempFile(TempFile const &) = delete;
   TempFile(TempFile &&) = delete;
   TempFile &operator=(TempFile const &) = delete;
+  TempFile &operator=(TempFile &&) = delete;
 
   /// Create (and later clean up) a file at path containing data.
   TempFile(char const path[], pqxx::bytes_view data) : m_path(path)

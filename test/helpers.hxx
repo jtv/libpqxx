@@ -52,7 +52,8 @@ struct registrar
 
 // Unconditional test failure.
 [[noreturn]] void check_notreached(
-  std::string desc = "Execution was never supposed to reach this point.",
+  std::string const &desc =
+    "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
 // Verify that a condition is met, similar to assert()

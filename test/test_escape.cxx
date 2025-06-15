@@ -39,14 +39,9 @@ void compare_esc(
 
 void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
 {
-  PQXX_CHECK_EQUAL(
-    t.esc(std::string_view{"", 0}), "",
-    "Empty string doesn't escape properly.");
-  PQXX_CHECK_EQUAL(
-    t.esc(std::string_view{"'", 1}), "''",
-    "Single quote escaped incorrectly.");
-  PQXX_CHECK_EQUAL(
-    t.esc(std::string_view{"hello"}), "hello", "Trivial escape went wrong.");
+  PQXX_CHECK_EQUAL(t.esc(""sv), "", "Empty string doesn't escape properly.");
+  PQXX_CHECK_EQUAL(t.esc("'"sv), "''", "Single quote escaped incorrectly.");
+  PQXX_CHECK_EQUAL(t.esc("hello"sv), "hello", "Trivial escape went wrong.");
   std::array<char const *, 4> const escstrings{"x", " ", "", nullptr};
   for (std::size_t i{0}; escstrings.at(i) != nullptr; ++i)
     compare_esc(cx, t, escstrings.at(i));

@@ -28,7 +28,7 @@ inline void drop_table(transaction_base &t, std::string const &table, sl loc)
 }
 
 
-[[noreturn]] void check_notreached(std::string desc, sl loc)
+[[noreturn]] void check_notreached(std::string const &desc, sl loc)
 {
   throw test_failure{desc, loc};
 }

@@ -97,7 +97,7 @@ void test_stream_reads_string_view()
          "SELECT 'x' || generate_series FROM generate_series(1, 2)"))
   {
     static_assert(std::is_same_v<decltype(v), std::string_view>);
-    out.push_back(std::string{v});
+    out.emplace_back(v);
   }
   PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong number of rows.");
   PQXX_CHECK_EQUAL(out[0], "x1", "Wrong first value.");

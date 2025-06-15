@@ -16,7 +16,6 @@ public:
     bool retval = true) :
           pqxx::errorhandler(cx),
           return_value(retval),
-          message(),
           handler_list(activated_handlers)
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"

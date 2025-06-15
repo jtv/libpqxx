@@ -182,7 +182,7 @@ void test_string_view_conversion()
     pqxx::to_string("view here"sv), "view here"s,
     "Bad conversion from string_view.");
 
-  char buf[200];
+  std::array<char, 200> buf{};
 
   std::size_t const stop{traits::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(
@@ -190,12 +190,12 @@ void test_string_view_conversion()
     "string_view into_buf did not stay within its buffer.");
   assert(stop > 0);
   PQXX_CHECK(
-    buf[stop - 1] == '\0', "string_view into_buf did not zero-terminate.");
+    buf.at(stop - 1) == '\0', "string_view into_buf did not zero-terminate.");
   PQXX_CHECK_EQUAL(
     (std::string{std::data(buf), static_cast<std::size_t>(stop - 1)}),
     "more view"s, "string_view into_buf wrote wrong data.");
   PQXX_CHECK(
-    buf[stop - 2] == 'w', "string_view into_buf is in the wrong place.");
+    buf.at(stop - 2) == 'w', "string_view into_buf is in the wrong place.");
 
   std::string_view org{"another!"sv};
   pqxx::zview out{traits::to_buf(std::begin(buf), std::end(buf), org)};
@@ -239,14 +239,16 @@ void test_string_converts_to_binary()
     "Vector of bytes from text has wrong length.");
   for (std::size_t i{0}; i < std::size(vec); ++i)
     PQXX_CHECK(
-      vec[i] == bin_data[i], std::format("Difference in binary byte #{}.", i));
+      vec.at(i) == bin_data.at(i),
+      std::format("Difference in binary byte #{}.", i));
 
   // We can also convert a bytea SQL string to an array of bytes of the right
   // size.
   auto const arr{pqxx::from_string<std::array<std::byte, 3>>(text_data)};
   for (std::size_t i{0}; i < std::size(arr); ++i)
     PQXX_CHECK(
-      arr[i] == bin_data[i], std::format("Difference in binary byte #{}.", i));
+      arr.at(i) == bin_data.at(i),
+      std::format("Difference in binary byte #{}.", i));
 
   // However we can _not_ convert a bytea SQL string to an array of bytes of a
   // different size.

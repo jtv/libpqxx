@@ -504,7 +504,7 @@ void test_stream_to_escaping()
 
   // We'll check that streaming these strings to the database and querying them
   // back reproduces them faithfully.
-  std::string_view const inputs[] = {
+  std::array<std::string_view, 8> const inputs = {
     ""sv,      "hello"sv,    "a\tb"sv, "a\nb"sv,
     "don't"sv, "\\\\\\''"sv, "\\N"sv,  "\\Nfoo"sv,
   };
@@ -512,7 +512,7 @@ void test_stream_to_escaping()
   // Stream the input strings into the databsae.
   pqxx::stream_to out{pqxx::stream_to::table(tx, {"foo"}, {"i", "t"})};
   for (std::size_t i{0}; i < std::size(inputs); ++i)
-    out.write_values(i, inputs[i]);
+    out.write_values(i, inputs.at(i));
   out.complete();
 
   // Verify.
@@ -526,7 +526,7 @@ void test_stream_to_escaping()
     PQXX_CHECK_EQUAL(
       outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
     PQXX_CHECK_EQUAL(
-      outputs[idx][1].as<std::string_view>(), inputs[i],
+      outputs[idx][1].as<std::string_view>(), inputs.at(i),
       "String changed in transit.");
   }
 }
