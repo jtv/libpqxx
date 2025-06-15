@@ -37,7 +37,8 @@ inline void drop_table(transaction_base &t, std::string const &table, sl loc)
 void check(bool condition, char const text[], std::string const &desc, sl loc)
 {
   if (not condition)
-    throw test_failure{desc + " (failed expression: " + text + ")", loc};
+    throw test_failure{
+      std::format("{} (failed expression: '{}')", desc, text), loc};
 }
 
 
