@@ -8,6 +8,10 @@
 
 namespace pqxx::internal
 {
+// The width in bytes of a single ASCII character.  In other words, one.
+constexpr std::size_t one_ascii_char{1u};
+
+
 // Find the end of a double-quoted string.
 /** `input[pos]` must be the opening double quote.
  *
@@ -22,9 +26,6 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   assert(input[pos] == '"');
   auto const sz{std::size(input)};
-
-  // The width in bytes of a single ASCII character.  In other words, one.
-  constexpr std::size_t one_ascii_char{1u};
 
   // Skip over the opening double-quote, and after that, any leading
   // "un-interesting" characters.
@@ -112,8 +113,6 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   // half that.  Usually it'll be a pretty close estimate.
   output.reserve(std::size_t(end - pos - 2));
 
-  // The width in bytes of a single ASCII character.  In other words, one.
-  constexpr std::size_t one_ascii_char{1u};
   auto const closing_quote{end - 1};
 
   // We're at the starting quote.  Skip it.
@@ -168,7 +167,6 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 }
 
 
-// XXX: Support backslash escapes & doubled single-quote.
 /// Find the end of an unquoted string in an array or composite-type value.
 /** Stops when it gets to the end of the input; or when it sees any of the
  * characters in STOP which has not been escaped.
@@ -181,18 +179,7 @@ template<encoding_group ENC, char... STOP>
 inline constexpr std::size_t
 scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
 {
-  using scanner = glyph_scanner<ENC>;
-  // XXX: Use find_char<STOP...>().
-  auto const sz{std::size(input)};
-  auto next{scanner::call(input, pos, loc)};
-  PQXX_ASSUME(pos < next);
-  while ((pos < sz) and ((next - pos) > 1 or ((input[pos] != STOP) and ...)))
-  {
-    pos = next;
-    next = scanner::call(input, pos, loc);
-    PQXX_ASSUME(next > pos);
-  }
-  return pos;
+  return find_ascii_char<ENC, STOP...>(input, pos, loc);
 }
 
 
