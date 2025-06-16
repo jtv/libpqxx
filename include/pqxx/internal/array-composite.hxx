@@ -227,13 +227,7 @@ inline void parse_composite_field(
   std::size_t last_field, sl loc)
 {
   assert(index <= last_field);
-  // XXX: Use find_char().
-  // XXX: Test for empty case?
-  auto next{glyph_scanner<ENC>::call(input, pos, loc)};
-  PQXX_ASSUME(next > pos);
-  if ((next - pos) != 1)
-    throw conversion_error{
-      "Non-ASCII character in composite-type syntax.", loc};
+  assert(pos < std::size(input));
 
   // Expect a field.
   switch (input[pos])
@@ -263,6 +257,9 @@ inline void parse_composite_field(
   break;
 
   default: {
+    // Parse an unquoted string field.  It ends when we see a comma (meaning
+    // there's a next field after it), or a closing parenthesis or bracket
+    // (meaning we're at the last field).
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(input, pos, loc)};
     PQXX_ASSUME(stop >= pos);
     field = from_string<T>(input.substr(pos, stop - pos));
@@ -271,46 +268,47 @@ inline void parse_composite_field(
   break;
   }
 
-  // Expect a comma or a closing parenthesis.
-  // XXX: Use find_char().
-  next = glyph_scanner<ENC>::call(input, pos, loc);
-  PQXX_ASSUME(next > pos);
-
-  if ((next - pos) != 1)
-    throw conversion_error{
-      "Unexpected non-ASCII character after composite field: " +
-        std::string{input},
-      loc};
+  // End of feld.  Expect a comma or a closing parenthesis.
 
   if (index < last_field)
   {
+    // There's another field coming after this one.
     if (input[pos] != ',')
       throw conversion_error{
-        "Found '" + std::string{input[pos]} +
-          "' in composite value where comma was expected: " + std::data(input),
+        std::format(
+          "Found '{}' in composite value where comma was expected: '{}.",
+          input[pos], input),
         loc};
+    pos += one_ascii_char;
   }
   else
   {
+    // We're parsing the last field.
     if (input[pos] == ',')
       throw conversion_error{
-        "Composite value contained more fields than the expected " +
-          to_string(last_field) + ": " + std::data(input),
+        std::format(
+          "Composite value contained more fields than the expected {}: '{}'.",
+          to_string(last_field), std::data(input)),
         loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
-        "Composite value has unexpected characters where closing parenthesis "
-        "was expected: " +
-          std::string{input},
+        std::format(
+          "Composite value has unexpected characters where closing "
+          "parenthesis "
+          "was expected: '{}'.",
+          std::string{input}),
         loc};
-    if (next != std::size(input))
+
+    pos += one_ascii_char;
+
+    if (pos != std::size(input))
       throw conversion_error{
-        "Composite value has unexpected text after closing parenthesis: " +
-          std::string{input},
+        std::format(
+          "Composite value has unexpected text after closing parenthesis: "
+          "'{}'.",
+          std::string{input}),
         loc};
   }
-
-  pos = next;
   ++index;
 }
 
