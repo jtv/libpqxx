@@ -170,10 +170,10 @@ void test_transaction_query_params()
     tx.query01<int>("SELECT $1 - 10", {12})};
   PQXX_CHECK(
     opt2.has_value(), "query01 did not get the result it should have.");
-  auto const [opt2_val] = *opt2;
+  auto const [opt2_val] = opt2.value_or(0);
   PQXX_CHECK_EQUAL(opt2_val, 2, "query01 got wrong result.");
-  auto const [opt3_a, opt3_b] =
-    tx.query01<int, int>("SELECT $1, $2", {12, 99}).value();
+  auto const [opt3_a, opt3_b] = tx.query01<int, int>("SELECT $1, $2", {12, 99})
+                                  .value_or(std::tuple<int, int>{});
   PQXX_CHECK_EQUAL(
     opt3_a, 12, "Multi-column query01() with params gave wrong result.");
   PQXX_CHECK_EQUAL(

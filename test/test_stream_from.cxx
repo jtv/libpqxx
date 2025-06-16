@@ -177,28 +177,31 @@ void test_optional(pqxx::connection &connection)
   ASSERT_FIELD_NULL(std::get<1>(got_tuple));
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "\\N");
-  ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), bytea{});
+  ASSERT_FIELD_EQUAL((std::get<4>(got_tuple)), "\\N");
+  ASSERT_FIELD_EQUAL((std::get<5>(got_tuple)), bytea{});
 
   extractor >> got_tuple;
   PQXX_CHECK(extractor, "stream_from failed to read first row.");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Field value mismatch.");
   PQXX_CHECK(
     static_cast<bool>(std::get<1>(got_tuple)), "Unexpected null field.");
-  ASSERT_FIELD_EQUAL(std::get<2>(got_tuple), 4321);
-  ASSERT_FIELD_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "hello\n \tworld");
-  ASSERT_FIELD_EQUAL(std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}));
+  ASSERT_FIELD_EQUAL((std::get<2>(got_tuple)), 4321);
+  ASSERT_FIELD_EQUAL((std::get<3>(got_tuple)), (ipv4{8, 8, 8, 8}));
+  ASSERT_FIELD_EQUAL((std::get<4>(got_tuple)), "hello\n \tworld");
+  ASSERT_FIELD_EQUAL(
+    (std::get<5>(got_tuple)), (bytea{'\x00', '\x01', '\x02'}));
 
   extractor >> got_tuple;
   PQXX_CHECK(extractor, "stream_from failed to read second row");
   PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 5678, "field value mismatch");
-  ASSERT_FIELD_EQUAL(std::get<1>(got_tuple), "2018-11-17 21:23:00");
+  ASSERT_FIELD_EQUAL((std::get<1>(got_tuple)), "2018-11-17 21:23:00");
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
-  ASSERT_FIELD_EQUAL(std::get<4>(got_tuple), "\u3053\u3093\u306b\u3061\u308f");
   ASSERT_FIELD_EQUAL(
-    std::get<5>(got_tuple), (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
+    (std::get<4>(got_tuple)), "\u3053\u3093\u306b\u3061\u308f");
+  ASSERT_FIELD_EQUAL(
+    (std::get<5>(got_tuple)),
+    (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
 
   extractor >> got_tuple;
   PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");
@@ -353,14 +356,17 @@ void test_stream_from_parses_awkward_strings()
 
   PQXX_CHECK(not values[0].has_value(), "Null did not work properly.");
   PQXX_CHECK(values[1].has_value(), "String 'NULL' became a NULL.");
-  PQXX_CHECK_EQUAL(values[1].value(), "NULL", "String 'NULL' went badly.");
+  PQXX_CHECK_EQUAL(
+    values[1].value_or("empty"), "NULL", "String 'NULL' went badly.");
   PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
-  PQXX_CHECK_EQUAL(values[2].value(), "\\N", "String '\\N' went badly.");
+  PQXX_CHECK_EQUAL(
+    values[2].value_or("empty"), "\\N", "String '\\N' went badly.");
   PQXX_CHECK(values[3].has_value(), "String \"'NULL'\" became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[3].value(), "'NULL'", "String \"'NULL'\" went badly.");
+    values[3].value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
-    values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
+    values[4].value_or("empty"), "\x81\x5c",
+    "Finicky SJIS character went badly.");
 }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 

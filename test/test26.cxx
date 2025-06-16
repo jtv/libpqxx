@@ -42,7 +42,7 @@ std::map<int, int> update_years(pqxx::connection &C)
   {
     // Read year, and if it is non-null, note its converted value
     if (bool(y))
-      conversions[y.value()] = To4Digits(y.value());
+      conversions[y.value_or(1)] = To4Digits(y.value_or(2));
   }
 
   // For each occurring year, write converted date back to whereever it may

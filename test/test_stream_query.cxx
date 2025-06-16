@@ -117,7 +117,7 @@ void test_stream_reads_nulls_as_optionals()
   {
     PQXX_CHECK(
       val.has_value(), "Non-null value did not come through as optional.");
-    PQXX_CHECK_EQUAL(*val, "x", "Bad value in optional.");
+    PQXX_CHECK_EQUAL(val.value_or("empty"), "x", "Bad value in optional.");
   }
 }
 
@@ -160,17 +160,21 @@ void test_stream_parses_awkward_strings()
 
   PQXX_CHECK(not values[0].has_value(), "Null did not work properly.");
   PQXX_CHECK(values[1].has_value(), "String 'NULL' became a NULL.");
-  PQXX_CHECK_EQUAL(values[1].value(), "NULL", "String 'NULL' went badly.");
+  PQXX_CHECK_EQUAL(
+    values[1].value_or("empty"), "NULL", "String 'NULL' went badly.");
   PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
-  PQXX_CHECK_EQUAL(values[2].value(), "\\N", "String '\\N' went badly.");
+  PQXX_CHECK_EQUAL(
+    values[2].value_or("empty"), "\\N", "String '\\N' went badly.");
   PQXX_CHECK(values[3].has_value(), "String \"'NULL'\" became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[3].value(), "'NULL'", "String \"'NULL'\" went badly.");
+    values[3].value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
-    values[4].value(), "\x81\x5c", "Finicky SJIS character went badly.");
-  PQXX_CHECK_EQUAL(values[5].value(), "\t", "Tab unescaped wrong.");
+    values[4].value_or("empty"), "\x81\x5c",
+    "Finicky SJIS character went badly.");
+  PQXX_CHECK_EQUAL(values[5].value_or("empty"), "\t", "Tab unescaped wrong.");
   PQXX_CHECK_EQUAL(
-    values[6].value(), "\\\\\\\n\\\\", "Backslashes confused stream.");
+    values[6].value_or("empty"), "\\\\\\\n\\\\",
+    "Backslashes confused stream.");
 }
 
 
