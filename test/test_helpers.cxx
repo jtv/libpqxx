@@ -69,6 +69,7 @@ void test_check_throws_exception()
 
   // But there _must_ be an exception.
   failed = true;
+  std::ignore = failed;
   try
   {
     // If the test fails to throw, this throws a failure.
@@ -121,6 +122,7 @@ void test_check_throws()
 
   // The exception must be of the right type (or a subclass of the right type).
   failed = true;
+  std::ignore = failed;
   try
   {
     // If the test throws the wrong type, PQXX_CHECK_THROWS throws a failure.

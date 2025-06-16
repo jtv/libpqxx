@@ -324,7 +324,7 @@ void test_range_subset()
   using range = pqxx::range<int>;
   using traits = pqxx::string_traits<range>;
 
-  std::string_view subsets[][2]{
+  constexpr std::string_view subsets[][2]{
     {"empty", "empty"},  {"(,)", "empty"},    {"(0,1)", "empty"},
     {"(,)", "[-10,10]"}, {"(,)", "(-10,10)"}, {"(,)", "(,)"},
     {"(,10)", "(,10)"},  {"(,10)", "(,9)"},   {"(,10]", "(,10)"},
@@ -337,7 +337,7 @@ void test_range_subset()
       traits::from_string(super).contains(traits::from_string(sub)),
       std::format("Range '{}' did not contain ''.", super, sub));
 
-  std::string_view non_subsets[][2]{
+  constexpr std::string_view non_subsets[][2]{
     {"empty", "[0,0]"},   {"empty", "(,)"},     {"[-10,10]", "(,)"},
     {"(-10,10)", "(,)"},  {"(,9)", "(,10)"},    {"(,10)", "(,10]"},
     {"[1,4]", "[0,4]"},   {"[1,4]", "[1,5]"},   {"(0,10)", "[0,10]"},
@@ -480,7 +480,7 @@ void test_range_intersection()
 {
   // Intersections and their expected results, in text form.
   // Each row contains two ranges, and their intersection.
-  std::string_view intersections[][3]{
+  constexpr std::string_view intersections[][3]{
     {"empty", "empty", "empty"},
     {"(,)", "empty", "empty"},
     {"[,]", "empty", "empty"},
@@ -507,7 +507,7 @@ void test_range_intersection()
     {"[0,10]", "(10,11]", "empty"},
     {"[0,10)", "(10,11]", "empty"},
   };
-  for (auto [left, right, expected] : intersections)
+  for (auto const &[left, right, expected] : intersections)
   {
     PQXX_CHECK_EQUAL(
       intersect<int>(left, right), expected,
@@ -531,7 +531,7 @@ void test_range_conversion()
   for (auto r : ranges)
   {
     auto const shortr{pqxx::from_string<pqxx::range<short>>(r)};
-    pqxx::range<int> intr{shortr};
+    pqxx::range<int> const intr{shortr};
     PQXX_CHECK_EQUAL(
       pqxx::to_string(intr), r, "Converted range looks different.");
   }
@@ -546,7 +546,7 @@ constexpr void test_range_is_constexpr()
 
   constexpr ibound one{1}, three{3};
   constexpr range oneone{one, one}, onethree{one, three};
-  static_assert(oneone == oneone);
+  static_assert(oneone == range{oneone});
   static_assert(oneone != onethree);
   static_assert(onethree.contains(oneone));
 }
