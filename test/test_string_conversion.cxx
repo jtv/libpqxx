@@ -198,7 +198,8 @@ void test_string_view_conversion()
     buf.at(stop - 2) == 'w', "string_view into_buf is in the wrong place.");
 
   std::string_view org{"another!"sv};
-  pqxx::zview out{traits::to_buf(std::begin(buf), std::end(buf), org)};
+  pqxx::zview out{
+    traits::to_buf(std::data(buf), std::data(buf) + std::size(buf), org)};
   PQXX_CHECK_EQUAL(
     std::string{out}, "another!"s, "string_view to_buf returned wrong data.");
   PQXX_CHECK(

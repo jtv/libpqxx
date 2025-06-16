@@ -168,7 +168,7 @@ void check_write(T const &value, std::string_view expected)
 {
   std::string const name{pqxx::name_type<T>()};
   std::array<char, 100> buf{};
-  for (auto i{0u}; i < std::size(buf); ++i) buf[i] = hash_index(i);
+  for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
 
   // Test to_buf().
   pqxx::zview const out{pqxx::to_buf(buf, value)};
@@ -202,7 +202,7 @@ void check_write(T const &value, std::string_view expected)
         "to_buf() for {} overwrote byte after terminating zero.", name));
 
   // Test into_buf().
-  for (auto i{0u}; i < std::size(buf); ++i) buf[i] = hash_index(i);
+  for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
   std::size_t const end{pqxx::into_buf(buf, value)};
   PQXX_CHECK_GREATER(
     end, 0u, std::format("into_buf() for {} returned zero.", name));
