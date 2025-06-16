@@ -22,46 +22,34 @@ enum class encoding_group
   // Indeterminate encoding.
   unknown,
 
-  // Handles all single-byte fixed-width encodings
+  // Handles all single-byte fixed-width encodings, as well as all other
+  // "ASCII-safe" ones.
+  //
+  // The ASCII-safe encodings are the ones where no byte in a multibyte
+  // character can ever have the same value as any ASCII character.
+  //
+  // UTF-8 is an example of an ASCII-safe encoding: if you're looking for a
+  // specific ASCII character in a UTF-8 string, you can just go through the
+  // string byte for byte and look for a match.  No extra cleverness required.
+  //
+  // Cleverness is inefficiency.
   monobyte,
 
-  // XXX: Treat all ASCII-safe ones as monobyte.
-  // Multibyte encodings.
-  // Some of these can embed ASCII-like bytes inside multibyte characters,
-  // notably Big5, SJIS, SHIFT_JIS_2004, GP18030, GBK, JOHAB, UHC.
+  // Non-ASCII-safe multibyte encodings.
+  // These can embed ASCII-like bytes inside multibyte characters,  That's why
+  // we need specific support for them.
   big5,
-  euc_cn,
-  euc_jp,
-  euc_kr,
-  euc_tw,
   gb18030,
   gbk,
   johab,
-  mule_internal,
   sjis,
   uhc,
-  utf8,
 };
 } // namespace pqxx
 
 
 namespace pqxx::internal
 {
-// TODO: Get rid of glyph_scanner_func.  Specialise at higher loop level.
-/// Function type: "find the end of the current glyph."
-/** This type of function takes a text buffer, and a location in that buffer,
- * and returns the location one byte past the end of the current glyph.
- *
- * The start offset marks the beginning of the current glyph.  It must fall
- * within the buffer.
- *
- * There are multiple different glyph scanner implementations, for different
- * kinds of encodings.
- */
-using glyph_scanner_func =
-  std::size_t(std::string_view buffer, std::size_t start, sl);
-
-
 /// Function type: "find first occurrence of any of these ASCII characters."
 /** This type of function takes a text buffer, and a location in that buffer;
  * it returns the location of the first occurrence within that string of any

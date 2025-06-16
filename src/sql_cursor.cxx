@@ -62,11 +62,6 @@ find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
   auto const size{std::size(query)};
 
-  // Our only primitives for parsing text encodings are a char_finder_func, and
-  // the obvious shortcut for the special "monobyte" case.  Therefore, it's
-  // safe here to treat all ASCII-safe encodings as monobyte here.
-  enc = pqxx::internal::map_ascii_search_group(enc);
-
   // Marker for the end of the last "useful" character in the query.
   std::size_t end{};
   if (enc == pqxx::encoding_group::monobyte)
@@ -125,15 +120,6 @@ static_assert(check_query_end(pqxx::encoding_group::big5, "n  ") == 1);
 static_assert(check_query_end(pqxx::encoding_group::big5, " n ") == 2);
 static_assert(check_query_end(pqxx::encoding_group::big5, "? ; ") == 1);
 static_assert(check_query_end(pqxx::encoding_group::big5, " ( ; ) ") == 6);
-
-static_assert(check_query_end(pqxx::encoding_group::utf8, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::utf8, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::utf8, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::utf8, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::utf8, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::utf8, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::utf8, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::utf8, " ( ; ) ") == 6);
 #endif // NDEBUG
 } // namespace
 

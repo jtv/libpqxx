@@ -74,10 +74,11 @@ between_inc(unsigned char value, unsigned bottom, unsigned top)
  * won't work, because the template specialisation we use will only work (under
  * current C++ rules) for a struct or class, not for a function.
  */
-template<encoding_group> struct glyph_scanner
+template<encoding_group> struct glyph_scanner final
 {
   /// Find the next glyph in `buffer` after position `start`.
-  PQXX_PURE static std::size_t call(std::string_view, std::size_t start, sl);
+  PQXX_PURE static constexpr inline std::size_t
+  call(std::string_view, std::size_t start, sl);
 };
 
 
@@ -134,7 +135,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 } // namespace
 
 
-template<> struct glyph_scanner<encoding_group::monobyte>
+template<> struct glyph_scanner<encoding_group::monobyte> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
@@ -154,7 +155,7 @@ template<> struct glyph_scanner<encoding_group::monobyte>
 
 
 // https://en.wikipedia.org/wiki/Big5#Organization
-template<> struct glyph_scanner<encoding_group::big5>
+template<> struct glyph_scanner<encoding_group::big5> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -181,165 +182,8 @@ template<> struct glyph_scanner<encoding_group::big5>
 };
 
 
-/*
-The PostgreSQL documentation claims that the EUC_* encodings are 1-3 bytes
-each, but other documents explain that the EUC sets can contain 1-(2,3,4) bytes
-depending on the specific extension:
-    EUC_CN      : 1-2
-    EUC_JP      : 1-3
-    EUC_JIS_2004: 1-2
-    EUC_KR      : 1-2
-    EUC_TW      : 1-4
-*/
-
-// https://en.wikipedia.org/wiki/GB_2312#EUC-CN
-template<> struct glyph_scanner<encoding_group::euc_cn>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (not between_inc(byte1, 0xa1, 0xf7) or start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("EUC_CN", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-      throw_for_encoding_error("EUC_CN", buffer, start, 2, loc);
-
-    return start + 2;
-  }
-};
-
-
-// EUC-JP and EUC-JIS-2004 represent slightly different code points but iterate
-// the same:
-//
-// https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-JP
-// http://x0213.org/codetable/index.en.html
-template<> struct glyph_scanner<encoding_group::euc_jp>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("EUC_JP", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (byte1 == 0x8e)
-    {
-      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-        throw_for_encoding_error("EUC_JP", buffer, start, 2, loc);
-
-      return start + 2;
-    }
-
-    if (between_inc(byte1, 0xa1, 0xfe))
-    {
-      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-        throw_for_encoding_error("EUC_JP", buffer, start, 2, loc);
-
-      return start + 2;
-    }
-
-    if (byte1 == 0x8f and start + 3 <= sz)
-    {
-      auto const byte3{get_byte(buffer, start + 2)};
-      if (
-        not between_inc(byte2, 0xa1, 0xfe) or
-        not between_inc(byte3, 0xa1, 0xfe)) [[unlikely]]
-        throw_for_encoding_error("EUC_JP", buffer, start, 3, loc);
-
-      return start + 3;
-    }
-
-    throw_for_encoding_error("EUC_JP", buffer, start, 1, loc);
-  }
-};
-
-
-// https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-KR
-template<> struct glyph_scanner<encoding_group::euc_kr>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (not between_inc(byte1, 0xa1, 0xfe) or start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-      throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
-
-    return start + 2;
-  }
-};
-
-
-// https://en.wikipedia.org/wiki/Extended_Unix_Code#EUC-TW
-template<> struct glyph_scanner<encoding_group::euc_tw>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (between_inc(byte1, 0xa1, 0xfe))
-    {
-      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-        throw_for_encoding_error("EUC_KR", buffer, start, 2, loc);
-
-      return start + 2;
-    }
-
-    if (byte1 != 0x8e or start + 4 > sz) [[unlikely]]
-      throw_for_encoding_error("EUC_KR", buffer, start, 1, loc);
-
-    if (
-      between_inc(byte2, 0xa1, 0xb0) and
-      between_inc(get_byte(buffer, start + 2), 0xa1, 0xfe) and
-      between_inc(get_byte(buffer, start + 3), 0xa1, 0xfe))
-      return start + 4;
-
-    [[unlikely]] throw_for_encoding_error("EUC_KR", buffer, start, 4, loc);
-  }
-};
-
-
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
-template<> struct glyph_scanner<encoding_group::gb18030>
+template<> struct glyph_scanner<encoding_group::gb18030> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -381,7 +225,7 @@ template<> struct glyph_scanner<encoding_group::gb18030>
 
 
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
-template<> struct glyph_scanner<encoding_group::gbk>
+template<> struct glyph_scanner<encoding_group::gbk> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -427,7 +271,7 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 
   https://bit.ly/2BEOu5V
 */
-template<> struct glyph_scanner<encoding_group::johab>
+template<> struct glyph_scanner<encoding_group::johab> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -456,59 +300,6 @@ template<> struct glyph_scanner<encoding_group::johab>
 };
 
 
-/*
-PostgreSQL's MULE_INTERNAL is the emacs rather than Xemacs implementation;
-see the server/mb/pg_wchar.h PostgreSQL header file.
-This is implemented according to the description in said header file, but I was
-unable to get it to successfully iterate a MULE-encoded test CSV generated
-using PostgreSQL 9.2.23.  Use this at your own risk.
-*/
-template<> struct glyph_scanner<encoding_group::mule_internal>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (between_inc(byte1, 0x81, 0x8d) and byte2 >= 0xa0)
-      return start + 2;
-
-    if (start + 3 > sz) [[unlikely]]
-      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 2, loc);
-
-    if (
-      ((byte1 == 0x9a and between_inc(byte2, 0xa0, 0xdf)) or
-       (byte1 == 0x9b and between_inc(byte2, 0xe0, 0xef)) or
-       (between_inc(byte1, 0x90, 0x99) and byte2 >= 0xa0)) and
-      (byte2 >= 0xa0))
-      return start + 3;
-
-    if (start + 4 > sz) [[unlikely]]
-      throw_for_encoding_error("MULE_INTERNAL", buffer, start, 3, loc);
-
-    if (
-      ((byte1 == 0x9c and between_inc(byte2, 0xf0, 0xf4)) or
-       (byte1 == 0x9d and between_inc(byte2, 0xf5, 0xfe))) and
-      get_byte(buffer, start + 2) >= 0xa0 and
-      get_byte(buffer, start + 4) >= 0xa0)
-      return start + 4;
-
-    [[unlikely]] throw_for_encoding_error(
-      "MULE_INTERNAL", buffer, start, 4, loc);
-  }
-};
-
-
 // As far as I can tell, for the purposes of iterating the only difference
 // between SJIS and SJIS-2004 is increased range in the first byte of two-byte
 // sequences (0xEF increased to 0xFC).  Officially, that is; apparently the
@@ -518,7 +309,7 @@ template<> struct glyph_scanner<encoding_group::mule_internal>
 //
 // https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
 // http://x0213.org/codetable/index.en.html
-template<> struct glyph_scanner<encoding_group::sjis>
+template<> struct glyph_scanner<encoding_group::sjis> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -552,7 +343,7 @@ template<> struct glyph_scanner<encoding_group::sjis>
 
 
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
-template<> struct glyph_scanner<encoding_group::uhc>
+template<> struct glyph_scanner<encoding_group::uhc> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
@@ -592,99 +383,6 @@ template<> struct glyph_scanner<encoding_group::uhc>
 };
 
 
-// https://en.wikipedia.org/wiki/UTF-8#Description
-template<> struct glyph_scanner<encoding_group::utf8>
-{
-  static PQXX_PURE constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const sz{std::size(buffer)};
-    if (start >= sz) [[unlikely]]
-      return sz;
-
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (between_inc(byte1, 0xc0, 0xdf))
-    {
-      if (not between_inc(byte2, 0x80, 0xbf)) [[unlikely]]
-        throw_for_encoding_error("UTF8", buffer, start, 2, loc);
-
-      return start + 2;
-    }
-
-    if (start + 3 > sz) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
-
-    auto const byte3{get_byte(buffer, start + 2)};
-    if (between_inc(byte1, 0xe0, 0xef))
-    {
-      if (between_inc(byte2, 0x80, 0xbf) and between_inc(byte3, 0x80, 0xbf))
-        return start + 3;
-
-      [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 3, loc);
-    }
-
-    if (start + 4 > sz) [[unlikely]]
-      throw_for_encoding_error("UTF8", buffer, start, sz - start, loc);
-
-    if (between_inc(byte1, 0xf0, 0xf7))
-    {
-      if (
-        between_inc(byte2, 0x80, 0xbf) and between_inc(byte3, 0x80, 0xbf) and
-        between_inc(get_byte(buffer, start + 3), 0x80, 0xbf))
-        return start + 4;
-
-      [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 4, loc);
-    }
-
-    [[unlikely]] throw_for_encoding_error("UTF8", buffer, start, 1, loc);
-  }
-};
-
-
-/// Just for searching an ASCII character, what encoding can we use here?
-/** Maps an encoding group to an encoding group that we can apply for the
- * specific purpose of looking for a given ASCII character.
- *
- * The "difficult" encoding groups will map to themselves.  But the ones that
- * work like "ASCII supersets" have the wonderful property that even a
- * multibyte character cannot contain a byte that happens to be in the ASCII
- * range.  This holds for the single-byte encodings, for example, but also for
- * UTF-8.
- *
- * For those encodings, we can just pretend that we're dealing with a
- * single-byte encoding and scan byte-by-byte until we find a byte with the
- * value we're looking for.  We don't actually need to know where the
- * boundaries between the characters are.
- */
-PQXX_PURE constexpr inline encoding_group
-map_ascii_search_group(encoding_group enc) noexcept
-{
-  switch (enc)
-  {
-  case encoding_group::monobyte:
-  case encoding_group::euc_cn:
-  case encoding_group::euc_jp:
-  case encoding_group::euc_kr:
-  case encoding_group::euc_tw:
-  case encoding_group::mule_internal:
-  case encoding_group::utf8:
-    // All these encodings are "ASCII-safe," meaning that if we're looking
-    // for a particular ASCII character, we can safely just go through the
-    // string byte for byte.  Multibyte characters have the high bit set.
-    return encoding_group::monobyte;
-
-  default: [[unlikely]] return enc;
-  }
-}
-
-
 /// Look up a character search function for an encoding group.
 /** We only define a few individual instantiations of this function, as needed.
  *
@@ -696,8 +394,7 @@ template<char... NEEDLE>
 PQXX_PURE constexpr inline char_finder_func *
 get_char_finder(encoding_group enc, sl loc)
 {
-  auto const as_if{map_ascii_search_group(enc)};
-  switch (as_if)
+  switch (enc)
   {
   case encoding_group::monobyte:
     return pqxx::internal::find_ascii_char<
@@ -718,7 +415,7 @@ get_char_finder(encoding_group enc, sl loc)
   default:
     throw pqxx::internal_error{
       std::format(
-        "Unexpected encoding group: {} (mapped from {}", to_string(as_if),
+        "Unexpected encoding group: {} (mapped from {}", to_string(enc),
         to_string(enc)),
       loc};
   }

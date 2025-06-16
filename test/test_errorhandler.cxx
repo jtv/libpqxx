@@ -123,17 +123,16 @@ void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)
 
 void test_destroying_connection_unregisters_handlers()
 {
-  TestErrorHandler *survivor{};
+  std::unique_ptr<TestErrorHandler> survivor;
   std::vector<TestErrorHandler *> handlers;
   {
     pqxx::connection cx;
-    survivor = new TestErrorHandler(cx, handlers);
+    survivor = std::make_unique<TestErrorHandler>(cx, handlers);
   }
   // Make some pointless use of survivor just to prove that this doesn't crash.
   (*survivor)("Hi");
   PQXX_CHECK_EQUAL(
     std::size(handlers), 1u, "Ghost of dead ex-connection haunts handler.");
-  delete survivor;
 }
 
 

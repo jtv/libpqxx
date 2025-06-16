@@ -24,15 +24,6 @@
 
 namespace pqxx
 {
-/// Scan to next glyph in the buffer.  Assumes there is one.
-template<encoding_group ENC>
-[[nodiscard]] std::size_t
-array_parser::scan_glyph(std::size_t pos, sl loc) const
-{
-  return pqxx::internal::glyph_scanner<ENC>::call(m_input, pos, loc);
-}
-
-
 /// Find the end of a double-quoted SQL string in an SQL array.
 template<encoding_group ENC>
 std::size_t array_parser::scan_double_quoted_string(sl loc) const
@@ -134,7 +125,7 @@ array_parser::parse_array_step(sl loc)
   // we're at the beginning of a character.  And if the first byte of a
   // character is in the ASCII range, it's going to be an ASCII character.
   if (end < std::size(m_input) and (m_input[end] == ',')) [[unlikely]]
-    end = scan_glyph<ENC>(end, loc);
+    ++end;
 
   m_pos = end;
   return std::make_pair(found, value);
@@ -156,17 +147,11 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
 
     PQXX_ENCODING_CASE(monobyte);
     PQXX_ENCODING_CASE(big5);
-    PQXX_ENCODING_CASE(euc_cn);
-    PQXX_ENCODING_CASE(euc_jp);
-    PQXX_ENCODING_CASE(euc_kr);
-    PQXX_ENCODING_CASE(euc_tw);
     PQXX_ENCODING_CASE(gb18030);
     PQXX_ENCODING_CASE(gbk);
     PQXX_ENCODING_CASE(johab);
-    PQXX_ENCODING_CASE(mule_internal);
     PQXX_ENCODING_CASE(sjis);
     PQXX_ENCODING_CASE(uhc);
-    PQXX_ENCODING_CASE(utf8);
   }
   [[unlikely]] throw pqxx::internal_error{
     std::format("Unsupported encoding code: {}.", to_string(enc)), loc};

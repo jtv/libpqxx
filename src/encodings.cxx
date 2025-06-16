@@ -62,29 +62,18 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
     case 'B':
       if (same(encoding_name, "BIG5"sv))
         return encoding_group::big5;
-      [[unlikely]] break;
+      break;
     case 'E':
+      // All the EUC encdings are ASCII-safe.
       if (encoding_name.starts_with("EUC_"sv))
-      {
-        auto const subtype{encoding_name.substr(4)};
-        if (same(subtype, "CN"))
-          return encoding_group::euc_cn;
-        else if (same(subtype, "JIS_2004"))
-          return encoding_group::euc_jp;
-        else if (same(subtype, "JP"))
-          return encoding_group::euc_jp;
-        else if (same(subtype, "KR"))
-          return encoding_group::euc_kr;
-        else if (same(subtype, "TW"))
-          return encoding_group::euc_tw;
-      }
-      [[unlikely]] break;
+        return encoding_group::monobyte;
+      break;
     case 'G':
       if (same(encoding_name, "GB18030"sv))
         return encoding_group::gb18030;
       else if (same(encoding_name, "GBK"sv))
         return encoding_group::gbk;
-      [[unlikely]] break;
+      break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
       if (
@@ -95,15 +84,15 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         if (('5' <= subtype) and (subtype < '9'))
           return encoding_group::monobyte;
       }
-      [[unlikely]] break;
+      break;
     case 'J':
       if (same(encoding_name, "JOHAB"sv))
         return encoding_group::johab;
-      [[unlikely]] break;
+      break;
     case 'K':
       if (same(encoding_name, "KOI8R"sv) or same(encoding_name, "KOI8U"sv))
         return encoding_group::monobyte;
-      [[unlikely]] break;
+      break;
     case 'L':
       // We know LATIN1 through LATIN10.
       if (encoding_name.starts_with("LATIN"sv))
@@ -120,11 +109,11 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
           return encoding_group::monobyte;
         }
       }
-      [[unlikely]] break;
+      break;
     case 'M':
       if (same(encoding_name, "MULE_INTERNAL"sv))
-        return encoding_group::mule_internal;
-      [[unlikely]] break;
+        return encoding_group::monobyte;
+      break;
     case 'S':
       if (same(encoding_name, "SHIFT_JIS_2004"sv))
         return encoding_group::sjis;
@@ -132,13 +121,13 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         return encoding_group::sjis;
       else if (same(encoding_name, "SQL_ASCII"sv))
         return encoding_group::monobyte;
-      [[unlikely]] break;
+      break;
     case 'U':
       if (same(encoding_name, "UHC"sv))
         return encoding_group::uhc;
       else if (same(encoding_name, "UTF8"sv)) [[likely]]
-        return encoding_group::utf8;
-      [[unlikely]] break;
+        return encoding_group::monobyte;
+      break;
     case 'W':
       if (same(encoding_name.substr(0, 3), "WIN"sv))
       {
@@ -147,8 +136,8 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
           if (same(n, subtype))
             return encoding_group::monobyte;
       }
-      [[unlikely]] break;
-    default: [[unlikely]] break;
+      break;
+    default: break;
     }
   [[unlikely]] throw argument_error{
     std::format("Unrecognized encoding: '{}'.", to_string(encoding_name)),
@@ -159,12 +148,12 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
 // Compile-time tests.  (Conditional so as not to slow down production builds.)
 #if defined(DEBUG)
 static_assert(enc_group("BIG5", sl::current()) == encoding_group::big5);
-static_assert(enc_group("EUC_CN", sl::current()) == encoding_group::euc_cn);
+static_assert(enc_group("EUC_CN", sl::current()) == encoding_group::monobyte);
 static_assert(
-  enc_group("EUC_JIS_2004", sl::current()) == encoding_group::euc_jp);
-static_assert(enc_group("EUC_JP", sl::current()) == encoding_group::euc_jp);
-static_assert(enc_group("EUC_KR", sl::current()) == encoding_group::euc_kr);
-static_assert(enc_group("EUC_TW", sl::current()) == encoding_group::euc_tw);
+  enc_group("EUC_JIS_2004", sl::current()) == encoding_group::monobyte);
+static_assert(enc_group("EUC_JP", sl::current()) == encoding_group::monobyte);
+static_assert(enc_group("EUC_KR", sl::current()) == encoding_group::monobyte);
+static_assert(enc_group("EUC_TW", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("GB18030", sl::current()) == encoding_group::gb18030);
 static_assert(enc_group("GBK", sl::current()) == encoding_group::gbk);
 static_assert(
@@ -191,14 +180,14 @@ static_assert(enc_group("LATIN8", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("LATIN9", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("LATIN10", sl::current()) == encoding_group::monobyte);
 static_assert(
-  enc_group("MULE_INTERNAL", sl::current()) == encoding_group::mule_internal);
+  enc_group("MULE_INTERNAL", sl::current()) == encoding_group::monobyte);
 static_assert(
   enc_group("SHIFT_JIS_2004", sl::current()) == encoding_group::sjis);
 static_assert(enc_group("SJIS", sl::current()) == encoding_group::sjis);
 static_assert(
   enc_group("SQL_ASCII", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("UHC", sl::current()) == encoding_group::uhc);
-static_assert(enc_group("UTF8", sl::current()) == encoding_group::utf8);
+static_assert(enc_group("UTF8", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("WIN866", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("WIN874", sl::current()) == encoding_group::monobyte);
 static_assert(enc_group("WIN1250", sl::current()) == encoding_group::monobyte);
@@ -219,7 +208,7 @@ PQXX_PURE char const *name_encoding(int encoding_id)
 }
 
 
-encoding_group enc_group(int libpq_enc_id, sl loc)
+PQXX_PURE encoding_group enc_group(int libpq_enc_id, sl loc)
 {
   // TODO: Is there a safe, faster way without the string representation?
   return enc_group(name_encoding(libpq_enc_id), loc);

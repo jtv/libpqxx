@@ -82,17 +82,11 @@ public:
 
     case group::monobyte: parse<group::monobyte>(data, loc); break;
     case group::big5: parse<group::big5>(data, loc); break;
-    case group::euc_cn: parse<group::euc_cn>(data, loc); break;
-    case group::euc_jp: parse<group::euc_jp>(data, loc); break;
-    case group::euc_kr: parse<group::euc_kr>(data, loc); break;
-    case group::euc_tw: parse<group::euc_tw>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::gbk: parse<group::gbk>(data, loc); break;
     case group::johab: parse<group::johab>(data, loc); break;
-    case group::mule_internal: parse<group::mule_internal>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
     case group::uhc: parse<group::uhc>(data, loc); break;
-    case group::utf8: parse<group::utf8>(data, loc); break;
     default: PQXX_UNREACHABLE; break;
     }
   }
@@ -698,9 +692,6 @@ private:
   template<encoding_group> std::size_t scan_unquoted_string(sl loc) const;
   template<encoding_group>
   std::string_view parse_unquoted_string(std::size_t end, sl loc) const;
-
-  template<encoding_group>
-  std::size_t scan_glyph(std::size_t pos, sl loc) const;
 };
 } // namespace pqxx
 #endif

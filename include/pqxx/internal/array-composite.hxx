@@ -336,26 +336,14 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
     return parse_composite_field<encoding_group::monobyte>;
   case encoding_group::big5:
     return parse_composite_field<encoding_group::big5>;
-  case encoding_group::euc_cn:
-    return parse_composite_field<encoding_group::euc_cn>;
-  case encoding_group::euc_jp:
-    return parse_composite_field<encoding_group::euc_jp>;
-  case encoding_group::euc_kr:
-    return parse_composite_field<encoding_group::euc_kr>;
-  case encoding_group::euc_tw:
-    return parse_composite_field<encoding_group::euc_tw>;
   case encoding_group::gb18030:
     return parse_composite_field<encoding_group::gb18030>;
   case encoding_group::gbk: return parse_composite_field<encoding_group::gbk>;
   case encoding_group::johab:
     return parse_composite_field<encoding_group::johab>;
-  case encoding_group::mule_internal:
-    return parse_composite_field<encoding_group::mule_internal>;
   case encoding_group::sjis:
     return parse_composite_field<encoding_group::sjis>;
   case encoding_group::uhc: return parse_composite_field<encoding_group::uhc>;
-  case encoding_group::utf8:
-    return parse_composite_field<encoding_group::utf8>;
   }
   throw internal_error{
     std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
