@@ -192,9 +192,12 @@ public:
     return get_tuple<std::tuple<TYPE...>>(seq{});
   }
 
-  /// Convert to a given tuple of values, don't check sizes.
-  /** We need this for cases where we have a full tuple of field types, but
+  /// Convert to a given tuple of values,
+  /** Useful in cases where we have a full tuple of field types, but
    * not a parameter pack.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `TUPLE`.
    */
   template<typename TUPLE> TUPLE as_tuple() const
   {
