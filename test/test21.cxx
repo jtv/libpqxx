@@ -52,9 +52,8 @@ void test_021()
 
   std::string P;
   pqxx::from_string(cx.port(), P);
-  PQXX_CHECK_EQUAL(
-    P, pqxx::to_string(cx.port()), "Port string conversion is broken.");
-  PQXX_CHECK_EQUAL(pqxx::to_string(P), P, "Port string conversion is broken.");
+  PQXX_CHECK_EQUAL(P, pqxx::to_string(cx.port()));
+  PQXX_CHECK_EQUAL(pqxx::to_string(P), P);
 
   pqxx::result const R(tx.exec("SELECT * FROM pg_tables"));
 

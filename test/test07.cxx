@@ -46,15 +46,13 @@ void test_007()
     PQXX_CHECK(rctype > 0, "Got strange type ID for column: " + rct);
 
     std::string const rcol{R.column_name(0)};
-    PQXX_CHECK(not std::empty(rcol), "Didn't get a name for column.");
+    PQXX_CHECK(not std::empty(rcol));
 
     pqxx::oid const rcctype{R.column_type(rcol)};
-    PQXX_CHECK_EQUAL(
-      rcctype, rctype, "Column type is not what it is by name.");
+    PQXX_CHECK_EQUAL(rcctype, rctype);
 
     pqxx::oid const rawrcctype{R.column_type(rcol)};
-    PQXX_CHECK_EQUAL(
-      rawrcctype, rctype, "Column type by C-style name is different.");
+    PQXX_CHECK_EQUAL(rawrcctype, rctype);
 
     // Note all different years currently occurring in the table, writing
     // them and their correct mappings to conversions.
@@ -63,27 +61,20 @@ void test_007()
       // See if type identifiers are consistent
       pqxx::oid const tctype{r.column_type(0)};
 
-      PQXX_CHECK_EQUAL(
-        tctype, r.column_type(pqxx::row::size_type(0)),
-        "Inconsistent pqxx::row::column_type()");
+      PQXX_CHECK_EQUAL(tctype, r.column_type(pqxx::row::size_type(0)));
 
-      PQXX_CHECK_EQUAL(
-        tctype, rctype,
-        "pqxx::row::column_type() is inconsistent with "
-        "result::column_type().");
+      PQXX_CHECK_EQUAL(tctype, rctype, );
 
       pqxx::oid const ctctype{r.column_type(rcol)};
 
-      PQXX_CHECK_EQUAL(
-        ctctype, rctype, "Column type lookup by column name is broken.");
+      PQXX_CHECK_EQUAL(ctctype, rctype);
 
       pqxx::oid const rawctctype{r.column_type(rcol)};
 
-      PQXX_CHECK_EQUAL(
-        rawctctype, rctype, "Column type lookup by C-style name is broken.");
+      PQXX_CHECK_EQUAL(rawctctype, rctype);
 
       pqxx::oid const fctype{r[0].type()};
-      PQXX_CHECK_EQUAL(fctype, rctype, "Field type lookup is broken.");
+      PQXX_CHECK_EQUAL(fctype, rctype);
     }
 
     // For each occurring year, write converted date back to whereever it may

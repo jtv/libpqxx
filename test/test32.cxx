@@ -66,17 +66,14 @@ void test_032()
           .no_rows();
         throw deliberate_error();
       }),
-      deliberate_error,
-      "Did not get expected exception from failing transactor.");
+      deliberate_error);
   }
 
   std::pair<int, int> const After{
     pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
 
-  PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
-  PQXX_CHECK_EQUAL(
-    After.second, Before.second,
-    "Event count for " + pqxx::to_string(BoringYear) + " changed.");
+  PQXX_CHECK_EQUAL(After.first, Before.first);
+  PQXX_CHECK_EQUAL(After.second, Before.second);
 }
 
 

@@ -24,7 +24,7 @@ int To4Digits(int Y)
   else if (Y < 100)
     Result += 1900;
   else
-    PQXX_CHECK(Y >= 1970, "Unexpected year: " + pqxx::to_string(Y));
+    PQXX_CHECK_GREATER_EQUAL(Y, 1970);
   return Result;
 }
 

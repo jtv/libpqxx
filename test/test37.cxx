@@ -65,17 +65,14 @@ void test_037()
 
         throw deliberate_error();
       }),
-      deliberate_error,
-      "Did not get expected exception from failing transactor.");
+      deliberate_error);
   }
 
   auto const After{
     pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
 
-  PQXX_CHECK_EQUAL(After.first, Before.first, "Number of events changed.");
-  PQXX_CHECK_EQUAL(
-    After.second, Before.second,
-    "Number of events for " + pqxx::to_string(BoringYear) + " changed.");
+  PQXX_CHECK_EQUAL(After.first, Before.first);
+  PQXX_CHECK_EQUAL(After.second, Before.second);
 }
 
 

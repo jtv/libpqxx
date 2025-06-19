@@ -56,20 +56,24 @@ struct registrar
     "Execution was never supposed to reach this point.",
   sl loc = sl::current());
 
-// Verify that a condition is met, similar to assert()
-#define PQXX_CHECK(condition, desc)                                           \
-  pqxx::test::check((condition), #condition, (desc))
+// Verify that a condition is met, similar to assert().
+// Takes an optional failure description as a second argument.
+#define PQXX_CHECK(condition, ...)                                            \
+  pqxx::test::check((condition), #condition __VA_OPT__(, ) __VA_ARGS__)
 void check(
-  bool condition, char const text[], std::string const &desc,
-  sl loc = sl::current());
+  bool condition, char const text[],
+  std::string const &desc = "Condition check failed,", sl loc = sl::current());
 
 // Verify that variable has the expected value.
-#define PQXX_CHECK_EQUAL(actual, expected, desc)                              \
-  pqxx::test::check_equal((actual), #actual, (expected), #expected, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_EQUAL(actual, expected, ...)                               \
+  pqxx::test::check_equal(                                                    \
+    (actual), #actual, (expected), #expected __VA_OPT__(, ) __VA_ARGS__)
 template<typename ACTUAL, typename EXPECTED>
 inline void check_equal(
   ACTUAL const &actual, char const actual_text[], EXPECTED const &expected,
-  char const expected_text[], std::string const &desc, sl loc = sl::current())
+  char const expected_text[],
+  std::string const &desc = "Equality check failed.", sl loc = sl::current())
 {
   if (expected == actual)
     return;
@@ -85,12 +89,15 @@ inline void check_equal(
 }
 
 // Verify that two values are not equal.
-#define PQXX_CHECK_NOT_EQUAL(value1, value2, desc)                            \
-  pqxx::test::check_not_equal((value1), #value1, (value2), #value2, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_NOT_EQUAL(value1, value2, ...)                             \
+  pqxx::test::check_not_equal(                                                \
+    (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 template<typename VALUE1, typename VALUE2>
 inline void check_not_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc, sl loc = sl::current())
+  char const text2[], std::string const &desc = "Inequality check failed.",
+  sl loc = sl::current())
 {
   if (value1 != value2)
     return;
@@ -103,15 +110,20 @@ inline void check_not_equal(
 
 
 // Verify that value1 is less than value2.
-#define PQXX_CHECK_LESS(value1, value2, desc)                                 \
-  pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_LESS(value1, value2, ...)                                  \
+  pqxx::test::check_less(                                                     \
+    (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 // Verify that value1 is greater than value2.
-#define PQXX_CHECK_GREATER(value2, value1, desc)                              \
-  pqxx::test::check_less((value1), #value1, (value2), #value2, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_GREATER(value2, value1, ...)                               \
+  pqxx::test::check_less(                                                     \
+    (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 template<typename VALUE1, typename VALUE2>
 inline void check_less(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc, sl loc = sl::current())
+  char const text2[], std::string const &desc = "Less/greater check failed.",
+  sl loc = sl::current())
 {
   if (value1 < value2)
     return;
@@ -127,15 +139,20 @@ inline void check_less(
 
 
 // Verify that value1 is less than or equal to value2.
-#define PQXX_CHECK_LESS_EQUAL(value1, value2, desc)                           \
-  pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_LESS_EQUAL(value1, value2, ...)                            \
+  pqxx::test::check_less_equal(                                               \
+    (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 // Verify that value1 is greater than or equal to value2.
-#define PQXX_CHECK_GREATER_EQUAL(value2, value1, desc)                        \
-  pqxx::test::check_less_equal((value1), #value1, (value2), #value2, (desc))
+// Takes an optional failure description as a third argument.
+#define PQXX_CHECK_GREATER_EQUAL(value2, value1, ...)                         \
+  pqxx::test::check_less_equal(                                               \
+    (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 template<typename VALUE1, typename VALUE2>
 inline void check_less_equal(
   VALUE1 const &value1, char const text1[], VALUE2 const &value2,
-  char const text2[], std::string const &desc, sl loc = sl::current())
+  char const text2[], std::string const &desc = "Less/greater check failed.",
+  sl loc = sl::current())
 {
   if (value1 <= value2)
     return;
@@ -159,8 +176,10 @@ inline void end_of_statement() {}
 
 
 // Verify that "action" does not throw an exception.
-#define PQXX_CHECK_SUCCEEDS(action, desc)                                     \
-  pqxx::test::check_succeeds(([&]() { action; }), #action, (desc))
+// Takes an optional failure description as a second argument.
+#define PQXX_CHECK_SUCCEEDS(action, ...)                                      \
+  pqxx::test::check_succeeds(                                                 \
+    ([&]() { action; }), #action __VA_OPT__(, ) __VA_ARGS__)
 
 template<std::invocable F>
 inline void check_succeeds(
@@ -244,24 +263,29 @@ inline void check_throws_exception(
 
 
 // Verify that "action" throws an exception, of any std::exception-based type.
-#define PQXX_CHECK_THROWS_EXCEPTION(action, desc)                             \
+// Takes an optional failure description as an 2nd argument.
+#define PQXX_CHECK_THROWS_EXCEPTION(action, ...)                              \
   pqxx::test::check_throws_exception(                                         \
-    ([&]() { return action, 0; }), #action, desc)
+    ([&]() { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
 
 // Verify that "action" throws "exception_type" (which is not std::exception).
-#define PQXX_CHECK_THROWS(action, exception_type, desc)                       \
+// Takes an optional failure description as an 2nd argument.
+#define PQXX_CHECK_THROWS(action, exception_type, ...)                        \
   pqxx::test::check_throws<exception_type>(                                   \
-    ([&] { return action, 0; }), #action, desc)
+    ([&] { return action, 0; }), #action __VA_OPT__(, ) __VA_ARGS__)
 
 
-#define PQXX_CHECK_BOUNDS(value, lower, upper, desc)                          \
+// Verify that "value" is between "lower" (inclusive) and "upper" (exclusive).
+// Takes an optional failure description as a 4th argument.
+#define PQXX_CHECK_BOUNDS(value, lower, upper, ...)                           \
   pqxx::test::check_bounds(                                                   \
-    (value), #value, (lower), #lower, (upper), #upper, (desc))
+    (value), #value, (lower), #lower, (upper),                                \
+    #upper __VA_OPT__(, ) __VA_ARGS__)
 template<typename VALUE, typename LOWER, typename UPPER>
 inline void check_bounds(
   VALUE const &value, char const text[], LOWER const &lower,
   char const lower_text[], UPPER const &upper, char const upper_text[],
-  std::string const &desc, sl loc = sl::current())
+  std::string const &desc = "Bounds check failed.", sl loc = sl::current())
 {
   std::string const range_check = std::string{lower_text} + " < " + upper_text,
                     lower_check =

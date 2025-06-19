@@ -22,15 +22,15 @@ void test_001()
 
   // We got the one row that we selected.  The result object works a lot like a
   // normal C++ container.
-  PQXX_CHECK(not std::empty(r), "Result is unexpectedly empty.");
-  PQXX_CHECK_EQUAL(std::size(r), 1, "There's extra data!?");
+  PQXX_CHECK(not std::empty(r));
+  PQXX_CHECK_EQUAL(std::size(r), 1);
 
   // A result is two-dimensional though: it's got rows and columns.
-  PQXX_CHECK_EQUAL(r.columns(), 2, "Unexpected number of columns.");
+  PQXX_CHECK_EQUAL(r.columns(), 2);
 
   // Each row acts pretty much as a container of fields.  (A field is the
   // intersection of one row and one column.)
-  PQXX_CHECK_EQUAL(r[0][0].view(), "42", "Unexpected data in first field.");
+  PQXX_CHECK_EQUAL(r[0][0].view(), "42");
 
   // To make our transaction take effect, we need to commit it.  If we don't
   // go through this, the transaction will roll back when the work object gets

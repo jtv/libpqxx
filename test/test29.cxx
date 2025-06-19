@@ -68,9 +68,8 @@ void Test(pqxx::connection &cx, bool ExplicitAbort)
       .no_rows();
 
     auto Recount{CountEvents(Doomed)};
-    PQXX_CHECK_EQUAL(Recount.second, 1, "Unexpected number of events.");
-    PQXX_CHECK_EQUAL(
-      Recount.first, EventCounts.first + 1, "Number of events changed.");
+    PQXX_CHECK_EQUAL(Recount.second, 1);
+    PQXX_CHECK_EQUAL(Recount.first, EventCounts.first + 1);
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
@@ -86,10 +85,9 @@ void Test(pqxx::connection &cx, bool ExplicitAbort)
   pqxx::work Checkup(cx, "Checkup");
 
   auto NewEvents{CountEvents(Checkup)};
-  PQXX_CHECK_EQUAL(
-    NewEvents.first, EventCounts.first, "Wrong number of events.");
+  PQXX_CHECK_EQUAL(NewEvents.first, EventCounts.first);
 
-  PQXX_CHECK_EQUAL(NewEvents.second, 0, "Found unexpected events.");
+  PQXX_CHECK_EQUAL(NewEvents.second, 0);
 }
 
 

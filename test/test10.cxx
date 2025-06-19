@@ -57,11 +57,8 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
       .no_rows();
 
     auto const Recount{CountEvents(Doomed)};
-    PQXX_CHECK_EQUAL(
-      Recount.second, 1, "Wrong # events for " + pqxx::to_string(BoringYear));
-
-    PQXX_CHECK_EQUAL(
-      Recount.first, EventCounts.first + 1, "Number of events changed.");
+    PQXX_CHECK_EQUAL(Recount.second, 1);
+    PQXX_CHECK_EQUAL(Recount.first, EventCounts.first + 1);
 
     // Okay, we've added an entry but we don't really want to.  Abort it
     // explicitly if requested, or simply let the Transaction object "expire."
@@ -77,15 +74,9 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
   pqxx::work Checkup(C, "Checkup");
 
   auto const NewEvents{CountEvents(Checkup)};
-  PQXX_CHECK_EQUAL(
-    NewEvents.first, EventCounts.first,
-    "Number of events changed.  This may be due to a bug in libpqxx, "
-    "or the test table was modified by some other process.");
+  PQXX_CHECK_EQUAL(NewEvents.first, EventCounts.first);
 
-  PQXX_CHECK_EQUAL(
-    NewEvents.second, 0,
-    "Found unexpected events.  This may be due to a bug in libpqxx, "
-    "or the test table was modified by some other process.");
+  PQXX_CHECK_EQUAL(NewEvents.second, 0);
 }
 
 

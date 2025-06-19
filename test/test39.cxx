@@ -31,7 +31,7 @@ void test_039()
 
   // (Not needed, but verify that clear() works on empty containers)
   R.clear();
-  PQXX_CHECK(std::empty(R), "Result is non-empty after clear().");
+  PQXX_CHECK(std::empty(R));
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   tx1
@@ -57,12 +57,12 @@ void test_039()
     " "
     "WHERE year=" +
     pqxx::to_string(BoringYear));
-  PQXX_CHECK_EQUAL(std::size(R), 1, "Unexpected result size.");
+  PQXX_CHECK_EQUAL(std::size(R), 1);
 
-  PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
+  PQXX_CHECK_GREATER_EQUAL(R.capacity(), std::size(R));
 
   R.clear();
-  PQXX_CHECK(std::empty(R), "result::clear() is broken.");
+  PQXX_CHECK(std::empty(R));
 
   // Now remove our record again
   tx2
@@ -84,7 +84,7 @@ void test_039()
     "WHERE year=" +
     pqxx::to_string(BoringYear));
 
-  PQXX_CHECK_EQUAL(std::size(R), 0, "Record is not gone as expected.");
+  PQXX_CHECK_EQUAL(std::size(R), 0);
 }
 
 

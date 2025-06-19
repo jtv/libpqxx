@@ -65,8 +65,7 @@ void test_018()
 
         throw deliberate_error();
       }),
-      deliberate_error,
-      "Not getting expected exception from failing transactor.");
+      deliberate_error);
   }
 
   auto const After{

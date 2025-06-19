@@ -25,11 +25,9 @@ void test_030()
   {
     std::string const N{R.column_name(c)};
 
-    PQXX_CHECK_EQUAL(
-      R[0].column_number(N), R.column_number(N),
-      "row::column_number() is inconsistent with result::column_number().");
+    PQXX_CHECK_EQUAL(R[0].column_number(N), R.column_number(N));
 
-    PQXX_CHECK_EQUAL(R[0].column_number(N), c, "Inconsistent column numbers.");
+    PQXX_CHECK_EQUAL(R[0].column_number(N), c);
   }
 
   // If there are rows in R, compare their metadata to R's.
@@ -39,30 +37,24 @@ void test_030()
     return;
   }
 
-  PQXX_CHECK_EQUAL(R[0].row_number(), 0, "Row 0 reports wrong number.");
+  PQXX_CHECK_EQUAL(R[0].row_number(), 0);
 
   if (std::size(R) < 2)
     std::cout << "(Only one row in table.)\n";
   else
-    PQXX_CHECK_EQUAL(R[1].row_number(), 1, "Row 1 reports wrong number.");
+    PQXX_CHECK_EQUAL(R[1].row_number(), 1);
 
   for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
   {
     std::string const N{R.column_name(c)};
 
-    PQXX_CHECK_EQUAL(
-      std::string{R[0].at(c).c_str()}, R[0].at(N).c_str(),
-      "Different field values by name and by number.");
+    PQXX_CHECK_EQUAL(std::string{R[0].at(c).c_str()}, R[0].at(N).c_str());
 
-    PQXX_CHECK_EQUAL(
-      std::string{R[0][c].c_str()}, R[0][N].c_str(),
-      "at() is inconsistent with operator[].");
+    PQXX_CHECK_EQUAL(std::string{R[0][c].c_str()}, R[0][N].c_str());
 
-    PQXX_CHECK_EQUAL(R[0][c].name(), N, "Inconsistent field names.");
+    PQXX_CHECK_EQUAL(R[0][c].name(), N);
 
-    PQXX_CHECK_EQUAL(
-      std::size(R[0][c]), std::strlen(R[0][c].c_str()),
-      "Inconsistent field lengths.");
+    PQXX_CHECK_EQUAL(std::size(R[0][c]), std::strlen(R[0][c].c_str()));
   }
 }
 

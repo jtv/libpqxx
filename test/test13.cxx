@@ -45,7 +45,7 @@ void failed_insert(pqxx::connection &cx, std::string const &table)
         "'yawn')")
       .no_rows();
 
-  PQXX_CHECK_EQUAL(R.affected_rows(), 1, "Bad affected_rows().");
+  PQXX_CHECK_EQUAL(R.affected_rows(), 1);
   throw deliberate_error();
 }
 
@@ -72,7 +72,7 @@ void test_013()
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
     pqxx::perform([&cx, &Table] { failed_insert(cx, Table); }),
-    deliberate_error, "Failing transactor failed to throw correct exception.");
+    deliberate_error);
 
   auto const After{
     pqxx::perform([&cx, &Table] { return count_events(cx, Table); })};
