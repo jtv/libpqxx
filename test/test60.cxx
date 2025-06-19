@@ -30,14 +30,14 @@ std::string SetDatestyle(pqxx::connection &cx, std::string const &style)
 
 void CheckDatestyle(pqxx::connection &cx, std::string const &expected)
 {
-  PQXX_CHECK_EQUAL(GetDatestyle(cx), expected, "Got wrong datestyle.");
+  PQXX_CHECK_EQUAL(GetDatestyle(cx), expected);
 }
 
 
 void RedoDatestyle(
   pqxx::connection &cx, std::string const &style, std::string const &expected)
 {
-  PQXX_CHECK_EQUAL(SetDatestyle(cx, style), expected, "Set wrong datestyle.");
+  PQXX_CHECK_EQUAL(SetDatestyle(cx, style), expected);
 }
 
 
@@ -53,12 +53,12 @@ void test_060()
 {
   pqxx::connection cx;
 
-  PQXX_CHECK(not std::empty(GetDatestyle(cx)), "Initial datestyle not set.");
+  PQXX_CHECK(not std::empty(GetDatestyle(cx)));
 
   std::string const ISOname{SetDatestyle(cx, "ISO")};
   std::string const SQLname{SetDatestyle(cx, "SQL")};
 
-  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
+  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname);
 
   RedoDatestyle(cx, "SQL", SQLname);
 
@@ -67,16 +67,14 @@ void test_060()
 
   PQXX_CHECK_THROWS(
     cx.set_session_var("bonjour_name", std::optional<std::string>{}),
-    pqxx::variable_set_to_null,
-    "Setting a variable to null did not report the error correctly.");
+    pqxx::variable_set_to_null);
 
   // Prove that setting an unknown variable causes an error, as expected
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
-    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error,
-    "Setting unknown variable failed to fail.");
+    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error);
 }
 
 

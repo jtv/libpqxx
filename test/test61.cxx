@@ -30,7 +30,7 @@ void RedoDatestyle(
   pqxx::transaction_base &T, std::string const &style,
   std::string const &expected)
 {
-  PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected, "Set wrong datestyle.");
+  PQXX_CHECK_EQUAL(SetDatestyle(T, style), expected);
 }
 
 
@@ -39,12 +39,12 @@ void test_061()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  PQXX_CHECK(not std::empty(GetDatestyle(tx)), "Initial datestyle not set.");
+  PQXX_CHECK(not std::empty(GetDatestyle(tx)));
 
   std::string const ISOname{SetDatestyle(tx, "ISO")};
   std::string const SQLname{SetDatestyle(tx, "SQL")};
 
-  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname, "Same datestyle in SQL and ISO.");
+  PQXX_CHECK_NOT_EQUAL(ISOname, SQLname);
 
   RedoDatestyle(tx, "SQL", SQLname);
 
@@ -53,8 +53,7 @@ void test_061()
   pqxx::quiet_errorhandler const d(tx.conn());
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_THROWS(
-    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error,
-    "Setting unknown variable failed to fail.");
+    cx.set_session_var("NONEXISTENT_VARIABLE_I_HOPE", 1), pqxx::sql_error);
 }
 
 

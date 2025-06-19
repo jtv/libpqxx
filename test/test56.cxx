@@ -15,8 +15,7 @@ void test_056()
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   PQXX_CHECK_THROWS(
-    tx.exec("DELIBERATELY INVALID TEST QUERY..."), pqxx::sql_error,
-    "SQL syntax error did not raise expected exception.");
+    tx.exec("DELIBERATELY INVALID TEST QUERY..."), pqxx::sql_error);
 }
 
 

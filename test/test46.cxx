@@ -38,37 +38,28 @@ void test_046()
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   I2 >> F;
   R.to(F2);
-  PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
+  PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01);
 
   auto F3{pqxx::from_string<float>(R.c_str())};
-  PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01, "Bad float from from_string.");
+  PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01);
 
   auto D{pqxx::from_string<double>(R.c_str())};
-  PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01, "Bad double from from_string.");
+  PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01);
 
   auto LD{pqxx::from_string<long double>(R.c_str())};
-  PQXX_CHECK_BOUNDS(
-    LD, F - 0.01, F + 0.01, "Bad long double from from_string.");
+  PQXX_CHECK_BOUNDS(LD, F - 0.01, F + 0.01);
 
   auto S{pqxx::from_string<std::string>(R.c_str())},
     S2{pqxx::from_string<std::string>(std::string{R.c_str()})},
     S3{pqxx::from_string<std::string>(R)};
 
-  PQXX_CHECK_EQUAL(
-    S2, S,
-    "from_string(char const[], std::string &) "
-    "is inconsistent with "
-    "from_string(std::string const &, std::string &).");
+  PQXX_CHECK_EQUAL(S2, S);
 
-  PQXX_CHECK_EQUAL(
-    S3, S2,
-    "from_string(result::field const &, std::string &) "
-    "is inconsistent with "
-    "from_string(std::string const &, std::string &).");
+  PQXX_CHECK_EQUAL(S3, S2);
 
-  PQXX_CHECK(tx.query_value<bool>("SELECT 1=1"), "1=1 doesn't yield 'true.'");
+  PQXX_CHECK(tx.query_value<bool>("SELECT 1=1"));
 
-  PQXX_CHECK(not tx.query_value<bool>("SELECT 2+2=5"), "2+2=5 yields 'true.'");
+  PQXX_CHECK(not tx.query_value<bool>("SELECT 2+2=5"));
 }
 
 

@@ -33,21 +33,19 @@ void test_062()
 
   auto const B{R.at(0).at(0).as<pqxx::bytes>()};
 
-  PQXX_CHECK(not std::empty(B), "Binary string became empty in conversion.");
+  PQXX_CHECK(not std::empty(B));
 
-  PQXX_CHECK_EQUAL(
-    std::size(B), std::size(TestStr), "Binary string was mangled.");
+  PQXX_CHECK_EQUAL(std::size(B), std::size(TestStr));
 
   pqxx::bytes::const_iterator c;
   pqxx::bytes::size_type i{};
   for (i = 0, c = std::begin(B); i < std::size(B); ++i, ++c)
   {
-    PQXX_CHECK(c != std::end(B), "Premature end to binary string.");
+    PQXX_CHECK(c != std::end(B));
 
     char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
 
-    PQXX_CHECK_EQUAL(
-      std::string(&x, 1), std::string(&y, 1), "Binary string byte changed.");
+    PQXX_CHECK_EQUAL(std::string(&x, 1), std::string(&y, 1));
 
     PQXX_CHECK_EQUAL(
       std::string(&y, 1), std::string(&z, 1),
