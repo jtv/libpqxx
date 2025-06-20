@@ -18,17 +18,17 @@ void test_table_column()
   pqxx::row::size_type x{R.table_column(2)}, y{R.table_column(1)},
     z{R.table_column(static_cast<int>(0))};
 
-  PQXX_CHECK_EQUAL(x, 0, "Wrong column number.");
-  PQXX_CHECK_EQUAL(y, 1, "Wrong column number.");
-  PQXX_CHECK_EQUAL(z, 2, "Wrong column number.");
+  PQXX_CHECK_EQUAL(x, 0);
+  PQXX_CHECK_EQUAL(y, 1);
+  PQXX_CHECK_EQUAL(z, 2);
 
   x = R.table_column("x");
   y = R.table_column("y");
   z = R.table_column("z");
 
-  PQXX_CHECK_EQUAL(x, 0, "Wrong number for named column.");
-  PQXX_CHECK_EQUAL(y, 1, "Wrong number for named column.");
-  PQXX_CHECK_EQUAL(z, 2, "Wrong number for named column.");
+  PQXX_CHECK_EQUAL(x, 0);
+  PQXX_CHECK_EQUAL(y, 1);
+  PQXX_CHECK_EQUAL(z, 2);
 
   pqxx::row::size_type const xx{X[0].table_column(static_cast<int>(0))},
     yx{X[0].table_column(pqxx::row::size_type(1))}, zx{X[0].table_column("z")};
@@ -38,20 +38,14 @@ void test_table_column()
   PQXX_CHECK_EQUAL(zx, 2, "Bad result from table_column(string).");
 
   for (pqxx::row::size_type i{0}; i < std::size(R[0]); ++i)
-    PQXX_CHECK_EQUAL(
-      R[0][i].table_column(), R.table_column(i),
-      "Bad result from column_table().");
+    PQXX_CHECK_EQUAL(R[0][i].table_column(), R.table_column(i));
 
   [[maybe_unused]] int col{};
-  PQXX_CHECK_THROWS_EXCEPTION(
-    col = R.table_column(3), "table_column() with invalid index didn't fail.");
+  PQXX_CHECK_THROWS_EXCEPTION(col = R.table_column(3));
 
-  PQXX_CHECK_THROWS_EXCEPTION(
-    col = R.table_column("nonexistent"),
-    "table_column() with invalid column name didn't fail.");
+  PQXX_CHECK_THROWS_EXCEPTION(col = R.table_column("nonexistent"));
 
-  PQXX_CHECK_THROWS_EXCEPTION(
-    col = X.table_column(3), "table_column() on non-table didn't fail.");
+  PQXX_CHECK_THROWS_EXCEPTION(col = X.table_column(3));
 }
 } // namespace
 

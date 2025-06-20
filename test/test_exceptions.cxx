@@ -17,13 +17,10 @@ void test_exceptions()
   }
   catch (std::exception const &e)
   {
-    PQXX_CHECK_EQUAL(e.what(), err, "Exception contains wrong message.");
+    PQXX_CHECK_EQUAL(e.what(), err);
     auto downcast{dynamic_cast<pqxx::sql_error const *>(&e)};
-    PQXX_CHECK(
-      downcast != nullptr, "exception-to-sql_error downcast is broken.");
-    PQXX_CHECK_EQUAL(
-      downcast->query(), broken_query,
-      "Getting query from pqxx exception is broken.");
+    PQXX_CHECK(downcast != nullptr);
+    PQXX_CHECK_EQUAL(downcast->query(), broken_query);
   }
 
   pqxx::connection cx;
@@ -35,8 +32,7 @@ void test_exceptions()
   catch (pqxx::syntax_error const &e)
   {
     // SQL syntax error has sqlstate error 42601.
-    PQXX_CHECK_EQUAL(
-      e.sqlstate(), "42601", "Unexpected sqlstate on syntax error.");
+    PQXX_CHECK_EQUAL(e.sqlstate(), "42601");
   }
 }
 

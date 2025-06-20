@@ -15,14 +15,11 @@ template<typename T> void infinity_test()
 
   inf_string = pqxx::to_string(inf);
   pqxx::from_string(inf_string, back_conversion);
-  PQXX_CHECK_LESS(
-    T(999999999), back_conversion,
-    "Infinity doesn't convert back to something huge.");
+  PQXX_CHECK_LESS(T(999999999), back_conversion);
 
   inf_string = pqxx::to_string(-inf);
   pqxx::from_string(inf_string, back_conversion);
-  PQXX_CHECK_LESS(
-    back_conversion, -T(999999999), "Negative infinity is broken");
+  PQXX_CHECK_LESS(back_conversion, -T(999999999));
 }
 
 void test_infinities()
@@ -92,20 +89,15 @@ void test_bug_262()
 void test_bad_float()
 {
   float x [[maybe_unused]]{};
-  PQXX_CHECK_THROWS(
-    x = pqxx::from_string<float>(""), pqxx::conversion_error,
-    "Conversion of empty string to float was not caught.");
+  PQXX_CHECK_THROWS(x = pqxx::from_string<float>(""), pqxx::conversion_error);
 
   PQXX_CHECK_THROWS(
-    x = pqxx::from_string<float>("Infancy"), pqxx::conversion_error,
-    "Misleading infinity was not caught.");
+    x = pqxx::from_string<float>("Infancy"), pqxx::conversion_error);
   PQXX_CHECK_THROWS(
-    x = pqxx::from_string<float>("-Infighting"), pqxx::conversion_error,
-    "Misleading negative infinity was not caught.");
+    x = pqxx::from_string<float>("-Infighting"), pqxx::conversion_error);
 
   PQXX_CHECK_THROWS(
-    x = pqxx::from_string<float>("Nanny"), pqxx::conversion_error,
-    "Conversion of misleading NaN was not caught.");
+    x = pqxx::from_string<float>("Nanny"), pqxx::conversion_error);
 }
 
 

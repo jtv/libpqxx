@@ -141,9 +141,11 @@ inline void check_not_equal(
     pqxx::test::check_less((value1), #value1, (value2), #value2, ##__VA_ARGS__)
 #else
 #  define PQXX_CHECK_LESS(value1, value2, ...)                                \
-    pqxx::test::check_less((value1), #value1, (value2), #value2, ##__VA_ARGS__)
+    pqxx::test::check_less(                                                   \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #  define PQXX_CHECK_GREATER(value2, value1, ...)                             \
-    pqxx::test::check_less((value1), #value1, (value2), #value2, ##__VA_ARGS__)
+    pqxx::test::check_less(                                                   \
+      (value1), #value1, (value2), #value2 __VA_OPT__(, ) __VA_ARGS__)
 #endif
 template<typename VALUE1, typename VALUE2>
 inline void check_less(

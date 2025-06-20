@@ -78,7 +78,7 @@ void test_process_notice_calls_errorhandler(pqxx::connection &cx)
   std::vector<TestErrorHandler *> dummy;
   TestErrorHandler const handler(cx, dummy);
   cx.process_notice("Error!\n");
-  PQXX_CHECK_EQUAL(handler.message, "Error!\n", "Error not handled.");
+  PQXX_CHECK_EQUAL(handler.message, "Error!\n");
 }
 
 
@@ -89,13 +89,13 @@ void test_error_handlers_get_called_newest_to_oldest(pqxx::connection &cx)
   TestErrorHandler h2(cx, handlers);
   TestErrorHandler h3(cx, handlers);
   cx.process_notice("Warning.\n");
-  PQXX_CHECK_EQUAL(h3.message, "Warning.\n", "Message not handled.");
-  PQXX_CHECK_EQUAL(h2.message, "Warning.\n", "Broken handling chain.");
-  PQXX_CHECK_EQUAL(h1.message, "Warning.\n", "Insane handling chain.");
-  PQXX_CHECK_EQUAL(std::size(handlers), 3u, "Wrong number of handler calls.");
-  PQXX_CHECK_EQUAL(&h3, handlers[0], "Unexpected handling order.");
-  PQXX_CHECK_EQUAL(&h2, handlers[1], "Insane handling order.");
-  PQXX_CHECK_EQUAL(&h1, handlers[2], "Impossible handling order.");
+  PQXX_CHECK_EQUAL(h3.message, "Warning.\n");
+  PQXX_CHECK_EQUAL(h2.message, "Warning.\n");
+  PQXX_CHECK_EQUAL(h1.message, "Warning.\n");
+  PQXX_CHECK_EQUAL(std::size(handlers), 3u);
+  PQXX_CHECK_EQUAL(&h3, handlers[0]);
+  PQXX_CHECK_EQUAL(&h2, handlers[1]);
+  PQXX_CHECK_EQUAL(&h1, handlers[2]);
 }
 
 void test_returning_false_stops_error_handling(pqxx::connection &cx)
@@ -106,7 +106,7 @@ void test_returning_false_stops_error_handling(pqxx::connection &cx)
   cx.process_notice("Error output.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 1u, "Handling chain was not stopped.");
   PQXX_CHECK_EQUAL(handlers[0], &blocker, "Wrong handler got message.");
-  PQXX_CHECK_EQUAL(blocker.message, "Error output.\n", "Didn't get message.");
+  PQXX_CHECK_EQUAL(blocker.message, "Error output.\n");
   PQXX_CHECK_EQUAL(starved.message, "", "Message received; it shouldn't be.");
 }
 
@@ -160,67 +160,49 @@ void test_get_errorhandlers(pqxx::connection &cx)
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     auto const handlers_with_eh1{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+    PQXX_CHECK_EQUAL(std::size(handlers_with_eh1), base_handlers + 1);
     PQXX_CHECK_EQUAL(
-      std::size(handlers_with_eh1), base_handlers + 1,
-      "Registering a handler didn't create exactly one handler.");
-    PQXX_CHECK_EQUAL(
-      std::size_t(*std::rbegin(handlers_with_eh1)), std::size_t(&eh1),
-      "Wrong handler or wrong order.");
+      std::size_t(*std::rbegin(handlers_with_eh1)), std::size_t(&eh1));
 
     {
       MinimalErrorHandler eh2(cx);
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
       auto const handlers_with_eh2{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+      PQXX_CHECK_EQUAL(std::size(handlers_with_eh2), base_handlers + 2);
       PQXX_CHECK_EQUAL(
-        std::size(handlers_with_eh2), base_handlers + 2,
-        "Adding second handler didn't work.");
+        std::size_t(*(std::rbegin(handlers_with_eh2) + 1)), std::size_t(&eh1));
       PQXX_CHECK_EQUAL(
-        std::size_t(*(std::rbegin(handlers_with_eh2) + 1)), std::size_t(&eh1),
-        "Second handler upset order.");
-      PQXX_CHECK_EQUAL(
-        std::size_t(*std::rbegin(handlers_with_eh2)), std::size_t(&eh2),
-        "Second handler isn't right.");
+        std::size_t(*std::rbegin(handlers_with_eh2)), std::size_t(&eh2));
     }
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     auto const handlers_without_eh2{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+    PQXX_CHECK_EQUAL(std::size(handlers_without_eh2), base_handlers + 1);
     PQXX_CHECK_EQUAL(
-      std::size(handlers_without_eh2), base_handlers + 1,
-      "Handler destruction produced wrong-sized handlers list.");
-    PQXX_CHECK_EQUAL(
-      std::size_t(*std::rbegin(handlers_without_eh2)), std::size_t(&eh1),
-      "Destroyed wrong handler.");
+      std::size_t(*std::rbegin(handlers_without_eh2)), std::size_t(&eh1));
 
     eh3 = std::make_unique<MinimalErrorHandler>(cx);
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     auto const handlers_with_eh3{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+    PQXX_CHECK_EQUAL(std::size(handlers_with_eh3), base_handlers + 2);
     PQXX_CHECK_EQUAL(
-      std::size(handlers_with_eh3), base_handlers + 2,
-      "Remove-and-add breaks.");
-    PQXX_CHECK_EQUAL(
-      std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3.get()),
-      "Added wrong third handler.");
+      std::size_t(*std::rbegin(handlers_with_eh3)), std::size_t(eh3.get()));
   }
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   auto const handlers_without_eh1{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+  PQXX_CHECK_EQUAL(std::size(handlers_without_eh1), base_handlers + 1);
   PQXX_CHECK_EQUAL(
-    std::size(handlers_without_eh1), base_handlers + 1,
-    "Destroying oldest handler didn't work as expected.");
-  PQXX_CHECK_EQUAL(
-    std::size_t(*std::rbegin(handlers_without_eh1)), std::size_t(eh3.get()),
-    "Destroyed wrong handler.");
+    std::size_t(*std::rbegin(handlers_without_eh1)), std::size_t(eh3.get()));
 
   eh3.reset();
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   auto const handlers_without_all{cx.get_errorhandlers()};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-  PQXX_CHECK_EQUAL(
-    std::size(handlers_without_all), base_handlers,
-    "Destroying all custom handlers didn't work as expected.");
+  PQXX_CHECK_EQUAL(std::size(handlers_without_all), base_handlers);
 }
 
 

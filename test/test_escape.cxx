@@ -14,34 +14,25 @@ void compare_esc(
 {
   std::size_t const len{std::size(std::string{text})};
   PQXX_CHECK_EQUAL(
-    cx.esc(std::string_view{text, len}), t.esc(std::string_view{text, len}),
-    "Connection & transaction escape differently.");
+    cx.esc(std::string_view{text, len}), t.esc(std::string_view{text, len}));
+
+  PQXX_CHECK_EQUAL(t.esc(std::string_view{text, len}), t.esc(text));
+
+  PQXX_CHECK_EQUAL(t.esc(std::string{text}), t.esc(text));
 
   PQXX_CHECK_EQUAL(
-    t.esc(std::string_view{text, len}), t.esc(text),
-    "Length argument to esc() changes result.");
+    text, t.query_value<std::string>(
+            "SELECT '" + t.esc(std::string_view{text, len}) + "'"));
 
-  PQXX_CHECK_EQUAL(
-    t.esc(std::string{text}), t.esc(text),
-    "esc(std::string()) differs from esc(char const[]).");
-
-  PQXX_CHECK_EQUAL(
-    text,
-    t.query_value<std::string>(
-      "SELECT '" + t.esc(std::string_view{text, len}) + "'"),
-    "esc() is not idempotent.");
-
-  PQXX_CHECK_EQUAL(
-    t.esc(std::string_view{text, len}), t.esc(text),
-    "Oversized buffer affects esc().");
+  PQXX_CHECK_EQUAL(t.esc(std::string_view{text, len}), t.esc(text));
 }
 
 
 void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
 {
-  PQXX_CHECK_EQUAL(t.esc(""sv), "", "Empty string doesn't escape properly.");
-  PQXX_CHECK_EQUAL(t.esc("'"sv), "''", "Single quote escaped incorrectly.");
-  PQXX_CHECK_EQUAL(t.esc("hello"sv), "hello", "Trivial escape went wrong.");
+  PQXX_CHECK_EQUAL(t.esc(""sv), "");
+  PQXX_CHECK_EQUAL(t.esc("'"sv), "''");
+  PQXX_CHECK_EQUAL(t.esc("hello"sv), "hello");
   std::array<char const *, 4> const escstrings{"x", " ", "", nullptr};
   for (std::size_t i{0}; escstrings.at(i) != nullptr; ++i)
     compare_esc(cx, t, escstrings.at(i));
@@ -50,19 +41,15 @@ void test_esc(pqxx::connection &cx, pqxx::transaction_base &t)
 
 void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
 {
-  PQXX_CHECK_EQUAL(t.quote("x"), "'x'", "Basic quote() fails.");
-  PQXX_CHECK_EQUAL(
-    t.quote(1), "'1'", "quote() not dealing with int properly.");
-  PQXX_CHECK_EQUAL(t.quote(0), "'0'", "Quoting zero is a problem.");
+  PQXX_CHECK_EQUAL(t.quote("x"), "'x'");
+  PQXX_CHECK_EQUAL(t.quote(1), "'1'");
+  PQXX_CHECK_EQUAL(t.quote(0), "'0'");
   char const *const null_ptr{nullptr};
-  PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL", "Not quoting NULL correctly.");
-  PQXX_CHECK_EQUAL(t.quote(nullptr), "NULL", "Not quoting nullptr correctly.");
-  PQXX_CHECK_EQUAL(
-    t.quote(std::string{"'"}), "''''", "Escaping quotes goes wrong.");
+  PQXX_CHECK_EQUAL(t.quote(null_ptr), "NULL");
+  PQXX_CHECK_EQUAL(t.quote(nullptr), "NULL");
+  PQXX_CHECK_EQUAL(t.quote(std::string{"'"}), "''''");
 
-  PQXX_CHECK_EQUAL(
-    t.quote("x"), cx.quote("x"),
-    "Connection and transaction quote differently.");
+  PQXX_CHECK_EQUAL(t.quote("x"), cx.quote("x"));
 
   std::array<char const *, 10> const test_strings{
     "", "x", "\\", "\\\\", "'", "''", "\\'", "\t", "\n", nullptr};
@@ -71,28 +58,22 @@ void test_quote(pqxx::connection &cx, pqxx::transaction_base &t)
   {
     auto r{
       t.query_value<std::string>("SELECT " + t.quote(test_strings.at(i)))};
-    PQXX_CHECK_EQUAL(
-      r, test_strings.at(i),
-      "Selecting quoted string does not come back equal.");
+    PQXX_CHECK_EQUAL(r, test_strings.at(i));
   }
 
   std::vector<std::byte> const bin{std::byte{0x33}, std::byte{0x4a}};
+  PQXX_CHECK_EQUAL(t.quote(bin), "'\\x334a'::bytea");
   PQXX_CHECK_EQUAL(
-    t.quote(bin), "'\\x334a'::bytea", "Unexpected binary quoting output.");
-  PQXX_CHECK_EQUAL(
-    t.quote(std::span<std::byte const>{bin}), "'\\x334a'::bytea",
-    "Binary span quotes differently from vector.");
+    t.quote(std::span<std::byte const>{bin}), "'\\x334a'::bytea");
 }
 
 
 void test_quote_name(pqxx::transaction_base &t)
 {
-  PQXX_CHECK_EQUAL(
-    "\"A b\"", t.quote_name("A b"), "Escaped identifier is not as expected.");
+  PQXX_CHECK_EQUAL("\"A b\"", t.quote_name("A b"));
   PQXX_CHECK_EQUAL(
     std::string{"A b"},
-    t.exec("SELECT 1 AS " + t.quote_name("A b")).column_name(0),
-    "Escaped identifier does not work in SQL.");
+    t.exec("SELECT 1 AS " + t.quote_name("A b")).column_name(0));
 }
 
 
@@ -121,15 +102,10 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
     PQXX_CHECK(
       isprint(i), "Unprintable character in escaped data: " + escaped);
 
-  PQXX_CHECK_EQUAL(
-    escaped, "\\x3102335c34783500", "Binary data escaped wrong.");
-  PQXX_CHECK_EQUAL(
-    std::size(t.unesc_bin(escaped)), std::size(data),
-    "Wrong size after unescaping.");
+  PQXX_CHECK_EQUAL(escaped, "\\x3102335c34783500");
+  PQXX_CHECK_EQUAL(std::size(t.unesc_bin(escaped)), std::size(data));
   auto unescaped{t.unesc_bin(escaped)};
-  PQXX_CHECK_EQUAL(
-    std::size(unescaped), std::size(data),
-    "Unescaping did not restore original size.");
+  PQXX_CHECK_EQUAL(std::size(unescaped), std::size(data));
   for (std::size_t i{0}; i < std::size(unescaped); ++i)
     PQXX_CHECK_EQUAL(
       int(unescaped[i]), int(data[i]),
@@ -140,29 +116,17 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 
 void test_esc_like(pqxx::transaction_base &tx)
 {
-  PQXX_CHECK_EQUAL(tx.esc_like(""), "", "esc_like breaks on empty string.");
-  PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc", "esc_like is broken.");
-  PQXX_CHECK_EQUAL(tx.esc_like("_"), "\\_", "esc_like fails on underscore.");
-  PQXX_CHECK_EQUAL(tx.esc_like("%"), "\\%", "esc_like fails on %.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("a%b_c"), "a\\%b\\_c", "esc_like breaks on mix.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("_", '+'), "+_", "esc_like ignores escape character.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("%foo"), "\\%foo",
-    "esc_like breaks on leading special character.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("foo%"), "foo\\%",
-    "esc_like breaks on trailing special character.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("f%o%o"), "f\\%o\\%o",
-    "esc_like breaks on central special character.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("___"), "\\_\\_\\_",
-    "esc_like breaks on sequence of special chars.");
-  PQXX_CHECK_EQUAL(
-    tx.esc_like("_n_n__n_"), "\\_n\\_n\\_\\_n\\_",
-    "Strange mix confused esc_like.");
+  PQXX_CHECK_EQUAL(tx.esc_like(""), "");
+  PQXX_CHECK_EQUAL(tx.esc_like("abc"), "abc");
+  PQXX_CHECK_EQUAL(tx.esc_like("_"), "\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like("%"), "\\%");
+  PQXX_CHECK_EQUAL(tx.esc_like("a%b_c"), "a\\%b\\_c");
+  PQXX_CHECK_EQUAL(tx.esc_like("_", '+'), "+_");
+  PQXX_CHECK_EQUAL(tx.esc_like("%foo"), "\\%foo");
+  PQXX_CHECK_EQUAL(tx.esc_like("foo%"), "foo\\%");
+  PQXX_CHECK_EQUAL(tx.esc_like("f%o%o"), "f\\%o\\%o");
+  PQXX_CHECK_EQUAL(tx.esc_like("___"), "\\_\\_\\_");
+  PQXX_CHECK_EQUAL(tx.esc_like("_n_n__n_"), "\\_n\\_n\\_\\_n\\_");
 }
 
 
@@ -188,11 +152,11 @@ void test_esc_escapes_into_buffer()
 
   auto const text{"Ain't"sv};
   auto escaped_text{tx.esc(text, buffer)};
-  PQXX_CHECK_EQUAL(escaped_text, "Ain''t", "Escaping into buffer went wrong.");
+  PQXX_CHECK_EQUAL(escaped_text, "Ain''t");
 
   pqxx::bytes const data{std::byte{0x22}, std::byte{0x43}};
   auto escaped_data(tx.esc(data, buffer));
-  PQXX_CHECK_EQUAL(escaped_data, "\\x2243", "Binary data escaped wrong.");
+  PQXX_CHECK_EQUAL(escaped_data, "\\x2243");
 }
 
 
@@ -206,11 +170,11 @@ void test_esc_accepts_various_types()
 
   std::string const text{"it's"};
   auto escaped_text{tx.esc(text, buffer)};
-  PQXX_CHECK_EQUAL(escaped_text, "it''s", "Escaping into buffer went wrong.");
+  PQXX_CHECK_EQUAL(escaped_text, "it''s");
 
   std::vector<std::byte> const data{std::byte{0x23}, std::byte{0x44}};
   auto escaped_data(tx.esc(data, buffer));
-  PQXX_CHECK_EQUAL(escaped_data, "\\x2344", "Binary data escaped wrong.");
+  PQXX_CHECK_EQUAL(escaped_data, "\\x2344");
 }
 
 
@@ -231,9 +195,7 @@ void test_binary_esc_checks_buffer_length()
     int(buf[std::size(buf) - 1]), int('\0'), "Terminating zero is missing.");
 
   buf.resize(2 * std::size(bin) + 2);
-  PQXX_CHECK_THROWS(
-    std::ignore = tx.esc(bin, buf), pqxx::range_error,
-    "Didn't get expected exception from escape overrun.");
+  PQXX_CHECK_THROWS(std::ignore = tx.esc(bin, buf), pqxx::range_error);
 }
 
 

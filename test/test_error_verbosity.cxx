@@ -11,18 +11,17 @@ namespace
 {
 void test_error_verbosity()
 {
+  // The error_verbosity enum matches the PGVerbosity one.  We just don't
+  // want to import the latter into our users' namespace.
   PQXX_CHECK_EQUAL(
     static_cast<int>(pqxx::error_verbosity::terse),
-    static_cast<int>(PQERRORS_TERSE),
-    "error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(PQERRORS_TERSE));
   PQXX_CHECK_EQUAL(
     static_cast<int>(pqxx::error_verbosity::normal),
-    static_cast<int>(PQERRORS_DEFAULT),
-    "error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(PQERRORS_DEFAULT));
   PQXX_CHECK_EQUAL(
     static_cast<int>(pqxx::error_verbosity::verbose),
-    static_cast<int>(PQERRORS_VERBOSE),
-    "error_verbosity enum should match PGVerbosity.");
+    static_cast<int>(PQERRORS_VERBOSE));
 
   pqxx::connection cx;
   pqxx::work tx{cx};

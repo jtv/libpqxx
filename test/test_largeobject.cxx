@@ -34,9 +34,9 @@ void test_stream_large_object()
   std::array<char, 50> buf{};
   std::size_t const len{
     static_cast<std::size_t>(check.read(std::data(buf), std::size(buf)))};
-  PQXX_CHECK_EQUAL(len, std::size(contents), "olostream truncated data.");
+  PQXX_CHECK_EQUAL(len, std::size(contents));
   std::string const check_str{std::data(buf), len};
-  PQXX_CHECK_EQUAL(check_str, contents, "olostream mangled data.");
+  PQXX_CHECK_EQUAL(check_str, contents);
 
   pqxx::ilostream read{tx, new_obj};
   std::string read_back;
@@ -45,11 +45,9 @@ void test_stream_large_object()
 
   new_obj.remove(tx);
 
-  PQXX_CHECK_EQUAL(read_back, contents, "Got wrong data from ilostream.");
-  PQXX_CHECK_EQUAL(
-    std::size(read_back), std::size(contents), "ilostream truncated data.");
-  PQXX_CHECK_EQUAL(
-    std::size(read_back), std::size(bytes), "ilostream truncated data.");
+  PQXX_CHECK_EQUAL(read_back, contents);
+  PQXX_CHECK_EQUAL(std::size(read_back), std::size(contents));
+  PQXX_CHECK_EQUAL(std::size(read_back), std::size(bytes));
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 

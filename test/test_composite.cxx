@@ -16,8 +16,8 @@ void test_composite()
   std::string b;
   pqxx::parse_composite(f.view(), a, b);
 
-  PQXX_CHECK_EQUAL(a, 5, "Integer composite field came back wrong.");
-  PQXX_CHECK_EQUAL(b, "hello", "String composite field came back wrong.");
+  PQXX_CHECK_EQUAL(a, 5);
+  PQXX_CHECK_EQUAL(b, "hello");
 }
 
 
@@ -50,19 +50,17 @@ void test_composite_handles_nulls()
   int nonnull{};
   r = tx.exec("SELECT '()'::pqxxnull").one_row();
   PQXX_CHECK_THROWS(
-    pqxx::parse_composite(r[0].view(), nonnull), pqxx::conversion_error,
-    "No conversion error when reading a null into a nulless variable.");
+    pqxx::parse_composite(r[0].view(), nonnull), pqxx::conversion_error);
   std::optional<int> nullable{5};
   pqxx::parse_composite(r[0].view(), nullable);
-  PQXX_CHECK(
-    not nullable.has_value(), "Null integer came out as having a value.");
+  PQXX_CHECK(not nullable.has_value());
 
   tx.exec("CREATE TYPE pqxxnulls AS (a integer, b integer)").no_rows();
   std::optional<int> a{2}, b{4};
   r = tx.exec("SELECT '(,)'::pqxxnulls").one_row();
   pqxx::parse_composite(r[0].view(), a, b);
-  PQXX_CHECK(not a.has_value(), "Null first integer stored as value.");
-  PQXX_CHECK(not b.has_value(), "Null second integer stored as value.");
+  PQXX_CHECK(not a.has_value());
+  PQXX_CHECK(not b.has_value());
 }
 
 
@@ -73,9 +71,7 @@ void test_composite_renders_to_string()
   char buf[1000];
 
   pqxx::composite_into_buf(buf, 355, "foo", "b\na\\r");
-  PQXX_CHECK_EQUAL(
-    std::string{std::data(buf)}, "(355,\"foo\",\"b\na\\\\r\")",
-    "Composite was not rendered as expected.");
+  PQXX_CHECK_EQUAL(std::string{std::data(buf)}, "(355,\"foo\",\"b\na\\\\r\")");
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();
   auto const f{
@@ -85,10 +81,10 @@ void test_composite_renders_to_string()
   int a{};
   std::string b, c;
   bool const nonnull{f.composite_to(a, b, c)};
-  PQXX_CHECK(nonnull, "Mistaken nullness.");
-  PQXX_CHECK_EQUAL(a, 355, "Int came back wrong.");
-  PQXX_CHECK_EQUAL(b, "foo", "Simple string came back wrong.");
-  PQXX_CHECK_EQUAL(c, "b\na\\r", "Escaping went wrong.");
+  PQXX_CHECK(nonnull);
+  PQXX_CHECK_EQUAL(a, 355);
+  PQXX_CHECK_EQUAL(b, "foo");
+  PQXX_CHECK_EQUAL(c, "b\na\\r");
 }
 
 

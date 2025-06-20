@@ -19,7 +19,7 @@ void test_nonblocking_connect()
 
   pqxx::connection cx{std::move(nbc).produce()};
   pqxx::work tx{cx};
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 10"), 10, "Bad value!?");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 10"), 10);
 }
 
 

@@ -17,19 +17,17 @@ void test_connection_string_constructor()
 void test_move_constructor()
 {
   pqxx::connection c1;
-  PQXX_CHECK(c1.is_open(), "New connection is not open.");
+  PQXX_CHECK(c1.is_open());
 
   pqxx::connection c2{std::move(c1)};
 
-  PQXX_CHECK(not c1.is_open(), "Moving did not close original connection.");
-  PQXX_CHECK(c2.is_open(), "Moved constructor is not open.");
+  PQXX_CHECK(not c1.is_open());
+  PQXX_CHECK(c2.is_open());
 
   pqxx::work tx{c2};
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 5"), 5, "Weird result!");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 5"), 5);
 
-  PQXX_CHECK_THROWS(
-    pqxx::connection{std::move(c2)}, pqxx::usage_error,
-    "Moving a connection with a transaction open should be an error.");
+  PQXX_CHECK_THROWS(pqxx::connection{std::move(c2)}, pqxx::usage_error);
 }
 
 
@@ -42,22 +40,16 @@ void test_move_assign()
 
   c2 = std::move(c1);
 
-  PQXX_CHECK(not c1.is_open(), "Connection still open after being moved out.");
-  PQXX_CHECK(c2.is_open(), "Moved constructor is not open.");
+  PQXX_CHECK(not c1.is_open());
+  PQXX_CHECK(c2.is_open());
 
   {
     pqxx::work tx1{c2};
     PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8, "What!?");
 
     pqxx::connection c3;
-    PQXX_CHECK_THROWS(
-      c1 = std::move(c2), pqxx::usage_error,
-      "Moving a connection with a transaction open should be an error.");
-
-    PQXX_CHECK_THROWS(
-      c2 = std::move(c3), pqxx::usage_error,
-      "Moving a connection onto one with a transaction open should be "
-      "an error.");
+    PQXX_CHECK_THROWS(c1 = std::move(c2), pqxx::usage_error);
+    PQXX_CHECK_THROWS(c2 = std::move(c3), pqxx::usage_error);
   }
 
   // After failed move attempts, the connection is still usable.
@@ -70,7 +62,7 @@ void test_encrypt_password()
 {
   pqxx::connection c;
   auto pw{c.encrypt_password("user", "password")};
-  PQXX_CHECK(not std::empty(pw), "Encrypted password was empty.");
+  PQXX_CHECK(not std::empty(pw));
   PQXX_CHECK_EQUAL(
     std::strlen(pw.c_str()), std::size(pw),
     "Encrypted password contains a null byte.");
@@ -182,23 +174,17 @@ void test_connection_params()
 void test_raw_connection()
 {
   pqxx::connection conn1;
-  PQXX_CHECK(conn1.is_open(), "Fresh connection is not open!");
+  PQXX_CHECK(conn1.is_open());
   pqxx::nontransaction tx1{conn1};
-  PQXX_CHECK_EQUAL(
-    tx1.query_value<int>("SELECT 8"), 8, "Something weird happened.");
+  PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8);
   pqxx::internal::pq::PGconn *raw{std::move(conn1).release_raw_connection()};
-  PQXX_CHECK(raw != nullptr, "Raw connection is null.");
-  PQXX_CHECK(
-    not conn1.is_open(),
-    "Releasing raw connection did not close pqxx::connection.");
+  PQXX_CHECK(raw != nullptr);
+  PQXX_CHECK(not conn1.is_open());
 
   pqxx::connection conn2{pqxx::connection::seize_raw_connection(raw)};
-  PQXX_CHECK(
-    conn2.is_open(), "Can't produce open connection from raw connection.");
+  PQXX_CHECK(conn2.is_open());
   pqxx::nontransaction tx2{conn2};
-  PQXX_CHECK_EQUAL(
-    tx2.query_value<int>("SELECT 9"), 9,
-    "Raw connection did not produce a working new connection.");
+  PQXX_CHECK_EQUAL(tx2.query_value<int>("SELECT 9"), 9);
 }
 
 
@@ -206,10 +192,10 @@ void test_closed_connection()
 {
   pqxx::connection cx;
   cx.close();
-  PQXX_CHECK(not cx.dbname(), "Closed connection had a dbname.");
-  PQXX_CHECK(not cx.username(), "Closed connection had a username.");
-  PQXX_CHECK(not cx.hostname(), "Closed connection had a hostname.");
-  PQXX_CHECK(not cx.port(), "Closed connection had a port.");
+  PQXX_CHECK(not cx.dbname());
+  PQXX_CHECK(not cx.username());
+  PQXX_CHECK(not cx.hostname());
+  PQXX_CHECK(not cx.port());
 }
 
 
