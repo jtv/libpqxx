@@ -97,8 +97,35 @@ void test_row_iterator_array_index_offsets_iterator()
 }
 
 
+void test_row_as_tuple()
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  auto const r{tx.exec("SELECT 1, 'Alice'").one_row()};
+
+  // A tuple type with matching number and types of columns.
+  using correct_tuple_t = std::tuple<int, std::string>;
+  // A tuple type with the wrong number of columns.
+  using incorrect_tuple_t = std::tuple<int>;
+
+  PQXX_CHECK_EQUAL(r.size(), 2, "Unexpected row size.");
+  correct_tuple_t t{r.as_tuple<correct_tuple_t>()};
+
+  PQXX_CHECK_EQUAL(std::get<0>(t), 1, "Incorrect type for tuple value 0");
+  PQXX_CHECK_EQUAL(
+    std::get<1>(t), "Alice", "Incorrect type for tuple value 1");
+
+  PQXX_CHECK_THROWS(
+    r.as_tuple<incorrect_tuple_t>(), pqxx::usage_error,
+    "pqxx::row::as_tuple does not throw expected exception for incorrect "
+    "tuple type");
+}
+
+
 PQXX_REGISTER_TEST(test_row);
 PQXX_REGISTER_TEST(test_row_iterator);
 PQXX_REGISTER_TEST(test_row_as);
 PQXX_REGISTER_TEST(test_row_iterator_array_index_offsets_iterator);
+PQXX_REGISTER_TEST(test_row_as_tuple);
 } // namespace
