@@ -121,12 +121,10 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
   pos += one_ascii_char;
   assert(pos <= closing_quote);
 
-  assert(input[closing_quote] == '"');
-
   // In theory, the closing quote should mean that there's no need for the
   // find_ascii_char() call to check for end-of-string inside its loop.  Not
   // sure whether the compiler will be smart enough to see that though.
-  PQXX_ASSUME(input[closing_quote] == '"');
+  assert(input[closing_quote] == '"');
 
   while (pos < closing_quote)
   {
