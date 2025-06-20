@@ -80,7 +80,7 @@ void test_088()
   pqxx::subtransaction tx3a(tx3, "tx3a");
   PQXX_CHECK_THROWS(
     tx3a.exec("SELECT * FROM nonexistent_table WHERE nonattribute=0"),
-    pqxx::sql_error, "Bogus query did not fail.");
+    pqxx::sql_error);
 
   // Subtransaction can only be aborted now, because there was an error.
   tx3a.abort();

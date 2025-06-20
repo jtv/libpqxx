@@ -25,45 +25,33 @@ void test_074()
   int ival{};
   pqxx::fieldstream fs2(R.at(0).at(0));
   fs2 >> ival;
-  PQXX_CHECK_EQUAL(
-    ival, R.front().front().as<int>(), "fieldstream::front() is broken.");
+  PQXX_CHECK_EQUAL(ival, R.front().front().as<int>());
 
   double dval{};
   (pqxx::fieldstream(R.at(0).at(0))) >> dval;
   PQXX_CHECK_BOUNDS(
-    dval, R[0][0].as<double>() - 0.1, R[0][0].as<double>() + 0.1,
-    "Got wrong double from fieldstream.");
+    dval, R[0][0].as<double>() - 0.1, R[0][0].as<double>() + 0.1);
 
   auto const roughpi{static_cast<float>(3.1415926435)};
   R = tx.exec("SELECT " + pqxx::to_string(roughpi));
   float pival{};
   (pqxx::fieldstream(R.at(0).at(0))) >> pival;
-  PQXX_CHECK_BOUNDS(
-    pival, roughpi - 0.001, roughpi + 0.001,
-    "Pi approximation came back wrong from fieldstream.");
+  PQXX_CHECK_BOUNDS(pival, roughpi - 0.001, roughpi + 0.001);
 
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(R[0][0]), R[0][0].c_str(),
-    "to_string(result::field) is inconsistent with c_str().");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R[0][0]), R[0][0].c_str());
 
   float float_pi{};
   pqxx::from_string(pqxx::to_string(roughpi), float_pi);
-  PQXX_CHECK_BOUNDS(
-    float_pi, roughpi - 0.00001, roughpi + 0.00001,
-    "Float changed in conversion.");
+  PQXX_CHECK_BOUNDS(float_pi, roughpi - 0.00001, roughpi + 0.00001);
 
   double double_pi{};
   pqxx::from_string(pqxx::to_string(static_cast<double>(roughpi)), double_pi);
-  PQXX_CHECK_BOUNDS(
-    double_pi, roughpi - 0.00001, roughpi + 0.00001,
-    "Double changed in conversion.");
+  PQXX_CHECK_BOUNDS(double_pi, roughpi - 0.00001, roughpi + 0.00001);
 
   long double const ld{roughpi};
   long double long_double_pi{};
   pqxx::from_string(pqxx::to_string(ld), long_double_pi);
-  PQXX_CHECK_BOUNDS(
-    long_double_pi, roughpi - 0.00001, roughpi + 0.00001,
-    "long double changed in conversion.");
+  PQXX_CHECK_BOUNDS(long_double_pi, roughpi - 0.00001, roughpi + 0.00001);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 } // namespace

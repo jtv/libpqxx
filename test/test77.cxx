@@ -20,7 +20,7 @@ void test_077()
   RFalse.swap(RTrue);
   f = pqxx::from_string<bool>(RFalse[0][0]);
   t = pqxx::from_string<bool>(RTrue[0][0]);
-  PQXX_CHECK(f and not t, "result::swap() is broken.");
+  PQXX_CHECK(f and not t);
 }
 } // namespace
 

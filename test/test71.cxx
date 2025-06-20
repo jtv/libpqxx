@@ -17,7 +17,7 @@ template<typename PAIR> void checkresult(pqxx::pipeline &P, PAIR c)
 {
   pqxx::result const r{P.retrieve(c.first)};
   int const val{r.at(0).at(0).as(int(0))};
-  PQXX_CHECK_EQUAL(val, c.second, "Wrong result from pipeline.");
+  PQXX_CHECK_EQUAL(val, c.second);
 }
 
 
@@ -37,7 +37,7 @@ void test_071()
   // Retrieve results in query_id order, and compare to expected values
   for (auto &c : values) checkresult(P, c);
 
-  PQXX_CHECK(std::empty(P), "Pipeline was not empty retrieving all results.");
+  PQXX_CHECK(std::empty(P));
 
   values.clear();
 
@@ -65,8 +65,7 @@ void test_071()
 
   // See that all results are retrieved by complete()
   P.complete();
-  for (auto &c : values)
-    PQXX_CHECK(P.is_finished(c.first), "Query not finished after complete().");
+  for (auto &c : values) PQXX_CHECK(P.is_finished(c.first));
 }
 } // namespace
 

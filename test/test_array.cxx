@@ -40,37 +40,27 @@ void test_empty_arrays()
 
   // Parsing a null pointer just immediately returns "done".
   output = pqxx::array_parser(std::string_view()).get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "get_next on null array did not return done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   // Parsing an empty array string immediately returns "done".
   output = pqxx::array_parser("").get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "get_next on an empty array string did not return done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   // Parsing an empty array returns "row_start", "row_end", "done".
   pqxx::array_parser empty_parser("{}");
   output = empty_parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Empty array did not start with row_start.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = empty_parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Empty array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = empty_parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Empty array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -82,28 +72,20 @@ void test_array_null_value()
   pqxx::array_parser containing_null("{NULL}");
 
   output = containing_null.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array containing null did not start with row_start.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = containing_null.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::null_value,
-    "Array containing null did not return null_value.");
-  PQXX_CHECK_EQUAL(output.second, "", "Null value was not empty.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::null_value);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = containing_null.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array containing null did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = containing_null.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array containing null did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -115,27 +97,19 @@ void test_array_double_quoted_string()
   pqxx::array_parser parser("{\"item\"}");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "item", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "item");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -147,27 +121,19 @@ void test_array_double_quoted_escaping()
   pqxx::array_parser parser(R"--({"don''t\\ care"})--");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "don''t\\ care", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "don''t\\ care");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -180,16 +146,12 @@ void test_array_double_double_quoted_string()
   pqxx::array_parser parser{R"--({"3"" steel"})--"};
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
 
-  PQXX_CHECK_EQUAL(output.second, "3\" steel", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.second, "3\" steel");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -201,27 +163,19 @@ void test_array_unquoted_string()
   pqxx::array_parser parser("{item}");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "item", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "item");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -233,33 +187,23 @@ void test_array_multiple_values()
   pqxx::array_parser parser("{1,2}");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "1", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "1");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "2", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "2");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -271,38 +215,26 @@ void test_nested_array()
   pqxx::array_parser parser("{{item}}");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Nested array did not start 2nd dimension with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "item", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "item");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Nested array did not end 2nd dimension with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -314,110 +246,78 @@ void test_nested_array_with_multiple_entries()
   pqxx::array_parser parser("{{1,2},{3,4}}");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Nested array did not start 2nd dimension with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "1", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "1");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "2", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "2");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Nested array did not end 2nd dimension with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_start,
-    "Nested array did not descend to 2nd dimension with row_start.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_start);
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "3", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "3");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::string_value,
-    "Array did not return string_value.");
-  PQXX_CHECK_EQUAL(output.second, "4", "Unexpected string value.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::string_value);
+  PQXX_CHECK_EQUAL(output.second, "4");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Nested array did not leave 2nd dimension with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::row_end,
-    "Array did not end with row_end.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(output.second, "");
 
   output = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    output.first, pqxx::array_parser::juncture::done,
-    "Array did not conclude with done.");
-  PQXX_CHECK_EQUAL(output.second, "", "Unexpected nonempty output.");
+  PQXX_CHECK_EQUAL(output.first, pqxx::array_parser::juncture::done);
+  PQXX_CHECK_EQUAL(output.second, "");
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
 
 void test_generate_empty_array()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{}), "{}",
-    "Basic array output is not as expected.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{}), "{}",
-    "String array comes out different.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}), "{}");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>{}), "{}");
 }
 
 
 void test_generate_null_value()
 {
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{nullptr}), "{NULL}",
-    "Null array value did not come out as expected.");
+    pqxx::to_string(std::vector<char const *>{nullptr}), "{NULL}");
 }
 
 
 void test_generate_single_item()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{42}), "{42}",
-    "Numeric conversion came out wrong.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{42}), "{42}");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{"foo"}), "{\"foo\"}",
-    "String array conversion came out wrong.");
+    pqxx::to_string(std::vector<char const *>{"foo"}), "{\"foo\"}");
 }
 
 
 void test_generate_multiple_items()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{5,4,3,2}",
-    "Array with multiple values is not correct.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{5,4,3,2}");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"foo", "bar"}),
-    "{\"foo\",\"bar\"}", "Array with multiple strings came out wrong.");
+    "{\"foo\",\"bar\"}");
 }
 
 
@@ -425,7 +325,7 @@ void test_generate_nested_array()
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}),
-    "{{1,2},{3,4}}", "Nested arrays don't work right.");
+    "{{1,2},{3,4}}");
 }
 
 
@@ -443,17 +343,14 @@ void test_generate_escaped_strings()
 void test_array_generate_empty_strings()
 {
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>({""})), "{\"\"}",
-    "Array of one empty string came out wrong.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>({""})), "{\"\"}");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>({"", "", "", ""})),
-    "{\"\",\"\",\"\",\"\"}", "Array of 4 empty strings came out wrong.");
+    "{\"\",\"\",\"\",\"\"}");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>(
       {"", "", "", "", "", "", "", "", "", "", "", ""})),
-    "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}",
-    "Array of 12 empty strings came out wrong.");
+    "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}");
 }
 
 void test_sparse_arrays()
@@ -467,8 +364,8 @@ void test_sparse_arrays()
   auto arrayOfNulls = std::vector<std::optional<int>>(4, std::nullopt);
   std::string const arrayOfNullsStr = "{NULL,NULL,NULL,NULL}";
 
-  PQXX_CHECK(
-    pqxx::size_buffer(arrayOfNulls) >= arrayOfNullsStr.size(),
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::size_buffer(arrayOfNulls), arrayOfNullsStr.size(),
     "Buffer size allocated for an array of optional<int> filled with nulls "
     "was too small.");
 
@@ -489,14 +386,12 @@ void test_sparse_arrays()
     "{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"
     "42}";
 
-  PQXX_CHECK(
-    pqxx::size_buffer(sparseArray) >= sparseArrayStr.size(),
+  PQXX_CHECK_GREATER_EQUAL(
+    pqxx::size_buffer(sparseArray), sparseArrayStr.size(),
     "Buffer size allocated for a sparsely-filled array of optional<int> was "
     "too small.");
 
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(sparseArray), sparseArrayStr,
-    "A sparsely-filled array of optional<int> came out wrong.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(sparseArray), sparseArrayStr);
 }
 
 void test_array_generate()
@@ -522,9 +417,7 @@ void test_array_roundtrip()
     tx.query_value<std::string>("SELECT $1::integer[]", pqxx::params{in})};
   pqxx::array_parser parser{text};
   auto item{parser.get_next()};
-  PQXX_CHECK_EQUAL(
-    item.first, pqxx::array_parser::juncture::row_start,
-    "Array did not start with row_start.");
+  PQXX_CHECK_EQUAL(item.first, pqxx::array_parser::juncture::row_start);
 
   std::vector<int> out;
   for (item = parser.get_next();
@@ -534,19 +427,14 @@ void test_array_roundtrip()
     out.push_back(pqxx::from_string<int>(item.second));
   }
 
-  PQXX_CHECK_EQUAL(
-    item.first, pqxx::array_parser::juncture::row_end,
-    "Array values did not end in row_end.");
-  PQXX_CHECK_EQUAL(
-    std::size(out), std::size(in), "Array came back with different length.");
+  PQXX_CHECK_EQUAL(item.first, pqxx::array_parser::juncture::row_end);
+  PQXX_CHECK_EQUAL(std::size(out), std::size(in));
 
   for (std::size_t i{0}; i < std::size(in); ++i)
-    PQXX_CHECK_EQUAL(out[i], in[i], "Array element has changed.");
+    PQXX_CHECK_EQUAL(out[i], in[i]);
 
   item = parser.get_next();
-  PQXX_CHECK_EQUAL(
-    item.first, pqxx::array_parser::juncture::done,
-    "Array did not end in done.");
+  PQXX_CHECK_EQUAL(item.first, pqxx::array_parser::juncture::done);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 
@@ -566,13 +454,11 @@ void test_array_strings()
     auto const f{tx.exec("SELECT ARRAY[$1]", pqxx::params{input}).one_field()};
     pqxx::array_parser parser{f.as<std::string_view>()};
     [[maybe_unused]] auto [start_juncture, start_value]{parser.get_next()};
-    PQXX_CHECK_EQUAL(
-      start_juncture, pqxx::array_parser::juncture::row_start, "Bad start.");
+    PQXX_CHECK_EQUAL(start_juncture, pqxx::array_parser::juncture::row_start);
     auto [value_juncture, value]{parser.get_next()};
     PQXX_CHECK_EQUAL(
-      value_juncture, pqxx::array_parser::juncture::string_value,
-      "Bad value juncture.");
-    PQXX_CHECK_EQUAL(value, input, "Bad array value roundtrip.");
+      value_juncture, pqxx::array_parser::juncture::string_value);
+    PQXX_CHECK_EQUAL(value, input);
   }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
@@ -603,57 +489,41 @@ void test_array_parses_real_arrays()
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
   pqxx::array<int> const empty_a{
     pqxx::from_string<pqxx::array<int>>(empty_s, make_context(mono))};
-  PQXX_CHECK_EQUAL(
-    empty_a.dimensions(), 1u, "Unexpected dimension count for empty array.");
-  PQXX_CHECK_EQUAL(
-    empty_a.sizes(), (std::array<std::size_t, 1u>{0u}),
-    "Unexpected sizes for empty array.");
+  PQXX_CHECK_EQUAL(empty_a.dimensions(), 1u);
+  PQXX_CHECK_EQUAL(empty_a.sizes(), (std::array<std::size_t, 1u>{0u}));
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
   pqxx::array<int> const onedim_a{
     pqxx::from_string<pqxx::array<int>>(onedim_s, make_context(mono))};
-  PQXX_CHECK_EQUAL(
-    onedim_a.dimensions(), 1u,
-    "Unexpected dimension count for one-dimensional array.");
-  PQXX_CHECK_EQUAL(
-    onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}),
-    "Unexpected sizes for one-dimensional array.");
-  PQXX_CHECK_EQUAL(onedim_a[0], 0, "Bad data in one-dimensional array.");
-  PQXX_CHECK_EQUAL(
-    onedim_a[2], 2, "Array started off OK but later data was bad.");
+  PQXX_CHECK_EQUAL(onedim_a.dimensions(), 1u);
+  PQXX_CHECK_EQUAL(onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}));
+  PQXX_CHECK_EQUAL(onedim_a[0], 0);
+  PQXX_CHECK_EQUAL(onedim_a[2], 2);
 
   auto const null_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL]::integer[]")};
-  PQXX_CHECK_THROWS(
-    (pqxx::array<int>{null_s, cx}), pqxx::unexpected_null,
-    "Not getting unexpected_null from array parser.");
+  PQXX_CHECK_THROWS((pqxx::array<int>{null_s, cx}), pqxx::unexpected_null);
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
   pqxx::array<int, 2> const twodim_a{
     pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context(mono))};
-  PQXX_CHECK_EQUAL(
-    twodim_a.dimensions(), 2u,
-    "Wrong number of dimensions on multi-dimensional array.");
-  PQXX_CHECK_EQUAL(
-    twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}),
-    "Wrong sizes on multidim array.");
+  PQXX_CHECK_EQUAL(twodim_a.dimensions(), 2u);
+  PQXX_CHECK_EQUAL(twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}));
 
   auto const string_s{tx.query_value<std::string>("SELECT ARRAY['Hello']")};
   pqxx::array<std::string> const string_a{string_s, cx};
-  PQXX_CHECK_EQUAL(string_a[0], "Hello", "String field came out wrong.");
+  PQXX_CHECK_EQUAL(string_a[0], "Hello");
 
   auto const fake_null_s{tx.query_value<std::string>("SELECT ARRAY['NULL']")};
   pqxx::array<std::string> const fake_null_a{string_s, cx};
-  PQXX_CHECK_EQUAL(
-    fake_null_a[0], "Hello", "String field 'NULL' came out wrong.");
+  PQXX_CHECK_EQUAL(fake_null_a[0], "Hello");
 
   auto const nulls_s{
     tx.query_value<std::string>("SELECT ARRAY[NULL, 'NULL']")};
   pqxx::array<std::optional<std::string>> const nulls_a{nulls_s, cx};
-  PQXX_CHECK(not nulls_a[0].has_value(), "Null string cvame out with value.");
-  PQXX_CHECK(nulls_a[1].has_value(), "String 'NULL' came out as null.");
-  PQXX_CHECK_EQUAL(
-    nulls_a[1].value(), "NULL", "String 'NULL' came out wrong.");
+  PQXX_CHECK(not nulls_a[0].has_value());
+  PQXX_CHECK(nulls_a[1].has_value());
+  PQXX_CHECK_EQUAL(nulls_a[1].value(), "NULL");
 }
 
 
@@ -708,16 +578,15 @@ void test_array_parses_quoted_strings()
   pqxx::connection const cx;
   pqxx::array<std::string> const a{
     R"x({"","n","nnn","\"'","""","\\","\"","a""","""z"})x", cx};
-  PQXX_CHECK_EQUAL(a[0], "", "Empty string in array did not parse right.");
-  PQXX_CHECK_EQUAL(a[1], "n", "Simple string in array did not parse right.");
-  PQXX_CHECK_EQUAL(a[2], "nnn", "Simple string in array did not parse right.");
-  PQXX_CHECK_EQUAL(a[3], R"x("')x", "Quote in array did not unescape right.");
-  PQXX_CHECK_EQUAL(
-    a[4], R"x(")x", "Doubled quote in array did not unescape right.");
-  PQXX_CHECK_EQUAL(a[5], "\\", "Backslash-escaped backslash confused parser.");
-  PQXX_CHECK_EQUAL(a[6], "\"", "Backslash-escaped quote confused parser.");
-  PQXX_CHECK_EQUAL(a[7], "a\"", "Doubled quote at end confused parser.");
-  PQXX_CHECK_EQUAL(a[8], "\"z", "Doubled quote at beginning confused parser.");
+  PQXX_CHECK_EQUAL(a[0], "");
+  PQXX_CHECK_EQUAL(a[1], "n");
+  PQXX_CHECK_EQUAL(a[2], "nnn");
+  PQXX_CHECK_EQUAL(a[3], R"x("')x");
+  PQXX_CHECK_EQUAL(a[4], R"x(")x");
+  PQXX_CHECK_EQUAL(a[5], "\\");
+  PQXX_CHECK_EQUAL(a[6], "\"");
+  PQXX_CHECK_EQUAL(a[7], "a\"");
+  PQXX_CHECK_EQUAL(a[8], "\"z");
 
   // A byte value that looks like an ASCII backslash but inside a multibyte
   // character does not count as a backslash.
@@ -726,13 +595,14 @@ void test_array_parses_quoted_strings()
   PQXX_CHECK_EQUAL(
     b[0],
     "\203\\"
-    "",
-    "Misleading multibyte character parsed wrong.");
+    "");
+  // If encoding support didn't work properly, puting a backslash in front
+  // would probably only get applied to the first byte in the character, and
+  // turn that embedded byte bcak into a backslash.
   PQXX_CHECK_EQUAL(
     b[1],
     "\203\\"
-    "",
-    "Escaped misleading multibyte character parsed wrong.");
+    "");
 }
 
 
@@ -740,9 +610,9 @@ void test_array_parses_multidim_arrays()
 {
   pqxx::connection const cx;
   pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", cx};
-  PQXX_CHECK_EQUAL(a.at(0u, 0u), 0, "Indexing is wrong.");
-  PQXX_CHECK_EQUAL(a.at(1u, 0u), 2, "Indexing seems to confuse dimensions.");
-  PQXX_CHECK_EQUAL(a.at(1u, 1u), 3, "Indexing at higher indexes goes wrong.");
+  PQXX_CHECK_EQUAL(a.at(0u, 0u), 0);
+  PQXX_CHECK_EQUAL(a.at(1u, 0u), 2);
+  PQXX_CHECK_EQUAL(a.at(1u, 1u), 3);
 }
 
 
@@ -750,31 +620,19 @@ void test_array_at_checks_bounds()
 {
   pqxx::connection const cx;
   pqxx::array<int> const simple{"{0, 1, 2}", cx};
-  PQXX_CHECK_EQUAL(simple.at(0), 0, "Array indexing does not work.");
-  PQXX_CHECK_EQUAL(simple.at(2), 2, "Nonzero array indexing goes wrong.");
-  PQXX_CHECK_THROWS(
-    simple.at(3), pqxx::range_error, "No bounds checking on array::at().");
-  PQXX_CHECK_THROWS(
-    simple.at(-1), pqxx::range_error,
-    "Negative index does not throw range_error.");
+  PQXX_CHECK_EQUAL(simple.at(0), 0);
+  PQXX_CHECK_EQUAL(simple.at(2), 2);
+  PQXX_CHECK_THROWS(simple.at(3), pqxx::range_error);
+  PQXX_CHECK_THROWS(simple.at(-1), pqxx::range_error);
 
   pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", cx};
-  PQXX_CHECK_EQUAL(
-    multi.at(0, 0), 0, "Multidim array indexing does not work.");
-  PQXX_CHECK_EQUAL(multi.at(1, 1), 3, "Nonzero multidim indexing goes wrong.");
-  PQXX_CHECK_EQUAL(multi.at(2, 1), 5, "Multidim top element went wrong.");
-  PQXX_CHECK_THROWS(
-    multi.at(3, 0), pqxx::range_error,
-    "Out-of-bounds on outer dimension was not detected.");
-  PQXX_CHECK_THROWS(
-    multi.at(0, 2), pqxx::range_error,
-    "Out-of-bounds on inner dimension was not detected.");
-  PQXX_CHECK_THROWS(
-    multi.at(0, -1), pqxx::range_error,
-    "Negative inner index was not detected.");
-  PQXX_CHECK_THROWS(
-    multi.at(-1, 0), pqxx::range_error,
-    "Negative outer index was not detected.");
+  PQXX_CHECK_EQUAL(multi.at(0, 0), 0);
+  PQXX_CHECK_EQUAL(multi.at(1, 1), 3);
+  PQXX_CHECK_EQUAL(multi.at(2, 1), 5);
+  PQXX_CHECK_THROWS(multi.at(3, 0), pqxx::range_error);
+  PQXX_CHECK_THROWS(multi.at(0, 2), pqxx::range_error);
+  PQXX_CHECK_THROWS(multi.at(0, -1), pqxx::range_error);
+  PQXX_CHECK_THROWS(multi.at(-1, 0), pqxx::range_error);
 }
 
 
@@ -786,21 +644,21 @@ void test_array_iterates_in_row_major_order()
     "SELECT ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9]]")};
   pqxx::array<int, 2> const array{array_s, cx};
   auto it{array.cbegin()};
-  PQXX_CHECK_EQUAL(*it, 1, "Iteration started off wrong.");
+  PQXX_CHECK_EQUAL(*it, 1);
   ++it;
   ++it;
-  PQXX_CHECK_EQUAL(*it, 3, "Iteration seems to have taken the wrong order.");
+  PQXX_CHECK_EQUAL(*it, 3);
   ++it;
-  PQXX_CHECK_EQUAL(*it, 4, "Iteration did not jump to the next dimension.");
+  PQXX_CHECK_EQUAL(*it, 4);
   it += 6;
-  PQXX_CHECK(it == array.cend(), "Array cend() not where I expected.");
-  PQXX_CHECK_EQUAL(*(array.cend() - 1), 9, "Iteration did not end well.");
-  PQXX_CHECK_EQUAL(*array.crbegin(), 9, "Bad crbegin().");
-  PQXX_CHECK_EQUAL(*(array.crend() - 1), 1, "Bad crend().");
-  PQXX_CHECK_EQUAL(std::size(array), 9u, "Bad array size.");
-  PQXX_CHECK_EQUAL(std::ssize(array), 9, "Bad array ssize().");
-  PQXX_CHECK_EQUAL(array.front(), 1, "Bad front().");
-  PQXX_CHECK_EQUAL(array.back(), 9, "Bad back().");
+  PQXX_CHECK(it == array.cend());
+  PQXX_CHECK_EQUAL(*(array.cend() - 1), 9);
+  PQXX_CHECK_EQUAL(*array.crbegin(), 9);
+  PQXX_CHECK_EQUAL(*(array.crend() - 1), 1);
+  PQXX_CHECK_EQUAL(std::size(array), 9u);
+  PQXX_CHECK_EQUAL(std::ssize(array), 9);
+  PQXX_CHECK_EQUAL(array.front(), 1);
+  PQXX_CHECK_EQUAL(array.back(), 9);
 }
 
 
@@ -833,27 +691,27 @@ void test_scan_double_quoted_string()
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("")", 0u, here()),
-    2u, "Empty string scans wrong.");
+    2u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(""z)", 0u, here()),
-    2u, "Scan does not stop in the right place.");
+    2u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(x="")", 2u, here()),
-    4u, "Scan offset does not work.");
+    4u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(x=""z)", 2u, here()),
-    4u, "Offset + suffix breaks scan.");
+    4u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x")", 0u, here()),
-    3u, "Nonempty string scans wrong.");
+    3u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x"z)", 0u, here()),
-    3u, "Suffix on nonempty string breaks scan.");
+    3u);
   PQXX_CHECK_THROWS(
     (pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("foo)", 0u, here())),
@@ -862,39 +720,39 @@ void test_scan_double_quoted_string()
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       "\"x\\\"y\"", 0u, here()),
-    6u, "Backslash escape breaks scan.");
+    6u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       "\"x\\\"y\"z\"", 0u, here()),
-    6u, "Backslash + suffix breaks scan.");
+    6u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x\\y")", 0u, here()),
-    6u, "Escaped backslash breaks scan.");
+    6u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x""y")", 0u, here()),
-    6u, "Doubled double-quote scans wrong.");
+    6u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("x""y"z)", 0u, here()),
-    6u, "Doubled quote + suffix breaks scan.");
+    6u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       "\"\\\\\\\"\"\"\"", 0u, here()),
-    8u, "Complex scan is broken.");
+    8u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       "a\"\\\\\\\"\"\"\"", 1u, here()),
-    9u, "Suffix + complex scan breaks.");
+    9u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"("""")", 0u, here()),
-    4u, "Bare doubled double quote breaks.");
+    4u);
   PQXX_CHECK_EQUAL(
     pqxx::internal::scan_double_quoted_string<enc::monobyte>(
       R"(""""z)", 0u, here()),
-    4u, "Suffix breaks bare doubled double quote.");
+    4u);
 
   // Now let's try a byte that _looks_ like an ASCII backslash escaping the
   // closing quote (which would be an obvious vector for an injection attack)
