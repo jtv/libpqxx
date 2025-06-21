@@ -15,16 +15,16 @@ void test_result_iteration()
   static_assert(std::random_access_iterator<decltype(r.begin())>);
   static_assert(std::random_access_iterator<decltype(r.begin()->begin())>);
 
-  PQXX_CHECK(std::end(r) != std::begin(r), "Broken begin/end.");
-  PQXX_CHECK(std::rend(r) != std::rbegin(r), "Broken rbegin/rend.");
+  PQXX_CHECK(std::end(r) != std::begin(r));
+  PQXX_CHECK(std::rend(r) != std::rbegin(r));
 
-  PQXX_CHECK(std::cbegin(r) == std::begin(r), "Wrong cbegin.");
-  PQXX_CHECK(std::cend(r) == std::end(r), "Wrong cend.");
-  PQXX_CHECK(std::crbegin(r) == std::rbegin(r), "Wrong crbegin.");
-  PQXX_CHECK(std::crend(r) == std::rend(r), "Wrong crend.");
+  PQXX_CHECK(std::cbegin(r) == std::begin(r));
+  PQXX_CHECK(std::cend(r) == std::end(r));
+  PQXX_CHECK(std::crbegin(r) == std::rbegin(r));
+  PQXX_CHECK(std::crend(r) == std::rend(r));
 
-  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 1, "Unexpected front().");
-  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 3, "Unexpected back().");
+  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 1);
+  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 3);
 }
 
 
@@ -36,7 +36,7 @@ void test_result_iter()
 
   int total{0};
   for (auto const &[i] : r.iter<int>()) total += i;
-  PQXX_CHECK_EQUAL(total, 6, "iter() loop did not get the right values.");
+  PQXX_CHECK_EQUAL(total, 6);
 }
 
 
@@ -48,13 +48,13 @@ void test_result_iterator_swap()
 
   auto head{std::begin(r)}, next{head + 1};
   head.swap(next);
-  PQXX_CHECK_EQUAL((*head)[0].as<int>(), 2, "Result iterator swap is wrong.");
-  PQXX_CHECK_EQUAL((*next)[0].as<int>(), 1, "Result iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*head)[0].as<int>(), 2);
+  PQXX_CHECK_EQUAL((*next)[0].as<int>(), 1);
 
   auto tail{std::rbegin(r)}, prev{tail + 1};
   tail.swap(prev);
-  PQXX_CHECK_EQUAL((*tail)[0].as<int>(), 2, "Reverse iterator swap is wrong.");
-  PQXX_CHECK_EQUAL((*prev)[0].as<int>(), 3, "Reverse iterator swap is crazy.");
+  PQXX_CHECK_EQUAL((*tail)[0].as<int>(), 2);
+  PQXX_CHECK_EQUAL((*prev)[0].as<int>(), 3);
 }
 
 
@@ -68,22 +68,17 @@ void test_result_iterator_assignment()
   pqxx::result::const_reverse_iterator rev;
 
   fwd = std::begin(r);
-  PQXX_CHECK_EQUAL(
-    (*fwd)[0].as<int>(), (*std::begin(r))[0].as<int>(),
-    "Result iterator assignment is wrong.");
+  PQXX_CHECK_EQUAL((*fwd)[0].as<int>(), (*std::begin(r))[0].as<int>());
 
   rev = std::rbegin(r);
-  PQXX_CHECK_EQUAL(
-    (*rev)[0].as<int>(), (*std::rbegin(r))[0].as<int>(),
-    "Reverse iterator assignment is wrong.");
+  PQXX_CHECK_EQUAL((*rev)[0].as<int>(), (*std::rbegin(r))[0].as<int>());
 }
 
 
 void check_employee(std::string const &name, int salary)
 {
-  PQXX_CHECK(name == "x" or name == "y" or name == "z", "Unknown name.");
-  PQXX_CHECK(
-    salary == 1000 or salary == 1200 or salary == 1500, "Unknown salary.");
+  PQXX_CHECK(name == "x" or name == "y" or name == "z");
+  PQXX_CHECK(salary == 1000 or salary == 1200 or salary == 1500);
 }
 
 
@@ -115,9 +110,8 @@ void test_result_for_each()
     names.append(name);
     total += salary;
   });
-  PQXX_CHECK_EQUAL(
-    names, "xyz", "result::for_each did not accumulate names correctly.");
-  PQXX_CHECK_EQUAL(total, 1000 + 1200 + 1500, "Salaries added up wrong.");
+  PQXX_CHECK_EQUAL(names, "xyz");
+  PQXX_CHECK_EQUAL(total, 1000 + 1200 + 1500);
 
   // In addition to regular conversions, you can receive arguments as
   // string_view, or as references.
@@ -127,9 +121,8 @@ void test_result_for_each()
     names.append(name);
     total += salary;
   });
-  PQXX_CHECK_EQUAL(
-    names, "xyz", "result::for_each did not accumulate names correctly.");
-  PQXX_CHECK_EQUAL(total, 1000 + 1200 + 1500, "Salaries added up wrong.");
+  PQXX_CHECK_EQUAL(names, "xyz");
+  PQXX_CHECK_EQUAL(total, 1000 + 1200 + 1500);
 }
 
 

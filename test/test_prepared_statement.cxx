@@ -74,16 +74,14 @@ void test_registration_and_invocation()
 
   // Re-preparing it is an error.
   PQXX_CHECK_THROWS(
-    tx1.conn().prepare("CountToFive", count_to_5), pqxx::sql_error,
-    "Did not report re-definition of prepared statement.");
+    tx1.conn().prepare("CountToFive", count_to_5), pqxx::sql_error);
 
   tx1.abort();
   pqxx::work tx2{cx};
 
   // Executing a nonexistent prepared statement is also an error.
   PQXX_CHECK_THROWS(
-    tx2.exec(pqxx::prepped{"NonexistentStatement"}), pqxx::sql_error,
-    "Did not report invocation of nonexistent prepared statement.");
+    tx2.exec(pqxx::prepped{"NonexistentStatement"}), pqxx::sql_error);
 }
 
 
@@ -93,15 +91,13 @@ void test_basic_args()
   cx.prepare("EchoNum", "SELECT $1::int");
   pqxx::work tx{cx};
   auto r{tx.exec(pqxx::prepped{"EchoNum"}, 7)};
-  PQXX_CHECK_EQUAL(
-    std::size(r), 1, "Did not get 1 row from prepared statement.");
-  PQXX_CHECK_EQUAL(std::size(r.front()), 1, "Did not get exactly one column.");
-  PQXX_CHECK_EQUAL(r.one_field().as<int>(), 7, "Got wrong result.");
+  PQXX_CHECK_EQUAL(std::size(r), 1);
+  PQXX_CHECK_EQUAL(std::size(r.front()), 1);
+  PQXX_CHECK_EQUAL(r.one_field().as<int>(), 7);
 
   auto rw{tx.exec(pqxx::prepped{"EchoNum"}, 8).one_row()};
-  PQXX_CHECK_EQUAL(
-    std::size(rw), 1, "Did not get 1 column from exec_prepared1.");
-  PQXX_CHECK_EQUAL(rw[0].as<int>(), 8, "Got wrong result.");
+  PQXX_CHECK_EQUAL(std::size(rw), 1);
+  PQXX_CHECK_EQUAL(rw[0].as<int>(), 8);
 }
 
 
@@ -112,17 +108,14 @@ void test_multiple_params()
   pqxx::work tx{cx};
   auto r{
     tx.exec(pqxx::prepped{"CountSeries"}, pqxx::params{7, 10}).expect_rows(4)};
-  PQXX_CHECK_EQUAL(
-    std::size(r), 4, "Wrong number of rows, but no error raised.");
-  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7, "Wrong $1.");
-  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10, "Wrong $2.");
+  PQXX_CHECK_EQUAL(std::size(r), 4);
+  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7);
+  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10);
 
   cx.prepare("Reversed", "SELECT * FROM generate_series($2::int, $1::int)");
   r = tx.exec(pqxx::prepped{"Reversed"}, pqxx::params{8, 6}).expect_rows(3);
-  PQXX_CHECK_EQUAL(
-    r.front().front().as<int>(), 6, "Did parameters get reordered?");
-  PQXX_CHECK_EQUAL(
-    r.back().front().as<int>(), 8, "$2 did not come through properly.");
+  PQXX_CHECK_EQUAL(r.front().front().as<int>(), 6);
+  PQXX_CHECK_EQUAL(r.back().front().as<int>(), 8);
 }
 
 
@@ -132,11 +125,11 @@ void test_nulls()
   pqxx::work tx{cx};
   cx.prepare("EchoStr", "SELECT $1::varchar");
   auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nullptr}).one_row()};
-  PQXX_CHECK(rw.front().is_null(), "nullptr did not translate to null.");
+  PQXX_CHECK(rw.front().is_null());
 
   char const *n{nullptr};
   rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{n}).one_row();
-  PQXX_CHECK(rw.front().is_null(), "Null pointer did not translate to null.");
+  PQXX_CHECK(rw.front().is_null());
 }
 
 
@@ -146,28 +139,24 @@ void test_strings()
   pqxx::work tx{cx};
   cx.prepare("EchoStr", "SELECT $1::varchar");
   auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{"foo"}).one_row()};
-  PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), "foo", "Wrong string result.");
+  PQXX_CHECK_EQUAL(rw.front().as<std::string>(), "foo");
 
   char const nasty_string[]{R"--('\"\)--"};
   rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nasty_string}).one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(std::data(nasty_string)),
-    "Prepared statement did not quote/escape correctly.");
+    rw.front().as<std::string>(), std::string(std::data(nasty_string)));
 
   rw = tx.exec(
            pqxx::prepped{"EchoStr"},
            pqxx::params{std::string{std::data(nasty_string)}})
          .one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(std::data(nasty_string)),
-    "Quoting/escaping went wrong in std::string.");
+    rw.front().as<std::string>(), std::string(std::data(nasty_string)));
 
   char nonconst[]{"non-const C string"};
   rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nonconst}).one_row();
   PQXX_CHECK_EQUAL(
-    rw.front().as<std::string>(), std::string(std::data(nonconst)),
-    "Non-const C string passed incorrectly.");
+    rw.front().as<std::string>(), std::string(std::data(nonconst)));
 }
 
 
@@ -189,7 +178,7 @@ void test_binary()
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(std::data(bval)), std::size(bval)}),
-      input, "Binary string parameter went wrong.");
+      input);
   }
 
   // Now try it with a complex type that ultimately uses the conversions of
@@ -208,7 +197,7 @@ void test_binary()
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(std::data(pval)), std::size(pval)}),
-      input, "Binary string as shared_ptr-to-optional went wrong.");
+      input);
   }
 
   {
@@ -222,7 +211,7 @@ void test_binary()
     PQXX_CHECK_EQUAL(
       (std::string_view{
         reinterpret_cast<char const *>(std::data(oval)), std::size(oval)}),
-      input, "Binary string as shared_ptr-to-optional went wrong.");
+      input);
   }
 
   // By the way, it doesn't have to be a pqxx::bytes.  Any contiguous range
@@ -231,10 +220,9 @@ void test_binary()
     std::vector<std::byte> const data{std::byte{'x'}, std::byte{'v'}};
     auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{data}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
-    PQXX_CHECK_EQUAL(
-      std::size(oval), 2u, "Binary data came back as wrong length.");
-    PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'), "Wrong data.");
-    PQXX_CHECK_EQUAL(static_cast<int>(oval[1]), int('v'), "Wrong data.");
+    PQXX_CHECK_EQUAL(std::size(oval), 2u);
+    PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'));
+    PQXX_CHECK_EQUAL(static_cast<int>(oval[1]), int('v'));
   }
 }
 
@@ -251,17 +239,13 @@ void test_params()
 
   auto const rw39{
     tx.exec(pqxx::prepped{"Concat2Numbers"}, pqxx::params{params}).one_row()};
-  PQXX_CHECK_EQUAL(
-    rw39.front().as<int>(), 39,
-    "Dynamic prepared-statement parameters went wrong.");
+  PQXX_CHECK_EQUAL(rw39.front().as<int>(), 39);
 
   cx.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
   auto const rw1396{
     tx.exec(pqxx::prepped{"Concat4Numbers"}, pqxx::params{1, params, 6})
       .one_row()};
-  PQXX_CHECK_EQUAL(
-    rw1396.front().as<int>(), 1396,
-    "Dynamic params did not interleave with static ones properly.");
+  PQXX_CHECK_EQUAL(rw1396.front().as<int>(), 1396);
 }
 
 
@@ -274,14 +258,11 @@ void test_optional()
                    pqxx::prepped{"EchoNum"},
                    pqxx::params{std::optional<int>{std::in_place, 10}})
                  .one_row()};
-  PQXX_CHECK_EQUAL(
-    rw.front().as<int>(), 10,
-    "optional (with value) did not return the right value.");
+  PQXX_CHECK_EQUAL(rw.front().as<int>(), 10);
 
   rw = tx.exec(pqxx::prepped{"EchoNum"}, pqxx::params{std::optional<int>{}})
          .one_row();
-  PQXX_CHECK(
-    rw.front().is_null(), "optional without value did not come out as null.");
+  PQXX_CHECK(rw.front().is_null());
 }
 
 
@@ -303,36 +284,36 @@ void test_placeholders_generates_names()
 {
   using pqxx::operator""_zv;
   pqxx::placeholders name;
-  PQXX_CHECK_EQUAL(name.view(), "$1"_zv, "Bad placeholders initial zview.");
-  PQXX_CHECK_EQUAL(name.view(), "$1"sv, "Bad placeholders string_view.");
-  PQXX_CHECK_EQUAL(name.get(), "$1", "Bad placeholders::get().");
+  PQXX_CHECK_EQUAL(name.view(), "$1"_zv);
+  PQXX_CHECK_EQUAL(name.view(), "$1"sv);
+  PQXX_CHECK_EQUAL(name.get(), "$1");
 
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$2"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$2"_zv);
 
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$3"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$3"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$4"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$4"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$5"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$5"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$6"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$6"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$7"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$7"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$8"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$8"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$9"_zv, "Incorrect placeholders::next().");
+  PQXX_CHECK_EQUAL(name.view(), "$9"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$10"_zv, "Incorrect placeholders carry.");
+  PQXX_CHECK_EQUAL(name.view(), "$10"_zv);
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$11"_zv, "Incorrect placeholders 11.");
+  PQXX_CHECK_EQUAL(name.view(), "$11"_zv);
 
   while (name.count() < 999) name.next();
   PQXX_CHECK_EQUAL(name.view(), "$999"_zv, "Incorrect placeholders 999.");
   name.next();
-  PQXX_CHECK_EQUAL(name.view(), "$1000"_zv, "Incorrect large placeholder.");
+  PQXX_CHECK_EQUAL(name.view(), "$1000"_zv);
 }
 
 
@@ -344,8 +325,7 @@ void test_wrong_number_of_params()
     conn1.prepare("broken1", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
       tx1.exec(pqxx::prepped{"broken1"}, pqxx::params{10}),
-      pqxx::protocol_violation,
-      "Incomplete params no longer thrws protocol violation.");
+      pqxx::protocol_violation);
   }
 
   {
@@ -353,8 +333,7 @@ void test_wrong_number_of_params()
     pqxx::transaction tx2{conn2};
     conn2.prepare("broken2", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx2.exec(pqxx::prepped{"broken2"}, {5, 4, 3}), pqxx::protocol_violation,
-      "Passing too many params no longer thrws protocol violation.");
+      tx2.exec(pqxx::prepped{"broken2"}, {5, 4, 3}), pqxx::protocol_violation);
   }
 }
 
@@ -366,9 +345,9 @@ void test_query_prepped()
   cx.prepare("hop", "SELECT x * 3 FROM generate_series(1, 2) AS x");
   std::vector<int> out;
   for (auto [i] : tx.query<int>(pqxx::prepped{"hop"})) out.push_back(i);
-  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong number of results.");
-  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
-  PQXX_CHECK_EQUAL(out.at(1), 6, "First item was correct, second was not!");
+  PQXX_CHECK_EQUAL(std::size(out), 2u);
+  PQXX_CHECK_EQUAL(out.at(0), 3);
+  PQXX_CHECK_EQUAL(out.at(1), 6);
 }
 
 
@@ -377,8 +356,7 @@ void test_query_value_prepped()
   pqxx::connection cx;
   pqxx::transaction tx{cx};
   cx.prepare("pick", "SELECT 92");
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>(pqxx::prepped{"pick"}), 92, "Wrong value.");
+  PQXX_CHECK_EQUAL(tx.query_value<int>(pqxx::prepped{"pick"}), 92);
 }
 
 
@@ -389,9 +367,9 @@ void test_for_query_prepped()
   cx.prepare("series", "SELECT * FROM generate_series(3, 4)");
   std::vector<int> out;
   tx.for_query(pqxx::prepped("series"), [&out](int x) { out.push_back(x); });
-  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong result size.");
-  PQXX_CHECK_EQUAL(out.at(0), 3, "Wrong data came out of prepped query.");
-  PQXX_CHECK_EQUAL(out.at(1), 4, "First item was correct, second was not.");
+  PQXX_CHECK_EQUAL(std::size(out), 2u);
+  PQXX_CHECK_EQUAL(out.at(0), 3);
+  PQXX_CHECK_EQUAL(out.at(1), 4);
 }
 
 

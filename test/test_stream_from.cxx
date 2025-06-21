@@ -22,7 +22,7 @@ void test_nonoptionals(pqxx::connection &connection)
   pqxx::work tx{connection};
   auto extractor{pqxx::stream_from::query(
     tx, "SELECT * FROM stream_from_test ORDER BY number0")};
-  PQXX_CHECK(extractor, "stream_from failed to initialize.");
+  PQXX_CHECK(extractor);
 
   std::tuple<int, std::string, int, ipv4, std::string, bytea> got_tuple;
 
@@ -47,22 +47,18 @@ void test_nonoptionals(pqxx::connection &connection)
   // The stream is still good though.
   // The second tuple is fine.
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "Stream ended prematurely.");
+  PQXX_CHECK(extractor);
 
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Bad value.");
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234);
   // Don't know much about the timestamp, but let's assume it starts with a
   // year in the second millennium.
-  PQXX_CHECK(
-    std::get<1>(got_tuple).at(0) == '2', "Bad value.  Expected timestamp.");
-  PQXX_CHECK_LESS(
-    std::size(std::get<1>(got_tuple)), 40u, "Unexpected length.");
-  PQXX_CHECK_GREATER(
-    std::size(std::get<1>(got_tuple)), 20u, "Unexpected length.");
-  PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321, "Bad value.");
-  PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}), "Bad value.");
-  PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello\n \tworld", "Bad value.");
-  PQXX_CHECK_EQUAL(
-    std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}), "Bad value.");
+  PQXX_CHECK(std::get<1>(got_tuple).at(0) == '2');
+  PQXX_CHECK_LESS(std::size(std::get<1>(got_tuple)), 40u);
+  PQXX_CHECK_GREATER(std::size(std::get<1>(got_tuple)), 20u);
+  PQXX_CHECK_EQUAL(std::get<2>(got_tuple), 4321);
+  PQXX_CHECK_EQUAL(std::get<3>(got_tuple), (ipv4{8, 8, 8, 8}));
+  PQXX_CHECK_EQUAL(std::get<4>(got_tuple), "hello\n \tworld");
+  PQXX_CHECK_EQUAL(std::get<5>(got_tuple), (bytea{'\x00', '\x01', '\x02'}));
 
   // The third tuple contains some nulls. For what it's worth, when we *know*
   // that we're getting nulls, we can stream them into nullptr_t fields.
@@ -73,9 +69,9 @@ void test_nonoptionals(pqxx::connection &connection)
   extractor >> tup_w_nulls;
   PQXX_CHECK(extractor, "Stream ended prematurely.");
 
-  PQXX_CHECK_EQUAL(std::get<0>(tup_w_nulls), 5678, "Bad value.");
-  PQXX_CHECK(std::get<2>(tup_w_nulls) == nullptr, "Bad null.");
-  PQXX_CHECK(std::get<3>(tup_w_nulls) == nullptr, "Bad null.");
+  PQXX_CHECK_EQUAL(std::get<0>(tup_w_nulls), 5678);
+  PQXX_CHECK(std::get<2>(tup_w_nulls) == nullptr);
+  PQXX_CHECK(std::get<3>(tup_w_nulls) == nullptr);
 
   // We're at the end of the stream.
   extractor >> tup_w_nulls;
@@ -103,8 +99,7 @@ void test_nonoptionals(pqxx::connection &connection)
   ex2 >> null_tup;
   PQXX_CHECK(not ex2, "Stream did not end.");
 
-  PQXX_CHECK_SUCCEEDS(
-    tx.exec1("SELECT 1"), "Could not use transaction after stream_from.");
+  PQXX_CHECK_SUCCEEDS(tx.exec1("SELECT 1"));
 }
 
 
@@ -112,7 +107,7 @@ void test_bad_tuples(pqxx::connection &cx)
 {
   pqxx::work tx{cx};
   auto extractor{pqxx::stream_from::table(tx, {"stream_from_test"})};
-  PQXX_CHECK(extractor, "stream_from failed to initialize");
+  PQXX_CHECK(extractor);
 
   std::tuple<int> got_tuple_too_short;
   try
@@ -166,14 +161,14 @@ void test_optional(pqxx::connection &connection)
   pqxx::work tx{connection};
   auto extractor{pqxx::stream_from::query(
     tx, "SELECT * FROM stream_from_test ORDER BY number0")};
-  PQXX_CHECK(extractor, "stream_from failed to initialize");
+  PQXX_CHECK(extractor);
 
   std::tuple<int, O<std::string>, O<int>, O<ipv4>, O<std::string>, O<bytea>>
     got_tuple;
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read third row");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 910, "field value mismatch");
+  PQXX_CHECK(extractor);
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 910);
   ASSERT_FIELD_NULL(std::get<1>(got_tuple));
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
@@ -181,10 +176,9 @@ void test_optional(pqxx::connection &connection)
   ASSERT_FIELD_EQUAL((std::get<5>(got_tuple)), bytea{});
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read first row.");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234, "Field value mismatch.");
-  PQXX_CHECK(
-    static_cast<bool>(std::get<1>(got_tuple)), "Unexpected null field.");
+  PQXX_CHECK(extractor);
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 1234);
+  PQXX_CHECK(static_cast<bool>(std::get<1>(got_tuple)));
   ASSERT_FIELD_EQUAL((std::get<2>(got_tuple)), 4321);
   ASSERT_FIELD_EQUAL((std::get<3>(got_tuple)), (ipv4{8, 8, 8, 8}));
   ASSERT_FIELD_EQUAL((std::get<4>(got_tuple)), "hello\n \tworld");
@@ -192,8 +186,8 @@ void test_optional(pqxx::connection &connection)
     (std::get<5>(got_tuple)), (bytea{'\x00', '\x01', '\x02'}));
 
   extractor >> got_tuple;
-  PQXX_CHECK(extractor, "stream_from failed to read second row");
-  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 5678, "field value mismatch");
+  PQXX_CHECK(extractor);
+  PQXX_CHECK_EQUAL(std::get<0>(got_tuple), 5678);
   ASSERT_FIELD_EQUAL((std::get<1>(got_tuple)), "2018-11-17 21:23:00");
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
@@ -259,8 +253,7 @@ void test_stream_from_does_escaping()
   auto reader{pqxx::stream_from::table(tx, {"badstr"})};
   std::tuple<std::string> out;
   reader >> out;
-  PQXX_CHECK_EQUAL(
-    std::get<0>(out), input, "stream_from got weird characters wrong.");
+  PQXX_CHECK_EQUAL(std::get<0>(out), input);
 }
 
 
@@ -279,8 +272,8 @@ void test_stream_from_does_iteration()
     i++;
     out = std::get<0>(t);
   }
-  PQXX_CHECK_EQUAL(i, 1, "Wrong number of iterations.");
-  PQXX_CHECK_EQUAL(out, "foo", "Got wrong string.");
+  PQXX_CHECK_EQUAL(i, 1);
+  PQXX_CHECK_EQUAL(out, "foo");
 
   tx.exec0("INSERT INTO str (s) VALUES ('bar')");
   i = 0;
@@ -291,11 +284,10 @@ void test_stream_from_does_iteration()
     i++;
     strings.insert(std::get<0>(t));
   }
-  PQXX_CHECK_EQUAL(i, 2, "Wrong number of iterations.");
-  PQXX_CHECK_EQUAL(
-    std::size(strings), 2u, "Wrong number of strings retrieved.");
-  PQXX_CHECK(strings.contains("foo"), "Missing key.");
-  PQXX_CHECK(strings.contains("bar"), "Missing key.");
+  PQXX_CHECK_EQUAL(i, 2);
+  PQXX_CHECK_EQUAL(std::size(strings), 2u);
+  PQXX_CHECK(strings.contains("foo"));
+  PQXX_CHECK(strings.contains("bar"));
 }
 
 
@@ -308,12 +300,10 @@ void test_stream_from_read_row()
 
   auto stream{pqxx::stream_from::table(tx, {"sample"})};
   auto fields{stream.read_row()};
-  PQXX_CHECK_EQUAL(fields->size(), 3ul, "Wrong number of fields.");
-  PQXX_CHECK_EQUAL(
-    std::string((*fields)[0]), "321", "Integer field came out wrong.");
-  PQXX_CHECK_EQUAL(
-    std::string((*fields)[1]), "something", "Text field came out wrong.");
-  PQXX_CHECK(std::data((*fields)[2]) == nullptr, "Null field came out wrong.");
+  PQXX_CHECK_EQUAL(fields->size(), 3ul);
+  PQXX_CHECK_EQUAL(std::string((*fields)[0]), "321");
+  PQXX_CHECK_EQUAL(std::string((*fields)[1]), "something");
+  PQXX_CHECK(std::data((*fields)[2]) == nullptr);
 
   auto last{stream.read_row()};
   PQXX_CHECK(last == nullptr, "No null pointer at end of stream.");

@@ -11,13 +11,10 @@ void test_nontransaction_continues_after_error()
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};
 
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 9"), 9, "Simple query went wrong.");
-  PQXX_CHECK_THROWS(
-    tx.exec("SELECT 1/0"), pqxx::sql_error, "Expected error did not happen.");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 9"), 9);
+  PQXX_CHECK_THROWS(tx.exec("SELECT 1/0"), pqxx::sql_error);
 
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 5"), 5, "Wrong result after error.");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 5"), 5);
 }
 
 
@@ -88,15 +85,13 @@ template<typename TX> void test_double_close()
   TX tx3{cx};
   tx3.exec("SELECT 3").one_row();
   tx3.commit();
-  PQXX_CHECK_THROWS(
-    tx3.abort(), pqxx::usage_error, "Abort after commit not caught.");
+  PQXX_CHECK_THROWS(tx3.abort(), pqxx::usage_error);
   ;
 
   TX tx4{cx};
   tx4.exec("SELECT 4").one_row();
   tx4.abort();
-  PQXX_CHECK_THROWS(
-    tx4.commit(), pqxx::usage_error, "Commit after abort not caught.");
+  PQXX_CHECK_THROWS(tx4.commit(), pqxx::usage_error);
 }
 
 

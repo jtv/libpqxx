@@ -48,59 +48,53 @@ void test_strconv_bool()
 
   bool result{};
   pqxx::from_string("false", result);
-  PQXX_CHECK_EQUAL(result, false, "Wrong from_string('false').");
+  PQXX_CHECK_EQUAL(result, false);
   pqxx::from_string("FALSE", result);
-  PQXX_CHECK_EQUAL(result, false, "Wrong from_string('FALSE').");
+  PQXX_CHECK_EQUAL(result, false);
   pqxx::from_string("f", result);
-  PQXX_CHECK_EQUAL(result, false, "Wrong from_string('f').");
+  PQXX_CHECK_EQUAL(result, false);
   pqxx::from_string("F", result);
-  PQXX_CHECK_EQUAL(result, false, "Wrong from_string('F').");
+  PQXX_CHECK_EQUAL(result, false);
   pqxx::from_string("0", result);
-  PQXX_CHECK_EQUAL(result, false, "Wrong from_string('0').");
+  PQXX_CHECK_EQUAL(result, false);
   pqxx::from_string("true", result);
-  PQXX_CHECK_EQUAL(result, true, "Wrong from_string('true').");
+  PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("TRUE", result);
-  PQXX_CHECK_EQUAL(result, true, "Wrong from_string('TRUE').");
+  PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("t", result);
-  PQXX_CHECK_EQUAL(result, true, "Wrong from_string('t').");
+  PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("T", result);
-  PQXX_CHECK_EQUAL(result, true, "Wrong from_string('T').");
+  PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("1", result);
-  PQXX_CHECK_EQUAL(result, true, "Wrong from_string('1').");
+  PQXX_CHECK_EQUAL(result, true);
 }
 
 
 void test_strconv_enum()
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(red), "0", "Enum value did not convert.");
-  PQXX_CHECK_EQUAL(pqxx::to_string(green), "1", "Enum value did not convert.");
-  PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2", "Enum value did not convert.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(red), "0");
+  PQXX_CHECK_EQUAL(pqxx::to_string(green), "1");
+  PQXX_CHECK_EQUAL(pqxx::to_string(blue), "2");
 
   colour col{};
   pqxx::from_string("2", col);
-  PQXX_CHECK_EQUAL(col, blue, "Could not recover enum value from string.");
+  PQXX_CHECK_EQUAL(col, blue);
 }
 
 
 void test_strconv_class_enum()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(weather::hot), "0", "Class enum value did not convert.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(weather::wet), "2", "Enum value did not convert.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(weather::hot), "0");
+  PQXX_CHECK_EQUAL(pqxx::to_string(weather::wet), "2");
 
   weather w{};
   pqxx::from_string("2", w);
-  PQXX_CHECK_EQUAL(
-    w, weather::wet, "Could not recover class enum value from string.");
+  PQXX_CHECK_EQUAL(w, weather::wet);
 
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(many::bottom), "0",
-    "Small wide enum did not convert right.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(many::bottom), "0");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(many::top),
-    pqxx::to_string(std::numeric_limits<unsigned long long>::max()),
-    "Large wide enum did not convert right.");
+    pqxx::to_string(std::numeric_limits<unsigned long long>::max()));
 
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -112,38 +106,25 @@ void test_strconv_class_enum()
 void test_strconv_optional()
 {
   PQXX_CHECK_THROWS(
-    pqxx::to_string(std::optional<int>{}), pqxx::conversion_error,
-    "Converting an empty optional did not throw conversion error.");
+    pqxx::to_string(std::optional<int>{}), pqxx::conversion_error);
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::optional<int>{std::in_place, 10}), "10",
-    "std::optional<int> does not convert right.");
+    pqxx::to_string(std::optional<int>{std::in_place, 10}), "10");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000",
-    "std::optional<int> does not convert right.");
+    pqxx::to_string(std::optional<int>{std::in_place, -10000}), "-10000");
 }
 
 
 void test_strconv_smart_pointer()
 {
   PQXX_CHECK_THROWS(
-    pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error,
-    "Converting an empty unique_ptr did not throw conversion error.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::make_unique<int>(10)), "10",
-    "std::unique_ptr<int> does not convert right.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::make_unique<int>(-10000)), "-10000",
-    "std::unique_ptr<int> does not convert right.");
+    pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error);
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::make_unique<int>(10)), "10");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::make_unique<int>(-10000)), "-10000");
 
   PQXX_CHECK_THROWS(
-    pqxx::to_string(std::shared_ptr<int>{}), pqxx::conversion_error,
-    "Converting an empty shared_ptr did not throw conversion error.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::make_shared<int>(10)), "10",
-    "std::shared_ptr<int> does not convert right.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::make_shared<int>(-10000)), "-10000",
-    "std::shared_ptr<int> does not convert right.");
+    pqxx::to_string(std::shared_ptr<int>{}), pqxx::conversion_error);
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::make_shared<int>(10)), "10");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::make_shared<int>(-10000)), "-10000");
 }
 
 

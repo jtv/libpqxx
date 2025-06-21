@@ -21,9 +21,7 @@ void test_stream_handles_empty()
   pqxx::work tx{cx};
   for (auto [out] : tx.stream<int>("SELECT generate_series(1, 0)"))
     PQXX_CHECK(false, "Unexpectedly got a value: " + pqxx::to_string(out));
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 99"), 99,
-    "Things went wrong after empty stream.");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 99"), 99);
 }
 
 
@@ -35,10 +33,10 @@ void test_stream_does_escaping()
   int counter{0};
   for (auto [out] : tx.stream<std::string_view>("SELECT " + tx.quote(input)))
   {
-    PQXX_CHECK_EQUAL(out, input, "stream got weird characters wrong.");
+    PQXX_CHECK_EQUAL(out, input);
     ++counter;
   }
-  PQXX_CHECK_EQUAL(counter, 1, "Expected exactly 1 iteration.");
+  PQXX_CHECK_EQUAL(counter, 1);
 }
 
 
@@ -57,16 +55,15 @@ void test_stream_iterates()
     ids.push_back(id);
     values.push_back(value);
   }
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 99"), 99, "Things went wrong after stream.");
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 99"), 99);
   tx.commit();
 
-  PQXX_CHECK_EQUAL(std::size(ids), 2u, "Wrong number of rows.");
-  PQXX_CHECK_EQUAL(std::size(values), 2u, "Wrong number of values.");
-  PQXX_CHECK_EQUAL(ids[0], 1, "Wrong IDs.");
-  PQXX_CHECK_EQUAL(values[0], "String 1.", "Wrong values.");
-  PQXX_CHECK_EQUAL(ids[1], 2, "Wrong second ID.");
-  PQXX_CHECK_EQUAL(values[1], "String 2.", "Wrong second value.");
+  PQXX_CHECK_EQUAL(std::size(ids), 2u);
+  PQXX_CHECK_EQUAL(std::size(values), 2u);
+  PQXX_CHECK_EQUAL(ids[0], 1);
+  PQXX_CHECK_EQUAL(values[0], "String 1.");
+  PQXX_CHECK_EQUAL(ids[1], 2);
+  PQXX_CHECK_EQUAL(values[1], "String 2.");
 }
 
 
@@ -78,13 +75,12 @@ void test_stream_reads_simple_values()
   for (auto [id, name] :
        tx.stream<std::size_t, std::string>("SELECT 213, 'Hi'"))
   {
-    PQXX_CHECK_EQUAL(id, 213u, "Bad ID.");
-    PQXX_CHECK_EQUAL(name, "Hi", "Bad name.");
+    PQXX_CHECK_EQUAL(id, 213u);
+    PQXX_CHECK_EQUAL(name, "Hi");
     ++counter;
   }
-  PQXX_CHECK_EQUAL(counter, 1, "Expected exactly 1 row.");
-  PQXX_CHECK_EQUAL(
-    tx.query_value<int>("SELECT 333"), 333, "Bad value after stream.");
+  PQXX_CHECK_EQUAL(counter, 1);
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT 333"), 333);
 }
 
 
@@ -99,9 +95,9 @@ void test_stream_reads_string_view()
     static_assert(std::is_same_v<decltype(v), std::string_view>);
     out.emplace_back(v);
   }
-  PQXX_CHECK_EQUAL(std::size(out), 2u, "Wrong number of rows.");
-  PQXX_CHECK_EQUAL(out[0], "x1", "Wrong first value.");
-  PQXX_CHECK_EQUAL(out[1], "x2", "Wrong second value.");
+  PQXX_CHECK_EQUAL(std::size(out), 2u);
+  PQXX_CHECK_EQUAL(out[0], "x1");
+  PQXX_CHECK_EQUAL(out[1], "x2");
 }
 
 
@@ -115,9 +111,8 @@ void test_stream_reads_nulls_as_optionals()
 
   for (auto [val] : tx.stream<std::optional<std::string>>("SELECT 'x'"))
   {
-    PQXX_CHECK(
-      val.has_value(), "Non-null value did not come through as optional.");
-    PQXX_CHECK_EQUAL(val.value_or("empty"), "x", "Bad value in optional.");
+    PQXX_CHECK(val.has_value());
+    PQXX_CHECK_EQUAL(val.value_or("empty"), "x");
   }
 }
 

@@ -31,11 +31,9 @@ void test_date_string_conversion()
   {
     std::chrono::year_month_day const date{
       std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
+    PQXX_CHECK_EQUAL(pqxx::to_string(date), text);
     PQXX_CHECK_EQUAL(
-      pqxx::to_string(date), text, "Date did not convert right.");
-    PQXX_CHECK_EQUAL(
-      pqxx::from_string<std::chrono::year_month_day>(text), date,
-      "Date did not parse right.");
+      pqxx::from_string<std::chrono::year_month_day>(text), date);
     if (int{date.year()} > -4712)
     {
       // We can't test this for years before 4713 BC (4712 BCE), because
@@ -43,7 +41,7 @@ void test_date_string_conversion()
       PQXX_CHECK_EQUAL(
         tx.query_value<std::string>(
           "SELECT '" + pqxx::to_string(date) + "'::date"),
-        text, "Backend interpreted date differently.");
+        text);
     }
   }
 

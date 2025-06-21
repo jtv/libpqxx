@@ -18,11 +18,11 @@ void test_stateless_cursor_provides_random_access(pqxx::connection &cx)
 
   r = c.retrieve(3, 10);
   PQXX_CHECK_EQUAL(std::size(r), 1, "Expected 1 row retrieving past end.");
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 3, "Wrong data retrieved at end.");
+  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 3);
 
   r = c.retrieve(0, 1);
   PQXX_CHECK_EQUAL(std::size(r), 1);
-  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 0, "Wrong data back at beginning.");
+  PQXX_CHECK_EQUAL(r[0][0].as<int>(), 0);
 }
 
 

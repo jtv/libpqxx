@@ -64,12 +64,12 @@ void test_receive_classic(
        ++i, pqxx::internal::wait_for(100u))
     notifs = cx.get_notifs();
 
-  PQXX_CHECK_EQUAL(notifs, 1, "Got wrong number of notifications.");
-  PQXX_CHECK_EQUAL(receiver.backend_pid(), cx.backendpid(), "Bad pid.");
+  PQXX_CHECK_EQUAL(notifs, 1);
+  PQXX_CHECK_EQUAL(receiver.backend_pid(), cx.backendpid());
   if (payload == nullptr)
-    PQXX_CHECK(std::empty(receiver.payload()), "Unexpected payload.");
+    PQXX_CHECK(std::empty(receiver.payload()));
   else
-    PQXX_CHECK_EQUAL(receiver.payload(), payload, "Bad payload.");
+    PQXX_CHECK_EQUAL(receiver.payload(), payload);
 }
 
 
@@ -77,7 +77,7 @@ void test_notification_classic()
 {
   pqxx::connection cx;
   TestReceiver const receiver(cx, "mychannel");
-  PQXX_CHECK_EQUAL(receiver.channel(), "mychannel", "Bad channel.");
+  PQXX_CHECK_EQUAL(receiver.channel(), "mychannel");
 
   pqxx::work tx{cx};
   test_receive_classic(tx, "channel1");
@@ -111,7 +111,7 @@ void test_notification_to_self_arrives_after_commit()
   cx.get_notifs();
 
   // No notifications so far.
-  PQXX_CHECK_EQUAL(notifications, 0, "Unexpected notification.");
+  PQXX_CHECK_EQUAL(notifications, 0);
 
   pqxx::work tx{cx};
   tx.notify(channel);
@@ -120,19 +120,17 @@ void test_notification_to_self_arrives_after_commit()
   // Notification has not been delivered yet, since transaction has not yet
   // been committed.
   PQXX_CHECK_EQUAL(received, 0, "Notification went out before commit.");
-  PQXX_CHECK_EQUAL(notifications, 0, "Received uncounted notification.");
+  PQXX_CHECK_EQUAL(notifications, 0);
 
   tx.commit();
 
   received = cx.await_notification(3);
-  PQXX_CHECK_EQUAL(received, 1, "Did not receive 1 notification from self.");
-  PQXX_CHECK_EQUAL(notifications, 1, "Miscounted notifcations.");
-  PQXX_CHECK(conn == &cx, "Wrong connection on notification from self.");
-  PQXX_CHECK_EQUAL(
-    pid, cx.backendpid(),
-    "Notification from self came from wrong connection.");
-  PQXX_CHECK_EQUAL(incoming, channel, "Notification is on wrong channel.");
-  PQXX_CHECK_EQUAL(payload, "", "Unexpected payload.");
+  PQXX_CHECK_EQUAL(received, 1);
+  PQXX_CHECK_EQUAL(notifications, 1);
+  PQXX_CHECK(conn == &cx);
+  PQXX_CHECK_EQUAL(pid, cx.backendpid());
+  PQXX_CHECK_EQUAL(incoming, channel);
+  PQXX_CHECK_EQUAL(payload, "");
 }
 
 
@@ -155,8 +153,8 @@ void test_notification_has_payload()
 
   cx.await_notification(3);
 
-  PQXX_CHECK_EQUAL(notifications, 1, "Expeccted 1 self-notification.");
-  PQXX_CHECK_EQUAL(received, payload, "Unexpected payload.");
+  PQXX_CHECK_EQUAL(notifications, 1);
+  PQXX_CHECK_EQUAL(received, payload);
 }
 
 
@@ -185,7 +183,7 @@ void test_listen_supports_different_types_of_callable()
   tx1.notify(chan);
   tx1.commit();
   cx.await_notification(3);
-  PQXX_CHECK_EQUAL(received, 1, "Notification did not arrive.");
+  PQXX_CHECK_EQUAL(received, 1);
 
   // Using a handler that takes a const reference to the notification.
   received = 0;
@@ -194,7 +192,7 @@ void test_listen_supports_different_types_of_callable()
   tx2.notify(chan);
   tx2.commit();
   cx.await_notification(3);
-  PQXX_CHECK_EQUAL(received, 1, "Const ref did not receive notification.");
+  PQXX_CHECK_EQUAL(received, 1);
 
   // Using a handler that takes an rvalue reference.
   received = 0;
@@ -203,7 +201,7 @@ void test_listen_supports_different_types_of_callable()
   tx3.notify(chan);
   tx3.commit();
   cx.await_notification(3);
-  PQXX_CHECK_EQUAL(received, 1, "Revalue ref did not receive notification.");
+  PQXX_CHECK_EQUAL(received, 1);
 }
 
 
@@ -219,7 +217,7 @@ void test_abort_cancels_notification()
   tx.abort();
 
   cx.await_notification(3);
-  PQXX_CHECK(not received, "Abort did not cancel notification.");
+  PQXX_CHECK(not received);
 }
 
 
@@ -237,7 +235,7 @@ void test_notification_channels_are_case_sensitive()
 
   cx.await_notification(3);
 
-  PQXX_CHECK_EQUAL(in, "pqxx-AbC", "Channel is not case-insensitive.");
+  PQXX_CHECK_EQUAL(in, "pqxx-AbC");
 }
 
 
@@ -251,8 +249,7 @@ void test_notification_channels_may_contain_weird_chars()
   tx.notify(chan);
   tx.commit();
   cx.await_notification(3);
-  PQXX_CHECK_EQUAL(
-    got, chan, "Channel name with weird characters got distorted.");
+  PQXX_CHECK_EQUAL(got, chan);
 }
 
 
@@ -269,7 +266,7 @@ void test_nontransaction_sends_notification()
   tx.abort();
 
   cx.await_notification(3);
-  PQXX_CHECK(got, "Notification from nontransaction did not arrive.");
+  PQXX_CHECK(got);
 }
 
 
@@ -287,7 +284,7 @@ void test_subtransaction_sends_notification()
   tx.commit();
 
   cx.await_notification(3);
-  PQXX_CHECK(got, "Notification from subtransaction did not arrive.");
+  PQXX_CHECK(got);
 }
 
 
@@ -317,8 +314,7 @@ void test_cannot_listen_during_transaction()
   pqxx::nontransaction const tx{cx};
   PQXX_CHECK_THROWS(
     cx.listen("pqxx-test-chan02756", [](pqxx::notification) {}),
-    pqxx::usage_error,
-    "Expected usage_error when listening during transaction.");
+    pqxx::usage_error);
 }
 
 
@@ -335,7 +331,7 @@ void test_notifications_cross_connections()
   tx.commit();
 
   cx_listen.await_notification(3);
-  PQXX_CHECK_EQUAL(sender_pid, cx_notify.backendpid(), "Sender pid mismatch.");
+  PQXX_CHECK_EQUAL(sender_pid, cx_notify.backendpid());
 }
 
 
@@ -363,8 +359,8 @@ void test_notification_goes_to_right_handler()
   tx.commit();
   cx.await_notification(3);
 
-  PQXX_CHECK_EQUAL(got, "chanY", "Wrong handler got called.");
-  PQXX_CHECK_EQUAL(count, 1, "Wrong number of handler calls.");
+  PQXX_CHECK_EQUAL(got, "chanY");
+  PQXX_CHECK_EQUAL(count, 1);
 }
 
 
@@ -394,7 +390,7 @@ void test_listen_on_same_channel_overwrites()
   cx.await_notification(3);
 
   PQXX_CHECK_EQUAL(count, 1, "Expected 1 notification despite overwrite.");
-  PQXX_CHECK_EQUAL(got, "third", "Wrong handler called.");
+  PQXX_CHECK_EQUAL(got, "third");
 }
 
 
@@ -444,8 +440,8 @@ void test_notification_handlers_follow_connection_move()
   tx.notify(chan);
   tx.commit();
   cx3.await_notification(3);
-  PQXX_CHECK(got != nullptr, "Did not get notified.");
-  PQXX_CHECK(got == &cx3, "Notification got the wrong connection.");
+  PQXX_CHECK(got != nullptr);
+  PQXX_CHECK(got == &cx3);
 }
 
 

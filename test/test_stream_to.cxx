@@ -25,7 +25,7 @@ void test_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
   bytea const binary{'\x00', '\x01', '\x02'},
@@ -41,19 +41,17 @@ void test_nonoptionals(pqxx::connection &connection)
 
   auto r1{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
-  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
-  PQXX_CHECK_EQUAL(
-    r1[4].as<std::string>(), "hello nonoptional world",
-    "Read back wrong string.");
-  PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4), "Read back wrong ip.");
-  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytea.");
+  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234);
+  PQXX_CHECK_EQUAL(r1[4].as<std::string>(), "hello nonoptional world");
+  PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4));
+  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary);
 
   auto r2{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
-  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
-  PQXX_CHECK(r2[2].is_null(), "Field 2 was meant to be null.");
-  PQXX_CHECK(r2[3].is_null(), "Field 3 was meant to be null.");
-  PQXX_CHECK_EQUAL(r2[4].as<std::string>(), nonascii, "Wrong non-ascii text.");
+  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678);
+  PQXX_CHECK(r2[2].is_null());
+  PQXX_CHECK(r2[3].is_null());
+  PQXX_CHECK_EQUAL(r2[4].as<std::string>(), nonascii);
   tx.commit();
 }
 
@@ -62,7 +60,7 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
   bytea const binary{'\x00', '\x01', '\x02'},
@@ -78,19 +76,17 @@ void test_nonoptionals_fold(pqxx::connection &connection)
 
   auto r1{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 1234").one_row()};
-  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
-  PQXX_CHECK_EQUAL(
-    r1[4].as<std::string>(), "hello nonoptional world",
-    "Read back wrong string.");
-  PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4), "Read back wrong ip.");
-  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary, "Read back wrong bytera.");
+  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234);
+  PQXX_CHECK_EQUAL(r1[4].as<std::string>(), "hello nonoptional world");
+  PQXX_CHECK_EQUAL(r1[3].as<ipv4>(), ipv4(8, 8, 4, 4));
+  PQXX_CHECK_EQUAL(r1[5].as<bytea>(), binary);
 
   auto r2{
     tx.exec("SELECT * FROM stream_to_test WHERE number0 = 5678").one_row()};
-  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
-  PQXX_CHECK(r2[2].is_null(), "Field 2 was meant to be null.");
-  PQXX_CHECK(r2[3].is_null(), "Field 3 was meant to be null.");
-  PQXX_CHECK_EQUAL(r2[4].as<std::string>(), nonascii, "Wrong non-ascii text.");
+  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678);
+  PQXX_CHECK(r2[2].is_null());
+  PQXX_CHECK(r2[3].is_null());
+  PQXX_CHECK_EQUAL(r2[4].as<std::string>(), nonascii);
   tx.commit();
 }
 
@@ -109,10 +105,10 @@ void test_bad_null(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
   PQXX_CHECK_THROWS(
     insert_bad_null_tuple(inserter), pqxx::not_null_violation,
-    "Did not expected not_null_violation when stream_to inserts a bad null.");
+    "Did not detect insertion of a bad null into stream_to.");
 }
 
 
@@ -130,10 +126,10 @@ void test_bad_null_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
   PQXX_CHECK_THROWS(
     insert_bad_null_write(inserter), pqxx::not_null_violation,
-    "Did not expected not_null_violation when stream_to inserts a bad null.");
+    "Did not detect insertion of a bad null into stream_to.");
 }
 
 
@@ -141,7 +137,7 @@ void test_too_few_fields(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   try
   {
@@ -165,7 +161,7 @@ void test_too_few_fields_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   try
   {
@@ -190,7 +186,7 @@ void test_too_many_fields(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   try
   {
@@ -216,7 +212,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   try
   {
@@ -249,11 +245,8 @@ void test_stream_to_does_nonnull_optional()
     std::optional<int>{368}, std::optional<std::string>{"Text"});
   inserter.complete();
   auto const row{tx.exec("SELECT x, y FROM foo").one_row()};
-  PQXX_CHECK_EQUAL(
-    row[0].as<std::string>(), "368", "Non-null int optional came out wrong.");
-  PQXX_CHECK_EQUAL(
-    row[1].as<std::string>(), "Text",
-    "Non-null string optional came out wrong.");
+  PQXX_CHECK_EQUAL(row[0].as<std::string>(), "368");
+  PQXX_CHECK_EQUAL(row[1].as<std::string>(), "Text");
 }
 
 
@@ -262,7 +255,7 @@ void test_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   inserter << std::make_tuple(
     910, O<std::string>{pqxx::nullness<O<std::string>>::null()},
@@ -278,7 +271,7 @@ void test_optional_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   inserter.write_values(
     910, O<std::string>{pqxx::nullness<O<std::string>>::null()},
@@ -303,10 +296,8 @@ void test_container_stream_to()
   inserter.complete();
 
   auto read{tx.exec("SELECT * FROM test_container").one_row()};
-  PQXX_CHECK_EQUAL(
-    read[0].as<int>(), 112, "stream_to on container went wrong.");
-  PQXX_CHECK_EQUAL(
-    read[1].as<int>(), 244, "Second container field went wrong.");
+  PQXX_CHECK_EQUAL(read[0].as<int>(), 112);
+  PQXX_CHECK_EQUAL(read[1].as<int>(), 244);
   tx.commit();
 }
 
@@ -314,7 +305,7 @@ void test_variant_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
-  PQXX_CHECK(inserter, "stream_to failed to initialize");
+  PQXX_CHECK(inserter);
 
   inserter.write_values(
     std::variant<std::string, int>{1234},
@@ -395,10 +386,8 @@ void test_stream_to_factory_with_static_columns()
   stream.complete();
 
   auto r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
-  PQXX_CHECK_EQUAL(r[0].as<int>(), 3, "Failed to stream_to a table.");
-  PQXX_CHECK_EQUAL(
-    r[1].as<std::string>(), "three",
-    "Failed to stream_to a string to a table.");
+  PQXX_CHECK_EQUAL(r[0].as<int>(), 3);
+  PQXX_CHECK_EQUAL(r[1].as<std::string>(), "three");
 }
 
 
@@ -415,11 +404,8 @@ void test_stream_to_factory_with_dynamic_columns()
   stream.complete();
 
   auto r{tx.exec("SELECT a, b FROM pqxx_stream_to").one_row()};
-  PQXX_CHECK_EQUAL(
-    r[0].as<int>(), 4, "Failed to stream_to a table with dynamic columns.");
-  PQXX_CHECK_EQUAL(
-    r[1].as<std::string>(), "four",
-    "Failed to stream_to a string to a table with dynamic columns.");
+  PQXX_CHECK_EQUAL(r[0].as<int>(), 4);
+  PQXX_CHECK_EQUAL(r[1].as<std::string>(), "four");
 }
 
 
@@ -441,7 +427,7 @@ void test_stream_to_quotes_arguments()
   PQXX_CHECK_EQUAL(
     tx.query_value<int>(
       "SELECT " + tx.quote_name(column) + " FROM " + tx.quote_name(table)),
-    12, "Stream wrote wrong value.");
+    12);
 }
 
 
@@ -480,8 +466,7 @@ void test_stream_to_optionals()
   for (auto [key] : tx.query<int>(
          "SELECT key FROM pqxx_strings WHERE value IS NULL ORDER BY key"))
     nulls += pqxx::to_string(key) + '.';
-  PQXX_CHECK_EQUAL(
-    nulls, "1.2.3.7.8.9.13.14.15.", "Unexpected list of nulls.");
+  PQXX_CHECK_EQUAL(nulls, "1.2.3.7.8.9.13.14.15.");
 
   std::string values;
   for (auto const &[value] :
@@ -490,8 +475,8 @@ void test_stream_to_optionals()
     values += value;
   PQXX_CHECK_EQUAL(
     values,
-    "Opt str.Opt sv.Opt zv.Shared str.Shared sv.Shared zv.Uq str.Uq sv.Uq zv.",
-    "Unexpected list of values.");
+    "Opt str.Opt sv.Opt zv.Shared str.Shared sv.Shared zv.Uq str.Uq sv.Uq "
+    "zv.");
 }
 
 
@@ -518,16 +503,12 @@ void test_stream_to_escaping()
   // Verify.
   auto outputs{tx.exec("SELECT i, t FROM foo ORDER BY i")};
   PQXX_CHECK_EQUAL(
-    static_cast<std::size_t>(std::size(outputs)), std::size(inputs),
-    "Wrong number of rows came back.");
+    static_cast<std::size_t>(std::size(outputs)), std::size(inputs));
   for (std::size_t i{0}; i < std::size(inputs); ++i)
   {
     int const idx{static_cast<int>(i)};
-    PQXX_CHECK_EQUAL(
-      outputs[idx][0].as<std::size_t>(), i, "Unexpected index.");
-    PQXX_CHECK_EQUAL(
-      outputs[idx][1].as<std::string_view>(), inputs.at(i),
-      "String changed in transit.");
+    PQXX_CHECK_EQUAL(outputs[idx][0].as<std::size_t>(), i);
+    PQXX_CHECK_EQUAL(outputs[idx][1].as<std::string_view>(), inputs.at(i));
   }
 }
 
@@ -544,9 +525,8 @@ void test_stream_to_moves_into_optional()
   copy->write_values(2);
   copy->complete();
   auto values{tx.exec("SELECT a FROM foo ORDER BY a").expect_rows(2)};
-  PQXX_CHECK_EQUAL(
-    values[0][0].as<int>(), 1, "Streaming results start off wrong.");
-  PQXX_CHECK_EQUAL(values[1][0].as<int>(), 2, "Moved stream went wrong.");
+  PQXX_CHECK_EQUAL(values[0][0].as<int>(), 1);
+  PQXX_CHECK_EQUAL(values[1][0].as<int>(), 2);
 }
 
 

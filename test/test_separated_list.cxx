@@ -8,17 +8,9 @@ namespace
 {
 void test_separated_list()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::separated_list(",", std::vector<int>{}), "",
-    "Empty list came out wrong.");
-
-  PQXX_CHECK_EQUAL(
-    pqxx::separated_list(",", std::vector<int>{5}), "5",
-    "Single-element list came out wrong.");
-
-  PQXX_CHECK_EQUAL(
-    pqxx::separated_list(",", std::vector<int>{3, 6}), "3,6",
-    "Things go wrong once separators come in.");
+  PQXX_CHECK_EQUAL(pqxx::separated_list(",", std::vector<int>{}), "");
+  PQXX_CHECK_EQUAL(pqxx::separated_list(",", std::vector<int>{5}), "5");
+  PQXX_CHECK_EQUAL(pqxx::separated_list(",", std::vector<int>{3, 6}), "3,6");
 
   std::vector<int> const nums{1, 2, 3};
   PQXX_CHECK_EQUAL(

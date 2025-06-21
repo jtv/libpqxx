@@ -15,7 +15,7 @@ void test_notice_handler_receives_notice()
   // Start a transaction while already in a transaction, to trigger a notice.
   tx.exec("BEGIN").no_rows();
 
-  PQXX_CHECK_EQUAL(notices, 1, "Did not get expected single notice.");
+  PQXX_CHECK_EQUAL(notices, 1);
 }
 
 
@@ -31,12 +31,10 @@ void test_notice_handler_works_after_connection_closes()
     r = tx.exec("SELECT 1");
   }
 
-  PQXX_CHECK_EQUAL(notices, 0, "Got premature notice.");
+  PQXX_CHECK_EQUAL(notices, 0);
 
   // Trigger a notice by asking libpq about a nonexistent column.
-  PQXX_CHECK_THROWS_EXCEPTION(
-    std::ignore = r.table_column(99),
-    "Expected an out-of-bounds table_column() to throw an error.");
+  PQXX_CHECK_THROWS_EXCEPTION(std::ignore = r.table_column(99));
 
   PQXX_CHECK_EQUAL(
     notices, 1, "Did not get expected single post-connection notice.");
@@ -56,8 +54,8 @@ void test_process_notice_calls_notice_handler()
   });
   cx.process_notice(msg);
 
-  PQXX_CHECK_EQUAL(calls, 1, "Expected exactly 1 call to notice handler.");
-  PQXX_CHECK_EQUAL(received, msg, "Got wrong message.");
+  PQXX_CHECK_EQUAL(calls, 1);
+  PQXX_CHECK_EQUAL(received, msg);
 }
 
 
@@ -75,7 +73,7 @@ void test_notice_handler_accepts_function()
   pqxx::connection cx;
   cx.set_notice_handler(notice_handler_test_func);
   cx.process_notice("Hello");
-  PQXX_CHECK_EQUAL(notice_handler_test_func_counter, 1, "Expected 1 call.");
+  PQXX_CHECK_EQUAL(notice_handler_test_func_counter, 1);
 }
 
 
@@ -87,7 +85,7 @@ void test_notice_handler_accepts_stateless_lambda()
   cx.set_notice_handler(
     [](pqxx::zview) noexcept { ++notice_handler_test_lambda_counter; });
   cx.process_notice("Hello");
-  PQXX_CHECK_EQUAL(notice_handler_test_lambda_counter, 1, "Expected 1 call.");
+  PQXX_CHECK_EQUAL(notice_handler_test_lambda_counter, 1);
 }
 
 
@@ -122,8 +120,8 @@ void test_notice_handler_accepts_functor()
   cx.set_notice_handler(f);
   cx.process_notice(hello);
 
-  PQXX_CHECK_EQUAL(count, 1, "Expected 1 call.");
-  PQXX_CHECK_EQUAL(received, hello, "Wrong message.");
+  PQXX_CHECK_EQUAL(count, 1);
+  PQXX_CHECK_EQUAL(received, hello);
 }
 
 

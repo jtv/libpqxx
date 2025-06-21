@@ -37,48 +37,37 @@ constexpr double thres{0.00001};
 
 void test_string_conversion()
 {
-  PQXX_CHECK_EQUAL(
-    "C string array", pqxx::to_string("C string array"),
-    "C-style string constant does not convert to string properly.");
+  PQXX_CHECK_EQUAL("C string array", pqxx::to_string("C string array"));
 
   char const text_array[]{"C char array"};
-  PQXX_CHECK_EQUAL(
-    "C char array", pqxx::to_string(text_array),
-    "C-style non-const char array does not convert to string properly.");
+  PQXX_CHECK_EQUAL("C char array", pqxx::to_string(text_array));
 
   char const *text_ptr{"C string pointer"};
-  PQXX_CHECK_EQUAL(
-    "C string pointer", pqxx::to_string(text_ptr),
-    "C-style string pointer does not convert to string properly.");
+  PQXX_CHECK_EQUAL("C string pointer", pqxx::to_string(text_ptr));
 
   std::string const cxx_string{"C++ string"};
-  PQXX_CHECK_EQUAL(
-    "C++ string", pqxx::to_string(cxx_string),
-    "C++-style string object does not convert to string properly.");
+  PQXX_CHECK_EQUAL("C++ string", pqxx::to_string(cxx_string));
 
-  PQXX_CHECK_EQUAL("0", pqxx::to_string(0), "Zero does not convert right.");
-  PQXX_CHECK_EQUAL(
-    "1", pqxx::to_string(1), "Basic integer does not convert right.");
-  PQXX_CHECK_EQUAL("-1", pqxx::to_string(-1), "Negative numbers don't work.");
-  PQXX_CHECK_EQUAL(
-    "9999", pqxx::to_string(9999), "Larger numbers don't work.");
-  PQXX_CHECK_EQUAL(
-    "-9999", pqxx::to_string(-9999), "Larger negative numbers don't work.");
+  PQXX_CHECK_EQUAL("0", pqxx::to_string(0));
+  PQXX_CHECK_EQUAL("1", pqxx::to_string(1));
+  PQXX_CHECK_EQUAL("-1", pqxx::to_string(-1));
+  PQXX_CHECK_EQUAL("9999", pqxx::to_string(9999));
+  PQXX_CHECK_EQUAL("-9999", pqxx::to_string(-9999));
 
   int x{};
   pqxx::from_string("0", x);
-  PQXX_CHECK_EQUAL(0, x, "Zero does not parse right.");
+  PQXX_CHECK_EQUAL(0, x);
   pqxx::from_string("1", x);
-  PQXX_CHECK_EQUAL(1, x, "Basic integer does not parse right.");
+  PQXX_CHECK_EQUAL(1, x);
   pqxx::from_string("-1", x);
-  PQXX_CHECK_EQUAL(-1, x, "Negative numbers don't work.");
+  PQXX_CHECK_EQUAL(-1, x);
   pqxx::from_string("9999", x);
-  PQXX_CHECK_EQUAL(9999, x, "Larger numbers don't work.");
+  PQXX_CHECK_EQUAL(9999, x);
   pqxx::from_string("-9999", x);
-  PQXX_CHECK_EQUAL(-9999, x, "Larger negative numbers don't work.");
+  PQXX_CHECK_EQUAL(-9999, x);
 
   // Bug #263 describes a case where this kind of overflow went undetected.
-  if (sizeof(unsigned int) == 4)
+  if constexpr (sizeof(unsigned int) == 4)
   {
     std::uint32_t u{};
     PQXX_CHECK_THROWS(
@@ -91,71 +80,47 @@ void test_string_conversion()
   // cleanup, so the conversion works multiple times.
   constexpr long double ld1{123456789.25}, ld2{9876543210.5};
   constexpr char lds1[]{"123456789.25"}, lds2[]{"9876543210.5"};
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(ld1).substr(0, 12), lds1,
-    "Wrong conversion from long double.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(ld2).substr(0, 12), lds2,
-    "Wrong value on repeated conversion from long double.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(ld1).substr(0, 12), lds1);
+  PQXX_CHECK_EQUAL(pqxx::to_string(ld2).substr(0, 12), lds2);
   long double ldi1{}, ldi2{};
   pqxx::from_string(std::data(lds1), ldi1);
-  PQXX_CHECK_BOUNDS(
-    ldi1, ld1 - thres, ld1 + thres, "Wrong conversion to long double.");
+  PQXX_CHECK_BOUNDS(ldi1, ld1 - thres, ld1 + thres);
   pqxx::from_string(std::data(lds2), ldi2);
-  PQXX_CHECK_BOUNDS(
-    ldi2, ld2 - thres, ld2 + thres,
-    "Wrong repeated conversion to long double.");
+  PQXX_CHECK_BOUNDS(ldi2, ld2 - thres, ld2 + thres);
 
   // We can define string conversions for enums.
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(ea0), "0", "Enum-to-string conversion is broken.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(eb0), "0",
-    "Enum-to-string conversion is inconsistent between enum types.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(ea1), "1",
-    "Enum-to-string conversion breaks for nonzero value.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(ea0), "0");
+  PQXX_CHECK_EQUAL(pqxx::to_string(eb0), "0");
+  PQXX_CHECK_EQUAL(pqxx::to_string(ea1), "1");
 
   EnumA ea{};
   pqxx::from_string("2", ea);
-  PQXX_CHECK_EQUAL(ea, ea2, "String-to-enum conversion is broken.");
+  PQXX_CHECK_EQUAL(ea, ea2);
 }
 
 
 void test_convert_variant_to_string()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::variant<int, std::string>{99}), "99",
-    "First variant field did not convert right.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::variant<int, std::string>{99}), "99");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::variant<int, std::string>{"Text"}), "Text",
-    "Second variant field did not convert right.");
+    pqxx::to_string(std::variant<int, std::string>{"Text"}), "Text");
 }
 
 
 void test_integer_conversion()
 {
-  PQXX_CHECK_EQUAL(
-    pqxx::from_string<int>("12"), 12, "Basic integer conversion failed.");
-  PQXX_CHECK_EQUAL(
-    pqxx::from_string<int>(" 12"), 12,
-    "Leading whitespace confused integer conversion.");
+  PQXX_CHECK_EQUAL(pqxx::from_string<int>("12"), 12);
+  PQXX_CHECK_EQUAL(pqxx::from_string<int>(" 12"), 12);
   PQXX_CHECK_THROWS(
-    std::ignore = pqxx::from_string<int>(""), pqxx::conversion_error,
-    "Converting empty string to integer did not throw conversion error.");
+    std::ignore = pqxx::from_string<int>(""), pqxx::conversion_error);
   PQXX_CHECK_THROWS(
-    std::ignore = pqxx::from_string<int>(" "), pqxx::conversion_error,
-    "Converting whitespace to integer did not throw conversion error.");
-  PQXX_CHECK_EQUAL(
-    pqxx::from_string<int>("-6"), -6,
-    "Leading whitespace did not work with negative number.");
+    std::ignore = pqxx::from_string<int>(" "), pqxx::conversion_error);
+  PQXX_CHECK_EQUAL(pqxx::from_string<int>("-6"), -6);
   PQXX_CHECK_THROWS(
-    std::ignore = pqxx::from_string<int>("- 3"), pqxx::conversion_error,
-    "A space between negation and number was not properly flagged.");
+    std::ignore = pqxx::from_string<int>("- 3"), pqxx::conversion_error);
   PQXX_CHECK_THROWS(
-    std::ignore = pqxx::from_string<int>("-"), pqxx::conversion_error,
-    "Just a minus sign should not parse as an integer.");
+    std::ignore = pqxx::from_string<int>("-"), pqxx::conversion_error);
 }
 
 
@@ -163,14 +128,9 @@ void test_convert_null()
 {
   pqxx::connection cx;
   pqxx::work const tx{cx};
-  PQXX_CHECK_EQUAL(
-    tx.quote(nullptr), "NULL", "Null pointer did not come out as SQL 'null'.");
-  PQXX_CHECK_EQUAL(
-    tx.quote(std::nullopt), "NULL",
-    "std::nullopt did not come out as SQL 'null'.");
-  PQXX_CHECK_EQUAL(
-    tx.quote(std::monostate{}), "NULL",
-    "std::monostate did not come out as SQL 'null'.");
+  PQXX_CHECK_EQUAL(tx.quote(nullptr), "NULL");
+  PQXX_CHECK_EQUAL(tx.quote(std::nullopt), "NULL");
+  PQXX_CHECK_EQUAL(tx.quote(std::monostate{}), "NULL");
 }
 
 
@@ -178,30 +138,23 @@ void test_string_view_conversion()
 {
   using traits = pqxx::string_traits<std::string_view>;
 
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string("view here"sv), "view here"s,
-    "Bad conversion from string_view.");
+  PQXX_CHECK_EQUAL(pqxx::to_string("view here"sv), "view here"s);
 
   std::array<char, 200> buf{};
 
   std::size_t const stop{traits::into_buf(buf, "more view"sv)};
-  PQXX_CHECK_LESS(
-    stop, std::size(buf),
-    "string_view into_buf did not stay within its buffer.");
+  PQXX_CHECK_LESS(stop, std::size(buf));
   assert(stop > 0);
-  PQXX_CHECK(
-    buf.at(stop - 1) == '\0', "string_view into_buf did not zero-terminate.");
+  PQXX_CHECK(buf.at(stop - 1) == '\0');
   PQXX_CHECK_EQUAL(
     (std::string{std::data(buf), static_cast<std::size_t>(stop - 1)}),
-    "more view"s, "string_view into_buf wrote wrong data.");
-  PQXX_CHECK(
-    buf.at(stop - 2) == 'w', "string_view into_buf is in the wrong place.");
+    "more view"s);
+  PQXX_CHECK(buf.at(stop - 2) == 'w');
 
   std::string_view org{"another!"sv};
   pqxx::zview out{
     traits::to_buf(std::data(buf), std::data(buf) + std::size(buf), org)};
-  PQXX_CHECK_EQUAL(
-    std::string{out}, "another!"s, "string_view to_buf returned wrong data.");
+  PQXX_CHECK_EQUAL(std::string{out}, "another!"s);
   PQXX_CHECK(
     std::data(out) != std::data(org),
     "string_view to_buf returned original view, which may not be terminated.");
@@ -213,17 +166,13 @@ void test_binary_converts_to_string()
   std::array<std::byte, 3> const bin_data{
     std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
   std::string_view const text_data{"\\x414243"};
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(bin_data), text_data,
-    "Bad conversion from std::array<std::byte, n> to string.");
+  PQXX_CHECK_EQUAL(pqxx::to_string(bin_data), text_data);
 
   std::array<std::byte, 1> x{std::byte{0x78}};
-  PQXX_CHECK_EQUAL(std::size(x), 1u, "This vector is not what I thought.");
+  PQXX_CHECK_EQUAL(std::size(x), 1u);
   std::span<std::byte> const span{x};
-  PQXX_CHECK_EQUAL(std::size(span), 1u, "Strangely different span.");
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(span), "\\x78",
-    "Bad conversion from std::span<std::byte> to string.");
+  PQXX_CHECK_EQUAL(std::size(span), 1u);
+  PQXX_CHECK_EQUAL(pqxx::to_string(span), "\\x78");
 }
 
 
@@ -235,9 +184,7 @@ void test_string_converts_to_binary()
 
   // We can convert a bytea SQL string to a vector of bytes.
   auto const vec{pqxx::from_string<std::vector<std::byte>>(text_data)};
-  PQXX_CHECK_EQUAL(
-    std::size(vec), std::size(bin_data),
-    "Vector of bytes from text has wrong length.");
+  PQXX_CHECK_EQUAL(std::size(vec), std::size(bin_data));
   for (std::size_t i{0}; i < std::size(vec); ++i)
     PQXX_CHECK(
       vec.at(i) == bin_data.at(i),
@@ -255,9 +202,7 @@ void test_string_converts_to_binary()
   // different size.
   PQXX_CHECK_THROWS(
     (std::ignore = pqxx::from_string<std::array<std::byte, 4>>(text_data)),
-    pqxx::conversion_error,
-    "Not getting expected exception from converting binary to wrong size "
-    "array.");
+    pqxx::conversion_error);
 }
 
 

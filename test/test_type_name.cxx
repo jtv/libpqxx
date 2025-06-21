@@ -20,12 +20,9 @@ void test_type_name()
 void test_name_type()
 {
   // We have a few hand-defined type names.
-  PQXX_CHECK_EQUAL(
-    pqxx::name_type<std::string>(), "std::string", "Unexpected type name.");
-  PQXX_CHECK_EQUAL(
-    pqxx::name_type<std::string_view>(), "std::string_view",
-    "Unexpected type name.");
-  PQXX_CHECK_EQUAL(pqxx::name_type<int>(), "int", "Unexpected type name.");
+  PQXX_CHECK_EQUAL(pqxx::name_type<std::string>(), "std::string");
+  PQXX_CHECK_EQUAL(pqxx::name_type<std::string_view>(), "std::string_view");
+  PQXX_CHECK_EQUAL(pqxx::name_type<int>(), "int");
 }
 
 
