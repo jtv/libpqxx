@@ -148,9 +148,13 @@ void test_bad_tuples(pqxx::connection &cx)
 }
 
 
+// Annoying: clang-tidy complains about an unchecked std::optional access,
+// even if we check that OPT contains a value before we retrieve it.
 #define ASSERT_FIELD_EQUAL(OPT, VAL)                                          \
   PQXX_CHECK(static_cast<bool>(OPT), "unexpected null field");                \
-  PQXX_CHECK_EQUAL((*OPT), (VAL), "field value mismatch")
+  if ((OPT))                                                                  \
+  PQXX_CHECK_EQUAL(*(OPT), (VAL), "field value mismatch")
+
 #define ASSERT_FIELD_NULL(OPT)                                                \
   PQXX_CHECK(not static_cast<bool>(OPT), "expected null field")
 

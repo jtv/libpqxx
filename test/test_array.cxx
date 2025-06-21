@@ -523,7 +523,7 @@ void test_array_parses_real_arrays()
   pqxx::array<std::optional<std::string>> const nulls_a{nulls_s, cx};
   PQXX_CHECK(not nulls_a[0].has_value());
   PQXX_CHECK(nulls_a[1].has_value());
-  PQXX_CHECK_EQUAL(nulls_a[1].value(), "NULL");
+  PQXX_CHECK_EQUAL(nulls_a[1].value_or("(missing)"), "NULL");
 }
 
 

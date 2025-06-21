@@ -350,7 +350,7 @@ void test_range_intersection()
 
 void test_range_conversion()
 {
-  std::string_view const ranges[]{
+  std::array<std::string_view, 8> const ranges{
     "empty", "(,)", "(,10)", "(0,)", "[0,10]", "[0,10)", "(0,10]", "(0,10)",
   };
 
