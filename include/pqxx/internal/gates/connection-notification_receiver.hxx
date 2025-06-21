@@ -21,9 +21,9 @@ class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
   {
     home().add_receiver(receiver);
   }
-  void remove_receiver(notification_receiver *receiver) noexcept
+  void remove_receiver(notification_receiver *receiver, sl loc) noexcept
   {
-    home().remove_receiver(receiver);
+    home().remove_receiver(receiver, loc);
   }
 };
 } // namespace pqxx::internal::gate

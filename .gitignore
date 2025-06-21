@@ -5,9 +5,11 @@ CMakeFiles/CMakeTmp
 confdefs.h
 config.log
 config.status
+configure~
 conftest
 conftest.cpp
 conftest.err
+include/pqxx/config.h.in~
 libpqxx.pc
 libpqxx-*.tar.gz
 libtool
