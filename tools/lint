@@ -128,10 +128,18 @@ cpplint() {
     pip install -q clang-tidy
     if [ -e compile_commands.json ]
     then
-        # This wrapper script runs in parallel, making it much faster on most
+        # This wrapper script runs in parallel, making it run faster on most
         # systems.  It uses the "compilation database" that cmake writes into
-	# compile_commands.json.
-        run-clang-tidy -q "-j$(nproc)"
+        # compile_commands.json.
+        #
+        # It does look as if there's massive overhead to concurrent runs.  A
+        # run with -j16 (on a 16-core system) ran less than twice as fast, but
+        # racked up almost ten times as much CPU time.  A run with -j1 took
+        # more than four times as long as the original tool.  Around -j5 it
+        # overtakes the original tool, but using five times as much CPU.
+        # At -j8 it actually seems to run faster than at -j16, and still with
+        # "only" five times the original CPU time used.
+        run-clang-tidy -q -j8
     elif [ -e compile_flags ]
     then
         # The configure-based build writes its compiler options into this
