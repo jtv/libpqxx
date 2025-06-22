@@ -48,7 +48,7 @@ public:
     ++m_index;
     if (m_index >= m_size)
       m_home = nullptr;
-    else
+    else if (m_home != nullptr) [[likely]]
       read(loc);
     return *this;
   }
