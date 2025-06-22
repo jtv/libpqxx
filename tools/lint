@@ -126,8 +126,18 @@ cpplint() {
     local dialect includes
 
     pip install -q clang-tidy
-    if [ -e compile_flags ]
+    if [ -e compile_commands.json ]
     then
+        # This wrapper script runs in parallel, making it much faster on most
+        # systems.  It uses the "compilation database" that cmake writes into
+	# compile_commands.json.
+        run-clang-tidy -q "-j$(nproc)"
+    elif [ -e compile_flags ]
+    then
+        # The configure-based build writes its compiler options into this
+        # file, so we use that to figure out preprocessor paths, language
+        # flag, etc.
+        #
         # Pick out relevant flags, but leave out the rest.
         # If we're not compiling with clang, compile_flags may contain
         # options that clang-tidy doesn't recognise.
@@ -135,17 +145,20 @@ cpplint() {
         includes="$(
             grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
             true)"
-    else
-        dialect=""
-        includes=""
-    fi
-
-# TODO: Use run-clang-tidy -j$(nproc) instead.
 # TODO: Check test/, but tolerate some of the dubious stuff tests do.
-    # shellcheck disable=SC2086,2046
-    clang-tidy "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
-        -- \
-        -I"$SRCDIR/include" -Iinclude $dialect $includes
+        # shellcheck disable=SC2086,2046
+        clang-tidy --quiet "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
+            -- \
+            -I"$SRCDIR/include" -Iinclude $dialect $includes
+
+    else
+        cat <<EOF >&2
+Could not find compile flags for clang-tidy run.
+
+Run this script from a build directry prepared with either configure or cmake.
+EOF
+        exit 1
+    fi
 
     # Run Facebook's "infer" static analyser, if available.
     # A "pip install" didn't work for me: No module named 'nltk'.

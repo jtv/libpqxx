@@ -25,7 +25,7 @@
 
 namespace pqxx
 {
-/// Conenience alias for `std::source_location`.  It's just too long.
+/// Convenience alias for `std::source_location`.  It's just too long.
 using sl = std::source_location;
 
 /// Number of rows in a result set.
