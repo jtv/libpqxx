@@ -126,25 +126,25 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = runner$(EXEEXT)
 am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test07.$(OBJEXT) test10.$(OBJEXT) test11.$(OBJEXT) \
-	test13.$(OBJEXT) test14.$(OBJEXT) test16.$(OBJEXT) \
-	test18.$(OBJEXT) test20.$(OBJEXT) test21.$(OBJEXT) \
-	test26.$(OBJEXT) test29.$(OBJEXT) test30.$(OBJEXT) \
-	test32.$(OBJEXT) test37.$(OBJEXT) test39.$(OBJEXT) \
-	test46.$(OBJEXT) test56.$(OBJEXT) test60.$(OBJEXT) \
-	test61.$(OBJEXT) test62.$(OBJEXT) test69.$(OBJEXT) \
-	test70.$(OBJEXT) test71.$(OBJEXT) test72.$(OBJEXT) \
-	test74.$(OBJEXT) test75.$(OBJEXT) test76.$(OBJEXT) \
-	test77.$(OBJEXT) test82.$(OBJEXT) test84.$(OBJEXT) \
-	test88.$(OBJEXT) test89.$(OBJEXT) test90.$(OBJEXT) \
-	test_array.$(OBJEXT) test_blob.$(OBJEXT) \
-	test_cancel_query.$(OBJEXT) test_column.$(OBJEXT) \
-	test_composite.$(OBJEXT) test_connection.$(OBJEXT) \
-	test_connection_string.$(OBJEXT) test_cursor.$(OBJEXT) \
-	test_encodings.$(OBJEXT) test_error_verbosity.$(OBJEXT) \
-	test_errorhandler.$(OBJEXT) test_escape.$(OBJEXT) \
-	test_exceptions.$(OBJEXT) test_field.$(OBJEXT) \
-	test_float.$(OBJEXT) test_helpers.$(OBJEXT) \
-	test_largeobject.$(OBJEXT) test_nonblocking_connect.$(OBJEXT) \
+	test13.$(OBJEXT) test16.$(OBJEXT) test18.$(OBJEXT) \
+	test20.$(OBJEXT) test21.$(OBJEXT) test26.$(OBJEXT) \
+	test29.$(OBJEXT) test30.$(OBJEXT) test32.$(OBJEXT) \
+	test37.$(OBJEXT) test39.$(OBJEXT) test46.$(OBJEXT) \
+	test56.$(OBJEXT) test60.$(OBJEXT) test61.$(OBJEXT) \
+	test62.$(OBJEXT) test69.$(OBJEXT) test70.$(OBJEXT) \
+	test71.$(OBJEXT) test72.$(OBJEXT) test74.$(OBJEXT) \
+	test75.$(OBJEXT) test76.$(OBJEXT) test77.$(OBJEXT) \
+	test82.$(OBJEXT) test84.$(OBJEXT) test88.$(OBJEXT) \
+	test89.$(OBJEXT) test90.$(OBJEXT) test_array.$(OBJEXT) \
+	test_blob.$(OBJEXT) test_cancel_query.$(OBJEXT) \
+	test_column.$(OBJEXT) test_composite.$(OBJEXT) \
+	test_connection.$(OBJEXT) test_connection_string.$(OBJEXT) \
+	test_cursor.$(OBJEXT) test_encodings.$(OBJEXT) \
+	test_error_verbosity.$(OBJEXT) test_errorhandler.$(OBJEXT) \
+	test_escape.$(OBJEXT) test_exceptions.$(OBJEXT) \
+	test_field.$(OBJEXT) test_float.$(OBJEXT) \
+	test_helpers.$(OBJEXT) test_largeobject.$(OBJEXT) \
+	test_nonblocking_connect.$(OBJEXT) \
 	test_notice_handler.$(OBJEXT) test_notification.$(OBJEXT) \
 	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
 	test_range.$(OBJEXT) test_read_transaction.$(OBJEXT) \
@@ -184,24 +184,23 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test01.Po ./$(DEPDIR)/test02.Po \
 	./$(DEPDIR)/test07.Po ./$(DEPDIR)/test10.Po \
 	./$(DEPDIR)/test11.Po ./$(DEPDIR)/test13.Po \
-	./$(DEPDIR)/test14.Po ./$(DEPDIR)/test16.Po \
-	./$(DEPDIR)/test18.Po ./$(DEPDIR)/test20.Po \
-	./$(DEPDIR)/test21.Po ./$(DEPDIR)/test26.Po \
-	./$(DEPDIR)/test29.Po ./$(DEPDIR)/test30.Po \
-	./$(DEPDIR)/test32.Po ./$(DEPDIR)/test37.Po \
-	./$(DEPDIR)/test39.Po ./$(DEPDIR)/test46.Po \
-	./$(DEPDIR)/test56.Po ./$(DEPDIR)/test60.Po \
-	./$(DEPDIR)/test61.Po ./$(DEPDIR)/test62.Po \
-	./$(DEPDIR)/test69.Po ./$(DEPDIR)/test70.Po \
-	./$(DEPDIR)/test71.Po ./$(DEPDIR)/test72.Po \
-	./$(DEPDIR)/test74.Po ./$(DEPDIR)/test75.Po \
-	./$(DEPDIR)/test76.Po ./$(DEPDIR)/test77.Po \
-	./$(DEPDIR)/test82.Po ./$(DEPDIR)/test84.Po \
-	./$(DEPDIR)/test88.Po ./$(DEPDIR)/test89.Po \
-	./$(DEPDIR)/test90.Po ./$(DEPDIR)/test_array.Po \
-	./$(DEPDIR)/test_blob.Po ./$(DEPDIR)/test_cancel_query.Po \
-	./$(DEPDIR)/test_column.Po ./$(DEPDIR)/test_composite.Po \
-	./$(DEPDIR)/test_connection.Po \
+	./$(DEPDIR)/test16.Po ./$(DEPDIR)/test18.Po \
+	./$(DEPDIR)/test20.Po ./$(DEPDIR)/test21.Po \
+	./$(DEPDIR)/test26.Po ./$(DEPDIR)/test29.Po \
+	./$(DEPDIR)/test30.Po ./$(DEPDIR)/test32.Po \
+	./$(DEPDIR)/test37.Po ./$(DEPDIR)/test39.Po \
+	./$(DEPDIR)/test46.Po ./$(DEPDIR)/test56.Po \
+	./$(DEPDIR)/test60.Po ./$(DEPDIR)/test61.Po \
+	./$(DEPDIR)/test62.Po ./$(DEPDIR)/test69.Po \
+	./$(DEPDIR)/test70.Po ./$(DEPDIR)/test71.Po \
+	./$(DEPDIR)/test72.Po ./$(DEPDIR)/test74.Po \
+	./$(DEPDIR)/test75.Po ./$(DEPDIR)/test76.Po \
+	./$(DEPDIR)/test77.Po ./$(DEPDIR)/test82.Po \
+	./$(DEPDIR)/test84.Po ./$(DEPDIR)/test88.Po \
+	./$(DEPDIR)/test89.Po ./$(DEPDIR)/test90.Po \
+	./$(DEPDIR)/test_array.Po ./$(DEPDIR)/test_blob.Po \
+	./$(DEPDIR)/test_cancel_query.Po ./$(DEPDIR)/test_column.Po \
+	./$(DEPDIR)/test_composite.Po ./$(DEPDIR)/test_connection.Po \
 	./$(DEPDIR)/test_connection_string.Po \
 	./$(DEPDIR)/test_cursor.Po ./$(DEPDIR)/test_encodings.Po \
 	./$(DEPDIR)/test_error_verbosity.Po \
@@ -455,7 +454,6 @@ runner_SOURCES = \
   test10.cxx \
   test11.cxx \
   test13.cxx \
-  test14.cxx \
   test16.cxx \
   test18.cxx \
   test20.cxx \
@@ -593,7 +591,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test10.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test11.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test13.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test14.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test16.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test18.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test20.Po@am__quote@ # am--include-marker
@@ -933,7 +930,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test10.Po
 	-rm -f ./$(DEPDIR)/test11.Po
 	-rm -f ./$(DEPDIR)/test13.Po
-	-rm -f ./$(DEPDIR)/test14.Po
 	-rm -f ./$(DEPDIR)/test16.Po
 	-rm -f ./$(DEPDIR)/test18.Po
 	-rm -f ./$(DEPDIR)/test20.Po
@@ -1060,7 +1056,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test10.Po
 	-rm -f ./$(DEPDIR)/test11.Po
 	-rm -f ./$(DEPDIR)/test13.Po
-	-rm -f ./$(DEPDIR)/test14.Po
 	-rm -f ./$(DEPDIR)/test16.Po
 	-rm -f ./$(DEPDIR)/test18.Po
 	-rm -f ./$(DEPDIR)/test20.Po

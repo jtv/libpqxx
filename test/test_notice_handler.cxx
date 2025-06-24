@@ -1,3 +1,4 @@
+#include <pqxx/nontransaction>
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
@@ -45,17 +46,40 @@ void test_process_notice_calls_notice_handler()
 {
   int calls{0};
   std::string received;
-  const std::string msg{"Hello there\n"};
 
   pqxx::connection cx;
   cx.set_notice_handler([&calls, &received](auto x) noexcept {
     ++calls;
     received = x;
   });
-  cx.process_notice(msg);
 
-  PQXX_CHECK_EQUAL(calls, 1);
-  PQXX_CHECK_EQUAL(received, msg);
+  // The connection class has a process_notice() function which invokes the
+  // handler.
+  {
+    std::string const msg{"Hello there\n"};
+    cx.process_notice(msg);
+
+    PQXX_CHECK_EQUAL(calls, 1);
+    PQXX_CHECK_EQUAL(received, msg);
+  }
+
+  // The transaction classes also have a process_notice() function.
+  {
+    std::string const msg{"work message\n"};
+    pqxx::work tx{cx};
+    tx.process_notice(msg);
+    PQXX_CHECK_EQUAL(calls, 2);
+    PQXX_CHECK_EQUAL(received, msg);
+  }
+
+  // Even nontransaction has one; there's no difference.
+  {
+    std::string const msg{"work message\n"};
+    pqxx::nontransaction tx{cx};
+    tx.process_notice(msg);
+    PQXX_CHECK_EQUAL(calls, 3);
+    PQXX_CHECK_EQUAL(received, msg);
+  }
 }
 
 
