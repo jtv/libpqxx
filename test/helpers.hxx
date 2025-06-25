@@ -29,16 +29,33 @@ void drop_table(
 using testfunc = void (*)();
 
 
-void register_test(char const name[], testfunc func) noexcept;
+/// Maximum number of tests in the test suite.
+/** If this should prove insufficient, increase it.
+ */
+constexpr inline std::size_t max_tests{1000};
 
 
-/// Register a test while not inside a function.
-struct registrar
+/// The test suite.
+/** This is where the tests get registered at initialisation time.
+ *
+ * This gets a bit hacky.  It relies on an internal counter being
+ * zero-initialised before the test registrations get constructed.
+ */
+class suite
 {
-  registrar(char const name[], testfunc func) noexcept
-  {
-    pqxx::test::register_test(name, func);
-  }
+public:
+  /// Register a test function.
+  static void register_test(char const name[], testfunc func) noexcept;
+
+  /// Collect all tests into a map: test name to test function.
+  static std::map<std::string_view, testfunc> gather();
+
+private:
+  /// Number of registered tests.
+  static constinit std::size_t s_num_tests;
+
+  static constinit std::array<std::string_view, max_tests> s_names;
+  static constinit std::array<testfunc, max_tests> s_funcs;
 };
 
 
@@ -48,6 +65,16 @@ struct registrar
   {                                                                           \
     #func, func                                                               \
   }
+
+
+/// Register a test while not inside a function.
+struct registrar
+{
+  registrar(char const name[], testfunc func) noexcept
+  {
+    pqxx::test::suite::register_test(name, func);
+  }
+};
 
 
 // Unconditional test failure.

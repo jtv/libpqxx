@@ -66,7 +66,7 @@ void test_process_notice_calls_notice_handler()
   // The transaction classes also have a process_notice() function.
   {
     std::string const msg{"work message\n"};
-    pqxx::work tx{cx};
+    pqxx::work const tx{cx};
     tx.process_notice(msg);
     PQXX_CHECK_EQUAL(calls, 2);
     PQXX_CHECK_EQUAL(received, msg);
@@ -75,7 +75,7 @@ void test_process_notice_calls_notice_handler()
   // Even nontransaction has one; there's no difference.
   {
     std::string const msg{"work message\n"};
-    pqxx::nontransaction tx{cx};
+    pqxx::nontransaction const tx{cx};
     tx.process_notice(msg);
     PQXX_CHECK_EQUAL(calls, 3);
     PQXX_CHECK_EQUAL(received, msg);

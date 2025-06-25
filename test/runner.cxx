@@ -109,28 +109,50 @@ void create_pqxxevents(transaction_base &t)
 } // namespace pqxx::test
 
 
-namespace
-{
-std::vector<std::string_view> *all_test_names{nullptr};
-std::vector<pqxx::test::testfunc> *all_test_funcs{nullptr};
-} // namespace
-
-
 namespace pqxx::test
 {
-void register_test(char const name[], pqxx::test::testfunc func) noexcept
+void suite::register_test(char const name[], testfunc func) noexcept
 {
-  if (all_test_names == nullptr)
-  {
-    assert(all_test_funcs == nullptr);
-    all_test_names = new std::vector<std::string_view>;
-    all_test_funcs = new std::vector<pqxx::test::testfunc>;
-    all_test_names->reserve(1000);
-    all_test_funcs->reserve(1000);
-  }
-  all_test_names->emplace_back(name);
-  all_test_funcs->emplace_back(func);
+  assert(s_num_tests < max_tests);
+  s_names.at(s_num_tests) = name;
+  s_funcs.at(s_num_tests) = func;
+  ++s_num_tests;
 }
+
+std::map<std::string_view, testfunc> suite::gather()
+{
+  std::map<std::string_view, testfunc> all_tests;
+  for (std::size_t idx{0}; idx < s_num_tests; ++idx)
+  {
+    auto const name{s_names.at(idx)};
+    assert(not all_tests.contains(name));
+    auto const func{s_funcs.at(idx)};
+
+    // This could happen if the internal arrays get constructed after we've
+    // already written tests into them.
+    assert(func != nullptr);
+    all_tests.emplace(name, func);
+  }
+
+  return all_tests;
+}
+
+
+// This needs to get zero-initialised, not constructed in the usual way.
+// It's a hack, reliant on an implementation detail.  But is there a better
+// way?  To my knowledge there's no way in the standard to enforce an order on
+// the initialisation of this class' internal state on the one hand, and that
+// of the test registrations on the other.
+constinit std::size_t suite::s_num_tests{0};
+
+
+// These need to get zero-initialised as well, not constructed.
+// Otherwise, construction will overwrite the values already written, which
+// most likely will crash the test suite (as test function pointers get
+// initialised as null pointers after function pointers had already been
+// written there).
+constinit std::array<std::string_view, max_tests> suite::s_names;
+constinit std::array<testfunc, max_tests> suite::s_funcs{};
 } // namespace pqxx::test
 
 
@@ -141,15 +163,7 @@ int main(int argc, char const *argv[])
   if (argc > 1)
     test_name = argv[1];
 
-  auto const num_tests{std::size(*all_test_names)};
-  std::map<std::string_view, pqxx::test::testfunc> all_tests;
-  for (std::size_t idx{0}; idx < num_tests; ++idx)
-  {
-    auto const name{all_test_names->at(idx)};
-    assert(not all_tests.contains(name));
-    all_tests.emplace(name, all_test_funcs->at(idx));
-  }
-
+  auto const all_tests{pqxx::test::suite::gather()};
   int test_count = 0;
   std::vector<std::string> failed;
   for (auto const [name, func] : all_tests)
