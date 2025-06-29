@@ -14,15 +14,18 @@ void test_062()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  std::string const TestStr{
-    "Nasty\n\030Test\n\t String with \200\277 weird bytes "
+  char const test_data[]{
+    "Nasty\n\030\0Test\n\t String with \200\277 weird bytes "
     "\r\0 and Trailer\\\\\0"};
+  static_assert(std::size(test_data) > 50);
+  std::string const test_str{std::data(test_data), std::size(test_data)};
 
   tx.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)").no_rows();
 
-  // C++23: Initialise as data{std::from_range_t, TestStr}?
+  // C++23: Initialise as data{std::from_range_t, test_str}?
   pqxx::bytes data;
-  for (char c : TestStr) data.push_back(static_cast<std::byte>(c));
+  for (char c : test_str) data.push_back(static_cast<std::byte>(c));
+  PQXX_CHECK_EQUAL(std::size(data), std::size(test_data));
 
   std::string const Esc{tx.esc_raw(data)};
 
@@ -35,7 +38,7 @@ void test_062()
 
   PQXX_CHECK(not std::empty(B));
 
-  PQXX_CHECK_EQUAL(std::size(B), std::size(TestStr));
+  PQXX_CHECK_EQUAL(std::size(B), std::size(test_data));
 
   pqxx::bytes::const_iterator c;
   pqxx::bytes::size_type i{};
@@ -43,7 +46,7 @@ void test_062()
   {
     PQXX_CHECK(c != std::end(B));
 
-    char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
+    char const x{test_str.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
 
     PQXX_CHECK_EQUAL(std::string(&x, 1), std::string(&y, 1));
 

@@ -448,12 +448,10 @@ public:
   }
 
   /// Read field as a composite value, write its components into `fields`.
-  /** @warning This is still experimental.  It may change or be replaced.
-   *
-   * Returns whether the field was null.  If it was, it will not touch the
+  /** Returns whether the field was null.  If it was, it will not touch the
    * values in `fields`.
    */
-  template<typename... T> bool composite_to(T &...fields) const
+  template<typename... T> bool composite_to(sl loc, T &...fields) const
   {
     if (is_null())
     {
@@ -461,9 +459,27 @@ public:
     }
     else
     {
-      parse_composite(m_home.get_encoding_group(), view(), fields...);
+      parse_composite(
+        conversion_context{m_home.get_encoding_group(), loc}, view(),
+        fields...);
       return true;
     }
+  }
+
+  /// Read field as a composite value, write its components into `fields`.
+  /** @warning This version does not accept a `std::source_location` (what in
+   * libpqxx we call @ref pqxx::sl for short).  That means that should
+   * conversion fail with an exception, the exception will refer to this
+   * function.  It's generally more helpful to pass a location that's more
+   * meaningful in the context of your codebase, using the version of this
+   * function that takes it as a first argumet.
+   *
+   * Returns whether the field was null.  If it was, it will not touch the
+   * values in `fields`.
+   */
+  template<typename... T> bool composite_to(T &...fields) const
+  {
+    return composite_to(sl::current(), fields...);
   }
 
   /// Read value into obj; or leave obj untouched and return `false` if null.

@@ -320,15 +320,15 @@ using composite_field_parser = void (*)(
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
-composite_field_parser<T>
-specialize_parse_composite_field(encoding_group enc, sl loc)
+PQXX_PURE constexpr composite_field_parser<T>
+specialize_parse_composite_field(conversion_context const &c)
 {
-  switch (enc)
+  switch (c.enc)
   {
   case encoding_group::unknown:
     throw usage_error{
       "Tried to parse array/composite without knowing its text encoding.",
-      loc};
+      c.loc};
 
   case encoding_group::monobyte:
     return parse_composite_field<encoding_group::monobyte>;
@@ -344,7 +344,8 @@ specialize_parse_composite_field(encoding_group enc, sl loc)
   case encoding_group::uhc: return parse_composite_field<encoding_group::uhc>;
   }
   throw internal_error{
-    std::format("Unexpected encoding group code: {}.", to_string(enc)), loc};
+    std::format("Unexpected encoding group code: {}.", to_string(c.enc)),
+    c.loc};
 }
 
 

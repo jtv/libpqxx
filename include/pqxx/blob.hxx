@@ -160,12 +160,14 @@ public:
   /// Set the current reading/writing position to an absolute offset.
   /** Returns the new file offset. */
   std::int64_t seek_abs(std::int64_t offset = 0, sl = sl::current());
+
   /// Move the current reading/writing position forwards by an offset.
   /** To move backwards, pass a negative offset.
    *
    * Returns the new file offset.
    */
   std::int64_t seek_rel(std::int64_t offset = 0, sl = sl::current());
+
   /// Set the current position to an offset relative to the end of the blob.
   /** You'll probably want an offset of zero or less.
    *

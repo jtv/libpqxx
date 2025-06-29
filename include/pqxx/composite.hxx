@@ -10,7 +10,6 @@
 
 namespace pqxx
 {
-// TODO: How can we pass std::source_location here?
 /// Parse a string representation of a value of a composite type.
 /** @warning This code is still experimental.  Use with care.
  *
@@ -32,54 +31,36 @@ namespace pqxx
  * such as e.g. `int`, consider using `std::optional`.
  */
 template<typename... T>
-inline void
-parse_composite(encoding_group enc, std::string_view text, T &...fields)
+inline void parse_composite(ctx c, std::string_view text, T &...fields)
 {
-  static_assert(sizeof...(fields) > 0);
-  // TODO: Turn this into a parameter.
-  auto const loc{sl::current()};
+  static constexpr auto num_fields{sizeof...(T)};
+  static_assert(num_fields > 0);
 
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
     throw conversion_error{
-      "Cannot parse composite value from empty string.", loc};
+      "Cannot parse composite value from empty string.", c.loc};
 
   if (data[0] != '(')
     throw conversion_error{
-      std::format("Invalid composite value string: '{}'.", text), loc};
+      std::format("Invalid composite value string: '{}'.", text), c.loc};
 
   std::size_t here{1};
 
-  // TODO: Reuse parse_composite_field specialisation across calls.
-  constexpr auto num_fields{sizeof...(fields)};
   std::size_t index{0};
-  (pqxx::internal::specialize_parse_composite_field<T>(enc, loc)(
-     index, text, here, fields, num_fields - 1, loc),
+  (pqxx::internal::specialize_parse_composite_field<T>(c)(
+     index, text, here, fields, num_fields - 1, c.loc),
    ...);
   if (here != std::size(text))
     throw conversion_error{
       std::format(
         "Composite value did not end at the closing parenthesis: '{}'.", text),
-      loc};
+      c.loc};
   if (text[here - 1] != ')')
     throw conversion_error{
       std::format("Composite value did not end in parenthesis: '{}'.", text),
-      loc};
-}
-
-
-// TODO: How can we pass std::source_location here?
-/// Parse a string representation of a value of a composite type.
-/** @warning This version only works for UTF-8 and single-byte encodings.
- *
- * For proper encoding support, use the composite-type support in the
- * `field` class.
- */
-template<typename... T>
-inline void parse_composite(std::string_view text, T &...fields)
-{
-  parse_composite(encoding_group::monobyte, text, fields...);
+      c.loc};
 }
 } // namespace pqxx
 

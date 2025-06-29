@@ -508,7 +508,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // We reuse the same field parser we use for composite values and arrays.
     auto const field_parser{
       pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(
-        encoding_group::monobyte, loc)};
+        conversion_context{encoding_group::monobyte, loc})};
     field_parser(index, text, pos, lower, last, loc);
     field_parser(index, text, pos, upper, last, loc);
 
