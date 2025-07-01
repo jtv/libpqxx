@@ -84,7 +84,7 @@ void test_process_notice_calls_notice_handler()
 
 
 // Global counter so we can count calls to a global function.
-int notice_handler_test_func_counter{0};
+int notice_handler_test_func_counter{0}; // NOLINT
 
 void notice_handler_test_func(pqxx::zview)
 {
@@ -101,7 +101,8 @@ void test_notice_handler_accepts_function()
 }
 
 
-int notice_handler_test_lambda_counter{0};
+// Global counter so we can count calls to a captureless lambda.
+int notice_handler_test_lambda_counter{0}; // NOLINT
 
 void test_notice_handler_accepts_stateless_lambda()
 {
@@ -113,19 +114,22 @@ void test_notice_handler_accepts_stateless_lambda()
 }
 
 
-struct notice_handler_test_functor
+class notice_handler_test_functor
 {
-  int &count;
-  std::string &received;
-
-  notice_handler_test_functor(int &c, std::string &r) : count{c}, received{r}
+public:
+  notice_handler_test_functor(int &c, std::string &r) :
+          m_count{&c}, m_received{&r}
   {}
 
   void operator()(pqxx::zview msg) noexcept
   {
-    ++count;
-    received = msg;
+    ++*m_count;
+    *m_received = msg;
   }
+
+private:
+  int *m_count;
+  std::string *m_received;
 };
 
 

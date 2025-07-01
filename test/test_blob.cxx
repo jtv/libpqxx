@@ -123,12 +123,12 @@ void test_blob_supports_move()
   b2.seek_abs(0);
   b2.read(buf, 1u);
 
-  PQXX_CHECK_THROWS(b1.read(buf, 1u), pqxx::usage_error);
+  PQXX_CHECK_THROWS(b1.read(buf, 1u), pqxx::usage_error); // NOLINT
 
   b1 = std::move(b2);
   b1.read(buf, 1u);
 
-  PQXX_CHECK_THROWS(b2.read(buf, 1u), pqxx::usage_error);
+  PQXX_CHECK_THROWS(b2.read(buf, 1u), pqxx::usage_error); // NOLINT
 }
 
 

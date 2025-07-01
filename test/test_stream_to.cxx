@@ -489,10 +489,15 @@ void test_stream_to_escaping()
 
   // We'll check that streaming these strings to the database and querying them
   // back reproduces them faithfully.
+
+  // TODO: Use raw strings once Visual Studio copes with backslashes there.
+
+  // NOLINTBEGIN(modernize-raw-string-literal)
   std::array<std::string_view, 8> const inputs = {
     ""sv,      "hello"sv,    "a\tb"sv, "a\nb"sv,
     "don't"sv, "\\\\\\''"sv, "\\N"sv,  "\\Nfoo"sv,
   };
+  // NOLINTEND(modernize-raw-string-literal)
 
   // Stream the input strings into the databsae.
   pqxx::stream_to out{pqxx::stream_to::table(tx, {"foo"}, {"i", "t"})};

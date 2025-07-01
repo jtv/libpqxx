@@ -15,21 +15,24 @@ public:
     pqxx::connection &cx, std::vector<TestErrorHandler *> &activated_handlers,
     bool retval = true) :
           pqxx::errorhandler(cx),
-          return_value(retval),
-          handler_list(activated_handlers)
+          m_return_value(retval),
+          m_handler_list(activated_handlers)
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   bool operator()(char const msg[]) noexcept override
   {
-    message = std::string{msg};
-    handler_list.push_back(this);
-    return return_value;
+    m_message = std::string{msg};
+    m_handler_list.push_back(this);
+    return m_return_value;
   }
 
-  bool return_value;
-  std::string message;
-  std::vector<TestErrorHandler *> &handler_list;
+  [[nodiscard]] std::string message() const { return m_message; }
+
+private:
+  bool m_return_value;
+  std::string m_message;
+  std::vector<TestErrorHandler *> &m_handler_list;
 };
 } // namespace
 
@@ -78,7 +81,7 @@ void test_process_notice_calls_errorhandler(pqxx::connection &cx)
   std::vector<TestErrorHandler *> dummy;
   TestErrorHandler const handler(cx, dummy);
   cx.process_notice("Error!\n");
-  PQXX_CHECK_EQUAL(handler.message, "Error!\n");
+  PQXX_CHECK_EQUAL(handler.message(), "Error!\n");
 }
 
 
@@ -89,9 +92,9 @@ void test_error_handlers_get_called_newest_to_oldest(pqxx::connection &cx)
   TestErrorHandler h2(cx, handlers);
   TestErrorHandler h3(cx, handlers);
   cx.process_notice("Warning.\n");
-  PQXX_CHECK_EQUAL(h3.message, "Warning.\n");
-  PQXX_CHECK_EQUAL(h2.message, "Warning.\n");
-  PQXX_CHECK_EQUAL(h1.message, "Warning.\n");
+  PQXX_CHECK_EQUAL(h3.message(), "Warning.\n");
+  PQXX_CHECK_EQUAL(h2.message(), "Warning.\n");
+  PQXX_CHECK_EQUAL(h1.message(), "Warning.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 3u);
   PQXX_CHECK_EQUAL(&h3, handlers[0]);
   PQXX_CHECK_EQUAL(&h2, handlers[1]);
@@ -106,8 +109,9 @@ void test_returning_false_stops_error_handling(pqxx::connection &cx)
   cx.process_notice("Error output.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 1u, "Handling chain was not stopped.");
   PQXX_CHECK_EQUAL(handlers[0], &blocker, "Wrong handler got message.");
-  PQXX_CHECK_EQUAL(blocker.message, "Error output.\n");
-  PQXX_CHECK_EQUAL(starved.message, "", "Message received; it shouldn't be.");
+  PQXX_CHECK_EQUAL(blocker.message(), "Error output.\n");
+  PQXX_CHECK_EQUAL(
+    starved.message(), "", "Message received; it shouldn't be.");
 }
 
 void test_destroyed_error_handlers_are_not_called(pqxx::connection &cx)

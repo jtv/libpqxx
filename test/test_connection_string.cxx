@@ -72,6 +72,10 @@ void test_connection_string_escapes()
   check_connect_string("'hello'", "hello");
   check_connect_string("'a b c'", "'a b c'");
   check_connect_string("'x \\\\y'", "'x \\\\y'");
+
+  // TODO: Use raw strings once Visual Studio copes with backslashes there.
+
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
   check_connect_string("\\\\r\\\\n", "\\\\r\\\\n");
 
   // This does seem to get quoted, even though as I read the spec, that's not

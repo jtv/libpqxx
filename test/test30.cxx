@@ -17,7 +17,7 @@ void test_030()
   pqxx::connection cx;
   pqxx::work tx{cx, "test30"};
 
-  pqxx::result const R(tx.exec(("SELECT * FROM " + Table).c_str()));
+  pqxx::result const R{tx.exec("SELECT * FROM " + Table)};
   PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");
 
   // Print column names

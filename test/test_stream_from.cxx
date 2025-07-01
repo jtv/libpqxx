@@ -176,6 +176,12 @@ void test_optional(pqxx::connection &connection)
   ASSERT_FIELD_NULL(std::get<1>(got_tuple));
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
+
+  // These look like false positives from clang-tidy: ASSERT_FIELD_EQUAL
+  // does check for empty optionals, yet we get a warning about a check being
+  // needed.
+
+  // NOLINTBEGIN(bugprone-unchecked-optional-access)
   ASSERT_FIELD_EQUAL((std::get<4>(got_tuple)), "\\N");
   ASSERT_FIELD_EQUAL((std::get<5>(got_tuple)), bytea{});
 
@@ -200,6 +206,7 @@ void test_optional(pqxx::connection &connection)
   ASSERT_FIELD_EQUAL(
     (std::get<5>(got_tuple)),
     (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
+  // NOLINTEND(bugprone-unchecked-optional-access)
 
   extractor >> got_tuple;
   PQXX_CHECK(not extractor, "stream_from failed to detect end of stream");

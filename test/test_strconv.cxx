@@ -337,6 +337,7 @@ void test_to_buf_into_buf()
   check_write(std::string{"Blah"}, "Blah");
 
   check_write(""sv, "");
+  // NOLINTNEXTLINE(bugprone-string-constructor)
   check_write(std::string_view{"abc", 0u}, "");
   check_write("view"sv, "view");
   check_write(std::string_view{"viewport", 4u}, "view");
@@ -351,8 +352,13 @@ void test_to_buf_into_buf()
   check_write(std::array<int, 3>{10, 9, 8}, "{10,9,8}");
   check_write(std::vector<int>{3, 2, 1}, "{3,2,1}");
   check_write(std::vector<std::string>{}, "{}");
+
+  // TODO: Use raw strings once Visual Studio copes with backslashes there.
+
+  // NOLINTBEGIN(modernize-raw-string-literal)
   check_write(std::vector<std::string>{"eins", "zwo"}, "{\"eins\",\"zwo\"}");
   check_write(std::vector<std::string>{"x,y", "z"}, "{\"x,y\",\"z\"}");
+  // NOLINTEND(modernize-raw-string-literal)
   check_write(std::list<std::string_view>{"foo"}, "{\"foo\"}");
 
   check_write(

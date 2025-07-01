@@ -22,11 +22,8 @@ void test_020()
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  pqxx::result R(t1.exec(("SELECT * FROM " + Table +
-                          " "
-                          "WHERE year=" +
-                          pqxx::to_string(BoringYear))
-                           .c_str()));
+  pqxx::result R(t1.exec(
+    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear)));
   PQXX_CHECK_EQUAL(
     std::size(R), 0,
     "Already have a row for " + pqxx::to_string(BoringYear) +
@@ -54,11 +51,8 @@ void test_020()
 
   // Verify that our record was added, despite the Abort()
   pqxx::nontransaction t2{cx, "t2"};
-  R = t2.exec(("SELECT * FROM " + Table +
-               " "
-               "WHERE year=" +
-               pqxx::to_string(BoringYear))
-                .c_str());
+  R = t2.exec(
+    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear));
 
   PQXX_CHECK_EQUAL(std::size(R), 1);
 
@@ -80,11 +74,8 @@ void test_020()
   // And again, verify results
   pqxx::nontransaction t3{cx, "t3"};
 
-  R = t3.exec(("SELECT * FROM " + Table +
-               " "
-               "WHERE year=" +
-               pqxx::to_string(BoringYear))
-                .c_str());
+  R = t3.exec(
+    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear));
 
   PQXX_CHECK_EQUAL(std::size(R), 0);
 }

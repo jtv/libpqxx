@@ -161,11 +161,11 @@ void test_notification_has_payload()
 // Functor-shaped notification handler.
 struct notify_test_listener
 {
-  explicit notify_test_listener(int &r) : m_received{r} {}
-  void operator()(pqxx::notification) { ++m_received; }
+  explicit notify_test_listener(int &r) : m_received{&r} {}
+  void operator()(pqxx::notification) { ++*m_received; }
 
 private:
-  int &m_received;
+  int *m_received;
 };
 
 

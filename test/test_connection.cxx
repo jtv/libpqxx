@@ -21,7 +21,9 @@ void test_move_constructor()
 
   pqxx::connection c2{std::move(c1)};
 
-  PQXX_CHECK(not c1.is_open());
+  // Checking for predictable state of an object after its state has been
+  // moved out...  clang-tidy doesn't like this.
+  PQXX_CHECK(not c1.is_open()); // NOLINT
   PQXX_CHECK(c2.is_open());
 
   pqxx::work tx{c2};
@@ -40,7 +42,7 @@ void test_move_assign()
 
   c2 = std::move(c1);
 
-  PQXX_CHECK(not c1.is_open());
+  PQXX_CHECK(not c1.is_open()); // NOLINT
   PQXX_CHECK(c2.is_open());
 
   {
@@ -177,9 +179,12 @@ void test_raw_connection()
   PQXX_CHECK(conn1.is_open());
   pqxx::nontransaction tx1{conn1};
   PQXX_CHECK_EQUAL(tx1.query_value<int>("SELECT 8"), 8);
+
+  // Checking for predictable bewhaviour of a dead object after move.
+  // clang-tidy doesn't like this.
   pqxx::internal::pq::PGconn *raw{std::move(conn1).release_raw_connection()};
-  PQXX_CHECK(raw != nullptr);
-  PQXX_CHECK(not conn1.is_open());
+  PQXX_CHECK(raw != nullptr);      // NOLINT
+  PQXX_CHECK(not conn1.is_open()); // NOLINT
 
   pqxx::connection conn2{pqxx::connection::seize_raw_connection(raw)};
   PQXX_CHECK(conn2.is_open());

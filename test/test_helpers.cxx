@@ -58,7 +58,9 @@ void test_check_throws_exception()
   bool failed{true};
   try
   {
+    // NOLINTBEGIN(hicpp-exception-baseclass)
     PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)");
+    // NOLINTEND(hicpp-exception-baseclass)
     failed = false;
   }
   catch (pqxx::test::test_failure const &)
@@ -89,9 +91,11 @@ void test_check_throws_exception()
     PQXX_CHECK_THROWS_EXCEPTION(empty(), "(expected)"),
     "PQXX_CHECK_THROWS_EXCEPTION failed to throw for missing exception.");
 
+  // NOLINTBEGIN(hicpp-exception-baseclass)
   PQXX_CHECK_THROWS_EXCEPTION(
     PQXX_CHECK_THROWS_EXCEPTION(throw 1, "(expected)"),
     "PQXX_CHECK_THROWS_EXCEPTION ignored wrong exception type.");
+  // NOLINTEND(hicpp-exception-baseclass)
 }
 
 
@@ -103,7 +107,10 @@ void test_check_throws()
     "PQXX_CHECK_THROWS() failed to catch expected exception.");
 
   // Even if it's not std::exception-derived.
+
+  // NOLINTBEGIN(hicpp-exception-baseclass)
   PQXX_CHECK_THROWS(throw 1, int, "(expected)");
+  // NOLINTEND(hicpp-exception-baseclass)
 
   // PQXX_CHECK_THROWS means there _must_ be an exception.
   bool failed{true};
@@ -142,10 +149,12 @@ void test_check_throws()
     pqxx::test::test_failure,
     "PQXX_CHECK_THROWS failed to throw for missing exception.");
 
+  // NOLINTBEGIN(hicpp-exception-baseclass)
   PQXX_CHECK_THROWS(
     PQXX_CHECK_THROWS(throw 1, std::runtime_error, "(expected)"),
     pqxx::test::test_failure,
     "PQXX_CHECK_THROWS failed to throw for wrong exception type.");
+  // NOLINTEND(hicpp-exception-baseclass)
 }
 
 
