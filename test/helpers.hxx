@@ -6,18 +6,13 @@
 
 namespace pqxx::test
 {
-class test_failure : public std::logic_error
+struct test_failure : public std::logic_error
 {
 public:
   test_failure(std::string const &desc, sl loc = sl::current());
-
   ~test_failure() noexcept override;
 
-  constexpr char const *file() const noexcept { return m_loc.file_name(); }
-  constexpr auto line() const noexcept { return m_loc.line(); }
-
-private:
-  sl m_loc;
+  sl const location;
 };
 
 

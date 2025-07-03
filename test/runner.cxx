@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include <new>
+#include <semaphore>
 #include <stdexcept>
 #include <string>
 
@@ -15,7 +16,7 @@
 namespace pqxx::test
 {
 test_failure::test_failure(std::string const &desc, sl loc) :
-        std::logic_error{desc}, m_loc{loc}
+        std::logic_error{desc}, location{loc}
 {}
 
 test_failure::~test_failure() noexcept = default;
@@ -156,6 +157,86 @@ constinit std::array<testfunc, max_tests> suite::s_funcs{};
 } // namespace pqxx::test
 
 
+namespace
+{
+/// Produce a human-readable string describinga test failure.
+std::string describe_failure(
+  std::string_view desc, std::string_view test, std::string_view msg = "",
+  std::optional<pqxx::sl> loc = {})
+{
+  std::string summary;
+  if (loc.has_value())
+  {
+    if (std::empty(msg))
+      summary = std::format("{} ({})", desc, pqxx::internal::source_loc(*loc));
+    else
+      summary = std::format(
+        "{} ({}): {}", desc, pqxx::internal::source_loc(*loc), msg);
+  }
+  else
+  {
+    if (std::empty(msg))
+      summary = desc;
+    else
+      summary = std::format("{}: {}", desc, msg);
+  }
+  return std::format("{} -- {}", test, summary);
+}
+
+
+/// Run one test.  Return optional failure message.
+std::optional<std::string>
+run_test(std::string_view name, pqxx::test::testfunc func)
+{
+  try
+  {
+    func();
+  }
+  catch (pqxx::test::test_failure const &e)
+  {
+    return describe_failure("Failed", name, e.what(), e.location);
+  }
+  catch (std::bad_alloc const &)
+  {
+    return describe_failure("Out of memory", name);
+  }
+  catch (pqxx::failure const &e)
+  {
+    return describe_failure("SQL error", name, e.what(), e.location);
+  }
+  catch (pqxx::internal_error const &e)
+  {
+    return describe_failure("Internal error", name, e.what(), e.location);
+  }
+  catch (pqxx::usage_error const &e)
+  {
+    return describe_failure("Usage error", name, e.what(), e.location);
+  }
+  catch (pqxx::conversion_error const &e)
+  {
+    return describe_failure("Conversion error", name, e.what(), e.location);
+  }
+  catch (pqxx::argument_error const &e)
+  {
+    return describe_failure("Argument error", name, e.what(), e.location);
+  }
+  catch (pqxx::range_error const &e)
+  {
+    return describe_failure("Range error", name, e.what(), e.location);
+  }
+  catch (std::exception const &e)
+  {
+    return describe_failure("Exception", name, e.what());
+  }
+  catch (...)
+  {
+    return describe_failure("Unknown exception", name);
+  }
+  return {};
+}
+} // namespace
+
+
 int main(int argc, char const *argv[])
 {
   std::vector<std::string_view> tests;
@@ -169,7 +250,7 @@ int main(int argc, char const *argv[])
   }
 
   int test_count = 0;
-  std::vector<std::string_view> failed;
+  std::vector<std::string> failures;
   for (auto const name : tests)
   {
     if (not all_tests.contains(name))
@@ -180,91 +261,29 @@ int main(int argc, char const *argv[])
     std::cout << std::endl << "Running: " << name << '\n';
 
     auto const func{all_tests.at(name)};
-    bool success{false};
-    try
+    auto const msg{run_test(name, func)};
+    if (msg.has_value())
     {
-      func();
-      success = true;
-    }
-    catch (pqxx::test::test_failure const &e)
-    {
-      std::cerr << "Test failure in " << e.file() << " line "
-                << pqxx::to_string(e.line()) << ": " << e.what() << '\n';
-    }
-    catch (std::bad_alloc const &)
-    {
-      std::cerr << "Out of memory!\n";
-    }
-    catch (pqxx::feature_not_supported const &e)
-    {
-      std::cerr << "Not testing unsupported feature: " << e.what() << '\n';
-      std::cerr << "(";
-      std::cerr << e.location.file_name() << ':' << e.location.line();
-      if (not name.empty())
-        std::cerr << " in " << name;
-      std::cerr << ")\n";
-      success = true;
-      --test_count;
-    }
-    catch (pqxx::sql_error const &e)
-    {
-      std::cerr << "SQL error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location)
-                << ")\nQuery was: " << e.query() << '\n';
-    }
-    catch (pqxx::internal_error const &e)
-    {
-      std::cerr << "Internal error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (pqxx::usage_error const &e)
-    {
-      std::cerr << "Usage error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (pqxx::conversion_error const &e)
-    {
-      std::cerr << "Conversion error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (pqxx::argument_error const &e)
-    {
-      std::cerr << "Argument error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (pqxx::range_error const &e)
-    {
-      std::cerr << "Range error: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (pqxx::failure const &e)
-    {
-      std::cerr << "Failure: " << e.what() << "\n("
-                << pqxx::internal::source_loc(e.location) << ")\n";
-    }
-    catch (std::exception const &e)
-    {
-      std::cerr << "Exception: " << e.what() << '\n';
-    }
-    catch (...)
-    {
-      std::cerr << "Unknown exception.\n";
-    }
-
-    if (not success)
-    {
-      std::cerr << "FAILED: " << name << '\n';
-      failed.emplace_back(name);
+      std::cerr << *msg << '\n';
+      failures.emplace_back(*msg);
     }
     ++test_count;
   }
 
-  std::cout << "Ran " << test_count << " test(s).\n";
+  if (test_count == 1)
+    std::cout << "Ran " << test_count << " test.\n";
+  else
+    std::cout << "Ran " << test_count << " tests.\n";
 
-  if (not std::empty(failed))
+  if (std::empty(failures))
   {
-    std::cerr << "*** " << std::size(failed) << " test(s) failed: ***\n";
-    for (auto const &i : failed) std::cerr << "\t" << i << '\n';
+    std::cout << "Tests OK.\n";
+    return 0;
   }
-  return int(std::size(failed));
+  else
+  {
+    std::cerr << "\n*** " << std::size(failures) << " test(s) failed: ***\n";
+    for (auto const &i : failures) std::cerr << "\t" << i << '\n';
+    return 1;
+  }
 }
