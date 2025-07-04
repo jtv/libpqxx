@@ -242,13 +242,7 @@ std::string demangle_type_name(char const raw[])
     abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
 
   if (str)
-  {
-    // (Do not pass `len` to the constructor: it only stores the length of the
-    // buffer, not of the string.)
-    std::string out{str.get()};
-    // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
-    return out;
-  }
+    return std::string{str.get()};
 #endif
   return raw;
 }
