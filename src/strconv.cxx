@@ -243,8 +243,8 @@ std::string demangle_type_name(char const raw[])
 
   if (str)
   {
-    // (Do not pass `len` to the constructor: it may look like an output
-    // parameter but
+    // (Do not pass `len` to the constructor: it only stores the length of the
+    // buffer, not of the string.)
     std::string out{str.get()};
     // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
     return out;
