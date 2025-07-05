@@ -1,6 +1,3 @@
-#include <cstring>
-#include <iostream>
-
 #include <pqxx/transaction>
 
 #include "helpers.hxx"

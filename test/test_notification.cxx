@@ -76,14 +76,18 @@ void test_receive_classic(
 void test_notification_classic()
 {
   pqxx::connection cx;
-  TestReceiver const receiver(cx, "mychannel");
-  PQXX_CHECK_EQUAL(receiver.channel(), "mychannel");
+
+  std::string const chan0{pqxx::test::make_name("pqxxchan0")},
+    chan1{pqxx::test::make_name("pqxxchan1")},
+    chan2{pqxx::test::make_name("pqxxchan2")};
+  TestReceiver const receiver(cx, chan0);
+  PQXX_CHECK_EQUAL(receiver.channel(), chan0);
 
   pqxx::work tx{cx};
-  test_receive_classic(tx, "channel1");
+  test_receive_classic(tx, chan1);
 
   pqxx::nontransaction u(cx);
-  test_receive_classic(u, "channel2", "payload");
+  test_receive_classic(u, chan2, "payload");
 }
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
@@ -171,8 +175,8 @@ private:
 
 void test_listen_supports_different_types_of_callable()
 {
-  auto const chan{"pqxx-test-listen"};
   pqxx::connection cx;
+  auto const chan{pqxx::test::make_name("pqxx-listen")};
   int received{};
 
   // Using a functor as a handler.
@@ -320,8 +324,8 @@ void test_cannot_listen_during_transaction()
 
 void test_notifications_cross_connections()
 {
-  auto const chan{"pqxx-chan7529"};
   pqxx::connection cx_listen, cx_notify;
+  auto const chan{pqxx::test::make_name("pqxx-chan")};
   int sender_pid{0};
   cx_listen.listen(
     chan, [&sender_pid](pqxx::notification n) { sender_pid = n.backend_pid; });
@@ -340,22 +344,25 @@ void test_notification_goes_to_right_handler()
   pqxx::connection cx;
   std::string got;
   int count{0};
+  std::string const chanx{pqxx::test::make_name("pqxx-chanX")},
+    chany{pqxx::test::make_name("pqxx-chanY")},
+    chanz{pqxx::test::make_name("pqxx-chanZ")};
 
-  cx.listen("pqxx-chanX", [&got, &count](pqxx::notification) {
+  cx.listen(chanx, [&got, &count](pqxx::notification) {
     got = "chanX";
     ++count;
   });
-  cx.listen("pqxx-chanY", [&got, &count](pqxx::notification) {
+  cx.listen(chany, [&got, &count](pqxx::notification) {
     got = "chanY";
     ++count;
   });
-  cx.listen("pqxx-chanZ", [&got, &count](pqxx::notification) {
+  cx.listen(chanz, [&got, &count](pqxx::notification) {
     got = "chanZ";
     ++count;
   });
 
   pqxx::work tx{cx};
-  tx.notify("pqxx-chanY");
+  tx.notify(chany);
   tx.commit();
   cx.await_notification(3);
 

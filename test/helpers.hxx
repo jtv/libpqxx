@@ -72,6 +72,19 @@ struct registrar
 };
 
 
+/// Generate a name with a given prefix and a randomised suffix.
+inline std::string make_name(std::string_view prefix)
+{
+  // We use srand(), which is not guaranteed to be thread-safe.
+  std::mutex l;
+  std::lock_guard<std::mutex> guard{l};
+
+  // In principle we should seed the random generator, but the scheduling of
+  // threads will jumble up the numbers anyway.
+  return std::format("{}_{}", prefix, rand());
+}
+
+
 // Unconditional test failure.
 [[noreturn]] void check_notreached(
   std::string const &desc =

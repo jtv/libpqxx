@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <pqxx/connection>
 #include <pqxx/transaction>
 

@@ -5,7 +5,6 @@
 #include "test_types.hxx"
 
 #include <cstring>
-#include <iostream>
 #include <set>
 #include <string>
 #include <tuple>
@@ -246,9 +245,7 @@ void test_stream_from()
 
   test_nonoptionals(cx);
   test_bad_tuples(cx);
-  std::cout << "testing `std::unique_ptr` as optional...\n";
   test_optional<std::unique_ptr>(cx);
-  std::cout << "testing `std::optional` as optional...\n";
   test_optional<std::optional>(cx);
 }
 

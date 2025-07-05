@@ -1,4 +1,3 @@
-#include <iostream>
 #include <map>
 
 #include <pqxx/pipeline>
@@ -58,9 +57,9 @@ void test_071()
     values[P.insert("SELECT " + pqxx::to_string(i))] = i;
   for (auto &c : values)
   {
-    if (P.is_finished(c.first))
-      std::cout << "Query #" << c.first << " completed despite retain()"
-                << std::endl;
+    PQXX_CHECK(
+      not P.is_finished(c.first),
+      std::format("Query #{} completed despite retain().", c.first));
   }
 
   // See that all results are retrieved by complete()

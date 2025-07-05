@@ -1,7 +1,3 @@
-#include <cstdio>
-#include <iostream>
-#include <vector>
-
 #include <pqxx/nontransaction>
 
 #include "helpers.hxx"

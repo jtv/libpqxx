@@ -8,6 +8,8 @@
  */
 #include "pqxx-source.hxx"
 
+#include <memory>
+
 #if __has_include(<cxxabi.h>)
 #  include <cxxabi.h>
 #endif
@@ -24,32 +26,20 @@ std::string pqxx::internal::demangle_type_name(char const raw[])
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   // We've got __cxa_demangle.  Use it to get a friendlier type name.
   int status{0};
-  std::size_t len{0};
 
   // We've seen this fail on FreeBSD 11.3 (see #361).  Trying to throw a
   // meaningful exception only made things worse.  So in case of error, just
   // fall back to the raw name.
   //
   // When __cxa_demangle fails, it's guaranteed to return null.
-  char *str{abi::__cxa_demangle(raw, nullptr, &len, &status)};
+  //
+  // Oh, and don't bother trying to pass in a "length" argument.  That's only
+  // for the length of the buffer, not the length of the string.
+  std::unique_ptr<char[], void (*)(void *) noexcept> const str{
+    abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
 
   if (str)
-  {
-    try
-    {
-      std::string out{str};
-      // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
-      std::free(str);
-      str = nullptr;
-      return out;
-    }
-    catch (std::exception const &)
-    {
-      // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
-      std::free(str);
-      throw;
-    }
-  }
+    return std::string{str.get()};
 #endif
   return raw;
 }

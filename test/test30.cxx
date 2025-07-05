@@ -1,7 +1,3 @@
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
@@ -31,18 +27,12 @@ void test_030()
   }
 
   // If there are rows in R, compare their metadata to R's.
-  if (std::empty(R))
-  {
-    std::cout << "(Table is empty.)\n";
-    return;
-  }
+  PQXX_CHECK_GREATER(
+    std::size(R), 1,
+    std::format("{} didn't have enough data for test.", Table));
 
   PQXX_CHECK_EQUAL(R[0].row_number(), 0);
-
-  if (std::size(R) < 2)
-    std::cout << "(Only one row in table.)\n";
-  else
-    PQXX_CHECK_EQUAL(R[1].row_number(), 1);
+  PQXX_CHECK_EQUAL(R[1].row_number(), 1);
 
   for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
   {

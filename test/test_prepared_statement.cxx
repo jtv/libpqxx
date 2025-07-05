@@ -1,8 +1,3 @@
-#include <cassert>
-#include <iostream>
-#include <iterator>
-#include <list>
-
 #include <pqxx/transaction>
 
 #include "helpers.hxx"

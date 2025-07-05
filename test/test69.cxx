@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <pqxx/pipeline>
 #include <pqxx/transaction>
 

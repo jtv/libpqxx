@@ -1,8 +1,4 @@
-#include <algorithm>
-#include <cstdio>
-#include <iostream>
 #include <string>
-#include <vector>
 
 #include <pqxx/cursor>
 #include <pqxx/transaction>

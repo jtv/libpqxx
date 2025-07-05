@@ -18,7 +18,6 @@
 #include <cassert>
 #include <cctype>
 #include <cerrno>
-#include <cstdio>
 #include <cstring>
 #include <format>
 #include <functional>
