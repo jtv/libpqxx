@@ -159,7 +159,7 @@ constinit std::array<testfunc, max_tests> suite::s_funcs{};
 
 namespace
 {
-/// Produce a human-readable string describinga test failure.
+/// Produce a human-readable string describing a test failure.
 std::string describe_failure(
   std::string_view desc, std::string_view test, std::string_view msg = "",
   std::optional<pqxx::sl> loc = {})
