@@ -238,8 +238,8 @@ std::string demangle_type_name(char const raw[])
   //
   // Oh, and don't bother trying to pass in a "length" argument.  That's only
   // for the length of the buffer, not the length of the string.
-  std::unique_ptr<char[], void (*)(void *) noexcept> const str{
-    abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
+  std::unique_ptr<char[], void (*)(void *) noexcept(noexcept(std::free))> const
+    str{abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
 
   if (str)
     return std::string{str.get()};
