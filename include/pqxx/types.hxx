@@ -177,6 +177,7 @@ namespace pqxx
  * @c std::type_info::name.
  */
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
+// C++26: Use reflection to obtain names.
 template<typename TYPE>
 [[deprecated("Use name_type() instead.")]]
 std::string const type_name{
