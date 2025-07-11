@@ -123,21 +123,20 @@ When errors happen during conversion, libpqxx will compose error messages for
 the user.  Sometimes these will include the name of the type that's being
 converted.
 
-To tell libpqxx the name of each type, there's a function template called
-`pqxx::name_type()`.  For any given type `T`, it should have a specialisation
-that provides that `T`'s human-readable name:
+To tell libpqxx the human-readable name of each type, there's a function
+template called `pqxx::name_type()`.  This function should exist for any given
+type `T`:
 
 ```cxx
     // T is your type.
     namespace pqxx
     {
-    template<> inline std::string_view
-    name_type<T>(){ return "My T type's name"; };
+    template<> inline constexpr std::string_view
+    name_type<T>() noexcept { return "My T type's name"; };
     }
 ```
 
-(Yes, this means that you need to define something inside the pqxx namespace.
-Future versions of libpqxx may move this into a separate namespace.)
+(Yes, this means that you need to define something inside the pqxx namespace.)
 
 Define this early on in your translation unit, before any code that might cause
 libpqxx to need the name.  That way, the libpqxx code which needs to know the

@@ -186,7 +186,7 @@ std::string const type_name{
 
 
 /// Return human-readable name for `TYPE`.
-template<typename TYPE> inline std::string_view name_type()
+template<typename TYPE> inline constexpr std::string_view name_type() noexcept
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   return type_name<TYPE>;
@@ -195,81 +195,86 @@ template<typename TYPE> inline std::string_view name_type()
 
 
 /// Specialisation to save on startup work & produce friendlier output.
-template<> constexpr inline std::string_view name_type<std::string>()
+template<> constexpr inline std::string_view name_type<std::string>() noexcept
 {
   return "std::string";
 }
 /// Specialisation to save on startup work & produce friendlier output.
-template<> constexpr inline std::string_view name_type<std::string_view>()
+template<>
+constexpr inline std::string_view name_type<std::string_view>() noexcept
 {
   return "std::string_view";
 }
-template<> constexpr inline std::string_view name_type<char const *>()
+template<> constexpr inline std::string_view name_type<char const *>() noexcept
 {
   return "char const *";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<bool>()
+template<> constexpr inline std::string_view name_type<bool>() noexcept
 {
   return "bool";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<short>()
+template<> constexpr inline std::string_view name_type<short>() noexcept
 {
   return "short";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<int>()
+template<> constexpr inline std::string_view name_type<int>() noexcept
 {
   return "int";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<long>()
+template<> constexpr inline std::string_view name_type<long>() noexcept
 {
   return "long";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<long long>()
+template<> constexpr inline std::string_view name_type<long long>() noexcept
 {
   return "long long";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<unsigned short>()
+template<>
+constexpr inline std::string_view name_type<unsigned short>() noexcept
 {
   return "short";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<unsigned>()
+template<> constexpr inline std::string_view name_type<unsigned>() noexcept
 {
   return "unsigned";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<unsigned long>()
+template<>
+constexpr inline std::string_view name_type<unsigned long>() noexcept
 {
   return "unsigned long";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<unsigned long long>()
+template<>
+constexpr inline std::string_view name_type<unsigned long long>() noexcept
 {
   return "unsigned long long";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<float>()
+template<> constexpr inline std::string_view name_type<float>() noexcept
 {
   return "float";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<double>()
+template<> constexpr inline std::string_view name_type<double>() noexcept
 {
   return "double";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<long double>()
+template<> constexpr inline std::string_view name_type<long double>() noexcept
 {
   return "long double";
 }
 /// Specialisation to save on startup work.
-template<> constexpr inline std::string_view name_type<std::nullptr_t>()
+template<>
+constexpr inline std::string_view name_type<std::nullptr_t>() noexcept
 {
   return "std::nullptr_t";
 }

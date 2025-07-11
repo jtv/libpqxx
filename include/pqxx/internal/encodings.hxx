@@ -47,6 +47,7 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
+  // C++23: Use std::ranges::views::join_with()?
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
     << start << ": " << std::hex << std::setw(2) << std::setfill('0');

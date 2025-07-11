@@ -108,7 +108,7 @@ public:
 };
 
 
-template<> constexpr inline std::string_view name_type<zview>()
+template<> inline constexpr std::string_view name_type<zview>() noexcept
 {
   return "pqxx::zview";
 }
