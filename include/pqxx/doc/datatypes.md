@@ -119,11 +119,15 @@ Specialise `name_type()`
 (This is a feature that should disappear once we have introspection in the C++
 language.)
 
-When errors happen during conversion, libpqxx will compose error messages for
-the user.  Sometimes these will include the name of the type that's being
+When errors happen during conversion, libpqxx will an compose error message for
+the user.  Sometimes this message will mentio the name of the type that's being
 converted.
 
-To tell libpqxx the human-readable name of each type, there's a function
+By default, this will probably work fine on some compilers, or the name may
+come out a little strange on other compilers, but some may make it harder to
+recognise.  So it can help to define a name yourself.
+
+To tell libpqxx the human-readable name of a type `T`, there's a function
 template called `pqxx::name_type()`.  This function should exist for any given
 type `T`:
 
@@ -141,6 +145,12 @@ type `T`:
 Define this early on in your translation unit, before any code that might cause
 libpqxx to need the name.  That way, the libpqxx code which needs to know the
 type's name can see your definition.
+
+In cases where the name is not a simple compile-time constant but needs code
+to compute, you may need to make its type `std::string`.  A `string_view` does
+not maintain storage space for the text it contains.  However, some code
+analysis tools may report false posiives when initialising such strings at
+initialisation time.
 
 
 Specialise `nullness`
