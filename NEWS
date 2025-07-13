@@ -6,6 +6,7 @@
  - Made `row::as_tuple()` public. (#1003)
  - Avoid garbage at end of demangled names. (#1007)
  - Fix build when `std::free` is not `noexcept`, such as Mac. (#1010)
+ - Document: generally `pqxx::type_name` should be a `std::string_view`. (#1009)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.

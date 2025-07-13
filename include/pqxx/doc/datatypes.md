@@ -126,7 +126,7 @@ that provides that `T`'s human-readable name:
     // T is your type.
     namespace pqxx
     {
-    template<> inline std::string const type_name<T>{"My T type's name"};
+    template<> inline std::string_view const type_name<T>{"My T type's name"};
     }
 ```
 
