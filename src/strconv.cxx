@@ -230,6 +230,10 @@ std::string demangle_type_name(char const raw[])
   // We've got __cxa_demangle.  Use it to get a friendlier type name.
   int status{0};
 
+  // We can't just pass std::free as a deleter because of subtle differences
+  // in the function's type across implementations.
+  static constexpr auto release{[](char *x) { std::free(x); }};
+
   // We've seen this fail on FreeBSD 11.3 (see #361).  Trying to throw a
   // meaningful exception only made things worse.  So in case of error, just
   // fall back to the raw name.
@@ -238,8 +242,8 @@ std::string demangle_type_name(char const raw[])
   //
   // Oh, and don't bother trying to pass in a "length" argument.  That's only
   // for the length of the buffer, not the length of the string.
-  std::unique_ptr<char[], void (*)(void *) noexcept(noexcept(std::free))> const
-    str{abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
+  std::unique_ptr<char[], decltype(release)> const str{
+    abi::__cxa_demangle(raw, nullptr, nullptr, &status), release};
 
   if (str)
     return std::string{str.get()};
