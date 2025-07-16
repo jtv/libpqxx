@@ -29,7 +29,7 @@ namespace pqxx
  * cases you can pass parameters into the statement in the form of a
  * `pqxx::params` object.
  */
-class PQXX_LIBEXPORT params
+class PQXX_LIBEXPORT params final
 {
 public:
   params() = default;
@@ -181,7 +181,7 @@ private:
  * which number a placeholder should have, you can use a `placeholders` object
  * to count and generate them in order.
  */
-template<typename COUNTER = unsigned int> class placeholders
+template<typename COUNTER = unsigned int> class placeholders final
 {
 public:
   /// Maximum number of parameters we support.

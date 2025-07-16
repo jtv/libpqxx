@@ -184,7 +184,7 @@ inline PQXX_PRIVATE void check_version() noexcept
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
  */
-struct PQXX_LIBEXPORT thread_safety_model
+struct PQXX_LIBEXPORT thread_safety_model final
 {
   /// Is the underlying libpq build thread-safe?
   bool safe_libpq = false;
@@ -208,9 +208,14 @@ struct PQXX_LIBEXPORT thread_safety_model
 
 
 /// Custom `std::char_trast` if the compiler does not provide one.
-/** Needed if the standard library lacks a generic implementation or a
- * specialisation for std::byte.  They aren't strictly required to provide
- * either, and libc++ 19 removed its generic implementation.
+/** Needed for strings of bytes if the standard library lacks a generic
+ * implementation or a specialisation for `std::byte`.  They aren't strictly
+ * required to provide either, and libc++ 19 removed its generic
+ * implementation.
+ *
+ * @deprecated Because of these complications, and because standard strings
+ * aren't really suited to binary data, you should use @ref pqxx::bytes or
+ * @ref pqxx::bytes_view instead.  This type will be removed.
  */
 struct byte_char_traits : std::char_traits<char>
 {

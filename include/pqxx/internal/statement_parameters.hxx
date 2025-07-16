@@ -40,7 +40,7 @@ constexpr inline auto const iterator_identity{
  * which it points.  All values referenced by parameters must remain "live"
  * until the parameterised or prepared statement has been executed.
  */
-struct PQXX_LIBEXPORT c_params
+struct PQXX_LIBEXPORT c_params final
 {
   c_params() = default;
   /// Copying these objects is pointless and expensive.  Don't do it.

@@ -20,7 +20,7 @@ namespace pqxx
  * An unlimited boundary is always inclusive of "infinity" values, if the
  * range's value type supports them.
  */
-struct no_bound
+struct no_bound final
 {
   template<typename TYPE>
   constexpr bool extends_down_to(TYPE const &) const noexcept
@@ -49,7 +49,7 @@ concept has_equal = requires(T n) { n == n; };
 /** Use this as a lower or upper bound for a range if the range should include
  * the value.
  */
-template<has_less TYPE> class inclusive_bound
+template<has_less TYPE> class inclusive_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -90,7 +90,7 @@ public:
 /** Use this as a lower or upper bound for a range if the range should _not_
  * include the value.
  */
-template<has_less TYPE> class exclusive_bound
+template<has_less TYPE> class exclusive_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -131,7 +131,7 @@ public:
 /** A range bound is either no bound at all; or an inclusive bound; or an
  * exclusive bound.  Pass one of the three to the constructor.
  */
-template<has_less TYPE> class range_bound
+template<has_less TYPE> class range_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -258,7 +258,7 @@ public:
  * and support the less-than (`<`) and equals (`==`) comparisons, but there
  * can be rare cases where they need not be.
  */
-template<typename TYPE> class range
+template<typename TYPE> class range final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:

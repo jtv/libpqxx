@@ -41,6 +41,7 @@ namespace pqxx
 class field_ref;
 
 
+// TODO: Make this a borrowed_range?
 /// Lightweight reference to one row in a result.
 /** Like @ref row, represents one row in a query result set.  Unlike with
  * @ref row, however, for as long as you're using a `row_ref`, the @ref result
@@ -358,7 +359,7 @@ namespace pqxx
  *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
  * ```
  */
-class PQXX_LIBEXPORT row
+class PQXX_LIBEXPORT row final
 {
 public:
   // TODO: Some of these types conflict: class is both iterator and container.

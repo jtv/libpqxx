@@ -195,6 +195,7 @@ public:
   }
 
   // TODO: De-templatise this so we can pass std::source_location.
+  // TODO: Forbid borrowed_range if appropriate.
   /// Escape string for use as SQL string literal in this transaction.
   template<typename... ARGS> [[nodiscard]] auto esc(ARGS &&...args) const
   {
@@ -202,6 +203,7 @@ public:
   }
 
   // TODO: De-templatise this so we can pass std::source_location.
+  // TODO: Forbid borrowed_range if appropriate.
   /// Escape binary data for use as SQL string literal in this transaction.
   /** Raw, binary data is treated differently from regular strings.  Binary
    * strings are never interpreted as text, so they may safely include byte
@@ -237,6 +239,7 @@ public:
     return conn().unesc_bin(text, loc);
   }
 
+  // TODO: "Into buffer" variant.
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
   template<typename T>
@@ -245,6 +248,7 @@ public:
     return conn().quote(t, loc);
   }
 
+  // TODO: "Into buffer" variant.
   /// Binary-escape and quote a binary string for use as an SQL constant.
   /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>
@@ -254,12 +258,14 @@ public:
     return conn().quote_raw(data, loc);
   }
 
+  // TODO: "Into buffer" variant.
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const
   {
     return conn().quote_name(identifier);
   }
 
+  // TODO: "Into buffer" variant.
   /// Escape string for literal LIKE match.
   [[nodiscard]] std::string esc_like(
     std::string_view bin, char escape_char = '\\',
@@ -440,9 +446,11 @@ public:
    * @throw unexpected_rows If the query did not return exactly 1 row.
    * @throw usage_error If the row did not contain exactly 1 field.
    */
-  template<typename TYPE> TYPE query_value(zview query, sl loc = sl::current())
+  template<not_borrowed TYPE>
+  TYPE query_value(zview query, sl loc = sl::current())
   {
     auto c{make_context(loc)};
+    // C++20: Do new lifetime rules let us use one_field_ref()?
     return exec(query, loc).one_field(loc).as<TYPE>(c);
   }
 
@@ -454,9 +462,10 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]] std::tuple<TYPE...> query1(zview query, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use one_row_ref()?
     return exec(query, loc)
       .expect_columns(sizeof...(TYPE), loc)
       .one_row(loc)
@@ -471,10 +480,11 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
   query01(zview query, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use opt_row_ref()?
     std::optional<row> const r{exec(query, loc).opt_row(loc)};
     if (r)
       return {r->as<TYPE...>(loc)};
@@ -800,9 +810,10 @@ public:
    * @throw unexpected_rows If the query did not return exactly 1 row.
    * @throw usage_error If the row did not contain exactly 1 field.
    */
-  template<typename TYPE>
+  template<not_borrowed TYPE>
   TYPE query_value(zview query, params const &parms, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use one_field_ref() etc?
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
@@ -817,11 +828,12 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]]
   std::tuple<TYPE...>
   query1(zview query, params const &parms, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use one_row_ref()?
     return exec(query, parms, loc).one_row(loc).as<TYPE...>(loc);
   }
 
@@ -833,10 +845,11 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
   query01(zview query, params const &parms, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use opt_row_ref()?
     std::optional<row> r{exec(query, parms, loc).opt_row(loc)};
     if (r)
       return {r->as<TYPE...>(loc)};
@@ -943,10 +956,11 @@ public:
   /** This is just like @ref query_value(zview), but using a prepared
    * statement.
    */
-  template<typename TYPE>
+  template<not_borrowed TYPE>
   TYPE
   query_value(prepped statement, params const &parms, sl loc = sl::current())
   {
+    // C++20: Do new lifetime rules let us use one_field_ref()?
     return exec(statement, parms, loc)
       .expect_columns(1, loc)
       .one_field(loc)
@@ -957,8 +971,9 @@ public:
   /** This is just like @ref query_value(zview), but using a prepared
    * statement.
    */
-  template<typename TYPE> TYPE query_value(prepped statement, ctx c = {})
+  template<not_borrowed TYPE> TYPE query_value(prepped statement, ctx c = {})
   {
+    // C++20: Do new lifetime rules let us use one_field_ref()?
     return exec(statement, {}, c.loc)
       .expect_columns(1, c.loc)
       .one_field(c.loc)

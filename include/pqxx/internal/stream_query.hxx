@@ -75,7 +75,7 @@ class stream_query_end_iterator
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-template<typename... TYPE> class stream_query : transaction_focus
+template<typename... TYPE> class stream_query final : transaction_focus
 {
 public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;

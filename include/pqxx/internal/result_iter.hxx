@@ -75,6 +75,7 @@ private:
 };
 
 
+/// Iterator for implementing @ref pqxx::result::iter().
 template<typename... TYPE> class result_iteration
 {
 public:

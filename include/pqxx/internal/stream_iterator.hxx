@@ -24,7 +24,7 @@ namespace pqxx::internal
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
  */
-template<typename... TYPE> class stream_from_input_iterator
+template<typename... TYPE> class stream_from_input_iterator final
 {
   using stream_t = stream_from;
 
@@ -75,7 +75,7 @@ private:
 
 // TODO: Replace with generator?
 /// Iteration over a @ref stream_query.
-template<typename... TYPE> class stream_input_iteration
+template<typename... TYPE> class stream_input_iteration final
 {
 public:
   using stream_t = stream_from;

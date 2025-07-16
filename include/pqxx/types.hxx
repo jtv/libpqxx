@@ -144,6 +144,20 @@ using bytes_view = std::span<std::byte const>;
 using writable_bytes_view = std::span<std::byte>;
 
 
+/// Concept: A value that's not just a reference to values elsewhere.
+/** This can be an important distinction when returning values.  For example,
+ * if a function creates a `std::string` in a local variable, it can't then
+ * return a `std::string_view` referring to that string.  By the time the
+ * caller gets to it, the underlying data is no longer valid.
+ *
+ * In most cases these are decisions we make while writing code.  But when
+ * converting data to a caller-selected type, there are situations where it's
+ * safe to return a view and there are situations where it's not.
+ */
+template<typename T>
+concept not_borrowed = not std::ranges::borrowed_range<T>;
+
+
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
  */

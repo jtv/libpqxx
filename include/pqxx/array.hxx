@@ -51,7 +51,7 @@ namespace pqxx
  * before `a[m][n+1]`.
  */
 template<
-  typename ELEMENT, std::size_t DIMENSIONS = 1u,
+  not_borrowed ELEMENT, std::size_t DIMENSIONS = 1u,
   char SEPARATOR = array_separator<ELEMENT>>
 class array final
 {

@@ -53,7 +53,7 @@ namespace pqxx::internal
 {
 // 9.0: Remove this, just use the notice handler in connection/result.
 /// Various callbacks waiting for a notice to come in.
-struct notice_waiters
+struct notice_waiters final
 {
   std::function<void(zview)> notice_handler;
   std::list<errorhandler *> errorhandlers;
@@ -94,7 +94,7 @@ class field_ref;
  * the same result set--even if it is doing so through a different result
  * object!
  */
-class PQXX_LIBEXPORT result
+class PQXX_LIBEXPORT result final
 {
 public:
   using size_type = result_size_type;
@@ -403,6 +403,14 @@ public:
    * @throw @ref unexpected_rows is the row count is not 0 or 1.
    */
   std::optional<row> opt_row(sl = sl::current()) const;
+
+  /// Expect that result contains at moost one row, and return as optional.
+  /** Returns an empty `std::optional` if the result is empty, or if it has
+   * exactly one row, a `std::optional` containing the row.
+   *
+   * @throw @ref unexpected_rows is the row count is not 0 or 1.
+   */
+  std::optional<row_ref> opt_row_ref(sl = sl::current()) const;
 
   /// Expect that result contains no rows.  Return result for convenience.
   result no_rows(sl loc = sl::current()) const

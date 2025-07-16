@@ -65,7 +65,7 @@ namespace pqxx
  * The @c nullness traits describe whether it exists, and whether a particular
  * value is null.
  */
-template<typename TYPE, typename ENABLE = void> struct nullness
+template<typename TYPE, typename ENABLE = void> struct nullness final
 {
   /// Does this type have a null value?
   static bool has_null;
@@ -131,7 +131,7 @@ template<typename TYPE> struct no_null
  * This type was introduced in libpqxx 8.  The older conversion API does not
  * know about it, so older code will just have a default-constructed context.
  */
-struct conversion_context
+struct conversion_context final
 {
   /// Encoding group describing the client text encoding.
   /** This will not tell you what the exact _encoding_ is.  All libpqxx cares
@@ -176,7 +176,7 @@ using ctx = conversion_context const &;
  * converting a value of @c TYPE to a string, or vice versa, and handle them
  * separately.
  */
-template<typename TYPE> struct string_traits
+template<typename TYPE> struct string_traits final
 {
   /// Is conversion from `TYPE` to strings supported?
   /** When defining your own conversions, specialise this as `true` to indicate
@@ -252,6 +252,7 @@ template<typename TYPE> struct string_traits
 };
 
 
+// C++26: Replace with `=delete("...")`.
 /// Nonexistent function to indicate a disallowed type conversion.
 /** There is no implementation for this function, so any reference to it will
  * fail to link.  The error message will mention the function name and its
@@ -318,7 +319,7 @@ template<typename TYPE> struct forbidden_conversion
  *
  * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
-template<> struct string_traits<char> : forbidden_conversion<char>
+template<> struct string_traits<char> final : forbidden_conversion<char>
 {};
 
 
@@ -337,7 +338,7 @@ template<> struct string_traits<char> : forbidden_conversion<char>
  * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
 template<>
-struct string_traits<unsigned char> : forbidden_conversion<unsigned char>
+struct string_traits<unsigned char> final : forbidden_conversion<unsigned char>
 {};
 
 
@@ -356,7 +357,7 @@ struct string_traits<unsigned char> : forbidden_conversion<unsigned char>
  * Or if you had a raw byte in mind, try `pqxx::bytes_view` instead.
  */
 template<>
-struct string_traits<signed char> : forbidden_conversion<signed char>
+struct string_traits<signed char> final : forbidden_conversion<signed char>
 {};
 
 
@@ -366,13 +367,16 @@ struct string_traits<signed char> : forbidden_conversion<signed char>
  * For example, to convert a byte `b` from C++ to SQL, convert the value
  * `pqxx::bytes_view{&b, 1}` instead.
  */
-template<> struct string_traits<std::byte> : forbidden_conversion<std::byte>
+template<>
+struct string_traits<std::byte> final : forbidden_conversion<std::byte>
 {};
 
 
+// C++20: Replace std::enable_if with concept.
 /// Nullness: Enums do not have an inherent null value.
 template<typename ENUM>
-struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> : no_null<ENUM>
+struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> final
+        : no_null<ENUM>
 {};
 } // namespace pqxx
 
@@ -615,7 +619,8 @@ private:
   {                                                                           \
     return #ENUM;                                                             \
   }                                                                           \
-  template<> struct string_traits<ENUM> : pqxx::internal::enum_traits<ENUM>   \
+  template<>                                                                  \
+  struct string_traits<ENUM> final : pqxx::internal::enum_traits<ENUM>        \
   {}
 
 

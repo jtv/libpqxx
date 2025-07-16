@@ -77,7 +77,7 @@ namespace pqxx
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-class PQXX_LIBEXPORT stream_to : transaction_focus
+class PQXX_LIBEXPORT stream_to final : transaction_focus
 {
 public:
   /// Stream data to a pre-quoted table and columns.
@@ -380,6 +380,7 @@ private:
     }
   }
 
+  // C++20: Replace std::enable_if with concept.
   /// Append string representation for a null field to @c m_buffer.
   /** This special case is for types which are always null.
    *
