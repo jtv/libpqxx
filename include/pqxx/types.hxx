@@ -155,7 +155,9 @@ using writable_bytes_view = std::span<std::byte>;
  * safe to return a view and there are situations where it's not.
  */
 template<typename T>
-concept not_borrowed = not std::ranges::borrowed_range<T>;
+concept not_borrowed =
+  not std::is_reference_v<T> and not std::is_pointer_v<T> and
+  not std::ranges::borrowed_range<T>;
 
 
 /// Marker for @ref stream_from constructors: "stream from table."
