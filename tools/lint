@@ -153,9 +153,11 @@ cpplint() {
         includes="$(
             grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
             true)"
-# TODO: Check test/, but tolerate some of the dubious stuff tests do.
         # shellcheck disable=SC2086,2046
-        clang-tidy --quiet "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
+        clang-tidy \
+            --quiet \
+            "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
+            "$SRCDIR"/test/*.cxx \
             -- \
             -I"$SRCDIR/include" -Iinclude $dialect $includes
 
@@ -184,7 +186,7 @@ EOF
 
 pylint() {
     pyflakes "$SRCDIR"/tools/*.py
-    ruff check "$SRCDIR"/tools/*.py
+    ruff check -q "$SRCDIR"/tools/*.py
 }
 
 
