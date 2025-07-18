@@ -41,7 +41,6 @@ namespace pqxx
 class field_ref;
 
 
-// TODO: Make this a borrowed_range?
 /// Lightweight reference to one row in a result.
 /** Like @ref row, represents one row in a query result set.  Unlike with
  * @ref row, however, for as long as you're using a `row_ref`, the @ref result
@@ -263,10 +262,15 @@ public:
   /** Useful in cases where we have a full tuple of field types, but
    * not a parameter pack.
    *
+   * `TUPLE` should be a tuple type, with the same number of elements as the
+   * result has columns.
+   *
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `TUPLE`.
    */
-  template<typename TUPLE> TUPLE as_tuple(sl loc = sl::current()) const
+  template<typename TUPLE>
+  TUPLE as_tuple(sl loc = sl::current()) const
+    requires(requires(TUPLE t) { std::get<0>(t); })
   {
     check_size(std::tuple_size_v<TUPLE>, loc);
     using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
@@ -566,15 +570,19 @@ public:
     return as_row_ref().as<TYPE...>(loc);
   }
 
-  // XXX: Concept for "this must be a tuple-like type"?
   /// Convert to a given tuple of values,
   /** Useful in cases where we have a full tuple of field types, but
    * not a parameter pack.
    *
+   * `TUPLE` should be a tuple type, with the same number of elements as the
+   * result has columns.
+   *
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `TUPLE`.
    */
-  template<typename TUPLE> TUPLE as_tuple(sl loc = sl::current()) const
+  template<typename TUPLE>
+  TUPLE as_tuple(sl loc = sl::current()) const
+    requires(requires(TUPLE t) { std::get<0>(t); })
   {
     return as_row_ref().as_tuple<TUPLE>(loc);
   }

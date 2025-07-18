@@ -269,8 +269,8 @@ private:
 
   /// Estimate buffer space needed for a field which is always null.
   template<typename T>
-  static std::enable_if_t<nullness<T>::always_null, std::size_t>
-  estimate_buffer(T const &)
+  static std::size_t estimate_buffer(T const &)
+    requires(nullness<T>::always_null)
   {
     return std::size(null_field);
   }
@@ -280,8 +280,8 @@ private:
    * we'll need once the escaping comes in.
    */
   template<typename T>
-  static std::enable_if_t<not nullness<T>::always_null, std::size_t>
-  estimate_buffer(T const &field)
+  static std::size_t estimate_buffer(T const &field)
+    requires(not nullness<T>::always_null)
   {
     return is_null(field) ? std::size(null_field) : size_buffer(field);
   }
@@ -297,8 +297,8 @@ private:
    * at the end of the buffer.
    */
   template<typename Field>
-  std::enable_if_t<not nullness<Field>::always_null>
-  append_to_buffer(Field const &f, sl loc)
+  void append_to_buffer(Field const &f, sl loc)
+    requires(not nullness<Field>::always_null)
   {
     conversion_context const c{{}, loc};
 
@@ -380,7 +380,6 @@ private:
     }
   }
 
-  // C++20: Replace std::enable_if with concept.
   /// Append string representation for a null field to @c m_buffer.
   /** This special case is for types which are always null.
    *
@@ -389,8 +388,8 @@ private:
    * at the end of the buffer.
    */
   template<typename Field>
-  std::enable_if_t<nullness<Field>::always_null>
-  append_to_buffer(Field const &, sl)
+  void append_to_buffer(Field const &, sl)
+    requires nullness<Field>::always_null
   {
     m_buffer.append(null_field);
   }

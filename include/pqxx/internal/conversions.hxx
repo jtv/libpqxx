@@ -210,7 +210,8 @@ namespace pqxx
  * they are not nulls.  A non-null SQL float can be NaN.
  */
 template<typename T>
-struct nullness<T, std::enable_if_t<std::is_arithmetic_v<T>>> : no_null<T>
+  requires std::is_arithmetic_v<T>
+struct nullness<T> : no_null<T>
 {};
 
 

@@ -39,6 +39,7 @@
  - There's now an `UNKNOWN` encoding group.  It's the only fully safe default.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
  - Tests are now in a single directory (#934)
+ - Removed cumbersome `test_all.py` script.
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)

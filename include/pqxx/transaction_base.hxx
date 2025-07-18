@@ -450,8 +450,9 @@ public:
   TYPE query_value(zview query, sl loc = sl::current())
   {
     auto c{make_context(loc)};
-    // C++20: Do new lifetime rules let us use one_field_ref()?
-    return exec(query, loc).one_field(loc).as<TYPE>(c);
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
+    return exec(query, loc).one_field_ref(loc).as<TYPE>(c);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -465,10 +466,11 @@ public:
   template<not_borrowed... TYPE>
   [[nodiscard]] std::tuple<TYPE...> query1(zview query, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use one_row_ref()?
+    // The result and row_ref objects are temporaries, but under C++20 lifetime
+    // rules they'll live until after we convert the field to TYPE.
     return exec(query, loc)
       .expect_columns(sizeof...(TYPE), loc)
-      .one_row(loc)
+      .one_row_ref(loc)
       .as<TYPE...>(loc);
   }
 
@@ -484,8 +486,8 @@ public:
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
   query01(zview query, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use opt_row_ref()?
-    std::optional<row> const r{exec(query, loc).opt_row(loc)};
+    auto const res{exec(query, loc)};
+    std::optional<row_ref> const r{res.opt_row_ref(loc)};
     if (r)
       return {r->as<TYPE...>(loc)};
     else
@@ -508,13 +510,13 @@ public:
    * have pre-defined conversions; if you want to define your own conversions
    * for additional types, see @ref datatypes.
    *
-   * As a special case, tuple may contain `std::string_view` fields, but the
-   * strings to which they point will only remain valid until you extract the
-   * next row.  After that, the memory holding the string may be overwritten or
-   * deallocated.
+   * `TYPE...` may include `std::string_view` and @ref zview fields (which will
+   * be highly efficient), but the strings to which they point will only remain
+   * valid until you extract the next row.  After that, the memory holding the
+   * string may be overwritten or deallocated.
    *
-   * If any of the columns can be null, and the C++ type to which you're
-   * translating it does not have a null value, wrap the type in a
+   * If any of the columns can be null, and you're converting it to a C++ type
+   * which does not support a null value, you can wrap the type in a
    * `std::optional<>` (or if you prefer, a `std::shared_ptr<>` or a
    * `std::unique_ptr`).  These templates do support null values, and libpqxx
    * will know how to convert to them.
@@ -529,10 +531,11 @@ public:
    * instead.
    *
    * Streaming your query is likely to be faster than the `exec()` methods for
-   * larger results (but slower for small results), and start useful processing
-   * sooner.  Also, `stream()` scales better in terms of memory usage: it only
-   * needs to keep the current row in memory.  The "exec" functions read the
-   * entire result into memory at once.
+   * larger results, but slower for small results.  It will start useful
+   * processing sooner, before all the result data is in.  Also, `stream()`
+   * scales better in terms of memory usage: it only needs to keep the current
+   * row in memory, not the whole result.  The "exec" functions read the entire
+   * result into memory at once.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
@@ -813,10 +816,11 @@ public:
   template<not_borrowed TYPE>
   TYPE query_value(zview query, params const &parms, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use one_field_ref() etc?
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
     return exec(query, parms, loc)
       .expect_columns(1, loc)
-      .one_field(loc)
+      .one_field_ref(loc)
       .as<TYPE>(make_context(loc));
   }
 
@@ -833,8 +837,9 @@ public:
   std::tuple<TYPE...>
   query1(zview query, params const &parms, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use one_row_ref()?
-    return exec(query, parms, loc).one_row(loc).as<TYPE...>(loc);
+    // The result and row_ref objects are temporaries, but under C++20 lifetime
+    // rules they'll live until after we convert the field to TYPE.
+    return exec(query, parms, loc).one_row_ref(loc).as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -849,8 +854,8 @@ public:
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
   query01(zview query, params const &parms, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use opt_row_ref()?
-    std::optional<row> r{exec(query, parms, loc).opt_row(loc)};
+    auto const res{exec(query, parms, loc)};
+    std::optional<row_ref> r{res.opt_row_ref(loc)};
     if (r)
       return {r->as<TYPE...>(loc)};
     else
@@ -960,10 +965,11 @@ public:
   TYPE
   query_value(prepped statement, params const &parms, sl loc = sl::current())
   {
-    // C++20: Do new lifetime rules let us use one_field_ref()?
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
     return exec(statement, parms, loc)
       .expect_columns(1, loc)
-      .one_field(loc)
+      .one_field_ref(loc)
       .as<TYPE>(loc);
   }
 
@@ -973,10 +979,11 @@ public:
    */
   template<not_borrowed TYPE> TYPE query_value(prepped statement, ctx c = {})
   {
-    // C++20: Do new lifetime rules let us use one_field_ref()?
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
     return exec(statement, {}, c.loc)
       .expect_columns(1, c.loc)
-      .one_field(c.loc)
+      .one_field_ref(c.loc)
       .as<TYPE>(c);
   }
 
@@ -1201,18 +1208,6 @@ private:
 
   static constexpr std::string_view s_type_name{"transaction"sv};
 };
-
-
-// C++20: Can borrowed_range help?
-/// Forbidden specialisation: underlying buffer immediately goes out of scope.
-template<>
-std::string_view transaction_base::query_value<std::string_view>(
-  zview query, std::string_view desc) = delete;
-/// Forbidden specialisation: underlying buffer immediately goes out of scope.
-template<>
-zview transaction_base::query_value<zview>(
-  zview query, std::string_view desc) = delete;
-
 } // namespace pqxx
 
 

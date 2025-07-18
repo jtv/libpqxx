@@ -58,12 +58,16 @@ namespace pqxx
 //@{
 
 
+// TODO: Drop `ENABLE` in 9.x.
 /// Traits describing a type's "null value," if any.
 /** Some C++ types have a special value or state which correspond directly to
  * SQL's NULL.
  *
  * The @c nullness traits describe whether it exists, and whether a particular
  * value is null.
+ *
+ * @warning The `ENABLE` parameter is deprecated.  It exists to enable use of
+ * `std::enable_if`.  As of C++20, use `requires` or a concept instead.
  */
 template<typename TYPE, typename ENABLE = void> struct nullness final
 {
@@ -372,11 +376,10 @@ struct string_traits<std::byte> final : forbidden_conversion<std::byte>
 {};
 
 
-// C++20: Replace std::enable_if with concept.
 /// Nullness: Enums do not have an inherent null value.
 template<typename ENUM>
-struct nullness<ENUM, std::enable_if_t<std::is_enum_v<ENUM>>> final
-        : no_null<ENUM>
+  requires std::is_enum_v<ENUM>
+struct nullness<ENUM> final : no_null<ENUM>
 {};
 } // namespace pqxx
 
