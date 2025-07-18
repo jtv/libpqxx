@@ -13,12 +13,12 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
 
   void start_exec(char const query[]) { home().start_exec(query); }
   pqxx::internal::pq::PGresult *get_result() { return home().get_result(); }
-  void cancel_query() { home().cancel_query(); }
+  void cancel_query(sl loc) { home().cancel_query(loc); }
 
   bool consume_input() noexcept { return home().consume_input(); }
   bool is_busy() const noexcept { return home().is_busy(); }
 
-  int encoding_id() { return home().encoding_id(); }
+  int encoding_id(sl loc) { return home().encoding_id(loc); }
 
   auto get_notice_waiters() const { return home().m_notice_waiters; }
 };
