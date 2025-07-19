@@ -23,7 +23,7 @@
 
 
 pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :
-        m_col{c}, m_home{r.m_result}, m_row{r.m_index}
+        m_home{r.m_result}, m_row{r.m_index}, m_col{c}
 {}
 
 
@@ -38,43 +38,13 @@ bool PQXX_COLD pqxx::field::operator==(field const &rhs) const noexcept
 }
 
 
-char const *pqxx::field::name() const &
+char const *pqxx::field::name(sl loc) const &
 {
-  return home().column_name(col());
+  return home().column_name(column_number(), loc);
 }
 
 
-pqxx::oid pqxx::field::type() const
+pqxx::row::size_type pqxx::field::table_column(sl loc) const
 {
-  return home().column_type(col());
-}
-
-
-pqxx::oid pqxx::field::table() const
-{
-  return home().column_table(col());
-}
-
-
-pqxx::row::size_type pqxx::field::table_column() const
-{
-  return home().table_column(col());
-}
-
-
-char const *pqxx::field::c_str() const &
-{
-  return home().get_value(idx(), col());
-}
-
-
-bool pqxx::field::is_null() const noexcept
-{
-  return home().get_is_null(idx(), col());
-}
-
-
-pqxx::field::size_type pqxx::field::size() const noexcept
-{
-  return home().get_length(idx(), col());
+  return home().table_column(column_number(), loc);
 }
