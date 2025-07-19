@@ -65,16 +65,6 @@ namespace pqxx
 using namespace std::literals;
 
 
-/// Ignore an unused item.
-/** This should no longer be needed.  In modern C++, use `[[maybe_unused]]`,
- * `std::ignore`, and/or the "`_`" (underscore) variable.
- */
-template<typename... T>
-[[maybe_unused, deprecated("Use [[maybe_unused]], std::ignore, etc.")]]
-inline constexpr void ignore_unused(T &&...) noexcept
-{}
-
-
 /// Cast a numeric value to another type, or throw if it underflows/overflows.
 /** Both types must be arithmetic types, and they must either be both integral
  * or both floating-point types.
@@ -328,6 +318,18 @@ bytes_view binary_cast(CHAR const *data, SIZE size)
 
 /// The "null" oid.
 constexpr oid oid_none{0};
+
+
+/// Ignore an unused item.
+/** This should no longer be needed.  In modern C++, use `[[maybe_unused]]`,
+ * `std::ignore`, and/or the "`_`" (underscore) variable.
+ */
+template<typename... T>
+[[maybe_unused, deprecated("Use [[maybe_unused]], std::ignore, etc.")]]
+inline constexpr void ignore_unused(T &&...) noexcept
+{}
+
+
 } // namespace pqxx
 
 

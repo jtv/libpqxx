@@ -15,34 +15,55 @@
 
 namespace pqxx
 {
-// Types of encodings supported by PostgreSQL, see
-// https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
+/** The supported types of text encoding supported.
+ *
+ * See:
+ * https://www.postgresql.org/docs/current/static/multibyte.html#CHARSET-TABLE
+ *
+ * This enum does not name the individual supported encodings, only the various
+ * schemes for determining where in memory a character ends and a potential new
+ * one may begin.  This is crucial for determining such things as where a
+ * string ends: a byte in the text may look like an ASCII quote character, but
+ * is it really the closing quote, or is it merely a byte inside a multibyte
+ * character which just happens to have the same value as the ASCII value for
+ * a quote?  This is not an issue in most encodings, but it can happen in
+ * others, and can pose a real security risk.
+ *
+ * Some functions in libpqxx need to know the type of encoding used in a given
+ * text in order to find closing quotes or field boundaries.
+ *
+ * All supported encodings are supersets of ASCII: any byte with a value
+ * between 0 and 127 inclusive at the beginning of a character is always a
+ * simple, single-byte ASCII character.
+ */
 enum class encoding_group
 {
-  // Indeterminate encoding.
+  /// Indeterminate encoding.  There's not much we can do to parse it.
   unknown,
 
-  // Handles all single-byte fixed-width encodings, as well as all other
-  // "ASCII-safe" ones.
-  //
-  // The ASCII-safe encodings are the ones where no byte in a multibyte
-  // character can ever have the same value as any ASCII character.
-  //
-  // UTF-8 is an example of an ASCII-safe encoding: if you're looking for a
-  // specific ASCII character in a UTF-8 string, you can just go through the
-  // string byte for byte and look for a match.  No extra cleverness required.
-  //
-  // Cleverness is inefficiency.
+  /// "ASCII-safe" encodings.
+  /**
+   * This includes all single-byte encodings (such as ASCII or ISO 8859-15)
+   * but also all other encodings where there is no risk of ever confusing a
+   * byte inside a multibyte character for an ASCII character.  UTF-8 is an
+   * example of an ASCII-safe encoding, as are the EUC encodings.
+   *
+   * This property makes encodings very efficient to parse: to find the next
+   * character (if any), just move to the next byte.
+   */
   monobyte,
 
-  // Non-ASCII-safe multibyte encodings.
-  // These can embed ASCII-like bytes inside multibyte characters,  That's why
-  // we need specific support for them.
+  /// Non-ASCII-safe: Big5 for Traditional Chinese.
   big5,
+  /// Non-ASCII-safe: GB18030 for Chinese (Traditional & Simplified).
   gb18030,
+  /// Non-ASCII-safe: GuoBiao for Chinese (Traditional & Simplified).
   gbk,
+  /// Non-ASCII-safe: JOHAB for Korean.
   johab,
+  /// Non-ASCII-safe: Japanese JIS and Shift JIS.
   sjis,
+  /// Non-ASCII-safe: Korean Unified Hangul Code.
   uhc,
 };
 } // namespace pqxx
@@ -52,16 +73,13 @@ namespace pqxx::internal
 {
 /// Function type: "find first occurrence of any of these ASCII characters."
 /** This type of function takes a text buffer, and a location in that buffer;
- * it returns the location of the first occurrence within that string of any
- * of a specific set of ASCII characters.
+ * it returns the location of the first occurrence within that string, from
+ * the `start` position onwards, of any of a specific set of ASCII characters.
  *
- * For efficiency, it's up to the function to know which those special ASCII
- * characters are.
+ * The `start` offset marks the beginning of the current glyph.  So, if this
+ * glyph matches, the function will return `start`
  *
- * The start offset marks the beginning of the current glyph.
- *
- * Returns the offset of the first matching character, or if there is none, the
- * end of `haystack`.
+ * If there is no match, returns the end of `haystack`.
  */
 using char_finder_func =
   std::size_t(std::string_view haystack, std::size_t start, sl);

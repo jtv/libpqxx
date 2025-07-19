@@ -19,7 +19,7 @@
 
 #include "pqxx/strconv.hxx"
 
-// C++20: Optimise buffer allocation using random_access_range/iterator.
+// TODO: Optimise buffer allocation using random_access_range/iterator.
 // C++23: Use std::ranges::views::join_with()?
 namespace pqxx
 {

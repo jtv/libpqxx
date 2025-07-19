@@ -494,7 +494,7 @@ public:
       return {};
   }
 
-  // C++20: Update type requirements.
+  // C++20: Update type requirements (see bottom of docs for this function).
   /// Execute a query, in streaming fashion; loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
