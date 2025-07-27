@@ -1,6 +1,6 @@
 /* Code for parts of pqxx::internal::stream_query.
  *
- * These definitions needs to be in a separate file in order to iron out
+ * These definitions need to be in a separate file in order to iron out
  * circular dependencies between headers.
  */
 #if !defined(PQXX_H_STREAM_QUERY_IMPL)

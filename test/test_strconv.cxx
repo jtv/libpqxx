@@ -151,8 +151,10 @@ void check_write(T const &value, std::string_view expected)
   std::array<char, 100> buf{};
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
 
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+
   // Test to_buf().
-  pqxx::zview const out{pqxx::to_buf(buf, value)};
+  pqxx::zview const out{pqxx::to_buf(buf, value, c)};
   PQXX_CHECK_EQUAL(
     std::size(out), std::size(expected),
     std::format("to_buf() for {} wrote wrong length.", name));
@@ -184,7 +186,7 @@ void check_write(T const &value, std::string_view expected)
 
   // Test into_buf().
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
-  std::size_t const end{pqxx::into_buf(buf, value)};
+  std::size_t const end{pqxx::into_buf(buf, value, c)};
   PQXX_CHECK_GREATER(
     end, 0u, std::format("into_buf() for {} returned zero.", name));
   PQXX_CHECK_LESS_EQUAL(

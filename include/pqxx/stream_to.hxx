@@ -162,10 +162,10 @@ public:
           // (This first step only moves the transaction_focus base-class
           // object.)
           transaction_focus{std::move(other)},
-          m_finished{other.m_finished},
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
-          m_finder{other.m_finder}
+          m_finder{other.m_finder},
+          m_finished{other.m_finished}
   {
     other.m_finished = true;
   }
@@ -245,8 +245,6 @@ private:
   stream_to(
     transaction_base &tx, std::string_view path, std::string_view columns, sl);
 
-  bool m_finished = false;
-
   /// Reusable buffer for a row.  Saves doing an allocation for each row.
   std::string m_buffer;
 
@@ -255,6 +253,8 @@ private:
 
   /// Callback to find the special characters we need to watch out for.
   internal::char_finder_func *m_finder;
+
+  bool m_finished = false;
 
   /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view, sl);
@@ -300,7 +300,7 @@ private:
   void append_to_buffer(Field const &f, sl loc)
     requires(not nullness<Field>::always_null)
   {
-    conversion_context const c{{}, loc};
+    conversion_context const c{m_trans->conn().get_encoding_group(loc), loc};
 
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
@@ -394,6 +394,7 @@ private:
     m_buffer.append(null_field);
   }
 
+  // XXX: Replace std::enable_if_t with concept/requires.
   /// Write raw COPY line into @c m_buffer, based on a container of fields.
   template<typename Container>
   std::enable_if_t<

@@ -6,15 +6,15 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ENCODINGS
-#define PQXX_H_ENCODINGS
+#if !defined(PQXX_H_ENCODINGS)
+#  define PQXX_H_ENCODINGS
 
-#include <iomanip>
-#include <string>
-#include <string_view>
+#  include <iomanip>
+#  include <string>
+#  include <string_view>
 
-#include "pqxx/encoding_group.hxx"
-#include "pqxx/strconv.hxx"
+#  include "pqxx/encoding_group.hxx"
+#  include "pqxx/strconv.hxx"
 
 
 namespace pqxx
@@ -416,7 +416,7 @@ get_char_finder(encoding_group enc, sl loc)
   default:
     throw pqxx::internal_error{
       std::format(
-        "Unexpected encoding group: {} (mapped from {}", to_string(enc),
+        "Unexpected encoding group: {} (mapped from '{}').", to_string(enc),
         to_string(enc)),
       loc};
   }

@@ -256,6 +256,7 @@ inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
 }
 
 
+// TODO: Remove this workaround once compilers have float charconv.
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 constexpr bool valid_infinity_string(std::string_view text) noexcept
 {

@@ -112,7 +112,7 @@ pqxx::stream_to::stream_to(
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          pqxx::internal::enc_group(tx.conn().encoding_id(loc), loc), loc)}
+          tx.conn().get_encoding_group(loc), loc)}
 {
   begin_copy(tx, path, columns, loc);
   register_me();
@@ -137,7 +137,7 @@ void pqxx::stream_to::escape_field_to_buffer(std::string_view data, sl loc)
   while (here < end)
   {
     auto const stop_char{m_finder(data, here, loc)};
-    // Append any unremarkable we just skipped over.
+    // Append any unremarkable characters we just skipped over.
     m_buffer.append(std::data(data) + here, stop_char - here);
     if (stop_char < end)
     {

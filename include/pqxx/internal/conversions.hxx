@@ -1,17 +1,20 @@
-#include <array>
-#include <concepts>
-#include <cstring>
-#include <map>
-#include <memory>
-#include <numeric>
-#include <optional>
-#include <span>
-#include <type_traits>
-#include <variant>
-#include <vector>
+#if !defined(PQXX_H_CONVERSIONS)
+#  define PQXX_H_CONVERSIONS
 
-#include "pqxx/types.hxx"
-#include "pqxx/util.hxx"
+#  include <array>
+#  include <concepts>
+#  include <cstring>
+#  include <map>
+#  include <memory>
+#  include <numeric>
+#  include <optional>
+#  include <span>
+#  include <type_traits>
+#  include <variant>
+#  include <vector>
+
+#  include "pqxx/encoding_group.hxx"
+#  include "pqxx/strconv.hxx"
 
 
 /* Internal helpers for string conversion, and conversion implementations.
@@ -376,11 +379,13 @@ template<typename... T> struct string_traits<std::variant<T...>>
                      },
                      value);
   }
-  static zview to_buf(char *begin, char *end, std::variant<T...> const &value)
+  static zview
+  to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
     return std::visit(
-      [begin, end](auto const &i) {
-        return pqxx::to_buf<std::remove_cvref_t<decltype(i)>>({begin, end}, i);
+      [buf, c](auto const &i) {
+        using field_t = std::remove_cvref_t<decltype(i)>;
+        return pqxx::to_buf<field_t>(buf, i, c);
       },
       value);
   }
@@ -1000,77 +1005,10 @@ template<binary DATA> struct string_traits<DATA>
 namespace pqxx::internal
 {
 template<nonbinary_range TYPE>
-std::size_t array_into_buf(
-  std::span<char> buf, TYPE const &value, std::size_t budget, ctx c = {})
-{
-  using elt_type = std::remove_cvref_t<value_type<TYPE>>;
-
-  if (std::cmp_less(std::size(buf), budget))
-    throw conversion_overrun{
-      "Not enough buffer space to convert array to string.", c.loc};
-
-  std::size_t here{0u};
-  // C++26: Use buf.at().
-  buf[here++] = '{';
-
-  bool nonempty{false};
-  for (auto const &elt : value)
-  {
-    static constexpr zview s_null{"NULL"};
-    if (is_null(elt))
-    {
-      here = copy_chars<false>(s_null, buf, here, c.loc);
-    }
-    else if constexpr (is_sql_array<elt_type>)
-    {
-      // Render nested array in-place.  Then erase the trailing zero.
-      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
-    }
-    else if constexpr (is_unquoted_safe<elt_type>)
-    {
-      // No need to quote or escape.  Just convert the value straight into
-      // its place in the array, and "backspace" the trailing zero.
-      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
-    }
-    else
-    {
-      // C++26: Use buf.at().
-      buf[here++] = '"';
-
-      // Use the tail end of the destination buffer as an intermediate
-      // buffer.
-      auto const sz{std::size(buf)}, elt_budget{pqxx::size_buffer(elt)};
-      assert(std::cmp_less(elt_budget, sz - here));
-      for (char const x : pqxx::to_buf(buf.subspan(sz - elt_budget), elt, c))
-      {
-        // We copy the intermediate buffer into the final buffer, char by
-        // char, with escaping where necessary.
-        // TODO: This will not work for all encodings.  UTF8 & ASCII are OK.
-        if (x == '\\' or x == '"')
-          // C++26:Use buf.at().
-          buf[here++] = '\\';
-        // C++26:Use buf.at().
-        buf[here++] = x;
-      }
-      // C++26:Use buf.at().
-      buf[here++] = '"';
-    }
-    // C++26:Use buf.at().
-    buf[here++] = array_separator<elt_type>;
-    nonempty = true;
-  }
-
-  // Erase that last comma, if present.
-  if (nonempty)
-    here--;
-
-  // C++26:Use buf.at().
-  buf[here++] = '}';
-  buf[here++] = '\0';
-
-  return here;
-}
+inline std::size_t array_into_buf(
+  std::span<char> buf, TYPE const &value, std::size_t budget, ctx c = {});
 } // namespace pqxx::internal
+
 
 namespace pqxx
 {
@@ -1080,7 +1018,7 @@ template<nonbinary_range T> struct nullness<T> : no_null<T>
 
 /// String traits for SQL arrays.
 /** This is a very generic implementation,  It doesn't carry enough type
- * information about `Container` to support _parsing_ of a string into an
+ * information about the container to support _parsing_ of a string into an
  * array of a more or less arbitrary C++ type, but it's handy for converting
  * various container types _to_ strings.
  */
@@ -1218,3 +1156,4 @@ inline void into_string(T const &value, std::string &out, ctx c = {})
   out.resize(static_cast<std::size_t>(end - data - 1));
 }
 } // namespace pqxx
+#endif

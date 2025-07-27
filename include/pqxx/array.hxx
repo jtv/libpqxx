@@ -26,8 +26,8 @@
 
 #include "pqxx/connection.hxx"
 #include "pqxx/encoding_group.hxx"
+
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/encodings.hxx"
 
 
 namespace pqxx

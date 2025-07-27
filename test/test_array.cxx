@@ -291,65 +291,77 @@ void test_nested_array_with_multiple_entries()
 
 void test_generate_empty_array()
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}), "{}");
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>{}), "{}");
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}, c), "{}");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>{}, c), "{}");
 }
 
 
 void test_generate_null_value()
 {
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{nullptr}), "{NULL}");
+    pqxx::to_string(std::vector<char const *>{nullptr}, c), "{NULL}");
 }
 
 
 void test_generate_single_item()
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{42}), "{42}");
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{42}, c), "{42}");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{"foo"}), "{\"foo\"}");
+    pqxx::to_string(std::vector<char const *>{"foo"}, c), "{\"foo\"}");
 }
 
 
 void test_generate_multiple_items()
 {
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{5, 4, 3, 2}), "{5,4,3,2}");
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"foo", "bar"}),
+    pqxx::to_string(std::vector<int>{5, 4, 3, 2}, c), "{5,4,3,2}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{"foo", "bar"}, c),
     "{\"foo\",\"bar\"}");
 }
 
 
 void test_generate_nested_array()
 {
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}),
+    pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}, c),
     "{{1,2},{3,4}}");
 }
 
 
 void test_generate_escaped_strings()
 {
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"a\\b"}), "{\"a\\\\b\"}",
+    pqxx::to_string(std::vector<std::string>{"a\\b"}, c), "{\"a\\\\b\"}",
     "Backslashes are not escaped properly.");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"x\"y\""}), "{\"x\\\"y\\\"\"}",
+    pqxx::to_string(std::vector<std::string>{"x\"y\""}, c), "{\"x\\\"y\\\"\"}",
     "Double quotes are not escaped properly.");
 }
 
 
 void test_array_generate_empty_strings()
 {
+  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>({""})), "{\"\"}");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>({"", "", "", ""})),
+    pqxx::to_string(std::vector<std::string>{{""}}, c), "{\"\"}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>({"", "", "", ""}), c),
     "{\"\",\"\",\"\",\"\"}");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>(
-      {"", "", "", "", "", "", "", "", "", "", "", ""})),
+    pqxx::to_string(
+      std::vector<std::string>(
+        {"", "", "", "", "", "", "", "", "", "", "", ""}),
+      c),
     "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}");
 }
 
@@ -393,18 +405,6 @@ void test_sparse_arrays()
 
   PQXX_CHECK_EQUAL(pqxx::to_string(sparseArray), sparseArrayStr);
 }
-
-void test_array_generate()
-{
-  test_generate_empty_array();
-  test_generate_null_value();
-  test_generate_single_item();
-  test_generate_multiple_items();
-  test_generate_nested_array();
-  test_generate_escaped_strings();
-  test_sparse_arrays();
-}
-
 
 void test_array_roundtrip()
 {
@@ -774,7 +774,6 @@ PQXX_REGISTER_TEST(test_array_unquoted_string);
 PQXX_REGISTER_TEST(test_array_multiple_values);
 PQXX_REGISTER_TEST(test_nested_array);
 PQXX_REGISTER_TEST(test_nested_array_with_multiple_entries);
-PQXX_REGISTER_TEST(test_array_generate);
 PQXX_REGISTER_TEST(test_array_roundtrip);
 PQXX_REGISTER_TEST(test_array_strings);
 PQXX_REGISTER_TEST(test_array_parses_real_arrays);
@@ -788,4 +787,11 @@ PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
 PQXX_REGISTER_TEST(test_as_sql_array);
 PQXX_REGISTER_TEST(test_scan_double_quoted_string);
+PQXX_REGISTER_TEST(test_generate_empty_array);
+PQXX_REGISTER_TEST(test_generate_null_value);
+PQXX_REGISTER_TEST(test_generate_single_item);
+PQXX_REGISTER_TEST(test_generate_multiple_items);
+PQXX_REGISTER_TEST(test_generate_nested_array);
+PQXX_REGISTER_TEST(test_generate_escaped_strings);
+PQXX_REGISTER_TEST(test_sparse_arrays);
 } // namespace

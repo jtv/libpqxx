@@ -156,7 +156,7 @@ struct conversion_context final
    */
   sl loc = sl::current();
 
-  constexpr conversion_context() {}
+  constexpr conversion_context(sl lc = sl::current()) : loc{lc} {}
 
   explicit constexpr conversion_context(
     encoding_group e, sl l = sl::current()) :

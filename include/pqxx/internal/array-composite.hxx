@@ -3,6 +3,8 @@
 
 #  include <cassert>
 
+#  include "pqxx/util.hxx"
+
 #  include "pqxx/internal/encodings.hxx"
 #  include "pqxx/strconv.hxx"
 
@@ -134,8 +136,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
     assert(pos <= closing_quote);
     assert((input[pos] == '"') or (input[pos] == '\\'));
 
-    // TODO: Can we restructure this loop to eliminate the repeated condition?
-    if (pos == closing_quote)
+    if (pos >= closing_quote)
       return output;
 
     // We're at either a backslash or a double-quote... and we're not at the
@@ -409,6 +410,100 @@ inline void write_composite_field(
 
   // C++26: Use buf.at().
   buf[pos++] = ',';
+}
+
+
+template<nonbinary_range TYPE>
+std::size_t array_into_buf(
+  std::span<char> buf, TYPE const &value, std::size_t budget, ctx c)
+{
+  using elt_type = std::remove_cvref_t<value_type<TYPE>>;
+
+  if (std::cmp_less(std::size(buf), budget))
+    throw conversion_overrun{
+      "Not enough buffer space to convert array to string.", c.loc};
+
+  std::size_t here{0u};
+  // C++26: Use buf.at().
+  buf[here++] = '{';
+
+  bool nonempty{false};
+  for (auto const &elt : value)
+  {
+    static constexpr zview s_null{"NULL"};
+    if (is_null(elt))
+    {
+      here = copy_chars<false>(s_null, buf, here, c.loc);
+    }
+    else if constexpr (is_sql_array<elt_type>)
+    {
+      // Render nested array in-place.  Then erase the trailing zero.
+      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+    }
+    else if constexpr (is_unquoted_safe<elt_type>)
+    {
+      // No need to quote or escape.  Just convert the value straight into
+      // its place in the array, and "backspace" the trailing zero.
+      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+    }
+    else
+    {
+      // Quote & escape.
+
+      // C++26: Use buf.at().
+      buf[here++] = '"';
+
+      auto const sz{std::size(buf)}, elt_budget{pqxx::size_buffer(elt)};
+      // Use the tail end of the destination buffer as an intermediate
+      // buffer.
+      assert(std::cmp_less(elt_budget, sz - here));
+      auto const from{pqxx::to_buf(buf.subspan(sz - elt_budget), elt, c)};
+      auto const end{std::size(from)};
+      auto const find{get_char_finder<'\\', '"'>(c.enc, c.loc)};
+
+      // Copy the intermediate buffer into the final buffer, but escape
+      // using backslashes.  The tricky part here is to handle encodings right.
+      std::size_t i{0};
+      while (i < end)
+      {
+        auto next{find(from, i, c.loc)};
+        here =
+          copy_chars<false>({std::data(from) + i, next - i}, buf, here, c.loc);
+        if (next < end)
+        {
+          // We hit either a quote or a backslash.  Insert an escape
+          // character (which is always a simple single ASCII byte).
+          // C++26: Use buf.at().
+          buf[here++] = '\\';
+          // C++26: Use buf.at().
+          // Copy the escaped character itself.  This is another simple single
+          // ASCII byte.
+          // TODO: Can we restructure this to leave that to the next iteration?
+          buf[here++] = from[next++];
+        }
+        i = next;
+      }
+      // Copy any final text.
+      here =
+        copy_chars<false>({std::data(from) + i, end - i}, buf, here, c.loc);
+
+      // C++26:Use buf.at().
+      buf[here++] = '"';
+    }
+    // C++26:Use buf.at().
+    buf[here++] = array_separator<elt_type>;
+    nonempty = true;
+  }
+
+  // Erase that last comma, if present.
+  if (nonempty)
+    here--;
+
+  // C++26:Use buf.at().
+  buf[here++] = '}';
+  buf[here++] = '\0';
+
+  return here;
 }
 } // namespace pqxx::internal
 #endif
