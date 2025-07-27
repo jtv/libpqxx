@@ -394,12 +394,11 @@ private:
     m_buffer.append(null_field);
   }
 
-  // XXX: Replace std::enable_if_t with concept/requires.
   /// Write raw COPY line into @c m_buffer, based on a container of fields.
   template<typename Container>
-  std::enable_if_t<
-    not std::is_same_v<std::remove_cv_t<typename Container::value_type>, char>>
-  fill_buffer(Container const &c, sl loc)
+  void fill_buffer(Container const &c, sl loc)
+    requires(not std::is_same_v<
+             std::remove_cv_t<typename Container::value_type>, char>)
   {
     // To avoid unnecessary allocations and deallocations, we run through c
     // twice: once to determine how much buffer space we may need, and once to
