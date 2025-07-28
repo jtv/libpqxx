@@ -36,9 +36,7 @@ subst(pqxx::transaction_base &t, std::string q, ITER patbegin, ITER patend)
     std::string const marker{"$" + pqxx::to_string(i)},
       var{stringize(t, *arg)};
     std::string::size_type const msz{std::size(marker)};
-    // C++23: Use std::string::contains().
-    while (q.find(marker) != std::string::npos)
-      q.replace(q.find(marker), msz, var);
+    while (pqxx::str_contains(q, marker)) q.replace(q.find(marker), msz, var);
   }
   return q;
 }

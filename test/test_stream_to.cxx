@@ -148,8 +148,7 @@ void test_too_few_fields(pqxx::connection &connection)
   catch (pqxx::sql_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("missing data for column") == std::string::npos)
+    if (not pqxx::str_contains(what, "missing data for column"))
       throw;
     pqxx::test::expected_exception(
       "Could not insert row: " + truncate_sql_error(what));
@@ -172,8 +171,7 @@ void test_too_few_fields_fold(pqxx::connection &connection)
   catch (pqxx::sql_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("missing data for column") == std::string::npos)
+    if (not pqxx::str_contains(what, "missing data for column"))
       throw;
     pqxx::test::expected_exception(
       "Fold - Could not insert row: " + truncate_sql_error(what));
@@ -199,8 +197,7 @@ void test_too_many_fields(pqxx::connection &connection)
   catch (pqxx::sql_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("extra data") == std::string::npos)
+    if (not pqxx::str_contains(what, "extra data"))
       throw;
     pqxx::test::expected_exception(
       "Could not insert row: " + truncate_sql_error(what));
@@ -225,8 +222,7 @@ void test_too_many_fields_fold(pqxx::connection &connection)
   catch (pqxx::sql_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("extra data") == std::string::npos)
+    if (not pqxx::str_contains(what, "extra data"))
       throw;
     pqxx::test::expected_exception(
       "Fold - Could not insert row: " + truncate_sql_error(what));

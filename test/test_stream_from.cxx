@@ -36,8 +36,7 @@ void test_nonoptionals(pqxx::connection &connection)
   catch (pqxx::conversion_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("null") == std::string::npos)
+    if (not pqxx::str_contains(what, "null"))
       throw;
     pqxx::test::expected_exception(
       "Could not stream nulls into null-less fields: " + what);
@@ -89,8 +88,7 @@ void test_nonoptionals(pqxx::connection &connection)
   catch (pqxx::conversion_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (what.find("null") == std::string::npos)
+    if (not pqxx::str_contains(what, "null"))
       throw;
     pqxx::test::expected_exception(
       std::string{"Could not extract row: "} + what);
@@ -117,10 +115,7 @@ void test_bad_tuples(pqxx::connection &cx)
   catch (pqxx::usage_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (
-      what.find('1') == std::string::npos or
-      what.find('6') == std::string::npos)
+    if (not pqxx::str_contains(what, '1') or not pqxx::str_contains(what, '6'))
       throw;
     pqxx::test::expected_exception("Tuple is wrong size: " + what);
   }
@@ -135,10 +130,7 @@ void test_bad_tuples(pqxx::connection &cx)
   catch (pqxx::usage_error const &e)
   {
     std::string const what{e.what()};
-    // C++23: Use std::string::contains().
-    if (
-      what.find('6') == std::string::npos or
-      what.find('7') == std::string::npos)
+    if (not pqxx::str_contains(what, '6') or not pqxx::str_contains(what, '7'))
       throw;
     pqxx::test::expected_exception("Could not extract row: " + what);
   }

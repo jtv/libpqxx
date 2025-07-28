@@ -275,7 +275,6 @@ struct byte_char_traits : std::char_traits<char>
 /// Type alias for a container containing bytes.
 using bytes = std::vector<std::byte>;
 
-
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
 
@@ -330,6 +329,19 @@ inline constexpr void ignore_unused(T &&...) noexcept
 {}
 
 
+/// Does string `haystack` contain `needle`?
+/** This is a wrapper for C++23 `haystack.contains(needle)`.  It will
+ * disappear when libpqxx requires C++23 or better.
+ */
+template<typename HAYSTACK, typename NEEDLE>
+inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
+  requires(
+    std::same_as<HAYSTACK, std::string> or
+    std::same_as<HAYSTACK, std::string_view>)
+{
+  // C++23: Replace with `haystack.contains(needle)`.  Retire wrapper.
+  return haystack.find(needle) != HAYSTACK::npos;
+}
 } // namespace pqxx
 
 

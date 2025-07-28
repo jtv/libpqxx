@@ -1219,10 +1219,8 @@ std::string quote_connect_param(std::string_view val)
   std::string buf;
   buf.reserve(2 * std::size(val) + 2);
 
-  // C++23: Use contains().
   bool const quote{
-    (val.find(' ') != std::string_view::npos) or
-    (val.find('\'') != std::string_view::npos)};
+    pqxx::str_contains(val, ' ') or pqxx::str_contains(val, '\'')};
 
   if (quote)
     buf += '\'';
