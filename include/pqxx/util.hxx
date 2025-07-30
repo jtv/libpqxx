@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cctype>
 #include <cerrno>
+#include <cmath>
 #include <cstring>
 #include <format>
 #include <functional>
@@ -72,59 +73,37 @@ using namespace std::literals;
 template<typename TO, typename FROM>
 inline TO
 check_cast(FROM value, [[maybe_unused]] std::string_view description, sl loc)
+  requires(
+    std::is_arithmetic_v<FROM> and std::is_arithmetic_v<TO> and
+    (std::is_integral_v<FROM> == std::is_integral_v<TO>))
 {
-  static_assert(std::is_arithmetic_v<FROM>);
-  static_assert(std::is_arithmetic_v<TO>);
-  static_assert(std::is_integral_v<FROM> == std::is_integral_v<TO>);
-
   // The rest of this code won't quite work for bool, but bool is trivially
   // convertible to other arithmetic types as far as I can see.
   if constexpr (std::is_same_v<FROM, bool>)
     return static_cast<TO>(value);
 
-  using from_limits = std::numeric_limits<decltype(value)>;
   using to_limits = std::numeric_limits<TO>;
-  if constexpr (std::is_signed_v<FROM>)
-  {
-    if constexpr (std::is_signed_v<TO>)
-    {
-      if (value < to_limits::lowest())
-        throw range_error{
-          std::format("Cast underflow: {}"sv, description), loc};
-    }
-    else
-    {
-      // FROM is signed, but TO is not.  Treat this as a special case, because
-      // there may not be a good broader type in which the compiler can even
-      // perform our check.
-      if (value < 0)
-        throw range_error{
-          std::format(
-            "Casting negative value to unsigned type: {}"sv, description),
-          loc};
-    }
-  }
-  else
-  {
-    // No need to check: the value is unsigned so can't fall below the range
-    // of the TO type.
-  }
 
   if constexpr (std::is_integral_v<FROM>)
   {
-    using unsigned_from = std::make_unsigned_t<FROM>;
-    using unsigned_to = std::make_unsigned_t<TO>;
-    constexpr auto from_max{static_cast<unsigned_from>((from_limits::max)())};
-    constexpr auto to_max{static_cast<unsigned_to>((to_limits::max)())};
-    if constexpr (from_max > to_max)
-    {
-      if (std::cmp_greater(value, to_max))
-        throw range_error{
-          std::format("Cast overflow: {}"sv, description), loc};
-    }
+    // Integral value.  These are simple, but only thanks to the standard
+    // library's safe comparison functions.
+    if (std::cmp_less(value, to_limits::lowest()))
+      throw range_error{std::format("Cast underflow: {}", description), loc};
+    if (std::cmp_greater(value, (to_limits::max)()))
+      throw range_error{std::format("Cast overflow: {}", description), loc};
   }
-  else if constexpr ((from_limits::max)() > (to_limits::max)())
+  else if (std::isinf(value))
   {
+    // Floating-point infinities.  These will alway exceed TO's upper or lower
+    // limit, but that's fine; they will translate directly to a TO infinity.
+  }
+  else
+  {
+    // NaN, or a regular floating-point value.  A NaN will never be less than
+    // or greater than any value, such as TO's upper/lower bounds.
+    if (value < to_limits::lowest())
+      throw range_error{std::format("Cast underflow: {}", description), loc};
     if (value > (to_limits::max)())
       throw range_error{std::format("Cast overflow: {}", description), loc};
   }
@@ -371,6 +350,17 @@ template<typename CHAR> inline constexpr bool is_digit(CHAR c) noexcept
 }
 
 
+#if !defined(NDEBUG)
+static_assert(is_digit('0'));
+static_assert(is_digit('1'));
+static_assert(is_digit('9'));
+static_assert(not is_digit('a'));
+static_assert(not is_digit('f'));
+static_assert(not is_digit('z'));
+static_assert(not is_digit(' '));
+#endif
+
+
 /// Describe an object for humans, based on class name and optional name.
 /** Interprets an empty name as "no name given."
  */
@@ -548,6 +538,18 @@ inline constexpr char unescape_char(char escaped) noexcept
   // Regular character ("self-escaped").
   return escaped;
 }
+
+
+#if !defined(NDEBUG)
+static_assert(unescape_char('a') == 'a');
+static_assert(unescape_char('b') == '\b');
+static_assert(unescape_char('f') == '\f');
+static_assert(unescape_char('n') == '\n');
+static_assert(unescape_char('r') == '\r');
+static_assert(unescape_char('t') == '\t');
+static_assert(unescape_char('v') == '\v');
+static_assert(unescape_char('z') == 'z');
+#endif
 
 
 /// Helper for avoiding type trouble with `strerror_r()`/`strerror_s()`.

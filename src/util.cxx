@@ -115,6 +115,14 @@ constexpr char hex_digit(int c) noexcept
 }
 
 
+#if !defined(NDEBUG)
+static_assert(hex_digit(0) == '0');
+static_assert(hex_digit(9) == '9');
+static_assert(hex_digit(10) == 'a');
+static_assert(hex_digit(15) == 'f');
+#endif
+
+
 constexpr int ten{10};
 
 
@@ -130,6 +138,14 @@ constexpr int nibble(int c) noexcept
   else [[unlikely]]
     return -1;
 }
+
+
+#if !defined(NDEBUG)
+static_assert(nibble('0') == 0);
+static_assert(nibble('9') == 9);
+static_assert(nibble('a') == 10);
+static_assert(nibble('f') == 15);
+#endif
 } // namespace
 
 

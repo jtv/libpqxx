@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include <pqxx/types>
 #include <pqxx/util>
 
@@ -40,5 +38,184 @@ void test_binary_cast()
 }
 
 
+/// Shorthand for `std::source_location::current()` or `pqxx::sl::current()`.
+constexpr inline pqxx::sl here(pqxx::sl loc = pqxx::sl::current())
+{
+  return loc;
+}
+
+
+/// Test @ref pqxx::check_cast() for casting 0 from `FROM` to `TO`.
+template<std::integral FROM, std::integral TO> inline void check_val(int n)
+{
+  PQXX_CHECK_EQUAL(
+    pqxx::check_cast<TO>(
+      static_cast<FROM>(n), std::format("check_cast failed for value {}.", n),
+      here()),
+    static_cast<TO>(n),
+    std::format("check_fast test failed for integral value {}", n));
+}
+
+
+template<std::integral TO> inline void check_val_to(int n)
+{
+  check_val<short, TO>(n);
+  check_val<int, TO>(n);
+  check_val<long, TO>(n);
+  check_val<long long, TO>(n);
+
+  if (n >= 0)
+  {
+    check_val<unsigned short, TO>(n);
+    check_val<unsigned int, TO>(n);
+    check_val<unsigned long, TO>(n);
+    check_val<unsigned long long, TO>(n);
+  }
+}
+
+
+/// Test @ref pqxx::check_cast() for casting 0 from `FROM` to `TO`.
+template<std::floating_point FROM, std::floating_point TO>
+inline void check_val(float n)
+{
+  auto const cast_result{pqxx::check_cast<TO>(n, "fail", here())};
+
+  // Check that the value we get falls between the immediately neighbouring
+  // float values.
+  PQXX_CHECK_GREATER(
+    cast_result, std::nextafterf(n, -std::numeric_limits<float>::infinity()));
+  PQXX_CHECK_LESS(
+    cast_result, std::nextafterf(n, std::numeric_limits<float>::infinity()));
+}
+
+
+template<std::floating_point TO> inline void check_val_to(float n)
+{
+  check_val<float, TO>(n);
+  check_val<double, TO>(n);
+  check_val<long double, TO>(n);
+}
+
+
+inline void check_all_casts(int n)
+{
+  check_val_to<short>(n);
+  check_val_to<int>(n);
+  check_val_to<long>(n);
+  check_val_to<long long>(n);
+
+  if (n >= 0)
+  {
+    check_val_to<unsigned short>(n);
+    check_val_to<unsigned int>(n);
+    check_val_to<unsigned long>(n);
+    check_val_to<unsigned long long>(n);
+  }
+}
+
+
+inline void check_all_casts(float n)
+{
+  check_val_to<float>(n);
+  check_val_to<double>(n);
+  check_val_to<long double>(n);
+}
+
+
+/// Test @ref pqxx::check_cast() for casting NaNs to type `TO`.
+template<std::floating_point TO> inline void check_nan()
+{
+  PQXX_CHECK(std::isnan(pqxx::check_cast<TO>(std::nanf("1"), "fail", here())));
+  PQXX_CHECK(std::isnan(pqxx::check_cast<TO>(std::nan("1"), "fail", here())));
+  PQXX_CHECK(std::isnan(pqxx::check_cast<TO>(std::nanl("1"), "fail", here())));
+}
+
+
+/// Test @ref pqxx::check_cast() for casting infinities from `FROM` to `TO`.
+template<std::floating_point FROM, std::floating_point TO>
+inline void check_inf()
+{
+  PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(
+    std::numeric_limits<FROM>::infinity(), "fail", here())));
+  PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(
+    -std::numeric_limits<FROM>::infinity(), "fail", here())));
+}
+
+
+/// Test @ref pqxx::check_cast() for casting infinities to `TO`.
+template<std::floating_point TO> inline void check_inf_to()
+{
+  check_inf<float, TO>();
+  check_inf<double, TO>();
+  check_inf<long double, TO>();
+}
+
+
+void test_check_cast()
+{
+  check_all_casts(0);
+  check_all_casts(1);
+  check_all_casts(-1);
+  check_all_casts(999);
+  check_all_casts(-999);
+  check_all_casts(32767);
+  check_all_casts(-32767);
+
+  check_all_casts(0.0f);
+  check_all_casts(-0.0f);
+  check_all_casts(-1.0f);
+  check_all_casts(1.0f);
+  check_all_casts(999.0f);
+
+  PQXX_CHECK_EQUAL(pqxx::check_cast<int>(-1, "fail", here()), -1);
+  PQXX_CHECK_EQUAL(pqxx::check_cast<int>(-1LL, "fail", here()), -1);
+  PQXX_CHECK_EQUAL(pqxx::check_cast<short>(-1, "fail", here()), -1);
+  PQXX_CHECK_EQUAL(pqxx::check_cast<short>(-1LL, "fail", here()), -1);
+  PQXX_CHECK_EQUAL(pqxx::check_cast<long>(-1LL, "fail", here()), -1);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<unsigned>(-1, "fail", here()), pqxx::range_error);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<unsigned long>(-1, "fail", here()), pqxx::range_error);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<int>(
+      (std::numeric_limits<unsigned>::max)(), "fail", here()),
+    pqxx::range_error);
+
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<int>(
+      (std::numeric_limits<int>::max)() + 1LL, "fail", here()),
+    pqxx::range_error);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<int>(
+      std::numeric_limits<int>::lowest() - 1LL, "fail", here()),
+    pqxx::range_error);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<float>(
+      (std::numeric_limits<float>::max)() * 1.1, "fail", here()),
+    pqxx::range_error);
+  PQXX_CHECK_THROWS(
+    pqxx::check_cast<float>(
+      std::numeric_limits<float>::lowest() * 1.1, "fail", here()),
+    pqxx::range_error);
+
+  int const threshold{(std::numeric_limits<unsigned short>::max)()};
+  if constexpr (std::numeric_limits<int>::max() > threshold)
+  {
+    PQXX_CHECK_THROWS(
+      pqxx::check_cast<unsigned short>(threshold + 1, "fail", here()),
+      pqxx::range_error);
+  }
+
+  check_nan<float>();
+  check_nan<double>();
+  check_nan<long double>();
+
+  check_inf_to<float>();
+  check_inf_to<double>();
+  check_inf_to<long double>();
+}
+
+
 PQXX_REGISTER_TEST(test_binary_cast);
+PQXX_REGISTER_TEST(test_check_cast);
 } // namespace
