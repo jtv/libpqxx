@@ -125,7 +125,10 @@ then
 		# "Eternal" (FLW) g++ options.  These have been around for
 		# ages, and both g++ and clang++ support them.  Don't bother
 		# checking for support; just add them to the compiler options.
-		# TODO: Add -D_GLIBCXX_CONCEPT_CHECKS in 8.0.
+		#
+		# We'd love to add -D_GLIBCXX_CONCEPT_CHECKS in 8.0 here, but
+		# it complains that the "reference" type in result iterators is
+		# not an actual reference.
 		add_compiler_opts \
 			-fstrict-enums \
 			-Werror \

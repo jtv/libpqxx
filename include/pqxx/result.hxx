@@ -181,8 +181,8 @@ public:
   [[nodiscard]] inline const_iterator end() const noexcept;
   [[nodiscard]] inline const_iterator cend() const noexcept;
 
-  [[nodiscard]] reference front() const noexcept;
-  [[nodiscard]] reference back() const noexcept;
+  [[nodiscard]] row_ref front() const noexcept;
+  [[nodiscard]] row_ref back() const noexcept;
 
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;

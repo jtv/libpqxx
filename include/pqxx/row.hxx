@@ -366,14 +366,13 @@ namespace pqxx
 class PQXX_LIBEXPORT row final
 {
 public:
-  // TODO: Some of these types conflict: class is both iterator and container.
   // TODO: Set iterator nested types using std::iterator_traits.
   using size_type = row_size_type;
   using difference_type = row_difference_type;
-  using const_iterator = const_row_iterator;
-  using iterator = const_iterator;
   using reference = field_ref;
   using pointer = const_row_iterator;
+  using const_iterator = const_row_iterator;
+  using iterator = const_iterator;
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
@@ -430,30 +429,30 @@ public:
    * @name Field access
    */
   //@{
-  [[nodiscard]] reference front() const noexcept;
-  [[nodiscard]] reference back() const noexcept;
+  [[nodiscard]] field_ref front() const noexcept;
+  [[nodiscard]] field_ref back() const noexcept;
 
   [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
   [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
 
-  [[nodiscard]] PQXX_PURE reference operator[](size_type) const noexcept;
+  [[nodiscard]] PQXX_PURE field_ref operator[](size_type) const noexcept;
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const
+  [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name) const
   {
     return as_row_ref()[col_name];
   }
 
   /// Address a field by number, but check that the number is in range.
-  PQXX_PURE reference at(size_type, sl = sl::current()) const;
+  PQXX_PURE field_ref at(size_type, sl = sl::current()) const;
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  PQXX_PURE reference at(zview col_name, sl = sl::current()) const;
+  PQXX_PURE field_ref at(zview col_name, sl = sl::current()) const;
 
   [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
   {

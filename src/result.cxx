@@ -110,15 +110,15 @@ bool pqxx::result::empty() const noexcept
 }
 
 
-pqxx::result::reference pqxx::result::front() const noexcept
+pqxx::row_ref pqxx::result::front() const noexcept
 {
-  return row_ref{*this, 0};
+  return {*this, 0};
 }
 
 
-pqxx::result::reference pqxx::result::back() const noexcept
+pqxx::row_ref pqxx::result::back() const noexcept
 {
-  return row_ref{*this, size() - 1};
+  return {*this, size() - 1};
 }
 
 

@@ -32,25 +32,25 @@ pqxx::row::row(result r, result::size_type index, size_type cols) noexcept :
 {}
 
 
-pqxx::row::reference pqxx::row::front() const noexcept
+pqxx::field_ref pqxx::row::front() const noexcept
 {
   return {m_result, m_index, 0};
 }
 
 
-pqxx::row::reference pqxx::row::back() const noexcept
+pqxx::field_ref pqxx::row::back() const noexcept
 {
   return {m_result, m_index, m_end - 1};
 }
 
 
-pqxx::row::reference pqxx::row::operator[](size_type i) const noexcept
+pqxx::field_ref pqxx::row::operator[](size_type i) const noexcept
 {
   return {m_result, m_index, i};
 }
 
 
-pqxx::row_ref::reference pqxx::row_ref::operator[](zview col_name) const
+pqxx::field_ref pqxx::row_ref::operator[](zview col_name) const
 {
   sl const loc{sl::current()};
   return at(col_name, loc);
