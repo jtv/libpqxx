@@ -92,7 +92,7 @@ void test_connection_string()
   else
   {
     PQXX_CHECK(
-      pqxx::str_contains(connstr, "user=" + std::string{c.username()}),
+      not pqxx::str_contains(connstr, "user=" + std::string{c.username()}),
       "Connection string specified user name, even when using default: " +
         connstr);
   }
