@@ -92,7 +92,7 @@ template<typename T>
 PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
 
 
-/// Generic implementation for into_buf, on top of to_buf.
+/// Generic implementation for `into_buf()`, on top of `to_buf()`.
 template<typename T>
 [[deprecated("Pass buffer as std::span<char>.")]]
 inline char *
@@ -112,7 +112,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
 }
 
 
-/// Generic implementation for into_buf, on top of to_buf.
+/// Generic implementation for `into_buf()`, on top of `to_buf()`.
 template<typename T>
 inline std::size_t
 generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
