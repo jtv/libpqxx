@@ -318,9 +318,10 @@ std::string pqxx::result::status_error(sl loc) const
 
 #if defined(LIBPQ_HAS_PIPELINING)
   case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
+    break;
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
-    throw feature_not_supported{
-      "Not supported yet: libpq pipelines.", "", nullptr, loc};
+    err = "Pipeline aborted due to earlier error.";
+    break;
 #endif
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
