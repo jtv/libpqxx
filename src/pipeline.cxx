@@ -27,13 +27,6 @@
 using namespace std::literals::string_view_literals;
 
 
-namespace
-{
-constexpr std::string_view theSeparator{"; "sv}, theDummyValue{"1"sv},
-  theDummyQuery{"SELECT 1; "sv};
-} // namespace
-
-
 void pqxx::pipeline::init(sl loc)
 {
   m_encoding = m_trans->conn().get_encoding_group(loc);
@@ -59,14 +52,23 @@ pqxx::pipeline::~pipeline() noexcept
 void pqxx::pipeline::attach()
 {
   if (not registered())
+  {
     register_me();
+    pqxx::internal::gate::connection_pipeline{m_trans->conn()}.enter_pipeline();
+    m_trans->conn().set_blocking(false);
+  }
 }
 
 
 void pqxx::pipeline::detach()
 {
   if (registered())
+  {
+    // TODO: Restore actual previous blocking state.
+    m_trans->conn().set_blocking(true);
+    pqxx::internal::gate::connection_pipeline{m_trans->conn()}.exit_pipeline();
     unregister_me();
+  }
 }
 
 
@@ -117,7 +119,6 @@ void pqxx::pipeline::flush(sl loc)
       receive(m_issuedrange.second, loc);
     m_issuedrange.first = m_issuedrange.second = std::end(m_queries);
     m_num_waiting = 0;
-    m_dummy_pending = false;
     m_queries.clear();
   }
   detach();
@@ -206,21 +207,14 @@ void pqxx::pipeline::issue(sl loc)
   // Start with oldest query (lowest id) not in previous issue range.
   auto oldest{m_issuedrange.second};
 
-  // Construct cumulative query string for entire batch.
-  auto cum{separated_list(
-    theSeparator, oldest, std::end(m_queries),
-    [](QueryMap::const_iterator i) { return i->second.query; })};
   auto const num_issued{
     QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
-  bool const prepend_dummy{num_issued > 1};
-  if (prepend_dummy)
-    cum = std::format("{}{}", theDummyQuery, cum);
 
-  pqxx::internal::gate::connection_pipeline{m_trans->conn()}.start_exec(
-    cum.c_str());
+  pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
+  for (auto i{oldest}; i != std::end(m_queries); ++i)
+    gate.start_exec(i->second.query->c_str());
 
   // Since we managed to send out these queries, update state to reflect this.
-  m_dummy_pending = prepend_dummy;
   m_issuedrange.first = oldest;
   m_issuedrange.second = std::end(m_queries);
   m_num_waiting -= check_cast<int>(num_issued, "pipeline issue()"sv, loc);
@@ -269,99 +263,6 @@ bool pqxx::pipeline::obtain_result(bool expect_none, sl loc)
   ++m_issuedrange.first;
 
   return true;
-}
-
-
-void pqxx::pipeline::obtain_dummy(sl loc)
-{
-  conversion_context const c{{}, loc};
-
-  // Allocate once, re-use across invocations.
-  static auto const text{
-    std::make_shared<std::string>("[DUMMY PIPELINE QUERY]")};
-
-  pqxx::internal::gate::connection_pipeline gate{m_trans->conn()};
-  std::shared_ptr<pqxx::internal::pq::PGresult> const r{
-    gate.get_result(), pqxx::internal::clear_result};
-  m_dummy_pending = false;
-
-  if (not r) [[unlikely]]
-    internal_error(
-      "Pipeline got no result from backend when it expected one.", loc);
-
-  pqxx::internal::gate::connection_pipeline const pgate{m_trans->conn()};
-  auto handler{pgate.get_notice_waiters()};
-  result const R{pqxx::internal::gate::result_creation::create(
-    r, text, handler, m_encoding)};
-
-  bool OK{false};
-  try
-  {
-    pqxx::internal::gate::result_creation{R}.check_status(loc);
-    OK = true;
-  }
-  catch (sql_error const &)
-  {}
-  if (OK) [[likely]]
-  {
-    if (std::size(R) > 1) [[unlikely]]
-      internal_error("Unexpected result for dummy query in pipeline.", loc);
-
-    if (R.at(0).at(0).as<std::string_view>(c) != theDummyValue) [[unlikely]]
-      internal_error(
-        "Dummy query in pipeline returned unexpected value.", loc);
-    return;
-  }
-
-  // TODO: Can we actually re-issue statements after a failure?
-  /* Execution of this batch failed.
-   *
-   * When we send multiple statements in one go, the backend treats them as a
-   * single transaction.  So the entire batch was effectively rolled back.
-   *
-   * Since none of the queries in the batch were actually executed, we can
-   * afford to replay them one by one until we find the exact query that
-   * caused the error.  This gives us not only a more specific error message
-   * to report, but also tells us which query to report it for.
-   */
-  // First, give the whole batch the same syntax error message, in case all
-  // else is going to fail.
-  for (auto i{m_issuedrange.first}; i != m_issuedrange.second; ++i)
-    i->second.res = R;
-
-  // Remember where the end of this batch was
-  auto const stop{m_issuedrange.second};
-
-  // Retrieve that null result for the last query, if needed
-  obtain_result(true, loc);
-
-  // Reset internal state to forget botched batch attempt
-  m_num_waiting += check_cast<int>(
-    std::distance(m_issuedrange.first, stop), "pipeline obtain_dummy()"sv,
-    loc);
-  m_issuedrange.second = m_issuedrange.first;
-
-  // Issue queries in failed batch one at a time.
-  unregister_me();
-  try
-  {
-    do {
-      m_num_waiting--;
-      auto const query{*m_issuedrange.first->second.query};
-      auto &holder{m_issuedrange.first->second};
-      holder.res = m_trans->exec(query, loc);
-      pqxx::internal::gate::result_creation{holder.res}.check_status(loc);
-      ++m_issuedrange.first;
-    } while (m_issuedrange.first != stop);
-  }
-  catch (std::exception const &)
-  {
-    auto const thud{m_issuedrange.first->first};
-    ++m_issuedrange.first;
-    m_issuedrange.second = m_issuedrange.first;
-    auto q{m_issuedrange.first};
-    set_error_at((q == std::end(m_queries)) ? thud + 1 : q->first);
-  }
 }
 
 
@@ -436,8 +337,6 @@ void pqxx::pipeline::receive_if_available(sl loc)
   if (gate.is_busy())
     return;
 
-  if (m_dummy_pending)
-    obtain_dummy(loc);
   if (have_pending())
     get_further_available_results(loc);
 }
@@ -445,9 +344,6 @@ void pqxx::pipeline::receive_if_available(sl loc)
 
 void pqxx::pipeline::receive(pipeline::QueryMap::const_iterator stop, sl loc)
 {
-  if (m_dummy_pending)
-    obtain_dummy(loc);
-
   while (obtain_result(false, loc) and
          QueryMap::const_iterator{m_issuedrange.first} != stop);
 

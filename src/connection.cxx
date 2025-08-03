@@ -576,6 +576,18 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
+void pqxx::connection::enter_pipeline()
+{
+  if (PQenterPipelineMode(m_conn) != 1) throw broken_connection{"Entering pipeline mode failed."};
+}
+
+
+void pqxx::connection::exit_pipeline()
+{
+  if (PQexitPipelineMode(m_conn) != 1) throw broken_connection{std::format("Exiting pipeline mode failed: {}", PQerrorMessage(m_conn))};
+}
+
+
 void PQXX_COLD
 pqxx::connection::set_verbosity(error_verbosity verbosity) & noexcept
 {
@@ -945,7 +957,7 @@ void pqxx::connection::end_copy_write(sl loc)
 
 void pqxx::connection::start_exec(char const query[])
 {
-  if (PQsendQuery(m_conn, query) == 0) [[unlikely]]
+  if (PQsendQueryParams(m_conn, query, 0, nullptr, nullptr, nullptr, nullptr, 0) == 0) [[unlikely]]
     throw failure{err_msg()};
 }
 

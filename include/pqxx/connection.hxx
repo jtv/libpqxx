@@ -1291,6 +1291,8 @@ private:
   void remove_receiver(notification_receiver *, sl loc) noexcept;
 
   friend class internal::gate::connection_pipeline;
+  void PQXX_PRIVATE enter_pipeline();
+  void PQXX_PRIVATE exit_pipeline();
   void PQXX_PRIVATE start_exec(char const query[]);
   bool PQXX_PRIVATE consume_input() noexcept;
   bool PQXX_PRIVATE is_busy() const noexcept;

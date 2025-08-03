@@ -207,7 +207,6 @@ private:
 
   PQXX_PRIVATE bool obtain_result(bool expect_none, sl);
 
-  PQXX_PRIVATE void obtain_dummy(sl);
   PQXX_PRIVATE void get_further_available_results(sl);
   PQXX_PRIVATE void check_end_results();
 
@@ -224,9 +223,6 @@ private:
   int m_retain = 0;
   int m_num_waiting = 0;
   query_id m_q_id = 0;
-
-  /// Is there a "dummy query" pending?
-  bool m_dummy_pending = false;
 
   /// Point at which an error occurred; no results beyond it will be available
   query_id m_error = qid_limit();
