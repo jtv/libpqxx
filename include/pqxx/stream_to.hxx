@@ -316,7 +316,8 @@ private:
       auto const budget{estimate_buffer(f)};
       auto const offset{std::size(m_buffer)};
 
-      // TODO: Didn't we have an abstraction specifically for this?
+      // We're not using is_unquoted_safe for this, because in this context,
+      // a tab counts as a special character that needs escaping.
       if constexpr (std::is_arithmetic_v<Field>)
       {
         // Specially optimised for "safe" types, which never need any

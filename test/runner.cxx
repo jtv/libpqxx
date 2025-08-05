@@ -324,9 +324,6 @@ void execute(
   for (std::string_view test{disp.next()}; not std::empty(test);
        test = disp.next())
   {
-    // TODO: Concurrency may mess up this output a bit.
-    std::cout << std::format("\nRunning: {}\n", test);
-
     auto const func{all_tests.at(test)};
     auto const msg{run_test(test, func)};
     if (msg.has_value())
