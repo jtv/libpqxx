@@ -5,14 +5,22 @@
 
 namespace
 {
-// Simple test program for libpqxx.  Open connection to database, start
-// a transaction, and perform a query inside it.
+// Simple test program and example for libpqxx.  Open a connection to the
+// database, start a transaction, and perform a query inside it.
 void test_001()
 {
-  pqxx::connection cx;
+  // Creating a pqxx::connection is the same thing as connecting to a database.
+  // We can pass an optional connection string with connection options.  Our
+  // tests however rely on the database being accessible with the default
+  // parameters.
+  //
+  // If the connection should fail, this will throw an exception.  There's no
+  // need to check whether the connection succeeded.
+  pqxx::connection cx{""};
 
   // Begin a transaction acting on our current connection.  Give it a human-
-  // readable name so the library can include it in error messages.
+  // readable name so that if there's an error, libpqxx can include that name
+  // in the error message to help you debug.
   pqxx::work tx{cx, "test1"};
 
   // Perform a query on the database, storing result rows in r.

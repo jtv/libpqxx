@@ -12,27 +12,27 @@
 namespace
 {
 // Convert year to 4-digit format.
-int To4Digits(int Y)
+int to_4_digits(int y)
 {
-  int Result{Y};
+  int Result{y};
 
-  PQXX_CHECK(Y >= 0, "Negative year: " + pqxx::to_string(Y));
+  PQXX_CHECK(y >= 0, "Negative year: " + pqxx::to_string(y));
 
-  if (Y < 70)
+  if (y < 70)
     Result += 2000;
-  else if (Y < 100)
+  else if (y < 100)
     Result += 1900;
   else
-    PQXX_CHECK_GREATER_EQUAL(Y, 1970);
+    PQXX_CHECK_GREATER_EQUAL(y, 1970);
   return Result;
 }
 
 
 // Transaction definition for year-field update.  Returns conversions done.
-std::map<int, int> update_years(pqxx::connection &C)
+std::map<int, int> update_years(pqxx::connection &cx)
 {
   std::map<int, int> conversions;
-  pqxx::work tx{C};
+  pqxx::work tx{cx};
 
   // Note all different years currently occurring in the table, writing them
   // and their correct mappings to m_conversions
@@ -41,7 +41,7 @@ std::map<int, int> update_years(pqxx::connection &C)
   {
     // Read year, and if it is non-null, note its converted value
     if (bool(y))
-      conversions[y.value_or(1)] = To4Digits(y.value_or(2));
+      conversions[y.value_or(1)] = to_4_digits(y.value_or(2));
   }
 
   // For each occurring year, write converted date back to whereever it may

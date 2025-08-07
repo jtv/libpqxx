@@ -14,29 +14,29 @@ void test_039()
   pqxx::connection cx;
   pqxx::nontransaction tx1{cx};
   pqxx::test::create_pqxxevents(tx1);
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  pqxx::result R(tx1.exec(
-    "SELECT * FROM " + Table +
+  pqxx::result r(tx1.exec(
+    "SELECT * FROM " + table +
     " "
     "WHERE year=" +
     pqxx::to_string(boring_year_39)));
 
   PQXX_CHECK_EQUAL(
-    std::size(R), 0,
+    std::size(r), 0,
     "Already have a row for " + pqxx::to_string(boring_year_39) +
       ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
-  R.clear();
-  PQXX_CHECK(std::empty(R));
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   tx1
     .exec(
-      "INSERT INTO " + Table +
+      "INSERT INTO " + table +
       " VALUES"
       "(" +
       pqxx::to_string(boring_year_39) +
@@ -52,22 +52,22 @@ void test_039()
 
   // Verify that our record was added, despite the Abort()
   pqxx::nontransaction tx2(cx, "tx2");
-  R = tx2.exec(
-    "SELECT * FROM " + Table +
+  r = tx2.exec(
+    "SELECT * FROM " + table +
     " "
     "WHERE year=" +
     pqxx::to_string(boring_year_39));
-  PQXX_CHECK_EQUAL(std::size(R), 1);
+  PQXX_CHECK_EQUAL(std::size(r), 1);
 
-  PQXX_CHECK_GREATER_EQUAL(R.capacity(), std::size(R));
+  PQXX_CHECK_GREATER_EQUAL(r.capacity(), std::size(r));
 
-  R.clear();
-  PQXX_CHECK(std::empty(R));
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // Now remove our record again
   tx2
     .exec(
-      "DELETE FROM " + Table +
+      "DELETE FROM " + table +
       " "
       "WHERE year=" +
       pqxx::to_string(boring_year_39))
@@ -78,13 +78,13 @@ void test_039()
   // And again, verify results
   pqxx::nontransaction tx3(cx, "tx3");
 
-  R = tx3.exec(
-    "SELECT * FROM " + Table +
+  r = tx3.exec(
+    "SELECT * FROM " + table +
     " "
     "WHERE year=" +
     pqxx::to_string(boring_year_39));
 
-  PQXX_CHECK_EQUAL(std::size(R), 0);
+  PQXX_CHECK_EQUAL(std::size(r), 0);
 }
 
 

@@ -11,22 +11,22 @@ void test_016()
 {
   pqxx::connection cx;
   pqxx::robusttransaction<> tx{cx};
-  pqxx::result R{tx.exec("SELECT * FROM pg_tables")};
+  pqxx::result r{tx.exec("SELECT * FROM pg_tables")};
 
   pqxx::result::const_iterator c;
-  for (c = std::begin(R); c != std::end(R); ++c);
+  for (c = std::begin(r); c != std::end(r); ++c);
 
   // See if back() and row comparison work properly
   PQXX_CHECK(
-    std::size(R) >= 2, "Not enough rows in pg_tables to test, sorry!");
+    std::size(r) >= 2, "Not enough rows in pg_tables to test, sorry!");
 
   --c;
 
-  PQXX_CHECK_EQUAL(c->size(), std::size(R.back()));
+  PQXX_CHECK_EQUAL(c->size(), std::size(r.back()));
 
   std::string const nullstr;
   for (pqxx::row::size_type i{0}; i < c->size(); ++i)
-    PQXX_CHECK_EQUAL((*c)[i].as(nullstr), R.back()[i].as(nullstr));
+    PQXX_CHECK_EQUAL((*c)[i].as(nullstr), r.back()[i].as(nullstr));
 }
 
 

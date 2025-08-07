@@ -6,10 +6,11 @@
 #include "helpers.hxx"
 
 
-// Test program for libpqxx.  Verify abort behaviour of RobustTransaction.
+// Test and example program for libpqxx.  Verify abort behaviour of
+// robusttransaction.
 //
 // The program will attempt to add an entry to a table called "pqxxevents",
-// with a key column called "year"--and then abort the change.
+// with a key column called "year"--and then abort the change to roll it back.
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
@@ -39,24 +40,21 @@ void test_018()
     tx.commit();
   }
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
-  auto const Before{
-    pqxx::perform([&cx, &Table] { return count_events_18(cx, Table); })};
+  auto const before{
+    pqxx::perform([&cx, &table] { return count_events_18(cx, table); })};
   PQXX_CHECK_EQUAL(
-    Before.second, 0,
+    before.second, 0,
     "Already have event for " + pqxx::to_string(boring_year_18) +
       ", cannot run.");
 
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    pqxx::quiet_errorhandler const d{cx};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      pqxx::perform([&cx, Table] {
+      pqxx::perform([&cx, table] {
         pqxx::robusttransaction<pqxx::serializable> tx{cx};
         tx.exec(
-            "INSERT INTO " + Table + " VALUES (" +
+            "INSERT INTO " + table + " VALUES (" +
             pqxx::to_string(boring_year_18) + ", '" + tx.esc("yawn") + "')")
           .no_rows();
 
@@ -65,12 +63,12 @@ void test_018()
       pqxx::test::deliberate_error);
   }
 
-  auto const After{
-    pqxx::perform([&cx, &Table] { return count_events_18(cx, Table); })};
+  auto const after{
+    pqxx::perform([&cx, &table] { return count_events_18(cx, table); })};
 
-  PQXX_CHECK_EQUAL(After.first, Before.first, "Event count changed.");
+  PQXX_CHECK_EQUAL(after.first, before.first, "Event count changed.");
   PQXX_CHECK_EQUAL(
-    After.second, Before.second,
+    after.second, before.second,
     "Event count for " + pqxx::to_string(boring_year_18) + " changed.");
 }
 

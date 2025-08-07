@@ -8,6 +8,7 @@
 
 namespace
 {
+/// Attempt to connect to a database, but fail.
 void bad_connect()
 {
   pqxx::connection const cx{"totally#invalid@connect$string!?"};
@@ -18,17 +19,18 @@ void test_002()
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate
   // exception rather than a silent retry.
-  PQXX_CHECK_THROWS_EXCEPTION(
-    bad_connect(), "Invalid connection string did not cause exception.");
+  PQXX_CHECK_THROWS(
+    bad_connect(), pqxx::broken_connection,
+    "Invalid connection string did not cause exception.");
 
-  // Set up connection to database
-  std::string const ConnectString;
-  pqxx::connection cx{ConnectString};
+  // Actually connect to the database.  If we're happy to use the defaults
+  // (in these tests we are) then we don't need to pass a connection string.
+  pqxx::connection cx;
 
-  // Start transaction within context of connection.
+  // Start a transaction within the context of our connection.
   pqxx::work tx{cx, "test2"};
 
-  // Perform query within transaction.
+  // Perform a query within the transaction.
   pqxx::result const R(tx.exec("SELECT * FROM pg_tables"));
 
   // Let's keep the database waiting as briefly as possible: commit now,

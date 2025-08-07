@@ -8,13 +8,13 @@ namespace
 {
 void test_030()
 {
-  std::string const Table{"pg_tables"};
+  std::string const table{"pg_tables"};
 
   pqxx::connection cx;
   pqxx::work tx{cx, "test30"};
 
-  pqxx::result const R{tx.exec("SELECT * FROM " + Table)};
-  PQXX_CHECK(not std::empty(R), "Table " + Table + " is empty, cannot test.");
+  pqxx::result const R{tx.exec("SELECT * FROM " + table)};
+  PQXX_CHECK(not std::empty(R), "Table " + table + " is empty, cannot test.");
 
   // Print column names
   for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
@@ -29,7 +29,7 @@ void test_030()
   // If there are rows in R, compare their metadata to R's.
   PQXX_CHECK_GREATER(
     std::size(R), 1,
-    std::format("{} didn't have enough data for test.", Table));
+    std::format("{} didn't have enough data for test.", table));
 
   PQXX_CHECK_EQUAL(R[0].row_number(), 0);
   PQXX_CHECK_EQUAL(R[1].row_number(), 1);

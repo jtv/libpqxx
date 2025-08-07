@@ -38,12 +38,12 @@ void test_032()
     pqxx::test::create_pqxxevents(tx);
   }
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
-  std::pair<int, int> const Before{
-    pqxx::perform([&cx, &Table] { return count_events_32(cx, Table); })};
+  std::pair<int, int> const before{
+    pqxx::perform([&cx, &table] { return count_events_32(cx, table); })};
   PQXX_CHECK_EQUAL(
-    Before.second, 0,
+    before.second, 0,
     "Already have event for " + pqxx::to_string(boring_year_32) +
       ", cannot test.");
 
@@ -52,10 +52,10 @@ void test_032()
     pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      pqxx::perform([&cx, &Table] {
+      pqxx::perform([&cx, &table] {
         pqxx::work{cx}
           .exec(
-            "INSERT INTO " + Table + " VALUES (" +
+            "INSERT INTO " + table + " VALUES (" +
             pqxx::to_string(boring_year_32) +
             ", "
             "'yawn')")
@@ -65,11 +65,11 @@ void test_032()
       pqxx::test::deliberate_error);
   }
 
-  std::pair<int, int> const After{
-    pqxx::perform([&cx, &Table] { return count_events_32(cx, Table); })};
+  std::pair<int, int> const after{
+    pqxx::perform([&cx, &table] { return count_events_32(cx, table); })};
 
-  PQXX_CHECK_EQUAL(After.first, Before.first);
-  PQXX_CHECK_EQUAL(After.second, Before.second);
+  PQXX_CHECK_EQUAL(after.first, before.first);
+  PQXX_CHECK_EQUAL(after.second, before.second);
 }
 
 

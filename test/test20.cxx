@@ -16,25 +16,25 @@ void test_020()
   pqxx::nontransaction t1{cx};
   pqxx::test::create_pqxxevents(t1);
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  pqxx::result R(t1.exec(
-    "SELECT * FROM " + Table +
-    " WHERE year=" + pqxx::to_string(boring_year_20)));
+  pqxx::result r{t1.exec(
+    "SELECT * FROM " + table +
+    " WHERE year=" + pqxx::to_string(boring_year_20))};
   PQXX_CHECK_EQUAL(
-    std::size(R), 0,
+    std::size(r), 0,
     "Already have a row for " + pqxx::to_string(boring_year_20) +
       ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
-  R.clear();
-  PQXX_CHECK(std::empty(R));
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   t1.exec(
-      "INSERT INTO " + Table +
+      "INSERT INTO " + table +
       " VALUES"
       "(" +
       pqxx::to_string(boring_year_20) +
@@ -50,20 +50,20 @@ void test_020()
 
   // Verify that our record was added, despite the Abort()
   pqxx::nontransaction t2{cx, "t2"};
-  R = t2.exec(
-    "SELECT * FROM " + Table +
+  r = t2.exec(
+    "SELECT * FROM " + table +
     " WHERE year=" + pqxx::to_string(boring_year_20));
 
-  PQXX_CHECK_EQUAL(std::size(R), 1);
+  PQXX_CHECK_EQUAL(std::size(r), 1);
 
-  PQXX_CHECK_GREATER_EQUAL(R.capacity(), std::size(R));
+  PQXX_CHECK_GREATER_EQUAL(r.capacity(), std::size(r));
 
-  R.clear();
-  PQXX_CHECK(std::empty(R));
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // Now remove our record again
   t2.exec(
-      "DELETE FROM " + Table +
+      "DELETE FROM " + table +
       " "
       "WHERE year=" +
       pqxx::to_string(boring_year_20))
@@ -74,11 +74,11 @@ void test_020()
   // And again, verify results
   pqxx::nontransaction t3{cx, "t3"};
 
-  R = t3.exec(
-    "SELECT * FROM " + Table +
+  r = t3.exec(
+    "SELECT * FROM " + table +
     " WHERE year=" + pqxx::to_string(boring_year_20));
 
-  PQXX_CHECK_EQUAL(std::size(R), 0);
+  PQXX_CHECK_EQUAL(std::size(r), 0);
 }
 
 

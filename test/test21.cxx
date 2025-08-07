@@ -4,7 +4,7 @@
 #include "helpers.hxx"
 
 
-// Simple test program for libpqxx.  Open a connection to database, start a
+// Simple test program for libpqxx.  Open a connection to the database, start a
 // transaction, and perform a query inside it.
 namespace
 {
@@ -12,7 +12,7 @@ void test_021()
 {
   pqxx::connection cx;
 
-  std::string const HostName{
+  std::string const host{
     ((cx.hostname() == nullptr) ? "<local>" : cx.hostname())};
   cx.process_notice(
     std::string{} + "database=" + cx.dbname() +
@@ -21,7 +21,7 @@ void test_021()
     cx.username() +
     ", "
     "hostname=" +
-    HostName +
+    host +
     ", "
     "port=" +
     pqxx::to_string(cx.port()) +
@@ -40,7 +40,7 @@ void test_021()
     cx.username() +
     ", "
     "hostname=" +
-    HostName +
+    host +
     ", "
     "port=" +
     pqxx::to_string(cx.port()) +
@@ -48,10 +48,10 @@ void test_021()
     "backendpid=" +
     pqxx::to_string(cx.backendpid()) + "\n");
 
-  std::string P;
-  pqxx::from_string(cx.port(), P);
-  PQXX_CHECK_EQUAL(P, pqxx::to_string(cx.port()));
-  PQXX_CHECK_EQUAL(pqxx::to_string(P), P);
+  std::string p;
+  pqxx::from_string(cx.port(), p);
+  PQXX_CHECK_EQUAL(p, pqxx::to_string(cx.port()));
+  PQXX_CHECK_EQUAL(pqxx::to_string(p), p);
 
   pqxx::result const R(tx.exec("SELECT * FROM pg_tables"));
 

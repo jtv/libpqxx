@@ -6,32 +6,30 @@
 #include "helpers.hxx"
 
 
-// Initial test program for libpqxx.  Test functionality that doesn't require a
-// running database.
+// Examples and tests for libpqxx: tests that do not require a connection to
+// a database.
 
 namespace
 {
+/// Convert an object to/from string, and check for expected results.
 template<typename T>
 inline void
-strconv(std::string const &type, T const &Obj, std::string const &expected)
+strconv(std::string const &type, T const &obj, std::string const &expected)
 {
-  std::string const Objstr{pqxx::to_string(Obj)};
+  std::string const objstr{pqxx::to_string(obj)};
 
-  PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
-  T NewObj;
-  pqxx::from_string(Objstr, NewObj);
-  PQXX_CHECK_EQUAL(
-    pqxx::to_string(NewObj), expected,
-    "String mismatch for recycled " + type + ".");
+  PQXX_CHECK_EQUAL(objstr, expected, "String mismatch for " + type + ".");
+
+  if constexpr (pqxx::string_traits<T>::converts_from_string)
+  {
+    T newobj;
+    pqxx::from_string(objstr, newobj);
+    PQXX_CHECK_EQUAL(
+      pqxx::to_string(newobj), expected,
+      "String mismatch for recycled " + type + ".");
+  }
 }
 
-// There's no from_string<char const *>()...
-inline void
-strconv(std::string const &type, char const *Obj, std::string const &expected)
-{
-  std::string const Objstr(pqxx::to_string(Obj));
-  PQXX_CHECK_EQUAL(Objstr, expected, "String mismatch for " + type + ".");
-}
 
 constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};
 

@@ -12,25 +12,25 @@ void test_011()
   pqxx::work tx{cx};
   std::string const Table{"pg_tables"};
 
-  pqxx::result const R(tx.exec("SELECT * FROM " + Table));
+  pqxx::result const r(tx.exec("SELECT * FROM " + Table));
 
   // Print column names
-  for (pqxx::row::size_type c{0}; c < R.columns(); ++c)
+  for (pqxx::row::size_type c{0}; c < r.columns(); ++c)
   {
-    std::string const N{R.column_name(c)};
-    PQXX_CHECK_EQUAL(R.column_number(N), c);
+    std::string const n{r.column_name(c)};
+    PQXX_CHECK_EQUAL(r.column_number(n), c);
   }
 
-  // If there are rows in R, compare their metadata to R's.
-  if (not std::empty(R))
+  // If there are rows in r, compare their metadata to r's.
+  if (not std::empty(r))
   {
-    PQXX_CHECK_EQUAL(R[0].row_number(), 0);
+    PQXX_CHECK_EQUAL(r[0].row_number(), 0);
 
-    if (std::size(R) >= 2)
-      PQXX_CHECK_EQUAL(R[1].row_number(), 1);
+    if (std::size(r) >= 2)
+      PQXX_CHECK_EQUAL(r[1].row_number(), 1);
 
     // Test result::iterator::swap()
-    pqxx::result::const_iterator const T1(R.begin() + 0), T2(R.begin() + 1);
+    pqxx::result::const_iterator const T1(r.begin() + 0), T2(r.begin() + 1);
     PQXX_CHECK_NOT_EQUAL(T1, T2, "Values are identical--can't test swap().");
     pqxx::result::const_iterator T1s(T1), T2s(T2);
     PQXX_CHECK_EQUAL(T1s, T1, "Result iterator copy-construction is wrong.");
@@ -42,17 +42,17 @@ void test_011()
     PQXX_CHECK_EQUAL(T2s, T1);
     PQXX_CHECK_EQUAL(T1s, T2);
 
-    for (pqxx::row::size_type c{0}; c < std::size(R[0]); ++c)
+    for (pqxx::row::size_type c{0}; c < std::size(r[0]); ++c)
     {
-      std::string const N{R.column_name(c)};
+      std::string const n{r.column_name(c)};
 
-      PQXX_CHECK_EQUAL(std::string{R[0].at(c).c_str()}, R[0].at(N).c_str());
+      PQXX_CHECK_EQUAL(std::string{r[0].at(c).c_str()}, r[0].at(n).c_str());
 
-      PQXX_CHECK_EQUAL(std::string{R[0][c].c_str()}, R[0][N].c_str());
+      PQXX_CHECK_EQUAL(std::string{r[0][c].c_str()}, r[0][n].c_str());
 
-      PQXX_CHECK_EQUAL(R[0][c].name(), N);
+      PQXX_CHECK_EQUAL(r[0][c].name(), n);
 
-      PQXX_CHECK_EQUAL(std::size(R[0][c]), strlen(R[0][c].c_str()));
+      PQXX_CHECK_EQUAL(std::size(r[0][c]), strlen(r[0][c].c_str()));
     }
   }
 }

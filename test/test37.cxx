@@ -36,10 +36,10 @@ void test_037()
     pqxx::test::create_pqxxevents(tx);
   }
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
   auto const Before{
-    pqxx::perform([&cx, &Table] { return count_events_37(cx, Table); })};
+    pqxx::perform([&cx, &table] { return count_events_37(cx, table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
     "Already have event for " + pqxx::to_string(boring_year_37) +
@@ -50,10 +50,10 @@ void test_037()
     pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      pqxx::perform([&cx, &Table] {
+      pqxx::perform([&cx, &table] {
         pqxx::robusttransaction<> tx{cx};
         tx.exec(
-            "INSERT INTO " + Table + " VALUES (" +
+            "INSERT INTO " + table + " VALUES (" +
             pqxx::to_string(boring_year_37) +
             ", "
             "'yawn')")
@@ -65,7 +65,7 @@ void test_037()
   }
 
   auto const After{
-    pqxx::perform([&cx, &Table] { return count_events_37(cx, Table); })};
+    pqxx::perform([&cx, &table] { return count_events_37(cx, table); })};
 
   PQXX_CHECK_EQUAL(After.first, Before.first);
   PQXX_CHECK_EQUAL(After.second, Before.second);
