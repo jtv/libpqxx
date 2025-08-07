@@ -34,13 +34,13 @@ pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 }
 
 
-constexpr std::string_view class_name{"stream_from"};
+constexpr std::string_view stream_from_name{"stream_from"};
 } // namespace
 
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
-        transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name}, m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
   tx.exec(std::format("COPY ({}) TO STDOUT", query), loc).no_rows(loc);
@@ -50,7 +50,8 @@ pqxx::stream_from::stream_from(
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
-        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name, table},
+        m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
   tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc)
@@ -62,7 +63,8 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from::stream_from(
   transaction_base &tx, std::string_view table, std::string_view columns,
   from_table_t) :
-        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name, table},
+        m_char_finder{get_finder(tx)}
 {
   sl const loc{sl::current()};
   if (std::empty(columns)) [[unlikely]]

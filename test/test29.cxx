@@ -14,7 +14,7 @@
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear{1977};
+constexpr int boring_year_29{1977};
 
 std::string_view const Table{"pqxxevents"};
 
@@ -25,7 +25,7 @@ std::pair<int, int> CountEvents(pqxx::transaction_base &tx)
   std::string const events_query{
     std::format("SELECT count(*) FROM {}", Table)};
   std::string const boring_query{
-    events_query + " WHERE year=" + pqxx::to_string(BoringYear)};
+    events_query + " WHERE year=" + pqxx::to_string(boring_year_29)};
 
   return std::make_pair(
     tx.query_value<int>(events_query), tx.query_value<int>(boring_query));
@@ -37,7 +37,7 @@ std::pair<int, int> CountEvents(pqxx::transaction_base &tx)
 void Test(pqxx::connection &cx, bool ExplicitAbort)
 {
   std::vector<std::string> const BoringRow{
-    pqxx::to_string(BoringYear), "yawn"};
+    pqxx::to_string(boring_year_29), "yawn"};
 
   std::pair<int, int> EventCounts;
 
@@ -53,7 +53,7 @@ void Test(pqxx::connection &cx, bool ExplicitAbort)
 
     PQXX_CHECK_EQUAL(
       EventCounts.second, 0,
-      "Can't run; " + pqxx::to_string(BoringYear) +
+      "Can't run; " + pqxx::to_string(boring_year_29) +
         " is already in the table.");
 
     // Now let's try to introduce a row for our Boring Year
@@ -62,7 +62,7 @@ void Test(pqxx::connection &cx, bool ExplicitAbort)
         std::format("INSERT INTO {}", Table) +
         "(year, event) "
         "VALUES (" +
-        pqxx::to_string(BoringYear) + ", 'yawn')")
+        pqxx::to_string(boring_year_29) + ", 'yawn')")
       .no_rows();
 
     auto Recount{CountEvents(Doomed)};

@@ -9,7 +9,7 @@
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear{1977};
+constexpr int boring_year_10{1977};
 
 std::string_view const Table("pqxxevents");
 
@@ -20,7 +20,7 @@ std::pair<int, int> CountEvents(pqxx::transaction_base &T)
   std::string const events_query{
     std::format("SELECT count(*) FROM {}", Table)};
   std::string const boring_query{
-    events_query + " WHERE year=" + pqxx::to_string(BoringYear)};
+    events_query + " WHERE year=" + pqxx::to_string(boring_year_10)};
   return std::make_pair(
     T.query_value<int>(events_query), T.query_value<int>(boring_query));
 }
@@ -49,7 +49,7 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
     Doomed
       .exec(
         std::format("INSERT INTO {} (year, event) ", Table) + "VALUES (" +
-        pqxx::to_string(BoringYear) + ", 'yawn')")
+        pqxx::to_string(boring_year_10) + ", 'yawn')")
       .no_rows();
 
     auto const Recount{CountEvents(Doomed)};

@@ -6,7 +6,7 @@
 // Test: nontransaction changes are committed immediately.
 namespace
 {
-constexpr int BoringYear{1977};
+constexpr int boring_year_39{1977};
 
 
 void test_039()
@@ -22,11 +22,11 @@ void test_039()
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    pqxx::to_string(BoringYear)));
+    pqxx::to_string(boring_year_39)));
 
   PQXX_CHECK_EQUAL(
     std::size(R), 0,
-    "Already have a row for " + pqxx::to_string(BoringYear) +
+    "Already have a row for " + pqxx::to_string(boring_year_39) +
       ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
@@ -39,7 +39,7 @@ void test_039()
       "INSERT INTO " + Table +
       " VALUES"
       "(" +
-      pqxx::to_string(BoringYear) +
+      pqxx::to_string(boring_year_39) +
       ","
       "'Yawn'"
       ")")
@@ -56,7 +56,7 @@ void test_039()
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    pqxx::to_string(BoringYear));
+    pqxx::to_string(boring_year_39));
   PQXX_CHECK_EQUAL(std::size(R), 1);
 
   PQXX_CHECK_GREATER_EQUAL(R.capacity(), std::size(R));
@@ -70,7 +70,7 @@ void test_039()
       "DELETE FROM " + Table +
       " "
       "WHERE year=" +
-      pqxx::to_string(BoringYear))
+      pqxx::to_string(boring_year_39))
     .no_rows();
 
   tx2.commit();
@@ -82,7 +82,7 @@ void test_039()
     "SELECT * FROM " + Table +
     " "
     "WHERE year=" +
-    pqxx::to_string(BoringYear));
+    pqxx::to_string(boring_year_39));
 
   PQXX_CHECK_EQUAL(std::size(R), 0);
 }

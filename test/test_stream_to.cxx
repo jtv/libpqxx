@@ -20,7 +20,7 @@ std::string truncate_sql_error(std::string const &what)
 }
 
 
-void test_nonoptionals(pqxx::connection &connection)
+void test_stream_to_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
@@ -246,7 +246,7 @@ void test_stream_to_does_nonnull_optional()
 
 
 template<template<typename...> class O>
-void test_optional(pqxx::connection &connection)
+void test_stream_to_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
@@ -262,7 +262,7 @@ void test_optional(pqxx::connection &connection)
 }
 
 template<template<typename...> class O>
-void test_optional_fold(pqxx::connection &connection)
+void test_stream_to_optional_fold(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
@@ -341,7 +341,7 @@ void test_stream_to()
     .no_rows();
   tx.commit();
 
-  test_nonoptionals(cx);
+  test_stream_to_nonoptionals(cx);
   clear_table(cx);
   test_nonoptionals_fold(cx);
   clear_table(cx);
@@ -357,13 +357,13 @@ void test_stream_to()
   clear_table(cx);
   test_too_many_fields_fold(cx);
   clear_table(cx);
-  test_optional<std::unique_ptr>(cx);
+  test_stream_to_optional<std::unique_ptr>(cx);
   clear_table(cx);
-  test_optional_fold<std::unique_ptr>(cx);
+  test_stream_to_optional_fold<std::unique_ptr>(cx);
   clear_table(cx);
-  test_optional<std::optional>(cx);
+  test_stream_to_optional<std::optional>(cx);
   clear_table(cx);
-  test_optional_fold<std::optional>(cx);
+  test_stream_to_optional_fold<std::optional>(cx);
   clear_table(cx);
   test_variant_fold(cx);
 }

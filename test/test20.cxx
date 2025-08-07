@@ -7,7 +7,7 @@
 // Test: nontransaction changes are not rolled back on abort.
 namespace
 {
-constexpr unsigned long BoringYear{1977};
+constexpr int boring_year_20{1977};
 
 
 void test_020()
@@ -21,10 +21,11 @@ void test_020()
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
   pqxx::result R(t1.exec(
-    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear)));
+    "SELECT * FROM " + Table +
+    " WHERE year=" + pqxx::to_string(boring_year_20)));
   PQXX_CHECK_EQUAL(
     std::size(R), 0,
-    "Already have a row for " + pqxx::to_string(BoringYear) +
+    "Already have a row for " + pqxx::to_string(boring_year_20) +
       ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
@@ -36,7 +37,7 @@ void test_020()
       "INSERT INTO " + Table +
       " VALUES"
       "(" +
-      pqxx::to_string(BoringYear) +
+      pqxx::to_string(boring_year_20) +
       ","
       "'Yawn'"
       ")")
@@ -50,7 +51,8 @@ void test_020()
   // Verify that our record was added, despite the Abort()
   pqxx::nontransaction t2{cx, "t2"};
   R = t2.exec(
-    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear));
+    "SELECT * FROM " + Table +
+    " WHERE year=" + pqxx::to_string(boring_year_20));
 
   PQXX_CHECK_EQUAL(std::size(R), 1);
 
@@ -64,7 +66,7 @@ void test_020()
       "DELETE FROM " + Table +
       " "
       "WHERE year=" +
-      pqxx::to_string(BoringYear))
+      pqxx::to_string(boring_year_20))
     .no_rows();
 
   t2.commit();
@@ -73,7 +75,8 @@ void test_020()
   pqxx::nontransaction t3{cx, "t3"};
 
   R = t3.exec(
-    "SELECT * FROM " + Table + " WHERE year=" + pqxx::to_string(BoringYear));
+    "SELECT * FROM " + Table +
+    " WHERE year=" + pqxx::to_string(boring_year_20));
 
   PQXX_CHECK_EQUAL(std::size(R), 0);
 }

@@ -21,16 +21,12 @@
 #include "pqxx/internal/header-post.hxx"
 
 
-namespace
-{
 using namespace std::literals;
-constexpr std::string_view class_name{"subtransaction"sv};
-} // namespace
 
 
 pqxx::subtransaction::subtransaction(
   dbtransaction &t, std::string_view tname, sl loc) :
-        transaction_focus{t, class_name, t.conn().adorn_name(tname)},
+        transaction_focus{t, "subtransaction"sv, t.conn().adorn_name(tname)},
         // We can't initialise the rollback command here, because we don't yet
         // have a full object to implement quoted_name().
         dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}}

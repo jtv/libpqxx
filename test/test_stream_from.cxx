@@ -16,7 +16,7 @@
 namespace
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-void test_nonoptionals(pqxx::connection &connection)
+void test_stream_from_nonoptionals(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto extractor{pqxx::stream_from::query(
@@ -151,7 +151,7 @@ void test_bad_tuples(pqxx::connection &cx)
 
 
 template<template<typename...> class O>
-void test_optional(pqxx::connection &connection)
+void test_stream_from_optional(pqxx::connection &connection)
 {
   pqxx::work tx{connection};
   auto extractor{pqxx::stream_from::query(
@@ -235,10 +235,10 @@ void test_stream_from()
       bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}});
   tx.commit();
 
-  test_nonoptionals(cx);
+  test_stream_from_nonoptionals(cx);
   test_bad_tuples(cx);
-  test_optional<std::unique_ptr>(cx);
-  test_optional<std::optional>(cx);
+  test_stream_from_optional<std::unique_ptr>(cx);
+  test_stream_from_optional<std::optional>(cx);
 }
 
 
