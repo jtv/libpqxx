@@ -624,6 +624,7 @@ zview float_traits<T>::to_buf(char *begin, char *end, T const &value)
         "buffer too small.  " +
         state_buffer_overrun(have, need)};
     text.copy(begin, need);
+    begin[need - 1] = '\0';
     return zview{begin, std::size(text)};
   }
 #endif
