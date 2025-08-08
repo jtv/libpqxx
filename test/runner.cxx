@@ -379,7 +379,6 @@ int main(int argc, char const *argv[])
 
   disp.start();
 
-// XXX: Deallocation error with asan, clang 18, and libc++.
   for (auto &thread : pool) thread.join();
 
   if (test_count == 1)
