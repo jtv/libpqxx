@@ -1,11 +1,7 @@
-#include <iostream>
-
 #include <pqxx/pipeline>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Test error handling for pipeline.
@@ -13,9 +9,9 @@ namespace
 {
 void test_072()
 {
-  connection cx;
-  work tx{cx};
-  pipeline P{tx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline P{tx};
 
   // Ensure all queries are issued at once to make the test more interesting
   P.retain();
@@ -30,25 +26,26 @@ void test_072()
 
   // We should be able to get the first result, which preceeds the error
   auto const res_1{P.retrieve(id_1).at(0).at(0).as<int>()};
-  PQXX_CHECK_EQUAL(res_1, 1, "Got wrong result from pipeline.");
+  PQXX_CHECK_EQUAL(res_1, 1);
 
   // We should *not* get a result for the query behind the error
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d{cx};
+    pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
+      std::ignore = P.retrieve(id_2).at(0).at(0).as<int>(), std::runtime_error,
       "Pipeline wrongly resumed after SQL error.");
   }
 
   // Now see that we get an exception when we touch the failed result
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d{cx};
+    pqxx::quiet_errorhandler const d{cx};
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      P.retrieve(id_f), sql_error, "Pipeline failed to register SQL error.");
+      P.retrieve(id_f), pqxx::sql_error,
+      "Pipeline failed to register SQL error.");
   }
 }
 } // namespace
