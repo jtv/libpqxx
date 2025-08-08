@@ -383,7 +383,7 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 namespace pqxx::internal
 {
 /// Floating-point implementations for @c pqxx::to_string().
-template<typename T> std::string to_string_float(T value, ctx c)
+template<typename T> std::string to_string_float(T value, [[maybe_unused]] ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
@@ -453,6 +453,7 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
         "buffer too small.  {}",
         state_buffer_overrun(have, need))};
     text.copy(begin, need);
+    begin[need-1] = '\0';
     return zview{begin, std::size(text)};
   }
 #endif

@@ -148,7 +148,7 @@ template<typename T>
 void check_write(T const &value, std::string_view expected)
 {
   std::string const name{pqxx::name_type<T>()};
-  std::array<char, 100> buf{};
+  std::array<char, 1000> buf{};
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
 
   pqxx::conversion_context const c{pqxx::encoding_group::monobyte};

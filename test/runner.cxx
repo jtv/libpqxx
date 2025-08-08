@@ -370,7 +370,8 @@ int main(int argc, char const *argv[])
   std::ptrdiff_t const jobs{4};
   dispatcher disp{jobs, std::move(tests)};
 
-  std::vector<std::jthread> pool;
+  std::vector<std::thread> pool;
+  pool.reserve(jobs);
   for (std::ptrdiff_t j{0}; j < jobs; ++j)
     pool.emplace_back(
       execute, std::ref(disp), std::cref(all_tests), std::ref(fail_lock),
@@ -378,6 +379,7 @@ int main(int argc, char const *argv[])
 
   disp.start();
 
+// XXX: Deallocation error with asan, clang 18, and libc++.
   for (auto &thread : pool) thread.join();
 
   if (test_count == 1)
