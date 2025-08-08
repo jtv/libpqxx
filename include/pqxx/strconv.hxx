@@ -194,8 +194,6 @@ template<typename TYPE> struct string_traits final
    */
   static constexpr bool converts_from_string{false};
 
-  // TODO: Can we support writable contiguous_ranges more broadly?
-  // TODO: Can we preserve static buffer size information if present?
   /// Return a @c string_view representing value, plus terminating zero.
   /** Produces a view containing the PostgreSQL string representation for
    * @c value.
@@ -243,7 +241,6 @@ template<typename TYPE> struct string_traits final
   [[nodiscard]] static inline TYPE
   from_string(std::string_view text, ctx = {});
 
-  // TODO: Perhaps one day all of these can be constexpr.
   /// Estimate how much buffer space is needed to represent value.
   /** The estimate may be a little pessimistic, if it saves time.
    *
@@ -277,6 +274,7 @@ template<typename TYPE> struct string_traits final
 template<typename TYPE> [[noreturn]] void oops_forbidden_conversion() noexcept;
 
 
+// C++26: Use "=delete" with reason.
 /// String traits for a forbidden type conversion.
 /** If you have a C++ type for which you explicitly wish to forbid SQL
  * conversion, you can derive a @ref pqxx::string_traits specialisation for
@@ -576,7 +574,7 @@ template<typename ENUM> struct enum_traits
     return pqxx::to_buf({begin, end}, to_underlying(value));
   }
 
-  static constexpr std::size_t
+  static std::size_t
   into_buf(std::span<char> buf, ENUM const &value, ctx c = {})
   {
     return pqxx::into_buf(buf, to_underlying(value), c);

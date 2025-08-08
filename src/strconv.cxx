@@ -396,21 +396,7 @@ std::string to_string_float(T value, [[maybe_unused]] ctx c)
     return buf;
   }
 #else
-  {
-    // In this rare case, we can convert to std::string but not to a simple
-    // buffer.  So, implement to_buf in terms of to_string instead of the other
-    // way around.
-    if constexpr (have_thread_local)
-    {
-      thread_local dumb_stringstream<T> s;
-      return to_dumb_stringstream(s, value);
-    }
-    else
-    {
-      dumb_stringstream<T> s;
-      return to_dumb_stringstream(s, value);
-    }
-  }
+  return std::format("{}", value);
 #endif
 }
 
@@ -426,6 +412,7 @@ T float_string_traits<T>::from_string(std::string_view text, pqxx::ctx c)
 }
 
 
+// XXX: Take sl.
 template<std::floating_point T>
 zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
 {
@@ -437,25 +424,15 @@ zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
   }
 #else
   {
-    // Implement it ourselves.  Weird detail: since this workaround is based
-    // on std::stringstream, which produces a std::string, it's actually
-    // easier to build the to_buf() on top of the to_string() than the other
-    // way around.
-    if (std::isnan(value))
-      return "nan"_zv;
-    if (std::isinf(value))
-      return (value > 0) ? "infinity"_zv : "-infinity"_zv;
-    auto text{to_string_float(value)};
-    auto have{end - begin};
-    auto need{std::size(text) + 1};
-    if (need > std::size_t(have))
-      throw conversion_error{std::format(
-        "Could not convert floating-point number to string: "
-        "buffer too small.  {}",
-        state_buffer_overrun(have, need))};
-    text.copy(begin, need);
-    begin[need - 1] = '\0';
-    return zview{begin, std::size(text)};
+    if (end == begin)
+      throw usage_error{std::format(
+        "No buffer space for converting {} to string.", name_type<T>())};
+    auto const res{std::format_to_n(begin, end - begin - 1, "{}", value)};
+    if (res.size >= (end - begin))
+      throw conversion_overrun{std::format(
+        "Buffer too small for converting {} to string.", name_type<T>())};
+    begin[res.size] = '\0';
+    return zview{begin, res.size};
   }
 #endif
 }
