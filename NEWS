@@ -42,7 +42,7 @@
  - Tests are now in a single directory (#934)
  - Removed cumbersome `test_all.py` script.
  - `check_cast()` supports infinities and NaNs.
- - Fixes for unity builds.
+ - Now supporting CMake "unity builds."
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)
