@@ -152,8 +152,7 @@ void test_string_view_conversion()
   PQXX_CHECK(buf.at(stop - 2) == 'w');
 
   std::string_view org{"another!"sv};
-  pqxx::zview out{
-    traits::to_buf(std::data(buf), std::data(buf) + std::size(buf), org)};
+  pqxx::zview out{traits::to_buf(buf, org)};
   PQXX_CHECK_EQUAL(std::string{out}, "another!"s);
   PQXX_CHECK(
     std::data(out) != std::data(org),

@@ -8,6 +8,7 @@
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` is now supported. (#694)
  - Simpler to use: `pqxx::from_string()`, `pqxx::to_buf()`, `pqxx::into_bu()`.
+ - `to_buf()` and `into_buf()` functions will no longer zero-terminate.
  - **Beware lifetime** when "converting" a string to `std::string_view`!
  - Conversion from string to `char const *` is no longer allowed.
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)

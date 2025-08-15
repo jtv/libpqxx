@@ -314,12 +314,13 @@ template<typename T> struct string_traits<std::optional<T>>
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
-  static zview to_buf(char *begin, char *end, std::optional<T> const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
   {
     if (pqxx::is_null(value))
       return {};
     else
-      return pqxx::to_buf({begin, end}, *value);
+      return pqxx::to_buf(buf, *value, c);
   }
 
   static std::optional<T> from_string(std::string_view text)
@@ -379,7 +380,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
                      },
                      value);
   }
-  static zview
+  static std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
     return std::visit(
@@ -523,7 +524,7 @@ template<> struct string_traits<char const *>
 
   static char const *from_string(std::string_view text) = delete;
 
-  static zview
+  static std::string_view
   to_buf(std::span<char> buf, char const *const &value, ctx c = {})
   {
     return generic_to_buf(buf, value, c);
@@ -587,9 +588,10 @@ template<> struct string_traits<char *>
   {
     return string_traits<char const *>::into_buf(buf, value, c);
   }
-  static zview to_buf(char *begin, char *end, char *const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
-    return pqxx::to_buf<char const *>({begin, end}, value);
+    return pqxx::to_buf<char const *>(buf, value, c);
   }
   static std::size_t size_buffer(char *const &value) noexcept
   {
@@ -666,9 +668,10 @@ template<> struct string_traits<std::string>
     return begin + std::size(value) + 1;
   }
 
-  static zview to_buf(char *begin, char *end, std::string const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, std::string const &value, ctx c = {})
   {
-    return generic_to_buf({begin, end}, value);
+    return generic_to_buf(buf, value, c);
   }
 
   static constexpr std::size_t size_buffer(std::string const &value) noexcept
@@ -710,11 +713,10 @@ template<> struct string_traits<std::string_view>
     return pqxx::internal::copy_chars<true>(value, buf, 0, c.loc);
   }
 
-  static zview to_buf(char *begin, char *end, std::string_view const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
   {
-    // You'd think we could just return the same view but alas, there's no
-    // zero-termination on a string_view.
-    return generic_to_buf({begin, end}, value);
+    return generic_to_buf(buf, value, c);
   }
 
   static std::string_view from_string(std::string_view value) { return value; }
@@ -852,13 +854,12 @@ struct string_traits<std::unique_ptr<T, Args...>>
     return begin + pqxx::into_buf({begin, end}, *value);
   }
 
-  static zview to_buf(
-    char *begin, char *end, std::unique_ptr<T, Args...> const &value,
-    ctx c = {})
+  static std::string_view to_buf(
+    std::span<char> buf, std::unique_ptr<T, Args...> const &value, ctx c = {})
   {
     if (not value)
       internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
-    return pqxx::to_buf({begin, end}, *value);
+    return pqxx::to_buf(buf, *value, c);
   }
 
   static std::size_t
@@ -908,12 +909,12 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
     return std::make_shared<T>(string_traits<T>::from_string(text));
   }
 
-  static zview
-  to_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
+  static std::string_view
+  to_buf(std::span<char> buf, std::shared_ptr<T> const &value, ctx c = {})
   {
     if (not value)
       internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
-    return pqxx::to_buf({begin, end}, *value, c);
+    return pqxx::to_buf(buf, *value, c);
   }
   static char *
   into_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
@@ -954,13 +955,12 @@ template<binary DATA> struct string_traits<DATA>
 
   static std::size_t size_buffer(DATA const &value) noexcept
   {
-    // TODO: Can we guarantee constexpr?
     return internal::size_esc_bin(std::size(value));
   }
 
-  static zview to_buf(char *begin, char *end, DATA const &value)
+  static std::string_view to_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
-    return generic_to_buf({begin, end}, value);
+    return generic_to_buf(buf, value, c);
   }
 
   static char *into_buf(char *begin, char *end, DATA const &value)
@@ -1033,7 +1033,8 @@ public:
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static zview to_buf(std::span<char> buf, T const &value, ctx c = {})
+  static std::string_view
+  to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
     return generic_to_buf(buf, value, c);
   }

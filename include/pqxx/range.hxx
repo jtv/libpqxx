@@ -426,10 +426,10 @@ public:
  */
 template<typename TYPE> struct string_traits<range<TYPE>>
 {
-  [[nodiscard]] static inline zview
-  to_buf(char *begin, char *end, range<TYPE> const &value)
+  [[nodiscard]] static inline std::string_view
+  to_buf(std::span<char> buf, range<TYPE> const &value, ctx c = {})
   {
-    return generic_to_buf({begin, end}, value);
+    return generic_to_buf(buf, value, c);
   }
 
   static inline char *into_buf(

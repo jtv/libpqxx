@@ -194,18 +194,18 @@ template<typename TYPE> struct string_traits final
    */
   static constexpr bool converts_from_string{false};
 
-  /// Return a @c string_view representing value, plus terminating zero.
+  /// Return a @c string_view representing `value`.
   /** Produces a view containing the PostgreSQL string representation for
    * @c value.
    *
    * @warning A null value has no string representation.  Do not pass a null.
    *
    * Uses `buf` to store the string's contents, if needed.  The returned
-   * string view may lie somewhere in that buffer, or it may be a
+   * `string view` may lie somewhere in that buffer, or it may be a
    * compile-time constant.  Even if it does store the string in the buffer,
    * the string may not start at the exact beginning of `buf`.
    *
-   * The resulting view  is guaranteed to be valid as long as the buffer space
+   * The resulting view is guaranteed to be valid as long as the buffer space
    * to which `buf` points remains accessible, and its contents unmodified.
    *
    * @throws pqxx::conversion_overrun if `buf` is not large enough.  For
@@ -213,7 +213,7 @@ template<typename TYPE> struct string_traits final
    * about a buffer which is actually large enough for your value, if an exact
    * check would be too expensive.
    */
-  [[nodiscard]] static inline zview
+  [[nodiscard]] static inline std::string_view
   to_buf(std::span<char> buf, TYPE const &value, ctx = {});
 
   /// Write value's string representation into buffer.
@@ -285,7 +285,8 @@ template<typename TYPE> struct forbidden_conversion
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
-  [[noreturn]] static zview to_buf(std::span<char>, TYPE const &, ctx = {})
+  [[noreturn]] static std::string_view
+  to_buf(std::span<char>, TYPE const &, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
@@ -392,11 +393,11 @@ concept to_buf_7 =
 
 /// Signature for string_traits<TYPE>::to_buf() in libpqxx 8.
 template<typename TYPE>
-concept to_buf_8 =
-  requires(zview out, std::span<char> buf, TYPE const &value, ctx c) {
-    out = string_traits<TYPE>::to_buf(buf, value, c);
-    out = string_traits<TYPE>::to_buf(buf, value);
-  };
+concept to_buf_8 = requires(
+  std::string_view out, std::span<char> buf, TYPE const &value, ctx c) {
+  out = string_traits<TYPE>::to_buf(buf, value, c);
+  out = string_traits<TYPE>::to_buf(buf, value);
+};
 
 
 /// Signature for string_traits<TYPE>::into_buf() in libpqxx 7.
@@ -439,7 +440,7 @@ namespace pqxx
  * differences.
  */
 template<typename TYPE>
-[[nodiscard]] inline zview
+[[nodiscard]] inline std::string_view
 to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   static_assert(
@@ -670,7 +671,8 @@ to_buf(char *begin, char const *end, TYPE... value)
  * that they will remain valid after you destruct or move the buffer.
  */
 template<typename... TYPE>
-inline std::vector<zview> to_buf_multi(std::span<char> buf, TYPE... value)
+inline std::vector<std::string_view>
+to_buf_multi(std::span<char> buf, TYPE... value)
 {
   auto here{0u};
   return {[&here, buf](auto v) {
@@ -682,7 +684,7 @@ inline std::vector<zview> to_buf_multi(std::span<char> buf, TYPE... value)
     assert(buf[here - 1] == '\0');
     // Exclude the trailing zero out of the zview.
     auto len{here - start - 1};
-    return zview{std::data(buf) + start, len};
+    return std::string_view{std::data(buf) + start, len};
   }(value)...};
 }
 
@@ -792,14 +794,15 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
  * @c to_buf.
  */
 template<typename TYPE>
-inline zview generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
+inline std::string_view
+generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
   // The trailing zero does not count towards the zview's size, so subtract 1
   // from the result we get from into_buf().
   if (is_null(value))
     return {};
   else
-    return zview{std::data(buf), pqxx::into_buf(buf, value, c) - 1};
+    return std::string_view{std::data(buf), pqxx::into_buf(buf, value, c) - 1};
 }
 //@}
 } // namespace pqxx

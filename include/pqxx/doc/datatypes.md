@@ -267,9 +267,10 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
       // If converts_to_string is true:
 
       // Represent `value` as a string, using `buf` for storage if needed.
-      // (But the result may lie outside the buffer, or lie inside it but
-      // start in a different location than its beginning.)
-      static zview to_buf(std::span<char>, T const &value, ctx c = {});
+      // (But the result may live somewhere outside the buffer, or lie inside
+      // it but not start exactly at the beginning of the buffer.)
+      static std::strnig_view to_buf(
+        std::span<char>, T const &value, ctx c = {});
 
       // Write string version into buffer.
       static char *into_buf(std::span<char>, T const &value, ctx c = {});
@@ -358,25 +359,6 @@ throw a `pqxx::conversion_overrun`.  It doesn't have to be exact: you can be a
 little pessimistic and demand a bit more space than you need.  Just be sure to
 throw the exception if there's any risk of overrunning the buffer.
 
-Return a `pqxx::zview`.  This is basically a `std::string_view`, but with one
-difference: when you create a `zview` you _guarantee_ that there is a valid
-zero byte right after the `string_view`.  The zero byte does not count as part
-of its size, but it has to be there.
-
-Expressed in code, this rule must hold:
-
-```cxx
-    void invariant(zview z)
-    {
-      assert(z[std::size(z)] == 0);
-    }
-```
-
-The trailing zero should not go inside the `zview`, but if you write the text
-into the buffer, do make sure that trailing zero stays inside the buffer, i.e.
-inside `buf`.  (If there's no room for that zero inside the buffer, throw
-`pqxx::conversion_error`).
-
 Beware of locales when converting.  If you use standard library features like
 `sprintf`, they may obey whatever locale is currently set on the system where
 the code runs.   That means that a simple integer like 1000000 may come out as
@@ -400,8 +382,8 @@ in addition you must write your string _into the given buffer,_ starting
 _exactly_ at its beginning.
 
 That's why this function returns just an offset: the index of the byte _right
-behind the trailing zero._  If the caller wants to use the string, they can
-find it at the beginning of the buffer.  If they want to write another value
+behind the string._  If the caller wants to use the string, they can find it at
+the beginning of the buffer.  Or if the caller wants to write another value
 into the rest of the buffer, they can continue writing at the location you
 returned.
 
@@ -416,9 +398,6 @@ string.  Be precise if you can, but pessimistic if you must.  It's usually
 better to waste a few bytes of space than to spend a lot of time computing
 the exact buffer space you need.  And failing the conversion because you
 under-budgeted the buffer is worst of all.
-
-Include the trailing zero in the buffer size.  If your `to_buf` takes more
-space than just what's needed to store the result, include that too.
 
 Make `size_buffer` a `constexpr` function if you can.  It may sometiems allow
 the caller to allocate the buffer on the stack, with a size known at compile
