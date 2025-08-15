@@ -392,7 +392,8 @@ pqxx::result::size_type pqxx::result::affected_rows() const
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
 
-  // rows_str may be empty in case the query executed was a `SET <variable> = ''`
+  // rows_str may be empty in case the query executed was a `SET <variable> =
+  // ''`
   return rows_str.empty() ? 0 : from_string<size_type>(rows_str);
 }
 

@@ -368,10 +368,11 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query, got ", actual, ".")};
+          "Expected ", cols, " column(s) from query, got ", actual, ".")};
       else
         throw usage_error{pqxx::internal::concat(
-          "Expected 1 column from query '", *m_query, "', got ", actual, ".")};
+          "Expected ", cols, " column(s) from query '", *m_query, "', got ",
+          actual, ".")};
     }
     return *this;
   }

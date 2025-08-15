@@ -9,6 +9,7 @@
  - Document: generally `pqxx::type_name` should be a `std::string_view`. (#1009)
  - Fix float-to-text conversion workaround when `charconv` is missing.
  - Fix `result::affected_rows()` for empty results. (#1018)
+ - Fix error message in `result::expect_columns()`. (#1020)
 7.10.1
  - Fix string conversion buffer budget for arrays containing nulls. (#921)
  - Remove `-fanalyzer` option again; gcc is still broken.
