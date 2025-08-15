@@ -958,7 +958,8 @@ template<binary DATA> struct string_traits<DATA>
     return internal::size_esc_bin(std::size(value));
   }
 
-  static std::string_view to_buf(std::span<char> buf, DATA const &value, ctx c = {})
+  static std::string_view
+  to_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
     return generic_to_buf(buf, value, c);
   }

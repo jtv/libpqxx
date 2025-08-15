@@ -220,9 +220,9 @@ template<typename TYPE> struct string_traits final
   /* @warning A null value has no string representation.  Do not pass a null.
    *
    * Writes value's string representation into the buffer, starting exactly at
-   * the beginning of the buffer, and ensuring a trailing zero.  Returns the
-   * offset into the buffer just beyond the trailing zero, so the caller could
-   * use it as the starting point for another call to write a next value.
+   * the beginning of the buffer.  Returns the offset into the buffer just
+   * after the string, so the caller could use it as the starting point for
+   * another call to write a next value.
    */
   static inline std::size_t
   into_buf(std::span<char> buf, TYPE const &value, ctx = {});
@@ -243,8 +243,6 @@ template<typename TYPE> struct string_traits final
 
   /// Estimate how much buffer space is needed to represent value.
   /** The estimate may be a little pessimistic, if it saves time.
-   *
-   * The estimate includes the terminating zero.
    */
   [[nodiscard]] static inline std::size_t
   size_buffer(TYPE const &value) noexcept;
@@ -711,8 +709,7 @@ template<typename TYPE>
 
 
 /// Estimate how much buffer space is needed to represent values as a string.
-/** The estimate may be a little pessimistic, if it saves time.  It also
- * includes room for a terminating zero after each value.
+/** The estimate may be a little pessimistic, if it saves time.
  */
 template<typename... TYPE>
 [[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
