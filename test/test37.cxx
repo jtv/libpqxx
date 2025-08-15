@@ -2,9 +2,7 @@
 #include <pqxx/robusttransaction>
 #include <pqxx/transactor>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Test program for libpqxx.  Verify abort behaviour of RobustTransaction.
@@ -14,65 +12,63 @@ using namespace pqxx;
 namespace
 {
 // Let's take a boring year that is not going to be in the "pqxxevents" table
-constexpr int BoringYear{1977};
+constexpr int boring_year_37{1977};
 
 // Count events and specifically events occurring in Boring Year, leaving the
 // former count in the result pair's first member, and the latter in second.
-std::pair<int, int> count_events(connection &cx, std::string const &table)
+std::pair<int, int>
+count_events_37(pqxx::connection &cx, std::string const &table)
 {
   std::string const count_query{"SELECT count(*) FROM " + table};
-  nontransaction tx{cx};
+  pqxx::nontransaction tx{cx};
   return std::make_pair(
     tx.query_value<int>(count_query),
-    tx.query_value<int>(count_query + " WHERE year=" + to_string(BoringYear)));
+    tx.query_value<int>(
+      count_query + " WHERE year=" + pqxx::to_string(boring_year_37)));
 }
-
-
-struct deliberate_error : std::exception
-{};
 
 
 void test_037()
 {
-  connection cx;
+  pqxx::connection cx;
   {
-    nontransaction tx{cx};
-    test::create_pqxxevents(tx);
+    pqxx::nontransaction tx{cx};
+    pqxx::test::create_pqxxevents(tx);
   }
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
   auto const Before{
-    perform([&cx, &Table] { return count_events(cx, Table); })};
+    pqxx::perform([&cx, &table] { return count_events_37(cx, table); })};
   PQXX_CHECK_EQUAL(
     Before.second, 0,
-    "Already have event for " + to_string(BoringYear) + ", cannot test.");
+    "Already have event for " + pqxx::to_string(boring_year_37) +
+      ", cannot test.");
 
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    quiet_errorhandler d(cx);
+    pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
     PQXX_CHECK_THROWS(
-      perform([&cx, &Table] {
-        robusttransaction<> tx{cx};
+      pqxx::perform([&cx, &table] {
+        pqxx::robusttransaction<> tx{cx};
         tx.exec(
-            "INSERT INTO " + Table + " VALUES (" + to_string(BoringYear) +
+            "INSERT INTO " + table + " VALUES (" +
+            pqxx::to_string(boring_year_37) +
             ", "
             "'yawn')")
           .no_rows();
 
-        throw deliberate_error();
+        throw pqxx::test::deliberate_error();
       }),
-      deliberate_error,
-      "Did not get expected exception from failing transactor.");
+      pqxx::test::deliberate_error);
   }
 
-  auto const After{perform([&cx, &Table] { return count_events(cx, Table); })};
+  auto const After{
+    pqxx::perform([&cx, &table] { return count_events_37(cx, table); })};
 
-  PQXX_CHECK_EQUAL(After.first, Before.first, "Number of events changed.");
-  PQXX_CHECK_EQUAL(
-    After.second, Before.second,
-    "Number of events for " + to_string(BoringYear) + " changed.");
+  PQXX_CHECK_EQUAL(After.first, Before.first);
+  PQXX_CHECK_EQUAL(After.second, Before.second);
 }
 
 
