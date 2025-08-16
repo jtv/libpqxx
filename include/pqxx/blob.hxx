@@ -120,7 +120,7 @@ public:
   }
 #endif // PQXX_HAVE_SPAN
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>) && defined(PQXX_HAVE_SPAN)
   /// Read up to `std::size(buf)` bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
@@ -151,7 +151,7 @@ public:
   }
 #endif // PQXX_HAVE_CONCEPTS && PQXX_HAVE_SPAN
 
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
   /// Write `data` to large object, at the current position.
   /** If the writing position is at the end of the object, this will append
    * `data` to the object's contents and move the writing position so that

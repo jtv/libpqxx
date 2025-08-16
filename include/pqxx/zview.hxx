@@ -115,7 +115,7 @@ constexpr zview operator""_zv(char const str[], std::size_t len) noexcept
 } // namespace pqxx
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
 /// A zview is a view.
 template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 
