@@ -899,7 +899,7 @@ template<> struct nullness<bytes> : no_null<bytes>
 {};
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
 
