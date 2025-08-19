@@ -276,7 +276,7 @@ struct PQXX_LIBEXPORT thread_safety_model
 [[nodiscard]] PQXX_LIBEXPORT thread_safety_model describe_thread_safety();
 
 
-#if defined(PQXX_HAVE_CONCEPTS)
+#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
 #  define PQXX_POTENTIAL_BINARY_ARG pqxx::potential_binary
 #else
 #  define PQXX_POTENTIAL_BINARY_ARG typename
