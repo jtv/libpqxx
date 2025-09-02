@@ -456,6 +456,7 @@ to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 }
 
 
+// XXX: Re-implement using traits<TYPE>>to_buf() instead.
 /// Write an SQL representation of `value` into `buf`.
 /** This calls string_traits<TYPE>::into_buf(), but bridges some API version
  * differences.

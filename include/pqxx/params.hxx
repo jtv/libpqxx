@@ -228,9 +228,13 @@ public:
       // case, just rewrite the entire number.  Leave the $ in place
       // though.
       char *const data{std::data(m_buf)};
-      std::size_t end{
-        1 +
-        into_buf<COUNTER>({data + 1, data + std::size(m_buf)}, m_current, c)};
+
+      // XXX: Use 8.0-style API; no more terminating zero.
+      auto const written{pqxx::into_buf<COUNTER>(
+        {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
+      assert(written > 0);
+      assert(data[written] == '\0');
+      std::size_t end{1 + written};
       // (Subtract because we don't include the trailing zero.)
       m_len = check_cast<COUNTER>(end, "placeholders counter", loc) - 1;
     }

@@ -554,7 +554,9 @@ public:
   to_buf(std::span<char> buf, array_type const &value, ctx c = {})
   {
     auto const len{pqxx::internal::array_into_buf(buf, value, c)};
-    return {std::data(buf), len};
+    assert(len > 0);
+    assert(buf[len - 1] == '\0');
+    return {std::data(buf), len - 1};
   }
 
   static std::size_t
