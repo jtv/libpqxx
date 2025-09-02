@@ -20,6 +20,7 @@ using namespace std::literals;
 constexpr int ten{10};
 
 
+// XXX: Retire comment on termnating zero.
 /// Render the numeric part of a year value into a buffer.
 /** Converts the year from "common era" (with a Year Zero) to "anno domini"
  * (without a Year Zero).
@@ -68,6 +69,7 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
       if (absy < ten)
         *begin++ = '0';
     }
+    // XXX: Use 8.x API; no more terminating zero.
     begin = pqxx::string_traits<short>::into_buf(begin, end, absy) - 1;
   }
   return begin;
@@ -89,6 +91,7 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
 }
 
 
+// XXX: Retire comment about terminating zero.
 /// Render a valid 1-based month number into a buffer.
 /* Where @c string_traits::into_buf() returns a pointer to the position right
  * after the terminating zero, this function returns a pointer to the character

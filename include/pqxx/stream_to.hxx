@@ -329,6 +329,7 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
+        // XXX: Use 8.0-style API; no more terminating zero.
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
         assert(end < std::size(m_buffer));

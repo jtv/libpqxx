@@ -63,10 +63,12 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
 
   char *const data{result.data()};
   char *stop{data + budget};
+  // XXX: Use 8.0-style API; no more terminating zero.
   std::size_t here{pqxx::into_buf({data, stop}, access(begin)) - 1};
   for (++begin; begin != end; ++begin)
   {
     here = pqxx::internal::copy_chars<false>(sep, result, here, sl::current());
+    // XXX: Use 8.0-style API; no more terminating zero.
     here += pqxx::into_buf({data + here, stop}, access(begin)) - 1;
   }
   result.resize(here);
