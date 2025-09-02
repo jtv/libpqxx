@@ -550,9 +550,11 @@ public:
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  static zview to_buf(std::span<char> buf, array_type const &value, ctx c = {})
+  static std::string_view
+  to_buf(std::span<char> buf, array_type const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
+    auto const len{pqxx::internal::array_into_buf(buf, value, c)};
+    return {std::data(buf), len};
   }
 
   static std::size_t

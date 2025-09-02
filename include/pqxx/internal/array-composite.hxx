@@ -413,8 +413,11 @@ inline void write_composite_field(
 }
 
 
+/// Write an SQL array representation into `buf`.
+/** @return The number of bytes used, from the beginning of `buf`.
+ */
 template<nonbinary_range TYPE>
-std::size_t array_into_buf(
+[[nodiscard]] std::size_t array_into_buf(
   std::span<char> buf, TYPE const &value, std::size_t budget, ctx c)
 {
   using elt_type = std::remove_cvref_t<value_type<TYPE>>;

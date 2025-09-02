@@ -309,9 +309,11 @@ template<typename T> struct string_traits<std::optional<T>>
   static constexpr bool converts_from_string{
     string_traits<T>::converts_from_string};
 
-  static char *into_buf(char *begin, char *end, std::optional<T> const &value)
+  static std::size_t
+  into_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
   {
-    return begin + pqxx::into_buf({begin, end}, *value);
+    // (Assume not null, since null is not a value.)
+    return pqxx::into_buf(buf, *value, c);
   }
 
   static std::string_view
