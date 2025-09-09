@@ -65,8 +65,8 @@
 
 // C++20: No longer needed.
 // Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
-// etc. on older compilers.  C++20 removes this header.
-#if PQXX_CPLUSPLUS <= 201703L && __has_include(<ciso646>)
+// etc. on older compilers.  C++17 deprecates this header; C++20 removes it.
+#if PQXX_CPLUSPLUS < 201703L && __has_include(<ciso646>)
 #  include <ciso646>
 #endif
 
