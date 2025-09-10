@@ -47,10 +47,12 @@ constexpr bool have_thread_local{
 
 
 /// The lowest possible value of integral type T.
-template<typename T> constexpr T bottom{std::numeric_limits<T>::min()};
+template<pqxx::internal::integer T>
+constexpr T bottom{std::numeric_limits<T>::min()};
 
 /// The highest possible value of integral type T.
-template<typename T> constexpr T top{std::numeric_limits<T>::max()};
+template<pqxx::internal::integer T>
+constexpr T top{std::numeric_limits<T>::max()};
 
 /// Write nonnegative integral value at end of buffer.  Return start.
 /** Assumes a sufficiently large buffer.
@@ -60,9 +62,9 @@ template<typename T> constexpr T top{std::numeric_limits<T>::max()};
 template<pqxx::internal::integer T>
 constexpr inline char *nonneg_to_buf(char *end, T value)
 {
+  assert(std::cmp_greater_equal(value, 0));
   constexpr int ten{10};
   char *pos = end;
-  *--pos = '\0';
   do {
     *--pos = pqxx::internal::number_to_digit(int(value % ten));
     value = T(value / ten);
@@ -77,6 +79,7 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
 template<pqxx::internal::integer T>
 constexpr inline char *neg_to_buf(char *end, T value)
 {
+  assert(std::cmp_greater_equal(value, 0));
   char *pos = nonneg_to_buf(end, value);
   *--pos = '-';
   return pos;
@@ -117,27 +120,31 @@ constexpr inline char *bottom_to_buf(char *end)
 }
 
 
-/// Call to_chars, report errors as exceptions, add zero, return pointer.
 template<typename T>
-inline char *wrap_to_chars(std::span<char> buf, T const &value)
+concept arith = pqxx::internal::integer<T> or std::floating_point<T>;
+
+
+/// Call to_chars, report errors as exceptions, add zero, return pointer.
+template<arith T>
+inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
-  auto res{std::to_chars(begin, end - 1, value)};
+  auto res{std::to_chars(begin, end, value)};
   if (res.ec != std::errc()) [[unlikely]]
     switch (res.ec)
     {
     case std::errc::value_too_large:
-      throw pqxx::conversion_overrun{std::format(
-        "Could not convert {} to string: buffer too small ({} bytes).",
-        pqxx::name_type<T>(), std::size(buf))};
+      throw pqxx::conversion_overrun{
+        std::format(
+          "Could not convert {} to string: buffer too small ({} bytes).",
+          pqxx::name_type<T>(), std::size(buf)),
+        loc};
     default:
       throw pqxx::conversion_error{
-        std::format("Could not convert {} to string.", pqxx::name_type<T>())};
+        std::format("Could not convert {} to string.", pqxx::name_type<T>()),
+        loc};
     }
-  // No need to check for overrun here: we never even told to_chars about that
-  // last byte in the buffer, so it didn't get used up.
-  *res.ptr = '\0';
-  return res.ptr + 1;
+  return res.ptr;
 }
 } // namespace
 
@@ -169,16 +176,18 @@ string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
     else
       return bottom_to_buf<T>(end);
   }()};
-  return {pos, static_cast<std::size_t>(end - pos - 1)};
+  return {pos, static_cast<std::size_t>(end - pos)};
 }
 
 
 template<pqxx::internal::integer T>
-inline char *string_traits<T>::into_buf(char *begin, char *end, T const &value)
+inline std::size_t
+string_traits<T>::into_buf(std::span<char> buf, T const &value, ctx c)
 {
   // This is exactly what to_chars is good at.  Trust standard library
   // implementers to optimise better than we can.
-  return wrap_to_chars({begin, end}, value);
+  return static_cast<std::size_t>(
+    wrap_to_chars(buf, value, c.loc) - std::data(buf));
 }
 
 
@@ -221,7 +230,7 @@ std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
 
 namespace
 {
-template<typename TYPE>
+template<arith TYPE>
 inline TYPE from_string_arithmetic(std::string_view in, pqxx::ctx c)
 {
   char const *here{std::data(in)};
@@ -281,7 +290,7 @@ constexpr bool valid_infinity_string(std::string_view text) noexcept
  * And that's why we need to wrap this in a class.  We can't just do it at the
  * call site, or we'd still be doing it for every call.
  */
-template<typename T> class dumb_stringstream : public std::stringstream
+template<arith T> class dumb_stringstream : public std::stringstream
 {
 public:
   // Do not initialise the base-class object using "stringstream{}" (with curly
@@ -295,7 +304,7 @@ public:
 };
 
 
-template<typename F>
+template<arith F>
 inline bool PQXX_COLD from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
@@ -305,7 +314,7 @@ inline bool PQXX_COLD from_dumb_stringstream(
 
 
 // These are hard, and some popular compilers still lack std::from_chars.
-template<typename T>
+template<std::floating_point T>
 inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
 {
   if (std::empty(text))
@@ -373,7 +382,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
 
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-template<typename F>
+template<arith F>
 inline std::string PQXX_COLD
 to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
@@ -388,7 +397,7 @@ to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 namespace pqxx::internal
 {
 /// Floating-point implementations for @c pqxx::to_string().
-template<typename T>
+template<std::floating_point T>
 std::string to_string_float(T value, [[maybe_unused]] ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
@@ -397,7 +406,7 @@ std::string to_string_float(T value, [[maybe_unused]] ctx c)
     std::string buf;
     buf.resize(space);
     std::string_view const view{to_buf(buf, value, c)};
-    buf.resize(static_cast<std::size_t>(std::end(view) - std::begin(view)));
+    buf.resize(static_cast<std::size_t>(std::size(view)));
     return buf;
   }
 #else
@@ -417,39 +426,46 @@ T float_string_traits<T>::from_string(std::string_view text, pqxx::ctx c)
 }
 
 
-// XXX: Take sl.
 template<std::floating_point T>
-zview float_string_traits<T>::to_buf(char *begin, char *end, T const &value)
+std::string_view
+float_string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
 {
+  auto const begin{std::data(buf)};
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
     // Definitely prefer to let the standard library handle this!
-    auto const ptr{wrap_to_chars({begin, end}, value)};
-    return zview{begin, std::size_t(ptr - begin - 1)};
+    auto const ptr{wrap_to_chars(buf, value, c.loc)};
+    return {begin, std::size_t(ptr - begin)};
   }
 #else
   {
+    auto const end{begin + std::size(buf)};
     if (end == begin)
-      throw usage_error{std::format(
-        "No buffer space for converting {} to string.", name_type<T>())};
-    auto const res{std::format_to_n(begin, end - begin - 1, "{}", value)};
-    if (res.size >= (end - begin))
-      throw conversion_overrun{std::format(
-        "Buffer too small for converting {} to string.", name_type<T>())};
-    begin[res.size] = '\0';
-    return zview{begin, res.size};
+      throw usage_error{
+        std::format(
+          "No buffer space for converting {} to string.", name_type<T>()),
+        c.loc};
+    auto const res{std::format_to_n(begin, end - begin, "{}", value)};
+    if (std::cmp_greater_equal(res.size, end - begin))
+      throw conversion_overrun{
+        std::format(
+          "Buffer too small for converting {} to string.", name_type<T>()),
+        c.loc};
+    return {begin, res.size};
   }
 #endif
 }
 
 
 template<std::floating_point T>
-char *float_string_traits<T>::into_buf(char *begin, char *end, T const &value)
+std::size_t
+float_string_traits<T>::into_buf(std::span<char> buf, T const &value, ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return wrap_to_chars({begin, end}, value);
+  return static_cast<std::size_t>(
+    wrap_to_chars(buf, value, c.loc) - std::data(buf));
 #else
-  return begin + generic_into_buf({begin, end}, value);
+  return generic_into_buf(buf, value, c.loc);
 #endif
 }
 
