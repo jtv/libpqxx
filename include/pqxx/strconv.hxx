@@ -214,8 +214,8 @@ template<typename TYPE> struct string_traits final
    *
    * @warning If you convert a string to `std::string_view`, you're basically
    * just getting a pointer into the original buffer.  So, the `string_view`
-   * will become invalid when the original string's lifetime ends, or gets
-   * overwritten.  Do not access the `string_view` you got after that!
+   * will become invalid when the original string's lifetime ends, or when it
+   * gets overwritten.  Do not access the `string_view` after that!
    *
    * If there is no support for converting from an SQL string to this type,
    * simply leave this function out of the struct.
