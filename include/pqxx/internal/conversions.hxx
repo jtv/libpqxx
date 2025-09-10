@@ -87,7 +87,7 @@ struct disallowed_ambiguous_char_conversion
 };
 
 
-template<typename T>
+template<std::floating_point T>
 PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
 
 
@@ -146,10 +146,11 @@ template<std::floating_point T> struct float_string_traits
 
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
 
-  static PQXX_LIBEXPORT pqxx::zview
-  to_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT std::string_view
+  to_buf(std::span<char> buf, T const &value, ctx c = {});
 
-  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT std::size_t
+  into_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
   static constexpr std::size_t digits10(std::size_t value) noexcept
@@ -198,8 +199,7 @@ template<std::floating_point T> struct float_string_traits
            1 +                                    // Exponent sign.
            // Spell this weirdly to stop Windows compilers from reading this as
            // a call to their "max" macro when NOMINMAX is not defined.
-           (std::max)(max_pos_exp, max_neg_exp) + // Exponent digits.
-           1;                                     // Terminating zero.
+           (std::max)(max_pos_exp, max_neg_exp); // Exponent digits.
   }
 };
 } // namespace pqxx::internal
@@ -227,15 +227,16 @@ template<pqxx::internal::integer T> struct string_traits<T>
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
   static PQXX_LIBEXPORT std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
-  static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT std::size_t
+  into_buf(std::span<char> buf, T const &value, ctx c = {});
 
   static constexpr std::size_t size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type
-     * can reliably represent; the one extra base-10 digit which the type can
-     * only partially represent; and the terminating zero.
+     * can reliably represent; and the one extra base-10 digit which the type
+     * can only partially represent.
      */
-    return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1 + 1;
+    return std::is_signed_v<T> + std::numeric_limits<T>::digits10 + 1;
   }
 };
 
