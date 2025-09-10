@@ -11,6 +11,12 @@
 
 namespace
 {
+template<typename T>
+concept converts_from_string = requires(T val, std::string_view v) {
+  val = pqxx::string_traits<T>::from_string(v);
+};
+
+
 /// Convert an object to/from string, and check for expected results.
 template<typename T>
 inline void
@@ -20,9 +26,7 @@ strconv(std::string const &type, T const &obj, std::string const &expected)
 
   PQXX_CHECK_EQUAL(objstr, expected, "String mismatch for " + type + ".");
 
-  if constexpr (requires(T val, std::string_view v) {
-                  val = pqxx::string_traits<T>::from_string(v);
-                })
+  if constexpr (converts_from_string<T>)
   {
     T newobj;
     pqxx::from_string(objstr, newobj);
