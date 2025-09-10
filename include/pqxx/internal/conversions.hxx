@@ -266,7 +266,7 @@ template<> struct string_traits<bool>
     return value ? "true"_zv : "false"_zv;
   }
 
-  static constexpr std::size_t size_buffer(bool const &) noexcept { return 6; }
+  static constexpr std::size_t size_buffer(bool const &) noexcept { return 5; }
 };
 
 
@@ -506,7 +506,7 @@ template<> struct string_traits<char const *>
       return 0;
     else
       // std::char_traits::length() is like std::strlen(), but constexpr.
-      return std::char_traits<char>::length(value) + 1;
+      return std::char_traits<char>::length(value);
   }
 };
 
@@ -616,7 +616,7 @@ template<> struct string_traits<std::string>
 
   static constexpr std::size_t size_buffer(std::string const &value) noexcept
   {
-    return std::size(value) + 1;
+    return std::size(value);
   }
 };
 
@@ -644,7 +644,7 @@ template<> struct string_traits<std::string_view>
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
-    return std::size(value) + 1;
+    return std::size(value);
   }
 
   static std::string_view
@@ -670,7 +670,7 @@ template<> struct string_traits<zview>
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
-    return std::size(value) + 1;
+    return std::size(value);
   }
 
   static zview to_buf(char *, char *, zview const &value) { return value; }
@@ -966,14 +966,11 @@ public:
                    std::begin(value), std::end(value), std::size_t{},
                    [](std::size_t acc, elt_type const &elt) {
                      // Opening and closing quotes, plus worst-case escaping,
-                     // and the one byte for the trailing zero becomes room
-                     // for a separator. However, std::size(s_null) doesn't
-                     // account for the terminating zero, so add one to make
-                     // s_null pay for its own separator.
+                     // plus one byte for the separator.
                      std::size_t const elt_size{
-                       pqxx::is_null(elt) ? (std::size(s_null) + 1) :
+                       pqxx::is_null(elt) ? std::size(s_null) :
                                             elt_traits::size_buffer(elt)};
-                     return acc + 2 * elt_size + 2;
+                     return acc + 2 * elt_size + 3;
                    });
   }
 };
