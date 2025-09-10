@@ -622,6 +622,7 @@ to_buf(char *begin, char const *end, TYPE... value)
 }
 
 
+// XXX: Test!
 /// Convert multiple values to strings inside a single buffer.
 /** There must be enough room for all values, or this will throw
  * @c conversion_overrun.  You can obtain a conservative estimate of the buffer
@@ -641,9 +642,7 @@ to_buf_multi(std::span<char> buf, TYPE... value)
     assert(start < here);
     assert(here <= std::size(buf));
     // C++26: Use buf.at().
-    assert(buf[here - 1] == '\0');
-    // Exclude the trailing zero out of the zview.
-    auto len{here - start - 1};
+    auto const len{here - start};
     return std::string_view{std::data(buf) + start, len};
   }(value)...};
 }
