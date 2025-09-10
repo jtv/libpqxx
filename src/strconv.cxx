@@ -440,18 +440,13 @@ float_string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
 #else
   {
     auto const end{begin + std::size(buf)};
-    if (end == begin)
-      throw usage_error{
-        std::format(
-          "No buffer space for converting {} to string.", name_type<T>()),
-        c.loc};
     auto const res{std::format_to_n(begin, end - begin, "{}", value)};
     if (std::cmp_greater_equal(res.size, end - begin))
       throw conversion_overrun{
         std::format(
           "Buffer too small for converting {} to string.", name_type<T>()),
         c.loc};
-    return {begin, res.size};
+    return {begin, static_cast<std::size_t>(res.size)};
   }
 #endif
 }
