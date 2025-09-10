@@ -30,7 +30,7 @@ void test_zview_converts_to_string()
 
   PQXX_CHECK_EQUAL(pqxx::to_string("hello"_zv), std::string{"hello"});
 
-  std::array<char, 100> buf;
+  std::array<char, 100> buf{};
 
   auto const v{traits::to_buf(std::begin(buf), std::end(buf), "myview"_zv)};
   PQXX_CHECK_EQUAL(std::string{v}, "myview");
