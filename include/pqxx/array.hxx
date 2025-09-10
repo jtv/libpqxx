@@ -547,9 +547,6 @@ private:
 public:
   using array_type = array<ELEMENT, DIMENSIONS, array_separator<elt_type>>;
 
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static std::string_view
   to_buf(std::span<char> buf, array_type const &value, ctx c = {})
   {

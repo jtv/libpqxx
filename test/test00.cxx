@@ -20,7 +20,9 @@ strconv(std::string const &type, T const &obj, std::string const &expected)
 
   PQXX_CHECK_EQUAL(objstr, expected, "String mismatch for " + type + ".");
 
-  if constexpr (pqxx::string_traits<T>::converts_from_string)
+  if constexpr (requires(T val, std::string_view v) {
+                  val = pqxx::string_traits<T>::from_string(v);
+                })
   {
     T newobj;
     pqxx::from_string(objstr, newobj);

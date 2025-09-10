@@ -67,6 +67,13 @@ void test_strconv_bool()
   PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("1", result);
   PQXX_CHECK_EQUAL(result, true);
+
+  // Nasty little corner case: to_buf() for bool will return a view on a
+  // string constant, and not use the buffer you give it.  But into_buf() will
+  // copy that into the buffer, and this requires a separate overrun check.
+  std::array<char, 3> small_buf{};
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::into_buf(small_buf, true), pqxx::conversion_overrun);
 }
 
 

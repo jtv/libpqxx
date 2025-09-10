@@ -75,8 +75,6 @@ throw_null_conversion(std::string_view type, sl);
 template<pqxx::internal::char_type CHAR_TYPE>
 struct disallowed_ambiguous_char_conversion
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
   static constexpr zview
   to_buf(char *, char *, CHAR_TYPE const &) noexcept = delete;
 
@@ -141,9 +139,6 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
  */
 template<std::floating_point T> struct float_string_traits
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
 
   static PQXX_LIBEXPORT std::string_view
@@ -219,8 +214,6 @@ struct nullness<T> : no_null<T>
  */
 template<pqxx::internal::integer T> struct string_traits<T>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
   static PQXX_LIBEXPORT std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
@@ -256,9 +249,6 @@ struct string_traits<long double>
 
 template<> struct string_traits<bool>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static PQXX_LIBEXPORT bool from_string(std::string_view text);
 
   static constexpr zview to_buf(char *, char *, bool const &value) noexcept
@@ -295,11 +285,6 @@ inline constexpr format param_format(std::optional<T> const &value)
 
 template<typename T> struct string_traits<std::optional<T>>
 {
-  static constexpr bool converts_to_string{
-    string_traits<T>::converts_to_string};
-  static constexpr bool converts_from_string{
-    string_traits<T>::converts_from_string};
-
   static std::string_view
   to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
   {
@@ -353,9 +338,6 @@ template<typename... T> struct nullness<std::variant<T...>>
 
 template<typename... T> struct string_traits<std::variant<T...>>
 {
-  static constexpr bool converts_to_string{
-    (string_traits<T>::converts_to_string and ...)};
-
   static std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
@@ -403,9 +385,6 @@ template<typename T> inline T from_string(std::stringstream const &text)
 
 template<> struct string_traits<std::nullptr_t>
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
-
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullptr_t const &) noexcept
   {
@@ -423,9 +402,6 @@ template<> struct string_traits<std::nullptr_t>
 
 template<> struct string_traits<std::nullopt_t>
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
-
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullopt_t const &) noexcept
   {
@@ -443,9 +419,6 @@ template<> struct string_traits<std::nullopt_t>
 
 template<> struct string_traits<std::monostate>
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
-
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::monostate const &) noexcept
   {
@@ -489,9 +462,6 @@ template<> struct nullness<char const *>
  */
 template<> struct string_traits<char const *>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
   static char const *from_string(std::string_view text) = delete;
 
   static std::string_view
@@ -535,9 +505,6 @@ template<> struct nullness<char *>
  */
 template<> struct string_traits<char *>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
   static std::string_view
   to_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
@@ -565,9 +532,6 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
  */
 template<std::size_t N> struct string_traits<char[N]>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
   static constexpr zview
   to_buf(char *, char *, char const (&value)[N]) noexcept
   {
@@ -590,9 +554,6 @@ template<> struct nullness<std::string> : no_null<std::string>
 
 template<> struct string_traits<std::string>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static std::string from_string(std::string_view text)
   {
     return std::string{text};
@@ -628,9 +589,6 @@ template<> struct nullness<std::string_view> : no_null<std::string_view>
  */
 template<> struct string_traits<std::string_view>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
@@ -654,9 +612,6 @@ template<> struct nullness<zview> : no_null<zview>
 /// String traits for `zview`.
 template<> struct string_traits<zview>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
   static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
@@ -680,9 +635,6 @@ template<> struct nullness<std::stringstream> : no_null<std::stringstream>
 
 template<> struct string_traits<std::stringstream>
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{true};
-
   static std::size_t size_buffer(std::stringstream const &) = delete;
 
   static std::stringstream from_string(std::string_view text)
@@ -748,11 +700,6 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 template<typename T, typename... Args>
 struct string_traits<std::unique_ptr<T, Args...>>
 {
-  static constexpr bool converts_to_string{
-    string_traits<T>::converts_to_string};
-  static constexpr bool converts_from_string{
-    string_traits<T>::converts_from_string};
-
   static std::unique_ptr<T> from_string(std::string_view text)
   {
     return std::make_unique<T>(string_traits<T>::from_string(text));
@@ -803,11 +750,6 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
-  static constexpr bool converts_to_string{
-    string_traits<T>::converts_to_string};
-  static constexpr bool converts_from_string{
-    string_traits<T>::converts_from_string};
-
   static std::shared_ptr<T> from_string(std::string_view text)
   {
     return std::make_shared<T>(string_traits<T>::from_string(text));
@@ -847,9 +789,6 @@ template<binary DATA> struct nullness<DATA> : no_null<DATA>
 
 template<binary DATA> struct string_traits<DATA>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static std::size_t size_buffer(DATA const &value) noexcept
   {
     return internal::size_esc_bin(std::size(value));
@@ -924,9 +863,6 @@ private:
   static constexpr zview s_null{"NULL"};
 
 public:
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{false};
-
   static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {})
   {

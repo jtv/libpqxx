@@ -259,12 +259,7 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
     // T is your type.
     template<> struct string_traits<T>
     {
-      // Do you support converting T to PostgreSQL string format?
-      static constexpr bool converts_to_string{true};
-      // Do you support converting PostgreSQL string format to T?
-      static constexpr bool converts_from_string{true};
-
-      // If converts_to_string is true:
+      // If you support conversion _to_ string:
 
       // Represent `value` as a string, using `buf` for storage if needed.
       // (But the result may live somewhere outside the buffer, or lie inside
@@ -275,7 +270,7 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
       // Converting value to string may require this much buffer space at most.
       static std::size_t size_buffer(T const &value) noexcept;
 
-      // If converts_from_string is true:
+      // If you support conversion _from_ string:
 
       // Parse text as a T value.
       static T from_string(std::string_view text, ctx c = {});
