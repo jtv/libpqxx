@@ -151,12 +151,8 @@ void test_string_view_conversion()
     "more view"s);
   PQXX_CHECK(buf.at(stop - 2) == 'w');
 
-  std::string_view org{"another!"sv};
-  pqxx::zview out{traits::to_buf(buf, org)};
+  std::string_view const org{"another!"sv}, out{traits::to_buf(buf, org)};
   PQXX_CHECK_EQUAL(std::string{out}, "another!"s);
-  PQXX_CHECK(
-    std::data(out) != std::data(org),
-    "string_view to_buf returned original view, which may not be terminated.");
 }
 
 

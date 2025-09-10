@@ -426,10 +426,44 @@ public:
  */
 template<typename TYPE> struct string_traits<range<TYPE>>
 {
-  [[nodiscard]] static inline std::string_view
+  [[nodiscard]] static std::string_view
   to_buf(std::span<char> buf, range<TYPE> const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
+    if (value.empty())
+    {
+      if (std::cmp_less_equal(std::size(buf), std::size(s_empty)))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      return s_empty;
+    }
+    else
+    {
+      if (std::cmp_less(std::size(buf), 4))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      std::span<char> tmp{buf};
+      // C++26: Use at().
+      tmp[0] =
+        (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
+      tmp = tmp.subspan(1);
+      TYPE const *lower{value.lower_bound().value()};
+      // Convert bound (but go back to overwrite that trailing zero).
+      if (lower != nullptr)
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower));
+      // C++26: Use at().
+      tmp[0] = ',';
+      tmp = tmp.subspan(1);
+      TYPE const *upper{value.upper_bound().value()};
+      // Convert bound (but go back to overwrite that trailing zero).
+      if (upper != nullptr)
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *upper, c));
+      if (std::cmp_less(std::size(tmp), 2))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      tmp[0] =
+        static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
+      tmp = tmp.subspan(1);
+      return {
+        std::data(buf),
+        static_cast<std::size_t>(std::data(tmp) - std::data(buf))};
+    }
   }
 
   static inline char *into_buf(
@@ -438,7 +472,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     conversion_context const c{{}, loc};
     if (value.empty())
     {
-      if ((end - begin) <= std::ssize(s_empty))
+      if (std::cmp_less_equal(end - begin, std::size(s_empty)))
         throw conversion_overrun{s_overrun.c_str(), loc};
       char *here = begin + s_empty.copy(begin, std::size(s_empty));
       *here++ = '\0';
@@ -453,15 +487,13 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use 8.0-style API; no more terminating zero.
       if (lower != nullptr)
-        here += pqxx::into_buf({here, end}, *lower) - 1;
+        here += pqxx::into_buf({here, end}, *lower);
       *here++ = ',';
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use 8.0-style API; no more terminating zero.
       if (upper != nullptr)
-        here += pqxx::into_buf({here, end}, *upper, c) - 1;
+        here += pqxx::into_buf({here, end}, *upper, c);
       if ((end - here) < 2)
         throw conversion_overrun{s_overrun.c_str(), loc};
       *here++ =

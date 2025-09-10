@@ -329,14 +329,12 @@ private:
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
-        // XXX: Use 8.0-style API; no more terminating zero.
         std::size_t const end{
           offset + into_buf({data + offset, data + total}, f, c)};
-        assert(end < std::size(m_buffer));
-        assert(m_buffer[end - 1] == '\0');
-        m_buffer[end - 1] = '\t';
+        assert((end + 1) < std::size(m_buffer));
+        m_buffer[end] = '\t';
         // Shrink to fit.  Keep the tab though.
-        m_buffer.resize(end);
+        m_buffer.resize(end + 1);
       }
       else if constexpr (
         std::is_same_v<Field, std::string> or

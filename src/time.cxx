@@ -20,7 +20,6 @@ using namespace std::literals;
 constexpr int ten{10};
 
 
-// XXX: Retire comment on termnating zero.
 /// Render the numeric part of a year value into a buffer.
 /** Converts the year from "common era" (with a Year Zero) to "anno domini"
  * (without a Year Zero).
@@ -28,13 +27,10 @@ constexpr int ten{10};
  * Doesn't render the sign.  When you're rendering a date, you indicate a
  * negative year by suffixing "BC" at the very end.
  *
- * Where @c string_traits::into_buf() returns a pointer to the position right
- * after the terminating zero, this function returns a pointer to the character
- * right after the last digit.  (It may or may not write a terminating zero at
- * that position itself.)
+ * @return A pointer to the character right after the last digit.
  */
 inline char *
-year_into_buf(char *begin, char *end, std::chrono::year const &value)
+year_into_buf(char *begin, std::chrono::year const &value, pqxx::ctx c = {})
 {
   int const y{value};
   if (y == int{(std::chrono::year::min)()}) [[unlikely]]
@@ -69,8 +65,14 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
       if (absy < ten)
         *begin++ = '0';
     }
-    // XXX: Use 8.x API; no more terminating zero.
-    begin = pqxx::string_traits<short>::into_buf(begin, end, absy) - 1;
+
+    // Maximum text length for a year.
+    static constexpr int max_year{std::chrono::year::max()};
+
+    // This isn't the actual buffer size, but it's a conservative
+    // approximation so should be fine.
+    begin +=
+      pqxx::into_buf({begin, begin + pqxx::size_buffer(max_year)}, absy, c);
   }
   return begin;
 }
@@ -91,12 +93,8 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
 }
 
 
-// XXX: Retire comment about terminating zero.
 /// Render a valid 1-based month number into a buffer.
-/* Where @c string_traits::into_buf() returns a pointer to the position right
- * after the terminating zero, this function returns a pointer to the character
- * right after the last digit.  (It may or may not write a terminating zero at
- * that position itself.)
+/* @return A pointer to the byte right after the last digit.
  */
 inline char *month_into_buf(char *begin, std::chrono::month const &value)
 {
@@ -179,20 +177,41 @@ std::string make_parse_error(std::string_view text)
 
 namespace pqxx
 {
-char *string_traits<std::chrono::year_month_day>::into_buf(
-  char *begin, char *end, std::chrono::year_month_day const &value, sl loc)
+std::size_t string_traits<std::chrono::year_month_day>::into_buf(
+  std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
 {
-  if (std::size_t(end - begin) < size_buffer(value))
-    throw conversion_overrun{"Not enough room in buffer for date.", loc};
-  begin = year_into_buf(begin, end, value.year());
-  *begin++ = '-';
-  begin = month_into_buf(begin, value.month());
-  *begin++ = '-';
-  begin = day_into_buf(begin, value.day());
+  if (std::size(buf) < size_buffer(value))
+    throw conversion_overrun{"Not enough room in buffer for date.", c.loc};
+  auto here{std::data(buf)};
+  // XXX: Pass c.
+  here = year_into_buf(here, value.year());
+  *here++ = '-';
+  here = month_into_buf(here, value.month());
+  *here++ = '-';
+  here = day_into_buf(here, value.day());
   if (int{value.year()} <= 0) [[unlikely]]
-    begin += s_bc.copy(begin, std::size(s_bc));
-  *begin++ = '\0';
-  return begin;
+    here += s_bc.copy(here, std::size(s_bc));
+  *here++ = '\0';
+  // XXX: Retire assertion once confident.
+  assert(here >= std::data(buf));
+  return static_cast<std::size_t>(here - std::data(buf));
+}
+
+
+std::string_view string_traits<std::chrono::year_month_day>::to_buf(
+  std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
+{
+  if (std::size(buf) < size_buffer(value))
+    throw conversion_overrun{"Not enough room in buffer for date.", c.loc};
+  auto here{std::data(buf)};
+  here = year_into_buf(here, value.year());
+  *here++ = '-';
+  here = month_into_buf(here, value.month());
+  *here++ = '-';
+  here = day_into_buf(here, value.day());
+  if (int{value.year()} <= 0) [[unlikely]]
+    here += s_bc.copy(here, std::size(s_bc));
+  return {std::data(buf), static_cast<std::size_t>(here - std::data(buf))};
 }
 
 

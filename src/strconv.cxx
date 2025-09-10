@@ -57,7 +57,8 @@ template<typename T> constexpr T top{std::numeric_limits<T>::max()};
  *
  * Includes a single trailing null byte, right before @c *end.
  */
-template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
+template<pqxx::internal::integer T>
+constexpr inline char *nonneg_to_buf(char *end, T value)
 {
   constexpr int ten{10};
   char *pos = end;
@@ -73,7 +74,8 @@ template<typename T> constexpr inline char *nonneg_to_buf(char *end, T value)
 /// Write negative version of value at end of buffer.  Return start.
 /** Like @c nonneg_to_buf, but prefixes a minus sign.
  */
-template<typename T> constexpr inline char *neg_to_buf(char *end, T value)
+template<pqxx::internal::integer T>
+constexpr inline char *neg_to_buf(char *end, T value)
 {
   char *pos = nonneg_to_buf(end, value);
   *--pos = '-';
@@ -84,7 +86,8 @@ template<typename T> constexpr inline char *neg_to_buf(char *end, T value)
 /// Write lowest possible negative value at end of buffer.
 /** Like @c neg_to_buf, but for the special case of the bottom value.
  */
-template<typename T> constexpr inline char *bottom_to_buf(char *end)
+template<pqxx::internal::integer T>
+constexpr inline char *bottom_to_buf(char *end)
 {
   static_assert(std::is_signed_v<T>);
 
@@ -133,8 +136,8 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value)
     }
   // No need to check for overrun here: we never even told to_chars about that
   // last byte in the buffer, so it didn't get used up.
-  *res.ptr++ = '\0';
-  return res.ptr;
+  *res.ptr = '\0';
+  return res.ptr + 1;
 }
 } // namespace
 
@@ -142,18 +145,20 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value)
 namespace pqxx
 {
 template<pqxx::internal::integer T>
-inline zview
+inline std::string_view
 // NOLINTNEXTLINE(readability-non-const-parameter)
-string_traits<T>::to_buf(char *begin, char *end, T const &value)
+string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
 {
   static_assert(std::is_integral_v<T>);
-  auto const space{end - begin},
-    need{static_cast<ptrdiff_t>(size_buffer(value))};
-  if (space < need)
-    throw conversion_overrun{std::format(
-      "Could not convert {} to string: buffer too small.  {}", name_type<T>(),
-      pqxx::internal::state_buffer_overrun(space, need))};
+  auto const space{std::size(buf)}, need{size_buffer(value)};
+  if (std::cmp_less(space, need))
+    throw conversion_overrun{
+      std::format(
+        "Could not convert {} to string: buffer too small.  {}",
+        name_type<T>(), pqxx::internal::state_buffer_overrun(space, need)),
+      c.loc};
 
+  auto const end{std::data(buf) + std::size(buf)};
   char *const pos{[end, &value]() {
     if constexpr (std::is_unsigned_v<T>)
       return nonneg_to_buf(end, value);
@@ -164,7 +169,7 @@ string_traits<T>::to_buf(char *begin, char *end, T const &value)
     else
       return bottom_to_buf<T>(end);
   }()};
-  return {pos, end - pos - 1};
+  return {pos, static_cast<std::size_t>(end - pos - 1)};
 }
 
 
