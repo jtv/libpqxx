@@ -272,9 +272,6 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
       static std::strnig_view to_buf(
         std::span<char>, T const &value, ctx c = {});
 
-      // Write string version into buffer.
-      static char *into_buf(std::span<char>, T const &value, ctx c = {});
-
       // Converting value to string may require this much buffer space at most.
       static std::size_t size_buffer(T const &value) noexcept;
 
@@ -373,22 +370,6 @@ supports, you can use the conversion functions for those: `pqxx::from_string`,
 `pqxx::to_string`, `pqxx::to_buf`.  They in turn will call the `string_traits`
 specialisations for those types.  Or, you can call their `string_traits`
 directly.
-
-
-### `into_buf`
-
-This is a stricter version of `to_buf`.  All the same requirements apply, but
-in addition you must write your string _into the given buffer,_ starting
-_exactly_ at its beginning.
-
-That's why this function returns just an offset: the index of the byte _right
-behind the string._  If the caller wants to use the string, they can find it at
-the beginning of the buffer.  Or if the caller wants to write another value
-into the rest of the buffer, they can continue writing at the location you
-returned.
-
-Apart from that, `into_buf()` is much like `to_buf()`.  Read that section
-carefully before implemnting `into_buf()`.
 
 
 ### `size_buffer`

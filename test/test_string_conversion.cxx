@@ -142,14 +142,13 @@ void test_string_view_conversion()
 
   std::array<char, 200> buf{};
 
-  std::size_t const stop{traits::into_buf(buf, "more view"sv)};
+  std::size_t const stop{pqxx::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(stop, std::size(buf));
   assert(stop > 0);
-  PQXX_CHECK(buf.at(stop - 1) == '\0');
   PQXX_CHECK_EQUAL(
-    (std::string{std::data(buf), static_cast<std::size_t>(stop - 1)}),
+    (std::string{std::data(buf), static_cast<std::size_t>(stop)}),
     "more view"s);
-  PQXX_CHECK(buf.at(stop - 2) == 'w');
+  PQXX_CHECK(buf.at(stop - 1) == 'w');
 
   std::string_view const org{"another!"sv}, out{traits::to_buf(buf, org)};
   PQXX_CHECK_EQUAL(std::string{out}, "another!"s);

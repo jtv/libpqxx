@@ -216,17 +216,6 @@ template<typename TYPE> struct string_traits final
   [[nodiscard]] static inline std::string_view
   to_buf(std::span<char> buf, TYPE const &value, ctx = {});
 
-  /// Write value's string representation into buffer.
-  /* @warning A null value has no string representation.  Do not pass a null.
-   *
-   * Writes value's string representation into the buffer, starting exactly at
-   * the beginning of the buffer.  Returns the offset into the buffer just
-   * after the string, so the caller could use it as the starting point for
-   * another call to write a next value.
-   */
-  static inline std::size_t
-  into_buf(std::span<char> buf, TYPE const &value, ctx = {});
-
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
    * for a value of this type.
@@ -285,11 +274,6 @@ template<typename TYPE> struct forbidden_conversion
   static constexpr bool converts_from_string{false};
   [[noreturn]] static std::string_view
   to_buf(std::span<char>, TYPE const &, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static std::size_t
-  into_buf(std::span<char>, TYPE const &, ctx = {})
   {
     oops_forbidden_conversion<TYPE>();
   }
@@ -398,22 +382,7 @@ concept to_buf_8 = requires(
 };
 
 
-/// Signature for string_traits<TYPE>::into_buf() in libpqxx 7.
-template<typename TYPE>
-concept into_buf_7 =
-  requires(char *out, char *begin, char *end, TYPE const &value) {
-    out = string_traits<TYPE>::into_buf(begin, end, value);
-  };
-
-/// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
-template<typename TYPE>
-concept into_buf_8 =
-  requires(std::size_t out, std::span<char> buf, TYPE const &value, ctx c) {
-    out = string_traits<TYPE>::into_buf(buf, value, c);
-    out = string_traits<TYPE>::into_buf(buf, value);
-  };
-
-/// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
+/// Signature for string_traits<TYPE>::from_string() in libpqxx 8.
 template<typename TYPE>
 concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
   out = string_traits<TYPE>::from_string(text, c);
@@ -570,12 +539,6 @@ template<typename ENUM> struct enum_traits
   to_buf(std::span<char> buf, ENUM const &value, ctx c = {})
   {
     return pqxx::to_buf(buf, to_underlying(value), c);
-  }
-
-  static std::size_t
-  into_buf(std::span<char> buf, ENUM const &value, ctx c = {})
-  {
-    return pqxx::into_buf(buf, to_underlying(value), c);
   }
 
   [[nodiscard]] static ENUM from_string(std::string_view text, ctx c = {})

@@ -559,12 +559,6 @@ public:
     return {std::data(buf), len - 1};
   }
 
-  static std::size_t
-  into_buf(std::span<char> buf, array_type const &value, ctx c = {})
-  {
-    return pqxx::internal::array_into_buf(buf, value, size_buffer(value), c);
-  }
-
   static std::size_t size_buffer(array_type const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)

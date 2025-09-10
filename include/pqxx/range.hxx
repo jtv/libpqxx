@@ -466,43 +466,6 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
   }
 
-  static inline char *into_buf(
-    char *begin, char *end, range<TYPE> const &value, sl loc = sl::current())
-  {
-    conversion_context const c{{}, loc};
-    if (value.empty())
-    {
-      if (std::cmp_less_equal(end - begin, std::size(s_empty)))
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      char *here = begin + s_empty.copy(begin, std::size(s_empty));
-      *here++ = '\0';
-      return here;
-    }
-    else
-    {
-      if (end - begin < 4)
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      char *here = begin;
-      *here++ =
-        (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
-      TYPE const *lower{value.lower_bound().value()};
-      // Convert bound (but go back to overwrite that trailing zero).
-      if (lower != nullptr)
-        here += pqxx::into_buf({here, end}, *lower);
-      *here++ = ',';
-      TYPE const *upper{value.upper_bound().value()};
-      // Convert bound (but go back to overwrite that trailing zero).
-      if (upper != nullptr)
-        here += pqxx::into_buf({here, end}, *upper, c);
-      if ((end - here) < 2)
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      *here++ =
-        static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
-      *here++ = '\0';
-      return here;
-    }
-  }
-
   [[nodiscard]] static inline range<TYPE>
   from_string(std::string_view text, sl loc = sl::current())
   {

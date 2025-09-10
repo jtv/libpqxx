@@ -61,9 +61,6 @@ template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
   [[nodiscard]] static std::string_view to_buf(
     std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {});
 
-  static std::size_t into_buf(
-    std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {});
-
   [[nodiscard]] static std::chrono::year_month_day
   from_string(std::string_view text, sl = sl::current());
 

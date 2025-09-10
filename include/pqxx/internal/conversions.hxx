@@ -77,7 +77,6 @@ struct disallowed_ambiguous_char_conversion
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
-  static char *into_buf(char *, char *, CHAR_TYPE) = delete;
   static constexpr zview
   to_buf(char *, char *, CHAR_TYPE const &) noexcept = delete;
 
@@ -93,7 +92,7 @@ PQXX_LIBEXPORT extern std::string to_string_float(T, ctx = {});
 
 /// Generic implementation for `into_buf()`, on top of `to_buf()`.
 template<typename T>
-[[deprecated("Pass buffer as std::span<char>.")]]
+[[deprecated("into_buf() is no longer part of the string conversion API.")]]
 inline char *
 generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
 {
@@ -103,7 +102,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
   auto const len = std::size(text) + 1;
   if (std::cmp_greater(len, space))
     throw conversion_overrun{
-      std::format("Not enough buffer space to insert {}.  ", name_type<T>()) +
+      std::format("Not enough buffer space to insert {}.", name_type<T>()) +
         state_buffer_overrun(space, len),
       c.loc};
   std::memmove(begin, std::data(text), len);
@@ -113,6 +112,7 @@ generic_into_buf(char *begin, char *end, T const &value, ctx c = {})
 
 /// Generic implementation for `into_buf()`, on top of `to_buf()`.
 template<typename T>
+[[deprecated("into_buf() is no longer part of the string conversion API.")]]
 inline std::size_t
 generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
 {
@@ -148,9 +148,6 @@ template<std::floating_point T> struct float_string_traits
 
   static PQXX_LIBEXPORT std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
-
-  static PQXX_LIBEXPORT std::size_t
-  into_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
   static constexpr std::size_t digits10(std::size_t value) noexcept
@@ -227,8 +224,6 @@ template<pqxx::internal::integer T> struct string_traits<T>
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
   static PQXX_LIBEXPORT std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
-  static PQXX_LIBEXPORT std::size_t
-  into_buf(std::span<char> buf, T const &value, ctx c = {});
 
   static constexpr std::size_t size_buffer(T const &) noexcept
   {
@@ -271,11 +266,6 @@ template<> struct string_traits<bool>
     return value ? "true"_zv : "false"_zv;
   }
 
-  static char *into_buf(char *begin, char *end, bool const &value)
-  {
-    return begin + pqxx::internal::generic_into_buf({begin, end}, value);
-  }
-
   static constexpr std::size_t size_buffer(bool const &) noexcept { return 6; }
 };
 
@@ -309,13 +299,6 @@ template<typename T> struct string_traits<std::optional<T>>
     string_traits<T>::converts_to_string};
   static constexpr bool converts_from_string{
     string_traits<T>::converts_from_string};
-
-  static std::size_t
-  into_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
-  {
-    // (Assume not null, since null is not a value.)
-    return pqxx::into_buf(buf, *value, c);
-  }
 
   static std::string_view
   to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
@@ -373,16 +356,6 @@ template<typename... T> struct string_traits<std::variant<T...>>
   static constexpr bool converts_to_string{
     (string_traits<T>::converts_to_string and ...)};
 
-  static char *
-  into_buf(char *begin, char *end, std::variant<T...> const &value)
-  {
-    return begin + std::visit(
-                     [begin, end](auto const &i) {
-                       using elt_t = std::remove_cvref_t<decltype(i)>;
-                       return pqxx::into_buf<elt_t>({begin, end}, i);
-                     },
-                     value);
-  }
   static std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
   {
@@ -433,8 +406,6 @@ template<> struct string_traits<std::nullptr_t>
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
 
-  static char *into_buf(char *, char *, std::nullptr_t) = delete;
-
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullptr_t const &) noexcept
   {
@@ -455,8 +426,6 @@ template<> struct string_traits<std::nullopt_t>
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
 
-  static char *into_buf(char *, char *, std::nullopt_t) = delete;
-
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullopt_t const &) noexcept
   {
@@ -476,8 +445,6 @@ template<> struct string_traits<std::monostate>
 {
   static constexpr bool converts_to_string{false};
   static constexpr bool converts_from_string{false};
-
-  static char *into_buf(char *, char *, std::monostate) = delete;
 
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::monostate const &) noexcept
@@ -533,21 +500,6 @@ template<> struct string_traits<char const *>
     return value;
   }
 
-  static std::size_t
-  into_buf(std::span<char> buf, char const *const &value, ctx c = {})
-  {
-    auto const space{std::size(buf)};
-    // Count the trailing zero, even though std::strlen() and friends don't.
-    auto const len{std::strlen(value) + 1};
-    if (std::cmp_less(space, ptrdiff_t(len)))
-      throw conversion_overrun{
-        "Could not copy string: buffer too small.  " +
-          pqxx::internal::state_buffer_overrun(space, len),
-        c.loc};
-    std::memmove(std::data(buf), value, len);
-    return len;
-  }
-
   static constexpr std::size_t size_buffer(char const *const &value) noexcept
   {
     if (pqxx::is_null(value))
@@ -586,11 +538,6 @@ template<> struct string_traits<char *>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{false};
 
-  static std::size_t
-  into_buf(std::span<char> buf, char *const &value, ctx c = {})
-  {
-    return string_traits<char const *>::into_buf(buf, value, c);
-  }
   static std::string_view
   to_buf(std::span<char> buf, char *const &value, ctx c = {})
   {
@@ -627,15 +574,6 @@ template<std::size_t N> struct string_traits<char[N]>
     return zview{value, N - 1};
   }
 
-  static char *into_buf(char *begin, char *end, char const (&value)[N])
-  {
-    if (std::cmp_less(end - begin, size_buffer(value)))
-      throw conversion_overrun{
-        "Could not convert char[] to string: too long for buffer."};
-    std::memcpy(begin, value, N);
-    return begin + N;
-  }
-
   static constexpr std::size_t size_buffer(char const (&)[N]) noexcept
   {
     return N;
@@ -658,16 +596,6 @@ template<> struct string_traits<std::string>
   static std::string from_string(std::string_view text)
   {
     return std::string{text};
-  }
-
-  static std::size_t
-  into_buf(std::span<char> buf, std::string const &value, ctx c = {})
-  {
-    if (std::cmp_greater(std::size(value), std::size(buf)))
-      throw conversion_overrun{
-        "Could not convert string to string: too long for buffer.", c.loc};
-    value.copy(std::data(buf), std::size(value));
-    return std::size(value);
   }
 
   static std::string_view
@@ -719,12 +647,6 @@ template<> struct string_traits<std::string_view>
     return std::size(value) + 1;
   }
 
-  static std::size_t
-  into_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
-  {
-    return pqxx::internal::copy_chars<true>(value, buf, 0, c.loc);
-  }
-
   static std::string_view
   to_buf(std::span<char>, std::string_view const &value, ctx = {})
   {
@@ -749,16 +671,6 @@ template<> struct string_traits<zview>
   size_buffer(std::string_view const &value) noexcept
   {
     return std::size(value) + 1;
-  }
-
-  static char *into_buf(char *begin, char *end, zview const &value)
-  {
-    auto const size{std::size(value)};
-    if (std::cmp_less_equal(end - begin, std::size(value)))
-      throw conversion_overrun{"Not enough buffer space to store this zview."};
-    value.copy(begin, size);
-    begin[size] = '\0';
-    return begin + size + 1;
   }
 
   static zview to_buf(char *, char *, zview const &value) { return value; }
@@ -790,7 +702,6 @@ template<> struct string_traits<std::stringstream>
     return stream;
   }
 
-  static char *into_buf(char *, char *, std::stringstream const &) = delete;
   static std::string_view
   to_buf(char *, char *, std::stringstream const &) = delete;
 };
@@ -857,15 +768,6 @@ struct string_traits<std::unique_ptr<T, Args...>>
     return std::make_unique<T>(string_traits<T>::from_string(text));
   }
 
-  static char *into_buf(
-    char *begin, char *end, std::unique_ptr<T, Args...> const &value,
-    ctx c = {})
-  {
-    if (not value)
-      internal::throw_null_conversion(name_type<std::unique_ptr<T>>(), c.loc);
-    return begin + pqxx::into_buf({begin, end}, *value);
-  }
-
   static std::string_view to_buf(
     std::span<char> buf, std::unique_ptr<T, Args...> const &value, ctx c = {})
   {
@@ -928,13 +830,6 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
       internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
     return pqxx::to_buf(buf, *value, c);
   }
-  static char *
-  into_buf(char *begin, char *end, std::shared_ptr<T> const &value, ctx c = {})
-  {
-    if (not value)
-      internal::throw_null_conversion(name_type<std::shared_ptr<T>>(), c.loc);
-    return begin + pqxx::into_buf({begin, end}, *value, c);
-  }
   static std::size_t size_buffer(std::shared_ptr<T> const &value) noexcept
   {
     if (pqxx::is_null(value))
@@ -980,17 +875,6 @@ template<binary DATA> struct string_traits<DATA>
         "Not enough buffer space to escape binary data.", c.loc};
     internal::esc_bin(value, buf);
     return {std::data(buf), budget - 1};
-  }
-
-  static std::size_t
-  into_buf(std::span<char> buf, DATA const &value, ctx c = {})
-  {
-    auto const budget{size_buffer(value)};
-    if (std::cmp_less(std::size(buf), budget))
-      throw conversion_overrun{
-        "Not enough buffer space to escape binary data.", c.loc};
-    internal::esc_bin(value, buf);
-    return budget - 1;
   }
 
   /// Convert a string to binary data.
@@ -1059,11 +943,6 @@ public:
     auto const sz{
       pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
     return {std::data(buf), sz};
-  }
-
-  static std::size_t into_buf(std::span<char> buf, T const &value, ctx c = {})
-  {
-    return pqxx::internal::array_into_buf(buf, value, size_buffer(value), c);
   }
 
   static std::size_t size_buffer(T const &value) noexcept
