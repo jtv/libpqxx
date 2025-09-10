@@ -367,7 +367,7 @@ int main(int argc, char const *argv[])
   // get from 300 workers.  That can change radically though: right now there
   // are just a few "negative tests" holding things up by waiting for a few
   // seconds to check that something doesn't happen.
-  std::ptrdiff_t const jobs{1};
+  std::ptrdiff_t const jobs{4};
   dispatcher disp{jobs, std::move(tests)};
 
   std::vector<std::thread> pool;
