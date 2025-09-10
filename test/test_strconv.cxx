@@ -196,11 +196,7 @@ void check_write(T const &value, std::string_view expected)
     end, pqxx::string_traits<T>::size_buffer(value),
     std::format("Under-budgeted for into_buf() on {}.", name));
   PQXX_CHECK_EQUAL(
-    std::size(std::string_view{std::data(buf)}) + 1, end,
-    std::format(
-      "Termating zero for into_buf() on {} not in the expected place.", name));
-  PQXX_CHECK_EQUAL(
-    (std::string_view{std::data(buf), end - 1}), expected,
+    (std::string_view{std::data(buf), end}), expected,
     std::format("Wrong result from into_buf() on {}.", name));
   PQXX_CHECK_EQUAL(
     char_as_unsigned(buf.at(end)), char_as_unsigned(hash_index(end)),

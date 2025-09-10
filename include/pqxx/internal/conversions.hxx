@@ -11,7 +11,6 @@
 #  include <span>
 #  include <type_traits>
 #  include <variant>
-#  include <vector>
 
 #  include "pqxx/encoding_group.hxx"
 #  include "pqxx/strconv.hxx"
@@ -226,7 +225,8 @@ template<pqxx::internal::integer T> struct string_traits<T>
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
   static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
-  static PQXX_LIBEXPORT zview to_buf(char *begin, char *end, T const &value);
+  static PQXX_LIBEXPORT std::string_view
+  to_buf(std::span<char> buf, T const &value, ctx c = {});
   static PQXX_LIBEXPORT char *into_buf(char *begin, char *end, T const &value);
 
   static constexpr std::size_t size_buffer(T const &) noexcept
@@ -527,9 +527,9 @@ template<> struct string_traits<char const *>
   static char const *from_string(std::string_view text) = delete;
 
   static std::string_view
-  to_buf(std::span<char> buf, char const *const &value, ctx c = {})
+  to_buf(std::span<char>, char const *const &value, ctx = {})
   {
-    return generic_to_buf(buf, value, c);
+    return value;
   }
 
   static std::size_t
@@ -659,21 +659,30 @@ template<> struct string_traits<std::string>
     return std::string{text};
   }
 
-  static char *into_buf(char *begin, char *end, std::string const &value)
+  static std::size_t
+  into_buf(std::span<char> buf, std::string const &value, ctx c = {})
   {
-    if (std::cmp_greater_equal(std::size(value), end - begin))
+    if (std::cmp_greater(std::size(value), std::size(buf)))
       throw conversion_overrun{
-        "Could not convert string to string: too long for buffer."};
-    // Include the trailing zero.
-    value.copy(begin, std::size(value));
-    begin[std::size(value)] = '\0';
-    return begin + std::size(value) + 1;
+        "Could not convert string to string: too long for buffer.", c.loc};
+    value.copy(std::data(buf), std::size(value));
+    return std::size(value);
   }
 
   static std::string_view
   to_buf(std::span<char> buf, std::string const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
+    if (not std::empty(value) && (value[std::size(value) - 1] == '\0'))
+      throw internal_error{
+        std::format(
+          "Embedded zero in {}-byte string: '{}'", std::size(value), value),
+        c.loc}; // XXX: DEBUG
+                // XXX: Do we really need to copy?
+    if (std::cmp_greater(std::size(value), std::size(buf)))
+      throw conversion_overrun{
+        "Could not convert string to string: too long for buffer.", c.loc};
+    value.copy(std::data(buf), std::size(value));
+    return {std::data(buf), std::size(value)};
   }
 
   static constexpr std::size_t size_buffer(std::string const &value) noexcept
@@ -716,9 +725,9 @@ template<> struct string_traits<std::string_view>
   }
 
   static std::string_view
-  to_buf(std::span<char> buf, std::string_view const &value, ctx c = {})
+  to_buf(std::span<char>, std::string_view const &value, ctx = {})
   {
-    return generic_to_buf(buf, value, c);
+    return value;
   }
 
   static std::string_view from_string(std::string_view value) { return value; }
@@ -963,17 +972,24 @@ template<binary DATA> struct string_traits<DATA>
   static std::string_view
   to_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
+    // Budget for this type is precise.
+    auto const budget{size_buffer(value)};
+    if (std::cmp_less(std::size(buf), budget))
+      throw conversion_overrun{
+        "Not enough buffer space to escape binary data.", c.loc};
+    internal::esc_bin(value, buf);
+    return {std::data(buf), budget - 1};
   }
 
-  static char *into_buf(char *begin, char *end, DATA const &value)
+  static std::size_t
+  into_buf(std::span<char> buf, DATA const &value, ctx c = {})
   {
     auto const budget{size_buffer(value)};
-    if (std::cmp_less(end - begin, budget))
+    if (std::cmp_less(std::size(buf), budget))
       throw conversion_overrun{
-        "Not enough buffer space to escape binary data."};
-    internal::esc_bin(value, {begin, end});
-    return begin + budget;
+        "Not enough buffer space to escape binary data.", c.loc};
+    internal::esc_bin(value, buf);
+    return budget - 1;
   }
 
   /// Convert a string to binary data.
@@ -1039,7 +1055,9 @@ public:
   static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
+    auto const sz{
+      pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
+    return {std::data(buf), sz};
   }
 
   static std::size_t into_buf(std::span<char> buf, T const &value, ctx c = {})
@@ -1120,7 +1138,7 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
     // undefined behaviour.
     buf.resize(size_buffer(value));
     std::size_t const stop{pqxx::into_buf(buf, value, c)};
-    buf.resize(stop - 1);
+    buf.resize(stop);
     return buf;
   }
 }
@@ -1154,10 +1172,10 @@ inline void into_string(T const &value, std::string &out, ctx c = {})
 
   // We can't just reserve() data; modifying the terminating zero leads to
   // undefined behaviour.
-  out.resize(size_buffer(value) + 1);
+  out.resize(size_buffer(value));
   auto const data{out.data()};
-  auto const end{into_buf({data, data + std::size(out)}, value, c)};
-  out.resize(static_cast<std::size_t>(end - data - 1));
+  auto const end{into_buf({data, std::size(out)}, value, c)};
+  out.resize(static_cast<std::size_t>(end - data));
 }
 } // namespace pqxx
 #endif

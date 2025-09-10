@@ -62,13 +62,17 @@ template<> struct string_traits<TestErrorHandler *>
     return 100;
   }
 
-  static char *into_buf(char *begin, char *end, TestErrorHandler *const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, TestErrorHandler *const &value, ctx c = {})
   {
-    std::string const text{"TestErrorHandler at " + pqxx::to_string(value)};
-    if (std::cmp_greater_equal(std::size(text), end - begin))
-      throw conversion_overrun{"Not enough buffer for TestErrorHandler."};
-    std::memcpy(begin, text.c_str(), std::size(text) + 1);
-    return begin + std::size(text) + 1;
+    auto const sz{std::format_to_n(
+                    std::data(buf), std::ssize(buf), "TestErrorHandler at {}",
+                    std::size_t(value))
+                    .size};
+    if (std::cmp_greater_equal(sz, std::size(buf)))
+      throw conversion_overrun{
+        "Not enough buffer for TestErrorHandler.", c.loc};
+    return {std::data(buf), static_cast<std::size_t>(sz)};
   }
 };
 } // namespace pqxx

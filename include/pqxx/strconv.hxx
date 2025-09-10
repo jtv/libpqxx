@@ -456,29 +456,27 @@ to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 }
 
 
-// XXX: Re-implement using traits<TYPE>>to_buf() instead.
 /// Write an SQL representation of `value` into `buf`.
-/** This calls string_traits<TYPE>::into_buf(), but bridges some API version
+/** This calls @ref string_traits<TYPE>::to_buf(), but bridges some API version
  * differences.
+ *
+ * @return The number of SQL text bytes written into `buf`.  There is no
+ * terminating zero.
  */
 template<typename TYPE>
 [[nodiscard]] inline std::size_t
 into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
-  static_assert(
-    pqxx::internal::into_buf_7<TYPE> or pqxx::internal::into_buf_8<TYPE>);
-  using traits = string_traits<TYPE>;
-  if constexpr (pqxx::internal::into_buf_8<TYPE>)
-  {
-    return traits::into_buf(buf, value, c);
-  }
-  else
-  {
-    auto const begin{std::data(buf)}, end{begin + std::size(buf)};
-    return check_cast<std::size_t>(
-      traits::into_buf(begin, end, value) - begin,
-      "String conversion is too long.", c.loc);
-  }
+  auto const data{std::data(buf)};
+  std::string_view out{to_buf(buf, value, c)};
+  auto const sz{std::size(out)};
+
+  // Be careful to use a memory "move," not a "copy."  Source and destination
+  // may overlap (or be identical).
+  if (not std::empty(out)) [[likely]]
+    std::memmove(data, std::data(out), sz);
+
+  return sz;
 }
 
 
@@ -568,10 +566,10 @@ template<typename ENUM> struct enum_traits
   static constexpr bool converts_to_string{true};
   static constexpr bool converts_from_string{true};
 
-  [[nodiscard]] static constexpr zview
-  to_buf(char *begin, char *end, ENUM const &value)
+  [[nodiscard]] static constexpr std::string_view
+  to_buf(std::span<char> buf, ENUM const &value, ctx c = {})
   {
-    return pqxx::to_buf({begin, end}, to_underlying(value));
+    return pqxx::to_buf(buf, to_underlying(value), c);
   }
 
   static std::size_t
@@ -760,47 +758,6 @@ template<typename T> inline constexpr char array_separator{','};
 template<typename TYPE> inline constexpr format param_format(TYPE const &)
 {
   return format::text;
-}
-
-
-/// Implement @c string_traits<TYPE>::to_buf by calling @c into_buf.
-/** When you specialise @c string_traits for a new type, most of the time its
- * @c to_buf implementation has no special optimisation tricks and just writes
- * its text into the buffer it receives from the caller, starting at the
- * beginning.
- *
- * In that common situation, you can implement @c to_buf as just a call to
- * @c generic_to_buf.  It will call @c into_buf and return the right result for
- * @c to_buf.
- */
-template<typename TYPE>
-[[deprecated("Pass buffer as std::span<char>.")]]
-inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
-{
-  return generic_to_buf({begin, end}, value);
-}
-
-
-/// Implement @c string_traits<TYPE>::to_buf by calling @c into_buf.
-/** When you specialise @c string_traits for a new type, most of the time its
- * @c to_buf implementation has no special optimisation tricks and just writes
- * its text into the buffer it receives from the caller, starting at the
- * beginning.
- *
- * In that common situation, you can implement @c to_buf as just a call to
- * @c generic_to_buf.  It will call @c into_buf and return the right result for
- * @c to_buf.
- */
-template<typename TYPE>
-inline std::string_view
-generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
-{
-  // The trailing zero does not count towards the zview's size, so subtract 1
-  // from the result we get from into_buf().
-  if (is_null(value))
-    return {};
-  else
-    return std::string_view{std::data(buf), pqxx::into_buf(buf, value, c) - 1};
 }
 //@}
 } // namespace pqxx
