@@ -599,19 +599,9 @@ template<> struct string_traits<std::string>
   }
 
   static std::string_view
-  to_buf(std::span<char> buf, std::string const &value, ctx c = {})
+  to_buf(std::span<char>, std::string const &value, ctx = {})
   {
-    if (not std::empty(value) && (value[std::size(value) - 1] == '\0'))
-      throw internal_error{
-        std::format(
-          "Embedded zero in {}-byte string: '{}'", std::size(value), value),
-        c.loc}; // XXX: DEBUG
-                // XXX: Do we really need to copy?
-    if (std::cmp_greater(std::size(value), std::size(buf)))
-      throw conversion_overrun{
-        "Could not convert string to string: too long for buffer.", c.loc};
-    value.copy(std::data(buf), std::size(value));
-    return {std::data(buf), std::size(value)};
+    return {std::data(value), std::size(value)};
   }
 
   static constexpr std::size_t size_buffer(std::string const &value) noexcept
