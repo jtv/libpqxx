@@ -182,36 +182,26 @@ using ctx = conversion_context const &;
  */
 template<typename TYPE> struct string_traits final
 {
-  /// Is conversion from `TYPE` to strings supported?
-  /** When defining your own conversions, specialise this as `true` to indicate
-   * that your string traits support the conversions to strings.
-   */
-  static constexpr bool converts_to_string{false};
-
-  /// Is conversion from `string_view` to `TYPE` supported?
-  /** When defining your own conversions, specialise this as `true` to indicate
-   * that your string traits support `from_string`.
-   */
-  static constexpr bool converts_from_string{false};
-
   /// Return a @c string_view representing `value`.
-  /** Produces a view containing the PostgreSQL string representation for
-   * @c value.
+  /** Produces a view on a PostgreSQL string representation for @c value.
    *
    * @warning A null value has no string representation.  Do not pass a null.
    *
-   * Uses `buf` to store the string's contents, if needed.  The returned
-   * `string view` may lie somewhere in that buffer, or it may be a
-   * compile-time constant.  Even if it does store the string in the buffer,
-   * the string may not start at the exact beginning of `buf`.
+   * Uses `buf` to store string contents, _if needed._  The returned
+   * `string view` may point somewhere inside that buffer, or t a
+   * compile-time constant, or just directly to `value`.  Even if the string
+   * does live in `buf`, it may not start at the exact _beginning_ of `buf`.
    *
-   * The resulting view is guaranteed to be valid as long as the buffer space
-   * to which `buf` points remains accessible, and its contents unmodified.
+   * The resulting view stays valid for as long as both the buffer space to
+   * which `buf` points, and `value`, remain accessible and unmodified.
    *
    * @throws pqxx::conversion_overrun if `buf` is not large enough.  For
    * maximum performance, this is a conservative estimate.  It may complain
    * about a buffer which is actually large enough for your value, if an exact
    * check would be too expensive.
+   *
+   * If there is no support for converting this type to an SQL string, simply
+   * leave this function out of the struct.
    */
   [[nodiscard]] static inline std::string_view
   to_buf(std::span<char> buf, TYPE const &value, ctx = {});
@@ -226,6 +216,9 @@ template<typename TYPE> struct string_traits final
    * just getting a pointer into the original buffer.  So, the `string_view`
    * will become invalid when the original string's lifetime ends, or gets
    * overwritten.  Do not access the `string_view` you got after that!
+   *
+   * If there is no support for converting from an SQL string to this type,
+   * simply leave this function out of the struct.
    */
   [[nodiscard]] static inline TYPE
   from_string(std::string_view text, ctx = {});
@@ -240,51 +233,20 @@ template<typename TYPE> struct string_traits final
 };
 
 
-// C++26: Replace with `=delete("...")`.
-/// Nonexistent function to indicate a disallowed type conversion.
-/** There is no implementation for this function, so any reference to it will
- * fail to link.  The error message will mention the function name and its
- * template argument, as a deliberate message to an application developer that
- * their code is attempting to use a deliberately unsupported conversion.
- *
- * There are some C++ types that you may want to convert to or from SQL values,
- * but which libpqxx deliberately does not support.  Take `char` for example:
- * we define no conversions for that type because it is not inherently clear
- * whether whether the corresponding SQL type should be a single-character
- * string, a small integer, a raw byte value, etc.  The intention could differ
- * from one call site to the next.
- *
- * If an application attempts to convert these types, we try to make sure that
- * the compiler will issue an error involving this function name, and mention
- * the type, as a hint as to the reason.
- */
-template<typename TYPE> [[noreturn]] void oops_forbidden_conversion() noexcept;
-
-
 // C++26: Use "=delete" with reason.
 /// String traits for a forbidden type conversion.
 /** If you have a C++ type for which you explicitly wish to forbid SQL
  * conversion, you can derive a @ref pqxx::string_traits specialisation for
  * that type from this struct.  Any attempt to convert the type will then fail
- * to build, and produce an error mentioning @ref oops_forbidden_conversion.
+ * to build, and produce an error referring to this type.  It may help debug
+ * build errors.
  */
 template<typename TYPE> struct forbidden_conversion
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
   [[noreturn]] static std::string_view
-  to_buf(std::span<char>, TYPE const &, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static TYPE from_string(std::string_view, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
+  to_buf(std::span<char>, TYPE const &, ctx = {}) = delete;
+  [[noreturn]] static TYPE from_string(std::string_view, ctx = {}) = delete;
+  [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept = delete;
 };
 
 
@@ -443,7 +405,16 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
   // Be careful to use a memory "move," not a "copy."  Source and destination
   // may overlap (or be identical).
   if (not std::empty(out)) [[likely]]
+  {
+    if (std::cmp_greater(std::size(out), std::size(buf)))
+      throw conversion_overrun{
+        std::format(
+          "Buffer too small to convert {} value to string (needs a {}-byte "
+          "buffer).",
+          name_type<TYPE>(), std::size(out)),
+        c.loc};
     std::memmove(data, std::data(out), sz);
+  }
 
   return sz;
 }
@@ -531,9 +502,6 @@ template<typename ENUM> struct enum_traits
 {
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
-
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
 
   [[nodiscard]] static constexpr std::string_view
   to_buf(std::span<char> buf, ENUM const &value, ctx c = {})

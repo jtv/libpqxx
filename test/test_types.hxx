@@ -84,9 +84,6 @@ template<> struct nullness<ipv4> : no_null<ipv4>
 
 template<> struct string_traits<ipv4>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static ipv4 from_string(std::string_view text, sl loc = sl::current())
   {
     ipv4 ts;
@@ -174,9 +171,6 @@ template<> struct nullness<bytea> : no_null<bytea>
 
 template<> struct string_traits<bytea>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static bytea from_string(std::string_view text)
   {
     if ((std::size(text) & 1) != 0)

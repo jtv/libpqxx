@@ -36,7 +36,9 @@ void test_zview_converts_to_string()
   PQXX_CHECK_EQUAL(std::string{v}, "myview");
 
   auto const p{pqxx::into_buf(buf, "moreview"_zv)};
-  PQXX_CHECK(p == std::strlen("moreview"), "into_buf of zview did not store in buffer.");
+  PQXX_CHECK(
+    p == std::strlen("moreview"),
+    "into_buf of zview did not store in buffer.");
   PQXX_CHECK(buf.at(p - 1) == 'w');
   PQXX_CHECK_EQUAL((std::string{std::data(buf), p}), "moreview");
 }
