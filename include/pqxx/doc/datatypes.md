@@ -40,16 +40,16 @@ negative.  In such cases the conversion will throw a `conversion_error`.
 Or, your database table might have a text column, but a given field may contain
 a string that _looks_ just like a number.  You can convert that value to an
 integer type just fine.  Or to a floating-point type.  All that matters to the
-conversion is the actual value, and the type your code specifies.
+conversion is the actual value, and the type that your code specifies.
 
-In some cases the templates for these conversions can tell the type from the
-arguments you pass them:
+Conversions to strings can tell the type from the arguments you pass them:
 
 ```cxx
     auto x = to_string(99);
 ```
 
-In other cases you may need to instantiate the function template explicitly:
+For conversions in the other direction you need to instantiate the function
+template explicitly:
 
 ```cxx
     auto y = from_string<int>("99");
@@ -76,9 +76,10 @@ the standard library that libpqxx does not yet support.
 
 First thing to do is specialise the `pqxx::name_type()` function to give the
 type a human-readable name.  That allows libpqxx error messages and such to
-talk about the type.  If you don't define a name, libpqxx will try to figure
-one out with some help from the compiler, but it may not always be easy to
-read.
+talk about the type in a clear way.  If you don't define it, libpqxx will try
+to figure one out with some help from the compiler, but it may not always be
+easy to read.  In C++26 we expect to get a standard way to query the anme, but
+until then it's a bit messy.
 
 Then, does your type have a built-in null value?  For example, a `char *` can
 be null on the C++ side.  Or some types are _always_ null, such as `nullptr`.
@@ -94,21 +95,21 @@ Your type
 ---------
 
 You'll need a type for which the conversions are not yet defined, because the
-C++ type is what determines the right conversion.  One type, one set of
-conversions.
+C++ type is what determines the right conversion.  One type gets one pair of
+conversions (to/from SQL strings).
 
 The type doesn't have to be one that you create.  The conversion logic was
 designed such that you can build it around any type.  So you can just as
 easily build a conversion for a type that's defined somewhere else.  There's
 no need to include any special methods or other members inside the type itself.
-That's also why libpqxx can convert built-in types like `int`.
+This is also why libpqxx can convert built-in types like `int`.
 
-By the way, if the type is an enum, you don't need to do any of this.  Just
-invoke the preprocessor macro `PQXX_DECLARE_ENUM_CONVERSION`, from the global
-namespace near the top of your translation unit, and pass the type as an
-argument.
+By the way, if the type is an enum (let's say it's called `my_enum`), you don't
+need to do any of this.  Just invoke the preprocessor macro
+`PQXX_DECLARE_ENUM_CONVERSION(my_enum)`, from the global namespace near the top
+of your translation unit.
 
-The library also provides specialisations for `std::optional<T>`,
+The library also provides conversions for `std::optional<T>`,
 `std::shared_ptr<T>`, and `std::unique_ptr<T>` (for any given `T`).  If you
 have conversions for `T`, you'll also automatically have conversions for those.
 
@@ -117,14 +118,15 @@ Specialise `name_type()`
 ------------------------
 
 (This is a feature that should disappear once we have introspection in the C++
-language.)
+language.  The current expectation is that C++26 will have a standard, reliable
+way for the code to obtain a type's name.)
 
-When errors happen during conversion, libpqxx will an compose error message for
-the user.  Sometimes this message will mentio the name of the type that's being
-converted.
+When errors happen during conversion, libpqxx will compose an error message
+that the application can show to the user, or write to a log.  Sometimes this
+message will need to mention the name of the type that's being converted.
 
 By default, this will probably work fine on some compilers, or the name may
-come out a little strange on other compilers, but some may make it harder to
+come out a little strange on other compilers, but some make the names harder to
 recognise.  So it can help to define a name yourself.
 
 To tell libpqxx the human-readable name of a type `T`, there's a function
@@ -187,7 +189,7 @@ parameters to SQL statements, or quoting-and-escaping values for inclusion in
 SQL statements as literal values.
 
 If your type has a natural null value, the definition for `nullness` gets a
-little more complex than the one abov:
+little more complex than the one above:
 
 ```cxx
     namespace pqxx
@@ -198,34 +200,34 @@ little more complex than the one abov:
       // Does T have a value that should translate to an SQL null?
       static constexpr bool has_null{true};
 
-      // Does this C++ type always denote an SQL null, like with nullptr_t?
+      // Does this C++ type _always_ denote an SQL null, like with nullptr_t?
       static constexpr bool always_null{false};
 
+      // Is `value` a null?
       static bool is_null(T const &value)
       {
-        // Return whether "value" is null.
         return ...;
       }
 
+      // Return a null.
       [[nodiscard]] static T null()
       {
-        // Return a null value.
         return ...;
       }
     };
     }
 ```
 
-If you have a type like `int` that doesn't have a null value but you need to
-pass or parse an SQL value that may be null, you can use `std::optional<int>`
-instead.  An `optional` without a value is a null.
+(In writing an application, if you have a type like `int` that doesn't have a
+null value but you need to pass or parse an SQL value that may be null, you can
+use `std::optional<int>` instead.  An `optional` without a value is a null.)
 
 You may be wondering why there's a function to produce a null value, but also a
 function to check whether a value is null.  Why not just compare the value to
-the result of `null()`?  Because two null values may not be equal (like in SQL,
-where `NULL` is not equal to `NULL`).  Or `T` may have multiple different null
-values.  Or `T` may override the comparison operator to behave in some unusual
-way.
+the result of `null()`?  Because two null values may not be equal.  It could be
+like in SQL, where `NULL` is not equal to anything including `NULL`.  Or there
+may be several different null values.  Or `T` may override the comparison
+operator to behave in some unusual way.
 
 As a third case, your type may be one that _always_ represents a null value.
 This is the case for `std::nullptr_t` and `std::nullopt_t`.  In a case like
@@ -236,14 +238,14 @@ of course), and you won't need to define any actual conversions.
 Specialise `string_traits`
 -------------------------
 
-This part is the most work.  You can skip it for types that are _always_ null,
+This part is the most work.  You can skip it for types that are always null,
 but those will be rare.
 
 The APIs for doing this are designed to avoid, where opssible, the need to
-allocate memory on the free store, also known as "the heap".  In other words,
-the API minimises use of `new`/`delete`, even ones hidden inside `std::string`,
+allocate memory on the free store (a.k.a. "the heap").  In other words, the API
+minimises use of `new`/`delete`, even ones hidden inside `std::string`,
 `std::vector`, etc.  The conversion API allows you to use `std::string` for
-convenience, or fixed memory buffers for speed.
+convenience, or fixed memory buffers for maximum speed.
 
 Start by specialising the `pqxx::string_traits` template.  You don't absolutely
 have to implement all parts of this API.  Generally, if it compilers, you're OK
