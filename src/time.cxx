@@ -177,27 +177,6 @@ std::string make_parse_error(std::string_view text)
 
 namespace pqxx
 {
-std::size_t string_traits<std::chrono::year_month_day>::into_buf(
-  std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
-{
-  if (std::size(buf) < size_buffer(value))
-    throw conversion_overrun{"Not enough room in buffer for date.", c.loc};
-  auto here{std::data(buf)};
-  // XXX: Pass c.
-  here = year_into_buf(here, value.year());
-  *here++ = '-';
-  here = month_into_buf(here, value.month());
-  *here++ = '-';
-  here = day_into_buf(here, value.day());
-  if (int{value.year()} <= 0) [[unlikely]]
-    here += s_bc.copy(here, std::size(s_bc));
-  *here++ = '\0';
-  // XXX: Retire assertion once confident.
-  assert(here >= std::data(buf));
-  return static_cast<std::size_t>(here - std::data(buf));
-}
-
-
 std::string_view string_traits<std::chrono::year_month_day>::to_buf(
   std::span<char> buf, std::chrono::year_month_day const &value, ctx c)
 {

@@ -180,17 +180,6 @@ string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
 }
 
 
-template<pqxx::internal::integer T>
-inline std::size_t
-string_traits<T>::into_buf(std::span<char> buf, T const &value, ctx c)
-{
-  // This is exactly what to_chars is good at.  Trust standard library
-  // implementers to optimise better than we can.
-  return static_cast<std::size_t>(
-    wrap_to_chars(buf, value, c.loc) - std::data(buf));
-}
-
-
 template struct string_traits<short>;
 template struct string_traits<unsigned short>;
 template struct string_traits<int>;
@@ -448,19 +437,6 @@ float_string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
         c.loc};
     return {begin, static_cast<std::size_t>(res.size)};
   }
-#endif
-}
-
-
-template<std::floating_point T>
-std::size_t
-float_string_traits<T>::into_buf(std::span<char> buf, T const &value, ctx c)
-{
-#if defined(PQXX_HAVE_CHARCONV_FLOAT)
-  return static_cast<std::size_t>(
-    wrap_to_chars(buf, value, c.loc) - std::data(buf));
-#else
-  return generic_into_buf(buf, value, c.loc);
 #endif
 }
 
