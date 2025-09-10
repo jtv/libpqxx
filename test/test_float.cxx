@@ -105,8 +105,8 @@ template<typename T> void test_float_length(T value)
 {
   auto const text{pqxx::to_string(value)};
   PQXX_CHECK_GREATER_EQUAL(
-    pqxx::size_buffer(value), std::size(text) + 1,
-    "Not enough buffer space for " + text + ".");
+    pqxx::size_buffer(value), std::size(text),
+    std::format("Not enough buffer space for '{}'.", text));
 }
 
 
