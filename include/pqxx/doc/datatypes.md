@@ -239,7 +239,7 @@ Specialise `string_traits`
 -------------------------
 
 This part is the most work.  You can skip it for types that are always null,
-but those will be rare.
+but of course those are extremely rare.
 
 The APIs for doing this are designed to avoid, where opssible, the need to
 allocate memory on the free store (a.k.a. "the heap").  In other words, the API
@@ -247,13 +247,14 @@ minimises use of `new`/`delete`, even ones hidden inside `std::string`,
 `std::vector`, etc.  The conversion API allows you to use `std::string` for
 convenience, or fixed memory buffers for maximum speed.
 
-Start by specialising the `pqxx::string_traits` template.  You don't absolutely
-have to implement all parts of this API.  Generally, if it compilers, you're OK
-for the time being.  Just bear in mind that future libpqxx versions may change
-the API — or how it uses the API internally.  In fact libpqxx 8.0 extends the
-conversion API in several ways.
+Start by specialising the `pqxx::string_traits` template.  It has conversion
+functions going in both directions: from a C++ value to an SQL string, and from
+an SQL string to a C++ value.  You don't absolutely have to implement both.
+Generally, if the code you need compiles, you're OK for the time being.  Just
+bear in mind that future libpqxx versions may change the API — or how it uses
+the API internally.  In fact libpqxx 8.0 made a lot of changes compared to 7.x.
 
-As of 8.0, this is what a specialisation of `string_traits` should look like:
+As of 8.0, this is what a full specialisation of `string_traits` looks like:
 
 ```cxx
     namespace pqxx
@@ -261,76 +262,87 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
     // T is your type.
     template<> struct string_traits<T>
     {
-      // If you support conversion _to_ string:
+      // If you support conversion _to_ an SQL string:
 
       // Represent `value` as a string, using `buf` for storage if needed.
       // (But the result may live somewhere outside the buffer, or lie inside
-      // it but not start exactly at the beginning of the buffer.)
-      static std::strnig_view to_buf(
-        std::span<char>, T const &value, ctx c = {});
+      // it but not start exactly at the beginning of the buffer.  It may even
+      // be a reference back to `value` itself.)
+      //
+      // We'll explain the context `c` further down.
+      static [[nodiscard]] std::string_view to_buf(
+        std::span<char> buf, T const &value, ctx c = {});
 
-      // Converting value to string may require this much buffer space at most.
-      static std::size_t size_buffer(T const &value) noexcept;
+      // Converting value to string may require at most this much buffer space.
+      static [[nodiscard]] std::size_t size_buffer(T const &value) noexcept;
 
-      // If you support conversion _from_ string:
+      // If you support conversion _from_ an SQL string:
 
-      // Parse text as a T value.
-      static T from_string(std::string_view text, ctx c = {});
+      // Parse `text` as a T value.
+      static [[nodiscard]] T from_string(std::string_view text, ctx c = {});
     };
     }
 ```
 
-You'll also need to write those member functions, or as many of them as needed
-to get your code to build.
+In your own code, you typically wouldn't call these functions yourself by the
+way.  Instead you'd call global wrappers: `pqxx::to_string()`,
+`pqxx::to_buf()`, `pqxx::into_buf()` (it's subtly different), and
+`pqxx::size_buffer()`.
 
 
 ### `ctx`
 
-Notice those `ctx` parameters, with a default value of `{}`?  (The
-conventional name for that parameter in libpqxx is `c`, but feel free to name
-it differently.  It's nice to have it short though, since this parameter is
-al over the API.)
+Notice those `ctx` parameters, with a default value of `{}`?  These hold some
+additional "context" information for the conversion.  It has no clearly
+defined role, except to hold extra information that your conversion may or may
+not need.  Passing it in this way makes it easier for libpqxx to extend the
+conversion API further in the future without breaking compatibility.
 
-These parameters are `pqxx::conversion_context` objects (`pqxx::ctx` is an
-alias for `pqxx::conversion_cnotext const &`).  This is for passing some
-context information to the conversions, in a waay that makes it easy to add
-more in future iterations wthout breaking API compatibility.  This is new in
-libpqxx 8.0
+The name `ctx` is shorthand for `pqxx::conversion_context const t&`.  There
+are reasonable defaults for every item in there, so it's acceptable for a
+caller to leave it out.
 
-As of 8.0, `conversion_context` contains:
+As of libpqxx 8.0, `conversion_context` contains:
 * `pqxx::encoding_group enc`.  This tells the conversion just enough about the
   text's encoding do to its job.  It doesn't say exactly whether the text is in
   UTF-8, or Latin-15, or EUC-KR, and so on.  But it's enough that the code can
   figure out where each character begins and ends, which is all the
   understanding that it really needs.
-* `std::source_location loc`.  We abbreviat that type as `pqxx::sl` because it
+  which is all that most conversions need.
+* `std::source_location loc`.  We abbreviate that type as `pqxx::sl` because it
   shows up in so many places.  In case the conversion throws an exception, the
-  exception can include this source location as a hint for wehre it happened.
-  It's not always possible but generally it should be the location where you
-  originally called libpqxx code that led to the error.
+  exception can include this source location in its message as a debugging
+  hint.
 
 There may be more fields in the future.
 
-The encoding group defaults to a special group, `UNKNOWN`.  If your conversion
-needs to know what kind of encoding the text has, you'll have to figure out why
-it didn't receive that information.  Ultimately it should come from the
-`pqxx::connection` object, but the chain of information to your conversion may
-not alwaays be complete.  It may be necessary to file a bug ticket.
+The encoding group defaults to a special group, `unknown`.  This is good enough
+for dealing with plain ASCII text, which is all that most conversions need.
+If your conversion does need to know the text's encoding, it is up to the code
+calling the conversion to pass that information along.
+
+The source location defaults to the location of the immediate calling code.
+But if that caller is also within libpqxx, this isn't usually very helpful to
+application authors trying to debug errors.  Therefore we try to pass the
+location where control last transferred from the application into libpqxx.
 
 
 ### `from_string`
 
 Now we start implementing the functions.  We start off simple: `from_string`
-parses a string as a value of `T` (your type) and returns that value.
+parses a string as an SQL value and translates it into a C++ value of type `T`
+(your type).
 
-The string may or may not be zero-terminated; it's just the `string_view` from
-beginning to end.  In your tests, be sure to cover cases where the string does
-not end in a zero byte!
+The string is a `std::string_view`, which means it doesn't necessarily end in
+a terminating zero.  In many situations there will still be a zero just after
+the string, so be sure to have your tests cover cases where there's a non-zero
+byte behind the string!
 
-It's perfectly possible that the string doesn't actually represent a `T` value.
+It's always possible that the string doesn't actually represent a `T` value.
 Mistakes happen.  There can be corner cases.  Maybe a value is outside the
-range you can reasonably support.  When you run into this, throw a
-`pqxx::conversion_error`.
+range you can reasonably support, such as when you're trying to read an SQL
+`integer` into an `unsigned int` and it happens to be negative.  When you run
+into that kind of thing, throw a `pqxx::conversion_error`.
 
 (Of course it's also possible that you run into some other error, so it's fine
 to throw different exceptions as well.  But when it's definitely "this is not
@@ -345,13 +357,15 @@ server will understand.
 The caller will provide you with a buffer where you can write the string, if
 you need it.  But for this function it doesn't really matter where you store
 the string: somewhere inside the buffer, or as a string constant, or even by
-referring to the input value.  The buffer is just there for the common case
-that you need it.
+referring to the input value.  The buffer is just there in case that you need
+it.  Usually you do.
 
-If you need the buffer but it's not large enough for your conversion's needs,
-throw a `pqxx::conversion_overrun`.  It doesn't have to be exact: you can be a
-little pessimistic and demand a bit more space than you need.  Just be sure to
-throw the exception if there's any risk of overrunning the buffer.
+What you can _not_ do is allocate some memory to store your SQL text.  If `buf`
+is not large enough to store your output, throw a `pqxx::conversion_overrun`.
+This doesn't have to be exact: you can be a little pessimistic and demand a bit
+more space than you actually need.  We'll get to the negotiation for how much
+buffer space you need later.  Just be sure to throw the exception if there's
+any risk of overrunning the buffer.
 
 Beware of locales when converting.  If you use standard library features like
 `sprintf`, they may obey whatever locale is currently set on the system where
@@ -362,17 +376,18 @@ happen, or it will confuse things.  Use only non-locale-sensitive library
 functions.  Values coming from or going to the database should be in fixed,
 non-localised formats.
 
-If your conversions need to deal with fields in types that libpqxx already
-supports, you can use the conversion functions for those: `pqxx::from_string`,
-`pqxx::to_string`, `pqxx::to_buf`.  They in turn will call the `string_traits`
-specialisations for those types.  Or, you can call their `string_traits`
-directly.
+If your type contains fields of types that libpqxx already supports, you can
+use the existing conversion functions for those: `pqxx::from_string`,
+`pqxx::to_string`, `pqxx::to_buf`, etc.  They in turn will call the
+`string_traits` specialisations for those types.  For example, if you wanted to
+convert a date, you might use the `int` conversions for each of the year,
+month, and date numbers.
 
 
 ### `size_buffer`
 
-Here you estimate how much buffer space you may need for converting a `T` to a
-string.  Be precise if you can, but pessimistic if you must.  It's usually
+Here you estimate how much buffer space you may need for converting a `T` to an
+SQL string.  Be precise if you can, but pessimistic if you must.  It's usually
 better to waste a few bytes of space than to spend a lot of time computing
 the exact buffer space you need.  And failing the conversion because you
 under-budgeted the buffer is worst of all.
