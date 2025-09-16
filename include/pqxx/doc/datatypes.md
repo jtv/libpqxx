@@ -469,9 +469,9 @@ parameter a binary string, or not?  In the normal case it can assume "no," and
 that's what it does.  The text format is always a safe choice; we just try to
 use the binary format where it's faster, and safe.
 
-The `param_format` function template is what drives the decision.  We specialise
-it for types which may be binary strings, and use the default for all other
-types.
+The `param_format` function template is what drives the decision.  We
+specialise it for types which may be binary strings, and use the default for
+all other types.
 
 "Types which _may_ be binary"?  You might think we know whether a type is a
 binary type or not.  But there are some complications with generic types.
