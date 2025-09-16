@@ -450,9 +450,10 @@ all types of parameters.
 
 But we do it differently when the parameter is a contiguous series of raw bytes
 and the corresponding SQL type is `BYTEA`.  There is a text format for those,
-but we bypass it for efficiency.  The server can use the binary data in the
-exact same form, without any conversion or extra processing.  The binary data
-is also twice as compact during transport.
+but we bypass it for efficiency.  In this situation the server can use the
+binary data in the exact same form in which you provide it, without any
+conversion or extra processing.  The binary data for BYTEA is also twice as
+compact during transport.
 
 (People sometimes ask why we can't just treat all types as binary.  However the
 general case isn't so clear-cut.  The binary formats are not documented, there
@@ -466,9 +467,9 @@ stands out as a clear win.)
 Long story short, the machinery for passing parameters needs to know: is this
 parameter a binary string, or not?  In the normal case it can assume "no," and
 that's what it does.  The text format is always a safe choice; we just try to
-use the binary format where it's faster.
+use the binary format where it's faster, and safe.
 
-The `param_format` function template is what makes the decision.  We specialise
+The `param_format` function template is what drives the decision.  We specialise
 it for types which may be binary strings, and use the default for all other
 types.
 
@@ -477,13 +478,10 @@ binary type or not.  But there are some complications with generic types.
 
 Templates like `std::shared_ptr`, `std::optional`, and so on act like
 "wrappers" for another type.  A `std::optional<T>` is binary if `T` is binary.
-Otherwise, it's not.  If you're building support for a template of this nature,
-you'll probably want to implement `param_format` for it.
-
-The decision to use binary format is made based on a given object, not
-necessarily based on the type in general.  Look at `std::variant`.  If you have
-a `std::variant` type which can hold an `int` or a binary string, is that a
-binary parameter?  We can't decide without knowing the individual object.
+Otherwise, it's not.  And `std::variant` may contain wildly different types, so
+the decision can even be based on the individual object rather than just the
+type.  If you're building support for a template of this nature, you'll
+probably want to implement `param_format` for it.
 
 Containers are another hard case.  Should we pass `std::vector<T>` in binary?
 Even when `T` is a binary type, we don't currently have any way to pass an
