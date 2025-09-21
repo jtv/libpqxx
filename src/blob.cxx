@@ -49,7 +49,8 @@ pqxx::blob::open_internal(dbtransaction &tx, oid id, int mode, sl loc)
   int const fd{lo_open(raw_conn(&cx), id, mode)};
   if (fd == -1)
     throw pqxx::failure{
-      std::format("Could not open binary large object {}: ", id, errmsg(&cx)),
+      std::format(
+        "Could not open binary large object {}: {}", id, errmsg(&cx)),
       loc};
   return {cx, fd};
 }
@@ -75,7 +76,7 @@ void pqxx::blob::remove(dbtransaction &tx, oid id, sl loc)
   if (lo_unlink(raw_conn(tx), id) == -1)
     throw failure{
       std::format(
-        "Could not delete large object {}: ", id, errmsg(&tx.conn())),
+        "Could not delete large object {}: {}", id, errmsg(&tx.conn())),
       loc};
 }
 
@@ -337,7 +338,7 @@ pqxx::oid pqxx::blob::from_file(dbtransaction &tx, zview path, oid id, sl loc)
   if (actual_id == 0)
     throw failure{
       std::format(
-        "Could not import '{}' as binary large object : {}", to_string(path),
+        "Could not import '{}' as binary large object {}: {}", to_string(path),
         id, errmsg(tx)),
       loc};
   return actual_id;

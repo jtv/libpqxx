@@ -91,7 +91,7 @@ pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{std::format(
-      "Could not import file '{}' to large object: ", file,
+      "Could not import file '{}' to large object: {}", file,
       reason(t.conn(), err))};
   }
 }
@@ -129,7 +129,7 @@ void PQXX_COLD pqxx::largeobject::remove(dbtransaction &t) const
     if (err == ENOMEM)
       throw std::bad_alloc{};
     throw failure{std::format(
-      "Could not delete large object : {}", m_id, reason(t.conn(), err))};
+      "Could not delete large object {}: {}", m_id, reason(t.conn(), err))};
   }
 }
 
