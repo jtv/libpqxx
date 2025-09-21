@@ -188,7 +188,7 @@ template<typename TYPE> struct string_traits final
    * @warning A null value has no string representation.  Do not pass a null.
    *
    * Uses `buf` to store string contents, _if needed._  The returned
-   * `string view` may point somewhere inside that buffer, or t a
+   * `string view` may point somewhere inside that buffer, or to a
    * compile-time constant, or just directly to `value`.  Even if the string
    * does live in `buf`, it may not start at the exact _beginning_ of `buf`.
    *
