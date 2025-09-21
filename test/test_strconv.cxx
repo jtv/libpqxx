@@ -376,10 +376,34 @@ void test_to_buf_into_buf()
 }
 
 
+void test_to_buf_multi()
+{
+  std::vector<char> buf{};
+  buf.resize(50);
+  auto strings{pqxx::to_buf_multi(buf, "foo", -1025, "bar", 3ul, "zarg")};
+  PQXX_CHECK_EQUAL(std::size(strings), 5u);
+  PQXX_CHECK_EQUAL(strings.at(0), "foo");
+  PQXX_CHECK_EQUAL(strings.at(1), "-1025");
+  PQXX_CHECK_EQUAL(strings.at(2), "bar");
+  PQXX_CHECK_EQUAL(strings.at(3), "3");
+  PQXX_CHECK_EQUAL(strings.at(4), "zarg");
+
+  // The strings start right at the beginning of buf.
+  PQXX_CHECK(std::data(strings.at(0)) == std::data(buf));
+
+  // The strings are packed tightly together.
+  for (std::size_t i{1}; i < std::size(strings); ++i)
+    PQXX_CHECK(
+      std::data(strings.at(i)) ==
+      std::data(strings.at(i - 1)) + std::size(strings.at(i - 1)));
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
 PQXX_REGISTER_TEST(test_strconv_optional);
 PQXX_REGISTER_TEST(test_strconv_smart_pointer);
 PQXX_REGISTER_TEST(test_to_buf_into_buf);
+PQXX_REGISTER_TEST(test_to_buf_multi);
 } // namespace

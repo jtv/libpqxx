@@ -590,7 +590,6 @@ to_buf(char *begin, char const *end, TYPE... value)
 }
 
 
-// XXX: Test!
 /// Convert multiple values to strings inside a single buffer.
 /** There must be enough room for all values, or this will throw
  * @c conversion_overrun.  You can obtain a conservative estimate of the buffer
@@ -603,7 +602,8 @@ template<typename... TYPE>
 inline std::vector<std::string_view>
 to_buf_multi(std::span<char> buf, TYPE... value)
 {
-  auto here{0u};
+  // TODO: Would it be worth merging consecutive identical strings?
+  std::size_t here{0u};
   return {[&here, buf](auto v) {
     auto start{here};
     here += pqxx::into_buf(buf.subspan(start), v);
