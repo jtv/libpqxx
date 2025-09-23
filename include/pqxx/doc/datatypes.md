@@ -78,7 +78,7 @@ First thing to do is specialise the `pqxx::name_type()` function to give the
 type a human-readable name.  That allows libpqxx error messages and such to
 talk about the type in a clear way.  If you don't define it, libpqxx will try
 to figure one out with some help from the compiler, but it may not always be
-easy to read.  In C++26 we expect to get a standard way to query the anme, but
+easy to read.  In C++26 we expect to get a standard way to query the name, but
 until then it's a bit messy.
 
 Then, does your type have a built-in null value?  For example, a `char *` can
