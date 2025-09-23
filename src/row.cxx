@@ -52,7 +52,7 @@ pqxx::field_ref pqxx::row::operator[](size_type i) const noexcept
 
 pqxx::field_ref pqxx::row_ref::operator[](zview col_name) const
 {
-  sl const loc{sl::current()};
+  static constexpr sl loc{sl::current()};
   return at(col_name, loc);
 }
 
