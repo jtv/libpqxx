@@ -248,7 +248,6 @@ public:
     return conn().quote(t, loc);
   }
 
-  // TODO: "Into buffer" variant.
   /// Binary-escape and quote a binary string for use as an SQL constant.
   /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>

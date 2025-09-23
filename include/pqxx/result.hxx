@@ -431,11 +431,11 @@ public:
       // TODO: See whether result contains a generated statement.
       if (not m_query or m_query->empty())
         throw usage_error{
-          std::format("Expected 1 column from query, got {}.", actual), loc};
+          std::format("Expected {} column(s) from query, got {}.", cols, actual), loc};
       else
         throw usage_error{
           std::format(
-            "Expected 1 column from query '{}', got {}.", *m_query, actual),
+            "Expected {} column(s) from query '{}', got {}.", cols, *m_query, actual),
           loc};
     }
     return *this;

@@ -377,7 +377,10 @@ pqxx::result::size_type pqxx::result::affected_rows() const
   std::string_view const rows_str{
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
-  return from_string<size_type>(rows_str);
+
+  // rows_str may be empty in case the query executed was a `SET <variable> =
+  // ''`
+  return rows_str.empty() ? 0 : from_string<size_type>(rows_str);
 }
 
 
