@@ -158,7 +158,7 @@ EOF
 
     # Run Facebook's "infer" static analyser, if available.
     # A "pip install" didn't work for me: No module named 'nltk'.  Even if
-    # nltk was installed
+    # nltk was installed.
     #
     # Instructions here: https://fbinfer.com/docs/getting-started/
     if which infer >/dev/null
