@@ -64,14 +64,6 @@ count_includes() {
 }
 
 
-clean_up() {
-    if test -n "${TEMPDIR:-}" -a -d "${TEMPDIR:-}"
-    then
-        rm -r -- "$TEMPDIR"
-    fi
-}
-
-
 # Check that any includes of $1-pre.hxx are matched by $1-post.hxx ones.
 # TODO: Probably time to rewrite this in python.
 match_pre_post_headers() {
@@ -79,7 +71,9 @@ match_pre_post_headers() {
     NAME="$1"
     TEMPDIR="$(mktemp -d)"
 
-    trap clean_up EXIT
+    # In case we get interrupted before we can clean up $TEMPDIR ourselves.
+    # (Next invocation will overwrite the trap.)
+    trap "rm -rf -- '$TEMPDIR'"  EXIT
 
     PRE="$TEMPDIR/pre"
     POST="$TEMPDIR/post"
@@ -87,7 +81,7 @@ match_pre_post_headers() {
     count_includes "$SRCDIR/$NAME-post.hxx" >"$POST"
     DIFF="$(diff "$PRE" "$POST")" || true
 
-    clean_up
+    rm -rf -- "$TEMPDIR"
 
     if test -n "$DIFF"
     then
