@@ -84,9 +84,6 @@ template<> struct nullness<ipv4> : no_null<ipv4>
 
 template<> struct string_traits<ipv4>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static ipv4 from_string(std::string_view text, sl loc = sl::current())
   {
     ipv4 ts;
@@ -113,25 +110,24 @@ template<> struct string_traits<ipv4>
     return ts;
   }
 
-  static char *into_buf(char *begin, char *end, ipv4 const &value)
+  static std::string_view
+  to_buf(std::span<char> buf, ipv4 const &value, ctx c = {})
   {
-    if (std::cmp_less(end - begin, size_buffer(value)))
-      throw conversion_error{"Buffer too small for ipv4."};
-    char *here = begin;
+    if (std::cmp_less(std::size(buf), size_buffer(value)))
+      throw conversion_error{"Buffer too small for ipv4.", c.loc};
+
+    auto tmp{buf};
     for (int i = 0; i < 4; ++i)
     {
-      here = string_traits<unsigned>::into_buf(here, end, value[i]);
-      *(here - 1) = '.';
+      auto const octet{pqxx::into_buf(tmp, value[i], c)};
+      // C++26: Use at().
+      tmp[octet] = '.';
+      tmp = tmp.subspan(octet + 1);
     }
-    *(here - 1) = '\0';
-    return here;
-  }
-
-  static zview to_buf(char *begin, char *end, ipv4 const &value)
-  {
-    return zview{
-      begin,
-      static_cast<std::size_t>(into_buf(begin, end, value) - begin - 1)};
+    // Return the composed string, but leave off the trailing dot.
+    return {
+      std::data(buf),
+      static_cast<std::size_t>(std::data(tmp) - std::data(buf)) - 1};
   }
 
   static constexpr std::size_t size_buffer(ipv4 const &) noexcept
@@ -175,9 +171,6 @@ template<> struct nullness<bytea> : no_null<bytea>
 
 template<> struct string_traits<bytea>
 {
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static bytea from_string(std::string_view text)
   {
     if ((std::size(text) & 1) != 0)

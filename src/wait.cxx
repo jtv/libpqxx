@@ -91,7 +91,7 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 
 void pqxx::internal::wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds,
-  unsigned microseconds, sl loc)
+  unsigned microseconds, [[maybe_unused]] sl loc)
 {
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
