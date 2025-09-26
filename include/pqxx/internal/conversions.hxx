@@ -76,7 +76,7 @@ template<pqxx::internal::char_type CHAR_TYPE>
 struct disallowed_ambiguous_char_conversion
 {
   static constexpr zview
-  to_buf(char *, char *, CHAR_TYPE const &) noexcept = delete;
+  to_buf(std::span<char>, CHAR_TYPE const &, ctx = {}) noexcept = delete;
 
   static constexpr std::size_t
   size_buffer(CHAR_TYPE const &) noexcept = delete;
@@ -251,7 +251,8 @@ template<> struct string_traits<bool>
 {
   static PQXX_LIBEXPORT bool from_string(std::string_view text);
 
-  static constexpr zview to_buf(char *, char *, bool const &value) noexcept
+  static constexpr zview
+  to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
   {
     return value ? "true"_zv : "false"_zv;
   }
@@ -533,7 +534,7 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
 template<std::size_t N> struct string_traits<char[N]>
 {
   static constexpr zview
-  to_buf(char *, char *, char const (&value)[N]) noexcept
+  to_buf(std::span<char>, char const (&value)[N], ctx = {}) noexcept
   {
     return zview{value, N - 1};
   }
@@ -618,7 +619,10 @@ template<> struct string_traits<zview>
     return std::size(value);
   }
 
-  static zview to_buf(char *, char *, zview const &value) { return value; }
+  static constexpr zview to_buf(std::span<char>, zview const &value, ctx = {})
+  {
+    return value;
+  }
 
   /// Don't convert to this type.  There may not be a terminating zero.
   /** There is no valid way to figure out here whether there is a terminating
@@ -645,7 +649,7 @@ template<> struct string_traits<std::stringstream>
   }
 
   static std::string_view
-  to_buf(char *, char *, std::stringstream const &) = delete;
+  to_buf(std::span<char>, std::stringstream const &, ctx = {}) = delete;
 };
 
 

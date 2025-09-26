@@ -32,8 +32,7 @@ void test_zview_converts_to_string()
 
   std::array<char, 100> buf{};
 
-  auto const v{traits::to_buf(
-    std::data(buf), std::data(buf) + std::size(buf), "myview"_zv)};
+  auto const v{traits::to_buf(buf, "myview"_zv)};
   PQXX_CHECK_EQUAL(std::string{v}, "myview");
 
   auto const p{pqxx::into_buf(buf, "moreview"_zv)};
