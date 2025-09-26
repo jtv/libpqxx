@@ -58,7 +58,7 @@ jobs:
           command: make -j4
       - run:
           name: Test
-          command: PGDATA=db/data make -j4 check || ( cat test-suite.log ; exit 1 )
+          command: pipx ensurepath && PGDATA=db/data make -j4 check || ( cat test-suite.log ; exit 1 )
 # Not working on gcc 13 image for some reason:
 #      - run:
 #          name: Analyse
