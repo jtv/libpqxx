@@ -73,7 +73,7 @@ match_pre_post_headers() {
 
     # In case we get interrupted before we can clean up $TEMPDIR ourselves.
     # (Next invocation will overwrite the trap.)
-    trap "rm -rf -- '$TEMPDIR'"  EXIT
+    trap 'rm -rf -- "$TEMPDIR"'  EXIT
 
     PRE="$TEMPDIR/pre"
     POST="$TEMPDIR/post"
