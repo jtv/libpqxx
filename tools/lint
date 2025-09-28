@@ -182,6 +182,12 @@ shelllint() {
 }
 
 
+check_cmake() {
+    find "$SRCDIR" -name '*.cmake' -exec \
+        uv run --with=cmake-format cmake-lint --suppress-decorations '{}' '+'
+}
+
+
 main() {
     local full="no"
     for arg in $ARGS
@@ -213,6 +219,7 @@ EOF
     shelllint
     check_news_version
     check_compiler_internal_headers
+    check_cmake
     if [ $full == "yes" ]
     then
         cpplint
