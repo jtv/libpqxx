@@ -42,6 +42,7 @@ jobs:
       - name: Build
         run: |
             gcc --version
+            snap install astral-uv
             sudo apt-get install -y postgresql virtualenv
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
