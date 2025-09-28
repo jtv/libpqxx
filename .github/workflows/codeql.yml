@@ -42,9 +42,10 @@ jobs:
       - name: Build
         run: |
             gcc --version
-            sudo apt-get update
-            sudo apt-get -y upgrade
-            sudo apt-get install -y postgresql virtualenv pipx
+            whoami
+            sudo apt-get -q update
+            sudo apt-get -q -y upgrade
+            sudo apt-get -q install -y postgresql virtualenv pipx
             sudo pipx install uv
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
