@@ -11,7 +11,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: debian-latest
     permissions:
       actions: read
       contents: read
@@ -42,14 +42,17 @@ jobs:
       - name: Build
         run: |
             gcc --version
-            sudo apt-get install -y postgresql virtualenv
+            #sudo apt-get -q update
+            #sudo apt-get -q -y upgrade
+            sudo apt-get -q install -y postgresql virtualenv pipx
+            sudo pipx install uv
             sudo service postgresql start
             sudo su postgres -c "createuser --createdb $(whoami)"
             createdb "$(whoami)"
             # Using clang because currently the gcc build fails with an
             # address sanitizer (asan) link error.
             ./configure --enable-maintainer-mode --enable-audit --disable-static CXXFLAGS='-O1 -std=c++20' CXX=clang++
-            make -j4 check || (cat test-suite.log && exit 1 || true)
+            PATH="$PATH:$HOME/.local/bin" make -j4 check || (cat test-suite.log && exit 1 || true)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
