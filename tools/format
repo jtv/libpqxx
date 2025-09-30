@@ -4,7 +4,7 @@
 #
 # This script requires "uv" to be installed.
 
-set -C -u -e
+set -C -u -e -o pipefail
 
 # Reformat C++ files.
 find . -name '*.[ch]xx' -print0 | xargs -0 clang-format -i
