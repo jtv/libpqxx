@@ -140,7 +140,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
     default: break;
     }
   [[unlikely]] throw argument_error{
-    std::format("Unrecognized encoding: '{}'.", to_string(encoding_name)),
+    std::format("Unrecognized encoding: '{}'.", encoding_name),
     loc};
 }
 
