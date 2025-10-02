@@ -75,7 +75,7 @@ throw_null_conversion(std::string_view type, sl);
 template<pqxx::internal::char_type CHAR_TYPE>
 struct disallowed_ambiguous_char_conversion
 {
-  static constexpr zview
+  static constexpr std::string_view
   to_buf(std::span<char>, CHAR_TYPE const &, ctx = {}) noexcept = delete;
 
   static constexpr std::size_t
