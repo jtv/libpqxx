@@ -1,7 +1,7 @@
 # Configuration for test runs in Appveyor.
 version: 1.0.{build}
 image: Visual Studio 2022
-services: postgresql16
+services: postgresql15
 # Run CMake to build libpqxx.sln.
 before_build:
 - cmd: >-
@@ -14,7 +14,7 @@ build:
   project: libpqxx.sln
 test_script:
 - ps: >-
-    $env:Path += ";.\src\Release;C:\Program Files\PostgreSQL\16\bin"
+    $env:Path += ";.\src\Release;C:\Program Files\PostgreSQL\15\bin"
 
     $env:PGUSER = "postgres"
 
