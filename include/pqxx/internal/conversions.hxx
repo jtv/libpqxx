@@ -387,7 +387,7 @@ template<typename T> inline T from_string(std::stringstream const &text)
 template<> struct string_traits<std::nullptr_t>
 {
   [[deprecated("Do not convert nulls.")]] static constexpr zview
-  to_buf(char *, char *, std::nullptr_t const &) noexcept
+  to_buf(std::span<char>, std::nullptr_t const &, ctx = {}) noexcept
   {
     return {};
   }
