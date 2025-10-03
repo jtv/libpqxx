@@ -338,7 +338,7 @@ void test_range_intersection()
     PQXX_CHECK_EQUAL(
       intersect<int>(left, right), expected,
       std::format(
-        "Intersection of '{}' and '{} produced unexpected result.", left,
+        "Intersection of '{}' and '{}' produced unexpected result.", left,
         right));
     PQXX_CHECK_EQUAL(
       intersect<int>(right, left), expected,

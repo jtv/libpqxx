@@ -426,48 +426,43 @@ public:
  */
 template<typename TYPE> struct string_traits<range<TYPE>>
 {
-  [[nodiscard]] static inline std::string_view
+  [[nodiscard]] static std::string_view
   to_buf(std::span<char> buf, range<TYPE> const &value, ctx c = {})
   {
-    return generic_to_buf(buf, value, c);
-  }
-
-  static inline char *into_buf(
-    char *begin, char *end, range<TYPE> const &value, sl loc = sl::current())
-  {
-    conversion_context const c{{}, loc};
     if (value.empty())
     {
-      if ((end - begin) <= std::ssize(s_empty))
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      char *here = begin + s_empty.copy(begin, std::size(s_empty));
-      *here++ = '\0';
-      return here;
+      if (std::cmp_less_equal(std::size(buf), std::size(s_empty)))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      return s_empty;
     }
     else
     {
-      if (end - begin < 4)
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      char *here = begin;
-      *here++ =
+      if (std::cmp_less(std::size(buf), 4))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      std::span<char> tmp{buf};
+      // C++26: Use at().
+      tmp[0] =
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
+      tmp = tmp.subspan(1);
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use 8.0-style API; no more terminating zero.
       if (lower != nullptr)
-        here += pqxx::into_buf({here, end}, *lower) - 1;
-      *here++ = ',';
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower));
+      // C++26: Use at().
+      tmp[0] = ',';
+      tmp = tmp.subspan(1);
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
-      // XXX: Use 8.0-style API; no more terminating zero.
       if (upper != nullptr)
-        here += pqxx::into_buf({here, end}, *upper, c) - 1;
-      if ((end - here) < 2)
-        throw conversion_overrun{s_overrun.c_str(), loc};
-      *here++ =
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *upper, c));
+      if (std::cmp_less(std::size(tmp), 2))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      tmp[0] =
         static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
-      *here++ = '\0';
-      return here;
+      tmp = tmp.subspan(1);
+      return {
+        std::data(buf),
+        static_cast<std::size_t>(std::data(tmp) - std::data(buf))};
     }
   }
 
