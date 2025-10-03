@@ -88,7 +88,8 @@ tx_stat query_status(
   if (status == tx_unknown)
     throw pqxx::internal_error{
       std::format(
-        "Unknown transaction status string: {}", status_field.view()),
+        "Unknown transaction status string: {}",
+        static_cast<std::string_view>(status_field.view())),
       loc};
   return status;
 }
