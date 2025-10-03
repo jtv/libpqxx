@@ -1,11 +1,11 @@
 # Configuration for test runs in Appveyor.
 version: 1.0.{build}
-image: Visual Studio 2025
+image: Visual Studio 2022
 services: postgresql16
 # Run CMake to build libpqxx.sln.
 before_build:
 - cmd: >-
-    call "C:\Program Files\Microsoft Visual Studio\2025\Community\VC\Auxiliary\Build\vcvars64.bat"
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=23
 configuration: Release
