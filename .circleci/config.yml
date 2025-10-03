@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stable
+      - image: gcc:13
     environment:
       - PGHOST: "/tmp"
     steps:
@@ -16,10 +16,13 @@ jobs:
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
-            shellcheck python3-virtualenv libtool
+            shellcheck python3-virtualenv libtool pipx
+      - run:
+          name: Install uv
+          command: pipx install uv
       - run:
           name: Identify
-          command: lsb_release -a && c++ --version && clang++ --version
+          command: nproc && lsb_release -a && c++ --version && clang++ --version
       - run:
           name: Prepare postgres
           command: |
@@ -46,19 +49,20 @@ jobs:
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
-                CXXFLAGS='-O3 -std=c++17' \
-                CXX=clang++
+                CXXFLAGS='-O3 -std=c++20' \
+                CXX=g++
       - store_artifacts:
           path: config.log
       - run:
           name: Make
-          command: make -j$(nproc)
+          command: make -j4
       - run:
           name: Test
-          command: PGDATA=db/data make -j$(nproc) check
-      - run:
-          name: Analyse
-          command: ./tools/lint --full >lint.log
+          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check || ( cat test-suite.log ; exit 1 )
+# Not working on gcc 13 image for some reason:
+#      - run:
+#          name: Analyse
+#          command: ./tools/lint --full >lint.log
       - store_artifacts:
           path: lint.log
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass

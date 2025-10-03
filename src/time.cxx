@@ -10,8 +10,6 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-// std::chrono::year_month_day is C++20, so let's worry a bit less about C++17
-// compatibility in this file.
 #if defined(PQXX_HAVE_YEAR_MONTH_DAY)
 namespace
 {
@@ -22,6 +20,7 @@ using namespace std::literals;
 constexpr int ten{10};
 
 
+// XXX: Retire comment on termnating zero.
 /// Render the numeric part of a year value into a buffer.
 /** Converts the year from "common era" (with a Year Zero) to "anno domini"
  * (without a Year Zero).
@@ -38,7 +37,7 @@ inline char *
 year_into_buf(char *begin, char *end, std::chrono::year const &value)
 {
   int const y{value};
-  if (y == int{(std::chrono::year::min)()})
+  if (y == int{(std::chrono::year::min)()}) [[unlikely]]
   {
     // This is an evil special case: C++ year -32767 translates to 32768 BC,
     // which is a number we can't fit into a short.  At the moment postgres
@@ -46,7 +45,6 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     constexpr int oldest{-32767};
     static_assert(int{(std::chrono::year::min)()} == oldest);
     constexpr auto hardcoded{"32768"sv};
-    PQXX_UNLIKELY
     begin += hardcoded.copy(begin, std::size(hardcoded));
   }
   else
@@ -63,15 +61,15 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
     // won't be able to deduce the date format correctly.  However on output
     // it always writes years as at least 4 digits, and we'll do the same.
     // Dates and times are a dirty, dirty business.
-    if (absy < thousand)
+    if (absy < thousand) [[unlikely]]
     {
-      PQXX_UNLIKELY
       *begin++ = '0';
       if (absy < hundred)
         *begin++ = '0';
       if (absy < ten)
         *begin++ = '0';
     }
+    // XXX: Use 8.x API; no more terminating zero.
     begin = pqxx::string_traits<short>::into_buf(begin, end, absy) - 1;
   }
   return begin;
@@ -79,21 +77,21 @@ year_into_buf(char *begin, char *end, std::chrono::year const &value)
 
 
 /// Parse the numeric part of a year value.
-inline int year_from_buf(std::string_view text)
+inline int year_from_buf(std::string_view text, pqxx::sl loc)
 {
   if (std::size(text) < 4)
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Year field is too small: '", text, "'.")};
+      std::format("Year field is too small: '{}'.", text), loc};
   // Parse as int, so we can accommodate 32768 BC which won't fit in a short
   // as-is, but equates to 32767 BCE which will.
   int const year{pqxx::string_traits<int>::from_string(text)};
   if (year <= 0)
-    throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad year: '", text, "'.")};
+    throw pqxx::conversion_error{std::format("Bad year: '{}'.", text), loc};
   return year;
 }
 
 
+// XXX: Retire comment about terminating zero.
 /// Render a valid 1-based month number into a buffer.
 /* Where @c string_traits::into_buf() returns a pointer to the position right
  * after the terminating zero, this function returns a pointer to the character
@@ -114,13 +112,14 @@ inline char *month_into_buf(char *begin, std::chrono::month const &value)
 
 
 /// Parse a 1-based month value.
-inline std::chrono::month month_from_string(std::string_view text)
+inline std::chrono::month
+month_from_string(std::string_view text, pqxx::sl loc)
 {
   if (
     not pqxx::internal::is_digit(text[0]) or
     not pqxx::internal::is_digit(text[1]))
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Invalid month: '", text, "'.")};
+      std::format("Invalid month: '{}'.", text), loc};
   return std::chrono::month{unsigned(
     (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
@@ -138,19 +137,19 @@ inline char *day_into_buf(char *begin, std::chrono::day const &value)
 
 
 /// Parse a 1-based day-of-month value.
-inline std::chrono::day day_from_string(std::string_view text)
+inline std::chrono::day day_from_string(std::string_view text, pqxx::sl loc)
 {
   if (
     not pqxx::internal::is_digit(text[0]) or
     not pqxx::internal::is_digit(text[1]))
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad day in date: '", text, "'.")};
+      std::format("Bad day in date: '{}'.", text), loc};
   std::chrono::day const d{unsigned(
     (ten * pqxx::internal::digit_to_number(text[0])) +
     pqxx::internal::digit_to_number(text[1]))};
   if (not d.ok())
     throw pqxx::conversion_error{
-      pqxx::internal::concat("Bad day in date: '", text, "'.")};
+      std::format("Bad day in date: '{}'.", text), loc};
   return d;
 }
 
@@ -173,7 +172,7 @@ inline std::size_t find_year_month_separator(std::string_view text) noexcept
 /// Componse generic "invalid date" message for given (invalid) date text.
 std::string make_parse_error(std::string_view text)
 {
-  return pqxx::internal::concat("Invalid date: '", text, "'.");
+  return std::format("Invalid date: '{}'.", text);
 }
 } // namespace
 
@@ -181,51 +180,48 @@ std::string make_parse_error(std::string_view text)
 namespace pqxx
 {
 char *string_traits<std::chrono::year_month_day>::into_buf(
-  char *begin, char *end, std::chrono::year_month_day const &value)
+  char *begin, char *end, std::chrono::year_month_day const &value, sl loc)
 {
   if (std::size_t(end - begin) < size_buffer(value))
-    throw conversion_overrun{"Not enough room in buffer for date."};
+    throw conversion_overrun{"Not enough room in buffer for date.", loc};
   begin = year_into_buf(begin, end, value.year());
   *begin++ = '-';
   begin = month_into_buf(begin, value.month());
   *begin++ = '-';
   begin = day_into_buf(begin, value.day());
-  if (int{value.year()} <= 0)
-  {
-    PQXX_UNLIKELY
+  if (int{value.year()} <= 0) [[unlikely]]
     begin += s_bc.copy(begin, std::size(s_bc));
-  }
   *begin++ = '\0';
   return begin;
 }
 
 
 std::chrono::year_month_day
-string_traits<std::chrono::year_month_day>::from_string(std::string_view text)
+string_traits<std::chrono::year_month_day>::from_string(
+  std::string_view text, sl loc)
 {
   // We can't just re-use the std::chrono::year conversions, because the "BC"
   // suffix comes at the very end.
   if (std::size(text) < 9)
-    throw conversion_error{make_parse_error(text)};
+    throw conversion_error{make_parse_error(text), loc};
   bool const is_bc{text.ends_with(s_bc)};
-  if (is_bc)
-    PQXX_UNLIKELY
-  text = text.substr(0, std::size(text) - std::size(s_bc));
+  if (is_bc) [[unlikely]]
+    text = text.substr(0, std::size(text) - std::size(s_bc));
   auto const ymsep{find_year_month_separator(text)};
   if ((std::size(text) - ymsep) != 6)
-    throw conversion_error{make_parse_error(text)};
+    throw conversion_error{make_parse_error(text), loc};
   auto const base_year{
-    year_from_buf(std::string_view{std::data(text), ymsep})};
+    year_from_buf(std::string_view{std::data(text), ymsep}, loc)};
   if (base_year == 0)
-    throw conversion_error{"Year zero conversion."};
+    throw conversion_error{"Year zero conversion.", loc};
   std::chrono::year const y{is_bc ? (-base_year + 1) : base_year};
-  auto const m{month_from_string(text.substr(ymsep + 1, 2))};
+  auto const m{month_from_string(text.substr(ymsep + 1, 2), loc)};
   if (text[ymsep + 3] != '-')
-    throw conversion_error{make_parse_error(text)};
-  auto const d{day_from_string(text.substr(ymsep + 4, 2))};
+    throw conversion_error{make_parse_error(text), loc};
+  auto const d{day_from_string(text.substr(ymsep + 4, 2), loc)};
   std::chrono::year_month_day const date{y, m, d};
   if (not date.ok())
-    throw conversion_error{make_parse_error(text)};
+    throw conversion_error{make_parse_error(text), loc};
   return date;
 }
 } // namespace pqxx

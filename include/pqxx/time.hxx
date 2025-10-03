@@ -12,7 +12,6 @@
 #include <chrono>
 #include <cstdlib>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 
@@ -59,17 +58,18 @@ struct nullness<std::chrono::year_month_day>
  */
 template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
 {
-  [[nodiscard]] static zview
-  to_buf(char *begin, char *end, std::chrono::year_month_day const &value)
+  [[nodiscard]] static std::string_view to_buf(
+    std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {})
   {
-    return generic_to_buf(begin, end, value);
+    return generic_to_buf(buf, value, c);
   }
 
-  static char *
-  into_buf(char *begin, char *end, std::chrono::year_month_day const &value);
+  static char *into_buf(
+    char *begin, char *end, std::chrono::year_month_day const &value,
+    sl = sl::current());
 
   [[nodiscard]] static std::chrono::year_month_day
-  from_string(std::string_view text);
+  from_string(std::string_view text, sl = sl::current());
 
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year_month_day const &) noexcept

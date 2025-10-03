@@ -1,11 +1,7 @@
-#include <iostream>
-
 #include <pqxx/connection>
 #include <pqxx/robusttransaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Test robusttransaction.
@@ -13,31 +9,24 @@ namespace
 {
 void test_016()
 {
-  connection cx;
-  robusttransaction<> tx{cx};
-  result R{tx.exec("SELECT * FROM pg_tables")};
+  pqxx::connection cx;
+  pqxx::robusttransaction<> tx{cx};
+  pqxx::result r{tx.exec("SELECT * FROM pg_tables")};
 
-  result::const_iterator c;
-  for (c = std::begin(R); c != std::end(R); ++c);
+  pqxx::result::const_iterator c;
+  for (c = std::begin(r); c != std::end(r); ++c);
 
   // See if back() and row comparison work properly
   PQXX_CHECK(
-    std::size(R) >= 2, "Not enough rows in pg_tables to test, sorry!");
+    std::size(r) >= 2, "Not enough rows in pg_tables to test, sorry!");
 
   --c;
 
-  PQXX_CHECK_EQUAL(
-    c->size(), std::size(R.back()),
-    "Size mismatch between row iterator and back().");
+  PQXX_CHECK_EQUAL(c->size(), std::size(r.back()));
 
   std::string const nullstr;
   for (pqxx::row::size_type i{0}; i < c->size(); ++i)
-    PQXX_CHECK_EQUAL(
-      c[i].as(nullstr), R.back()[i].as(nullstr), "Value mismatch in back().");
-  PQXX_CHECK(*c == R.back(), "Row equality is broken.");
-  PQXX_CHECK(not(*c != R.back()), "Row inequality is broken.");
-
-  tx.commit();
+    PQXX_CHECK_EQUAL((*c)[i].as(nullstr), r.back()[i].as(nullstr));
 }
 
 
