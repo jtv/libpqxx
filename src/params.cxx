@@ -86,7 +86,7 @@ pqxx::internal::c_params pqxx::params::make_c_params(sl loc) const
   p.reserve(std::size(m_params));
   for (auto const &param : m_params)
     std::visit(
-      [&p, loc](auto const &value) {
+      [&p, &loc](auto const &value) {
         using T = std::remove_cvref_t<decltype(value)>;
 
         if constexpr (std::is_same_v<T, std::nullptr_t>)

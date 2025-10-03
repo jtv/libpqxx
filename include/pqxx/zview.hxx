@@ -97,6 +97,10 @@ public:
 
 #if !defined(WIN32)
   /// Construct a `zview` from a `std::filesystem::path`.
+  /** @warn We don't currently support this on Windows, where encoding is a
+   * somewhat complicated question.  Answers on the internet often seem
+   * contradictory.
+   */
   zview(std::filesystem::path p) : zview(p.c_str()) {}
 #endif // WIN32
 
