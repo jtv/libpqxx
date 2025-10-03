@@ -807,6 +807,8 @@ template<binary DATA> struct string_traits<DATA>
       throw conversion_overrun{
         "Not enough buffer space to escape binary data.", c.loc};
     internal::esc_bin(value, buf);
+    // The budget included a terminating zero, which we do not include in the
+    // view.
     return {std::data(buf), budget - 1};
   }
 
