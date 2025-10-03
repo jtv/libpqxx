@@ -423,7 +423,7 @@ pqxx::row::size_type pqxx::result::column_number(zview col_name, sl loc) const
   auto const n{PQfnumber(m_data.get(), col_name.c_str())};
   if (n == -1)
     throw argument_error{
-      std::format("Unknown column name: ''.", to_string(col_name)), loc};
+      std::format("Unknown column name: '{}'.", to_string(col_name)), loc};
 
   return static_cast<row::size_type>(n);
 }
