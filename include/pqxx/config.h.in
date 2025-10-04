@@ -94,6 +94,9 @@
 #undef PQXX_HAVE_POLL
 
 /* Define if this feature is available. */
+#undef PQXX_HAVE_RANGES
+
+/* Define if this feature is available. */
 #undef PQXX_HAVE_SLEEP_FOR
 
 /* Define if this feature is available. */

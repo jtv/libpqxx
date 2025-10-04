@@ -14,6 +14,7 @@
 
 PQXX_HAVE_CONCEPTS __cpp_concepts
 PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
+PQXX_HAVE_RANGES __cpp_lib_ranges
 PQXX_HAVE_SOURCE_LOCATION __cpp_lib_source_location
 PQXX_HAVE_SPAN __cpp_lib_span
 PQXX_HAVE_SSIZE __cpp_lib_ssize
