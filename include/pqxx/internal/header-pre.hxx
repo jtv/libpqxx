@@ -64,18 +64,15 @@
 #endif
 
 // C++20: No longer needed.
-// Enable ISO-646 alternative operaotr representations: "and" instead of "&&"
+// Enable ISO-646 alternative operator representations: "and" instead of "&&"
 // etc. on older compilers.  C++17 deprecates this header; C++20 removes it.
-//
-// We still need to include it on MSVC because the new keywords won't work
-// in C++17 mode without it; but some compilers may complain that we're
-// including a header that's deprecated in C++17.
-#if PQXX_CPLUSPLUS <= 201703L && __has_include(<ciso646>)
-#  include "pqxx/internal/ignore-deprecated-post.hxx"
-
+#if defined(_MSC_VER) && __has_include(<ciso646>) && PQXX_CPLUSPLUS <= 201703L
+// MSVC.  This compiler is being difficult: it requires us to include this
+// header in C++17, but will also complain that it's deprecated.
+#  pragma warning(push, 3)
+#  pragma warning(disable : STL4036)
 #  include <ciso646>
-
-#  include "pqxx/internal/ignore-deprecated-pre.hxx"
+#  pragma warning(pop)
 #endif
 
 #if defined(PQXX_HAVE_GCC_PURE)
