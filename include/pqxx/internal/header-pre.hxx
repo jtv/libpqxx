@@ -69,9 +69,7 @@
 #if defined(_MSC_VER) && __has_include(<ciso646>) && PQXX_CPLUSPLUS <= 201703L
 // MSVC.  This compiler is being difficult: it requires us to include this
 // header in C++17, but will also complain that it's deprecated.
-#  pragma warning(push, 1)
 #  include <ciso646>
-#  pragma warning(pop)
 #endif
 
 #if defined(PQXX_HAVE_GCC_PURE)
