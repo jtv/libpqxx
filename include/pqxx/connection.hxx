@@ -29,7 +29,7 @@
 #include <utility>
 
 // Double-check in order to suppress an overzealous Visual C++ warning (#418).
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 #  include <ranges>
 #endif
 
@@ -80,7 +80,7 @@ namespace pqxx::internal
 {
 class sql_cursor;
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 /// Concept: T is a range of pairs of zero-terminated strings.
 template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
@@ -301,7 +301,7 @@ public:
    */
   connection(connection &&rhs);
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Connect to a database, passing options as a range of key/value pairs.
   /** @warning Experimental.  Requires C++20 "concepts" support.  Define
    * `PQXX_HAVE_CONCEPTS` to enable it.
@@ -880,7 +880,7 @@ public:
    */
   [[nodiscard]] std::string esc(std::string_view text) const;
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Escape binary string for use as SQL string literal on this connection.
   /** This is identical to `esc_raw(data)`. */
   template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
@@ -935,7 +935,7 @@ public:
   [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
 #endif
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   template<binary DATA>
@@ -974,7 +974,7 @@ public:
   /// Escape and quote a string of binary data.
   std::string quote_raw(bytes_view) const;
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Escape and quote a string of binary data.
   /** You can also just use @ref quote with binary data. */
   template<binary DATA>
@@ -1496,7 +1496,7 @@ inline std::string connection::quote_columns(STRINGS const &columns) const
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 template<internal::ZKey_ZValues MAPPING>
 inline connection::connection(MAPPING const &params)
 {

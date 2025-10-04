@@ -24,7 +24,7 @@
 #include <typeinfo>
 
 // C++20: Assume support.
-#if __has_include(<ranges>)
+#if defined(PQXX_HAVE_RANGES)
 #  include <ranges>
 #endif
 
@@ -596,7 +596,7 @@ inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
 }
 
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 /// Concept: Binary string, akin to @c std::string for binary data.
 /** Any type that satisfies this concept can represent an SQL BYTEA value.
  *
