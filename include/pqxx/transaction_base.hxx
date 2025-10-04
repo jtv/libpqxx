@@ -276,7 +276,7 @@ public:
   [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
   quote_raw(zview bin) const;
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Binary-escape and quote a binary string for use as an SQL constant.
   /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>

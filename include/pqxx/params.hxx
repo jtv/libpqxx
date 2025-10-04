@@ -93,7 +93,7 @@ public:
    */
   void append(bytes const &) &;
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Append a non-null binary parameter.
   /** The `data` object must stay in place and unchanged, for as long as the
    * `params` remains active.
@@ -147,7 +147,7 @@ public:
   /// Append all elements of `range` as parameters.
   template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
   {
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
     if constexpr (std::ranges::sized_range<RANGE>)
       reserve(std::size(*this) + std::size(range));
 #endif
