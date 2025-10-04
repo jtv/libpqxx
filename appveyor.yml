@@ -1,30 +1,42 @@
 # Configuration for test runs in Appveyor.
 version: 1.0.{build}
 image: Visual Studio 2022
-services: postgresql13
+
+# TODO: Do we really have to spell out the postgres version in 3 places?
+services: postgresql15
+install:
+- net start postgresql-x64-15
+
+# Set up to run the build across multiple C++ language versions.
+environment:
+  matrix:
+    - CXX_VERSION: 17
+    - CXX_VERSION: 20
+    - CXX_VERSION: 23
+
 # Run CMake to build libpqxx.sln.
 before_build:
 - cmd: >-
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=23
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%
 configuration: Release
 build:
   parallel: true
   project: libpqxx.sln
 test_script:
 - ps: >-
-    $env:Path += ";.\src\Release;C:\Program Files\PostgreSQL\13\bin"
+    $env:Path += ";.\src\Release;C:\Program Files\PostgreSQL\15\bin"
 
     $env:PGUSER = "postgres"
 
     $env:PGPASSWORD = "Password12!"
 
     .\test\Release\runner.exe
-notifications:
-- provider: Email
-  subject: 'libpqxx: AppVeyor build failure'
-  message: The libpqxx AppVeyor build has failed.
-  on_build_success: false
-  on_build_failure: true
-  on_build_status_changed: false
+#notifications:
+#- provider: Email
+#  subject: 'libpqxx: AppVeyor build failure'
+#  message: The libpqxx AppVeyor build has failed.
+#  on_build_success: false
+#  on_build_failure: true
+#  on_build_status_changed: false
