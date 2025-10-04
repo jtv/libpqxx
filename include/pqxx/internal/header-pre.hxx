@@ -71,11 +71,11 @@
 // in C++17 mode without it; but some compilers may complain that we're
 // including a header that's deprecated in C++17.
 #if PQXX_CPLUSPLUS <= 201703L && __has_include(<ciso646>)
-#  include "include/pqxx/internal/ignore-deprecated-post.hxx"
+#  include "pqxx/internal/ignore-deprecated-post.hxx"
 
 #  include <ciso646>
 
-#  include "include/pqxx/internal/ignore-deprecated-pre.hxx"
+#  include "pqxx/internal/ignore-deprecated-pre.hxx"
 #endif
 
 #if defined(PQXX_HAVE_GCC_PURE)
