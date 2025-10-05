@@ -80,5 +80,5 @@ workflows:
     jobs:
       - test:
         matrix:
-	  parameters:
-	    os: [debian]
+          parameters:
+            os: [debian]
