@@ -414,8 +414,8 @@ inline void write_composite_field(
 
 
 /// Write an SQL array representation into `buf`.
-/** @return The number of bytes used, from the beginning of `buf`.  Writes a
- * terminating zero but does not include it in the count.
+/** @return The number of bytes used, from the beginning of `buf`.  There is no
+ * terminating zero.
  */
 template<nonbinary_range TYPE>
 [[nodiscard]] std::size_t array_into_buf(
@@ -505,7 +505,6 @@ template<nonbinary_range TYPE>
 
   // C++26:Use buf.at().
   buf[here++] = '}';
-  buf[here] = '\0';
 
   return here;
 }
