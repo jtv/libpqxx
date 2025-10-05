@@ -5,7 +5,7 @@
 #include <numeric>
 #include <optional>
 
-#if defined(PQXX_HAVE_SPAN) && __has_include(<span>)
+#if defined(PQXX_HAVE_SPAN) && defined(PQXX_HAVE_RANGES)
 #  include <span>
 #endif
 
@@ -899,7 +899,7 @@ template<> struct nullness<bytes> : no_null<bytes>
 {};
 
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
 template<binary DATA> struct nullness<DATA> : no_null<DATA>
 {};
 
