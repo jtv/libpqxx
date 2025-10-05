@@ -1,9 +1,23 @@
 # CircleCI config for automated test builds triggered from Github.
-version: 2
+version: 2.1
+
+executors:
+  debian:
+    machine:
+      image: debian:stable
+#  macos:
+#    macos:
 jobs:
-  build:
-    docker:
-      - image: debian:stable
+  test:
+    # The resource_class feature allows configuring CPU and RAM resources for
+    # each job.  Different resource classes are available for different
+    # executors.
+    # https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large
+    parameters:
+      os:
+        type: executor
+    executor: << parameters.os >>
     environment:
       - PGHOST: "/tmp"
     steps:
@@ -20,22 +34,6 @@ jobs:
       - run:
           name: Identify
           command: lsb_release -a && c++ --version && clang++ --version
-      - run:
-          name: Prepare postgres
-          command: |
-            mkdir /tmp/db &&
-            chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
-      - run:
-          name: Run postgres
-          command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
-            &) && sleep 5
-      - run:
-          name: Create postgres user
-          command: su postgres -c "createuser -w -d root"
-      - run:
-          name: Set up database
-          command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Autogen
           command: ./autogen.sh
@@ -54,6 +52,22 @@ jobs:
           name: Make
           command: make -j$(nproc)
       - run:
+          name: Prepare postgres
+          command: |
+            mkdir /tmp/db &&
+            chown postgres /tmp/db &&
+            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
+      - run:
+          name: Run postgres
+          command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
+            &) && sleep 5
+      - run:
+          name: Create postgres user
+          command: su postgres -c "createuser -w -d root"
+      - run:
+          name: Set up database
+          command: createdb --template=template0 --encoding=UNICODE root
+      - run:
           name: Test
           command: PGDATA=db/data make -j$(nproc) check
       - run:
@@ -61,5 +75,10 @@ jobs:
           command: ./tools/lint --full >lint.log
       - store_artifacts:
           path: lint.log
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large
+workflows:
+  all-tests:
+    jobs:
+      - test:
+        matrix:
+	  parameters:
+	    os: [debian]
