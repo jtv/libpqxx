@@ -28,6 +28,10 @@ try_compile(
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_POLL.cxx
 )
 try_compile(
+    PQXX_HAVE_RANGES ${PROJECT_BINARY_DIR}
+    SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_RANGES.cxx
+)
+try_compile(
     PQXX_HAVE_SLEEP_FOR ${PROJECT_BINARY_DIR}
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_SLEEP_FOR.cxx
 )

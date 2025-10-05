@@ -69,6 +69,16 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_POLL=no)
 AC_MSG_RESULT($PQXX_HAVE_POLL)
+AC_MSG_CHECKING([PQXX_HAVE_RANGES])
+PQXX_HAVE_RANGES=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_RANGES.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_RANGES],
+        1,
+        [Define if this feature is available.]),
+    PQXX_HAVE_RANGES=no)
+AC_MSG_RESULT($PQXX_HAVE_RANGES)
 AC_MSG_CHECKING([PQXX_HAVE_SLEEP_FOR])
 PQXX_HAVE_SLEEP_FOR=yes
 AC_COMPILE_IFELSE(
