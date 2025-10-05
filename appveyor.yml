@@ -10,7 +10,6 @@ install:
 # Set up to run the build across multiple C++ language versions.
 environment:
   matrix:
-    - CXX_VERSION: 17
     - CXX_VERSION: 20
     - CXX_VERSION: 23
 
