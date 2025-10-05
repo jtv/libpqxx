@@ -9,15 +9,15 @@ executors:
 #    macos:
 jobs:
   test:
+    parameters:
+      os:
+        type: executor
+    executor: << parameters.os >>
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
     # executors.
     # https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
-    parameters:
-      os:
-        type: executor
-    executor: << parameters.os >>
     environment:
       - PGHOST: "/tmp"
     steps:
@@ -81,4 +81,4 @@ workflows:
       - test:
         matrix:
           parameters:
-            os: [debian]
+            os: ["debian"]
