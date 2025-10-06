@@ -77,7 +77,7 @@ jobs:
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            python3 build-essential cppcheck clang shellcheck
+            python3 build-essential cppcheck clang shellcheck yamllint
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
@@ -92,4 +92,4 @@ workflows:
             parameters:
               cxx: ["clang++", "g++"]
               cxx_version: ["c++17", "c++20", "c++23", "c++26"]
-      - analyze:
+      - analyse:
