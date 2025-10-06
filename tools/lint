@@ -198,7 +198,7 @@ mdlint() {
 
 
 check_cmake() {
-    find "$SRCDIR" -name '*.cmake' -exec \
+    find "$SRCDIR" \( -name '*.cmake' -o -name CMakeLists.txt \) -exec \
         uv run --with=cmake-format cmake-lint --suppress-decorations '{}' '+'
 }
 
