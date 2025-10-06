@@ -86,7 +86,7 @@ jobs:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             python3 build-essential cppcheck clang cmake libpq-dev shellcheck
-            yamllint virtualenv
+            postgresql-server-dev-all yamllint virtualenv
       - run:
           name: Prepare
           command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
