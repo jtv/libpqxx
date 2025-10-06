@@ -293,7 +293,7 @@ void pqxx::result::check_status(std::string_view desc, sl loc) const
   if (auto err{status_error(loc)}; not std::empty(err)) [[unlikely]]
   {
     if (not std::empty(desc))
-      err = std::format("Failure during '{}: {}", desc, err);
+      err = std::format("Failure during '{}': {}", desc, err);
     throw_sql_error(err, query(), loc);
   }
 }
