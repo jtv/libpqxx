@@ -123,7 +123,7 @@ check_compiler_internal_headers() {
 
 
 check_yaml() {
-    yamllint $(find * -name '*.yml' -o -name '*.yaml')
+    yamllint -- "$(find -- * -name '*.yml' -o -name '*.yaml')"
 }
 
 
