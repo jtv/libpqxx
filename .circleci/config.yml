@@ -113,4 +113,5 @@ workflows:
       - analyse:
           matrix:
             parameters:
-              cxx_version: ["c++20", "c++23", "c++26"]
+	      # Running this for 3 C++ versions took too long for CircleCI.
+              cxx_version: ["c++26"]
