@@ -4,14 +4,17 @@ version: 2.1
 executors:
   debian:
     machine:
-      image: debian:stable
+      image: "debian:stable"
 #  macos:
 #    macos:
+
 jobs:
   test:
     parameters:
       os:
         type: executor
+      cxx:
+        type: string
     executor: << parameters.os >>
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
@@ -75,10 +78,12 @@ jobs:
           command: ./tools/lint --full >lint.log
       - store_artifacts:
           path: lint.log
+
 workflows:
   all-tests:
     jobs:
       - test:
         matrix:
           parameters:
-            os: ["debian"]
+            os: [debian]
+	    cxx: [c++17, c++20, c++23]
