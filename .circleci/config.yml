@@ -114,8 +114,8 @@ workflows:
           matrix:
             parameters:
               cxx: ["clang++", "g++"]
-              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
+              cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
           matrix:
             parameters:
-              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
+              cxx_version: ["c++20", "c++23", "c++26"]
