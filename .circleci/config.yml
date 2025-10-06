@@ -95,7 +95,7 @@ jobs:
           command: pipx install uv
       - run:
           name: Prepare
-          command: SRC="$(pwd)" && mkdir -p /tmp/pqxx && cd /tmp/pqxx && CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake . && cd -- "$SRC"
+          command: SRC="$(pwd)" && mkdir -p /tmp/pqxx && cd /tmp/pqxx && CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake -- "$SRC" && cd -- "$SRC"
       - run:
           name: Analyse
           command: PATH="$PATH:$HOME/.local/bin" ./tools/lint --full >lint.log
