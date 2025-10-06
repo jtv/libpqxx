@@ -124,6 +124,7 @@ check_compiler_internal_headers() {
 
 check_yaml() {
     # TODO: This is too strict for now.
+    echo "Skipping yamllint check.  It's too broken."
     # yamllint -- "$(find -- * -name '*.yml' -o -name '*.yaml')"
 }
 
