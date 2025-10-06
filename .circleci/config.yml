@@ -41,8 +41,8 @@ jobs:
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
-                CXXFLAGS='-O1 -std=<< cxx_version >>' \
-                CXX=<< cxx >>
+                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+                CXX=<< parameters.cxx >>
       - store_artifacts:
           path: config.log
       - run:
