@@ -39,8 +39,8 @@ jobs:
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
-                CXXFLAGS='-O3 -std=c++17' \
-                CXX=clang++
+                CXXFLAGS='-O1 -std=<< cxx_version >>' \
+                CXX=<< cxx >>
       - store_artifacts:
           path: config.log
       - run:
@@ -77,4 +77,8 @@ workflows:
       - test:
           matrix:
             parameters:
-              cxx: ["c++17", "c++20", "c++23"]
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
+#            exclude:
+#              - cxx: "g++"
+#                cxx_version: "c++26"
