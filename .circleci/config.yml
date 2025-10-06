@@ -89,7 +89,10 @@ jobs:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             python3 build-essential cppcheck clang cmake libpq-dev shellcheck
-            postgresql-server-dev-all yamllint
+            postgresql-server-dev-all yamllint pipx
+      - run:
+          name: Install uv
+          command: pipx install uv
       - run:
           name: Prepare
           command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
