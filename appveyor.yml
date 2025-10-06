@@ -1,5 +1,5 @@
 ---
-version: 1.0.{build)
+version: "1.0.{build}"
 image: Visual Studio 2022
 
 # Configuration for test runs in Appveyor.
