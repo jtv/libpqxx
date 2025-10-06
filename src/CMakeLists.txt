@@ -54,6 +54,7 @@ macro(LIBRARY_TARGET_SETUP tgt)
             COMMAND "$<IF:$<STREQUAL:${name},${output_name}>,${noop_command},${create_symlink_command}>"
             VERBATIM
             COMMAND_EXPAND_LISTS
+            COMMENT "Ensure library symlink"
         )
         install(
             FILES ${CMAKE_CURRENT_BINARY_DIR}/${library_prefix}${name}${library_suffix}
