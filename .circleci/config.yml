@@ -89,7 +89,7 @@ jobs:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             python3 build-essential cppcheck clang cmake libpq-dev shellcheck
-            postgresql-server-dev-all yamllint pipx
+            postgresql-server-dev-all markdownlint yamllint pipx
       - run:
           name: Install uv
           command: pipx install uv
