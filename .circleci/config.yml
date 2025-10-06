@@ -1,23 +1,13 @@
 # CircleCI config for automated test builds triggered from Github.
 version: 2.1
 
-executors:
-  debian:
-    machine:
-      image: "debian:stable"
-#  macos:
-#    macos:
-
 jobs:
   test:
     parameters:
-      os:
-        type: executor
       cxx:
         type: string
-    #executor: << parameters.os >>
-    executor: {name: debian}
-
+    docker:
+      - image: debian:stable
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
     # executors.
