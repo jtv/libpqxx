@@ -122,6 +122,11 @@ check_compiler_internal_headers() {
 }
 
 
+check_yaml() {
+    yamllint $(find * -name '*.yml' -o -name '*.yaml')
+}
+
+
 cpplint() {
     local dialect includes
 
@@ -217,6 +222,7 @@ EOF
     check_news_version
     check_compiler_internal_headers
     mdlint
+    check_yaml
     if [ $full == "yes" ]
     then
         cpplint
