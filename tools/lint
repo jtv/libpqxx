@@ -126,7 +126,7 @@ cpplint() {
         # overtakes the original tool, but using five times as much CPU.
         # At -j8 it actually seems to run faster than at -j16, and still with
         # "only" five times the original CPU time used.
-        uv run --with=clang-tidy run-clang-tidy -q -j8
+        run-clang-tidy -q -j8
     elif [ -e compile_flags ]
     then
         # The configure-based build writes its compiler options into this
