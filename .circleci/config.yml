@@ -86,4 +86,4 @@ workflows:
         matrix:
           parameters:
             os: [debian]
-	    cxx: [c++17, c++20, c++23]
+            cxx: [c++17, c++20, c++23]
