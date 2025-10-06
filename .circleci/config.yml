@@ -85,7 +85,7 @@ jobs:
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            python3 build-essential cppcheck clang libpq-dev shellcheck
+            python3 build-essential cppcheck clang cmake libpq-dev shellcheck
             yamllint virtualenv
       - run:
           name: Prepare
