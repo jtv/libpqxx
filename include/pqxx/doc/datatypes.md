@@ -304,6 +304,7 @@ more in future iterations wthout breaking API compatibility.  This is new in
 libpqxx 8.0
 
 As of 8.0, `conversion_context` contains:
+
 * `pqxx::encoding_group enc`.  This tells the conversion just enough about the
   text's encoding do to its job.  It doesn't say exactly whether the text is in
   UTF-8, or Latin-15, or EUC-KR, and so on.  But it's enough that the code can

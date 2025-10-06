@@ -1,5 +1,6 @@
 find_program(HAVE_DOXYGEN doxygen)
 set(PQXXVERSION "${CMAKE_PROJECT_VERSION}")
+# cmake-lint: disable=C0103
 set(top_srcdir "${PROJECT_SOURCE_DIR}")
 set(PQXX_ABI "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 set(PQXX_MAJOR "${PROJECT_VERSION_MAJOR}")

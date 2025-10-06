@@ -12,6 +12,7 @@ That's the database side.  On the C++ side, in libpqxx, all binary data must be
 some block of contiguous `std::byte` values in memory.  That could be a
 `std::vector<std::byte>`, or `std::span<std::byte>`, and so on.  However the
 _preferred_ types for binary data in libpqxx are...
+
 * `pqxx::bytes` for storing the data, similar to `std::string` for text.
 * `pqxx::bytes_view` for reading data stored elsewhere, similar to how you'd
    use `std::string_view` for text.

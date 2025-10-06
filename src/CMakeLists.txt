@@ -15,6 +15,7 @@ endif()
 # directory *before* the source tree's include directory.  If the source tree
 # happens to contain autoconf-generated config headers, we should still prefer
 # the ones in the binary tree.
+# cmake-lint: disable=C0301
 macro(LIBRARY_TARGET_SETUP tgt)
     target_include_directories(${tgt}
         PUBLIC
@@ -69,16 +70,21 @@ get_target_property(pqxx_target_type pqxx TYPE)
 if(pqxx_target_type STREQUAL "SHARED_LIBRARY")
     target_compile_definitions(pqxx PUBLIC PQXX_SHARED)
 endif()
+# cmake-lint: disable=C0301
 set_target_properties(
     pqxx PROPERTIES
     OUTPUT_NAME $<IF:$<PLATFORM_ID:Windows>,pqxx,pqxx-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}>
 )
 LIBRARY_TARGET_SETUP(pqxx)
 
-# install pkg-config file
+# Install pkg-config file.
+# cmake-lint: disable=C0103
 set(prefix ${CMAKE_INSTALL_PREFIX})
+# cmake-lint: disable=C0103
 set(exec_prefix \${prefix})
+# cmake-lint: disable=C0103
 set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+# cmake-lint: disable=C0103
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(VERSION ${PROJECT_VERSION})
 configure_file(

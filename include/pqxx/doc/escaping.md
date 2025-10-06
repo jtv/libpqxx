@@ -99,5 +99,5 @@ In practice, of course, it would be better to use parameters:
         " SELECT number, amount "
         "FROM account "
         "WHERE allowed_to_see($1, $2)",
-	pqxx::params{userid, password});
+        pqxx::params{userid, password});
 ```
