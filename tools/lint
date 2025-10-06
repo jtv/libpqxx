@@ -189,6 +189,14 @@ shelllint() {
 }
 
 
+mdlint() {
+  if which mdl >/dev/null
+  then
+      find . -name \*.md -exec mdl -c .markdownlint.yaml '{}' '+'
+  fi
+}
+
+
 check_cmake() {
     find "$SRCDIR" -name '*.cmake' -exec \
         uv run --with=cmake-format cmake-lint --suppress-decorations '{}' '+'
