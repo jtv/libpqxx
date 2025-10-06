@@ -16,7 +16,7 @@ jobs:
       cxx:
         type: string
     #executor: << parameters.os >>
-    executor: debian
+    executor: {name: debian}
 
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
