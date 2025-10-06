@@ -71,6 +71,9 @@ jobs:
           path: test-suite.log
 
   analyse:
+    parameters:
+      cxx_version:
+        type: string
     docker:
       - image: debian:stable
     resource_class: large
@@ -84,6 +87,9 @@ jobs:
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             python3 build-essential cppcheck clang libpq shellcheck yamllint
             virtualenv
+      - run:
+          name: Prepare
+          command: CXX=clang++ CXXFLAGS='-O0 -std=<< cxx_version >>' cmake
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
@@ -99,5 +105,7 @@ workflows:
               cxx: ["clang++", "g++"]
               cxx_version: ["c++17", "c++20", "c++23", "c++26"]
       - analyse:
-          # (No need for this name, just to create an empty object.)
-          name: analyse
+          matrix:
+            parameters:
+              cxx: ["clang++"]
+              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
