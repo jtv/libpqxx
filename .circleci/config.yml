@@ -21,7 +21,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get update && apt-get -y upgrade
+          command: apt-get update
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
@@ -81,7 +81,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get update && apt-get -y upgrade
+          command: apt-get update
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
@@ -90,6 +90,9 @@ jobs:
       - run:
           name: Prepare
           command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
+      - run:
+          name: DEBUG
+          command: find /usr -name libpq-fe.h
       - run:
           name: Analyse
           command: ./tools/lint --full >lint.log
