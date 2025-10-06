@@ -6,6 +6,8 @@ jobs:
     parameters:
       cxx:
         type: string
+      cxx_version:
+        type: string
     docker:
       - image: debian:stable
     # The resource_class feature allows configuring CPU and RAM resources for
