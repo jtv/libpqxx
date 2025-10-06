@@ -98,9 +98,7 @@ jobs:
           command: SRC="$(pwd)" && mkdir -p /tmp/pqxx && cd /tmp/pqxx && CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake "$SRC" && cd -- "$SRC"
       - run:
           name: Analyse
-          command: SRC="$(pwd)" && cd /tmp/pqxx && PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full >lint.log
-      - store_artifacts:
-          path: lint.log
+          command: SRC="$(pwd)" && cd /tmp/pqxx && PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full
 
 workflows:
   all-tests:
