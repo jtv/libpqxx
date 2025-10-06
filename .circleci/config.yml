@@ -97,7 +97,7 @@ jobs:
           name: Analyse
           # TODO: For 8.x, go back to "lint --full".
           # command: ./tools/lint --full >lint.log
-          command: ./tools/lint --full >lint.log
+          command: ./tools/lint >lint.log
       - store_artifacts:
           path: lint.log
 
