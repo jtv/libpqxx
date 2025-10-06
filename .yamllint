@@ -1,0 +1,6 @@
+pqxx:
+  extends: default
+  rules:
+    # Wish I didn't have to, but accept longer lines.  We've got some long
+    # lines that are hard to break without messing up legibility.
+    level: warning

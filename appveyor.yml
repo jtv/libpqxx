@@ -1,6 +1,6 @@
 # Configuration for test runs in Appveyor.
-version: 1.0.{build}
-image: Visual Studio 2022
+version: "1.0.{build}"
+image: "Visual Studio 2022"
 
 # TODO: Do we really have to spell out the postgres version in 3 places?
 services: postgresql15

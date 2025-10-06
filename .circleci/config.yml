@@ -1,28 +1,56 @@
 # CircleCI config for automated test builds triggered from Github.
-version: 2
+version: 2.1
+
 jobs:
-  build:
+  test:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
     docker:
-      - image: gcc:13
+      - image: debian:stable
+    # The resource_class feature allows configuring CPU and RAM resources for
+    # each job.  Different resource classes are available for different
+    # executors.
+    # https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large
     environment:
       - PGHOST: "/tmp"
     steps:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get update && apt-get -y upgrade
+          command: apt-get update
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
-            shellcheck python3-virtualenv libtool pipx
+            shellcheck libtool pipx
       - run:
           name: Install uv
           command: pipx install uv
       - run:
           name: Identify
           command: nproc && lsb_release -a && c++ --version && clang++ --version
+      - run:
+          name: Autogen
+          command: ./autogen.sh
+      - run:
+          name: Configure
+          command: |
+            ./configure \
+                --enable-maintainer-mode \
+                --enable-audit \
+                --enable-shared --disable-static \
+                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+                CXX=<< parameters.cxx >>
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Make
+          command: make -j4
       - run:
           name: Prepare postgres
           command: |
@@ -40,30 +68,51 @@ jobs:
           name: Set up database
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
-          name: Autogen
-          command: ./autogen.sh
-      - run:
-          name: Configure
-          command: |
-            ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
-                --enable-shared --disable-static \
-                CXXFLAGS='-O3 -std=c++20' \
-                CXX=g++
-      - store_artifacts:
-          path: config.log
-      - run:
-          name: Make
-          command: make -j4
-      - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check || ( cat test-suite.log ; exit 1 )
-# Not working on gcc 13 image for some reason:
-#      - run:
-#          name: Analyse
-#          command: ./tools/lint --full >lint.log
+          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+      - store_artifacts:
+          path: test-suite.log
+
+  analyse:
+    parameters:
+      cxx_version:
+        type: string
+    docker:
+      - image: debian:stable
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Configure apt archives
+          command: apt-get update
+      - run:
+          name: Install
+          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
+            python3 build-essential cppcheck clang cmake libpq-dev shellcheck
+            postgresql-server-dev-all yamllint
+      - run:
+          name: Prepare
+          command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
+      - run:
+          name: DEBUG
+          command: find /usr -name libpq-fe.h
+      - run:
+          name: Analyse
+          # TODO: For 8.x, go back to "lint --full".
+          # command: ./tools/lint --full >lint.log
+          command: ./tools/lint >lint.log
       - store_artifacts:
           path: lint.log
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large
+
+workflows:
+  all-tests:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
+      - analyse:
+          matrix:
+            parameters:
+              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
