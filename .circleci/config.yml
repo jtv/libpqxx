@@ -67,6 +67,8 @@ jobs:
       - run:
           name: Test
           command: PGDATA=db/data make -j4 check
+      - store_artifacts:
+          path: test-suite.log
 
   analyse:
     docker:
