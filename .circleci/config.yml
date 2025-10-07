@@ -1,4 +1,5 @@
 # CircleCI config for automated test builds triggered from Github.
+---
 version: 2.1
 
 jobs:
@@ -56,11 +57,16 @@ jobs:
           command: |
             mkdir /tmp/db &&
             chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
+            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata \
+              /tmp/db --auth trust --nosync'
       - run:
           name: Run postgres
-          command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
-            &) && sleep 5
+          # TODO: Is there a good way to wait for startup to complete?
+          command: ( \
+            su postgres -c \
+              '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp' \
+              &) && \
+            sleep 5
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d root"
@@ -84,7 +90,9 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+          command: \
+            apt-get update && \
+            DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
@@ -95,10 +103,18 @@ jobs:
           command: pipx install uv
       - run:
           name: Prepare
-          command: SRC="$(pwd)" && mkdir -p /tmp/pqxx && cd /tmp/pqxx && CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake "$SRC" && cd -- "$SRC"
+          command: \
+            SRC="$(pwd)" && \
+            mkdir -p /tmp/pqxx && \
+            cd /tmp/pqxx && \
+            CXX=clang++ CXXFLAGS='-O0 \
+              -std=<< parameters.cxx_version >>' cmake "$SRC"
       - run:
           name: Analyse
-          command: SRC="$(pwd)" && cd /tmp/pqxx && PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full
+          command: \
+            SRC="$(pwd)" && \
+            cd /tmp/pqxx && \
+            PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full
 
 workflows:
   all-tests:
