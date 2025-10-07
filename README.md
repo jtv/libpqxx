@@ -139,8 +139,8 @@ Here's an example with all the basics to get you going:
             // something you can do in most places.  A string_view becomes
             // meaningless when the underlying string ceases to exist.  In this
             // particular situation, you can convert a field to string_view and
-	    // it will be valid for just that one iteration of the loop.  The
-	    // next iteration may overwrite or deallocate its buffer space.
+            // it will be valid for just that one iteration of the loop.  The
+            // next iteration may overwrite or deallocate its buffer space.
             for (auto [name, salary] : tx.stream<std::string_view, int>(
                 "SELECT name, salary FROM employee"))
             {
@@ -153,7 +153,7 @@ Here's an example with all the basics to get you going:
             tx.exec("UPDATE employee SET salary = salary*2").no_rows();
 
             // Shorthand: conveniently query a single value from the database,
-	    // and convert it to an `int`.
+            // and convert it to an `int`.
             int my_salary = tx.query_value<int>(
                 "SELECT salary FROM employee WHERE name = 'Me'");
             std::cout << "I now earn " << my_salary << ".\n";

@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
-
 file(READ VERSION VER_FILE_CONTENT)
 string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
-
 project(
     libpqxx
     VERSION ${VER_FILE_CONTENT}
     LANGUAGES CXX
 )
-
 if(NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 20)
 endif()
@@ -19,17 +16,13 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Generate a "compilation database" so we can use run-clang-tidy, to run static
 # checks in parallel.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 option(BUILD_DOC "Build documentation" OFF)
-
 if(NOT SKIP_BUILD_TEST AND CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     option(BUILD_TEST "Build all test cases" ON)
 endif()
-
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(config)
-
 add_subdirectory(src)
 add_subdirectory(include)
 if(BUILD_DOC)

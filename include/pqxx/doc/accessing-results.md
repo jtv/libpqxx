@@ -112,7 +112,7 @@ underlying data structure.  When you destroy the last copy of the original
 underlying data structure as a side effect.
 
 
-## Rows and fields
+### Rows and fields
 
 A field does not know what type of data it contains.  It holds the data in
 string form.  So, _you_ specify the type when you read the value (using
@@ -144,7 +144,7 @@ but they keep a `result` object so that the underlying data structure does not
 get destroyed so long as you stlil have a `row` or `field` referencing it.
 
 
-## Iterating rows and fields
+### Iterating rows and fields
 
 For example, your code might just read it as raw text using `c_str()`:
 
@@ -158,7 +158,7 @@ For example, your code might just read it as raw text using `c_str()`:
 ```
 
 
-## Data types
+### Data types
 
 Or you can ask for the field to convert itself to some other C++ type, using
 `as<my_type>()`:
@@ -168,16 +168,16 @@ Or you can ask for the field to convert itself to some other C++ type, using
     for (auto const &row: r)
     {
         for (auto const &field: row)
-	{
-	    int n = field.as<int>();
-	    double f = field.as<double>();
-	    std::cout << n << '\t << f << '\n';
-	}
+        {
+            int n = field.as<int>();
+            double f = field.as<double>();
+            std::cout << n << '\t << f << '\n';
+        }
     }
 ```
 
 
-## Indexing
+### Indexing
 
 But results and rows also support other kinds of access.  Array-style
 indexing, for instance, such as `r[rownum]`:
@@ -240,7 +240,7 @@ which is actually a little faster than the classic indexing:
 ```
 
 
-## Going old-school
+### Going old-school
 
 And of course you can use classic "begin/end" loops:
 

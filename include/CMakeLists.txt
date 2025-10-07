@@ -59,7 +59,6 @@ install(
     PATTERN pqxx
     PATTERN doc EXCLUDE
 )
-
 install(
     DIRECTORY pqxx/doc/
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
