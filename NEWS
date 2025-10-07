@@ -1,3 +1,4 @@
+7.10.4
 7.10.3
  - Fix Microsoft Visual Studio C++17 build. (#1036, #1037)
  - Run Appveyor & CircleCI tests against multiple C++ versions at once.
