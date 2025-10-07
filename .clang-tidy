@@ -5,7 +5,6 @@
 #
 # We use clever YAML multiline-string syntax to work around this.
 Checks: >
-    boost-*,
     bugprone-argument-comment,
     bugprone-assert-side-effect,
     bugprone-assignment-in-if-condition,
