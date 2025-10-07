@@ -46,7 +46,7 @@
  - Stop trying to figure out link options for filesystem library.
 7.10.3
  - Fix Microsoft Visual Studio C++17 build. (#1036, #1037)
- - Run Appveyor tests against multiple C++ versions (and newer postgres).
+ - Run Appveyor & CircleCI tests against multiple C++ versions at once.
 7.10.2
  - CMake: Drop unneeded, broken `PostgreSQL_INCLUDE_DIRS` definition. (#981)
  - Handle spaces and single quotes in `connection::connection_string()` (#992)
