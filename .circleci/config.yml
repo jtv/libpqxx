@@ -27,7 +27,7 @@ jobs:
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
             lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
-            shellcheck python3-virtualenv libtool virtualenv
+            shellcheck python3-virtualenv libtool virtualenv yamllint
       - run:
           name: Identify
           command: lsb_release -a && c++ --version && clang++ --version
@@ -90,9 +90,6 @@ jobs:
       - run:
           name: Prepare
           command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
-      - run:
-          name: DEBUG
-          command: find /usr -name libpq-fe.h
       - run:
           name: Analyse
           # TODO: For 8.x, go back to "lint --full".
