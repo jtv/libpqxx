@@ -91,9 +91,6 @@ jobs:
           name: Prepare
           command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
       - run:
-          name: DEBUG
-          command: find /usr -name libpq-fe.h
-      - run:
           name: Analyse
           # TODO: For 8.x, go back to "lint --full".
           # command: ./tools/lint --full >lint.log
