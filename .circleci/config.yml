@@ -62,10 +62,11 @@ jobs:
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
-          command: ( \
-            su postgres -c \
-              '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp' \
-              &) && \
+          command: >+
+            (
+            su postgres -c 
+            '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
+            &) &&
             sleep 5
       - run:
           name: Create postgres user
@@ -90,8 +91,7 @@ jobs:
       - checkout
       - run:
           name: Configure apt archives
-          command: \
-            apt-get update && \
+          command: apt-get update &&
             DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
       - run:
           name: Install
@@ -103,17 +103,15 @@ jobs:
           command: pipx install uv
       - run:
           name: Prepare
-          command: \
-            SRC="$(pwd)" && \
-            mkdir -p /tmp/pqxx && \
-            cd /tmp/pqxx && \
-            CXX=clang++ CXXFLAGS='-O0 \
+          command: SRC="$(pwd)" &&
+            mkdir -p /tmp/pqxx &&
+            cd /tmp/pqxx &&
+            CXX=clang++ CXXFLAGS='-O0
               -std=<< parameters.cxx_version >>' cmake "$SRC"
       - run:
           name: Analyse
-          command: \
-            SRC="$(pwd)" && \
-            cd /tmp/pqxx && \
+          command: SRC="$(pwd)" &&
+            cd /tmp/pqxx &&
             PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full
 
 workflows:
