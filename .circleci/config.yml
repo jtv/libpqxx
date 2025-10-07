@@ -64,7 +64,7 @@ jobs:
           # TODO: Is there a good way to wait for startup to complete?
           command: >+
             (
-            su postgres -c 
+            su postgres -c
             '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
             &) &&
             sleep 5
