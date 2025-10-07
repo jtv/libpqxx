@@ -120,7 +120,8 @@ public:
   }
 #endif // PQXX_HAVE_SPAN
 
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES) && defined(PQXX_HAVE_SPAN)
+#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES) &&               \
+  defined(PQXX_HAVE_SPAN)
   /// Read up to `std::size(buf)` bytes from the object.
   /** Retrieves bytes from the blob, at the current position, until `buf` is
    * full or there are no more bytes to read, whichever comes first.
