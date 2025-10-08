@@ -60,21 +60,17 @@ jobs:
           command: make -j4
       - run:
           name: Prepare postgres
-          command: "\
-            mkdir -p $PGDATA && \
+          command: "mkdir -p $PGDATA && \
             chown postgres $PGDATA && \
             su postgres -c \
-              \"/usr/lib/postgresql/*/bin/initdb --pgdata \
-              $PGDATA --auth trust --nosync\""
+              \"/usr/lib/postgresql/*/bin/initdb --pgdata $PGDATA \
+              --auth trust --nosync\""
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
-          command: >+
-            (
-            su postgres -c
-            \"/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST\"
-            &) &&
-            sleep 5
+          command: "( su postgres -c \
+            \"/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST\" &) && \
+            sleep 5"
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d root"
@@ -136,12 +132,8 @@ jobs:
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
-          command: >+
-            (
-            su postgres -c
-            "postgres -D $PGDATA -k $PGHOST"
-            &) &&
-            sleep 5
+          command: "( su postgres -c \"postgres -D $PGDATA -k $PGHOST\" &) && \
+            sleep 5"
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d root"
