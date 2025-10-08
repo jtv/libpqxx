@@ -17,9 +17,8 @@ environment:
 
 # Run CMake to build libpqxx.sln.
 before_build:
-- cmd: |
-    call "%MSVC%\\Auxiliary\\Build\\vcvars64.bat" ;
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD="%CXX_VERSION%"
+  - cmd: call "%MSVC%\\Auxiliary\\Build\\vcvars64.bat" ;
+      cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD="%CXX_VERSION%"
 
 configuration: Release
 build:
@@ -27,8 +26,8 @@ build:
   project: libpqxx.sln
 
 test_script:
-- ps: |
-    $env:Path += ";.\\src\\Release;C:\\Program Files\\PostgreSQL\\15\\bin"
-    $env:PGUSER = "postgres"
-    $env:PGPASSWORD = "Password12!"
-    .\\test\\Release\\runner.exe
+  - ps: $env:Path +=
+      ";.\\src\\Release;C:\\Program Files\\PostgreSQL\\15\\bin" ;
+      $env:PGUSER = "postgres" ;
+      $env:PGPASSWORD = "Password12!" ;
+      .\\test\\Release\\runner.exe
