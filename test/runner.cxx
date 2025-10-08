@@ -346,7 +346,7 @@ int main(int argc, char const *argv[])
   if (std::empty(tests))
   {
     // Caller didn't pass any test names on the command line.  Run all.
-    for (auto const [name, _] : all_tests) tests.emplace_back(name);
+    for (auto const &[name, _] : all_tests) tests.emplace_back(name);
   }
   else
   {
