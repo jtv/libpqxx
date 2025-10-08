@@ -114,14 +114,14 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Echo Configure
-          command: >
+          command: >+
             echo ./configure
-                --enable-maintainer-mode
-                --enable-audit
-                --enable-shared --disable-static
-                CXX=<< parameters.cxx >>
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\"
-       - run:
+              --enable-maintainer-mode
+              --enable-audit
+              --enable-shared --disable-static
+              CXX=<< parameters.cxx >>
+              CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\"
+      - run:
           name: Configure
           command: >
             ./configure
