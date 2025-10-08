@@ -18,6 +18,7 @@ jobs:
     resource_class: large
     environment:
       - PGHOST: "/tmp"
+      - PGDATA: "/db"
     steps:
       - checkout
       - run:
@@ -30,6 +31,8 @@ jobs:
             build-essential autoconf autoconf-archive automake cppcheck clang
             shellcheck libtool pipx yamllint
       - run:
+          # Really annoying: there's no uv package right now.  So we install
+          # pipx just in order to use that to install uv.
           name: Install uv
           command: pipx install uv
       - run:
@@ -55,17 +58,17 @@ jobs:
       - run:
           name: Prepare postgres
           command: |
-            mkdir /tmp/db &&
-            chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata \
-              /tmp/db --auth trust --nosync'
+            mkdir -p $PGDATA &&
+            chown postgres $PGDATA &&
+            su postgres -c "/usr/lib/postgresql/*/bin/initdb --pgdata \
+              $PGDATA --auth trust --nosync"
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
           command: >+
             (
             su postgres -c
-            '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
+            "/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST"
             &) &&
             sleep 5
       - run:
@@ -91,7 +94,7 @@ jobs:
     resource_class: large
     environment:
       - PGHOST: "/tmp"
-      - PGDATA: "/tmp"
+      - PGDATA: "/var/lib/postgres/data"
     steps:
       - checkout
       - run:
@@ -111,12 +114,12 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Configure
-          command: |
-            ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
-                --enable-shared --disable-static \
-                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+          command: >
+            ./configure
+                --enable-maintainer-mode
+                --enable-audit
+                --enable-shared --disable-static
+                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>'
                 CXX=<< parameters.cxx >>
       - store_artifacts:
           path: config.log
@@ -124,32 +127,29 @@ jobs:
           name: Make
           command: make -j4
       - run:
-          # XXX:
           name: Prepare postgres
-          command: |
-            chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata \
-              "$PGDATA" --auth trust --nosync'
-#      - run:
-#          name: Run postgres
-#          # TODO: Is there a good way to wait for startup to complete?
-#          command: >+
-#            (
-#            su postgres -c
-#            '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
-#            &) &&
-#            sleep 5
+          command: "su postgres -c \
+            \"initdb --pgdata $PGDATA --auth trust --nosync\""
+      - run:
+          name: Run postgres
+          # TODO: Is there a good way to wait for startup to complete?
+          command: >+
+            (
+            su postgres -c
+            "postgres -D $PGDATA -k $PGHOST"
+            &) &&
+            sleep 5
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d root"
-#      - run:
-#          name: Set up database
-#          command: createdb --template=template0 --encoding=UNICODE root
-#      - run:
-#          name: Test
-#          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
-#      - store_artifacts:
-#          path: test-suite.log
+      - run:
+          name: Set up database
+          command: createdb --template=template0 --encoding=UNICODE root
+      - run:
+          name: Test
+          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+      - store_artifacts:
+          path: test-suite.log
 
   analyse:
     parameters:
