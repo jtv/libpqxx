@@ -17,8 +17,8 @@ environment:
 
 # Run CMake to build libpqxx.sln.
 before_build:
-  - cmd: call "%MSVC%\\Auxiliary\\Build\\vcvars64.bat" ;
-      cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD="%CXX_VERSION%"
+  - cmd: "call %MSVC%\\Auxiliary\\Build\\vcvars64.bat\n\
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%"
 
 configuration: Release
 build:
