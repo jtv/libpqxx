@@ -3,7 +3,7 @@
 version: 2.1
 
 jobs:
-  test:
+  test-debian:
     parameters:
       cxx:
         type: string
@@ -21,7 +21,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Configure apt archives
+          name: Retrieve package lists
           command: apt-get update
       - run:
           name: Install
@@ -80,6 +80,77 @@ jobs:
       - store_artifacts:
           path: test-suite.log
 
+  test-arch:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
+    docker:
+      - image: archlinux
+    resource_class: large
+    environment:
+      - PGHOST: "/tmp"
+      - PGDATA: "/tmp"
+    steps:
+      - checkout
+      - run:
+          name: Retrieve package lists
+          command: pacman -Sy
+      - run:
+          name: Install
+          command: pacman --noconfirm --quiet -S
+            clang cmake diffutils python3 autoconf autoconf-archive automake
+            cppcheck diffutils libtool make postgresql postgresql-libs
+            shellcheck uv yamllint
+      - run:
+          name: Identify
+          command: nproc && c++ --version && clang++ --version
+      - run:
+          name: Autogen
+          command: ./autogen.sh
+      - run:
+          name: Configure
+          command: |
+            ./configure \
+                --enable-maintainer-mode \
+                --enable-audit \
+                --enable-shared --disable-static \
+                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+                CXX=<< parameters.cxx >>
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Make
+          command: make -j4
+      - run:
+          # XXX:
+          name: Prepare postgres
+          command: |
+            chown postgres /tmp/db &&
+            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata \
+              "$PGDATA" --auth trust --nosync'
+#      - run:
+#          name: Run postgres
+#          # TODO: Is there a good way to wait for startup to complete?
+#          command: >+
+#            (
+#            su postgres -c
+#            '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
+#            &) &&
+#            sleep 5
+      - run:
+          name: Create postgres user
+          command: su postgres -c "createuser -w -d root"
+#      - run:
+#          name: Set up database
+#          command: createdb --template=template0 --encoding=UNICODE root
+#      - run:
+#          name: Test
+#          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+#      - store_artifacts:
+#          path: test-suite.log
+
   analyse:
     parameters:
       cxx_version:
@@ -117,7 +188,7 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test:
+      - test-debian:
           matrix:
             parameters:
               cxx: ["clang++", "g++"]
