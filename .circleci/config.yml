@@ -43,12 +43,12 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Configure
-          command: |
-            ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
-                --enable-shared --disable-static \
-                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+          command: >
+            ./configure
+                --enable-maintainer-mode
+                --enable-audit
+                --enable-shared --disable-static
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\"
                 CXX=<< parameters.cxx >>
       - store_artifacts:
           path: config.log
@@ -60,15 +60,16 @@ jobs:
           command: |
             mkdir -p $PGDATA &&
             chown postgres $PGDATA &&
-            su postgres -c "/usr/lib/postgresql/*/bin/initdb --pgdata \
-              $PGDATA --auth trust --nosync"
+            su postgres -c \
+              \"/usr/lib/postgresql/*/bin/initdb --pgdata \
+              $PGDATA --auth trust --nosync\"
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
           command: >+
             (
             su postgres -c
-            "/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST"
+            \"/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST\"
             &) &&
             sleep 5
       - run:
