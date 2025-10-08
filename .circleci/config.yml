@@ -37,7 +37,11 @@ jobs:
           command: pipx install uv
       - run:
           name: Identify
-          command: nproc && lsb_release -a && c++ --version && clang++ --version
+          command: "echo \"nproc=$(nproc)\" && \
+              lsb_release -a && \
+              c++ --version && \
+              clang++ --version && \
+              echo \"PGDATA=$PGDATA, PGHOST=$PGHOST\""
       - run:
           name: Autogen
           command: ./autogen.sh
