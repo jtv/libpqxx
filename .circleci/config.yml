@@ -79,7 +79,7 @@ jobs:
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
       - store_artifacts:
           path: test-suite.log
 
@@ -102,10 +102,10 @@ jobs:
           command: pacman -Sy
       - run:
           name: Install
-          command: pacman --noconfirm --quiet -S
-            clang cmake diffutils python3 autoconf autoconf-archive automake
-            cppcheck diffutils libtool make postgresql postgresql-libs
-            shellcheck uv yamllint
+          command: "pacman --noconfirm --quiet -S \
+            autoconf autoconf-archive automake clang cmake cppcheck diffutils \
+            libtool make postgresql postgresql-libs python3 shellcheck uv \
+            yamllint"
       - run:
           name: Identify
           command: nproc && c++ --version && clang++ --version
@@ -146,7 +146,7 @@ jobs:
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
       - store_artifacts:
           path: test-suite.log
 
