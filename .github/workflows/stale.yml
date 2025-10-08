@@ -23,7 +23,7 @@ jobs:
           stale-issue-message: \
             There has been no activity on this ticket.  Consider closing it.
           stale-pr-message: \
-            here has been no activity on this pull request. \
+            There has been no activity on this pull request. \
             Complete it or drop it.
 
           stale-issue-label: 'no-issue-activity'
