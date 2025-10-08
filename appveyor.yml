@@ -25,6 +25,7 @@ configuration: Release
 build:
   parallel: true
   project: libpqxx.sln
+
 test_script:
 - ps: |
     $env:Path += ";.\\src\\Release;C:\\Program Files\\PostgreSQL\\15\\bin"
