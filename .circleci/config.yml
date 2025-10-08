@@ -113,14 +113,23 @@ jobs:
           name: Autogen
           command: ./autogen.sh
       - run:
+          name: Echo Configure
+          command: >
+            echo ./configure
+                --enable-maintainer-mode
+                --enable-audit
+                --enable-shared --disable-static
+                CXX=<< parameters.cxx >>
+                CXXFLAGS="-O1 -std=<< parameters.cxx_version >>"
+       - run:
           name: Configure
           command: >
             ./configure
                 --enable-maintainer-mode
                 --enable-audit
                 --enable-shared --disable-static
-                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>'
                 CXX=<< parameters.cxx >>
+                CXXFLAGS="-O1 -std=<< parameters.cxx_version >>"
       - store_artifacts:
           path: config.log
       - run:
