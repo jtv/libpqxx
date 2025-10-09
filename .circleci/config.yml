@@ -59,6 +59,7 @@ jobs:
           name: Make
           command: make -j4
       - run:
+          # TODO: Extract script for setting up a test DB.
           name: Prepare postgres
           command: "mkdir -p $PGDATA && \
             chown postgres $PGDATA && \
@@ -114,6 +115,10 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Configure
+          # Can't enable audit mode for now: leak sanitizer in gcc 15 reports
+          # one leak (a demangled type name in pipeline.cxx, 98 bytes) that
+          # valgrind is not seeing.
+          # TODO: Resolve this, and enable audit mode!
           command: "./configure \
                 --enable-maintainer-mode \
                 --enable-shared --disable-static \
