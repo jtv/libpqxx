@@ -307,7 +307,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     if (std::size(R) > 1) [[unlikely]]
       internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).as<std::string_view>(c) != theDummyValue) [[unlikely]]
+    if (R.at(0).at(0).view() != theDummyValue) [[unlikely]]
       internal_error(
         "Dummy query in pipeline returned unexpected value.", loc);
     return;
