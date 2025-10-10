@@ -34,8 +34,12 @@ su postgres -c "initdb --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
 # we're doing this for a disposable environment.
 su postgres -c "postgres -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
 
-# XXX: Wait until ready!
-sleep 5
+# Wait for postgres to become available.
+# TODO: Set tighter deadline than CircleCI's.
+while ! pg_isready -U postgres
+do
+    sleep .1
+done
 
 su postgres -c "createuser -w -d \"$USER\"" 
 createdb --template=template0 --encoding=UNICODE "$USER"
