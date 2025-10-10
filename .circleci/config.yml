@@ -3,7 +3,7 @@
 version: 2.1
 
 jobs:
-  test:
+  test-debian:
     parameters:
       cxx:
         type: string
@@ -18,56 +18,60 @@ jobs:
     resource_class: large
     environment:
       - PGHOST: "/tmp"
+      - PGDATA: "/db"
     steps:
       - checkout
       - run:
-          name: Configure apt archives
+          name: Retrieve package lists
           command: apt-get update
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
+            libpq-dev lsb-release python3 postgresql postgresql-server-dev-all
             shellcheck libtool pipx yamllint
       - run:
+          # Really annoying: there's no uv package right now.  So we install
+          # pipx just in order to use that to install uv.
           name: Install uv
           command: pipx install uv
       - run:
           name: Identify
-          command: nproc && lsb_release -a && c++ --version && clang++ --version
+          command: "echo \"nproc=$(nproc)\" && \
+              lsb_release -a && \
+              c++ --version && \
+              clang++ --version && \
+              echo \"PGDATA=$PGDATA, PGHOST=$PGHOST\""
       - run:
           name: Autogen
           command: ./autogen.sh
       - run:
           name: Configure
-          command: |
-            ./configure \
+          command: "./configure \
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
-                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-                CXX=<< parameters.cxx >>
+                CXX=<< parameters.cxx >> \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
           path: config.log
       - run:
           name: Make
           command: make -j4
       - run:
+          # TODO: Extract script for setting up a test DB.
           name: Prepare postgres
-          command: |
-            mkdir /tmp/db &&
-            chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata \
-              /tmp/db --auth trust --nosync'
+          command: "mkdir -p $PGDATA && \
+            chown postgres $PGDATA && \
+            su postgres -c \
+              \"/usr/lib/postgresql/*/bin/initdb --pgdata $PGDATA \
+              --auth trust --nosync\""
       - run:
           name: Run postgres
           # TODO: Is there a good way to wait for startup to complete?
-          command: >+
-            (
-            su postgres -c
-            '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
-            &) &&
-            sleep 5
+          command: "( su postgres -c \
+            \"/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST\" &) && \
+            sleep 5"
       - run:
           name: Create postgres user
           command: su postgres -c "createuser -w -d root"
@@ -76,7 +80,70 @@ jobs:
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" PGDATA=db/data make -j4 check
+          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
+      - store_artifacts:
+          path: test-suite.log
+
+  test-arch:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
+    docker:
+      - image: archlinux
+    resource_class: large
+    environment:
+      - PGHOST: "/tmp"
+      - PGDATA: "/var/lib/postgres/data"
+    steps:
+      - checkout
+      - run:
+          name: Retrieve package lists
+          command: pacman -Sy
+      - run:
+          name: Install
+          command: "pacman --noconfirm --quiet -S \
+            autoconf autoconf-archive automake clang cmake cppcheck diffutils \
+            libtool make postgresql postgresql-libs python3 shellcheck uv \
+            yamllint"
+      - run:
+          name: Identify
+          command: nproc && c++ --version && clang++ --version
+      - run:
+          name: Autogen
+          command: ./autogen.sh
+      - run:
+          name: Configure
+          command: "./configure \
+                --enable-maintainer-mode \
+                --enable-audit \
+                --enable-shared --disable-static \
+                CXX=<< parameters.cxx >> \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Make
+          command: make -j4
+      - run:
+          name: Prepare postgres
+          command: "su postgres -c \
+            \"initdb --pgdata $PGDATA --auth trust --nosync\""
+      - run:
+          name: Run postgres
+          # TODO: Is there a good way to wait for startup to complete?
+          command: "( su postgres -c \"postgres -D $PGDATA -k $PGHOST\" &) && \
+            sleep 5"
+      - run:
+          name: Create postgres user
+          command: su postgres -c "createuser -w -d root"
+      - run:
+          name: Set up database
+          command: createdb --template=template0 --encoding=UNICODE root
+      - run:
+          name: Test
+          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
       - store_artifacts:
           path: test-suite.log
 
@@ -117,7 +184,12 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test:
+      - test-debian:
+          matrix:
+            parameters:
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
+      - test-arch:
           matrix:
             parameters:
               cxx: ["clang++", "g++"]

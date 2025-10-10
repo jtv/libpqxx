@@ -153,7 +153,6 @@ public:
    */
   int retain(int retain_max = 2) &;
 
-
   /// Resume retained query emission.  Harmless when not needed.
   void resume(sl loc = sl::current()) &;
 
@@ -197,8 +196,7 @@ private:
   /// The given query failed; never issue anything beyond that.
   void set_error_at(query_id qid) noexcept
   {
-    [[unlikely]]
-    if (qid < m_error)
+    if (qid < m_error) [[unlikely]]
       m_error = qid;
   }
 

@@ -209,7 +209,7 @@ void pqxx::pipeline::issue(sl loc)
   // Construct cumulative query string for entire batch.
   auto cum{separated_list(
     theSeparator, oldest, std::end(m_queries),
-    [](QueryMap::const_iterator i) { return i->second.query; })};
+    [](QueryMap::const_iterator i) { return *i->second.query; })};
   auto const num_issued{
     QueryMap::size_type(std::distance(oldest, std::end(m_queries)))};
   bool const prepend_dummy{num_issued > 1};
@@ -307,7 +307,7 @@ void pqxx::pipeline::obtain_dummy(sl loc)
     if (std::size(R) > 1) [[unlikely]]
       internal_error("Unexpected result for dummy query in pipeline.", loc);
 
-    if (R.at(0).at(0).as<std::string_view>(c) != theDummyValue) [[unlikely]]
+    if (R.at(0).at(0).view() != theDummyValue) [[unlikely]]
       internal_error(
         "Dummy query in pipeline returned unexpected value.", loc);
     return;
