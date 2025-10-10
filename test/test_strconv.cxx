@@ -156,7 +156,7 @@ void check_write(
   T const &value, std::string_view expected,
   pqxx::sl loc = pqxx::sl::current())
 {
-  std::string const name{pqxx::name_type<T>()};
+  std::string_view const name{pqxx::name_type<T>()};
   std::array<char, 1000> buf{};
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
 
