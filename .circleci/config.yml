@@ -27,8 +27,8 @@ jobs:
       - run:
           name: Install
           command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
             build-essential autoconf autoconf-archive automake cppcheck clang
+            libpq-dev lsb-release python3 postgresql postgresql-server-dev-all
             shellcheck libtool pipx yamllint
       - run:
           # Really annoying: there's no uv package right now.  So we install
@@ -115,14 +115,10 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Configure
-          # Need to build as a static library here: gcc 15's leak sanitizer
-          # reports a 98-byte leak inside a std::string otherwise.  Just the
-          # one.  Valgrind sees noting.  May be a false positive.
-          # TODO: Resolve this.
           command: "./configure \
                 --enable-maintainer-mode \
                 --enable-audit \
-                --disable-shared --enable-static \
+                --enable-shared --disable-static \
                 CXX=<< parameters.cxx >> \
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
