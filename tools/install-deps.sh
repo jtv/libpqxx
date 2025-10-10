@@ -79,7 +79,7 @@ case "$1" in
         ;;
 
     *)
-        echo <&2 "$0 does not support $1."
+        echo >&2 "$0 does not support $1."
         exit 1
         ;;
 esac
