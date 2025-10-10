@@ -18,6 +18,8 @@
 set -euC -o pipefail
 
 install_debian() {
+    local pgbin
+
     apt-get -q update >/dev/null
 
     # Really annoying: there's no package for uv as of yet, so we need to
@@ -28,7 +30,9 @@ install_debian() {
         postgresql-server-dev-all shellcheck libtool pipx yamllint >/dev/null
     pipx install uv >/dev/null
 
-    echo "export PATH='$PATH:$HOME/.local/bin'"
+    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
+
+    echo "export PATH='$PATH:$HOME/.local/bin:$pgbin'"
 }
 
 
@@ -56,6 +60,12 @@ install_archlinux() {
 }
 
 
+if test -z "${1:-}"
+then
+    echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
+    exit 1
+fi
+
 case "$1" in
     debian)
         install_debian
@@ -73,3 +83,5 @@ case "$1" in
         exit 1
         ;;
 esac
+
+echo "export PGHOST=/tmp PGDATA=/db"

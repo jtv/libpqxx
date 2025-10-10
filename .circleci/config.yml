@@ -3,35 +3,35 @@
 version: 2.1
 
 jobs:
-  test-debian:
+
+  # Run tests against a Linux Docker image.
+  test-linux:
     parameters:
+      os:
+        type: string
       cxx:
         type: string
       cxx_version:
         type: string
     docker:
-      - image: debian:stable
+      - image: << parameters.os >>
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
     # executors.
     # https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
-    environment:
-      - PGHOST: "/tmp"
-      - PGDATA: "/db"
     steps:
       - checkout
       - run:
           name: Install
-          command: ./tools/install-deps.sh debian >/tmp/vars.sh
+          command: "./tools/install-deps.sh << parameters.os >> >/tmp/vars.sh"
       - run:
           name: Autogen
-          command: . /tmp/vars.sh && ./autogen.sh
+          command: ". /tmp/vars.sh && ./autogen.sh"
       - run:
           name: Configure
           command: ". /tmp/vars.sh && ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
+                --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.cxx >> \
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
@@ -41,79 +41,10 @@ jobs:
           name: Make
           command: make -j4
       - run:
-          # TODO: Extract script for setting up a test DB.
-          name: Prepare postgres
-          command: "mkdir -p $PGDATA && \
-            chown postgres $PGDATA && \
-            su postgres -c \
-              \"/usr/lib/postgresql/*/bin/initdb --pgdata $PGDATA \
-              --auth trust --nosync\""
-      - run:
-          name: Run postgres
-          # TODO: Is there a good way to wait for startup to complete?
-          command: "( su postgres -c \
-            \"/usr/lib/postgresql/*/bin/postgres -D $PGDATA -k $PGHOST\" &) && \
-            sleep 5"
-      - run:
-          name: Create postgres user
-          command: su postgres -c "createuser -w -d root"
-      - run:
-          name: Set up database
-          command: createdb --template=template0 --encoding=UNICODE root
-      - run:
-          name: Test
-          command: . /tmp/vars.sh && make -j4 check
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
       - store_artifacts:
-          path: test-suite.log
-
-  test-arch:
-    parameters:
-      cxx:
-        type: string
-      cxx_version:
-        type: string
-    docker:
-      - image: archlinux
-    resource_class: large
-    environment:
-      - PGHOST: "/tmp"
-      - PGDATA: "/var/lib/postgres/data"
-    steps:
-      - checkout
-      - run:
-          name: Install
-          command: ./tools/install-deps.sh archlinux >/tmp/vars.sh
-      - run:
-          name: Autogen
-          command: . /tmp/vars.sh && ./autogen.sh
-      - run:
-          name: Configure
-          command: ". /tmp/vars.sh && ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
-                --enable-shared --disable-static \
-                CXX=<< parameters.cxx >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
-      - store_artifacts:
-          path: config.log
-      - run:
-          name: Make
-          command: make -j4
-      - run:
-          name: Prepare postgres
-          command: "su postgres -c \
-            \"initdb --pgdata $PGDATA --auth trust --nosync\""
-      - run:
-          name: Run postgres
-          # TODO: Is there a good way to wait for startup to complete?
-          command: "( su postgres -c \"postgres -D $PGDATA -k $PGHOST\" &) && \
-            sleep 5"
-      - run:
-          name: Create postgres user
-          command: su postgres -c "createuser -w -d root"
-      - run:
-          name: Set up database
-          command: createdb --template=template0 --encoding=UNICODE root
+          path: postgres.log
       - run:
           name: Test
           command: . /tmp/vars.sh && make -j4 check
@@ -131,7 +62,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: tools/install-deps.sh debian-lint >/tmp/vars.sh
+          command: "tools/install-deps.sh debian-lint >/tmp/vars.sh"
       - run:
           name: Prepare
           command: "SRC=\"$(pwd)\" && \
@@ -150,14 +81,10 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test-debian:
+      - test-linux:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
-      - test-arch:
-          matrix:
-            parameters:
+              os: ["debian", "archlinux"]
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
