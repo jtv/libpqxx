@@ -115,13 +115,14 @@ jobs:
           command: ./autogen.sh
       - run:
           name: Configure
-          # Can't enable audit mode for now: leak sanitizer in gcc 15 reports
-          # one leak (a demangled type name in pipeline.cxx, 98 bytes) that
-          # valgrind is not seeing.
-          # TODO: Resolve this, and enable audit mode!
+          # Need to build as a static library here: gcc 15's leak sanitizer
+          # reports a 98-byte leak inside a std::string otherwise.  Just the
+          # one.  Valgrind sees noting.  May be a false positive.
+          # TODO: Resolve this.
           command: "./configure \
                 --enable-maintainer-mode \
-                --enable-shared --disable-static \
+                --enable-audit \
+                --disable-shared --enable-static \
                 CXX=<< parameters.cxx >> \
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
