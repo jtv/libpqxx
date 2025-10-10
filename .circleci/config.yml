@@ -22,32 +22,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Retrieve package lists
-          command: apt-get update
-      - run:
           name: Install
-          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            build-essential autoconf autoconf-archive automake cppcheck clang
-            libpq-dev lsb-release python3 postgresql postgresql-server-dev-all
-            shellcheck libtool pipx yamllint
-      - run:
-          # Really annoying: there's no uv package right now.  So we install
-          # pipx just in order to use that to install uv.
-          name: Install uv
-          command: pipx install uv
-      - run:
-          name: Identify
-          command: "echo \"nproc=$(nproc)\" && \
-              lsb_release -a && \
-              c++ --version && \
-              clang++ --version && \
-              echo \"PGDATA=$PGDATA, PGHOST=$PGHOST\""
+          command: ./tools/install-deps.sh debian >/tmp/vars.sh
       - run:
           name: Autogen
-          command: ./autogen.sh
+          command: . /tmp/vars.sh && ./autogen.sh
       - run:
           name: Configure
-          command: "./configure \
+          command: ". /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
@@ -80,7 +62,7 @@ jobs:
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
+          command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
 
@@ -99,23 +81,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Retrieve package lists
-          command: pacman -Sy
-      - run:
           name: Install
-          command: "pacman --noconfirm --quiet -S \
-            autoconf autoconf-archive automake clang cmake cppcheck diffutils \
-            libtool make postgresql postgresql-libs python3 shellcheck uv \
-            yamllint"
-      - run:
-          name: Identify
-          command: nproc && c++ --version && clang++ --version
+          command: ./tools/install-deps.sh archlinux >/tmp/vars.sh
       - run:
           name: Autogen
-          command: ./autogen.sh
+          command: . /tmp/vars.sh && ./autogen.sh
       - run:
           name: Configure
-          command: "./configure \
+          command: ". /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode \
                 --enable-audit \
                 --enable-shared --disable-static \
@@ -143,7 +116,7 @@ jobs:
           command: createdb --template=template0 --encoding=UNICODE root
       - run:
           name: Test
-          command: PATH="$PATH:$HOME/.local/bin" make -j4 check
+          command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
 
@@ -157,29 +130,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Configure apt archives
-          command: apt-get update &&
-            DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
-      - run:
           name: Install
-          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            python3 build-essential cppcheck clang clang-tidy cmake libpq-dev
-            shellcheck postgresql-server-dev-all markdownlint yamllint pipx
-      - run:
-          name: Install uv
-          command: pipx install uv
+          command: tools/install-deps.sh debian-lint >/tmp/vars.sh
       - run:
           name: Prepare
-          command: SRC="$(pwd)" &&
-            mkdir -p /tmp/pqxx &&
-            cd /tmp/pqxx &&
-            CXX=clang++ CXXFLAGS='-O0
-              -std=<< parameters.cxx_version >>' cmake "$SRC"
+          command: "SRC=\"$(pwd)\" && \
+            mkdir -p /tmp/pqxx && \
+            cd /tmp/pqxx && \
+            . /tmp/vars.sh && \
+            CXX=clang++ CXXFLAGS='-O0 \
+              -std=<< parameters.cxx_version >>' cmake \"$SRC\""
       - run:
           name: Analyse
-          command: SRC="$(pwd)" &&
-            cd /tmp/pqxx &&
-            PATH="$PATH:$HOME/.local/bin" "$SRC/tools/lint" --full
+          command: "SRC=\"$(pwd)\" && \
+            cd /tmp/pqxx && \
+            . /tmp/vars.sh && \
+            \"$SRC/tools/lint\" --full"
 
 workflows:
   all-tests:
