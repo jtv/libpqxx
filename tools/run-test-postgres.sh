@@ -31,7 +31,7 @@ chown postgres -- "$PGDATA" "$PGHOST"
 su postgres -c "initdb --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
 
 # Run postgres server in the background.  This is not great practice but...
-# we're doing this for a disposable environmnt.
+# we're doing this for a disposable environment.
 su postgres -c "postgres -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
 
 # XXX: Wait until ready!
