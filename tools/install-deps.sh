@@ -63,8 +63,10 @@ install_debian_lint() {
 
 install_fedora() {
     dnf -qy install \
-        autoconf autoconf-archive automake cppcheck clang libtool postgresql \
-        postgresql-devel postgresql-server shellcheck uv yamllint >/dev/null
+        autoconf autoconf-archive automake cppcheck clang libasan libtool \
+        libubsan postgresql postgresql-devel postgresql-server shellcheck uv \
+        yamllint \
+        >/dev/null
 
     # I haven't found a curated pcakage for Markdownlint (mdl) on Fedora.
     # That's fine: we run it on the other systems.  Just stub it out.
