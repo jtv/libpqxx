@@ -68,7 +68,7 @@ install_fedora() {
         yamllint \
         >/dev/null
 
-    # I haven't found a curated pcakage for Markdownlint (mdl) on Fedora.
+    # I haven't found a curated package for Markdownlint (mdl) on Fedora.
     # That's fine: we run it on the other systems.  Just stub it out.
     echo "alias mdl='echo mdl'"
 }
