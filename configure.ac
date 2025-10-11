@@ -91,16 +91,16 @@ add_compiler_opts() {
 }
 
 
-# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_17 for this,
-# but it's 2022 and the C++20 equivalent isn't quite ready for use.
+# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_* for this,
+# but it's not getting a lot of maintenance.
 # Seems simpler and more reliable for the user to arrange for the desired
 # language versions by setting the appropriate option for their compiler.
 AC_MSG_CHECKING([for sufficient C++ language/library level])
 sufficient_cxx=yes
 AC_COMPILE_IFELSE(
 	[AC_LANG_SOURCE([
-	#if __cplusplus < 201611L
-	#error "Need C++17 or better."
+	#if __cplusplus < 202002L
+	#error "Need C++20 or better."
 	#endif
 	])],
 	sufficient_cxx=yes,
@@ -108,7 +108,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($sufficient_cxx)
 if test "$sufficient_cxx" != "yes"
 then
-	AC_MSG_ERROR([This libpqxx version needs at least C++17.])
+	AC_MSG_ERROR([This libpqxx version needs at least C++20.])
 fi
 
 
@@ -125,7 +125,10 @@ then
 		# "Eternal" (FLW) g++ options.  These have been around for
 		# ages, and both g++ and clang++ support them.  Don't bother
 		# checking for support; just add them to the compiler options.
-		# TODO: Add -D_GLIBCXX_CONCEPT_CHECKS in 8.0.
+		#
+		# We'd love to add -D_GLIBCXX_CONCEPT_CHECKS in 8.0 here, but
+		# it complains that the "reference" type in result iterators is
+		# not an actual reference.
 		add_compiler_opts \
 			-fstrict-enums \
 			-Werror \
@@ -443,39 +446,6 @@ but be warned that this is no easy reading.  Look for the last error message
 occurring in the file.
 ])],
 	${with_postgres_libpath})
-
-
-# TODO: PQresultMemorySize()
-
-
-AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
-LIBS_SAVE="$LIBS"
-found_fslib=no
-for l in '' '-lstdc++fs' '-lc++fs'
-do
-	if test "$found_fslib" != "yes"
-	then
-		LIBS="$LIBS $l"
-		AC_LINK_IFELSE(
-			[read_test(no_need_fslib.cxx)],
-			[found_fslib=yes],
-			[LIBS="$LIBS_SAVE"])
-		if test "$found_fslib" = "yes"
-		then
-			result_msg="$l"
-			# (And keep our current value of $LIBS.)
-		fi
-	fi
-done
-
-if test "$found_fslib" != "yes"
-then
-	AC_MSG_ERROR([
-There seems to be <filesystem> support, but I could not figure out now to make
-it work.  You'll have to set your own build options for this.
-	])
-fi
-AC_MSG_RESULT($result_msg)
 
 
 # Remove redundant occurrances of -lpq

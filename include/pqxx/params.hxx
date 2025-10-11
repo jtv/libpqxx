@@ -16,8 +16,8 @@
 #endif
 
 #include <array>
+#include <format>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/statement_parameters.hxx"
 #include "pqxx/types.hxx"
 
@@ -29,7 +29,7 @@ namespace pqxx
  * cases you can pass parameters into the statement in the form of a
  * `pqxx::params` object.
  */
-class PQXX_LIBEXPORT params
+class PQXX_LIBEXPORT params final
 {
 public:
   params() = default;
@@ -50,18 +50,19 @@ public:
    */
   void reserve(std::size_t n) &;
 
-  // C++20: constexpr.
   /// Get the number of parameters currently in this `params`.
-  [[nodiscard]] auto size() const noexcept { return m_params.size(); }
+  [[nodiscard]] constexpr auto size() const noexcept
+  {
+    return m_params.size();
+  }
 
-  // C++20: Use the vector's ssize() directly and go noexcept+constexpr.
   /// Get the number of parameters (signed).
   /** Unlike `size()`, this is not yet `noexcept`.  That's because C++17's
    * `std::vector` does not have a `ssize()` member function.  These member
    * functions are `noexcept`, but `std::size()` and `std::ssize()` are
    * not.
    */
-  [[nodiscard]] auto ssize() const { return pqxx::internal::ssize(m_params); }
+  [[nodiscard]] constexpr auto ssize() const { return std::ssize(m_params); }
 
   /// Append a null value.
   void append() &;
@@ -88,50 +89,30 @@ public:
   void append(bytes_view) &;
 
   /// Append a non-null binary parameter.
-  /** Copies the underlying data into internal storage.  For best efficiency,
-   * use the `pqxx::bytes_view` variant if you can, or `std::move()`.
-   */
-  void append(bytes const &) &;
-
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
-  /// Append a non-null binary parameter.
   /** The `data` object must stay in place and unchanged, for as long as the
    * `params` remains active.
    */
   template<binary DATA> void append(DATA const &data) &
   {
-    append(bytes_view{std::data(data), std::size(data)});
+    append(binary_cast(data));
   }
-#endif // PQXX_HAVE_CONCEPTS
 
   /// Append a non-null binary parameter.
   void append(bytes &&) &;
 
-  /// @deprecated Append binarystring parameter.
-  /** The binarystring must stay valid for as long as the `params` remains
-   * active.
-   */
-  void append(binarystring const &value) &;
-
-  /// Append all parameters from value.
-  template<typename IT, typename ACCESSOR>
-  void append(pqxx::internal::dynamic_params<IT, ACCESSOR> const &value) &
-  {
-    for (auto &param : value) append(value.access(param));
-  }
-
+  /// Append all parameters in `value`.
   void append(params const &value) &;
 
+  /// Append all parameters in `value`.
   void append(params &&value) &;
 
   /// Append a non-null parameter, converting it to its string
   /// representation.
-  template<typename TYPE> void append(TYPE const &value) &
+  template<typename TYPE> void append([[maybe_unused]] TYPE const &value) &
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
-    if constexpr (nullness<strip_t<TYPE>>::always_null)
+    if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
     {
-      ignore_unused(value);
       m_params.emplace_back();
     }
     else if (is_null(value))
@@ -145,12 +126,10 @@ public:
   }
 
   /// Append all elements of `range` as parameters.
-  template<PQXX_RANGE_ARG RANGE> void append_multi(RANGE const &range) &
+  template<std::ranges::range RANGE> void append_multi(RANGE const &range) &
   {
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
     if constexpr (std::ranges::sized_range<RANGE>)
       reserve(std::size(*this) + std::size(range));
-#endif
     for (auto &value : range) append(value);
   }
 
@@ -164,7 +143,7 @@ public:
    * As soon as we climb back out of that call tree, we're done with that
    * data.
    */
-  pqxx::internal::c_params make_c_params() const;
+  pqxx::internal::c_params make_c_params(sl loc) const;
 
 private:
   /// Recursively append a pack of params.
@@ -202,7 +181,7 @@ private:
  * which number a placeholder should have, you can use a `placeholders` object
  * to count and generate them in order.
  */
-template<typename COUNTER = unsigned int> class placeholders
+template<typename COUNTER = unsigned int> class placeholders final
 {
 public:
   /// Maximum number of parameters we support.
@@ -233,11 +212,14 @@ public:
   std::string get() const { return std::string(std::data(m_buf), m_len); }
 
   /// Move on to the next parameter.
-  void next() &
+  void next(sl loc = sl::current()) &
   {
+    conversion_context const c{{}, loc};
     if (m_current >= max_params)
-      throw range_error{pqxx::internal::concat(
-        "Too many parameters in one statement: limit is ", max_params, ".")};
+      throw range_error{
+        std::format(
+          "Too many parameters in one statement: limit is {}.", max_params),
+        loc};
     PQXX_ASSUME(m_current > 0);
     ++m_current;
     if (m_current % 10 == 0)
@@ -246,16 +228,16 @@ public:
       // case, just rewrite the entire number.  Leave the $ in place
       // though.
       char *const data{std::data(m_buf)};
-      char *const end{string_traits<COUNTER>::into_buf(
-        data + 1, data + std::size(m_buf), m_current)};
-      // (Subtract because we don't include the trailing zero.)
-      m_len = check_cast<COUNTER>(end - data, "placeholders counter") - 1;
+
+      auto const written{pqxx::into_buf<COUNTER>(
+        {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
+      std::size_t end{1 + written};
+      m_len = check_cast<COUNTER>(end, "placeholders counter", loc);
     }
     else
     {
-      PQXX_LIKELY
       // Shortcut for the common case: just increment that last digit.
-      ++m_buf[m_len - 1];
+      [[likely]]++ m_buf[m_len - 1];
     }
   }
 
@@ -280,41 +262,4 @@ private:
   std::array<char, std::numeric_limits<COUNTER>::digits10 + 3> m_buf;
 };
 } // namespace pqxx
-
-
-/// @deprecated The new @ref params class replaces all of this.
-namespace pqxx::prepare
-{
-/// @deprecated Use @ref params instead.
-template<typename IT>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(IT begin, IT end)
-{
-  return pqxx::internal::dynamic_params(begin, end);
-}
-
-
-/// @deprecated Use @ref params instead.
-template<typename C>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C const &container)
-{
-  using IT = typename C::const_iterator;
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT>{container};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-
-
-/// @deprecated Use @ref params instead.
-template<typename C, typename ACCESSOR>
-[[deprecated("Use the params class instead.")]] constexpr inline auto
-make_dynamic_params(C &container, ACCESSOR accessor)
-{
-  using IT = decltype(std::begin(container));
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-  return pqxx::internal::dynamic_params<IT, ACCESSOR>{container, accessor};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-}
-} // namespace pqxx::prepare
 #endif

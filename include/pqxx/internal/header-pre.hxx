@@ -63,15 +63,6 @@
 #  define PQXX_CPLUSPLUS __cplusplus
 #endif
 
-// C++20: No longer needed.
-// Enable ISO-646 alternative operator representations: "and" instead of "&&"
-// etc. on older compilers.  C++17 deprecates this header; C++20 removes it.
-#if defined(_MSC_VER) && __has_include(<ciso646>) && PQXX_CPLUSPLUS <= 201703L
-// MSVC.  This compiler is being difficult: it requires us to include this
-// header in C++17, but will also complain that it's deprecated.
-#  include <ciso646>
-#endif
-
 #if defined(PQXX_HAVE_GCC_PURE)
 /// Declare function "pure": no side effects, only reads globals and its args.
 #  define PQXX_PURE __attribute__((pure))
@@ -171,16 +162,6 @@
 #ifndef PQXX_NOVTABLE
 #  define PQXX_NOVTABLE /* novtable */
 #endif
-
-// C++20: Assume support.
-#if defined(PQXX_HAVE_LIKELY)
-#  define PQXX_LIKELY [[likely]]
-#  define PQXX_UNLIKELY [[unlikely]]
-#else
-#  define PQXX_LIKELY   /* [[likely]] */
-#  define PQXX_UNLIKELY /* [[unlikely]] */
-#endif
-
 
 // C++23: Assume support.
 #if defined(PQXX_HAVE_ASSUME)

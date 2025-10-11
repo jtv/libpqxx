@@ -1,6 +1,6 @@
 #include <pqxx/pqxx>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 namespace
@@ -32,7 +32,7 @@ std::string app_name(pqxx::connection const &cx)
   auto const start{intro + std::size(marker)};
   if (start == std::string::npos or all.at(start) == ' ')
     return "";
-  std::size_t here{start}, end;
+  std::size_t here{start}, end{};
   if (all.at(here) == '\'')
   {
     // Quoted string.
@@ -49,7 +49,6 @@ std::string app_name(pqxx::connection const &cx)
   {
     // Simple string.  Just stop at the next space, or end of string.
     // This find() can return npos, but that's fine here.
-    here = all.find(' ', start);
     end = all.find(' ', start);
   }
   return all.substr(start, end - start);
@@ -59,8 +58,7 @@ std::string app_name(pqxx::connection const &cx)
 void check_connect_string(std::string const &in, std::string const &expected)
 {
   auto cx{connect(in)};
-  PQXX_CHECK_EQUAL(
-    app_name(cx), expected, "App name did not come out as expected.");
+  PQXX_CHECK_EQUAL(app_name(cx), expected);
 
   // Check that connection_string() produced a valid, more or less equivalent
   // connection string.
@@ -70,12 +68,14 @@ void check_connect_string(std::string const &in, std::string const &expected)
 
 void test_connection_string_escapes()
 {
-  // XXX: Deal with encodings?
-  // XXX: Deal with URI encoding?
   check_connect_string("pqxxtest", "pqxxtest");
   check_connect_string("'hello'", "hello");
   check_connect_string("'a b c'", "'a b c'");
   check_connect_string("'x \\\\y'", "'x \\\\y'");
+
+  // TODO: Use raw strings once Visual Studio copes with backslashes there.
+
+  // NOLINTNEXTLINE(modernize-raw-string-literal)
   check_connect_string("\\\\r\\\\n", "\\\\r\\\\n");
 
   // This does seem to get quoted, even though as I read the spec, that's not

@@ -1,6 +1,6 @@
 /* Code for parts of pqxx::internal::stream_query.
  *
- * These definitions needs to be in a separate file in order to iron out
+ * These definitions need to be in a separate file in order to iron out
  * circular dependencies between headers.
  */
 #if !defined(PQXX_H_STREAM_QUERY_IMPL)
@@ -10,26 +10,27 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query) :
-        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+  transaction_base &tx, std::string_view query, sl loc) :
+        transaction_focus{tx, "stream_query"},
+        m_char_finder{get_finder(tx, loc)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"))};
-  r.expect_columns(sizeof...(TYPE));
-  r.expect_rows(0);
+  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), loc)};
+  r.expect_columns(sizeof...(TYPE), loc);
+  r.expect_rows(0, loc);
   register_me();
 }
 
 
 template<typename... TYPE>
 inline char_finder_func *
-stream_query<TYPE...>::get_finder(transaction_base const &tx)
+stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
-  auto const group{enc_group(tx.conn().encoding_id())};
-  return get_s_char_finder<'\t', '\\'>(group);
+  auto const group{tx.conn().get_encoding_group(loc)};
+  return get_char_finder<'\t', '\\'>(group, loc);
 }
 
 
-// C++20: Replace with generator?  Could be faster (local vars vs. members).
+// TODO: Replace with generator?  Could be faster (local vars vs. members).
 /// Input iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
@@ -72,7 +73,8 @@ public:
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    return m_home->parse_line(zview{m_line.get(), m_line_size});
+    sl loc{sl::current()};
+    return m_home->parse_line(zview{m_line.get(), m_line_size}, loc);
   }
 
   /// Are we at the end?
@@ -164,8 +166,8 @@ stream_query<TYPE...>::read_line() &
   {
     auto line{gate.read_copy_line()};
     // Check for completion.
-    if (not line.first)
-      PQXX_UNLIKELY close();
+    if (not line.first) [[unlikely]]
+      close();
     return line;
   }
   catch (std::exception const &)

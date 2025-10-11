@@ -1,13 +1,9 @@
-#include <algorithm>
-#include <cstdio>
-#include <iostream>
 #include <string>
-#include <vector>
 
 #include <pqxx/cursor>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
+#include "helpers.hxx"
 
 
 // "Adopted SQL Cursor" test program for libpqxx.  Create SQL cursor, wrap it
@@ -58,21 +54,18 @@ void test_084()
   // Remember, our adopted cursor is at position (InitialSkip*GetRows)
   pqxx::icursor_iterator i3(i2);
 
-  PQXX_CHECK(
-    (i3 == i2) and not(i3 != i2),
-    "Equality on copy-constructed icursor_iterator is broken.");
-  PQXX_CHECK(
-    not(i3 > i2) and not(i3 < i2) and (i3 <= i2) and (i3 >= i2),
-    "Comparison on identical icursor_iterators is broken.");
+  PQXX_CHECK((i3 == i2) and not(i3 != i2));
+  PQXX_CHECK(not(i3 > i2) and not(i3 < i2) and (i3 <= i2) and (i3 >= i2));
 
   i3 += InitialSkip;
 
-  PQXX_CHECK(not(i3 <= i2), "icursor_iterator operator<=() is broken.");
+  PQXX_CHECK(not(i3 <= i2));
 
-  pqxx::icursor_iterator iend, i4;
-  PQXX_CHECK(i3 != iend, "Early end to icursor_iterator iteration.");
+  pqxx::icursor_iterator i4;
+  pqxx::icursor_iterator const iend;
+  PQXX_CHECK(i3 != iend);
   i4 = iend;
-  PQXX_CHECK(i4 == iend, "Assigning empty icursor_iterator fails.");
+  PQXX_CHECK(i4 == iend);
 
   // Now start testing our new Cursor.
   C >> R;
@@ -80,30 +73,30 @@ void test_084()
   pqxx::result R2(*i2++);
 
   PQXX_CHECK_EQUAL(
-    std::size(R), static_cast<pqxx::result::size_type>(GetRows),
-    "Got unexpected number of rows.");
+    std::size(R), static_cast<pqxx::result::size_type>(GetRows));
 
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [1]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
 
   C.get(R);
   R2 = *i2;
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [2]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
   i2 += 1;
 
   C.ignore(GetRows);
   C.get(R);
   R2 = *++i2;
 
-  PQXX_CHECK_EQUAL(R, R2, "Unexpected result at [3]");
+  PQXX_CHECK_EQUAL(pqxx::to_string(R), pqxx::to_string(R2));
 
   ++i2;
   R2 = *i2++;
   for (int i{1}; C.get(R) and i2 != iend; R2 = *i2++, ++i)
     PQXX_CHECK_EQUAL(
-      R, R2, "Unexpected result in iteration at " + pqxx::to_string(i));
+      pqxx::to_string(R), pqxx::to_string(R2),
+      "Unexpected result in iteration at " + pqxx::to_string(i));
 
-  PQXX_CHECK(i2 == iend, "Adopted cursor terminated early.");
-  PQXX_CHECK(not(C >> R), "icursor_iterator terminated early.");
+  PQXX_CHECK(i2 == iend);
+  PQXX_CHECK(not(C >> R));
 }
 } // namespace
 

@@ -64,15 +64,6 @@
 #undef PQXX_HAVE_CHARCONV_FLOAT
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_CHARCONV_INT
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_CMP
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_CONCEPTS
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_CXA_DEMANGLE
 
 /* Define if this feature is available. */
@@ -82,13 +73,7 @@
 #undef PQXX_HAVE_GCC_VISIBILITY
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_LIKELY
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_MULTIDIM
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_PATH
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_POLL
@@ -98,15 +83,6 @@
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_SLEEP_FOR
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_SOURCE_LOCATION
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_SPAN
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_SSIZE
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_STRERROR_R
