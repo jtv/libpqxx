@@ -234,6 +234,11 @@ template<> struct string_traits<legacy_item>
     return zview{begin, outsz};
   }
 
+  static inline legacy_item from_string(std::string_view text)
+  {
+    return legacy_item{pqxx::from_string<int>(text)};
+  }
+
   static inline std::size_t size_buffer(legacy_item const &value) noexcept
   {
     return pqxx::size_buffer(value.get_val()) + 1;
@@ -247,7 +252,10 @@ namespace
 void test_legacy_7_conversion_support()
 {
   legacy_item leg{pqxx::test::make_int()};
-  PQXX_CHECK_EQUAL(pqxx::to_string(leg), pqxx::to_string(leg.get_val()));
+  auto const as_string{pqxx::to_string(leg)};
+  PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<legacy_item>(as_string).get_val(), leg.get_val());
 }
 
 
