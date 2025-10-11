@@ -182,50 +182,29 @@ using ctx = conversion_context const &;
  */
 template<typename TYPE> struct string_traits final
 {
-  /// Is conversion from `TYPE` to strings supported?
-  /** When defining your own conversions, specialise this as `true` to indicate
-   * that your string traits support the conversions to strings.
-   */
-  static constexpr bool converts_to_string{false};
-
-  /// Is conversion from `string_view` to `TYPE` supported?
-  /** When defining your own conversions, specialise this as `true` to indicate
-   * that your string traits support `from_string`.
-   */
-  static constexpr bool converts_from_string{false};
-
   /// Return a @c string_view representing `value`.
-  /** Produces a view containing the PostgreSQL string representation for
-   * @c value.
+  /** Produces a view on a PostgreSQL string representation for @c value.
    *
    * @warning A null value has no string representation.  Do not pass a null.
    *
-   * Uses `buf` to store the string's contents, if needed.  The returned
-   * `string view` may lie somewhere in that buffer, or it may be a
-   * compile-time constant.  Even if it does store the string in the buffer,
-   * the string may not start at the exact beginning of `buf`.
+   * Uses `buf` to store string contents, _if needed._  The returned
+   * `string view` may point somewhere inside that buffer, or to a
+   * compile-time constant, or just directly to `value`.  Even if the string
+   * does live in `buf`, it may not start at the exact _beginning_ of `buf`.
    *
-   * The resulting view is guaranteed to be valid as long as the buffer space
-   * to which `buf` points remains accessible, and its contents unmodified.
+   * The resulting view stays valid for as long as both the buffer space to
+   * which `buf` points, and `value`, remain accessible and unmodified.
    *
    * @throws pqxx::conversion_overrun if `buf` is not large enough.  For
    * maximum performance, this is a conservative estimate.  It may complain
    * about a buffer which is actually large enough for your value, if an exact
    * check would be too expensive.
+   *
+   * If there is no support for converting this type to an SQL string, simply
+   * leave this function out of the struct.
    */
   [[nodiscard]] static inline std::string_view
   to_buf(std::span<char> buf, TYPE const &value, ctx = {});
-
-  /// Write value's string representation into buffer.
-  /* @warning A null value has no string representation.  Do not pass a null.
-   *
-   * Writes value's string representation into the buffer, starting exactly at
-   * the beginning of the buffer.  Returns the offset into the buffer just
-   * after the string, so the caller could use it as the starting point for
-   * another call to write a next value.
-   */
-  static inline std::size_t
-  into_buf(std::span<char> buf, TYPE const &value, ctx = {});
 
   /// Parse a string representation of a @c TYPE value.
   /** Throws @c conversion_error if @c value does not meet the expected format
@@ -235,8 +214,11 @@ template<typename TYPE> struct string_traits final
    *
    * @warning If you convert a string to `std::string_view`, you're basically
    * just getting a pointer into the original buffer.  So, the `string_view`
-   * will become invalid when the original string's lifetime ends, or gets
-   * overwritten.  Do not access the `string_view` you got after that!
+   * will become invalid when the original string's lifetime ends, or when it
+   * gets overwritten.  Do not access the `string_view` after that!
+   *
+   * If there is no support for converting from an SQL string to this type,
+   * simply leave this function out of the struct.
    */
   [[nodiscard]] static inline TYPE
   from_string(std::string_view text, ctx = {});
@@ -251,56 +233,20 @@ template<typename TYPE> struct string_traits final
 };
 
 
-// C++26: Replace with `=delete("...")`.
-/// Nonexistent function to indicate a disallowed type conversion.
-/** There is no implementation for this function, so any reference to it will
- * fail to link.  The error message will mention the function name and its
- * template argument, as a deliberate message to an application developer that
- * their code is attempting to use a deliberately unsupported conversion.
- *
- * There are some C++ types that you may want to convert to or from SQL values,
- * but which libpqxx deliberately does not support.  Take `char` for example:
- * we define no conversions for that type because it is not inherently clear
- * whether whether the corresponding SQL type should be a single-character
- * string, a small integer, a raw byte value, etc.  The intention could differ
- * from one call site to the next.
- *
- * If an application attempts to convert these types, we try to make sure that
- * the compiler will issue an error involving this function name, and mention
- * the type, as a hint as to the reason.
- */
-template<typename TYPE> [[noreturn]] void oops_forbidden_conversion() noexcept;
-
-
 // C++26: Use "=delete" with reason.
 /// String traits for a forbidden type conversion.
 /** If you have a C++ type for which you explicitly wish to forbid SQL
  * conversion, you can derive a @ref pqxx::string_traits specialisation for
  * that type from this struct.  Any attempt to convert the type will then fail
- * to build, and produce an error mentioning @ref oops_forbidden_conversion.
+ * to build, and produce an error referring to this type.  It may help debug
+ * build errors.
  */
 template<typename TYPE> struct forbidden_conversion
 {
-  static constexpr bool converts_to_string{false};
-  static constexpr bool converts_from_string{false};
   [[noreturn]] static std::string_view
-  to_buf(std::span<char>, TYPE const &, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static std::size_t
-  into_buf(std::span<char>, TYPE const &, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static TYPE from_string(std::string_view, ctx = {})
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
-  [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept
-  {
-    oops_forbidden_conversion<TYPE>();
-  }
+  to_buf(std::span<char>, TYPE const &, ctx = {}) = delete;
+  [[noreturn]] static TYPE from_string(std::string_view, ctx = {}) = delete;
+  [[noreturn]] static std::size_t size_buffer(TYPE const &) noexcept = delete;
 };
 
 
@@ -398,22 +344,7 @@ concept to_buf_8 = requires(
 };
 
 
-/// Signature for string_traits<TYPE>::into_buf() in libpqxx 7.
-template<typename TYPE>
-concept into_buf_7 =
-  requires(char *out, char *begin, char *end, TYPE const &value) {
-    out = string_traits<TYPE>::into_buf(begin, end, value);
-  };
-
-/// Signature for string_traits<TYPE>::into_buf() in libpqxx 8.
-template<typename TYPE>
-concept into_buf_8 =
-  requires(std::size_t out, std::span<char> buf, TYPE const &value, ctx c) {
-    out = string_traits<TYPE>::into_buf(buf, value, c);
-    out = string_traits<TYPE>::into_buf(buf, value);
-  };
-
-/// Signature for string_traist<TYPE>::from_string() in libpqxx 8.
+/// Signature for string_traits<TYPE>::from_string() in libpqxx 8.
 template<typename TYPE>
 concept from_string_8 = requires(TYPE out, std::string_view text, ctx c) {
   out = string_traits<TYPE>::from_string(text, c);
@@ -456,29 +387,36 @@ to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 }
 
 
-// XXX: Re-implement using traits<TYPE>>to_buf() instead.
 /// Write an SQL representation of `value` into `buf`.
-/** This calls string_traits<TYPE>::into_buf(), but bridges some API version
+/** This calls @ref string_traits<TYPE>::to_buf(), but bridges some API version
  * differences.
+ *
+ * @return The number of SQL text bytes written into `buf`.  There is no
+ * terminating zero.
  */
 template<typename TYPE>
 [[nodiscard]] inline std::size_t
 into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
-  static_assert(
-    pqxx::internal::into_buf_7<TYPE> or pqxx::internal::into_buf_8<TYPE>);
-  using traits = string_traits<TYPE>;
-  if constexpr (pqxx::internal::into_buf_8<TYPE>)
+  auto const data{std::data(buf)};
+  std::string_view out{to_buf(buf, value, c)};
+  auto const sz{std::size(out)};
+
+  // Be careful to use a memory "move," not a "copy."  Source and destination
+  // may overlap (or be identical).
+  if (not std::empty(out)) [[likely]]
   {
-    return traits::into_buf(buf, value, c);
+    if (std::cmp_greater(std::size(out), std::size(buf)))
+      throw conversion_overrun{
+        std::format(
+          "Buffer too small to convert {} value to string (needs a {}-byte "
+          "buffer).",
+          name_type<TYPE>(), std::size(out)),
+        c.loc};
+    std::memmove(data, std::data(out), sz);
   }
-  else
-  {
-    auto const begin{std::data(buf)}, end{begin + std::size(buf)};
-    return check_cast<std::size_t>(
-      traits::into_buf(begin, end, value) - begin,
-      "String conversion is too long.", c.loc);
-  }
+
+  return sz;
 }
 
 
@@ -565,19 +503,10 @@ template<typename ENUM> struct enum_traits
   using impl_type = std::underlying_type_t<ENUM>;
   using impl_traits = string_traits<impl_type>;
 
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
-  [[nodiscard]] static constexpr zview
-  to_buf(char *begin, char *end, ENUM const &value)
+  [[nodiscard]] static constexpr std::string_view
+  to_buf(std::span<char> buf, ENUM const &value, ctx c = {})
   {
-    return pqxx::to_buf({begin, end}, to_underlying(value));
-  }
-
-  static std::size_t
-  into_buf(std::span<char> buf, ENUM const &value, ctx c = {})
-  {
-    return pqxx::into_buf(buf, to_underlying(value), c);
+    return pqxx::to_buf(buf, to_underlying(value), c);
   }
 
   [[nodiscard]] static ENUM from_string(std::string_view text, ctx c = {})
@@ -673,16 +602,15 @@ template<typename... TYPE>
 inline std::vector<std::string_view>
 to_buf_multi(std::span<char> buf, TYPE... value)
 {
-  auto here{0u};
+  // TODO: Would it be worth merging consecutive identical strings?
+  std::size_t here{0u};
   return {[&here, buf](auto v) {
     auto start{here};
     here += pqxx::into_buf(buf.subspan(start), v);
     assert(start < here);
     assert(here <= std::size(buf));
     // C++26: Use buf.at().
-    assert(buf[here - 1] == '\0');
-    // Exclude the trailing zero out of the zview.
-    auto len{here - start - 1};
+    auto const len{here - start};
     return std::string_view{std::data(buf) + start, len};
   }(value)...};
 }
@@ -760,47 +688,6 @@ template<typename T> inline constexpr char array_separator{','};
 template<typename TYPE> inline constexpr format param_format(TYPE const &)
 {
   return format::text;
-}
-
-
-/// Implement @c string_traits<TYPE>::to_buf by calling @c into_buf.
-/** When you specialise @c string_traits for a new type, most of the time its
- * @c to_buf implementation has no special optimisation tricks and just writes
- * its text into the buffer it receives from the caller, starting at the
- * beginning.
- *
- * In that common situation, you can implement @c to_buf as just a call to
- * @c generic_to_buf.  It will call @c into_buf and return the right result for
- * @c to_buf.
- */
-template<typename TYPE>
-[[deprecated("Pass buffer as std::span<char>.")]]
-inline zview generic_to_buf(char *begin, char *end, TYPE const &value)
-{
-  return generic_to_buf({begin, end}, value);
-}
-
-
-/// Implement @c string_traits<TYPE>::to_buf by calling @c into_buf.
-/** When you specialise @c string_traits for a new type, most of the time its
- * @c to_buf implementation has no special optimisation tricks and just writes
- * its text into the buffer it receives from the caller, starting at the
- * beginning.
- *
- * In that common situation, you can implement @c to_buf as just a call to
- * @c generic_to_buf.  It will call @c into_buf and return the right result for
- * @c to_buf.
- */
-template<typename TYPE>
-inline std::string_view
-generic_to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
-{
-  // The trailing zero does not count towards the zview's size, so subtract 1
-  // from the result we get from into_buf().
-  if (is_null(value))
-    return {};
-  else
-    return std::string_view{std::data(buf), pqxx::into_buf(buf, value, c) - 1};
 }
 //@}
 } // namespace pqxx

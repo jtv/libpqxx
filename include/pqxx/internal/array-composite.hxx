@@ -380,8 +380,8 @@ inline void write_composite_field(
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final
-    // place in the buffer, and "backspace" the trailing zero.
-    pos += into_buf(buf.subspan(pos), field, c) - 1;
+    // place in the buffer.
+    pos += into_buf(buf.subspan(pos), field, c);
   }
   else
   {
@@ -414,7 +414,7 @@ inline void write_composite_field(
 
 
 /// Write an SQL array representation into `buf`.
-/** @return The number of bytes used, from the beginning of `buf`, including a
+/** @return The number of bytes used, from the beginning of `buf`.  There is no
  * terminating zero.
  */
 template<nonbinary_range TYPE>
@@ -441,14 +441,14 @@ template<nonbinary_range TYPE>
     }
     else if constexpr (is_sql_array<elt_type>)
     {
-      // Render nested array in-place.  Then erase the trailing zero.
-      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+      // Render nested array in-place.
+      here += pqxx::into_buf(buf.subspan(here), elt, c);
     }
     else if constexpr (is_unquoted_safe<elt_type>)
     {
       // No need to quote or escape.  Just convert the value straight into
-      // its place in the array, and "backspace" the trailing zero.
-      here += pqxx::into_buf(buf.subspan(here), elt, c) - 1;
+      // its place in the array.
+      here += pqxx::into_buf(buf.subspan(here), elt, c);
     }
     else
     {
@@ -505,7 +505,6 @@ template<nonbinary_range TYPE>
 
   // C++26:Use buf.at().
   buf[here++] = '}';
-  buf[here++] = '\0';
 
   return here;
 }

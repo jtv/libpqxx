@@ -71,8 +71,7 @@ using namespace std::literals;
  * or both floating-point types.
  */
 template<typename TO, typename FROM>
-inline TO
-check_cast(FROM value, [[maybe_unused]] std::string_view description, sl loc)
+inline TO check_cast(FROM value, std::string_view description, sl loc)
   requires(
     std::is_arithmetic_v<FROM> and std::is_arithmetic_v<TO> and
     (std::is_integral_v<FROM> == std::is_integral_v<TO>))

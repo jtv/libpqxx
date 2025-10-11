@@ -59,14 +59,7 @@ struct nullness<std::chrono::year_month_day>
 template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
 {
   [[nodiscard]] static std::string_view to_buf(
-    std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {})
-  {
-    return generic_to_buf(buf, value, c);
-  }
-
-  static char *into_buf(
-    char *begin, char *end, std::chrono::year_month_day const &value,
-    sl = sl::current());
+    std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {});
 
   [[nodiscard]] static std::chrono::year_month_day
   from_string(std::string_view text, sl = sl::current());

@@ -259,7 +259,7 @@ run_test(std::string_view name, pqxx::test::testfunc func)
 }
 
 
-/// Maximum allowed number of test concurrent tests.
+/// Maximum allowed number of concurrent tests.
 /** No particular reason, except anything higher isn't likely to give us much
  * in the way of speedup while still increasing peak memory usage etc.
  */

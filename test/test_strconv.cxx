@@ -67,6 +67,13 @@ void test_strconv_bool()
   PQXX_CHECK_EQUAL(result, true);
   pqxx::from_string("1", result);
   PQXX_CHECK_EQUAL(result, true);
+
+  // Nasty little corner case: to_buf() for bool will return a view on a
+  // string constant, and not use the buffer you give it.  But into_buf() will
+  // copy that into the buffer, and this requires a separate overrun check.
+  std::array<char, 3> small_buf{};
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::into_buf(small_buf, true), pqxx::conversion_overrun);
 }
 
 
@@ -145,7 +152,9 @@ constexpr char hash_index(std::size_t index)
 
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
-void check_write(T const &value, std::string_view expected)
+void check_write(
+  T const &value, std::string_view expected,
+  pqxx::sl loc = pqxx::sl::current())
 {
   std::string_view const name{pqxx::name_type<T>()};
   std::array<char, 1000> buf{};
@@ -157,55 +166,37 @@ void check_write(T const &value, std::string_view expected)
   pqxx::zview const out{pqxx::to_buf(buf, value, c)};
   PQXX_CHECK_EQUAL(
     std::size(out), std::size(expected),
-    std::format("to_buf() for {} wrote wrong length.", name));
+    std::format("to_buf() for {} wrote wrong length.", name), loc);
 
   auto const sz{std::size(out)};
   PQXX_CHECK_LESS_EQUAL(
     sz, pqxx::string_traits<T>::size_buffer(value),
-    std::format("Under-budgeted for to_buf on {}.", name));
+    std::format("Under-budgeted for to_buf on {}.", name), loc);
   PQXX_CHECK_LESS(
-    sz, std::size(buf), std::format("Too much to_buf() data for {}.", name));
+    sz, std::size(buf), std::format("Too much to_buf() data for {}.", name),
+    loc);
 
   PQXX_CHECK_EQUAL(
-    expected, out, std::format("to_buf() for {} wrote wrong value.", name));
+    expected, out, std::format("to_buf() for {} wrote wrong value.", name),
+    loc);
   if (sz > 0)
     PQXX_CHECK_NOT_EQUAL(
       char_as_unsigned(out.at(sz - 1)), 0u,
-      std::format(
-        "to_buf() for {} put terminating zero inside result.", name));
-  PQXX_CHECK_EQUAL(
-    std::size(std::string_view{out}), sz,
-    std::format(
-      "to_buf() for {} did not put terminating zero in the right place.",
-      name));
-  if (std::data(out) == std::data(buf))
-    PQXX_CHECK_EQUAL(
-      char_as_unsigned(buf.at(sz + 1)), char_as_unsigned(hash_index(sz + 1)),
-      std::format(
-        "to_buf() for {} overwrote byte after terminating zero.", name));
+      std::format("to_buf() for {} put terminating zero inside result.", name),
+      loc);
 
   // Test into_buf().
   for (auto i{0u}; i < std::size(buf); ++i) buf.at(i) = hash_index(i);
   std::size_t const end{pqxx::into_buf(buf, value, c)};
-  PQXX_CHECK_GREATER(
-    end, 0u, std::format("into_buf() for {} returned zero.", name));
   PQXX_CHECK_LESS_EQUAL(
     end, std::size(buf),
-    std::format("into_buf() for {} overran buffer.", name));
+    std::format("into_buf() for {} overran buffer.", name), loc);
   PQXX_CHECK_LESS_EQUAL(
     end, pqxx::string_traits<T>::size_buffer(value),
-    std::format("Under-budgeted for into_buf() on {}.", name));
+    std::format("Under-budgeted for into_buf() on {}.", name), loc);
   PQXX_CHECK_EQUAL(
-    std::size(std::string_view{std::data(buf)}) + 1, end,
-    std::format(
-      "Termating zero for into_buf() on {} not in the expected place.", name));
-  PQXX_CHECK_EQUAL(
-    (std::string_view{std::data(buf), end - 1}), expected,
-    std::format("Wrong result from into_buf() on {}.", name));
-  PQXX_CHECK_EQUAL(
-    char_as_unsigned(buf.at(end)), char_as_unsigned(hash_index(end)),
-    std::format(
-      "into_buf() for {} overwrote buffer after terminating zero.", name));
+    (std::string_view{std::data(buf), end}), expected,
+    std::format("Wrong result from into_buf() on {}.", name), loc);
 }
 
 
@@ -385,10 +376,34 @@ void test_to_buf_into_buf()
 }
 
 
+void test_to_buf_multi()
+{
+  std::vector<char> buf{};
+  buf.resize(50);
+  auto strings{pqxx::to_buf_multi(buf, "foo", -1025, "bar", 3ul, "zarg")};
+  PQXX_CHECK_EQUAL(std::size(strings), 5u);
+  PQXX_CHECK_EQUAL(strings.at(0), "foo");
+  PQXX_CHECK_EQUAL(strings.at(1), "-1025");
+  PQXX_CHECK_EQUAL(strings.at(2), "bar");
+  PQXX_CHECK_EQUAL(strings.at(3), "3");
+  PQXX_CHECK_EQUAL(strings.at(4), "zarg");
+
+  // The strings start right at the beginning of buf.
+  PQXX_CHECK(std::data(strings.at(0)) == std::data(buf));
+
+  // The strings are packed tightly together.
+  for (std::size_t i{1}; i < std::size(strings); ++i)
+    PQXX_CHECK(
+      std::data(strings.at(i)) ==
+      std::data(strings.at(i - 1)) + std::size(strings.at(i - 1)));
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
 PQXX_REGISTER_TEST(test_strconv_optional);
 PQXX_REGISTER_TEST(test_strconv_smart_pointer);
 PQXX_REGISTER_TEST(test_to_buf_into_buf);
+PQXX_REGISTER_TEST(test_to_buf_multi);
 } // namespace

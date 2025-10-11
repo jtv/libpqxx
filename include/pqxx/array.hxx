@@ -547,9 +547,6 @@ private:
 public:
   using array_type = array<ELEMENT, DIMENSIONS, array_separator<elt_type>>;
 
-  static constexpr bool converts_to_string{true};
-  static constexpr bool converts_from_string{true};
-
   static std::string_view
   to_buf(std::span<char> buf, array_type const &value, ctx c = {})
   {
@@ -557,12 +554,6 @@ public:
     assert(len > 0);
     assert(buf[len - 1] == '\0');
     return {std::data(buf), len - 1};
-  }
-
-  static std::size_t
-  into_buf(std::span<char> buf, array_type const &value, ctx c = {})
-  {
-    return pqxx::internal::array_into_buf(buf, value, size_buffer(value), c);
   }
 
   static std::size_t size_buffer(array_type const &value) noexcept

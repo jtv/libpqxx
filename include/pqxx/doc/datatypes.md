@@ -40,16 +40,16 @@ negative.  In such cases the conversion will throw a `conversion_error`.
 Or, your database table might have a text column, but a given field may contain
 a string that _looks_ just like a number.  You can convert that value to an
 integer type just fine.  Or to a floating-point type.  All that matters to the
-conversion is the actual value, and the type your code specifies.
+conversion is the actual value, and the type that your code specifies.
 
-In some cases the templates for these conversions can tell the type from the
-arguments you pass them:
+Conversions to strings can tell the type from the arguments you pass them:
 
 ```cxx
     auto x = to_string(99);
 ```
 
-In other cases you may need to instantiate the function template explicitly:
+For conversions in the other direction you need to instantiate the function
+template explicitly:
 
 ```cxx
     auto y = from_string<int>("99");
@@ -76,9 +76,10 @@ the standard library that libpqxx does not yet support.
 
 First thing to do is specialise the `pqxx::name_type()` function to give the
 type a human-readable name.  That allows libpqxx error messages and such to
-talk about the type.  If you don't define a name, libpqxx will try to figure
-one out with some help from the compiler, but it may not always be easy to
-read.
+talk about the type in a clear way.  If you don't define it, libpqxx will try
+to figure one out with some help from the compiler, but it may not always be
+easy to read.  In C++26 we expect to get a standard way to query the name, but
+until then it's a bit messy.
 
 Then, does your type have a built-in null value?  For example, a `char *` can
 be null on the C++ side.  Or some types are _always_ null, such as `nullptr`.
@@ -94,21 +95,21 @@ Your type
 ---------
 
 You'll need a type for which the conversions are not yet defined, because the
-C++ type is what determines the right conversion.  One type, one set of
-conversions.
+C++ type is what determines the right conversion.  One type gets one pair of
+conversions (to/from SQL strings).
 
 The type doesn't have to be one that you create.  The conversion logic was
 designed such that you can build it around any type.  So you can just as
 easily build a conversion for a type that's defined somewhere else.  There's
 no need to include any special methods or other members inside the type itself.
-That's also why libpqxx can convert built-in types like `int`.
+This is also why libpqxx can convert built-in types like `int`.
 
-By the way, if the type is an enum, you don't need to do any of this.  Just
-invoke the preprocessor macro `PQXX_DECLARE_ENUM_CONVERSION`, from the global
-namespace near the top of your translation unit, and pass the type as an
-argument.
+By the way, if the type is an enum (let's say it's called `my_enum`), you don't
+need to do any of this.  Just invoke the preprocessor macro
+`PQXX_DECLARE_ENUM_CONVERSION(my_enum)`, from the global namespace near the top
+of your translation unit.
 
-The library also provides specialisations for `std::optional<T>`,
+The library also provides conversions for `std::optional<T>`,
 `std::shared_ptr<T>`, and `std::unique_ptr<T>` (for any given `T`).  If you
 have conversions for `T`, you'll also automatically have conversions for those.
 
@@ -117,14 +118,15 @@ Specialise `name_type()`
 ------------------------
 
 (This is a feature that should disappear once we have introspection in the C++
-language.)
+language.  The current expectation is that C++26 will have a standard, reliable
+way for the code to obtain a type's name.)
 
-When errors happen during conversion, libpqxx will an compose error message for
-the user.  Sometimes this message will mentio the name of the type that's being
-converted.
+When errors happen during conversion, libpqxx will compose an error message
+that the application can show to the user, or write to a log.  Sometimes this
+message will need to mention the name of the type that's being converted.
 
 By default, this will probably work fine on some compilers, or the name may
-come out a little strange on other compilers, but some may make it harder to
+come out a little strange on other compilers, but some make the names harder to
 recognise.  So it can help to define a name yourself.
 
 To tell libpqxx the human-readable name of a type `T`, there's a function
@@ -187,7 +189,7 @@ parameters to SQL statements, or quoting-and-escaping values for inclusion in
 SQL statements as literal values.
 
 If your type has a natural null value, the definition for `nullness` gets a
-little more complex than the one abov:
+little more complex than the one above:
 
 ```cxx
     namespace pqxx
@@ -198,34 +200,34 @@ little more complex than the one abov:
       // Does T have a value that should translate to an SQL null?
       static constexpr bool has_null{true};
 
-      // Does this C++ type always denote an SQL null, like with nullptr_t?
+      // Does this C++ type _always_ denote an SQL null, like with nullptr_t?
       static constexpr bool always_null{false};
 
+      // Is `value` a null?
       static bool is_null(T const &value)
       {
-        // Return whether "value" is null.
         return ...;
       }
 
+      // Return a null.
       [[nodiscard]] static T null()
       {
-        // Return a null value.
         return ...;
       }
     };
     }
 ```
 
-If you have a type like `int` that doesn't have a null value but you need to
-pass or parse an SQL value that may be null, you can use `std::optional<int>`
-instead.  An `optional` without a value is a null.
+(In writing an application, if you have a type like `int` that doesn't have a
+null value but you need to pass or parse an SQL value that may be null, you can
+use `std::optional<int>` instead.  An `optional` without a value is a null.)
 
 You may be wondering why there's a function to produce a null value, but also a
 function to check whether a value is null.  Why not just compare the value to
-the result of `null()`?  Because two null values may not be equal (like in SQL,
-where `NULL` is not equal to `NULL`).  Or `T` may have multiple different null
-values.  Or `T` may override the comparison operator to behave in some unusual
-way.
+the result of `null()`?  Because two null values may not be equal.  It could be
+like in SQL, where `NULL` is not equal to anything including `NULL`.  Or there
+may be several different null values.  Or `T` may override the comparison
+operator to behave in some unusual way.
 
 As a third case, your type may be one that _always_ represents a null value.
 This is the case for `std::nullptr_t` and `std::nullopt_t`.  In a case like
@@ -236,22 +238,23 @@ of course), and you won't need to define any actual conversions.
 Specialise `string_traits`
 -------------------------
 
-This part is the most work.  You can skip it for types that are _always_ null,
-but those will be rare.
+This part is the most work.  You can skip it for types that are always null,
+but of course those are extremely rare.
 
 The APIs for doing this are designed to avoid, where opssible, the need to
-allocate memory on the free store, also known as "the heap".  In other words,
-the API minimises use of `new`/`delete`, even ones hidden inside `std::string`,
+allocate memory on the free store (a.k.a. "the heap").  In other words, the API
+minimises use of `new`/`delete`, even ones hidden inside `std::string`,
 `std::vector`, etc.  The conversion API allows you to use `std::string` for
-convenience, or fixed memory buffers for speed.
+convenience, or fixed memory buffers for maximum speed.
 
-Start by specialising the `pqxx::string_traits` template.  You don't absolutely
-have to implement all parts of this API.  Generally, if it compilers, you're OK
-for the time being.  Just bear in mind that future libpqxx versions may change
-the API — or how it uses the API internally.  In fact libpqxx 8.0 extends the
-conversion API in several ways.
+Start by specialising the `pqxx::string_traits` template.  It has conversion
+functions going in both directions: from a C++ value to an SQL string, and from
+an SQL string to a C++ value.  You don't absolutely have to implement both.
+Generally, if the code you need compiles, you're OK for the time being.  Just
+bear in mind that future libpqxx versions may change the API — or how it uses
+the API internally.  In fact libpqxx 8.0 made a lot of changes compared to 7.x.
 
-As of 8.0, this is what a specialisation of `string_traits` should look like:
+As of 8.0, this is what a full specialisation of `string_traits` looks like:
 
 ```cxx
     namespace pqxx
@@ -259,85 +262,88 @@ As of 8.0, this is what a specialisation of `string_traits` should look like:
     // T is your type.
     template<> struct string_traits<T>
     {
-      // Do you support converting T to PostgreSQL string format?
-      static constexpr bool converts_to_string{true};
-      // Do you support converting PostgreSQL string format to T?
-      static constexpr bool converts_from_string{true};
-
-      // If converts_to_string is true:
+      // If you support conversion _to_ an SQL string:
 
       // Represent `value` as a string, using `buf` for storage if needed.
       // (But the result may live somewhere outside the buffer, or lie inside
-      // it but not start exactly at the beginning of the buffer.)
-      static std::strnig_view to_buf(
-        std::span<char>, T const &value, ctx c = {});
+      // it but not start exactly at the beginning of the buffer.  It may even
+      // be a reference back to `value` itself.)
+      //
+      // We'll explain the context `c` further down.
+      static [[nodiscard]] std::string_view to_buf(
+        std::span<char> buf, T const &value, ctx c = {});
 
-      // Write string version into buffer.
-      static char *into_buf(std::span<char>, T const &value, ctx c = {});
+      // Converting value to string may require at most this much buffer space.
+      static [[nodiscard]] std::size_t size_buffer(T const &value) noexcept;
 
-      // Converting value to string may require this much buffer space at most.
-      static std::size_t size_buffer(T const &value) noexcept;
+      // If you support conversion _from_ an SQL string:
 
-      // If converts_from_string is true:
-
-      // Parse text as a T value.
-      static T from_string(std::string_view text, ctx c = {});
+      // Parse `text` as a T value.
+      static [[nodiscard]] T from_string(std::string_view text, ctx c = {});
     };
     }
 ```
 
-You'll also need to write those member functions, or as many of them as needed
-to get your code to build.
+In your own code, you typically wouldn't call these functions yourself by the
+way.  Instead you'd call global wrappers: `pqxx::to_string()`,
+`pqxx::to_buf()`, `pqxx::into_buf()` (it's subtly different), and
+`pqxx::size_buffer()`.
 
 
 ### `ctx`
 
-Notice those `ctx` parameters, with a default value of `{}`?  (The
-conventional name for that parameter in libpqxx is `c`, but feel free to name
-it differently.  It's nice to have it short though, since this parameter is
-al over the API.)
+Notice those `ctx` parameters, with a default value of `{}`?  These hold some
+additional "context" information for the conversion.  It has no clearly
+defined role, except to hold extra information that your conversion may or may
+not need.  Passing it in this way makes it easier for libpqxx to extend the
+conversion API further in the future without breaking compatibility.
 
-These parameters are `pqxx::conversion_context` objects (`pqxx::ctx` is an
-alias for `pqxx::conversion_cnotext const &`).  This is for passing some
-context information to the conversions, in a waay that makes it easy to add
-more in future iterations wthout breaking API compatibility.  This is new in
-libpqxx 8.0
+The name `ctx` is shorthand for `pqxx::conversion_context const t&`.  There
+are reasonable defaults for every item in there, so it's acceptable for a
+caller to leave it out.
 
-As of 8.0, `conversion_context` contains:
+As of libpqxx 8.0, `conversion_context` contains:
 
 * `pqxx::encoding_group enc`.  This tells the conversion just enough about the
   text's encoding do to its job.  It doesn't say exactly whether the text is in
   UTF-8, or Latin-15, or EUC-KR, and so on.  But it's enough that the code can
   figure out where each character begins and ends, which is all the
   understanding that it really needs.
-* `std::source_location loc`.  We abbreviat that type as `pqxx::sl` because it
+  which is all that most conversions need.
+* `std::source_location loc`.  We abbreviate that type as `pqxx::sl` because it
   shows up in so many places.  In case the conversion throws an exception, the
-  exception can include this source location as a hint for wehre it happened.
-  It's not always possible but generally it should be the location where you
-  originally called libpqxx code that led to the error.
+  exception can include this source location in its message as a debugging
+  hint.
 
 There may be more fields in the future.
 
-The encoding group defaults to a special group, `UNKNOWN`.  If your conversion
-needs to know what kind of encoding the text has, you'll have to figure out why
-it didn't receive that information.  Ultimately it should come from the
-`pqxx::connection` object, but the chain of information to your conversion may
-not alwaays be complete.  It may be necessary to file a bug ticket.
+The encoding group defaults to a special group, `unknown`.  This is good enough
+for dealing with plain ASCII text, which is all that most conversions need.
+If your conversion does need to know the text's encoding, it is up to the code
+calling the conversion to pass that information along.
+
+The source location defaults to the location of the immediate calling code.
+But if that caller is also within libpqxx, this isn't usually very helpful to
+application authors trying to debug errors.  Therefore we try to pass the
+location where control last transferred from the application into libpqxx.
 
 
 ### `from_string`
 
 Now we start implementing the functions.  We start off simple: `from_string`
-parses a string as a value of `T` (your type) and returns that value.
+parses a string as an SQL value and translates it into a C++ value of type `T`
+(your type).
 
-The string may or may not be zero-terminated; it's just the `string_view` from
-beginning to end.  In your tests, be sure to cover cases where the string does
-not end in a zero byte!
+The string is a `std::string_view`, which means it doesn't necessarily end in
+a terminating zero.  In many situations there will still be a zero just after
+the string, so be sure to have your tests cover cases where there's a non-zero
+byte behind the string!
 
-It's perfectly possible that the string doesn't actually represent a `T` value.
+It's always possible that the string doesn't actually represent a `T` value.
 Mistakes happen.  There can be corner cases.  Maybe a value is outside the
-range you can reasonably support.  When you run into this, throw a
-`pqxx::conversion_error`.
+range you can reasonably support, such as when you're trying to read an SQL
+`integer` into an `unsigned int` and it happens to be negative.  When you run
+into that kind of thing, throw a `pqxx::conversion_error`.
 
 (Of course it's also possible that you run into some other error, so it's fine
 to throw different exceptions as well.  But when it's definitely "this is not
@@ -352,13 +358,15 @@ server will understand.
 The caller will provide you with a buffer where you can write the string, if
 you need it.  But for this function it doesn't really matter where you store
 the string: somewhere inside the buffer, or as a string constant, or even by
-referring to the input value.  The buffer is just there for the common case
-that you need it.
+referring to the input value.  The buffer is just there in case that you need
+it.  Usually you do.
 
-If you need the buffer but it's not large enough for your conversion's needs,
-throw a `pqxx::conversion_overrun`.  It doesn't have to be exact: you can be a
-little pessimistic and demand a bit more space than you need.  Just be sure to
-throw the exception if there's any risk of overrunning the buffer.
+What you can _not_ do is allocate some memory to store your SQL text.  If `buf`
+is not large enough to store your output, throw a `pqxx::conversion_overrun`.
+This doesn't have to be exact: you can be a little pessimistic and demand a bit
+more space than you actually need.  We'll get to the negotiation for how much
+buffer space you need later.  Just be sure to throw the exception if there's
+any risk of overrunning the buffer.
 
 Beware of locales when converting.  If you use standard library features like
 `sprintf`, they may obey whatever locale is currently set on the system where
@@ -369,33 +377,18 @@ happen, or it will confuse things.  Use only non-locale-sensitive library
 functions.  Values coming from or going to the database should be in fixed,
 non-localised formats.
 
-If your conversions need to deal with fields in types that libpqxx already
-supports, you can use the conversion functions for those: `pqxx::from_string`,
-`pqxx::to_string`, `pqxx::to_buf`.  They in turn will call the `string_traits`
-specialisations for those types.  Or, you can call their `string_traits`
-directly.
-
-
-### `into_buf`
-
-This is a stricter version of `to_buf`.  All the same requirements apply, but
-in addition you must write your string _into the given buffer,_ starting
-_exactly_ at its beginning.
-
-That's why this function returns just an offset: the index of the byte _right
-behind the string._  If the caller wants to use the string, they can find it at
-the beginning of the buffer.  Or if the caller wants to write another value
-into the rest of the buffer, they can continue writing at the location you
-returned.
-
-Apart from that, `into_buf()` is much like `to_buf()`.  Read that section
-carefully before implemnting `into_buf()`.
+If your type contains fields of types that libpqxx already supports, you can
+use the existing conversion functions for those: `pqxx::from_string`,
+`pqxx::to_string`, `pqxx::to_buf`, etc.  They in turn will call the
+`string_traits` specialisations for those types.  For example, if you wanted to
+convert a date, you might use the `int` conversions for each of the year,
+month, and date numbers.
 
 
 ### `size_buffer`
 
-Here you estimate how much buffer space you may need for converting a `T` to a
-string.  Be precise if you can, but pessimistic if you must.  It's usually
+Here you estimate how much buffer space you may need for converting a `T` to an
+SQL string.  Be precise if you can, but pessimistic if you must.  It's usually
 better to waste a few bytes of space than to spend a lot of time computing
 the exact buffer space you need.  And failing the conversion because you
 under-budgeted the buffer is worst of all.
@@ -458,9 +451,10 @@ all types of parameters.
 
 But we do it differently when the parameter is a contiguous series of raw bytes
 and the corresponding SQL type is `BYTEA`.  There is a text format for those,
-but we bypass it for efficiency.  The server can use the binary data in the
-exact same form, without any conversion or extra processing.  The binary data
-is also twice as compact during transport.
+but we bypass it for efficiency.  In this situation the server can use the
+binary data in the exact same form in which you provide it, without any
+conversion or extra processing.  The binary data for BYTEA is also twice as
+compact during transport.
 
 (People sometimes ask why we can't just treat all types as binary.  However the
 general case isn't so clear-cut.  The binary formats are not documented, there
@@ -474,24 +468,21 @@ stands out as a clear win.)
 Long story short, the machinery for passing parameters needs to know: is this
 parameter a binary string, or not?  In the normal case it can assume "no," and
 that's what it does.  The text format is always a safe choice; we just try to
-use the binary format where it's faster.
+use the binary format where it's faster, and safe.
 
-The `param_format` function template is what makes the decision.  We specialise
-it for types which may be binary strings, and use the default for all other
-types.
+The `param_format` function template is what drives the decision.  We
+specialise it for types which may be binary strings, and use the default for
+all other types.
 
 "Types which _may_ be binary"?  You might think we know whether a type is a
 binary type or not.  But there are some complications with generic types.
 
 Templates like `std::shared_ptr`, `std::optional`, and so on act like
 "wrappers" for another type.  A `std::optional<T>` is binary if `T` is binary.
-Otherwise, it's not.  If you're building support for a template of this nature,
-you'll probably want to implement `param_format` for it.
-
-The decision to use binary format is made based on a given object, not
-necessarily based on the type in general.  Look at `std::variant`.  If you have
-a `std::variant` type which can hold an `int` or a binary string, is that a
-binary parameter?  We can't decide without knowing the individual object.
+Otherwise, it's not.  And `std::variant` may contain wildly different types, so
+the decision can even be based on the individual object rather than just the
+type.  If you're building support for a template of this nature, you'll
+probably want to implement `param_format` for it.
 
 Containers are another hard case.  Should we pass `std::vector<T>` in binary?
 Even when `T` is a binary type, we don't currently have any way to pass an

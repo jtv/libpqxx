@@ -142,21 +142,16 @@ void test_string_view_conversion()
 
   std::array<char, 200> buf{};
 
-  std::size_t const stop{traits::into_buf(buf, "more view"sv)};
+  std::size_t const stop{pqxx::into_buf(buf, "more view"sv)};
   PQXX_CHECK_LESS(stop, std::size(buf));
   assert(stop > 0);
-  PQXX_CHECK(buf.at(stop - 1) == '\0');
   PQXX_CHECK_EQUAL(
-    (std::string{std::data(buf), static_cast<std::size_t>(stop - 1)}),
+    (std::string{std::data(buf), static_cast<std::size_t>(stop)}),
     "more view"s);
-  PQXX_CHECK(buf.at(stop - 2) == 'w');
+  PQXX_CHECK(buf.at(stop - 1) == 'w');
 
-  std::string_view org{"another!"sv};
-  pqxx::zview out{traits::to_buf(buf, org)};
+  std::string_view const org{"another!"sv}, out{traits::to_buf(buf, org)};
   PQXX_CHECK_EQUAL(std::string{out}, "another!"s);
-  PQXX_CHECK(
-    std::data(out) != std::data(org),
-    "string_view to_buf returned original view, which may not be terminated.");
 }
 
 
@@ -205,6 +200,66 @@ void test_string_converts_to_binary()
 }
 
 
+struct legacy_item
+{
+  constexpr explicit legacy_item(int i) noexcept : val{i} {}
+  [[nodiscard]] constexpr int get_val() const noexcept { return val; }
+
+private:
+  int val;
+};
+} // namespace
+
+
+namespace pqxx
+{
+template<> struct nullness<legacy_item> : no_null<legacy_item>
+{};
+
+template<> struct string_traits<legacy_item>
+{
+  static inline zview
+  to_buf(char *begin, char const *end, legacy_item const &value)
+  {
+    auto const bufsz{static_cast<std::size_t>(end - begin)},
+      need{size_buffer(value)};
+    if (std::cmp_less(bufsz, need))
+      throw conversion_overrun{std::format(
+        "Needed {} bytes to convert '{}', got {}.", need, value.get_val(),
+        bufsz)};
+
+    auto const outsz{pqxx::into_buf({begin, bufsz}, value.get_val())};
+    if (outsz >= bufsz)
+      throw conversion_error{"No room for legacy terminating zero."};
+    begin[outsz] = '\0';
+    return zview{begin, outsz};
+  }
+
+  static inline legacy_item from_string(std::string_view text)
+  {
+    return legacy_item{pqxx::from_string<int>(text)};
+  }
+
+  static inline std::size_t size_buffer(legacy_item const &value) noexcept
+  {
+    return pqxx::size_buffer(value.get_val()) + 1;
+  }
+};
+} // namespace pqxx
+
+
+namespace
+{
+void test_legacy_7_conversion_support()
+{
+  legacy_item const leg{pqxx::test::make_int()};
+  auto const as_string{pqxx::to_string(leg)};
+  PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
+  PQXX_CHECK_EQUAL(
+    pqxx::from_string<legacy_item>(as_string).get_val(), leg.get_val());
+}
+
+
 PQXX_REGISTER_TEST(test_string_conversion);
 PQXX_REGISTER_TEST(test_convert_variant_to_string);
 PQXX_REGISTER_TEST(test_integer_conversion);
@@ -212,4 +267,5 @@ PQXX_REGISTER_TEST(test_convert_null);
 PQXX_REGISTER_TEST(test_string_view_conversion);
 PQXX_REGISTER_TEST(test_binary_converts_to_string);
 PQXX_REGISTER_TEST(test_string_converts_to_binary);
+PQXX_REGISTER_TEST(test_legacy_7_conversion_support);
 } // namespace
