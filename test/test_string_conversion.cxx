@@ -203,7 +203,7 @@ void test_string_converts_to_binary()
 struct legacy_item
 {
   constexpr explicit legacy_item(int i) noexcept : val{i} {}
-  constexpr int get_val() const noexcept { return val; }
+  [[nodiscard]] constexpr int get_val() const noexcept { return val; }
 
 private:
   int val;
@@ -218,7 +218,8 @@ template<> struct nullness<legacy_item> : no_null<legacy_item>
 
 template<> struct string_traits<legacy_item>
 {
-  static inline zview to_buf(char *begin, char *end, legacy_item const &value)
+  static inline zview
+  to_buf(char *begin, char const *end, legacy_item const &value)
   {
     auto const bufsz{static_cast<std::size_t>(end - begin)},
       need{size_buffer(value)};
@@ -251,7 +252,7 @@ namespace
 {
 void test_legacy_7_conversion_support()
 {
-  legacy_item leg{pqxx::test::make_int()};
+  legacy_item const leg{pqxx::test::make_int()};
   auto const as_string{pqxx::to_string(leg)};
   PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
   PQXX_CHECK_EQUAL(

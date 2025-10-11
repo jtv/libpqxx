@@ -27,7 +27,7 @@ void test_date_string_conversion()
     // This one won't work in postgres, but we can test the conversions.
     {-32767, 11, 3, "32768-11-03 BC"sv},
   };
-  for (auto const &[y, m, d, text] : conversions)
+  for (auto const &[y, m, d, text] : std::span{conversions})
   {
     std::chrono::year_month_day const date{
       std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
