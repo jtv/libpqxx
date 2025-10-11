@@ -84,7 +84,7 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              os: ["debian", "archlinux"]
+              os: ["archlinux", "debian", "fedora"]
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
