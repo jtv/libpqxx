@@ -200,6 +200,57 @@ void test_string_converts_to_binary()
 }
 
 
+struct legacy_item
+{
+  constexpr explicit legacy_item(int i) noexcept : val{i} {}
+  constexpr int get_val() const noexcept { return val; }
+
+private:
+  int val;
+};
+} // namespace
+
+
+namespace pqxx
+{
+template<> struct nullness<legacy_item> : no_null<legacy_item>
+{};
+
+template<> struct string_traits<legacy_item>
+{
+  static inline zview to_buf(char *begin, char *end, legacy_item const &value)
+  {
+    auto const bufsz{static_cast<std::size_t>(end - begin)},
+      need{size_buffer(value)};
+    if (std::cmp_less(bufsz, need))
+      throw conversion_overrun{std::format(
+        "Needed {} bytes to convert '{}', got {}.", need, value.get_val(),
+        bufsz)};
+
+    auto const outsz{pqxx::into_buf({begin, bufsz}, value.get_val())};
+    if (outsz >= bufsz)
+      throw conversion_error{"No room for legacy terminating zero."};
+    begin[outsz] = '\0';
+    return zview{begin, outsz};
+  }
+
+  static inline std::size_t size_buffer(legacy_item const &value) noexcept
+  {
+    return pqxx::size_buffer(value.get_val()) + 1;
+  }
+};
+} // namespace pqxx
+
+
+namespace
+{
+void test_legacy_7_conversion_support()
+{
+  legacy_item leg{pqxx::test::make_int()};
+  PQXX_CHECK_EQUAL(pqxx::to_string(leg), pqxx::to_string(leg.get_val()));
+}
+
+
 PQXX_REGISTER_TEST(test_string_conversion);
 PQXX_REGISTER_TEST(test_convert_variant_to_string);
 PQXX_REGISTER_TEST(test_integer_conversion);
@@ -207,4 +258,5 @@ PQXX_REGISTER_TEST(test_convert_null);
 PQXX_REGISTER_TEST(test_string_view_conversion);
 PQXX_REGISTER_TEST(test_binary_converts_to_string);
 PQXX_REGISTER_TEST(test_string_converts_to_binary);
+PQXX_REGISTER_TEST(test_legacy_7_conversion_support);
 } // namespace

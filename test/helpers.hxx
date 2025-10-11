@@ -82,16 +82,22 @@ struct registrar
 };
 
 
-/// Generate a name with a given prefix and a randomised suffix.
-inline std::string make_name(std::string_view prefix)
+/// Return an arbitrary integer.
+inline int make_int()
 {
   // We use srand(), which is not guaranteed to be thread-safe.
   std::mutex l;
   std::lock_guard<std::mutex> guard{l};
+  return rand();
+}
 
+
+/// Generate a name with a given prefix and a randomised suffix.
+inline std::string make_name(std::string_view prefix)
+{
   // In principle we should seed the random generator, but the scheduling of
   // threads will jumble up the numbers anyway.
-  return std::format("{}_{}", prefix, rand());
+  return std::format("{}_{}", prefix, make_int());
 }
 
 
