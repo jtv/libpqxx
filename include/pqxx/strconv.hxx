@@ -565,7 +565,7 @@ namespace pqxx
  * that they will remain valid after you destruct or move the buffer.
  */
 template<typename... TYPE>
-[[nodiscard, deprecated("Pass span and string_view.")]]
+[[nodiscard, deprecated("Use to_buf_multi() instead.")]]
 inline std::vector<std::string_view>
 to_buf(char *begin, char const *end, TYPE... value)
 {
