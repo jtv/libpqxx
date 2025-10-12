@@ -8,6 +8,7 @@
  */
 #include "pqxx-source.hxx"
 
+#include <cstdlib>
 #include <memory>
 
 #if __has_include(<cxxabi.h>)
