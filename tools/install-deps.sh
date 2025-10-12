@@ -75,7 +75,7 @@ install_fedora() {
 
 
 install_macos() {
-    brew install autoconf autoconf-archive automake cppcheck clang libtool \
+    brew install --quiet autoconf autoconf-archive automake cppcheck libtool \
     postgresql shellcheck uv yamllint libpq >/dev/null
     # XXX:
 }
