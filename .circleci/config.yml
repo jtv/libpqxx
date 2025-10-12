@@ -72,11 +72,7 @@ jobs:
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
       - run:
           name: Configure
-          #command: "./autogen.sh"
-          command: "autoreconf"
-      - run:
-          name: Configure
-          command: "./configure \
+          command: "autoreconf && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.cxx >> \
@@ -91,7 +87,7 @@ jobs:
           command: "mkdir -p \"$PGDATA\" && \
               initdb --pgdata \"$PGDATA\" --auth trust --nosync && \
               pg_ctl -l postgres.log start && \
-              createdh \"$(whoami)\""
+              createdb \"$(whoami)\""
       - store_artifacts:
           path: postgres.log
       - run:
