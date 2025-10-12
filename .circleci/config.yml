@@ -63,7 +63,8 @@ jobs:
       xcode: 16.4.0
     environment:
       PGHOST: /tmp
-      PGDATA: /usr/local/var/postgres
+      #PGDATA: /usr/local/var/postgres
+      PGDATA: /tmp/db
     steps:
       - checkout
       - run:
@@ -83,7 +84,7 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "pg_ctl -l postgres.log start"
+          command: "mkdir -p \"$PGDATA\" && pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
       - run:
