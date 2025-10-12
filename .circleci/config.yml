@@ -72,6 +72,9 @@ jobs:
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
       - run:
           name: Configure
+          command: "./autogen.sh"
+      - run:
+          name: Configure
           command: "./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
