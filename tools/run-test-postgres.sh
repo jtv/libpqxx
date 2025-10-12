@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /bin/bash
 #
 # Start a PostgreSQL server & database for temporary use in tests.
 # Creates a database for the current user, with trust authentication.
@@ -24,15 +24,17 @@ LOG="postgres.log"
 USER="$(whoami)"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
-chown postgres -- "$PGDATA" "$PGHOST"
+# XXX: chown postgres -- "$PGDATA" "$PGHOST"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-su postgres -c "initdb --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
+# XXX: su postgres -c "initdb --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
+initdb --pgdata \"$PGDATA\" --auth trust --nosync >>"$LOG"
 
 # Run postgres server in the background.  This is not great practice but...
 # we're doing this for a disposable environment.
-su postgres -c "postgres -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
+# XXX: su postgres -c "postgres -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
+postgres -D \"$PGDATA\" -k \"$PGHOST\" >>"$LOG" &
 
 # Wait for postgres to become available.
 # TODO: Set tighter deadline than CircleCI's.
@@ -41,5 +43,5 @@ do
     sleep .1
 done
 
-su postgres -c "createuser -w -d \"$USER\"" 
+# XXX: su postgres -c "createuser -w -d \"$USER\"" 
 createdb --template=template0 --encoding=UNICODE "$USER"
