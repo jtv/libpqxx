@@ -72,7 +72,8 @@ jobs:
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
       - run:
           name: Configure
-          command: "./autogen.sh"
+          #command: "./autogen.sh"
+          command: "autoreconf"
       - run:
           name: Configure
           command: "./configure \
