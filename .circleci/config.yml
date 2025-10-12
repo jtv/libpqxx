@@ -83,7 +83,7 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "mkdir -p \"$PGDATA\" && pg_ctl -l postgres.log start"
+          command: "pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
       - run:
