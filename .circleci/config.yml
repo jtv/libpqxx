@@ -80,7 +80,8 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: ". /tmp/vars.sh && pg_ctl -l postgres.log start"
+          command: ". /tmp/vars.sh && \
+              mkdir -p \"$PGDATA\" && pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
       - run:
