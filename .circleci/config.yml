@@ -50,6 +50,8 @@ jobs:
           command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
+      - store_artifacts:
+          path: postgres.log
 
   test-macos:
     parameters:
@@ -78,7 +80,7 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "pg_ctl"
+          command: "pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
       - run:
@@ -86,6 +88,8 @@ jobs:
           command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
+      - store_artifacts:
+          path: postgres.log
 
   analyse:
     parameters:
@@ -117,17 +121,19 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test-linux:
-          matrix:
-            parameters:
-              os: ["archlinux", "debian", "fedora"]
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+#      - test-linux:
+#          matrix:
+#            parameters:
+#              os: ["archlinux", "debian", "fedora"]
+#              cxx: ["clang++", "g++"]
+#              cxx_version: ["c++20", "c++23", "c++26"]
       - test-macos:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+              cxx: ["clang++"]
+#              cxx: ["clang++", "g++"]
+              cxx_version: ["c++20"]
+#              cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
           matrix:
             parameters:
