@@ -84,9 +84,10 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "mkdir -p \"$PGDATA\" &&
-              initdb --pgdata \"$PGDATA\" --auth trust --nosync &&
-              createuser \"$(whoami)\" &&
+          command: "mkdir -p \"$PGDATA\" && \
+              initdb --pgdata \"$PGDATA\" --auth trust --nosync && \
+              createuser \"$(whoami)\" && \
+              createdh \"$(whoami)\" && \
               pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
