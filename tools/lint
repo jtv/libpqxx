@@ -16,25 +16,14 @@ PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
 ARGS="${1:-}"
 
 
-# Check that all source code is ASCII.
+# Check that all source code is pure ASCII.
 #
 # I'd love to have rich Unicode, but I can live without it.  Mainly we don't
 # want any surprises in contributions.
 #
-# TODO: Probably time to rewrite this in python.
+# MD files are different.  I love me some Unicode in there.  They're UTF-8.
 check_ascii() {
-    local exotics
-    exotics="$(
-        find "$SRCDIR" -type f -name '*.[ch].cxx' -print0 |
-        xargs -0 cat |
-        tr -d '\011-\176' |
-        wc -c
-    )"
-    if [ "$exotics" != 0 ]
-    then
-        echo >&2 "There's a non-ASCII character somewhere."
-        exit 1
-    fi
+    "$SRCDIR/tools/check_ascii.py" -v
 }
 
 
