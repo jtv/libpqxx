@@ -63,7 +63,6 @@ jobs:
       xcode: 16.4.0
     environment:
       PGHOST: /tmp
-      #PGDATA: /usr/local/var/postgres
       PGDATA: /tmp/db
     steps:
       - checkout
@@ -128,19 +127,17 @@ jobs:
 workflows:
   all-tests:
     jobs:
-#      - test-linux:
-#          matrix:
-#            parameters:
-#              os: ["archlinux", "debian", "fedora"]
-#              cxx: ["clang++", "g++"]
-#              cxx_version: ["c++20", "c++23", "c++26"]
+      - test-linux:
+          matrix:
+            parameters:
+              os: ["archlinux", "debian", "fedora"]
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
       - test-macos:
           matrix:
             parameters:
-              cxx: ["clang++"]
-#              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20"]
-#              cxx_version: ["c++20", "c++23", "c++26"]
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
           matrix:
             parameters:
