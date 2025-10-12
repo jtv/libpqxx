@@ -93,7 +93,7 @@ check_compiler_internal_headers() {
 
 
 check_yaml() {
-    yamllint -- "$SRCDIR" "$SRCDIR/.cmake-format"
+    yamllint -- "$SRCDIR"
 }
 
 
