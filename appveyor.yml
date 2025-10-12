@@ -13,7 +13,6 @@ environment:
   matrix:
     - CXX_VERSION: 20
     - CXX_VERSION: 23
-    - CXX_VERSION: 26
   MSVC: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC"
 
 # Run CMake to build libpqxx.sln.
