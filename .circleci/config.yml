@@ -51,6 +51,43 @@ jobs:
       - store_artifacts:
           path: test-suite.log
 
+  test-macos:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
+    macos:
+      xcode: 26.0.1
+    resource_class: m4pro.large
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh macos >/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && ./configure \
+                --enable-maintainer-mode --enable-audit \
+                --enable-shared --disable-static \
+                CXX=<< parameters.cxx >> \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Make
+          command: make -j4
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
+      - store_artifacts:
+          path: postgres.log
+      - run:
+          name: Test
+          command: . /tmp/vars.sh && make -j4 check
+      - store_artifacts:
+          path: test-suite.log
+
   analyse:
     parameters:
       cxx_version:
@@ -85,6 +122,11 @@ workflows:
           matrix:
             parameters:
               os: ["archlinux", "debian", "fedora"]
+              cxx: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
+      - test-macos:
+          matrix:
+            parameters:
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
       - analyse:
