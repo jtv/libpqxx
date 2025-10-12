@@ -20,8 +20,8 @@
 #include <source_location>
 #include <string>
 #include <string_view>
-#include <typeinfo>
 #include <type_traits>
+#include <typeinfo>
 
 
 namespace pqxx
