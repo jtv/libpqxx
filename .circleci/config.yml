@@ -80,12 +80,12 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "pg_ctl -l postgres.log start"
+          command: ". /tmp/vars.sh && pg_ctl -l postgres.log start"
       - store_artifacts:
           path: postgres.log
       - run:
           name: Test
-          command: . /tmp/vars.sh && make -j4 check
+          command: ". /tmp/vars.sh && make -j4 check"
       - store_artifacts:
           path: test-suite.log
       - store_artifacts:
