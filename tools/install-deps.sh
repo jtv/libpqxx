@@ -74,6 +74,12 @@ install_fedora() {
 }
 
 
+install_macos() {
+    brew update >/dev/null
+    # XXX:
+}
+
+
 if test -z "${1:-}"
 then
     echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
@@ -96,6 +102,10 @@ case "$1" in
 
     fedora)
         install_fedora
+        ;;
+
+    macos)
+        install_macos
         ;;
 
     *)
