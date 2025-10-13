@@ -61,9 +61,6 @@ jobs:
         type: string
     macos:
       xcode: 16.4.0
-    environment:
-      PGHOST: /tmp
-      PGDATA: /tmp/db
     steps:
       - checkout
       - run:
@@ -71,7 +68,7 @@ jobs:
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
       - run:
           name: Configure
-          command: "autoreconf && ./configure \
+          command: ". /tmp/vars.sh && autoreconf && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.cxx >> \
@@ -83,7 +80,7 @@ jobs:
           command: make -j4
       - run:
           name: Start database
-          command: "mkdir -p \"$PGDATA\" && \
+          command: ". /tmp/vars.sh && mkdir -p \"$PGDATA\" && \
               initdb --pgdata \"$PGDATA\" --auth trust --nosync && \
               pg_ctl -l postgres.log start && \
               createdb \"$(whoami)\""
@@ -91,7 +88,7 @@ jobs:
           path: postgres.log
       - run:
           name: Test
-          command: "make -j4 check"
+          command: ". /tmp/vars.sh && make -j4 check"
       - store_artifacts:
           path: test-suite.log
       - store_artifacts:
