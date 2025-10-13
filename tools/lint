@@ -93,7 +93,9 @@ check_compiler_internal_headers() {
 
 
 check_yaml() {
-    yamllint -- "$SRCDIR" .clang-format .clang-tidy .cmake-format
+    yamllint -- \
+        "$SRCDIR" "$SRDIR/.clang-format" "$SRCDIR/.clang-tidy" \
+        "$SRCDIR/.cmake-format"
 }
 
 
