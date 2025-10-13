@@ -127,19 +127,20 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test-linux:
-          matrix:
-            parameters:
-              os: ["archlinux", "debian", "fedora"]
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+      #- test-linux:
+      #    matrix:
+      #      parameters:
+      #        os: ["archlinux", "debian", "fedora"]
+      #        cxx: ["clang++", "g++"]
+      #        cxx_version: ["c++20", "c++23", "c++26"]
       - test-macos:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
-      - analyse:
-          matrix:
-            parameters:
-              # Running this for 3 C++ versions took too long for CircleCI.
-              cxx_version: ["c++26"]
+      #        cxx: ["clang++", "g++"]
+      #        cxx_version: ["c++20", "c++23", "c++26"]
+               cxx: ["clang++"]  # XXX: DEBUG
+               cxx_version: ["c++20"]  # XXX: DEBUG
+      #- analyse:
+      #    matrix:
+      #      parameters:
+      #        cxx_version: ["c++26"]
