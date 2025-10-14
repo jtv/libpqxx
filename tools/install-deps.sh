@@ -79,6 +79,7 @@ install_macos() {
         autoconf autoconf-archive automake cppcheck libtool postgresql \
         shellcheck uv yamllint libpq >/dev/null
     echo "PATH='$PATH:/Program Files/CMake/bin"
+    env # XXX: DEBUG
 }
 
 

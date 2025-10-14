@@ -29,6 +29,8 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh << parameters.os >> >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && ./autogen.sh"
@@ -70,6 +72,8 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && ./configure \
@@ -113,6 +117,8 @@ jobs:
           name: Install
           command: "./tools/install-deps.sh windows >/tmp/vars.sh"
           shell: bash.exe
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Configure
           command: "CXX=<< parameters.cxx >> \
@@ -140,6 +146,8 @@ jobs:
       - run:
           name: Install
           command: "tools/install-deps.sh debian-lint >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Prepare
           command: "SRC=\"$(pwd)\" && \
