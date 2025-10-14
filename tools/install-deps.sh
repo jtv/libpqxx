@@ -78,8 +78,9 @@ install_macos() {
     brew install --quiet \
         autoconf autoconf-archive automake cppcheck libtool postgresql \
         shellcheck uv yamllint libpq >/dev/null
-    echo "PATH='$PATH:/Program Files/CMake/bin"
-    env # XXX: DEBUG
+    echo "PATH='$PATH:$programfiles/CMake/bin"
+    echo "# PROGRAMFILES=$PROGRAMFILES" # XXX:
+    echo "# programfiles=$programfiles" # XXX:
 }
 
 
