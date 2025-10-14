@@ -84,7 +84,13 @@ install_macos() {
 install_windows() {
     local cmake_bin="/c/Program Files/CMake/bin"
     local pg_bin="/c/Program Files/PostgreSQL/16/bin"
-    choco install cmake postgresql16 --limit-output -y
+    # This dumps an unacceptable amount of garbage to stderr, even with the
+    # --limit-output option which AFAICT does nothing to limit output (and
+    # why is there no --quiet option?).
+    #
+    # But if we let this run quietly, then it times out.  And we can't let the
+    # output go to stdout because that's where we write our variables.
+    choco install cmake postgresql16 --limit-output -y 1>&2
     echo "PATH='$PATH:$cmake_bin:$pg_bin'"
 }
 
