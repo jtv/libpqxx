@@ -81,6 +81,11 @@ install_macos() {
 }
 
 
+install_windows() {
+    choco install cmake -y >/dev/null
+}
+
+
 if test -z "${1:-}"
 then
     echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
@@ -107,6 +112,10 @@ case "$1" in
 
     macos)
         install_macos
+        ;;
+
+    windows)
+        install_windows
         ;;
 
     *)

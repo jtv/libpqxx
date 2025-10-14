@@ -110,6 +110,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install
+          command: "./tools/install-deps.sh windows >/tmp/vars.sh"
+      - run:
           name: Configure
           command: "CXX=<< parameters.cxx >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
