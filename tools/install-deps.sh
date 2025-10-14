@@ -82,8 +82,10 @@ install_macos() {
 
 
 install_windows() {
-    echo "PATH='$PATH:/c/Program Files/CMake/bin'"
+    local cmake_bin="/c/Program Files/CMake/bin"
+    local pg_bin="/c/Program Files/PostgreSQL/16/bin"
     choco install cmake postgresql16 --limit-output -y
+    echo "PATH='$PATH:$cmake_bin:$pg_bin'"
 }
 
 
