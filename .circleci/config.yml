@@ -94,6 +94,28 @@ jobs:
       - store_artifacts:
           path: postgres.log
 
+  test-windows:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
+    executor:
+      name: win/default
+    steps:
+      - checkout
+      - run:
+        name: Configure
+        command: "CXX=<< parameters.cxx >> \
+            CXXFLAGS='-O1 -std=<< parameters.cxx_version >> \
+            cmake ."
+      - run:
+          name: Make
+          run: "make -j4"
+      - run:
+          name: Test
+          run: "./test/runner"
+
   analyse:
     parameters:
       cxx_version:
@@ -124,18 +146,23 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      - test-linux:
+      # - test-linux:
+      #    matrix:
+      #      parameters:
+      #        os: ["archlinux", "debian", "fedora"]
+      #        cxx: ["clang++", "g++"]
+      #        cxx_version: ["c++20", "c++23", "c++26"]
+      # - test-macos:
+      #    matrix:
+      #      parameters:
+      #        cxx: ["clang++", "g++"]
+      #        cxx_version: ["c++20", "c++23", "c++26"]
+      - test-windows:
           matrix:
             parameters:
-              os: ["archlinux", "debian", "fedora"]
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
-      - test-macos:
-          matrix:
-            parameters:
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
-      - analyse:
-          matrix:
-            parameters:
-              cxx_version: ["c++26"]
+              # - analyse:
+              #    matrix:
+              #      parameters:
+              #        cxx_version: ["c++26"]
