@@ -1,3 +1,4 @@
+---
 # Somebody decided it would be a good idea to represet a "list of strings"
 # (a list that can get very long, and the indivdual strings tend to be
 # relatively long as well) as a single long comma-separated string, with
@@ -264,4 +265,3 @@ Checks: >
     readability-uniqueptr-delete-release,
     readability-use-anyofallof,
     zircon-temporary-objects
-

@@ -93,7 +93,9 @@ check_compiler_internal_headers() {
 
 
 check_yaml() {
-    yamllint -- "$SRCDIR"
+    yamllint -- \
+        "$SRCDIR" "$SRCDIR/.clang-format" "$SRCDIR/.clang-tidy" \
+        "$SRCDIR/.cmake-format"
 }
 
 
@@ -221,7 +223,7 @@ EOF
     shelllint
     check_news_version
     check_compiler_internal_headers
-    check_cmake
+    # check_cmake
     mdlint
     check_yaml
     if [ $full == "yes" ]

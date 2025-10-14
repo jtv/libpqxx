@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /bin/bash
 
 # Install packages we need to get a full test run working.
 #
@@ -74,6 +74,13 @@ install_fedora() {
 }
 
 
+install_macos() {
+    brew install --quiet \
+        autoconf autoconf-archive automake cppcheck libtool postgresql \
+        shellcheck uv yamllint libpq >/dev/null
+}
+
+
 if test -z "${1:-}"
 then
     echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
@@ -98,10 +105,14 @@ case "$1" in
         install_fedora
         ;;
 
+    macos)
+        install_macos
+        ;;
+
     *)
         echo >&2 "$0 does not support $1."
         exit 1
         ;;
 esac
 
-echo "export PGHOST=/tmp PGDATA=/db"
+echo "export PGHOST=/tmp PGDATA=/tmp/db"

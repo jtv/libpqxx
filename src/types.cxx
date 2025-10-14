@@ -8,6 +8,7 @@
  */
 #include "pqxx-source.hxx"
 
+#include <cstdlib>
 #include <memory>
 
 #if __has_include(<cxxabi.h>)
@@ -35,7 +36,7 @@ std::string pqxx::internal::demangle_type_name(char const raw[])
   //
   // Oh, and don't bother trying to pass in a "length" argument.  That's only
   // for the length of the buffer, not the length of the string.
-  std::unique_ptr<char[], void (*)(void *) noexcept> const str{
+  std::unique_ptr<char[], void (*)(void *)> const str{
     abi::__cxa_demangle(raw, nullptr, nullptr, &status), std::free};
 
   if (str)

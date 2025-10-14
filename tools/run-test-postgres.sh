@@ -41,5 +41,5 @@ do
     sleep .1
 done
 
-su postgres -c "createuser -w -d \"$USER\"" 
+su postgres -c "createuser -w -d \"$USER\""
 createdb --template=template0 --encoding=UNICODE "$USER"
