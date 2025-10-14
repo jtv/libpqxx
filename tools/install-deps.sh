@@ -83,8 +83,7 @@ install_macos() {
 
 install_windows() {
     choco install cmake -y >/dev/null
-    echo "PATH='$PATH:/c/Program Files/CMake/bin"
-    echo "# $(env)" # XXX:
+    echo "PATH='$PATH:/c/Program Files/CMake/bin'"
 }
 
 
