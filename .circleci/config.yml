@@ -107,6 +107,7 @@ jobs:
     executor:
       name: win/default
       size: medium
+    shell: bash.exe
     steps:
       - checkout
       - run:
