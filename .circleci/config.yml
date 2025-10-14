@@ -102,7 +102,7 @@ jobs:
         type: string
     machine:
       image: "windows-server-2022-gui:current"
-      shell: bash.exe
+      # shell: bash.exe
     steps:
       - checkout
       - run:
