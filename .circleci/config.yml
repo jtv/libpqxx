@@ -107,23 +107,26 @@ jobs:
     executor:
       name: win/default
       size: medium
-    shell: bash.exe
     steps:
       - checkout
       - run:
           name: Install
           command: "./tools/install-deps.sh windows >/tmp/vars.sh"
+          shell: bash.exe
       - run:
           name: Configure
           command: "CXX=<< parameters.cxx >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             cmake ."
+          shell: bash.exe
       - run:
           name: Make
           command: "make -j4"
+          shell: bash.exe
       - run:
           name: Test
           command: "./test/runner"
+          shell: bash.exe
 
   analyse:
     parameters:
