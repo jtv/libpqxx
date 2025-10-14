@@ -2,6 +2,10 @@
 ---
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
+
 jobs:
 
   # Run tests against a Linux Docker image.
@@ -100,10 +104,9 @@ jobs:
         type: string
       cxx_version:
         type: string
-    machine:
-      image: "windows-server-2022-gui:current"
-      shell: bash.exe
-    resource_class: "windows.medium"
+    executor:
+      name: win/default
+      size: medium
     steps:
       - checkout
       - run:
