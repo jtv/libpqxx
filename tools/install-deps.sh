@@ -83,9 +83,9 @@ install_macos() {
 
 install_windows() {
     choco install cmake -y >/dev/null
-    echo "PATH='$PATH:$programfiles/CMake/bin"
-    echo "# PROGRAMFILES=$PROGRAMFILES" # XXX:
-    echo "# programfiles=$programfiles" # XXX:
+    echo "PATH='$PATH:${programfiles:-}/CMake/bin"
+    echo "# PROGRAMFILES=${PROGRAMFILES:-}" # XXX:
+    echo "# programfiles=${programfiles:-}" # XXX:
 }
 
 
