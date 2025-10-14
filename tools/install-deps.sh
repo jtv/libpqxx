@@ -82,7 +82,7 @@ install_macos() {
 
 
 install_windows() {
-    choco install cmake -y >/dev/null
+    choco install cmake llvm postgresql -y >/dev/null
     echo "PATH='$PATH:/c/Program Files/CMake/bin'"
 }
 
