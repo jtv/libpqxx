@@ -100,8 +100,9 @@ jobs:
         type: string
       cxx_version:
         type: string
-    executor:
-      name: win/default
+    machine:
+      image: "windows-server-2022-gui:current"
+      shell: bash.exe
     steps:
       - checkout
       - run:
