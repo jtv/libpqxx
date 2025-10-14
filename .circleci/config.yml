@@ -115,23 +115,24 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "./tools/install-deps.sh windows >/tmp/vars.sh"
+          command: "./tools/install-deps.sh windows >vars.sh"
           shell: bash.exe
       - store_artifacts:
-          path: "/tmp/vars.sh"
+          path: "vars.sh"
       - run:
           name: Configure
-          command: "CXX=<< parameters.cxx >> \
+          command: ". vars.sh && \
+            CXX=<< parameters.cxx >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             cmake ."
           shell: bash.exe
       - run:
           name: Make
-          command: "make -j4"
+          command: ". vars.sh && make -j4"
           shell: bash.exe
       - run:
           name: Test
-          command: "./test/runner"
+          command: ". vars.sh && ./test/runner"
           shell: bash.exe
 
   analyse:
