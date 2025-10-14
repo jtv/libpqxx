@@ -105,16 +105,16 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Configure
-        command: "CXX=<< parameters.cxx >> \
+          name: Configure
+          command: "CXX=<< parameters.cxx >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >> \
             cmake ."
       - run:
           name: Make
-          run: "make -j4"
+          command: "make -j4"
       - run:
           name: Test
-          run: "./test/runner"
+          command: "./test/runner"
 
   analyse:
     parameters:
