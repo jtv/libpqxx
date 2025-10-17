@@ -107,6 +107,8 @@ install_windows() {
     echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
 
     # XXX: DEBUG CODE:
+    echo "/c:" /c/*
+    echo
     echo "$pd: " "$pd"/*
     echo
     echo "$pd/chocolatey/lib: " "$pd"/chocolatey/lib/*
