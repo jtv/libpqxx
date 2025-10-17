@@ -99,10 +99,7 @@ install_windows() {
     choco install \
         cmake llvm mingw ninja postgresql16 \
         --limit-output --no-progress -y 1>&2
-    echo "PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
-
-    echo >&2 "*** Looking for cl.exe: $(ls -lR /c/ | grep cl.exe) ***\n" # XXX:
-    echo >&2 "*** Looking for g++.exe: $(ls -lR /c/ | grep g++.exe) ***\n" # XXX:
+    #echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
 }
 
 

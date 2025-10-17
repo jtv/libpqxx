@@ -120,6 +120,9 @@ jobs:
       - store_artifacts:
           path: "vars.sh"
       - run:
+          name: RefreshEnv
+          command: refreshenv
+      - run:
           name: Configure
           command: ". vars.sh && \
             CXX=<< parameters.cxx >> \
