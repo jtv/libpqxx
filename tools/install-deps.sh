@@ -12,6 +12,8 @@
 # * debian
 # * debian-lint (for running full lint)
 # * fedora
+# * macos
+# * windows
 #
 # The script may output shell commands that you'll need to run in your own
 # shell process, to set variables and such.
@@ -90,7 +92,7 @@ install_windows() {
     #
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables.
-    choco install cmake postgresql16 --limit-output -y 1>&2
+    choco install cmake postgresql16 Ninja --limit-output --no-progress -y 1>&2
     echo "PATH='$PATH:$cmake_bin:$pg_bin'"
 }
 

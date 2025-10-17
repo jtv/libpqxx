@@ -124,11 +124,11 @@ jobs:
           command: ". vars.sh && \
             CXX=<< parameters.cxx >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-            cmake ."
+            cmake -G Ninja ."
           shell: bash.exe
       - run:
           name: Make
-          command: ". vars.sh && make -j4"
+          command: ". vars.sh && ninja"
           shell: bash.exe
       - run:
           name: Test
