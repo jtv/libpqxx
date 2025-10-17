@@ -95,10 +95,11 @@ install_windows() {
     # why is there no --quiet option?).
     #
     # But if we let this run quietly, then it times out.  And we can't let the
-    # output go to stdout because that's where we write our variables.
+    # output go to stdout because that's where we write our variables, so we
+    # send it to stderr.
     choco install \
         cmake llvm mingw ninja postgresql16 \
-        --limit-output --no-progress -y 1>&2
+        --limit-output -y 1>&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
