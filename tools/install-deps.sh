@@ -106,9 +106,8 @@ install_windows() {
     # Instead, we'll just have to add all these directories to PATH.
     echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
 
-    # XXX: DEBUG CODE:
-    echo "$pf: " "$pf"/* >&2
-    echo >&2
+    # In case this helps...
+    echo "refreshenv"
 }
 
 
