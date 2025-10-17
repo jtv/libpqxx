@@ -99,7 +99,11 @@ install_windows() {
     choco install \
         cmake llvm mingw ninja postgresql16 \
         --limit-output --no-progress -y 1>&2
-    #echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
+
+    # This is just useless...  To get the installed commands in your path,
+    # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
+    # Instead, we'll just have to add all these directories to PATH.
+    echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
 }
 
 
