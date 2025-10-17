@@ -84,8 +84,11 @@ install_macos() {
 
 
 install_windows() {
-    local cmake_bin="/c/Program Files/CMake/bin"
-    local pg_bin="/c/Program Files/PostgreSQL/16/bin"
+    local pf="/c/Program Files"
+    local cmake_bin="$pf/CMake/bin"
+    local llvm_bin="$pf/llvm/bin"
+    local mingw_bin="$pf/MinGW/bin"
+    local pg_bin="$pf/PostgreSQL/16/bin"
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
     # why is there no --quiet option?).
@@ -94,8 +97,9 @@ install_windows() {
     # output go to stdout because that's where we write our variables.
     choco install \
         cmake llvm mingw ninja postgresql16 \
-	--limit-output --no-progress -y 1>&2
-    echo "PATH='$PATH:$cmake_bin:$pg_bin'"
+        --limit-output --no-progress -y 1>&2
+    ls -l "$pf" >&2 # XXX: DEBUG
+    echo "PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
 }
 
 

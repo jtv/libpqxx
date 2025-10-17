@@ -115,7 +115,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "./tools/install-deps.sh windows >vars.sh || cat vars.sh"
+          command: "./tools/install-deps.sh windows >vars.sh"
           shell: bash.exe
       - store_artifacts:
           path: "vars.sh"
