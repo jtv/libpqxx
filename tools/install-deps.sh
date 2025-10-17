@@ -85,9 +85,10 @@ install_macos() {
 
 install_windows() {
     local pf="/c/Program Files"
+    local pd="/c/ProgramData"
     local cmake_bin="$pf/CMake/bin"
     local llvm_bin="$pf/llvm/bin"
-    local mingw_bin="$pf/MinGW64/bin"
+    local mingw_bin="$pd/MinGW64/bin"
     local pg_bin="$pf/PostgreSQL/16/bin"
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and

@@ -181,7 +181,7 @@ workflows:
       - test-windows:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
+              cxx: ["clang++", "g++", "cl"]
               cxx_version: ["c++20", "c++23", "c++26"]
               # - analyse:
               #    matrix:
