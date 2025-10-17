@@ -105,6 +105,21 @@ install_windows() {
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
     echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
+
+    # XXX: DEBUG CODE:
+    echo "$pd: " "$pd"/*
+    echo
+    echo "$pd/chocolatey/lib: " "$pd"/chocolatey/lib/*
+    echo
+    echo "$pd/chocolatey/lib/mingw: " "$pd"/chocolatey/lib/mingw/*
+    echo
+    echo "$pd/chocolatey/lib/mingw/tools: " "$pd"/chocolatey/lib/mingw/tools/*
+    echo
+    echo "$pd/chocolatey/lib/mingw/tools/install: " "$pd"/chocolatey/lib/mingw/tools/install/*
+    echo
+    echo "$pd/chocolatey/lib/mingw/tools/install/MinGW64: " "$pd"/chocolatey/lib/mingw/tools/install/MinGW64/*
+    echo
+    echo "$pd/chocolatey/lib/mingw/tools/install/MinGW64/bin: " "$pd"/chocolatey/lib/mingw/tools/install/MinGW64/bin/*
 }
 
 
