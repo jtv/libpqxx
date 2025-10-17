@@ -100,6 +100,9 @@ install_windows() {
         cmake llvm mingw ninja postgresql16 \
         --limit-output --no-progress -y 1>&2
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
+
+    echo >&2 "*** Looking for cl.exe: $(find /c/ -name cl.exe) ***\n" # XXX:
+    echo >&2 "*** Looking for g++.exe: $(find /c/ -name g++.exe) ***\n" # XXX:
 }
 
 
