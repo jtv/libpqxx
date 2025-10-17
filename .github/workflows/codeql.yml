@@ -19,7 +19,7 @@ jobs:
       security-events: write
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         language: [python, cpp]
 
@@ -39,26 +39,23 @@ jobs:
       #      - name: Autobuild
       #        uses: github/codeql-action/autobuild@v3
       #
-      # Instead, we'll have to build manually:
+      # Instead, we'll have to build manually.  Doing that without
+      # optimisation, since we're already doing full test runs elsewhere.
+      # The point here is to get additional analysis.
       - name: Build
         run: |
-            gcc --version
-            #sudo apt-get -q update
-            #sudo apt-get -q -y upgrade
-            sudo apt-get -q install -y postgresql virtualenv pipx
-            sudo pipx install uv
-            sudo service postgresql start
-            sudo su postgres -c "createuser --createdb $(whoami)"
-            createdb "$(whoami)"
-            # Using clang because currently the gcc build fails with an
-            # address sanitizer (asan) link error.
-            ./configure \
+            ./tools/install-deps.sh >/tmp/vars.sh
+            echo "\nvars.sh:"
+            cat /tmp/vars.sh
+            echo
+            . /tmp/vars.sh
+            ./tools/run-test-postgres.sh
+            . /tmp/vars.sh && ./configure \
               --enable-maintainer-mode \
-                --enable-audit \
-                  --disable-static \
-                    CXXFLAGS='-O1 -std=c++20' CXX=clang++
-            PATH="$PATH:$HOME/.local/bin" make -j4 check || \
-              (cat test-suite.log && exit 1 || true)
+              --disable-static \
+              CXXFLAGS='-O0 -std=c++20' CXX=clang++
+            # TODO: Can we just upload artefacts?
+            make -j2 check || (cat test-suite.log && exit 1 || true)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
