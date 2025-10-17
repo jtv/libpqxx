@@ -109,3 +109,45 @@ install_windows() {
     # XXX: DEBUG CODE:
     echo "$pf: " "$pf"/* >&2
     echo >&2
+}
+
+
+if test -z "${1:-}"
+then
+    echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
+    exit 1
+fi
+
+case "$1" in
+    archlinux)
+        install_archlinux
+        ;;
+
+    debian)
+        install_debian
+        ;;
+    # Debian system, but only for the purpose of running "lint --full".
+    # (We only need to do that on one of the systems.)
+    debian-lint)
+        install_debian_lint
+        ;;
+
+    fedora)
+        install_fedora
+        ;;
+
+    macos)
+        install_macos
+        ;;
+
+    windows)
+        install_windows
+        ;;
+
+    *)
+        echo >&2 "$0 does not support $1."
+        exit 1
+        ;;
+esac
+
+echo "export PGHOST=/tmp PGDATA=/tmp/db"
