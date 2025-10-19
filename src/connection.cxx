@@ -563,9 +563,9 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
       std::format("Could not get socket state: {}", err), loc};
   }
   if (block)
-    flags |= O_NONBLOCK;
-  else
     flags &= ~O_NONBLOCK;
+  else
+    flags |= O_NONBLOCK;
   if (::fcntl(fd, F_SETFL, flags) == -1)
   {
     char const *const err{pqxx::internal::error_string(errno, errbuf)};
