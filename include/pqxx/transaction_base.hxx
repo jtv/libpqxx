@@ -732,7 +732,7 @@ public:
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
   result exec_params_n(std::size_t rows, zview query, Args &&...args)
   {
-    sl loc{sl::current()};
+    sl loc{m_created_loc};
     return exec(query, params{args...}, loc)
       .expect_rows(
         check_cast<result_size_type>(rows, "number of rows", loc), loc);
@@ -1020,7 +1020,7 @@ public:
     "Use exec(string_view, params) and call one_row() on the result.")]]
   row exec_prepared1(zview statement, Args &&...args)
   {
-    sl loc{sl::current()};
+    sl loc{m_created_loc};
     return exec(prepped{statement}, params{args...}).one_row(loc);
   }
 
@@ -1032,7 +1032,7 @@ public:
     "Use exec(prepped, params), and call no_rows() on the result.")]]
   result exec_prepared0(zview statement, Args &&...args)
   {
-    sl loc{sl::current()};
+    sl loc{m_created_loc};
     return exec(prepped{statement}, params{args...}).no_rows(loc);
   }
 
@@ -1046,7 +1046,7 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    sl loc{sl::current()};
+    sl loc{m_created_loc};
     return exec(pqxx::prepped{statement}, params{args...})
       .expect_rows(rows, loc);
   }

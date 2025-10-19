@@ -130,10 +130,18 @@ public:
     return {home(), row_number(), i};
   }
 
+#if defined(PQXX_HAVE_MULTIDIM)
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
+  [[nodiscard]] PQXX_PURE reference
+  operator[](zview col_name, sl = sl::current()) const;
+#else
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
+#endif // PQXX_HAVE_MULTIDIM
 
   /// Address a field by number, but check that the number is in range.
   PQXX_PURE reference at(size_type i, sl loc = sl::current()) const
@@ -438,6 +446,16 @@ public:
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
 
   [[nodiscard]] PQXX_PURE field_ref operator[](size_type) const noexcept;
+#if defined(PQXX_HAVE_MULTIDIM)
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
+  [[nodiscard]] PQXX_PURE field_ref
+  operator[](zview col_name, sl loc = sl::current()) const
+  {
+    return as_row_ref()[col_name, loc];
+  }
+#else
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
@@ -445,6 +463,7 @@ public:
   {
     return as_row_ref()[col_name];
   }
+#endif
 
   /// Address a field by number, but check that the number is in range.
   PQXX_PURE field_ref at(size_type, sl = sl::current()) const;

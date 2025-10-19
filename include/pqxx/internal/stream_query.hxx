@@ -114,7 +114,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line, sl loc) &
+  std::tuple<TYPE...> parse_line(zview line) &
   {
     assert(not done());
 
@@ -138,7 +138,8 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write, loc)...};
+    std::tuple<TYPE...> data{
+      parse_field<TYPE>(line, offset, write, m_created_loc)...};
 
     assert(offset == line_size + 1u);
     return data;
@@ -321,6 +322,9 @@ private:
    * re-allocate it every time.
    */
   std::string m_row;
+
+  /// The `std::source_location` for where this stream was created.
+  sl m_created_loc;
 };
 } // namespace pqxx::internal
 #endif

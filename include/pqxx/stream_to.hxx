@@ -204,8 +204,7 @@ public:
    */
   template<typename Row> stream_to &operator<<(Row const &row)
   {
-    sl loc{sl::current()};
-    write_row(row, loc);
+    write_row(row, m_created_loc);
     return *this;
   }
 

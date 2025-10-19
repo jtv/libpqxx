@@ -73,8 +73,7 @@ public:
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    sl loc{sl::current()};
-    return m_home->parse_line(zview{m_line.get(), m_line_size}, loc);
+    return m_home->parse_line(zview{m_line.get(), m_line_size});
   }
 
   /// Are we at the end?
