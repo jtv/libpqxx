@@ -128,7 +128,11 @@ pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view query, std::string_view cname,
   cursor_base::access_policy ap, cursor_base::update_policy up,
   cursor_base::ownership_policy op, bool hold, sl loc) :
-        cursor_base{t.conn(), cname}, m_home{t.conn()}, m_at_end{-1}, m_pos{0}
+        cursor_base{t.conn(), cname},
+        m_home{t.conn()},
+        m_at_end{-1},
+        m_pos{0},
+        m_created_loc{loc}
 {
   if (&t.conn() != &m_home)
     throw internal_error{"Using cursor in the wrong connection.", loc};
@@ -160,12 +164,13 @@ pqxx::internal::sql_cursor::sql_cursor(
 
 pqxx::internal::sql_cursor::sql_cursor(
   transaction_base &t, std::string_view cname,
-  cursor_base::ownership_policy op) :
+  cursor_base::ownership_policy op, sl loc) :
         cursor_base{t.conn(), cname, false},
         m_home{t.conn()},
         m_ownership{op},
         m_at_end{0},
-        m_pos{-1}
+        m_pos{-1},
+        m_created_loc{loc}
 {}
 
 

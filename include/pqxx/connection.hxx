@@ -276,7 +276,8 @@ public:
   connection(sl loc = sl::current()) : connection{"", loc} {}
 
   /// Connect to a database, using `options` string.
-  explicit connection(char const options[], sl loc = sl::current())
+  explicit connection(char const options[], sl loc = sl::current()) :
+          m_created_loc{loc}
   {
     check_version();
     init(options, loc);
@@ -315,20 +316,26 @@ public:
 
   ~connection()
   {
-    // TODO: How can we pass std::source_location?
-    sl loc{sl::current()};
     try
     {
-      close(loc);
+      close(m_created_loc);
     }
     catch (std::exception const &)
-    {}
+    {
+      // TODO: Try to report the error.
+    }
   }
 
   // TODO: Once we drop notification_receiver/errorhandler, move is easier.
   /// Move assignment.
   /** Neither connection can have an open transaction, `errorhandler`, or
    * `notification_receiver`.
+   *
+   * If libpqxx needs to throw an exception during this operation, its error
+   * message will state the `std::source_location` not for where you call it,
+   * since there is no way to pass a `std::source_location` parameter in the
+   * assignment operator.  Instead, it will report the location where the
+   * current connection was _created._
    */
   connection &operator=(connection &&rhs);
 
@@ -1150,9 +1157,10 @@ public:
    *
    * @param raw_conn a raw libpq `PQconn` pointer.
    */
-  static connection seize_raw_connection(internal::pq::PGconn *raw_conn)
+  static connection
+  seize_raw_connection(internal::pq::PGconn *raw_conn, sl loc = sl::current())
   {
-    return connection{raw_conn};
+    return connection{raw_conn, loc};
   }
 
   /// Release the raw connection without closing it.
@@ -1200,7 +1208,7 @@ private:
   connection(connect_mode, zview connection_string, sl);
 
   /// For use by @ref seize_raw_connection.
-  explicit connection(internal::pq::PGconn *raw_conn);
+  explicit connection(internal::pq::PGconn *raw_conn, sl);
 
   /// Poll for ongoing connection, try to progress towards completion.
   /** Returns a pair of "now please wait to read data from socket" and "now
@@ -1337,6 +1345,9 @@ private:
 
   /// Unique number to use as suffix for identifiers (see adorn_name()).
   int m_unique_id = 0;
+
+  /// A `std::source_location` for where this object was created.
+  sl m_created_loc;
 };
 
 
@@ -1484,7 +1495,8 @@ inline std::string connection::quote_columns(STRINGS const &columns) const
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(MAPPING const &params, sl loc)
+inline connection::connection(MAPPING const &params, sl loc) :
+        m_created_loc{loc}
 {
   check_version();
 

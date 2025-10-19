@@ -98,17 +98,20 @@ composite_size_buffer(T const &...fields) noexcept
 }
 
 
-// TODO: How can we pass std::source_location here?
 /// Render a series of values as a single composite SQL value.
 /** @warning This code is still experimental.  Use with care.
  *
  * You may use this as a helper while implementing your own `string_traits`
  * for a composite type.
+ *
+ * @param loc An `std::source_location`, so that any error messages can report
+ * this as the place where the error occurred.  This is probably more useful to
+ * you than a location inside this function itself.
  */
 template<typename... T>
-inline std::size_t composite_into_buf(std::span<char> buf, T const &...fields)
+inline std::size_t
+composite_into_buf(sl loc, std::span<char> buf, T const &...fields)
 {
-  auto loc{sl::current()};
   if (std::size(buf) < composite_size_buffer(fields...))
     throw conversion_error{
       "Buffer space may not be enough to represent composite value.", loc};

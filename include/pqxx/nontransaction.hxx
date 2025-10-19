@@ -66,8 +66,9 @@ public:
    * @param tname Optional tname for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  nontransaction(connection &cx, std::string_view tname = ""sv) :
-          transaction_base{cx, tname, std::shared_ptr<std::string>{}}
+  nontransaction(
+    connection &cx, std::string_view tname = ""sv, sl loc = sl::current()) :
+          transaction_base{cx, tname, std::shared_ptr<std::string>{}, loc}
   {
     register_transaction();
   }

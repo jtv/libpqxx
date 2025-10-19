@@ -44,21 +44,27 @@ std::shared_ptr<std::string> make_rollback_cmd()
 }
 } // namespace
 
-pqxx::transaction_base::transaction_base(connection &cx) :
-        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}
+pqxx::transaction_base::transaction_base(connection &cx, sl loc) :
+        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}, m_created_loc{loc}
 {}
 
 
 pqxx::transaction_base::transaction_base(
-  connection &cx, std::string_view tname) :
-        m_conn{cx}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
+  connection &cx, std::string_view tname, sl loc) :
+        m_conn{cx},
+        m_name{tname},
+        m_rollback_cmd{make_rollback_cmd()},
+        m_created_loc{loc}
 {}
 
 
 pqxx::transaction_base::transaction_base(
   connection &cx, std::string_view tname,
-  std::shared_ptr<std::string> rollback_cmd) :
-        m_conn{cx}, m_name{tname}, m_rollback_cmd{std::move(rollback_cmd)}
+  std::shared_ptr<std::string> rollback_cmd, sl loc) :
+        m_conn{cx},
+        m_name{tname},
+        m_rollback_cmd{std::move(rollback_cmd)},
+        m_created_loc{loc}
 {}
 
 

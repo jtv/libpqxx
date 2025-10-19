@@ -29,7 +29,7 @@ pqxx::subtransaction::subtransaction(
         transaction_focus{t, "subtransaction"sv, t.conn().adorn_name(tname)},
         // We can't initialise the rollback command here, because we don't yet
         // have a full object to implement quoted_name().
-        dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}}
+        dbtransaction{t.conn(), tname, std::shared_ptr<std::string>{}, loc}
 {
   set_rollback_cmd(std::make_shared<std::string>(
     std::format("ROLLBACK TO SAVEPOINT {}", quoted_name())));
@@ -53,8 +53,7 @@ pqxx::subtransaction::subtransaction(
 
 pqxx::subtransaction::~subtransaction() noexcept
 {
-  sl const loc{sl::current()};
-  close(loc);
+  close(created_loc());
 }
 
 

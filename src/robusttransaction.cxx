@@ -108,7 +108,7 @@ void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
   connection &cx, zview begin_command, std::string_view tname, sl loc) :
-        dbtransaction(cx, tname), m_conn_string{cx.connection_string()}
+        dbtransaction(cx, tname, loc), m_conn_string{cx.connection_string()}
 {
   init(begin_command, loc);
 }
@@ -116,7 +116,7 @@ pqxx::internal::basic_robusttransaction::basic_robusttransaction(
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
   connection &cx, zview begin_command, sl loc) :
-        dbtransaction(cx), m_conn_string{cx.connection_string()}
+        dbtransaction(cx, loc), m_conn_string{cx.connection_string()}
 {
   init(begin_command, loc);
 }

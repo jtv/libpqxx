@@ -1102,7 +1102,8 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &, std::string_view, std::shared_ptr<std::string> rollback_cmd);
+    connection &, std::string_view, std::shared_ptr<std::string> rollback_cmd,
+    sl loc = sl::current());
 
   /// Create a transaction (to be called by implementation classes only).
   /** Its rollback command will be "ROLLBACK".
@@ -1110,10 +1111,11 @@ protected:
    * The name, if nonempty, must begin with a letter and may contain letters
    * and digits only.
    */
-  transaction_base(connection &cx, std::string_view tname);
+  transaction_base(
+    connection &cx, std::string_view tname, sl loc = sl::current());
 
   /// Create a transaction (to be called by implementation classes only).
-  explicit transaction_base(connection &cx);
+  explicit transaction_base(connection &cx, sl loc = sl::current());
 
   /// Register this transaction with the connection.
   void register_transaction();
@@ -1147,6 +1149,10 @@ protected:
   {
     return direct_exec(query, "", loc);
   }
+
+  // TODO: Can this be noexcept?
+  /// The `std::source_location` for this transaction's creation.
+  [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
 private:
   enum class status
@@ -1204,6 +1210,9 @@ private:
 
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
+
+  /// A `std::source_location` for where this transaction object was created.
+  sl m_created_loc;
 
   static constexpr std::string_view s_type_name{"transaction"sv};
 };

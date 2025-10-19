@@ -61,14 +61,14 @@ public:
 
   /// Start a pipeline.
   explicit pipeline(transaction_base &t, sl loc = sl::current()) :
-          transaction_focus{t, s_classname}
+          transaction_focus{t, s_classname}, m_created_loc{loc}
   {
     init(loc);
   }
   /// Start a pipeline.  Assign it a name, for more helpful error messages.
   pipeline(
     transaction_base &t, std::string_view tname, sl loc = sl::current()) :
-          transaction_focus{t, s_classname, tname}
+          transaction_focus{t, s_classname, tname}, m_created_loc{loc}
   {
     init(loc);
   }
@@ -234,6 +234,9 @@ private:
    * moments.
    */
   encoding_group m_encoding;
+
+  /// A `std::source_location` for where this pipeline was created.
+  sl m_created_loc;
 
   static constexpr std::string_view s_classname{"pipeline"};
 };

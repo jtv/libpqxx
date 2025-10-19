@@ -23,7 +23,7 @@
 
 pqxx::internal::basic_transaction::basic_transaction(
   connection &cx, zview begin_command, std::string_view tname, sl loc) :
-        dbtransaction(cx, tname)
+        dbtransaction(cx, tname, loc)
 {
   register_transaction();
   direct_exec(begin_command, loc);
@@ -32,7 +32,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 pqxx::internal::basic_transaction::basic_transaction(
   connection &cx, zview begin_command, std::string &&tname, sl loc) :
-        dbtransaction(cx, std::move(tname))
+        dbtransaction(cx, std::move(tname), loc)
 {
   register_transaction();
   direct_exec(begin_command, loc);
@@ -41,7 +41,7 @@ pqxx::internal::basic_transaction::basic_transaction(
 
 pqxx::internal::basic_transaction::basic_transaction(
   connection &cx, zview begin_command, sl loc) :
-        dbtransaction(cx)
+        dbtransaction(cx, loc)
 {
   register_transaction();
   direct_exec(begin_command, loc);

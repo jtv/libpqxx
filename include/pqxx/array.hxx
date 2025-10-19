@@ -482,7 +482,6 @@ private:
     }
   }
 
-  // TODO: How can we pass std::source_location here?
   /// Check that indexes are within bounds.
   /** @throw pqxx::range_error if not.
    */
