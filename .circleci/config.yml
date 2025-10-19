@@ -152,15 +152,10 @@ jobs:
           command: choco install cmake
       - run:
           name: Configure
-          command: "cmake \
-            -G 'Visual Studio 17 2022' \
-            -DCMAKE_CXX_STANDARD=<< parameters.cxx_version >>"
-      - run:
-          name: RefreshEnv
-          command: refreshenv
-      - run:
-          name: vcvarsall
-          command: vcvarsall x64
+          command: "vcvarsall x64 ; refreshenv ;
+            cmake \
+                -G 'Visual Studio 17 2022' \
+                -DCMAKE_CXX_STANDARD=<< parameters.cxx_version >>"
       - run:
           name: Make
           # XXX:
@@ -213,7 +208,9 @@ workflows:
       - test-windows:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
+              # Haven't found the path for g++ yet.
+              # cxx: ["clang++", "g++"]
+              cxx: ["clang++"]
               cxx_version: ["c++20", "c++23", "c++26"]
 
       - test-msvc:
