@@ -102,6 +102,8 @@ jobs:
       - store_artifacts:
           path: postgres.log
 
+  # Windows builds are very incomplete for now.  No MSVC, no gcc, no database.
+  # Couldn't get them working on CircleCI.
   test-windows:
     parameters:
       cxx:
@@ -129,10 +131,6 @@ jobs:
       - run:
           name: Make
           command: ". vars.sh && ninja"
-          shell: bash.exe
-      - run:
-          name: Test
-          command: ". vars.sh && ./test/runner"
           shell: bash.exe
 
   analyse:
@@ -182,8 +180,6 @@ workflows:
       - test-windows:
           matrix:
             parameters:
-              # Haven't found the path for g++ yet.
-              # cxx: ["clang++", "g++"]
               cxx: ["clang++"]
               cxx_version: ["c++20", "c++23", "c++26"]
 

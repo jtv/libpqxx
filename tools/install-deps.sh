@@ -85,26 +85,25 @@ install_macos() {
 
 install_windows() {
     local pf="/c/Program Files"
-    local pd="/c/ProgramData"
     local cmake_bin="$pf/CMake/bin"
     local llvm_bin="$pf/llvm/bin"
-    local mingw_bin="$pd/chocolatey/lib/mingw/tools/install/MinGW64/bin"
-    local pg_bin="$pf/PostgreSQL/16/bin"
+    # TODO: Couldn't get PostgreSQL running on Windows in CicleCI.
+    # local pg_bin="$pf/PostgreSQL/16/bin"
+
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
     # why is there no --quiet option?).
     #
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables, so we
-    # send it to stderr.
-    choco install \
-        cmake llvm mingw ninja postgresql16 \
-        --limit-output -y 1>&2
+    # let it generate progress information and send the output to stderr.
+    # TODO: Can install mingw for a g++ build, but couldn't find g++.exe!
+    choco install cmake llvm ninja --limit-output -y 1>&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
+    echo "export PATH='$PATH:$cmake_bin:$llvm_bin'"
 }
 
 
