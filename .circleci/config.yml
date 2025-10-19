@@ -135,6 +135,30 @@ jobs:
           command: ". vars.sh && ./test/runner"
           shell: bash.exe
 
+  # CircleCI's Windows build is painfully different.  We need to run a DOS
+  # script before invoking the compiler.  Ninja doesn't seem to support the
+  # compiler.  And I'm not even _trying_ the configure script.
+  test-msvc:
+    parameters:
+      cxx:
+        type: string
+    executor:
+      name: win/default
+      size: medium
+    steps:
+      - checkout
+      - run:
+        name: Install
+        command: choco install cmake
+      - run:
+        name: Configure
+        command: "cmake \
+          -G 'Visual Studio 17 2022' -DCMAKE_CXX_STANDARD=<< cxx >>"
+      - run:
+        name: Make
+        # XXX:
+        command: "echo"
+
   analyse:
     parameters:
       cxx_version:
@@ -178,12 +202,19 @@ workflows:
       #      parameters:
       #        cxx: ["clang++", "g++"]
       #        cxx_version: ["c++20", "c++23", "c++26"]
+
       - test-windows:
           matrix:
             parameters:
-              cxx: ["clang++", "g++", "cl"]
+              cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
-              # - analyse:
-              #    matrix:
-              #      parameters:
-              #        cxx_version: ["c++26"]
+
+      - test-msvc:
+          matrix:
+            parameters:
+              cxx_version: ["20", "23", "26"]
+
+# - analyse:
+#    matrix:
+#      parameters:
+#        cxx_version: ["c++26"]
