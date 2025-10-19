@@ -235,7 +235,6 @@ public:
    */
   template<typename... Ts> void write_values(Ts const &...fields)
   {
-    auto loc{sl::current()};
     fill_buffer(fields...);
     write_buffer(m_created_loc);
   }
