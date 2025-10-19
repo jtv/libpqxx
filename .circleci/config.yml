@@ -140,7 +140,7 @@ jobs:
   # compiler.  And I'm not even _trying_ the configure script.
   test-msvc:
     parameters:
-      cxx:
+      cxx_version:
         type: string
     executor:
       name: win/default
