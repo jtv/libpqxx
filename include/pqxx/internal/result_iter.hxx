@@ -44,6 +44,7 @@ public:
   {
     PQXX_ASSUME(m_home != nullptr);
     PQXX_ASSUME(m_index <= m_size);
+    // TODO: Would be nice to get at least the result's creation location.
     sl loc{sl::current()};
     ++m_index;
     if (m_index >= m_size)

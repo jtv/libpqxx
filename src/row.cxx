@@ -50,11 +50,17 @@ pqxx::field_ref pqxx::row::operator[](size_type i) const noexcept
 }
 
 
-pqxx::field_ref pqxx::row_ref::operator[](zview col_name) const
+#if defined(PQXX_HAVE_MULTIDIM)
+pqxx::field_ref pqxx::row_ref::operator[](zview col_name, sl loc) const
 {
-  static constexpr sl loc{sl::current()};
   return at(col_name, loc);
 }
+#else
+pqxx::field_ref pqxx::row_ref::operator[](zview col_name) const
+{
+  return at(col_name, m_created_loc);
+}
+#endif // PQXX_HAVE_MULTIDIM
 
 
 void pqxx::row::swap(row &rhs) noexcept
@@ -79,7 +85,6 @@ pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
   if (i >= size())
     throw range_error{"Invalid field number.", loc};
-
   return operator[](i);
 }
 
