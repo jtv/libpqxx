@@ -148,16 +148,22 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install
-        command: choco install cmake
+          name: Install
+          command: choco install cmake
       - run:
-        name: Configure
-        command: "cmake \
-          -G 'Visual Studio 17 2022' -DCMAKE_CXX_STANDARD=<< cxx >>"
+          name: Configure
+          command: "cmake \
+            -G 'Visual Studio 17 2022' -DCMAKE_CXX_STANDARD=<< cxx >>"
       - run:
-        name: Make
-        # XXX:
-        command: "echo"
+          name: RefreshEnv
+          command: refreshenv
+      - run:
+          name: vcvarsall
+          command: vcvarsall x64
+      - run:
+          name: Make
+          # XXX:
+          command: "echo"
 
   analyse:
     parameters:
