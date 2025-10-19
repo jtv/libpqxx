@@ -148,7 +148,7 @@ jobs:
     steps:
       - run:
           name: Find executables  # XXX: DEBUG
-          command: "C: ; cd \\ ; dir vcvarsall.bat /s ; dir g++.exe /s"
+          command: "C: ; cd \\ ; dir /s vcvarsall.bat ; dir /s g++.exe"
       - checkout
       - run:
           name: Install
