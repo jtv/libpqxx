@@ -1,4 +1,5 @@
 7.10.4
+ - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
 7.10.3
  - Fix Microsoft Visual Studio C++17 build. (#1036, #1037)
  - Run Appveyor & CircleCI tests against multiple C++ versions at once.
