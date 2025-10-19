@@ -153,7 +153,8 @@ jobs:
       - run:
           name: Configure
           command: "cmake \
-            -G 'Visual Studio 17 2022' -DCMAKE_CXX_STANDARD=<< cxx >>"
+            -G 'Visual Studio 17 2022' \
+            -DCMAKE_CXX_STANDARD=<< parameters.cxx_version >>"
       - run:
           name: RefreshEnv
           command: refreshenv
