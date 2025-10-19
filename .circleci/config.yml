@@ -146,6 +146,9 @@ jobs:
       name: win/default
       size: medium
     steps:
+      - run:
+          name: Find executables  # XXX: DEBUG
+          command: C: ; dir vcvarsall.bat /s ; dir g++.exe /s
       - checkout
       - run:
           name: Install

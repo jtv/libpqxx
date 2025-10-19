@@ -105,9 +105,6 @@ install_windows() {
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
     echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin:$pg_bin'"
-
-    # In case this helps...
-    echo "refreshenv"
 }
 
 
