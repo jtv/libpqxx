@@ -523,7 +523,7 @@ private:
     if (m_stream != nullptr)
       return created_loc();
     else
-      return other.created_loc();
+      return other.created_loc(loc);
   }
 
   icursorstream *m_stream{nullptr};
