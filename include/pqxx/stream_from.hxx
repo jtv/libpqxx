@@ -320,7 +320,6 @@ inline stream_from::stream_from(
 {}
 
 
-// TODO: How can we pass std::source_location?
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
   sl loc{sl::current()};

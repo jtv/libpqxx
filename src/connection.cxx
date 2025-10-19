@@ -109,7 +109,8 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
         m_conn{rhs.m_conn},
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
-        m_unique_id{rhs.m_unique_id}
+        m_unique_id{rhs.m_unique_id},
+        m_created_loc{loc}
 {
   rhs.check_movable(loc);
   rhs.m_conn = nullptr;
@@ -118,7 +119,7 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
 
 pqxx::connection::connection(
   connection::connect_mode, zview connection_string, sl loc) :
-        m_conn{PQconnectStart(connection_string.c_str())}
+        m_conn{PQconnectStart(connection_string.c_str())}, m_created_loc{loc}
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -135,7 +136,8 @@ pqxx::connection::connection(
 }
 
 
-pqxx::connection::connection(internal::pq::PGconn *raw_conn) : m_conn{raw_conn}
+pqxx::connection::connection(internal::pq::PGconn *raw_conn, sl loc) :
+        m_conn{raw_conn}, m_created_loc{loc}
 {
   set_up_notice_handlers();
 }
@@ -238,20 +240,19 @@ void pqxx::connection::check_overwritable(sl loc) const
 }
 
 
-// TODO: How can we pass std::source_location here?
 pqxx::connection &pqxx::connection::operator=(connection &&rhs)
 {
-  auto loc{sl::current()};
-  check_overwritable(loc);
-  rhs.check_movable(loc);
+  check_overwritable(m_created_loc);
+  rhs.check_movable(m_created_loc);
 
   // Close our old connection, if any.
-  close(loc);
+  close(m_created_loc);
 
   m_conn = std::exchange(rhs.m_conn, nullptr);
   m_unique_id = rhs.m_unique_id;
   m_notice_waiters = std::move(rhs.m_notice_waiters);
   m_notification_handlers = std::move(rhs.m_notification_handlers);
+  m_created_loc = rhs.m_created_loc;
 
   return *this;
 }
@@ -562,9 +563,9 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
       std::format("Could not get socket state: {}", err), loc};
   }
   if (block)
-    flags |= O_NONBLOCK;
-  else
     flags &= ~O_NONBLOCK;
+  else
+    flags |= O_NONBLOCK;
   if (::fcntl(fd, F_SETFL, flags) == -1)
   {
     char const *const err{pqxx::internal::error_string(errno, errbuf)};

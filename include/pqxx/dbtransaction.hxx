@@ -54,16 +54,19 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
   /// Begin transaction.
-  explicit dbtransaction(connection &cx) : transaction_base{cx} {}
+  explicit dbtransaction(connection &cx, sl loc = sl::current()) :
+          transaction_base{cx, loc}
+  {}
   /// Begin transaction.
-  dbtransaction(connection &cx, std::string_view tname) :
-          transaction_base{cx, tname}
+  dbtransaction(
+    connection &cx, std::string_view tname, sl loc = sl::current()) :
+          transaction_base{cx, tname, loc}
   {}
   /// Begin transaction.
   dbtransaction(
     connection &cx, std::string_view tname,
-    std::shared_ptr<std::string> rollback_cmd) :
-          transaction_base{cx, tname, rollback_cmd}
+    std::shared_ptr<std::string> rollback_cmd, sl loc = sl::current()) :
+          transaction_base{cx, tname, rollback_cmd, loc}
   {}
 };
 } // namespace pqxx

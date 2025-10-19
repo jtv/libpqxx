@@ -38,14 +38,9 @@ public:
 
   sql_cursor(
     transaction_base &t, std::string_view cname,
-    cursor_base::ownership_policy op);
+    cursor_base::ownership_policy op, sl = sl::current());
 
-  ~sql_cursor() noexcept
-  {
-    // TODO: How can we pass std::source_location here?
-    auto loc{sl::current()};
-    close(loc);
-  }
+  ~sql_cursor() noexcept { close(m_created_loc); }
 
   result fetch(difference_type rows, difference_type &displacement, sl);
   result fetch(difference_type rows, sl loc)
@@ -110,6 +105,9 @@ private:
 
   /// End position, or -1 for unknown
   difference_type m_endpos = -1;
+
+  /// The `std::source_location` for where this cursor was created.
+  sl m_created_loc;
 };
 
 

@@ -73,7 +73,8 @@ void test_composite_renders_to_string()
   pqxx::work tx{cx};
   char buf[1000];
 
-  pqxx::composite_into_buf(buf, 355, "foo", "b\na\\r");
+  pqxx::composite_into_buf(
+    std::source_location::current(), buf, 355, "foo", "b\na\\r");
   PQXX_CHECK_EQUAL(std::string{std::data(buf)}, "(355,\"foo\",\"b\na\\\\r\")");
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();

@@ -165,7 +165,8 @@ public:
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
-          m_finished{other.m_finished}
+          m_finished{other.m_finished},
+          m_created_loc{std::move(other.m_created_loc)}
   {
     other.m_finished = true;
   }
@@ -228,16 +229,14 @@ public:
     write_buffer(loc);
   }
 
-  // TODO: How can we pass std::source_location here?
   /// Insert values as a row.
   /** This is the recommended way of inserting data.  Pass your field values,
    * of any convertible type.
    */
   template<typename... Ts> void write_values(Ts const &...fields)
   {
-    auto loc{sl::current()};
     fill_buffer(fields...);
-    write_buffer(loc);
+    write_buffer(m_created_loc);
   }
 
 private:
@@ -255,6 +254,9 @@ private:
   internal::char_finder_func *m_finder;
 
   bool m_finished = false;
+
+  /// The `std::source_location` for where this stream was created.
+  sl m_created_loc;
 
   /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view, sl);
@@ -434,11 +436,10 @@ private:
     append_tuple(t, indexes{}, loc);
   }
 
-  // TODO: How can we pass std::source_location here?
   /// Write raw COPY line into @c m_buffer, based on varargs fields.
   template<typename... Ts> void fill_buffer(const Ts &...fields)
   {
-    (..., append_to_buffer(fields, sl::current()));
+    (..., append_to_buffer(fields, m_created_loc));
   }
 
   constexpr static std::string_view s_classname{"stream_to"};

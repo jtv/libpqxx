@@ -145,9 +145,17 @@ public:
   }
 
 protected:
-  cursor_base(connection &, std::string_view Name, bool embellish_name = true);
+  cursor_base(
+    connection &, std::string_view Name, bool embellish_name = true,
+    sl loc = sl::current());
+
+  /// The `std::source_location` for where this cursor was created.
+  [[nodiscard]] sl cerated_loc() const { return m_created_loc; }
 
   std::string const m_name;
+
+  /// The `std::source_location` for where this cursor was created.
+  sl m_created_loc;
 };
 } // namespace pqxx
 
@@ -378,6 +386,9 @@ public:
     return m_stride;
   }
 
+  /// The ``std::source_location` for where this stream was created.
+  [[nodiscard]] sl created_loc() const { return m_created_loc; }
+
 private:
   result fetchblock(sl);
 
@@ -392,6 +403,9 @@ private:
 
   difference_type m_stride;
   difference_type m_realpos, m_reqpos;
+
+  /// The `std::source_location` for where this stream was created.
+  sl m_created_loc;
 
   mutable icursor_iterator *m_iterators;
 
@@ -444,16 +458,12 @@ public:
 
   result const &operator*() const
   {
-    // TODO: How can we pass std::source_location here?
-    auto loc{sl::current()};
-    refresh(loc);
+    refresh(created_loc());
     return m_here;
   }
   result const *operator->() const
   {
-    // TODO: How can we pass std::source_location here?
-    auto loc{sl::current()};
-    refresh(loc);
+    refresh(created_loc());
     return &m_here;
   }
   icursor_iterator &operator++();
@@ -487,9 +497,40 @@ private:
   difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
+  /// The `std::source_location` for where this iterator's stream was created.
+  /** We don't keep the information for the iterator itself, since iterators
+   * are meant to be lightweight.  They are often passed as arguments, where
+   * space is especially limited.
+   *
+   * If there is no stream, returns the immediate call site.
+   */
+  [[nodiscard]] sl created_loc(sl loc = sl::current()) const
+  {
+    return (m_stream == nullptr) ? loc : m_stream->created_loc();
+  }
+
+  /** This is for use in assignment and comparison operators, where we have
+   * two `icursor_iterator` objects but the caller can't pass a
+   * `std::source_location` that might be useful to the application maintainer.
+   *
+   * Returns the first one available of: the creation location for this
+   * iterator's stream, the creeation location of the `other` iterator's
+   * stream, or the immediate call site.
+   */
+  [[nodiscard]] sl
+  best_location(icursor_iterator const &other, sl loc = sl::current()) const
+  {
+    if (m_stream != nullptr)
+      return created_loc();
+    else
+      return other.created_loc(loc);
+  }
+
   icursorstream *m_stream{nullptr};
   result m_here;
   difference_type m_pos;
+
+  // TODO: Do we really need the linked list of iterators?
   icursor_iterator *m_prev{nullptr}, *m_next{nullptr};
 };
 } // namespace pqxx

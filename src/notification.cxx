@@ -31,7 +31,6 @@ pqxx::notification_receiver::notification_receiver(
 
 pqxx::notification_receiver::~notification_receiver()
 {
-  // TODO: How can we pass std::source_location here?
   auto loc{sl::current()};
   pqxx::internal::gate::connection_notification_receiver{this->conn()}
     .remove_receiver(this, loc);

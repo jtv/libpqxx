@@ -25,8 +25,9 @@
 
 
 pqxx::cursor_base::cursor_base(
-  connection &context, std::string_view Name, bool embellish_name) :
-        m_name{embellish_name ? context.adorn_name(Name) : Name}
+  connection &context, std::string_view Name, bool embellish_name, sl loc) :
+        m_name{embellish_name ? context.adorn_name(Name) : Name},
+        m_created_loc{loc}
 {}
 
 
@@ -289,8 +290,7 @@ pqxx::icursor_iterator::operator=(icursor_iterator const &rhs) noexcept
 
 bool pqxx::icursor_iterator::operator==(icursor_iterator const &rhs) const
 {
-  // TODO: How can we pass std::source_location here?
-  auto loc{sl::current()};
+  auto loc{best_location(rhs)};
   if (m_stream == rhs.m_stream)
     return pos() == rhs.pos();
   if (m_stream != nullptr and rhs.m_stream != nullptr)
@@ -305,8 +305,7 @@ bool pqxx::icursor_iterator::operator<(icursor_iterator const &rhs) const
 {
   if (m_stream == rhs.m_stream)
     return pos() < rhs.pos();
-  // TODO: How can we pass std::source_location here?
-  auto loc{sl::current()};
+  auto loc{best_location(rhs)};
   refresh(loc);
   rhs.refresh(loc);
   return not std::empty(m_here);

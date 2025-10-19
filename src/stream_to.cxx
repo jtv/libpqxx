@@ -63,11 +63,11 @@ pqxx::stream_to::~stream_to() noexcept
 {
   try
   {
-    complete();
+    complete(m_created_loc);
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what(), sl::current());
+    reg_pending_error(e.what(), m_created_loc);
   }
 }
 
@@ -112,7 +112,8 @@ pqxx::stream_to::stream_to(
         transaction_focus{tx, s_classname, path},
         m_finder{pqxx::internal::get_char_finder<
           '\b', '\f', '\n', '\r', '\t', '\v', '\\'>(
-          tx.conn().get_encoding_group(loc), loc)}
+          tx.conn().get_encoding_group(loc), loc)},
+        m_created_loc{loc}
 {
   begin_copy(tx, path, columns, loc);
   register_me();
