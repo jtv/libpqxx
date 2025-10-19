@@ -45,7 +45,8 @@ jobs:
       - name: Build
         run: |
             ./tools/install-deps.sh >/tmp/vars.sh
-            echo "\nvars.sh:"
+            echo
+            echo "vars.sh:"
             cat /tmp/vars.sh
             echo
             . /tmp/vars.sh

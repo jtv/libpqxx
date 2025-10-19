@@ -87,7 +87,7 @@ install_windows() {
     local pf="/c/Program Files"
     local cmake_bin="$pf/CMake/bin"
     local llvm_bin="$pf/llvm/bin"
-    # TODO: Couldn't get PostgreSQL running on Windows in CicleCI.
+    # TODO: Couldn't get PostgreSQL running on Windows in CircleCI.
     # local pg_bin="$pf/PostgreSQL/16/bin"
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
