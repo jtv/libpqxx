@@ -165,25 +165,26 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      # - test-linux:
-      #    matrix:
-      #      parameters:
-      #        os: ["archlinux", "debian", "fedora"]
-      #        cxx: ["clang++", "g++"]
-      #        cxx_version: ["c++20", "c++23", "c++26"]
-      # - test-macos:
-      #    matrix:
-      #      parameters:
-      #        cxx: ["clang++", "g++"]
-      #        cxx_version: ["c++20", "c++23", "c++26"]
+      - test-linux:
+        matrix:
+          parameters:
+            os: ["archlinux", "debian", "fedora"]
+            cxx: ["clang++", "g++"]
+            cxx_version: ["c++20", "c++23", "c++26"]
+
+      - test-macos:
+        matrix:
+          parameters:
+            cxx: ["clang++", "g++"]
+            cxx_version: ["c++20", "c++23", "c++26"]
 
       - test-windows:
-          matrix:
-            parameters:
-              cxx: ["clang++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+        matrix:
+          parameters:
+            cxx: ["clang++"]
+            cxx_version: ["c++20", "c++23", "c++26"]
 
-# - analyse:
-#    matrix:
-#      parameters:
-#        cxx_version: ["c++26"]
+      - analyse:
+        matrix:
+          parameters:
+            cxx_version: ["c++26"]
