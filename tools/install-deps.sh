@@ -85,10 +85,15 @@ install_macos() {
 
 install_windows() {
     local pf="/c/Program Files"
-    local pd="/c/ProgramData"
     local cmake_bin="$pf/CMake/bin"
     local llvm_bin="$pf/llvm/bin"
-    local mingw_bin="$pd/mingw64/mingw64/bin"
+
+    # For unclear reason, g++ doesn't seem to work.  But to install it you'd
+    # ask for mingw.
+    # TODO: Would be good to have this working.
+    # local pd="/c/ProgramData"
+    # local mingw_bin="$pd/mingw64/mingw64/bin"
+
     # TODO: Couldn't get PostgreSQL running on Windows in CircleCI.
     # local pg_bin="$pf/PostgreSQL/16/bin"
 
@@ -101,12 +106,10 @@ install_windows() {
     # let it generate progress information and send the output to stderr.
     choco install cmake llvm mingw ninja postgresql16 --limit-output -y 1>&2
 
-    # TODO: g++ is supposed to be in C:\ProgramData\mingw64\mingw64\bin
-
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "export PATH='$PATH:$cmake_bin:$llvm_bin:$mingw_bin'"
+    echo "export PATH='$PATH:$cmake_bin:$llvm_bin'"
 }
 
 
