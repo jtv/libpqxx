@@ -55,12 +55,13 @@ pqxx::field_ref pqxx::row_ref::operator[](zview col_name, sl loc) const
 {
   return at(col_name, loc);
 }
-#else
+#endif // PQXX_HAVE_MULTIDIM
+
+
 pqxx::field_ref pqxx::row_ref::operator[](zview col_name) const
 {
   return at(col_name, sl::current());
 }
-#endif // PQXX_HAVE_MULTIDIM
 
 
 void pqxx::row::swap(row &rhs) noexcept
