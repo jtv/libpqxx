@@ -100,6 +100,8 @@ install_windows() {
     # TODO: Can install mingw for a g++ build, but couldn't find g++.exe!
     choco install cmake llvm mingw ninja postgresql16 --limit-output -y 1>&2
 
+    # TODO: g++ is supposed to be in C:\ProgramData\mingw64\mingw64\bin
+
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.

@@ -126,6 +126,9 @@ jobs:
       - store_artifacts: # XXX: DEBUG
           path: "C:\\ProgramData\\logs\\chocolatey.log"
       - run:
+          name: DEBUG
+          command: "dir C:\\ProgramData\\mingw64\\mingw64\\bin"
+      - run:
           name: Configure
           command: ". vars.sh && \
             CXX=<< parameters.cxx >> \
