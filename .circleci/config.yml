@@ -121,6 +121,10 @@ jobs:
           shell: bash.exe
       - store_artifacts:
           path: "vars.sh"
+      - store_artifacts: # XXX: DEBUG
+          path: "C:\\ProgramData\\logs\\choco.summary.log"
+      - store_artifacts: # XXX: DEBUG
+          path: "C:\\ProgramData\\logs\\chocolatey.log"
       - run:
           name: Configure
           command: ". vars.sh && \

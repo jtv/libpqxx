@@ -98,7 +98,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
     # TODO: Can install mingw for a g++ build, but couldn't find g++.exe!
-    choco install cmake llvm ninja postgresql16 --limit-output -y 1>&2
+    choco install cmake llvm mingw ninja postgresql16 --limit-output -y 1>&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
