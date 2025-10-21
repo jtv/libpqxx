@@ -44,7 +44,7 @@ jobs:
       # The point here is to get additional analysis.
       - name: Build
         run: |
-            ./tools/install-deps.sh >/tmp/vars.sh
+            ./tools/install-deps.debian sh >/tmp/vars.sh
             echo
             echo "vars.sh:"
             cat /tmp/vars.sh
