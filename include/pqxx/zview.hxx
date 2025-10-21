@@ -95,14 +95,14 @@ public:
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
   {}
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
   /// Construct a `zview` from a `std::filesystem::path`.
   /** @warn We don't currently support this on Windows, where encoding is a
    * somewhat complicated question.  Answers on the internet often seem
    * contradictory.
    */
   zview(std::filesystem::path p) : zview(p.c_str()) {}
-#endif // WIN32
+#endif // _WIN32
 
   /// Either a null pointer, or a zero-terminated text buffer.
   [[nodiscard]] constexpr char const *c_str() const & noexcept

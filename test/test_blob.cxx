@@ -590,7 +590,7 @@ void test_blob_accepts_std_filesystem_path()
   auto id{pqxx::blob::from_file(tx, path)};
   pqxx::blob::to_buf(tx, id, buf, 10);
   PQXX_CHECK_EQUAL(buf, data);
-#endif // WIN32
+#endif // _WIN32
 }
 
 

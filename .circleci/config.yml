@@ -2,6 +2,10 @@
 ---
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
+
 jobs:
 
   # Run tests against a Linux Docker image.
@@ -25,6 +29,8 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh << parameters.os >> >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && ./autogen.sh"
@@ -66,6 +72,8 @@ jobs:
       - run:
           name: Install
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && ./configure \
@@ -94,6 +102,37 @@ jobs:
       - store_artifacts:
           path: postgres.log
 
+  # Windows builds are very incomplete for now.  No MSVC, no gcc, no database.
+  # Couldn't get them working on CircleCI.
+  test-windows:
+    parameters:
+      cxx:
+        type: string
+      cxx_version:
+        type: string
+    executor:
+      name: win/default
+      size: medium
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh windows >vars.sh"
+          shell: bash.exe
+      - store_artifacts:
+          path: "vars.sh"
+      - run:
+          name: Configure
+          command: ". vars.sh && \
+            CXX=<< parameters.cxx >> \
+            CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+            cmake -G Ninja ."
+          shell: bash.exe
+      - run:
+          name: Make
+          command: ". vars.sh && ninja"
+          shell: bash.exe
+
   analyse:
     parameters:
       cxx_version:
@@ -106,6 +145,8 @@ jobs:
       - run:
           name: Install
           command: "tools/install-deps.sh debian-lint >/tmp/vars.sh"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
           name: Prepare
           command: "SRC=\"$(pwd)\" && \
@@ -130,11 +171,20 @@ workflows:
               os: ["archlinux", "debian", "fedora"]
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
+
       - test-macos:
           matrix:
             parameters:
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
+
+      - test-windows:
+          matrix:
+            parameters:
+              # For totally unclear reasons, this won't work with g++.
+              cxx: ["clang++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
+
       - analyse:
           matrix:
             parameters:
