@@ -52,11 +52,9 @@ jobs:
             . /tmp/vars.sh
             ./tools/run-test-postgres.sh
             . /tmp/vars.sh && ./configure \
-              --enable-maintainer-mode \
-              --disable-static \
               CXXFLAGS='-O0 -std=c++20' CXX=clang++
             # TODO: Can we just upload artefacts?
-            make -j2 check || (cat test-suite.log && exit 1 || true)
+            make -j2 check || ( cat test-suite.log && exit 1 || true )
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
