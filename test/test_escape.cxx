@@ -84,7 +84,7 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
   for (char c : binary) data.push_back(static_cast<std::byte>(c));
 
   std::string const escaped{
-    t.esc_raw(pqxx::bytes_view{std::data(data), std::size(binary)})};
+    t.esc(pqxx::bytes_view{std::data(data), std::size(binary)})};
 
   for (auto const i : escaped)
   {

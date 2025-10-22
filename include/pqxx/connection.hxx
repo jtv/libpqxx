@@ -927,15 +927,18 @@ public:
    * `buffer`.
    */
   template<binary DATA>
-  [[nodiscard]] zview esc(DATA const &data, std::span<char> buffer) const
+  [[nodiscard]] zview
+  esc(DATA const &data, std::span<char> buffer, sl loc = sl::current()) const
   {
     auto const size{std::size(data)}, space{std::size(buffer)};
     auto const needed{internal::size_esc_bin(std::size(data))};
     if (space < needed)
-      throw range_error{std::format(
-        "Not enough room to escape binary string of {} byte(s): need {} ",
-        " bytes of buffer space, but buffer size is {}.", size, needed,
-        space)};
+      throw range_error{
+        std::format(
+          "Not enough room to escape binary string of {} byte(s): need {} ",
+          " bytes of buffer space, but buffer size is {}.", size, needed,
+          space),
+        loc};
 
     bytes_view view{std::data(data), std::size(data)};
     // Actually, in the modern format, we know beforehand exactly how many
@@ -947,10 +950,6 @@ public:
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */
   [[nodiscard]] std::string esc_raw(bytes_view) const;
-
-  /// Escape binary string for use as SQL string literal, into `buffer`.
-  /** You can also just use @ref esc with a binary string. */
-  [[nodiscard]] std::string esc_raw(bytes_view, std::span<char> buffer) const;
 
   /// Escape binary string for use as SQL string literal on this connection.
   /** You can also just use @ref esc with a binary string. */

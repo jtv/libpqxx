@@ -194,31 +194,63 @@ public:
     return conn().esc(str, loc);
   }
 
-  // TODO: De-templatise this so we can pass std::source_location.
-  // TODO: Forbid borrowed_range if appropriate.
   /// Escape string for use as SQL string literal in this transaction.
-  template<typename... ARGS> [[nodiscard]] auto esc(ARGS &&...args) const
+  [[nodiscard]] std::string_view esc(
+    std::string_view text, std::span<char> buffer,
+    sl loc = sl::current()) const
   {
-    return conn().esc(std::forward<ARGS>(args)...);
+    return conn().esc(text, buffer, loc);
   }
 
-  // TODO: De-templatise this so we can pass std::source_location.
-  // TODO: Forbid borrowed_range if appropriate.
-  /// Escape binary data for use as SQL string literal in this transaction.
-  /** Raw, binary data is treated differently from regular strings.  Binary
-   * strings are never interpreted as text, so they may safely include byte
-   * values or byte sequences that don't happen to represent valid characters
-   * in the character encoding being used.
-   *
-   * The binary string does not stop at the first zero byte, as is the case
-   * with textual strings.  Instead, it may contain zero bytes anywhere.  If
-   * it happens to contain bytes that look like quote characters, or other
-   * things that can disrupt their use in SQL queries, they will be replaced
-   * with special escape sequences.
-   */
-  template<typename... ARGS> [[nodiscard]] auto esc_raw(ARGS &&...args) const
+  /// Escape string for use as SQL string literal in this transaction.
+  [[nodiscard]] std::string
+  esc(std::string_view text, sl loc = sl::current()) const
   {
-    return conn().esc_raw(std::forward<ARGS>(args)...);
+    return conn().esc(text, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal.
+  template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
+  {
+    return conn().esc(data);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  /** Use this variant when you want to re-use the same buffer across multiple
+   * calls.  If that's not the case, or convenience and simplicity are more
+   * important, use the single-argument variant.
+   *
+   * For every byte in `data`, there must be at least two bytes of space in
+   * `buffer`; plus there must be two bytes of space for a header and one for
+   * a trailing zero.  Throws @ref range_error if this space is not available.
+   *
+   * Returns a reference to the escaped string, which is actually stored in
+   * `buffer`.
+   */
+  template<binary DATA>
+  [[nodiscard]] zview
+  esc(DATA const &data, std::span<char> buffer, sl loc = sl::current()) const
+  {
+    return conn().esc(data, buffer, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  template<binary DATA>
+  [[nodiscard,
+    deprecated("Use esc(), not esc_raw(), even on binary data.")]] zview
+  esc_raw(DATA const &data, sl loc = sl::current()) const
+  {
+    return conn().esc(data, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  template<binary DATA>
+  [[nodiscard,
+    deprecated("Use esc(), not esc_raw(), even on binary data.")]] zview
+  esc_raw(
+    DATA const &data, std::span<char> buffer, sl loc = sl::current()) const
+  {
+    return conn().esc(data, buffer, loc);
   }
 
   /// Unescape binary data, e.g. from a `bytea` field.

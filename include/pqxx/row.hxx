@@ -135,8 +135,7 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] PQXX_PURE reference
-  operator[](zview col_name, sl) const;
+  [[nodiscard]] PQXX_PURE reference operator[](zview col_name, sl) const;
 #endif // PQXX_HAVE_MULTIDIM
 
   /** Address field by name.
@@ -451,8 +450,7 @@ public:
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  [[nodiscard]] PQXX_PURE field_ref
-  operator[](zview col_name, sl loc) const
+  [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name, sl loc) const
   {
     // TODO: There's a proposal to permit a default value for loc.
     return as_row_ref()[col_name, loc];

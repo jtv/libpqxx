@@ -24,7 +24,7 @@ void test_062()
   for (char c : test_str) data.push_back(static_cast<std::byte>(c));
   PQXX_CHECK_EQUAL(std::size(data), std::size(test_data));
 
-  std::string const Esc{tx.esc_raw(data)};
+  std::string const Esc{tx.esc(data)};
 
   tx.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')").no_rows();
 
