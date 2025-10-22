@@ -143,6 +143,7 @@ case "$1" in
     # Debian system, but only forthe purpose of running OpenQL analysis.
     debian-codeql)
         install_debian_codeql
+        ;;
 
     fedora)
         install_fedora
