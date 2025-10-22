@@ -63,6 +63,14 @@ install_debian_lint() {
 }
 
 
+install_debian_codeql() {
+    apt-get -q update >/dev/null
+
+    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        clang cmake libpq-dev make
+}
+
+
 install_fedora() {
     dnf -qy install \
         autoconf autoconf-archive automake cppcheck clang libasan libtool \
@@ -132,6 +140,9 @@ case "$1" in
     debian-lint)
         install_debian_lint
         ;;
+    # Debian system, but only forthe purpose of running OpenQL analysis.
+    debian-codeql)
+        install_debian_codeql
 
     fedora)
         install_fedora
