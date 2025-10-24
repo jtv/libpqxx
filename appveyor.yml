@@ -18,7 +18,8 @@ environment:
 # Run CMake to build libpqxx.sln.
 before_build:
   - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%"
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%\n
+    appveyor PushArtifact include\\pqxx\\config-*-*.h"
 
 configuration: Release
 build:
