@@ -44,10 +44,8 @@ jobs:
       - store_artifacts:
           path: config.log
       - run:
-          name: Gather headers
-          command: ". /tmp/vars.sh && \
-              ls -al include/pqxx && \
-              tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
       - store_artifacts:
           path: config-headers.tar.gz
       - run:
@@ -91,8 +89,8 @@ jobs:
       - store_artifacts:
           path: config.log
       - run:
-          name: Gather headers
-          command: tar -czf config-headers.tar.gz include/pqxx/config-*.*.h
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
       - store_artifacts:
           path: config-headers.tar.gz
       - run:
@@ -140,6 +138,11 @@ jobs:
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             cmake -G Ninja ."
           shell: bash.exe
+      - run:
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+      - store_artifacts:
+          path: config-headers.tar.gz
       - run:
           name: Make
           command: ". vars.sh && ninja"

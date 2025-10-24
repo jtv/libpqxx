@@ -19,7 +19,6 @@ environment:
 before_build:
   - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%\n\
-    dir \"%APPVEYOR_BUILD_FOLDER%/include/pqxx\"\n\
     7z a config-headers.zip \
         \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
     appveyor PushArtifact config-headers.zip"
