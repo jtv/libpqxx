@@ -31,21 +31,6 @@ using namespace std::literals;
 
 namespace
 {
-#if !defined(PQXX_HAVE_CHARCONV_FLOAT)
-/// Do we have fully functional thread_local support?
-/** When building with libcxxrt on clang, you can't create thread_local objects
- * of non-POD types.  Any attempt will result in a link error.
- */
-constexpr bool have_thread_local{
-#  if defined(PQXX_HAVE_THREAD_LOCAL)
-  true
-#  else
-  false
-#  endif
-};
-#endif
-
-
 /// The lowest possible value of integral type T.
 template<pqxx::internal::integer T>
 constexpr T bottom{std::numeric_limits<T>::min()};
@@ -340,21 +325,13 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
     }
     else [[likely]]
     {
-      if constexpr (have_thread_local)
-      {
-        thread_local dumb_stringstream<T> S;
-        // Visual Studio 2017 seems to fail on repeated conversions if the
-        // clear() is done before the seekg().  Still don't know why!  See #124
-        // and #125.
-        S.seekg(0);
-        S.clear();
-        ok = from_dumb_stringstream(S, result, text);
-      }
-      else
-      {
-        dumb_stringstream<T> S;
-        ok = from_dumb_stringstream(S, result, text);
-      }
+      thread_local dumb_stringstream<T> S;
+      // Visual Studio 2017 seems to fail on repeated conversions if the
+      // clear() is done before the seekg().  Still don't know why!  See #124
+      // and #125.
+      S.seekg(0);
+      S.clear();
+      ok = from_dumb_stringstream(S, result, text);
     }
     break;
   }

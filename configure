@@ -17752,56 +17752,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_STRERROR_S" >&5
 printf "%s\n" "$PQXX_HAVE_STRERROR_S" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_THREAD_LOCAL" >&5
-printf %s "checking PQXX_HAVE_THREAD_LOCAL... " >&6; }
-PQXX_HAVE_THREAD_LOCAL=yes
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-// Test for std::to_string/std::from_string for floating-point types.
-
-// TODO: Probably no longer needed once we always have float std::charconv.
-
-#include <iostream>
-
-#include <sstream>
-
-
-
-int main(int argc, char **)
-
-{
-
-#if defined(__MINGW32__) && defined(__GNUC__)
-
-#  if __GNUC__ < 11 || ((__GNUC__ == 11) && (__GNU_MINOR__ == 0))
-
-#    error "On MinGW before gcc 11.1, thread_local breaks at run time."
-
-#  endif
-
-#endif
-
-  thread_local std::stringstream s;
-
-  s << argc;
-
-  std::cout << s.str();
-
-}
-
-
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"
-then :
-
-printf "%s\n" "#define PQXX_HAVE_THREAD_LOCAL 1" >>confdefs.h
-
-else $as_nop
-  PQXX_HAVE_THREAD_LOCAL=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_THREAD_LOCAL" >&5
-printf "%s\n" "$PQXX_HAVE_THREAD_LOCAL" >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking PQXX_HAVE_YEAR_MONTH_DAY" >&5
 printf %s "checking PQXX_HAVE_YEAR_MONTH_DAY... " >&6; }
 PQXX_HAVE_YEAR_MONTH_DAY=yes
