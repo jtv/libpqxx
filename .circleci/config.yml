@@ -46,7 +46,8 @@ jobs:
       - run:
           name: Gather headers
           command: ". /tmp/vars.sh && \
-              tar -czf config-headers.tar.gz include/pqxx/config-*.*.h*"
+              ls -al include/pqxx && \
+              tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
       - store_artifacts:
           path: config-headers.tar.gz
       - run:
