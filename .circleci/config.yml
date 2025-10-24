@@ -44,6 +44,11 @@ jobs:
       - store_artifacts:
           path: config.log
       - run:
+          name: Gather headers
+          command: tar -czf config-headers.tar.gz include/pqxx/config-*.*.h
+      - store_artifacts:
+          path: config-headers.tar.gz
+      - run:
           name: Make
           command: make -j4
       - run:
@@ -83,6 +88,11 @@ jobs:
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
           path: config.log
+      - run:
+          name: Gather headers
+          command: tar -czf config-headers.tar.gz include/pqxx/config-*.*.h
+      - store_artifacts:
+          path: config-headers.tar.gz
       - run:
           name: Make
           command: make -j4
