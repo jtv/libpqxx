@@ -177,9 +177,9 @@ jobs:
           command: "SRC=\"$(pwd)\" && \
             cd /tmp/pqxx && \
             . /tmp/vars.sh && \
-            \"$SRC/tools/lint\" --full 2>&1 | tee analyse.txt"
+            \"$SRC/tools/lint\" --full 2>&1 | tee /tmp/analyse.txt"
       - store_artifacts:
-          path: "analyse.txt"
+          path: "/tmp/analyse.txt"
 
 workflows:
   all-tests:
