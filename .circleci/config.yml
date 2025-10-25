@@ -167,9 +167,9 @@ jobs:
       - run:
           name: Prepare
           command: "SRC=\"$(pwd)\" && \
+            . /tmp/vars.sh && \
             mkdir -p /tmp/pqxx && \
             cd /tmp/pqxx && \
-            . /tmp/vars.sh && \
             CXX=clang++ CXXFLAGS='-O0 \
               -std=<< parameters.cxx_version >>' cmake \"$SRC\""
       - run:
