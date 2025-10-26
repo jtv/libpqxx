@@ -29,6 +29,14 @@ install_archlinux() {
 }
 
 
+install_archlinux_lint() {
+    pacman --quiet --noconfirm -Sy >/dev/null
+    pacman --quiet --noconfirm -S \
+        clang cmake cppcheck diffutils postgresql-libs python3 shellcheck uv \
+        yamllint >/dev/null
+}
+
+
 install_debian() {
     local pgbin
 
@@ -128,6 +136,11 @@ then
 fi
 
 case "$1" in
+    archlinux)
+        install_archlinux
+        ;;
+    # Arch system, but only for the puprose of running "lint --full".
+    # (We only need to do that on one of the systems.)
     archlinux)
         install_archlinux
         ;;

@@ -155,13 +155,13 @@ jobs:
       cxx_version:
         type: string
     docker:
-      - image: debian:stable
+      - image: archlinux
     resource_class: large
     steps:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh debian-lint >/tmp/vars.sh"
+          command: "tools/install-deps.sh archlinux-lint >/tmp/vars.sh"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
