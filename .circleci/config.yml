@@ -177,7 +177,7 @@ jobs:
           command: "SRC=\"$(pwd)\" && \
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
-            \"$SRC/tools/lint\" --full 2>&1"
+            \"$SRC/tools/lint\" --full 2>&1 | tee /tmp/analyze.txt"
 
 workflows:
   all-tests:
