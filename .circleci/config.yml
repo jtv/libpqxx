@@ -180,6 +180,12 @@ jobs:
             ( \"$SRC/tools/lint\" --full 2>&1 | tee /tmp/analyze.txt )"
       - store_artifacts:
           path: "/tmp/analyze.txt"
+      - run:
+          name: Summarise
+          command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
+              /tmp/analyze.txt >/tmp/errors.txt"
+      - store_artifacts:
+          path: "/tmp/errors.txt"
 
 workflows:
   all-tests:
