@@ -118,7 +118,6 @@ install_windows() {
 
     # TODO: Couldn't get PostgreSQL running on Windows in CircleCI.
     # local pg_bin="$pf/PostgreSQL/16/bin"
-    tee --help # XXX: DEBUG
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
@@ -128,7 +127,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
     choco install cmake llvm mingw ninja postgresql16 --limit-output -y \
-        2> >(tee /tmp/install.log >&2)
+        1>&2 | tee /tmp/install.log >&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
