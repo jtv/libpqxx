@@ -28,6 +28,7 @@ install_archlinux() {
         autoconf autoconf-archive automake clang cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
         which yamllint >>/tmp/install.log
+    echo '# (No settings needed.)'
 }
 
 
@@ -36,6 +37,7 @@ install_archlinux_lint() {
     pacman --quiet --noconfirm -S \
         clang cmake cppcheck diffutils postgresql-libs python3 shellcheck uv \
         which yamllint >>/tmp/install.log
+    echo '# (No settings needed.)'
 }
 
 
@@ -73,16 +75,6 @@ install_debian_lint() {
 }
 
 
-# XXX: Use Arch for this?
-install_debian_codeql() {
-    apt-get -q update >>/tmp/install.log
-
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        clang cmake libpq-dev make >>/tmp/install.log
-    echo '# (No variables to be set.)'
-}
-
-
 install_fedora() {
     dnf -qy install \
         autoconf autoconf-archive automake cppcheck clang libasan libtool \
@@ -100,6 +92,15 @@ install_macos() {
     brew install --quiet \
         autoconf autoconf-archive automake cppcheck libtool postgresql \
         shellcheck uv yamllint libpq >>/tmp/install.log
+}
+
+
+install_ubuntu_codeql() {
+    apt-get -q update >>/tmp/install.log
+
+    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        clang cmake git libpq-dev make >>/tmp/install.log
+    echo '# (No settings needed.)'
 }
 
 
@@ -146,23 +147,14 @@ case "$1" in
     archlinux)
         install_archlinux
         ;;
-    # Arch system, but only for the puprose of running "lint --full".
+    # Arch system, but only for the purpose of running "lint --full".
     # (We only need to do that on one of the systems.)
     archlinux-lint)
-        install_archlinux
+        install_archlinux_lint
         ;;
 
     debian)
         install_debian
-        ;;
-    # Debian system, but only for the purpose of running "lint --full".
-    # (We only need to do that on one of the systems.)
-    debian-lint)
-        install_debian_lint
-        ;;
-    # Debian system, but only forthe purpose of running OpenQL analysis.
-    debian-codeql)
-        install_debian_codeql
         ;;
 
     fedora)
@@ -171,6 +163,15 @@ case "$1" in
 
     macos)
         install_macos
+        ;;
+
+    ubuntu)
+        # Same as for Debian!
+        install_debian
+	;;
+    # Ubuntu system, but only for the purpose of running a CodeQL scan.
+    ubuntu_codeql)
+        install_ubuntu_codeql
         ;;
 
     windows)

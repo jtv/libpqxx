@@ -12,9 +12,7 @@ name: "CodeQL"
 jobs:
   analyze:
     name: Analyze
-    # (debian-latest turns out to be very old.)
-    # runs-on: debian-latest
-    runs-on: debian:stable
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
@@ -23,35 +21,31 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        language: [python, cpp]
+        include:
+          - language: c-cpp
+            build-mode: manual
+          - language: python
+            build-mode: none
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          # XXX: Is "queries" still relevant?
           queries: +security-and-quality
-
-      # For some reason, this seems to detect neither the configure script or
-      # the CMake setup.
-      #
-      #      - name: Autobuild
-      #        uses: github/codeql-action/autobuild@v3
-      #
-      # Instead, we'll have to build manually.  Doing that without
-      # optimisation, since we're already doing full test runs elsewhere.
-      # The point here is to get additional analysis.
-      - name: Build
+      - if: ${{ matrix.build-mode == 'manual' }}
+        name: Build
         run: |
-            ./tools/install-deps.sh debian-codeql >/tmp/vars.sh
+            ./tools/install-deps.sh ubuntu_codeql >/tmp/vars.sh
             . /tmp/vars.sh
             CXXFLAGS='-O0 -std=c++20' CXX=clang++ cmake .
-            make -j2 check
+            make -j2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
