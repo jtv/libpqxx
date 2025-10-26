@@ -35,8 +35,8 @@ install_archlinux() {
 install_archlinux_lint() {
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
-        clang cmake cppcheck diffutils postgresql-libs python3 shellcheck uv \
-        which yamllint >>/tmp/install.log
+        clang cmake cppcheck diffutils make postgresql-libs python3 \
+        shellcheck uv which yamllint >>/tmp/install.log
     echo '# (No settings needed.)'
 }
 
@@ -168,7 +168,7 @@ case "$1" in
     ubuntu)
         # Same as for Debian!
         install_debian
-	;;
+        ;;
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
         install_ubuntu_codeql
