@@ -118,6 +118,7 @@ install_windows() {
 
     # TODO: Couldn't get PostgreSQL running on Windows in CircleCI.
     # local pg_bin="$pf/PostgreSQL/16/bin"
+    tee --help # XXX: DEBUG
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
