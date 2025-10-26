@@ -19,7 +19,7 @@ substitute() {
         -e "s/@PQXX_MAJOR@/$PQXX_MAJOR/g" \
         -e "s/@PQXX_MINOR@/$PQXX_MINOR/g" \
         -e "s/@PQXX_ABI@/$PQXX_ABI/g" \
-        "$infile" >"$outfile.tmp"
+        "$infile" >|"$outfile.tmp"
 
     mv "$outfile.tmp" "$outfile"
 }
