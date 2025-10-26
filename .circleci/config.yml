@@ -177,7 +177,8 @@ jobs:
           # Tricky.  I don't really want the pointless stdout output from
           # run-clang-tidy, except the CI may time out when there's no output
           # for a while.  What we want is the stderr, which we also want to
-          # tee into a file.
+          # tee into a file.  Bash's "output redirection" solves this neatly,
+          # thanks Nick!
           command: "SRC=\"$(pwd)\" && \
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
@@ -187,7 +188,7 @@ jobs:
       - run:
           name: Summarise
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
-              /tmp/analyze.txt >/tmp/errors.txt"
+              /tmp/analyze.txt | uniq -c >/tmp/errors.txt"
       - store_artifacts:
           path: "/tmp/errors.txt"
 
