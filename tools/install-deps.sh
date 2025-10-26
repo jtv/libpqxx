@@ -128,7 +128,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
     choco install cmake llvm mingw ninja postgresql16 --limit-output -y \
-        1>&2 | tee /tmp/install.log >&2
+        1>&2 | tee install.log >&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.

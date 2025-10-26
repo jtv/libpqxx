@@ -169,7 +169,7 @@ jobs:
           name: Install
           command: "tools/install-deps.sh archlinux-lint >/tmp/vars.sh"
       - store_artifacts:
-          path: "/tmp/install.log"
+          path: "install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
