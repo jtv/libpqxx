@@ -10,6 +10,8 @@ PQXX_MINOR=$(./tools/extract_version --minor)
 echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
 
+# Substitute version information into special placeholders.
+# This is fully custom stuff and I'd love to get rid of it.
 substitute() {
     # (If this were bash, we'd make these locals.)
     infile="$1"
@@ -38,8 +40,8 @@ expand_templates() {
 # a few others simply have some substitutions done.
 # shellcheck disable=SC2046
 expand_templates $(find . -name \*.template)
-substitute include/pqxx/version.hxx.template >include/pqxx/version.hxx
-substitute include/pqxx/doc/mainpage.md.template >include/pqxx/doc/mainpage.md
+substitute include/pqxx/version.hxx.template include/pqxx/version.hxx
+substitute include/pqxx/doc/mainpage.md.template include/pqxx/doc/mainpage.md
 
 # Generate feature test snippets for C++ features that we simply detect by
 # checking a C++ feature test macro.
