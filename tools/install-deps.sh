@@ -25,7 +25,7 @@ install_archlinux() {
     pacman --quiet --noconfirm -S \
         autoconf autoconf-archive automake clang cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
-        yamllint >/dev/null
+        which yamllint >/dev/null
 }
 
 
@@ -33,7 +33,7 @@ install_archlinux_lint() {
     pacman --quiet --noconfirm -Sy >/dev/null
     pacman --quiet --noconfirm -S \
         clang cmake cppcheck diffutils postgresql-libs python3 shellcheck uv \
-        yamllint >/dev/null
+        which yamllint >/dev/null
 }
 
 
