@@ -30,7 +30,7 @@ jobs:
           name: Install
           command: "./tools/install-deps.sh << parameters.os >> >/tmp/vars.sh"
       - store_artifacts:
-          path: "/tmp/install.txt"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -80,7 +80,7 @@ jobs:
           name: Install
           command: "./tools/install-deps.sh macos >/tmp/vars.sh"
       - store_artifacts:
-          path: "/tmp/install.txt"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -136,7 +136,7 @@ jobs:
           # Installation of dependencies on Windows often times out.
           max_auto_reruns: 3
       - store_artifacts:
-          path: "/tmp/install.txt"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "vars.sh"
       - run:
@@ -169,7 +169,7 @@ jobs:
           name: Install
           command: "tools/install-deps.sh archlinux-lint >/tmp/vars.sh"
       - store_artifacts:
-          path: "/tmp/install.txt"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
