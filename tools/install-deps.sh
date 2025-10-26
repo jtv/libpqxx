@@ -96,9 +96,9 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
-    apt-get -q update >>/tmp/install.log
+    sudo apt-get -q update >>/tmp/install.log
 
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+    sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         clang cmake git libpq-dev make >>/tmp/install.log
     echo '# (No settings needed.)'
 }
