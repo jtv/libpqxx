@@ -103,6 +103,8 @@ install_macos() {
 }
 
 
+# TODO: Install versionless "postgresql"?  May have to pass password globally.
+# XXX: This may help: https://community.chocolatey.org/packages/postgresql
 install_windows() {
     local pf="/c/Program Files"
     local cmake_bin="$pf/CMake/bin"
@@ -125,7 +127,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
     choco install cmake llvm mingw ninja postgresql16 --limit-output -y \
-        1> >(tee /tmp/install.log >&2)
+        2> >(tee /tmp/install.log >&2)
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
