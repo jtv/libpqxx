@@ -174,10 +174,14 @@ jobs:
               -std=<< parameters.cxx_version >>' cmake \"$SRC\""
       - run:
           name: Analyse
+          # Tricky.  I don't really want the pointless stdout output from
+          # run-clang-tidy, except the CI may time out when there's no output
+          # for a while.  What we want is the stderr, which we also want to
+          # tee into a file.
           command: "SRC=\"$(pwd)\" && \
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
-            ( \"$SRC/tools/lint\" --full 2> >(tee /tmp/analyze.txt >&2 )"
+            ( \"$SRC/tools/lint\" --full 2> >(tee /tmp/analyze.txt >&2 ) )"
       - store_artifacts:
           path: "/tmp/analyze.txt"
       - run:
