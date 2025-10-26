@@ -3,7 +3,7 @@
 # List "TODO" and "XXX" items in the given files, or throughout the source
 # code.
 
-set -e -u -o pipefail
+set -Cue -o pipefail
 
 # TODO: Make location-independent?
 find_source() {

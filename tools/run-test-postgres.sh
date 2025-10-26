@@ -6,7 +6,7 @@
 # This is meant to be run in a disposable container or VM.  Run as root.
 # First set PGHOST and PGDATA.  The postgres binaries must be in $PATH.
 
-set -euC -o pipefail
+set -Cue -o pipefail
 
 if test -z "${PGDATA:-}"
 then

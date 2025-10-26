@@ -7,7 +7,7 @@
 # Where "year" is the new copyright year.  Defaults to the current year.
 #
 # Assumes GNU grep and GNU sed.
-set -eu -o pipefail
+set -Cue -o pipefail
 
 # The regexes are a bit awkward because they must work in both grep and sed.
 #

@@ -18,7 +18,7 @@
 # The script may output shell commands that you'll need to run in your own
 # shell process, to set variables and such.
 
-set -euC -o pipefail
+set -Cue -o pipefail
 
 install_archlinux() {
     pacman --quiet --noconfirm -Sy >/dev/null

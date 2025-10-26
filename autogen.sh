@@ -1,7 +1,7 @@
 #! /bin/sh
 # Run this to generate the configure script etc.
 
-set -eu
+set -Cue
 
 PQXXVERSION=$(./tools/extract_version)
 PQXX_ABI=$(./tools/extract_version --abi)
@@ -11,20 +11,26 @@ echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
 
 substitute() {
-	sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
-		-e "s/@PQXX_MAJOR@/$PQXX_MAJOR/g" \
-		-e "s/@PQXX_MINOR@/$PQXX_MINOR/g" \
-		-e "s/@PQXX_ABI@/$PQXX_ABI/g" \
-		"$1"
+    # (If this were bash, we'd make these locals.)
+    infile="$1"
+    outfile="$2"
+
+    sed -e "s/@PQXXVERSION@/$PQXXVERSION/g" \
+        -e "s/@PQXX_MAJOR@/$PQXX_MAJOR/g" \
+        -e "s/@PQXX_MINOR@/$PQXX_MINOR/g" \
+        -e "s/@PQXX_ABI@/$PQXX_ABI/g" \
+        "$infile" >"$outfile.tmp"
+
+    mv "$outfile.tmp" "$outfile"
 }
 
 
 # Use templating system to generate various Makefiles.
 expand_templates() {
-	for template in "$@"
-	do
-		./tools/template2mak.py "$template" "${template%.template}"
-	done
+    for template in "$@"
+    do
+        ./tools/template2mak.py "$template" "${template%.template}"
+    done
 }
 
 

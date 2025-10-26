@@ -8,7 +8,7 @@
 # defaults to the parent directory of the one where this script is.  This trick
 # requires bash (or a close equivalent) as the shell.
 
-set -eu -o pipefail
+set -Cue -o pipefail
 
 SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
 PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
