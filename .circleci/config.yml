@@ -178,6 +178,8 @@ jobs:
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
             ( \"$SRC/tools/lint\" --full 2>&1 | tee /tmp/analyze.txt )"
+      - store_artifacts:
+          path: "/tmp/analyze.txt"
 
 workflows:
   all-tests:
