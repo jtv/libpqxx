@@ -141,7 +141,7 @@ case "$1" in
         ;;
     # Arch system, but only for the puprose of running "lint --full".
     # (We only need to do that on one of the systems.)
-    archlinux)
+    archlinux-lint)
         install_archlinux
         ;;
 
