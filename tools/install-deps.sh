@@ -132,12 +132,8 @@ install_windows() {
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin'"
     echo "export PATH"
 
-    echo "*** 1 ***" >&2 # XXX: DEBUG
-    ls "$mingw_bin/g++.exe" >&2 # XXX: DEBUG
-    echo "*** 2 ***" >&2 # XXX: DEBUG
-    "$mingw_bin/g++.exe" --version >&2 # XXX: DEBUG
-    echo "*** 3 ***" >&2 # XXX: DEBUG
-    which pkgconfig >&2 # XXX: DEBUG
+    echo "*** $pf: $(ls "$pf") ***\n" >&2 # XXX: DEBUG
+    echo "*** $pf/pkgconfiglite: $(ls "$pf/pkgcconfiglite") ***\n" >&2 # XXX: DEBUG
 }
 
 
