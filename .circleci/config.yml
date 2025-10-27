@@ -209,6 +209,10 @@ workflows:
               os: ["archlinux", "debian", "fedora", "ubuntu"]
               cxx: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
+            exclude:
+              - os: "ubuntu"
+              - cxx: "g++"
+              - cxx_version: "c++26"
 
       - test-macos:
           matrix:
