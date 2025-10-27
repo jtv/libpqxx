@@ -109,14 +109,15 @@ install_windows() {
     local pf="/c/Program Files"
     local cmake_bin="$pf/CMake/bin"
     local llvm_bin="$pf/llvm/bin"
+    local pg_ver="18"
 
     # For unclear reason, g++ doesn't seem to work.  But to install it you'd
     # ask for mingw.
     # TODO: Would be good to have this working.
-    # local pd="/c/ProgramData"
-    # local mingw_bin="$pd/mingw64/mingw64/bin"
+    local pd="/c/ProgramData"
+    local mingw_bin="$pd/mingw64/mingw64/bin"
 
-    local pg_bin="$(ls -d "$pf"/PostgreSQL/*/bin)"
+    local pg_bin="$pf/PostgreSQL/$pg_ver/bin"
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
@@ -125,7 +126,7 @@ install_windows() {
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
-    choco install cmake llvm mingw ninja postgresql18 --limit-output -y \
+    choco install cmake llvm mingw ninja postgresql$pg_ver --limit-output -y \
         1>&2 | tee install.log >&2
 
     # This is just useless...  To get the installed commands in your path,
@@ -145,6 +146,8 @@ install_windows() {
     echo >&2 "*** $pd/mingw64/ming64: $(ls "$pd/mingw64/ming64") ***" # XXX: DEBUG
     echo >&2 # XXX: DEBUG
     echo >&2 "*** $pd/mingw64/ming64/bin: $(ls "$pd/mingw64/ming64/bin") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $mingw_bin: $(ls "$mingw_bin") ***" # XXX: DEBUG
 }
 
 
