@@ -28,7 +28,6 @@ install_archlinux() {
         autoconf autoconf-archive automake clang cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
         which yamllint >>/tmp/install.log
-    echo '# (No settings needed.)'
 }
 
 
@@ -37,7 +36,6 @@ install_archlinux_lint() {
     pacman --quiet --noconfirm -S \
         clang cmake cppcheck diffutils make postgresql-libs python3 \
         shellcheck uv which yamllint >>/tmp/install.log
-    echo '# (No settings needed.)'
 }
 
 
@@ -102,7 +100,6 @@ install_ubuntu_codeql() {
 
     sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         clang cmake git libpq-dev make >>/tmp/install.log
-    echo '# (No settings needed.)'
 }
 
 
