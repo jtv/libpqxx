@@ -56,8 +56,7 @@ install_debian() {
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
 
-    ls /usr/lib/postgresql >&2 # XXX: DEBUG
-    ls -l /usr/lib/postgresql/*/bin >&2 # XXX: DEBUG
+    PATH="$PATH:$pgbin" which -a initdb # XXX: DEBUG CODE
 
     echo "PATH='$PATH:$HOME/.local/bin:$pgbin'"
     echo "export PATH"
