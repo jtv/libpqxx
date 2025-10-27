@@ -163,17 +163,17 @@ EOF
 
 
 pylint() {
-    uv run --with=pyflakes pyflakes "$SRCDIR"/tools/*.py
-    uv run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
+    uv -q run --with=pyflakes pyflakes "$SRCDIR"/tools/*.py
+    uv -q run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
 }
 
 
 shelllint() {
     local TLS="deprecations extract_version format lint todo update-copyright"
-    uv run --with=shellcheck.py shellcheck "$SRCDIR/autogen.sh"
+    uv -q run --with=shellcheck.py shellcheck "$SRCDIR/autogen.sh"
     for s in $TLS
     do
-        uv run --with=shellcheck.py shellcheck "$SRCDIR/tools/$s"
+        uv -q run --with=shellcheck.py shellcheck "$SRCDIR/tools/$s"
     done
 }
 
@@ -188,7 +188,7 @@ mdlint() {
 
 check_cmake() {
     find "$SRCDIR" \( -name '*.cmake' -o -name CMakeLists.txt \) -exec \
-        uv run --with=cmake-format cmake-lint --suppress-decorations '{}' '+'
+        uv -q run --with=cmake-format cmake-lint --suppress-decorations '{}' '+'
 }
 
 
