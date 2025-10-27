@@ -116,8 +116,7 @@ install_windows() {
     # local pd="/c/ProgramData"
     # local mingw_bin="$pd/mingw64/mingw64/bin"
 
-    # TODO: Couldn't get PostgreSQL running on Windows in CircleCI.
-    # local pg_bin="$pf/PostgreSQL/16/bin"
+    local pg_bin="$(ls -d "$pf"/PostgreSQL/*/bin)"
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
@@ -126,14 +125,16 @@ install_windows() {
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
-    choco install cmake llvm mingw ninja postgresql16 --limit-output -y \
+    choco install cmake llvm mingw ninja postgresql18 --limit-output -y \
         1>&2 | tee install.log >&2
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "PATH='$PATH:$cmake_bin:$llvm_bin'"
+    echo "PATH='$PATH:$cmake_bin:$llvm_bin:pg_bin'"
     echo "export PATH"
+
+    echo "*** $(ls "$pg_bin") ***" # XXX: DEBUG
 }
 
 
