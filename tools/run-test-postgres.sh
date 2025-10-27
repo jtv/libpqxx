@@ -26,17 +26,23 @@ USER="$(whoami)"
 mkdir -p -- "$PGDATA" "$PGHOST"
 chown postgres -- "$PGDATA" "$PGHOST"
 
+# Look up commands' locations now, because once we're inside a "su"
+# environment, they may not be in our PATH.
+INITDB="$(which initdb)"
+CREATEUSER="$(which createuser)"
+POSTGRES="$(which postgres)"
+
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
 #
-# Look up the path to initdb before we go into the "su" environment, since
-# it may not be in that environment's path.
+# Look up the commands' locations before we go into the "su" environment, since
+# they may not be in that environment's path.
 su postgres -c \
-    "\"$(which initdb)\" --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
+    "\"$INITDB\" --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
 
 # Run postgres server in the background.  This is not great practice but...
 # we're doing this for a disposable environment.
-su postgres -c "postgres -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
+su postgres -c "\"$POSTGRES\" -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
 
 # Wait for postgres to become available.
 # TODO: Set tighter deadline than CircleCI's.
@@ -45,5 +51,5 @@ do
     sleep .1
 done
 
-su postgres -c "createuser -w -d \"$USER\""
+su postgres -c "\"$CREATEUSER\" -w -d \"$USER\""
 createdb --template=template0 --encoding=UNICODE "$USER"
