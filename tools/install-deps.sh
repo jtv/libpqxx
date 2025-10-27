@@ -81,7 +81,7 @@ install_fedora() {
     dnf -qy install \
         autoconf autoconf-archive automake cppcheck clang libasan libtool \
         libubsan postgresql postgresql-devel postgresql-server shellcheck uv \
-        yamllint \
+        which yamllint \
         >>/tmp/install.log
 
     # I haven't found a curated package for Markdownlint (mdl) on Fedora.
