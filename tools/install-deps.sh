@@ -123,7 +123,7 @@ install_windows() {
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
-    choco install cmake llvm mingw ninja pkg-config-lite postgresql$pg_ver \
+    choco install cmake llvm mingw ninja pkgconfiglite postgresql$pg_ver \
         --limit-output -y 1>&2 | tee install.log >&2
 
     # This is just useless...  To get the installed commands in your path,
