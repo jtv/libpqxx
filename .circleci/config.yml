@@ -13,7 +13,7 @@ jobs:
     parameters:
       os:
         type: string
-      cxx:
+      compiler:
         type: string
       cxx_version:
         type: string
@@ -41,7 +41,7 @@ jobs:
           command: ". /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
-                CXX=<< parameters.cxx >> \
+                CXX=<< parameters.compiler >> \
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
           path: config.log
@@ -68,7 +68,7 @@ jobs:
 
   test-macos:
     parameters:
-      cxx:
+      compiler:
         type: string
       cxx_version:
         type: string
@@ -88,7 +88,7 @@ jobs:
           command: ". /tmp/vars.sh && autoreconf && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
-                CXX=<< parameters.cxx >> \
+                CXX=<< parameters.compiler >> \
                 CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
       - store_artifacts:
           path: config.log
@@ -120,7 +120,7 @@ jobs:
   # Couldn't get them working on CircleCI.
   test-windows:
     parameters:
-      cxx:
+      compiler:
         type: string
       cxx_version:
         type: string
@@ -142,7 +142,7 @@ jobs:
       - run:
           name: Configure
           command: ". vars.sh && \
-            CXX=<< parameters.cxx >> \
+            CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             cmake -G Ninja ."
           shell: bash.exe
@@ -207,24 +207,24 @@ workflows:
           matrix:
             parameters:
               os: ["archlinux", "debian", "fedora", "ubuntu"]
-              cxx: ["clang++", "g++"]
+              compiler: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
             exclude:
               - os: "ubuntu"
-              - cxx: "g++"
-              - cxx_version: "c++26"
+                compiler: "g++"
+                cxx_version: "c++26"
 
       - test-macos:
           matrix:
             parameters:
-              cxx: ["clang++", "g++"]
+              compiler: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
 
       - test-windows:
           matrix:
             parameters:
               # For totally unclear reasons, this won't work with g++.
-              cxx: ["clang++"]
+              compiler: ["clang++"]
               cxx_version: ["c++20", "c++23", "c++26"]
 
       - analyse:
