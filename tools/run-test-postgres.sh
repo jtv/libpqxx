@@ -28,7 +28,11 @@ chown postgres -- "$PGDATA" "$PGHOST"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-su postgres -c "initdb --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
+#
+# Look up the path to initdb before we go into the "su" environment, since
+# it may not be in that environment's path.
+su postgres -c \
+    "\"$(which initdb)\" --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
 
 # Run postgres server in the background.  This is not great practice but...
 # we're doing this for a disposable environment.
