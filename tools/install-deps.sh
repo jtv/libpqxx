@@ -56,8 +56,6 @@ install_debian() {
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
 
-    PATH="$PATH:$pgbin" which -a initdb # XXX: DEBUG CODE
-
     echo "PATH='$PATH:$HOME/.local/bin:$pgbin'"
     echo "export PATH"
 }
@@ -190,5 +188,6 @@ case "$1" in
 esac
 
 echo "PGDATA=/tmp/db"
+echo "export PGDATA"
 echo "PGHOST=/tmp"
-echo "export PGDATA PGHOST"
+echo "export PGHOST"
