@@ -132,7 +132,7 @@ install_windows() {
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin'"
     echo "export PATH"
 
-    g++ --version >&2 # XXX: DEBUG
+    g++.exe --version >&2 # XXX: DEBUG
 }
 
 

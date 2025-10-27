@@ -530,7 +530,6 @@ private:
   result m_here;
   difference_type m_pos;
 
-  // TODO: Do we really need the linked list of iterators?
   icursor_iterator *m_prev{nullptr}, *m_next{nullptr};
 };
 } // namespace pqxx
