@@ -187,6 +187,6 @@ case "$1" in
         ;;
 esac
 
-echo "PGDATA=/tmp"
-echo "PGHOST=/tmp/db"
+echo "PGDATA=/tmp/db"
+echo "PGHOST=/tmp"
 echo "export PGDATA PGHOST"
