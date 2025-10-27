@@ -56,7 +56,8 @@ install_debian() {
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
 
-    echo "export PATH='$PATH:$HOME/.local/bin:$pgbin'"
+    echo "PATH='$PATH:$HOME/.local/bin:$pgbin'"
+    echo "export PATH"
 }
 
 
@@ -71,7 +72,8 @@ install_debian_lint() {
         pipx >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
-    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "PATH='$PATH:$HOME/.local/bin'"
+    echo "export PATH"
 }
 
 
@@ -133,7 +135,8 @@ install_windows() {
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "export PATH='$PATH:$cmake_bin:$llvm_bin'"
+    echo "PATH='$PATH:$cmake_bin:$llvm_bin'"
+    echo "export PATH"
 }
 
 
@@ -184,4 +187,5 @@ case "$1" in
         ;;
 esac
 
-echo "export PGHOST=/tmp PGDATA=/tmp/db"
+echo "PGHOST=/tmp PGDATA=/tmp/db"
+echo "export PGHOST"
