@@ -131,10 +131,20 @@ install_windows() {
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "PATH='$PATH:$cmake_bin:$llvm_bin:pg_bin'"
+    echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin'"
     echo "export PATH"
 
     echo >&2 "*** $pf/PostgreSQL/18: $(ls "$pf/PostgreSQL/18") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $pg_bin: $(ls "$pg_bin") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $pd: $(ls "$pd") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $pd/mingw64: $(ls "$pd/mingw64") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $pd/mingw64/ming64: $(ls "$pd/mingw64/ming64") ***" # XXX: DEBUG
+    echo >&2 # XXX: DEBUG
+    echo >&2 "*** $pd/mingw64/ming64/bin: $(ls "$pd/mingw64/ming64/bin") ***" # XXX: DEBUG
 }
 
 
