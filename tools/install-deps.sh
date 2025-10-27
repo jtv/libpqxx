@@ -134,8 +134,7 @@ install_windows() {
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:pg_bin'"
     echo "export PATH"
 
-    echo "*** $pf: $(ls "$pf") ***" # XXX: DEBUG
-    echo "*** $pf/PostgreSQL: $(ls "$pf/PostgreSQL") ***" # XXX: DEBUG
+    echo "*** $pf/PostgreSQL/18: $(ls "$pf/PostgreSQL/18") ***" # XXX: DEBUG
 }
 
 
