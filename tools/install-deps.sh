@@ -127,6 +127,8 @@ install_windows() {
     choco install cmake llvm mingw ninja pkgconfiglite \
         --limit-output -y 1>&2 | tee install.log >&2
 
+    export PATH="$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin"
+
     # Apparently we can't get a MinGW-compatible libpq this way.  Grok says
     # it's built for MSVC.  So ironically, we use Microsoft's package manager
     # vcpkg to install a MinGW-compatible libpq.
@@ -147,7 +149,7 @@ install_windows() {
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
-    echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin'"
+    echo "PATH='$PATH'"
     echo "export PATH"
 
     # Tell pkgconfig-lite where vcpkg's .pc files are.
