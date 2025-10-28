@@ -124,14 +124,40 @@ install_windows() {
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
-    choco install cmake llvm mingw ninja pkgconfiglite postgresql$pg_ver \
+    choco install cmake llvm mingw ninja pkgconfiglite \
         --limit-output -y 1>&2 | tee install.log >&2
+
+    # Apparently we can't get a MinGW-compatible libpq this way.  Grok says
+    # it's built for MSVC.  So ironically, we use Microsoft's package manager
+    # vcpkg to install a MinGW-compatible libpq.
+    #
+    # TODO: Check out lighter MSYS alternative?
+    (
+        cd /tmp
+	# Yes, this is going to be slow.
+	git clone https://github.com/microsoft/vcpkg.git
+	cd vcpkg
+	. ./bootstrap-vcpkg.sh
+	# (Or -dynamic if desired.)
+	./vcpkg install libpq:x64-mingw-static
+    )
+
+    # TODO: Get postgres installed and running.
 
     # This is just useless...  To get the installed commands in your path,
     # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
     # Instead, we'll just have to add all these directories to PATH.
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin'"
     echo "export PATH"
+
+    # Tell pkgconfig-lite where vcpkg's .pc files are.
+    echo "PKG_CONFIG_PATH='$vcpkgRoot/installed/$vcpkgTriplet/lib/pkgconfig'"
+    export "PKG_CONFIG_PATH"
+
+    # Configure CMake to find vcpkg packages.
+    # TODO: We may need to pass this to CMake using -DCMAKE_TOOLCHAIN_FILE=...
+    echo "CMAKE_TOOLCHAIN_FILE='$vcpkgRoot/scripts/buildsystems/vcpkg.cmake'"
+    echo "export CMAKE_TOOLCHAIN_FILE"
 }
 
 
