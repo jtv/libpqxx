@@ -125,7 +125,7 @@ install_windows() {
     # output go to stdout because that's where we write our variables, so we
     # let it generate progress information and send the output to stderr.
     choco install cmake llvm mingw ninja pkgconfiglite \
-        --limit-output -y 1>&2 | tee install.log >&2
+        --limit-output --stoponfirstfailure -y 1>&2 | tee install.log >&2
 
     export PATH="$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin"
 
@@ -136,12 +136,17 @@ install_windows() {
     # TODO: Check out lighter MSYS alternative?
     (
         cd /tmp
+	echo >&2 "*** 1 ***" # XXX: DEBUG
 	# Yes, this is going to be slow.
-	git clone https://github.com/microsoft/vcpkg.git
+	git clone https://github.com/microsoft/vcpkg.git >&2
+	echo >&2 "*** 2 ***" # XXX: DEBUG
 	cd vcpkg
-	./bootstrap-vcpkg.sh
+	echo >&2 "*** 3 ***" # XXX: DEBUG
+	./bootstrap-vcpkg.sh >&2
 	# (Or -dynamic if desired.)
-	./vcpkg install libpq:x64-mingw-static
+	echo >&2 "*** 4 ***" # XXX: DEBUG
+	./vcpkg install libpq:x64-mingw-static >&2
+	echo >&2 "*** 5 ***" # XXX: DEBUG
     )
 
     # TODO: Get postgres installed and running.
