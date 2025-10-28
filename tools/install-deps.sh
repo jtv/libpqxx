@@ -136,17 +136,12 @@ install_windows() {
     # TODO: Check out lighter MSYS alternative?
     (
         cd /tmp
-	echo >&2 "*** 1 ***" # XXX: DEBUG
 	# Yes, this is going to be slow.
 	git clone https://github.com/microsoft/vcpkg.git >&2
-	echo >&2 "*** 2 ***" # XXX: DEBUG
 	cd vcpkg
-	echo >&2 "*** 3 ***" # XXX: DEBUG
 	./bootstrap-vcpkg.sh >&2
-	# (Or -dynamic if desired.)
-	echo >&2 "*** 4 ***" # XXX: DEBUG
-	./vcpkg install libpq:x64-mingw-static >&2
-	echo >&2 "*** 5 ***" # XXX: DEBUG
+	# (Or -static if desired.)
+	./vcpkg install libpq:x64-mingw-dynamic >&2
     )
 
     # TODO: Get postgres installed and running.
