@@ -137,7 +137,7 @@ install_windows() {
 	# Yes, this is going to be slow.
 	git clone https://github.com/microsoft/vcpkg.git
 	cd vcpkg
-	. ./bootstrap-vcpkg.sh
+	./bootstrap-vcpkg.sh
 	# (Or -dynamic if desired.)
 	./vcpkg install libpq:x64-mingw-static
     )
