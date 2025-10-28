@@ -20,6 +20,8 @@
 #
 # It also logs package installation to /tmp/install.log.
 
+# TODO: Install only whichever compiler we're going to run.  Save some time.
+
 set -Cue -o pipefail
 
 install_archlinux() {
@@ -103,7 +105,6 @@ install_ubuntu_codeql() {
 }
 
 
-# XXX: This may help: https://community.chocolatey.org/packages/postgresql
 install_windows() {
     local pf="/c/Program Files"
     local cmake_bin="$pf/CMake/bin"
@@ -131,9 +132,6 @@ install_windows() {
     # Instead, we'll just have to add all these directories to PATH.
     echo "PATH='$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin'"
     echo "export PATH"
-
-    echo "*** $pf: $(ls "$pf") ***\n" >&2 # XXX: DEBUG
-    echo "*** $pf/pkgconfiglite: $(ls "$pf/pkgcconfiglite") ***\n" >&2 # XXX: DEBUG
 }
 
 

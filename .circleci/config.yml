@@ -224,7 +224,7 @@ workflows:
           matrix:
             parameters:
               # For totally unclear reasons, this won't work with g++.
-              compiler: ["clang++"]
+              compiler: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
 
       - analyse:
