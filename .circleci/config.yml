@@ -139,16 +139,10 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "vars.sh"
-      - store_artifacts:
-          path: "C:\\Users\\circleci\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\config-x64-mingw-dynamic-dbg-CMakeCache.txt.log"
-      - store_artifacts:
-          path: "C:\\Users\\circleci\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\config-x64-mingw-dynamic-rel-CMakeCache.txt.log"
-      - store_artifacts:
-          path: "C:\\Users\\circleci\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\config-x64-mingw-dynamic-dbg-CMakeConfigureLog.yaml.log"
-      - store_artifacts:
-          path: "C:\\Users\\circleci\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\config-x64-mingw-dynamic-rel-CMakeConfigureLog.yaml.log"
-      - store_artifacts:
-          path: "C:\\Users\\circleci\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\config-x64-mingw-dynamic-out.log"
+      - run: # XXX: DEBUG
+          name: DEBUG # XXX: DEBUG
+          command: pwd # XXX: DEBUG
+          shell: bash.exe # XXX: DEBUG
       - run:
           name: Configure
           command: ". vars.sh && \
