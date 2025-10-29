@@ -113,7 +113,6 @@ install_windows() {
     local pg_bin="$pf/PostgreSQL/$pg_ver/bin"
 
     # The g++ compiler comes with the MinGW package.
-    # TODO: Would be good to have this working.
     local pd="/c/ProgramData"
     local mingw_bin="$pd/mingw64/mingw64/bin"
 
@@ -127,6 +126,9 @@ install_windows() {
     choco install cmake llvm mingw ninja pkgconfiglite \
         --limit-output --stoponfirstfailure -y 1>&2 | tee install.log >&2
 
+    # This is just useless...  To get the installed commands in your path,
+    # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
+    # Instead, we'll just have to add all these directories to PATH.
     export PATH="$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin"
 
     # Apparently we can't get a MinGW-compatible libpq this way.  Grok says
@@ -139,16 +141,13 @@ install_windows() {
 	# Yes, this is going to be slow.
 	git clone https://github.com/microsoft/vcpkg.git >&2
 	cd vcpkg
-	./bootstrap-vcpkg.sh >&2
+	./bootstrap-vcpkg.sh -disableMetrics >&2
 	# (Or -static if desired.)
 	./vcpkg install libpq:x64-mingw-dynamic >&2
     )
 
     # TODO: Get postgres installed and running.
 
-    # This is just useless...  To get the installed commands in your path,
-    # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
-    # Instead, we'll just have to add all these directories to PATH.
     echo "PATH='$PATH'"
     echo "export PATH"
 
