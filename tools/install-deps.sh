@@ -138,8 +138,14 @@ install_windows() {
     # TODO: Check out lighter MSYS alternative?
     (
         cd /tmp
+	if [ ! -e done-downloading-vcpkg ]
+	then
+	    # In case we're retrying an incomplete previous attempt.
+	    rm -rf vcpkg done-downloading-vcpkg
+	fi
 	# Yes, this is going to be slow.
 	git clone https://github.com/microsoft/vcpkg.git >&2
+	touch done-downloading-vcpkg
 	cd vcpkg
 	./bootstrap-vcpkg.sh -disableMetrics >&2
 	# (Or -static if desired.)
