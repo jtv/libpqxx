@@ -129,6 +129,10 @@ jobs:
       size: medium
     steps:
       - checkout
+      - run: # XXX: DEBUG
+          name: DEBUG # XXX: DEBUG
+          command: pwd # XXX: DEBUG
+          shell: bash.exe # XXX: DEBUG
       - run:
           name: Install
           command: "./tools/install-deps.sh windows >vars.sh"
@@ -139,10 +143,6 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "vars.sh"
-      - run: # XXX: DEBUG
-          name: DEBUG # XXX: DEBUG
-          command: pwd # XXX: DEBUG
-          shell: bash.exe # XXX: DEBUG
       - run:
           name: Configure
           command: ". vars.sh && \
