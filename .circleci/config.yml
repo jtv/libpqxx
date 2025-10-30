@@ -142,7 +142,7 @@ jobs:
       - run:
           name: Configure
           command: ". vars.sh && \
-            pwd && ls && \
+            echo "***" && pwd && echo "***" && ls && echo "***" && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             mingw64.exe -l -c 'cmake -G \"MinGW Makefiles\" .'"
