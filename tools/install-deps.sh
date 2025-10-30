@@ -142,7 +142,7 @@ EOF
     # TODO: Get postgres installed and running.
 
     echo "PATH='$PATH'"
-    export "export PATH"
+    echo "export PATH"
 }
 
 
