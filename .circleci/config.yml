@@ -149,6 +149,7 @@ jobs:
       - run:
           name: Gather config headers
           command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+          shell: bash.exe
       - store_artifacts:
           path: config-headers.tar.gz
       - run:
