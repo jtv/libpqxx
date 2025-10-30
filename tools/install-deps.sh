@@ -106,65 +106,43 @@ install_ubuntu_codeql() {
 
 
 install_windows() {
-    local pf="/c/Program Files"
-    local cmake_bin="$pf/CMake/bin"
-    local llvm_bin="$pf/llvm/bin"
-    local pg_ver="18"
-    local pg_bin="$pf/PostgreSQL/$pg_ver/bin"
-
-    # The g++ compiler comes with the MinGW package.
-    local pd="/c/ProgramData"
-    local mingw_bin="$pd/mingw64/mingw64/bin"
+    local msys="/C/tools/msys64"
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
     # why is there no --quiet option?).
     #
     # But if we let this run quietly, then it times out.  And we can't let the
-    # output go to stdout because that's where we write our variables, so we
-    # let it generate progress information and send the output to stderr.
-    choco install cmake llvm mingw ninja pkgconfiglite \
-        --limit-output --stoponfirstfailure -y 1>&2 | tee install.log >&2
+    # output go to stdout because that's where we write our variables.  So we
+    # let it generate progress information and send the output to stderr.  :-/
+    choco install msys2 --limit-output --stoponfirstfailure -y 1>&2 |
+        tee install.log >&2
 
-    # This is just useless...  To get the installed commands in your path,
-    # you run refreshenv.exe AND THEN CLOSE THE SHELL AND OPEN A NEW ONE.
-    # Instead, we'll just have to add all these directories to PATH.
-    export PATH="$PATH:$cmake_bin:$llvm_bin:$pg_bin:$mingw_bin"
-
-    # Apparently we can't get a MinGW-compatible libpq this way.  Grok says
-    # it's built for MSVC.  So ironically, we use Microsoft's package manager
-    # vcpkg to install a MinGW-compatible libpq.
+    # We need the msys version of libpq, because the one we'd get from choco
+    # is for MSVC (odd, for a C library).  Ironically Microsoft's own vcpkg is
+    # supposed to have a libpq that works with gcc, but it failed to install.
     #
-    # TODO: Check out lighter MSYS alternative?
-    (
-        cd /tmp
-	if [ ! -e done-downloading-vcpkg ]
-	then
-	    # In case we're retrying an incomplete previous attempt.
-	    rm -rf vcpkg done-downloading-vcpkg
-	fi
-	# Yes, this is going to be slow.
-	git clone https://github.com/microsoft/vcpkg.git >&2
-	touch done-downloading-vcpkg
-	cd vcpkg
-	./bootstrap-vcpkg.sh -disableMetrics >&2
-	# (Or -static if desired.)
-	./vcpkg install libpq:x64-mingw-dynamic >&2
-    )
+    # To get the right paths etc. for msys, use the msys shell.
+
+    export PATH="$msys:$msys/usr/bin:$PATH"
+
+    /C/tools/msys64/usr/bin/bash.exe -l <<EOF
+(
+    # Grok says we may need to let pacman run 2 upgrades.
+    pacman -Sy --noconfirm
+    pacman -Syu --noconfirm
+) || pacman -Su --noconfirm
+
+pacman -S \
+    mingw-w64-x86_64-toolchain \
+    mingw-w64-x86_64-cmake mingw-w64-x86_64-postgresql \
+    --noconfirm
+EOF
 
     # TODO: Get postgres installed and running.
 
     echo "PATH='$PATH'"
-    echo "export PATH"
-
-    # Tell pkgconfig-lite where vcpkg's .pc files are.
-    echo "PKG_CONFIG_PATH='$vcpkgRoot/installed/$vcpkgTriplet/lib/pkgconfig'"
-    export "PKG_CONFIG_PATH"
-
-    # Configure CMake to find vcpkg packages.
-    # TODO: We may need to pass this to CMake using -DCMAKE_TOOLCHAIN_FILE=...
-    echo "CMAKE_TOOLCHAIN_FILE='$vcpkgRoot/scripts/buildsystems/vcpkg.cmake'"
-    echo "export CMAKE_TOOLCHAIN_FILE"
+    export "export PATH"
 }
 
 

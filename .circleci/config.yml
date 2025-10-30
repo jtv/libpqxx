@@ -139,27 +139,12 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "vars.sh"
-      - store_artifacts:
-          path: "..\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\\
-            config-x64-mingw-dynamic-dbg-CMakeCache.txt.log"
-      - store_artifacts:
-          path: "..\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\\
-            config-x64-mingw-dynamic-rel-CMakeCache.txt.log"
-      - store_artifacts:
-          path: "..\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\\
-            config-x64-mingw-dynamic-dbg-CMakeConfigureLog.yaml.log"
-      - store_artifacts:
-          path: "..\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\\
-            config-x64-mingw-dynamic-rel-CMakeConfigureLog.yaml.log"
-      - store_artifacts:
-          path: "..\\AppData\\Local\\Temp\\vcpkg\\buildtrees\\lz4\\\
-            config-x64-mingw-dynamic-out.log"
       - run:
           name: Configure
           command: ". vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-            cmake -G Ninja ."
+            mingw64 -l -c 'cmake -G \"MinGW Makefiles\" .'"
           shell: bash.exe
       - run:
           name: Gather config headers
@@ -168,7 +153,7 @@ jobs:
           path: config-headers.tar.gz
       - run:
           name: Make
-          command: ". vars.sh && ninja"
+          command: ". vars.sh && mingw64 -l -c 'mingw32-make -j2'"
           shell: bash.exe
 
   analyse:
