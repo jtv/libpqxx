@@ -38,11 +38,11 @@ jobs:
           command: ". /tmp/vars.sh && ./autogen.sh"
       - run:
           name: Configure
-          command: ". /tmp/vars.sh && ./configure \
+          command: "mingw-w64 -l -c '. /tmp/vars.sh && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\"'"
       - store_artifacts:
           path: config.log
       - run:
