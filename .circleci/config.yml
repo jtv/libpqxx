@@ -142,7 +142,7 @@ jobs:
       - run:
           name: Configure
           # (Run the msys bash, not the one we get from CircleCI.)
-          command: "mingw-w64.exe -l -c '. vars.sh && \
+          command: "bash.exe -l -c '. vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\" \
             cmake -G \"MinGW Makefiles\" .'"
