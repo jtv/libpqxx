@@ -126,6 +126,7 @@ install_windows() {
 
     export PATH="$msys:$msys/usr/bin:$PATH"
 
+    # Now do the rest using the MSYS shell.
     /C/tools/msys64/usr/bin/bash.exe -l >&2 <<EOF
 (
     # Grok says we may need to let pacman run 2 upgrades.

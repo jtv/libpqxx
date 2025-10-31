@@ -141,20 +141,23 @@ jobs:
           path: "vars.sh"
       - run:
           name: Configure
+          # (Run the msys bash, not the one we get from CircleCI.)
           command: ". vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-            cmake -G \"MinGW Makefiles\" ."
+            bash -c 'cmake -G \"MinGW Makefiles\" .'"
           shell: bash.exe
       - run:
           name: Gather config headers
-          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+          # (Run the msys bash, not the one we get from CircleCI.)
+          command: ". vars.sh && \
+              bash -c 'tar -czf config-headers.tar.gz include/pqxx/config-*.h'"
           shell: bash.exe
       - store_artifacts:
           path: config-headers.tar.gz
       - run:
           name: Make
-          command: ". vars.sh && mingw64.exe -l -c 'mingw32-make -j2'"
+          command: ". vars.sh && bash -c 'mingw32-make -j2'"
           shell: bash.exe
 
   analyse:
