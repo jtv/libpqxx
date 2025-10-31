@@ -142,6 +142,7 @@ jobs:
       - run:
           name: Configure
           command: ". vars.sh && \
+            mingw64.exe --help && \
             echo '***' && pwd && echo '***' && ls && echo '***' && \
             echo '***' && mingw64.exe pwd && echo '***' && mingw64.exe ls && \
             echo '***' && \
