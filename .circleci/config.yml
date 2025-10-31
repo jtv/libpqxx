@@ -143,7 +143,7 @@ jobs:
           name: Configure
           command: ". vars.sh && \
             echo '***' && pwd && echo '***' && ls && echo '***' && \
-            echo '***' && mingw64 pwd && echo '***' && mingw64 ls && \
+            echo '***' && mingw64.exe pwd && echo '***' && mingw64.exe ls && \
             echo '***' && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
