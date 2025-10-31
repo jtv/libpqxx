@@ -142,13 +142,9 @@ jobs:
       - run:
           name: Configure
           command: ". vars.sh && \
-            mingw64.exe --help && \
-            echo '***' && pwd && echo '***' && ls && echo '***' && \
-            echo '***' && mingw64.exe pwd && echo '***' && mingw64.exe ls && \
-            echo '***' && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-            mingw64.exe -l -c 'cmake -G \"MinGW Makefiles\" .'"
+            cmake -G \"MinGW Makefiles\" ."
           shell: bash.exe
       - run:
           name: Gather config headers
