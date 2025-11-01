@@ -35,18 +35,11 @@ then
 fi
 
 
-if [ "$ME" = "$RUN_AS" ]
-then
-    INITDB=initdb
-    CREATEUSER=createuser
-    POSTGRES=postgres
-else
-    # Look up commands' locations now, because once we're inside a "su"
-    # environment, they may not be in our PATH.
-    INITDB="$(which initdb)"
-    CREATEUSER="$(which createuser)"
-    POSTGRES="$(which postgres)"
-fi
+# Look up commands' locations now, because once we're inside a "su"
+# environment, they may not be in our PATH.
+INITDB="$(which initdb)"
+CREATEUSER="$(which createuser)"
+POSTGRES="$(which postgres)"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
