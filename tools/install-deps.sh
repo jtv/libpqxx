@@ -124,7 +124,7 @@ install_windows() {
     #
     # To get the right paths etc. for msys, use the msys shell.
 
-    export PATH="$msys:$msys/usr/bin:$msys/mingw64/bin$PATH"
+    export PATH="$msys:$msys/usr/bin:$msys/mingw64/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
     /C/tools/msys64/usr/bin/bash.exe -l >&2 <<EOF
