@@ -107,6 +107,7 @@ install_ubuntu_codeql() {
 
 install_windows() {
     local msys="/C/tools/msys64"
+    local mingw="$msys/mingw64"
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
@@ -124,10 +125,10 @@ install_windows() {
     #
     # To get the right paths etc. for msys, use the msys shell.
 
-    export PATH="$msys:$msys/usr/bin:$msys/mingw64/bin:$PATH"
+    export PATH="$msys:$msys/usr/bin:$mingw/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
-    /C/tools/msys64/usr/bin/bash.exe -l >&2 <<EOF
+    "$msys/usr/bin/bash.exe" -l >&2 <<EOF
 (
     # Grok says we may need to let pacman run 2 upgrades.
     pacman -Sy --noconfirm
@@ -137,13 +138,14 @@ install_windows() {
 pacman -S \
     mingw-w64-x86_64-clang \
     mingw-w64-x86_64-cmake \
-    mingw-w64-x86_64-cmake mingw-w64-x86_64-postgresql \
+    mingw-w64-x86_64-postgresql \
     mingw-w64-x86_64-toolchain \
     --noconfirm
 EOF
 
     echo "PATH='$PATH'"
     echo "export PATH"
+    echo "PGBIN='$mingw/bin"
 }
 
 

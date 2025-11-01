@@ -9,6 +9,9 @@
 # Pass an optional username for a system user with privileged access to the
 # cluster.  On a normal Linux install this should be "postgres" but it defaults
 # to the current user.
+#
+# Next, pass an optional prefix path for the PostgreSQL binaries.  If you pass
+# one, it MUST END IN A SLASH to connect it to the name of the actual binary.
 
 set -Cue -o pipefail
 
@@ -24,21 +27,11 @@ then
     exit 1
 fi
 
-# Figure out suffix for executables.  For some reason when installing MinGW64
-# through MSYS2, this seems to matter for MinGW64 executables.
-case "$OSTYPE" in
-    cygwin | msys | win32 | win64)
-        EXE='.exe'
-        ;;
-
-    *)
-        EXE=
-        ;;
-esac
-
 LOG="postgres.log"
 ME="$(whoami)"
 RUN_AS="${1:-$ME}"
+
+PGBIN="${2:-}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
 if [ "$ME" != "$RUN_AS" ]
@@ -49,9 +42,9 @@ fi
 
 # Look up commands' locations now, because once we're inside a "su"
 # environment, they may not be in our PATH.
-INITDB="$(which initdb$EXE)"
-CREATEUSER="$(which createuser$EXE)"
-POSTGRES="$(which postgres$EXE)"
+INITDB="${PGBIN}initdb"
+CREATEUSER="${PGBIN}createuser"
+POSTGRES="${PGBIN}postgres"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
@@ -85,4 +78,4 @@ else
     su "$RUN_AS" -c "$RUN_CREATEUSER"
 fi
 
-createdb$EXE --template=template0 --encoding=UNICODE "$ME"
+createdb --template=template0 --encoding=UNICODE "$ME"
