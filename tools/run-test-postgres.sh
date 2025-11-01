@@ -48,9 +48,9 @@ POSTGRES="${PGBIN:-}postgres"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-RUN_INITDB="\"$INITDB\" --pgdata \"$PGDATA\" --auth trust --nosync"
-RUN_POSTGRES="\"$POSTGRES\" -D \"$PGDATA\" -k \"$PGHOST\""
-RUN_CREATEUSER="\"$CREATEUSER\" -w -d \"$ME\""
+RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync"
+RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
+RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 if [ "$ME" = "$RUN_AS" ]
 then

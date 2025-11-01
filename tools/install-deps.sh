@@ -94,6 +94,9 @@ install_macos() {
     brew install --quiet \
         autoconf autoconf-archive automake cppcheck libtool postgresql \
         shellcheck uv yamllint libpq >>/tmp/install.log
+
+    echo "PGBIN='/opt/homebrew/bin/'"
+    echo "export PGBIN"
 }
 
 
