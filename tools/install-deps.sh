@@ -135,8 +135,9 @@ install_windows() {
 ) || pacman -Su --noconfirm
 
 pacman -S \
-    mingw-w64-x86_64-toolchain \
+    mingw-w64-x86_64-cmake \
     mingw-w64-x86_64-cmake mingw-w64-x86_64-postgresql \
+    mingw-w64-x86_64-toolchain \
     --noconfirm
 EOF
 
