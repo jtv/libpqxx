@@ -56,7 +56,7 @@ install_debian() {
 
     echo "PATH='$PATH:$HOME/.local/bin'"
     echo "export PATH"
-    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)'"
+    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
     echo "export PGBIN"
 }
 
