@@ -24,6 +24,20 @@ then
     exit 1
 fi
 
+# Figure out suffix for executables.  For some reason when installing MinGW64
+# through MSYS2, this seems to matter for MinGW64 executables.
+case "$OSTYPE" in
+    cygwin)
+    msys)
+    win32)
+    win64)
+        EXE='.exe'
+        ;;
+
+    *)
+        EXE=
+        ;;
+
 LOG="postgres.log"
 ME="$(whoami)"
 RUN_AS="${1:-$ME}"
@@ -37,9 +51,9 @@ fi
 
 # Look up commands' locations now, because once we're inside a "su"
 # environment, they may not be in our PATH.
-INITDB="$(which initdb)"
-CREATEUSER="$(which createuser)"
-POSTGRES="$(which postgres)"
+INITDB="$(which initdb$EXE)"
+CREATEUSER="$(which createuser$EXE)"
+POSTGRES="$(which postgres$EXE)"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
@@ -73,4 +87,4 @@ else
     su "$RUN_AS" -c "$RUN_CREATEUSER"
 fi
 
-createdb --template=template0 --encoding=UNICODE "$ME"
+createdb$EXE --template=template0 --encoding=UNICODE "$ME"
