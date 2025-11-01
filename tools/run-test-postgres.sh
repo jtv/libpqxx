@@ -5,6 +5,10 @@
 #
 # This is meant to be run in a disposable container or VM.  Run as root.
 # First set PGHOST and PGDATA.  The postgres binaries must be in $PATH.
+#
+# Pass an optional username for a system user with privileged access to the
+# cluster.  On a normal Linux install this should be "postgres" but it defaults
+# to the current user.
 
 set -Cue -o pipefail
 
@@ -31,11 +35,18 @@ then
 fi
 
 
-# Look up commands' locations now, because once we're inside a "su"
-# environment, they may not be in our PATH.
-INITDB="$(which initdb)"
-CREATEUSER="$(which createuser)"
-POSTGRES="$(which postgres)"
+if [ "$ME" = "$RUN_AS" ]
+then
+    INITDB=initdb
+    CREATEUSER=createuser
+    POSTGRES=postgres
+else
+    # Look up commands' locations now, because once we're inside a "su"
+    # environment, they may not be in our PATH.
+    INITDB="$(which initdb)"
+    CREATEUSER="$(which createuser)"
+    POSTGRES="$(which postgres)"
+fi
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
