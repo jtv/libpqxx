@@ -163,8 +163,7 @@ jobs:
           shell: bash.exe
       - run:
           name: Start database
-          command: ". vars.sh && \
-              ./tools/run-test-postgres.sh \"$(whoami)\" \"$PGBIN/\""
+          command: ". vars.sh && ./tools/run-test-postgres.sh"
           shell: bash.exe
       - store_artifacts:
           path: postgres.log

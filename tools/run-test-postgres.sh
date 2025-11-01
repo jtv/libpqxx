@@ -10,8 +10,8 @@
 # cluster.  On a normal Linux install this should be "postgres" but it defaults
 # to the current user.
 #
-# Next, pass an optional prefix path for the PostgreSQL binaries.  If you pass
-# one, it MUST END IN A SLASH to connect it to the name of the actual binary.
+# If the PostgreSQL binaries (initdb, createdb etc.) are not in the command
+# path, set PGBIN to its location, ending in a trailing slash.
 
 set -Cue -o pipefail
 
@@ -31,7 +31,7 @@ LOG="postgres.log"
 ME="$(whoami)"
 RUN_AS="${1:-$ME}"
 
-PGBIN="${2:-}"
+PGBIN="${PGBIN:-}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
 if [ "$ME" != "$RUN_AS" ]
@@ -42,9 +42,9 @@ fi
 
 # Look up commands' locations now, because once we're inside a "su"
 # environment, they may not be in our PATH.
-INITDB="${PGBIN}initdb"
-CREATEUSER="${PGBIN}createuser"
-POSTGRES="${PGBIN}postgres"
+INITDB="${PGBIN:-}initdb"
+CREATEUSER="${PGBIN:-}createuser"
+POSTGRES="${PGBIN:-}postgres"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
