@@ -54,10 +54,10 @@ install_debian() {
         shellcheck libtool pipx yamllint >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
-    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
-
-    echo "PATH='$PATH:$HOME/.local/bin:$pgbin'"
+    echo "PATH='$PATH:$HOME/.local/bin'"
     echo "export PATH"
+    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)'"
+    echo "export PGBIN"
 }
 
 
