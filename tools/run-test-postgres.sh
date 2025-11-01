@@ -21,10 +21,15 @@ then
 fi
 
 LOG="postgres.log"
-USER="$(whoami)"
+ME="$(whoami)"
+RUN_AS="${1:-$ME}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
-chown postgres -- "$PGDATA" "$PGHOST"
+if [ "$ME" != "$RUN_AS" ]
+then
+    chown postgres -- "$PGDATA" "$PGHOST"
+fi
+
 
 # Look up commands' locations now, because once we're inside a "su"
 # environment, they may not be in our PATH.
@@ -34,22 +39,34 @@ POSTGRES="$(which postgres)"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-#
-# Look up the commands' locations before we go into the "su" environment, since
-# they may not be in that environment's path.
-su postgres -c \
-    "\"$INITDB\" --pgdata \"$PGDATA\" --auth trust --nosync" >>"$LOG"
+RUN_INITDB="\"$INITDB\" --pgdata \"$PGDATA\" --auth trust --nosync"
+RUN_POSTGRES="\"$POSTGRES\" -D \"$PGDATA\" -k \"$PGHOST\""
+RUN_CREATEUSER="\"$CREATEUSER\" -w -d \"$ME\""
 
-# Run postgres server in the background.  This is not great practice but...
-# we're doing this for a disposable environment.
-su postgres -c "\"$POSTGRES\" -D \"$PGDATA\" -k \"$PGHOST\" " >>"$LOG" &
+if [ "$ME" = "$RUN_AS" ]
+then
+    $RUN_INITDB >>"$LOG"
+    # Run postgres server in the background.  This is not great practice but...
+    # we're doing this for a disposable environment.
+    $RUN_POSTGRES >>"$LOG" &
+else
+    # Same thing, but "su" to different user.
+    su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
+    su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG" &
+fi
 
 # Wait for postgres to become available.
 # TODO: Set tighter deadline than CircleCI's.
-while ! pg_isready -U postgres
+while ! pg_isready -U "$RUN_AS"
 do
     sleep .1
 done
 
-su postgres -c "\"$CREATEUSER\" -w -d \"$USER\""
-createdb --template=template0 --encoding=UNICODE "$USER"
+if [ "$ME" = "$RUN_AS" ]
+then
+    $RUN_CREATEUSER
+else
+    su "$RUN_AS" -c "$RUN_CREATEUSER"
+fi
+
+createdb --template=template0 --encoding=UNICODE "$ME"
