@@ -27,16 +27,14 @@ fi
 # Figure out suffix for executables.  For some reason when installing MinGW64
 # through MSYS2, this seems to matter for MinGW64 executables.
 case "$OSTYPE" in
-    cygwin)
-    msys)
-    win32)
-    win64)
+    cygwin | msys | win32 | win64)
         EXE='.exe'
         ;;
 
     *)
         EXE=
         ;;
+esac
 
 LOG="postgres.log"
 ME="$(whoami)"
