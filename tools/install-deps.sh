@@ -145,7 +145,7 @@ EOF
 
     echo "PATH='$PATH'"
     echo "export PATH"
-    echo "PGBIN='$mingw/bin'"
+    echo "PGBIN='$mingw/bin/'"
     echo "export PGBIN"
 }
 
