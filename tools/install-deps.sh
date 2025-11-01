@@ -142,8 +142,6 @@ pacman -S \
     --noconfirm
 EOF
 
-    # TODO: Get postgres installed and running.
-
     echo "PATH='$PATH'"
     echo "export PATH"
 }

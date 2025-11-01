@@ -101,7 +101,7 @@ jobs:
           name: Make
           command: make -j4
       - run:
-          # XXX: Use run-test-postgres.sh?
+          # XXX: Can we make this work with run-test-postgres.sh?
           name: Start database
           command: ". /tmp/vars.sh && mkdir -p \"$PGDATA\" && \
               initdb --pgdata \"$PGDATA\" --auth trust --nosync && \
@@ -162,13 +162,13 @@ jobs:
           shell: bash.exe
       - run:
           name: Start database
-          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
+          command: ". vars.sh && ./tools/run-test-postgres.sh"
           shell: bash.exe
       - store_artifacts:
           path: postgres.log
       - run:
           name: Test
-          command: ". /tmp/vars.sh && make -j4 check"
+          command: ". vars.sh && make -j4 check"
       - store_artifacts:
           path: test-suite.log
       - store_artifacts:
