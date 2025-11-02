@@ -34,9 +34,11 @@ RUN_AS="${1:-$ME}"
 PGBIN="${PGBIN:-}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
+touch "$LOG"
 if [ "$ME" != "$RUN_AS" ]
 then
-    chown postgres -- "$PGDATA" "$PGHOST"
+    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
+    chmod a+w "$LOG"
 fi
 
 
@@ -72,13 +74,13 @@ then
     # Run postgres server in the background.  This is not great practice but...
     # we're doing this for a disposable environment.
     banner "start postgres"
-    $RUN_POSTGRES >>"$LOG" &
+    $RUN_POSTGRES >>"$LOG"
 else
     # Same thing, but "su" to different user.
     banner "initdb"
     su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
     banner "start postgres"
-    su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG" &
+    su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
 fi
 
 # Wait for postgres to become available.
