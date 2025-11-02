@@ -35,7 +35,7 @@ PGBIN="${PGBIN:-}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
 
-if [ -d /run -a ! -d /run/postgresql]
+if [ -d /run -a ! -d /run/postgresql ]
 then
     MAKE_RUN=yes
     mkdir -p /run/postgresql
