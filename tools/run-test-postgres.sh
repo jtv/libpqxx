@@ -82,11 +82,11 @@ else
 fi
 
 # Wait for postgres to become available.
-# TODO: Set tighter deadline than CircleCI's.
-while ! pg_isready -U "$RUN_AS"
-do
-    sleep .1
-done
+if ! pg_isready -U "$RUN_AS" --timeout=60
+then
+    echo >&2 "ERROR: Database is not ready."
+    exit 1
+fi
 
 banner "createuser $ME"
 
