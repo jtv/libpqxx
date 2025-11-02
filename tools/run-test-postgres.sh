@@ -33,11 +33,12 @@ RUN_AS="${1:-$ME}"
 
 PGBIN="${PGBIN:-}"
 
-mkdir -p -- "$PGDATA" "$PGHOST"
+mkdir -p -- "$PGDATA" "$PGHOST" /run/postgresql
 touch "$LOG"
 if [ "$ME" != "$RUN_AS" ]
 then
-    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
+    chown "$RUN_AS" -- "$PGDATA" "$PGHOST" /run/postgresql
+    # Must be writable to both $ME an $RUN_AS.
     chmod a+w "$LOG"
 fi
 
