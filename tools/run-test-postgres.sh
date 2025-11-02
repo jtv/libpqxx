@@ -52,10 +52,10 @@ PGCTL="${PGBIN:-}pg_ctl"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync"
+RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync -E UNICODE"
 # RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
 RUN_POSTGRES="$PGCTL -l $LOG start"
-RUN_CREATEUSER="$CREATEUSER -w -d $ME"
+RUN_CREATEUSER="$CREATEUSER -D "$PGDATA" -w -d $ME"
 
 
 # Log $1 as a big, clearly recognisable banner.
@@ -68,27 +68,31 @@ EOF
 }
 
 
-if [ "$ME" = "$RUN_AS" ]
+# We check the postgres user, not our own which may not exist yet.
+if ! pg_isready --timeout=5 -U postgres
 then
-    banner "initdb"
-    $RUN_INITDB >>"$LOG"
-    # Run postgres server in the background.  This is not great practice but...
-    # we're doing this for a disposable environment.
-    banner "start postgres"
-    $RUN_POSTGRES >>"$LOG"
-else
-    # Same thing, but "su" to different user.
-    banner "initdb"
-    su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
-    banner "start postgres"
-    su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
-fi
+    # It does not look as if a cluster exists yet.  Create one.
+    if [ "$ME" = "$RUN_AS" ]
+    then
+        banner "initdb"
+        $RUN_INITDB >>"$LOG"
+        # Run postgres server in the background.  This is not great practice
+	# but...  we're doing this for a disposable environment.
+        banner "start postgres"
+        $RUN_POSTGRES >>"$LOG"
+    else
+        # Same thing, but "su" to different user.
+        banner "initdb"
+        su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
+        banner "start postgres"
+        su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
+    fi
 
-# Wait for postgres to become available.
-if ! pg_isready -U "$RUN_AS" --timeout=60
-then
-    echo >&2 "ERROR: Database is not ready."
-    exit 1
+    if ! pg_isready --timeout=120 -U postgres
+    then
+        echo >&2 "ERROR: Database is not ready."
+        exit 1
+    fi
 fi
 
 banner "createuser $ME"
