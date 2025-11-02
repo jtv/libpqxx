@@ -44,12 +44,14 @@ fi
 # environment, they may not be in our PATH.
 INITDB="${PGBIN:-}initdb"
 CREATEUSER="${PGBIN:-}createuser"
-POSTGRES="${PGBIN:-}postgres"
+# POSTGRES="${PGBIN:-}postgres"
+PGCTL="${PGBIN:-}pg_ctl"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
 RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync"
-RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
+# RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
+RUN_POSTGRES="$PGCTL -l $LOG start"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
