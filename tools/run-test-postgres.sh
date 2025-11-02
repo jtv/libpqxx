@@ -33,13 +33,25 @@ RUN_AS="${1:-$ME}"
 
 PGBIN="${PGBIN:-}"
 
-mkdir -p -- "$PGDATA" "$PGHOST" /run/postgresql
+mkdir -p -- "$PGDATA" "$PGHOST"
+
+if [ -d /run -a ! -d /run/postgresql]
+then
+    MAKE_RUN=yes
+    mkdir -p /run/postgresql
+fi
+
 touch "$LOG"
 if [ "$ME" != "$RUN_AS" ]
 then
-    chown "$RUN_AS" -- "$PGDATA" "$PGHOST" /run/postgresql
+    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
     # Must be writable to both $ME an $RUN_AS.
     chmod a+w "$LOG"
+
+    if [ "${MAKE_RUN:-no}" != "yes" ]
+    then
+        chown "$RUN_AS" /run/postgresql
+    fi
 fi
 
 
@@ -68,8 +80,7 @@ EOF
 }
 
 
-# We check the postgres user, not our own which may not exist yet.
-if ! pg_isready --timeout=5 -U postgres
+if ! pg_isready --timeout=5
 then
     # It does not look as if a cluster exists yet.  Create one.
     if [ "$ME" = "$RUN_AS" ]
@@ -81,14 +92,14 @@ then
         banner "start postgres"
         $RUN_POSTGRES >>"$LOG"
     else
-        # Same thing, but "su" to different user.
+        # Same thing, but "su" to postgres user.
         banner "initdb"
-        su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
+        su postgres -c "$RUN_INITDB" >>"$LOG"
         banner "start postgres"
-        su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
+        su postgres -c "$RUN_POSTGRES" >>"$LOG"
     fi
 
-    if ! pg_isready --timeout=120 -U postgres
+    if ! pg_isready --timeout=120
     then
         echo >&2 "ERROR: Database is not ready."
         exit 1
@@ -99,9 +110,10 @@ banner "createuser $ME"
 
 if [ "$ME" = "$RUN_AS" ]
 then
+    # XXX: Yes but what if it already exists..?
     $RUN_CREATEUSER
 else
-    su "$RUN_AS" -c "$RUN_CREATEUSER"
+    su postgres -c "$RUN_CREATEUSER"
 fi
 
 banner "createdb $ME"
