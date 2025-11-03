@@ -53,7 +53,7 @@ install_debian() {
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake cppcheck clang \
-        libpq-dev markdownlint python3 postgresql postgresql-server-dev-all \
+        libpq-dev python3 postgresql postgresql-server-dev-all \
         shellcheck libtool pipx yamllint >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
@@ -129,7 +129,7 @@ install_ubuntu() {
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake cppcheck clang \
-        libpq-dev python3 postgresql postgresql-server-dev-all \
+        libpq-dev markdownlint python3 postgresql postgresql-server-dev-all \
         shellcheck libtool pipx yamllint >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
@@ -220,8 +220,7 @@ case "$1" in
         ;;
 
     ubuntu)
-        # Same as for Debian!
-        install_debian
+        install_ubuntu
         ;;
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
