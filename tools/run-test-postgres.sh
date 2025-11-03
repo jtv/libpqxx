@@ -66,10 +66,11 @@ PGCTL="${PGBIN:-}pg_ctl"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync -E UNICODE"
+# RUN_INITDB="$INITDB --pgdata=$PGDATA --auth=trust --nosync -E UNICODE"
+RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust --nosync -E UNICODE'"
 # RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
-RUN_POSTGRES="$PGCTL -l $LOG start"
-RUN_CREATEUSER="$CREATEUSER -w -d '$ME'"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST'"
+RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
 # Log $1 as a big, clearly recognisable banner.
