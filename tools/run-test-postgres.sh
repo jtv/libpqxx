@@ -93,7 +93,7 @@ case "$OSTYPE" in
 esac
 
 RUN_INITDB="$PGCTL init -D $PGDATA \
-    --options='--no-instructions --auth=trust $INIT_EXTRA'"
+    --options='--no-instructions -A trust $INIT_EXTRA'"
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST $POSTGRES_EXTRA'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
