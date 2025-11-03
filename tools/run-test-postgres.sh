@@ -64,7 +64,6 @@ CREATEUSER="${PGBIN:-}createuser"
 # POSTGRES="${PGBIN:-}postgres"
 PGCTL="${PGBIN:-}pg_ctl"
 
-echo >&2 "XXX $OSTYPE XXX" # XXX: DEBUG CODE
 
 # Additional options for initd & postgres.
 #
@@ -73,7 +72,7 @@ echo >&2 "XXX $OSTYPE XXX" # XXX: DEBUG CODE
 # where we only get postgres 14.  But on Windows we're supposed to have 18 and
 # still they don't work.
 case "$OSTYPE" in
-    darwin)
+    darwin*)
         # TODO: Update this once macOS postgres support these flags.
         INIT_EXTRA=
         POSTGRES_EXTRA=
@@ -84,16 +83,17 @@ case "$OSTYPE" in
         POSTGRES_EXTRA=
         ;;
     *)
-        INIT_EXTRA='-E unicode -N'
-        POSTGRES_EXTRA='-F'
+        # (Using short-form options because some BSDs don't support the
+	# long-form ones, according to the initdb/postgres man pages.)
+        # -N disables sync during init, trading restartability for speed.
+        INIT_EXTRA="-E unicode -N"
+	# -F disables fsync, trading restartability for speed.
+        POSTGRES_EXTRA="-F"
         ;;
 esac
 
-# TODO: Add --no-sync to initdb options, once macOS/Windows support it.
-# TODO: Add --encoding to initdb options once macOS/Windows support it.
-# TODO: We're using postgres 18 on macOS. Why doesn't it take -E/-F/-N!?
-RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust $INIT_EXTRA'"
-# TODO: Add -F (no fsync) to postgres options once macOS/Windows supports it.
+RUN_INITDB="$PGCTL init -D $PGDATA \
+    --options='--no-instructions --auth=trust $INIT_EXTRA'"
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST $POSTGRES_EXTRA'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
