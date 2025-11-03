@@ -66,8 +66,10 @@ PGCTL="${PGBIN:-}pg_ctl"
 
 # Since this is a disposable environment, we don't need the server to spend
 # any time ensuring that data is persistently stored.
-# TODO: Add --no-sync to initdb options, once all our systems support it.
-RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust -E UNICODE'"
+# TODO: Add --no-sync to initdb options, once macOS/Windows support it.
+# TODO: Add --encoding to initdb options once macOS/Windows support it.
+# TODO: We're using postgres 18 on macOS. Why doesn't it take -E/-N!?
+RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust'"
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST -F'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
