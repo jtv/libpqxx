@@ -57,11 +57,7 @@ then
 fi
 
 
-# Look up commands' locations now, because once we're inside a "su"
-# environment, they may not be in our PATH.
-INITDB="${PGBIN:-}initdb"
 CREATEUSER="${PGBIN:-}createuser"
-# POSTGRES="${PGBIN:-}postgres"
 PGCTL="${PGBIN:-}pg_ctl"
 
 
@@ -92,11 +88,12 @@ case "$OSTYPE" in
         ;;
 esac
 
-RUN_INITDB="$PGCTL init -D $PGDATA --options \"--no-instructions $INIT_EXTRA\""
+RUN_INITDB="\"$PGCTL\" init -D \"$PGDATA\" \
+    --options \"--no-instructions $INIT_EXTRA\""
 # TODO: Try --single?
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG \
-    --options \"-k $PGHOST $POSTGRES_EXTRA\""
-RUN_CREATEUSER="$CREATEUSER -w -d $ME"
+RUN_POSTGRES="\"$PGCTL\" start -D \"$PGDATA\" -l \"$LOG\" \
+    --options \"-k \"$PGHOST\" $POSTGRES_EXTRA\""
+RUN_CREATEUSER="\"$CREATEUSER\" -w -d $ME"
 
 
 # Log $1 as a big, clearly recognisable banner.
