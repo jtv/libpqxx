@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 #
 # Start a PostgreSQL server & database for temporary use in tests.
 # Creates a database for the current user, with trust authentication.
