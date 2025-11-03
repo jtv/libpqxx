@@ -30,6 +30,9 @@ install_archlinux() {
         autoconf autoconf-archive automake clang cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
         which yamllint >>/tmp/install.log
+
+    echo "PGHOST=/run/postgresql"
+    echo "export PGHOST"
 }
 
 
@@ -54,6 +57,8 @@ install_debian() {
         shellcheck libtool pipx yamllint >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
+    echo "PGHOST=/tmp"
+    echo "export PGHOST"
     echo "PATH='$PATH:$HOME/.local/bin'"
     echo "export PATH"
     echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
@@ -84,6 +89,9 @@ install_fedora() {
         which yamllint \
         >>/tmp/install.log
 
+    echo "PGHOST=/tmp"
+    echo "export PGHOST"
+
     # I haven't found a curated package for Markdownlint (mdl) on Fedora.
     # That's fine: we run it on the other systems.  Just stub it out.
     echo "alias mdl='echo mdl'"
@@ -95,6 +103,8 @@ install_macos() {
         autoconf autoconf-archive automake cppcheck libtool postgresql \
         shellcheck uv yamllint libpq >>/tmp/install.log
 
+    echo "PGHOST=/tmp"
+    echo "export PGHOST"
     echo "PGBIN='/opt/homebrew/bin/'"
     echo "export PGBIN"
 }
@@ -146,6 +156,8 @@ pacman -S \
     --noconfirm
 EOF
 
+    echo "PGHOST=/tmp"
+    echo "export PGHOST"
     echo "PATH='$PATH'"
     echo "export PATH"
     echo "PGBIN='$mingw/bin/'"
@@ -202,5 +214,3 @@ esac
 
 echo "PGDATA=/tmp/db"
 echo "export PGDATA"
-echo "PGHOST=/tmp"
-echo "export PGHOST"
