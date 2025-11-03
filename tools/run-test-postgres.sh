@@ -88,12 +88,12 @@ case "$OSTYPE" in
         ;;
 esac
 
-RUN_INITDB="\"$PGCTL\" init -D \"$PGDATA\" \
+RUN_INITDB="$PGCTL init -D \"$PGDATA\" \
     --options \"--no-instructions $INIT_EXTRA\""
 # TODO: Try --single?
-RUN_POSTGRES="\"$PGCTL\" start -D \"$PGDATA\" -l \"$LOG\" \
+RUN_POSTGRES="$PGCTL start -D \"$PGDATA\" -l $LOG \
     --options \"-k \"$PGHOST\" $POSTGRES_EXTRA\""
-RUN_CREATEUSER="\"$CREATEUSER\" -w -d $ME"
+RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
 # Log $1 as a big, clearly recognisable banner.
