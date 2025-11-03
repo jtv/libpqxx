@@ -41,18 +41,19 @@ then
     mkdir -p /run/postgresql
 fi
 
-touch "$LOG"
+touch $LOG
 if [ "$ME" != "$RUN_AS" ]
 then
-    # Assuming privileges.
-    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
     # Must be writable to both $ME an $RUN_AS.
-    chmod a+w "$LOG"
+    chmod a+w $LOG
+
+    # Assuming privileges.
+    chown $RUN_AS -- "$PGDATA" "$PGHOST"
 
     if [ "${MAKE_RUN:-no}" = "yes" ]
     then
         # Assuming privileges.
-        chown "$RUN_AS" /run/postgresql
+        chown $RUN_AS /run/postgresql
     fi
 fi
 
