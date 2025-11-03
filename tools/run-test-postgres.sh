@@ -44,13 +44,15 @@ fi
 touch "$LOG"
 if [ "$ME" != "$RUN_AS" ]
 then
-    sudo chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
+    # Assuming privileges.
+    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
     # Must be writable to both $ME an $RUN_AS.
     chmod a+w "$LOG"
 
     if [ "${MAKE_RUN:-no}" = "yes" ]
     then
-        sudo chown "$RUN_AS" /run/postgresql
+        # Assuming privileges.
+        chown "$RUN_AS" /run/postgresql
     fi
 fi
 
