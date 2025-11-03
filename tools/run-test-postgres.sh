@@ -68,8 +68,9 @@ PGCTL="${PGBIN:-}pg_ctl"
 # any time ensuring that data is persistently stored.
 # TODO: Add --no-sync to initdb options, once macOS/Windows support it.
 # TODO: Add --encoding to initdb options once macOS/Windows support it.
-# TODO: We're using postgres 18 on macOS. Why doesn't it take -E/-N!?
+# TODO: We're using postgres 18 on macOS. Why doesn't it take -E/-F/-N!?
 RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust'"
+# TODO: Add -F (no fsync) to postgres options once macOS/Windows supports it.
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST -F'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
