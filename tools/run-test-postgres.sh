@@ -73,13 +73,13 @@ PGCTL="${PGBIN:-}pg_ctl"
 # still they don't work.
 case "$OSTYPE" in
     darwin*)
-        # TODO: Update this once macOS postgres support these flags.
+        # TODO: Update this once macOS postgres supports our flags.
         INIT_EXTRA=
         POSTGRES_EXTRA=
         ;;
     cygwin|msys|win32)
-        # TODO: Update this once Windows postgres support these flags.
-        INIT_EXTRA="-A trust"
+        # TODO: Update this once Windows postgres supports our flags.
+        INIT_EXTRA=
         POSTGRES_EXTRA=
         ;;
     *)
@@ -92,9 +92,10 @@ case "$OSTYPE" in
         ;;
 esac
 
-RUN_INITDB="$PGCTL init -D $PGDATA --options='--no-instructions $INIT_EXTRA'"
+RUN_INITDB="$PGCTL init -D $PGDATA --options '--no-instructions $INIT_EXTRA'"
 # TODO: Try --single?
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST $POSTGRES_EXTRA'"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG \
+    --options '-k $PGHOST $POSTGRES_EXTRA'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
