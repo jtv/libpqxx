@@ -89,7 +89,8 @@ case "$OSTYPE" in
         ;;
 esac
 
-RUN_INITDB="$PGCTL init -D \"$PGDATA\" -o \"--no-instructions $INIT_EXTRA\""
+# XXX: Maybe add --no-instructions to --options.
+RUN_INITDB="$PGCTL init -D \"$PGDATA\" -o \"$INIT_EXTRA\""
 # TODO: Try --single?
 RUN_POSTGRES="$PGCTL start -D \"$PGDATA\" -l $LOG \
     -o \"-k \"$PGHOST\" $POSTGRES_EXTRA\""
