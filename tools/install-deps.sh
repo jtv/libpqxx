@@ -57,6 +57,8 @@ install_debian() {
         shellcheck libtool pipx yamllint >>/tmp/install.log
     pipx install uv >>/tmp/install.log
 
+    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
+
     echo "PGHOST=/tmp"
     echo "export PGHOST"
     echo "PATH='$PATH:$HOME/.local/bin'"
@@ -115,6 +117,30 @@ install_ubuntu_codeql() {
 
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         clang cmake git libpq-dev make >>/tmp/install.log
+}
+
+
+install_ubuntu() {
+    local pgbin
+
+    apt-get -q update >>/tmp/install.log
+
+    # Really annoying: there's no package for uv as of yet, so we need to
+    # install pipx just so we can use that to install uv.
+    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        build-essential autoconf autoconf-archive automake cppcheck clang \
+        libpq-dev python3 postgresql postgresql-server-dev-all \
+        shellcheck libtool pipx yamllint >>/tmp/install.log
+    pipx install uv >>/tmp/install.log
+
+    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
+
+    echo "PGHOST=/tmp"
+    echo "export PGHOST"
+    echo "PATH='$PATH:$HOME/.local/bin'"
+    echo "export PATH"
+    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
+    echo "export PGBIN"
 }
 
 
