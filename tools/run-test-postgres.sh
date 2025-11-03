@@ -90,10 +90,10 @@ case "$OSTYPE" in
 esac
 
 # XXX: Maybe add --no-instructions to --options.
-RUN_INITDB="$PGCTL init -D \"$PGDATA\" -o \"$INIT_EXTRA\""
+RUN_INITDB="$PGCTL init -D $PGDATA -o \"$INIT_EXTRA\""
 # TODO: Try --single?
-RUN_POSTGRES="$PGCTL start -D \"$PGDATA\" -l $LOG \
-    -o \"-k \"$PGHOST\" $POSTGRES_EXTRA\""
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG \
+    -o \"-k $PGHOST $POSTGRES_EXTRA\""
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
