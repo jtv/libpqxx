@@ -69,7 +69,7 @@ PGCTL="${PGBIN:-}pg_ctl"
 RUN_INITDB="$INITDB --pgdata $PGDATA --auth trust --nosync -E UNICODE"
 # RUN_POSTGRES="$POSTGRES -D $PGDATA -k $PGHOST"
 RUN_POSTGRES="$PGCTL -l $LOG start"
-RUN_CREATEUSER="$CREATEUSER -D "$PGDATA" -w -d $ME"
+RUN_CREATEUSER="$CREATEUSER -w -d '$ME'"
 
 
 # Log $1 as a big, clearly recognisable banner.
@@ -96,9 +96,9 @@ then
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
-        su postgres -c "$RUN_INITDB" >>"$LOG"
+        su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
         banner "start postgres"
-        su postgres -c "$RUN_POSTGRES" >>"$LOG"
+        su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
     fi
 
     if ! pg_isready --timeout=120
