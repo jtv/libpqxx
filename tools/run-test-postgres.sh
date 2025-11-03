@@ -64,6 +64,7 @@ CREATEUSER="${PGBIN:-}createuser"
 # POSTGRES="${PGBIN:-}postgres"
 PGCTL="${PGBIN:-}pg_ctl"
 
+echo >&2 "XXX $OSTYPE XXX" # XXX: DEBUG CODE
 
 # Additional options for initd & postgres.
 #
