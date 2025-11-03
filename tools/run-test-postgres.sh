@@ -64,14 +64,36 @@ CREATEUSER="${PGBIN:-}createuser"
 # POSTGRES="${PGBIN:-}postgres"
 PGCTL="${PGBIN:-}pg_ctl"
 
-# Since this is a disposable environment, we don't need the server to spend
-# any time ensuring that data is persistently stored.
+
+# Additional options for initd & postgres.
+#
+# This is really really stupid.  For some reason these options don't work in
+# our macOS and Windows CI setups.  It's at least understandable for macOS
+# where we only get postgres 14.  But on Windows we're supposed to have 18 and
+# still they don't work.
+case "$OSTYPE" in
+    darwin)
+        # TODO: Update this once macOS postgres support these flags.
+        INIT_EXTRA=
+        POSTGRES_EXTRA=
+        ;;
+    cygwin|msys|win32)
+        # TODO: Update this once Windows postgres support these flags.
+        INIT_EXTRA=
+        POSTGRES_EXTRA=
+        ;;
+    *)
+        INIT_EXTRA='-E unicode -N'
+        POSTGRES_EXTRA='-F'
+        ;;
+esac
+
 # TODO: Add --no-sync to initdb options, once macOS/Windows support it.
 # TODO: Add --encoding to initdb options once macOS/Windows support it.
 # TODO: We're using postgres 18 on macOS. Why doesn't it take -E/-F/-N!?
-RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust'"
+RUN_INITDB="$PGCTL init -D $PGDATA --options='--auth=trust $INIT_EXTRA'"
 # TODO: Add -F (no fsync) to postgres options once macOS/Windows supports it.
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST -F'"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG --options='-k $PGHOST $POSTGRES_EXTRA'"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
@@ -93,7 +115,7 @@ then
         banner "initdb"
         $RUN_INITDB >>"$LOG"
         # Run postgres server in the background.  This is not great practice
-	# but...  we're doing this for a disposable environment.
+        # but...  we're doing this for a disposable environment.
         banner "start postgres"
         $RUN_POSTGRES >>"$LOG"
     else
