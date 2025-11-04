@@ -89,8 +89,15 @@ case "$OSTYPE" in
         ;;
 esac
 
+if [ -n "$INIT_EXTRA" ]
+then
+    INIT_OPTS="-o \"$INIT_EXTRA\""
+else
+    INIT_OPTS=
+fi
+
 # XXX: Maybe add --no-instructions to --options.
-RUN_INITDB="$PGCTL init -D $PGDATA -o \"$INIT_EXTRA\""
+RUN_INITDB="$PGCTL init -D $PGDATA $INIT_OPTS"
 # TODO: Try --single?
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG \
     -o \"-k $PGHOST $POSTGRES_EXTRA\""
