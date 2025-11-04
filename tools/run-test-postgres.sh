@@ -117,7 +117,8 @@ EOF
 if ! pg_isready --timeout=5
 then
     # It does not look as if a cluster exists yet.  Create one.
-    if [ "$ME" = "$RUN_AS" ]
+    # if [ "$ME" = "$RUN_AS" ]
+    if true
     then
         banner "initdb"
         $RUN_INITDB >>"$LOG"
