@@ -35,7 +35,6 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          # XXX: Is "queries" still relevant?
           queries: +security-and-quality
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build
