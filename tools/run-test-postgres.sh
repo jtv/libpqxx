@@ -134,7 +134,7 @@ fi
 
 banner "createuser $ME"
 
-if ! psql -c 'SELECT 1' 2>&1 >>$LOG
+if ! su $RUN_AS -c "psql -k $PGHOST -c 'SELECT 1'" 2>&1 >>$LOG
 then
     su $RUN_AS -c "$RUN_CREATEUSER"
 fi
