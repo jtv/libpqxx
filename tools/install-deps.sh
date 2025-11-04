@@ -156,8 +156,8 @@ install_windows() {
     # But if we let this run quietly, then it times out.  And we can't let the
     # output go to stdout because that's where we write our variables.  So we
     # let it generate progress information and send the output to stderr.  :-/
-    choco install msys2 --limit-output --stoponfirstfailure -y \
-        2>&1 1> >(tee -a install.log >&2)
+    choco install msys2 --limit-output --stoponfirstfailure -y 2>&1 |
+        tee -a install.log >&2
 
     # We need the msys version of libpq, because the one we'd get from choco
     # is for MSVC (odd, for a C library).  Ironically Microsoft's own vcpkg is
@@ -168,7 +168,7 @@ install_windows() {
     export PATH="$msys:$msys/usr/bin:$mingw/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
-    "$msys/usr/bin/bash.exe" -l 2>&1 1> >(tee -a install.log >&2) <<EOF
+    "$msys/usr/bin/bash.exe" -l 2>&1 | tee -a install.log >&2 <<EOF
 (
     # Grok says we may need to let pacman run 2 upgrades.
     pacman -Sy --noconfirm
