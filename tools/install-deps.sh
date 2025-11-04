@@ -181,6 +181,7 @@ pacman -S \
     $arch-cmake \
     $arch-postgresql \
     $arch-toolchain \
+    cmake \
     --noconfirm
 EOF
 
