@@ -13,6 +13,7 @@
 # If the PostgreSQL binaries (initdb, createdb etc.) are not in the command
 # path, set PGBIN to its location, ending in a trailing slash.
 
+# TODO: time to port this to Python.
 set -Cue -o pipefail
 
 if test -z "${PGDATA:-}"
@@ -97,7 +98,7 @@ RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 # Log $1 as a big, clearly recognisable banner.
 banner() {
-    cat >>"$LOG" <<EOF
+    cat >>$LOG <<EOF
 
 *** $1 ***
 
@@ -111,17 +112,17 @@ then
     if [ "$ME" = "$RUN_AS" ]
     then
         banner "initdb"
-        $RUN_INITDB >>"$LOG"
+        $RUN_INITDB >>$LOG
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
-        $RUN_POSTGRES >>"$LOG"
+        $RUN_POSTGRES >>$LOG
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
-        su "$RUN_AS" -c "$RUN_INITDB" >>"$LOG"
+        su "$RUN_AS" -c "$RUN_INITDB" >>$LOG
         banner "start postgres"
-        su "$RUN_AS" -c "$RUN_POSTGRES" >>"$LOG"
+        su "$RUN_AS" -c "$RUN_POSTGRES" >>$LOG
     fi
 
     if ! pg_isready --timeout=120
@@ -133,9 +134,8 @@ fi
 
 banner "createuser $ME"
 
-if [ "$ME" = "$RUN_AS" ]
+if ! psql -c 'SELECT 1' 2>&1 >>$LOG
 then
-    # XXX: Yes but what if it already exists..?
     $RUN_CREATEUSER
 else
     su postgres -c "$RUN_CREATEUSER"

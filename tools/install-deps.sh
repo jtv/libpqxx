@@ -146,6 +146,7 @@ install_ubuntu() {
 
 
 install_windows() {
+    local arch="mingw-w64-x86_64"
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
 
@@ -176,10 +177,10 @@ install_windows() {
 ) || pacman -Su --noconfirm
 
 pacman -S \
-    mingw-w64-x86_64-clang \
-    mingw-w64-x86_64-cmake \
-    mingw-w64-x86_64-postgresql \
-    mingw-w64-x86_64-toolchain \
+    $arch-clang \
+    $arch-cmake \
+    $arch-postgresql \
+    $arch-toolchain \
     --noconfirm
 EOF
 
