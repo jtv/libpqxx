@@ -169,12 +169,12 @@ install_windows() {
     export PATH="$msys:$msys/usr/bin:$mingw/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
-    "$msys/usr/bin/bash.exe" -l 2>&1 | tee -a install.log >&2 <<EOF
+    "$msys/usr/bin/bash.exe" -l -c "
 (
     # Grok says we may need to let pacman run 2 upgrades.
-    pacman -Sy --noconfirm
-    pacman -Syu --noconfirm
-) || pacman -Su --noconfirm
+    pacman -Sy --noconfirm &&
+    pacman -Syu --noconfirm ;
+) || pacman -Su --noconfirm &&
 
 pacman -S \
     $arch-clang \
@@ -183,7 +183,7 @@ pacman -S \
     $arch-toolchain \
     cmake \
     --noconfirm
-EOF
+" 2>&1 | tee -a install.log >&2
 
     echo "PGHOST=/tmp"
     echo "export PGHOST"
