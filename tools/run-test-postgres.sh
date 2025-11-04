@@ -136,9 +136,7 @@ banner "createuser $ME"
 
 if ! psql -c 'SELECT 1' 2>&1 >>$LOG
 then
-    $RUN_CREATEUSER
-else
-    su postgres -c "$RUN_CREATEUSER"
+    su $RUN_AS -c "$RUN_CREATEUSER"
 fi
 
 banner "createdb $ME"
