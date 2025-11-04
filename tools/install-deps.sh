@@ -182,6 +182,7 @@ pacman -S \
     $arch-postgresql \
     $arch-toolchain \
     cmake \
+    ninja \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 

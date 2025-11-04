@@ -144,10 +144,10 @@ jobs:
       - run:
           name: Configure
           # (Run the msys bash, not the one we get from CircleCI.)
-          command: "bash.exe -l -c '. vars.sh && \
+          command: . vars.sh && "bash.exe -l -c '. vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\" \
-            cmake -G \"MinGW Makefiles\" .'"
+            cmake -G Ninja .'"
           shell: bash.exe
       - run:
           name: Gather config headers
@@ -159,7 +159,7 @@ jobs:
           path: config-headers.tar.gz
       - run:
           name: Make
-          command: ". vars.sh && bash -c 'mingw32-make -j2'"
+          command: bash -c ". vars.sh && ninja"
           shell: bash.exe
       - run:
           name: Start database
