@@ -96,11 +96,10 @@ else
     INIT_OPTS=
 fi
 
-# XXX: Maybe add --no-instructions to --options.
-RUN_INITDB="$PGCTL init -D $PGDATA $INIT_OPTS"
+RUN_INITDB="$PGCTL init -D $PGDATA $INIT_OPTS -o --no-instructions"
 # TODO: Try --single?
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG \
-    -o \"-k $PGHOST $POSTGRES_EXTRA\""
+    -o \"-k $PGHOST" -o \"$POSTGRES_EXTRA\""
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
