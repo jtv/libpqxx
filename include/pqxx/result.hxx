@@ -126,7 +126,7 @@ public:
    *
    * @warning The meaning of these comparisons has changed in 8.0.  The _old_
    * comparisons went through the results' data (but not metadata!) and looked
-   * for differences.  This was fairy arbitrary and a potential performance
+   * for differences.  This was fairly arbitrary and a potential performance
    * trap.
    *
    * A `result` is essentially a reference-counted pointer to a data structure
@@ -396,7 +396,7 @@ public:
    */
   row_ref one_row_ref(sl = sl::current()) const;
 
-  /// Expect that result contains at moost one row, and return as optional.
+  /// Expect that result contains at most one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
    * exactly one row, a `std::optional` containing the row.
    *
@@ -404,7 +404,7 @@ public:
    */
   std::optional<row> opt_row(sl = sl::current()) const;
 
-  /// Expect that result contains at moost one row, and return as optional.
+  /// Expect that result contains at most one row, and return as optional.
   /** Returns an empty `std::optional` if the result is empty, or if it has
    * exactly one row, a `std::optional` containing the row.
    *

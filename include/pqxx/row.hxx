@@ -355,7 +355,7 @@ private:
 namespace pqxx
 {
 /// Reference to one row in a result.
-/* A `row` is a referecne to one particular row of data in a query result set
+/* A `row` is a reference to one particular row of data in a query result set
  * (represented by a @ref result object).
  *
  * This is like a @ref row_ref, except (as far as this class is concerned) it
@@ -654,7 +654,7 @@ private:
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-/** @warning Do notyou destroy or move the @ref result object while you're
+/** @warning Do not destroy or move the @ref result object while you're
  * iterating it.  It will invalidate all iterators on the entire result.  They
  * will no longer refer to valid memory, and your application may crash, or
  * worse, read the wrong data.

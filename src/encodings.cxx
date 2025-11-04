@@ -50,7 +50,7 @@ const std::array<std::string_view, 11u> windows_subtypes{
 namespace pqxx::internal
 {
 // C++23: Reduce to const std::flat_map on top of constexpr array?
-/// Look up encoding group for an encding by name.
+/// Look up encoding group for an encoding by name.
 /** @throw argument_error if the encoding name is not an accepted one.
  */
 constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
@@ -64,7 +64,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         return encoding_group::big5;
       break;
     case 'E':
-      // All the EUC encdings are ASCII-safe.
+      // All the EUC encodings are ASCII-safe.
       if (encoding_name.starts_with("EUC_"sv))
         return encoding_group::monobyte;
       break;

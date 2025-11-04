@@ -126,7 +126,7 @@ template<typename TYPE> struct no_null
 
 /// Contextual parameters for string conversions implementations.
 /** These are some "extra" items that libpqxx may be able to pass to a string
- * conversion operation in order to provide it with extra infomation.
+ * conversion operation in order to provide it with extra information.
  *
  * Yes, these could simply have been extra parameters in the conversion API,
  * but that makes it harder to add new features (which existing conversions
@@ -152,7 +152,7 @@ struct conversion_context final
    *
    * Generally it will be helpful to pass the location where the client called
    * into libpqxx.  However if you don't pass a source location, this will use
-   * the location in the suorce code where you created this `ctx`.
+   * the location in the source code where you created this `ctx`.
    */
   sl loc = sl::current();
 
