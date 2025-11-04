@@ -166,7 +166,7 @@ install_windows() {
     #
     # To get the right paths etc. for msys, use the msys shell.
 
-    export PATH="$msys:$msys/usr/bin:$mingw/bin:$PATH"
+    export PATH="$mingw/bin:$msys:$msys/usr/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
     # TODO: Not clear that we need $arch-gcc-libs or $arch-headers-git.
@@ -190,8 +190,6 @@ pacman -S \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
-    # XXX: Does this 'source' line help?
-    echo "source /etc/profile && source /mingw64/share/msys2.sh"
     echo "PGHOST=/tmp"
     echo "export PGHOST"
     echo "PATH='$PATH'"
@@ -200,7 +198,8 @@ pacman -S \
     echo "export PGBIN"
 
 # XXX: Try...
-# DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=/mingw64/x86_64-w64-mingw32/include
+# -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=
+#   /mingw64/lib/gcc/x86_64-w64-mingw32/*/include
 # -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=
 #   /mingw64/include/c++/13.2.0;/mingw64/x86_64-w64-mingw32/include
 #
