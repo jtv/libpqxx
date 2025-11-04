@@ -89,14 +89,7 @@ case "$OSTYPE" in
         ;;
 esac
 
-if [ -n "$INIT_EXTRA" ]
-then
-    INIT_OPTS="-o \"$INIT_EXTRA\""
-else
-    INIT_OPTS=
-fi
-
-RUN_INITDB="$PGCTL init -D $PGDATA $INIT_OPTS -o --no-instructions"
+RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o --no-instructions"
 # TODO: Try --single?
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-k"$PGHOST" $POSTGRES_EXTRA"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
