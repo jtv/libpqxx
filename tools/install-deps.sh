@@ -169,6 +169,8 @@ install_windows() {
     export PATH="$msys:$msys/usr/bin:$mingw/bin:$PATH"
 
     # Now do the rest using the MSYS shell.
+    # TODO: Not clear that we need $arch-gcc-libs or $arch-headers-git.
+    # TODO: Build fails to find <stdlib.h> from inside <cstdlib>!
     "$msys/usr/bin/bash.exe" -l -c "
 (
     # Grok says we may need to let pacman run 2 upgrades.
@@ -179,6 +181,8 @@ install_windows() {
 pacman -S \
     $arch-clang \
     $arch-cmake \
+    $arch-gcc-libs \
+    $arch-headers-git \
     $arch-postgresql \
     $arch-toolchain \
     cmake \
@@ -186,12 +190,21 @@ pacman -S \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
+    # XXX: Does this 'source' line help?
+    echo "source /etc/profile && source /mingw64/share/msys2.sh"
     echo "PGHOST=/tmp"
     echo "export PGHOST"
     echo "PATH='$PATH'"
     echo "export PATH"
     echo "PGBIN='$mingw/bin/'"
     echo "export PGBIN"
+
+# XXX: Try...
+# DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=/mingw64/x86_64-w64-mingw32/include
+# -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=
+#   /mingw64/include/c++/13.2.0;/mingw64/x86_64-w64-mingw32/include
+#
+# XXX: Try -G 'MinGW Makefiles'... why didn't that work?
 }
 
 
