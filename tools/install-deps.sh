@@ -113,9 +113,9 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
-    apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
+    sudo apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
 
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
+    sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
         clang cmake git libpq-dev make >>/tmp/install.log
 }
