@@ -84,13 +84,13 @@ case "$OSTYPE" in
         # (Using short-form options because some BSDs don't support the
 	# long-form ones, according to the initdb/postgres man pages.)
         # -N disables sync during init, trading restartability for speed.
-        INIT_EXTRA="-o-Atrust -o-Eunicode -o-N"
+        INIT_EXTRA="-o-Eunicode -o-N"
 	# -F disables fsync, trading restartability for speed.
         POSTGRES_EXTRA="-o-F"
         ;;
 esac
 
-RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o --no-instructions"
+RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o-Atrust -o --no-instructions"
 # TODO: Try --single?
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-k"$PGHOST" $POSTGRES_EXTRA"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
