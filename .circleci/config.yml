@@ -144,7 +144,7 @@ jobs:
       - run:
           name: Configure
           # (Run the msys bash, not the one we get from CircleCI.)
-          command: ". vars.sh && \"bash.exe -c '. vars.sh && \
+          command: ". vars.sh && bash.exe -c \". vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
             cmake -G Ninja .\""
