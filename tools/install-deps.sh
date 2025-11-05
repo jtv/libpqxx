@@ -108,14 +108,18 @@ install_fedora() {
 
 
 install_macos() {
+    local pg_ver=18
+
     brew install --quiet \
-        autoconf autoconf-archive automake cppcheck libtool postgresql@18 \
-        shellcheck uv yamllint libpq >>/tmp/install.log
+        autoconf autoconf-archive automake cppcheck libtool \
+	postgresql@$pg_ver shellcheck uv yamllint libpq >>/tmp/install.log
 
     echo "PGHOST=/tmp"
     echo "export PGHOST"
     echo "PGBIN='/opt/homebrew/bin/'"
     echo "export PGBIN"
+    echo PGVER=$pg_ver
+    export PGVER
 }
 
 
@@ -253,5 +257,6 @@ case "$1" in
         ;;
 esac
 
+# XXX: For Windows, Grok seems to be saying it's still /run/postgresql.
 echo "PGDATA=/tmp/db"
 echo "export PGDATA"

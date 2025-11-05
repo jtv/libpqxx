@@ -1,4 +1,5 @@
 #! /bin/bash -x
+# XXX: Drop the "-x".
 #
 # Start a PostgreSQL server & database for temporary use in tests.
 # Creates a database for the current user, with trust authentication.
@@ -60,7 +61,19 @@ fi
 
 
 CREATEUSER="${PGBIN:-}createuser"
+
 PGCTL="${PGBIN:-}pg_ctl"
+if [ -e "$PGCTL-$PGVER" ]
+then
+    # Seriously!?  Homebrew binary has release number suffix.
+    PGCTL="$PGCTL-$PGVER"
+fi
+
+PGISREADY="${PGBIN:-}pg_isready"
+if [ -e "$PGISREADY-$PGVER" ]
+then
+    PGISREADY="$PGISREADY-$PGVER"
+fi
 
 
 # Additional options for initd & postgres.
@@ -109,7 +122,7 @@ EOF
 }
 
 
-if ! pg_isready --timeout=5
+if ! $PGISREADY --timeout=5
 then
     # It does not look as if a cluster exists yet.  Create one.
     if [ "$ME" = "$RUN_AS" ]
@@ -128,7 +141,7 @@ then
         su "$RUN_AS" -c "$RUN_POSTGRES" >>$LOG
     fi
 
-    if ! pg_isready --timeout=120
+    if ! $PGISREADY --timeout=120
     then
         echo >&2 "ERROR: Database is not ready."
         exit 1

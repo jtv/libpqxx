@@ -165,6 +165,7 @@ jobs:
           shell: bash.exe
       - run:
           name: Start database
+          # XXX: Failing: lock.  Grok says may be stale $PGDATA/postmaster.pid.
           command: ". vars.sh && ./tools/run-test-postgres.sh"
           shell: bash.exe
       - store_artifacts:
