@@ -102,7 +102,7 @@ install_fedora() {
 
 install_macos() {
     brew install --quiet \
-        autoconf autoconf-archive automake cppcheck libtool postgresql \
+        autoconf autoconf-archive automake cppcheck libtool postgresql@17 \
         shellcheck uv yamllint libpq >>/tmp/install.log
 
     echo "PGHOST=/tmp"
@@ -170,8 +170,6 @@ install_windows() {
     export PATH="$mingw/bin:$msys:$msys/usr/bin:$PATH"
 
     # Now bootstrap the rest using the MSYS shell.
-    # TODO: Not clear that we need $arch-gcc-libs or $arch-headers-git.
-    # TODO: Build fails to find <stdlib.h> from inside <cstdlib>!
     "$msys/usr/bin/bash.exe" -l -c "
 (
     # Grok says we may need to let pacman run 2 upgrades.
