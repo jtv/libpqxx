@@ -37,6 +37,7 @@ install_archlinux() {
 
 
 install_archlinux_lint() {
+# TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
         clang cmake cppcheck diffutils make postgresql-libs python3 \
@@ -55,6 +56,9 @@ install_debian() {
         build-essential autoconf autoconf-archive automake cppcheck clang \
         libpq-dev python3 postgresql postgresql-server-dev-all \
         shellcheck libtool pipx yamllint >>/tmp/install.log
+
+    # We need pipx only to install uv.  :-(
+    # TODO: Once uv has been packaged, get rid of pipx.
     pipx install uv >>/tmp/install.log
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
@@ -77,6 +81,9 @@ install_debian_lint() {
         build-essential cmake cppcheck clang clang-tidy libpq-dev \
         markdownlint postgresql postgresql-server-dev-all shellcheck yamllint \
         pipx >>/tmp/install.log
+
+    # We need pipx only to install uv.  :-(
+    # TODO: Once uv has been packaged, get rid of pipx.
     pipx install uv >>/tmp/install.log
 
     echo "PATH='$PATH:$HOME/.local/bin'"
@@ -102,7 +109,7 @@ install_fedora() {
 
 install_macos() {
     brew install --quiet \
-        autoconf autoconf-archive automake cppcheck libtool postgresql@17 \
+        autoconf autoconf-archive automake cppcheck libtool postgresql@18 \
         shellcheck uv yamllint libpq >>/tmp/install.log
 
     echo "PGHOST=/tmp"
@@ -132,6 +139,9 @@ install_ubuntu() {
         build-essential autoconf autoconf-archive automake cppcheck clang \
         libpq-dev markdownlint python3 postgresql postgresql-server-dev-all \
         shellcheck libtool pipx yamllint >>/tmp/install.log
+
+    # We need pipx only to install uv.  :-(
+    # TODO: Once uv has been packaged, get rid of pipx.
     pipx install uv >>/tmp/install.log
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
@@ -145,6 +155,7 @@ install_ubuntu() {
 }
 
 
+# TODO: Set up CircleCI caching for package installs.
 install_windows() {
     local arch="mingw-w64-x86_64"
     local msys="/C/tools/msys64"
@@ -187,7 +198,7 @@ pacman -S \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
-    echo "PGHOST=/tmp"
+    echo "PGHOST='$HOME/AppData/Local/Temp'"
     echo "export PGHOST"
     echo "PATH='$PATH'"
     echo "export PATH"
