@@ -147,7 +147,7 @@ jobs:
           command: ". vars.sh && bash.exe -c \". vars.sh && \
             CXX=<< parameters.compiler >> \
             CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-            cmake -G Ninja -DPostgreSQL_ROOT=/mingw64 .\""
+            cmake -G Ninja .\""
           shell: bash.exe
       - run:
           name: Gather config headers
