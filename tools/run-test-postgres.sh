@@ -89,12 +89,14 @@ case "$OSTYPE" in
         # TODO: Update this once macOS postgres supports our flags.
         INIT_EXTRA=
         POSTGRES_EXTRA=
+	SOCKDIR="-o-k$PGHOST"
         ;;
     cygwin|msys|win32)
         # TODO: Update this once Windows postgres supports our flags.
 	# TODO: Disable data page checksums (other platforms as well?)
         INIT_EXTRA="-o-Eunicode -o-N"
         POSTGRES_EXTRA=
+	SOCKDIR=
         ;;
     *)
         # (Using short-form options because some BSDs don't support the
@@ -103,6 +105,7 @@ case "$OSTYPE" in
         INIT_EXTRA="-o-Eunicode -o-N"
 	# -F disables fsync, trading restartability for speed.
         POSTGRES_EXTRA="-o-F"
+	SOCKDIR="-o-k$PGHOST"
         ;;
 esac
 
@@ -110,7 +113,7 @@ esac
 RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o-Atrust -o --no-instructions"
 # TODO: Try --single?
 # TODO: Try -t<seconds> against file lock error on Windows.
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-k"$PGHOST" $POSTGRES_EXTRA"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG $POSTGRES_EXTRA $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
