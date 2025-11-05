@@ -62,17 +62,19 @@ fi
 
 CREATEUSER="${PGBIN:-}createuser"
 
+VERSION="${PGVER:-}"
+
 PGCTL="${PGBIN:-}pg_ctl"
-if [ -e "$PGCTL-$PGVER" ]
+if [ -e "$PGCTL-$VERSION" ]
 then
     # Seriously!?  Homebrew binary has release number suffix.
-    PGCTL="$PGCTL-$PGVER"
+    PGCTL="$PGCTL-$VERSION"
 fi
 
 PGISREADY="${PGBIN:-}pg_isready"
-if [ -e "$PGISREADY-$PGVER" ]
+if [ -e "$PGISREADY-$VERSION" ]
 then
-    PGISREADY="$PGISREADY-$PGVER"
+    PGISREADY="$PGISREADY-$VERSION"
 fi
 
 
