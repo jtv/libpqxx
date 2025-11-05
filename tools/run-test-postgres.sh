@@ -91,8 +91,10 @@ case "$OSTYPE" in
         ;;
 esac
 
+# TODO: Add -s to pg_ctl invocations.
 RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o-Atrust -o --no-instructions"
 # TODO: Try --single?
+# TODO: Try -t<seconds> against file lock error on Windows.
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-k"$PGHOST" $POSTGRES_EXTRA"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
@@ -135,7 +137,7 @@ fi
 
 banner "createuser $ME"
 
-if ! psql -k $PGHOST -c 'SELECT 1' 2>&1 >>$LOG
+if ! psql --host="$PGHOST" -c 'SELECT 1' 2>&1 >>$LOG
 then
     su $RUN_AS -c "$RUN_CREATEUSER"
 fi
