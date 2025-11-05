@@ -202,7 +202,7 @@ pacman -S \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
-    echo "PGHOST='$HOME/AppData/Local/Temp'"
+    echo "PGHOST=localhost"
     echo "export PGHOST"
     echo "PATH='$PATH'"
     echo "export PATH"
@@ -257,6 +257,5 @@ case "$1" in
         ;;
 esac
 
-# XXX: For Windows, Grok seems to be saying it's still /run/postgresql.
 echo "PGDATA=/tmp/db"
 echo "export PGDATA"
