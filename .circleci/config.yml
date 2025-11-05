@@ -88,8 +88,10 @@ jobs:
           command: ". /tmp/vars.sh && autoreconf && ./configure \
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
+                CPPFLAGS=\"-I/opt/homebrew/opt/libpq/include/\" \
                 CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\" \
+                LDFLAGS=\"-L/opt/homebrew/opt/libpq/lib\""
       - store_artifacts:
           path: config.log
       - run:
