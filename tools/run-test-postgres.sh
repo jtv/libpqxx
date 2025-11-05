@@ -17,7 +17,6 @@
 # If pg_ctl and pg_isready have a release suffix (e.g. pg_ctl-18) as is the
 # case with Homebrew, set PGVER to the release number (e.g. "18").
 
-# TODO: time to port this to Python.
 set -Cue -o pipefail
 
 if test -z "${PGDATA:-}"
@@ -63,22 +62,25 @@ then
 fi
 
 
+# If PGVER is set, append it to $1.
+#
+# This is something annoying that the Homebrew postgres package does.
+add_version_suffix() {
+    local executable="$1"
+    local suffixed="$executable-${PGVER:-}"
+
+    if [ -n "$PGVER" -a -x "$suffixed" ]
+    then
+	echo $suffixed
+    else
+        echo $executable
+    fi
+}
+
 CREATEUSER="${PGBIN:-}createuser"
-
-VERSION="${PGVER:-}"
-
-PGCTL="${PGBIN:-}pg_ctl"
-if [ -e "$PGCTL-$VERSION" ]
-then
-    # Seriously!?  Homebrew binary has release number suffix.
-    PGCTL="$PGCTL-$VERSION"
-fi
-
-PGISREADY="${PGBIN:-}pg_isready"
-if [ -e "$PGISREADY-$VERSION" ]
-then
-    PGISREADY="$PGISREADY-$VERSION"
-fi
+PGCTL="$(add_version_suffix "${PGBIN:-}pg_ctl")"
+PGISREADY="$(add_version_suffix "${PGBIN:-}pg_isready")"
+PSQL="$(add_version_suffix "${PGBIN:-}psql")"
 
 
 # Additional options for initd & postgres.
@@ -158,7 +160,7 @@ fi
 
 banner "createuser $ME"
 
-if ! psql --host="$PGHOST" -c 'SELECT 1' 2>&1 >>$LOG
+if ! $PSQL --host="$PGHOST" -c 'SELECT 1' 2>&1 >>$LOG
 then
     su $RUN_AS -c "$RUN_CREATEUSER"
 fi
