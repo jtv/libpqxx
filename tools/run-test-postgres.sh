@@ -13,6 +13,9 @@
 #
 # If the PostgreSQL binaries (initdb, createdb etc.) are not in the command
 # path, set PGBIN to its location, ending in a trailing slash.
+#
+# If pg_ctl and pg_isready have a release suffix (e.g. pg_ctl-18) as is the
+# case with Homebrew, set PGVER to the release number (e.g. "18").
 
 # TODO: time to port this to Python.
 set -Cue -o pipefail

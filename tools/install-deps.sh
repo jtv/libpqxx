@@ -119,7 +119,7 @@ install_macos() {
     echo "PGBIN='/opt/homebrew/bin/'"
     echo "export PGBIN"
     echo PGVER=$pg_ver
-    export PGVER
+    echo "export PGVER"
 }
 
 
