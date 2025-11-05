@@ -77,7 +77,8 @@ case "$OSTYPE" in
         ;;
     cygwin|msys|win32)
         # TODO: Update this once Windows postgres supports our flags.
-        INIT_EXTRA=
+	# TODO: Disable data page checksums (other platforms as well?)
+        INIT_EXTRA="-o-Eunicode -o-N"
         POSTGRES_EXTRA=
         ;;
     *)
