@@ -165,12 +165,24 @@ then
 fi
 
 
+case "$OSTYPE" in
+    cygwin|msys|win32)
+        WINPTY=winpty
+        ;;
+    *)
+        WINPTY=
+esac
+
 if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-    $CREATEDB "$ME"
 
-    # XXX:See if this helps with weird Windows hang.
-    exit 0
+    # XXX: If this keeps "hanging," try running it in winpty.
+    # XXX: Or close stdin/out/err: exec 0<&- ; exec 1>&- ; exec 2>&-
+    # XXX: Or run in cmd:
+    #    cmd /c "createdb -h localhost -p 5432 -U postgres your_test_db"
+    #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+    # XXX: > >(tee -a postgres.log) 2>&1 ; echo </dev/null
+    $CREATEDB "$ME"
 fi
