@@ -84,8 +84,7 @@ adorn_bin() {
 }
 
 
-# XXX:
-# CREATEDB="$(adorn_bin createdb)"
+CREATEDB="$(adorn_bin createdb)"
 CREATEUSER="$(adorn_bin createuser)"
 PGCTL="$(adorn_bin pg_ctl)"
 PGISREADY="$(adorn_bin pg_isready)"
@@ -169,9 +168,12 @@ fi
 if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
-    # XXX: Did we ever need the --template=template0 at all?
     # XXX: Can we set -EUTF8 somewhere?
-    # $CREATEDB "$ME"
-    $PSQL template1 -c \
-        "CREATE DATABASE $ME WITH TEMPLATE template0 ENCODING utf8"
+    # XXX: Weird: it does work, so why does this seem to hang on Windows?
+    $CREATEDB "$ME"
+
+    # XXX: DEBUG
+    jobs
+    echo "..."
+    ps -ef
 fi
