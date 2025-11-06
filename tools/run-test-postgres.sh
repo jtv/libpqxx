@@ -169,11 +169,8 @@ if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-    # XXX: Weird: it does work, so why does this seem to hang on Windows?
     $CREATEDB "$ME"
 
-    # XXX: DEBUG
-    jobs
-    echo "..."
-    ps -ef
+    # XXX:See if this helps with weird Windows hang.
+    exit 0
 fi
