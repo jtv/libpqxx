@@ -184,7 +184,9 @@ then
     #    cmd /c "createdb -h localhost -p 5432 -U postgres your_test_db"
     #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
     # XXX: > >(tee -a postgres.log) 2>&1 ; echo </dev/null
-    #$CREATEDB "$ME"
-    $PSQL -w -q template1 -c "CREATE DATABASE circleci;"
-    echo Created database.
+    $CREATEDB "$ME" </dev/null
+
+echo "Forcing clean exit"
+exec 0<&- 1>&- 2>&-  # Nuke all std FDs.  Frees any stuck handles.
+kill -TERM $$  # Self-signal the shell to bail (harsh but effective in CI)
 fi
