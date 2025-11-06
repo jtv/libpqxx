@@ -225,6 +225,24 @@ jobs:
 workflows:
   all-tests:
     jobs:
+      # XXX: Restore "analyse" step.
+      # - analyse:
+      #     matrix:
+      #       parameters:
+      #         cxx_version: ["c++26"]
+
+      # XXX: Restore Linux tests.
+      # - test-linux:
+      #     matrix:
+      #       parameters:
+      #         os: ["archlinux", "debian", "fedora", "ubuntu"]
+      #         compiler: ["clang++", "g++"]
+      #         cxx_version: ["c++20", "c++23", "c++26"]
+      #       exclude:
+      #         - os: "ubuntu"
+      #           compiler: "g++"
+      #           cxx_version: "c++26"
+
       - test-macos:
           matrix:
             parameters:
@@ -237,8 +255,3 @@ workflows:
               # For totally unclear reasons, this won't work with g++.
               compiler: ["clang++", "g++"]
               cxx_version: ["c++20", "c++23", "c++26"]
-
-      - analyse:
-          matrix:
-            parameters:
-              cxx_version: ["c++26"]

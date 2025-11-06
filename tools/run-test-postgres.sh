@@ -71,7 +71,7 @@ add_version_suffix() {
 
     if [ -n "$PGVER" -a -x "$suffixed" ]
     then
-	echo $suffixed
+        echo $suffixed
     else
         echo $executable
     fi
@@ -94,23 +94,23 @@ case "$OSTYPE" in
         # TODO: Update this once macOS postgres supports our flags.
         INIT_EXTRA=
         POSTGRES_EXTRA=
-	SOCKDIR="-o-k$PGHOST"
+        SOCKDIR="-o-k$PGHOST"
         ;;
     cygwin|msys|win32)
         # TODO: Update this once Windows postgres supports our flags.
-	# TODO: Disable data page checksums (other platforms as well?)
+        # TODO: Disable data page checksums (other platforms as well?)
         INIT_EXTRA="-o-Eunicode -o-N"
         POSTGRES_EXTRA=
-	SOCKDIR=
+        SOCKDIR=
         ;;
     *)
         # (Using short-form options because some BSDs don't support the
-	# long-form ones, according to the initdb/postgres man pages.)
+        # long-form ones, according to the initdb/postgres man pages.)
         # -N disables sync during init, trading restartability for speed.
         INIT_EXTRA="-o-Eunicode -o-N"
-	# -F disables fsync, trading restartability for speed.
+        # -F disables fsync, trading restartability for speed.
         POSTGRES_EXTRA="-o-F"
-	SOCKDIR="-o-k$PGHOST"
+        SOCKDIR="-o-k$PGHOST"
         ;;
 esac
 
@@ -124,7 +124,7 @@ RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 # Log $1 as a big, clearly recognisable banner.
 banner() {
-    cat >>$LOG <<EOF
+    cat <<EOF
 
 *** $1 ***
 
@@ -138,17 +138,17 @@ then
     if [ "$ME" = "$RUN_AS" ]
     then
         banner "initdb"
-        $RUN_INITDB >>$LOG
+        $RUN_INITDB
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
-        $RUN_POSTGRES >>$LOG
+        $RUN_POSTGRES
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
-        su "$RUN_AS" -c "$RUN_INITDB" >>$LOG
+        su "$RUN_AS" -c "$RUN_INITDB"
         banner "start postgres"
-        su "$RUN_AS" -c "$RUN_POSTGRES" >>$LOG
+        su "$RUN_AS" -c "$RUN_POSTGRES"
     fi
 
     if ! $PGISREADY --timeout=120
@@ -160,9 +160,12 @@ fi
 
 banner "createuser $ME"
 
-if ! $PSQL --host="$PGHOST" -c 'SELECT 1' 2>&1 >>$LOG
+if [ "$RUN_AS" != "$ME" ]
 then
-    su $RUN_AS -c "$RUN_CREATEUSER"
+    if ! $PSQL --host="$PGHOST" -c 'SELECT 1'
+    then
+        su $RUN_AS -c "$RUN_CREATEUSER"
+    fi
 fi
 
 banner "createdb $ME"
