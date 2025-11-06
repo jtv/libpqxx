@@ -94,7 +94,7 @@ PSQL="$(add_version_suffix "${PGBIN:-}psql")"
 case "$OSTYPE" in
     darwin*)
         # TODO: Update this once macOS postgres supports our flags.
-        INIT_EXTRA=
+        INIT_EXTRA="-o-Eunicode -o-N"
         POSTGRES_EXTRA=
         SOCKDIR="-o-k$PGHOST"
         ;;
