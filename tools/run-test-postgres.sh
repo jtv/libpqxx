@@ -178,8 +178,18 @@ then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
 
+    # XXX: DEBUG:
+    # Should say "PE32+ executable (console) x86-64" if 64-bit:
+    file /C/tools/msys64/mingw64/bin/createdb.exe
+    # Same for winpty:
+    file $(which winpty)
+
     # XXX: Or run in cmd:
     #    cmd /c "createdb -h localhost -p 5432 -U postgres your_test_db"
     #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-    $CREATEDB "$ME" > >(tee -a postgres.log) 2>&1 ; echo </dev/null
+    (
+        set +e
+        $CREATEDB "$ME"
+    ) </dev/null > >(exec tee -a postgres.log) 2>&1
+    echo "Subshell done."
 fi
