@@ -78,11 +78,18 @@ add_version_suffix() {
     fi
 }
 
-CREATEDB="$(add_version_suffix "${PGBIN:-}createdb")"
-CREATEUSER="${PGBIN:-}createuser"
-PGCTL="$(add_version_suffix "${PGBIN:-}pg_ctl")"
-PGISREADY="$(add_version_suffix "${PGBIN:-}pg_isready")"
-PSQL="$(add_version_suffix "${PGBIN:-}psql")"
+
+# Add optional path & release suffix to a postgres binary's name.
+adorn_bin() {
+    echo add_version_suffix "${PGBIN:-}$1"
+}
+
+
+CREATEDB="$(adorn_bin createdb)"
+CREATEUSER="$(adorn_bin createuser)"
+PGCTL="$(adorn_bin pg_ctl)"
+PGISREADY="$(adorn_bin pg_isready)"
+PSQL="$(adorn_bin psql)"
 
 
 # Additional options for initd & postgres.
