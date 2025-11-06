@@ -32,11 +32,6 @@ then
     exit 1
 fi
 
-if $(adorn_bin psql) -c "SELECT 'Database already works."
-then
-    exit 0
-fi
-
 LOG="postgres.log"
 ME="$(whoami)"
 RUN_AS="${1:-$ME}"
@@ -95,6 +90,11 @@ PGCTL="$(adorn_bin pg_ctl)"
 PGISREADY="$(adorn_bin pg_isready)"
 PSQL="$(adorn_bin psql)"
 
+if $PSQL -c "SELECT 'Database already works.'"
+then
+    exit 0
+fi
+
 
 # Additional options for initd & postgres.
 #
@@ -140,7 +140,7 @@ EOF
 if ! $PGISREADY --timeout=5
 then
     # It does not look as if a cluster exists yet.  Create one.
-    if [ "$ME" = "$RUN_AS" ]
+    if [ "$RUN_AS" = "$ME" ]
     then
         banner "initdb"
         $RUN_INITDB
@@ -167,12 +167,16 @@ banner "createuser $ME"
 
 if [ "$RUN_AS" != "$ME" ]
 then
-    if ! $PSQL --host="$PGHOST" -c 'SELECT 1'
+    # TODO: Better check for role presence.
+    if ! $PSQL --host="$PGHOST" -c "SELECT 'New database user can log in.'"
     then
         su $RUN_AS -c "$RUN_CREATEUSER"
     fi
 fi
 
-banner "createdb $ME"
 
-$CREATEDB --template=template0 --encoding=UNICODE "$ME"
+if ! $PSQL -c "SELECT 'No need to create a database.'"
+then
+    banner "createdb $ME"
+    $CREATEDB --template=template0 --encoding=UNICODE "$ME"
+fi
