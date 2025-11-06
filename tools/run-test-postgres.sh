@@ -77,6 +77,7 @@ add_version_suffix() {
     fi
 }
 
+CREATEDB="$(add_version_suffix "${PGBIN:-}createdb")"
 CREATEUSER="${PGBIN:-}createuser"
 PGCTL="$(add_version_suffix "${PGBIN:-}pg_ctl")"
 PGISREADY="$(add_version_suffix "${PGBIN:-}pg_isready")"
@@ -170,4 +171,4 @@ fi
 
 banner "createdb $ME"
 
-createdb --template=template0 --encoding=UNICODE "$ME"
+$CREATEDB --template=template0 --encoding=UNICODE "$ME"
