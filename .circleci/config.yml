@@ -256,6 +256,9 @@ workflows:
       - test-windows:
           matrix:
             parameters:
-              # For totally unclear reasons, this won't work with g++.
-              compiler: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+              # XXX: Restore g++.
+              # compiler: ["clang++", "g++"]
+              compiler: ["clang++"]
+              # XXX: Restore C++23, C++26.
+              # cxx_version: ["c++20", "c++23", "c++26"]
+              cxx_version: ["c++20"]
