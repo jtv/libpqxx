@@ -188,5 +188,4 @@ then
 
 echo "Forcing clean exit"
 exec 0<&- 1>&- 2>&-  # Nuke all std FDs.  Frees any stuck handles.
-kill -TERM $$  # Self-signal the shell to bail (harsh but effective in CI)
 fi
