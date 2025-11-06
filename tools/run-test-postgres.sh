@@ -32,11 +32,14 @@ then
     exit 1
 fi
 
+if $(adorn_bin psql) -c "SELECT 'Database already works."
+then
+    exit 0
+fi
+
 LOG="postgres.log"
 ME="$(whoami)"
 RUN_AS="${1:-$ME}"
-
-PGBIN="${PGBIN:-}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
 
