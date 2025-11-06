@@ -246,9 +246,7 @@ workflows:
       - test-macos:
           matrix:
             parameters:
-              # XXX: Restore g++.
-              # compiler: ["clang++", "g++"]
-              compiler: ["clang++"]
+              compiler: ["clang++", "g++"]
               # XXX: Restore C++23, C++26.
               # cxx_version: ["c++20", "c++23", "c++26"]
               cxx_version: ["c++20"]
