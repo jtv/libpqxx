@@ -172,6 +172,6 @@ then
     # XXX: Did we ever need the --template=template0 at all?
     # XXX: Can we set -EUTF8 somewhere?
     # $CREATEDB "$ME"
-    $PGSL template0 -c \
+    $PSQL template0 -c \
         "CREATE DATABASE $ME WITH TEMPLATE template0 ENCODING utf8"
 fi
