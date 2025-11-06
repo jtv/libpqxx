@@ -96,30 +96,20 @@ then
 fi
 
 
-# Additional options for initd & postgres.
-#
-# This is really really stupid.  For some reason these options don't work in
-# our macOS and Windows CI setups.  It's at least understandable for macOS
-# where we only get postgres 14.  But on Windows we're supposed to have 18 and
-# still they don't work.
-case "$OSTYPE" in
-    darwin*)
-        SOCKDIR="-o-k$PGHOST"
-        ;;
-    cygwin|msys|win32)
-        # TODO: Update this once Windows postgres supports our flags.
-        # TODO: Disable data page checksums (other platforms as well?)
-        SOCKDIR=
-        ;;
-    *)
-        SOCKDIR="-o-k$PGHOST"
-        ;;
-esac
+if [ "$PGHOST" = "localhost" ]
+then
+    # This is the case for Windows, where there's no Unix domain sockets.
+    SOCKDIR=
+else
+    # Unix-like systems can use the local socket to connect to postgres.
+    SOCKDIR="-o-k$PGHOST"
+fi
 
-# TODO: Add -s to pg_ctl invocations.
 # -o passes options to initdb.
-# -N disables sync during init, trading restartability for speed.
-RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
+# -o-N disables sync during init, trading restartability for speed.
+# XXX:
+# RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
+RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions"
 # TODO: Try --single?
 # TODO: Try -t<seconds> against file lock error on Windows.
 # -F disables fsync, trading restartability for speed.
