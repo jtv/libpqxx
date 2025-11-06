@@ -4,15 +4,16 @@
 # Start a PostgreSQL server & database for temporary use in tests.
 # Creates a database for the current user, with trust authentication.
 #
-# This is meant to be run in a disposable container or VM.  Run as root.
-# First set PGHOST and PGDATA.  The postgres binaries must be in $PATH.
+# THIS IS NOT A GENERIC UTILITY.  It's meant just to get a database running on
+# a disposable VM in our specific CI.
 #
-# Pass an optional username for a system user with privileged access to the
-# cluster.  On a normal Linux install this should be "postgres" but it defaults
-# to the current user.
+# Run as root.  First set PGHOST and PGDATA.  The postgres binaries must be in
+# $PATH.  Pass an optional username for a system user with privileged access to
+# the cluster.  On a normal Linux install this should be "postgres" but it
+# defaults to the current user.
 #
 # If the PostgreSQL binaries (initdb, createdb etc.) are not in the command
-# path, set PGBIN to its location, ending in a trailing slash.
+# path, set PGBIN to their location, ending in a trailing slash.
 #
 # If pg_ctl and pg_isready have a release suffix (e.g. pg_ctl-18) as is the
 # case with Homebrew, set PGVER to the release number (e.g. "18").
@@ -100,34 +101,26 @@ PSQL="$(adorn_bin psql)"
 # still they don't work.
 case "$OSTYPE" in
     darwin*)
-        # TODO: Update this once macOS postgres supports our flags.
-        INIT_EXTRA="-o-N"
-        POSTGRES_EXTRA=
         SOCKDIR="-o-k$PGHOST"
         ;;
     cygwin|msys|win32)
         # TODO: Update this once Windows postgres supports our flags.
         # TODO: Disable data page checksums (other platforms as well?)
-        INIT_EXTRA="-o-N"
-        POSTGRES_EXTRA=
         SOCKDIR=
         ;;
     *)
-        # (Using short-form options because some BSDs don't support the
-        # long-form ones, according to the initdb/postgres man pages.)
-        # -N disables sync during init, trading restartability for speed.
-        INIT_EXTRA="-o-N"
-        # -F disables fsync, trading restartability for speed.
-        POSTGRES_EXTRA="-o-F"
         SOCKDIR="-o-k$PGHOST"
         ;;
 esac
 
 # TODO: Add -s to pg_ctl invocations.
-RUN_INITDB="$PGCTL init -D $PGDATA $INIT_EXTRA -o-Atrust -o --no-instructions"
+# -o passes options to initdb.
+# -N disables sync during init, trading restartability for speed.
+RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
 # TODO: Try --single?
 # TODO: Try -t<seconds> against file lock error on Windows.
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG $POSTGRES_EXTRA $SOCKDIR"
+# -F disables fsync, trading restartability for speed.
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-F $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
