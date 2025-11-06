@@ -81,7 +81,7 @@ add_version_suffix() {
 
 # Add optional path & release suffix to a postgres binary's name.
 adorn_bin() {
-    echo add_version_suffix "${PGBIN:-}$1"
+    echo $(add_version_suffix "${PGBIN:-}$1")
 }
 
 
