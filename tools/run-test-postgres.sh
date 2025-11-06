@@ -66,10 +66,11 @@ fi
 #
 # This is something annoying that the Homebrew postgres package does.
 add_version_suffix() {
+    local ver="${PGVER:-}"
     local executable="$1"
-    local suffixed="$executable-${PGVER:-}"
+    local suffixed="$executable-$ver"
 
-    if [ -n "$PGVER" -a -x "$suffixed" ]
+    if [ -n "$ver" -a -x "$suffixed" ]
     then
         echo $suffixed
     else
