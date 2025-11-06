@@ -184,5 +184,7 @@ then
     #    cmd /c "createdb -h localhost -p 5432 -U postgres your_test_db"
     #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
     # XXX: > >(tee -a postgres.log) 2>&1 ; echo </dev/null
-    $WINPTY $CREATEDB "$ME"
+    #$CREATEDB "$ME"
+    $PSQL -w -q -c "CREATE DATABASE circleci;"
+    echo Created database.
 fi
