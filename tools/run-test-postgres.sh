@@ -190,6 +190,6 @@ then
     (
         set +e
         $CREATEDB "$ME"
-    ) </dev/null > >(exec tee -a postgres.log) 2>&1
+    ) </dev/null > >(exec tee -a postgres2.log) 2>&1
     echo "Subshell done."
 fi
