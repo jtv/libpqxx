@@ -101,14 +101,14 @@ PSQL="$(adorn_bin psql)"
 case "$OSTYPE" in
     darwin*)
         # TODO: Update this once macOS postgres supports our flags.
-        INIT_EXTRA="-o-Eunicode -o-N"
+        INIT_EXTRA="-o-N"
         POSTGRES_EXTRA=
         SOCKDIR="-o-k$PGHOST"
         ;;
     cygwin|msys|win32)
         # TODO: Update this once Windows postgres supports our flags.
         # TODO: Disable data page checksums (other platforms as well?)
-        INIT_EXTRA="-o-Eunicode -o-N"
+        INIT_EXTRA="-o-N"
         POSTGRES_EXTRA=
         SOCKDIR=
         ;;
@@ -116,7 +116,7 @@ case "$OSTYPE" in
         # (Using short-form options because some BSDs don't support the
         # long-form ones, according to the initdb/postgres man pages.)
         # -N disables sync during init, trading restartability for speed.
-        INIT_EXTRA="-o-Eunicode -o-N"
+        INIT_EXTRA="-o-N"
         # -F disables fsync, trading restartability for speed.
         POSTGRES_EXTRA="-o-F"
         SOCKDIR="-o-k$PGHOST"
