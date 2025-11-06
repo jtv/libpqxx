@@ -178,5 +178,7 @@ fi
 if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
-    $CREATEDB --template=template0 --encoding=UNICODE "$ME"
+    # XXX: Did we ever need the --template=template0 at all?
+    # XXX: Can we set -EUTF8 somewhere?
+    $CREATEDB "$ME"
 fi
