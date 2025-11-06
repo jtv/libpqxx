@@ -84,7 +84,8 @@ adorn_bin() {
 }
 
 
-CREATEDB="$(adorn_bin createdb)"
+# XXX:
+# CREATEDB="$(adorn_bin createdb)"
 CREATEUSER="$(adorn_bin createuser)"
 PGCTL="$(adorn_bin pg_ctl)"
 PGISREADY="$(adorn_bin pg_isready)"
@@ -102,6 +103,7 @@ then
     SOCKDIR=
 else
     # Unix-like systems can use the local socket to connect to postgres.
+    # Pass this option directly to postgres, using pg_ctl's -o.
     SOCKDIR="-o-k$PGHOST"
 fi
 
@@ -111,8 +113,7 @@ fi
 # RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
 RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions"
 # TODO: Try --single?
-# TODO: Try -t<seconds> against file lock error on Windows.
-# -F disables fsync, trading restartability for speed.
+# -o-F disables fsync, trading restartability for speed.
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-F $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
@@ -170,5 +171,7 @@ then
     banner "createdb $ME"
     # XXX: Did we ever need the --template=template0 at all?
     # XXX: Can we set -EUTF8 somewhere?
-    $CREATEDB "$ME"
+    # $CREATEDB "$ME"
+    $PGSL template0 -c \
+        "CREATE DATABASE $ME WITH TEMPLATE template0 ENCODING utf8"
 fi
