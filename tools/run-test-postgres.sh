@@ -137,8 +137,8 @@ then
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
-exit 1 # XXX: DEBUG CODE
         $RUN_POSTGRES
+exit 1 # XXX: DEBUG CODE
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
