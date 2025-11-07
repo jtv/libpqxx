@@ -169,9 +169,13 @@ jobs:
           shell: bash.exe
       - store_artifacts:
           path: postgres.log
+      - store_artifacts:
+          path: postgres-start-stdout.log
+      - store_artifacts:
+          path: postgres-start-stderr.log
       - run:
           name: Test
-          command: ". vars.sh && make -j4 check"
+          command: ". vars.sh && ./test/runner"
           shell: bash.exe
       - store_artifacts:
           path: test-suite.log
