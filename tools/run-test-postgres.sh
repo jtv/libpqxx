@@ -166,7 +166,8 @@ then
 fi
 
 
-if ! $PSQL -c "SELECT 'No need to create a database.'"
+banner "Checking for database $ME"
+if ! $PSQL --list | grep "^$ME$"
 then
     banner "createdb $ME"
     $CREATEDB "$ME"
