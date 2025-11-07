@@ -46,7 +46,7 @@ compiler_pkg() {
 
 
 install_archlinux() {
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg $1 clang gcc)"
 
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
@@ -99,7 +99,7 @@ install_debian() {
 
 
 install_fedora() {
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg $1 clang g++)"
     dnf -qy install \
         autoconf autoconf-archive automake cppcheck libasan libtool libubsan \
         postgresql postgresql-devel postgresql-server shellcheck uv which \
