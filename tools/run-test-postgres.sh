@@ -134,8 +134,11 @@ then
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
-	# XXX: On Windows, this causes the script to hang at exit!
-        $RUN_POSTGRES
+	# We need to redirect I/O for Windows' sake.  Without it, on that
+	# platform, this script will complete but never exit.
+        $RUN_POSTGRES \
+	    >postgres-start-stdout.log 2>postgres-start-stderr.log \
+	    </dev/null
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
@@ -169,6 +172,3 @@ then
     # XXX: Can we set -EUTF8 somewhere?
     $CREATEDB "$ME"
 fi
-
-# XXX: Experimental.
-$PGCTL stop -D $PGDATA -l $LOG
