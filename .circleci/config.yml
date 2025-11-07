@@ -172,6 +172,7 @@ jobs:
       - run:
           name: Test
           command: ". vars.sh && make -j4 check"
+          shell: bash.exe
       - store_artifacts:
           path: test-suite.log
       - store_artifacts:
