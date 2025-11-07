@@ -174,23 +174,16 @@ then
     export PGSQL_PAGER=off
     export PAGER=cat
 
-    case "$OSTYPE" in
-        cygwin|msys|win32)
-            # XXX: Or run in cmd:
-            #    cmd /c "createdb $ME"
-            #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-	    winpty $CREATEDB "$ME"
-	    ;;
-	*)
-            $CREATEDB "$ME"
-	    ;;
-    esac
+    # XXX: Or run in cmd:
+    #    cmd /c "createdb $ME"
+    #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+    $CREATEDB "$ME"
 fi
 
 case "$OSTYPE" in
     cygwin|msys|win32)
         taskkill /F /FI "MODULES eq msys-2.0.dll" 2>/dev/null || true
-	;;
+        ;;
 esac
 
 echo "Done."
