@@ -127,6 +127,8 @@ EOF
 }
 
 
+# XXX: Start subshell here.
+(
 if ! $PGISREADY --timeout=5
 then
     # It does not look as if a cluster exists yet.  Create one.
@@ -170,7 +172,18 @@ if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-    $CREATEDB "$ME"
+    case "$OSTYPE" in
+        cygwin|msys*|mingw*|win*)
+            "/C/Windows/system32/cmd.exe" /c \
+                "C:\\tools\\msys64\\mingw64\\bin\\createdb.exe $ME"
+            ;;
+        *)
+            $CREATEDB "$ME"
+            ;;
+    esac
 fi
 
 echo "Done."
+
+# XXX: End subshell.
+) </dev/null > >(exec tee -a postgres-script.log) 2>&1
