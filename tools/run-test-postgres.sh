@@ -170,6 +170,10 @@ then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
 
+    # Silly but may work around weird hang in Windows.
+    export PGSQL_PAGER=off
+    export PAGER=cat
+
     case "$OSTYPE" in
         cygwin|msys|win32)
             # XXX: Or run in cmd:
@@ -183,4 +187,12 @@ then
     esac
 fi
 
+case "$OSTYPE" in
+    cygwin|msys|win32)
+        taskkill /F /FI "MODULES eq msys-2.0.dll" 2>/dev/null || true
+	;;
+esac
+
 echo "Done."
+
+exit 0
