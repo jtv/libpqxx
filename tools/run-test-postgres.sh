@@ -165,24 +165,22 @@ then
 fi
 
 
-case "$OSTYPE" in
-    cygwin|msys|win32)
-        WINPTY=winpty
-        ;;
-    *)
-        WINPTY=
-        ;;
-esac
-
 if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
 
-    # XXX: Or run in cmd:
-    #    cmd /c "createdb -h localhost -p 5432 -U postgres your_test_db"
-    #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-    $CREATEDB "$ME"
+    case "$OSTYPE" in
+        cygwin|msys|win32)
+            # XXX: Or run in cmd:
+            #    cmd /c "createdb $ME"
+            #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+	    winpty $CREATEDB "$ME"
+	    ;;
+	*)
+            $CREATEDB "$ME"
+	    ;;
+    esac
 fi
 
 echo "Done."
