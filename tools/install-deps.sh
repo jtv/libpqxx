@@ -52,7 +52,7 @@ install_archlinux() {
     pacman --quiet --noconfirm -S \
         autoconf autoconf-archive automake cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
-        which yamllint "$cxxpkg" >>/tmp/install.log
+        which yamllint $cxxpkg >>/tmp/install.log
 
     echo "PGHOST=/run/postgresql"
     echo "export PGHOST"
@@ -66,7 +66,7 @@ install_archlinux_lint() {
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
         cmake cppcheck diffutils make postgresql-libs python3 \
-        shellcheck uv which yamllint "$cxxpkg" >>/tmp/install.log
+        shellcheck uv which yamllint $cxxpkg >>/tmp/install.log
 }
 
 
@@ -81,7 +81,7 @@ install_debian() {
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
         python3 postgresql postgresql-server-dev-all shellcheck libtool pipx \
-	yamllint "$cxxpkg" >>/tmp/install.log
+	yamllint $cxxpkg >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -101,9 +101,9 @@ install_debian() {
 install_fedora() {
     local cxxpkg="$(compiler_pkg $1)"
     dnf -qy install \
-        autoconf autoconf-archive automake cppcheck libasan libtool libusan \
+        autoconf autoconf-archive automake cppcheck libasan libtool libubsan \
         postgresql postgresql-devel postgresql-server shellcheck uv which \
-        yamllint "$cxxpkg" \
+        yamllint $cxxpkg \
         >>/tmp/install.log
 
     echo "PGHOST=/tmp"
@@ -138,7 +138,7 @@ install_ubuntu_codeql() {
 
     sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
-        cmake git libpq-dev make "$cxxpkg" >>/tmp/install.log
+        cmake git libpq-dev make $cxxpkg >>/tmp/install.log
 }
 
 
@@ -153,7 +153,7 @@ install_ubuntu() {
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
         markdownlint python3 postgresql postgresql-server-dev-all shellcheck \
-        libtool pipx yamllint "$cxxpkg" >>/tmp/install.log
+        libtool pipx yamllint $cxxpkg >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -215,7 +215,7 @@ pacman -S \
     $arch-toolchain \
     cmake \
     ninja \
-    "$cxxpkg" \
+    $cxxpkg \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
