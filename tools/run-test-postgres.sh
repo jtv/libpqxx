@@ -170,14 +170,16 @@ then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
 
-    # Silly but may work around weird hang in Windows.
-    export PGSQL_PAGER=off
-    export PAGER=cat
-
-    # XXX: Or run in cmd:
-    #    cmd /c "createdb $ME"
-    #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-    $CREATEDB "$ME"
+    case "$OSTYPE" in
+        cygwin|msys*|mingw*|win*)
+            # XXX: Maybe check for errors:
+            #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+            cmd /c "$CREATEDB $ME"
+	    ;;
+	*)
+            $CREATEDB "$ME"
+	    ;;
+    esac
 fi
 
 case "$OSTYPE" in
