@@ -229,38 +229,30 @@ jobs:
 workflows:
   all-tests:
     jobs:
-      # XXX: Restore "analyse" step.
-      # - analyse:
-      #     matrix:
-      #       parameters:
-      #         cxx_version: ["c++26"]
+      - analyse:
+          matrix:
+            parameters:
+              cxx_version: ["c++26"]
 
-      # XXX: Restore Linux tests.
-      # - test-linux:
-      #     matrix:
-      #       parameters:
-      #         os: ["archlinux", "debian", "fedora", "ubuntu"]
-      #         compiler: ["clang++", "g++"]
-      #         cxx_version: ["c++20", "c++23", "c++26"]
-      #       exclude:
-      #         - os: "ubuntu"
-      #           compiler: "g++"
-      #           cxx_version: "c++26"
+      - test-linux:
+          matrix:
+            parameters:
+              os: ["archlinux", "debian", "fedora", "ubuntu"]
+              compiler: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
+            exclude:
+              - os: "ubuntu"
+                compiler: "g++"
+                cxx_version: "c++26"
 
       - test-macos:
           matrix:
             parameters:
               compiler: ["clang++", "g++"]
-              # XXX: Restore C++23, C++26.
-              # cxx_version: ["c++20", "c++23", "c++26"]
-              cxx_version: ["c++20"]
+              cxx_version: ["c++20", "c++23", "c++26"]
 
       - test-windows:
           matrix:
             parameters:
-              # XXX: Restore g++.
-              # compiler: ["clang++", "g++"]
-              compiler: ["clang++"]
-              # XXX: Restore C++23, C++26.
-              # cxx_version: ["c++20", "c++23", "c++26"]
-              cxx_version: ["c++20"]
+              compiler: ["clang++", "g++"]
+              cxx_version: ["c++20", "c++23", "c++26"]
