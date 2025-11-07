@@ -169,25 +169,11 @@ if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-
-    case "$OSTYPE" in
-        cygwin|msys*|mingw*|win*)
-            # XXX: Maybe check for errors:
-            #    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-            cmd /c "$CREATEDB $ME"
-	    ;;
-	*)
-            $CREATEDB "$ME"
-	    ;;
-    esac
+    $CREATEDB "$ME"
 fi
-
-case "$OSTYPE" in
-    cygwin|msys|win32)
-        taskkill /F /FI "MODULES eq msys-2.0.dll" 2>/dev/null || true
-        ;;
-esac
 
 echo "Done."
 
-exit 0
+tasklist /FI "MODULES eq msys-2.0.dll"  # MSYS hangers
+tasklist /FI "IMAGENAME eq postgres.exe"  # Server ghosts
+tasklist /FI "PID eq $$"  # Your bash's children
