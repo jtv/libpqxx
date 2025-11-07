@@ -1,5 +1,4 @@
-#! /bin/bash -x
-# XXX: Drop the "-x".
+#! /bin/bash
 #
 # Start a PostgreSQL server & database for temporary use in tests.
 # Creates a database for the current user, with trust authentication.
@@ -108,7 +107,8 @@ fi
 
 # -o passes options to initdb.
 # -o-N disables sync during init, trading restartability for speed.
-RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
+RUN_INITDB="$PGCTL init \
+    -D $PGDATA -o-Atrust -o--no-instructions -o-N -o-EUTF8"
 # -o-F disables fsync, trading restartability for speed.
 RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-F $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
@@ -169,6 +169,5 @@ fi
 if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
-    # XXX: Can we set -EUTF8 somewhere?
     $CREATEDB "$ME"
 fi
