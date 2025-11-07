@@ -174,6 +174,5 @@ fi
 
 echo "Done."
 
-tasklist.exe /FI "MODULES eq msys-2.0.dll"  # MSYS hangers
-tasklist.exe /FI "IMAGENAME eq postgres.exe"  # Server ghosts
-tasklist.exe /FI "PID eq $$"  # Your bash's children
+cmd.exe /c "tasklist /FI \"MODULES eq msys-2.0.dll\""
+cmd.exe /c "taskkill /F /FI \"MODULES eq msys-2.0.dll\""
