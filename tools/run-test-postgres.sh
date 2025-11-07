@@ -170,4 +170,5 @@ then
     $CREATEDB "$ME"
 fi
 
-echo "Done."
+# XXX: Experimental.
+$PGCTL stop -D $PGDATA -l $LOG
