@@ -5,7 +5,7 @@
 # Must be run with root privileges.  This is meant for use in disposable
 # containers and VMs.
 #
-# Usage: install-deps.sh <system>
+# Usage: install-deps.sh <system> <compiler>
 #
 # Where <system> is one of the environments for which this script works:
 # * archlinux
@@ -24,12 +24,35 @@
 
 set -Cue -o pipefail
 
+
+# Common case: OS package we need to install to get compiler $1.
+#
+# If $1 equals "clang++", print $2 (or "clang" by default).  If $1 equals
+# "g++", print $3 (or empty string by default).  Otherwise, fail.
+compiler_pkg() {
+    case "$1" in
+        clang++)
+	    echo "${2:-clang}"
+	    ;;
+        g++)
+	    echo "${3:-}"
+	    ;;
+	*)
+	    echo >&2 "Unsupported compiler: '$compiler'."
+	    exit 1
+	    ;;
+    esac
+}
+
+
 install_archlinux() {
+    local cxxpkg="$(compiler_pkg $1)"
+
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
-        autoconf autoconf-archive automake clang cmake cppcheck diffutils \
+        autoconf autoconf-archive automake cmake cppcheck diffutils \
         libtool make postgresql postgresql-libs python3 shellcheck uv \
-        which yamllint >>/tmp/install.log
+        which yamllint "$cxxpkg" >>/tmp/install.log
 
     echo "PGHOST=/run/postgresql"
     echo "export PGHOST"
@@ -37,15 +60,18 @@ install_archlinux() {
 
 
 install_archlinux_lint() {
+    local cxxpkg="$(compiler_pkg $1)"
+
 # TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
-        clang cmake cppcheck diffutils make postgresql-libs python3 \
-        shellcheck uv which yamllint >>/tmp/install.log
+        cmake cppcheck diffutils make postgresql-libs python3 \
+        shellcheck uv which yamllint "$cxxpkg" >>/tmp/install.log
 }
 
 
 install_debian() {
+    local cxxpkg="$(compiler_pkg $1)"
     local pgbin
 
     apt-get -q update >>/tmp/install.log
@@ -53,9 +79,9 @@ install_debian() {
     # Really annoying: there's no package for uv as of yet, so we need to
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake cppcheck clang \
-        libpq-dev python3 postgresql postgresql-server-dev-all \
-        shellcheck libtool pipx yamllint >>/tmp/install.log
+        build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
+        python3 postgresql postgresql-server-dev-all shellcheck libtool pipx \
+	yamllint "$cxxpkg" >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -72,30 +98,12 @@ install_debian() {
 }
 
 
-install_debian_lint() {
-    apt-get -q update >>/tmp/install.log
-
-    # Really annoying: there's no package for uv as of yet, so we need to
-    # install pipx just so we can use that to install uv.
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential cmake cppcheck clang clang-tidy libpq-dev \
-        markdownlint postgresql postgresql-server-dev-all shellcheck yamllint \
-        pipx >>/tmp/install.log
-
-    # We need pipx only to install uv.  :-(
-    # TODO: Once uv has been packaged, get rid of pipx.
-    pipx install uv >>/tmp/install.log
-
-    echo "PATH='$PATH:$HOME/.local/bin'"
-    echo "export PATH"
-}
-
-
 install_fedora() {
+    local cxxpkg="$(compiler_pkg $1)"
     dnf -qy install \
-        autoconf autoconf-archive automake cppcheck clang libasan libtool \
-        libubsan postgresql postgresql-devel postgresql-server shellcheck uv \
-        which yamllint \
+        autoconf autoconf-archive automake cppcheck libasan libtool libusan \
+        postgresql postgresql-devel postgresql-server shellcheck uv which \
+        yamllint "$cxxpkg" \
         >>/tmp/install.log
 
     echo "PGHOST=/tmp"
@@ -108,6 +116,7 @@ install_fedora() {
 
 
 install_macos() {
+    # Looks like our compilers come pre-installed on this image.
     local pg_ver=18
 
     brew install --quiet \
@@ -124,15 +133,17 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
+    local cxxpkg="$(compiler_pkg $1)"
     sudo apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
 
     sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
-        clang cmake git libpq-dev make >>/tmp/install.log
+        cmake git libpq-dev make "$cxxpkg" >>/tmp/install.log
 }
 
 
 install_ubuntu() {
+    local cxxpkg="$(compiler_pkg $1)"
     local pgbin
 
     apt-get -q update >>/tmp/install.log
@@ -140,9 +151,9 @@ install_ubuntu() {
     # Really annoying: there's no package for uv as of yet, so we need to
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake cppcheck clang \
-        libpq-dev markdownlint python3 postgresql postgresql-server-dev-all \
-        shellcheck libtool pipx yamllint >>/tmp/install.log
+        build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
+        markdownlint python3 postgresql postgresql-server-dev-all shellcheck \
+        libtool pipx yamllint "$cxxpkg" >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -162,8 +173,14 @@ install_ubuntu() {
 # TODO: Set up CircleCI caching for package installs.
 install_windows() {
     local arch="mingw-w64-x86_64"
+    local cxxpkg="$(compiler_pkg $1)"
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
+
+    if [ -n "$cxxpkg" ]
+    then
+        cxxpkg="$arch-$cxxpkg"
+    fi
 
     # This dumps an unacceptable amount of garbage to stderr, even with the
     # --limit-output option which AFAICT does nothing to limit output (and
@@ -193,12 +210,12 @@ install_windows() {
 ) || pacman -Su --noconfirm &&
 
 pacman -S \
-    $arch-clang \
     $arch-cmake \
     $arch-postgresql \
     $arch-toolchain \
     cmake \
     ninja \
+    "$cxxpkg" \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
@@ -211,44 +228,54 @@ pacman -S \
 }
 
 
-if test -z "${1:-}"
+if [ -z "${1:-}" -o -z "${2:-}" ]
 then
-    echo >&2 "Pass profile name, e.g. 'debian' or 'archlinux'."
+    cat >&2 <<EOF
+Usage: $0 <profile> <compiler>
+
+Where <profile> is usually an OS name, sometimes a combination of OS and
+purpose: archlinux, archilinux-lint, debian, fedora, macos, windows...
+
+And <compiler> is the compiler: g++ or clang++ (or in future perhaps more).
+EOF
     exit 1
 fi
 
-case "$1" in
+PROFILE="$1"
+COMPILER="$2"
+
+case "$PROFILE" in
     archlinux)
-        install_archlinux
+        install_archlinux $COMPILER
         ;;
     # Arch system, but only for the purpose of running "lint --full".
     # (We only need to do that on one of the systems.)
     archlinux-lint)
-        install_archlinux_lint
+        install_archlinux_lint $COMPILER
         ;;
 
     debian)
-        install_debian
+        install_debian $COMPILER
         ;;
 
     fedora)
-        install_fedora
+        install_fedora $COMPILER
         ;;
 
     macos)
-        install_macos
+        install_macos $COMPILER
         ;;
 
     ubuntu)
-        install_ubuntu
+        install_ubuntu $COMPILER
         ;;
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
-        install_ubuntu_codeql
+        install_ubuntu_codeql $COMPILER
         ;;
 
     windows)
-        install_windows
+        install_windows $COMPILER
         ;;
 
     *)
