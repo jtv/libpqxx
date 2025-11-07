@@ -169,7 +169,7 @@ if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-    $CREATEDB "$ME"
+    cmd.exe /c "$CREATEDB $ME"
 fi
 
 echo "Done."
