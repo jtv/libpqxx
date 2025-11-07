@@ -153,6 +153,7 @@ then
     fi
 fi
 
+exit 1 # XXX: DEBUG CODE
 banner "createuser $ME"
 
 if [ "$RUN_AS" != "$ME" ]
@@ -169,10 +170,7 @@ if ! $PSQL -c "SELECT 'No need to create a database.'"
 then
     banner "createdb $ME"
     # XXX: Can we set -EUTF8 somewhere?
-    cmd.exe /c "$CREATEDB $ME"
+    $CREATEDB "$ME"
 fi
 
 echo "Done."
-
-cmd.exe /c "tasklist /FI \"MODULES eq msys-2.0.dll\""
-cmd.exe /c "taskkill /F /FI \"MODULES eq msys-2.0.dll\""
