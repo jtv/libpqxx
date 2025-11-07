@@ -39,7 +39,7 @@ jobs:
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build
         run: |
-            ./tools/install-deps.sh ubuntu_codeql >/tmp/vars.sh
+            ./tools/install-deps.sh ubuntu_codeql clang++ >/tmp/vars.sh
             . /tmp/vars.sh
             CXXFLAGS='-O0 -std=c++20' CXX=clang++ cmake .
             make -j2
