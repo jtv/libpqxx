@@ -108,12 +108,10 @@ fi
 
 # -o passes options to initdb.
 # -o-N disables sync during init, trading restartability for speed.
-# XXX:
-# RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
-RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions"
+RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
 # TODO: Try --single?
 # -o-F disables fsync, trading restartability for speed.
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-F $SOCKDIR"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -k--single -o-F $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
@@ -137,8 +135,8 @@ then
         # Run postgres server in the background.  This is not great practice
         # but...  we're doing this for a disposable environment.
         banner "start postgres"
+	# XXX: On Windows, this causes the script to hang at exit!
         $RUN_POSTGRES
-exit 1 # XXX: DEBUG CODE
     else
         # Same thing, but "su" to postgres user.
         banner "initdb"
