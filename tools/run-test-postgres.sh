@@ -109,9 +109,8 @@ fi
 # -o passes options to initdb.
 # -o-N disables sync during init, trading restartability for speed.
 RUN_INITDB="$PGCTL init -D $PGDATA -o-Atrust -o--no-instructions -o-N"
-# TODO: Try --single?
 # -o-F disables fsync, trading restartability for speed.
-RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o--single -o-F $SOCKDIR"
+RUN_POSTGRES="$PGCTL start -D $PGDATA -l $LOG -o-F $SOCKDIR"
 RUN_CREATEUSER="$CREATEUSER -w -d $ME"
 
 
