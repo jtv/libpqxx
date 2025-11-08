@@ -26,7 +26,7 @@ set -Cue -o pipefail
 # Common case: OS package we need to install to get compiler $1.
 #
 # If $1 equals "clang++", print $2 (or "clang" by default).  If $1 equals
-# "g++", print $3 (or empty string by default).  Otherwise, fail.
+# "g++", print $3 (or "gcc" by default).  Otherwise, fail.
 compiler_pkg() {
     local compiler="$1"
     case "$1" in
@@ -34,7 +34,7 @@ compiler_pkg() {
             echo "${2:-clang}"
             ;;
         g++)
-            echo "${3:-}"
+            echo "${3:-gcc}"
             ;;
         *)
             echo >&2 "Unsupported compiler: '$compiler'."
@@ -50,7 +50,7 @@ install_archlinux() {
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
         autoconf autoconf-archive automake diffutils libtool make postgresql \
-        postgresql-libs python3 uv which $cxxpkg \
+        postgresql-libs python3 uv which "$cxxpkg" \
         >>/tmp/install.log
 
     echo "export PGHOST=/run/postgresql"
@@ -65,7 +65,7 @@ install_archlinux_lint() {
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
         cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
-        shellcheck uv which yamllint $cxxpkg >>/tmp/install.log
+        shellcheck uv which yamllint "$cxxpkg" >>/tmp/install.log
 }
 
 
@@ -80,13 +80,11 @@ install_debian() {
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake libpq-dev \
         python3 postgresql postgresql-server-dev-all libtool pipx \
-        $cxxpkg >>/tmp/install.log
+        "$cxxpkg" >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
     pipx install uv >>/tmp/install.log
-
-    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -99,7 +97,7 @@ install_fedora() {
     dnf -qy install \
         autoconf autoconf-archive automake libasan libtool libubsan \
         postgresql postgresql-devel postgresql-server python3 uv which \
-        $cxxpkg \
+        "$cxxpkg" \
         >>/tmp/install.log
 
     echo "export PGHOST=/tmp"
@@ -121,11 +119,11 @@ install_macos() {
 
 install_ubuntu_codeql() {
     local cxxpkg="$(compiler_pkg "$1")"
-    apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
+    sudo apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
 
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
+    sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
-        cmake git libpq-dev make $cxxpkg >>/tmp/install.log
+        cmake git libpq-dev make "$cxxpkg" >>/tmp/install.log
 }
 
 
@@ -138,7 +136,7 @@ install_ubuntu() {
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
         build-essential autoconf autoconf-archive automake libpq-dev python3 \
-        postgresql postgresql-server-dev-all libtool pipx $cxxpkg \
+        postgresql postgresql-server-dev-all libtool pipx "$cxxpkg" \
         >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
@@ -195,7 +193,7 @@ pacman -S \
     $arch-toolchain \
     cmake \
     ninja \
-    $cxxpkg \
+    "$cxxpkg" \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
