@@ -226,9 +226,13 @@ jobs:
           path: "/tmp/analyze.txt"
       - run:
           name: Summarise
+          # Filter out the useless nonsense in the output: number of warnings
+          # generated for system headers, and timings.
+          # Also run a "uniq" to eliminate redundant blank lines.
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
-              /tmp/analyze.txt | grep -v '^[[] .*] .*clang-tidy' | \
-              uniq -c >/tmp/errors.txt"
+              /tmp/analyze.txt | \
+              grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
+              uniq >/tmp/errors.txt"
       - store_artifacts:
           path: "/tmp/errors.txt"
 
