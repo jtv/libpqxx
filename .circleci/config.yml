@@ -61,8 +61,7 @@ jobs:
           path: postgres.log
       - run:
           name: Test
-          # XXX: DEBUG - drop the lint run.
-          command: . /tmp/vars.sh && make -j4 check && time ./tools/lint
+          command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
       - store_artifacts:
@@ -214,12 +213,13 @@ jobs:
           # tee into a file.  Bash's "output redirection" solves this neatly,
           # thanks Nick!
           #
-          # Addendum: Grrr.  Looks like the actual lint errors go to stdout,
-          # with the useless progress output, not to stderr!
+          # The actual lint errors seem to go to stdout, with the useless
+          # progress output, not to stderr.
           command: "SRC=\"$(pwd)\" && \
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
             ( \"$SRC/tools/lint\" --full > >(tee /tmp/analyze.txt >&2 ) 2>&1 )"
+          no_output_timeout: 30m
       - store_artifacts:
           path: "/tmp/analyze.txt"
       - run:

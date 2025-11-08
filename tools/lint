@@ -123,7 +123,7 @@ cpplint() {
         # overtakes the original tool, but using five times as much CPU.
         # At -j8 it actually seems to run faster than at -j16, and still with
         # "only" five times the original CPU time used.
-        run-clang-tidy -q -j8
+        run-clang-tidy -q -j8 -warnings-as-errors=*
     elif [ -e compile_flags ]
     then
         # The configure-based build writes its compiler options into this
@@ -139,7 +139,7 @@ cpplint() {
             true)"
         # shellcheck disable=SC2086,2046
         clang-tidy \
-            --quiet \
+            --quiet -warnings-as-errors=* \
             "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
             "$SRCDIR"/test/*.cxx \
             -- \

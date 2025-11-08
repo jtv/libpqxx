@@ -206,12 +206,13 @@ then
 	# In "audit," enable all runtime checks we can.
 	if test "$enable_audit" = "yes"
 	then
-		add_compiler_opts_if_ok \
+		add_compiler_opts \
 			-D_FORTIFY_SOURCE=2 \
 			-D_GLIBCXX_ASSERTIONS \
 			-D_GLIBCXX_DEBUG \
 			-D_GLIBCXX_DEBUG_PEDANTIC \
-			-D_GLIBCXX_SANITIZE_VECTOR \
+			-D_GLIBCXX_SANITIZE_VECTOR
+		add_compiler_opts_if_ok \
 			-fsanitize=address \
 			-fsanitize-address-use-after-scope \
 			-fsanitize=alignment \
@@ -240,6 +241,7 @@ then
 			-fsanitize=unreachable \
 			-fsanitize=vla-bound \
 			-fsanitize=vptr \
+			-fsanitize-trap=all \
 			-fstack-protector-all
 	fi
 
