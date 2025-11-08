@@ -2,7 +2,7 @@
 #
 # Update the libpqxx copyright strings in the current directory.
 #
-# Usage: update-copyright [year]
+# Usage: update-copyright.sh [year]
 #
 # Where "year" is the new copyright year.  Defaults to the current year.
 #

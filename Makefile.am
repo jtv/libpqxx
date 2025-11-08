@@ -7,7 +7,7 @@ MAINTAINERCLEANFILES = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
 
-TESTS = tools/lint
+TESTS = tools/lint.sh
 
 
 # Generate ChangeLog from git history.  It goes all the way back through

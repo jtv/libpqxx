@@ -28,6 +28,7 @@ set -Cue -o pipefail
 # If $1 equals "clang++", print $2 (or "clang" by default).  If $1 equals
 # "g++", print $3 (or empty string by default).  Otherwise, fail.
 compiler_pkg() {
+    local compiler="$1"
     case "$1" in
         clang++)
             echo "${2:-clang}"
@@ -44,7 +45,7 @@ compiler_pkg() {
 
 
 install_archlinux() {
-    local cxxpkg="$(compiler_pkg $1 clang gcc)"
+    local cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
@@ -57,19 +58,19 @@ install_archlinux() {
 
 
 install_archlinux_lint() {
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
 # TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
 # TODO: Set up Markdownlint (mdl).
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
-        cmake cppcheck diffutils make postgresql-libs python3 \
+        cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
         shellcheck uv which yamllint $cxxpkg >>/tmp/install.log
 }
 
 
 install_debian() {
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg "$1")"
     local pgbin
 
     apt-get -q update >>/tmp/install.log
@@ -94,7 +95,7 @@ install_debian() {
 
 
 install_fedora() {
-    local cxxpkg="$(compiler_pkg $1 clang g++)"
+    local cxxpkg="$(compiler_pkg "$1" clang g++)"
     dnf -qy install \
         autoconf autoconf-archive automake libasan libtool libubsan \
         postgresql postgresql-devel postgresql-server python3 uv which \
@@ -119,17 +120,17 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
-    local cxxpkg="$(compiler_pkg $1)"
-    sudo apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
+    local cxxpkg="$(compiler_pkg "$1")"
+    apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
 
-    sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
+    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
         cmake git libpq-dev make $cxxpkg >>/tmp/install.log
 }
 
 
 install_ubuntu() {
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg "$1")"
 
     apt-get -q update >>/tmp/install.log
 
@@ -150,10 +151,9 @@ install_ubuntu() {
 }
 
 
-# TODO: Set up CircleCI caching for package installs.
 install_windows() {
     local arch="mingw-w64-x86_64"
-    local cxxpkg="$(compiler_pkg $1)"
+    local cxxpkg="$(compiler_pkg "$1")"
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
 
@@ -205,7 +205,7 @@ pacman -S \
 }
 
 
-if [ -z "${1:-}" -o -z "${2:-}" ]
+if [ -z "${1:-}" ] || [ -z "${2:-}" ]
 then
     cat >&2 <<EOF
 Usage: $0 <profile> <compiler>
@@ -223,36 +223,36 @@ COMPILER="$2"
 
 case "$PROFILE" in
     archlinux)
-        install_archlinux $COMPILER
+        install_archlinux "$COMPILER"
         ;;
-    # Arch system, but only for the purpose of running "lint --full".
+    # Arch system, but only for the purpose of running "lint.sh --full".
     # (We only need to do that on one of the systems.)
     archlinux-lint)
-        install_archlinux_lint $COMPILER
+        install_archlinux_lint "$COMPILER"
         ;;
 
     debian)
-        install_debian $COMPILER
+        install_debian "$COMPILER"
         ;;
 
     fedora)
-        install_fedora $COMPILER
+        install_fedora "$COMPILER"
         ;;
 
     macos)
-        install_macos $COMPILER
+        install_macos "$COMPILER"
         ;;
 
     ubuntu)
-        install_ubuntu $COMPILER
+        install_ubuntu "$COMPILER"
         ;;
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
-        install_ubuntu_codeql $COMPILER
+        install_ubuntu_codeql "$COMPILER"
         ;;
 
     windows)
-        install_windows $COMPILER
+        install_windows "$COMPILER"
         ;;
 
     *)

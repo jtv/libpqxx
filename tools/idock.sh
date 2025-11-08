@@ -30,10 +30,11 @@ esac
 
 # (This trick is bash-specific.  It's surprisingly difficult in pure POSIX to
 # just get the location of the current script.)
-PQXX="$(dirname $(dirname "$BASH_SOURCE"))"
+# shellcheck disable=SC2128
+PQXX="$(dirname "$(dirname "$BASH_SOURCE")")"
 MOUNT=/mnt/pqxx
 
 echo "Running docker with '$PQXX' bind-mounted as '$MOUNT'."
 
 # The actual work.
-docker run -ti -v "$PQXX:/mnt/pqxx" $*
+docker run -ti -v "$PQXX:/mnt/pqxx" "$@"

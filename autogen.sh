@@ -3,10 +3,10 @@
 
 set -Cue
 
-PQXXVERSION=$(./tools/extract_version)
-PQXX_ABI=$(./tools/extract_version --abi)
-PQXX_MAJOR=$(./tools/extract_version --major)
-PQXX_MINOR=$(./tools/extract_version --minor)
+PQXXVERSION=$(./tools/extract_version.sh)
+PQXX_ABI=$(./tools/extract_version.sh --abi)
+PQXX_MAJOR=$(./tools/extract_version.sh --major)
+PQXX_MINOR=$(./tools/extract_version.sh --minor)
 echo "libpqxx version $PQXXVERSION"
 echo "libpqxx ABI version $PQXX_ABI"
 

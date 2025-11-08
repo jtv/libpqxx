@@ -19,7 +19,7 @@ then
 fi
 
 SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
-PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
+PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version.sh")"
 
 ARGS="${1:-}"
 
@@ -177,11 +177,13 @@ pylint() {
 
 
 shelllint() {
-    local TLS="deprecations extract_version format lint todo update-copyright"
-    uv -q run --with=shellcheck.py shellcheck "$SRCDIR/autogen.sh"
-    for s in $TLS
+    # TODO: Use system-installed shellcheck if available.
+    # TODO: Re-use uv environment.
+    # TODO: Can we check multiple scripts in one command line?
+
+    for s in $(ls "$SRCDIR"/*.sh "$SRCDIR/tools"/*.sh)
     do
-        uv -q run --with=shellcheck.py shellcheck "$SRCDIR/tools/$s"
+        uv -q run --with=shellcheck.py shellcheck "$s"
     done
 }
 
@@ -189,7 +191,7 @@ shelllint() {
 mdlint() {
   if which mdl >/dev/null
   then
-      find . -name \*.md -exec mdl -c .markdownlint.yaml '{}' '+'
+      find "$SRCDIR" -name \*.md -exec mdl -c .markdownlint.yaml '{}' '+'
   fi
 }
 

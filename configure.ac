@@ -2,7 +2,8 @@
 # package installed.  (The configure script itself does not require it though.)
 
 AC_PREREQ([2.71])
-AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version])],[Jeroen T. Vermeulen])
+AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.sh])],
+	[Jeroen T. Vermeulen])
 AC_LANG(C++)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
@@ -10,7 +11,7 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE([subdir-objects])
 
-PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
+PQXX_ABI=m4_esyscmd_s([./tools/extract_version.sh --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
