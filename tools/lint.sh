@@ -192,12 +192,12 @@ shelllint() {
 
 
 mdlint() {
-    # XXX: Re-enable.
-    # if which mdl >/dev/null
-    # then
-    #     find "$SRCDIR" -name \*.md -exec mdl -c .markdownlint.yaml '{}' '+'
-    # fi
-    echo  # XXX:
+    if which mdl >/dev/null
+    then
+        find "$SRCDIR" -name \*.md -exec \
+	    mdl -s "$SRCDIR/.mdl_style.rb" -c "$SRCDIR/.markdownlint.yaml" \
+	    '{}' '+'
+    fi
 }
 
 
