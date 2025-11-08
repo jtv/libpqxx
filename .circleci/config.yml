@@ -196,7 +196,8 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh archlinux-lint clang++ >/tmp/vars.sh"
+          command: "tools/install-deps.sh \
+              archlinux-lint clang++ >/tmp/vars.sh"
       - store_artifacts:
           path: "install.log"
       - store_artifacts:

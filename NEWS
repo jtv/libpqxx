@@ -44,6 +44,7 @@
  - `check_cast()` supports infinities and NaNs.
  - Now supporting CMake "unity builds."
  - Stop trying to figure out link options for filesystem library.
+ - Set `PQXX_LINT=skip` to skip lint checks.
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
 7.10.3

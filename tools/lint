@@ -7,8 +7,16 @@
 # Optionally, set environment variable "srcdir" to the source directory.  It
 # defaults to the parent directory of the one where this script is.  This trick
 # requires bash (or a close equivalent) as the shell.
+#
+# Set PQXX_LINT=skip to suppress lint checks.
 
 set -Cue -o pipefail
+
+if [ "${PQXX_LINT:-}" = "skip" ]
+then
+    echo "PQXX_LINT is set to 'skip'.  Skipping lint check."
+    exit 0
+fi
 
 SRCDIR="${srcdir:-$(dirname "${BASH_SOURCE[0]}")/..}"
 PQXXVERSION="$(cd "$SRCDIR" && "$SRCDIR/tools/extract_version")"
@@ -233,4 +241,5 @@ EOF
 }
 
 
-main
+# XXX: The "time" is just for optimisation.  Dispose of it after.
+time main

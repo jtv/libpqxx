@@ -286,3 +286,16 @@ esac
 
 echo "PGDATA=/tmp/db"
 echo "export PGDATA"
+
+# Skip routine lint check except in the actual lint run.
+case "$PROFILE" in
+    *lint)
+        # We're doing a lint check, which is actually the default.
+	# But we only need 1 job per run to do this.
+        ;;
+    *)
+        # Regular job.  Skip redundant lint check.
+        echo "PQXX_LINT=skip"
+	echo "export PQXX_LINT"
+        ;;
+esac
