@@ -103,7 +103,8 @@ install_fedora() {
     local cxxpkg="$(compiler_pkg $1 clang g++)"
     dnf -qy install \
         autoconf autoconf-archive automake libasan libtool libubsan \
-        postgresql postgresql-devel postgresql-server uv which $cxxpkg \
+        postgresql postgresql-devel postgresql-server python3 uv which \
+        $cxxpkg \
         >>/tmp/install.log
 
     echo "PGHOST=/tmp"
