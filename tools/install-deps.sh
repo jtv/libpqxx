@@ -20,7 +20,7 @@
 #
 # It also logs package installation to /tmp/install.log.
 
-# TODO: Install only whichever compiler we're going to run.  Save some time.
+# XXX: POSIX allows convenient "export A=1 B=2 C=3".
 
 set -Cue -o pipefail
 
@@ -32,15 +32,15 @@ set -Cue -o pipefail
 compiler_pkg() {
     case "$1" in
         clang++)
-	    echo "${2:-clang}"
-	    ;;
+            echo "${2:-clang}"
+            ;;
         g++)
-	    echo "${3:-}"
-	    ;;
-	*)
-	    echo >&2 "Unsupported compiler: '$compiler'."
-	    exit 1
-	    ;;
+            echo "${3:-}"
+            ;;
+        *)
+            echo >&2 "Unsupported compiler: '$compiler'."
+            exit 1
+            ;;
     esac
 }
 
@@ -50,9 +50,9 @@ install_archlinux() {
 
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
-        autoconf autoconf-archive automake cmake cppcheck diffutils \
-        libtool make postgresql postgresql-libs python3 shellcheck uv \
-        which yamllint $cxxpkg >>/tmp/install.log
+        autoconf autoconf-archive automake diffutils libtool make postgresql \
+        postgresql-libs python3 uv which $cxxpkg \
+        >>/tmp/install.log
 
     echo "PGHOST=/run/postgresql"
     echo "export PGHOST"
@@ -63,6 +63,7 @@ install_archlinux_lint() {
     local cxxpkg="$(compiler_pkg $1)"
 
 # TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
+# TODO: Set up Markdownlint (mdl).
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
         cmake cppcheck diffutils make postgresql-libs python3 \
@@ -79,9 +80,9 @@ install_debian() {
     # Really annoying: there's no package for uv as of yet, so we need to
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
-        python3 postgresql postgresql-server-dev-all shellcheck libtool pipx \
-	yamllint $cxxpkg >>/tmp/install.log
+        build-essential autoconf autoconf-archive automake libpq-dev \
+        python3 postgresql postgresql-server-dev-all libtool pipx \
+        $cxxpkg >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -101,17 +102,12 @@ install_debian() {
 install_fedora() {
     local cxxpkg="$(compiler_pkg $1 clang g++)"
     dnf -qy install \
-        autoconf autoconf-archive automake cppcheck libasan libtool libubsan \
-        postgresql postgresql-devel postgresql-server shellcheck uv which \
-        yamllint $cxxpkg \
+        autoconf autoconf-archive automake libasan libtool libubsan \
+        postgresql postgresql-devel postgresql-server uv which $cxxpkg \
         >>/tmp/install.log
 
     echo "PGHOST=/tmp"
     echo "export PGHOST"
-
-    # I haven't found a curated package for Markdownlint (mdl) on Fedora.
-    # That's fine: we run it on the other systems.  Just stub it out.
-    echo "alias mdl='echo mdl'"
 }
 
 
@@ -120,8 +116,9 @@ install_macos() {
     local pg_ver=18
 
     brew install --quiet \
-        autoconf autoconf-archive automake cppcheck libtool \
-	postgresql@$pg_ver shellcheck uv yamllint libpq >>/tmp/install.log
+        autoconf autoconf-archive automake libtool postgresql@$pg_ver uv \
+        libpq \
+        >>/tmp/install.log
 
     echo "PGHOST=/tmp"
     echo "export PGHOST"
@@ -151,9 +148,9 @@ install_ubuntu() {
     # Really annoying: there's no package for uv as of yet, so we need to
     # install pipx just so we can use that to install uv.
     DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake cppcheck libpq-dev \
-        markdownlint python3 postgresql postgresql-server-dev-all shellcheck \
-        libtool pipx yamllint $cxxpkg >>/tmp/install.log
+        build-essential autoconf autoconf-archive automake libpq-dev python3 \
+        postgresql postgresql-server-dev-all libtool pipx $cxxpkg \
+        >>/tmp/install.log
 
     # We need pipx only to install uv.  :-(
     # TODO: Once uv has been packaged, get rid of pipx.
@@ -291,11 +288,11 @@ echo "export PGDATA"
 case "$PROFILE" in
     *lint)
         # We're doing a lint check, which is actually the default.
-	# But we only need 1 job per run to do this.
+        # But we only need 1 job per run to do this.
         ;;
     *)
         # Regular job.  Skip redundant lint check.
         echo "PQXX_LINT=skip"
-	echo "export PQXX_LINT"
+        echo "export PQXX_LINT"
         ;;
 esac
