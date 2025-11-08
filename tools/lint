@@ -241,5 +241,4 @@ EOF
 }
 
 
-# XXX: The "time" is just for optimisation.  Dispose of it after.
-time main
+main
