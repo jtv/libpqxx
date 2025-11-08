@@ -15,7 +15,8 @@ void test_composite()
   int a{};
   std::string b;
   pqxx::parse_composite(
-    pqxx::conversion_context{pqxx::encoding_group::monobyte}, f.view(), a, b);
+    pqxx::conversion_context{pqxx::encoding_group::ascii_safe}, f.view(), a,
+    b);
 
   PQXX_CHECK_EQUAL(a, 5);
   PQXX_CHECK_EQUAL(b, "hello");
@@ -31,7 +32,7 @@ void test_composite_escapes()
 
   pqxx::row r;
   r = tx.exec(R"--(SELECT '("a""b")'::pqxxsingle)--").one_row();
-  pqxx::conversion_context const ctx{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const ctx{pqxx::encoding_group::ascii_safe};
   pqxx::parse_composite(ctx, r[0].view(), s);
   PQXX_CHECK_EQUAL(
     s, "a\"b", "Double-double-quotes escaping did not parse correctly.");
@@ -51,7 +52,7 @@ void test_composite_handles_nulls()
   tx.exec("CREATE TYPE pqxxnull AS (a integer)").no_rows();
   int nonnull{};
   r = tx.exec("SELECT '()'::pqxxnull").one_row();
-  pqxx::conversion_context const ctx{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const ctx{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_THROWS(
     pqxx::parse_composite(ctx, r[0].view(), nonnull), pqxx::conversion_error);
   std::optional<int> nullable{5};

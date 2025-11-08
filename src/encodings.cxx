@@ -66,7 +66,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
     case 'E':
       // All the EUC encodings are ASCII-safe.
       if (encoding_name.starts_with("EUC_"sv))
-        return encoding_group::monobyte;
+        return encoding_group::ascii_safe;
       break;
     case 'G':
       if (same(encoding_name, "GB18030"sv))
@@ -75,14 +75,15 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         return encoding_group::gbk;
       break;
     case 'I':
-      // We know iso-8859-X, where 5 <= X < 9.  They're all monobyte encodings.
+      // We know iso-8859-X, where 5 <= X < 9.  They're all single-byte
+      // encodings, and therefore ASCII-safe.
       if (
         (std::size(encoding_name) == 10) and
         encoding_name.starts_with("ISO_8859_"sv))
       {
         char const subtype{encoding_name[9]};
         if (('5' <= subtype) and (subtype < '9'))
-          return encoding_group::monobyte;
+          return encoding_group::ascii_safe;
       }
       break;
     case 'J':
@@ -91,7 +92,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       break;
     case 'K':
       if (same(encoding_name, "KOI8R"sv) or same(encoding_name, "KOI8U"sv))
-        return encoding_group::monobyte;
+        return encoding_group::ascii_safe;
       break;
     case 'L':
       // We know LATIN1 through LATIN10.
@@ -102,17 +103,17 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         {
           char const n{subtype[0]};
           if (('1' <= n) and (n <= '9'))
-            return encoding_group::monobyte;
+            return encoding_group::ascii_safe;
         }
         else if (same(subtype, "10"sv))
         {
-          return encoding_group::monobyte;
+          return encoding_group::ascii_safe;
         }
       }
       break;
     case 'M':
       if (same(encoding_name, "MULE_INTERNAL"sv))
-        return encoding_group::monobyte;
+        return encoding_group::ascii_safe;
       break;
     case 'S':
       if (same(encoding_name, "SHIFT_JIS_2004"sv))
@@ -120,13 +121,13 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       else if (same(encoding_name, "SJIS"sv))
         return encoding_group::sjis;
       else if (same(encoding_name, "SQL_ASCII"sv))
-        return encoding_group::monobyte;
+        return encoding_group::ascii_safe;
       break;
     case 'U':
       if (same(encoding_name, "UHC"sv))
         return encoding_group::uhc;
       else if (same(encoding_name, "UTF8"sv)) [[likely]]
-        return encoding_group::monobyte;
+        return encoding_group::ascii_safe;
       break;
     case 'W':
       if (same(encoding_name.substr(0, 3), "WIN"sv))
@@ -134,7 +135,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         auto const subtype{encoding_name.substr(3)};
         for (auto const n : windows_subtypes)
           if (same(n, subtype))
-            return encoding_group::monobyte;
+            return encoding_group::ascii_safe;
       }
       break;
     default: break;
@@ -147,57 +148,82 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
 // Compile-time tests.  (Conditional so as not to slow down production builds.)
 #if defined(DEBUG)
 static_assert(enc_group("BIG5", sl::current()) == encoding_group::big5);
-static_assert(enc_group("EUC_CN", sl::current()) == encoding_group::monobyte);
 static_assert(
-  enc_group("EUC_JIS_2004", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("EUC_JP", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("EUC_KR", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("EUC_TW", sl::current()) == encoding_group::monobyte);
+  enc_group("EUC_CN", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("EUC_JIS_2004", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("EUC_JP", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("EUC_KR", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("EUC_TW", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("GB18030", sl::current()) == encoding_group::gb18030);
 static_assert(enc_group("GBK", sl::current()) == encoding_group::gbk);
 static_assert(
-  enc_group("ISO_8859_1", sl::current()) == encoding_group::monobyte);
+  enc_group("ISO_8859_1", sl::current()) == encoding_group::ascii_safe);
 static_assert(
-  enc_group("ISO_8859_2", sl::current()) == encoding_group::monobyte);
+  enc_group("ISO_8859_2", sl::current()) == encoding_group::ascii_safe);
 static_assert(
-  enc_group("ISO_8859_3", sl::current()) == encoding_group::monobyte);
+  enc_group("ISO_8859_3", sl::current()) == encoding_group::ascii_safe);
 static_assert(
-  enc_group("ISO_8859_4", sl::current()) == encoding_group::monobyte);
+  enc_group("ISO_8859_4", sl::current()) == encoding_group::ascii_safe);
 static_assert(
-  enc_group("ISO_8859_5", sl::current()) == encoding_group::monobyte);
+  enc_group("ISO_8859_5", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("JOHAB", sl::current()) == encoding_group::johab);
-static_assert(enc_group("KOI8R", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("KOI8U", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN1", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN2", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN3", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN4", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN5", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN6", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN7", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN8", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN9", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("LATIN10", sl::current()) == encoding_group::monobyte);
+static_assert(enc_group("KOI8R", sl::current()) == encoding_group::ascii_safe);
+static_assert(enc_group("KOI8U", sl::current()) == encoding_group::ascii_safe);
 static_assert(
-  enc_group("MULE_INTERNAL", sl::current()) == encoding_group::monobyte);
+  enc_group("LATIN1", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN2", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN3", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN4", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN5", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN6", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN7", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN8", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN9", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("LATIN10", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("MULE_INTERNAL", sl::current()) == encoding_group::ascii_safe);
 static_assert(
   enc_group("SHIFT_JIS_2004", sl::current()) == encoding_group::sjis);
 static_assert(enc_group("SJIS", sl::current()) == encoding_group::sjis);
 static_assert(
-  enc_group("SQL_ASCII", sl::current()) == encoding_group::monobyte);
+  enc_group("SQL_ASCII", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("UHC", sl::current()) == encoding_group::uhc);
-static_assert(enc_group("UTF8", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN866", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN874", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1250", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1251", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1252", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1253", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1254", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1255", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1256", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1257", sl::current()) == encoding_group::monobyte);
-static_assert(enc_group("WIN1258", sl::current()) == encoding_group::monobyte);
+static_assert(enc_group("UTF8", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN866", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN874", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1250", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1251", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1252", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1253", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1254", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1255", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1256", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1257", sl::current()) == encoding_group::ascii_safe);
+static_assert(
+  enc_group("WIN1258", sl::current()) == encoding_group::ascii_safe);
 #endif // DEBUG
 
 

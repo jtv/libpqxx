@@ -51,7 +51,7 @@ enum class encoding_group
    * This property makes encodings very efficient to parse: to find the next
    * character (if any), just move to the next byte.
    */
-  monobyte,
+  ascii_safe,
 
   /// Non-ASCII-safe: Big5 for Traditional Chinese.
   big5,

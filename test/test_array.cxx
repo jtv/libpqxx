@@ -291,7 +291,7 @@ void test_nested_array_with_multiple_entries()
 
 void test_generate_empty_array()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}, c), "{}");
   PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>{}, c), "{}");
 }
@@ -299,7 +299,7 @@ void test_generate_empty_array()
 
 void test_generate_null_value()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<char const *>{nullptr}, c), "{NULL}");
 }
@@ -307,7 +307,7 @@ void test_generate_null_value()
 
 void test_generate_single_item()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{42}, c), "{42}");
 
   PQXX_CHECK_EQUAL(
@@ -317,7 +317,7 @@ void test_generate_single_item()
 
 void test_generate_multiple_items()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<int>{5, 4, 3, 2}, c), "{5,4,3,2}");
   PQXX_CHECK_EQUAL(
@@ -328,7 +328,7 @@ void test_generate_multiple_items()
 
 void test_generate_nested_array()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}, c),
     "{{1,2},{3,4}}");
@@ -337,7 +337,7 @@ void test_generate_nested_array()
 
 void test_generate_escaped_strings()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"a\\b"}, c), "{\"a\\\\b\"}",
     "Backslashes are not escaped properly.");
@@ -349,7 +349,7 @@ void test_generate_escaped_strings()
 
 void test_array_generate_empty_strings()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::monobyte};
+  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
 
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
   PQXX_CHECK_EQUAL(
@@ -476,7 +476,7 @@ pqxx::conversion_context make_context(
 
 void test_array_parses_real_arrays()
 {
-  auto const mono{pqxx::encoding_group::monobyte};
+  auto const mono{pqxx::encoding_group::ascii_safe};
 
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -689,68 +689,68 @@ void test_scan_double_quoted_string()
 
   // TODO: Use static_assert() once Visual Studio handles it.
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("")", 0u, here()),
     2u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"(""z)", 0u, here()),
     2u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"(x="")", 2u, here()),
     4u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"(x=""z)", 2u, here()),
     4u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("x")", 0u, here()),
     3u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("x"z)", 0u, here()),
     3u);
   PQXX_CHECK_THROWS(
-    (pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    (pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("foo)", 0u, here())),
     pqxx::argument_error,
     "Double-quoted string scan did not detect missing closing quote.");
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       "\"x\\\"y\"", 0u, here()),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       "\"x\\\"y\"z\"", 0u, here()),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("x\\y")", 0u, here()),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("x""y")", 0u, here()),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("x""y"z)", 0u, here()),
     6u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       "\"\\\\\\\"\"\"\"", 0u, here()),
     8u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       "a\"\\\\\\\"\"\"\"", 1u, here()),
     9u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"("""")", 0u, here()),
     4u);
   PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::monobyte>(
+    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
       R"(""""z)", 0u, here()),
     4u);
 

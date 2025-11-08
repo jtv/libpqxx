@@ -136,7 +136,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 } // namespace
 
 
-template<> struct glyph_scanner<encoding_group::monobyte> final
+template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
   static PQXX_PURE constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
@@ -397,9 +397,9 @@ get_char_finder(encoding_group enc, sl loc)
 {
   switch (enc)
   {
-  case encoding_group::monobyte:
+  case encoding_group::ascii_safe:
     return pqxx::internal::find_ascii_char<
-      encoding_group::monobyte, NEEDLE...>;
+      encoding_group::ascii_safe, NEEDLE...>;
   case encoding_group::big5:
     return pqxx::internal::find_ascii_char<encoding_group::big5, NEEDLE...>;
   case encoding_group::gb18030:

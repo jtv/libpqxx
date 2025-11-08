@@ -145,7 +145,7 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
     throw usage_error{
       "Tried to parse array without knowing its encoding.", loc};
 
-    PQXX_ENCODING_CASE(monobyte);
+    PQXX_ENCODING_CASE(ascii_safe);
     PQXX_ENCODING_CASE(big5);
     PQXX_ENCODING_CASE(gb18030);
     PQXX_ENCODING_CASE(gbk);

@@ -64,7 +64,7 @@ find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 
   // Marker for the end of the last "useful" character in the query.
   std::size_t end{};
-  if (enc == pqxx::encoding_group::monobyte)
+  if (enc == pqxx::encoding_group::ascii_safe)
   {
     // This is an encoding where we can just scan backwards from the end.
     for (end = size; end > 0 and useless_trail(query[end - 1]); --end);
@@ -103,14 +103,15 @@ consteval auto check_query_end(
 }
 
 
-static_assert(check_query_end(pqxx::encoding_group::monobyte, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::monobyte, " ( ; ) ") == 6);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "? ; ") == 1);
+static_assert(
+  check_query_end(pqxx::encoding_group::ascii_safe, " ( ; ) ") == 6);
 
 static_assert(check_query_end(pqxx::encoding_group::big5, "") == 0);
 static_assert(check_query_end(pqxx::encoding_group::big5, ";  ") == 0);

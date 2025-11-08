@@ -80,7 +80,7 @@ public:
       throw usage_error{
         "Tried to parse array without knowing its encoding.", loc};
 
-    case group::monobyte: parse<group::monobyte>(data, loc); break;
+    case group::ascii_safe: parse<group::ascii_safe>(data, loc); break;
     case group::big5: parse<group::big5>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
     case group::gbk: parse<group::gbk>(data, loc); break;
@@ -641,7 +641,7 @@ public:
    */
   [[deprecated("Use pqxx::array instead.")]]
   explicit array_parser(
-    std::string_view input, encoding_group = encoding_group::monobyte);
+    std::string_view input, encoding_group = encoding_group::ascii_safe);
 
   /// Parse the next step in the array.
   /** Returns what it found.  If the juncture is @ref juncture::string_value,

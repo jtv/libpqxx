@@ -331,8 +331,8 @@ specialize_parse_composite_field(conversion_context const &c)
       "Tried to parse array/composite without knowing its text encoding.",
       c.loc};
 
-  case encoding_group::monobyte:
-    return parse_composite_field<encoding_group::monobyte>;
+  case encoding_group::ascii_safe:
+    return parse_composite_field<encoding_group::ascii_safe>;
   case encoding_group::big5:
     return parse_composite_field<encoding_group::big5>;
   case encoding_group::gb18030:

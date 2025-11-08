@@ -15,7 +15,7 @@ pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
 void test_find_chars()
 {
   auto finder{pqxx::internal::get_char_finder<'.', '!', '?'>(
-    pqxx::encoding_group::monobyte, loc())};
+    pqxx::encoding_group::ascii_safe, loc())};
 
   PQXX_CHECK_EQUAL(finder("", 0, loc()), 0u);
   PQXX_CHECK_EQUAL(finder("...", 0, loc()), 0u);
