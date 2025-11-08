@@ -219,6 +219,8 @@ jobs:
             . /tmp/vars.sh && \
             cd /tmp/pqxx && \
             ( \"$SRC/tools/lint\" --full > >(tee /tmp/analyze.txt >&2 ) 2>&1 )"
+          # The "tee" holds up output for a long time, causing the CI to call a
+          # timeout after 10 minutes and kill our job.  Request an extension.
           no_output_timeout: 30m
       - store_artifacts:
           path: "/tmp/analyze.txt"
@@ -229,8 +231,6 @@ jobs:
               uniq -c >/tmp/errors.txt"
       - store_artifacts:
           path: "/tmp/errors.txt"
-      - run:  # XXX: DEBUG
-          command: time ./tools/lint
 
 workflows:
   all-tests:

@@ -212,6 +212,7 @@ private:
 
       // Beginning of the next character of interest (or the end of the line).
       auto const stop_char{m_char_finder(line, offset, loc)};
+      // XXX: This doesn't always hold true!
       PQXX_ASSUME(stop_char > offset);
       assert(stop_char < (line_size + 1));
 

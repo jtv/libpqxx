@@ -213,6 +213,7 @@ then
 			-D_GLIBCXX_DEBUG_PEDANTIC \
 			-D_GLIBCXX_SANITIZE_VECTOR
 		add_compiler_opts_if_ok \
+			-fno-sanitize-recover=all \
 			-fsanitize=address \
 			-fsanitize-address-use-after-scope \
 			-fsanitize=alignment \
@@ -241,7 +242,6 @@ then
 			-fsanitize=unreachable \
 			-fsanitize=vla-bound \
 			-fsanitize=vptr \
-			-fsanitize-trap=all \
 			-fstack-protector-all
 	fi
 
