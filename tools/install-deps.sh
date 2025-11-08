@@ -45,7 +45,8 @@ compiler_pkg() {
 
 
 install_archlinux() {
-    local cxxpkg="$(compiler_pkg "$1" clang gcc)"
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     pacman --quiet --noconfirm -Sy >>/tmp/install.log
     pacman --quiet --noconfirm -S \
@@ -58,7 +59,8 @@ install_archlinux() {
 
 
 install_archlinux_lint() {
-    local cxxpkg="$(compiler_pkg "$1" clang gcc)"
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
 # TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
 # TODO: Set up Markdownlint (mdl).
@@ -70,21 +72,23 @@ install_archlinux_lint() {
 
 
 install_debian() {
-    local cxxpkg="$(compiler_pkg "$1")"
-    local pgbin
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1")"
 
-    apt-get -q update >>/tmp/install.log
+    (
+        apt-get -q update
 
-    # Really annoying: there's no package for uv as of yet, so we need to
-    # install pipx just so we can use that to install uv.
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake libpq-dev \
-        python3 postgresql postgresql-server-dev-all libtool pipx \
-        "$cxxpkg" >>/tmp/install.log
+        # Really annoying: there's no package for uv as of yet, so we need to
+        # install pipx just so we can use that to install uv.
+        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+            build-essential autoconf autoconf-archive automake libpq-dev \
+            python3 postgresql postgresql-server-dev-all libtool pipx \
+            "$cxxpkg"
 
-    # We need pipx only to install uv.  :-(
-    # TODO: Once uv has been packaged, get rid of pipx.
-    pipx install uv >>/tmp/install.log
+        # We need pipx only to install uv.  :-(
+        # TODO: Once uv has been packaged, get rid of pipx.
+        pipx install uv
+    ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -93,7 +97,8 @@ install_debian() {
 
 
 install_fedora() {
-    local cxxpkg="$(compiler_pkg "$1" clang g++)"
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1" clang g++)"
     dnf -qy install \
         autoconf autoconf-archive automake libasan libtool libubsan \
         postgresql postgresql-devel postgresql-server python3 uv which \
@@ -118,30 +123,34 @@ install_macos() {
 
 
 install_ubuntu_codeql() {
-    local cxxpkg="$(compiler_pkg "$1")"
-    sudo apt-get -q -o DPkg::Lock::Timeout=120 update >>/tmp/install.log
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1")"
+    sudo apt-get -q -o DPkg::Lock::Timeout=120 update 2>&1 |
+        sudo tee -a /tmp/install.log
 
     sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
         -q install -y -o DPkg::Lock::Timeout=120 \
-        cmake git libpq-dev make "$cxxpkg" >>/tmp/install.log
+        cmake git libpq-dev make "$cxxpkg" 2>&1 | sudo tee -a /tmp/install.log
 }
 
 
 install_ubuntu() {
-    local cxxpkg="$(compiler_pkg "$1")"
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1")"
 
-    apt-get -q update >>/tmp/install.log
+    (
+        apt-get -q update
 
-    # Really annoying: there's no package for uv as of yet, so we need to
-    # install pipx just so we can use that to install uv.
-    DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
-        build-essential autoconf autoconf-archive automake libpq-dev python3 \
-        postgresql postgresql-server-dev-all libtool pipx "$cxxpkg" \
-        >>/tmp/install.log
+        # Really annoying: there's no package for uv as of yet, so we need to
+        # install pipx just so we can use that to install uv.
+        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+            build-essential autoconf autoconf-archive automake libpq-dev \
+	    python3 postgresql postgresql-server-dev-all libtool pipx "$cxxpkg"
 
-    # We need pipx only to install uv.  :-(
-    # TODO: Once uv has been packaged, get rid of pipx.
-    pipx install uv >>/tmp/install.log
+        # We need pipx only to install uv.  :-(
+        # TODO: Once uv has been packaged, get rid of pipx.
+        pipx install uv
+    ) >>/tmp/install.log
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -151,10 +160,11 @@ install_ubuntu() {
 
 install_windows() {
     local arch="mingw-w64-x86_64"
-    local cxxpkg="$(compiler_pkg "$1")"
+    local cxxpkg
     local msys="/C/tools/msys64"
     local mingw="$msys/mingw64"
 
+    cxxpkg="$(compiler_pkg "$1")"
     if [ -n "$cxxpkg" ]
     then
         cxxpkg="$arch-$cxxpkg"
@@ -193,7 +203,7 @@ pacman -S \
     $arch-toolchain \
     cmake \
     ninja \
-    "$cxxpkg" \
+    $cxxpkg \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
