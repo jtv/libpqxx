@@ -177,15 +177,19 @@ pylint() {
 
 
 shelllint() {
-    # TODO: Use system-installed shellcheck if available.
+    local cmd
+
+    if which shellcheck >/dev/null
+    then
+        cmd="shellcheck"
+    else
+        cmd="uv -q run --with=shellcheck.py shellcheck"
+    fi
+
     # TODO: Re-use uv environment.
     # TODO: Can we check multiple scripts in one command line?
-    # XXX: Re-enable.
-    # for s in $(ls "$SRCDIR"/*.sh "$SRCDIR/tools"/*.sh)
-    # do
-    #     uv -q run --with=shellcheck.py shellcheck "$s"
-    # done
-    echo  # XXX:
+    # shellcheck disable=SC2086
+    find "$SRCDIR/tools" -name '*.sh' -exec $cmd '{}' ';'
 }
 
 

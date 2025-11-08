@@ -37,7 +37,7 @@ RUN_AS="${1:-$ME}"
 
 mkdir -p -- "$PGDATA" "$PGHOST"
 
-if [ -d /run -a ! -d /run/postgresql ]
+if [ -d /run ] && [ ! -d /run/postgresql ]
 then
     MAKE_RUN=yes
     mkdir -p /run/postgresql
@@ -50,12 +50,12 @@ then
     chmod a+w $LOG
 
     # Assuming privileges.
-    chown $RUN_AS -- "$PGDATA" "$PGHOST"
+    chown "$RUN_AS" -- "$PGDATA" "$PGHOST"
 
     if [ "${MAKE_RUN:-no}" = "yes" ]
     then
         # Assuming privileges.
-        chown $RUN_AS /run/postgresql
+        chown "$RUN_AS" /run/postgresql
     fi
 fi
 
@@ -68,18 +68,18 @@ add_version_suffix() {
     local executable="$1"
     local suffixed="$executable-$ver"
 
-    if [ -n "$ver" -a -x "$suffixed" ]
+    if [ -n "$ver" ] && [ -x "$suffixed" ]
     then
-        echo $suffixed
+        echo "$suffixed"
     else
-        echo $executable
+        echo "$executable"
     fi
 }
 
 
 # Add optional path & release suffix to a postgres binary's name.
 adorn_bin() {
-    echo $(add_version_suffix "${PGBIN:-}$1")
+    add_version_suffix "${PGBIN:-}$1"
 }
 
 
@@ -161,7 +161,7 @@ then
     # TODO: Better check for role presence.
     if ! $PSQL --host="$PGHOST" -c "SELECT 'New database user can log in.'"
     then
-        su $RUN_AS -c "$RUN_CREATEUSER"
+        su "$RUN_AS" -c "$RUN_CREATEUSER"
     fi
 fi
 

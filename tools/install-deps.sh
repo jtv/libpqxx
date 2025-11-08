@@ -125,12 +125,13 @@ install_macos() {
 install_ubuntu_codeql() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1")"
-    sudo apt-get -q -o DPkg::Lock::Timeout=120 update 2>&1 |
-        sudo tee -a /tmp/install.log
-
-    sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
-        -q install -y -o DPkg::Lock::Timeout=120 \
-        cmake git libpq-dev make "$cxxpkg" 2>&1 | sudo tee -a /tmp/install.log
+    (
+        sudo apt-get -q -o DPkg::Lock::Timeout=120 update
+        sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
+            -q install -y -o DPkg::Lock::Timeout=120 \
+            cmake git libpq-dev make \
+	    "$cxxpkg"
+    ) >>/tmp/install.log
 }
 
 
@@ -205,7 +206,7 @@ pacman -S \
     ninja \
     $cxxpkg \
     --noconfirm
-" 2>&1 | tee -a install.log >&2
+" | tee -a install.log >&2
 
     echo "export PGHOST=localhost"
     echo "export PATH='$PATH'"
