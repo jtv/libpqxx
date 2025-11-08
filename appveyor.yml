@@ -3,6 +3,16 @@
 version: "1.0.{build}"
 image: "Visual Studio 2022"
 
+shallow_clone: true
+
+# AppVeyor seems to build every push to a branch with a PR twice: once for the
+# branch, once for the PR.  Suppress that.  Especially when combining with
+# rolling builds, because it means that one of those gets instantly cancelled,
+# which means a "build failure" because it didn't complete.
+branches:
+  only:
+    - master
+
 # TODO: Do we really have to spell out the postgres version in 3 places?
 services: postgresql15
 install:
@@ -34,3 +44,6 @@ test_script:
       $env:PGUSER = "postgres" ;
       $env:PGPASSWORD = "Password12!" ;
       .\\test\\Release\\runner.exe
+
+# Don't notify.  The Github PR will have a status indicator.
+notifications:
