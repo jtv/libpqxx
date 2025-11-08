@@ -211,9 +211,11 @@ private:
       assert(lp[offset] != '\0');
 
       // Beginning of the next character of interest (or the end of the line).
+      // It may be right where we start searching, and this won't loop forever
+      // since the previous iteration (if any) put us right _after_ the
+      // previous character of interest.
       auto const stop_char{m_char_finder(line, offset, loc)};
-      // XXX: This doesn't always hold true!
-      PQXX_ASSUME(stop_char > offset);
+      PQXX_ASSUME(stop_char >= offset);
       assert(stop_char < (line_size + 1));
 
       // Copy the text we have so far.  It's got no special characters in it.
@@ -233,6 +235,10 @@ private:
         // The database will only escape ASCII characters, so we assume that
         // we're dealing with a single-byte character.
         char const escaped{lp[offset]};
+
+        // I think this is a valid way to check for the high bit: the shift
+        // may be signed or unsigned (implementation-defined for char), but
+        // either way we get a zero if the bit is clear or nonzero if it's set.
         assert((escaped >> 7) == 0);
         ++offset;
         *write++ = unescape_char(escaped);
