@@ -225,9 +225,12 @@ jobs:
       - run:
           name: Summarise
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
-              /tmp/analyze.txt | uniq -c >/tmp/errors.txt"
+              /tmp/analyze.txt | grep -v '^[[] .*] .*clang-tidy' | \
+              uniq -c >/tmp/errors.txt"
       - store_artifacts:
           path: "/tmp/errors.txt"
+      - run:  # XXX: DEBUG
+          command: time ./tools/lint
 
 workflows:
   all-tests:
