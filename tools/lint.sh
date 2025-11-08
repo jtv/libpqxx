@@ -186,10 +186,8 @@ shelllint() {
         cmd="uv -q run --with=shellcheck.py shellcheck"
     fi
 
-    # TODO: Re-use uv environment.
-    # TODO: Can we check multiple scripts in one command line?
     # shellcheck disable=SC2086
-    find "$SRCDIR/tools" -name '*.sh' -exec $cmd '{}' ';'
+    find "$SRCDIR/tools" -name '*.sh' -exec $cmd '{}' '+'
 }
 
 
