@@ -20,8 +20,6 @@
 #
 # It also logs package installation to /tmp/install.log.
 
-# XXX: POSIX allows convenient "export A=1 B=2 C=3".
-
 set -Cue -o pipefail
 
 
@@ -54,8 +52,7 @@ install_archlinux() {
         postgresql-libs python3 uv which $cxxpkg \
         >>/tmp/install.log
 
-    echo "PGHOST=/run/postgresql"
-    echo "export PGHOST"
+    echo "export PGHOST=/run/postgresql"
 }
 
 
@@ -90,12 +87,9 @@ install_debian() {
 
     pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
 
-    echo "PGHOST=/tmp"
-    echo "export PGHOST"
-    echo "PATH='$PATH:$HOME/.local/bin'"
-    echo "export PATH"
-    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
-    echo "export PGBIN"
+    echo "export PGHOST=/tmp"
+    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
 }
 
 
@@ -107,8 +101,7 @@ install_fedora() {
         $cxxpkg \
         >>/tmp/install.log
 
-    echo "PGHOST=/tmp"
-    echo "export PGHOST"
+    echo "export PGHOST=/tmp"
 }
 
 
@@ -121,12 +114,7 @@ install_macos() {
         libpq \
         >>/tmp/install.log
 
-    echo "PGHOST=/tmp"
-    echo "export PGHOST"
-    echo "PGBIN='/opt/homebrew/bin/'"
-    echo "export PGBIN"
-    echo PGVER=$pg_ver
-    echo "export PGVER"
+    echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
 }
 
 
@@ -142,7 +130,6 @@ install_ubuntu_codeql() {
 
 install_ubuntu() {
     local cxxpkg="$(compiler_pkg $1)"
-    local pgbin
 
     apt-get -q update >>/tmp/install.log
 
@@ -157,14 +144,9 @@ install_ubuntu() {
     # TODO: Once uv has been packaged, get rid of pipx.
     pipx install uv >>/tmp/install.log
 
-    pgbin="$(ls -d /usr/lib/postgresql/*/bin)"
-
-    echo "PGHOST=/tmp"
-    echo "export PGHOST"
-    echo "PATH='$PATH:$HOME/.local/bin'"
-    echo "export PATH"
-    echo "PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
-    echo "export PGBIN"
+    echo "export PGHOST=/tmp"
+    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
 }
 
 
@@ -217,12 +199,9 @@ pacman -S \
     --noconfirm
 " 2>&1 | tee -a install.log >&2
 
-    echo "PGHOST=localhost"
-    echo "export PGHOST"
-    echo "PATH='$PATH'"
-    echo "export PATH"
-    echo "PGBIN='$mingw/bin/'"
-    echo "export PGBIN"
+    echo "export PGHOST=localhost"
+    echo "export PATH='$PATH'"
+    echo "export PGBIN='$mingw/bin/'"
 }
 
 
@@ -282,8 +261,7 @@ case "$PROFILE" in
         ;;
 esac
 
-echo "PGDATA=/tmp/db"
-echo "export PGDATA"
+echo "export PGDATA=/tmp/db"
 
 # Skip routine lint check except in the actual lint run.
 case "$PROFILE" in
@@ -293,7 +271,6 @@ case "$PROFILE" in
         ;;
     *)
         # Regular job.  Skip redundant lint check.
-        echo "PQXX_LINT=skip"
-        echo "export PQXX_LINT"
+        echo "export PQXX_LINT=skip"
         ;;
 esac
