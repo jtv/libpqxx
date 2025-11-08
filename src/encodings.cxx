@@ -124,7 +124,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
         return encoding_group::ascii_safe;
       break;
     case 'U':
-      if (same(encoding_name, "UHC"sv))
+      [[likely]] if (same(encoding_name, "UHC"sv))
         return encoding_group::uhc;
       else if (same(encoding_name, "UTF8"sv)) [[likely]]
         return encoding_group::ascii_safe;
@@ -140,7 +140,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       break;
     default: break;
     }
-  [[unlikely]] throw argument_error{
+  throw argument_error{
     std::format("Unrecognized encoding: '{}'.", encoding_name), loc};
 }
 

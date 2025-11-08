@@ -327,6 +327,7 @@ void clear_table(pqxx::connection &cx)
 void test_stream_to()
 {
   pqxx::connection cx;
+  cx.set_client_encoding("UTF8");
   pqxx::work tx{cx};
 
   tx.exec(
