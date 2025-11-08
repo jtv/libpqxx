@@ -49,6 +49,9 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
 {
   assert(std::cmp_greater_equal(value, 0));
   constexpr int ten{10};
+  // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
+  // instea dof a plan "char *".  I don't see how.
+  // NOLINTNEXTLINE(miss-const-correctness)
   char *pos = end;
   do {
     *--pos = pqxx::internal::number_to_digit(int(value % ten));
@@ -65,7 +68,10 @@ template<pqxx::internal::integer T>
 constexpr inline char *neg_to_buf(char *end, T value)
 {
   assert(std::cmp_greater_equal(value, 0));
-  char *pos = nonneg_to_buf(end, value);
+  // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
+  // instea dof a plan "char *".  I don't see how.
+  // NOLINTNEXTLINE(miss-const-correctness)
+  char *pos{nonneg_to_buf(end, value)};
   *--pos = '-';
   return pos;
 }
@@ -151,7 +157,7 @@ string_traits<T>::to_buf(std::span<char> buf, T const &value, ctx c)
       c.loc};
 
   auto const end{std::data(buf) + std::size(buf)};
-  char *const pos{[end, &value]() {
+  char const *const pos{[end, &value]() {
     if constexpr (std::is_unsigned_v<T>)
       return nonneg_to_buf(end, value);
     else if (value >= 0)
