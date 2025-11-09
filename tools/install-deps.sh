@@ -78,10 +78,9 @@ install_archlinux_infer() {
 
     (
         pacman --quiet --noconfirm -Sy
-        # XXX: Do we need python3 actually?
         pacman --quiet --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
-            postgresql-libs uv wget xz \
+            postgresql-libs python3 uv wget xz \
             "$cxxpkg"
     ) >>/tmp/install.log
 
