@@ -255,7 +255,8 @@ jobs:
       - run:
           name: Configure
           command: ". /tmp/vars.sh && \
-            CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake ."
+            ./configure \
+                CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>'"
       - run:
           name: Capture
           command: infer capture -- make -j4

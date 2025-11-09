@@ -48,11 +48,13 @@ install_archlinux() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
-    pacman --quiet --noconfirm -Sy >>/tmp/install.log
-    pacman --quiet --noconfirm -S \
-        autoconf autoconf-archive automake diffutils libtool make postgresql \
-        postgresql-libs python3 uv which "$cxxpkg" \
-        >>/tmp/install.log
+    (
+        pacman --quiet --noconfirm -Sy
+        pacman --quiet --noconfirm -S \
+            autoconf autoconf-archive automake diffutils libtool make \
+            postgresql postgresql-libs python3 uv which \
+            "$cxxpkg"
+    ) >>/tmp/install.log
 
     echo "export PGHOST=/run/postgresql"
 }
@@ -69,17 +71,18 @@ install_archlinux_infer() {
     if [ "$1" != "g++" ]
     then
         echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
-	exit 1
+        exit 1
     fi
 
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
         pacman --quiet --noconfirm -Sy
-	# XXX: Do we need python3 actually?
+        # XXX: Do we need python3 actually?
         pacman --quiet --noconfirm -S \
-	    cmake make postgresql-libs uv wget xz \
-	    "$cxxpkg"
+            autoconf autoconf-archive automake diffutils libtool make \
+            postgresql-libs uv wget xz \
+            "$cxxpkg"
     ) >>/tmp/install.log
 
     cd /opt
@@ -272,7 +275,7 @@ case "$PROFILE" in
     # static analysis tool.
     archlinux-infer)
         install_archlinux_infer "$COMPILER"
-	;;
+        ;;
     # Arch system, but only for the purpose of running "lint.sh --full".
     # (We only need to do that on one of the systems.)
     archlinux-lint)
