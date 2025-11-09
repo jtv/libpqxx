@@ -256,7 +256,7 @@ jobs:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && \
             ./configure \
-                CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>'"
+                CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_version >>'"
       - run:
           name: Capture
           # This crashes:
