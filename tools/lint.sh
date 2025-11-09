@@ -153,26 +153,23 @@ Run this script from a build directry prepared with either configure or cmake.
 EOF
         exit 1
     fi
-
-    # Run Facebook's "infer" static analyser, if available.
-    # A "pip install" didn't work for me: No module named 'nltk'.  Even if
-    # nltk was installed.
-    #
-    # Instructions here: https://fbinfer.com/docs/getting-started/
-    if which infer >/dev/null
-    then
-        # This will work in an out-of-tree build, but either way it does
-        # require a successful "configure", or a cmake with the "make"
-        # generator.
-        infer capture -- make -j"$(nproc)"
-        infer run
-    fi
 }
 
 
 pylint() {
-    uv -q run --with=pyflakes pyflakes "$SRCDIR"/tools/*.py
-    uv -q run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
+    if which pyflakes >/dev/null
+    then
+        pyflakes "$SRCDIR"/tools/*.py
+    else
+        uv -q run --with=pyflakes pyflakes "$SRCDIR"/tools/*.py
+    fi
+
+    if which ruff >/dev/null
+    then
+        ruff check -q "$SRCDIR"/tools/*.py
+    else
+        uv -q run --with=ruff ruff check -q "$SRCDIR"/tools/*.py
+    fi
 }
 
 

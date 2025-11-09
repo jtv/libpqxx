@@ -5,24 +5,6 @@ namespace
 void empty() {}
 
 
-void test_check_notreached()
-{
-  // At a minimum, check_notreached() must work.
-  bool failed{true};
-  try
-  {
-    pqxx::test::check_notreached("(expected)");
-    failed = false;
-  }
-  catch (pqxx::test::test_failure const &)
-  {
-    // This is what we expect.
-  }
-  if (not failed)
-    throw pqxx::test::test_failure{"check_notreached is broken."};
-}
-
-
 // Test PQXX_CHECK.
 void test_check()
 {
@@ -160,7 +142,6 @@ void test_check_throws()
 
 void test_helpers()
 {
-  test_check_notreached();
   test_check();
   test_check_throws_exception();
   test_check_throws();

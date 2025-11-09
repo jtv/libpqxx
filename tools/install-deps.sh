@@ -58,16 +58,50 @@ install_archlinux() {
 }
 
 
+# Install Facebook's Infer static analysis tool.
+install_archlinux_infer() {
+    local infer_ver="1.2.0"
+    local downloads="https://github.com/facebook/infer/releases/download"
+    local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
+    local url="$downloads/v$infer_ver/$tarball"
+    local cxxpkg
+
+    if [ "$1" != "g++" ]
+    then
+        echo >&2 "Facebook's 'infer' only seems to work with g++, not '%1'."
+	exit 1
+    fi
+
+    cxxpkg="$(compiler_pkg "$1" clang gcc)"
+
+    (
+        pacman --quiet --noconfirm -Sy
+	# XXX: Do we need python3 actually?
+        pacman --quiet --noconfirm -S \
+	    cmake make postgresql-libs uv wget xz \
+	    "$cxxpkg"
+    ) >>/tmp/install.log
+
+    cd /opt
+    # This is not idempotent.  I wasn't joking about using a disposable
+    # environment.
+    wget -q "$url" >>/tmp/install.log
+    tar -xJf "$tarball" >>/tmp/install.log
+    ln -s /opt/infer-*/bin/infer /usr/local/bin/infer
+}
+
+
 install_archlinux_lint() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
-# TODO: Set up Infer.  https://fbinfer.com/docs/getting-started/
-# TODO: Set up Markdownlint (mdl).
-    pacman --quiet --noconfirm -Sy >>/tmp/install.log
-    pacman --quiet --noconfirm -S \
-        cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
-        shellcheck uv which yamllint "$cxxpkg" >>/tmp/install.log
+    (
+        pacman --quiet --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --noconfirm -S \
+            cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
+            python-pyflakes ruff shellcheck uv which yamllint \
+            "$cxxpkg"
+    ) >>/tmp/install.log
 }
 
 
@@ -130,7 +164,7 @@ install_ubuntu_codeql() {
         sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
             -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
-	    "$cxxpkg"
+            "$cxxpkg"
     ) >>/tmp/install.log
 }
 
@@ -146,7 +180,7 @@ install_ubuntu() {
         # install pipx just so we can use that to install uv.
         DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
-	    python3 postgresql postgresql-server-dev-all libtool pipx "$cxxpkg"
+            python3 postgresql postgresql-server-dev-all libtool pipx "$cxxpkg"
 
         # We need pipx only to install uv.  :-(
         # TODO: Once uv has been packaged, get rid of pipx.
@@ -234,6 +268,11 @@ case "$PROFILE" in
     archlinux)
         install_archlinux "$COMPILER"
         ;;
+    # Arch system, but only for the purpose of running Facebook's "infer"
+    # static analysis tool.
+    archlinux-infer)
+        install_archlinux_infer "$COMPILER"
+	;;
     # Arch system, but only for the purpose of running "lint.sh --full".
     # (We only need to do that on one of the systems.)
     archlinux-lint)

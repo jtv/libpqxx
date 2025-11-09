@@ -198,7 +198,7 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
-          name: Prepare
+          name: Configure
           command: "SRC=\"$(pwd)\" && \
             . /tmp/vars.sh && \
             mkdir -p /tmp/pqxx && \
@@ -237,6 +237,36 @@ jobs:
       - store_artifacts:
           path: "/tmp/errors.txt"
 
+  infer:
+    parameters:
+      cxx_version:
+        type: string
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+        name: Install
+        command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
+      - store_artifacts:
+          path: "install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && \
+            CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake ."
+      - run:
+          name: Capture
+          command: infer capture -- make -j4
+      - run:
+          name: Infer
+          command: "infer run 2>&1 1> >(tee infer.log) 2> >(tee errors.log)"
+      - upload_artifacts:
+          path: errors.log
+      - upload_artifacts:
+          path: infer.log
+
 workflows:
   all-tests:
     jobs:
@@ -244,6 +274,11 @@ workflows:
           matrix:
             parameters:
               cxx_version: ["c++26"]
+
+      - infer:
+          matrix:
+            parameters:
+              cxx_version: ["c++20", "c++26"]
 
       - test-linux:
           matrix:
