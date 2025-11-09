@@ -262,10 +262,10 @@ jobs:
           # This crashes:
           # command: infer capture -- make -j4 check TESTS=
           # This tells me it doesn't find anything:
-          command: infer capture -- make -j4
+          command: infer capture -- make
       - run:
           name: Infer
-          command: "infer run 2>&1 1> >(tee infer.log) 2> >(tee errors.log)"
+          command: "infer run -- make 1> >(tee infer.log) 2> >(tee errors.log)"
       - store_artifacts:
           path: errors.log
       - store_artifacts:

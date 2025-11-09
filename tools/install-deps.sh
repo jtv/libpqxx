@@ -49,10 +49,11 @@ install_archlinux() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy
-        pacman --quiet --noconfirm -S \
+        # TODO: Do we need python3, tzdata?
+        pacman --quiet --needed --noconfirm -Sy
+        pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
-            postgresql postgresql-libs python3 uv which \
+            postgresql postgresql-libs python3 tzdata uv which \
             "$cxxpkg"
     ) >>/tmp/install.log
 
@@ -77,8 +78,8 @@ install_archlinux_infer() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy
-        pacman --quiet --noconfirm -S \
+        pacman --quiet --needed --noconfirm -Sy
+        pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
             postgresql-libs python3 uv wget xz \
             "$cxxpkg"
@@ -98,8 +99,8 @@ install_archlinux_lint() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy >>/tmp/install.log
-        pacman --quiet --noconfirm -S \
+        pacman --quiet --needed --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --needed --noconfirm -S \
             cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
             python-pyflakes ruff shellcheck uv which yamllint \
             "$cxxpkg"
@@ -227,6 +228,7 @@ install_windows() {
     export PATH="$mingw/bin:$msys:$msys/usr/bin:$PATH"
 
     # Now bootstrap the rest using the MSYS shell.
+    # TODO: Can we speed this up with --needed?
     "$msys/usr/bin/bash.exe" -l -c "
 (
     # Grok says we may need to let pacman run 2 upgrades.
