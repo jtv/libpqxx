@@ -255,7 +255,7 @@ template<> constexpr inline std::string_view name_type<long long>() noexcept
 template<>
 constexpr inline std::string_view name_type<unsigned short>() noexcept
 {
-  return "short";
+  return "unsigned short";
 }
 /// Specialisation to save on startup work.
 template<> constexpr inline std::string_view name_type<unsigned>() noexcept
