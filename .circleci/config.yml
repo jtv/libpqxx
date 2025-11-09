@@ -246,8 +246,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install
-        command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
+          name: Install
+          command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
       - store_artifacts:
           path: "install.log"
       - store_artifacts:
