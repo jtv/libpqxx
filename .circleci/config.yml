@@ -254,7 +254,7 @@ jobs:
           path: "/tmp/vars.sh"
       - run:
           name: Configure
-          command: ". /tmp/vars.sh && \
+          command: ". /tmp/vars.sh && autoreconf && \
             ./configure \
                 CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>'"
       - run:
