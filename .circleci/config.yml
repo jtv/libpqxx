@@ -262,9 +262,9 @@ jobs:
       - run:
           name: Infer
           command: "infer run 2>&1 1> >(tee infer.log) 2> >(tee errors.log)"
-      - upload_artifacts:
+      - store_artifacts:
           path: errors.log
-      - upload_artifacts:
+      - store_artifacts:
           path: infer.log
 
 workflows:
