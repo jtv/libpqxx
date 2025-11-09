@@ -259,7 +259,7 @@ jobs:
                 CXX=g++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>'"
       - run:
           name: Capture
-          command: infer capture -- make -j4
+          command: infer capture -- make -j4 check TESTS=
       - run:
           name: Infer
           command: "infer run 2>&1 1> >(tee infer.log) 2> >(tee errors.log)"
