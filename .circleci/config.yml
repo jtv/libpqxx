@@ -36,7 +36,7 @@ jobs:
           path: "/tmp/vars.sh"
       - run:
           name: Autogen
-          command: ". /tmp/vars.sh && ./autogen.sh"
+          command: ". /tmp/vars.sh && autoreconf"
       - run:
           name: Configure
           command: ". /tmp/vars.sh && ./configure \
