@@ -282,7 +282,8 @@ workflows:
       - infer:
           matrix:
             parameters:
-              cxx_version: ["c++20", "c++26"]
+              # As of late 2025, the C++26 build hits a compiler problem.
+              cxx_version: ["c++20", "c++23"]
 
       - test-linux:
           matrix:
