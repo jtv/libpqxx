@@ -49,11 +49,10 @@ install_archlinux() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        # TODO: Do we need python3, tzdata?
         pacman --quiet --needed --noconfirm -Sy
         pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
-            postgresql postgresql-libs python3 tzdata uv which \
+            postgresql postgresql-libs python3 uv which \
             "$cxxpkg"
     ) >>/tmp/install.log
 
@@ -81,7 +80,7 @@ install_archlinux_infer() {
         pacman --quiet --needed --noconfirm -Sy
         pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
-            postgresql-libs python3 uv wget xz \
+            postgresql-libs python3 tzdata uv wget xz \
             "$cxxpkg"
     ) >>/tmp/install.log
 
