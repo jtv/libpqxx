@@ -274,7 +274,7 @@ jobs:
           command: "grep -v '^Analy[sz]ing block' stderr.log |
               grep -v '^Found [0-9]* source files to analy[sz]e' |
               grep -v '^[a-z0-9._/-]* starting$' |
-              grep -v '^[a-z0-9._/-]* DONE$' |
+              ( grep -v '^[a-z0-9._/-]* DONE$' || true ) |
               uniq >errors.txt"
       - store_artifacts:
           path: errors.txt
