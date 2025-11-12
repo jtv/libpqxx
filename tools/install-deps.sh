@@ -50,7 +50,7 @@ install_archlinux() {
 
     (
         pacman --quiet --noconfirm -Sy
-        pacman --quiet --noconfirm -S \
+        pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
             postgresql postgresql-libs python3 uv which \
             "$cxxpkg"

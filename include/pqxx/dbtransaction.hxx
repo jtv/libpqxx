@@ -66,7 +66,7 @@ protected:
   dbtransaction(
     connection &cx, std::string_view tname,
     std::shared_ptr<std::string> rollback_cmd, sl loc = sl::current()) :
-          transaction_base{cx, tname, rollback_cmd, loc}
+          transaction_base{cx, tname, std::move(rollback_cmd), loc}
   {}
 };
 } // namespace pqxx

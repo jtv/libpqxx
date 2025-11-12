@@ -353,7 +353,8 @@ public:
 
   // TODO: Wrap PQdescribePrepared().
 
-  result exec(std::string_view query, params parms, sl loc = sl::current())
+  result
+  exec(std::string_view query, params const &parms, sl loc = sl::current())
   {
     return internal_exec_params(query, parms.make_c_params(loc), loc);
   }
@@ -1167,7 +1168,7 @@ protected:
   /// Set the rollback command.
   void set_rollback_cmd(std::shared_ptr<std::string> cmd)
   {
-    m_rollback_cmd = cmd;
+    m_rollback_cmd = std::move(cmd);
   }
 
   /// Execute query on connection directly.
@@ -1179,7 +1180,7 @@ protected:
   result direct_exec(std::shared_ptr<std::string>, std::string_view desc, sl);
   result direct_exec(std::shared_ptr<std::string> query, sl loc)
   {
-    return direct_exec(query, "", loc);
+    return direct_exec(std::move(query), "", loc);
   }
 
   // TODO: Can this be noexcept?
