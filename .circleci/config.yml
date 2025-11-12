@@ -40,15 +40,15 @@ jobs:
       - restore_cache:
           keys:
             # Cache downloaded ArchLinux pacman packages.
-            - "v3-{{ arch }}-<< parameters.os >>-pacman"
+            - "v4-{{ arch }}-<< parameters.os >>-pacman-"
       - restore_cache:
           keys:
             # Cache downloaded Debian packages.
-            - "v3-{{ arch }}-<< parameters.os >>-dpkg"
+            - "v4-{{ arch }}-<< parameters.os >>-dpkg-"
       - restore_cache:
           keys:
             # Cache downloaded Fedora packages.
-            - "v3-{{ arch }}-<< parameters.os >>-dnf"
+            - "v4-{{ arch }}-<< parameters.os >>-dnf-"
 
       - run:
           name: Install
@@ -60,15 +60,18 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v3-{{ arch }}-<< parameters.os >>-pacman"
+          key: "v4-{{ arch }}-<< parameters.os >>-pacman-\
+{{ checksuum /var/cache/pacman/pkg }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
-          key: "v3-{{ arch }}-<< parameters.os >>-dpkg"
+          key: "v4-{{ arch }}-<< parameters.os >>-\
+dpkg-{{ checksum /var/cache/apt }}"
           paths:
             - /var/cache/apt
       - save_cache:
-          key: "v3-{{ arch }}-<< parameters.os >>-dnf"
+          key: "v4-{{ arch }}-<< parameters.os >>-dnf-\
+{{ checksum /ar/cache/dnf }}"
           paths:
             - /var/cache/dnf
 
