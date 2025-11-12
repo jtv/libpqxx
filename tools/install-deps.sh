@@ -112,18 +112,12 @@ install_debian() {
     cxxpkg="$(compiler_pkg "$1")"
 
     (
-        apt-get -q update
+        time apt-get -q update
 
-        # Really annoying: there's no package for uv as of yet, so we need to
-        # install pipx just so we can use that to install uv.
-        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        time DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
-            python3 postgresql postgresql-server-dev-all libtool pipx \
+            python3 postgresql postgresql-server-dev-all libtool \
             "$cxxpkg"
-
-        # We need pipx only to install uv.  :-(
-        # TODO: Once uv has been packaged, get rid of pipx.
-        pipx install uv
     ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
@@ -176,17 +170,12 @@ install_ubuntu() {
     cxxpkg="$(compiler_pkg "$1")"
 
     (
-        apt-get -q update
+        time apt-get -q update
 
-        # Really annoying: there's no package for uv as of yet, so we need to
-        # install pipx just so we can use that to install uv.
-        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        time DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
-            python3 postgresql postgresql-server-dev-all libtool pipx "$cxxpkg"
-
-        # We need pipx only to install uv.  :-(
-        # TODO: Once uv has been packaged, get rid of pipx.
-        pipx install uv
+            python3 postgresql postgresql-server-dev-all libtool \
+	    "$cxxpkg"
     ) >>/tmp/install.log
 
     echo "export PGHOST=/tmp"
