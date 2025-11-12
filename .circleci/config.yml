@@ -265,7 +265,8 @@ jobs:
           command: infer capture -- make
       - run:
           name: Infer
-          command: "infer run -- make 1> >(tee infer.log) 2> >(tee errors.log)"
+          command: "infer analyze --no-progress-bar -- \
+              make 1> >(tee infer.log) 2> >(tee errors.log)"
       - store_artifacts:
           path: errors.log
       - store_artifacts:
