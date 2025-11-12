@@ -8,7 +8,8 @@ orbs:
 
 jobs:
 
-  # Run tests against a Linux Docker image.
+  # Run tests against a Linux Docker image.  We repeat this for various
+  # distros.
   test-linux:
     parameters:
       os:
