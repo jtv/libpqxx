@@ -26,6 +26,13 @@ jobs:
     resource_class: large
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            # Cache downloaded Debian packages.  Include the architecture so
+            # that Debian and Ubuntu packages stay in separate caches, and so
+            # we don't waste time restoring those caches on non-dpkg-flavoured
+            # distros.
+            v1-{{ arch }}-dpkg
       - run:
           name: Install
           command: "./tools/install-deps.sh \
@@ -34,6 +41,10 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
+      - save_cache:
+          key: v1-{{ arch }}-dpkg
+          paths:
+            - /var/cache/apt/
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
