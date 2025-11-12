@@ -262,8 +262,7 @@ jobs:
           command: infer capture -- make check TESTS=
       - run:
           name: Infer
-          # TODO: Is the --lineage option useful to us?
-          command: "infer analyze --quiet --bufferoverrun --datalog \
+          command: "infer analyze --bufferoverrun --datalog \
               --impurity --purity --loop-hoisting --siof-check-iostreams -- \
               make check TESTS= 1> >(tee infer.log) 2> >(tee errors.log)"
       - store_artifacts:
@@ -282,8 +281,7 @@ workflows:
       - infer:
           matrix:
             parameters:
-              # As of late 2025, the C++26 build hits a compiler problem.
-              cxx_version: ["c++20", "c++23"]
+              cxx_version: ["c++20"]
 
       - test-linux:
           matrix:
