@@ -28,12 +28,28 @@ jobs:
     resource_class: large
     steps:
       - checkout
+
+      # There's no conditional way to save/restore CircleCI caches, so we cache
+      # all kinds of packages for all operating systems we support.  It's just
+      # that mismatched combinations (e.g. pacman for Ubuntu, or apt for
+      # Fedora) will not contain anything.
+      #
+      # The cache keys include the architecture, so that these empty package
+      # directories don't overwrite the meaningful caches.
+      # TODO: Can we influence scheduling to minimise Thundering Herd effect?
       - restore_cache:
           keys:
-            # Cache downloaded Debian packages.  Include the architecture so
-            # that Debian and Ubuntu packages stay in separate caches.  That
-            # way we don't waste time restoring those caches on other distros.
-            - "v2-{{ arch }}-<< parameters.os >>-dpkg"
+            # Cache downloaded Debian packages.
+            - "v3-{{ arch }}-<< parameters.os >>-dpkg"
+      - restore_cache:
+          keys:
+            # Cache downloaded ArchLinux pacman packages.
+            - "v3-{{ arch }}-<< parameters.os >>-pacman"
+      - restore_cache:
+          keys:
+            # Cache downloaded Fedora packages.
+            - "v3-{{ arch }}-<< parameters.os >>-dnf"
+
       - run:
           name: Install
           command: "./tools/install-deps.sh \
@@ -43,9 +59,17 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - save_cache:
-          key: "v2-{{ arch }}-<< parameters.os >>-dpkg"
+          key: "v3-{{ arch }}-<< parameters.os >>-dpkg"
           paths:
-            - /var/cache/apt/
+            - /var/cache/apt
+      - save_cache:
+          key: "v3-{{ arch }}-<< parameters.os >>-pacman"
+          paths:
+            - /var/cache/pacman/pkg
+      - save_cache:
+          key: "v3-{{ arch }}-<< parameters.os >>-dnf"
+          paths:
+            - /var/cache/dnf
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"

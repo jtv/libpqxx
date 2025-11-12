@@ -99,7 +99,7 @@ install_archlinux_lint() {
 
     (
         pacman --quiet --noconfirm -Sy >>/tmp/install.log
-        pacman --quiet --noconfirm -S \
+        pacman --quiet --needed --noconfirm -S \
             cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
             python-pyflakes ruff shellcheck uv which yamllint \
             "$cxxpkg"
