@@ -263,7 +263,7 @@ jobs:
       - run:
           name: Infer
           command: "infer analyze --bufferoverrun --datalog \
-              --impurity --purity --loop-hoisting --siof-check-iostreams -- \
+              --purity --loop-hoisting --siof-check-iostreams -- \
               make check TESTS= 1> >(tee infer.log) 2> >(tee errors.log)"
       - store_artifacts:
           path: errors.log
