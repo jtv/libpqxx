@@ -61,7 +61,7 @@ jobs:
 
       - save_cache:
           key: "v4-{{ arch }}-<< parameters.os >>-pacman-\
-{{ checksuum /var/cache/pacman/pkg }}"
+{{ checksum /var/cache/pacman/pkg }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
