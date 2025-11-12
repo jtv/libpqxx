@@ -259,14 +259,13 @@ jobs:
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_version >>'"
       - run:
           name: Capture
-          # This crashes:
-          # command: infer capture -- make -j4 check TESTS=
-          # This tells me it doesn't find anything:
-          command: infer capture -- make
+          command: infer capture -- make check TESTS=
       - run:
           name: Infer
-          command: "infer analyze --no-progress-bar -- \
-              make 1> >(tee infer.log) 2> >(tee errors.log)"
+          # TODO: Is the --lineage option useful to us?
+          command: "infer analyze --quiet --bufferoverrun --datalog \
+              --impurity --purity --loop-hoisting --siof-check-iostreams -- \
+              make check TESTS= 1> >(tee infer.log) 2> >(tee errors.log)"
       - store_artifacts:
           path: errors.log
       - store_artifacts:
