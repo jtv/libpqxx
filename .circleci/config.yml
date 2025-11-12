@@ -29,10 +29,9 @@ jobs:
       - restore_cache:
           keys:
             # Cache downloaded Debian packages.  Include the architecture so
-            # that Debian and Ubuntu packages stay in separate caches, and so
-            # we don't waste time restoring those caches on non-dpkg-flavoured
-            # distros.
-            v1-{{ arch }}-dpkg
+            # that Debian and Ubuntu packages stay in separate caches.  That
+            # way we don't waste time restoring those caches on other distros.
+            "v1-{{ arch }}-dpkg"
       - run:
           name: Install
           command: "./tools/install-deps.sh \
@@ -42,7 +41,7 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - save_cache:
-          key: v1-{{ arch }}-dpkg
+          key: "v1-{{ arch }}-dpkg"
           paths:
             - /var/cache/apt/
       - run:
