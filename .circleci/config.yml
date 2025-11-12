@@ -39,12 +39,12 @@ jobs:
       # TODO: Can we influence scheduling to minimise Thundering Herd effect?
       - restore_cache:
           keys:
-            # Cache downloaded Debian packages.
-            - "v3-{{ arch }}-<< parameters.os >>-dpkg"
-      - restore_cache:
-          keys:
             # Cache downloaded ArchLinux pacman packages.
             - "v3-{{ arch }}-<< parameters.os >>-pacman"
+      - restore_cache:
+          keys:
+            # Cache downloaded Debian packages.
+            - "v3-{{ arch }}-<< parameters.os >>-dpkg"
       - restore_cache:
           keys:
             # Cache downloaded Fedora packages.
@@ -58,18 +58,20 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
-      - save_cache:
-          key: "v3-{{ arch }}-<< parameters.os >>-dpkg"
-          paths:
-            - /var/cache/apt
+
       - save_cache:
           key: "v3-{{ arch }}-<< parameters.os >>-pacman"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
+          key: "v3-{{ arch }}-<< parameters.os >>-dpkg"
+          paths:
+            - /var/cache/apt
+      - save_cache:
           key: "v3-{{ arch }}-<< parameters.os >>-dnf"
           paths:
             - /var/cache/dnf
+
       - run:
           name: Autogen
           command: ". /tmp/vars.sh && autoreconf"
