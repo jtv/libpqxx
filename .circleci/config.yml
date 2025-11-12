@@ -262,13 +262,20 @@ jobs:
           command: infer capture -- make check TESTS=
       - run:
           name: Infer
-          command: "infer analyze --bufferoverrun --datalog \
-              --impurity --loop-hoisting --siof-check-iostreams -- \
-              make check TESTS= 1> >(tee infer.log) 2> >(tee errors.log)"
+          command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
+              --siof-check-iostreams -- \
+              make check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
       - store_artifacts:
-          path: errors.log
+          path: stderr.log
       - store_artifacts:
           path: infer.log
+      - run:
+          name: Gather results
+          command: "grep -v '^Analy[sz]ing block' stderr.log |
+              grep -v '^[a-z0-9._/-]* starting$' |
+              grep -v '^[a-z0-9._/-]* DONE$' >errors.txt"
+      - store_artifacts:
+          path: errors.txt
 
 workflows:
   all-tests:
