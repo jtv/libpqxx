@@ -66,7 +66,7 @@ jobs:
             - /var/cache/dnf
       - save_cache:
           key: "v9-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
-          # XXX: Doesn't work yet.  Caches seem empty.
+          # XXX: Trying to get this to work.
           paths:
             - /var/cache/apt/archives
             - /var/cache/apt/lists
