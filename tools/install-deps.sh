@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 
 # Install packages we need to get a full test run working.
 #
