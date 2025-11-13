@@ -40,19 +40,19 @@ jobs:
       - restore_cache:
           keys:
             # Cache downloaded ArchLinux pacman packages.
-            - "v7-{{ arch }}-<< parameters.os >>-pacman-"
+            - "v8-{{ arch }}-<< parameters.os >>-pacman-"
       - restore_cache:
           keys:
             # Cache downloaded Debian packages.
-            - "v7-{{ arch }}-<< parameters.os >>-dpkg-"
+            - "v8-{{ arch }}-<< parameters.os >>-dpkg-"
       - restore_cache:
           keys:
             # Cache downloaded Fedora packages.
-            - "v7-{{ arch }}-<< parameters.os >>-dnf-"
+            - "v8-{{ arch }}-<< parameters.os >>-dnf-"
 
       - run:
           name: Install
-          command: "./tools/install-deps.sh \
+          command: "time ./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
       - store_artifacts:
           path: "/tmp/install.log"
@@ -60,15 +60,15 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
+          key: "v8-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
+          key: "v8-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
           paths:
             - /var/cache/apt/archives
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
+          key: "v8-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
           paths:
             - /var/cache/dnf
 
