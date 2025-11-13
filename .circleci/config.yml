@@ -51,6 +51,12 @@ jobs:
             - "v5-{{ arch }}-<< parameters.os >>-dnf-"
 
       - run:
+          command: ls -l /var/cache
+      - run:
+          command: "ls -l /var/cache/pacman/pkg || ls -l /var/cache/apt || \
+              ls -l /var/cache/dnf"
+
+      - run:
           name: Install
           command: "./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
