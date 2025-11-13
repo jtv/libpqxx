@@ -134,7 +134,7 @@ install_debian() {
             # Be a bit convservative about what's here, because we may be
             # getting a cache from a previous run that failed halfway through.
             # In which case it could be in a slighty weird state.
-            ln -f -- "$OUR_APT_CACHE"/* "$APT_CACHE/"
+            ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
         fi
 
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
