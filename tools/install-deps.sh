@@ -116,6 +116,7 @@ OUR_APT_CACHE="$APT_CACHE/pqxx-cache"
 install_debian() {
     local cxxpkg
     local pkgs
+    local initial_cache
 
     (
         cxxpkg="$(compiler_pkg "$1")"
@@ -132,13 +133,15 @@ install_debian() {
 	    # In case the files are also in apt's cache (e.g. because a
 	    # previous run failed after building the cache), don't try to
 	    # replace those.
+	    initial_cache="yes"
             mv --update=none "$OUR_APT_CACHE"/* "$APT_CACHE/"
         else
             # We start out without a cache of deb files.  Create dir.
+	    initial_cache="no"
             mkdir -p "$OUR_APT_CACHE"
         fi
 
-        # TODO: Can we trim the sources lists to save time?
+        # TODO: Can we trim the sources lists to save time?  Is it worth it?
         apt-get -q update
 
         # First, only download the packages but don't install them.  This
@@ -147,10 +150,13 @@ install_debian() {
         DEBIAN_FRONTEND=noninteractive TZ=UTC \
             apt-get -q install -y --download-only $pkgs
 
-        # "Copy" (actually, hardlink because it's cheaper) the cached deb
-        # packagse to our cache.  We put the two directories side by side to
-        # minimise the risk of a filesystem boundary between them.
-        ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+        if [ "$initial_cache" = "no" ]
+	then
+            # "Copy" (actually, hardlink because it's cheaper) the cached deb
+            # packages to our own cache.  We put the two directories side by
+	    # side to minimise the risk of a filesystem boundary between them.
+            ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+	fi
 
         # *Now* we can install the packages, which will clear them out of apt's
         # cache.
