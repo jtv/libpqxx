@@ -116,7 +116,6 @@ OUR_APT_CACHE="$APT_CACHE/pqxx-cache"
 install_debian() {
     local cxxpkg
     local pkgs
-    local initial_cache
 
     (
         cxxpkg="$(compiler_pkg "$1")"
@@ -125,7 +124,9 @@ install_debian() {
 
         mkdir -p -- "$OUR_APT_CACHE"
 
-        if [ -n "$OUR_APT_CACHE/*.deb" ]
+        # Bash-specific: "compgen -G <glob>" shows any filenames that match
+	# glob, and returns whether there were any matches.
+        if compgen -G "$OUR_APT_CACHE/*.deb" >/dev/null
         then
             # We found a cache of deb files downloaded during a previous run,
             # Link those into place so we can install them without downloading
@@ -146,7 +147,7 @@ install_debian() {
         DEBIAN_FRONTEND=noninteractive TZ=UTC \
             apt-get -q install -y --download-only $pkgs
 
-        if [ -n "$APT_CACHE/*.deb" ]
+        if compgen -G "$APT_CACHE/*.deb" >/dev/null
         then
             # "Copy" (actually, hardlink because it's cheaper) the cached deb
             # packages to our own cache.  We put the two directories side by
