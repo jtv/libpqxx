@@ -128,7 +128,11 @@ install_debian() {
             # run.  Move those into place so we can install them without
             # downloading them.  (Some will be out of date, but it's probably
             # still a win.)
-            mv "$OUR_APT_CACHE"/* "$APT_CACHE/"
+	    #
+	    # In case the files are also in apt's cache (e.g. because a
+	    # previous run failed after building the cache), don't try to
+	    # replace those.
+            mv --update=none "$OUR_APT_CACHE"/* "$APT_CACHE/"
         else
             # We start out without a cache of deb files.  Create dir.
             mkdir -p "$OUR_APT_CACHE"
