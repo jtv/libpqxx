@@ -125,13 +125,17 @@ install_debian() {
 
         mkdir -p -- "$OUR_APT_CACHE"
 
-        # If we found a cache of deb files downloaded during a previous run,
-        # move those into place so we can install them without downloading
-        # them.  (Some will be out of date, but it's probably still a win.)
-        #
-        # Be a bit convservative about what's here, because we may be getting
-        # a cache from a previous run that failed halfway through.
-        mv --update=none -- "$OUR_APT_CACHE"/* "$APT_CACHE/"
+        if [ -n "$OUR_APT_CACHE/*.deb" ]
+	then
+            # We found a cache of deb files downloaded during a previous run,
+            # Link those into place so we can install them without downloading
+            # them.  (Some will be out of date, but it's probably still a win.)
+            #
+            # Be a bit convservative about what's here, because we may be
+	    # getting a cache from a previous run that failed halfway through.
+	    # In which case it could be in a slighty weird state.
+            ln -f -- "$OUR_APT_CACHE"/* "$APT_CACHE/"
+	fi
 
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
         apt-get -q update
@@ -142,10 +146,13 @@ install_debian() {
         DEBIAN_FRONTEND=noninteractive TZ=UTC \
             apt-get -q install -y --download-only $pkgs
 
-        # "Copy" (actually, hardlink because it's cheaper) the cached deb
-        # packages to our own cache.  We put the two directories side by
-        # side to minimise the risk of a filesystem boundary between them.
-        ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+        if [ -n "$APT_CACHE/*.deb" ]
+	then
+            # "Copy" (actually, hardlink because it's cheaper) the cached deb
+            # packages to our own cache.  We put the two directories side by
+            # side to minimise the risk of a filesystem boundary between them.
+            ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+	fi
 
         # *Now* we can install the packages, which will clear them out of apt's
         # cache, but won't affect our hardlinks.
