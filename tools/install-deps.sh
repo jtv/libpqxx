@@ -44,6 +44,10 @@ compiler_pkg() {
 }
 
 
+# For Debian-flavoured distros:
+export DEBIAN_FRONTEND=noninteractive TZ=UTC
+
+
 install_archlinux() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
@@ -144,8 +148,7 @@ install_debian() {
         # First, only download the packages but don't install them.  This
         # gives us the opportunity to grab them for caching in CircleCI.
         # shellcheck disable=SC2086
-        DEBIAN_FRONTEND=noninteractive TZ=UTC \
-            apt-get -q install -y --download-only $pkgs
+        apt-get -q install -y --download-only $pkgs
 
         if compgen -G "$APT_CACHE/*.deb" >/dev/null
         then
@@ -158,7 +161,7 @@ install_debian() {
         # *Now* we can install the packages, which will clear them out of apt's
         # cache, but won't affect our hardlinks.
         # shellcheck disable=SC2086
-        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y $pkgs
+        apt-get -q install -y $pkgs
     ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
@@ -197,9 +200,8 @@ install_ubuntu_codeql() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1")"
     (
-        sudo apt-get -q -o DPkg::Lock::Timeout=120 update
-        sudo DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get \
-            -q install -y -o DPkg::Lock::Timeout=120 \
+        sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
+        sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
             "$cxxpkg"
     ) >>/tmp/install.log
@@ -214,7 +216,7 @@ install_ubuntu() {
     (
         apt-get -q update
 
-        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool \
             "$cxxpkg"
