@@ -60,15 +60,15 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-pacman-{{ .BuildNum }}"
+          key: "v7-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-dpkg-{{ .BuildNum }}"
+          key: "v7-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
           paths:
             - /var/cache/apt/archives
       - save_cache:
-          key: "v7-{{ arch }}-<< parameters.os >>-dnf-{{ .BuildNum }}"
+          key: "v7-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
           paths:
             - /var/cache/dnf
 
