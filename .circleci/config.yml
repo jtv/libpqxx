@@ -61,17 +61,17 @@ jobs:
 
       - save_cache:
           key: "v6-{{ arch }}-<< parameters.os >>-pacman-\
-{{ \"checksum /var/cache/pacman/pkg\" }}"
+{{ checksum \"/var/cache/pacman/pkg\" }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
           key: "v6-{{ arch }}-<< parameters.os >>-\
-dpkg-{{ \"checksum /var/cache/apt\" }}"
+dpkg-{{ checksum \"/var/cache/apt\" }}"
           paths:
             - /var/cache/apt/archives
       - save_cache:
           key: "v6-{{ arch }}-<< parameters.os >>-dnf-\
-{{ \"checksum /ar/cache/dnf\" }}"
+{{ checksum \"/ar/cache/dnf\" }}"
           paths:
             - /var/cache/dnf
 
