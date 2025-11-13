@@ -39,16 +39,16 @@ jobs:
       # TODO: Can we influence scheduling to minimise Thundering Herd effect?
       - restore_cache:
           keys:
-            # Cache downloaded ArchLinux pacman packages.
-            - "v8-{{ arch }}-<< parameters.os >>-pacman-"
+            # Cache downloaded dnf packages (for Fedora).
+            - "v8-{{ arch }}-<< parameters.os >>-dnf-"
       - restore_cache:
           keys:
-            # Cache downloaded Debian packages.
+            # Cache downloaded dpkg packages (for Debian & Ubuntu).
             - "v8-{{ arch }}-<< parameters.os >>-dpkg-"
       - restore_cache:
           keys:
-            # Cache downloaded Fedora packages.
-            - "v8-{{ arch }}-<< parameters.os >>-dnf-"
+            # Cache downloaded pacman packages (for Arch Linux).
+            - "v8-{{ arch }}-<< parameters.os >>-pacman-"
 
       - run:
           name: Install
@@ -60,17 +60,17 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v8-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
+          key: "v8-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
           paths:
-            - /var/cache/pacman/pkg
+            - /var/cache/dnf
       - save_cache:
           key: "v8-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
           paths:
             - /var/cache/apt/archives
       - save_cache:
-          key: "v8-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
+          key: "v8-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
           paths:
-            - /var/cache/dnf
+            - /var/cache/pacman/pkg
 
       - run:
           name: Autogen
