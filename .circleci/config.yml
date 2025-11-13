@@ -40,15 +40,17 @@ jobs:
       - restore_cache:
           keys:
             # Cache downloaded dnf packages (for Fedora).
-            - "v9-{{ arch }}-<< parameters.os >>-dnf-"
+            - "v10-{{ arch }}-<< parameters.os >>-dnf-"
       - restore_cache:
           keys:
             # Cache downloaded dpkg packages (for Debian & Ubuntu).
-            - "v9-{{ arch }}-<< parameters.os >>-dpkg-"
+            - "v10-{{ arch }}-<< parameters.os >>-dpkg-"
+      - run:
+          command: ls -lR /var/cache/apt/archives /var/cache/apt/lists
       - restore_cache:
           keys:
             # Cache downloaded pacman packages (for Arch Linux).
-            - "v9-{{ arch }}-<< parameters.os >>-pacman-"
+            - "v10-{{ arch }}-<< parameters.os >>-pacman-"
 
       - run:
           name: Install
@@ -60,19 +62,19 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v9-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
+          key: "v10-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
           # XXX: Doesn't work yet.  Caches seem empty.
           paths:
             - /var/cache/dnf
       - save_cache:
-          key: "v9-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
+          key: "v10-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
           # XXX: Trying to get this to work.
           paths:
             - /var/cache/apt/archives
             - /var/cache/apt/lists
-            - /var/lib/dpkg/ifno
+            - /var/lib/dpkg/info
       - save_cache:
-          key: "v9-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
+          key: "v10-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
           paths:
             - /var/cache/pacman/pkg
 
