@@ -123,32 +123,34 @@ install_debian() {
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
 
         if [ -d "$OUR_APT_CACHE" ]
-	then
-	    # Yay, we found a cache of deb files downloaded during a previous
-	    # run.  Move those into place so we can install them without
-	    # downloading them.  (Some will be out of date, but it's probably
-	    # still a win.)
-	    mv "$OUR_APT_CACHE"/* "$APT_CACHE/"
-	else
-	    # We start out without a cache of deb files.  Create dir.
+        then
+            # Yay, we found a cache of deb files downloaded during a previous
+            # run.  Move those into place so we can install them without
+            # downloading them.  (Some will be out of date, but it's probably
+            # still a win.)
+            mv "$OUR_APT_CACHE"/* "$APT_CACHE/"
+        else
+            # We start out without a cache of deb files.  Create dir.
             mkdir -p "$OUR_APT_CACHE"
-	fi
+        fi
 
         # TODO: Can we trim the sources lists to save time?
         apt-get -q update
 
         # First, only download the packages but don't install them.  This
-	# gives us the opportunity to grab them for caching in CircleCI.
-	# shellcheck disable=SC2086
+        # gives us the opportunity to grab them for caching in CircleCI.
+        # shellcheck disable=SC2086
         DEBIAN_FRONTEND=noninteractive TZ=UTC \
-	    apt-get -q install -y --download-only $pkgs
+            apt-get -q install -y --download-only $pkgs
 
         # "Copy" (actually, hardlink because it's cheaper) the cached deb
-	# packagse to our cache.  We put the two directories side by side to
-	# minimise the risk of a filesystem boundary between them.
-	ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+        # packagse to our cache.  We put the two directories side by side to
+        # minimise the risk of a filesystem boundary between them.
+        ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
 
-	# *Now* we can install the packages, which will clear them out of
+        # *Now* we can install the packages, which will clear them out of apt's
+        # cache.
+        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y $pkgs
     ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
@@ -207,7 +209,7 @@ install_ubuntu() {
         DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool \
-	    "$cxxpkg"
+            "$cxxpkg"
     ) >>/tmp/install.log
 
     echo "export PGHOST=/tmp"
