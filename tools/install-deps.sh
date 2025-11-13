@@ -134,11 +134,11 @@ install_debian() {
 	    # previous run failed after building the cache), don't try to
 	    # replace those.
 	    initial_cache="yes"
-            mv --update=none "$OUR_APT_CACHE"/* "$APT_CACHE/"
+            mv --update=none -- "$OUR_APT_CACHE"/* "$APT_CACHE/"
         else
-            # We start out without a cache of deb files.  Create dir.
+            # We started out without a cache of deb files.  Create dir.
 	    initial_cache="no"
-            mkdir -p "$OUR_APT_CACHE"
+            mkdir -p -- "$OUR_APT_CACHE"
         fi
 
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
@@ -155,11 +155,12 @@ install_debian() {
             # "Copy" (actually, hardlink because it's cheaper) the cached deb
             # packages to our own cache.  We put the two directories side by
 	    # side to minimise the risk of a filesystem boundary between them.
-            ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+            ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
 	fi
 
         # *Now* we can install the packages, which will clear them out of apt's
         # cache.
+        # shellcheck disable=SC2086
         DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y $pkgs
     ) >> /tmp/install.log
 
