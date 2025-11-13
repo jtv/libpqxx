@@ -146,7 +146,7 @@ install_debian() {
         # "Copy" (actually, hardlink because it's cheaper) the cached deb
 	# packagse to our cache.  We put the two directories side by side to
 	# minimise the risk of a filesystem boundary between them.
-	ln "$APT_CACHE"/* "$OUR_APT_CACHE"
+	ln "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
 
 	# *Now* we can install the packages, which will clear them out of
     ) >> /tmp/install.log
