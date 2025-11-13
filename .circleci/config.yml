@@ -60,18 +60,15 @@ jobs:
           path: "/tmp/vars.sh"
 
       - save_cache:
-          key: "v6-{{ arch }}-<< parameters.os >>-pacman-\
-{{ checksum \"/var/cache/pacman/pkg\" }}"
+          key: "v6-{{ arch }}-<< parameters.os >>-pacman-{{ .BuildNum }}"
           paths:
             - /var/cache/pacman/pkg
       - save_cache:
-          key: "v6-{{ arch }}-<< parameters.os >>-\
-dpkg-{{ checksum \"/var/cache/apt\" }}"
+          key: "v6-{{ arch }}-<< parameters.os >>-dpkg-{{ .BuildNum }}"
           paths:
             - /var/cache/apt/archives
       - save_cache:
-          key: "v6-{{ arch }}-<< parameters.os >>-dnf-\
-{{ checksum \"/ar/cache/dnf\" }}"
+          key: "v6-{{ arch }}-<< parameters.os >>-dnf-{{ .BuildNum }}"
           paths:
             - /var/cache/dnf
 
