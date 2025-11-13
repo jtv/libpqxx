@@ -112,9 +112,9 @@ install_debian() {
     cxxpkg="$(compiler_pkg "$1")"
 
     (
-        time apt-get -q update
+        apt-get -q update
 
-        time DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool \
             "$cxxpkg"
@@ -170,9 +170,9 @@ install_ubuntu() {
     cxxpkg="$(compiler_pkg "$1")"
 
     (
-        time apt-get -q update
+        apt-get -q update
 
-        time DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
+        DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get -q install -y \
             build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool \
 	    "$cxxpkg"
