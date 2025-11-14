@@ -48,6 +48,12 @@ compiler_pkg() {
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
 
+# Does glob expression $1 match anything?
+glob_matches() {
+    # This is a bash-specific trick.
+    compgen -G "$1" >/dev/null
+}
+
 install_archlinux() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
@@ -128,20 +134,6 @@ install_debian() {
 
         mkdir -p -- "$OUR_APT_CACHE"
 
-        # Bash-specific: "compgen -G <glob>" shows any filenames that match
-	# glob, and returns whether there were any matches.
-        if compgen -G "$OUR_APT_CACHE/*.deb" >/dev/null
-        then
-            # We found a cache of deb files downloaded during a previous run,
-            # Link those into place so we can install them without downloading
-            # them.  (Some will be out of date, but it's probably still a win.)
-            #
-            # Be a bit convservative about what's here, because we may be
-            # getting a cache from a previous run that failed halfway through.
-            # In which case it could be in a slighty weird state.
-            ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
-        fi
-
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
         apt-get -q update
 
@@ -150,18 +142,24 @@ install_debian() {
         # shellcheck disable=SC2086
         apt-get -q install -y --download-only $pkgs
 
-        if compgen -G "$APT_CACHE/*.deb" >/dev/null
+        if glob_matches "$APT_CACHE/*.deb"
         then
             # "Copy" (actually, hardlink because it's cheaper) the cached deb
-            # packages to our own cache.  We put the two directories side by
-            # side to minimise the risk of a filesystem boundary between them.
+            # packages to our own temporary storage, so we'll still have them
+	    # after actually installing the packages.
             ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
         fi
 
-        # *Now* we can install the packages, which will clear them out of apt's
-        # cache, but won't affect our hardlinks.
+        # *Now* we can install the packages.  This will clear out apt's cache
+	# as a side effect, but not ours.
         # shellcheck disable=SC2086
         apt-get -q install -y $pkgs
+
+	# Re-stock the cache from our own temporary storage.
+	if glob_matches "$OUR_APT_CACHE/*.deb"
+	then
+	    ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
+	fi
     ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
