@@ -120,7 +120,6 @@ install_debian() {
         pkgs="build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
 
-        # TODO: Can we trim the sources lists to save time?  Is it worth it?
         apt-get -q update
 
         # shellcheck disable=SC2086
@@ -171,7 +170,6 @@ install_ubuntu_codeql() {
 }
 
 
-# TODO: Cache just like we do for Debian.
 install_ubuntu() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1")"
@@ -223,13 +221,12 @@ install_windows() {
     export PATH="$mingw/bin:$msys:$msys/usr/bin:$PATH"
 
     # Now bootstrap the rest using the MSYS shell.
-    # TODO: Can we speed this up with --needed?
     "$msys/usr/bin/bash.exe" -l -c "
 (
     # Grok says we may need to let pacman run 2 upgrades.
-    pacman -Sy --noconfirm &&
-    pacman -Syu --noconfirm ;
-) || pacman -Su --noconfirm &&
+    pacman -Sy --needed --noconfirm &&
+    pacman -Syu --needed --noconfirm ;
+) || pacman -Su --needed --noconfirm &&
 
 pacman -S \
     $arch-cmake \
