@@ -301,8 +301,6 @@ private:
   void append_to_buffer(Field const &f, sl loc)
     requires(not nullness<Field>::always_null)
   {
-    conversion_context const c{m_trans->conn().get_encoding_group(loc), loc};
-
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
     // at the end.
@@ -315,7 +313,7 @@ private:
     {
       // Convert f into m_buffer.
       auto const budget{estimate_buffer(f)};
-      auto const offset{std::size(m_buffer)};
+      conversion_context const c{m_trans->conn().get_encoding_group(loc), loc};
 
       // We're not using is_unquoted_safe for this, because in this context,
       // a tab counts as a special character that needs escaping.
@@ -327,6 +325,7 @@ private:
         // The budget we get from size_buffer() includes room for the trailing
         // zero, which we must remove.  But we're also inserting tabs between
         // fields, so we re-purpose the extra byte for that.
+        auto const offset{std::size(m_buffer)};
         auto const total{offset + budget};
         m_buffer.resize(total);
         auto const data{m_buffer.data()};
