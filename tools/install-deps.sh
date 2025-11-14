@@ -115,7 +115,7 @@ install_archlinux_lint() {
 APT_CACHE="/var/cache/apt/archives"
 # Location where we store cached deb files for CircleCI caching.  This has to
 # be close to $APT_CACHE so that we can hardlink between them.
-OUR_APT_CACHE="$APT_CACHE/pqxx-cache"
+OUR_APT_CACHE="/var/cache/apt/pqxx-cache"
 
 install_debian() {
     local cxxpkg
