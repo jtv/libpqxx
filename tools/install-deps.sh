@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /bin/bash
 
 # Install packages we need to get a full test run working.
 #
@@ -53,7 +53,7 @@ install_archlinux() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy
+        pacman --quiet --noconfirm -Syu
         pacman --quiet --needed --noconfirm -S \
             autoconf autoconf-archive automake diffutils libtool make \
             postgresql postgresql-libs python3 uv which \
