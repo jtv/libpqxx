@@ -187,8 +187,8 @@ public:
    * object with that oid already exists, creation will fail.
    */
   template<binary DATA>
-  static oid
-  from_buf(dbtransaction &tx, DATA data, oid id = 0, sl loc = sl::current())
+  static oid from_buf(
+    dbtransaction &tx, DATA const &data, oid id = 0, sl loc = sl::current())
   {
     return from_buf(tx, binary_cast(data), id, loc);
   }
@@ -203,8 +203,8 @@ public:
   /** The underlying protocol only supports appending blocks up to 2 GB.
    */
   template<binary DATA>
-  static void
-  append_from_buf(dbtransaction &tx, DATA data, oid id, sl loc = sl::current())
+  static void append_from_buf(
+    dbtransaction &tx, DATA const &data, oid id, sl loc = sl::current())
   {
     append_from_buf(tx, binary_cast(data), id, loc);
   }
