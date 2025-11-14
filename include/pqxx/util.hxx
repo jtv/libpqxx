@@ -402,6 +402,8 @@ void check_unique_unregister(
  */
 inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 {
+  assert(std::cmp_less(
+    binary_bytes, (std::numeric_limits<std::size_t>::max)() / 2u));
   return 2 + (2 * binary_bytes) + 1;
 }
 
@@ -411,6 +413,7 @@ inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
  */
 inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 {
+  assert(escaped_bytes >= 2u);
   return (escaped_bytes - 2) / 2;
 }
 
