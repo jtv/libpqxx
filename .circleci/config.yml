@@ -232,12 +232,17 @@ jobs:
       - run:
           name: Summarise
           # Filter out the useless nonsense in the output: number of warnings
-          # generated for system headers, and timings.
+          # generated for system headers, timings, and number of files.
+          #
           # Also run a "uniq" to eliminate redundant blank lines.
+          #
+          # Negate the outcome of the final grep so that this will report a
+          # failure if we find any errors.
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
               /tmp/analyze.txt | \
               grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
-              uniq >/tmp/errors.txt"
+              uniq >/tmp/errors.txt |
+              ! grep '^Running clang-tidy for [0-9]* files' "
       - store_artifacts:
           path: "/tmp/errors.txt"
 
@@ -275,11 +280,11 @@ jobs:
           path: infer.log
       - run:
           name: Gather results
-          command: "grep -v '^Analy[sz]ing block' stderr.log |
-              grep -v '^Found [0-9]* source files to analy[sz]e' |
-              grep -v '^[a-z0-9._/-]* starting$' |
-              ( grep -v '^[a-z0-9._/-]* DONE$' || true ) |
-              uniq >errors.txt"
+          command: "grep -v '^Analy[sz]ing block' stderr.log | \
+              grep -v '^Found [0-9]* source files to analy[sz]e' | \
+              grep -v '^[a-z0-9._/-]* starting$' | \
+              uniq | \
+              ! grep -v '^[a-z0-9._/-]* DONE$'"
       - store_artifacts:
           path: errors.txt
 
