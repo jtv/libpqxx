@@ -48,12 +48,6 @@ compiler_pkg() {
 export DEBIAN_FRONTEND=noninteractive TZ=UTC
 
 
-# Does glob expression $1 match anything?
-glob_matches() {
-    # This is a bash-specific trick.
-    compgen -G "$1" >/dev/null
-}
-
 install_archlinux() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
@@ -117,12 +111,6 @@ install_archlinux_lint() {
 }
 
 
-# Location where apt caches the deb files it downloads.
-APT_CACHE="/var/cache/apt/archives"
-# Location where we store cached deb files for CircleCI caching.  This has to
-# be close to $APT_CACHE so that we can hardlink between them.
-OUR_APT_CACHE="/var/cache/apt/pqxx-cache"
-
 install_debian() {
     local cxxpkg
     local pkgs
@@ -133,32 +121,10 @@ install_debian() {
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
 
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
-        time apt-get -q update
+        apt-get -q update
 
-        # First, only download the packages but don't install them.  This
-        # gives us the opportunity to grab them for caching in CircleCI.
         # shellcheck disable=SC2086
-        time apt-get -q install -y --download-only $pkgs
-
-        mkdir -p -- "$OUR_APT_CACHE"
-        if glob_matches "$APT_CACHE/*.deb"
-        then
-            # "Copy" (actually, hardlink because it's cheaper) the cached deb
-            # packages to our own temporary storage, so we'll still have them
-	    # after actually installing the packages.
-            time ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
-        fi
-
-        # *Now* we can install the packages.  This will clear out apt's cache
-	# as a side effect, but not ours.
-        # shellcheck disable=SC2086
-        time apt-get -q install -y $pkgs
-
-	# Re-stock the cache from our own temporary storage.
-	if glob_matches "$OUR_APT_CACHE/*.deb"
-	then
-	    time ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
-	fi
+        apt-get -q install -y $pkgs
     ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"

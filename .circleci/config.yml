@@ -29,27 +29,6 @@ jobs:
     steps:
       - checkout
 
-      # There's no conditional way to save/restore CircleCI caches, so we cache
-      # all kinds of packages for all operating systems we support.  It's just
-      # that mismatched combinations (e.g. pacman for Ubuntu, or apt for
-      # Fedora) will not contain anything.
-      #
-      # The cache keys include the architecture, so that these empty package
-      # directories don't overwrite the meaningful caches.
-      # TODO: Can we influence scheduling to minimise Thundering Herd effect?
-      - restore_cache:
-          keys:
-            # Cache downloaded dnf packages (for Fedora).
-            - "v16-{{ arch }}-<< parameters.os >>-dnf-"
-      - restore_cache:
-          keys:
-            # Cache downloaded dpkg packages (for Debian & Ubuntu).
-            - "v16-{{ arch }}-<< parameters.os >>-dpkg-"
-      - restore_cache:
-          keys:
-            # Cache downloaded pacman packages (for Arch Linux).
-            - "v16-{{ arch }}-<< parameters.os >>-pacman-"
-
       - run:
           name: Install
           command: "time ./tools/install-deps.sh \
@@ -58,23 +37,6 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
-
-      - save_cache:
-          key: "v16-{{ arch }}-<< parameters.os >>-dnf-{{ .Revision }}"
-          # XXX: Doesn't work yet.  Caches seem empty.
-          paths:
-            - /var/cache/dnf
-      - save_cache:
-          key: "v16-{{ arch }}-<< parameters.os >>-dpkg-{{ .Revision }}"
-          # XXX: Trying to get this to work.
-          paths:
-            - /var/cache/apt/archives
-            - /var/cache/apt/lists
-            - /var/lib/dpkg/info
-      - save_cache:
-          key: "v16-{{ arch }}-<< parameters.os >>-pacman-{{ .Revision }}"
-          paths:
-            - /var/cache/pacman/pkg
 
       - run:
           name: Autogen
