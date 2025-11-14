@@ -133,12 +133,12 @@ install_debian() {
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
 
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
-        apt-get -q update
+        time apt-get -q update
 
         # First, only download the packages but don't install them.  This
         # gives us the opportunity to grab them for caching in CircleCI.
         # shellcheck disable=SC2086
-        apt-get -q install -y --download-only $pkgs
+        time apt-get -q install -y --download-only $pkgs
 
         mkdir -p -- "$OUR_APT_CACHE"
         if glob_matches "$APT_CACHE/*.deb"
@@ -146,18 +146,18 @@ install_debian() {
             # "Copy" (actually, hardlink because it's cheaper) the cached deb
             # packages to our own temporary storage, so we'll still have them
 	    # after actually installing the packages.
-            ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
+            time ln -f -- "$APT_CACHE"/*.deb "$OUR_APT_CACHE"
         fi
 
         # *Now* we can install the packages.  This will clear out apt's cache
 	# as a side effect, but not ours.
         # shellcheck disable=SC2086
-        apt-get -q install -y $pkgs
+        time apt-get -q install -y $pkgs
 
 	# Re-stock the cache from our own temporary storage.
 	if glob_matches "$OUR_APT_CACHE/*.deb"
 	then
-	    ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
+	    time ln -f -- "$OUR_APT_CACHE"/*.deb "$APT_CACHE/"
 	fi
     ) >> /tmp/install.log
 
