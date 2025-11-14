@@ -471,11 +471,9 @@ template<typename TYPE> struct string_traits<range<TYPE>>
   {
     if (std::size(text) < 3)
       throw pqxx::conversion_error{err_bad_input(text), loc};
-    bool left_inc{false};
     switch (text[0])
     {
-    case '[': left_inc = true; break;
-
+    case '[':
     case '(': break;
 
     case 'e':
@@ -515,11 +513,11 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     char const closing{text[pos - 1]};
     if (closing != ')' and closing != ']')
       throw pqxx::conversion_error{err_bad_input(text), loc};
-    bool const right_inc{closing == ']'};
 
     range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};
     if (lower)
     {
+      bool const left_inc{text[0] == '['};
       if (left_inc)
         lower_bound = inclusive_bound{*lower};
       else
@@ -527,6 +525,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
     if (upper)
     {
+      bool const right_inc{closing == ']'};
       if (right_inc)
         upper_bound = inclusive_bound{*upper};
       else

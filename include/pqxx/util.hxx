@@ -413,8 +413,10 @@ inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
  */
 inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
 {
-  assert(escaped_bytes >= 2u);
-  return (escaped_bytes - 2) / 2;
+  if (escaped_bytes < 2u) [[unlikely]]
+    return 0;
+  else
+    return (escaped_bytes - 2) / 2;
 }
 
 
