@@ -978,8 +978,7 @@ public:
   [[nodiscard]] bytes
   unesc_bin(std::string_view text, sl loc = sl::current()) const
   {
-    bytes buf;
-    buf.resize(pqxx::internal::size_unesc_bin(std::size(text)));
+    bytes buf{pqxx::internal::size_unesc_bin(std::size(text))};
     pqxx::internal::unesc_bin(text, buf, loc);
     return buf;
   }
