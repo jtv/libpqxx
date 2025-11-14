@@ -132,8 +132,6 @@ install_debian() {
         pkgs="build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
 
-        mkdir -p -- "$OUR_APT_CACHE"
-
         # TODO: Can we trim the sources lists to save time?  Is it worth it?
         apt-get -q update
 
@@ -142,6 +140,7 @@ install_debian() {
         # shellcheck disable=SC2086
         apt-get -q install -y --download-only $pkgs
 
+        mkdir -p -- "$OUR_APT_CACHE"
         if glob_matches "$APT_CACHE/*.deb"
         then
             # "Copy" (actually, hardlink because it's cheaper) the cached deb
