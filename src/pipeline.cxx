@@ -408,8 +408,10 @@ pqxx::pipeline::retrieve(pipeline::QueryMap::iterator q, sl loc)
   if (m_num_waiting and not have_pending() and (m_error == qid_limit()))
     issue(loc);
 
+  // We do a strange dance with the first argument, just so we get the "move"
+  // version of std::make_pair().
   auto p{
-    std::make_pair(std::move(q->first), std::move(std::move(q->second.res)))};
+    std::make_pair(query_id{q->first}, std::move(std::move(q->second.res)))};
   m_queries.erase(q);
   pqxx::internal::gate::result_creation{p.second}.check_status(loc);
   return p;
