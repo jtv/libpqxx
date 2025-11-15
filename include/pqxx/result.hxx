@@ -106,7 +106,7 @@ public:
   using const_reverse_iterator = const_reverse_result_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  result() noexcept =default;
+  result() noexcept = default;
   result(result const &rhs) noexcept = default;
   result(result &&rhs) noexcept = default;
 
