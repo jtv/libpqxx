@@ -497,7 +497,9 @@ void test_array_parses_real_arrays()
     pqxx::from_string<pqxx::array<int>>(onedim_s, make_context(mono))};
   PQXX_CHECK_EQUAL(onedim_a.dimensions(), 1u);
   PQXX_CHECK_EQUAL(onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}));
+  PQXX_CHECK_EQUAL(onedim_a.at(0), 0);
   PQXX_CHECK_EQUAL(onedim_a[0], 0);
+  PQXX_CHECK_EQUAL(onedim_a.at(2), 2);
   PQXX_CHECK_EQUAL(onedim_a[2], 2);
 
   auto const null_s{
