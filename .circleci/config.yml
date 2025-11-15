@@ -287,7 +287,7 @@ jobs:
               grep -v '^Found [0-9]* source files to analy[sz]e' | \
               grep -v '^[a-z0-9._/-]* starting$' | \
               uniq | \
-              ( ! grep -v '^[a-z0-9._/-]* DONE$' )"
+              ( ! grep -v '^[a-z0-9._/-]* DONE$' ) >errors.txt"
       - store_artifacts:
           path: errors.txt
 
