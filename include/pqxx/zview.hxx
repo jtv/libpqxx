@@ -101,7 +101,7 @@ public:
    * somewhat complicated question.  Answers on the internet often seem
    * contradictory.
    */
-  zview(std::filesystem::path p) : zview(p.c_str()) {}
+  zview(std::filesystem::path const &p) : zview(p.c_str()) {}
 #endif // _WIN32
 
   /// Either a null pointer, or a zero-terminated text buffer.

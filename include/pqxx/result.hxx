@@ -361,7 +361,7 @@ public:
   /** @return The result itself, for convenience.
    * @throw @ref unexpected_rows if the actual count is not equal to `n`.
    */
-  result expect_rows(size_type n, sl loc = sl::current()) const
+  result const &expect_rows(size_type n, sl loc = sl::current()) const
   {
     auto const sz{size()};
     if (sz != n)
@@ -413,7 +413,7 @@ public:
   std::optional<row_ref> opt_row_ref(sl = sl::current()) const;
 
   /// Expect that result contains no rows.  Return result for convenience.
-  result no_rows(sl loc = sl::current()) const
+  result const &no_rows(sl loc = sl::current()) const
   {
     expect_rows(0, loc);
     return *this;
@@ -423,7 +423,8 @@ public:
   /** @return The result itself, for convenience.
    * @throw @ref usage_error otherwise.
    */
-  result expect_columns(row_size_type cols, sl loc = sl::current()) const
+  result const &
+  expect_columns(row_size_type cols, sl loc = sl::current()) const
   {
     auto const actual{columns()};
     if (actual != cols)

@@ -1011,8 +1011,10 @@ public:
    */
   template<not_borrowed TYPE> TYPE query_value(prepped statement, ctx c = {})
   {
-    auto const r{exec(statement, {}, c.loc)};
-    return r.expect_columns(1, c.loc).one_field_ref(c.loc).as<TYPE>(c);
+    return exec(statement, {}, c.loc)
+      .expect_columns(1, c.loc)
+      .one_field_ref(c.loc)
+      .as<TYPE>(c);
   }
 
   /// Execute prepared statement, load result, perform `func` for each row.
