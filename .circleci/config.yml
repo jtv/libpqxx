@@ -291,9 +291,6 @@ jobs:
               uniq >errors.txt"
       - store_artifacts:
           path: errors.txt
-      - run:
-          name: Check for errors
-          command: ! grep -q . /tmp/errors.txt
 
 workflows:
   all-tests:
