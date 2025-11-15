@@ -238,11 +238,13 @@ jobs:
           #
           # Negate the outcome of the final grep so that this will report a
           # failure if we find any errors.
-          command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
+          command: "( \
+              grep -v '^[0-9]\\+ warnings generated\\.$' \
               /tmp/analyze.txt | \
               grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
               grep -v '^Running clang-tidy for [0-9]* files*' | \
-              uniq >errors.txt"
+              uniq \
+              ) >errors.txt || true"
       - store_artifacts:
           path: "errors.txt"
       - run:
