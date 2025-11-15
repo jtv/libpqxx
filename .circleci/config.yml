@@ -241,9 +241,10 @@ jobs:
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
               /tmp/analyze.txt | \
               grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
-              uniq >/tmp/errors.txt"
+              grep -v '^Running clang-tidy for [0-9]* files*' \
+              uniq >errors.txt"
       - store_artifacts:
-          path: "/tmp/errors.txt"
+          path: "errors.txt"
       - run:
           name: Check for errors
           # Fails if errors.txt contains actual text.
@@ -286,10 +287,13 @@ jobs:
           command: "grep -v '^Analy[sz]ing block' stderr.log | \
               grep -v '^Found [0-9]* source files to analy[sz]e' | \
               grep -v '^[a-z0-9._/-]* starting$' | \
-              uniq | \
-              ( ! grep -v '^[a-z0-9._/-]* DONE$' ) >errors.txt"
+              grep -v '^[a-z0-9._/-]* DONE$' | \
+              uniq >errors.txt"
       - store_artifacts:
           path: errors.txt
+      - run:
+          name: Check for errors
+          command: ! grep -q . /tmp/errors.txt
 
 workflows:
   all-tests:
