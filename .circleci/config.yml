@@ -241,7 +241,7 @@ jobs:
           command: "grep -v '^[0-9]\\+ warnings generated\\.$' \
               /tmp/analyze.txt | \
               grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
-              grep -v '^Running clang-tidy for [0-9]* files*' \
+              grep -v '^Running clang-tidy for [0-9]* files*' | \
               uniq >errors.txt"
       - store_artifacts:
           path: "errors.txt"
