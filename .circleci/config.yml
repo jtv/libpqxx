@@ -284,11 +284,13 @@ jobs:
           path: infer.log
       - run:
           name: Gather results
-          command: "grep -v '^Analy[sz]ing block' stderr.log | \
+          command: "( \
+              grep -v '^Analy[sz]ing block' stderr.log | \
               grep -v '^Found [0-9]* source files to analy[sz]e' | \
               grep -v '^[a-z0-9._/-]* starting$' | \
               grep -v '^[a-z0-9._/-]* DONE$' | \
-              uniq >errors.txt"
+              uniq \
+              ) >errors.txt || true"
       - store_artifacts:
           path: errors.txt
 
