@@ -251,7 +251,7 @@ jobs:
       - run:
           name: Check for errors
           # Fails if errors.txt contains actual text.
-          command: ! grep -q . errors.txt
+          command: "! grep . errors.txt"
 
   infer:
     parameters:
