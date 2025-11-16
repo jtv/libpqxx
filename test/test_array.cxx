@@ -580,15 +580,15 @@ void test_array_parses_quoted_strings()
   pqxx::connection const cx;
   pqxx::array<std::string> const a{
     R"x({"","n","nnn","\"'","""","\\","\"","a""","""z"})x", cx};
-  PQXX_CHECK_EQUAL(a[0], "");
-  PQXX_CHECK_EQUAL(a[1], "n");
-  PQXX_CHECK_EQUAL(a[2], "nnn");
-  PQXX_CHECK_EQUAL(a[3], R"x("')x");
-  PQXX_CHECK_EQUAL(a[4], R"x(")x");
-  PQXX_CHECK_EQUAL(a[5], "\\");
-  PQXX_CHECK_EQUAL(a[6], "\"");
-  PQXX_CHECK_EQUAL(a[7], "a\"");
-  PQXX_CHECK_EQUAL(a[8], "\"z");
+  PQXX_CHECK_EQUAL(a.at(0), "");
+  PQXX_CHECK_EQUAL(a.at(1), "n");
+  PQXX_CHECK_EQUAL(a.at(2), "nnn");
+  PQXX_CHECK_EQUAL(a.at(3), R"x("')x");
+  PQXX_CHECK_EQUAL(a.at(4), R"x(")x");
+  PQXX_CHECK_EQUAL(a.at(5), "\\");
+  PQXX_CHECK_EQUAL(a.at(6), "\"");
+  PQXX_CHECK_EQUAL(a.at(7), "a\"");
+  PQXX_CHECK_EQUAL(a.at(8), "\"z");
 
   // A byte value that looks like an ASCII backslash but inside a multibyte
   // character does not count as a backslash.
