@@ -104,7 +104,7 @@ inline std::string make_name(std::string_view prefix)
 {
   // In principle we should seed the random generator, but the scheduling of
   // threads will jumble up the numbers anyway.
-  return std::format("{}_{}", prefix, make_int());
+  return std::format("{}_{}", prefix, make_num());
 }
 
 
