@@ -252,7 +252,7 @@ namespace
 {
 void test_legacy_7_conversion_support()
 {
-  legacy_item const leg{pqxx::test::make_int()};
+  legacy_item const leg{pqxx::test::make_num()};
   auto const as_string{pqxx::to_string(leg)};
   PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
   PQXX_CHECK_EQUAL(

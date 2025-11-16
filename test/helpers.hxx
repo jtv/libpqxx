@@ -82,13 +82,20 @@ struct registrar
 };
 
 
-/// Return an arbitrary integer.
-inline int make_int()
+/// Return an arbitrary nonnegative integer.
+inline int make_num()
 {
-  // We use srand(), which is not guaranteed to be thread-safe.
+  // We use rand(), which is not guaranteed to be thread-safe.
   std::mutex l;
   std::lock_guard<std::mutex> guard{l};
   return rand();
+}
+
+
+/// Return an arbitrary nonnegative integer below `ceiling`.
+inline int make_num(int ceiling)
+{
+  return make_num() % ceiling;
 }
 
 

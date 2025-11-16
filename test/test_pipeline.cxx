@@ -7,6 +7,31 @@
 
 namespace
 {
+void test_pipeline_is_consistent()
+{
+  auto const num_queries = pqxx::test::make_num(10) + 1;
+  auto const value = pqxx::test::make_num();
+
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline pipe{tx};
+
+  PQXX_CHECK(std::empty(pipe));
+
+  auto const query{std::format("SELECT {}", value)};
+  for (int i{0}; i < num_queries; ++i) pipe.insert(query);
+
+  for (int i{0}; i < num_queries; ++i)
+  {
+    PQXX_CHECK(not std::empty(pipe));
+    auto res{pipe.retrieve()};
+    PQXX_CHECK_EQUAL(res.second.one_field().as<int>(), value);
+  }
+
+  PQXX_CHECK(pipe.empty());
+}
+
+
 void test_pipeline()
 {
   pqxx::connection cx;
@@ -56,4 +81,5 @@ void test_pipeline()
 }
 } // namespace
 
+PQXX_REGISTER_TEST(test_pipeline_is_consistent);
 PQXX_REGISTER_TEST(test_pipeline);
