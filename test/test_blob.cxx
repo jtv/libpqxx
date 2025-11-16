@@ -347,15 +347,15 @@ void test_blob_seek_sets_positions()
   pqxx::bytes buf;
   b.seek_rel(3);
   b.read(buf, 1u);
-  PQXX_CHECK_EQUAL(byte_val(buf[0]), byte_val(3));
+  PQXX_CHECK_EQUAL(byte_val(buf.at(0)), byte_val(3));
 
   b.seek_abs(2);
   b.read(buf, 1u);
-  PQXX_CHECK_EQUAL(byte_val(buf[0]), byte_val(2));
+  PQXX_CHECK_EQUAL(byte_val(buf.at(0)), byte_val(2));
 
   b.seek_end(-2);
   b.read(buf, 1u);
-  PQXX_CHECK_EQUAL(byte_val(buf[0]), byte_val(8));
+  PQXX_CHECK_EQUAL(byte_val(buf.at(0)), byte_val(8));
 }
 
 
