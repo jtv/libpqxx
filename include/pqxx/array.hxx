@@ -126,7 +126,8 @@ public:
   ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
-    return m_elts[locate(index...)];
+    // XXX: Use operator[].  But Facebook's "infer" sees a buffer overflow.
+    return m_elts.at(locate(index...));
   }
 
   /// Begin iteration of individual elements.
@@ -494,7 +495,7 @@ private:
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
     static_assert(dimension < DIMENSIONS);
-    if (first >= m_extents.at(dimension))
+    if (std::cmp_greater_equal(first, m_extents.at(dimension)))
       throw range_error{
         std::format(
           "Array index for dimension {} is out of bounds: {} >= {}.",
