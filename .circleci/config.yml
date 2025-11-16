@@ -285,7 +285,7 @@ jobs:
           path: stderr.log
       - store_artifacts:
           path: infer.log
-      store_artifacts:
+      - store_artifacts:
           path: infer-out/report.txt
       - run:
           name: Gather results
