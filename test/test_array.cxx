@@ -595,14 +595,14 @@ void test_array_parses_quoted_strings()
   pqxx::array<std::string> const b{
     "{\"\203\\\",\"\\\203\\\"}", pqxx::encoding_group::sjis};
   PQXX_CHECK_EQUAL(
-    b[0],
+    b.at(0),
     "\203\\"
     "");
   // If encoding support didn't work properly, puting a backslash in front
   // would probably only get applied to the first byte in the character, and
   // turn that embedded byte bcak into a backslash.
   PQXX_CHECK_EQUAL(
-    b[1],
+    b.at(1),
     "\203\\"
     "");
 }

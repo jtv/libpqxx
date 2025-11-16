@@ -209,15 +209,15 @@ private:
     // with the ASCII value for '{'; and likewise it must end with a sequence
     // of DIMENSIONS bytes with the ASCII value for '}'.
 
-    if (data[0] != '{')
+    if (data.at(0) != '{')
       throw conversion_error{"Malformed array: does not start with '{'.", loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
-      if (data[i] != '{')
+      if (data.at(i) != '{')
         throw conversion_error{
           std::format(
             "Expecting {}-dimensional array, but found {}.", DIMENSIONS, i),
           loc};
-    if (data[DIMENSIONS] == '{')
+    if (data.at(DIMENSIONS) == '{')
       throw conversion_error{
         std::format(
           "Tried to parse {}-dimensional array from array data that has more "
@@ -225,7 +225,7 @@ private:
           DIMENSIONS),
         loc};
     for (std::size_t i{0}; i < DIMENSIONS; ++i)
-      if (data[sz - 1 - i] != '}')
+      if (data.at(sz - 1 - i) != '}')
         throw conversion_error{
           "Malformed array: does not end in the right number of '}'.", loc};
   }
@@ -239,13 +239,13 @@ private:
   {
     auto const sz{std::size(data)};
     if (here < sz)
-      switch (data[here])
+      switch (data.at(here))
       {
       case SEPARATOR:
         ++here;
         if (here >= sz)
           throw conversion_error{"Array looks truncated.", loc};
-        switch (data[here])
+        switch (data.at(here))
         {
         case SEPARATOR:
           throw conversion_error{"Array contains double separator.", loc};
@@ -260,7 +260,7 @@ private:
           std::format(
             "Unexpected character in array: {} where separator or closing "
             "brace expected.",
-            static_cast<unsigned>(static_cast<unsigned char>(data[here]))),
+            static_cast<unsigned>(static_cast<unsigned char>(data.at(here)))),
           loc};
       }
     return here;
@@ -322,7 +322,7 @@ private:
     PQXX_ASSUME(here <= sz);
     while (here < sz)
     {
-      if (data[here] == '{')
+      if (data.at(here) == '{')
       {
         if (dim == outer)
         {
@@ -340,14 +340,14 @@ private:
           if (dim >= (DIMENSIONS - 1))
             throw conversion_error{
               "Array seems to have inconsistent number of dimensions.", loc};
-          ++extents[dim];
+          ++extents.at(dim);
         }
         // (Rolls over to zero if we're coming from the outer dimension.)
         ++dim;
-        extents[dim] = 0u;
+        extents.at(dim) = 0u;
         ++here;
       }
-      else if (data[here] == '}')
+      else if (data.at(here) == '}')
       {
         if (dim == outer)
           throw conversion_error{"Array has spurious '}'.", loc};
@@ -355,12 +355,12 @@ private:
         {
           // We just finished parsing our first row in this dimension.
           // Now we know the array dimension's extent.
-          m_extents[dim] = extents[dim];
+          m_extents.at(dim) = extents.at(dim);
           know_extents_from = dim;
         }
         else
         {
-          if (extents[dim] != m_extents[dim])
+          if (extents.at(dim) != m_extents.at(dim))
             throw conversion_error{
               "Rows in array have inconsistent sizes.", loc};
         }
@@ -379,9 +379,9 @@ private:
             "Malformed array: found element where sub-array was expected.",
             loc};
         assert(dim != outer);
-        ++extents[dim];
+        ++extents.at(dim);
         std::size_t end;
-        switch (data[here])
+        switch (data.at(here))
         {
         case '\0':
           throw conversion_error{"Unexpected zero byte in array.", loc};
@@ -449,8 +449,8 @@ private:
     std::size_t factor{1};
     for (std::size_t dim{DIMENSIONS - 1}; dim > 0; --dim)
     {
-      factor *= m_extents[dim];
-      m_factors[dim - 1] = factor;
+      factor *= m_extents.at(dim);
+      m_factors.at(dim - 1) = factor;
     }
   }
 
@@ -478,7 +478,7 @@ private:
       // (Offset by 1 here because the outer dimension is not in there.)
       constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
       static_assert(dimension < DIMENSIONS);
-      return first * m_factors[dimension] + add_index(indexes...);
+      return first * m_factors.at(dimension) + add_index(indexes...);
     }
   }
 
@@ -494,11 +494,11 @@ private:
     // (Offset by 1 here because the outer dimension is not in there.)
     constexpr auto dimension{DIMENSIONS - (sizeof...(indexes) + 1)};
     static_assert(dimension < DIMENSIONS);
-    if (first >= m_extents[dimension])
+    if (first >= m_extents.at(dimension))
       throw range_error{
         std::format(
           "Array index for dimension {} is out of bounds: {} >= {}.",
-          dimension, first, m_extents[dimension]),
+          dimension, first, m_extents.at(dimension)),
         m_ctx.loc};
 
     // Now check the rest of the indexes, if any.
