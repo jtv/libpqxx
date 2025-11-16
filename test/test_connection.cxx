@@ -140,7 +140,7 @@ template<typename MAP> void test_params_type()
   PQXX_CHECK_GREATER_EQUAL(
     std::size(connstr), min_size,
     "Connection string can't possibly contain the options we gave.");
-  for (auto const [key, value] : params)
+  for (auto const &[key, value] : params)
   {
     PQXX_CHECK(
       pqxx::str_contains(connstr, key),
