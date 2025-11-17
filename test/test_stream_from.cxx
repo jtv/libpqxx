@@ -348,11 +348,11 @@ void test_stream_from_parses_awkward_strings()
     values.push_back(value);
   }
 
-  PQXX_CHECK(not values[0].has_value(), "Null did not work properly.");
-  PQXX_CHECK(values[1].has_value(), "String 'NULL' became a NULL.");
+  PQXX_CHECK(not values.at(0).has_value(), "Null did not work properly.");
+  PQXX_CHECK(values.at(1).has_value(), "String 'NULL' became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[1].value_or("empty"), "NULL", "String 'NULL' went badly.");
-  PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
+    values.at(1).value_or("empty"), "NULL", "String 'NULL' went badly.");
+  PQXX_CHECK(values.at(2).has_value(), "String '\\N' became a NULL.");
   PQXX_CHECK_EQUAL(
     values[2].value_or("empty"), "\\N", "String '\\N' went badly.");
   PQXX_CHECK(values[3].has_value(), "String \"'NULL'\" became a NULL.");

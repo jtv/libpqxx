@@ -57,10 +57,10 @@ void test_stream_iterates()
 
   PQXX_CHECK_EQUAL(std::size(ids), 2u);
   PQXX_CHECK_EQUAL(std::size(values), 2u);
-  PQXX_CHECK_EQUAL(ids[0], 1);
-  PQXX_CHECK_EQUAL(values[0], "String 1.");
+  PQXX_CHECK_EQUAL(ids.at(0), 1);
+  PQXX_CHECK_EQUAL(values.at(0), "String 1.");
   PQXX_CHECK_EQUAL(ids.at(1), 2);
-  PQXX_CHECK_EQUAL(values[1], "String 2.");
+  PQXX_CHECK_EQUAL(values.at(1), "String 2.");
 }
 
 
@@ -150,22 +150,22 @@ void test_stream_parses_awkward_strings()
     values.push_back(value);
   }
 
-  PQXX_CHECK(not values[0].has_value(), "Null did not work properly.");
-  PQXX_CHECK(values[1].has_value(), "String 'NULL' became a NULL.");
+  PQXX_CHECK(not values.at(0).has_value(), "Null did not work properly.");
+  PQXX_CHECK(values.at(1).has_value(), "String 'NULL' became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[1].value_or("empty"), "NULL", "String 'NULL' went badly.");
+    values.at(1).value_or("empty"), "NULL", "String 'NULL' went badly.");
   PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[2].value_or("empty"), "\\N", "String '\\N' went badly.");
+    values.at(2).value_or("empty"), "\\N", "String '\\N' went badly.");
   PQXX_CHECK(values[3].has_value(), "String \"'NULL'\" became a NULL.");
   PQXX_CHECK_EQUAL(
-    values[3].value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
+    values.at(3).value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
-    values[4].value_or("empty"), "\x81\x5c",
+    values.at(4).value_or("empty"), "\x81\x5c",
     "Finicky SJIS character went badly.");
   PQXX_CHECK_EQUAL(values[5].value_or("empty"), "\t", "Tab unescaped wrong.");
   PQXX_CHECK_EQUAL(
-    values[6].value_or("empty"), "\\\\\\\n\\\\",
+    values.at(6).value_or("empty"), "\\\\\\\n\\\\",
     "Backslashes confused stream.");
 }
 
