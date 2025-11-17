@@ -286,6 +286,8 @@ jobs:
       - store_artifacts:
           path: infer.log
       - store_artifacts:
+          path: infer-out/report.txt
+      - store_artifacts:
           path: errors.txt
 
 workflows:
