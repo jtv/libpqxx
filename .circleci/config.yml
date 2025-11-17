@@ -286,19 +286,6 @@ jobs:
       - store_artifacts:
           path: infer.log
       - store_artifacts:
-          path: infer-out/report.txt
-      - run:
-          name: Gather results
-          command: "( \
-              cat infer.log |
-              grep -v '^Analy.ing block' | \
-              grep -v '^Found [0-9]* source files to analy[sz]e' | \
-              grep -v '^[a-z0-9._/-]* starting$' | \
-              grep -v '^[a-z0-9._/-]* DONE$' | \
-              sed -e 's/^[[:space:]][[:space:]]*$//' | \
-              uniq \
-              ) >errors.txt || true"
-      - store_artifacts:
           path: errors.txt
 
 workflows:
@@ -312,7 +299,7 @@ workflows:
       - infer:
           matrix:
             parameters:
-              cxx_version: ["c++20"]
+              cxx_version: ["c++26"]
 
       - test-linux:
           matrix:
