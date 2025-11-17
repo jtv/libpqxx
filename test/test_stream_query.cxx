@@ -154,7 +154,7 @@ void test_stream_parses_awkward_strings()
   PQXX_CHECK(values.at(1).has_value(), "String 'NULL' became a NULL.");
   PQXX_CHECK_EQUAL(
     values.at(1).value_or("empty"), "NULL", "String 'NULL' went badly.");
-  PQXX_CHECK(values[2].has_value(), "String '\\N' became a NULL.");
+  PQXX_CHECK(values.at(2).has_value(), "String '\\N' became a NULL.");
   PQXX_CHECK_EQUAL(
     values.at(2).value_or("empty"), "\\N", "String '\\N' went badly.");
   PQXX_CHECK(values.at(3).has_value(), "String \"'NULL'\" became a NULL.");
