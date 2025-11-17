@@ -384,7 +384,7 @@ void test_blob_append_from_buf_appends()
   auto expect{data};
   // C++23: Use expect.append_range(data).
   // Infer thinks the push_back() may invalidate e!?
-  for (auto const e : data) expect.push_back(e);
+  for (auto const &e : data) expect.push_back(e);
 
   PQXX_CHECK_EQUAL(buf, expect);
 }
