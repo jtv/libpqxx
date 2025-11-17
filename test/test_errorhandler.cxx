@@ -100,9 +100,9 @@ void test_error_handlers_get_called_newest_to_oldest(pqxx::connection &cx)
   PQXX_CHECK_EQUAL(h2.message(), "Warning.\n");
   PQXX_CHECK_EQUAL(h1.message(), "Warning.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 3u);
-  PQXX_CHECK_EQUAL(&h3, handlers[0]);
-  PQXX_CHECK_EQUAL(&h2, handlers[1]);
-  PQXX_CHECK_EQUAL(&h1, handlers[2]);
+  PQXX_CHECK_EQUAL(&h3, handlers.at(0));
+  PQXX_CHECK_EQUAL(&h2, handlers.at(1));
+  PQXX_CHECK_EQUAL(&h1, handlers.at(2));
 }
 
 void test_returning_false_stops_error_handling(pqxx::connection &cx)
@@ -112,7 +112,7 @@ void test_returning_false_stops_error_handling(pqxx::connection &cx)
   TestErrorHandler blocker(cx, handlers, false);
   cx.process_notice("Error output.\n");
   PQXX_CHECK_EQUAL(std::size(handlers), 1u, "Handling chain was not stopped.");
-  PQXX_CHECK_EQUAL(handlers[0], &blocker, "Wrong handler got message.");
+  PQXX_CHECK_EQUAL(handlers.at(0), &blocker, "Wrong handler got message.");
   PQXX_CHECK_EQUAL(blocker.message(), "Error output.\n");
   PQXX_CHECK_EQUAL(
     starved.message(), "", "Message received; it shouldn't be.");

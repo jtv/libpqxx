@@ -144,12 +144,14 @@ template<typename MAP> void test_params_type()
   {
     PQXX_CHECK(
       pqxx::str_contains(connstr, key),
-      "Could not find param name '" + std::string{key} +
-        "' in connection string: " + connstr);
+      std::format(
+        "Could not find param name '{}' in connection string: {}",
+        std::string{key}, connstr));
     PQXX_CHECK(
       pqxx::str_contains(connstr, value),
-      "Could not find value for '" + std::string{value} +
-        "' in connection string: " + connstr);
+      std::format(
+        "Could not find value for '{}' in connection string: ",
+        std::string{value}, connstr));
   }
 }
 

@@ -163,7 +163,8 @@ void test_stream_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values.at(4).value_or("empty"), "\x81\x5c",
     "Finicky SJIS character went badly.");
-  PQXX_CHECK_EQUAL(values[5].value_or("empty"), "\t", "Tab unescaped wrong.");
+  PQXX_CHECK_EQUAL(
+    values.at(5).value_or("empty"), "\t", "Tab unescaped wrong.");
   PQXX_CHECK_EQUAL(
     values.at(6).value_or("empty"), "\\\\\\\n\\\\",
     "Backslashes confused stream.");
