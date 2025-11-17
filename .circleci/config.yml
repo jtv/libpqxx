@@ -299,7 +299,7 @@ workflows:
       - infer:
           matrix:
             parameters:
-              cxx_version: ["c++26"]
+              cxx_version: ["c++23"]
 
       - test-linux:
           matrix:
