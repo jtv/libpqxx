@@ -301,6 +301,9 @@ void test_stream_from_read_row()
   auto stream{pqxx::stream_from::table(tx, {"sample"})};
   auto fields{stream.read_row()};
   PQXX_CHECK(fields != nullptr);
+  // (Work around a weird false positive in clang-tidy where the check that
+  // fields is _not_ null somehow convinces the checker that it _is_ null.)
+  assert(fields != nullptr);
   PQXX_CHECK_EQUAL(fields->size(), 3ul);
   PQXX_CHECK_EQUAL(std::string((*fields)[0]), "321");
   PQXX_CHECK_EQUAL(std::string((*fields)[1]), "something");
