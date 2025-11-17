@@ -59,7 +59,7 @@ void test_stream_iterates()
   PQXX_CHECK_EQUAL(std::size(values), 2u);
   PQXX_CHECK_EQUAL(ids[0], 1);
   PQXX_CHECK_EQUAL(values[0], "String 1.");
-  PQXX_CHECK_EQUAL(ids[1], 2);
+  PQXX_CHECK_EQUAL(ids.at(1), 2);
   PQXX_CHECK_EQUAL(values[1], "String 2.");
 }
 
@@ -93,8 +93,8 @@ void test_stream_reads_string_view()
     out.emplace_back(v);
   }
   PQXX_CHECK_EQUAL(std::size(out), 2u);
-  PQXX_CHECK_EQUAL(out[0], "x1");
-  PQXX_CHECK_EQUAL(out[1], "x2");
+  PQXX_CHECK_EQUAL(out.at(0), "x1");
+  PQXX_CHECK_EQUAL(out.at(1), "x2");
 }
 
 

@@ -95,10 +95,10 @@ void test_transaction_query()
 
   PQXX_CHECK_EQUAL(std::size(names), 5u);
   PQXX_CHECK_EQUAL(std::size(salaries), 5u);
-  PQXX_CHECK_EQUAL(names[0], "name1");
-  PQXX_CHECK_EQUAL(names[4], "name5");
-  PQXX_CHECK_EQUAL(salaries[0], 1'000);
-  PQXX_CHECK_EQUAL(salaries[4], 5'000, );
+  PQXX_CHECK_EQUAL(names.at(0), "name1");
+  PQXX_CHECK_EQUAL(names.at(4), "name5");
+  PQXX_CHECK_EQUAL(salaries.at(0), 1'000);
+  PQXX_CHECK_EQUAL(salaries.at(4), 5'000, );
 }
 
 
@@ -274,8 +274,8 @@ void test_transaction_query_n()
     v.push_back(n);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   PQXX_CHECK_EQUAL(std::size(v), 3u);
-  PQXX_CHECK_EQUAL(v[0], 7);
-  PQXX_CHECK_EQUAL(v[2], 9);
+  PQXX_CHECK_EQUAL(v.at(0), 7);
+  PQXX_CHECK_EQUAL(v.at(2), 9);
 }
 
 

@@ -267,7 +267,7 @@ void test_stream_from_does_iteration()
 
   int i{0};
   std::string out;
-  for (std::tuple<std::string> t : reader.iter<std::string>())
+  for (std::tuple<std::string> const &t : reader.iter<std::string>())
   {
     i++;
     out = std::get<0>(t);
@@ -279,7 +279,7 @@ void test_stream_from_does_iteration()
   i = 0;
   std::set<std::string> strings;
   auto reader2{pqxx::stream_from::table(tx, {"str"})};
-  for (std::tuple<std::string> t : reader2.iter<std::string>())
+  for (std::tuple<std::string> const &t : reader2.iter<std::string>())
   {
     i++;
     strings.insert(std::get<0>(t));
@@ -300,6 +300,7 @@ void test_stream_from_read_row()
 
   auto stream{pqxx::stream_from::table(tx, {"sample"})};
   auto fields{stream.read_row()};
+  PQXX_CHECK(fields != nullptr);
   PQXX_CHECK_EQUAL(fields->size(), 3ul);
   PQXX_CHECK_EQUAL(std::string((*fields)[0]), "321");
   PQXX_CHECK_EQUAL(std::string((*fields)[1]), "something");
@@ -355,7 +356,7 @@ void test_stream_from_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values[3].value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
-    values[4].value_or("empty"), "\x81\x5c",
+    values.at(4).value_or("empty"), "\x81\x5c",
     "Finicky SJIS character went badly.");
 }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
