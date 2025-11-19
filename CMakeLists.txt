@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 file(READ VERSION VER_FILE_CONTENT)
 string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
+
+# Remove any release-candidate suffix.
+string(REGEX MATCH "^[0-9.]*" STRIPPED_VERSION ${VER_FILE_CONTENT})
 project(
     libpqxx
-    VERSION ${VER_FILE_CONTENT}
+    VERSION "${STRIPPED_VERSION}"
     LANGUAGES CXX
 )
 if(NOT "${CMAKE_CXX_STANDARD}")
@@ -35,7 +38,7 @@ endif()
 # Installation
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
-    VERSION ${PROJECT_VERSION}
+    VERSION ${VER_FILE_CONTENT}
     COMPATIBILITY SameMajorVersion
 )
 install(FILES cmake/libpqxx-config.cmake
@@ -59,5 +62,5 @@ configure_file(
 )
 # Package generation
 set(CPACK_GENERATOR TGZ)
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION ${VER_FILE_CONTENT})
 include(CPack)
