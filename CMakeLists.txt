@@ -3,7 +3,7 @@ file(READ VERSION VER_FILE_CONTENT)
 string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
 
 # Remove any release-candidate suffix.
-string(REGEX MATCH "^[0-9.]*" STRIPPED_VERSION ${VER_FILE_CONTENT})
+string(REGEX MATCH "^[0-9.]+" STRIPPED_VERSION ${VER_FILE_CONTENT})
 project(
     libpqxx
     VERSION "${STRIPPED_VERSION}"
