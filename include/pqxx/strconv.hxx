@@ -69,7 +69,7 @@ namespace pqxx
  * The default setting is for `TYPE` never to be null.  Override this with
  * your own specialisation if `TYPE` does have a null value, or is always null.
  *
- * @warning If you do specialise this, ensure that your specialiation is
+ * @warning If you do specialise this, ensure that your specialisation is
  * defined in _every_ place where you compile code that uses `TYPE` with
  * libpqxx.  Otherwise, you may accidentally get the defaults in some places
  * but not in others.  This could be very confusing to debug.
@@ -126,8 +126,8 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
 /// Nullness traits describing a type which does not have a null value.
 /** These are also the nullness traits that any type gets by default, so you
  * don't strictly need this.  But if you want to be explicit about the fact
- * that `TYPE` does not have a null value, you can specialise a nullness<TYPE>` 
- * struct and derive it from `no_null<TYPE>`.
+ * that `TYPE` does not have a null value, you can specialise a
+ * `nullness<TYPE>` struct and derive it from `no_null<TYPE>`.
  */
 template<typename TYPE> struct no_null
 {

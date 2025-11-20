@@ -156,8 +156,8 @@ analysis tools may report false posiives when initialising such strings at
 initialisation time.
 
 
-Specialise `nullness`
----------------------
+Optional: Specialise `nullness`
+-------------------------------
 
 A struct template `pqxx::nullness` defines whether your type has a natural
 "null value" built in.  For example, a `std::optional` instantiation has a
