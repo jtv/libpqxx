@@ -213,6 +213,7 @@ private:
 
 namespace pqxx
 {
+// (We don't really need this definition, but let's test that it works.)
 template<> struct nullness<legacy_item> : no_null<legacy_item>
 {};
 

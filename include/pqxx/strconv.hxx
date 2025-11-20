@@ -61,62 +61,83 @@ namespace pqxx
 // TODO: Drop `ENABLE` in 9.x.
 /// Traits describing a type's "null value," if any.
 /** Some C++ types have a special value or state which correspond directly to
- * SQL's NULL.
+ * SQL's NULL.  There are also a few types that _always_ represent a null.
  *
- * The @c nullness traits describe whether it exists, and whether a particular
- * value is null.
+ * The @c nullness traits describe this situation for `TYPE`, and whether a
+ * particular value of `TYPE` is null.
  *
- * @warning The `ENABLE` parameter is deprecated.  It exists to enable use of
+ * The default setting is for `TYPE` never to be null.  Override this with
+ * your own specialisation if `TYPE` does have a null value, or is always null.
+ *
+ * @warning If you do specialise this, ensure that your specialiation is
+ * defined in _every_ place where you compile code that uses `TYPE` with
+ * libpqxx.  Otherwise, you may accidentally get the defaults in some places
+ * but not in others.  This could be very confusing to debug.
+ *
+ * @warning The `ENABLE` parameter is deprecated.  It only serves to work with
  * `std::enable_if`.  As of C++20, use `requires` or a concept instead.
  */
 template<typename TYPE, typename ENABLE = void> struct nullness final
 {
-  /// Does this type have a null value?
-  static bool has_null;
-
-  /// Is this type always null?
-  constexpr static bool always_null = false;
-
-  /// Is @c value a null?
-  static bool is_null(TYPE const &value);
-
-  /// Return a null value.
-  /** Don't use this in generic code to compare a value and see whether it is
-   * null.  Some types may have multiple null values which do not compare as
-   * equal, or may define a null value which is not equal to anything including
-   * itself, like in SQL.
-   */
-  [[nodiscard]] static TYPE null();
-};
-
-
-/// Nullness traits describing a type which does not have a null value.
-template<typename TYPE> struct no_null
-{
-  /// Does @c TYPE have a "built-in null value"?
+  /// Does `TYPE` have a null value?
   /** For example, a pointer can equal @c nullptr, which makes a very natural
    * representation of an SQL null value.  For such types, the code sometimes
    * needs to make special allowances.
    *
-   * for most types, such as @c int or @c std::string, there is no built-in
+   * For most types, such as @c int or @c std::string, there is no built-in
    * null.  If you want to represent an SQL null value for such a type, you
    * would have to wrap it in something that does have a null value.  For
    * example, you could use @c std::optional<int> for "either an @c int or a
    * null value."
+   *
+   * If you're specialising `nullness` for a type `TYPE` of your own, and
+   * `TYPE` has a null value, set `has_null` to `true`.  If `TYPE` does not
+   * have a null value, you don't need to specialise `nullness<TYPE>` at all.
+   * In that situation you can just use the defaults.
    */
   static constexpr bool has_null = false;
 
-  /// Are all values of this type null?
-  /** There are a few special C++ types which are always null - mainly
-   * @c std::nullptr_t.
+  /// Is `TYPE` _always_ null?
+  /** This is just for a few special types like `std::nullptr_t`, which have
+   * no values that are _not_ null.
+   *
+   * If you're specialising `nullness` for a type `TYPE` of your own, set
+   * `always_null` to whether it is one of those types.
    */
+  constexpr static bool always_null = false;
+
+  /// Is the given `TYPE` value a null?
+  /** If you are specialising `nullness` for a type `TYPE` of your own, which
+   * has a null value, override this function with one that figures this out.
+   *
+   * For example, if `TYPE` is a pointer, you might return `value == nullptr`.
+   */
+  [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept { return false; }
+
+  /// Only defined if `TYPE` has a null: Return a sample null value.
+  /** In generic code (where you don't know exactly what `TYPE` is), _don't_
+   * use this like `value == nullness<TYPE>::null()`.  Just like in SQL, one
+   * null may not be equal to another.
+   */
+  [[nodiscard]] static TYPE null() =delete;
+};
+
+
+/// Nullness traits describing a type which does not have a null value.
+/** These are also the nullness traits that any type gets by default, so you
+ * don't strictly need this.  But if you want to be explicit about the fact
+ * that `TYPE` does not have a null value, you can specialise a nullness<TYPE>` 
+ * struct and derive it from `no_null<TYPE>`.
+ */
+template<typename TYPE> struct no_null
+{
+  /// Does `TYPE` have a null value?
+  static constexpr bool has_null = false;
+
+  /// Is `TYPE` _always_ null?
   static constexpr bool always_null = false;
 
-  /// Does a given value correspond to an SQL null value?
-  /** Most C++ types, such as @c int or @c std::string, have no inherent null
-   * value.  But some types such as C-style string pointers do have a natural
-   * equivalent to an SQL null.
-   */
+  /// Is the given `TYPE` value a null?
   [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
   {
     return false;
@@ -316,13 +337,6 @@ struct string_traits<signed char> final : forbidden_conversion<signed char>
  */
 template<>
 struct string_traits<std::byte> final : forbidden_conversion<std::byte>
-{};
-
-
-/// Nullness: Enums do not have an inherent null value.
-template<typename ENUM>
-  requires std::is_enum_v<ENUM>
-struct nullness<ENUM> final : no_null<ENUM>
 {};
 } // namespace pqxx
 

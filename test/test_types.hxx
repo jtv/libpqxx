@@ -17,13 +17,6 @@
 #  include <vector>
 
 
-namespace pqxx
-{
-template<> struct nullness<std::byte> : no_null<std::byte>
-{};
-} // namespace pqxx
-
-
 class ipv4
 {
 public:
@@ -78,10 +71,6 @@ using bytea = std::vector<unsigned char>;
 
 namespace pqxx
 {
-template<> struct nullness<ipv4> : no_null<ipv4>
-{};
-
-
 template<> struct string_traits<ipv4>
 {
   static ipv4 from_string(std::string_view text, sl loc = sl::current())
@@ -163,10 +152,6 @@ inline unsigned hex_to_digit(char hex)
     throw std::runtime_error{"Invalid hex in bytea."};
 }
 } // namespace
-
-
-template<> struct nullness<bytea> : no_null<bytea>
-{};
 
 
 template<> struct string_traits<bytea>

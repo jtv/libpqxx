@@ -8,11 +8,6 @@ using namespace std::literals;
 
 namespace pqxx
 {
-template<>
-struct nullness<array_parser::juncture> : no_null<array_parser::juncture>
-{};
-
-
 inline std::string to_string(pqxx::array_parser::juncture const &j)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"

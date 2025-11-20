@@ -21,11 +21,6 @@ namespace pqxx
 {
 using namespace std::literals;
 
-template<>
-struct nullness<std::chrono::year_month_day>
-        : no_null<std::chrono::year_month_day>
-{};
-
 
 /// String representation for a Gregorian date in ISO-8601 format.
 /** @warning Experimental.  There may still be design problems, particularly

@@ -523,8 +523,8 @@ template<> struct string_traits<char *>
 };
 
 
-template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
-{};
+/// A C-style array has no null.  It's not quite the same thing as a pointer.
+template<std::size_t N> struct nullness<char[N]> : no_null<char[N]> {};
 
 
 /// String traits for C-style string constant ("pointer to array of char").
@@ -547,10 +547,6 @@ template<std::size_t N> struct string_traits<char[N]>
   /// Don't allow conversion to this type.
   static void from_string(std::string_view) = delete;
 };
-
-
-template<> struct nullness<std::string> : no_null<std::string>
-{};
 
 
 template<> struct string_traits<std::string>
@@ -606,10 +602,6 @@ template<> struct string_traits<std::string_view>
 };
 
 
-template<> struct nullness<zview> : no_null<zview>
-{};
-
-
 /// String traits for `zview`.
 template<> struct string_traits<zview>
 {
@@ -631,10 +623,6 @@ template<> struct string_traits<zview>
    */
   static zview from_string(std::string_view) = delete;
 };
-
-
-template<> struct nullness<std::stringstream> : no_null<std::stringstream>
-{};
 
 
 template<> struct string_traits<std::stringstream>
@@ -787,10 +775,6 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
 
 
-template<binary DATA> struct nullness<DATA> : no_null<DATA>
-{};
-
-
 template<binary DATA> struct string_traits<DATA>
 {
   static std::size_t size_buffer(DATA const &value) noexcept
@@ -851,8 +835,7 @@ inline std::size_t array_into_buf(
 
 namespace pqxx
 {
-template<nonbinary_range T> struct nullness<T> : no_null<T>
-{};
+template<nonbinary_range T> struct nullness<T> : no_null<T> {};
 
 
 /// String traits for SQL arrays.

@@ -81,9 +81,10 @@ to figure one out with some help from the compiler, but it may not always be
 easy to read.  In C++26 we expect to get a standard way to query the name, but
 until then it's a bit messy.
 
-Then, does your type have a built-in null value?  For example, a `char *` can
-be null on the C++ side.  Or some types are _always_ null, such as `nullptr`.
-You specialise the `pqxx::nullness` template to specify the details.
+Then, does your type have a built-in null value?  For example, a C++ `char *`
+value can be null, but an `int` cannot.  If there is a null value, specialise
+the `pqxx::nullness` template to specify the details.  By default it will
+assume that your type has no null.
 
 Finally, you specialise the `pqxx::string_traits` template.  This is where you
 define the actual conversions.
@@ -162,13 +163,16 @@ A struct template `pqxx::nullness` defines whether your type has a natural
 "null value" built in.  For example, a `std::optional` instantiation has a
 value that neatly maps to an SQL null: the un-initialised state.
 
-If your type has a value like that, its `pqxx::nullness` specialisation also
-provides member functions for producing and recognising null values.
+Usually you won't need to bother with this, because most C++ types do not have
+a null value.  But if your type does, its `pqxx::nullness` specialisation
+should describe how this works, and also provide member functions for producing
+and recognising null values.
 
 The simplest scenario is also the most common: most types don't have a null
-value built in.  There is no "null `int`" in C++.  In that kind of case, just
-derive your nullness traits from `pqxx::no_null` as a shorthand:  This tells
-libpqxx that your type has no null value of its own.
+value built in.  In that kind of case, you usually don't need to do anything
+here.  If that causes compilation problems, or you want your code to say
+explicitly that there is no null value, specialise your nullness traits but
+instead of defining any members, just derive the struct from `pqxx::no_null`.
 
 ```cxx
     // T is your type.
@@ -188,8 +192,8 @@ not the null value.  Handling of nulls happens at a higher level, when passing
 parameters to SQL statements, or quoting-and-escaping values for inclusion in
 SQL statements as literal values.
 
-If your type has a natural null value, the definition for `nullness` gets a
-little more complex than the one above:
+If your type does have a natural null value, the definition for `nullness` gets
+a little more complex than the one above:
 
 ```cxx
     namespace pqxx
@@ -220,7 +224,8 @@ little more complex than the one above:
 
 (In writing an application, if you have a type like `int` that doesn't have a
 null value but you need to pass or parse an SQL value that may be null, you can
-use `std::optional<int>` instead.  An `optional` without a value is a null.)
+use types like `std::optional<int>` instead.  An `optional` without a value is
+a null.)
 
 You may be wondering why there's a function to produce a null value, but also a
 function to check whether a value is null.  Why not just compare the value to

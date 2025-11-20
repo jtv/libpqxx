@@ -560,10 +560,5 @@ private:
     return std::format("Invalid range input: '{}'.", text);
   }
 };
-
-
-/// A range type does not have an innate null value.
-template<typename TYPE> struct nullness<range<TYPE>> : no_null<range<TYPE>>
-{};
 } // namespace pqxx
 #endif
