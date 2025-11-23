@@ -276,7 +276,6 @@ private:
   TARGET parse_field(zview line, std::size_t &offset, char *&write, sl loc)
   {
     using field_type = std::remove_cvref_t<TARGET>;
-    using nullity = nullness<field_type>;
 
     assert(offset <= std::size(line));
 
