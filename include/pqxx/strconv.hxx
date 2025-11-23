@@ -124,6 +124,32 @@ template<typename TYPE> struct no_null
 };
 
 
+/// Nullness traits describing a type whose values are always null.
+/** If you're writing a `nullness` specialisation for such a type, you can
+ * optionally derive it from this type to save yourself a bit of code.
+ *
+ * The second template parameter specifies a compile-time constant null value
+ * of this type.
+ */
+template<typename TYPE, TYPE null_value> struct all_null
+{
+  /// Does `TYPE` have a null value?
+  static constexpr bool has_null = true;
+
+  /// Is `TYPE` _always_ null?
+  static constexpr bool always_null = true;
+
+  /// Is the given `TYPE` value a null?
+  [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
+  {
+    return true;
+  }
+
+  /// Return a sample null value.  Requires `TYPE` to be default-constructible.
+  [[nodiscard]] static constexpr TYPE null() { return null_value; }
+};
+
+
 /// Contextual parameters for string conversions implementations.
 /** These are some "extra" items that libpqxx may be able to pass to a string
  * conversion operation in order to provide it with extra information.
@@ -624,7 +650,7 @@ template<typename TYPE>
 inline void into_string(TYPE const &value, std::string &out);
 
 
-/// Is @c value null?
+/// Is `value`ll?
 template<typename TYPE>
 [[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
 {
@@ -634,6 +660,17 @@ template<typename TYPE>
     return true;
   else
     return null_traits::is_null(value);
+}
+
+
+/// Is a value of `TYPE` always null?
+/** This is the case for some special types, such as `std::nullopt_t`.
+ */
+template<typename TYPE>
+[[nodiscard]] inline constexpr bool always_null() noexcept
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  return nullness<base_type>::always_null;
 }
 
 

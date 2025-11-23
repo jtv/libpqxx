@@ -347,7 +347,7 @@ inline void stream_from::extract_value(Tuple &t, sl loc) const
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   using nullity = nullness<field_type>;
   assert(index < std::size(m_fields));
-  if constexpr (nullity::always_null)
+  if constexpr (always_null<decltype(std::get<index>(t))>())
   {
     if (std::data(m_fields[index]) != nullptr)
       throw conversion_error{"Streaming non-null value into null field.", loc};

@@ -111,7 +111,7 @@ public:
   template<typename TYPE> void append([[maybe_unused]] TYPE const &value) &
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
-    if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
+    if constexpr (pqxx::always_null<TYPE>())
     {
       m_params.emplace_back();
     }

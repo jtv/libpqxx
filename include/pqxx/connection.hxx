@@ -504,7 +504,7 @@ public:
   {
     if constexpr (nullness<TYPE>::has_null)
     {
-      if (nullness<TYPE>::is_null(value))
+      if (is_null(value))
         throw variable_set_to_null{
           std::format("Attempted to set variable {} to null.", var), loc};
     }

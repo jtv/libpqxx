@@ -49,6 +49,7 @@
  - Stop trying to figure out link options for filesystem library.
  - Set `PQXX_LINT=skip` to skip lint checks.
  - Shell scripts now have "`.sh`" suffix.  Saves hand-coding names.
+ - New helper functions to query a type's nullness properties.
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
 7.10.3

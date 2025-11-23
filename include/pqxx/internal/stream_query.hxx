@@ -285,7 +285,7 @@ private:
     PQXX_ASSUME(new_write >= write);
     offset = new_offset;
     write = new_write;
-    if constexpr (nullity::always_null)
+    if constexpr (pqxx::always_null<TARGET>())
     {
       if (std::data(text) != nullptr)
         throw conversion_error{std::format(

@@ -268,7 +268,7 @@ template<typename T> struct nullness<std::optional<T>>
 {
   static constexpr bool has_null = true;
   /// Technically, you could have an optional of an always-null type.
-  static constexpr bool always_null = nullness<T>::always_null;
+  static constexpr bool always_null = pqxx::always_null<T>();
   static constexpr bool is_null(std::optional<T> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
@@ -318,7 +318,7 @@ inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 template<typename... T> struct nullness<std::variant<T...>>
 {
   static constexpr bool has_null = (nullness<T>::has_null or ...);
-  static constexpr bool always_null = (nullness<T>::always_null and ...);
+  static constexpr bool always_null = (pqxx::always_null<T>() and ...);
   static constexpr bool is_null(std::variant<T...> const &value) noexcept
   {
     return value.valueless_by_exception() or
@@ -653,40 +653,16 @@ template<> struct string_traits<std::stringstream>
 };
 
 
-template<> struct nullness<std::nullptr_t>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool always_null = true;
-  static constexpr bool is_null(std::nullptr_t const &) noexcept
-  {
-    return true;
-  }
-  static constexpr std::nullptr_t null() noexcept { return nullptr; }
-};
+template<> struct nullness<std::nullptr_t> : all_null<std::nullptr_t, nullptr>
+{};
 
+template<>
+struct nullness<std::nullopt_t> : all_null<std::nullopt_t, std::nullopt>
+{};
 
-template<> struct nullness<std::nullopt_t>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool always_null = true;
-  static constexpr bool is_null(std::nullopt_t const &) noexcept
-  {
-    return true;
-  }
-  static constexpr std::nullopt_t null() noexcept { return std::nullopt; }
-};
-
-
-template<> struct nullness<std::monostate>
-{
-  static constexpr bool has_null = true;
-  static constexpr bool always_null = true;
-  static constexpr bool is_null(std::monostate const &) noexcept
-  {
-    return true;
-  }
-  static constexpr std::monostate null() noexcept { return {}; }
-};
+template<>
+struct nullness<std::monostate> : all_null<std::monostate, std::monostate{}>
+{};
 
 
 template<typename T> struct nullness<std::unique_ptr<T>>
@@ -932,7 +908,7 @@ template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
       std::format("Attempt to convert null to a string.", name_type<TYPE>()),
       c.loc};
 
-  if constexpr (nullness<std::remove_cvref_t<TYPE>>::always_null)
+  if constexpr (pqxx::always_null<TYPE>())
   {
     // Have to separate out this case: some functions in the "regular" code
     // may not exist in the "always null" case.

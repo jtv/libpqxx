@@ -271,7 +271,7 @@ private:
   /// Estimate buffer space needed for a field which is always null.
   template<typename T>
   static std::size_t estimate_buffer(T const &)
-    requires(nullness<T>::always_null)
+    requires(pqxx::always_null<T>())
   {
     return std::size(null_field);
   }
@@ -282,7 +282,7 @@ private:
    */
   template<typename T>
   static std::size_t estimate_buffer(T const &field)
-    requires(not nullness<T>::always_null)
+    requires(not pqxx::always_null<T>())
   {
     return is_null(field) ? std::size(null_field) : size_buffer(field);
   }
@@ -299,7 +299,7 @@ private:
    */
   template<typename Field>
   void append_to_buffer(Field const &f, sl loc)
-    requires(not nullness<Field>::always_null)
+    requires(not pqxx::always_null<Field>())
   {
     // We append each field, terminated by a tab.  That will leave us with
     // one tab too many, assuming we write any fields at all; we remove that
@@ -392,7 +392,7 @@ private:
    */
   template<typename Field>
   void append_to_buffer(Field const &, sl)
-    requires nullness<Field>::always_null
+    requires(pqxx::always_null<Field>())
   {
     m_buffer.append(null_field);
   }
