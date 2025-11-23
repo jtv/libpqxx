@@ -294,8 +294,8 @@ private:
     }
     else if (std::data(text) == nullptr)
     {
-      if constexpr (nullity::has_null)
-        return nullity::null();
+      if constexpr (has_null<TARGET>())
+        return make_null<TARGET>();
       else
         internal::throw_null_conversion(name_type<field_type>(), loc);
     }

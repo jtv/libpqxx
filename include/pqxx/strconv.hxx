@@ -75,6 +75,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
   static bool has_null;
 
   /// Is this type always null?
+  /** This is only the case for a few types, such as `std::nullptr_t`. */
   constexpr static bool always_null = false;
 
   /// Is @c value a null?
@@ -650,16 +651,18 @@ template<typename TYPE>
 inline void into_string(TYPE const &value, std::string &out);
 
 
-/// Is `value`ll?
-template<typename TYPE>
-[[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
+/// Does `TYPE` have one or more inherent null values?
+/** Some types, such as pointers, have natural null values built in.  Most
+ * types do not: an integer is never null (even if it may be zero), a C++
+ * string is never null (eve nif it may be empty), and so on.
+ *
+ * This is different from an SQL field _containing_ a null value, but in
+ * libpqxx you can treat them pretty much the same.
+ */
+template<typename TYPE> [[nodiscard]] inline constexpr bool has_null() noexcept
 {
   using base_type = std::remove_cvref_t<TYPE>;
-  using null_traits = nullness<base_type>;
-  if constexpr (null_traits::always_null)
-    return true;
-  else
-    return null_traits::is_null(value);
+  return nullness<base_type>::has_null;
 }
 
 
@@ -671,6 +674,33 @@ template<typename TYPE>
 {
   using base_type = std::remove_cvref_t<TYPE>;
   return nullness<base_type>::always_null;
+}
+
+
+/// Is `value` a null?
+template<typename TYPE>
+[[nodiscard]] inline constexpr bool is_null(TYPE const &value) noexcept
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  if constexpr (always_null<TYPE>())
+    return true;
+  else
+    return nullness<base_type>::is_null(value);
+}
+
+
+/// Return a null value of `TYPE`.
+/** Only available for types that _have_ a null value.
+ *
+ * There may be multiple null values, or even ones that look the same but
+ * which don't compare as equal, as is the case in SQL.
+ */
+template<typename TYPE>
+[[nodiscard]] inline constexpr TYPE make_null()
+  requires(pqxx::has_null<TYPE>())
+{
+  using base_type = std::remove_cvref_t<TYPE>;
+  return nullness<base_type>::null();
 }
 
 

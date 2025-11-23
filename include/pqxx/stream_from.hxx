@@ -345,17 +345,16 @@ template<typename Tuple, std::size_t index>
 inline void stream_from::extract_value(Tuple &t, sl loc) const
 {
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
-  using nullity = nullness<field_type>;
   assert(index < std::size(m_fields));
-  if constexpr (always_null<decltype(std::get<index>(t))>())
+  if constexpr (always_null<field_type>())
   {
     if (std::data(m_fields[index]) != nullptr)
       throw conversion_error{"Streaming non-null value into null field.", loc};
   }
   else if (std::data(m_fields[index]) == nullptr)
   {
-    if constexpr (nullity::has_null)
-      std::get<index>(t) = nullity::null();
+    if constexpr (has_null<field_type>())
+      std::get<index>(t) = make_null<field_type>();
     else
       internal::throw_null_conversion(name_type<field_type>(), loc);
   }

@@ -502,7 +502,7 @@ public:
   void set_session_var(
     std::string_view var, TYPE const &value, sl loc = sl::current()) &
   {
-    if constexpr (nullness<TYPE>::has_null)
+    if constexpr (has_null<TYPE>())
     {
       if (is_null(value))
         throw variable_set_to_null{

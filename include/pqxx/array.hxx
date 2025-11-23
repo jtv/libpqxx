@@ -416,8 +416,8 @@ private:
             std::string_view{std::data(data) + here, end - here}};
           if (field == "NULL")
           {
-            if constexpr (nullness<ELEMENT>::has_null)
-              m_elts.emplace_back(nullness<ELEMENT>::null());
+            if constexpr (has_null<ELEMENT>())
+              m_elts.emplace_back(make_null<ELEMENT>());
             else
               throw unexpected_null{
                 std::format(

@@ -317,7 +317,7 @@ inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 
 template<typename... T> struct nullness<std::variant<T...>>
 {
-  static constexpr bool has_null = (nullness<T>::has_null or ...);
+  static constexpr bool has_null = (pqxx::has_null<T>() or ...);
   static constexpr bool always_null = (pqxx::always_null<T>() and ...);
   static constexpr bool is_null(std::variant<T...> const &value) noexcept
   {

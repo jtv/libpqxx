@@ -191,10 +191,10 @@ public:
   {
     if (is_null())
     {
-      if constexpr (not nullness<T>::has_null)
+      if constexpr (not has_null<T>())
         internal::throw_null_conversion(name_type<T>(), c.loc);
       else
-        return nullness<T>::null();
+        return make_null<T>();
     }
     else
     {
@@ -824,8 +824,8 @@ template<typename T> inline T from_string(field const &value, ctx c = {})
 {
   if (value.is_null())
   {
-    if constexpr (nullness<T>::has_null)
-      return nullness<T>::null();
+    if constexpr (has_null<T>())
+      return make_null<T>();
     else
       internal::throw_null_conversion(name_type<T>(), c.loc);
   }

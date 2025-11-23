@@ -235,8 +235,8 @@ inline void parse_composite_field(
   case ')':
   case ']':
     // The field is empty, i.e, null.
-    if constexpr (nullness<T>::has_null)
-      field = nullness<T>::null();
+    if constexpr (has_null<T>())
+      field = make_null<T>();
     else
       throw conversion_error{
         std::format(
