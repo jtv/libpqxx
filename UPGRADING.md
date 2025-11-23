@@ -32,6 +32,7 @@ Some types and functions were already deprecated and are now gone:
 * `connection_base` was an alias.  Use just regular `connection`.
 * `encrypt_password()`.  Use the equivalent member functions in `connection`.
 * `dynamic_params`.  Use `params`.
+* `stream_from`.  Use `transaction_base::stream()` instead.
 * Some `stream_to` constructors.  Use static "factory" member functions.
 * `transaction_base::unesc_raw()`.  Use `unesc_bin()`.
 * `transaction_base::quote_raw()`.  Use `quote()`, passing a `bytes_view`.
@@ -43,7 +44,7 @@ Result iterators
 ----------------
 
 _Lifetimes:_ `result` and `row` iterators no longer reference-count their
-`result` object.  In libpqxx 7, a `result object's data would stay alive in
+`result` object.  In libpqxx 7, a `result` object's data would stay alive in
 memory for as long as you had an iterator referring to it.  It seemed like a
 good idea once, many years ago, but it made iteration staggeringly inefficient.
 
@@ -65,7 +66,7 @@ libpqxx, if you had a `result` iterator `i`, `i[n]` meant "field `n` in the row
 to which `i` points."  Really convenient, but not compliant with the standard.
 
 So, that is no longer the case.  If you want "field `n` in the row to which `i`
-points," say `(*i)[n]`.
+points," say `(*i)[n]`, or `i->at(n)`.
 
 By the way, these changes mean that result and row iterators are now proper,
 standard random-access iterators.  Some algorithms from the standard library
@@ -79,16 +80,23 @@ When you compare two `result`, `row`, or `field` objects with `==` or `!=`, it
 now only checks whether they refer to (the same row/field in) the same
 underlying data object.  It does not look at the data inside.
 
+These comparisons were meant to be helpful but they were never very well
+defined.  And if you don't know exactly what you're getting, why would you want
+to invest the compute time?
+
 
 Row and field references
 ------------------------
 
-The `row` and `field` classes were cumbersome,inefficient, and hopelessly
+The `row` and `field` classes were cumbersome, inefficient, and hopelessly
 intertwined with iterators.
 
 To avoid all that, use `row_ref` instead of `row` and `field_ref` instead of
 `field`.  These assume that you keep the original `result` around, and in a
-stable location in memory.
+stable location in memory.  Unlike `row` and `field`, they do not keep the
+underlying data object alive through reference-counting.  But neither do any of
+the standard C++ containers, so I hope you'll find this intuitive.  It's
+certainly more efficient.
 
 _The indexing operations now return `row_ref` and `field_ref` instead of `row`
 and `field` respectively._  It probably won't affect your code, but you're
@@ -99,9 +107,9 @@ right?
 Binary data
 -----------
 
-As the documentation predicted, `pqxx::bytes` alias has changed to stand for
-`std::vector<std::byte>`.  It used to be `std::basic_string<std::byte>`.  And
-`pqxx::bytes_view` is now an alias for `std::span<std::byte>`.
+As the documentation predicted, the alias `pqxx::bytes` has changed to stand
+for `std::vector<std::byte>`.  It used to be `std::basic_string<std::byte>`.
+And `pqxx::bytes_view` is now an alias for `std::span<std::byte>`.
 
 This may require changes to your code.  The APIs for `std::basic_string` and
 `std::vector` differ, perhaps in more places than they should.  Do not read
@@ -109,9 +117,9 @@ the data using the `c_str()` member function; use `data()` instead.
 
 Hate to do this to you.  However there were real problems with using
 `std::basic_string` the way we did.  The `basic_string` template wasn't built
-for what we did, and there was no guarantee that it would work with any given
+for binary data, and there was no guarantee that it would work with any given
 compiler.  Even where it did, we had to work around differences between
-compilers and compiler versions.
+compilers and compiler versions.  That's not healthy.
 
 But there's also good news!  Thanks to C++20's Concepts, most functions that
 previously only accepted a `pqxx::bytes` argument will now accept just about
@@ -130,7 +138,7 @@ safe and correct code, so read on!
 ### Type names
 
 Let's get the easiest part out of the way first: `type_name` is now deprecated.
-Instead of specialising `type_name`, you now specialises  a _function_ called
+Instead of specialising `type_name`, you now specialise  a _function_ called
 `name_type()`.  It returns a `std::string_view`, so the underlying data can be
 a string literal instead of a `std::string`.  Some static analysis tools would
 report false positives about static deallocation of the `type_name` strings.
@@ -147,10 +155,6 @@ defining your own conversions to/from SQL strings, the 8.x API is...
 4. _friendlier,_ accepting `std::source_location` for better error reporting.
 5. _richer,_ capable of dealing with different text encodings.
 6. _faster,_ because of the lifetime rule changes (described below).
-
-In addition, the conversions also get access to some information about the
-client text encoding, so that they'll know what they're parsing.  See
-"Text encodings" below.
 
 Your existing conversions may still work without changes, but that's only
 thanks to some specific compatibility shims.  These will go away in libpqxx 9
@@ -177,10 +181,11 @@ convert an SQL string to a `std::string_view` or a C-style string pointer,
 because the conversion is allowed to refer to its input data.
 
 Most code won't need to care about this change.  A calling function is usually
-done very quickly with its converted value, or immediately arranges for more
-durable storage.  If you call `pqxx::to_string()` for example, you get a
-`std::string` containing the SQL string.  All that changes in that case is the
-conversion process skipping an internal copy step, making it a bit faster.
+either done very quickly with its converted value, or it immediately arranges
+for more permanent storage.  If you call `pqxx::to_string()` for example, you
+get a `std::string` containing the SQL string.  All that changes in that case
+is the conversion process skipping an internal copy step, making it a bit
+faster.
 
 
 ### Using conversions
@@ -204,35 +209,55 @@ features that won't require you to change your code, but may improve your
 life.
 
 
-Arrays and composite types
---------------------------
+SQL Arrays
+----------
 
 You can now generate and parse SQL arrays, just like you can convert so many
 other types between their C++ representations and their SQL representations.
 
-To parse the SQL representation, use `pqxx::from_string<pqxx::array<...>>`.
+The C++ type for this is the `pqxx::array` class template.  You can parse an
+array from its SQL string representation in the same way you'd parse any other
+type of value: `my_array = pqxx::from_string<pqxx::array<...>>(text)`.  Which
+means that a `result` field's `as()` member function will also support array
+parsing, just as you would expect.
 
-The template parameters in `<...>` are:
+And in the other direction, you can use `pqxx::to_string(my_array)` to generate
+the SQL representation string for your `array` object.
+
+The `to_string()` direction will also work for other containers, by the way.
+So you can just convert a `std::vector<int>` or a `std::array<std::string>` in
+the same way and get their SQL array representations.
+
+You'll need to know what those template parameters in `array<...>` are:
 
 1. The type for the elements inside the array.
 2. The number of dimensions. A simple array has 1 dimension, which is the
-   default, but multi-dimensional arrays also work.;
+   default, but multi-dimensional arrays also work.
 3. The separator character between the elements in the SQL array.  It defaults
    to whatever the default is for the element type, but you can override it.
    However it must be a single ASCII byte.
 
-Now, `pqxx::array` is mostly useful for loading SQL values into C++.  it does
+A `pqxx::array` is mostly useful for loading SQL values into C++.  it does not
 not support changing or manipulating the array's contents once you've got it.
 When going in the other direction however, you can use the standard C++
 container or range types: `std::vector`, `std::array`, `std::range`,
 `std::view`, and so on.  Nest these inside each other to form multi-dimensional
 SQL arrays.
 
-_Composite_ types are a bit harder.  These are complex types of your own, which
-you define in SQL and which you map to a corresponding C++ type.  To support
-converting these between their C++ form and their SQL form, you'll have to
-define a `pqxx::string_traits` type.  The `composite.hxx` header contains some
-functions that you can call to handle most of the work.
+
+Composite types
+---------------
+
+These are syntactically similar to arrays, but a bit more work.  An SQL
+composite type is like a C++ `struct` of your own.  You define it in SQL
+(whether through libpqxx or in some other way), and also a corresponding C++
+type for the client side.
+
+You can then convert these between their C++ form and their SQL form, just like
+other types.  To make that work, you'll have to define its `pqxx::string_traits`
+and `pqxx::nullness` traits types.  The `composite.hxx` header contains some
+functions that you can call to handle most of the work that the conversions in
+the `string_traits` need to do.
 
 
 Source locations
@@ -241,6 +266,9 @@ Source locations
 Most of the functions in the libpqxx API now accept a `std::source_location` as
 a final argument.  They will default to the location from where you call them.
 
+(To keep them from getting in the way, I abbreviated the type name to
+`pqxx::sl`.  In most functions it just shows up as `sl`.)
+
 In many cases where libpqxx throws an exception, the error message will now
 include a reference to that source location to help you debug the error.
 
@@ -248,7 +276,9 @@ Where possible, this will be the most precise location where you called into
 libpqxx.  In places where libpqxx functions call other libpqxx functions, they
 will (where possible) pass the original source location along, so you're not
 left with a source reference that has no meaning to you and is nothing to do
-with your application.
+with your application.  By default the source location will show the boundary
+where execution went from your code into libpqxx, even if the actual error
+happened many layers further down.
 
 You can also override this and pass your own source location in the call.
 
@@ -264,12 +294,12 @@ Text encodings
 --------------
 
 PostgreSQL lets you communicate with the database in a choice of _client
-encodings._  SQL that goes back and forth between your client and the server
-will be represented in this encoding.
+encodings._  SQL and data that go back and forth between your client and the
+server will be represented in this encoding.
 
 For a lot of purposes your code will not need to be aware of the encoding.
-For example, all SQL statements themselves as well as all special characters
-such as quotes and commas and various field separators will all be in ASCII.
+For example, all SQL keywords themselves as well as all special characters such
+as quotes and commas and various field separators will all be in ASCII.
 
 There are cases where libpqxx needs to know what kind of encoding it's getting.
 It doesn't care about the exact encoding, but it needs to know where each
@@ -289,10 +319,10 @@ the `configure` script.  The CMake build now also supports "unity builds."
 
 All shell scripts now have a `.sh` suffix.  It takes some getting used to, but
 it simplifies some things such as running lint checkers on all of them without
-having to name them all.
+having to name each one of them individually.
 
-The build no longer tries to figure out whether it needs to link the standard
-C++ filesystems library.  In most cases this seems to be part of the regular
+The build no longer tries to figure out whether it needs to link a standard C++
+filesystems library.  In most cases this seems to be part of the regular
 standard library now.  If you do need to add a link option to get
 `std::filesystem` to work, you'll have to pass that option yourself.
 
