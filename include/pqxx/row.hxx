@@ -355,7 +355,7 @@ private:
 namespace pqxx
 {
 /// Reference to one row in a result.
-/* A `row` is a reference to one particular row of data in a query result set
+/** A `row` is a reference to one particular row of data in a query result set
  * (represented by a @ref result object).
  *
  * This is like a @ref row_ref, except (as far as this class is concerned) it

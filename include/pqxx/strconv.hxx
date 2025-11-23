@@ -654,7 +654,7 @@ inline void into_string(TYPE const &value, std::string &out);
 /// Does `TYPE` have one or more inherent null values?
 /** Some types, such as pointers, have natural null values built in.  Most
  * types do not: an integer is never null (even if it may be zero), a C++
- * string is never null (eve nif it may be empty), and so on.
+ * string is never null (even if it may be empty), and so on.
  *
  * This is different from an SQL field _containing_ a null value, but in
  * libpqxx you can treat them pretty much the same.

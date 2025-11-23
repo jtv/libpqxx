@@ -40,7 +40,7 @@ template<typename T>
 concept has_less = std::copy_constructible<T> and requires(T n) { n < n; };
 
 
-/// Concept: `T` supports equality comparson.
+/// Concept: `T` supports equality comparison.
 template<typename T>
 concept has_equal = requires(T n) { n == n; };
 
