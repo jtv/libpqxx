@@ -28,6 +28,13 @@ commits in `master`.  For example, to get version 7.1.1:
 ```
 
 
+Thank you!
+----------
+
+Somebody who deserves special mention here: our first Donor-level sponsor is
+Klaus ([@klaussilveira](https://github.com/klaussilveira)).  Thank you, Klaus!
+
+
 Upgrade notes
 -------------
 
