@@ -275,7 +275,7 @@ jobs:
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_version >>'"
       - run:
           name: Capture
-          command: infer capture -- make check TESTS=
+          command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
