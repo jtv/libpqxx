@@ -201,7 +201,7 @@ jobs:
               archlinux-lint clang++ >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -269,7 +269,7 @@ jobs:
           command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -313,7 +313,7 @@ jobs:
               << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -328,22 +328,18 @@ jobs:
           command: ninja
       - run:
           name: Start database
-          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
-      - store_artifacts:
-          path: postgres.log
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
           command: ". /tmp/vars.sh && \
               for t in \
               memcheck cachegrind callgrind helgrind drd massif dhat lackey \
               exp-bbv ; do \
-              valgrind --trace=children=yes --vgdb=no --track-fds=yes \
-              --tool=$t test/runner 2>&1 | tee test.log ;
+              valgrind --trace-children=yes --vgdb=no --track-fds=yes \
+              --tool=$t test/runner 2>&1 | tee -a test.log ; \
               done"
       - store_artifacts:
           path: test.log
-      - store_artifacts:
-          path: postgres.log
 
 
 workflows:
