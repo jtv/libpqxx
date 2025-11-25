@@ -325,7 +325,8 @@ jobs:
               cmake -G Ninja ."
       - run:
           name: Build
-          command: ninja
+          command: "ninja -j4"
+          no_output_timeout: 30m
       - run:
           name: Start database
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
