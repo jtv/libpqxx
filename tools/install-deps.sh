@@ -118,10 +118,14 @@ install_archlinux_valgrind() {
     (
         pacman --quiet --noconfirm -Syu
         pacman --quiet --needed --noconfirm -S \
-            cmake ninja postgresql postgresql-libs python3 valgrind which \
+            cmake debuginfod ninja postgresql postgresql-libs python3 \
+	    valgrind which \
             "$cxxpkg"
     ) >>/tmp/install.log
     echo "export PGHOST=/run/postgresql"
+
+    # To allow debuginfo to find debug info without restart.
+    #echo "export DEBUGINFOD_URLS='https://debuginfod.archlinux.org'"
 }
 
 
