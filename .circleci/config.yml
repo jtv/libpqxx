@@ -315,7 +315,8 @@ jobs:
           name: Configure
           command: ". /tmp/vars.sh && \
               CXX=<< parameters.compiler >> \
-              CXXFLAGS='-O<< parameters.opt >> -std=<< parameters.cxx >>' \
+              CXXFLAGS='-O<< parameters.opt >> \
+              -std=<< parameters.cxx_version >>' \
               cmake -G Ninja ."
       - run:
           name: Build
