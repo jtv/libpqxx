@@ -111,6 +111,19 @@ install_archlinux_lint() {
 }
 
 
+install_archlinux_valgrind() {
+    local cxxpkg
+    cxxpkg="$(compiler_pkg "$1" clang gcc)"
+
+    (
+        pacman --quiet --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --needed --noconfirm -S \
+            cmake cmake ninja postgresql-libs python3 \
+            "$cxxpkg"
+    ) >>/tmp/install.log
+}
+
+
 install_debian() {
     local cxxpkg
     local pkgs
@@ -273,6 +286,10 @@ case "$PROFILE" in
     # (We only need to do that on one of the systems.)
     archlinux-lint)
         install_archlinux_lint "$COMPILER"
+        ;;
+    # Arch system, but only for the purpose of running valgrind.
+    archlinux-valgrind)
+        install_archlinux_valgrind "$COMPILER"
         ;;
 
     debian)
