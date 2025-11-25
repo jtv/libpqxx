@@ -9,8 +9,8 @@
 #
 # Where <system> is one of the environments for which this script works:
 # * archlinux
+# * archlinux-lint (for running full lint)
 # * debian
-# * debian-lint (for running full lint)
 # * fedora
 # * macos
 # * windows
@@ -111,24 +111,6 @@ install_archlinux_lint() {
 }
 
 
-install_archlinux_valgrind() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1" clang gcc)"
-
-    (
-        pacman --quiet --noconfirm -Syu
-        pacman --quiet --needed --noconfirm -S \
-            cmake debuginfod ninja postgresql postgresql-libs python3 \
-	    valgrind which \
-            "$cxxpkg"
-    ) >>/tmp/install.log
-    echo "export PGHOST=/run/postgresql"
-
-    # To allow debuginfo to find debug info without restart.
-    echo "export DEBUGINFOD_URLS='$(cat /etc/debuginfod/archlinux.urls )'"
-}
-
-
 install_debian() {
     local cxxpkg
     local pkgs
@@ -137,6 +119,27 @@ install_debian() {
         cxxpkg="$(compiler_pkg "$1")"
         pkgs="build-essential autoconf autoconf-archive automake libpq-dev \
             python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
+
+        apt-get -q update
+
+        # shellcheck disable=SC2086
+        apt-get -q install -y $pkgs
+    ) >> /tmp/install.log
+
+    echo "export PGHOST=/tmp"
+    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
+}
+
+
+install_debian_valgrind() {
+    local cxxpkg
+    local pkgs
+
+    (
+        cxxpkg="$(compiler_pkg "$1")"
+        pkgs="cmake libpq-dev ninja-build postgresql \
+            postgresql-server-dev-all valgrind $cxxpkg"
 
         apt-get -q update
 
@@ -292,13 +295,13 @@ case "$PROFILE" in
     archlinux-lint)
         install_archlinux_lint "$COMPILER"
         ;;
-    # Arch system, but only for the purpose of running valgrind.
-    archlinux-valgrind)
-        install_archlinux_valgrind "$COMPILER"
-        ;;
 
     debian)
         install_debian "$COMPILER"
+        ;;
+    # Debian, but only for te purpose of running valgrind.
+    debian-valgrind)
+        install_debian_valgrind "$COMPILER"
         ;;
 
     fedora)
