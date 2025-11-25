@@ -309,7 +309,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh archlinux-valgrind \
+          command: "tools/install-deps.sh debian-valgrind \
               << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
