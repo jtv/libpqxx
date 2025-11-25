@@ -125,7 +125,7 @@ install_archlinux_valgrind() {
     echo "export PGHOST=/run/postgresql"
 
     # To allow debuginfo to find debug info without restart.
-    #echo "export DEBUGINFOD_URLS='https://debuginfod.archlinux.org'"
+    echo "export DEBUGINFOD_URLS='$(cat /etc/debuginfod/archlinux.urls )'"
 }
 
 
