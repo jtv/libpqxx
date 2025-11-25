@@ -121,6 +121,7 @@ install_archlinux_valgrind() {
             cmake cmake ninja postgresql-libs python3 \
             "$cxxpkg"
     ) >>/tmp/install.log
+    echo "export PGHOST=/run/postgresql"
 }
 
 
