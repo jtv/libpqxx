@@ -33,6 +33,7 @@ jobs:
           name: Install
           command: "time ./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
       - store_artifacts:
@@ -85,6 +86,7 @@ jobs:
           name: Install
           command: "./tools/install-deps.sh macos << parameters.compiler >> \
               >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
       - store_artifacts:
@@ -197,6 +199,7 @@ jobs:
           name: Install
           command: "time tools/install-deps.sh \
               archlinux-lint clang++ >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "install.log"
       - store_artifacts:
@@ -264,6 +267,7 @@ jobs:
       - run:
           name: Install
           command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "install.log"
       - store_artifacts:
@@ -307,6 +311,7 @@ jobs:
           name: Install
           command: "tools/install-deps.sh archlinux-valgrind \
               << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "install.log"
       - store_artifacts:
