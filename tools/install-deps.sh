@@ -102,7 +102,7 @@ install_archlinux_lint() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --noconfirm -Sy
         pacman --quiet --needed --noconfirm -S \
             cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
             python-pyflakes ruff shellcheck uv which yamllint \
@@ -116,7 +116,7 @@ install_archlinux_valgrind() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --noconfirm -Syu
         pacman --quiet --needed --noconfirm -S \
             cmake ninja postgresql postgresql-libs python3 valgrind which \
             "$cxxpkg"
