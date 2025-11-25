@@ -290,6 +290,50 @@ jobs:
       - store_artifacts:
           path: errors.txt
 
+  valgrind:
+    parameters:
+      compiler:
+        type: string
+      cxx_version:
+        type: string
+      opt:
+        # Optimisation level.
+        type: integer
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh archlinux-valgrind \
+              << parameters.compiler >> >/tmp/vars.sh"
+      - store_artifacts:
+          path: "install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && \
+              CXX=<< parameters.compiler >> \
+              CXXFLAGS='-O<< parameters.opt >> -std=<< parameters.cxx >>' \
+              cmake -G Ninja ."
+      - run:
+          name: Build
+          command: ninja
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
+      - store_artifacts:
+          path: postgres.log
+      - run:
+          name: Test
+          command: ". /tmp/vars.sh && valgrind test/runner 2>&1 | tee test.log"
+      - store_artifacts:
+          path: test.log
+      - store_artifacts:
+          path: postgres.log
+
+
 workflows:
   all-tests:
     jobs:
@@ -302,6 +346,13 @@ workflows:
           matrix:
             parameters:
               cxx_version: ["c++23"]
+
+      - valgrind:
+          matrix:
+            parameters:
+              compiler: ["g++", "clang++"]
+              cxx_version: ["c++23"]
+              opt: [0, 3]
 
       - test-linux:
           matrix:
