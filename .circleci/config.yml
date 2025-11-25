@@ -328,7 +328,13 @@ jobs:
           path: postgres.log
       - run:
           name: Test
-          command: ". /tmp/vars.sh && valgrind test/runner 2>&1 | tee test.log"
+          command: ". /tmp/vars.sh && \
+              for t in \
+              memcheck cachegrind callgrind helgrind drd massif dhat lackey \
+              exp-bbv ; do \
+              valgrind --trace=children=yes --vgdb=no --track-fds=yes \
+              --tool=$t test/runner 2>&1 | tee test.log ;
+              done"
       - store_artifacts:
           path: test.log
       - store_artifacts:
