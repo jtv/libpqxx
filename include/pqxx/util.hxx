@@ -112,7 +112,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
 try{ // XXX: DEBUG
   return static_cast<TO>(value);
 }catch(std::range_error const &){ // XXX: DEBUG
-throw std::range_error{std::format("Range error casting {} from {} to {}.", value, name_type<FROM>(), name_type<TO>())}; // XXX: DEBUG
+throw std::range_error{std::format("Range error casting {} from {} to {}.", value, name_type<FROM>(), name_type<TO>())}}; // XXX: DEBUG
 }
 
 
