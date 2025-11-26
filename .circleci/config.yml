@@ -336,6 +336,7 @@ jobs:
               for t in \
               memcheck cachegrind callgrind helgrind drd massif dhat lackey \
               exp-bbv ; do \
+              echo ; echo ; echo "*** $t ***" ; echo ;
               valgrind --trace-children=yes --vgdb=no --track-fds=yes \
               --tool=$t test/runner 2>&1 | tee -a test.log ; \
               done"
