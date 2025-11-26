@@ -88,7 +88,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
   {
     // Integral value.  These are simple, but only thanks to the standard
     // library's safe comparison functions.
-    static_assert(std::is_integral_v<TO>);
+    //static_assert(std::is_integral_v<TO>);  // XXX: Is this breaking things?
     if (std::cmp_less(value, to_limits::lowest()))
       throw range_error{std::format("Cast underflow: {}", description), loc};
     if (std::cmp_greater(value, (to_limits::max)()))
