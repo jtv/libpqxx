@@ -325,10 +325,17 @@ jobs:
           path: "/tmp/vars.sh"
       - run:
           name: Configure
+          # Need -mlong-double-64 to work around Valgrind apparently not
+          # supporting long double!
+          #
+          # This was breaking std::isinf<long double>(), but only with gcc, and
+          # only with -O0 (i.e. no optimisation), and only when running tests
+          # through Valgrind.
           command: ". /tmp/vars.sh && \
               CXX='<< parameters.compiler >>' \
               CXXFLAGS='-O<< parameters.opt >> \
-              -std=<< parameters.cxx_version >>' \
+              -std=<< parameters.cxx_version >> \
+              -mlong-double-64' \
               cmake -G Ninja ."
       - run:
           name: Build
@@ -373,7 +380,7 @@ workflows:
             parameters:
               compiler: ["g++", "clang++"]
               cxx_version: ["c++23"]
-              opt: [0, 3]
+              opt: [0, 2, 3]
 
       - test-linux:
           matrix:
