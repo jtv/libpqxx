@@ -309,13 +309,14 @@ jobs:
         # Optimisation level.
         type: integer
     docker:
-      # TODO: Why are debian:latest & debian:stable outdated?
-      - image: debian:trixie
+      # ArchLinux seems to hit false positives.
+      # Debian docker image is outdated.
+      - image: ubuntu
     steps:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh debian-valgrind \
+          command: "tools/install-deps.sh ubuntu-valgrind \
               << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:

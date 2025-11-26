@@ -1,4 +1,3 @@
-#include<iostream> // XXX: DEBUG
 #include <pqxx/types>
 #include <pqxx/util>
 
@@ -136,7 +135,6 @@ template<std::floating_point TO> inline void check_nan()
 template<std::floating_point FROM, std::floating_point TO>
 inline void check_inf()
 {
-std::clog<<"\n\n*** check_inf<"<<pqxx::name_type<FROM>()<<","<<pqxx::name_type<TO>()<<">() ***\n";// XXX: DEBUG
   PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(
     std::numeric_limits<FROM>::infinity(), "fail", here())));
   PQXX_CHECK(std::isinf(pqxx::check_cast<TO>(

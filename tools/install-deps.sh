@@ -132,28 +132,6 @@ install_debian() {
 }
 
 
-install_debian_valgrind() {
-    local cxxpkg
-    local pkgs
-
-    (
-        cxxpkg="$(compiler_pkg "$1")"
-        pkgs="build-essential cmake libpq-dev ninja-build postgresql \
-            postgresql-server-dev-all python3 valgrind
-            $cxxpkg"
-
-        apt-get -q update
-
-        # shellcheck disable=SC2086
-        apt-get -q install -y $pkgs
-    ) >> /tmp/install.log
-
-    echo "export PGHOST=/tmp"
-    echo "export PATH='$PATH:$HOME/.local/bin'"
-    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
-}
-
-
 install_fedora() {
     local cxxpkg
     cxxpkg="$(compiler_pkg "$1" clang g++)"
@@ -204,6 +182,28 @@ install_ubuntu() {
             python3 postgresql postgresql-server-dev-all libtool \
             "$cxxpkg"
     ) >>/tmp/install.log
+
+    echo "export PGHOST=/tmp"
+    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
+}
+
+
+install_ubuntu_valgrind() {
+    local cxxpkg
+    local pkgs
+
+    (
+        cxxpkg="$(compiler_pkg "$1")"
+        pkgs="build-essential cmake libpq-dev ninja-build postgresql \
+            postgresql-server-dev-all python3 valgrind
+            $cxxpkg"
+
+        apt-get -q update
+
+        # shellcheck disable=SC2086
+        apt-get -q install -y $pkgs
+    ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -300,10 +300,6 @@ case "$PROFILE" in
     debian)
         install_debian "$COMPILER"
         ;;
-    # Debian, but only for the purpose of running valgrind.
-    debian-valgrind)
-        install_debian_valgrind "$COMPILER"
-        ;;
 
     fedora)
         install_fedora "$COMPILER"
@@ -319,6 +315,10 @@ case "$PROFILE" in
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
         install_ubuntu_codeql "$COMPILER"
+        ;;
+    # Ubuntu, but only for the purpose of running valgrind.
+    ubuntu-valgrind)
+        install_ubuntu_valgrind "$COMPILER"
         ;;
 
     windows)
