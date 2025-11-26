@@ -295,6 +295,11 @@ jobs:
           path: errors.txt
 
   valgrind:
+    # We run this test in Debian because we see what look like false
+    # positives in Arch Linux.  The root cause may be what looks like an
+    # internal error in the standard library's charconv implementation for
+    # floating-point types. When running in valgrind, an assertion in there
+    # fails: "output_length == expected_output_length".
     parameters:
       compiler:
         type: string
@@ -332,14 +337,18 @@ jobs:
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
-          command: ". /tmp/vars.sh && \
+          command: "
+              ( \
+              set -Cue ; \
+              . /tmp/vars.sh && \
               for t in \
               memcheck cachegrind callgrind helgrind drd massif dhat lackey \
               exp-bbv ; do \
               echo ; echo ; echo \"*** $t ***\" ; echo ;
               valgrind --trace-children=yes --vgdb=no --track-fds=yes \
-              --tool=$t test/runner 2>&1 | tee -a test.log ; \
-              done"
+              --tool=$t test/runner 2>&1 | tee -a test.log || exit 1 ; \
+              done \
+              )"
       - store_artifacts:
           path: test.log
 
