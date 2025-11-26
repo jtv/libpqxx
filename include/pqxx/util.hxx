@@ -89,9 +89,9 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
     // Integral value.  These are simple, but only thanks to the standard
     // library's safe comparison functions.
     if (std::cmp_less(value, to_limits::lowest()))
-      throw range_error{std::format("Cast underflow: {}", description), loc};
+      throw range_error{std::format("Underflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO>(), description), loc};
     if (std::cmp_greater(value, (to_limits::max)()))
-      throw range_error{std::format("Cast overflow: {}", description), loc};
+      throw range_error{std::format("Overflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO>(), description), loc};
   }
   else if (std::isinf(value))
   {
@@ -103,9 +103,9 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
     // NaN, or a regular floating-point value.  A NaN will never be less than
     // or greater than any value, such as TO's upper/lower bounds.
     if (value < to_limits::lowest())
-      throw range_error{std::format("Cast underflow: {}", description), loc};
+      throw range_error{std::format("Underflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO<(), description), loc};
     if (value > (to_limits::max)())
-      throw range_error{std::format("Cast overflow: {}", description), loc};
+      throw range_error{std::format("Overflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO<(), description), loc};
   }
 
   return static_cast<TO>(value);
