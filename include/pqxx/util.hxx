@@ -105,7 +105,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
     if (value < to_limits::lowest())
       throw range_error{std::format("Underflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO>(), description), loc};
     if (value > (to_limits::max)())
-      throw range_error{std::format("Overflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO<(), description), loc};
+      throw range_error{std::format("Overflow casting {} from {} to {}: {}", value, name_type<FROM>(), name_type<TO>(), description), loc};
   }
 
   return static_cast<TO>(value);
