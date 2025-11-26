@@ -140,7 +140,7 @@ install_debian_valgrind() {
         cxxpkg="$(compiler_pkg "$1")"
         pkgs="build-essential cmake libpq-dev ninja-build postgresql \
             postgresql-server-dev-all python3 valgrind
-	    $cxxpkg"
+            $cxxpkg"
 
         apt-get -q update
 
@@ -300,7 +300,7 @@ case "$PROFILE" in
     debian)
         install_debian "$COMPILER"
         ;;
-    # Debian, but only for te purpose of running valgrind.
+    # Debian, but only for the purpose of running valgrind.
     debian-valgrind)
         install_debian_valgrind "$COMPILER"
         ;;
