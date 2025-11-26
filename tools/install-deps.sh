@@ -13,6 +13,9 @@
 # * debian
 # * fedora
 # * macos
+# * ubuntu
+# * ubuntu-codeql (for CodeQL analysis)
+# * ubuntu-valgrind (for running Valgrind tests)
 # * windows
 #
 # The script may output shell commands that you'll need to run in your own
