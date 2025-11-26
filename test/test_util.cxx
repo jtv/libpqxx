@@ -93,7 +93,12 @@ template<std::floating_point TO> inline void check_val_to(float n)
 {
   check_val<float, TO>(n);
   check_val<double, TO>(n);
+
+  // Valgrind doesn't support long double, so skip those tests when building
+  // for testing with Valgrind.  Horrible, but there are no good options.
+#if !defined(PQXX_VALGRIND)
   check_val<long double, TO>(n);
+#endif
 }
 
 
@@ -118,7 +123,9 @@ inline void check_all_casts(float n)
 {
   check_val_to<float>(n);
   check_val_to<double>(n);
+#if !defined(PQXX_VALGRIND)
   check_val_to<long double>(n);
+#endif
 }
 
 
@@ -147,7 +154,9 @@ template<std::floating_point TO> inline void check_inf_to()
 {
   check_inf<float, TO>();
   check_inf<double, TO>();
+#if !defined(PQXX_VALGRIND)
   check_inf<long double, TO>();
+#endif
 }
 
 
@@ -208,11 +217,15 @@ void test_check_cast()
 
   check_nan<float>();
   check_nan<double>();
+#if !defined(PQXX_VALGRIND)
   check_nan<long double>();
+#endif
 
   check_inf_to<float>();
   check_inf_to<double>();
+#if !defined(PQXX_VALGRIND)
   check_inf_to<long double>();
+#endif
 }
 
 

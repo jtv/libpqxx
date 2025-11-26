@@ -48,10 +48,14 @@ void test_074()
   pqxx::from_string(pqxx::to_string(static_cast<double>(roughpi)), double_pi);
   PQXX_CHECK_BOUNDS(double_pi, roughpi - 0.00001, roughpi + 0.00001);
 
+  // Valgrind doesn't support "long double."
+#if !defined(PQXX_VALGRIND)
   long double const ld{roughpi};
   long double long_double_pi{};
   pqxx::from_string(pqxx::to_string(ld), long_double_pi);
   PQXX_CHECK_BOUNDS(long_double_pi, roughpi - 0.00001, roughpi + 0.00001);
+#endif
+
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 }
 } // namespace

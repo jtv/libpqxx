@@ -75,6 +75,9 @@ void test_string_conversion()
       "Overflow not detected.");
   }
 
+  // Valgrind doesn't seeem to support long double, so skip "long double"
+  // tests when compiling for a Valgrind run.  :-/
+#if !defined(PQXX_VALGRIND)
   // We can convert to and from long double.  The implementation may fall
   // back on a thread-local std::stringstream.  Each call does its own
   // cleanup, so the conversion works multiple times.
@@ -87,6 +90,7 @@ void test_string_conversion()
   PQXX_CHECK_BOUNDS(ldi1, ld1 - thres, ld1 + thres);
   pqxx::from_string(std::data(lds2), ldi2);
   PQXX_CHECK_BOUNDS(ldi2, ld2 - thres, ld2 + thres);
+#endif
 
   // We can define string conversions for enums.
   PQXX_CHECK_EQUAL(pqxx::to_string(ea0), "0");
