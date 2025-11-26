@@ -309,7 +309,8 @@ jobs:
         # Optimisation level.
         type: integer
     docker:
-      - image: debian
+      # TODO: Why are debian:latest & debian:stable outdated?
+      - image: debian:trixie
     steps:
       - checkout
       - run:
@@ -344,7 +345,7 @@ jobs:
               for t in \
               memcheck cachegrind callgrind helgrind drd massif dhat lackey \
               exp-bbv ; do \
-              echo ; echo ; echo \"*** $t ***\" ; echo ;
+              echo ; echo ; echo \"*** $t ***\" ; echo ; \
               valgrind --trace-children=yes --vgdb=no --track-fds=yes \
               --tool=$t test/runner 2>&1 | tee -a test.log || exit 1 ; \
               done \
