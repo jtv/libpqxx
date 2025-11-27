@@ -290,10 +290,11 @@ jobs:
           command: ". /tmp/vars.sh && make check"
       - run:
           name: Report
-          command: "cd src && gcov --prime-paths-source=uncovered -mr *.cxx"
+          command: "cd src && \
+              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
       - run:
           name: Gather reports
-          command: "tar -vczf /tmp/coverage.tar.gz src/*.gcov"
+          command: "tar -vczf /tmp/coverage.tar.gz src/*.gcov src/gcov.out"
       - store_artifacts:
           path: "/tmp/coverage.tar.gz"
 
