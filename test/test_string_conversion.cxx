@@ -75,7 +75,7 @@ void test_string_conversion()
       "Overflow not detected.");
   }
 
-  // Valgrind doesn't seeem to support long double, so skip "long double"
+  // Valgrind doesn't seem to support long double, so skip "long double"
   // tests when compiling for a Valgrind run.  :-/
 #if !defined(PQXX_VALGRIND)
   // We can convert to and from long double.  The implementation may fall

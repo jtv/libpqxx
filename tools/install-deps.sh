@@ -199,7 +199,7 @@ install_ubuntu_valgrind() {
     (
         cxxpkg="$(compiler_pkg "$1")"
         pkgs="build-essential cmake libpq-dev ninja-build postgresql \
-            postgresql-server-dev-all python3 valgrind
+            postgresql-server-dev-all python3 valgrind \
             $cxxpkg"
 
         apt-get -q update
