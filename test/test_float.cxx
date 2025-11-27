@@ -9,24 +9,29 @@ namespace
 /// Test conversions for some floating-point type.
 template<typename T> void infinity_test()
 {
-  T inf{std::numeric_limits<T>::infinity()};
-  std::string inf_string;
-  T back_conversion;
+  T const inf{std::numeric_limits<T>::infinity()};
+  static constexpr auto big_num{static_cast<T>(999999999)};
 
-  inf_string = pqxx::to_string(inf);
+  auto inf_string = pqxx::to_string(inf);
+  T back_conversion;
   pqxx::from_string(inf_string, back_conversion);
-  PQXX_CHECK_LESS(T(999999999), back_conversion);
+  PQXX_CHECK_LESS(big_num, back_conversion);
 
   inf_string = pqxx::to_string(-inf);
   pqxx::from_string(inf_string, back_conversion);
-  PQXX_CHECK_LESS(back_conversion, -T(999999999));
+  PQXX_CHECK_LESS(back_conversion, -big_num);
 }
 
 void test_infinities()
 {
   infinity_test<float>();
   infinity_test<double>();
+
+  // Skip this test when building for a Valgrind run.  The tool doesn't seem
+  // to support long double.
+#if !defined(PQXX_VALGRIND)
   infinity_test<long double>();
+#endif
 }
 
 
@@ -81,7 +86,9 @@ void test_bug_262()
 {
   bug_262<float>();
   bug_262<double>();
+#if !defined(PQXX_VALGRIND)
   bug_262<long double>();
+#endif
 }
 
 
@@ -132,6 +139,7 @@ void test_long_float()
   test_float_length(-std::numeric_limits<double>::max());
   test_float_length(-std::nextafter(1.0, 2.0));
 
+#if !defined(PQXX_VALGRIND)
   test_float_length(std::numeric_limits<long double>::denorm_min());
   test_float_length(-std::numeric_limits<long double>::denorm_min());
   test_float_length(std::numeric_limits<long double>::min());
@@ -139,6 +147,7 @@ void test_long_float()
   test_float_length(std::numeric_limits<long double>::max());
   test_float_length(-std::numeric_limits<long double>::max());
   test_float_length(-std::nextafter(1.0L, 2.0L));
+#endif
 
   // Ahem.  I'm not proud of this.  We really can't assume much about the
   // floating-point types, but I'd really like to try a few things to see that

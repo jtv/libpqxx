@@ -126,7 +126,7 @@ public:
   ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
-    // XXX: Use operator[].  But Facebook's "infer" sees a buffer overflow.
+    // TODO: Use operator[].  But Facebook's "infer" sees a buffer overflow.
     return m_elts.at(locate(index...));
   }
 

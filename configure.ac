@@ -116,8 +116,7 @@ fi
 # Let's try to get the compiler to be helpful.
 #
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
-# warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
-# always right)
+# warnings in gcc's standard headers.)
 if test "$GCC" = "yes"
 then
 	# In maintainer mode, enable all the warning options we can.
@@ -201,18 +200,25 @@ then
 			-Wduplicated-cond \
 			-Wsuggest-attribute=noreturn \
 			-Wsuggest-override \
-			-Wtrampolines
+			-Wtrampolines \
+			-Wunreachable-code
 	fi
 
 	# In "audit," enable all runtime checks we can.
 	if test "$enable_audit" = "yes"
 	then
+		# These macros enable extra runtime checking in various
+		# standard library implementations.
 		add_compiler_opts \
 			-D_FORTIFY_SOURCE=2 \
 			-D_GLIBCXX_ASSERTIONS \
 			-D_GLIBCXX_DEBUG \
 			-D_GLIBCXX_DEBUG_PEDANTIC \
-			-D_GLIBCXX_SANITIZE_VECTOR
+			-D_GLIBCXX_SANITIZE_VECTOR \
+			-D_LIBCPP_DEBUG=1 \
+			-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
+		# Run-time sanitizers and such.  These can differ from one
+		# compiler (or version) to the next.
 		add_compiler_opts_if_ok \
 			-fno-sanitize-recover=all \
 			-fsanitize=address \

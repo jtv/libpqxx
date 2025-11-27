@@ -9,10 +9,13 @@
 #
 # Where <system> is one of the environments for which this script works:
 # * archlinux
+# * archlinux-lint (for running full lint)
 # * debian
-# * debian-lint (for running full lint)
 # * fedora
 # * macos
+# * ubuntu
+# * ubuntu-codeql (for CodeQL analysis)
+# * ubuntu-valgrind (for running Valgrind tests)
 # * windows
 #
 # The script may output shell commands that you'll need to run in your own
@@ -102,7 +105,7 @@ install_archlinux_lint() {
     cxxpkg="$(compiler_pkg "$1" clang gcc)"
 
     (
-        pacman --quiet --noconfirm -Sy >>/tmp/install.log
+        pacman --quiet --noconfirm -Sy
         pacman --quiet --needed --noconfirm -S \
             cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
             python-pyflakes ruff shellcheck uv which yamllint \
@@ -182,6 +185,28 @@ install_ubuntu() {
             python3 postgresql postgresql-server-dev-all libtool \
             "$cxxpkg"
     ) >>/tmp/install.log
+
+    echo "export PGHOST=/tmp"
+    echo "export PATH='$PATH:$HOME/.local/bin'"
+    echo "export PGBIN='$(ls -d /usr/lib/postgresql/*/bin)/'"
+}
+
+
+install_ubuntu_valgrind() {
+    local cxxpkg
+    local pkgs
+
+    (
+        cxxpkg="$(compiler_pkg "$1")"
+        pkgs="build-essential cmake libpq-dev ninja-build postgresql \
+            postgresql-server-dev-all python3 valgrind \
+            $cxxpkg"
+
+        apt-get -q update
+
+        # shellcheck disable=SC2086
+        apt-get -q install -y $pkgs
+    ) >> /tmp/install.log
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -293,6 +318,10 @@ case "$PROFILE" in
     # Ubuntu system, but only for the purpose of running a CodeQL scan.
     ubuntu_codeql)
         install_ubuntu_codeql "$COMPILER"
+        ;;
+    # Ubuntu, but only for the purpose of running valgrind.
+    ubuntu-valgrind)
+        install_ubuntu_valgrind "$COMPILER"
         ;;
 
     windows)

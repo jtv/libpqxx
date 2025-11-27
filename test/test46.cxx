@@ -45,8 +45,11 @@ void test_046()
   auto D{pqxx::from_string<double>(r.c_str())};
   PQXX_CHECK_BOUNDS(D, f - 0.01, f + 0.01);
 
+  // Valgrind doesn't support "long double."
+#if !defined(PQXX_VALGRIND)
   auto LD{pqxx::from_string<long double>(r.c_str())};
   PQXX_CHECK_BOUNDS(LD, f - 0.01, f + 0.01);
+#endif
 
   auto S{pqxx::from_string<std::string>(r.c_str())},
     S2{pqxx::from_string<std::string>(std::string{r.c_str()})},

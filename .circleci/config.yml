@@ -33,6 +33,7 @@ jobs:
           name: Install
           command: "time ./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
       - store_artifacts:
@@ -85,6 +86,7 @@ jobs:
           name: Install
           command: "./tools/install-deps.sh macos << parameters.compiler >> \
               >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
       - store_artifacts:
@@ -197,8 +199,9 @@ jobs:
           name: Install
           command: "time tools/install-deps.sh \
               archlinux-lint clang++ >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -264,8 +267,9 @@ jobs:
       - run:
           name: Install
           command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
+          max_auto_reruns: 3
       - store_artifacts:
-          path: "install.log"
+          path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
@@ -290,6 +294,76 @@ jobs:
       - store_artifacts:
           path: errors.txt
 
+  valgrind:
+    # We run this test in Debian because we see what look like false
+    # positives in Arch Linux.  The root cause may be what looks like an
+    # internal error in the standard library's charconv implementation for
+    # floating-point types. When running in valgrind, an assertion in there
+    # fails: "output_length == expected_output_length".
+    parameters:
+      compiler:
+        type: string
+      cxx_version:
+        type: string
+      opt:
+        # Optimisation level.
+        type: integer
+    docker:
+      # ArchLinux seems to hit false positives.
+      # Debian docker image is outdated.
+      - image: ubuntu
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh ubuntu-valgrind \
+              << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          # Valgrind does not appear to support long double!
+          #
+          # This was breaking std::isinf<long double>(), but only with gcc, and
+          # only with -O0 (i.e. no optimisation), and only when running tests
+          # through Valgrind.
+          #
+          # I see no good way around this.  So I went with the workaround of
+          # defining a macro for "avoid testing anything that breaks Valgrind."
+          command: ". /tmp/vars.sh && \
+              CXX='<< parameters.compiler >>' \
+              CXXFLAGS='-O<< parameters.opt >> \
+              -std=<< parameters.cxx_version >> \
+              -DPQXX_VALGRIND' \
+              cmake -G Ninja ."
+      - run:
+          name: Build
+          command: "ninja -j4"
+          no_output_timeout: 30m
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - run:
+          name: Test
+          command: "
+              ( \
+              set -Cue ; \
+              . /tmp/vars.sh && \
+              for t in \
+              memcheck cachegrind callgrind helgrind drd massif dhat lackey \
+              exp-bbv ; do \
+              echo ; echo ; echo \"*** $t ***\" ; echo ; \
+              valgrind --trace-children=yes --vgdb=no --track-fds=yes \
+              --tool=$t test/runner 2>&1 | tee -a test.log || exit 1 ; \
+              done \
+              )"
+      - store_artifacts:
+          path: test.log
+
+
 workflows:
   all-tests:
     jobs:
@@ -302,6 +376,13 @@ workflows:
           matrix:
             parameters:
               cxx_version: ["c++23"]
+
+      - valgrind:
+          matrix:
+            parameters:
+              compiler: ["g++", "clang++"]
+              cxx_version: ["c++23"]
+              opt: [0, 2, 3]
 
       - test-linux:
           matrix:
