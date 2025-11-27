@@ -290,7 +290,7 @@ jobs:
           command: ". /tmp/vars.sh && make check"
       - run:
           name: Report
-          command: "gcov --prime-paths-source=uncovered -mr src/*.cxx"
+          command: "cd src && gcov --prime-paths-source=uncovered -mr *.cxx"
 
   infer:
     parameters:
