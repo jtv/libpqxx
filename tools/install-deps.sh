@@ -67,22 +67,6 @@ install_archlinux() {
 }
 
 
-install_archlinux_coverage() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1" clang gcc)"
-
-    (
-        pacman --quiet --noconfirm -Syu
-        pacman --quiet --needed --noconfirm -S \
-            autoconf autoconf-archive automake diffutils gcov libtool make \
-            postgresql postgresql-libs python3 uv which \
-            "$cxxpkg"
-    ) >>/tmp/install.log
-
-    echo "export PGHOST=/run/postgresql"
-}
-
-
 # Install Facebook's Infer static analysis tool.
 install_archlinux_infer() {
     local infer_ver="1.2.0"
@@ -304,10 +288,6 @@ COMPILER="$2"
 case "$PROFILE" in
     archlinux)
         install_archlinux "$COMPILER"
-        ;;
-    # Arch system, but only for the purpose of running gcov.
-    archlinux-coverage)
-        install_archlinux_coverage "$COMPILER"
         ;;
     # Arch system, but only for the purpose of running Facebook's "infer"
     # static analysis tool.

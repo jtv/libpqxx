@@ -266,7 +266,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh archlinux-coverage g++ >/tmp/vars.sh"
+          command: "tools/install-deps.sh archlinux g++ >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
