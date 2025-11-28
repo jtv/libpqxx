@@ -291,14 +291,15 @@ jobs:
       - run:
           name: Report
           command: "cd src && \
-              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.txt"
+              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
       - run:
           name: Rank
           command: "./tools/count-uncovered.sh src \
               | sort -rn | tee src/rank.txt"
       - run:
           name: Gather reports
-          command: "tar -vczf /tmp/coverage.tar.gz src/*.gcov src/*.txt"
+          command: "tar -vczf /tmp/coverage.tar.gz \
+              src/*.gcov src/gvov.out src/rank.txt"
       - store_artifacts:
           path: "/tmp/coverage.tar.gz"
 
