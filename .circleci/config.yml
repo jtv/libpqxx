@@ -17,7 +17,7 @@ jobs:
         type: string
       compiler:
         type: string
-      cxx_version:
+      cxx_ver:
         type: string
     docker:
       - image: << parameters.os >>
@@ -48,7 +48,7 @@ jobs:
                 --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
                 CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\""
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\""
       - store_artifacts:
           path: config.log
       - run:
@@ -76,7 +76,7 @@ jobs:
     parameters:
       compiler:
         type: string
-      cxx_version:
+      cxx_ver:
         type: string
     macos:
       xcode: 16.4.0
@@ -98,7 +98,7 @@ jobs:
                 --enable-shared --disable-static \
                 CPPFLAGS=\"-I/opt/homebrew/opt/libpq/include/\" \
                 CXX=<< parameters.compiler >> \
-                CXXFLAGS=\"-O1 -std=<< parameters.cxx_version >>\" \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\" \
                 LDFLAGS=\"-L/opt/homebrew/opt/libpq/lib\""
       - store_artifacts:
           path: config.log
@@ -129,7 +129,7 @@ jobs:
     parameters:
       compiler:
         type: string
-      cxx_version:
+      cxx_ver:
         type: string
     executor:
       name: win/default
@@ -152,7 +152,7 @@ jobs:
           # (Run the msys bash, not the one we get from CircleCI.)
           command: ". vars.sh && bash.exe -c \". vars.sh && \
             CXX=<< parameters.compiler >> \
-            CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
+            CXXFLAGS='-O1 -std=<< parameters.cxx_ver >>' \
             cmake -G Ninja .\""
           shell: bash.exe
       - run:
@@ -188,7 +188,7 @@ jobs:
 
   analyse:
     parameters:
-      cxx_version:
+      cxx_ver:
         type: string
     docker:
       - image: archlinux
@@ -211,7 +211,7 @@ jobs:
             mkdir -p /tmp/pqxx && \
             cd /tmp/pqxx && \
             CXX=clang++ CXXFLAGS='-O0 \
-              -std=<< parameters.cxx_version >>' cmake \"$SRC\""
+              -std=<< parameters.cxx_ver >>' cmake \"$SRC\""
       - run:
           name: Analyse
           # Tricky.  I don't really want the pointless stdout output from
@@ -256,9 +256,56 @@ jobs:
           # Fails if errors.txt contains actual text.
           command: "! grep . errors.txt"
 
+  coverage:
+    parameters:
+      cxx_ver:
+        type: string
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh archlinux g++ >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && autoreconf && \
+              ./configure \
+                  CXX=g++ \
+                  CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage' \
+                  LDFLAGS='--coverage'"
+      - run:
+          name: Compile
+          command: "make -j4 check TESTS="
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - run:
+          name: Test
+          command: ". /tmp/vars.sh && make check"
+      - run:
+          name: Report
+          command: "cd src && \
+              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
+      - run:
+          name: Rank
+          command: "./tools/count-uncovered.sh src \
+              | sort -rn | tee src/rank.txt"
+      - run:
+          name: Gather reports
+          command: "tar -vczf /tmp/coverage.tar.gz \
+              src/*.gcov src/gcov.out src/rank.txt"
+      - store_artifacts:
+          path: "/tmp/coverage.tar.gz"
+
   infer:
     parameters:
-      cxx_version:
+      cxx_ver:
         type: string
     docker:
       - image: archlinux
@@ -276,7 +323,7 @@ jobs:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && \
             ./configure \
-                CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_version >>'"
+                CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
       - run:
           name: Capture
           command: "infer capture -- make -j4 check TESTS="
@@ -303,7 +350,7 @@ jobs:
     parameters:
       compiler:
         type: string
-      cxx_version:
+      cxx_ver:
         type: string
       opt:
         # Optimisation level.
@@ -336,7 +383,7 @@ jobs:
           command: ". /tmp/vars.sh && \
               CXX='<< parameters.compiler >>' \
               CXXFLAGS='-O<< parameters.opt >> \
-              -std=<< parameters.cxx_version >> \
+              -std=<< parameters.cxx_ver >> \
               -DPQXX_VALGRIND' \
               cmake -G Ninja ."
       - run:
@@ -370,18 +417,28 @@ workflows:
       - analyse:
           matrix:
             parameters:
-              cxx_version: ["c++26"]
+              cxx_ver: ["c++26"]
+
+      - coverage:
+          matrix:
+            parameters:
+              cxx_ver: ["c++26"]
 
       - infer:
           matrix:
             parameters:
-              cxx_version: ["c++23"]
+              cxx_ver: ["c++23"]
 
       - valgrind:
           matrix:
             parameters:
               compiler: ["g++", "clang++"]
-              cxx_version: ["c++23"]
+              cxx_ver: ["c++23"]
+              # I really don't want to test against every conceivable
+              # optimisation level.  But -O0 revealed a problem that somehow
+              # wasn't happening when optimising.  Can't skip -O2 because it's
+              # the default.  And -O3 restructures code which may reveal other
+              # problems.  So... only level we end up skipping is -O1.
               opt: [0, 2, 3]
 
       - test-linux:
@@ -389,20 +446,20 @@ workflows:
             parameters:
               os: ["archlinux", "debian", "fedora", "ubuntu"]
               compiler: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
             exclude:
               - os: "ubuntu"
                 compiler: "g++"
-                cxx_version: "c++26"
+                cxx_ver: "c++26"
 
       - test-macos:
           matrix:
             parameters:
               compiler: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
 
       - test-windows:
           matrix:
             parameters:
               compiler: ["clang++", "g++"]
-              cxx_version: ["c++20", "c++23", "c++26"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
