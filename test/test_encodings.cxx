@@ -1,3 +1,12 @@
+/** In this test module we'll be searching for the ASCII character 'X' in
+ * strings in various encodings.
+ *
+ * This gets interesting in the one scenario where we actually need to know
+ * about the text's encoding: if a multibyte character contains a byte whose
+ * numerical value happens to be the same as that of the ASCII character we're
+ * trying to find.
+ */
+
 #include "helpers.hxx"
 
 #include "pqxx/internal/encodings.hxx"
@@ -5,6 +14,9 @@
 
 namespace
 {
+using namespace std::literals;
+
+
 /// Convenience shorthand: `std::source_location::current()`.
 pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
 {
@@ -12,15 +24,78 @@ pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
 }
 
 
+/// A simple test text, no special tricks.
+/** The text is "My hovercraft is full of eels" translated to various
+ * languages using Google Translate, and encoded in the respective encoding
+ * groups.
+ */
+template<pqxx::encoding_group ENC> std::string const eels;
+
+/// Big5: Traditional Chinese.
+template<>
+auto eels<pqxx::encoding_group::big5>{
+  "\xa7\xda\xaa\xba\xae\xf0\xb9\xd4\xb2\xee\xb8\xcc\xa5\xfe\xac\x4f\xc5\xc1"
+  "\xb3\xbd"s};
+/// ASCII-safe: German.
+template<>
+auto const eels<pqxx::encoding_group::ascii_safe>{
+  "Mein Luftkissenfahrzeug ist voll mit Aalen."s};
+/// GB18030: Simplified Chinese.
+template<>
+auto const eels<pqxx::encoding_group::gb18030>{
+  "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
+  "\xf7\xa9\xd3\xe3\xa1\xa3"s};
+/// GBK: Simplified Chinese.
+template<>
+auto const eels<pqxx::encoding_group::gbk>{
+  "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
+  "\xf7\xa9\xd3\xe3\xa1\xa3"s};
+/// JOHAB: Korean.
+template<>
+auto const eels<pqxx::encoding_group::johab>{
+  "\x90\x81 \xd1\xa1\xa4\xe1\xc7\x61\x9c\x81\xcf\x61\xcb\x61\x93\x65 "
+  "\xb8\x77\xb4\xe1\x9d\xa1 \x88\x61\x97\x62 \xc0\x61 "
+  "\xb7\xb6\xb4\xe1\xb6\x61"s};
+/// SJIS: Japanese.
+template<>
+auto const eels<pqxx::encoding_group::sjis>{
+  "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
+  "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
+  "\x82\xc5\x82\xb7"s};
+/// UHC: Korean.
+template<>
+auto const eels<pqxx::encoding_group::uhc>{
+  "\xb3\xbb \xc8\xa3\xb9\xf6\xc5\xa9\xb7\xa1\xc7\xc1\xc6\xae\xb4\xc2 "
+  "\xc0\xe5\xbe\xee\xb7\xce \xb0\xa1\xb5\xe6 \xc2\xf7 "
+  "\xc0\xd6\xbe\xee\xbf\xe4"s};
+
+
+/// A tricky test text.
+/** These represent multibyte characters in various encodings which happen to
+ * contain a byte with the same numeric value as the ASCII letter 'X'.
+ */
+template<pqxx::encoding_group ENC> std::string const tricky;
+
+template<> auto const tricky<pqxx::encoding_group::big5>{"\xaa\x58"s};
+// (Yeah such a string is not possible here.)
+template<> auto const tricky<pqxx::encoding_group::ascii_safe>{""s};
+template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81\x58"s};
+template<> auto const tricky<pqxx::encoding_group::gbk>{"\xaa\x58"s};
+template<> auto const tricky<pqxx::encoding_group::johab>{"\x84\x58"s};
+template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81\x58"s};
+template<> auto const tricky<pqxx::encoding_group::uhc>{"\xa1\x58"s};
+
+
 /// Test basic sanity of search in encoding group `ENC`.
-/** Searches `text` for first occurrence of 'X'.
+/** Searches test texts for first occurrence of 'X'.
  *
- * Ensure that `text` does not contain the ASCII _character_ X.  However, it
+ * Ensure that the text does not contain the ASCII _character_ X.  However, it
  * may contain the _byte value_ for that character.  In fact it makes the test
  * stronger and more useful.
+ *
+ * The texts are both `eels` and `tricky` for each of the encodings.
  */
-template<pqxx::encoding_group ENC>
-void test_search(std::string_view text, std::string_view enc_name)
+template<pqxx::encoding_group ENC> void test_search(std::string_view enc_name)
 {
   auto const finder{pqxx::internal::get_char_finder<'X'>(ENC, loc())};
 
@@ -44,127 +119,40 @@ void test_search(std::string_view text, std::string_view enc_name)
       "Search ({}) for absent character in ASCII string went wrong.",
       enc_name));
 
-  // Now try searching the actual `text`.  First a failing search, since `text`
-  // does not contain the character we're looking for:
+  // Now try searching a text that actually uses ENC.  First a failing search,
+  // since the text does not contain the character we're looking for:
   PQXX_CHECK_EQUAL(
-    finder(text, 0, loc()), std::size(text),
+    finder(eels<ENC>, 0, loc()), std::size(eels<ENC>),
     "Search for absent character did not hit end.");
   // Then, a successful search.
   PQXX_CHECK_EQUAL(
-    finder(std::string{text} + "Xnn", 0, loc()), std::size(text),
+    finder(std::string{eels<ENC>} + "Xnn", 0, loc()), std::size(eels<ENC>),
     "False negative on search.");
+
+  // Finally, we perform similar searches but for the tricky strings which
+  // contain a byte with value 'X' inside a multibyte character.  The search
+  // should ignore that embedded byte.
+  PQXX_CHECK_EQUAL(
+    finder(tricky<ENC>, 0, loc()), std::size(tricky<ENC>),
+    "Looks like we fell for an embedded 'X' byte.");
+  // Then, a successful search.
+  PQXX_CHECK_EQUAL(
+    finder(tricky<ENC> + "Xnn", 0, loc()), std::size(tricky<ENC>),
+    "Did not find 'X' after string with embedded 'X' byte.");
 }
 
 
-void test_find_chars_big5()
+void test_find_chars()
 {
-  // "My hovercraft is full of eels" in Traditional Chinese (as translated by
-  // Google Translate), encoded to big5.
-  std::string_view const clear_cut{
-    "\xa7\xda\xaa\xba\xae\xf0\xb9\xd4\xb2\xee\xb8\xcc\xa5\xfe\xac\x4f\xc5\xc1"
-    "\xb3\xbd"};
-
-  test_search<pqxx::encoding_group::big5>(clear_cut, "big5");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::big5>("\xaa\x58", "big5");
+  test_search<pqxx::encoding_group::big5>("big5");
+  test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
+  test_search<pqxx::encoding_group::gb18030>("gb18030");
+  test_search<pqxx::encoding_group::gbk>("gbk");
+  test_search<pqxx::encoding_group::johab>("johab");
+  test_search<pqxx::encoding_group::sjis>("sjis");
+  test_search<pqxx::encoding_group::uhc>("uhc");
 }
 
 
-void test_find_chars_ascii()
-{
-  test_search<pqxx::encoding_group::ascii_safe>("some text", "ascii_safe");
-}
-
-
-void test_find_chars_gb18030()
-{
-  // "My hovercraft is full of eels" in Simplified Chinese (as translated by
-  // Google Translate), encoded to gb18030.
-  std::string_view const clear_cut{
-    "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
-    "\xf7\xa9\xd3\xe3\xa1\xa3"};
-
-  // Straightforward gb18030 string.
-  test_search<pqxx::encoding_group::gb18030>(clear_cut, "gb18030");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::gb18030>("\x81\x58", "gb18030");
-}
-
-
-void test_find_chars_gbk()
-{
-  // "My hovercraft is full of eels" in Simplified Chinese (as translated by
-  // Google Translate), encoded to gbk.
-  std::string_view const clear_cut{
-    "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
-    "\xf7\xa9\xd3\xe3\xa1\xa3"};
-
-  test_search<pqxx::encoding_group::gbk>(clear_cut, "gbk");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::gbk>("\xaa\x58", "gbk");
-}
-
-
-void test_find_chars_johab()
-{
-  // "My hovercraft is full of eels" in Korean (as translated by Google
-  // Translate), encoded to JOHAB.
-  std::string_view const clear_cut{
-    "\x90\x81 \xd1\xa1\xa4\xe1\xc7\x61\x9c\x81\xcf\x61\xcb\x61\x93\x65 "
-    "\xb8\x77\xb4\xe1\x9d\xa1 \x88\x61\x97\x62 \xc0\x61 "
-    "\xb7\xb6\xb4\xe1\xb6\x61"};
-
-  test_search<pqxx::encoding_group::johab>(clear_cut, "johab");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::johab>("\x84\x58", "johab");
-}
-
-
-void test_find_chars_sjis()
-{
-  // "My hovercraft is full of eels" in Japanese (as translated by Google
-  // Translate), encoded to SJIS.
-  std::string_view const clear_cut{
-    "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
-    "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
-    "\x82\xc5\x82\xb7"};
-
-  test_search<pqxx::encoding_group::sjis>(clear_cut, "sjis");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::sjis>("\x81\x58", "sjis");
-}
-
-
-void test_find_chars_uhc()
-{
-  std::string_view const clear_cut{
-    "\xb3\xbb \xc8\xa3\xb9\xf6\xc5\xa9\xb7\xa1\xc7\xc1\xc6\xae\xb4\xc2 "
-    "\xc0\xe5\xbe\xee\xb7\xce \xb0\xa1\xb5\xe6 \xc2\xf7 "
-    "\xc0\xd6\xbe\xee\xbf\xe4"};
-
-  test_search<pqxx::encoding_group::uhc>(clear_cut, "uhc");
-
-  // This character's second byte has the same numeric value as the ASCII
-  // character 'X'.
-  test_search<pqxx::encoding_group::uhc>("\xa1\x58", "uhc");
-}
-
-
-PQXX_REGISTER_TEST(test_find_chars_ascii);
-PQXX_REGISTER_TEST(test_find_chars_big5);
-PQXX_REGISTER_TEST(test_find_chars_gb18030);
-PQXX_REGISTER_TEST(test_find_chars_gbk);
-PQXX_REGISTER_TEST(test_find_chars_johab);
-PQXX_REGISTER_TEST(test_find_chars_sjis);
-PQXX_REGISTER_TEST(test_find_chars_uhc);
+PQXX_REGISTER_TEST(test_find_chars);
 } // namespace

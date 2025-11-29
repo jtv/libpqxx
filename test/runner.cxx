@@ -365,7 +365,13 @@ int main(int argc, char const *argv[])
   for (int arg{1}; arg < argc; ++arg)
   {
     std::string_view const elt{argv[arg]};
-    if (want_jobs)
+    if ((elt == "--help") or (elt == "-h"))
+    {
+      std::cout << "Test runner for libpqxx.\nUsage: " << argv[0]
+                << " [ -j <jobs> | --jobs=<jobs> ] [test_function ... ]\n";
+      return 0;
+    }
+    else if (want_jobs)
     {
       // Expecting an argument to the "jobs" option.
       jobs = pqxx::from_string<std::ptrdiff_t>(elt);
@@ -395,6 +401,11 @@ int main(int argc, char const *argv[])
   if (want_jobs)
   {
     std::cerr << "The jobs option needs a numeric argument.\n";
+    return 1;
+  }
+  if (jobs <= 0)
+  {
+    std::cerr << "Number of parallel jobs must be at least 1.\n";
     return 1;
   }
 
