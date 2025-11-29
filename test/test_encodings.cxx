@@ -130,13 +130,33 @@ void test_find_chars_johab()
 
 void test_find_chars_sjis()
 {
-  // XXX:
+  // "My hovercraft is full of eels" in Japanese (as translated by Google
+  // Translate), encoded to SJIS.
+  std::string_view clear_cut{
+    "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
+    "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
+    "\x82\xc5\x82\xb7"};
+
+  test_search<pqxx::encoding_group::sjis>(clear_cut, "sjis");
+
+  // This character's second byte has the same numeric value as the ASCII
+  // character 'X'.
+  test_search<pqxx::encoding_group::sjis>("\x81\x58", "sjis");
 }
 
 
 void test_find_chars_uhc()
 {
-  // XXX:
+  std::string_view const clear_cut{
+    "\xb3\xbb \xc8\xa3\xb9\xf6\xc5\xa9\xb7\xa1\xc7\xc1\xc6\xae\xb4\xc2 "
+    "\xc0\xe5\xbe\xee\xb7\xce \xb0\xa1\xb5\xe6 \xc2\xf7 "
+    "\xc0\xd6\xbe\xee\xbf\xe4"};
+
+  test_search<pqxx::encoding_group::uhc>(clear_cut, "uhc");
+
+  // This character's second byte has the same numeric value as the ASCII
+  // character 'X'.
+  test_search<pqxx::encoding_group::uhc>("\xa1\x58", "uhc");
 }
 
 
