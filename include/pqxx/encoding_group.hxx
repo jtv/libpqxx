@@ -6,7 +6,7 @@
  * COPYING with this source code, please notify the distributor of this
  * mistake, or contact the author.
  */
-#ifndef PQXX_H_ENCODING_GROUP
+#if !defined(PQXX_H_ENCODING_GROUP)
 #define PQXX_H_ENCODING_GROUP
 
 #include <cstddef>
