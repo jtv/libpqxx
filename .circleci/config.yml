@@ -277,14 +277,18 @@ jobs:
           # Default "path coverage limit" is 250k.  With that default, we get
           # a lot of "No path information" messages meaning that gcc saw too
           # many paths and gave up.  In which case we get bogus test coverage
-          # reports.
+          # reports.  Let's invest a bit of extra complier work to get the data
+          # we need.
           #
-          # Let's invest a bit of extra complier work to get the data we need.
+          # The profiler seems to default to non-threadsafe operation when not
+          # explicitly linking to pthread, so we explicitly request "atomic"
+          # updates when appropriate.
           command: ". /tmp/vars.sh && autoreconf && \
               ./configure \
                   CXX=g++ \
                   CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
-                      -fpath-coverage-limit=2000000' \
+                      -fpath-coverage-limit=2000000 \
+                      -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"
       - run:
           name: Compile
