@@ -287,7 +287,7 @@ jobs:
               ./configure \
                   CXX=g++ \
                   CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
-                      -fpath-coverage-limit=2000000 \
+                      -fpath-coverage-limit=20000000 \
                       -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"
       - run:
