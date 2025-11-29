@@ -98,7 +98,7 @@ void test_find_chars_gb18030()
 void test_find_chars_gbk()
 {
   // "My hovercraft is full of eels" in Simplified Chinese (as translated by
-  // Google Translate), encoded to gb18030.
+  // Google Translate), encoded to gbk.
   std::string_view const clear_cut{
     "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
     "\xf7\xa9\xd3\xe3\xa1\xa3"};

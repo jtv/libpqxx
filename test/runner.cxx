@@ -426,7 +426,7 @@ int main(int argc, char const *argv[])
   dispatcher disp{jobs, std::move(tests)};
 
   std::vector<std::thread> pool;
-  pool.reserve(jobs);
+  pool.reserve(static_cast<std::size_t>(jobs));
   for (std::ptrdiff_t j{0}; j < jobs; ++j)
     pool.emplace_back(
       execute, std::ref(disp), std::cref(all_tests), std::ref(fail_lock),
