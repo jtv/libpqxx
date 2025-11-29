@@ -395,6 +395,8 @@ jobs:
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
+          # Run the tests serially so we don't get lots of conflicting coverage
+          # data written to the same files.
           command: "
               ( \
               set -Cue ; \
@@ -404,7 +406,7 @@ jobs:
               exp-bbv ; do \
               echo ; echo ; echo \"*** $t ***\" ; echo ; \
               valgrind --trace-children=yes --vgdb=no --track-fds=yes \
-              --tool=$t test/runner 2>&1 | tee -a test.log || exit 1 ; \
+              --tool=$t test/runner -j1 2>&1 | tee -a test.log || exit 1 ; \
               done \
               )"
       - store_artifacts:

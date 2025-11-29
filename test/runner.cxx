@@ -1,6 +1,18 @@
-/* libpqxx test runner.
+/// Libpqxx test runner.
+/** This is the main program responsible for running libpqxx's test suite.
+ * It is only really needed for developing libpqxx itself, though when you
+ * build libpqxx it's definitely a good idea to build the test suite and run
+ * this program to verify that everything works well in your specific
+ * environment.
+ *
+ * Usage: runner [--jobs=<jobs|-j<jobs>] [test function...]
+ *
+ * The -j option dictates the number of parallel threads that will run the
+ * tests.  I get most of the performance benefits from the parallelism by
+ * setting this to 4; anything beyond that is overkill.
  */
 #include <cassert>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <list>
@@ -340,7 +352,51 @@ void execute(
 int main(int argc, char const *argv[])
 {
   std::vector<std::string_view> tests;
-  for (int arg{1}; arg < argc; ++arg) tests.emplace_back(argv[arg]);
+
+  // Number of parallel jobs.
+  std::ptrdiff_t jobs{4};
+
+  // XXX: Extract command-line parsing to function.
+  // Is the command-line parser in a state where it needs an argument to the
+  // preceding "--jobs" option?
+  bool want_jobs{false};
+
+  // Parse command line.
+  for (int arg{1}; arg < argc; ++arg)
+  {
+    std::string_view const elt{argv[arg]};
+    if (want_jobs)
+    {
+      // Expecting an argument to the "jobs" option.
+      jobs = pqxx::from_string<std::ptrdiff_t>(elt);
+      want_jobs = false;
+    }
+    else if ((elt == "-j") or (elt == "--jobs"))
+    {
+      // The "jobs" option, but the actual number is in the next element.
+      want_jobs = true;
+    }
+    else if (elt.starts_with("-j"))
+    {
+      // Short-form "jobs" option, with a number attached.
+      jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(2));
+    }
+    else if (elt.starts_with("--jobs="))
+    {
+      // Long-form "jobs" option, with a number attached.
+      jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(7));
+    }
+    else
+    {
+      // A test name.
+      tests.emplace_back(elt);
+    }
+  }
+  if (want_jobs)
+  {
+    std::cerr << "The jobs option needs a numeric argument.\n";
+    return 1;
+  }
 
   auto const all_tests{pqxx::test::suite::gather()};
   if (std::empty(tests))
@@ -367,7 +423,6 @@ int main(int argc, char const *argv[])
   // get from 300 workers.  That can change radically though: right now there
   // are just a few "negative tests" holding things up by waiting for a few
   // seconds to check that something doesn't happen.
-  std::ptrdiff_t const jobs{4};
   dispatcher disp{jobs, std::move(tests)};
 
   std::vector<std::thread> pool;
