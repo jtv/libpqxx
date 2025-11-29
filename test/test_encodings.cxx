@@ -132,7 +132,7 @@ void test_find_chars_sjis()
 {
   // "My hovercraft is full of eels" in Japanese (as translated by Google
   // Translate), encoded to SJIS.
-  std::string_view clear_cut{
+  std::string_view const clear_cut{
     "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
     "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
     "\x82\xc5\x82\xb7"};
