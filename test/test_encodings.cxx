@@ -29,11 +29,11 @@ pqxx::sl loc(pqxx::sl l = pqxx::sl::current())
  * languages using Google Translate, and encoded in the respective encoding
  * groups.
  */
-template<pqxx::encoding_group ENC> std::string const eels;
+template<pqxx::encoding_group ENC> std::string_view const eels;
 
 /// Big5: Traditional Chinese.
 template<>
-auto eels<pqxx::encoding_group::big5>{
+auto const eels<pqxx::encoding_group::big5>{
   "\xa7\xda\xaa\xba\xae\xf0\xb9\xd4\xb2\xee\xb8\xcc\xa5\xfe\xac\x4f\xc5\xc1"
   "\xb3\xbd"sv};
 /// ASCII-safe: German.
@@ -74,7 +74,7 @@ auto const eels<pqxx::encoding_group::uhc>{
 /** These represent multibyte characters in various encodings which happen to
  * contain a byte with the same numeric value as the ASCII letter 'X'.
  */
-template<pqxx::encoding_group ENC> std::string const tricky;
+template<pqxx::encoding_group ENC> std::string_view const tricky;
 
 template<> auto const tricky<pqxx::encoding_group::big5>{"\xaa\x58"sv};
 // (Yeah such a string is not possible here.)
