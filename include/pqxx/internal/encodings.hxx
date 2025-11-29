@@ -36,10 +36,10 @@ enc_group(int /* libpq encoding ID */, sl);
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.
-constexpr PQXX_PURE unsigned char
-get_byte(std::string_view buffer, std::size_t offset) noexcept
+constexpr PQXX_PURE inline unsigned char
+get_byte(std::string_view buffer, std::size_t offset)
 {
-  return static_cast<unsigned char>(buffer[offset]);
+  return static_cast<unsigned char>(buffer.at(offset));
 }
 
 
