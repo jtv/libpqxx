@@ -43,7 +43,7 @@ get_byte(std::string_view buffer, std::size_t offset)
 }
 
 
-[[noreturn]] PQXX_COLD void throw_for_encoding_error(
+[[noreturn]] PQXX_COLD inline void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
@@ -62,7 +62,7 @@ get_byte(std::string_view buffer, std::size_t offset)
 
 
 /// Does value lie between bottom and top, inclusive?
-constexpr PQXX_PURE bool
+constexpr PQXX_PURE inline bool
 between_inc(unsigned char value, unsigned bottom, unsigned top)
 {
   return value >= bottom and value <= top;
