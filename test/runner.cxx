@@ -5,7 +5,7 @@
  * this program to verify that everything works well in your specific
  * environment.
  *
- * Usage: runner [-j<jobs>|--jobs=<jobs] [test function...]
+ * Usage: runner [-j<jobs>|--jobs=<jobs>] [test function...]
  *
  * The -j option dictates the number of parallel threads that will run the
  * tests.  I get most of the performance benefits from the parallelism by
@@ -360,11 +360,10 @@ struct options
   std::vector<std::string_view> tests;
 
   /// Number of parallel test threads.
-  /** On my laptop
-   * with 8 physical cores, 4 workers give me about 95% of the performance I
-   * get from 300 workers.  That can change radically though: right now there
-   * are just a few "negative tests" holding things up by waiting for a few
-   * seconds to check that something doesn't happen.
+  /** On my laptop with 8 physical cores, 4 workers give me about 95% of the
+   * performance I get from 300 workers.  That can change radically though:
+   * right now there are just a few "negative tests" holding things up by
+   * waiting for a few seconds to check that something doesn't happen.
    */
   std::ptrdiff_t jobs{4};
 };
