@@ -277,7 +277,7 @@ jobs:
           # Default "path coverage limit" is 250k.  With that default, we get
           # a lot of "No path information" messages meaning that gcc saw too
           # many paths and gave up.  In which case we get bogus test coverage
-          # reports.  Let's invest a bit of extra complier work to get the data
+          # reports.  Let's invest a bit of extra compiler work to get the data
           # we need.
           #
           # The profiler seems to default to non-threadsafe operation when not

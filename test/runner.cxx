@@ -384,10 +384,11 @@ options parse_command_line(int argc, char const *argv[])
     std::string_view const elt{argv[arg]};
     if ((elt == "--help") or (elt == "-h"))
     {
-      throw std::runtime_error{std::format(
-        "Test runner for libpqxx.\n"
-        "Usage: {} [ -j <jobs> | --jobs=<jobs> ] [ test_function ... ]",
-        argv[0])};
+      std::cout << "Test runner for libpqxx.\n"
+                   "Usage: "
+                << argv[0]
+                << " [ -j <jobs> | --jobs=<jobs> ] [ test_function ... ]\n";
+      throw help_exit{};
     }
     else if (want_jobs)
     {
@@ -490,7 +491,7 @@ int main(int argc, char const *argv[])
       return 1;
     }
   }
-  catch (help_exit const &)
+  catch (help_exit const &e)
   {}
   catch (std::exception const &e)
   {
