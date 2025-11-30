@@ -312,7 +312,7 @@ jobs:
               | sort -rn | tee src/rank.txt"
       - run:
           name: "lcov"
-          command: "lcov --capture --directory . --output-file cov.info && \
+          command: "lcov --capture --directory src --output-file cov.info && \
               genhtml cov.info --output-directory coverage_html"
       - run:
           name: Gather reports
