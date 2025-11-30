@@ -273,6 +273,9 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
+          name: "Install lcov"
+          command: "apt install lcov"
+      - run:
           name: Configure
           # Default "path coverage limit" is 250k.  With that default, we get
           # a lot of "No path information" messages meaning that gcc saw too
@@ -308,9 +311,13 @@ jobs:
           command: "./tools/count-uncovered.sh src \
               | sort -rn | tee src/rank.txt"
       - run:
+          name: "lcov"
+          command: "lcov --capture --directory . --output-file cov.info && \
+              genhtml cov.info --output-directory coverage_html"
+      - run:
           name: Gather reports
           command: "tar -vczf /tmp/coverage.tar.gz \
-              src/*.gcov src/gcov.out src/rank.txt"
+              src/*.gcov src/gcov.out src/rank.txt coverage_html"
       - store_artifacts:
           path: "/tmp/coverage.tar.gz"
 
