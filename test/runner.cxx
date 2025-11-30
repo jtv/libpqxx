@@ -5,7 +5,7 @@
  * this program to verify that everything works well in your specific
  * environment.
  *
- * Usage: runner [--jobs=<jobs|-j<jobs>] [test function...]
+ * Usage: runner [-j<jobs>|--jobs=<jobs] [test function...]
  *
  * The -j option dictates the number of parallel threads that will run the
  * tests.  I get most of the performance benefits from the parallelism by
@@ -492,7 +492,9 @@ int main(int argc, char const *argv[])
     }
   }
   catch (help_exit const &)
-  {}
+  {
+    return 0;
+  }
   catch (std::exception const &e)
   {
     std::cerr << e.what() << '\n';
