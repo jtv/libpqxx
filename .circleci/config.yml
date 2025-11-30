@@ -274,10 +274,21 @@ jobs:
           path: "/tmp/vars.sh"
       - run:
           name: Configure
+          # Default "path coverage limit" is 250k.  With that default, we get
+          # a lot of "No path information" messages meaning that gcc saw too
+          # many paths and gave up.  In which case we get bogus test coverage
+          # reports.  Let's invest a bit of extra compiler work to get the data
+          # we need.
+          #
+          # The profiler seems to default to non-threadsafe operation when not
+          # explicitly linking to pthread, so we explicitly request "atomic"
+          # updates when appropriate.
           command: ". /tmp/vars.sh && autoreconf && \
               ./configure \
                   CXX=g++ \
-                  CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage' \
+                  CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
+                      -fpath-coverage-limit=2000000 \
+                      -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"
       - run:
           name: Compile
@@ -395,6 +406,8 @@ jobs:
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
+          # Run all the Valgrind tests, in sequence.  Might as well get a lot
+          # of use out of the build once we've produced it.
           command: "
               ( \
               set -Cue ; \

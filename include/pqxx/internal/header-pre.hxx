@@ -79,6 +79,16 @@
 #endif
 
 
+#if defined(__GNUC__)
+/// Never generate an out-of-line version of this inline function.
+#  define PQXX_INLINE_ONLY __attribute__((always_inline))
+#elif defined(_MSC_VER)
+#  define PQXX_INLINE_ONLY __forceinline
+#else
+#  define PQXX_INLINE_ONLY /* always inline */
+#endif
+
+
 // Workarounds for Windows
 #ifdef _WIN32
 

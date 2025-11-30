@@ -9,6 +9,7 @@
 #if !defined(PQXX_H_ENCODINGS)
 #  define PQXX_H_ENCODINGS
 
+#  include <cassert>
 #  include <iomanip>
 #  include <string>
 #  include <string_view>
@@ -36,17 +37,21 @@ enc_group(int /* libpq encoding ID */, sl);
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.
-constexpr PQXX_PURE unsigned char
+/** Don't generate out-of-line copies; they complicate profiling. */
+constexpr PQXX_PURE PQXX_INLINE_ONLY inline unsigned char
 get_byte(std::string_view buffer, std::size_t offset) noexcept
 {
+  assert(offset < std::size(buffer));
   return static_cast<unsigned char>(buffer[offset]);
 }
 
 
-[[noreturn]] PQXX_COLD void throw_for_encoding_error(
+/** Don't generate out-of-line copies; they complicate profiling. */
+[[noreturn]] PQXX_COLD PQXX_INLINE_ONLY inline void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
+  // C++20: Use std::format()?
   // C++23: Use std::ranges::views::join_with()?
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
@@ -62,7 +67,8 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
 
 
 /// Does value lie between bottom and top, inclusive?
-constexpr PQXX_PURE bool
+/** Don't generate out-of-line copies; they complicate profiling. */
+constexpr PQXX_PURE PQXX_INLINE_ONLY inline bool
 between_inc(unsigned char value, unsigned bottom, unsigned top)
 {
   return value >= bottom and value <= top;
@@ -93,7 +99,7 @@ namespace
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE inline constexpr std::size_t
+PQXX_PURE PQXX_INLINE_ONLY inline constexpr std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -138,7 +144,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 
 template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
   {
     // If we can guarantee that it'll never overflow, it'd be nice to skip the
@@ -158,7 +164,7 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> struct glyph_scanner<encoding_group::big5> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -186,7 +192,7 @@ template<> struct glyph_scanner<encoding_group::big5> final
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<> struct glyph_scanner<encoding_group::gb18030> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -228,7 +234,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<> struct glyph_scanner<encoding_group::gbk> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -274,7 +280,7 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 */
 template<> struct glyph_scanner<encoding_group::johab> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -312,7 +318,7 @@ template<> struct glyph_scanner<encoding_group::johab> final
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::sjis> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -346,7 +352,7 @@ template<> struct glyph_scanner<encoding_group::sjis> final
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<> struct glyph_scanner<encoding_group::uhc> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};

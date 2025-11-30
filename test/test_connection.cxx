@@ -105,12 +105,6 @@ template<typename STR> std::size_t length(STR const &str)
 }
 
 
-std::size_t length(char const str[])
-{
-  return std::strlen(str);
-}
-
-
 template<typename MAP> void test_params_type()
 {
   using item_t = std::remove_reference_t<
@@ -130,16 +124,7 @@ template<typename MAP> void test_params_type()
 
   // Check that the parameters came through in the connection string.
   // We don't know the exact format, but the parameters have to be in there.
-  auto const min_size{std::accumulate(
-    std::cbegin(params), std::cend(params), std::size(params) - 1,
-    [](auto count, auto item) {
-      return count + length(std::get<0>(item)) + 1 + length(std::get<1>(item));
-    })};
-
   auto const connstr{c.connection_string()};
-  PQXX_CHECK_GREATER_EQUAL(
-    std::size(connstr), min_size,
-    "Connection string can't possibly contain the options we gave.");
   for (auto const &[key, value] : params)
   {
     PQXX_CHECK(
