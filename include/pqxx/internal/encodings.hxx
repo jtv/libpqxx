@@ -36,17 +36,20 @@ enc_group(int /* libpq encoding ID */, sl);
 namespace
 {
 /// Extract byte from buffer, return as unsigned char.
-constexpr PQXX_PURE inline unsigned char
+/** Don't generate out-of-line copies; they complicate profiling. */
+constexpr PQXX_PURE PQXX_INLINE_ONLY inline unsigned char
 get_byte(std::string_view buffer, std::size_t offset)
 {
   return static_cast<unsigned char>(buffer.at(offset));
 }
 
 
-[[noreturn]] PQXX_COLD inline void throw_for_encoding_error(
+/** Don't generate out-of-line copies; they complicate profiling. */
+[[noreturn]] PQXX_COLD PQXX_INLINE_ONLY inline void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
+  // C++20: Use std::format()?
   // C++23: Use std::ranges::views::join_with()?
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
@@ -62,7 +65,8 @@ get_byte(std::string_view buffer, std::size_t offset)
 
 
 /// Does value lie between bottom and top, inclusive?
-constexpr PQXX_PURE inline bool
+/** Don't generate out-of-line copies; they complicate profiling. */
+constexpr PQXX_PURE PQXX_INLINE_ONLY inline bool
 between_inc(unsigned char value, unsigned bottom, unsigned top)
 {
   return value >= bottom and value <= top;
@@ -93,7 +97,7 @@ namespace
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_PURE inline constexpr std::size_t
+PQXX_PURE PQXX_INLINE_ONLY inline constexpr std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
