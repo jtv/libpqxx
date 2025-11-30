@@ -346,17 +346,34 @@ void execute(
     }
   }
 }
-} // namespace
 
 
-int main(int argc, char const *argv[])
+/// Exception class: user requested help output, exit cleanly.
+struct help_exit
+{};
+
+
+/// Parsed command line.
+struct options
 {
+  /// Test functions to run.  If empty, run all.
   std::vector<std::string_view> tests;
 
-  // Number of parallel jobs.
+  /// Number of parallel test threads.
+  /** On my laptop
+   * with 8 physical cores, 4 workers give me about 95% of the performance I
+   * get from 300 workers.  That can change radically though: right now there
+   * are just a few "negative tests" holding things up by waiting for a few
+   * seconds to check that something doesn't happen.
+   */
   std::ptrdiff_t jobs{4};
+};
 
-  // XXX: Extract command-line parsing to function.
+
+options parse_command_line(int argc, char const *argv[])
+{
+  options opts;
+
   // Is the command-line parser in a state where it needs an argument to the
   // preceding "--jobs" option?
   bool want_jobs{false};
@@ -367,14 +384,15 @@ int main(int argc, char const *argv[])
     std::string_view const elt{argv[arg]};
     if ((elt == "--help") or (elt == "-h"))
     {
-      std::cout << "Test runner for libpqxx.\nUsage: " << argv[0]
-                << " [ -j <jobs> | --jobs=<jobs> ] [test_function ... ]\n";
-      return 0;
+      throw std::runtime_error{std::format(
+        "Test runner for libpqxx.\n"
+        "Usage: {} [ -j <jobs> | --jobs=<jobs> ] [ test_function ... ]",
+        argv[0])};
     }
     else if (want_jobs)
     {
       // Expecting an argument to the "jobs" option.
-      jobs = pqxx::from_string<std::ptrdiff_t>(elt);
+      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt);
       want_jobs = false;
     }
     else if ((elt == "-j") or (elt == "--jobs"))
@@ -385,85 +403,98 @@ int main(int argc, char const *argv[])
     else if (elt.starts_with("-j"))
     {
       // Short-form "jobs" option, with a number attached.
-      jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(2));
+      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(2));
     }
     else if (elt.starts_with("--jobs="))
     {
       // Long-form "jobs" option, with a number attached.
-      jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(7));
+      opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(7));
     }
     else
     {
       // A test name.
-      tests.emplace_back(elt);
+      opts.tests.emplace_back(elt);
     }
   }
   if (want_jobs)
   {
-    std::cerr << "The jobs option needs a numeric argument.\n";
-    return 1;
+    throw std::runtime_error{"The jobs option needs a numeric argument."};
   }
-  if (jobs <= 0)
+  if (opts.jobs <= 0)
   {
-    std::cerr << "Number of parallel jobs must be at least 1.\n";
-    return 1;
+    throw std::runtime_error{"Number of parallel jobs must be at least 1."};
   }
 
-  auto const all_tests{pqxx::test::suite::gather()};
-  if (std::empty(tests))
+
+  return opts;
+}
+} // namespace
+
+
+int main(int argc, char const *argv[])
+{
+  try
   {
-    // Caller didn't pass any test names on the command line.  Run all.
-    for (auto const &[name, _] : all_tests) tests.emplace_back(name);
+    auto opts{parse_command_line(argc, argv)};
+
+    auto const all_tests{pqxx::test::suite::gather()};
+    if (std::empty(opts.tests))
+    {
+      // Caller didn't pass any test names on the command line.  Run all.
+      for (auto const &[name, _] : all_tests) opts.tests.emplace_back(name);
+    }
+    else
+    {
+      for (auto const name : opts.tests)
+        if (not all_tests.contains(name))
+        {
+          std::cerr << "Unknown test: " << name << ".\n";
+          return 2;
+        }
+    }
+    auto const test_count{std::size(opts.tests)};
+
+    std::mutex fail_lock;
+    std::vector<std::string> failures;
+
+    dispatcher disp{opts.jobs, std::move(opts.tests)};
+
+    std::vector<std::thread> pool;
+    pool.reserve(static_cast<std::size_t>(opts.jobs));
+    for (std::ptrdiff_t j{0}; j < opts.jobs; ++j)
+      pool.emplace_back(
+        execute, std::ref(disp), std::cref(all_tests), std::ref(fail_lock),
+        std::ref(failures));
+
+    disp.start();
+
+    for (auto &thread : pool) thread.join();
+
+    if (test_count == 1)
+      std::cout << "Ran " << test_count << " test.\n";
+    else
+      std::cout << "Ran " << test_count << " tests.\n";
+
+    if (std::empty(failures))
+    {
+      std::cout << "Tests OK.\n";
+      return 0;
+    }
+    else
+    {
+      std::cerr << "\n*** " << std::size(failures) << " test(s) failed: ***\n";
+
+      // Lazy: each message starts with the test name, so mostly sorts by that.
+      std::sort(failures.begin(), failures.end());
+      for (auto const &i : failures) std::cerr << "- " << i << '\n';
+      return 1;
+    }
   }
-  else
+  catch (help_exit const &)
+  {}
+  catch (std::exception const &e)
   {
-    for (auto const name : tests)
-      if (not all_tests.contains(name))
-      {
-        std::cerr << "Unknown test: " << name << ".\n";
-        return 2;
-      }
-  }
-  auto const test_count{std::size(tests)};
-
-  std::mutex fail_lock;
-  std::vector<std::string> failures;
-
-  // Number of parallel worker threads for executing the tests.  On my laptop
-  // with 8 physical cores, 4 workers give me about 95% of the performance I
-  // get from 300 workers.  That can change radically though: right now there
-  // are just a few "negative tests" holding things up by waiting for a few
-  // seconds to check that something doesn't happen.
-  dispatcher disp{jobs, std::move(tests)};
-
-  std::vector<std::thread> pool;
-  pool.reserve(static_cast<std::size_t>(jobs));
-  for (std::ptrdiff_t j{0}; j < jobs; ++j)
-    pool.emplace_back(
-      execute, std::ref(disp), std::cref(all_tests), std::ref(fail_lock),
-      std::ref(failures));
-
-  disp.start();
-
-  for (auto &thread : pool) thread.join();
-
-  if (test_count == 1)
-    std::cout << "Ran " << test_count << " test.\n";
-  else
-    std::cout << "Ran " << test_count << " tests.\n";
-
-  if (std::empty(failures))
-  {
-    std::cout << "Tests OK.\n";
-    return 0;
-  }
-  else
-  {
-    std::cerr << "\n*** " << std::size(failures) << " test(s) failed: ***\n";
-
-    // Lazy: each message starts with the test name, so mostly sorts by that.
-    std::sort(failures.begin(), failures.end());
-    for (auto const &i : failures) std::cerr << "- " << i << '\n';
+    std::cerr << e.what() << '\n';
     return 1;
   }
 }
