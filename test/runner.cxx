@@ -425,7 +425,6 @@ options parse_command_line(int argc, char const *argv[])
     throw std::runtime_error{"Number of parallel jobs must be at least 1."};
   }
 
-
   return opts;
 }
 } // namespace
