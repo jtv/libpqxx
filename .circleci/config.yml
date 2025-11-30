@@ -287,7 +287,7 @@ jobs:
               ./configure \
                   CXX=g++ \
                   CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
-                      -fpath-coverage-limit=20000000 \
+                      -fpath-coverage-limit=2000000 \
                       -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"
       - run:
@@ -298,7 +298,7 @@ jobs:
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
-          command: ". /tmp/vars.sh && make check"
+          command: ". /tmp/vars.sh && ./test/runner -j1"
       - run:
           name: Report
           command: "cd src && \
@@ -406,8 +406,8 @@ jobs:
           command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
       - run:
           name: Test
-          # Run the tests serially so we don't get lots of conflicting coverage
-          # data written to the same files.
+          # Run all the Valgrind tests, in sequence.  Might as well get a lot
+          # of use out of the build once we've produced it.
           command: "
               ( \
               set -Cue ; \
