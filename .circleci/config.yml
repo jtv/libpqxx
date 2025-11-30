@@ -274,7 +274,7 @@ jobs:
           path: "/tmp/vars.sh"
       - run:
           name: "Install lcov"
-          command: "apt-get -qy install lcov"
+          command: "pacman -S --noconfirm lcov"
       - run:
           name: Configure
           # Default "path coverage limit" is 250k.  With that default, we get
