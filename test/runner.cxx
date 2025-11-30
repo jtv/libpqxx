@@ -491,7 +491,7 @@ int main(int argc, char const *argv[])
       return 1;
     }
   }
-  catch (help_exit const &e)
+  catch (help_exit const &)
   {}
   catch (std::exception const &e)
   {
