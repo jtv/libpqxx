@@ -9,6 +9,7 @@
 #if !defined(PQXX_H_ENCODINGS)
 #  define PQXX_H_ENCODINGS
 
+#  include <cassert>
 #  include <iomanip>
 #  include <string>
 #  include <string_view>
@@ -38,9 +39,10 @@ namespace
 /// Extract byte from buffer, return as unsigned char.
 /** Don't generate out-of-line copies; they complicate profiling. */
 constexpr PQXX_PURE PQXX_INLINE_ONLY inline unsigned char
-get_byte(std::string_view buffer, std::size_t offset)
+get_byte(std::string_view buffer, std::size_t offset) noexcept
 {
-  return static_cast<unsigned char>(buffer.at(offset));
+  assert(offset < std::size(buffer));
+  return static_cast<unsigned char>(buffer[offset]);
 }
 
 
