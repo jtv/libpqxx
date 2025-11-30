@@ -142,7 +142,7 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 
 template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl)
   {
     // If we can guarantee that it'll never overflow, it'd be nice to skip the
@@ -162,7 +162,7 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
 // https://en.wikipedia.org/wiki/Big5#Organization
 template<> struct glyph_scanner<encoding_group::big5> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -190,7 +190,7 @@ template<> struct glyph_scanner<encoding_group::big5> final
 // https://en.wikipedia.org/wiki/GB_18030#Mapping
 template<> struct glyph_scanner<encoding_group::gb18030> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -232,7 +232,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 // https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
 template<> struct glyph_scanner<encoding_group::gbk> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -278,7 +278,7 @@ CJKV Information Processing by Ken Lunde, pg. 269:
 */
 template<> struct glyph_scanner<encoding_group::johab> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -316,7 +316,7 @@ template<> struct glyph_scanner<encoding_group::johab> final
 // http://x0213.org/codetable/index.en.html
 template<> struct glyph_scanner<encoding_group::sjis> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
@@ -350,7 +350,7 @@ template<> struct glyph_scanner<encoding_group::sjis> final
 // https://en.wikipedia.org/wiki/Unified_Hangul_Code
 template<> struct glyph_scanner<encoding_group::uhc> final
 {
-  static PQXX_PURE constexpr std::size_t
+  static PQXX_PURE PQXX_INLINE_ONLY constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
