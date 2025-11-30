@@ -349,7 +349,7 @@ void execute(
 
 
 /// Exception class: user requested help output, exit cleanly.
-struct help_exit
+struct help_exit : std::exception
 {};
 
 
