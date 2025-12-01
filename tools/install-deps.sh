@@ -81,7 +81,8 @@ pacman_install() {
 PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
 PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
 PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
-
+PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
+PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 install_archlinux() {
     pacman_install \
@@ -123,7 +124,7 @@ install_archlinux_infer() {
 install_archlinux_lint() {
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" \
-        cmake cppcheck markdownlint python-pyflakes ruff shellcheck \
+        cmake cppcheck make markdownlint python-pyflakes ruff shellcheck \
         which yamllint \
         "$(compiler_pkg "$1")"
 }
@@ -131,8 +132,8 @@ install_archlinux_lint() {
 
 install_debian() {
     apt_install \
-        "${PKGS_ALL_AUTOTOOLS[@]}" libpq-dev \
-        python3 postgresql postgresql-server-dev-all \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
+        postgresql \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
@@ -177,9 +178,8 @@ install_ubuntu_codeql() {
 
 install_ubuntu() {
     apt_install \
-        "${PKGS_ALL_AUTOTOOLS[@]}" \
-        libpq-dev python3 postgresql \
-        postgresql-server-dev-all \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
+        postgresql \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
@@ -189,9 +189,10 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
-    apt_install cmake libpq-dev ninja-build postgresql \
-            postgresql-server-dev-all python3 valgrind \
-            "$(compiler_pkg "$1")"
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" \
+	cmake ninja-build postgresql valgrind \
+        "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
