@@ -26,6 +26,10 @@
 set -Cue -o pipefail
 
 
+# For Debian-flavoured distros:
+export DEBIAN_FRONTEND=noninteractive TZ=UTC
+
+
 # Common case: OS package we need to install to get compiler $1.
 #
 # If $1 equals "clang++", print $2 (or "clang" by default).  If $1 equals
@@ -47,21 +51,44 @@ compiler_pkg() {
 }
 
 
-# For Debian-flavoured distros:
-export DEBIAN_FRONTEND=noninteractive TZ=UTC
+# Install packages using apt.  Includes database update.
+apt_install() {
+    (
+        apt-get -q update
+        apt-get -qy install "$@"
+    ) >>/tmp/install.log
+}
 
+
+# Install packages using Homebrew.
+brew_install() {
+    brew install --quiet "$@" >>/tmp/install.log
+}
+
+
+# Install packages using dnf.
+dnf_install() {
+    dnf -qy install "$@" >>/tmp/install.log
+}
+
+
+# Install packages using pacman.  Includes database update.
+pacman_install() {
+    pacman -qSuy --needed --noconfirm "$@" >>/tmp/install.log
+}
+
+
+PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
+PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
+PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
+PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
+PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
 install_archlinux() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1" clang gcc)"
-
-    (
-        pacman --quiet --noconfirm -Syu
-        pacman --quiet --needed --noconfirm -S \
-            autoconf autoconf-archive automake diffutils libtool make \
-            postgresql postgresql-libs python3 uv which \
-            "$cxxpkg"
-    ) >>/tmp/install.log
+    pacman_install \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        postgresql which \
+        "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/run/postgresql"
 }
@@ -73,7 +100,6 @@ install_archlinux_infer() {
     local downloads="https://github.com/facebook/infer/releases/download"
     local tarball="infer-linux-x86_64-v$infer_ver.tar.xz"
     local url="$downloads/v$infer_ver/$tarball"
-    local cxxpkg
 
     if [ "$1" != "g++" ]
     then
@@ -81,15 +107,10 @@ install_archlinux_infer() {
         exit 1
     fi
 
-    cxxpkg="$(compiler_pkg "$1" clang gcc)"
-
-    (
-        pacman --quiet --noconfirm -Sy
-        pacman --quiet --needed --noconfirm -S \
-            autoconf autoconf-archive automake diffutils libtool make \
-            postgresql-libs python3 tzdata uv wget xz \
-            "$cxxpkg"
-    ) >>/tmp/install.log
+    pacman_install \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        tzdata wget xz \
+        "$(compiler_pkg "$1")"
 
     cd /opt
     # This is not idempotent.  I wasn't joking about using a disposable
@@ -101,33 +122,19 @@ install_archlinux_infer() {
 
 
 install_archlinux_lint() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1" clang gcc)"
-
-    (
-        pacman --quiet --noconfirm -Sy
-        pacman --quiet --needed --noconfirm -S \
-            cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
-            python-pyflakes ruff shellcheck uv which yamllint \
-            "$cxxpkg"
-    ) >>/tmp/install.log
+    pacman_install \
+        "${PKGS_ARCHLINUX_BASE[@]}" \
+        cmake cppcheck make markdownlint python-pyflakes ruff shellcheck \
+        which yamllint \
+        "$(compiler_pkg "$1")"
 }
 
 
 install_debian() {
-    local cxxpkg
-    local pkgs
-
-    (
-        cxxpkg="$(compiler_pkg "$1")"
-        pkgs="build-essential autoconf autoconf-archive automake libpq-dev \
-            python3 postgresql postgresql-server-dev-all libtool $cxxpkg"
-
-        apt-get -q update
-
-        # shellcheck disable=SC2086
-        apt-get -q install -y $pkgs
-    ) >> /tmp/install.log
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
+        postgresql \
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -136,13 +143,11 @@ install_debian() {
 
 
 install_fedora() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1" clang g++)"
-    dnf -qy install \
-        autoconf autoconf-archive automake libasan libtool libubsan \
-        postgresql postgresql-devel postgresql-server python3 uv which \
-        "$cxxpkg" \
-        >>/tmp/install.log
+    dnf_install \
+        "${PKGS_ALL_AUTOTOOLS[@]}" \
+        libasan libubsan postgresql postgresql-devel postgresql-server \
+        python3 uv which \
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
 }
@@ -152,39 +157,30 @@ install_macos() {
     # Looks like our compilers come pre-installed on this image.
     local pg_ver=18
 
-    brew install --quiet \
-        autoconf autoconf-archive automake libtool postgresql@$pg_ver uv \
-        libpq \
-        >>/tmp/install.log
+    brew_install \
+        "${PKGS_ALL_AUTOTOOLS[@]}" \
+        postgresql@$pg_ver uv libpq
 
     echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
 }
 
 
 install_ubuntu_codeql() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1")"
+    # Can't use apt_install here, since we're running it in sudo.
     (
         sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
         sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
-            "$cxxpkg"
+            "$(compiler_pkg "$1" clang g++)"
     ) >>/tmp/install.log
 }
 
 
 install_ubuntu() {
-    local cxxpkg
-    cxxpkg="$(compiler_pkg "$1")"
-
-    (
-        apt-get -q update
-
-        apt-get -q install -y \
-            build-essential autoconf autoconf-archive automake libpq-dev \
-            python3 postgresql postgresql-server-dev-all libtool \
-            "$cxxpkg"
-    ) >>/tmp/install.log
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
+        postgresql \
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -193,20 +189,10 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
-    local cxxpkg
-    local pkgs
-
-    (
-        cxxpkg="$(compiler_pkg "$1")"
-        pkgs="build-essential cmake libpq-dev ninja-build postgresql \
-            postgresql-server-dev-all python3 valgrind \
-            $cxxpkg"
-
-        apt-get -q update
-
-        # shellcheck disable=SC2086
-        apt-get -q install -y $pkgs
-    ) >> /tmp/install.log
+    apt_install \
+        "${PKGS_DEBIAN_BASE[@]}" \
+	cmake ninja-build postgresql valgrind \
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
