@@ -313,7 +313,7 @@ jobs:
       - run:
           name: "lcov"
           command: "lcov --capture --directory src --output-file cov.info && \
-              lcov --remove cov.info '/usr/*' '*/test/*' \
+              lcov --remove cov.info '/usr/*' \
                   --output-file out.info \
               genhtml out.info --output-file coverage_html"
       - run:
