@@ -131,12 +131,12 @@ cpplint() {
         # flag, etc.
         #
         # Pick out relevant flags, but leave out the rest.  If we're not
-	# compiling with clang, compile_flags may contain options that
-	# clang-tidy doesn't recognise.
-	readarray -t dialect < <( \
-	    grep -o -- '-std=c++[^[:space:]]*' compile_flags || true )
+        # compiling with clang, compile_flags may contain options that
+        # clang-tidy doesn't recognise.
+        readarray -t dialect < <( \
+            grep -o -- '-std=c++[^[:space:]]*' compile_flags || true )
         readarray -t includes < <( \
-	    grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags || true )
+            grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags || true )
         clang-tidy \
             --quiet '-warnings-as-errors=*' \
             "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
@@ -190,8 +190,8 @@ mdlint() {
     if which mdl >/dev/null
     then
         find "$SRCDIR" -name \*.md -exec \
-	    mdl -s "$SRCDIR/.mdl_style.rb" -c "$SRCDIR/.markdownlint.yaml" \
-	    '{}' '+'
+            mdl -s "$SRCDIR/.mdl_style.rb" -c "$SRCDIR/.markdownlint.yaml" \
+            '{}' '+'
     fi
 }
 
