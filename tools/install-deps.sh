@@ -62,7 +62,7 @@ apt_install() {
 
 # Install packages using Homebrew.
 brew_install() {
-    brew install --quiet "$@" >>/tmp/install.lo
+    brew install --quiet "$@" >>/tmp/install.log
 }
 
 
@@ -126,7 +126,7 @@ install_archlinux_lint() {
 install_debian() {
     apt_install build-essential autoconf autoconf-archive automake libpq-dev \
         python3 postgresql postgresql-server-dev-all libtool \
-	"$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
