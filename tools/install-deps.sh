@@ -132,7 +132,7 @@ install_archlinux_lint() {
 
 install_debian() {
     apt_install \
-        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
+        "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
         "$(compiler_pkg "$1" clang g++)"
 
