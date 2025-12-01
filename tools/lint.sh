@@ -130,20 +130,19 @@ cpplint() {
         # file, so we use that to figure out preprocessor paths, language
         # flag, etc.
         #
-        # Pick out relevant flags, but leave out the rest.
-        # If we're not compiling with clang, compile_flags may contain
-        # options that clang-tidy doesn't recognise.
-        dialect="$(grep -o -- '-std=[^[:space:]]*' compile_flags || true)"
-        includes="$(
-            grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags ||
-            true)"
-        # shellcheck disable=SC2086,2046
+        # Pick out relevant flags, but leave out the rest.  If we're not
+	# compiling with clang, compile_flags may contain options that
+	# clang-tidy doesn't recognise.
+	readarray -t dialect < <( \
+	    grep -o -- '-std=c++[^[:space:]]*' compile_flags || true )
+        readarray -t includes < <( \
+	    grep -o -- '-I[[:space:]]*[^[:space:]]*' compile_flags || true )
         clang-tidy \
-            --quiet -warnings-as-errors=* \
+            --quiet '-warnings-as-errors=*' \
             "$SRCDIR"/src/*.cxx "$SRCDIR"/tools/*.cxx \
             "$SRCDIR"/test/*.cxx \
             -- \
-            -I"$SRCDIR/include" -Iinclude $dialect $includes
+            -I"$SRCDIR/include" -Iinclude "${dialect[@]}" "${includes[@]}"
 
     else
         cat <<EOF >&2
@@ -178,13 +177,12 @@ shelllint() {
 
     if which shellcheck >/dev/null
     then
-        cmd="shellcheck"
+        cmd=(shellcheck)
     else
-        cmd="uv -q run --with=shellcheck.py shellcheck"
+        cmd=(uv -q run --with=shellcheck.py shellcheck)
     fi
 
-    # shellcheck disable=SC2086
-    find "$SRCDIR/tools" -name '*.sh' -exec $cmd '{}' '+'
+    find "$SRCDIR/tools" -name '*.sh' -exec "${cmd[@]}" '{}' '+'
 }
 
 
