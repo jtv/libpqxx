@@ -71,6 +71,21 @@ constexpr tx_stat parse_status(std::string_view text) noexcept
 }
 
 
+#if !defined(NDEBUG)
+static_assert(parse_status("aborted") == tx_aborted);
+static_assert(parse_status("committed") == tx_committed);
+static_assert(parse_status("in progress") == tx_in_progress);
+static_assert(parse_status("ABORTED") == tx_unknown);
+static_assert(parse_status("Aborted") == tx_unknown);
+static_assert(parse_status("COMMITTED") == tx_unknown);
+static_assert(parse_status("Committed") == tx_unknown);
+static_assert(parse_status("IN PROGRESS") == tx_unknown);
+static_assert(parse_status("In Progress") == tx_unknown);
+static_assert(parse_status("unknown") == tx_unknown);
+static_assert(parse_status("something") == tx_unknown);
+#endif
+
+
 tx_stat query_status(
   std::string const &xid, std::string const &conn_str,
   pqxx::sl loc = pqxx::sl::current())

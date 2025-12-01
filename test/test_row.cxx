@@ -114,9 +114,53 @@ void test_row_as_tuple()
 }
 
 
+void test_row_swap()
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  pqxx::result const res{tx.exec("SELECT * FROM generate_series(1,3)")};
+  pqxx::row r1{res.at(0)}, r3{res.at(2)};
+
+  PQXX_CHECK_EQUAL(r1.at(0).view(), "1");
+  PQXX_CHECK_EQUAL(r3.at(0).view(), "3");
+
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  r1.swap(r3);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  // The two rows' positions have switched places.
+  PQXX_CHECK_EQUAL(r1.at(0).view(), "3");
+  PQXX_CHECK_EQUAL(r3.at(0).view(), "1");
+
+  // The original row remains unaffected.
+  PQXX_CHECK_EQUAL(res.at(0).at(0).view(), "1");
+  PQXX_CHECK_EQUAL(res.at(1).at(0).view(), "2");
+  PQXX_CHECK_EQUAL(res.at(2).at(0).view(), "3");
+
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  r1.swap(r3);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  // Now they're back in their original positions.
+  PQXX_CHECK_EQUAL(r1.at(0).view(), "1");
+  PQXX_CHECK_EQUAL(r3.at(0).view(), "3");
+
+  // It doesn't matter whether we a.swap(b) or b.swap(a).
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+  r3.swap(r1);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
+
+  PQXX_CHECK_EQUAL(r1.at(0).view(), "3");
+  PQXX_CHECK_EQUAL(r3.at(0).view(), "1");
+
+}
+
+
 PQXX_REGISTER_TEST(test_row);
 PQXX_REGISTER_TEST(test_row_iterator);
 PQXX_REGISTER_TEST(test_row_as);
 PQXX_REGISTER_TEST(test_row_iterator_array_index_offsets_iterator);
 PQXX_REGISTER_TEST(test_row_as_tuple);
+PQXX_REGISTER_TEST(test_row_swap);
 } // namespace
