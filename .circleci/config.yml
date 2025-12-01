@@ -315,7 +315,7 @@ jobs:
           command: "lcov --capture --directory src --output-file cov.info && \
               lcov --remove cov.info '/usr/*' \
                   --output-file out.info && \
-              genhtml out.info --output-file coverage_html"
+              genhtml out.info --output-directory coverage_html"
       - run:
           name: Gather reports
           command: "tar -vczf /tmp/coverage.tar.gz \
