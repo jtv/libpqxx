@@ -134,7 +134,7 @@ install_debian() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_ALL_AUTOTOOLS[@]}" \
         postgresql \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -171,7 +171,7 @@ install_ubuntu_codeql() {
         sudo -E apt-get -q -o DPkg::Lock::Timeout=120 update
         sudo -E apt-get -q install -y -o DPkg::Lock::Timeout=120 \
             cmake git libpq-dev make \
-            "$(compiler_pkg "$1")"
+            "$(compiler_pkg "$1" clang g++)"
     ) >>/tmp/install.log
 }
 
@@ -180,7 +180,7 @@ install_ubuntu() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" "${PKGS_DEBIAN_AUTOTOOLS[@]}" \
         postgresql \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
@@ -192,7 +192,7 @@ install_ubuntu_valgrind() {
     apt_install \
         "${PKGS_DEBIAN_BASE[@]}" \
 	cmake ninja-build postgresql valgrind \
-        "$(compiler_pkg "$1")"
+        "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
     echo "export PATH='$PATH:$HOME/.local/bin'"
