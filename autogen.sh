@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/bash
 # Run this to generate the configure script etc.
 
-set -Cue
+set -Cue -o pipefail
 
 PQXXVERSION=$(./tools/extract_version.sh)
 PQXX_ABI=$(./tools/extract_version.sh --abi)
@@ -38,7 +38,8 @@ expand_templates() {
 
 # We have two kinds of templates.  One uses our custom templating tool.  And
 # a few others simply have some substitutions done.
-find -name \*.template -exec expand_templates '{}' '+'
+readarray -t < <(find . -name \*.template) templates
+expand_templates "${templates[@]}"
 substitute include/pqxx/version.hxx.template include/pqxx/version.hxx
 substitute include/pqxx/doc/mainpage.md.template include/pqxx/doc/mainpage.md
 
