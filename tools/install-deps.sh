@@ -78,10 +78,15 @@ pacman_install() {
 }
 
 
+PKGS_ALL_AUTOTOOLS=(autoconf autoconf-archive automake libtool)
+PKGS_ARCHLINUX_BASE=(diffutils postgresql-libs python3 uv)
+PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
+
+
 install_archlinux() {
     pacman_install \
-        autoconf autoconf-archive automake diffutils libtool make \
-        postgresql postgresql-libs python3 uv which \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        postgresql which \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/run/postgresql"
@@ -102,8 +107,8 @@ install_archlinux_infer() {
     fi
 
     pacman_install \
-        autoconf autoconf-archive automake diffutils libtool make \
-        postgresql-libs python3 tzdata uv wget xz \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        tzdata wget xz \
         "$(compiler_pkg "$1")"
 
     cd /opt
@@ -117,15 +122,17 @@ install_archlinux_infer() {
 
 install_archlinux_lint() {
     pacman_install \
-        cmake cppcheck diffutils make markdownlint postgresql-libs python3 \
-        python-pyflakes ruff shellcheck uv which yamllint \
+        "${PKGS_ARCHLINUX_BASE[@]}" \
+        cmake cppcheck markdownlint python-pyflakes ruff shellcheck \
+        which yamllint \
         "$(compiler_pkg "$1")"
 }
 
 
 install_debian() {
-    apt_install build-essential autoconf autoconf-archive automake libpq-dev \
-        python3 postgresql postgresql-server-dev-all libtool \
+    apt_install \
+        "${PKGS_ALL_AUTOTOOLS[@]}" libpq-dev \
+        python3 postgresql postgresql-server-dev-all \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
@@ -136,8 +143,9 @@ install_debian() {
 
 install_fedora() {
     dnf_install \
-        autoconf autoconf-archive automake libasan libtool libubsan \
-        postgresql postgresql-devel postgresql-server python3 uv which \
+        "${PKGS_ALL_AUTOTOOLS[@]}" \
+        libasan libubsan postgresql postgresql-devel postgresql-server \
+        python3 uv which \
         "$(compiler_pkg "$1" clang g++)"
 
     echo "export PGHOST=/tmp"
@@ -149,8 +157,8 @@ install_macos() {
     local pg_ver=18
 
     brew_install \
-        autoconf autoconf-archive automake libtool postgresql@$pg_ver uv \
-        libpq
+        "${PKGS_ALL_AUTOTOOLS[@]}" \
+        postgresql@$pg_ver uv libpq
 
     echo "export PGHOST=/tmp PGBIN=/opt/homebrew/bin/ PGVER=$pg_ver"
 }
@@ -169,8 +177,9 @@ install_ubuntu_codeql() {
 
 install_ubuntu() {
     apt_install \
-        build-essential autoconf autoconf-archive automake libpq-dev \
-        python3 postgresql postgresql-server-dev-all libtool \
+        "${PKGS_ALL_AUTOTOOLS[@]}" \
+        libpq-dev python3 postgresql \
+        postgresql-server-dev-all \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/tmp"
@@ -180,7 +189,7 @@ install_ubuntu() {
 
 
 install_ubuntu_valgrind() {
-    apt_install build-essential cmake libpq-dev ninja-build postgresql \
+    apt_install cmake libpq-dev ninja-build postgresql \
             postgresql-server-dev-all python3 valgrind \
             "$(compiler_pkg "$1")"
 

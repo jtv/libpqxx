@@ -197,8 +197,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "time tools/install-deps.sh \
-              archlinux-lint clang++ >/tmp/vars.sh"
+          command: "tools/install-deps.sh archlinux-lint clang++ >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
