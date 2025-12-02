@@ -227,7 +227,7 @@ static_assert(
 #endif // DEBUG
 
 
-PQXX_PURE char const *name_encoding(int encoding_id)
+PQXX_PURE char const *name_encoding(int encoding_id) noexcept
 {
   return pg_encoding_to_char(encoding_id);
 }

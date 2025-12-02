@@ -31,7 +31,7 @@ extern "C"
 
 using namespace std::literals;
 
-pqxx::thread_safety_model PQXX_COLD pqxx::describe_thread_safety()
+PQXX_COLD pqxx::thread_safety_model pqxx::describe_thread_safety()
 {
   thread_safety_model model;
   model.safe_libpq = (PQisthreadsafe() != 0);

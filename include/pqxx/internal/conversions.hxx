@@ -53,12 +53,12 @@ inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 
 
 /// Throw exception for attempt to convert SQL NULL to given type.
-[[noreturn]] PQXX_LIBEXPORT PQXX_COLD void
+[[noreturn]] PQXX_COLD PQXX_LIBEXPORT void
 throw_null_conversion(std::string const &type, sl);
 
 
 /// Throw exception for attempt to convert SQL NULL to given type.
-[[noreturn]] PQXX_LIBEXPORT PQXX_COLD void
+[[noreturn]] PQXX_COLD PQXX_LIBEXPORT void
 throw_null_conversion(std::string_view type, sl);
 
 

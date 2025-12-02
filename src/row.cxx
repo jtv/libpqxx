@@ -87,7 +87,7 @@ pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
   auto const sz{this->size()};
   if (std::cmp_greater_equal(i, sz))
     throw range_error{
-      std::format("Invalid field number ({} outof {})", i, sz), loc};
+      std::format("Invalid field number ({} >= {})", i, sz), loc};
   return operator[](i);
 }
 

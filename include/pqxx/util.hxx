@@ -587,7 +587,7 @@ static_assert(unescape_char('z') == 'z');
  * having an `if constexpr` with an `else`, we _overload_ functions for the two
  * alternatives.
  */
-[[maybe_unused]] inline char const *PQXX_COLD
+[[maybe_unused]] PQXX_COLD inline char const *
 make_strerror_rs_result(int err_result, std::span<char> buffer)
 {
   if (err_result == 0)
@@ -603,7 +603,7 @@ make_strerror_rs_result(int err_result, std::span<char> buffer)
  * There's another overload for th `strerror_s()` and POSIX-style
  * `strerror_r()` case.
  */
-[[maybe_unused]] inline char const *PQXX_COLD
+[[maybe_unused]] PQXX_COLD inline char const *
 make_strerror_rs_result(char const *err_result, std::span<char>)
 {
   return err_result;
@@ -611,7 +611,7 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
 
 
 /// Get error string for a given @c errno value.
-[[nodiscard]] inline char const *PQXX_COLD error_string(
+[[nodiscard]] PQXX_COLD inline char const *error_string(
   [[maybe_unused]] int err_num, [[maybe_unused]] std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.

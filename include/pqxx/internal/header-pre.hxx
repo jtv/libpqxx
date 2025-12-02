@@ -63,28 +63,36 @@
 #  define PQXX_CPLUSPLUS __cplusplus
 #endif
 
-#if defined(PQXX_HAVE_GCC_PURE)
+#if __has_cpp_attribute(gnu::pure)
 /// Declare function "pure": no side effects, only reads globals and its args.
-#  define PQXX_PURE __attribute__((pure))
+/** Be careful with exceptions.  The compiler may elide calls, which may stop
+ * an exception from happening; or reorder them, moving a call outside of a
+ * `try` block that was meant to catch the exception.
+ */
+#  define PQXX_PURE [[gnu::pure]]
 #else
+#  warning "Nope, don't have gnu::pure."
 #  define PQXX_PURE /* pure */
 #endif
 
 
-#if defined(__GNUC__)
+#if __has_cpp_attribute(gnu::cold)
 /// Tell the compiler to optimise a function for size, not speed.
-#  define PQXX_COLD __attribute__((cold))
+#  define PQXX_COLD [[gnu::cold]]
 #else
+#  warning "Nope, don't have gnu::cold."
 #  define PQXX_COLD /* cold */
 #endif
 
 
-#if defined(__GNUC__)
+#if __has_cpp_attribute(gnu::always_inline)
 /// Never generate an out-of-line version of this inline function.
-#  define PQXX_INLINE_ONLY __attribute__((always_inline))
-#elif defined(_MSC_VER)
-#  define PQXX_INLINE_ONLY __forceinline
+#  define PQXX_INLINE_ONLY [[gnu::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+/// Never generate an out-of-line version of this inline function.
+#  define PQXX_INLINE_ONLY [[msvc::forceinline]]
 #else
+#  warning "Nope, don't have gnu::always_inline."
 #  define PQXX_INLINE_ONLY /* always inline */
 #endif
 

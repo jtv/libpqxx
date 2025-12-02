@@ -94,7 +94,7 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
  *
  * Ignores the `skip_init::nothing` flag.
  */
-void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int skips) noexcept;
+PQXX_COLD void PQXX_LIBEXPORT skip_init_ssl(int skips) noexcept;
 } // namespace pqxx::internal
 
 
@@ -348,7 +348,7 @@ public:
    * attempt failed, the constructor will never even return, throwing a
    * @ref broken_connection exception instead.
    */
-  [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
+  [[nodiscard]] bool is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(char const[]) noexcept;
@@ -389,7 +389,7 @@ public:
   [[nodiscard]] char const *port() const noexcept;
 
   /// Process ID for backend process, or 0 if inactive.
-  [[nodiscard]] int PQXX_PURE backendpid() const & noexcept;
+  [[nodiscard]] PQXX_PURE int backendpid() const & noexcept;
 
   /// Socket currently used for connection, or -1 for none.
   /** Query the current socket number.  This is intended for event loops based
@@ -402,13 +402,13 @@ public:
    * await_notification().  If you want to issue queries and retrieve results
    * in nonblocking fashion, check out the pipeline class.
    */
-  [[nodiscard]] int PQXX_PURE sock() const & noexcept;
+  [[nodiscard]] PQXX_PURE int sock() const & noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
    * possibly higher values as newer protocol versions come into use.
    */
-  [[nodiscard]] int PQXX_PURE protocol_version() const noexcept;
+  [[nodiscard]] PQXX_PURE int protocol_version() const noexcept;
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -423,7 +423,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  [[nodiscard]] int PQXX_PURE server_version() const noexcept;
+  [[nodiscard]] PQXX_PURE int server_version() const noexcept;
   //@}
 
   /// @name Text encoding
@@ -1236,7 +1236,7 @@ private:
 
   void PQXX_PRIVATE set_up_state(sl);
 
-  int PQXX_PRIVATE PQXX_PURE status() const noexcept;
+  int PQXX_PRIVATE status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least `2*std::size(text) + 1` bytes.
@@ -1247,7 +1247,7 @@ private:
   esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
-  char const *PQXX_PURE err_msg() const noexcept;
+  char const *err_msg() const noexcept;
 
   result exec_prepared(
     std::string_view statement, internal::c_params const &,

@@ -57,7 +57,7 @@ PQXX_PURE inline constexpr bool useless_trail(char c) noexcept
  *
  * The query must be nonempty.
  */
-PQXX_PURE constexpr std::string::size_type
+constexpr std::string::size_type
 find_query_end(std::string_view query, pqxx::encoding_group enc, pqxx::sl loc)
 {
   auto const size{std::size(query)};
