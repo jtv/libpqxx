@@ -71,7 +71,6 @@
  */
 #  define PQXX_PURE [[gnu::pure]]
 #else
-#  warning "Nope, don't have gnu::pure."
 #  define PQXX_PURE /* pure */
 #endif
 
@@ -80,7 +79,6 @@
 /// Tell the compiler to optimise a function for size, not speed.
 #  define PQXX_COLD [[gnu::cold]]
 #else
-#  warning "Nope, don't have gnu::cold."
 #  define PQXX_COLD /* cold */
 #endif
 
@@ -92,7 +90,6 @@
 /// Never generate an out-of-line version of this inline function.
 #  define PQXX_INLINE_ONLY [[msvc::forceinline]]
 #else
-#  warning "Nope, don't have gnu::always_inline."
 #  define PQXX_INLINE_ONLY /* always inline */
 #endif
 
