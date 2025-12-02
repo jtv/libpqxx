@@ -166,6 +166,7 @@ then
 		# but we can't use it because as of gcc 13.2.0 we still see it
 		# generating errors for the standard library.
 		add_compiler_opts_if_ok \
+			-fnothrow-opt \
 			-Wanalyzer-double-fclose \
 			-Wanalyzer-double-free \
 			-Wanalyzer-exposure-through-output-file \
@@ -187,17 +188,18 @@ then
 			-Wanalyzer-use-of-uninitialized-value \
 			-Wanalyzer-write-to-const \
 			-Wanalyzer-write-to-string-literal \
-			-fnothrow-opt \
+			-Warray-bounds=2 \
 			-Wattribute-alias=2 \
+			-Wdangling-gsl \
+			-Wdangling-reference \
 			-Wdeprecated-literal-operator \
+			-Wduplicated-branches \
+			-Wduplicated-cond \
 			-Wlogical-op \
 			-Wmismatched-tags \
 			-Wredundant-tags \
 			-Wrestrict \
 			-Wstringop-overflow \
-			-Warray-bounds=2 \
-			-Wduplicated-branches \
-			-Wduplicated-cond \
 			-Wsuggest-attribute=noreturn \
 			-Wsuggest-override \
 			-Wtrampolines \
