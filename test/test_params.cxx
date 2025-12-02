@@ -5,7 +5,7 @@
 
 namespace
 {
-using pqxx::operator"" _zv;
+using pqxx::operator""_zv;
 
 
 void test_statement_params()
