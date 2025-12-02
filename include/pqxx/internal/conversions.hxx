@@ -23,15 +23,21 @@
 namespace pqxx::internal
 {
 /// Convert a number in [0, 9] to its ASCII digit.
-inline constexpr char number_to_digit(int i) noexcept
+PQXX_PURE inline constexpr char number_to_digit(int i) noexcept
 {
+  PQXX_ASSUME(i >= 0);
+  PQXX_ASSUME(i <= 9);
   return static_cast<char>(i + '0');
 }
 
 
 /// Compute numeric value of given textual digit (assuming that it is a digit).
-constexpr int digit_to_number(char c) noexcept
+/** The digit must be a base-10 digit.
+ */
+PQXX_PURE inline constexpr int digit_to_number(char c) noexcept
 {
+  PQXX_ASSUME(c >= '0');
+  PQXX_ASSUME(c <= '0');
   return c - '0';
 }
 
