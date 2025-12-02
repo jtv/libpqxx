@@ -72,6 +72,19 @@ void test_result_iterator_assignment()
 
   rev = std::rbegin(r);
   PQXX_CHECK_EQUAL((*rev)[0].as<int>(), (*std::rbegin(r))[0].as<int>());
+
+  pqxx::result::const_reverse_iterator rev2{std::move(fwd)};
+  PQXX_CHECK(rev2 == std::rend(r));
+
+  pqxx::result::const_iterator pos;
+  pos = {r, 1u};
+  PQXX_CHECK_EQUAL(pos->at(0).view(), "2");
+  ++pos;
+  PQXX_CHECK_EQUAL(pos->at(0).view(), "3");
+  --pos;
+  PQXX_CHECK_EQUAL(pos->at(0).view(), "2");
+  pos += 2;
+  PQXX_CHECK(pos == r.end());
 }
 
 

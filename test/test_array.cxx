@@ -685,76 +685,70 @@ constexpr pqxx::sl here(pqxx::sl loc = pqxx::sl::current())
 }
 
 
+template<pqxx::encoding_group ENC> void check_scan_double_quoted_ascii()
+{
+  // TODO: Do this with static_assert() once Visual Studio handles it.
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("")", 0u, here()), 2u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"(""z)", 0u, here()), 2u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"(x="")", 2u, here()), 4u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"(x=""z)", 2u, here()),
+    4u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("x")", 0u, here()), 3u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("x"z)", 0u, here()), 3u);
+  PQXX_CHECK_THROWS(
+    (pqxx::internal::scan_double_quoted_string<ENC>(R"("foo)", 0u, here())),
+    pqxx::argument_error,
+    "Double-quoted string scan did not detect missing closing quote.");
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>("\"x\\\"y\"", 0u, here()),
+    6u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(
+      "\"x\\\"y\"z\"", 0u, here()),
+    6u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("x\\y")", 0u, here()),
+    6u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("x""y")", 0u, here()),
+    6u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("x""y"z)", 0u, here()),
+    6u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(
+      "\"\\\\\\\"\"\"\"", 0u, here()),
+    8u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(
+      "a\"\\\\\\\"\"\"\"", 1u, here()),
+    9u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"("""")", 0u, here()), 4u);
+  PQXX_CHECK_EQUAL(
+    pqxx::internal::scan_double_quoted_string<ENC>(R"(""""z)", 0u, here()),
+    4u);
+}
+
+
 void test_scan_double_quoted_string()
 {
   using enc = pqxx::encoding_group;
 
-  // TODO: Use static_assert() once Visual Studio handles it.
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("")", 0u, here()),
-    2u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"(""z)", 0u, here()),
-    2u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"(x="")", 2u, here()),
-    4u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"(x=""z)", 2u, here()),
-    4u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("x")", 0u, here()),
-    3u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("x"z)", 0u, here()),
-    3u);
-  PQXX_CHECK_THROWS(
-    (pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("foo)", 0u, here())),
-    pqxx::argument_error,
-    "Double-quoted string scan did not detect missing closing quote.");
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      "\"x\\\"y\"", 0u, here()),
-    6u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      "\"x\\\"y\"z\"", 0u, here()),
-    6u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("x\\y")", 0u, here()),
-    6u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("x""y")", 0u, here()),
-    6u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("x""y"z)", 0u, here()),
-    6u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      "\"\\\\\\\"\"\"\"", 0u, here()),
-    8u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      "a\"\\\\\\\"\"\"\"", 1u, here()),
-    9u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"("""")", 0u, here()),
-    4u);
-  PQXX_CHECK_EQUAL(
-    pqxx::internal::scan_double_quoted_string<enc::ascii_safe>(
-      R"(""""z)", 0u, here()),
-    4u);
+  check_scan_double_quoted_ascii<enc::ascii_safe>();
+  check_scan_double_quoted_ascii<enc::big5>();
+  check_scan_double_quoted_ascii<enc::gb18030>();
+  check_scan_double_quoted_ascii<enc::gbk>();
+  check_scan_double_quoted_ascii<enc::johab>();
+  check_scan_double_quoted_ascii<enc::sjis>();
+  check_scan_double_quoted_ascii<enc::uhc>();
+
 
   // Now let's try a byte that _looks_ like an ASCII backslash escaping the
   // closing quote (which would be an obvious vector for an injection attack)
