@@ -5,7 +5,7 @@
 namespace
 {
 using namespace std::literals;
-using pqxx::operator"" _zv;
+using pqxx::operator""_zv;
 
 void compare_esc(
   pqxx::connection &cx, pqxx::transaction_base &t, char const text[])

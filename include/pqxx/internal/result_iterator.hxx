@@ -28,7 +28,7 @@ namespace pqxx
 /** A result, once obtained, cannot be modified.  Therefore all iterators on a
  * result are const iterators.
  *
- * @warning You must not destroy or move a @ref reslt object while any
+ * @warning You must not destroy or move a @ref result object while any
  * iterators are still active on it, or on any of its rows.
  */
 class PQXX_LIBEXPORT const_result_iterator
