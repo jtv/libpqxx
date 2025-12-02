@@ -10,7 +10,7 @@ void test_row()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::row r{tx.exec("SELECT 1, 2, 3").one_row()};
+  pqxx::row r{tx.exec("SELECT 1 AS one, 2 AS two, 3 AS three").one_row()};
   static_assert(std::forward_iterator<decltype(r.begin())>);
   PQXX_CHECK_EQUAL(std::size(r), 3);
   PQXX_CHECK_EQUAL(r.at(0).as<int>(), 1);
@@ -23,6 +23,10 @@ void test_row()
   PQXX_CHECK(std::crend(r) == std::rend(r));
   PQXX_CHECK_EQUAL(r.front().as<int>(), 1);
   PQXX_CHECK_EQUAL(r.back().as<int>(), 3);
+
+  PQXX_CHECK_THROWS(std::ignore = r.at(3), pqxx::range_error);
+  PQXX_CHECK_EQUAL(r.at("two").view(), "2");
+  PQXX_CHECK_THROWS(std::ignore = r.at("four"), pqxx::argument_error);
 }
 
 
@@ -153,7 +157,6 @@ void test_row_swap()
 
   PQXX_CHECK_EQUAL(r1.at(0).view(), "3");
   PQXX_CHECK_EQUAL(r3.at(0).view(), "1");
-
 }
 
 

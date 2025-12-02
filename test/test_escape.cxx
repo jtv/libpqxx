@@ -5,7 +5,7 @@
 namespace
 {
 using namespace std::literals;
-
+using pqxx::operator"" _zv;
 
 void compare_esc(
   pqxx::connection &cx, pqxx::transaction_base &t, char const text[])
@@ -109,6 +109,23 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
       int(unescaped[i]), int(data[i]),
       "Unescaping binary data did not restore byte #" + pqxx::to_string(i) +
         ".");
+
+  PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\"_zv), pqxx::failure);
+  PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\xa"_zv), pqxx::failure);
+  PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\xg0"_zv), pqxx::failure);
+  PQXX_CHECK_THROWS(std::ignore = t.unesc_bin("\\x0g"_zv), pqxx::failure);
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::internal::unesc_bin("\\a"sv, pqxx::sl::current()),
+    pqxx::failure);
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::internal::unesc_bin("\\"sv, pqxx::sl::current()),
+    pqxx::failure);
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::internal::unesc_bin("\\\xa"sv, pqxx::sl::current()),
+    pqxx::failure);
+  PQXX_CHECK_THROWS(
+    std::ignore = pqxx::internal::unesc_bin("\\\a"sv, pqxx::sl::current()),
+    pqxx::failure);
 }
 
 
