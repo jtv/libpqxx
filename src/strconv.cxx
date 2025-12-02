@@ -355,7 +355,7 @@ PQXX_COLD inline T from_string_awful_float(std::string_view text, pqxx::ctx c)
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<arith F>
-PQXX_COLDinline std::string
+PQXX_COLD inline std::string
 to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
   s.str("");
