@@ -149,7 +149,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
  * There will be a definition, but the version in the parameter values will
  * be different.
  */
-inline PQXX_PRIVATE void check_version() noexcept
+PQXX_PRIVATE inline void check_version() noexcept
 {
   // There is no particular reason to do this here in @ref connection, except
   // to ensure that every meaningful libpqxx client will execute it.  The call
@@ -441,7 +441,7 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * and the function will write exactly that number of bytes into the buffer.
  * This includes a trailing zero.
  */
-void PQXX_LIBEXPORT
+PQXX_LIBEXPORT void
 esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
 
 
@@ -458,16 +458,16 @@ inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 
 
 /// Hex-escape binary data into a std::string.
-std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
+PQXX_LIBEXPORT std::string esc_bin(bytes_view binary_data);
 
 
 /// Reconstitute binary data from its escaped version.
-void PQXX_LIBEXPORT
+PQXX_LIBEXPORT void
 unesc_bin(std::string_view escaped_data, std::span<std::byte> buffer, sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, sl loc);
+PQXX_LIBEXPORT bytes unesc_bin(std::string_view escaped_data, sl loc);
 
 
 /// Helper for determining a function's parameter types.

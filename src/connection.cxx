@@ -95,7 +95,7 @@ extern "C"
 using namespace std::literals;
 
 
-PQXX_COLD void PQXX_LIBEXPORT pqxx::internal::skip_init_ssl(int skips) noexcept
+PQXX_COLD PQXX_LIBEXPORT void pqxx::internal::skip_init_ssl(int skips) noexcept
 {
   // We got "skip flags," but we pass to libpq which libraries we *do* want it
   // to initialise.

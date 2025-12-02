@@ -40,7 +40,7 @@ constexpr int digit_to_number(char c) noexcept
 /** Don't worry about the exact parameter types: the sizes will be reasonably
  * small, and nonnegative.
  */
-std::string PQXX_LIBEXPORT
+PQXX_LIBEXPORT std::string
 state_buffer_overrun(int have_bytes, int need_bytes);
 
 
@@ -139,9 +139,9 @@ generic_into_buf(std::span<char> buf, T const &value, ctx c = {})
  */
 template<std::floating_point T> struct float_string_traits
 {
-  static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
 
-  static PQXX_LIBEXPORT std::string_view
+  PQXX_LIBEXPORT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
@@ -214,8 +214,8 @@ struct nullness<T> : no_null<T>
  */
 template<pqxx::internal::integer T> struct string_traits<T>
 {
-  static PQXX_LIBEXPORT T from_string(std::string_view text, ctx = {});
-  static PQXX_LIBEXPORT std::string_view
+  PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
+  PQXX_LIBEXPORT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
   static constexpr std::size_t size_buffer(T const &) noexcept
@@ -249,7 +249,7 @@ struct string_traits<long double>
 
 template<> struct string_traits<bool>
 {
-  static PQXX_LIBEXPORT bool from_string(std::string_view text);
+  PQXX_LIBEXPORT static bool from_string(std::string_view text);
 
   static constexpr zview
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
