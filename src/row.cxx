@@ -85,7 +85,7 @@ pqxx::field_ref pqxx::row::at(zview col_name, sl loc) const
 pqxx::field_ref pqxx::row::at(pqxx::row::size_type i, sl loc) const
 {
   if (i >= size())
-    throw range_error{"Invalid field number.", loc};
+    throw range_error{std::format("Invalid field number ({} outof {})", i, size()), loc};
   return operator[](i);
 }
 

@@ -24,6 +24,7 @@ void test_row()
   PQXX_CHECK_EQUAL(r.front().as<int>(), 1);
   PQXX_CHECK_EQUAL(r.back().as<int>(), 3);
 
+  PQXX_CHECK_THROWS(std::ignore = r.at(999), pqxx::range_error);
   PQXX_CHECK_THROWS(std::ignore = r.at(3), pqxx::range_error);
   PQXX_CHECK_EQUAL(r.at("two").view(), "2");
   PQXX_CHECK_THROWS(std::ignore = r.at("four"), pqxx::argument_error);
