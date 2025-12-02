@@ -8,7 +8,7 @@ class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
 {
   friend class pqxx::transaction_focus;
 
-  transaction_transaction_focus(reference x) : super(x) {}
+  transaction_transaction_focus(reference x) noexcept : super(x) {}
 
   void register_focus(transaction_focus *focus)
   {

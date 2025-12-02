@@ -120,7 +120,7 @@ public:
 
   /// What column number in its originating table did this column come from?
   [[nodiscard]] PQXX_PURE row_size_type
-  table_column(sl loc = sl::current()) const noexcept
+  table_column(sl loc = sl::current()) const
   {
     return home().table_column(column_number(), loc);
   }
@@ -352,7 +352,7 @@ public:
   [[nodiscard]] PQXX_PURE char const *name(sl = sl::current()) const &;
 
   /// Column type.
-  [[nodiscard]] PQXX_PURE oid type(sl loc = sl::current()) const noexcept
+  [[nodiscard]] PQXX_PURE oid type(sl loc = sl::current()) const
   {
     return as_field_ref().type(loc);
   }

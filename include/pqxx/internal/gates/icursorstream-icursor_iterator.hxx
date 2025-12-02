@@ -6,7 +6,7 @@ class PQXX_PRIVATE icursorstream_icursor_iterator : callgate<icursorstream>
 {
   friend class pqxx::icursor_iterator;
 
-  icursorstream_icursor_iterator(reference x) : super(x) {}
+  icursorstream_icursor_iterator(reference x) noexcept : super(x) {}
 
   void insert_iterator(icursor_iterator *i) noexcept
   {

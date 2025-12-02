@@ -6,7 +6,7 @@ class PQXX_PRIVATE errorhandler_connection : callgate<errorhandler>
 {
   friend class pqxx::connection;
 
-  errorhandler_connection(reference x) : super(x) {}
+  errorhandler_connection(reference x) noexcept : super(x) {}
 
   void unregister() noexcept { home().unregister(); }
 };

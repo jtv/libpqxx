@@ -11,7 +11,7 @@ namespace pqxx::internal::gate
 // stream_query, which is a template.
 struct PQXX_PRIVATE connection_stream_from : callgate<connection>
 {
-  connection_stream_from(reference x) : super{x} {}
+  connection_stream_from(reference x) noexcept : super{x} {}
 
   auto read_copy_line() { return home().read_copy_line(); }
 };

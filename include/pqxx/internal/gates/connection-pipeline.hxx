@@ -9,7 +9,7 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
 {
   friend class pqxx::pipeline;
 
-  connection_pipeline(reference x) : super(x) {}
+  connection_pipeline(reference x) noexcept : super(x) {}
 
   void start_exec(char const query[]) { home().start_exec(query); }
   pqxx::internal::pq::PGresult *get_result() { return home().get_result(); }

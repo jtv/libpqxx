@@ -12,7 +12,7 @@ class PQXX_PRIVATE connection_errorhandler : callgate<connection>
 {
   friend class pqxx::errorhandler;
 
-  connection_errorhandler(reference x) : super(x) {}
+  connection_errorhandler(reference x) noexcept : super(x) {}
 
   void register_errorhandler(errorhandler *h)
   {

@@ -6,7 +6,7 @@ class PQXX_PRIVATE row_ref_row : callgate<row_ref>
 {
   friend class pqxx::row;
 
-  row_ref_row(reference x) : super(x) {}
+  row_ref_row(reference x) noexcept : super(x) {}
 
   template<typename Tuple, std::size_t... indexes>
   void
