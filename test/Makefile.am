@@ -91,6 +91,7 @@ runner_SOURCES = \
   test_nonblocking_connect.cxx \
   test_notice_handler.cxx \
   test_notification.cxx \
+  test_params.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \
   test_range.cxx \

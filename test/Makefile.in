@@ -145,8 +145,9 @@ am_runner_OBJECTS = test00.$(OBJEXT) test01.$(OBJEXT) test02.$(OBJEXT) \
 	test_float.$(OBJEXT) test_helpers.$(OBJEXT) \
 	test_largeobject.$(OBJEXT) test_nonblocking_connect.$(OBJEXT) \
 	test_notice_handler.$(OBJEXT) test_notification.$(OBJEXT) \
-	test_pipeline.$(OBJEXT) test_prepared_statement.$(OBJEXT) \
-	test_range.$(OBJEXT) test_read_transaction.$(OBJEXT) \
+	test_params.$(OBJEXT) test_pipeline.$(OBJEXT) \
+	test_prepared_statement.$(OBJEXT) test_range.$(OBJEXT) \
+	test_read_transaction.$(OBJEXT) \
 	test_result_iteration.$(OBJEXT) test_row.$(OBJEXT) \
 	test_separated_list.$(OBJEXT) \
 	test_simultaneous_transactions.$(OBJEXT) \
@@ -209,7 +210,8 @@ am__depfiles_remade = ./$(DEPDIR)/runner.Po ./$(DEPDIR)/test00.Po \
 	./$(DEPDIR)/test_largeobject.Po \
 	./$(DEPDIR)/test_nonblocking_connect.Po \
 	./$(DEPDIR)/test_notice_handler.Po \
-	./$(DEPDIR)/test_notification.Po ./$(DEPDIR)/test_pipeline.Po \
+	./$(DEPDIR)/test_notification.Po ./$(DEPDIR)/test_params.Po \
+	./$(DEPDIR)/test_pipeline.Po \
 	./$(DEPDIR)/test_prepared_statement.Po \
 	./$(DEPDIR)/test_range.Po ./$(DEPDIR)/test_read_transaction.Po \
 	./$(DEPDIR)/test_result_iteration.Po ./$(DEPDIR)/test_row.Po \
@@ -500,6 +502,7 @@ runner_SOURCES = \
   test_nonblocking_connect.cxx \
   test_notice_handler.cxx \
   test_notification.cxx \
+  test_params.cxx \
   test_pipeline.cxx \
   test_prepared_statement.cxx \
   test_range.cxx \
@@ -636,6 +639,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_nonblocking_connect.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notice_handler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_notification.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_params.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pipeline.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_prepared_statement.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_range.Po@am__quote@ # am--include-marker
@@ -974,6 +978,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f ./$(DEPDIR)/test_notice_handler.Po
 	-rm -f ./$(DEPDIR)/test_notification.Po
+	-rm -f ./$(DEPDIR)/test_params.Po
 	-rm -f ./$(DEPDIR)/test_pipeline.Po
 	-rm -f ./$(DEPDIR)/test_prepared_statement.Po
 	-rm -f ./$(DEPDIR)/test_range.Po
@@ -1099,6 +1104,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/test_nonblocking_connect.Po
 	-rm -f ./$(DEPDIR)/test_notice_handler.Po
 	-rm -f ./$(DEPDIR)/test_notification.Po
+	-rm -f ./$(DEPDIR)/test_params.Po
 	-rm -f ./$(DEPDIR)/test_pipeline.Po
 	-rm -f ./$(DEPDIR)/test_prepared_statement.Po
 	-rm -f ./$(DEPDIR)/test_range.Po
