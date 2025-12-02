@@ -244,7 +244,7 @@ public:
   column_number(zview name, sl = sl::current()) const;
 
   /// Name of column with this number (throws exception if it doesn't exist)
-  [[nodiscard]] char const *
+  [[nodiscard]] PQXX_RETURNS_NONNULL char const *
   column_name(row_size_type number, sl = sl::current()) const &;
 
   /// Server-side storage size for field of column's type, in bytes.
