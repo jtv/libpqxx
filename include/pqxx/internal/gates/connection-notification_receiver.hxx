@@ -15,7 +15,7 @@ class PQXX_PRIVATE connection_notification_receiver : callgate<connection>
 {
   friend class pqxx::notification_receiver;
 
-  connection_notification_receiver(reference x) : super(x) {}
+  connection_notification_receiver(reference x) noexcept : super(x) {}
 
   void add_receiver(notification_receiver *receiver)
   {

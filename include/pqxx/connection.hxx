@@ -94,7 +94,7 @@ concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
  *
  * Ignores the `skip_init::nothing` flag.
  */
-void PQXX_COLD PQXX_LIBEXPORT skip_init_ssl(int skips) noexcept;
+PQXX_COLD PQXX_LIBEXPORT void skip_init_ssl(int skips) noexcept;
 } // namespace pqxx::internal
 
 
@@ -348,7 +348,7 @@ public:
    * attempt failed, the constructor will never even return, throwing a
    * @ref broken_connection exception instead.
    */
-  [[nodiscard]] bool PQXX_PURE is_open() const noexcept;
+  [[nodiscard]] bool is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
   void process_notice(char const[]) noexcept;
@@ -389,7 +389,7 @@ public:
   [[nodiscard]] char const *port() const noexcept;
 
   /// Process ID for backend process, or 0 if inactive.
-  [[nodiscard]] int PQXX_PURE backendpid() const & noexcept;
+  [[nodiscard]] PQXX_PURE int backendpid() const & noexcept;
 
   /// Socket currently used for connection, or -1 for none.
   /** Query the current socket number.  This is intended for event loops based
@@ -402,13 +402,13 @@ public:
    * await_notification().  If you want to issue queries and retrieve results
    * in nonblocking fashion, check out the pipeline class.
    */
-  [[nodiscard]] int PQXX_PURE sock() const & noexcept;
+  [[nodiscard]] PQXX_PURE int sock() const & noexcept;
 
   /// What version of the PostgreSQL protocol is this connection using?
   /** The answer can be 0 (when there is no connection); 3 for protocol 3.0; or
    * possibly higher values as newer protocol versions come into use.
    */
-  [[nodiscard]] int PQXX_PURE protocol_version() const noexcept;
+  [[nodiscard]] PQXX_PURE int protocol_version() const noexcept;
 
   /// What version of the PostgreSQL server are we connected to?
   /** The result is a bit complicated: each of the major, medium, and minor
@@ -423,7 +423,7 @@ public:
    * at all because there is no digit "8" in octal notation.  Use strictly
    * decimal notation when it comes to these version numbers.
    */
-  [[nodiscard]] int PQXX_PURE server_version() const noexcept;
+  [[nodiscard]] PQXX_PURE int server_version() const noexcept;
   //@}
 
   /// @name Text encoding
@@ -1234,9 +1234,9 @@ private:
     return make_result(pgr, query, "", loc);
   }
 
-  void PQXX_PRIVATE set_up_state(sl);
+  PQXX_PRIVATE void set_up_state(sl);
 
-  int PQXX_PRIVATE PQXX_PURE status() const noexcept;
+  PQXX_PRIVATE int status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
   /** The buffer must have room for at least `2*std::size(text) + 1` bytes.
@@ -1247,7 +1247,7 @@ private:
   esc_to_buf(std::string_view text, std::span<char> buf, sl loc) const;
 
   friend class internal::gate::const_connection_largeobject;
-  char const *PQXX_PURE err_msg() const noexcept;
+  char const *err_msg() const noexcept;
 
   result exec_prepared(
     std::string_view statement, internal::c_params const &,
@@ -1259,21 +1259,21 @@ private:
   void check_overwritable(sl) const;
 
   friend class internal::gate::connection_errorhandler;
-  void PQXX_PRIVATE register_errorhandler(errorhandler *);
-  void PQXX_PRIVATE unregister_errorhandler(errorhandler *) noexcept;
+  PQXX_PRIVATE void register_errorhandler(errorhandler *);
+  PQXX_PRIVATE void unregister_errorhandler(errorhandler *) noexcept;
 
   friend class internal::gate::connection_transaction;
   result exec(std::string_view query, sl loc) { return exec(query, "", loc); }
   result exec(std::string_view, std::string_view, sl);
-  result PQXX_PRIVATE
+  PQXX_PRIVATE result
   exec(std::shared_ptr<std::string> const &, std::string_view, sl);
-  result PQXX_PRIVATE exec(std::shared_ptr<std::string> const &query, sl loc)
+  PQXX_PRIVATE result exec(std::shared_ptr<std::string> const &query, sl loc)
   {
     return exec(query, "", loc);
   }
 
-  void PQXX_PRIVATE register_transaction(transaction_base *);
-  void PQXX_PRIVATE unregister_transaction(transaction_base *) noexcept;
+  PQXX_PRIVATE void register_transaction(transaction_base *);
+  PQXX_PRIVATE void unregister_transaction(transaction_base *) noexcept;
 
   friend struct internal::gate::connection_stream_from;
   /// Read a line of COPY output.
@@ -1286,8 +1286,8 @@ private:
   read_copy_line();
 
   friend class internal::gate::connection_stream_to;
-  void PQXX_PRIVATE write_copy_line(std::string_view, sl);
-  void PQXX_PRIVATE end_copy_write(sl);
+  PQXX_PRIVATE void write_copy_line(std::string_view, sl);
+  PQXX_PRIVATE void end_copy_write(sl);
 
   friend class internal::gate::connection_largeobject;
   internal::pq::PGconn *raw_connection() const { return m_conn; }
@@ -1297,9 +1297,9 @@ private:
   void remove_receiver(notification_receiver *, sl loc) noexcept;
 
   friend class internal::gate::connection_pipeline;
-  void PQXX_PRIVATE start_exec(char const query[]);
-  bool PQXX_PRIVATE consume_input() noexcept;
-  bool PQXX_PRIVATE is_busy() const noexcept;
+  PQXX_PRIVATE void start_exec(char const query[]);
+  PQXX_PRIVATE bool consume_input() noexcept;
+  PQXX_PRIVATE bool is_busy() const noexcept;
   internal::pq::PGresult *get_result();
 
   friend class internal::gate::connection_dbtransaction;

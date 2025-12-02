@@ -6,7 +6,7 @@ class PQXX_PRIVATE result_connection : callgate<result const>
 {
   friend class pqxx::connection;
 
-  result_connection(reference x) : super(x) {}
+  result_connection(reference x) noexcept : super(x) {}
 
   operator bool() const { return bool(home()); }
   bool operator!() const { return not home(); }

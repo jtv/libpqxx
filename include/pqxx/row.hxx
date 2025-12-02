@@ -133,18 +133,31 @@ public:
 #if defined(PQXX_HAVE_MULTIDIM)
   // TODO: There's a proposal to permit a default value for loc.
   /** Address field by name.
+   *
    * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name, sl) const;
 #endif // PQXX_HAVE_MULTIDIM
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
 
   /// Address a field by number, but check that the number is in range.
-  PQXX_PURE reference at(size_type i, sl loc = sl::current()) const
+  reference at(size_type i, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
@@ -159,10 +172,14 @@ public:
     return operator[](i);
   }
 
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
+  /// Address field by name.
+  /** @warning This is much slower than indexing by number, or iterating.
+   *
+   * This function could perhaps be marked as "pure," but in clang and some gcc
+   * configurations this may move exceptions out of `try` blocks that are meant
+   * to catch them.
    */
-  PQXX_PURE reference at(zview col_name, sl loc = sl::current()) const
+  reference at(zview col_name, sl loc = sl::current()) const
   {
     if (m_result == nullptr)
       throw usage_error{"Indexing uninitialised row.", loc};
@@ -186,30 +203,47 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] PQXX_PURE size_type
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] size_type
   column_number(zview col_name, sl = sl::current()) const;
 
   /// Return a column's type.
-  [[nodiscard]] PQXX_PURE oid
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid
   column_type(size_type col_num, sl loc = sl::current()) const
   {
     return home().column_type(col_num, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] PQXX_PURE oid
-  column_type(zview col_name, sl loc = sl::current()) const
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
     return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid
-  column_table(size_type col_num, sl = sl::current()) const;
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid
-  column_table(zview col_name, sl loc = sl::current()) const
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
     return column_table(column_number(col_name, loc), loc);
   }
@@ -222,14 +256,14 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] PQXX_PURE size_type
+  [[nodiscard]] size_type
   table_column(size_type col_num, sl loc = sl::current()) const
   {
     return home().table_column(col_num, loc);
   }
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] PQXX_PURE size_type
+  [[nodiscard]] size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
     return table_column(column_number(col_name, loc), loc);
@@ -445,10 +479,23 @@ public:
   [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
 
+  /** @warning This function is marked as "pure."  This means that if it
+   * fails, depending on your compiler, the exception may occur in a different
+   * place than you expected.  The compiler may even find scenarios where it
+   * can avoid calling this operator, meaning that the exception does not
+   * happen at all.  If you need more deterministic exception behaviour, use
+   * @ref at().
+   */
   [[nodiscard]] PQXX_PURE field_ref operator[](size_type) const noexcept;
 #if defined(PQXX_HAVE_MULTIDIM)
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name, sl loc) const
   {
@@ -459,6 +506,12 @@ public:
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name) const
   {
@@ -466,12 +519,12 @@ public:
   }
 
   /// Address a field by number, but check that the number is in range.
-  PQXX_PURE field_ref at(size_type, sl = sl::current()) const;
+  field_ref at(size_type, sl = sl::current()) const;
 
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
    */
-  PQXX_PURE field_ref at(zview col_name, sl = sl::current()) const;
+  field_ref at(zview col_name, sl = sl::current()) const;
 
   [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
   {
@@ -497,36 +550,34 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] PQXX_PURE size_type
+  [[nodiscard]] size_type
   column_number(zview col_name, sl loc = sl::current()) const
   {
     return as_row_ref().column_number(col_name, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] PQXX_PURE oid
+  [[nodiscard]] oid
   column_type(size_type col_num, sl loc = sl::current()) const
   {
     return as_row_ref().column_type(col_num, loc);
   }
 
   /// Return a column's type.
-  [[nodiscard]] PQXX_PURE oid
-  column_type(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
   {
     return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid
+  [[nodiscard]] oid
   column_table(size_type col_num, sl loc = sl::current()) const
   {
     return as_row_ref().column_table(col_num, loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] PQXX_PURE oid
-  column_table(zview col_name, sl loc = sl::current()) const
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
     return column_table(column_number(col_name, loc), loc);
   }
@@ -539,14 +590,14 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] PQXX_PURE size_type
+  [[nodiscard]] size_type
   table_column(size_type col, sl loc = sl::current()) const
   {
     return as_row_ref().table_column(col, loc);
   }
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] PQXX_PURE size_type
+  [[nodiscard]] size_type
   table_column(zview col_name, sl loc = sl::current()) const
   {
     return as_row_ref().table_column(col_name, loc);
@@ -684,7 +735,7 @@ public:
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr pointer operator->() const noexcept
   {
     return &m_field;
   }

@@ -123,7 +123,7 @@ void pqxx::pipeline::flush(sl loc)
 }
 
 
-void PQXX_COLD pqxx::pipeline::cancel(sl loc)
+PQXX_COLD void pqxx::pipeline::cancel(sl loc)
 {
   while (have_pending())
   {
@@ -226,7 +226,7 @@ void pqxx::pipeline::issue(sl loc)
 }
 
 
-void PQXX_COLD pqxx::pipeline::internal_error(std::string const &err, sl loc)
+PQXX_COLD void pqxx::pipeline::internal_error(std::string const &err, sl loc)
 {
   set_error_at(0);
   throw pqxx::internal_error{err, loc};

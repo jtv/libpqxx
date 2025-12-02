@@ -172,7 +172,7 @@ inline bool equal(char const lhs[], char const rhs[])
 }
 } // namespace
 
-void PQXX_COLD pqxx::result::throw_sql_error(
+PQXX_COLD void pqxx::result::throw_sql_error(
   std::string const &Err, std::string const &Query, sl loc) const
 {
   // Try to establish more precise error type, and throw corresponding

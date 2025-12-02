@@ -185,21 +185,21 @@ template struct string_traits<unsigned long long>;
 namespace pqxx::internal
 {
 // TODO: Equivalents for converting a null in the other direction.
-void PQXX_COLD throw_null_conversion(std::string const &type, sl loc)
+PQXX_COLD void throw_null_conversion(std::string const &type, sl loc)
 {
   throw conversion_error{
     std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
-void PQXX_COLD throw_null_conversion(std::string_view type, sl loc)
+PQXX_COLD void throw_null_conversion(std::string_view type, sl loc)
 {
   throw conversion_error{
     std::format("Attempted to convert SQL null to {}.", type), loc};
 }
 
 
-std::string PQXX_COLD state_buffer_overrun(int have_bytes, int need_bytes)
+PQXX_COLD std::string state_buffer_overrun(int have_bytes, int need_bytes)
 {
   // We convert these in standard library terms, to avoid "error cycles," if
   // these values in turn should fail to get enough buffer space.
@@ -285,7 +285,7 @@ public:
 
 
 template<arith F>
-inline bool PQXX_COLD from_dumb_stringstream(
+PQXX_COLD inline bool from_dumb_stringstream(
   dumb_stringstream<F> &s, F &result, std::string_view text)
 {
   s.str(std::string{text});
@@ -295,7 +295,7 @@ inline bool PQXX_COLD from_dumb_stringstream(
 
 // These are hard, and some popular compilers still lack std::from_chars.
 template<std::floating_point T>
-inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
+PQXX_COLD inline T from_string_awful_float(std::string_view text, pqxx::ctx c)
 {
   if (std::empty(text))
     throw pqxx::conversion_error{
@@ -355,7 +355,7 @@ inline T PQXX_COLD from_string_awful_float(std::string_view text, pqxx::ctx c)
 
 #if !defined(PQXX_HAVE_CHARCONV_FLOAT)
 template<arith F>
-inline std::string PQXX_COLD
+PQXX_COLD inline std::string
 to_dumb_stringstream(dumb_stringstream<F> &s, F value)
 {
   s.str("");

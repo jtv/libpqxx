@@ -11,7 +11,7 @@ class PQXX_PRIVATE connection_transaction : callgate<connection>
 {
   friend class pqxx::transaction_base;
 
-  connection_transaction(reference x) : super(x) {}
+  connection_transaction(reference x) noexcept : super(x) {}
 
   template<typename STRING>
   result exec(STRING query, std::string_view desc, sl loc)

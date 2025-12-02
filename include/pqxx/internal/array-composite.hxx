@@ -321,7 +321,7 @@ using composite_field_parser = void (*)(
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
-PQXX_PURE constexpr composite_field_parser<T>
+constexpr composite_field_parser<T>
 specialize_parse_composite_field(conversion_context const &c)
 {
   switch (c.enc)

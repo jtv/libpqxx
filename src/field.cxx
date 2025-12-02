@@ -27,7 +27,7 @@ pqxx::field::field(pqxx::row const &r, pqxx::row::size_type c) noexcept :
 {}
 
 
-bool PQXX_COLD pqxx::field::operator==(field const &rhs) const noexcept
+PQXX_COLD bool pqxx::field::operator==(field const &rhs) const noexcept
 {
   if (is_null() and rhs.is_null())
     return true;

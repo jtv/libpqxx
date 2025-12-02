@@ -59,7 +59,7 @@ protected:
   /// A reference to the host class.  Helps keep constructors easy.
   using reference = HOME &;
 
-  callgate(reference x) : m_home(x) {}
+  callgate(reference x) noexcept : m_home(x) {}
 
   /// The home object.  The gate class has full "private" access.
   reference home() const noexcept { return m_home; }

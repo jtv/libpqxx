@@ -527,9 +527,9 @@ private:
   bool operator!() const noexcept { return m_data.get() == nullptr; }
   operator bool() const noexcept { return m_data.get() != nullptr; }
 
-  [[noreturn]] PQXX_PRIVATE PQXX_COLD void
+  [[noreturn]] PQXX_COLD PQXX_PRIVATE void
   throw_sql_error(std::string const &Err, std::string const &Query, sl) const;
-  PQXX_PRIVATE PQXX_PURE int errorposition() const;
+  PQXX_PURE PQXX_PRIVATE int errorposition() const;
   PQXX_PRIVATE std::string status_error(sl) const;
 
   friend class pqxx::internal::gate::result_sql_cursor;

@@ -149,7 +149,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
  * There will be a definition, but the version in the parameter values will
  * be different.
  */
-inline PQXX_PRIVATE void check_version() noexcept
+PQXX_PRIVATE inline void check_version() noexcept
 {
   // There is no particular reason to do this here in @ref connection, except
   // to ensure that every meaningful libpqxx client will execute it.  The call
@@ -166,6 +166,7 @@ inline PQXX_PRIVATE void check_version() noexcept
 }
 
 
+// TODO: No longer useful as of PostgreSQL 17: libpq is always thread-safe.
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
  */
@@ -441,7 +442,7 @@ inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
  * and the function will write exactly that number of bytes into the buffer.
  * This includes a trailing zero.
  */
-void PQXX_LIBEXPORT
+PQXX_LIBEXPORT void
 esc_bin(bytes_view binary_data, std::span<char> buffer) noexcept;
 
 
@@ -458,16 +459,16 @@ inline void esc_bin(T &&binary_data, std::span<char> buffer) noexcept
 
 
 /// Hex-escape binary data into a std::string.
-std::string PQXX_LIBEXPORT esc_bin(bytes_view binary_data);
+PQXX_LIBEXPORT std::string esc_bin(bytes_view binary_data);
 
 
 /// Reconstitute binary data from its escaped version.
-void PQXX_LIBEXPORT
+PQXX_LIBEXPORT void
 unesc_bin(std::string_view escaped_data, std::span<std::byte> buffer, sl loc);
 
 
 /// Reconstitute binary data from its escaped version.
-bytes PQXX_LIBEXPORT unesc_bin(std::string_view escaped_data, sl loc);
+PQXX_LIBEXPORT bytes unesc_bin(std::string_view escaped_data, sl loc);
 
 
 /// Helper for determining a function's parameter types.
@@ -587,7 +588,7 @@ static_assert(unescape_char('z') == 'z');
  * having an `if constexpr` with an `else`, we _overload_ functions for the two
  * alternatives.
  */
-[[maybe_unused]] inline char const *PQXX_COLD
+[[maybe_unused]] PQXX_COLD inline char const *
 make_strerror_rs_result(int err_result, std::span<char> buffer)
 {
   if (err_result == 0)
@@ -603,7 +604,7 @@ make_strerror_rs_result(int err_result, std::span<char> buffer)
  * There's another overload for th `strerror_s()` and POSIX-style
  * `strerror_r()` case.
  */
-[[maybe_unused]] inline char const *PQXX_COLD
+[[maybe_unused]] PQXX_COLD inline char const *
 make_strerror_rs_result(char const *err_result, std::span<char>)
 {
   return err_result;
@@ -611,7 +612,7 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
 
 
 /// Get error string for a given @c errno value.
-[[nodiscard]] inline char const *PQXX_COLD error_string(
+[[nodiscard]] PQXX_COLD inline char const *error_string(
   [[maybe_unused]] int err_num, [[maybe_unused]] std::span<char> buffer)
 {
   // Not entirely clear whether strerror_s will be in std or global namespace.

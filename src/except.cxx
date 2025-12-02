@@ -55,13 +55,13 @@ pqxx::sql_error::sql_error(
 pqxx::sql_error::~sql_error() noexcept = default;
 
 
-PQXX_PURE std::string const &pqxx::sql_error::query() const noexcept
+std::string const &pqxx::sql_error::query() const noexcept
 {
   return m_query;
 }
 
 
-PQXX_PURE std::string const &pqxx::sql_error::sqlstate() const noexcept
+std::string const &pqxx::sql_error::sqlstate() const noexcept
 {
   return m_sqlstate;
 }

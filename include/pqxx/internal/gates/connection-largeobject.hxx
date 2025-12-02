@@ -17,7 +17,7 @@ class PQXX_PRIVATE connection_largeobject : callgate<connection>
   friend class pqxx::blob;
   friend class pqxx::largeobject;
 
-  connection_largeobject(reference x) : super(x) {}
+  connection_largeobject(reference x) noexcept : super(x) {}
 
   pq::PGconn *raw_connection() const { return home().raw_connection(); }
 };

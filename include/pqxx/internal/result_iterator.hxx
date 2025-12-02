@@ -187,15 +187,8 @@ public:
     super::operator--();
   }
 
-  /// Move a regular iterator into a reverse iterator.
-  explicit const_reverse_result_iterator(const_result_iterator const &&rhs) :
-          const_result_iterator{std::move(rhs)}
-  {
-    super::operator--();
-  }
-
   /// Return the underlying "regular" iterator (as per standard library).
-  [[nodiscard]] PQXX_PURE const_result_iterator base() const noexcept;
+  [[nodiscard]] const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators

@@ -63,27 +63,32 @@
 #  define PQXX_CPLUSPLUS __cplusplus
 #endif
 
-#if defined(PQXX_HAVE_GCC_PURE)
+#if __has_cpp_attribute(gnu::pure)
 /// Declare function "pure": no side effects, only reads globals and its args.
-#  define PQXX_PURE __attribute__((pure))
+/** Be careful with exceptions.  The compiler may elide calls, which may stop
+ * an exception from happening; or reorder them, moving a call outside of a
+ * `try` block that was meant to catch the exception.
+ */
+#  define PQXX_PURE [[gnu::pure]]
 #else
 #  define PQXX_PURE /* pure */
 #endif
 
 
-#if defined(__GNUC__)
+#if __has_cpp_attribute(gnu::cold)
 /// Tell the compiler to optimise a function for size, not speed.
-#  define PQXX_COLD __attribute__((cold))
+#  define PQXX_COLD [[gnu::cold]]
 #else
 #  define PQXX_COLD /* cold */
 #endif
 
 
-#if defined(__GNUC__)
+#if __has_cpp_attribute(gnu::always_inline)
 /// Never generate an out-of-line version of this inline function.
-#  define PQXX_INLINE_ONLY __attribute__((always_inline))
-#elif defined(_MSC_VER)
-#  define PQXX_INLINE_ONLY __forceinline
+#  define PQXX_INLINE_ONLY [[gnu::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+/// Never generate an out-of-line version of this inline function.
+#  define PQXX_INLINE_ONLY [[msvc::forceinline]]
 #else
 #  define PQXX_INLINE_ONLY /* always inline */
 #endif
@@ -155,8 +160,8 @@
 
 #elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
-#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
-#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
+#  define PQXX_LIBEXPORT [[gnu::visibility("default")]]
+#  define PQXX_PRIVATE [[gnu::visibility("hidden")]]
 
 #endif // PQXX_HAVE_GCC_VISIBILITY
 

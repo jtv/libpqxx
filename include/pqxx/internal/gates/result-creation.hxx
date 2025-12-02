@@ -7,7 +7,7 @@ class PQXX_PRIVATE result_creation : callgate<result const>
   friend class pqxx::connection;
   friend class pqxx::pipeline;
 
-  result_creation(reference x) : super(x) {}
+  result_creation(reference x) noexcept : super(x) {}
 
   static result create(
     std::shared_ptr<internal::pq::PGresult> rhs,

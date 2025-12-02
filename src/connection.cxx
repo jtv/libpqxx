@@ -95,7 +95,7 @@ extern "C"
 using namespace std::literals;
 
 
-void PQXX_COLD PQXX_LIBEXPORT pqxx::internal::skip_init_ssl(int skips) noexcept
+PQXX_COLD PQXX_LIBEXPORT void pqxx::internal::skip_init_ssl(int skips) noexcept
 {
   // We got "skip flags," but we pass to libpq which libraries we *do* want it
   // to initialise.
@@ -279,7 +279,7 @@ pqxx::result pqxx::connection::make_result(
 }
 
 
-int PQXX_COLD pqxx::connection::backendpid() const & noexcept
+PQXX_COLD int pqxx::connection::backendpid() const & noexcept
 {
   return (m_conn == nullptr) ? 0 : PQbackendPID(m_conn);
 }
@@ -300,13 +300,13 @@ int pqxx::connection::sock() const & noexcept
 }
 
 
-int PQXX_COLD pqxx::connection::protocol_version() const noexcept
+PQXX_COLD int pqxx::connection::protocol_version() const noexcept
 {
   return (m_conn == nullptr) ? 0 : PQprotocolVersion(m_conn);
 }
 
 
-int PQXX_COLD pqxx::connection::server_version() const noexcept
+PQXX_COLD int pqxx::connection::server_version() const noexcept
 {
   return PQserverVersion(m_conn);
 }
@@ -380,7 +380,7 @@ void pqxx::connection::process_notice(zview msg) noexcept
 }
 
 
-void PQXX_COLD pqxx::connection::trace(FILE *out) noexcept
+PQXX_COLD void pqxx::connection::trace(FILE *out) noexcept
 {
   if (m_conn)
   {
@@ -392,7 +392,7 @@ void PQXX_COLD pqxx::connection::trace(FILE *out) noexcept
 }
 
 
-void PQXX_COLD pqxx::connection::add_receiver(pqxx::notification_receiver *n)
+PQXX_COLD void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 {
   if (n == nullptr)
     throw argument_error{"Null receiver registered"};
@@ -462,7 +462,7 @@ void pqxx::connection::listen(
 }
 
 
-void PQXX_COLD pqxx::connection::remove_receiver(
+PQXX_COLD void pqxx::connection::remove_receiver(
   pqxx::notification_receiver *T, sl loc) noexcept
 {
   if (T == nullptr)
@@ -524,7 +524,7 @@ constexpr int buf_size{500u};
 } // namespace
 
 
-void PQXX_COLD pqxx::connection::cancel_query(sl loc)
+PQXX_COLD void pqxx::connection::cancel_query(sl loc)
 {
   std::unique_ptr<PGcancel, void (*)(PGcancel *)> const cancel{
     PQgetCancel(m_conn), wrap_pgfreecancel};
@@ -577,7 +577,7 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
 
 
-void PQXX_COLD
+PQXX_COLD void
 pqxx::connection::set_verbosity(error_verbosity verbosity) & noexcept
 {
   PQsetErrorVerbosity(m_conn, static_cast<PGVerbosity>(verbosity));
@@ -665,25 +665,25 @@ int pqxx::connection::get_notifs(sl loc)
 }
 
 
-char const *PQXX_COLD pqxx::connection::dbname() const noexcept
+PQXX_COLD char const *pqxx::connection::dbname() const noexcept
 {
   return PQdb(m_conn);
 }
 
 
-char const *PQXX_COLD pqxx::connection::username() const noexcept
+PQXX_COLD char const *pqxx::connection::username() const noexcept
 {
   return PQuser(m_conn);
 }
 
 
-char const *PQXX_COLD pqxx::connection::hostname() const noexcept
+PQXX_COLD char const *pqxx::connection::hostname() const noexcept
 {
   return PQhost(m_conn);
 }
 
 
-char const *PQXX_COLD pqxx::connection::port() const noexcept
+PQXX_COLD char const *pqxx::connection::port() const noexcept
 {
   return PQport(m_conn);
 }
@@ -696,13 +696,13 @@ char const *pqxx::connection::err_msg() const noexcept
 }
 
 
-void PQXX_COLD pqxx::connection::register_errorhandler(errorhandler *handler)
+PQXX_COLD void pqxx::connection::register_errorhandler(errorhandler *handler)
 {
   m_notice_waiters->errorhandlers.push_back(handler);
 }
 
 
-void PQXX_COLD
+PQXX_COLD void
 pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 {
   // The errorhandler itself will take care of nulling its pointer to this
@@ -711,8 +711,8 @@ pqxx::connection::unregister_errorhandler(errorhandler *handler) noexcept
 }
 
 
-std::vector<pqxx::errorhandler *>
-  PQXX_COLD pqxx::connection::get_errorhandlers() const
+PQXX_COLD std::vector<pqxx::errorhandler *>
+pqxx::connection::get_errorhandlers() const
 {
   return {
     std::begin(m_notice_waiters->errorhandlers),
@@ -1114,7 +1114,7 @@ std::string pqxx::connection::get_client_encoding(sl loc) const
 }
 
 
-void PQXX_COLD
+PQXX_COLD void
 pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
 {
   switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)

@@ -143,7 +143,7 @@ void pqxx::internal::wait_fd(
 }
 
 
-void PQXX_COLD pqxx::internal::wait_for(unsigned int microseconds)
+PQXX_COLD void pqxx::internal::wait_for(unsigned int microseconds)
 {
 #if defined(PQXX_HAVE_SLEEP_FOR)
   std::this_thread::sleep_for(std::chrono::microseconds{microseconds});
