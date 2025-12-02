@@ -166,6 +166,7 @@ PQXX_PRIVATE inline void check_version() noexcept
 }
 
 
+// TODO: No longer useful as of PostgreSQL 17: libpq is always thread-safe.
 /// Descriptor of library's thread-safety model.
 /** This describes what the library knows about various risks to thread-safety.
  */

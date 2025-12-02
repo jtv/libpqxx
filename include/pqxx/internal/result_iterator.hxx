@@ -188,7 +188,7 @@ public:
   }
 
   /// Return the underlying "regular" iterator (as per standard library).
-  [[nodiscard]] PQXX_PURE const_result_iterator base() const noexcept;
+  [[nodiscard]] const_result_iterator base() const noexcept;
 
   /**
    * @name Dereferencing operators
