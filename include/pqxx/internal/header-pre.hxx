@@ -163,6 +163,7 @@
 
 #elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
+// TODO: Can we use [[gnu::visibility(...)]] instead?
 #  define PQXX_LIBEXPORT __attribute__((visibility("default")))
 #  define PQXX_PRIVATE __attribute__((visibility("hidden")))
 
