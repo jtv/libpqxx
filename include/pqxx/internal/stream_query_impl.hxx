@@ -22,7 +22,7 @@ inline stream_query<TYPE...>::stream_query(
 
 
 template<typename... TYPE>
-inline char_finder_func *
+PQXX_RETURNS_NONNULL inline char_finder_func *
 stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
   auto const group{tx.conn().get_encoding_group(loc)};

@@ -153,7 +153,7 @@ private:
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *get_finder(transaction_base const &tx, sl);
+  PQXX_RETURNS_NONNULL static inline char_finder_func *get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.

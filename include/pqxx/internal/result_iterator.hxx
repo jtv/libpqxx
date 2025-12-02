@@ -67,7 +67,7 @@ public:
    */
   //@{
   /// Dereference the iterator.
-  [[nodiscard]] pointer operator->() const noexcept { return &m_row; }
+  [[nodiscard]] PQXX_RETURNS_NONNULL pointer operator->() const noexcept { return &m_row; }
 
   /// Dereference the iterator.
   [[nodiscard]] reference operator*() const noexcept { return m_row; }

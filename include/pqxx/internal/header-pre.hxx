@@ -94,6 +94,22 @@
 #endif
 
 
+#if __has_cpp_attribute(gnu::returns_nonnull)
+/// For functions returning a pointer: the pointer is never null.
+#  define PQXX_RETURNS_NONNULL [[gnu::returns_nonnull]]
+#else
+#  define PQXX_RETURNS_NONNULL /* returns nonnull */
+#endif
+
+
+#if __has_cpp_attribute(gnu::null_terminated_string_arg)
+/// This function's C-style string arguments are zero-terminated.
+#  define PQXX_CSTRING_ARGS [[gnu::null_terminated_string_arg]]
+#else
+#  define PQXX_CSTRING_ARGS /* null-terminated string args */
+#endif
+
+
 // Workarounds for Windows
 #ifdef _WIN32
 

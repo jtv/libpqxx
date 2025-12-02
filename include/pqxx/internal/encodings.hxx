@@ -398,7 +398,7 @@ template<> struct glyph_scanner<encoding_group::uhc> final
  * `haystack` if it found none.
  */
 template<char... NEEDLE>
-PQXX_PURE constexpr inline char_finder_func *
+PQXX_PURE PQXX_RETURNS_NONNULL constexpr inline char_finder_func *
 get_char_finder(encoding_group enc, sl loc)
 {
   switch (enc)
