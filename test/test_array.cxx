@@ -664,7 +664,11 @@ void test_array_at_checks_bounds()
   PQXX_CHECK_EQUAL(size3d[0], 4u);
   PQXX_CHECK_EQUAL(size3d[1], 2u);
   PQXX_CHECK_EQUAL(size3d[2], 3u);
-  // XXX:
+
+  PQXX_CHECK_EQUAL(threedim.at(3, 1, 2), 23);
+  PQXX_CHECK_THROWS(std::ignore = threedim.at(4, 1, 2), pqxx::range_error);
+  PQXX_CHECK_THROWS(std::ignore = threedim.at(3, 2, 2), pqxx::range_error);
+  PQXX_CHECK_THROWS(std::ignore = threedim.at(3, 1, 3), pqxx::range_error);
 }
 
 
