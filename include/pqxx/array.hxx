@@ -623,6 +623,11 @@ public:
   }
 };
 
+/// No-null trait for SQL arrays represented as @ref pqxx::array.
+template<typename ELEMENT, std::size_t DIMENSIONS>
+struct nullness<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
+        : no_null<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
+{};
 
 /// Low-level parser for C++ arrays.  @deprecated Use @ref pqxx::array instead.
 /** Clunky old API for parsing SQL arrays.
