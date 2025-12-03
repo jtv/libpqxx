@@ -37,7 +37,7 @@ PQXX_PURE inline constexpr char number_to_digit(int i) noexcept
 PQXX_PURE inline constexpr int digit_to_number(char c) noexcept
 {
   PQXX_ASSUME(c >= '0');
-  PQXX_ASSUME(c <= '0');
+  PQXX_ASSUME(c <= '9');
   return c - '0';
 }
 
