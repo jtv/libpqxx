@@ -462,10 +462,21 @@ public:
   }
   //@}
 
-  [[nodiscard]] const_iterator begin() const noexcept;
-  [[nodiscard]] const_iterator cbegin() const noexcept;
-  [[nodiscard]] const_iterator end() const noexcept;
-  [[nodiscard]] const_iterator cend() const noexcept;
+  /**
+   * @name Iteration
+   *
+   * A row acts like a container of fields.
+   */
+  //@{
+  [[nodiscard]] PQXX_PURE const_iterator begin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator cbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator end() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator cend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator rbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator crbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator rend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator crend() const noexcept;
+  //@}
 
   /**
    * @name Field access
@@ -473,11 +484,7 @@ public:
   //@{
   [[nodiscard]] field_ref front() const noexcept;
   [[nodiscard]] field_ref back() const noexcept;
-
-  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
+  //@}
 
   /** @warning This function is marked as "pure."  This means that if it
    * fails, depending on your compiler, the exception may occur in a different

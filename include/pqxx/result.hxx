@@ -160,6 +160,13 @@ public:
   }
   //@}
 
+  /**
+   * @name Iteration
+   *
+   * A `result` acts like a container of rows.  Each row in turn acts like a
+   * container of fields.
+   */
+  //@{
   /// Iterate rows, reading them directly into a tuple of "TYPE...".
   /** Converts the fields to values of the given respective types.
    *
@@ -169,18 +176,18 @@ public:
    */
   template<typename... TYPE> auto iter() const;
 
-  [[nodiscard]] const_reverse_iterator rbegin() const noexcept;
-  [[nodiscard]] const_reverse_iterator crbegin() const noexcept;
-  [[nodiscard]] const_reverse_iterator rend() const noexcept;
-  [[nodiscard]] const_reverse_iterator crend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_iterator rbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_iterator crbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_iterator rend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_iterator crend() const noexcept;
 
-  [[nodiscard]] const_iterator begin() const noexcept;
-  [[nodiscard]] const_iterator cbegin() const noexcept;
-  [[nodiscard]] inline const_iterator end() const noexcept;
-  [[nodiscard]] inline const_iterator cend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator begin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator cbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE inline const_iterator end() const noexcept;
+  [[nodiscard]] PQXX_PURE inline const_iterator cend() const noexcept;
 
-  [[nodiscard]] row_ref front() const noexcept;
-  [[nodiscard]] row_ref back() const noexcept;
+  [[nodiscard]] PQXX_PURE row_ref front() const noexcept;
+  [[nodiscard]] PQXX_PURE row_ref back() const noexcept;
 
   [[nodiscard]] PQXX_PURE size_type size() const noexcept;
   [[nodiscard]] PQXX_PURE bool empty() const noexcept;
@@ -188,6 +195,7 @@ public:
   {
     return size();
   }
+  //@}
 
   /// Exchange two `result` values in an exception-safe manner.
   /** If the swap fails, the two values will be exactly as they were before.
@@ -204,11 +212,11 @@ public:
    * If you are working in C++23 or better, the two-dimensional indexing
    * operator is likely to be more efficient.  Otherwise, consider @ref at().
    */
-  [[nodiscard]] row_ref operator[](size_type i) const noexcept;
+  [[nodiscard]] PQXX_PURE row_ref operator[](size_type i) const noexcept;
 
 #if defined(PQXX_HAVE_MULTIDIM)
   /// Index a result by row number and column number to get to a field.
-  [[nodiscard]] field_ref
+  [[nodiscard]] PQXX_PURE field_ref
   operator[](size_type row_num, row_size_type col_num) const noexcept;
 #endif // PQXX_HAVE_MULTIDIM
 
