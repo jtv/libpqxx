@@ -583,7 +583,7 @@ public:
   template<typename... TYPE>
   [[nodiscard]] auto stream(std::string_view query, sl loc = sl::current()) &
   {
-    return pqxx::internal::stream_query<TYPE...>{*this, query, loc};
+    return pqxx::internal::stream_query<TYPE...>{*this, query, make_context(loc)};
   }
 
   /// Perform a streaming query, and for each result row, call `func`.

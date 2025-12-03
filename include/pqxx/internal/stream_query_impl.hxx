@@ -10,13 +10,14 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query, sl loc) :
+  transaction_base &tx, std::string_view query, conversion_context c) :
         transaction_focus{tx, "stream_query"},
-        m_char_finder{get_finder(tx, loc)}
+        m_char_finder{get_finder(tx, c.loc)},
+        m_ctx{std::move(c)}
 {
-  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), loc)};
-  r.expect_columns(sizeof...(TYPE), loc);
-  r.expect_rows(0, loc);
+  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), m_ctx.loc)};
+  r.expect_columns(sizeof...(TYPE), m_ctx.loc);
+  r.expect_rows(0, m_ctx.loc);
   register_me();
 }
 

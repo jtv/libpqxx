@@ -114,6 +114,17 @@ void test_stream_reads_nulls_as_optionals()
 }
 
 
+void test_stream_reads_arrays() {
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+
+  for (auto [a] : tx.stream<pqxx::array<int>>("SELECT ARRAY[1,-42]")) {
+    PQXX_CHECK_EQUAL(a[0], 1);
+    PQXX_CHECK_EQUAL(a[1], -42);
+  }
+}
+
+
 void test_stream_parses_awkward_strings()
 {
   pqxx::connection cx;
@@ -225,6 +236,7 @@ PQXX_REGISTER_TEST(test_stream_reads_simple_values);
 PQXX_REGISTER_TEST(test_stream_reads_string_view);
 PQXX_REGISTER_TEST(test_stream_iterates);
 PQXX_REGISTER_TEST(test_stream_reads_nulls_as_optionals);
+PQXX_REGISTER_TEST(test_stream_reads_arrays);
 PQXX_REGISTER_TEST(test_stream_parses_awkward_strings);
 PQXX_REGISTER_TEST(test_stream_handles_nulls_in_all_places);
 PQXX_REGISTER_TEST(test_stream_handles_empty_string);

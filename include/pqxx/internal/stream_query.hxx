@@ -81,10 +81,7 @@ public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(transaction_base &tx, std::string_view query, sl loc);
-  /// Execute `query` on `tx`, stream results.
-  inline stream_query(
-    transaction_base &tx, std::string_view query, params const &, sl loc);
+  inline stream_query(transaction_base &tx, std::string_view query, conversion_context c);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -139,7 +136,7 @@ public:
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
     std::tuple<TYPE...> data{
-      parse_field<TYPE>(line, offset, write, m_created_loc)...};
+      parse_field<TYPE>(line, offset, write, m_ctx)...};
 
     assert(offset == line_size + 1u);
     return data;
@@ -172,7 +169,7 @@ private:
    * one greater than the size of the line, pointing at the terminating zero.
    */
   std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write, sl loc)
+  read_field(zview line, std::size_t offset, char *write, ctx c)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -215,7 +212,7 @@ private:
       // It may be right where we start searching, and this won't loop forever
       // since the previous iteration (if any) put us right _after_ the
       // previous character of interest.
-      auto const stop_char{m_char_finder(line, offset, loc)};
+      auto const stop_char{m_char_finder(line, offset, c.loc)};
       PQXX_ASSUME(stop_char >= offset);
       assert(stop_char < (line_size + 1));
 
@@ -274,13 +271,13 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET parse_field(zview line, std::size_t &offset, char *&write, sl loc)
+  TARGET parse_field(zview line, std::size_t &offset, char *&write, ctx c)
   {
     using field_type = std::remove_cvref_t<TARGET>;
 
     assert(offset <= std::size(line));
 
-    auto [new_offset, new_write, text]{read_field(line, offset, write, loc)};
+    auto [new_offset, new_write, text]{read_field(line, offset, write, c)};
     PQXX_ASSUME(new_offset > offset);
     PQXX_ASSUME(new_write >= write);
     offset = new_offset;
@@ -297,12 +294,12 @@ private:
       if constexpr (has_null<TARGET>())
         return make_null<TARGET>();
       else
-        internal::throw_null_conversion(name_type<field_type>(), loc);
+        internal::throw_null_conversion(name_type<field_type>(), c.loc);
     }
     else
     {
       // Don't ever try to convert a non-null value to nullptr_t!
-      return from_string<field_type>(text);
+      return from_string<field_type>(text, c);
     }
   }
 
@@ -330,8 +327,8 @@ private:
    */
   std::string m_row;
 
-  /// The `std::source_location` for where this stream was created.
-  sl m_created_loc;
+  /// The conversion context for this stream
+  conversion_context m_ctx;
 };
 } // namespace pqxx::internal
 #endif
