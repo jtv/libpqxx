@@ -130,19 +130,28 @@ public:
     return m_elts.at(locate(index...));
   }
 
+  // XXX: Wrap this in a documentation section.
+  // XXX: begin() const, end() const.
   /// Begin iteration of individual elements.
   /** If this is a multi-dimensional array, iteration proceeds in row-major
    * order.  So for example, a two-dimensional array `a` would start at
    * `a[0, 0]`, then `a[0, 1]`, and so on.  Once it reaches the end of that
    * first row, it moves on to element `a[1, 0]`, and continues from there.
    */
-  constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
+  PQXX_PURE constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
   /// Return end point of iteration.
-  constexpr auto cend() const noexcept { return m_elts.cend(); }
+  PQXX_PURE constexpr auto cend() const noexcept { return m_elts.cend(); }
+  /// Begin iteration of individual elements.
+  PQXX_PURE constexpr auto begin() const noexcept { return cbegin(); }
+  /// Return endpoint of iteration.
+  PQXX_PURE constexpr auto end() const noexcept { return cend(); }
   /// Begin reverse iteration.
-  constexpr auto crbegin() const noexcept { return m_elts.crbegin(); }
+  PQXX_PURE constexpr auto crbegin() const noexcept
+  {
+    return m_elts.crbegin();
+  }
   /// Return end point of reverse iteration.
-  constexpr auto crend() const noexcept { return m_elts.crend(); }
+  PQXX_PURE constexpr auto crend() const noexcept { return m_elts.crend(); }
 
   /// Number of elements in the array.
   /** This includes all elements, in all dimensions.  Therefore it is the
