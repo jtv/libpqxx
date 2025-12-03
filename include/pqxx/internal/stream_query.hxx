@@ -327,7 +327,7 @@ private:
    */
   std::string m_row;
 
-  /// The conversion context for this stream
+  /// Caller source location, encoding group, possibly more.
   conversion_context m_ctx;
 };
 } // namespace pqxx::internal

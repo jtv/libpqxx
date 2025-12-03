@@ -119,11 +119,30 @@ void test_stream_reads_arrays()
   pqxx::connection cx;
   pqxx::work tx{cx};
 
+  int count{0};
   for (auto [a] : tx.stream<pqxx::array<int>>("SELECT ARRAY[1,-42]"))
   {
     PQXX_CHECK_EQUAL(a[0], 1);
     PQXX_CHECK_EQUAL(a[1], -42);
+    ++count;
   }
+  PQXX_CHECK_EQUAL(count, 1);
+
+  count = 0;
+  cx.set_client_encoding("SJIS");
+
+  // Some SJIS-encoded strings with multibyte characters that happen to contain
+  // bytes with the same numeric values as the ASCII characters for backslash
+  // and a closing brace.  If we were to parse this in the wrong encoding
+  // group, things would go horribly wrong.
+  auto const painful_array{"SELECT ARRAY['\x81\x5c', '\x81\x7d']"};
+  for (auto [a] : tx.stream<pqxx::array<std::string>>(painful_array))
+  {
+    PQXX_CHECK_EQUAL(a[0], "\x81\x5c");
+    PQXX_CHECK_EQUAL(a[1], "\x81\x7d");
+    ++count;
+  }
+  PQXX_CHECK_EQUAL(count, 1);
 }
 
 
