@@ -114,11 +114,13 @@ void test_stream_reads_nulls_as_optionals()
 }
 
 
-void test_stream_reads_arrays() {
+void test_stream_reads_arrays()
+{
   pqxx::connection cx;
   pqxx::work tx{cx};
 
-  for (auto [a] : tx.stream<pqxx::array<int>>("SELECT ARRAY[1,-42]")) {
+  for (auto [a] : tx.stream<pqxx::array<int>>("SELECT ARRAY[1,-42]"))
+  {
     PQXX_CHECK_EQUAL(a[0], 1);
     PQXX_CHECK_EQUAL(a[1], -42);
   }

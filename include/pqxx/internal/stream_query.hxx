@@ -81,7 +81,8 @@ public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(transaction_base &tx, std::string_view query, conversion_context c);
+  inline stream_query(
+    transaction_base &tx, std::string_view query, conversion_context c);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -135,8 +136,7 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{
-      parse_field<TYPE>(line, offset, write, m_ctx)...};
+    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write, m_ctx)...};
 
     assert(offset == line_size + 1u);
     return data;
