@@ -94,14 +94,17 @@ public:
   /// How many dimensions does this array have?
   /** This value is known at compile time.
    */
-  constexpr std::size_t dimensions() const noexcept { return DIMENSIONS; }
+  PQXX_PURE constexpr std::size_t dimensions() const noexcept
+  {
+    return DIMENSIONS;
+  }
 
   /// Return the sizes of this array in each of its dimensions.
   /** The last of the sizes is the number of elements in a single row.  The
    * size before that is the number of rows of elements, and so on.  The first
    * is the "outer" size.
    */
-  std::array<std::size_t, DIMENSIONS> const &sizes() const noexcept
+  PQXX_PURE std::array<std::size_t, DIMENSIONS> const &sizes() const noexcept
   {
     return m_extents;
   }
@@ -121,23 +124,35 @@ public:
    * Multi-dimensional indexing using `operator[]` only works in C++23 or
    * better.  In older versions of C++ it will work only with
    * single-dimensional arrays.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
    */
   template<std::integral... INDEX>
-  ELEMENT const &operator[](INDEX... index) const
+  PQXX_PURE ELEMENT const &operator[](INDEX... index) const
   {
     static_assert(sizeof...(index) == DIMENSIONS);
     // TODO: Use operator[].  But Facebook's "infer" sees a buffer overflow.
     return m_elts.at(locate(index...));
   }
 
-  // XXX: Wrap this in a documentation section.
-  // XXX: begin() const, end() const.
-  /// Begin iteration of individual elements.
-  /** If this is a multi-dimensional array, iteration proceeds in row-major
+  /**
+   * @name Array iteration
+   *
+   * There is no "nice" way to iterate over a multi-dimensional array as yet.
+   * Instead, you can iterate over all the elements as if it were a simple,
+   * flat, one-dimensional array.
+   *
+   * If this is a multi-dimensional array, iteration proceeds in row-major
    * order.  So for example, a two-dimensional array `a` would start at
    * `a[0, 0]`, then `a[0, 1]`, and so on.  Once it reaches the end of that
    * first row, it moves on to element `a[1, 0]`, and continues from there.
    */
+  //@{
+  /// Begin iteration of individual elements.
   PQXX_PURE constexpr auto cbegin() const noexcept { return m_elts.cbegin(); }
   /// Return end point of iteration.
   PQXX_PURE constexpr auto cend() const noexcept { return m_elts.cend(); }
@@ -152,6 +167,10 @@ public:
   }
   /// Return end point of reverse iteration.
   PQXX_PURE constexpr auto crend() const noexcept { return m_elts.crend(); }
+  PQXX_PURE constexpr auto rbegin() const noexcept { return crbegin(); }
+  /// Return end point of reverse iteration.
+  PQXX_PURE constexpr auto rend() const noexcept { return crend(); }
+  //@}
 
   /// Number of elements in the array.
   /** This includes all elements, in all dimensions.  Therefore it is the

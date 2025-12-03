@@ -464,15 +464,13 @@ void test_array_strings()
 }
 
 
-namespace
-{
 pqxx::conversion_context make_context(
   pqxx::encoding_group enc = pqxx::encoding_group::unknown,
   pqxx::sl loc = pqxx::sl::current())
 {
   return pqxx::conversion_context{enc, loc};
 }
-} // namespace
+
 
 void test_array_parses_real_arrays()
 {
@@ -621,20 +619,52 @@ void test_array_parses_multidim_arrays()
 void test_array_at_checks_bounds()
 {
   pqxx::connection const cx;
+
+  // Simple, single-dimensional case:
   pqxx::array<int> const simple{"{0, 1, 2}", cx};
+  PQXX_CHECK_EQUAL(simple.dimensions(), 1u);
+  auto const size1d{simple.sizes()};
+  PQXX_CHECK_EQUAL(std::size(size1d), 1u);
+  PQXX_CHECK_EQUAL(size1d[0], 3u);
+
+  PQXX_CHECK_EQUAL(simple.at(1), 1);
+  PQXX_CHECK_EQUAL(simple[1], 1);
+  PQXX_CHECK_EQUAL(simple.at(2), 2);
+  PQXX_CHECK_EQUAL(simple[2], 2);
+
   PQXX_CHECK_EQUAL(simple.at(0), 0);
   PQXX_CHECK_EQUAL(simple.at(2), 2);
   PQXX_CHECK_THROWS(simple.at(3), pqxx::range_error);
   PQXX_CHECK_THROWS(simple.at(-1), pqxx::range_error);
 
-  pqxx::array<int, 2> const multi{"{{0,1},{2,3},{4,5}}", cx};
-  PQXX_CHECK_EQUAL(multi.at(0, 0), 0);
-  PQXX_CHECK_EQUAL(multi.at(1, 1), 3);
-  PQXX_CHECK_EQUAL(multi.at(2, 1), 5);
-  PQXX_CHECK_THROWS(multi.at(3, 0), pqxx::range_error);
-  PQXX_CHECK_THROWS(multi.at(0, 2), pqxx::range_error);
-  PQXX_CHECK_THROWS(multi.at(0, -1), pqxx::range_error);
-  PQXX_CHECK_THROWS(multi.at(-1, 0), pqxx::range_error);
+  // Two-dimensional case:
+  pqxx::array<int, 2> const twodim{"{{0,1},{2,3},{4,5}}", cx};
+  PQXX_CHECK_EQUAL(twodim.dimensions(), 2u);
+  auto const size2d{twodim.sizes()};
+  PQXX_CHECK_EQUAL(std::size(size2d), 2u);
+  PQXX_CHECK_EQUAL(size2d[0], 3u);
+  PQXX_CHECK_EQUAL(size2d[1], 2u);
+
+  PQXX_CHECK_EQUAL(twodim.at(0, 0), 0);
+  PQXX_CHECK_EQUAL(twodim.at(1, 1), 3);
+  PQXX_CHECK_EQUAL(twodim.at(2, 1), 5);
+  PQXX_CHECK_THROWS(twodim.at(3, 0), pqxx::range_error);
+  PQXX_CHECK_THROWS(twodim.at(0, 2), pqxx::range_error);
+  PQXX_CHECK_THROWS(twodim.at(0, -1), pqxx::range_error);
+  PQXX_CHECK_THROWS(twodim.at(-1, 0), pqxx::range_error);
+
+  // Three-dimensional:
+  pqxx::array<int, 3> const threedim{
+    "{{{0,1,2},{3,4,5}},{{6,7,8},{9,10,11}},"
+    "{{12,13,14},{15,16,17}},{{18,19,20},{21,22,23}}}",
+    cx};
+  PQXX_CHECK_EQUAL(threedim.dimensions(), 3u);
+  auto const size3d{threedim.sizes()};
+  PQXX_CHECK_EQUAL(std::size(size3d), 3u);
+  PQXX_CHECK_EQUAL(size3d[0], 4u);
+  PQXX_CHECK_EQUAL(size3d[1], 2u);
+  PQXX_CHECK_EQUAL(size3d[2], 3u);
+  // XXX:
 }
 
 
@@ -645,7 +675,7 @@ void test_array_iterates_in_row_major_order()
   auto const array_s{tx.query_value<std::string>(
     "SELECT ARRAY[[1, 2, 3], [4, 5, 6], [7, 8, 9]]")};
   pqxx::array<int, 2> const array{array_s, cx};
-  auto it{array.cbegin()};
+  auto it{array.begin()};
   PQXX_CHECK_EQUAL(*it, 1);
   ++it;
   ++it;
@@ -653,10 +683,20 @@ void test_array_iterates_in_row_major_order()
   ++it;
   PQXX_CHECK_EQUAL(*it, 4);
   it += 6;
-  PQXX_CHECK(it == array.cend());
-  PQXX_CHECK_EQUAL(*(array.cend() - 1), 9);
-  PQXX_CHECK_EQUAL(*array.crbegin(), 9);
-  PQXX_CHECK_EQUAL(*(array.crend() - 1), 1);
+  PQXX_CHECK(it == array.end());
+
+  // Or just really quickly: our input happens to have the digits in
+  // sequential order.
+  int count{1};
+  for (auto elt : array)
+  {
+    PQXX_CHECK_EQUAL(elt, count);
+    ++count;
+  }
+
+  PQXX_CHECK_EQUAL(*(array.end() - 1), 9);
+  PQXX_CHECK_EQUAL(*array.rbegin(), 9);
+  PQXX_CHECK_EQUAL(*(array.rend() - 1), 1);
   PQXX_CHECK_EQUAL(std::size(array), 9u);
   PQXX_CHECK_EQUAL(std::ssize(array), 9);
   PQXX_CHECK_EQUAL(array.front(), 1);

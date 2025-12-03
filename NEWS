@@ -1,7 +1,7 @@
 8.0.0-rc2
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
- - Add `begin() const` & `end() const` to `pqxx::array`.
+ - Add `begin() const`, `end() const`, etc. to `pqxx::array`.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
