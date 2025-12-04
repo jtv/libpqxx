@@ -249,7 +249,7 @@ PQXX_COLD void pqxx::result::throw_sql_error(
       break;
     case '2':
       if (equal(code, "42501"))
-        throw insufficient_privilege{Err, Query, nullptr, loc};
+        throw insufficient_privilege{Err, Query, code, loc};
       if (equal(code, "42601"))
         throw syntax_error{Err, Query, code, errorposition(), loc};
       if (equal(code, "42703"))
