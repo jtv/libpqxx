@@ -78,7 +78,8 @@ jobs:
         type: string
       cxx_ver:
         type: string
-    macos: {}
+    macos:
+      xcode: "latest"
     steps:
       - checkout
       - run:
