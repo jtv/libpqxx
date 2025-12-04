@@ -85,13 +85,13 @@ public:
   const_result_iterator &operator=(const_result_iterator &&) = default;
 
   const_result_iterator operator++(int) &;
-  const_result_iterator &operator++()
+  PQXX_INLINE_ONLY const_result_iterator &operator++()
   {
     pqxx::internal::gate::row_ref_const_result_iterator{m_row}.offset(1);
     return *this;
   }
   const_result_iterator operator--(int) &;
-  const_result_iterator &operator--()
+  PQXX_INLINE_ONLY const_result_iterator &operator--()
   {
     pqxx::internal::gate::row_ref_const_result_iterator(m_row).offset(-1);
     return *this;
@@ -184,7 +184,8 @@ public:
   const_reverse_result_iterator(
     const_reverse_result_iterator const &rhs) noexcept = default;
   /// Copy a reverse iterator from a regular iterator.
-  explicit const_reverse_result_iterator(const_result_iterator const &rhs) :
+  PQXX_INLINE_ONLY explicit const_reverse_result_iterator(
+    const_result_iterator const &rhs) :
           const_result_iterator{rhs}
   {
     super::operator--();
@@ -330,13 +331,13 @@ const_result_iterator::operator-(result::difference_type o) const
     result_size_type(result::difference_type(m_row.row_number()) - o)};
 }
 
-inline result::difference_type
+PQXX_INLINE_ONLY inline result::difference_type
 const_result_iterator::operator-(const const_result_iterator &i) const
 {
   return result::difference_type(m_row.row_number() - i->row_number());
 }
 
-inline const_result_iterator result::end() const noexcept
+PQXX_INLINE_ONLY inline const_result_iterator result::end() const noexcept
 {
   return {*this, size()};
 }

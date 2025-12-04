@@ -25,6 +25,9 @@ void test_result_iteration()
 
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 1);
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 3);
+
+  PQXX_CHECK((pqxx::result::const_iterator{r, 1} != r.begin()));
+  PQXX_CHECK((pqxx::result::const_iterator{r, 1} == r.begin() + 1));
 }
 
 

@@ -23,7 +23,7 @@ constexpr std::size_t one_ascii_char{1u};
  * Returns the offset of the first position after the closing quote.
  */
 template<encoding_group ENC>
-inline constexpr std::size_t
+PQXX_INLINE_COV inline constexpr std::size_t
 scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   assert(input[pos] == '"');
@@ -102,7 +102,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
  * necessary.
  */
 template<encoding_group ENC>
-inline constexpr std::string
+PQXX_INLINE_COV inline constexpr std::string
 parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   std::string output;
@@ -175,7 +175,7 @@ parse_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
  * comma or a closing parenthesis.
  */
 template<encoding_group ENC, char... STOP>
-inline constexpr std::size_t
+PQXX_INLINE_COV inline constexpr std::size_t
 scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
 {
   return find_ascii_char<ENC, STOP...>(input, pos, loc);
@@ -189,7 +189,7 @@ scan_unquoted_string(std::string_view input, std::size_t pos, sl loc)
  * @param pos The string's starting offset within `input`.
  */
 template<encoding_group ENC>
-inline constexpr std::string_view
+PQXX_INLINE_ONLY inline constexpr std::string_view
 parse_unquoted_string(std::string_view input, std::size_t pos, sl)
 {
   return input.substr(pos);
@@ -221,7 +221,7 @@ parse_unquoted_string(std::string_view input, std::size_t pos, sl)
  *     parsing the last field, this will equal `index`.
  */
 template<encoding_group ENC, typename T>
-inline void parse_composite_field(
+PQXX_INLINE_COV inline void parse_composite_field(
   std::size_t &index, std::string_view input, std::size_t &pos, T &field,
   std::size_t last_field, sl loc)
 {
@@ -321,7 +321,7 @@ using composite_field_parser = void (*)(
 
 /// Look up implementation of parse_composite_field for ENC.
 template<typename T>
-constexpr composite_field_parser<T>
+PQXX_INLINE_COV inline constexpr composite_field_parser<T>
 specialize_parse_composite_field(conversion_context const &c)
 {
   switch (c.enc)
@@ -352,7 +352,7 @@ specialize_parse_composite_field(conversion_context const &c)
 
 /// Conservatively estimate buffer size needed for a composite field.
 template<typename T>
-inline std::size_t size_composite_field_buffer(T const &field)
+PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 {
   if constexpr (is_unquoted_safe<T>)
   {
@@ -373,7 +373,7 @@ inline std::size_t size_composite_field_buffer(T const &field)
 
 
 template<typename T>
-inline void write_composite_field(
+PQXX_INLINE_ONLY inline void write_composite_field(
   std::span<char> buf, std::size_t &pos, T const &field, sl loc)
 {
   conversion_context const c{{}, loc};
@@ -418,7 +418,7 @@ inline void write_composite_field(
  * terminating zero.
  */
 template<nonbinary_range TYPE>
-[[nodiscard]] std::size_t array_into_buf(
+[[nodiscard]] PQXX_INLINE_COV inline std::size_t array_into_buf(
   std::span<char> buf, TYPE const &value, std::size_t budget, ctx c)
 {
   using elt_type = std::remove_cvref_t<value_type<TYPE>>;

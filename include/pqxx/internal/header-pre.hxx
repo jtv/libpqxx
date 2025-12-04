@@ -94,6 +94,21 @@
 #endif
 
 
+/// Don't generate out-of-line version of inline function for coverage runs.
+/** This helps avoid a lot of false positives with gcov.  The out-of-line
+ * function never gets executed, and so its code is all marked as not covered
+ * by the test suite.  The code may get executed, but all inline.
+ *
+ * We're only defining this for gcc, since that's the compiler we use for test
+ * coverage analysis.
+ */
+#if defined(PQXX_COVERAGE) && __has_cpp_attribute(gnu::always_inline)
+#  define PQXX_INLINE_COV [[gnu::always_inline]]
+#else
+#  define PQXX_INLINE_COV /* inline-only on coverage runs */
+#endif
+
+
 #if __has_cpp_attribute(gnu::returns_nonnull)
 /// For functions returning a pointer: the pointer is never null.
 #  define PQXX_RETURNS_NONNULL [[gnu::returns_nonnull]]

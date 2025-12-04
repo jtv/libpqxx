@@ -285,10 +285,16 @@ jobs:
           # The profiler seems to default to non-threadsafe operation when not
           # explicitly linking to pthread, so we explicitly request "atomic"
           # updates when appropriate.
+          #
+          # We define a macro PQXX_COVERAGE to tell the code not to generate
+          # out-of-line versions of certain inline functions.  The out-of-line
+          # code leads gcov to report a lot of lines as uncovered even if they
+          # actually are.
           command: ". /tmp/vars.sh && autoreconf && \
               ./configure \
                   CXX=g++ \
                   CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
+                      -DPQXX_COVERAGE \
                       -fpath-coverage-limit=2000000 \
                       -fprofile-update=prefer-atomic' \
                   LDFLAGS='--coverage'"

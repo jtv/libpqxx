@@ -51,7 +51,8 @@ state_buffer_overrun(int have_bytes, int need_bytes);
 
 
 template<typename HAVE, typename NEED>
-inline std::string state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
+PQXX_INLINE_COV inline std::string
+state_buffer_overrun(HAVE have_bytes, NEED need_bytes)
 {
   return state_buffer_overrun(
     static_cast<int>(have_bytes), static_cast<int>(need_bytes));
@@ -151,7 +152,8 @@ template<std::floating_point T> struct float_string_traits
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
-  static constexpr std::size_t digits10(std::size_t value) noexcept
+  PQXX_INLINE_ONLY static constexpr std::size_t
+  digits10(std::size_t value) noexcept
   {
     if (value < 10)
       return 1;
@@ -159,7 +161,7 @@ template<std::floating_point T> struct float_string_traits
       return 1 + digits10(value / 10);
   }
 
-  static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_COV static constexpr std::size_t size_buffer(T const &) noexcept
   {
     using lims = std::numeric_limits<T>;
     // See #328 for a detailed discussion on the maximum number of digits.
@@ -224,7 +226,7 @@ template<pqxx::internal::integer T> struct string_traits<T>
   PQXX_LIBEXPORT static std::string_view
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
-  static constexpr std::size_t size_buffer(T const &) noexcept
+  PQXX_INLINE_ONLY static constexpr std::size_t size_buffer(T const &) noexcept
   {
     /** Includes a sign if needed; the number of base-10 digits which the type
      * can reliably represent; and the one extra base-10 digit which the type
@@ -561,18 +563,19 @@ template<> struct nullness<std::string> : no_null<std::string>
 
 template<> struct string_traits<std::string>
 {
-  static std::string from_string(std::string_view text)
+  PQXX_INLINE_ONLY static std::string from_string(std::string_view text)
   {
     return std::string{text};
   }
 
-  static std::string_view
+  PQXX_INLINE_ONLY static std::string_view
   to_buf(std::span<char>, std::string const &value, ctx = {})
   {
     return {std::data(value), std::size(value)};
   }
 
-  static constexpr std::size_t size_buffer(std::string const &value) noexcept
+  PQXX_INLINE_ONLY static constexpr std::size_t
+  size_buffer(std::string const &value) noexcept
   {
     return std::size(value);
   }
@@ -596,19 +599,22 @@ template<> struct nullness<std::string_view> : no_null<std::string_view>
  */
 template<> struct string_traits<std::string_view>
 {
-  static constexpr std::size_t
+  PQXX_INLINE_ONLY static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
     return std::size(value);
   }
 
-  static std::string_view
+  PQXX_INLINE_ONLY static std::string_view
   to_buf(std::span<char>, std::string_view const &value, ctx = {})
   {
     return value;
   }
 
-  static std::string_view from_string(std::string_view value) { return value; }
+  PQXX_INLINE_ONLY static std::string_view from_string(std::string_view value)
+  {
+    return value;
+  }
 };
 
 
@@ -619,7 +625,7 @@ template<> struct nullness<zview> : no_null<zview>
 /// String traits for `zview`.
 template<> struct string_traits<zview>
 {
-  static constexpr std::size_t
+  PQXX_INLINE_ONLY static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
   {
     return std::size(value);
@@ -907,7 +913,8 @@ template<binary T> inline constexpr format param_format(T const &)
 template<nonbinary_range T> inline constexpr bool is_sql_array<T>{true};
 
 
-template<typename TYPE> inline std::string to_string(TYPE const &value, ctx c)
+template<typename TYPE>
+PQXX_INLINE_COV inline std::string to_string(TYPE const &value, ctx c)
 {
   if (is_null(value))
     throw conversion_error{
