@@ -152,7 +152,7 @@ template<std::floating_point T> struct float_string_traits
   to_buf(std::span<char> buf, T const &value, ctx c = {});
 
   // Return a nonnegative integral value's number of decimal digits.
-  PQXX_INLINE_ONLY static constexpr std::size_t
+  static constexpr std::size_t
   digits10(std::size_t value) noexcept
   {
     if (value < 10)
