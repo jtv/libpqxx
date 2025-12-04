@@ -79,12 +79,15 @@ jobs:
       cxx_ver:
         type: string
     macos:
-      # Bummer.  We *have* to specify an exact xcode version, and CircleCI
-      # does not make it very clear what the available precise version strings
-      # are.
+      # Bummer.  We *have* to specify an exact xcode version.  And match it up
+      # with a resource class that supports it.  Available combinations are
+      # listed here:
       #
-      # Without updating this string, the macos builds will just stop working
-      # when the xcode version falls out of support.
+      # https://circleci.com/docs/guides/execution-managed/using-macos/
+      #
+      # Without updating these, the macos builds will just stop working when
+      # the XCode/image combo falls out of support.
+      #
       xcode: "16.4.0"
 
     # Also bummer.  CircleCI just changed the default resource class to one
@@ -93,10 +96,8 @@ jobs:
     # xcode version not being right for resource class macos.m4pro, or
     # something along those lines.
     #
-    # This string gets us back to the old default, but expect that to stop
-    # working soon also.
-    #
-    # I've been trying to find a list of available options, but not much luck.
+    # Now using an older chip, which is fine with me except for the part where
+    # I can expect it suddenly to stop working again.
     resource_class: macos.m2pro.medium
     steps:
       - checkout
