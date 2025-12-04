@@ -338,8 +338,10 @@ jobs:
           command: "./tools/count-uncovered.sh src \
               | sort -rn | tee src/rank.txt"
       - run:
-          name: "lcov"
-          command: "lcov --capture --directory src --output-file cov.info && \
+          name: Lcov
+          command: "lcov \
+                  --capture --directory src --output-file cov.info \
+                  --ignore-errors inconsistent && \
               lcov --remove cov.info '/usr/*' \
                   --output-file out.info && \
               genhtml out.info --output-directory coverage_html"
