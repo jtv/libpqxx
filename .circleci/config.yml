@@ -88,6 +88,7 @@ jobs:
       # Without updating these, the macos builds will just stop working when
       # the XCode/image combo falls out of support.
       #
+      # xcode: "26.2.0"
       xcode: "16.4.0"
 
     # Also bummer.  CircleCI just changed the default resource class to one
@@ -96,9 +97,11 @@ jobs:
     # xcode version not being right for resource class macos.m4pro, or
     # something along those lines.
     #
-    # Now using an older chip, which is fine with me except for the part where
-    # I can expect it suddenly to stop working again.
-    resource_class: "m2pro.medium"
+    # Docs say m4pro.medium & m4pro.large are meant to be available to users on
+    # the free plan as of November 15, 2025.  As of December 4 it's not
+    # working.  The old "macos.m1.medium.gen1" is, but it's to be retired in
+    # February of 2026.
+    resource_class: "m4pro.medium"
     steps:
       - checkout
       - run:
