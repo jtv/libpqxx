@@ -66,6 +66,13 @@ void test_string_conversion()
   pqxx::from_string("-9999", x);
   PQXX_CHECK_EQUAL(-9999, x);
 
+  auto const num{pqxx::test::make_num()};
+  PQXX_CHECK_EQUAL(pqxx::to_string(num), std::format("{}", num));
+  auto const numstr{std::format("{}", num)};
+  PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(numstr));
+  PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(std::string_view{numstr}));
+  PQXX_CHECK_EQUAL(pqxx::from_string<int>(numstr), num);
+
   // Bug #263 describes a case where this kind of overflow went undetected.
   if constexpr (sizeof(unsigned int) == 4)
   {
