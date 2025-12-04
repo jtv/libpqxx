@@ -29,8 +29,6 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
-  basic_robusttransaction(
-    connection &cx, zview begin_command, std::string_view tname, sl);
   basic_robusttransaction(connection &cx, zview begin_command, sl);
 
 private:
