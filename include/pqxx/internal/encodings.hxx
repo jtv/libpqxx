@@ -34,8 +34,6 @@ PQXX_PURE PQXX_LIBEXPORT encoding_group
 enc_group(int /* libpq encoding ID */, sl);
 
 
-namespace
-{
 /// Extract byte from buffer, return as unsigned char.
 /** Don't generate out-of-line copies; they complicate profiling. */
 PQXX_PURE PQXX_INLINE_ONLY constexpr inline unsigned char
@@ -46,12 +44,11 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
 }
 
 
-/** Don't generate out-of-line copies; they complicate profiling. */
-[[noreturn]] PQXX_COLD PQXX_INLINE_ONLY inline void throw_for_encoding_error(
+/// Throw an error reporting that input text is not properly encoded.
+[[noreturn]] PQXX_COLD PQXX_INLINE_COV inline void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
-  // C++20: Use std::format()?
   // C++23: Use std::ranges::views::join_with()?
   std::stringstream s;
   s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
@@ -73,7 +70,6 @@ between_inc(unsigned char value, unsigned bottom, unsigned top) noexcept
 {
   return value >= bottom and value <= top;
 }
-} // namespace
 
 
 /// Wrapper struct template for "find next glyph" functions.
@@ -89,8 +85,6 @@ template<encoding_group> struct glyph_scanner final
 };
 
 
-namespace
-{
 /// Find any of the ASCII characters in `NEEDLE` in `haystack`.
 /** Scans through `haystack` until it finds a single-byte character that
  * matches any of the values in `NEEDLE`.
@@ -99,7 +93,7 @@ namespace
  * otherwise.
  */
 template<encoding_group ENC, char... NEEDLE>
-PQXX_INLINE_ONLY inline constexpr std::size_t
+PQXX_INLINE_COV inline constexpr std::size_t
 find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 {
   // We only know how to search for ASCII characters.  It's an optimisation
@@ -139,7 +133,6 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
   }
   return sz;
 }
-} // namespace
 
 
 template<> struct glyph_scanner<encoding_group::ascii_safe> final

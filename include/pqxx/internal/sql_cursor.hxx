@@ -40,7 +40,7 @@ public:
     transaction_base &t, std::string_view cname,
     cursor_base::ownership_policy op, sl = sl::current());
 
-  ~sql_cursor() noexcept { close(m_created_loc); }
+  ~sql_cursor() noexcept;
 
   result fetch(difference_type rows, difference_type &displacement, sl);
   PQXX_INLINE_COV result fetch(difference_type rows, sl loc)
@@ -80,7 +80,7 @@ public:
     return m_empty_result;
   }
 
-  void close(sl loc) noexcept;
+  void close(sl loc);
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);

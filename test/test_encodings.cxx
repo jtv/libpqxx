@@ -154,5 +154,27 @@ void test_find_chars()
 }
 
 
+template<pqxx::encoding_group ENC> void check_unfinished_character()
+{
+  auto const finder{pqxx::internal::get_char_finder<'X'>(ENC, loc())};
+
+  // This happens to be an incomplete character in all supported non-ASCII-safe
+  // encodings.
+  PQXX_CHECK_THROWS(finder("\x81", 0, loc()), pqxx::argument_error);
+}
+
+
+void test_find_chars_fails_for_unfinished_character()
+{
+  check_unfinished_character<pqxx::encoding_group::big5>();
+  check_unfinished_character<pqxx::encoding_group::gb18030>();
+  check_unfinished_character<pqxx::encoding_group::gbk>();
+  check_unfinished_character<pqxx::encoding_group::johab>();
+  check_unfinished_character<pqxx::encoding_group::sjis>();
+  check_unfinished_character<pqxx::encoding_group::uhc>();
+}
+
+
 PQXX_REGISTER_TEST(test_find_chars);
+PQXX_REGISTER_TEST(test_find_chars_fails_for_unfinished_character);
 } // namespace

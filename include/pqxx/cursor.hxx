@@ -217,7 +217,7 @@ public:
    * Closing a cursor is idempotent.  Closing a cursor that's already closed
    * does nothing.
    */
-  void close(sl loc = sl::current()) noexcept { m_cur.close(loc); }
+  void close(sl loc = sl::current()) { m_cur.close(loc); }
 
   /// Number of rows in cursor's result set
   /** @note This function is not const; it may need to scroll to find the size

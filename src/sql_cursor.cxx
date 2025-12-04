@@ -175,17 +175,27 @@ pqxx::internal::sql_cursor::sql_cursor(
 {}
 
 
-void pqxx::internal::sql_cursor::close(sl loc) noexcept
+pqxx::internal::sql_cursor::~sql_cursor() noexcept
+{
+  try
+  {
+    close(m_created_loc);
+  }
+  catch (std::exception const &e)
+  {
+    m_home.process_notice(
+      std::format("Error closing cursor {}: {}", name(), e.what()));
+    // Not much more we can do!
+  }
+}
+
+
+void pqxx::internal::sql_cursor::close(sl loc)
 {
   if (m_ownership == cursor_base::owned)
   {
-    try
-    {
-      gate::connection_sql_cursor{m_home}.exec(
-        std::format("CLOSE {}", m_home.quote_name(name())).c_str(), loc);
-    }
-    catch (std::exception const &)
-    {}
+    gate::connection_sql_cursor{m_home}.exec(
+      std::format("CLOSE {}", m_home.quote_name(name())).c_str(), loc);
     m_ownership = cursor_base::loose;
   }
 }
