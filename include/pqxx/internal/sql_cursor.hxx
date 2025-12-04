@@ -43,14 +43,14 @@ public:
   ~sql_cursor() noexcept { close(m_created_loc); }
 
   result fetch(difference_type rows, difference_type &displacement, sl);
-  result fetch(difference_type rows, sl loc)
+  PQXX_INLINE_COV result fetch(difference_type rows, sl loc)
   {
     difference_type d = 0;
     return fetch(rows, d, loc);
   }
   difference_type
   move(difference_type rows, difference_type &displacement, sl);
-  difference_type move(difference_type rows, sl loc)
+  PQXX_INLINE_COV difference_type move(difference_type rows, sl loc)
   {
     difference_type d = 0;
     return move(rows, d, loc);
@@ -63,7 +63,7 @@ public:
    * Position may be unknown if (and only if) this cursor was adopted, and has
    * never hit its starting position (position zero).
    */
-  difference_type pos() const noexcept { return m_pos; }
+  PQXX_INLINE_COV difference_type pos() const noexcept { return m_pos; }
 
   /// End position, or -1 for unknown
   /**
@@ -72,10 +72,13 @@ public:
    *
    * End position is unknown until it is encountered during use.
    */
-  difference_type endpos() const noexcept { return m_endpos; }
+  PQXX_INLINE_COV difference_type endpos() const noexcept { return m_endpos; }
 
   /// Return zero-row result for this cursor.
-  result const &empty_result() const noexcept { return m_empty_result; }
+  PQXX_INLINE_COV result const &empty_result() const noexcept
+  {
+    return m_empty_result;
+  }
 
   void close(sl loc) noexcept;
 
