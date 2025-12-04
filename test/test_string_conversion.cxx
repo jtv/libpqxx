@@ -70,7 +70,8 @@ void test_string_conversion()
   PQXX_CHECK_EQUAL(pqxx::to_string(num), std::format("{}", num));
   auto const numstr{std::format("{}", num)};
   PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(numstr));
-  PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(std::string_view{numstr}));
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(num), pqxx::to_string(std::string_view{numstr}));
   PQXX_CHECK_EQUAL(pqxx::from_string<int>(numstr), num);
 
   // Bug #263 describes a case where this kind of overflow went undetected.
