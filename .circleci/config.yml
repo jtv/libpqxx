@@ -97,7 +97,7 @@ jobs:
     # working soon also.
     #
     # I've been trying to find a list of available options, but not much luck.
-    resource_class: macos.m1.medium
+    resource_class: macos.m2.medium.gen1
     steps:
       - checkout
       - run:
