@@ -79,8 +79,8 @@ jobs:
       cxx_ver:
         type: string
     macos:
-      xcode: "26.2.0"
-    resource_class: m4pro.medium
+      xcode: "16.4.0"
+    resource_class: macos.m1.medium.gen1
     steps:
       - checkout
       - run:
