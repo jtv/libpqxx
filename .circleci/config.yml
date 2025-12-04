@@ -79,7 +79,7 @@ jobs:
       cxx_ver:
         type: string
     macos:
-      xcode: "latest"
+      xcode: "26.2.0"
     steps:
       - checkout
       - run:
