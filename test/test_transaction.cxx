@@ -95,6 +95,26 @@ template<typename TX> void test_double_close()
 }
 
 
+template<typename TX> void test_failed_commit()
+{
+  pqxx::connection cx;
+  TX tx{cx};
+
+  tx.exec("CREATE TEMP TABLE foo (id integer UNIQUE INITIALLY DEFERRED)");
+  tx.exec("INSERT INTO foo VALUES (1), (1)");
+
+  // Database checks the unique constraint (and fails it) at commit.
+  PQXX_CHECK_THROWS(tx.commit(), pqxx::unique_violation);
+
+  // Repeated attempt to commit fails because the transaction aborted.
+  PQXX_CHECK_THROWS(tx.commit(), pqxx::usage_error);
+
+  // Repeated abort does nothing.
+  tx.abort();
+  tx.abort();
+}
+
+
 void test_transaction()
 {
   test_nontransaction_continues_after_error();
@@ -103,6 +123,8 @@ void test_transaction()
   test_double_close<pqxx::read_transaction>();
   test_double_close<pqxx::nontransaction>();
   test_double_close<pqxx::robusttransaction<>>();
+  test_failed_commit<pqxx::transaction<>>();
+  test_failed_commit<pqxx::robusttransaction<>>();
 }
 
 
