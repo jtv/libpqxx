@@ -82,7 +82,10 @@ jobs:
       # Bummer.  We *have* to specify an exact xcode version, and CircleCI
       # does not make it very clear what the available precise version strings
       # are.
-      xcode: "16.4.0"
+      #
+      # Without updating this string, the macos builds will just stop working
+      # when the xcode version falls out of support.
+      xcode: "26.2.0"
 
     # Also bummer.  CircleCI just changed the default resource class to one
     # that is apparently not available to me.  And so the macos builds just
