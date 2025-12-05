@@ -102,10 +102,10 @@ inline int make_num(int ceiling)
 /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
 template<std::floating_point T> T make_float_num()
 {
-  auto const x{static_cast<T>(make_num())}, z{static_cast<T>(make_num())};
-  auto y{static_cast<T>(make_num())};
-  while (y == x) y = static_cast<T>(make_num());
-  return (T{x} - T{y}) / T{z};
+  auto const x{make_num()}, z{make_num()};
+  auto y{make_num()};
+  while (y == x) y = make_num();
+  return static_cast<T>(x - y) / static_cast<T>(z);
 }
 
 
