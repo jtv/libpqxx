@@ -814,15 +814,13 @@ public:
   void prepare(char const name[], char const definition[]) &;
 
   /// Define a nameless prepared statement.
-  /**
-   * This can be useful if you merely want to pass large binary parameters to a
-   * statement without otherwise wishing to prepare it.  If you use this
-   * feature, always keep the definition and the use close together to avoid
-   * the nameless statement being redefined unexpectedly by code somewhere
-   * else.
-   */
-  void prepare(char const definition[]) &;
-  void prepare(zview definition) & { return prepare(definition.c_str()); }
+  [[deprecated("Either name your statement, or just parameterise it.")]] void
+  prepare(char const definition[]) &;
+  [[deprecated("Either name your statement, or just parameterise it.")]] void
+  prepare(zview definition) &
+  {
+    return prepare(definition.c_str());
+  }
 
   /// Drop prepared statement.
   void unprepare(std::string_view name);
