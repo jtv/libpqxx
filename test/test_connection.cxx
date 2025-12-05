@@ -10,7 +10,11 @@ namespace
 void test_connection_string_constructor()
 {
   pqxx::connection const c1{""};
+  PQXX_CHECK(c1.is_open());
   pqxx::connection const c2{std::string{}};
+  PQXX_CHECK(c2.is_open());
+  pqxx::connection const c3{pqxx::zview{""}};
+  PQXX_CHECK(c3.is_open());
 }
 
 
@@ -195,6 +199,75 @@ void test_skip_init_ssl()
 }
 
 
+void test_connection_client_encoding()
+{
+  pqxx::connection cx;
+  // cx.set_client_encoding("ASCII");
+  // PQXX_CHECK_EQUAL(cx.get_encoding_group(),
+  // pqxx::encoding_group::ascii_safe);
+  cx.set_client_encoding("BIG5");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::big5);
+  cx.set_client_encoding("GB18030");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::gb18030);
+  cx.set_client_encoding("GBK");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::gbk);
+  cx.set_client_encoding("JOHAB");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::johab);
+  cx.set_client_encoding("SJIS");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::sjis);
+  cx.set_client_encoding("SHIFT_JIS_2004");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::sjis);
+  cx.set_client_encoding("UHC");
+  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::uhc);
+
+  static std::vector<char const *> const safe_encodings{
+    "EUC_CN",
+    "EUC_JIS_2004",
+    "EUC_JP",
+    "EUC_KR",
+    "EUC_TW",
+    "ISO_8859_5",
+    "ISO_8859_6",
+    "ISO_8859_7",
+    "ISO_8859_8",
+    "KOI8R",
+    "KOI8U",
+    "LATIN1",
+    "LATIN2",
+    "LATIN3",
+    "LATIN4",
+    "LATIN5",
+    "LATIN6",
+    "LATIN7",
+    "LATIN8",
+    "LATIN9",
+    "LATIN10",
+    //"MULE_INTERNAL",
+    "SQL_ASCII",
+    "UTF8",
+    "WIN866",
+    "WIN874",
+    "WIN1250",
+    "WIN1251",
+    "WIN1252",
+    "WIN1253",
+    "WIN1254",
+    "WIN1255",
+    "WIN1256",
+    "WIN1257",
+    "WIN1258",
+  };
+
+  for (char const *const e : safe_encodings)
+  {
+    cx.set_client_encoding(e);
+    PQXX_CHECK_EQUAL(
+      cx.get_encoding_group(), pqxx::encoding_group::ascii_safe,
+      std::format("Unexpected encoding group for '{}'.", e));
+  }
+}
+
+
 PQXX_REGISTER_TEST(test_connection_string_constructor);
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
@@ -204,4 +277,5 @@ PQXX_REGISTER_TEST(test_connection_params);
 PQXX_REGISTER_TEST(test_raw_connection);
 PQXX_REGISTER_TEST(test_closed_connection);
 PQXX_REGISTER_TEST(test_skip_init_ssl);
+PQXX_REGISTER_TEST(test_connection_client_encoding);
 } // namespace
