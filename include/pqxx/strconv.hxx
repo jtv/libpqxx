@@ -79,7 +79,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
   constexpr static bool always_null = false;
 
   /// Is @c value a null?
-  static bool is_null(TYPE const &value);
+  PQXX_PURE static bool is_null(TYPE const &value);
 
   /// Return a null value.
   /** Don't use this in generic code to compare a value and see whether it is
@@ -87,7 +87,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
    * equal, or may define a null value which is not equal to anything including
    * itself, like in SQL.
    */
-  [[nodiscard]] static TYPE null();
+  [[nodiscard]] PQXX_PURE static TYPE null();
 };
 
 
@@ -118,7 +118,7 @@ template<typename TYPE> struct no_null
    * value.  But some types such as C-style string pointers do have a natural
    * equivalent to an SQL null.
    */
-  [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(TYPE const &) noexcept
   {
     return false;
   }
@@ -141,13 +141,13 @@ template<typename TYPE, TYPE null_value> struct all_null
   static constexpr bool always_null = true;
 
   /// Is the given `TYPE` value a null?
-  [[nodiscard]] static constexpr bool is_null(TYPE const &) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(TYPE const &) noexcept
   {
     return true;
   }
 
   /// Return a sample null value.  Requires `TYPE` to be default-constructible.
-  [[nodiscard]] static constexpr TYPE null() { return null_value; }
+  [[nodiscard]] PQXX_PURE static constexpr TYPE null() { return null_value; }
 };
 
 

@@ -253,6 +253,13 @@ void check_write(
       PQXX_CHECK(small[1] == 'y');
     }
   }
+
+  if constexpr (pqxx::has_null<T>())
+  {
+    auto const a_null{pqxx::make_null<T>()};
+    PQXX_CHECK(pqxx::is_null(a_null));
+    PQXX_CHECK_THROWS(pqxx::to_string(a_null), pqxx::conversion_error);
+  }
 }
 
 
@@ -433,7 +440,6 @@ void test_to_buf_into_buf()
   check_write(std::vector<std::byte>{std::byte{0x61}}, "\\x61");
   check_write(
     std::array<std::byte, 2>{std::byte{'a'}, std::byte{'b'}}, "\\x6162");
-
 }
 
 

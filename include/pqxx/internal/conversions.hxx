@@ -276,11 +276,15 @@ template<typename T> struct nullness<std::optional<T>>
   static constexpr bool has_null = true;
   /// Technically, you could have an optional of an always-null type.
   static constexpr bool always_null = pqxx::always_null<T>();
-  static constexpr bool is_null(std::optional<T> const &v) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool
+  is_null(std::optional<T> const &v) noexcept
   {
     return ((not v.has_value()) or pqxx::is_null(*v));
   }
-  static constexpr std::optional<T> null() { return {}; }
+  [[nodiscard]] PQXX_PURE static constexpr std::optional<T> null() noexcept
+  {
+    return {};
+  }
 };
 
 
@@ -326,7 +330,8 @@ template<typename... T> struct nullness<std::variant<T...>>
 {
   static constexpr bool has_null = (pqxx::has_null<T>() or ...);
   static constexpr bool always_null = (pqxx::always_null<T>() and ...);
-  static constexpr bool is_null(std::variant<T...> const &value) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool
+  is_null(std::variant<T...> const &value) noexcept
   {
     return value.valueless_by_exception() or
            std::visit(
@@ -450,11 +455,14 @@ template<> struct nullness<char const *>
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  static constexpr bool is_null(char const *t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char const *t) noexcept
   {
     return t == nullptr;
   }
-  static constexpr char const *null() noexcept { return nullptr; }
+  [[nodiscard]] PQXX_PURE static constexpr char const *null() noexcept
+  {
+    return nullptr;
+  }
 };
 
 
@@ -493,11 +501,11 @@ template<> struct nullness<char *>
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  static constexpr bool is_null(char const *t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char *t) noexcept
   {
     return t == nullptr;
   }
-  static constexpr char const *null() { return nullptr; }
+  [[nodiscard]] PQXX_PURE static constexpr char *null() { return nullptr; }
 };
 
 
@@ -680,11 +688,15 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  static constexpr bool is_null(std::unique_ptr<T> const &t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool
+  is_null(std::unique_ptr<T> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);
   }
-  static constexpr std::unique_ptr<T> null() { return {}; }
+  [[nodiscard]] PQXX_PURE static constexpr std::unique_ptr<T> null() noexcept
+  {
+    return {};
+  }
 };
 
 
@@ -731,11 +743,15 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  static constexpr bool is_null(std::shared_ptr<T> const &t) noexcept
+  [[nodiscard]] PQXX_PURE static constexpr bool
+  is_null(std::shared_ptr<T> const &t) noexcept
   {
     return not t or pqxx::is_null(*t);
   }
-  static constexpr std::shared_ptr<T> null() { return {}; }
+  [[nodiscard]] PQXX_PURE static constexpr std::shared_ptr<T> null() noexcept
+  {
+    return {};
+  }
 };
 
 
