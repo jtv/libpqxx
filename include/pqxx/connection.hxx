@@ -843,7 +843,7 @@ public:
   void prepare(zview definition, sl loc = sl::current()) &
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return prepare(definition.c_str(), loc);
+    prepare(definition.c_str(), loc);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
