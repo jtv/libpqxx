@@ -40,6 +40,19 @@ void test_result_iter()
   int total{0};
   for (auto const &[i] : r.iter<int>()) total += i;
   PQXX_CHECK_EQUAL(total, 6);
+
+  pqxx::result::const_iterator c{r.begin()};
+  auto const oldit{c++};
+  PQXX_CHECK(oldit == r.begin());
+  PQXX_CHECK(c == r.begin() + 1);
+  auto const newit{++c};
+  PQXX_CHECK(newit == c);
+  PQXX_CHECK(newit == r.begin() + 2);
+
+  auto const backit{--c};
+  PQXX_CHECK(backit == r.begin() + 1);
+  PQXX_CHECK(c-- == r.begin() + 1);
+  PQXX_CHECK(c == r.begin());
 }
 
 
