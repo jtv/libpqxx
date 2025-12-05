@@ -407,6 +407,7 @@ void test_to_buf_into_buf()
 
   check_write(std::make_unique<std::string>("Boogie"), "Boogie");
   check_write(std::make_shared<std::string>("Woogie"), "Woogie");
+  check_write(std::make_shared<std::string>(randstr), randstr);
 
   check_write(std::vector<int>{}, "{}");
   check_write(std::array<int, 3>{10, 9, 8}, "{10,9,8}");
@@ -466,6 +467,43 @@ void test_to_buf_multi()
 }
 
 
+template<std::floating_point T> void check_float(T value)
+{
+  PQXX_CHECK_BOUNDS(
+    pqxx::from_string<T>(pqxx::to_string(value)), value - 0.001,
+    value + 0.001);
+}
+
+
+void test_to_buf_float()
+{
+  check_float(pqxx::test::make_float_num<float>());
+  check_float(pqxx::test::make_float_num<double>());
+  check_float(pqxx::test::make_float_num<long double>());
+}
+
+
+template<typename T> void check_string(T const &value)
+{
+  PQXX_CHECK_EQUAL(pqxx::to_string(value), value);
+  PQXX_CHECK_EQUAL(pqxx::from_string<T>(value), value);
+}
+
+
+void test_string_to_string()
+{
+  auto const str{pqxx::test::make_name("str")};
+
+  PQXX_CHECK_EQUAL(pqxx::to_string<std::string>(str), str);
+  PQXX_CHECK_EQUAL(pqxx::from_string<std::string>(str), str);
+
+  PQXX_CHECK_EQUAL(pqxx::to_string<std::string_view>(str), str);
+  PQXX_CHECK_EQUAL(pqxx::from_string<std::string_view>(str), str);
+
+  PQXX_CHECK_EQUAL(pqxx::to_string<pqxx::zview>(str), str);
+}
+
+
 PQXX_REGISTER_TEST(test_strconv_bool);
 PQXX_REGISTER_TEST(test_strconv_enum);
 PQXX_REGISTER_TEST(test_strconv_class_enum);
@@ -473,4 +511,6 @@ PQXX_REGISTER_TEST(test_strconv_optional);
 PQXX_REGISTER_TEST(test_strconv_smart_pointer);
 PQXX_REGISTER_TEST(test_to_buf_into_buf);
 PQXX_REGISTER_TEST(test_to_buf_multi);
+PQXX_REGISTER_TEST(test_to_buf_float);
+PQXX_REGISTER_TEST(test_string_to_string);
 } // namespace

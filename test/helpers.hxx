@@ -99,6 +99,16 @@ inline int make_num(int ceiling)
 }
 
 
+/// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
+template<std::floating_point T> T make_float_num()
+{
+  auto const x{static_cast<T>(make_num())}, z{static_cast<T>(make_num())};
+  auto y{static_cast<T>(make_num())};
+  while (y == x) y = static_cast<T>(make_num());
+  return (T{x} - T{y}) / T{z};
+}
+
+
 /// Generate a name with a given prefix and a randomised suffix.
 inline std::string make_name(std::string_view prefix)
 {
