@@ -111,6 +111,13 @@ void test_blob_checks_open_mode()
 }
 
 
+/// Convert a byte to an unsigned int.
+unsigned byte_as_num(std::byte b)
+{
+  return static_cast<unsigned char>(b);
+}
+
+
 void test_blob_supports_move()
 {
   pqxx::bytes buf;
@@ -132,6 +139,20 @@ void test_blob_supports_move()
   b1.read(buf, 1u);
 
   PQXX_CHECK_THROWS(b2.read(buf, 1u), pqxx::usage_error); // NOLINT
+
+  std::array<std::byte, 1> const three{std::byte{0x03}}, four{std::byte{0x04}};
+  auto const id3{pqxx::blob::from_buf(tx, three)},
+    id4{pqxx::blob::from_buf(tx, four)};
+  auto b3{pqxx::blob::open_rw(tx, id3)}, b4{pqxx::blob::open_rw(tx, id4)};
+  b3 = std::move(b4);
+  PQXX_CHECK_THROWS(b4.seek_abs(0), pqxx::usage_error);
+  b3.seek_abs(0);
+
+  // Because of the assignment, b3 now refers to the blob with ID id4.
+  std::array<std::byte, 2> buf2{};
+  auto const out{b3.read(buf2)};
+  PQXX_CHECK_EQUAL(std::size(out), 1u);
+  PQXX_CHECK_EQUAL(byte_as_num(out[0]), byte_as_num(std::byte{0x04}));
 }
 
 
@@ -334,6 +355,10 @@ void test_blob_tell_tracks_position()
   PQXX_CHECK_EQUAL(b.tell(), 2);
   b.seek_abs(1);
   PQXX_CHECK_EQUAL(b.tell(), 1);
+
+  b.close();
+  PQXX_CHECK_THROWS(b.seek_abs(0), pqxx::usage_error);
+  PQXX_CHECK_THROWS(std::ignore = b.tell(), pqxx::usage_error);
 }
 
 
