@@ -820,7 +820,7 @@ public:
   prepare(zview definition) &
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return prepare(definition.c_str());
+    prepare(definition.c_str());
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
