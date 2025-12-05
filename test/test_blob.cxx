@@ -145,6 +145,8 @@ void test_blob_supports_move()
     id4{pqxx::blob::from_buf(tx, four)};
   auto b3{pqxx::blob::open_rw(tx, id3)}, b4{pqxx::blob::open_rw(tx, id4)};
   b3 = std::move(b4);
+  // The move invalidates b4.
+  // NOLINTNEXTLINE
   PQXX_CHECK_THROWS(b4.seek_abs(0), pqxx::usage_error);
   b3.seek_abs(0);
 
