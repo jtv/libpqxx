@@ -849,7 +849,9 @@ public:
   [[deprecated("Either name your statement, or just parameterise it.")]]
   void prepare(zview definition, sl loc = sl::current()) &
   {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return prepare(definition.c_str(), loc);
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /// Drop prepared statement.
