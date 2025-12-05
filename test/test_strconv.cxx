@@ -150,6 +150,41 @@ constexpr char hash_index(std::size_t index)
 }
 
 
+/// Estimate number of bytes needed for `value`'s string representation.
+/** This is the generic implementation.
+ *
+ * All we really need to know for the purpose of our test is:
+ *
+ * 1. Will `into_buf()` overflow a zero-byte buffer?
+ * 2. Will `into_buf()` overflow a one-byte buffer?
+ *
+ * We can't just use `pqxx::size_buffer()` because it's designed to give a
+ * pessimistic estimate.  Also, we're trying to test the string conversions, so
+ * we'd like to avoid circular logic where we can.
+ */
+template<typename T> constexpr std::size_t needs_bytes(T const &value)
+{
+  // This is the generic implementation, because it works for all types we
+  // support, but it's kind of circular reasoning.  Might still catch a bug
+  // though.
+  return std::size(pqxx::to_string(
+    value, pqxx::conversion_context{pqxx::encoding_group::ascii_safe}));
+}
+
+
+/// Specialisation for some types we know `std::format()` can handle.
+/** There can be differences of opinion on how long the text representation of
+ * a floating-point number should be.  But not ones that will affect our test.
+ */
+template<typename T>
+  requires(std::is_arithmetic_v<T>)
+constexpr std::size_t needs_bytes(T const &value)
+{
+  // Implementation using standard formatting library as an authority.
+  return std::formatted_size("{}", value);
+}
+
+
 // Extra-thorough test for to_buf() & into_buf() on a given type.
 template<typename T>
 void check_write(
@@ -197,6 +232,26 @@ void check_write(
   PQXX_CHECK_EQUAL(
     (std::string_view{std::data(buf), end}), expected,
     std::format("Wrong result from into_buf() on {}.", name), loc);
+
+  // Check overrun reporting.
+  std::size_t const bytes_needed{needs_bytes(value)};
+  if (bytes_needed > 0u)
+  {
+    std::array<char, 2> small{'x', 'y'};
+    std::span<char> const smallspan{small};
+    PQXX_CHECK_THROWS(
+      std::ignore = pqxx::into_buf(smallspan.subspan(0, 0), value, c),
+      pqxx::conversion_overrun);
+    PQXX_CHECK(small[0] == 'x');
+    PQXX_CHECK(small[1] == 'y');
+    if (bytes_needed > 1u)
+    {
+      PQXX_CHECK_THROWS(
+        std::ignore = pqxx::into_buf(smallspan.subspan(0, 1), value, c),
+        pqxx::conversion_overrun);
+      PQXX_CHECK(small[1] == 'y');
+    }
+  }
 }
 
 
