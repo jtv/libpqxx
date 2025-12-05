@@ -38,7 +38,8 @@ PQXX_DECLARE_ENUM_CONVERSION(many);
 
 namespace
 {
-using namespace std::string_view_literals;
+using namespace std::literals;
+using pqxx::operator"" _zv;
 
 
 void test_strconv_bool()
@@ -381,17 +382,21 @@ void test_to_buf_into_buf()
   check_write("World", "World");
   check_write("", "");
 
-  check_write(std::string{}, "");
-  check_write(std::string{"Blah"}, "Blah");
+  check_write(""s, "");
+  check_write("Blah"s, "Blah");
+  std::string const randstr{pqxx::test::make_name("x")};
+  check_write(randstr, randstr);
 
   check_write(""sv, "");
   // NOLINTNEXTLINE(bugprone-string-constructor)
   check_write(std::string_view{"abc", 0u}, "");
   check_write("view"sv, "view");
   check_write(std::string_view{"viewport", 4u}, "view");
+  check_write(std::string_view{randstr}, randstr);
 
-  check_write(""sv, "");
-  check_write(pqxx::zview{"xyz", 0u}, "");
+  check_write(""_zv, "");
+  check_write("foo"_zv, "foo");
+  check_write(pqxx::zview{randstr}, randstr);
 
   check_write(std::make_unique<std::string>("Boogie"), "Boogie");
   check_write(std::make_shared<std::string>("Woogie"), "Woogie");
@@ -428,6 +433,7 @@ void test_to_buf_into_buf()
   check_write(std::vector<std::byte>{std::byte{0x61}}, "\\x61");
   check_write(
     std::array<std::byte, 2>{std::byte{'a'}, std::byte{'b'}}, "\\x6162");
+
 }
 
 
