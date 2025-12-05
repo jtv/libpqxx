@@ -837,13 +837,6 @@ public:
     char const name[], char const definition[], sl loc = sl::current()) &;
 
   /// Define a nameless prepared statement.
-  /**
-   * This can be useful if you merely want to pass large binary parameters to a
-   * statement without otherwise wishing to prepare it.  If you use this
-   * feature, always keep the definition and the use close together to avoid
-   * the nameless statement being redefined unexpectedly by code somewhere
-   * else.
-   */
   [[deprecated("Either name your statement, or just parameterise it.")]]
   void prepare(char const definition[], sl loc = sl::current()) &;
   [[deprecated("Either name your statement, or just parameterise it.")]]
