@@ -72,7 +72,6 @@
  * You can also create a database connection _asynchronously_ using an
  * intermediate @ref pqxx::connecting object.
  */
-
 namespace pqxx::internal
 {
 class sql_cursor;
@@ -273,6 +272,7 @@ enum class error_verbosity : int
 class PQXX_LIBEXPORT connection
 {
 public:
+  /// Connect to a database, using the default settings.
   connection(sl loc = sl::current()) : connection{"", loc} {}
 
   /// Connect to a database, using `options` string.
@@ -383,10 +383,10 @@ public:
   /** This may be an IP address, or a hostname, or (for a Unix domain socket)
    * a socket path.  Returns nullptr when not connected.
    */
-  [[nodiscard]] char const *hostname() const noexcept;
+  [[nodiscard]] PQXX_PURE char const *hostname() const noexcept;
 
   /// Server port number on which we are connected to the database.
-  [[nodiscard]] char const *port() const noexcept;
+  [[nodiscard]] PQXX_PURE char const *port() const noexcept;
 
   /// Process ID for backend process, or 0 if inactive.
   [[nodiscard]] PQXX_PURE int backendpid() const & noexcept;
@@ -844,7 +844,9 @@ public:
    * the nameless statement being redefined unexpectedly by code somewhere
    * else.
    */
+  [[deprecated("Either name your statement, or just parameterise it.")]]
   void prepare(char const definition[], sl loc = sl::current()) &;
+  [[deprecated("Either name your statement, or just parameterise it.")]]
   void prepare(zview definition, sl loc = sl::current()) &
   {
     return prepare(definition.c_str(), loc);

@@ -417,7 +417,8 @@ void check_unique_unregister(
 /** This uses the hex-escaping format.  The return value includes room for the
  * "\x" prefix.
  */
-inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
+PQXX_PURE inline constexpr std::size_t
+size_esc_bin(std::size_t binary_bytes) noexcept
 {
   assert(std::cmp_less(
     binary_bytes, (std::numeric_limits<std::size_t>::max)() / 2u));
@@ -428,7 +429,8 @@ inline constexpr std::size_t size_esc_bin(std::size_t binary_bytes) noexcept
 /// Compute binary size from the size of its escaped version.
 /** Do not include a terminating zero in `escaped_bytes`.
  */
-inline constexpr std::size_t size_unesc_bin(std::size_t escaped_bytes) noexcept
+PQXX_PURE inline constexpr std::size_t
+size_unesc_bin(std::size_t escaped_bytes) noexcept
 {
   if (escaped_bytes < 2u) [[unlikely]]
     return 0;
@@ -539,7 +541,7 @@ using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
 
 
 /// Return original byte for escaped character.
-inline constexpr char unescape_char(char escaped) noexcept
+PQXX_PURE inline constexpr char unescape_char(char escaped) noexcept
 {
   switch (escaped)
   {
@@ -635,7 +637,7 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
 
 
 /// Represent a std::source_location as human-readable text.
-inline std::string source_loc(sl loc)
+PQXX_PURE inline std::string source_loc(sl loc)
 {
   // TODO: Rewrite to guarantee Return Value Optimisation.
   char const *const func{loc.function_name()};
