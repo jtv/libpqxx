@@ -48,6 +48,7 @@ void test_blob_create_with_oid_obeys_oid()
   pqxx::blob::remove(tx, id);
 
   auto actual_id{pqxx::blob::create(tx, id)};
+  pqxx::blob::remove(tx, actual_id);
   PQXX_CHECK_EQUAL(actual_id, id);
 }
 
@@ -70,6 +71,8 @@ void test_blob_remove_removes_blob()
   pqxx::oid id{pqxx::blob::create(tx)};
   pqxx::blob::remove(tx, id);
   PQXX_CHECK_THROWS(std::ignore = pqxx::blob::open_r(tx, id), pqxx::failure);
+
+  PQXX_CHECK_THROWS(pqxx::blob::remove(tx, 0), pqxx::usage_error);
 }
 
 
