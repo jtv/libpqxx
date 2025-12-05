@@ -39,7 +39,7 @@ PQXX_DECLARE_ENUM_CONVERSION(many);
 namespace
 {
 using namespace std::literals;
-using pqxx::operator"" _zv;
+using pqxx::operator""_zv;
 
 
 void test_strconv_bool()
