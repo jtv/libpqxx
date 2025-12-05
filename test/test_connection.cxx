@@ -266,6 +266,28 @@ void test_connection_client_encoding()
       cx.get_encoding_group(), pqxx::encoding_group::ascii_safe,
       std::format("Unexpected encoding group for '{}'.", e));
   }
+
+  // Covering lots of initial letters because it helps fill out test
+  // coverage on an internal switch on that initial character.
+  static std::vector<char const *> const bogus_encodings{
+    "ABSENT",
+    "BOGUS",
+    "ELUSIVE",
+    "GONE",
+    "ILLUSORY",
+    "JOCULAR",
+    "KIBOSHED",
+    "LOST",
+    // Actually, MULE really is a mystery because the connection does not
+    // seem to accept it.
+    "MYSTERY",
+    "SHREDDED",
+    "UNAVAILABLE",
+    "WANTING",
+  };
+
+  for (char const *const e : bogus_encodings)
+    PQXX_CHECK_THROWS(cx.set_client_encoding(e), pqxx::failure);
 }
 
 
