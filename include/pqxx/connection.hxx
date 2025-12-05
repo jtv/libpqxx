@@ -819,9 +819,9 @@ public:
   [[deprecated("Either name your statement, or just parameterise it.")]] void
   prepare(zview definition) &
   {
-#include "pqxx/internal/ignoer-deprecated-pre.hxx"
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
     return prepare(definition.c_str());
-#include "pqxx/internal/ignoer-deprecated-post.hxx"
+#include "pqxx/internal/ignore-deprecated-post.hxx"
   }
 
   /// Drop prepared statement.
