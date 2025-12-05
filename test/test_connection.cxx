@@ -242,7 +242,8 @@ void test_connection_client_encoding()
     "LATIN8",
     "LATIN9",
     "LATIN10",
-    //"MULE_INTERNAL",
+    // For some reason setting this fails.
+    // "MULE_INTERNAL",
     "SQL_ASCII",
     "UTF8",
     "WIN866",
