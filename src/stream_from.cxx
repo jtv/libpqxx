@@ -293,7 +293,7 @@ void pqxx::stream_from::parse_line(sl loc)
 }
 
 
-std::vector<pqxx::zview> const *pqxx::stream_from::read_row(sl loc) &
+std::vector<std::string_view> const *pqxx::stream_from::read_row(sl loc) &
 {
   parse_line(loc);
   return m_finished ? nullptr : &m_fields;

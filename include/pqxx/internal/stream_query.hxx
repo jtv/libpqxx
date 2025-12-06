@@ -112,7 +112,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line) &
+  std::tuple<TYPE...> parse_line(std::string_view line) &
   {
     assert(not done());
 
@@ -160,16 +160,16 @@ private:
    * @param offset The current scanning position inside `line`.
    * @param write The current writing position in the row buffer.
    *
-   * @return new `offset`; new `write`; and a zview on the unescaped
+   * @return new `offset`; new `write`; and a `string_view` on the unescaped
    * field text in the row buffer.
    *
-   * The zview's data pointer will be nullptr for a null field.
+   * The `string_view`'s data pointer will be nullptr for a null field.
    *
    * After reading the final field in a row, if all goes well, offset should be
    * one greater than the size of the line, pointing at the terminating zero.
    */
-  std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write, ctx c)
+  std::tuple<std::size_t, char *, std::string_view>
+  read_field(std::string_view line, std::size_t offset, char *write, ctx c)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -253,7 +253,10 @@ private:
     *write = '\0';
     ++write;
     ++offset;
-    return {offset, write, {field_begin, write - field_begin - 1}};
+    return {
+      offset,
+      write,
+      {field_begin, static_cast<std::size_t>(write - field_begin - 1)}};
   }
 
   /// Parse the next field.
@@ -271,7 +274,8 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET parse_field(zview line, std::size_t &offset, char *&write, ctx c)
+  TARGET
+  parse_field(std::string_view line, std::size_t &offset, char *&write, ctx c)
   {
     using field_type = std::remove_cvref_t<TARGET>;
 

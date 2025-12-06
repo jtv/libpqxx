@@ -199,7 +199,7 @@ void check_write(
   pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
 
   // Test to_buf().
-  pqxx::zview const out{pqxx::to_buf(buf, value, c)};
+  std::string_view const out{pqxx::to_buf(buf, value, c)};
   PQXX_CHECK_EQUAL(
     std::size(out), std::size(expected),
     std::format("to_buf() for {} wrote wrong length.", name), loc);

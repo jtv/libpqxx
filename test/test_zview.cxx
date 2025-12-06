@@ -44,7 +44,19 @@ void test_zview_converts_to_string()
 }
 
 
+void test_zview_properties()
+{
+  auto const str{pqxx::test::make_name("zv")};
+  PQXX_CHECK_EQUAL(
+    (pqxx::zview{str.c_str(), std::size(str)}), (pqxx::zview{str}));
+  PQXX_CHECK_EQUAL((pqxx::zview{str.c_str()}), (pqxx::zview{str}));
+  PQXX_CHECK_EQUAL((pqxx::zview{std::string_view{str}}), (pqxx::zview{str}));
+  PQXX_CHECK_EQUAL((std::string{pqxx::zview{str}.c_str()}), str);
+}
+
+
 PQXX_REGISTER_TEST(test_zview_is_a_range);
 PQXX_REGISTER_TEST(test_zview_literal);
 PQXX_REGISTER_TEST(test_zview_converts_to_string);
+PQXX_REGISTER_TEST(test_zview_properties);
 } // namespace
