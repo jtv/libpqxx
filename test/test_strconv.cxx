@@ -213,7 +213,7 @@ void check_write(
     loc);
 
   PQXX_CHECK_EQUAL(
-    expected, out, std::format("to_buf() for {} wrote wrong value.", name),
+    out, expected, std::format("to_buf() for {} wrote wrong value.", name),
     loc);
   if (sz > 0)
     PQXX_CHECK_NOT_EQUAL(
