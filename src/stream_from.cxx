@@ -198,11 +198,11 @@ void pqxx::stream_from::parse_line(sl loc)
     throw range_error{"Stream produced a ridiculously long line.", loc};
 
   // Make room for unescaping the line.  It's a pessimistic size.
-  // Unusually, we're storing terminating zeroes *inside* the string.
+  //
   // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
   // NOT GET RESIZED while we're working, because we're working with views into
   // its buffer.
-  m_row.resize(line_size + 1);
+  m_row.resize(line_size);
 
   char const *line_begin{line.get()};
   std::string_view const line_view{line_begin, line_size};
@@ -241,17 +241,10 @@ void pqxx::stream_from::parse_line(sl loc)
       // Field separator.  End the field.
       // End the field.
       if (field_begin == nullptr)
-      {
         m_fields.emplace_back();
-      }
       else
-      {
-        // Would love to emplace_back() here, but gcc 9.1 warns about the
-        // constructor not throwing.  It suggests adding "noexcept."  Which
-        // we can hardly do, without std::string_view guaranteeing it.
         m_fields.emplace_back(field_begin, write - field_begin);
-        *write++ = '\0';
-      }
+
       // Set up for the next field.
       field_begin = write;
     }
@@ -285,7 +278,6 @@ void pqxx::stream_from::parse_line(sl loc)
   else
   {
     m_fields.emplace_back(field_begin, write - field_begin);
-    *write++ = '\0';
   }
 
   // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
@@ -293,7 +285,7 @@ void pqxx::stream_from::parse_line(sl loc)
 }
 
 
-std::vector<pqxx::zview> const *pqxx::stream_from::read_row(sl loc) &
+std::vector<std::string_view> const *pqxx::stream_from::read_row(sl loc) &
 {
   parse_line(loc);
   return m_finished ? nullptr : &m_fields;

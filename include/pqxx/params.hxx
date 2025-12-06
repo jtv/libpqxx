@@ -232,12 +232,14 @@ public:
       auto const written{pqxx::into_buf<COUNTER>(
         {data + 1, data + std::size(m_buf) - 1}, m_current, c)};
       std::size_t end{1 + written};
+      assert(end < std::size(m_buf));
+      data[end] = '\0';
       m_len = check_cast<COUNTER>(end, "placeholders counter", loc);
     }
-    else
+    else [[likely]]
     {
       // Shortcut for the common case: just increment that last digit.
-      [[likely]]++ m_buf[m_len - 1];
+      ++m_buf[m_len - 1];
     }
   }
 

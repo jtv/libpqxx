@@ -74,7 +74,7 @@ public:
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    return m_home->parse_line(zview{m_line.get(), m_line_size});
+    return m_home->parse_line(std::string_view{m_line.get(), m_line_size});
   }
 
   /// Are we at the end?

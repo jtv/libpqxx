@@ -146,6 +146,7 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
     // For example, by requiring that we never call these functions beyond the
     // end.  I think in practice we already ensure that.
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
     else
@@ -161,6 +162,7 @@ template<> struct glyph_scanner<encoding_group::big5> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 
@@ -189,6 +191,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 
@@ -231,6 +234,7 @@ template<> struct glyph_scanner<encoding_group::gbk> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 
@@ -277,6 +281,7 @@ template<> struct glyph_scanner<encoding_group::johab> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 
@@ -315,6 +320,7 @@ template<> struct glyph_scanner<encoding_group::sjis> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 
@@ -349,6 +355,7 @@ template<> struct glyph_scanner<encoding_group::uhc> final
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const sz{std::size(buffer)};
+    assert(start <= sz);
     if (start >= sz) [[unlikely]]
       return sz;
 

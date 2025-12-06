@@ -4,6 +4,7 @@
  - Add `begin() const`, `end() const`, etc. to `pqxx::array`.
  - Cursor `close()` is no longer `noexcept`.  Destructor still is though.
  - Fix to make `pqxx::array` streamable.
+ - `pqxx::zview` now asserts the terminating zero.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.

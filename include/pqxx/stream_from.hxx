@@ -246,17 +246,13 @@ public:
    * Do not access the vector, or the storage referenced by the views, after
    * closing or completing the stream, or after attempting to read a next row.
    *
-   * A @ref pqxx::zview is like a `std::string_view`, but with the added
-   * guarantee that if its data pointer is non-null, the string is followed by
-   * a terminating zero (which falls just outside the view itself).
-   *
    * If any of the views' data pointer is null, that means that the
    * corresponding SQL field is null.
    *
    * @warning The return type may change in the future, to support C++20
    * coroutine-based usage.
    */
-  std::vector<zview> const *read_row(sl loc = sl::current()) &;
+  std::vector<std::string_view> const *read_row(sl loc = sl::current()) &;
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */
@@ -287,7 +283,7 @@ private:
   std::string m_row;
 
   /// The current row's fields.
-  std::vector<zview> m_fields;
+  std::vector<std::string_view> m_fields;
 
   bool m_finished = false;
 

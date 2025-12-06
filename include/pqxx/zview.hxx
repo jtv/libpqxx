@@ -11,6 +11,7 @@
 #ifndef PQXX_H_ZVIEW
 #define PQXX_H_ZVIEW
 
+#include <cassert>
 #include <filesystem>
 #include <string>
 #include <string_view>
@@ -44,13 +45,17 @@ public:
   constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
     noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
-  {}
+  {
+    invariant();
+  }
 
   /// Convenience overload: construct using pointer and signed length.
   constexpr zview(char text[], std::ptrdiff_t len) noexcept(
     noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
-  {}
+  {
+    invariant();
+  }
 
   /// Explicitly promote a `string_view` to a `zview`.
   /** @warning This is not just a type conversion.  It's the caller making a
@@ -58,7 +63,9 @@ public:
    */
   explicit constexpr zview(std::string_view other) noexcept :
           std::string_view{other}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
@@ -66,12 +73,16 @@ public:
   template<typename... Args>
   explicit constexpr zview(Args &&...args) :
           std::string_view(std::forward<Args>(args)...)
-  {}
+  {
+    invariant();
+  }
 
   /// @warning There's an implicit conversion from `std::string`.
   constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct a `zview` from a C-style string.
   /** @warning This scans the string to discover its length.  So if you need to
@@ -80,7 +91,9 @@ public:
    */
   constexpr zview(char const str[]) noexcept(noexcept(std::string_view{str})) :
           std::string_view{str}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
@@ -108,6 +121,15 @@ public:
   [[nodiscard]] constexpr char const *c_str() const & noexcept
   {
     return data();
+  }
+
+private:
+  /// Check invariant: unless `data()` is null, must be zero-terminated.
+  [[maybe_unused]] constexpr void invariant() const noexcept
+  {
+    assert(
+      (std::data(*this) == nullptr) or
+      (std::data(*this)[std::size(*this)] == '\0'));
   }
 };
 
