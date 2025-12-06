@@ -79,7 +79,9 @@ between_inc(unsigned char value, unsigned bottom, unsigned top) noexcept
  */
 template<encoding_group> struct glyph_scanner final
 {
-  /// Find the next glyph in `buffer` after position `start`.
+  /// Find the next glyph in `buffer` _after_ position `start`.
+  /** The starting point must lie inside the view.
+   */
   static constexpr inline std::size_t
   call(std::string_view, std::size_t start, sl);
 };
@@ -114,17 +116,16 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
     //
     // In all supported encodings, if a character's first byte is in the ASCII
     // range, that means it's a single-byte character.  It follows that when we
-    // find a match, we do not need to check that we're in a single-byte
-    // character:
+    // find a match at a position that's the beginning of a character, we do
+    // not need to check that we're in a single-byte character.  We are.
     //
-    // If this is an "ASCII-unsafe" encoding, e.g. SJIS, we're only checking
-    // each character's first byte.  That first byte can only match NEEDLE if
-    // it's a single-byte character.
+    // So, we only ever need to check each character's first byte, and if it
+    // doesn't match, move on to the next character.
     //
-    // In an "ASCII-safe" encoding, e.g. UTF-8 or the ISO-8859 ones, we check
-    // for a match at each byte in the text, because it's faster than finding
-    // character boundaries first.  But in these encodings, a multichar byte
-    // never contains any bytes in the ASCII range at all.
+    // As an optimisation for "ASCII-safe" encodings however, we just check
+    // every byte in the text.  It's going to be faster than finding character
+    // boundaries first.  In these encodings, a multichar byte never contains
+    // any bytes in the ASCII range at all.
     if ((... or (data[here] == NEEDLE)))
       return here;
 
@@ -137,20 +138,10 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 
 template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
-  PQXX_INLINE_ONLY static constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl)
+  PQXX_INLINE_ONLY PQXX_PURE static constexpr std::size_t
+  call(std::string_view, std::size_t start, sl) noexcept
   {
-    // If we can guarantee that it'll never overflow, it'd be nice to skip the
-    // check.
-    //
-    // For example, by requiring that we never call these functions beyond the
-    // end.  I think in practice we already ensure that.
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-    else
-      return start + 1;
+    return start + 1;
   }
 };
 
@@ -161,15 +152,11 @@ template<> struct glyph_scanner<encoding_group::big5> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
+    auto const sz{std::size(buffer)};
     if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > sz)) [[unlikely]]
       throw_for_encoding_error("BIG5", buffer, start, 1, loc);
 
@@ -190,14 +177,10 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
+    auto const sz{std::size(buffer)};
     if (byte1 == 0x80)
       throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
 
@@ -233,15 +216,11 @@ template<> struct glyph_scanner<encoding_group::gbk> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
+    auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("GBK", buffer, start, 1, loc);
 
@@ -280,15 +259,11 @@ template<> struct glyph_scanner<encoding_group::johab> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
+    auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("JOHAB", buffer, start, 1, loc);
 
@@ -319,11 +294,6 @@ template<> struct glyph_scanner<encoding_group::sjis> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
       return start + 1;
@@ -333,6 +303,7 @@ template<> struct glyph_scanner<encoding_group::sjis> final
       not between_inc(byte1, 0xe0, 0xfc)) [[unlikely]]
       throw_for_encoding_error("SJIS", buffer, start, 1, loc);
 
+    auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("SJIS", buffer, start, sz - start, loc);
 
@@ -354,15 +325,11 @@ template<> struct glyph_scanner<encoding_group::uhc> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    auto const sz{std::size(buffer)};
-    assert(start <= sz);
-    if (start >= sz) [[unlikely]]
-      return sz;
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
 
+    auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
       throw_for_encoding_error("UHC", buffer, start, sz - start, loc);
 
