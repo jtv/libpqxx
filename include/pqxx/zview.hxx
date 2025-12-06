@@ -106,9 +106,7 @@ public:
    */
   template<size_t size>
   constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
-  {
-    invariant();
-  }
+  {}
 
 #if !defined(_WIN32)
   /// Construct a `zview` from a `std::filesystem::path`.
