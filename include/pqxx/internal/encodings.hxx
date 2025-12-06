@@ -152,8 +152,6 @@ template<> struct glyph_scanner<encoding_group::big5> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
-
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
@@ -179,7 +177,6 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
@@ -219,7 +216,6 @@ template<> struct glyph_scanner<encoding_group::gbk> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
@@ -263,7 +259,6 @@ template<> struct glyph_scanner<encoding_group::johab> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
@@ -299,7 +294,6 @@ template<> struct glyph_scanner<encoding_group::sjis> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
       return start + 1;
@@ -331,7 +325,6 @@ template<> struct glyph_scanner<encoding_group::uhc> final
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
-    PQXX_ASSUME(start < std::size(buffer));
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
       return start + 1;
