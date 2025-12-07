@@ -175,14 +175,6 @@ void test_find_chars_fails_for_unfinished_character()
 }
 
 
-/// Generate a random char value.
-inline char random_char()
-{
-  return static_cast<char>(
-    static_cast<std::uint8_t>(pqxx::test::make_num(256)));
-}
-
-
 template<std::size_t N>
 auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
 {
@@ -198,8 +190,8 @@ void test_find_chars_reports_malencoded_text()
   std::array<char, 100> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
-    data.at(i) = random_char();
-    while (data.at(i) == 'X') data.at(i) = random_char();
+    data.at(i) = pqxx::test::random_char();
+    while (data.at(i) == 'X') data.at(i) = pqxx::test::random_char();
   }
 
   pqxx::encoding_group const unsafe[]{

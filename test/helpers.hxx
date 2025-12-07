@@ -99,6 +99,14 @@ inline int make_num(int ceiling)
 }
 
 
+/// Return an arbitrary `char` value from the full 8-bit range.
+inline char random_char()
+{
+  return static_cast<char>(
+    static_cast<std::uint8_t>(pqxx::test::make_num(256)));
+}
+
+
 /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
 template<std::floating_point T> T make_float_num()
 {

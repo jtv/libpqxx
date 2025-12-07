@@ -288,6 +288,15 @@ void test_connection_client_encoding()
 
   for (char const *const e : bogus_encodings)
     PQXX_CHECK_THROWS(cx.set_client_encoding(e), pqxx::failure);
+
+  for (int i{0}; i < 10; ++i)
+  {
+    std::string fake_encoding{pqxx::test::random_char()};
+    PQXX_CHECK_THROWS(cx.set_client_encoding(fake_encoding), pqxx::failure);
+  }
+
+  for (char e{'A'}; e <= 'Z'; ++e)
+    PQXX_CHECK_THROWS(cx.set_client_encoding(std::string{e}), pqxx::failure);
 }
 
 
