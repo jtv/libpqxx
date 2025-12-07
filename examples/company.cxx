@@ -269,7 +269,7 @@ int main(int, char *argv[])
   // https://postgresql.org/docs/current/libpq-envars.html
   //
   // Here we'll just assume you pass a connection string on the command line.
-  std::string const connect_string{argv[1] ? argv[1] : ""};
+  std::string const connect_string{(argv[1] == nullptr) ? "" : argv[1]};
 
   try
   {
