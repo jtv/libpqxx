@@ -121,9 +121,9 @@ void populate_schema(pqxx::connection &cx)
   emps.complete();
 
   auto cust = pqxx::stream_to::table(tx, {"customer"}, {"id", "name"});
-  cust.write_values(1, "Acme Corp.");
+  cust.write_values(1, "Acme");
   cust.write_values(2, "The Government");
-  cust.write_values(3, "Sirius Cybernetics Co.");
+  cust.write_values(3, "Sirius Cybernetics Corp.");
   cust.write_values(4, "A chap I met at the club called Bernard");
   cust.complete();
 
