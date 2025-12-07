@@ -1,0 +1,25 @@
+# Template for generating Makefile.am.
+EXTRA_DIST = Makefile.am.template
+
+EXAMPLES = \
+###MAKTEMPLATE:FOREACH examples/*.cxx
+  ###BASENAME### \
+###MAKTEMPLATE:ENDFOREACH
+  # (End of list)
+
+noinst_PROGRAMS = $(EXAMPLES)
+
+# Override automatically generated list of default include directories.  It
+# contains only unnecessary entries, and include/pqxx which is wrong.
+DEFAULT_INCLUDES=
+
+MAINTAINERCLEANFILES=Makefile.in
+
+###MAKTEMPLATE:FOREACH examples/*.cxx
+###BASENAME###_SOURCES = ###BASENAME###.cxx
+###BASENAME###_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+###MAKTEMPLATE:ENDFOREACH
+
+AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
+
+TESTS = $(EXAMPLES)
