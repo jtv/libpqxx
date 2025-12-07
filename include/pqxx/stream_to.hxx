@@ -80,34 +80,6 @@ namespace pqxx
 class PQXX_LIBEXPORT stream_to final : transaction_focus
 {
 public:
-  /// Stream data to a pre-quoted table and columns.
-  /** This factory can be useful when it's not convenient to provide the
-   * columns list in the form of a `std::initializer_list`, or when the list
-   * of columns is simply not known at compile time.
-   *
-   * Also use this if you need to create multiple streams using the same table
-   * path and/or columns list, and you want to save a bit of work on composing
-   * the internal SQL statement for starting the stream.  It lets you compose
-   * the string representations for the table path and the columns list, so you
-   * can compute these once and then re-use them later.
-   *
-   * @param tx The transaction within which the stream will operate.
-   * @param path Name or path for the table upon which the stream will
-   *     operate.  If any part of the table path may contain special
-   *     characters or be case-sensitive, quote the path using
-   *     pqxx::connection::quote_table().
-   * @param columns Columns to which the stream will write.  They should be
-   *     comma-separated and, if needed, quoted.  You can produce the string
-   *     using pqxx::connection::quote_columns().  If you omit this argument,
-   *     the stream will write all columns in the table, in schema order.
-   */
-  static stream_to raw_table(
-    transaction_base &tx, std::string_view path, std::string_view columns = "",
-    sl loc = sl::current())
-  {
-    return {tx, path, columns, loc};
-  }
-
   /// Create a `stream_to` writing to a named table and columns.
   /** Use this to stream data to a table, where the list of columns is known at
    * compile time.
@@ -156,6 +128,34 @@ public:
   table(transaction_base &tx, std::string_view path, COLUMNS const &columns)
   {
     return stream_to::raw_table(tx, path, tx.conn().quote_columns(columns));
+  }
+
+  /// Stream data to a pre-quoted table and columns.
+  /** This factory can be useful when it's not convenient to provide the
+   * columns list in the form of a `std::initializer_list`, or when the list
+   * of columns is simply not known at compile time.
+   *
+   * Also use this if you need to create multiple streams using the same table
+   * path and/or columns list, and you want to save a bit of work on composing
+   * the internal SQL statement for starting the stream.  It lets you compose
+   * the string representations for the table path and the columns list, so you
+   * can compute these once and then re-use them later.
+   *
+   * @param tx The transaction within which the stream will operate.
+   * @param path Name or path for the table upon which the stream will
+   *     operate.  If any part of the table path may contain special
+   *     characters or be case-sensitive, quote the path using
+   *     pqxx::connection::quote_table().
+   * @param columns Columns to which the stream will write.  They should be
+   *     comma-separated and, if needed, quoted.  You can produce the string
+   *     using pqxx::connection::quote_columns().  If you omit this argument,
+   *     the stream will write all columns in the table, in schema order.
+   */
+  static stream_to raw_table(
+    transaction_base &tx, std::string_view path, std::string_view columns = "",
+    sl loc = sl::current())
+  {
+    return {tx, path, columns, loc};
   }
 
   explicit stream_to(stream_to &&other) :

@@ -806,8 +806,7 @@ using fieldstream = basic_fieldstream<char>;
  * ```
  */
 template<typename CHAR>
-[[deprecated(
-  "Do this by hand, probably with better error checking.")]] inline std::
+[[deprecated("To write a pqxx::field, use its view() method.")]] inline std::
   basic_ostream<CHAR> &
   operator<<(std::basic_ostream<CHAR> &s, field const &value)
 {
