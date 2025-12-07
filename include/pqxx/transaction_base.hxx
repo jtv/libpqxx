@@ -388,7 +388,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec(string_view) and call no_rows() on the result.")]]
-  result exec0(zview query, std::string_view desc)
+  result exec0(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).no_rows();
@@ -402,7 +402,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() and call no_rows() on the result.")]]
-  result exec0(zview query)
+  result exec0(std::string_view query)
   {
     return exec(query).no_rows();
   }
@@ -415,7 +415,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec(string_view), and call one_row() on the result.")]]
-  row exec1(zview query, std::string_view desc)
+  row exec1(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).one_row();
@@ -430,7 +430,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
-  row exec1(zview query)
+  row exec1(std::string_view query)
   {
     return exec(query).one_row();
   }
@@ -442,7 +442,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call expect_rows() on the result.")]]
-  result exec_n(result::size_type rows, zview query, std::string_view desc);
+  result exec_n(result::size_type rows, std::string_view query, std::string_view desc);
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -451,7 +451,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call expect_rows() on the result.")]]
-  result exec_n(result::size_type rows, zview query)
+  result exec_n(result::size_type rows, std::string_view query)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, std::string_view{}).expect_rows(rows);
@@ -464,7 +464,7 @@ public:
    */
   template<typename TYPE>
   [[deprecated("The desc parameter is going away.")]]
-  TYPE query_value(zview query, std::string_view desc)
+  TYPE query_value(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).one_field().as<TYPE>();
@@ -479,7 +479,7 @@ public:
    * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<not_borrowed TYPE>
-  TYPE query_value(zview query, sl loc = sl::current())
+  TYPE query_value(std::string_view query, sl loc = sl::current())
   {
     auto c{make_context(loc)};
     // The result and field_ref objects are temporaries, but under C++20
@@ -496,7 +496,7 @@ public:
    * the number of fields in the tuple.
    */
   template<not_borrowed... TYPE>
-  [[nodiscard]] std::tuple<TYPE...> query1(zview query, sl loc = sl::current())
+  [[nodiscard]] std::tuple<TYPE...> query1(std::string_view query, sl loc = sl::current())
   {
     // The result and row_ref objects are temporaries, but under C++20 lifetime
     // rules they'll live until after we convert the field to TYPE.
@@ -516,7 +516,7 @@ public:
    */
   template<not_borrowed... TYPE>
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
-  query01(zview query, sl loc = sl::current())
+  query01(std::string_view query, sl loc = sl::current())
   {
     auto const res{exec(query, loc)};
     std::optional<row_ref> const r{res.opt_row_ref(loc)};
@@ -668,7 +668,7 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query(zview query, sl loc = sl::current())
+  template<typename... TYPE> auto query(std::string_view query, sl loc = sl::current())
   {
     return exec(query, loc).iter<TYPE...>();
   }
@@ -676,7 +676,7 @@ public:
   /// Perform query, expect given number of rows, iterate results.
   template<typename... TYPE>
   [[deprecated("Use query() instead, and call expect_rows() on the result.")]]
-  auto query_n(result::size_type rows, zview query, sl loc = sl::current())
+  auto query_n(result::size_type rows, std::string_view query, sl loc = sl::current())
   {
     return exec(query, loc).expect_rows(rows, loc).iter<TYPE...>();
   }
@@ -691,7 +691,7 @@ public:
    *    results.
    */
   template<typename CALLABLE>
-  void for_query(zview query, CALLABLE &&func, sl loc = sl::current())
+  void for_query(std::string_view query, CALLABLE &&func, sl loc = sl::current())
   {
     exec(query).for_each(std::forward<CALLABLE>(func), loc);
   }
@@ -732,7 +732,7 @@ public:
    * next one for `$2`, etc.
    */
   template<typename... Args>
-  [[deprecated("Use exec(zview, params) instead.")]]
+  [[deprecated("Use exec(std::string_view, params) instead.")]]
   result exec_params(std::string_view query, Args &&...args)
   {
     return exec(query, params{args...}, sl::current());
@@ -743,7 +743,7 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
-  row exec_params1(zview query, Args &&...args)
+  row exec_params1(std::string_view query, Args &&...args)
   {
     return exec(query, params{args...}).one_row();
   }
@@ -754,7 +754,7 @@ public:
   template<typename... Args>
   [[deprecated(
     "Use exec(string_view, params) and call no_rows() on the result.")]]
-  result exec_params0(zview query, Args &&...args)
+  result exec_params0(std::string_view query, Args &&...args)
   {
     return exec(query, params{args...}).no_rows();
   }
@@ -764,7 +764,7 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
-  result exec_params_n(std::size_t rows, zview query, Args &&...args)
+  result exec_params_n(std::size_t rows, std::string_view query, Args &&...args)
   {
     sl loc{m_created_loc};
     return exec(query, params{args...}, loc)
@@ -777,7 +777,7 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
-  result exec_params_n(result::size_type rows, zview query, Args &&...args)
+  result exec_params_n(result::size_type rows, std::string_view query, Args &&...args)
   {
     return exec(query, params{args...}).expect_rows(rows);
   }
@@ -817,7 +817,7 @@ public:
    * type details may change.
    */
   template<typename... TYPE>
-  auto query(zview query, params const &parms, sl loc = sl::current())
+  auto query(std::string_view query, params const &parms, sl loc = sl::current())
   {
     return exec(query, parms, loc).iter<TYPE...>();
   }
@@ -834,7 +834,7 @@ public:
    */
   template<typename... TYPE>
   [[deprecated("Use exec(), and call expect_rows() & iter() on the result.")]]
-  auto query_n(result::size_type rows, zview query, params const &parms)
+  auto query_n(result::size_type rows, std::string_view query, params const &parms)
   {
     return exec(query, parms).expect_rows(rows).iter<TYPE...>();
   }
@@ -847,7 +847,7 @@ public:
    * @throw usage_error If the row did not contain exactly 1 field.
    */
   template<not_borrowed TYPE>
-  TYPE query_value(zview query, params const &parms, sl loc = sl::current())
+  TYPE query_value(std::string_view query, params const &parms, sl loc = sl::current())
   {
     // The result and field_ref objects are temporaries, but under C++20
     // lifetime rules they'll live until after we convert the field to TYPE.
@@ -868,7 +868,7 @@ public:
   template<not_borrowed... TYPE>
   [[nodiscard]]
   std::tuple<TYPE...>
-  query1(zview query, params const &parms, sl loc = sl::current())
+  query1(std::string_view query, params const &parms, sl loc = sl::current())
   {
     // The result and row_ref objects are temporaries, but under C++20 lifetime
     // rules they'll live until after we convert the field to TYPE.
@@ -885,7 +885,7 @@ public:
    */
   template<not_borrowed... TYPE>
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
-  query01(zview query, params const &parms, sl loc = sl::current())
+  query01(std::string_view query, params const &parms, sl loc = sl::current())
   {
     auto const res{exec(query, parms, loc)};
     std::optional<row_ref> r{res.opt_row_ref(loc)};
@@ -909,7 +909,7 @@ public:
    */
   template<typename CALLABLE>
   void for_query(
-    zview query, CALLABLE &&func, params const &parms, sl loc = sl::current())
+    std::string_view query, CALLABLE &&func, params const &parms, sl loc = sl::current())
   {
     exec(query, parms, loc).for_each(std::forward<CALLABLE>(func), loc);
   }
@@ -967,7 +967,7 @@ public:
   }
 
   /// Execute prepared statement, read full results, iterate rows of data.
-  /** Like @ref query(zview), but using a prepared statement.
+  /** Like @ref query(std::string_view), but using a prepared statement.
    *
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
@@ -979,7 +979,7 @@ public:
   }
 
   /// Execute prepared statement, read full results, iterate rows of data.
-  /** Like @ref query(zview), but using a prepared statement.
+  /** Like @ref query(std::string_view), but using a prepared statement.
    *
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
@@ -991,7 +991,7 @@ public:
   }
 
   /// Perform prepared statement returning exactly 1 value.
-  /** This is just like @ref query_value(zview), but using a prepared
+  /** This is just like @ref query_value(std::string_view), but using a prepared
    * statement.
    */
   template<not_borrowed TYPE>
@@ -1007,7 +1007,7 @@ public:
   }
 
   /// Perform prepared statement returning exactly 1 value.
-  /** This is just like @ref query_value(zview), but using a prepared
+  /** This is just like @ref query_value(std::string_view), but using a prepared
    * statement.
    */
   template<not_borrowed TYPE> TYPE query_value(prepped statement, ctx c = {})
@@ -1019,7 +1019,7 @@ public:
   }
 
   /// Execute prepared statement, load result, perform `func` for each row.
-  /** This is just like @ref for_query(zview), but using a prepared statement.
+  /** This is just like @ref for_query(std::string_view), but using a prepared statement.
    */
   template<typename CALLABLE>
   void for_query(
@@ -1030,7 +1030,8 @@ public:
   }
 
   /// Execute prepared statement, load result, perform `func` for each row.
-  /** This is just like @ref for_query(zview), but using a prepared statement.
+  /** This is just like @ref for_query(std::string_view), but using a prepared
+   * statement.
    */
   template<typename CALLABLE>
   void for_query(prepped statement, CALLABLE &&func, sl loc = sl::current())

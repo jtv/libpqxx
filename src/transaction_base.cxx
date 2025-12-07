@@ -313,7 +313,7 @@ pqxx::result pqxx::transaction_base::exec(
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-  result::size_type rows, zview query, std::string_view desc)
+  result::size_type rows, std::string_view query, std::string_view desc)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   result r{exec(query, desc)};
