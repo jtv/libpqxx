@@ -437,15 +437,12 @@ EXTRA_DIST = Makefile.am.template
 AUTOMAKE_OPTIONS = serial-tests
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
-# Override automatically generated list of default includes.  It contains only
-# unnecessary entries, and incorrectly mentions include/pqxx directly.
+# Override automatically generated list of default include directories.  It
+# contains only unnecessary entries, and include/pqxx which is wrong.
 DEFAULT_INCLUDES = 
 noinst_HEADERS = helpers.hxx
 CLEANFILES = pqxxlo.txt
 MAINTAINERCLEANFILES = Makefile.in
-
-#TESTS_ENVIRONMENT=PGDATABASE=libpqxx
-# PGDATABASE, PGHOST, PGPORT, PGUSER
 runner_SOURCES = \
   test00.cxx \
   test01.cxx \
