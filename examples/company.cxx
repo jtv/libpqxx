@@ -49,16 +49,16 @@ void create_schema(pqxx::connection &cx)
       "id integer PRIMARY KEY, "
       "name varchar NOT NULL, "
       "date_hired timestamp without time zone, "
-      "dept_id integer REFERENCES department(id))"
-  ).no_rows();
+      "dept_id integer REFERENCES department(id))")
+    .no_rows();
 
   // More generally, you can specify that there should be `n` rows by calling
   // `expect_rows(n)` on the result.
   tx.exec(
-    "CREATE TEMP TABLE customer ("
-    "id integer PRIMARY KEY, "
-    "name varchar NOT NULL)"
-  ).expect_rows(0);
+      "CREATE TEMP TABLE customer ("
+      "id integer PRIMARY KEY, "
+      "name varchar NOT NULL)")
+    .expect_rows(0);
 
   // If we got this far without exceptions, that means we're successful.
   // Commit the transaction so that the changes become persistent.
@@ -233,8 +233,7 @@ void query_customers(pqxx::connection &cx)
   // to which you want it to convert the respective columns.  You can use
   // std::string_view here, just be aware that the string to which it refers
   // will only live until the next iteration of the loop.
-  for (auto [id,
-       name] : tx.stream<int, std::string_view>(
+  for (auto [id, name] : tx.stream<int, std::string_view>(
          "SELECT id, name FROM customer ORDER BY id"))
   {
     std::cout << '\t' << id << '\t' << name << '\n';

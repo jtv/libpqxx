@@ -175,6 +175,46 @@ void test_find_chars_fails_for_unfinished_character()
 }
 
 
+/// Generate a random char value.
+inline char random_char()
+{
+  return static_cast<char>(static_cast<std::uint8_t>(make_num(256)));
+}
+
+
+void test_find_chars_reports_malencoded_text()
+{
+  // Set up an array containing random char values, but not 'X'.
+  pqxx::array<char, 100> data{};
+  for (std::size_t i{0}; i < std::size(data); ++i)
+  {
+    data.at(i) = random_char();
+    while (data.at(i) == 'X') data.at(i) = random_char();
+  }
+
+  // Bet that the random data isn't going to be fully correct.
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(big5, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(gb18030, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(gbk, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(johab, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(sjis, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    pqxx::internal::get_char_finder<'X'>(uhc, loc())(data, 0u, loc()),
+    pqxx::argument_error);
+}
+
+
 PQXX_REGISTER_TEST(test_find_chars);
 PQXX_REGISTER_TEST(test_find_chars_fails_for_unfinished_character);
+PQXX_REGISTER_TEST(test_find_chars_reports_malencoded_text);
 } // namespace
