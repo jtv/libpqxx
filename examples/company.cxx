@@ -156,7 +156,7 @@ void query_depts(pqxx::connection &cx)
 
   // And of course it contains the rows of data.  You can iterate these just
   // like a standard C++ container.
-  for (pqxx::row_ref row : res)
+  for (pqxx::row_ref const row : res)
   {
     // Each row contains a series of fields, corresponding to the columns of
     // the result.  You can iterate these as well, or you can address them by
