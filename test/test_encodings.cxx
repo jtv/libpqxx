@@ -178,39 +178,40 @@ void test_find_chars_fails_for_unfinished_character()
 /// Generate a random char value.
 inline char random_char()
 {
-  return static_cast<char>(static_cast<std::uint8_t>(make_num(256)));
+  return static_cast<char>(
+    static_cast<std::uint8_t>(pqxx::test::make_num(256)));
+}
+
+
+template<std::size_t N>
+auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
+{
+  auto const find{pqxx::internal::get_char_finder<'X'>(enc, loc())};
+  std::string_view const buf{std::data(data), N};
+  return find(buf, 0u, loc());
 }
 
 
 void test_find_chars_reports_malencoded_text()
 {
   // Set up an array containing random char values, but not 'X'.
-  pqxx::array<char, 100> data{};
+  std::array<char, 100> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
     data.at(i) = random_char();
     while (data.at(i) == 'X') data.at(i) = random_char();
   }
 
-  // Bet that the random data isn't going to be fully correct.
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(big5, loc())(data, 0u, loc()),
-    pqxx::argument_error);
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(gb18030, loc())(data, 0u, loc()),
-    pqxx::argument_error);
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(gbk, loc())(data, 0u, loc()),
-    pqxx::argument_error);
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(johab, loc())(data, 0u, loc()),
-    pqxx::argument_error);
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(sjis, loc())(data, 0u, loc()),
-    pqxx::argument_error);
-  PQXX_CHECK_THROWS(
-    pqxx::internal::get_char_finder<'X'>(uhc, loc())(data, 0u, loc()),
-    pqxx::argument_error);
+  pqxx::encoding_group const unsafe[]{
+    pqxx::encoding_group::big5, pqxx::encoding_group::gb18030,
+    pqxx::encoding_group::gbk,  pqxx::encoding_group::johab,
+    pqxx::encoding_group::sjis, pqxx::encoding_group::uhc,
+  };
+
+  // Bet that the random data isn't going to be fully correct in any of the
+  // ASCII-unsafe encodings.
+  for (auto const enc : unsafe)
+    PQXX_CHECK_THROWS(find_x(data, enc), pqxx::argument_error);
 }
 
 
