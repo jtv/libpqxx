@@ -103,7 +103,7 @@ check_cast(FROM value, std::string_view description, sl loc = sl::current())
   }
   else if (std::isinf(value))
   {
-    // Floating-point infinities.  These will alway exceed TO's upper or lower
+    // Floating-point infinities.  These will always exceed TO's upper or lower
     // limit, but that's fine; they will translate directly to a TO infinity.
   }
   else
