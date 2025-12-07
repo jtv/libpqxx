@@ -137,15 +137,17 @@ void query_depts(pqxx::connection &cx)
 {
   // Again we need a transaction.  In this case we don't really care what
   // kind.  We'll use a `nontransaction`, which just immediately commits every
-  // statement you execute.  Its `commi()` and `abort()` functions are no-ops.
+  // statement you execute.  Its `commit()` and `abort()` functions are no-ops.
   pqxx::nontransaction tx{cx};
 
   // We execute an SQL command, and get a `pqxx::result` back.  This contains
-  // all of the data and metadata resulting from the query.  There are other
-  // ways of querying (see below for more), but this one is perfect when we
-  // want the metadata, or when the amount of data is small enough to retrieve
-  // in one go.  We only get the result once the query has executed to
-  // completion and we have received all the data.
+  // all of the data and metadata resulting from the query, in their SQL
+  // textual representation.
+  //
+  // There are other ways of querying (see below for more), but this one is
+  // perfect when we want the metadata, and the amount of data is small enough
+  // to retrieve in one go.  We only get the result once the query has
+  // executed to completion and we have received all the data.
   pqxx::result const res =
     tx.exec("SELECT name FROM department ORDER BY name");
 
@@ -198,7 +200,7 @@ void query_emps(pqxx::connection &cx)
 
   // There is also a completely different way of iterating over a result: you
   // pass a lambda or function to its `for_each()`.  That function will figure
-  // out what parameter types your callable expects, and covert the respective
+  // out what parameter types your callable expects, and convert the respective
   // columns to those and pass them as arguments.
   //
   // Of course your callable must take exactly the same number of arguments as
@@ -266,7 +268,7 @@ int main(int, char *argv[])
   // For the environment variables, see:
   // https://postgresql.org/docs/current/libpq-envars.html
   //
-  // Here we'll jsut assume you pass a connection string on the command line.
+  // Here we'll just assume you pass a connection string on the command line.
   std::string const connect_string{argv[1] ? argv[1] : ""};
 
   try
