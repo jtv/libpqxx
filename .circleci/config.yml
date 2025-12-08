@@ -390,6 +390,10 @@ jobs:
           path: infer-out/report.txt
       - store_artifacts:
           path: errors.txt
+      - run:
+          name: Check
+          # Fail if report.txt is nonempty.
+          command: "test -s infer-out/report.txt"
 
   valgrind:
     # We run this test in Debian because we see what look like false
