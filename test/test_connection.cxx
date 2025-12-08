@@ -1,5 +1,4 @@
 #include <numeric>
-#include <tuple> // XXX:
 
 #include <pqxx/nontransaction>
 #include <pqxx/transaction>
@@ -134,8 +133,7 @@ template<typename MAP> void test_params_type()
   // for (auto const &[key, value] : params)
   for (auto it{params.cbegin()}; it != params.cend(); ++it)
   {
-    auto const &key{std::get<0>(*it)};
-    auto const value{std::get<1>(*it)};
+    auto const &[key, value]{*it};
     PQXX_CHECK(
       pqxx::str_contains(connstr, key),
       std::format(

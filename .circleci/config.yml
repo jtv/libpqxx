@@ -370,6 +370,7 @@ jobs:
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
       - run:
           name: Capture
+          # TODO: --skip-analysis-in-path '/usr/include/c++/'
           command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
