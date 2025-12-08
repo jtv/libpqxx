@@ -1,4 +1,5 @@
 #include <pqxx/stream_from>
+#include <pqxx/stream_to>
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
@@ -49,7 +50,20 @@ void test_cannot_run_params_statement_during_focus()
 }
 
 
+void test_should_not_end_transaction_before_focus()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+  tx.exec("CREATE TEMP TABLE foo(a integer)");
+  auto stream{pqxx::stream_to::table(tx, {"foo"}, {"a"})};
+  stream.write_values(1);
+  // Fail to complete() the stream...
+  PQXX_CHECK_THROWS(tx.commit(), pqxx::failure);
+}
+
+
 PQXX_REGISTER_TEST(test_cannot_run_statement_during_focus);
 PQXX_REGISTER_TEST(test_cannot_run_prepared_statement_during_focus);
 PQXX_REGISTER_TEST(test_cannot_run_params_statement_during_focus);
+PQXX_REGISTER_TEST(test_should_not_end_transaction_before_focus);
 } // namespace
