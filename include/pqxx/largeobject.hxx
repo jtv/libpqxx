@@ -22,6 +22,9 @@
 
 namespace pqxx
 {
+// This class is deprecated.
+// LCOV_EXCL_START
+
 /// Identity of a large object.
 /** @deprecated Use the @ref blob class instead.
  *
@@ -731,5 +734,7 @@ private:
 };
 
 using lostream = basic_lostream<char>;
+
+// LCOV_EXCL_STOP
 } // namespace pqxx
 #endif

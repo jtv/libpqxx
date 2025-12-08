@@ -24,6 +24,9 @@
 
 namespace pqxx
 {
+// This code is deprecated.
+// LCOV_EXCL_START
+
 /// "Observer" base class for notifications.
 /** @addtogroup notification Notifications and Receivers
  *
@@ -92,5 +95,6 @@ private:
   connection &m_conn;
   std::string m_channel;
 };
+// LCOV_EXCL_START
 } // namespace pqxx
 #endif

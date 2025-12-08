@@ -29,6 +29,8 @@ extern "C"
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
+// This code is deprecated.
+// LCOV_EXCL_START
 namespace
 {
 PQXX_COLD constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
@@ -318,5 +320,7 @@ PQXX_COLD void pqxx::largeobjectaccess::process_notice(zview s) noexcept
 {
   m_trans.process_notice(s);
 }
+// LCOV_EXCL_STOP
 
 #include "pqxx/internal/ignore-deprecated-post.hxx"
+

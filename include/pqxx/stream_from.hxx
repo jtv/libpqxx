@@ -195,11 +195,14 @@ public:
 
   ~stream_from() noexcept;
 
+  // LCOV_EXCL_START
   /// May this stream still produce more data?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // LCOV_EXCL_STOP
+
   /// Has this stream produced all the data it is going to produce?
   [[nodiscard]] constexpr bool operator!() const noexcept
   {
