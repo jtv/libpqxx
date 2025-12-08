@@ -286,9 +286,6 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
-          name: "Install lcov"
-          command: "pacman -S --noconfirm lcov"
-      - run:
           name: Configure
           # Default "path coverage limit" is 250k.  With that default, we get
           # a lot of "No path information" messages meaning that gcc saw too
@@ -323,7 +320,14 @@ jobs:
           command: ". /tmp/vars.sh && make check"
       - run:
           name: Report
+          # Looks like a bug in gcov: it interprets relative `#include` paths
+          # relative to current working directory, instead of relative to the
+          # source file that does the `#include`.
+          #
+          # To kludge around this... just pretend there's a `../include/`
+          # relative to the project root.  :-/
           command: "cd src && \
+              ln -s include ../include && \
               gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
       - run:
           name: Rank
@@ -366,9 +370,6 @@ jobs:
           path: "/tmp/install.log"
       - store_artifacts:
           path: "/tmp/vars.sh"
-      - run:
-          name: Identify
-          command: "infer --version"
       - run:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && \
