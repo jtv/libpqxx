@@ -1,5 +1,5 @@
 {
-    "skip-analysis-in-path": [
+    "report-block-list-path-regex": [
         "/usr/include/"
     ]
 }

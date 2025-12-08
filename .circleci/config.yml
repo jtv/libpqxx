@@ -364,6 +364,9 @@ jobs:
       - store_artifacts:
           path: "/tmp/vars.sh"
       - run:
+          name: Identify
+          command: "infer --version"
+      - run:
           name: Configure
           command: ". /tmp/vars.sh && autoreconf && \
             ./configure \
