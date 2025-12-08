@@ -1,0 +1,5 @@
+{
+    "skip-analysis-in-path": [
+        "/usr/include/"
+    ]
+}
