@@ -370,13 +370,11 @@ jobs:
                 CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
       - run:
           name: Capture
-          command: "infer capture  --skip-analysis-in-path /usr/include/c++/ \
-              -- make -j4 check TESTS="
+          command: "infer capture -- make -j4 check TESTS="
       - run:
           name: Infer
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
-              --siof-check-iostreams \
-              -- \
+              --siof-check-iostreams -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
       - store_artifacts:
           path: stderr.log
