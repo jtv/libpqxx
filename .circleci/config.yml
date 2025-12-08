@@ -279,7 +279,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: "tools/install-deps.sh archlinux g++ >/tmp/vars.sh"
+          command: "tools/install-deps.sh archlinux-coverage g++ >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
           path: "/tmp/install.log"
@@ -332,12 +332,12 @@ jobs:
       - run:
           name: Lcov
           command: "lcov \
-                  --capture -j4 --directory src --output-file cov.info \
-                  --ignore-errors inconsistent && \
+                  --capture --directory src --output-file cov.info \
+                  --ignore-errors=inconsistent --parallel=4 && \
               lcov --remove cov.info '/usr/*' \
-                  --output-file out.info && \
-              genhtml out.info --path \"$(cd .. && pwd)\" \
-                  --output-directory coverage_html"
+                  --output-file=out.info && \
+              genhtml out.info --path \"$(pwd)\" \
+                  --output-directory=coverage_html"
       - run:
           name: Gather reports
           command: "tar -czf /tmp/coverage.tar.gz \

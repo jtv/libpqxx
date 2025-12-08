@@ -9,6 +9,7 @@
 #
 # Where <system> is one of the environments for which this script works:
 # * archlinux
+# * archlinux-coverage (for running test coverage analysis)
 # * archlinux-lint (for running full lint)
 # * debian
 # * fedora
@@ -84,10 +85,22 @@ PKGS_ARCHLINUX_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 PKGS_DEBIAN_BASE=(libpq-dev postgresql-server-dev-all python3)
 PKGS_DEBIAN_AUTOTOOLS=("${PKGS_ALL_AUTOTOOLS[@]}" make)
 
+
 install_archlinux() {
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
         postgresql which \
+        "$(compiler_pkg "$1")"
+
+    echo "export PGHOST=/run/postgresql"
+}
+
+
+# Install test coveraage tools.
+install_archlinux_coverage() {
+    pacman_install \
+        "${PKGS_ARCHLINUX_BASE[@]}" "${PKGS_ARCHLINUX_AUTOTOOLS[@]}" \
+        lcov postgresql which \
         "$(compiler_pkg "$1")"
 
     echo "export PGHOST=/run/postgresql"
@@ -121,6 +134,7 @@ install_archlinux_infer() {
 }
 
 
+# Install for a "lint.sh --full" run (but no actual build).
 install_archlinux_lint() {
     pacman_install \
         "${PKGS_ARCHLINUX_BASE[@]}" \
@@ -275,13 +289,12 @@ case "$PROFILE" in
     archlinux)
         install_archlinux "$COMPILER"
         ;;
-    # Arch system, but only for the purpose of running Facebook's "infer"
-    # static analysis tool.
+    archlinux-coverage)
+        install_archlinux_coverage "$COMPILER"
+        ;;
     archlinux-infer)
         install_archlinux_infer "$COMPILER"
         ;;
-    # Arch system, but only for the purpose of running "lint.sh --full".
-    # (We only need to do that on one of the systems.)
     archlinux-lint)
         install_archlinux_lint "$COMPILER"
         ;;
