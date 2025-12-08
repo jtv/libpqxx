@@ -133,7 +133,10 @@ template<typename MAP> void test_params_type()
   // for (auto const &[key, value] : params)
   for (auto it{params.cbegin()}; it != params.cend(); ++it)
   {
-    auto const &[key, value]{*it};
+    // Normally we'd use structured binding for this, but Facebook Infer
+    // reports an insane false positive error when we do.
+    auto const &key{std::get<0>(*it)};
+    auto const value{std::get<1>(*it)};
     PQXX_CHECK(
       pqxx::str_contains(connstr, key),
       std::format(
