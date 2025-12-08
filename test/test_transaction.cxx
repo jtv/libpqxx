@@ -115,6 +115,15 @@ template<typename TX> void test_failed_commit()
 }
 
 
+template<typename TX> void test_commit_on_broken_connection()
+{
+  pqxx::connection cx;
+  TX tx{cx};
+  cx.close();
+  PQXX_CHECK_THROWS(tx.commit(), pqxx::broken_connection);
+}
+
+
 void test_transaction()
 {
   test_nontransaction_continues_after_error();
@@ -125,6 +134,8 @@ void test_transaction()
   test_double_close<pqxx::robusttransaction<>>();
   test_failed_commit<pqxx::transaction<>>();
   test_failed_commit<pqxx::robusttransaction<>>();
+  test_commit_on_broken_connection<pqxx::transaction<>>();
+  test_commit_on_broken_connection<pqxx::robusttransaction<>>();
 }
 
 

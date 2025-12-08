@@ -91,7 +91,7 @@ tx_stat query_status(
   pqxx::sl loc = pqxx::sl::current())
 {
   pqxx::conversion_context const c{{}, loc};
-  static std::string const name{"robusttxck"sv};
+  static std::string_view const name{"robusttxck"sv};
   auto const query{std::format("SELECT txid_status({})", xid)};
   pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
@@ -99,7 +99,7 @@ tx_stat query_status(
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
     throw pqxx::internal_error{"Transaction status string is empty.", loc};
-  auto const status{parse_status(status_field.as<std::string_view>(c))};
+  auto const status{parse_status(status_field.view())};
   if (status == tx_unknown)
     throw pqxx::internal_error{
       std::format(
