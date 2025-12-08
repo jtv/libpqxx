@@ -211,6 +211,11 @@ template<typename TYPE> inline constexpr std::string_view name_type() noexcept
 }
 
 
+// Specialisations of name_type<>() follow.  Some are tested, but because they
+// are so trivial, the coverage tools never notice that they get tested.
+// There's just no point running coverage for these.
+// LCOV_EXCL_START
+
 /// Specialisation to save on startup work & produce friendlier output.
 template<>
 PQXX_PURE constexpr inline std::string_view name_type<std::string>() noexcept
@@ -310,6 +315,8 @@ name_type<std::nullptr_t>() noexcept
 {
   return "std::nullptr_t";
 }
+
+// LCOV_EXCL_START
 } // namespace pqxx
 
 
