@@ -374,7 +374,7 @@ jobs:
       - run:
           name: Infer
           command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
-              --siof-check-iostreams --skip-analysis-in-path /usr/include/c++ \
+              --siof-check-iostreams --skip-analysis-in-path /usr/include/c++/ \
               -- \
               make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
       - store_artifacts:
