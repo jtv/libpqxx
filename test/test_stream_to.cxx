@@ -4,7 +4,7 @@
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
-#include "test_types.hxx"
+#include "sample_types.hxx"
 
 namespace
 {

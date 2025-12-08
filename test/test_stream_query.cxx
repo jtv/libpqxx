@@ -1,7 +1,7 @@
 #include <pqxx/transaction>
 
 #include "helpers.hxx"
-#include "test_types.hxx"
+#include "sample_types.hxx"
 
 #include <cstring>
 #include <string>
