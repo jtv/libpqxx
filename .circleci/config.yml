@@ -342,7 +342,7 @@ jobs:
               lcov --remove cov.info '/usr/*' \
                   --output-file=out.info && \
               genhtml \
-                  --config-file=.lcovrc out.info --path \"$(pwd)\" \
+                  --config-file=.lcovrc out.info \
                   --output-directory=coverage_html"
       - run:
           name: Gather reports
