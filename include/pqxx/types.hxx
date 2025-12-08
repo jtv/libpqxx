@@ -316,7 +316,7 @@ name_type<std::nullptr_t>() noexcept
   return "std::nullptr_t";
 }
 
-// LCOV_EXCL_START
+// LCOV_EXCL_STOP
 } // namespace pqxx
 
 
