@@ -49,6 +49,7 @@ const std::array<std::string_view, 11u> windows_subtypes{
 
 namespace pqxx::internal
 {
+// LCOV_EXCL_START
 // C++23: Reduce to const std::flat_map on top of constexpr array?
 /// Look up encoding group for an encoding by name.
 /** @throw argument_error if the encoding name is not an accepted one.
@@ -225,7 +226,7 @@ static_assert(
 static_assert(
   enc_group("WIN1258", sl::current()) == encoding_group::ascii_safe);
 #endif // DEBUG
-
+// LCOV_EXCL_STOP
 
 PQXX_PURE char const *name_encoding(int encoding_id) noexcept
 {

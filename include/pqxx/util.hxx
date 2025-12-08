@@ -354,6 +354,7 @@ namespace pqxx::internal
 using namespace std::literals;
 
 
+// LCOV_EXCL_START
 /// A safer and more generic replacement for `std::isdigit`.
 /** Turns out `std::isdigit` isn't as easy to use as it sounds.  It takes an
  * `int`, but requires it to be nonnegative.  Which means it's an outright
@@ -374,6 +375,7 @@ static_assert(not is_digit('f'));
 static_assert(not is_digit('z'));
 static_assert(not is_digit(' '));
 #endif
+// LCOV_EXCL_STOP
 
 
 /// Describe an object for humans, based on class name and optional name.
@@ -538,6 +540,7 @@ template<typename... TYPES>
 using strip_types_t = decltype(strip_types(std::declval<TYPES...>()));
 
 
+// LCOV_EXCL_START
 /// Return original byte for escaped character.
 PQXX_PURE inline constexpr char unescape_char(char escaped) noexcept
 {
@@ -572,6 +575,7 @@ static_assert(unescape_char('t') == '\t');
 static_assert(unescape_char('v') == '\v');
 static_assert(unescape_char('z') == 'z');
 #endif
+// LCOV_EXCL_STOP
 
 
 /// Helper for avoiding type trouble with `strerror_r()`/`strerror_s()`.

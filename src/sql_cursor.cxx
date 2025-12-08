@@ -37,6 +37,7 @@ PQXX_PURE inline constexpr bool useless_trail(char c) noexcept
 }
 
 
+// LCOV_EXCL_START
 /// Find end of nonempty query, stripping off any trailing semicolon.
 /** When executing a normal query, a trailing semicolon is meaningless but
  * won't hurt.  That's why we can't rule out that some code may include one.
@@ -122,6 +123,7 @@ static_assert(check_query_end(pqxx::encoding_group::big5, " n ") == 2);
 static_assert(check_query_end(pqxx::encoding_group::big5, "? ; ") == 1);
 static_assert(check_query_end(pqxx::encoding_group::big5, " ( ; ) ") == 6);
 #endif // NDEBUG
+// LCOV_EXCL_START
 } // namespace
 
 

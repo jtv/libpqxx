@@ -107,6 +107,7 @@ constexpr std::array<char, 16u> hex_digits{
 };
 
 
+// LCOV_EXCL_START
 /// Translate a number (must be between 0 and 16 exclusive) to a hex digit.
 constexpr char hex_digit(int c) noexcept
 {
@@ -121,11 +122,13 @@ static_assert(hex_digit(9) == '9');
 static_assert(hex_digit(10) == 'a');
 static_assert(hex_digit(15) == 'f');
 #endif
+// LCOV_EXCL_STOP
 
 
 constexpr int ten{10};
 
 
+// LCOV_EXCL_START
 /// Translate a hex digit to a nibble.  Return -1 if it's not a valid digit.
 constexpr int nibble(int c) noexcept
 {
@@ -146,6 +149,7 @@ static_assert(nibble('9') == 9);
 static_assert(nibble('a') == 10);
 static_assert(nibble('f') == 15);
 #endif
+// LCOV_EXCL_STOP
 } // namespace
 
 

@@ -49,6 +49,7 @@ constexpr auto committed{"committed"_zv}, aborted{"aborted"_zv},
   in_progress{"in progress"_zv};
 
 
+// LCOV_EXCL_START
 /// Parse a nonempty transaction status string.
 constexpr tx_stat parse_status(std::string_view text) noexcept
 {
@@ -84,6 +85,7 @@ static_assert(parse_status("In Progress") == tx_unknown);
 static_assert(parse_status("unknown") == tx_unknown);
 static_assert(parse_status("something") == tx_unknown);
 #endif
+// LCOV_EXCL_STOP
 
 
 tx_stat query_status(
