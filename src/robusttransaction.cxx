@@ -92,7 +92,6 @@ tx_stat query_status(
   std::string const &xid, std::string const &conn_str,
   pqxx::sl loc = pqxx::sl::current())
 {
-  pqxx::conversion_context const c{{}, loc};
   static std::string_view const name{"robusttxck"sv};
   auto const query{std::format("SELECT txid_status({})", xid)};
   pqxx::connection cx{conn_str, loc};
