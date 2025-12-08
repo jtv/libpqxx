@@ -95,6 +95,6 @@ private:
   connection &m_conn;
   std::string m_channel;
 };
-// LCOV_EXCL_START
+// LCOV_EXCL_STOP
 } // namespace pqxx
 #endif
