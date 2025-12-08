@@ -123,7 +123,7 @@ static_assert(check_query_end(pqxx::encoding_group::big5, " n ") == 2);
 static_assert(check_query_end(pqxx::encoding_group::big5, "? ; ") == 1);
 static_assert(check_query_end(pqxx::encoding_group::big5, " ( ; ) ") == 6);
 #endif // NDEBUG
-// LCOV_EXCL_START
+// LCOV_EXCL_STOP
 } // namespace
 
 
