@@ -1,5 +1,5 @@
 {
     "report-block-list-path-regex": [
-        "/usr/include/"
+        "/usr/include/c../"
     ]
 }

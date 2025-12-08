@@ -332,11 +332,12 @@ jobs:
       - run:
           name: Lcov
           command: "lcov \
-                  --capture --directory src --output-file cov.info \
+                  --capture -j4 --directory src --output-file cov.info \
                   --ignore-errors inconsistent && \
               lcov --remove cov.info '/usr/*' \
                   --output-file out.info && \
-              genhtml out.info --output-directory coverage_html"
+              genhtml out.info --path \"$(cd .. && pwd)\" \
+                  --output-directory coverage_html"
       - run:
           name: Gather reports
           command: "tar -czf /tmp/coverage.tar.gz \
