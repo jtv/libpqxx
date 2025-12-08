@@ -333,7 +333,7 @@ jobs:
           name: Lcov
           command: "lcov \
                   --config-file=.lcovrc \
-                  --capture --directory src --directory include \
+                  --capture --directory src \
                   --output-file cov.info && \
               lcov --remove cov.info '/usr/*' \
                   --output-file=out.info && \
