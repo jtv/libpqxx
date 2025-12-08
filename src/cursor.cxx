@@ -76,6 +76,7 @@ pqxx::icursorstream::icursorstream(
         m_stride{sstride},
         m_realpos{0},
         m_reqpos{0},
+        m_created_loc{loc},
         m_iterators{nullptr},
         m_done{false}
 {

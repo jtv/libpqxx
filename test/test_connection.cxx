@@ -306,6 +306,21 @@ void test_connection_client_encoding()
 }
 
 
+void test_quote_columns_quotes_and_escapes()
+{
+  pqxx::connection cx;
+
+  PQXX_CHECK_EQUAL(cx.quote_columns(std::array<std::string_view, 0u>{}), "");
+  PQXX_CHECK_EQUAL(
+    cx.quote_columns(std::vector<std::string>{"col"}), "\"col\"");
+  std::string_view const doub[]{"aa", "bb"};
+  PQXX_CHECK_EQUAL(cx.quote_columns(doub), "\"aa\",\"bb\"");
+
+  PQXX_CHECK_EQUAL(
+    cx.quote_columns(std::vector<std::string_view>{"a\"b"}), "\"a\"\"b\"");
+}
+
+
 PQXX_REGISTER_TEST(test_connection_string_constructor);
 PQXX_REGISTER_TEST(test_move_constructor);
 PQXX_REGISTER_TEST(test_move_assign);
@@ -316,4 +331,5 @@ PQXX_REGISTER_TEST(test_raw_connection);
 PQXX_REGISTER_TEST(test_closed_connection);
 PQXX_REGISTER_TEST(test_skip_init_ssl);
 PQXX_REGISTER_TEST(test_connection_client_encoding);
+PQXX_REGISTER_TEST(test_quote_columns_quotes_and_escapes);
 } // namespace

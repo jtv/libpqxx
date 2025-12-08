@@ -46,5 +46,27 @@ void test_cursor()
 }
 
 
+void test_cursor_constants()
+{
+  PQXX_CHECK_GREATER(pqxx::cursor_base::all(), pqxx::test::make_num());
+  PQXX_CHECK_LESS(pqxx::cursor_base::backward_all(), -pqxx::test::make_num());
+}
+
+
+void test_icursorstream_tracks_creation_location()
+{
+  std::source_location const loc{pqxx::sl::current()};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::icursorstream s{
+    tx, "SELECT * FROM generate_series(1, 3)", "mycur", 1, loc};
+  PQXX_CHECK_EQUAL(
+    std::string{s.created_loc().file_name()}, std::string{loc.file_name()});
+  PQXX_CHECK_EQUAL(s.created_loc().line(), loc.line());
+}
+
+
 PQXX_REGISTER_TEST(test_cursor);
+PQXX_REGISTER_TEST(test_cursor_constants);
+PQXX_REGISTER_TEST(test_icursorstream_tracks_creation_location);
 } // namespace

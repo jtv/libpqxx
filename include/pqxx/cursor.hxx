@@ -150,7 +150,7 @@ protected:
     sl loc = sl::current());
 
   /// The `std::source_location` for where this cursor was created.
-  [[nodiscard]] sl cerated_loc() const { return m_created_loc; }
+  [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
   std::string const m_name;
 
