@@ -332,11 +332,13 @@ jobs:
       - run:
           name: Lcov
           command: "lcov \
-                  --capture --directory src --output-file cov.info \
-                  --ignore-errors=inconsistent --parallel=4 && \
+                  --config-file=.lcovrc \
+                  --capture --directory src --directory include \
+                  --output-file cov.info \
               lcov --remove cov.info '/usr/*' \
                   --output-file=out.info && \
-              genhtml out.info --path \"$(pwd)\" \
+              genhtml \
+                  --config-file=.lcovrc out.info --path \"$(pwd)\" \
                   --output-directory=coverage_html"
       - run:
           name: Gather reports
