@@ -334,7 +334,7 @@ jobs:
           command: "lcov \
                   --config-file=.lcovrc \
                   --capture --directory src --directory include \
-                  --output-file cov.info \
+                  --output-file cov.info && \
               lcov --remove cov.info '/usr/*' \
                   --output-file=out.info && \
               genhtml \
