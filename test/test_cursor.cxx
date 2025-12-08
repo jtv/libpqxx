@@ -58,7 +58,7 @@ void test_icursorstream_tracks_creation_location()
   std::source_location const loc{pqxx::sl::current()};
   pqxx::connection cx;
   pqxx::work tx{cx};
-  pqxx::icursorstream s{
+  pqxx::icursorstream const s{
     tx, "SELECT * FROM generate_series(1, 3)", "mycur", 1, loc};
   PQXX_CHECK_EQUAL(
     std::string{s.created_loc().file_name()}, std::string{loc.file_name()});

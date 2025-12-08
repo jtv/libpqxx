@@ -308,7 +308,7 @@ void test_connection_client_encoding()
 
 void test_quote_columns_quotes_and_escapes()
 {
-  pqxx::connection cx;
+  pqxx::connection const cx;
 
   PQXX_CHECK_EQUAL(cx.quote_columns(std::array<std::string_view, 0u>{}), "");
   PQXX_CHECK_EQUAL(
