@@ -208,9 +208,6 @@ void test_skip_init_ssl()
 void test_connection_client_encoding()
 {
   pqxx::connection cx;
-  // cx.set_client_encoding("ASCII");
-  // PQXX_CHECK_EQUAL(cx.get_encoding_group(),
-  // pqxx::encoding_group::ascii_safe);
   cx.set_client_encoding("BIG5");
   PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::big5);
   cx.set_client_encoding("GB18030");
