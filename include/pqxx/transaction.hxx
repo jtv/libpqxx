@@ -97,7 +97,7 @@ public:
 
 
 /// The default transaction type.
-using work = transaction<isolation_level::read_committed>;
+using work = transaction<>;
 
 
 /// Read-only transaction.
