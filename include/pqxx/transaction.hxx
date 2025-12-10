@@ -100,7 +100,8 @@ public:
 /// The default transaction type.
 /** @ingroup transactions
  */
-using work = transaction<isolation_level::read_committed, write_policy::read_write>;
+using work =
+  transaction<isolation_level::read_committed, write_policy::read_write>;
 
 
 /// Read-only transaction.
