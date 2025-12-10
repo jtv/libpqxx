@@ -270,7 +270,7 @@ private:
 
   /// Estimate buffer space needed for a field which is always null.
   template<typename T>
-  static std::size_t estimate_buffer(T const &)
+  static constexpr std::size_t estimate_buffer(T const &)
     requires(pqxx::always_null<T>())
   {
     return std::size(null_field);
@@ -281,7 +281,7 @@ private:
    * we'll need once the escaping comes in.
    */
   template<typename T>
-  static std::size_t estimate_buffer(T const &field)
+  static constexpr std::size_t estimate_buffer(T const &field)
     requires(not pqxx::always_null<T>())
   {
     return is_null(field) ? std::size(null_field) : size_buffer(field);

@@ -323,4 +323,3 @@ PQXX_COLD void pqxx::largeobjectaccess::process_notice(zview s) noexcept
 // LCOV_EXCL_STOP
 
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-
