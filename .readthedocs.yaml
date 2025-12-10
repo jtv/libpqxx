@@ -6,7 +6,10 @@ version: 2
 
 # Set the version of Python and other tools you might need
 build:
-  os: "ubuntu-24.04"
+  # Using an old Ubuntu LTS: an apparent bug in Doxygen 1.9.8 "loses" the
+  # documentation for pqxx::transaction and pqxx::work.  So for now, stick
+  # with Doxygen 1.9.1.  :-(
+  os: "ubuntu-22.04"
   tools:
     python: "3.12"
   apt_packages:

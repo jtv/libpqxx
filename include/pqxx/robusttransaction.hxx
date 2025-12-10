@@ -21,7 +21,7 @@
 
 namespace pqxx::internal
 {
-/// Helper base class for the @ref robusttransaction class template.
+/// Helper base class for the @ref pqxx::robusttransaction class template.
 class PQXX_LIBEXPORT PQXX_NOVTABLE basic_robusttransaction
         : public dbtransaction
 {

@@ -21,6 +21,15 @@ OUTPUT_DIRECTORY =
 
 GENERATE_LATEX = NO
 
+# The pqxx::transaction template class and the pqxx::work type alias dropped
+# out of the documentation during the upgrade from Doxygen 1.9.1 to 1.9.8.
+# This configuration may fix that:
+EXTRACT_ALL = YES
+EXTRACT_STATIC = YES
+HIDE_UNDOC_CLASSES = NO
+SHOW_NAMESPACES = YES
+EXTRACT_TEMPLATE_PARAMS = YES
+
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
 # and will distribute the generated files over these directories. Enabling this

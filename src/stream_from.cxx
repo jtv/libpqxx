@@ -204,7 +204,7 @@ void pqxx::stream_from::parse_line(sl loc)
   // its buffer.
   m_row.resize(line_size);
 
-  char const *line_begin{line.get()};
+  char const *const line_begin{line.get()};
   std::string_view const line_view{line_begin, line_size};
 
   // Output iterator for unescaped text.
@@ -227,6 +227,7 @@ void pqxx::stream_from::parse_line(sl loc)
   while (offset < line_size)
   {
     auto const stop_char{m_char_finder(line_view, offset, loc)};
+    assert(stop_char <= line_size);
     // Copy the text we have so far.  It's got no special characters in it.
     std::memcpy(write, &line_begin[offset], stop_char - offset);
     write += (stop_char - offset);
