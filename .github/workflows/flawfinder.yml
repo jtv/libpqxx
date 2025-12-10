@@ -3,14 +3,15 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
+---
 name: flawfinder
 
-on:
+"on":
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master" ]
+    branches: ["master"]
   schedule:
     - cron: '31 12 * * 3'
 
@@ -27,7 +28,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: flawfinder_scan
-        uses: david-a-wheeler/flawfinder@8e4a779ad59dbfaee5da586aa9210853b701959c
+        uses: \
+          david-a-wheeler/flawfinder@8e4a779ad59dbfaee5da586aa9210853b701959c
         with:
           arguments: '--sarif ./'
           output: 'flawfinder_results.sarif'
