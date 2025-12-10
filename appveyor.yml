@@ -33,17 +33,17 @@ before_build:
         \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
     appveyor PushArtifact config-headers.zip"
 
-configuration: Release
+configuration: Debug
 build:
   parallel: true
   project: libpqxx.sln
 
 test_script:
   - ps: $env:Path +=
-      ";.\\src\\Release;C:\\Program Files\\PostgreSQL\\15\\bin" ;
+      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\15\\bin" ;
       $env:PGUSER = "postgres" ;
       $env:PGPASSWORD = "Password12!" ;
-      .\\test\\Release\\runner.exe
+      .\\test\\Debug\\runner.exe
 
 # Don't notify.  The Github PR will have a status indicator.
 notifications:
