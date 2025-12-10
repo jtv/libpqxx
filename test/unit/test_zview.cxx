@@ -23,21 +23,22 @@ void test_zview_converts_to_string()
     "to_string on zview failed.");
 
   std::array<char, 100> buf;
+  auto const buf_begin{std::data(buf)};
+  auto const buf_end{buf_begin + std::size(buf)};
 
-  auto const v{traits::to_buf(std::begin(buf), std::end(buf), "myview"_zv)};
+  auto const v{traits::to_buf(buf_begin, buf_end, "myview"_zv)};
   PQXX_CHECK_EQUAL(std::string{v}, "myview", "to_buf on zview failed.");
 
-  auto const p{
-    traits::into_buf(std::begin(buf), std::end(buf), "moreview"_zv)};
+  auto const p{traits::into_buf(buf_begin, buf_end, "moreview"_zv)};
   PQXX_CHECK_NOT_EQUAL(
-    p, std::begin(buf), "into_buf on zview returns beginning of buffer.");
+    p, buf_begin, "into_buf on zview returns beginning of buffer.");
   PQXX_CHECK(
-    p > std::begin(buf) and p < std::end(buf),
+    p > buf_begin and p < buf_end,
     "into_buf on zview did not store in buffer.");
   PQXX_CHECK(*(p - 1) == '\0', "into_buf on zview wasted space.");
   PQXX_CHECK(*(p - 2) == 'w', "into_buf on zview has extraneous data.");
   PQXX_CHECK_EQUAL(
-    std::string(std::data(buf)), "moreview", "into_buf on zview failed.");
+    std::string(buf_begin), "moreview", "into_buf on zview failed.");
 }
 
 
