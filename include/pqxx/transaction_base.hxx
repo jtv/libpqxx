@@ -80,8 +80,8 @@ class transaction_focus;
  * its changes to the database instead.
  *
  * There is a choice of transaction types.  To start with you'll probably want
- * to use @ref work, represents a regular, vanilla transaction with the default
- * isolation level.
+ * to use @ref pqxx::work, represents a regular, vanilla transaction with the
+ * default isolation level.
  *
  * All the actual transaction functionality, including all the functions for
  * executing SQL statements, lives in the abstract @ref transaction_base class.
@@ -97,11 +97,11 @@ class transaction_focus;
  *
  * The concrete transaction types, all derived from @ref transaction_base, are:
  *
- * First and foremost, the plain @ref transaction template.  Template
+ * First and foremost, the plain @ref pqxx::transaction template.  Template
  * parameters let you select isolation level, and whether it should be
- * read-only.  Two aliases are usually more convenient: @ref work is a
- * regular, run-of-the-mill default transaction.  @ref read_transaction is a
- * read-only transaction that will not let you modify the database.
+ * read-only.  Two aliases are usually more convenient: @ref pqxx::work is a
+ * regular, run-of-the-mill default transaction.  @ref pqxx::read_transaction
+ * is a read-only transaction that will not let you modify the database.
  *
  * Then there's @ref nontransaction.  This one runs in autocommit, meaning
  * that we don't start any transaction at all.  (Technically in this mode each
@@ -111,34 +111,35 @@ class transaction_focus;
  * slower.  Mainly you'll use it for specific operations that cannot be done
  *inside a database transaction, such as some kinds of schema changes.
  *
- * And then ther's @ref robusttransaction to help you deal with those painful
- * situations where you don't know for sure whether a transaction actually
- * succeeded.  This can happen if you lose your network connection to the
- * database _just_ while you're trying to commit your transaction, before you
- * receive word about the outcome.  You can re-connect and find out, but what
- * if the server is still executing the commit?
+ * And then there's @ref pqxx::robusttransaction to help you deal with those
+ * painful situations where you don't know for sure whether a transaction
+ * actually succeeded.  This can happen if you lose your network connection to
+ * the database _just_ while you're trying to commit your transaction, before
+ * you receive word about the outcome.  You can re-connect and find out, but
+ * what if the server is still executing the commit?
  *
- * You could say that @ref robusttransaction is not more robust, exactly, but
- * it goes to some extra effort to try and figure these situations out and give
- * you clarity.  Extra effort does actually mean more things that can go wrong,
- * and it may be a litte slower, so investigate carefully before using this
- * transaction class.
+ * You could say that @ref pqxx::robusttransaction is not more robust, exactly,
+ * but it goes to some extra effort to try and figure these situations out and
+ * give you clarity.  Extra effort does actually mean more things that can go
+ * wrong, and it may be a little slower, so investigate carefully before using
+ * this transaction class.
  *
  * All of the transaction types that actually begin and commit/abort on the
- * database itself are derived from @ref dbtransaction, which can be a useful
- * type if your code needs a reference to such a transaction but doesn't need
- * to enforce a particular one.  These types are @ref transaction, @ref work,
- * @ref read_transaction, and @ref robusttransaction.
+ * database itself are derived from @ref pqxx::dbtransaction, which can be a
+ * useful type if your code needs a reference to such a transaction but doesn't
+ * need to enforce a particular one.  These types are @ref transaction,
+ * @ref pqxx::work, @ref pqxx::read_transaction, and
+ * @ref pqxx::robusttransaction.
  *
- * Finally, there's @ref subtransaction.  This one is not at all like the
- * others: it can only exist inside a @ref dbtransaction.  (Which includes
- * @ref subtransaction itself: you can nest them freely.)  You can only
- * operate on the "innermost" active subtransaction at any given time, until
- * you either commit or abort it.  Subtransactions are built on _savepoints_
- * in the database; these are efficient to a point but do consume some server
- * resources.  So use them when they make sense, e.g. to try an SQL statement
- * but continue your main transation if it fails.  But don't create them in
- * enormous numbers, or performance may start to suffer.
+ * Finally, there's @ref pqxx::subtransaction.  This one is not at all like the
+ * others: it can only exist inside a @ref pqxx::dbtransaction.  (Which
+ * includes @ref pqxx::subtransaction itself: you can nest them freely.)  You
+ * can only operate on the "innermost" active subtransaction at any given time,
+ * until you either commit or abort it.  Subtransactions are built on
+ * _savepoints_ in the database; these are efficient to a point but do consume
+ * some server resources.  So use them when they make sense, e.g. to try an SQL
+ * statement but continue your main transaction if it fails.  But don't create
+ * them in enormous numbers, or performance may start to suffer.
  */
 
 /// Interface definition (and common code) for "transaction" classes.
