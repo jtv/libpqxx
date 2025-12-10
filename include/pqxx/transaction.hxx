@@ -20,7 +20,7 @@
 
 namespace pqxx::internal
 {
-/// Helper base class for the @ref transaction class template.
+/// Helper base class for the @ref pqxx::transaction class template.
 class PQXX_LIBEXPORT basic_transaction : public dbtransaction
 {
 protected:
