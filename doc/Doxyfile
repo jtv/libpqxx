@@ -27,6 +27,8 @@ GENERATE_LATEX = NO
 EXTRACT_ALL = YES
 EXTRACT_STATIC = YES
 HIDE_UNDOC_CLASSES = NO
+SHOW_NAMESPACES = YES
+EXTRACT_TEMPLATE_PARAMS = YES
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format

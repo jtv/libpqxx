@@ -39,14 +39,15 @@ private:
 
 namespace pqxx
 {
-/**
- * @ingroup transactions
- */
-//@{
-
-/// Standard back-end transaction, templatised on isolation level.
-/** This is the type you'll normally want to use to represent a transaction on
+/// transaction Standard back-end transaction, templatised on isolation level.
+/** @ingroup transactions
+ * This is the type you'll normally want to use to represent a transaction on
  * the database.
+ *
+ * @tparam ISOLATION The transaction's "isolation level."  This is a standard
+ * SQL concept.  The default in PostgreSQL (and in libpqxx) is READ COMMITTED.
+ * @tparam READWRITE Whether this transaction is allowed to make changes to the
+ * database.
  *
  * Usage example: double all wages.
  *
@@ -97,13 +98,16 @@ public:
 
 
 /// The default transaction type.
-using work = transaction<>;
+/** @ingroup transactions
+ */
+using work = transaction<isolation_level::read_committed, write_policy::read_write>;
 
 
 /// Read-only transaction.
+/** @ingroup transactions
+ */
 using read_transaction =
   transaction<isolation_level::read_committed, write_policy::read_only>;
 
-//@}
 } // namespace pqxx
 #endif
