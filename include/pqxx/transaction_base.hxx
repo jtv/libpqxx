@@ -121,7 +121,7 @@ class transaction_focus;
  * You could say that @ref pqxx::robusttransaction is not more robust, exactly,
  * but it goes to some extra effort to try and figure these situations out and
  * give you clarity.  Extra effort does actually mean more things that can go
- * wrong, and it may be a litte slower, so investigate carefully before using
+ * wrong, and it may be a little slower, so investigate carefully before using
  * this transaction class.
  *
  * All of the transaction types that actually begin and commit/abort on the
@@ -138,7 +138,7 @@ class transaction_focus;
  * until you either commit or abort it.  Subtransactions are built on
  * _savepoints_ in the database; these are efficient to a point but do consume
  * some server resources.  So use them when they make sense, e.g. to try an SQL
- * statement but continue your main transation if it fails.  But don't create
+ * statement but continue your main transaction if it fails.  But don't create
  * them in enormous numbers, or performance may start to suffer.
  */
 

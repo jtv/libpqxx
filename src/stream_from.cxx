@@ -225,7 +225,7 @@ void pqxx::stream_from::parse_line()
   while (offset < line_size)
   {
     auto const stop_char{m_char_finder(line_view, offset)};
-    assert(stop_char <= (line_size + 1));
+    assert(stop_char <= line_size);
     // Copy the text we have so far.  It's got no special characters in it.
     std::memcpy(write, &line_begin[offset], stop_char - offset);
     write += (stop_char - offset);

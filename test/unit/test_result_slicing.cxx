@@ -50,6 +50,8 @@ template<> struct string_traits<row::const_reverse_iterator>
   {
     if ((end - begin) <= 30)
       throw conversion_overrun{"Not enough buffer for const row iterator."};
+    assert(
+      pqxx::internal::cmp_greater_equal(end - begin, std::size(text) + 1));
     std::memcpy(begin, text.c_str(), std::size(text) + 1);
     return begin + std::size(text);
   }
