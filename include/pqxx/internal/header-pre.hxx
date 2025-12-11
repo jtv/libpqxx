@@ -57,8 +57,6 @@
 #  pragma warning(disable : 4626)
 // Compiler may not enforce left-to-right evaluation order.
 #  pragma warning(disable : 4868)
-// Copy constructor was implicitly defined as deleted.
-#  pragma warning(disable : 5625)
 // Move assignment operator implicitly defined as deleted.
 #  pragma warning(disable : 5027)
 // Popping settings in different file (to wit, header-post.hxx).
