@@ -29,10 +29,7 @@
 #  pragma warning(push, 4)
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.
-// Copy constructor could not be generated.
-#  pragma warning(disable : 4511)
-// Assignment operator could not be generated.
-#  pragma warning(disable : 4512)
+
 // Can't expose outside classes without exporting them.  Except the MSVC docs
 // say please ignore the warning if it's a standard library class.
 #  pragma warning(disable : 4251)
@@ -42,7 +39,14 @@
 #  pragma warning(disable : 4275)
 // Can't inherit from non-exported class.
 #  pragma warning(disable : 4275)
-
+// Copy constructor could not be generated.
+#  pragma warning(disable : 4511)
+// Assignment operator could not be generated.
+#  pragma warning(disable : 4512)
+// Unreferenced inline function has been removed.
+#  pragma warning(disable : 4514)
+// Compiler will insert Spectre mitigation if you ask for it.
+#  pragma warning(disable : 5045)
 #endif // _MSC_VER
 
 
