@@ -384,11 +384,10 @@ private:
   void service_iterators(difference_type);
 
   internal::sql_cursor m_cur;
+  mutable icursor_iterator *m_iterators = nullptr;
 
   difference_type m_stride;
   difference_type m_realpos, m_reqpos;
-
-  mutable icursor_iterator *m_iterators;
 
   bool m_done;
 };

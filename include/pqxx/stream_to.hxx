@@ -265,8 +265,6 @@ private:
   stream_to(
     transaction_base &tx, std::string_view path, std::string_view columns);
 
-  bool m_finished = false;
-
   /// Reusable buffer for a row.  Saves doing an allocation for each row.
   std::string m_buffer;
 
@@ -275,6 +273,8 @@ private:
 
   /// Callback to find the special characters we need to watch out for.
   internal::char_finder_func *m_finder;
+
+  bool m_finished = false;
 
   /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view);
