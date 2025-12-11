@@ -75,10 +75,7 @@ pqxx::icursorstream::icursorstream(
           loc},
         m_stride{sstride},
         m_realpos{0},
-        m_reqpos{0},
-        m_created_loc{loc},
-        m_iterators{nullptr},
-        m_done{false}
+        m_reqpos{0}
 {
   set_stride(sstride, loc);
 }
@@ -90,9 +87,7 @@ pqxx::icursorstream::icursorstream(
         m_cur{context, cname.c_str(), op},
         m_stride{sstride},
         m_realpos{0},
-        m_reqpos{0},
-        m_iterators{nullptr},
-        m_done{false}
+        m_reqpos{0}
 {
   set_stride(sstride, loc);
 }

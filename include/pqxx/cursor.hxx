@@ -387,7 +387,10 @@ public:
   }
 
   /// The ``std::source_location` for where this stream was created.
-  [[nodiscard]] sl created_loc() const { return m_created_loc; }
+  [[nodiscard]] PQXX_PURE sl created_loc() const noexcept
+  {
+    return m_cur.created_loc();
+  }
 
 private:
   result fetchblock(sl);
@@ -401,15 +404,12 @@ private:
 
   internal::sql_cursor m_cur;
 
+  mutable icursor_iterator *m_iterators = nullptr;
+
   difference_type m_stride;
   difference_type m_realpos, m_reqpos;
 
-  /// The `std::source_location` for where this stream was created.
-  sl m_created_loc;
-
-  mutable icursor_iterator *m_iterators;
-
-  bool m_done;
+  bool m_done = false;
 };
 
 
@@ -504,7 +504,7 @@ private:
    *
    * If there is no stream, returns the immediate call site.
    */
-  [[nodiscard]] sl created_loc(sl loc = sl::current()) const
+  [[nodiscard]] PQXX_PURE sl created_loc(sl loc = sl::current()) const noexcept
   {
     return (m_stream == nullptr) ? loc : m_stream->created_loc();
   }
