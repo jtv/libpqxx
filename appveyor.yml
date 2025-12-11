@@ -28,7 +28,8 @@ environment:
 # Run CMake to build libpqxx.sln.
 before_build:
   - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION%\n\
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% \
+        -DCMAKE_CXX_FLAGS=\"/analyze /EHsc /Wall\"\n\
     7z a config-headers.zip \
         \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
     appveyor PushArtifact config-headers.zip"
