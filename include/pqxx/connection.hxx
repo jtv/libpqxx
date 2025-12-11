@@ -1338,11 +1338,11 @@ private:
    */
   std::map<std::string, notification_handler> m_notification_handlers;
 
-  /// Unique number to use as suffix for identifiers (see adorn_name()).
-  int m_unique_id = 0;
-
   /// A `std::source_location` for where this object was created.
   sl m_created_loc;
+
+  /// Unique number to use as suffix for identifiers (see adorn_name()).
+  int m_unique_id = 0;
 };
 
 

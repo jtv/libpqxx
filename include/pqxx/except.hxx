@@ -248,7 +248,7 @@ struct PQXX_LIBEXPORT range_error : std::out_of_range
 
 
 /// Query returned an unexpected number of rows.
-struct PQXX_LIBEXPORT unexpected_rows : public range_error
+struct PQXX_LIBEXPORT unexpected_rows : range_error
 {
   explicit unexpected_rows(std::string const &msg, sl loc = sl::current()) :
           range_error{msg, loc}

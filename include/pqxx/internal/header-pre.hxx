@@ -30,7 +30,7 @@
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.
 #  pragma warning(disable : 4061 4251 4275 4275 4511 4512 4514 4623)
-#  pragma warning(disable : 4625 4626 4868 5026 5027 5031 5045)
+#  pragma warning(disable : 4625 4626 4820 4868 5026 5027 5031 5045)
 
 #endif // _MSC_VER
 
