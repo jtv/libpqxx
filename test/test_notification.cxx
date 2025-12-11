@@ -34,6 +34,11 @@ struct TestReceiver final : public pqxx::notification_receiver
   [[nodiscard]] int backend_pid() const noexcept { return m_backend_pid; }
 
 private:
+  TestReceiver(TestReceiver const &) = delete;
+  TestReceiver &operator=(TestReceiver const &) = delete;
+  TestReceiver(TestReceiver &&) = delete;
+  TestReceiver &operator=(TestReceiver &&) = delete;
+
   std::string m_payload;
   int m_backend_pid = 0;
 };

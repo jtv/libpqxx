@@ -11,13 +11,16 @@
 namespace pqxx::test
 {
 /// Exception: A test does not satisfy expected condition.
-struct test_failure : public std::logic_error
+class test_failure : public std::logic_error
 {
 public:
   test_failure(std::string const &desc, sl loc = sl::current());
   ~test_failure() noexcept override;
 
   sl const location;
+
+private:
+  test_failure &operator=(test_failure const &) = delete;
 };
 
 

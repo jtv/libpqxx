@@ -83,6 +83,9 @@ public:
 
   /// Revert to previous handling of error notices.
   virtual bool operator()(char const[]) noexcept override { return false; }
+
+private:
+  quiet_errorhandler() = delete;
 };
 
 //@}
