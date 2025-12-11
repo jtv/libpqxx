@@ -33,6 +33,8 @@
 #  pragma warning(disable : 4511)
 // Assignment operator could not be generated.
 #  pragma warning(disable : 4512)
+// Unreferenced inline function has been removed.
+#  pragma warning(disable : 4514)
 // Can't expose outside classes without exporting them.  Except the MSVC docs
 // say please ignore the warning if it's a standard library class.
 #  pragma warning(disable : 4251)
