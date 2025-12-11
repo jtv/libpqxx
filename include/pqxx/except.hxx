@@ -115,6 +115,7 @@ public:
   explicit sql_error(
     std::string const &whatarg = "", std::string Q = "",
     char const *sqlstate = nullptr, sl = sl::current());
+  sql_error(sql_error const &other) =default;
   virtual ~sql_error() noexcept override;
 
   /// The query whose execution triggered the exception
