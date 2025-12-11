@@ -109,8 +109,8 @@ pqxx::connection::connection(connection &&rhs, sl loc) :
         m_conn{rhs.m_conn},
         m_notice_waiters{std::move(rhs.m_notice_waiters)},
         m_notification_handlers{std::move(rhs.m_notification_handlers)},
-        m_unique_id{rhs.m_unique_id},
-        m_created_loc{loc}
+        m_created_loc{loc},
+        m_unique_id{rhs.m_unique_id}
 {
   rhs.check_movable(loc);
   rhs.m_conn = nullptr;

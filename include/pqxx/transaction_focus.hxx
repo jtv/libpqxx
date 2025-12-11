@@ -62,10 +62,10 @@ public:
 
   transaction_focus(transaction_focus &&other) :
           m_trans{other.m_trans},
-          m_registered{other.m_registered},
           m_classname{other.m_classname},
           // We can't move the name until later.
-          m_name{}
+          m_name{},
+          m_registered{other.m_registered}
   {
     // This is a bit more complicated than you might expect.  The transaction
     // has a backpointer to the focus, and we need to transfer that to the new
@@ -95,9 +95,9 @@ protected:
   transaction_base *m_trans;
 
 private:
-  bool m_registered = false;
   std::string_view m_classname;
   std::string m_name;
+  bool m_registered = false;
 
   /// Perform part of a move operation.
   void move_name_and_registration(transaction_focus &other)

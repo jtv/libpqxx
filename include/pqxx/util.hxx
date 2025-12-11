@@ -170,6 +170,9 @@ PQXX_PRIVATE inline void check_version() noexcept
  */
 struct PQXX_LIBEXPORT thread_safety_model final
 {
+  /// A human-readable description of any thread-safety issues.
+  std::string description;
+
   /// Is the underlying libpq build thread-safe?
   bool safe_libpq = false;
 
@@ -181,9 +184,6 @@ struct PQXX_LIBEXPORT thread_safety_model final
    * with a global lock.
    */
   bool safe_kerberos = false;
-
-  /// A human-readable description of any thread-safety issues.
-  std::string description;
 };
 
 

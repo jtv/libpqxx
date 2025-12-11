@@ -1249,13 +1249,15 @@ private:
    */
   transaction_focus const *m_focus = nullptr;
 
-  status m_status = status::active;
-  bool m_registered = false;
   std::string m_name;
   std::string m_pending_error;
 
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
+
+  status m_status = status::active;
+
+  bool m_registered = false;
 
   /// A `std::source_location` for where this transaction object was created.
   sl m_created_loc;

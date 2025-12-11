@@ -33,19 +33,19 @@ using namespace std::literals;
 
 PQXX_COLD pqxx::thread_safety_model pqxx::describe_thread_safety()
 {
-  thread_safety_model model;
-  model.safe_libpq = (PQisthreadsafe() != 0);
-  // Sadly I'm not aware of any way to avoid this just yet.
-  model.safe_kerberos = false;
+  auto const libpq_ok{PQisthreadsafe() != 0}, kerb_ok{false};
 
-  model.description = std::format(
-    "{}{}",
-    (model.safe_libpq ? "" : "Using a libpq build that is not thread-safe.\n"),
-    (model.safe_kerberos ?
-       "" :
-       "Kerberos is not thread-safe.  If your application uses Kerberos, "
-       "protect all calls to Kerberos or libpqxx using a global lock.\n"));
-  return model;
+  return {
+    .description = std::format(
+      "{}{}",
+      (libpq_ok ? "" : "Using a libpq build that is not thread-safe.\n"),
+      (kerb_ok ?
+         "" :
+         "Kerberos is not thread-safe.  If your application uses Kerberos, "
+         "protect all calls to Kerberos or libpqxx using a global lock.\n")),
+    .safe_libpq = libpq_ok,
+    // Sadly I'm not aware of any way to avoid this just yet.
+    .safe_kerberos = kerb_ok};
 }
 
 
