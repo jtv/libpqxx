@@ -29,12 +29,9 @@
 #  pragma warning(push, 4)
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.
-// Copy constructor could not be generated.
-#  pragma warning(disable : 4511)
-// Assignment operator could not be generated.
-#  pragma warning(disable : 4512)
-// Unreferenced inline function has been removed.
-#  pragma warning(disable : 4514)
+
+// Case not explicitly handled in switch (a.k.a. "default label is useful").
+#  pragma warning(disable : 4061)
 // Can't expose outside classes without exporting them.  Except the MSVC docs
 // say please ignore the warning if it's a standard library class.
 #  pragma warning(disable : 4251)
@@ -44,12 +41,24 @@
 #  pragma warning(disable : 4275)
 // Can't inherit from non-exported class.
 #  pragma warning(disable : 4275)
+// Copy constructor could not be generated.
+#  pragma warning(disable : 4511)
+// Assignment operator could not be generated.
+#  pragma warning(disable : 4512)
+// Unreferenced inline function has been removed.
+#  pragma warning(disable : 4514)
 // Default constructor implicitly defined as deleted.
 #  pragma warning(disable : 4623)
 // Assignment operator implicitly defined as deleted.
 #  pragma warning(disable : 4626)
+// Compiler may not enforce left-to-right evaluation order.
+#  pragma warning(disable : 4868)
 // Move assignment operator implicitly defined as deleted.
 #  pragma warning(disable : 5027)
+// Popping settings in different file (to wit, header-post.hxx).
+#  pragma warning(disable : 5031)
+// Compiler will insert Spectre mititation if you ask for it.
+#  pragma warning(disable : 5045)
 
 #endif // _MSC_VER
 
