@@ -53,6 +53,8 @@
 #  pragma warning(disable : 4626)
 // Compiler may not enforce left-to-right evaluation.
 #  pragma warning(disable : 4868)
+// Move constructor was implicitly defined as deleted.
+#  pragma warning(disable : 5026)
 // Move assigment operator was implicitly defined as deleted.
 #  pragma warning(disable : 5027)
 // Popping compiler context in different file (to wit, header-post.hxx).
