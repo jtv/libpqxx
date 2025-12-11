@@ -16,10 +16,14 @@ environment:
     - CXX_VERSION: 23
 
 # Run CMake to build libpqxx.sln.
+#
+# Adding "/analyze" elicits a warning about the code using exception handlers
+# but the compiler's "stack unwind semantics" not being enabled.  The warning
+# says to add /EHsc to fix that.
 before_build:
 - cmd: |
     call "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% -DCMAKE_CXX_FLAGS="/analyze"
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% -DCMAKE_CXX_FLAGS="/analyze /EHsc"
 configuration: Debug
 build:
   parallel: true
