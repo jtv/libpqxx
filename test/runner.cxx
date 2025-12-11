@@ -320,6 +320,11 @@ public:
   }
 
 private:
+  dispatcher(dispatcher const &) = delete;
+  dispatcher &operator=(dispatcher const &) = delete;
+  dispatcher(dispatcher &&) = delete;
+  dispatcher &operator=(dispatcher &&) = delete;
+
   std::ptrdiff_t m_jobs;
   std::vector<std::string_view> const m_tests;
   std::counting_semaphore<max_jobs> m_capacity;

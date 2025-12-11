@@ -571,7 +571,7 @@ private:
 #define PQXX_DECLARE_ENUM_CONVERSION(ENUM)                                    \
   template<>                                                                  \
   [[maybe_unused, deprecated("Use name_type() instead of type_name.")]]       \
-  inline std::string_view const type_name<ENUM>{#ENUM};                       \
+  constexpr inline std::string_view type_name<ENUM>{#ENUM};                   \
   template<> inline constexpr std::string_view name_type<ENUM>() noexcept     \
   {                                                                           \
     return #ENUM;                                                             \

@@ -137,6 +137,11 @@ public:
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
   bool operator()(char const[]) noexcept override { return true; }
+
+  MinimalErrorHandler(MinimalErrorHandler const &) = delete;
+  MinimalErrorHandler &operator=(MinimalErrorHandler const &) = delete;
+  MinimalErrorHandler(MinimalErrorHandler &&) = delete;
+  MinimalErrorHandler &operator=(MinimalErrorHandler &&) = delete;
 };
 
 
