@@ -44,6 +44,12 @@
 #  pragma warning(disable : 4275)
 // Can't inherit from non-exported class.
 #  pragma warning(disable : 4275)
+// Default constructor implicitly defined as deleted.
+#  pragma warning(disable : 4623)
+// Assignment operator implicitly defined as deleted.
+#  pragma warning(disable : 4626)
+// Move assignment operator implicitly defined as deleted.
+#  pragma warning(disable : 5027)
 
 #endif // _MSC_VER
 
