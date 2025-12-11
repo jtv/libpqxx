@@ -41,6 +41,8 @@
 #  pragma warning(disable : 4275)
 // Can't inherit from non-exported class.
 #  pragma warning(disable : 4275)
+// Relative #incude path starts with "..".
+#  pragma warning(disable : 4464)
 // Copy constructor could not be generated.
 #  pragma warning(disable : 4511)
 // Assignment operator could not be generated.
@@ -49,10 +51,14 @@
 #  pragma warning(disable : 4514)
 // Default constructor implicitly defined as deleted.
 #  pragma warning(disable : 4623)
+// Copy constructor was implicitly defined as deleted.
+#  pragma warning(disable : 4625)
 // Assignment operator implicitly defined as deleted.
 #  pragma warning(disable : 4626)
 // Compiler may not enforce left-to-right evaluation order.
 #  pragma warning(disable : 4868)
+// Copy constructor was implicitly defined as deleted.
+#  pragma warning(disable : 5625)
 // Move assignment operator implicitly defined as deleted.
 #  pragma warning(disable : 5027)
 // Popping settings in different file (to wit, header-post.hxx).
