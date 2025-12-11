@@ -165,8 +165,8 @@ public:
           m_buffer{std::move(other.m_buffer)},
           m_field_buf{std::move(other.m_field_buf)},
           m_finder{other.m_finder},
-          m_finished{other.m_finished},
-          m_created_loc{std::move(other.m_created_loc)}
+          m_created_loc{std::move(other.m_created_loc)},
+          m_finished{other.m_finished}
   {
     other.m_finished = true;
   }
@@ -252,10 +252,11 @@ private:
   /// Callback to find the special characters we need to watch out for.
   internal::char_finder_func *m_finder;
 
-  bool m_finished = false;
-
   /// The `std::source_location` for where this stream was created.
   sl m_created_loc;
+
+  /// Has this stream finished?
+  bool m_finished = false;
 
   /// Write a row of raw text-format data into the destination table.
   void write_raw_line(std::string_view, sl);

@@ -82,6 +82,8 @@ public:
 
   void close(sl loc);
 
+  PQXX_PURE constexpr sl created_loc() const noexcept { return m_created_loc; }
+
 private:
   difference_type adjust(difference_type hoped, difference_type actual);
   static std::string stridestring(difference_type);
