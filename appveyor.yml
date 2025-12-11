@@ -1,12 +1,22 @@
+---
+# Configuration for test runs in Appveyor.
 version: "1.0.{build}"
 image: "Visual Studio 2022"
 
-# Configuration for test runs in Appveyor.
+shallow_clone: true
+
+# AppVeyor seems to build every push to a branch with a PR twice: once for the
+# branch, once for the PR.  Suppress that.  Especially when combining with
+# rolling builds, because it means that one of those gets instantly cancelled,
+# which means a "build failure" because it didn't complete.
+branches:
+  only:
+    - master
 
 # TODO: Do we really have to spell out the postgres version in 3 places?
 services: postgresql15
 install:
-- net start postgresql-x64-15
+  - net start postgresql-x64-15
 
 # Set up to run the build across multiple C++ language versions.
 environment:
@@ -14,23 +24,28 @@ environment:
     - CXX_VERSION: 17
     - CXX_VERSION: 20
     - CXX_VERSION: 23
+  MSVC: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC"
 
 # Run CMake to build libpqxx.sln.
-#
-# Adding "/analyze" elicits a warning about the code using exception handlers
-# but the compiler's "stack unwind semantics" not being enabled.  The warning
-# says to add /EHsc to fix that.
 before_build:
-- cmd: |
-    call "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% -DCMAKE_CXX_FLAGS="/analyze /EHsc /Wall"
+  - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% \
+        -DCMAKE_CXX_FLAGS=\"/analyze /EHsc /Wall\"\n\
+    7z a config-headers.zip \
+        \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
+    appveyor PushArtifact config-headers.zip"
+
 configuration: Debug
 build:
   parallel: true
   project: libpqxx.sln
+
 test_script:
-- ps: |
-    $env:Path += ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\15\\bin"
-    $env:PGUSER = "postgres"
-    $env:PGPASSWORD = "Password12!"
-    .\\test\\Debug\\runner.exe
+  - ps: $env:Path +=
+      ";.\\src\\Debug;C:\\Program Files\\PostgreSQL\\15\\bin" ;
+      $env:PGUSER = "postgres" ;
+      $env:PGPASSWORD = "Password12!" ;
+      .\\test\\Debug\\runner.exe
+
+# Don't notify.  The Github PR will have a status indicator.
+notifications:
