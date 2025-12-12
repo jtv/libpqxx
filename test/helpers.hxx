@@ -53,7 +53,7 @@ class suite
 {
 public:
   /// Register a test function.
-  static void register_test(char const name[], testfunc func) noexcept;
+  static void register_test(std::string_view name, testfunc func) noexcept;
 
   /// Collect all tests into a map: test name to test function.
   static std::map<std::string_view, testfunc> gather();

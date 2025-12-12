@@ -127,7 +127,7 @@ void create_pqxxevents(transaction_base &t)
 
 namespace pqxx::test
 {
-void suite::register_test(char const name[], testfunc func) noexcept
+void suite::register_test(std::string_view name, testfunc func) noexcept
 {
   assert(s_num_tests < max_tests);
   s_names.at(s_num_tests) = name;

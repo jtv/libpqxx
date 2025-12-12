@@ -29,7 +29,7 @@ environment:
 before_build:
   - cmd: "call \"%MSVC%\\Auxiliary\\Build\\vcvars64.bat\"\n\
     cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_CXX_STANDARD=%CXX_VERSION% \
-        -DCMAKE_CXX_FLAGS=\"/analyze /EHsc /Wall\
+        -DCMAKE_CXX_FLAGS=\"/analyze /EHsc /Wall \
         /wd4514 /wd4800 /wd5031 /wd5045\"\n\
     7z a config-headers.zip \
         \"%APPVEYOR_BUILD_FOLDER%/include/pqxx/config-*.h*\"\n\
