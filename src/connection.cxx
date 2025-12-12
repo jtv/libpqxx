@@ -543,10 +543,11 @@ PQXX_COLD void pqxx::connection::cancel_query(sl loc)
 #if defined(_WIN32) || __has_include(<fcntl.h>)
 void pqxx::connection::set_blocking(bool block, sl loc) &
 {
-  auto const fd{sock()};
+  auto const fd{SOCKET(sock())};
 #  if defined _WIN32
   unsigned long mode{not block};
-  if (std::cmp_not_equal(::ioctlsocket(fd, FIONBIO, &mode), 0))
+  if (std::cmp_not_equal(
+        ::ioctlsocket(static_cast<SOCKET>(fd), FIONBIO, &mode), 0))
   {
     std::array<char, buf_size> errbuf{};
     char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};

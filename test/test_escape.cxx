@@ -77,7 +77,7 @@ void test_quote_name(pqxx::transaction_base &t)
 
 void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
 {
-  constexpr char binary[]{"1\0023\\4x5"};
+  constexpr char binary[]{"1\002.3\\4x5"};
 
   // C++23: Initialise as data{std::from_range_t, binary)?
   pqxx::bytes data;
