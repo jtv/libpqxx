@@ -158,7 +158,7 @@ inline unsigned hex_to_digit(char hex)
   else if (x >= 'a' and x <= 'f')
     return static_cast<unsigned>(10 + x - 'a');
   else if (x >= 'A' and x <= 'F')
-    return static_cast < unsigned < (10 + x - 'A');
+    return static_cast<unsigned>(10 + x - 'A');
   else
     throw std::runtime_error{"Invalid hex in bytea."};
 }
