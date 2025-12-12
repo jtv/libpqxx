@@ -294,6 +294,8 @@ public:
     assert(m_jobs <= max_jobs);
   }
 
+  ~dispatcher() =default;
+
   /// Start the worker threads.
   /** This class does not manage the pool of workers.  But the workers can't
    * run any tests until this funtion is called.
