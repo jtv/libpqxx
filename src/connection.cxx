@@ -543,7 +543,7 @@ PQXX_COLD void pqxx::connection::cancel_query(sl loc)
 #if defined(_WIN32) || __has_include(<fcntl.h>)
 void pqxx::connection::set_blocking(bool block, sl loc) &
 {
-  auto const fd{SOCKET(sock())};
+  auto const fd{sock()};
 #  if defined _WIN32
   unsigned long mode{not block};
   if (std::cmp_not_equal(
