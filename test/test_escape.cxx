@@ -100,7 +100,7 @@ void test_esc_raw_unesc_raw(pqxx::transaction_base &t)
     PQXX_CHECK(
       isprint(i), "Unprintable character in escaped data: " + escaped);
 
-  PQXX_CHECK_EQUAL(escaped, "\\x3102335c34783500");
+  PQXX_CHECK_EQUAL(escaped, "\\x31022e335c34783500");
   PQXX_CHECK_EQUAL(std::size(t.unesc_bin(escaped)), std::size(data));
   auto unescaped{t.unesc_bin(escaped)};
   PQXX_CHECK_EQUAL(std::size(unescaped), std::size(data));
