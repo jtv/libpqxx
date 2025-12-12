@@ -20,6 +20,7 @@ struct TestReceiver final : public pqxx::notification_receiver
   TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
           pqxx::notification_receiver(cx, channel_name)
   {}
+  ~TestReceiver() = default;
 
   void operator()(std::string const &payload_string, int backend) override
   {
@@ -33,12 +34,12 @@ struct TestReceiver final : public pqxx::notification_receiver
   }
   [[nodiscard]] int backend_pid() const noexcept { return m_backend_pid; }
 
-private:
   TestReceiver(TestReceiver const &) = delete;
   TestReceiver &operator=(TestReceiver const &) = delete;
   TestReceiver(TestReceiver &&) = delete;
   TestReceiver &operator=(TestReceiver &&) = delete;
 
+private:
   std::string m_payload;
   int m_backend_pid = 0;
 };
