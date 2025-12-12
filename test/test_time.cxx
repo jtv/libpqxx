@@ -9,23 +9,40 @@ namespace
 using namespace std::literals;
 
 
+using date_tup =
+  std::tuple<int, std::chrono::month, std::chrono::day, std::string_view>;
+
+
+/// Build a `date_tup`.
+constexpr date_tup
+make_date(int y, unsigned m, unsigned d, std::string_view text)
+{
+  return date_tup{
+    y,
+    std::chrono::month{m},
+    std::chrono::day{d},
+    text,
+  };
+}
+
+
 void test_date_string_conversion()
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
-  std::tuple<int, unsigned, unsigned, std::string_view> const conversions[]{
-    {-542, 1, 1, "0543-01-01 BC"sv},
-    {-1, 2, 3, "0002-02-03 BC"sv},
-    {0, 9, 14, "0001-09-14 BC"sv},
-    {1, 12, 8, "0001-12-08"sv},
-    {2021, 10, 24, "2021-10-24"sv},
-    {10191, 8, 30, "10191-08-30"sv},
-    {-4712, 1, 1, "4713-01-01 BC"sv},
-    {32767, 12, 31, "32767-12-31"sv},
-    {2000, 2, 29, "2000-02-29"sv},
-    {2004, 2, 29, "2004-02-29"sv},
+  date_tup const conversions[]{
+    make_date(-542, 1, 1, "0543-01-01 BC"sv),
+    make_date(-1, 2, 3, "0002-02-03 BC"sv),
+    make_date(0, 9, 14, "0001-09-14 BC"sv),
+    make_date(1, 12, 8, "0001-12-08"sv),
+    make_date(2021, 10, 24, "2021-10-24"sv),
+    make_date(10191, 8, 30, "10191-08-30"sv),
+    make_date(-4712, 1, 1, "4713-01-01 BC"sv),
+    make_date(32767, 12, 31, "32767-12-31"sv),
+    make_date(2000, 2, 29, "2000-02-29"sv),
+    make_date(2004, 2, 29, "2004-02-29"sv),
     // This one won't work in postgres, but we can test the conversions.
-    {-32767, 11, 3, "32768-11-03 BC"sv},
+    make_date(-32767, 11, 3, "32768-11-03 BC"sv),
   };
   for (auto const &[y, m, d, text] : std::span{conversions})
   {

@@ -13,12 +13,12 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "pqxx/internal/header-pre.hxx"
+
 extern "C"
 {
 #include <libpq-fe.h>
 }
-
-#include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/except.hxx"
 #include "pqxx/result.hxx"

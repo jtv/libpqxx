@@ -12,13 +12,12 @@
 #include <map>
 #include <sstream>
 
+#include "pqxx/internal/header-pre.hxx"
+
 extern "C"
 {
 #include <libpq-fe.h>
 }
-
-
-#include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/strconv.hxx"

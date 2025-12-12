@@ -15,8 +15,8 @@ public:
     pqxx::connection &cx, std::vector<TestErrorHandler *> &activated_handlers,
     bool retval = true) :
           pqxx::errorhandler(cx),
-          m_return_value(retval),
-          m_handler_list(activated_handlers)
+          m_handler_list(activated_handlers),
+          m_return_value(retval)
   {}
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
@@ -32,13 +32,14 @@ public:
   TestErrorHandler() = delete;
   TestErrorHandler(TestErrorHandler const &) = delete;
   TestErrorHandler &operator=(TestErrorHandler const &) = delete;
+  TestErrorHandler(TestErrorHandler &&) = delete;
   TestErrorHandler &operator=(TestErrorHandler &&) = delete;
-  ~TestErrorHandler() override =default;
+  ~TestErrorHandler() override = default;
 
 private:
-  bool m_return_value;
   std::string m_message;
   std::vector<TestErrorHandler *> &m_handler_list;
+  bool m_return_value;
 };
 } // namespace
 

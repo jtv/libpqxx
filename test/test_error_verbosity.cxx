@@ -2,10 +2,12 @@
 
 #include "helpers.hxx"
 
+#include <pqxx/internal/header-pre.hxx>
 extern "C"
 {
 #include <libpq-fe.h>
 }
+#include <pqxx/internal/header-post.hxx>
 
 namespace
 {

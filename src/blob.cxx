@@ -4,9 +4,9 @@
 #include <stdexcept>
 #include <utility>
 
-#include <libpq-fe.h>
-
 #include "pqxx/internal/header-pre.hxx"
+
+#include <libpq-fe.h>
 
 #include "pqxx/blob.hxx"
 #include "pqxx/except.hxx"

@@ -14,12 +14,12 @@
 #include <cerrno>
 #include <stdexcept>
 
+#include "pqxx/internal/header-pre.hxx"
+
 extern "C"
 {
 #include <libpq-fe.h>
 }
-
-#include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/connection.hxx"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
