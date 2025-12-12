@@ -33,6 +33,7 @@ public:
   TestErrorHandler(TestErrorHandler const &) = delete;
   TestErrorHandler &operator=(TestErrorHandler const &) = delete;
   TestErrorHandler &operator=(TestErrorHandler &&) = delete;
+  ~TestErrorHandler() override =default;
 
 private:
   bool m_return_value;
