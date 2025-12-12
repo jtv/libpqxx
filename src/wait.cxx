@@ -99,8 +99,10 @@ void pqxx::internal::wait_fd(
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  int const code{
-    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds, loc))};
+  int const code{WSAPoll(
+    &fdarray, 1u,
+    check_cast<int>(
+      to_milli<unsigned>(seconds, microseconds, loc), "Timeout too large."))};
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |

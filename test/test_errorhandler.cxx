@@ -29,6 +29,11 @@ public:
 
   [[nodiscard]] std::string message() const { return m_message; }
 
+  TestErrorHandler() = delete;
+  TestErrorHandler(TestErrorHandler const &) = delete;
+  TestErrorHandler &operator=(TestErrorHandler const &) = delete;
+  TestErrorHandler &operator=(TestErrorHandler &&) = delete;
+
 private:
   bool m_return_value;
   std::string m_message;

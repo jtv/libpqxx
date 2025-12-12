@@ -154,11 +154,11 @@ inline unsigned hex_to_digit(char hex)
 {
   auto x = static_cast<unsigned char>(hex);
   if (x >= '0' and x <= '9')
-    return x - '0';
+    return static_cast<unsigned>(x - '0');
   else if (x >= 'a' and x <= 'f')
-    return 10 + x - 'a';
+    return static_cast<unsigned>(10 + x - 'a');
   else if (x >= 'A' and x <= 'F')
-    return 10 + x - 'A';
+    return static_cast < unsigned < (10 + x - 'A');
   else
     throw std::runtime_error{"Invalid hex in bytea."};
 }

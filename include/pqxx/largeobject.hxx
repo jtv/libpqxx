@@ -343,7 +343,7 @@ public:
 
   largeobjectaccess() = delete;
   largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
 
 private:
   PQXX_PRIVATE std::string reason(int err) const;
