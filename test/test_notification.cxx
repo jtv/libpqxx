@@ -20,7 +20,7 @@ struct TestReceiver final : public pqxx::notification_receiver
   TestReceiver(pqxx::connection &cx, std::string const &channel_name) :
           pqxx::notification_receiver(cx, channel_name)
   {}
-  ~TestReceiver() = default;
+  ~TestReceiver() override = default;
 
   void operator()(std::string const &payload_string, int backend) override
   {

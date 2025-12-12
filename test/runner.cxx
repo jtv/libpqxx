@@ -288,8 +288,8 @@ public:
   dispatcher(std::ptrdiff_t jobs, std::vector<std::string_view> &&tests) :
           m_jobs{jobs},
           m_tests{std::move(tests)},
-          m_capacity{jobs},
-          m_here{m_tests.begin()}
+          m_here{m_tests.begin()},
+          m_capacity{jobs}
   {
     assert(m_jobs <= max_jobs);
   }
@@ -321,17 +321,17 @@ public:
     return test;
   }
 
-private:
   dispatcher(dispatcher const &) = delete;
   dispatcher &operator=(dispatcher const &) = delete;
   dispatcher(dispatcher &&) = delete;
   dispatcher &operator=(dispatcher &&) = delete;
 
+private:
   std::ptrdiff_t m_jobs;
   std::vector<std::string_view> const m_tests;
+  std::vector<std::string_view>::const_iterator m_here;
   std::counting_semaphore<max_jobs> m_capacity;
   std::mutex m_progress;
-  std::vector<std::string_view>::const_iterator m_here;
 };
 
 
