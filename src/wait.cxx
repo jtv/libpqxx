@@ -71,7 +71,7 @@ T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 
 #if !defined(PQXX_HAVE_POLL) && defined(PQXX_HAVE_SELECT)
 /// Set a bit on an fd_set.
-[[maybe_unused]] void set_fdbit(fd_set &bits, int fd)
+[[maybe_unused]] void set_fdbit(fd_set &bits, auto fd)
 {
 #  ifdef _MSC_VER
 // Suppress pointless, unfixable warnings in Visual Studio.

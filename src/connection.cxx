@@ -546,7 +546,7 @@ void pqxx::connection::set_blocking(bool block, sl loc) &
   auto const fd{sock()};
 #  if defined _WIN32
   unsigned long mode{not block};
-  if (std::cmp_not_equal(::ioctlsocket(fd, FIONBIO, &mode), 0u))
+  if (std::cmp_not_equal(::ioctlsocket(fd, FIONBIO, &mode), 0))
   {
     std::array<char, buf_size> errbuf{};
     char const *err{pqxx::internal::error_string(WSAGetLastError(), errbuf)};
