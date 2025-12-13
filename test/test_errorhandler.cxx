@@ -37,8 +37,8 @@ public:
   ~TestErrorHandler() override = default;
 
 private:
-  std::string m_message;
   std::vector<TestErrorHandler *> &m_handler_list;
+  std::string m_message;
   bool m_return_value;
 };
 } // namespace
