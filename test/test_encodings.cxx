@@ -45,11 +45,6 @@ template<>
 auto const eels<pqxx::encoding_group::gb18030>{
   "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
   "\xf7\xa9\xd3\xe3\xa1\xa3"sv};
-/// GBK: Simplified Chinese.
-template<>
-auto const eels<pqxx::encoding_group::gbk>{
-  "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
-  "\xf7\xa9\xd3\xe3\xa1\xa3"sv};
 /// JOHAB: Korean.
 template<>
 auto const eels<pqxx::encoding_group::johab>{
@@ -80,7 +75,6 @@ template<> auto const tricky<pqxx::encoding_group::big5>{"\xaa\x58"sv};
 // (Yeah such a string is not possible here.)
 template<> auto const tricky<pqxx::encoding_group::ascii_safe>{""sv};
 template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81\x58"sv};
-template<> auto const tricky<pqxx::encoding_group::gbk>{"\xaa\x58"sv};
 template<> auto const tricky<pqxx::encoding_group::johab>{"\x84\x58"sv};
 template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81\x58"sv};
 template<> auto const tricky<pqxx::encoding_group::uhc>{"\xa1\x58"sv};
@@ -147,7 +141,6 @@ void test_find_chars()
   test_search<pqxx::encoding_group::big5>("big5");
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
   test_search<pqxx::encoding_group::gb18030>("gb18030");
-  test_search<pqxx::encoding_group::gbk>("gbk");
   test_search<pqxx::encoding_group::johab>("johab");
   test_search<pqxx::encoding_group::sjis>("sjis");
   test_search<pqxx::encoding_group::uhc>("uhc");
@@ -168,7 +161,6 @@ void test_find_chars_fails_for_unfinished_character()
 {
   check_unfinished_character<pqxx::encoding_group::big5>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();
-  check_unfinished_character<pqxx::encoding_group::gbk>();
   check_unfinished_character<pqxx::encoding_group::johab>();
   check_unfinished_character<pqxx::encoding_group::sjis>();
   check_unfinished_character<pqxx::encoding_group::uhc>();
@@ -195,9 +187,9 @@ void test_find_chars_reports_malencoded_text()
   }
 
   pqxx::encoding_group const unsafe[]{
-    pqxx::encoding_group::big5, pqxx::encoding_group::gb18030,
-    pqxx::encoding_group::gbk,  pqxx::encoding_group::johab,
-    pqxx::encoding_group::sjis, pqxx::encoding_group::uhc,
+    pqxx::encoding_group::big5,  pqxx::encoding_group::gb18030,
+    pqxx::encoding_group::johab, pqxx::encoding_group::sjis,
+    pqxx::encoding_group::uhc,
   };
 
   // Bet that the random data isn't going to be fully correct in any of the

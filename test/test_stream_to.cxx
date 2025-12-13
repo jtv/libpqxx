@@ -561,8 +561,6 @@ constexpr pqxx::zview encoding_name<pqxx::encoding_group::big5>{"BIG5"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::gb18030>{"gb18030"};
 template<>
-constexpr pqxx::zview encoding_name<pqxx::encoding_group::gbk>{"GBK"};
-template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::johab>{"JOHAB"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::sjis>{"SJIS"};
@@ -580,9 +578,6 @@ constexpr std::string_view hello<pqxx::encoding_group::big5>{
   "\xc6\xb7\xc6\xf7\xc6\xcf\xc6\xc5\xc6\xf3"};
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::gb18030>{
-  "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xef"};
-template<>
-constexpr std::string_view hello<pqxx::encoding_group::gbk>{
   "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xef"};
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::johab>{
@@ -632,7 +627,6 @@ void test_stream_to_transcodes()
   check_stream_to_encodes<pqxx::encoding_group::ascii_safe>(cx);
   check_stream_to_encodes<pqxx::encoding_group::big5>(cx);
   check_stream_to_encodes<pqxx::encoding_group::gb18030>(cx);
-  check_stream_to_encodes<pqxx::encoding_group::gbk>(cx);
   check_stream_to_encodes<pqxx::encoding_group::johab>(cx);
   check_stream_to_encodes<pqxx::encoding_group::sjis>(cx);
   check_stream_to_encodes<pqxx::encoding_group::uhc>(cx);
@@ -652,13 +646,11 @@ void test_stream_to_transcodes()
  * The other supported encodings are only slightly less safe: they can embed a
  * backslash byte, but not a tab or newline byte.
  */
-template<pqxx::encoding_group> constexpr std::string_view attack{""};
+template<pqxx::encoding_group> constexpr std::string_view attack;
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::big5>{"\xa5\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
-template<>
-constexpr std::string_view attack<pqxx::encoding_group::gbk>{"\x95\\"};
 // TODO: Re-enable once it starts working on the server!
 // template<>
 // constexpr std::string_view attack<pqxx::encoding_group::johab>{"\x8a\\"};
@@ -673,9 +665,6 @@ constexpr std::string_view safe_attack<pqxx::encoding_group::big5>{
   "\xe5\x8a\x9f"};
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
-  "\xe6\x98\x9e"};
-template<>
-constexpr std::string_view safe_attack<pqxx::encoding_group::gbk>{
   "\xe6\x98\x9e"};
 // TODO: Re-enable once it starts working on the server!
 // template<>
@@ -732,9 +721,7 @@ void test_stream_to_handles_embedded_special_values()
   check_attack<pqxx::encoding_group::ascii_safe>(cx);
   check_attack<pqxx::encoding_group::big5>(cx);
   check_attack<pqxx::encoding_group::gb18030>(cx);
-  check_attack<pqxx::encoding_group::gbk>(cx);
-  // TODO: Enable this once it starts working on the server!
-  // check_attack<pqxx::encoding_group::johab>(cx);
+  check_attack<pqxx::encoding_group::johab>(cx);
   check_attack<pqxx::encoding_group::sjis>(cx);
   check_attack<pqxx::encoding_group::uhc>(cx);
 }

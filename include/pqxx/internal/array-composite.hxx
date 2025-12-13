@@ -337,7 +337,6 @@ specialize_parse_composite_field(conversion_context const &c)
     return parse_composite_field<encoding_group::big5>;
   case encoding_group::gb18030:
     return parse_composite_field<encoding_group::gb18030>;
-  case encoding_group::gbk: return parse_composite_field<encoding_group::gbk>;
   case encoding_group::johab:
     return parse_composite_field<encoding_group::johab>;
   case encoding_group::sjis:

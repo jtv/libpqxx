@@ -83,7 +83,6 @@ public:
     case group::ascii_safe: parse<group::ascii_safe>(data, loc); break;
     case group::big5: parse<group::big5>(data, loc); break;
     case group::gb18030: parse<group::gb18030>(data, loc); break;
-    case group::gbk: parse<group::gbk>(data, loc); break;
     case group::johab: parse<group::johab>(data, loc); break;
     case group::sjis: parse<group::sjis>(data, loc); break;
     case group::uhc: parse<group::uhc>(data, loc); break;

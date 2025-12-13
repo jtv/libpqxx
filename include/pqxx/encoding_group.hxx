@@ -57,9 +57,6 @@ enum class encoding_group
   big5,
   /// Non-ASCII-safe: GB18030 for Chinese (Traditional & Simplified).
   gb18030,
-  // TODO: GBK is an older subset of GB18030.  Drop GBK.
-  /// Non-ASCII-safe: GuoBiao for Chinese (Traditional & Simplified).
-  gbk,
   /// Non-ASCII-safe: JOHAB for Korean.
   johab,
   /// Non-ASCII-safe: Japanese JIS and Shift JIS.

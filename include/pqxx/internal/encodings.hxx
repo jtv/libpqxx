@@ -210,41 +210,6 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 };
 
 
-// https://en.wikipedia.org/wiki/GBK_(character_encoding)#Encoding
-template<> struct glyph_scanner<encoding_group::gbk> final
-{
-  PQXX_INLINE_ONLY static constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    auto const sz{std::size(buffer)};
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("GBK", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (
-      (between_inc(byte1, 0xa1, 0xa9) and between_inc(byte2, 0xa1, 0xfe)) or
-      (between_inc(byte1, 0xb0, 0xf7) and between_inc(byte2, 0xa1, 0xfe)) or
-      (between_inc(byte1, 0x81, 0xa0) and between_inc(byte2, 0x40, 0xfe) and
-       byte2 != 0x7f) or
-      (between_inc(byte1, 0xaa, 0xfe) and between_inc(byte2, 0x40, 0xa0) and
-       byte2 != 0x7f) or
-      (between_inc(byte1, 0xa8, 0xa9) and between_inc(byte2, 0x40, 0xa0) and
-       byte2 != 0x7f) or
-      (between_inc(byte1, 0xaa, 0xaf) and between_inc(byte2, 0xa1, 0xfe)) or
-      (between_inc(byte1, 0xf8, 0xfe) and between_inc(byte2, 0xa1, 0xfe)) or
-      (between_inc(byte1, 0xa1, 0xa7) and between_inc(byte2, 0x40, 0xa0) and
-       byte2 != 0x7f))
-      return start + 2;
-
-    [[unlikely]] throw_for_encoding_error("GBK", buffer, start, 2, loc);
-  }
-};
-
-
 /*
 The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes, but
 "CJKV Information Processing" describes it (actually just the Hangul portion)
@@ -279,7 +244,8 @@ template<> struct glyph_scanner<encoding_group::johab> final
         return start + 2;
     }
 
-    [[unlikely]] throw_for_encoding_error("JOHAB (path 2)", buffer, start, 2, loc);
+    [[unlikely]] throw_for_encoding_error(
+      "JOHAB (path 2)", buffer, start, 2, loc);
   }
 };
 
@@ -390,8 +356,6 @@ PQXX_PURE
     return pqxx::internal::find_ascii_char<encoding_group::big5, NEEDLE...>;
   case encoding_group::gb18030:
     return pqxx::internal::find_ascii_char<encoding_group::gb18030, NEEDLE...>;
-  case encoding_group::gbk:
-    return pqxx::internal::find_ascii_char<encoding_group::gbk, NEEDLE...>;
   case encoding_group::johab:
     return pqxx::internal::find_ascii_char<encoding_group::johab, NEEDLE...>;
   case encoding_group::sjis:
