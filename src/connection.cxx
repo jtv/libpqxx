@@ -392,6 +392,7 @@ PQXX_COLD void pqxx::connection::trace(FILE *out) noexcept
 }
 
 
+// XXX: Pass sl
 PQXX_COLD void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
 {
   if (n == nullptr)
@@ -406,6 +407,7 @@ PQXX_COLD void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
     // Not listening on this event yet, start doing so.
     auto const lq{std::make_shared<std::string>(
       std::format("LISTEN {}", quote_name(n->channel())))};
+    // XXX: Pass sl
     make_result(PQexec(m_conn, lq->c_str()), lq, *lq);
     m_receivers.insert(new_value);
   }
@@ -731,7 +733,7 @@ pqxx::connection::exec(std::string_view query, std::string_view desc, sl loc)
 pqxx::result pqxx::connection::exec(
   std::shared_ptr<std::string> const &query, std::string_view desc, sl loc)
 {
-  auto res{make_result(PQexec(m_conn, query->c_str()), query, desc)};
+  auto res{make_result(PQexec(m_conn, query->c_str()), query, desc, loc)};
   get_notifs(loc);
   return res;
 }
@@ -747,12 +749,14 @@ std::string pqxx::connection::encrypt_password(
 }
 
 
+// XXX: Pass sl.
 void pqxx::connection::prepare(
   char const name[], char const definition[], sl) &
 {
   auto const q{
     std::make_shared<std::string>(std::format("[PREPARE {}]", name))};
 
+  // XXX: Pass sl.
   auto const r{
     make_result(PQprepare(m_conn, name, definition, 0, nullptr), q, *q)};
 }
@@ -780,7 +784,7 @@ pqxx::result pqxx::connection::exec_prepared(
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
-  auto r{make_result(pq_result, q, statement)};
+  auto r{make_result(pq_result, q, statement, loc)};
   get_notifs(loc);
   return r;
 }
