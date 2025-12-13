@@ -1,4 +1,4 @@
-SUBDIRS = include src test tools config doc
+SUBDIRS = include src test examples tools config doc
 EXTRA_DIST = autogen.sh configitems README.md VERSION requirements.json
 
 MAINTAINERCLEANFILES = \
@@ -7,7 +7,7 @@ MAINTAINERCLEANFILES = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
 
-TESTS = tools/lint
+TESTS = tools/lint.sh
 
 
 # Generate ChangeLog from git history.  It goes all the way back through

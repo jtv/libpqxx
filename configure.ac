@@ -2,7 +2,8 @@
 # package installed.  (The configure script itself does not require it though.)
 
 AC_PREREQ([2.71])
-AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version])],[Jeroen T. Vermeulen])
+AC_INIT([libpqxx],[m4_esyscmd_s([./tools/extract_version.sh])],
+	[Jeroen T. Vermeulen])
 AC_LANG(C++)
 
 AC_CONFIG_SRCDIR([src/connection.cxx])
@@ -10,7 +11,7 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([config/m4])
 AM_INIT_AUTOMAKE([subdir-objects])
 
-PQXX_ABI=m4_esyscmd_s([./tools/extract_version --abi])
+PQXX_ABI=m4_esyscmd_s([./tools/extract_version.sh --abi])
 AC_SUBST(PQXXVERSION, $PACKAGE_VERSION)
 AC_SUBST(PQXX_ABI)
 
@@ -91,16 +92,16 @@ add_compiler_opts() {
 }
 
 
-# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_17 for this,
-# but it's 2022 and the C++20 equivalent isn't quite ready for use.
+# It's tempting to use Autoconf Archive's AX_CXX_COMPILE_STDCXX_* for this,
+# but it's not getting a lot of maintenance.
 # Seems simpler and more reliable for the user to arrange for the desired
 # language versions by setting the appropriate option for their compiler.
 AC_MSG_CHECKING([for sufficient C++ language/library level])
 sufficient_cxx=yes
 AC_COMPILE_IFELSE(
 	[AC_LANG_SOURCE([
-	#if __cplusplus < 201611L
-	#error "Need C++17 or better."
+	#if __cplusplus < 202002L
+	#error "Need C++20 or better."
 	#endif
 	])],
 	sufficient_cxx=yes,
@@ -108,15 +109,14 @@ AC_COMPILE_IFELSE(
 AC_MSG_RESULT($sufficient_cxx)
 if test "$sufficient_cxx" != "yes"
 then
-	AC_MSG_ERROR([This libpqxx version needs at least C++17.])
+	AC_MSG_ERROR([This libpqxx version needs at least C++20.])
 fi
 
 
 # Let's try to get the compiler to be helpful.
 #
 # (Omit options -Weffc++ and -Wabi because they currently yield too many
-# warnings in gcc's standard headers; omit -Wunreachable-code because it isn't
-# always right)
+# warnings in gcc's standard headers.)
 if test "$GCC" = "yes"
 then
 	# In maintainer mode, enable all the warning options we can.
@@ -125,7 +125,10 @@ then
 		# "Eternal" (FLW) g++ options.  These have been around for
 		# ages, and both g++ and clang++ support them.  Don't bother
 		# checking for support; just add them to the compiler options.
-		# TODO: Add -D_GLIBCXX_CONCEPT_CHECKS in 8.0.
+		#
+		# We'd love to add -D_GLIBCXX_CONCEPT_CHECKS in 8.0 here, but
+		# it complains that the "reference" type in result iterators is
+		# not an actual reference.
 		add_compiler_opts \
 			-fstrict-enums \
 			-Werror \
@@ -163,6 +166,7 @@ then
 		# but we can't use it because as of gcc 13.2.0 we still see it
 		# generating errors for the standard library.
 		add_compiler_opts_if_ok \
+			-fnothrow-opt \
 			-Wanalyzer-double-fclose \
 			-Wanalyzer-double-free \
 			-Wanalyzer-exposure-through-output-file \
@@ -184,31 +188,41 @@ then
 			-Wanalyzer-use-of-uninitialized-value \
 			-Wanalyzer-write-to-const \
 			-Wanalyzer-write-to-string-literal \
-			-fnothrow-opt \
+			-Warray-bounds=2 \
 			-Wattribute-alias=2 \
+			-Wdangling-gsl \
+			-Wdangling-reference \
 			-Wdeprecated-literal-operator \
+			-Wduplicated-branches \
+			-Wduplicated-cond \
 			-Wlogical-op \
 			-Wmismatched-tags \
 			-Wredundant-tags \
 			-Wrestrict \
 			-Wstringop-overflow \
-			-Warray-bounds=2 \
-			-Wduplicated-branches \
-			-Wduplicated-cond \
 			-Wsuggest-attribute=noreturn \
 			-Wsuggest-override \
-			-Wtrampolines
+			-Wtrampolines \
+			-Wunreachable-code
 	fi
 
 	# In "audit," enable all runtime checks we can.
 	if test "$enable_audit" = "yes"
 	then
-		add_compiler_opts_if_ok \
+		# These macros enable extra runtime checking in various
+		# standard library implementations.
+		add_compiler_opts \
 			-D_FORTIFY_SOURCE=2 \
 			-D_GLIBCXX_ASSERTIONS \
 			-D_GLIBCXX_DEBUG \
 			-D_GLIBCXX_DEBUG_PEDANTIC \
 			-D_GLIBCXX_SANITIZE_VECTOR \
+			-D_LIBCPP_DEBUG=1 \
+			-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
+		# Run-time sanitizers and such.  These can differ from one
+		# compiler (or version) to the next.
+		add_compiler_opts_if_ok \
+			-fno-sanitize-recover=all \
 			-fsanitize=address \
 			-fsanitize-address-use-after-scope \
 			-fsanitize=alignment \
@@ -445,39 +459,6 @@ occurring in the file.
 	${with_postgres_libpath})
 
 
-# TODO: PQresultMemorySize()
-
-
-AC_MSG_CHECKING([whether we need a link option for <filesystem> support])
-LIBS_SAVE="$LIBS"
-found_fslib=no
-for l in '' '-lstdc++fs' '-lc++fs'
-do
-	if test "$found_fslib" != "yes"
-	then
-		LIBS="$LIBS $l"
-		AC_LINK_IFELSE(
-			[read_test(no_need_fslib.cxx)],
-			[found_fslib=yes],
-			[LIBS="$LIBS_SAVE"])
-		if test "$found_fslib" = "yes"
-		then
-			result_msg="$l"
-			# (And keep our current value of $LIBS.)
-		fi
-	fi
-done
-
-if test "$found_fslib" != "yes"
-then
-	AC_MSG_ERROR([
-There seems to be <filesystem> support, but I could not figure out now to make
-it work.  You'll have to set your own build options for this.
-	])
-fi
-AC_MSG_RESULT($result_msg)
-
-
 # Remove redundant occurrances of -lpq
 LIBS=[$(echo "$LIBS" | sed -e 's/-lpq * -lpq\>/-lpq/g')]
 
@@ -503,8 +484,9 @@ AC_MSG_RESULT(yes)
 AC_PROG_MAKE_SET
 
 AC_CONFIG_FILES([
-	Makefile config/Makefile doc/Makefile src/Makefile test/Makefile
-	tools/Makefile include/Makefile include/pqxx/Makefile libpqxx.pc])
+	Makefile config/Makefile doc/Makefile examples/Makefile src/Makefile
+	test/Makefile tools/Makefile include/Makefile include/pqxx/Makefile
+	libpqxx.pc])
 
 
 AC_CONFIG_COMMANDS([configitems],

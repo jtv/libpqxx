@@ -1,3 +1,4 @@
+---
 pqxx:
   extends: default
   rules:

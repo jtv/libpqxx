@@ -1,12 +1,6 @@
-#include <cstring>
-#include <iostream>
-
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
-
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Example program for libpqxx.  Test binary string functionality.
@@ -14,45 +8,48 @@ namespace
 {
 void test_062()
 {
-  connection cx;
-  work tx{cx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
-  std::string const TestStr{
-    "Nasty\n\030Test\n\t String with \200\277 weird bytes "
+  char const test_data[]{
+    "Nasty\n\030\0Test\n\t String with \200\277 weird bytes "
     "\r\0 and Trailer\\\\\0"};
+  static_assert(std::size(test_data) > 50);
+  std::string const test_str{std::data(test_data), std::size(test_data)};
 
   tx.exec("CREATE TEMP TABLE pqxxbin (binfield bytea)").no_rows();
 
-  std::string const Esc{tx.esc_raw(bytes{
-    reinterpret_cast<std::byte const *>(std::data(TestStr)),
-    std::size(TestStr)})};
+  // C++23: Initialise as data{std::from_range_t, test_str}?
+  pqxx::bytes data;
+  for (char c : test_str) data.push_back(static_cast<std::byte>(c));
+  PQXX_CHECK_EQUAL(std::size(data), std::size(test_data));
+
+  std::string const Esc{tx.esc(data)};
 
   tx.exec("INSERT INTO pqxxbin VALUES ('" + Esc + "')").no_rows();
 
-  result R{tx.exec("SELECT * from pqxxbin")};
+  pqxx::result const R{tx.exec("SELECT * from pqxxbin")};
   tx.exec("DELETE FROM pqxxbin").no_rows();
 
-  auto const B{R.at(0).at(0).as<bytes>()};
+  auto const B{R.at(0).at(0).as<pqxx::bytes>()};
 
-  PQXX_CHECK(not std::empty(B), "Binary string became empty in conversion.");
+  PQXX_CHECK(not std::empty(B));
 
-  PQXX_CHECK_EQUAL(
-    std::size(B), std::size(TestStr), "Binary string was mangled.");
+  PQXX_CHECK_EQUAL(std::size(B), std::size(test_data));
 
-  bytes::const_iterator c;
-  bytes::size_type i;
+  pqxx::bytes::const_iterator c;
+  pqxx::bytes::size_type i{};
   for (i = 0, c = std::begin(B); i < std::size(B); ++i, ++c)
   {
-    PQXX_CHECK(c != std::end(B), "Premature end to binary string.");
+    PQXX_CHECK(c != std::end(B));
 
-    char const x{TestStr.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
+    char const x{test_str.at(i)}, y{char(B.at(i))}, z{char(std::data(B)[i])};
 
-    PQXX_CHECK_EQUAL(
-      std::string(&x, 1), std::string(&y, 1), "Binary string byte changed.");
+    PQXX_CHECK_EQUAL(std::string(&x, 1), std::string(&y, 1));
 
     PQXX_CHECK_EQUAL(
       std::string(&y, 1), std::string(&z, 1),
-      "Inconsistent byte at offset " + to_string(i) + ".");
+      "Inconsistent byte at offset " + pqxx::to_string(i) + ".");
   }
 }
 

@@ -22,6 +22,9 @@
 
 namespace pqxx
 {
+// This class is deprecated.
+// LCOV_EXCL_START
+
 /// Identity of a large object.
 /** @deprecated Use the @ref blob class instead.
  *
@@ -340,7 +343,7 @@ public:
 
   largeobjectaccess() = delete;
   largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
 
 private:
   PQXX_PRIVATE std::string reason(int err) const;
@@ -447,17 +450,17 @@ protected:
       auto const write_sz{pp - pb};
       auto const written_sz{
         m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb))};
-      if (internal::cmp_less_equal(written_sz, 0))
+      if (std::cmp_less_equal(written_sz, 0))
         throw internal_error{
           "pqxx::largeobject: write failed "
           "(is transaction still valid on write or flush?), "
           "libpq reports error"};
       else if (write_sz != written_sz)
-        throw internal_error{
+        throw internal_error{std::format(
           "pqxx::largeobject: write failed "
-          "(is transaction still valid on write or flush?), " +
-          std::to_string(written_sz) + "/" + std::to_string(write_sz) +
-          " bytes written"};
+          "(is transaction still valid on write or flush?), {}/{} "
+          " bytes written",
+          written_sz, write_sz)};
       auto const out{adjust_eof(written_sz)};
 
       if constexpr (std::is_arithmetic_v<decltype(out)>)
@@ -731,5 +734,7 @@ private:
 };
 
 using lostream = basic_lostream<char>;
+
+// LCOV_EXCL_STOP
 } // namespace pqxx
 #endif

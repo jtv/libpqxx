@@ -12,8 +12,8 @@ class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
 {
   friend class pqxx::internal::sql_cursor;
 
-  connection_sql_cursor(reference x) : super(x) {}
+  connection_sql_cursor(reference x) noexcept : super(x) {}
 
-  result exec(char const query[]) { return home().exec(query); }
+  result exec(char const query[], sl loc) { return home().exec(query, loc); }
 };
 } // namespace pqxx::internal::gate
