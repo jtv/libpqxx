@@ -659,8 +659,9 @@ template<>
 constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::gbk>{"\x95\\"};
-template<>
-constexpr std::string_view attack<pqxx::encoding_group::johab>{"\x8a\\"};
+// TODO: Re-enable once it starts working on the server!
+// template<>
+// constexpr std::string_view attack<pqxx::encoding_group::johab>{"\x8a\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::sjis>{"\x95\\"};
 
@@ -676,9 +677,10 @@ constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::gbk>{
   "\xe6\x98\x9e"};
-template<>
-constexpr std::string_view safe_attack<pqxx::encoding_group::johab>{
-  "\xea\xb5\x8e"};
+// TODO: Re-enable once it starts working on the server!
+// template<>
+// constexpr std::string_view safe_attack<pqxx::encoding_group::johab>{
+//   "\xea\xb5\x8e"};
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::sjis>{
   "\xe8\xa1\xa8"};
