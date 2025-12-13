@@ -150,6 +150,11 @@ void test_bad_tuples(pqxx::connection &cx)
   PQXX_CHECK(not static_cast<bool>(OPT), "expected null field")
 
 
+/// Japanese text: \u3053\u3093\u306b\u3061\u308f ("konichiwa," a greeting).
+constexpr std::string_view japanese_utf8{
+  "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f"};
+
+
 template<template<typename...> class O>
 void test_stream_from_optional(pqxx::connection &connection)
 {
@@ -192,8 +197,7 @@ void test_stream_from_optional(pqxx::connection &connection)
   ASSERT_FIELD_EQUAL((std::get<1>(got_tuple)), "2018-11-17 21:23:00");
   ASSERT_FIELD_NULL(std::get<2>(got_tuple));
   ASSERT_FIELD_NULL(std::get<3>(got_tuple));
-  ASSERT_FIELD_EQUAL(
-    (std::get<4>(got_tuple)), "\u3053\u3093\u306b\u3061\u308f");
+  ASSERT_FIELD_EQUAL((std::get<4>(got_tuple)), japanese_utf8);
   ASSERT_FIELD_EQUAL(
     (std::get<5>(got_tuple)),
     (bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}));
@@ -230,8 +234,7 @@ void test_stream_from()
   tx.exec(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     pqxx::params{
-      5678, "2018-11-17 21:23:00", nullptr, nullptr,
-      "\u3053\u3093\u306b\u3061\u308f",
+      5678, "2018-11-17 21:23:00", nullptr, nullptr, japanese_utf8,
       bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}});
   tx.commit();
 
