@@ -1,5 +1,6 @@
 #include <optional>
 
+#include <pqxx/nontransaction>
 #include <pqxx/stream_to>
 #include <pqxx/transaction>
 
@@ -20,13 +21,15 @@ std::string truncate_sql_error(std::string const &what)
 }
 
 
-void test_stream_to_nonoptionals(pqxx::connection &connection)
+void test_stream_to_nonoptionals(pqxx::connection &cx)
 {
-  pqxx::work tx{connection};
+  pqxx::work tx{cx};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter);
 
-  auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
+  // Japanese "konichiwa" encoded in UTF-8.
+  auto const nonascii{
+    "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f"};
   bytea const binary{'\x00', '\x01', '\x02'},
     text{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'};
 
@@ -61,7 +64,8 @@ void test_nonoptionals_fold(pqxx::connection &connection)
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter);
 
-  auto const nonascii{"\u3053\u3093\u306b\u3061\u308f"};
+  auto const nonascii{
+    "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f"};
   bytea const binary{'\x00', '\x01', '\x02'},
     text{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'};
 
@@ -296,9 +300,9 @@ void test_container_stream_to()
   tx.commit();
 }
 
-void test_variant_fold(pqxx::connection &connection)
+void test_variant_fold(pqxx::connection &cx)
 {
-  pqxx::work tx{connection};
+  pqxx::work tx{cx};
   auto inserter{pqxx::stream_to::table(tx, {"stream_to_test"})};
   PQXX_CHECK(inserter);
 
@@ -308,7 +312,7 @@ void test_variant_fold(pqxx::connection &connection)
     "hello world", bytea{'\x00', '\x01', '\x02'});
   inserter.write_values(
     5678, "2018-11-17 21:23:00", nullptr, nullptr,
-    "\u3053\u3093\u306b\u3061\u308f",
+    "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f",
     bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'});
   inserter.write_values(910, nullptr, nullptr, nullptr, "\\N", bytea{});
 
@@ -546,6 +550,193 @@ void test_stream_to_empty_strings()
 }
 
 
+/// One encoding name for every encoding group.
+/** There can actually be many encodings in one encoding group.  We pick one.
+ */
+template<pqxx::encoding_group> constexpr pqxx::zview encoding_name;
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::ascii_safe>{"UTF8"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::big5>{"BIG5"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::gb18030>{"gb18030"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::gbk>{"GBK"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::johab>{"JOHAB"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::sjis>{"SJIS"};
+template<>
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::uhc>{"UHC"};
+
+
+/// A Japanese greeting in various encodings.
+template<pqxx::encoding_group> constexpr std::string_view hello;
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::ascii_safe>{
+  "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::big5>{
+  "\xc6\xb7\xc6\xf7\xc6\xcf\xc6\xc5\xc6\xf3"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::gb18030>{
+  "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xef"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::gbk>{
+  "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xef"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::johab>{
+  "\xdd\xb3\xdd\xf3\xdd\xcb\xdd\xc1\xdd\xef"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::sjis>{
+  "\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xed"};
+template<>
+constexpr std::string_view hello<pqxx::encoding_group::uhc>{
+  "\xaa\xb3\xaa\xf3\xaa\xcb\xaa\xc1\xaa\xef"};
+
+
+/// Test streaming Japanese text to a table in `ENC`.  Reset to UTF-8.
+template<pqxx::encoding_group ENC>
+void check_stream_to_encodes(pqxx::connection &cx)
+{
+  cx.set_client_encoding(encoding_name<ENC>);
+
+  {
+    pqxx::work tx1{cx};
+    tx1.exec("DELETE FROM greeting").no_rows();
+
+    auto stream{pqxx::stream_to::table(tx1, {"greeting"}, {"hi"})};
+    stream.write_values(hello<ENC>);
+    stream.complete();
+    tx1.commit();
+  }
+
+  cx.set_client_encoding("UTF8");
+
+  {
+    pqxx::work tx2{cx};
+    auto const out{tx2.query_value<std::string>("SELECT * FROM greeting")};
+    PQXX_CHECK_EQUAL(out, hello<pqxx::encoding_group::ascii_safe>);
+  }
+}
+
+
+void test_stream_to_transcodes()
+{
+  pqxx::connection cx;
+  {
+    pqxx::nontransaction tx{cx};
+    tx.exec("CREATE TEMP TABLE greeting (hi varchar)").no_rows();
+  }
+
+  check_stream_to_encodes<pqxx::encoding_group::ascii_safe>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::big5>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::gb18030>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::gbk>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::johab>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::sjis>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::uhc>(cx);
+}
+
+
+/// In each unsafe encoding, a string embedding fake special ASCII characters.
+/** This is for testing how resilient the streams are to bytes embedded inside
+ * multibyte characters that happen to have the same numeric value as any of
+ * the special characters: tab, newline, backslash.
+ *
+ * By definition, there are no such characters in the ASCII-safe encodings.
+ * Same for UHC actually: it's actually ASCII-safe for characters other than
+ * the ASCII letters (A-Z and a-z).  So for these encodings, the strings are
+ * empty.
+ *
+ * The other supported encodings are only slightly less safe: they can embed a
+ * backslash byte, but not a tab or newline byte.
+ */
+template<pqxx::encoding_group> constexpr std::string_view attack{""};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::big5>{"\xa5\\"};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::gbk>{"\x95\\"};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::johab>{"\x8a\\"};
+template<>
+constexpr std::string_view attack<pqxx::encoding_group::sjis>{"\x95\\"};
+
+
+/// The respective attack strings, but encoded in UTF-8.
+template<pqxx::encoding_group> constexpr std::string_view safe_attack;
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::big5>{
+  "\xe5\x8a\x9f"};
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
+  "\xe6\x98\x9e"};
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::gbk>{
+  "\xe6\x98\x9e"};
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::johab>{
+  "\xea\xb5\x8e"};
+template<>
+constexpr std::string_view safe_attack<pqxx::encoding_group::sjis>{
+  "\xe8\xa1\xa8"};
+
+
+/// Verify that streaming in ENC is resilient to ASCII embedding attacks.
+template<pqxx::encoding_group ENC> void check_attack(pqxx::connection &cx)
+{
+  // Some extra nastiness we add for good measure.
+  constexpr std::string_view extra_nastiness{"\t\r\n\\"};
+  // Attack attempt's text body.
+  auto const text{std::format("{}{}", attack<ENC>, extra_nastiness)};
+  // Same text, correctly encoded in UTF-8.
+  auto const utf{std::format("{}{}", safe_attack<ENC>, extra_nastiness)};
+
+  cx.set_client_encoding(encoding_name<ENC>);
+  {
+    pqxx::nontransaction tx{cx};
+    tx.exec("DELETE FROM attack").no_rows();
+    auto stream{pqxx::stream_to::table(tx, {"attack"}, {"data"})};
+    stream.write_values(text);
+    stream.complete();
+  }
+
+  // Verify the text that got into the table.
+  {
+    pqxx::nontransaction tx{cx};
+    PQXX_CHECK_EQUAL(
+      tx.query_value<std::string>("SELECT * FROM attack"), text);
+  }
+
+  // To be sure that it's not just broken in a _consistent_ way, also query the
+  // UTF-8 equivalent.
+  cx.set_client_encoding("UTF8");
+  {
+    pqxx::nontransaction tx{cx};
+    PQXX_CHECK_EQUAL(tx.query_value<std::string>("SELECT * FROM attack"), utf);
+  }
+}
+
+
+void test_stream_to_handles_embedded_special_values()
+{
+  pqxx::connection cx;
+  {
+    pqxx::nontransaction tx{cx};
+    tx.exec("CREATE TEMP TABLE attack (data varchar)").no_rows();
+  }
+  check_attack<pqxx::encoding_group::ascii_safe>(cx);
+  check_attack<pqxx::encoding_group::big5>(cx);
+  check_attack<pqxx::encoding_group::gb18030>(cx);
+  check_attack<pqxx::encoding_group::gbk>(cx);
+  check_attack<pqxx::encoding_group::johab>(cx);
+  check_attack<pqxx::encoding_group::sjis>(cx);
+  check_attack<pqxx::encoding_group::uhc>(cx);
+}
+
+
 PQXX_REGISTER_TEST(test_stream_to);
 PQXX_REGISTER_TEST(test_container_stream_to);
 PQXX_REGISTER_TEST(test_stream_to_does_nonnull_optional);
@@ -556,4 +747,6 @@ PQXX_REGISTER_TEST(test_stream_to_optionals);
 PQXX_REGISTER_TEST(test_stream_to_escaping);
 PQXX_REGISTER_TEST(test_stream_to_moves_into_optional);
 PQXX_REGISTER_TEST(test_stream_to_empty_strings);
+PQXX_REGISTER_TEST(test_stream_to_transcodes);
+PQXX_REGISTER_TEST(test_stream_to_handles_embedded_special_values);
 } // namespace
