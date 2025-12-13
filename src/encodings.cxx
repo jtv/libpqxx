@@ -72,7 +72,8 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       if (same(encoding_name, "GB18030"sv))
         return encoding_group::gb18030;
       else if (same(encoding_name, "GBK"sv))
-        return encoding_group::gbk;
+        // GBK is an older subset of GB18030.
+        return encoding_group::gb18030;
       break;
     case 'I':
       // We know iso-8859-X, where 5 <= X < 9.  They're all single-byte
@@ -159,7 +160,7 @@ static_assert(
 static_assert(
   enc_group("EUC_TW", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("GB18030", sl::current()) == encoding_group::gb18030);
-static_assert(enc_group("GBK", sl::current()) == encoding_group::gbk);
+static_assert(enc_group("GBK", sl::current()) == encoding_group::gb18030);
 static_assert(
   enc_group("ISO_8859_1", sl::current()) == encoding_group::ascii_safe);
 static_assert(

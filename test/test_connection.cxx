@@ -212,8 +212,6 @@ void test_connection_client_encoding()
   PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::big5);
   cx.set_client_encoding("GB18030");
   PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::gb18030);
-  cx.set_client_encoding("GBK");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::gbk);
   cx.set_client_encoding("JOHAB");
   PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::johab);
   cx.set_client_encoding("SJIS");
