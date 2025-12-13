@@ -208,20 +208,22 @@ void test_skip_init_ssl()
 void test_connection_client_encoding()
 {
   pqxx::connection cx;
-  cx.set_client_encoding("BIG5");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::big5);
-  cx.set_client_encoding("GB18030");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::gb18030);
-  cx.set_client_encoding("JOHAB");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::johab);
-  cx.set_client_encoding("SJIS");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::sjis);
-  cx.set_client_encoding("SHIFT_JIS_2004");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::sjis);
-  cx.set_client_encoding("UHC");
-  PQXX_CHECK_EQUAL(cx.get_encoding_group(), pqxx::encoding_group::uhc);
+  std::map<char const *, pqxx::encoding_group> const unsafe_encodings = {
+    {"BIG5", pqxx::encoding_group::big5},
+    {"GBK", pqxx::encoding_group::gb18030},
+    {"GB18030", pqxx::encoding_group::gb18030},
+    {"JOHAB", pqxx::encoding_group::johab},
+    {"SJIS", pqxx::encoding_group::sjis},
+    {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
+    {"UHC", pqxx::encoding_group::uhc},
+  };
+  for (auto const &[name, enc] : unsafe_encodings)
+  {
+    cx.set_client_encoding(name);
+    PQXX_CHECK_EQUAL(cx.get_encoding_group(), enc);
+  }
 
-  static std::vector<char const *> const safe_encodings{
+  std::vector<char const *> const safe_encodings{
     "EUC_CN",
     "EUC_JIS_2004",
     "EUC_JP",

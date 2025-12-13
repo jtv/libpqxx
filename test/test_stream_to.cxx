@@ -646,7 +646,7 @@ void test_stream_to_transcodes()
  * The other supported encodings are only slightly less safe: they can embed a
  * backslash byte, but not a tab or newline byte.
  */
-template<pqxx::encoding_group> constexpr std::string_view attack{""};
+template<pqxx::encoding_group> constexpr std::string_view attack;
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::big5>{"\xa5\\"};
 template<>
@@ -666,7 +666,6 @@ constexpr std::string_view safe_attack<pqxx::encoding_group::big5>{
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
   "\xe6\x98\x9e"};
-template<>
 // TODO: Re-enable once it starts working on the server!
 // template<>
 // constexpr std::string_view safe_attack<pqxx::encoding_group::johab>{
@@ -722,8 +721,7 @@ void test_stream_to_handles_embedded_special_values()
   check_attack<pqxx::encoding_group::ascii_safe>(cx);
   check_attack<pqxx::encoding_group::big5>(cx);
   check_attack<pqxx::encoding_group::gb18030>(cx);
-  // TODO: Enable this once it starts working on the server!
-  // check_attack<pqxx::encoding_group::johab>(cx);
+  check_attack<pqxx::encoding_group::johab>(cx);
   check_attack<pqxx::encoding_group::sjis>(cx);
   check_attack<pqxx::encoding_group::uhc>(cx);
 }
