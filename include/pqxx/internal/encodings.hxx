@@ -265,17 +265,21 @@ template<> struct glyph_scanner<encoding_group::johab> final
 
     auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("JOHAB", buffer, start, 1, loc);
+      throw_for_encoding_error("JOHAB (path 1)", buffer, start, 1, loc);
 
-    auto const byte2{get_byte(buffer, start)};
-    if (
-      (between_inc(byte1, 0x84, 0xd3) and
-       (between_inc(byte2, 0x41, 0x7e) or between_inc(byte2, 0x81, 0xfe))) or
-      ((between_inc(byte1, 0xd8, 0xde) or between_inc(byte1, 0xe0, 0xf9)) and
-       (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))))
-      return start + 2;
+    auto const byte2{get_byte(buffer, start + 1)};
+    if (between_inc(byte1, 0x84, 0xd3))
+    {
+      if (between_inc(byte2, 0x41, 0xfe) and byte2 != 0x80)
+        return start + 2;
+    }
+    if (between_inc(byte1, 0xd0, 0xf9) and byte2 != 0xdf)
+    {
+      if (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))
+        return start + 2;
+    }
 
-    [[unlikely]] throw_for_encoding_error("JOHAB", buffer, start, 2, loc);
+    [[unlikely]] throw_for_encoding_error("JOHAB (path 2)", buffer, start, 2, loc);
   }
 };
 
@@ -319,7 +323,15 @@ template<> struct glyph_scanner<encoding_group::sjis> final
 };
 
 
-// https://en.wikipedia.org/wiki/Unified_Hangul_Code
+/// Unified Hangul Code.
+/** This is a very special case: in any multibyte character, the first byte
+ * must be above the ASCII range (as with all other supported encodings), and
+ * then all the following bytes must be _either_ above the ASCII range, _or_
+ * simple ASCII letters (A-Z and a-z).
+ *
+ * This makes UHC a special case: it's ASCII-safe so long as you're not looking
+ * for a letter!
+ */
 template<> struct glyph_scanner<encoding_group::uhc> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
@@ -385,6 +397,7 @@ PQXX_PURE
   case encoding_group::sjis:
     return pqxx::internal::find_ascii_char<encoding_group::sjis, NEEDLE...>;
   case encoding_group::uhc:
+    // TODO: If none of NEEDLE are in A-Z/a-z, treat as ascii_safe.
     return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
 
   default:
