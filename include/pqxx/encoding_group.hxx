@@ -53,16 +53,26 @@ enum class encoding_group
    */
   ascii_safe,
 
-  /// Non-ASCII-safe: Big5 for Traditional Chinese.
-  big5,
+  /// Low byte is ASCII, high byte starts a 2-byte character.
+  /** Both BIG5 and UHC work like this.  The details vary, but we don't need to
+   * validate the input in detail; we just need to be sure that we don't
+   * mistake a byte in a multibyte character for a separate special ASCII
+   * character (or vice versa if the input ends in mid-character).
+   *
+   * UHC is, for our purposes, ASCII-safe so long as none of the characters
+   * you're looking for are ASCII letters.  So in that common case, feel free
+   * to use the `ascii_safe` glyph scanner instead.
+   */
+  two_tier,
+
   /// Non-ASCII-safe: GB18030 for Chinese (Traditional & Simplified).
+  /** This also covers older subsets such as GBK.
+   */
   gb18030,
   /// Non-ASCII-safe: JOHAB for Korean.
   johab,
   /// Non-ASCII-safe: Japanese JIS and Shift JIS.
   sjis,
-  /// Non-ASCII-safe: Korean Unified Hangul Code.
-  uhc,
 };
 } // namespace pqxx
 

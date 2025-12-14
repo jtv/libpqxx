@@ -146,11 +146,10 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
       "Tried to parse array without knowing its encoding.", loc};
 
     PQXX_ENCODING_CASE(ascii_safe);
-    PQXX_ENCODING_CASE(big5);
+    PQXX_ENCODING_CASE(two_tier);
     PQXX_ENCODING_CASE(gb18030);
     PQXX_ENCODING_CASE(johab);
     PQXX_ENCODING_CASE(sjis);
-    PQXX_ENCODING_CASE(uhc);
   }
   [[unlikely]] throw pqxx::internal_error{
     std::format("Unsupported encoding code: {}.", to_string(enc)), loc};

@@ -33,7 +33,7 @@ template<pqxx::encoding_group ENC> std::string_view const eels;
 
 /// Big5: Traditional Chinese.
 template<>
-auto const eels<pqxx::encoding_group::big5>{
+auto const eels<pqxx::encoding_group::two_tier>{
   "\xa7\xda\xaa\xba\xae\xf0\xb9\xd4\xb2\xee\xb8\xcc\xa5\xfe\xac\x4f\xc5\xc1"
   "\xb3\xbd"sv};
 /// ASCII-safe: German.
@@ -57,12 +57,6 @@ auto const eels<pqxx::encoding_group::sjis>{
   "\x8e\x84\x82\xcc\x83\x7a\x83\x6f\x81\x5b\x83\x4e\x83\x89\x83\x74\x83\x67"
   "\x82\xcd\x83\x45\x83\x69\x83\x4d\x82\xc5\x82\xa2\x82\xc1\x82\xcf\x82\xa2"
   "\x82\xc5\x82\xb7"sv};
-/// UHC: Korean.
-template<>
-auto const eels<pqxx::encoding_group::uhc>{
-  "\xb3\xbb \xc8\xa3\xb9\xf6\xc5\xa9\xb7\xa1\xc7\xc1\xc6\xae\xb4\xc2 "
-  "\xc0\xe5\xbe\xee\xb7\xce \xb0\xa1\xb5\xe6 \xc2\xf7 "
-  "\xc0\xd6\xbe\xee\xbf\xe4"sv};
 
 
 /// A tricky test text.
@@ -71,13 +65,12 @@ auto const eels<pqxx::encoding_group::uhc>{
  */
 template<pqxx::encoding_group ENC> std::string_view const tricky;
 
-template<> auto const tricky<pqxx::encoding_group::big5>{"\xaa\x58"sv};
+template<> auto const tricky<pqxx::encoding_group::two_tier>{"\xaa\x58"sv};
 // (Yeah such a string is not possible here.)
 template<> auto const tricky<pqxx::encoding_group::ascii_safe>{""sv};
 template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81\x58"sv};
 template<> auto const tricky<pqxx::encoding_group::johab>{"\x84\x58"sv};
 template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81\x58"sv};
-template<> auto const tricky<pqxx::encoding_group::uhc>{"\xa1\x58"sv};
 
 
 /// Test basic sanity of search in encoding group `ENC`.
@@ -138,12 +131,11 @@ template<pqxx::encoding_group ENC> void test_search(std::string_view enc_name)
 
 void test_find_chars()
 {
-  test_search<pqxx::encoding_group::big5>("big5");
+  test_search<pqxx::encoding_group::two_tier>("big5");
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
   test_search<pqxx::encoding_group::gb18030>("gb18030");
   test_search<pqxx::encoding_group::johab>("johab");
   test_search<pqxx::encoding_group::sjis>("sjis");
-  test_search<pqxx::encoding_group::uhc>("uhc");
 }
 
 
@@ -159,11 +151,10 @@ template<pqxx::encoding_group ENC> void check_unfinished_character()
 
 void test_find_chars_fails_for_unfinished_character()
 {
-  check_unfinished_character<pqxx::encoding_group::big5>();
+  check_unfinished_character<pqxx::encoding_group::two_tier>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();
   check_unfinished_character<pqxx::encoding_group::johab>();
   check_unfinished_character<pqxx::encoding_group::sjis>();
-  check_unfinished_character<pqxx::encoding_group::uhc>();
 }
 
 
@@ -187,9 +178,10 @@ void test_find_chars_reports_malencoded_text()
   }
 
   pqxx::encoding_group const unsafe[]{
-    pqxx::encoding_group::big5,  pqxx::encoding_group::gb18030,
-    pqxx::encoding_group::johab, pqxx::encoding_group::sjis,
-    pqxx::encoding_group::uhc,
+    pqxx::encoding_group::two_tier,
+    pqxx::encoding_group::gb18030,
+    pqxx::encoding_group::johab,
+    pqxx::encoding_group::sjis,
   };
 
   // Bet that the random data isn't going to be fully correct in any of the

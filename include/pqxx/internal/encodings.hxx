@@ -45,22 +45,30 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
 
 
 /// Throw an error reporting that input text is not properly encoded.
-[[noreturn]] PQXX_COLD PQXX_INLINE_COV inline void throw_for_encoding_error(
+/** @param encoding_name Either a name for the expected encoding, or a
+ *    placeholder for it.
+ * @param buffer The full input text.
+ * @param start The starting offset for the incorrect character.
+ * @param count The number of bytes in the incorrect character.  Must not
+ *   exceed the size of the buffer.
+ */
+[[noreturn]] PQXX_COLD void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
-  std::size_t count, sl loc)
-{
-  // C++23: Use std::ranges::views::join_with()?
-  std::stringstream s;
-  s << "Invalid byte sequence for encoding " << encoding_name << " at byte "
-    << start << ": " << std::hex << std::setw(2) << std::setfill('0');
-  for (std::size_t i{0}; i < count; ++i)
-  {
-    s << "0x" << static_cast<unsigned int>(get_byte(buffer, start + i));
-    if (i + 1 < count)
-      s << " ";
-  }
-  throw pqxx::argument_error{s.str(), loc};
-}
+  std::size_t count, sl loc);
+
+
+/// Throw an error reporting that the input is truncated in mid-character.
+/** This happens when a multibyte character is supposed to span more bytes
+ * than there are left in the buffer.
+ *
+ * @param encoding_name Either a name for the expected encoding, or a
+ *    placeholder for it.
+ * @param buffer The full input text.
+ * @param start The starting offset for the incorrect character.
+ */
+[[noreturn]] PQXX_COLD void throw_for_truncated_character(
+  char const *encoding_name, std::string_view buffer, std::size_t start,
+  sl loc);
 
 
 /// Does value lie between bottom and top, inclusive?
@@ -136,6 +144,18 @@ find_ascii_char(std::string_view haystack, std::size_t here, sl loc)
 }
 
 
+/// ASCII, Latin-1, UTF-8, and the like.
+/** These are the "ASCII-safe" encodings.  Safe in the sense that in correctly
+ * encoded text, there can never be a byte that happens to have the same
+ * numeric value has an ASCII character we might be looking for.
+ *
+ * This applies to UTF-8, Latin-* (iso-8859-*), other single-byte encodings,
+ * and probably more.  So when we're scanning text in these encodings for one
+ * or more special ASCII characters, we can just walk through it byte by byte.
+ * That might _sound_ slower, but it's actually a lot more efficient than
+ * constantly checking the values of the bytes and deciding when to jump ahead
+ * by one or two bytes.
+ */
 template<> struct glyph_scanner<encoding_group::ascii_safe> final
 {
   PQXX_INLINE_ONLY PQXX_PURE static constexpr std::size_t
@@ -146,32 +166,52 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
 };
 
 
-// https://en.wikipedia.org/wiki/Big5#Organization
-template<> struct glyph_scanner<encoding_group::big5> final
+/// Common encoding pattern: 1-byte ASCII, or 2-byte starting with high byte.
+/** Both BIG5 and Unified Hangul Code (UHC) work like this.  The details vary,
+ * with both having different sub-ranges where no valid characters exist, but
+ * we simply don't care.  Caring is inefficient.
+ *
+ * What we do care about is that when a byte has a value that looks like a
+ * special ASCII character we're trying to find, we know exactly whether it is
+ * that ASCII character, or just a byte inside a multibyte character.
+ */
+template<> struct glyph_scanner<encoding_group::two_tier> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const byte1{get_byte(buffer, start)};
     if (byte1 < 0x80)
+    {
+      // Single-byte ASCII subset.
       return start + 1;
-
-    auto const sz{std::size(buffer)};
-    if (not between_inc(byte1, 0x81, 0xfe) or (start + 2 > sz)) [[unlikely]]
-      throw_for_encoding_error("BIG5", buffer, start, 1, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (
-      not between_inc(byte2, 0x40, 0x7e) and
-      not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-      throw_for_encoding_error("BIG5", buffer, start, 2, loc);
-
-    return start + 2;
+    }
+    else if (start + 2 <= std::size(buffer))
+    {
+      // Two-byte character.  Not all combinations are valid, but that's not
+      // our concern.  All that matters to libpqxx is that it not mistake an
+      // ASCII-like value in the second byte for a special character, or vice
+      // versa.
+      return start + 2;
+    }
+    else
+    {
+      // We do need to ensure that the string does not end in the middle of
+      // a character, or an attacker could "steal" a special ASCII character
+      // that comes directly after the end of the input, and escape the bounds
+      // of the text that way.
+      [[unlikely]] throw_for_truncated_character(
+        "variable-width two-byte encoding", buffer, start, loc);
+    }
   }
 };
 
 
-// https://en.wikipedia.org/wiki/GB_18030#Mapping
+/// GB18030 and its older subsets, including GBK.
+/** Chinese variable-width encoding of up to 4 bytes per character.
+ *
+ * See https://en.wikipedia.org/wiki/GB_18030#Mapping
+ */
 template<> struct glyph_scanner<encoding_group::gb18030> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
@@ -185,7 +225,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
       throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
 
     if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
+      throw_for_truncated_character("GB18030", buffer, start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte2, 0x40, 0xfe))
@@ -197,7 +237,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
     }
 
     if (start + 4 > sz) [[unlikely]]
-      throw_for_encoding_error("GB18030", buffer, start, sz - start, loc);
+      throw_for_truncated_character("GB18030", buffer, start, loc);
 
     if (
       between_inc(byte2, 0x30, 0x39) and
@@ -210,15 +250,16 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 };
 
 
-/*
-The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes, but
-"CJKV Information Processing" describes it (actually just the Hangul portion)
-as "three five-bit segments" that reside inside 16 bits (2 bytes).
-
-CJKV Information Processing by Ken Lunde, pg. 269:
-
-  https://bit.ly/2BEOu5V
-*/
+/// JOHAB encoding.  Rare.  Seems broken in postgres itself.
+/** The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes,
+ * but CJKV Information Processing" describes it (actually just the Hangul
+ * portion) as "three five-bit segments" that reside inside 16 bits (2 bytes).
+ *
+ * CJKV Information Processing by Ken Lunde, pg. 269: https://bit.ly/2BEOu5V
+ *
+ * PostgreSQL does not seem to accept all valid characters.  Luckily this is a
+ * client-only encoding.  Is anyone actually using it?
+ */
 template<> struct glyph_scanner<encoding_group::johab> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
@@ -230,7 +271,7 @@ template<> struct glyph_scanner<encoding_group::johab> final
 
     auto const sz{std::size(buffer)};
     if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("JOHAB (path 1)", buffer, start, 1, loc);
+      throw_for_truncated_character("JOHAB (path 1)", buffer, start, loc);
 
     auto const byte2{get_byte(buffer, start + 1)};
     if (between_inc(byte1, 0x84, 0xd3))
@@ -250,87 +291,39 @@ template<> struct glyph_scanner<encoding_group::johab> final
 };
 
 
-// As far as I can tell, for the purposes of iterating the only difference
-// between SJIS and SJIS-2004 is increased range in the first byte of two-byte
-// sequences (0xEF increased to 0xFC).  Officially, that is; apparently the
-// version of SJIS used by Postgres has the same range as SJIS-2004.  They both
-// have increased range over the documented versions, not having the even/odd
-// restriction for the first byte in 2-byte sequences.
-//
-// https://en.wikipedia.org/wiki/Shift_JIS#Shift_JIS_byte_map
-// http://x0213.org/codetable/index.en.html
+/// Shift-JIS family of encodings.
+/** These are variable-width encodings with 1-byte and 2-byte characters, but
+ * with a twist: Katakana is mapped in the above-ASCII range _as single-byte
+ * characters._
+ *
+ * If it weren't for that twist, this would be just like @ref two_tier.
+ */
 template<> struct glyph_scanner<encoding_group::sjis> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
   call(std::string_view buffer, std::size_t start, sl loc)
   {
     auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80 or between_inc(byte1, 0xa1, 0xdf))
+    if (byte1 < 0x80)
+      // ASCII subset (though some characters changed).
+      return start + 1;
+    if (between_inc(byte1, 0xa1, 0xdf))
+      // Katakana, also single-byte characters.
       return start + 1;
 
+    // We're a bit strict at checking the first byte, because this is a
+    // relatively complex encoding.  We don't want to get fooled by some
+    // extension we don't know about.  An error and a user complaint is still
+    // better than a lurking bug.
     if (
       not between_inc(byte1, 0x81, 0x9f) and
       not between_inc(byte1, 0xe0, 0xfc)) [[unlikely]]
       throw_for_encoding_error("SJIS", buffer, start, 1, loc);
 
-    auto const sz{std::size(buffer)};
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("SJIS", buffer, start, sz - start, loc);
+    if (start + 2 > std::size(buffer)) [[unlikely]]
+      throw_for_truncated_character("SJIS", buffer, start, loc);
 
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (byte2 == 0x7f) [[unlikely]]
-      throw_for_encoding_error("SJIS", buffer, start, 2, loc);
-
-    if (between_inc(byte2, 0x40, 0x9e) or between_inc(byte2, 0x9f, 0xfc))
-      return start + 2;
-
-    [[unlikely]] throw_for_encoding_error("SJIS", buffer, start, 2, loc);
-  }
-};
-
-
-/// Unified Hangul Code.
-/** This is a very special case: in any multibyte character, the first byte
- * must be above the ASCII range (as with all other supported encodings), and
- * then all the following bytes must be _either_ above the ASCII range, _or_
- * simple ASCII letters (A-Z and a-z).
- *
- * This makes UHC a special case: it's ASCII-safe so long as you're not looking
- * for a letter!
- */
-template<> struct glyph_scanner<encoding_group::uhc> final
-{
-  PQXX_INLINE_ONLY static constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    auto const sz{std::size(buffer)};
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_encoding_error("UHC", buffer, start, sz - start, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (between_inc(byte1, 0x80, 0xc6))
-    {
-      if (
-        between_inc(byte2, 0x41, 0x5a) or between_inc(byte2, 0x61, 0x7a) or
-        between_inc(byte2, 0x80, 0xfe))
-        return start + 2;
-
-      [[unlikely]] throw_for_encoding_error("UHC", buffer, start, 2, loc);
-    }
-
-    if (between_inc(byte1, 0xa1, 0xfe))
-    {
-      if (not between_inc(byte2, 0xa1, 0xfe)) [[unlikely]]
-        throw_for_encoding_error("UHC", buffer, start, 2, loc);
-
-      return start + 2;
-    }
-
-    throw_for_encoding_error("UHC", buffer, start, 1, loc);
+    return start + 2;
   }
 };
 
@@ -352,28 +345,15 @@ PQXX_PURE
   case encoding_group::ascii_safe:
     return pqxx::internal::find_ascii_char<
       encoding_group::ascii_safe, NEEDLE...>;
-  case encoding_group::big5:
-    return pqxx::internal::find_ascii_char<encoding_group::big5, NEEDLE...>;
+  case encoding_group::two_tier:
+    return pqxx::internal::find_ascii_char<
+      encoding_group::two_tier, NEEDLE...>;
   case encoding_group::gb18030:
     return pqxx::internal::find_ascii_char<encoding_group::gb18030, NEEDLE...>;
   case encoding_group::johab:
     return pqxx::internal::find_ascii_char<encoding_group::johab, NEEDLE...>;
   case encoding_group::sjis:
     return pqxx::internal::find_ascii_char<encoding_group::sjis, NEEDLE...>;
-  case encoding_group::uhc:
-    // UHC is a very special case.  In any multibyte character, the first byte
-    // is above 0x7f, and each of the following bytes is either also above 0x7f
-    // or it's in the letter ranges (A-Z and a-z).
-    //
-    // It follows that UHC is ASCII-safe... so long as none of the characters
-    // we're looking for is an ASCII letter!
-    if constexpr (
-      (... and (not between_inc(NEEDLE, 'A', 'Z'))) and
-      (... and (not between_inc(NEEDLE, 'a', 'z'))))
-      return pqxx::internal::find_ascii_char<
-        encoding_group::ascii_safe, NEEDLE...>;
-    else
-      return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
 
   default:
     throw pqxx::internal_error{

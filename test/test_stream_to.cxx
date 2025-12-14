@@ -557,15 +557,13 @@ template<pqxx::encoding_group> constexpr pqxx::zview encoding_name;
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::ascii_safe>{"UTF8"};
 template<>
-constexpr pqxx::zview encoding_name<pqxx::encoding_group::big5>{"BIG5"};
+constexpr pqxx::zview encoding_name<pqxx::encoding_group::two_tier>{"BIG5"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::gb18030>{"gb18030"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::johab>{"JOHAB"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::sjis>{"SJIS"};
-template<>
-constexpr pqxx::zview encoding_name<pqxx::encoding_group::uhc>{"UHC"};
 
 
 /// A Japanese greeting in various encodings.
@@ -574,7 +572,7 @@ template<>
 constexpr std::string_view hello<pqxx::encoding_group::ascii_safe>{
   "\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x82\x8f"};
 template<>
-constexpr std::string_view hello<pqxx::encoding_group::big5>{
+constexpr std::string_view hello<pqxx::encoding_group::two_tier>{
   "\xc6\xb7\xc6\xf7\xc6\xcf\xc6\xc5\xc6\xf3"};
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::gb18030>{
@@ -585,9 +583,6 @@ constexpr std::string_view hello<pqxx::encoding_group::johab>{
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::sjis>{
   "\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xed"};
-template<>
-constexpr std::string_view hello<pqxx::encoding_group::uhc>{
-  "\xaa\xb3\xaa\xf3\xaa\xcb\xaa\xc1\xaa\xef"};
 
 
 /// Test streaming Japanese text to a table in `ENC`.  Reset to UTF-8.
@@ -625,11 +620,10 @@ void test_stream_to_transcodes()
   }
 
   check_stream_to_encodes<pqxx::encoding_group::ascii_safe>(cx);
-  check_stream_to_encodes<pqxx::encoding_group::big5>(cx);
+  check_stream_to_encodes<pqxx::encoding_group::two_tier>(cx);
   check_stream_to_encodes<pqxx::encoding_group::gb18030>(cx);
   check_stream_to_encodes<pqxx::encoding_group::johab>(cx);
   check_stream_to_encodes<pqxx::encoding_group::sjis>(cx);
-  check_stream_to_encodes<pqxx::encoding_group::uhc>(cx);
 }
 
 
@@ -648,7 +642,7 @@ void test_stream_to_transcodes()
  */
 template<pqxx::encoding_group> constexpr std::string_view attack;
 template<>
-constexpr std::string_view attack<pqxx::encoding_group::big5>{"\xa5\\"};
+constexpr std::string_view attack<pqxx::encoding_group::two_tier>{"\xa5\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
 // TODO: Re-enable once it starts working on the server!
@@ -661,7 +655,7 @@ constexpr std::string_view attack<pqxx::encoding_group::sjis>{"\x95\\"};
 /// The respective attack strings, but encoded in UTF-8.
 template<pqxx::encoding_group> constexpr std::string_view safe_attack;
 template<>
-constexpr std::string_view safe_attack<pqxx::encoding_group::big5>{
+constexpr std::string_view safe_attack<pqxx::encoding_group::two_tier>{
   "\xe5\x8a\x9f"};
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
@@ -719,11 +713,10 @@ void test_stream_to_handles_embedded_special_values()
     tx.exec("CREATE TEMP TABLE attack (data varchar)").no_rows();
   }
   check_attack<pqxx::encoding_group::ascii_safe>(cx);
-  check_attack<pqxx::encoding_group::big5>(cx);
+  check_attack<pqxx::encoding_group::two_tier>(cx);
   check_attack<pqxx::encoding_group::gb18030>(cx);
   check_attack<pqxx::encoding_group::johab>(cx);
   check_attack<pqxx::encoding_group::sjis>(cx);
-  check_attack<pqxx::encoding_group::uhc>(cx);
 }
 
 

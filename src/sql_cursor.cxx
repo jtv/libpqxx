@@ -114,14 +114,14 @@ static_assert(check_query_end(pqxx::encoding_group::ascii_safe, "? ; ") == 1);
 static_assert(
   check_query_end(pqxx::encoding_group::ascii_safe, " ( ; ) ") == 6);
 
-static_assert(check_query_end(pqxx::encoding_group::big5, "") == 0);
-static_assert(check_query_end(pqxx::encoding_group::big5, ";  ") == 0);
-static_assert(check_query_end(pqxx::encoding_group::big5, "ABC") == 3);
-static_assert(check_query_end(pqxx::encoding_group::big5, "X Y") == 3);
-static_assert(check_query_end(pqxx::encoding_group::big5, "n  ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::big5, " n ") == 2);
-static_assert(check_query_end(pqxx::encoding_group::big5, "? ; ") == 1);
-static_assert(check_query_end(pqxx::encoding_group::big5, " ( ; ) ") == 6);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, "") == 0);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, ";  ") == 0);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, "ABC") == 3);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, "X Y") == 3);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, "n  ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, " n ") == 2);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, "? ; ") == 1);
+static_assert(check_query_end(pqxx::encoding_group::two_tier, " ( ; ) ") == 6);
 #endif // NDEBUG
 // LCOV_EXCL_STOP
 } // namespace

@@ -333,15 +333,14 @@ specialize_parse_composite_field(conversion_context const &c)
 
   case encoding_group::ascii_safe:
     return parse_composite_field<encoding_group::ascii_safe>;
-  case encoding_group::big5:
-    return parse_composite_field<encoding_group::big5>;
+  case encoding_group::two_tier:
+    return parse_composite_field<encoding_group::two_tier>;
   case encoding_group::gb18030:
     return parse_composite_field<encoding_group::gb18030>;
   case encoding_group::johab:
     return parse_composite_field<encoding_group::johab>;
   case encoding_group::sjis:
     return parse_composite_field<encoding_group::sjis>;
-  case encoding_group::uhc: return parse_composite_field<encoding_group::uhc>;
   }
   throw internal_error{
     std::format("Unexpected encoding group code: {}.", to_string(c.enc)),

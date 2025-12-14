@@ -61,7 +61,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
     {
     case 'B':
       if (same(encoding_name, "BIG5"sv))
-        return encoding_group::big5;
+        return encoding_group::two_tier;
       break;
     case 'E':
       // All the EUC encodings are ASCII-safe.
@@ -126,7 +126,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       break;
     case 'U':
       [[likely]] if (same(encoding_name, "UHC"sv))
-        return encoding_group::uhc;
+        return encoding_group::two_tier;
       else if (same(encoding_name, "UTF8"sv)) [[likely]]
         return encoding_group::ascii_safe;
       break;
@@ -148,7 +148,7 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
 
 // Compile-time tests.  (Conditional so as not to slow down production builds.)
 #if defined(DEBUG)
-static_assert(enc_group("BIG5", sl::current()) == encoding_group::big5);
+static_assert(enc_group("BIG5", sl::current()) == encoding_group::two_tier);
 static_assert(
   enc_group("EUC_CN", sl::current()) == encoding_group::ascii_safe);
 static_assert(
@@ -201,7 +201,7 @@ static_assert(
 static_assert(enc_group("SJIS", sl::current()) == encoding_group::sjis);
 static_assert(
   enc_group("SQL_ASCII", sl::current()) == encoding_group::ascii_safe);
-static_assert(enc_group("UHC", sl::current()) == encoding_group::uhc);
+static_assert(enc_group("UHC", sl::current()) == encoding_group::two_tier);
 static_assert(enc_group("UTF8", sl::current()) == encoding_group::ascii_safe);
 static_assert(
   enc_group("WIN866", sl::current()) == encoding_group::ascii_safe);
@@ -238,5 +238,41 @@ PQXX_PURE encoding_group enc_group(int libpq_enc_id, sl loc)
 {
   // TODO: Is there a safe, faster way without the string representation?
   return enc_group(name_encoding(libpq_enc_id), loc);
+}
+
+
+/// Represent a short stretch of binary data (at most 3) for human readers.
+PQXX_PURE std::string list_bytes(std::string_view data)
+{
+  assert(not std::empty(data));
+  // C++23: Use std::ranges::views::join_with(), std::format()?
+  std::stringstream s;
+  s << std::hex << std::setw(2) << std::setfill('0');
+  for (char c : data) s << "0x" << static_cast<unsigned char>(c) << ' ';
+  std::string out{s.str()};
+  return out.substr(0u, std::size(out) - 1);
+}
+
+
+void throw_for_encoding_error(
+  char const *encoding, std::string_view buffer, std::size_t start,
+  std::size_t count, sl loc)
+{
+  throw pqxx::argument_error{
+    std::format(
+      "Text is not correctly encoded in {} at byte {}: {}.", encoding, start,
+      list_bytes(buffer.substr(start, start + count))),
+    loc};
+}
+
+
+void throw_for_truncated_character(
+  char const *encoding, std::string_view buffer, std::size_t start, sl loc)
+{
+  throw pqxx::argument_error{
+    std::format(
+      "Text encoded in {} is truncated in mid-character at byte {}: {}.",
+      encoding, start, list_bytes(buffer.substr(start))),
+    loc};
 }
 } // namespace pqxx::internal

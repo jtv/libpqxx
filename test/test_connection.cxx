@@ -209,13 +209,13 @@ void test_connection_client_encoding()
 {
   pqxx::connection cx;
   std::map<char const *, pqxx::encoding_group> const unsafe_encodings = {
-    {"BIG5", pqxx::encoding_group::big5},
+    {"BIG5", pqxx::encoding_group::two_tier},
     {"GBK", pqxx::encoding_group::gb18030},
     {"GB18030", pqxx::encoding_group::gb18030},
     {"JOHAB", pqxx::encoding_group::johab},
     {"SJIS", pqxx::encoding_group::sjis},
     {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
-    {"UHC", pqxx::encoding_group::uhc},
+    {"UHC", pqxx::encoding_group::two_tier},
   };
   for (auto const &[name, enc] : unsafe_encodings)
   {
