@@ -338,12 +338,17 @@ template<> struct glyph_scanner<encoding_group::sjis> final
  * Returns a pointer to a function which looks for the first instance of any of
  * the ASCII characters in `NEEDLE`.  Returns its offset, or the end of the
  * `haystack` if it found none.
+ *
+ * @warn All of the characters in `NEEDLE` need to be ASCII characters, and
+ * they _cannot be letters._  This is needed because it enables a more
+ * efficient implementation of UHC support.
  */
 template<char... NEEDLE>
 PQXX_PURE
   PQXX_RETURNS_NONNULL PQXX_INLINE_COV constexpr inline char_finder_func *
   get_char_finder(encoding_group enc, sl loc)
 {
+  static_assert((... and (static_cast<unsigned char>(NEEDLE) < 0x80)));
   switch (enc)
   {
   case encoding_group::ascii_safe:
@@ -361,10 +366,7 @@ PQXX_PURE
 
   default:
     throw pqxx::internal_error{
-      std::format(
-        "Unexpected encoding group: {} (mapped from '{}').", to_string(enc),
-        to_string(enc)),
-      loc};
+      std::format("Unexpected encoding group: {}.", to_string(enc)), loc};
   }
 }
 } // namespace pqxx::internal

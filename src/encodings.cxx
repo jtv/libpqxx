@@ -247,8 +247,9 @@ PQXX_PURE std::string list_bytes(std::string_view data)
   assert(not std::empty(data));
   // C++23: Use std::ranges::views::join_with(), std::format()?
   std::stringstream s;
-  s << std::hex << std::setw(2) << std::setfill('0');
-  for (char const c : data) s << "0x" << static_cast<unsigned char>(c) << ' ';
+  s << std::hex << std::setfill('0');
+  for (char const c : data)
+    s << std::setw(2) << "0x" << static_cast<unsigned char>(c) << ' ';
   std::string const out{s.str()};
   return out.substr(0u, std::size(out) - 1);
 }
