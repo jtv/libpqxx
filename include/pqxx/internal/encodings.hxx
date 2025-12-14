@@ -367,7 +367,7 @@ PQXX_PURE
     //
     // It follows that UHC is ASCII-safe... so long as none of the characters
     // we're looking for is an ASCII letter!
-    if (
+    if constexpr (
       (... and (not between_inc(NEEDLE, 'A', 'Z'))) and
       (... and (not between_inc(NEEDLE, 'a', 'z'))))
       return pqxx::internal::find_ascii_char<
