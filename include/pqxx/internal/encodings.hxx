@@ -361,8 +361,19 @@ PQXX_PURE
   case encoding_group::sjis:
     return pqxx::internal::find_ascii_char<encoding_group::sjis, NEEDLE...>;
   case encoding_group::uhc:
-    // TODO: If none of NEEDLE are in A-Z/a-z, treat as ascii_safe.
-    return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
+    // UHC is a very special case.  In any multibyte character, the first byte
+    // is above 0x7f, and each of the following bytes is either also above 0x7f
+    // or it's in the letter ranges (A-Z and a-z).
+    //
+    // It follows that UHC is ASCII-safe... so long as none of the characters
+    // we're looking for is an ASCII letter!
+    if constexpr (
+      (... and (not between_inc(NEEDLE, 'A', 'Z'))) and
+      (... and (not between_inc(NEEDLE, 'a', 'z'))))
+      return pqxx::internal::find_ascii_char<
+        encoding_group::ascii_safe, NEEDLE...>;
+    else
+      return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
 
   default:
     throw pqxx::internal_error{
