@@ -248,7 +248,7 @@ PQXX_PURE std::string list_bytes(std::string_view data)
   // C++23: Use std::ranges::views::join_with(), std::format()?
   std::stringstream s;
   s << std::hex << std::setw(2) << std::setfill('0');
-  for (char c : data) s << "0x" << static_cast<unsigned char>(c) << ' ';
+  for (char const c : data) s << "0x" << static_cast<unsigned char>(c) << ' ';
   std::string out{s.str()};
   return out.substr(0u, std::size(out) - 1);
 }
@@ -261,7 +261,7 @@ void throw_for_encoding_error(
   throw pqxx::argument_error{
     std::format(
       "Text is not correctly encoded in {} at byte {}: {}.", encoding, start,
-      list_bytes(buffer.substr(start, start + count))),
+      list_bytes(buffer.substr(start, count))),
     loc};
 }
 

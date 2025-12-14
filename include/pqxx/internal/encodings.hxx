@@ -256,7 +256,7 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 
 /// JOHAB encoding.  Rare.  Seems broken in postgres itself.
 /** The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes,
- * but CJKV Information Processing" describes it (actually just the Hangul
+ * but "CJKV Information Processing" describes it (actually just the Hangul
  * portion) as "three five-bit segments" that reside inside 16 bits (2 bytes).
  *
  * CJKV Information Processing by Ken Lunde, pg. 269: https://bit.ly/2BEOu5V
