@@ -367,9 +367,13 @@ PQXX_PURE
     //
     // It follows that UHC is ASCII-safe... so long as none of the characters
     // we're looking for is an ASCII letter!
-    if ((... and (not between_inc(NEEDLE, 'A', 'Z'))) and (... and (not between_inc(NEEDLE, 'a', 'z'))))
-    return pqxx::internal::find_ascii_char<encoding_group::ascii_safe, NEEDLE...>;
-    else return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
+    if (
+      (... and (not between_inc(NEEDLE, 'A', 'Z'))) and
+      (... and (not between_inc(NEEDLE, 'a', 'z'))))
+      return pqxx::internal::find_ascii_char<
+        encoding_group::ascii_safe, NEEDLE...>;
+    else
+      return pqxx::internal::find_ascii_char<encoding_group::uhc, NEEDLE...>;
 
   default:
     throw pqxx::internal_error{
