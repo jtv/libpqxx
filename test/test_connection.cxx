@@ -215,7 +215,8 @@ void test_connection_client_encoding()
     {"JOHAB", pqxx::encoding_group::johab},
     {"SJIS", pqxx::encoding_group::sjis},
     {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
-    {"UHC", pqxx::encoding_group::two_tier},
+    // Not actually ASCII-safe, but just close enough for our purposes.
+    {"UHC", pqxx::encoding_group::ascii_safe},
   };
   for (auto const &[name, enc] : unsafe_encodings)
   {

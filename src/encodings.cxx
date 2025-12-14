@@ -126,9 +126,17 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
       break;
     case 'U':
       [[likely]] if (same(encoding_name, "UHC"sv))
-        return encoding_group::two_tier;
-      else if (same(encoding_name, "UTF8"sv)) [[likely]]
+      {
+        // Not actually ASCII-safe, but close enough for our purposes.  The
+        // trail bytes can be in the ASCII range, but only with values A-Z and
+        // a-z.  We never need to search for those, so we can treat this group
+        // as ASCII-safe.
         return encoding_group::ascii_safe;
+      }
+      else if (same(encoding_name, "UTF8"sv)) [[likely]]
+      {
+        return encoding_group::ascii_safe;
+      }
       break;
     case 'W':
       if (same(encoding_name.substr(0, 3), "WIN"sv))
