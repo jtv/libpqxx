@@ -786,11 +786,10 @@ void test_scan_double_quoted_string()
   using enc = pqxx::encoding_group;
 
   check_scan_double_quoted_ascii<enc::ascii_safe>();
-  check_scan_double_quoted_ascii<enc::big5>();
+  check_scan_double_quoted_ascii<enc::two_tier>();
   check_scan_double_quoted_ascii<enc::gb18030>();
   check_scan_double_quoted_ascii<enc::johab>();
   check_scan_double_quoted_ascii<enc::sjis>();
-  check_scan_double_quoted_ascii<enc::uhc>();
 
 
   // Now let's try a byte that _looks_ like an ASCII backslash escaping the
