@@ -174,6 +174,10 @@ template<> struct glyph_scanner<encoding_group::ascii_safe> final
  * What we do care about is that when a byte has a value that looks like a
  * special ASCII character we're trying to find, we know exactly whether it is
  * that ASCII character, or just a byte inside a multibyte character.
+ *
+ * With UHC, the second byte in a character is always either outside the ASCII
+ * range or in one of the two ASCII letter ranges (A-Z and a-z).  So as long as
+ * we're not searching for letters, we could use @ref ascii_safe there instead.
  */
 template<> struct glyph_scanner<encoding_group::two_tier> final
 {
