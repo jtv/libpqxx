@@ -49,12 +49,10 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
     return to_string(access(begin));
 
   // From here on, we've got at least 2 elements -- meaning that we need sep.
-  using elt_type = std::remove_cvref_t<decltype(access(begin))>;
-  using traits = string_traits<elt_type>;
 
   std::size_t budget{0};
   for (ITER cnt{begin}; cnt != end; ++cnt)
-    budget += traits::size_buffer(access(cnt));
+    budget += pqxx::size_buffer(access(cnt));
   budget +=
     static_cast<std::size_t>(std::distance(begin, end)) * std::size(sep);
 

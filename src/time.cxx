@@ -86,7 +86,7 @@ inline int year_from_buf(std::string_view text, pqxx::sl loc)
       std::format("Year field is too small: '{}'.", text), loc};
   // Parse as int, so we can accommodate 32768 BC which won't fit in a short
   // as-is, but equates to 32767 BCE which will.
-  int const year{pqxx::string_traits<int>::from_string(text)};
+  int const year{pqxx::from_string<int>(text)};
   if (year <= 0)
     throw pqxx::conversion_error{std::format("Bad year: '{}'.", text), loc};
   return year;

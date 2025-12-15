@@ -374,7 +374,7 @@ std::string to_string_float(T value, [[maybe_unused]] ctx c)
 {
 #if defined(PQXX_HAVE_CHARCONV_FLOAT)
   {
-    static constexpr auto space{string_traits<T>::size_buffer(value)};
+    static constexpr auto space{pqxx::size_buffer(value)};
     std::string buf;
     buf.resize(space);
     std::string_view const view{to_buf(buf, value, c)};

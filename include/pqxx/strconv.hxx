@@ -391,6 +391,17 @@ concept from_string_7 = requires(TYPE out, std::string_view text) {
 
 namespace pqxx
 {
+/// Estimate how much buffer space is needed to represent values as a string.
+/** The estimate may be a little pessimistic, if it saves time.
+ */
+template<typename... TYPE>
+[[nodiscard]] inline constexpr std::size_t
+size_buffer(TYPE const &...value) noexcept
+{
+  return (string_traits<std::remove_cvref_t<TYPE>>::size_buffer(value) + ...);
+}
+
+
 /// Represent `value` as SQL text, optionally using `buf` as storage.
 /** This calls string_traits<TYPE>::to_buf(), but bridges some API version
  * differences.
@@ -528,7 +539,6 @@ namespace pqxx::internal
 template<typename ENUM> struct enum_traits
 {
   using impl_type = std::underlying_type_t<ENUM>;
-  using impl_traits = string_traits<impl_type>;
 
   [[nodiscard]] static constexpr std::string_view
   to_buf(std::span<char> buf, ENUM const &value, ctx c = {})
@@ -541,9 +551,10 @@ template<typename ENUM> struct enum_traits
     return static_cast<ENUM>(pqxx::from_string<impl_type>(text, c));
   }
 
-  [[nodiscard]] static std::size_t size_buffer(ENUM const &value) noexcept
+  [[nodiscard]] static constexpr std::size_t
+  size_buffer(ENUM const &value) noexcept
   {
-    return impl_traits::size_buffer(to_underlying(value));
+    return pqxx::size_buffer(to_underlying(value));
   }
 
 private:
@@ -701,16 +712,6 @@ template<typename TYPE>
 {
   using base_type = std::remove_cvref_t<TYPE>;
   return nullness<base_type>::null();
-}
-
-
-/// Estimate how much buffer space is needed to represent values as a string.
-/** The estimate may be a little pessimistic, if it saves time.
- */
-template<typename... TYPE>
-[[nodiscard]] inline std::size_t size_buffer(TYPE const &...value) noexcept
-{
-  return (string_traits<std::remove_cvref_t<TYPE>>::size_buffer(value) + ...);
 }
 
 

@@ -949,7 +949,7 @@ PQXX_INLINE_COV inline std::string to_string(TYPE const &value, ctx c)
     std::string buf;
     // We can't just reserve() space; modifying the terminating zero leads to
     // undefined behaviour.
-    buf.resize(size_buffer(value));
+    buf.resize(pqxx::size_buffer(value));
     std::size_t const stop{pqxx::into_buf(buf, value, c)};
     buf.resize(stop);
     return buf;
