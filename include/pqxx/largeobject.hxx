@@ -459,7 +459,7 @@ protected:
         throw internal_error{std::format(
           "pqxx::largeobject: write failed "
           "(is transaction still valid on write or flush?), {}/{} "
-          " bytes written",
+          "bytes written",
           written_sz, write_sz)};
       auto const out{adjust_eof(written_sz)};
 

@@ -79,7 +79,7 @@ scan_double_quoted_string(std::string_view input, std::size_t pos, sl loc)
         pos += one_ascii_char;
         if (pos >= sz)
           throw argument_error{
-            "Unexected end of string: escape sequence.", loc};
+            "Unexpected end of string: escape sequence.", loc};
       }
       break;
     }
@@ -267,7 +267,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
   break;
   }
 
-  // End of feld.  Expect a comma or a closing parenthesis.
+  // End of field.  Expect a comma or a closing parenthesis.
 
   if (index < last_field)
   {
