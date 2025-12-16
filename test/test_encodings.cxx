@@ -174,16 +174,13 @@ void test_find_chars_reports_malencoded_text()
     while (data.at(i) == '|') data.at(i) = pqxx::test::random_char();
   }
 
-  pqxx::encoding_group const sensitive[]{
-    pqxx::encoding_group::gb18030,
-    pqxx::encoding_group::sjis,
-  };
-
-  // Bet that the random data isn't going to be fully correct in any of the
-  // encodings that can be.  (Not testing the "two-tier" encodings here, since
-  // the only way to get those wrong is in the final byte.)
-  for (auto const enc : sensitive)
-    PQXX_CHECK_THROWS(find_x(data, enc), pqxx::argument_error);
+  // Bet that the random data isn't going to be fully valid text in these
+  // encodings.  (Not testing the "two-tier" encodings here, since the only way
+  // to get those wrong is in the final byte.)
+  PQXX_CHECK_THROWS(
+    find_x(data, pqxx::encoding_group::gb18030), pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    find_x(data, pqxx::encoding_group::sjis), pqxx::argument_error);
 }
 
 
