@@ -1122,6 +1122,21 @@ std::string pqxx::connection::get_client_encoding(sl loc) const
 PQXX_COLD void
 pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
 {
+  if ((encoding == nullptr) or (encoding[0] == '\0'))
+    throw pqxx::argument_error{
+      "No encoding string passed to set_client_encoding.", loc};
+
+  // TODO: Remove this check once JOHAB is gone from all supported versions.
+  if (
+    ((encoding[0] == 'J') or (encoding[0] == 'j')) and
+    ((encoding[1] == 'O') or (encoding[1] == 'o')) and
+    ((encoding[2] == 'H') or (encoding[2] == 'h')) and
+    ((encoding[3] == 'A') or (encoding[3] == 'a')) and
+    ((encoding[4] == 'B') or (encoding[4] == 'b')) and (encoding[5] == '\0'))
+  {
+    throw pqxx::argument_error{"JOHAB encoding is not supported.", loc};
+  }
+
   switch (auto const retval{PQsetClientEncoding(m_conn, encoding)}; retval)
   {
   case 0:

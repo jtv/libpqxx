@@ -3,7 +3,7 @@
  - Any changes will be logged under "8.0.0".
  - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
  - Added an "examples" directory: tested, maintained sample code.
- - JOHAB support was always broken, but it's broken on the server also.
+ - Dropping JOHAB encoding.  Doesn't work properly on the server either.
  - Encodings support code got smaller, simmpler, more efficient.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.

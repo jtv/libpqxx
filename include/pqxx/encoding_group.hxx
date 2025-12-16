@@ -69,8 +69,7 @@ enum class encoding_group
   /** This also covers older subsets such as GBK.
    */
   gb18030,
-  /// Non-ASCII-safe: JOHAB for Korean.
-  johab,
+
   /// Non-ASCII-safe: Japanese JIS and Shift JIS.
   sjis,
 };

@@ -788,7 +788,6 @@ void test_scan_double_quoted_string()
   check_scan_double_quoted_ascii<enc::ascii_safe>();
   check_scan_double_quoted_ascii<enc::two_tier>();
   check_scan_double_quoted_ascii<enc::gb18030>();
-  check_scan_double_quoted_ascii<enc::johab>();
   check_scan_double_quoted_ascii<enc::sjis>();
 
 

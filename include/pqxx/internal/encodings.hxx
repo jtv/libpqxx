@@ -255,47 +255,6 @@ template<> struct glyph_scanner<encoding_group::gb18030> final
 };
 
 
-/// JOHAB encoding.  Rare.  Seems broken in postgres itself.
-/** The PostgreSQL documentation claims that the JOHAB encoding is 1-3 bytes,
- * but "CJKV Information Processing" describes it (actually just the Hangul
- * portion) as "three five-bit segments" that reside inside 16 bits (2 bytes).
- *
- * CJKV Information Processing by Ken Lunde, pg. 269: https://bit.ly/2BEOu5V
- *
- * PostgreSQL does not seem to accept all valid characters.  Luckily this is a
- * client-only encoding.  Is anyone actually using it?
- */
-template<> struct glyph_scanner<encoding_group::johab> final
-{
-  PQXX_INLINE_ONLY static constexpr std::size_t
-  call(std::string_view buffer, std::size_t start, sl loc)
-  {
-    auto const byte1{get_byte(buffer, start)};
-    if (byte1 < 0x80)
-      return start + 1;
-
-    auto const sz{std::size(buffer)};
-    if (start + 2 > sz) [[unlikely]]
-      throw_for_truncated_character("JOHAB (path 1)", buffer, start, loc);
-
-    auto const byte2{get_byte(buffer, start + 1)};
-    if (between_inc(byte1, 0x84, 0xd3))
-    {
-      if (between_inc(byte2, 0x41, 0xfe) and byte2 != 0x80)
-        return start + 2;
-    }
-    if (between_inc(byte1, 0xd0, 0xf9) and byte2 != 0xdf)
-    {
-      if (between_inc(byte2, 0x31, 0x7e) or between_inc(byte2, 0x91, 0xfe))
-        return start + 2;
-    }
-
-    [[unlikely]] throw_for_encoding_error(
-      "JOHAB (path 2)", buffer, start, 2, loc);
-  }
-};
-
-
 /// Shift-JIS family of encodings.
 /** These are variable-width encodings with 1-byte and 2-byte characters, but
  * with a twist: Katakana is mapped in the above-ASCII range _as single-byte
@@ -367,8 +326,6 @@ PQXX_PURE
       encoding_group::two_tier, NEEDLE...>;
   case encoding_group::gb18030:
     return pqxx::internal::find_ascii_char<encoding_group::gb18030, NEEDLE...>;
-  case encoding_group::johab:
-    return pqxx::internal::find_ascii_char<encoding_group::johab, NEEDLE...>;
   case encoding_group::sjis:
     return pqxx::internal::find_ascii_char<encoding_group::sjis, NEEDLE...>;
 

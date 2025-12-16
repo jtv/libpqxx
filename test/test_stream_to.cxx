@@ -561,8 +561,6 @@ constexpr pqxx::zview encoding_name<pqxx::encoding_group::two_tier>{"BIG5"};
 template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::gb18030>{"gb18030"};
 template<>
-constexpr pqxx::zview encoding_name<pqxx::encoding_group::johab>{"JOHAB"};
-template<>
 constexpr pqxx::zview encoding_name<pqxx::encoding_group::sjis>{"SJIS"};
 
 
@@ -577,9 +575,6 @@ constexpr std::string_view hello<pqxx::encoding_group::two_tier>{
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::gb18030>{
   "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xef"};
-template<>
-constexpr std::string_view hello<pqxx::encoding_group::johab>{
-  "\xdd\xb3\xdd\xf3\xdd\xcb\xdd\xc1\xdd\xef"};
 template<>
 constexpr std::string_view hello<pqxx::encoding_group::sjis>{
   "\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xed"};
@@ -622,7 +617,6 @@ void test_stream_to_transcodes()
   check_stream_to_encodes<pqxx::encoding_group::ascii_safe>(cx);
   check_stream_to_encodes<pqxx::encoding_group::two_tier>(cx);
   check_stream_to_encodes<pqxx::encoding_group::gb18030>(cx);
-  check_stream_to_encodes<pqxx::encoding_group::johab>(cx);
   check_stream_to_encodes<pqxx::encoding_group::sjis>(cx);
 }
 
@@ -645,9 +639,6 @@ template<>
 constexpr std::string_view attack<pqxx::encoding_group::two_tier>{"\xa5\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::gb18030>{"\x95\\"};
-// TODO: Re-enable once it starts working on the server!
-// template<>
-// constexpr std::string_view attack<pqxx::encoding_group::johab>{"\x8a\\"};
 template<>
 constexpr std::string_view attack<pqxx::encoding_group::sjis>{"\x95\\"};
 
@@ -660,10 +651,6 @@ constexpr std::string_view safe_attack<pqxx::encoding_group::two_tier>{
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::gb18030>{
   "\xe6\x98\x9e"};
-// TODO: Re-enable once it starts working on the server!
-// template<>
-// constexpr std::string_view safe_attack<pqxx::encoding_group::johab>{
-//   "\xea\xb5\x8e"};
 template<>
 constexpr std::string_view safe_attack<pqxx::encoding_group::sjis>{
   "\xe8\xa1\xa8"};
@@ -715,7 +702,6 @@ void test_stream_to_handles_embedded_special_values()
   check_attack<pqxx::encoding_group::ascii_safe>(cx);
   check_attack<pqxx::encoding_group::two_tier>(cx);
   check_attack<pqxx::encoding_group::gb18030>(cx);
-  check_attack<pqxx::encoding_group::johab>(cx);
   check_attack<pqxx::encoding_group::sjis>(cx);
 }
 
