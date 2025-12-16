@@ -38,7 +38,25 @@ namespace pqxx
  */
 enum class encoding_group
 {
-  /// Indeterminate encoding.  There's not much we can do to parse it.
+  /// Default: indeterminate encoding.  All we know is it supports ASCII.
+  /** This is the minimum assumption, and therefore the default.
+   *
+   * We can parse simple SQL values such as integers without knowing more about
+   * their encoding, since all supported encodings are supersets of ASCII.  An
+   * integer string consists of only digits and an optional sign, so we can
+   * parse that without knowing the encoding.
+   *
+   * But, for example, a quoted string is harder because we can't know _a
+   * priori_ whether a byte that looks like the closing quote is indeed an
+   * ASCII quote character, or just a trail byte in a multibyte character which
+   * just happens to have the same numeric value.
+   *
+   * Conversions that _may_ run into this problem will throw an exception if
+   * the uncoding is `unknown`, even if the actual uncertainty about the
+   * meaning of a byte never occurs.  That may seem a little pedantic, but it's
+   * better to go through the pain in testing than to risk missing the problem
+   * until your code goes into production.
+   */
   unknown,
 
   /// "ASCII-safe" encodings.
