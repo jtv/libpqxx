@@ -148,7 +148,6 @@ array_parser::specialize_for_encoding(encoding_group enc, sl loc)
     PQXX_ENCODING_CASE(ascii_safe);
     PQXX_ENCODING_CASE(two_tier);
     PQXX_ENCODING_CASE(gb18030);
-    PQXX_ENCODING_CASE(johab);
     PQXX_ENCODING_CASE(sjis);
   }
   [[unlikely]] throw pqxx::internal_error{

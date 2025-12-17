@@ -212,7 +212,6 @@ void test_connection_client_encoding()
     {"BIG5", pqxx::encoding_group::two_tier},
     {"GBK", pqxx::encoding_group::gb18030},
     {"GB18030", pqxx::encoding_group::gb18030},
-    {"JOHAB", pqxx::encoding_group::johab},
     {"SJIS", pqxx::encoding_group::sjis},
     {"SHIFT_JIS_2004", pqxx::encoding_group::sjis},
     // Not actually ASCII-safe, but just close enough for our purposes.
@@ -301,6 +300,10 @@ void test_connection_client_encoding()
 
   for (char e{'A'}; e <= 'Z'; ++e)
     PQXX_CHECK_THROWS(cx.set_client_encoding(std::string{e}), pqxx::failure);
+
+  // We no longer support this encoding.  It turned out to be broken in
+  // postgres itself.
+  PQXX_CHECK_THROWS(cx.set_client_encoding("JOHAB"), pqxx::argument_error);
 }
 
 

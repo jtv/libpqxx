@@ -52,12 +52,6 @@ template<>
 auto const eels<pqxx::encoding_group::gb18030>{
   "\xce\xd2\xb5\xc4\xc6\xf8\xb5\xe6\xb4\xac\xc0\xef\xd7\xb0\xc2\xfa\xc1\xcb"
   "\xf7\xa9\xd3\xe3\xa1\xa3"sv};
-/// JOHAB: Korean.
-template<>
-auto const eels<pqxx::encoding_group::johab>{
-  "\x90\x81 \xd1\xa1\xa4\xe1\xc7\x61\x9c\x81\xcf\x61\xcb\x61\x93\x65 "
-  "\xb8\x77\xb4\xe1\x9d\xa1 \x88\x61\x97\x62 \xc0\x61 "
-  "\xb7\xb6\xb4\xe1\xb6\x61"sv};
 /// SJIS: Japanese.
 template<>
 auto const eels<pqxx::encoding_group::sjis>{
@@ -75,7 +69,6 @@ template<pqxx::encoding_group ENC> std::string_view const tricky;
 template<> auto const tricky<pqxx::encoding_group::two_tier>{"\xa1|"sv};
 // (Yeah such a string is not possible here.)
 template<> auto const tricky<pqxx::encoding_group::gb18030>{"\x81|"sv};
-template<> auto const tricky<pqxx::encoding_group::johab>{"\x88|"sv};
 template<> auto const tricky<pqxx::encoding_group::sjis>{"\x81|"sv};
 
 
@@ -140,7 +133,6 @@ void test_find_chars()
   test_search<pqxx::encoding_group::two_tier>("big5");
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
   test_search<pqxx::encoding_group::gb18030>("gb18030");
-  test_search<pqxx::encoding_group::johab>("johab");
   test_search<pqxx::encoding_group::sjis>("sjis");
 }
 
@@ -159,7 +151,6 @@ void test_find_chars_fails_for_unfinished_character()
 {
   check_unfinished_character<pqxx::encoding_group::two_tier>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();
-  check_unfinished_character<pqxx::encoding_group::johab>();
   check_unfinished_character<pqxx::encoding_group::sjis>();
 }
 
@@ -183,17 +174,13 @@ void test_find_chars_reports_malencoded_text()
     while (data.at(i) == '|') data.at(i) = pqxx::test::random_char();
   }
 
-  pqxx::encoding_group const sensitive[]{
-    pqxx::encoding_group::gb18030,
-    pqxx::encoding_group::johab,
-    pqxx::encoding_group::sjis,
-  };
-
-  // Bet that the random data isn't going to be fully correct in any of the
-  // encodings that can be.  (Not testing the "two-tier" encodings here, since
-  // the only way to get those wrong is in the final byte.)
-  for (auto const enc : sensitive)
-    PQXX_CHECK_THROWS(find_x(data, enc), pqxx::argument_error);
+  // Bet that the random data isn't going to be fully valid text in these
+  // encodings.  (Not testing the "two-tier" encodings here, since the only way
+  // to get those wrong is in the final byte.)
+  PQXX_CHECK_THROWS(
+    find_x(data, pqxx::encoding_group::gb18030), pqxx::argument_error);
+  PQXX_CHECK_THROWS(
+    find_x(data, pqxx::encoding_group::sjis), pqxx::argument_error);
 }
 
 

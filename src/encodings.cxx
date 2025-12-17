@@ -87,10 +87,6 @@ constexpr encoding_group enc_group(std::string_view encoding_name, sl loc)
           return encoding_group::ascii_safe;
       }
       break;
-    case 'J':
-      if (same(encoding_name, "JOHAB"sv))
-        return encoding_group::johab;
-      break;
     case 'K':
       if (same(encoding_name, "KOI8R"sv) or same(encoding_name, "KOI8U"sv))
         return encoding_group::ascii_safe;
@@ -179,7 +175,6 @@ static_assert(
   enc_group("ISO_8859_4", sl::current()) == encoding_group::ascii_safe);
 static_assert(
   enc_group("ISO_8859_5", sl::current()) == encoding_group::ascii_safe);
-static_assert(enc_group("JOHAB", sl::current()) == encoding_group::johab);
 static_assert(enc_group("KOI8R", sl::current()) == encoding_group::ascii_safe);
 static_assert(enc_group("KOI8U", sl::current()) == encoding_group::ascii_safe);
 static_assert(
