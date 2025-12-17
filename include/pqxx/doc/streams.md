@@ -8,10 +8,12 @@ efficiently: "streaming queries," for reading query results from the
 database; and the @ref pqxx::stream_to class, for writing data from the client
 into a table.
 
-These are less flexible than SQL queries.  Also, depending on your needs, it
-may be a problem to lose your connection while you're in mid-stream, not
-knowing that the query may not complete.  But, you get some scalability and
-memory efficiencies in return.
+These are less flexible than SQL queries.  _You can't pass parameters with
+these._  There are other complex constructs that won't work due to limitations
+in underlying software layers.  Also, depending on your needs, it may be a
+problem to lose your connection while you're in mid-stream, not knowing that
+the query may not complete.  But, you get some scalability and memory
+efficiencies in return.
 
 Just like regular querying, these streaming mechanisms do data conversion for
 you.  You deal with the C++ data types, and the database deals with the SQL

@@ -538,6 +538,13 @@ public:
    * specify.  Unlike with the "exec" functions, processing can start before
    * all the data from the server is in.
    *
+   * @warning You can't pass parmaeters to a streaming query.  This is a
+   * limitation at a lower level in the software stack.  You can work around
+   * this by defining a view or function that you can then call without
+   * parameters in the streaming query; or you can compose query strings that
+   * wrap the parameters in calls to @ref pqxx::transaction_base::quote() or
+   * @ref pqxx::transaction_base::esc().
+   *
    * Streaming is also documented in @ref streams.
    *
    * The column types must all be types that have conversions from PostgreSQL's
@@ -566,11 +573,11 @@ public:
    * instead.
    *
    * Streaming your query is likely to be faster than the `exec()` methods for
-   * larger results, but slower for small results.  It will start useful
-   * processing sooner, before all the result data is in.  Also, `stream()`
-   * scales better in terms of memory usage: it only needs to keep the current
-   * row in memory, not the whole result.  The "exec" functions read the entire
-   * result into memory at once.
+   * queries that return lots of rows, but slower for ones that don't.  You'll
+   * be able to start useful processing sooner, before all the result data is
+   * in.  Also, `stream()` scales better in terms of memory usage: it only
+   * needs to keep the current row in memory, not the whole result.  The
+   * "exec" functions read the entire result into memory at once.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
