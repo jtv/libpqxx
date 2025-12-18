@@ -402,6 +402,25 @@ size_buffer(TYPE const &...value) noexcept
 }
 
 
+/// Is the libpqxx 8 version of `to_buf()` supported for `TYPE`?
+/** The @ref pqxx::string_traits specialisation for `TYPE` must support either
+ * the 7.x `to_buf` API or the 8.x one.
+ *
+ * The real reason this function exists is to make the compiler check for API
+ * compliance... and if necessary, give a _helpful_ error message.  For that, a
+ * `requires` is better than a `static_assert()`.  However, we can't use it in
+ * the calling function's signature, since it requires a definition for the
+ * relevant specialisation of @ref pqxx::string_traits _before_ the calling
+ * function's.  That complicates things.
+ */
+template<typename TYPE>
+  requires(pqxx::internal::to_buf_7<TYPE> or pqxx::internal::to_buf_8<TYPE>)
+consteval bool supports_to_buf_8()
+{
+  return requires { requires pqxx::internal::to_buf_8<TYPE>; };
+}
+
+
 /// Represent `value` as SQL text, optionally using `buf` as storage.
 /** This calls string_traits<TYPE>::to_buf(), but bridges some API version
  * differences.
@@ -410,10 +429,8 @@ template<typename TYPE>
 [[nodiscard]] inline std::string_view
 to_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 {
-  static_assert(
-    pqxx::internal::to_buf_7<TYPE> or pqxx::internal::to_buf_8<TYPE>);
   using traits = string_traits<TYPE>;
-  if constexpr (pqxx::internal::to_buf_8<TYPE>)
+  if constexpr (supports_to_buf_8<TYPE>())
   {
     return traits::to_buf(buf, value, c);
   }
@@ -458,6 +475,19 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 }
 
 
+/// Is the libpqxx 8 version of `from_string()` supported for `TYPE`?
+/** The @ref pqxx::string_traits specialisation for `TYPE` must support either
+ * the 7.x `to_buf` API or the 8.x one.
+ */
+template<typename TYPE>
+  requires(
+    pqxx::internal::from_string_7<TYPE> or pqxx::internal::from_string_8<TYPE>)
+consteval bool supports_from_string_8()
+{
+  return requires { requires pqxx::internal::from_string_8<TYPE>; };
+}
+
+
 /// Parse a value in postgres' text format as a TYPE.
 /** If the form of the value found in the string does not match the expected
  * type, e.g. if a decimal point is found when converting to an integer type,
@@ -474,10 +504,7 @@ into_buf(std::span<char> buf, TYPE const &value, ctx c = {})
 template<typename TYPE>
 [[nodiscard]] inline TYPE from_string(std::string_view text, ctx c = {})
 {
-  static_assert(
-    pqxx::internal::from_string_7<TYPE> or
-    pqxx::internal::from_string_8<TYPE>);
-  if constexpr (pqxx::internal::from_string_8<TYPE>)
+  if constexpr (supports_from_string_8<TYPE>())
     return string_traits<TYPE>::from_string(text, c);
   else
     return string_traits<TYPE>::from_string(text);
