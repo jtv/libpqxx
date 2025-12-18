@@ -531,7 +531,7 @@ template<> struct string_traits<char *>
     if (pqxx::is_null(value))
       return 0;
     else
-      return string_traits<char const *>::size_buffer(value);
+      return pqxx::size_buffer(const_cast<char const *>(value));
   }
 
   static char *from_string(std::string_view) = delete;
@@ -705,7 +705,7 @@ struct string_traits<std::unique_ptr<T, Args...>>
 {
   static std::unique_ptr<T> from_string(std::string_view text)
   {
-    return std::make_unique<T>(string_traits<T>::from_string(text));
+    return std::make_unique<T>(pqxx::from_string<T>(text));
   }
 
   static std::string_view to_buf(
@@ -759,7 +759,7 @@ template<typename T> struct string_traits<std::shared_ptr<T>>
 {
   static std::shared_ptr<T> from_string(std::string_view text)
   {
-    return std::make_shared<T>(string_traits<T>::from_string(text));
+    return std::make_shared<T>(pqxx::from_string<T>(text));
   }
 
   static std::string_view
@@ -872,14 +872,6 @@ private:
   static constexpr zview s_null{"NULL"};
 
 public:
-  static std::string_view
-  to_buf(std::span<char> buf, T const &value, ctx c = {})
-  {
-    auto const sz{
-      pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
-    return {std::data(buf), sz};
-  }
-
   static std::size_t size_buffer(T const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)
@@ -908,6 +900,16 @@ public:
                      return acc + 2 * elt_size + 3;
                    });
   }
+
+  static std::string_view
+  to_buf(std::span<char> buf, T const &value, ctx c = {})
+  {
+    auto const sz{
+      pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
+    return {std::data(buf), sz};
+  }
+
+  // XXX: Now that we have conversion_context, can we parse?
 };
 
 
