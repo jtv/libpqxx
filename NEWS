@@ -6,6 +6,7 @@
  - Dropping JOHAB encoding.  Doesn't work properly on the server either.
  - Encodings support code got smaller, simpler, more efficient.
  - More helpful compiler errors when `string_traits` fits neither 7 nor 8 API.
+ - `result` member functions now take `std::source_location`, not `pqxx::ctx`.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.

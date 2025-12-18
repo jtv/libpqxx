@@ -173,12 +173,12 @@ public:
    * argument, the Default value's type also determines the result type.
    */
   template<typename T>
-  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
+  [[nodiscard]] T as(T const &default_value, sl loc = sl::current()) const
   {
     if (is_null())
       return default_value;
     else
-      return from_string<T>(this->view(), c);
+      return from_string<T>(this->view(), make_context(loc));
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -187,18 +187,18 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> [[nodiscard]] T as(ctx c = {}) const
+  template<typename T> [[nodiscard]] T as(sl loc = sl::current()) const
   {
     if (is_null())
     {
       if constexpr (not has_null<T>())
-        internal::throw_null_conversion(name_type<T>(), c.loc);
+        internal::throw_null_conversion(name_type<T>(), loc);
       else
         return make_null<T>();
     }
     else
     {
-      return from_string<T>(this->view(), c);
+      return from_string<T>(this->view(), make_context(loc));
     }
   }
 
@@ -209,7 +209,7 @@ public:
    * @return Whether the field contained an actual value.  So: `true` for a
    * non-null field, or `false` for a null field.
    */
-  template<typename T> bool to(T &obj, ctx c = {}) const
+  template<typename T> bool to(T &obj, sl loc = sl::current()) const
   {
     if (is_null())
     {
@@ -217,20 +217,20 @@ public:
     }
     else
     {
-      from_string(view(), obj, c);
+      from_string(view(), obj, make_context(loc));
       return true;
     }
   }
 
   /// Read value into `obj`; or if null, set default value and return `false`.
   template<typename T>
-  bool to(T &obj, T const &default_value, ctx c = {}) const
+  bool to(T &obj, T const &default_value, sl loc = sl::current()) const
   {
     bool const null{is_null()};
     if (null)
       obj = default_value;
     else
-      obj = from_string<T>(this->view(), c);
+      obj = from_string<T>(this->view(), make_context(loc));
     return not null;
   }
 
@@ -265,6 +265,12 @@ private:
 
   /// Jump n columns ahead (negative to jump back).
   void offset(row_difference_type n) { m_column += n; }
+
+  /// Build a @ref conversion_context, using the result's encoding group.
+  conversion_context make_context(sl loc) const
+  {
+    return conversion_context{home().get_encoding_group(), loc};
+  }
 
   /// The result in which we're iterating.  Must remain valid.
   result const *m_result = nullptr;
@@ -434,7 +440,7 @@ public:
    * @return Whether the field contained an actual value.  So: `true` for a
    * non-null field, or `false` for a null field.
    */
-  template<typename T> bool to(T &obj, ctx c = {}) const
+  template<typename T> bool to(T &obj, sl loc = sl::current()) const
   {
     if (is_null())
     {
@@ -442,7 +448,7 @@ public:
     }
     else
     {
-      from_string(view(), obj, c);
+      obj = from_string<T>(view(), make_context(loc));
       return true;
     }
   }
@@ -459,9 +465,7 @@ public:
     }
     else
     {
-      parse_composite(
-        conversion_context{m_home.get_encoding_group(), loc}, view(),
-        fields...);
+      parse_composite(make_context(loc), view(), fields...);
       return true;
     }
   }
@@ -494,9 +498,9 @@ public:
    * pointer types, but not with raw pointers.
    */
   template<typename T>
-  bool to(T &obj, T const &default_value, ctx c = {}) const
+  bool to(T &obj, T const &default_value, sl loc = sl::current()) const
   {
-    return as_field_ref().to<T>(obj, default_value, c);
+    return as_field_ref().to<T>(obj, default_value, make_context(loc));
   }
 
   /// Return value as object of given type, or default value if null.
@@ -504,9 +508,9 @@ public:
    * argument, the Default value's type also determines the result type.
    */
   template<typename T>
-  [[nodiscard]] T as(T const &default_value, ctx c = {}) const
+  [[nodiscard]] T as(T const &default_value, sl loc = sl::current()) const
   {
-    return as_field_ref().as<T>(default_value, c);
+    return as_field_ref().as<T>(default_value, loc);
   }
 
   /// Return value as object of given type, or throw exception if null.
@@ -515,9 +519,9 @@ public:
    * (other than C-strings) because storage for the value can't safely be
    * allocated here
    */
-  template<typename T> [[nodiscard]] T as(ctx c = {}) const
+  template<typename T> [[nodiscard]] T as(sl loc = sl::current()) const
   {
-    return as_field_ref().as<T>(c);
+    return as_field_ref().as<T>(loc);
   }
 
   /// Return value wrapped in some optional type (empty for nulls).
@@ -594,6 +598,12 @@ private:
           m_home{r}, m_row{row_num}, m_col{col_num}
   {}
 
+  /// Build a @ref conversion_context, using the result's encoding group.
+  conversion_context make_context(sl loc) const
+  {
+    return conversion_context{home().get_encoding_group(), loc};
+  }
+
   result m_home;
   result::size_type m_row;
   /**
@@ -641,7 +651,7 @@ inline oid field_ref::table(sl loc) const
  * not to use it after the last result object referring to this query result is
  * destroyed.
  */
-template<> inline bool field::to<char const *>(char const *&obj, ctx) const
+template<> inline bool field::to<char const *>(char const *&obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
@@ -657,7 +667,7 @@ template<> inline bool field::to<char const *>(char const *&obj, ctx) const
  * zero occurring after the string in memory was actually part of the same
  * allocation.)
  */
-template<> inline bool field::to<zview>(zview &obj, ctx) const
+template<> inline bool field::to<zview>(zview &obj, sl) const
 {
   bool const null{is_null()};
   if (not null)
@@ -667,7 +677,7 @@ template<> inline bool field::to<zview>(zview &obj, ctx) const
 
 
 template<>
-inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
+inline bool field::to<zview>(zview &obj, zview const &default_value, sl) const
 {
   bool const null{is_null()};
   if (null)
@@ -685,15 +695,15 @@ inline bool field::to<zview>(zview &obj, zview const &default_value, ctx) const
  * promise based on a `string_view`.
  *
  */
-template<> inline zview field_ref::as<zview>(ctx c) const
+template<> inline zview field_ref::as<zview>(sl loc) const
 {
   if (is_null())
-    internal::throw_null_conversion(name_type<zview>(), c.loc);
+    internal::throw_null_conversion(name_type<zview>(), loc);
   return zview{c_str(), size()};
 }
 
 
-template<> inline zview field::as<zview>(zview const &default_value, ctx) const
+template<> inline zview field::as<zview>(zview const &default_value, sl) const
 {
   return is_null() ? default_value : zview{c_str(), size()};
 }

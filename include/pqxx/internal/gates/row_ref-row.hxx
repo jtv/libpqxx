@@ -10,9 +10,9 @@ class PQXX_PRIVATE row_ref_row : callgate<row_ref>
 
   template<typename Tuple, std::size_t... indexes>
   void
-  extract_fields(Tuple &t, std::index_sequence<indexes...> seq, sl loc) const
+  extract_fields(Tuple &t, std::index_sequence<indexes...> seq, ctx c) const
   {
-    return home().extract_fields<Tuple, indexes...>(t, seq, loc);
+    return home().extract_fields<Tuple, indexes...>(t, seq, c);
   }
 };
 } // namespace pqxx::internal::gate

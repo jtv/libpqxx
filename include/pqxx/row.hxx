@@ -343,18 +343,19 @@ private:
   template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
     extract_fields(
-      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{},
+      conversion_context{home().get_encoding_group(), loc});
   }
 
   friend class pqxx::internal::gate::row_ref_row;
   template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, ctx c) const
   {
-    (extract_value<Tuple, indexes>(t, loc), ...);
+    (extract_value<Tuple, indexes>(t, c), ...);
   }
 
   template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &t, sl loc) const;
+  void extract_value(Tuple &t, ctx) const;
 
   /// Convert row's values as a new tuple.
   template<typename TUPLE, std::size_t... indexes>
@@ -685,12 +686,16 @@ private:
         loc};
   }
 
+  /// The @ref pqxx::result of which this is a row.
+  result const &home() const { return m_result; }
+
   /// Convert entire row to tuple fields, without checking row size.
   template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
     auto ref{as_row_ref()};
     pqxx::internal::gate::row_ref_row{ref}.extract_fields(
-      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}, loc);
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{},
+      conversion_context{home().get_encoding_group(), loc});
   }
 
   // TODO: Define gate.
@@ -1006,11 +1011,11 @@ const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 
 
 template<typename Tuple, std::size_t index>
-inline void row_ref::extract_value(Tuple &t, sl) const
+inline void row_ref::extract_value(Tuple &t, ctx c) const
 {
   using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   field_ref const f{*m_result, m_index, index};
-  std::get<index>(t) = from_string<field_type>(f);
+  std::get<index>(t) = from_string<field_type>(f, c);
 }
 
 

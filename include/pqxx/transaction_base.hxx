@@ -483,10 +483,9 @@ public:
   template<not_borrowed TYPE>
   TYPE query_value(std::string_view query, sl loc = sl::current())
   {
-    auto c{make_context(loc)};
     // The result and field_ref objects are temporaries, but under C++20
     // lifetime rules they'll live until after we convert the field to TYPE.
-    return exec(query, loc).one_field_ref(loc).as<TYPE>(c);
+    return exec(query, loc).one_field_ref(loc).as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -872,7 +871,7 @@ public:
     return exec(query, parms, loc)
       .expect_columns(1, loc)
       .one_field_ref(loc)
-      .as<TYPE>(make_context(loc));
+      .as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -1029,12 +1028,13 @@ public:
   /** This is just like @ref query_value(std::string_view), but using a
    * prepared statement.
    */
-  template<not_borrowed TYPE> TYPE query_value(prepped statement, ctx c = {})
+  template<not_borrowed TYPE>
+  TYPE query_value(prepped statement, sl loc = sl::current())
   {
-    return exec(statement, {}, c.loc)
-      .expect_columns(1, c.loc)
-      .one_field_ref(c.loc)
-      .as<TYPE>(c);
+    return exec(statement, {}, loc)
+      .expect_columns(1, loc)
+      .one_field_ref(loc)
+      .as<TYPE>(loc);
   }
 
   /// Execute prepared statement, load result, perform `func` for each row.
