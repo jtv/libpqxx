@@ -82,12 +82,13 @@ throw_null_conversion(std::string_view type, sl);
 template<pqxx::internal::char_type CHAR_TYPE>
 struct disallowed_ambiguous_char_conversion
 {
+  static constexpr std::size_t
+  size_buffer(CHAR_TYPE const &) noexcept = delete;
+
   static constexpr std::string_view
   to_buf(std::span<char>, CHAR_TYPE const &, ctx = {}) noexcept = delete;
 
-  static constexpr std::size_t
-  size_buffer(CHAR_TYPE const &) noexcept = delete;
-  static CHAR_TYPE from_string(std::string_view) = delete;
+  static CHAR_TYPE from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -256,7 +257,7 @@ struct string_traits<long double>
 
 template<> struct string_traits<bool>
 {
-  PQXX_LIBEXPORT static bool from_string(std::string_view text);
+  PQXX_LIBEXPORT static bool from_string(std::string_view text, ctx c = {});
 
   static constexpr zview
   to_buf(std::span<char>, bool const &value, ctx = {}) noexcept
@@ -306,10 +307,9 @@ template<typename T> struct string_traits<std::optional<T>>
       return pqxx::to_buf(buf, *value, c);
   }
 
-  static std::optional<T> from_string(std::string_view text)
+  static std::optional<T> from_string(std::string_view text, ctx c = {})
   {
-    return std::optional<T>{
-      std::in_place, string_traits<T>::from_string(text)};
+    return std::optional<T>{std::in_place, pqxx::from_string<T>(text, c)};
   }
 
   static std::size_t size_buffer(std::optional<T> const &value) noexcept
@@ -374,7 +374,7 @@ template<typename... T> struct string_traits<std::variant<T...>>
    * like "pick the first type which fits the value," but we'd have to look
    * into how natural that API feels to users.
    */
-  static std::variant<T...> from_string(std::string_view) = delete;
+  static std::variant<T...> from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -390,9 +390,10 @@ inline constexpr bool is_unquoted_safe<std::variant<T...>>{
   (is_unquoted_safe<T> and ...)};
 
 
-template<typename T> inline T from_string(std::stringstream const &text)
+template<typename T>
+inline T from_string(std::stringstream const &text, ctx c = {})
 {
-  return from_string<T>(text.str());
+  return from_string<T>(text.str(), c);
 }
 
 
@@ -409,7 +410,7 @@ template<> struct string_traits<std::nullptr_t>
   {
     return 0;
   }
-  static std::nullptr_t from_string(std::string_view) = delete;
+  static std::nullptr_t from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -426,7 +427,7 @@ template<> struct string_traits<std::nullopt_t>
   {
     return 0;
   }
-  static std::nullopt_t from_string(std::string_view) = delete;
+  static std::nullopt_t from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -444,7 +445,7 @@ template<> struct string_traits<std::monostate>
     return 0;
   }
   [[deprecated("Do not convert nulls.")]] static std::monostate
-    from_string(std::string_view) = delete;
+    from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -478,7 +479,7 @@ template<> struct nullness<char const *>
  */
 template<> struct string_traits<char const *>
 {
-  static char const *from_string(std::string_view text) = delete;
+  static char const *from_string(std::string_view text, ctx = {}) = delete;
 
   static std::string_view
   to_buf(std::span<char>, char const *const &value, ctx = {})
@@ -534,7 +535,7 @@ template<> struct string_traits<char *>
       return pqxx::size_buffer(const_cast<char const *>(value));
   }
 
-  static char *from_string(std::string_view) = delete;
+  static char *from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -560,7 +561,7 @@ template<std::size_t N> struct string_traits<char[N]>
   }
 
   /// Don't allow conversion to this type.
-  static void from_string(std::string_view) = delete;
+  static void from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -570,7 +571,8 @@ template<> struct nullness<std::string> : no_null<std::string>
 
 template<> struct string_traits<std::string>
 {
-  PQXX_INLINE_ONLY static std::string from_string(std::string_view text)
+  PQXX_INLINE_ONLY static std::string
+  from_string(std::string_view text, ctx = {})
   {
     return std::string{text};
   }
@@ -618,7 +620,8 @@ template<> struct string_traits<std::string_view>
     return value;
   }
 
-  PQXX_INLINE_ONLY static std::string_view from_string(std::string_view value)
+  PQXX_INLINE_ONLY static std::string_view
+  from_string(std::string_view value, ctx = {})
   {
     return value;
   }
@@ -648,7 +651,7 @@ template<> struct string_traits<zview>
    * zero.  Even if there is one, that may just be the first byte of an
    * entirely separately allocated piece of memory.
    */
-  static zview from_string(std::string_view) = delete;
+  static zview from_string(std::string_view, ctx = {}) = delete;
 };
 
 
@@ -660,7 +663,7 @@ template<> struct string_traits<std::stringstream>
 {
   static std::size_t size_buffer(std::stringstream const &) = delete;
 
-  static std::stringstream from_string(std::string_view text)
+  static std::stringstream from_string(std::string_view text, ctx = {})
   {
     std::stringstream stream;
     stream.write(text.data(), std::streamsize(std::size(text)));
@@ -703,9 +706,9 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 template<typename T, typename... Args>
 struct string_traits<std::unique_ptr<T, Args...>>
 {
-  static std::unique_ptr<T> from_string(std::string_view text)
+  static std::unique_ptr<T> from_string(std::string_view text, ctx c = {})
   {
-    return std::make_unique<T>(pqxx::from_string<T>(text));
+    return std::make_unique<T>(pqxx::from_string<T>(text, c));
   }
 
   static std::string_view to_buf(
@@ -757,9 +760,9 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 
 template<typename T> struct string_traits<std::shared_ptr<T>>
 {
-  static std::shared_ptr<T> from_string(std::string_view text)
+  static std::shared_ptr<T> from_string(std::string_view text, ctx c = {})
   {
-    return std::make_shared<T>(pqxx::from_string<T>(text));
+    return std::make_shared<T>(pqxx::from_string<T>(text, c));
   }
 
   static std::string_view
@@ -831,10 +834,13 @@ template<binary DATA> struct string_traits<DATA>
       // ensured that `DATA` is a type that inherently has the right size.
       // Might a `std::array<std::byte, ...>` for instance.
       if (std::size(buf) != size)
-        throw conversion_error{std::format(
-          "Can't convert binary data from SQL text to {}: I don't know how to "
-          "resize that type.",
-          name_type<DATA>())};
+        throw conversion_error{
+          std::format(
+            "Can't convert binary data from SQL text to {}: I don't know how "
+            "to "
+            "resize that type.",
+            name_type<DATA>()),
+          c.loc};
     }
 
     pqxx::internal::unesc_bin(text, buf, c.loc);

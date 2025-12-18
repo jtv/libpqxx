@@ -462,7 +462,7 @@ template std::string to_string_float(long double, ctx);
 } // namespace pqxx::internal
 
 
-bool pqxx::string_traits<bool>::from_string(std::string_view text)
+bool pqxx::string_traits<bool>::from_string(std::string_view text, ctx c)
 {
   std::optional<bool> result;
 
@@ -502,6 +502,7 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text)
   if (result)
     return *result;
   else
-    throw conversion_error{
-      std::format("Failed conversion to bool: '{}'.", std::string{text})};
+    throw conversion_error{std::format(
+      "Failed conversion to bool ({}): '{}'.",
+      pqxx::internal::source_loc(c.loc), std::string{text})};
 }

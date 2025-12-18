@@ -464,6 +464,19 @@ void test_to_buf_multi()
     PQXX_CHECK(
       std::data(strings.at(i)) ==
       std::data(strings.at(i - 1)) + std::size(strings.at(i - 1)));
+
+  // Compare to the version that takes a conversion_context.
+  std::vector<char> buf2{};
+  buf2.resize(50);
+  pqxx::conversion_context const c{
+    pqxx::encoding_group::ascii_safe, pqxx::sl::current()};
+  auto strings2{pqxx::to_buf_multi(c, buf2, "foo", -1025, "bar", 3ul, "zarg")};
+  PQXX_CHECK_EQUAL(std::size(strings2), std::size(strings));
+  PQXX_CHECK_EQUAL(strings2.at(0), strings.at(0));
+  PQXX_CHECK_EQUAL(strings2.at(1), strings.at(1));
+  PQXX_CHECK_EQUAL(strings2.at(2), strings.at(2));
+  PQXX_CHECK_EQUAL(strings2.at(3), strings.at(3));
+  PQXX_CHECK_EQUAL(strings2.at(4), strings.at(4));
 }
 
 

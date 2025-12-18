@@ -665,13 +665,45 @@ to_buf(char *begin, char const *end, TYPE... value)
  */
 template<typename... TYPE>
 inline std::vector<std::string_view>
+to_buf_multi(ctx c, std::span<char> buf, TYPE... value)
+{
+  // TODO: Would it be worth merging consecutive identical strings?
+  std::size_t here{0u};
+  return {[&here, buf, &c](auto v) {
+    auto start{here};
+    here += pqxx::into_buf(buf.subspan(start), v, c);
+    assert(start < here);
+    assert(here <= std::size(buf));
+    // C++26: Use buf.at().
+    auto const len{here - start};
+    return std::string_view{std::data(buf) + start, len};
+  }(value)...};
+}
+
+
+/// Convert multiple values to strings inside a single buffer.
+/** There must be enough room for all values, or this will throw
+ * @c conversion_overrun.  You can obtain a conservative estimate of the buffer
+ * space required by calling @c size_buffer() on the values.
+ *
+ * The @c std::string_view results may point into the buffer, so don't assume
+ * that they will remain valid after you destruct or move the buffer.
+ *
+ * @warning This version of the function does not take a
+ * @ref pqxx::conversion_context argument.  Prefer the version that does take
+ * one, and pass (insofar as possible) a @ref pqxx::encoding_group and a
+ * `std::source_location`.
+ */
+template<typename... TYPE>
+inline std::vector<std::string_view>
 to_buf_multi(std::span<char> buf, TYPE... value)
 {
   // TODO: Would it be worth merging consecutive identical strings?
   std::size_t here{0u};
-  return {[&here, buf](auto v) {
+  conversion_context c{};
+  return {[&here, buf, &c](auto v) {
     auto start{here};
-    here += pqxx::into_buf(buf.subspan(start), v);
+    here += pqxx::into_buf(buf.subspan(start), v, c);
     assert(start < here);
     assert(here <= std::size(buf));
     // C++26: Use buf.at().
