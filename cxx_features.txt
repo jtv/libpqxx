@@ -1,5 +1,9 @@
 # Feature checks that we can perform simply by testing a C++ feature
-# test macro.
+# test macro, but for which we want a consistent setting between the libpqxx
+# source files and headers.  This can avoid ABI inconsistencies when an
+# application uses a libpqxx that was compiled with a slightly different
+# compiler configuration, such as the same compiler but under a different
+# version ofthe C++ language.
 #
 # Each (non-empty, non-comment) line consists of a libpqxx feature macro
 # and the corresponding C++ feature test macro that we need to check in
