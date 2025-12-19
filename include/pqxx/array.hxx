@@ -88,12 +88,23 @@ public:
     }
   }
 
+  /// The element type of values in this array
+  using value_type = ELEMENT;
+
   /// How many dimensions does this array have?
   /** This value is known at compile time.
    */
-  PQXX_PURE constexpr std::size_t dimensions() const noexcept
+  PQXX_PURE static constexpr std::size_t dimensions() noexcept
   {
     return DIMENSIONS;
+  }
+
+  /// What is the separator used for parsing this array's values?
+  /** This value is known at compile time.
+   */
+  PQXX_PURE static constexpr char separator() noexcept
+  {
+    return SEPARATOR;
   }
 
   /// Return the sizes of this array in each of its dimensions.

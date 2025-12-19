@@ -718,7 +718,10 @@ void test_as_sql_array()
     // Connection closes, but we should still be able to parse the array.
   }
   auto const array{r[0].as_sql_array<int>()};
-  PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array.");
+  PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array (via as_sql_array).");
+
+  auto const array2{r[0].as<pqxx::array<int>>()};
+  PQXX_CHECK_EQUAL(array2[3], 2, "Got wrong value out of array (via as).");
 }
 
 

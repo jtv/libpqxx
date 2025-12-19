@@ -244,7 +244,8 @@ public:
     return as<O<T>>();
   }
 
-  /// Read SQL array contents as a @ref pqxx::array.
+  /// Read SQL array contents as a @ref pqxx::array.  You can also use
+  /// `as<pqxx::array<...>>()`
   template<typename ELEMENT, auto... ARGS>
   array<ELEMENT, ARGS...> as_sql_array(sl loc = sl::current()) const
   {
