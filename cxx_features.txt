@@ -12,4 +12,5 @@
 # Remember to enter each of these in configitems as well, or they won't
 # end up in the actual configuration headers.
 
-PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
+# Argh.  Visual Studio 2022 pretends to support multidim but doesn't seem to.
+# PQXX_HAVE_MULTIDIM __cpp_multidimensional_subscript
