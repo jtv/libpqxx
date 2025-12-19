@@ -495,6 +495,7 @@ public:
    * @ref at().
    */
   [[nodiscard]] PQXX_PURE field_ref operator[](size_type) const noexcept;
+
 #if defined(PQXX_HAVE_MULTIDIM)
   /** Address field by name.
    * @warning This is much slower than indexing by number, or iterating.
