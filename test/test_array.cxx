@@ -708,7 +708,7 @@ void test_array_iterates_in_row_major_order()
 }
 
 
-void test_as_sql_array()
+void test_result_parses_simple_array()
 {
   pqxx::connection cx;
   pqxx::row r;
@@ -717,7 +717,10 @@ void test_as_sql_array()
     r = tx.exec("SELECT ARRAY [5, 4, 3, 2]").one_row();
     // Connection closes, but we should still be able to parse the array.
   }
+
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   auto const array{r[0].as_sql_array<int>()};
+#include <pqxx/internal/ignore-deprecated-post.hxx>
   PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array (via as_sql_array).");
 
   auto const array2{r[0].as<pqxx::array<int>>()};
@@ -825,7 +828,7 @@ PQXX_REGISTER_TEST(test_array_parses_multidim_arrays);
 PQXX_REGISTER_TEST(test_array_at_checks_bounds);
 PQXX_REGISTER_TEST(test_array_iterates_in_row_major_order);
 PQXX_REGISTER_TEST(test_array_generate_empty_strings);
-PQXX_REGISTER_TEST(test_as_sql_array);
+PQXX_REGISTER_TEST(test_result_parses_simple_array);
 PQXX_REGISTER_TEST(test_scan_double_quoted_string);
 PQXX_REGISTER_TEST(test_generate_empty_array);
 PQXX_REGISTER_TEST(test_generate_null_value);
