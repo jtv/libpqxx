@@ -76,7 +76,7 @@ template<typename TYPE, typename ENABLE = void> struct nullness final
 
   /// Is this type always null?
   /** This is only the case for a few types, such as `std::nullptr_t`. */
-  constexpr static bool always_null = false;
+  static constexpr bool always_null = false;
 
   /// Is @c value a null?
   PQXX_PURE static bool is_null(TYPE const &value);

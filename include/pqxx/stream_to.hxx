@@ -444,7 +444,7 @@ private:
     (..., append_to_buffer(fields, m_created_loc));
   }
 
-  constexpr static std::string_view s_classname{"stream_to"};
+  static constexpr std::string_view s_classname{"stream_to"};
 };
 } // namespace pqxx
 #endif
