@@ -95,10 +95,6 @@ protected:
   transaction_base *m_trans;
 
 private:
-  std::string_view m_classname;
-  std::string m_name;
-  bool m_registered = false;
-
   /// Perform part of a move operation.
   void move_name_and_registration(transaction_focus &other)
   {
@@ -112,6 +108,10 @@ private:
     if (reg)
       this->register_me();
   }
+
+  std::string_view m_classname;
+  std::string m_name;
+  bool m_registered = false;
 };
 } // namespace pqxx
 #endif
