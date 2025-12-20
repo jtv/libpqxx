@@ -213,14 +213,14 @@ namespace pqxx
  */
 template<typename T>
   requires std::is_arithmetic_v<T>
-struct nullness<T> : no_null<T>
+struct nullness<T> final : no_null<T>
 {};
 
 
 /// String traits for builtin integer types.
 /** This does not cover `bool` or (unlike `std::integral`) the `char` types.
  */
-template<pqxx::internal::integer T> struct string_traits<T>
+template<pqxx::internal::integer T> struct string_traits<T> final
 {
   PQXX_LIBEXPORT static T from_string(std::string_view text, ctx = {});
   PQXX_LIBEXPORT static std::string_view
@@ -244,18 +244,19 @@ inline constexpr bool is_unquoted_safe<T>{true};
 
 
 template<>
-struct string_traits<float> : pqxx::internal::float_string_traits<float>
+struct string_traits<float> final : pqxx::internal::float_string_traits<float>
 {};
 template<>
-struct string_traits<double> : pqxx::internal::float_string_traits<double>
+struct string_traits<double> final
+        : pqxx::internal::float_string_traits<double>
 {};
 template<>
-struct string_traits<long double>
+struct string_traits<long double> final
         : pqxx::internal::float_string_traits<long double>
 {};
 
 
-template<> struct string_traits<bool>
+template<> struct string_traits<bool> final
 {
   PQXX_LIBEXPORT static bool from_string(std::string_view text, ctx c = {});
 
@@ -272,7 +273,7 @@ template<> struct string_traits<bool>
 template<> inline constexpr bool is_unquoted_safe<bool>{true};
 
 
-template<typename T> struct nullness<std::optional<T>>
+template<typename T> struct nullness<std::optional<T>> final
 {
   static constexpr bool has_null = true;
   /// Technically, you could have an optional of an always-null type.
@@ -296,7 +297,7 @@ inline constexpr format param_format(std::optional<T> const &value)
 }
 
 
-template<typename T> struct string_traits<std::optional<T>>
+template<typename T> struct string_traits<std::optional<T>> final
 {
   static std::string_view
   to_buf(std::span<char> buf, std::optional<T> const &value, ctx c = {})
@@ -326,7 +327,7 @@ template<typename T>
 inline constexpr bool is_unquoted_safe<std::optional<T>>{is_unquoted_safe<T>};
 
 
-template<typename... T> struct nullness<std::variant<T...>>
+template<typename... T> struct nullness<std::variant<T...>> final
 {
   static constexpr bool has_null = (pqxx::has_null<T>() or ...);
   static constexpr bool always_null = (pqxx::always_null<T>() and ...);
@@ -349,7 +350,7 @@ template<typename... T> struct nullness<std::variant<T...>>
 };
 
 
-template<typename... T> struct string_traits<std::variant<T...>>
+template<typename... T> struct string_traits<std::variant<T...>> final
 {
   static std::string_view
   to_buf(std::span<char> buf, std::variant<T...> const &value, ctx c = {})
@@ -397,7 +398,7 @@ inline T from_string(std::stringstream const &text, ctx c = {})
 }
 
 
-template<> struct string_traits<std::nullptr_t>
+template<> struct string_traits<std::nullptr_t> final
 {
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(std::span<char>, std::nullptr_t const &, ctx = {}) noexcept
@@ -414,7 +415,7 @@ template<> struct string_traits<std::nullptr_t>
 };
 
 
-template<> struct string_traits<std::nullopt_t>
+template<> struct string_traits<std::nullopt_t> final
 {
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::nullopt_t const &) noexcept
@@ -431,7 +432,7 @@ template<> struct string_traits<std::nullopt_t>
 };
 
 
-template<> struct string_traits<std::monostate>
+template<> struct string_traits<std::monostate> final
 {
   [[deprecated("Do not convert nulls.")]] static constexpr zview
   to_buf(char *, char *, std::monostate const &) noexcept
@@ -452,7 +453,7 @@ template<> struct string_traits<std::monostate>
 template<> inline constexpr bool is_unquoted_safe<std::nullptr_t>{true};
 
 
-template<> struct nullness<char const *>
+template<> struct nullness<char const *> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
@@ -477,7 +478,7 @@ template<> struct nullness<char const *>
  * be a valid address.  Even if there happens to be a zero there, it isn't
  * necessarily part of the same block of mmory.)
  */
-template<> struct string_traits<char const *>
+template<> struct string_traits<char const *> final
 {
   static char const *from_string(std::string_view text, ctx = {}) = delete;
 
@@ -498,7 +499,7 @@ template<> struct string_traits<char const *>
 };
 
 
-template<> struct nullness<char *>
+template<> struct nullness<char *> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
@@ -520,7 +521,7 @@ template<> struct nullness<char *>
  * The other reason is constness.  We can't give you a non-const pointer into
  * a string that was handed into the conversion as `const`.
  */
-template<> struct string_traits<char *>
+template<> struct string_traits<char *> final
 {
   static std::string_view
   to_buf(std::span<char> buf, char *const &value, ctx c = {})
@@ -539,7 +540,7 @@ template<> struct string_traits<char *>
 };
 
 
-template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
+template<std::size_t N> struct nullness<char[N]> final : no_null<char[N]>
 {};
 
 
@@ -547,7 +548,7 @@ template<std::size_t N> struct nullness<char[N]> : no_null<char[N]>
 /** @warning This assumes that every array-of-char is a C-style string literal.
  * So, it must include a trailing zero. and it must have static duration.
  */
-template<std::size_t N> struct string_traits<char[N]>
+template<std::size_t N> struct string_traits<char[N]> final
 {
   static constexpr zview
   to_buf(std::span<char>, char const (&value)[N], ctx = {}) noexcept
@@ -565,11 +566,11 @@ template<std::size_t N> struct string_traits<char[N]>
 };
 
 
-template<> struct nullness<std::string> : no_null<std::string>
+template<> struct nullness<std::string> final : no_null<std::string>
 {};
 
 
-template<> struct string_traits<std::string>
+template<> struct string_traits<std::string> final
 {
   PQXX_INLINE_ONLY static std::string
   from_string(std::string_view text, ctx = {})
@@ -596,7 +597,7 @@ template<> struct string_traits<std::string>
  * `char` pointer, but the standard does not really seem to guarantee that it
  * is distinct from other empty string views.
  */
-template<> struct nullness<std::string_view> : no_null<std::string_view>
+template<> struct nullness<std::string_view> final : no_null<std::string_view>
 {};
 
 
@@ -606,7 +607,7 @@ template<> struct nullness<std::string_view> : no_null<std::string_view>
  * resulting view after the original string has been destroyed.  The contents
  * will no longer be valid, even though tests may not make this obvious.
  */
-template<> struct string_traits<std::string_view>
+template<> struct string_traits<std::string_view> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
@@ -628,12 +629,12 @@ template<> struct string_traits<std::string_view>
 };
 
 
-template<> struct nullness<zview> : no_null<zview>
+template<> struct nullness<zview> final : no_null<zview>
 {};
 
 
 /// String traits for `zview`.
-template<> struct string_traits<zview>
+template<> struct string_traits<zview> final
 {
   PQXX_INLINE_ONLY static constexpr std::size_t
   size_buffer(std::string_view const &value) noexcept
@@ -655,11 +656,12 @@ template<> struct string_traits<zview>
 };
 
 
-template<> struct nullness<std::stringstream> : no_null<std::stringstream>
+template<>
+struct nullness<std::stringstream> final : no_null<std::stringstream>
 {};
 
 
-template<> struct string_traits<std::stringstream>
+template<> struct string_traits<std::stringstream> final
 {
   static std::size_t size_buffer(std::stringstream const &) = delete;
 
@@ -675,19 +677,21 @@ template<> struct string_traits<std::stringstream>
 };
 
 
-template<> struct nullness<std::nullptr_t> : all_null<std::nullptr_t, nullptr>
+template<>
+struct nullness<std::nullptr_t> final : all_null<std::nullptr_t, nullptr>
 {};
 
 template<>
-struct nullness<std::nullopt_t> : all_null<std::nullopt_t, std::nullopt>
+struct nullness<std::nullopt_t> final : all_null<std::nullopt_t, std::nullopt>
 {};
 
 template<>
-struct nullness<std::monostate> : all_null<std::monostate, std::monostate{}>
+struct nullness<std::monostate> final
+        : all_null<std::monostate, std::monostate{}>
 {};
 
 
-template<typename T> struct nullness<std::unique_ptr<T>>
+template<typename T> struct nullness<std::unique_ptr<T>> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
@@ -704,7 +708,7 @@ template<typename T> struct nullness<std::unique_ptr<T>>
 
 
 template<typename T, typename... Args>
-struct string_traits<std::unique_ptr<T, Args...>>
+struct string_traits<std::unique_ptr<T, Args...>> final
 {
   static std::unique_ptr<T> from_string(std::string_view text, ctx c = {})
   {
@@ -742,7 +746,7 @@ inline constexpr bool is_unquoted_safe<std::unique_ptr<T, Args...>>{
   is_unquoted_safe<T>};
 
 
-template<typename T> struct nullness<std::shared_ptr<T>>
+template<typename T> struct nullness<std::shared_ptr<T>> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
@@ -758,7 +762,7 @@ template<typename T> struct nullness<std::shared_ptr<T>>
 };
 
 
-template<typename T> struct string_traits<std::shared_ptr<T>>
+template<typename T> struct string_traits<std::shared_ptr<T>> final
 {
   static std::shared_ptr<T> from_string(std::string_view text, ctx c = {})
   {
@@ -793,11 +797,11 @@ inline constexpr bool is_unquoted_safe<std::shared_ptr<T>>{
   is_unquoted_safe<T>};
 
 
-template<binary DATA> struct nullness<DATA> : no_null<DATA>
+template<binary DATA> struct nullness<DATA> final : no_null<DATA>
 {};
 
 
-template<binary DATA> struct string_traits<DATA>
+template<binary DATA> struct string_traits<DATA> final
 {
   static std::size_t size_buffer(DATA const &value) noexcept
   {
@@ -909,7 +913,7 @@ template<typename T> struct nonbinary_range_traits
 
 namespace pqxx
 {
-template<nonbinary_range T> struct nullness<T> : no_null<T>
+template<nonbinary_range T> struct nullness<T> final : no_null<T>
 {};
 
 
