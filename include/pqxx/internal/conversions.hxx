@@ -855,29 +855,18 @@ namespace pqxx::internal
 template<nonbinary_range TYPE>
 inline std::size_t array_into_buf(
   std::span<char> buf, TYPE const &value, std::size_t budget, ctx c = {});
-} // namespace pqxx::internal
 
 
-namespace pqxx
-{
-template<nonbinary_range T> struct nullness<T> : no_null<T>
-{};
-
-
-/// String traits for SQL arrays.
-/** This is a very generic implementation,  It doesn't carry enough type
- * information about the container to support _parsing_ of a string into an
- * array of a more or less arbitrary C++ type, but it's handy for converting
- * various container types _to_ strings.
+/// Base class for `string_traits` specialisatoins for nonbinary ranges.
+/** We use the same code for the `pqxx::array` traits, and I'm not sure how to
+ * delegeate directly to a specialisation for a broader concept.
  */
-template<nonbinary_range T> struct string_traits<T>
+template<typename T> struct nonbinary_range_traits
 {
-private:
   using elt_type = std::remove_cvref_t<value_type<T>>;
   using elt_traits = string_traits<elt_type>;
   static constexpr zview s_null{"NULL"};
 
-public:
   static std::size_t size_buffer(T const &value) noexcept
   {
     if constexpr (is_unquoted_safe<elt_type>)
@@ -914,9 +903,25 @@ public:
       pqxx::internal::array_into_buf(buf, value, size_buffer(value), c)};
     return {std::data(buf), sz};
   }
-
-  // XXX: Now that we have conversion_context, can we parse?
 };
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+template<nonbinary_range T> struct nullness<T> : no_null<T>
+{};
+
+
+/// String traits for SQL arrays.
+/** This is a very generic implementation,  It doesn't carry enough type
+ * information about the container to support _parsing_ of a string into an
+ * array of a more or less arbitrary C++ type, but it's handy for converting
+ * various container types _to_ strings.
+ */
+template<nonbinary_range T>
+struct string_traits<T> final : pqxx::internal::nonbinary_range_traits<T>
+{};
 
 
 /// We don't know how to pass array params in binary format, so pass as text.
