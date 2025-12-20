@@ -102,14 +102,18 @@ public:
   /// What is the separator used for parsing this array's values?
   /** This value is known at compile time.
    */
-  PQXX_PURE static constexpr char separator() noexcept { return SEPARATOR; }
+  PQXX_PURE [[nodiscard]] static constexpr char separator() noexcept
+  {
+    return SEPARATOR;
+  }
 
   /// Return the sizes of this array in each of its dimensions.
   /** The last of the sizes is the number of elements in a single row.  The
    * size before that is the number of rows of elements, and so on.  The first
    * is the "outer" size.
    */
-  PQXX_PURE std::array<std::size_t, DIMENSIONS> const &sizes() const noexcept
+  PQXX_PURE [[nodiscard]] std::array<std::size_t, DIMENSIONS> const &
+  sizes() const noexcept
   {
     return m_extents;
   }
