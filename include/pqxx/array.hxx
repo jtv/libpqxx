@@ -102,14 +102,18 @@ public:
   /// What is the separator used for parsing this array's values?
   /** This value is known at compile time.
    */
-  PQXX_PURE static constexpr char separator() noexcept { return SEPARATOR; }
+  PQXX_PURE [[nodiscard]] static constexpr char separator() noexcept
+  {
+    return SEPARATOR;
+  }
 
   /// Return the sizes of this array in each of its dimensions.
   /** The last of the sizes is the number of elements in a single row.  The
    * size before that is the number of rows of elements, and so on.  The first
    * is the "outer" size.
    */
-  PQXX_PURE std::array<std::size_t, DIMENSIONS> const &sizes() const noexcept
+  PQXX_PURE [[nodiscard]] std::array<std::size_t, DIMENSIONS> const &
+  sizes() const noexcept
   {
     return m_extents;
   }
@@ -207,12 +211,12 @@ public:
   /// Refer to the first element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto front() const noexcept { return m_elts.front(); }
+  constexpr auto const &front() const noexcept { return m_elts.front(); }
 
   /// Refer to the last element, if any.
   /** If the array is empty, dereferencing this results in undefined behaviour.
    */
-  constexpr auto back() const noexcept { return m_elts.back(); }
+  constexpr auto const &back() const noexcept { return m_elts.back(); }
 
 private:
   /// Throw an error if `data` is not a `DIMENSIONS`-dimensional SQL array.
@@ -309,8 +313,7 @@ private:
   constexpr std::size_t estimate_elements(std::string_view data) const noexcept
   {
     // Dirty trick: just count the number of bytes that look as if they may be
-    // separators.  At the very worst we may overestimate by a factor of two or
-    // so, in exceedingly rare cases, on some encodings.
+    // separators.
     auto const separators{
       std::count(std::begin(data), std::end(data), SEPARATOR)};
     // The number of dimensions makes no difference here.  It's still one
@@ -633,6 +636,45 @@ template<typename ELEMENT, std::size_t DIMENSIONS>
 struct nullness<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
         : no_null<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
 {};
+} // namespace pqxx
+
+
+namespace pqxx::internal
+{
+template<typename CONT>
+concept containerlike = requires(CONT con) { CONT{con.begin(), con.end()}; };
+
+
+template<typename CONT>
+concept nonbinary_container = nonbinary_range<CONT> and containerlike<CONT>;
+} // namespace pqxx::internal
+
+
+namespace pqxx
+{
+/// A container of nonbinary data.  It has no inherent null value.
+template<pqxx::internal::nonbinary_container CONT>
+struct nullness<CONT> final : no_null<CONT>
+{};
+
+
+// TODO: Can we support multiple dimensions?
+/// A container of nonbinary data can represent a 1-dimensional SQL array.
+/** This does not define a conversion _to_ an SQL string; we leave that to the
+ * `specialisation for nonbinary ranges.
+ */
+template<pqxx::internal::nonbinary_container CONT>
+struct string_traits<CONT> final : pqxx::internal::nonbinary_range_traits<CONT>
+{
+  [[nodiscard]] static CONT from_string(std::string_view text, ctx c = {})
+  {
+    using value_type = typename CONT::value_type;
+    using array_type = array<value_type>;
+    auto const arr = pqxx::from_string<array_type>(text, c);
+    return CONT{arr.cbegin(), arr.cend()};
+  }
+};
+
 
 /// Low-level parser for C++ arrays.  @deprecated Use @ref pqxx::array instead.
 /** Clunky old API for parsing SQL arrays.

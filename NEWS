@@ -8,6 +8,7 @@
  - More helpful compiler errors when `string_traits` fits neither 7 nor 8 API.
  - `result` member functions now take `std::source_location`, not `pqxx::ctx`.
  - Work around broken multidim operator[] support in MSVC 2022.
+ - Can now parse SQL arrays straight into `std::vector` and such.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.

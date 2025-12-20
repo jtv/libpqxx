@@ -289,79 +289,87 @@ void test_nested_array_with_multiple_entries()
 }
 
 
+/// Create a `pqxx::conversion_context`.
+pqxx::conversion_context make_context(
+  pqxx::encoding_group enc = pqxx::encoding_group::ascii_safe,
+  std::source_location loc = std::source_location::current())
+{
+  return pqxx::conversion_context{enc, loc};
+}
+
+
 void test_generate_empty_array()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}, c), "{}");
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<std::string>{}, c), "{}");
+  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}, make_context()), "{}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<std::string>{}, make_context()), "{}");
 }
 
 
 void test_generate_null_value()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{nullptr}, c), "{NULL}");
+    pqxx::to_string(std::vector<char const *>{nullptr}, make_context()),
+    "{NULL}");
 }
 
 
 void test_generate_single_item()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
-  PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{42}, c), "{42}");
+  PQXX_CHECK_EQUAL(
+    pqxx::to_string(std::vector<int>{42}, make_context()), "{42}");
 
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<char const *>{"foo"}, c), "{\"foo\"}");
+    pqxx::to_string(std::vector<char const *>{"foo"}, make_context()),
+    "{\"foo\"}");
 }
 
 
 void test_generate_multiple_items()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<int>{5, 4, 3, 2}, c), "{5,4,3,2}");
+    pqxx::to_string(std::vector<int>{5, 4, 3, 2}, make_context()),
+    "{5,4,3,2}");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"foo", "bar"}, c),
+    pqxx::to_string(std::vector<std::string>{"foo", "bar"}, make_context()),
     "{\"foo\",\"bar\"}");
 }
 
 
 void test_generate_nested_array()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::vector<int>>{{1, 2}, {3, 4}}, c),
+    pqxx::to_string(
+      std::vector<std::vector<int>>{{1, 2}, {3, 4}}, make_context()),
     "{{1,2},{3,4}}");
 }
 
 
 void test_generate_escaped_strings()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"a\\b"}, c), "{\"a\\\\b\"}",
-    "Backslashes are not escaped properly.");
+    pqxx::to_string(std::vector<std::string>{"a\\b"}, make_context()),
+    "{\"a\\\\b\"}", "Backslashes are not escaped properly.");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{"x\"y\""}, c), "{\"x\\\"y\\\"\"}",
-    "Double quotes are not escaped properly.");
+    pqxx::to_string(std::vector<std::string>{"x\"y\""}, make_context()),
+    "{\"x\\\"y\\\"\"}", "Double quotes are not escaped properly.");
 }
 
 
 void test_array_generate_empty_strings()
 {
-  pqxx::conversion_context const c{pqxx::encoding_group::ascii_safe};
-
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>{{""}}, c), "{\"\"}");
+    pqxx::to_string(std::vector<std::string>{{""}}, make_context()), "{\"\"}");
   PQXX_CHECK_EQUAL(
-    pqxx::to_string(std::vector<std::string>({"", "", "", ""}), c),
+    pqxx::to_string(
+      std::vector<std::string>({"", "", "", ""}), make_context()),
     "{\"\",\"\",\"\",\"\"}");
   PQXX_CHECK_EQUAL(
     pqxx::to_string(
       std::vector<std::string>(
         {"", "", "", "", "", "", "", "", "", "", "", ""}),
-      c),
+      make_context()),
     "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}");
 }
 
@@ -464,18 +472,8 @@ void test_array_strings()
 }
 
 
-pqxx::conversion_context make_context(
-  pqxx::encoding_group enc = pqxx::encoding_group::unknown,
-  pqxx::sl loc = pqxx::sl::current())
-{
-  return pqxx::conversion_context{enc, loc};
-}
-
-
 void test_array_parses_real_arrays()
 {
-  auto const mono{pqxx::encoding_group::ascii_safe};
-
   pqxx::connection cx;
   pqxx::work tx{cx};
 
@@ -486,13 +484,13 @@ void test_array_parses_real_arrays()
 
   auto const empty_s{tx.query_value<std::string>("SELECT ARRAY[]::integer[]")};
   pqxx::array<int> const empty_a{
-    pqxx::from_string<pqxx::array<int>>(empty_s, make_context(mono))};
+    pqxx::from_string<pqxx::array<int>>(empty_s, make_context())};
   PQXX_CHECK_EQUAL(empty_a.dimensions(), 1u);
   PQXX_CHECK_EQUAL(empty_a.sizes(), (std::array<std::size_t, 1u>{0u}));
 
   auto const onedim_s{tx.query_value<std::string>("SELECT ARRAY[0, 1, 2]")};
   pqxx::array<int> const onedim_a{
-    pqxx::from_string<pqxx::array<int>>(onedim_s, make_context(mono))};
+    pqxx::from_string<pqxx::array<int>>(onedim_s, make_context())};
   PQXX_CHECK_EQUAL(onedim_a.dimensions(), 1u);
   PQXX_CHECK_EQUAL(onedim_a.sizes(), (std::array<std::size_t, 1u>{3u}));
   PQXX_CHECK_EQUAL(onedim_a.at(0), 0);
@@ -506,7 +504,7 @@ void test_array_parses_real_arrays()
 
   auto const twodim_s{tx.query_value<std::string>("SELECT ARRAY[[1], [2]]")};
   pqxx::array<int, 2> const twodim_a{
-    pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context(mono))};
+    pqxx::from_string<pqxx::array<int, 2>>(twodim_s, make_context())};
   PQXX_CHECK_EQUAL(twodim_a.dimensions(), 2u);
   PQXX_CHECK_EQUAL(twodim_a.sizes(), (std::array<std::size_t, 2>{2u, 1u}));
 
@@ -809,6 +807,45 @@ void test_scan_double_quoted_string()
 }
 
 
+void test_sql_array_parses_to_container()
+{
+  PQXX_CHECK_EQUAL(
+    std::size(pqxx::from_string<std::vector<int>>("{}", make_context())), 0u);
+
+  std::vector<int> const ints_vec{
+    pqxx::from_string<std::vector<int>>("{6,5,4}", make_context())};
+  PQXX_CHECK_EQUAL(std::size(ints_vec), 3u);
+  PQXX_CHECK_EQUAL(ints_vec.at(0), 6);
+  PQXX_CHECK_EQUAL(ints_vec.at(1), 5);
+  PQXX_CHECK_EQUAL(ints_vec.at(2), 4);
+
+  std::vector<std::string> const str_vec{
+    pqxx::from_string<std::vector<std::string>>("{7,6}", make_context())};
+  PQXX_CHECK_EQUAL(std::size(str_vec), 2u);
+  PQXX_CHECK_EQUAL(str_vec.at(0), "7");
+  PQXX_CHECK_EQUAL(str_vec.at(1), "6");
+
+  std::list<int> const ints_list{
+    pqxx::from_string<std::list<int>>("{9,8,7}", make_context())};
+  PQXX_CHECK_EQUAL(std::size(ints_list), 3u);
+  auto li{ints_list.cbegin()};
+  PQXX_CHECK(li != ints_list.cend());
+  PQXX_CHECK_EQUAL(*li, 9);
+  ++li;
+  PQXX_CHECK(li != ints_list.cend());
+  PQXX_CHECK_EQUAL(*li, 8);
+  ++li;
+  PQXX_CHECK(li != ints_list.cend());
+  PQXX_CHECK_EQUAL(*li, 7);
+
+  // It doesn't work for multi-dimensional arrays.
+  PQXX_CHECK_THROWS(
+    (std::ignore =
+       pqxx::from_string<std::vector<std::string>>("{{1}}", make_context())),
+    pqxx::conversion_error);
+}
+
+
 PQXX_REGISTER_TEST(test_empty_arrays);
 PQXX_REGISTER_TEST(test_array_null_value);
 PQXX_REGISTER_TEST(test_array_double_quoted_string);
@@ -838,4 +875,5 @@ PQXX_REGISTER_TEST(test_generate_multiple_items);
 PQXX_REGISTER_TEST(test_generate_nested_array);
 PQXX_REGISTER_TEST(test_generate_escaped_strings);
 PQXX_REGISTER_TEST(test_sparse_arrays);
+PQXX_REGISTER_TEST(test_sql_array_parses_to_container);
 } // namespace
