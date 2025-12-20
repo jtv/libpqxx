@@ -837,6 +837,12 @@ void test_sql_array_parses_to_container()
   ++li;
   PQXX_CHECK(li != ints_list.cend());
   PQXX_CHECK_EQUAL(*li, 7);
+
+  // It doesn't work for multi-dimensional arrays.
+  PQXX_CHECK_THROWS(
+    (std::ignore =
+       pqxx::from_string<std::vector<std::string>>("{{1}}", make_context())),
+    pqxx::conversion_error);
 }
 
 
