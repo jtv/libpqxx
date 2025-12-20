@@ -370,9 +370,8 @@ PQXX_INLINE_COV inline std::size_t size_composite_field_buffer(T const &field)
 
 template<typename T>
 PQXX_INLINE_ONLY inline void write_composite_field(
-  std::span<char> buf, std::size_t &pos, T const &field, sl loc)
+  std::span<char> buf, std::size_t &pos, T const &field, ctx c)
 {
-  conversion_context const c{{}, loc};
   if constexpr (is_unquoted_safe<T>)
   {
     // No need for quoting or escaping.  Convert it straight into its final

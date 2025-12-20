@@ -110,24 +110,24 @@ composite_size_buffer(T const &...fields) noexcept
  */
 template<typename... T>
 inline std::size_t
-composite_into_buf(sl loc, std::span<char> buf, T const &...fields)
+composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 {
   if (std::size(buf) < composite_size_buffer(fields...))
     throw conversion_error{
-      "Buffer space may not be enough to represent composite value.", loc};
+      "Buffer space may not be enough to represent composite value.", c.loc};
 
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
     constexpr std::string_view empty{"()"};
-    return pqxx::internal::copy_chars<false>(empty, buf, 0, loc);
+    return pqxx::internal::copy_chars<false>(empty, buf, 0, c.loc);
   }
 
   std::size_t pos{0};
   // C++26: Use buf.at().
   buf[pos++] = '(';
 
-  (pqxx::internal::write_composite_field<T>(buf, pos, fields, loc), ...);
+  (pqxx::internal::write_composite_field<T>(buf, pos, fields, c), ...);
 
   // If we've got multiple fields, "backspace" that last comma.
   if constexpr (num_fields > 1)
