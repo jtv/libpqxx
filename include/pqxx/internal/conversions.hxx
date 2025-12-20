@@ -857,9 +857,9 @@ inline std::size_t array_into_buf(
   std::span<char> buf, TYPE const &value, std::size_t budget, ctx c = {});
 
 
-/// Base class for `string_traits` specialisatoins for nonbinary ranges.
+/// Base class for `string_traits` specialisations for nonbinary ranges.
 /** We use the same code for the `pqxx::array` traits, and I'm not sure how to
- * delegeate directly to a specialisation for a broader concept.
+ * delegate directly to a specialisation for a broader concept.
  */
 template<typename T> struct nonbinary_range_traits
 {
