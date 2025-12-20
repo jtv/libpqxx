@@ -658,10 +658,10 @@ struct nullness<CONT> final : no_null<CONT>
 {};
 
 
-// TODO: Is there an intuitive way to support multiple dimensions?
+// TODO: Can we support multiple dimensions?
 /// A container of nonbinary data can represent a 1-dimensional SQL array.
 /** This does not define a conversion _to_ an SQL string; we leave that to the
- * `std::range<...>` specialisation.
+ * `specialisation for nonbinary ranges.
  */
 template<pqxx::internal::nonbinary_container CONT>
 struct string_traits<CONT> final : pqxx::internal::nonbinary_range_traits<CONT>
