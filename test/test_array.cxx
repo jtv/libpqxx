@@ -721,7 +721,8 @@ void test_result_parses_simple_array()
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   auto const array{r[0].as_sql_array<int>()};
 #include <pqxx/internal/ignore-deprecated-post.hxx>
-  PQXX_CHECK_EQUAL(array[1], 4, "Got wrong value out of array (via as_sql_array).");
+  PQXX_CHECK_EQUAL(
+    array[1], 4, "Got wrong value out of array (via as_sql_array).");
 
   auto const array2{r[0].as<pqxx::array<int>>()};
   PQXX_CHECK_EQUAL(array2[3], 2, "Got wrong value out of array (via as).");

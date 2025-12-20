@@ -102,10 +102,7 @@ public:
   /// What is the separator used for parsing this array's values?
   /** This value is known at compile time.
    */
-  PQXX_PURE static constexpr char separator() noexcept
-  {
-    return SEPARATOR;
-  }
+  PQXX_PURE static constexpr char separator() noexcept { return SEPARATOR; }
 
   /// Return the sizes of this array in each of its dimensions.
   /** The last of the sizes is the number of elements in a single row.  The

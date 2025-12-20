@@ -318,6 +318,10 @@ PQXX_PURE
 
   switch (enc)
   {
+  case encoding_group::unknown:
+    throw pqxx::argument_error{
+      "Tried to read text without knowing its encoding.", loc};
+
   case encoding_group::ascii_safe:
     return pqxx::internal::find_ascii_char<
       encoding_group::ascii_safe, NEEDLE...>;
