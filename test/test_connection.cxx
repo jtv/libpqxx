@@ -194,7 +194,15 @@ void test_closed_connection()
   PQXX_CHECK(not cx.dbname());
   PQXX_CHECK(not cx.username());
   PQXX_CHECK(not cx.hostname());
-  PQXX_CHECK(not cx.port());
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
+  char const *const portstr{cx.port()};
+  PQXX_CHECK(not portstr);
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+  std::optional<int> const portno{cx.port_number()};
+  if ((portstr != nullptr) and (portstr[0] != '\0'))
+    PQXX_CHECK_EQUAL(pqxx::to_string(portno), std::string(portstr));
+  else
+    PQXX_CHECK_EQUAL(portno, std::optional<int>{});
 }
 
 
