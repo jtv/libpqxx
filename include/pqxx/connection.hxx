@@ -105,7 +105,7 @@ class connection_largeobject;
 class connection_notification_receiver;
 class connection_pipeline;
 class connection_sql_cursor;
-struct connection_stream_from;
+class connection_stream_from;
 class connection_stream_to;
 class connection_transaction;
 class const_connection_largeobject;
