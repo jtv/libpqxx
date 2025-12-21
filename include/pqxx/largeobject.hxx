@@ -437,7 +437,7 @@ protected:
     return adjust_eof(newpos);
   }
 
-  virtual int_type overflow(int_type ch) override
+  virtual int_type overflow(int_type ch = eof()) override
   {
     auto *const pp{this->pptr()};
     if (pp == nullptr)
@@ -479,8 +479,6 @@ protected:
     return res;
   }
 
-  virtual int_type overflow() { return overflow(eof()); }
-
   virtual int_type underflow() override
   {
     if (this->gptr() == nullptr)
@@ -495,7 +493,7 @@ protected:
 
 private:
   /// Shortcut for traits_type::eof().
-  static int_type eof() { return traits_type::eof(); }
+  static constexpr int_type eof() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE> static std::streampos adjust_eof(INTYPE pos)
