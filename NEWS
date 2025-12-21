@@ -1,20 +1,13 @@
-8.0.0-rc3
+8.0.0-rc4
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
- - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
- - Added an "examples" directory: tested, maintained sample code.
- - Dropping JOHAB encoding.  Doesn't work properly on the server either.
- - Encodings support code got smaller, simpler, more efficient.
- - More helpful compiler errors when `string_traits` fits neither 7 nor 8 API.
- - `result` member functions now take `std::source_location`, not `pqxx::ctx`.
- - Work around broken multidim operator[] support in MSVC 2022.
- - Can now parse SQL arrays straight into `std::vector` and such.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
  - **Result equality now only compares identity, not the data inside.**
  - **Row/field equality now only compares identity, not the data inside.**
- - `pqxx::bytes` is now a vector of bytes, not a string of bytes. (#924)
+ - **Row/field lifetimes have changed: see `row_ref` and `field_ref`.
+ - **`pqxx::bytes` is now a vector of bytes, not a string of bytes.** (#924)
  - Use `pqxx::bytes::data()` instead of `pqxx::bytes::c_str()`.
  - The string conversion API has changed! (Old API should still work). (#948)
  - "String conversion" to `std::string_view` etc. is now supported. (#694)
@@ -25,6 +18,7 @@
  - Binary data can be any `std::contiguous_range` of `std::byte`. (#925)
  - Generic `quote()` takes `always_null` into account.
  - You can now convert strings to `pqxx::array` types.
+ - You can now parse SQL arrays straight into `std::vector` and such.
  - There are fewer raw pointers in the API, for safety & verifiability.
  - The libpqxx exceptions now have a `std::source_location`. (#923)
  - Result & row iterators are now proper random access iterators.
@@ -48,16 +42,21 @@
  - Assume compiler supports `std::source_location`.
  - Assume compiler supports ISO-646 without needing `<ciso646>` header.
  - Feel free to use `pqxx::encoding_group`.  It's no longer "internal."
- - There's now an `UNKNOWN` encoding group.  It's the only fully safe default.
+ - There's now an `unknown` encoding group.  It's the only fully safe default.
+ - Dropping JOHAB encoding.  Doesn't work properly on the server either.
  - Array parsing will refuse to work if the encoding group is `UNKNOWN`.
+ - Encodings support code got smaller, simpler, more efficient.
  - Tests are now in a single directory (#934)
+ - Added an "examples" directory: tested, maintained sample code.
  - Removed cumbersome `test_all.py` script.
  - `check_cast()` supports infinities and NaNs.
  - Now supporting CMake "unity builds."
  - Stop trying to figure out link options for filesystem library.
- - Set `PQXX_LINT=skip` to skip lint checks.
+ - You can now set `PQXX_LINT=skip` to skip lint checks.
  - Shell scripts now have "`.sh`" suffix.  Saves hand-coding names.
  - New helper functions to query a type's nullness properties.
+ - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
+ - Work around broken multidim operator[] support in MSVC 2022.
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
  - Pass SQL error code when throwing `pqxx::insufficient_privilege`. (#1077)
