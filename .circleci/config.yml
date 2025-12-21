@@ -73,7 +73,7 @@ jobs:
           path: postgres.log
       - run:
           name: "Gather examples logs."
-          command: tar -vczf examples-logs.tar.gz examples/*.log
+          command: "tar -vczf examples-logs.tar.gz examples/*.log"
       - store_artifacts:
           path: examples-logs.tar.gz
 
@@ -143,7 +143,7 @@ jobs:
           path: postgres.log
       - run:
           name: "Gather examples logs."
-          command: tar -vczf examples-logs.tar.gz examples/*.log
+          command: "tar -vczf examples-logs.tar.gz examples/*.log"
       - store_artifacts:
           path: examples-logs.tar.gz
 
@@ -210,12 +210,6 @@ jobs:
           path: test-suite.log
       - store_artifacts:
           path: postgres.log
-      - run:
-          name: "Gather examples logs."
-          command: tar -vczf examples-logs.tar.gz examples/*.log
-          shell: bash.exe
-      - store_artifacts:
-          path: examples-logs.tar.gz
 
 
   analyse:
