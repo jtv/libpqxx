@@ -46,7 +46,7 @@ private:
 
 namespace pqxx
 {
-template<> struct nullness<TestErrorHandler *>
+template<> struct nullness<TestErrorHandler *> final
 {
   // clang warns about these being unused.  And clang 6 won't accept a
   // [[maybe_unused]] attribute on them either!
@@ -62,7 +62,7 @@ template<> struct nullness<TestErrorHandler *>
 };
 
 
-template<> struct string_traits<TestErrorHandler *>
+template<> struct string_traits<TestErrorHandler *> final
 {
   static constexpr std::size_t size_buffer(TestErrorHandler *const &) noexcept
   {

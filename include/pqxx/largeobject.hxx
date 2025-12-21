@@ -153,7 +153,7 @@ private:
 /// Accessor for large object's contents.
 /** @deprecated Use the `blob` class instead.
  */
-class PQXX_LIBEXPORT largeobjectaccess : private largeobject
+class PQXX_LIBEXPORT largeobjectaccess final : private largeobject
 {
 public:
   using largeobject::size_type;
@@ -373,7 +373,7 @@ private:
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class largeobject_streambuf : public std::basic_streambuf<CHAR, TRAITS>
+class largeobject_streambuf final : public std::basic_streambuf<CHAR, TRAITS>
 {
   using size_type = largeobject::size_type;
 
@@ -545,7 +545,7 @@ private:
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_ilostream : public std::basic_istream<CHAR, TRAITS>
+class basic_ilostream final : public std::basic_istream<CHAR, TRAITS>
 {
   using super = std::basic_istream<CHAR, TRAITS>;
 
@@ -603,7 +603,7 @@ using ilostream = basic_ilostream<char>;
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_olostream : public std::basic_ostream<CHAR, TRAITS>
+class basic_olostream final : public std::basic_ostream<CHAR, TRAITS>
 {
   using super = std::basic_ostream<CHAR, TRAITS>;
 
@@ -675,7 +675,7 @@ using olostream = basic_olostream<char>;
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_lostream : public std::basic_iostream<CHAR, TRAITS>
+class basic_lostream final : public std::basic_iostream<CHAR, TRAITS>
 {
   using super = std::basic_iostream<CHAR, TRAITS>;
 

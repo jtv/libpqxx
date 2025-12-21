@@ -7,11 +7,11 @@ class connection;
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_transaction : callgate<connection>
+class PQXX_PRIVATE connection_transaction final : callgate<connection>
 {
   friend class pqxx::transaction_base;
 
-  connection_transaction(reference x) noexcept : super(x) {}
+  constexpr connection_transaction(reference x) noexcept : super(x) {}
 
   template<typename STRING>
   result exec(STRING query, std::string_view desc, sl loc)

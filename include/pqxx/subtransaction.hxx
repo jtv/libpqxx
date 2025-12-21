@@ -74,8 +74,8 @@ namespace pqxx
  * one object of a type derived from @ref pqxx::transaction_focus active on it
  * at a time.
  */
-class PQXX_LIBEXPORT subtransaction : public transaction_focus,
-                                      public dbtransaction
+class PQXX_LIBEXPORT subtransaction final : public transaction_focus,
+                                            public dbtransaction
 {
 public:
   /// Nest a subtransaction nested in another transaction.

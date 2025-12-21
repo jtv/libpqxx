@@ -75,7 +75,7 @@ constexpr from_query_t from_query;
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-class PQXX_LIBEXPORT stream_from : transaction_focus
+class PQXX_LIBEXPORT stream_from final : transaction_focus
 {
 public:
   using raw_line =

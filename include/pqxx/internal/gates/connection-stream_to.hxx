@@ -5,11 +5,11 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_stream_to : callgate<connection>
+class PQXX_PRIVATE connection_stream_to final : callgate<connection>
 {
   friend class pqxx::stream_to;
 
-  connection_stream_to(reference x) noexcept : super(x) {}
+  constexpr connection_stream_to(reference x) noexcept : super(x) {}
 
   void write_copy_line(std::string_view line, sl loc)
   {

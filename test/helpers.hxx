@@ -76,7 +76,7 @@ private:
 
 
 /// Register a test while not inside a function.
-struct registrar
+struct registrar final
 {
   registrar(char const name[], testfunc func) noexcept
   {
@@ -281,7 +281,7 @@ inline void check_less_equal(
 
 
 /// A special exception type not derived from `std::exception`.
-struct failure_to_fail
+struct failure_to_fail final
 {};
 
 

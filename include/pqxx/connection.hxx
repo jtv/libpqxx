@@ -126,7 +126,7 @@ namespace pqxx
  * reference memory that may become invalid as soon as your handler has been
  * called.
  */
-struct notification
+struct notification final
 {
   /// The connection which received the notification.
   /** There will be no _backend_ transaction active on the connection when your
@@ -269,7 +269,7 @@ enum class error_verbosity : int
  * default this signal will abort your program.  Use "signal(SIGPIPE, SIG_IGN)"
  * if you want your program to continue running after a connection fails.
  */
-class PQXX_LIBEXPORT connection
+class PQXX_LIBEXPORT connection final
 {
 public:
   /// Connect to a database, using the default settings.
@@ -1287,7 +1287,10 @@ private:
   PQXX_PRIVATE void end_copy_write(sl);
 
   friend class internal::gate::connection_largeobject;
-  internal::pq::PGconn *raw_connection() const { return m_conn; }
+  constexpr internal::pq::PGconn *raw_connection() const noexcept
+  {
+    return m_conn;
+  }
 
   friend class internal::gate::connection_notification_receiver;
   void add_receiver(notification_receiver *);
@@ -1390,7 +1393,7 @@ private:
  *     // cg at all.
  * ```
  */
-class PQXX_LIBEXPORT connecting
+class PQXX_LIBEXPORT connecting final
 {
 public:
   /// Start connecting.

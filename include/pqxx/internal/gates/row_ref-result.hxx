@@ -8,13 +8,13 @@ class row_ref;
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE row_ref_result : callgate<row_ref const>
+class PQXX_PRIVATE row_ref_result final : callgate<row_ref const>
 {
   friend class pqxx::result;
 
-  row_ref_result(reference x) noexcept : super(x) {}
+  constexpr row_ref_result(reference x) noexcept : super(x) {}
 
-  template<typename TUPLE> TUPLE as_tuple(sl loc) const
+  template<typename TUPLE> [[nodiscard]] TUPLE as_tuple(sl loc) const
   {
     return home().as_tuple<TUPLE>(loc);
   }

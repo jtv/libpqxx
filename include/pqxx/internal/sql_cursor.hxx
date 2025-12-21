@@ -28,7 +28,7 @@ namespace pqxx::internal
  * Don't use this at home.  You deserve better.  Use the stateless_cursor
  * instead.
  */
-class PQXX_LIBEXPORT sql_cursor : public cursor_base
+class PQXX_LIBEXPORT sql_cursor final : public cursor_base
 {
 public:
   sql_cursor(

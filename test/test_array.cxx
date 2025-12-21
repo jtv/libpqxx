@@ -9,7 +9,7 @@ using namespace std::literals;
 namespace pqxx
 {
 template<>
-struct nullness<array_parser::juncture> : no_null<array_parser::juncture>
+struct nullness<array_parser::juncture> final : no_null<array_parser::juncture>
 {};
 
 

@@ -164,13 +164,13 @@ concept not_borrowed =
 /// Marker for @ref stream_from constructors: "stream from table."
 /** @deprecated Use @ref stream_from::table() instead.
  */
-struct from_table_t
+struct from_table_t final
 {};
 
 /// Marker for @ref stream_from constructors: "stream from query."
 /** @deprecated Use @ref stream_from::query() instead.
  */
-struct from_query_t
+struct from_query_t final
 {};
 } // namespace pqxx
 

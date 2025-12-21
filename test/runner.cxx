@@ -356,12 +356,12 @@ void execute(
 
 
 /// Exception class: user requested help output, exit cleanly.
-struct help_exit : std::exception
+struct help_exit final : std::exception
 {};
 
 
 /// Parsed command line.
-struct options
+struct options final
 {
   /// Test functions to run.  If empty, run all.
   std::vector<std::string_view> tests;
