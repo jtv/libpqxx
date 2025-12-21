@@ -138,8 +138,7 @@ public:
 
   [[nodiscard]] bool empty() const noexcept { return std::empty(m_queries); }
 
-  /// Set maximum number of queries to retain before issuing them to the
-  /// backend.
+  /// Set maximum number of queries to retain before issuing them to backend.
   /** The pipeline will perform better if multiple queries are issued at once,
    * but retaining queries until the results are needed (as opposed to issuing
    * them to the backend immediately) may negate any performance benefits the

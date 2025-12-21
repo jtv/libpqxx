@@ -416,8 +416,11 @@ public:
    * Do not use `c_str()` for BYTEA values, or other binary values.  To read
    * those, convert the value to some binary type using `to()` or `as()`.  For
    * example: `f.as<pqx::bytes>()`.
+   *
+   * If the field is null, returns an empty string.
    */
-  [[nodiscard]] PQXX_PURE char const *c_str() const & noexcept
+  [[nodiscard]] PQXX_PURE PQXX_RETURNS_NONNULL char const *
+  c_str() const & noexcept
   {
     return as_field_ref().c_str();
   }

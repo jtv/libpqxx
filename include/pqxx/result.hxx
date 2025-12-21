@@ -515,7 +515,7 @@ private:
   static std::string const s_empty_string;
 
   friend class pqxx::internal::gate::result_field_ref;
-  PQXX_PURE char const *
+  PQXX_PURE PQXX_RETURNS_NONNULL char const *
   get_value(size_type row, row_size_type col) const noexcept;
   PQXX_PURE bool get_is_null(size_type row, row_size_type col) const noexcept;
   PQXX_PURE

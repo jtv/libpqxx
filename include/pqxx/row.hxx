@@ -748,7 +748,8 @@ public:
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] PQXX_PURE constexpr pointer operator->() const noexcept
+  [[nodiscard]] PQXX_PURE PQXX_RETURNS_NONNULL constexpr pointer
+  operator->() const noexcept
   {
     return &m_field;
   }

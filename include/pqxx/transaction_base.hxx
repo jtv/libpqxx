@@ -108,7 +108,7 @@ class transaction_focus;
  * "autocommit."  There is no way to "undo" an SQL statement in this kind of
  * transaction.)  Autocommit is sometimes a bit faster, and sometimes a bit
  * slower.  Mainly you'll use it for specific operations that cannot be done
- *inside a database transaction, such as some kinds of schema changes.
+ * inside a database transaction, such as some kinds of schema changes.
  *
  * And then there's @ref pqxx::robusttransaction to help you deal with those
  * painful situations where you don't know for sure whether a transaction

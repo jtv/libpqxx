@@ -223,26 +223,27 @@ struct byte_char_traits final : std::char_traits<char>
    */
   static size_t length(const std::byte *data);
 
-  static const std::byte *
+  PQXX_RETURNS_NONNULL static const std::byte *
   find(const std::byte *data, std::size_t size, const std::byte &value)
   {
     return static_cast<const std::byte *>(
       std::memchr(data, static_cast<int>(value), size));
   }
 
-  static std::byte *
+  PQXX_RETURNS_NONNULL static std::byte *
   move(std::byte *dest, const std::byte *src, std::size_t size)
   {
     return static_cast<std::byte *>(std::memmove(dest, src, size));
   }
 
-  static std::byte *
+  PQXX_RETURNS_NONNULL static std::byte *
   copy(std::byte *dest, const std::byte *src, std::size_t size)
   {
     return static_cast<std::byte *>(std::memcpy(dest, src, size));
   }
 
-  static std::byte *assign(std::byte *dest, std::size_t size, std::byte value)
+  PQXX_RETURNS_NONNULL static std::byte *
+  assign(std::byte *dest, std::size_t size, std::byte value)
   {
     return static_cast<std::byte *>(
       std::memset(dest, static_cast<int>(value), size));

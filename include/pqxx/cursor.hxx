@@ -461,12 +461,12 @@ public:
   icursor_iterator(icursor_iterator const &) noexcept;
   ~icursor_iterator() noexcept;
 
-  result const &operator*() const
+  result const &operator*() const noexcept
   {
     refresh(created_loc());
     return m_here;
   }
-  result const *operator->() const
+  PQXX_RETURNS_NONNULL result const *operator->() const noexcept
   {
     refresh(created_loc());
     return &m_here;
