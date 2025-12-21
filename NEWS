@@ -57,6 +57,7 @@
  - New helper functions to query a type's nullness properties.
  - More SQL statements can now be `std::string_view` instead of `pqxx::zview`.
  - Work around broken multidim operator[] support in MSVC 2022.
+ - Nicer replacement for `pqxx::connection::port()`: `port_number()`.
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
  - Pass SQL error code when throwing `pqxx::insufficient_privilege`. (#1077)
