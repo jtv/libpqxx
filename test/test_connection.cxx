@@ -194,7 +194,10 @@ void test_closed_connection()
   PQXX_CHECK(not cx.dbname());
   PQXX_CHECK(not cx.username());
   PQXX_CHECK(not cx.hostname());
+#include <pqxx/internal/ignore-deprecated-pre.hxx>
   PQXX_CHECK(not cx.port());
+#include <pqxx/internal/ignore-deprecated-post.hxx>
+  PQXX_CHECK_EQUAL(cx.port_number(), (std::optional<int>{}));
 }
 
 

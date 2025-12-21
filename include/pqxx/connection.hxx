@@ -379,17 +379,18 @@ public:
   /** Returns nullptr when not connected. */
   [[nodiscard]] char const *username() const noexcept;
 
-  // XXX: Can this return null?
   /// Database server address, if given.
   /** This may be an IP address, or a hostname, or (for a Unix domain socket)
    * a socket path.  Returns nullptr when not connected.
    */
   [[nodiscard]] PQXX_PURE char const *hostname() const noexcept;
 
-  // XXX: Can this return null?
-  // XXX: Why a string and not a number?
   /// Server port number on which we are connected to the database.
-  [[nodiscard]] PQXX_PURE char const *port() const noexcept;
+  [[nodiscard, deprecated("Use port_number().")]] PQXX_PURE char const *
+  port() const noexcept;
+
+  /// Server port number on which we are connected to the database, if any.
+  PQXX_PURE std::optional<int> port_number(sl loc = sl::current()) const;
 
   /// Process ID for backend process, or 0 if inactive.
   [[nodiscard]] PQXX_PURE int backendpid() const & noexcept;

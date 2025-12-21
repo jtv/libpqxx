@@ -690,6 +690,17 @@ PQXX_COLD char const *pqxx::connection::port() const noexcept
 }
 
 
+PQXX_COLD std::optional<int> pqxx::connection::port_number(sl loc) const
+{
+  char const *const ptr{PQport(m_conn)};
+  if ((ptr == nullptr) or (*ptr == '\0'))
+    return {};
+  else
+    return from_string<int>(
+      ptr, conversion_context{encoding_group::ascii_safe, loc});
+}
+
+
 char const *pqxx::connection::err_msg() const noexcept
 {
   return (m_conn == nullptr) ? "No connection to database" :
