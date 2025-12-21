@@ -173,7 +173,7 @@ namespace pqxx
  * you want.  See the retrieve() member function.
  */
 template<cursor_base::update_policy up, cursor_base::ownership_policy op>
-class stateless_cursor
+class stateless_cursor final
 {
 public:
   using size_type = result_size_type;
@@ -292,7 +292,7 @@ namespace pqxx
  * This class can create or adopt cursors that live outside any backend
  * transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream
+class PQXX_LIBEXPORT icursorstream final
 {
 public:
   using size_type = cursor_base::size_type;
@@ -445,7 +445,7 @@ private:
  * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one,
  * or destroying one affects the stream as a whole.
  */
-class PQXX_LIBEXPORT icursor_iterator
+class PQXX_LIBEXPORT icursor_iterator final
 {
 public:
   using iterator_category = std::input_iterator_tag;

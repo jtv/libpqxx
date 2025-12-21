@@ -424,7 +424,7 @@ public:
 /// String conversions for a @ref range type.
 /** Conversion assumes an ASCII-safe encoding.
  */
-template<typename TYPE> struct string_traits<range<TYPE>>
+template<typename TYPE> struct string_traits<range<TYPE>> final
 {
   [[nodiscard]] static std::string_view
   to_buf(std::span<char> buf, range<TYPE> const &value, ctx c = {})
@@ -563,7 +563,8 @@ private:
 
 
 /// A range type does not have an innate null value.
-template<typename TYPE> struct nullness<range<TYPE>> : no_null<range<TYPE>>
+template<typename TYPE>
+struct nullness<range<TYPE>> final : no_null<range<TYPE>>
 {};
 } // namespace pqxx
 #endif

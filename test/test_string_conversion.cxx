@@ -212,7 +212,7 @@ void test_string_converts_to_binary()
 }
 
 
-struct legacy_item
+struct legacy_item final
 {
   constexpr explicit legacy_item(int i) noexcept : val{i} {}
   [[nodiscard]] constexpr int get_val() const noexcept { return val; }
@@ -225,10 +225,10 @@ private:
 
 namespace pqxx
 {
-template<> struct nullness<legacy_item> : no_null<legacy_item>
+template<> struct nullness<legacy_item> final : no_null<legacy_item>
 {};
 
-template<> struct string_traits<legacy_item>
+template<> struct string_traits<legacy_item> final
 {
   static inline zview
   to_buf(char *begin, char const *end, legacy_item const &value)

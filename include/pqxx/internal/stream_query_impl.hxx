@@ -36,7 +36,7 @@ stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
  */
-template<typename... TYPE> class stream_query_input_iterator
+template<typename... TYPE> class stream_query_input_iterator final
 {
   using stream_t = stream_query<TYPE...>;
 

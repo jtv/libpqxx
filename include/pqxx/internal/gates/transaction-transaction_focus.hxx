@@ -4,11 +4,12 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
+class PQXX_PRIVATE transaction_transaction_focus final
+        : callgate<transaction_base>
 {
   friend class pqxx::transaction_focus;
 
-  transaction_transaction_focus(reference x) noexcept : super(x) {}
+  constexpr transaction_transaction_focus(reference x) noexcept : super(x) {}
 
   void register_focus(transaction_focus *focus)
   {

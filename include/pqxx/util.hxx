@@ -201,7 +201,7 @@ struct PQXX_LIBEXPORT thread_safety_model final
  * aren't really suited to binary data, you should use @ref pqxx::bytes or
  * @ref pqxx::bytes_view instead.  This type will be removed.
  */
-struct byte_char_traits : std::char_traits<char>
+struct byte_char_traits final : std::char_traits<char>
 {
   using char_type = std::byte;
 

@@ -238,7 +238,7 @@ public:
   /** Use as `get<int>()` as before to obtain previous behavior, or specify
    * container type with `get<int, std::optional>()`
    */
-  template<typename T, template<typename> class O = std::optional>
+  template<typename T, template<typename> typename O = std::optional>
   constexpr O<T> get() const
   {
     return as<O<T>>();
@@ -301,7 +301,7 @@ namespace pqxx
  * A field represents one entry in a row.  It represents an actual value
  * in the result set, and can be converted to various types.
  */
-class PQXX_LIBEXPORT field
+class PQXX_LIBEXPORT field final
 {
 public:
   using size_type = field_size_type;
@@ -529,7 +529,7 @@ public:
   /** Use as `get<int>()` as before to obtain previous behavior, or specify
    * container type with `get<int, std::optional>()`
    */
-  template<typename T, template<typename> class O = std::optional>
+  template<typename T, template<typename> typename O = std::optional>
   constexpr O<T> get() const
   {
     return as<O<T>>();
@@ -711,7 +711,7 @@ template<> inline zview field::as<zview>(zview const &default_value, sl) const
 
 
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class field_streambuf : public std::basic_streambuf<CHAR, TRAITS>
+class field_streambuf final : public std::basic_streambuf<CHAR, TRAITS>
 {
 public:
   using char_type = CHAR;
@@ -765,7 +765,7 @@ private:
  * This class has only been tested for the char type (and its default traits).
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_fieldstream : public std::basic_istream<CHAR, TRAITS>
+class basic_fieldstream final : public std::basic_istream<CHAR, TRAITS>
 {
   using super = std::basic_istream<CHAR, TRAITS>;
 

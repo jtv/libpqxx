@@ -24,7 +24,7 @@ namespace pqxx::internal
 {
 // TODO: Replace with generator?
 /// Iterator for looped unpacking of a result.
-template<typename... TYPE> class result_iter
+template<typename... TYPE> class result_iter final
 {
 public:
   using value_type = std::tuple<TYPE...>;
@@ -77,7 +77,7 @@ private:
 
 
 /// Iterator for implementing @ref pqxx::result::iter().
-template<typename... TYPE> class result_iteration
+template<typename... TYPE> class result_iteration final
 {
 public:
   using iterator = result_iter<TYPE...>;

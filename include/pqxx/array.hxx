@@ -573,7 +573,8 @@ private:
  * which only knows how to convert _to_ a string.
  */
 template<typename ELEMENT, std::size_t DIMENSIONS>
-struct string_traits<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
+struct string_traits<
+  array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>> final
 {
 private:
   using elt_type = std::remove_cvref_t<ELEMENT>;
@@ -633,7 +634,7 @@ public:
 
 /// No-null trait for SQL arrays represented as @ref pqxx::array.
 template<typename ELEMENT, std::size_t DIMENSIONS>
-struct nullness<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
+struct nullness<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>> final
         : no_null<array<ELEMENT, DIMENSIONS, array_separator<ELEMENT>>>
 {};
 } // namespace pqxx
@@ -697,7 +698,7 @@ struct string_traits<CONT> final : pqxx::internal::nonbinary_range_traits<CONT>
  * @ref juncture of `done`.  The @ref juncture tells you what the parser found
  * in that step: did the array "nest" to a deeper level, or "un-nest" back up?
  */
-class PQXX_LIBEXPORT array_parser
+class PQXX_LIBEXPORT array_parser final
 {
 public:
   /// What's the latest thing found in the array?

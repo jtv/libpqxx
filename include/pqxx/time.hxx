@@ -22,7 +22,7 @@ namespace pqxx
 using namespace std::literals;
 
 template<>
-struct nullness<std::chrono::year_month_day>
+struct nullness<std::chrono::year_month_day> final
         : no_null<std::chrono::year_month_day>
 {};
 
@@ -56,7 +56,8 @@ struct nullness<std::chrono::year_month_day>
  * years before then are shifted by one.  For instance, the year 543 BC would
  * be -542 in C++.
  */
-template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
+template<>
+struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day> final
 {
   [[nodiscard]] static std::string_view to_buf(
     std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {});

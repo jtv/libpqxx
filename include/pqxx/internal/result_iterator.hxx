@@ -166,7 +166,7 @@ private:
 
 
 /// Reverse iterator for result.  Use as result::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_result_iterator
+class PQXX_LIBEXPORT const_reverse_result_iterator final
         : private const_result_iterator
 {
 public:

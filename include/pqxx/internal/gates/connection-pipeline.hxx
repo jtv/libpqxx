@@ -5,11 +5,11 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_pipeline : callgate<connection>
+class PQXX_PRIVATE connection_pipeline final : callgate<connection>
 {
   friend class pqxx::pipeline;
 
-  connection_pipeline(reference x) noexcept : super(x) {}
+  constexpr connection_pipeline(reference x) noexcept : super(x) {}
 
   void start_exec(char const query[]) { home().start_exec(query); }
   pqxx::internal::pq::PGresult *get_result() { return home().get_result(); }
@@ -18,7 +18,7 @@ class PQXX_PRIVATE connection_pipeline : callgate<connection>
   bool consume_input() noexcept { return home().consume_input(); }
   bool is_busy() const noexcept { return home().is_busy(); }
 
-  int encoding_id(sl loc) { return home().encoding_id(loc); }
+  int encoding_id(sl loc) const { return home().encoding_id(loc); }
 
   auto get_notice_waiters() const { return home().m_notice_waiters; }
 };

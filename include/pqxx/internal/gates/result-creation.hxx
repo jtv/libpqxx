@@ -2,14 +2,14 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE result_creation : callgate<result const>
+class PQXX_PRIVATE result_creation final : callgate<result const>
 {
   friend class pqxx::connection;
   friend class pqxx::pipeline;
 
-  result_creation(reference x) noexcept : super(x) {}
+  constexpr result_creation(reference x) noexcept : super(x) {}
 
-  static result create(
+  [[nodiscard]] static result create(
     std::shared_ptr<internal::pq::PGresult> rhs,
     std::shared_ptr<std::string> const &query,
     std::shared_ptr<pqxx::internal::notice_waiters> &notice_waiters,

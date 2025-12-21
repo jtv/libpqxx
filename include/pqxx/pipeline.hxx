@@ -47,7 +47,7 @@ namespace pqxx
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-class PQXX_LIBEXPORT pipeline : public transaction_focus
+class PQXX_LIBEXPORT pipeline final : public transaction_focus
 {
 public:
   /// Identifying numbers for queries.
@@ -157,7 +157,7 @@ public:
   void resume(sl loc = sl::current()) &;
 
 private:
-  struct PQXX_PRIVATE Query
+  struct PQXX_PRIVATE Query final
   {
     explicit Query(std::string_view q) :
             query{std::make_shared<std::string>(q)}

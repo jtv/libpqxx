@@ -40,7 +40,7 @@ namespace pqxx
  * database at the same time.  Each will have its own reading/writing position,
  * but writes to the one will of course affect what the other sees.
  */
-class PQXX_LIBEXPORT blob
+class PQXX_LIBEXPORT blob final
 {
 public:
   /// Create a new, empty large object.

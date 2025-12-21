@@ -8,11 +8,11 @@ class sql_cursor;
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
+class PQXX_PRIVATE connection_sql_cursor final : callgate<connection>
 {
   friend class pqxx::internal::sql_cursor;
 
-  connection_sql_cursor(reference x) noexcept : super(x) {}
+  constexpr connection_sql_cursor(reference x) noexcept : super(x) {}
 
   result exec(char const query[], sl loc) { return home().exec(query, loc); }
 };

@@ -172,7 +172,7 @@ void pqxx::icursorstream::service_iterators(difference_type topos, sl loc)
   todolist todo;
   for (icursor_iterator *i{m_iterators}, *next{}; i != nullptr; i = next)
   {
-    pqxx::internal::gate::icursor_iterator_icursorstream gate{*i};
+    pqxx::internal::gate::icursor_iterator_icursorstream const gate{*i};
     auto const ipos{gate.pos()};
     if (ipos >= m_realpos and ipos <= topos)
       todo.insert(todolist::value_type(ipos, i));

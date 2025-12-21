@@ -8,11 +8,11 @@ class errorhandler;
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_errorhandler : callgate<connection>
+class PQXX_PRIVATE connection_errorhandler final : callgate<connection>
 {
   friend class pqxx::errorhandler;
 
-  connection_errorhandler(reference x) noexcept : super(x) {}
+  constexpr connection_errorhandler(reference x) noexcept : super(x) {}
 
   void register_errorhandler(errorhandler *h)
   {
