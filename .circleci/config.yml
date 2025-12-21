@@ -213,6 +213,7 @@ jobs:
       - run:
           name: "Gather examples logs."
           command: tar -vczf examples-logs.tar.gz examples/*.log
+          shell: bash.exe
       - store_artifacts:
           path: examples-logs.tar.gz
 
