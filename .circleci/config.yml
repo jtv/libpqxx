@@ -71,6 +71,11 @@ jobs:
           path: test-suite.log
       - store_artifacts:
           path: postgres.log
+      - run:
+          name: "Gather examples logs."
+          command: tar -vczf examples-logs.tar.gz examples/*.log
+      - store_artifacts:
+          path: examples-logs.tar.gz
 
   test-macos:
     parameters:
@@ -136,6 +141,12 @@ jobs:
           path: test-suite.log
       - store_artifacts:
           path: postgres.log
+      - run:
+          name: "Gather examples logs."
+          command: tar -vczf examples-logs.tar.gz examples/*.log
+      - store_artifacts:
+          path: examples-logs.tar.gz
+
 
   # Windows builds are very incomplete for now.  No MSVC, no gcc, no database.
   # Couldn't get them working on CircleCI.
@@ -199,6 +210,12 @@ jobs:
           path: test-suite.log
       - store_artifacts:
           path: postgres.log
+      - run:
+          name: "Gather examples logs."
+          command: tar -vczf examples-logs.tar.gz examples/*.log
+      - store_artifacts:
+          path: examples-logs.tar.gz
+
 
   analyse:
     parameters:
