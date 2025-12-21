@@ -1272,7 +1272,7 @@ private:
   PQXX_PRIVATE void register_transaction(transaction_base *);
   PQXX_PRIVATE void unregister_transaction(transaction_base *) noexcept;
 
-  friend struct internal::gate::connection_stream_from;
+  friend class internal::gate::connection_stream_from;
   /// Read a line of COPY output.
   /** If the output indicates that the COPY has ended, the buffer pointer
    * will be null and the size will be zero.  Otherwise, the pointer will hold

@@ -20,7 +20,10 @@ class PQXX_PRIVATE icursor_iterator_icursorstream final
   }
   void set_prev(icursor_iterator *i) noexcept { home().m_prev = i; }
 
-  [[nodiscard]] icursor_iterator *get_next() { return home().m_next; }
+  [[nodiscard]] icursor_iterator *get_next() const noexcept
+  {
+    return home().m_next;
+  }
   void set_next(icursor_iterator *i) { home().m_next = i; }
 
   void fill(result const &r) { home().fill(r); }
