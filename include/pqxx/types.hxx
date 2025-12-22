@@ -178,7 +178,7 @@ struct from_query_t final
 namespace pqxx::internal
 {
 /// Attempt to demangle @c std::type_info::name() to something human-readable.
-PQXX_LIBEXPORT std::string demangle_type_name(char const[]);
+PQXX_LIBEXPORT PQXX_ZARGS std::string demangle_type_name(char const[]);
 } // namespace pqxx::internal
 
 

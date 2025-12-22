@@ -609,7 +609,7 @@ make_strerror_rs_result(int err_result, std::span<char> buffer)
  * There's another overload for th `strerror_s()` and POSIX-style
  * `strerror_r()` case.
  */
-[[maybe_unused]] PQXX_COLD inline char const *
+[[maybe_unused]] PQXX_COLD PQXX_ZARGS inline char const *
 make_strerror_rs_result(char const *err_result, std::span<char>)
 {
   return err_result;

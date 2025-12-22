@@ -83,7 +83,7 @@ extern "C"
 {
   // The PQnoticeProcessor that receives an error or warning from libpq and
   // sends it to the appropriate connection for processing.
-  void pqxx_notice_processor(void *cx, char const *msg) noexcept
+  PQXX_ZARGS void pqxx_notice_processor(void *cx, char const *msg) noexcept
   {
     process_notice_raw(
       reinterpret_cast<pqxx::internal::notice_waiters *>(cx),
@@ -1126,7 +1126,7 @@ std::string pqxx::connection::get_client_encoding(sl loc) const
 }
 
 
-PQXX_COLD void
+PQXX_ZARGS PQXX_COLD void
 pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
 {
   if ((encoding == nullptr) or (encoding[0] == '\0'))

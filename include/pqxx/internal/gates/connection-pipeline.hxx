@@ -11,7 +11,7 @@ class PQXX_PRIVATE connection_pipeline final : callgate<connection>
 
   constexpr connection_pipeline(reference x) noexcept : super(x) {}
 
-  void start_exec(char const query[]) { home().start_exec(query); }
+  PQXX_ZARGS void start_exec(char const query[]) { home().start_exec(query); }
   pqxx::internal::pq::PGresult *get_result() { return home().get_result(); }
   void cancel_query(sl loc) { home().cancel_query(loc); }
 

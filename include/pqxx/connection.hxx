@@ -276,7 +276,8 @@ public:
   connection(sl loc = sl::current()) : connection{"", loc} {}
 
   /// Connect to a database, using `options` string.
-  explicit connection(char const options[], sl loc = sl::current()) :
+  PQXX_ZARGS explicit connection(
+    char const options[], sl loc = sl::current()) :
           m_created_loc{loc}
   {
     check_version();
@@ -351,7 +352,7 @@ public:
   [[nodiscard]] bool is_open() const noexcept;
 
   /// Invoke notice processor function.  The message should end in newline.
-  void process_notice(char const[]) noexcept;
+  PQXX_ZARGS void process_notice(char const[]) noexcept;
   /// Invoke notice processor function.  Newline at end is recommended.
   /** The zview variant, with a message ending in newline, is the most
    * efficient way to call process_notice.
@@ -467,7 +468,8 @@ public:
   /**
    * @param encoding Name of the character set encoding to use.
    */
-  void set_client_encoding(char const encoding[], sl = sl::current()) &;
+  PQXX_ZARGS void
+  set_client_encoding(char const encoding[], sl = sl::current()) &;
 
   /// Get the connection's encoding, as a PostgreSQL-defined code.
   [[nodiscard]] int encoding_id(sl = sl::current()) const;
@@ -776,7 +778,7 @@ public:
     return encrypt_password(user.c_str(), password.c_str(), algorithm.c_str());
   }
   /// Encrypt a password for a given user.
-  [[nodiscard]] std::string encrypt_password(
+  [[nodiscard]] PQXX_ZARGS std::string encrypt_password(
     char const user[], char const password[], char const *algorithm = nullptr);
   //@}
 
@@ -837,12 +839,12 @@ public:
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
-  void prepare(
+  PQXX_ZARGS void prepare(
     char const name[], char const definition[], sl loc = sl::current()) &;
 
   /// Define a nameless prepared statement.
   [[deprecated("Either name your statement, or just parameterise it.")]]
-  void prepare(char const definition[], sl loc = sl::current()) &;
+  PQXX_ZARGS void prepare(char const definition[], sl loc = sl::current()) &;
   [[deprecated("Either name your statement, or just parameterise it.")]]
   void prepare(zview definition, sl loc = sl::current()) &
   {
@@ -868,7 +870,7 @@ public:
   //@{
 
   /// Escape string for use as SQL string literal on this connection.
-  [[nodiscard]] std::string
+  [[nodiscard]] PQXX_ZARGS std::string
   esc(char const text[], sl loc = sl::current()) const
   {
     return esc(std::string_view{text}, loc);
@@ -1218,9 +1220,9 @@ private:
   std::pair<bool, bool> poll_connect(sl);
 
   // Initialise based on connection string.
-  void init(char const options[], sl);
+  PQXX_ZARGS void init(char const options[], sl);
   // Initialise based on parameter names and values.
-  void init(char const *params[], char const *values[], sl);
+  PQXX_ZARGS void init(char const *params[], char const *values[], sl);
   void set_up_notice_handlers();
   void complete_init(sl);
 
@@ -1301,7 +1303,7 @@ private:
   void remove_receiver(notification_receiver *, sl loc) noexcept;
 
   friend class internal::gate::connection_pipeline;
-  PQXX_PRIVATE void start_exec(char const query[]);
+  PQXX_PRIVATE PQXX_ZARGS void start_exec(char const query[]);
   PQXX_PRIVATE bool consume_input() noexcept;
   PQXX_PRIVATE bool is_busy() const noexcept;
   internal::pq::PGresult *get_result();

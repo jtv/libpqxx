@@ -166,7 +166,7 @@ pqxx::field_ref pqxx::result::at(
 namespace
 {
 /// C string comparison.
-inline bool equal(char const lhs[], char const rhs[])
+PQXX_ZARGS inline bool equal(char const lhs[], char const rhs[])
 {
   return strcmp(lhs, rhs) == 0;
 }

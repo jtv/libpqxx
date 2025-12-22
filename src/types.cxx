@@ -22,7 +22,8 @@
 #include "pqxx/internal/header-post.hxx"
 
 
-std::string pqxx::internal::demangle_type_name(char const raw[])
+// C++26: Use reflection.
+PQXX_ZARGS std::string pqxx::internal::demangle_type_name(char const raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
   // We've got __cxa_demangle.  Use it to get a friendlier type name.

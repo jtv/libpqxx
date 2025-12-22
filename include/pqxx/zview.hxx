@@ -42,7 +42,10 @@ public:
   constexpr zview() noexcept = default;
 
   /// Convenience overload: construct using pointer and signed length.
-  constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
+  /** Even though you specify the length, there must still be a zero byte just
+   * beyond that length, at `text[len]`.
+   */
+  PQXX_ZARGS constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
     noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
   {
@@ -89,7 +92,8 @@ public:
    * do it many times, it's probably better to create the `zview` once and
    * re-use it.
    */
-  constexpr zview(char const str[]) noexcept(noexcept(std::string_view{str})) :
+  PQXX_ZARGS constexpr zview(char const str[]) noexcept(
+    noexcept(std::string_view{str})) :
           std::string_view{str}
   {
     invariant();
@@ -105,7 +109,8 @@ public:
    * to find out its length.
    */
   template<size_t size>
-  constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
+  PQXX_ZARGS constexpr zview(char const (&literal)[size]) :
+          zview(literal, size - 1)
   {}
 
 #if !defined(_WIN32)
@@ -148,7 +153,8 @@ template<> inline constexpr std::string_view name_type<zview>() noexcept
  * using pqxx::operator"" _zv;
  * ```
  */
-constexpr zview operator""_zv(char const str[], std::size_t len) noexcept
+PQXX_ZARGS constexpr zview
+operator""_zv(char const str[], std::size_t len) noexcept
 {
   return zview{str, len};
 }
@@ -181,7 +187,7 @@ concept ZString =
 namespace pqxx::internal
 {
 /// Get a raw C string pointer.
-inline constexpr char const *as_c_string(char const str[]) noexcept
+PQXX_ZARGS inline constexpr char const *as_c_string(char const str[]) noexcept
 {
   return str;
 }

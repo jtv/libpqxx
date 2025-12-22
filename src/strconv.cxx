@@ -50,7 +50,7 @@ constexpr inline char *nonneg_to_buf(char *end, T value)
   assert(std::cmp_greater_equal(value, 0));
   constexpr int ten{10};
   // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
-  // instea dof a plan "char *".  I don't see how.
+  // instead of a plain "char *".  I don't see how.
   // NOLINTNEXTLINE(misc-const-correctness)
   char *pos = end;
   do {
@@ -69,7 +69,7 @@ constexpr inline char *neg_to_buf(char *end, T value)
 {
   assert(std::cmp_greater_equal(value, 0));
   // Seeming bug in clang-tidy rule: it thinks we can make pos a "char const *"
-  // instea dof a plan "char *".  I don't see how.
+  // instead of a plain "char *".  I don't see how.
   // NOLINTNEXTLINE(misc-const-correctness)
   char *pos{nonneg_to_buf(end, value)};
   *--pos = '-';

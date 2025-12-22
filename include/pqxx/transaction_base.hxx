@@ -190,7 +190,8 @@ public:
    * functions on the connection object.
    */
   //@{
-  [[nodiscard]] std::string esc(char const str[], sl loc = sl::current())
+  PQXX_ZARGS [[nodiscard]] std::string
+  esc(char const str[], sl loc = sl::current())
   {
     return conn().esc(str, loc);
   }
@@ -267,7 +268,8 @@ public:
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] bytes unesc_bin(char const text[], sl loc = sl::current())
+  PQXX_ZARGS [[nodiscard]] bytes
+  unesc_bin(char const text[], sl loc = sl::current())
   {
     return conn().unesc_bin(text, loc);
   }
@@ -1109,7 +1111,10 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
+  PQXX_ZARGS void process_notice(char const msg[]) const
+  {
+    m_conn.process_notice(msg);
+  }
   /// Have connection process a warning message.
   void process_notice(zview msg) const { m_conn.process_notice(msg); }
   //@}

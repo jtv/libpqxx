@@ -52,7 +52,7 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
  * @param count The number of bytes in the incorrect character.  Must not
  *   exceed the size of the buffer.
  */
-[[noreturn]] PQXX_LIBEXPORT PQXX_COLD void throw_for_encoding_error(
+[[noreturn]] PQXX_LIBEXPORT PQXX_COLD PQXX_ZARGS void throw_for_encoding_error(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc);
 
@@ -66,7 +66,8 @@ get_byte(std::string_view buffer, std::size_t offset) noexcept
  * @param buffer The full input text.
  * @param start The starting offset for the incorrect character.
  */
-[[noreturn]] PQXX_LIBEXPORT PQXX_COLD void throw_for_truncated_character(
+[[noreturn]] PQXX_LIBEXPORT PQXX_COLD PQXX_ZARGS void
+throw_for_truncated_character(
   char const *encoding_name, std::string_view buffer, std::size_t start,
   sl loc);
 
