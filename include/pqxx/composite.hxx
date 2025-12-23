@@ -150,8 +150,9 @@ template<typename... T>
   "Pass conversion_context and std::span<char>, not two pointers.")]]
 inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
-  composite_into_buf(std::span<char>{begin, end}, fields...);
-  return begin;
+  auto const text{composite_into_buf(
+    {sl::current()}, std::span<char>{begin, end}, fields...)};
+  return begin + std::size(text);
 }
 } // namespace pqxx
 #endif
