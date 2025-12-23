@@ -12,11 +12,6 @@ check_function_exists("poll" PQXX_HAVE_POLL)
 # Incorporate feature checks based on C++ feature test mac
 include(pqxx_cxx_feature_checks)
 
-# This variable is set by one of the snippets in config-tests.
-if(!no_need_fslib)
-    # TODO: This may work for gcc 8, but some clang versions may need -lc++fs.
-    link_libraries(stdc++fs)
-endif()
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")
 set(CM_CONFIG_PUB "${PROJECT_BINARY_DIR}/include/pqxx/config-public-compiler.h")

@@ -321,10 +321,11 @@ All shell scripts now have a `.sh` suffix.  It takes some getting used to, but
 it simplifies some things such as running lint checkers on all of them without
 having to name each one of them individually.
 
-The build no longer tries to figure out whether it needs to link a standard C++
+The build no longer tries to figure out whether you need to link a standard C++
 filesystems library.  In most cases this seems to be part of the regular
-standard library now.  If you do need to add a link option to get
-`std::filesystem` to work, you'll have to pass that option yourself.
+standard library now, and at any rate libpqxx itself does not use it.  If you
+do need to add a link option to get `std::filesystem` to work, you'll have to
+pass that option yourself.
 
 In the lint script (now called `tools/lint.sh`), set `PQXX_LINT=skip` to skip
 lint checks.  This can speed up `make check` runs, and enable them to run
