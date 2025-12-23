@@ -631,7 +631,7 @@ namespace pqxx
  */
 template<typename... TYPE>
 [[nodiscard, deprecated("Pass span and string_view.")]]
-PQXX_ZARG(2) inline std::vector<std::string_view> to_buf(
+inline std::vector<std::string_view> to_buf(
   char *begin, char const *end, TYPE... value)
 {
   assert(begin <= end);
