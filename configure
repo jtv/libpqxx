@@ -17837,7 +17837,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-[[gnu::null_terminated_string_arg]] print(char const *msg)
+[[gnu::null_terminated_string_arg]] void print(char const *msg)
 
 {
 

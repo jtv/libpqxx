@@ -4,7 +4,7 @@
 #  error "This compiler does not support gnu::null_terminated_string_arg."
 #endif
 
-[[gnu::null_terminated_string_arg]] print(char const *msg)
+[[gnu::null_terminated_string_arg]] void print(char const *msg)
 {
   std::cout << msg << '\n';
 }
