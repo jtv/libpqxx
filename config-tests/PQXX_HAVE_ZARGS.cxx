@@ -1,6 +1,6 @@
 #include <iostream>
 
-#if ! __has_cpp_attribute(gnu::null_terminated_string_arg)
+#if !__has_cpp_attribute(gnu::null_terminated_string_arg)
 #  error "This compiler does not support gnu::null_terminated_string_arg."
 #endif
 

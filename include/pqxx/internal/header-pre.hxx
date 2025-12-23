@@ -119,7 +119,7 @@
 /// This function's C-style string arguments are zero-terminated.
 #  define PQXX_ZARGS [[gnu::null_terminated_string_arg]]
 #else
-#  define PQXX_ZARGS   /* null-terminated string args */
+#  define PQXX_ZARGS /* null-terminated string args */
 #endif
 
 

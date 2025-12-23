@@ -107,10 +107,13 @@ composite_size_buffer(T const &...fields) noexcept
  * @param loc An `std::source_location`, so that any error messages can report
  * this as the place where the error occurred.  This is probably more useful to
  * you than a location inside this function itself.
+ *
+ * After writing the composite's text representation to `buf`, this will append
+ * a terminating zero.  This facilitates usage where the resulting SQL string
+ * gets passed in as a query parameter.
  */
 template<typename... T>
-inline std::size_t
-composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
+inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 {
   if (std::size(buf) < composite_size_buffer(fields...))
     throw conversion_error{
@@ -120,7 +123,9 @@ composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
   if constexpr (num_fields == 0)
   {
     constexpr std::string_view empty{"()"};
-    return pqxx::internal::copy_chars<false>(empty, buf, 0, c.loc);
+    return zview{
+      std::data(buf),
+      pqxx::internal::copy_chars<true>(empty, buf, 0, c.loc) - 1};
   }
 
   std::size_t pos{0};
@@ -134,17 +139,19 @@ composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
     --pos;
   // C++26: Use buf.at().
   buf[pos++] = ')';
-  buf[pos++] = '\0';
-  return pos;
+  buf[pos] = '\0';
+  return zview{std::data(buf), pos};
 }
 
 
 /// Render a series of values as a single composite SQL value.
 template<typename... T>
-[[deprecated("Pass std::span<char> instead of pair of pointers.")]]
+[[deprecated(
+  "Pass conversion_context and std::span<char>, not two pointers.")]]
 inline char *composite_into_buf(char *begin, char *end, T const &...fields)
 {
-  return begin + composite_into_buf(std::span<char>{begin, end}, fields...);
+  composite_into_buf(std::span<char>{begin, end}, fields...);
+  return begin;
 }
 } // namespace pqxx
 #endif

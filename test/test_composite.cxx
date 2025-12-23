@@ -5,6 +5,14 @@
 
 namespace
 {
+pqxx::conversion_context make_context(
+  pqxx::encoding_group enc = pqxx::encoding_group::ascii_safe,
+  pqxx::sl loc = pqxx::sl::current())
+{
+  return pqxx::conversion_context{enc, loc};
+}
+
+
 void test_composite()
 {
   pqxx::connection cx;
@@ -14,9 +22,7 @@ void test_composite()
 
   int a{};
   std::string b;
-  pqxx::parse_composite(
-    pqxx::conversion_context{pqxx::encoding_group::ascii_safe}, f.view(), a,
-    b);
+  pqxx::parse_composite(make_context(), f.view(), a, b);
 
   PQXX_CHECK_EQUAL(a, 5);
   PQXX_CHECK_EQUAL(b, "hello");
@@ -32,13 +38,12 @@ void test_composite_escapes()
 
   pqxx::row r;
   r = tx.exec(R"--(SELECT '("a""b")'::pqxxsingle)--").one_row();
-  pqxx::conversion_context const ctx{pqxx::encoding_group::ascii_safe};
-  pqxx::parse_composite(ctx, r[0].view(), s);
+  pqxx::parse_composite(make_context(), r[0].view(), s);
   PQXX_CHECK_EQUAL(
     s, "a\"b", "Double-double-quotes escaping did not parse correctly.");
 
   r = tx.exec(R"--(SELECT '("a\"b")'::pqxxsingle)--").one_row();
-  pqxx::parse_composite(ctx, r[0].view(), s);
+  pqxx::parse_composite(make_context(), r[0].view(), s);
   PQXX_CHECK_EQUAL(s, "a\"b", "Backslash escaping did not parse correctly.");
 }
 
@@ -52,17 +57,17 @@ void test_composite_handles_nulls()
   tx.exec("CREATE TYPE pqxxnull AS (a integer)").no_rows();
   int nonnull{};
   r = tx.exec("SELECT '()'::pqxxnull").one_row();
-  pqxx::conversion_context const ctx{pqxx::encoding_group::ascii_safe};
   PQXX_CHECK_THROWS(
-    pqxx::parse_composite(ctx, r[0].view(), nonnull), pqxx::conversion_error);
+    pqxx::parse_composite(make_context(), r[0].view(), nonnull),
+    pqxx::conversion_error);
   std::optional<int> nullable{5};
-  pqxx::parse_composite(ctx, r[0].view(), nullable);
+  pqxx::parse_composite(make_context(), r[0].view(), nullable);
   PQXX_CHECK(not nullable.has_value());
 
   tx.exec("CREATE TYPE pqxxnulls AS (a integer, b integer)").no_rows();
   std::optional<int> a{2}, b{4};
   r = tx.exec("SELECT '(,)'::pqxxnulls").one_row();
-  pqxx::parse_composite(ctx, r[0].view(), a, b);
+  pqxx::parse_composite(make_context(), r[0].view(), a, b);
   PQXX_CHECK(not a.has_value());
   PQXX_CHECK(not b.has_value());
 }
@@ -74,9 +79,9 @@ void test_composite_renders_to_string()
   pqxx::work tx{cx};
   char buf[1000];
 
-  pqxx::composite_into_buf(
-    std::source_location::current(), buf, 355, "foo", "b\na\\r");
-  PQXX_CHECK_EQUAL(std::string{std::data(buf)}, "(355,\"foo\",\"b\na\\\\r\")");
+  PQXX_CHECK_EQUAL(
+    pqxx::composite_into_buf(make_context(), buf, 355, "foo", "b\na\\r"),
+    "(355,\"foo\",\"b\na\\\\r\")");
 
   tx.exec("CREATE TYPE pqxxcomp AS (a integer, b text, c text)").no_rows();
   auto const f{
@@ -96,8 +101,21 @@ void test_composite_renders_to_string()
 }
 
 
+void test_composite_can_contain_arrays()
+{
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  std::array<char, 100> buf{};
+  std::vector<std::string> const strings{"a", "b"};
+
+  auto const text{pqxx::composite_into_buf(make_context(), buf, 123, strings)};
+  PQXX_CHECK_EQUAL(text, ("(123,\"{\\\"a\\\",\\\"b\\\"}\")"));
+}
+
+
 PQXX_REGISTER_TEST(test_composite);
 PQXX_REGISTER_TEST(test_composite_escapes);
 PQXX_REGISTER_TEST(test_composite_handles_nulls);
 PQXX_REGISTER_TEST(test_composite_renders_to_string);
+PQXX_REGISTER_TEST(test_composite_can_contain_arrays);
 } // namespace
