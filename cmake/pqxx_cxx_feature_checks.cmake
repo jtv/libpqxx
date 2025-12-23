@@ -51,8 +51,4 @@ try_compile(
     PQXX_HAVE_ZARGS ${PROJECT_BINARY_DIR}
     SOURCES ${PROJECT_SOURCE_DIR}/config-tests/PQXX_HAVE_ZARGS.cxx
 )
-try_compile(
-    no_need_fslib ${PROJECT_BINARY_DIR}
-    SOURCES ${PROJECT_SOURCE_DIR}/config-tests/no_need_fslib.cxx
-)
 # End of config.

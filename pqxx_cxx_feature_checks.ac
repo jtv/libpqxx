@@ -129,14 +129,4 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_ZARGS=no)
 AC_MSG_RESULT($PQXX_HAVE_ZARGS)
-AC_MSG_CHECKING([no_need_fslib])
-no_need_fslib=yes
-AC_COMPILE_IFELSE(
-    [read_test(no_need_fslib.cxx)],
-    AC_DEFINE(
-        [no_need_fslib],
-        1,
-        [Define if this feature is available.]),
-    no_need_fslib=no)
-AC_MSG_RESULT($no_need_fslib)
 # End of config.
