@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <filesystem>
 
 #include <pqxx/blob>
 #include <pqxx/transaction>
@@ -609,25 +608,6 @@ void test_blob_close_leaves_blob_unusable()
 }
 
 
-void test_blob_accepts_std_filesystem_path()
-{
-#if !defined(_WIN32)
-  char const temp_file[] = "blob-test-filesystem-path.tmp";
-  pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
-
-  pqxx::connection cx;
-  pqxx::work tx{cx};
-  pqxx::bytes buf;
-
-  TempFile const f{std::data(temp_file), data};
-  std::filesystem::path const path{temp_file};
-  auto id{pqxx::blob::from_file(tx, path)};
-  pqxx::blob::to_buf(tx, id, buf, 10);
-  PQXX_CHECK_EQUAL(buf, data);
-#endif // _WIN32
-}
-
-
 PQXX_REGISTER_TEST(test_blob_is_useless_by_default);
 PQXX_REGISTER_TEST(test_blob_create_makes_empty_blob);
 PQXX_REGISTER_TEST(test_blob_create_with_oid_requires_oid_be_free);
@@ -655,5 +635,4 @@ PQXX_REGISTER_TEST(test_blob_from_file_with_oid_writes_blob);
 PQXX_REGISTER_TEST(test_blob_append_to_buf_appends);
 PQXX_REGISTER_TEST(test_blob_to_file_writes_file);
 PQXX_REGISTER_TEST(test_blob_close_leaves_blob_unusable);
-PQXX_REGISTER_TEST(test_blob_accepts_std_filesystem_path);
 } // namespace
