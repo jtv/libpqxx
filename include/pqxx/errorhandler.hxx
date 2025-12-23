@@ -55,7 +55,7 @@ public:
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(char const msg[]) noexcept = 0;
+  PQXX_ZARGS virtual bool operator()(char const msg[]) noexcept = 0;
 
   errorhandler() = delete;
   errorhandler(errorhandler const &) = delete;
@@ -82,7 +82,10 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Revert to previous handling of error notices.
-  virtual bool operator()(char const[]) noexcept override { return false; }
+  PQXX_ZARGS virtual bool operator()(char const[]) noexcept override
+  {
+    return false;
+  }
 
 private:
   quiet_errorhandler() = delete;

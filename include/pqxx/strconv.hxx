@@ -631,8 +631,8 @@ namespace pqxx
  */
 template<typename... TYPE>
 [[nodiscard, deprecated("Pass span and string_view.")]]
-inline std::vector<std::string_view>
-to_buf(char *begin, char const *end, TYPE... value)
+inline std::vector<std::string_view> to_buf(
+  char *begin, char const *end, TYPE... value)
 {
   assert(begin <= end);
   // We can't construct the span as {begin, end} because end points to const.

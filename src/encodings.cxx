@@ -258,7 +258,7 @@ PQXX_PURE std::string list_bytes(std::string_view data)
 }
 
 
-void throw_for_encoding_error(
+PQXX_ZARGS void throw_for_encoding_error(
   char const *encoding, std::string_view buffer, std::size_t start,
   std::size_t count, sl loc)
 {
@@ -270,7 +270,7 @@ void throw_for_encoding_error(
 }
 
 
-void throw_for_truncated_character(
+PQXX_ZARGS void throw_for_truncated_character(
   char const *encoding, std::string_view buffer, std::size_t start, sl loc)
 {
   throw pqxx::argument_error{

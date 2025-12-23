@@ -649,21 +649,6 @@ inline oid field_ref::table(sl loc) const
 }
 
 
-/// Specialization: `to(char const *&)`.
-/** The buffer has the same lifetime as the data in this result (i.e. of this
- * result object, or the last remaining one copied from it etc.), so take care
- * not to use it after the last result object referring to this query result is
- * destroyed.
- */
-template<> inline bool field::to<char const *>(char const *&obj, sl) const
-{
-  bool const null{is_null()};
-  if (not null)
-    obj = c_str();
-  return not null;
-}
-
-
 /// Specialization: `to(zview &)`.
 /** This conversion is not generally available, since the general conversion
  * would not know whether there was indeed a terminating zero at the end of

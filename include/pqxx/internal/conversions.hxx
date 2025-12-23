@@ -457,7 +457,8 @@ template<> struct nullness<char const *> final
 {
   static constexpr bool has_null = true;
   static constexpr bool always_null = false;
-  [[nodiscard]] PQXX_PURE static constexpr bool is_null(char const *t) noexcept
+  [[nodiscard]] PQXX_PURE PQXX_ZARGS static constexpr bool
+  is_null(char const *t) noexcept
   {
     return t == nullptr;
   }
@@ -482,13 +483,14 @@ template<> struct string_traits<char const *> final
 {
   static char const *from_string(std::string_view text, ctx = {}) = delete;
 
-  static std::string_view
-  to_buf(std::span<char>, char const *const &value, ctx = {})
+  constexpr PQXX_ZARGS static std::string_view
+  to_buf(std::span<char>, char const *const &value, ctx = {}) noexcept
   {
     return value;
   }
 
-  static constexpr std::size_t size_buffer(char const *const &value) noexcept
+  PQXX_ZARGS static constexpr std::size_t
+  size_buffer(char const *value) noexcept
   {
     if (pqxx::is_null(value))
       return 0;
