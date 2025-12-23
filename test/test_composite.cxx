@@ -103,8 +103,6 @@ void test_composite_renders_to_string()
 
 void test_composite_can_contain_arrays()
 {
-  pqxx::connection cx;
-  pqxx::work tx{cx};
   std::array<char, 100> buf{};
   std::vector<std::string> const strings{"a", "b"};
 
