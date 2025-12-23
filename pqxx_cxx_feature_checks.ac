@@ -119,6 +119,16 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_YEAR_MONTH_DAY=no)
 AC_MSG_RESULT($PQXX_HAVE_YEAR_MONTH_DAY)
+AC_MSG_CHECKING([PQXX_HAVE_ZARGS])
+PQXX_HAVE_ZARGS=yes
+AC_COMPILE_IFELSE(
+    [read_test(PQXX_HAVE_ZARGS.cxx)],
+    AC_DEFINE(
+        [PQXX_HAVE_ZARGS],
+        1,
+        [Define if this feature is available.]),
+    PQXX_HAVE_ZARGS=no)
+AC_MSG_RESULT($PQXX_HAVE_ZARGS)
 AC_MSG_CHECKING([no_need_fslib])
 no_need_fslib=yes
 AC_COMPILE_IFELSE(

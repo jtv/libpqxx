@@ -107,13 +107,20 @@
 
 
 #if __has_cpp_attribute(gnu::null_terminated_string_arg)
-/// This function's C-style string arguments are zero-terminated.
-#  define PQXX_ZARGS [[gnu::null_terminated_string_arg]]
 /// Funtion argument n (counted starting from 1) is a zero-terminated string.
 #  define PQXX_ZARG(n) [[gnu::null_terminated_string_arg((n))]]
 #else
-#  define PQXX_ZARGS   /* null-terminated string args */
 #  define PQXX_ZARG(n) /* null-terminated string arg */
+#endif
+
+
+
+// Not all gcc versions we're seeing support the argument-less version.
+#if defined(PQXX_HAVE_ZARGS)
+/// This function's C-style string arguments are zero-terminated.
+#  define PQXX_ZARGS [[gnu::null_terminated_string_arg]]
+#else
+#  define PQXX_ZARGS   /* null-terminated string args */
 #endif
 
 
