@@ -99,9 +99,7 @@ composite_size_buffer(T const &...fields) noexcept
 
 
 /// Render a series of values as a single composite SQL value.
-/** @warning This code is still experimental.  Use with care.
- *
- * You may use this as a helper while implementing your own `string_traits`
+/** You may use this as a helper while implementing your own `string_traits`
  * for a composite type.
  *
  * @param loc An `std::source_location`, so that any error messages can report
