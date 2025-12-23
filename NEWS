@@ -1,6 +1,7 @@
 8.0.0-rc4
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
+ - Stop trying to use/support `std::filesystem`.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
