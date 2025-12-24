@@ -27,7 +27,6 @@
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
-#include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/transaction_focus.hxx"
 #include "pqxx/util.hxx"

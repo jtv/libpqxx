@@ -39,14 +39,14 @@ namespace pqxx
  */
 template<std::forward_iterator ITER, typename ACCESS>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
+separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access, ctx c = {})
 {
   if (end == begin)
     return {};
   auto next{begin};
   ++next;
   if (next == end)
-    return to_string(access(begin));
+    return to_string(access(begin), c);
 
   // From here on, we've got at least 2 elements -- meaning that we need sep.
 
@@ -93,9 +93,9 @@ separated_list(std::string_view sep, CONTAINER &&c)
 /// Render items in a tuple as a string, using given separator.
 template<typename TUPLE, std::size_t INDEX = 0, typename ACCESS>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, TUPLE const &t, ACCESS const &access)
+separated_list(std::string_view sep, TUPLE const &t, ACCESS const &access, ctx c = {})
 {
-  std::string out{to_string(access(&std::get<INDEX>(t)))};
+  std::string out{to_string(access(&std::get<INDEX>(t)), c)};
   if constexpr (INDEX < std::tuple_size<TUPLE>::value - 1)
   {
     out.append(sep);
