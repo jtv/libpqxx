@@ -75,18 +75,18 @@ template<std::forward_iterator ITER, typename ACCESS>
 /// Render sequence as a string, using given separator between items.
 template<std::forward_iterator ITER>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end)
+separated_list(std::string_view sep, ITER begin, ITER end, ctx c = {})
 {
-  return separated_list(sep, begin, end, [](ITER i) { return *i; });
+  return separated_list(sep, begin, end, [](ITER i) { return *i; }, c);
 }
 
 
 /// Render items in a container as a string, using given separator.
 template<std::ranges::range CONTAINER>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, CONTAINER &&c)
+separated_list(std::string_view sep, CONTAINER &&con, ctx c = {})
 {
-  return separated_list(sep, std::begin(c), std::end(c));
+  return separated_list(sep, std::begin(con), std::end(con), c);
 }
 
 
@@ -99,16 +99,16 @@ template<typename TUPLE, std::size_t INDEX = 0, typename ACCESS>
   if constexpr (INDEX < std::tuple_size<TUPLE>::value - 1)
   {
     out.append(sep);
-    out.append(separated_list<TUPLE, INDEX + 1>(sep, t, access));
+    out.append(separated_list<TUPLE, INDEX + 1>(sep, t, access, c));
   }
   return out;
 }
 
 template<typename TUPLE, std::size_t INDEX = 0>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, TUPLE const &t)
+separated_list(std::string_view sep, TUPLE const &t, ctx c = {})
 {
-  return separated_list(sep, t, [](TUPLE const &tup) { return *tup; });
+  return separated_list(sep, t, [](TUPLE const &tup) { return *tup; }, c);
 }
 //@}
 } // namespace pqxx
