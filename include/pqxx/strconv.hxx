@@ -51,9 +51,6 @@ namespace pqxx
  * ones defined here and in `pqxx/conversions.hxx`.  Any conversion code which
  * "sees" your specialisation will now support your conversion.  In particular,
  * you'll be able to read result fields into a variable of the new type.
- *
- * There is a macro to help you define conversions for individual enumeration
- * types.  The conversion will represent enumeration values as numeric strings.
  */
 //@{
 
@@ -347,9 +344,7 @@ struct string_traits<std::byte> final : forbidden_conversion<std::byte>
 
 
 /// Nullness: Enums do not have an inherent null value.
-template<typename ENUM>
-  requires std::is_enum_v<ENUM>
-struct nullness<ENUM> final : no_null<ENUM>
+template<enum_type ENUM> struct nullness<ENUM> final : no_null<ENUM>
 {};
 } // namespace pqxx
 
@@ -553,17 +548,21 @@ inline std::string to_string(TYPE const &value, ctx c = {});
 
 namespace pqxx::internal
 {
+// XXX: Replace or remove enums support.  We need names, not numbers.
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
+ *
+ * @warning These numeric strings do not actually help you with the database,
+ * where enum values are textual strings.
  *
  * To define a string conversion for an enum type, derive a @c string_traits
  * specialisation for the enum from this struct.
  *
- * There's usually an easier way though: the @c PQXX_DECLARE_ENUM_CONVERSION
- * macro.  Use @c enum_traits manually only if you need to customise your
+ * There's usually an easier way though: the @ref PQXX_DECLARE_ENUM_CONVERSION
+ * macro.  Use `enum_traits` manually only if you need to customise your
  * traits type in more detail.
  */
-template<typename ENUM> struct enum_traits
+template<enum_type ENUM> struct enum_traits
 {
   using impl_type = std::underlying_type_t<ENUM>;
 

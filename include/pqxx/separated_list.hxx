@@ -38,8 +38,8 @@ namespace pqxx
  * @param access functor defining how to dereference sequence elements
  */
 template<std::forward_iterator ITER, typename ACCESS>
-[[nodiscard]] inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access, ctx c = {})
+[[nodiscard]] inline std::string separated_list(
+  std::string_view sep, ITER begin, ITER end, ACCESS access, ctx c = {})
 {
   if (end == begin)
     return {};
@@ -92,8 +92,8 @@ separated_list(std::string_view sep, CONTAINER &&c)
 
 /// Render items in a tuple as a string, using given separator.
 template<typename TUPLE, std::size_t INDEX = 0, typename ACCESS>
-[[nodiscard]] inline std::string
-separated_list(std::string_view sep, TUPLE const &t, ACCESS const &access, ctx c = {})
+[[nodiscard]] inline std::string separated_list(
+  std::string_view sep, TUPLE const &t, ACCESS const &access, ctx c = {})
 {
   std::string out{to_string(access(&std::get<INDEX>(t)), c)};
   if constexpr (INDEX < std::tuple_size<TUPLE>::value - 1)

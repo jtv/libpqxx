@@ -104,11 +104,6 @@ easily build a conversion for a type that's defined somewhere else.  There's
 no need to include any special methods or other members inside the type itself.
 This is also why libpqxx can convert built-in types like `int`.
 
-By the way, if the type is an enum (let's say it's called `my_enum`), you don't
-need to do any of this.  Just invoke the preprocessor macro
-`PQXX_DECLARE_ENUM_CONVERSION(my_enum)`, from the global namespace near the top
-of your translation unit.
-
 The library also provides conversions for `std::optional<T>`,
 `std::shared_ptr<T>`, and `std::unique_ptr<T>` (for any given `T`).  If you
 have conversions for `T`, you'll also automatically have conversions for those.

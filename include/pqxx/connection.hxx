@@ -1032,7 +1032,8 @@ public:
    * eliminate some duplicate work in quoting them repeatedly.
    */
   template<pqxx::char_strings STRINGS>
-  inline std::string quote_columns(STRINGS const &columns, sl = sl::current()) const;
+  inline std::string
+  quote_columns(STRINGS const &columns, sl = sl::current()) const;
 
   // TODO: Make "into buffer" variant to eliminate a string allocation.
   /// Represent object as SQL string, including quoting & escaping.
@@ -1491,7 +1492,8 @@ inline std::string connection::quote(T const &t, sl loc) const
 
 
 template<pqxx::char_strings STRINGS>
-inline std::string connection::quote_columns(STRINGS const &columns, sl loc) const
+inline std::string
+connection::quote_columns(STRINGS const &columns, sl loc) const
 {
   conversion_context const c{get_encoding_group(), loc};
   return separated_list(
