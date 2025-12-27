@@ -179,7 +179,11 @@ inline void check_equal(
                                ", "
                                "expected=" +
                                to_string(expected) + ")";
-  throw test_failure{fulldesc, loc};
+  throw test_failure{
+    std::format(
+      "{}\n{} <> {}.\nExpected: {}\nActual:   {}", desc, actual_text,
+      expected_text, to_string(expected), to_string(actual)),
+    loc};
 }
 
 // Verify that two values are not equal.

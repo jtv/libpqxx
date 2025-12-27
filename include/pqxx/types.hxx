@@ -69,6 +69,9 @@ class transaction_base;
 
 /// Format code: is data text or binary?
 /** Binary-compatible with libpq's format codes.
+ *
+ * Why use an `int` for this when a single bit would be enough?  Because this
+ * maps directly to the C-level values used in libpq.
  */
 enum class format : int
 {
@@ -159,6 +162,11 @@ template<typename T>
 concept not_borrowed =
   not std::is_reference_v<T> and not std::is_pointer_v<T> and
   not std::ranges::borrowed_range<T>;
+
+
+/// Concept: A C++ `enum` type.
+template<typename E>
+concept enum_type = std::is_enum_v<E>;
 
 
 /// Marker for @ref stream_from constructors: "stream from table."

@@ -106,6 +106,7 @@ public:
   /// Append all parameters in `value`.
   void append(params &&value) &;
 
+  // XXX: We'll need a context for the conversion!
   /// Append a non-null parameter, converting it to its string
   /// representation.
   template<typename TYPE> void append([[maybe_unused]] TYPE const &value) &
@@ -130,6 +131,7 @@ public:
   {
     if constexpr (std::ranges::sized_range<RANGE>)
       reserve(std::size(*this) + std::size(range));
+    // XXX: We'll need a context for the conversion!
     for (auto &value : range) append(value);
   }
 

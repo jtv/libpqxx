@@ -227,6 +227,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
 {
   assert(index <= last_field);
   assert(pos < std::size(input));
+  conversion_context const c{ENC, loc};
 
   // Expect a field.
   switch (input[pos])
@@ -250,7 +251,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
     PQXX_ASSUME(stop > pos);
     auto const text{
       parse_double_quoted_string<ENC>(input.substr(0, stop), pos, loc)};
-    field = from_string<T>(text);
+    field = from_string<T>(text, c);
     pos = stop;
   }
   break;
@@ -261,7 +262,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
     // (meaning we're at the last field).
     auto const stop{scan_unquoted_string<ENC, ',', ')', ']'>(input, pos, loc)};
     PQXX_ASSUME(stop >= pos);
-    field = from_string<T>(input.substr(pos, stop - pos));
+    field = from_string<T>(input.substr(pos, stop - pos), c);
     pos = stop;
   }
   break;
@@ -287,7 +288,7 @@ PQXX_INLINE_COV inline void parse_composite_field(
       throw conversion_error{
         std::format(
           "Composite value contained more fields than the expected {}: '{}'.",
-          to_string(last_field), std::data(input)),
+          to_string(last_field, c), std::data(input)),
         loc};
     if (input[pos] != ')' and input[pos] != ']')
       throw conversion_error{
