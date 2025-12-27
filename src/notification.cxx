@@ -31,6 +31,7 @@ pqxx::notification_receiver::notification_receiver(
 
 pqxx::notification_receiver::~notification_receiver()
 {
+  auto loc{sl::current()};
   pqxx::internal::gate::connection_notification_receiver{this->conn()}
-    .remove_receiver(this);
+    .remove_receiver(this, loc);
 }

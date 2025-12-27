@@ -1,112 +1,534 @@
 # CircleCI config for automated test builds triggered from Github.
+---
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
+
 jobs:
-  test:
+
+  # Run tests against a Linux Docker image.  We repeat this for various
+  # distros, but macOS & Windows need separate configs even if they're largely
+  # identical to this one.
+  test-linux:
     parameters:
-      cxx:
+      os:
         type: string
-      cxx_version:
+      compiler:
+        type: string
+      cxx_ver:
         type: string
     docker:
-      - image: debian:stable
+      - image: << parameters.os >>
     # The resource_class feature allows configuring CPU and RAM resources for
     # each job.  Different resource classes are available for different
     # executors.
     # https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
-    environment:
-      - PGHOST: "/tmp"
     steps:
       - checkout
-      - run:
-          name: Configure apt archives
-          command: apt-get update
+
       - run:
           name: Install
-          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            lsb-release python3 postgresql libpq-dev postgresql-server-dev-all
-            build-essential autoconf autoconf-archive automake cppcheck clang
-            shellcheck python3-virtualenv libtool virtualenv yamllint
-      - run:
-          name: Identify
-          command: lsb_release -a && c++ --version && clang++ --version
+          command: "time ./tools/install-deps.sh \
+              << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+
       - run:
           name: Autogen
-          command: ./autogen.sh
+          command: ". /tmp/vars.sh && autoreconf"
       - run:
           name: Configure
-          command: |
-            ./configure \
-                --enable-maintainer-mode \
-                --enable-audit \
+          command: ". /tmp/vars.sh && ./configure \
+                --enable-maintainer-mode --enable-audit \
                 --enable-shared --disable-static \
-                CXXFLAGS='-O1 -std=<< parameters.cxx_version >>' \
-                CXX=<< parameters.cxx >>
+                CXX=<< parameters.compiler >> \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\""
       - store_artifacts:
           path: config.log
       - run:
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+      - store_artifacts:
+          path: config-headers.tar.gz
+      - run:
           name: Make
-          command: make -j$(nproc)
+          command: make -j4
       - run:
-          name: Prepare postgres
-          command: |
-            mkdir /tmp/db &&
-            chown postgres /tmp/db &&
-            su postgres -c '/usr/lib/postgresql/*/bin/initdb --pgdata /tmp/db --auth trust --nosync'
-      - run:
-          name: Run postgres
-          command: (su postgres -c '/usr/lib/postgresql/*/bin/postgres -D /tmp/db -k /tmp'
-            &) && sleep 5
-      - run:
-          name: Create postgres user
-          command: su postgres -c "createuser -w -d root"
-      - run:
-          name: Set up database
-          command: createdb --template=template0 --encoding=UNICODE root
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - store_artifacts:
+          path: postgres.log
       - run:
           name: Test
-          command: PGDATA=db/data make -j4 check
+          command: . /tmp/vars.sh && make -j4 check
       - store_artifacts:
           path: test-suite.log
+      - store_artifacts:
+          path: postgres.log
+      - run:
+          name: "Gather examples logs."
+          command: "tar -vczf examples-logs.tar.gz examples/*.log"
+      - store_artifacts:
+          path: examples-logs.tar.gz
+
+  test-macos:
+    parameters:
+      compiler:
+        type: string
+      cxx_ver:
+        type: string
+    macos:
+      # Bummer.  We *have* to specify an exact xcode version.  And match it up
+      # with a resource class that supports it.  Available combinations are
+      # listed here:
+      #
+      # https://circleci.com/docs/guides/execution-managed/using-macos/
+      #
+      # Without updating these, the macos builds will just stop working when
+      # the XCode/image combo falls out of support.
+      #
+      xcode: "26.2.0"
+
+    # As of late 2025, this is the default resource class we get for macOS.
+    # But since they include the chip generation, they will eventually fall out
+    # of date.  Transient problems can ensue.
+    # resource_class: "m4pro.medium"
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh macos << parameters.compiler >> \
+              >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && autoreconf && ./configure \
+                --enable-maintainer-mode --enable-audit \
+                --enable-shared --disable-static \
+                CPPFLAGS=\"-I/opt/homebrew/opt/libpq/include/\" \
+                CXX=<< parameters.compiler >> \
+                CXXFLAGS=\"-O1 -std=<< parameters.cxx_ver >>\" \
+                LDFLAGS=\"-L/opt/homebrew/opt/libpq/lib\""
+      - store_artifacts:
+          path: config.log
+      - run:
+          name: Gather config headers
+          command: "tar -czf config-headers.tar.gz include/pqxx/config-*.h*"
+      - store_artifacts:
+          path: config-headers.tar.gz
+      - run:
+          name: Make
+          command: make -j4
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh"
+      - store_artifacts:
+          path: postgres.log
+      - run:
+          name: Test
+          command: ". /tmp/vars.sh && make -j4 check"
+      - store_artifacts:
+          path: test-suite.log
+      - store_artifacts:
+          path: postgres.log
+      - run:
+          name: "Gather examples logs."
+          command: "tar -vczf examples-logs.tar.gz examples/*.log"
+      - store_artifacts:
+          path: examples-logs.tar.gz
+
+
+  # Windows builds are very incomplete for now.  No MSVC, no gcc, no database.
+  # Couldn't get them working on CircleCI.
+  test-windows:
+    parameters:
+      compiler:
+        type: string
+      cxx_ver:
+        type: string
+    executor:
+      name: win/default
+      size: medium
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "./tools/install-deps.sh \
+              windows << parameters.compiler >> >vars.sh"
+          shell: bash.exe
+          # Installation of dependencies on Windows often times out.
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "vars.sh"
+      - run:
+          name: Configure
+          # (Run the msys bash, not the one we get from CircleCI.)
+          command: ". vars.sh && bash.exe -c \". vars.sh && \
+            CXX=<< parameters.compiler >> \
+            CXXFLAGS='-O1 -std=<< parameters.cxx_ver >>' \
+            cmake -G Ninja .\""
+          shell: bash.exe
+      - run:
+          name: Gather config headers
+          # (Run the msys bash, not the one we get from CircleCI.)
+          command: ". vars.sh && \
+              bash -c 'tar -czf config-headers.tar.gz include/pqxx/config-*.h'"
+          shell: bash.exe
+      - store_artifacts:
+          path: config-headers.tar.gz
+      - run:
+          name: Make
+          command: bash -c ". vars.sh && ninja"
+          shell: bash.exe
+      - run:
+          name: Start database
+          command: ". vars.sh && ./tools/run-test-postgres.sh"
+          shell: bash.exe
+      - store_artifacts:
+          path: postgres.log
+      - store_artifacts:
+          path: postgres-start-stdout.log
+      - store_artifacts:
+          path: postgres-start-stderr.log
+      - run:
+          name: Test
+          command: ". vars.sh && ./test/runner"
+          shell: bash.exe
+      - store_artifacts:
+          path: test-suite.log
+      - store_artifacts:
+          path: postgres.log
+
 
   analyse:
     parameters:
-      cxx_version:
+      cxx_ver:
         type: string
     docker:
-      - image: debian:stable
+      - image: archlinux
     resource_class: large
     steps:
       - checkout
       - run:
-          name: Configure apt archives
-          command: apt-get update
-      - run:
           name: Install
-          command: DEBIAN_FRONTEND=noninteractive TZ=UTC apt-get install -y
-            python3 build-essential cppcheck clang cmake libpq-dev shellcheck
-            postgresql-server-dev-all yamllint virtualenv
+          command: "tools/install-deps.sh archlinux-lint clang++ >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
       - run:
-          name: Prepare
-          command: CXX=clang++ CXXFLAGS='-O0 -std=<< parameters.cxx_version >>' cmake .
+          name: Configure
+          command: "SRC=\"$(pwd)\" && \
+            . /tmp/vars.sh && \
+            mkdir -p /tmp/pqxx && \
+            cd /tmp/pqxx && \
+            CXX=clang++ CXXFLAGS='-O0 \
+              -std=<< parameters.cxx_ver >>' cmake \"$SRC\""
       - run:
           name: Analyse
-          # TODO: For 8.x, go back to "lint --full".
-          # command: ./tools/lint --full >lint.log
-          command: ./tools/lint >lint.log
+          # Tricky.  I don't really want the pointless stdout output from
+          # run-clang-tidy, except the CI may time out when there's no output
+          # for a while.  What we want is the stderr, which we also want to
+          # tee into a file.  Bash's "output redirection" solves this neatly,
+          # thanks Nick!
+          #
+          # The actual lint errors seem to go to stdout, with the useless
+          # progress output, not to stderr.
+          command: "SRC=\"$(pwd)\" && \
+            . /tmp/vars.sh && \
+            cd /tmp/pqxx && \
+            ( \"$SRC/tools/lint.sh\" --full > >(tee analyze.txt >&2 ) \
+            2>&1 )"
+          # The "tee" holds up output for a long time, causing the CI to call a
+          # timeout after 10 minutes and kill our job.  Request an extension.
+          no_output_timeout: 30m
       - store_artifacts:
-          path: lint.log
+          path: "analyze.txt"
+      - run:
+          name: Summarise
+          # Filter out the useless nonsense in the output: number of warnings
+          # generated for system headers, timings, and number of files.
+          #
+          # Also run a "uniq" to eliminate redundant blank lines.
+          #
+          # Negate the outcome of the final grep so that this will report a
+          # failure if we find any errors.
+          command: "( \
+              cat analyze.txt |
+              grep -v '^[0-9]\\+ warnings generated\\.$' | \
+              grep -v '^ *\\[.*\\] .*clang-tidy.*\\.cxx$' | \
+              grep -v '^Running clang-tidy for [0-9]* files*' | \
+              sed -e 's/^[[:space:]][[:space:]]*$//' | \
+              uniq
+              ) >errors.txt || true"
+      - store_artifacts:
+          path: "errors.txt"
+      - run:
+          name: Check for errors
+          # Fails if errors.txt contains actual text.
+          command: "! grep . errors.txt"
+
+  coverage:
+    parameters:
+      cxx_ver:
+        type: string
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh archlinux-coverage g++ >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          # Default "path coverage limit" is 250k.  With that default, we get
+          # a lot of "No path information" messages meaning that gcc saw too
+          # many paths and gave up.  In which case we get bogus test coverage
+          # reports.  Let's invest a bit of extra compiler work to get the data
+          # we need.
+          #
+          # The profiler seems to default to non-threadsafe operation when not
+          # explicitly linking to pthread, so we explicitly request "atomic"
+          # updates when appropriate.
+          #
+          # We define a macro PQXX_COVERAGE to tell the code not to generate
+          # out-of-line versions of certain inline functions.  The out-of-line
+          # code leads gcov to report a lot of lines as uncovered even if they
+          # actually are.
+          command: ". /tmp/vars.sh && autoreconf && \
+              ./configure \
+                  CXX=g++ \
+                  CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >> --coverage \
+                      -DPQXX_COVERAGE \
+                      -fpath-coverage-limit=2000000 \
+                      -fprofile-update=prefer-atomic' \
+                  LDFLAGS='--coverage'"
+      - run:
+          name: Compile
+          command: "make -j4 check TESTS="
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - run:
+          name: Test
+          command: ". /tmp/vars.sh && make check"
+      - run:
+          name: Report
+          # Looks like a bug in gcov: it interprets relative `#include` paths
+          # relative to current working directory, instead of relative to the
+          # source file that does the `#include`.
+          #
+          # To kludge around this... just pretend there's a `../include/`
+          # relative to the project root.  :-/
+          command: "cd src && \
+              ln -s include ../include && \
+              gcov --prime-paths-source=uncovered -mr *.cxx | tee gcov.out"
+      - run:
+          name: Rank
+          command: "./tools/count-uncovered.sh src \
+              | sort -rn | tee src/rank.txt"
+      - run:
+          name: Lcov
+          command: "lcov \
+                  --config-file=.lcovrc \
+                  --capture --directory src \
+                  --output-file cov.info && \
+              lcov --remove cov.info '/usr/*' \
+                  --output-file=out.info && \
+              genhtml \
+                  --config-file=.lcovrc out.info \
+                  --output-directory=coverage_html"
+      - run:
+          name: Gather reports
+          command: "tar -czf /tmp/coverage.tar.gz \
+              src/*.gcov src/gcov.out src/rank.txt ; \
+              tar -czf /tmp/coverage-html.tar.gz coverage_html"
+      - store_artifacts:
+          path: "/tmp/coverage.tar.gz"
+      - store_artifacts:
+          path: "/tmp/coverage-html.tar.gz"
+
+  infer:
+    parameters:
+      cxx_ver:
+        type: string
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh archlinux-infer g++ >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          command: ". /tmp/vars.sh && autoreconf && \
+            ./configure \
+                CXX=g++ CXXFLAGS='-O0 -g -std=<< parameters.cxx_ver >>'"
+      - run:
+          name: Capture
+          command: "infer capture -- make -j4 check TESTS="
+      - run:
+          name: Infer
+          command: "infer analyze --bufferoverrun --datalog --loop-hoisting \
+              --siof-check-iostreams -- \
+              make -j4 check TESTS= 1> >(tee infer.log) 2> >(tee stderr.log)"
+      - store_artifacts:
+          path: stderr.log
+      - store_artifacts:
+          path: infer.log
+      - store_artifacts:
+          path: infer-out/report.txt
+      - store_artifacts:
+          path: errors.txt
+      - run:
+          name: Check
+          # Fail if report.txt is nonempty.
+          command: "! test -s infer-out/report.txt"
+
+  valgrind:
+    # We run this test in Debian because we see what look like false
+    # positives in Arch Linux.  The root cause may be what looks like an
+    # internal error in the standard library's charconv implementation for
+    # floating-point types. When running in valgrind, an assertion in there
+    # fails: "output_length == expected_output_length".
+    parameters:
+      compiler:
+        type: string
+      cxx_ver:
+        type: string
+      opt:
+        # Optimisation level.
+        type: integer
+    docker:
+      # ArchLinux seems to hit false positives.
+      # Debian docker image is outdated.
+      - image: ubuntu
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "tools/install-deps.sh ubuntu-valgrind \
+              << parameters.compiler >> >/tmp/vars.sh"
+          max_auto_reruns: 3
+      - store_artifacts:
+          path: "/tmp/install.log"
+      - store_artifacts:
+          path: "/tmp/vars.sh"
+      - run:
+          name: Configure
+          # Valgrind does not appear to support long double!
+          #
+          # This was breaking std::isinf<long double>(), but only with gcc, and
+          # only with -O0 (i.e. no optimisation), and only when running tests
+          # through Valgrind.
+          #
+          # I see no good way around this.  So I went with the workaround of
+          # defining a macro for "avoid testing anything that breaks Valgrind."
+          command: ". /tmp/vars.sh && \
+              CXX='<< parameters.compiler >>' \
+              CXXFLAGS='-O<< parameters.opt >> \
+              -std=<< parameters.cxx_ver >> \
+              -DPQXX_VALGRIND' \
+              cmake -G Ninja ."
+      - run:
+          name: Build
+          command: "ninja -j4"
+          no_output_timeout: 30m
+      - run:
+          name: Start database
+          command: ". /tmp/vars.sh && ./tools/run-test-postgres.sh postgres"
+      - run:
+          name: Test
+          # Run all the Valgrind tests, in sequence.  Might as well get a lot
+          # of use out of the build once we've produced it.
+          command: "
+              ( \
+              set -Cue ; \
+              . /tmp/vars.sh && \
+              for t in \
+              memcheck cachegrind callgrind helgrind drd massif dhat lackey \
+              exp-bbv ; do \
+              echo ; echo ; echo \"*** $t ***\" ; echo ; \
+              valgrind --trace-children=yes --vgdb=no --track-fds=yes \
+              --tool=$t test/runner 2>&1 | tee -a test.log || exit 1 ; \
+              done \
+              )"
+      - store_artifacts:
+          path: test.log
+
 
 workflows:
   all-tests:
     jobs:
-      - test:
-          matrix:
-            parameters:
-              cxx: ["clang++", "g++"]
-              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
       - analyse:
           matrix:
             parameters:
-              cxx_version: ["c++17", "c++20", "c++23", "c++26"]
+              cxx_ver: ["c++26"]
+
+      - coverage:
+          matrix:
+            parameters:
+              cxx_ver: ["c++26"]
+
+      - infer:
+          matrix:
+            parameters:
+              cxx_ver: ["c++23"]
+
+      - valgrind:
+          matrix:
+            parameters:
+              compiler: ["g++", "clang++"]
+              cxx_ver: ["c++23"]
+              # I really don't want to test against every conceivable
+              # optimisation level.  But -O0 revealed a problem that somehow
+              # wasn't happening when optimising.  Can't skip -O2 because it's
+              # the default.  And -O3 restructures code which may reveal other
+              # problems.  So... only level we end up skipping is -O1.
+              opt: [0, 2, 3]
+
+      - test-linux:
+          matrix:
+            parameters:
+              os: ["archlinux", "debian", "fedora", "ubuntu"]
+              compiler: ["clang++", "g++"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
+            exclude:
+              - os: "ubuntu"
+                compiler: "g++"
+                cxx_ver: "c++26"
+
+      - test-macos:
+          matrix:
+            parameters:
+              compiler: ["clang++", "g++"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
+
+      - test-windows:
+          matrix:
+            parameters:
+              compiler: ["clang++", "g++"]
+              cxx_ver: ["c++20", "c++23", "c++26"]

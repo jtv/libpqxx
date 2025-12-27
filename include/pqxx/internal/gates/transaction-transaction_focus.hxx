@@ -4,11 +4,12 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
+class PQXX_PRIVATE transaction_transaction_focus final
+        : callgate<transaction_base>
 {
   friend class pqxx::transaction_focus;
 
-  transaction_transaction_focus(reference x) : super(x) {}
+  constexpr transaction_transaction_focus(reference x) noexcept : super(x) {}
 
   void register_focus(transaction_focus *focus)
   {
@@ -18,13 +19,13 @@ class PQXX_PRIVATE transaction_transaction_focus : callgate<transaction_base>
   {
     home().unregister_focus(focus);
   }
-  void register_pending_error(zview error)
+  void register_pending_error(zview error, sl loc)
   {
-    home().register_pending_error(error);
+    home().register_pending_error(error, loc);
   }
-  void register_pending_error(std::string &&error)
+  void register_pending_error(std::string &&error, sl loc)
   {
-    home().register_pending_error(std::move(error));
+    home().register_pending_error(std::move(error), loc);
   }
 };
 } // namespace pqxx::internal::gate

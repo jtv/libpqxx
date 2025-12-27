@@ -1,0 +1,13 @@
+# We get mysterious errors about inconsistent coverage data, where it seems
+# one line might be marked as not executed and then the next line in the same
+# function is marked as executed.
+ignore_errors = inconsistent
+
+forget_testcase_names = 1
+lcov_excl_line = PQXX_DECLARE_ENUM_CONVERSION\(.*\);
+parallel = 4
+
+genhtml_dark_mode = 1
+genhtml_flat_view = 1
+genhtml_missed = 1
+genhtml_show_function_proportion = 1

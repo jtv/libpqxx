@@ -5,11 +5,11 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
+#include <format>
 #include <utility>
 #include <variant>
 
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 
 namespace pqxx
 {
@@ -20,7 +20,7 @@ namespace pqxx
  * An unlimited boundary is always inclusive of "infinity" values, if the
  * range's value type supports them.
  */
-struct no_bound
+struct no_bound final
 {
   template<typename TYPE>
   constexpr bool extends_down_to(TYPE const &) const noexcept
@@ -35,11 +35,21 @@ struct no_bound
 };
 
 
+/// Concept: `T` supports copying, and less-than operator.
+template<typename T>
+concept has_less = std::copy_constructible<T> and requires(T n) { n < n; };
+
+
+/// Concept: `T` supports equality comparison.
+template<typename T>
+concept has_equal = requires(T n) { n == n; };
+
+
 /// An _inclusive_ boundary value to a @ref pqxx::range.
 /** Use this as a lower or upper bound for a range if the range should include
  * the value.
  */
-template<typename TYPE> class inclusive_bound
+template<has_less TYPE> class inclusive_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -47,10 +57,12 @@ private:
 
 public:
   inclusive_bound() = delete;
-  constexpr explicit inclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit inclusive_bound(
+    TYPE const &value, sl loc = sl::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an inclusive range bound."};
+      throw argument_error{"Got null value as an inclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -78,7 +90,7 @@ public:
 /** Use this as a lower or upper bound for a range if the range should _not_
  * include the value.
  */
-template<typename TYPE> class exclusive_bound
+template<has_less TYPE> class exclusive_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -86,10 +98,12 @@ private:
 
 public:
   exclusive_bound() = delete;
-  constexpr explicit exclusive_bound(TYPE const &value) : m_value{value}
+  constexpr explicit exclusive_bound(
+    TYPE const &value, sl loc = sl::current()) :
+          m_value{value}
   {
     if (is_null(value))
-      throw argument_error{"Got null value as an exclusive range bound."};
+      throw argument_error{"Got null value as an exclusive range bound.", loc};
   }
 
   [[nodiscard]] constexpr TYPE const &get() const & noexcept
@@ -117,11 +131,21 @@ public:
 /** A range bound is either no bound at all; or an inclusive bound; or an
  * exclusive bound.  Pass one of the three to the constructor.
  */
-template<typename TYPE> class range_bound
+template<has_less TYPE> class range_bound final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
   std::variant<no_bound, inclusive_bound<TYPE>, exclusive_bound<TYPE>> m_bound;
+
+  static constexpr bool equal(TYPE const &lhs, TYPE const &rhs)
+  {
+    if constexpr (requires { lhs == rhs; })
+      // TYPE supports equality comparison.
+      return lhs == rhs;
+    else
+      // Oh well.  We do require less-than comparison, so use that.
+      return not((lhs < rhs) or (rhs < lhs));
+  }
 
 public:
   range_bound() = delete;
@@ -146,12 +170,11 @@ public:
   constexpr range_bound(range_bound &&) = default;
 
   constexpr bool operator==(range_bound const &rhs) const
-    noexcept(noexcept(*this->value() == *rhs.value()))
   {
     if (this->is_limited())
       return (
         rhs.is_limited() and (this->is_inclusive() == rhs.is_inclusive()) and
-        (*this->value() == *rhs.value()));
+        equal(*this->value(), *rhs.value()));
     else
       return not rhs.is_limited();
   }
@@ -216,7 +239,6 @@ public:
 };
 
 
-// C++20: Concepts for comparisons, construction, etc.
 /// A C++ equivalent to PostgreSQL's range types.
 /** You can use this as a client-side representation of a "range" in SQL.
  *
@@ -232,11 +254,11 @@ public:
  * For documentation on PostgreSQL's range types, see:
  * https://www.postgresql.org/docs/current/rangetypes.html
  *
- * The value type must be copyable and default-constructible, and support the
- * less-than (`<`) and equals (`==`) comparisons.  Value initialisation must
- * produce a consistent value.
+ * The value type `TYPE` must typically be copyable and default-constructible,
+ * and support the less-than (`<`) and equals (`==`) comparisons, but there
+ * can be rare cases where they need not be.
  */
-template<typename TYPE> class range
+template<typename TYPE> class range final
 {
   // (Putting private section first to work around bug in gcc < 10: see #665.)
 private:
@@ -248,15 +270,18 @@ public:
    * or
    * @ref exclusive_bound.
    */
-  constexpr range(range_bound<TYPE> lower, range_bound<TYPE> upper) :
+  constexpr range(
+    range_bound<TYPE> lower, range_bound<TYPE> upper, sl loc = sl::current()) :
           m_lower{lower}, m_upper{upper}
   {
     if (
       lower.is_limited() and upper.is_limited() and
       (*upper.value() < *lower.value()))
-      throw range_error{internal::concat(
-        "Range's lower bound (", *lower.value(),
-        ") is greater than its upper bound (", *upper.value(), ").")};
+      throw range_error{
+        std::format(
+          "Range's lower bound ({}) is greater than its upper bound ({}).",
+          to_string(*lower.value()), to_string(*upper.value())),
+        loc};
   }
 
   /// Create an empty range.
@@ -397,62 +422,58 @@ public:
 
 
 /// String conversions for a @ref range type.
-/** Conversion assumes that either your client encoding is UTF-8, or the values
- * are pure ASCII.
+/** Conversion assumes an ASCII-safe encoding.
  */
-template<typename TYPE> struct string_traits<range<TYPE>>
+template<typename TYPE> struct string_traits<range<TYPE>> final
 {
-  [[nodiscard]] static inline zview
-  to_buf(char *begin, char *end, range<TYPE> const &value)
-  {
-    return generic_to_buf(begin, end, value);
-  }
-
-  static inline char *
-  into_buf(char *begin, char *end, range<TYPE> const &value)
+  [[nodiscard]] static std::string_view
+  to_buf(std::span<char> buf, range<TYPE> const &value, ctx c = {})
   {
     if (value.empty())
     {
-      if ((end - begin) <= internal::ssize(s_empty))
-        throw conversion_overrun{s_overrun.c_str()};
-      char *here = begin + s_empty.copy(begin, std::size(s_empty));
-      *here++ = '\0';
-      return here;
+      if (std::cmp_less_equal(std::size(buf), std::size(s_empty)))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      return s_empty;
     }
     else
     {
-      if (end - begin < 4)
-        throw conversion_overrun{s_overrun.c_str()};
-      char *here = begin;
-      *here++ =
+      if (std::cmp_less(std::size(buf), 4))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      std::span<char> tmp{buf};
+      // C++26: Use at().
+      tmp[0] =
         (static_cast<char>(value.lower_bound().is_inclusive() ? '[' : '('));
+      tmp = tmp.subspan(1);
       TYPE const *lower{value.lower_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (lower != nullptr)
-        here = string_traits<TYPE>::into_buf(here, end, *lower) - 1;
-      *here++ = ',';
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *lower));
+      // C++26: Use at().
+      tmp[0] = ',';
+      tmp = tmp.subspan(1);
       TYPE const *upper{value.upper_bound().value()};
       // Convert bound (but go back to overwrite that trailing zero).
       if (upper != nullptr)
-        here = string_traits<TYPE>::into_buf(here, end, *upper) - 1;
-      if ((end - here) < 2)
-        throw conversion_overrun{s_overrun.c_str()};
-      *here++ =
+        tmp = tmp.subspan(pqxx::into_buf(tmp, *upper, c));
+      if (std::cmp_less(std::size(tmp), 2))
+        throw conversion_overrun{s_overrun.c_str(), c.loc};
+      tmp[0] =
         static_cast<char>(value.upper_bound().is_inclusive() ? ']' : ')');
-      *here++ = '\0';
-      return here;
+      tmp = tmp.subspan(1);
+      return {
+        std::data(buf),
+        static_cast<std::size_t>(std::data(tmp) - std::data(buf))};
     }
   }
 
-  [[nodiscard]] static inline range<TYPE> from_string(std::string_view text)
+  [[nodiscard]] static inline range<TYPE>
+  from_string(std::string_view text, sl loc = sl::current())
   {
     if (std::size(text) < 3)
-      throw pqxx::conversion_error{err_bad_input(text)};
-    bool left_inc{false};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     switch (text[0])
     {
-    case '[': left_inc = true; break;
-
+    case '[':
     case '(': break;
 
     case 'e':
@@ -463,11 +484,11 @@ template<typename TYPE> struct string_traits<range<TYPE>>
         (text[2] != 'p' and text[2] != 'P') or
         (text[3] != 't' and text[3] != 'T') or
         (text[4] != 'y' and text[4] != 'Y'))
-        throw pqxx::conversion_error{err_bad_input(text)};
+        throw pqxx::conversion_error{err_bad_input(text), loc};
       return {};
       break;
 
-    default: throw pqxx::conversion_error{err_bad_input(text)};
+    default: throw pqxx::conversion_error{err_bad_input(text), loc};
     }
 
     // The field parser uses this to track which field it's parsing, and
@@ -482,21 +503,21 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     // We reuse the same field parser we use for composite values and arrays.
     auto const field_parser{
       pqxx::internal::specialize_parse_composite_field<std::optional<TYPE>>(
-        pqxx::internal::encoding_group::UTF8)};
-    field_parser(index, text, pos, lower, last);
-    field_parser(index, text, pos, upper, last);
+        conversion_context{encoding_group::ascii_safe, loc})};
+    field_parser(index, text, pos, lower, last, loc);
+    field_parser(index, text, pos, upper, last, loc);
 
     // We need one more character: the closing parenthesis or bracket.
     if (pos != std::size(text))
-      throw pqxx::conversion_error{err_bad_input(text)};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
     char const closing{text[pos - 1]};
     if (closing != ')' and closing != ']')
-      throw pqxx::conversion_error{err_bad_input(text)};
-    bool const right_inc{closing == ']'};
+      throw pqxx::conversion_error{err_bad_input(text), loc};
 
     range_bound<TYPE> lower_bound{no_bound{}}, upper_bound{no_bound{}};
     if (lower)
     {
+      bool const left_inc{text[0] == '['};
       if (left_inc)
         lower_bound = inclusive_bound{*lower};
       else
@@ -504,6 +525,7 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     }
     if (upper)
     {
+      bool const right_inc{closing == ']'};
       if (right_inc)
         upper_bound = inclusive_bound{*upper};
       else
@@ -519,8 +541,8 @@ template<typename TYPE> struct string_traits<range<TYPE>>
     TYPE const *lower{value.lower_bound().value()},
       *upper{value.upper_bound().value()};
     std::size_t const lsz{
-      lower == nullptr ? 0 : string_traits<TYPE>::size_buffer(*lower) - 1},
-      usz{upper == nullptr ? 0 : string_traits<TYPE>::size_buffer(*upper) - 1};
+      lower == nullptr ? 0 : pqxx::size_buffer(*lower) - 1},
+      usz{upper == nullptr ? 0 : pqxx::size_buffer(*upper) - 1};
 
     if (value.empty())
       return std::size(s_empty) + 1;
@@ -535,13 +557,14 @@ private:
   /// Compose error message for invalid range input.
   static std::string err_bad_input(std::string_view text)
   {
-    return internal::concat("Invalid range input: '", text, "'");
+    return std::format("Invalid range input: '{}'.", text);
   }
 };
 
 
 /// A range type does not have an innate null value.
-template<typename TYPE> struct nullness<range<TYPE>> : no_null<range<TYPE>>
+template<typename TYPE>
+struct nullness<range<TYPE>> final : no_null<range<TYPE>>
 {};
 } // namespace pqxx
 #endif

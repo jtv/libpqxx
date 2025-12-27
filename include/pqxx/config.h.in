@@ -64,15 +64,6 @@
 #undef PQXX_HAVE_CHARCONV_FLOAT
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_CHARCONV_INT
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_CMP
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_CONCEPTS
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_CXA_DEMANGLE
 
 /* Define if this feature is available. */
@@ -82,13 +73,7 @@
 #undef PQXX_HAVE_GCC_VISIBILITY
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_LIKELY
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_MULTIDIM
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_PATH
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_POLL
@@ -100,25 +85,16 @@
 #undef PQXX_HAVE_SLEEP_FOR
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_SOURCE_LOCATION
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_SPAN
-
-/* Define if this feature is available. */
-#undef PQXX_HAVE_SSIZE
-
-/* Define if this feature is available. */
 #undef PQXX_HAVE_STRERROR_R
 
 /* Define if this feature is available. */
 #undef PQXX_HAVE_STRERROR_S
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_THREAD_LOCAL
+#undef PQXX_HAVE_YEAR_MONTH_DAY
 
 /* Define if this feature is available. */
-#undef PQXX_HAVE_YEAR_MONTH_DAY
+#undef PQXX_HAVE_ZARGS
 
 /* Define to 1 if all of the C90 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
@@ -127,6 +103,3 @@
 
 /* Version number of package */
 #undef VERSION
-
-/* Define if this feature is available. */
-#undef no_need_fslib

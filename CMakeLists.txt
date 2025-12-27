@@ -1,31 +1,38 @@
 cmake_minimum_required(VERSION 3.12)
-
 file(READ VERSION VER_FILE_CONTENT)
 string(STRIP ${VER_FILE_CONTENT} VER_FILE_CONTENT)
 
+# Remove any release-candidate suffix.
+string(REGEX MATCH "^[0-9.]+" STRIPPED_VERSION ${VER_FILE_CONTENT})
 project(
     libpqxx
-    VERSION ${VER_FILE_CONTENT}
+    VERSION "${STRIPPED_VERSION}"
     LANGUAGES CXX
 )
-
 if(NOT "${CMAKE_CXX_STANDARD}")
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# Generate a "compilation database" so we can use run-clang-tidy, to run static
+# checks in parallel.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_DOC "Build documentation" OFF)
 
 if(NOT SKIP_BUILD_TEST AND CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     option(BUILD_TEST "Build all test cases" ON)
 endif()
 
+if(NOT SKIP_BUILD_EXAMPLES AND
+   CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR
+)
+    option(BUILD_EXAMPLES "Build examples" ON)
+endif()
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(config)
-
 add_subdirectory(src)
 add_subdirectory(include)
 if(BUILD_DOC)
@@ -34,11 +41,14 @@ endif()
 if(BUILD_TEST)
     add_subdirectory(test)
 endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-# installation
+# Installation
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/libpqxx-config-version.cmake"
-    VERSION ${PROJECT_VERSION}
+    VERSION ${VER_FILE_CONTENT}
     COMPATIBILITY SameMajorVersion
 )
 install(FILES cmake/libpqxx-config.cmake
@@ -62,5 +72,5 @@ configure_file(
 )
 # Package generation
 set(CPACK_GENERATOR TGZ)
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION ${VER_FILE_CONTENT})
 include(CPack)

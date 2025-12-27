@@ -9,11 +9,11 @@ Here's what a typical gate class definition looks like:
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE @gateclass@ : callgate<@host@>
+class PQXX_PRIVATE @gateclass@ final : callgate<@host@>
 {
   friend class @client@;
 
-  @gateclass@(reference x) : super(x) {}
+  constexpr @gateclass@(reference x) noexcept : super(x) {}
 
   // Methods here.  Use home() to access the host-class object.
 };
@@ -59,10 +59,10 @@ protected:
   /// A reference to the host class.  Helps keep constructors easy.
   using reference = HOME &;
 
-  callgate(reference x) : m_home(x) {}
+  constexpr callgate(reference x) noexcept : m_home(x) {}
 
   /// The home object.  The gate class has full "private" access.
-  reference home() const noexcept { return m_home; }
+  constexpr reference home() const noexcept { return m_home; }
 
 private:
   reference m_home;

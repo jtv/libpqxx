@@ -5,13 +5,16 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE connection_stream_to : callgate<connection>
+class PQXX_PRIVATE connection_stream_to final : callgate<connection>
 {
   friend class pqxx::stream_to;
 
-  connection_stream_to(reference x) : super(x) {}
+  constexpr connection_stream_to(reference x) noexcept : super(x) {}
 
-  void write_copy_line(std::string_view line) { home().write_copy_line(line); }
-  void end_copy_write() { home().end_copy_write(); }
+  void write_copy_line(std::string_view line, sl loc)
+  {
+    home().write_copy_line(line, loc);
+  }
+  void end_copy_write(sl loc) { home().end_copy_write(loc); }
 };
 } // namespace pqxx::internal::gate

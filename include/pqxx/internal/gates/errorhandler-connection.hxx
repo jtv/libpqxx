@@ -2,11 +2,11 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE errorhandler_connection : callgate<errorhandler>
+class PQXX_PRIVATE errorhandler_connection final : callgate<errorhandler>
 {
   friend class pqxx::connection;
 
-  errorhandler_connection(reference x) : super(x) {}
+  constexpr errorhandler_connection(reference x) noexcept : super(x) {}
 
   void unregister() noexcept { home().unregister(); }
 };
