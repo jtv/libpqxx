@@ -32,6 +32,17 @@ get_encoding_group(encoding_group const &enc, sl = sl::current()) noexcept
 }
 
 
+/// Return client encoding from @ref conversion_context.
+/** Also accepts a `source_location` argument, but ignores it in favour of the
+ * one embedded in the `conversion_context`.
+ */
+PQXX_PURE [[nodiscard]] inline constexpr pqxx::encoding_group
+get_encoding_group(ctx c, sl = sl::current()) noexcept
+{
+  return c.enc;
+}
+
+
 /// Return connection's current client encoding.
 [[nodiscard]] PQXX_LIBEXPORT pqxx::encoding_group
 get_encoding_group(connection const &, sl = sl::current());
@@ -58,12 +69,13 @@ public:
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
   /** @note As a first parameter, we recommend passing an @ref encoding_group,
    * or a @ref connection, or a @ref transaction_base (or a more specific
-   * transaction type derived from it).  The `params` will use this to obtain
-   * the client encoding.  (It will not be passed as a parameter; it's just
-   * there as a source of encoding information).  In most cases you won't need
-   * this, but there are exceptions where a complex object can't be passed
-   * otherwise.  To keep things clear, we recommend passing it in the general
-   * case so that you never run into exceptions about encoding being unknown.
+   * transaction type derived from it), or a @ref conversion_context.  The
+   * `params` will use this to obtain the client encoding.  (It will not be
+   * passed as a parameter; it's just there as a source of the encoding
+   * information).  In most cases you won't need this, but there are exceptions
+   * where a complex object can't be passed otherwise.  To keep things clear,
+   * we recommend passing it in the general case so that you never run into
+   * exceptions about encoding being unknown.
    */
   template<typename First, typename... Args>
   constexpr params(First &&first, Args &&...args)

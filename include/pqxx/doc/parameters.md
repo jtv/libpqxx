@@ -87,7 +87,8 @@ about the encoding not being known.
 To prevent that, pass as your first parameter the @ref pqxx::encoding_group for
 the connection's current client encoding.  You can get this by calling the
 connection's `get_encoding_group()` member function, but as a shortcut, you may
-just pass in a reference to your connection or your transaction instead.
+just pass in a reference to your connection or your transaction instead.  Or if
+you already had a `pqxx::conversion_context`, you can pass that instead.
 
 In those cases, that special first argument will _not_ become a parameter to
 the SQL statement.  It will only be used to obtain the necessary text encoding
