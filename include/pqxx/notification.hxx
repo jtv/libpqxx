@@ -65,7 +65,8 @@ public:
    * @param channel Name of the notification to listen for.
    */
   [[deprecated("Use pqxx::connection::listen() instead.")]]
-  notification_receiver(connection &cx, std::string_view channel);
+  notification_receiver(
+    connection &cx, std::string_view channel, sl loc = sl::current());
   /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
   notification_receiver(notification_receiver const &) = delete;

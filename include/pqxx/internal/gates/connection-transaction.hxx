@@ -33,7 +33,7 @@ class PQXX_PRIVATE connection_transaction final : callgate<connection>
     home().unregister_transaction(t);
   }
 
-  auto read_copy_line() { return home().read_copy_line(); }
+  auto read_copy_line(sl loc) { return home().read_copy_line(loc); }
   void write_copy_line(std::string_view line, sl loc)
   {
     home().write_copy_line(line, loc);

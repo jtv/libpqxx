@@ -20,7 +20,7 @@ class PQXX_PRIVATE connection_stream_from final : callgate<connection>
 
   constexpr connection_stream_from(reference x) noexcept : super{x} {}
 
-  auto read_copy_line() { return home().read_copy_line(); }
+  auto read_copy_line(sl loc) { return home().read_copy_line(loc); }
 };
 } // namespace pqxx::internal::gate
 #endif

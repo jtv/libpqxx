@@ -97,10 +97,10 @@ pqxx::stream_to &pqxx::stream_to::operator<<(stream_from &tr)
 {
   while (tr)
   {
-    const auto [line, size] = tr.get_raw_line();
+    const auto [line, size] = tr.get_raw_line(m_created_loc);
     if (line.get() == nullptr)
       break;
-    write_raw_line(std::string_view{line.get(), size}, sl::current());
+    write_raw_line(std::string_view{line.get(), size}, m_created_loc);
   }
   return *this;
 }

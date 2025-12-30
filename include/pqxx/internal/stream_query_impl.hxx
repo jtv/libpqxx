@@ -44,12 +44,13 @@ public:
   using value_type = std::tuple<TYPE...>;
   using difference_type = long;
 
-  explicit stream_query_input_iterator(stream_t &home) :
+  explicit stream_query_input_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
-            nullptr, pqxx::internal::pq::pqfreemem)}
+            nullptr, pqxx::internal::pq::pqfreemem)},
+          m_created_loc{loc}
   {
-    consume_line();
+    consume_line(loc);
   }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
@@ -58,7 +59,7 @@ public:
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
-    consume_line();
+    consume_line(m_created_loc);
     return *this;
   }
 
@@ -98,7 +99,9 @@ public:
   }
 
 private:
-  stream_query_input_iterator() {}
+  explicit stream_query_input_iterator(sl loc = sl::current()) :
+          m_created_loc{loc}
+  {}
 
   /// Have we finished?
   bool done() const noexcept { return m_home->done(); }
@@ -107,9 +110,9 @@ private:
   /** Replaces the newline at the end with a tab, as a sentinel to simplify
    * (and thus hopefully speed up) the field parsing loop.
    */
-  void consume_line() &
+  void consume_line(sl loc) &
   {
-    auto [line, size]{m_home->read_line()};
+    auto [line, size]{m_home->read_line(loc)};
     m_line = std::move(line);
     m_line_size = size;
     if (m_line)
@@ -130,6 +133,9 @@ private:
 
   /// Length of the last COPY line we read.
   std::size_t m_line_size;
+
+  /// A `std::source_location` for where this object was created.
+  sl m_created_loc;
 };
 
 
@@ -151,20 +157,20 @@ inline bool operator!=(
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 {
-  return stream_query_input_iterator<TYPE...>{*this};
+  return stream_query_input_iterator<TYPE...>{*this, m_ctx.loc};
 }
 
 
 template<typename... TYPE>
 inline std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
-stream_query<TYPE...>::read_line() &
+stream_query<TYPE...>::read_line(sl loc) &
 {
   assert(not done());
 
   internal::gate::connection_stream_from gate{m_trans->conn()};
   try
   {
-    auto line{gate.read_copy_line()};
+    auto line{gate.read_copy_line(loc)};
     // Check for completion.
     if (not line.first) [[unlikely]]
       close();

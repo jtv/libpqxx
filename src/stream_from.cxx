@@ -115,14 +115,14 @@ pqxx::stream_from::~stream_from() noexcept
 }
 
 
-pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
+pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line(sl loc)
 {
   if (*this)
   {
     internal::gate::connection_stream_from gate{m_trans->conn()};
     try
     {
-      raw_line line{gate.read_copy_line()};
+      raw_line line{gate.read_copy_line(loc)};
       if (line.first == nullptr)
         close();
       return line;
@@ -162,7 +162,7 @@ void pqxx::stream_from::complete(sl loc)
     bool done{false};
     while (not done)
     {
-      [[maybe_unused]] auto [line, size] = get_raw_line();
+      [[maybe_unused]] auto [line, size] = get_raw_line(loc);
       done = not line.get();
     }
   }
@@ -187,7 +187,7 @@ void pqxx::stream_from::parse_line(sl loc)
   // TODO: Any way to keep current size in a local var, for speed?
   m_fields.clear();
 
-  auto const [line, line_size] = get_raw_line();
+  auto const [line, line_size] = get_raw_line(loc);
   if (line.get() == nullptr)
   {
     m_finished = true;

@@ -142,7 +142,7 @@ public:
   }
 
   /// Read a COPY line from the server.
-  std::pair<line_handle, std::size_t> read_line() &;
+  std::pair<line_handle, std::size_t> read_line(sl) &;
 
 private:
   /// Look up a char_finder_func.
