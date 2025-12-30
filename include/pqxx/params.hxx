@@ -56,12 +56,14 @@ public:
   params() = default;
 
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
-  /** @warning As a first parameter, pass an @ref encoding_group, or a
-   * @ref connection, or a @ref transaction_base (or a more specific
+  /** @note As a first parameter, we recommend pass an @ref encoding_group, or
+   * a @ref connection, or a @ref transaction_base (or a more specific
    * transaction type derived from it).  The `params` will use this to obtain
-   * the client encoding.  (It will not be passed as a parameter)  In most
-   * cases you won't need this, but there are exceptions where a complex object
-   * can't be passed otherwise.
+   * the client encoding.  (It will not be passed as a parameter; it's just
+   * there as a source of encoding information).  In most cases you won't need
+   * this, but there are exceptions where a complex object can't be passed
+   * otherwise.  To keep things clear, we recommend passing it in the general
+   * case so that you never run into exceptions about encoding being unknown.
    */
   template<typename First, typename... Args>
   constexpr params(First &&first, Args &&...args)
