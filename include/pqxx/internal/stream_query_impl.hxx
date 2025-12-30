@@ -47,7 +47,8 @@ public:
   explicit stream_query_input_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
-            nullptr, pqxx::internal::pq::pqfreemem)}
+            nullptr, pqxx::internal::pq::pqfreemem)},
+          m_created_loc{loc}
   {
     consume_line(loc);
   }
@@ -58,7 +59,7 @@ public:
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
-    consume_line(m_created_at);
+    consume_line(m_created_loc);
     return *this;
   }
 
@@ -99,7 +100,7 @@ public:
 
 private:
   explicit stream_query_input_iterator(sl loc = sl::current()) :
-          m_created_at{loc}
+          m_created_loc{loc}
   {}
 
   /// Have we finished?
@@ -134,7 +135,7 @@ private:
   std::size_t m_line_size;
 
   /// A `std::source_location` for where this object was created.
-  sl m_created_at;
+  sl m_created_loc;
 };
 
 
