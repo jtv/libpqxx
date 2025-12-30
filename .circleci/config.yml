@@ -520,6 +520,11 @@ workflows:
               cxx_ver: ["c++26"]
 
       - esbmc:
+          matrix:
+            parameters:
+              # Adding a dummy parameter just because it's not clear to me how
+              # to mix matrix and non-matrix jobs.
+              dummy: ["static"]
 
       - infer:
           matrix:
