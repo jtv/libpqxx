@@ -219,7 +219,7 @@ private:
   }
 
   /// Terminating case: append an empty parameter pack.  It's not hard BTW.
-  PQXX_PURE constexpr void append_pack(sl) const noexcept {}
+  constexpr void append_pack(sl) const noexcept {}
 
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
