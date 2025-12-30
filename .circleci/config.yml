@@ -377,12 +377,16 @@ jobs:
       - run:
           name: Install
           command: "pacman -qSuy --needed --noconfirm \
-              postgresql-libs python3 unzip wget"
+              cmake diffutils g++ make postgresql-libs python3 unzip uv wget"
       - run:
           name: Download
           command: "wget \
 https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip \
               -O esbmc.zip && unzip esbmc"
+      - run:
+          name: Config
+          command: "cmake"
+
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
