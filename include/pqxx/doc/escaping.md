@@ -106,7 +106,7 @@ You may be wondering why this passes `tx` into `params{...}`.  That's not
 actually a parameter; it's just a way to inform the `params` constructor about
 the prevailing client encoding.  It doesn't _usually_ need to know that, but it
 can come as a nasty surprise when suddenly it does, in the case of arrays or
-composite objects.  So it's a good habit always to pass the trarnsaction, the
+composite objects.  So it's a good habit always to pass the transaction, the
 connection, or the `encoding_group` as the first parameter to let the `params`
 know what encoding to use.  Especially so when you're using it in template
 code where the types of the parameters aren't necessarily known _a priori._
