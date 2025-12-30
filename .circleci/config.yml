@@ -366,6 +366,30 @@ jobs:
       - store_artifacts:
           path: "/tmp/coverage-html.tar.gz"
 
+  esbmc:
+    parameters:
+      version:
+        type: string
+    docker:
+      - image: archlinux
+    steps:
+      - checkout
+      - run:
+          name: Install
+          command: "pacman -qSuy --needed --noconfirm \
+              postgresql-libs python3 wget"
+      - run:
+          name: Download
+          command: "wget << parameters.url >> -O- | unzip"
+      - run:
+          name: Check
+          command: "for f in src/*.cxx; do \
+              ./bin/esbmr.zip \"$f\" --overflow-check ; \
+              ./bin/esbmr.zip \"$f\" --memory-leak-check ; \
+              ./bin/esbmr.zip \"$f\" --data-races-check ; \
+              ./bin/esbmr.zip \"$f\" --atomicity-check ; \
+              done"
+
   infer:
     parameters:
       cxx_ver:
@@ -492,6 +516,12 @@ workflows:
           matrix:
             parameters:
               cxx_ver: ["c++26"]
+
+      - esbmc:
+          matrix:
+            parameters:
+              url: [
+"https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip"]
 
       - infer:
           matrix:
