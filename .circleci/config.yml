@@ -380,20 +380,20 @@ jobs:
               cmake diffutils gcc make postgresql-libs python3 unzip uv wget"
       - run:
           name: Download
-          command: "wget \
+          command: "mkdir -p esbmc && wget \
 https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip \
-              -O esbmc.zip && unzip esbmc"
+              -O esbmc.zip && unzip -d esbmc esbmc"
       - run:
           name: Config
-          command: "cmake"
+          command: "cmake ."
 
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
-              ./bin/esbmc \"$f\" --overflow-check ; \
-              ./bin/esbmc \"$f\" --memory-leak-check ; \
-              ./bin/esbmc \"$f\" --data-races-check ; \
-              ./bin/esbmc \"$f\" --atomicity-check ; \
+              ./esbmc/bin/esbmc \"$f\" --overflow-check ; \
+              ./esbmc/bin/esbmc \"$f\" --memory-leak-check ; \
+              ./esbmc/bin/esbmc \"$f\" --data-races-check ; \
+              ./esbmc/bin/esbmc \"$f\" --atomicity-check ; \
               done"
 
   infer:
