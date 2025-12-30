@@ -380,7 +380,7 @@ jobs:
               postgresql-libs python3 wget"
       - run:
           name: Download
-          command: "wget << parameters.url >> -O- | unzip"
+          command: "wget << parameters.url >> -O esbmc.zip && unzip esbmc"
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
