@@ -97,7 +97,8 @@ public:
     else
     {
       // The first argument is just a regular parameter.  Append it first.
-      append_pack(loc, std::forward<First>(first), std::forward<Args>(args)...);
+      append_pack(
+        loc, std::forward<First>(first), std::forward<Args>(args)...);
     }
   }
 
@@ -211,8 +212,7 @@ public:
 
 private:
   /// Append a pack of params.
-  template<typename... Args>
-  void append_pack(sl loc, Args &&...args)
+  template<typename... Args> void append_pack(sl loc, Args &&...args)
   {
     reserve(size() + sizeof...(args));
     ((this->append(std::forward<Args>(args), loc)), ...);
