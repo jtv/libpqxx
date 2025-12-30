@@ -121,7 +121,7 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
   auto res{std::to_chars(begin, end, value)};
-  if (res.ec != std::errc()) [[unlikely]]
+  if (res.ec != std::errc())
     switch (res.ec)
     {
     case std::errc::value_too_large:
@@ -135,7 +135,8 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
         std::format("Could not convert {} to string.", pqxx::name_type<T>()),
         loc};
     }
-  return res.ptr;
+  else [[likely]]
+    return res.ptr;
 }
 } // namespace
 

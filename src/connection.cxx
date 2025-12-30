@@ -1152,14 +1152,13 @@ pqxx::connection::set_client_encoding(char const encoding[], sl loc) &
     // OK.
     [[likely]] break;
   case -1:
-    [[unlikely]]
     if (is_open())
       throw failure{
         std::format("Setting client encoding failed ('{}').", encoding), loc};
     else
       throw broken_connection{"Lost connection to the database server.", loc};
   default:
-    [[unlikely]] throw internal_error{
+    throw internal_error{
       std::format("Unexpected result from PQsetClientEncoding: {}", retval),
       loc};
   }

@@ -243,9 +243,8 @@ pqxx::icursor_iterator &pqxx::icursor_iterator::operator++()
 
 pqxx::icursor_iterator &pqxx::icursor_iterator::operator+=(difference_type n)
 {
-  if (n <= 0)
+  if (n <= 0) [[unlikely]]
   {
-    [[unlikely]]
     if (n == 0)
       return *this;
     throw argument_error{"Advancing icursor_iterator by negative offset."};
