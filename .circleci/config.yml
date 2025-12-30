@@ -368,7 +368,7 @@ jobs:
 
   esbmc:
     parameters:
-      url:
+      dummy:
         type: string
     docker:
       - image: archlinux
