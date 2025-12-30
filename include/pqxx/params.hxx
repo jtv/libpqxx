@@ -87,7 +87,6 @@ public:
       // First argument is a source of an encoding group, not a parameter.
       m_enc = pqxx::internal::get_encoding_group(first);
       reserve(sizeof...(args));
-      // TODO: Get better source_location.
       append_pack(sl::current(), std::forward<Args>(args)...);
     }
     else
@@ -216,7 +215,7 @@ private:
   {
     this->append(std::forward<Arg>(arg), loc);
     // Recurse for remaining args.
-    append_pack(loc, std::forward<More>(args)...);
+    append_pack(loc, std::forward<More>(loc, args)...);
   }
 
   /// Terminating case: append an empty parameter pack.  It's not hard BTW.
