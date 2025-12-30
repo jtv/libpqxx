@@ -78,7 +78,7 @@ public:
    * exceptions about encoding being unknown.
    */
   template<typename First, typename... Args>
-  constexpr params(First &&first, Args &&...args)
+  params(First &&first, Args &&...args)
   {
     sl loc;
     if constexpr (std::is_same_v<std::remove_cvref<First>, conversion_context>)
@@ -92,13 +92,13 @@ public:
     {
       // First argument is a source of an encoding group, not a parameter.
       m_enc = pqxx::internal::get_encoding_group(first);
+      append_pack(loc, std::forward<Args>(args)...);
     }
     else
     {
-      // The first argument is just a regular parameter.
-      append(std::forward<First>(first), loc);
+      // The first argument is just a regular parameter.  Append it first.
+      append_pack(loc, std::forward<First>(first), std::forward<Args>(args)...);
     }
-    append_pack(loc, std::forward<Args>(args)...);
   }
 
   /// Pre-allocate room for at least `n` parameters.
@@ -211,18 +211,17 @@ public:
 
 private:
   /// Append a pack of params.
-  template<typename... Args> void append_pack(sl loc, Args &&...args)
+  template<typename... Args>
+  void append_pack(sl loc, Args &&...args)
   {
     reserve(size() + sizeof...(args));
     ((this->append(std::forward<Args>(args), loc)), ...);
   }
 
-  /// "Append" an empty pack of params.
-  /** This is just here to work around a silly warning saying that the `loc`
-   * parameter in the general version is unused _if the parameter pack is
-   * empty._
+  /// Append a pack of params: trivial case.
+  /** (Only here to silence annoying warnings about unused parameters.)
    */
-  void append_pack(sl) const {}
+  void append_pack(sl) const noexcept {}
 
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
