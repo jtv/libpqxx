@@ -225,16 +225,16 @@ void test_stream_from()
     ")");
   tx.exec(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
-    pqxx::params{910, nullptr, nullptr, nullptr, "\\N", bytea{}});
+    pqxx::params{tx, 910, nullptr, nullptr, nullptr, "\\N", bytea{}});
   tx.exec(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     pqxx::params{
-      1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello\n \tworld",
+      tx, 1234, "now", 4321, ipv4{8, 8, 8, 8}, "hello\n \tworld",
       bytea{'\x00', '\x01', '\x02'}});
   tx.exec(
     "INSERT INTO stream_from_test VALUES ($1,$2,$3,$4,$5,$6)",
     pqxx::params{
-      5678, "2018-11-17 21:23:00", nullptr, nullptr, japanese_utf8,
+      tx, 5678, "2018-11-17 21:23:00", nullptr, nullptr, japanese_utf8,
       bytea{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'}});
   tx.commit();
 
@@ -251,7 +251,7 @@ void test_stream_from_does_escaping()
   pqxx::connection cx;
   pqxx::work tx{cx};
   tx.exec("CREATE TEMP TABLE badstr (str text)").no_rows();
-  tx.exec("INSERT INTO badstr (str) VALUES ($1)", pqxx::params{input})
+  tx.exec("INSERT INTO badstr (str) VALUES ($1)", pqxx::params{tx, input})
     .no_rows();
   auto reader{pqxx::stream_from::table(tx, {"badstr"})};
   std::tuple<std::string> out;
