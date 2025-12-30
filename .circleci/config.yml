@@ -377,7 +377,7 @@ jobs:
       - run:
           name: Install
           command: "pacman -qSuy --needed --noconfirm \
-              postgresql-libs python3 wget"
+              postgresql-libs python3 unzip wget"
       - run:
           name: Download
           command: "wget << parameters.url >> -O esbmc.zip && unzip esbmc"
