@@ -1288,7 +1288,7 @@ private:
    * the newline at the end.
    */
   std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
-  read_copy_line();
+    read_copy_line(sl);
 
   friend class internal::gate::connection_stream_to;
   PQXX_PRIVATE void write_copy_line(std::string_view, sl);
@@ -1301,8 +1301,8 @@ private:
   }
 
   friend class internal::gate::connection_notification_receiver;
-  void add_receiver(notification_receiver *);
-  void remove_receiver(notification_receiver *, sl loc) noexcept;
+  void add_receiver(notification_receiver *, sl);
+  void remove_receiver(notification_receiver *, sl) noexcept;
 
   friend class internal::gate::connection_pipeline;
   PQXX_PRIVATE PQXX_ZARGS void start_exec(char const query[]);

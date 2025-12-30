@@ -259,7 +259,7 @@ public:
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */
-  raw_line get_raw_line();
+  raw_line get_raw_line(sl);
 
 private:
   // TODO: Clean up this signature once we cull the deprecated constructors.

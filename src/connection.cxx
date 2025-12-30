@@ -392,10 +392,11 @@ PQXX_COLD void pqxx::connection::trace(FILE *out) noexcept
 }
 
 
-PQXX_COLD void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
+PQXX_COLD void
+pqxx::connection::add_receiver(pqxx::notification_receiver *n, sl loc)
 {
   if (n == nullptr)
-    throw argument_error{"Null receiver registered"};
+    throw argument_error{"Null receiver registered", loc};
 
   // Add to receiver list and attempt to start listening.
   auto const p{m_receivers.find(n->channel())};
@@ -406,7 +407,7 @@ PQXX_COLD void pqxx::connection::add_receiver(pqxx::notification_receiver *n)
     // Not listening on this event yet, start doing so.
     auto const lq{std::make_shared<std::string>(
       std::format("LISTEN {}", quote_name(n->channel())))};
-    make_result(PQexec(m_conn, lq->c_str()), lq, *lq);
+    make_result(PQexec(m_conn, lq->c_str()), lq, *lq, loc);
     m_receivers.insert(new_value);
   }
   else
@@ -884,7 +885,7 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 
 
 std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
-pqxx::connection::read_copy_line()
+pqxx::connection::read_copy_line(sl loc)
 {
   char *buf{nullptr};
 
@@ -895,17 +896,18 @@ pqxx::connection::read_copy_line()
   switch (line_len)
   {
   case -2: // Error.
-    throw failure{std::format("Reading of table data failed: {}", err_msg())};
+    throw failure{
+      std::format("Reading of table data failed: {}", err_msg()), loc};
 
   case -1: // End of COPY.
-    make_result(PQgetResult(m_conn), q, *q);
+    make_result(PQgetResult(m_conn), q, *q, loc);
     return std::make_pair(
       std::unique_ptr<char, void (*)(void const *)>{
         nullptr, pqxx::internal::pq::pqfreemem},
       0u);
 
   case 0: // "Come back later."
-    throw internal_error{"table read inexplicably went asynchronous"};
+    throw internal_error{"table read inexplicably went asynchronous", loc};
 
   default: // Success, got buffer size.
     [[likely]]
@@ -952,7 +954,7 @@ void pqxx::connection::end_copy_write(sl loc)
   }
 
   static auto const q{std::make_shared<std::string>("[END COPY]")};
-  make_result(PQgetResult(m_conn), q, *q);
+  make_result(PQgetResult(m_conn), q, *q, loc);
 }
 
 
