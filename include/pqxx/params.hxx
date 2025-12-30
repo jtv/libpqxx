@@ -211,15 +211,15 @@ public:
 private:
   /// Recursively append a pack of params.
   template<typename Arg, typename... More>
-  void append_pack(sl loc, Arg &&arg, More &&...args)
+  void append_pack(sl loc, Arg &&arg, More &&...more)
   {
     this->append(std::forward<Arg>(arg), loc);
     // Recurse for remaining args.
-    append_pack(loc, std::forward<More>(loc, args)...);
+    append_pack(loc, std::forward<More>(more)...);
   }
 
   /// Terminating case: append an empty parameter pack.  It's not hard BTW.
-  constexpr void append_pack(sl) noexcept {}
+  PQXX_PURE constexpr void append_pack(sl) const noexcept {}
 
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
