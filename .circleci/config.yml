@@ -377,7 +377,7 @@ jobs:
       - run:
           name: Install
           command: "pacman -qSuy --needed --noconfirm \
-              cmake diffutils g++ make postgresql-libs python3 unzip uv wget"
+              cmake diffutils gcc make postgresql-libs python3 unzip uv wget"
       - run:
           name: Download
           command: "wget \
