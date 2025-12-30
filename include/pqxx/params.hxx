@@ -80,23 +80,25 @@ public:
   template<typename First, typename... Args>
   constexpr params(First &&first, Args &&...args)
   {
+    sl loc;
+    if constexpr (std::is_same_v<std::remove_cvref<First>, conversion_context>)
+      loc = first.loc;
+    else
+      loc = sl::current();
+
     if constexpr (requires(encoding_group eg) {
                     eg = pqxx::internal::get_encoding_group(first);
                   })
     {
       // First argument is a source of an encoding group, not a parameter.
       m_enc = pqxx::internal::get_encoding_group(first);
-      reserve(sizeof...(args));
-      append_pack(sl::current(), std::forward<Args>(args)...);
+      append_pack(loc, std::forward<Args>(args)...);
     }
     else
     {
       // All arguments are parameters for the SQL statement.
-      reserve(sizeof...(args) + 1u);
-      // TODO: Get better source_location.
       append_pack(
-        sl::current(), std::forward<First>(first),
-        std::forward<Args>(args)...);
+        loc, std::forward<First>(first), std::forward<Args>(args)...);
     }
   }
 
@@ -210,9 +212,9 @@ public:
 
 private:
   /// Append a pack of params.
-  template<typename... Args>
-  void append_pack(sl loc, Args &&...args)
+  template<typename... Args> void append_pack(sl loc, Args &&...args)
   {
+    reserve(size() + sizeof...(args));
     ((this->append(std::forward<Args>(args), loc)), ...);
   }
 
