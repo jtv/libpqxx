@@ -92,14 +92,13 @@ public:
     {
       // First argument is a source of an encoding group, not a parameter.
       m_enc = pqxx::internal::get_encoding_group(first);
-      append_pack(loc, std::forward<Args>(args)...);
     }
     else
     {
-      // All arguments are parameters for the SQL statement.
-      append_pack(
-        loc, std::forward<First>(first), std::forward<Args>(args)...);
+      // The first argument is just a regular parameter.
+      append(std::forward<First>(first), loc);
     }
+    append_pack(loc, std::forward<Args>(args)...);
   }
 
   /// Pre-allocate room for at least `n` parameters.
