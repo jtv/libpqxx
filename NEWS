@@ -3,6 +3,7 @@
  - Any changes will be logged under "8.0.0".
  - Stop trying to use/support `std::filesystem`.
  - `composite_into_buf()` now returns a `zview`.
+ - Optionally pass `encoding_group` (or connection/transaction) into `params`.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.
