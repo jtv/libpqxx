@@ -390,10 +390,10 @@ https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip \
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
-              ./esbmc/bin/esbmc \"$f\" --overflow-check ; \
-              ./esbmc/bin/esbmc \"$f\" --memory-leak-check ; \
-              ./esbmc/bin/esbmc \"$f\" --data-races-check ; \
-              ./esbmc/bin/esbmc \"$f\" --atomicity-check ; \
+              ./esbmc/bin/esbmc \"$f\" -Iinclude --overflow-check ; \
+              ./esbmc/bin/esbmc \"$f\" -Iinclude --memory-leak-check ; \
+              ./esbmc/bin/esbmc \"$f\" -Iinclude --data-races-check ; \
+              ./esbmc/bin/esbmc \"$f\" -Iinclude --atomicity-check ; \
               done"
 
   infer:
