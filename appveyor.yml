@@ -1,3 +1,4 @@
+---
 version: "1.0.{build}"
 image: "Visual Studio 2022"
 
@@ -6,7 +7,7 @@ image: "Visual Studio 2022"
 # TODO: Do we really have to spell out the postgres version in 3 places?
 services: postgresql15
 install:
-- net start postgresql-x64-15
+  - net start postgresql-x64-15
 
 # Set up to run the build across multiple C++ language versions.
 environment:
