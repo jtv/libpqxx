@@ -56,8 +56,8 @@ public:
   params() = default;
 
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
-  /** @note As a first parameter, we recommend pass an @ref encoding_group, or
-   * a @ref connection, or a @ref transaction_base (or a more specific
+  /** @note As a first parameter, we recommend passing an @ref encoding_group,
+   * or a @ref connection, or a @ref transaction_base (or a more specific
    * transaction type derived from it).  The `params` will use this to obtain
    * the client encoding.  (It will not be passed as a parameter; it's just
    * there as a source of encoding information).  In most cases you won't need
