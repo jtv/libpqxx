@@ -384,10 +384,10 @@ jobs:
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
-              ./bin/esbmr.zip \"$f\" --overflow-check ; \
-              ./bin/esbmr.zip \"$f\" --memory-leak-check ; \
-              ./bin/esbmr.zip \"$f\" --data-races-check ; \
-              ./bin/esbmr.zip \"$f\" --atomicity-check ; \
+              ./bin/esbmc \"$f\" --overflow-check ; \
+              ./bin/esbmc \"$f\" --memory-leak-check ; \
+              ./bin/esbmc \"$f\" --data-races-check ; \
+              ./bin/esbmc \"$f\" --atomicity-check ; \
               done"
 
   infer:
