@@ -10,9 +10,25 @@
 
 #include "pqxx/internal/header-pre.hxx"
 
+#include "pqxx/connection.hxx"
 #include "pqxx/params.hxx"
+#include "pqxx/transaction_base.hxx"
 
 #include "pqxx/internal/header-post.hxx"
+
+
+pqxx::encoding_group
+pqxx::internal::get_encoding_group(pqxx::connection const &cx, sl loc)
+{
+  return cx.get_encoding_group(loc);
+}
+
+
+pqxx::encoding_group
+pqxx::internal::get_encoding_group(pqxx::transaction_base const &tx, sl loc)
+{
+  return get_encoding_group(tx.conn(), loc);
+}
 
 
 void pqxx::internal::c_params::reserve(std::size_t n) &
@@ -29,51 +45,53 @@ void pqxx::params::reserve(std::size_t n) &
 }
 
 
-void pqxx::params::append() &
+void pqxx::params::append(sl) &
 {
   m_params.emplace_back(nullptr);
 }
 
 
-void pqxx::params::append(zview value) &
+void pqxx::params::append(zview value, sl) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::string const &value) &
+void pqxx::params::append(std::string const &value, sl) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(std::string &&value) &
+void pqxx::params::append(std::string &&value, sl) &
 {
   m_params.emplace_back(std::move(value));
 }
 
 
-void pqxx::params::append(params const &value) &
+void pqxx::params::append(params const &value, sl) &
 {
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params) m_params.emplace_back(param);
 }
 
 
-void pqxx::params::append(bytes_view value) &
+void pqxx::params::append(bytes_view value, sl) &
 {
   m_params.emplace_back(value);
 }
 
 
-void pqxx::params::append(bytes &&value) &
+void pqxx::params::append(bytes &&value, sl) &
 {
   m_params.emplace_back(std::move(value));
 }
 
 
-void pqxx::params::append(params &&value) &
+void pqxx::params::append(params &&value, sl) &
 {
+  // TODO: If currently empty, just "steal" value's m_params wholesale.
+  // C++23: Use append_range()?
   this->reserve(std::size(value.m_params) + std::size(this->m_params));
   for (auto const &param : value.m_params) m_params.emplace_back(param);
   value.m_params.clear();

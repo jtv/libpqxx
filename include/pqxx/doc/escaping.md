@@ -99,5 +99,15 @@ In practice, of course, it would be better to use parameters:
         " SELECT number, amount "
         "FROM account "
         "WHERE allowed_to_see($1, $2)",
-        pqxx::params{userid, password});
+        pqxx::params{tx, userid, password});
 ```
+
+You may be wondering why this passes `tx` into `params{...}`.  That's not
+actually a parameter; it's just a way to inform the `params` constructor about
+the prevailing client encoding.  It doesn't _usually_ need to know that, but it
+can come as a nasty surprise when suddenly it does, in the case of arrays or
+composite objects.  So it's a good habit always to pass the transaction, or the
+connection, or a `pqxx::conversion_context`, or the `encoding_group` as the
+first parameter to let the `params` know what encoding to use.  Especially so
+when you're using it in template code where the types of the parameters aren't
+necessarily known _a priori._

@@ -1194,7 +1194,7 @@ pqxx::result pqxx::connection::exec_params(
     args.values.data(), args.lengths.data(),
     reinterpret_cast<int const *>(args.formats.data()),
     static_cast<int>(format::text))};
-  auto r{make_result(pq_result, q)};
+  auto r{make_result(pq_result, q, loc)};
   get_notifs(loc);
   return r;
 }
@@ -1271,15 +1271,15 @@ std::string pqxx::connection::connection_string() const
   if (m_conn == nullptr) [[unlikely]]
     throw usage_error{"Can't get connection string: connection is not open."};
 
-  std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const params{
+  std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const parms{
     PQconninfo(m_conn), pqconninfofree};
-  if (params == nullptr) [[unlikely]]
+  if (parms == nullptr)
     throw std::bad_alloc{};
 
   std::string buf;
-  for (std::size_t i{0}; params.get()[i].keyword != nullptr; ++i)
+  for (std::size_t i{0}; parms.get()[i].keyword != nullptr; ++i)
   {
-    auto const param{params.get()[i]};
+    auto const param{parms.get()[i]};
     if (param.val != nullptr)
     {
       auto const default_val{get_default(param)};

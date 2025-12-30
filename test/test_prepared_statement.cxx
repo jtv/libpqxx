@@ -99,14 +99,15 @@ void test_multiple_params()
   pqxx::connection cx;
   cx.prepare("CountSeries", "SELECT * FROM generate_series($1::int, $2::int)");
   pqxx::work tx{cx};
-  auto r{
-    tx.exec(pqxx::prepped{"CountSeries"}, pqxx::params{7, 10}).expect_rows(4)};
+  auto r{tx.exec(pqxx::prepped{"CountSeries"}, pqxx::params{tx, 7, 10})
+           .expect_rows(4)};
   PQXX_CHECK_EQUAL(std::size(r), 4);
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 7);
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 10);
 
   cx.prepare("Reversed", "SELECT * FROM generate_series($2::int, $1::int)");
-  r = tx.exec(pqxx::prepped{"Reversed"}, pqxx::params{8, 6}).expect_rows(3);
+  r =
+    tx.exec(pqxx::prepped{"Reversed"}, pqxx::params{tx, 8, 6}).expect_rows(3);
   PQXX_CHECK_EQUAL(r.front().front().as<int>(), 6);
   PQXX_CHECK_EQUAL(r.back().front().as<int>(), 8);
 }
@@ -117,11 +118,12 @@ void test_nulls()
   pqxx::connection cx;
   pqxx::work tx{cx};
   cx.prepare("EchoStr", "SELECT $1::varchar");
-  auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nullptr}).one_row()};
+  auto rw{
+    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{tx, nullptr}).one_row()};
   PQXX_CHECK(rw.front().is_null());
 
   char const *n{nullptr};
-  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{n}).one_row();
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{tx, n}).one_row();
   PQXX_CHECK(rw.front().is_null());
 }
 
@@ -131,23 +133,25 @@ void test_strings()
   pqxx::connection cx;
   pqxx::work tx{cx};
   cx.prepare("EchoStr", "SELECT $1::varchar");
-  auto rw{tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{"foo"}).one_row()};
+  auto rw{
+    tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{tx, "foo"}).one_row()};
   PQXX_CHECK_EQUAL(rw.front().as<std::string>(), "foo");
 
   char const nasty_string[]{R"--('\"\)--"};
-  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nasty_string}).one_row();
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{tx, nasty_string})
+         .one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(std::data(nasty_string)));
 
   rw = tx.exec(
            pqxx::prepped{"EchoStr"},
-           pqxx::params{std::string{std::data(nasty_string)}})
+           pqxx::params{tx, std::string{std::data(nasty_string)}})
          .one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(std::data(nasty_string)));
 
   char nonconst[]{"non-const C string"};
-  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{nonconst}).one_row();
+  rw = tx.exec(pqxx::prepped{"EchoStr"}, pqxx::params{tx, nonconst}).one_row();
   PQXX_CHECK_EQUAL(
     rw.front().as<std::string>(), std::string(std::data(nonconst)));
 }
@@ -166,7 +170,8 @@ void test_binary()
     pqxx::bytes bytes;
     for (char c : raw_bytes) bytes.push_back(static_cast<std::byte>(c));
 
-    auto bp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{bytes}).one_row()};
+    auto bp{
+      tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, bytes}).one_row()};
     auto bval{bp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -185,7 +190,8 @@ void test_binary()
     for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
 
     auto ptr{std::make_shared<pqxx::bytes>(data)};
-    auto rp{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{ptr}).one_row()};
+    auto rp{
+      tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, ptr}).one_row()};
     auto pval{rp[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -199,7 +205,8 @@ void test_binary()
     for (char c : raw_bytes) data.push_back(static_cast<std::byte>(c));
 
     auto opt{std::optional<pqxx::bytes>{std::in_place, data}};
-    auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{opt}).one_row()};
+    auto op{
+      tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, opt}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(
       (std::string_view{
@@ -211,7 +218,8 @@ void test_binary()
   // will do.
   {
     std::vector<std::byte> const data{std::byte{'x'}, std::byte{'v'}};
-    auto op{tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{data}).one_row()};
+    auto op{
+      tx.exec(pqxx::prepped{"EchoBin"}, pqxx::params{tx, data}).one_row()};
     auto oval{op[0].as<pqxx::bytes>()};
     PQXX_CHECK_EQUAL(std::size(oval), 2u);
     PQXX_CHECK_EQUAL(static_cast<int>(oval[0]), int('x'));
@@ -231,12 +239,13 @@ void test_params()
   params.append_multi(values);
 
   auto const rw39{
-    tx.exec(pqxx::prepped{"Concat2Numbers"}, pqxx::params{params}).one_row()};
+    tx.exec(pqxx::prepped{"Concat2Numbers"}, pqxx::params{tx, params})
+      .one_row()};
   PQXX_CHECK_EQUAL(rw39.front().as<int>(), 39);
 
   cx.prepare("Concat4Numbers", "SELECT 1000*$1 + 100*$2 + 10*$3 + $4");
   auto const rw1396{
-    tx.exec(pqxx::prepped{"Concat4Numbers"}, pqxx::params{1, params, 6})
+    tx.exec(pqxx::prepped{"Concat4Numbers"}, pqxx::params{tx, 1, params, 6})
       .one_row()};
   PQXX_CHECK_EQUAL(rw1396.front().as<int>(), 1396);
 }
@@ -249,12 +258,13 @@ void test_optional()
   cx.prepare("EchoNum", "SELECT $1::int");
   pqxx::row rw{tx.exec(
                    pqxx::prepped{"EchoNum"},
-                   pqxx::params{std::optional<int>{std::in_place, 10}})
+                   pqxx::params{tx, std::optional<int>{std::in_place, 10}})
                  .one_row()};
   PQXX_CHECK_EQUAL(rw.front().as<int>(), 10);
 
-  rw = tx.exec(pqxx::prepped{"EchoNum"}, pqxx::params{std::optional<int>{}})
-         .one_row();
+  rw =
+    tx.exec(pqxx::prepped{"EchoNum"}, pqxx::params{tx, std::optional<int>{}})
+      .one_row();
   PQXX_CHECK(rw.front().is_null());
 }
 
@@ -317,7 +327,7 @@ void test_wrong_number_of_params()
     pqxx::transaction tx1{conn1};
     conn1.prepare("broken1", "SELECT $1::int + $2::int");
     PQXX_CHECK_THROWS(
-      tx1.exec(pqxx::prepped{"broken1"}, pqxx::params{10}),
+      tx1.exec(pqxx::prepped{"broken1"}, pqxx::params{tx1, 10}),
       pqxx::protocol_violation);
   }
 

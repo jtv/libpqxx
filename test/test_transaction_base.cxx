@@ -61,7 +61,7 @@ void test_query_value(pqxx::connection &cx)
     tx.query_value<int>("SELECT 3.141"), pqxx::conversion_error);
 
   // Now with parameters:
-  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT $1 + 1", {5}), 6);
+  PQXX_CHECK_EQUAL(tx.query_value<int>("SELECT $1 + 1", {tx, 5}), 6);
 }
 
 

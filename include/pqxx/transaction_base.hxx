@@ -749,7 +749,7 @@ public:
   [[deprecated("Use exec(std::string_view, params) instead.")]]
   result exec_params(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}, sl::current());
+    return exec(query, params{*this, args...}, sl::current());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -759,7 +759,7 @@ public:
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
   row exec_params1(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).one_row();
+    return exec(query, params{*this, args...}).one_row();
   }
 
   // Execute parameterised statement, expect a result with zero rows.
@@ -770,7 +770,7 @@ public:
     "Use exec(string_view, params) and call no_rows() on the result.")]]
   result exec_params0(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).no_rows();
+    return exec(query, params{*this, args...}).no_rows();
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
@@ -782,7 +782,7 @@ public:
   exec_params_n(std::size_t rows, std::string_view query, Args &&...args)
   {
     sl loc{m_created_loc};
-    return exec(query, params{args...}, loc)
+    return exec(query, params{*this, args...}, loc)
       .expect_rows(
         check_cast<result_size_type>(rows, "number of rows", loc), loc);
   }
@@ -795,7 +795,7 @@ public:
   result
   exec_params_n(result::size_type rows, std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).expect_rows(rows);
+    return exec(query, params{*this, args...}).expect_rows(rows);
   }
 
   /// Execute parameterised query, read full results, iterate rows of data.
@@ -976,7 +976,7 @@ public:
   [[deprecated("Use exec(prepped, params) instead.")]]
   result exec_prepared(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...});
+    return exec(prepped{statement}, params{*this, args...});
   }
 
   /// Execute a prepared statement taking no parameters.
@@ -1076,7 +1076,7 @@ public:
   row exec_prepared1(zview statement, Args &&...args)
   {
     sl loc{m_created_loc};
-    return exec(prepped{statement}, params{args...}).one_row(loc);
+    return exec(prepped{statement}, params{*this, args...}).one_row(loc);
   }
 
   /// Execute a prepared statement, and expect a result with zero rows.
@@ -1088,7 +1088,7 @@ public:
   result exec_prepared0(zview statement, Args &&...args)
   {
     sl loc{m_created_loc};
-    return exec(prepped{statement}, params{args...}).no_rows(loc);
+    return exec(prepped{statement}, params{*this, args...}).no_rows(loc);
   }
 
   /// Execute a prepared statement, expect a result with given number of rows.
@@ -1102,7 +1102,7 @@ public:
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
     sl loc{m_created_loc};
-    return exec(pqxx::prepped{statement}, params{args...})
+    return exec(pqxx::prepped{statement}, params{*this, args...})
       .expect_rows(rows, loc);
   }
 

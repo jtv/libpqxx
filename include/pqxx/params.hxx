@@ -22,6 +22,38 @@
 #include "pqxx/types.hxx"
 
 
+namespace pqxx::internal
+{
+/// Identity function for @ref encoding_group, for regularity.
+PQXX_PURE [[nodiscard]] inline constexpr pqxx::encoding_group
+get_encoding_group(encoding_group const &enc, sl = sl::current()) noexcept
+{
+  return enc;
+}
+
+
+/// Return client encoding from @ref conversion_context.
+/** Also accepts a `source_location` argument, but ignores it in favour of the
+ * one embedded in the `conversion_context`.
+ */
+PQXX_PURE [[nodiscard]] inline constexpr pqxx::encoding_group
+get_encoding_group(ctx c, sl = sl::current()) noexcept
+{
+  return c.enc;
+}
+
+
+/// Return connection's current client encoding.
+[[nodiscard]] PQXX_LIBEXPORT pqxx::encoding_group
+get_encoding_group(connection const &, sl = sl::current());
+
+
+/// Return transaction's connection's current client encoding.
+[[nodiscard]] PQXX_LIBEXPORT pqxx::encoding_group
+get_encoding_group(transaction_base const &, sl = sl::current());
+} // namespace pqxx::internal
+
+
 namespace pqxx
 {
 /// Build a parameter list for a parameterised or prepared statement.
@@ -35,10 +67,38 @@ public:
   params() = default;
 
   /// Pre-populate a `params` with `args`.  Feel free to add more later.
-  template<typename... Args> constexpr params(Args &&...args)
+  /** @note As a first parameter, we recommend passing an @ref encoding_group,
+   * or a @ref connection, or a @ref transaction_base (or a more specific
+   * transaction type derived from it), or a @ref conversion_context.  The
+   * `params` will use this to obtain the client encoding.  (It will not be
+   * passed as a parameter; it's just there as a source of the encoding
+   * information).  In most cases you won't need this, but there are exceptions
+   * where a complex object can't be passed otherwise.  To keep things clear,
+   * we recommend passing it in the general case so that you never run into
+   * exceptions about encoding being unknown.
+   */
+  template<typename First, typename... Args>
+  constexpr params(First &&first, Args &&...args)
   {
-    reserve(sizeof...(args));
-    append_pack(std::forward<Args>(args)...);
+    if constexpr (requires(encoding_group eg) {
+                    eg = pqxx::internal::get_encoding_group(first);
+                  })
+    {
+      // First argument is a source of an encoding group, not a parameter.
+      m_enc = pqxx::internal::get_encoding_group(first);
+      reserve(sizeof...(args));
+      // TODO: Get better source_location.
+      append_pack(sl::current(), std::forward<Args>(args)...);
+    }
+    else
+    {
+      // All arguments are parameters for the SQL statement.
+      reserve(sizeof...(args) + 1u);
+      // TODO: Get better source_location.
+      append_pack(
+        sl::current(), std::forward<First>(first),
+        std::forward<Args>(args)...);
+    }
   }
 
   /// Pre-allocate room for at least `n` parameters.
@@ -65,51 +125,51 @@ public:
   [[nodiscard]] constexpr auto ssize() const { return std::ssize(m_params); }
 
   /// Append a null value.
-  void append() &;
+  void append(sl = sl::current()) &;
 
   /// Append a non-null zview parameter.
   /** The underlying data must stay valid for as long as the `params`
    * remains active.
    */
-  void append(zview) &;
+  void append(zview, sl = sl::current()) &;
 
   /// Append a non-null string parameter.
   /** Copies the underlying data into internal storage.  For best efficiency,
    * use the @ref zview variant if you can, or `std::move()`
    */
-  void append(std::string const &) &;
+  void append(std::string const &, sl = sl::current()) &;
 
   /// Append a non-null string parameter.
-  void append(std::string &&) &;
+  void append(std::string &&, sl = sl::current()) &;
 
   /// Append a non-null binary parameter.
   /** The underlying data must stay valid for as long as the `params`
    * remains active.
    */
-  void append(bytes_view) &;
+  void append(bytes_view, sl = sl::current()) &;
 
   /// Append a non-null binary parameter.
   /** The `data` object must stay in place and unchanged, for as long as the
    * `params` remains active.
    */
-  template<binary DATA> void append(DATA const &data) &
+  template<binary DATA> void append(DATA const &data, sl loc = sl::current()) &
   {
-    append(binary_cast(data));
+    append(binary_cast(data), loc);
   }
 
   /// Append a non-null binary parameter.
-  void append(bytes &&) &;
+  void append(bytes &&, sl = sl::current()) &;
 
   /// Append all parameters in `value`.
-  void append(params const &value) &;
+  void append(params const &value, sl = sl::current()) &;
 
   /// Append all parameters in `value`.
-  void append(params &&value) &;
+  void append(params &&value, sl = sl::current()) &;
 
-  // XXX: We'll need a context for the conversion!
   /// Append a non-null parameter, converting it to its string
   /// representation.
-  template<typename TYPE> void append([[maybe_unused]] TYPE const &value) &
+  template<typename TYPE>
+  void append([[maybe_unused]] TYPE const &value, sl loc = sl::current()) &
   {
     // TODO: Pool storage for multiple string conversions in one buffer?
     if constexpr (pqxx::always_null<TYPE>())
@@ -122,17 +182,19 @@ public:
     }
     else
     {
-      m_params.emplace_back(entry{to_string(value)});
+      // TODO: Block-allocate storage for parameters.
+      m_params.emplace_back(
+        entry{to_string(value, conversion_context{m_enc, loc})});
     }
   }
 
   /// Append all elements of `range` as parameters.
-  template<std::ranges::range RANGE> void append_multi(RANGE const &range) &
+  template<std::ranges::range RANGE>
+  void append_multi(RANGE const &range, sl loc = sl::current()) &
   {
     if constexpr (std::ranges::sized_range<RANGE>)
       reserve(std::size(*this) + std::size(range));
-    // XXX: We'll need a context for the conversion!
-    for (auto &value : range) append(value);
+    for (auto &value : range) append(value, loc);
   }
 
   /// For internal use: Generate a `params` object for use in calls.
@@ -150,15 +212,15 @@ public:
 private:
   /// Recursively append a pack of params.
   template<typename Arg, typename... More>
-  void append_pack(Arg &&arg, More &&...args)
+  void append_pack(sl loc, Arg &&arg, More &&...args)
   {
-    this->append(std::forward<Arg>(arg));
+    this->append(std::forward<Arg>(arg), loc);
     // Recurse for remaining args.
-    append_pack(std::forward<More>(args)...);
+    append_pack(loc, std::forward<More>(args)...);
   }
 
   /// Terminating case: append an empty parameter pack.  It's not hard BTW.
-  constexpr void append_pack() noexcept {}
+  constexpr void append_pack(sl) noexcept {}
 
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
@@ -166,6 +228,8 @@ private:
   using entry =
     std::variant<std::nullptr_t, zview, std::string, bytes_view, bytes>;
   std::vector<entry> m_params;
+
+  encoding_group m_enc{encoding_group::unknown};
 
   static constexpr std::string_view s_overflow{
     "Statement parameter length overflow."sv};
