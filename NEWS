@@ -1,3 +1,6 @@
+7.10.5
+ - Fixed missing types in Doxygen docs (by downgrading Doxygen :-/ ).
+ - Tweak t `README.md`. (#1111)
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
  - Pass SQL error code when throwing `pqxx::insufficient_privilege`. (#1077)
