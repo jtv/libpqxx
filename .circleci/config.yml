@@ -380,7 +380,9 @@ jobs:
               postgresql-libs python3 unzip wget"
       - run:
           name: Download
-          command: "wget << parameters.url >> -O esbmc.zip && unzip esbmc"
+          command: "wget \
+https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip \
+              -O esbmc.zip && unzip esbmc"
       - run:
           name: Check
           command: "for f in src/*.cxx; do \
@@ -517,11 +519,7 @@ workflows:
             parameters:
               cxx_ver: ["c++26"]
 
-      - esbmc:
-          matrix:
-            parameters:
-              url: [
-"https://github.com/esbmc/esbmc/releases/download/v7.11/esbmc-linux.zip"]
+      - esbmc
 
       - infer:
           matrix:
