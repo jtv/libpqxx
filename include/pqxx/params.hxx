@@ -217,6 +217,13 @@ private:
     ((this->append(std::forward<Args>(args), loc)), ...);
   }
 
+  /// "Append" an empty pack of params.
+  /** This is just here to work around a silly warning saying that the `loc`
+   * parameter in the general version is unused _if the parameter pack is
+   * empty._
+   */
+  void append_pack(sl) const {}
+
   // The way we store a parameter depends on whether it's binary or text
   // (most types are text), and whether we're responsible for storing the
   // contents.
