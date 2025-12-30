@@ -519,7 +519,7 @@ workflows:
             parameters:
               cxx_ver: ["c++26"]
 
-      - esbmc: {}
+      - esbmc:
 
       - infer:
           matrix:
