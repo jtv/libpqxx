@@ -14,8 +14,9 @@ def find_source_files(srcdir: Path) -> list[Path]:
         if dirpath.relative_to(srcdir) == Path('include') / 'pqxx':
             # The header code in this directory is in files without suffixes.
             for filename in filenames:
-                if '.' not in filename:
-                    paths.append(dirpath / filename)
+                path = dirpath / filename
+                if path.suffix in ('.cxx', '.hxx') or '.' not in filename:
+                    paths.append(path)
         else:
             for filename in filenames:
                 path = dirpath / filename
