@@ -1,3 +1,7 @@
+7.10.5
+ - Fix missing types in Doxygen docs (by downgrading Doxygen :-/ ).
+ - Tweak `README.md`. (#1111)
+ - Skip YAML lint checks; it's all fixed up in the 8.0 release branch.
 7.10.4
  - Logic for controlling non-blocking mode was inverted (non-Windows). (#1057)
  - Pass SQL error code when throwing `pqxx::insufficient_privilege`. (#1077)
