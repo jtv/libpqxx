@@ -1,0 +1,15 @@
+---
+name: "CodeQL config"
+
+query-filters:
+  - exclude:
+      # Matter of taste: when I pass a pointer to an object, I use "*" syntax.
+      # When it's a pointer to an array of objects, I use "[]".  Seems clearer,
+      # right?  There's no semantic difference.
+      #
+      # But this stupid check thinks I'm passing an array.
+      id: cpp/array-in-interface
+  - exclude:
+      # False positive on test functions, which have their addresses taken
+      # during static initialisation and are then called through those.
+      id: cpp/unused-static-function
