@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY.  Other headers include it for you.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -28,31 +28,32 @@ namespace pqxx::internal
  * Don't use this at home.  You deserve better.  Use the stateless_cursor
  * instead.
  */
-class PQXX_LIBEXPORT sql_cursor : public cursor_base
+class PQXX_LIBEXPORT sql_cursor final : public cursor_base
 {
 public:
   sql_cursor(
     transaction_base &t, std::string_view query, std::string_view cname,
     cursor_base::access_policy ap, cursor_base::update_policy up,
-    cursor_base::ownership_policy op, bool hold);
+    cursor_base::ownership_policy op, bool hold, sl = sl::current());
 
   sql_cursor(
     transaction_base &t, std::string_view cname,
-    cursor_base::ownership_policy op);
+    cursor_base::ownership_policy op, sl = sl::current());
 
-  ~sql_cursor() noexcept { close(); }
+  ~sql_cursor() noexcept;
 
-  result fetch(difference_type rows, difference_type &displacement);
-  result fetch(difference_type rows)
+  result fetch(difference_type rows, difference_type &displacement, sl);
+  PQXX_INLINE_COV result fetch(difference_type rows, sl loc)
   {
     difference_type d = 0;
-    return fetch(rows, d);
+    return fetch(rows, d, loc);
   }
-  difference_type move(difference_type rows, difference_type &displacement);
-  difference_type move(difference_type rows)
+  difference_type
+  move(difference_type rows, difference_type &displacement, sl);
+  PQXX_INLINE_COV difference_type move(difference_type rows, sl loc)
   {
     difference_type d = 0;
-    return move(rows, d);
+    return move(rows, d, loc);
   }
 
   /// Current position, or -1 for unknown
@@ -62,7 +63,7 @@ public:
    * Position may be unknown if (and only if) this cursor was adopted, and has
    * never hit its starting position (position zero).
    */
-  difference_type pos() const noexcept { return m_pos; }
+  PQXX_INLINE_COV difference_type pos() const noexcept { return m_pos; }
 
   /// End position, or -1 for unknown
   /**
@@ -71,18 +72,23 @@ public:
    *
    * End position is unknown until it is encountered during use.
    */
-  difference_type endpos() const noexcept { return m_endpos; }
+  PQXX_INLINE_COV difference_type endpos() const noexcept { return m_endpos; }
 
   /// Return zero-row result for this cursor.
-  result const &empty_result() const noexcept { return m_empty_result; }
+  PQXX_INLINE_COV result const &empty_result() const noexcept
+  {
+    return m_empty_result;
+  }
 
-  void close() noexcept;
+  void close(sl loc);
+
+  PQXX_PURE constexpr sl created_loc() const noexcept { return m_created_loc; }
 
 private:
   difference_type adjust(difference_type hoped, difference_type actual);
   static std::string stridestring(difference_type);
   /// Initialize cached empty result.  Call only at beginning or end!
-  void init_empty_result(transaction_base &);
+  void init_empty_result(transaction_base &, sl);
 
   /// Connection in which this cursor lives.
   connection &m_home;
@@ -104,12 +110,15 @@ private:
 
   /// End position, or -1 for unknown
   difference_type m_endpos = -1;
+
+  /// The `std::source_location` for where this cursor was created.
+  sl m_created_loc;
 };
 
 
-PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &);
+PQXX_LIBEXPORT result_size_type obtain_stateless_cursor_size(sql_cursor &, sl);
 PQXX_LIBEXPORT result stateless_cursor_retrieve(
   sql_cursor &, result::difference_type size,
-  result::difference_type begin_pos, result::difference_type end_pos);
+  result::difference_type begin_pos, result::difference_type end_pos, sl);
 } // namespace pqxx::internal
 #endif

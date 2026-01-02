@@ -1,17 +1,17 @@
 EXTRA_DIST = \
-	deprecations \
-	extract_version \
-	format \
+	deprecations.sh \
+	extract_version.sh \
+	format.sh \
 	generate_check_config.py \
 	generate_cxx_checks.py \
-	lint \
+	lint.sh \
 	m4esc.py \
 	pqxxthreadsafety.cxx \
 	rmlo.cxx \
 	splitconfig.py \
 	template2mak.py \
-	todo \
-	update-copyright
+	todo.sh \
+	update-copyright.sh
 
 AM_CPPFLAGS=-I$(top_builddir)/include -I$(top_srcdir)/include ${POSTGRES_INCLUDE}
 # Override automatically generated list of default includes.  It contains only

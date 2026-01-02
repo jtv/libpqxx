@@ -1,6 +1,7 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
+---
 version: 2
 
 # Set the version of Python and other tools you might need
@@ -12,10 +13,16 @@ build:
   tools:
     python: "3.12"
   apt_packages:
+    - "autoconf"
+    - "automake"
+    - "build-essential"
     - "graphviz"
+    - "libpq-dev"
+    - "make"
   jobs:
     pre_build:
-      - "./configure --enable-documentation CXXFLAGS='-O0 -std=c++23'"
+      - "lsb_release -a && g++ --version"
+      - "./configure CXXFLAGS=\"-O0 -std=c++23\" --enable-documentation"
       - "mkdir -p doc/doxygen-html"
       - "cd doc && doxygen"
       - "mkdir -p -- $READTHEDOCS_OUTPUT/html"

@@ -1,11 +1,8 @@
 enable_testing()
-
 if(NOT PostgreSQL_FOUND)
     find_package(PostgreSQL REQUIRED)
 endif()
-
-file(GLOB TEST_SOURCES test*.cxx unit/test_*.cxx runner.cxx)
-
+file(GLOB TEST_SOURCES *.cxx)
 add_executable(runner ${TEST_SOURCES})
 target_link_libraries(runner PUBLIC pqxx)
 target_include_directories(runner PRIVATE ${PostgreSQL_INCLUDE_DIRS})
@@ -14,7 +11,6 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND runner
 )
-
 if(INSTALL_TEST)
     install(
         PROGRAMS runner

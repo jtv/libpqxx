@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/cursor instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -145,9 +145,17 @@ public:
   }
 
 protected:
-  cursor_base(connection &, std::string_view Name, bool embellish_name = true);
+  cursor_base(
+    connection &, std::string_view Name, bool embellish_name = true,
+    sl loc = sl::current());
+
+  /// The `std::source_location` for where this cursor was created.
+  [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
   std::string const m_name;
+
+  /// The `std::source_location` for where this cursor was created.
+  sl m_created_loc;
 };
 } // namespace pqxx
 
@@ -165,7 +173,7 @@ namespace pqxx
  * you want.  See the retrieve() member function.
  */
 template<cursor_base::update_policy up, cursor_base::ownership_policy op>
-class stateless_cursor
+class stateless_cursor final
 {
 public:
   using size_type = result_size_type;
@@ -182,8 +190,9 @@ public:
    */
   stateless_cursor(
     transaction_base &tx, std::string_view query, std::string_view cname,
-    bool hold) :
-          m_cur{tx, query, cname, cursor_base::random_access, up, op, hold}
+    bool hold, sl loc = sl::current()) :
+          m_cur{tx, query, cname, cursor_base::random_access,
+                up, op,    hold,  loc}
   {}
 
   /// Adopt an existing scrolling SQL cursor.
@@ -193,12 +202,19 @@ public:
    * @param tx The transaction within which you want to manage the cursor.
    * @param adopted_cursor Your cursor's SQL name.
    */
-  stateless_cursor(transaction_base &tx, std::string_view adopted_cursor) :
+  stateless_cursor(
+    transaction_base &tx, std::string_view adopted_cursor,
+    sl loc = sl::current()) :
           m_cur{tx, adopted_cursor, op}
   {
     // Put cursor in known position
-    m_cur.move(cursor_base::backward_all());
+    m_cur.move(cursor_base::backward_all(), loc);
   }
+
+  stateless_cursor(stateless_cursor &&) = default;
+  stateless_cursor &operator=(stateless_cursor &&) = default;
+  stateless_cursor(stateless_cursor const &) = delete;
+  stateless_cursor &operator=(stateless_cursor const &) = delete;
 
   /// Close this cursor.
   /** The destructor will do this for you automatically.
@@ -206,15 +222,15 @@ public:
    * Closing a cursor is idempotent.  Closing a cursor that's already closed
    * does nothing.
    */
-  void close() noexcept { m_cur.close(); }
+  void close(sl loc = sl::current()) { m_cur.close(loc); }
 
   /// Number of rows in cursor's result set
   /** @note This function is not const; it may need to scroll to find the size
    * of the result set.
    */
-  [[nodiscard]] size_type size()
+  [[nodiscard]] size_type size(sl loc = sl::current())
   {
-    return internal::obtain_stateless_cursor_size(m_cur);
+    return internal::obtain_stateless_cursor_size(m_cur, loc);
   }
 
   /// Retrieve rows from begin_pos (inclusive) to end_pos (exclusive)
@@ -229,10 +245,11 @@ public:
    * arbitrarily inside or outside the result set; only existing rows are
    * included in the result.
    */
-  result retrieve(difference_type begin_pos, difference_type end_pos)
+  result retrieve(
+    difference_type begin_pos, difference_type end_pos, sl loc = sl::current())
   {
     return internal::stateless_cursor_retrieve(
-      m_cur, result::difference_type(size()), begin_pos, end_pos);
+      m_cur, result::difference_type(size()), begin_pos, end_pos, loc);
   }
 
   /// Return this cursor's name.
@@ -275,7 +292,7 @@ namespace pqxx
  * This class can create or adopt cursors that live outside any backend
  * transaction, which your backend version may not support.
  */
-class PQXX_LIBEXPORT icursorstream
+class PQXX_LIBEXPORT icursorstream final
 {
 public:
   using size_type = cursor_base::size_type;
@@ -295,7 +312,8 @@ public:
    */
   icursorstream(
     transaction_base &context, std::string_view query,
-    std::string_view basename, difference_type sstride = 1);
+    std::string_view basename, difference_type sstride = 1,
+    sl = sl::current());
 
   /// Adopt existing SQL cursor.  Use with care.
   /** Forms a cursor stream around an existing SQL cursor, as returned by e.g.
@@ -324,7 +342,7 @@ public:
    */
   icursorstream(
     transaction_base &context, field const &cname, difference_type sstride = 1,
-    cursor_base::ownership_policy op = cursor_base::owned);
+    cursor_base::ownership_policy op = cursor_base::owned, sl = sl::current());
 
   /// Return `true` if this stream may still return more data.
   constexpr operator bool() const & noexcept { return not m_done; }
@@ -338,9 +356,9 @@ public:
    * @return Reference to this very stream, to facilitate "chained" invocations
    * ("C.get(r1).get(r2);")
    */
-  icursorstream &get(result &res)
+  icursorstream &get(result &res, sl loc = sl::current())
   {
-    res = fetchblock();
+    res = fetchblock(loc);
     return *this;
   }
   /// Read new value into given result object; same as `get(result&)`.
@@ -361,36 +379,42 @@ public:
    * @return Reference to this stream itself, to facilitate "chained"
    * invocations.
    */
-  icursorstream &ignore(std::streamsize n = 1) &;
+  icursorstream &ignore(std::streamsize n = 1, sl = sl::current()) &;
 
   /// Change stride, i.e. the number of rows to fetch per read operation.
   /**
    * @param stride Must be a positive number.
    */
-  void set_stride(difference_type stride) &;
+  void set_stride(difference_type stride, sl = sl::current()) &;
   [[nodiscard]] constexpr difference_type stride() const noexcept
   {
     return m_stride;
   }
 
+  /// The ``std::source_location` for where this stream was created.
+  [[nodiscard]] PQXX_PURE sl created_loc() const noexcept
+  {
+    return m_cur.created_loc();
+  }
+
 private:
-  result fetchblock();
+  result fetchblock(sl);
 
   friend class internal::gate::icursorstream_icursor_iterator;
   size_type forward(size_type n = 1);
   void insert_iterator(icursor_iterator *) noexcept;
   void remove_iterator(icursor_iterator *) const noexcept;
 
-  void service_iterators(difference_type);
+  void service_iterators(difference_type, sl);
 
   internal::sql_cursor m_cur;
+
+  mutable icursor_iterator *m_iterators = nullptr;
 
   difference_type m_stride;
   difference_type m_realpos, m_reqpos;
 
-  mutable icursor_iterator *m_iterators;
-
-  bool m_done;
+  bool m_done = false;
 };
 
 
@@ -421,7 +445,7 @@ private:
  * stream is <em>not thread-safe</em>.  Creating a new iterator, copying one,
  * or destroying one affects the stream as a whole.
  */
-class PQXX_LIBEXPORT icursor_iterator
+class PQXX_LIBEXPORT icursor_iterator final
 {
 public:
   using iterator_category = std::input_iterator_tag;
@@ -437,14 +461,14 @@ public:
   icursor_iterator(icursor_iterator const &) noexcept;
   ~icursor_iterator() noexcept;
 
-  result const &operator*() const
+  result const &operator*() const noexcept
   {
-    refresh();
+    refresh(created_loc());
     return m_here;
   }
-  result const *operator->() const
+  PQXX_RETURNS_NONNULL result const *operator->() const noexcept
   {
-    refresh();
+    refresh(created_loc());
     return &m_here;
   }
   icursor_iterator &operator++();
@@ -472,15 +496,45 @@ public:
   }
 
 private:
-  void refresh() const;
+  void refresh(sl) const;
 
   friend class internal::gate::icursor_iterator_icursorstream;
   difference_type pos() const noexcept { return m_pos; }
   void fill(result const &);
 
+  /// The `std::source_location` for where this iterator's stream was created.
+  /** We don't keep the information for the iterator itself, since iterators
+   * are meant to be lightweight.  They are often passed as arguments, where
+   * space is especially limited.
+   *
+   * If there is no stream, returns the immediate call site.
+   */
+  [[nodiscard]] PQXX_PURE sl created_loc(sl loc = sl::current()) const noexcept
+  {
+    return (m_stream == nullptr) ? loc : m_stream->created_loc();
+  }
+
+  /** This is for use in assignment and comparison operators, where we have
+   * two `icursor_iterator` objects but the caller can't pass a
+   * `std::source_location` that might be useful to the application maintainer.
+   *
+   * Returns the first one available of: the creation location for this
+   * iterator's stream, the creeation location of the `other` iterator's
+   * stream, or the immediate call site.
+   */
+  [[nodiscard]] sl
+  best_location(icursor_iterator const &other, sl loc = sl::current()) const
+  {
+    if (m_stream != nullptr)
+      return created_loc();
+    else
+      return other.created_loc(loc);
+  }
+
   icursorstream *m_stream{nullptr};
   result m_here;
   difference_type m_pos;
+
   icursor_iterator *m_prev{nullptr}, *m_next{nullptr};
 };
 } // namespace pqxx

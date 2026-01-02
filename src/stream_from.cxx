@@ -2,7 +2,7 @@
  *
  * pqxx::stream_from enables optimized batch reads from a database table.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -28,30 +28,34 @@ namespace
 {
 pqxx::internal::char_finder_func *get_finder(pqxx::transaction_base const &tx)
 {
-  auto const group{pqxx::internal::enc_group(tx.conn().encoding_id())};
-  return pqxx::internal::get_char_finder<'\t', '\\'>(group);
+  pqxx::sl const loc{pqxx::sl::current()};
+  auto const group{tx.conn().get_encoding_group(loc)};
+  return pqxx::internal::get_char_finder<'\t', '\\'>(group, loc);
 }
 
 
-constexpr std::string_view class_name{"stream_from"};
+constexpr std::string_view stream_from_name{"stream_from"};
 } // namespace
 
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_query_t, std::string_view query) :
-        transaction_focus{tx, class_name}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name}, m_char_finder{get_finder(tx)}
 {
-  tx.exec(internal::concat("COPY ("sv, query, ") TO STDOUT"sv)).no_rows();
+  sl const loc{sl::current()};
+  tx.exec(std::format("COPY ({}) TO STDOUT", query), loc).no_rows(loc);
   register_me();
 }
 
 
 pqxx::stream_from::stream_from(
   transaction_base &tx, from_table_t, std::string_view table) :
-        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name, table},
+        m_char_finder{get_finder(tx)}
 {
-  tx.exec(internal::concat("COPY "sv, tx.quote_name(table), " TO STDOUT"sv))
-    .no_rows();
+  sl const loc{sl::current()};
+  tx.exec(std::format("COPY {} TO STDOUT", tx.quote_name(table)), loc)
+    .no_rows(loc);
   register_me();
 }
 
@@ -59,14 +63,15 @@ pqxx::stream_from::stream_from(
 pqxx::stream_from::stream_from(
   transaction_base &tx, std::string_view table, std::string_view columns,
   from_table_t) :
-        transaction_focus{tx, class_name, table}, m_char_finder{get_finder(tx)}
+        transaction_focus{tx, stream_from_name, table},
+        m_char_finder{get_finder(tx)}
 {
-  if (std::empty(columns))
-    PQXX_UNLIKELY
-  tx.exec(internal::concat("COPY "sv, table, " TO STDOUT"sv)).no_rows();
-  else PQXX_LIKELY tx
-    .exec(internal::concat("COPY "sv, table, "("sv, columns, ") TO STDOUT"sv))
-    .no_rows();
+  sl const loc{sl::current()};
+  if (std::empty(columns)) [[unlikely]]
+    tx.exec(std::format("COPY {} TO STDOUT", table), loc).no_rows(loc);
+  else [[likely]]
+    tx.exec(std::format("COPY {}({}) TO STDOUT", table, columns), loc)
+      .no_rows(loc);
   register_me();
 }
 
@@ -105,19 +110,19 @@ pqxx::stream_from::~stream_from() noexcept
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), sl::current());
   }
 }
 
 
-pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
+pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line(sl loc)
 {
   if (*this)
   {
     internal::gate::connection_stream_from gate{m_trans->conn()};
     try
     {
-      raw_line line{gate.read_copy_line()};
+      raw_line line{gate.read_copy_line(loc)};
       if (line.first == nullptr)
         close();
       return line;
@@ -138,16 +143,15 @@ pqxx::stream_from::raw_line pqxx::stream_from::get_raw_line()
 
 void pqxx::stream_from::close()
 {
-  if (not m_finished)
+  if (not m_finished) [[unlikely]]
   {
-    PQXX_UNLIKELY
     m_finished = true;
     unregister_me();
   }
 }
 
 
-void pqxx::stream_from::complete()
+void pqxx::stream_from::complete(sl loc)
 {
   if (m_finished)
     return;
@@ -158,8 +162,7 @@ void pqxx::stream_from::complete()
     bool done{false};
     while (not done)
     {
-      auto [line, size] = get_raw_line();
-      ignore_unused(size);
+      [[maybe_unused]] auto [line, size] = get_raw_line(loc);
       done = not line.get();
     }
   }
@@ -170,22 +173,21 @@ void pqxx::stream_from::complete()
   }
   catch (std::exception const &e)
   {
-    reg_pending_error(e.what());
+    reg_pending_error(e.what(), loc);
   }
   close();
 }
 
 
-void pqxx::stream_from::parse_line()
+void pqxx::stream_from::parse_line(sl loc)
 {
-  if (m_finished)
-    PQXX_UNLIKELY
-  return;
+  if (m_finished) [[unlikely]]
+    return;
 
   // TODO: Any way to keep current size in a local var, for speed?
   m_fields.clear();
 
-  auto const [line, line_size] = get_raw_line();
+  auto const [line, line_size] = get_raw_line(loc);
   if (line.get() == nullptr)
   {
     m_finished = true;
@@ -193,14 +195,14 @@ void pqxx::stream_from::parse_line()
   }
 
   if (line_size >= (std::numeric_limits<decltype(line_size)>::max() / 2))
-    throw range_error{"Stream produced a ridiculously long line."};
+    throw range_error{"Stream produced a ridiculously long line.", loc};
 
   // Make room for unescaping the line.  It's a pessimistic size.
-  // Unusually, we're storing terminating zeroes *inside* the string.
+  //
   // This is the only place where we modify m_row.  MAKE SURE THE BUFFER DOES
   // NOT GET RESIZED while we're working, because we're working with views into
   // its buffer.
-  m_row.resize(line_size + 1);
+  m_row.resize(line_size);
 
   char const *const line_begin{line.get()};
   std::string_view const line_view{line_begin, line_size};
@@ -224,7 +226,7 @@ void pqxx::stream_from::parse_line()
   std::size_t offset{0};
   while (offset < line_size)
   {
-    auto const stop_char{m_char_finder(line_view, offset)};
+    auto const stop_char{m_char_finder(line_view, offset, loc)};
     assert(stop_char <= line_size);
     // Copy the text we have so far.  It's got no special characters in it.
     std::memcpy(write, &line_begin[offset], stop_char - offset);
@@ -240,17 +242,10 @@ void pqxx::stream_from::parse_line()
       // Field separator.  End the field.
       // End the field.
       if (field_begin == nullptr)
-      {
         m_fields.emplace_back();
-      }
       else
-      {
-        // Would love to emplace_back() here, but gcc 9.1 warns about the
-        // constructor not throwing.  It suggests adding "noexcept."  Which
-        // we can hardly do, without std::string_view guaranteeing it.
         m_fields.emplace_back(field_begin, write - field_begin);
-        *write++ = '\0';
-      }
+
       // Set up for the next field.
       field_begin = write;
     }
@@ -259,7 +254,7 @@ void pqxx::stream_from::parse_line()
       // Escape sequence.
       assert(special == '\\');
       if ((offset) >= line_size)
-        throw failure{"Row ends in backslash"};
+        throw failure{"Row ends in backslash", loc};
 
       // The database will only escape ASCII characters, so no need to use
       // the glyph scanner.
@@ -268,7 +263,7 @@ void pqxx::stream_from::parse_line()
       {
         // Null value.
         if (write != field_begin)
-          throw failure{"Null sequence found in nonempty field"};
+          throw failure{"Null sequence found in nonempty field", loc};
         field_begin = nullptr;
         // (If there's any characters _after_ the null we'll just crash.)
       }
@@ -284,7 +279,6 @@ void pqxx::stream_from::parse_line()
   else
   {
     m_fields.emplace_back(field_begin, write - field_begin);
-    *write++ = '\0';
   }
 
   // DO NOT shrink m_row to fit.  We're carrying string_views pointing into
@@ -292,8 +286,8 @@ void pqxx::stream_from::parse_line()
 }
 
 
-std::vector<pqxx::zview> const *pqxx::stream_from::read_row() &
+std::vector<std::string_view> const *pqxx::stream_from::read_row(sl loc) &
 {
-  parse_line();
+  parse_line(loc);
   return m_finished ? nullptr : &m_fields;
 }

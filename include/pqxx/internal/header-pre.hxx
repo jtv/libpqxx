@@ -10,7 +10,7 @@
  * Include this file at the highest aggregation level possible to avoid nesting
  * and to keep things simple.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -29,19 +29,8 @@
 #  pragma warning(push, 4)
 
 // Visual C++ generates some entirely unreasonable warnings.  Disable them.
-// Copy constructor could not be generated.
-#  pragma warning(disable : 4511)
-// Assignment operator could not be generated.
-#  pragma warning(disable : 4512)
-// Can't expose outside classes without exporting them.  Except the MSVC docs
-// say please ignore the warning if it's a standard library class.
-#  pragma warning(disable : 4251)
-// Can't derive library classes from outside classes without exporting them.
-// Except the MSVC docs say please ignore the warning if the parent class is
-// in the standard library.
-#  pragma warning(disable : 4275)
-// Can't inherit from non-exported class.
-#  pragma warning(disable : 4275)
+#  pragma warning(disable : 4061 4251 4275 4275 4511 4512 4514 4623 4625)
+#  pragma warning(disable : 4626 4702 4820 4868 5026 5027 5031 5045 6294)
 
 #endif // _MSC_VER
 
@@ -63,28 +52,74 @@
 #  define PQXX_CPLUSPLUS __cplusplus
 #endif
 
-// C++20: No longer needed.
-// Enable ISO-646 alternative operator representations: "and" instead of "&&"
-// etc. on older compilers.  C++17 deprecates this header; C++20 removes it.
-#if defined(_MSC_VER) && __has_include(<ciso646>) && PQXX_CPLUSPLUS <= 201703L
-// MSVC.  This compiler is being difficult: it requires us to include this
-// header in C++17, but will also complain that it's deprecated.
-#  include <ciso646>
-#endif
-
-#if defined(PQXX_HAVE_GCC_PURE)
+#if __has_cpp_attribute(gnu::pure)
 /// Declare function "pure": no side effects, only reads globals and its args.
-#  define PQXX_PURE __attribute__((pure))
+/** Be careful with exceptions.  The compiler may elide calls, which may stop
+ * an exception from happening; or reorder them, moving a call outside of a
+ * `try` block that was meant to catch the exception.
+ */
+#  define PQXX_PURE [[gnu::pure]]
 #else
 #  define PQXX_PURE /* pure */
 #endif
 
 
-#if defined(__GNUC__)
+#if __has_cpp_attribute(gnu::cold)
 /// Tell the compiler to optimise a function for size, not speed.
-#  define PQXX_COLD __attribute__((cold))
+#  define PQXX_COLD [[gnu::cold]]
 #else
 #  define PQXX_COLD /* cold */
+#endif
+
+
+#if __has_cpp_attribute(gnu::always_inline)
+/// Never generate an out-of-line version of this inline function.
+#  define PQXX_INLINE_ONLY [[gnu::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+/// Never generate an out-of-line version of this inline function.
+#  define PQXX_INLINE_ONLY [[msvc::forceinline]]
+#else
+#  define PQXX_INLINE_ONLY /* always inline */
+#endif
+
+
+/// Don't generate out-of-line version of inline function for coverage runs.
+/** This helps avoid a lot of false positives with gcov.  The out-of-line
+ * function never gets executed, and so its code is all marked as not covered
+ * by the test suite.  The code may get executed, but all inline.
+ *
+ * We're only defining this for gcc, since that's the compiler we use for test
+ * coverage analysis.
+ */
+#if defined(PQXX_COVERAGE) && __has_cpp_attribute(gnu::always_inline)
+#  define PQXX_INLINE_COV [[gnu::always_inline]]
+#else
+#  define PQXX_INLINE_COV /* inline-only on coverage runs */
+#endif
+
+
+#if __has_cpp_attribute(gnu::returns_nonnull)
+/// For functions returning a pointer: the pointer is never null.
+#  define PQXX_RETURNS_NONNULL [[gnu::returns_nonnull]]
+#else
+#  define PQXX_RETURNS_NONNULL /* returns nonnull */
+#endif
+
+
+#if __has_cpp_attribute(gnu::null_terminated_string_arg)
+/// Function argument n (counted starting from 1) is a zero-terminated string.
+#  define PQXX_ZARG(n) [[gnu::null_terminated_string_arg((n))]]
+#else
+#  define PQXX_ZARG(n) /* null-terminated string arg */
+#endif
+
+
+// Not all gcc versions we're seeing support the argument-less version.
+#if defined(PQXX_HAVE_ZARGS)
+/// This function's C-style string arguments are zero-terminated.
+#  define PQXX_ZARGS [[gnu::null_terminated_string_arg]]
+#else
+#  define PQXX_ZARGS /* null-terminated string args */
 #endif
 
 
@@ -154,8 +189,8 @@
 
 #elif defined(PQXX_HAVE_GCC_VISIBILITY) // !_WIN32
 
-#  define PQXX_LIBEXPORT __attribute__((visibility("default")))
-#  define PQXX_PRIVATE __attribute__((visibility("hidden")))
+#  define PQXX_LIBEXPORT [[gnu::visibility("default")]]
+#  define PQXX_PRIVATE [[gnu::visibility("hidden")]]
 
 #endif // PQXX_HAVE_GCC_VISIBILITY
 
@@ -171,16 +206,6 @@
 #ifndef PQXX_NOVTABLE
 #  define PQXX_NOVTABLE /* novtable */
 #endif
-
-// C++20: Assume support.
-#if defined(PQXX_HAVE_LIKELY)
-#  define PQXX_LIKELY [[likely]]
-#  define PQXX_UNLIKELY [[unlikely]]
-#else
-#  define PQXX_LIKELY   /* [[likely]] */
-#  define PQXX_UNLIKELY /* [[unlikely]] */
-#endif
-
 
 // C++23: Assume support.
 #if defined(PQXX_HAVE_ASSUME)

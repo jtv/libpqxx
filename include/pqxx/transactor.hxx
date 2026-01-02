@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transactor instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -97,7 +97,8 @@ namespace pqxx
  * @return Whatever your callback returns.
  */
 template<typename TRANSACTION_CALLBACK>
-inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
+inline auto
+perform(TRANSACTION_CALLBACK &&callback, int attempts, sl loc = sl::current())
   -> std::invoke_result_t<TRANSACTION_CALLBACK>
 {
   if (attempts <= 0)
@@ -145,7 +146,45 @@ inline auto perform(TRANSACTION_CALLBACK &&callback, int attempts = 3)
       continue;
     }
   }
-  throw pqxx::internal_error{"No outcome reached on perform()."};
+  throw pqxx::internal_error{"No outcome reached on perform().", loc};
+}
+
+
+/// Simple way to execute a transaction with automatic retry.
+/**
+ * Executes your transaction code as a callback.  Repeats it until it completes
+ * normally, or it throws an error other than the few libpqxx-generated
+ * exceptions that the framework understands, or after a given number of failed
+ * attempts, or if the transaction ends in an "in-doubt" state.
+ *
+ * (An in-doubt state is one where libpqxx cannot determine whether the server
+ * finally committed a transaction or not.  This can happen if the network
+ * connection to the server is lost just while we're waiting for its reply to
+ * a "commit" statement.  The server may have completed the commit, or not, but
+ * it can't tell you because there's no longer a connection.
+ *
+ * Using this still takes a bit of care.  If your callback makes use of data
+ * from the database, you'll probably have to query that data within your
+ * callback.  If the attempt to perform your callback fails, and the framework
+ * tries again, you'll be in a new transaction and the data in the database may
+ * have changed under your feet.
+ *
+ * Also be careful about changing variables or data structures from within
+ * your callback.  The run may still fail, and perhaps get run again.  The
+ * ideal way to do it (in most cases) is to return your result from your
+ * callback, and change your program's data state only after @ref perform
+ * completes successfully.
+ *
+ * @param callback Transaction code that can be called with no arguments.
+ * @param attempts Maximum number of times to attempt performing callback.
+ *     Must be greater than zero.
+ * @return Whatever your callback returns.
+ */
+template<typename TRANSACTION_CALLBACK>
+inline auto perform(TRANSACTION_CALLBACK &&callback, sl loc = sl::current())
+  -> std::invoke_result_t<TRANSACTION_CALLBACK>
+{
+  return perform(callback, 3, loc);
 }
 } // namespace pqxx
 //@}

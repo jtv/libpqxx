@@ -13,7 +13,7 @@ The available template commands are:
     use `###FILENAME###` to get the full filename.
 
 
-Copyright (c) 2000-2025, Bart Samwel and Jeroen T. Vermeulen.
+Copyright (c) 2000-2026, Bart Samwel and Jeroen T. Vermeulen.
 """
 
 from __future__ import (

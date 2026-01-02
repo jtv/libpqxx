@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/dbtransaction instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -54,17 +54,23 @@ class PQXX_LIBEXPORT PQXX_NOVTABLE dbtransaction : public transaction_base
 {
 protected:
   /// Begin transaction.
-  explicit dbtransaction(connection &cx) : transaction_base{cx} {}
+  explicit dbtransaction(connection &cx, sl loc = sl::current()) :
+          transaction_base{cx, loc}
+  {}
   /// Begin transaction.
-  dbtransaction(connection &cx, std::string_view tname) :
-          transaction_base{cx, tname}
+  dbtransaction(
+    connection &cx, std::string_view tname, sl loc = sl::current()) :
+          transaction_base{cx, tname, loc}
   {}
   /// Begin transaction.
   dbtransaction(
     connection &cx, std::string_view tname,
-    std::shared_ptr<std::string> rollback_cmd) :
-          transaction_base{cx, tname, rollback_cmd}
+    std::shared_ptr<std::string> rollback_cmd, sl loc = sl::current()) :
+          transaction_base{cx, tname, std::move(rollback_cmd), loc}
   {}
+
+private:
+  dbtransaction() = delete;
 };
 } // namespace pqxx
 #endif

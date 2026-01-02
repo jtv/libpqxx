@@ -5,7 +5,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/transaction_base instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -30,8 +30,7 @@
  */
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/internal/stream_query.hxx"
 #include "pqxx/isolation.hxx"
 #include "pqxx/prepared_statement.hxx"
@@ -109,7 +108,7 @@ class transaction_focus;
  * "autocommit."  There is no way to "undo" an SQL statement in this kind of
  * transaction.)  Autocommit is sometimes a bit faster, and sometimes a bit
  * slower.  Mainly you'll use it for specific operations that cannot be done
- *inside a database transaction, such as some kinds of schema changes.
+ * inside a database transaction, such as some kinds of schema changes.
  *
  * And then there's @ref pqxx::robusttransaction to help you deal with those
  * painful situations where you don't know for sure whether a transaction
@@ -173,13 +172,13 @@ public:
    * @ref robusttransaction which takes some special precautions to reduce this
    * risk.
    */
-  void commit();
+  void commit(sl = sl::current());
 
   /// Abort the transaction.
   /** No special effort is required to call this function; it will be called
    * implicitly when the transaction is destructed.
    */
-  void abort();
+  void abort(sl = sl::current());
 
   /**
    * @ingroup escaping-functions
@@ -191,113 +190,122 @@ public:
    * functions on the connection object.
    */
   //@{
+  PQXX_ZARGS [[nodiscard]] std::string
+  esc(char const str[], sl loc = sl::current())
+  {
+    return conn().esc(str, loc);
+  }
+
   /// Escape string for use as SQL string literal in this transaction.
-  template<typename... ARGS> [[nodiscard]] auto esc(ARGS &&...args) const
+  [[nodiscard]] std::string_view esc(
+    std::string_view text, std::span<char> buffer,
+    sl loc = sl::current()) const
   {
-    return conn().esc(std::forward<ARGS>(args)...);
+    return conn().esc(text, buffer, loc);
   }
 
-  /// Escape binary data for use as SQL string literal in this transaction.
-  /** Raw, binary data is treated differently from regular strings.  Binary
-   * strings are never interpreted as text, so they may safely include byte
-   * values or byte sequences that don't happen to represent valid characters
-   * in the character encoding being used.
+  /// Escape string for use as SQL string literal in this transaction.
+  [[nodiscard]] std::string
+  esc(std::string_view text, sl loc = sl::current()) const
+  {
+    return conn().esc(text, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal.
+  template<binary DATA> [[nodiscard]] std::string esc(DATA const &data) const
+  {
+    return conn().esc(data);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  /** Use this variant when you want to re-use the same buffer across multiple
+   * calls.  If that's not the case, or convenience and simplicity are more
+   * important, use the single-argument variant.
    *
-   * The binary string does not stop at the first zero byte, as is the case
-   * with textual strings.  Instead, it may contain zero bytes anywhere.  If
-   * it happens to contain bytes that look like quote characters, or other
-   * things that can disrupt their use in SQL queries, they will be replaced
-   * with special escape sequences.
+   * For every byte in `data`, there must be at least two bytes of space in
+   * `buffer`; plus there must be two bytes of space for a header and one for
+   * a trailing zero.  Throws @ref range_error if this space is not available.
+   *
+   * Returns a reference to the escaped string, which is actually stored in
+   * `buffer`.
    */
-  template<typename... ARGS> [[nodiscard]] auto esc_raw(ARGS &&...args) const
+  template<binary DATA>
+  [[nodiscard]] zview
+  esc(DATA const &data, std::span<char> buffer, sl loc = sl::current()) const
   {
-    return conn().esc_raw(std::forward<ARGS>(args)...);
+    return conn().esc(data, buffer, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  template<binary DATA>
+  [[nodiscard,
+    deprecated("Use esc(), not esc_raw(), even on binary data.")]] zview
+  esc_raw(DATA const &data, sl loc = sl::current()) const
+  {
+    return conn().esc(data, loc);
+  }
+
+  /// Escape binary string for use as SQL string literal, into `buffer`.
+  template<binary DATA>
+  [[nodiscard,
+    deprecated("Use esc(), not esc_raw(), even on binary data.")]] zview
+  esc_raw(
+    DATA const &data, std::span<char> buffer, sl loc = sl::current()) const
+  {
+    return conn().esc(data, buffer, loc);
   }
 
   /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(zview text) const
+  [[nodiscard]] bytes unesc_bin(zview text, sl loc = sl::current())
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().unesc_raw(text);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+    return conn().unesc_bin(text, loc);
   }
 
   /// Unescape binary data, e.g. from a `bytea` field.
   /** Takes a binary string as escaped by PostgreSQL, and returns a restored
    * copy of the original binary data.
    */
-  [[nodiscard]] bytes unesc_bin(zview text) { return conn().unesc_bin(text); }
-
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard, deprecated("Use unesc_bin() instead.")]] std::string
-  unesc_raw(char const *text) const
+  PQXX_ZARGS [[nodiscard]] bytes
+  unesc_bin(char const text[], sl loc = sl::current())
   {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return conn().unesc_raw(text);
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+    return conn().unesc_bin(text, loc);
   }
 
-  /// Unescape binary data, e.g. from a `bytea` field.
-  /** Takes a binary string as escaped by PostgreSQL, and returns a restored
-   * copy of the original binary data.
-   */
-  [[nodiscard]] bytes unesc_bin(char const text[])
-  {
-    return conn().unesc_bin(text);
-  }
-
+  // TODO: "Into buffer" variant.
   /// Represent object as SQL string, including quoting & escaping.
   /** Nulls are recognized and represented as SQL nulls. */
-  template<typename T> [[nodiscard]] std::string quote(T const &t) const
+  template<typename T>
+  [[nodiscard]] std::string quote(T const &t, sl loc = sl::current()) const
   {
-    return conn().quote(t);
+    return conn().quote(t, loc);
   }
 
-  [[deprecated("Use bytes instead of binarystring.")]] std::string
-  quote(binarystring const &t) const
-  {
-    return conn().quote(t.bytes_view());
-  }
-
-  /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
-  quote_raw(unsigned char const bin[], std::size_t len) const
-  {
-    return quote(binary_cast(bin, len));
-  }
-
-  /// Binary-escape and quote a binary string for use as an SQL constant.
-  [[deprecated("Use quote(pqxx::bytes_view).")]] std::string
-  quote_raw(zview bin) const;
-
-#if defined(PQXX_HAVE_CONCEPTS) && defined(PQXX_HAVE_RANGES)
   /// Binary-escape and quote a binary string for use as an SQL constant.
   /** For binary data you can also just use @ref quote(data). */
   template<binary DATA>
-  [[nodiscard]] std::string quote_raw(DATA const &data) const
+  [[nodiscard]] std::string
+  quote_raw(DATA const &data, sl loc = sl::current()) const
   {
-    return conn().quote_raw(data);
+    return conn().quote_raw(data, loc);
   }
-#endif
 
+  // TODO: "Into buffer" variant.
   /// Escape an SQL identifier for use in a query.
   [[nodiscard]] std::string quote_name(std::string_view identifier) const
   {
     return conn().quote_name(identifier);
   }
 
+  // TODO: "Into buffer" variant.
   /// Escape string for literal LIKE match.
-  [[nodiscard]] std::string
-  esc_like(std::string_view bin, char escape_char = '\\') const
+  [[nodiscard]] std::string esc_like(
+    std::string_view bin, char escape_char = '\\',
+    sl loc = sl::current()) const
   {
-    return conn().esc_like(bin, escape_char);
+    return conn().esc_like(bin, escape_char, loc);
   }
   //@}
 
@@ -340,17 +348,18 @@ public:
   /// Execute a command.
   /**
    * @param query Query or command to execute.
-   * @param desc Optional identifier for query, to help pinpoint SQL errors.
    * @return A result set describing the query's or command's result.
    */
   [[deprecated("The desc parameter is going away.")]]
-  result exec(std::string_view query, std::string_view desc);
+  result
+  exec(std::string_view query, std::string_view desc, sl = sl::current());
 
   // TODO: Wrap PQdescribePrepared().
 
-  result exec(std::string_view query, params parms)
+  result
+  exec(std::string_view query, params const &parms, sl loc = sl::current())
   {
-    return internal_exec_params(query, parms.make_c_params());
+    return internal_exec_params(query, parms.make_c_params(loc), loc);
   }
 
   /// Execute a command.
@@ -358,12 +367,7 @@ public:
    * @param query Query or command to execute.
    * @return A result set describing the query's or command's result.
    */
-  result exec(std::string_view query)
-  {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-    return exec(query, std::string_view{});
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  }
+  result exec(std::string_view query, sl = sl::current());
 
   /// Execute a command.
   /**
@@ -387,7 +391,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec(string_view) and call no_rows() on the result.")]]
-  result exec0(zview query, std::string_view desc)
+  result exec0(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).no_rows();
@@ -401,7 +405,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() and call no_rows() on the result.")]]
-  result exec0(zview query)
+  result exec0(std::string_view query)
   {
     return exec(query).no_rows();
   }
@@ -414,7 +418,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec(string_view), and call one_row() on the result.")]]
-  row exec1(zview query, std::string_view desc)
+  row exec1(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).one_row();
@@ -429,7 +433,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
-  row exec1(zview query)
+  row exec1(std::string_view query)
   {
     return exec(query).one_row();
   }
@@ -441,7 +445,8 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call expect_rows() on the result.")]]
-  result exec_n(result::size_type rows, zview query, std::string_view desc);
+  result exec_n(
+    result::size_type rows, std::string_view query, std::string_view desc);
 
   /// Execute command, expect given number of rows.
   /** Works like @ref exec, but checks that the result has exactly the expected
@@ -450,7 +455,7 @@ public:
    * @throw unexpected_rows If the query returned the wrong number of rows.
    */
   [[deprecated("Use exec() instead, and call expect_rows() on the result.")]]
-  result exec_n(result::size_type rows, zview query)
+  result exec_n(result::size_type rows, std::string_view query)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, std::string_view{}).expect_rows(rows);
@@ -463,7 +468,7 @@ public:
    */
   template<typename TYPE>
   [[deprecated("The desc parameter is going away.")]]
-  TYPE query_value(zview query, std::string_view desc)
+  TYPE query_value(std::string_view query, std::string_view desc)
   {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
     return exec(query, desc).one_field().as<TYPE>();
@@ -477,9 +482,12 @@ public:
    * @throw unexpected_rows If the query did not return exactly 1 row.
    * @throw usage_error If the row did not contain exactly 1 field.
    */
-  template<typename TYPE> TYPE query_value(zview query)
+  template<not_borrowed TYPE>
+  TYPE query_value(std::string_view query, sl loc = sl::current())
   {
-    return exec(query).one_field().as<TYPE>();
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
+    return exec(query, loc).one_field_ref(loc).as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -490,10 +498,16 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
-  [[nodiscard]] std::tuple<TYPE...> query1(zview query)
+  template<not_borrowed... TYPE>
+  [[nodiscard]] std::tuple<TYPE...>
+  query1(std::string_view query, sl loc = sl::current())
   {
-    return exec(query).expect_columns(sizeof...(TYPE)).one_row().as<TYPE...>();
+    // The result and row_ref objects are temporaries, but under C++20 lifetime
+    // rules they'll live until after we convert the field to TYPE.
+    return exec(query, loc)
+      .expect_columns(sizeof...(TYPE), loc)
+      .one_row_ref(loc)
+      .as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -504,16 +518,19 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
-  [[nodiscard]] std::optional<std::tuple<TYPE...>> query01(zview query)
+  template<not_borrowed... TYPE>
+  [[nodiscard]] std::optional<std::tuple<TYPE...>>
+  query01(std::string_view query, sl loc = sl::current())
   {
-    std::optional<row> const r{exec(query).opt_row()};
+    auto const res{exec(query, loc)};
+    std::optional<row_ref> const r{res.opt_row_ref(loc)};
     if (r)
-      return {r->as<TYPE...>()};
+      return {r->as<TYPE...>(loc)};
     else
       return {};
   }
 
+  // C++20: Update type requirements (see bottom of docs for this function).
   /// Execute a query, in streaming fashion; loop over the results row by row.
   /** Converts the rows to `std::tuple`, of the column types you specify.
    *
@@ -522,6 +539,13 @@ public:
    * specify.  Unlike with the "exec" functions, processing can start before
    * all the data from the server is in.
    *
+   * @warning You can't pass parmaeters to a streaming query.  This is a
+   * limitation at a lower level in the software stack.  You can work around
+   * this by defining a view or function that you can then call without
+   * parameters in the streaming query; or you can compose query strings that
+   * wrap the parameters in calls to @ref pqxx::transaction_base::quote() or
+   * @ref pqxx::transaction_base::esc().
+   *
    * Streaming is also documented in @ref streams.
    *
    * The column types must all be types that have conversions from PostgreSQL's
@@ -529,13 +553,13 @@ public:
    * have pre-defined conversions; if you want to define your own conversions
    * for additional types, see @ref datatypes.
    *
-   * As a special case, tuple may contain `std::string_view` fields, but the
-   * strings to which they point will only remain valid until you extract the
-   * next row.  After that, the memory holding the string may be overwritten or
-   * deallocated.
+   * `TYPE...` may include `std::string_view` and @ref zview fields (which will
+   * be highly efficient), but the strings to which they point will only remain
+   * valid until you extract the next row.  After that, the memory holding the
+   * string may be overwritten or deallocated.
    *
-   * If any of the columns can be null, and the C++ type to which you're
-   * translating it does not have a null value, wrap the type in a
+   * If any of the columns can be null, and you're converting it to a C++ type
+   * which does not support a null value, you can wrap the type in a
    * `std::optional<>` (or if you prefer, a `std::shared_ptr<>` or a
    * `std::unique_ptr`).  These templates do support null values, and libpqxx
    * will know how to convert to them.
@@ -550,10 +574,11 @@ public:
    * instead.
    *
    * Streaming your query is likely to be faster than the `exec()` methods for
-   * larger results (but slower for small results), and start useful processing
-   * sooner.  Also, `stream()` scales better in terms of memory usage: it only
-   * needs to keep the current row in memory.  The "exec" functions read the
-   * entire result into memory at once.
+   * queries that return lots of rows, but slower for ones that don't.  You'll
+   * be able to start useful processing sooner, before all the result data is
+   * in.  Also, `stream()` scales better in terms of memory usage: it only
+   * needs to keep the current row in memory, not the whole result.  The
+   * "exec" functions read the entire result into memory at once.
    *
    * Your query executes as part of a COPY command, not as a stand-alone query,
    * so there are limitations to what you can do in the query.  It can be
@@ -567,12 +592,12 @@ public:
    * requirements may loosen a bit once libpqxx moves on to C++20.
    */
   template<typename... TYPE>
-  [[nodiscard]] auto stream(std::string_view query) &
+  [[nodiscard]] auto stream(std::string_view query, sl loc = sl::current()) &
   {
-    return pqxx::internal::stream_query<TYPE...>{*this, query};
+    return pqxx::internal::stream_query<TYPE...>{
+      *this, query, make_context(loc)};
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Perform a streaming query, and for each result row, call `func`.
   /** Here, `func` can be a function, a `std::function`, a lambda, or an
    * object that supports the function call operator.  Of course `func` must
@@ -603,21 +628,23 @@ public:
    * @ref datatypes.
    */
   template<typename CALLABLE>
-  auto for_stream(std::string_view query, CALLABLE &&func)
+  auto
+  for_stream(std::string_view query, CALLABLE &&func, sl loc = sl::current())
   {
+    // TODO: Can we pass loc into func if appropriate?
     using param_types =
       pqxx::internal::strip_types_t<pqxx::internal::args_t<CALLABLE>>;
     param_types const *const sample{nullptr};
-    auto data_stream{stream_like(query, sample)};
+    auto data_stream{stream_like(query, sample, loc)};
     for (auto const &fields : data_stream) std::apply(func, fields);
   }
 
   template<typename CALLABLE>
   [[deprecated(
     "pqxx::transaction_base::for_each is now called for_stream.")]] auto
-  for_each(std::string_view query, CALLABLE &&func)
+  for_each(std::string_view query, CALLABLE &&func, sl loc = sl::current())
   {
-    return for_stream(query, std::forward<CALLABLE>(func));
+    return for_stream(query, std::forward<CALLABLE>(func), loc);
   }
 
   /// Execute query, read full results, then iterate rows of data.
@@ -652,20 +679,21 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query(zview query)
+  template<typename... TYPE>
+  auto query(std::string_view query, sl loc = sl::current())
   {
-    return exec(query).iter<TYPE...>();
+    return exec(query, loc).iter<TYPE...>();
   }
 
   /// Perform query, expect given number of rows, iterate results.
   template<typename... TYPE>
   [[deprecated("Use query() instead, and call expect_rows() on the result.")]]
-  auto query_n(result::size_type rows, zview query)
+  auto query_n(
+    result::size_type rows, std::string_view query, sl loc = sl::current())
   {
-    return exec(query).expect_rows(rows).iter<TYPE...>();
+    return exec(query, loc).expect_rows(rows, loc).iter<TYPE...>();
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
   /** Converts each row to data types matching `func`'s parameter types.  The
    * number of columns in the result set must match the number of parameters.
@@ -675,9 +703,11 @@ public:
    * 2. The `exec` functions are faster for small results, but slower for large
    *    results.
    */
-  template<typename CALLABLE> void for_query(zview query, CALLABLE &&func)
+  template<typename CALLABLE>
+  void
+  for_query(std::string_view query, CALLABLE &&func, sl loc = sl::current())
   {
-    exec(query).for_each(std::forward<CALLABLE>(func));
+    exec(query).for_each(std::forward<CALLABLE>(func), loc);
   }
 
   /**
@@ -716,10 +746,10 @@ public:
    * next one for `$2`, etc.
    */
   template<typename... Args>
-  [[deprecated("Use exec(zview, params) instead.")]]
+  [[deprecated("Use exec(std::string_view, params) instead.")]]
   result exec_params(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...});
+    return exec(query, params{*this, args...}, sl::current());
   }
 
   // Execute parameterised statement, expect a single-row result.
@@ -727,9 +757,9 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec() instead, and call one_row() on the result.")]]
-  row exec_params1(zview query, Args &&...args)
+  row exec_params1(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).one_row();
+    return exec(query, params{*this, args...}).one_row();
   }
 
   // Execute parameterised statement, expect a result with zero rows.
@@ -738,9 +768,9 @@ public:
   template<typename... Args>
   [[deprecated(
     "Use exec(string_view, params) and call no_rows() on the result.")]]
-  result exec_params0(zview query, Args &&...args)
+  result exec_params0(std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).no_rows();
+    return exec(query, params{*this, args...}).no_rows();
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
@@ -748,10 +778,13 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
-  result exec_params_n(std::size_t rows, zview query, Args &&...args)
+  result
+  exec_params_n(std::size_t rows, std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...})
-      .expect_rows(check_cast<result_size_type>(rows, "number of rows"));
+    sl loc{m_created_loc};
+    return exec(query, params{*this, args...}, loc)
+      .expect_rows(
+        check_cast<result_size_type>(rows, "number of rows", loc), loc);
   }
 
   // Execute parameterised statement, expect exactly a given number of rows.
@@ -759,9 +792,10 @@ public:
    */
   template<typename... Args>
   [[deprecated("Use exec(), and call expect_rows() on the result.")]]
-  result exec_params_n(result::size_type rows, zview query, Args &&...args)
+  result
+  exec_params_n(result::size_type rows, std::string_view query, Args &&...args)
   {
-    return exec(query, params{args...}).expect_rows(rows);
+    return exec(query, params{*this, args...}).expect_rows(rows);
   }
 
   /// Execute parameterised query, read full results, iterate rows of data.
@@ -798,9 +832,11 @@ public:
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
-  template<typename... TYPE> auto query(zview query, params const &parms)
+  template<typename... TYPE>
+  auto
+  query(std::string_view query, params const &parms, sl loc = sl::current())
   {
-    return exec(query, parms).iter<TYPE...>();
+    return exec(query, parms, loc).iter<TYPE...>();
   }
 
   /// Perform query parameterised, expect given number of rows, iterate
@@ -815,7 +851,8 @@ public:
    */
   template<typename... TYPE>
   [[deprecated("Use exec(), and call expect_rows() & iter() on the result.")]]
-  auto query_n(result::size_type rows, zview query, params const &parms)
+  auto
+  query_n(result::size_type rows, std::string_view query, params const &parms)
   {
     return exec(query, parms).expect_rows(rows).iter<TYPE...>();
   }
@@ -827,9 +864,16 @@ public:
    * @throw unexpected_rows If the query did not return exactly 1 row.
    * @throw usage_error If the row did not contain exactly 1 field.
    */
-  template<typename TYPE> TYPE query_value(zview query, params const &parms)
+  template<not_borrowed TYPE>
+  TYPE query_value(
+    std::string_view query, params const &parms, sl loc = sl::current())
   {
-    return exec(query, parms).expect_columns(1).one_field().as<TYPE>();
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
+    return exec(query, parms, loc)
+      .expect_columns(1, loc)
+      .one_field_ref(loc)
+      .as<TYPE>(loc);
   }
 
   /// Perform query returning exactly one row, and convert its fields.
@@ -840,11 +884,14 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]]
-  std::tuple<TYPE...> query1(zview query, params const &parms)
+  std::tuple<TYPE...>
+  query1(std::string_view query, params const &parms, sl loc = sl::current())
   {
-    return exec(query, parms).one_row().as<TYPE...>();
+    // The result and row_ref objects are temporaries, but under C++20 lifetime
+    // rules they'll live until after we convert the field to TYPE.
+    return exec(query, parms, loc).one_row_ref(loc).as<TYPE...>(loc);
   }
 
   /// Query at most one row of data, and if there is one, convert it.
@@ -855,18 +902,18 @@ public:
    * @throw usage_error If the number of columns in the result does not match
    * the number of fields in the tuple.
    */
-  template<typename... TYPE>
+  template<not_borrowed... TYPE>
   [[nodiscard]] std::optional<std::tuple<TYPE...>>
-  query01(zview query, params const &parms)
+  query01(std::string_view query, params const &parms, sl loc = sl::current())
   {
-    std::optional<row> r{exec(query, parms).opt_row()};
+    auto const res{exec(query, parms, loc)};
+    std::optional<row_ref> r{res.opt_row_ref(loc)};
     if (r)
-      return {r->as<TYPE...>()};
+      return {r->as<TYPE...>(loc)};
     else
       return {};
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
   /// Execute a query, load the full result, and perform `func` for each row.
   /** The query may use parameters.  So for example, the query may contain `$1`
    * to denote the first parameter value in `parms`, and so on.
@@ -880,9 +927,11 @@ public:
    *    results.
    */
   template<typename CALLABLE>
-  void for_query(zview query, CALLABLE &&func, params const &parms)
+  void for_query(
+    std::string_view query, CALLABLE &&func, params const &parms,
+    sl loc = sl::current())
   {
-    exec(query, parms).for_each(std::forward<CALLABLE>(func));
+    exec(query, parms, loc).for_each(std::forward<CALLABLE>(func), loc);
   }
 
   /// Send a notification.
@@ -901,7 +950,25 @@ public:
    * receive.  If you leave this out, they will receive an empty string as the
    * payload.
    */
-  void notify(std::string_view channel, std::string_view payload = {});
+  void notify(
+    std::string_view channel, std::string_view payload, sl = sl::current());
+
+  /// Send a notification (without payload).
+  /** Convenience shorthand for executing a "NOTIFY" command.  Most of the
+   * logic for handling _incoming_ notifications is in @ref pqxx::connection
+   * (particularly @ref pqxx::connection::listen), but _outgoing_
+   * notifications happen here.
+   *
+   * Unless this transaction is a nontransaction, the actual notification only
+   * goes out once the outer transaction is committed.
+   *
+   * @param channel Name of the "channel" on which clients will need to be
+   * listening in order to receive this notification.
+   */
+  void notify(std::string_view channel, sl loc = sl::current())
+  {
+    notify(channel, {}, loc);
+  }
   //@}
 
   /// Execute a prepared statement, with optional arguments.
@@ -909,52 +976,95 @@ public:
   [[deprecated("Use exec(prepped, params) instead.")]]
   result exec_prepared(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...});
+    return exec(prepped{statement}, params{*this, args...});
   }
 
   /// Execute a prepared statement taking no parameters.
-  result exec(prepped statement)
+  result exec(prepped statement, sl loc = sl::current())
   {
     params pp;
-    return internal_exec_prepared(statement, pp.make_c_params());
+    return internal_exec_prepared(statement, pp.make_c_params(loc), loc);
   }
 
   /// Execute prepared statement, read full results, iterate rows of data.
-  /** Like @ref query(zview), but using a prepared statement.
+  /** Like @ref query(std::string_view), but using a prepared statement.
    *
    * @return Something you can iterate using "range `for`" syntax.  The actual
    * type details may change.
    */
   template<typename... TYPE>
-  auto query(prepped statement, params const &parms = {})
+  auto query(prepped statement, params const &parms, sl loc = sl::current())
   {
-    return exec(statement, parms).iter<TYPE...>();
+    return exec(statement, parms, loc).iter<TYPE...>();
+  }
+
+  /// Execute prepared statement, read full results, iterate rows of data.
+  /** Like @ref query(std::string_view), but using a prepared statement.
+   *
+   * @return Something you can iterate using "range `for`" syntax.  The actual
+   * type details may change.
+   */
+  template<typename... TYPE>
+  auto query(prepped statement, sl loc = sl::current())
+  {
+    return exec(statement, {}, loc).iter<TYPE...>();
   }
 
   /// Perform prepared statement returning exactly 1 value.
-  /** This is just like @ref query_value(zview), but using a prepared
-   * statement.
+  /** This is just like @ref query_value(std::string_view), but using a
+   * prepared statement.
    */
-  template<typename TYPE>
-  TYPE query_value(prepped statement, params const &parms = {})
+  template<not_borrowed TYPE>
+  TYPE
+  query_value(prepped statement, params const &parms, sl loc = sl::current())
   {
-    return exec(statement, parms).expect_columns(1).one_field().as<TYPE>();
+    // The result and field_ref objects are temporaries, but under C++20
+    // lifetime rules they'll live until after we convert the field to TYPE.
+    return exec(statement, parms, loc)
+      .expect_columns(1, loc)
+      .one_field_ref(loc)
+      .as<TYPE>(loc);
   }
 
-  // C++20: Concept like std::invocable, but without specifying param types.
+  /// Perform prepared statement returning exactly 1 value.
+  /** This is just like @ref query_value(std::string_view), but using a
+   * prepared statement.
+   */
+  template<not_borrowed TYPE>
+  TYPE query_value(prepped statement, sl loc = sl::current())
+  {
+    return exec(statement, {}, loc)
+      .expect_columns(1, loc)
+      .one_field_ref(loc)
+      .as<TYPE>(loc);
+  }
+
   /// Execute prepared statement, load result, perform `func` for each row.
-  /** This is just like @ref for_query(zview), but using a prepared statement.
+  /** This is just like @ref for_query(std::string_view), but using a prepared
+   * statement.
    */
   template<typename CALLABLE>
-  void for_query(prepped statement, CALLABLE &&func, params const &parms = {})
+  void for_query(
+    prepped statement, CALLABLE &&func, params const &parms,
+    sl loc = sl::current())
   {
-    exec(statement, parms).for_each(std::forward<CALLABLE>(func));
+    exec(statement, parms, loc).for_each(std::forward<CALLABLE>(func), loc);
+  }
+
+  /// Execute prepared statement, load result, perform `func` for each row.
+  /** This is just like @ref for_query(std::string_view), but using a prepared
+   * statement.
+   */
+  template<typename CALLABLE>
+  void for_query(prepped statement, CALLABLE &&func, sl loc = sl::current())
+  {
+    exec(statement, {}, loc).for_each(std::forward<CALLABLE>(func), loc);
   }
 
   /// Execute a prepared statement with parameters.
-  result exec(prepped statement, params const &parms)
+  result exec(prepped statement, params const &parms, sl loc = sl::current())
   {
-    return internal_exec_prepared(statement, parms.make_c_params());
+    return internal_exec_prepared(statement, parms.make_c_params(loc), loc);
   }
 
   /// Execute a prepared statement, and expect a single-row result.
@@ -965,7 +1075,8 @@ public:
     "Use exec(string_view, params) and call one_row() on the result.")]]
   row exec_prepared1(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...}).one_row();
+    sl loc{m_created_loc};
+    return exec(prepped{statement}, params{*this, args...}).one_row(loc);
   }
 
   /// Execute a prepared statement, and expect a result with zero rows.
@@ -976,7 +1087,8 @@ public:
     "Use exec(prepped, params), and call no_rows() on the result.")]]
   result exec_prepared0(zview statement, Args &&...args)
   {
-    return exec(prepped{statement}, params{args...}).no_rows();
+    sl loc{m_created_loc};
+    return exec(prepped{statement}, params{*this, args...}).no_rows(loc);
   }
 
   /// Execute a prepared statement, expect a result with given number of rows.
@@ -989,7 +1101,9 @@ public:
   result
   exec_prepared_n(result::size_type rows, zview statement, Args &&...args)
   {
-    return exec(pqxx::prepped{statement}, params{args...}).expect_rows(rows);
+    sl loc{m_created_loc};
+    return exec(pqxx::prepped{statement}, params{*this, args...})
+      .expect_rows(rows, loc);
   }
 
   /**
@@ -997,7 +1111,10 @@ public:
    */
   //@{
   /// Have connection process a warning message.
-  void process_notice(char const msg[]) const { m_conn.process_notice(msg); }
+  PQXX_ZARGS void process_notice(char const msg[]) const
+  {
+    m_conn.process_notice(msg);
+  }
   /// Have connection process a warning message.
   void process_notice(zview msg) const { m_conn.process_notice(msg); }
   //@}
@@ -1031,9 +1148,11 @@ public:
   [[deprecated("Read variables using SQL SHOW statements.")]]
   std::string get_variable(std::string_view);
 
-  // C++20: constexpr.
   /// Transaction name, if you passed one to the constructor; or empty string.
-  [[nodiscard]] std::string_view name() const & noexcept { return m_name; }
+  [[nodiscard]] constexpr std::string_view name() const & noexcept
+  {
+    return m_name;
+  }
 
 protected:
   /// Create a transaction (to be called by implementation classes only).
@@ -1041,10 +1160,8 @@ protected:
    * and digits only.
    */
   transaction_base(
-    connection &cx, std::string_view tname,
-    std::shared_ptr<std::string> rollback_cmd) :
-          m_conn{cx}, m_name{tname}, m_rollback_cmd{rollback_cmd}
-  {}
+    connection &, std::string_view, std::shared_ptr<std::string> rollback_cmd,
+    sl loc = sl::current());
 
   /// Create a transaction (to be called by implementation classes only).
   /** Its rollback command will be "ROLLBACK".
@@ -1052,36 +1169,48 @@ protected:
    * The name, if nonempty, must begin with a letter and may contain letters
    * and digits only.
    */
-  transaction_base(connection &cx, std::string_view tname);
+  transaction_base(
+    connection &cx, std::string_view tname, sl loc = sl::current());
 
   /// Create a transaction (to be called by implementation classes only).
-  explicit transaction_base(connection &cx);
+  explicit transaction_base(connection &cx, sl loc = sl::current());
 
   /// Register this transaction with the connection.
   void register_transaction();
 
   /// End transaction.  To be called by implementing class' destructor.
-  void close() noexcept;
+  void close(sl = sl::current()) noexcept;
 
   /// To be implemented by derived implementation class: commit transaction.
-  virtual void do_commit() = 0;
+  virtual void do_commit(sl) = 0;
 
   /// Transaction type-specific way of aborting a transaction.
   /** @warning This will become "final", since this function can be called
    * from the implementing class destructor.
    */
-  virtual void do_abort();
+  virtual void do_abort(sl);
 
   /// Set the rollback command.
   void set_rollback_cmd(std::shared_ptr<std::string> cmd)
   {
-    m_rollback_cmd = cmd;
+    m_rollback_cmd = std::move(cmd);
   }
 
   /// Execute query on connection directly.
-  result direct_exec(std::string_view, std::string_view desc = ""sv);
-  result
-  direct_exec(std::shared_ptr<std::string>, std::string_view desc = ""sv);
+  result direct_exec(std::string_view, std::string_view desc, sl);
+  result direct_exec(std::string_view query, sl loc)
+  {
+    return direct_exec(query, "", loc);
+  }
+  result direct_exec(std::shared_ptr<std::string>, std::string_view desc, sl);
+  result direct_exec(std::shared_ptr<std::string> query, sl loc)
+  {
+    return direct_exec(std::move(query), "", loc);
+  }
+
+  // TODO: Can this be noexcept?
+  /// The `std::source_location` for this transaction's creation.
+  [[nodiscard]] sl created_loc() const { return m_created_loc; }
 
 private:
   enum class status
@@ -1092,13 +1221,19 @@ private:
     in_doubt
   };
 
+  /// Compose a @ref conversion_context.
+  /** Gets its @ref encoding_group from the @ref connection, but uses the
+   * `std::source_location` that you pass.
+   */
+  conversion_context make_context(sl) const;
+
   PQXX_PRIVATE void check_pending_error();
 
   result internal_exec_prepared(
-    std::string_view statement, internal::c_params const &args);
+    std::string_view statement, internal::c_params const &args, sl);
 
-  result
-  internal_exec_params(std::string_view query, internal::c_params const &args);
+  result internal_exec_params(
+    std::string_view query, internal::c_params const &args, sl);
 
   /// Describe this transaction to humans, e.g. "transaction 'foo'".
   [[nodiscard]] std::string description() const;
@@ -1106,14 +1241,16 @@ private:
   friend class pqxx::internal::gate::transaction_transaction_focus;
   PQXX_PRIVATE void register_focus(transaction_focus *);
   PQXX_PRIVATE void unregister_focus(transaction_focus *) noexcept;
-  PQXX_PRIVATE void register_pending_error(zview) noexcept;
-  PQXX_PRIVATE void register_pending_error(std::string &&) noexcept;
+  PQXX_PRIVATE void register_pending_error(zview, sl) noexcept;
+  PQXX_PRIVATE void register_pending_error(std::string &&, sl) noexcept;
 
   /// Like @ref stream(), but takes a tuple rather than a parameter pack.
   template<typename... ARGS>
-  auto stream_like(std::string_view query, std::tuple<ARGS...> const *)
+  auto stream_like(
+    std::string_view query, std::tuple<ARGS...> const *,
+    sl loc = sl::current())
   {
-    return stream<ARGS...>(query);
+    return stream<ARGS...>(query, loc);
   }
 
   connection &m_conn;
@@ -1124,28 +1261,21 @@ private:
    */
   transaction_focus const *m_focus = nullptr;
 
-  status m_status = status::active;
-  bool m_registered = false;
   std::string m_name;
   std::string m_pending_error;
 
   /// SQL command for aborting this type of transaction.
   std::shared_ptr<std::string> m_rollback_cmd;
 
+  status m_status = status::active;
+
+  bool m_registered = false;
+
+  /// A `std::source_location` for where this transaction object was created.
+  sl m_created_loc;
+
   static constexpr std::string_view s_type_name{"transaction"sv};
 };
-
-
-// C++20: Can borrowed_range help?
-/// Forbidden specialisation: underlying buffer immediately goes out of scope.
-template<>
-std::string_view transaction_base::query_value<std::string_view>(
-  zview query, std::string_view desc) = delete;
-/// Forbidden specialisation: underlying buffer immediately goes out of scope.
-template<>
-zview transaction_base::query_value<zview>(
-  zview query, std::string_view desc) = delete;
-
 } // namespace pqxx
 
 

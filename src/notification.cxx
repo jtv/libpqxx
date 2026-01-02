@@ -2,7 +2,7 @@
  *
  * pqxx::notification_receiver processes notifications.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -21,16 +21,17 @@
 
 
 pqxx::notification_receiver::notification_receiver(
-  connection &cx, std::string_view channel) :
+  connection &cx, std::string_view channel, sl loc) :
         m_conn{cx}, m_channel{channel}
 {
   pqxx::internal::gate::connection_notification_receiver{cx}.add_receiver(
-    this);
+    this, loc);
 }
 
 
 pqxx::notification_receiver::~notification_receiver()
 {
+  auto loc{sl::current()};
   pqxx::internal::gate::connection_notification_receiver{this->conn()}
-    .remove_receiver(this);
+    .remove_receiver(this, loc);
 }

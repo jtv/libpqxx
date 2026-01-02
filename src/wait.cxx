@@ -60,17 +60,18 @@
 
 namespace
 {
-template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
+template<typename T>
+T to_milli(unsigned seconds, unsigned microseconds, pqxx::sl loc)
 {
   return pqxx::check_cast<T>(
     (seconds * 1000) + (microseconds / 1000),
-    "Wait timeout value out of bounds.");
+    "Wait timeout value out of bounds.", loc);
 }
 
 
-#if defined(PQXX_HAVE_SELECT)
+#if !defined(PQXX_HAVE_POLL) && defined(PQXX_HAVE_SELECT)
 /// Set a bit on an fd_set.
-[[maybe_unused]] void set_fdbit(fd_set &bits, int fd)
+[[maybe_unused]] void set_fdbit(fd_set &bits, auto fd)
 {
 #  ifdef _MSC_VER
 // Suppress pointless, unfixable warnings in Visual Studio.
@@ -90,7 +91,7 @@ template<typename T> T to_milli(unsigned seconds, unsigned microseconds)
 
 void pqxx::internal::wait_fd(
   int fd, bool for_read, bool for_write, unsigned seconds,
-  unsigned microseconds)
+  unsigned microseconds, [[maybe_unused]] sl loc)
 {
 // WSAPoll is available in winsock2.h only for versions of Windows >= 0x0600
 #if defined(_WIN32) && (_WIN32_WINNT >= 0x0600)
@@ -98,14 +99,16 @@ void pqxx::internal::wait_fd(
   short const events{static_cast<short>(
     (for_read ? POLLRDNORM : 0) | (for_write ? POLLWRNORM : 0))};
   WSAPOLLFD fdarray{SOCKET(fd), events, 0};
-  int const code{
-    WSAPoll(&fdarray, 1u, to_milli<unsigned>(seconds, microseconds))};
+  int const code{WSAPoll(
+    &fdarray, 1u,
+    check_cast<int>(
+      to_milli<unsigned>(seconds, microseconds, loc), "Timeout too large."))};
 #elif defined(PQXX_HAVE_POLL)
   auto const events{static_cast<short>(
     POLLERR | POLLHUP | POLLNVAL | (for_read ? POLLIN : 0) |
     (for_write ? POLLOUT : 0))};
   pollfd pfd{fd, events, 0};
-  int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds))};
+  int const code{poll(&pfd, 1, to_milli<int>(seconds, microseconds, loc))};
 #else
   // No poll()?  Our last option is select().
   fd_set read_fds;
@@ -142,7 +145,7 @@ void pqxx::internal::wait_fd(
 }
 
 
-void PQXX_COLD pqxx::internal::wait_for(unsigned int microseconds)
+PQXX_COLD void pqxx::internal::wait_for(unsigned int microseconds)
 {
 #if defined(PQXX_HAVE_SLEEP_FOR)
   std::this_thread::sleep_for(std::chrono::microseconds{microseconds});

@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/zview instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -11,6 +11,7 @@
 #ifndef PQXX_H_ZVIEW
 #define PQXX_H_ZVIEW
 
+#include <cassert>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -40,21 +41,33 @@ public:
   constexpr zview() noexcept = default;
 
   /// Convenience overload: construct using pointer and signed length.
-  constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
+  /** Even though you specify the length, there must still be a zero byte just
+   * beyond that length, at `text[len]`.
+   */
+  PQXX_ZARGS constexpr zview(char const text[], std::ptrdiff_t len) noexcept(
     noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
-  {}
+  {
+    invariant();
+  }
 
   /// Convenience overload: construct using pointer and signed length.
   constexpr zview(char text[], std::ptrdiff_t len) noexcept(
     noexcept(std::string_view{text, static_cast<std::size_t>(len)})) :
           std::string_view{text, static_cast<std::size_t>(len)}
-  {}
+  {
+    invariant();
+  }
 
   /// Explicitly promote a `string_view` to a `zview`.
+  /** @warning This is not just a type conversion.  It's the caller making a
+   * promise that the string is zero-terminated.
+   */
   explicit constexpr zview(std::string_view other) noexcept :
           std::string_view{other}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct from any initialiser you might use for `std::string_view`.
   /** @warning Only do this if you are sure that the string is zero-terminated.
@@ -62,22 +75,28 @@ public:
   template<typename... Args>
   explicit constexpr zview(Args &&...args) :
           std::string_view(std::forward<Args>(args)...)
-  {}
+  {
+    invariant();
+  }
 
-  // C++20: constexpr.
   /// @warning There's an implicit conversion from `std::string`.
-  zview(std::string const &str) noexcept :
+  constexpr zview(std::string const &str) noexcept :
           std::string_view{str.c_str(), str.size()}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct a `zview` from a C-style string.
   /** @warning This scans the string to discover its length.  So if you need to
    * do it many times, it's probably better to create the `zview` once and
    * re-use it.
    */
-  constexpr zview(char const str[]) noexcept(noexcept(std::string_view{str})) :
+  PQXX_ZARGS constexpr zview(char const str[]) noexcept(
+    noexcept(std::string_view{str})) :
           std::string_view{str}
-  {}
+  {
+    invariant();
+  }
 
   /// Construct a `zview` from a string literal.
   /** A C++ string literal ("foo") normally looks a lot like a pointer to
@@ -89,7 +108,8 @@ public:
    * to find out its length.
    */
   template<size_t size>
-  constexpr zview(char const (&literal)[size]) : zview(literal, size - 1)
+  PQXX_ZARGS constexpr zview(char const (&literal)[size]) :
+          zview(literal, size - 1)
   {}
 
   /// Either a null pointer, or a zero-terminated text buffer.
@@ -97,7 +117,22 @@ public:
   {
     return data();
   }
+
+private:
+  /// Check invariant: unless `data()` is null, must be zero-terminated.
+  [[maybe_unused]] constexpr void invariant() const noexcept
+  {
+    assert(
+      (std::data(*this) == nullptr) or
+      (std::data(*this)[std::size(*this)] == '\0'));
+  }
 };
+
+
+template<> inline constexpr std::string_view name_type<zview>() noexcept
+{
+  return "pqxx::zview";
+}
 
 
 /// Support @ref zview literals.
@@ -108,14 +143,14 @@ public:
  * using pqxx::operator"" _zv;
  * ```
  */
-constexpr zview operator""_zv(char const str[], std::size_t len) noexcept
+PQXX_ZARGS constexpr zview
+operator""_zv(char const str[], std::size_t len) noexcept
 {
   return zview{str, len};
 }
 } // namespace pqxx
 
 
-#if defined(PQXX_HAVE_CONCEPTS) && __has_include(<ranges>)
 /// A zview is a view.
 template<> inline constexpr bool std::ranges::enable_view<pqxx::zview>{true};
 
@@ -132,17 +167,17 @@ namespace pqxx::internal
  * support each of these individually.
  */
 template<typename T>
-concept ZString = std::is_convertible_v<strip_t<T>, char const *> or
-                  std::is_convertible_v<strip_t<T>, zview> or
-                  std::is_convertible_v<T, std::string const &>;
+concept ZString =
+  std::is_convertible_v<std::remove_cvref_t<T>, char const *> or
+  std::is_convertible_v<std::remove_cvref_t<T>, zview> or
+  std::is_convertible_v<T, std::string const &>;
 } // namespace pqxx::internal
-#endif // PQXX_HAVE_CONCEPTS
 
 
 namespace pqxx::internal
 {
 /// Get a raw C string pointer.
-inline constexpr char const *as_c_string(char const str[]) noexcept
+PQXX_ZARGS inline constexpr char const *as_c_string(char const str[]) noexcept
 {
   return str;
 }
@@ -157,9 +192,8 @@ inline constexpr char const *as_c_string(pqxx::zview str) noexcept
 {
   return str.c_str();
 }
-// C++20: Make this constexpr.
 /// Get a raw C string pointer.
-inline char const *as_c_string(std::string const &str) noexcept
+inline constexpr char const *as_c_string(std::string const &str) noexcept
 {
   return str.c_str();
 }

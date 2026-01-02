@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/robusttransaction instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -29,9 +29,7 @@ public:
   virtual ~basic_robusttransaction() override = 0;
 
 protected:
-  basic_robusttransaction(
-    connection &cx, zview begin_command, std::string_view tname);
-  basic_robusttransaction(connection &cx, zview begin_command);
+  basic_robusttransaction(connection &cx, zview begin_command, sl);
 
 private:
   using IDType = unsigned long;
@@ -40,10 +38,10 @@ private:
   std::string m_xid;
   int m_backendpid = -1;
 
-  void init(zview begin_command);
+  void init(zview begin_command, sl);
 
   // @warning This function will become `final`.
-  virtual void do_commit() override;
+  virtual void do_commit(sl) override;
 };
 } // namespace pqxx::internal
 
@@ -105,12 +103,13 @@ public:
   /** Create robusttransaction of given name.
    * @param cx Connection inside which this robusttransaction should live.
    */
-  explicit robusttransaction(connection &cx) :
+  explicit robusttransaction(connection &cx, sl loc = sl::current()) :
           internal::basic_robusttransaction{
-            cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>}
+            cx, pqxx::internal::begin_cmd<ISOLATION, write_policy::read_write>,
+            loc}
   {}
 
-  virtual ~robusttransaction() noexcept override { close(); }
+  virtual ~robusttransaction() noexcept override { close(sl::current()); }
 };
 
 /**

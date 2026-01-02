@@ -2,11 +2,11 @@
 
 namespace pqxx::internal::gate
 {
-class PQXX_PRIVATE result_pipeline : callgate<result const>
+class PQXX_PRIVATE result_pipeline final : callgate<result const>
 {
   friend class pqxx::pipeline;
 
-  result_pipeline(reference x) : super(x) {}
+  constexpr result_pipeline(reference x) noexcept : super(x) {}
 
   std::shared_ptr<std::string const> query_ptr() const
   {

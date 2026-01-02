@@ -1,12 +1,9 @@
 #include <cmath>
-#include <iostream>
 #include <sstream>
 
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Streams test program for libpqxx.  Insert a result field into various
@@ -15,62 +12,56 @@ namespace
 {
 void test_046()
 {
-  connection cx;
-  work tx{cx};
+  pqxx::connection cx;
+  pqxx::work tx{cx};
 
-  pqxx::field R{tx.exec("SELECT count(*) FROM pg_tables").one_field()};
+  pqxx::field const r{tx.exec("SELECT count(*) FROM pg_tables").one_field()};
 
   // Read the value into a stringstream.
-  std::stringstream I;
+  std::stringstream i;
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  I << R;
+  i << r;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   // Now convert the stringstream into a numeric type
   long L{}, L2{};
-  I >> L;
+  i >> L;
 
-  R.to(L2);
+  r.to(L2);
   PQXX_CHECK_EQUAL(L, L2, "Inconsistency between conversion methods.");
 
-  float F{}, F2{};
+  float f{}, f2{};
   std::stringstream I2;
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  I2 << R;
+  I2 << r;
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-  I2 >> F;
-  R.to(F2);
-  PQXX_CHECK_BOUNDS(F2, F - 0.01, F + 0.01, "Bad floating-point result.");
+  I2 >> f;
+  r.to(f2);
+  PQXX_CHECK_BOUNDS(f2, f - 0.01, f + 0.01);
 
-  auto F3{from_string<float>(R.c_str())};
-  PQXX_CHECK_BOUNDS(F3, F - 0.01, F + 0.01, "Bad float from from_string.");
+  auto F3{pqxx::from_string<float>(r.c_str())};
+  PQXX_CHECK_BOUNDS(F3, f - 0.01, f + 0.01);
 
-  auto D{from_string<double>(R.c_str())};
-  PQXX_CHECK_BOUNDS(D, F - 0.01, F + 0.01, "Bad double from from_string.");
+  auto D{pqxx::from_string<double>(r.c_str())};
+  PQXX_CHECK_BOUNDS(D, f - 0.01, f + 0.01);
 
-  auto LD{from_string<long double>(R.c_str())};
-  PQXX_CHECK_BOUNDS(
-    LD, F - 0.01, F + 0.01, "Bad long double from from_string.");
+  // Valgrind doesn't support "long double."
+#if !defined(PQXX_VALGRIND)
+  auto LD{pqxx::from_string<long double>(r.c_str())};
+  PQXX_CHECK_BOUNDS(LD, f - 0.01, f + 0.01);
+#endif
 
-  auto S{from_string<std::string>(R.c_str())},
-    S2{from_string<std::string>(std::string{R.c_str()})},
-    S3{from_string<std::string>(R)};
+  auto S{pqxx::from_string<std::string>(r.c_str())},
+    S2{pqxx::from_string<std::string>(std::string{r.c_str()})},
+    S3{pqxx::from_string<std::string>(r)};
 
-  PQXX_CHECK_EQUAL(
-    S2, S,
-    "from_string(char const[], std::string &) "
-    "is inconsistent with "
-    "from_string(std::string const &, std::string &).");
+  PQXX_CHECK_EQUAL(S2, S);
 
-  PQXX_CHECK_EQUAL(
-    S3, S2,
-    "from_string(result::field const &, std::string &) "
-    "is inconsistent with "
-    "from_string(std::string const &, std::string &).");
+  PQXX_CHECK_EQUAL(S3, S2);
 
-  PQXX_CHECK(tx.query_value<bool>("SELECT 1=1"), "1=1 doesn't yield 'true.'");
+  PQXX_CHECK(tx.query_value<bool>("SELECT 1=1"));
 
-  PQXX_CHECK(not tx.query_value<bool>("SELECT 2+2=5"), "2+2=5 yields 'true.'");
+  PQXX_CHECK(not tx.query_value<bool>("SELECT 2+2=5"));
 }
 
 

@@ -19,36 +19,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_CHARCONV_FLOAT=no)
 AC_MSG_RESULT($PQXX_HAVE_CHARCONV_FLOAT)
-AC_MSG_CHECKING([PQXX_HAVE_CHARCONV_INT])
-PQXX_HAVE_CHARCONV_INT=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_CHARCONV_INT.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_CHARCONV_INT],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_CHARCONV_INT=no)
-AC_MSG_RESULT($PQXX_HAVE_CHARCONV_INT)
-AC_MSG_CHECKING([PQXX_HAVE_CMP])
-PQXX_HAVE_CMP=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_CMP.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_CMP],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_CMP=no)
-AC_MSG_RESULT($PQXX_HAVE_CMP)
-AC_MSG_CHECKING([PQXX_HAVE_CONCEPTS])
-PQXX_HAVE_CONCEPTS=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_CONCEPTS.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_CONCEPTS],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_CONCEPTS=no)
-AC_MSG_RESULT($PQXX_HAVE_CONCEPTS)
 AC_MSG_CHECKING([PQXX_HAVE_CXA_DEMANGLE])
 PQXX_HAVE_CXA_DEMANGLE=yes
 AC_COMPILE_IFELSE(
@@ -79,16 +49,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_GCC_VISIBILITY=no)
 AC_MSG_RESULT($PQXX_HAVE_GCC_VISIBILITY)
-AC_MSG_CHECKING([PQXX_HAVE_LIKELY])
-PQXX_HAVE_LIKELY=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_LIKELY.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_LIKELY],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_LIKELY=no)
-AC_MSG_RESULT($PQXX_HAVE_LIKELY)
 AC_MSG_CHECKING([PQXX_HAVE_MULTIDIM])
 PQXX_HAVE_MULTIDIM=yes
 AC_COMPILE_IFELSE(
@@ -99,16 +59,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_MULTIDIM=no)
 AC_MSG_RESULT($PQXX_HAVE_MULTIDIM)
-AC_MSG_CHECKING([PQXX_HAVE_PATH])
-PQXX_HAVE_PATH=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_PATH.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_PATH],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_PATH=no)
-AC_MSG_RESULT($PQXX_HAVE_PATH)
 AC_MSG_CHECKING([PQXX_HAVE_POLL])
 PQXX_HAVE_POLL=yes
 AC_COMPILE_IFELSE(
@@ -139,36 +89,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_SLEEP_FOR=no)
 AC_MSG_RESULT($PQXX_HAVE_SLEEP_FOR)
-AC_MSG_CHECKING([PQXX_HAVE_SOURCE_LOCATION])
-PQXX_HAVE_SOURCE_LOCATION=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_SOURCE_LOCATION.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_SOURCE_LOCATION],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_SOURCE_LOCATION=no)
-AC_MSG_RESULT($PQXX_HAVE_SOURCE_LOCATION)
-AC_MSG_CHECKING([PQXX_HAVE_SPAN])
-PQXX_HAVE_SPAN=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_SPAN.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_SPAN],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_SPAN=no)
-AC_MSG_RESULT($PQXX_HAVE_SPAN)
-AC_MSG_CHECKING([PQXX_HAVE_SSIZE])
-PQXX_HAVE_SSIZE=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_SSIZE.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_SSIZE],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_SSIZE=no)
-AC_MSG_RESULT($PQXX_HAVE_SSIZE)
 AC_MSG_CHECKING([PQXX_HAVE_STRERROR_R])
 PQXX_HAVE_STRERROR_R=yes
 AC_COMPILE_IFELSE(
@@ -189,16 +109,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_STRERROR_S=no)
 AC_MSG_RESULT($PQXX_HAVE_STRERROR_S)
-AC_MSG_CHECKING([PQXX_HAVE_THREAD_LOCAL])
-PQXX_HAVE_THREAD_LOCAL=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_THREAD_LOCAL.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_THREAD_LOCAL],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_THREAD_LOCAL=no)
-AC_MSG_RESULT($PQXX_HAVE_THREAD_LOCAL)
 AC_MSG_CHECKING([PQXX_HAVE_YEAR_MONTH_DAY])
 PQXX_HAVE_YEAR_MONTH_DAY=yes
 AC_COMPILE_IFELSE(
@@ -209,14 +119,14 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_YEAR_MONTH_DAY=no)
 AC_MSG_RESULT($PQXX_HAVE_YEAR_MONTH_DAY)
-AC_MSG_CHECKING([no_need_fslib])
-no_need_fslib=yes
+AC_MSG_CHECKING([PQXX_HAVE_ZARGS])
+PQXX_HAVE_ZARGS=yes
 AC_COMPILE_IFELSE(
-    [read_test(no_need_fslib.cxx)],
+    [read_test(PQXX_HAVE_ZARGS.cxx)],
     AC_DEFINE(
-        [no_need_fslib],
+        [PQXX_HAVE_ZARGS],
         1,
         [Define if this feature is available.]),
-    no_need_fslib=no)
-AC_MSG_RESULT($no_need_fslib)
+    PQXX_HAVE_ZARGS=no)
+AC_MSG_RESULT($PQXX_HAVE_ZARGS)
 # End of config.

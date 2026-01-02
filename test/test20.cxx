@@ -1,48 +1,43 @@
-#include <iostream>
-
 #include <pqxx/connection>
 #include <pqxx/nontransaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 // Test: nontransaction changes are not rolled back on abort.
 namespace
 {
-constexpr unsigned long BoringYear{1977};
+constexpr int boring_year_20{1977};
 
 
 void test_020()
 {
-  connection cx;
-  nontransaction t1{cx};
-  test::create_pqxxevents(t1);
+  pqxx::connection cx;
+  pqxx::nontransaction t1{cx};
+  pqxx::test::create_pqxxevents(t1);
 
-  std::string const Table{"pqxxevents"};
+  std::string const table{"pqxxevents"};
 
   // Verify our start condition before beginning: there must not be a 1977
   // record already.
-  result R(t1.exec(("SELECT * FROM " + Table +
-                    " "
-                    "WHERE year=" +
-                    to_string(BoringYear))
-                     .c_str()));
+  pqxx::result r{t1.exec(
+    "SELECT * FROM " + table +
+    " WHERE year=" + pqxx::to_string(boring_year_20))};
   PQXX_CHECK_EQUAL(
-    std::size(R), 0,
-    "Already have a row for " + to_string(BoringYear) + ", cannot test.");
+    std::size(r), 0,
+    "Already have a row for " + pqxx::to_string(boring_year_20) +
+      ", cannot test.");
 
   // (Not needed, but verify that clear() works on empty containers)
-  R.clear();
-  PQXX_CHECK(std::empty(R), "result::clear() is broken.");
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // OK.  Having laid that worry to rest, add a record for 1977.
   t1.exec(
-      "INSERT INTO " + Table +
+      "INSERT INTO " + table +
       " VALUES"
       "(" +
-      to_string(BoringYear) +
+      pqxx::to_string(boring_year_20) +
       ","
       "'Yawn'"
       ")")
@@ -54,42 +49,36 @@ void test_020()
   t1.abort();
 
   // Verify that our record was added, despite the Abort()
-  nontransaction t2{cx, "t2"};
-  R = t2.exec(("SELECT * FROM " + Table +
-               " "
-               "WHERE year=" +
-               to_string(BoringYear))
-                .c_str());
+  pqxx::nontransaction t2{cx, "t2"};
+  r = t2.exec(
+    "SELECT * FROM " + table +
+    " WHERE year=" + pqxx::to_string(boring_year_20));
 
-  PQXX_CHECK_EQUAL(
-    std::size(R), 1,
-    "Found wrong number of rows for " + to_string(BoringYear) + ".");
+  PQXX_CHECK_EQUAL(std::size(r), 1);
 
-  PQXX_CHECK(R.capacity() >= std::size(R), "Result's capacity is too small.");
+  PQXX_CHECK_GREATER_EQUAL(r.capacity(), std::size(r));
 
-  R.clear();
-  PQXX_CHECK(std::empty(R), "result::clear() doesn't work.");
+  r.clear();
+  PQXX_CHECK(std::empty(r));
 
   // Now remove our record again
   t2.exec(
-      "DELETE FROM " + Table +
+      "DELETE FROM " + table +
       " "
       "WHERE year=" +
-      to_string(BoringYear))
+      pqxx::to_string(boring_year_20))
     .no_rows();
 
   t2.commit();
 
   // And again, verify results
-  nontransaction t3{cx, "t3"};
+  pqxx::nontransaction t3{cx, "t3"};
 
-  R = t3.exec(("SELECT * FROM " + Table +
-               " "
-               "WHERE year=" +
-               to_string(BoringYear))
-                .c_str());
+  r = t3.exec(
+    "SELECT * FROM " + table +
+    " WHERE year=" + pqxx::to_string(boring_year_20));
 
-  PQXX_CHECK_EQUAL(std::size(R), 0, "Record still found after removal.");
+  PQXX_CHECK_EQUAL(std::size(r), 0);
 }
 
 

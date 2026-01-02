@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_query instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -22,13 +22,11 @@
 #include <variant>
 
 #include "pqxx/connection.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-stream_from.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
-#include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_base.hxx"
 #include "pqxx/transaction_focus.hxx"
 #include "pqxx/util.hxx"
@@ -47,7 +45,7 @@ class stream_query_end_iterator
 {};
 
 
-// C++20: Can we use generators, and maybe get speedup from HALO?
+// TODO: Can we use generators, and maybe get speedup from HALO?
 /// Stream query results from the database.  Used by transaction_base::stream.
 /** For larger data sets, retrieving data this way is likely to be faster than
  * executing a query and then iterating and converting the rows' fields.  You
@@ -76,16 +74,14 @@ class stream_query_end_iterator
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-template<typename... TYPE> class stream_query : transaction_focus
+template<typename... TYPE> class stream_query final : transaction_focus
 {
 public:
   using line_handle = std::unique_ptr<char, void (*)(void const *)>;
 
   /// Execute `query` on `tx`, stream results.
-  inline stream_query(transaction_base &tx, std::string_view query);
-  /// Execute `query` on `tx`, stream results.
   inline stream_query(
-    transaction_base &tx, std::string_view query, params const &);
+    transaction_base &tx, std::string_view query, conversion_context c);
 
   stream_query(stream_query &&) = delete;
   stream_query &operator=(stream_query &&) = delete;
@@ -98,7 +94,7 @@ public:
     }
     catch (std::exception const &e)
     {
-      reg_pending_error(e.what());
+      reg_pending_error(e.what(), sl::current());
     }
   }
 
@@ -115,7 +111,7 @@ public:
   auto end() const & { return stream_query_end_iterator{}; }
 
   /// Parse and convert the latest line of data we received.
-  std::tuple<TYPE...> parse_line(zview line) &
+  std::tuple<TYPE...> parse_line(std::string_view line) &
   {
     assert(not done());
 
@@ -139,21 +135,22 @@ public:
 
     // Folding expression: scan and unescape each field, and convert it to its
     // requested type.
-    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write)...};
+    std::tuple<TYPE...> data{parse_field<TYPE>(line, offset, write, m_ctx)...};
 
     assert(offset == line_size + 1u);
     return data;
   }
 
   /// Read a COPY line from the server.
-  std::pair<line_handle, std::size_t> read_line() &;
+  std::pair<line_handle, std::size_t> read_line(sl) &;
 
 private:
   /// Look up a char_finder_func.
   /** This is the only encoding-dependent code in the class.  All we need to
    * store after that is this function pointer.
    */
-  static inline char_finder_func *get_finder(transaction_base const &tx);
+  PQXX_RETURNS_NONNULL static inline char_finder_func *
+  get_finder(transaction_base const &tx, sl);
 
   /// Scan and unescape a field into the row buffer.
   /** The row buffer is `m_row`.
@@ -162,16 +159,16 @@ private:
    * @param offset The current scanning position inside `line`.
    * @param write The current writing position in the row buffer.
    *
-   * @return new `offset`; new `write`; and a zview on the unescaped
+   * @return new `offset`; new `write`; and a `string_view` on the unescaped
    * field text in the row buffer.
    *
-   * The zview's data pointer will be nullptr for a null field.
+   * The `string_view`'s data pointer will be nullptr for a null field.
    *
    * After reading the final field in a row, if all goes well, offset should be
    * one greater than the size of the line, pointing at the terminating zero.
    */
-  std::tuple<std::size_t, char *, zview>
-  read_field(zview line, std::size_t offset, char *write)
+  std::tuple<std::size_t, char *, std::string_view>
+  read_field(std::string_view line, std::size_t offset, char *write, ctx c)
   {
 #if !defined(NDEBUG)
     auto const line_size{std::size(line)};
@@ -211,8 +208,11 @@ private:
       assert(lp[offset] != '\0');
 
       // Beginning of the next character of interest (or the end of the line).
-      auto const stop_char{m_char_finder(line, offset)};
-      PQXX_ASSUME(stop_char > offset);
+      // It may be right where we start searching, and this won't loop forever
+      // since the previous iteration (if any) put us right _after_ the
+      // previous character of interest.
+      auto const stop_char{m_char_finder(line, offset, c.loc)};
+      PQXX_ASSUME(stop_char >= offset);
       assert(stop_char < (line_size + 1));
 
       // Copy the text we have so far.  It's got no special characters in it.
@@ -232,6 +232,10 @@ private:
         // The database will only escape ASCII characters, so we assume that
         // we're dealing with a single-byte character.
         char const escaped{lp[offset]};
+
+        // I think this is a valid way to check for the high bit: the shift
+        // may be signed or unsigned (implementation-defined for char), but
+        // either way we get a zero if the bit is clear or nonzero if it's set.
         assert((escaped >> 7) == 0);
         ++offset;
         *write++ = unescape_char(escaped);
@@ -248,7 +252,10 @@ private:
     *write = '\0';
     ++write;
     ++offset;
-    return {offset, write, {field_begin, write - field_begin - 1}};
+    return {
+      offset,
+      write,
+      {field_begin, static_cast<std::size_t>(write - field_begin - 1)}};
   }
 
   /// Parse the next field.
@@ -266,36 +273,36 @@ private:
    * @return Field value converted to TARGET type.
    */
   template<typename TARGET>
-  TARGET parse_field(zview line, std::size_t &offset, char *&write)
+  TARGET
+  parse_field(std::string_view line, std::size_t &offset, char *&write, ctx c)
   {
-    using field_type = strip_t<TARGET>;
-    using nullity = nullness<field_type>;
+    using field_type = std::remove_cvref_t<TARGET>;
 
     assert(offset <= std::size(line));
 
-    auto [new_offset, new_write, text]{read_field(line, offset, write)};
+    auto [new_offset, new_write, text]{read_field(line, offset, write, c)};
     PQXX_ASSUME(new_offset > offset);
     PQXX_ASSUME(new_write >= write);
     offset = new_offset;
     write = new_write;
-    if constexpr (nullity::always_null)
+    if constexpr (pqxx::always_null<TARGET>())
     {
       if (std::data(text) != nullptr)
-        throw conversion_error{concat(
-          "Streaming a non-null value into a ", type_name<field_type>,
-          ", which must always be null.")};
+        throw conversion_error{std::format(
+          "Streaming a non-null value into a {}, which must always be null.",
+          name_type<field_type>())};
     }
     else if (std::data(text) == nullptr)
     {
-      if constexpr (nullity::has_null)
-        return nullity::null();
+      if constexpr (has_null<TARGET>())
+        return make_null<TARGET>();
       else
-        internal::throw_null_conversion(type_name<field_type>);
+        internal::throw_null_conversion(name_type<field_type>(), c.loc);
     }
     else
     {
       // Don't ever try to convert a non-null value to nullptr_t!
-      return from_string<field_type>(text);
+      return from_string<field_type>(text, c);
     }
   }
 
@@ -322,6 +329,9 @@ private:
    * re-allocate it every time.
    */
   std::string m_row;
+
+  /// Caller source location, encoding group, possibly more.
+  conversion_context m_ctx;
 };
 } // namespace pqxx::internal
 #endif

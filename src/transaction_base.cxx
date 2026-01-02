@@ -3,7 +3,7 @@
  * pqxx::transaction_base defines the interface for any abstract class that
  * represents a database transaction.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -18,7 +18,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-transaction.hxx"
 #include "pqxx/internal/gates/transaction-transaction_focus.hxx"
@@ -45,14 +44,27 @@ std::shared_ptr<std::string> make_rollback_cmd()
 }
 } // namespace
 
-pqxx::transaction_base::transaction_base(connection &cx) :
-        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}
+pqxx::transaction_base::transaction_base(connection &cx, sl loc) :
+        m_conn{cx}, m_rollback_cmd{make_rollback_cmd()}, m_created_loc{loc}
 {}
 
 
 pqxx::transaction_base::transaction_base(
-  connection &cx, std::string_view tname) :
-        m_conn{cx}, m_name{tname}, m_rollback_cmd{make_rollback_cmd()}
+  connection &cx, std::string_view tname, sl loc) :
+        m_conn{cx},
+        m_name{tname},
+        m_rollback_cmd{make_rollback_cmd()},
+        m_created_loc{loc}
+{}
+
+
+pqxx::transaction_base::transaction_base(
+  connection &cx, std::string_view tname,
+  std::shared_ptr<std::string> rollback_cmd, sl loc) :
+        m_conn{cx},
+        m_name{tname},
+        m_rollback_cmd{std::move(rollback_cmd)},
+        m_created_loc{loc}
 {}
 
 
@@ -60,15 +72,13 @@ pqxx::transaction_base::~transaction_base()
 {
   try
   {
-    if (not std::empty(m_pending_error))
-      PQXX_UNLIKELY
-    process_notice(
-      internal::concat("UNPROCESSED ERROR: ", m_pending_error, "\n"));
+    if (not std::empty(m_pending_error)) [[unlikely]]
+      process_notice(std::format("UNPROCESSED ERROR: {}\n", m_pending_error));
 
     if (m_registered)
     {
       m_conn.process_notice(
-        internal::concat(description(), " was never closed properly!\n"));
+        std::format("{} was never closed properly!\n", description()));
       pqxx::internal::gate::connection_transaction{conn()}
         .unregister_transaction(this);
     }
@@ -77,7 +87,7 @@ pqxx::transaction_base::~transaction_base()
   {
     try
     {
-      process_notice(internal::concat(e.what(), "\n"));
+      process_notice(std::format("{}\n", e.what()));
     }
     catch (std::exception const &)
     {
@@ -96,7 +106,13 @@ void pqxx::transaction_base::register_transaction()
 }
 
 
-void pqxx::transaction_base::commit()
+pqxx::conversion_context pqxx::transaction_base::make_context(sl loc) const
+{
+  return conversion_context{m_conn.get_encoding_group(loc), loc};
+}
+
+
+void pqxx::transaction_base::commit(sl loc)
 {
   check_pending_error();
 
@@ -108,8 +124,9 @@ void pqxx::transaction_base::commit()
     break;
 
   case status::aborted:
-    throw usage_error{internal::concat(
-      "Attempt to commit previously aborted ", description())};
+    throw usage_error{
+      std::format("Attempt to commit previously aborted {}", description()),
+      loc};
 
   case status::committed:
     // Transaction has been committed already.  This is not exactly proper
@@ -118,14 +135,14 @@ void pqxx::transaction_base::commit()
     // stage.
     // Therefore, multiple commits are accepted, though under protest.
     m_conn.process_notice(
-      internal::concat(description(), " committed more than once.\n"));
+      std::format("{} committed more than once.\n", description()));
     return;
 
   case status::in_doubt:
     // Transaction may or may not have been committed.  The only thing we can
     // really do is keep telling the caller that the transaction is in doubt.
-    throw in_doubt_error{internal::concat(
-      description(), " committed again while in an indeterminate state.")};
+    throw in_doubt_error{std::format(
+      "{} committed again while in an indeterminate state.", description())};
 
   default: PQXX_UNREACHABLE;
   }
@@ -135,9 +152,11 @@ void pqxx::transaction_base::commit()
   // commit is premature.  Punish this swiftly and without fail to discourage
   // the habit from forming.
   if (m_focus != nullptr)
-    throw failure{internal::concat(
-      "Attempt to commit ", description(), " with ", m_focus->description(),
-      " still open.")};
+    throw failure{
+      std::format(
+        "Attempt to commit {} with {} still open.", description(),
+        m_focus->description()),
+      loc};
 
   // Check that we're still connected (as far as we know--this is not an
   // absolute thing!) before trying to commit.  If the connection was broken
@@ -145,11 +164,11 @@ void pqxx::transaction_base::commit()
   // remain in-doubt as to whether the backend got the commit order at all.
   if (not m_conn.is_open())
     throw broken_connection{
-      "Broken connection to backend; cannot complete transaction."};
+      "Broken connection to backend; cannot complete transaction.", loc};
 
   try
   {
-    do_commit();
+    do_commit(loc);
     m_status = status::committed;
   }
   catch (in_doubt_error const &)
@@ -163,18 +182,18 @@ void pqxx::transaction_base::commit()
     throw;
   }
 
-  close();
+  close(loc);
 }
 
 
-void pqxx::transaction_base::do_abort()
+void pqxx::transaction_base::do_abort(sl loc)
 {
   if (m_rollback_cmd)
-    direct_exec(m_rollback_cmd);
+    direct_exec(m_rollback_cmd, loc);
 }
 
 
-void pqxx::transaction_base::abort()
+void pqxx::transaction_base::abort(sl loc)
 {
   // Check previous status code.  Quietly accept multiple aborts to
   // simplify emergency bailout code.
@@ -183,40 +202,35 @@ void pqxx::transaction_base::abort()
   case status::active:
     try
     {
-      do_abort();
+      do_abort(loc);
     }
     catch (std::exception const &e)
     {
-      m_conn.process_notice(internal::concat(e.what(), "\n"));
+      m_conn.process_notice(std::format("{}\n", e.what()));
     }
     break;
 
   case status::aborted: return;
 
   case status::committed:
-    throw usage_error{internal::concat(
-      "Attempt to abort previously committed ", description())};
+    throw usage_error{
+      std::format("Attempt to abort previously committed {}.", description()),
+      loc};
 
   case status::in_doubt:
     // Aborting an in-doubt transaction is probably a reasonably sane response
     // to an insane situation.  Log it, but do not fail.
-    m_conn.process_notice(internal::concat(
-      "Warning: ", description(),
-      " aborted after going into indeterminate state; "
-      "it may have been executed anyway.\n"));
+    m_conn.process_notice(std::format(
+      "Warning: {} aborted after going into indeterminate state; "
+      "it may have been executed anyway.\n",
+      description()));
     return;
 
   default: PQXX_UNREACHABLE;
   }
 
   m_status = status::aborted;
-  close();
-}
-
-
-std::string PQXX_COLD pqxx::transaction_base::quote_raw(zview bin) const
-{
-  return conn().quote(binary_cast(bin));
+  close(loc);
 }
 
 
@@ -245,8 +259,32 @@ public:
 };
 } // namespace
 
-pqxx::result
-pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
+pqxx::result pqxx::transaction_base::exec(std::string_view query, sl loc)
+{
+  check_pending_error();
+
+  command const cmd{*this, {}};
+
+  switch (m_status)
+  {
+  case status::active: break;
+
+  case status::committed:
+  case status::aborted:
+  case status::in_doubt:
+    // TODO: Pass query.
+    throw usage_error{
+      "Could not execute command: transaction is already closed.", loc};
+
+  default: PQXX_UNREACHABLE;
+  }
+
+  return direct_exec(query, loc);
+}
+
+
+pqxx::result pqxx::transaction_base::exec(
+  std::string_view query, std::string_view desc, sl loc)
 {
   check_pending_error();
 
@@ -259,22 +297,23 @@ pqxx::transaction_base::exec(std::string_view query, std::string_view desc)
   case status::committed:
   case status::aborted:
   case status::in_doubt: {
-    std::string const n{
-      std::empty(desc) ? "" : internal::concat("'", desc, "' ")};
+    std::string const n{std::empty(desc) ? "" : std::format("'{}' ", desc)};
 
-    throw usage_error{internal::concat(
-      "Could not execute command ", n, ": transaction is already closed.")};
+    throw usage_error{
+      std::format(
+        "Could not execute command {}: transaction is already closed.", n),
+      loc};
   }
 
   default: PQXX_UNREACHABLE;
   }
 
-  return direct_exec(query, desc);
+  return direct_exec(query, desc, loc);
 }
 
 
 pqxx::result pqxx::transaction_base::exec_n(
-  result::size_type rows, zview query, std::string_view desc)
+  result::size_type rows, std::string_view query, std::string_view desc)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   result r{exec(query, desc)};
@@ -285,30 +324,31 @@ pqxx::result pqxx::transaction_base::exec_n(
 
 
 pqxx::result pqxx::transaction_base::internal_exec_prepared(
-  std::string_view statement, internal::c_params const &args)
+  std::string_view statement, internal::c_params const &args, sl loc)
 {
   command const cmd{*this, statement};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_prepared(
-    statement, args);
+    statement, args, loc);
 }
 
 
 pqxx::result pqxx::transaction_base::internal_exec_params(
-  std::string_view query, internal::c_params const &args)
+  std::string_view query, internal::c_params const &args, sl loc)
 {
   command const cmd{*this, query};
   return pqxx::internal::gate::connection_transaction{conn()}.exec_params(
-    query, args);
+    query, args, loc);
 }
 
 
 void pqxx::transaction_base::notify(
-  std::string_view channel, std::string_view payload)
+  std::string_view channel, std::string_view payload, sl loc)
 {
   // For some reason, NOTIFY does not work as a parameterised statement,
   // even just for the payload (which is supposed to be a normal string).
   // Luckily, pg_notify() does.
-  exec("SELECT pg_notify($1, $2)", params{channel, payload}).one_row();
+  exec("SELECT pg_notify($1, $2)", params{*this, channel, payload}, loc)
+    .one_row(loc);
 }
 
 
@@ -329,7 +369,7 @@ std::string pqxx::transaction_base::get_variable(std::string_view var)
 }
 
 
-void pqxx::transaction_base::close() noexcept
+void pqxx::transaction_base::close(sl loc) noexcept
 {
   try
   {
@@ -353,15 +393,14 @@ void pqxx::transaction_base::close() noexcept
     if (m_status != status::active)
       return;
 
-    if (m_focus != nullptr)
-      PQXX_UNLIKELY
-    m_conn.process_notice(internal::concat(
-      "Closing ", description(), "  with ", m_focus->description(),
-      " still open.\n"));
+    if (m_focus != nullptr) [[unlikely]]
+      m_conn.process_notice(std::format(
+        "Closing {} with {} still open.\n", description(),
+        m_focus->description()));
 
     try
     {
-      abort();
+      abort(loc);
     }
     catch (std::exception const &e)
     {
@@ -427,23 +466,24 @@ void pqxx::transaction_base::unregister_focus(
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::string_view cmd, std::string_view desc)
+  std::string_view cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
-  return pqxx::internal::gate::connection_transaction{conn()}.exec(cmd, desc);
+  return pqxx::internal::gate::connection_transaction{conn()}.exec(
+    cmd, desc, loc);
 }
 
 
 pqxx::result pqxx::transaction_base::direct_exec(
-  std::shared_ptr<std::string> cmd, std::string_view desc)
+  std::shared_ptr<std::string> cmd, std::string_view desc, sl loc)
 {
   check_pending_error();
   return pqxx::internal::gate::connection_transaction{conn()}.exec(
-    std::move(cmd), desc);
+    std::move(cmd), desc, loc);
 }
 
 
-void pqxx::transaction_base::register_pending_error(zview err) noexcept
+void pqxx::transaction_base::register_pending_error(zview err, sl loc) noexcept
 {
   if (std::empty(m_pending_error) and not std::empty(err))
   {
@@ -455,8 +495,8 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
-        process_notice("UNABLE TO PROCESS ERROR\n");
+        [[unlikely]] process_notice(std::format(
+          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -469,7 +509,8 @@ void pqxx::transaction_base::register_pending_error(zview err) noexcept
 }
 
 
-void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
+void pqxx::transaction_base::register_pending_error(
+  std::string &&err, sl loc) noexcept
 {
   if (std::empty(m_pending_error) and not std::empty(err))
   {
@@ -481,8 +522,8 @@ void pqxx::transaction_base::register_pending_error(std::string &&err) noexcept
     {
       try
       {
-        PQXX_UNLIKELY
-        process_notice("UNABLE TO PROCESS ERROR\n");
+        process_notice(std::format(
+          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -499,6 +540,7 @@ void pqxx::transaction_base::check_pending_error()
 {
   if (not std::empty(m_pending_error))
   {
+    // TODO: Store exceptions, or message + source_location.
     std::string err;
     err.swap(m_pending_error);
     throw failure{err};
@@ -529,8 +571,8 @@ void pqxx::transaction_focus::unregister_me() noexcept
 
 
 void pqxx::transaction_focus::reg_pending_error(
-  std::string const &err) noexcept
+  std::string const &err, sl loc) noexcept
 {
   pqxx::internal::gate::transaction_transaction_focus{*m_trans}
-    .register_pending_error(err);
+    .register_pending_error(err, loc);
 }

@@ -6,7 +6,6 @@
 #endif
 
 #include "pqxx/internal/array-composite.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/util.hxx"
 
 namespace pqxx
@@ -32,50 +31,36 @@ namespace pqxx
  * such as e.g. `int`, consider using `std::optional`.
  */
 template<typename... T>
-inline void parse_composite(
-  pqxx::internal::encoding_group enc, std::string_view text, T &...fields)
+inline void parse_composite(ctx c, std::string_view text, T &...fields)
 {
-  static_assert(sizeof...(fields) > 0);
+  static constexpr auto num_fields{sizeof...(T)};
+  static_assert(num_fields > 0);
 
-  auto const scan{pqxx::internal::get_glyph_scanner(enc)};
   auto const data{std::data(text)};
   auto const size{std::size(text)};
   if (size == 0)
-    throw conversion_error{"Cannot parse composite value from empty string."};
-
-  std::size_t here{0}, next{scan(data, size, here)};
-  if (next != 1 or data[here] != '(')
     throw conversion_error{
-      internal::concat("Invalid composite value string: ", text)};
+      "Cannot parse composite value from empty string.", c.loc};
 
-  here = next;
+  if (data[0] != '(')
+    throw conversion_error{
+      std::format("Invalid composite value string: '{}'.", text), c.loc};
 
-  // TODO: Reuse parse_composite_field specialisation across calls.
-  constexpr auto num_fields{sizeof...(fields)};
+  std::size_t here{1};
+
   std::size_t index{0};
-  (pqxx::internal::specialize_parse_composite_field<T>(enc)(
-     index, text, here, fields, num_fields - 1),
+  (pqxx::internal::specialize_parse_composite_field<T>(c)(
+     index, text, here, fields, num_fields - 1, c.loc),
    ...);
   if (here != std::size(text))
-    throw conversion_error{internal::concat(
-      "Composite value did not end at the closing parenthesis: '", text,
-      "'.")};
+    throw conversion_error{
+      std::format(
+        "Composite value did not end at the closing parenthesis: '{}'.", text),
+      c.loc};
   if (text[here - 1] != ')')
-    throw conversion_error{internal::concat(
-      "Composive value did not end in parenthesis: '", text, "'")};
-}
-
-
-/// Parse a string representation of a value of a composite type.
-/** @warning This version only works for UTF-8 and single-byte encodings.
- *
- * For proper encoding support, use the composite-type support in the
- * `field` class.
- */
-template<typename... T>
-inline void parse_composite(std::string_view text, T &...fields)
-{
-  parse_composite(pqxx::internal::encoding_group::MONOBYTE, text, fields...);
+    throw conversion_error{
+      std::format("Composite value did not end in parenthesis: '{}'.", text),
+      c.loc};
 }
 } // namespace pqxx
 
@@ -114,37 +99,58 @@ composite_size_buffer(T const &...fields) noexcept
 
 
 /// Render a series of values as a single composite SQL value.
-/** @warning This code is still experimental.  Use with care.
- *
- * You may use this as a helper while implementing your own `string_traits`
+/** You may use this as a helper while implementing your own `string_traits`
  * for a composite type.
+ *
+ * @param loc An `std::source_location`, so that any error messages can report
+ * this as the place where the error occurred.  This is probably more useful to
+ * you than a location inside this function itself.
+ *
+ * After writing the composite's text representation to `buf`, this will append
+ * a terminating zero.  This facilitates usage where the resulting SQL string
+ * gets passed in as a query parameter.
  */
 template<typename... T>
-inline char *composite_into_buf(char *begin, char *end, T const &...fields)
+inline zview composite_into_buf(ctx c, std::span<char> buf, T const &...fields)
 {
-  if (std::size_t(end - begin) < composite_size_buffer(fields...))
+  if (std::size(buf) < composite_size_buffer(fields...))
     throw conversion_error{
-      "Buffer space may not be enough to represent composite value."};
+      "Buffer space may not be enough to represent composite value.", c.loc};
 
   constexpr auto num_fields{sizeof...(fields)};
   if constexpr (num_fields == 0)
   {
-    constexpr char empty[]{"()"};
-    std::memcpy(begin, empty, std::size(empty));
-    return begin + std::size(empty);
+    constexpr std::string_view empty{"()"};
+    return zview{
+      std::data(buf),
+      pqxx::internal::copy_chars<true>(empty, buf, 0, c.loc) - 1};
   }
 
-  char *pos{begin};
-  *pos++ = '(';
+  std::size_t pos{0};
+  // C++26: Use buf.at().
+  buf[pos++] = '(';
 
-  (pqxx::internal::write_composite_field<T>(pos, end, fields), ...);
+  (pqxx::internal::write_composite_field<T>(buf, pos, fields, c), ...);
 
   // If we've got multiple fields, "backspace" that last comma.
   if constexpr (num_fields > 1)
     --pos;
-  *pos++ = ')';
-  *pos++ = '\0';
-  return pos;
+  // C++26: Use buf.at().
+  buf[pos++] = ')';
+  buf[pos] = '\0';
+  return zview{std::data(buf), pos};
+}
+
+
+/// Render a series of values as a single composite SQL value.
+template<typename... T>
+[[deprecated(
+  "Pass conversion_context and std::span<char>, not two pointers.")]]
+inline char *composite_into_buf(char *begin, char *end, T const &...fields)
+{
+  auto const text{composite_into_buf(
+    {sl::current()}, std::span<char>{begin, end}, fields...)};
+  return begin + std::size(text);
 }
 } // namespace pqxx
 #endif

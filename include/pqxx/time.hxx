@@ -12,7 +12,6 @@
 #include <chrono>
 #include <cstdlib>
 
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/strconv.hxx"
 
 
@@ -23,7 +22,7 @@ namespace pqxx
 using namespace std::literals;
 
 template<>
-struct nullness<std::chrono::year_month_day>
+struct nullness<std::chrono::year_month_day> final
         : no_null<std::chrono::year_month_day>
 {};
 
@@ -57,19 +56,14 @@ struct nullness<std::chrono::year_month_day>
  * years before then are shifted by one.  For instance, the year 543 BC would
  * be -542 in C++.
  */
-template<> struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day>
+template<>
+struct PQXX_LIBEXPORT string_traits<std::chrono::year_month_day> final
 {
-  [[nodiscard]] static zview
-  to_buf(char *begin, char *end, std::chrono::year_month_day const &value)
-  {
-    return generic_to_buf(begin, end, value);
-  }
-
-  static char *
-  into_buf(char *begin, char *end, std::chrono::year_month_day const &value);
+  [[nodiscard]] static std::string_view to_buf(
+    std::span<char> buf, std::chrono::year_month_day const &value, ctx c = {});
 
   [[nodiscard]] static std::chrono::year_month_day
-  from_string(std::string_view text);
+  from_string(std::string_view text, sl = sl::current());
 
   [[nodiscard]] static std::size_t
   size_buffer(std::chrono::year_month_day const &) noexcept

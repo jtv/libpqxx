@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/result instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -21,7 +21,6 @@
 #include "pqxx/field.hxx"
 #include "pqxx/result.hxx"
 
-#include "pqxx/internal/concat.hxx"
 
 namespace pqxx::internal
 {
@@ -29,53 +28,88 @@ template<typename... T> class result_iter;
 } // namespace pqxx::internal
 
 
+namespace pqxx::internal::gate
+{
+class row_ref_const_result_iterator;
+class row_ref_result;
+class row_ref_row;
+} // namespace pqxx::internal::gate
+
+
 namespace pqxx
 {
-/// Reference to one row in a result.
-/** A row represents one row (also called a row) in a query result set.
- * It also acts as a container mapping column numbers or names to field
- * values (see below):
+class field_ref;
+
+
+/// Lightweight reference to one row in a result.
+/** Like @ref row, represents one row in a query result set.  Unlike with
+ * @ref row, however, for as long as you're using a `row_ref`, the @ref result
+ * object to which it refers must...
+ * 1. remain valid, i.e. you can't destroy it;
+ * 2. and in the same place in memory, i.e. you can't move it;
+ * 3. and keep the same value, i.e. you can't assign to it.
  *
- * ```cxx
- *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
- * ```
+ * When you use `row_ref`, it is your responsibility to ensure all that.
  *
- * The row itself acts like a (non-modifyable) container, complete with its
- * own const_iterator and const_reverse_iterator.
+ * A `row_ref` is one way of accessing the fields themselves.
  */
-class PQXX_LIBEXPORT row
+class PQXX_LIBEXPORT row_ref final
 {
 public:
-  // TODO: Some of these types conflict: class is both iterator and container.
-  // TODO: Set iterator nested types using std::iterator_traits.
   using size_type = row_size_type;
   using difference_type = row_difference_type;
   using const_iterator = const_row_iterator;
   using iterator = const_iterator;
-  using reference = field;
-  using pointer = const_row_iterator;
+  using reference = field_ref;
+  using pointer = field_ref const *;
   using const_reverse_iterator = const_reverse_row_iterator;
   using reverse_iterator = const_reverse_iterator;
 
-  row() noexcept = default;
-  row(row &&) noexcept = default;
-  row(row const &) noexcept = default;
-  row &operator=(row const &) noexcept = default;
-  row &operator=(row &&) noexcept = default;
+  row_ref() = default;
+  row_ref(row_ref const &) = default;
+  row_ref(row_ref &&) = default;
+  row_ref(result const &res, result_size_type index) :
+          m_result{&res}, m_index{index}
+  {}
+
+  row_ref &operator=(row_ref const &) noexcept = default;
+  row_ref &operator=(row_ref &&) noexcept = default;
 
   /**
    * @name Comparison
+   *
+   * Equality between two @ref row_ref objects means that they both refer to
+   * the same row in _the exact same @ref result object._
+   *
+   * So, if you copy a @ref result, even though the two copies refer to the
+   * exact same underlying data structure, a `row_ref` in the one will never be
+   * equal to a `row_ref` in the other.
+   *
+   * ```cxx
+   * void test_equality(pqxx::result const &r1)
+   * {
+   *   pqxx::result const r2{r1};
+   *   if (not r1.empty())
+   *   {
+   *     assert(r1[0] == r1[0]);
+   *     assert(r2[0] != r1[0]);
+   *   }
+   * }
+   * ```
    */
   //@{
-  [[nodiscard]] PQXX_PURE bool operator==(row const &) const noexcept;
-  [[nodiscard]] bool operator!=(row const &rhs) const noexcept
+  [[nodiscard]] PQXX_PURE bool operator==(row_ref const &rhs) const noexcept
+  {
+    return rhs.m_result == m_result and rhs.m_index == m_index;
+  }
+  [[nodiscard]] PQXX_PURE bool operator!=(row_ref const &rhs) const noexcept
   {
     return not operator==(rhs);
   }
   //@}
 
-  [[nodiscard]] const_iterator begin() const noexcept;
   [[nodiscard]] const_iterator cbegin() const noexcept;
+  [[nodiscard]] const_iterator begin() const noexcept;
   [[nodiscard]] const_iterator end() const noexcept;
   [[nodiscard]] const_iterator cend() const noexcept;
 
@@ -86,30 +120,80 @@ public:
   [[nodiscard]] reference front() const noexcept;
   [[nodiscard]] reference back() const noexcept;
 
-  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crbegin() const noexcept;
-  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator rbegin() const noexcept;
   [[nodiscard]] const_reverse_row_iterator crend() const noexcept;
+  [[nodiscard]] const_reverse_row_iterator rend() const noexcept;
 
-  [[nodiscard]] reference operator[](size_type) const noexcept;
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  [[nodiscard]] reference operator[](zview col_name) const;
-
-  reference at(size_type) const;
-  /** Address field by name.
-   * @warning This is much slower than indexing by number, or iterating.
-   */
-  reference at(zview col_name) const;
-
-  [[nodiscard]] constexpr size_type size() const noexcept
+  [[nodiscard]] PQXX_PURE reference operator[](size_type i) const noexcept
   {
-    return m_end - m_begin;
+    return {home(), row_number(), i};
+  }
+
+#if defined(PQXX_HAVE_MULTIDIM)
+  // TODO: There's a proposal to permit a default value for loc.
+  /** Address field by name.
+   *
+   * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
+   */
+  [[nodiscard]] PQXX_PURE reference operator[](zview col_name, sl) const;
+#endif // PQXX_HAVE_MULTIDIM
+
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
+   */
+  [[nodiscard]] PQXX_PURE reference operator[](zview col_name) const;
+
+  /// Address a field by number, but check that the number is in range.
+  reference at(size_type i, sl loc = sl::current()) const
+  {
+    if (m_result == nullptr)
+      throw usage_error{"Indexing uninitialised row.", loc};
+    if (std::cmp_less(i, 0))
+      throw usage_error{"Negative column index.", loc};
+    auto const sz{size()};
+    if (std::cmp_greater_equal(i, sz))
+      throw range_error{
+        std::format(
+          "Column index out of range: {} in a result of {} column(s).", i, sz),
+        loc};
+    return operator[](i);
+  }
+
+  /// Address field by name.
+  /** @warning This is much slower than indexing by number, or iterating.
+   *
+   * This function could perhaps be marked as "pure," but in clang and some gcc
+   * configurations this may move exceptions out of `try` blocks that are meant
+   * to catch them.
+   */
+  reference at(zview col_name, sl loc = sl::current()) const
+  {
+    if (m_result == nullptr)
+      throw usage_error{"Indexing uninitialised row.", loc};
+    return operator[](column_number(col_name, loc));
+  }
+
+  [[nodiscard]] PQXX_PURE size_type size() const noexcept
+  {
+    return home().columns();
   }
 
   /// Row number, assuming this is a real row and not end()/rend().
-  [[nodiscard]] constexpr result::size_type rownumber() const noexcept
+  [[nodiscard]] PQXX_PURE constexpr result::size_type
+  row_number() const noexcept
   {
     return m_index;
   }
@@ -119,24 +203,49 @@ public:
    */
   //@{
   /// Number of given column (throws exception if it doesn't exist).
-  [[nodiscard]] size_type column_number(zview col_name) const;
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] size_type
+  column_number(zview col_name, sl = sl::current()) const;
 
   /// Return a column's type.
-  [[nodiscard]] oid column_type(size_type) const;
-
-  /// Return a column's type.
-  [[nodiscard]] oid column_type(zview col_name) const
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid
+  column_type(size_type col_num, sl loc = sl::current()) const
   {
-    return column_type(column_number(col_name));
+    return home().column_type(col_num, loc);
+  }
+
+  /// Return a column's type.
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
+  {
+    return column_type(column_number(col_name, loc), loc);
   }
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(size_type col_num) const;
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_table(size_type col_num, sl = sl::current()) const;
 
   /// What table did this column come from?
-  [[nodiscard]] oid column_table(zview col_name) const
+  /** This function could perhaps be marked as "pure," but in clang and some
+   * gcc configurations this may move exceptions out of `try` blocks that are
+   * meant to catch them.
+   */
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
   {
-    return column_table(column_number(col_name));
+    return column_table(column_number(col_name, loc), loc);
   }
 
   /// What column number in its table did this result column come from?
@@ -147,19 +256,19 @@ public:
    * @param col_num a zero-based column number in this result set
    * @return a zero-based column number in originating table
    */
-  [[nodiscard]] size_type table_column(size_type) const;
+  [[nodiscard]] size_type
+  table_column(size_type col_num, sl loc = sl::current()) const
+  {
+    return home().table_column(col_num, loc);
+  }
 
   /// What column number in its table did this result column come from?
-  [[nodiscard]] size_type table_column(zview col_name) const
+  [[nodiscard]] size_type
+  table_column(zview col_name, sl loc = sl::current()) const
   {
-    return table_column(column_number(col_name));
+    return table_column(column_number(col_name, loc), loc);
   }
   //@}
-
-  [[nodiscard]] constexpr result::size_type num() const noexcept
-  {
-    return rownumber();
-  }
 
   /// Extract entire row's values into a tuple.
   /** Converts to the types of the tuple's respective fields.
@@ -167,13 +276,13 @@ public:
    * The types in the tuple must have conversions from PostgreSQL's text format
    * defined; see @ref datatypes.
    *
-   * @throw usage_error If the number of columns in the `row` does not match
+   * @throw usage_error If the number of columns in the row does not match
    * the number of fields in `t`.
    */
-  template<typename Tuple> void to(Tuple &t) const
+  template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
   {
-    check_size(std::tuple_size_v<Tuple>);
-    convert(t);
+    check_size(std::tuple_size_v<Tuple>, loc);
+    convert(t, loc);
   }
 
   /// Extract entire row's values into a tuple.
@@ -182,71 +291,415 @@ public:
    * The types must have conversions from PostgreSQL's text format defined;
    * see @ref datatypes.
    *
-   * @throw usage_error If the number of columns in the `row` does not match
+   * @throw usage_error If the number of columns in the row does not match
    * the number of fields in `t`.
    */
-  template<typename... TYPE> std::tuple<TYPE...> as() const
+  template<typename... TYPE>
+  std::tuple<TYPE...> as(sl loc = sl::current()) const
   {
-    check_size(sizeof...(TYPE));
-    using seq = std::make_index_sequence<sizeof...(TYPE)>;
-    return get_tuple<std::tuple<TYPE...>>(seq{});
+    return as_tuple<std::tuple<TYPE...>>(loc);
   }
 
   /// Convert to a given tuple of values,
   /** Useful in cases where we have a full tuple of field types, but
    * not a parameter pack.
    *
+   * `TUPLE` should be a tuple type, with the same number of elements as the
+   * result has columns.
+   *
    * @throw usage_error If the number of columns in the `row` does not match
    * the number of fields in `TUPLE`.
    */
-  template<typename TUPLE> TUPLE as_tuple() const
+  template<typename TUPLE>
+  TUPLE as_tuple(sl loc = sl::current()) const
+    requires(requires(TUPLE t) { std::get<0>(t); })
   {
-    check_size(std::tuple_size_v<TUPLE>);
+    check_size(std::tuple_size_v<TUPLE>, loc);
     using seq = std::make_index_sequence<std::tuple_size_v<TUPLE>>;
-    return get_tuple<TUPLE>(seq{});
+    return get_tuple<TUPLE>(seq{}, loc);
   }
 
-  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
+  /// The @ref result object to which this `row_ref` refers.
+  PQXX_PURE result const &home() const noexcept { return *m_result; }
 
-  /** Produce a slice of this row, containing the given range of columns.
-   *
-   * @deprecated I haven't heard of anyone caring about row slicing at all in
-   * at least the last 15 years.  Yet it adds complexity, so unless anyone
-   * files a bug explaining why they really need this feature, I'm going to
-   * remove it.  Even if they do, the feature may need an update.
-   *
-   * The slice runs from the range's starting column to the range's end
-   * column, exclusive.  It looks just like a normal result row, except
-   * slices can be empty.
-   */
-  [[deprecated("Row slicing is going away.  File a bug if you need it.")]] row
-  slice(size_type sbegin, size_type send) const;
-
-  /// Is this a row without fields?  Can only happen to a slice.
-  [[nodiscard, deprecated("Row slicing is going away.")]] PQXX_PURE bool
-  empty() const noexcept;
-
-protected:
-  friend class const_row_iterator;
-  friend class result;
-  row(result r, result_size_type index, size_type cols) noexcept;
+private:
+  friend class pqxx::internal::gate::row_ref_const_result_iterator;
+  friend class pqxx::internal::gate::row_ref_result;
+  /// Move to another row (positive for forwards, negative for backwards).
+  void offset(difference_type d) noexcept { m_index += d; }
 
   /// Throw @ref usage_error if row size is not `expected`.
-  void check_size(size_type expected) const
+  void check_size(size_type expected, sl loc) const
   {
     if (size() != expected)
-      throw usage_error{internal::concat(
-        "Tried to extract ", expected, " field(s) from a row of ", size(),
-        ".")};
+      throw usage_error{
+        std::format(
+          "Tried to extract {} field(s) from a row of {}.", expected, size()),
+        loc};
   }
 
   template<typename... T> friend class pqxx::internal::result_iter;
   /// Convert entire row to tuple fields, without checking row size.
-  template<typename Tuple> void convert(Tuple &t) const
+  template<typename Tuple> void convert(Tuple &t, sl loc) const
   {
-    extract_fields(t, std::make_index_sequence<std::tuple_size_v<Tuple>>{});
+    extract_fields(
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{},
+      conversion_context{home().get_encoding_group(), loc});
   }
 
+  friend class pqxx::internal::gate::row_ref_row;
+  template<typename Tuple, std::size_t... indexes>
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, ctx c) const
+  {
+    (extract_value<Tuple, indexes>(t, c), ...);
+  }
+
+  template<typename Tuple, std::size_t index>
+  void extract_value(Tuple &t, ctx) const;
+
+  /// Convert row's values as a new tuple.
+  template<typename TUPLE, std::size_t... indexes>
+  auto get_tuple(std::index_sequence<indexes...>, sl) const
+  {
+    return std::make_tuple(get_field<TUPLE, indexes>()...);
+  }
+
+  /// Extract and convert a field.
+  template<typename TUPLE, std::size_t index> auto get_field() const
+  {
+    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
+  }
+
+  /// Result set of which this is one row.
+  result const *m_result = nullptr;
+
+  /// Row number.
+  /**
+   * You'd expect this to be unsigned, but due to the way reverse iterators
+   * are related to regular iterators, it must be allowed to underflow to -1.
+   */
+  result::size_type m_index = -1;
+};
+} // namespace pqxx
+
+
+#include "pqxx/internal/gates/row_ref-const_result_iterator.hxx"
+#include "pqxx/internal/gates/row_ref-row.hxx"
+
+
+namespace pqxx
+{
+/// Reference to one row in a result.
+/** A `row` is a reference to one particular row of data in a query result set
+ * (represented by a @ref result object).
+ *
+ * This is like a @ref row_ref, except (as far as this class is concerned) it
+ * is safe to destroy the @ref result object or move it to a different place in
+ * memory.  That's because unlike `row_ref`, a `row` contains its own copy of
+ * the internal smart pointer referring to the actual data in memory.  You do
+ * pay a performance price for this, so prefer @ref row_ref where possible.
+ *
+ * A row also acts as a container, mapping column numbers or names to field
+ * values:
+ *
+ * ```cxx
+ *    cout << row["date"].c_str() << ": " << row["name"].c_str() << endl;
+ * ```
+ */
+class PQXX_LIBEXPORT row final
+{
+public:
+  // TODO: Set iterator nested types using std::iterator_traits.
+  using size_type = row_size_type;
+  using difference_type = row_difference_type;
+  using reference = field_ref;
+  using pointer = const_row_iterator;
+  using const_iterator = const_row_iterator;
+  using iterator = const_iterator;
+  using const_reverse_iterator = const_reverse_row_iterator;
+  using reverse_iterator = const_reverse_iterator;
+
+  row() noexcept = default;
+  row(row &&) noexcept = default;
+  row(row const &) noexcept = default;
+  row(row_ref const &ref) :
+          m_result{ref.home()},
+          m_index{ref.row_number()},
+          m_end{std::size(ref)}
+  {}
+  row &operator=(row const &) noexcept = default;
+  row &operator=(row &&) noexcept = default;
+
+  /**
+   * @name Comparison
+   *
+   * @warning The meaning of the comparison operators has changed in 8.0.  The
+   * _old_ behaviour was to go through all the data in the two rows (but not
+   * the metadata) and look for differences.  This was never fully specified.
+   *
+   * Equality between two @ref row objects means that they refer to the same
+   * row in the same data structure that we originally received from the
+   * database.  So the two may have been created from different @ref result
+   * objects, so long as those are both copies of (or the same as) the same
+   * original @ref result that you received from the database.
+   *
+   * ```cxx
+   * void test_row_equality(pqxx::result const &r1)
+   * {
+   *   pqxx::result r2{r1};
+   *   pqxx::row row1{r1[0]}, row2{r2};
+   *   assert(row1 == row2);
+   * }
+   * ```
+   */
+  //@{
+  [[nodiscard]] PQXX_PURE bool operator==(row const &rhs) const noexcept
+  {
+    return rhs.m_result == m_result and rhs.m_index == m_index;
+  }
+  [[nodiscard]] PQXX_PURE bool operator!=(row const &rhs) const noexcept
+  {
+    return not operator==(rhs);
+  }
+  //@}
+
+  /**
+   * @name Iteration
+   *
+   * A row acts like a container of fields.
+   */
+  //@{
+  [[nodiscard]] PQXX_PURE const_iterator begin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator cbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator end() const noexcept;
+  [[nodiscard]] PQXX_PURE const_iterator cend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator rbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator crbegin() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator rend() const noexcept;
+  [[nodiscard]] PQXX_PURE const_reverse_row_iterator crend() const noexcept;
+  //@}
+
+  /**
+   * @name Field access
+   */
+  //@{
+  [[nodiscard]] field_ref front() const noexcept;
+  [[nodiscard]] field_ref back() const noexcept;
+  //@}
+
+  /** @warning This function is marked as "pure."  This means that if it
+   * fails, depending on your compiler, the exception may occur in a different
+   * place than you expected.  The compiler may even find scenarios where it
+   * can avoid calling this operator, meaning that the exception does not
+   * happen at all.  If you need more deterministic exception behaviour, use
+   * @ref at().
+   */
+  [[nodiscard]] PQXX_PURE field_ref operator[](size_type) const noexcept;
+
+#if defined(PQXX_HAVE_MULTIDIM)
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
+   */
+  [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name, sl loc) const
+  {
+    // TODO: There's a proposal to permit a default value for loc.
+    return as_row_ref()[col_name, loc];
+  }
+#endif
+
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   *
+   * @warning This function is marked as "pure."  This means that if it fails,
+   * depending on your compiler, the exception may occur in a different place
+   * than you expected.  The compiler may even find scenarios where it can
+   * avoid calling this operator, meaning that the exception does not happen at
+   * all.  If you need more deterministic exception behaviour, use @ref at().
+   */
+  [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name) const
+  {
+    return as_row_ref()[col_name];
+  }
+
+  /// Address a field by number, but check that the number is in range.
+  field_ref at(size_type, sl = sl::current()) const;
+
+  /** Address field by name.
+   * @warning This is much slower than indexing by number, or iterating.
+   */
+  field_ref at(zview col_name, sl = sl::current()) const;
+
+  [[nodiscard]] PQXX_PURE constexpr size_type size() const noexcept
+  {
+    return m_end;
+  }
+
+  /// Row number, assuming this is a real row and not end()/rend().
+  [[nodiscard, deprecated("Use row_number().")]] constexpr result::size_type
+  rownumber() const noexcept
+  {
+    return m_index;
+  }
+
+  /// Row number, assuming this is a real row and not end()/rend().
+  [[nodiscard]] PQXX_PURE constexpr result::size_type
+  row_number() const noexcept
+  {
+    return m_index;
+  }
+
+  /**
+   * @name Column information
+   */
+  //@{
+  /// Number of given column (throws exception if it doesn't exist).
+  [[nodiscard]] size_type
+  column_number(zview col_name, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_number(col_name, loc);
+  }
+
+  /// Return a column's type.
+  [[nodiscard]] oid
+  column_type(size_type col_num, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_type(col_num, loc);
+  }
+
+  /// Return a column's type.
+  [[nodiscard]] oid column_type(zview col_name, sl loc = sl::current()) const
+  {
+    return column_type(column_number(col_name, loc), loc);
+  }
+
+  /// What table did this column come from?
+  [[nodiscard]] oid
+  column_table(size_type col_num, sl loc = sl::current()) const
+  {
+    return as_row_ref().column_table(col_num, loc);
+  }
+
+  /// What table did this column come from?
+  [[nodiscard]] oid column_table(zview col_name, sl loc = sl::current()) const
+  {
+    return column_table(column_number(col_name, loc), loc);
+  }
+
+  /// What column number in its table did this result column come from?
+  /** A meaningful answer can be given only if the column in question comes
+   * directly from a column in a table.  If the column is computed in any
+   * other way, a logic_error will be thrown.
+   *
+   * @param col_num a zero-based column number in this result set
+   * @return a zero-based column number in originating table
+   */
+  [[nodiscard]] size_type
+  table_column(size_type col, sl loc = sl::current()) const
+  {
+    return as_row_ref().table_column(col, loc);
+  }
+
+  /// What column number in its table did this result column come from?
+  [[nodiscard]] size_type
+  table_column(zview col_name, sl loc = sl::current()) const
+  {
+    return as_row_ref().table_column(col_name, loc);
+  }
+  //@}
+
+  [[nodiscard]] PQXX_PURE constexpr result::size_type num() const noexcept
+  {
+    return row_number();
+  }
+
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   *
+   * The types in the tuple must have conversions from PostgreSQL's text format
+   * defined; see @ref datatypes.
+   *
+   * @throw usage_error If the number of columns in the row does not match
+   * the number of fields in `t`.
+   */
+  template<typename Tuple> void to(Tuple &t, sl loc = sl::current()) const
+  {
+    check_size(std::tuple_size_v<Tuple>, loc);
+    convert(t, loc);
+  }
+
+  /// Extract entire row's values into a tuple.
+  /** Converts to the types of the tuple's respective fields.
+   *
+   * The types must have conversions from PostgreSQL's text format defined;
+   * see @ref datatypes.
+   *
+   * @throw usage_error If the number of columns in the row does not match
+   * the number of fields in `t`.
+   */
+  template<typename... TYPE>
+  std::tuple<TYPE...> as(sl loc = sl::current()) const
+  {
+    return as_row_ref().as<TYPE...>(loc);
+  }
+
+  /// Convert to a given tuple of values,
+  /** Useful in cases where we have a full tuple of field types, but
+   * not a parameter pack.
+   *
+   * `TUPLE` should be a tuple type, with the same number of elements as the
+   * result has columns.
+   *
+   * @throw usage_error If the number of columns in the `row` does not match
+   * the number of fields in `TUPLE`.
+   */
+  template<typename TUPLE>
+  TUPLE as_tuple(sl loc = sl::current()) const
+    requires(requires(TUPLE t) { std::get<0>(t); })
+  {
+    return as_row_ref().as_tuple<TUPLE>(loc);
+  }
+
+  [[deprecated("Swap iterators, not rows.")]] void swap(row &) noexcept;
+
+private:
+  /// Return @ref row_ref for this row.
+  /** @warning The @ref row_ref holds a reference to the @ref result object
+   * _inside this `row` object._  So if you change that, the @ref row_ref
+   * becomes invalid.
+   */
+  row_ref as_row_ref() const noexcept { return {m_result, row_number()}; }
+
+  row(result r, result_size_type index, size_type cols) noexcept;
+
+  /// Throw @ref usage_error if row size is not `expected`.
+  void check_size(size_type expected, sl loc) const
+  {
+    if (size() != expected)
+      throw usage_error{
+        std::format(
+          "Tried to extract {} field(s) from a row of {}.", expected, size()),
+        loc};
+  }
+
+  /// The @ref pqxx::result of which this is a row.
+  result const &home() const { return m_result; }
+
+  /// Convert entire row to tuple fields, without checking row size.
+  template<typename Tuple> void convert(Tuple &t, sl loc) const
+  {
+    auto ref{as_row_ref()};
+    pqxx::internal::gate::row_ref_row{ref}.extract_fields(
+      t, std::make_index_sequence<std::tuple_size_v<Tuple>>{},
+      conversion_context{home().get_encoding_group(), loc});
+  }
+
+  // TODO: Define gate.
   friend class field;
 
   /// Result set of which this is one row.
@@ -259,64 +712,51 @@ protected:
    */
   result::size_type m_index = 0;
 
-  // TODO: Remove m_begin and (if possible) m_end when we remove slice().
-  /// First column in slice.  This row ignores lower-numbered columns.
-  size_type m_begin = 0;
-  /// End column in slice.  This row only sees lower-numbered columns.
+  /// Number of columns in the row.
   size_type m_end = 0;
-
-private:
-  template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
-  {
-    (extract_value<Tuple, indexes>(t), ...);
-  }
-
-  template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &t) const;
-
-  /// Convert row's values as a new tuple.
-  template<typename TUPLE, std::size_t... indexes>
-  auto get_tuple(std::index_sequence<indexes...>) const
-  {
-    return std::make_tuple(get_field<TUPLE, indexes>()...);
-  }
-
-  /// Extract and convert a field.
-  template<typename TUPLE, std::size_t index> auto get_field() const
-  {
-    return (*this)[index].as<std::tuple_element_t<index, TUPLE>>();
-  }
 };
 
 
 /// Iterator for fields in a row.  Use as row::const_iterator.
-class PQXX_LIBEXPORT const_row_iterator : public field
+/** @warning Do not destroy or move the @ref result object while you're
+ * iterating it.  It will invalidate all iterators on the entire result.  They
+ * will no longer refer to valid memory, and your application may crash, or
+ * worse, read the wrong data.
+ */
+class PQXX_LIBEXPORT const_row_iterator
 {
 public:
   using iterator_category = std::random_access_iterator_tag;
-  using value_type = field const;
-  using pointer = field const *;
+  using value_type = field_ref const;
+  using pointer = field_ref const *;
   using size_type = row_size_type;
   using difference_type = row_difference_type;
-  using reference = field;
+  using reference = field_ref;
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
   const_row_iterator() noexcept = default;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
-  const_row_iterator(row const &t, row_size_type c) noexcept :
-          field{t.m_result, t.m_index, c}
+  const_row_iterator(row_ref const &t, row_size_type c) noexcept :
+          m_field{t.home(), t.row_number(), c}
   {}
-  const_row_iterator(field const &F) noexcept : field{F} {}
+  const_row_iterator(field_ref const &f) noexcept : m_field{f} {}
   const_row_iterator(const_row_iterator const &) noexcept = default;
   const_row_iterator(const_row_iterator &&) noexcept = default;
+
+  /// Current column number, if the iterator is pointing at a valid field.
+  PQXX_PURE size_type col() const noexcept { return m_field.column_number(); }
 
   /**
    * @name Dereferencing operators
    */
   //@{
-  [[nodiscard]] constexpr pointer operator->() const noexcept { return this; }
-  [[nodiscard]] reference operator*() const noexcept { return {*this}; }
+  [[nodiscard]] PQXX_PURE PQXX_RETURNS_NONNULL constexpr pointer
+  operator->() const noexcept
+  {
+    return &m_field;
+  }
+  [[nodiscard]] PQXX_PURE reference operator*() const noexcept
+  {
+    return m_field;
+  }
   //@}
 
   /**
@@ -329,24 +769,24 @@ public:
   const_row_iterator operator++(int) & noexcept;
   const_row_iterator &operator++() noexcept
   {
-    ++m_col;
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(1);
     return *this;
   }
   const_row_iterator operator--(int) & noexcept;
   const_row_iterator &operator--() noexcept
   {
-    --m_col;
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-1);
     return *this;
   }
 
-  const_row_iterator &operator+=(difference_type i) noexcept
+  const_row_iterator &operator+=(difference_type n) noexcept
   {
-    m_col = size_type(difference_type(m_col) + i);
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(n);
     return *this;
   }
-  const_row_iterator &operator-=(difference_type i) noexcept
+  const_row_iterator &operator-=(difference_type n) noexcept
   {
-    m_col = size_type(difference_type(m_col) - i);
+    pqxx::internal::gate::field_ref_const_row_iterator(m_field).offset(-n);
     return *this;
   }
   //@}
@@ -355,33 +795,27 @@ public:
    * @name Comparisons
    */
   //@{
-  [[nodiscard]] constexpr bool
-  operator==(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator==(const_row_iterator const &i) const noexcept
   {
     return col() == i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator!=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator!=(const_row_iterator const &i) const noexcept
   {
     return col() != i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator<(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator<(const_row_iterator const &i) const noexcept
   {
     return col() < i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator<=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator<=(const_row_iterator const &i) const noexcept
   {
     return col() <= i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator>(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator>(const_row_iterator const &i) const noexcept
   {
     return col() > i.col();
   }
-  [[nodiscard]] constexpr bool
-  operator>=(const_row_iterator const &i) const noexcept
+  [[nodiscard]] bool operator>=(const_row_iterator const &i) const noexcept
   {
     return col() >= i.col();
   }
@@ -402,16 +836,21 @@ public:
   [[nodiscard]] inline difference_type
   operator-(const_row_iterator const &) const noexcept;
 
-  [[nodiscard]] inline field operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref
+  operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
   //@}
+
+private:
+  field_ref m_field;
 };
 
 
 /// Reverse iterator for a row.  Use as row::const_reverse_iterator.
-class PQXX_LIBEXPORT const_reverse_row_iterator : private const_row_iterator
+class PQXX_LIBEXPORT const_reverse_row_iterator final
+        : private const_row_iterator
 {
 public:
   using super = const_row_iterator;
@@ -496,7 +935,8 @@ public:
   {
     return rhs.const_row_iterator::operator-(*this);
   }
-  [[nodiscard]] inline field operator[](difference_type offset) const noexcept
+  [[nodiscard]] inline field_ref
+  operator[](difference_type offset) const noexcept
   {
     return *(*this + offset);
   }
@@ -517,22 +957,22 @@ public:
     return !operator==(rhs);
   }
 
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator<(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator<=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator>=(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator>(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<(rhs);
   }
-  [[nodiscard]] constexpr bool
+  [[nodiscard]] bool
   operator>=(const_reverse_row_iterator const &rhs) const noexcept
   {
     return iterator_type::operator<=(rhs);
@@ -544,10 +984,10 @@ public:
 const_row_iterator
 const_row_iterator::operator+(difference_type o) const noexcept
 {
-  // TODO:: More direct route to home().columns()?
   return {
-    row{home(), idx(), home().columns()},
-    size_type(difference_type(col()) + o)};
+    {m_field.home(), m_field.row_number()},
+    static_cast<row_size_type>(
+      static_cast<difference_type>(m_field.column_number()) + o)};
 }
 
 inline const_row_iterator operator+(
@@ -559,25 +999,126 @@ inline const_row_iterator operator+(
 inline const_row_iterator
 const_row_iterator::operator-(difference_type o) const noexcept
 {
-  // TODO:: More direct route to home().columns()?
   return {
-    row{home(), idx(), home().columns()},
-    size_type(difference_type(col()) - o)};
+    {m_field.home(), m_field.row_number()},
+    static_cast<row_size_type>(
+      static_cast<difference_type>(m_field.column_number()) - o)};
 }
 
 inline const_row_iterator::difference_type
 const_row_iterator::operator-(const_row_iterator const &i) const noexcept
 {
-  return difference_type(num() - i.num());
+  return difference_type(m_field.column_number() - i.m_field.column_number());
 }
 
 
 template<typename Tuple, std::size_t index>
-inline void row::extract_value(Tuple &t) const
+inline void row_ref::extract_value(Tuple &t, ctx c) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
-  field const f{m_result, m_index, index};
-  std::get<index>(t) = from_string<field_type>(f);
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
+  field_ref const f{*m_result, m_index, index};
+  std::get<index>(t) = from_string<field_type>(f, c);
+}
+
+
+inline row_ref::const_iterator row_ref::cbegin() const noexcept
+{
+  return {{home(), row_number()}, 0};
+}
+
+inline row_ref::const_iterator row_ref::begin() const noexcept
+{
+  return cbegin();
+}
+
+inline row_ref::const_iterator row_ref::cend() const noexcept
+{
+  return {{home(), row_number()}, home().columns()};
+}
+
+inline row_ref::const_iterator row_ref::end() const noexcept
+{
+  return cend();
+}
+
+inline row_ref::const_reverse_iterator row_ref::crbegin() const noexcept
+{
+  return const_reverse_iterator{end()};
+}
+
+inline row_ref::const_reverse_iterator row_ref::rbegin() const noexcept
+{
+  return crbegin();
+}
+
+inline row_ref::const_reverse_iterator row_ref::crend() const noexcept
+{
+  return const_reverse_iterator{begin()};
+}
+
+inline row_ref::const_reverse_iterator row_ref::rend() const noexcept
+{
+  return crend();
+}
+
+inline field_ref row_ref::front() const noexcept
+{
+  return {home(), row_number(), 0};
+}
+
+inline field_ref row_ref::back() const noexcept
+{
+  return {home(), row_number(), home().columns() - 1};
+}
+
+inline row_size_type row_ref::column_number(zview col_name, sl loc) const
+{
+  return home().column_number(col_name, loc);
+}
+
+inline oid row_ref::column_table(row_size_type col_num, sl loc) const
+{
+  return home().column_table(col_num, loc);
+}
+
+inline row::const_iterator row::cbegin() const noexcept
+{
+  return as_row_ref().cbegin();
+}
+
+inline row::const_iterator row::begin() const noexcept
+{
+  return cbegin();
+}
+
+inline row::const_iterator row::cend() const noexcept
+{
+  return {{m_result, row_number()}, m_end};
+}
+
+inline row::const_iterator row::end() const noexcept
+{
+  return cend();
+}
+
+inline row::const_reverse_iterator row::crbegin() const noexcept
+{
+  return const_reverse_iterator{end()};
+}
+
+inline row::const_reverse_iterator row::rbegin() const noexcept
+{
+  return crbegin();
+}
+
+inline row::const_reverse_iterator row::crend() const noexcept
+{
+  return const_reverse_iterator{begin()};
+}
+
+inline row::const_reverse_iterator row::rend() const noexcept
+{
+  return crend();
 }
 } // namespace pqxx
 #endif

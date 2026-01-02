@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/largeobject instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -22,6 +22,9 @@
 
 namespace pqxx
 {
+// This class is deprecated.
+// LCOV_EXCL_START
+
 /// Identity of a large object.
 /** @deprecated Use the @ref blob class instead.
  *
@@ -150,7 +153,7 @@ private:
 /// Accessor for large object's contents.
 /** @deprecated Use the `blob` class instead.
  */
-class PQXX_LIBEXPORT largeobjectaccess : private largeobject
+class PQXX_LIBEXPORT largeobjectaccess final : private largeobject
 {
 public:
   using largeobject::size_type;
@@ -340,7 +343,7 @@ public:
 
   largeobjectaccess() = delete;
   largeobjectaccess(largeobjectaccess const &) = delete;
-  largeobjectaccess operator=(largeobjectaccess const &) = delete;
+  largeobjectaccess &operator=(largeobjectaccess const &) = delete;
 
 private:
   PQXX_PRIVATE std::string reason(int err) const;
@@ -370,7 +373,7 @@ private:
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class largeobject_streambuf : public std::basic_streambuf<CHAR, TRAITS>
+class largeobject_streambuf final : public std::basic_streambuf<CHAR, TRAITS>
 {
   using size_type = largeobject::size_type;
 
@@ -434,7 +437,7 @@ protected:
     return adjust_eof(newpos);
   }
 
-  virtual int_type overflow(int_type ch) override
+  virtual int_type overflow(int_type ch = eof()) override
   {
     auto *const pp{this->pptr()};
     if (pp == nullptr)
@@ -447,17 +450,17 @@ protected:
       auto const write_sz{pp - pb};
       auto const written_sz{
         m_obj.cwrite(pb, static_cast<std::size_t>(pp - pb))};
-      if (internal::cmp_less_equal(written_sz, 0))
+      if (std::cmp_less_equal(written_sz, 0))
         throw internal_error{
           "pqxx::largeobject: write failed "
           "(is transaction still valid on write or flush?), "
           "libpq reports error"};
       else if (write_sz != written_sz)
-        throw internal_error{
+        throw internal_error{std::format(
           "pqxx::largeobject: write failed "
-          "(is transaction still valid on write or flush?), " +
-          std::to_string(written_sz) + "/" + std::to_string(write_sz) +
-          " bytes written"};
+          "(is transaction still valid on write or flush?), {}/{} "
+          "bytes written",
+          written_sz, write_sz)};
       auto const out{adjust_eof(written_sz)};
 
       if constexpr (std::is_arithmetic_v<decltype(out)>)
@@ -476,8 +479,6 @@ protected:
     return res;
   }
 
-  virtual int_type overflow() { return overflow(eof()); }
-
   virtual int_type underflow() override
   {
     if (this->gptr() == nullptr)
@@ -492,7 +493,7 @@ protected:
 
 private:
   /// Shortcut for traits_type::eof().
-  static int_type eof() { return traits_type::eof(); }
+  static constexpr int_type eof() { return traits_type::eof(); }
 
   /// Helper: change error position of -1 to EOF (probably a no-op).
   template<typename INTYPE> static std::streampos adjust_eof(INTYPE pos)
@@ -542,7 +543,7 @@ private:
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_ilostream : public std::basic_istream<CHAR, TRAITS>
+class basic_ilostream final : public std::basic_istream<CHAR, TRAITS>
 {
   using super = std::basic_istream<CHAR, TRAITS>;
 
@@ -600,7 +601,7 @@ using ilostream = basic_ilostream<char>;
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_olostream : public std::basic_ostream<CHAR, TRAITS>
+class basic_olostream final : public std::basic_ostream<CHAR, TRAITS>
 {
   using super = std::basic_ostream<CHAR, TRAITS>;
 
@@ -672,7 +673,7 @@ using olostream = basic_olostream<char>;
  * replaced with a single, much simpler class.
  */
 template<typename CHAR = char, typename TRAITS = std::char_traits<CHAR>>
-class basic_lostream : public std::basic_iostream<CHAR, TRAITS>
+class basic_lostream final : public std::basic_iostream<CHAR, TRAITS>
 {
   using super = std::basic_iostream<CHAR, TRAITS>;
 
@@ -731,5 +732,7 @@ private:
 };
 
 using lostream = basic_lostream<char>;
+
+// LCOV_EXCL_STOP
 } // namespace pqxx
 #endif

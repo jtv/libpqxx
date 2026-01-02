@@ -1,6 +1,6 @@
 /* Code for parts of pqxx::internal::stream_query.
  *
- * These definitions needs to be in a separate file in order to iron out
+ * These definitions need to be in a separate file in order to iron out
  * circular dependencies between headers.
  */
 #if !defined(PQXX_H_STREAM_QUERY_IMPL)
@@ -10,31 +10,33 @@ namespace pqxx::internal
 {
 template<typename... TYPE>
 inline stream_query<TYPE...>::stream_query(
-  transaction_base &tx, std::string_view query) :
-        transaction_focus{tx, "stream_query"}, m_char_finder{get_finder(tx)}
+  transaction_base &tx, std::string_view query, conversion_context c) :
+        transaction_focus{tx, "stream_query"},
+        m_char_finder{get_finder(tx, c.loc)},
+        m_ctx{std::move(c)}
 {
-  auto const r{tx.exec(internal::concat("COPY (", query, ") TO STDOUT"))};
-  r.expect_columns(sizeof...(TYPE));
-  r.expect_rows(0);
+  auto const r{tx.exec(std::format("COPY ({}) TO STDOUT", query), m_ctx.loc)};
+  r.expect_columns(sizeof...(TYPE), m_ctx.loc);
+  r.expect_rows(0, m_ctx.loc);
   register_me();
 }
 
 
 template<typename... TYPE>
-inline char_finder_func *
-stream_query<TYPE...>::get_finder(transaction_base const &tx)
+PQXX_RETURNS_NONNULL inline char_finder_func *
+stream_query<TYPE...>::get_finder(transaction_base const &tx, sl loc)
 {
-  auto const group{enc_group(tx.conn().encoding_id())};
-  return get_s_char_finder<'\t', '\\'>(group);
+  auto const group{tx.conn().get_encoding_group(loc)};
+  return get_char_finder<'\t', '\\'>(group, loc);
 }
 
 
-// C++20: Replace with generator?  Could be faster (local vars vs. members).
+// TODO: Replace with generator?  Could be faster (local vars vs. members).
 /// Input iterator for stream_query.
 /** Just barely enough to support range-based "for" loops on stream_from.
  * Don't assume that any of the usual behaviour works beyond that.
  */
-template<typename... TYPE> class stream_query_input_iterator
+template<typename... TYPE> class stream_query_input_iterator final
 {
   using stream_t = stream_query<TYPE...>;
 
@@ -42,12 +44,13 @@ public:
   using value_type = std::tuple<TYPE...>;
   using difference_type = long;
 
-  explicit stream_query_input_iterator(stream_t &home) :
+  explicit stream_query_input_iterator(stream_t &home, sl loc) :
           m_home(&home),
           m_line{typename stream_query<TYPE...>::line_handle(
-            nullptr, pqxx::internal::pq::pqfreemem)}
+            nullptr, pqxx::internal::pq::pqfreemem)},
+          m_created_loc{loc}
   {
-    consume_line();
+    consume_line(loc);
   }
   stream_query_input_iterator(stream_query_input_iterator const &) = default;
   stream_query_input_iterator(stream_query_input_iterator &&) = default;
@@ -56,7 +59,7 @@ public:
   stream_query_input_iterator &operator++() &
   {
     assert(not done());
-    consume_line();
+    consume_line(m_created_loc);
     return *this;
   }
 
@@ -72,7 +75,7 @@ public:
   /// Dereference.  There's no caching in here, so don't repeat calls.
   value_type operator*() const
   {
-    return m_home->parse_line(zview{m_line.get(), m_line_size});
+    return m_home->parse_line(std::string_view{m_line.get(), m_line_size});
   }
 
   /// Are we at the end?
@@ -96,7 +99,9 @@ public:
   }
 
 private:
-  stream_query_input_iterator() {}
+  explicit stream_query_input_iterator(sl loc = sl::current()) :
+          m_created_loc{loc}
+  {}
 
   /// Have we finished?
   bool done() const noexcept { return m_home->done(); }
@@ -105,9 +110,9 @@ private:
   /** Replaces the newline at the end with a tab, as a sentinel to simplify
    * (and thus hopefully speed up) the field parsing loop.
    */
-  void consume_line() &
+  void consume_line(sl loc) &
   {
-    auto [line, size]{m_home->read_line()};
+    auto [line, size]{m_home->read_line(loc)};
     m_line = std::move(line);
     m_line_size = size;
     if (m_line)
@@ -128,6 +133,9 @@ private:
 
   /// Length of the last COPY line we read.
   std::size_t m_line_size;
+
+  /// A `std::source_location` for where this object was created.
+  sl m_created_loc;
 };
 
 
@@ -149,23 +157,23 @@ inline bool operator!=(
 
 template<typename... TYPE> inline auto stream_query<TYPE...>::begin() &
 {
-  return stream_query_input_iterator<TYPE...>{*this};
+  return stream_query_input_iterator<TYPE...>{*this, m_ctx.loc};
 }
 
 
 template<typename... TYPE>
 inline std::pair<typename stream_query<TYPE...>::line_handle, std::size_t>
-stream_query<TYPE...>::read_line() &
+stream_query<TYPE...>::read_line(sl loc) &
 {
   assert(not done());
 
   internal::gate::connection_stream_from gate{m_trans->conn()};
   try
   {
-    auto line{gate.read_copy_line()};
+    auto line{gate.read_copy_line(loc)};
     // Check for completion.
-    if (not line.first)
-      PQXX_UNLIKELY close();
+    if (not line.first) [[unlikely]]
+      close();
     return line;
   }
   catch (std::exception const &)

@@ -3,7 +3,7 @@
 """Generate autoconf/CMake checks for C++ feature check macros.
 
 Produces feature checks for those features that we can detect based on just
-the C++20 feature check macros.
+the C++ feature check macros.
 
 Reads the test libpqxx feature macro names, as well as the C++ feature check
 macros that control them, from cxx_features.txt in the source tree.

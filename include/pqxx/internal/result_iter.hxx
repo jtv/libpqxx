@@ -1,6 +1,6 @@
 /** Result loops.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -11,6 +11,7 @@
 
 #include <memory>
 
+#include "pqxx/internal/gates/row_ref-result.hxx"
 #include "pqxx/strconv.hxx"
 
 namespace pqxx
@@ -21,9 +22,9 @@ class result;
 
 namespace pqxx::internal
 {
-// C++20: Replace with generator?
+// TODO: Replace with generator?
 /// Iterator for looped unpacking of a result.
-template<typename... TYPE> class result_iter
+template<typename... TYPE> class result_iter final
 {
 public:
   using value_type = std::tuple<TYPE...>;
@@ -31,35 +32,42 @@ public:
   /// Construct an "end" iterator.
   result_iter() = default;
 
-  explicit result_iter(result const &home) :
+  explicit result_iter(result const &home, sl loc = sl::current()) :
           m_home{&home}, m_size{std::size(home)}
   {
     if (not std::empty(home))
-      read();
+      read(loc);
   }
   result_iter(result_iter const &) = default;
 
   result_iter &operator++()
   {
-    m_index++;
+    PQXX_ASSUME(m_home != nullptr);
+    PQXX_ASSUME(m_index <= m_size);
+    // TODO: Would be nice to get at least the result's creation location.
+    sl loc{sl::current()};
+    ++m_index;
     if (m_index >= m_size)
       m_home = nullptr;
-    else
-      read();
+    else if (m_home != nullptr) [[likely]]
+      read(loc);
     return *this;
   }
 
   /// Comparison only works for comparing to end().
-  bool operator==(result_iter const &rhs) const
+  bool operator==(result_iter const &rhs) const noexcept
   {
     return m_home == rhs.m_home;
   }
-  bool operator!=(result_iter const &rhs) const { return not(*this == rhs); }
+  bool operator!=(result_iter const &rhs) const noexcept
+  {
+    return not(*this == rhs);
+  }
 
-  value_type const &operator*() const { return m_value; }
+  value_type const &operator*() const noexcept { return m_value; }
 
 private:
-  void read() { (*m_home)[m_index].convert(m_value); }
+  void read(sl loc) { (*m_home)[m_index].convert(m_value, loc); }
 
   result const *m_home{nullptr};
   result::size_type m_index{0};
@@ -68,7 +76,8 @@ private:
 };
 
 
-template<typename... TYPE> class result_iteration
+/// Iterator for implementing @ref pqxx::result::iter().
+template<typename... TYPE> class result_iteration final
 {
 public:
   using iterator = result_iter<TYPE...>;
@@ -100,7 +109,7 @@ template<typename... TYPE> inline auto pqxx::result::iter() const
 
 
 template<typename CALLABLE>
-inline void pqxx::result::for_each(CALLABLE &&func) const
+inline void pqxx::result::for_each(CALLABLE &&func, sl loc) const
 {
   using args_tuple = internal::args_t<decltype(func)>;
   constexpr auto sz{std::tuple_size_v<args_tuple>};
@@ -111,11 +120,16 @@ inline void pqxx::result::for_each(CALLABLE &&func) const
 
   auto const cols{this->columns()};
   if (sz != cols)
-    throw usage_error{internal::concat(
-      "Callback to for_each takes ", sz, "parameter", (sz == 1) ? "" : "s",
-      ", but result set has ", cols, "field", (cols == 1) ? "" : "s", ".")};
+    throw usage_error{
+      std::format(
+        "Callback to for_each takes {} parameter(s), but result set has {} "
+        "field(s).",
+        sz, cols),
+      loc};
 
   using pass_tuple = pqxx::internal::strip_types_t<args_tuple>;
-  for (auto const r : *this) std::apply(func, r.as_tuple<pass_tuple>());
+  for (auto const r : *this)
+    std::apply(
+      func, pqxx::internal::gate::row_ref_result{r}.as_tuple<pass_tuple>(loc));
 }
 #endif

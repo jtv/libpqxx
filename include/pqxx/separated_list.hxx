@@ -2,7 +2,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/separated_list instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -15,16 +15,12 @@
 #  error "Include libpqxx headers as <pqxx/header>, not <pqxx/header.hxx>."
 #endif
 
-#include <algorithm>
 #include <numeric>
 
 #include "pqxx/strconv.hxx"
 
-// C++20: Simplify using std::ranges::range.
-// C++20: Optimise buffer allocation using random_access_range/iterator.
-// C++23: Use std::join_with().
-// TODO: Or just use std formatting?
-// TODO: Can we pass separators at compile time?
+// TODO: Optimise buffer allocation using random_access_range/iterator.
+// C++23: Use std::ranges::views::join_with()?
 namespace pqxx
 {
 /**
@@ -41,24 +37,22 @@ namespace pqxx
  * @param end end of items sequence
  * @param access functor defining how to dereference sequence elements
  */
-template<typename ITER, typename ACCESS>
-[[nodiscard]] inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
+template<std::forward_iterator ITER, typename ACCESS>
+[[nodiscard]] inline std::string separated_list(
+  std::string_view sep, ITER begin, ITER end, ACCESS access, ctx c = {})
 {
   if (end == begin)
     return {};
   auto next{begin};
   ++next;
   if (next == end)
-    return to_string(access(begin));
+    return to_string(access(begin), c);
 
   // From here on, we've got at least 2 elements -- meaning that we need sep.
-  using elt_type = strip_t<decltype(access(begin))>;
-  using traits = string_traits<elt_type>;
 
   std::size_t budget{0};
   for (ITER cnt{begin}; cnt != end; ++cnt)
-    budget += traits::size_buffer(access(cnt));
+    budget += pqxx::size_buffer(access(cnt));
   budget +=
     static_cast<std::size_t>(std::distance(begin, end)) * std::size(sep);
 
@@ -66,80 +60,55 @@ separated_list(std::string_view sep, ITER begin, ITER end, ACCESS access)
   result.resize(budget);
 
   char *const data{result.data()};
-  char *here{data};
   char *stop{data + budget};
-  here = traits::into_buf(here, stop, access(begin)) - 1;
+  std::size_t here{pqxx::into_buf({data, stop}, access(begin))};
   for (++begin; begin != end; ++begin)
   {
-    here += sep.copy(here, std::size(sep));
-    here = traits::into_buf(here, stop, access(begin)) - 1;
+    here = pqxx::internal::copy_chars<false>(sep, result, here, sl::current());
+    here += pqxx::into_buf({data + here, stop}, access(begin));
   }
-  result.resize(static_cast<std::size_t>(here - data));
+  result.resize(here);
   return result;
 }
 
 
 /// Render sequence as a string, using given separator between items.
-template<typename ITER>
+template<std::forward_iterator ITER>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, ITER begin, ITER end)
+separated_list(std::string_view sep, ITER begin, ITER end, ctx c = {})
 {
-  return separated_list(sep, begin, end, [](ITER i) { return *i; });
+  return separated_list(sep, begin, end, [](ITER i) { return *i; }, c);
 }
 
 
-// C++20: Use a concept.
 /// Render items in a container as a string, using given separator.
-template<typename CONTAINER>
-[[nodiscard]] inline auto
-separated_list(std::string_view sep, CONTAINER const &c)
-  /*
-  Always std::string; necessary because SFINAE doesn't work with the
-  contents of function bodies, so the check for iterability has to be in
-  the signature.
-  */
-  -> typename std::enable_if<
-    (not std::is_void<decltype(std::begin(c))>::value and
-     not std::is_void<decltype(std::end(c))>::value),
-    std::string>::type
+template<std::ranges::range CONTAINER>
+[[nodiscard]] inline std::string
+separated_list(std::string_view sep, CONTAINER &&con, ctx c = {})
 {
-  return separated_list(sep, std::begin(c), std::end(c));
+  return separated_list(sep, std::begin(con), std::end(con), c);
 }
 
 
 /// Render items in a tuple as a string, using given separator.
-template<
-  typename TUPLE, std::size_t INDEX = 0, typename ACCESS,
-  typename std::enable_if<
-    (INDEX == std::tuple_size<TUPLE>::value - 1), int>::type = 0>
+template<typename TUPLE, std::size_t INDEX = 0, typename ACCESS>
 [[nodiscard]] inline std::string separated_list(
-  std::string_view /* sep */, TUPLE const &t, ACCESS const &access)
+  std::string_view sep, TUPLE const &t, ACCESS const &access, ctx c = {})
 {
-  return to_string(access(&std::get<INDEX>(t)));
-}
-
-template<
-  typename TUPLE, std::size_t INDEX = 0, typename ACCESS,
-  typename std::enable_if<
-    (INDEX < std::tuple_size<TUPLE>::value - 1), int>::type = 0>
-[[nodiscard]] inline std::string
-separated_list(std::string_view sep, TUPLE const &t, ACCESS const &access)
-{
-  std::string out{to_string(access(&std::get<INDEX>(t)))};
-  out.append(sep);
-  out.append(separated_list<TUPLE, INDEX + 1>(sep, t, access));
+  std::string out{to_string(access(&std::get<INDEX>(t)), c)};
+  if constexpr (INDEX < std::tuple_size<TUPLE>::value - 1)
+  {
+    out.append(sep);
+    out.append(separated_list<TUPLE, INDEX + 1>(sep, t, access, c));
+  }
   return out;
 }
 
-template<
-  typename TUPLE, std::size_t INDEX = 0,
-  typename std::enable_if<
-    (INDEX <= std::tuple_size<TUPLE>::value), int>::type = 0>
+template<typename TUPLE, std::size_t INDEX = 0>
 [[nodiscard]] inline std::string
-separated_list(std::string_view sep, TUPLE const &t)
+separated_list(std::string_view sep, TUPLE const &t, ctx c = {})
 {
-  // TODO: Optimise allocation.
-  return separated_list(sep, t, [](TUPLE const &tup) { return *tup; });
+  return separated_list(sep, t, [](TUPLE const &tup) { return *tup; }, c);
 }
 //@}
 } // namespace pqxx

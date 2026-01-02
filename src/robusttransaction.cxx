@@ -2,7 +2,7 @@
  *
  * pqxx::robusttransaction is a slower but safer transaction class.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -18,7 +18,6 @@
 #include "pqxx/internal/header-pre.hxx"
 
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/wait.hxx"
 #include "pqxx/nontransaction.hxx"
 #include "pqxx/result.hxx"
@@ -50,77 +49,91 @@ constexpr auto committed{"committed"_zv}, aborted{"aborted"_zv},
   in_progress{"in progress"_zv};
 
 
+// LCOV_EXCL_START
 /// Parse a nonempty transaction status string.
 constexpr tx_stat parse_status(std::string_view text) noexcept
 {
   switch (text[0])
   {
   case 'a':
-    if (text == aborted)
-      PQXX_LIKELY return tx_aborted;
+    if (text == aborted) [[likely]]
+      return tx_aborted;
     break;
   case 'c':
-    if (text == committed)
-      PQXX_LIKELY return tx_committed;
+    if (text == committed) [[likely]]
+      return tx_committed;
     break;
   case 'i':
-    if (text == in_progress)
-      PQXX_LIKELY return tx_in_progress;
+    if (text == in_progress) [[likely]]
+      return tx_in_progress;
     break;
   }
   return tx_unknown;
 }
 
 
-tx_stat query_status(std::string const &xid, std::string const &conn_str)
+#if !defined(NDEBUG)
+static_assert(parse_status("aborted") == tx_aborted);
+static_assert(parse_status("committed") == tx_committed);
+static_assert(parse_status("in progress") == tx_in_progress);
+static_assert(parse_status("ABORTED") == tx_unknown);
+static_assert(parse_status("Aborted") == tx_unknown);
+static_assert(parse_status("COMMITTED") == tx_unknown);
+static_assert(parse_status("Committed") == tx_unknown);
+static_assert(parse_status("IN PROGRESS") == tx_unknown);
+static_assert(parse_status("In Progress") == tx_unknown);
+static_assert(parse_status("unknown") == tx_unknown);
+static_assert(parse_status("something") == tx_unknown);
+#endif
+// LCOV_EXCL_STOP
+
+
+tx_stat query_status(
+  std::string const &xid, std::string const &conn_str,
+  pqxx::sl loc = pqxx::sl::current())
 {
-  static std::string const name{"robusttxck"sv};
-  auto const query{pqxx::internal::concat("SELECT txid_status(", xid, ")")};
-  pqxx::connection cx{conn_str};
+  static std::string_view const name{"robusttxck"sv};
+  auto const query{std::format("SELECT txid_status({})", xid)};
+  pqxx::connection cx{conn_str, loc};
   pqxx::nontransaction tx{cx, name};
-  auto const status_row{tx.exec(query).one_row()};
+  auto const status_row{tx.exec(query, loc).one_row(loc)};
   auto const status_field{status_row[0]};
   if (std::size(status_field) == 0)
-    throw pqxx::internal_error{"Transaction status string is empty."};
-  auto const status{parse_status(status_field.as<std::string_view>())};
+    throw pqxx::internal_error{"Transaction status string is empty.", loc};
+  auto const status{parse_status(status_field.view())};
   if (status == tx_unknown)
-    throw pqxx::internal_error{pqxx::internal::concat(
-      "Unknown transaction status string: ", status_field.view())};
+    throw pqxx::internal_error{
+      std::format(
+        "Unknown transaction status string: {}",
+        static_cast<std::string_view>(status_field.view())),
+      loc};
   return status;
 }
 } // namespace
 
 
-void pqxx::internal::basic_robusttransaction::init(zview begin_command)
+void pqxx::internal::basic_robusttransaction::init(zview begin_command, sl loc)
 {
   static auto const txid_q{
     std::make_shared<std::string>("SELECT txid_current()"sv)};
   m_backendpid = conn().backendpid();
-  direct_exec(begin_command);
-  direct_exec(txid_q).one_field().to(m_xid);
+  direct_exec(begin_command, loc);
+  m_xid = direct_exec(txid_q, loc).one_field_ref(loc).as<std::string>(loc);
 }
 
 
 pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command, std::string_view tname) :
-        dbtransaction(cx, tname), m_conn_string{cx.connection_string()}
+  connection &cx, zview begin_command, sl loc) :
+        dbtransaction(cx, loc), m_conn_string{cx.connection_string()}
 {
-  init(begin_command);
-}
-
-
-pqxx::internal::basic_robusttransaction::basic_robusttransaction(
-  connection &cx, zview begin_command) :
-        dbtransaction(cx), m_conn_string{cx.connection_string()}
-{
-  init(begin_command);
+  init(begin_command, loc);
 }
 
 
 pqxx::internal::basic_robusttransaction::~basic_robusttransaction() = default;
 
 
-void pqxx::internal::basic_robusttransaction::do_commit()
+void pqxx::internal::basic_robusttransaction::do_commit(sl loc)
 {
   static auto const check_constraints_q{
     std::make_shared<std::string>("SET CONSTRAINTS ALL IMMEDIATE"sv)},
@@ -129,11 +142,11 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // minimise our in-doubt window.
   try
   {
-    direct_exec(check_constraints_q);
+    direct_exec(check_constraints_q, loc);
   }
   catch (std::exception const &)
   {
-    do_abort();
+    do_abort(loc);
     throw;
   }
 
@@ -148,7 +161,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   // robusttransaction what it is.
   try
   {
-    direct_exec(commit_q);
+    direct_exec(commit_q, loc);
 
     // If we make it here, great.  Normal, successful commit.
     return;
@@ -163,7 +176,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
     if (conn().is_open())
     {
       // Commit failed, for some other reason.
-      do_abort();
+      do_abort(loc);
       throw;
     }
     // Otherwise, fall through to in-doubt handling.
@@ -180,7 +193,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   {
     try
     {
-      switch (query_status(m_xid, m_conn_string))
+      switch (query_status(m_xid, m_conn_string, loc))
       {
       case tx_unknown:
         // We were unable to reconnect and query transaction status.
@@ -191,7 +204,7 @@ void pqxx::internal::basic_robusttransaction::do_commit()
         return;
       case tx_aborted:
         // Aborted.  We're done.
-        do_abort();
+        do_abort(loc);
         return;
       case tx_in_progress:
         // The transaction is still running.  Stick around until we know what
@@ -208,14 +221,13 @@ void pqxx::internal::basic_robusttransaction::do_commit()
   }
 
   // Okay, this has taken too long.  Give up, report in-doubt state.
-  throw in_doubt_error{internal::concat(
-    "Transaction ", name(), " (with transaction ID ", m_xid,
-    ") "
-    "lost connection while committing.  It's impossible to tell whether "
-    "it committed, or aborted, or is still running.  "
-    "Attempts to find out its outcome have failed.  "
-    "The backend process on the server had process ID ",
-    m_backendpid,
-    ".  "
-    "You may be able to check what happened to that process.")};
+  throw in_doubt_error{
+    std::format(
+      "Transaction {} (with transaction ID {}) lost connection while "
+      "committing.  It's impossible to tell whether it committed, or aborted, "
+      "or is still running.  Attempts to find out its outcome have failed.  "
+      "The backend process on the server had process ID {}.  "
+      "You may be able to check what happened to that process.",
+      name(), m_xid, m_backendpid),
+    loc};
 }

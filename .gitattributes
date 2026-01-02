@@ -1,0 +1,10 @@
+aclocal.m4 linguist-generated=true
+configure linguist-generated=true
+libpqxx.pc linguist-generated=true
+libtool linguist-generated=true
+**/Makefile.in linguist-generated=true
+cmake/pqxx_cxx_feature_checks.cmake linguist-generated=true
+config/* linguist-generated=true
+examples/Makefile.am linguist-generated=true
+include/CMakeLists.txt linguist-generated=true
+tests/Makefile.am linguist-generated=true

@@ -2,7 +2,7 @@
  *
  * Allows direct access to large objects, as well as though I/O streams.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -14,15 +14,14 @@
 #include <cerrno>
 #include <stdexcept>
 
+#include "pqxx/internal/header-pre.hxx"
+
 extern "C"
 {
 #include <libpq-fe.h>
 }
 
-#include "pqxx/internal/header-pre.hxx"
-
 #include "pqxx/connection.hxx"
-#include "pqxx/internal/concat.hxx"
 #include "pqxx/internal/gates/connection-largeobject.hxx"
 #include "pqxx/largeobject.hxx"
 
@@ -30,9 +29,11 @@ extern "C"
 
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
 
+// This code is deprecated.
+// LCOV_EXCL_START
 namespace
 {
-constexpr inline int PQXX_COLD std_mode_to_pq_mode(std::ios::openmode mode)
+PQXX_COLD constexpr inline int std_mode_to_pq_mode(std::ios::openmode mode)
 {
   /// Mode bits, copied from libpq-fs.h so that we no longer need that header.
   constexpr int INV_WRITE{0x00020000}, INV_READ{0x00040000};
@@ -42,7 +43,7 @@ constexpr inline int PQXX_COLD std_mode_to_pq_mode(std::ios::openmode mode)
 }
 
 
-constexpr int PQXX_COLD std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
+PQXX_COLD constexpr int std_dir_to_pq_dir(std::ios::seekdir dir) noexcept
 {
   if constexpr (
     static_cast<int>(std::ios::beg) == int(SEEK_SET) and
@@ -76,8 +77,8 @@ PQXX_COLD pqxx::largeobject::largeobject(dbtransaction &t) :
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Could not create large object: ", reason(t.conn(), err))};
+    throw failure{
+      std::format("Could not create large object: {}", reason(t.conn(), err))};
   }
 }
 
@@ -91,9 +92,9 @@ pqxx::largeobject::largeobject(dbtransaction &t, std::string_view file) :
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Could not import file '", file,
-      "' to large object: ", reason(t.conn(), err))};
+    throw failure{std::format(
+      "Could not import file '{}' to large object: {}", file,
+      reason(t.conn(), err))};
   }
 }
 
@@ -103,7 +104,7 @@ PQXX_COLD pqxx::largeobject::largeobject(largeobjectaccess const &o) noexcept :
 {}
 
 
-void PQXX_COLD
+PQXX_COLD void
 pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
 {
   if (id() == oid_none)
@@ -113,14 +114,14 @@ pqxx::largeobject::to_file(dbtransaction &t, std::string_view file) const
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Could not export large object ", m_id, " to file '", file,
-      "': ", reason(t.conn(), err))};
+    throw failure{std::format(
+      "Could not export large object {} to file '{}': {}", m_id, file,
+      reason(t.conn(), err))};
   }
 }
 
 
-void PQXX_COLD pqxx::largeobject::remove(dbtransaction &t) const
+PQXX_COLD void pqxx::largeobject::remove(dbtransaction &t) const
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -129,13 +130,13 @@ void PQXX_COLD pqxx::largeobject::remove(dbtransaction &t) const
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Could not delete large object ", m_id, ": ", reason(t.conn(), err))};
+    throw failure{std::format(
+      "Could not delete large object {}: {}", m_id, reason(t.conn(), err))};
   }
 }
 
 
-pqxx::internal::pq::PGconn *PQXX_COLD
+PQXX_COLD pqxx::internal::pq::PGconn *
 pqxx::largeobject::raw_connection(dbtransaction const &t)
 {
   return pqxx::internal::gate::connection_largeobject{t.conn()}
@@ -143,7 +144,7 @@ pqxx::largeobject::raw_connection(dbtransaction const &t)
 }
 
 
-std::string PQXX_COLD
+PQXX_COLD std::string
 pqxx::largeobject::reason(connection const &cx, int err) const
 {
   if (err == ENOMEM)
@@ -185,7 +186,7 @@ PQXX_COLD pqxx::largeobjectaccess::largeobjectaccess(
 }
 
 
-pqxx::largeobjectaccess::size_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
 {
   auto const res{cseek(dest, dir)};
@@ -197,66 +198,66 @@ pqxx::largeobjectaccess::seek(size_type dest, seekdir dir)
     if (id() == oid_none)
       throw usage_error{"No object selected."};
     throw failure{
-      internal::concat("Error seeking in large object: ", reason(err))};
+      std::format("Error seeking in large object: {}", reason(err))};
   }
 
   return res;
 }
 
 
-pqxx::largeobjectaccess::pos_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cseek(off_type dest, seekdir dir) noexcept
 {
   return lo_lseek64(raw_connection(), m_fd, dest, std_dir_to_pq_dir(dir));
 }
 
 
-pqxx::largeobjectaccess::pos_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cwrite(char const buf[], std::size_t len) noexcept
 {
   return std::max(lo_write(raw_connection(), m_fd, buf, len), -1);
 }
 
 
-pqxx::largeobjectaccess::pos_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::cread(char buf[], std::size_t len) noexcept
 {
   return std::max(lo_read(raw_connection(), m_fd, buf, len), -1);
 }
 
 
-pqxx::largeobjectaccess::pos_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::pos_type
 pqxx::largeobjectaccess::ctell() const noexcept
 {
   return lo_tell64(raw_connection(), m_fd);
 }
 
 
-void PQXX_COLD
+PQXX_COLD void
 pqxx::largeobjectaccess::write(char const buf[], std::size_t len)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
-  if (auto const bytes{cwrite(buf, len)}; internal::cmp_less(bytes, len))
+  if (auto const bytes{cwrite(buf, len)}; std::cmp_less(bytes, len))
   {
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
     if (bytes < 0)
-      throw failure{internal::concat(
-        "Error writing to large object #", id(), ": ", reason(err))};
+      throw failure{std::format(
+        "Error writing to large object #{}: {}", id(), reason(err))};
     if (bytes == 0)
-      throw failure{internal::concat(
-        "Could not write to large object #", id(), ": ", reason(err))};
+      throw failure{std::format(
+        "Could not write to large object #{}: {}", id(), reason(err))};
 
-    throw failure{internal::concat(
-      "Wanted to write ", len, " bytes to large object #", id(),
-      "; could only write ", bytes, ".")};
+    throw failure{std::format(
+      "Wanted to write {} bytes to large object #{}; could only write {}.",
+      len, id(), bytes)};
   }
 }
 
 
-pqxx::largeobjectaccess::size_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::read(char buf[], std::size_t len)
 {
   if (id() == oid_none)
@@ -267,14 +268,14 @@ pqxx::largeobjectaccess::read(char buf[], std::size_t len)
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Error reading from large object #", id(), ": ", reason(err))};
+    throw failure{std::format(
+      "Error reading from large object #{}: {}", id(), reason(err))};
   }
   return bytes;
 }
 
 
-void PQXX_COLD pqxx::largeobjectaccess::open(openmode mode)
+PQXX_COLD void pqxx::largeobjectaccess::open(openmode mode)
 {
   if (id() == oid_none)
     throw usage_error{"No object selected."};
@@ -284,20 +285,20 @@ void PQXX_COLD pqxx::largeobjectaccess::open(openmode mode)
     int const err{errno};
     if (err == ENOMEM)
       throw std::bad_alloc{};
-    throw failure{internal::concat(
-      "Could not open large object ", id(), ": ", reason(err))};
+    throw failure{
+      std::format("Could not open large object {}: {}", id(), reason(err))};
   }
 }
 
 
-void PQXX_COLD pqxx::largeobjectaccess::close() noexcept
+PQXX_COLD void pqxx::largeobjectaccess::close() noexcept
 {
   if (m_fd >= 0)
     lo_close(raw_connection(), m_fd);
 }
 
 
-pqxx::largeobjectaccess::size_type PQXX_COLD
+PQXX_COLD pqxx::largeobjectaccess::size_type
 pqxx::largeobjectaccess::tell() const
 {
   auto const res{ctell()};
@@ -307,7 +308,7 @@ pqxx::largeobjectaccess::tell() const
 }
 
 
-std::string PQXX_COLD pqxx::largeobjectaccess::reason(int err) const
+PQXX_COLD std::string pqxx::largeobjectaccess::reason(int err) const
 {
   if (m_fd == -1)
     return "No object opened.";
@@ -315,9 +316,10 @@ std::string PQXX_COLD pqxx::largeobjectaccess::reason(int err) const
 }
 
 
-void PQXX_COLD pqxx::largeobjectaccess::process_notice(zview s) noexcept
+PQXX_COLD void pqxx::largeobjectaccess::process_notice(zview s) noexcept
 {
   m_trans.process_notice(s);
 }
+// LCOV_EXCL_STOP
 
 #include "pqxx/internal/ignore-deprecated-post.hxx"

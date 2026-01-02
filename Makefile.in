@@ -552,14 +552,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_postgres_lib = @with_postgres_lib@
-SUBDIRS = include src test tools config doc
+SUBDIRS = include src test examples tools config doc
 EXTRA_DIST = autogen.sh configitems README.md VERSION requirements.json
 MAINTAINERCLEANFILES = \
     Makefile.in aclocal.m4 config.h.in config.log configure stamp-h.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpqxx.pc
-TESTS = tools/lint
+TESTS = tools/lint.sh
 all: all-recursive
 
 .SUFFIXES:
@@ -879,9 +879,9 @@ recheck: all
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-tools/lint.log: tools/lint
-	@p='tools/lint'; \
-	b='tools/lint'; \
+tools/lint.sh.log: tools/lint.sh
+	@p='tools/lint.sh'; \
+	b='tools/lint.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

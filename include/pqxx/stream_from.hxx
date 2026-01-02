@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/stream_from instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -18,12 +18,12 @@
 #endif
 
 #include <cassert>
+#include <format>
 #include <variant>
 
 #include "pqxx/connection.hxx"
+#include "pqxx/encoding_group.hxx"
 #include "pqxx/except.hxx"
-#include "pqxx/internal/concat.hxx"
-#include "pqxx/internal/encoding_group.hxx"
 #include "pqxx/internal/stream_iterator.hxx"
 #include "pqxx/separated_list.hxx"
 #include "pqxx/transaction_focus.hxx"
@@ -75,7 +75,7 @@ constexpr from_query_t from_query;
  * object of a type derived from @ref pqxx::transaction_focus active on it at a
  * time.
  */
-class PQXX_LIBEXPORT stream_from : transaction_focus
+class PQXX_LIBEXPORT stream_from final : transaction_focus
 {
 public:
   using raw_line =
@@ -195,11 +195,14 @@ public:
 
   ~stream_from() noexcept;
 
+  // LCOV_EXCL_START
   /// May this stream still produce more data?
   [[nodiscard]] constexpr operator bool() const noexcept
   {
     return not m_finished;
   }
+  // LCOV_EXCL_STOP
+
   /// Has this stream produced all the data it is going to produce?
   [[nodiscard]] constexpr bool operator!() const noexcept
   {
@@ -213,7 +216,7 @@ public:
    * skip it in error scenarios where you're not planning to use the connection
    * again afterwards.
    */
-  void complete();
+  void complete(sl = sl::current());
 
   /// Read one row into a tuple.
   /** Converts the row's fields into the fields making up the tuple.
@@ -246,21 +249,17 @@ public:
    * Do not access the vector, or the storage referenced by the views, after
    * closing or completing the stream, or after attempting to read a next row.
    *
-   * A @ref pqxx::zview is like a `std::string_view`, but with the added
-   * guarantee that if its data pointer is non-null, the string is followed by
-   * a terminating zero (which falls just outside the view itself).
-   *
    * If any of the views' data pointer is null, that means that the
    * corresponding SQL field is null.
    *
    * @warning The return type may change in the future, to support C++20
    * coroutine-based usage.
    */
-  std::vector<zview> const *read_row() &;
+  std::vector<std::string_view> const *read_row(sl loc = sl::current()) &;
 
   /// Read a raw line of text from the COPY command.
   /** @warning Do not use this unless you really know what you're doing. */
-  raw_line get_raw_line();
+  raw_line get_raw_line(sl);
 
 private:
   // TODO: Clean up this signature once we cull the deprecated constructors.
@@ -276,9 +275,9 @@ private:
     std::string_view columns, from_table_t, int);
 
   template<typename Tuple, std::size_t... indexes>
-  void extract_fields(Tuple &t, std::index_sequence<indexes...>) const
+  void extract_fields(Tuple &t, std::index_sequence<indexes...>, sl loc) const
   {
-    (extract_value<Tuple, indexes>(t), ...);
+    (extract_value<Tuple, indexes>(t, loc), ...);
   }
 
   pqxx::internal::char_finder_func *m_char_finder;
@@ -287,17 +286,17 @@ private:
   std::string m_row;
 
   /// The current row's fields.
-  std::vector<zview> m_fields;
+  std::vector<std::string_view> m_fields;
 
   bool m_finished = false;
 
   void close();
 
   template<typename Tuple, std::size_t index>
-  void extract_value(Tuple &) const;
+  void extract_value(Tuple &, sl loc) const;
 
   /// Read a line of COPY data, write `m_row` and `m_fields`.
-  void parse_line();
+  void parse_line(sl);
 };
 
 
@@ -322,41 +321,41 @@ inline stream_from::stream_from(
 
 template<typename Tuple> inline stream_from &stream_from::operator>>(Tuple &t)
 {
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  sl loc{sl::current()};
+  if (m_finished) [[unlikely]]
+    return *this;
   static constexpr auto tup_size{std::tuple_size_v<Tuple>};
   m_fields.reserve(tup_size);
-  parse_line();
-  if (m_finished)
-    PQXX_UNLIKELY return *this;
+  parse_line(loc);
+  if (m_finished) [[unlikely]]
+    return *this;
 
   if (std::size(m_fields) != tup_size)
-    throw usage_error{internal::concat(
-      "Tried to extract ", tup_size, " field(s) from a stream of ",
-      std::size(m_fields), ".")};
+    throw usage_error{std::format(
+      "Tried to extract {} field(s) from a stream of {}.", tup_size,
+      std::size(m_fields))};
 
-  extract_fields(t, std::make_index_sequence<tup_size>{});
+  extract_fields(t, std::make_index_sequence<tup_size>{}, loc);
   return *this;
 }
 
 
 template<typename Tuple, std::size_t index>
-inline void stream_from::extract_value(Tuple &t) const
+inline void stream_from::extract_value(Tuple &t, sl loc) const
 {
-  using field_type = strip_t<decltype(std::get<index>(t))>;
-  using nullity = nullness<field_type>;
+  using field_type = std::remove_cvref_t<decltype(std::get<index>(t))>;
   assert(index < std::size(m_fields));
-  if constexpr (nullity::always_null)
+  if constexpr (always_null<field_type>())
   {
     if (std::data(m_fields[index]) != nullptr)
-      throw conversion_error{"Streaming non-null value into null field."};
+      throw conversion_error{"Streaming non-null value into null field.", loc};
   }
   else if (std::data(m_fields[index]) == nullptr)
   {
-    if constexpr (nullity::has_null)
-      std::get<index>(t) = nullity::null();
+    if constexpr (has_null<field_type>())
+      std::get<index>(t) = make_null<field_type>();
     else
-      internal::throw_null_conversion(type_name<field_type>);
+      internal::throw_null_conversion(name_type<field_type>(), loc);
   }
   else
   {

@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/notification instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -24,6 +24,9 @@
 
 namespace pqxx
 {
+// This code is deprecated.
+// LCOV_EXCL_START
+
 /// "Observer" base class for notifications.
 /** @addtogroup notification Notifications and Receivers
  *
@@ -62,7 +65,8 @@ public:
    * @param channel Name of the notification to listen for.
    */
   [[deprecated("Use pqxx::connection::listen() instead.")]]
-  notification_receiver(connection &cx, std::string_view channel);
+  notification_receiver(
+    connection &cx, std::string_view channel, sl loc = sl::current());
   /// Register the receiver with a connection.
   [[deprecated("Use pqxx::connection::listen() instead.")]]
   notification_receiver(notification_receiver const &) = delete;
@@ -92,5 +96,6 @@ private:
   connection &m_conn;
   std::string m_channel;
 };
+// LCOV_EXCL_STOP
 } // namespace pqxx
 #endif

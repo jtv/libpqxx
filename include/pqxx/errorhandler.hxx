@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/errorhandler instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -55,7 +55,7 @@ public:
    * @return Whether the same error message should also be passed to the
    * remaining, older errorhandlers.
    */
-  virtual bool operator()(char const msg[]) noexcept = 0;
+  PQXX_ZARGS virtual bool operator()(char const msg[]) noexcept = 0;
 
   errorhandler() = delete;
   errorhandler(errorhandler const &) = delete;
@@ -82,7 +82,13 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Revert to previous handling of error notices.
-  virtual bool operator()(char const[]) noexcept override { return false; }
+  PQXX_ZARGS virtual bool operator()(char const[]) noexcept override
+  {
+    return false;
+  }
+
+private:
+  quiet_errorhandler() = delete;
 };
 
 //@}

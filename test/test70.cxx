@@ -1,53 +1,49 @@
 #include <pqxx/pipeline>
 #include <pqxx/transaction>
 
-#include "test_helpers.hxx"
-
-using namespace pqxx;
+#include "helpers.hxx"
 
 
 namespace
 {
-void TestPipeline(pipeline &P, int numqueries)
+void TestPipeline(pqxx::pipeline &P, int numqueries)
 {
   std::string const Q{"SELECT * FROM generate_series(1, 10)"};
-  result const Empty;
-  PQXX_CHECK(std::empty(Empty), "Default-constructed result is not empty.");
-  PQXX_CHECK(
-    std::empty(Empty.query()), "Default-constructed result has query");
+  pqxx::result const Empty;
+  PQXX_CHECK(std::empty(Empty));
+  PQXX_CHECK(std::empty(Empty.query()));
 
   P.retain();
   for (int i{numqueries}; i > 0; --i) P.insert(Q);
   P.resume();
 
-  PQXX_CHECK(
-    (numqueries == 0) || not std::empty(P), "pipeline::empty() is broken.");
+  PQXX_CHECK((numqueries == 0) || not std::empty(P));
 
   int res{0};
-  result Prev;
-  PQXX_CHECK_EQUAL(Prev, Empty, "Default-constructed results are not equal.");
+  pqxx::result Prev;
+  PQXX_CHECK_EQUAL(Prev, Empty);
 
   for (int i{numqueries}; i > 0; --i)
   {
-    PQXX_CHECK(not std::empty(P), "Got no results from pipeline.");
+    PQXX_CHECK(not std::empty(P));
 
     auto R{P.retrieve()};
 
-    PQXX_CHECK_NOT_EQUAL(R.second, Empty, "Got empty result.");
+    PQXX_CHECK_NOT_EQUAL(R.second, Empty);
     if (Prev != Empty)
-      PQXX_CHECK_EQUAL(R.second, Prev, "Results to same query are different.");
+      PQXX_CHECK_NOT_EQUAL(R.second, Prev);
 
     Prev = R.second;
-    PQXX_CHECK_EQUAL(Prev, R.second, "Assignment breaks result equality.");
-    PQXX_CHECK_EQUAL(R.second.query(), Q, "Result is for unexpected query.");
+    PQXX_CHECK_EQUAL(Prev, R.second);
+    PQXX_CHECK_EQUAL(R.second.query(), Q);
 
     if (res != 0)
-      PQXX_CHECK_EQUAL(Prev[0][0].as<int>(), res, "Bad result from pipeline.");
+      PQXX_CHECK_EQUAL(Prev[0][0].as<int>(), res);
 
     res = Prev[0][0].as<int>();
   }
 
-  PQXX_CHECK(std::empty(P), "Pipeline was not empty after retrieval.");
+  PQXX_CHECK(std::empty(P));
 }
 
 
@@ -55,11 +51,11 @@ void TestPipeline(pipeline &P, int numqueries)
 // compare results.  Use retain() and resume() for performance.
 void test_070()
 {
-  connection cx;
-  work tx{cx};
-  pipeline P(tx);
+  pqxx::connection cx;
+  pqxx::work tx{cx};
+  pqxx::pipeline P(tx);
 
-  PQXX_CHECK(std::empty(P), "Pipeline is not empty initially.");
+  PQXX_CHECK(std::empty(P));
 
   // Try to confuse the pipeline by feeding it a query and flushing
   P.retain();
@@ -67,35 +63,32 @@ void test_070()
   P.insert(Q);
   P.flush();
 
-  PQXX_CHECK(std::empty(P), "Pipeline was not empty after flush().");
+  PQXX_CHECK(std::empty(P));
 
   // See if complete() breaks retain() as it should
   P.retain();
   P.insert(Q);
-  PQXX_CHECK(not std::empty(P), "Pipeline was empty after insert().");
+  PQXX_CHECK(not std::empty(P));
   P.complete();
-  PQXX_CHECK(not std::empty(P), "complete() emptied pipeline.");
+  PQXX_CHECK(not std::empty(P));
 
-  PQXX_CHECK_EQUAL(
-    P.retrieve().second.query(), Q, "Result is for wrong query.");
+  PQXX_CHECK_EQUAL(P.retrieve().second.query(), Q);
 
-  PQXX_CHECK(std::empty(P), "Pipeline not empty after retrieve().");
+  PQXX_CHECK(std::empty(P));
 
   // See if retrieve() breaks retain() when it needs to
   P.retain();
   P.insert(Q);
-  PQXX_CHECK_EQUAL(
-    P.retrieve().second.query(), Q, "Got result for wrong query.");
+  PQXX_CHECK_EQUAL(P.retrieve().second.query(), Q);
 
   // See if regular retain()/resume() works
   for (int i{0}; i < 5; ++i) TestPipeline(P, i);
 
     // See if retrieve() fails on an empty pipeline, as it should
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
-  quiet_errorhandler d(cx);
+  pqxx::quiet_errorhandler const d(cx);
 #include "pqxx/internal/ignore-deprecated-post.hxx"
-  PQXX_CHECK_THROWS_EXCEPTION(
-    P.retrieve(), "Empty pipeline allows retrieve().");
+  PQXX_CHECK_THROWS_EXCEPTION(P.retrieve());
 }
 } // namespace
 

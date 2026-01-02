@@ -4,7 +4,7 @@
  *
  * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/nontransaction instead.
  *
- * Copyright (c) 2000-2025, Jeroen T. Vermeulen.
+ * Copyright (c) 2000-2026, Jeroen T. Vermeulen.
  *
  * See COPYING for copyright license.  If you did not receive a file called
  * COPYING with this source code, please notify the distributor of this
@@ -66,16 +66,17 @@ public:
    * @param tname Optional tname for the transaction, beginning with a letter
    * and containing only letters and digits.
    */
-  nontransaction(connection &cx, std::string_view tname = ""sv) :
-          transaction_base{cx, tname, std::shared_ptr<std::string>{}}
+  nontransaction(
+    connection &cx, std::string_view tname = ""sv, sl loc = sl::current()) :
+          transaction_base{cx, tname, std::shared_ptr<std::string>{}, loc}
   {
     register_transaction();
   }
 
-  virtual ~nontransaction() override { close(); }
+  virtual ~nontransaction() override { close(sl::current()); }
 
 private:
-  virtual void do_commit() override {}
+  virtual void do_commit(sl) override {}
 };
 } // namespace pqxx
 #endif
