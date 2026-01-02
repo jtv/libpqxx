@@ -121,22 +121,18 @@ inline char *wrap_to_chars(std::span<char> buf, T const &value, pqxx::sl loc)
 {
   auto const begin{std::data(buf)}, end{begin + std::size(buf)};
   auto res{std::to_chars(begin, end, value)};
-  if (res.ec != std::errc())
-    switch (res.ec)
-    {
-    case std::errc::value_too_large:
-      throw pqxx::conversion_overrun{
-        std::format(
-          "Could not convert {} to string: buffer too small ({} bytes).",
-          pqxx::name_type<T>(), std::size(buf)),
-        loc};
-    default:
-      throw pqxx::conversion_error{
-        std::format("Could not convert {} to string.", pqxx::name_type<T>()),
-        loc};
-    }
-  else [[likely]]
+  if (res.ec == std::errc()) [[likely]]
     return res.ptr;
+  else if (res.ec == std::errc::value_too_large)
+    throw pqxx::conversion_overrun{
+      std::format(
+        "Could not convert {} to string: buffer too small ({} bytes).",
+        pqxx::name_type<T>(), std::size(buf)),
+      loc};
+  else
+    throw pqxx::conversion_error{
+      std::format("Could not convert {} to string.", pqxx::name_type<T>()),
+      loc};
 }
 } // namespace
 
