@@ -18,7 +18,6 @@
 #include "pqxx/cursor.hxx"
 #include "pqxx/internal/encodings.hxx"
 #include "pqxx/internal/gates/connection-sql_cursor.hxx"
-#include "pqxx/internal/gates/transaction-sql_cursor.hxx"
 
 #include "pqxx/internal/header-post.hxx"
 
