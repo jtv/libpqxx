@@ -837,7 +837,9 @@ public:
   }
 
   /// Define a prepared statement.
-  /**
+  /** Extra overload for disambiguation.  It may also help avoid the slightly
+   * less efficient `string_view`-based overload.
+   *
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
