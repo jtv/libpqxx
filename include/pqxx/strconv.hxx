@@ -548,12 +548,12 @@ inline std::string to_string(TYPE const &value, ctx c = {});
 
 namespace pqxx::internal
 {
-// XXX: Replace or remove enums support.  We need names, not numbers.
 /// Helper class for defining enum conversions.
 /** The conversion will convert enum values to numeric strings, and vice versa.
  *
  * @warning These numeric strings do not actually help you with the database,
- * where enum values are textual strings.
+ * where enum values are textual strings.  Once we have reflection in C++26, it
+ * should become easier to provide real support.
  *
  * To define a string conversion for an enum type, derive a @c string_traits
  * specialisation for the enum from this struct.
