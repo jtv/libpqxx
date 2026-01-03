@@ -37,7 +37,7 @@ int main()
 
     // Here's the basic way to query the database.  It loads all the result
     // data into our memory, and returns a pqxx::result.
-    pqxx::result r1 = tx.exec(make_query(100));
+    pqxx::result const r1 = tx.exec(make_query(100));
 
     // We can ask the result to check that it has exactly 100 rows.  If it does
     // not, this will throw an exception.
