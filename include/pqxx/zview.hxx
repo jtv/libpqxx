@@ -35,7 +35,7 @@ namespace pqxx
  * matters since libpqxx builds on top of a C library.  For this reason, zview
  * also adds a @ref c_str method.
  */
-class zview : public std::string_view
+class PQXX_LIBEXPORT zview : public std::string_view
 {
 public:
   constexpr zview() noexcept = default;

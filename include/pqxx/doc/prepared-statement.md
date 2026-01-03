@@ -82,9 +82,11 @@ This example looks up the prepared statement "find," passes `name` and
 A special prepared statement
 ----------------------------
 
-There is one special case: the _nameless_ prepared statement.  You may prepare
-a statement without a name, i.e. whose name is an empty string.  The unnamed
-statement can be redefined at any time, without un-preparing it first.
+You may sometimes see an error message about a prepared statement whose name
+is just an empty string.
+
+That is a special name that libpq uses internally when you execute an SQL
+statement with parameters, but don't actually prepare it with a name.
 
 
 Performance note

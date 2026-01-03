@@ -66,11 +66,10 @@ namespace pqxx
  * value zero, but it must have a single byte with value zero directly behind
  * it in memory.
  */
-class PQXX_LIBEXPORT prepped final : public zview
+class PQXX_LIBEXPORT prepped final : public std::string_view
 {
 public:
-  // TODO: May not have to be a zview!  Because exec() draws a copy anyway.
-  constexpr prepped(zview name) noexcept : zview{name} {}
+  constexpr prepped(std::string_view name) noexcept : std::string_view{name} {}
 };
 } // namespace pqxx
 
