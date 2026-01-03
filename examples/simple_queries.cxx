@@ -240,14 +240,14 @@ void query_customers(pqxx::connection &cx)
   {
     std::cout << '\t' << id << '\t' << name << '\n';
   }
-  std::cout << '\n';
+  std::cout << "\n\n";
 
   // Or, if you prefer a callback-based style, for_query() takes a query and a
   // callback.  It executes the query, iterates over the result rows, calling
   // your callback with the row's respective field values as argments.  It
   // detects the parameter types your callback expects, and converts the fields
   // to those respective types.
-  std::cout << "Those values again:\n";
+  std::cout << "That same data again:\n";
   tx.for_query(
     "SEELECT id, name FROM customer ORDER BY id",
     [](int id, std::string_view name) {

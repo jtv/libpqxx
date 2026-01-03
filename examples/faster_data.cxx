@@ -11,7 +11,7 @@ namespace
  */
 int process_row(std::string_view name, int number)
 {
-  return number - std::ssize(name);
+  return number - static_cast<int>(std::ssize(name));
 }
 
 
