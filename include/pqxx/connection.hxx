@@ -875,7 +875,8 @@ public:
     std::string_view name, std::string_view definition,
     sl loc = sl::current()) &
   {
-    prepare(std::string{name}.c_str(), std::string{definition}.c_str(), loc);
+    std::string const n{name}, d{definition};
+    prepare(n.c_str(), d.c_str(), loc);
   }
 
   /// Define a nameless prepared statement.
