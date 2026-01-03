@@ -1,6 +1,6 @@
 #include <pqxx/pqxx>
 
-/** An example showing how to optimise data processing for you rneeds in
+/** An example showing how to optimise data processing for your needs in
  * libpqxx.
  */
 
@@ -57,7 +57,7 @@ int main()
   // result data will be deallocated and your reference will refer to invalid
   // memory.
   //
-  // As a shortcut, instead of `.as<std::string>view>()`, you can also use the
+  // As a shortcut, instead of `.as<std::string_view>()`, you can also use the
   // simpler `.view()` member function.
   int sum1b = 0;
   for (auto const row : r1)
@@ -89,7 +89,7 @@ int main()
   // all that data.
   //
   // There is another way: _streaming._  This does not work for all queries; it
-  // does not accept parameters, for instace.  Due to some constant overhead
+  // does not accept parameters, for instance.  Due to some constant overhead
   // it's also likely to be a bit _slower_ for small result sets.  But it gets
   // much faster for larger result sets.  The actual numbers depend on your
   // individual use-case, so when performance is crucial, measure what works
