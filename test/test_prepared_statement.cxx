@@ -376,10 +376,39 @@ void test_for_query_prepped()
 }
 
 
+void test_prepped_query_does_not_need_terminating_zero()
+{
+  pqxx::connection cx;
+  pqxx::transaction tx{cx};
+
+  // Create name & definition without terminating zeroes.
+  std::string_view const name_buf{"xblah123x'><;;"};
+  auto const name{name_buf.substr(1, 4)};
+  PQXX_CHECK_EQUAL(name, "blah");
+
+  std::string_view const def_buf{"xSELECT $1+1x<>;;"};
+  auto const def{def_buf.substr(1, 11)};
+  PQXX_CHECK_EQUAL(std::string(def), "SELECT $1+1");
+
+  cx.prepare(name, def);
+
+  auto const res{tx.exec(pqxx::prepped{name}, pqxx::params{6})};
+  PQXX_CHECK_EQUAL(res.at(0).at(0).view(), "7");
+
+  cx.unprepare(name);
+
+  // It also works with std::string arguments, and with query_value().
+  cx.prepare(std::string{name}, def);
+  PQXX_CHECK_EQUAL(
+    tx.query_value<int>(pqxx::prepped{name}, pqxx::params{89}), 90);
+}
+
+
 PQXX_REGISTER_TEST(test_prepared_statements);
 PQXX_REGISTER_TEST(test_placeholders_generates_names);
 PQXX_REGISTER_TEST(test_wrong_number_of_params);
 PQXX_REGISTER_TEST(test_query_prepped);
 PQXX_REGISTER_TEST(test_query_value_prepped);
 PQXX_REGISTER_TEST(test_for_query_prepped);
+PQXX_REGISTER_TEST(test_prepped_query_does_not_need_terminating_zero);
 } // namespace

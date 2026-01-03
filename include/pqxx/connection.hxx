@@ -836,12 +836,45 @@ public:
     prepare(name.c_str(), definition.c_str(), loc);
   }
 
+  /// Define a prepared statement.
+  /**
+   * @param name unique name for the new prepared statement.
+   * @param definition SQL statement to prepare.
+   */
+  void prepare(
+    std::string const &name, std::string const &definition,
+    sl loc = sl::current()) &
+  {
+    prepare(name.c_str(), definition.c_str(), loc);
+  }
+
+  /// Define a prepared statement.
   /**
    * @param name unique name for the new prepared statement.
    * @param definition SQL statement to prepare.
    */
   PQXX_ZARGS void prepare(
     char const name[], char const definition[], sl loc = sl::current()) &;
+
+  /// Define a prepared statement.
+  /** This is a convenience overload, slightly less efficient than the versions
+   * that take `std::string`, `pqxx::zview` or raw C strings.  The reason is
+   * that these functions internally call a C-level function that expects
+   * zero-terminated strings.
+   *
+   * If you cannot guarantee that these strings are zero-terminated, the
+   * function will have to create temporary internal copies of these strings in
+   * order to ensure the terminating zero.
+   *
+   * @param name unique name for the new prepared statement.
+   * @param definition SQL statement to prepare.
+   */
+  void prepare(
+    std::string_view name, std::string_view definition,
+    sl loc = sl::current()) &
+  {
+    prepare(std::string{name}.c_str(), std::string{definition}.c_str(), loc);
+  }
 
   /// Define a nameless prepared statement.
   [[deprecated("Either name your statement, or just parameterise it.")]]
