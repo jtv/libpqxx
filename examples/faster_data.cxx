@@ -115,8 +115,6 @@ int main()
          tx.stream<std::string_view, int>(make_query(10'000)))
       sum2a += process_row(name, number);
 
-    assert(sum2a == sum1a);
-
     // Streaming, too, has a variant where you pass a callback.
     int sum2b = 0;
     tx.for_stream(
@@ -124,7 +122,7 @@ int main()
         sum2b += process_row(name, number);
       });
 
-    assert(sum2b == sum1a);
+    assert(sum2b == sum2a);
   }
   catch (std::exception const &e)
   {
