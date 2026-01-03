@@ -249,7 +249,7 @@ void query_customers(pqxx::connection &cx)
   // to those respective types.
   std::cout << "That same data again:\n";
   tx.for_query(
-    "SEELECT id, name FROM customer ORDER BY id",
+    "SELECT id, name FROM customer ORDER BY id",
     [](int id, std::string_view name) {
       std::cout << '\t' << id << '\t' << name << '\n';
     });
