@@ -224,32 +224,35 @@ void query_customers(pqxx::connection &cx)
   pqxx::work tx{cx};
   std::cout << "Customers:\n";
 
-  // This is a different way to execute a query.  It doesn't work for all types
-  // of queries, and it takes a bit longer to start up.  But it's faster on
-  // large amounts of data, and you can start processing the first data without
-  // waiting for all the result data to come in.
-  //
-  // The stream() function is a template.  Its template arguments are the types
-  // to which you want it to convert the respective columns.  You can use
-  // std::string_view here, just be aware that the string to which it refers
-  // will only live until the next iteration of the loop.
-  for (auto [id, name] : tx.stream<int, std::string_view>(
+  // Query the number of customers.  There's a convenience shortcut for
+  // "execute this query, check that it produces a result consisting of a
+  // single field (so one row of one column), and convert that one field value
+  // to the type I specify":
+  auto const num_customers =
+    tx.query_value<std::size_t>("SELECT count(*) FROM customer");
+  std::cout << "Total customers: " << num_customers << '\n';
+
+  // There's also a convenience shortcut for "execute this query, and iterate
+  // over the result rows, converting each to a tuple of the given types."
+  // You use this with a "for" loop and structured binding:
+  for (auto [id, name] : tx.query<int, std::string_view>(
          "SELECT id, name FROM customer ORDER BY id"))
   {
     std::cout << '\t' << id << '\t' << name << '\n';
   }
-  std::cout << '\n';
+  std::cout << "\n\n";
 
-  // With a stream we get no metadata, just the data itself.  Next we would
-  // like to print the number of customers.  We could have counted the number
-  // of customers we processed earlier, but we forgot.  So, we query it from
-  // the database.
-  //
-  // The query_value() function executes a query that returns precisely one row
-  // of one column, and converts that one field to a type of your choosing.
-  auto const num_customers =
-    tx.query_value<std::size_t>("SELECT count(*) FROM customer");
-  std::cout << "Total customers: " << num_customers << '\n';
+  // Or, if you prefer a callback-based style, for_query() takes a query and a
+  // callback.  It executes the query, iterates over the result rows, calling
+  // your callback with the row's respective field values as argments.  It
+  // detects the parameter types your callback expects, and converts the fields
+  // to those respective types.
+  std::cout << "That same data again:\n";
+  tx.for_query(
+    "SELECT id, name FROM customer ORDER BY id",
+    [](int id, std::string_view name) {
+      std::cout << '\t' << id << '\t' << name << '\n';
+    });
 }
 } // namespace
 

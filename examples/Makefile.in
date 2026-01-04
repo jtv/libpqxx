@@ -106,15 +106,18 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/pqxx/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__EXEEXT_1 = company$(EXEEXT)
+am__EXEEXT_1 = faster_data$(EXEEXT) simple_queries$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am_company_OBJECTS = company.$(OBJEXT)
-company_OBJECTS = $(am_company_OBJECTS)
-company_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
+am_faster_data_OBJECTS = faster_data.$(OBJEXT)
+faster_data_OBJECTS = $(am_faster_data_OBJECTS)
+faster_data_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+am_simple_queries_OBJECTS = simple_queries.$(OBJEXT)
+simple_queries_OBJECTS = $(am_simple_queries_OBJECTS)
+simple_queries_DEPENDENCIES = $(top_builddir)/src/libpqxx.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -129,7 +132,8 @@ am__v_at_0 = @
 am__v_at_1 = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/company.Po
+am__depfiles_remade = ./$(DEPDIR)/faster_data.Po \
+	./$(DEPDIR)/simple_queries.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -149,8 +153,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(company_SOURCES)
-DIST_SOURCES = $(company_SOURCES)
+SOURCES = $(faster_data_SOURCES) $(simple_queries_SOURCES)
+DIST_SOURCES = $(faster_data_SOURCES) $(simple_queries_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -531,7 +535,8 @@ with_postgres_lib = @with_postgres_lib@
 # Template for generating Makefile.am.
 EXTRA_DIST = Makefile.am.template
 EXAMPLES = \
-  company \
+  faster_data \
+  simple_queries \
   # (End of list)
 
 
@@ -539,8 +544,10 @@ EXAMPLES = \
 # contains only unnecessary entries, and include/pqxx which is wrong.
 DEFAULT_INCLUDES = 
 MAINTAINERCLEANFILES = Makefile.in
-company_SOURCES = company.cxx
-company_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+faster_data_SOURCES = faster_data.cxx
+faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+simple_queries_SOURCES = simple_queries.cxx
+simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 all: all-am
 
@@ -585,9 +592,13 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-company$(EXEEXT): $(company_OBJECTS) $(company_DEPENDENCIES) $(EXTRA_company_DEPENDENCIES) 
-	@rm -f company$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(company_OBJECTS) $(company_LDADD) $(LIBS)
+faster_data$(EXEEXT): $(faster_data_OBJECTS) $(faster_data_DEPENDENCIES) $(EXTRA_faster_data_DEPENDENCIES) 
+	@rm -f faster_data$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(faster_data_OBJECTS) $(faster_data_LDADD) $(LIBS)
+
+simple_queries$(EXEEXT): $(simple_queries_OBJECTS) $(simple_queries_DEPENDENCIES) $(EXTRA_simple_queries_DEPENDENCIES) 
+	@rm -f simple_queries$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(simple_queries_OBJECTS) $(simple_queries_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -595,7 +606,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/company.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/faster_data.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_queries.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -826,9 +838,16 @@ recheck: all
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-company.log: company$(EXEEXT)
-	@p='company$(EXEEXT)'; \
-	b='company'; \
+faster_data.log: faster_data$(EXEEXT)
+	@p='faster_data$(EXEEXT)'; \
+	b='faster_data'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+simple_queries.log: simple_queries$(EXEEXT)
+	@p='simple_queries$(EXEEXT)'; \
+	b='simple_queries'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -925,7 +944,8 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/company.Po
+		-rm -f ./$(DEPDIR)/faster_data.Po
+	-rm -f ./$(DEPDIR)/simple_queries.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -971,7 +991,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/company.Po
+		-rm -f ./$(DEPDIR)/faster_data.Po
+	-rm -f ./$(DEPDIR)/simple_queries.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

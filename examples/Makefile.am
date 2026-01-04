@@ -15,7 +15,8 @@
 EXTRA_DIST = Makefile.am.template
 
 EXAMPLES = \
-  company \
+  faster_data \
+  simple_queries \
   # (End of list)
 
 noinst_PROGRAMS = $(EXAMPLES)
@@ -26,8 +27,10 @@ DEFAULT_INCLUDES=
 
 MAINTAINERCLEANFILES=Makefile.in
 
-company_SOURCES = company.cxx
-company_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+faster_data_SOURCES = faster_data.cxx
+faster_data_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
+simple_queries_SOURCES = simple_queries.cxx
+simple_queries_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
