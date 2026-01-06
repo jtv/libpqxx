@@ -1,30 +1,27 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
-using namespace std;
 using namespace pqxx;
 
 int main(int argc, char *argv[])
 {
-  const char *sql;
-
   try
   {
-    connection C;
-    cout << "Opened database successfully: " << C.dbname() << endl;
-    sql = "SELECT cik from insiders";
-    nontransaction N(C);
-    result R(N.exec(sql));
+    pqxx::connection cx;
+    std::cout << "Opened database successfully: " << cx.dbname() << '\n';
+    char const *const sql = "SELECT cik from insiders";
+    pqxx::nontransaction tx(cx);
+    pqxx::result res(tx.exec(sql));
 
-    for (result::const_iterator c = R.begin(); c != R.end(); ++c)
+    for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c)
     {
-      cout << "CIK = " << c[0][0].as<string>() << endl;
+      std::cout << "CIK = " << c[0][0].view() << '\n';
     }
-    cout << "Operation done successfully" << endl;
+    std::cout << "Operation done successfully\n";
   }
   catch (const std::exception &e)
   {
-    cerr << e.what() << std::endl;
+    std::cerr << e.what() << '\n';
     return 1;
   }
 
