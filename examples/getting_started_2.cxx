@@ -13,7 +13,7 @@ int main(int, char *argv[])
 
     // work::exec() returns a full result set, which can consist of any
     // number of rows.
-    pqxx::result r = tx.exec("SELECT $1", pqxx::params{text});
+    pqxx::result const r = tx.exec("SELECT $1", pqxx::params{text});
 
     // End our transaction here.  We can still use the result afterwards.
     tx.commit();

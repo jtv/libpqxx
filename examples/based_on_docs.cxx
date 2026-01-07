@@ -24,8 +24,9 @@ int main(int, char **)
 
     char const *const sql = "SELECT cik from insiders";
     pqxx::nontransaction tx(cx);
-    pqxx::result res(tx.exec(sql));
+    pqxx::result const res(tx.exec(sql));
 
+    // NOLINTNEXTLINE(modernize-loop-convert)
     for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c)
     {
       std::cout << "CIK = " << (*c)[0].view() << '\n';

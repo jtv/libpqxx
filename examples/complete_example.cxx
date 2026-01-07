@@ -53,7 +53,7 @@ int main()
 {
   try
   {
-    pqxx::result r{query()};
+    pqxx::result const r{query()};
 
     // Results can be accessed and iterated again.  Even after the connection
     // has been closed.

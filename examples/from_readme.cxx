@@ -31,7 +31,7 @@ int main()
 
     // Query data of two columns, converting them to std::string and
     // int respectively.  Iterate the rows.
-    for (auto [name, salary] : tx.query<std::string, int>(
+    for (auto const &[name, salary] : tx.query<std::string, int>(
            "SELECT name, floor(salary::numeric) FROM employee ORDER BY name"))
     {
       std::cout << name << " earns " << salary << ".\n";
@@ -59,7 +59,7 @@ int main()
 
     // Shorthand: conveniently query a single value from the database,
     // and convert it to an `int`.
-    int my_salary = tx.query_value<int>(
+    int const my_salary = tx.query_value<int>(
       "SELECT floor(salary::numeric) FROM employee WHERE name = 'Me'");
     std::cout << "I now earn " << my_salary << ".\n";
 
@@ -77,7 +77,7 @@ int main()
 
     // If you need to access the result metadata, not just the actual
     // field values, use `exec()`.  It returns a pqxx::result object.
-    pqxx::result res = tx.exec("SELECT * FROM employee");
+    pqxx::result const res = tx.exec("SELECT * FROM employee");
     std::cout << "Columns:\n";
     for (pqxx::row_size_type col = 0; col < res.columns(); ++col)
       std::cout << res.column_name(col) << '\n';
