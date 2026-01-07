@@ -1,7 +1,17 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
-using namespace pqxx;
+namespace
+{
+void set_up(pqxx::connection &cx)
+{
+  pqxx::work tx{cx};
+  tx.exec("CREATE TEMP TABLE insiders(cik varchar)");
+  tx.exec("INSERT INTO insiders(cik) VALUES ('82a3764f'), ('359b0625')");
+  tx.commit();
+}
+} // namespace
+
 
 int main(int, char **)
 {
@@ -9,6 +19,9 @@ int main(int, char **)
   {
     pqxx::connection cx;
     std::cout << "Opened database successfully: " << cx.dbname() << '\n';
+
+    set_up(cx);
+
     char const *const sql = "SELECT cik from insiders";
     pqxx::nontransaction tx(cx);
     pqxx::result res(tx.exec(sql));
