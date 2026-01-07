@@ -15,7 +15,6 @@
 EXTRA_DIST = Makefile.am.template
 
 EXAMPLES = \
-  based_on_docs \
   complete_example \
   faster_data \
   from_readme \
@@ -33,8 +32,6 @@ DEFAULT_INCLUDES=
 
 MAINTAINERCLEANFILES=Makefile.in
 
-based_on_docs_SOURCES = based_on_docs.cxx
-based_on_docs_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 complete_example_SOURCES = complete_example.cxx
 complete_example_LDADD = $(top_builddir)/src/libpqxx.la ${POSTGRES_LIB}
 faster_data_SOURCES = faster_data.cxx
