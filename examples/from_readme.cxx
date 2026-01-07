@@ -76,7 +76,7 @@ int main()
               << top_salary << ".\n";
 
     // If you need to access the result metadata, not just the actual
-    // field values, use `exec>()`.  It returns a pqxx::result object.
+    // field values, use `exec()`.  It returns a pqxx::result object.
     pqxx::result res = tx.exec("SELECT * FROM employee");
     std::cout << "Columns:\n";
     for (pqxx::row_size_type col = 0; col < res.columns(); ++col)
