@@ -123,13 +123,13 @@ Here's an example with all the basics to get you going:
         {
             // Connect to the database.  You can have multiple connections open
             // at the same time, even to the same database.
-            pqxx::connection c;
-            std::cout << "Connected to " << c.dbname() << '\n';
+            pqxx::connection cx;
+            std::cout << "Connected to " << cx.dbname() << '\n';
 
             // Start a transaction.  A connection can only have one transaction
             // open at the same time, but after you finish a transaction, you
             // can start a new one on the same connection.
-            pqxx::work tx{c};
+            pqxx::work tx{cx};
 
             // Query data of two columns, converting them to std::string and
             // int respectively.  Iterate the rows.
@@ -171,14 +171,14 @@ Here's an example with all the basics to get you going:
                 R"(
                     SELECT name, salary
                     FROM employee
-                    WHERE salary = max(salary)
+                    WHERE salary = (SELECT max(salary) FROM employee)
                     LIMIT 1
                 )");
             std::cout << "Top earner is " << top_name << " with a salary of "
                       << top_salary << ".\n";
 
             // If you need to access the result metadata, not just the actual
-            // field values, use `exec>()`.  It returns a pqxx::result object.
+            // field values, use `exec()`.  It returns a pqxx::result object.
             pqxx::result res = tx.exec("SELECT * FROM employee");
             std::cout << "Columns:\n";
             for (pqxx::row_size_type col = 0; col < res.columns(); ++col)

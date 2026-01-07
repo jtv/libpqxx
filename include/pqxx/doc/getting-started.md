@@ -56,9 +56,11 @@ an `int`, and prints it out.  It also contains some basic error handling.
         // Start a transaction.  In libpqxx, you always work in one.
         pqxx::work tx(cx);
 
-        // work::exec1() executes a query returning a single row of data.
         // We'll just ask the database to return the number 1 to us.
-        pqxx::row r = tx.exec1("SELECT 1");
+        // The one_row() call checks that the result contains exactly one row
+        // of data, and throws an exception if it does not.  It returns the
+        // row.
+        pqxx::row r = tx.exec("SELECT 1").one_row();
 
         // Commit your transaction.  If an exception occurred before this
         // point, execution will have left the block, and the transaction will
@@ -96,9 +98,9 @@ using the @c as member function on the row:
 ```cxx
     pqxx::connection cx;
     pqxx::work tx(cx);
-    pqxx::row r = tx.exec1("SELECT 1, 2, 'Hello'");
+    pqxx::row r = tx.exec("SELECT 1, 2, 'Hello'").one_row();
     auto [one, two, hello] = r.as<int, int, std::string>();
-    std::cout << (one + two) << ' ' << std::strlen(hello) << std::endl;
+    std::cout << (one + two) << ' ' << std::size(hello) << std::endl;
 ```
 
 Here's a slightly more complicated example.  It takes an argument from the
@@ -112,7 +114,7 @@ plain C-style string using its `c_str` function.
     #include <stdexcept>
     #include <pqxx/pqxx>
 
-    int main(int argc, char *argv[])
+    int main(int, char *argv[])
     {
       try
       {
