@@ -154,6 +154,8 @@ void test_stream_parses_awkward_strings()
 {
   pqxx::connection cx;
 
+  bool const ascii_db{cx.get_var("server_encoding") == "SQL_ASCII"};
+
   // This is a particularly awkward encoding that we should test.  Its
   // multibyte characters can include byte values that *look* like ASCII
   // characters, such as quotes and backslashes.  It is crucial that we parse
@@ -170,13 +172,17 @@ void test_stream_parses_awkward_strings()
       "(1, 'NULL'), "
       "(2, '\\N'), "
       "(3, '''NULL'''), "
-      // An SJIS multibyte character that ends in a byte that happens to be the
-      // ASCII value for a backslash.  This is one example of how an SJIS SQL
-      // injection can break out of a string.
-      "(4, '\x81\x5c'), "
-      "(5, '\t'), "
-      "(6, '\\\\\\\n\\\\')")
+      "(4, '\t'), "
+      "(5, '\\\\\\\n\\\\')")
     .no_rows();
+
+  if (not ascii_db)
+  {
+    // An SJIS multibyte character that ends in a byte that happens to be the
+    // ASCII value for a backslash.  This is one example of how an SJIS SQL
+    // injection can break out of a string.
+    tx.exec("INSERT INTO nasty(id, value) VALUES (6, '\x81\x5c')").no_rows();
+  }
 
   std::vector<std::optional<std::string>> values;
   for (auto [id, value] : tx.stream<std::size_t, std::optional<std::string>>(
@@ -197,13 +203,14 @@ void test_stream_parses_awkward_strings()
   PQXX_CHECK_EQUAL(
     values.at(3).value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
   PQXX_CHECK_EQUAL(
-    values.at(4).value_or("empty"), "\x81\x5c",
-    "Finicky SJIS character went badly.");
+    values.at(4).value_or("empty"), "\t", "Tab unescaped wrong.");
   PQXX_CHECK_EQUAL(
-    values.at(5).value_or("empty"), "\t", "Tab unescaped wrong.");
-  PQXX_CHECK_EQUAL(
-    values.at(6).value_or("empty"), "\\\\\\\n\\\\",
+    values.at(5).value_or("empty"), "\\\\\\\n\\\\",
     "Backslashes confused stream.");
+  if (not ascii_db)
+    PQXX_CHECK_EQUAL(
+      values.at(6).value_or("empty"), "\x81\x5c",
+      "Finicky SJIS character went badly.");
 }
 
 

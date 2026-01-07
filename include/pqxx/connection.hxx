@@ -517,6 +517,7 @@ public:
     exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
   }
 
+  // XXX: Return value documentation is wrong!  There's no std::optional here.
   /// Read currently applicable value of a variable.
   /** This function executes an SQL statement, so it won't work while a
    * @ref pipeline or query stream is active on the connection.
