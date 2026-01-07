@@ -19,7 +19,7 @@ int main()
     // The one_row() call checks that the result contains exactly one row
     // of data, and throws an exception if it does not.  It returns the
     // row.
-    pqxx::row r = tx.exec("SELECT 1").one_row();
+    pqxx::row const r = tx.exec("SELECT 1").one_row();
 
     // Commit your transaction.  If an exception occurred before this
     // point, execution will have left the block, and the transaction will
