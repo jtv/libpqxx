@@ -321,6 +321,8 @@ void test_stream_from_parses_awkward_strings()
 {
   pqxx::connection cx;
 
+  bool const ascii_db{cx.get_var("server_encoding") == "SQL_ASCII"};
+
   // This is a particularly awkward encoding that we should test.  Its
   // multibyte characters can include byte values that *look* like ASCII
   // characters, such as quotes and backslashes.  It is crucial that we parse
@@ -328,19 +330,23 @@ void test_stream_from_parses_awkward_strings()
   // that aren't really there.
   cx.set_client_encoding("SJIS");
   pqxx::work tx{cx};
-  tx.exec0("CREATE TEMP TABLE nasty(id integer, value varchar)");
-  tx.exec0(
+  tx.exec("CREATE TEMP TABLE nasty(id integer, value varchar)").no_rows();
+  tx.exec(
     "INSERT INTO nasty(id, value) VALUES "
     // A proper null.
     "(0, NULL), "
     // Some strings that could easily be mis-parsed as null.
     "(1, 'NULL'), "
     "(2, '\\N'), "
-    "(3, '''NULL'''), "
+    "(3, '''NULL''')").no_rows();
+
+  if (not ascii_db)
+  {
     // An SJIS multibyte character that ends in a byte that happens to be the
     // ASCII value for a backslash.  This is one example of how an SJIS SQL
     // injection can break out of a string.
-    "(4, '\x81\x5c')");
+    tx.exec("INSERT INTO nasty(id, value) VALUES (4, '\x81\x5c')").no_rows();
+  }
 
   std::vector<std::optional<std::string>> values;
   for (auto const &[id, value] :
@@ -361,9 +367,11 @@ void test_stream_from_parses_awkward_strings()
   PQXX_CHECK(values.at(3).has_value(), "String \"'NULL'\" became a NULL.");
   PQXX_CHECK_EQUAL(
     values.at(3).value_or("empty"), "'NULL'", "String \"'NULL'\" went badly.");
-  PQXX_CHECK_EQUAL(
-    values.at(4).value_or("empty"), "\x81\x5c",
-    "Finicky SJIS character went badly.");
+
+  if (not ascii_db)
+    PQXX_CHECK_EQUAL(
+      values.at(4).value_or("empty"), "\x81\x5c",
+      "Finicky SJIS character went badly.");
 }
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
