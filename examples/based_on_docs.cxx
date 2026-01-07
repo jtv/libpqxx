@@ -27,9 +27,9 @@ int main(int, char **)
     pqxx::result const res(tx.exec(sql));
 
     // NOLINTNEXTLINE(modernize-loop-convert)
-    for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c)
+    for (pqxx::result::const_iterator i = res.begin(); i != res.end(); ++i)
     {
-      std::cout << "CIK = " << (*c)[0].view() << '\n';
+      std::cout << "CIK = " << (*i)[0].view() << '\n';
     }
     std::cout << "Operation done successfully\n";
   }
