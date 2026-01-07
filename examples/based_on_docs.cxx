@@ -28,7 +28,7 @@ int main(int, char **)
 
     for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c)
     {
-      std::cout << "CIK = " << c[0][0].view() << '\n';
+      std::cout << "CIK = " << (*c)[0].view() << '\n';
     }
     std::cout << "Operation done successfully\n";
   }
