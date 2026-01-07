@@ -7,7 +7,9 @@ void set_up(pqxx::connection &cx)
 {
   pqxx::transaction tx{cx};
   tx.exec(
-    "CREATE TEMP TABLE Employee (id integer, name varchar, salary money)");
+    "CREATE TEMP TABLE Employee (id integer, name varchar, salary integer)");
+  tx.exec(
+    "INSERT INTO Employee(id, name, salary) VALUES (1, 'Ichiban', 65432)");
   tx.commit();
 }
 } // namespace
@@ -16,7 +18,7 @@ void set_up(pqxx::connection &cx)
 int main(int, char *argv[])
 {
   // (Normally you'd check for valid command-line arguments.)
-  char const *const id_str = ((argv[1] == nullptr) ? "1" : argv[1]);
+  char const *const name = ((argv[1] == nullptr) ? "Ichiban" : argv[1]);
 
   // (Normally you'd pass connection settings to the connection constructor.)
   pqxx::connection cx;
@@ -34,7 +36,7 @@ int main(int, char *argv[])
     "SELECT id "
     "FROM Employee "
     "WHERE name = $1",
-    pqxx::params{id_str});
+    pqxx::params{name});
 
   std::cout << "Updating employee #" << employee_id << '\n';
 
