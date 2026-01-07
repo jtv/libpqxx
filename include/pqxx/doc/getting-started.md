@@ -100,7 +100,7 @@ using the @c as member function on the row:
     pqxx::work tx(cx);
     pqxx::row r = tx.exec("SELECT 1, 2, 'Hello'").one_row();
     auto [one, two, hello] = r.as<int, int, std::string>();
-    std::cout << (one + two) << ' ' << std::strlen(hello) << std::endl;
+    std::cout << (one + two) << ' ' << std::size(hello) << std::endl;
 ```
 
 Here's a slightly more complicated example.  It takes an argument from the

@@ -6,8 +6,8 @@ namespace
 void set_up(pqxx::connection &cx)
 {
   pqxx::work tx{cx};
-  tx.exec("CREATE TEMP TABLE employee(name varchar, salary integer)");
-  tx.exec("INSERT INTO employee(name, salary) VALUES ('Someone', 4632)");
+  tx.exec("CREATE TEMP TABLE Employee(name varchar, salary integer)");
+  tx.exec("INSERT INTO Employee(name, salary) VALUES ('Someone', 4632)");
   tx.commit();
 }
 } // namespace
