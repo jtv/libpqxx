@@ -32,7 +32,7 @@ int main(int, char *argv[])
   //
   // Use tx.quote() to escape and quote a C++ string for use as an SQL string
   // in a query's text.
-  int employee_id = tx.query_value<int>(
+  int const employee_id = tx.query_value<int>(
     "SELECT id "
     "FROM Employee "
     "WHERE name = $1",
