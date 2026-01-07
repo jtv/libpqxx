@@ -1,24 +1,38 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
+namespace
+{
+void set_up(pqxx::connection &cx)
+{
+  pqxx::work tx{cx};
+  tx.exec("CREATE TEMP TABLE employee(name varchar, salary money)");
+  tx.exec("INSERT INTO employee(name, salary) VALUES ('Me', 5432)");
+  tx.commit();
+}
+} // namespace
+
+
 int main()
 {
   try
   {
     // Connect to the database.  You can have multiple connections open
     // at the same time, even to the same database.
-    pqxx::connection c;
-    std::cout << "Connected to " << c.dbname() << '\n';
+    pqxx::connection cx;
+    std::cout << "Connected to " << cx.dbname() << '\n';
+
+    set_up(cx);
 
     // Start a transaction.  A connection can only have one transaction
     // open at the same time, but after you finish a transaction, you
     // can start a new one on the same connection.
-    pqxx::work tx{c};
+    pqxx::work tx{cx};
 
     // Query data of two columns, converting them to std::string and
     // int respectively.  Iterate the rows.
     for (auto [name, salary] : tx.query<std::string, int>(
-           "SELECT name, salary FROM employee ORDER BY name"))
+           "SELECT name, floor(salary::numeric) FROM employee ORDER BY name"))
     {
       std::cout << name << " earns " << salary << ".\n";
     }
@@ -32,8 +46,8 @@ int main()
     // particular situation, you can convert a field to string_view and
     // it will be valid for just that one iteration of the loop.  The
     // next iteration may overwrite or deallocate its buffer space.
-    for (auto [name, salary] :
-         tx.stream<std::string_view, int>("SELECT name, salary FROM employee"))
+    for (auto [name, salary] : tx.stream<std::string_view, int>(
+           "SELECT name, floor(salary::numeric) FROM employee"))
     {
       std::cout << name << " earns " << salary << ".\n";
     }
@@ -45,17 +59,17 @@ int main()
 
     // Shorthand: conveniently query a single value from the database,
     // and convert it to an `int`.
-    int my_salary =
-      tx.query_value<int>("SELECT salary FROM employee WHERE name = 'Me'");
+    int my_salary = tx.query_value<int>(
+      "SELECT floor(salary::numeric) FROM employee WHERE name = 'Me'");
     std::cout << "I now earn " << my_salary << ".\n";
 
     // Or, query one whole row.  This function will throw an exception
     // unless the result contains exactly 1 row.
     auto [top_name, top_salary] = tx.query1<std::string, int>(
       R"(
-                    SELECT name, salary
+                    SELECT name, floor(salary::numeric)
                     FROM employee
-                    WHERE salary = max(salary)
+                    WHERE salary = (SELECT max(salary) FROM employee)
                     LIMIT 1
                 )");
     std::cout << "Top earner is " << top_name << " with a salary of "

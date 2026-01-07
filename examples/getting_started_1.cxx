@@ -15,9 +15,11 @@ int main()
     // Start a transaction.  In libpqxx, you always work in one.
     pqxx::work tx(cx);
 
-    // work::exec1() executes a query returning a single row of data.
     // We'll just ask the database to return the number 1 to us.
-    pqxx::row r = tx.exec1("SELECT 1");
+    // The one_row() call checks that the result contains exactly one row
+    // of data, and throws an exception if it does not.  It returns the
+    // row.
+    pqxx::row r = tx.exec("SELECT 1").one_row();
 
     // Commit your transaction.  If an exception occurred before this
     // point, execution will have left the block, and the transaction will

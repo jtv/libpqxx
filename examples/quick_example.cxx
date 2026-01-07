@@ -1,11 +1,28 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
+namespace
+{
+void set_up(pqxx::connection &cx)
+{
+  pqxx::transaction tx{cx};
+  tx.exec(
+    "CREATE TEMP TABLE Employee (id integer, name varchar, salary money)");
+  tx.commit();
+}
+} // namespace
+
+
 int main(int, char *argv[])
 {
   // (Normally you'd check for valid command-line arguments.)
+  char const *const id_str = ((argv[1] == nullptr) ? "1" : argv[1]);
 
-  pqxx::connection cx{"postgresql://accounting@localhost/company"};
+  // (Normally you'd pass connection settings to the connection constructor.)
+  pqxx::connection cx;
+
+  set_up(cx);
+
   pqxx::work tx{cx};
 
   // For querying just one single value, the transaction has a shorthand method
@@ -16,8 +33,8 @@ int main(int, char *argv[])
   int employee_id = tx.query_value<int>(
     "SELECT id "
     "FROM Employee "
-    "WHERE name =" +
-    tx.quote(argv[1]));
+    "WHERE name = $1",
+    pqxx::params{id_str});
 
   std::cout << "Updating employee #" << employee_id << '\n';
 
@@ -28,7 +45,7 @@ int main(int, char *argv[])
   // The employee ID shows up in the query as "$1"; that means we'll pass it as
   // a parameter.  Pass all parameters together in a single "params" object.
   tx.exec(
-      "UPDATE EMPLOYEE "
+      "UPDATE Employee "
       "SET salary = salary + 1 "
       "WHERE id = $1",
       pqxx::params{employee_id})

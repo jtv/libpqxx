@@ -2,19 +2,18 @@
 #include <pqxx/pqxx>
 #include <stdexcept>
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
   try
   {
-    if (!argv[1])
-      throw std::runtime_error("Give me a string!");
+    char const *const text = ((argv[1] == nullptr) ? "Default text" : argv[1]);
 
     pqxx::connection cx;
     pqxx::work tx(cx);
 
     // work::exec() returns a full result set, which can consist of any
     // number of rows.
-    pqxx::result r = tx.exec("SELECT $1", pqxx::params{argv[1]});
+    pqxx::result r = tx.exec("SELECT $1", pqxx::params{text});
 
     // End our transaction here.  We can still use the result afterwards.
     tx.commit();

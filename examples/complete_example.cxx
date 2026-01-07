@@ -1,10 +1,24 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
+namespace
+{
+void set_up(pqxx::connection &cx)
+{
+  pqxx::work tx{cx};
+  tx.exec("CREATE TEMP TABLE employee(name varchar, salary integer)");
+  tx.exec("INSERT INTO employee(name, salary) VALUES ('Someone', 4632)");
+  tx.commit();
+}
+} // namespace
+
+
 /// Query employees from database.  Return result.
 pqxx::result query()
 {
-  pqxx::connection cx{"postgresql://accounting@localhost/company"};
+  pqxx::connection cx;
+  set_up(cx);
+
   pqxx::work tx{cx};
 
   // Silly example: Add up all salaries.  Normally you'd let the database do
@@ -35,7 +49,7 @@ pqxx::result query()
 
 
 /// Query employees from database, print results.
-int main(int, char *argv[])
+int main()
 {
   try
   {
