@@ -366,7 +366,7 @@ concept c_source_location = requires(SL const loc) {
  * source code.
  */
 template<c_source_location LOC>
-PQXX_PURE constexpr inline std::string source_loc(LOC const &loc)
+PQXX_PURE inline std::string source_loc(LOC const &loc)
 {
   char const *const file{loc.file_name()};
   assert(file != nullptr);
