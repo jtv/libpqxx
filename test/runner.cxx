@@ -471,7 +471,7 @@ void seed_random(unsigned seed)
 {
   if (seed == 0u)
     seed = std::random_device{}();
-  return srand(seed);
+  srand(seed);
 }
 } // namespace
 
