@@ -102,7 +102,7 @@ void test_notification_to_self_arrives_after_commit()
 {
   pqxx::connection cx;
 
-  auto const channel{"pqxx_test_channel"};
+  auto const channel{pqxx::test::make_name("pqxx_chan")};
   int notifications{0};
   pqxx::connection *conn{nullptr};
   std::string incoming, payload;
@@ -148,7 +148,8 @@ void test_notification_has_payload()
 {
   pqxx::connection cx;
 
-  auto const channel{"pqxx-ichan"}, payload{"two dozen eggs"};
+  auto const channel{pqxx::test::make_name("pqxx-ichan")};
+  auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
 
@@ -379,7 +380,7 @@ void test_notification_goes_to_right_handler()
 
 void test_listen_on_same_channel_overwrites()
 {
-  auto const chan{"pqxx-chan84710"};
+  auto const chan{pqxx::test::make_name("pqxx-chan")};
   pqxx::connection cx;
   std::string got;
   int count{0};

@@ -353,7 +353,7 @@ inline void check_throws(
   {
     check_notreached(std::format(
       "{} (\"{}\" threw the wrong exception type: {}).", desc, text,
-      e.what()));
+      e.what()), loc);
   }
   catch (...)
   {

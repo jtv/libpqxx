@@ -5,11 +5,18 @@
  * this program to verify that everything works well in your specific
  * environment.
  *
- * Usage: runner [-j<jobs>|--jobs=<jobs>] [test function...]
+ * Usage:
+ *   runner [-j<jobs>|--jobs=<jobs>]
+ *          [-s<seed>|--seed=<seed>]
+ *          [test function...]
  *
  * The -j option dictates the number of parallel threads that will run the
  * tests.  I get most of the performance benefits from the parallelism by
- * setting this to 4; anything beyond that is overkill.
+ * setting this to 4; anything beyond that is probably overkill.
+ *
+ * The -s option sets an initial random seed, for reproducible or randomised
+ * test runs.  If set to zero (the default), will randomise the seed.  Random
+ * values in tests will differ for almost any two runs with this setting.
  */
 #include <cassert>
 #include <cstdlib>
@@ -19,6 +26,7 @@
 #include <map>
 #include <mutex>
 #include <new>
+#include <random>
 #include <semaphore>
 #include <stdexcept>
 #include <string>
@@ -373,6 +381,11 @@ struct options final
    * waiting for a few seconds to check that something doesn't happen.
    */
   std::ptrdiff_t jobs{4};
+
+  /// Random seed for randomised values in tests.
+  /** If seed is zero (the default), we'll use something variable.
+   */
+  unsigned seed{0};
 };
 
 
@@ -381,9 +394,10 @@ options parse_command_line(int argc, char const *argv[])
   options opts;
 
   // Is the command-line parser in a state where it needs an argument to the
-  // preceding "--jobs" option?
-  bool want_jobs{false};
+  // preceding "--jobs" option, or "--seed" option, respectively?
+  bool want_jobs{false}, want_seed{false};
 
+  // TODO: Store jobs & seed as strings, parse afterwards, once.
   // Parse command line.
   for (int arg{1}; arg < argc; ++arg)
   {
@@ -402,9 +416,14 @@ options parse_command_line(int argc, char const *argv[])
       opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt);
       want_jobs = false;
     }
+    else if (want_seed)
+    {
+      opts.seed = pqxx::from_string<unsigned>(elt);
+      want_seed = false;
+    }
     else if ((elt == "-j") or (elt == "--jobs"))
     {
-      // The "jobs" option, but the actual number is in the next element.
+      // The "jobs" option, where the actual number is in the next element.
       want_jobs = true;
     }
     else if (elt.starts_with("-j"))
@@ -417,6 +436,19 @@ options parse_command_line(int argc, char const *argv[])
       // Long-form "jobs" option, with a number attached.
       opts.jobs = pqxx::from_string<std::ptrdiff_t>(elt.substr(7));
     }
+    else if ((elt == "-s") or (elt == "--seed"))
+    {
+      // The "seed" option, where the actual number is in the next element.
+      want_seed = true;
+    }
+    else if (elt.starts_with("-s"))
+    {
+      opts.seed = pqxx::from_string<unsigned>(elt.substr(2));
+    }
+    else if (elt.starts_with("--seed="))
+    {
+      opts.seed = pqxx::from_string<unsigned>(elt.substr(7));
+    }
     else
     {
       // A test name.
@@ -424,15 +456,22 @@ options parse_command_line(int argc, char const *argv[])
     }
   }
   if (want_jobs)
-  {
     throw std::runtime_error{"The jobs option needs a numeric argument."};
-  }
+  if (want_seed)
+    throw std::runtime_error{"The seed option needs a numeric argument."};
   if (opts.jobs <= 0)
-  {
     throw std::runtime_error{"Number of parallel jobs must be at least 1."};
-  }
 
   return opts;
+}
+
+
+/// Seed the randomizer with `seed`, or something variable if `seed` is zero.
+void seed_random(unsigned seed)
+{
+  if (seed == 0u)
+    seed = std::random_device{}();
+  return srand(seed);
 }
 } // namespace
 
@@ -442,6 +481,7 @@ int main(int argc, char const *argv[])
   try
   {
     auto opts{parse_command_line(argc, argv)};
+    seed_random(opts.seed);
 
     auto const all_tests{pqxx::test::suite::gather()};
     if (std::empty(opts.tests))
