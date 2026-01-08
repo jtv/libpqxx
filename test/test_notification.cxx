@@ -14,6 +14,13 @@
 
 namespace
 {
+/// Make up an arbitrary channel name.
+std::string make_channel(std::string const &prefix = "pqxx-chan")
+{
+  return pqxx::test::make_name(prefix);
+}
+
+
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
 struct TestReceiver final : public pqxx::notification_receiver
 {
@@ -83,9 +90,8 @@ void test_notification_classic()
 {
   pqxx::connection cx;
 
-  std::string const chan0{pqxx::test::make_name("pqxxchan0")},
-    chan1{pqxx::test::make_name("pqxxchan1")},
-    chan2{pqxx::test::make_name("pqxxchan2")};
+  std::string const chan0{make_channel()}, chan1{make_channel()},
+    chan2{make_channel()};
   TestReceiver const receiver(cx, chan0);
   PQXX_CHECK_EQUAL(receiver.channel(), chan0);
 
@@ -102,7 +108,7 @@ void test_notification_to_self_arrives_after_commit()
 {
   pqxx::connection cx;
 
-  auto const channel{pqxx::test::make_name("pqxx_chan")};
+  auto const channel{make_channel()};
   int notifications{0};
   pqxx::connection *conn{nullptr};
   std::string incoming, payload;
@@ -148,7 +154,7 @@ void test_notification_has_payload()
 {
   pqxx::connection cx;
 
-  auto const channel{pqxx::test::make_name("pqxx-ichan")};
+  auto const channel{make_channel()};
   auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
@@ -183,7 +189,7 @@ private:
 void test_listen_supports_different_types_of_callable()
 {
   pqxx::connection cx;
-  auto const chan{pqxx::test::make_name("pqxx-listen")};
+  auto const chan{make_channel()};
   int received{};
 
   // Using a functor as a handler.
@@ -218,7 +224,7 @@ void test_listen_supports_different_types_of_callable()
 
 void test_abort_cancels_notification()
 {
-  auto const chan{"pqxx-test-channel"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool received{false};
   cx.listen(chan, [&received](pqxx::notification) { received = true; });
@@ -236,23 +242,24 @@ void test_notification_channels_are_case_sensitive()
 {
   pqxx::connection cx;
   std::string in;
-  cx.listen("pqxx-AbC", [&in](pqxx::notification n) { in = n.channel; });
+  auto const base{pqxx::test::make_name("pqxx-chan")};
+  cx.listen(base + "AbC", [&in](pqxx::notification n) { in = n.channel; });
 
   pqxx::work tx{cx};
-  tx.notify("pqxx-AbC");
-  tx.notify("pqxx-ABC");
-  tx.notify("pqxx-abc");
+  tx.notify(base + "AbC");
+  tx.notify(base + "ABC");
+  tx.notify(base + "abc");
   tx.commit();
 
   cx.await_notification(3);
 
-  PQXX_CHECK_EQUAL(in, "pqxx-AbC");
+  PQXX_CHECK_EQUAL(in, base + "AbC");
 }
 
 
 void test_notification_channels_may_contain_weird_chars()
 {
-  auto const chan{"pqxx-A_#&*!"};
+  auto const chan{make_channel("pqxx-A_#&*!")};
   pqxx::connection cx;
   std::string got;
   cx.listen(chan, [&got](pqxx::notification n) { got = n.channel; });
@@ -267,7 +274,7 @@ void test_notification_channels_may_contain_weird_chars()
 /// In a nontransaction, a notification goes out even if you abort.
 void test_nontransaction_sends_notification()
 {
-  auto const chan{"pqxx-test-chan"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -283,7 +290,7 @@ void test_nontransaction_sends_notification()
 
 void test_subtransaction_sends_notification()
 {
-  auto const chan{"pqxx-test-chan6301"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -301,7 +308,7 @@ void test_subtransaction_sends_notification()
 
 void test_subtransaction_abort_cancels_notification()
 {
-  auto const chan{"pqxx-test-chan123278w"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -324,15 +331,14 @@ void test_cannot_listen_during_transaction()
   // a nontransaction.
   pqxx::nontransaction const tx{cx};
   PQXX_CHECK_THROWS(
-    cx.listen("pqxx-test-chan02756", [](pqxx::notification) {}),
-    pqxx::usage_error);
+    cx.listen(make_channel(), [](pqxx::notification) {}), pqxx::usage_error);
 }
 
 
 void test_notifications_cross_connections()
 {
   pqxx::connection cx_listen, cx_notify;
-  auto const chan{pqxx::test::make_name("pqxx-chan")};
+  auto const chan{make_channel()};
   int sender_pid{0};
   cx_listen.listen(
     chan, [&sender_pid](pqxx::notification n) { sender_pid = n.backend_pid; });
@@ -351,9 +357,8 @@ void test_notification_goes_to_right_handler()
   pqxx::connection cx;
   std::string got;
   int count{0};
-  std::string const chanx{pqxx::test::make_name("pqxx-chanX")},
-    chany{pqxx::test::make_name("pqxx-chanY")},
-    chanz{pqxx::test::make_name("pqxx-chanZ")};
+  std::string const chanx{make_channel("pqxx-chanX")},
+    chany{make_channel("pqxx-chanY")}, chanz{make_channel("pqxx-chanZ")};
 
   cx.listen(chanx, [&got, &count](pqxx::notification) {
     got = "chanX";
@@ -380,7 +385,7 @@ void test_notification_goes_to_right_handler()
 
 void test_listen_on_same_channel_overwrites()
 {
-  auto const chan{pqxx::test::make_name("pqxx-chan")};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   std::string got;
   int count{0};
@@ -410,7 +415,7 @@ void test_listen_on_same_channel_overwrites()
 
 void test_empty_notification_handler_disables()
 {
-  auto const chan{"pqxx-chan812710"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -424,7 +429,7 @@ void test_empty_notification_handler_disables()
 
 void test_notifications_do_not_come_in_until_commit()
 {
-  auto const chan{"pqxx-chan95017834"};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -443,7 +448,7 @@ void test_notifications_do_not_come_in_until_commit()
 
 void test_notification_handlers_follow_connection_move()
 {
-  auto const chan{"pqxx-chan3782"};
+  auto const chan{make_channel()};
   pqxx::connection cx1;
   pqxx::connection *got{nullptr};
   cx1.listen(chan, [&got](pqxx::notification n) { got = &n.conn; });

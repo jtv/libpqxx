@@ -513,7 +513,7 @@ private:
 
 void test_blob_from_file_creates_blob_from_file_contents()
 {
-  char const temp_file[] = "blob-test-from_file.tmp";
+  std::string const temp_file = pqxx::test::make_name("blob-test");
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection cx;
@@ -522,7 +522,7 @@ void test_blob_from_file_creates_blob_from_file_contents()
 
   pqxx::oid id{};
   {
-    TempFile const f{std::data(temp_file), data};
+    TempFile const f{temp_file.c_str(), data};
     id = pqxx::blob::from_file(tx, std::data(temp_file));
   }
   pqxx::blob::to_buf(tx, id, buf, 10);
@@ -533,7 +533,7 @@ void test_blob_from_file_creates_blob_from_file_contents()
 void test_blob_from_file_with_oid_writes_blob()
 {
   pqxx::bytes const data{std::byte{'6'}, std::byte{'9'}};
-  char const temp_file[] = "blob-test-from_file-oid.tmp";
+  std::string const temp_file = pqxx::test::make_name("pqxx-blob-test");
   pqxx::bytes buf;
 
   pqxx::connection cx;
@@ -544,7 +544,7 @@ void test_blob_from_file_with_oid_writes_blob()
   pqxx::blob::remove(tx, id);
 
   {
-    TempFile const f{std::data(temp_file), data};
+    TempFile const f{temp_file.c_str(), data};
     pqxx::blob::from_file(tx, std::data(temp_file), id);
   }
   pqxx::blob::to_buf(tx, id, buf, 10);
@@ -575,7 +575,7 @@ void test_blob_to_file_writes_file()
 {
   pqxx::bytes const data{std::byte{'C'}, std::byte{'+'}, std::byte{'+'}};
 
-  char const temp_file[] = "blob-test-to_file.tmp";
+  std::string const temp_file = pqxx::test::make_name("blob-test");
   pqxx::connection cx;
   pqxx::work tx{cx};
   auto id{pqxx::blob::from_buf(tx, data)};
@@ -583,13 +583,13 @@ void test_blob_to_file_writes_file()
 
   try
   {
-    pqxx::blob::to_file(tx, id, std::data(temp_file));
-    read_file(std::data(temp_file), 10u, buf);
-    std::ignore = std::remove(std::data(temp_file));
+    pqxx::blob::to_file(tx, id, temp_file);
+    read_file(temp_file.c_str(), 10u, buf);
+    std::ignore = std::remove(temp_file.c_str());
   }
   catch (std::exception const &)
   {
-    std::ignore = std::remove(std::data(temp_file));
+    std::ignore = std::remove(temp_file.c_str());
     throw;
   }
   PQXX_CHECK_EQUAL(buf, data);
