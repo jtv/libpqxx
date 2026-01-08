@@ -311,15 +311,29 @@ std::string make_function()
 /// Test double for a `std::source_location`.
 struct fake_sl
 {
+  // BEGINNOLINT(misc-non-private-member-variables-in-classes)
   std::string fil{make_filename()};
   char const *fun{""};
   std::uint_least32_t lin{0};
   std::uint_least32_t col{0};
+  // ENDNOLINT(misc-non-private-member-variables-in-classes)
 
-  constexpr char const *file_name() const noexcept { return fil.c_str(); }
-  constexpr char const *function_name() const noexcept { return fun; }
-  constexpr std::uint_least32_t line() const noexcept { return lin; }
-  constexpr std::uint_least32_t column() const noexcept { return col; }
+  [[nodiscard]] constexpr char const *file_name() const noexcept
+  {
+    return fil.c_str();
+  }
+  [[nodiscard]] constexpr char const *function_name() const noexcept
+  {
+    return fun;
+  }
+  [[nodiscard]] constexpr std::uint_least32_t line() const noexcept
+  {
+    return lin;
+  }
+  [[nodiscard]] constexpr std::uint_least32_t column() const noexcept
+  {
+    return col;
+  }
 };
 
 
