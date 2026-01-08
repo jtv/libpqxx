@@ -186,7 +186,7 @@ std::string describe_failure(
   char const *const msg{err.what()};
   if constexpr (requires { err.location; })
   {
-    std::string const loc{pqxx::internal::source_loc(err.location)};
+    std::string const loc{pqxx::source_loc(err.location)};
 
     if ((msg != nullptr) and (msg[0] != '\0'))
       summary = std::format("{} ({}): {}", desc, loc, msg);
