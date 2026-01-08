@@ -54,7 +54,16 @@ namespace pqxx
 #endif
 
 
-/// Internal items for libpqxx's own use.  Do not use these yourself.
+/// Private namespace for libpqxx's internal use; do not access.
+/** This namespace hides definitions internal to libpqxx.  These are not
+ * supposed to be used by client programs, and they may change at any time
+ * without notice.
+ *
+ * Conversely, if you find something in this namespace tremendously useful, by
+ * all means do lodge a request for its publication.
+ *
+ * @warning Here be dragons!
+ */
 namespace pqxx::internal
 {} // namespace pqxx::internal
 
@@ -337,19 +346,67 @@ inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
   // C++23: Replace with `haystack.contains(needle)`.  Retire wrapper.
   return haystack.find(needle) != HAYSTACK::npos;
 }
+
+
+/// Concept: something that works like a `std::source_location`.
+/** Needed only so we can test this against test doubles.  For any other
+ * purpose, read just `std::source_location` (or @ref pqxx::sl for short).
+ */
+template<typename SL>
+concept c_source_location = requires(SL const loc) {
+  { loc.file_name() } -> std::convertible_to<char const *>;
+  { loc.function_name() } -> std::convertible_to<char const *>;
+  { loc.line() } -> std::convertible_to<std::uint_least32_t>;
+  { loc.column() } -> std::convertible_to<std::uint_least32_t>;
+};
+
+/// Represent a `std::source_location` as human-readable text.
+/** The text is also machine-readable to the extent that many IDEs will let
+ * you click on the text to let you navigate easily to that location in the
+ * source code.
+ */
+template<c_source_location LOC>
+PQXX_PURE inline std::string source_loc(LOC const &loc)
+{
+  char const *const file{loc.file_name()};
+  assert(file != nullptr);
+
+  char const *const func{loc.function_name()};
+  unsigned const line{loc.line()}, column{loc.column()};
+
+  // (The standard says this can't be null, but let's be conservative.)
+  bool const have_func{func != nullptr and *func != '\0'}, have_line{line > 0},
+    have_column{column > 0};
+
+  if (have_func and have_line and have_column)
+  {
+    return std::format("{}:{}:{} ({})", file, line, column, func);
+  }
+  else if (have_func and have_line)
+  {
+    return std::format("{}:{} ({})", file, line, func);
+  }
+  else if (have_line and have_column)
+  {
+    return std::format("{}:{}:{}", file, line, column);
+  }
+  else if (have_func)
+  {
+    // (In this case we don't care whether we have a column.)
+    return std::format("{} ({})", file, func);
+  }
+  else if (have_line)
+  {
+    return std::format("{}:{}", loc.file_name(), loc.line());
+  }
+  else
+  {
+    return std::string{loc.file_name()};
+  }
+}
 } // namespace pqxx
 
 
-/// Private namespace for libpqxx's internal use; do not access.
-/** This namespace hides definitions internal to libpqxx.  These are not
- * supposed to be used by client programs, and they may change at any time
- * without notice.
- *
- * Conversely, if you find something in this namespace tremendously useful, by
- * all means do lodge a request for its publication.
- *
- * @warning Here be dragons!
- */
 namespace pqxx::internal
 {
 using namespace std::literals;
@@ -636,34 +693,6 @@ make_strerror_rs_result(char const *err_result, std::span<char>)
   // Fallback case, hopefully for no actual platforms out there.
   return "(No error information available.)";
 #endif
-}
-
-
-/// Represent a std::source_location as human-readable text.
-PQXX_PURE inline std::string source_loc(sl loc)
-{
-  // TODO: Rewrite to guarantee Return Value Optimisation.
-  char const *const func{loc.function_name()};
-  // (The standard says this can't be null, but let's be conservative.)
-  bool const have_func{func != nullptr and *func != '\0'},
-    have_line{loc.line() > 0};
-
-  if (have_func and have_line)
-  {
-    return std::format("{} in {}:{}", func, loc.file_name(), loc.line());
-  }
-  else if (have_func)
-  {
-    return std::format("{} in {}", func, loc.file_name());
-  }
-  else if (have_line)
-  {
-    return std::format("{}:{}", loc.file_name(), loc.line());
-  }
-  else
-  {
-    return std::string{loc.file_name()};
-  }
 }
 
 

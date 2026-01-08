@@ -229,6 +229,221 @@ void test_check_cast()
 }
 
 
+void test_source_loc_renders_real_source_location()
+{
+  auto const loc{pqxx::sl::current()};
+  auto const loc_text{pqxx::source_loc(loc)};
+  PQXX_CHECK_EQUAL(
+    loc_text, (std::format(
+                "{}:{}:{} ({})", loc.file_name(), loc.line(), loc.column(),
+                loc.function_name())));
+
+  PQXX_CHECK(pqxx::str_contains(
+    loc_text, "test_source_loc_renders_real_source_location"));
+  PQXX_CHECK(pqxx::str_contains(loc_text, __FILE__));
+}
+
+
+/// Make up an arbitrary source code filename.
+std::string make_filename()
+{
+  char const *suffix{nullptr};
+  switch (pqxx::test::make_num(7))
+  {
+  case 0: suffix = "cxx"; break;
+  case 1: suffix = "cpp"; break;
+  case 2: suffix = "cc"; break;
+  case 3: suffix = "C"; break;
+  case 4: suffix = "hxx"; break;
+  case 5: suffix = "hpp"; break;
+  case 6: suffix = "h"; break;
+  }
+  assert(suffix != nullptr);
+
+  return std::format("{}.{}", pqxx::test::make_name("source"), suffix);
+}
+
+
+/// Make up an arbitrary C++ type name.
+std::string make_type()
+{
+  switch (pqxx::test::make_num(10))
+  {
+  case 0: return "int";
+  case 1: return "char *";
+  case 2: return "const char *";
+  case 3: return "std::string";
+  case 4: return "unsigned int";
+  case 5: return "double";
+  case 6: return std::format("std::vector<{}> &", make_type());
+  case 7: return std::format("std::map<{}, {}> &", make_type(), make_type());
+  case 8: return "bool";
+  case 9: return "char";
+  }
+  assert(false);
+}
+
+
+/// Make up an arbitrary C++ parameters list.
+std::string make_params()
+{
+  switch (pqxx::test::make_num(3))
+  {
+  case 0: return "";
+  case 1: return make_type();
+  case 2: return std::format("{}, {}", make_type(), make_type());
+  }
+  assert(false);
+}
+
+
+/// Make up an arbitrary function name.
+std::string make_function()
+{
+  std::string rettype{"void"};
+  if (pqxx::test::make_num(5) > 0)
+    rettype = make_type();
+  return std::format(
+    "{} {}({})", rettype, pqxx::test::make_name("func"), make_params());
+}
+
+
+/// Test double for a `std::source_location`.
+struct fake_sl
+{
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+  std::string fil{make_filename()};
+  char const *fun{""};
+  std::uint_least32_t lin{0};
+  std::uint_least32_t col{0};
+  // NOLINTEND(misc-non-private-member-variables-in-classes)
+
+  [[nodiscard]] constexpr char const *file_name() const noexcept
+  {
+    return fil.c_str();
+  }
+  [[nodiscard]] constexpr char const *function_name() const noexcept
+  {
+    return fun;
+  }
+  [[nodiscard]] constexpr std::uint_least32_t line() const noexcept
+  {
+    return lin;
+  }
+  [[nodiscard]] constexpr std::uint_least32_t column() const noexcept
+  {
+    return col;
+  }
+};
+
+
+/// Return an arbitrary positive number.
+std::uint_least32_t make_pos_num()
+{
+  return static_cast<std::uint_least32_t>(pqxx::test::make_num(9999) + 1);
+}
+
+
+void test_source_loc_handles_full_location()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{
+    .fun = func.c_str(),
+    .lin = make_pos_num(),
+    .col = make_pos_num(),
+  };
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc),
+    std::format("{}:{}:{} ({})", loc.fil, loc.lin, loc.col, loc.fun));
+}
+
+
+void test_source_loc_handles_missing_column()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{
+    .fun = func.c_str(),
+    .lin = make_pos_num(),
+  };
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc),
+    std::format("{}:{} ({})", loc.fil, loc.lin, loc.fun));
+}
+
+
+void test_source_loc_handles_missing_line()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{
+    .fun = func.c_str(),
+    .col = make_pos_num(),
+  };
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc), std::format("{} ({})", loc.fil, loc.fun));
+}
+
+
+void test_source_loc_handles_missing_function()
+{
+  fake_sl const loc{
+    .lin = make_pos_num(),
+    .col = make_pos_num(),
+  };
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc), std::format("{}:{}:{}", loc.fil, loc.lin, loc.col));
+}
+
+
+void test_source_loc_handles_line_only()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{.lin = make_pos_num()};
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc), std::format("{}:{}", loc.fil, loc.lin));
+}
+
+
+void test_source_loc_handles_column_only()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{.col = make_pos_num()};
+
+  // We don't bother printing a column number without a line number.
+  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}", loc.fil));
+}
+
+
+void test_source_loc_handles_func_only()
+{
+  std::string const func{make_function()};
+  fake_sl const loc{.fun = func.c_str()};
+
+  PQXX_CHECK_EQUAL(
+    pqxx::source_loc(loc), std::format("{} ({})", loc.fil, loc.fun));
+}
+
+
+void test_source_loc_handles_minimal_source_location()
+{
+  fake_sl const loc;
+  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}", loc.fil));
+}
+
+
 PQXX_REGISTER_TEST(test_binary_cast);
 PQXX_REGISTER_TEST(test_check_cast);
+PQXX_REGISTER_TEST(test_source_loc_renders_real_source_location);
+PQXX_REGISTER_TEST(test_source_loc_handles_full_location);
+PQXX_REGISTER_TEST(test_source_loc_handles_missing_column);
+PQXX_REGISTER_TEST(test_source_loc_handles_missing_line);
+PQXX_REGISTER_TEST(test_source_loc_handles_missing_function);
+PQXX_REGISTER_TEST(test_source_loc_handles_line_only);
+PQXX_REGISTER_TEST(test_source_loc_handles_column_only);
+PQXX_REGISTER_TEST(test_source_loc_handles_func_only);
+PQXX_REGISTER_TEST(test_source_loc_handles_minimal_source_location);
 } // namespace
