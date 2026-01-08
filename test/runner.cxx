@@ -467,11 +467,14 @@ options parse_command_line(int argc, char const *argv[])
 
 
 /// Seed the randomizer with `seed`, or something variable if `seed` is zero.
-void seed_random(unsigned seed)
+/** @return The actual seed value used.
+ */
+unsigned seed_random(unsigned seed)
 {
   if (seed == 0u)
     seed = std::random_device{}();
   srand(seed);
+  return seed;
 }
 } // namespace
 
@@ -481,7 +484,8 @@ int main(int argc, char const *argv[])
   try
   {
     auto opts{parse_command_line(argc, argv)};
-    seed_random(opts.seed);
+    auto const seed{seed_random(opts.seed)};
+    std::cout << "Random seed: " << seed << '\n';
 
     auto const all_tests{pqxx::test::suite::gather()};
     if (std::empty(opts.tests))
