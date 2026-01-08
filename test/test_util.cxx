@@ -326,7 +326,7 @@ struct fake_sl
 /// Return an arbitrary positive number.
 std::uint_least32_t make_pos_num()
 {
-  return static_cast<uint_least32_t>(pqxx::test::make_num(9999) + 1);
+  return static_cast<std::uint_least32_t>(pqxx::test::make_num(9999) + 1);
 }
 
 

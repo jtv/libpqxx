@@ -353,11 +353,11 @@ inline bool str_contains(HAYSTACK const &haystack, NEEDLE const &needle)
  * purpose, read just `std::source_location` (or @ref pqxx::sl for short).
  */
 template<typename SL>
-concept c_source_location = requires(SL const loc, unsigned n, char const *t) {
-  t = loc.file_name();
-  t = loc.function_name();
-  n = loc.line();
-  n = loc.column();
+concept c_source_location = requires(SL const loc) {
+  { loc.file_name() } -> std::convertible_to<char const *>;
+  { loc.function_name() } -> std::convertible_to<char const *>;
+  { loc.line() } -> std::convertible_to<std::uint_least32_t>;
+  { loc.column() } -> std::convertible_to<std::uint_least32_t>;
 };
 
 /// Represent a `std::source_location` as human-readable text.
