@@ -74,7 +74,7 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
       "WARNING: {}: Commit status of transaction '{}' is unknown. "
       "There is no way to tell whether the transaction succeeded "
       "or was aborted except to check manually.\n",
-      pqxx::internal::source_loc(loc), name())};
+      pqxx::source_loc(loc), name())};
     process_notice(msg);
     // Strip newline.  It was only needed for process_notice().
     msg.pop_back();
@@ -92,7 +92,7 @@ void pqxx::internal::basic_transaction::do_commit(sl loc)
         "WARNING: {}: Connection lost while committing transaction '{}'.  "
         "There is no way to tell whether the transaction succeeded or was "
         "aborted except to check manually.\n",
-        pqxx::internal::source_loc(loc), name())};
+        pqxx::source_loc(loc), name())};
       process_notice(msg);
       // Strip newline.  It was only needed for process_notice().
       msg.pop_back();

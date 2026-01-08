@@ -500,6 +500,6 @@ bool pqxx::string_traits<bool>::from_string(std::string_view text, ctx c)
     return *result;
   else
     throw conversion_error{std::format(
-      "Failed conversion to bool ({}): '{}'.",
-      pqxx::internal::source_loc(c.loc), std::string{text})};
+      "Failed conversion to bool ({}): '{}'.", pqxx::source_loc(c.loc),
+      std::string{text})};
 }

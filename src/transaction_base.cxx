@@ -495,8 +495,8 @@ void pqxx::transaction_base::register_pending_error(zview err, sl loc) noexcept
     {
       try
       {
-        [[unlikely]] process_notice(std::format(
-          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
+        [[unlikely]] process_notice(
+          std::format("{} UNABLE TO PROCESS ERROR\n", pqxx::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
@@ -522,8 +522,8 @@ void pqxx::transaction_base::register_pending_error(
     {
       try
       {
-        process_notice(std::format(
-          "{} UNABLE TO PROCESS ERROR\n", pqxx::internal::source_loc(loc)));
+        process_notice(
+          std::format("{} UNABLE TO PROCESS ERROR\n", pqxx::source_loc(loc)));
         // TODO: Make at least an attempt to append a newline.
         process_notice(e.what());
         process_notice("ERROR WAS:\n");
