@@ -332,13 +332,14 @@ void test_stream_from_parses_awkward_strings()
   pqxx::work tx{cx};
   tx.exec("CREATE TEMP TABLE nasty(id integer, value varchar)").no_rows();
   tx.exec(
-    "INSERT INTO nasty(id, value) VALUES "
-    // A proper null.
-    "(0, NULL), "
-    // Some strings that could easily be mis-parsed as null.
-    "(1, 'NULL'), "
-    "(2, '\\N'), "
-    "(3, '''NULL''')").no_rows();
+      "INSERT INTO nasty(id, value) VALUES "
+      // A proper null.
+      "(0, NULL), "
+      // Some strings that could easily be mis-parsed as null.
+      "(1, 'NULL'), "
+      "(2, '\\N'), "
+      "(3, '''NULL''')")
+    .no_rows();
 
   if (not ascii_db)
   {
