@@ -235,7 +235,7 @@ void test_source_loc_renders_real_source_location()
   auto const loc_text{pqxx::source_loc(loc)};
   PQXX_CHECK_EQUAL(
     loc_text, (std::format(
-                "{}:{}:{} ({})", loc.file_name(), loc.line(), loc.column(),
+                "{}:{}:{}: ({})", loc.file_name(), loc.line(), loc.column(),
                 loc.function_name())));
 
   PQXX_CHECK(pqxx::str_contains(
@@ -355,7 +355,7 @@ void test_source_loc_handles_full_location()
 
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc),
-    std::format("{}:{}:{} ({})", loc.fil, loc.lin, loc.col, loc.fun));
+    std::format("{}:{}:{}: ({})", loc.fil, loc.lin, loc.col, loc.fun));
 }
 
 
@@ -369,7 +369,7 @@ void test_source_loc_handles_missing_column()
 
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc),
-    std::format("{}:{} ({})", loc.fil, loc.lin, loc.fun));
+    std::format("{}:{}: ({})", loc.fil, loc.lin, loc.fun));
 }
 
 
@@ -382,7 +382,7 @@ void test_source_loc_handles_missing_line()
   };
 
   PQXX_CHECK_EQUAL(
-    pqxx::source_loc(loc), std::format("{} ({})", loc.fil, loc.fun));
+    pqxx::source_loc(loc), std::format("{}: ({})", loc.fil, loc.fun));
 }
 
 
@@ -394,7 +394,7 @@ void test_source_loc_handles_missing_function()
   };
 
   PQXX_CHECK_EQUAL(
-    pqxx::source_loc(loc), std::format("{}:{}:{}", loc.fil, loc.lin, loc.col));
+    pqxx::source_loc(loc), std::format("{}:{}:{}:", loc.fil, loc.lin, loc.col));
 }
 
 
@@ -402,7 +402,7 @@ void test_source_loc_handles_line_only()
 {
   fake_sl const loc{.lin = make_pos_num()};
   PQXX_CHECK_EQUAL(
-    pqxx::source_loc(loc), std::format("{}:{}", loc.fil, loc.lin));
+    pqxx::source_loc(loc), std::format("{}:{}:", loc.fil, loc.lin));
 }
 
 
@@ -410,7 +410,7 @@ void test_source_loc_handles_column_only()
 {
   fake_sl const loc{.col = make_pos_num()};
   // We don't bother printing a column number without a line number.
-  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}", loc.fil));
+  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
 
 
@@ -420,14 +420,14 @@ void test_source_loc_handles_func_only()
   fake_sl const loc{.fun = func.c_str()};
 
   PQXX_CHECK_EQUAL(
-    pqxx::source_loc(loc), std::format("{} ({})", loc.fil, loc.fun));
+    pqxx::source_loc(loc), std::format("{}: ({})", loc.fil, loc.fun));
 }
 
 
 void test_source_loc_handles_minimal_source_location()
 {
   fake_sl const loc;
-  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}", loc.fil));
+  PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
 
 
