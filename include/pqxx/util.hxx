@@ -380,28 +380,28 @@ PQXX_PURE inline std::string source_loc(LOC const &loc)
 
   if (have_func and have_line and have_column)
   {
-    return std::format("{}:{}:{} ({})", file, line, column, func);
+    return std::format("{}:{}:{}: ({})", file, line, column, func);
   }
   else if (have_func and have_line)
   {
-    return std::format("{}:{} ({})", file, line, func);
+    return std::format("{}:{}: ({})", file, line, func);
   }
   else if (have_line and have_column)
   {
-    return std::format("{}:{}:{}", file, line, column);
+    return std::format("{}:{}:{}:", file, line, column);
   }
   else if (have_func)
   {
     // (In this case we don't care whether we have a column.)
-    return std::format("{} ({})", file, func);
+    return std::format("{}: ({})", file, func);
   }
   else if (have_line)
   {
-    return std::format("{}:{}", loc.file_name(), loc.line());
+    return std::format("{}:{}:", file, line);
   }
   else
   {
-    return std::string{loc.file_name()};
+    return std::format("{}:", file);
   }
 }
 } // namespace pqxx
