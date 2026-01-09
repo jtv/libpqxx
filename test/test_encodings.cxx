@@ -167,7 +167,7 @@ auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
 void test_find_chars_reports_malencoded_text()
 {
   // Set up an array containing random char values, but not '|'.
-  std::array<char, 100> data{};
+  std::array<char, 500> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
     data.at(i) = pqxx::test::random_char();

@@ -400,9 +400,7 @@ void test_source_loc_handles_missing_function()
 
 void test_source_loc_handles_line_only()
 {
-  std::string const func{make_function()};
   fake_sl const loc{.lin = make_pos_num()};
-
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}:{}", loc.fil, loc.lin));
 }
@@ -410,9 +408,7 @@ void test_source_loc_handles_line_only()
 
 void test_source_loc_handles_column_only()
 {
-  std::string const func{make_function()};
   fake_sl const loc{.col = make_pos_num()};
-
   // We don't bother printing a column number without a line number.
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}", loc.fil));
 }
