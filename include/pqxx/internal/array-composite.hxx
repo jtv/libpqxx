@@ -390,7 +390,7 @@ PQXX_INLINE_ONLY inline void write_composite_field(
     buf[pos++] = '"';
 
     // Now escape buf into its final position.
-    for (char const x : to_buf(buf.subspan(std::size(buf) - budget), field, c))
+    for (char const x : to_buf(buf.last(budget), field, c))
     {
       if ((x == '"') or (x == '\\'))
         // C++26: Use buf.at().
@@ -457,7 +457,7 @@ template<nonbinary_range TYPE>
       // Use the tail end of the destination buffer as an intermediate
       // buffer.
       assert(std::cmp_less(elt_budget, sz - here));
-      auto const from{pqxx::to_buf(buf.subspan(sz - elt_budget), elt, c)};
+      auto const from{pqxx::to_buf(buf.last(elt_budget), elt, c)};
       auto const end{std::size(from)};
       auto const find{get_char_finder<'\\', '"'>(c.enc, c.loc)};
 

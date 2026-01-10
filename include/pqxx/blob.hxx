@@ -106,7 +106,7 @@ public:
   writable_bytes_view
   read(std::span<std::byte, extent> buf, sl loc = sl::current())
   {
-    return buf.subspan(0, raw_read(std::data(buf), std::size(buf), loc));
+    return buf.first(raw_read(std::data(buf), std::size(buf), loc));
   }
 
   /// Read up to `std::size(buf)` bytes from the object.
