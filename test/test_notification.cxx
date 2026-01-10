@@ -226,15 +226,19 @@ void test_abort_cancels_notification()
 {
   auto const chan{make_channel()};
   pqxx::connection cx;
-  bool received{false};
-  cx.listen(chan, [&received](pqxx::notification) { received = true; });
+  cx.listen(chan, [](pqxx::notification const &n) {
+    throw pqxx::test::test_failure{std::format(
+      "Got unexpected notifcation on channel '{}' (payload '{}').",
+      n.channel.c_str(), n.payload.c_str())};
+  });
 
   pqxx::work tx{cx};
   tx.notify(chan);
   tx.abort();
 
+  // This will throw a test failure if the notification should unexpectedly
+  // still arrive.
   cx.await_notification(3);
-  PQXX_CHECK(not received);
 }
 
 

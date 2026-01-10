@@ -394,7 +394,8 @@ void test_source_loc_handles_missing_function()
   };
 
   PQXX_CHECK_EQUAL(
-    pqxx::source_loc(loc), std::format("{}:{}:{}:", loc.fil, loc.lin, loc.col));
+    pqxx::source_loc(loc),
+    std::format("{}:{}:{}:", loc.fil, loc.lin, loc.col));
 }
 
 
