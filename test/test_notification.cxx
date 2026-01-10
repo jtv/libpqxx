@@ -154,7 +154,7 @@ void test_notification_has_payload()
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel()};
+  auto const channel{make_channel("pqxx-payload")};
   auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
@@ -224,7 +224,7 @@ void test_listen_supports_different_types_of_callable()
 
 void test_abort_cancels_notification()
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel("pqxx-abort")};
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
