@@ -310,6 +310,136 @@ void test_connection_client_encoding(pqxx::test::randomizer &rnd)
 }
 
 
+void test_connection_string_with_overrides(pqxx::test::randomizer &)
+{
+  // replace parameter from connection string
+  {
+    std::map<std::string, std::string> params{{"application_name", "override_test"}};
+
+    pqxx::connection cx{"application_name=original", params};
+    PQXX_CHECK(cx.is_open(), "Connection with overrides failed to open.");
+
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("override_test"), std::string::npos,
+      "Override parameter not found in connection string.");
+    PQXX_CHECK_EQUAL(
+      connstr.find("original"), std::string::npos,
+      "Original parameter was not overridden.");
+  }
+
+  // Add new parameters not present in connection string
+  {
+    std::map<std::string, std::string> params{
+      {"connect_timeout", "30"},
+      {"keepalives_idle", "120"}
+    };
+
+    pqxx::connection cx{"", params};
+    PQXX_CHECK(cx.is_open(), "Connection with new parameters failed.");
+
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("connect_timeout"), std::string::npos,
+      "New parameter not found.");
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("30"), std::string::npos, "New parameter value not found.");
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("keepalives_idle"), std::string::npos,
+      "New parameter not found.");
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("120"), std::string::npos, "New parameter value not found.");
+  }
+
+  // Mix - some overrides, some additions, some unchanged
+  {
+    std::vector<std::pair<std::string, std::string>> params{
+      {"application_name", "mixed_test"},
+      {"connect_timeout", "45"}
+    };
+
+    pqxx::connection cx{
+      "host=localhost application_name=base keepalives_idle=60", params};
+    PQXX_CHECK(cx.is_open(), "Mixed connection failed.");
+
+    auto const connstr{cx.connection_string()};
+
+    // Override should replace
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("mixed_test"), std::string::npos,
+      "application_name not overridden.");
+    PQXX_CHECK_EQUAL(
+      connstr.find("base"), std::string::npos,
+      "Original application_name not replaced.");
+
+    // New parameter should be added
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("connect_timeout"), std::string::npos,
+      "New parameter not added.");
+
+    // Unchanged parameter should remain
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("keepalives_idle"), std::string::npos,
+      "Base parameter lost.");
+  }
+
+  // Empty override map (equivalent to regular constructor)
+  {
+    std::map<std::string, std::string> params{};
+
+    pqxx::connection cx{"application_name=empty_override", params};
+    PQXX_CHECK(cx.is_open(), "Connection with empty overrides failed.");
+
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("empty_override"), std::string::npos,
+      "Base connection string not used.");
+  }
+
+  // Invalid connection string should throw
+  {
+    std::map<std::string, std::string> params{};
+
+    PQXX_CHECK_THROWS(
+      (pqxx::connection{"invalid=syntax===bad", params}),
+      pqxx::broken_connection, "Invalid connection string should throw.");
+  }
+
+  // Multiple overrides of same parameter (last wins)
+  {
+    std::vector<std::pair<std::string, std::string>> params{
+      {"application_name", "first"},
+      {"application_name", "second"}
+    };
+
+    pqxx::connection cx{"", params};
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK_NOT_EQUAL(
+      connstr.find("second"), std::string::npos, "Last override should win.");
+  }
+
+  // Verify connection actually works
+  {
+    std::map<std::string, std::string> params{{"application_name", "query_test"}};
+
+    pqxx::connection cx{"", params};
+    PQXX_CHECK(cx.is_open(), "Connection failed.");
+    pqxx::nontransaction tx{cx};
+    auto const result{tx.query_value<int>("SELECT 42")};
+    PQXX_CHECK_EQUAL(result, 42, "Query failed with override constructor.");
+  }
+
+  // Verify connecting to overridden host
+  {
+    std::map<std::string, std::string> params{{"host", "doesnotexist"}};
+
+    PQXX_CHECK_THROWS(
+      (pqxx::connection{"host=localhost", params}),
+      pqxx::broken_connection, R"(could not translate host name "doesnotexist" to address: Name or service not known)");
+  }
+}
+
+
 void test_quote_columns_quotes_and_escapes(pqxx::test::randomizer &)
 {
   pqxx::connection const cx;
@@ -335,5 +465,6 @@ PQXX_REGISTER_TEST(test_raw_connection);
 PQXX_REGISTER_TEST(test_closed_connection);
 PQXX_REGISTER_TEST(test_skip_init_ssl);
 PQXX_REGISTER_TEST(test_connection_client_encoding);
+PQXX_REGISTER_TEST(test_connection_string_with_overrides);
 PQXX_REGISTER_TEST(test_quote_columns_quotes_and_escapes);
 } // namespace

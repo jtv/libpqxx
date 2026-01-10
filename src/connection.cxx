@@ -216,6 +216,80 @@ void pqxx::connection::init(char const *params[], char const *values[], sl loc)
 }
 
 
+void pqxx::connection::init(zview connection_string, std::vector<const char*> override_keys, std::vector<const char*> override_values, sl loc)
+{
+  char *errmsg{nullptr};
+
+  std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
+    PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
+  if (parsed == nullptr)
+  {
+    std::string error_message{"Failed to parse connection string"};
+    if (errmsg != nullptr)
+    {
+      error_message += ": ";
+      error_message += errmsg;
+      pqxx::internal::pq::pqfreemem(errmsg);
+    }
+    throw broken_connection{error_message};
+  }
+
+  std::size_t parsed_count = 0;
+  for (auto *opt = parsed.get(); opt->keyword != nullptr; ++opt)
+  {
+    if (opt->val != nullptr)
+      ++parsed_count;
+  }
+
+  std::size_t override_count = override_keys.size();
+
+  // merge options
+  std::vector<char const *> merged_keys, merged_values;
+  merged_keys.reserve(parsed_count + override_count + 1);
+  merged_values.reserve(parsed_count + override_count + 1);
+
+  // Copy parsed options
+  for (auto *opt{parsed.get()}; opt->keyword != nullptr; ++opt)
+  {
+    if (opt->val != nullptr)
+    {
+      merged_keys.push_back(opt->keyword);
+      merged_values.push_back(opt->val);
+    }
+  }
+
+  // Apply overrides
+  for (std::size_t i{0}; i < override_count; ++i)
+  {
+    auto it{std::find_if(
+      merged_keys.begin(), merged_keys.end(),
+      [key = override_keys[i]](char const *existing) {
+        return std::strcmp(existing, key) == 0;
+      })};
+
+    if (it != merged_keys.end())
+    {
+      auto const idx{static_cast<std::size_t>(
+        std::distance(merged_keys.begin(), it))};
+      merged_values[idx] = override_values[i];
+    }
+    else
+    {
+      merged_keys.push_back(override_keys[i]);
+      merged_values.push_back(override_values[i]);
+    }
+  }
+
+  merged_keys.push_back(nullptr);
+  merged_values.push_back(nullptr);
+
+  init(merged_keys.data(), merged_values.data(), loc);
+
+  set_up_notice_handlers();
+  complete_init(loc);
+}
+
+
 void pqxx::connection::check_movable(sl loc) const
 {
   if (m_trans)
@@ -1335,4 +1409,4 @@ pqxx::connection pqxx::connecting::produce(sl loc) &&
   m_conn.complete_init(loc);
   return {std::move(m_conn), loc};
 }
-#endif // defined(_WIN32) || __has_include(<fcntl.h>
+#endif // defined(_WIN32) || __has_include(<fcntl.h>)
