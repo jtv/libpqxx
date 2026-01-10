@@ -473,6 +473,7 @@ unsigned seed_random(unsigned seed)
 {
   if (seed == 0u)
     seed = std::random_device{}();
+  // XXX: Should really do this within each child thread, for consistency.
   srand(seed);
   return seed;
 }

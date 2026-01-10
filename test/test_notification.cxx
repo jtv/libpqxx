@@ -15,9 +15,13 @@
 namespace
 {
 /// Make up an arbitrary channel name.
-std::string make_channel(std::string const &prefix = "pqxx-chan")
+std::string make_channel(std::string const &prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
 {
-  return pqxx::test::make_name(prefix);
+  // For some weird reason two tests in this file, only on Windows, will get
+  // exact same "random" channel name, and dependent probably on timing, one
+  // will break because it wasn't expecting a notification that the other did
+  // unexpectedly send.  Disambiguate by including the line number.
+  return pqxx::test::make_name(std::format("{}_{}", prefix, loc.line()));
 }
 
 
@@ -154,7 +158,7 @@ void test_notification_has_payload()
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel()};
+  auto const channel{make_channel("pqxx-payload")};
   auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
@@ -224,17 +228,22 @@ void test_listen_supports_different_types_of_callable()
 
 void test_abort_cancels_notification()
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel("pqxx-abort")};
   pqxx::connection cx;
-  bool received{false};
-  cx.listen(chan, [&received](pqxx::notification) { received = true; });
+  cx.listen(chan, [&chan](pqxx::notification const &n) {
+    throw pqxx::test::test_failure{std::format(
+      "Got unexpected notification on channel '{}' (payload '{}').  "
+      "Was waiting for '{}'.",
+      n.channel.c_str(), n.payload.c_str(), chan)};
+  });
 
   pqxx::work tx{cx};
   tx.notify(chan);
   tx.abort();
 
+  // This will throw a test failure if the notification should unexpectedly
+  // still arrive.
   cx.await_notification(3);
-  PQXX_CHECK(not received);
 }
 
 

@@ -517,33 +517,25 @@ public:
     exec(std::format("SET {}={}", quote_name(var), quote(value, loc)), loc);
   }
 
-  // XXX: Return value documentation is wrong!  There's no std::optional here.
-  /// Read currently applicable value of a variable.
+  /// Read currently applicable value of a configuration variable.
   /** This function executes an SQL statement, so it won't work while a
-   * @ref pipeline or query stream is active on the connection.
+   * @ref pipeline, query stream, or other object derived from
+   * @ref transaction_focus is active on the connection.
    *
-   * @return a blank `std::optional` if the variable's value is null, or its
-   * string value otherwise.
+   * @return The variable's current string value (which may be empty).
    */
   std::string get_var(std::string_view var, sl loc = sl::current());
 
-  /// Read currently applicable value of a variable.
+  /// Read currently applicable value of a configuration variable.
   /** This function executes an SQL statement, so it won't work while a
-   * @ref pipeline or query stream is active on the connection.
-   *
-   * If there is any possibility that the variable is null, ensure that `TYPE`
-   * can represent null values.
-   *
-   * This function does not store the variable's text anywhere permanent, so
-   * you can't convert to types like `std::string_view` or `pqxx::zview`.
-   * Otherwise, you'd be creating a reference to a value in memory that would
-   * no longer exist when the function returns.
+   * @ref pipeline, query stream, or other object derived from
+   * @ref transaction_focus is active on the connection.
    *
    * @warning The connection does not store the underlying string anywhere.
-   * So if you try to read it as a `std::string_view`, a `std::span`, a
-   * @ref pqxx::zview, or anything like that... the string value will no longer
-   * be valid by the time you receive it!  So if you want to read the variable
-   * as a string value, use `std::string`.
+   * So if you try to read the variable as a `std::string_view`, a `std::span`,
+   * a @ref pqxx::zview, or anything like that... the string value will no
+   * longer be valid by the time you receive it!  If you want to read the
+   * variable as a string value, use `std::string`.
    */
   template<not_borrowed TYPE>
   TYPE get_var_as(std::string_view var, sl loc = sl::current())
