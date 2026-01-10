@@ -27,7 +27,7 @@ void test_084()
     "Not enough rows in " + Table + ", cannot test.");
 
   // Create an SQL cursor and, for good measure, muddle up its state a bit.
-  std::string const CurName{"MYCUR"},
+  std::string const CurName{pqxx::test::make_name("pqxx-cur")},
     Query{"SELECT * FROM " + Table + " ORDER BY " + Key};
   constexpr int InitialSkip{2}, GetRows{3};
 

@@ -241,14 +241,14 @@ void check_write(
     std::array<char, 2> small{'x', 'y'};
     std::span<char> const smallspan{small};
     PQXX_CHECK_THROWS(
-      std::ignore = pqxx::into_buf(smallspan.subspan(0, 0), value, c),
+      std::ignore = pqxx::into_buf(smallspan.first<0>(), value, c),
       pqxx::conversion_overrun);
     PQXX_CHECK(small[0] == 'x');
     PQXX_CHECK(small[1] == 'y');
     if (bytes_needed > 1u)
     {
       PQXX_CHECK_THROWS(
-        std::ignore = pqxx::into_buf(smallspan.subspan(0, 1), value, c),
+        std::ignore = pqxx::into_buf(smallspan.first<1>(), value, c),
         pqxx::conversion_overrun);
       PQXX_CHECK(small[1] == 'y');
     }
