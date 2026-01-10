@@ -232,7 +232,7 @@ void test_abort_cancels_notification()
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
-      "Got unexpected notifcation on channel '{}' (payload '{}').  "
+      "Got unexpected notification on channel '{}' (payload '{}').  "
       "Was waiting for '{}'.",
       n.channel.c_str(), n.payload.c_str(), chan)};
   });
