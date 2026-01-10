@@ -15,9 +15,13 @@
 namespace
 {
 /// Make up an arbitrary channel name.
-std::string make_channel(std::string const &prefix = "pqxx-chan")
+std::string make_channel(std::string const &prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
 {
-  return pqxx::test::make_name(prefix);
+  // For some weird reason two tests in this file, only on Windows, will get
+  // exact same "random" channel name, and dependent probably on timing, one
+  // will break because it wasn't expecting a notification that the other did
+  // unexpectedly send.  Disambiguate by including the line number.
+  return pqxx::test::make_name(std::format("{}_{}", prefix, loc.line()));
 }
 
 
