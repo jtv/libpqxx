@@ -528,7 +528,7 @@ public:
 
   /// Read currently applicable value of a configuration variable.
   /** This function executes an SQL statement, so it won't work while a
-   * @ref pipeline, query stream, or other object defied from
+   * @ref pipeline, query stream, or other object derived from
    * @ref transaction_focus is active on the connection.
    *
    * @warning The connection does not store the underlying string anywhere.
