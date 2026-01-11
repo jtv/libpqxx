@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_stateless_cursor()
+void test_stateless_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

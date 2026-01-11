@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_cancel_query()
+void test_cancel_query(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

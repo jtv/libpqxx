@@ -26,7 +26,7 @@ make_date(int y, unsigned m, unsigned d, std::string_view text)
 }
 
 
-void test_date_string_conversion()
+void test_date_string_conversion(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

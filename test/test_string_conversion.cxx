@@ -35,7 +35,7 @@ namespace
 constexpr double thres{0.00001};
 
 
-void test_string_conversion()
+void test_string_conversion(pqxx::test::randomizer &rnd)
 {
   PQXX_CHECK_EQUAL("C string array", pqxx::to_string("C string array"));
 
@@ -66,7 +66,7 @@ void test_string_conversion()
   pqxx::from_string("-9999", x);
   PQXX_CHECK_EQUAL(-9999, x);
 
-  auto const num{pqxx::test::make_num()};
+  auto const num{pqxx::test::make_num(rnd)};
   PQXX_CHECK_EQUAL(pqxx::to_string(num), std::format("{}", num));
   auto const numstr{std::format("{}", num)};
   PQXX_CHECK_EQUAL(pqxx::to_string(num), pqxx::to_string(numstr));
@@ -111,7 +111,7 @@ void test_string_conversion()
 }
 
 
-void test_convert_variant_to_string()
+void test_convert_variant_to_string(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(std::variant<int, std::string>{99}), "99");
 
@@ -120,7 +120,7 @@ void test_convert_variant_to_string()
 }
 
 
-void test_integer_conversion()
+void test_integer_conversion(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::from_string<int>("12"), 12);
   PQXX_CHECK_EQUAL(pqxx::from_string<int>(" 12"), 12);
@@ -136,7 +136,7 @@ void test_integer_conversion()
 }
 
 
-void test_convert_null()
+void test_convert_null(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work const tx{cx};
@@ -146,7 +146,7 @@ void test_convert_null()
 }
 
 
-void test_string_view_conversion()
+void test_string_view_conversion(pqxx::test::randomizer &)
 {
   using traits = pqxx::string_traits<std::string_view>;
 
@@ -167,7 +167,7 @@ void test_string_view_conversion()
 }
 
 
-void test_binary_converts_to_string()
+void test_binary_converts_to_string(pqxx::test::randomizer &)
 {
   std::array<std::byte, 3> const bin_data{
     std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
@@ -182,7 +182,7 @@ void test_binary_converts_to_string()
 }
 
 
-void test_string_converts_to_binary()
+void test_string_converts_to_binary(pqxx::test::randomizer &)
 {
   std::array<std::byte, 3> const bin_data{
     std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
@@ -262,9 +262,9 @@ template<> struct string_traits<legacy_item> final
 
 namespace
 {
-void test_legacy_7_conversion_support()
+void test_legacy_7_conversion_support(pqxx::test::randomizer &rnd)
 {
-  legacy_item const leg{pqxx::test::make_num()};
+  legacy_item const leg{pqxx::test::make_num(rnd)};
   auto const as_string{pqxx::to_string(leg)};
   PQXX_CHECK_EQUAL(as_string, pqxx::to_string(leg.get_val()));
   PQXX_CHECK_EQUAL(

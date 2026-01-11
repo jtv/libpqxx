@@ -12,7 +12,7 @@
 
 namespace
 {
-void test_stream_handles_empty()
+void test_stream_handles_empty(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -22,7 +22,7 @@ void test_stream_handles_empty()
 }
 
 
-void test_stream_does_escaping()
+void test_stream_does_escaping(pqxx::test::randomizer &)
 {
   std::string const input{"a\t\n\n\n \\b\nc"};
   pqxx::connection cx;
@@ -37,7 +37,7 @@ void test_stream_does_escaping()
 }
 
 
-void test_stream_iterates()
+void test_stream_iterates(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -64,7 +64,7 @@ void test_stream_iterates()
 }
 
 
-void test_stream_reads_simple_values()
+void test_stream_reads_simple_values(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -81,7 +81,7 @@ void test_stream_reads_simple_values()
 }
 
 
-void test_stream_reads_string_view()
+void test_stream_reads_string_view(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -98,7 +98,7 @@ void test_stream_reads_string_view()
 }
 
 
-void test_stream_reads_nulls_as_optionals()
+void test_stream_reads_nulls_as_optionals(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -114,7 +114,7 @@ void test_stream_reads_nulls_as_optionals()
 }
 
 
-void test_stream_reads_arrays()
+void test_stream_reads_arrays(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -150,7 +150,7 @@ void test_stream_reads_arrays()
 }
 
 
-void test_stream_parses_awkward_strings()
+void test_stream_parses_awkward_strings(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
 
@@ -214,7 +214,7 @@ void test_stream_parses_awkward_strings()
 }
 
 
-void test_stream_handles_nulls_in_all_places()
+void test_stream_handles_nulls_in_all_places(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -233,7 +233,7 @@ void test_stream_handles_nulls_in_all_places()
 }
 
 
-void test_stream_handles_empty_string()
+void test_stream_handles_empty_string(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

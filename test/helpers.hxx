@@ -2,6 +2,7 @@
 #  define PQXX_H_TEST_HELPERS
 
 #  include <mutex>
+#  include <random>
 #  include <stdexcept>
 #  include <string>
 
@@ -10,6 +11,10 @@
 
 namespace pqxx::test
 {
+/// Random engine, for generating random values in tests.
+using randomizer = std::mt19937;
+
+
 /// Exception: A test does not satisfy expected condition.
 class test_failure : public std::logic_error
 {
@@ -34,7 +39,7 @@ void drop_table(
   transaction_base &, std::string const &table, sl loc = sl::current());
 
 
-using testfunc = void (*)();
+using testfunc = void (*)(pqxx::test::randomizer &);
 
 
 /// Maximum number of tests in the test suite.
@@ -86,46 +91,44 @@ struct registrar final
 
 
 /// Return an arbitrary nonnegative integer.
-inline int make_num()
+inline int make_num(pqxx::test::randomizer &rnd)
 {
-  // We use rand(), which is not guaranteed to be thread-safe.
-  std::mutex l;
-  std::lock_guard<std::mutex> guard{l};
-  return rand();
+  return static_cast<int>(rnd() >> 1);
 }
 
 
 /// Return an arbitrary nonnegative integer below `ceiling`.
-inline int make_num(int ceiling)
+inline int make_num(pqxx::test::randomizer &rnd, int ceiling)
 {
-  return make_num() % ceiling;
+  return make_num(rnd) % ceiling;
 }
 
 
 /// Return an arbitrary nonzero `char` value from the full 8-bit range.
-inline char random_char()
+inline char random_char(pqxx::test::randomizer &rnd)
 {
   return static_cast<char>(
-    static_cast<std::uint8_t>(pqxx::test::make_num(255) + 1));
+    static_cast<std::uint8_t>(pqxx::test::make_num(rnd, 255) + 1));
 }
 
 
 /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
-template<std::floating_point T> T make_float_num()
+template<std::floating_point T> T make_float_num(pqxx::test::randomizer &rnd)
 {
-  auto const x{make_num()}, z{make_num()};
-  auto y{make_num()};
-  while (y == x) y = make_num();
+  auto const x{make_num(rnd)}, z{make_num(rnd)};
+  auto y{make_num(rnd)};
+  while (y == x) y = make_num(rnd);
   return static_cast<T>(x - y) / static_cast<T>(z);
 }
 
 
 /// Generate a name with a given prefix and a randomised suffix.
-inline std::string make_name(std::string_view prefix)
+inline std::string
+make_name(pqxx::test::randomizer &rnd, std::string_view prefix)
 {
   // In principle we should seed the random generator, but the scheduling of
   // threads will jumble up the numbers anyway.
-  return std::format("{}_{}", prefix, make_num());
+  return std::format("{}_{}", prefix, make_num(rnd));
 }
 
 
@@ -453,10 +456,15 @@ inline void check_bounds(
     desc + " (acceptable range is empty; value was " + text + ")", loc);
   pqxx::test::check(
     not(value < lower), lower_check.c_str(),
-    desc + " (" + text + " is below lower bound " + lower_text + ")", loc);
+    std::format(
+      "{} ({} is below lower bound {}: {} < {})", desc, text, lower_text,
+      value, lower),
+    loc);
   pqxx::test::check(
     value < upper, upper_check.c_str(),
-    desc + " (" + text + " is not below upper bound " + upper_text + ")", loc);
+    std::format(
+      "{} ({} is not below upper bound {}: {} > {})", desc, text, upper_text,
+      value, upper), loc);
 }
 
 

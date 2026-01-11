@@ -223,12 +223,13 @@ std::string describe_failure(std::string_view desc, std::string_view test)
 
 
 /// Run one test.  Return optional failure message.
-std::optional<std::string>
-run_test(std::string_view name, pqxx::test::testfunc func)
+std::optional<std::string> run_test(
+  std::string_view name, pqxx::test::testfunc func,
+  pqxx::test::randomizer &rnd)
 {
   try
   {
-    func();
+    func(rnd);
   }
   catch (pqxx::test::test_failure const &e)
   {
@@ -346,13 +347,28 @@ private:
 void execute(
   dispatcher &disp,
   std::map<std::string_view, pqxx::test::testfunc> const &all_tests,
-  std::mutex &fail_lock, std::vector<std::string> &failures)
+  std::mutex &fail_lock, std::vector<std::string> &failures,
+  unsigned random_seed)
 {
+  // Thread-local random engine.
+  // We seed it here even though we'll seed it again before we start using it,
+  // just to shut up clang-tidy's cert-msc32-c rule.
+  pqxx::test::randomizer rnd{random_seed};
+
+  // Execute tests while there are any left to do.
   for (std::string_view test{disp.next()}; not std::empty(test);
        test = disp.next())
   {
+    // It's difficult to produce a consistent chain of random values
+    // throughout the test suite when the worker threads run the tests in
+    // indeterminate orders and distributed indeterminately across threads.
+    //
+    // So, we re-seed the random engine for every test.
+    // TODO: Hash the test function into the seed.
+    rnd.seed(random_seed);
+
     auto const func{all_tests.at(test)};
-    auto const msg{run_test(test, func)};
+    auto const msg{run_test(test, func, rnd)};
     if (msg.has_value())
     {
       std::lock_guard<std::mutex> const l{fail_lock};
@@ -466,16 +482,13 @@ options parse_command_line(int argc, char const *argv[])
 }
 
 
-/// Seed the randomizer with `seed`, or something variable if `seed` is zero.
-/** @return The actual seed value used.
- */
-unsigned seed_random(unsigned seed)
+/// Choose a random seed: either the given one, or if zero, a random one.
+unsigned get_random_seed(unsigned seed_opt)
 {
-  if (seed == 0u)
-    seed = std::random_device{}();
-  // XXX: Should really do this within each child thread, for consistency.
-  srand(seed);
-  return seed;
+  if (seed_opt == 0u)
+    return std::random_device{}();
+  else
+    return seed_opt;
 }
 } // namespace
 
@@ -485,7 +498,7 @@ int main(int argc, char const *argv[])
   try
   {
     auto opts{parse_command_line(argc, argv)};
-    auto const seed{seed_random(opts.seed)};
+    auto const seed{get_random_seed(opts.seed)};
     std::cout << "Random seed: " << seed << '\n';
 
     auto const all_tests{pqxx::test::suite::gather()};
@@ -515,7 +528,7 @@ int main(int argc, char const *argv[])
     for (std::ptrdiff_t j{0}; j < opts.jobs; ++j)
       pool.emplace_back(
         execute, std::ref(disp), std::cref(all_tests), std::ref(fail_lock),
-        std::ref(failures));
+        std::ref(failures), seed);
 
     disp.start();
 

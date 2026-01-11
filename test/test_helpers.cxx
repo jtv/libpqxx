@@ -6,7 +6,7 @@ void empty() {}
 
 
 // Test PQXX_CHECK.
-void test_check()
+void test_check(pqxx::test::randomizer &)
 {
   PQXX_CHECK(true, "PQXX_CHECK is broken.");
 
@@ -24,7 +24,7 @@ void test_check()
 
 
 // Test PQXX_CHECK_THROWS_EXCEPTION.
-void test_check_throws_exception()
+void test_check_throws_exception(pqxx::test::randomizer &)
 {
   // PQXX_CHECK_THROWS_EXCEPTION expects std::exception...
   PQXX_CHECK_THROWS_EXCEPTION(
@@ -82,7 +82,7 @@ void test_check_throws_exception()
 
 
 // Test PQXX_CHECK_THROWS.
-void test_check_throws()
+void test_check_throws(pqxx::test::randomizer &)
 {
   PQXX_CHECK_THROWS(
     throw pqxx::test::test_failure{"(expected)"}, pqxx::test::test_failure,
@@ -140,12 +140,8 @@ void test_check_throws()
 }
 
 
-void test_helpers()
+void test_helpers(pqxx::test::randomizer &)
 {
-  test_check();
-  test_check_throws_exception();
-  test_check_throws();
-
   // Test other helpers against PQXX_CHECK_THROWS.
   PQXX_CHECK_THROWS(
     pqxx::test::check_notreached("(expected)"), pqxx::test::test_failure,
@@ -201,4 +197,7 @@ void test_helpers()
 
 
 PQXX_REGISTER_TEST(test_helpers);
+PQXX_REGISTER_TEST(test_check);
+PQXX_REGISTER_TEST(test_check_throws_exception);
+PQXX_REGISTER_TEST(test_check_throws);
 } // namespace

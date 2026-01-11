@@ -2,7 +2,7 @@
 
 namespace
 {
-void test_type_name()
+void test_type_name(pqxx::test::randomizer &)
 {
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
   // It's hard to test in more detail, because spellings may differ.
@@ -17,7 +17,7 @@ void test_type_name()
 }
 
 
-void test_name_type()
+void test_name_type(pqxx::test::randomizer &)
 {
   // We have a few hand-defined type names.
   PQXX_CHECK_EQUAL(pqxx::name_type<std::string>(), "std::string");

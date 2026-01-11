@@ -11,7 +11,7 @@ extern "C"
 
 namespace
 {
-void test_error_verbosity()
+void test_error_verbosity(pqxx::test::randomizer &)
 {
   // The error_verbosity enum matches the PGVerbosity one.  We just don't
   // want to import the latter into our users' namespace.

@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_forward_sql_cursor()
+void test_forward_sql_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -106,7 +106,7 @@ void test_forward_sql_cursor()
 }
 
 
-void test_scroll_sql_cursor()
+void test_scroll_sql_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -168,7 +168,7 @@ void test_scroll_sql_cursor()
 }
 
 
-void test_adopted_sql_cursor()
+void test_adopted_sql_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -234,7 +234,7 @@ void test_adopted_sql_cursor()
   tx3.exec("MOVE 1 IN adopted3");
 }
 
-void test_hold_cursor()
+void test_hold_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -263,14 +263,8 @@ void test_hold_cursor()
 }
 
 
-void cursor_tests()
-{
-  test_forward_sql_cursor();
-  test_scroll_sql_cursor();
-  test_adopted_sql_cursor();
-  test_hold_cursor();
-}
-
-
-PQXX_REGISTER_TEST(cursor_tests);
+PQXX_REGISTER_TEST(test_forward_sql_cursor);
+PQXX_REGISTER_TEST(test_scroll_sql_cursor);
+PQXX_REGISTER_TEST(test_adopted_sql_cursor);
+PQXX_REGISTER_TEST(test_hold_cursor);
 } // namespace

@@ -65,7 +65,7 @@ void test_query_value(pqxx::connection &cx)
 }
 
 
-void test_transaction_base()
+void test_transaction_base(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   {
@@ -78,7 +78,7 @@ void test_transaction_base()
 }
 
 
-void test_transaction_query()
+void test_transaction_query(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -102,7 +102,7 @@ void test_transaction_query()
 }
 
 
-void test_transaction_query_params()
+void test_transaction_query_params(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -159,7 +159,7 @@ void test_transaction_query_params()
 }
 
 
-void test_transaction_for_query()
+void test_transaction_for_query(pqxx::test::randomizer &)
 {
   constexpr auto query{
     "SELECT i, concat('x', (2*i)::text) "
@@ -192,7 +192,7 @@ void test_transaction_for_query()
 }
 
 
-void test_transaction_for_stream()
+void test_transaction_for_stream(pqxx::test::randomizer &)
 {
   constexpr auto query{
     "SELECT i, concat('x', (2*i)::text) "
@@ -211,7 +211,7 @@ void test_transaction_for_stream()
 }
 
 
-void test_transaction_query01()
+void test_transaction_query01(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -236,7 +236,7 @@ void test_transaction_query01()
 }
 
 
-void test_transaction_query1()
+void test_transaction_query1(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -256,7 +256,7 @@ void test_transaction_query1()
 }
 
 
-void test_transaction_query_n()
+void test_transaction_query_n(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

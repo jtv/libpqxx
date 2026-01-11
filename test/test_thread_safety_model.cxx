@@ -4,7 +4,7 @@
 
 namespace
 {
-void test_thread_safety_model()
+void test_thread_safety_model(pqxx::test::randomizer &)
 {
   auto const model{pqxx::describe_thread_safety()};
 

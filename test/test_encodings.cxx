@@ -128,7 +128,7 @@ template<pqxx::encoding_group ENC> void test_search(std::string_view enc_name)
 }
 
 
-void test_find_chars()
+void test_find_chars(pqxx::test::randomizer &)
 {
   test_search<pqxx::encoding_group::two_tier>("big5");
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
@@ -147,7 +147,7 @@ template<pqxx::encoding_group ENC> void check_unfinished_character()
 }
 
 
-void test_find_chars_fails_for_unfinished_character()
+void test_find_chars_fails_for_unfinished_character(pqxx::test::randomizer &)
 {
   check_unfinished_character<pqxx::encoding_group::two_tier>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();
@@ -164,14 +164,14 @@ auto find_x(std::array<char, N> const &data, pqxx::encoding_group enc)
 }
 
 
-void test_find_chars_reports_malencoded_text()
+void test_find_chars_reports_malencoded_text(pqxx::test::randomizer &rnd)
 {
   // Set up an array containing random char values, but not '|'.
   std::array<char, 500> data{};
   for (std::size_t i{0}; i < std::size(data); ++i)
   {
-    data.at(i) = pqxx::test::random_char();
-    while (data.at(i) == '|') data.at(i) = pqxx::test::random_char();
+    data.at(i) = pqxx::test::random_char(rnd);
+    while (data.at(i) == '|') data.at(i) = pqxx::test::random_char(rnd);
   }
 
   // Bet that the random data isn't going to be fully valid text in these

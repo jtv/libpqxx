@@ -6,7 +6,7 @@
 // Test program for libpqxx.  Query a table and report its metadata.
 namespace
 {
-void test_011()
+void test_011(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
