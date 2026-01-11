@@ -123,7 +123,8 @@ template<std::floating_point T> T make_float_num(pqxx::test::randomizer &rnd)
 
 
 /// Generate a name with a given prefix and a randomised suffix.
-inline std::string make_name(pqxx::test::randomizer &rnd, std::string_view prefix)
+inline std::string
+make_name(pqxx::test::randomizer &rnd, std::string_view prefix)
 {
   // In principle we should seed the random generator, but the scheduling of
   // threads will jumble up the numbers anyway.
@@ -455,10 +456,15 @@ inline void check_bounds(
     desc + " (acceptable range is empty; value was " + text + ")", loc);
   pqxx::test::check(
     not(value < lower), lower_check.c_str(),
-    std::format("{} ({} is below lower bound {}: {} < {})", desc, text, lower_text, value, lower), loc);
+    std::format(
+      "{} ({} is below lower bound {}: {} < {})", desc, text, lower_text,
+      value, lower),
+    loc);
   pqxx::test::check(
     value < upper, upper_check.c_str(),
-    std::format("{} ({} is not below upper bound {}: {} > {})", desc, text, upper_text, value, upper));
+    std::format(
+      "{} ({} is not below upper bound {}: {} > {})", desc, text, upper_text,
+      value, upper));
 }
 
 

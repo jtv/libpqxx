@@ -115,7 +115,8 @@ template<typename TX> void test_failed_commit(pqxx::test::randomizer &)
 }
 
 
-template<typename TX> void test_commit_on_broken_connection(pqxx::test::randomizer &)
+template<typename TX>
+void test_commit_on_broken_connection(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   TX tx{cx};

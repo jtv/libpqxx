@@ -34,7 +34,8 @@ void test_transactor_newstyle_completes_upon_success(pqxx::test::randomizer &)
 }
 
 
-void test_transactor_newstyle_retries_broken_connection(pqxx::test::randomizer &)
+void test_transactor_newstyle_retries_broken_connection(
+  pqxx::test::randomizer &)
 {
   int counter{0};
   auto const &callback{[&counter] {
@@ -66,7 +67,8 @@ void test_transactor_newstyle_retries_rollback(pqxx::test::randomizer &)
 }
 
 
-void test_transactor_newstyle_does_not_retry_in_doubt_error(pqxx::test::randomizer &)
+void test_transactor_newstyle_does_not_retry_in_doubt_error(
+  pqxx::test::randomizer &)
 {
   int counter{0};
   auto const &callback{[&counter] {
@@ -79,7 +81,8 @@ void test_transactor_newstyle_does_not_retry_in_doubt_error(pqxx::test::randomiz
 }
 
 
-void test_transactor_newstyle_does_not_retry_other_error(pqxx::test::randomizer &)
+void test_transactor_newstyle_does_not_retry_other_error(
+  pqxx::test::randomizer &)
 {
   int counter{0};
   auto const &callback{[&counter] {
@@ -92,7 +95,8 @@ void test_transactor_newstyle_does_not_retry_other_error(pqxx::test::randomizer 
 }
 
 
-void test_transactor_newstyle_repeats_up_to_given_number_of_attempts(pqxx::test::randomizer &)
+void test_transactor_newstyle_repeats_up_to_given_number_of_attempts(
+  pqxx::test::randomizer &)
 {
   int const attempts{5};
   int counter{0};

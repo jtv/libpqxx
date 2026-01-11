@@ -376,7 +376,8 @@ void test_for_query_prepped(pqxx::test::randomizer &)
 }
 
 
-void test_prepped_query_does_not_need_terminating_zero(pqxx::test::randomizer &)
+void test_prepped_query_does_not_need_terminating_zero(
+  pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};

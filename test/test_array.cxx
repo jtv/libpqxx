@@ -540,7 +540,8 @@ void test_array_rejects_malformed_simple_int_arrays(pqxx::test::randomizer &)
 }
 
 
-void test_array_rejects_malformed_simple_string_arrays(pqxx::test::randomizer &)
+void test_array_rejects_malformed_simple_string_arrays(
+  pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   std::string_view const bad_arrays[]{
@@ -555,7 +556,8 @@ void test_array_rejects_malformed_simple_string_arrays(pqxx::test::randomizer &)
 }
 
 
-void test_array_rejects_malformed_twodimensional_arrays(pqxx::test::randomizer &)
+void test_array_rejects_malformed_twodimensional_arrays(
+  pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   std::string_view const bad_arrays[]{

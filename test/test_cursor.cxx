@@ -49,7 +49,8 @@ void test_cursor(pqxx::test::randomizer &)
 void test_cursor_constants(pqxx::test::randomizer &rnd)
 {
   PQXX_CHECK_GREATER(pqxx::cursor_base::all(), pqxx::test::make_num(rnd));
-  PQXX_CHECK_LESS(pqxx::cursor_base::backward_all(), -pqxx::test::make_num(rnd));
+  PQXX_CHECK_LESS(
+    pqxx::cursor_base::backward_all(), -pqxx::test::make_num(rnd));
 }
 
 

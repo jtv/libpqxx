@@ -223,8 +223,9 @@ std::string describe_failure(std::string_view desc, std::string_view test)
 
 
 /// Run one test.  Return optional failure message.
-std::optional<std::string>
-run_test(std::string_view name, pqxx::test::testfunc func, pqxx::test::randomizer &rnd)
+std::optional<std::string> run_test(
+  std::string_view name, pqxx::test::testfunc func,
+  pqxx::test::randomizer &rnd)
 {
   try
   {
@@ -482,8 +483,10 @@ options parse_command_line(int argc, char const *argv[])
 /// Choose a random seed: either the given one, or if zero, a random one.
 unsigned get_random_seed(unsigned seed_opt)
 {
-  if (seed_opt == 0u) return std::random_device{}();
-  else return seed_opt;
+  if (seed_opt == 0u)
+    return std::random_device{}();
+  else
+    return seed_opt;
 }
 } // namespace
 

@@ -20,7 +20,8 @@ void test_notice_handler_receives_notice(pqxx::test::randomizer &)
 }
 
 
-void test_notice_handler_works_after_connection_closes(pqxx::test::randomizer &)
+void test_notice_handler_works_after_connection_closes(
+  pqxx::test::randomizer &)
 {
   pqxx::result r;
   int notices{0};
@@ -153,7 +154,8 @@ void test_notice_handler_accepts_functor(pqxx::test::randomizer &)
 }
 
 
-void test_notice_handler_works_after_moving_connection(pqxx::test::randomizer &)
+void test_notice_handler_works_after_moving_connection(
+  pqxx::test::randomizer &)
 {
   bool got_message{false};
   pqxx::connection cx;

@@ -511,7 +511,8 @@ private:
 } // namespace
 
 
-void test_blob_from_file_creates_blob_from_file_contents(pqxx::test::randomizer &rnd)
+void test_blob_from_file_creates_blob_from_file_contents(
+  pqxx::test::randomizer &rnd)
 {
   std::string const temp_file = pqxx::test::make_name(rnd, "blob-test");
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};

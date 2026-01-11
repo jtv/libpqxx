@@ -10,8 +10,10 @@ void test_make_num(pqxx::test::randomizer &rnd)
   bool same{true};
   int last{pqxx::test::make_num(rnd)};
   for (int i{0}; same and (i < 10); ++i)
-    if (pqxx::test::make_num(rnd) != last) same = false;
-  PQXX_CHECK(not same, std::format("Random numbers all came out as {}.", last));
+    if (pqxx::test::make_num(rnd) != last)
+      same = false;
+  PQXX_CHECK(
+    not same, std::format("Random numbers all came out as {}.", last));
 
   for (int i{0}; i < 100; ++i)
     PQXX_CHECK_BOUNDS(pqxx::test::make_num(rnd, 10), 0, 10);
@@ -289,8 +291,11 @@ std::string make_type(pqxx::test::randomizer &rnd)
   case 4: return "unsigned int";
   case 5: return "double";
   case 6: return std::format("std::vector<{}> &", make_type(rnd));
-  case 7: { auto const tp1{make_type(rnd)};
-   auto const tp2{make_type(rnd)}; return std::format("std::map<{}, {}> &", tp1, tp2); }
+  case 7: {
+    auto const tp1{make_type(rnd)};
+    auto const tp2{make_type(rnd)};
+    return std::format("std::map<{}, {}> &", tp1, tp2);
+  }
   case 8: return "bool";
   case 9: return "char";
   }
@@ -305,7 +310,11 @@ std::string make_params(pqxx::test::randomizer &rnd)
   {
   case 0: return "";
   case 1: return make_type(rnd);
-  case 2: { auto const tp1{make_type(rnd)}; auto const tp2{make_type(rnd)}; return std::format("{}, {}", tp1, tp2); }
+  case 2: {
+    auto const tp1{make_type(rnd)};
+    auto const tp2{make_type(rnd)};
+    return std::format("{}, {}", tp1, tp2);
+  }
   }
   assert(false);
 }
@@ -421,7 +430,8 @@ void test_source_loc_handles_line_only(pqxx::test::randomizer &rnd)
 {
   fake_sl const loc{
     .fil = make_filename(rnd),
-  .lin = make_pos_num(rnd),};
+    .lin = make_pos_num(rnd),
+  };
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}:{}:", loc.fil, loc.lin));
 }
@@ -429,9 +439,7 @@ void test_source_loc_handles_line_only(pqxx::test::randomizer &rnd)
 
 void test_source_loc_handles_column_only(pqxx::test::randomizer &rnd)
 {
-  fake_sl const loc{
-    .fil = make_filename(rnd),
-  .col = make_pos_num(rnd)};
+  fake_sl const loc{.fil = make_filename(rnd), .col = make_pos_num(rnd)};
   // We don't bother printing a column number without a line number.
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
@@ -440,16 +448,15 @@ void test_source_loc_handles_column_only(pqxx::test::randomizer &rnd)
 void test_source_loc_handles_func_only(pqxx::test::randomizer &rnd)
 {
   std::string const func{make_function(rnd)};
-  fake_sl const loc{
-    .fil = make_filename(rnd),
-  .fun = func.c_str()};
+  fake_sl const loc{.fil = make_filename(rnd), .fun = func.c_str()};
 
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}: ({})", loc.fil, loc.fun));
 }
 
 
-void test_source_loc_handles_minimal_source_location(pqxx::test::randomizer &rnd)
+void test_source_loc_handles_minimal_source_location(
+  pqxx::test::randomizer &rnd)
 {
   fake_sl const loc{.fil = make_filename(rnd)};
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
