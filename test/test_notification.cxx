@@ -15,7 +15,8 @@
 namespace
 {
 /// Make up an arbitrary channel name.
-std::string make_channel(std::string const &prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
+std::string make_channel(
+  std::string const &prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
 {
   // For some weird reason two tests in this file, only on Windows, will get
   // exact same "random" channel name, and dependent probably on timing, one
@@ -158,7 +159,7 @@ void test_notification_has_payload()
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel("pqxx-payload")};
+  auto const channel{make_channel()};
   auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
@@ -228,12 +229,12 @@ void test_listen_supports_different_types_of_callable()
 
 void test_abort_cancels_notification()
 {
-  auto const chan{make_channel("pqxx-abort")};
+  auto const chan{make_channel()};
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
       "Got unexpected notification on channel '{}' (payload '{}').  "
-      "Was waiting for '{}'.",
+      "(Was waiting for '{}'.)",
       n.channel.c_str(), n.payload.c_str(), chan)};
   });
 
@@ -319,8 +320,12 @@ void test_subtransaction_abort_cancels_notification()
 {
   auto const chan{make_channel()};
   pqxx::connection cx;
-  bool got{false};
-  cx.listen(chan, [&got](pqxx::notification) { got = true; });
+  cx.listen(chan, [&chan](pqxx::notification const &n) {
+    throw pqxx::test::test_failure{std::format(
+      "Got unexpected notification on channel '{}' (payload '{}').  (Was "
+      "waiting for '{}'.)",
+      n.channel.c_str(), n.payload.c_str(), chan)};
+  });
 
   pqxx::work tx{cx};
   pqxx::subtransaction sx{tx};
@@ -328,8 +333,8 @@ void test_subtransaction_abort_cancels_notification()
   sx.abort();
   tx.commit();
 
+  // This will throw if we unexpectedly got the notification.
   cx.await_notification(3);
-  PQXX_CHECK(not got, "Subtransaction rollback did not cancel notification.");
 }
 
 
