@@ -351,7 +351,9 @@ void execute(
   unsigned random_seed)
 {
   // Thread-local random engine.
-  pqxx::test::randomizer rnd;
+  // We seed it here even though we'll seed it again before we start using it,
+  // just to shut up clang-tidy's cert-msc32-c rule.
+  pqxx::test::randomizer rnd{random_seed};
 
   // Execute tests while there are any left to do.
   for (std::string_view test{disp.next()}; not std::empty(test);

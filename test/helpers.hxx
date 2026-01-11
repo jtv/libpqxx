@@ -464,7 +464,7 @@ inline void check_bounds(
     value < upper, upper_check.c_str(),
     std::format(
       "{} ({} is not below upper bound {}: {} > {})", desc, text, upper_text,
-      value, upper));
+      value, upper), loc);
 }
 
 
