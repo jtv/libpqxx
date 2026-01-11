@@ -15,14 +15,13 @@
 namespace
 {
 /// Make up an arbitrary channel name.
-std::string make_channel(
-  std::string const &prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
+std::string make_channel(pqxx::test::randomizer &rnd, std::string_view prefix = "pqxx-chan", pqxx::sl loc = pqxx::sl::current())
 {
   // For some weird reason two tests in this file, only on Windows, will get
   // exact same "random" channel name, and dependent probably on timing, one
   // will break because it wasn't expecting a notification that the other did
   // unexpectedly send.  Disambiguate by including the line number.
-  return pqxx::test::make_name(std::format("{}_{}", prefix, loc.line()));
+  return pqxx::test::make_name(rnd, std::format("{}_{}", prefix, loc.line()));
 }
 
 
@@ -91,12 +90,12 @@ void test_receive_classic(
 }
 
 
-void test_notification_classic()
+void test_notification_classic(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
 
-  std::string const chan0{make_channel()}, chan1{make_channel()},
-    chan2{make_channel()};
+  std::string const chan0{make_channel(rnd)}, chan1{make_channel(rnd)},
+    chan2{make_channel(rnd)};
   TestReceiver const receiver(cx, chan0);
   PQXX_CHECK_EQUAL(receiver.channel(), chan0);
 
@@ -109,11 +108,11 @@ void test_notification_classic()
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
 
-void test_notification_to_self_arrives_after_commit()
+void test_notification_to_self_arrives_after_commit(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel()};
+  auto const channel{make_channel(rnd)};
   int notifications{0};
   pqxx::connection *conn{nullptr};
   std::string incoming, payload;
@@ -155,7 +154,7 @@ void test_notification_to_self_arrives_after_commit()
 }
 
 
-void test_notification_has_payload()
+void test_notification_has_payload(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
 
@@ -191,10 +190,10 @@ private:
 };
 
 
-void test_listen_supports_different_types_of_callable()
+void test_listen_supports_different_types_of_callable(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   int received{};
 
   // Using a functor as a handler.
@@ -227,7 +226,7 @@ void test_listen_supports_different_types_of_callable()
 }
 
 
-void test_abort_cancels_notification()
+void test_abort_cancels_notification(pqxx::test::randomizer &rnd)
 {
   auto const chan{make_channel()};
   pqxx::connection cx;
@@ -248,11 +247,11 @@ void test_abort_cancels_notification()
 }
 
 
-void test_notification_channels_are_case_sensitive()
+void test_notification_channels_are_case_sensitive(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
   std::string in;
-  auto const base{pqxx::test::make_name("pqxx-chan")};
+  auto const base{pqxx::test::make_name(rnd, "pqxx-chan")};
   cx.listen(base + "AbC", [&in](pqxx::notification n) { in = n.channel; });
 
   pqxx::work tx{cx};
@@ -267,9 +266,9 @@ void test_notification_channels_are_case_sensitive()
 }
 
 
-void test_notification_channels_may_contain_weird_chars()
+void test_notification_channels_may_contain_weird_chars(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel("pqxx-A_#&*!")};
+  auto const chan{make_channel(rnd, "pqxx-A_#&*!")};
   pqxx::connection cx;
   std::string got;
   cx.listen(chan, [&got](pqxx::notification n) { got = n.channel; });
@@ -282,9 +281,9 @@ void test_notification_channels_may_contain_weird_chars()
 
 
 /// In a nontransaction, a notification goes out even if you abort.
-void test_nontransaction_sends_notification()
+void test_nontransaction_sends_notification(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -298,9 +297,9 @@ void test_nontransaction_sends_notification()
 }
 
 
-void test_subtransaction_sends_notification()
+void test_subtransaction_sends_notification(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -316,9 +315,9 @@ void test_subtransaction_sends_notification()
 }
 
 
-void test_subtransaction_abort_cancels_notification()
+void test_subtransaction_abort_cancels_notification(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
@@ -338,21 +337,21 @@ void test_subtransaction_abort_cancels_notification()
 }
 
 
-void test_cannot_listen_during_transaction()
+void test_cannot_listen_during_transaction(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
   // Listening while a transaction is active is an error, even when it's just
   // a nontransaction.
   pqxx::nontransaction const tx{cx};
   PQXX_CHECK_THROWS(
-    cx.listen(make_channel(), [](pqxx::notification) {}), pqxx::usage_error);
+    cx.listen(make_channel(rnd), [](pqxx::notification) {}), pqxx::usage_error);
 }
 
 
-void test_notifications_cross_connections()
+void test_notifications_cross_connections(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx_listen, cx_notify;
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   int sender_pid{0};
   cx_listen.listen(
     chan, [&sender_pid](pqxx::notification n) { sender_pid = n.backend_pid; });
@@ -366,13 +365,13 @@ void test_notifications_cross_connections()
 }
 
 
-void test_notification_goes_to_right_handler()
+void test_notification_goes_to_right_handler(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
   std::string got;
   int count{0};
-  std::string const chanx{make_channel("pqxx-chanX")},
-    chany{make_channel("pqxx-chanY")}, chanz{make_channel("pqxx-chanZ")};
+  std::string const chanx{make_channel(rnd, "pqxx-chanX")},
+    chany{make_channel(rnd, "pqxx-chanY")}, chanz{make_channel(rnd, "pqxx-chanZ")};
 
   cx.listen(chanx, [&got, &count](pqxx::notification) {
     got = "chanX";
@@ -397,9 +396,9 @@ void test_notification_goes_to_right_handler()
 }
 
 
-void test_listen_on_same_channel_overwrites()
+void test_listen_on_same_channel_overwrites(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   std::string got;
   int count{0};
@@ -427,9 +426,9 @@ void test_listen_on_same_channel_overwrites()
 }
 
 
-void test_empty_notification_handler_disables()
+void test_empty_notification_handler_disables(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -441,9 +440,9 @@ void test_empty_notification_handler_disables()
 }
 
 
-void test_notifications_do_not_come_in_until_commit()
+void test_notifications_do_not_come_in_until_commit(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -460,9 +459,9 @@ void test_notifications_do_not_come_in_until_commit()
 }
 
 
-void test_notification_handlers_follow_connection_move()
+void test_notification_handlers_follow_connection_move(pqxx::test::randomizer &rnd)
 {
-  auto const chan{make_channel()};
+  auto const chan{make_channel(rnd)};
   pqxx::connection cx1;
   pqxx::connection *got{nullptr};
   cx1.listen(chan, [&got](pqxx::notification n) { got = &n.conn; });

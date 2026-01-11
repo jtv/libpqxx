@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_connection_string_constructor()
+void test_connection_string_constructor(pqxx::test::randomizer &)
 {
   pqxx::connection const c1{""};
   PQXX_CHECK(c1.is_open());
@@ -18,7 +18,7 @@ void test_connection_string_constructor()
 }
 
 
-void test_move_constructor()
+void test_move_constructor(pqxx::test::randomizer &)
 {
   pqxx::connection c1;
   PQXX_CHECK(c1.is_open());
@@ -37,7 +37,7 @@ void test_move_constructor()
 }
 
 
-void test_move_assign()
+void test_move_assign(pqxx::test::randomizer &)
 {
   pqxx::connection c1;
   pqxx::connection c2;
@@ -64,7 +64,7 @@ void test_move_assign()
 }
 
 
-void test_encrypt_password()
+void test_encrypt_password(pqxx::test::randomizer &)
 {
   pqxx::connection c;
   auto pw{c.encrypt_password("user", "password")};
@@ -75,7 +75,7 @@ void test_encrypt_password()
 }
 
 
-void test_connection_string()
+void test_connection_string(pqxx::test::randomizer &)
 {
   pqxx::connection const c;
   std::string const connstr{c.connection_string()};
@@ -151,7 +151,7 @@ template<typename MAP> void test_params_type()
 }
 
 
-void test_connection_params()
+void test_connection_params(pqxx::test::randomizer &)
 {
   // Connecting in this way supports a wide variety of formats for the
   // parameters.
@@ -167,7 +167,7 @@ void test_connection_params()
 }
 
 
-void test_raw_connection()
+void test_raw_connection(pqxx::test::randomizer &)
 {
   pqxx::connection conn1;
   PQXX_CHECK(conn1.is_open());
@@ -187,7 +187,7 @@ void test_raw_connection()
 }
 
 
-void test_closed_connection()
+void test_closed_connection(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   cx.close();
@@ -201,14 +201,14 @@ void test_closed_connection()
 }
 
 
-void test_skip_init_ssl()
+void test_skip_init_ssl(pqxx::test::randomizer &)
 {
   pqxx::skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
   pqxx::skip_init_ssl<pqxx::skip_init::nothing>();
 }
 
 
-void test_connection_client_encoding()
+void test_connection_client_encoding(pqxx::test::randomizer &rnd)
 {
   pqxx::connection cx;
   std::map<char const *, pqxx::encoding_group> const unsafe_encodings = {
@@ -297,7 +297,7 @@ void test_connection_client_encoding()
 
   for (int i{0}; i < 10; ++i)
   {
-    std::string fake_encoding{pqxx::test::random_char()};
+    std::string fake_encoding{pqxx::test::random_char(rnd)};
     PQXX_CHECK_THROWS(cx.set_client_encoding(fake_encoding), pqxx::failure);
   }
 
@@ -310,7 +310,7 @@ void test_connection_client_encoding()
 }
 
 
-void test_quote_columns_quotes_and_escapes()
+void test_quote_columns_quotes_and_escapes(pqxx::test::randomizer &)
 {
   pqxx::connection const cx;
 

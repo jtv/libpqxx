@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_simultaneous_transactions()
+void test_simultaneous_transactions(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
 

@@ -10,7 +10,7 @@
 // types of streams.
 namespace
 {
-void test_046()
+void test_046(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

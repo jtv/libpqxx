@@ -77,7 +77,7 @@ void Test(pqxx::connection &C, bool ExplicitAbort)
 }
 
 
-void test_abort()
+void test_abort(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};

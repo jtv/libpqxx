@@ -6,7 +6,7 @@
 // Test program for libpqxx.  Read and print table using row iterators.
 namespace
 {
-void test_082()
+void test_082(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};

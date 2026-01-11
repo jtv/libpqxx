@@ -38,7 +38,7 @@ void test_stateless_cursor_ignores_trailing_semicolon(pqxx::connection &cx)
 }
 
 
-void test_cursor()
+void test_cursor(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   test_stateless_cursor_provides_random_access(cx);
@@ -46,14 +46,14 @@ void test_cursor()
 }
 
 
-void test_cursor_constants()
+void test_cursor_constants(pqxx::test::randomizer &rnd)
 {
-  PQXX_CHECK_GREATER(pqxx::cursor_base::all(), pqxx::test::make_num());
-  PQXX_CHECK_LESS(pqxx::cursor_base::backward_all(), -pqxx::test::make_num());
+  PQXX_CHECK_GREATER(pqxx::cursor_base::all(), pqxx::test::make_num(rnd));
+  PQXX_CHECK_LESS(pqxx::cursor_base::backward_all(), -pqxx::test::make_num(rnd));
 }
 
 
-void test_icursorstream_tracks_creation_location()
+void test_icursorstream_tracks_creation_location(pqxx::test::randomizer &)
 {
   std::source_location const loc{pqxx::sl::current()};
   pqxx::connection cx;

@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_090()
+void test_090(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
 

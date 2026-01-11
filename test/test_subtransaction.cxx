@@ -65,7 +65,7 @@ void test_subtransaction_aborts_implicitly(pqxx::connection &cx)
 }
 
 
-void test_subtransaction()
+void test_subtransaction(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   test_subtransaction_commits_if_commit_called(cx);

@@ -13,7 +13,7 @@ pqxx::conversion_context make_context(
 }
 
 
-void test_composite()
+void test_composite(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -29,7 +29,7 @@ void test_composite()
 }
 
 
-void test_composite_escapes()
+void test_composite_escapes(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -48,7 +48,7 @@ void test_composite_escapes()
 }
 
 
-void test_composite_handles_nulls()
+void test_composite_handles_nulls(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -73,7 +73,7 @@ void test_composite_handles_nulls()
 }
 
 
-void test_composite_renders_to_string()
+void test_composite_renders_to_string(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -101,7 +101,7 @@ void test_composite_renders_to_string()
 }
 
 
-void test_composite_can_contain_arrays()
+void test_composite_can_contain_arrays(pqxx::test::randomizer &)
 {
   std::array<char, 100> buf{};
   std::vector<std::string> const strings{"a", "b"};

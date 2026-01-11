@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_separated_list()
+void test_separated_list(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::separated_list(",", std::vector<int>{}), "");
   PQXX_CHECK_EQUAL(pqxx::separated_list(",", std::vector<int>{5}), "5");

@@ -20,7 +20,7 @@ template<typename PAIR> void checkresult(pqxx::pipeline &P, PAIR c)
 }
 
 
-void test_071()
+void test_071(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

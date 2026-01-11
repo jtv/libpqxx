@@ -40,7 +40,7 @@ strconv(std::string const &type, T const &obj, std::string const &expected)
 constexpr double not_a_number{std::numeric_limits<double>::quiet_NaN()};
 
 
-void test_000()
+void test_000(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::oid_none, 0u,

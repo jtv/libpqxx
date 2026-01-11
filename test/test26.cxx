@@ -63,7 +63,7 @@ std::map<int, int> update_years(pqxx::connection &cx)
 }
 
 
-void test_026()
+void test_026(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   {

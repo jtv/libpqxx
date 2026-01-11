@@ -7,7 +7,7 @@
 // types of connections.
 namespace
 {
-void test_089()
+void test_089(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
 

@@ -86,7 +86,7 @@ void check(pqxx::connection &cx, bool explicit_abort)
 }
 
 
-void test_029()
+void test_029(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   {

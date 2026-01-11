@@ -16,7 +16,7 @@
 
 namespace
 {
-void test_007()
+void test_007(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   cx.set_client_encoding("SQL_ASCII");

@@ -22,7 +22,7 @@ template<typename T> void infinity_test()
   PQXX_CHECK_LESS(back_conversion, -big_num);
 }
 
-void test_infinities()
+void test_infinities(pqxx::test::randomizer &)
 {
   infinity_test<float>();
   infinity_test<double>();
@@ -82,7 +82,7 @@ template<typename T> void bug_262()
 
 
 /// Test for bug #262.
-void test_bug_262()
+void test_bug_262(pqxx::test::randomizer &)
 {
   bug_262<float>();
   bug_262<double>();
@@ -93,7 +93,7 @@ void test_bug_262()
 
 
 /// Test conversion of malformed floating-point values.
-void test_bad_float()
+void test_bad_float(pqxx::test::randomizer &)
 {
   float x [[maybe_unused]]{};
   PQXX_CHECK_THROWS(x = pqxx::from_string<float>(""), pqxx::conversion_error);
@@ -118,7 +118,7 @@ template<typename T> void test_float_length(T value)
 
 
 /// Test conversion of long float values to strings.
-void test_long_float()
+void test_long_float(pqxx::test::randomizer &)
 {
   test_float_length(0.1f);
   test_float_length(0.1);

@@ -6,7 +6,7 @@
 // Example program for libpqxx.  Test binary string functionality.
 namespace
 {
-void test_062()
+void test_062(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

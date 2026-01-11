@@ -7,10 +7,10 @@
 
 namespace
 {
-void test_pipeline_is_consistent()
+void test_pipeline_is_consistent(pqxx::test::randomizer &rnd)
 {
-  auto const num_queries = pqxx::test::make_num(10) + 1;
-  auto const value = pqxx::test::make_num();
+  auto const num_queries = pqxx::test::make_num(rnd, 10) + 1;
+  auto const value = pqxx::test::make_num(rnd);
 
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -32,7 +32,7 @@ void test_pipeline_is_consistent()
 }
 
 
-void test_pipeline()
+void test_pipeline(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

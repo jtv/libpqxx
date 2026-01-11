@@ -7,7 +7,7 @@
 // Test program for libpqxx.  Test error handling for pipeline.
 namespace
 {
-void test_072()
+void test_072(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

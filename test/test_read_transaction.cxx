@@ -4,7 +4,7 @@
 
 namespace
 {
-void test_read_transaction()
+void test_read_transaction(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::read_transaction tx{cx};

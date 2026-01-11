@@ -42,7 +42,7 @@ using namespace std::literals;
 using pqxx::operator""_zv;
 
 
-void test_strconv_bool()
+void test_strconv_bool(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
   PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
@@ -78,7 +78,7 @@ void test_strconv_bool()
 }
 
 
-void test_strconv_enum()
+void test_strconv_enum(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(red), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(green), "1");
@@ -90,7 +90,7 @@ void test_strconv_enum()
 }
 
 
-void test_strconv_class_enum()
+void test_strconv_class_enum(pqxx::test::randomizer &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(weather::hot), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(weather::wet), "2");
@@ -111,7 +111,7 @@ void test_strconv_class_enum()
 }
 
 
-void test_strconv_optional()
+void test_strconv_optional(pqxx::test::randomizer &)
 {
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::optional<int>{}), pqxx::conversion_error);
@@ -122,7 +122,7 @@ void test_strconv_optional()
 }
 
 
-void test_strconv_smart_pointer()
+void test_strconv_smart_pointer(pqxx::test::randomizer &)
 {
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error);
@@ -263,7 +263,7 @@ void check_write(
 }
 
 
-void test_to_buf_into_buf()
+void test_to_buf_into_buf(pqxx::test::randomizer &rnd)
 {
   check_write(false, "false");
   check_write(true, "true");
@@ -391,7 +391,7 @@ void test_to_buf_into_buf()
 
   check_write(""s, "");
   check_write("Blah"s, "Blah");
-  std::string const randstr{pqxx::test::make_name("x")};
+  std::string const randstr{pqxx::test::make_name(rnd, "x")};
   check_write(randstr, randstr);
 
   check_write(""sv, "");
@@ -444,7 +444,7 @@ void test_to_buf_into_buf()
 }
 
 
-void test_to_buf_multi()
+void test_to_buf_multi(pqxx::test::randomizer &)
 {
   std::vector<char> buf{};
   buf.resize(50);
@@ -487,11 +487,11 @@ template<std::floating_point T> void check_float(T value)
 }
 
 
-void test_to_buf_float()
+void test_to_buf_float(pqxx::test::randomizer &rnd)
 {
-  check_float(pqxx::test::make_float_num<float>());
-  check_float(pqxx::test::make_float_num<double>());
-  check_float(pqxx::test::make_float_num<long double>());
+  check_float(pqxx::test::make_float_num<float>(rnd));
+  check_float(pqxx::test::make_float_num<double>(rnd));
+  check_float(pqxx::test::make_float_num<long double>(rnd));
 }
 
 
@@ -502,9 +502,9 @@ template<typename T> void check_string(T const &value)
 }
 
 
-void test_string_to_string()
+void test_string_to_string(pqxx::test::randomizer &rnd)
 {
-  auto const str{pqxx::test::make_name("str")};
+  auto const str{pqxx::test::make_name(rnd, "str")};
 
   PQXX_CHECK_EQUAL(pqxx::to_string<std::string>(str), str);
   PQXX_CHECK_EQUAL(pqxx::from_string<std::string>(str), str);

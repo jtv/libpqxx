@@ -6,7 +6,7 @@
 // Test program for libpqxx.  Test result::swap()
 namespace
 {
-void test_077()
+void test_077(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   pqxx::nontransaction tx{cx};

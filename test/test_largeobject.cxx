@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_stream_large_object()
+void test_stream_large_object(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
 

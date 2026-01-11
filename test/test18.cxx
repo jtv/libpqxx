@@ -31,7 +31,7 @@ count_events_18(pqxx::connection &cx, std::string const &table)
 }
 
 
-void test_018()
+void test_018(pqxx::test::randomizer &)
 {
   pqxx::connection cx;
   {
