@@ -31,7 +31,7 @@ jobs:
 
       - run:
           name: Install
-          command: "time ./tools/install-deps.sh \
+          command: "./tools/install-deps.sh \
               << parameters.os >> << parameters.compiler >> >/tmp/vars.sh"
           max_auto_reruns: 3
       - store_artifacts:
