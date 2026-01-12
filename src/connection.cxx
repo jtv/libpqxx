@@ -537,7 +537,7 @@ PQXX_COLD void pqxx::connection::cancel_query(sl loc)
   auto const c{PQcancel(cancel.get(), err, buf_size)};
   if (c == 0) [[unlikely]]
     throw pqxx::sql_error{
-      std::string{err, std::size(errbuf)}, "[cancel]", nullptr, loc};
+      std::string{err, std::size(errbuf)}, "[cancel]", "", loc};
 }
 
 
