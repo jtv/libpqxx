@@ -350,13 +350,13 @@ void pqxx::connection::set_up_state(sl loc)
     else
       throw feature_not_supported{
         "Unsupported frontend/backend protocol version; 3.0 is the minimum.",
-        "[connect]", nullptr, loc};
+        "[connect]", "", loc};
   }
 
   constexpr int oldest_server{90000};
   if (server_version() <= oldest_server)
     throw feature_not_supported{
-      "Unsupported server version; 9.0 is the minimum.", "[connect]", nullptr,
+      "Unsupported server version; 9.0 is the minimum.", "[connect]", "",
       loc};
 }
 
