@@ -202,7 +202,7 @@ void pqxx::connection::complete_init(sl loc)
 
 void pqxx::connection::init(char const options[], sl loc)
 {
-  std::vector<char const *> empty_keys, empty_values;
+  const std::vector<char const *> empty_keys, empty_values;
   init(pqxx::zview{options}, empty_keys, empty_values, loc);
 }
 
@@ -211,7 +211,7 @@ void pqxx::connection::init(char const *params[], char const *values[], sl loc)
 {
   std::vector<char const *> override_keys, override_values;
 
-  for (char const **p = params, **v = values; *p != nullptr && *v != nullptr; ++p, ++v)
+  for (char const **p = params, **v = values; *p != nullptr && *v != nullptr; ++p, ++v) // NOLINT(misc-const-correctness)
   {
     override_keys.push_back(*p);
     override_values.push_back(*v);
@@ -221,10 +221,9 @@ void pqxx::connection::init(char const *params[], char const *values[], sl loc)
 }
 
 
-void pqxx::connection::init(zview connection_string, std::vector<const char*> override_keys, std::vector<const char*> override_values, sl loc)
+void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
 {
-  char *errmsg{nullptr};
-
+  char *errmsg{nullptr}; // NOLINT(misc-const-correctness)
   std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
     PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
   if (parsed == nullptr)
@@ -246,7 +245,7 @@ void pqxx::connection::init(zview connection_string, std::vector<const char*> ov
       ++parsed_count;
   }
 
-  std::size_t override_count = override_keys.size();
+  std::size_t const override_count = override_keys.size();
 
   // merge options
   std::vector<char const *> merged_keys, merged_values;

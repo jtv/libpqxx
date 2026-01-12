@@ -1283,7 +1283,7 @@ private:
   // Initialise based on parameter names and values.
   PQXX_ZARGS void init(char const *params[], char const *values[], sl);
   // Initialise based on connection string and override key/value pairs
-  void init(zview connection_string, std::vector<const char*> override_keys, std::vector<const char*> override_values, sl);
+  void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
 
   void set_up_notice_handlers();
   /// Do the work that is common to all `init()` overloads.
