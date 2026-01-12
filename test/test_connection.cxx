@@ -314,9 +314,9 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 {
   // replace parameter from connection string
   {
-    std::map<std::string, std::string> params{{"application_name", "override_test"}};
+    std::map<std::string, std::string> const params{{"application_name", "override_test"}};
 
-    pqxx::connection cx{"application_name=original", params};
+    pqxx::connection const cx{"application_name=original", params};
     PQXX_CHECK(cx.is_open(), "Connection with overrides failed to open.");
 
     auto const connstr{cx.connection_string()};
@@ -330,12 +330,12 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Add new parameters not present in connection string
   {
-    std::map<std::string, std::string> params{
+    std::map<std::string, std::string> const params{
       {"connect_timeout", "30"},
       {"keepalives_idle", "120"}
     };
 
-    pqxx::connection cx{"", params};
+    pqxx::connection const cx{"", params};
     PQXX_CHECK(cx.is_open(), "Connection with new parameters failed.");
 
     auto const connstr{cx.connection_string()};
@@ -353,12 +353,12 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Mix - some overrides, some additions, some unchanged
   {
-    std::vector<std::pair<std::string, std::string>> params{
+    std::vector<std::pair<std::string, std::string>> const params{
       {"application_name", "mixed_test"},
       {"connect_timeout", "45"}
     };
 
-    pqxx::connection cx{
+    pqxx::connection const cx{
       "host=localhost application_name=base keepalives_idle=60", params};
     PQXX_CHECK(cx.is_open(), "Mixed connection failed.");
 
@@ -385,9 +385,9 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Empty override map (equivalent to regular constructor)
   {
-    std::map<std::string, std::string> params{};
+    std::map<std::string, std::string> const params{};
 
-    pqxx::connection cx{"application_name=empty_override", params};
+    pqxx::connection const cx{"application_name=empty_override", params};
     PQXX_CHECK(cx.is_open(), "Connection with empty overrides failed.");
 
     auto const connstr{cx.connection_string()};
@@ -398,7 +398,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Invalid connection string should throw
   {
-    std::map<std::string, std::string> params{};
+    std::map<std::string, std::string> const params{};
 
     PQXX_CHECK_THROWS(
       (pqxx::connection{"invalid=syntax===bad", params}),
@@ -407,12 +407,12 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Multiple overrides of same parameter (last wins)
   {
-    std::vector<std::pair<std::string, std::string>> params{
+    std::vector<std::pair<std::string, std::string>> const params{
       {"application_name", "first"},
       {"application_name", "second"}
     };
 
-    pqxx::connection cx{"", params};
+    pqxx::connection const cx{"", params};
     auto const connstr{cx.connection_string()};
     PQXX_CHECK_NOT_EQUAL(
       connstr.find("second"), std::string::npos, "Last override should win.");
@@ -420,7 +420,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
   // Verify connection actually works
   {
-    std::map<std::string, std::string> params{{"application_name", "query_test"}};
+    std::map<std::string, std::string> const params{{"application_name", "query_test"}};
 
     pqxx::connection cx{"", params};
     PQXX_CHECK(cx.is_open(), "Connection failed.");
