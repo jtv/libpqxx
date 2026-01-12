@@ -202,17 +202,22 @@ void pqxx::connection::complete_init(sl loc)
 
 void pqxx::connection::init(char const options[], sl loc)
 {
-  m_conn = PQconnectdb(options);
-  set_up_notice_handlers();
-  complete_init(loc);
+  std::vector<char const *> empty_keys, empty_values;
+  init(pqxx::zview{options}, empty_keys, empty_values, loc);
 }
 
 
 void pqxx::connection::init(char const *params[], char const *values[], sl loc)
 {
-  m_conn = PQconnectdbParams(params, values, 0);
-  set_up_notice_handlers();
-  complete_init(loc);
+  std::vector<char const *> override_keys, override_values;
+
+  for (char const **p = params, **v = values; *p != nullptr && *v != nullptr; ++p, ++v)
+  {
+    override_keys.push_back(*p);
+    override_values.push_back(*v);
+  }
+
+  init(pqxx::zview{""}, override_keys, override_values, loc);
 }
 
 
@@ -283,8 +288,7 @@ void pqxx::connection::init(zview connection_string, std::vector<const char*> ov
   merged_keys.push_back(nullptr);
   merged_values.push_back(nullptr);
 
-  init(merged_keys.data(), merged_values.data(), loc);
-
+  m_conn = PQconnectdbParams(merged_keys.data(), merged_values.data(), 0);
   set_up_notice_handlers();
   complete_init(loc);
 }
