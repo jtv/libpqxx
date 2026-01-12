@@ -16,9 +16,30 @@
 
 #include "pqxx/internal/header-post.hxx"
 
-pqxx::failure::failure(std::string const &whatarg, sl loc) :
-        std::runtime_error{whatarg}, location{loc}
+namespace pqxx
+{
+failure::failure(sl loc) : m_block{std::make_shared<block>(std::move(loc))} {}
+
+failure::failure(std::string whatarg, sl loc) :
+        m_block{
+          std::make_shared<block>(std::move(whatarg), sl{std::move(loc)})}
 {}
+
+failure::failure(
+  std::string whatarg, std::string stat, std::string sqls, sl loc) :
+        m_block{std::make_shared<block>(
+          std::move(whatarg), std::move(stat), std::move(sqls),
+          std::move(loc))}
+{}
+
+failure::~failure() noexcept = default;
+
+char const *failure::what() const noexcept
+{
+  return m_block->message.c_str();
+}
+
+} // namespace pqxx
 
 
 pqxx::broken_connection::broken_connection(sl loc) :
@@ -45,26 +66,13 @@ pqxx::variable_set_to_null::variable_set_to_null(
 
 
 pqxx::sql_error::sql_error(
-  std::string const &whatarg, std::string Q, char const *sqlstate, sl loc) :
-        failure{whatarg, loc},
-        m_query{std::move(Q)},
-        m_sqlstate{sqlstate ? sqlstate : ""}
+  std::string const &whatarg, std::string const &stmt, std::string const &sqls,
+  sl loc) :
+        failure{whatarg, stmt, sqls, loc}
 {}
 
 
-pqxx::sql_error::~sql_error() noexcept = default;
-
-
-std::string const &pqxx::sql_error::query() const noexcept
-{
-  return m_query;
-}
-
-
-std::string const &pqxx::sql_error::sqlstate() const noexcept
-{
-  return m_sqlstate;
-}
+pqxx::sql_error::~sql_error() = default;
 
 
 pqxx::in_doubt_error::in_doubt_error(std::string const &whatarg, sl loc) :
@@ -73,29 +81,29 @@ pqxx::in_doubt_error::in_doubt_error(std::string const &whatarg, sl loc) :
 
 
 pqxx::transaction_rollback::transaction_rollback(
-  std::string const &whatarg, std::string const &q, char const sqlstate[],
-  sl loc) :
+  std::string const &whatarg, std::string const &q,
+  std::string const &sqlstate, sl loc) :
         sql_error{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::serialization_failure::serialization_failure(
-  std::string const &whatarg, std::string const &q, char const sqlstate[],
-  sl loc) :
+  std::string const &whatarg, std::string const &q,
+  std::string const &sqlstate, sl loc) :
         transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::statement_completion_unknown::statement_completion_unknown(
-  std::string const &whatarg, std::string const &q, char const sqlstate[],
-  sl loc) :
+  std::string const &whatarg, std::string const &q,
+  std::string const &sqlstate, sl loc) :
         transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
 
 pqxx::deadlock_detected::deadlock_detected(
-  std::string const &whatarg, std::string const &q, char const sqlstate[],
-  sl loc) :
+  std::string const &whatarg, std::string const &q,
+  std::string const &sqlstate, sl loc) :
         transaction_rollback{whatarg, q, sqlstate, loc}
 {}
 
