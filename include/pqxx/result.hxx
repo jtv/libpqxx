@@ -319,7 +319,7 @@ public:
   /// Number of rows affected by the SQL command whose result this is.
   /** Returns the number of rows affected _if_ the command was a `SELECT`,
    * `CREATE TABLE AS`, `INSERT`, `UPDATE`, `DELETE`, `MERGE`, `MOVE`, `FETCH`,
-   * or `COPY`; or an `EXEC` or a parameterised or prepared statement that
+   * or `COPY`; or an `EXECUTE` or a parameterised or prepared statement that
    * did an `INSERT`, `UPDATE`, `DELETE`, or `MERGE`.
    *
    * Otherwise, returns zero.
