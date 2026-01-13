@@ -47,6 +47,7 @@ namespace pqxx
 struct PQXX_LIBEXPORT failure : std::exception
 {
   failure(failure const &) = default;
+  failure(failure &&) = default;
   explicit failure(sl loc = sl::current());
   explicit failure(std::string whatarg, sl loc = sl::current());
   virtual ~failure() noexcept;
@@ -57,7 +58,7 @@ struct PQXX_LIBEXPORT failure : std::exception
   /// Error message.
   [[nodiscard]] PQXX_PURE virtual char const *what() const noexcept override;
 
-  /// Best known `std::source_location` for where the error ocurred.
+  /// Best known `std::source_location` for where the error occurred.
   /** Generally there's no one single source location, but the exception only
    * stores one.  This is generally either one that the caller passed to a
    * libpqxx call, or the place where the caller called libpqxx.

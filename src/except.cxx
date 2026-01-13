@@ -21,8 +21,7 @@ namespace pqxx
 failure::failure(sl loc) : m_block{std::make_shared<block>(std::move(loc))} {}
 
 failure::failure(std::string whatarg, sl loc) :
-        m_block{
-          std::make_shared<block>(std::move(whatarg), sl{std::move(loc)})}
+        m_block{std::make_shared<block>(std::move(whatarg), std::move(loc))}
 {}
 
 failure::failure(
