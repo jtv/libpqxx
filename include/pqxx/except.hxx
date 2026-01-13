@@ -103,16 +103,14 @@ protected:
     /// Source location.
     sl location;
 
-    block(sl &&loc) : location{std::move(loc)} {}
-    block(std::string &&msg, sl &&loc) :
-            message{std::move(msg)}, location{std::move(loc)}
+    block(sl loc) : location{loc} {}
+    block(std::string &&msg, sl loc) : message{std::move(msg)}, location{loc}
     {}
-    block(
-      std::string &&msg, std::string &&stat, std::string &&sqls, sl &&loc) :
+    block(std::string &&msg, std::string &&stat, std::string &&sqls, sl loc) :
             message{std::move(msg)},
             statement{std::move(stat)},
             sqlstate{std::move(sqls)},
-            location{std::move(loc)}
+            location{loc}
     {}
   };
 

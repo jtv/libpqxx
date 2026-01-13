@@ -18,17 +18,16 @@
 
 namespace pqxx
 {
-failure::failure(sl loc) : m_block{std::make_shared<block>(std::move(loc))} {}
+failure::failure(sl loc) : m_block{std::make_shared<block>(loc)} {}
 
 failure::failure(std::string whatarg, sl loc) :
-        m_block{std::make_shared<block>(std::move(whatarg), std::move(loc))}
+        m_block{std::make_shared<block>(std::move(whatarg), loc)}
 {}
 
 failure::failure(
   std::string whatarg, std::string stat, std::string sqls, sl loc) :
         m_block{std::make_shared<block>(
-          std::move(whatarg), std::move(stat), std::move(sqls),
-          std::move(loc))}
+          std::move(whatarg), std::move(stat), std::move(sqls), loc)}
 {}
 
 failure::~failure() noexcept = default;
