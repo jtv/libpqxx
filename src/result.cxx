@@ -374,6 +374,8 @@ pqxx::result::size_type pqxx::result::affected_rows() const
   // PQcmdTuples() can't take a "PGresult const *" because it returns a
   // non-const pointer into the PGresult's data, and that can't be changed
   // without breaking compatibility.
+  //
+  // But as far as libpqxx is concerned, it's totally const.
   std::string_view const rows_str{
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     PQcmdTuples(const_cast<internal::pq::PGresult *>(m_data.get()))};
