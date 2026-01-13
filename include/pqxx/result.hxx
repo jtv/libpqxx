@@ -316,9 +316,13 @@ public:
    */
   [[nodiscard]] PQXX_PURE oid inserted_oid(sl = sl::current()) const;
 
-  /// If command was `INSERT`, `UPDATE`, or `DELETE`: number of affected rows.
-  /** @return Number of affected rows if last command was `INSERT`, `UPDATE`,
-   * or `DELETE`; zero for all other commands.
+  /// Number of rows affected by the SQL command whose result this is.
+  /** Returns the number of rows affected _if_ the command was a `SELECT`,
+   * `CREATE TABLE AS`, `INSERT`, `UPDATE`, `DELETE`, `MERGE`, `MOVE`, `FETCH`,
+   * or `COPY`; or an `EXEC` or a parameterised or prepared statement that
+   * did an `INSERT`, `UPDATE`, `DELETE`, or `MERGE`.
+   *
+   * Otherwise, returns zero.
    */
   [[nodiscard]] PQXX_PURE size_type affected_rows() const;
 
