@@ -460,7 +460,7 @@ void read_file(char const path[], std::size_t len, pqxx::bytes &buf)
 {
   buf.resize(len);
   auto f{my_fopen(path, "rb")};
-  PQXX_CHECK(f, std::format("Did not open file '{}'!", path)); // XXX:
+  PQXX_CHECK(f.get() != nullptr, std::format("Did not open file '{}'!", path)); // XXX:
   auto bytes{
     std::fread(reinterpret_cast<char *>(buf.data()), 1, len, f.get())};
   if (bytes == 0)
