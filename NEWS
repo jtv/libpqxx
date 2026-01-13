@@ -5,7 +5,7 @@
  - `composite_into_buf()` now returns a `zview`.
  - Optionally pass `encoding_group` (or connection/transaction) into `params`.
  - Export `source_loc()`: render a `std::source_location` into text.
- - New, more IDE-friendly foramt for `source_location` in error messages.
+ - New, more IDE-friendly format for `source_location` in error messages.
  - Allow tests to run even on ASCII-only databases.
  - Document: `affected_rows()` now also works for `SELECT`. (#1139)
 8.0.0
