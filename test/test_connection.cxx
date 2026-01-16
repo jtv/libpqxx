@@ -366,7 +366,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
     auto const connstr{cx.connection_string()};
 
-    // Override should replace
+    // Overrides
     PQXX_CHECK(
       pqxx::str_contains(connstr, "mixed_test"),
       "application_name not overridden.");
@@ -374,12 +374,12 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
       not pqxx::str_contains(connstr, "base"),
       "Original application_name not replaced.");
 
-    // New parameter should be added
+    // New parameters
     PQXX_CHECK(
       pqxx::str_contains(connstr, "connect_timeout"),
       "New parameter not added.");
 
-    // Unchanged parameter should remain
+    // Unchanged parameters
     PQXX_CHECK(
       pqxx::str_contains(connstr, "keepalives_idle"),
       "Base parameter lost.");
@@ -398,7 +398,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
       "Base connection string not used.");
   }
 
-  // Invalid connection string should throw
+  // Invalid connection string throws
   {
     std::map<std::string, std::string> const params{};
 
