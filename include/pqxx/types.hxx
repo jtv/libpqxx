@@ -233,7 +233,7 @@ template<typename TYPE> inline constexpr std::string_view name_type() noexcept
 {
 #if defined(PQXX_HAVE_TYPE_DISPLAY)
 
-  return display_string_of(^^T);
+  return display_string_of(^^TYPE);
 
 #else
 
