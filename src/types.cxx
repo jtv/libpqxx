@@ -22,7 +22,8 @@
 #include "pqxx/internal/header-post.hxx"
 
 
-// C++26: Use reflection.
+// C++26: Drop this.
+#if !defined(PQXX_HAVE_TYPE_DISPLAY)
 PQXX_ZARGS std::string pqxx::internal::demangle_type_name(char const raw[])
 {
 #if defined(PQXX_HAVE_CXA_DEMANGLE)
@@ -45,3 +46,4 @@ PQXX_ZARGS std::string pqxx::internal::demangle_type_name(char const raw[])
 #endif
   return raw;
 }
+#endif
