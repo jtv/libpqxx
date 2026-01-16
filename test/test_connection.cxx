@@ -320,11 +320,11 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     PQXX_CHECK(cx.is_open(), "Connection with overrides failed to open.");
 
     auto const connstr{cx.connection_string()};
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("override_test"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "override_test"),
       "Override parameter not found in connection string.");
-    PQXX_CHECK_EQUAL(
-      connstr.find("original"), std::string::npos,
+    PQXX_CHECK(
+      not pqxx::str_contains(connstr, "original"),
       "Original parameter was not overridden.");
   }
 
@@ -339,16 +339,18 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     PQXX_CHECK(cx.is_open(), "Connection with new parameters failed.");
 
     auto const connstr{cx.connection_string()};
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("connect_timeout"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "connect_timeout"),
       "New parameter not found.");
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("30"), std::string::npos, "New parameter value not found.");
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("keepalives_idle"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "30"),
+      "New parameter value not found.");
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "keepalives_idle"),
       "New parameter not found.");
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("120"), std::string::npos, "New parameter value not found.");
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "120"),
+      "New parameter value not found.");
   }
 
   // Mix - some overrides, some additions, some unchanged
@@ -365,21 +367,21 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     auto const connstr{cx.connection_string()};
 
     // Override should replace
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("mixed_test"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "mixed_test"),
       "application_name not overridden.");
-    PQXX_CHECK_EQUAL(
-      connstr.find("base"), std::string::npos,
+    PQXX_CHECK(
+      not pqxx::str_contains(connstr, "base"),
       "Original application_name not replaced.");
 
     // New parameter should be added
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("connect_timeout"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "connect_timeout"),
       "New parameter not added.");
 
     // Unchanged parameter should remain
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("keepalives_idle"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "keepalives_idle"),
       "Base parameter lost.");
   }
 
@@ -391,8 +393,8 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     PQXX_CHECK(cx.is_open(), "Connection with empty overrides failed.");
 
     auto const connstr{cx.connection_string()};
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("empty_override"), std::string::npos,
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "empty_override"),
       "Base connection string not used.");
   }
 
@@ -414,8 +416,9 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 
     pqxx::connection const cx{"", params};
     auto const connstr{cx.connection_string()};
-    PQXX_CHECK_NOT_EQUAL(
-      connstr.find("second"), std::string::npos, "Last override should win.");
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "second"),
+      "Last override should win.");
   }
 
   // Verify connection actually works
