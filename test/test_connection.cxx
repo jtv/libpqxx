@@ -361,7 +361,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
     };
 
     pqxx::connection const cx{
-      "host=localhost application_name=base keepalives_idle=60", params};
+      "application_name=base keepalives_idle=60", params};
     PQXX_CHECK(cx.is_open(), "Mixed connection failed.");
 
     auto const connstr{cx.connection_string()};
