@@ -509,7 +509,19 @@ public:
   [[nodiscard]] PQXX_PURE field_ref operator[](zview col_name, sl loc) const
   {
     // TODO: There's a proposal to permit a default value for loc.
+    // Visual Studio 2022 says it has multi-dimensional indexing, but issues a
+    // bogus warning that this comma is a sequence operator and the first value
+    // is meaningless.  If that were true, well, row_ref has no operator[] that
+    // takes just a source_location anyway so the call would have failed.
+    // Clearly the warning is a lie.
+#  if defined(_MSC_VER)
+#    pragma warning(push, 4)
+#    pragma warning(disable : 4548)
+#  endif
     return as_row_ref()[col_name, loc];
+#  if defined(_MSC_VER)
+#    pragma warning(pop)
+#  endif
   }
 #endif
 
