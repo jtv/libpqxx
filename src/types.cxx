@@ -26,7 +26,7 @@
 #if !defined(PQXX_HAVE_TYPE_DISPLAY)
 PQXX_ZARGS std::string pqxx::internal::demangle_type_name(char const raw[])
 {
-#if defined(PQXX_HAVE_CXA_DEMANGLE)
+#  if defined(PQXX_HAVE_CXA_DEMANGLE)
   // We've got __cxa_demangle.  Use it to get a friendlier type name.
   int status{0};
 
@@ -43,7 +43,7 @@ PQXX_ZARGS std::string pqxx::internal::demangle_type_name(char const raw[])
 
   if (str)
     return std::string{str.get()};
-#endif
+#  endif
   return raw;
 }
 #endif

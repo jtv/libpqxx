@@ -1,7 +1,6 @@
 #include <meta>
 
-template<typename T>
-constexpr std::string_view name_type()
+template<typename T> constexpr std::string_view name_type()
 {
   return display_string_of(^^T);
 }

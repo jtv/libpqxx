@@ -24,7 +24,7 @@
 #include <typeinfo>
 
 #if defined(PQXX_HAVE_TYPE_DISPLAY)
-#include <meta>
+#  include <meta>
 #endif
 
 
@@ -203,9 +203,7 @@ namespace pqxx
 /// A human-readable name for a type, used in error messages and such.
 template<typename TYPE>
 [[deprecated("Use name_type() instead.")]]
-std::string const type_name{
-  display_string_of(^^TYPE)
-};
+std::string const type_name{display_string_of(^^TYPE)};
 
 #else
 
@@ -221,8 +219,7 @@ std::string const type_name{
 template<typename TYPE>
 [[deprecated("Use name_type() instead.")]]
 std::string const type_name{
-  pqxx::internal::demangle_type_name(typeid(TYPE).name())
-};
+  pqxx::internal::demangle_type_name(typeid(TYPE).name())};
 
 #endif
 #include "pqxx/internal/ignore-deprecated-post.hxx"
@@ -236,9 +233,9 @@ template<typename TYPE> inline constexpr std::string_view name_type() noexcept
 
 #else
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
+#  include "pqxx/internal/ignore-deprecated-pre.hxx"
   return type_name<TYPE>;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+#  include "pqxx/internal/ignore-deprecated-post.hxx"
 
 #endif
 }
