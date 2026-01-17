@@ -17797,9 +17797,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 
 
 
-template<typename T>
-
-constexpr std::string_view name_type()
+template<typename T> constexpr std::string_view name_type()
 
 {
 
