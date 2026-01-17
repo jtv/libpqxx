@@ -450,7 +450,7 @@ my_fopen(char const *path, char const *mode)
 #  pragma warning(push)
 #  pragma warning(disable : 4996)
 #endif
-  std::array<char, 300> buffer;
+  std::array<char, 300> buffer{};
   std::unique_ptr<FILE, int (*)(FILE *)> handle{
     std::fopen(path, mode), std::fclose};
   if (not handle)
