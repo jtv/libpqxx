@@ -57,7 +57,7 @@ namespace pqxx
  *   // upper-level transaction tx is still fine.  We can continue to use it.
  *   tx.exec(
  *       "CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)"
- *   ).no_rows());
+ *   ).no_rows();
  *
  *   do_lastpart(tx);
  * }

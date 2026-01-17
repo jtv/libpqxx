@@ -39,7 +39,7 @@ namespace pqxx
  *
  * There is no multiple inheritance in this class hierarchy.  That means that
  * the different kinds of libpqxx exception are not reflected in inheritance
- * from `std::logic_error,` `std::runime_error`, and so on.  They are _all_
+ * from `std::logic_error,` `std::runtime_error`, and so on.  They are _all_
  * derived from @ref pqxx::failure (whether directly or indirectly), which in
  * turn inherits directly from `std::exception`.
  *
@@ -52,7 +52,7 @@ namespace pqxx
  * 3. Important properties never quite follow a neat hierarchy.
  * 4. Making effective use of the hierarchy was hard, finicky work.
  * 5. A `try` could end up with a lot of highly similar `catch` clauses.
- * 6. Shaping the hiearchy around one exception property would confuse another.
+ * 6. Shaping the hierarchy around one exception property would confuse another.
  *
  * So as of libpqxx 8, if you want more detail in how you handle different
  * types of exceptions, you use member functions, mostly at run time.  All of
@@ -166,7 +166,7 @@ struct PQXX_LIBEXPORT failure : std::exception
    * catch (pqxx::failure const &e)
    * {
    *   auto const deadlock = dynamic_cast<pqxx::deadlock_detected const *>(e);
-   *   if (deadock == nullptr)
+   *   if (deadlock == nullptr)
    *   {
    *     // `e` is some other type of exception, not a deadlock.
    *   }
@@ -343,8 +343,8 @@ struct PQXX_LIBEXPORT sql_error : public failure
  * is when you call a parameterised or prepared statement with the wrong number
  * of parameters.
  *
- * When this happens, your connection will most likly be in a broken state and
- * you're probably be best off discarding it and starting a new one.  In that
+ * When this happens, your connection will most likely be in a broken state and
+ * you're probably best off discarding it and starting a new one.  In that
  * sense it is like @ref broken_connection.
  *
  * Retrying your statementis not likely to make this problem go away.
@@ -590,7 +590,7 @@ struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 
   virtual std::string_view name() const noexcept override
   {
-    return "conversion_error";
+    return "conversion_overrun";
   }
 };
 
@@ -996,7 +996,7 @@ struct PQXX_LIBEXPORT plpgsql_error : sql_error
 
   virtual std::string_view name() const noexcept override
   {
-    return "pgplsql_error";
+    return "plpgsql_error";
   }
 };
 
@@ -1014,7 +1014,7 @@ struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 
   virtual std::string_view name() const noexcept override
   {
-    return "pgplsql_raise";
+    return "plpgsql_raise";
   }
 };
 
@@ -1031,7 +1031,7 @@ struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 
   virtual std::string_view name() const noexcept override
   {
-    return "pgplsql_no_data_found";
+    return "plpgsql_no_data_found";
   }
 };
 
@@ -1048,7 +1048,7 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 
   virtual std::string_view name() const noexcept override
   {
-    return "pgplsql_too_many_rows";
+    return "plpgsql_too_many_rows";
   }
 };
 
