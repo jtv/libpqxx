@@ -39,7 +39,7 @@
 namespace pqxx::test
 {
 test_failure::test_failure(std::string const &desc, sl loc) :
-        std::logic_error{desc}, location{loc}
+        std::logic_error{desc}, m_loc{loc}
 {}
 
 test_failure::~test_failure() noexcept = default;
@@ -187,8 +187,7 @@ namespace
  * available.
  */
 template<typename EXCEPTION>
-std::string describe_failure(
-  std::string_view desc, std::string_view test, EXCEPTION const &err)
+std::string describe_failure(std::string_view test, EXCEPTION const &err)
 {
   std::string summary;
   char const *const msg{err.what()};
@@ -197,16 +196,22 @@ std::string describe_failure(
     std::string const loc{pqxx::source_loc(err.location())};
 
     if ((msg != nullptr) and (msg[0] != '\0'))
-      summary = std::format("{} ({}): {}", desc, loc, msg);
+      summary = std::format("[{}] ({}): {}", err.name(), loc, msg);
     else
-      summary = std::format("{} ({})", desc, loc, msg);
+      summary = std::format("{} ({})", err.name(), loc);
   }
   else
   {
     if ((msg != nullptr) and (msg[0] != '\0'))
-      summary = std::format("{}: {}", desc, msg);
+      summary = msg;
     else
-      summary = desc;
+      summary = "unknown error";
+  }
+
+  if constexpr (requires { err.query(); })
+  {
+    if (not std::empty(err.query()))
+      return std::format("{} -- {}\nQuery: {}", test, summary, err.query());
   }
 
   return std::format("{} -- {}", test, summary);
@@ -233,43 +238,15 @@ std::optional<std::string> run_test(
   }
   catch (pqxx::test::test_failure const &e)
   {
-    return describe_failure("Failed", name, e);
-  }
-  catch (std::bad_alloc const &)
-  {
-    return describe_failure("Out of memory", name);
-  }
-  catch (pqxx::sql_error const &e)
-  {
-    return describe_failure("SQL error", name, e);
+    return describe_failure(name, e);
   }
   catch (pqxx::failure const &e)
   {
-    return describe_failure("Failure", name, e);
-  }
-  catch (pqxx::internal_error const &e)
-  {
-    return describe_failure("Internal error", name, e);
-  }
-  catch (pqxx::usage_error const &e)
-  {
-    return describe_failure("Usage error", name, e);
-  }
-  catch (pqxx::conversion_error const &e)
-  {
-    return describe_failure("Conversion error", name, e);
-  }
-  catch (pqxx::argument_error const &e)
-  {
-    return describe_failure("Argument error", name, e);
-  }
-  catch (pqxx::range_error const &e)
-  {
-    return describe_failure("Range error", name, e);
+    return describe_failure(name, e);
   }
   catch (std::exception const &e)
   {
-    return describe_failure("Exception", name, e);
+    return describe_failure(name, e);
   }
   catch (...)
   {

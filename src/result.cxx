@@ -267,7 +267,7 @@ PQXX_COLD void pqxx::result::throw_sql_error(
       if (equal(code, "53100"))
         throw disk_full{Err, Query, code, loc};
       if (equal(code, "53200"))
-        throw out_of_memory{Err, Query, code, loc};
+        throw server_out_of_memory{Err, Query, code, loc};
       if (equal(code, "53300"))
         throw too_many_connections{Err, loc};
       throw insufficient_resources{Err, Query, code, loc};

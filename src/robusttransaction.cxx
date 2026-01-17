@@ -157,7 +157,7 @@ void pqxx::internal::basic_robusttransaction::do_commit(sl loc)
   // connection and aborted the transaction.  It may even still be executing
   // the commit, only to fail later.
   //
-  // All this uncertainty requires some special handling, and that s what makes
+  // All this uncertainty requires some special handling, and that's what makes
   // robusttransaction what it is.
   try
   {

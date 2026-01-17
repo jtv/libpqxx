@@ -11,7 +11,7 @@ void test_simultaneous_transactions(pqxx::test::randomizer &)
 
   pqxx::nontransaction const n1{cx};
   PQXX_CHECK_THROWS(
-    pqxx::nontransaction{cx}, std::logic_error,
+    pqxx::nontransaction{cx}, pqxx::usage_error,
     "Allowed to open simultaneous nontransactions.");
 }
 

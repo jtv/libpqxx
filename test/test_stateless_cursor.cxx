@@ -21,7 +21,7 @@ void test_stateless_cursor(pqxx::test::randomizer &)
 
   PQXX_CHECK_EQUAL(empty.size(), 0);
 
-  PQXX_CHECK_THROWS(empty.retrieve(1, 0), std::out_of_range);
+  PQXX_CHECK_THROWS(empty.retrieve(1, 0), pqxx::range_error);
 
   pqxx::stateless_cursor<
     pqxx::cursor_base::read_only, pqxx::cursor_base::owned>

@@ -298,8 +298,7 @@ std::string make_type(pqxx::test::randomizer &rnd)
   }
   case 8: return "bool";
   case 9: return "char";
-  default:
-    throw pqxx::internal_error{"Unexpected value from make_num()."};
+  default: throw pqxx::internal_error{"Unexpected value from make_num()."};
   }
   PQXX_UNREACHABLE;
 }
@@ -317,8 +316,7 @@ std::string make_params(pqxx::test::randomizer &rnd)
     auto const tp2{make_type(rnd)};
     return std::format("{}, {}", tp1, tp2);
   }
-  default:
-    throw pqxx::internal_error{"Unexpected value from make_num()."};
+  default: throw pqxx::internal_error{"Unexpected value from make_num()."};
   }
   PQXX_UNREACHABLE;
 }

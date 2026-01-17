@@ -32,22 +32,22 @@ namespace pqxx
  * dropped before re-creating it, without failing if the table did not exist:
  *
  * ```cxx
- * void do_job(connection &cx)
+ * void do_job(pqxx::connection &cx)
  * {
- *   string const temptable = "fleetingtable";
+ *   std::string const temptable = "fleetingtable";
  *
- *   work tx(cx, "do_job");
+ *   pqxx::work tx(cx, "do_job");
  *   do_firstpart(tx);
  *
  *   // Attempt to delete our temporary table if it already existed.
  *   // (In reality you would just use the IF EXISTS option to DROP TABLE.)
  *   try
  *   {
- *     subtransaction S(tx, "droptemp");
+ *     pqxx::subtransaction S(tx, "droptemp");
  *     S.exec0("DROP TABLE " + temptable);
  *     S.commit();
  *   }
- *   catch (undefined_table const &)
+ *   catch (pqxx::undefined_table const &)
  *   {
  *     // Table did not exist.  Which is what we were hoping to achieve anyway.
  *     // Carry on without regrets.
@@ -55,8 +55,9 @@ namespace pqxx
  *
  *   // S may have gone into a failed state and been destroyed, but the
  *   // upper-level transaction tx is still fine.  We can continue to use it.
- *   tx.exec0("CREATE TEMP TABLE " + temptable + "(bar integer, splat
- * varchar)");
+ *   tx.exec(
+ *       "CREATE TEMP TABLE " + temptable + "(bar integer, splat varchar)"
+ *   ).no_rows());
  *
  *   do_lastpart(tx);
  * }

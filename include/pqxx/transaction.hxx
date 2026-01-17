@@ -55,16 +55,16 @@ namespace pqxx
  * Usage example: double all wages.
  *
  * ```cxx
- * extern connection cx;
- * work tx(cx);
+ * extern pqxx::connection cx;
+ * pqxx::work tx(cx);
  * try
  * {
  *   tx.exec("UPDATE employees SET wage=wage*2").no_rows();
  *   tx.commit();  // NOTE: do this inside try block
  * }
- * catch (exception const &e)
+ * catch (std::exception const &e)
  * {
- *   cerr << e.what() << endl;
+ *   std::cerr << e.what() << endl;
  *   tx.abort();  // Usually not needed; same happens when tx's life ends.
  * }
  * ```

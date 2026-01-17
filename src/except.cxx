@@ -16,128 +16,68 @@
 
 #include "pqxx/internal/header-post.hxx"
 
+// Define virtual destructors here so compilers will output vtables here, once.
+//
+// When compiling a class with virtual functions, compilers generally emit the
+// vtable in the translation unit(s) where they find the definition of its
+// first non-pure-virtual, non-inline virtual member function.  Or perhaps the
+// destructor.
+//
+// Either way it's easy to end up with lots of redundant definitions of the
+// same vtable across many object files, which is a waste of space and time.
+// Therefore, we declare each exception type's destructor as the first virtual
+// member function, and put its definition here.
 namespace pqxx
 {
-failure::failure(sl loc) : m_block{std::make_shared<block>(loc)} {}
-
-failure::failure(std::string whatarg, sl loc) :
-        m_block{std::make_shared<block>(std::move(whatarg), loc)}
-{}
-
-failure::failure(
-  std::string whatarg, std::string stat, std::string sqls, sl loc) :
-        m_block{std::make_shared<block>(
-          std::move(whatarg), std::move(stat), std::move(sqls), loc)}
-{}
-
 failure::~failure() noexcept = default;
+broken_connection::~broken_connection() noexcept = default;
+version_mismatch::~version_mismatch() noexcept = default;
+protocol_violation::~protocol_violation() noexcept = default;
+variable_set_to_null::~variable_set_to_null() noexcept = default;
+sql_error::~sql_error() noexcept = default;
+in_doubt_error::~in_doubt_error() noexcept = default;
+transaction_rollback::~transaction_rollback() noexcept = default;
+serialization_failure::~serialization_failure() noexcept = default;
+statement_completion_unknown::~statement_completion_unknown() noexcept =
+  default;
+deadlock_detected::~deadlock_detected() noexcept = default;
+internal_error::~internal_error() noexcept = default;
 
-char const *failure::what() const noexcept
-{
-  return m_block->message.c_str();
-}
+// Special case: We add a prefix to the message.
+internal_error::internal_error(std::string const &whatarg, sl loc) :
+        failure{std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc}
+{}
 
+usage_error::~usage_error() noexcept = default;
+argument_error::~argument_error() noexcept = default;
+conversion_error::~conversion_error() noexcept = default;
+unexpected_null::~unexpected_null() noexcept = default;
+conversion_overrun::~conversion_overrun() noexcept = default;
+range_error::~range_error() noexcept = default;
+unexpected_rows::~unexpected_rows() noexcept = default;
+feature_not_supported::~feature_not_supported() noexcept = default;
+data_exception::~data_exception() noexcept = default;
+integrity_constraint_violation::~integrity_constraint_violation() noexcept =
+  default;
+restrict_violation::~restrict_violation() noexcept = default;
+not_null_violation::~not_null_violation() noexcept = default;
+foreign_key_violation::~foreign_key_violation() noexcept = default;
+unique_violation::~unique_violation() noexcept = default;
+check_violation::~check_violation() noexcept = default;
+invalid_cursor_state::~invalid_cursor_state() noexcept = default;
+invalid_sql_statement_name::~invalid_sql_statement_name() noexcept = default;
+invalid_cursor_name::~invalid_cursor_name() noexcept = default;
+syntax_error::~syntax_error() noexcept = default;
+undefined_column::~undefined_column() noexcept = default;
+undefined_function::~undefined_function() noexcept = default;
+undefined_table::~undefined_table() noexcept = default;
+insufficient_privilege::~insufficient_privilege() noexcept = default;
+insufficient_resources::~insufficient_resources() noexcept = default;
+disk_full::~disk_full() noexcept = default;
+server_out_of_memory::~server_out_of_memory() noexcept = default;
+too_many_connections::~too_many_connections() noexcept = default;
+plpgsql_error::~plpgsql_error() noexcept = default;
+plpgsql_raise::~plpgsql_raise() noexcept = default;
+plpgsql_no_data_found::~plpgsql_no_data_found() noexcept = default;
+plpgsql_too_many_rows::~plpgsql_too_many_rows() noexcept = default;
 } // namespace pqxx
-
-
-pqxx::broken_connection::broken_connection(sl loc) :
-        failure{"Connection to database failed.", loc}
-{}
-
-
-pqxx::broken_connection::broken_connection(
-  std::string const &whatarg, sl loc) :
-        failure{whatarg, loc}
-{}
-
-
-pqxx::protocol_violation::protocol_violation(
-  std::string const &whatarg, sl loc) :
-        broken_connection{whatarg, loc}
-{}
-
-
-pqxx::variable_set_to_null::variable_set_to_null(
-  std::string const &whatarg, sl loc) :
-        failure{whatarg, loc}
-{}
-
-
-pqxx::sql_error::sql_error(
-  std::string const &whatarg, std::string const &stmt, std::string const &sqls,
-  sl loc) :
-        failure{whatarg, stmt, sqls, loc}
-{}
-
-
-pqxx::sql_error::~sql_error() = default;
-
-
-pqxx::in_doubt_error::in_doubt_error(std::string const &whatarg, sl loc) :
-        failure{whatarg, loc}
-{}
-
-
-pqxx::transaction_rollback::transaction_rollback(
-  std::string const &whatarg, std::string const &q,
-  std::string const &sqlstate, sl loc) :
-        sql_error{whatarg, q, sqlstate, loc}
-{}
-
-
-pqxx::serialization_failure::serialization_failure(
-  std::string const &whatarg, std::string const &q,
-  std::string const &sqlstate, sl loc) :
-        transaction_rollback{whatarg, q, sqlstate, loc}
-{}
-
-
-pqxx::statement_completion_unknown::statement_completion_unknown(
-  std::string const &whatarg, std::string const &q,
-  std::string const &sqlstate, sl loc) :
-        transaction_rollback{whatarg, q, sqlstate, loc}
-{}
-
-
-pqxx::deadlock_detected::deadlock_detected(
-  std::string const &whatarg, std::string const &q,
-  std::string const &sqlstate, sl loc) :
-        transaction_rollback{whatarg, q, sqlstate, loc}
-{}
-
-
-pqxx::internal_error::internal_error(std::string const &whatarg, sl loc) :
-        std::logic_error{std::format("libpqxx internal error: {}", whatarg)},
-        location{loc}
-{}
-
-
-pqxx::usage_error::usage_error(std::string const &whatarg, sl loc) :
-        std::logic_error{whatarg}, location{loc}
-{}
-
-
-pqxx::argument_error::argument_error(std::string const &whatarg, sl loc) :
-        invalid_argument{whatarg}, location{loc}
-{}
-
-
-pqxx::conversion_error::conversion_error(std::string const &whatarg, sl loc) :
-        domain_error{whatarg}, location{loc}
-{}
-
-
-pqxx::unexpected_null::unexpected_null(std::string const &whatarg, sl loc) :
-        conversion_error{whatarg, loc}
-{}
-
-
-pqxx::conversion_overrun::conversion_overrun(
-  std::string const &whatarg, sl loc) :
-        conversion_error{whatarg, loc}
-{}
-
-
-pqxx::range_error::range_error(std::string const &whatarg, sl loc) :
-        out_of_range{whatarg}, location{loc}
-{}
