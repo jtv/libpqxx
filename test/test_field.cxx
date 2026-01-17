@@ -45,8 +45,23 @@ void test_field(pqxx::test::randomizer &)
 
   auto const r3{tx.exec("SELECT generate_series(1, 5)")};
   PQXX_CHECK_EQUAL(r3.at(3, 0).as<int>(), 4);
+
+  // (Work around totally bogus MSVC warning: it thinks the comma in the C++23
+  // two-parameter indexing expression is a sequence operator.  But only for
+  // the purposes of issuing annoying warnings; it doesn't _actually_ believe
+  // that.)
 #if defined(PQXX_HAVE_MULTIDIM)
+#  if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4548)
+#  endif
+
   PQXX_CHECK_EQUAL((r3[3, 0].as<int>()), 4);
+
+#  if defined(_MSC_VER)
+#    pragma warning(pop)
+#  endif
+
 #endif // PQXX_HAVE_MULTIDIM
 }
 
