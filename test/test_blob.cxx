@@ -1,3 +1,4 @@
+#include <cerrno>
 #include <cstdio>
 
 #include <pqxx/blob>
@@ -449,7 +450,16 @@ my_fopen(char const *path, char const *mode)
 #  pragma warning(push)
 #  pragma warning(disable : 4996)
 #endif
-  return {std::fopen(path, mode), std::fclose};
+  std::array<char, 300> buffer;
+  std::unique_ptr<FILE, int (*)(FILE *)> handle{
+    std::fopen(path, mode), std::fclose};
+  if (not handle)
+  {
+    std::string const message{pqxx::internal::error_string(errno, buffer)};
+    throw std::runtime_error{
+      std::format("Failed to open '{}' ({}): {}.", path, mode, message)};
+  }
+  return handle;
 #if defined(_MSC_VER)
 #  pragma warning(pop)
 #endif
