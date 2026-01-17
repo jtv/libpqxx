@@ -515,7 +515,7 @@ public:
     // takes just a source_location anyway so the call would have failed.
     // Clearly the warning is a lie.
 #  if defined(_MSC_VER)
-#    pragma warning(push, 4)
+#    pragma warning(push)
 #    pragma warning(disable : 4548)
 #  endif
     return as_row_ref()[col_name, loc];
