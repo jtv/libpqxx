@@ -198,6 +198,7 @@ PQXX_LIBEXPORT PQXX_ZARGS std::string demangle_type_name(char const[]);
 
 namespace pqxx
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
 #if defined(PQXX_HAVE_TYPE_DISPLAY)
 /// A human-readable name for a type, used in error messages and such.
 template<typename TYPE>
@@ -208,7 +209,6 @@ std::string const type_name{
 
 #else
 
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
 /// A human-readable name for a type, used in error messages and such.
 /** Actually this may not always be very user-friendly.  It uses
  * @c std::type_info::name().  On gcc-like compilers we try to demangle its
@@ -223,10 +223,9 @@ template<typename TYPE>
 std::string const type_name{
   pqxx::internal::demangle_type_name(typeid(TYPE).name())
 };
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 #endif
-
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 /// Return human-readable name for `TYPE`.
 template<typename TYPE> inline constexpr std::string_view name_type() noexcept
