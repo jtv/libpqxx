@@ -48,7 +48,7 @@ namespace pqxx
 /// Base class for all exceptions specific to libpqxx.
 struct PQXX_LIBEXPORT failure : std::exception
 {
-  failure(failure const &) = delete;
+  failure(failure const &) = default;
   failure(failure &&) = default;
   explicit failure(sl loc = sl::current()) :
           m_block{std::make_shared<block>(loc)}
