@@ -300,7 +300,7 @@ std::string make_type(pqxx::test::randomizer &rnd)
   case 9: return "char";
   default: throw pqxx::internal_error{"Unexpected value from make_num()."};
   }
-  PQXX_UNREACHABLE;
+  throw pqxx::internal_error{"Unexpected random value."};
 }
 
 
@@ -318,7 +318,7 @@ std::string make_params(pqxx::test::randomizer &rnd)
   }
   default: throw pqxx::internal_error{"Unexpected value from make_num()."};
   }
-  PQXX_UNREACHABLE;
+  throw pqxx::internal_error{"Unexpected random value."};
 }
 
 

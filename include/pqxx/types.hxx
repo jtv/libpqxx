@@ -23,6 +23,10 @@
 #include <type_traits>
 #include <typeinfo>
 
+#if defined(PQXX_HAVE_TYPE_DISPLAY)
+#  include <meta>
+#endif
+
 
 namespace pqxx
 {
@@ -185,13 +189,24 @@ struct from_query_t final
 
 namespace pqxx::internal
 {
+#if !defined(PQXX_HAVE_TYPE_DISPLAY)
 /// Attempt to demangle @c std::type_info::name() to something human-readable.
 PQXX_LIBEXPORT PQXX_ZARGS std::string demangle_type_name(char const[]);
+#endif
 } // namespace pqxx::internal
 
 
 namespace pqxx
 {
+#include "pqxx/internal/ignore-deprecated-pre.hxx"
+#if defined(PQXX_HAVE_TYPE_DISPLAY)
+/// A human-readable name for a type, used in error messages and such.
+template<typename TYPE>
+[[deprecated("Use name_type() instead.")]]
+std::string const type_name{display_string_of(^^TYPE)};
+
+#else
+
 /// A human-readable name for a type, used in error messages and such.
 /** Actually this may not always be very user-friendly.  It uses
  * @c std::type_info::name().  On gcc-like compilers we try to demangle its
@@ -201,21 +216,28 @@ namespace pqxx
  * warnings from asan, the address sanitizer, possibly from use of
  * @c std::type_info::name.
  */
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
-// C++26: Use reflection to obtain names.
 template<typename TYPE>
 [[deprecated("Use name_type() instead.")]]
 std::string const type_name{
   pqxx::internal::demangle_type_name(typeid(TYPE).name())};
-#include "pqxx/internal/ignore-deprecated-post.hxx"
 
+#endif
+#include "pqxx/internal/ignore-deprecated-post.hxx"
 
 /// Return human-readable name for `TYPE`.
 template<typename TYPE> inline constexpr std::string_view name_type() noexcept
 {
-#include "pqxx/internal/ignore-deprecated-pre.hxx"
+#if defined(PQXX_HAVE_TYPE_DISPLAY)
+
+  return display_string_of(^^TYPE);
+
+#else
+
+#  include "pqxx/internal/ignore-deprecated-pre.hxx"
   return type_name<TYPE>;
-#include "pqxx/internal/ignore-deprecated-post.hxx"
+#  include "pqxx/internal/ignore-deprecated-post.hxx"
+
+#endif
 }
 
 
