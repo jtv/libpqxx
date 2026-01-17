@@ -91,6 +91,9 @@
 #undef PQXX_HAVE_STRERROR_S
 
 /* Define if this feature is available. */
+#undef PQXX_HAVE_TYPE_DISPLAY
+
+/* Define if this feature is available. */
 #undef PQXX_HAVE_YEAR_MONTH_DAY
 
 /* Define if this feature is available. */

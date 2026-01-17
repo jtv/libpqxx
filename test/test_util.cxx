@@ -299,7 +299,7 @@ std::string make_type(pqxx::test::randomizer &rnd)
   case 8: return "bool";
   case 9: return "char";
   }
-  assert(false);
+  throw pqxx::internal_error{"Unexpected random value."};
 }
 
 
@@ -316,7 +316,7 @@ std::string make_params(pqxx::test::randomizer &rnd)
     return std::format("{}, {}", tp1, tp2);
   }
   }
-  assert(false);
+  throw pqxx::internal_error{"Unexpected random value."};
 }
 
 

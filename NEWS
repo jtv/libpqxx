@@ -8,6 +8,7 @@
  - New, more IDE-friendly format for `source_location` in error messages.
  - Allow tests to run even on ASCII-only databases.
  - Document: `affected_rows()` now also works for `SELECT`. (#1139)
+ - Use C++26 reflection, if available, for finding types' names.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.

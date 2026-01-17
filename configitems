@@ -15,6 +15,7 @@ PQXX_HAVE_RANGES	public	compiler
 PQXX_HAVE_SLEEP_FOR	internal	compiler
 PQXX_HAVE_STRERROR_R	public	compiler
 PQXX_HAVE_STRERROR_S	public	compiler
+PQXX_HAVE_TYPE_DISPLAY	public	compiler
 PQXX_HAVE_YEAR_MONTH_DAY	public	compiler
 PQXX_HAVE_ZARGS	public	compiler
 VERSION	internal	autotools
