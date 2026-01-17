@@ -10,7 +10,7 @@
  - Document: `affected_rows()` now also works for `SELECT`. (#1139)
  - Use C++26 reflection, if available, for finding types' names.
  - `pqxx::out_of_memory` is now `pqxx::server_out_of_memory` for clarity.
- - `pqxx::protocol_violation` is now a `failure`, not a `broken_connection`.
+ - `pqxx::protocol_violation` is now an `sql_error`, not a `broken_connection`.
  - All libpqxx exceptions are now derived from `pqxx::failure`.
  - Lots of news for exception types!
 8.0.0

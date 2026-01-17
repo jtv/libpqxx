@@ -32,9 +32,9 @@ namespace pqxx
 failure::~failure() noexcept = default;
 broken_connection::~broken_connection() noexcept = default;
 version_mismatch::~version_mismatch() noexcept = default;
-protocol_violation::~protocol_violation() noexcept = default;
 variable_set_to_null::~variable_set_to_null() noexcept = default;
 sql_error::~sql_error() noexcept = default;
+protocol_violation::~protocol_violation() noexcept = default;
 in_doubt_error::~in_doubt_error() noexcept = default;
 transaction_rollback::~transaction_rollback() noexcept = default;
 serialization_failure::~serialization_failure() noexcept = default;

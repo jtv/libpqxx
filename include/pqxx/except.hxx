@@ -26,21 +26,46 @@
 
 namespace pqxx
 {
-// XXX: Rewrite heading.
-// XXX: Automatically report tx as poisoned if cx is poisoned.
-// XXX: Explain how poisoning works.
 /**
  * @addtogroup exception Exception classes
  *
- * These exception classes follow, roughly, the two-level hierarchy defined by
- * the PostgreSQL SQLSTATE error codes (see Appendix A of the PostgreSQL
- * documentation corresponding to your server version).  This is not a complete
- * mapping though.  There are other differences as well, e.g. the error code
- * for `statement_completion_unknown` has a separate status in libpqxx as
- * @ref in_doubt_error, and `too_many_connections` is classified as a
- * `broken_connection` rather than a subtype of `insufficient_resources`.
+ * All exception types thrown by libpqxx are derived from @ref pqxx::failure,
+ * so that should be your starting point in exploring them.  When you write a
+ * `catch` clause in your code, it's probably worth either having a separate
+ * clause for `failure` and its subclasses, or checking at run time whether an
+ * error is of this type using `dynamic_cast<pqxx::failure const *>(...)`.  if
+ * the exception is a libpqxx exception, you can get a lot of extra information
+ * that's not normally available in exceptions.
  *
- * @see http://www.postgresql.org/docs/9.4/interactive/errcodes-appendix.html
+ * There is no multiple inheritance in this class hierarchy.  That means that
+ * the different kinds of libpqxx exception are not reflected in inheritance
+ * from `std::logic_error,` `std::runime_error`, and so on.  They are _all_
+ * derived from @ref pqxx::failure (whether directly or indirectly), which in
+ * turn inherits directly from `std::exception`.
+ *
+ * You may wonder whether this was the best design decision.  Before libpqxx 8,
+ * various libpqxx exceptions derived from different types in the standard C++
+ * exception hierarchy (`std::out_of_range`, `std::argument_error`, and so on).
+ * But in practice we saw that:
+ * 1. The standard exception type distinctions are not very _actionable._
+ * 2. Applications would generally just catch `std::exception` anyway.
+ * 3. Important properties never quite follow a neat hierarchy.
+ * 4. Making effective use of the hierarchy was hard, finicky work.
+ * 5. A `try` could end up with a lot of highly similar `catch` clauses.
+ * 6. Shaping the hiearchy around one exception property would confuse another.
+ *
+ * So as of libpqxx 8, if you want more detail in how you handle different
+ * types of exceptions, you use member functions, mostly at run time.  All of
+ * the properties are available right from the top down, in the @ref failure
+ * base class.  Some of the strings will not apply to all types of exception,
+ * but in those cases, they will simply be empty strings.
+ *
+ * In libpqxx, the exception hierarchy exists not for taxonomy's sake but to
+ * enable your application to function well without requiring too much code or
+ * effort from you.  In most cases, when an exception occurs, both the safest
+ * and the easiest thing to do is drop the objects involved in the error,
+ * report what happened, and move on from a reliabe state.  That is what these
+ * classes are here to support.
  *
  * @{
  */
@@ -83,30 +108,75 @@ struct PQXX_LIBEXPORT failure : std::exception
    *
    * https://www.postgresql.org/docs/current/errcodes-appendix.html
    */
-  [[nodiscard]] PQXX_PURE std::string const &sqlstate() const noexcept
+  [[nodiscard]] PQXX_PURE std::string_view sqlstate() const noexcept
   {
     return m_block->sqlstate;
   }
 
   /// SQL statement that encountered the error, if applicable; or empty string.
-  [[nodiscard]] PQXX_PURE std::string const &query() const noexcept
+  /** In some cases there will be a placeholder string, to give a rough
+   * indication of an SQL operation that's being performed in your name, such
+   * as beginning or committing a transaction.  Those will be in square
+   * brackets: `[COMMIT]` etc.
+   */
+  [[nodiscard]] PQXX_PURE std::string_view query() const noexcept
   {
     return m_block->statement;
   }
 
   /// Does this type of error make the current @ref connection unusable?
+  /** If the answer is `true`, assume that there is nothing more you can get
+   * done using your existing connection object.  It _may_ still be possible,
+   * but it may fail, or things could conceivably be in a confused state where
+   * it's just not a good idea to try.
+   *
+   * If your connection is poisoned, then it follows that any ongoing
+   * transaction will no longer be usable either.
+   */
   virtual bool poisons_connection() const noexcept { return false; }
 
   /// Does this type of error make an ongoing @ref dbtransaction unusable?
-  /** Even when this returns `true`, it does not generally apply to
-   * @ref nontransaction (which is not derived from @ref dbtransaction).
+  /** When this is the case, before you try to do anything else, you'll want to
+   * close any transaction you may have open.  If necessary, a call to
+   * @ref poisons_connection() will tell you whether it is still possible (and
+   * advisable) to open a new one on the same connection.
+   *
+   * If you are using a @ref nontransaction, bear in mind that it is not
+   * derived from @ref dbtransaction.  So if you see an exception which reports
+   * that it poisons transactions but not the connection, then a
+   * @ref nontransaction should still be usable.
    */
   virtual bool poisons_transaction() const noexcept { return false; }
 
   /// The name of this exception type: "failure", "sql_error", etc.
-  /** Do not count on this being exact, or never changing.  There can be
-   * mistakes, or the names may change.  If you need to check for an exact
-   * exception type, use `dynamic_cast`.
+  /** Do not count on this being exact, or eternal as libpqxx evolves.  There
+   * can be mistakes, names may change, new exception subclasses show up during
+   * libpqxx development.
+   *
+   * @note If you need to check whether an exception you've caught is of a
+   * specific type, e.g. `pqxx::deadlock_detected`, _do not_ use `name()` for
+   * this, since its answer may change as libpqxx evolves.  Instead, use
+   * something like:
+   *
+   * ```cxx
+   * try
+   * {
+   *   // ...
+   * }
+   * catch (pqxx::failure const &e)
+   * {
+   *   auto const deadlock = dynamic_cast<pqxx::deadlock_detected const *>(e);
+   *   if (deadock == nullptr)
+   *   {
+   *     // `e` is some other type of exception, not a deadlock.
+   *   }
+   *   else
+   *   {
+   *     // `e` is a `deadlock_detected` error, and `deadlock` points to it
+   *     // by its more specific static type.
+   *   }
+   * }
+   * ```
    */
   virtual std::string_view name() const noexcept { return "failure"; }
 
@@ -145,6 +215,10 @@ protected:
 
 private:
   /// The data for this exception, as a shared pointer for easy copying.
+  /** The "block" never, ever moves, changes, or disappears during the
+   * exception object's lifetime.  That's why various functions can return
+   * views or references pointing to the data in there.
+   */
   std::shared_ptr<block const> m_block;
 };
 
@@ -212,38 +286,6 @@ struct PQXX_LIBEXPORT version_mismatch : broken_connection
 };
 
 
-// XXX: New exception type for version mismatch.
-// XXX: Make protocol_violation an sql_error.
-/// Exception class for mis-communication with the server.
-/** This happens when the conversation between libpq and the server gets messed
- * up.  There aren't many situations where this happens, but one known instance
- * is when you call a parameterised or prepared statement with the wrong number
- * of parameters.
- *
- * Retrying is not likely to make this problem go away.
- */
-struct PQXX_LIBEXPORT protocol_violation : failure
-{
-  explicit protocol_violation(
-    std::string const &whatarg, sl loc = sl::current()) :
-          failure{whatarg, loc}
-  {}
-
-  virtual ~protocol_violation() noexcept;
-
-  /// When this happens, the connection is in a confused state.
-  virtual bool poisons_connection() const noexcept override { return true; }
-
-  /// Since the connection is broken, so is a transaction.
-  virtual bool poisons_transaction() const noexcept override { return true; }
-
-  virtual std::string_view name() const noexcept override
-  {
-    return "protocol_violation";
-  }
-};
-
-
 /// The caller attempted to set a variable to null, which is not allowed.
 struct PQXX_LIBEXPORT variable_set_to_null : failure
 {
@@ -264,6 +306,14 @@ struct PQXX_LIBEXPORT variable_set_to_null : failure
 /// Exception class for failed queries.
 /** Carries, in addition to a regular error message, a copy of the failed query
  * and (if available) the SQLSTATE value accompanying the error.
+ *
+ * These exception classes follow, roughly, the two-level hierarchy defined by
+ * the PostgreSQL SQLSTATE error codes (see Appendix A of the PostgreSQL
+ * documentation corresponding to your server version).  This is not a complete
+ * mapping though.  There are other differences as well, e.g. the error code
+ * for `statement_completion_unknown` has a separate status in libpqxx as
+ * @ref in_doubt_error, and `too_many_connections` is classified as a
+ * `broken_connection` rather than a subtype of `insufficient_resources`.
  */
 struct PQXX_LIBEXPORT sql_error : public failure
 {
@@ -283,6 +333,41 @@ struct PQXX_LIBEXPORT sql_error : public failure
   virtual std::string_view name() const noexcept override
   {
     return "sql_error";
+  }
+};
+
+
+/// Exception class for mis-communication with the server.
+/** This happens when the conversation between libpq and the server gets messed
+ * up.  There aren't many situations where this happens, but one known instance
+ * is when you call a parameterised or prepared statement with the wrong number
+ * of parameters.
+ *
+ * When this happens, your connection will most likly be in a broken state and
+ * you're probably be best off discarding it and starting a new one.  In that
+ * sense it is like @ref broken_connection.
+ *
+ * Retrying your statementis not likely to make this problem go away.
+ */
+struct PQXX_LIBEXPORT protocol_violation : sql_error
+{
+  explicit protocol_violation(
+    std::string const &whatarg, std::string const &stmt = {},
+    std::string const &sqls = {}, sl loc = sl::current()) :
+          sql_error{whatarg, stmt, sqls, loc}
+  {}
+
+  virtual ~protocol_violation() noexcept;
+
+  /// When this happens, the connection is in a confused state.
+  virtual bool poisons_connection() const noexcept override { return true; }
+
+  /// Since the connection is broken, so is a transaction.
+  virtual bool poisons_transaction() const noexcept override { return true; }
+
+  virtual std::string_view name() const noexcept override
+  {
+    return "protocol_violation";
   }
 };
 
@@ -364,7 +449,6 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
   }
 };
 
-// XXX:
 
 /// We can't tell whether our last statement succeeded.
 struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
@@ -670,7 +754,6 @@ struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 };
 
 
-// XXX: Add virtual destructors from here on down.
 struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit check_violation(
