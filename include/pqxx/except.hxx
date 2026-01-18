@@ -166,7 +166,7 @@ struct PQXX_LIBEXPORT failure : std::exception
    * }
    * catch (pqxx::failure const &e)
    * {
-   *   auto const deadlock = dynamic_cast<pqxx::deadlock_detected const *>(e);
+   *   auto const deadlock = dynamic_cast<pqxx::deadlock_detected const *>(&e);
    *   if (deadlock == nullptr)
    *   {
    *     // `e` is some other type of exception, not a deadlock.
