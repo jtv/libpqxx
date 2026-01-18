@@ -22,7 +22,7 @@ public:
   test_failure(std::string const &desc, sl loc = sl::current());
   ~test_failure() noexcept override;
 
-  sl location() const { return m_loc; }
+  sl const &location() const noexcept { return m_loc; }
 
   std::string_view name() const noexcept { return "Failure"; }
 
