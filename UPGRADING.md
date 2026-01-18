@@ -23,6 +23,21 @@ may detect bugs and vulnerabilities.  But, in the C++ tradition, it shouldn't
 cost us anything in terms of speed.
 
 
+PostgreSQL & libpq versions
+---------------------------
+
+When you connect to a database, libpqxx checks that it is compatible with the
+PostgreSQL server version.  If not, it refuses to connect in order to avoid
+nasty surprises later.
+
+This wasn't very noticeable before because the minimum version was set to 8.0
+and I never remembered to update it.  Now I've bumped it up.  This will happen
+from time to time.
+
+If the bump causes you problems, please seriously consider upgrading your
+server.
+
+
 Retiring deprecated items
 -------------------------
 
@@ -102,6 +117,46 @@ _The indexing operations now return `row_ref` and `field_ref` instead of `row`
 and `field` respectively._  It probably won't affect your code, but you're
 running static analysis and instrumented builds to check for these things,
 right?
+
+
+Exceptions
+----------
+
+The exception hierarchy has changed radically.  An exception no longer tries
+to tell your application everything it needs to know through its _type;_ there
+are _functions_ to tell you things like "can I still use my connection after
+this?" and "what should I call this type of exception?"
+
+That comes with a reorganisation of the hierarchy itself.  It used to be that
+an exception that breaks your connection was always derived from
+`broken_connection`.  _That is no longer the case._
+
+There is now a single base class for all libpqxx exceptions, and it comes with
+all the properties that any of the libpqxx exceptions might need.  Some of
+them will be irrelevant for some exceptions, in which case they return an
+empty string.
+
+So what should your `catch` code look like now?
+
+In some situations you'll need to catch a very specific error.  That's where
+you still have the individual libpqxx exception classes, which you can catch
+individually or through inheritance grouping.
+
+But for a more general `try` block, write `catch` clauses in this order:
+
+1. Any non-libpqxx exceptions, most specific ones first.
+2. If needed, any _specific_ libpqxx exceptions that you want to separate out.
+3. A single `catch` block on `pqxx::failure`.
+
+That final block can sort out the details by calling the exception's member
+functions, and checking its type using `typeid` and `dynamic_cast` if needed.
+What do I tell the user?  What do I log?  What SQL were we executing when this
+happened?  Where in my application did it happen?  Can I find more background
+on this SQL problem?  Should I continue my transaction?  Is it even worth
+trying to recover using the same connection?
+
+Handling exceptions can be messy and unclear at the best of times, but the new
+exception arrangement tries to give you something reasonable to work with.
 
 
 Binary data

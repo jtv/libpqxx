@@ -343,20 +343,25 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
  */
 void pqxx::connection::set_up_state(sl loc)
 {
-  if (auto const proto_ver{protocol_version()}; proto_ver < 3)
+  int const min_proto{3};
+  if (auto const proto_ver{protocol_version()}; proto_ver < min_proto)
   {
     if (proto_ver == 0)
       throw broken_connection{"No connection.", loc};
     else
-      throw feature_not_supported{
-        "Unsupported frontend/backend protocol version; 3.0 is the minimum.",
-        "[connect]", nullptr, loc};
+      throw version_mismatch{
+        std::format(
+          "Unsupported frontend/backend protocol version; {} is the minimum.",
+          min_proto),
+        loc};
   }
 
-  constexpr int oldest_server{90000};
-  if (server_version() <= oldest_server)
-    throw feature_not_supported{
-      "Unsupported server version; 9.0 is the minimum.", "[connect]", nullptr,
+  constexpr int min_server{110'000};
+  if (server_version() < min_server)
+    throw version_mismatch{
+      std::format(
+        "Unsupported server version; the minimum is {}.{}.",
+        min_server / 10'000, min_server % 10'000),
       loc};
 }
 
@@ -537,7 +542,7 @@ PQXX_COLD void pqxx::connection::cancel_query(sl loc)
   auto const c{PQcancel(cancel.get(), err, buf_size)};
   if (c == 0) [[unlikely]]
     throw pqxx::sql_error{
-      std::string{err, std::size(errbuf)}, "[cancel]", nullptr, loc};
+      std::string{err, std::size(errbuf)}, "[cancel]", "", loc};
 }
 
 

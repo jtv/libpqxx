@@ -202,7 +202,7 @@ PQXX_COLD void pqxx::result::throw_sql_error(
     case 'A': throw feature_not_supported{Err, Query, code, loc};
     case '8':
       if (equal(code, "08P01"))
-        throw protocol_violation{Err, loc};
+        throw protocol_violation{Err, Query, code, loc};
       throw broken_connection{Err, loc};
     case 'L':
     case 'P': throw insufficient_privilege{Err, Query, code, loc};
@@ -267,7 +267,7 @@ PQXX_COLD void pqxx::result::throw_sql_error(
       if (equal(code, "53100"))
         throw disk_full{Err, Query, code, loc};
       if (equal(code, "53200"))
-        throw out_of_memory{Err, Query, code, loc};
+        throw server_out_of_memory{Err, Query, code, loc};
       if (equal(code, "53300"))
         throw too_many_connections{Err, loc};
       throw insufficient_resources{Err, Query, code, loc};
@@ -320,7 +320,7 @@ std::string pqxx::result::status_error(sl loc) const
   case PGRES_PIPELINE_SYNC:    // Pipeline mode synchronisation point.
   case PGRES_PIPELINE_ABORTED: // Previous command in pipeline failed.
     throw feature_not_supported{
-      "Not supported yet: libpq pipelines.", "", nullptr, loc};
+      "Not supported yet: libpq pipelines.", "", "", loc};
 #endif
 
   case PGRES_BAD_RESPONSE: // The server's response was not understood.
@@ -331,7 +331,7 @@ std::string pqxx::result::status_error(sl loc) const
 
   case PGRES_SINGLE_TUPLE:
     throw feature_not_supported{
-      "Not supported: single-row mode.", "", nullptr, loc};
+      "Not supported: single-row mode.", "", "", loc};
 
   default:
     throw internal_error{

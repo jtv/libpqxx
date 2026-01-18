@@ -1,8 +1,8 @@
 {
     "description": "Minimum versions needed of various things.",
     "c++": "20",
-    "libpq": "12.0",
-    "postgresql": "12.0",
+    "libpq": "13.0",
+    "postgresql": "13.0",
     "gcc": "13",
     "clang": "16",
     "msvc": "2022"
