@@ -143,6 +143,7 @@ you still have the individual libpqxx exception classes, which you can catch
 individually or through inheritance grouping.
 
 But for a more general `try` block, write `catch` clauses in this order:
+
 1. Any non-libpqxx exceptions, most specific ones first.
 2. If needed, any _specific_ libpqxx exceptions that you want to separate out.
 3. A single `catch` block on `pqxx::failure`.
