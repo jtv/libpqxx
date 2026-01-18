@@ -64,7 +64,7 @@ namespace pqxx
  * }
  * catch (std::exception const &e)
  * {
- *   std::cerr << e.what() << endl;
+ *   std::cerr << e.what() << '\n';
  *   tx.abort();  // Usually not needed; same happens when tx's life ends.
  * }
  * ```

@@ -65,7 +65,7 @@ namespace pqxx
  * enable your application to function well without requiring too much code or
  * effort from you.  In most cases, when an exception occurs, both the safest
  * and the easiest thing to do is drop the objects involved in the error,
- * report what happened, and move on from a reliabe state.  That is what these
+ * report what happened, and move on from a reliable state.  That is what these
  * classes are here to support.
  *
  * @{
@@ -348,7 +348,7 @@ struct PQXX_LIBEXPORT sql_error : public failure
  * you're probably best off discarding it and starting a new one.  In that
  * sense it is like @ref broken_connection.
  *
- * Retrying your statementis not likely to make this problem go away.
+ * Retrying your statement is not likely to make this problem go away.
  */
 struct PQXX_LIBEXPORT protocol_violation : sql_error
 {
