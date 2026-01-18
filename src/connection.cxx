@@ -356,7 +356,7 @@ void pqxx::connection::set_up_state(sl loc)
         loc};
   }
 
-  constexpr int min_server{130'000};
+  constexpr int min_server{110'000};
   if (server_version() < min_server)
     throw version_mismatch{
       std::format(
