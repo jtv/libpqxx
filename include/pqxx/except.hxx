@@ -52,7 +52,8 @@ namespace pqxx
  * 3. Important properties never quite follow a neat hierarchy.
  * 4. Making effective use of the hierarchy was hard, finicky work.
  * 5. A `try` could end up with a lot of highly similar `catch` clauses.
- * 6. Shaping the hierarchy around one exception property would confuse another.
+ * 6. Shaping the hierarchy around one exception property would confuse
+ * another.
  *
  * So as of libpqxx 8, if you want more detail in how you handle different
  * types of exceptions, you use member functions, mostly at run time.  All of
