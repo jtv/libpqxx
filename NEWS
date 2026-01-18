@@ -9,6 +9,11 @@
  - Allow tests to run even on ASCII-only databases.
  - Document: `affected_rows()` now also works for `SELECT`. (#1139)
  - Use C++26 reflection, if available, for finding types' names.
+ - `pqxx::out_of_memory` is now `pqxx::server_out_of_memory` for clarity.
+ - `pqxx::protocol_violation` is now an `sql_error`, not a `broken_connection`.
+ - All libpqxx exceptions are now derived from `pqxx::failure`.
+ - Lots of news for exception types!
+ - Requires libpq 13 or better, and PostgreSQL 13 or better.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - **Result/row iterators have changed.**  Instead of `i[n]` do `(*i)[n]`.

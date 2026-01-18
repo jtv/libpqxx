@@ -16,7 +16,6 @@ from __future__ import (
     )
 
 from argparse import ArgumentParser
-import codecs
 from errno import ENOENT
 import os.path
 from os import getcwd
@@ -74,7 +73,7 @@ def read_text_file(path, encoding='utf-8'):
     """Read text file, return as string, or `None` if file is not there."""
     assert isinstance(path, type(''))
     try:
-        with codecs.open(encode_path(path), encoding=encoding) as stream:
+        with open(encode_path(path), encoding=encoding) as stream:
             return stream.read()
     except IOError as error:
         if error.errno == ENOENT:
@@ -86,7 +85,7 @@ def read_text_file(path, encoding='utf-8'):
 def read_lines(path, encoding='utf-8'):
     """Read text file, return as list of lines."""
     assert isinstance(path, type(''))
-    with codecs.open(encode_path(path), encoding=encoding) as stream:
+    with open(encode_path(path), encoding=encoding) as stream:
         return list(stream)
 
 
@@ -189,7 +188,7 @@ def generate_config(source_tree, header_lines, items, publication, factor):
 
     print("Generating %s: %d item(s)." % (unicode_path, len(section)))
     path = encode_path(config_file)
-    with codecs.open(path, 'wb', encoding='ascii') as header:
+    with open(path, 'w', encoding='ascii', newline='\n') as header:
         header.write(contents)
 
 

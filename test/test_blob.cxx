@@ -489,6 +489,8 @@ void write_file(char const path[], pqxx::bytes_view data)
         reinterpret_cast<char const *>(data.data()), 1, std::size(data),
         f.get()) < std::size(data))
       throw std::runtime_error{"File write failed."};
+    if (std::fflush(f.get()) != 0)
+      throw std::runtime_error{"File flush failed."};
   }
   catch (const std::exception &)
   {

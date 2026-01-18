@@ -22,10 +22,14 @@ public:
   test_failure(std::string const &desc, sl loc = sl::current());
   ~test_failure() noexcept override;
 
-  sl const location;
+  sl location() const { return m_loc; }
+
+  std::string_view name() const noexcept { return "Failure"; }
 
 private:
   test_failure &operator=(test_failure const &) = delete;
+
+  sl const m_loc;
 };
 
 
@@ -351,14 +355,29 @@ inline void check_throws(
       std::format("{} (\"{}\" did not throw).", desc, text), loc);
   }
   catch (EXC const &)
-  {}
+  {
+    // OK, that's the exception we wanted.
+    return;
+  }
   catch (std::exception const &e)
   {
-    check_notreached(
-      std::format(
-        "{} (\"{}\" threw the wrong exception type: {}).", desc, text,
-        e.what()),
-      loc);
+    auto const fail{dynamic_cast<pqxx::failure const *>(&e)};
+    if (fail == nullptr)
+    {
+      check_notreached(
+        std::format(
+          "{} (\"{}\" threw the wrong exception type: {}).", desc, text,
+          e.what()),
+        loc);
+    }
+    else
+    {
+      check_notreached(
+        std::format(
+          "{} (\"{}\" threw the wrong exception type: [{}] {}).", desc, text,
+          fail->name(), e.what()),
+        loc);
+    }
   }
   catch (...)
   {

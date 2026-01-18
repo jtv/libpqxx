@@ -39,7 +39,7 @@ void test_pipeline(pqxx::test::randomizer &)
 
   // A pipeline grabs transaction focus, blocking regular queries and such.
   pqxx::pipeline pipe(tx, "test_pipeline_detach");
-  PQXX_CHECK_THROWS(tx.exec("SELECT 1"), std::logic_error);
+  PQXX_CHECK_THROWS(tx.exec("SELECT 1"), pqxx::usage_error);
 
   // Flushing a pipeline relinquishes transaction focus.
   pipe.flush();
@@ -50,7 +50,7 @@ void test_pipeline(pqxx::test::randomizer &)
   // Inserting a query makes the pipeline grab transaction focus back.
   auto q{pipe.insert("SELECT 2")};
   PQXX_CHECK_THROWS(
-    tx.exec("SELECT 3"), std::logic_error,
+    tx.exec("SELECT 3"), pqxx::usage_error,
     "Pipeline does not block regular queries");
 
   // Invoking complete() also detaches the pipeline from the transaction.

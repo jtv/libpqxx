@@ -65,10 +65,13 @@ int main()
       std::cout << std::endl;
     }
   }
-  catch (pqxx::sql_error const &e)
+  catch (pqxx::failure const &e)
   {
-    std::cerr << "SQL error: " << e.what() << std::endl;
-    std::cerr << "Query was: " << e.query() << std::endl;
+    std::cerr << e.name() << ": " << e.what() << '\n';
+    if (not std::empty(e.query()))
+      std::cerr << "Query was:\n" << e.query() << '\n';
+    if (not std::empty(e.sqlstate()))
+      std::cerr << "SQLSTATE " << e.sqlstate() << '\n';
     return 2;
   }
   catch (std::exception const &e)
