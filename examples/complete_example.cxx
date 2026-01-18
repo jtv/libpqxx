@@ -68,7 +68,7 @@ int main()
   catch (pqxx::failure const &e)
   {
     std::cerr << e.name() << ": " << e.what() << '\n';
-    if (not std::empty(e.quey()))
+    if (not std::empty(e.query()))
       std::cerr << "Query was:\n" << e.query() << '\n';
     if (not std::empty(e.sqlstate()))
       std::cerr << "SQLSTATE " << e.sqlstate() << '\n';
