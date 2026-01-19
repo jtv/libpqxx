@@ -3,7 +3,7 @@
 
 /* Example for using libpqxx.
  *
- * This shows a bit of how a real c++ application might access a PostgreSQL
+ * This shows a bit of how a real C++ application might access a PostgreSQL
  * database using libpqxx.
  *
  * It sets up a minimal database schema, and then executes some queries on it;
