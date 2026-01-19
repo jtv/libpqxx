@@ -1280,8 +1280,6 @@ private:
 
   // Initialise based on connection string.
   PQXX_ZARGS void init(char const options[], sl);
-  // Initialise based on parameter names and values.
-  PQXX_ZARGS void init(char const *params[], char const *values[], sl);
   // Initialise based on connection string and override key/value pairs
   void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
 
@@ -1581,9 +1579,7 @@ inline connection::connection(MAPPING const &params, sl loc) :
     keys.push_back(internal::as_c_string(key));
     values.push_back(internal::as_c_string(value));
   }
-  keys.push_back(nullptr);
-  values.push_back(nullptr);
-  init(std::data(keys), std::data(values), loc);
+  init(pqxx::zview{""}, keys, values, loc);
 }
 
 

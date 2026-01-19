@@ -207,20 +207,6 @@ void pqxx::connection::init(char const options[], sl loc)
 }
 
 
-void pqxx::connection::init(char const *params[], char const *values[], sl loc)
-{
-  std::vector<char const *> override_keys, override_values;
-
-  for (char const **p = params, **v = values; *p != nullptr && *v != nullptr; ++p, ++v) // NOLINT(misc-const-correctness)
-  {
-    override_keys.push_back(*p);
-    override_values.push_back(*v);
-  }
-
-  init(pqxx::zview{""}, override_keys, override_values, loc);
-}
-
-
 void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
 {
   char *errmsg{nullptr}; // NOLINT(misc-const-correctness)
