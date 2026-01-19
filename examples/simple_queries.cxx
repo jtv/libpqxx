@@ -291,6 +291,16 @@ int main(int, char *argv[])
     query_emps(cx);
     query_customers(cx);
   }
+  catch (pqxx::failure const &e)
+  {
+    // In the case of a libpqxx exception, there's some extra useful
+    // information that we can print.
+    std::cerr << "*** " << e.name() << " ***: " << e.what() << '\n';
+    std::cerr << "Happened in " << pqxx::source_loc(e.location()) << ".\n";
+    if (not std::empty(e.query()))
+      std::cerr << "\nQuery was:\n" << e.query() << '\n';
+    return 1;
+  }
   catch (std::exception const &e)
   {
     // We only get here if there was an error.
