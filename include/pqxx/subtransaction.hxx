@@ -92,14 +92,14 @@ public:
   explicit subtransaction(
     subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
-  virtual ~subtransaction() noexcept override;
+  ~subtransaction() noexcept override;
 
 private:
   std::string quoted_name() const
   {
     return quote_name(transaction_focus::name());
   }
-  virtual void do_commit(sl) override;
+  void do_commit(sl) override;
 };
 } // namespace pqxx
 #endif

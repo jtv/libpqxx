@@ -82,10 +82,7 @@ public:
 #include "pqxx/internal/ignore-deprecated-post.hxx"
 
   /// Revert to previous handling of error notices.
-  PQXX_ZARGS virtual bool operator()(char const[]) noexcept override
-  {
-    return false;
-  }
+  PQXX_ZARGS bool operator()(char const[]) noexcept override { return false; }
 
 private:
   quiet_errorhandler() = delete;

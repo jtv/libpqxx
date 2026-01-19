@@ -408,7 +408,7 @@ public:
     initialize(mode);
   }
 
-  virtual ~largeobject_streambuf() noexcept
+  ~largeobject_streambuf() noexcept override
   {
     delete[] m_p;
     delete[] m_g;
@@ -418,26 +418,26 @@ public:
   void process_notice(zview const &s) { m_obj.process_notice(s); }
 
 protected:
-  virtual int sync() override
+  int sync() override
   {
     // setg() sets eback, gptr, egptr.
     this->setg(this->eback(), this->eback(), this->egptr());
     return overflow(eof());
   }
 
-  virtual pos_type seekoff(off_type offset, seekdir dir, openmode) override
+  pos_type seekoff(off_type offset, seekdir dir, openmode) override
   {
     return adjust_eof(m_obj.cseek(largeobjectaccess::off_type(offset), dir));
   }
 
-  virtual pos_type seekpos(pos_type pos, openmode) override
+  pos_type seekpos(pos_type pos, openmode) override
   {
     largeobjectaccess::pos_type const newpos{
       m_obj.cseek(largeobjectaccess::off_type(pos), std::ios::beg)};
     return adjust_eof(newpos);
   }
 
-  virtual int_type overflow(int_type ch = eof()) override
+  int_type overflow(int_type ch = eof()) override
   {
     auto *const pp{this->pptr()};
     if (pp == nullptr)
@@ -479,7 +479,7 @@ protected:
     return res;
   }
 
-  virtual int_type underflow() override
+  int_type underflow() override
   {
     if (this->gptr() == nullptr)
       return eof();
@@ -642,7 +642,7 @@ public:
     super::init(&m_buf);
   }
 
-  ~basic_olostream()
+  ~basic_olostream() override
   {
     try
     {
@@ -714,7 +714,7 @@ public:
     super::init(&m_buf);
   }
 
-  ~basic_lostream()
+  ~basic_lostream() override
   {
     try
     {
