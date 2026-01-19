@@ -1,6 +1,14 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
+/* Example for using libpqxx.
+ *
+ * This shows a bit of how a real c++ application might access a PostgreSQL
+ * database using libpqxx.
+ *
+ * It sets up a minimal database schema, and then execute some queries on it;
+ * and handles any errors that might crop up in the process.
+ */
 namespace
 {
 void set_up(pqxx::connection &cx)
@@ -65,6 +73,19 @@ int main()
       std::cout << std::endl;
     }
   }
+  // Catch libpqxx exceptions.  There are different subclasses for various
+  // types of errors, but we realy don't need to care about those differences
+  // unless we're trying to catch one very specific error.
+  //
+  // This central base libpqxx exception class, pqxx::failure, is derived from
+  // std::exception.  So if we're going to catch both, we'll have to catch
+  // pqxx::failure first.
+  //
+  // All the API for libpqxx exceptions is present right from this base class
+  // on down.  Some of the more specific exception types will have additional
+  // data, such as which SQL query triggered the error.  But the function to
+  // read that query is present even in the base class.  When not applicable,
+  // it will simply return an empty string.
   catch (pqxx::failure const &e)
   {
     std::cerr << e.name() << ": " << e.what() << '\n';
@@ -75,6 +96,7 @@ int main()
       std::cerr << "SQLSTATE " << e.sqlstate() << '\n';
     return 2;
   }
+  // Catch other exceptions.
   catch (std::exception const &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
