@@ -408,7 +408,7 @@ public:
     initialize(mode);
   }
 
-  virtual ~largeobject_streambuf() noexcept
+  ~largeobject_streambuf() noexcept override
   {
     delete[] m_p;
     delete[] m_g;
@@ -642,7 +642,7 @@ public:
     super::init(&m_buf);
   }
 
-  ~basic_olostream()
+  ~basic_olostream() override
   {
     try
     {
@@ -714,7 +714,7 @@ public:
     super::init(&m_buf);
   }
 
-  ~basic_lostream()
+  ~basic_lostream() override
   {
     try
     {

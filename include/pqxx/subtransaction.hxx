@@ -92,7 +92,7 @@ public:
   explicit subtransaction(
     subtransaction &t, std::string_view name = ""sv, sl loc = sl::current());
 
-  virtual ~subtransaction() noexcept;
+  ~subtransaction() noexcept override;
 
 private:
   std::string quoted_name() const
