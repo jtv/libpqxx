@@ -209,7 +209,7 @@ void pqxx::connection::init(char const options[], sl loc)
 
 void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
 {
-  char *errmsg{nullptr}; // NOLINT(misc-const-correctness)
+  char *errmsg{nullptr};
   std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
     PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
   std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const errmsg_guard{
