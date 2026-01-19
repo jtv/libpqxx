@@ -226,6 +226,8 @@ void pqxx::connection::init(zview connection_string, const std::vector<const cha
   char *errmsg{nullptr}; // NOLINT(misc-const-correctness)
   std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
     PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
+  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const errmsg_guard{
+    errmsg, pqxx::internal::pq::pqfreemem};
   if (parsed == nullptr)
   {
     std::string error_message{"Failed to parse connection string"};
@@ -233,7 +235,6 @@ void pqxx::connection::init(zview connection_string, const std::vector<const cha
     {
       error_message += ": ";
       error_message += errmsg;
-      pqxx::internal::pq::pqfreemem(errmsg);
     }
     throw broken_connection{error_message};
   }
