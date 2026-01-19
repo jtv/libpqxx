@@ -398,6 +398,36 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
       "Base connection string not used.");
   }
 
+  // Empty params
+  {
+    std::vector<std::pair<std::string, std::string>> const params{
+      {"application_name", "empty_params"},
+      {"connect_timeout", "54"}
+    };
+
+    pqxx::connection const cx{"", params};
+    PQXX_CHECK(cx.is_open(), "Connection with empty params failed.");
+
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "empty_params"),
+      "application_name not added.");
+    PQXX_CHECK(
+      pqxx::str_contains(connstr, "54"),
+      "connect_timeout not added.");
+  }
+
+  // Empty connection string and empty overrides
+  {
+    std::map<std::string, std::string> const params{};
+
+    pqxx::connection const cx{"", params};
+    PQXX_CHECK(cx.is_open(), "Connection with empty base and overrides failed.");
+
+    auto const connstr{cx.connection_string()};
+    PQXX_CHECK(not connstr.empty(), "Connection string should not be empty.");
+  }
+
   // Invalid connection string throws
   {
     std::map<std::string, std::string> const params{};
