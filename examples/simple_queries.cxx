@@ -299,6 +299,7 @@ int main(int, char *argv[])
     std::cerr << "Happened in " << pqxx::source_loc(e.location()) << ".\n";
     if (not std::empty(e.query()))
       std::cerr << "\nQuery was:\n" << e.query() << '\n';
+    return 1;
   }
   catch (std::exception const &e)
   {

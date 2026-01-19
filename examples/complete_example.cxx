@@ -68,6 +68,7 @@ int main()
   catch (pqxx::failure const &e)
   {
     std::cerr << e.name() << ": " << e.what() << '\n';
+    std::cerr << "Happened in " << pqxx::source_loc(e.location()) << ".\n";
     if (not std::empty(e.query()))
       std::cerr << "Query was:\n" << e.query() << '\n';
     if (not std::empty(e.sqlstate()))
