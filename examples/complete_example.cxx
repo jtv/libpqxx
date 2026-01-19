@@ -6,7 +6,7 @@
  * This shows a bit of how a real c++ application might access a PostgreSQL
  * database using libpqxx.
  *
- * It sets up a minimal database schema, and then execute some queries on it;
+ * It sets up a minimal database schema, and then executes some queries on it;
  * and handles any errors that might crop up in the process.
  */
 namespace
@@ -74,7 +74,7 @@ int main()
     }
   }
   // Catch libpqxx exceptions.  There are different subclasses for various
-  // types of errors, but we realy don't need to care about those differences
+  // types of errors, but we really don't need to care about those differences
   // unless we're trying to catch one very specific error.
   //
   // This central base libpqxx exception class, pqxx::failure, is derived from
