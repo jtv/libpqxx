@@ -89,7 +89,7 @@ struct PQXX_LIBEXPORT failure : std::exception
   failure &operator=(failure &&) = default;
 
   /// Error message.
-  [[nodiscard]] PQXX_PURE virtual char const *what() const noexcept override
+  [[nodiscard]] PQXX_PURE char const *what() const noexcept override
   {
     return m_block->message.c_str();
   }
@@ -258,12 +258,12 @@ struct PQXX_LIBEXPORT broken_connection : failure
   virtual ~broken_connection() noexcept;
 
   /// By its nature, this type of error makes the connection unusable.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
   /// When the connection breaks, so will an ongoing transaction.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "broken_connection";
   }
@@ -280,7 +280,7 @@ struct PQXX_LIBEXPORT version_mismatch : broken_connection
 
   virtual ~version_mismatch() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "version_mismatch";
   }
@@ -297,7 +297,7 @@ struct PQXX_LIBEXPORT variable_set_to_null : failure
 
   virtual ~variable_set_to_null() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "variable_set_to_null";
   }
@@ -329,12 +329,9 @@ struct PQXX_LIBEXPORT sql_error : public failure
   virtual ~sql_error() noexcept;
 
   /// If a transaction was ongoing, an SQL error will break it.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "sql_error";
-  }
+  std::string_view name() const noexcept override { return "sql_error"; }
 };
 
 
@@ -361,12 +358,12 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
   virtual ~protocol_violation() noexcept;
 
   /// When this happens, the connection is in a confused state.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
   /// Since the connection is broken, so is a transaction.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "protocol_violation";
   }
@@ -389,15 +386,12 @@ struct PQXX_LIBEXPORT in_doubt_error : failure
   virtual ~in_doubt_error() noexcept;
 
   /// This kind of error can only happen when the connection breaks.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
   /// The transaction is already closed, and the connection is broken.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "in_doubt_error";
-  }
+  std::string_view name() const noexcept override { return "in_doubt_error"; }
 };
 
 
@@ -413,9 +407,9 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
   virtual ~transaction_rollback() noexcept;
 
   /// Some earlier failure broke the transaction.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "transaction_rollback";
   }
@@ -442,9 +436,9 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
   virtual ~serialization_failure() noexcept;
 
   /// To retry the transaction, you'll need to start a fresh one.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "serialization_failure";
   }
@@ -463,9 +457,9 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
   virtual ~statement_completion_unknown() noexcept;
 
   /// It's not advisable to continue using the connection after this.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "statement_completion_unknown";
   }
@@ -483,7 +477,7 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 
   virtual ~deadlock_detected() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "deadlock_detected";
   }
@@ -498,15 +492,12 @@ struct PQXX_LIBEXPORT internal_error : failure
   virtual ~internal_error() noexcept;
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
   /// When this happens, all bets are off.  It _may_ work, but don't risk it.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "internal_error";
-  }
+  std::string_view name() const noexcept override { return "internal_error"; }
 };
 
 
@@ -520,12 +511,9 @@ struct PQXX_LIBEXPORT usage_error : failure
   virtual ~usage_error() noexcept;
 
   /// Your transaction will probably still work, but something is badly wrong.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "usage_error";
-  }
+  std::string_view name() const noexcept override { return "usage_error"; }
 };
 
 
@@ -538,10 +526,7 @@ struct PQXX_LIBEXPORT argument_error : failure
 
   virtual ~argument_error() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "argument_error";
-  }
+  std::string_view name() const noexcept override { return "argument_error"; }
 };
 
 
@@ -555,7 +540,7 @@ struct PQXX_LIBEXPORT conversion_error : failure
 
   virtual ~conversion_error() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "conversion_error";
   }
@@ -572,10 +557,7 @@ struct PQXX_LIBEXPORT unexpected_null : conversion_error
 
   virtual ~unexpected_null() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "unexpected_null";
-  }
+  std::string_view name() const noexcept override { return "unexpected_null"; }
 };
 
 
@@ -589,7 +571,7 @@ struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 
   virtual ~conversion_overrun() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "conversion_overrun";
   }
@@ -605,10 +587,7 @@ struct PQXX_LIBEXPORT range_error : failure
 
   virtual ~range_error() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "range_error";
-  }
+  std::string_view name() const noexcept override { return "range_error"; }
 };
 
 
@@ -621,10 +600,7 @@ struct PQXX_LIBEXPORT unexpected_rows : range_error
 
   virtual ~unexpected_rows() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "unexpected_rows";
-  }
+  std::string_view name() const noexcept override { return "unexpected_rows"; }
 };
 
 
@@ -639,16 +615,16 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
 
   virtual ~feature_not_supported() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "feature_not_supported";
   }
 
   /// It all depends on the details, but this _can_ break your connection.
-  virtual bool poisons_connection() const noexcept override { return true; }
+  bool poisons_connection() const noexcept override { return true; }
 
   /// If this poisons your connection, it also poisons your transaction.
-  virtual bool poisons_transaction() const noexcept override { return true; }
+  bool poisons_transaction() const noexcept override { return true; }
 };
 
 
@@ -663,10 +639,7 @@ struct PQXX_LIBEXPORT data_exception : sql_error
 
   virtual ~data_exception() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "data_exception";
-  }
+  std::string_view name() const noexcept override { return "data_exception"; }
 };
 
 
@@ -680,7 +653,7 @@ struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
 
   virtual ~integrity_constraint_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "integrity_constraint_violation";
   }
@@ -697,7 +670,7 @@ struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
 
   virtual ~restrict_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "restrict_violation";
   }
@@ -714,7 +687,7 @@ struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
 
   virtual ~not_null_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "not_null_violation";
   }
@@ -731,7 +704,7 @@ struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
 
   virtual ~foreign_key_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "foreign_key_violation";
   }
@@ -748,7 +721,7 @@ struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 
   virtual ~unique_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "unique_violation";
   }
@@ -765,10 +738,7 @@ struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 
   virtual ~check_violation() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "check_violation";
-  }
+  std::string_view name() const noexcept override { return "check_violation"; }
 };
 
 
@@ -782,7 +752,7 @@ struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
 
   virtual ~invalid_cursor_state() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "invalid_cursor_state";
   }
@@ -799,7 +769,7 @@ struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
 
   virtual ~invalid_sql_statement_name() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "invalid_sql_statement_name";
   }
@@ -816,7 +786,7 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 
   virtual ~invalid_cursor_name() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "invalid_cursor_name";
   }
@@ -836,10 +806,7 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
 
   virtual ~syntax_error() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "syntax_error";
-  }
+  std::string_view name() const noexcept override { return "syntax_error"; }
 };
 
 
@@ -854,7 +821,7 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
 
   virtual ~undefined_column() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "undefined_column";
   }
@@ -872,7 +839,7 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
 
   virtual ~undefined_function() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "undefined_function";
   }
@@ -890,10 +857,7 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
 
   virtual ~undefined_table() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "undefined_table";
-  }
+  std::string_view name() const noexcept override { return "undefined_table"; }
 };
 
 
@@ -907,7 +871,7 @@ struct PQXX_LIBEXPORT insufficient_privilege : sql_error
 
   virtual ~insufficient_privilege() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "insufficient_privilege";
   }
@@ -925,7 +889,7 @@ struct PQXX_LIBEXPORT insufficient_resources : sql_error
 
   virtual ~insufficient_resources() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "insufficient_resources";
   }
@@ -942,10 +906,7 @@ struct PQXX_LIBEXPORT disk_full : insufficient_resources
 
   virtual ~disk_full() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "disk_full";
-  }
+  std::string_view name() const noexcept override { return "disk_full"; }
 };
 
 
@@ -959,7 +920,7 @@ struct PQXX_LIBEXPORT server_out_of_memory : insufficient_resources
 
   virtual ~server_out_of_memory() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "server_out_of_memory";
   }
@@ -975,7 +936,7 @@ struct PQXX_LIBEXPORT too_many_connections : broken_connection
 
   virtual ~too_many_connections() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "too_many_connections";
   }
@@ -995,10 +956,7 @@ struct PQXX_LIBEXPORT plpgsql_error : sql_error
 
   virtual ~plpgsql_error() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "plpgsql_error";
-  }
+  std::string_view name() const noexcept override { return "plpgsql_error"; }
 };
 
 
@@ -1013,10 +971,7 @@ struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 
   virtual ~plpgsql_raise() noexcept;
 
-  virtual std::string_view name() const noexcept override
-  {
-    return "plpgsql_raise";
-  }
+  std::string_view name() const noexcept override { return "plpgsql_raise"; }
 };
 
 
@@ -1030,7 +985,7 @@ struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 
   virtual ~plpgsql_no_data_found() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "plpgsql_no_data_found";
   }
@@ -1047,7 +1002,7 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 
   virtual ~plpgsql_too_many_rows() noexcept;
 
-  virtual std::string_view name() const noexcept override
+  std::string_view name() const noexcept override
   {
     return "plpgsql_too_many_rows";
   }

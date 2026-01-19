@@ -73,10 +73,10 @@ public:
     register_transaction();
   }
 
-  virtual ~nontransaction() override { close(sl::current()); }
+  virtual ~nontransaction() { close(sl::current()); }
 
 private:
-  virtual void do_commit(sl) override {}
+  void do_commit(sl) override {}
 };
 } // namespace pqxx
 #endif

@@ -32,10 +32,10 @@ protected:
     sl = sl::current());
   basic_transaction(connection &cx, zview begin_command, sl = sl::current());
 
-  virtual ~basic_transaction() noexcept override = 0;
+  virtual ~basic_transaction() noexcept = 0;
 
 private:
-  virtual void do_commit(sl) override;
+  void do_commit(sl) override;
 };
 } // namespace pqxx::internal
 
@@ -96,7 +96,7 @@ public:
             cx, internal::begin_cmd<ISOLATION, READWRITE>, loc}
   {}
 
-  virtual ~transaction() noexcept override { close(sl::current()); }
+  virtual ~transaction() noexcept { close(sl::current()); }
 };
 
 
