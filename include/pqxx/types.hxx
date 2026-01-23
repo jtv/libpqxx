@@ -23,6 +23,10 @@
 #include <type_traits>
 #include <typeinfo>
 
+#if defined(PQXX_HAVE_STACKTRACE)
+#  include <stacktrace>
+#endif
+
 #if defined(PQXX_HAVE_TYPE_DISPLAY)
 #  include <meta>
 #endif
@@ -34,7 +38,7 @@ namespace pqxx
 using sl = std::source_location;
 
 /// Alias for `std::stacktrace`, for brevity.
-#if defined PQXX_HAVE_STACKTRACE
+#if defined(PQXX_HAVE_STACKTRACE)
 using st = std::stacktrace;
 #endif
 
