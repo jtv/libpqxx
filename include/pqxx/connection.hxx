@@ -1237,6 +1237,7 @@ private:
   {
     connect_nonblocking
   };
+  /// Start connecting asynchronously.  For use by @ref connecting.
   connection(connect_mode, zview connection_string, sl);
 
   /// For use by @ref seize_raw_connection.
@@ -1255,6 +1256,7 @@ private:
   // Initialise based on parameter names and values.
   PQXX_ZARGS void init(char const *params[], char const *values[], sl);
   void set_up_notice_handlers();
+  /// Do the work that is common to all `init()` overloads.
   void complete_init(sl);
 
   result make_result(

@@ -337,6 +337,7 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
 }
 
 
+// XXX: Inline this into complete_init().
 /** Set up various parts of logical connection state that may need to be
  * recovered because the physical connection to the database was lost and is
  * being reset, or that may not have been initialized yet.
