@@ -35,7 +35,7 @@ using sl = std::source_location;
 
 /// Alias for `std::stacktrace`, for brevity.
 #if defined PQXX_HAVE_STACKTRACE
-using st = std::stacktrcae;
+using st = std::stacktrace;
 #endif
 
 /// Number of rows in a result set.
