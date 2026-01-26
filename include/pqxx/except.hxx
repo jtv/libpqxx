@@ -21,6 +21,10 @@
 #include <stdexcept>
 #include <string>
 
+#if defined(PQXX_HAVE_STACKTRACE)
+#  include <stacktrace>
+#endif
+
 #include "pqxx/types.hxx"
 
 
@@ -76,11 +80,13 @@ struct PQXX_LIBEXPORT failure : std::exception
 {
   failure(failure const &) = default;
   failure(failure &&) = default;
-  explicit failure(sl loc = sl::current()) :
-          m_block{std::make_shared<block>(loc)}
+  explicit failure(sl loc = sl::current(), st tr = st::current()) :
+          m_block{std::make_shared<block>(loc, std::move(tr))}
   {}
-  explicit failure(std::string whatarg, sl loc = sl::current()) :
-          m_block{std::make_shared<block>(std::move(whatarg), loc)}
+  explicit failure(
+    std::string whatarg, sl loc = sl::current(), st tr = st::current()) :
+          m_block{
+            std::make_shared<block>(std::move(whatarg), loc, std::move(tr))}
   {}
 
   ~failure() noexcept override;
@@ -102,6 +108,25 @@ struct PQXX_LIBEXPORT failure : std::exception
   [[nodiscard]] PQXX_PURE sl const &location() const noexcept
   {
     return m_block->location;
+  }
+
+  /// If available in this compiler, a `std::stacktrace` of this exception.
+  /** The stacktrace does not include the creation of the exception object
+   * itself.  By default it goes right up to that point.  You can pass a
+   * stacktrace of your own choosing to the exception constructors, if you
+   * really want, but it generally makes more sense to use the default.
+   *
+   * If `std::stacktrace` was not available when the libpqxx buld was
+   * configured, this returns an empty ("null") pointer to
+   * `pqxx::stacktrace_placeholder`.
+   *
+   * This is meant to keep the ABI for `pqxx::failure` stable across builds
+   * with and without `std::stacktrace`, and make it easy to upgrade the
+   * compiler and get the feature.
+   */
+  [[nodiscard]] PQXX_PURE std::shared_ptr<st const> trace() const noexcept
+  {
+    return m_block->trace;
   }
 
   /// SQLSTATE error code, or empty string if unavailable.
@@ -149,6 +174,7 @@ struct PQXX_LIBEXPORT failure : std::exception
    */
   virtual bool poisons_transaction() const noexcept { return false; }
 
+  // C++26: Implement using reflection.
   /// The name of this exception type: "failure", "sql_error", etc.
   /** Do not count on this being exact, or eternal as libpqxx evolves.  There
    * can be mistakes, names may change, new exception subclasses show up during
@@ -186,11 +212,13 @@ protected:
   /// fields.
   failure(
     std::string whatarg, std::string stat, std::string sqls,
-    sl loc = sl::current()) :
+    sl loc = sl::current(), st tr = st::current()) :
           m_block{std::make_shared<block>(
-            std::move(whatarg), std::move(stat), std::move(sqls), loc)}
+            std::move(whatarg), std::move(stat), std::move(sqls), loc,
+            std::move(tr))}
   {}
 
+private:
   /// All the data this exception or its descendants might need.
   struct block final
   {
@@ -202,19 +230,47 @@ protected:
     std::string sqlstate;
     /// Source location.
     sl location;
+    /// Stack trace, or if not supported, an empty placeholder.
+    std::shared_ptr<st const> trace;
 
-    block(sl loc) : location{loc} {}
-    block(std::string &&msg, sl loc) : message{std::move(msg)}, location{loc}
+    block(sl loc, st &&tr) :
+            location{loc}, trace{make_trace_ptr(std::move(tr))}
     {}
-    block(std::string &&msg, std::string &&stat, std::string &&sqls, sl loc) :
+
+    block(std::string &&msg, sl loc, st &&tr) :
+            message{std::move(msg)},
+            location{loc},
+            trace{make_trace_ptr(std::move(tr))}
+    {}
+
+    block(
+      std::string &&msg, std::string &&stat, std::string &&sqls, sl loc,
+      st &&tr) :
             message{std::move(msg)},
             statement{std::move(stat)},
             sqlstate{std::move(sqls)},
-            location{loc}
+            location{loc},
+            trace{make_trace_ptr(std::move(tr))}
     {}
+
+    /// Move `tr` into a `shared_ptr<st const>`.
+    /** If no `std::stacktrace` support is available, return an empty pointer.
+     * This makes it easier for users of `pqxx::failure` to detect the case
+     * where `std::stacktrace` is not supported.
+     */
+    [[nodiscard]] static std::shared_ptr<st const>
+    make_trace_ptr([[maybe_unused]] st &&tr)
+    {
+#if defined(PQXX_HAVE_STACKTRACE)
+      // We have std::stacktrace support.  Move tr from the stack to the heap.
+      return std::make_shared(std::move(tr));
+#else
+      // We don't have std::stacktrace.  Keep the pointer empty.
+      return {};
+#endif
+    }
   };
 
-private:
   /// The data for this exception, as a shared pointer for easy copying.
   /** The "block" never, ever moves, changes, or disappears during the
    * exception object's lifetime.  That's why various functions can return
@@ -246,13 +302,14 @@ private:
  */
 struct PQXX_LIBEXPORT broken_connection : failure
 {
-  explicit broken_connection(sl loc = sl::current()) :
-          failure{"Connection to database failed.", loc}
+  explicit broken_connection(sl loc = sl::current(), st &&tr = st::current()) :
+          failure{"Connection to database failed.", loc, std::move(tr)}
   {}
 
   explicit broken_connection(
-    std::string const &whatarg, sl loc = sl::current()) :
-          failure{whatarg, loc}
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          failure{whatarg, loc, std::move(tr)}
   {}
 
   ~broken_connection() noexcept override;
@@ -274,8 +331,9 @@ struct PQXX_LIBEXPORT broken_connection : failure
 struct PQXX_LIBEXPORT version_mismatch : broken_connection
 {
   explicit version_mismatch(
-    std::string const &whatarg, sl loc = sl::current()) :
-          broken_connection{whatarg, loc}
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          broken_connection{whatarg, loc, std::move(tr)}
   {}
 
   ~version_mismatch() noexcept override;
@@ -291,8 +349,9 @@ struct PQXX_LIBEXPORT version_mismatch : broken_connection
 struct PQXX_LIBEXPORT variable_set_to_null : failure
 {
   explicit variable_set_to_null(
-    std::string const &whatarg, sl loc = sl::current()) :
-          failure{whatarg, loc}
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          failure{whatarg, loc, std::move(tr)}
   {}
 
   ~variable_set_to_null() noexcept override;
@@ -320,8 +379,9 @@ struct PQXX_LIBEXPORT sql_error : public failure
 {
   PQXX_ZARGS explicit sql_error(
     std::string const &whatarg = {}, std::string const &stmt = {},
-    std::string const &sqls = {}, sl loc = sl::current()) :
-          failure{whatarg, stmt, sqls, loc}
+    std::string const &sqls = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          failure{whatarg, stmt, sqls, loc, std::move(tr)}
   {}
   sql_error(sql_error const &other) = default;
   sql_error(sql_error &&other) = default;
@@ -351,8 +411,9 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
 {
   explicit protocol_violation(
     std::string const &whatarg, std::string const &stmt = {},
-    std::string const &sqls = {}, sl loc = sl::current()) :
-          sql_error{whatarg, stmt, sqls, loc}
+    std::string const &sqls = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{whatarg, stmt, sqls, loc, std::move(tr)}
   {}
 
   ~protocol_violation() noexcept override;
@@ -379,8 +440,10 @@ struct PQXX_LIBEXPORT protocol_violation : sql_error
  */
 struct PQXX_LIBEXPORT in_doubt_error : failure
 {
-  explicit in_doubt_error(std::string const &whatarg, sl loc = sl::current()) :
-          failure{whatarg, loc}
+  explicit in_doubt_error(
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          failure{whatarg, loc, std::move(tr)}
   {}
 
   ~in_doubt_error() noexcept override;
@@ -400,8 +463,9 @@ struct PQXX_LIBEXPORT transaction_rollback : sql_error
 {
   PQXX_ZARGS explicit transaction_rollback(
     std::string const &whatarg, std::string const &q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current()) :
-          sql_error{whatarg, q, sqlstate, loc}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
 
   ~transaction_rollback() noexcept override;
@@ -429,8 +493,9 @@ struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
 {
   PQXX_ZARGS explicit serialization_failure(
     std::string const &whatarg, std::string const &q,
-    std::string const &sqlstate = {}, sl loc = sl::current()) :
-          transaction_rollback{whatarg, q, sqlstate, loc}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
 
   ~serialization_failure() noexcept override;
@@ -450,8 +515,9 @@ struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
 {
   PQXX_ZARGS explicit statement_completion_unknown(
     std::string const &whatarg, std::string const &q,
-    std::string const &sqlstate = {}, sl loc = sl::current()) :
-          transaction_rollback{whatarg, q, sqlstate, loc}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
 
   ~statement_completion_unknown() noexcept override;
@@ -471,8 +537,9 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 {
   PQXX_ZARGS explicit deadlock_detected(
     std::string const &whatarg, std::string const &q,
-    std::string const &sqlstate = {}, sl loc = sl::current()) :
-          transaction_rollback{whatarg, q, sqlstate, loc}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          transaction_rollback{whatarg, q, sqlstate, loc, std::move(tr)}
   {}
 
   ~deadlock_detected() noexcept override;
@@ -484,10 +551,12 @@ struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
 };
 
 
+// XXX: stacktrace from here
 /// Internal error in libpqxx library
 struct PQXX_LIBEXPORT internal_error : failure
 {
-  explicit internal_error(std::string const &, sl = sl::current());
+  explicit internal_error(
+    std::string const &, sl = sl::current(), st &&tr = st::current());
 
   ~internal_error() noexcept override;
 
