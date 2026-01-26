@@ -292,9 +292,7 @@ public:
   }
 
   /// Connect to a database with connection string and parameter overrides.
-  /** @warning Experimental.  Requires C++20 "concepts" support.
-   *
-   * This constructor allows you to specify a connection string and override
+  /** This constructor allows you to specify a connection string and override
    * specific parameters using a mapping (e.g., std::map, std::vector of pairs).
    *
    * The connection string is parsed first, then the key-value pairs from the
