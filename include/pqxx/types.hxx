@@ -37,9 +37,22 @@ namespace pqxx
 /// Convenience alias for `std::source_location`.  It's just too long.
 using sl = std::source_location;
 
-/// Alias for `std::stacktrace`, for brevity.
 #if defined(PQXX_HAVE_STACKTRACE)
+/// Alias for `std::stacktrace`, for brevity.
 using st = std::stacktrace;
+#else
+/// There is no `std::stacktrace` on this system.  Use a placeholder.
+struct stacktrace_placeholder final
+{
+  /// Placeholder for `std::stacktrace::current()`.
+  [[nodiscard]] PQXX_PURE static constexpr stacktrace_placeholder
+  current() noexcept
+  {
+    return {};
+  }
+};
+/// Placeholder for future `std::stacktrace`.
+using st = stacktrace_placeholder;
 #endif
 
 /// Number of rows in a result set.
