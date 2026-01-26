@@ -222,7 +222,7 @@ void pqxx::connection::init(zview connection_string, const std::vector<const cha
       error_message += ": ";
       error_message += errmsg;
     }
-    throw broken_connection{error_message};
+    throw broken_connection{error_message, loc};
   }
 
   std::size_t parsed_count = 0;
