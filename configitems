@@ -13,6 +13,7 @@ PQXX_HAVE_MULTIDIM	public	compiler
 PQXX_HAVE_POLL       internal        compiler
 PQXX_HAVE_RANGES	public	compiler
 PQXX_HAVE_SLEEP_FOR	internal	compiler
+PQXX_HAVE_STACKTRACE	public	compiler
 PQXX_HAVE_STRERROR_R	public	compiler
 PQXX_HAVE_STRERROR_S	public	compiler
 PQXX_HAVE_TYPE_DISPLAY	public	compiler
