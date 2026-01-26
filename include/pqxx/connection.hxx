@@ -281,7 +281,7 @@ public:
           m_created_loc{loc}
   {
     check_version();
-    init(options, loc);
+    init(pqxx::zview{options}, {}, {}, loc);
   }
 
   /// Connect to a database, using `options` string.
@@ -1276,8 +1276,6 @@ private:
    */
   std::pair<bool, bool> poll_connect(sl);
 
-  // Initialise based on connection string.
-  PQXX_ZARGS void init(char const options[], sl);
   // Initialise based on connection string and override key/value pairs
   void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
 

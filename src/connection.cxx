@@ -200,13 +200,6 @@ void pqxx::connection::complete_init(sl loc)
 }
 
 
-void pqxx::connection::init(char const options[], sl loc)
-{
-  const std::vector<char const *> empty_keys, empty_values;
-  init(pqxx::zview{options}, empty_keys, empty_values, loc);
-}
-
-
 void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
 {
   char *errmsg{nullptr};
