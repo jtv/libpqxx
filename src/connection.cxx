@@ -200,17 +200,74 @@ void pqxx::connection::complete_init(sl loc)
 }
 
 
-void pqxx::connection::init(char const options[], sl loc)
+void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
 {
-  m_conn = PQconnectdb(options);
-  set_up_notice_handlers();
-  complete_init(loc);
-}
+  char *errmsg{nullptr};
+  std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
+    PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
+  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const errmsg_guard{
+    errmsg, pqxx::internal::pq::pqfreemem};
+  if (parsed == nullptr)
+  {
+    std::string error_message{"Failed to parse connection string"};
+    if (errmsg != nullptr)
+    {
+      error_message += ": ";
+      error_message += errmsg;
+    }
+    throw broken_connection{error_message, loc};
+  }
 
+  std::size_t parsed_count = 0;
+  for (auto *opt = parsed.get(); opt->keyword != nullptr; ++opt)
+  {
+    if (opt->val != nullptr)
+      ++parsed_count;
+  }
 
-void pqxx::connection::init(char const *params[], char const *values[], sl loc)
-{
-  m_conn = PQconnectdbParams(params, values, 0);
+  std::size_t const override_count = override_keys.size();
+
+  // merge options
+  std::vector<char const *> merged_keys, merged_values;
+  merged_keys.reserve(parsed_count + override_count + 1);
+  merged_values.reserve(parsed_count + override_count + 1);
+
+  // Copy parsed options
+  for (auto *opt{parsed.get()}; opt->keyword != nullptr; ++opt)
+  {
+    if (opt->val != nullptr)
+    {
+      merged_keys.push_back(opt->keyword);
+      merged_values.push_back(opt->val);
+    }
+  }
+
+  // Apply overrides
+  for (std::size_t i{0}; i < override_count; ++i)
+  {
+    auto it{std::find_if(
+      merged_keys.begin(), merged_keys.end(),
+      [key = override_keys[i]](char const *existing) {
+        return std::strcmp(existing, key) == 0;
+      })};
+
+    if (it != merged_keys.end())
+    {
+      auto const idx{static_cast<std::size_t>(
+        std::distance(merged_keys.begin(), it))};
+      merged_values[idx] = override_values[i];
+    }
+    else
+    {
+      merged_keys.push_back(override_keys[i]);
+      merged_values.push_back(override_values[i]);
+    }
+  }
+
+  merged_keys.push_back(nullptr);
+  merged_values.push_back(nullptr);
+
+  m_conn = PQconnectdbParams(merged_keys.data(), merged_values.data(), 0);
   set_up_notice_handlers();
   complete_init(loc);
 }
@@ -1335,4 +1392,4 @@ pqxx::connection pqxx::connecting::produce(sl loc) &&
   m_conn.complete_init(loc);
   return {std::move(m_conn), loc};
 }
-#endif // defined(_WIN32) || __has_include(<fcntl.h>
+#endif // defined(_WIN32) || __has_include(<fcntl.h>)

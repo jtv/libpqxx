@@ -281,7 +281,7 @@ public:
           m_created_loc{loc}
   {
     check_version();
-    init(options, loc);
+    init(pqxx::zview{options}, {}, {}, loc);
   }
 
   /// Connect to a database, using `options` string.
@@ -290,6 +290,31 @@ public:
   {
     // (Delegates to other constructor which calls check_version for us.)
   }
+
+  /// Connect to a database with connection string and parameter overrides.
+  /** This constructor allows you to specify a connection string and override
+   * specific parameters using a mapping (e.g., std::map, std::vector of pairs).
+   *
+   * The connection string is parsed first, then the key-value pairs from the
+   * mapping are applied, overriding any matching parameters from the connection
+   * string or adding new ones.
+   *
+   * The mapping can be anything that can be iterated as a series of pairs of
+   * zero-terminated strings: `std::pair<std::string, std::string>`, or
+   * `std::tuple<pqxx::zview, char const *>`, or
+   * `std::map<std::string, pqxx::zview>`, and so on.
+   *
+   * Example:
+   * @code
+   * std::map<std::string, std::string> params = {
+   *   {"application_name", "my_app"},
+   *   {"connect_timeout", "30"}
+   * };
+   * pqxx::connection cx{"host=localhost dbname=test", params};
+   * @endcode
+   */
+  template<internal::ZKey_ZValues MAPPING>
+  inline connection(zview connection_string, MAPPING const &params, sl = sl::current());
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -1251,10 +1276,9 @@ private:
    */
   std::pair<bool, bool> poll_connect(sl);
 
-  // Initialise based on connection string.
-  PQXX_ZARGS void init(char const options[], sl);
-  // Initialise based on parameter names and values.
-  PQXX_ZARGS void init(char const *params[], char const *values[], sl);
+  // Initialise based on connection string and override key/value pairs
+  void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
+
   void set_up_notice_handlers();
   /// Do the work that is common to all `init()` overloads.
   void complete_init(sl);
@@ -1551,9 +1575,31 @@ inline connection::connection(MAPPING const &params, sl loc) :
     keys.push_back(internal::as_c_string(key));
     values.push_back(internal::as_c_string(value));
   }
-  keys.push_back(nullptr);
-  values.push_back(nullptr);
-  init(std::data(keys), std::data(values), loc);
+  init(pqxx::zview{""}, keys, values, loc);
 }
+
+
+template<internal::ZKey_ZValues MAPPING>
+inline connection::connection(zview connection_string, MAPPING const &params, sl loc)
+{
+  check_version();
+
+  std::vector<char const *> override_keys, override_values;
+  if constexpr (std::ranges::sized_range<MAPPING>)
+  {
+    auto const size{std::ranges::size(params)};
+    override_keys.reserve(size);
+    override_values.reserve(size);
+  }
+  for (auto const &[key, value] : params)
+  {
+    override_keys.push_back(internal::as_c_string(key));
+    override_values.push_back(internal::as_c_string(value));
+  }
+
+  init(connection_string, override_keys, override_values, loc);
+}
+
+
 } // namespace pqxx
 #endif
