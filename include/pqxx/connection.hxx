@@ -291,14 +291,18 @@ public:
     // (Delegates to other constructor which calls check_version for us.)
   }
 
-  /// Connect to a database with connection string and parameter overrides.
-  /** This constructor allows you to specify a connection string and override
-   * specific parameters using a mapping (e.g., std::map, std::vector of
-   * pairs).
+  /// Connect to a database with both connection string and parameterpairs.
+  /** The parameter pairs are key/value pairs similar to the parameters you can
+   * also encode in a connection string.
    *
-   * The connection string is parsed first, then the key-value pairs from the
-   * mapping are applied, overriding any matching parameters from the
-   * connection string or adding new ones.
+   * Use this to combine a connection string with parameter pairs.  This can
+   * be useful when you have a fixed basic connection string, but sometimes
+   * want to override specific parameters.
+   *
+   * For any parameter which occurs both in the connection strings and in the
+   * parameter mapping, the latter's value takes effect.  For any parameter
+   * which occurs in the mapping multiple times, the last occurrence's value
+   * takes effect.
    *
    * The mapping can be anything that can be iterated as a series of pairs of
    * zero-terminated strings: `std::pair<std::string, std::string>`, or
