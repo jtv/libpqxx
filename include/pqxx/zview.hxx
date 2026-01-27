@@ -38,7 +38,7 @@ namespace pqxx
 class PQXX_LIBEXPORT zview : public std::string_view
 {
 public:
-  constexpr zview() noexcept = default;
+  constexpr zview() noexcept : zview{""} {}
 
   /// Convenience overload: construct using pointer and signed length.
   /** Even though you specify the length, there must still be a zero byte just
