@@ -1303,8 +1303,6 @@ private:
     return make_result(pgr, query, "", loc);
   }
 
-  PQXX_PRIVATE void set_up_state(sl);
-
   PQXX_PRIVATE int status() const noexcept;
 
   /// Escape a string, into a buffer allocated by the caller.
