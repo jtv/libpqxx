@@ -60,7 +60,7 @@
 /* Define if this feature is available. */
 #undef PQXX_HAVE_SLEEP_FOR
 
-/* Define if this feature is available. */
+/* Define if std::stacktrace works. */
 #undef PQXX_HAVE_STACKTRACE
 
 /* Define if this feature is available. */
@@ -80,3 +80,6 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define if this feature is available. */
+#undef stacktrace_support

@@ -89,16 +89,6 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_SLEEP_FOR=no)
 AC_MSG_RESULT($PQXX_HAVE_SLEEP_FOR)
-AC_MSG_CHECKING([PQXX_HAVE_STACKTRACE])
-PQXX_HAVE_STACKTRACE=yes
-AC_COMPILE_IFELSE(
-    [read_test(PQXX_HAVE_STACKTRACE.cxx)],
-    AC_DEFINE(
-        [PQXX_HAVE_STACKTRACE],
-        1,
-        [Define if this feature is available.]),
-    PQXX_HAVE_STACKTRACE=no)
-AC_MSG_RESULT($PQXX_HAVE_STACKTRACE)
 AC_MSG_CHECKING([PQXX_HAVE_STRERROR_R])
 PQXX_HAVE_STRERROR_R=yes
 AC_COMPILE_IFELSE(
@@ -149,4 +139,14 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_ZARGS=no)
 AC_MSG_RESULT($PQXX_HAVE_ZARGS)
+AC_MSG_CHECKING([stacktrace_support])
+stacktrace_support=yes
+AC_COMPILE_IFELSE(
+    [read_test(stacktrace_support.cxx)],
+    AC_DEFINE(
+        [stacktrace_support],
+        1,
+        [Define if this feature is available.]),
+    stacktrace_support=no)
+AC_MSG_RESULT($stacktrace_support)
 # End of config.
