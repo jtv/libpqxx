@@ -200,13 +200,15 @@ void pqxx::connection::complete_init(sl loc)
 }
 
 
-void pqxx::connection::init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl loc)
+void pqxx::connection::init(
+  zview connection_string, const std::vector<const char *> &override_keys,
+  const std::vector<const char *> &override_values, sl loc)
 {
   char *errmsg{nullptr};
   std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
     PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
-  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const errmsg_guard{
-    errmsg, pqxx::internal::pq::pqfreemem};
+  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const
+    errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
   if (parsed == nullptr)
   {
     std::string error_message{"Failed to parse connection string"};
@@ -253,8 +255,8 @@ void pqxx::connection::init(zview connection_string, const std::vector<const cha
 
     if (it != merged_keys.end())
     {
-      auto const idx{static_cast<std::size_t>(
-        std::distance(merged_keys.begin(), it))};
+      auto const idx{
+        static_cast<std::size_t>(std::distance(merged_keys.begin(), it))};
       merged_values[idx] = override_values[i];
     }
     else

@@ -319,7 +319,8 @@ public:
    * @endcode
    */
   template<internal::ZKey_ZValues MAPPING>
-  inline connection(zview connection_string, MAPPING const &params, sl = sl::current());
+  inline connection(
+    zview connection_string, MAPPING const &params, sl = sl::current());
 
   /// Move constructor.
   /** Moving a connection is not allowed if it has an open transaction, or has
@@ -1282,7 +1283,9 @@ private:
   std::pair<bool, bool> poll_connect(sl);
 
   // Initialise based on connection string and override key/value pairs
-  void init(zview connection_string, const std::vector<const char*>& override_keys, const std::vector<const char*>& override_values, sl);
+  void init(
+    zview connection_string, const std::vector<const char *> &override_keys,
+    const std::vector<const char *> &override_values, sl);
 
   void set_up_notice_handlers();
   /// Do the work that is common to all `init()` overloads.
@@ -1585,7 +1588,8 @@ inline connection::connection(MAPPING const &params, sl loc) :
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(zview connection_string, MAPPING const &params, sl loc)
+inline connection::connection(
+  zview connection_string, MAPPING const &params, sl loc)
 {
   check_version();
 
