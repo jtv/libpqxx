@@ -180,7 +180,7 @@ void pqxx::connection::set_up_notice_handlers()
 }
 
 
-void pqxx::connection::complete_init(sl loc)
+void pqxx::connection::complete_connection(sl loc)
 {
   if (m_conn == nullptr)
     throw std::bad_alloc{};
@@ -272,7 +272,7 @@ void pqxx::connection::init(
 
   m_conn = PQconnectdbParams(merged_keys.data(), merged_values.data(), 0);
   set_up_notice_handlers();
-  complete_init(loc);
+  complete_connection(loc);
 }
 
 

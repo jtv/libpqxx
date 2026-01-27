@@ -289,7 +289,7 @@ public:
           connection{options.c_str(), loc}
   {}
 
-  /// Connect to a database with both connection string and parameterpairs.
+  /// Connect to a database with both connection string and parameter pairs.
   /** The parameter pairs are key/value pairs similar to the parameters you can
    * also encode in a connection string.
    *
@@ -1288,8 +1288,9 @@ private:
     std::vector<const char *> const &override_values, sl);
 
   void set_up_notice_handlers();
-  /// XXX: This has only one use left.  Inline, rename, or reorganise.
-  void complete_init(sl);
+
+  /// Complete setup after libpq has completed creating its connection.
+  void complete_connection(sl);
 
   result make_result(
     internal::pq::PGresult *pgr, std::shared_ptr<std::string> const &query,
