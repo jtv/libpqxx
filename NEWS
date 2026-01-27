@@ -1,6 +1,7 @@
 8.0.0-rc5
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
+ - You can now combine connection string & option pairs on connections! (#1133)
  - `pqxx::zview` default constructor now also zero-terminates.
  - Libpqxx exceptions now have a `std::stacktrace`, if available.
  - Replace generated config headers with just `config-compiler.h`. (#1152)

@@ -281,7 +281,7 @@ public:
           m_created_loc{loc}
   {
     check_version();
-    init(pqxx::zview{options}, {}, {}, loc);
+    init(options, {}, {}, loc);
   }
 
   /// Connect to a database, using `options` string.
@@ -1579,7 +1579,7 @@ inline connection::connection(MAPPING const &params, sl loc) :
     keys.push_back(internal::as_c_string(key));
     values.push_back(internal::as_c_string(value));
   }
-  init(pqxx::zview{""}, keys, values, loc);
+  init({}, keys, values, loc);
 }
 
 
