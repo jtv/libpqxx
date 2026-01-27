@@ -205,12 +205,13 @@ void pqxx::connection::init(
   std::vector<const char *> const &override_values, sl loc)
 {
   char *errmsg{nullptr};
-  std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
+  std::unique_ptr<PQconninfoOption[], decltype(&PQconninfoFree)> const parsed{
     PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
-  std::unique_ptr<char, decltype(&pqxx::internal::pq::pqfreemem)> const
+  std::unique_ptr<char[], decltype(&pqxx::internal::pq::pqfreemem)> const
     errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
   if (parsed == nullptr)
   {
+    // XXX: Review from here.
     std::string error_message{"Failed to parse connection string"};
     if (errmsg != nullptr)
     {
