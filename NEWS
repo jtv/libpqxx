@@ -1,6 +1,8 @@
 8.0.0-rc4
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
+ - You can now combine connection string & option pairs on connections! (#1133)
+ - `pqxx::zview` default constructor now also zero-terminates.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.
