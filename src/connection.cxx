@@ -189,7 +189,27 @@ void pqxx::connection::complete_connection(sl loc)
     if (not is_open())
       throw broken_connection{PQerrorMessage(m_conn), loc};
 
-    set_up_state(loc);
+    constexpr int min_proto{3};
+    if (auto const proto_ver{protocol_version()}; proto_ver < min_proto)
+    {
+      if (proto_ver == 0)
+        throw broken_connection{"No connection.", loc};
+      else
+        throw version_mismatch{
+          std::format(
+            "Unsupported frontend/backend protocol version; {} is the "
+            "minimum.",
+            min_proto),
+          loc};
+    }
+
+    constexpr int min_server{110'000};
+    if (server_version() < min_server)
+      throw version_mismatch{
+        std::format(
+          "Unsupported server version; the minimum is {}.{}.",
+          min_server / 10'000, min_server % 10'000),
+        loc};
   }
   catch (std::exception const &)
   {
@@ -394,36 +414,6 @@ std::string pqxx::connection::get_var(std::string_view var, sl loc)
   return exec(std::format("SHOW {}", quote_name(var)), loc)
     .one_field_ref(loc)
     .as<std::string>(loc);
-}
-
-
-// XXX: Inline this into complete_init().
-/** Set up various parts of logical connection state that may need to be
- * recovered because the physical connection to the database was lost and is
- * being reset, or that may not have been initialized yet.
- */
-void pqxx::connection::set_up_state(sl loc)
-{
-  int const min_proto{3};
-  if (auto const proto_ver{protocol_version()}; proto_ver < min_proto)
-  {
-    if (proto_ver == 0)
-      throw broken_connection{"No connection.", loc};
-    else
-      throw version_mismatch{
-        std::format(
-          "Unsupported frontend/backend protocol version; {} is the minimum.",
-          min_proto),
-        loc};
-  }
-
-  constexpr int min_server{110'000};
-  if (server_version() < min_server)
-    throw version_mismatch{
-      std::format(
-        "Unsupported server version; the minimum is {}.{}.",
-        min_server / 10'000, min_server % 10'000),
-      loc};
 }
 
 
@@ -1392,7 +1382,7 @@ pqxx::connection pqxx::connecting::produce(sl loc) &&
   if (!done())
     throw usage_error{
       "Tried to produce a nonblocking connection before it was done.", loc};
-  m_conn.complete_init(loc);
+  m_conn.complete_connection(loc);
   return {std::move(m_conn), loc};
 }
 #endif // defined(_WIN32) || __has_include(<fcntl.h>)
