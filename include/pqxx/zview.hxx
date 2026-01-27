@@ -38,7 +38,7 @@ namespace pqxx
 class PQXX_LIBEXPORT zview : public std::string_view
 {
 public:
-  /// Default constructor produces a zero-initialised empty string.
+  /// Default constructor produces a zero-terminated empty string.
   constexpr zview() noexcept : zview{""} {}
 
   /// Convenience overload: construct using pointer and signed length.
