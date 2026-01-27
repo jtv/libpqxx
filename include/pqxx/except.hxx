@@ -572,7 +572,9 @@ struct PQXX_LIBEXPORT internal_error : failure
 /// Error in usage of libpqxx library, similar to std::logic_error
 struct PQXX_LIBEXPORT usage_error : failure
 {
-  explicit usage_error(std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+  explicit usage_error(
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
 
@@ -588,7 +590,9 @@ struct PQXX_LIBEXPORT usage_error : failure
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
 struct PQXX_LIBEXPORT argument_error : failure
 {
-  explicit argument_error(std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+  explicit argument_error(
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
 
@@ -602,7 +606,8 @@ struct PQXX_LIBEXPORT argument_error : failure
 struct PQXX_LIBEXPORT conversion_error : failure
 {
   explicit conversion_error(
-    std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
 
@@ -619,7 +624,8 @@ struct PQXX_LIBEXPORT conversion_error : failure
 struct PQXX_LIBEXPORT unexpected_null : conversion_error
 {
   explicit unexpected_null(
-    std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           conversion_error{whatarg, loc, std::move(tr)}
   {}
 
@@ -633,7 +639,8 @@ struct PQXX_LIBEXPORT unexpected_null : conversion_error
 struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 {
   explicit conversion_overrun(
-    std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           conversion_error{whatarg, loc, std::move(tr)}
   {}
 
@@ -649,7 +656,9 @@ struct PQXX_LIBEXPORT conversion_overrun : conversion_error
 /// Something is out of range, similar to std::out_of_range
 struct PQXX_LIBEXPORT range_error : failure
 {
-  explicit range_error(std::string const &whatarg, sl loc = sl::current(), st &&tr = st::current()) :
+  explicit range_error(
+    std::string const &whatarg, sl loc = sl::current(),
+    st &&tr = st::current()) :
           failure{whatarg, loc, std::move(tr)}
   {}
 
@@ -662,7 +671,8 @@ struct PQXX_LIBEXPORT range_error : failure
 /// Query returned an unexpected number of rows.
 struct PQXX_LIBEXPORT unexpected_rows : range_error
 {
-  explicit unexpected_rows(std::string const &msg, sl loc = sl::current(), st &&tr = st::current()) :
+  explicit unexpected_rows(
+    std::string const &msg, sl loc = sl::current(), st &&tr = st::current()) :
           range_error{msg, loc, std::move(tr)}
   {}
 
@@ -677,7 +687,8 @@ struct PQXX_LIBEXPORT feature_not_supported : sql_error
 {
   PQXX_ZARGS explicit feature_not_supported(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -701,7 +712,8 @@ struct PQXX_LIBEXPORT data_exception : sql_error
 {
   PQXX_ZARGS explicit data_exception(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -715,7 +727,8 @@ struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
 {
   PQXX_ZARGS explicit integrity_constraint_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st &&tr = st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -732,7 +745,8 @@ struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit restrict_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st &&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -749,7 +763,8 @@ struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit not_null_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -766,7 +781,8 @@ struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit foreign_key_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr = st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -783,7 +799,8 @@ struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit unique_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -800,7 +817,8 @@ struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
 {
   PQXX_ZARGS explicit check_violation(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           integrity_constraint_violation{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -814,7 +832,8 @@ struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
 {
   PQXX_ZARGS explicit invalid_cursor_state(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -831,8 +850,9 @@ struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
 {
   PQXX_ZARGS explicit invalid_sql_statement_name(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~invalid_sql_statement_name() noexcept override;
@@ -848,8 +868,9 @@ struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
 {
   PQXX_ZARGS explicit invalid_cursor_name(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~invalid_cursor_name() noexcept override;
@@ -868,8 +889,9 @@ struct PQXX_LIBEXPORT syntax_error : sql_error
 
   PQXX_ZARGS explicit syntax_error(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, int pos = -1, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}, error_position{pos}
+    std::string const &sqlstate = {}, int pos = -1, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}, error_position{pos}
   {}
 
   ~syntax_error() noexcept override;
@@ -882,9 +904,10 @@ struct PQXX_LIBEXPORT undefined_column : syntax_error
 {
   PQXX_ZARGS explicit undefined_column(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           // TODO: Can we get the column?
-          syntax_error{err, Q, sqlstate, -1, loc,std::move(tr)}
+          syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
   ~undefined_column() noexcept override;
@@ -900,9 +923,10 @@ struct PQXX_LIBEXPORT undefined_function : syntax_error
 {
   PQXX_ZARGS explicit undefined_function(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           // TODO: Can we get the column?
-          syntax_error{err, Q, sqlstate, -1, loc,std::move(tr)}
+          syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
   ~undefined_function() noexcept override;
@@ -918,9 +942,10 @@ struct PQXX_LIBEXPORT undefined_table : syntax_error
 {
   PQXX_ZARGS explicit undefined_table(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           // TODO: Can we get the column?
-          syntax_error{err, Q, sqlstate, -1, loc,std::move(tr)}
+          syntax_error{err, Q, sqlstate, -1, loc, std::move(tr)}
   {}
 
   ~undefined_table() noexcept override;
@@ -933,8 +958,9 @@ struct PQXX_LIBEXPORT insufficient_privilege : sql_error
 {
   PQXX_ZARGS explicit insufficient_privilege(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~insufficient_privilege() noexcept override;
@@ -951,8 +977,9 @@ struct PQXX_LIBEXPORT insufficient_resources : sql_error
 {
   PQXX_ZARGS explicit insufficient_resources(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~insufficient_resources() noexcept override;
@@ -968,8 +995,9 @@ struct PQXX_LIBEXPORT disk_full : insufficient_resources
 {
   PQXX_ZARGS explicit disk_full(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          insufficient_resources{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~disk_full() noexcept override;
@@ -982,8 +1010,9 @@ struct PQXX_LIBEXPORT server_out_of_memory : insufficient_resources
 {
   PQXX_ZARGS explicit server_out_of_memory(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          insufficient_resources{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          insufficient_resources{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~server_out_of_memory() noexcept override;
@@ -998,8 +1027,8 @@ struct PQXX_LIBEXPORT server_out_of_memory : insufficient_resources
 struct PQXX_LIBEXPORT too_many_connections : broken_connection
 {
   explicit too_many_connections(
-    std::string const &err, sl loc = sl::current(),st&&tr=st::current()) :
-          broken_connection{err, loc,std::move(tr)}
+    std::string const &err, sl loc = sl::current(), st &&tr = st::current()) :
+          broken_connection{err, loc, std::move(tr)}
   {}
 
   ~too_many_connections() noexcept override;
@@ -1018,8 +1047,9 @@ struct PQXX_LIBEXPORT plpgsql_error : sql_error
 {
   PQXX_ZARGS explicit plpgsql_error(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          sql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          sql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~plpgsql_error() noexcept override;
@@ -1033,8 +1063,9 @@ struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
 {
   PQXX_ZARGS explicit plpgsql_raise(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(),st&&tr=st::current()) :
-          plpgsql_error{err, Q, sqlstate, loc,std::move(tr)}
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
+          plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
   ~plpgsql_raise() noexcept override;
@@ -1047,7 +1078,8 @@ struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
 {
   PQXX_ZARGS explicit plpgsql_no_data_found(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 
@@ -1064,7 +1096,8 @@ struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
 {
   PQXX_ZARGS explicit plpgsql_too_many_rows(
     std::string const &err, std::string const &Q = {},
-    std::string const &sqlstate = {}, sl loc = sl::current(), st&&tr=st::current()) :
+    std::string const &sqlstate = {}, sl loc = sl::current(),
+    st &&tr = st::current()) :
           plpgsql_error{err, Q, sqlstate, loc, std::move(tr)}
   {}
 

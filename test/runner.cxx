@@ -199,17 +199,6 @@ std::string describe_failure(std::string_view test, EXCEPTION const &err)
       summary = std::format("[{}] ({}): {}", err.name(), loc, msg);
     else
       summary = std::format("{} ({})", err.name(), loc);
-
-#if defined(PQXX_HAVE_STACKTRACE)
-// XXX: Get this working.
-/*
-    if constexpr (requires { err.trace(); })
-    {
-      auto const tr{err.trace()};
-      if (tr) summary = std::format("{}\nStack trace:\n{}", summary, std::stacktrace{*tr});
-    }
-*/
-#endif
   }
   else
   {
