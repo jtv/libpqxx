@@ -1284,8 +1284,8 @@ private:
 
   // Initialise based on connection string and key/value parameter pairs.
   void init(
-    zview connection_string, const std::vector<const char *> &&override_keys,
-    const std::vector<const char *> &&override_values, sl);
+    zview connection_string, std::vector<const char *> const &override_keys,
+    std::vector<const char *> const &override_values, sl);
 
   void set_up_notice_handlers();
   /// XXX: This has only one use left.  Inline, rename, or reorganise.
@@ -1586,9 +1586,7 @@ inline connection::connection(
     values.push_back(internal::as_c_string(value));
   }
 
-  init(connection_string, std::move(keys), std::move(values), loc);
+  init(connection_string, keys, values, loc);
 }
-
-
 } // namespace pqxx
 #endif

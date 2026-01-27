@@ -201,8 +201,8 @@ void pqxx::connection::complete_init(sl loc)
 
 
 void pqxx::connection::init(
-  zview connection_string, const std::vector<const char *> &&override_keys,
-  const std::vector<const char *> &&override_values, sl loc)
+  zview connection_string, std::vector<const char *> const &override_keys,
+  std::vector<const char *> const &override_values, sl loc)
 {
   char *errmsg{nullptr};
   std::unique_ptr<PQconninfoOption, decltype(&PQconninfoFree)> const parsed{
