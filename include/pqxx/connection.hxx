@@ -287,9 +287,7 @@ public:
   /// Connect to a database, using `options` string.
   explicit connection(zview options, sl loc = sl::current()) :
           connection{options.c_str(), loc}
-  {
-    // (Delegates to other constructor which calls check_version for us.)
-  }
+  {}
 
   /// Connect to a database with both connection string and parameterpairs.
   /** The parameter pairs are key/value pairs similar to the parameters you can
@@ -310,13 +308,13 @@ public:
    * `std::map<std::string, pqxx::zview>`, and so on.
    *
    * Example:
-   * @code
-   * std::map<std::string, std::string> params = {
+   * ```cxx
+   * std::map<std::string, std::string> const params = {
    *   {"application_name", "my_app"},
    *   {"connect_timeout", "30"}
    * };
    * pqxx::connection cx{"host=localhost dbname=test", params};
-   * @endcode
+   * ```
    */
   template<internal::ZKey_ZValues MAPPING>
   inline connection(
@@ -344,7 +342,9 @@ public:
    * `std::map<std::string, pqxx::zview>`, and so on.
    */
   template<internal::ZKey_ZValues MAPPING>
-  inline connection(MAPPING const &params, sl = sl::current());
+  inline connection(MAPPING const &params, sl loc = sl::current()) :
+          connection{"", params, loc}
+  {}
 
   ~connection()
   {
@@ -1282,13 +1282,13 @@ private:
    */
   std::pair<bool, bool> poll_connect(sl);
 
-  // Initialise based on connection string and override key/value pairs
+  // Initialise based on connection string and key/value parameter pairs.
   void init(
-    zview connection_string, const std::vector<const char *> &override_keys,
-    const std::vector<const char *> &override_values, sl);
+    zview connection_string, const std::vector<const char *> &&override_keys,
+    const std::vector<const char *> &&override_values, sl);
 
   void set_up_notice_handlers();
-  /// Do the work that is common to all `init()` overloads.
+  /// XXX: This has only one use left.  Inline, rename, or reorganise.
   void complete_init(sl);
 
   result make_result(
@@ -1566,7 +1566,8 @@ connection::quote_columns(STRINGS const &columns, sl loc) const
 
 
 template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(MAPPING const &params, sl loc) :
+inline connection::connection(
+  zview connection_string, MAPPING const &params, sl loc) :
         m_created_loc{loc}
 {
   check_version();
@@ -1574,7 +1575,8 @@ inline connection::connection(MAPPING const &params, sl loc) :
   std::vector<char const *> keys, values;
   if constexpr (std::ranges::sized_range<MAPPING>)
   {
-    auto const size{std::ranges::size(params) + 1};
+    // TODO: Pad size to account for connection_string, if we can.
+    auto const size{std::ranges::size(params)};
     keys.reserve(size);
     values.reserve(size);
   }
@@ -1583,30 +1585,8 @@ inline connection::connection(MAPPING const &params, sl loc) :
     keys.push_back(internal::as_c_string(key));
     values.push_back(internal::as_c_string(value));
   }
-  init({}, keys, values, loc);
-}
 
-
-template<internal::ZKey_ZValues MAPPING>
-inline connection::connection(
-  zview connection_string, MAPPING const &params, sl loc)
-{
-  check_version();
-
-  std::vector<char const *> override_keys, override_values;
-  if constexpr (std::ranges::sized_range<MAPPING>)
-  {
-    auto const size{std::ranges::size(params)};
-    override_keys.reserve(size);
-    override_values.reserve(size);
-  }
-  for (auto const &[key, value] : params)
-  {
-    override_keys.push_back(internal::as_c_string(key));
-    override_values.push_back(internal::as_c_string(value));
-  }
-
-  init(connection_string, override_keys, override_values, loc);
+  init(connection_string, std::move(keys), std::move(values), loc);
 }
 
 
