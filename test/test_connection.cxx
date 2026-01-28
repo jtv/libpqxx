@@ -310,6 +310,7 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
 }
 
 
+// XXX: Review from here.
 void test_connection_string_with_overrides(pqxx::test::context &)
 {
   // replace parameter from connection string
