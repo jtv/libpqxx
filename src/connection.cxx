@@ -228,8 +228,8 @@ namespace
 std::span<PQconninfoOption const>
 span_options(PQconninfoOption const *opts) noexcept
 {
-  PQconninfoOption const *here;
-  for (here = opts; here->keyword != nullptr; ++here);
+  PQconninfoOption const *here{opts};
+  while (here->keyword != nullptr) ++here;
   return {opts, static_cast<std::size_t>(here - opts)};
 }
 
