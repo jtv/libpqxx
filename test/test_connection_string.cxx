@@ -3,6 +3,7 @@
 #include "helpers.hxx"
 
 
+// XXX: Test parsed_connection_string.
 namespace
 {
 constexpr std::string_view const marker{"application_name="};
