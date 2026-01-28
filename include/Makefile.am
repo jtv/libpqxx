@@ -38,6 +38,7 @@ nobase_include_HEADERS= pqxx/pqxx \
 	pqxx/version pqxx/version.hxx \
 	pqxx/internal/array-composite.hxx \
 	pqxx/internal/callgate.hxx \
+	pqxx/internal/connection-string.hxx \
 	pqxx/internal/conversions.hxx \
 	pqxx/internal/encodings.hxx \
 	pqxx/internal/header-pre.hxx \
