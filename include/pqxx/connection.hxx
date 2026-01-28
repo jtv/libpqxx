@@ -1383,7 +1383,7 @@ private:
    * a buffer containing the line, and size will be its length not including
    * the newline at the end.
    */
-  std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
+  std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>
     read_copy_line(sl);
 
   friend class internal::gate::connection_stream_to;

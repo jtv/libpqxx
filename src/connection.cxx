@@ -820,7 +820,7 @@ std::string pqxx::connection::encrypt_password(
   char const user[], char const password[], char const *algorithm)
 {
   auto const buf{PQencryptPasswordConn(m_conn, password, user, algorithm)};
-  std::unique_ptr<char const, void (*)(void const *)> const ptr{
+  std::unique_ptr<char const[], void (*)(void const *)> const ptr{
     buf, pqxx::internal::pq::pqfreemem};
   return (ptr.get());
 }
@@ -951,7 +951,7 @@ void pqxx::connection::unregister_transaction(transaction_base *t) noexcept
 }
 
 
-std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>
+std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>
 pqxx::connection::read_copy_line(sl loc)
 {
   char *buf{nullptr};
@@ -969,7 +969,7 @@ pqxx::connection::read_copy_line(sl loc)
   case -1: // End of COPY.
     make_result(PQgetResult(m_conn), q, *q, loc);
     return std::make_pair(
-      std::unique_ptr<char, void (*)(void const *)>{
+      std::unique_ptr<char[], void (*)(void const *)>{
         nullptr, pqxx::internal::pq::pqfreemem},
       0u);
 
@@ -982,7 +982,7 @@ pqxx::connection::read_copy_line(sl loc)
       // Line size includes a trailing zero, which we ignore.
       auto const text_len{static_cast<std::size_t>(line_len) - 1};
       return std::make_pair(
-        std::unique_ptr<char, void (*)(void const *)>{
+        std::unique_ptr<char[], void (*)(void const *)>{
           buf, pqxx::internal::pq::pqfreemem},
         text_len);
     }
@@ -1074,7 +1074,7 @@ std::string pqxx::connection::quote_raw(bytes_view bytes) const
 
 std::string pqxx::connection::quote_name(std::string_view identifier) const
 {
-  std::unique_ptr<char, void (*)(void const *)> const buf{
+  std::unique_ptr<char[], void (*)(void const *)> const buf{
     PQescapeIdentifier(m_conn, identifier.data(), std::size(identifier)),
     pqxx::internal::pq::pqfreemem};
   if (buf == nullptr) [[unlikely]]
@@ -1339,8 +1339,8 @@ std::string pqxx::connection::connection_string() const
   if (m_conn == nullptr) [[unlikely]]
     throw usage_error{"Can't get connection string: connection is not open."};
 
-  std::unique_ptr<PQconninfoOption, void (*)(PQconninfoOption *)> const parms{
-    PQconninfo(m_conn), pqconninfofree};
+  std::unique_ptr<PQconninfoOption[], void (*)(PQconninfoOption *)> const
+    parms{PQconninfo(m_conn), pqconninfofree};
   if (parms == nullptr)
     throw std::bad_alloc{};
 

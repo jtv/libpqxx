@@ -79,7 +79,7 @@ class PQXX_LIBEXPORT stream_from final : transaction_focus
 {
 public:
   using raw_line =
-    std::pair<std::unique_ptr<char, void (*)(void const *)>, std::size_t>;
+    std::pair<std::unique_ptr<char[], void (*)(void const *)>, std::size_t>;
 
   stream_from(stream_from &&) = delete;
   stream_from &operator=(stream_from &&) = delete;
