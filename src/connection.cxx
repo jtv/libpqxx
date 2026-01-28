@@ -220,77 +220,88 @@ void pqxx::connection::complete_connection(sl loc)
 }
 
 
-void pqxx::connection::init(
-  zview connection_string, std::vector<const char *> const &override_keys,
-  std::vector<const char *> const &override_values, sl loc)
+namespace
 {
-  char *errmsg{nullptr};
-  std::unique_ptr<PQconninfoOption[], decltype(&PQconninfoFree)> const parsed{
-    PQconninfoParse(connection_string.c_str(), &errmsg), PQconninfoFree};
-  std::unique_ptr<char[], decltype(&pqxx::internal::pq::pqfreemem)> const
-    errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
-  if (parsed == nullptr)
+/// Return value-terminated array of `PQconninfoOption` into a `std::range`.
+/** The termination condition is the `keyword` field being null.
+ */
+std::span<PQconninfoOption const>
+span_options(PQconninfoOption const *opts) noexcept
+{
+  PQconninfoOption const *here;
+  for (here = opts; here->keyword != nullptr; ++here);
+  return {opts, static_cast<std::size_t>(here - opts)};
+}
+
+
+/// If `opts` is not null, free the options array to which it points.
+void delete_pg_conn_option(pqxx::internal::pg_conn_option opts[]) noexcept
+{
+  PQconninfoFree(reinterpret_cast<PQconninfoOption *>(opts));
+}
+} // namespace
+
+
+namespace pqxx::internal
+{
+parsed_connection_string::parsed_connection_string(
+  char const connection_string[], sl loc) :
+        m_options{nullptr, delete_pg_conn_option}
+{
+  if (connection_string != nullptr)
   {
-    // XXX: Review from here.
-    std::string error_message{"Failed to parse connection string"};
-    if (errmsg != nullptr)
+    char *errmsg{nullptr};
+    m_options = decltype(m_options){
+      reinterpret_cast<pqxx::internal::pg_conn_option *>(
+        PQconninfoParse(connection_string, &errmsg)),
+      delete_pg_conn_option};
+    std::unique_ptr<char[], decltype(&pqxx::internal::pq::pqfreemem)> const
+      errmsg_guard{errmsg, pqxx::internal::pq::pqfreemem};
+    if (not m_options)
     {
-      error_message += ": ";
-      error_message += errmsg;
-    }
-    throw broken_connection{error_message, loc};
-  }
-
-  std::size_t parsed_count = 0;
-  for (auto *opt = parsed.get(); opt->keyword != nullptr; ++opt)
-  {
-    if (opt->val != nullptr)
-      ++parsed_count;
-  }
-
-  std::size_t const override_count = override_keys.size();
-
-  // merge options
-  std::vector<char const *> merged_keys, merged_values;
-  merged_keys.reserve(parsed_count + override_count + 1);
-  merged_values.reserve(parsed_count + override_count + 1);
-
-  // Copy parsed options
-  for (auto *opt{parsed.get()}; opt->keyword != nullptr; ++opt)
-  {
-    if (opt->val != nullptr)
-    {
-      merged_keys.push_back(opt->keyword);
-      merged_values.push_back(opt->val);
-    }
-  }
-
-  // Apply overrides
-  for (std::size_t i{0}; i < override_count; ++i)
-  {
-    auto it{std::find_if(
-      merged_keys.begin(), merged_keys.end(),
-      [key = override_keys[i]](char const *existing) {
-        return std::strcmp(existing, key) == 0;
-      })};
-
-    if (it != merged_keys.end())
-    {
-      auto const idx{
-        static_cast<std::size_t>(std::distance(merged_keys.begin(), it))};
-      merged_values[idx] = override_values[i];
-    }
-    else
-    {
-      merged_keys.push_back(override_keys[i]);
-      merged_values.push_back(override_values[i]);
+      if (errmsg)
+        throw broken_connection{
+          std::format("Error in connection string: {}", errmsg), loc};
+      else
+        throw broken_connection{"Could not parse connection string.", loc};
     }
   }
+}
 
-  merged_keys.push_back(nullptr);
-  merged_values.push_back(nullptr);
 
-  m_conn = PQconnectdbParams(merged_keys.data(), merged_values.data(), 0);
+parsed_connection_string::~parsed_connection_string() noexcept = default;
+
+
+std::array<std::vector<char const *>, 2u>
+parsed_connection_string::parse() const
+{
+  std::array<std::vector<char const *>, 2u> output{};
+  if (m_options)
+  {
+    // A span across the parsed connection string options.
+    auto const parsed{span_options(
+      reinterpret_cast<PQconninfoOption const *>(m_options.get()))};
+
+    // XXX: Pipe syntax to filter out defaulted options?
+    for (auto const &opt : parsed)
+    {
+      if (opt.val != nullptr)
+      {
+        output.at(0u).push_back(opt.keyword);
+        output.at(1u).push_back(opt.val);
+      }
+    }
+  }
+  return output;
+}
+} // namespace pqxx::internal
+
+
+void pqxx::connection::init(
+  std::vector<const char *> const &keys,
+  std::vector<const char *> const &values, sl loc)
+{
+  m_conn = PQconnectdbParams(keys.data(), values.data(), 0);
   set_up_notice_handlers();
   complete_connection(loc);
 }
