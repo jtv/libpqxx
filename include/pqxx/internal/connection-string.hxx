@@ -1,5 +1,5 @@
-#if !defined(PQXX_CONNECTION_STRING_H)
-#  define PQXX_CONNECTION_STRING_H
+#if !defined(PQXX_H_CONNECTION_STRING)
+#  define PQXX_H_CONNECTION_STRING
 
 namespace pqxx::internal
 {
