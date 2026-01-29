@@ -48,9 +48,8 @@ void test_cursor(pqxx::test::context &)
 
 void test_cursor_constants(pqxx::test::context &tctx)
 {
-  PQXX_CHECK_GREATER(pqxx::cursor_base::all(), tctx.make_num();
-  PQXX_CHECK_LESS(
-    pqxx::cursor_base::backward_all(), -tctx.make_num();
+  PQXX_CHECK_GREATER(pqxx::cursor_base::all(), tctx.make_num());
+  PQXX_CHECK_LESS(pqxx::cursor_base::backward_all(), -tctx.make_num());
 }
 
 
