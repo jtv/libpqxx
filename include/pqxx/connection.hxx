@@ -83,7 +83,6 @@ class sql_cursor;
  */
 template<typename T>
 concept ZKey_ZValues = std::ranges::input_range<T> and requires(T t) {
-  { std::ranges::range<T> };
   { std::get<0>(*std::cbegin(t)) } -> ZString;
   { std::get<1>(*std::cbegin(t)) } -> ZString;
 } and std::tuple_size_v<typename std::ranges::iterator_t<T>::value_type> == 2;
@@ -1608,13 +1607,6 @@ inline connection::connection(
   pqxx::internal::parsed_connection_string const parsed_string{
     connection_string, loc};
   auto [keys, values]{parsed_string.parse()};
-  auto const parsed_count{std::size(keys)};
-
-  // Maximum number of total options.  Add 1 for a terminating null.
-  auto const pessimistic_total{parsed_count + std::size(params) + 1u};
-
-  keys.reserve(pessimistic_total);
-  values.reserve(pessimistic_total);
 
   // Merge key/value pairs into the keys and pairs we got from the connection
   // string.

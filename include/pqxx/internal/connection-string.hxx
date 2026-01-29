@@ -28,6 +28,11 @@ public:
    * `parsed_connection_string` does.  You can call `parse()` as many times as
    * you like.  The calls will produce distinct outputs but the ultimate string
    * pointers will be the same, and in the same order.
+   *
+   * The vectors will only contain values that were actually specified (as
+   * opposed to ones that were left to their defaults), but they will have
+   * enough room reserved to specify all possible options, plus a terminating
+   * null that we may need to add.
    */
   std::array<std::vector<char const *>, 2u> parse() const;
 
