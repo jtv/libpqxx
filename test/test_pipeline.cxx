@@ -9,7 +9,7 @@ namespace
 {
 void test_pipeline_is_consistent(pqxx::test::context &tctx)
 {
-  auto const num_queries = pqxx::test::make_num(rnd, 10) + 1;
+  auto const num_queries = tctx.make_num(10) + 1;
   auto const value = pqxx::test::make_num(rnd);
 
   pqxx::connection cx;

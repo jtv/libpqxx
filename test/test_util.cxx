@@ -16,7 +16,7 @@ void test_make_num(pqxx::test::context &tctx)
     not same, std::format("Random numbers all came out as {}.", last));
 
   for (int i{0}; i < 100; ++i)
-    PQXX_CHECK_BOUNDS(pqxx::test::make_num(rnd, 10), 0, 10);
+    PQXX_CHECK_BOUNDS(tctx.make_num(10), 0, 10);
 }
 
 
@@ -263,7 +263,7 @@ void test_source_loc_renders_real_source_location(pqxx::test::context &)
 std::string make_filename(pqxx::test::context &tctx)
 {
   char const *suffix{nullptr};
-  switch (pqxx::test::make_num(rnd, 7))
+  switch (tctx.make_num(7))
   {
   case 0: suffix = "cxx"; break;
   case 1: suffix = "cpp"; break;
@@ -282,7 +282,7 @@ std::string make_filename(pqxx::test::context &tctx)
 /// Make up an arbitrary C++ type name.
 std::string make_type(pqxx::test::context &tctx)
 {
-  switch (pqxx::test::make_num(rnd, 10))
+  switch (tctx.make_num(10))
   {
   case 0: return "int";
   case 1: return "char *";
@@ -307,7 +307,7 @@ std::string make_type(pqxx::test::context &tctx)
 /// Make up an arbitrary C++ parameters list.
 std::string make_params(pqxx::test::context &tctx)
 {
-  switch (pqxx::test::make_num(rnd, 3))
+  switch (tctx.make_num(3))
   {
   case 0: return "";
   case 1: return make_type(rnd);
@@ -326,7 +326,7 @@ std::string make_params(pqxx::test::context &tctx)
 std::string make_function(pqxx::test::context &tctx)
 {
   std::string rettype{"void"};
-  if (pqxx::test::make_num(rnd, 5) > 0)
+  if (tctx.make_num(5) > 0)
     rettype = make_type(rnd);
   auto const name{pqxx::test::make_name(rnd, "func")};
   return std::format("{} {}({})", rettype, name, make_params(rnd));
@@ -365,7 +365,7 @@ struct fake_sl
 /// Return an arbitrary positive number.
 std::uint_least32_t make_pos_num(pqxx::test::context &tctx)
 {
-  return static_cast<std::uint_least32_t>(pqxx::test::make_num(rnd, 9999) + 1);
+  return static_cast<std::uint_least32_t>(tctx.make_num(9999) + 1);
 }
 
 
