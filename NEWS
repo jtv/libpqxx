@@ -66,7 +66,7 @@
  - Use C++26 reflection, if available, for finding types' names.
  - Export `source_loc()`: render a `std::source_location` into text.
  - Allow tests to run even on ASCII-only databases.
- - Stop tryin gto use/support `std::filesystem`.
+ - Stop trying to use/support `std::filesystem`.
  - `composite_into_buf()` now returns a `zview`.
  - Optionally pass `encoding_group` (or connection/transaction) into `params`.
 7.10.5
