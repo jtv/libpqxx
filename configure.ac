@@ -302,6 +302,19 @@ fi
 fi # No poll()
 
 
+# Check for std::stacktrace support.
+#
+# We need to link this test because some compilers require an extra library to
+# support std::stacktrace.
+AC_MSG_CHECKING([for std::stacktrace support])
+have_stacktrace=yes
+AC_LINK_IFELSE(
+    [read_test(stacktrace_support.cxx)],
+    AC_DEFINE([PQXX_HAVE_STACKTRACE], 1, [Define if std::stacktrace works.]),
+    have_stacktrace=no)
+AC_MSG_RESULT($have_stacktrace)
+
+
 # Find PostgreSQL includes and libraries
 AC_PATH_PROG([PKG_CONFIG], [pkg-config])
 AC_PATH_PROGS(PG_CONFIG, pg_config)

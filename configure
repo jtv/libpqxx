@@ -20368,7 +20368,7 @@ struct foo
 
   int operator[](int i) const { return i; }
 
-  int operator[](int i, std::source_location l) const { return i - 1; }
+  int operator[](int i, std::source_location) const { return i - 1; }
 
 };
 
@@ -20769,6 +20769,40 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PQXX_HAVE_ZARGS" >&5
 printf "%s\n" "$PQXX_HAVE_ZARGS" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking stacktrace_support" >&5
+printf %s "checking stacktrace_support... " >&6; }
+stacktrace_support=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <format>
+
+#include <iostream>
+
+#include <stacktrace>
+
+
+
+int main()
+
+{
+
+  std::cout << std::format("{}", std::stacktrace::current());
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+
+printf "%s\n" "#define stacktrace_support 1" >>confdefs.h
+
+else $as_nop
+  stacktrace_support=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $stacktrace_support" >&5
+printf "%s\n" "$stacktrace_support" >&6; }
 # End of config.
 
 
@@ -20912,6 +20946,47 @@ the config.log file for more clues as to why this failed.
 fi
 
 fi # No poll()
+
+
+# Check for std::stacktrace support.
+#
+# We need to link this test because some compilers require an extra library to
+# support std::stacktrace.
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for std::stacktrace support" >&5
+printf %s "checking for std::stacktrace support... " >&6; }
+have_stacktrace=yes
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <format>
+
+#include <iostream>
+
+#include <stacktrace>
+
+
+
+int main()
+
+{
+
+  std::cout << std::format("{}", std::stacktrace::current());
+
+}
+
+
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+
+printf "%s\n" "#define PQXX_HAVE_STACKTRACE 1" >>confdefs.h
+
+else $as_nop
+  have_stacktrace=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_stacktrace" >&5
+printf "%s\n" "$have_stacktrace" >&6; }
 
 
 # Find PostgreSQL includes and libraries

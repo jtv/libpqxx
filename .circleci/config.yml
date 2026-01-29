@@ -483,7 +483,7 @@ workflows:
       - analyse:
           matrix:
             parameters:
-              cxx_ver: ["c++26"]
+              cxx_ver: ["c++20", "c++23", "c++26"]
 
       - coverage:
           matrix:

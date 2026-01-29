@@ -2,6 +2,7 @@
  - Release candidate for 8.0.0.
  - Any changes will be logged under "8.0.0".
  - `pqxx::zview` default constructor now also zero-terminates.
+ - Libpqxx exceptions now have a `std::stacktrace`, if available.
 8.0.0
  - C++20 is now the oldest C++ version that libpqxx supports.
  - Requires PostgreSQL 11 or better.

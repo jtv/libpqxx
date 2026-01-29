@@ -9,8 +9,16 @@ if(NOT PostgreSQL_FOUND)
 endif()
 check_function_exists("poll" PQXX_HAVE_POLL)
 
-# Incorporate feature checks based on C++ feature test mac
+# Incorporate feature checks based on C++ feature test macros.
 include(pqxx_cxx_feature_checks)
+
+# Check for std::stacktrace support.  We can't just generate this like other
+# tests because some compilers require an extra library to support
+# std::stacktrace.
+try_compile(
+    PQXX_HAVE_STACKTRACE ${PROJECT_BINARY_DIR}
+    SOURCES ${PROJECT_SOURCE_DIR}/config-tests/stacktrace_support.cxx
+)
 
 set(AC_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/include/pqxx/config.h.in")
 set(CM_CONFIG_H_IN "${PROJECT_BINARY_DIR}/include/pqxx/config_cmake.h.in")

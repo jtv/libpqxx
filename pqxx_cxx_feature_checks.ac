@@ -139,4 +139,14 @@ AC_COMPILE_IFELSE(
         [Define if this feature is available.]),
     PQXX_HAVE_ZARGS=no)
 AC_MSG_RESULT($PQXX_HAVE_ZARGS)
+AC_MSG_CHECKING([stacktrace_support])
+stacktrace_support=yes
+AC_COMPILE_IFELSE(
+    [read_test(stacktrace_support.cxx)],
+    AC_DEFINE(
+        [stacktrace_support],
+        1,
+        [Define if this feature is available.]),
+    stacktrace_support=no)
+AC_MSG_RESULT($stacktrace_support)
 # End of config.
