@@ -290,10 +290,10 @@ std::string make_type(pqxx::test::context &tctx)
   case 3: return "std::string";
   case 4: return "unsigned int";
   case 5: return "double";
-  case 6: return std::format("std::vector<{}> &", make_type(rnd));
+  case 6: return std::format("std::vector<{}> &", make_type(tctx));
   case 7: {
-    auto const tp1{make_type(rnd)};
-    auto const tp2{make_type(rnd)};
+    auto const tp1{make_type(tctx)};
+    auto const tp2{make_type(tctx)};
     return std::format("std::map<{}, {}> &", tp1, tp2);
   }
   case 8: return "bool";
@@ -310,10 +310,10 @@ std::string make_params(pqxx::test::context &tctx)
   switch (tctx.make_num(3))
   {
   case 0: return "";
-  case 1: return make_type(rnd);
+  case 1: return make_type(tctx);
   case 2: {
-    auto const tp1{make_type(rnd)};
-    auto const tp2{make_type(rnd)};
+    auto const tp1{make_type(tctx)};
+    auto const tp2{make_type(tctx)};
     return std::format("{}, {}", tp1, tp2);
   }
   default: break;
@@ -327,9 +327,9 @@ std::string make_function(pqxx::test::context &tctx)
 {
   std::string rettype{"void"};
   if (tctx.make_num(5) > 0)
-    rettype = make_type(rnd);
+    rettype = make_type(tctx);
   auto const name{tctx.make_name("func")};
-  return std::format("{} {}({})", rettype, name, make_params(rnd));
+  return std::format("{} {}({})", rettype, name, make_params(tctx));
 }
 
 
@@ -371,12 +371,12 @@ std::uint_least32_t make_pos_num(pqxx::test::context &tctx)
 
 void test_source_loc_handles_full_location(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .lin = make_pos_num(rnd),
-    .col = make_pos_num(rnd),
+    .lin = make_pos_num(tctx),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -387,11 +387,11 @@ void test_source_loc_handles_full_location(pqxx::test::context &tctx)
 
 void test_source_loc_handles_missing_column(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .lin = make_pos_num(rnd),
+    .lin = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -402,11 +402,11 @@ void test_source_loc_handles_missing_column(pqxx::test::context &tctx)
 
 void test_source_loc_handles_missing_line(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
+  std::string const func{make_function(tctx)};
   fake_sl const loc{
-    .fil = make_filename(rnd),
+    .fil = make_filename(tctx),
     .fun = func.c_str(),
-    .col = make_pos_num(rnd),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -417,9 +417,9 @@ void test_source_loc_handles_missing_line(pqxx::test::context &tctx)
 void test_source_loc_handles_missing_function(pqxx::test::context &tctx)
 {
   fake_sl const loc{
-    .fil = make_filename(rnd),
-    .lin = make_pos_num(rnd),
-    .col = make_pos_num(rnd),
+    .fil = make_filename(tctx),
+    .lin = make_pos_num(tctx),
+    .col = make_pos_num(tctx),
   };
 
   PQXX_CHECK_EQUAL(
@@ -431,8 +431,8 @@ void test_source_loc_handles_missing_function(pqxx::test::context &tctx)
 void test_source_loc_handles_line_only(pqxx::test::context &tctx)
 {
   fake_sl const loc{
-    .fil = make_filename(rnd),
-    .lin = make_pos_num(rnd),
+    .fil = make_filename(tctx),
+    .lin = make_pos_num(tctx),
   };
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}:{}:", loc.fil, loc.lin));
@@ -441,7 +441,7 @@ void test_source_loc_handles_line_only(pqxx::test::context &tctx)
 
 void test_source_loc_handles_column_only(pqxx::test::context &tctx)
 {
-  fake_sl const loc{.fil = make_filename(rnd), .col = make_pos_num(rnd)};
+  fake_sl const loc{.fil = make_filename(tctx), .col = make_pos_num(tctx)};
   // We don't bother printing a column number without a line number.
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
@@ -449,8 +449,8 @@ void test_source_loc_handles_column_only(pqxx::test::context &tctx)
 
 void test_source_loc_handles_func_only(pqxx::test::context &tctx)
 {
-  std::string const func{make_function(rnd)};
-  fake_sl const loc{.fil = make_filename(rnd), .fun = func.c_str()};
+  std::string const func{make_function(tctx)};
+  fake_sl const loc{.fil = make_filename(tctx), .fun = func.c_str()};
 
   PQXX_CHECK_EQUAL(
     pqxx::source_loc(loc), std::format("{}: ({})", loc.fil, loc.fun));
@@ -459,7 +459,7 @@ void test_source_loc_handles_func_only(pqxx::test::context &tctx)
 
 void test_source_loc_handles_minimal_source_location(pqxx::test::context &tctx)
 {
-  fake_sl const loc{.fil = make_filename(rnd)};
+  fake_sl const loc{.fil = make_filename(tctx)};
   PQXX_CHECK_EQUAL(pqxx::source_loc(loc), std::format("{}:", loc.fil));
 }
 

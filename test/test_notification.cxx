@@ -14,19 +14,6 @@
 
 namespace
 {
-/// Make up an arbitrary channel name.
-std::string make_channel(
-  pqxx::test::context &tctx, std::string_view prefix = "pqxx-chan",
-  pqxx::sl loc = pqxx::sl::current())
-{
-  // For some weird reason two tests in this file, only on Windows, will get
-  // exact same "random" channel name, and dependent probably on timing, one
-  // will break because it wasn't expecting a notification that the other did
-  // unexpectedly send.  Disambiguate by including the line number.
-  return tctx.make_name(std::format("{}_{}", prefix, loc.line()));
-}
-
-
 #include <pqxx/internal/ignore-deprecated-pre.hxx>
 struct TestReceiver final : public pqxx::notification_receiver
 {
@@ -96,8 +83,8 @@ void test_notification_classic(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
 
-  std::string const chan0{make_channel(rnd)}, chan1{make_channel(rnd)},
-    chan2{make_channel(rnd)};
+  std::string const chan0{tctx.make_name("pqxx-chan")}, chan1{tctx.make_name("pqxx-chan")},
+    chan2{tctx.make_name("pqxx-chan")};
   TestReceiver const receiver(cx, chan0);
   PQXX_CHECK_EQUAL(receiver.channel(), chan0);
 
@@ -115,7 +102,7 @@ void test_notification_to_self_arrives_after_commit(
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel(rnd)};
+  auto const channel{tctx.make_name("pqxx-chan")};
   int notifications{0};
   pqxx::connection *conn{nullptr};
   std::string incoming, payload;
@@ -161,7 +148,7 @@ void test_notification_has_payload(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
 
-  auto const channel{make_channel(rnd)};
+  auto const channel{tctx.make_name("pqxx-chan")};
   auto const payload{"two dozen eggs"};
   int notifications{0};
   std::string received;
@@ -197,7 +184,7 @@ void test_listen_supports_different_types_of_callable(
   pqxx::test::context &tctx)
 {
   pqxx::connection cx;
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   int received{};
 
   // Using a functor as a handler.
@@ -232,7 +219,7 @@ void test_listen_supports_different_types_of_callable(
 
 void test_abort_cancels_notification(pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
@@ -273,7 +260,7 @@ void test_notification_channels_are_case_sensitive(pqxx::test::context &tctx)
 void test_notification_channels_may_contain_weird_chars(
   pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd, "pqxx-A_#&*!")};
+  auto const chan{tctx.make_name("pqxx-A_#&*!")};
   pqxx::connection cx;
   std::string got;
   cx.listen(chan, [&got](pqxx::notification n) { got = n.channel; });
@@ -288,7 +275,7 @@ void test_notification_channels_may_contain_weird_chars(
 /// In a nontransaction, a notification goes out even if you abort.
 void test_nontransaction_sends_notification(pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -304,7 +291,7 @@ void test_nontransaction_sends_notification(pqxx::test::context &tctx)
 
 void test_subtransaction_sends_notification(pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -323,7 +310,7 @@ void test_subtransaction_sends_notification(pqxx::test::context &tctx)
 void test_subtransaction_abort_cancels_notification(
   pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   cx.listen(chan, [&chan](pqxx::notification const &n) {
     throw pqxx::test::test_failure{std::format(
@@ -350,7 +337,7 @@ void test_cannot_listen_during_transaction(pqxx::test::context &tctx)
   // a nontransaction.
   pqxx::nontransaction const tx{cx};
   PQXX_CHECK_THROWS(
-    cx.listen(make_channel(rnd), [](pqxx::notification) {}),
+    cx.listen(tctx.make_name("pqxx-chan"), [](pqxx::notification) {}),
     pqxx::usage_error);
 }
 
@@ -358,7 +345,7 @@ void test_cannot_listen_during_transaction(pqxx::test::context &tctx)
 void test_notifications_cross_connections(pqxx::test::context &tctx)
 {
   pqxx::connection cx_listen, cx_notify;
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   int sender_pid{0};
   cx_listen.listen(
     chan, [&sender_pid](pqxx::notification n) { sender_pid = n.backend_pid; });
@@ -377,9 +364,9 @@ void test_notification_goes_to_right_handler(pqxx::test::context &tctx)
   pqxx::connection cx;
   std::string got;
   int count{0};
-  std::string const chanx{make_channel(rnd, "pqxx-chanX")},
-    chany{make_channel(rnd, "pqxx-chanY")},
-    chanz{make_channel(rnd, "pqxx-chanZ")};
+  std::string const chanx{tctx.make_name("pqxx-chanX")},
+    chany{tctx.make_name("pqxx-chanY")},
+    chanz{tctx.make_name("pqxx-chanZ")};
 
   cx.listen(chanx, [&got, &count](pqxx::notification) {
     got = "chanX";
@@ -406,7 +393,7 @@ void test_notification_goes_to_right_handler(pqxx::test::context &tctx)
 
 void test_listen_on_same_channel_overwrites(pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   std::string got;
   int count{0};
@@ -436,7 +423,7 @@ void test_listen_on_same_channel_overwrites(pqxx::test::context &tctx)
 
 void test_empty_notification_handler_disables(pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -451,7 +438,7 @@ void test_empty_notification_handler_disables(pqxx::test::context &tctx)
 void test_notifications_do_not_come_in_until_commit(
   pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
   bool got{false};
   cx.listen(chan, [&got](pqxx::notification) { got = true; });
@@ -471,7 +458,7 @@ void test_notifications_do_not_come_in_until_commit(
 void test_notification_handlers_follow_connection_move(
   pqxx::test::context &tctx)
 {
-  auto const chan{make_channel(rnd)};
+  auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx1;
   pqxx::connection *got{nullptr};
   cx1.listen(chan, [&got](pqxx::notification n) { got = &n.conn; });
