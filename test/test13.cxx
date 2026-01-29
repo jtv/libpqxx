@@ -46,7 +46,7 @@ void failed_insert(pqxx::connection &cx, std::string const &table)
 }
 
 
-void test_013(pqxx::test::randomizer &)
+void test_013(pqxx::test::context &)
 {
   pqxx::connection cx;
   {

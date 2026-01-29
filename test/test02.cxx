@@ -14,7 +14,7 @@ void bad_connect()
   pqxx::connection const cx{"totally#invalid@connect$string!?"};
 }
 
-void test_002(pqxx::test::randomizer &)
+void test_002(pqxx::test::context &)
 {
   // Before we really connect, test the expected behaviour of the default
   // connection type, where a failure to connect results in an immediate

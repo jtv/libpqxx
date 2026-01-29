@@ -8,7 +8,7 @@
 // transaction, and perform a query inside it.
 namespace
 {
-void test_021(pqxx::test::randomizer &)
+void test_021(pqxx::test::context &)
 {
   pqxx::connection cx;
 

@@ -327,25 +327,16 @@ void execute(
   std::mutex &fail_lock, std::vector<std::string> &failures,
   unsigned random_seed)
 {
-  // Thread-local random engine.
-  // We seed it here even though we'll seed it again before we start using it,
-  // just to shut up clang-tidy's cert-msc32-c rule.
-  pqxx::test::randomizer rnd{random_seed};
+  // Thread-local test context.
+  pqxx::test::context tctx{random_seed};
 
   // Execute tests while there are any left to do.
   for (std::string_view test{disp.next()}; not std::empty(test);
        test = disp.next())
   {
-    // It's difficult to produce a consistent chain of random values
-    // throughout the test suite when the worker threads run the tests in
-    // indeterminate orders and distributed indeterminately across threads.
-    //
-    // So, we re-seed the random engine for every test.
-    // TODO: Hash the test function into the seed.
-    rnd.seed(random_seed);
-
+    tctx.seed(test);
     auto const func{all_tests.at(test)};
-    auto const msg{run_test(test, func, rnd)};
+    auto const msg{run_test(test, func, tctx)};
     if (msg.has_value())
     {
       std::lock_guard<std::mutex> const l{fail_lock};

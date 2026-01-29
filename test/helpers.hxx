@@ -15,6 +15,68 @@ namespace pqxx::test
 using randomizer = std::mt19937;
 
 
+/// Context for running a test.
+/** Defines various utilities that can help tests: randomisers, a temporary
+ * filesystem directory.
+ */
+struct context
+{
+  /// Create a context for one thread to run tests.
+  context(int random_seed) : rnd_seed{random_seed} {}
+
+  context() = delete;
+  context(context const &) = delete;
+  context(context &&) = delete;
+  context &operator=(context const &) = delete;
+  context &operator=(context &&) = delete;
+
+  /// Seed the randomiser using the original seed.
+  /** Do this before every individual test to get reproducible test sequences.
+   */
+  void seed(std::string_view test_name) { rnd(rnd_seed ^ hasher(test_name)); }
+
+  /// Return an arbitrary nonnegative integer.
+  inline int make_num() { return static_cast<int>(rnd() >> 1); }
+
+  /// Return an arbitrary nonnegative integer below `ceiling`.
+  inline int make_num(int ceiling) { return make_num(rnd) % ceiling; }
+
+  /// Return an arbitrary nonzero `char` value from the full 8-bit range.
+  inline char random_char()
+  {
+    return static_cast<char>(
+      static_cast<std::uint8_t>(make_num(rnd, 255) + 1));
+  }
+
+  /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
+  template<std::floating_point T> T make_float_num()
+  {
+    auto const x{make_num(rnd)}, z{make_num(rnd)};
+    auto y{make_num(rnd)};
+    while (y == x) y = make_num(rnd);
+    return static_cast<T>(x - y) / static_cast<T>(z);
+  }
+
+  /// Generate a name with a given prefix and a randomised suffix.
+  inline std::string make_name(std::string_view prefix)
+  {
+    // In principle we should seed the random generator, but the scheduling of
+    // threads will jumble up the numbers anyway.
+    return std::format("{}_{}", prefix, make_num(rnd));
+  }
+
+private:
+  /// A factory of hash values for strings.
+  std::hash<std::string_view> string_hasher;
+
+  /// A random engine.
+  randomizer rnd;
+
+  /// The random seed
+  std::size_t rnd_seed;
+};
+
+
 /// Exception: A test does not satisfy expected condition.
 class test_failure : public std::logic_error
 {
@@ -92,48 +154,6 @@ struct registrar final
     pqxx::test::suite::register_test(name, func);
   }
 };
-
-
-/// Return an arbitrary nonnegative integer.
-inline int make_num(pqxx::test::randomizer &rnd)
-{
-  return static_cast<int>(rnd() >> 1);
-}
-
-
-/// Return an arbitrary nonnegative integer below `ceiling`.
-inline int make_num(pqxx::test::randomizer &rnd, int ceiling)
-{
-  return make_num(rnd) % ceiling;
-}
-
-
-/// Return an arbitrary nonzero `char` value from the full 8-bit range.
-inline char random_char(pqxx::test::randomizer &rnd)
-{
-  return static_cast<char>(
-    static_cast<std::uint8_t>(pqxx::test::make_num(rnd, 255) + 1));
-}
-
-
-/// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
-template<std::floating_point T> T make_float_num(pqxx::test::randomizer &rnd)
-{
-  auto const x{make_num(rnd)}, z{make_num(rnd)};
-  auto y{make_num(rnd)};
-  while (y == x) y = make_num(rnd);
-  return static_cast<T>(x - y) / static_cast<T>(z);
-}
-
-
-/// Generate a name with a given prefix and a randomised suffix.
-inline std::string
-make_name(pqxx::test::randomizer &rnd, std::string_view prefix)
-{
-  // In principle we should seed the random generator, but the scheduling of
-  // threads will jumble up the numbers anyway.
-  return std::format("{}_{}", prefix, make_num(rnd));
-}
 
 
 // Unconditional test failure.
