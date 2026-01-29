@@ -34,7 +34,7 @@ void test_transactor_newstyle_completes_upon_success(pqxx::test::context &)
 }
 
 
-void test_transactor_newstyle_retries_broken_connection( pqxx::test::context &)
+void test_transactor_newstyle_retries_broken_connection(pqxx::test::context &)
 {
   int counter{0};
   auto const &callback{[&counter] {
@@ -66,7 +66,8 @@ void test_transactor_newstyle_retries_rollback(pqxx::test::context &)
 }
 
 
-void test_transactor_newstyle_does_not_retry_in_doubt_error( pqxx::test::context &)
+void test_transactor_newstyle_does_not_retry_in_doubt_error(
+  pqxx::test::context &)
 {
   int counter{0};
   auto const &callback{[&counter] {
@@ -79,8 +80,7 @@ void test_transactor_newstyle_does_not_retry_in_doubt_error( pqxx::test::context
 }
 
 
-void test_transactor_newstyle_does_not_retry_other_error(
-  pqxx::test::context &)
+void test_transactor_newstyle_does_not_retry_other_error(pqxx::test::context &)
 {
   int counter{0};
   auto const &callback{[&counter] {

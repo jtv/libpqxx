@@ -83,8 +83,8 @@ void test_notification_classic(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
 
-  std::string const chan0{tctx.make_name("pqxx-chan")}, chan1{tctx.make_name("pqxx-chan")},
-    chan2{tctx.make_name("pqxx-chan")};
+  std::string const chan0{tctx.make_name("pqxx-chan")},
+    chan1{tctx.make_name("pqxx-chan")}, chan2{tctx.make_name("pqxx-chan")};
   TestReceiver const receiver(cx, chan0);
   PQXX_CHECK_EQUAL(receiver.channel(), chan0);
 
@@ -97,8 +97,7 @@ void test_notification_classic(pqxx::test::context &tctx)
 #include <pqxx/internal/ignore-deprecated-post.hxx>
 
 
-void test_notification_to_self_arrives_after_commit(
-  pqxx::test::context &tctx)
+void test_notification_to_self_arrives_after_commit(pqxx::test::context &tctx)
 {
   pqxx::connection cx;
 
@@ -307,8 +306,7 @@ void test_subtransaction_sends_notification(pqxx::test::context &tctx)
 }
 
 
-void test_subtransaction_abort_cancels_notification(
-  pqxx::test::context &tctx)
+void test_subtransaction_abort_cancels_notification(pqxx::test::context &tctx)
 {
   auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;
@@ -365,8 +363,7 @@ void test_notification_goes_to_right_handler(pqxx::test::context &tctx)
   std::string got;
   int count{0};
   std::string const chanx{tctx.make_name("pqxx-chanX")},
-    chany{tctx.make_name("pqxx-chanY")},
-    chanz{tctx.make_name("pqxx-chanZ")};
+    chany{tctx.make_name("pqxx-chanY")}, chanz{tctx.make_name("pqxx-chanZ")};
 
   cx.listen(chanx, [&got, &count](pqxx::notification) {
     got = "chanX";
@@ -435,8 +432,7 @@ void test_empty_notification_handler_disables(pqxx::test::context &tctx)
 }
 
 
-void test_notifications_do_not_come_in_until_commit(
-  pqxx::test::context &tctx)
+void test_notifications_do_not_come_in_until_commit(pqxx::test::context &tctx)
 {
   auto const chan{tctx.make_name("pqxx-chan")};
   pqxx::connection cx;

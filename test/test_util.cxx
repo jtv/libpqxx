@@ -15,8 +15,7 @@ void test_make_num(pqxx::test::context &tctx)
   PQXX_CHECK(
     not same, std::format("Random numbers all came out as {}.", last));
 
-  for (int i{0}; i < 100; ++i)
-    PQXX_CHECK_BOUNDS(tctx.make_num(10), 0, 10);
+  for (int i{0}; i < 100; ++i) PQXX_CHECK_BOUNDS(tctx.make_num(10), 0, 10);
 }
 
 

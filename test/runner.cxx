@@ -229,8 +229,7 @@ std::string describe_failure(std::string_view desc, std::string_view test)
 
 /// Run one test.  Return optional failure message.
 std::optional<std::string> run_test(
-  std::string_view name, pqxx::test::testfunc func,
-  pqxx::test::context &tctx)
+  std::string_view name, pqxx::test::testfunc func, pqxx::test::context &tctx)
 {
   try
   {

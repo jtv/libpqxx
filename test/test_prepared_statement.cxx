@@ -376,8 +376,7 @@ void test_for_query_prepped(pqxx::test::context &)
 }
 
 
-void test_prepped_query_does_not_need_terminating_zero(
-  pqxx::test::context &)
+void test_prepped_query_does_not_need_terminating_zero(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};

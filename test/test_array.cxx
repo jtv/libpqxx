@@ -555,7 +555,7 @@ void test_array_rejects_malformed_simple_string_arrays(pqxx::test::context &)
 }
 
 
-void test_array_rejects_malformed_twodimensional_arrays( pqxx::test::context &)
+void test_array_rejects_malformed_twodimensional_arrays(pqxx::test::context &)
 {
   pqxx::connection cx;
   std::string_view const bad_arrays[]{

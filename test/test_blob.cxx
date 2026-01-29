@@ -527,6 +527,7 @@ private:
 void test_blob_from_file_creates_blob_from_file_contents(
   pqxx::test::context &tctx)
 {
+  std::string const temp_file = tctx.make_name("pqxx-blob");
   pqxx::bytes const data{std::byte{'4'}, std::byte{'2'}};
 
   pqxx::connection cx;
@@ -546,7 +547,7 @@ void test_blob_from_file_creates_blob_from_file_contents(
 void test_blob_from_file_with_oid_writes_blob(pqxx::test::context &tctx)
 {
   pqxx::bytes const data{std::byte{'6'}, std::byte{'9'}};
-  std::string const temp_file = tctx.make_name("pqxx-blob-test");
+  std::string const temp_file = tctx.make_name("pqxx-blob");
   pqxx::bytes buf;
 
   pqxx::connection cx;

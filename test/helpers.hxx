@@ -33,7 +33,10 @@ struct context
   /// Seed the randomiser using the original seed.
   /** Do this before every individual test to get reproducible test sequences.
    */
-  void seed(std::string_view test_name) { rnd.seed(rnd_seed ^ string_hasher(test_name)); }
+  void seed(std::string_view test_name)
+  {
+    rnd.seed(rnd_seed ^ string_hasher(test_name));
+  }
 
   /// Return an arbitrary nonnegative integer.
   int make_num() { return static_cast<int>(rnd() >> 1); }
@@ -44,8 +47,7 @@ struct context
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
   char random_char()
   {
-    return static_cast<char>(
-      static_cast<std::uint8_t>(make_num(255) + 1));
+    return static_cast<char>(static_cast<std::uint8_t>(make_num(255) + 1));
   }
 
   /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
