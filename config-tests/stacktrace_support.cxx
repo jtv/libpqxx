@@ -1,6 +1,8 @@
+#include <format>
+#include <iostream>
 #include <stacktrace>
 
 int main()
 {
-  return std::stacktrace::current().size() > 0u;
+  std::cout << std::format("{}", std::stacktrace::current());
 }
