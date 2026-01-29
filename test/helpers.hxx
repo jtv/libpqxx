@@ -38,7 +38,9 @@ struct context
    */
   void seed(std::string_view test_name)
   {
-    rnd.seed(rnd_seed ^ string_hasher(test_name));
+    auto const seed{static_cast<randomizer::result_type>(
+      rnd_seed ^ string_hasher(test_name))};
+    rnd.seed(seed);
   }
 
   /// Return an arbitrary nonnegative integer.
