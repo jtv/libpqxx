@@ -36,13 +36,13 @@ struct context
   void seed(std::string_view test_name) { rnd(rnd_seed ^ hasher(test_name)); }
 
   /// Return an arbitrary nonnegative integer.
-  inline int make_num() { return static_cast<int>(rnd() >> 1); }
+  int make_num() { return static_cast<int>(rnd() >> 1); }
 
   /// Return an arbitrary nonnegative integer below `ceiling`.
-  inline int make_num(int ceiling) { return make_num(rnd) % ceiling; }
+  int make_num(int ceiling) { return make_num(rnd) % ceiling; }
 
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
-  inline char random_char()
+  char random_char()
   {
     return static_cast<char>(
       static_cast<std::uint8_t>(make_num(rnd, 255) + 1));
@@ -58,7 +58,7 @@ struct context
   }
 
   /// Generate a name with a given prefix and a randomised suffix.
-  inline std::string make_name(std::string_view prefix)
+  std::string make_name(std::string_view prefix)
   {
     // In principle we should seed the random generator, but the scheduling of
     // threads will jumble up the numbers anyway.
