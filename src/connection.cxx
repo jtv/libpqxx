@@ -289,7 +289,7 @@ parsed_connection_string::parse() const
     // This will allocate room for all possible options, since the array of
     // PQconninfoOption we got from libpq includes options that were not
     // specified (though their "val" will be null and we won't include them in
-    // our putput).  It also includes room for a terminating null.
+    // our output).  It also includes room for a terminating null.
     //
     // The generous allocation is probably no big deal though since there are
     // only so many different connection options.  It also saves us having to
