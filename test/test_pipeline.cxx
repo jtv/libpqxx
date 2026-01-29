@@ -32,7 +32,7 @@ void test_pipeline_is_consistent(pqxx::test::randomizer &rnd)
 }
 
 
-void test_pipeline(pqxx::test::randomizer &)
+void test_pipeline(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

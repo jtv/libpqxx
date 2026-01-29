@@ -6,7 +6,7 @@ void empty() {}
 
 
 // Test PQXX_CHECK.
-void test_check(pqxx::test::randomizer &)
+void test_check(pqxx::test::context &)
 {
   PQXX_CHECK(true, "PQXX_CHECK is broken.");
 
@@ -24,7 +24,7 @@ void test_check(pqxx::test::randomizer &)
 
 
 // Test PQXX_CHECK_THROWS_EXCEPTION.
-void test_check_throws_exception(pqxx::test::randomizer &)
+void test_check_throws_exception(pqxx::test::context &)
 {
   // PQXX_CHECK_THROWS_EXCEPTION expects std::exception...
   PQXX_CHECK_THROWS_EXCEPTION(
@@ -82,7 +82,7 @@ void test_check_throws_exception(pqxx::test::randomizer &)
 
 
 // Test PQXX_CHECK_THROWS.
-void test_check_throws(pqxx::test::randomizer &)
+void test_check_throws(pqxx::test::context &)
 {
   PQXX_CHECK_THROWS(
     throw pqxx::test::test_failure{"(expected)"}, pqxx::test::test_failure,
@@ -140,7 +140,7 @@ void test_check_throws(pqxx::test::randomizer &)
 }
 
 
-void test_helpers(pqxx::test::randomizer &)
+void test_helpers(pqxx::test::context &)
 {
   // Test other helpers against PQXX_CHECK_THROWS.
   PQXX_CHECK_THROWS(

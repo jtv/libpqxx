@@ -14,7 +14,7 @@ auto make_focus(pqxx::dbtransaction &tx)
 }
 
 
-void test_cannot_run_statement_during_focus(pqxx::test::randomizer &)
+void test_cannot_run_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -26,7 +26,7 @@ void test_cannot_run_statement_during_focus(pqxx::test::randomizer &)
 }
 
 
-void test_cannot_run_prepared_statement_during_focus(pqxx::test::randomizer &)
+void test_cannot_run_prepared_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.prepare("foo", "SELECT 1");
@@ -38,7 +38,7 @@ void test_cannot_run_prepared_statement_during_focus(pqxx::test::randomizer &)
     "Prepared statement during focus did not throw expected error.");
 }
 
-void test_cannot_run_params_statement_during_focus(pqxx::test::randomizer &)
+void test_cannot_run_params_statement_during_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};
@@ -50,7 +50,7 @@ void test_cannot_run_params_statement_during_focus(pqxx::test::randomizer &)
 }
 
 
-void test_should_not_end_transaction_before_focus(pqxx::test::randomizer &)
+void test_should_not_end_transaction_before_focus(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::transaction tx{cx};

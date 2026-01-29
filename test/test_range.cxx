@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_range_construct(pqxx::test::randomizer &)
+void test_range_construct(pqxx::test::context &)
 {
   using optint = std::optional<int>;
   using oibound = pqxx::inclusive_bound<std::optional<int>>;
@@ -30,7 +30,7 @@ void test_range_construct(pqxx::test::randomizer &)
 }
 
 
-void test_range_equality(pqxx::test::randomizer &)
+void test_range_equality(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using ibound = pqxx::inclusive_bound<int>;
@@ -77,7 +77,7 @@ void test_range_equality(pqxx::test::randomizer &)
 }
 
 
-void test_range_empty(pqxx::test::randomizer &)
+void test_range_empty(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using ibound = pqxx::inclusive_bound<int>;
@@ -96,7 +96,7 @@ void test_range_empty(pqxx::test::randomizer &)
 }
 
 
-void test_range_contains(pqxx::test::randomizer &)
+void test_range_contains(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using ibound = pqxx::inclusive_bound<int>;
@@ -153,7 +153,7 @@ void test_range_contains(pqxx::test::randomizer &)
 }
 
 
-void test_float_range_contains(pqxx::test::randomizer &)
+void test_float_range_contains(pqxx::test::context &)
 {
   using range = pqxx::range<double>;
   using ibound = pqxx::inclusive_bound<double>;
@@ -182,7 +182,7 @@ void test_float_range_contains(pqxx::test::randomizer &)
 }
 
 
-void test_range_subset(pqxx::test::randomizer &)
+void test_range_subset(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using traits = pqxx::string_traits<range>;
@@ -213,7 +213,7 @@ void test_range_subset(pqxx::test::randomizer &)
 }
 
 
-void test_range_to_string(pqxx::test::randomizer &)
+void test_range_to_string(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using ibound = pqxx::inclusive_bound<int>;
@@ -237,7 +237,7 @@ void test_range_to_string(pqxx::test::randomizer &)
 }
 
 
-void test_parse_range(pqxx::test::randomizer &)
+void test_parse_range(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using ubound = pqxx::no_bound;
@@ -275,7 +275,7 @@ void test_parse_range(pqxx::test::randomizer &)
 }
 
 
-void test_parse_bad_range(pqxx::test::randomizer &)
+void test_parse_bad_range(pqxx::test::context &)
 {
   using range = pqxx::range<int>;
   using conv_err = pqxx::conversion_error;
@@ -302,7 +302,7 @@ std::string intersect(std::string_view lhs, std::string_view rhs)
 }
 
 
-void test_range_intersection(pqxx::test::randomizer &)
+void test_range_intersection(pqxx::test::context &)
 {
   // Intersections and their expected results, in text form.
   // Each row contains two ranges, and their intersection.
@@ -348,7 +348,7 @@ void test_range_intersection(pqxx::test::randomizer &)
 }
 
 
-void test_range_conversion(pqxx::test::randomizer &)
+void test_range_conversion(pqxx::test::context &)
 {
   std::array<std::string_view, 8> const ranges{
     "empty", "(,)", "(,10)", "(0,)", "[0,10]", "[0,10)", "(0,10]", "(0,10)",
@@ -363,7 +363,7 @@ void test_range_conversion(pqxx::test::randomizer &)
 }
 
 
-constexpr void test_range_is_constexpr(pqxx::test::randomizer &)
+constexpr void test_range_is_constexpr(pqxx::test::context &)
 {
   // Test compile-time operations.
   using range = pqxx::range<int>;

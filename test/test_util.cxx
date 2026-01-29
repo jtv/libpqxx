@@ -38,7 +38,7 @@ template<typename T> void test_for(T const &val)
 }
 
 
-void test_binary_cast(pqxx::test::randomizer &)
+void test_binary_cast(pqxx::test::context &)
 {
   std::byte const bytes_c_array[]{
     std::byte{0x22}, std::byte{0x23}, std::byte{0x24}};
@@ -175,7 +175,7 @@ template<std::floating_point TO> inline void check_inf_to()
 }
 
 
-void test_check_cast(pqxx::test::randomizer &)
+void test_check_cast(pqxx::test::context &)
 {
   check_all_casts(0);
   check_all_casts(1);
@@ -244,7 +244,7 @@ void test_check_cast(pqxx::test::randomizer &)
 }
 
 
-void test_source_loc_renders_real_source_location(pqxx::test::randomizer &)
+void test_source_loc_renders_real_source_location(pqxx::test::context &)
 {
   auto const loc{pqxx::sl::current()};
   auto const loc_text{pqxx::source_loc(loc)};

@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_row(pqxx::test::randomizer &)
+void test_row(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -30,7 +30,7 @@ void test_row(pqxx::test::randomizer &)
 }
 
 
-void test_row_iterator(pqxx::test::randomizer &)
+void test_row_iterator(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -61,7 +61,7 @@ void test_row_iterator(pqxx::test::randomizer &)
 }
 
 
-void test_row_as(pqxx::test::randomizer &)
+void test_row_as(pqxx::test::context &)
 {
   using pqxx::operator""_zv;
 
@@ -84,7 +84,7 @@ void test_row_as(pqxx::test::randomizer &)
 
 
 // In a random access iterator i, i[n] == *(i + n).
-void test_row_iterator_array_index_offsets_iterator(pqxx::test::randomizer &)
+void test_row_iterator_array_index_offsets_iterator(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -94,7 +94,7 @@ void test_row_iterator_array_index_offsets_iterator(pqxx::test::randomizer &)
 }
 
 
-void test_row_as_tuple(pqxx::test::randomizer &)
+void test_row_as_tuple(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -118,7 +118,7 @@ void test_row_as_tuple(pqxx::test::randomizer &)
 }
 
 
-void test_row_swap(pqxx::test::randomizer &)
+void test_row_swap(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

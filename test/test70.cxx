@@ -49,7 +49,7 @@ void TestPipeline(pqxx::pipeline &P, int numqueries)
 
 // Test program for libpqxx.  Issue a query repeatedly through a pipeline, and
 // compare results.  Use retain() and resume() for performance.
-void test_070(pqxx::test::randomizer &)
+void test_070(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

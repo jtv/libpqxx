@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_result_iteration(pqxx::test::randomizer &)
+void test_result_iteration(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -31,7 +31,7 @@ void test_result_iteration(pqxx::test::randomizer &)
 }
 
 
-void test_result_iter(pqxx::test::randomizer &)
+void test_result_iter(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -56,7 +56,7 @@ void test_result_iter(pqxx::test::randomizer &)
 }
 
 
-void test_result_iterator_swap(pqxx::test::randomizer &)
+void test_result_iterator_swap(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -74,7 +74,7 @@ void test_result_iterator_swap(pqxx::test::randomizer &)
 }
 
 
-void test_result_iterator_assignment(pqxx::test::randomizer &)
+void test_result_iterator_assignment(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -111,7 +111,7 @@ void check_employee(std::string const &name, int salary)
 }
 
 
-void test_result_for_each(pqxx::test::randomizer &)
+void test_result_for_each(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

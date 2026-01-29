@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_zview_is_a_range(pqxx::test::randomizer &)
+void test_zview_is_a_range(pqxx::test::context &)
 {
   static_assert(std::ranges::range<pqxx::zview>);
   static_assert(std::ranges::borrowed_range<pqxx::zview>);
@@ -15,7 +15,7 @@ void test_zview_is_a_range(pqxx::test::randomizer &)
 }
 
 
-void test_zview_literal(pqxx::test::randomizer &)
+void test_zview_literal(pqxx::test::context &)
 {
   using pqxx::operator""_zv;
 
@@ -23,7 +23,7 @@ void test_zview_literal(pqxx::test::randomizer &)
 }
 
 
-void test_zview_converts_to_string(pqxx::test::randomizer &)
+void test_zview_converts_to_string(pqxx::test::context &)
 {
   using pqxx::operator""_zv;
   using traits = pqxx::string_traits<pqxx::zview>;

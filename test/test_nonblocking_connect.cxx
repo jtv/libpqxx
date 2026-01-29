@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_nonblocking_connect(pqxx::test::randomizer &)
+void test_nonblocking_connect(pqxx::test::context &)
 {
   pqxx::connecting nbc;
   while (not nbc.done())

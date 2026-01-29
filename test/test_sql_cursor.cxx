@@ -5,7 +5,7 @@
 
 namespace
 {
-void test_forward_sql_cursor(pqxx::test::randomizer &)
+void test_forward_sql_cursor(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -106,7 +106,7 @@ void test_forward_sql_cursor(pqxx::test::randomizer &)
 }
 
 
-void test_scroll_sql_cursor(pqxx::test::randomizer &)
+void test_scroll_sql_cursor(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -168,7 +168,7 @@ void test_scroll_sql_cursor(pqxx::test::randomizer &)
 }
 
 
-void test_adopted_sql_cursor(pqxx::test::randomizer &)
+void test_adopted_sql_cursor(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -234,7 +234,7 @@ void test_adopted_sql_cursor(pqxx::test::randomizer &)
   tx3.exec("MOVE 1 IN adopted3");
 }
 
-void test_hold_cursor(pqxx::test::randomizer &)
+void test_hold_cursor(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};

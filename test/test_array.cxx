@@ -33,7 +33,7 @@ inline std::string to_string(pqxx::array_parser::juncture const &j)
 
 namespace
 {
-void test_empty_arrays(pqxx::test::randomizer &)
+void test_empty_arrays(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -65,7 +65,7 @@ void test_empty_arrays(pqxx::test::randomizer &)
 }
 
 
-void test_array_null_value(pqxx::test::randomizer &)
+void test_array_null_value(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -90,7 +90,7 @@ void test_array_null_value(pqxx::test::randomizer &)
 }
 
 
-void test_array_double_quoted_string(pqxx::test::randomizer &)
+void test_array_double_quoted_string(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -114,7 +114,7 @@ void test_array_double_quoted_string(pqxx::test::randomizer &)
 }
 
 
-void test_array_double_quoted_escaping(pqxx::test::randomizer &)
+void test_array_double_quoted_escaping(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -139,7 +139,7 @@ void test_array_double_quoted_escaping(pqxx::test::randomizer &)
 
 
 // A pair of double quotes in a double-quoted string is an escaped quote.
-void test_array_double_double_quoted_string(pqxx::test::randomizer &)
+void test_array_double_double_quoted_string(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -156,7 +156,7 @@ void test_array_double_double_quoted_string(pqxx::test::randomizer &)
 }
 
 
-void test_array_unquoted_string(pqxx::test::randomizer &)
+void test_array_unquoted_string(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -180,7 +180,7 @@ void test_array_unquoted_string(pqxx::test::randomizer &)
 }
 
 
-void test_array_multiple_values(pqxx::test::randomizer &)
+void test_array_multiple_values(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -208,7 +208,7 @@ void test_array_multiple_values(pqxx::test::randomizer &)
 }
 
 
-void test_nested_array(pqxx::test::randomizer &)
+void test_nested_array(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -239,7 +239,7 @@ void test_nested_array(pqxx::test::randomizer &)
 }
 
 
-void test_nested_array_with_multiple_entries(pqxx::test::randomizer &)
+void test_nested_array_with_multiple_entries(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::pair<pqxx::array_parser::juncture, std::string> output;
@@ -298,7 +298,7 @@ pqxx::conversion_context make_context(
 }
 
 
-void test_generate_empty_array(pqxx::test::randomizer &)
+void test_generate_empty_array(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(std::vector<int>{}, make_context()), "{}");
   PQXX_CHECK_EQUAL(
@@ -306,7 +306,7 @@ void test_generate_empty_array(pqxx::test::randomizer &)
 }
 
 
-void test_generate_null_value(pqxx::test::randomizer &)
+void test_generate_null_value(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<char const *>{nullptr}, make_context()),
@@ -314,7 +314,7 @@ void test_generate_null_value(pqxx::test::randomizer &)
 }
 
 
-void test_generate_single_item(pqxx::test::randomizer &)
+void test_generate_single_item(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<int>{42}, make_context()), "{42}");
@@ -325,7 +325,7 @@ void test_generate_single_item(pqxx::test::randomizer &)
 }
 
 
-void test_generate_multiple_items(pqxx::test::randomizer &)
+void test_generate_multiple_items(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<int>{5, 4, 3, 2}, make_context()),
@@ -336,7 +336,7 @@ void test_generate_multiple_items(pqxx::test::randomizer &)
 }
 
 
-void test_generate_nested_array(pqxx::test::randomizer &)
+void test_generate_nested_array(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(
@@ -345,7 +345,7 @@ void test_generate_nested_array(pqxx::test::randomizer &)
 }
 
 
-void test_generate_escaped_strings(pqxx::test::randomizer &)
+void test_generate_escaped_strings(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     pqxx::to_string(std::vector<std::string>{"a\\b"}, make_context()),
@@ -356,7 +356,7 @@ void test_generate_escaped_strings(pqxx::test::randomizer &)
 }
 
 
-void test_array_generate_empty_strings(pqxx::test::randomizer &)
+void test_array_generate_empty_strings(pqxx::test::context &)
 {
   // Reproduce #816: Under-budgeted conversion of empty strings in arrays.
   PQXX_CHECK_EQUAL(
@@ -373,7 +373,7 @@ void test_array_generate_empty_strings(pqxx::test::randomizer &)
     "{\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"}");
 }
 
-void test_sparse_arrays(pqxx::test::randomizer &)
+void test_sparse_arrays(pqxx::test::context &)
 {
   // Reproduce #922 : NULL not paying for its separator in an array, causing
   // problems in sparse arrays.
@@ -414,7 +414,7 @@ void test_sparse_arrays(pqxx::test::randomizer &)
   PQXX_CHECK_EQUAL(pqxx::to_string(sparseArray), sparseArrayStr);
 }
 
-void test_array_roundtrip(pqxx::test::randomizer &)
+void test_array_roundtrip(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::connection cx;
@@ -447,7 +447,7 @@ void test_array_roundtrip(pqxx::test::randomizer &)
 }
 
 
-void test_array_strings(pqxx::test::randomizer &)
+void test_array_strings(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   std::vector<std::string_view> const inputs{
@@ -472,7 +472,7 @@ void test_array_strings(pqxx::test::randomizer &)
 }
 
 
-void test_array_parses_real_arrays(pqxx::test::randomizer &)
+void test_array_parses_real_arrays(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -525,7 +525,7 @@ void test_array_parses_real_arrays(pqxx::test::randomizer &)
 }
 
 
-void test_array_rejects_malformed_simple_int_arrays(pqxx::test::randomizer &)
+void test_array_rejects_malformed_simple_int_arrays(pqxx::test::context &)
 {
   pqxx::connection cx;
   std::string_view const bad_arrays[]{
@@ -573,7 +573,7 @@ void test_array_rejects_malformed_twodimensional_arrays(
 }
 
 
-void test_array_parses_quoted_strings(pqxx::test::randomizer &)
+void test_array_parses_quoted_strings(pqxx::test::context &)
 {
   pqxx::connection const cx;
   pqxx::array<std::string> const a{
@@ -606,7 +606,7 @@ void test_array_parses_quoted_strings(pqxx::test::randomizer &)
 }
 
 
-void test_array_parses_multidim_arrays(pqxx::test::randomizer &)
+void test_array_parses_multidim_arrays(pqxx::test::context &)
 {
   pqxx::connection const cx;
   pqxx::array<int, 2u> const a{"{{0,1},{2,3}}", cx};
@@ -616,7 +616,7 @@ void test_array_parses_multidim_arrays(pqxx::test::randomizer &)
 }
 
 
-void test_array_at_checks_bounds(pqxx::test::randomizer &)
+void test_array_at_checks_bounds(pqxx::test::context &)
 {
   pqxx::connection const cx;
 
@@ -672,7 +672,7 @@ void test_array_at_checks_bounds(pqxx::test::randomizer &)
 }
 
 
-void test_array_iterates_in_row_major_order(pqxx::test::randomizer &)
+void test_array_iterates_in_row_major_order(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
@@ -708,7 +708,7 @@ void test_array_iterates_in_row_major_order(pqxx::test::randomizer &)
 }
 
 
-void test_result_parses_simple_array(pqxx::test::randomizer &)
+void test_result_parses_simple_array(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::row r;
@@ -788,7 +788,7 @@ template<pqxx::encoding_group ENC> void check_scan_double_quoted_ascii()
 }
 
 
-void test_scan_double_quoted_string(pqxx::test::randomizer &)
+void test_scan_double_quoted_string(pqxx::test::context &)
 {
   using enc = pqxx::encoding_group;
 
@@ -809,7 +809,7 @@ void test_scan_double_quoted_string(pqxx::test::randomizer &)
 }
 
 
-void test_sql_array_parses_to_container(pqxx::test::randomizer &)
+void test_sql_array_parses_to_container(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(
     std::size(pqxx::from_string<std::vector<int>>("{}", make_context())), 0u);

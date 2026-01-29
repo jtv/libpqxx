@@ -6,7 +6,7 @@
 
 namespace
 {
-void test_exceptions(pqxx::test::randomizer &)
+void test_exceptions(pqxx::test::context &)
 {
   std::string const broken_query{"SELECT HORRIBLE ERROR"},
     err{"Error message"};

@@ -66,7 +66,7 @@ void check_connect_string(std::string const &in, std::string const &expected)
 }
 
 
-void test_connection_string_escapes(pqxx::test::randomizer &)
+void test_connection_string_escapes(pqxx::test::context &)
 {
   check_connect_string("pqxxtest", "pqxxtest");
   check_connect_string("'hello'", "hello");

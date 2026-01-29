@@ -7,7 +7,7 @@
 
 namespace
 {
-void test_connection_string_constructor(pqxx::test::randomizer &)
+void test_connection_string_constructor(pqxx::test::context &)
 {
   pqxx::connection const c1{""};
   PQXX_CHECK(c1.is_open());
@@ -18,7 +18,7 @@ void test_connection_string_constructor(pqxx::test::randomizer &)
 }
 
 
-void test_move_constructor(pqxx::test::randomizer &)
+void test_move_constructor(pqxx::test::context &)
 {
   pqxx::connection c1;
   PQXX_CHECK(c1.is_open());
@@ -37,7 +37,7 @@ void test_move_constructor(pqxx::test::randomizer &)
 }
 
 
-void test_move_assign(pqxx::test::randomizer &)
+void test_move_assign(pqxx::test::context &)
 {
   pqxx::connection c1;
   pqxx::connection c2;
@@ -64,7 +64,7 @@ void test_move_assign(pqxx::test::randomizer &)
 }
 
 
-void test_encrypt_password(pqxx::test::randomizer &)
+void test_encrypt_password(pqxx::test::context &)
 {
   pqxx::connection c;
   auto pw{c.encrypt_password("user", "password")};
@@ -75,7 +75,7 @@ void test_encrypt_password(pqxx::test::randomizer &)
 }
 
 
-void test_connection_string(pqxx::test::randomizer &)
+void test_connection_string(pqxx::test::context &)
 {
   pqxx::connection const c;
   std::string const connstr{c.connection_string()};
@@ -151,7 +151,7 @@ template<typename MAP> void test_params_type()
 }
 
 
-void test_connection_params(pqxx::test::randomizer &)
+void test_connection_params(pqxx::test::context &)
 {
   // Connecting in this way supports a wide variety of formats for the
   // parameters.
@@ -167,7 +167,7 @@ void test_connection_params(pqxx::test::randomizer &)
 }
 
 
-void test_raw_connection(pqxx::test::randomizer &)
+void test_raw_connection(pqxx::test::context &)
 {
   pqxx::connection conn1;
   PQXX_CHECK(conn1.is_open());
@@ -187,7 +187,7 @@ void test_raw_connection(pqxx::test::randomizer &)
 }
 
 
-void test_closed_connection(pqxx::test::randomizer &)
+void test_closed_connection(pqxx::test::context &)
 {
   pqxx::connection cx;
   cx.close();
@@ -201,7 +201,7 @@ void test_closed_connection(pqxx::test::randomizer &)
 }
 
 
-void test_skip_init_ssl(pqxx::test::randomizer &)
+void test_skip_init_ssl(pqxx::test::context &)
 {
   pqxx::skip_init_ssl<pqxx::skip_init::openssl, pqxx::skip_init::crypto>();
   pqxx::skip_init_ssl<pqxx::skip_init::nothing>();
@@ -310,7 +310,7 @@ void test_connection_client_encoding(pqxx::test::randomizer &rnd)
 }
 
 
-void test_connection_string_with_overrides(pqxx::test::randomizer &)
+void test_connection_string_with_overrides(pqxx::test::context &)
 {
   // replace parameter from connection string
   {
@@ -463,7 +463,7 @@ void test_connection_string_with_overrides(pqxx::test::randomizer &)
 }
 
 
-void test_quote_columns_quotes_and_escapes(pqxx::test::randomizer &)
+void test_quote_columns_quotes_and_escapes(pqxx::test::context &)
 {
   pqxx::connection const cx;
 

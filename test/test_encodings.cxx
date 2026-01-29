@@ -128,7 +128,7 @@ template<pqxx::encoding_group ENC> void test_search(std::string_view enc_name)
 }
 
 
-void test_find_chars(pqxx::test::randomizer &)
+void test_find_chars(pqxx::test::context &)
 {
   test_search<pqxx::encoding_group::two_tier>("big5");
   test_search<pqxx::encoding_group::ascii_safe>("ascii_safe");
@@ -147,7 +147,7 @@ template<pqxx::encoding_group ENC> void check_unfinished_character()
 }
 
 
-void test_find_chars_fails_for_unfinished_character(pqxx::test::randomizer &)
+void test_find_chars_fails_for_unfinished_character(pqxx::test::context &)
 {
   check_unfinished_character<pqxx::encoding_group::two_tier>();
   check_unfinished_character<pqxx::encoding_group::gb18030>();

@@ -111,7 +111,7 @@ void test_string_conversion(pqxx::test::randomizer &rnd)
 }
 
 
-void test_convert_variant_to_string(pqxx::test::randomizer &)
+void test_convert_variant_to_string(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(std::variant<int, std::string>{99}), "99");
 
@@ -120,7 +120,7 @@ void test_convert_variant_to_string(pqxx::test::randomizer &)
 }
 
 
-void test_integer_conversion(pqxx::test::randomizer &)
+void test_integer_conversion(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::from_string<int>("12"), 12);
   PQXX_CHECK_EQUAL(pqxx::from_string<int>(" 12"), 12);
@@ -136,7 +136,7 @@ void test_integer_conversion(pqxx::test::randomizer &)
 }
 
 
-void test_convert_null(pqxx::test::randomizer &)
+void test_convert_null(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work const tx{cx};
@@ -146,7 +146,7 @@ void test_convert_null(pqxx::test::randomizer &)
 }
 
 
-void test_string_view_conversion(pqxx::test::randomizer &)
+void test_string_view_conversion(pqxx::test::context &)
 {
   using traits = pqxx::string_traits<std::string_view>;
 
@@ -167,7 +167,7 @@ void test_string_view_conversion(pqxx::test::randomizer &)
 }
 
 
-void test_binary_converts_to_string(pqxx::test::randomizer &)
+void test_binary_converts_to_string(pqxx::test::context &)
 {
   std::array<std::byte, 3> const bin_data{
     std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};
@@ -182,7 +182,7 @@ void test_binary_converts_to_string(pqxx::test::randomizer &)
 }
 
 
-void test_string_converts_to_binary(pqxx::test::randomizer &)
+void test_string_converts_to_binary(pqxx::test::context &)
 {
   std::array<std::byte, 3> const bin_data{
     std::byte{0x41}, std::byte{0x42}, std::byte{0x43}};

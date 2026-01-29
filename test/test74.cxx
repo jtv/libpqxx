@@ -8,7 +8,7 @@
 // Test program for libpqxx.  Test fieldstream.
 namespace
 {
-void test_074(pqxx::test::randomizer &)
+void test_074(pqxx::test::context &)
 {
 #include "pqxx/internal/ignore-deprecated-pre.hxx"
   pqxx::connection cx;

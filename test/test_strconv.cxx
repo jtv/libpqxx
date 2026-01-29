@@ -42,7 +42,7 @@ using namespace std::literals;
 using pqxx::operator""_zv;
 
 
-void test_strconv_bool(pqxx::test::randomizer &)
+void test_strconv_bool(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(false), "false", "Wrong to_string(false).");
   PQXX_CHECK_EQUAL(pqxx::to_string(true), "true", "Wrong to_string(true).");
@@ -78,7 +78,7 @@ void test_strconv_bool(pqxx::test::randomizer &)
 }
 
 
-void test_strconv_enum(pqxx::test::randomizer &)
+void test_strconv_enum(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(red), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(green), "1");
@@ -90,7 +90,7 @@ void test_strconv_enum(pqxx::test::randomizer &)
 }
 
 
-void test_strconv_class_enum(pqxx::test::randomizer &)
+void test_strconv_class_enum(pqxx::test::context &)
 {
   PQXX_CHECK_EQUAL(pqxx::to_string(weather::hot), "0");
   PQXX_CHECK_EQUAL(pqxx::to_string(weather::wet), "2");
@@ -111,7 +111,7 @@ void test_strconv_class_enum(pqxx::test::randomizer &)
 }
 
 
-void test_strconv_optional(pqxx::test::randomizer &)
+void test_strconv_optional(pqxx::test::context &)
 {
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::optional<int>{}), pqxx::conversion_error);
@@ -122,7 +122,7 @@ void test_strconv_optional(pqxx::test::randomizer &)
 }
 
 
-void test_strconv_smart_pointer(pqxx::test::randomizer &)
+void test_strconv_smart_pointer(pqxx::test::context &)
 {
   PQXX_CHECK_THROWS(
     pqxx::to_string(std::unique_ptr<int>{}), pqxx::conversion_error);
@@ -444,7 +444,7 @@ void test_to_buf_into_buf(pqxx::test::randomizer &rnd)
 }
 
 
-void test_to_buf_multi(pqxx::test::randomizer &)
+void test_to_buf_multi(pqxx::test::context &)
 {
   std::vector<char> buf{};
   buf.resize(50);

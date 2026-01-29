@@ -8,7 +8,7 @@ namespace
 using pqxx::operator""_zv;
 
 
-void test_statement_params(pqxx::test::randomizer &)
+void test_statement_params(pqxx::test::context &)
 {
   pqxx::connection cx;
   pqxx::work tx{cx};
