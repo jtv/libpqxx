@@ -14,7 +14,7 @@
 struct foo
 {
   int operator[](int i) const { return i; }
-  int operator[](int i, std::source_location l) const { return i - 1; }
+  int operator[](int i, std::source_location) const { return i - 1; }
 };
 
 

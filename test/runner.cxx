@@ -211,10 +211,19 @@ std::string describe_failure(std::string_view test, EXCEPTION const &err)
   if constexpr (requires { err.query(); })
   {
     if (not std::empty(err.query()))
-      return std::format("{} -- {}\nQuery: {}", test, summary, err.query());
+      summary = std::format("{} -- {}\nQuery: {}", test, summary, err.query());
+  }
+  else
+  {
+    summary = std::format("{} -- {}", test, summary);
   }
 
-  return std::format("{} -- {}", test, summary);
+  // TODO: Control this with command-line option, to avoid huge outputs.
+  if constexpr (requires { err.trace(); })
+    if (err.trace())
+      summary = std::format("{}\nTraceback:\n{}", summary, *err.trace());
+
+  return summary;
 }
 
 
