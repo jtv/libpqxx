@@ -278,6 +278,10 @@ parsed_connection_string::parse() const
   std::array<std::vector<char const *>, 2u> output{};
   if (m_options)
   {
+    // Was a value specified for this connection option?
+    static constexpr auto has_value{
+      [](PQconninfoOption const &o) { return o.val != nullptr; }};
+
     // A span across the parsed connection string options.
     auto const parsed{span_options(
       reinterpret_cast<PQconninfoOption const *>(m_options.get()))};
@@ -294,14 +298,10 @@ parsed_connection_string::parse() const
     std::get<0>(output).reserve(std::size(parsed));
     std::get<1>(output).reserve(std::size(parsed));
 
-    // XXX: Pipe syntax to filter out defaulted options?
-    for (auto const &opt : parsed)
+    for (auto const &o : parsed | std::ranges::views::filter(has_value))
     {
-      if (opt.val != nullptr)
-      {
-        output.at(0u).push_back(opt.keyword);
-        output.at(1u).push_back(opt.val);
-      }
+      std::get<0>(output).push_back(o.keyword);
+      std::get<1>(output).push_back(o.val);
     }
   }
   return output;

@@ -1614,6 +1614,15 @@ inline connection::connection(
   {
     auto const key{pqxx::internal::as_c_string(org_key)},
       value{pqxx::internal::as_c_string(org_value)};
+
+    // Did we have a value for key already?  This is a horrible O(n^2) search,
+    // in principle, but there's only so many possible options.  Trying to
+    // optimise this might make it worse in common practical cases.
+    //
+    // (Landau's "large O" notation really only applies to inputs growing
+    // towards infinity.  If there's a known constant bound b such that n < b,
+    // then O(n^2) is at worst O(b^2).  Since b is a constant, O(b^2) boils
+    // down to O(1).)
     auto const it{std::ranges::find_if(keys, [key](char const *existing) {
       return std::strcmp(existing, key) == 0;
     })};
