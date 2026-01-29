@@ -45,7 +45,9 @@ internal_error::~internal_error() noexcept = default;
 
 // Special case: We add a prefix to the message.
 internal_error::internal_error(std::string const &whatarg, sl loc, st &&tr) :
-        failure{std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc, tr}
+        failure{
+          std::format("LIBPQXX INTERNAL ERROR: {}", whatarg), loc,
+          std::move(tr)}
 {}
 
 usage_error::~usage_error() noexcept = default;

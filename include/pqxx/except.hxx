@@ -21,10 +21,6 @@
 #include <stdexcept>
 #include <string>
 
-#if defined(PQXX_HAVE_STACKTRACE)
-#  include <stacktrace>
-#endif
-
 #include "pqxx/types.hxx"
 
 
