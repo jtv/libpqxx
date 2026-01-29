@@ -22,7 +22,7 @@ using randomizer = std::mt19937;
 struct context
 {
   /// Create a context for one thread to run tests.
-  context(unsigned random_seed) : rnd_seed{random_seed} {}
+  context(std::size_t random_seed) : rnd_seed{random_seed} {}
 
   context() = delete;
   context(context const &) = delete;
