@@ -1608,8 +1608,7 @@ inline connection::connection(
     connection_string, loc};
   auto [keys, values]{parsed_string.parse()};
 
-  // Merge key/value pairs into the keys and pairs we got from the connection
-  // string.
+  // Merge key/value pairs into the pairs we got from the connection string.
   for (auto const &[org_key, org_value] : params)
   {
     auto const key{pqxx::internal::as_c_string(org_key)},
