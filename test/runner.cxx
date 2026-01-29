@@ -230,11 +230,11 @@ std::string describe_failure(std::string_view desc, std::string_view test)
 /// Run one test.  Return optional failure message.
 std::optional<std::string> run_test(
   std::string_view name, pqxx::test::testfunc func,
-  pqxx::test::randomizer &rnd)
+  pqxx::test::context &tctx)
 {
   try
   {
-    func(rnd);
+    func(tctx);
   }
   catch (pqxx::test::test_failure const &e)
   {

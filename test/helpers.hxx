@@ -22,7 +22,7 @@ using randomizer = std::mt19937;
 struct context
 {
   /// Create a context for one thread to run tests.
-  context(int random_seed) : rnd_seed{random_seed} {}
+  context(unsigned random_seed) : rnd_seed{random_seed} {}
 
   context() = delete;
   context(context const &) = delete;
@@ -33,27 +33,27 @@ struct context
   /// Seed the randomiser using the original seed.
   /** Do this before every individual test to get reproducible test sequences.
    */
-  void seed(std::string_view test_name) { rnd(rnd_seed ^ hasher(test_name)); }
+  void seed(std::string_view test_name) { rnd.seed(rnd_seed ^ string_hasher(test_name)); }
 
   /// Return an arbitrary nonnegative integer.
   int make_num() { return static_cast<int>(rnd() >> 1); }
 
   /// Return an arbitrary nonnegative integer below `ceiling`.
-  int make_num(int ceiling) { return make_num(rnd) % ceiling; }
+  int make_num(int ceiling) { return make_num() % ceiling; }
 
   /// Return an arbitrary nonzero `char` value from the full 8-bit range.
   char random_char()
   {
     return static_cast<char>(
-      static_cast<std::uint8_t>(make_num(rnd, 255) + 1));
+      static_cast<std::uint8_t>(make_num(255) + 1));
   }
 
   /// Return an arbitrary numeric floating-point value.  (No NaN or inifinity.)
   template<std::floating_point T> T make_float_num()
   {
-    auto const x{make_num(rnd)}, z{make_num(rnd)};
-    auto y{make_num(rnd)};
-    while (y == x) y = make_num(rnd);
+    auto const x{make_num()}, z{make_num()};
+    auto y{make_num()};
+    while (y == x) y = make_num();
     return static_cast<T>(x - y) / static_cast<T>(z);
   }
 
@@ -62,7 +62,7 @@ struct context
   {
     // In principle we should seed the random generator, but the scheduling of
     // threads will jumble up the numbers anyway.
-    return std::format("{}_{}", prefix, make_num(rnd));
+    return std::format("{}_{}", prefix, make_num());
   }
 
 private:
@@ -105,7 +105,7 @@ void drop_table(
   transaction_base &, std::string const &table, sl loc = sl::current());
 
 
-using testfunc = void (*)(pqxx::test::randomizer &);
+using testfunc = void (*)(pqxx::test::context &);
 
 
 /// Maximum number of tests in the test suite.
