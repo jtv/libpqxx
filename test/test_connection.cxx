@@ -297,7 +297,7 @@ void test_connection_client_encoding(pqxx::test::context &tctx)
 
   for (int i{0}; i < 10; ++i)
   {
-    std::string fake_encoding{pqxx::test::random_char(rnd)};
+    std::string fake_encoding{tctx.random_char()};
     PQXX_CHECK_THROWS(cx.set_client_encoding(fake_encoding), pqxx::failure);
   }
 
